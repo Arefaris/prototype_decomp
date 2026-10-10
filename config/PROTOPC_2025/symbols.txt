@@ -1,4 +1,4 @@
-; Known symbols of prototypeenginef.dll (PROTOPC_2025): mangled name = virtual address ; note
+; Known symbols of prototypeenginef.dll (PROTOPC_2025): mangled name = virtual address ; kind size:0xN | note
 ; Names marked "guess" are ours, not the original's; they will be renamed when the binary tells the real ones.
-?UnpackNormal@Vector@math@@QAEXI@Z = 0x107CE990 ; math::Vector::UnpackNormal (method name guess)
-?IdentityRotation@Matrix@math@@QAEXXZ = 0x107CEAF0 ; math::Matrix::IdentityRotation (class and method name guess)
+?UnpackNormal@Vector@math@@QAEXI@Z = 0x107CE990 ; function size:0x8E | math::Vector::UnpackNormal (method name guess)
+?IdentityRotation@Matrix@math@@QAEXXZ = 0x107CEAF0 ; function size:0x38 | math::Matrix::IdentityRotation (class and method name guess)

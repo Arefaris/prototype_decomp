@@ -62,3 +62,16 @@ The relinker copies the original's PE time stamp into the hybrid DLL, so tools t
 `symbols.txt` holds mangled names. Names come from the binary where it has them: RTTI (`config/<VERSION>/classes.tsv`,
 `rtti.tsv`), exports, assert texts, reflection and Lua registration strings. A name we had to invent is marked
 `guess` in its comment and renamed once the binary tells the real one.
+
+## The Ghidra database
+
+`python tools/ghidra/ghidra.py import` creates `local/ghidra/prototype.gpr` and auto-analyses the DLL (about 10
+minutes). Scripts in `tools/ghidra/scripts` then run on the saved program in seconds:
+
+| Script | What it does |
+|---|---|
+| `ExportFunctions.java <out.tsv>` | every function: entry, size, thunk flag, calling convention, name, body ranges |
+| `ImportSymbols.java config/<VERSION>/symbols.txt` | our names as primary labels, demangled into signatures; creates dead functions auto-analysis missed |
+| `ImportReferenceIndex.java docs/reference/address_index.tsv` | a bookmark at each of the 2 644 addresses the reference notes discuss, naming the notes |
+
+Run `ImportSymbols.java` after every change to `symbols.txt` so the decompiler shows our names.
