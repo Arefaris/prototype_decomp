@@ -67,3 +67,4 @@
 ?CopyFrom@Matrix3@math@@QAEXABVMatrix@2@@Z = 0x107D3D40 ; function size:0x41 | math::Matrix3::CopyFrom (name guess)
 ?Transform@OBB@math@@QAEXABVMatrix@2@@Z = 0x107D43B0 ; function size:0x37 | math::OBB::Transform(const Matrix&)
 ?Transform@OBB@math@@QAEXABVMatrix@2@ABV12@@Z = 0x107D43F0 ; function size:0x5B | math::OBB::Transform(const Matrix&, const OBB&)
+?FromMatrix@Quaternion@math@@QAEXABVMatrix@2@@Z = 0x107CDB10 ; function size:0x1C8 | math::Quaternion::FromMatrix (name guess)

@@ -5,6 +5,7 @@
 
 namespace math
 {
+	class Matrix;
 	class Vector;
 
 	class Quaternion
@@ -21,6 +22,8 @@ namespace math
 		int IsNormalized() const;
 		// Rotation by angle radians about a unit axis
 		void FromAxisAngle(float angle, const Vector& axis);
+		// The rotation of the upper 3x3 of mat (Shoemake's method; note w comes out negated, the engine's convention)
+		void FromMatrix(const Matrix& mat);
 		// Rotation by angle radians about X / Y / Z
 		void RotationX(float angle);
 		void RotationY(float angle);
