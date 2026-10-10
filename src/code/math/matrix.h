@@ -22,6 +22,14 @@ namespace math
 		void RotationX(float angle);
 		void RotationY(float angle);
 		void RotationZ(float angle);
+		// Sets the translation row
+		void SetTranslation(const Vector& v);
+		// Sets the upper 3x3 to a scale (leaving translation and the last column)
+		void Scale(float sx, float sy, float sz);
+		void Scale(float s);
+		// Transposes the whole 4x4 / only the upper 3x3, in place
+		void Transpose();
+		void Transpose3x3();
 		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)
 		void Transform(const Vector& v, Vector& out) const;
 		// out = v as a direction (row vector times the 3x3)

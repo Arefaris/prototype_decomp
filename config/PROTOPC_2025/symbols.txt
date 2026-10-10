@@ -35,3 +35,8 @@
 ?Rotate@Matrix@math@@QBEXABVVector@2@AAV32@@Z = 0x107CFA80 ; function size:0x8E | math::Matrix::Rotate (name guess)
 ?RotateInverse@Matrix@math@@QBEXABVVector@2@AAV32@@Z = 0x107CFB10 ; function size:0x8E | math::Matrix::RotateInverse (name guess)
 ?Transform@Matrix@math@@QBEXHPBVVector@2@PAV32@@Z = 0x107CFBA0 ; function size:0x29 | math::Matrix::Transform(int, const Vector*, Vector*) (name guess)
+?SetTranslation@Matrix@math@@QAEXABVVector@2@@Z = 0x107CF1D0 ; function size:0x18 | math::Matrix::SetTranslation (name guess)
+?Scale@Matrix@math@@QAEXMMM@Z = 0x107CF1F0 ; function size:0x44 | math::Matrix::Scale(float, float, float) (name guess)
+?Scale@Matrix@math@@QAEXM@Z = 0x107CF240 ; function size:0x38 | math::Matrix::Scale(float) (name guess)
+?Transpose@Matrix@math@@QAEXXZ = 0x107CF3D0 ; function size:0x61 | math::Matrix::Transpose (name guess)
+?Transpose3x3@Matrix@math@@QAEXXZ = 0x107CF440 ; function size:0x31 | math::Matrix::Transpose3x3 (name guess)

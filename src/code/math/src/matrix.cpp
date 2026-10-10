@@ -59,6 +59,67 @@ namespace math
 		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f;
 	}
 
+	// FUNCTION: ENGINE 0x107CF1D0
+	void Matrix::SetTranslation(const Vector& v)
+	{
+		m[3][0] = v.x;
+		m[3][1] = v.y;
+		m[3][2] = v.z;
+	}
+
+	// FUNCTION: ENGINE 0x107CF1F0
+	void Matrix::Scale(float sx, float sy, float sz)
+	{
+		m[0][0] = sx; m[0][1] = 0.0f; m[0][2] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = sy; m[1][2] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = sz;
+	}
+
+	// FUNCTION: ENGINE 0x107CF240
+	void Matrix::Scale(float s)
+	{
+		m[0][0] = s; m[0][1] = 0.0f; m[0][2] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = s; m[1][2] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = s;
+	}
+
+	// FUNCTION: ENGINE 0x107CF3D0
+	void Matrix::Transpose()
+	{
+		float m01 = m[0][1];
+		float m02 = m[0][2];
+		float m03 = m[0][3];
+		float m12 = m[1][2];
+		float m13 = m[1][3];
+		float m23 = m[2][3];
+		m[0][1] = m[1][0];
+		m[0][2] = m[2][0];
+		m[0][3] = m[3][0];
+		m[1][0] = m01;
+		m[1][2] = m[2][1];
+		m[2][0] = m02;
+		m[2][1] = m12;
+		m[1][3] = m[3][1];
+		m[3][0] = m03;
+		m[3][1] = m13;
+		m[2][3] = m[3][2];
+		m[3][2] = m23;
+	}
+
+	// FUNCTION: ENGINE 0x107CF440
+	void Matrix::Transpose3x3()
+	{
+		float m01 = m[0][1];
+		float m02 = m[0][2];
+		float m12 = m[1][2];
+		m[0][1] = m[1][0];
+		m[0][2] = m[2][0];
+		m[1][0] = m01;
+		m[2][0] = m02;
+		m[1][2] = m[2][1];
+		m[2][1] = m12;
+	}
+
 	// FUNCTION: ENGINE 0x107CF8F0
 	// EQUIVALENT: same operations in the same order; the original keeps v.y in xmm1 and v.z in xmm0, we get the reverse
 	void Matrix::Transform(const Vector& v, Vector& out) const
