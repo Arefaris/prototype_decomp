@@ -102,10 +102,22 @@ against the VC8 object) passed 956 comparisons against the pinned original funct
 boundaries, microsecond carries, subtraction to zero, float conversion and 64-bit scaling. The hybrid DLL
 reached free roam in an isolated test copy; movement, pause, single-step and resume commands completed.
 
+## controllerxinput.cpp (0x10648FF0 - 0x106492BA): leaf methods
+
+RTTI identifies the two reconstructed classes as `core::ControllerOutputPointXInput` and
+`core::ControllerInputPointXInput`. Eleven leaf virtual methods match: scalar output get/set, scalar input count/read,
+clamped scale get/set, binding pair set/clear, scaled range read, and range get/set. The output setter preserves the
+original NaN behavior and marks the value dirty only when the incoming value is not equal to the stored value.
+Class names are observed; method/member names are guesses from vtable position and behavior.
+Validation (2026-10-10): `ninja check` passes all 326 matching annotations. These eleven functions contribute
+271 exact bytes. The hybrid DLL verifier reports no differing bytes or relocation targets, the unit compiles with
+MSVC 2022 x86, and the refreshed test copy reaches free roam and accepts movement input.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
   encoding, leaf, recursive fallback).
-- 0x10648F70 - 0x106492C0: a run of small functions with float maths (not looked at).
+- 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
+  input conversion.
