@@ -69,3 +69,6 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - Struct copies come out as `mov`; member-by-member float copies as `movss`. Results computed into temporaries and
   stored together look like an inline `Set(x, y, z)`.
 - Namespace-scope `const float` constants become data symbols; their values are checked like `__real@` ones.
+- The CRT is statically linked into the original, so compiler helpers (`__allmul`, `_CIacos`, `_ftol2`, ...) are
+  functions of the image: when the relink reports one unresolved, find it (REA `search_procedures`, or the call in
+  the original function) and add it to `symbols.txt` like any function.
