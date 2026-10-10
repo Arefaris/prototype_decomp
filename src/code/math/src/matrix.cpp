@@ -8,18 +8,10 @@
 namespace math
 {
 	// GLOBAL: ENGINE 0x111BB9E0
-	// Defined by the engine's data; declared here so our code links against it
-	// (the definition stays in the image until the data of the math module is reconstructed)
-
-	// FUNCTION: ENGINE 0x100600B0
-	Matrix& Matrix::operator=(const Matrix& o)
-	{
-		m[0][0] = o.m[0][0]; m[0][1] = o.m[0][1]; m[0][2] = o.m[0][2]; m[0][3] = o.m[0][3];
-		m[1][0] = o.m[1][0]; m[1][1] = o.m[1][1]; m[1][2] = o.m[1][2]; m[1][3] = o.m[1][3];
-		m[2][0] = o.m[2][0]; m[2][1] = o.m[2][1]; m[2][2] = o.m[2][2]; m[2][3] = o.m[2][3];
-		m[3][0] = o.m[3][0]; m[3][1] = o.m[3][1]; m[3][2] = o.m[3][2]; m[3][3] = o.m[3][3];
-		return *this;
-	}
+	// Matrix::IDENTITY is defined by the engine's data; declared in matrix.h so our code links against it
+	// (the definition stays in the image until the data of the math module is reconstructed).
+	// Matrix::operator= lives in another unit (matrix_assign.cpp): inside matrix.cpp the original compiler saw it as an
+	// external call, which shows in the register use of Identity's callers.
 
 	// FUNCTION: ENGINE 0x107CEAE0
 	void Matrix::Identity()
