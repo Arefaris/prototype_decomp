@@ -41,9 +41,34 @@ library, not to symbols.txt (the import thunks 0x10A884EE / 0x10A8835C are defin
 0x10645D40 - 0x10645EDB in front of it are allocator interface objects (vftables 0x10D96DB8, 0x10E473E0,
 0x10E473F4), another unit.
 
+## memory/rangemap.cpp (0x10646140 - 0x10646574): 13 matched, 1 EQUIVALENT
+
+`core::RangeMap` (class name guessed): sorted (address, heap index) pairs, the map from address ranges to heaps that
+the heap registration (0x1063AE10) fills with Set and reads with Find / Get. Placed under memory/ for that reason.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10646400 | Set(start, end, value, int* previous) | 9 % | EQUIVALENT in tree: same blocks and order; the original keeps the index in edi and `end` in ebx (later `value`), ours keeps the index in ebx with an `index * 8` temporary in edi and reloads `end` / `value`; it also repeats the `key == start` test (the nested / spelled-apart forms do not bring it back) |
+
+## memory/memoryallocatormalloc.cpp (0x106465B0 - 0x10646995): done
+
+`core::MemoryAllocatorMalloc` (RTTI name): all 28 functions matched, including the inline constructor /
+destructor (defined in the class body so that the deleting destructor and InitSystemAllocator inline them; the
+compiler still emits the out-of-line copies), the static helpers with register arguments and the 18-slot
+`IMemoryAllocator` interface (`code/core/memory/imemoryallocator.h`, member names guessed from this class). Left
+alone: 0x106465D0 - 0x10646600 and 0x106467D0, four interlocked helpers (atomic read via `_InterlockedAnd(p, -1)`,
+increment, decrement; register arguments) that nothing in the unit calls. Link notes: the deleting destructor needs
+`??3@YAXPAX@Z` (operator delete 0x107DEFD0) and RTTI needs `??_7type_info@@6B@` (0x10E9A9A4) in symbols.txt;
+`IsDebuggerPresent` is declared without `__stdcall` because the generated kernel32.lib names the slot
+`__imp__IsDebuggerPresent`.
+
 ## Candidates nearby (leaf functions, not started)
 
-- 0x10646140 - 0x10646400: a sorted array of (key, value) pairs (binary search at 0x10646310, insert/erase, grow
-  through the allocator 0x1063A850); `__thiscall` methods of an unnamed container.
+- 0x10646580 - 0x106465A0: two tiny global-allocator forwarders (`return second argument`, a virtual call on the
+  system allocator pointer 0x1127A894) between RangeMap and MemoryAllocatorMalloc.
+- 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
+  0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
+- 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
+  encoding, leaf, recursive fallback).
 - 0x1063CBB0 - 0x1063CD00: five small float functions (not looked at).
 - 0x10648F70 - 0x106492C0: a run of small functions with float maths (not looked at).
