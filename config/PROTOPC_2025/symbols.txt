@@ -40,3 +40,6 @@
 ?Scale@Matrix@math@@QAEXM@Z = 0x107CF240 ; function size:0x38 | math::Matrix::Scale(float) (name guess)
 ?Transpose@Matrix@math@@QAEXXZ = 0x107CF3D0 ; function size:0x61 | math::Matrix::Transpose (name guess)
 ?Transpose3x3@Matrix@math@@QAEXXZ = 0x107CF440 ; function size:0x31 | math::Matrix::Transpose3x3 (name guess)
+?Transpose@Matrix@math@@QAEXABV12@@Z = 0x107CF480 ; function size:0x65 | math::Matrix::Transpose(const Matrix&) (name guess)
+?InvertOrthonormal@Matrix@math@@QAEXXZ = 0x107CF530 ; function size:0x9A | math::Matrix::InvertOrthonormal (name guess)
+?Scale3x3@Matrix@math@@QAEXM@Z = 0x107D0D90 ; function size:0x85 | math::Matrix::Scale3x3 (name guess)

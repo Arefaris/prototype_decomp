@@ -30,6 +30,12 @@ namespace math
 		// Transposes the whole 4x4 / only the upper 3x3, in place
 		void Transpose();
 		void Transpose3x3();
+		// Sets this matrix to the transpose of src (src must not be this matrix)
+		void Transpose(const Matrix& src);
+		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
+		void InvertOrthonormal();
+		// Multiplies the upper 3x3 by s
+		void Scale3x3(float s);
 		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)
 		void Transform(const Vector& v, Vector& out) const;
 		// out = v as a direction (row vector times the 3x3)

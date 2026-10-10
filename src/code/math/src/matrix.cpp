@@ -120,6 +120,27 @@ namespace math
 		m[2][1] = m12;
 	}
 
+	// FUNCTION: ENGINE 0x107CF480
+	void Matrix::Transpose(const Matrix& src)
+	{
+		m[0][0] = src.m[0][0]; m[0][1] = src.m[1][0]; m[0][2] = src.m[2][0]; m[0][3] = src.m[3][0];
+		m[1][0] = src.m[0][1]; m[1][1] = src.m[1][1]; m[1][2] = src.m[2][1]; m[1][3] = src.m[3][1];
+		m[2][0] = src.m[0][2]; m[2][1] = src.m[1][2]; m[2][2] = src.m[2][2]; m[2][3] = src.m[3][2];
+		m[3][0] = src.m[0][3]; m[3][1] = src.m[1][3]; m[3][2] = src.m[2][3]; m[3][3] = src.m[3][3];
+	}
+
+	// FUNCTION: ENGINE 0x107CF530
+	void Matrix::InvertOrthonormal()
+	{
+		Transpose3x3();
+		float x = -m[3][0];
+		float y = -m[3][1];
+		float z = -m[3][2];
+		m[3][0] = m[2][0] * z + m[1][0] * y + m[0][0] * x;
+		m[3][1] = m[2][1] * z + m[1][1] * y + m[0][1] * x;
+		m[3][2] = m[2][2] * z + m[1][2] * y + m[0][2] * x;
+	}
+
 	// FUNCTION: ENGINE 0x107CF8F0
 	// EQUIVALENT: same operations in the same order; the original keeps v.y in xmm1 and v.z in xmm0, we get the reverse
 	void Matrix::Transform(const Vector& v, Vector& out) const
@@ -165,5 +186,14 @@ namespace math
 			in++;
 			out++;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x107D0D90
+	// EQUIVALENT: the same multiplications in the same order; the original loads m[0][0] before s (94.7 %)
+	void Matrix::Scale3x3(float s)
+	{
+		m[0][0] *= s; m[0][1] *= s; m[0][2] *= s;
+		m[1][0] *= s; m[1][1] *= s; m[1][2] *= s;
+		m[2][0] *= s; m[2][1] *= s; m[2][2] *= s;
 	}
 }
