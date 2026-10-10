@@ -80,6 +80,16 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107D48E0 | GetSphere | 12.6 % | |
 | 0x107D49B0 | GetCorner | 100 % | waits for GetCornerOffset (same unit, register knowledge) |
 
+## plane.cpp (0x107D8740 - 0x107D8E10)
+
+Polar / spherical conversions, Factorial, Sinc, Log2 (mathutils.cpp) and Plane::IsBoxPartlyBehind, IsBoxBehind,
+IntersectSegment, Transform match. Left:
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x107D89E0 | Plane::Set(a, b, c) | 93.1 % | EQUIVALENT in tree (Sub, Cross, Dot inline helpers); two commutative products come out with the operands swapped (e1.z * e2.y in the cross, a.z * normal.z in the dot); the compiler canonicalises them regardless of source order. 99 % in a spike where NormalizeFast was called through a cast wrapper |
+| 0x107D8C80 | Plane::IntersectRay(origin, direction, hit) | 51 % | same instructions; SSE registers of normal.y / direction.x / normal.z rotated (original xmm2 / xmm3 / xmm4, ours xmm4 / xmm2 / xmm3); permuter plateau with Dot / Distance helpers, nested ifs, operand and term orders |
+
 ## Further units of the region
 
 0x107D49F0 - 0x107D5F60: a keyed spline (two matrices and a time flag per segment, Hermite / Catmull-Rom tangents,

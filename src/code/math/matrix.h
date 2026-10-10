@@ -3,10 +3,10 @@
 #ifndef MATH_MATRIX_H
 #define MATH_MATRIX_H
 
+#include "code/math/vector.h"
+
 namespace math
 {
-	class Vector;
-
 	class Matrix
 	{
 	public:
@@ -32,6 +32,13 @@ namespace math
 		void RotationZ(float angle);
 		// Sets the translation row
 		void SetTranslation(const Vector& v);
+		// Copies the translation row into out (inlined by the engine, seen in Plane::Transform; name guessed)
+		void GetTranslation(Vector& out) const
+		{
+			out.x = m[3][0];
+			out.y = m[3][1];
+			out.z = m[3][2];
+		}
 		// Sets the upper 3x3 to a scale (leaving translation and the last column)
 		void Scale(float sx, float sy, float sz);
 		void Scale(float s);

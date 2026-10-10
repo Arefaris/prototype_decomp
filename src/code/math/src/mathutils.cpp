@@ -2,9 +2,14 @@
 
 #include "code/math/mathconstants.h"
 #include "code/math/mathutils.h"
+#include "code/math/sincos.h"
 
 namespace math
 {
+	// GLOBAL: ENGINE 0x111BBD60
+	// 0! .. 31! as floats, defined by the engine's data (name guessed)
+	extern const float FACTORIAL_TABLE[32];
+
 	// FUNCTION: ENGINE 0x107CD360
 	float InvSqrt(float value)
 	{
@@ -32,4 +37,90 @@ namespace math
 			+ 1.0f) * x;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x107D8740
+	void PolarToCartesian(float r, float angle, float* x, float* z)
+	{
+		SinCos(angle, x, z);
+		*x *= r;
+		*z *= r;
+	}
+
+	// FUNCTION: ENGINE 0x107D8780
+	void CartesianToSpherical(float x, float y, float z, float* r, float* theta, float* phi)
+	{
+		float length = sqrtf(x * x + y * y + z * z);
+		*r = length;
+		*phi = acosf(z / length);
+		*theta = atan2f(y, x);
+	}
+
+	// FUNCTION: ENGINE 0x107D87C0
+	void SphericalToCartesian(float r, float theta, float phi, float* x, float* y, float* z)
+	{
+		float sinPhi;
+		float cosTheta;
+		float sinTheta;
+		float cosPhi;
+		SinCos(phi, &sinPhi, &cosPhi);
+		SinCos(theta, &sinTheta, &cosTheta);
+		float rs = sinPhi * r;
+		*x = rs * cosTheta;
+		*y = rs * sinTheta;
+		*z = cosPhi * r;
+	}
+
+	// FUNCTION: ENGINE 0x107D8850
+	float Factorial(int n)
+	{
+		if (n < 32)
+		{
+			return FACTORIAL_TABLE[n];
+		}
+		float result = 1.0f;
+		while (n >= 32)
+		{
+			result *= (float)n;
+			n--;
+		}
+		return FACTORIAL_TABLE[31] * result;
+	}
+
+	// FUNCTION: ENGINE 0x107D8920
+	float Sinc(float x)
+	{
+		if (x != 0.0f)
+		{
+			return sinf(x) / x;
+		}
+		return 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107D8950
+	int Log2(unsigned int v)
+	{
+		int shift;
+		if (v & 0xFFFF0000)
+		{
+			v >>= 16;
+			shift = 16;
+		}
+		else
+		{
+			shift = 0;
+		}
+		if (v & 0xFF00)
+		{
+			v >>= 8;
+			shift |= 8;
+		}
+		if (v & 0xF0)
+		{
+			v >>= 4;
+			shift |= 4;
+		}
+		// Highest set bit of a nibble; the engine builds the table on the stack
+		char table[16] = { 0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3 };
+		return table[v] | shift;
+	}
 }

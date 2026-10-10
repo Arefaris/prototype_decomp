@@ -10,6 +10,18 @@ namespace math
 	float AtanRatio(float a, float b);
 	// Odd polynomial (degree 13) approximation of sin(x) for small x
 	float SinPolynomial(float x);
+	// (r, angle) to x = r sin(angle), z = r cos(angle)
+	void PolarToCartesian(float r, float angle, float* x, float* z);
+	// (x, y, z) to r = |v|, theta = atan2(y, x), phi = acos(z / r)
+	void CartesianToSpherical(float x, float y, float z, float* r, float* theta, float* phi);
+	// (r, theta, phi) to x = r sin(phi) cos(theta), y = r sin(phi) sin(theta), z = r cos(phi)
+	void SphericalToCartesian(float r, float theta, float phi, float* x, float* y, float* z);
+	// n! as a float: from FACTORIAL_TABLE for n < 32, else 31! times the product 32 .. n
+	float Factorial(int n);
+	// sin(x) / x, 1 at 0
+	float Sinc(float x);
+	// Position of the highest set bit of v (0 for v = 0 and 1)
+	int Log2(unsigned int v);
 }
 
 #endif

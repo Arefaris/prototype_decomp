@@ -26,6 +26,30 @@ namespace math
 			y = newY;
 			z = newZ;
 		}
+		// Component-wise helpers the engine inlines (seen in Plane::Set and Plane::Transform; names guessed)
+		void Add(const Vector& a, const Vector& b)
+		{
+			x = a.x + b.x;
+			y = a.y + b.y;
+			z = a.z + b.z;
+		}
+		void Sub(const Vector& a, const Vector& b)
+		{
+			x = a.x - b.x;
+			y = a.y - b.y;
+			z = a.z - b.z;
+		}
+		// this = a x b, without the zero check of CrossProduct
+		void Cross(const Vector& a, const Vector& b)
+		{
+			x = a.y * b.z - a.z * b.y;
+			y = a.z * b.x - a.x * b.z;
+			z = a.x * b.y - a.y * b.x;
+		}
+		float Dot(const Vector& v) const
+		{
+			return x * v.x + y * v.y + z * v.z;
+		}
 
 		// Nonzero when every component is within EPSILON_SMALL of zero
 		int IsZero() const;
