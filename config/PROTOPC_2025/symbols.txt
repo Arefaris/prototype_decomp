@@ -194,3 +194,5 @@ __allmul = 0x10A88370 ; function size:0x34 | CRT 64-bit multiply helper (statica
 ?GetSegment@Capsule@math@@QBEXAAVSegment@2@@Z = 0x107DC4D0 ; function size:0x78 | math::Capsule::GetSegment
 ?GetAABB@Capsule@math@@QBEXAAVAABB@2@@Z = 0x107DC760 ; function size:0x7F | math::Capsule::GetAABB
 ?IsClose@Vector4@math@@QBEHABV12@M@Z = 0x107DD1A0 ; function size:0x53 | math::Vector4::IsClose (name guess)
+?IntersectRay@Sphere@math@@QBE_NABVVector@2@0AAM@Z = 0x107DCD20 ; function size:0xC8 | math::Sphere::IntersectRay (name guess)
+?IntersectRayFirst@Sphere@math@@QBE_NABVVector@2@0AAM@Z = 0x107DCDF0 ; function size:0xD1 | math::Sphere::IntersectRayFirst (name guess)

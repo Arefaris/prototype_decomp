@@ -162,3 +162,20 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | --- | --- | --- | --- |
 | 0x107DD470 | Matrix::SetRowsLerp(t, v): row i = (1-t) v_i (1,1,1) + t e_i | 71.4 % | same code, registers of t and v.x swapped; loop forms are worse |
 | 0x107DD690 | 726 bytes | — | not looked at |
+
+## sphere.cpp / capsule.cpp (0x107DC390–0x107DD1A0), partly in the tree
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x107DCD20 | Sphere::IntersectRay | 95.5 % | EQUIVALENT in the tree: only the xmm numbers of dx/dy/dz differ, every sum/product order gives the same code |
+| 0x107DCDF0 | Sphere::IntersectRayFirst | 93.3 % | EQUIVALENT in the tree, same difference |
+| 0x107DCF50 | Sphere::GetAABB | 38.6 % | original keeps centre in xmm7/1/2 and copies before subtracting; max.x = r + c.x |
+| 0x107DCFB0 | Sphere::AddPoint | 33.8 % | |
+| 0x107DD090 | Sphere::AddSphere | 69.9 % | Vector d local (three stack slots), early returns `if (radius >= other.radius + distance)` |
+| 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
+| 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
+| 0x107DC550 | Capsule::Contains(p) (t clamped to +-halfLength, dist² < r²) | 13.6 % | |
+| 0x107DC800 | Capsule::ContainsStrict? (|t| > halfLength -> false) | 12.3 % | returns bool |
+| 0x107DC620 | Capsule::GetDirection(p, dir, dist) | 24.1 % | zero case builds a perpendicular and NormalizeFast |
+| 0x107DCC10 | AABB of {centre, direction(3..5), halfLength(6), radius(7)} (another class) | — | not drafted |
+| 0x107DBCC0 | Intersects(const Triangle&, const Sphere&) | 62.5 % | x87 squares in the order dx, dz, dy (handed to the plane agent) |
