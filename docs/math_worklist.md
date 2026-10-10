@@ -74,7 +74,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107D4450 | GetAABB | 13.5 % | products in SSE through Vector temporaries, fabs in x87 |
-| 0x107D4560 | GetCornerOffset(out, bits) | 44.6 % | permuter running |
+| 0x107D4560 | GetCornerOffset(out, bits) | 45.6 % | permuter plateau (300 compilations); structure differs |
 | 0x107D4630 | Contains | 96.6 % | dot product term order |
 | 0x107D46D0 | closest point / depth | - | |
 | 0x107D48E0 | GetSphere | 12.6 % | |
@@ -94,3 +94,38 @@ IntersectSegment, Transform match. Left:
 
 0x107D49F0 - 0x107D5F60: a keyed spline (two matrices and a time flag per segment, Hermite / Catmull-Rom tangents,
 forward differencing). 0x107D5FE0 onwards: not surveyed.
+
+## segment.cpp (0x107D6F40–0x107D7650), not in the tree
+
+Segment is `{Vector start; Vector end;}`. The compiler keeps `d = end - start` and `v = p - start` as memory Vectors
+and reads them back in x87 with term orders that change from function to function (x,z,y dot products; (z²+y²)+x²
+lengths), so plain float locals, Vector locals with inline Dot/Length and operator- forms all plateau.
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x107D6F40 | component-wise min/max of two vectors into (min, max) | — | not drafted (do-while from 3, `if (b <= a)`) |
+| 0x107D7020 | closest point + distance² | — | not drafted |
+| 0x107D72D0 | Parameter(p) = dot(p-s, d) / dot(d, d) | 23.5 % | SSE prologue matches, x87 part does not |
+| 0x107D7380 | GetSphere(centre = (s+e)/2, radius = |s-e|) | 21.4 % | d must be an SSE-stored Vector, Length in x87 |
+| 0x107D7420 | DistanceSquared(p) (clamped projection) | 4.3 % | three different sum orders in one function |
+| 0x107D7570 | DistanceSquaredToLine(p) | 17.0 % | |
+
+## random.cpp (0x107D8380–0x107D8740), partly in the tree
+
+Seed x2 match (Step by reference). The vector functions keep the three raw 32-bit values live and convert them late.
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x107D8460 | NextVector01(Vector&) -> Vector& | 21.4 % | `out.Set(NextFloat01() x3)`; original interleaves the three Next() before the bit tricks |
+| 0x107D8560 | NextVector11(Vector&) -> Vector& | 5 % | same shape with 0x40000000 / -3.0f |
+| 0x107D8660 | NextUnitVector(Vector&) | 26.3 % | rejection loop on NextVector11 (0.001 < len² <= 1), x87 1/sqrt |
+
+## symmetricmatrix.cpp (0x107D9100–0x107D9A00), partly in the tree
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x107D96C0 | Transform(const Vector&, Vector&) | 10.4 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first |
+| 0x107D9290 | Transform(const Matrix&) (R S R^T) | — | not drafted |
+| 0x107D9510 | adjugate-like | — | not drafted |
+| 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
+| 0x107D97B0 | Print (assert channel " Math  Pre ", static enable flag 0x111BBDE8) | — | needs the log function 0x1063C750 |

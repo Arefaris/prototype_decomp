@@ -183,8 +183,10 @@ def main():
 		best = (initial, evaluate(initial))
 		print(f"  start {best[1]:.1f} %", flush=True)
 		state, current = best
-		while evaluations < args.limit and best[1] < 100.0:
+		idleRestarts = 0  # restarts that compiled nothing new: the whole space is cached
+		while evaluations < args.limit and best[1] < 100.0 and idleRestarts < 20:
 			improved = False
+			before = evaluations
 			for trial in neighbours(state, rng):
 				value = evaluate(trial)
 				if value > current:
@@ -199,6 +201,7 @@ def main():
 				# Local optimum: restart from a shuffled copy of the best state
 				state = [tuple(rng.sample(order, len(order))) for order in best[0]]
 				current = evaluate(state)
+			idleRestarts = idleRestarts + 1 if evaluations == before else 0
 	out = pathlib.Path(args.out or source.with_suffix(".best.cpp"))
 	out.write_text(render(text, allSpots, best[0]), encoding="utf-8")
 	print(f"best {best[1]:.1f} % after {evaluations} compilations -> {out}")
