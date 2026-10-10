@@ -50,7 +50,10 @@ Measured over the whole `.text` (7.2 million instructions) on 2026-10-10:
 | `MSVCR80.dll` imports | `/MD` |
 | `int3` padding between functions | `/Gy` with incremental linking off; functions aligned by the linker |
 
-Still to be settled by the matching spike: `/fp:fast` vs `/fp:precise`, `/Ob2`, `/Oi`, `/GF`, struct packing.
+**Confirmed by matching (2026-10-10):** `cl /c /O2 /arch:SSE /fp:fast /GS- /GR /MD /Gy` reproduces
+`Vector`'s 10:10:10 normal unpacking (`0x107CE990`, 142 bytes) and a matrix rotation reset (`0x107CEAF0`, 56 bytes)
+byte for byte. With `/fp:precise` the first one comes out as x87 code with a stack frame, nothing like the original.
+Still open: `/Ob` level, `/Oi`, `/GF`, struct packing; they will show in larger functions.
 
 ## Analysis
 
