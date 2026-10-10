@@ -53,12 +53,20 @@ Measured over the whole `.text` (7.2 million instructions) on 2026-10-10:
 **Confirmed by matching (2026-10-10):** `cl /c /O2 /arch:SSE /fp:fast /GS- /GR /MD /Gy` reproduces
 `Vector`'s 10:10:10 normal unpacking (`0x107CE990`, 142 bytes) and a matrix rotation reset (`0x107CEAF0`, 56 bytes)
 byte for byte. With `/fp:precise` the first one comes out as x87 code with a stack frame, nothing like the original.
-Still open: `/Ob` level, `/Oi`, `/GF`, struct packing; they will show in larger functions.
+**`/Ob1` (2026-10-10, strong evidence):** `Vector::CrossProduct` (0x107CE850) calls `Vector::Perpendicular`
+(0x107CE7E0), defined just before it in the same unit, instead of inlining it. With `/Ob2` (the `/O2` default)
+VS 2005 inlines it; with `/Ob1` only functions declared `inline` or defined in the class body are inlined, which is
+what the original shows. Every match so far holds under `/Ob1`. Still open: `/Oi`, `/GF`, struct packing.
+
+**Inline assembly:** the engine computes sine and cosine with `fsincos` in an inline `__asm` helper that is inlined
+into its callers (`src/code/math/sincos.h`); VS 2005 reproduces it exactly.
 
 ## Analysis
 
 - Ghidra 12.1.4 (`D:\tools\ghidra_12.1.4_PUBLIC`), JDK 21 (`D:\tools\jdk-21.0.12.1+1`).
-- REA 6.2.0 (`rea` MCP server and CLI), Ghidra provider.
+- REA 6.2.0 (`rea` MCP server and CLI), Ghidra provider. Its `--snapshot` keeps a small cache of answers, not the
+  analysis: each new REA session imports and analyses the DLL again (~10 min). The project's own Ghidra database
+  (`tools/ghidra/ghidra.py`, `DecompileRange.java`) is the fast path for reading many functions.
 
 ## Modern build
 

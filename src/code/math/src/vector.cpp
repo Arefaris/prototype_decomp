@@ -39,6 +39,49 @@ namespace math
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x107CE7A0
+	int Vector::IsZero() const
+	{
+		return fabsf(x) < EPSILON_SMALL && fabsf(y) < EPSILON_SMALL && fabsf(z) < EPSILON_SMALL;
+	}
+
+	// FUNCTION: ENGINE 0x107CE7E0
+	void Vector::Perpendicular(const Vector& v)
+	{
+		if (fabsf(v.y) <= EPSILON_SMALL && fabsf(v.z) <= EPSILON_SMALL)
+		{
+			Set(0.0f, 1.0f, 0.0f);
+		}
+		else
+		{
+			Set(0.0f, -v.z, v.y);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107CE850
+	// NONMATCHING: same size and instructions; the original interleaves the squares with the stores x, z, y (73.7 %)
+#ifdef NONMATCHING
+	bool Vector::CrossProduct(const Vector& a, const Vector& b)
+	{
+		Set(a.y * b.z - b.y * a.z, b.x * a.z - a.x * b.z, b.y * a.x - a.y * b.x);
+		if (x * x + y * y + z * z <= EPSILON_FLOAT)
+		{
+			Perpendicular(a);
+			return true;
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107CE8F0
+	unsigned int Vector::PackNormal() const
+	{
+		int iz = (int)(z * 511.0f);
+		int iy = (int)(y * 511.0f);
+		int ix = (int)(x * 511.0f);
+		return ((((iz | 0xfffffc00) << 10) | (iy & 0x3ff)) << 10) | (ix & 0x3ff);
+	}
+
 	// FUNCTION: ENGINE 0x107CE990
 	void Vector::UnpackNormal(unsigned int packed)
 	{

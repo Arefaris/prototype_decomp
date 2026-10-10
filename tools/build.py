@@ -20,7 +20,7 @@ import objcmp  # noqa: E402
 import relink  # noqa: E402
 
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
-CFLAGS = ["/c", "/O2", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
+CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
 ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(\s*//\s*NONMATCHING)?")
 
 

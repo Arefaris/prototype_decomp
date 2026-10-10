@@ -12,6 +12,14 @@ namespace math
 
 		// Resets the upper 3x3 (rotation) to identity, leaving the translation row and the last column; name guessed
 		void IdentityRotation();
+		// Zeroes the translation row (m[3][0..2])
+		void ClearTranslation();
+		// Sets the last column to (0, 0, 0, 1)
+		void ClearProjection();
+		// Sets the upper 3x3 to a rotation about X / Y / Z by angle radians, leaving translation and the last column
+		void RotationX(float angle);
+		void RotationY(float angle);
+		void RotationZ(float angle);
 	};
 }
 

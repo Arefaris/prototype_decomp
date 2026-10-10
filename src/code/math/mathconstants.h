@@ -6,6 +6,8 @@
 namespace math
 {
 	const float EPSILON_FLOAT = 1e-10f;
+	// Tolerance of Vector::IsZero and Vector::Perpendicular (1e-5f at 0x10E67C30); name guessed
+	const float EPSILON_SMALL = 1e-5f;
 }
 
 #endif
