@@ -67,9 +67,11 @@ class Coff:
 		raise KeyError(symbol)
 
 
-def checkConstants(coff, symbol, original, image, base):
+def checkConstants(coff, symbol, original, image, base, known=None):
 	"""Relocations against the compiler's __real@<hex> constants hide their values from the byte comparison; check
-	that the original's operand points at the same value. Returns a list of mismatch descriptions."""
+	that the original's operand points at the same value. Returns a list of mismatch descriptions.
+	`known` maps symbol names to addresses (symbols.txt): a data word of ours that is itself relocated (a pointer)
+	is checked against the address of the symbol it points at, when that symbol is known."""
 	problems = []
 	defined = {name: (value, section) for name, value, section, storage in coff.symbols if section > 0}
 	for offset, name, kind in coff.relocations(symbol):
@@ -84,7 +86,14 @@ def checkConstants(coff, symbol, original, image, base):
 			sec = coff.sections[section - 1]
 			if sec["raw"] == 0:
 				continue  # uninitialised data
-			expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + 4], "little")
+			pointer = [index for at, index, k in sec["relocs"] if at == value and k == 0x06]
+			if pointer:
+				target = coff.byIndex.get(pointer[0], "?")
+				if not known or target not in known:
+					continue  # a pointer to something we cannot place
+				expected = known[target]
+			else:
+				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + 4], "little")
 			width = 4
 		else:
 			continue
@@ -97,6 +106,19 @@ def checkConstants(coff, symbol, original, image, base):
 		if actual != expected:
 			problems.append(f"+0x{offset:X}: {name}, the original's 0x{target:08X} holds 0x{actual:0{2 * width}X}")
 	return problems
+
+
+def loadSymbols(version):
+	"""symbols.txt: one 'name = 0xADDRESS  ; comment' per line (as tools/delink/relink.py reads it)."""
+	path = ROOT / "config" / version / "symbols.txt"
+	symbols = {}
+	if path.exists():
+		for line in path.read_text(encoding="utf-8").splitlines():
+			line = line.split(";", 1)[0].strip()
+			if line:
+				name, address = (part.strip() for part in line.rsplit("=", 1))
+				symbols[name] = int(address, 16)
+	return symbols
 
 
 def disassemble(code, address):
@@ -127,7 +149,8 @@ def main():
 	original = image[start:start + len(code)]
 	same = sum(1 for k in range(len(code)) if mask[k] or code[k] == original[k])
 	ratio = same / len(code)
-	problems = checkConstants(coff, args.symbol, original, image, pe.OPTIONAL_HEADER.ImageBase) if ratio == 1.0 else []
+	known = loadSymbols(args.version) if ratio == 1.0 else None
+	problems = checkConstants(coff, args.symbol, original, image, pe.OPTIONAL_HEADER.ImageBase, known) if ratio == 1.0 else []
 	if problems:
 		ratio = (len(code) - 1) / len(code)  # identical instructions, wrong constant: not a match
 	print(f"{args.symbol} vs 0x{address:08X}: {len(code)} bytes, {ratio:.1%} identical (relocations as wildcards)"
