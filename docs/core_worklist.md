@@ -62,6 +62,35 @@ increment, decrement; register arguments) that nothing in the unit calls. Link n
 `IsDebuggerPresent` is declared without `__stdcall` because the generated kernel32.lib names the slot
 `__imp__IsDebuggerPresent`.
 
+## time.cpp (0x1063CBE0 - 0x1063CE32): 7 matched, 1 NONMATCHING
+
+`core::Time` stores an unsigned microsecond remainder at +0, unsigned milliseconds at +4, and cached float
+seconds at +8 (12 bytes). The class association and method/member/file names are guesses: `core::Time` appears
+in an AudioZone RTTI name, but these methods have no recovered names. Evidence is the pinned PROTOPC_2025 image,
+Ghidra's saved database and the disassembly at the addresses below; generated pseudocode stays in
+`local/decomp/core_time/`.
+
+Matched: Set (0x1063CBE0), SetMicroseconds (0x1063CC30), SetSeconds (0x1063CC60), Clear (0x1063CCE0),
+AddMicroseconds (0x1063CD60), SubtractMicroseconds (0x1063CD90) and the free ScaleTime helper (0x1063CDD0).
+The two-part Set does not normalize its arguments. SetSeconds truncates seconds * 1000 and seconds * 1000000
+to unsigned integers; only the latter is reduced modulo 1000. Subtraction clears on equality or underflow.
+ScaleTime keeps the quotient/remainder form `(value / divisor) * multiplier + ((value % divisor) * multiplier) / divisor`,
+including unsigned intermediate overflow. The 64-bit division helpers resolve to the original CRT
+`__aulldvrm` (0x10A88920) and `__aulldiv` (0x10A88530).
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063CD00 | Time::Add(milliseconds, microseconds) | 18.3 % | NONMATCHING: original uses unsigned `div` by 1000; VS2005 emits a reciprocal multiply. Local/parameter forms, quotient/remainder order and inline helpers did not match. The retained straightforward draft is 16.7 %. `/Os` changes other matched functions too. AddMicroseconds still calls the original Add. |
+
+0x1063CBB0 belongs to the preceding timer object (fields at +0x0C/+0x14), not this 12-byte time value.
+
+Validation (2026-10-10): `ninja check` passed all 310 matching annotations; `ninja dll` verified the relinked
+image without unexpected differences; `ninja report progress` counted seven new matches (472 bytes).
+The unit also compiled with MSVC 2022 x86. An ignored local harness (`local/time_differential.cpp`, linked
+against the VC8 object) passed 892 comparisons against the pinned original functions, covering unsigned
+boundaries, microsecond carries, subtraction to zero, float conversion and 64-bit scaling. The hybrid DLL
+reached free roam in an isolated test copy; movement, pause, single-step and resume commands completed.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x10646580 - 0x106465A0: two tiny global-allocator forwarders (`return second argument`, a virtual call on the
@@ -70,5 +99,5 @@ increment, decrement; register arguments) that nothing in the unit calls. Link n
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
   encoding, leaf, recursive fallback).
-- 0x1063CBB0 - 0x1063CD00: five small float functions (not looked at).
+- 0x1063CBB0: preceding timer object's unsigned counter/period ratio; not reconstructed.
 - 0x10648F70 - 0x106492C0: a run of small functions with float maths (not looked at).
