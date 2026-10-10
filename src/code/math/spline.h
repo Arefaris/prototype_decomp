@@ -25,9 +25,8 @@ namespace math
 		void Evaluate(Vector& out, float t) const;
 		// out = (0, 1, 2t, 3t^2) * coefficients, t clamped to [0, 1]
 		void EvaluateDerivative(Vector& out, float t) const;
-		// |EvaluateDerivative(t)| (0x107D5F30, compiled by the engine with a register calling convention; not
-		// reconstructed)
-		float DerivativeLength(float t) const;
+		// |EvaluateDerivative(t)| and the 5-point Gauss-Legendre arc length over [0, t] are static helpers of
+		// spline.cpp (0x107D5F30 / 0x107D5F60, register calling convention); they enter the tree with their callers
 		// coefficients = basis matrix of `mode` (SPLINE_BASIS, 15 of them) times the geometry matrix: the four keys
 		// as rows (modes 0-2, 5-7, 10-12), the Catmull-Rom rows (3, 8, 13) or the Hermite rows (4, 9, 14)
 		void Build(int mode, const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
