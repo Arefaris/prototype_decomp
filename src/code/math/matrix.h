@@ -7,6 +7,8 @@
 
 namespace math
 {
+	class Vector4;
+
 	class Matrix
 	{
 	public:
@@ -90,6 +92,23 @@ namespace math
 		void RotateInverse(const Vector& v, Vector& out) const;
 		// Transform for count points from in to out
 		void Transform(int count, const Vector* in, Vector* out) const;
+		// out = v times the full 4x4 (0x107CF990, not reconstructed yet)
+		void Transform(const Vector4& v, Vector4& out) const;
+
+		// Vector4 wrappers (vector4.cpp); names guessed
+		void Reset();
+		void SetTranslation(const Vector4& v);
+		void SetTranslation(float x, float y, float z);
+		void SetPosition(const Vector4& v);
+		void SetPosition(float x, float y, float z);
+		// Fills row i of the upper 3x3 with v's i-th component
+		void SetRows(const Vector4& v);
+		void SetScale(const Vector4& s);
+		void SetScale(float x, float y, float z);
+		void SetScale(float s);
+		// out.xyz = v.xyz as a point through this matrix, out.w = v.w
+		void TransformPoint(const Vector4& v, Vector4& out) const;
+		Matrix& GetMatrix();
 	};
 }
 
