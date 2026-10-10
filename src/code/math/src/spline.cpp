@@ -181,4 +181,55 @@ namespace math
 		segment.Evaluate(out, u - (float)current);
 		return out;
 	}
+
+	// FUNCTION: ENGINE 0x107D6540
+	void Spline::SetKey(int index, const Vector& key)
+	{
+		Vector4& k = keys[index];
+		k.x = key.x;
+		k.y = key.y;
+		k.z = key.z;
+		k.w = 1.0f;
+		current = -1;
+		if (lengths != 0)
+		{
+			InvalidateLengths(index);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D6630
+	bool Spline::SelectSegment(float t)
+	{
+		int index = (int)t;
+		if (index > count - 4)
+		{
+			index = count - 4;
+		}
+		if (index == current)
+		{
+			return false;
+		}
+		unsigned int n = count;
+		const Vector4* k0 = &keys[index % n];
+		const Vector4* k1 = &keys[(index + 1) % n];
+		const Vector4* k2 = &keys[(index + 2) % n];
+		const Vector4* k3 = &keys[(index + 3) % n];
+		const Vector4* t0 = 0;
+		const Vector4* t1 = 0;
+		if (tangents != 0)
+		{
+			t0 = &tangents[(index + 1) % n];
+			t1 = &tangents[(index + 2) % n];
+		}
+		segment.Build(unknown8c, k0, k1, k2, k3, t0, t1);
+		current = index;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x107D6F10
+	Vector& Spline::Evaluate(Vector& out, unsigned int key)
+	{
+		Evaluate(out, (float)key);
+		return out;
+	}
 }

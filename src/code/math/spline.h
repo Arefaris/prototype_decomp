@@ -28,6 +28,10 @@ namespace math
 		// |EvaluateDerivative(t)| (0x107D5F30, compiled by the engine with a register calling convention; not
 		// reconstructed)
 		float DerivativeLength(float t) const;
+		// Builds the coefficient matrices from four consecutive keys and, when present, the two inner tangents
+		// (0x107D6300, not reconstructed yet; the mode is Spline's int at 0x8c)
+		void Build(int mode, const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+			const Vector4* t0, const Vector4* t1);
 	};
 
 	class Spline
@@ -56,11 +60,16 @@ namespace math
 		void InvalidateLengths(unsigned int index);
 		// Store a key / tangent and drop the cached segment and the affected lengths
 		void SetKey(int index, const Vector4& key);
+		// The same from a Vector, with w = 1
+		void SetKey(int index, const Vector& key);
 		void SetTangent(int index, const Vector4& tangent);
-		// Rebuilds `segment` for the segment containing t (0x107D6630, not reconstructed yet)
-		void SelectSegment(float t);
+		// Rebuilds `segment` for the segment containing t (keys index .. index + 3 modulo count, index clamped to
+		// count - 4); false when that segment is the cached one already
+		bool SelectSegment(float t);
 		// Position at t in [0, GetSegmentCountF()] (integer part: segment, fraction: parameter); returns out
 		Vector& Evaluate(Vector& out, float t);
+		// Position at key `key`
+		Vector& Evaluate(Vector& out, unsigned int key);
 	};
 }
 

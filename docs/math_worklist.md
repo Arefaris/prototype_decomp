@@ -126,7 +126,7 @@ Spline::Evaluate). Left:
 | 0x107D4B40 - 0x107D4EA0 | segment construction (Hermite / Catmull-Rom coefficient matrices) | - | not attempted |
 | 0x107D5010 - 0x107D5C00 | evaluators (forward differencing, arc-length lookups) | - | not attempted; 0x107D5240 is 1 501 bytes |
 | 0x107D5FE0, 0x107D6300 - 0x107D6540 | length table / parameter by distance | - | not attempted |
-| 0x107D6630 | Spline::SelectSegment(t) | - | cvttss2si of t, clamps to count - 4, rebuilds `segment`; not attempted |
+| 0x107D6300 | SplineSegment::Build(mode, k0, k1, k2, k3, t0, t1) | - | 354 bytes, the coefficient matrices from four keys and two optional tangents; not attempted (SelectSegment 0x107D6630, SetKey(Vector) 0x107D6540 and Evaluate(unsigned) 0x107D6F10 match) |
 | 0x107D6760 - 0x107D6F10 | remaining evaluators / accessors | - | not surveyed |
 
 ## segment.cpp (0x107D6F40–0x107D7650), not in the tree
