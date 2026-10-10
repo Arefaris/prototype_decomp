@@ -4,6 +4,7 @@
 #ifndef ENGINE_CAMERA_DIRECTOR_H
 #define ENGINE_CAMERA_DIRECTOR_H
 
+#include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/engine/dbobserver.h"
 
@@ -46,20 +47,6 @@ namespace engine
 		class ControllerRef;
 		class Cinematographer;
 
-		// The engine's dynamic array: begin, end, end of storage
-		template<class T> class Array
-		{
-		public:
-			T* begin;
-			T* end;
-			T* capacity;
-
-			int Size() const
-			{
-				return (int)(end - begin);
-			}
-		};
-
 		// Listener lists the Director's reset message goes to (0x11315318, 0x11315290; another unit)
 		extern MessageListeners sResetListeners;
 		extern MessageListeners sResetListeners2;
@@ -69,8 +56,8 @@ namespace engine
 		class Director : public DBObserver
 		{
 		public:
-			Array<Camera*> cameras;
-			Array<Cinematographer*> controllers;
+			container::ArrayDynamic<Camera*, container::AllocatorNew> cameras;
+			container::ArrayDynamic<Cinematographer*, container::AllocatorNew> controllers;
 			int maxControllerIndex;
 			int playerCamera[2];
 			int nextControllerId;

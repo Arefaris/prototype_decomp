@@ -4,6 +4,22 @@
 #include "code/engine/camera/director.h"
 #include "code/math/matrix.h"
 
+namespace container
+{
+	// The Director's two arrays instantiate these; the engine kept the copies next to the Director's code. Which
+	// instantiation each address holds is a guess (the cameras array is used first).
+	// FUNCTION: ENGINE 0x107DE580
+	// FUNCTION: ENGINE 0x107DE720
+	// FUNCTION: ENGINE 0x107DE770
+	// FUNCTION: ENGINE 0x107DE790
+	template class ArrayDynamic<engine::camera::Camera*, AllocatorNew>;
+	// FUNCTION: ENGINE 0x107DE5D0
+	// FUNCTION: ENGINE 0x107DE7C0
+	// FUNCTION: ENGINE 0x107DE810
+	// FUNCTION: ENGINE 0x107DE830
+	template class ArrayDynamic<engine::camera::Cinematographer*, AllocatorNew>;
+}
+
 namespace engine
 {
 	namespace camera

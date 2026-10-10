@@ -9,6 +9,9 @@ namespace core
 	void* HeapAlloc(int heap, unsigned int size);
 	// 0x1063A9A0: returns a block to its heap
 	void HeapFree(int heap, void* block);
+	// 0x1063A8D0 / 0x1063A9C0: the aligned pair (allocator slots 5 and 6); sizes below 4 bytes are rounded up to 4
+	void* HeapAllocAligned(int heap, unsigned int size, unsigned int align);
+	void HeapFreeAligned(int heap, void* block);
 }
 
 #endif
