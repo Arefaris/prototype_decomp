@@ -25,6 +25,10 @@ namespace math
 		void RotationX(float angle);
 		void RotationY(float angle);
 		void RotationZ(float angle);
+		// out = v rotated by this quaternion, computed as conjugate * (v, 0) * this
+		void Transform(const Vector& v, Vector& out) const;
+		// this = a * conjugate(b)
+		void MultiplyInverse(const Quaternion& a, const Quaternion& b);
 		// Negates this quaternion if it lies in the other hemisphere than q, so blending takes the short way
 		void MakeClosest(const Quaternion& q);
 	};

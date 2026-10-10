@@ -70,6 +70,38 @@ namespace math
 		y = 0.0f;
 	}
 
+	// FUNCTION: ENGINE 0x107CDED0
+	void Quaternion::Transform(const Vector& v, Vector& out) const
+	{
+		Quaternion conjugate;
+		conjugate.x = -x;
+		conjugate.y = -y;
+		conjugate.z = -z;
+		conjugate.w = w;
+		Quaternion p;
+		p.x = v.x;
+		p.y = v.y;
+		p.z = v.z;
+		p.w = 0.0f;
+		Quaternion t;
+		Multiply(t, conjugate, p);
+		Multiply(t, t, *this);
+		out.x = t.x;
+		out.y = t.y;
+		out.z = t.z;
+	}
+
+	// FUNCTION: ENGINE 0x107CE2B0
+	void Quaternion::MultiplyInverse(const Quaternion& a, const Quaternion& b)
+	{
+		Quaternion conjugate;
+		conjugate.x = -b.x;
+		conjugate.y = -b.y;
+		conjugate.z = -b.z;
+		conjugate.w = b.w;
+		Multiply(*this, a, conjugate);
+	}
+
 	// FUNCTION: ENGINE 0x107CE220
 	// NONMATCHING: same instructions, but the original keeps this in eax and q in ecx (we get the reverse)
 #ifdef NONMATCHING

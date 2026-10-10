@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "code/math/mathconstants.h"
+#include "code/math/matrix.h"
 #include "code/math/vector.h"
 
 namespace math
@@ -94,5 +95,37 @@ namespace math
 		x = ix * (1.0f / 511.0f) - 1.0f;
 		y = iy * (1.0f / 511.0f) - 1.0f;
 		z = iz * (1.0f / 511.0f) - 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CE520
+	void Vector::Transform(const Matrix& m)
+	{
+		Vector t;
+		m.Transform(*this, t);
+		x = t.x;
+		y = t.y;
+		z = t.z;
+	}
+
+	// FUNCTION: ENGINE 0x107CE560
+	void Vector::Transform(const Vector& v, const Matrix& m)
+	{
+		m.Transform(v, *this);
+	}
+
+	// FUNCTION: ENGINE 0x107CE580
+	void Vector::Rotate(const Matrix& m)
+	{
+		Vector t;
+		m.Rotate(*this, t);
+		x = t.x;
+		y = t.y;
+		z = t.z;
+	}
+
+	// FUNCTION: ENGINE 0x107CE5C0
+	void Vector::Rotate(const Vector& v, const Matrix& m)
+	{
+		m.Rotate(v, *this);
 	}
 }

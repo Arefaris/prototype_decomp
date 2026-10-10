@@ -21,14 +21,19 @@ import relink  # noqa: E402
 
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
 CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
-ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(\s*//\s*NONMATCHING)?")
+ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(?:\s*//\s*(NONMATCHING|EQUIVALENT))?")
 
 
 def annotations(text):
-	"""[(address, nonmatching)] of a source file. A function that does not match yet carries
-	"// NONMATCHING: reason" on the line after its FUNCTION annotation and sits inside #ifdef NONMATCHING, so it is
-	neither compiled into the hybrid DLL nor checked."""
-	return [(int(m.group(1), 16), m.group(2) is not None) for m in ANNOTATION.finditer(text)]
+	"""[(address, status)] of a source file; status is "match", "nonmatching" or "equivalent".
+
+	The line after a FUNCTION annotation may say why a function does not match yet:
+	- "// NONMATCHING: reason": the function sits inside #ifdef NONMATCHING, so it is neither compiled into the hybrid
+	  DLL nor checked;
+	- "// EQUIVALENT: reason": the function computes the same as the original but is not byte-identical (register or
+	  scheduling choices). It is compiled and replaces the original in the hybrid DLL, which keeps the register
+	  knowledge its callers in the same unit rely on, but it does not count as matched."""
+	return [(int(m.group(1), 16), (m.group(2) or "match").lower()) for m in ANNOTATION.finditer(text)]
 
 
 def compileAll(version):
@@ -49,13 +54,17 @@ def compileAll(version):
 def checkFunctions(objects, version):
 	symbols = relink.loadSymbols(version)
 	byAddress = {address: name for name, address in symbols.items()}
-	matched = total = nonmatching = 0
+	matched = total = nonmatching = equivalent = 0
 	for source, obj in objects:
-		for address, isNonmatching in annotations(source.read_text(encoding="utf-8")):
+		for address, status in annotations(source.read_text(encoding="utf-8")):
 			name = byAddress.get(address)
-			if isNonmatching:
+			if status == "nonmatching":
 				nonmatching += 1
 				print(f"  nonm. 0x{address:08X} {name}")
+				continue
+			if status == "equivalent":
+				equivalent += 1
+				print(f"  equiv 0x{address:08X} {name}")
 				continue
 			total += 1
 			if name is None:
@@ -66,7 +75,7 @@ def checkFunctions(objects, version):
 			status = "match" if result.returncode == 0 else "DIFF "
 			matched += result.returncode == 0
 			print(f"  {status} 0x{address:08X} {name}: {result.stdout.strip().split(': ', 1)[-1]}")
-	print(f"{matched}/{total} annotated functions match ({nonmatching} marked NONMATCHING)")
+	print(f"{matched}/{total} annotated functions match ({nonmatching} NONMATCHING, {equivalent} EQUIVALENT)")
 	return matched == total
 
 

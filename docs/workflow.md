@@ -48,3 +48,10 @@ python tools/configure.py
   restructuring.
 - The original's calls go through its incremental link table; objdiff and objcmp follow those thunks, so call the
   real function.
+- `/Ob1`: only `inline` functions and functions defined in the class body are inlined. A helper defined in the .cpp
+  stays a call.
+- Within one unit the compiler knows which registers a callee it has compiled clobbers, and callers keep values in
+  `edx` or `ecx` across such calls; put functions in the same source file as the original's unit had them.
+- Struct copies come out as `mov`; member-by-member float copies as `movss`. Results computed into temporaries and
+  stored together look like an inline `Set(x, y, z)`.
+- Namespace-scope `const float` constants become data symbols; their values are checked like `__real@` ones.

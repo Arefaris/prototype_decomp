@@ -5,6 +5,8 @@
 
 namespace math
 {
+	class Vector;
+
 	class Matrix
 	{
 	public:
@@ -20,6 +22,14 @@ namespace math
 		void RotationX(float angle);
 		void RotationY(float angle);
 		void RotationZ(float angle);
+		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)
+		void Transform(const Vector& v, Vector& out) const;
+		// out = v as a direction (row vector times the 3x3)
+		void Rotate(const Vector& v, Vector& out) const;
+		// out = v times the transposed 3x3 (the inverse rotation of an orthonormal matrix)
+		void RotateInverse(const Vector& v, Vector& out) const;
+		// Transform for count points from in to out
+		void Transform(int count, const Vector* in, Vector* out) const;
 	};
 }
 

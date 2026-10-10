@@ -5,6 +5,8 @@
 
 namespace math
 {
+	class Matrix;
+
 	class Vector
 	{
 	public:
@@ -35,6 +37,11 @@ namespace math
 		unsigned int PackNormal() const;
 		// Unpacks a 10:10:10 signed normal (x in bits 0-9, y in 10-19, z in 20-29)
 		void UnpackNormal(unsigned int packed);
+		// This vector as a point through m (Matrix::Transform) / as a direction (Matrix::Rotate), in place or from v
+		void Transform(const Matrix& m);
+		void Transform(const Vector& v, const Matrix& m);
+		void Rotate(const Matrix& m);
+		void Rotate(const Vector& v, const Matrix& m);
 	};
 }
 
