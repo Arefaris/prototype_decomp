@@ -2,6 +2,21 @@
 
 namespace math
 {
+	// FUNCTION: ENGINE 0x107D8200
+	Noise::Noise()
+	{
+		power = 1.0f;
+		octaves = 1;
+		frequency.Set(1.0f / 256.0f, 1.0f / 256.0f, 1.0f / 256.0f);
+		persistence = 0.5f;
+		normaliser = 1.0f;
+		bias = 0.0f;
+		seed = 0;
+		period[0] = -1;
+		period[1] = -1;
+		period[2] = -1;
+	}
+
 	// FUNCTION: ENGINE 0x107D8260
 	Noise::~Noise()
 	{
@@ -42,9 +57,7 @@ namespace math
 	// FUNCTION: ENGINE 0x107D82F0
 	void Noise::SetFrequency(float x, float y, float z)
 	{
-		frequencyX = x;
-		frequencyY = y;
-		frequencyZ = z;
+		frequency.Set(x, y, z);
 		UpdateNormaliser();
 	}
 
@@ -64,18 +77,18 @@ namespace math
 	// FUNCTION: ENGINE 0x107D8350
 	void Noise::SetPeriodX(int value)
 	{
-		periodX = value;
+		period[0] = value;
 	}
 
 	// FUNCTION: ENGINE 0x107D8360
 	void Noise::SetPeriodY(int value)
 	{
-		periodY = value;
+		period[1] = value;
 	}
 
 	// FUNCTION: ENGINE 0x107D8370
 	void Noise::SetPeriodZ(int value)
 	{
-		periodZ = value;
+		period[2] = value;
 	}
 }

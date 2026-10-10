@@ -5,15 +5,15 @@
 #ifndef MATH_NOISE_H
 #define MATH_NOISE_H
 
+#include "code/math/vector.h"
+
 namespace math
 {
 	class Noise
 	{
 	public:
 		int seed;
-		float frequencyX;
-		float frequencyY;
-		float frequencyZ;
+		Vector frequency;
 		// The result is raised to this power unless it is 1
 		float power;
 		// Amplitude ratio between octaves
@@ -24,9 +24,7 @@ namespace math
 		float bias;
 		int octaves;
 		// Integer periods for tiling noise, -1 for none
-		int periodX;
-		int periodY;
-		int periodZ;
+		int period[3];
 
 		Noise();
 		~Noise();

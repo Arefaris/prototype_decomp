@@ -112,3 +112,4 @@ _sCrc32TableBuilt = 0x1127A880 ; data size:0x1 | core crc32.cpp: the table-built
 ?SetPeriodX@Noise@math@@QAEXH@Z = 0x107D8350 ; function size:0xA | math::Noise::SetPeriodX (guess)
 ?SetPeriodY@Noise@math@@QAEXH@Z = 0x107D8360 ; function size:0xA | math::Noise::SetPeriodY (guess)
 ?SetPeriodZ@Noise@math@@QAEXH@Z = 0x107D8370 ; function size:0xA | math::Noise::SetPeriodZ (guess)
+??0Noise@math@@QAE@XZ = 0x107D8200 ; function size:0x5A | math::Noise::Noise (class name guessed)
