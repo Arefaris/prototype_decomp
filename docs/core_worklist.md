@@ -33,10 +33,17 @@ jumps, StrDup). StrDup only matches with StrLen and StrCpy as external calls, wh
 own. 0x1063B7E0, a jump to 0x1063AC00 (another unit), is left alone. HeapAlloc 0x1063A850 is named and declared
 (`code/core/heap.h`), not reconstructed (virtual call through the heap table 0x110BC5A4).
 
+## memutils.cpp (0x10645EE0 - 0x10646045): done
+
+15 functions matched: seven static helpers (memcpy / memset, register arguments) and eight public wrappers that
+check the size first (MemCopyUnchecked does not). memcpy and memset resolve to the generated msvcr80 import
+library, not to symbols.txt (the import thunks 0x10A884EE / 0x10A8835C are defined by that library already).
+0x10645D40 - 0x10645EDB in front of it are allocator interface objects (vftables 0x10D96DB8, 0x10E473E0,
+0x10E473F4), another unit.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x10646140 - 0x10646400: a sorted array of (key, value) pairs (binary search at 0x10646310, insert/erase, grow
   through the allocator 0x1063A850); `__thiscall` methods of an unnamed container.
 - 0x1063CBB0 - 0x1063CD00: five small float functions (not looked at).
 - 0x10648F70 - 0x106492C0: a run of small functions with float maths (not looked at).
-- 0x10645D40 - 0x10646045: memset / memcpy wrappers with register arguments (CRT calls through 0x10A8835C).
