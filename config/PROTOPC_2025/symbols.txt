@@ -62,3 +62,8 @@
 ?Add@Matrix@math@@QAEXABV12@0@Z = 0x107D29C0 ; function size:0x117 | math::Matrix::Add(const Matrix&, const Matrix&) (name guess)
 ?Subtract@Matrix@math@@QAEXABV12@0@Z = 0x107D2AE0 ; function size:0x117 | math::Matrix::Subtract(const Matrix&, const Matrix&) (name guess)
 ?RotateByVector@Matrix@math@@QAEXABVVector@2@@Z = 0x107D2E70 ; function size:0x4B | math::Matrix::RotateByVector (name guess)
+?Identity@Matrix3@math@@QAEXXZ = 0x107D3D90 ; function size:0x38 | math::Matrix3::Identity (class name guess)
+?CopyTo@Matrix3@math@@QBEXAAVMatrix@2@@Z = 0x107D3CF0 ; function size:0x41 | math::Matrix3::CopyTo (name guess)
+?CopyFrom@Matrix3@math@@QAEXABVMatrix@2@@Z = 0x107D3D40 ; function size:0x41 | math::Matrix3::CopyFrom (name guess)
+?Transform@OBB@math@@QAEXABVMatrix@2@@Z = 0x107D43B0 ; function size:0x37 | math::OBB::Transform(const Matrix&)
+?Transform@OBB@math@@QAEXABVMatrix@2@ABV12@@Z = 0x107D43F0 ; function size:0x5B | math::OBB::Transform(const Matrix&, const OBB&)
