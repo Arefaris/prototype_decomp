@@ -33,6 +33,8 @@ namespace math
 		// Packs x, y, z as 10-bit signed fractions of 511 and w as 2 bits (bits 30-31)
 		unsigned int Pack() const;
 		void Unpack(unsigned int packed);
+		// Nonzero when every component is within tolerance of other's
+		int IsClose(const Vector4& other, float tolerance) const;
 	};
 }
 

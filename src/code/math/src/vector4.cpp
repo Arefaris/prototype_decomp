@@ -1,11 +1,20 @@
 // Vector4 and the Matrix wrappers that take it (one original unit, 0x107DD200-0x107DD690). The wrappers copy
 // their Vector4 argument into a local Vector member by member before calling the Vector overloads in matrix.cpp;
 // that copy is what the compiler saw.
+#include <math.h>
+
 #include "code/math/matrix.h"
 #include "code/math/vector4.h"
 
 namespace math
 {
+	// FUNCTION: ENGINE 0x107DD1A0
+	int Vector4::IsClose(const Vector4& other, float tolerance) const
+	{
+		return fabsf(x - other.x) <= tolerance && fabsf(y - other.y) <= tolerance && fabsf(z - other.z) <= tolerance
+			&& fabsf(w - other.w) <= tolerance;
+	}
+
 	// FUNCTION: ENGINE 0x107DD200
 	void Vector4::Transform(const Matrix& m)
 	{
