@@ -4,6 +4,13 @@
 
 namespace math
 {
+	// The smaller of two values (an inline template is what Spline::InvalidateLengths needs to match: it keeps the
+	// min as a branch where a plain conditional becomes cmov)
+	template<class T> inline T Min(T a, T b)
+	{
+		return a < b ? a : b;
+	}
+
 	// 1 / sqrt(value), on the x87 unit
 	float InvSqrt(float value);
 	// Polynomial arctangent of a / b for 0 <= a, b: atan(a / b) when a < b, else pi/2 - atan(b / a)
