@@ -111,10 +111,23 @@ Left:
 
 Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
 
-## Further units of the region
+## spline.cpp (0x107D49F0 - 0x107D6F10), partly in the tree
 
-0x107D49F0 - 0x107D5F60: a keyed spline (two matrices and a time flag per segment, Hermite / Catmull-Rom tangents,
-forward differencing). 0x107D5FE0 onwards: not surveyed.
+A keyed cubic spline (class names SplineSegment / Spline guessed, src/code/math/spline.h): `int current; SplineSegment
+segment (Matrix coefficients, Matrix derivative, bool flag; 0x84 bytes); bool closed (0x88); bool flag (0x89); int
+(0x8c); int count (0x90); Vector4* keys (0x94); Vector4* tangents (0x98); float* lengths (0x9c)`. Fourteen small
+methods match (constructor, operator=, SetFlag x2, Evaluate / EvaluateDerivative with the clamp on a copy of t,
+destructor, GetSegmentCount / F, GetKey, InvalidateLengths with the `Min` template, SetKey / SetTangent,
+Spline::Evaluate). Left:
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x107D5F30 | SplineSegment::DerivativeLength(t) | - | the engine compiled it with a register convention (this in ecx, caller cleans the float: `ret`, not `ret 4`), as a static helper; 0x107D5F60 (5-point Gauss-Legendre arc length, nodes at 0x10E67D88, weights at 0x10E67D74) takes t in xmm0 and the segment in edi the same way. Not reproducible without /GL |
+| 0x107D4B40 - 0x107D4EA0 | segment construction (Hermite / Catmull-Rom coefficient matrices) | - | not attempted |
+| 0x107D5010 - 0x107D5C00 | evaluators (forward differencing, arc-length lookups) | - | not attempted; 0x107D5240 is 1 501 bytes |
+| 0x107D5FE0, 0x107D6300 - 0x107D6540 | length table / parameter by distance | - | not attempted |
+| 0x107D6630 | Spline::SelectSegment(t) | - | cvttss2si of t, clamps to count - 4, rebuilds `segment`; not attempted |
+| 0x107D6760 - 0x107D6F10 | remaining evaluators / accessors | - | not surveyed |
 
 ## segment.cpp (0x107D6F40–0x107D7650), not in the tree
 
@@ -182,4 +195,3 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | 0x107DC800 | Capsule::ContainsStrict? (|t| > halfLength -> false) | 12.3 % | returns bool |
 | 0x107DC620 | Capsule::GetDirection(p, dir, dist) | 24.1 % | zero case builds a perpendicular and NormalizeFast |
 | 0x107DCC10 | AABB of {centre, direction(3..5), halfLength(6), radius(7)} (another class) | — | not drafted |
-| 0x107DBCC0 | Intersects(const Triangle&, const Sphere&) | 62.5 % | x87 squares in the order dx, dz, dy (handed to the plane agent) |
