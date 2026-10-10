@@ -291,3 +291,25 @@ _sStringHeapCounter1 = 0x11278FC8 ; data size:0x4 | core strings.cpp: counter be
 ?SetKey@Spline@math@@QAEXHABVVector@2@@Z = 0x107D6540 ; function size:0x4A | math::Spline::SetKey(int, const Vector&): w = 1 (name guess)
 ?Evaluate@Spline@math@@QAEAAVVector@2@AAV32@I@Z = 0x107D6F10 ; function size:0x27 | math::Spline::Evaluate(out, unsigned key) (name guess)
 ?Evaluate@Spline@math@@QAEAAVVector@2@AAV32@M@Z = 0x107D66F0 ; function size:0x6D | math::Spline::Evaluate(out, t) (name guess)
+??0?$Name@UCaseSensitiveKey@core@@@core@@QAE@ABV01@@Z = 0x1005E500 ; function size:0x12 | core::Name<CaseSensitiveKey>::Name(const Name&) (copy, other unit)
+??8?$Name@UCaseSensitiveKey@core@@@core@@QBE_NABV01@@Z = 0x10061F10 ; function size:0x1B | core::Name<CaseSensitiveKey>::operator== (other unit)
+?SetUnknown7A5@Camera@camera@engine@@QAEX_N@Z = 0x1084DF70 ; function size:0x15 | engine::camera::Camera setter of the byte at 0x7a5 (other unit)
+?Activate@Camera@camera@engine@@QAEX_N@Z = 0x1084E720 ; function size:0x80 | engine::camera::Camera::Activate (name guess, other unit)
+?StartTransition@Director@camera@engine@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@MIH@Z = 0x107DE150 ; function size:0xB6 | engine::camera::Director::StartTransition(Name, float, unsigned, int)
+?SetCameraUnknown7A5@Director@camera@engine@@QAEXH_N@Z = 0x107DE210 ; function size:0x1F | engine::camera::Director::SetCameraUnknown7A5
+?SetCameraUnknown7AD@Director@camera@engine@@QAEXH_N@Z = 0x107DE230 ; function size:0x1D | engine::camera::Director::SetCameraUnknown7AD
+?FindController@Director@camera@engine@@QBEPAVCinematographer@23@HH@Z = 0x107DE250 ; function size:0x49 | engine::camera::Director::FindController(type, owner)
+?FindController@Director@camera@engine@@QBEPAVCinematographer@23@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x107DE2A0 ; function size:0x81 | engine::camera::Director::FindController(Name)
+?NotifyControllers@Director@camera@engine@@QAEXHH@Z = 0x107DE330 ; function size:0x3B | engine::camera::Director::NotifyControllers (name guess)
+?NotifyControllersOfKind@Director@camera@engine@@QAEXHM@Z = 0x107DE370 ; function size:0x48 | engine::camera::Director::NotifyControllersOfKind (name guess)
+?NotifyController@Director@camera@engine@@QAEXHHH@Z = 0x107DE3C0 ; function size:0x20 | engine::camera::Director::NotifyController(param, type, owner)
+?NotifyController@Director@camera@engine@@QAEXHV?$Name@UCaseSensitiveKey@core@@@core@@H@Z = 0x107DE3E0 ; function size:0x2B | engine::camera::Director::NotifyController(Name, param)
+?GetController@Director@camera@engine@@QBEPAVCinematographer@23@HH@Z = 0x107DE410 ; function size:0x21 | engine::camera::Director::GetController(slot, id)
+?ActivateCamera@Director@camera@engine@@QAEHHH@Z = 0x107DE440 ; function size:0x6A | engine::camera::Director::ActivateCamera (name guess)
+?NextActiveCamera@Director@camera@engine@@QAE_NPAHH@Z = 0x107DE4B0 ; function size:0x72 | engine::camera::Director::NextActiveCamera (name guess)
+?OnCameraDisabled@Director@camera@engine@@QAEXPAVCamera@23@@Z = 0x107DE530 ; function size:0x4B | engine::camera::Director::OnCameraDisabled (name guess)
+?GetCameraController@Director@camera@engine@@QBEPAVCinematographer@23@HI@Z = 0x107DE660 ; function size:0x29 | engine::camera::Director::GetCameraController
+?GetCameraTarget@Director@camera@engine@@QBEPAVCameraTarget@23@HI@Z = 0x107DE690 ; function size:0x1E | engine::camera::Director::GetCameraTarget (name guess)
+?GetCameraMatrix@Director@camera@engine@@QBEPBVMatrix@math@@HI@Z = 0x107DE6B0 ; function size:0x26 | engine::camera::Director::GetCameraMatrix (name guess)
+?GetCameraUnknown40@Director@camera@engine@@QBEHHI@Z = 0x107DE6E0 ; function size:0x1E | engine::camera::Director getter of the camera int at 0x40
+?GetCameraUnknown44@Director@camera@engine@@QBEHHI@Z = 0x107DE700 ; function size:0x1E | engine::camera::Director getter of the camera int at 0x44

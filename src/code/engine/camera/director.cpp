@@ -2,6 +2,7 @@
 #include "code/engine/camera/cameramessages.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
+#include "code/math/matrix.h"
 
 namespace engine
 {
@@ -262,6 +263,245 @@ namespace engine
 					return;
 				}
 			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE150
+		// EQUIVALENT: byte-identical except a 2-byte nop our compiler puts before the loop head (the engine's is unpadded)
+		void Director::StartTransition(const core::Name<core::CaseSensitiveKey>& name, float time, unsigned int kind, int owner)
+		{
+			Cinematographer* found = 0;
+			int last = maxControllerIndex;
+			int i = 0;
+			if (i <= last)
+			{
+				Cinematographer** slot = controllers.begin;
+				do
+				{
+					Cinematographer* controller = *slot;
+					if (controller != 0 && controller->owner == owner && controller->GetName() == name)
+					{
+						found = controller;
+						break;
+					}
+					i++;
+					slot++;
+				}
+				while (i <= last);
+			}
+			GetCamera(owner, kind)->StartTransition((int)found, time);
+		}
+
+		// FUNCTION: ENGINE 0x107DE210
+		void Director::SetCameraUnknown7A5(int playerIndex, bool value)
+		{
+			Camera* camera = GetCamera(playerIndex, 0);
+			if (camera != 0)
+			{
+				camera->SetUnknown7A5(value);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE230
+		void Director::SetCameraUnknown7AD(int playerIndex, bool value)
+		{
+			Camera* camera = GetCamera(playerIndex, 0);
+			if (camera != 0)
+			{
+				camera->unknown7AD = value;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE250
+		Cinematographer* Director::FindController(int type, int owner) const
+		{
+			for (int i = 0; i <= maxControllerIndex; i++)
+			{
+				Cinematographer* controller = controllers.begin[i];
+				if (controller != 0 && controller->owner == owner && controller->GetType() == type)
+				{
+					return controller;
+				}
+			}
+			return 0;
+		}
+
+		// FUNCTION: ENGINE 0x107DE2A0
+		Cinematographer* Director::FindController(core::Name<core::CaseSensitiveKey> name) const
+		{
+			int last = maxControllerIndex;
+			int i = 0;
+			if (i <= last)
+			{
+				Cinematographer** slot = controllers.begin;
+				do
+				{
+					Cinematographer* controller = *slot;
+					if (controller != 0 && controller->GetName() == name)
+					{
+						return controller;
+					}
+					i++;
+					slot++;
+				}
+				while (i <= last);
+			}
+			return 0;
+		}
+
+		// FUNCTION: ENGINE 0x107DE330
+		void Director::NotifyControllers(int param, int owner)
+		{
+			for (int i = 0; i <= maxControllerIndex; i++)
+			{
+				Cinematographer* controller = controllers.begin[i];
+				if (controller != 0 && controller->owner == owner)
+				{
+					controller->OnEvent(param);
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE370
+		void Director::NotifyControllersOfKind(int kind, float param)
+		{
+			for (int i = 0; i <= maxControllerIndex; i++)
+			{
+				Cinematographer* controller = controllers.begin[i];
+				if (controller != 0 && controller->kind == kind && controller->IsRunning())
+				{
+					controller->OnKindEvent(param);
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE3C0
+		void Director::NotifyController(int param, int type, int owner)
+		{
+			FindController(type, owner)->OnEvent(param);
+		}
+
+		// FUNCTION: ENGINE 0x107DE3E0
+		void Director::NotifyController(int param, core::Name<core::CaseSensitiveKey> name, int unused)
+		{
+			FindController(name)->OnEvent(param);
+		}
+
+		// FUNCTION: ENGINE 0x107DE410
+		Cinematographer* Director::GetController(int slot, int id) const
+		{
+			if (slot == -1)
+			{
+				return 0;
+			}
+			Cinematographer* controller = controllers.begin[slot];
+			if (controller == 0 || controller->id != id)
+			{
+				return 0;
+			}
+			return controller;
+		}
+
+		// FUNCTION: ENGINE 0x107DE440
+		int Director::ActivateCamera(int playerIndex, int kind)
+		{
+			int i;
+			for (i = (unsigned int)cameras.Size() / 2 - 1; i >= 0; i--)
+			{
+				Camera* camera = GetCamera(i, kind);
+				if (camera != 0 && camera->active && camera->enabled)
+				{
+					camera->Activate(false);
+					break;
+				}
+			}
+			GetCamera(playerIndex, kind)->Activate(true);
+			return i;
+		}
+
+		// FUNCTION: ENGINE 0x107DE4B0
+		bool Director::NextActiveCamera(int* index, int kind)
+		{
+			int count = (unsigned int)cameras.Size() >> 1;
+			for (++*index; *index < count; ++*index)
+			{
+				Camera* camera = GetCamera(*index, kind);
+				if (camera != 0 && camera->active && camera->enabled)
+				{
+					if (playerCamera[kind] < 0)
+					{
+						playerCamera[kind] = *index;
+					}
+					return true;
+				}
+			}
+			*index = -1;
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x107DE530
+		void Director::OnCameraDisabled(Camera* camera)
+		{
+			for (unsigned int i = 0; i < (unsigned int)cameras.Size(); i++)
+			{
+				if (cameras.begin[i] == camera)
+				{
+					int kind = i & 1;
+					playerCamera[kind] = -1;
+					NextActiveCamera(&playerCamera[kind], kind);
+					return;
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107DE660
+		Cinematographer* Director::GetCameraController(int playerIndex, unsigned int kind) const
+		{
+			Camera* camera = GetCamera(playerIndex, kind);
+			return Get()->GetController(camera->controller);
+		}
+
+		// FUNCTION: ENGINE 0x107DE690
+		CameraTarget* Director::GetCameraTarget(int playerIndex, unsigned int kind) const
+		{
+			Camera* camera = GetCamera(playerIndex, kind);
+			if (camera != 0)
+			{
+				return camera->target;
+			}
+			return 0;
+		}
+
+		// FUNCTION: ENGINE 0x107DE6B0
+		const math::Matrix* Director::GetCameraMatrix(int playerIndex, unsigned int kind) const
+		{
+			Camera* camera = GetCamera(playerIndex, kind);
+			if (camera != 0)
+			{
+				return camera->target->MatrixAt90();
+			}
+			return &math::Matrix::IDENTITY;
+		}
+
+		// FUNCTION: ENGINE 0x107DE6E0
+		int Director::GetCameraUnknown40(int playerIndex, unsigned int kind) const
+		{
+			Camera* camera = GetCamera(playerIndex, kind);
+			if (camera != 0)
+			{
+				return camera->unknown40;
+			}
+			return 0;
+		}
+
+		// FUNCTION: ENGINE 0x107DE700
+		int Director::GetCameraUnknown44(int playerIndex, unsigned int kind) const
+		{
+			Camera* camera = GetCamera(playerIndex, kind);
+			if (camera != 0)
+			{
+				return camera->unknown44;
+			}
+			return 0;
 		}
 	}
 }

@@ -5,6 +5,8 @@
 #ifndef ENGINE_CAMERA_CINEMATOGRAPHER_H
 #define ENGINE_CAMERA_CINEMATOGRAPHER_H
 
+#include "code/core/name.h"
+
 namespace engine
 {
 	namespace camera
@@ -23,24 +25,39 @@ namespace engine
 			// vftable slot 5
 			virtual int GetType() = 0;
 			virtual void Slot6() = 0;
-			virtual void Slot7() = 0;
+			// vftable slot 7, called by the Director for every controller of an owner
+			virtual void OnEvent(int param) = 0;
 			virtual void Slot8() = 0;
-			virtual void Slot9() = 0;
+			// vftable slot 9, called by the Director for controllers of a kind unless bit 1 of flags is set
+			virtual void OnKindEvent(float param) = 0;
 			// vftable slot 10
 			virtual void Reset() = 0;
 
 			int unknown4;
-			int unknown8;
-			int unknownC;
+			core::Name<core::CaseSensitiveKey> name;
 			// Compared with a player index by the Director
 			int owner;
-			int unknown14[6];
+			int unknown14;
+			int unknown18;
+			int kind;
+			int unknown20;
+			unsigned int flags;
+			int unknown28;
 			bool enabled;
 			int unknown30[3];
 			// Index in the Director's controller table and the serial number given when registered
 			int slot;
 			int id;
 
+			core::Name<core::CaseSensitiveKey> GetName() const
+			{
+				return name;
+			}
+			// Bit 1 of flags clear
+			bool IsRunning() const
+			{
+				return !((flags >> 1) & 1);
+			}
 			void SetSlot(int value);
 			void SetId(int value);
 			int GetId() const;
