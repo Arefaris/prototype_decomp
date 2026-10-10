@@ -405,3 +405,6 @@ _sSystemAllocator = 0x1127A894 ; data size:0x4 | core memoryallocatormalloc.cpp:
 ?Free@core@@YAXPAX@Z = 0x1063AC00 ; function size:0x20 | core::Free(void*): the owning heap's Free (name guess)
 ??0HeapConfig@engine@@QAE@XZ = 0x107DEF00 ; function size:0x29 | engine::HeapConfig::HeapConfig (names guessed)
 ??0HeapConfig2@engine@@QAE@XZ = 0x107DEFF0 ; function size:0x2D | engine::HeapConfig2::HeapConfig2 (names guessed)
+?GetSegmentLength@Spline@math@@QAEMI@Z = 0x107D6940 ; function size:0x108 | math::Spline::GetSegmentLength(unsigned index): cached in lengths[index], else SelectSegment + ArcLength(segment, 1) (name guess)
+?GetTotalLength@Spline@math@@QAEMXZ = 0x107D6A50 ; function size:0xFF | math::Spline::GetTotalLength: sum of the segment lengths, cached in lengths[count] (name guess)
+?GetLength@Spline@math@@QAEMM@Z = 0x107D6B60 ; function size:0xD3 | math::Spline::GetLength(float t): whole segments before t plus the arc length within the segment (name guess)

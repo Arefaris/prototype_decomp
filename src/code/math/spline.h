@@ -79,6 +79,12 @@ namespace math
 		Vector& Evaluate(Vector& out, float t);
 		// Position at key `key`
 		Vector& Evaluate(Vector& out, unsigned int key);
+		// Arc length of one segment / of the whole spline / from the start to t, cached in `lengths` (allocated on
+		// first use, segment count + 1 entries, the last one the total); the arc length itself is a 5-point
+		// Gauss-Legendre sum over the derivative
+		float GetSegmentLength(unsigned int index);
+		float GetTotalLength();
+		float GetLength(float t);
 	};
 }
 

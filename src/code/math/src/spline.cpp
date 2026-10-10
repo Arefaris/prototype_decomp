@@ -6,9 +6,8 @@
 namespace math
 {
 	// Not reconstructed yet: 0x107D4B40 .. 0x107D4EA0 (Step and the other segment steppers), 0x107D5010 ..
-	// 0x107D5C00 (BuildCatmullRom, BuildHermite, the evaluators), 0x107D5F30 DerivativeLength and 0x107D5F60 (arc
-	// length by a 5-point Gauss-Legendre sum, both compiled with a register calling convention), 0x107D5FE0 ..
-	// 0x107D6540 and 0x107D6760 onwards (docs/math_worklist.md).
+	// 0x107D5C00 (BuildCatmullRom, BuildHermite, the evaluators), 0x107D5FE0 .. 0x107D6540, 0x107D6760 .. 0x107D6810
+	// and 0x107D6C40 (docs/math_worklist.md).
 
 	// GLOBAL: ENGINE 0x111BBAD0
 	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
@@ -285,5 +284,111 @@ namespace math
 			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
 			break;
 		}
+	}
+
+	// GLOBAL: ENGINE 0x10E67D88
+	// The five Gauss-Legendre nodes and weights, defined by the engine's data (names guessed)
+	extern const float GAUSS_NODES[5];
+	// GLOBAL: ENGINE 0x10E67D74
+	extern const float GAUSS_WEIGHTS[5];
+
+	// FUNCTION: ENGINE 0x107D5F30
+	// |derivative| at t. A static helper of the unit: the compiler gives it its own register convention (segment in
+	// ecx, the caller pops t), which is what the original has; noinline keeps it out of line as in the original
+	static __declspec(noinline) float DerivativeLength(const SplineSegment* segment, float t)
+	{
+		Vector d;
+		segment->EvaluateDerivative(d, t);
+		return sqrtf(d.z * d.z + d.y * d.y + d.x * d.x);
+	}
+
+	// FUNCTION: ENGINE 0x107D5F60
+	// Arc length over [0, t] by 5-point Gauss-Legendre quadrature (t arrives in xmm0, the segment in edi, the result
+	// leaves in xmm0: the compiler's convention for this static)
+	static __declspec(noinline) float ArcLength(const SplineSegment* segment, float t)
+	{
+		float scale = (t - 0.0f) * 0.5f;
+		float offset = (t + 0.0f) * 0.5f;
+		float sum = 0.0f;
+		for (int i = 0; i < 5; i++)
+		{
+			sum += DerivativeLength(segment, GAUSS_NODES[i] * scale + offset) * GAUSS_WEIGHTS[i];
+		}
+		return sum * scale;
+	}
+
+	// FUNCTION: ENGINE 0x107D6940
+	float Spline::GetSegmentLength(unsigned int index)
+	{
+		unsigned int n = GetSegmentCount();
+		if (lengths != 0)
+		{
+			float cached = lengths[index];
+			if (cached >= 0.0f)
+			{
+				return cached;
+			}
+		}
+		if (lengths == 0)
+		{
+			unsigned int size = n + 1;
+			lengths = new float[size];
+			for (unsigned int i = 0; i < size; i++)
+			{
+				lengths[i] = -1.0f;
+			}
+		}
+		SelectSegment((float)index);
+		lengths[index] = ArcLength(&segment, 1.0f);
+		return lengths[index];
+	}
+
+	// FUNCTION: ENGINE 0x107D6A50
+	float Spline::GetTotalLength()
+	{
+		unsigned int n = GetSegmentCount();
+		if (lengths != 0 && lengths[n] >= 0.0f)
+		{
+			return lengths[n];
+		}
+		if (lengths == 0)
+		{
+			unsigned int size = n + 1;
+			lengths = new float[size];
+			for (unsigned int i = 0; i < size; i++)
+			{
+				lengths[i] = -1.0f;
+			}
+		}
+		float sum = 0.0f;
+		for (unsigned int i = 0; i < n; i++)
+		{
+			sum += GetSegmentLength(i);
+		}
+		lengths[n] = sum;
+		return sum;
+	}
+
+	// FUNCTION: ENGINE 0x107D6B60
+	float Spline::GetLength(float t)
+	{
+		float u = t;
+		if (u < 0.0f)
+		{
+			u = 0.0f;
+		}
+		if (u > GetSegmentCountF())
+		{
+			u = GetSegmentCountF();
+		}
+		float sum = 0.0f;
+		unsigned int count = (unsigned int)u;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			sum += GetSegmentLength(i);
+		}
+		float start = (float)count;
+		SelectSegment(start);
+		return ArcLength(&segment, u - start) + sum;
 	}
 }
