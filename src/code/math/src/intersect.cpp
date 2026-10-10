@@ -1,0 +1,134 @@
+// Intersection tests between the math primitives (0x107D9A20 - 0x107DAB30). Free functions in namespace math;
+// the unit's file name and the function names are guesses (no assert path survives for it).
+#include <math.h>
+
+#include "code/math/aabb.h"
+#include "code/math/capsule.h"
+#include "code/math/mathconstants.h"
+#include "code/math/matrix3.h"
+#include "code/math/obb.h"
+#include "code/math/plane.h"
+#include "code/math/segment.h"
+#include "code/math/sphere.h"
+#include "code/math/vector.h"
+
+namespace math
+{
+	// 0x107D9A20: separating-axis test of a segment (midpoint offset delta from the box centre, half direction
+	// direction scaled by length) against a box of half extents extents, in the box's axis space
+	bool TestBoxAxes(const Vector& extents, const Vector& direction, const Vector& delta, float length);
+	// 0x107D9CB0: separating-axis test of two boxes (extents, centre offset in A's space, rotation B in A's space)
+	int TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
+
+	// FUNCTION: ENGINE 0x107D9B60
+	// EQUIVALENT: same operations in the same order; the original schedules delta.y's subtraction after the push of
+	// length (87.3 %)
+	bool IntersectsAABB(const Vector& direction, const Vector& point, float length, const AABB& box)
+	{
+		Vector centre;
+		centre.Add(box.max, box.min);
+		centre.x *= 0.5f;
+		centre.y *= 0.5f;
+		centre.z *= 0.5f;
+		Vector extents;
+		extents.Sub(box.max, centre);
+		Vector delta;
+		delta.Sub(point, centre);
+		return TestBoxAxes(extents, direction, delta, length);
+	}
+
+	// FUNCTION: ENGINE 0x107D9C20
+	bool IntersectsOBB(const Vector& direction, const Vector& point, float length, const OBB& box)
+	{
+		const Matrix3& axes = *(const Matrix3*)box.axis;
+		Vector localDirection;
+		axes.TransformTransposed(direction, localDirection);
+		Vector delta;
+		delta.x = point.x - box.centre.x;
+		delta.y = point.y - box.centre.y;
+		delta.z = point.z - box.centre.z;
+		Vector localDelta;
+		axes.TransformTransposed(delta, localDelta);
+		return TestBoxAxes(box.extents, localDirection, localDelta, length);
+	}
+
+	// FUNCTION: ENGINE 0x107DA360
+	int Intersects(const OBB& obb, const AABB& box)
+	{
+		Vector centre;
+		centre.Add(box.max, box.min);
+		centre.x *= 0.5f;
+		centre.y *= 0.5f;
+		centre.z *= 0.5f;
+		Vector extents;
+		extents.Sub(box.max, centre);
+		Vector delta;
+		delta.Sub(obb.centre, centre);
+		return TestBoxesSAT(extents, delta, *(const Matrix3*)obb.axis, obb.extents);
+	}
+
+	// FUNCTION: ENGINE 0x107DA410
+	// EQUIVALENT: same operations; the original adds the dot product's y term before the x term (a commutation only)
+	// and loads axis.z into st(0) before multiplying (96.9 %)
+	int Intersects(const OBB& box, const Sphere& sphere)
+	{
+		Vector d;
+		d.Sub(sphere.centre, box.centre);
+		float distanceSquared = 0.0f;
+		for (int i = 3; i--; )
+		{
+			float excess = fabsf(box.axis[i].x * d.x + box.axis[i].y * d.y + box.axis[i].z * d.z) - (&box.extents.x)[i];
+			if (excess > 0.0f)
+			{
+				distanceSquared += excess * excess;
+			}
+		}
+		return sphere.radius * sphere.radius > distanceSquared;
+	}
+
+	// FUNCTION: ENGINE 0x107DA4D0
+	int Intersects(const Capsule& a, const Capsule& b)
+	{
+		Segment segmentA;
+		a.GetSegment(segmentA);
+		Segment segmentB;
+		b.GetSegment(segmentB);
+		float r = a.radius + b.radius;
+		return segmentA.DistanceSquared(segmentB) <= r * r;
+	}
+
+	// FUNCTION: ENGINE 0x107DA530
+	int Intersects(const Capsule& capsule, const Sphere& sphere)
+	{
+		Segment segment;
+		capsule.GetSegment(segment);
+		float r = capsule.radius + sphere.radius;
+		return segment.DistanceSquared(sphere.centre) <= r * r;
+	}
+
+	// FUNCTION: ENGINE 0x107DA580
+	int Intersects(const Capsule& capsule, const Segment& other)
+	{
+		Segment segment;
+		capsule.GetSegment(segment);
+		float r = capsule.radius;
+		return segment.DistanceSquared(other) <= r * r;
+	}
+
+	// FUNCTION: ENGINE 0x107DA660
+	// EQUIVALENT: same operations; the original keeps normal.x in xmm1 and normal.z in xmm3, we get the reverse, and
+	// the second dot product adds its x and y terms the other way round (76 %)
+	int Intersects(const Plane& plane, const Capsule& capsule)
+	{
+		// The plane moved back by the radius; the capsule misses it when both segment ends are in front
+		Plane shifted;
+		shifted.normal.z = plane.normal.z;
+		shifted.normal.y = plane.normal.y;
+		shifted.normal.x = plane.normal.x;
+		shifted.d = plane.d - capsule.radius;
+		Segment segment;
+		capsule.GetSegment(segment);
+		return -shifted.d >= segment.start.x * shifted.normal.x + segment.start.y * shifted.normal.y + segment.start.z * shifted.normal.z
+			|| -shifted.d >= segment.end.x * shifted.normal.x + segment.end.z * shifted.normal.z + segment.end.y * shifted.normal.y;
+	}
+}

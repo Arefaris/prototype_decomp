@@ -31,6 +31,8 @@ namespace math
 		bool IntersectRay(const Vector& origin, const Vector& direction, Vector* hit) const;
 		// This plane = p moved through m: the normal rotated, d from the point -p.d * normal + m's translation
 		void Transform(const Matrix& m, const Plane& p);
+		// In place
+		void Transform(const Matrix& m);
 	};
 }
 

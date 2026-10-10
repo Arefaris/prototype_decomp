@@ -130,4 +130,10 @@ namespace math
 		point.Add(translation, offset);
 		d = -(normal.z * point.z + normal.y * point.y + normal.x * point.x);
 	}
+
+	// FUNCTION: ENGINE 0x107D8E10
+	void Plane::Transform(const Matrix& m)
+	{
+		Transform(m, *this);
+	}
 }
