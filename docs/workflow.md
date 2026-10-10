@@ -34,7 +34,9 @@ python tools/configure.py
    gets `// NONMATCHING: <why>` and stays out of the hybrid DLL.
 6. **Run** it: `ninja dll` (relink + verify), `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature.
-7. **Commit**: source, header, `symbols.txt`. Never anything from `orig/`, `build/`, `local/`.
+7. **Commit**: source, header, `symbols.txt`, and the refreshed progress (`ninja report progress` updates
+   `docs/progress.md`, `docs/progress.svg` and the README's bar). Never anything from `orig/`, `build/`, `local/`
+   ([LEGAL.md](../LEGAL.md)).
 
 ## Matching tips for this compiler
 

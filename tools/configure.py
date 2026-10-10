@@ -98,7 +98,7 @@ def main():
 		f"  command = {ninjaPath(OBJDIFF)} report generate -o $out",
 		"  description = objdiff report",
 		"rule progress",
-		f"  command = $python tools/progress.py --version {version} --markdown $out",
+		f"  command = $python tools/progress.py --version {version} --markdown $out --svg docs/progress.svg --readme README.md",
 		"  description = progress",
 		"",
 	]

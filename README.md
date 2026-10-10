@@ -4,11 +4,24 @@ A decompilation of **Prototype** (Radical Entertainment, 2009), PC version: C++ 
 engine, `prototypeenginef.dll`, function by function, with the compiler the original was built with (Visual Studio
 2005 SP1). The rebuilt DLL is a drop-in replacement for the original in a Steam installation.
 
-> **No game code or assets are included.** You need your own copy of Prototype (Steam, app 10150). Everything derived
-> from the original binaries is generated locally from that copy and never committed. Not affiliated with or endorsed
-> by Activision or Radical Entertainment.
+> **No game code or assets are included.** You need your own copy of Prototype (Steam, app 10150): buy the game.
+> Everything derived from the original binaries is generated locally from that copy and never committed or
+> distributed. Not affiliated with or endorsed by Activision or Radical Entertainment, who made the game and its
+> engine. Non-commercial; no binary releases. Read [LEGAL.md](LEGAL.md) before contributing.
 
 ## Status
+
+<!-- progress:start -->
+![Decompilation progress](docs/progress.svg)
+
+```text
+Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.012 %
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.009 %  (12 / 140196)
+  math         12 functions matched, 1,160 bytes
+```
+
+Updated 2026-10-10 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
+<!-- progress:end -->
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
 game into free roam. See [docs/methodology.md](docs/methodology.md) for how, [docs/plan.md](docs/plan.md) for the
@@ -47,4 +60,6 @@ compiler, extracted from a free Microsoft SDK by `tools/toolchain/setup_vc8.py` 
 
 ## License
 
-GPLv3, see [LICENSE](LICENSE).
+GPLv3 ([LICENSE](LICENSE)) with additional terms under its section 7 (attribution, no misrepresentation, no trademark
+rights), and the project's non-commercial and no-assets policy: see [LEGAL.md](LEGAL.md). *Prototype* is a trademark of
+its owners; the engine and game were created by Radical Entertainment and published by Activision.

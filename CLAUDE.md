@@ -5,6 +5,10 @@ drop-in `prototypeenginef.dll`.
 
 ## Rules
 
+- **LEGAL.md is binding for every change:** no original files or derived bytes in git, no binary releases, no
+  commercial use, no unlocking of sold content, no DRM circumvention, no leaked material.
+- **Progress bar:** run `ninja report progress` before committing new matches (README bar, docs/progress.*).
+
 - **Never commit original bytes:** no binaries, delinked objects, Ghidra databases, disassembly dumps or game assets.
   They live in `orig/`, `build/` and `local/` (all ignored). `tools/pin.py verify` must pass before any tool trusts `orig/`.
 - **Addresses** are virtual addresses of `PROTOPC_2025` (image base `0x10000000`), written `0x1008D450`.

@@ -1,6 +1,6 @@
 """Progress of the decompilation over the whole engine DLL.
 
-    python tools/progress.py [--version PROTOPC_2025] [--markdown docs/progress.md]
+    python tools/progress.py [--version PROTOPC_2025] [--markdown docs/progress.md] [--svg docs/progress.svg] [--readme README.md]
 
 Numerator: functions objdiff reports as 100 % matching (build/<VERSION>/report.json, `ninja report`), mapped to
 addresses through symbols.txt. Denominator: every function of the original (config/<VERSION>/functions.tsv), by
@@ -24,6 +24,8 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--version", default="PROTOPC_2025")
 	parser.add_argument("--markdown")
+	parser.add_argument("--svg", help="progress bar image, e.g. docs/progress.svg")
+	parser.add_argument("--readme", help="README whose progress block to update")
 	args = parser.parse_args()
 	config = ROOT / "config" / args.version
 	sizes = {}
@@ -66,6 +68,59 @@ def main():
 			"function of the original except the incremental link thunks (`config/" + args.version + "/functions.tsv`).", "",
 		] + table + [""]
 		pathlib.Path(args.markdown).write_text("\n".join(text), encoding="utf-8", newline="\n")
+	codePercent = 100.0 * doneBytes / totalBytes
+	functionPercent = 100.0 * len(matched) / len(sizes)
+	if args.svg:
+		pathlib.Path(args.svg).write_text(progressSvg(codePercent, functionPercent, doneBytes, totalBytes,
+			len(matched), len(sizes)), encoding="utf-8", newline="\n")
+	if args.readme:
+		updateReadme(pathlib.Path(args.readme), codePercent, functionPercent, len(matched), len(sizes), perModule)
+
+
+def textBar(percent, width=30):
+	filled = round(width * percent / 100.0)
+	if percent > 0 and filled == 0:
+		filled = 1  # show that something is done
+	return "█" * filled + "░" * (width - filled)
+
+
+def progressSvg(codePercent, functionPercent, doneBytes, totalBytes, doneFunctions, totalFunctions):
+	"""Two labelled bars on an opaque background, readable in GitHub's light and dark themes."""
+	width, barWidth = 520, 300
+
+	def row(y, label, percent, detail):
+		fill = max(2.0, barWidth * percent / 100.0) if percent > 0 else 0
+		return (f'<text x="16" y="{y + 14}" class="l">{label}</text>'
+			f'<rect x="120" y="{y}" width="{barWidth}" height="18" rx="4" class="t"/>'
+			f'<rect x="120" y="{y}" width="{fill:.1f}" height="18" rx="4" class="f"/>'
+			f'<text x="{120 + barWidth + 10}" y="{y + 14}" class="v">{percent:.3f} %</text>'
+			f'<text x="120" y="{y + 32}" class="d">{detail}</text>')
+
+	return "\n".join([
+		f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="112" viewBox="0 0 {width} 112" role="img" aria-label="Decompilation progress: {codePercent:.3f} % of the code">',
+		"<style>.l,.v{font:600 13px sans-serif;fill:#e6edf3}.d{font:11px sans-serif;fill:#9da7b3}.t{fill:#30363d}.f{fill:#3fb950}</style>",
+		f'<rect width="{width}" height="112" rx="8" fill="#161b22"/>',
+		row(14, "Code", codePercent, f"{doneBytes:,} of {totalBytes:,} bytes byte-identical"),
+		row(62, "Functions", functionPercent, f"{doneFunctions:,} of {totalFunctions:,} functions"),
+		"</svg>", ""])
+
+
+def updateReadme(path, codePercent, functionPercent, doneFunctions, totalFunctions, perModule):
+	"""Replace the block between <!-- progress:start --> and <!-- progress:end --> in the README."""
+	block = ["<!-- progress:start -->", "![Decompilation progress](docs/progress.svg)", "",
+		"```text",
+		f"Code       {textBar(codePercent)} {codePercent:7.3f} %",
+		f"Functions  {textBar(functionPercent)} {functionPercent:7.3f} %  ({doneFunctions} / {totalFunctions})"]
+	for module, (count, size) in sorted(perModule.items()):
+		block.append(f"  {module:<9s}{count:6d} functions matched, {size:,} bytes")
+	block += ["```", "", f"Updated {datetime.date.today().isoformat()} by `ninja progress`; details in [docs/progress.md](docs/progress.md).",
+		"<!-- progress:end -->"]
+	text = path.read_text(encoding="utf-8")
+	start, end = text.find("<!-- progress:start -->"), text.find("<!-- progress:end -->")
+	if start < 0 or end < 0:
+		raise SystemExit(f"{path}: no <!-- progress:start --> / <!-- progress:end --> markers")
+	text = text[:start] + "\n".join(block) + text[end + len("<!-- progress:end -->"):]
+	path.write_text(text, encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
