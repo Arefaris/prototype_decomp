@@ -237,3 +237,9 @@ _sStringHeapCounter1 = 0x11278FC8 ; data size:0x4 | core strings.cpp: counter be
 ??1CameraCutMessage@camera@engine@@UAE@XZ = 0x107DDA40 ; function size:0x7 | engine::camera::CameraCutMessage::~CameraCutMessage
 ??_GCameraCutMessage@camera@engine@@UAEPAXI@Z = 0x107DDC90 ; function size:0x1F | engine::camera::CameraCutMessage scalar deleting destructor
 ??_7type_info@@6B@ = 0x10E9A9A4 ; data size:0x4 | type_info vftable (static CRT); our RTTI type descriptors point at it
+?ContainsXZ@Triangle@math@@QBE_NABVVector@2@@Z = 0x107D3360 ; function size:0xBF | math::Triangle::ContainsXZ(const Vector&) (method name guess)
+?ClosestPoint@Triangle@math@@QBEHABVVector@2@AAV32@@Z = 0x107D3420 ; function size:0x676 | math::Triangle::ClosestPoint(p, out): region code 0 face, 1/2/4 edges ab/bc/ca, 5/3/6 corners a/b/c (method name guess)
+?Area@math@@YAMABVVector@1@00@Z = 0x107D3AA0 ; function size:0xA1 | math::Area(a, b, c): half the cross product length (name guess)
+?TriangleBoxOverlap@math@@YAHABVVector@1@0PAVVector4@1@@Z = 0x107DB250 ; function size:0x7BD | math::TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) (name guess)
+?Intersects@math@@YAHABVTriangle@1@ABVAABB@1@@Z = 0x107DBA10 ; function size:0xF5 | math::Intersects(const Triangle&, const AABB&): box centre / half extents, vertices copied into Vector4[4], then TriangleBoxOverlap (name guess)
+?Intersects@math@@YAHABVTriangle@1@ABVSphere@1@@Z = 0x107DBCC0 ; function size:0x52 | math::Intersects(const Triangle&, const Sphere&): ClosestPoint distance <= radius (name guess)

@@ -57,9 +57,9 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 |---|---|---:|---|
 | 0x107D2ED0 | ray intersection | - | 750 bytes |
 | 0x107D31C0 | contains (3D, barycentric signs) | - | |
-| 0x107D3360 | ContainsXZ | 36 % | permuter running |
-| 0x107D3420 | closest point with region code | - | 1 654 bytes |
-| 0x107D3AA0 | Area | 36.9 % | |
+| 0x107D3360 | Triangle::ContainsXZ(p) | 88 % | EQUIVALENT in tree: three 2D edge tests with early returns; the two factors of the first test come out in swapped registers |
+| 0x107D3420 | Triangle::ClosestPoint(p, out) | 9 % | Ericson's region test; returns 1 / 2 / 4 for edges ab / bc / ca, 5 / 3 / 6 for corners, 0 inside. Original frame 0x7c with Vector locals in memory (p copy at 0, ac at 0x1c, bc at 0x28, a - p at 0x34, n at 0x40, c - p at 0x4c, b - p at 0x58, ab in registers), d1 / d3 / d4 / d2 at 0xc-0x18; the dots are written as -(ab . (a - p)) etc. Scalar and Sub/Dot/Cross-helper versions both land at 9 %: the compiler's schedule of the first block differs from the start (REA pseudocode is a faithful guide to the arithmetic) |
+| 0x107D3AA0 | Area(a, b, c) | 48.1 % | free function, cross of (a - b) and (b - c), sqrt in x87 of three SSE squares spilled to the stack; permuter plateau over subtraction lines, products and the sum |
 | 0x107D3B50 | angle (three normalisations, acos) | - | |
 
 ## matrix3.cpp (0x107D3CF0 - 0x107D4150)
@@ -106,6 +106,10 @@ Left:
 | 0x107DA5D0 | Intersects(Plane, OBB) | 61.8 % | x87: the distance matches; the three abs(axis . n) * extent terms are evaluated axis 2, 0, 1 with the dots in y, z, x order; permuter plateau |
 | 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
 | 0x107DA850 | ClassifyBox(box, planes, count) | 47.4 % | frame matches with two Vector locals (far corner declared first); the plane pointer register (ecx vs edx) and the reload of normal.x differ |
+| 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | - | 1 981 bytes, triangle vs box SAT; not attempted |
+| 0x107DBA10 | Intersects(const Triangle&, const AABB&) | 44.5 % | frame 0x58 matches with `Vector4 vertices[4]` (three copied member-wise, 16-byte stride), centre.Add(max, min) * 0.5, extents.Sub; the original sinks centre.z / extents.z and the first `max.x + min.x` load order differs |
+
+Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
 
 ## Further units of the region
 
