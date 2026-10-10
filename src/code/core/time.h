@@ -5,6 +5,21 @@
 
 namespace core
 {
+	// Layout prefix of the concrete ITimer implementation (class from RTTI; member and method names guessed).
+	class Timer
+	{
+	public:
+		virtual float GetProgress();
+
+	private:
+		unsigned int refCount;
+		unsigned int priority;
+		unsigned int period;
+		bool running;
+		unsigned char padding[3];
+		unsigned int elapsed;
+	};
+
 	class Time
 	{
 	public:

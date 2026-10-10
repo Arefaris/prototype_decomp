@@ -16,8 +16,8 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 
 ```text
 Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.201 %
-Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.218 %  (305 / 140196)
-  core        107 functions matched, 4,184 bytes
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.218 %  (306 / 140196)
+  core        108 functions matched, 4,224 bytes
   engine       58 functions matched, 2,574 bytes
   math        140 functions matched, 12,801 bytes
 ```

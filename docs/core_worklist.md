@@ -67,10 +67,10 @@ The three preceding functions in the same unit now match too: placement `operato
 `GetSystemAllocatorDestroy` (0x106465A0, name guessed). Destruction calls vtable slot 2 with flag 0, running the
 vector deleting destructor without freeing the allocator's static storage. The corresponding construction entries
 are InitSystemAllocator (0x10646960) and its forwarding entry (0x10646990).
-`ninja check` passes all 314 matching annotations; the relink verifier reports no differences outside replaced
+`ninja check` passes all 315 matching annotations; the relink verifier reports no differences outside replaced
 functions or relocation targets. The unit also compiles with MSVC 2022 x86, and the hybrid DLL reaches free roam.
 
-## time.cpp (0x1063CBE0 - 0x1063CE32): done
+## time.cpp (0x1063CBB0 - 0x1063CE32): done
 
 `core::Time` stores an unsigned microsecond remainder at +0, unsigned milliseconds at +4, and cached float
 seconds at +8 (12 bytes). The class association and method/member/file names are guesses: `core::Time` appears
@@ -91,10 +91,12 @@ Keeping the running sum in the member makes VS2005 emit the original unsigned `d
 reciprocal multiplication and different x87 scheduling. Keep the member updates in that order, including the
 32-bit wraparound before division. AddMicroseconds now calls the reconstructed Add.
 
-0x1063CBB0 belongs to the preceding timer object (fields at +0x0C/+0x14), not this 12-byte time value.
+0x1063CBB0 belongs to the preceding `core::Timer` object (fields at +0x0C/+0x14), not this 12-byte time value.
+Its final virtual method now matches as `GetProgress` (name guessed): it returns the unsigned elapsed counter divided
+by the unsigned period as a float.
 
-Validation (2026-10-10): `ninja check` passed all 311 matching annotations. The completed time unit contributes
-eight matches (556 bytes), including the additional 84 bytes of Add.
+Validation (2026-10-10): `ninja check` passed all 315 matching annotations. The completed time unit contributes
+nine matches (596 bytes), including the 40-byte Timer method and the 84-byte Time::Add.
 The unit also compiled with MSVC 2022 x86. An ignored local harness (`local/time_differential.cpp`, linked
 against the VC8 object) passed 956 comparisons against the pinned original functions, covering unsigned
 boundaries, microsecond carries, subtraction to zero, float conversion and 64-bit scaling. The hybrid DLL
@@ -106,5 +108,4 @@ reached free roam in an isolated test copy; movement, pause, single-step and res
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
   encoding, leaf, recursive fallback).
-- 0x1063CBB0: preceding timer object's unsigned counter/period ratio; not reconstructed.
 - 0x10648F70 - 0x106492C0: a run of small functions with float maths (not looked at).

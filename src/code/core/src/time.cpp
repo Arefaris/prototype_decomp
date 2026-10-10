@@ -2,6 +2,12 @@
 
 namespace core
 {
+	// FUNCTION: ENGINE 0x1063CBB0
+	float Timer::GetProgress()
+	{
+		return (float)elapsed / (float)period;
+	}
+
 	// FUNCTION: ENGINE 0x1063CBE0
 	void Time::Set(unsigned int millis, unsigned int micros)
 	{
