@@ -113,3 +113,6 @@ _sCrc32TableBuilt = 0x1127A880 ; data size:0x1 | core crc32.cpp: the table-built
 ?IntersectSegment@Plane@math@@QBE_NABVVector@2@0PAM@Z = 0x107D8BB0 ; function size:0xC2 | math::Plane::IntersectSegment(a, b, float* t) (name guess)
 ?IntersectRay@Plane@math@@QBE_NABVVector@2@0PAV32@@Z = 0x107D8C80 ; function size:0xCA | math::Plane::IntersectRay(origin, direction, Vector* hit) (name guess)
 ?Transform@Plane@math@@QAEXABVMatrix@2@ABV12@@Z = 0x107D8D50 ; function size:0xB1 | math::Plane::Transform(const Matrix&, const Plane&) (name guess)
+?CopyTo@SymmetricMatrix@math@@QBEXAAVMatrix@2@@Z = 0x107D9240 ; function size:0x42 | math::SymmetricMatrix::CopyTo (method name guess)
+?IsZero@SymmetricMatrix@math@@QBEHXZ = 0x107D9750 ; function size:0x5C | math::SymmetricMatrix::IsZero (method name guess)
+?GetDiagonal@SymmetricMatrix@math@@QBEXAAM00@Z = 0x107D9A00 ; function size:0x1D | math::SymmetricMatrix::GetDiagonal (method name guess)
