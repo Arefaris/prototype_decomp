@@ -16,8 +16,9 @@ drop-in `prototypeenginef.dll`.
   `src/code/<module>/...`. One original translation unit = one source file = one unit in the build.
 - **Annotations:** each reconstructed function carries `// FUNCTION: ENGINE 0x1008D450` above it (reccmp style),
   plus `// STUB`/`// GLOBAL`/`// VTABLE` as needed.
-- **Matching first:** a function counts as done when objdiff shows 100 % against the original object; non-matching
-  but equivalent code is allowed only with a `// NONMATCHING: reason` note.
+- **Matching first:** a function counts as done when objdiff shows 100 % against the original object. Otherwise
+  `// EQUIVALENT: reason` (same operations in the same order, compiled into the hybrid DLL, not counted) or
+  `// NONMATCHING: reason` with the body inside `#ifdef NONMATCHING` (not compiled). See `docs/workflow.md`.
 - **REA:** analyse `local/re/prototypeenginef_rea.exe` (`python tools/re/rea_target.py`), never the game's file.
 
 ## Code style

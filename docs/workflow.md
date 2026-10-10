@@ -30,8 +30,14 @@ python tools/configure.py
 4. **Write** it in the unit's source file under `src/code/...`, with `// FUNCTION: ENGINE 0x10123456` directly above
    the definition. Declarations go in headers next to the module (`src/code/<module>/...h`).
 5. **Match** it: `ninja && ninja check` (objcmp), or objdiff on the unit (`D:/tools/objdiff/objdiff.exe`, project =
-   repository root). Iterate on the source until it is identical; a function that will not match after real effort
-   gets `// NONMATCHING: <why>` and stays out of the hybrid DLL.
+   repository root). objcmp also checks the values behind float-constant relocations. Iterate on the source until it
+   is identical; `tools/permute.py` tries statement, sum-term and operand orders automatically (mark a copy with
+   `// PERMUTE_LINES_BEGIN/END`, `PERMUTE_SUM(...)`, `PERMUTE_MUL(...)`). A function that will not match after real
+   effort gets one of:
+   - `// EQUIVALENT: <why>`: same operations in the same order, different register or scheduling choices. It is
+     compiled and replaces the original in the hybrid DLL (callers in the same unit may rely on its register use),
+     but does not count as matched. Floating-point operations must keep the original's order.
+   - `// NONMATCHING: <why>` with the body inside `#ifdef NONMATCHING`: not compiled, the original stays.
 6. **Run** it: `ninja dll` (relink + verify), `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature.
 7. **Commit**: source, header, `symbols.txt`, and the refreshed progress (`ninja report progress` updates

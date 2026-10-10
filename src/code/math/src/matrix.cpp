@@ -1,6 +1,9 @@
+#include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/sincos.h"
 #include "code/math/vector.h"
+
+#include <math.h>
 
 namespace math
 {
@@ -195,5 +198,118 @@ namespace math
 		m[0][0] *= s; m[0][1] *= s; m[0][2] *= s;
 		m[1][0] *= s; m[1][1] *= s; m[1][2] *= s;
 		m[2][0] *= s; m[2][1] *= s; m[2][2] *= s;
+	}
+
+	// FUNCTION: ENGINE 0x107D0300
+	void Matrix::PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ)
+	{
+		m[0][1] = 0.0f;
+		m[0][2] = 0.0f;
+		m[0][3] = 0.0f;
+		m[1][0] = 0.0f;
+		m[1][2] = 0.0f;
+		m[2][2] = farZ / (nearZ - farZ);
+		m[1][3] = 0.0f;
+		m[2][0] = 0.0f;
+		m[2][1] = 0.0f;
+		m[2][3] = -1.0f;
+		m[3][0] = 0.0f;
+		m[3][1] = 0.0f;
+		m[3][2] = nearZ * farZ / (nearZ - farZ);
+		m[3][3] = 0.0f;
+		m[0][0] = (1.0f / tanf(fov * 0.5f)) / aspect;
+		m[1][1] = 1.0f / tanf(fov * 0.5f);
+	}
+
+	// FUNCTION: ENGINE 0x107D08F0
+	// EQUIVALENT: the original loads s after the first element of this; we load it first (one instruction)
+	void Matrix::Multiply(float s)
+	{
+		m[0][0] *= s; m[0][1] *= s; m[0][2] *= s; m[0][3] *= s;
+		m[1][0] *= s; m[1][1] *= s; m[1][2] *= s; m[1][3] *= s;
+		m[2][0] *= s; m[2][1] *= s; m[2][2] *= s; m[2][3] *= s;
+		m[3][0] *= s; m[3][1] *= s; m[3][2] *= s; m[3][3] *= s;
+	}
+
+	// FUNCTION: ENGINE 0x107D09E0
+	void Matrix::Multiply(const Matrix& a, float s)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			m[i][0] = a.m[i][0] * s; m[i][1] = a.m[i][1] * s; m[i][2] = a.m[i][2] * s; m[i][3] = a.m[i][3] * s;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D0AD0
+	void Matrix::Add(const Matrix& o)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			m[i][0] += o.m[i][0]; m[i][1] += o.m[i][1]; m[i][2] += o.m[i][2]; m[i][3] += o.m[i][3];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D0BD0
+	// EQUIVALENT: the original loads the address of o after the first element of this; we hoist it (one instruction)
+	void Matrix::Subtract(const Matrix& o)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			m[i][0] -= o.m[i][0]; m[i][1] -= o.m[i][1]; m[i][2] -= o.m[i][2]; m[i][3] -= o.m[i][3];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D0CD0
+	void Matrix::OuterProduct(const Vector& a, const Vector& b)
+	{
+		m[0][0] = a.x * b.x; m[0][1] = b.y * a.x; m[0][2] = a.x * b.z; m[0][3] = 0.0f;
+		m[1][0] = b.x * a.y; m[1][1] = b.y * a.y; m[1][2] = a.y * b.z; m[1][3] = 0.0f;
+		m[2][0] = a.z * b.x; m[2][1] = a.z * b.y; m[2][2] = a.z * b.z; m[2][3] = 0.0f;
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = 0.0f; m[3][3] = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107D0ED0
+	void Matrix::Add3x3(const Matrix& o)
+	{
+		m[0][0] += o.m[0][0]; m[0][1] += o.m[0][1]; m[0][2] += o.m[0][2];
+		m[1][0] += o.m[1][0]; m[1][1] += o.m[1][1]; m[1][2] += o.m[1][2];
+		m[2][0] += o.m[2][0]; m[2][1] += o.m[2][1]; m[2][2] += o.m[2][2];
+	}
+
+	// FUNCTION: ENGINE 0x107D1010
+	// EQUIVALENT: as Subtract, the address load of o one instruction later in the original
+	void Matrix::Subtract3x3(const Matrix& o)
+	{
+		m[0][0] -= o.m[0][0]; m[0][1] -= o.m[0][1]; m[0][2] -= o.m[0][2];
+		m[1][0] -= o.m[1][0]; m[1][1] -= o.m[1][1]; m[1][2] -= o.m[1][2];
+		m[2][0] -= o.m[2][0]; m[2][1] -= o.m[2][1]; m[2][2] -= o.m[2][2];
+	}
+
+	// FUNCTION: ENGINE 0x107D1A20
+	void Matrix::RotationAxisAngle(const Vector& axis, float angle)
+	{
+		if (fabsf(angle) <= EPSILON_SMALL)
+		{
+			IdentityRotation();
+			return;
+		}
+		float s, c;
+		SinCos(-angle, &s, &c);
+		FromAxisCosSin(axis, c, s);
+	}
+
+	// FUNCTION: ENGINE 0x107D14F0
+	void Matrix::PerspectiveOffCenter(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		m[0][0] = (nearZ * 2.0f) / (right - left);
+		m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f; m[1][0] = 0.0f; m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[1][1] = (nearZ * 2.0f) / (top - bottom);
+		m[2][0] = (left + right) / (left - right);
+		m[2][1] = (bottom + top) / (bottom - top);
+		m[2][2] = farZ / (farZ - nearZ);
+		m[3][0] = 0.0f; m[3][1] = 0.0f;
+		m[2][3] = 1.0f;
+		m[3][2] = (nearZ * farZ) / (nearZ - farZ);
+		m[3][3] = 0.0f;
 	}
 }
