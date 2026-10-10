@@ -72,3 +72,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - The CRT is statically linked into the original, so compiler helpers (`__allmul`, `_CIacos`, `_ftol2`, ...) are
   functions of the image: when the relink reports one unresolved, find it (REA `search_procedures`, or the call in
   the original function) and add it to `symbols.txt` like any function.
+- Classes with virtual functions: our object emits their vftables and RTTI itself (the type descriptors need
+  `??_7type_info@@6B@`, mapped in `symbols.txt`); a virtual destructor defined in the class body is still emitted as a
+  COMDAT function (the vftable needs its address) and gets inlined into the compiler's scalar deleting destructor
+  (`??_G...`), which is how the engine's `??_G` functions look. Functions defined in headers cannot carry a
+  `// FUNCTION:` annotation yet, so such destructors are not counted.
