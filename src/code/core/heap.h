@@ -7,6 +7,8 @@
 namespace core
 {
 	void* HeapAlloc(int heap, unsigned int size);
+	// 0x1063A9A0: returns a block to its heap
+	void HeapFree(int heap, void* block);
 }
 
 #endif
