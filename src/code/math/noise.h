@@ -39,6 +39,9 @@ namespace math
 		void SetPeriodY(int value);
 		void SetPeriodZ(int value);
 
+		// Pseudo-random value in [-1, 1] at an integer lattice point, hashed with seed (perlin.cpp)
+		float Lattice(int x, int y, int z) const;
+
 	private:
 		// Recomputes normaliser from persistence and octaves
 		void UpdateNormaliser();
