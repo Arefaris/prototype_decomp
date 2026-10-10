@@ -58,6 +58,9 @@ namespace core
 	// Constructs the static system allocator in place and returns it (0x10646990 forwards to it)
 	MemoryAllocatorMalloc* InitSystemAllocator();
 	MemoryAllocatorMalloc* GetSystemAllocatorInit();
+	// Invokes the virtual destructor without freeing the static storage (names guessed; the second is a forwarding entry)
+	void DestroySystemAllocator();
+	void GetSystemAllocatorDestroy();
 }
 
 #endif

@@ -1,7 +1,12 @@
-#include <new>
 #include <stdlib.h>
 
 #include "code/core/memory/memoryallocatormalloc.h"
+
+// FUNCTION: ENGINE 0x10646580
+inline void* operator new(unsigned int size, void* block)
+{
+	return block;
+}
 
 // The interlocked intrinsics, declared here instead of pulling in windows.h (the toolchain has no SDK headers)
 extern "C"
@@ -23,6 +28,21 @@ namespace core
 	static int sSystemAllocatorStorage[sizeof(MemoryAllocatorMalloc) / sizeof(int)];
 	// GLOBAL: ENGINE 0x1127A894
 	static MemoryAllocatorMalloc* sSystemAllocator;
+
+	// FUNCTION: ENGINE 0x10646590
+	void DestroySystemAllocator()
+	{
+		// Slot 2 is the vector deleting destructor. A zero flag runs the destructor without freeing the static storage.
+		typedef void* (__thiscall *DeletingDestructor)(MemoryAllocatorMalloc*, unsigned int);
+		DeletingDestructor destructor = (DeletingDestructor)(*(void***)sSystemAllocator)[2];
+		destructor(sSystemAllocator, 0);
+	}
+
+	// FUNCTION: ENGINE 0x106465A0
+	void GetSystemAllocatorDestroy()
+	{
+		DestroySystemAllocator();
+	}
 
 	// 0x106465D0 - 0x10646600 and 0x106467D0: four interlocked helpers with register arguments (atomic read
 	// through _InterlockedAnd(p, -1), increment, decrement) that nothing in this unit calls; not reconstructed

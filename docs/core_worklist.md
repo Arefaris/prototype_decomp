@@ -50,7 +50,7 @@ the heap registration (0x1063AE10) fills with Set and reads with Find / Get. Pla
 |---|---|---:|---|
 | 0x10646400 | Set(start, end, value, int* previous) | 9 % | EQUIVALENT in tree: same blocks and order; the original keeps the index in edi and `end` in ebx (later `value`), ours keeps the index in ebx with an `index * 8` temporary in edi and reloads `end` / `value`; it also repeats the `key == start` test (the nested / spelled-apart forms do not bring it back) |
 
-## memory/memoryallocatormalloc.cpp (0x106465B0 - 0x10646995): done
+## memory/memoryallocatormalloc.cpp (0x10646580 - 0x10646995): done
 
 `core::MemoryAllocatorMalloc` (RTTI name): all 28 functions matched, including the inline constructor /
 destructor (defined in the class body so that the deleting destructor and InitSystemAllocator inline them; the
@@ -61,6 +61,14 @@ increment, decrement; register arguments) that nothing in the unit calls. Link n
 `??3@YAXPAX@Z` (operator delete 0x107DEFD0) and RTTI needs `??_7type_info@@6B@` (0x10E9A9A4) in symbols.txt;
 `IsDebuggerPresent` is declared without `__stdcall` because the generated kernel32.lib names the slot
 `__imp__IsDebuggerPresent`.
+
+The three preceding functions in the same unit now match too: placement `operator new(unsigned int, void*)`
+(0x10646580), `DestroySystemAllocator` (0x10646590, name guessed) and its forwarding entry
+`GetSystemAllocatorDestroy` (0x106465A0, name guessed). Destruction calls vtable slot 2 with flag 0, running the
+vector deleting destructor without freeing the allocator's static storage. The corresponding construction entries
+are InitSystemAllocator (0x10646960) and its forwarding entry (0x10646990).
+`ninja check` passes all 314 matching annotations; the relink verifier reports no differences outside replaced
+functions or relocation targets. The unit also compiles with MSVC 2022 x86, and the hybrid DLL reaches free roam.
 
 ## time.cpp (0x1063CBE0 - 0x1063CE32): done
 
@@ -94,8 +102,6 @@ reached free roam in an isolated test copy; movement, pause, single-step and res
 
 ## Candidates nearby (leaf functions, not started)
 
-- 0x10646580 - 0x106465A0: two tiny global-allocator forwarders (`return second argument`, a virtual call on the
-  system allocator pointer 0x1127A894) between RangeMap and MemoryAllocatorMalloc.
 - 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string

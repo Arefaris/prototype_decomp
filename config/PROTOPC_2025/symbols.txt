@@ -418,3 +418,6 @@ _sSystemAllocator = 0x1127A894 ; data size:0x4 | core memoryallocatormalloc.cpp:
 ?ScaleTime@core@@YA_K_K00@Z = 0x1063CDD0 ; function size:0x63 | core::ScaleTime(value, multiplier, divisor), quotient/remainder scaling (name guess)
 __aulldvrm = 0x10A88920 ; function size:0x95 | MSVC unsigned 64-bit division with remainder
 __aulldiv = 0x10A88530 ; function size:0x68 | MSVC unsigned 64-bit division
+??2@YAPAXIPAX@Z = 0x10646580 ; function size:0x5 | placement operator new(unsigned int, void*)
+?DestroySystemAllocator@core@@YAXXZ = 0x10646590 ; function size:0x10 | destroy the static system allocator without freeing its storage (name guess)
+?GetSystemAllocatorDestroy@core@@YAXXZ = 0x106465A0 ; function size:0x5 | forward to DestroySystemAllocator (name guess)
