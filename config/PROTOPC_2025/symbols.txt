@@ -2,3 +2,7 @@
 ; Names marked "guess" are ours, not the original's; they will be renamed when the binary tells the real ones.
 ?UnpackNormal@Vector@math@@QAEXI@Z = 0x107CE990 ; function size:0x8E | math::Vector::UnpackNormal (method name guess)
 ?IdentityRotation@Matrix@math@@QAEXXZ = 0x107CEAF0 ; function size:0x38 | math::Matrix::IdentityRotation (class and method name guess)
+?MakeClosest@Quaternion@math@@QAEXABV12@@Z = 0x107CE220 ; function size:0x87 | math::Quaternion::MakeClosest (class and method name guess)
+?Normalize@Vector@math@@QAEMXZ = 0x107CE3D0 ; function size:0x84 | math::Vector::Normalize (method name guess)
+?NormalizeFast@Vector@math@@QAEXXZ = 0x107CE460 ; function size:0x65 | math::Vector::NormalizeFast (method name guess)
+?Normalize@Vector@math@@QAEXABV12@@Z = 0x107CE4D0 ; function size:0x4B | math::Vector::Normalize(const Vector&) (method name guess)

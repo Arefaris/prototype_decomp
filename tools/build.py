@@ -21,7 +21,14 @@ import relink  # noqa: E402
 
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
 CFLAGS = ["/c", "/O2", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
-ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)")
+ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(\s*//\s*NONMATCHING)?")
+
+
+def annotations(text):
+	"""[(address, nonmatching)] of a source file. A function that does not match yet carries
+	"// NONMATCHING: reason" on the line after its FUNCTION annotation and sits inside #ifdef NONMATCHING, so it is
+	neither compiled into the hybrid DLL nor checked."""
+	return [(int(m.group(1), 16), m.group(2) is not None) for m in ANNOTATION.finditer(text)]
 
 
 def compileAll(version):
@@ -42,12 +49,15 @@ def compileAll(version):
 def checkFunctions(objects, version):
 	symbols = relink.loadSymbols(version)
 	byAddress = {address: name for name, address in symbols.items()}
-	matched = total = 0
+	matched = total = nonmatching = 0
 	for source, obj in objects:
-		for m in ANNOTATION.finditer(source.read_text(encoding="utf-8")):
-			address = int(m.group(1), 16)
-			total += 1
+		for address, isNonmatching in annotations(source.read_text(encoding="utf-8")):
 			name = byAddress.get(address)
+			if isNonmatching:
+				nonmatching += 1
+				print(f"  nonm. 0x{address:08X} {name}")
+				continue
+			total += 1
 			if name is None:
 				print(f"  {source.name}: 0x{address:08X} has no entry in symbols.txt")
 				continue
@@ -56,7 +66,7 @@ def checkFunctions(objects, version):
 			status = "match" if result.returncode == 0 else "DIFF "
 			matched += result.returncode == 0
 			print(f"  {status} 0x{address:08X} {name}: {result.stdout.strip().split(': ', 1)[-1]}")
-	print(f"{matched}/{total} annotated functions match")
+	print(f"{matched}/{total} annotated functions match ({nonmatching} marked NONMATCHING)")
 	return matched == total
 
 
@@ -65,6 +75,7 @@ def main():
 	parser.add_argument("--version", default="PROTOPC_2025")
 	parser.add_argument("--no-link", action="store_true")
 	parser.add_argument("--no-compile", action="store_true", help="use the objects ninja already built")
+	parser.add_argument("--stamp", help="file to touch when everything matches (for ninja)")
 	args = parser.parse_args()
 	if args.no_compile:
 		objDir = ROOT / "build" / args.version / "obj"
@@ -74,6 +85,8 @@ def main():
 		print(f"compiled {len(objects)} sources")
 	allMatch = checkFunctions(objects, args.version)
 	if args.no_link:
+		if allMatch and args.stamp:
+			pathlib.Path(args.stamp).touch()
 		sys.exit(0 if allMatch else 1)
 	code = subprocess.call([sys.executable, str(ROOT / "tools" / "delink" / "relink.py"), "--version", args.version] +
 		[str(obj) for _, obj in objects])

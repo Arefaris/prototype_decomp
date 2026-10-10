@@ -22,7 +22,6 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import build  # noqa: E402  (compiler options)
 
-ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)")
 OBJDIFF = r"D:\tools\objdiff\objdiff-cli.exe"
 
 
@@ -34,7 +33,8 @@ def scanUnits():
 	units = []
 	for source in sorted((ROOT / "src").rglob("*.cpp")):
 		name = source.relative_to(ROOT / "src").with_suffix("").as_posix()
-		functions = [int(m.group(1), 16) for m in ANNOTATION.finditer(source.read_text(encoding="utf-8"))]
+		# NONMATCHING functions stay in the target (objdiff counts them as not done) but are not compiled
+		functions = [address for address, _ in build.annotations(source.read_text(encoding="utf-8"))]
 		units.append({"name": name, "source": source.relative_to(ROOT).as_posix(), "functions": functions})
 	return units
 
@@ -89,10 +89,10 @@ def main():
 		f"  command = $python tools/delink/relink.py --version {version} $in",
 		"  description = relink prototypeenginef.dll",
 		"rule verify",
-		f"  command = $python tools/delink/verify.py --version {version} && $python -c \"open('$out','w').close()\"",
+		f"  command = $python tools/delink/verify.py --version {version} --stamp $out",
 		"  description = verify",
 		"rule check",
-		f"  command = $python tools/build.py --version {version} --no-link --no-compile && $python -c \"open('$out','w').close()\"",
+		f"  command = $python tools/build.py --version {version} --no-link --no-compile --stamp $out",
 		"  description = objcmp annotated functions",
 		"rule report",
 		f"  command = {ninjaPath(OBJDIFF)} report generate -o $out",

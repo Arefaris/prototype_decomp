@@ -63,6 +63,7 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("dll", nargs="?")
 	parser.add_argument("--version", default="PROTOPC_2025")
+	parser.add_argument("--stamp", help="file to touch when the DLL verifies (for ninja)")
 	args = parser.parse_args()
 	ours = pefile.PE(args.dll or str(ROOT / "build" / args.version / "relink" / "prototypeenginef.dll"))
 	orig = pefile.PE(str(ROOT / "orig" / args.version / "prototypeenginef.dll"))
@@ -124,6 +125,8 @@ def main():
 	ok = ok and not badRedirects
 	print(f"{len(report['replaced'])} replaced functions, {len(report['redirects'])} references redirected to them")
 	print("IDENTICAL (modulo relocation targets and replaced functions)" if ok else "DIFFERENT")
+	if ok and args.stamp:
+		pathlib.Path(args.stamp).touch()
 	sys.exit(0 if ok else 1)
 
 

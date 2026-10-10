@@ -12,7 +12,13 @@ namespace math
 		float y;
 		float z;
 
-		// Unpacks a 10:10:10 signed normal (x in bits 0-9, y in 10-19, z in 20-29); name guessed
+		// Scales to unit length and returns the old length; a vector shorter than EPSILON_FLOAT becomes zero
+		float Normalize();
+		// Scales to unit length without a check for zero length
+		void NormalizeFast();
+		// Sets this vector to v scaled to unit length, without a check for zero length
+		void Normalize(const Vector& v);
+		// Unpacks a 10:10:10 signed normal (x in bits 0-9, y in 10-19, z in 20-29)
 		void UnpackNormal(unsigned int packed);
 	};
 }
