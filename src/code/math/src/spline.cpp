@@ -5,10 +5,14 @@
 
 namespace math
 {
-	// Not reconstructed yet: 0x107D4B40 .. 0x107D4EA0, 0x107D5010 .. 0x107D5C00 (segment construction and the
-	// evaluators), 0x107D5F30 DerivativeLength and 0x107D5F60 (arc length by a 5-point Gauss-Legendre sum, both
-	// compiled with a register calling convention), 0x107D5FE0 .. 0x107D6540, 0x107D6630 SelectSegment and
-	// 0x107D6760 onwards (docs/math_worklist.md).
+	// Not reconstructed yet: 0x107D4B40 .. 0x107D4EA0 (Step and the other segment steppers), 0x107D5010 ..
+	// 0x107D5C00 (BuildCatmullRom, BuildHermite, the evaluators), 0x107D5F30 DerivativeLength and 0x107D5F60 (arc
+	// length by a 5-point Gauss-Legendre sum, both compiled with a register calling convention), 0x107D5FE0 ..
+	// 0x107D6540 and 0x107D6760 onwards (docs/math_worklist.md).
+
+	// GLOBAL: ENGINE 0x111BBAD0
+	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
+	extern const Matrix* const SPLINE_BASIS[15];
 
 	// FUNCTION: ENGINE 0x107D5000
 	SplineSegment::SplineSegment()
@@ -231,5 +235,55 @@ namespace math
 	{
 		Evaluate(out, (float)key);
 		return out;
+	}
+
+	// FUNCTION: ENGINE 0x107D6300
+	void SplineSegment::Build(int mode, const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+		const Vector4* t0, const Vector4* t1)
+	{
+		// The multiply sits in every case: the original duplicates it for the plain-key case and merges the other two
+		Matrix geometry;
+		switch (mode)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 5:
+		case 6:
+		case 7:
+		case 10:
+		case 11:
+		case 12:
+			geometry.m[0][0] = k0->x;
+			geometry.m[0][1] = k0->y;
+			geometry.m[0][2] = k0->z;
+			geometry.m[0][3] = k0->w;
+			geometry.m[1][0] = k1->x;
+			geometry.m[1][1] = k1->y;
+			geometry.m[1][2] = k1->z;
+			geometry.m[1][3] = k1->w;
+			geometry.m[2][0] = k2->x;
+			geometry.m[2][1] = k2->y;
+			geometry.m[2][2] = k2->z;
+			geometry.m[2][3] = k2->w;
+			geometry.m[3][0] = k3->x;
+			geometry.m[3][1] = k3->y;
+			geometry.m[3][2] = k3->z;
+			geometry.m[3][3] = k3->w;
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		case 3:
+		case 8:
+		case 13:
+			BuildCatmullRom(k0, k1, k2, k3, geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		case 4:
+		case 9:
+		case 14:
+			BuildHermite(k0, k1, k2, k3, t0, t1, geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		}
 	}
 }

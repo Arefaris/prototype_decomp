@@ -291,3 +291,8 @@ _sStringHeapCounter1 = 0x11278FC8 ; data size:0x4 | core strings.cpp: counter be
 ?SetKey@Spline@math@@QAEXHABVVector@2@@Z = 0x107D6540 ; function size:0x4A | math::Spline::SetKey(int, const Vector&): w = 1 (name guess)
 ?Evaluate@Spline@math@@QAEAAVVector@2@AAV32@I@Z = 0x107D6F10 ; function size:0x27 | math::Spline::Evaluate(out, unsigned key) (name guess)
 ?Evaluate@Spline@math@@QAEAAVVector@2@AAV32@M@Z = 0x107D66F0 ; function size:0x6D | math::Spline::Evaluate(out, t) (name guess)
+?SPLINE_BASIS@math@@3QBQBVMatrix@1@B = 0x111BBAD0 ; data size:0x3C | math::SPLINE_BASIS: the 15 basis matrix pointers of SplineSegment::Build, by mode (name guess)
+?Multiply@Matrix@math@@QAEXABV12@0@Z = 0x107D2C00 ; function size:0xA8 | math::Matrix::Multiply(const Matrix& a, const Matrix& b): this = a * b (name guess)
+?BuildCatmullRom@SplineSegment@math@@QBEXPBVVector4@2@000AAVMatrix@2@@Z = 0x107D5040 ; function size:0x1F8 | math::SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& geometry): chord-slope tangents, intervals from w when the flag is set (name guess)
+?BuildHermite@SplineSegment@math@@QBEXPBVVector4@2@00000AAVMatrix@2@@Z = 0x107D5240 ; function size:0x5DD | math::SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& geometry) (name guess)
+?Step@SplineSegment@math@@QAEAAVVector@2@AAV32@@Z = 0x107D4BC0 ; function size:0xC3 | math::SplineSegment::Step(Vector& out): forward-differencing step of the derivative rows (name guess)

@@ -55,6 +55,8 @@ namespace math
 		void Scale3x3(float s);
 		// this = a * s, element-wise
 		void Multiply(const Matrix& a, float s);
+		// this = a * b (0x107D2C00, not reconstructed yet)
+		void Multiply(const Matrix& a, const Matrix& b);
 		// this += other, all 16 elements / only the upper 3x3
 		void Add(const Matrix& other);
 		void Add3x3(const Matrix& other);
