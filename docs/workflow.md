@@ -14,6 +14,14 @@ python tools/re/rea_target.py                                                # c
 python tools/configure.py
 ```
 
+## Parallel work
+
+Each agent (or person) works in its own git worktree: `python tools/worktree.py new <name>` creates
+`../protototype_decomp_wt/<name>` on branch `<name>` with `orig/PROTOPC_2025` and `local/` linked in and ninja
+configured, so every tool below works there. Commit on the branch only; the main session merges into `main`, resolves
+the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progress`, and pushes.
+`python tools/worktree.py remove <name>` deletes the tree once merged.
+
 ## Per function
 
 1. **Pick** a function: from `config/PROTOPC_2025/functions.tsv`, preferably one whose callees are done or trivial,

@@ -20,6 +20,9 @@ drop-in `prototypeenginef.dll`.
   `// EQUIVALENT: reason` (same operations in the same order, compiled into the hybrid DLL, not counted) or
   `// NONMATCHING: reason` with the body inside `#ifdef NONMATCHING` (not compiled). See `docs/workflow.md`.
 - **REA:** analyse `local/re/prototypeenginef_rea.exe` (`python tools/re/rea_target.py`), never the game's file.
+- **Parallel agents work in their own worktrees:** `python tools/worktree.py new <name>` (branch `<name>`,
+  `../protototype_decomp_wt/<name>`, `orig/` and `local/` linked in). Agents commit on their branch and never push or
+  touch the main tree; the main session merges the branches into `main`.
 
 ## Code style
 
