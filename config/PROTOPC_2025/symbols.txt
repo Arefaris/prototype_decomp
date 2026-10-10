@@ -243,7 +243,7 @@ _sStringHeapCounter1 = 0x11278FC8 ; data size:0x4 | core strings.cpp: counter be
 ?TriangleBoxOverlap@math@@YAHABVVector@1@0PAVVector4@1@@Z = 0x107DB250 ; function size:0x7BD | math::TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) (name guess)
 ?Intersects@math@@YAHABVTriangle@1@ABVAABB@1@@Z = 0x107DBA10 ; function size:0xF5 | math::Intersects(const Triangle&, const AABB&): box centre / half extents, vertices copied into Vector4[4], then TriangleBoxOverlap (name guess)
 ?Intersects@math@@YAHABVTriangle@1@ABVSphere@1@@Z = 0x107DBCC0 ; function size:0x52 | math::Intersects(const Triangle&, const Sphere&): ClosestPoint distance <= radius (name guess)
-?sDirector@Director@camera@engine@@0PAV123@A = 0x11283258 ; data size:0x4 | engine::camera::Director::sDirector, the singleton (name guess)
+?sDirector@Director@camera@engine@@2PAV123@A = 0x11283258 ; data size:0x4 | engine::camera::Director::sDirector, the singleton (name guess)
 ?sPlayerCount@camera@engine@@3HA = 0x1128326C ; data size:0x4 | number of players the Director indexes cameras by (name guess)
 ?sResetListeners@camera@engine@@3VMessageListeners@2@A = 0x11315318 ; data size:0x4 | listener list of the camera reset message (name guess)
 ?sResetListeners2@camera@engine@@3VMessageListeners@2@A = 0x11315290 ; data size:0x4 | second listener list of the camera reset message (name guess)
