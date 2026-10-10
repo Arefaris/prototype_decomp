@@ -33,6 +33,7 @@ class Coff:
 				"relocs": [struct.unpack_from("<IIH", self.data, relocs + 10 * r) for r in range(nRelocs)]})
 		strtab = symtab + 18 * nSymbols
 		self.symbols = []
+		self.byIndex = {}  # raw symbol table index -> name, as relocations refer to symbols
 		i = 0
 		while i < nSymbols:
 			at = symtab + 18 * i
@@ -41,6 +42,7 @@ class Coff:
 				offset = struct.unpack_from("<I", name, 4)[0]
 				name = self.data[strtab + offset:self.data.index(b"\0", strtab + offset)]
 			self.symbols.append((name.rstrip(b"\0").decode("latin-1"), value, section, storage))
+			self.byIndex[i] = self.symbols[-1][0]
 			i += 1 + aux
 
 	def function(self, symbol):
@@ -55,6 +57,46 @@ class Coff:
 							mask[offset - value + k] = 1
 				return code, mask
 		raise KeyError(symbol)
+
+	def relocations(self, symbol):
+		"""[(offset in the function, target symbol name, type)] of a function's COMDAT section."""
+		for name, value, section, storage in self.symbols:
+			if name == symbol and section > 0:
+				sec = self.sections[section - 1]
+				return [(offset - value, self.byIndex.get(index, "?"), kind) for offset, index, kind in sec["relocs"]]
+		raise KeyError(symbol)
+
+
+def checkConstants(coff, symbol, original, image, base):
+	"""Relocations against the compiler's __real@<hex> constants hide their values from the byte comparison; check
+	that the original's operand points at the same value. Returns a list of mismatch descriptions."""
+	problems = []
+	defined = {name: (value, section) for name, value, section, storage in coff.symbols if section > 0}
+	for offset, name, kind in coff.relocations(symbol):
+		if kind != 0x06:
+			continue
+		if name.startswith("__real@"):
+			expected = int(name[7:], 16)
+			width = 8 if len(name) - 7 > 8 else 4
+		elif name in defined and not coff.sections[defined[name][1] - 1]["name"].startswith(".text"):
+			# A constant of our own object (e.g. a namespace-scope const float): compare its first four bytes
+			value, section = defined[name]
+			sec = coff.sections[section - 1]
+			if sec["raw"] == 0:
+				continue  # uninitialised data
+			expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + 4], "little")
+			width = 4
+		else:
+			continue
+		target = struct.unpack_from("<I", original, offset)[0]
+		at = target - base
+		if not 0 <= at < len(image) - width:
+			problems.append(f"+0x{offset:X}: {name} but the original points outside the image (0x{target:08X})")
+			continue
+		actual = int.from_bytes(image[at:at + width], "little")
+		if actual != expected:
+			problems.append(f"+0x{offset:X}: {name}, the original's 0x{target:08X} holds 0x{actual:0{2 * width}X}")
+	return problems
 
 
 def disassemble(code, address):
@@ -85,7 +127,13 @@ def main():
 	original = image[start:start + len(code)]
 	same = sum(1 for k in range(len(code)) if mask[k] or code[k] == original[k])
 	ratio = same / len(code)
-	print(f"{args.symbol} vs 0x{address:08X}: {len(code)} bytes, {ratio:.1%} identical (relocations as wildcards)")
+	problems = checkConstants(coff, args.symbol, original, image, pe.OPTIONAL_HEADER.ImageBase) if ratio == 1.0 else []
+	if problems:
+		ratio = (len(code) - 1) / len(code)  # identical instructions, wrong constant: not a match
+	print(f"{args.symbol} vs 0x{address:08X}: {len(code)} bytes, {ratio:.1%} identical (relocations as wildcards)"
+		+ (f", {len(problems)} constant(s) differ" if problems else ""))
+	for problem in problems:
+		print("  constant " + problem)
 	if not args.quiet and ratio < 1.0:
 		ours = [t for _, _, t in disassemble(code, address)]
 		theirs = [t for _, _, t in disassemble(original, address)]
