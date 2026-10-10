@@ -90,6 +90,23 @@ IntersectSegment, Transform match. Left:
 | 0x107D89E0 | Plane::Set(a, b, c) | 93.1 % | EQUIVALENT in tree (Sub, Cross, Dot inline helpers); two commutative products come out with the operands swapped (e1.z * e2.y in the cross, a.z * normal.z in the dot); the compiler canonicalises them regardless of source order. 99 % in a spike where NormalizeFast was called through a cast wrapper |
 | 0x107D8C80 | Plane::IntersectRay(origin, direction, hit) | 51 % | same instructions; SSE registers of normal.y / direction.x / normal.z rotated (original xmm2 / xmm3 / xmm4, ours xmm4 / xmm2 / xmm3); permuter plateau with Dot / Distance helpers, nested ifs, operand and term orders |
 
+## intersect.cpp (0x107D9A20 - 0x107DAB30, unit name guessed)
+
+Free intersection tests. Matched: IntersectsOBB (0x107D9C20), Intersects(OBB, AABB) (0x107DA360), the three Capsule
+tests (0x107DA4D0 / 530 / 580). EQUIVALENT in tree: IntersectsAABB (0x107D9B60, 87.3 %, one subtraction scheduled
+before the push of `length`), Intersects(Plane, Capsule) (0x107DA660, 76 %, normal.x / normal.z registers swapped).
+Left:
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x107D9A20 | TestBoxAxes(extents, direction, delta, length) | 37.8 % | x87 throughout: three face tests then three cross-product tests with early returns; the stack temporaries (abs values) and the operand order of each test differ |
+| 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | - | 1 111 bytes, box vs box SAT; called by 0x107DA110 / 0x107DA360; not attempted |
+| 0x107DA110 | Intersects(OBB, OBB) | 15.2 % | delta in A's space and the 3x3 of axis dots on the stack, then TestBoxesSAT; the straight version is 625 bytes vs 583: the original shares the a.axis loads between the dots |
+| 0x107DA410 | Intersects(OBB, Sphere) | 96.9 % | EQUIVALENT in tree: `for (int i = 3; i--; )` with the x87 dot inside; only the dot's term order (y, x, z in the original, a commutation) is left; permuter reached 99 % |
+| 0x107DA5D0 | Intersects(Plane, OBB) | 61.8 % | x87: the distance matches; the three abs(axis . n) * extent terms are evaluated axis 2, 0, 1 with the dots in y, z, x order; permuter plateau |
+| 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
+| 0x107DA850 | ClassifyBox(box, planes, count) | 47.4 % | frame matches with two Vector locals (far corner declared first); the plane pointer register (ecx vs edx) and the reload of normal.x differ |
+
 ## Further units of the region
 
 0x107D49F0 - 0x107D5F60: a keyed spline (two matrices and a time flag per segment, Hermite / Catmull-Rom tangents,
