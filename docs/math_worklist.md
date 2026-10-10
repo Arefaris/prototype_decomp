@@ -129,3 +129,19 @@ Seed x2 match (Step by reference). The vector functions keep the three raw 32-bi
 | 0x107D9510 | adjugate-like | — | not drafted |
 | 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
 | 0x107D97B0 | Print (assert channel " Math  Pre ", static enable flag 0x111BBDE8) | — | needs the log function 0x1063C750 |
+
+## perlin.cpp (0x101040C0–0x101043F0), partly in the tree
+
+Lattice matches. The two big ones keep the right operations but not the schedule.
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x10104180 | Noise::Sample(x, y, z): cosine-weighted trilinear blend of 8 Lattice values, periods via `(i+1) % p` | 22.6 % | ternary Wrap, Weight/Lerp inlines; original computes all three weights after the three idivs |
+| 0x101043F0 | Noise::Evaluate(x, y, z): octave loop, periods scaled by frequency and restored (period[0]/[1] swapped!), clamp, 1 - pow(power, 255 r) | 22.5 % | `float falloff = persistence` inside the loop body helps; prologue register choice differs |
+
+## vector4.cpp (0x107DD200–0x107DD690), mostly in the tree
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x107DD470 | Matrix::SetRowsLerp(t, v): row i = (1-t) v_i (1,1,1) + t e_i | 71.4 % | same code, registers of t and v.x swapped; loop forms are worse |
+| 0x107DD690 | 726 bytes | — | not looked at |
