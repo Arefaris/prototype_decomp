@@ -122,12 +122,18 @@ Spline::Evaluate). Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D5F30 | SplineSegment::DerivativeLength(t) | - | the engine compiled it with a register convention (this in ecx, caller cleans the float: `ret`, not `ret 4`), as a static helper; 0x107D5F60 (5-point Gauss-Legendre arc length, nodes at 0x10E67D88, weights at 0x10E67D74) takes t in xmm0 and the segment in edi the same way. Not reproducible without /GL |
-| 0x107D4B40 - 0x107D4EA0 | segment construction (Hermite / Catmull-Rom coefficient matrices) | - | not attempted |
-| 0x107D5010 - 0x107D5C00 | evaluators (forward differencing, arc-length lookups) | - | not attempted; 0x107D5240 is 1 501 bytes |
-| 0x107D5FE0, 0x107D6300 - 0x107D6540 | length table / parameter by distance | - | not attempted |
-| 0x107D6300 | SplineSegment::Build(mode, k0, k1, k2, k3, t0, t1) | - | 354 bytes, the coefficient matrices from four keys and two optional tangents; not attempted (SelectSegment 0x107D6630, SetKey(Vector) 0x107D6540 and Evaluate(unsigned) 0x107D6F10 match) |
-| 0x107D6760 - 0x107D6F10 | remaining evaluators / accessors | - | not surveyed |
+| 0x107D5F30 / 0x107D5F60 | static DerivativeLength(const SplineSegment*, float) / static ArcLength(const SplineSegment*, float) | 100 % in a spike | register convention reproduced by `static __declspec(noinline)` free functions (local/spike_plane/spline3b.cpp): `Vector d; segment->EvaluateDerivative(d, t); return sqrtf(d.z * d.z + d.y * d.y + d.x * d.x);` and `scale = (t - 0.0f) * 0.5f; offset = (t + 0.0f) * 0.5f; sum += DerivativeLength(segment, GAUSS_NODES[i] * scale + offset) * GAUSS_WEIGHTS[i]` for i < 5, `return sum * scale` (functions.tsv ends 0x107D5F60 11 bytes early: it runs to 0x107D5FDB). Not in the tree yet: an unreferenced static is dropped by the compiler, so they go in together with a caller (0x107D6940 / 0x107D6B60) |
+| 0x107D4BC0 | SplineSegment::Step(Vector& out): derivative rows 0 += 1, 1 += 2, 2 += 3 (x, y, z), out = row 0 | 16.4 % | the original loads the three addends, then the three targets, adds and stores, row by row, and copies row 0 through the x87 unit at the end; plain `+=`, Vector / Vector4 row references with Add, and float temporaries all interleave differently (159-173 bytes vs 195) |
+| 0x107D4B40, 0x107D4CC0 - 0x107D4EA0 | other segment steppers / builders | - | not attempted |
+| 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | 28.5 % | rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
+| 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
+| 0x107D5820 - 0x107D5C00 | evaluators (forward differencing setup, arc-length lookups) | - | not attempted |
+| 0x107D5FE0, 0x107D6480 | 15-way switches on the mode (jump tables with 3 targets) | - | not attempted |
+| 0x107D6760 - 0x107D6C40 | iteration / arc-length accessors (0x107D6940 allocates `lengths` through 0x107DEF50 and calls the register-convention 0x107D5F60) | - | not attempted |
+
+SplineSegment::Build (0x107D6300) matches: a switch on the mode with the jump table's three targets (keys as rows /
+BuildCatmullRom / BuildHermite), `coefficients.Multiply(*SPLINE_BASIS[mode], geometry)` written in every case (the
+compiler duplicates it for the first case and merges the other two).
 
 ## segment.cpp (0x107D6F40–0x107D7650), not in the tree
 

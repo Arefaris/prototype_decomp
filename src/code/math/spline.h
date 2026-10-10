@@ -25,13 +25,22 @@ namespace math
 		void Evaluate(Vector& out, float t) const;
 		// out = (0, 1, 2t, 3t^2) * coefficients, t clamped to [0, 1]
 		void EvaluateDerivative(Vector& out, float t) const;
-		// |EvaluateDerivative(t)| (0x107D5F30, compiled by the engine with a register calling convention; not
-		// reconstructed)
-		float DerivativeLength(float t) const;
-		// Builds the coefficient matrices from four consecutive keys and, when present, the two inner tangents
-		// (0x107D6300, not reconstructed yet; the mode is Spline's int at 0x8c)
+		// |EvaluateDerivative(t)| and the 5-point Gauss-Legendre arc length over [0, t] are static helpers of
+		// spline.cpp (0x107D5F30 / 0x107D5F60, register calling convention); they enter the tree with their callers
+		// coefficients = basis matrix of `mode` (SPLINE_BASIS, 15 of them) times the geometry matrix: the four keys
+		// as rows (modes 0-2, 5-7, 10-12), the Catmull-Rom rows (3, 8, 13) or the Hermite rows (4, 9, 14)
 		void Build(int mode, const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
 			const Vector4* t0, const Vector4* t1);
+		// Geometry rows k1, tangent at k1, k2, tangent at k2 from the chord slopes, scaled by the k1-k2 interval
+		// when the flag says the keys' w are times (0x107D5040, not reconstructed yet)
+		void BuildCatmullRom(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+			Matrix& geometry) const;
+		// The same with explicit tangents t0 / t1 (0x107D5240, not reconstructed yet)
+		void BuildHermite(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+			const Vector4* t0, const Vector4* t1, Matrix& geometry) const;
+		// Forward differencing: adds row 1 to row 0, 2 to 1, 3 to 2 of `derivative` (x, y, z) and returns row 0 in
+		// out (0x107D4BC0, not reconstructed yet)
+		Vector& Step(Vector& out);
 	};
 
 	class Spline
