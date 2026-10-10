@@ -33,16 +33,13 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1063CD00
-	// NONMATCHING: division by 1000 becomes a reciprocal multiply; the original uses div (docs/core_worklist.md).
-	#ifdef NONMATCHING
 	void Time::Add(unsigned int millis, unsigned int micros)
 	{
-		unsigned int total = microseconds + micros;
-		milliseconds += millis + total / 1000;
-		microseconds = total % 1000;
+		microseconds += micros;
+		milliseconds += millis + microseconds / 1000;
+		microseconds %= 1000;
 		seconds = milliseconds * 0.001f + microseconds * 0.000001f;
 	}
-	#endif
 
 	// FUNCTION: ENGINE 0x1063CD60
 	void Time::AddMicroseconds(unsigned __int64 value)
