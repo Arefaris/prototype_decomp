@@ -4,7 +4,7 @@
 
 Mark what may be reordered in a copy of the source:
 - lines between "// PERMUTE_LINES_BEGIN" and "// PERMUTE_LINES_END" may be put in any order (any number of lines);
-- PERMUTE_SUM(a, b, c) becomes "a + b + c" in any order of its terms (terms may contain parentheses);
+- PERMUTE_SUM(a, b, c) becomes "(a + b + c)" in any order of its terms (terms may contain parentheses);
 - PERMUTE_MUL(a, b) becomes "(a * b)" or "(b * a)".
 Sums and products may sit inside a lines block and inside each other.
 Local search: a state is one ordering per spot; a move swaps two elements of one spot (or moves one element to
@@ -66,7 +66,7 @@ class Spot:
 		if self.kind == "lines":
 			return "".join(parts)
 		if self.kind == "sum":
-			return " + ".join(parts)
+			return "(" + " + ".join(parts) + ")"
 		return "(" + " * ".join(parts) + ")"
 
 
