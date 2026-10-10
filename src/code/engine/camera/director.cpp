@@ -2,6 +2,8 @@
 #include "code/engine/camera/cameramessages.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
+#include <new>
+
 #include "code/math/matrix.h"
 
 namespace container
@@ -74,6 +76,50 @@ namespace engine
 		void Camera::SetUnknown7AD(bool value)
 		{
 			unknown7AD = value;
+		}
+
+		// FUNCTION: ENGINE 0x107DDB50
+		void Director::OnDBSlot0(int a, int b)
+		{
+		}
+
+		// FUNCTION: ENGINE 0x107DDB60
+		void Director::OnDBSlot1(int a, int b)
+		{
+		}
+
+		// FUNCTION: ENGINE 0x107DE990
+		// (0x107DEAA0 is the compiler's scalar deleting destructor of this class)
+		// FUNCTION: ENGINE 0x107DEAA0
+		// EQUIVALENT: 93.7 %; in the last inlined member destructor the engine reuses the this register (esi) for the
+		// pointer being freed, our build takes eax
+		Director::~Director()
+		{
+			cameras.Clear();
+			controllers.Clear();
+			sDirector = 0;
+			core::Name<core::CaseSensitiveKey> name("ConsoleAspectRatio", 0);
+			Console* console = gConsole;
+			console->Unregister(name, this);
+			console->RemoveVariable(name);
+		}
+
+		// FUNCTION: ENGINE 0x107DEA30
+		bool InitCameraSystem(const CameraSystemConfig* config)
+		{
+			sCameraHeap = config->heap;
+			sUnknown60 = config->unknown4;
+			sUnknown64 = config->unknown8;
+			sControllerCount = config->controllerCount;
+			sPlayerCount = config->playerCount;
+			void* memory = AllocFromHeap(sizeof(Director), sCameraHeap);
+			if (memory != 0)
+			{
+				new (memory) Director();
+			}
+			InitMessageListeners(&sResetListeners2, sPlayerCount * 2);
+			InitMessageListeners(&sResetListeners, sControllerCount);
+			return true;
 		}
 
 		// FUNCTION: ENGINE 0x107DDB30

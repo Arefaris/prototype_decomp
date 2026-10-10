@@ -22,6 +22,21 @@ namespace engine
 	void SendMessage(Message* message, MessageListeners* listeners);
 	// 0x107EF5E0 (another unit): delivers message to every registered object
 	void BroadcastMessage(Message* message);
+	// 0x107EED20 (another unit): sizes a listener list
+	void InitMessageListeners(MessageListeners* listeners, int count);
+	// 0x107DEF90 (another unit): HeapAlloc with the arguments the other way round
+	void* AllocFromHeap(unsigned int size, int heap);
+
+	// The console variable registry (0x11283CB4; another unit). Only what the Director's destructor uses is declared.
+	class Console
+	{
+	public:
+		// 0x107F8620: drops owner's registration for the variable
+		void Unregister(const core::Name<core::CaseSensitiveKey>& name, void* owner);
+		// 0x107F8500: removes the variable
+		bool RemoveVariable(const core::Name<core::CaseSensitiveKey>& name);
+	};
+	extern Console* gConsole;
 
 	// What 0x10836AD0 returns (another unit): the frame's timing. The Director copies the 12 bytes at +4 and passes
 	// their last float to the cameras; the other fields are unknown.
@@ -50,17 +65,40 @@ namespace engine
 		// Listener lists the Director's reset message goes to (0x11315318, 0x11315290; another unit)
 		extern MessageListeners sResetListeners;
 		extern MessageListeners sResetListeners2;
+		// Set up from the configuration passed to InitCameraSystem (0x1128325C-0x1128326C)
+		extern int sCameraHeap;
+		extern int sUnknown60;
+		extern int sUnknown64;
+		extern int sControllerCount;
 		// Number of players (0x1128326C)
 		extern int sPlayerCount;
+
+		class CameraSystemConfig
+		{
+		public:
+			int heap;
+			int unknown4;
+			int unknown8;
+			int controllerCount;
+			int playerCount;
+		};
+		// Stores the configuration, creates the Director in the camera heap and sizes the reset listener lists
+		bool InitCameraSystem(const CameraSystemConfig* config);
 
 		class Director : public DBObserver
 		{
 		public:
+			Director();
+			// The two DBObserver slots: empty in the Director (0x107DDB50, 0x107DDB60; parameter meaning unknown)
+			virtual void OnDBSlot0(int a, int b);
+			virtual void OnDBSlot1(int a, int b);
 			container::ArrayDynamic<Camera*, container::AllocatorNew> cameras;
 			container::ArrayDynamic<Cinematographer*, container::AllocatorNew> controllers;
 			int maxControllerIndex;
 			int playerCamera[2];
 			int nextControllerId;
+
+			virtual ~Director();
 
 			static Director* sDirector;
 			static Director* Get();
@@ -79,7 +117,7 @@ namespace engine
 			void Reset();
 			// Updates the controllers (type 2 last), then the active cameras; broadcasts a CameraCutMessage when a camera cut
 			// and flags is 1. The first two arguments are unused.
-			void Update(int unused1, int unused2, float delta, int flags);
+			virtual void Update(int unused1, int unused2, float delta, int flags);
 			// Update(0, 0, 0x200) on every active camera; its own arguments are unused
 			void UpdateCameras(float a, float b, int flags);
 			// Finds the controller of type for owner and starts a transition on the owner's camera of that kind
