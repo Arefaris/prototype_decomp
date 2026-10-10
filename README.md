@@ -10,8 +10,9 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 
 ## Status
 
-Phase 0: foundation. See [docs/plan.md](docs/plan.md) for the strategy and phases and
-[docs/decisions.md](docs/decisions.md) for the decisions made so far.
+Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
+game into free roam. See [docs/methodology.md](docs/methodology.md) for how, [docs/plan.md](docs/plan.md) for the
+phases and [docs/decisions.md](docs/decisions.md) for the decisions made so far.
 
 ## Target
 
@@ -25,10 +26,12 @@ Phase 0: foundation. See [docs/plan.md](docs/plan.md) for the strategy and phase
 ```bash
 python tools/pin.py fetch --game "D:/SteamLibrary/steamapps/common/Prototype"   # copy + verify into orig/
 python tools/ghidra/ghidra.py import                                             # persistent Ghidra database in local/ghidra
+python tools/build.py                                                            # compile, check, relink, verify
+python tools/re/testcopy.py                                                      # a test copy of the game with the hybrid DLL
 ```
 
-Requirements: Python 3.11 with `pyyaml`, Ghidra 12.1+ with JDK 21, Visual Studio 2005 SP1 compiler (see
-[docs/toolchain.md](docs/toolchain.md)).
+Requirements: Python 3.11 with `pyyaml`, `pefile`, `capstone`; Ghidra 12.1+ with JDK 21; the Visual Studio 2005 SP1
+compiler, extracted from a free Microsoft SDK by `tools/toolchain/setup_vc8.py` (see [docs/toolchain.md](docs/toolchain.md)).
 
 ## Layout
 
