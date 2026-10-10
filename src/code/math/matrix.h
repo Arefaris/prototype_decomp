@@ -71,6 +71,8 @@ namespace math
 		void Multiply(float s);
 		// Left-handed off-centre perspective projection (Direct3D PerspectiveOffCenterLH layout)
 		void PerspectiveOffCenter(float left, float right, float bottom, float top, float nearZ, float farZ);
+		// Left-handed perspective projection (Direct3D PerspectiveFovLH layout) over an identity matrix
+		void PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ);
 		// Right-handed perspective projection (Direct3D PerspectiveFovRH layout: w = -z, z in [0, 1])
 		void PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ);
 		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)

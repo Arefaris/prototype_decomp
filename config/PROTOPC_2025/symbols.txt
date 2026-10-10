@@ -68,3 +68,4 @@
 ?Transform@OBB@math@@QAEXABVMatrix@2@@Z = 0x107D43B0 ; function size:0x37 | math::OBB::Transform(const Matrix&)
 ?Transform@OBB@math@@QAEXABVMatrix@2@ABV12@@Z = 0x107D43F0 ; function size:0x5B | math::OBB::Transform(const Matrix&, const OBB&)
 ?FromMatrix@Quaternion@math@@QAEXABVMatrix@2@@Z = 0x107CDB10 ; function size:0x1C8 | math::Quaternion::FromMatrix (name guess)
+?PerspectiveFovLH@Matrix@math@@QAEXMMMM@Z = 0x107CFC00 ; function size:0x7E | math::Matrix::PerspectiveFovLH (name guess)

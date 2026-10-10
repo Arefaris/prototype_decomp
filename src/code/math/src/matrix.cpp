@@ -220,6 +220,19 @@ namespace math
 		m[2][0] *= s; m[2][1] *= s; m[2][2] *= s;
 	}
 
+	// FUNCTION: ENGINE 0x107CFC00
+	void Matrix::PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ)
+	{
+		float cot = 1.0f / tanf(fov * 0.5f);
+		Identity();
+		m[2][2] = farZ / (farZ - nearZ);
+		m[3][2] = -(nearZ * farZ) / (farZ - nearZ);
+		m[2][3] = 1.0f;
+		m[3][3] = 0.0f;
+		m[0][0] = cot / aspect;
+		m[1][1] = cot;
+	}
+
 	// FUNCTION: ENGINE 0x107D0300
 	void Matrix::PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ)
 	{
