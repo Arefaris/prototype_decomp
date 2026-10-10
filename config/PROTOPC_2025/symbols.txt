@@ -370,3 +370,7 @@ _sSystemAllocator = 0x1127A894 ; data size:0x4 | core memoryallocatormalloc.cpp:
 ?BuildCatmullRom@SplineSegment@math@@QBEXPBVVector4@2@000AAVMatrix@2@@Z = 0x107D5040 ; function size:0x1F8 | math::SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& geometry): chord-slope tangents, intervals from w when the flag is set (name guess)
 ?BuildHermite@SplineSegment@math@@QBEXPBVVector4@2@00000AAVMatrix@2@@Z = 0x107D5240 ; function size:0x5DD | math::SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& geometry) (name guess)
 ?Step@SplineSegment@math@@QAEAAVVector@2@AAV32@@Z = 0x107D4BC0 ; function size:0xC3 | math::SplineSegment::Step(Vector& out): forward-differencing step of the derivative rows (name guess)
+??2@YAPAXI@Z = 0x107DEF50 ; function size:0x20 | operator new(size_t): HeapAlloc through the engine heap when it is up, else 0 (what `new float[n]` calls)
+?GetSegmentLength@Spline@math@@QAEMI@Z = 0x107D6940 ; function size:0x108 | math::Spline::GetSegmentLength(unsigned index): cached in lengths[index], else SelectSegment + ArcLength(segment, 1) (name guess)
+?GetTotalLength@Spline@math@@QAEMXZ = 0x107D6A50 ; function size:0xFF | math::Spline::GetTotalLength: sum of the segment lengths, cached in lengths[count] (name guess)
+?GetLength@Spline@math@@QAEMM@Z = 0x107D6B60 ; function size:0xD3 | math::Spline::GetLength(float t): whole segments before t plus the arc length within the segment (name guess)
