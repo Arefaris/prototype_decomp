@@ -194,3 +194,9 @@ __allmul = 0x10A88370 ; function size:0x34 | CRT 64-bit multiply helper (statica
 ?GetSegment@Capsule@math@@QBEXAAVSegment@2@@Z = 0x107DC4D0 ; function size:0x78 | math::Capsule::GetSegment
 ?GetAABB@Capsule@math@@QBEXAAVAABB@2@@Z = 0x107DC760 ; function size:0x7F | math::Capsule::GetAABB
 ?IsClose@Vector4@math@@QBEHABV12@M@Z = 0x107DD1A0 ; function size:0x53 | math::Vector4::IsClose (name guess)
+?ContainsXZ@Triangle@math@@QBE_NABVVector@2@@Z = 0x107D3360 ; function size:0xBF | math::Triangle::ContainsXZ(const Vector&) (method name guess)
+?ClosestPoint@Triangle@math@@QBEHABVVector@2@AAV32@@Z = 0x107D3420 ; function size:0x676 | math::Triangle::ClosestPoint(p, out): region code 0 face, 1/2/4 edges ab/bc/ca, 5/3/6 corners a/b/c (method name guess)
+?Area@math@@YAMABVVector@1@00@Z = 0x107D3AA0 ; function size:0xA1 | math::Area(a, b, c): half the cross product length (name guess)
+?TriangleBoxOverlap@math@@YAHABVVector@1@0PAVVector4@1@@Z = 0x107DB250 ; function size:0x7BD | math::TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) (name guess)
+?Intersects@math@@YAHABVTriangle@1@ABVAABB@1@@Z = 0x107DBA10 ; function size:0xF5 | math::Intersects(const Triangle&, const AABB&): box centre / half extents, vertices copied into Vector4[4], then TriangleBoxOverlap (name guess)
+?Intersects@math@@YAHABVTriangle@1@ABVSphere@1@@Z = 0x107DBCC0 ; function size:0x52 | math::Intersects(const Triangle&, const Sphere&): ClosestPoint distance <= radius (name guess)

@@ -10,6 +10,7 @@
 #include "code/math/plane.h"
 #include "code/math/segment.h"
 #include "code/math/sphere.h"
+#include "code/math/triangle.h"
 #include "code/math/vector.h"
 
 namespace math
@@ -130,5 +131,15 @@ namespace math
 		capsule.GetSegment(segment);
 		return -shifted.d >= segment.start.x * shifted.normal.x + segment.start.y * shifted.normal.y + segment.start.z * shifted.normal.z
 			|| -shifted.d >= segment.end.x * shifted.normal.x + segment.end.z * shifted.normal.z + segment.end.y * shifted.normal.y;
+	}
+
+	// FUNCTION: ENGINE 0x107DBCC0
+	int Intersects(const Triangle& triangle, const Sphere& sphere)
+	{
+		Vector closest;
+		triangle.ClosestPoint(sphere.centre, closest);
+		Vector d;
+		d.Sub(sphere.centre, closest);
+		return sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= sphere.radius;
 	}
 }
