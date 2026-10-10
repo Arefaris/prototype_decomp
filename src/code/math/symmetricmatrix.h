@@ -19,6 +19,22 @@ namespace math
 		float xz;
 		float yz;
 
+		SymmetricMatrix()
+		{
+		}
+		// Elements in row-major order of the upper triangle (the same order Set takes)
+		SymmetricMatrix(float xx, float xy, float xz, float yy, float yz, float zz);
+		void Set(float xx, float xy, float xz, float yy, float yz, float zz);
+		// The upper triangle of m's 3x3 block
+		void CopyFrom(const Matrix& m);
+		// out = identity with this matrix as its 3x3 block
+		void ToMatrix(Matrix& out) const;
+		// this += other / this = a + b
+		void Add(const SymmetricMatrix& other);
+		void Add(const SymmetricMatrix& a, const SymmetricMatrix& b);
+		// this *= s / this = a * s
+		void Multiply(float s);
+		void Multiply(const SymmetricMatrix& a, float s);
 		// Writes the 3x3 block of a Matrix and clears its translation
 		void CopyTo(Matrix& out) const;
 		// Nonzero when every element is within EPSILON_SMALL of zero
