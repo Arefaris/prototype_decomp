@@ -80,6 +80,12 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 		if name.startswith("__real@"):
 			expected = int(name[7:], 16)
 			width = 8 if len(name) - 7 > 8 else 4
+		elif name.startswith("??_C@") and name in defined:
+			# A string literal: compare the whole literal (its COMDAT section), terminator included
+			value, section = defined[name]
+			sec = coff.sections[section - 1]
+			width = sec["size"] - value
+			expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
 		elif name in defined and not coff.sections[defined[name][1] - 1]["name"].startswith(".text"):
 			# A constant of our own object (e.g. a namespace-scope const float): compare its first four bytes
 			value, section = defined[name]
