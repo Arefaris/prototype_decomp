@@ -1,0 +1,23 @@
+# Original game binaries and anything derived from them never enter git
+/orig/*
+!/orig/README.md
+/build/
+/local/
+*.obj
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.idb
+*.dll
+*.exe
+*.gzf
+*.rep/
+__pycache__/
+*.pyc
+.ninja_*
+build.ninja
+objdiff.json
+compile_commands.json
+.vs/
+.vscode/

@@ -1,0 +1,17 @@
+# Prototype (2009), PC, Steam app 10150, build of the 2025-09-29 update (PE timestamps 2025-08-14).
+version: PROTOPC_2025
+description: Steam build after the September 2025 patch
+steam_app: 10150
+files:
+  prototypeenginef.dll:
+    sha256: d331be205bdde99897952ee88261ab7e63c5c65e36a4660e2a367886a3537071
+    image_base: 0x10000000
+    role: engine   # the whole game; the decompilation target
+  prototypef.exe:
+    sha256: 0cd6834f72b4fd4a762a8ce7c705bfccc94dec58e404f0c0c09299ec42eb7de6
+    image_base: 0x00400000
+    role: launcher # window + LoadLibrary + the six Engine* exports; Steam DRM wrapped (.bind)
+toolchain:
+  compiler: cl 14.00.50727.762   # Visual Studio 2005 SP1 (Rich header prodid 0x6e build 50727)
+  linker: link 8.00.50727.762
+  crt: MSVCR80 (/MD)
