@@ -219,6 +219,18 @@ namespace core
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10646550
+	int RangeMap::Get(unsigned int address)
+	{
+		return pairs[Find(address)].value;
+	}
+
+	// FUNCTION: ENGINE 0x10646570
+	RangeMap::~RangeMap()
+	{
+		Destroy();
+	}
+
 	// FUNCTION: ENGINE 0x10646400
 	// EQUIVALENT: every block in the original's order; the original keeps `i` in edi and `end` in ebx (later
 	// `value`), ours keeps `i` in ebx and an `i * 8` temporary in edi, reloading `end` and `value` from the

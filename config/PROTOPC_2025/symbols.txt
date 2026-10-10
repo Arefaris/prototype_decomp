@@ -242,3 +242,5 @@ _sStringHeapCounter1 = 0x11278FC8 ; data size:0x4 | core strings.cpp: counter be
 ?Destroy@RangeMap@core@@QAEXXZ = 0x106463E0 ; function size:0x14 | core::RangeMap::Destroy (name guess)
 ?Set@RangeMap@core@@QAEHIIHPAH@Z = 0x10646400 ; function size:0x14A | core::RangeMap::Set(unsigned int start, unsigned int end, int value, int* previous) (name guess; 0 done, 1 already, 2 crosses a boundary)
 ?HeapFree@core@@YAXHPAX@Z = 0x1063A9A0 ; function size:0x1D | core::HeapFree(int heap, void* block) (name guess; not reconstructed)
+?Get@RangeMap@core@@QAEHI@Z = 0x10646550 ; function size:0x17 | core::RangeMap::Get(unsigned int address) (name guess; value of the run found by Find)
+??1RangeMap@core@@QAE@XZ = 0x10646570 ; function size:0x5 | core::RangeMap::~RangeMap (jmp Destroy)

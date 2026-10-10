@@ -18,6 +18,8 @@ namespace core
 		};
 
 		RangeMap();
+		// Destroy() (the compiler turned it into a jump)
+		~RangeMap();
 		// Re-runs the constructor on this and returns this
 		RangeMap* Construct();
 		void Reset();
@@ -34,6 +36,8 @@ namespace core
 		void Shift(unsigned int index, unsigned int by);
 		// Index of the run containing address (-1 when the search fails)
 		unsigned int Find(unsigned int address);
+		// The value of the run containing address
+		int Get(unsigned int address);
 		// Marks [start, end) with value; *previous receives the value found at start. Returns 0 when done,
 		// 1 when the run was already exactly this, 2 when the range crosses an existing boundary
 		int Set(unsigned int start, unsigned int end, int value, int* previous);
