@@ -5,7 +5,7 @@ drop-in `prototypeenginef.dll`.
 
 ## Rules
 
-- **LEGAL.md is binding for every change:** no original files or derived bytes in git, no binary releases, no
+- **LICENSE.md and LEGAL.md are binding for every change:** no original files or derived bytes in git, no binary releases, no
   commercial use, no unlocking of sold content, no DRM circumvention, no leaked material.
 - **Progress bar:** run `ninja report progress` before committing new matches (README bar, docs/progress.*).
 

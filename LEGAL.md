@@ -31,8 +31,8 @@ keep paid content off by default.
    (`tools/delink/relink.py`). Built DLLs, installers or patched game folders are not published or shared, by the
    project or as part of contributions.
 4. **No commercial use.** The project, its source and anything built from it are not to be sold, bundled with paid
-   products, placed behind paywalls, or used to advertise commercial services. See "Licence" below for how this
-   relates to the GPL.
+   products, placed behind paywalls, or used to advertise commercial services ([LICENSE.md](LICENSE.md),
+   condition 1).
 5. **No content unlocking.** Nothing in this project enables content that is otherwise sold separately, region- or
    platform-exclusive, removed by the publisher, or locked by the game's own rules; builds behave like the original
    unless the user changes them. The PC release has no paid add-ons today; if any appear (for example in a
@@ -53,20 +53,12 @@ keep paid content off by default.
 
 ## Licence
 
-The repository's own work (tools, scripts, documentation and the reconstructed source to the extent anyone can
-license it) is under the GNU GPL version 3 (`LICENSE`), with these additional terms under GPLv3 section 7, which
-apply to every copy and derivative:
-
-- **7(b):** the attribution and legal notices in this file and in the README must be preserved.
-- **7(c):** modified versions must be marked as modified and must not be presented as the original game, as an
-  official product, or as this project.
-- **7(e):** no rights are granted to use trademarks, trade names or logos of Activision, Radical Entertainment or
-  any other party.
-
-The GPL does not allow a "no commercial use" condition as an additional term, so rule 4 is the project's policy and
-the condition under which the project accepts contributions and shares access, not a GPL licence term. A licence
-that forbids commercial use outright (as RSDKv4's own `LICENSE.md` does) would require replacing the GPL for the
-project's code; that is the owner's decision (see `docs/decisions.md`).
+The repository is under its own [prototype_recomp License v1](LICENSE.md), modelled on the RSDKv3 / RSDKv4
+decompilation licenses: use and distribution in source form for non-commercial purposes only; no original files and
+no binaries containing the original program; sold content off by default in any build; attribution to Radical
+Entertainment and Activision; no trademark rights; forks under the same license; no warranty. The rules above are
+therefore licence conditions, not only project policy. The license covers what the contributors wrote; it gives no
+rights in the original program, which nobody here can grant.
 
 ## Why the age of the game does not help
 

@@ -60,6 +60,7 @@ compiler, extracted from a free Microsoft SDK by `tools/toolchain/setup_vc8.py` 
 
 ## License
 
-GPLv3 ([LICENSE](LICENSE)) with additional terms under its section 7 (attribution, no misrepresentation, no trademark
-rights), and the project's non-commercial and no-assets policy: see [LEGAL.md](LEGAL.md). *Prototype* is a trademark of
-its owners; the engine and game were created by Radical Entertainment and published by Activision.
+[prototype_recomp License v1](LICENSE.md): source only, non-commercial, no original files or binaries containing the
+original program, sold content off by default, attribution, forks under the same license. Policy and reasoning:
+[LEGAL.md](LEGAL.md). *Prototype* is a trademark of its owners; the engine and game were created by Radical
+Entertainment and published by Activision.
