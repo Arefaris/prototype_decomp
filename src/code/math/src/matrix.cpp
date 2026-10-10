@@ -7,6 +7,26 @@
 
 namespace math
 {
+	// GLOBAL: ENGINE 0x111BB9E0
+	// Defined by the engine's data; declared here so our code links against it
+	// (the definition stays in the image until the data of the math module is reconstructed)
+
+	// FUNCTION: ENGINE 0x100600B0
+	Matrix& Matrix::operator=(const Matrix& o)
+	{
+		m[0][0] = o.m[0][0]; m[0][1] = o.m[0][1]; m[0][2] = o.m[0][2]; m[0][3] = o.m[0][3];
+		m[1][0] = o.m[1][0]; m[1][1] = o.m[1][1]; m[1][2] = o.m[1][2]; m[1][3] = o.m[1][3];
+		m[2][0] = o.m[2][0]; m[2][1] = o.m[2][1]; m[2][2] = o.m[2][2]; m[2][3] = o.m[2][3];
+		m[3][0] = o.m[3][0]; m[3][1] = o.m[3][1]; m[3][2] = o.m[3][2]; m[3][3] = o.m[3][3];
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x107CEAE0
+	void Matrix::Identity()
+	{
+		*this = IDENTITY;
+	}
+
 	// FUNCTION: ENGINE 0x107CEAF0
 	void Matrix::IdentityRotation()
 	{
@@ -322,5 +342,48 @@ namespace math
 		m[2][3] = 1.0f;
 		m[3][2] = (nearZ * farZ) / (nearZ - farZ);
 		m[3][3] = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107D17F0
+	bool Matrix::IsZero(float tolerance) const
+	{
+		float d = m[0][0] * m[0][0] + m[0][1] * m[0][1] + m[0][2] * m[0][2] + m[0][3] * m[0][3]
+			+ m[1][0] * m[1][0] + m[1][1] * m[1][1] + m[1][2] * m[1][2] + m[1][3] * m[1][3]
+			+ m[2][0] * m[2][0] + m[2][1] * m[2][1] + m[2][2] * m[2][2] + m[2][3] * m[2][3]
+			+ m[3][0] * m[3][0] + m[3][1] * m[3][1] + m[3][2] * m[3][2] + m[3][3] * m[3][3];
+		return d < tolerance * tolerance;
+	}
+
+	// FUNCTION: ENGINE 0x107D29C0
+	void Matrix::Add(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 0; i < 4; i++)
+		{
+			t.m[i][0] = a.m[i][0] + b.m[i][0]; t.m[i][1] = a.m[i][1] + b.m[i][1]; t.m[i][2] = a.m[i][2] + b.m[i][2]; t.m[i][3] = a.m[i][3] + b.m[i][3];
+		}
+		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2AE0
+	void Matrix::Subtract(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 0; i < 4; i++)
+		{
+			t.m[i][0] = a.m[i][0] - b.m[i][0]; t.m[i][1] = a.m[i][1] - b.m[i][1]; t.m[i][2] = a.m[i][2] - b.m[i][2]; t.m[i][3] = a.m[i][3] - b.m[i][3];
+		}
+		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2E70
+	void Matrix::RotateByVector(const Vector& rotation)
+	{
+		Vector axis;
+		axis.x = rotation.x;
+		axis.y = rotation.y;
+		axis.z = rotation.z;
+		float angle = axis.Normalize();
+		RotationAxisAngle(axis, -angle);
 	}
 }

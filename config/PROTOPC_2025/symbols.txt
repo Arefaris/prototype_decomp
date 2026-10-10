@@ -55,3 +55,10 @@
 ?Multiply@Matrix@math@@QAEXM@Z = 0x107D08F0 ; function size:0xE7 | math::Matrix::Multiply(float) (name guess)
 ?PerspectiveOffCenter@Matrix@math@@QAEXMMMMMM@Z = 0x107D14F0 ; function size:0xE0 | math::Matrix::PerspectiveOffCenter (name guess)
 ??8Matrix@math@@QBE_NABV01@@Z = 0x107D0730 ; function size:0x1B8 | math::Matrix::operator==
+??4Matrix@math@@QAEAAV01@ABV01@@Z = 0x100600B0 ; function size:0x67 | math::Matrix::operator= (out of line in the original, outside matrix.cpp's code)
+?IDENTITY@Matrix@math@@2V12@B = 0x111BB9E0 ; data size:0x40 | math::Matrix::IDENTITY (name guess)
+?Identity@Matrix@math@@QAEXXZ = 0x107CEAE0 ; function size:0xB | math::Matrix::Identity (name guess)
+?IsZero@Matrix@math@@QBE_NM@Z = 0x107D17F0 ; function size:0x11A | math::Matrix::IsZero (name guess)
+?Add@Matrix@math@@QAEXABV12@0@Z = 0x107D29C0 ; function size:0x117 | math::Matrix::Add(const Matrix&, const Matrix&) (name guess)
+?Subtract@Matrix@math@@QAEXABV12@0@Z = 0x107D2AE0 ; function size:0x117 | math::Matrix::Subtract(const Matrix&, const Matrix&) (name guess)
+?RotateByVector@Matrix@math@@QAEXABVVector@2@@Z = 0x107D2E70 ; function size:0x4B | math::Matrix::RotateByVector (name guess)

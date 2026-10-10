@@ -12,6 +12,14 @@ namespace math
 	public:
 		float m[4][4];
 
+		// The identity matrix, a constant in the engine's data (0x111BB9E0)
+		static const Matrix IDENTITY;
+
+		// Member-wise copy; the engine keeps this out of line (0x100600B0, outside matrix.cpp's code)
+		Matrix& operator=(const Matrix& other);
+		// *this = IDENTITY
+		void Identity();
+
 		// Resets the upper 3x3 (rotation) to identity, leaving the translation row and the last column; name guessed
 		void IdentityRotation();
 		// Zeroes the translation row (m[3][0..2])
@@ -50,6 +58,13 @@ namespace math
 		void RotationAxisAngle(const Vector& axis, float angle);
 		// Rotation matrix about a unit axis from the angle's cosine and sine; the axis is normalised if it is not
 		void FromAxisCosSin(const Vector& axis, float c, float s);
+		// True when the sum of squares of all 16 elements is below tolerance squared
+		bool IsZero(float tolerance) const;
+		// this = a + b / a - b, all 16 elements
+		void Add(const Matrix& a, const Matrix& b);
+		void Subtract(const Matrix& a, const Matrix& b);
+		// Rotation by the vector's length about its direction (through RotationAxisAngle with the negated angle)
+		void RotateByVector(const Vector& rotation);
 		// Exact element-wise equality of all 16 elements
 		bool operator==(const Matrix& other) const;
 		// this *= s, all 16 elements
