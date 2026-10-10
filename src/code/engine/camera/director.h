@@ -24,8 +24,6 @@ namespace engine
 	void BroadcastMessage(Message* message);
 	// 0x107EED20 (another unit): sizes a listener list
 	void InitMessageListeners(MessageListeners* listeners, int count);
-	// 0x107DEF90 (another unit): HeapAlloc with the arguments the other way round
-	void* AllocFromHeap(unsigned int size, int heap);
 
 	// The console variable registry (0x11283CB4; another unit). Only what the Director's destructor uses is declared.
 	class Console

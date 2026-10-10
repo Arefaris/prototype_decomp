@@ -12,6 +12,10 @@ namespace core
 	// 0x1063A8D0 / 0x1063A9C0: the aligned pair (allocator slots 5 and 6); sizes below 4 bytes are rounded up to 4
 	void* HeapAllocAligned(int heap, unsigned int size, unsigned int align);
 	void HeapFreeAligned(int heap, void* block);
+	// 0x1063A6F0: the heap the current thread allocates from (a thread-local slot), 0 when it has none
+	int GetCurrentHeap();
+	// 0x1063AC00: returns a block to whichever heap owns it
+	void Free(void* block);
 }
 
 #endif

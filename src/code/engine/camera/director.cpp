@@ -2,6 +2,7 @@
 #include "code/engine/camera/cameramessages.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
+#include "code/engine/memory/memory.h"
 #include <new>
 
 #include "code/math/matrix.h"
@@ -112,7 +113,7 @@ namespace engine
 			sUnknown64 = config->unknown8;
 			sControllerCount = config->controllerCount;
 			sPlayerCount = config->playerCount;
-			void* memory = AllocFromHeap(sizeof(Director), sCameraHeap);
+			void* memory = operator new(sizeof(Director), sCameraHeap);
 			if (memory != 0)
 			{
 				new (memory) Director();
