@@ -23,6 +23,11 @@ namespace core
 	const char* StrChr(const char* string, char c);
 	// Returns the first occurrence of find (null or "" matches at the start), or null
 	const char* StrStr(const char* string, const char* find);
+	// Tokeniser with an explicit context (strtok_r); without skipEmpty consecutive delimiters yield empty tokens.
+	// The two-argument form keeps the context in a static of the unit (strtok)
+	char* StrTok(char* string, const char* delimiters, char** context, bool skipEmpty);
+	char* StrTok(char* string, const char* delimiters, char** context);
+	char* StrTok(char* string, const char* delimiters);
 	unsigned int StrLen(const char* string);
 	// Length of the string, or count if no terminator is found before
 	unsigned int StrNLen(const char* string, unsigned int count);
@@ -33,9 +38,21 @@ namespace core
 	int StrNCmp(const char* a, const char* b, unsigned int count);
 	int StrICmp(const char* a, const char* b);
 	int StrNICmp(const char* a, const char* b, unsigned int count);
+	// The string heap: StrDup allocates from it (HeapAlloc); while none is set (-1) it returns the placeholder
+	// "?Name?" instead. The two counters are only exposed through their accessors.
+	const char* GetDefaultString();
+	int* GetStringHeapCounter1();
+	int* GetStringHeapCounter2();
+	void SetStringHeap(int heap);
+	int GetStringHeap();
+	char* StrDup(const char* string);
 	// Entry points that only forward to StrCpy / StrLen (the compiler turned them into jumps)
 	char* StrCpyAlias(char* destination, const char* source);
 	unsigned int StrLenAlias(const char* string);
+	// Matches string against a pattern with '*' and '?'; returns 1 or 0
+	unsigned char MatchWildcard(const char* string, const char* pattern);
+	// Removes "." and ".." components in place ('\\' and '/' separate); returns the path (not matched yet)
+	char* NormalisePath(char* path);
 	// _vsnprintf that always terminates the buffer
 	void VSNPrintf(char* buffer, int size, const char* format, va_list arguments);
 	void SNPrintf(char* buffer, int size, const char* format, ...);

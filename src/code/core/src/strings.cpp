@@ -261,8 +261,90 @@ namespace core
 		return 0;
 	}
 
-	// 0x1063B350 (tokeniser with a context and a skip-empty flag), 0x1063B3F0 and 0x1063B410 (its wrappers,
-	// the second with a static context): not attempted, see docs/core_worklist.md
+	// FUNCTION: ENGINE 0x1063B350
+	// Tokeniser: splits at any of the delimiters, writing terminators into the string; *context carries the
+	// position between calls (null when the string is exhausted). With skipEmpty the leading delimiters are
+	// skipped (strtok), without it every delimiter yields a token, empty ones included.
+	char* StrTok(char* string, const char* delimiters, char** context, bool skipEmpty)
+	{
+		if (string == 0)
+		{
+			string = *context;
+			if (string == 0)
+			{
+				return 0;
+			}
+		}
+		int c;
+		for (;;)
+		{
+			c = *string++;
+			const char* d = delimiters;
+			int x;
+			do
+			{
+				x = *d++;
+				if (x == 0)
+				{
+					goto tokenStart;
+				}
+			} while (c != x);
+			if (skipEmpty)
+			{
+				continue;
+			}
+			*context = string;
+			string[-1] = 0;
+			return string - 1;
+		}
+	tokenStart:
+		if (c == 0)
+		{
+			*context = 0;
+			return 0;
+		}
+		char* token = string - 1;
+		for (;;)
+		{
+			c = *string++;
+			const char* d = delimiters;
+			int x;
+			do
+			{
+				x = *d++;
+				if (x == c)
+				{
+					goto hit;
+				}
+			} while (x != 0);
+		}
+	hit:
+		if (c == 0)
+		{
+			string = 0;
+		}
+		else
+		{
+			string[-1] = 0;
+		}
+		*context = string;
+		return token;
+	}
+
+	// FUNCTION: ENGINE 0x1063B3F0
+	char* StrTok(char* string, const char* delimiters, char** context)
+	{
+		return StrTok(string, delimiters, context, true);
+	}
+
+	// GLOBAL: ENGINE 0x11278FB8
+	static char* sStrTokContext;
+
+	// FUNCTION: ENGINE 0x1063B410
+	char* StrTok(char* string, const char* delimiters)
+	{
+		return StrTok(string, delimiters, &sStrTokContext, true);
+	}
 
 	// FUNCTION: ENGINE 0x1063B430
 	unsigned int StrLen(const char* string)
@@ -449,21 +531,141 @@ namespace core
 	}
 #endif
 
-	// 0x1063B730 - 0x1063B7A0 (a string heap handle, its accessors and StrDup through an allocator of another
-	// unit), 0x1063B7E0 (a jump into another unit), 0x1063B7F0 (wildcard match with * and ?), 0x1063B880 (path
-	// normaliser removing . and .. components): not attempted, see docs/core_worklist.md
+	// 0x1063B730 - 0x1063B7E0 (the string heap and StrDup) are a unit of their own: stringheap.cpp
 
-	// FUNCTION: ENGINE 0x1063B780
-	char* StrCpyAlias(char* destination, const char* source)
+	// FUNCTION: ENGINE 0x1063B7F0
+	// Matches string against a pattern with '*' (any run) and '?' (any one character); returns 0 or 1 in al
+	unsigned char MatchWildcard(const char* string, const char* pattern)
 	{
-		return StrCpy(destination, source);
+		int c = *string;
+		int p = *pattern;
+		while (p != 0)
+		{
+			if (c == 0)
+			{
+				if (p == '*')
+				{
+					goto star;
+				}
+				return 0;
+			}
+			if (p == '*')
+			{
+				goto star;
+			}
+			if (p != '?' && c != p)
+			{
+				return 0;
+			}
+			p = *++pattern;
+			c = *++string;
+		}
+		return c == 0;
+	star:
+		pattern++;
+		if (*pattern != 0)
+		{
+			while (!MatchWildcard(string, pattern))
+			{
+				if (*string == 0)
+				{
+					return 0;
+				}
+				string++;
+			}
+		}
+		return 1;
 	}
 
-	// FUNCTION: ENGINE 0x1063B790
-	unsigned int StrLenAlias(const char* string)
+	// FUNCTION: ENGINE 0x1063B880
+	// NONMATCHING: every block is there in the original's order and registers (59 %); two things remain: the
+	// `read += 2` of the ".\" case is sunk by our compiler into the trailing-dot case (the original keeps its own
+	// copy), and the inline strlen takes `path + 1` from the cursor register instead of `path` (also the issue
+	// of the int-sized StrNCat below)
+#ifdef NONMATCHING
+	// Removes "." and ".." components from a path in place ('\\' and '/' are separators); returns the path
+	char* NormalisePath(char* path)
 	{
-		return StrLen(string);
+		if (path != 0)
+		{
+			char* write = path;
+			const char* read = path;
+			const char* q = write + 1;
+			char c;
+			do
+			{
+				c = *write++;
+			} while (c != 0);
+			unsigned int length = write - q;
+			const char* end = path + length + 1;
+			write = path;
+			while (read < end)
+			{
+				if (*read == '.')
+				{
+					c = read[1];
+					if (c == '.')
+					{
+						if (write < path + 2 || write[-2] == '.' || write[-3] == '.')
+						{
+							write[0] = '.';
+							write[1] = '.';
+							write += 2;
+						}
+						else
+						{
+							write -= 2;
+							c = *write;
+							if (c != '\\')
+							{
+								do
+								{
+									if (c == '/')
+									{
+										break;
+									}
+									if (write == path)
+									{
+										read++;
+										break;
+									}
+									write--;
+									c = *write;
+								} while (c != '\\');
+							}
+						}
+						read += 2;
+					}
+					else if (c == '\\' || c == '/')
+					{
+						read += 2;
+					}
+					else if (c == 0)
+					{
+						if (write > path)
+						{
+							write--;
+						}
+						*write = 0;
+						read += 2;
+					}
+					else
+					{
+						goto copy;
+					}
+				}
+				else
+				{
+				copy:
+					*write = *read;
+					read++;
+					write++;
+				}
+			}
+		}
+		return path;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1063B960
 	void VSNPrintf(char* buffer, int size, const char* format, va_list arguments)
@@ -524,8 +726,32 @@ namespace core
 		return destination;
 	}
 
-	// 0x1063BAA0 (StrNCat with an int size, same shape as StrNCpy after an inline strlen): the strlen prologue
-	// does not match yet, see docs/core_worklist.md
+	// FUNCTION: ENGINE 0x1063BAA0
+	// NONMATCHING: 95 %; the original computes `destination + 1` with lea from the cursor's register right after
+	// copying it (before push esi), ours from the parameter's register after the push; every spelling of the
+	// inline strlen tried (p - q, p - (d + 1), p - d - 1, unsigned char cursor, the parameter as cursor) gives
+	// the same code
+#ifdef NONMATCHING
+	char* StrNCat(char* destination, const char* source, int size)
+	{
+		const char* p = destination;
+		const char* q = p + 1;
+		char c;
+		do
+		{
+			c = *p++;
+		} while (c != 0);
+		int length = p - q;
+		source -= length;
+		while (source[length] != 0 && length < size - 1)
+		{
+			destination[length] = source[length];
+			length++;
+		}
+		destination[length] = 0;
+		return destination;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1063BB00
 	char* FormatValue(char* buffer, int size, const char* format, int value)
