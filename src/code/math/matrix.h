@@ -50,6 +50,8 @@ namespace math
 		void RotationAxisAngle(const Vector& axis, float angle);
 		// Rotation matrix about a unit axis from the angle's cosine and sine; the axis is normalised if it is not
 		void FromAxisCosSin(const Vector& axis, float c, float s);
+		// Exact element-wise equality of all 16 elements
+		bool operator==(const Matrix& other) const;
 		// this *= s, all 16 elements
 		void Multiply(float s);
 		// Left-handed off-centre perspective projection (Direct3D PerspectiveOffCenterLH layout)

@@ -221,6 +221,17 @@ namespace math
 		m[1][1] = 1.0f / tanf(fov * 0.5f);
 	}
 
+	// FUNCTION: ENGINE 0x107D0730
+	bool Matrix::operator==(const Matrix& o) const
+	{
+		int equal = 1;
+		equal &= m[0][0] == o.m[0][0]; equal &= m[0][1] == o.m[0][1]; equal &= m[0][2] == o.m[0][2]; equal &= m[0][3] == o.m[0][3];
+		equal &= m[1][0] == o.m[1][0]; equal &= m[1][1] == o.m[1][1]; equal &= m[1][2] == o.m[1][2]; equal &= m[1][3] == o.m[1][3];
+		equal &= m[2][0] == o.m[2][0]; equal &= m[2][1] == o.m[2][1]; equal &= m[2][2] == o.m[2][2]; equal &= m[2][3] == o.m[2][3];
+		equal &= m[3][0] == o.m[3][0]; equal &= m[3][1] == o.m[3][1]; equal &= m[3][2] == o.m[3][2]; equal &= m[3][3] == o.m[3][3];
+		return equal != 0;
+	}
+
 	// FUNCTION: ENGINE 0x107D08F0
 	// EQUIVALENT: the original loads s after the first element of this; we load it first (one instruction)
 	void Matrix::Multiply(float s)

@@ -21,3 +21,8 @@ objdiff.json
 compile_commands.json
 .vs/
 .vscode/
+
+# permuter scratch written when a background job lost its working directory
+p_*.log
+*.best.cpp
+permute_candidate.*

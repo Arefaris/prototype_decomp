@@ -54,3 +54,4 @@
 ?Subtract3x3@Matrix@math@@QAEXABV12@@Z = 0x107D1010 ; function size:0x8B | math::Matrix::Subtract3x3 (name guess)
 ?Multiply@Matrix@math@@QAEXM@Z = 0x107D08F0 ; function size:0xE7 | math::Matrix::Multiply(float) (name guess)
 ?PerspectiveOffCenter@Matrix@math@@QAEXMMMMMM@Z = 0x107D14F0 ; function size:0xE0 | math::Matrix::PerspectiveOffCenter (name guess)
+??8Matrix@math@@QBE_NABV01@@Z = 0x107D0730 ; function size:0x1B8 | math::Matrix::operator==
