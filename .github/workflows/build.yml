@@ -1,0 +1,34 @@
+# CI without the game: the original binary and the VS 2005 compiler never reach GitHub. Matching and relinking
+# happen on a machine with the user's own copy (docs/workflow.md). Here: the tools' tests on synthetic data, and the
+# reconstructed source compiled by a modern MSVC for x86 (the "modern" configuration of docs/plan.md).
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tools:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pyyaml==6.0.1 pefile==2023.2.7 capstone==5.0.6
+      - run: python -m unittest discover tests -v
+
+  modern-compile:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile src/ with MSVC 2022 (x86)
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set VS=%%i
+          call "%VS%\VC\Auxiliary\Build\vcvars32.bat" || exit /b 1
+          mkdir build\modern
+          for /r src %%f in (*.cpp) do (
+            cl /nologo /c /O2 /W3 /arch:SSE /fp:fast /GR /MD /I src /Fobuild\modern\ "%%f" || exit /b 1
+          )

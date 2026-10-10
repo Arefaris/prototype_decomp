@@ -64,9 +64,14 @@ def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--version", default="PROTOPC_2025")
 	parser.add_argument("--no-link", action="store_true")
+	parser.add_argument("--no-compile", action="store_true", help="use the objects ninja already built")
 	args = parser.parse_args()
-	objects = compileAll(args.version)
-	print(f"compiled {len(objects)} sources")
+	if args.no_compile:
+		objDir = ROOT / "build" / args.version / "obj"
+		objects = [(s, objDir / s.relative_to(ROOT / "src").with_suffix(".obj")) for s in sorted((ROOT / "src").rglob("*.cpp"))]
+	else:
+		objects = compileAll(args.version)
+		print(f"compiled {len(objects)} sources")
 	allMatch = checkFunctions(objects, args.version)
 	if args.no_link:
 		sys.exit(0 if allMatch else 1)

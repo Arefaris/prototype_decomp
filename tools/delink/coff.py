@@ -7,6 +7,9 @@ IMAGE_REL_I386_DIR32 = 0x06
 IMAGE_REL_I386_REL32 = 0x14
 IMAGE_SCN_CNT_CODE = 0x00000020
 IMAGE_SCN_CNT_INITIALIZED_DATA = 0x00000040
+IMAGE_SCN_LNK_COMDAT = 0x00001000
+IMAGE_SCN_ALIGN_16BYTES = 0x00500000
+IMAGE_COMDAT_SELECT_NODUPLICATES = 1
 IMAGE_SCN_ALIGN_4096BYTES = 0x00D00000
 IMAGE_SCN_LNK_NRELOC_OVFL = 0x01000000
 IMAGE_SCN_MEM_EXECUTE = 0x20000000
@@ -28,6 +31,7 @@ class Section:
 		self.flags = flags
 		self.relocations = []  # (offset, symbol index, type)
 		self.number = 0
+		self.selection = 0  # COMDAT selection (IMAGE_COMDAT_SELECT_*) when flags has IMAGE_SCN_LNK_COMDAT
 
 
 class CoffWriter:
@@ -51,9 +55,13 @@ class CoffWriter:
 		return index
 
 	def sectionSymbol(self, section):
-		key = "$section:" + section.name
+		"""The section's static symbol (with its section-definition aux record). For a COMDAT section, call this right
+		before defining the COMDAT symbol: COFF wants that symbol to follow the section symbol."""
+		key = f"$section:{section.number}"
 		if key not in self.symbolIndex:
-			index = self._addSymbol(section.name, 0, section.number, 0, IMAGE_SYM_CLASS_STATIC, bytes(18))
+			index = self.symbolCount
+			self.symbolCount += 2
+			self.symbols.append((section.name, 0, section.number, 0, IMAGE_SYM_CLASS_STATIC, bytes(18)))
 			self.symbolIndex[key] = index
 		return self.symbolIndex[key]
 
@@ -103,7 +111,7 @@ class CoffWriter:
 			if aux:
 				section = self.sections[number - 1]
 				count = len(section.relocations)
-				aux = struct.pack("<IHHIHB", len(section.data), min(count, 0xFFFF), 0, 0, 0, 0).ljust(18, b"\0")
+				aux = struct.pack("<IHHIHB", len(section.data), min(count, 0xFFFF), 0, 0, 0, section.selection).ljust(18, b"\0")
 			symbolBytes += nameField + struct.pack("<IhHBB", value, number, symType, storage, len(aux) // 18) + aux
 		struct.pack_into("<I", strings, 0, len(strings))
 		numberOfSymbols = len(symbolBytes) // 18
