@@ -88,9 +88,9 @@ namespace engine
 		{
 		}
 
-		// FUNCTION: ENGINE 0x107DE990
-		// (0x107DEAA0 is the compiler's scalar deleting destructor of this class)
+		// 0x107DEAA0 is the compiler's scalar deleting destructor of this class
 		// FUNCTION: ENGINE 0x107DEAA0
+		// FUNCTION: ENGINE 0x107DE990
 		// EQUIVALENT: 93.7 %; in the last inlined member destructor the engine reuses the this register (esi) for the
 		// pointer being freed, our build takes eax
 		Director::~Director()
