@@ -6,7 +6,9 @@
 python tools/toolchain/setup_vc8.py <WindowsSDK_Vista_Feb2007Update.iso>   # docs/toolchain.md
 python tools/pin.py fetch --game "D:/SteamLibrary/steamapps/common/Prototype"
 python tools/ghidra/ghidra.py import                                         # ~10 min
-python tools/ghidra/ghidra.py run CreateFunctions.java local/ghidra/candidates.txt   # see "Function discovery"
+python tools/ghidra/ghidra.py run ExportFunctions.java local/ghidra/functions.tsv --readonly
+python tools/function_candidates.py local/ghidra/functions.tsv             # unreferenced functions the analysis missed
+python tools/ghidra/ghidra.py run CreateFunctions.java local/ghidra/candidates.txt
 python tools/ghidra/ghidra.py run ImportSymbols.java config/PROTOPC_2025/symbols.txt
 python tools/re/rea_target.py                                                # copy of the DLL that REA accepts
 python tools/configure.py
