@@ -1326,3 +1326,6 @@ _sInstancePool = 0x1127CA9C ; data size:0x4 | core instancedrive.cpp: the instan
 ?OrthoRH@Matrix@math@@QAEXMMMM@Z = 0x107CFD20 ; function size:0x8E | math::Matrix::OrthoRH (name guess)
 ?OrthoOffCenterLH@Matrix@math@@QAEXMMMMMM@Z = 0x107CFDB0 ; function size:0xDD | math::Matrix::OrthoOffCenterLH (name guess)
 ?OrthoOffCenterRH@Matrix@math@@QAEXMMMMMM@Z = 0x107CFE90 ; function size:0xD3 | math::Matrix::OrthoOffCenterRH (name guess)
+?Intersects@math@@YAHABVTriangle@1@ABVOBB@1@@Z = 0x107DBB10 ; function size:0x1A2 | math::Intersects(const Triangle&, const OBB&): corners into the box's axis space, then TriangleBoxOverlap (name guess)
+?Multiply@SymmetricMatrix@math@@QAEXABV12@0@Z = 0x107D9100 ; function size:0x139 | math::SymmetricMatrix::Multiply(a, b): upper triangle of the product (name guess)
+?Interpolate@Noise@math@@QBEMMMM@Z = 0x10104140 ; function size:0x2D | math::Noise::Interpolate(a, b, t): cosine interpolation (name guess)

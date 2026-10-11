@@ -101,6 +101,20 @@ namespace math
 		zz = a.zz * s;
 	}
 
+	// FUNCTION: ENGINE 0x107D9100
+	void SymmetricMatrix::Multiply(const SymmetricMatrix& a, const SymmetricMatrix& b)
+	{
+		// The product's upper triangle (a times b is symmetric when they commute), built in a temporary like Add
+		SymmetricMatrix result;
+		result.xx = a.xx * b.xx + a.xy * b.xy + a.xz * b.xz;
+		result.xy = a.xx * b.xy + a.xy * b.yy + a.xz * b.yz;
+		result.xz = a.xx * b.xz + a.xy * b.yz + a.xz * b.zz;
+		result.yy = a.xy * b.xy + a.yy * b.yy + a.yz * b.yz;
+		result.yz = a.xy * b.xz + a.yy * b.yz + a.yz * b.zz;
+		result.zz = a.xz * b.xz + a.yz * b.yz + a.zz * b.zz;
+		*this = result;
+	}
+
 	// FUNCTION: ENGINE 0x107D9240
 	void SymmetricMatrix::CopyTo(Matrix& out) const
 	{

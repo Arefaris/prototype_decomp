@@ -1,5 +1,7 @@
 // The sampling side of math::Noise. It sits far from the parameter class (0x1010xxxx vs 0x107D8xxx) and its
 // callers go through the incremental-link thunks, so it is its own translation unit; "perlin" is a guess at its name.
+#include <math.h>
+
 #include "code/math/noise.h"
 
 namespace math
@@ -11,5 +13,12 @@ namespace math
 		n = n ^ (n << 13);
 		n = (n * (n * n * 15731 + 789221) - 771171059) & 0x7FFFFFFF;
 		return 1.0f - n / 1073741824.0;
+	}
+
+	// FUNCTION: ENGINE 0x10104140
+	float Noise::Interpolate(float a, float b, float t) const
+	{
+		float w = (1.0f - cosf(t * 3.14159265f)) * 0.5f;
+		return a * (1.0f - w) + b * w;
 	}
 }

@@ -111,7 +111,8 @@ Left:
 | 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | - | 1 981 bytes, triangle vs box SAT; not attempted |
 | 0x107DBA10 | Intersects(const Triangle&, const AABB&) | 44.5 % | frame 0x58 matches with `Vector4 vertices[4]` (three copied member-wise, 16-byte stride), centre.Add(max, min) * 0.5, extents.Sub; the original sinks centre.z / extents.z and the first `max.x + min.x` load order differs |
 
-Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
+Intersects(const Triangle&, const OBB&) (0x107DBB10) matches with the corners transformed into a `Vector local[3]`
+array that is then reused for the zero centre and the extents (the original's 0x60 frame). Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
 
 ## spline.cpp (0x107D49F0 - 0x107D6F10), mostly in the tree
 
@@ -168,21 +169,23 @@ reused from the register.
 
 ## symmetricmatrix.cpp (0x107D9100–0x107D9A00), partly in the tree
 
+Multiply(a, b) (0x107D9100) matches: the six sums of the product's upper triangle in a temporary, `*this = result`.
+
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
 | 0x107D96C0 | Transform(const Vector&, Vector&) | 10.4 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first |
-| 0x107D9290 | Transform(const Matrix&) (R S R^T) | — | not drafted |
+| 0x107D9290 | Transform(const Matrix&) (R^T S R) | 16 % | T = S R as nine floats, then the six sums into a temporary copied with dword moves; ours comes out 50+ bytes longer |
 | 0x107D9510 | adjugate-like | — | not drafted |
 | 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
 | 0x107D97B0 | Print (assert channel " Math  Pre ", static enable flag 0x111BBDE8) | — | needs the log function 0x1063C750 |
 
 ## perlin.cpp (0x101040C0–0x101043F0), partly in the tree
 
-Lattice matches. The two big ones keep the right operations but not the schedule.
+Lattice and Interpolate (0x10104140, cosine interpolation, no caller) match. The two big ones keep the right operations but not the schedule.
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x10104180 | Noise::Sample(x, y, z): cosine-weighted trilinear blend of 8 Lattice values, periods via `(i+1) % p` | 22.6 % | ternary Wrap, Weight/Lerp inlines; original computes all three weights after the three idivs |
+| 0x10104180 | Noise::Sample(x, y, z): cosine-weighted trilinear blend of 8 Lattice values, periods via `(i+1) % p` | 44.4 % | the three (int) conversions first, then the subtractions; weights as locals before the calls and the blend as one nested expression `L000 * (1 - wx) + L100 * wx ...` get the call order and the frame start. The original stores wx four times, wy twice, wz once (one copy per blend, like inline-function parameter temporaries) and is 495 bytes vs our 473; an inline Lerp evaluates its Lattice arguments in the wrong order (right to left) |
 | 0x101043F0 | Noise::Evaluate(x, y, z): octave loop, periods scaled by frequency and restored (period[0]/[1] swapped!), clamp, 1 - pow(power, 255 r) | 22.5 % | `float falloff = persistence` inside the loop body helps; prologue register choice differs |
 
 ## vector4.cpp (0x107DD200–0x107DD690), mostly in the tree

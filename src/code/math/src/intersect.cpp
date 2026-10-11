@@ -12,6 +12,7 @@
 #include "code/math/sphere.h"
 #include "code/math/triangle.h"
 #include "code/math/vector.h"
+#include "code/math/vector4.h"
 
 namespace math
 {
@@ -20,6 +21,8 @@ namespace math
 	bool TestBoxAxes(const Vector& extents, const Vector& direction, const Vector& delta, float length);
 	// 0x107D9CB0: separating-axis test of two boxes (extents, centre offset in A's space, rotation B in A's space)
 	int TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
+	// 0x107DB250: separating-axis test of a triangle (three Vector4 corners) against a box (centre, half extents)
+	int TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices);
 
 	// FUNCTION: ENGINE 0x107D9B60
 	// EQUIVALENT: same operations in the same order; the original schedules delta.y's subtraction after the push of
@@ -147,6 +150,33 @@ namespace math
 		capsule.GetSegment(segment);
 		return -shifted.d >= segment.start.x * shifted.normal.x + segment.start.y * shifted.normal.y + segment.start.z * shifted.normal.z
 			|| -shifted.d >= segment.end.x * shifted.normal.x + segment.end.z * shifted.normal.z + segment.end.y * shifted.normal.y;
+	}
+
+	// FUNCTION: ENGINE 0x107DBB10
+	int Intersects(const Triangle& triangle, const OBB& box)
+	{
+		// The corners in the box's axis space; the array is reused for the (zero) centre and the extents, which is
+		// what gives the original's frame (0x60 bytes, the two call arguments in local[1] and local[2])
+		const Matrix3& axes = *(const Matrix3*)box.axis;
+		Vector d;
+		Vector local[3];
+		d.Sub(triangle.a, box.centre);
+		axes.TransformTransposed(d, local[0]);
+		d.Sub(triangle.b, box.centre);
+		axes.TransformTransposed(d, local[1]);
+		d.Sub(triangle.c, box.centre);
+		axes.TransformTransposed(d, local[2]);
+		Vector4 vertices[3];
+		for (int i = 0; i < 3; i++)
+		{
+			vertices[i].x = local[i].x;
+			vertices[i].y = local[i].y;
+			vertices[i].z = local[i].z;
+			vertices[i].w = 0.0f;
+		}
+		local[1].Set(0.0f, 0.0f, 0.0f);
+		local[2].Set(box.extents.x, box.extents.y, box.extents.z);
+		return TriangleBoxOverlap(local[1], local[2], vertices);
 	}
 
 	// FUNCTION: ENGINE 0x107DBCC0
