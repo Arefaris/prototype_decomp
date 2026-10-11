@@ -201,7 +201,6 @@ call).
 
 Left alone: 0x10B80350 - 0x10B80390, 0x10B80460, 0x10B80690 (interlocked helpers with register arguments);
 0x10B80300 / 0x10B80320 belong to the class before (destructor 0x10B801D0, singleton at 0x1132FE78).
-Next in line: core::MemoryExternalAllocator / AllocatorBaseSub_NoStubs (0x10B814F0 - 0x10B81A60).
 
 ## memory/debugallocator.cpp (0x10B80B20 - 0x10B814DF): done (36 functions)
 
@@ -220,6 +219,15 @@ Notes:
 - AllocAligned drops the inner allocator's result in mode 0 and returns null (the original's bug, kept).
 - The range test is the same code as the spill-over one; named OwnsBlock here so symbols.txt has distinct names.
 - Slot 17 (still called IsThreadSafe) validates here before asking the inner allocator: probably a check method.
+
+## memory/externalallocator.cpp (0x10B814E0 - 0x10B81A61): done (25 functions)
+
+`core::MemoryExternalAllocator` and its base `core::AllocatorBaseSub_NoStubs` (RTTI names; file name guessed):
+an allocator over memory managed by an embedded heap object at 0x44 (`ExternalHeap`, class name guessed, 0x590
+bytes; its methods 0x10B833E0 - 0x10B853A0 are declared and mapped, not reconstructed: the next unit to look at).
+Plain (non-atomic) reference count; the last Release destroys the object in place and frees the block it lives
+in; AllocFlags only serves the allocator's own tag. Init reads GetName back through the vtable and drops it. Every
+function matched on the first compile.
 
 ## Candidates nearby (leaf functions, not started)
 
