@@ -1,3 +1,4 @@
+#include "code/core/debug.h"
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/strings.h"
@@ -168,18 +169,55 @@ namespace engine
 		count = 0x20;
 	}
 
+	// HeapConfig2's constructor is inline in the header; this is its kept copy
 	// FUNCTION: ENGINE 0x107DEFF0
-	HeapConfig2::HeapConfig2()
+
+	// FUNCTION: ENGINE 0x107DF270
+	core::IMemoryAllocator* CreateHeap(int index, unsigned int size, unsigned int extraSize, const char* name, int heap,
+		int safetyMode, bool guard, int track, bool flag)
 	{
-		index = -1;
-		size = 0;
-		extraSize = 0;
-		name = 0;
-		heap = -1;
-		safetyMode = 2;
-		alignment = 0x10;
-		guard = false;
-		track = -1;
-		flag = false;
+		HeapConfig2 config;
+		config.index = index;
+		config.size = size;
+		config.extraSize = extraSize;
+		config.name = name;
+		config.heap = heap;
+		config.safetyMode = safetyMode;
+		config.guard = guard;
+		config.track = track;
+		config.flag = flag;
+		return CreateHeap(config);
+	}
+
+	// FUNCTION: ENGINE 0x107DF2D0
+	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int a, unsigned int b, const char* name, int c, int d,
+		int heap, int safetyMode)
+	{
+		core::IMemoryAllocator* allocator;
+		core::CreateBlockAllocator(&allocator, a, b, c, heap, d);
+		allocator->SetSafetyMode(safetyMode);
+		core::RegisterHeap(index, heap, allocator);
+		allocator->Release();
+		return allocator;
+	}
+
+	// GLOBAL: ENGINE 0x111BBF84
+	static bool sReportLiveAllocations = true;
+
+	// FUNCTION: ENGINE 0x107DF330
+	void DestroyHeap(int heap)
+	{
+		int liveBlocks;
+		const char* name;
+		GetHeapStats(heap, 0, 0, 0, &liveBlocks, &name);
+		if (liveBlocks != 0 && sReportLiveAllocations)
+		{
+			if (core::ReportError(0, 0, "..\\..\\..\\code\\engine\\system\\enginememory.cpp", 911, 0,
+				"Error: Allocator \"%s\" is being destroyed with %d objects still allocated\n", name, liveBlocks, 0) == 3)
+			{
+				sReportLiveAllocations = false;
+			}
+		}
+		core::UnregisterHeap(heap);
 	}
 }

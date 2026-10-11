@@ -44,7 +44,20 @@ namespace engine
 		int track;
 		bool flag;
 
-		HeapConfig2();
+		// Inline: CreateHeap's argument form builds one on the stack (0x107DEFF0 is the kept copy)
+		HeapConfig2()
+		{
+			index = -1;
+			size = 0;
+			extraSize = 0;
+			name = 0;
+			heap = -1;
+			safetyMode = 2;
+			alignment = 0x10;
+			guard = false;
+			track = -1;
+			flag = false;
+		}
 	};
 
 	// Set by InitMemory; before it operator new returns null and delete does nothing
@@ -56,6 +69,14 @@ namespace engine
 	// Creates the heap a configuration describes, stacks the guard / tracking wrappers it asks for, sets its safety
 	// mode and installs it in the heap table
 	core::IMemoryAllocator* CreateHeap(const HeapConfig2& config);
+	// The same from the fields as arguments (the alignment stays 16)
+	core::IMemoryAllocator* CreateHeap(int index, unsigned int size, unsigned int extraSize, const char* name, int heap,
+		int safetyMode, bool guard, int track, bool flag);
+	// A heap of the 0x16C-byte allocator kind (core::CreateBlockAllocator); name is not used
+	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int a, unsigned int b, const char* name, int c, int d,
+		int heap, int safetyMode);
+	// Reports allocations still live in the heap, then removes it from the heap table
+	void DestroyHeap(int heap);
 	// The same for a two-way allocator taken from another heap
 	core::IMemoryAllocator* CreateTwoWayHeap(int index, unsigned int size, unsigned int extraSize, const char* name,
 		int heap, int safetyMode, bool guard, int track);

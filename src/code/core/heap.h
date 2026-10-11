@@ -27,6 +27,11 @@ namespace core
 	void RegisterHeap(int index, IMemoryAllocator* allocator);
 	// 0x1063A740: the allocator the system heap (0x100) hands out from
 	void SetSystemAllocator(IMemoryAllocator* allocator);
+	// 0x1063AD50: removes a heap from the table again
+	void UnregisterHeap(int heap);
+	// 0x1063E690: an allocator object of 0x16C bytes from `heap`, returned through out with a reference held (kind
+	// and argument meanings unknown)
+	void CreateBlockAllocator(IMemoryAllocator** out, unsigned int a, unsigned int b, int c, int heap, int d);
 	// 0x1063A7F0: the hook a failed allocation reports to (0x11277F8C) and the value passed back to it (0x11277F90)
 	void SetAllocFailHook(void (*hook)(int heap), void* user);
 	// 0x1063C7D0, 0x1063AB80, 0x10645120: start-up of the core memory system, called before the first heap exists
