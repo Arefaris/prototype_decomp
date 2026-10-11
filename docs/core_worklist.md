@@ -605,5 +605,18 @@ Validation (2026-10-11): free roam, movement and a teleport in the hybrid (every
 |---|---|---:|---|
 | 0x106512C0 | RefreshInfo | 93 % | EQUIVALENT in tree: the failure branch clears the serial before the state stores in the original, after them in ours |
 
+## file/common/ramdrive.cpp (0x10651D20 - 0x106523A3): 15 matched, 1 EQUIVALENT
+
+core::RamDrive (RTTI name; `code/core/file/ramdrive.h`; file and member names guessed): up to 32 files found by the
+Hash32 of their path (leading back slash dropped); a file is one 4 KB block of the drive's page pool (open count,
+size, page pointers), its pages come from the same pool, a handle points at the table slot. The size the device
+mapping hands to the constructor (devices.cpp passes it as a string pointer) sets the pool's page count. Notes: the
+slot loops need `unsigned int` indices (jb); Open's search tests `file != 0` first and keeps the first free slot in
+the else branch. Validation (2026-10-11): free roam in the hybrid.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10651E80 | Write | 59 % | EQUIVALENT in tree: registers permuted (size, page index, page pointer) |
+
 ## Candidates nearby (leaf functions, not started)
 
