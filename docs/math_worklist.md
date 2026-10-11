@@ -67,10 +67,12 @@ finished with `t.CopyTo(*this)`.
 
 ## matrix3.cpp (0x107D3CF0 - 0x107D4150)
 
+Transform / TransformTransposed (0x107D3DD0 / 3E60) match as `out.Set(...)` of the three sums (all three computed
+before any store); term order does not matter there.
+
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D3DD0 / 3E60 | Transform / transposed | 18.2 % | |
-| 0x107D3EF0 / 4150 | Multiply (two copies) | 6.1 % | all 18 loads first, then the nine sums |
+| 0x107D3EF0 / 4150 | Multiply (two copies) | 21.2 % | a Matrix3 temporary of the nine sums copied back member-wise comes closest (599 vs 596 bytes); the copy-back order permuted does not help |
 
 ## obb.cpp (0x107D43B0 - 0x107D49E0)
 

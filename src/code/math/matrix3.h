@@ -17,8 +17,10 @@ namespace math
 		// Copies the nine elements into / out of the upper 3x3 of a Matrix
 		void CopyTo(Matrix& out) const;
 		void CopyFrom(const Matrix& in);
+		// out = the row v times this matrix
+		void Transform(const Vector& v, Vector& out) const;
 		// out = this matrix times the column v (each row dotted with v); the inverse rotation of a row-vector
-		// matrix, used to bring vectors into an OBB's axis space (0x107D3E60, not reconstructed yet; name guessed)
+		// matrix, used to bring vectors into an OBB's axis space (name guessed)
 		void TransformTransposed(const Vector& v, Vector& out) const;
 	};
 }
