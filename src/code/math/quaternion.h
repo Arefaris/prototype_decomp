@@ -24,6 +24,8 @@ namespace math
 		void FromAxisAngle(float angle, const Vector& axis);
 		// The rotation of the upper 3x3 of mat (Shoemake's method; note w comes out negated, the engine's convention)
 		void FromMatrix(const Matrix& mat);
+		// The rotation matrix of this unit quaternion into out (0x107CDA00, not reconstructed yet)
+		void ToMatrix(Matrix& out) const;
 		// Rotation by angle radians about X / Y / Z
 		void RotationX(float angle);
 		void RotationY(float angle);

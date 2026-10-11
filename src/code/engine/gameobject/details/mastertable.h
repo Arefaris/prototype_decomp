@@ -1,0 +1,205 @@
+// code/engine/gameobject/details/mastertable.cpp (assert path at 0x10E68734): the game object master table behind
+// GameObjectHandle. 0x1800 entries of {object, serial, flags} filled from the front (a fixed array with an end
+// pointer) and recycled through a free list threaded through the object pointers; a handle can be reserved before
+// its object exists. Unit 0x107E1D20 - 0x107E2420. Class and member names are guesses (the file name gives
+// MasterTable); most of the small functions are kept copies of inline functions.
+#ifndef ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
+#define ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
+
+#include "code/engine/gameobject/gameobjecthandle.h"
+#include <new>
+
+namespace container
+{
+	template<class T> inline void Swap(T& a, T& b)
+	{
+		T t = a;
+		a = b;
+		b = t;
+	}
+
+	template<class T> inline void Construct(T* p, const T& value)
+	{
+		new (p) T(value);
+	}
+
+	// A fixed-capacity array filled from the front (name guessed)
+	template<class T, int N> class ArrayFixed
+	{
+	public:
+		ArrayFixed()
+		{
+			end = data;
+		}
+		T* Begin()
+		{
+			return data;
+		}
+		int Size() const
+		{
+			return end - data;
+		}
+		T& operator[](int index)
+		{
+			return data[index];
+		}
+		bool PushBack(const T& value)
+		{
+			if (Size() != N)
+			{
+				Construct(end++, value);
+				return true;
+			}
+			return false;
+		}
+		void Clear()
+		{
+			end = data;
+		}
+		void Reset()
+		{
+			end = data;
+		}
+
+		T data[N];
+		T* end;
+	};
+}
+
+namespace engine
+{
+	class MasterTable
+	{
+	public:
+		enum
+		{
+			CAPACITY = 0x1800
+		};
+
+		class Entry
+		{
+		public:
+			Entry()
+			{
+			}
+			explicit Entry(void* newObject)
+			{
+				object = newObject;
+				serial = 0;
+				flags = 0x8000;
+			}
+
+			bool IsValid() const
+			{
+				return used && object != 0;
+			}
+			bool IsReserved() const
+			{
+				return (flags >> 14) & 1;
+			}
+			void SetFlags(unsigned short mask)
+			{
+				flags |= mask;
+			}
+			void ClearFlags(int mask)
+			{
+				flags &= ~mask;
+			}
+			unsigned int GetCount() const
+			{
+				return count;
+			}
+			void SetCount(unsigned short value)
+			{
+				flags = (flags & 0xc000) | value;
+			}
+			void Set(void* newObject, unsigned short newSerial)
+			{
+				used = 1;
+				object = newObject;
+				serial = newSerial;
+			}
+			void SetObject(void* newObject)
+			{
+				used = 1;
+				object = newObject;
+			}
+			unsigned short NextSerial()
+			{
+				count = 0;
+				return ++serial;
+			}
+			void ClearObject()
+			{
+				object = 0;
+			}
+			void Reserve()
+			{
+				reserved = 1;
+			}
+			void Unreserve()
+			{
+				reserved = 0;
+			}
+			void* GetObject() const
+			{
+				return object;
+			}
+			// Links the entry into the free list
+			void SetNext(Entry* next)
+			{
+				used = 0;
+				object = next;
+			}
+			// Swaps objects and counts
+			void Swap(Entry& other)
+			{
+				container::Swap(object, other.object);
+				unsigned short previous = count;
+				count = other.count;
+				other.SetCount(previous);
+			}
+
+			void* object;
+			unsigned short serial;
+			union
+			{
+				struct
+				{
+					unsigned short count : 14;
+					unsigned short reserved : 1;
+					unsigned short used : 1;
+				};
+				unsigned short flags;
+			};
+		};
+
+		MasterTable(int unknown1, int unknown2)
+		{
+			freeList = 0;
+		}
+
+		// A handle the next Allocate hands out (0x11283490 / 0x11283488)
+		static GameObjectHandle sReservedHandle;
+		static bool sHasReservedHandle;
+		void ClearReservedHandle();
+		void SetReservedHandle(GameObjectHandle handle);
+
+		unsigned short IncrementSerial(unsigned short index);
+		void Release(unsigned short index);
+		void Swap(unsigned short a, unsigned short b);
+		void Unreserve(unsigned short index);
+		bool IsReserved(GameObjectHandle handle);
+		void SetFlags(unsigned short index, unsigned short mask);
+		void ClearFlags(unsigned short index, int mask);
+		unsigned short Allocate(void* object);
+		GameObjectHandle Reserve();
+		unsigned short Move(const GameObjectHandle* from, GameObjectHandle* to);
+		unsigned short Replace(const GameObjectHandle* target, const GameObjectHandle* source);
+
+		container::ArrayFixed<Entry, CAPACITY> entries;
+		Entry* freeList;
+	};
+}
+
+#endif

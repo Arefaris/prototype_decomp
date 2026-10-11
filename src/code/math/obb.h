@@ -20,6 +20,8 @@ namespace math
 		void Transform(const Matrix& m);
 		// The same from src into this box
 		void Transform(const Matrix& m, const OBB& src);
+		// True when p is inside the box (|(p - centre) . axis[i]| <= extents[i] for all three axes)
+		bool Contains(const Vector& p) const;
 	};
 }
 

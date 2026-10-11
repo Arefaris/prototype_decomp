@@ -21,6 +21,17 @@ namespace math
 		}
 	}
 
+	// FUNCTION: ENGINE 0x107DCF50
+	void Sphere::GetAABB(AABB& out) const
+	{
+		Vector low;
+		low.Set(centre.x - radius, centre.y - radius, centre.z - radius);
+		Vector high;
+		high.Set(radius + centre.x, centre.y + radius, centre.z + radius);
+		out.min.Set(low.x, low.y, low.z);
+		out.max.Set(high.x, high.y, high.z);
+	}
+
 	// FUNCTION: ENGINE 0x107DCD20
 	// EQUIVALENT: same instructions, the registers of the three origin - centre differences are numbered differently
 	bool Sphere::IntersectRay(const Vector& origin, const Vector& direction, float& t) const
@@ -74,5 +85,23 @@ namespace math
 		}
 		t = hit;
 		return true;
+	}
+
+	// FUNCTION: ENGINE 0x107DCFB0
+	void Sphere::AddPoint(const Vector& p)
+	{
+		Vector d;
+		d.Sub(p, centre);
+		float distance = sqrtf((d.y * d.y + d.x * d.x) + d.z * d.z);
+		if (radius >= distance)
+		{
+			return;
+		}
+		float half = (distance - radius) * 0.5f;
+		float inv = 1.0f / distance;
+		Vector direction;
+		direction.Set(inv * d.x, inv * d.y, inv * d.z);
+		centre.Set(direction.x * half + centre.x, direction.y * half + centre.y, direction.z * half + centre.z);
+		radius = radius + half;
 	}
 }
