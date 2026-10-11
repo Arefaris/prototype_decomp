@@ -88,7 +88,7 @@ namespace engine
 	// Starts the core memory system, reserves memory, creates the system heap and points strings at heap 0x6F
 	void InitMemory(const HeapConfig& config);
 	// 0x107DED20 (not reconstructed): the allocation failure hook InitMemory installs
-	void OnAllocFail(int heap);
+	void OnAllocFail(void* user, int heap, unsigned int size, unsigned int align, int flags);
 }
 
 // The engine's global allocation operators (0x107DEF50-0x107DEFE0): the plain forms allocate from the current

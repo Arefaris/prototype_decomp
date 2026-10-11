@@ -503,5 +503,33 @@ defaults that new threads / fibers copy. Allocation runs under the thread lock o
 the lock, the call returning 0 releases it). All match. The fiber slots are the ones the engine calls
 AllocThreadSlot / Get / SetThreadValue (names kept). The ...Locked helpers need `mask = used | bit` stored in one
 expression: `used |= bit; ...; mask = used;` keeps the slot pointer in edi.
+
+## heap.cpp (0x1063A6A0 - 0x1063AF72): 34 matched, 5 EQUIVALENT
+
+The heaps (`code/core/heap.h`; file and all names guessed): a table of 0x101 entries (allocator, children, next,
+parent; `gHeaps` 0x110BC5A4 points at the static table 0x11276F78), the system heap entry (0x11276F58, index 0x100),
+the address map `gHeapMap` (0x11277F98, a RangeMap over a fixed buffer of 0x100 ranges, constructed by a dynamic
+initializer elsewhere, so only declared), the current heap per thread in a thread data slot, a failure hook
+(user, heap, size, align, flags; engine::OnAllocFail takes those arguments). HeapAlloc / Aligned / Flags / Zero,
+the frees by heap and by block, Register / UnregisterHeap (the tree of heaps follows the address ranges),
+IsBlockInHeap, the start-up / shut-down. Matching notes:
+- Virtual calls on `gHeaps[heap].allocator` need the allocator in a local (the expression form loads it twice).
+- The reset of every entry needs the table pointer in a local and an index loop (`heaps[i].children = 0` ...):
+  that gives the original's base + 0xC strength reduction; the pointer-walking loop does not. `__forceinline`
+  (static) for the helper, plain `inline` is not inlined (loop).
+- RegisterHeap's out value of RangeMap::Set is a fresh local per range, copied to the running parent index.
+- RangeMap: ~RangeMap is the empty 0x10646150 (the heap map's destructor jumps to it); 0x10646570 (jmp Destroy, no
+  callers) is now `RangeMap::Free`. memoryspace.cpp gained its two empty functions (InitMemorySpace /
+  ShutdownMemorySpace, 0x10645D50 / 0x10645D60), which InitMemoryStage2 / ShutdownMemoryStage2 call.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063AC00, 0x1063AC30, 0x1063AC60 | Free / FreeAligned / FreeFlags | 71 % | EQUIVALENT in tree: the original loads the allocator into ecx directly, ours into eax plus a copy |
+| 0x1063AD50 | UnregisterHeap | 79.5 % | EQUIVALENT in tree: one block (`owner = parent`) placed out of line in the original; the reset store order only comes with a register swap |
+| 0x1063AE10 | RegisterHeap | 52 % | EQUIVALENT in tree: loop identical; the entry lives in edi (spilled) in the original, in ebx in ours |
+
+Left alone: 0x1063AF80 / 0x1063AF90 (lower / upper case tests with the character in al, no references: unreferenced
+statics are not emitted).
+
 ## Candidates nearby (leaf functions, not started)
 

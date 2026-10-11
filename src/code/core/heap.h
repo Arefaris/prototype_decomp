@@ -1,6 +1,9 @@
-// Heap allocation entry points of the core module (names guessed). Not reconstructed yet: HeapAlloc (0x1063A850)
-// looks the heap up in a table of allocator objects (0x110BC5A4, 16 bytes per heap), calls its virtual Alloc (slot 3)
-// and reports a failed allocation to a hook (0x11277F8C / 0x11277F90) before returning null.
+// The heaps of the core module (unit 0x1063A6A0 - 0x1063AF72, file name heap.cpp and all names guessed): a table of
+// 0x101 heap entries (0x110BC5A4 points at it), each an allocator object plus links that make the heaps a tree (a heap
+// registered over memory of another heap is its child). Index 0x100 and every unregistered index stand for the system
+// heap, whose allocator is the malloc allocator until SetSystemAllocator installs another. A range map (0x11277F98)
+// records which heap owns which address range, so that a block can be freed without knowing its heap. The current
+// heap of a thread lives in a thread data slot (0x11276F50).
 #ifndef CORE_HEAP_H
 #define CORE_HEAP_H
 
@@ -8,20 +11,35 @@ namespace core
 {
 	struct IMemoryAllocator;
 
-	void* HeapAlloc(int heap, unsigned int size);
-	// 0x1063A9A0: returns a block to its heap
-	void HeapFree(int heap, void* block);
-	// 0x1063A8D0 / 0x1063A9C0: the aligned pair (allocator slots 5 and 6); sizes below 4 bytes are rounded up to 4
-	void* HeapAllocAligned(int heap, unsigned int size, unsigned int align);
-	void HeapFreeAligned(int heap, void* block);
-	// 0x1063A6F0: the heap the current thread allocates from (a thread-local slot), 0 when it has none
+	// Told about every allocation that fails (align 1 for HeapAlloc, flags 0 unless given)
+	typedef void (*AllocFailHook)(void* user, int heap, unsigned int size, unsigned int align, int flags);
+
+	void MemoryNop1();
+	void MemoryNop2();
+	// The counterpart of InitMemoryStage2
+	void ShutdownMemoryStage2();
+	// The heap the current thread allocates from (a thread data slot), 0 when it has none
 	int GetCurrentHeap();
-	// 0x1063AC00: returns a block to whichever heap owns it
-	void Free(void* block);
+	// Returns the previous one (0 when the thread has no slot)
+	int SetCurrentHeap(int heap);
+	// The allocator every heap without one of its own uses (the system heap)
+	void SetSystemAllocator(IMemoryAllocator* allocator);
+	// Back to the malloc allocator; releases the one installed
+	void ResetSystemAllocator();
+	void SetAllocFailHook(AllocFailHook hook, void* user);
+	void* HeapAlloc(int heap, unsigned int size);
+	// HeapAlloc, the block cleared
+	void* HeapAllocZero(int heap, unsigned int size);
+	// Alignments below 4 bytes are rounded up to 4
+	void* HeapAllocAligned(int heap, unsigned int size, unsigned int align);
+	void* HeapAllocFlags(int heap, unsigned int size, unsigned int align, int flags, int unused);
+	void HeapFree(int heap, void* block);
+	void HeapFreeAligned(int heap, void* block);
+	void HeapFreeFlags(int heap, void* block);
+	// The allocator object behind a heap index
+	IMemoryAllocator* GetHeapAllocator(int heap);
 
-	struct IMemoryAllocator;
-
-	// 0x1063AAD0 / 0x1063AAF0: makes heap the thread's current heap for the object's lifetime
+	// Makes heap the thread's current heap for the object's lifetime
 	class HeapScope
 	{
 	public:
@@ -31,22 +49,30 @@ namespace core
 		int previous;
 	};
 
-	// 0x1063AA00: the allocator object behind a heap index
-	IMemoryAllocator* GetHeapAllocator(int heap);
-	// 0x1063AF60 / 0x1063AE10: install an allocator in the heap table (the first form also records the heap it was
-	// carved from)
-	void RegisterHeap(int index, int parent, IMemoryAllocator* allocator);
-	void RegisterHeap(int index, IMemoryAllocator* allocator);
-	// 0x1063A740: the allocator the system heap (0x100) hands out from
-	void SetSystemAllocator(IMemoryAllocator* allocator);
-	// 0x1063AD50: removes a heap from the table again
-	void UnregisterHeap(int heap);
-	// 0x1063A7F0: the hook a failed allocation reports to (0x11277F8C) and the value passed back to it (0x11277F90)
-	void SetAllocFailHook(void (*hook)(int heap), void* user);
+	void MemoryNop3();
+	void MemoryNop4();
+	void AddRefAllocator(IMemoryAllocator* allocator);
+	void ReleaseAllocator(IMemoryAllocator* allocator);
 	// 0x1063C7D0, 0x1063AB80, 0x10645120: start-up of the core memory system, called before the first heap exists
 	void InitMemoryStage1();
 	void InitMemoryStage2();
 	void InitMemoryStage3(int count);
+	// Return a block to whichever heap owns it
+	void Free(void* block);
+	void FreeAligned(void* block);
+	void FreeFlags(void* block);
+	IMemoryAllocator* GetBlockAllocator(void* block);
+	// True when the block lies in the heap and in none of the heaps registered inside it (true for null, false for
+	// heap -1)
+	bool IsBlockInHeap(void* block, int heap);
+	// Removes a heap from the table again: the heaps inside it move to a sibling with the same allocator (or to its
+	// parent), its address ranges go with them
+	void UnregisterHeap(int heap);
+	// Installs an allocator in the heap table (AddRef) and files its address ranges; the parent is found from them
+	void RegisterHeap(int index, IMemoryAllocator* allocator);
+	// The same; parent is not used
+	void RegisterHeap(int index, int parent, IMemoryAllocator* allocator);
+
 	// 0x10645400 / 0x10645430: heap allocators carved from a parent heap or placed over memory the caller owns
 	IMemoryAllocator* NewHeapAllocator(unsigned int size, int parent, const char* name, unsigned int align, int unknown,
 		bool flag);

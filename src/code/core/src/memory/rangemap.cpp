@@ -9,6 +9,11 @@ namespace core
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10646150
+	RangeMap::~RangeMap()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10646160
 	unsigned int RangeMap::BufferSize(unsigned int maxRanges)
 	{
@@ -226,7 +231,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10646570
-	RangeMap::~RangeMap()
+	void RangeMap::Free()
 	{
 		Destroy();
 	}

@@ -18,7 +18,7 @@ namespace core
 		};
 
 		RangeMap();
-		// Destroy() (the compiler turned it into a jump)
+		// Empty (the fixed heap map's destructor jumps to it)
 		~RangeMap();
 		// Re-runs the constructor on this and returns this
 		RangeMap* Construct();
@@ -29,6 +29,8 @@ namespace core
 		// Allocates the buffer from heap and initialises
 		void Create(int defaultValue, unsigned int maxRanges, int heap);
 		void Destroy();
+		// Destroy() (the compiler turned it into a jump; no callers)
+		void Free();
 		// Drops every run with this value (neighbours with equal values merge); false when there is none
 		bool RemoveValue(int value);
 		bool ReplaceValue(int oldValue, int newValue);
