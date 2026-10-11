@@ -14,6 +14,17 @@ namespace math
 		float y;
 		float z;
 
+		Vector()
+		{
+		}
+		// User-defined: the engine copy-constructs Vectors with one fld / fstp per component (a Vector returned by
+		// value); struct assignment stays the implicit operator= (mov)
+		Vector(const Vector& v)
+		{
+			x = v.x;
+			y = v.y;
+			z = v.z;
+		}
 		// Scales to unit length and returns the old length; a vector shorter than EPSILON_FLOAT becomes zero
 		float Normalize();
 		// Scales to unit length without a check for zero length
