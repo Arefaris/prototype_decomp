@@ -201,8 +201,25 @@ call).
 
 Left alone: 0x10B80350 - 0x10B80390, 0x10B80460, 0x10B80690 (interlocked helpers with register arguments);
 0x10B80300 / 0x10B80320 belong to the class before (destructor 0x10B801D0, singleton at 0x1132FE78).
-Next in line: core::MemoryDebugAllocator (0x10B80B20 - 0x10B813E0) and core::MemoryExternalAllocator /
-AllocatorBaseSub_NoStubs (0x10B813F0 - 0x10B81A60).
+Next in line: core::MemoryExternalAllocator / AllocatorBaseSub_NoStubs (0x10B814F0 - 0x10B81A60).
+
+## memory/debugallocator.cpp (0x10B80B20 - 0x10B814DF): done (36 functions)
+
+`core::MemoryDebugAllocator` (RTTI name; `IMemoryDebugAllocator` adds SetAllocCallback / SetFreeCallback /
+GetHeaderSize as slots 18 - 20; file name guessed): wraps an allocator; mode 0 passes through, other modes frame
+every block with a CRC-32 checked 16-byte header (crc, size, next, prev) and footer (crc, raw pointer, total,
+owner) kept in a list, and every call reports to optional callbacks. All debug allocators are in one global list
+under one critical section. Every function matches, including the frame checks and the compiler-generated ones.
+Notes:
+- The list head / tail / count / lock are class statics, not file statics: the original rereads them after each
+  store through a pointer (internal linkage lets our compiler cache them). Likewise CheckHeaders /
+  CheckAllocators / CheckAllocatorsLocked are external functions: as statics our compiler passes the allocator in
+  ebx, the original on the stack.
+- The callbacks are read into locals userData first, then the function pointer.
+- Synchronise is a switch with two identical cases (2 and 3), not one case list.
+- AllocAligned drops the inner allocator's result in mode 0 and returns null (the original's bug, kept).
+- The range test is the same code as the spill-over one; named OwnsBlock here so symbols.txt has distinct names.
+- Slot 17 (still called IsThreadSafe) validates here before asking the inner allocator: probably a check method.
 
 ## Candidates nearby (leaf functions, not started)
 
