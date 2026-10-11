@@ -46,6 +46,16 @@ namespace math
 		return dx * dx + dy * dy + dz * dz - t * (t / lengthSquared);
 	}
 
+	// FUNCTION: ENGINE 0x107D72D0
+	float Segment::Parameter(const Vector& p) const
+	{
+		Vector d;
+		d.Sub(end, start);
+		Vector v;
+		v.Sub(p, start);
+		return (v.y * d.y + (d.z * v.z + d.x * v.x)) / ((d.x * d.x + d.y * d.y) + d.z * d.z);
+	}
+
 	// FUNCTION: ENGINE 0x107D7380
 	void Segment::GetSphere(Sphere& out) const
 	{

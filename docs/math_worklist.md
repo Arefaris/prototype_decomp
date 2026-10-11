@@ -146,9 +146,9 @@ grouping but reorders flat sums).
 | --- | --- | --- | --- |
 | 0x107D6F40 | GetAABB | 100 % | in the tree. DistanceSquared(p, t, lengthSquared) (0x107D6F90) matches: `t <= EPSILON_FLOAT`, the x87 sums need explicit groupings per branch (`(y^2 + x^2) + z^2` then `(x^2 + z^2) + y^2` on `d.Sub` vectors) |
 | 0x107D7020 | closest point + distance² | — | not drafted |
-| 0x107D72D0 | Parameter(p) = dot(p-s, d) / dot(d, d) | 23.5 % | SSE prologue matches, x87 part does not |
+| 0x107D72D0 | Parameter(p) | 100 % | in the tree: `(v.y * d.y + (d.z * v.z + d.x * v.x)) / ((d.x * d.x + d.y * d.y) + d.z * d.z)`, found by sweeping groupings and operand orders |
 | 0x107D7380 | GetSphere | 100 % | in the tree: `sum.Set(start.x + end.x, end.y + start.y, end.z + start.z)`: the operand order inside Set arguments is kept, unlike plain statements |
-| 0x107D7420 | DistanceSquared(p) (clamped projection) | 4.3 % | three different sum orders in one function |
+| 0x107D7420 | DistanceSquared(p) (clamped projection) | 22.6 % | Ericson's SqDistPointSegment: d = end - start and t = (v.z d.z + v.x d.x) + d.y v.y in SSE, `t <= EPSILON_FLOAT` -> |v|^2, dd = (d.y^2 + d.x^2) + d.z^2, `t >= dd` -> |p - end|^2 with direct x87 fsubs, else |v - d t / dd|^2. The original keeps p.y / p.z in [esp] / [esp+4] and p.x in the argument slot (three floats, not a Vector) with v at 8 and w at 0x14; structure right, stack layout and registers not |
 | 0x107D7570 | DistanceSquaredToLine(p) | 17.0 % | |
 
 ## random.cpp (0x107D8380–0x107D8740), partly in the tree
