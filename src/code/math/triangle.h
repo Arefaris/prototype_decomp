@@ -18,6 +18,9 @@ namespace math
 		// ab / bc / ca, 5 / 3 / 6 for the corners a / b / c (the union of their edges), 0 for the interior
 		// (0x107D3420, not reconstructed yet)
 		int ClosestPoint(const Vector& p, Vector& out) const;
+		// Ray test (Moller-Trumbore, both windings): true and t (in units of direction) when origin + t direction
+		// crosses the triangle; |det| <= EPSILON_SMALL counts as parallel (0x107D2ED0, NONMATCHING)
+		bool IntersectRay(const Vector& origin, const Vector& direction, float& t) const;
 		// True when p (assumed in the triangle's plane) lies inside the triangle (barycentric coordinates, sign bits)
 		bool Contains(const Vector& p) const;
 		// The smallest of the three corner angles (acos of the largest |cos| between the edges), 0 when degenerate

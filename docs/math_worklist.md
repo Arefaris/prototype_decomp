@@ -87,7 +87,7 @@ two-Select Clamp in mathutils.h.
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D2ED0 | ray intersection | - | 750 bytes |
+| 0x107D2ED0 | IntersectRay(origin, direction, t&) | 52 % | NONMATCHING in tree: Moller-Trumbore with both windings written out (det > EPSILON_SMALL / det < -EPSILON_SMALL, shared tail t = e2 . q / det). A coordinate-descent sweep over the groupings and operand orders of the four dot products plateaus: the original adds direction . q as (z + x) + y, which the compiler never emits from source; declaring e2 before e1 lines up the middle but not the head |
 | 0x107D3360 | Triangle::ContainsXZ(p) | 88 % | EQUIVALENT in tree: three 2D edge tests with early returns; the two factors of the first test come out in swapped registers |
 | 0x107D3420 | Triangle::ClosestPoint(p, out) | 9 % | Ericson's region test; returns 1 / 2 / 4 for edges ab / bc / ca, 5 / 3 / 6 for corners, 0 inside. Original frame 0x7c with Vector locals in memory (p copy at 0, ac at 0x1c, bc at 0x28, a - p at 0x34, n at 0x40, c - p at 0x4c, b - p at 0x58, ab in registers), d1 / d3 / d4 / d2 at 0xc-0x18; the dots are written as -(ab . (a - p)) etc. Scalar and Sub/Dot/Cross-helper versions both land at 9 %: the compiler's schedule of the first block differs from the start (REA pseudocode is a faithful guide to the arithmetic) |
 | 0x107D3AA0 | Area | 100 % | z, x, y cross components as float locals, `n.Set(x, y, z)`, flat sum in the sqrt |
@@ -106,11 +106,11 @@ before any store); term order does not matter there.
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107D4450 | GetAABB | 13.5 % | products in SSE through Vector temporaries, fabs in x87 |
-| 0x107D4560 | GetCornerOffset(out, bits) | 45.1 % | e = (bits & 1 / 2 / 4) ? -extents : extents per axis, axis2 * ez + axis1 * ey + axis0 * ex; copying axis[2] first gets the early loads, the register assignment still differs (64 combinations of copy / accumulate / store forms) |
+| 0x107D4560 | GetCornerOffset(out, bits) | EQUIVALENT | in the tree (29.7 %): e = (bits & 1 / 2 / 4) ? -extents : extents per axis (bit 0 is axis[2]), stage-wise sums axis2 * ez, + axis1 * ey, + axis0 * ex; the original loads axis[2] and the first factor of each stage before the sign branches; copies / Vector temporaries / Set forms come out longer (201-233 bytes) |
 | 0x107D4630 | Contains | 100 % | in the tree: `const Vector& v = axis[i]` in a `for (int i = 3; i--; )` loop with the x87 dot grouped `(v.x * d.x + v.y * d.y) + v.z * d.z` |
-| 0x107D46D0 | closest point / depth | - | |
+| 0x107D46D0 | GetDirection(p, direction&, distance&) | EQUIVALENT | in the tree (56.7 %): d = p - centre, t[i] = axis[i] . d, a do-while over i = 2..0 clamping t[i] to +-extents (`for (i = 3; i != 0; ) { i--; ...}` gives the original's loop without the entry jump; `float a` separate from `t[i]`), the nearest face replaces its t when inside, direction = d - sum axis[i] t[i] (Set of grouped sums), Normalize, negated inside. The original computes the offset stage by stage across the components; Vector operators (by-value temporaries) are far off (16 %) |
 | 0x107D48E0 | GetSphere | 41.8 % | out = (centre, |axis0 ex + axis1 ey + axis2 ez|): the centre goes out as an x87 copy (copy constructor) after the products, so probably returned by value through a Sphere(centre, radius) constructor; the three scaled axes as Vectors (axis 2 first) give 41.8 %, the frame is 0x18 instead of 0xc |
-| 0x107D49B0 | GetCorner | 100 % | waits for GetCornerOffset (same unit, register knowledge) |
+| 0x107D49B0 | GetCorner | 100 % | in the tree, with GetCornerOffset compiled in the unit (it keeps `edx` / `ecx` across the call) |
 
 ## plane.cpp (0x107D8740 - 0x107D8E10)
 
@@ -213,8 +213,8 @@ Multiply(a, b) (0x107D9100) matches: the six sums of the product's upper triangl
 | --- | --- | --- | --- |
 | 0x107D96C0 | Transform(const Vector&, Vector&) | 10.4 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first |
 | 0x107D9290 | Transform(const Matrix&) (R^T S R) | 16 % | T = S R as nine floats, then the six sums into a temporary copied with dword moves; ours comes out 50+ bytes longer |
-| 0x107D9510 | adjugate-like | — | not drafted |
-| 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
+| 0x107D9510 | SkewTransform(v): [v]x^T S [v]x | 100 % | in the tree: four products of S [v]x as locals (t10, t20, t00, t01 in that order), the rest inline, the six results in a temporary in the order xx, xy, xz, yy, yz, zz, then `*this = r`; only `v.y * yz` in t10 needed its operands swapped |
+| 0x107D9820 | Invert(a) | EQUIVALENT | in the tree (26 %): scale = 1 / a.xx when |a.xx| > EPSILON_SMALL, Multiply(a, scale), cofactors c00 / c01 / c02, det = c00 xx + c01 xy + c02 xz, inv = scale / det, zero (`xx = yy = zz = 0; xy = xz = yz = 0`) when |det| <= 0. The original recomputes yz * yz and the c00 difference for r.xx; inline expansions with `- xy * (...)` give subtractions where the original adds |
 
 ## perlin.cpp (0x101040C0–0x101043F0), partly in the tree
 

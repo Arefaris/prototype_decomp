@@ -37,6 +37,11 @@ namespace math
 		void Multiply(const SymmetricMatrix& a, float s);
 		// this = the upper triangle of a * b
 		void Multiply(const SymmetricMatrix& a, const SymmetricMatrix& b);
+		// this = [v]x^T * this * [v]x with [v]x the cross-product matrix of v (shifts an inertia-like tensor; name
+		// guessed)
+		void SkewTransform(const Vector& v);
+		// this = a^-1 (cofactors over the determinant, a scaled by 1 / a.xx first); zero when a is singular
+		void Invert(const SymmetricMatrix& a);
 		// Writes the 3x3 block of a Matrix and clears its translation
 		void CopyTo(Matrix& out) const;
 		// Nonzero when every element is within EPSILON_SMALL of zero

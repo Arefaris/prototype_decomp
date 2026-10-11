@@ -22,6 +22,14 @@ namespace math
 		void Transform(const Matrix& m, const OBB& src);
 		// True when p is inside the box (|(p - centre) . axis[i]| <= extents[i] for all three axes)
 		bool Contains(const Vector& p) const;
+		// Unit direction from the nearest point of the box surface to p and the distance to it (negative inside,
+		// direction pointing inwards then); names guessed after Sphere::GetDirection
+		void GetDirection(const Vector& p, Vector& direction, float& distance) const;
+		// The offset of a corner from the centre: bit 0 negates the extent along axis[2], bit 1 along axis[1],
+		// bit 2 along axis[0] (names guessed)
+		void GetCornerOffset(Vector& out, unsigned char bits) const;
+		// centre + GetCornerOffset(bits)
+		void GetCorner(Vector& out, unsigned char bits) const;
 	};
 }
 

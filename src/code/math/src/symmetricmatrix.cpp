@@ -4,6 +4,7 @@
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/symmetricmatrix.h"
+#include "code/math/vector.h"
 
 namespace math
 {
@@ -131,6 +132,25 @@ namespace math
 		out.ClearTranslation();
 	}
 
+	// FUNCTION: ENGINE 0x107D9510
+	void SymmetricMatrix::SkewTransform(const Vector& v)
+	{
+		// t = this * [v]x (only the columns the result needs), then this = [v]x^T * t; the original writes the first
+		// four products of t as locals and the rest inline, with these operand orders
+		float t10 = yy * v.z - v.y * yz;
+		float t20 = yz * v.z - zz * v.y;
+		float t00 = xy * v.z - xz * v.y;
+		float t01 = v.x * xz - xx * v.z;
+		SymmetricMatrix r;
+		r.xx = v.z * t10 - v.y * t20;
+		r.xy = v.x * t20 - v.z * t00;
+		r.xz = v.y * t00 - v.x * t10;
+		r.yy = (v.x * zz - xz * v.z) * v.x - v.z * t01;
+		r.yz = v.y * t01 - (v.x * yz - xy * v.z) * v.x;
+		r.zz = (xx * v.y - v.x * xy) * v.y - (xy * v.y - v.x * yy) * v.x;
+		*this = r;
+	}
+
 	// FUNCTION: ENGINE 0x107D9750
 	int SymmetricMatrix::IsZero() const
 	{
@@ -146,6 +166,41 @@ namespace math
 			"Symmetrix matrix: xx=%f, yy=%f, zz=%f, xy=%f, xz=%f, yz=%f", xx, yy, zz, xy, xz, yz, 0) == 3)
 		{
 			sPrint = false;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D9820
+	// EQUIVALENT: the same products and differences (26 %); the original recomputes yz * yz and the c00 difference for
+	// r.xx (ours reuses c00), keeps xz * yz in memory, puts the zero branch first and allocates other registers
+	void SymmetricMatrix::Invert(const SymmetricMatrix& a)
+	{
+		// Scaled by 1 / a.xx first for conditioning; the scale is folded back into the reciprocal of the determinant
+		float scale = 1.0f;
+		if (fabsf(a.xx) > EPSILON_SMALL)
+		{
+			scale = 1.0f / a.xx;
+		}
+		Multiply(a, scale);
+		float c00 = yy * zz - yz * yz;
+		float c01 = xz * yz - zz * xy;
+		float c02 = xy * yz - yy * xz;
+		float det = c00 * xx + c01 * xy + c02 * xz;
+		if (fabsf(det) > 0.0f)
+		{
+			float inv = scale / det;
+			SymmetricMatrix r;
+			r.xx = (yy * zz - yz * yz) * inv;
+			r.xy = -((zz * xy - xz * yz) * inv);
+			r.xz = c02 * inv;
+			r.yy = (xx * zz - xz * xz) * inv;
+			r.yz = -((xx * yz - xy * xz) * inv);
+			r.zz = (xx * yy - xy * xy) * inv;
+			*this = r;
+		}
+		else
+		{
+			xx = yy = zz = 0.0f;
+			xy = xz = yz = 0.0f;
 		}
 	}
 
