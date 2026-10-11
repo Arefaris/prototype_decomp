@@ -89,6 +89,11 @@ namespace math
 		void PerspectiveOffCenter(float left, float right, float bottom, float top, float nearZ, float farZ);
 		// Left-handed perspective projection (Direct3D PerspectiveFovLH layout) over an identity matrix
 		void PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ);
+		// Orthographic projections (Direct3D OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH layouts)
+		void OrthoLH(float width, float height, float nearZ, float farZ);
+		void OrthoRH(float width, float height, float nearZ, float farZ);
+		void OrthoOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ);
+		void OrthoOffCenterRH(float left, float right, float bottom, float top, float nearZ, float farZ);
 		// Right-handed perspective projection (Direct3D PerspectiveFovRH layout: w = -z, z in [0, 1])
 		void PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ);
 		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)

@@ -268,6 +268,46 @@ namespace math
 		m[1][1] = cot;
 	}
 
+	// The projections below assign all 16 elements in memory order; that order (not the order of the
+	// computations) is what reproduces the original's schedule
+	// FUNCTION: ENGINE 0x107CFC80
+	void Matrix::OrthoLH(float width, float height, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / width; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / height; m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (farZ - nearZ); m[2][3] = 0.0f;
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFD20
+	void Matrix::OrthoRH(float width, float height, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / width; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / height; m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (nearZ - farZ); m[2][3] = 0.0f;
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFDB0
+	void Matrix::OrthoOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / (right - left); m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / (top - bottom); m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (farZ - nearZ); m[2][3] = 0.0f;
+		m[3][0] = (left + right) / (left - right); m[3][1] = (bottom + top) / (bottom - top);
+		m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFE90
+	void Matrix::OrthoOffCenterRH(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / (right - left); m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / (top - bottom); m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (nearZ - farZ); m[2][3] = 0.0f;
+		m[3][0] = (left + right) / (left - right); m[3][1] = (bottom + top) / (bottom - top);
+		m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
 	// FUNCTION: ENGINE 0x107D0300
 	void Matrix::PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ)
 	{

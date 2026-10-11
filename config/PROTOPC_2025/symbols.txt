@@ -1322,3 +1322,7 @@ _sInstancePool = 0x1127CA9C ; data size:0x4 | core instancedrive.cpp: the instan
 ?Remove@MessageRouter@engine@@QAEXVGameObjectHandle@2@H@Z = 0x108A54C0 ; function | function engine::MessageRouter method (name guess)
 ?Query@MessageRouter@engine@@QAEXVGameObjectHandle@2@H@Z = 0x108A51B0 ; function | function engine::MessageRouter method (name guess)
 ?gMasterTable@engine@@3PAVMasterTable@1@A = 0x1128348C ; data | data engine::gMasterTable: the master table (same pointer as gGameObjects)
+?OrthoLH@Matrix@math@@QAEXMMMM@Z = 0x107CFC80 ; function size:0x99 | math::Matrix::OrthoLH (name guess)
+?OrthoRH@Matrix@math@@QAEXMMMM@Z = 0x107CFD20 ; function size:0x8E | math::Matrix::OrthoRH (name guess)
+?OrthoOffCenterLH@Matrix@math@@QAEXMMMMMM@Z = 0x107CFDB0 ; function size:0xDD | math::Matrix::OrthoOffCenterLH (name guess)
+?OrthoOffCenterRH@Matrix@math@@QAEXMMMMMM@Z = 0x107CFE90 ; function size:0xD3 | math::Matrix::OrthoOffCenterRH (name guess)
