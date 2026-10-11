@@ -47,7 +47,6 @@ namespace core
 		virtual int GetKey() = 0;
 		virtual bool GetFlag() = 0;
 		virtual void SetField12C(unsigned int value) = 0;
-		virtual class FileCache* GetCache() = 0;
 	};
 
 	// The read cache inside a file (0x30 bytes at +0x138); methods at 0x10650AB0 - 0x106511C0
@@ -126,6 +125,7 @@ namespace core
 		virtual int GetKey();
 		virtual bool GetFlag();
 		virtual void SetField12C(unsigned int value);
+		// Slot 32: File's own (IFile's vftable 0x10E3388C ends with slot 31)
 		virtual FileCache* GetCache();
 		virtual void Lock();
 		virtual void Unlock();
