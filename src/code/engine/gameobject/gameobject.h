@@ -31,8 +31,7 @@ namespace engine
 		T value;
 	};
 
-	// (content::MetaLoadObject sits between LoadObject and GameObject; nothing reconstructed uses it yet)
-	class GameObject : public content::LoadObject
+	class GameObject : public content::MetaLoadObject
 	{
 	public:
 		// 0x107E1670 / 0x107E0BE0 (the GameObject unit)
@@ -52,6 +51,8 @@ namespace engine
 
 		// 0x107E0810 (another unit): delivers the message when the object listens for its type
 		bool SendMessage(Message* message);
+		// 0x107E0850: the same through the behaviour container's other slot (name guess)
+		bool PostMessage(Message* message);
 
 		unsigned char unknown4[0x1c - 4];
 		Attribute<math::Matrix>* transform;

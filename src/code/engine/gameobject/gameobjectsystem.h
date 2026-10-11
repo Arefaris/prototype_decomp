@@ -162,7 +162,16 @@ namespace engine
 	};
 
 	bool InitGameObjectSystem(const GameObjectSystemConfig* config);
+	// Delivers message to every subscriber of the channel at once, through GameObject::SendMessage / PostMessage
+	void SendMessage(Message* message, MessageListeners* listeners);
+	void PostMessage(Message* message, MessageListeners* listeners);
+	int CountListeners(MessageListeners* listeners);
 	bool ReleaseReadyGameObjects();
+	// The game object of name in the inventory of inventoryName in the root inventory (Search also looks inside the
+	// inventories; names guessed)
+	GameObjectHandle FindGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
+	GameObjectHandle SearchGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
+	content::ObjectName GetGameObjectName(GameObjectHandle handle);
 	bool UpdateGameObjectSystemShutdown();
 	void ClearGameObjectSystem();
 	void ShutdownGameObjectSystem();

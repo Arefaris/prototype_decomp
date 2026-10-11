@@ -20,8 +20,21 @@ namespace content
 		// 0x105FE690: the class's allocation forwards to operator new[]
 		static void* operator new(unsigned int size);
 
+		// The vftable (RTTI: 5 slots; slot 2 is the deleting destructor)
 		virtual void AddRef();
 		virtual void Release();
+		virtual void Slot3();
+		// True when the object may be released (meaning guessed from the game objects)
+		virtual bool IsReady();
+	};
+
+	// content::MetaLoadObject (RTTI: 7 slots, the reflected load objects' base)
+	class MetaLoadObject : public LoadObject
+	{
+	public:
+		virtual bool Slot5();
+		// Takes the name the object is kept under (meaning guessed from the game objects)
+		virtual void SetName(const ObjectName& name);
 	};
 
 	// The lock of every inventory (a critical section, 0x11276950)
@@ -43,6 +56,19 @@ namespace content
 			core::IRefCount** objects;
 			ObjectName* names;
 			int deleted;
+
+			// The name of object, or the empty name
+			ObjectName GetName(LoadObject* object)
+			{
+				for (unsigned int i = 0; i < count; i++)
+				{
+					if (objects[i] == object)
+					{
+						return names[i];
+					}
+				}
+				return ObjectName();
+			}
 		};
 
 		// Walks the objects of an inventory, holding a reference to it and optionally the inventory lock
@@ -120,7 +146,13 @@ namespace content
 		};
 
 		// The filter of a lookup: answers the object as T, or null (one virtual slot)
-		template<class T> class DynamicCaster
+		class DynamicCasterBase
+		{
+		public:
+			virtual core::IRefCount* Cast(core::IRefCount* object) = 0;
+		};
+
+		template<class T> class DynamicCaster : public DynamicCasterBase
 		{
 		public:
 			virtual core::IRefCount* Cast(core::IRefCount* object)
@@ -132,9 +164,29 @@ namespace content
 		// 0x106033D0: capacity is the size of the name table (a power of two)
 		explicit LoadInventory(unsigned int capacity);
 
-		// Vftable slots 0 / 1 (0x105FE740 / 0x105FE750)
+		// The vftable (RTTI: 8 slots; 0 / 1 are 0x105FE740 / 0x105FE750)
 		virtual void AddRef();
 		virtual void Release();
+		// Slot 5: the object of name that the caster accepts, searching the inventories inside too when recursive;
+		// slot 7: only this inventory (meanings guessed)
+		virtual LoadObject* FindObject(DynamicCasterBase* caster, const ObjectName& name, bool recursive);
+		virtual void Slot6();
+		virtual LoadObject* GetObject(DynamicCasterBase* caster, const ObjectName& name);
+
+		ObjectName GetName(LoadObject* object)
+		{
+			return table->GetName(object);
+		}
+		template<class T> T* Find(const ObjectName& name)
+		{
+			DynamicCaster<T> caster;
+			return static_cast<T*>(FindObject(&caster, name, true));
+		}
+		template<class T> T* Get(const ObjectName& name)
+		{
+			DynamicCaster<T> caster;
+			return static_cast<T*>(GetObject(&caster, name));
+		}
 
 		// 0x106032F0 / 0x10603560: adds an object under a name / takes it out again
 		void Add(const ObjectName& name, LoadObject* object);

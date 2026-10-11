@@ -11,15 +11,82 @@
 
 namespace engine
 {
-	class MessageListeners;
+	// A message channel: the name its subscribers are registered under
+	class MessageListeners : public core::Name<core::CaseSensitiveKey>
+	{
+	};
 
-	// The listeners of one message: its name and the handles (32 bytes)
+	// The valid handles of a list, in order (skips the handles whose objects are gone)
+	class HandleIterator
+	{
+	public:
+		HandleIterator()
+		{
+			handle = 0;
+			array = 0;
+		}
+		HandleIterator(GameObjectHandle* newHandle, container::ArrayDynamicHeap<GameObjectHandle>* newArray)
+		{
+			handle = newHandle;
+			array = newArray;
+			SkipInvalid();
+		}
+		HandleIterator(const HandleIterator& other)
+		{
+			handle = other.handle;
+			array = other.array;
+		}
+		// 0x1020A2E0 (the copy the engine's calls reach)
+		void SkipInvalid();
+		HandleIterator& operator++()
+		{
+			handle++;
+			SkipInvalid();
+			return *this;
+		}
+		GameObjectHandle* operator->() const
+		{
+			return handle;
+		}
+		bool operator!=(const HandleIterator& other) const
+		{
+			return handle != other.handle;
+		}
+
+		GameObjectHandle* handle;
+		container::ArrayDynamicHeap<GameObjectHandle>* array;
+	};
+
+	// The subscribers of one channel: its name and the handles (32 bytes)
 	struct MessageListenerList
 	{
+		// 0x108327B0 (the router's unit)
+		HandleIterator Begin();
+		HandleIterator End()
+		{
+			return HandleIterator(handles.end, &handles);
+		}
+
 		core::Name<core::CaseSensitiveKey> name;
 		container::ArrayDynamicHeap<GameObjectHandle> handles;
 		int unknown18;
 		int unknown1C;
+	};
+
+	// The list of a channel as GetListeners answers it
+	class MessageListenerRef
+	{
+	public:
+		MessageListenerRef(MessageListenerList* newList)
+		{
+			list = newList;
+		}
+		MessageListenerRef(const MessageListenerRef& other)
+		{
+			list = other.list;
+		}
+
+		MessageListenerList* list;
 	};
 
 	// The 16-byte entries of the router's second table (meaning unknown)
@@ -43,6 +110,17 @@ namespace engine
 		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
 		void Invalidate(GameObjectHandle handle);
 		void SwapHandles(GameObjectHandle first, GameObjectHandle second);
+
+		// 0x108A5020: the list of a channel, null when it has none
+		MessageListenerList* FindListSlow(const MessageListeners& listeners);
+		MessageListenerList* FindList(const MessageListeners& listeners)
+		{
+			if (listeners == cachedName)
+			{
+				return cachedList;
+			}
+			return FindListSlow(listeners);
+		}
 
 		void Clear()
 		{

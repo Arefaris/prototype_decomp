@@ -185,6 +185,12 @@ namespace engine
 		entry = item;
 	}
 
+	// FUNCTION: ENGINE 0x107EF1D0
+	MessageListenerRef GetListeners(MessageListeners* listeners)
+	{
+		return gMessageRouter->FindList(*listeners);
+	}
+
 	// FUNCTION: ENGINE 0x107EF210
 	GameObjectHandle DeserializeHandle(SerializedHandle saved)
 	{
@@ -452,6 +458,34 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x107EFF00
+	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
+	// keeps the iterator in memory
+	void SendMessage(Message* message, MessageListeners* listeners)
+	{
+		MessageListenerRef ref = GetListeners(listeners);
+		MessageListenerList* list = ref.list;
+		for (HandleIterator it = list != 0 ? list->Begin() : HandleIterator();
+			it != (list != 0 ? list->End() : HandleIterator()); ++it)
+		{
+			GetGameObjectEntries()[it->index].object->SendMessage(message);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107EFFC0
+	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
+	// keeps the iterator in memory
+	void PostMessage(Message* message, MessageListeners* listeners)
+	{
+		MessageListenerRef ref = GetListeners(listeners);
+		MessageListenerList* list = ref.list;
+		for (HandleIterator it = list != 0 ? list->Begin() : HandleIterator();
+			it != (list != 0 ? list->End() : HandleIterator()); ++it)
+		{
+			GetGameObjectEntries()[it->index].object->PostMessage(message);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x107F0080
 	bool ReleaseReadyGameObjects()
 	{
@@ -474,6 +508,63 @@ namespace engine
 			gGameObjects->SetUnknown8(unknown);
 		}
 		return released;
+	}
+
+	// FUNCTION: ENGINE 0x107F0170
+	GameObjectHandle FindGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName)
+	{
+		content::LoadInventory* inventory = content::gRootInventory->Get<content::LoadInventory>(inventoryName);
+		if (inventory != 0)
+		{
+			GameObject* object = inventory->Find<GameObject>(name);
+			if (object != 0)
+			{
+				return GameObjectHandle(object->index);
+			}
+		}
+		return GameObjectHandle();
+	}
+
+	// FUNCTION: ENGINE 0x107F01F0
+	GameObjectHandle SearchGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName)
+	{
+		content::LoadInventory* inventory = content::gRootInventory->Find<content::LoadInventory>(inventoryName);
+		if (inventory != 0)
+		{
+			GameObject* object = inventory->Find<GameObject>(name);
+			if (object != 0)
+			{
+				return GameObjectHandle(object->index);
+			}
+		}
+		return GameObjectHandle();
+	}
+
+	// FUNCTION: ENGINE 0x107F0270
+	// EQUIVALENT: the engine compares the serial again for Get after IsValid; our build folds the second compare
+	content::ObjectName GetGameObjectName(GameObjectHandle handle)
+	{
+		if (handle.IsValid())
+		{
+			return gGameObjects->GetName(handle.Get());
+		}
+		return content::ObjectName();
+	}
+
+	// FUNCTION: ENGINE 0x107F02D0
+	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
+	// keeps the iterator in memory
+	int CountListeners(MessageListeners* listeners)
+	{
+		int count = 0;
+		MessageListenerRef ref = GetListeners(listeners);
+		MessageListenerList* list = ref.list;
+		for (HandleIterator it = list != 0 ? list->Begin() : HandleIterator();
+			it != (list != 0 ? list->End() : HandleIterator()); ++it)
+		{
+			count++;
+		}
+		return count;
 	}
 
 	// FUNCTION: ENGINE 0x107F03E0
@@ -555,4 +646,11 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F0800
 	// FUNCTION: ENGINE 0x107F0830
 	// FUNCTION: ENGINE 0x107F06A0
+	// LoadInventory::Table::GetName, LoadInventory::Find<LoadInventory>, Get<LoadInventory> and GetName
+	// FUNCTION: ENGINE 0x107EF350
+	// FUNCTION: ENGINE 0x107EFBC0
+	// FUNCTION: ENGINE 0x107EFBA0
+	// FUNCTION: ENGINE 0x107EFC00
+	// MessageRouter::FindList
+	// FUNCTION: ENGINE 0x107EF110
 }

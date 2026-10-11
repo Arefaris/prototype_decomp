@@ -72,15 +72,15 @@ Complete (47 functions with the reflection templates). Lessons:
 
 ## gameobject/gameobjectsystem.cpp (0x107EEBC0 - 0x107F09D0)
 
-In progress (four commits). Done: handle and registration helpers, iteration, creation, deferred updates, handle
-operations, InitGameObjectSystem, ReleaseReadyGameObjects and the shutdown, plus the kept copies of the container,
-iterator and MessageRouter destructors. EQUIVALENT: MoveHandle (the engine resolves the handle twice),
+In progress. Done: handle and registration helpers, iteration, creation, deferred updates, handle operations,
+InitGameObjectSystem, ReleaseReadyGameObjects, the shutdown, FindGameObject / SearchGameObject, the channel functions
+(GetListeners, SendMessage, PostMessage, CountListeners), plus the kept copies of the container, iterator, LoadInventory
+and MessageRouter helpers. EQUIVALENT: SendMessage / PostMessage / CountListeners (the engine keeps the handle
+iterator in a register and copies the end iterator every round), GetGameObjectName (the serial is compared again for
+Get after IsValid), MoveHandle (the engine resolves the handle twice),
 ClearGameObjectSystem (the engine loads gDeferredObjects before storing the router's list end) and
 ShutdownGameObjectSystem (its inlined ArrayDynamicHeap destructor keeps the loaded begin pointer; a local copy in the
-destructor fixes it but breaks `container::Destroy<MessageListenerList>`). Left: the message router lookups and
-SendMessage variants (0x107EF110, 0x107EF1D0, 0x107EFF00, 0x107EFFC0, 0x107F02D0, with the iterator helpers 0x108327B0
-/ 0x1020A2E0 of another unit), FindGameObject (0x107F0170 / 0x107F01F0, LoadInventory lookups through
-`DynamicCaster<T>`), GetGameObjectName (0x107F0270), the update loop 0x107F0410, `Iterator::Next<GameObject>`
+destructor fixes it but breaks `container::Destroy<MessageListenerList>`). Left: the update loop 0x107F0410, `Iterator::Next<GameObject>`
 (0x107EF2E0: the engine does not jump-thread the null result of the inlined NextObject) and small kept copies.
 Lessons:
 
