@@ -453,6 +453,14 @@ The game language (`code/core/language.h`; names guessed): a language code ('E',
 (external: the language entry points at 0x10643EF0 read it), eight listeners told in three priority rounds. All
 match; RemoveLanguageListener decrements the count in place (`count--`, then compares with it).
 
+## languageinfo.cpp (0x10643EF0 - 0x106444C5): 12 functions
+
+The language entry points (forwarders to language.cpp, two copies of `return gLanguage`), the installed language
+from the registry (HKEY_LOCAL_MACHINE, key and value named by the platform's two strings; a string value read with
+atoi / written with sprintf) and the code / name conversions (names and file name guessed). All match. The switches
+include `case '?'` (the jump tables start at '?'); a failed registry query falls through to its own close-and-fail
+tail (`if (query == 0) { close; return atoi(...); } close; return -1;`, otherwise the two failure tails merge).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
