@@ -10,28 +10,11 @@
 #include "code/core/name.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
+#include "code/engine/scriptcontext.h"
 #include <new>
 
 namespace engine
 {
-	struct SerializedHandle;
-
-	// The script side that receives the event fields (the object at 0x11284254; class and member names guessed): the
-	// Lua state is at +0xC
-	class ScriptContext
-	{
-	public:
-		// 0x108021F0: pushes context.event; 0x108000B0: pops it again
-		bool OpenEvent();
-		bool Close();
-		// 0x10800230 / 0x10800270: event[key] = a handle (light userdata) / a name
-		bool SetHandle(const char* key, SerializedHandle handle);
-		bool SetName(const char* key, const core::Name<core::CaseSensitiveKey>& name);
-	};
-
-	// 0x107FEFB0: the current script context, null when no script runs
-	ScriptContext* GetScriptContext();
-
 	// The handles a message class carries: their number, then per-handle tables (20 bytes, meaning unknown)
 	struct ScenarioHandleInfo
 	{

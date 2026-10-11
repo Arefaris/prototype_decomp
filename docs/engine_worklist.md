@@ -184,3 +184,17 @@ attribute writer at +8; that looks like 8-byte alignment of core::Name, which th
   RouterQuery were retyped.
 - A meta type getter's static caster vftable is checked as a constant: leave an inline template's slot functions
   unmapped when the original vftable holds incremental link thunks for them.
+
+## online/onlinelua.cpp (0x107F27E0 - 0x107F2970)
+
+The script helper online_DeterminePlayerIndex and the questions behind it (CharacterQueryPlayerControlStateMessage,
+the input slots' local ids), with the unit's script registration. Three EQUIVALENT functions: IsLocalSlot (`sete`
+into the masked register) and the two handle helpers, which hit the open IsValid-then-Get problem: the engine
+compares the handle's serial again for Get, our build folds it (also poimanager.cpp; `IsValid() { return Get() != 0; }`
+does not change that). Tested in game: `online_DeterminePlayerIndex(PLAYER_1)` answers 0. Lessons:
+
+- Units register script functions with ScriptContext::SetOwner(&static), Register<R, A>(name, function) (out of line
+  per instantiation, in other units) and ClearOwner; Unregister(&static) removes them. ScriptContext moved to
+  code/engine/scriptcontext.h.
+- `GetScriptContext()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
+  local.

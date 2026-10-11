@@ -129,6 +129,11 @@ namespace engine
 		unsigned int value;
 	};
 
+	// A game object handle as a script passes it (RTTI type descriptor engine::LuaGOH)
+	struct LuaGOH : SerializedHandle
+	{
+	};
+
 	// The game object system's state
 	extern bool gGameObjectSystemShutdown;
 	extern int gGameObjectFrame;
