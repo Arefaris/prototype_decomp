@@ -82,7 +82,8 @@ namespace core
 	public:
 		int Submit(Request* request, int key, int flags);
 		void Cancel(void* owner, int key);
-		void Flush();
+		// Whether requests are still queued
+		bool Flush();
 		void Restart(int value);
 	};
 
@@ -147,7 +148,8 @@ namespace core
 		int Submit(Request* request, int key, int flags);
 		// Cancels the requests of one file or drive instance
 		void CancelRequests(void* owner, int key);
-		void FlushRequests();
+		// Whether requests are still queued
+		bool FlushRequests();
 		bool HasCompletions();
 		void AddCache(FileCache* cache);
 		void RemoveCache(FileCache* cache);

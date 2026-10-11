@@ -102,16 +102,27 @@ against the VC8 object) passed 956 comparisons against the pinned original funct
 boundaries, microsecond carries, subtraction to zero, float conversion and 64-bit scaling. The hybrid DLL
 reached free roam in an isolated test copy; movement, pause, single-step and resume commands completed.
 
-## controllerxinput.cpp (0x10648FF0 - 0x106492BA): leaf methods
+## controllerxinput.cpp (0x10648750 - 0x10649F5A): 85 functions
 
-RTTI identifies the two reconstructed classes as `core::ControllerOutputPointXInput` and
-`core::ControllerInputPointXInput`. Eleven leaf virtual methods match: scalar output get/set, scalar input count/read,
-clamped scale get/set, binding pair set/clear, scaled range read, and range get/set. The output setter preserves the
-original NaN behavior and marks the value dirty only when the incoming value is not equal to the stored value.
-Class names are observed; method/member names are guesses from vtable position and behavior.
-Validation (2026-10-10): `ninja check` passes all 326 matching annotations. These eleven functions contribute
-271 exact bytes. The hybrid DLL verifier reports no differing bytes or relocation targets, the unit compiles with
-MSVC 2022 x86, and the refreshed test copy reaches free roam and accepts movement input.
+The XInput controllers (`code/core/controllerxinput.h`; RTTI names core::ControllerSystemXInput, core::ControllerXInput,
+core::ControllerInputPointXInput, core::ControllerOutputPointXInput; file, member and method names guessed), the twin of
+the DirectInput unit on the same interfaces. The system holds the four pads as a member array; each pad allocates
+point arrays (`new (heap) T[n]`) sized for the largest entry of a static table of controller types (0x110BD178: one
+type, the XBox 360 controller, with 20 inputs and 2 motors described by name, kind and a field offset / size / mask
+in XINPUT_GAMEPAD / XINPUT_VIBRATION) and sets them up when XInputGetCapabilities reports the pad. Pads continue the
+DirectInput joystick numbers ("JoystickN"). All 85 annotated functions match (the 11 leaf methods matched earlier
+kept their code; SetScale / GetScale are now SetThreshold / GetThreshold of IControllerInputPoint). Notes:
+- `core::Object` gained `operator new[](size, heap)` / `operator delete[]`: the vector deleting destructors (slot 2 of
+  the point vftables) and `delete[]` inline them; VS2005 itself calls the global `operator new[](4)` for a zero count.
+- ReadField / WriteField are inline functions of the unit (their out-of-line copies 0x10648750 / 0x10648770 are
+  annotated); the type lookup in Connect is written in place (an inline helper would leave a copy the original lacks).
+- The XInput functions are called through the image's own import thunks (imported by ordinal), mapped as
+  `_XInputGetState@8` etc.
+- The input point's +0x28 is the time from Init to the last change (Update never moves the start time).
+- Float results: `result = raw != 0 ? 1.0f : 0.0f` (the if form skips the store); the inactive branch of Update is
+  the else of `if (active)`.
+Validation (2026-10-11): free roam in the hybrid, keyboard input works (no pad attached: the pads stay disconnected).
+Left alone: 0x106489C0 - 0x106489E0 (interlocked helpers with register arguments).
 
 ## memory/twowayallocator.cpp (0x10645370 - 0x10645D3A): class done
 
@@ -360,9 +371,106 @@ the compiler emits them in the original's order. The instances take register arg
 which argument follows the parameter order (target before source); ConvertChars walks a copy of its target
 parameter, which frees the parameter's stack slot for the decoded character as in the original.
 
+## controllerdirectinput.cpp (0x106412C0 - 0x10643835): 81 functions
+
+The DirectInput 8 controllers (`code/core/controllerdirectinput.h`; RTTI names core::ControllerSystemDirectInput,
+core::ControllerDirectInput, core::ControllerInputPointDirectInput, core::ControllerOutputPointDirectInput; file,
+member and method names guessed) behind the interfaces of `code/core/controller.h`. InitDirectInput builds the system
+(CoCreateInstance of CLSID_DirectInput8, subclassing the window to track the focus), which enumerates the attached
+devices: XInput pads are left out with the DirectX SDK's WMI sample (IsXInputDevice, `__stdcall` here), mice /
+keyboards optionally. Each controller builds its own data format (one DWORD per object in enumeration order, the
+keyboard's scan code table at 0x11279010 filled on the way), an input point per object and a constant-force output
+point per force-feedback actuator. All 81 annotated functions match. The SDK declarations it needs are hand-written
+in `code/core/directinput.h` (the toolchain has no SDK headers); the dxguid GUIDs and the `__uuidof` constants are
+mapped. Notes:
+- The ole32 / oleaut32 / user32 calls must be `__declspec(dllimport)`: only then does the compiler load an import
+  slot once for repeated calls (IsXInputDevice's three SysAllocString calls). The decorated `__imp__Name@N` the
+  declarations reference is pointed at the relinker's undecorated slot with `#pragma comment(linker,
+  "/alternatename:...")`. A `const` function-pointer slot (the sync.cpp way) is still reloaded before every call.
+- The unit's globals are file statics (nothing outside reads them) except the options word, which must be external:
+  as a static the compiler caches it in a register across the constructor's virtual calls. The keyboard table is
+  only declared (extern), so the test tools that read it at 0x11279010 keep working with the hybrid DLL.
+- `core::RefPtr` (`code/core/refptr.h`, name guessed): the smart pointer behind the device, effect, location string
+  and platform members; its out-of-line copies for five interfaces (0x106422E0 - 0x10642590), the guiddef.h
+  IsEqualGUID / operator== / operator!= copies, the interface constructors, RefCount::GetCount (new: the atomic read
+  Update uses) and the compiler-generated destructors are byte-identical and mapped, not annotated (header code).
+- Float switches return through a `result` local (the original stores into the argument slot and loads it back);
+  the destructors release their lists with the next pointer read ahead (`next = c->next; while (next) ...`);
+  `(dwDevType & 0xFF) >= 0x14` compares as int, `(unsigned char)dwDevType` as a byte; bool results from an
+  HRESULT need the if / return true / return false form.
+Left alone: 0x10641390, 0x106425B0 and 0x10641D80 - 0x10641DA0 (interlocked helpers with register arguments).
+
+Validation (2026-10-11): the hybrid DLL reaches free roam in a private test copy; the keyboard and mouse devices
+are polled through the reconstructed code and injected movement, jump and mouse input take effect.
+
+## controllersystem.cpp (0x10643840 - 0x10643BFE): 16 functions
+
+`core::ControllerSystem` (RTTI name; `code/core/controllersystem.h`, file and function names guessed): the system
+the engine uses, the DirectInput and the XInput systems behind one IControllerSystem. Controllers count DirectInput
+first; FindController sends "JoystickN" with N past the DirectInput joysticks to XInput (whose pads are numbered
+from there on: InitXInput gets the DirectInput joystick count). All match; the XInput system's entry points
+(0x106487B0, 0x10649F00, 0x10649F50, 0x10649910) are declared in controllerxinput.h and mapped. FindController
+needs its choice in a bool (`xinput = true`, then one if / else): the early-return forms swap esi / edi or the
+block order. Left alone: 0x106438A0 - 0x106438C0 (interlocked helpers with register arguments). The 22 jumps that
+follow (0x10643C00 - 0x10643D50) forward to the file system (0x10649F90 onwards), a unit of their own.
+
+## file/common/mounts.cpp (0x10649F60 - 0x1064ACE5): 30 functions
+
+The device mounts of the file system (`code/core/file/mounts.h`; all names and the file name guessed): a table of 27
+devices (name, drive, root path) under one critical section, the default device (the current directory's drive
+letter at start-up), the device-to-path mappings and drive creation of the Win32 device unit (0x1064F810 - 0x1064FA88,
+declared and mapped), automatic mounting, and the file, save-game, drive instance and Cement library opens that split
+the path and look its device up (Cement libraries: core::CementLibrary, RTTI name). All match. The engine reaches
+them through the 22 forwarders 0x10643C00 - 0x10643D50 (another unit). Notes:
+- The device lookups need a `drive = 0; if (index != -1) drive = sMounts[index].drive; if (drive == 0) { retry,
+  if (drive == 0) fail }` shape and the drive read again as `sMounts[index].drive` where it is used: a `goto` to the
+  open code, or a slot pointer, puts the blocks or registers elsewhere. The Cement open keeps the source drive in a
+  variable of its own until the end.
+- SetMountPath returns with the lock held when the device is unknown or the table full (kept).
+- Drive::FlushRequests / RequestQueue::Flush return whether requests are still queued (UnmountDrive waits on it).
+- An open drive's 4th argument is passed but unused.
+Validation (2026-10-11): free roam in the hybrid (every game file is opened through these functions).
+
+## file/win32/devices.cpp (0x1064F810 - 0x1064FA88): 6 functions
+
+The Win32 devices (all names and the file name guessed): the current directory's drive letter, four device names
+mapped to RAM drives (core::RamDrive; the mapped value goes to its constructor), whether a device exists (a mapping
+or a bit of GetLogicalDrives) and the drive behind a device (CreateRamDrive 0x10652320 or CreateWin32Drive 0x10651CE0,
+mapped, then the root path through Drive slot 23). All match; IsValidDevice needs the drive index in a local before
+the GetLogicalDrives call.
+
+## file/common/filesystem.cpp (0x10643C00 - 0x10643EE7): 25 functions
+
+The file system entry points the engine calls (`code/core/file/filesystem.h`; names and the file name guessed): 22
+forwarders to the mounts (compiled as jumps), SplitPath (device, full path with back slashes, normalised; the
+default device when the path names none or a device name longer than 16 characters), a path comparison and a path
+hash. All match. SplitPath needs `char* target = device == 0 ? full : device` (the plain if becomes a cmove) and the
+slash loop on a pointer of its own with `NormalisePath(full + length)`.
+
+## language.cpp (0x1064ACF0 - 0x1064AE22): 5 functions
+
+The game language (`code/core/language.h`; names guessed): a language code ('E', '?' before init) in gLanguage
+(external: the language entry points at 0x10643EF0 read it), eight listeners told in three priority rounds. All
+match; RemoveLanguageListener decrements the count in place (`count--`, then compares with it).
+
+## languageinfo.cpp (0x10643EF0 - 0x106444C5): 12 functions
+
+The language entry points (forwarders to language.cpp, two copies of `return gLanguage`), the installed language
+from the registry (HKEY_LOCAL_MACHINE, key and value named by the platform's two strings; a string value read with
+atoi / written with sprintf) and the code / name conversions (names and file name guessed). All match. The switches
+include `case '?'` (the jump tables start at '?'); a failed registry query falls through to its own close-and-fail
+tail (`if (query == 0) { close; return atoi(...); } close; return -1;`, otherwise the two failure tails merge).
+
+## crashrecord.cpp (0x106444D0 - 0x1064475C): 8 functions (15 mapped)
+
+The debug output and crash handler chains (`code/core/crashrecord.h`; RTTI class names, members guessed): handlers
+pass a message (fields kind, tag, file, line, expression, text, level, flags as Report fills them) or a crash on to
+the next handler; the crash record keeps the last 4 KB of output in a ring (every message but "/autotest" ones, each
+ended with a line break) and stops on errors while a never-written flag (0x11279429) is set. All match; the base
+constructors and destructors are inline in the classes (their copies are mapped, not annotated). The record object
+itself (0x11279430) is only declared: a dynamic initializer elsewhere constructs it.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
-- 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
-  input conversion.

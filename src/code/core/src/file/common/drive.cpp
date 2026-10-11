@@ -195,9 +195,9 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064FED0
-	void Drive::FlushRequests()
+	bool Drive::FlushRequests()
 	{
-		queue->Flush();
+		return queue->Flush();
 	}
 
 	// FUNCTION: ENGINE 0x1064FEE0
