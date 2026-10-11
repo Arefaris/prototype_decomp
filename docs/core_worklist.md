@@ -255,6 +255,19 @@ matches, including the 29 scalar deleting destructors (mapped, not annotated). N
   it twice; as a plain inline member VS2005 does not inline it.
 - 0x1064C5E0 (a jump to ~Request) and 0x1064C600 (an IsFor-like compare) are in no vtable; left alone.
 
+## file/common/file.cpp (0x1064DF50 - 0x1064E9DF): 45 functions
+
+`core::File` (RTTI name, assert path known): every function matches. Files come from a pool ("File", 0x174
+bytes) and sit in a table by pool index (InitFiles / ShutdownFiles, ReportOpenFiles when the pool runs dry); the
+IMutable lock of every file is the global file lock. The asynchronous calls submit requests to the drive
+(Drive::Submit, 0x1064FEB0) and return its answer; the ...Wait forms then poll IsIdle, pumping the drive.
+WaitSignal blocks on a per-file event (count + manual-reset event, the 0x1063D320 - 0x1063D400 helpers) that
+EndRequest signals. Notes: IFile derives from IRefCount (its inline destructor is what leaves the IRefCount
+vftable in ~File); `pending` is unsigned; CanShare and operator new needed their exact return structure;
+the constructors initialise every member before the cache in the mem-initializer list (the cache constructor
+runs between them and the last two). Left alone: 0x1064DF30 (an EventSignal helper with a register argument
+that nothing here calls) and 0x1064DF40 (the IMutable constructor copy).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

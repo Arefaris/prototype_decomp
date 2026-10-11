@@ -28,12 +28,14 @@ namespace core
 		virtual void AddRef() = 0;
 		virtual void Release() = 0;
 		virtual ~Drive();
-		virtual void Slot3() = 0;
-		virtual void Slot4() = 0;
+		// Pumps the drive's queue (files call it while they wait)
+		virtual void Update() = 0;
+		virtual int GetId() = 0;
 		virtual void Slot5() = 0;
 		virtual int CanCreateFile(int a, int b) = 0;
 		virtual void Slot7() = 0;
-		virtual void Slot8() = 0;
+		// Bit 7: the drive hides its file names
+		virtual unsigned char GetFlags() = 0;
 		// Makes the drive usable (the requests' default preparation step)
 		virtual int Mount() = 0;
 		virtual int Open(const char* path, int mode, bool flag, int* handle, unsigned int* size) = 0;
@@ -59,6 +61,8 @@ namespace core
 		DriveInfo* GetInfo();
 		// 0x1064FC00: hands a completion request to the drive's queue
 		void Queue(Request* request);
+		// 0x1064FEB0: queues a request for an owner key (flags 1: ahead of the others); null requests are allowed
+		int Submit(Request* request, int key, int flags);
 		// 0x1064FEC0: cancels the requests of one file or drive instance
 		void CancelRequests(void* owner, int key);
 		// 0x1064FF10

@@ -6,51 +6,57 @@
 #define CORE_FILE_FILE_H
 
 #include "code/core/file/drive.h"
+#include "code/core/memory/imemoryallocator.h"
 
 namespace core
 {
-	// core::IFile (33 slots)
-	struct IFile
+	class Request;
+	struct ICompletionCallback;
+
+	// core::IFile (33 slots). The asynchronous calls queue a request on the drive and return what the drive's
+	// Submit answers; the ...Wait forms queue and then wait until the file has no pending request.
+	struct IFile : IRefCount
 	{
-		virtual void AddRef() = 0;
-		virtual void Release() = 0;
-		virtual ~IFile();
-		virtual void Slot3() = 0;
-		virtual void Slot4() = 0;
-		virtual void Slot5() = 0;
-		virtual void Slot6() = 0;
-		virtual void Slot7() = 0;
-		virtual void Slot8() = 0;
-		virtual void Slot9() = 0;
-		virtual void Slot10() = 0;
-		virtual void Slot11() = 0;
-		virtual void Slot12() = 0;
-		virtual void Slot13() = 0;
-		virtual void Slot14() = 0;
-		virtual void Slot15() = 0;
-		virtual void Slot16() = 0;
-		virtual void Slot17() = 0;
-		virtual void Slot18() = 0;
-		virtual void Slot19() = 0;
-		virtual void Slot20() = 0;
-		virtual void Slot21() = 0;
-		virtual void Slot22() = 0;
-		virtual void Slot23() = 0;
-		virtual void Slot24() = 0;
-		virtual void Slot25() = 0;
+		virtual int Read(void* buffer, unsigned int size, int option) = 0;
+		virtual int Write(const void* buffer, unsigned int size, int option) = 0;
+		virtual int SetPosition(unsigned int position) = 0;
+		virtual int GetPosition(unsigned int* position) = 0;
+		virtual int GetSize(unsigned int* size) = 0;
+		virtual int Commit() = 0;
+		virtual void ReadWait(void* buffer, unsigned int size, int option) = 0;
+		virtual void WriteWait(const void* buffer, unsigned int size, int option) = 0;
+		virtual void SetPositionWait(unsigned int position) = 0;
+		virtual void GetPositionWait(unsigned int* position) = 0;
+		virtual void GetSizeWait(unsigned int* size) = 0;
+		virtual void CommitWait() = 0;
+		virtual unsigned int GetCurrentSize() = 0;
+		virtual int GetGranularity() = 0;
+		virtual int Cancel() = 0;
+		virtual int Notify(ICompletionCallback* callback, void* userData) = 0;
+		virtual int Signal(void* event) = 0;
+		virtual bool IsIdle() = 0;
+		virtual void Wait() = 0;
+		virtual void WaitSignal() = 0;
+		virtual int GetError() = 0;
+		virtual bool IsOpen() = 0;
+		// The path, or null when the drive hides its names
+		virtual const char* GetName() = 0;
 		virtual const char* GetPath() = 0;
-		virtual void Slot27() = 0;
-		virtual void Slot28() = 0;
-		virtual void Slot29() = 0;
-		virtual void Slot30() = 0;
-		virtual void Slot31() = 0;
-		virtual void Slot32() = 0;
+		virtual int GetDriveId() = 0;
+		virtual void SetUnused(int value) = 0;
+		virtual int GetKey() = 0;
+		virtual bool GetFlag() = 0;
+		virtual void SetField12C(unsigned int value) = 0;
+		virtual class FileCache* GetCache() = 0;
 	};
 
 	// The read cache inside a file (0x30 bytes at +0x138); methods at 0x10650AB0 - 0x106511C0
 	class FileCache
 	{
 	public:
+		// 0x10650DD0 / 0x10650E00
+		FileCache();
+		~FileCache();
 		// 0x10650E10
 		bool IsActive();
 		// 0x10650E20: the file whose handle the cache shares
@@ -87,31 +93,88 @@ namespace core
 		bool Find(int key, FileCache* cache);
 	};
 
+	// core::File (vftables 0x10E47C84 / 0x10E47C78): an open file on a drive. Files come from one pool ("File",
+	// 0x174-byte blocks) and are listed in a table by pool index; their IMutable lock is the global file lock.
+	// Unit 0x1064DF40 - 0x1064E9DF (code/core/src/file/common/file.cpp).
 	class File : public IFile, public IMutable
 	{
 	public:
-		// 0x1064E790: whether this file may share the handle of a file on `drive`
+		// Queues a save-game open
+		File(Drive* drive, const char* path, bool writable, int mode, int a, int b, int key);
+		// Queues an open when `open` is set
+		File(Drive* drive, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, bool open, int option);
+		virtual ~File();
+		virtual void AddRef();
+		virtual void Release();
+		virtual int Read(void* buffer, unsigned int size, int option);
+		virtual int Write(const void* buffer, unsigned int size, int option);
+		virtual int SetPosition(unsigned int position);
+		virtual int GetPosition(unsigned int* position);
+		virtual int GetSize(unsigned int* size);
+		virtual int Commit();
+		virtual void ReadWait(void* buffer, unsigned int size, int option);
+		virtual void WriteWait(const void* buffer, unsigned int size, int option);
+		virtual void SetPositionWait(unsigned int position);
+		virtual void GetPositionWait(unsigned int* position);
+		virtual void GetSizeWait(unsigned int* size);
+		virtual void CommitWait();
+		virtual unsigned int GetCurrentSize();
+		virtual int GetGranularity();
+		virtual int Cancel();
+		virtual int Notify(ICompletionCallback* callback, void* userData);
+		virtual int Signal(void* event);
+		virtual bool IsIdle();
+		virtual void Wait();
+		virtual void WaitSignal();
+		virtual int GetError();
+		virtual bool IsOpen();
+		virtual const char* GetName();
+		virtual const char* GetPath();
+		virtual int GetDriveId();
+		virtual void SetUnused(int value);
+		virtual int GetKey();
+		virtual bool GetFlag();
+		virtual void SetField12C(unsigned int value);
+		virtual FileCache* GetCache();
+		virtual void Lock();
+		virtual void Unlock();
+
+		static void* operator new(unsigned int size);
+		static void operator delete(void* block);
+
+		// 0x1064E790: whether this file may share the handle of a file on `drive` (it moves to that drive when it
+		// is idle and closed)
 		bool CanShare(Drive* drive);
 		// 0x1064E7F0 / 0x1064E810: a request starts / ends on this file
 		void BeginRequest();
 		void EndRequest();
 
-		int field8;
+		int refCount;
 		Drive* drive;
 		int key;
 		int error;
-		unsigned char pad18[0x0E];
+		unsigned int pending;
+		// Signalled when the last pending request ends (an event with a count, see core::EventInit)
+		int event[2];
+		bool hasEvent;
+		bool waiting;
 		bool open;
 		bool writable;
-		char path[0x104];
+		char path[0x101];
 		unsigned int field12C;
 		unsigned int position;
 		unsigned int size;
 		FileCache cache;
 		int handle;
-		int field16C;
-		int field170;
+		bool flag;
+		int granularity;
 	};
+
+	// The file pool and table of open files (the pool index is the table index)
+	void InitFiles(unsigned int count, int heap);
+	void ShutdownFiles();
+	// Reports every file still open (when the pool runs dry)
+	void ReportOpenFiles();
 
 	// core::IDrive (45 slots)
 	struct IDrive

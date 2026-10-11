@@ -62,6 +62,9 @@ namespace core
 	char* StrNCpy(char* destination, const char* source, int size);
 	// 0x1063B0D0: the unsigned overload, a plain forward to the copy loop (AllocatorBase_Name::SetName uses it)
 	char* StrNCpy(char* destination, const char* source, unsigned int count);
+	// 0x1063E750 (a jump to 0x10647430): copies whole UTF-8 sequences while they fit in `size` bytes (with the
+	// terminator); the length copied, negative on bad input
+	int Utf8Copy(char* destination, const char* source, unsigned int size);
 	// SNPrintf with one argument, returning the buffer
 	char* FormatValue(char* buffer, int size, const char* format, int value);
 }

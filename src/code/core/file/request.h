@@ -146,7 +146,7 @@ namespace core
 			file->handle = source->handle;
 			file->size = file->cache.GetSize();
 			file->open = true;
-			file->field170 = source->field170;
+			file->granularity = source->granularity;
 			return Finish(1, 0);
 		}
 
