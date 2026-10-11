@@ -145,6 +145,23 @@ class layout is in `code/core/memory/allocatorbase.h`). SetName copies with the 
 0x1063D260 - 0x1063D290 (`code/core/criticalsection.h`, not reconstructed: they call the kernel32 imports as
 `__stdcall`, which the generated import library may not name).
 
+## memory/memorypool.cpp (0x1063D430 - 0x1063DB97): 25 matched, 1 EQUIVALENT
+
+`core::MemoryPool` (RTTI name; `IMemoryPool` adds AllocBlock / GetIndex / GetBlock as slots 18 - 20): fixed-size
+blocks on a free list, the same frame as MemoryTwoWayAllocator (`code/core/memory/memorypool.h`, file name
+guessed). All methods, Init, Contains and the two factories match; the compiler-generated functions (AllocatorLock
+and AllocatorBase constructor / destructor copies, the interface constructors and deleting destructors, the
+adjustor thunk) match as well and are mapped. Init calls the twoway unit's `AlignUp<unsigned int>` (0x10645370):
+the rounding templates are shared COMDATs, declared in allocatorbase.h. AllocBlock and the two-way AllocAligned
+need an inline `Max` template (`code/core/utility.h`): the plain conditional forms become `cmov`.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063DA80 | MemoryPool constructor | 94.5 % | EQUIVALENT in tree: the original clears eax after the RefCount vftable store, ours before it; init list, zero spellings, statement order and explicit base initialisers change nothing |
+
+Left alone: 0x1063D450 - 0x1063D480 and 0x1063D700 - 0x1063D730 (empty functions), 0x1063D7D0 - 0x1063D7F0
+(interlocked helpers with register arguments).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

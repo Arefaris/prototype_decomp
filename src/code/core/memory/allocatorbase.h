@@ -64,6 +64,11 @@ namespace core
 	private:
 		AllocatorBase_Safety* safety;
 	};
+
+	// Rounding helpers (templates: the original's units share one COMDAT copy, the memory pool calls the one at
+	// 0x10645370). Defined in twowayallocator.cpp, whose instantiation is the copy the linker kept.
+	template<class T> T AlignUp(T value, T align);
+	template<class T> T AlignDown(T value, T align);
 }
 
 #endif

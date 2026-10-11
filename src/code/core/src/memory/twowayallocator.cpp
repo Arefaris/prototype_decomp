@@ -1,6 +1,7 @@
 #include "code/core/heap.h"
 #include "code/core/memory/twowayallocator.h"
 #include "code/core/report.h"
+#include "code/core/utility.h"
 
 // __FILE__ as the original build spelled it (it compiled from a directory three levels below the tree root)
 #define TWOWAY_FILE "..\\..\\..\\code\\core\\src\\memory\\twowayallocator.cpp"
@@ -8,7 +9,7 @@
 namespace core
 {
 	// FUNCTION: ENGINE 0x10645370
-	// This unit's copies of the rounding helpers (0x10645300 - 0x10645350 are another unit's)
+	// The rounding helpers (declared in allocatorbase.h; 0x10645300 - 0x10645350 are another unit's copies)
 	template<class T> T AlignUp(T value, T align)
 	{
 		if (align != 0)
@@ -295,17 +296,7 @@ namespace core
 	// FUNCTION: ENGINE 0x10645AE0
 	void* MemoryTwoWayAllocator::AllocAligned(unsigned int size, unsigned int align)
 	{
-		// Spelled as if / else: a conditional move comes out of the one-sided form
-		unsigned int effective;
-		if (align > defaultAlign)
-		{
-			effective = align;
-		}
-		else
-		{
-			effective = defaultAlign;
-		}
-		return AllocImpl(size, effective);
+		return AllocImpl(size, Max(align, defaultAlign));
 	}
 
 	// FUNCTION: ENGINE 0x10645B00
