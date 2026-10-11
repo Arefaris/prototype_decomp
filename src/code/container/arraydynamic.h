@@ -252,6 +252,13 @@ namespace container
 			}
 		}
 		void Reserve(int count);
+		void Swap(ArrayDynamicHeap& other)
+		{
+			container::Swap(begin, other.begin);
+			container::Swap(end, other.end);
+			container::Swap(capacity, other.capacity);
+			container::Swap(allocator.heap, other.allocator.heap);
+		}
 		// Moves [position, end) up by count elements (copy-constructing them backwards)
 		void ShiftUp(T* position, int count)
 		{
@@ -338,21 +345,34 @@ namespace container
 		}
 	}
 
-	// The number of elements of [first, last)
-	template<class T> inline unsigned int Distance(T* first, T* last)
+	// The iterator category tag of pointers
+	struct RandomAccessTag
+	{
+		RandomAccessTag()
+		{
+		}
+	};
+
+	// The number of elements of [first, last) (calls, not inlined: templates without inline)
+	template<class T> unsigned int DistanceImpl(T* first, T* last, RandomAccessTag tag)
 	{
 		return last - first;
 	}
 
-	// Copy-constructs count elements of first into raw storage at dest; answers the end of the copies
-	template<class T> inline T* UninitializedCopy(T* first, unsigned int count, T* dest)
+	template<class T> unsigned int Distance(T* first, T* last)
 	{
-		for (; count != 0; count--, first++, dest++)
+		return DistanceImpl(first, last, RandomAccessTag());
+	}
+
+	// Copy-constructs count elements of first into raw storage at dest; answers the end of the copies
+	template<class T> T* UninitializedCopy(T* first, unsigned int count, T* dest)
+	{
+		while (count != 0)
 		{
-			if (dest != 0)
-			{
-				Construct(dest, *first);
-			}
+			count--;
+			Construct(dest, *first);
+			first++;
+			dest++;
 		}
 		return dest;
 	}
@@ -365,10 +385,19 @@ namespace container
 		T* storage;
 		T* storageEnd;
 		T* storageCapacity;
-		if (count != 0 && (storage = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16)) != 0)
+		if (count != 0)
 		{
-			storageCapacity = storage + count;
-			storageEnd = UninitializedCopy(old, count, storage);
+			storage = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+			if (storage != 0)
+			{
+				storageCapacity = storage + count;
+				storageEnd = UninitializedCopy(old, count, storage);
+			}
+			else
+			{
+				storageEnd = 0;
+				storageCapacity = 0;
+			}
 		}
 		else
 		{

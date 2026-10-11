@@ -486,4 +486,12 @@ namespace engine
 	// FUNCTION: ENGINE 0x107E1110
 	// FUNCTION: ENGINE 0x107E1610
 	// FUNCTION: ENGINE 0x107E10E0
+	// container::Distance and UninitializedCopy<AttributeEntry>
+	// FUNCTION: ENGINE 0x107E0EE0
+	// FUNCTION: ENGINE 0x107E0F00
+	// container::Compact<AttributeEntry> (a template in code/container/arraydynamic.h)
+	// FUNCTION: ENGINE 0x107E1500
+	// EQUIVALENT: the engine puts the empty / failed allocation path after the free and stores the capacity before
+	// loading the old heap; probably a copy constructed into a temporary array and swapped in, which our build does
+	// not inline
 }
