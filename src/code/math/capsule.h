@@ -28,6 +28,22 @@ namespace math
 		// The axis' box grown by the radius
 		void GetAABB(AABB& out) const;
 	};
+
+	// A capped cylinder: centre, unit axis direction, half length along the axis and radius (layout from the
+	// functions after Capsule's in capsule.cpp; class and member names are guesses)
+	class Cylinder
+	{
+	public:
+		Vector centre;
+		Vector direction;
+		float halfLength;
+		float radius;
+
+		// Moves the cylinder through m: the centre as a point, the direction as a direction
+		void Transform(const Matrix& m);
+		// True when p lies within the half length along the axis and strictly within the radius of it
+		bool Contains(const Vector& p) const;
+	};
 }
 
 #endif

@@ -35,6 +35,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107CF5D0 | Orthonormalize | 30.8 % | |
 | 0x107CF720 | IsOrthonormal | 16 % | six dot products spilled, inline IsEqual x5 + one out-of-line call |
 | 0x107CF8F0 / FA80 / FB10 | Transform / Rotate / RotateInverse | EQUIVALENT | y/z registers swapped |
+| 0x107CF990 | Transform(const Vector4&, Vector4&) | EQUIVALENT | sums need explicit grouping `((a + b) + c) + d` to keep the original order; v.z / v.y / v.w registers rotated. FromQuaternion (0x107CEB70), Transpose3x3(src) (0x107CF4F0) and Transform(count, Vector4*) (0x107CFBD0, needs this one compiled in the unit) match |
 | 0x107CFC00 | PerspectiveFovLH | - | calls Identity first; not attempted |
 | 0x107CFC80 / FD20 | Ortho / OrthoRH | 98.7 / 92.3 % | constant register only |
 | 0x107CFE90 | OrthoOffCenterRH | 66.4 % | |
@@ -191,8 +192,8 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | --- | --- | --- | --- |
 | 0x107DCD20 | Sphere::IntersectRay | 95.5 % | EQUIVALENT in the tree: only the xmm numbers of dx/dy/dz differ, every sum/product order gives the same code |
 | 0x107DCDF0 | Sphere::IntersectRayFirst | 93.3 % | EQUIVALENT in the tree, same difference |
-| 0x107DCF50 | Sphere::GetAABB | 38.6 % | original keeps centre in xmm7/1/2 and copies before subtracting; max.x = r + c.x |
-| 0x107DCFB0 | Sphere::AddPoint | 33.8 % | |
+| 0x107DCF50 | Sphere::GetAABB | 67 % | original keeps centre in xmm7/1/2 and copies before subtracting; max.x = r + c.x; eight registers and no reuse, as if every value had its own temporary; permuter plateau with float locals |
+| 0x107DCFB0 | Sphere::AddPoint | 60 % | `d.Sub(p, centre)`, `sqrtf(d.z * d.z + d.y * d.y + d.x * d.x)` gives the original's x-first x87 sum; `if (radius >= distance) return`; the original computes (inv * d.x) * half without CSE of inv * half and copies dist / inv before use |
 | 0x107DD090 | Sphere::AddSphere | 69.9 % | Vector d local (three stack slots), early returns `if (radius >= other.radius + distance)` |
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |

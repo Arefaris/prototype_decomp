@@ -15,6 +15,10 @@ namespace math
 		float radius;
 
 		void GetAABB(AABB& out) const;
+		// Grows the sphere to contain p: the centre moves halfway along the excess toward p
+		void AddPoint(const Vector& p);
+		// Grows the sphere to contain other (or becomes other when that contains this one)
+		void AddSphere(const Sphere& other);
 		// direction = unit vector from the centre to p (up when p is the centre), distance = |p - centre| - radius
 		void GetDirection(const Vector& p, Vector& direction, float& distance) const;
 		// Ray from origin along the unit direction: t of the entry point (0 when origin is inside); false when the ray

@@ -1,7 +1,9 @@
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
+#include "code/math/quaternion.h"
 #include "code/math/sincos.h"
 #include "code/math/vector.h"
+#include "code/math/vector4.h"
 
 #include <math.h>
 
@@ -42,6 +44,12 @@ namespace math
 		m[1][3] = 0.0f;
 		m[0][3] = 0.0f;
 		m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CEB70
+	void Matrix::FromQuaternion(const Quaternion& q)
+	{
+		q.ToMatrix(*this);
 	}
 
 	// FUNCTION: ENGINE 0x107CEB80
@@ -144,6 +152,14 @@ namespace math
 		m[3][0] = src.m[0][3]; m[3][1] = src.m[1][3]; m[3][2] = src.m[2][3]; m[3][3] = src.m[3][3];
 	}
 
+	// FUNCTION: ENGINE 0x107CF4F0
+	void Matrix::Transpose3x3(const Matrix& src)
+	{
+		m[0][0] = src.m[0][0]; m[0][1] = src.m[1][0]; m[0][2] = src.m[2][0];
+		m[1][0] = src.m[0][1]; m[1][1] = src.m[1][1]; m[1][2] = src.m[2][1];
+		m[2][0] = src.m[0][2]; m[2][1] = src.m[1][2]; m[2][2] = src.m[2][2];
+	}
+
 	// FUNCTION: ENGINE 0x107CF530
 	void Matrix::InvertOrthonormal()
 	{
@@ -166,6 +182,22 @@ namespace math
 		out.x = m[1][0] * y + m[2][0] * z + x * m[0][0] + m[3][0];
 		out.y = m[0][1] * x + m[1][1] * y + m[2][1] * z + m[3][1];
 		out.z = m[0][2] * x + m[1][2] * y + m[2][2] * z + m[3][2];
+	}
+
+	// FUNCTION: ENGINE 0x107CF990
+	// EQUIVALENT: the same products and sums in the same order; the original keeps v.z, v.y, v.w in xmm1, xmm2,
+	// xmm0 (we get xmm0, xmm1, xmm2) and multiplies a copy of x by m[0][0] from memory. Without the explicit
+	// grouping the compiler moves the w product first. Transform(count, in, out) relies on it being compiled here
+	void Matrix::Transform(const Vector4& v, Vector4& out) const
+	{
+		float z = v.z;
+		float y = v.y;
+		float w = v.w;
+		float x = v.x;
+		out.x = ((m[1][0] * y + m[2][0] * z) + m[3][0] * w) + x * m[0][0];
+		out.y = ((m[0][1] * x + m[1][1] * y) + m[2][1] * z) + m[3][1] * w;
+		out.z = ((m[0][2] * x + m[1][2] * y) + m[2][2] * z) + m[3][2] * w;
+		out.w = ((m[0][3] * x + m[1][3] * y) + m[2][3] * z) + m[3][3] * w;
 	}
 
 	// FUNCTION: ENGINE 0x107CFA80
@@ -194,6 +226,17 @@ namespace math
 
 	// FUNCTION: ENGINE 0x107CFBA0
 	void Matrix::Transform(int count, const Vector* in, Vector* out) const
+	{
+		for (int i = 0; i < count; i++)
+		{
+			Transform(*in, *out);
+			in++;
+			out++;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107CFBD0
+	void Matrix::Transform(int count, const Vector4* in, Vector4* out) const
 	{
 		for (int i = 0; i < count; i++)
 		{
