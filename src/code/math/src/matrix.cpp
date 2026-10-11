@@ -589,6 +589,67 @@ namespace math
 		FromAxisCosSin(axis, cosine, s);
 	}
 
+	// FUNCTION: ENGINE 0x107D1C90
+	// EQUIVALENT: the same operations (27.9 %); the original scales v.x and v.z in their own registers where ours copies
+	// the reciprocal first (locals, Vector temporaries, Scale, Set forms and statement orders plateau)
+	void Matrix::RotationYFromDirection(const Vector& v)
+	{
+		float x = v.x;
+		float z = v.z;
+		float inv = 1.0f / sqrtf(z * z + x * x);
+		x *= inv;
+		z *= inv;
+		m[0][2] = -x;
+		m[0][0] = z;
+		m[0][1] = 0.0f;
+		m[1][0] = 0.0f;
+		m[1][1] = 1.0f;
+		m[1][2] = 0.0f;
+		m[2][0] = x;
+		m[2][1] = 0.0f;
+		m[2][2] = z;
+	}
+
+	// FUNCTION: ENGINE 0x107D1D20
+	// EQUIVALENT: as RotationYFromDirection
+	void Matrix::RotationXFromDirection(const Vector& v)
+	{
+		float y = v.y;
+		float z = v.z;
+		float inv = 1.0f / sqrtf(z * z + y * y);
+		y *= inv;
+		z *= inv;
+		m[0][0] = 1.0f;
+		m[0][1] = 0.0f;
+		m[0][2] = 0.0f;
+		m[1][0] = 0.0f;
+		m[1][1] = z;
+		m[1][2] = -y;
+		m[2][0] = 0.0f;
+		m[2][1] = y;
+		m[2][2] = z;
+	}
+
+	// FUNCTION: ENGINE 0x107D1DB0
+	// EQUIVALENT: as RotationYFromDirection
+	void Matrix::RotationZFromDirection(const Vector& v)
+	{
+		float x = v.x;
+		float y = v.y;
+		float inv = 1.0f / sqrtf(y * y + x * x);
+		x *= inv;
+		y *= inv;
+		m[0][0] = x;
+		m[1][1] = x;
+		m[0][1] = y;
+		m[0][2] = 0.0f;
+		m[1][0] = -y;
+		m[1][2] = 0.0f;
+		m[2][0] = 0.0f;
+		m[2][1] = 0.0f;
+		m[2][2] = 1.0f;
+	}
+
 	// FUNCTION: ENGINE 0x107D1E40
 	// EQUIVALENT: the first cross product and both fallbacks match; the original keeps the rows' values in registers
 	// and gives x and y their own spill slots (frame 0x18) for the x87 lengths, and stores the first fallback z first

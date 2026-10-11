@@ -57,6 +57,11 @@ namespace math
 		// The rotation taking direction a onto direction b (unit vectors): axis a cross b, through FromAxisCosSin
 		// (name guessed)
 		void RotationFromTo(const Vector& a, const Vector& b);
+		// The upper 3x3 as the rotation about Y / X / Z that turns the first axis of that plane towards v's
+		// projection (v's two components there normalised; names guessed)
+		void RotationYFromDirection(const Vector& v);
+		void RotationXFromDirection(const Vector& v);
+		void RotationZFromDirection(const Vector& v);
 		// An orthonormal basis with z as its third row: x = up cross z (X or Y cross z when up is parallel to z),
 		// y = z cross x, each row normalised; translation and the last column unchanged (name guessed)
 		void SetBasis(const Vector& z, const Vector& up);
