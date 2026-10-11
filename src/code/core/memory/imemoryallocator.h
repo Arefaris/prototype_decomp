@@ -34,9 +34,11 @@ namespace core
 		virtual bool GetStat(int id, int* value) = 0;
 		virtual bool ResetStat(int id) = 0;
 		virtual const char* GetName() = 0;
-		virtual void SetName(const char* name) = 0;
-		virtual int GetFlags() = 0;
-		virtual void SetFlags(int flags) = 0;
+		// Slots 14 - 16 go to AllocatorBase_Safety in the real allocators (mode 2 = locked with a critical section);
+		// MemoryAllocatorMalloc answers 2 and ignores the setters
+		virtual void SetSafetyMode(int mode) = 0;
+		virtual int GetSafetyMode() = 0;
+		virtual void SetUnused(int value) = 0;
 		virtual bool IsThreadSafe() = 0;
 	};
 }

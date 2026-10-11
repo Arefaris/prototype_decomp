@@ -104,18 +104,18 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x106466E0
-	void MemoryAllocatorMalloc::SetName(const char* name)
+	void MemoryAllocatorMalloc::SetSafetyMode(int mode)
 	{
 	}
 
 	// FUNCTION: ENGINE 0x106466F0
-	int MemoryAllocatorMalloc::GetFlags()
+	int MemoryAllocatorMalloc::GetSafetyMode()
 	{
 		return 2;
 	}
 
 	// FUNCTION: ENGINE 0x10646700
-	void MemoryAllocatorMalloc::SetFlags(int flags)
+	void MemoryAllocatorMalloc::SetUnused(int value)
 	{
 	}
 
