@@ -1348,3 +1348,4 @@ _sInstancePool = 0x1127CA9C ; data size:0x4 | core instancedrive.cpp: the instan
 ?Contains@Triangle@math@@QBE_NABVVector@2@@Z = 0x107D31C0 ; function size:0x191 | math::Triangle::Contains(p): barycentric sign test (name guess)
 ?SetRowsLerp@Matrix@math@@QAEXMABVVector4@2@@Z = 0x107DD470 ; function size:0x77 | math::Matrix::SetRowsLerp(t, v): rows (1 - t) v_i blended towards identity (name guess)
 ?ToAxisAngle@Quaternion@math@@QBEXAAMAAVVector@2@@Z = 0x107CE310 ; function size:0xBF | math::Quaternion::ToAxisAngle(angle, axis) (name guess)
+?SmallestAngle@Triangle@math@@QBEMXZ = 0x107D3B50 ; function size:0x19E | math::Triangle::SmallestAngle (name guess)

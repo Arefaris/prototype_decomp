@@ -11,11 +11,25 @@ namespace math
 		return a < b ? a : b;
 	}
 
+	// The larger of two values
+	template<class T> inline T Max(T a, T b)
+	{
+		return a > b ? a : b;
+	}
+
 	// a when test >= 0, else b: the PowerPC fsel the console code was written around (compare against zero after a
 	// subtraction; seen in Spline::GetParameter)
 	inline float Select(float test, float a, float b)
 	{
 		return test >= 0.0f ? a : b;
+	}
+
+	// value clamped to [lo, hi] with two Selects (seen in the triangle angle function)
+	inline float Clamp(float value, float lo, float hi)
+	{
+		float r = Select(value - lo, value, lo);
+		r = Select(r - hi, hi, r);
+		return r;
 	}
 
 	// 1 / sqrt(value), on the x87 unit

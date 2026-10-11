@@ -1,12 +1,12 @@
 #include <math.h>
 
 #include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
 #include "code/math/triangle.h"
 
 namespace math
 {
-	// 0x107D2ED0 ray test, 0x107D3420 ClosestPoint and 0x107D3B50 corner angle are not reconstructed yet
-	// (docs/math_worklist.md).
+	// 0x107D2ED0 ray test and 0x107D3420 ClosestPoint are not reconstructed yet (docs/math_worklist.md).
 
 	// FUNCTION: ENGINE 0x107D31C0
 	bool Triangle::Contains(const Vector& p) const
@@ -65,5 +65,28 @@ namespace math
 		Vector n;
 		n.Set(x, y, z);
 		return sqrtf(n.x * n.x + n.y * n.y + n.z * n.z) * 0.5f;
+	}
+
+	// FUNCTION: ENGINE 0x107D3B50
+	float Triangle::SmallestAngle() const
+	{
+		// The edges normalised; the largest |cos| between them gives the smallest angle (0 for a degenerate triangle)
+		Vector e0;
+		Vector e1;
+		Vector e2;
+		e0.Sub(a, b);
+		e1.Sub(b, c);
+		e2.Sub(c, a);
+		float l0 = e0.Normalize();
+		float l1 = e1.Normalize();
+		float l2 = e2.Normalize();
+		if (l2 * l1 * l0 == 0.0f)
+		{
+			return 0.0f;
+		}
+		float c0 = fabsf(e0.Dot(e1));
+		float c1 = fabsf(e1.Dot(e2));
+		float c2 = fabsf(e0.Dot(e2));
+		return acosf(Clamp(Max(c2, Max(c1, c0)), 0.0f, 1.0f));
 	}
 }
