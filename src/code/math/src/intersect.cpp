@@ -56,6 +56,31 @@ namespace math
 		return TestBoxAxes(box.extents, localDirection, localDelta, length);
 	}
 
+	// FUNCTION: ENGINE 0x107DA110
+	// EQUIVALENT: same operations in the same order; the x terms of r[0][1] and r[1][2] multiply a's axis by b's
+	// where we get b's by a's (commutative). The reference locals for the two boxes are what make the other products
+	// load b's axis first, as the original does (98.6 %)
+	int Intersects(const OBB& a, const OBB& b)
+	{
+		// b's centre and axes in a's frame, then the box-box separating axis test
+		Vector d;
+		d.Sub(b.centre, a.centre);
+		Vector t;
+		t.x = a.axis[0].Dot(d);
+		t.y = a.axis[1].Dot(d);
+		t.z = a.axis[2].Dot(d);
+		const OBB& aa = a;
+		const OBB& bb = b;
+		Matrix3 r;
+		for (int j = 0; j < 3; j++)
+		{
+			r.m[0][j] = aa.axis[0].Dot(bb.axis[j]);
+			r.m[1][j] = aa.axis[1].Dot(bb.axis[j]);
+			r.m[2][j] = aa.axis[2].Dot(bb.axis[j]);
+		}
+		return TestBoxesSAT(a.extents, t, r, b.extents);
+	}
+
 	// FUNCTION: ENGINE 0x107DA360
 	int Intersects(const OBB& obb, const AABB& box)
 	{

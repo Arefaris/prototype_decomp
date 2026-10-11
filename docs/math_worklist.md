@@ -19,7 +19,7 @@ local `inv` does not (Vector::Scale added to vector.h).
 | 0x107CD7A0 | FromEuler (variant A) | 92.7 % | SinCos of the three half angles, then `a = cy * sx; b = sy * cx; c = cy * cx; d = sy * sx` and x, y, z, w as `a * cz - b * sz` etc. get everything but the stack slots of cx / sx / cy (original 0 / 4 / 8, ours 8 / 0 / 4; declaration order, half-angle forms and a cosine-first inline do not change it) |
 | 0x107CD8D0 | FromEuler (variant B) | 77.2 % | as above |
 | 0x107CDA00 | ToMatrix | 83.3 % | x2 / y2 / z2 = 2x, the nine products, the 3x3 stored column by column (m[0][0], m[1][0], m[2][0], ...); y and z end up in swapped registers whatever the order of the products and sums |
-| 0x107CDCE0 | FromVectors (rotation from a to b) | 34.5 % | the original reuses the cross-product local for the fallback axis; block layout after Normalize differs |
+| 0x107CDCE0 | FromVectors (rotation from a to b) | 38.7 % | c = a cross b, length = c.Normalize(); below 0.0005: identity when a . b > 0, else c reused for a perpendicular of a (Set, three cases) and NormalizeFast, w = 0; else the x87 half-angle form. Structure and layout match (486 vs 488 bytes); the SSE dot of the fallback and the x87 dot of the main path load their operands in another order |
 | 0x107CDF90 | Slerp | - | AtanRatio called out of line, SinPolynomial inlined twice; not attempted |
 | 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (NONMATCHING in tree) |
 
@@ -117,7 +117,7 @@ Left:
 |---|---|---:|---|
 | 0x107D9A20 | TestBoxAxes(extents, direction, delta, length) | 37.8 % | x87 throughout: three face tests then three cross-product tests with early returns; the stack temporaries (abs values) and the operand order of each test differ |
 | 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | - | 1 111 bytes, box vs box SAT; called by 0x107DA110 / 0x107DA360; not attempted |
-| 0x107DA110 | Intersects(OBB, OBB) | 15.2 % | delta in A's space and the 3x3 of axis dots on the stack, then TestBoxesSAT; the straight version is 625 bytes vs 583: the original shares the a.axis loads between the dots |
+| 0x107DA110 | Intersects(OBB, OBB) | EQUIVALENT | in the tree (98.6 %): d = b.centre - a.centre, t = a.axis[i].Dot(d), r[i][j] = aa.axis[i].Dot(bb.axis[j]) through `const OBB&` reference locals for both boxes (without them every product loads a's axis first), then TestBoxesSAT; only the x terms of r[0][1] and r[1][2] keep the operands the other way round |
 | 0x107DA410 | Intersects(OBB, Sphere) | 100 % | in the tree: the same `const Vector& v` + grouping trick as OBB::Contains |
 | 0x107DA5D0 | Intersects(Plane, OBB) | 82.6 % | NONMATCHING in tree: `Vector n(plane.normal)` (copy constructor) and grouped dots get the shape; the original keeps n.z, n.y, n.x on the x87 stack and sums the radius terms axis 2, 0, 1 (ours 1, 0, 2 whatever the source order) |
 | 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
