@@ -7,6 +7,7 @@
 #define ENGINE_SYSTEM_POIMANAGER_HPP
 
 #include "code/core/debug.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"

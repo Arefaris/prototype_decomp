@@ -1,5 +1,5 @@
 #include "code/content/metatype.h"
-#include "code/engine/gameobject/behaviour.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/system/enginememory.h"
 
 namespace engine
@@ -111,7 +111,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE650
-	Behaviour::Behaviour(BehaviourOwner* newOwner) : owner(newOwner), state(0), timeSliceFrameSkip(0)
+	Behaviour::Behaviour(GameObject* newOwner) : owner(newOwner), state(0), timeSliceFrameSkip(0)
 	{
 		requested.Clear();
 		requested.SetBit(7);

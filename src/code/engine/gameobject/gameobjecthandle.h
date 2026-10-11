@@ -1,39 +1,15 @@
 // Handles to game objects: a 16-bit index into the engine's game object table (0x1128348C, 8 bytes per entry) and
 // the 16-bit serial the entry must still carry. The class and member names are guesses except IsValid (an assert
 // in poimanager.cpp reads "playerPositionHandle.IsValid()"). Only what the engine's users need so far is declared;
-// GameObject itself is reconstructed elsewhere later, here it is just the transform attribute at 0x1C.
+// GameObject itself is in gameobject.h.
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECTHANDLE_H
 #define ENGINE_GAMEOBJECT_GAMEOBJECTHANDLE_H
 
-#include "code/math/matrix.h"
 
 namespace engine
 {
-	// engine::BaseAttribute / engine::Attribute<T> (RTTI names; the GameObject's transform is an
-	// Attribute<math::Matrix> found through dynamic_cast)
-	class BaseAttribute
-	{
-	public:
-		virtual ~BaseAttribute();
-	};
-
-	template<class T> class Attribute : public BaseAttribute
-	{
-	public:
-		T value;
-	};
-
+	class GameObject;
 	class Message;
-
-	class GameObject
-	{
-	public:
-		// 0x107E0810 (another unit): delivers the message when the object listens for its type
-		bool SendMessage(Message* message);
-
-		unsigned char unknown0[0x1c];
-		Attribute<math::Matrix>* transform;
-	};
 
 	struct GameObjectEntry
 	{

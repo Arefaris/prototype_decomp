@@ -14,7 +14,7 @@ namespace content
 namespace engine
 {
 	class Behaviour;
-	class BehaviourOwner;
+	class GameObject;
 
 	// A small set of flag bits. The members are defined outside the class without inline, so every unit keeps its
 	// own called copies (the constructor's and Test's copies the engine kept sit in other units).
@@ -76,7 +76,7 @@ namespace engine
 			STATE_DIRTY = 2
 		};
 
-		explicit Behaviour(BehaviourOwner* newOwner);
+		explicit Behaviour(GameObject* newOwner);
 
 		// The reflection data: the class and its members ("active", "inactiveMask", "timeSliceFrameSkip")
 		static content::ClassInfo* GetClassInfo();
@@ -123,7 +123,7 @@ namespace engine
 		void SetState(unsigned char mask);
 		void ClearState(unsigned char mask);
 
-		BehaviourOwner* owner;
+		GameObject* owner;
 		unsigned char state;
 		BitField<unsigned char> flags;
 		BitField<unsigned char> requested;
@@ -148,13 +148,6 @@ namespace engine
 		bool Query2(int value, Behaviour* behaviour);
 		bool Query3(Behaviour* behaviour);
 		bool Query4(int value, Behaviour* behaviour);
-	};
-
-	class BehaviourOwner
-	{
-	public:
-		unsigned char unknown0[0x20];
-		BehaviourContainer behaviours;
 	};
 }
 
