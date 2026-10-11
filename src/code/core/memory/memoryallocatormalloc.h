@@ -46,9 +46,9 @@ namespace core
 		virtual bool GetStat(int id, int* value);
 		virtual bool ResetStat(int id);
 		virtual const char* GetName();
-		virtual void SetName(const char* name);
-		virtual int GetFlags();
-		virtual void SetFlags(int flags);
+		virtual void SetSafetyMode(int mode);
+		virtual int GetSafetyMode();
+		virtual void SetUnused(int value);
 		virtual bool IsThreadSafe();
 
 		int bytesAllocated;

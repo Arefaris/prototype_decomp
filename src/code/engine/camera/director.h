@@ -25,16 +25,41 @@ namespace engine
 	// 0x107EED20 (another unit): sizes a listener list
 	void InitMessageListeners(MessageListeners* listeners, int count);
 
-	// The console variable registry (0x11283CB4; another unit). Only what the Director's destructor uses is declared.
+	// How a console variable is shown and edited (0x10842F10 constructs it, another unit; field meanings unknown)
+	class ConsoleVariableInfo
+	{
+	public:
+		ConsoleVariableInfo(bool flag, int a, int b);
+		ConsoleVariableInfo(const ConsoleVariableInfo& other);
+
+		bool flag;
+		int a;
+		int b;
+	};
+
+	// The console variable registry (0x11283CB4; another unit). Only what the Director uses is declared.
 	class Console
 	{
 	public:
+		// 0x107F9A40: registers a float variable (type 1 guessed to mean float)
+		void AddVariable(const core::Name<core::CaseSensitiveKey>& name, int type, float value, ConsoleVariableInfo info);
+		// 0x107F85B0: observes the variable; the two trailing arguments are unknown
+		void Register(const core::Name<core::CaseSensitiveKey>& name, DBObserver* owner, int a, int b);
 		// 0x107F8620: drops owner's registration for the variable
 		void Unregister(const core::Name<core::CaseSensitiveKey>& name, void* owner);
 		// 0x107F8500: removes the variable
 		bool RemoveVariable(const core::Name<core::CaseSensitiveKey>& name);
 	};
 	extern Console* gConsole;
+
+	// The display settings object (0x1127F35C; another unit, names guessed): GetAspectRatio (0x10616740) divides the
+	// floats at +0x80C and +0x810
+	class Display
+	{
+	public:
+		float GetAspectRatio();
+	};
+	extern Display* gDisplay;
 
 	// What 0x10836AD0 returns (another unit): the frame's timing. The Director copies the 12 bytes at +4 and passes
 	// their last float to the cameras; the other fields are unknown.
@@ -79,6 +104,9 @@ namespace engine
 			int unknown8;
 			int controllerCount;
 			int playerCount;
+
+			// Defaults: heap 0, 32 controllers, 8 players
+			CameraSystemConfig();
 		};
 		// Stores the configuration, creates the Director in the camera heap and sizes the reset listener lists
 		bool InitCameraSystem(const CameraSystemConfig* config);
@@ -103,6 +131,8 @@ namespace engine
 			static void Shutdown();
 
 			int GetMaxControllerIndex() const;
+			// Index of a player's camera slot in the cameras array (0x107DD9E0; name guessed)
+			int GetCameraIndex(int playerIndex, int kind) const;
 			// Puts the controller in the first free slot and gives it the next id
 			void AddController(Cinematographer* controller);
 			void RemoveController(Cinematographer* controller);

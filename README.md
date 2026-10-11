@@ -15,10 +15,10 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.239 %
-Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.241 %  (338 / 140196)
+Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.278 %
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0.288 %  (404 / 140196)
   core        119 functions matched, 4,495 bytes
-  engine       58 functions matched, 2,574 bytes
+  engine      124 functions matched, 6,353 bytes
   math        161 functions matched, 16,266 bytes
 ```
 

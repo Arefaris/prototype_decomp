@@ -58,7 +58,12 @@ namespace engine
 			{
 				return !((flags >> 1) & 1);
 			}
+			// Bit 1 of a flags word clear, as a free-standing test (0x107DD9D0; name guessed)
+			static int IsRunningFlags(unsigned int flags);
+			// OnKindEvent unless bit 1 of flags is set (0x107DDA50; name guessed)
+			void OnKindEventIfRunning(float param);
 			void SetSlot(int value);
+			int GetSlot() const;
 			void SetId(int value);
 			int GetId() const;
 		};

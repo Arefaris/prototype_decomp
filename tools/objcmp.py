@@ -98,9 +98,11 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 				if not known or target not in known:
 					continue  # a pointer to something we cannot place
 				expected = known[target]
+				width = 4
 			else:
-				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + 4], "little")
-			width = 4
+				# Small data (a bool) may end its section: compare only the bytes that belong to it
+				width = min(4, sec["size"] - value)
+				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
 		else:
 			continue
 		target = struct.unpack_from("<I", original, offset)[0]

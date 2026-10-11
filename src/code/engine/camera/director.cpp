@@ -2,7 +2,7 @@
 #include "code/engine/camera/cameramessages.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
-#include "code/engine/memory/memory.h"
+#include "code/engine/system/enginememory.h"
 #include <new>
 
 #include "code/math/matrix.h"
@@ -10,12 +10,21 @@
 namespace container
 {
 	// The Director's two arrays instantiate these; the engine kept the copies next to the Director's code. Which
-	// instantiation each address holds is a guess (the cameras array is used first).
+	// instantiation each address holds is a guess (the cameras array is used first). The first one also emits the
+	// allocator's inline members (0x107DDBF0 Free, 0x107DDC10 Alloc).
+	// FUNCTION: ENGINE 0x107DDBF0
+	// FUNCTION: ENGINE 0x107DDC10
+	// FUNCTION: ENGINE 0x107DDB90
+	// FUNCTION: ENGINE 0x107DDBA0
+	// FUNCTION: ENGINE 0x107DDBB0
 	// FUNCTION: ENGINE 0x107DE580
 	// FUNCTION: ENGINE 0x107DE720
 	// FUNCTION: ENGINE 0x107DE770
 	// FUNCTION: ENGINE 0x107DE790
 	template class ArrayDynamic<engine::camera::Camera*, AllocatorNew>;
+	// FUNCTION: ENGINE 0x107DDBC0
+	// FUNCTION: ENGINE 0x107DDBD0
+	// FUNCTION: ENGINE 0x107DDBE0
 	// FUNCTION: ENGINE 0x107DE5D0
 	// FUNCTION: ENGINE 0x107DE7C0
 	// FUNCTION: ENGINE 0x107DE810
@@ -27,14 +36,51 @@ namespace engine
 {
 	namespace camera
 	{
+		// Cinematographer::GetName is inline in the header; its kept copy is 0x107DDCB0
+		// FUNCTION: ENGINE 0x107DDCB0
+		// FUNCTION: ENGINE 0x107DD9D0
+		int Cinematographer::IsRunningFlags(unsigned int flags)
+		{
+			return ~(flags >> 1) & 1;
+		}
+
+		// FUNCTION: ENGINE 0x107DD9E0
+		int Director::GetCameraIndex(int playerIndex, int kind) const
+		{
+			return playerIndex * 2 + kind;
+		}
+
 		// FUNCTION: ENGINE 0x107DD9F0
 		inline CameraResetMessage::CameraResetMessage() : IntrusiveMessage(sizeof(CameraResetMessage), 2)
+		{
+		}
+
+		// 0x107DDC70 is the compiler's scalar deleting destructor of this class
+		// FUNCTION: ENGINE 0x107DDC70
+		// FUNCTION: ENGINE 0x107DDA10
+		inline CameraResetMessage::~CameraResetMessage()
 		{
 		}
 
 		// FUNCTION: ENGINE 0x107DDA20
 		inline CameraCutMessage::CameraCutMessage() : IntrusiveMessage(sizeof(CameraCutMessage), 3)
 		{
+		}
+
+		// 0x107DDC90 is the compiler's scalar deleting destructor of this class
+		// FUNCTION: ENGINE 0x107DDC90
+		// FUNCTION: ENGINE 0x107DDA40
+		inline CameraCutMessage::~CameraCutMessage()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x107DDA50
+		void Cinematographer::OnKindEventIfRunning(float param)
+		{
+			if (IsRunning())
+			{
+				OnKindEvent(param);
+			}
 		}
 
 		// FUNCTION: ENGINE 0x107DDA70
@@ -47,6 +93,12 @@ namespace engine
 		void Cinematographer::SetSlot(int value)
 		{
 			slot = value;
+		}
+
+		// FUNCTION: ENGINE 0x107DDA90
+		int Cinematographer::GetSlot() const
+		{
+			return slot;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAA0
@@ -79,6 +131,22 @@ namespace engine
 			unknown7AD = value;
 		}
 
+		// FUNCTION: ENGINE 0x107DDAF0
+		math::Matrix* Camera::GetTargetMatrix() const
+		{
+			return target->MatrixAt90();
+		}
+
+		// FUNCTION: ENGINE 0x107DDB00
+		CameraSystemConfig::CameraSystemConfig()
+		{
+			heap = 0;
+			unknown4 = 1;
+			unknown8 = 1;
+			controllerCount = 0x20;
+			playerCount = 8;
+		}
+
 		// FUNCTION: ENGINE 0x107DDB50
 		void Director::OnDBSlot0(int a, int b)
 		{
@@ -87,6 +155,32 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DDB60
 		void Director::OnDBSlot1(int a, int b)
 		{
+		}
+
+		// FUNCTION: ENGINE 0x107DE860
+		Director::Director()
+			: cameras(sPlayerCount * 2), controllers(sControllerCount)
+		{
+			maxControllerIndex = -1;
+			nextControllerId = 0;
+			int cameraCount = cameras.Size();
+			sDirector = this;
+			for (int i = 0; i < cameraCount; i++)
+			{
+				cameras.begin[i] = 0;
+			}
+			int controllerCount = controllers.Size();
+			for (int i = 0; i < controllerCount; i++)
+			{
+				controllers.begin[i] = 0;
+			}
+			playerCamera[0] = -1;
+			playerCamera[1] = -1;
+			core::Name<core::CaseSensitiveKey> name("ConsoleAspectRatio", 0);
+			Console* console = gConsole;
+			float ratio = gDisplay->GetAspectRatio();
+			console->AddVariable(name, 1, ratio, ConsoleVariableInfo(false, 1, -1));
+			console->Register(name, this, 0, 0);
 		}
 
 		// 0x107DEAA0 is the compiler's scalar deleting destructor of this class
