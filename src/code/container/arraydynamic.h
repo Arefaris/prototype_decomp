@@ -22,6 +22,21 @@ namespace container
 		}
 	};
 
+	// The allocator of a heap chosen at run time, Align-byte aligned (RTTI names AllocatorCoreAligned<16>)
+	template<int Align> struct AllocatorCoreAligned
+	{
+		void* Alloc(unsigned int size) const
+		{
+			return core::HeapAllocAligned(heap, size, Align);
+		}
+		void Free(void* block) const
+		{
+			core::HeapFreeAligned(heap, block);
+		}
+
+		int heap;
+	};
+
 	template<class T, class Allocator> class ArrayDynamic
 	{
 	public:

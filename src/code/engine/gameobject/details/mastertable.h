@@ -1,11 +1,12 @@
 // code/engine/gameobject/details/mastertable.cpp (assert path at 0x10E68734): the game object master table behind
 // GameObjectHandle. 0x1800 entries of {object, serial, flags} filled from the front (a fixed array with an end
 // pointer) and recycled through a free list threaded through the object pointers; a handle can be reserved before
-// its object exists. Unit 0x107E1D20 - 0x107E2420. Class and member names are guesses (the file name gives
+// its object exists. Unit 0x107E1D20 - 0x107E2440. Class and member names are guesses (the file name gives
 // MasterTable); most of the small functions are kept copies of inline functions.
 #ifndef ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
 #define ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
 
+#include "code/container/arraydynamic.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include <new>
 
@@ -28,6 +29,10 @@ namespace container
 	{
 	public:
 		ArrayFixed()
+		{
+			end = data;
+		}
+		~ArrayFixed()
 		{
 			end = data;
 		}
@@ -176,10 +181,7 @@ namespace engine
 			};
 		};
 
-		MasterTable(int unknown1, int unknown2)
-		{
-			freeList = 0;
-		}
+		MasterTable(int unknown, const container::AllocatorCoreAligned<16>& allocator);
 
 		// A handle the next Allocate hands out (0x11283490 / 0x11283488)
 		static GameObjectHandle sReservedHandle;

@@ -12,12 +12,6 @@
 
 namespace container
 {
-	// The allocator of a heap chosen at run time, 16-byte aligned (RTTI names AllocatorCoreAligned<16>)
-	template<int Align> struct AllocatorCoreAligned
-	{
-		int heap;
-	};
-
 	// Copies [first, last) to dest (front to back)
 	template<class T> inline T* Copy(T* first, T* last, T* dest)
 	{
@@ -28,16 +22,16 @@ namespace container
 		return dest;
 	}
 
-	// A growable array over such an allocator: begin / end / capacity, then the allocator's heap (names guessed)
+	// A growable array over an AllocatorCoreAligned<16>: begin / end / capacity, then the allocator's heap (probably
+	// container::ArrayDynamic with a stateful allocator; names guessed)
 	template<class T> class ArrayDynamicHeap
 	{
 	public:
-		ArrayDynamicHeap(unsigned int count, const AllocatorCoreAligned<16>& allocator)
+		ArrayDynamicHeap(unsigned int count, const AllocatorCoreAligned<16>& newAllocator) : allocator(newAllocator)
 		{
-			heap = allocator.heap;
 			if (count != 0)
 			{
-				begin = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+				begin = (T*)allocator.Alloc(count * sizeof(T));
 				if (begin != 0)
 				{
 					capacity = begin + count;
@@ -57,7 +51,7 @@ namespace container
 			end = begin;
 			if (begin != 0)
 			{
-				core::HeapFreeAligned(heap, begin);
+				allocator.Free(begin);
 			}
 		}
 		bool Allocate(unsigned int count);
@@ -93,14 +87,14 @@ namespace container
 		T* begin;
 		T* end;
 		T* capacity;
-		int heap;
+		AllocatorCoreAligned<16> allocator;
 	};
 
 	template<class T> bool ArrayDynamicHeap<T>::Allocate(unsigned int count)
 	{
 		if (count != 0)
 		{
-			begin = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+			begin = (T*)allocator.Alloc(count * sizeof(T));
 			if (begin != 0)
 			{
 				capacity = begin + count;
@@ -122,7 +116,7 @@ namespace container
 		end = begin;
 		if (begin != 0)
 		{
-			core::HeapFreeAligned(heap, begin);
+			allocator.Free(begin);
 		}
 	}
 }
@@ -131,17 +125,9 @@ namespace engine
 {
 	class Message;
 
-	// The group game objects are updated in (another unit, 0x1060xxxx; names guessed)
-	class UpdateGroup
-	{
-	public:
-		// 0x106032F0 / 0x10603560
-		void Add(int key, void* object);
-		bool Remove(void* object, bool unknown);
-	};
-
-	// The update group (0x112836F4) and the master table indices of the objects whose update is deferred (0x112836F0)
-	extern UpdateGroup* gUpdateGroup;
+	// The inventory of every game object (0x112836F4) and the master table indices of the objects whose update is
+	// deferred (0x112836F0)
+	extern content::LoadInventory* gGameObjects;
 	extern container::ArrayDynamicHeap<unsigned short>* gDeferredObjects;
 	class MessageListeners;
 
@@ -262,16 +248,30 @@ namespace engine
 	void BroadcastMessage(Message* message);
 	void BroadcastBehaviourMessage(Message* message);
 	int CountGameObjects();
-	GameObject* CreateGameObject(int key, int heap, UpdateGroup* group);
-	void MoveGameObject(GameObject* object, int key);
-	GameObject* CreateGameObjectInHeap(int key, int heap, int unused);
-	GameObject* CreateGameObjectHere(int key, int unused);
+	GameObject* CreateGameObject(const content::ObjectName& name, int heap, content::LoadInventory* inventory);
+	void RenameGameObject(GameObject* object, const content::ObjectName& name);
+	GameObject* CreateGameObjectInHeap(const content::ObjectName& name, int heap, int unused);
+	GameObject* CreateGameObjectHere(const content::ObjectName& name, int unused);
 	void DeferUpdate(GameObjectHandle handle, bool force);
 	void FlushDeferredUpdates();
 	void InvalidateHandle(GameObjectHandle* handle, bool notify);
 	void SwapGameObjects(GameObjectHandle first, GameObjectHandle second);
 	void MoveHandle(GameObjectHandle* from, GameObjectHandle* to);
 	void ReplaceHandle(const GameObjectHandle* target, const GameObjectHandle* source);
+
+	// The sizes InitGameObjectSystem sets the system up with (names guessed)
+	struct GameObjectSystemConfig
+	{
+		int heap;
+		int masterTableUnknown;
+		unsigned int deferredCapacity;
+		unsigned int attributeSize;
+		unsigned int attributeListLength;
+		unsigned int attributeCount;
+		unsigned int attributeListCount;
+	};
+
+	bool InitGameObjectSystem(const GameObjectSystemConfig* config);
 }
 
 #endif

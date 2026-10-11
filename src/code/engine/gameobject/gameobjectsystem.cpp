@@ -1,7 +1,14 @@
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
+#include "code/core/memory/memorypool.h"
 #include "code/core/memory/segmentpoolallocator.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+
+namespace core
+{
+	// 0x10646C10: allocates one of the eight thread-local slots into *slot and sets it to value in every thread
+	bool AllocThreadSlot(int* slot, int value);
+}
 
 namespace engine
 {
@@ -9,12 +16,40 @@ namespace engine
 	class MessageRouter
 	{
 	public:
+		// 0x108A5510
+		explicit MessageRouter(const container::AllocatorCoreAligned<16>& allocator);
+
 		void InitListeners(MessageListeners* listeners, int count);
 		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
 		void Invalidate(GameObjectHandle handle);
 		void SwapHandles(GameObjectHandle first, GameObjectHandle second);
+
+		unsigned char unknown[0x2fe8];
 	};
 	extern MessageRouter* gMessageRouter;
+
+	// The game object inventory's name in the root inventory (0x11283700)
+	extern content::ObjectName gGameObjectsName;
+	// The shared identity transform new game objects start with (0x1128329C)
+	extern Attribute<math::Matrix>* gIdentityTransform;
+	// The round-robin counter of the behaviours' time slicing (0x1130E030)
+	extern unsigned char gTimeSliceCounter;
+	// Thread-local slots of the game object code (0x111BC0B4 / 0x111BC0B8 / 0x111C65BC; meaning unknown)
+	extern int gThreadSlotA;
+	extern int gThreadSlotB;
+	extern int gThreadSlotC;
+	// The pools of the dynamic attributes and their lists (0x112836E4 / 0x112836E8), the heap ids they are
+	// registered as (0x111BC0BC / 0x111BC0C0, -1 before) and the list length (0x11283298)
+	extern core::MemoryPool* gAttributePool;
+	extern core::MemoryPool* gAttributeListPool;
+	extern int gAttributeHeap;
+	extern int gAttributeListHeap;
+	extern unsigned int gAttributeListLength;
+
+	// 0x10898260: creates the behaviours' "VTablePool" (name guess)
+	void InitVTablePool(int count);
+	// 0x1086C0F0: registers the go_* script commands (name guess)
+	void RegisterGameObjectCommands();
 
 	// GLOBAL: ENGINE 0x112836EC
 	// GLOBAL: ENGINE 0x112836F8
@@ -232,37 +267,37 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EED60
-	GameObject* CreateGameObject(int key, int heap, UpdateGroup* group)
+	GameObject* CreateGameObject(const content::ObjectName& name, int heap, content::LoadInventory* inventory)
 	{
 		GameObject* object;
 		{
 			core::HeapScope scope(heap);
 			object = new GameObject;
 		}
-		if (group != 0)
+		if (inventory != 0)
 		{
-			group->Add(key, object);
+			inventory->Add(name, object);
 		}
 		return object;
 	}
 
 	// FUNCTION: ENGINE 0x107EEE00
-	void MoveGameObject(GameObject* object, int key)
+	void RenameGameObject(GameObject* object, const content::ObjectName& name)
 	{
 		if (object != 0)
 		{
 			object->AddRef();
-			if (gUpdateGroup->Remove(object, true))
+			if (gGameObjects->Remove(object, true))
 			{
-				gUpdateGroup->Add(key, object);
+				gGameObjects->Add(name, object);
 			}
 			object->Release();
-			object->Slot6(key);
+			object->SetName(name);
 		}
 	}
 
 	// FUNCTION: ENGINE 0x107EF160
-	GameObject* CreateGameObjectInHeap(int key, int heap, int unused)
+	GameObject* CreateGameObjectInHeap(const content::ObjectName& name, int heap, int unused)
 	{
 		core::SegmentPoolAllocator* pool = 0;
 		int value;
@@ -273,7 +308,7 @@ namespace engine
 			pool->PushCounter();
 			pool->Open();
 		}
-		GameObject* object = CreateGameObject(key, heap, gUpdateGroup);
+		GameObject* object = CreateGameObject(name, heap, gGameObjects);
 		if (pool != 0)
 		{
 			pool->PopCounter();
@@ -282,9 +317,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EF6F0
-	GameObject* CreateGameObjectHere(int key, int unused)
+	GameObject* CreateGameObjectHere(const content::ObjectName& name, int unused)
 	{
-		return CreateGameObjectInHeap(key, core::GetCurrentHeap(), unused);
+		return CreateGameObjectInHeap(name, core::GetCurrentHeap(), unused);
 	}
 
 	// FUNCTION: ENGINE 0x107EF710
@@ -298,7 +333,7 @@ namespace engine
 			{
 				if (!force && object->IsReady())
 				{
-					gUpdateGroup->Remove(object, true);
+					gGameObjects->Remove(object, true);
 					return;
 				}
 				gDeferredObjects->PushBack(object->index);
@@ -318,7 +353,7 @@ namespace engine
 				container::ArrayDynamicHeap<unsigned short>* deferred = gDeferredObjects;
 				container::Copy(item + 1, deferred->end, item);
 				deferred->end--;
-				gUpdateGroup->Remove(object, true);
+				gGameObjects->Remove(object, true);
 				item--;
 				end--;
 			}
@@ -366,6 +401,65 @@ namespace engine
 	{
 		GameObject* object = target->Get();
 		object->index = gMasterTable->Replace(target, source);
+	}
+
+	// The engine's identity matrix copied element by element
+	static inline void SetIdentity(math::Matrix& matrix)
+	{
+		matrix.m[0][0] = math::Matrix::IDENTITY.m[0][0];
+		matrix.m[0][1] = math::Matrix::IDENTITY.m[0][1];
+		matrix.m[0][2] = math::Matrix::IDENTITY.m[0][2];
+		matrix.m[0][3] = math::Matrix::IDENTITY.m[0][3];
+		matrix.m[1][0] = math::Matrix::IDENTITY.m[1][0];
+		matrix.m[1][1] = math::Matrix::IDENTITY.m[1][1];
+		matrix.m[1][2] = math::Matrix::IDENTITY.m[1][2];
+		matrix.m[1][3] = math::Matrix::IDENTITY.m[1][3];
+		matrix.m[2][0] = math::Matrix::IDENTITY.m[2][0];
+		matrix.m[2][1] = math::Matrix::IDENTITY.m[2][1];
+		matrix.m[2][2] = math::Matrix::IDENTITY.m[2][2];
+		matrix.m[2][3] = math::Matrix::IDENTITY.m[2][3];
+		matrix.m[3][0] = math::Matrix::IDENTITY.m[3][0];
+		matrix.m[3][1] = math::Matrix::IDENTITY.m[3][1];
+		matrix.m[3][2] = math::Matrix::IDENTITY.m[3][2];
+		matrix.m[3][3] = math::Matrix::IDENTITY.m[3][3];
+	}
+
+	// FUNCTION: ENGINE 0x107EFC20
+	bool InitGameObjectSystem(const GameObjectSystemConfig* config)
+	{
+		core::HeapScope scope(config->heap);
+		container::AllocatorCoreAligned<16> allocator;
+		allocator.heap = config->heap;
+		InitVTablePool(0x100);
+		gMasterTable = new MasterTable(config->masterTableUnknown, allocator);
+		gMessageRouter = new MessageRouter(allocator);
+		gDeferredObjects = new container::ArrayDynamicHeap<unsigned short>(config->deferredCapacity, allocator);
+		// A loop whose result is not used (left in by the original)
+		unsigned short bit = 1;
+		while (bit != 0x400)
+		{
+			bit <<= 1;
+		}
+		gGameObjects = new content::LoadInventory(0x800);
+		content::gRootInventory->Add(gGameObjectsName, gGameObjects);
+		gIdentityTransform = new Attribute<math::Matrix>;
+		SetIdentity(gIdentityTransform->Get());
+		gTimeSliceCounter = 0;
+		RegisterGameObjectCommands();
+		core::AllocThreadSlot(&gThreadSlotA, 0);
+		core::AllocThreadSlot(&gThreadSlotB, -1);
+		core::AllocThreadSlot(&gThreadSlotC, 0);
+		core::CreateMemoryPool(&gAttributePool, config->attributeSize, config->attributeCount, config->heap,
+			"Dynamic Attributes", 0x10);
+		core::RegisterHeap(8, config->heap, gAttributePool);
+		gAttributeHeap = 8;
+		core::CreateMemoryPool(&gAttributeListPool, config->attributeListLength << 4, config->attributeListCount,
+			config->heap, "Dynamic Attribute Lists", 0x10);
+		core::RegisterHeap(9, config->heap, gAttributeListPool);
+		gAttributeListHeap = 9;
+		gAttributeListLength = config->attributeListLength;
+		gGameObjectSystemShutdown = false;
+		return true;
 	}
 
 	// Kept copies of inline functions: GameObjectIterator's members, container::Swap<unsigned short> and

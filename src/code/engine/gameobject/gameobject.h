@@ -4,6 +4,7 @@
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECT_H
 #define ENGINE_GAMEOBJECT_GAMEOBJECT_H
 
+#include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/math/matrix.h"
 
@@ -22,10 +23,16 @@ namespace engine
 	template<class T> class Attribute : public BaseAttribute
 	{
 	public:
+		// Out of line in the attribute's unit (Attribute<math::Matrix>: 0x1028AB90, starts at the identity)
+		Attribute();
+
+		virtual T& Get();
+
 		T value;
 	};
 
-	class GameObject
+	// (content::MetaLoadObject sits between LoadObject and GameObject; nothing reconstructed uses it yet)
+	class GameObject : public content::LoadObject
 	{
 	public:
 		// 0x107E1670 / 0x107E0BE0 (the GameObject unit)
@@ -40,7 +47,8 @@ namespace engine
 		// 0x107E0F40: true when the object may leave the deferred list (meaning guessed)
 		virtual bool IsReady();
 		virtual bool Slot5();
-		virtual void Slot6(int value);
+		// Takes the name the object is kept under in the game object inventory (meaning guessed)
+		virtual void SetName(const content::ObjectName& name);
 
 		// 0x107E0810 (another unit): delivers the message when the object listens for its type
 		bool SendMessage(Message* message);
