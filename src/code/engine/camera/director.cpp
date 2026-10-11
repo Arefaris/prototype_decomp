@@ -10,12 +10,21 @@
 namespace container
 {
 	// The Director's two arrays instantiate these; the engine kept the copies next to the Director's code. Which
-	// instantiation each address holds is a guess (the cameras array is used first).
+	// instantiation each address holds is a guess (the cameras array is used first). The first one also emits the
+	// allocator's inline members (0x107DDBF0 Free, 0x107DDC10 Alloc).
+	// FUNCTION: ENGINE 0x107DDBF0
+	// FUNCTION: ENGINE 0x107DDC10
+	// FUNCTION: ENGINE 0x107DDB90
+	// FUNCTION: ENGINE 0x107DDBA0
+	// FUNCTION: ENGINE 0x107DDBB0
 	// FUNCTION: ENGINE 0x107DE580
 	// FUNCTION: ENGINE 0x107DE720
 	// FUNCTION: ENGINE 0x107DE770
 	// FUNCTION: ENGINE 0x107DE790
 	template class ArrayDynamic<engine::camera::Camera*, AllocatorNew>;
+	// FUNCTION: ENGINE 0x107DDBC0
+	// FUNCTION: ENGINE 0x107DDBD0
+	// FUNCTION: ENGINE 0x107DDBE0
 	// FUNCTION: ENGINE 0x107DE5D0
 	// FUNCTION: ENGINE 0x107DE7C0
 	// FUNCTION: ENGINE 0x107DE810
@@ -32,8 +41,22 @@ namespace engine
 		{
 		}
 
+		// 0x107DDC70 is the compiler's scalar deleting destructor of this class
+		// FUNCTION: ENGINE 0x107DDC70
+		// FUNCTION: ENGINE 0x107DDA10
+		inline CameraResetMessage::~CameraResetMessage()
+		{
+		}
+
 		// FUNCTION: ENGINE 0x107DDA20
 		inline CameraCutMessage::CameraCutMessage() : IntrusiveMessage(sizeof(CameraCutMessage), 3)
+		{
+		}
+
+		// 0x107DDC90 is the compiler's scalar deleting destructor of this class
+		// FUNCTION: ENGINE 0x107DDC90
+		// FUNCTION: ENGINE 0x107DDA40
+		inline CameraCutMessage::~CameraCutMessage()
 		{
 		}
 

@@ -82,5 +82,5 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
   declaration is enough, the copy is elided). Without one the compiler builds a temporary and copies it. A call
   that is evaluated before the object in the original (`fld` of a spilled result after the constructor) goes into a
   local first.
-- A heap store that the original issues after a load (`mov [global], esi` after `mov eax, [esi + 8]`) is usually
+- A global store that the original issues after a load (`mov [global], esi` after `mov eax, [esi + 8]`) is usually
   written after that load in the source too; the compiler does not move global stores across member loads.

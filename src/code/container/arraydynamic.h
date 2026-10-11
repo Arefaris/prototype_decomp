@@ -9,15 +9,16 @@
 
 namespace container
 {
+	// Member functions of an empty object (the engine keeps them as __thiscall copies, 0x107DDBF0 / 0x107DDC10)
 	struct AllocatorNew
 	{
-		static void* Alloc(unsigned int size)
-		{
-			return core::HeapAllocAligned(0x79, size, 16);
-		}
-		static void Free(void* block)
+		void Free(void* block)
 		{
 			core::HeapFreeAligned(0x79, block);
+		}
+		void* Alloc(unsigned int size, unsigned int align)
+		{
+			return core::HeapAllocAligned(0x79, size, align);
 		}
 	};
 
@@ -33,7 +34,7 @@ namespace container
 		{
 			if (count > 0)
 			{
-				begin = (T*)Allocator::Alloc(count * sizeof(T));
+				begin = (T*)Allocator().Alloc(count * sizeof(T), 16);
 				if (begin != 0)
 				{
 					end = begin + count;
@@ -47,12 +48,20 @@ namespace container
 		{
 			if (begin != 0)
 			{
-				Allocator::Free(begin);
+				Allocator().Free(begin);
 			}
 		}
 		int Size() const
 		{
 			return (int)(end - begin);
+		}
+		T& operator[](int index)
+		{
+			return begin[index];
+		}
+		const T& operator[](int index) const
+		{
+			return begin[index];
 		}
 		// Replaces the storage with count uninitialised elements; false (and an empty array) when count is 0 or the
 		// allocation fails
@@ -60,7 +69,7 @@ namespace container
 		{
 			if (count > 0)
 			{
-				begin = (T*)Allocator::Alloc(count * sizeof(T));
+				begin = (T*)Allocator().Alloc(count * sizeof(T), 16);
 				if (begin != 0)
 				{
 					end = begin + count;
@@ -76,7 +85,7 @@ namespace container
 		{
 			if (count > 0)
 			{
-				begin = (T*)Allocator::Alloc(count * sizeof(T));
+				begin = (T*)Allocator().Alloc(count * sizeof(T), 16);
 				if (begin != 0)
 				{
 					end = begin + count;
@@ -91,7 +100,7 @@ namespace container
 		{
 			if (begin != 0)
 			{
-				Allocator::Free(begin);
+				Allocator().Free(begin);
 			}
 			begin = 0;
 			end = 0;
