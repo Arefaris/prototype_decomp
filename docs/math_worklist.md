@@ -44,22 +44,22 @@ alignment padding inside) match as two descending loops into a Matrix temporary,
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107CED00 | FromAxisCosSin | 14.5 % | normalises the axis when not unit (calls Vector::Normalize) |
+| 0x107CED00 | FromAxisCosSin | 23.7 % | the axis components are loaded into SSE registers and spilled for the x87 check `|len^2 - 1| > 4e-5`, copied into a local Vector only on the Normalize path; our copies are loaded with fld, and our formula bodies come out shorter (278 vs 323 bytes) |
 | 0x107CEE50 / EF70 / F0A0 | Euler rotations | 50 / 52 / 62 % | permuter plateau; products of three factors |
-| 0x107CF280 | Reflection(plane) | 28.9 % | |
-| 0x107CF5D0 | Orthonormalize | 30.8 % | |
+| 0x107CF280 | Reflection(plane) | 89.7 % | memory-order assignment, `float d = p.d * 2.0f`, products `(a * b) * -2.0f` (81.7 %) or `b * (a * -2.0f)` (89.7 %, other association); only the two x*y products (m[0][1], m[1][0]) and d*y load their operands the other way round; the compiler canonicalises every operand order tried, a Vector4 plane changes nothing |
+| 0x107CF5D0 | Orthonormalize | 50.9 % | rows 0 and 1 copied with Set, x.NormalizeFast(), z = x cross y written out in a Set, z.NormalizeFast(), y = z cross x, rows stored in memory order; the original loads x.y / x.z into registers during the first copy and differs in registers in the second cross |
 | 0x107CF720 | IsOrthonormal | 16 % | six dot products spilled, inline IsEqual x5 + one out-of-line call |
 | 0x107CF8F0 / FA80 / FB10 | Transform / Rotate / RotateInverse | EQUIVALENT | y/z registers swapped |
 | 0x107CF990 | Transform(const Vector4&, Vector4&) | EQUIVALENT | sums need explicit grouping `((a + b) + c) + d` to keep the original order; v.z / v.y / v.w registers rotated. FromQuaternion (0x107CEB70), Transpose3x3(src) (0x107CF4F0) and Transform(count, Vector4*) (0x107CFBD0, needs this one compiled in the unit) match |
 | 0x107CFC00 | PerspectiveFovLH | - | calls Identity first; not attempted |
-| 0x107CFF70 / 0x107D03A0 | LookAt LH / RH | 52.8 % | |
-| 0x107D0190 / 0x107D05C0 | orientation from direction and up | 67.8 % | |
-| 0x107D16B0 | IsIdentity(tolerance) | 29.1 % | |
+| 0x107CFF70 / 0x107D03A0 | LookAt LH / RH | 52.8 % | (target, eye, up): z = target - eye, x = up cross z, y = z cross x, translation -axis . eye; the original spills the running sum of -x . eye three times into a reused argument slot (540 bytes vs our 510) |
+| 0x107D0190 / 0x107D05C0 | orientation from direction and up | 89.5 % | `Vector z(direction)` (copy constructor), NormalizeFast, x.Cross(up, z), NormalizeFast, y.Cross(z, x) match the first half exactly; the permuter's best store order (89.5 %) is not a natural one, so the original's statement order is still unknown |
+| 0x107D16B0 | IsIdentity(tolerance) | 29.1 % | sum of the squared differences from identity < tolerance^2; the original sums rows 2-3 off-diagonal, then the diagonal, then rows 0-1 off-diagonal, the compiler sorts every flat sum tried as off-diagonal in memory order then diagonal; explicit groupings get longer |
 | 0x107D1AA0 | rotation taking a onto b | - | function-local statics with VS2005 guard bits |
-| 0x107D1C90 / 1D20 / 1DB0 | rotation about Y / X / Z from a direction | 37.5 % | |
+| 0x107D1C90 / 1D20 / 1DB0 | rotation about Y / X / Z from a direction | 37.5 % | x87 1 / sqrt of the two squared components, then the 3x3; only the scaling multiplies differ (the original multiplies x and z in place, we copy inv); locals, Vector temporaries, Scale(1 / ...), row Sets and operand orders plateau at 26-28 % standalone |
 | 0x107D1E40 | basis from a Z axis | - | |
 | 0x107D20B0 | Inverse (general 4x4) | - | 1 536 bytes |
-| 0x107D26B0 | Invert (orthonormal fast path) | 18.1 % | |
+| 0x107D26B0 | Invert (orthonormal fast path) | 21.1 % | det of the 3x3; |det - 1| <= EPSILON_SMALL tail-calls InvertOrthonormal, else adjugate / det into a Matrix temporary with the translation brought back, ClearProjection on the temporary, `*this = t`. The original adds the three negative determinant terms as `+ (-x)` (separate negations), which every source form tried folds into subtractions |
 
 ## triangle.cpp (0x107D2ED0 - 0x107D3B50)
 
@@ -90,10 +90,10 @@ before any store); term order does not matter there.
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107D4450 | GetAABB | 13.5 % | products in SSE through Vector temporaries, fabs in x87 |
-| 0x107D4560 | GetCornerOffset(out, bits) | 45.6 % | permuter plateau (300 compilations); structure differs |
+| 0x107D4560 | GetCornerOffset(out, bits) | 45.1 % | e = (bits & 1 / 2 / 4) ? -extents : extents per axis, axis2 * ez + axis1 * ey + axis0 * ex; copying axis[2] first gets the early loads, the register assignment still differs (64 combinations of copy / accumulate / store forms) |
 | 0x107D4630 | Contains | 100 % | in the tree: `const Vector& v = axis[i]` in a `for (int i = 3; i--; )` loop with the x87 dot grouped `(v.x * d.x + v.y * d.y) + v.z * d.z` |
 | 0x107D46D0 | closest point / depth | - | |
-| 0x107D48E0 | GetSphere | 12.6 % | |
+| 0x107D48E0 | GetSphere | 41.8 % | out = (centre, |axis0 ex + axis1 ey + axis2 ez|): the centre goes out as an x87 copy (copy constructor) after the products, so probably returned by value through a Sphere(centre, radius) constructor; the three scaled axes as Vectors (axis 2 first) give 41.8 %, the frame is 0x18 instead of 0xc |
 | 0x107D49B0 | GetCorner | 100 % | waits for GetCornerOffset (same unit, register knowledge) |
 
 ## plane.cpp (0x107D8740 - 0x107D8E10)
@@ -215,7 +215,7 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
 | 0x107DCD20 / 0x107DCDF0 | Sphere::IntersectRay / IntersectRayFirst | 100 % | in the tree: `d.Sub(origin, centre)`, `b = direction.Dot(d)`, `c = d.Dot(d) - radius * radius` |
-| 0x107DD090 | Sphere::AddSphere | 68 % | `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
+| 0x107DD090 | Sphere::AddSphere | 68 % | the `*this = other` branch matches as member-wise copies; the tail stores the new centre and radius together at the end while ours interleaves (Scale, Set, float and Vector temporaries tried). Earlier notes: `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
 | 0x107DC550 | Capsule::Contains(p) | EQUIVALENT | in the tree (68 %), as Cylinder::Contains: z terms added before y terms (commutative) |
