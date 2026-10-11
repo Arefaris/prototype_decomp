@@ -45,3 +45,13 @@ twice, IsValid then Get; our build folds the second check). Lessons from this un
   callers take the temporary's address again after the call instead of using the returned `this`.
 - The engine's asserts keep a per-site `static bool` and pass file, line, expression text and message to
   `core::ReportError` (`OLD_ASSERT_AT` in `code/core/debug.h`).
+
+## gameobject/details/mastertable.cpp (0x107E1D20 - 0x107E2420)
+
+Complete except `Allocate`, `Move` and `Replace` (EQUIVALENT: register choice; Move / Replace merge the count copy
+into one xor / and / xor insert where the engine keeps SetCount's and / or). Not reproduced yet: the kept copies
+`0x107E1E20` (Entry::GetObject), `0x107E1E80` (GameObjectHandle::GetSerial), `0x107E1EB0` (ArrayFixed constructor),
+`0x107E1F30` / `0x107E21C0` (empty), `0x107E2400` / `0x107E2410` (ArrayFixed Clear / Reset) and `0x107E2420`
+(MasterTable constructor) are not emitted because nothing in the unit uses them. `0x107EE340` is HandleBase's
+(index, serial) constructor. Lesson: a `bool` inline returning a bit-field compiles to `shr; test` in conditions,
+an `unsigned int` one to `test mask`.

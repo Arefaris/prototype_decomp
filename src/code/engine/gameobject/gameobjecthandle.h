@@ -52,6 +52,8 @@ namespace engine
 	{
 	public:
 		HandleBase();
+		// 0x107EE340 (another unit)
+		HandleBase(unsigned short newIndex, unsigned short newSerial);
 
 		unsigned short index;
 		unsigned short serial;
@@ -62,6 +64,13 @@ namespace engine
 	public:
 		GameObjectHandle()
 		{
+		}
+		GameObjectHandle(unsigned short newIndex, unsigned short newSerial) : HandleBase(newIndex, newSerial)
+		{
+		}
+		unsigned short GetSerial() const
+		{
+			return serial;
 		}
 
 		GameObject* Get() const
