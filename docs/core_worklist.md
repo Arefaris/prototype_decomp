@@ -39,8 +39,7 @@ own. 0x1063B7E0, a jump to 0x1063AC00 (another unit), is left alone. HeapAlloc 0
 15 functions matched: seven static helpers (memcpy / memset, register arguments) and eight public wrappers that
 check the size first (MemCopyUnchecked does not). memcpy and memset resolve to the generated msvcr80 import
 library, not to symbols.txt (the import thunks 0x10A884EE / 0x10A8835C are defined by that library already).
-0x10645D40 - 0x10645EDB in front of it are allocator interface objects (vftables 0x10D96DB8, 0x10E473E0,
-0x10E473F4), another unit.
+0x10645D40 - 0x10645EDB in front of it are the memory-space unit (see memory/memoryspace.cpp).
 
 ## memory/rangemap.cpp (0x10646140 - 0x10646574): 13 matched, 1 EQUIVALENT
 
@@ -228,6 +227,14 @@ bytes; its methods 0x10B833E0 - 0x10B853A0 are declared and mapped, not reconstr
 Plain (non-atomic) reference count; the last Release destroys the object in place and frees the block it lives
 in; AllocFlags only serves the allocator's own tag. Init reads GetName back through the vtable and drops it. Every
 function matched on the first compile.
+
+## memory/memoryspace.cpp (0x10645D40 - 0x10645EDB): done (13 functions)
+
+The main-memory "memory space" (all names guessed): copy / async copy / heap wrappers that take a space id first
+and ignore it, and `core::MemorySpaceAsyncRequest_Copy` (RTTI name), the request an async copy returns. One
+static request (0x1127A474) serves every copy; it is constructed by a dynamic initializer elsewhere (0x10D66930),
+so our source only declares it (`gMemorySpaceCopyRequest`, mapped in symbols.txt) instead of defining it, which
+would add an initializer of our own. Left alone: 0x10645D50 / 0x10645D60 (empty functions of unknown owner).
 
 ## Candidates nearby (leaf functions, not started)
 
