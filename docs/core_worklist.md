@@ -360,6 +360,35 @@ the compiler emits them in the original's order. The instances take register arg
 which argument follows the parameter order (target before source); ConvertChars walks a copy of its target
 parameter, which frees the parameter's stack slot for the decoded character as in the original.
 
+## controllerdirectinput.cpp (0x106412C0 - 0x10643835): 81 functions
+
+The DirectInput 8 controllers (`code/core/controllerdirectinput.h`; RTTI names core::ControllerSystemDirectInput,
+core::ControllerDirectInput, core::ControllerInputPointDirectInput, core::ControllerOutputPointDirectInput; file,
+member and method names guessed) behind the interfaces of `code/core/controller.h`. InitDirectInput builds the system
+(CoCreateInstance of CLSID_DirectInput8, subclassing the window to track the focus), which enumerates the attached
+devices: XInput pads are left out with the DirectX SDK's WMI sample (IsXInputDevice, `__stdcall` here), mice /
+keyboards optionally. Each controller builds its own data format (one DWORD per object in enumeration order, the
+keyboard's scan code table at 0x11279010 filled on the way), an input point per object and a constant-force output
+point per force-feedback actuator. All 81 annotated functions match. The SDK declarations it needs are hand-written
+in `code/core/directinput.h` (the toolchain has no SDK headers); the dxguid GUIDs and the `__uuidof` constants are
+mapped. Notes:
+- The ole32 / oleaut32 / user32 calls must be `__declspec(dllimport)`: only then does the compiler load an import
+  slot once for repeated calls (IsXInputDevice's three SysAllocString calls). The decorated `__imp__Name@N` the
+  declarations reference is pointed at the relinker's undecorated slot with `#pragma comment(linker,
+  "/alternatename:...")`. A `const` function-pointer slot (the sync.cpp way) is still reloaded before every call.
+- The unit's globals are file statics (nothing outside reads them) except the options word, which must be external:
+  as a static the compiler caches it in a register across the constructor's virtual calls. The keyboard table is
+  only declared (extern), so the test tools that read it at 0x11279010 keep working with the hybrid DLL.
+- `core::RefPtr` (`code/core/refptr.h`, name guessed): the smart pointer behind the device, effect, location string
+  and platform members; its out-of-line copies for five interfaces (0x106422E0 - 0x10642590), the guiddef.h
+  IsEqualGUID / operator== / operator!= copies, the interface constructors, RefCount::GetCount (new: the atomic read
+  Update uses) and the compiler-generated destructors are byte-identical and mapped, not annotated (header code).
+- Float switches return through a `result` local (the original stores into the argument slot and loads it back);
+  the destructors release their lists with the next pointer read ahead (`next = c->next; while (next) ...`);
+  `(dwDevType & 0xFF) >= 0x14` compares as int, `(unsigned char)dwDevType` as a byte; bool results from an
+  HRESULT need the if / return true / return false form.
+Left alone: 0x10641390, 0x106425B0 and 0x10641D80 - 0x10641DA0 (interlocked helpers with register arguments).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

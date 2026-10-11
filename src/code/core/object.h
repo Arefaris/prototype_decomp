@@ -13,8 +13,9 @@ extern "C"
 	long _InterlockedIncrement(long volatile*);
 	long _InterlockedDecrement(long volatile*);
 	long _InterlockedExchange(long volatile*, long);
+	long _InterlockedAnd(long volatile*, long);
 }
-#pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement, _InterlockedExchange)
+#pragma intrinsic(_InterlockedIncrement, _InterlockedDecrement, _InterlockedExchange, _InterlockedAnd)
 
 namespace core
 {
@@ -76,6 +77,12 @@ namespace core
 				_InterlockedExchange(&count, 1000000);
 				delete this;
 			}
+		}
+
+		// An atomic read of the count (0x106425D0 is the DirectInput unit's copy)
+		long GetCount()
+		{
+			return _InterlockedAnd(&count, -1);
 		}
 
 		// volatile: the stores around the constructor's count = 0 stay (the RefCount vftable store, eax clearing)
