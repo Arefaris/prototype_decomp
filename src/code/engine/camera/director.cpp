@@ -89,6 +89,32 @@ namespace engine
 		{
 		}
 
+		// FUNCTION: ENGINE 0x107DE860
+		Director::Director()
+			: cameras(sPlayerCount * 2), controllers(sControllerCount)
+		{
+			maxControllerIndex = -1;
+			nextControllerId = 0;
+			int cameraCount = cameras.Size();
+			sDirector = this;
+			for (int i = 0; i < cameraCount; i++)
+			{
+				cameras.begin[i] = 0;
+			}
+			int controllerCount = controllers.Size();
+			for (int i = 0; i < controllerCount; i++)
+			{
+				controllers.begin[i] = 0;
+			}
+			playerCamera[0] = -1;
+			playerCamera[1] = -1;
+			core::Name<core::CaseSensitiveKey> name("ConsoleAspectRatio", 0);
+			Console* console = gConsole;
+			float ratio = gDisplay->GetAspectRatio();
+			console->AddVariable(name, 1, ratio, ConsoleVariableInfo(false, 1, -1));
+			console->Register(name, this, 0, 0);
+		}
+
 		// 0x107DEAA0 is the compiler's scalar deleting destructor of this class
 		// FUNCTION: ENGINE 0x107DEAA0
 		// FUNCTION: ENGINE 0x107DE990

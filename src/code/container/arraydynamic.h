@@ -28,6 +28,21 @@ namespace container
 		T* end;
 		T* capacity;
 
+		// count uninitialised elements (an empty array when count is 0 or the allocation fails); capacity is not set
+		explicit ArrayDynamic(unsigned int count)
+		{
+			if (count > 0)
+			{
+				begin = (T*)Allocator::Alloc(count * sizeof(T));
+				if (begin != 0)
+				{
+					end = begin + count;
+					return;
+				}
+			}
+			begin = 0;
+			end = 0;
+		}
 		~ArrayDynamic()
 		{
 			if (begin != 0)
