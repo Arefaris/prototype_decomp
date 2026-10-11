@@ -439,7 +439,7 @@ them through the 22 forwarders 0x10643C00 - 0x10643D50 (another unit). Notes:
   open code, or a slot pointer, puts the blocks or registers elsewhere. The Cement open keeps the source drive in a
   variable of its own until the end.
 - SetMountPath returns with the lock held when the device is unknown or the table full (kept).
-- Drive::FlushRequests / RequestQueue::Flush return whether requests are still queued (UnmountDrive waits on it).
+- Drive::FlushRequests / DriveThread::Flush return whether requests are still queued (UnmountDrive waits on it).
 - An open drive's 4th argument is passed but unused.
 Validation (2026-10-11): free roam in the hybrid (every game file is opened through these functions).
 
@@ -586,6 +586,24 @@ Validation (2026-10-11): free roam and a teleport (cells streamed) in the hybrid
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x10650ED0 | ReadPacked | 18 % | EQUIVALENT in tree: same steps in the same order; the original keeps this in ebp (spilled) and the read count in memory (a branch where ours has a cmovb) |
+
+## file/win32/win32drive.cpp (0x106511E0 - 0x10651D1B): 23 matched, 1 EQUIVALENT
+
+core::Win32Drive (RTTI name; `code/core/file/win32drive.h`; file and member names guessed): files are Win32 handles,
+paths made absolute against the volume or the current directory (GetFullPathNameA), Win32 errors mapped to file
+errors, volume information (state, free space, 512-byte granularity, volume name in DriveInfo) refreshed when the
+first file opens; Mount fails when the volume serial changed. Each drive owns a core::DriveThread (RTTI name; what
+drive.h called RequestQueue, renamed with its mapped methods) created with `new (heap)`. Notes:
+- Drive slot 8 (GetFlags) returns int (the original loads the whole word); Drive::Close returns int (1).
+- The find data's directory flag reads the attribute low byte: `((unsigned char)attributes >> 4) & 1`.
+- MakePath computes strlen once; Open has the success branch first (`if (*handle != -1)`).
+- strcpy / strcat / strlen are intrinsics (inline copies); the root path buffer is char[4] (the serial sits right
+  behind it).
+Validation (2026-10-11): free roam, movement and a teleport in the hybrid (every game file is read through it).
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x106512C0 | RefreshInfo | 93 % | EQUIVALENT in tree: the failure branch clears the serial before the state stores in the original, after them in ours |
 
 ## Candidates nearby (leaf functions, not started)
 
