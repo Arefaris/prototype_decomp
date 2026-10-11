@@ -146,6 +146,8 @@ namespace engine
 		void Remove(int value, Behaviour* behaviour);
 		// 0x1083A060: hands a message to the behaviours listening for its type
 		void HandleMessage(Message* message);
+		// 0x108398A0: updates the behaviours of the passes in mask (name guess)
+		void Update(float dt, unsigned short mask);
 		// 0x10839860 / 0x10839690 / 0x108396F0 / 0x108397E0
 		bool Query1(Behaviour* behaviour);
 		bool Query2(int value, Behaviour* behaviour);

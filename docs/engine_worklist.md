@@ -80,7 +80,7 @@ iterator in a register and copies the end iterator every round), GetGameObjectNa
 Get after IsValid), MoveHandle (the engine resolves the handle twice),
 ClearGameObjectSystem (the engine loads gDeferredObjects before storing the router's list end) and
 ShutdownGameObjectSystem (its inlined ArrayDynamicHeap destructor keeps the loaded begin pointer; a local copy in the
-destructor fixes it but breaks `container::Destroy<MessageListenerList>`). Left: the update loop 0x107F0410, `Iterator::Next<GameObject>`
+destructor fixes it but breaks `container::Destroy<MessageListenerList>`). Also UpdateGameObjects (0x107F0410). Left: `Iterator::Next<GameObject>`
 (0x107EF2E0: the engine does not jump-thread the null result of the inlined NextObject) and small kept copies.
 Lessons:
 
@@ -91,5 +91,10 @@ Lessons:
 - A constructor that tests its bool parameter (not the member it stored) lets the compiler drop the test for a
   constant argument; the engine's locked LoadInventory::Iterator has a separate one-argument constructor.
 - A dead loop (`while (bit != 0x400) bit <<= 1;` with an unused result) is left in by the compiler.
+- UpdateGameObjects takes a 12-byte context by value (the callers copy three words); the time step is its last word.
+  Reading the object again for an argument (`GetHandle((GameObject*)it.entry->GetObject())`) instead of reusing the
+  local fixed the register allocation of the whole loop.
+- A function with more than a page of locals calls `__chkstk` (the engine's `__alloca_probe`, 0x10A883B0); it is
+  mapped in symbols.txt.
 - `__RTDynamicCast` is an import stub (0x10A88356); leave it out of symbols.txt, the relink takes it from
   msvcr80.lib. The RTTI type descriptors `??_R0...@8` it is passed are mapped as data.

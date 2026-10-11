@@ -62,6 +62,14 @@ namespace container
 		{
 			return Data();
 		}
+		T* End()
+		{
+			return end;
+		}
+		bool IsEmpty() const
+		{
+			return Data() == end;
+		}
 		int Size() const
 		{
 			return end - Data();

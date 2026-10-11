@@ -83,12 +83,31 @@ namespace engine
 			entry = first;
 			Skip();
 		}
-		void Skip();
+		FilteredGameObjectIterator(const GameObjectIterator& first, unsigned short newMask)
+		{
+			entry = first.entry;
+			mask = newMask;
+			Skip();
+		}
+		void Skip()
+		{
+			MasterTable::Entry* end = gMasterTable->entries.end;
+			MasterTable::Entry* item = entry;
+			while (item != end && !(item->IsValid() && (item->flags & mask)))
+			{
+				item++;
+			}
+			entry = item;
+		}
 		FilteredGameObjectIterator& operator++()
 		{
 			entry++;
 			Skip();
 			return *this;
+		}
+		bool operator<(const FilteredGameObjectIterator& other) const
+		{
+			return entry < other.entry;
 		}
 
 		MasterTable::Entry* entry;
@@ -173,6 +192,17 @@ namespace engine
 	GameObjectHandle SearchGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
 	content::ObjectName GetGameObjectName(GameObjectHandle handle);
 	bool UpdateGameObjectSystemShutdown();
+	// The frame's timing the update stages pass by value (12 bytes; only the time step is known)
+	struct UpdateContext
+	{
+		int unknown0;
+		int unknown4;
+		float dt;
+	};
+
+	// Updates the behaviours of the objects in the passes of mask: first the objects of pass 0, then pass by pass
+	// the deferred ones (name guess)
+	void UpdateGameObjects(UpdateContext context, unsigned short mask);
 	void ClearGameObjectSystem();
 	void ShutdownGameObjectSystem();
 }

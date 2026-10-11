@@ -173,18 +173,6 @@ namespace engine
 		return GameObjectHandle();
 	}
 
-	// FUNCTION: ENGINE 0x107EF0D0
-	void FilteredGameObjectIterator::Skip()
-	{
-		MasterTable::Entry* end = gMasterTable->entries.end;
-		MasterTable::Entry* item = entry;
-		while (item != end && !(item->IsValid() && (item->flags & mask)))
-		{
-			item++;
-		}
-		entry = item;
-	}
-
 	// FUNCTION: ENGINE 0x107EF1D0
 	MessageListenerRef GetListeners(MessageListeners* listeners)
 	{
@@ -579,6 +567,58 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x107F0410
+	void UpdateGameObjects(UpdateContext context, unsigned short mask)
+	{
+		container::ArrayFixed<GameObjectHandle, 0x200> deferred;
+		FilteredGameObjectIterator it(GameObjectIterator(gMasterTable), mask);
+		FilteredGameObjectIterator end(gMasterTable->End(), mask);
+		for (; it < end; ++it)
+		{
+			GameObject* object = (GameObject*)it.entry->object;
+			if (object->TestUpdateMask(mask))
+			{
+				if (object->updatePass == 0)
+				{
+					if (object->behaviours.IsActive())
+					{
+						object->behaviours.Update(context.dt, mask);
+					}
+				}
+				else
+				{
+					deferred.PushBack(GetHandle((GameObject*)it.entry->GetObject()));
+				}
+			}
+		}
+		container::ArrayFixed<GameObjectHandle, 0x200> next;
+		container::ArrayFixed<GameObjectHandle, 0x200>* current = &deferred;
+		container::ArrayFixed<GameObjectHandle, 0x200>* pending = &next;
+		for (unsigned char pass = 1; !current->IsEmpty(); pass++)
+		{
+			for (GameObjectHandle* handle = current->Begin(); handle != current->End(); handle++)
+			{
+				GameObject* object = handle->Get();
+				if (object != 0)
+				{
+					if (object->updatePass == pass)
+					{
+						if (object->behaviours.IsActive())
+						{
+							object->behaviours.Update(context.dt, mask);
+						}
+					}
+					else
+					{
+						pending->PushBack(*handle);
+					}
+				}
+			}
+			current->Clear();
+			container::Swap(current, pending);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x107F0790
 	// EQUIVALENT: the engine loads gDeferredObjects before it stores the router's list end; our build stores first
 	void ClearGameObjectSystem()
@@ -653,4 +693,20 @@ namespace engine
 	// FUNCTION: ENGINE 0x107EFC00
 	// MessageRouter::FindList
 	// FUNCTION: ENGINE 0x107EF110
+	// FilteredGameObjectIterator::Skip
+	// FUNCTION: ENGINE 0x107EF0D0
+	// GameObject::TestUpdateMask
+	// FUNCTION: ENGINE 0x107EECD0
+	// FilteredGameObjectIterator's ++ and <, ArrayDynamicHeap's Find and its GameObjectHandle destructor, ArrayFixed<
+	// GameObjectHandle, 0x200>'s constructor, End, Size, IsEmpty and PushBack, MessageListenerRef's constructor
+	// FUNCTION: ENGINE 0x107EF4A0
+	// FUNCTION: ENGINE 0x107EEC00
+	// FUNCTION: ENGINE 0x107EEFF0
+	// FUNCTION: ENGINE 0x107F0380
+	// FUNCTION: ENGINE 0x107EF010
+	// FUNCTION: ENGINE 0x107EF030
+	// FUNCTION: ENGINE 0x107EF050
+	// FUNCTION: ENGINE 0x107EF040
+	// FUNCTION: ENGINE 0x107EF2A0
+	// FUNCTION: ENGINE 0x107EECA0
 }
