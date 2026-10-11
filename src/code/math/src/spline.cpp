@@ -5,8 +5,7 @@
 
 namespace math
 {
-	// Not reconstructed yet: 0x107D5040 (BuildCatmullRom); GetParameter (0x107D6C40) is NONMATCHING
-	// (docs/math_worklist.md).
+	// GetParameter (0x107D6C40) is NONMATCHING (docs/math_worklist.md).
 
 	// GLOBAL: ENGINE 0x111BBAD0
 	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
@@ -247,6 +246,52 @@ namespace math
 	Vector4* Spline::GetKey(int index)
 	{
 		return keys + index;
+	}
+
+	// FUNCTION: ENGINE 0x107D5040
+	// EQUIVALENT: same operations in the same order (the original stores the key rows between the tangent sums and
+	// keeps s0 on the stack); a permuter over the slope lines and sums plateaued at 28.5 %
+	void SplineSegment::BuildCatmullRom(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+		Matrix& geometry) const
+	{
+		float d0 = 1.0f;
+		float d1 = 1.0f;
+		float d2 = 1.0f;
+		if (flag)
+		{
+			d0 = k1->w - k0->w;
+			d1 = k2->w - k1->w;
+			d2 = k3->w - k2->w;
+			if (d0 <= 0.0f || d1 <= 0.0f || d2 <= 0.0f)
+			{
+				return;
+			}
+		}
+		Vector s0;
+		float inv = 1.0f / d0;
+		s0.Set((k1->x - k0->x) * inv, (k1->y - k0->y) * inv, (k1->z - k0->z) * inv);
+		Vector s1;
+		inv = 1.0f / d1;
+		s1.Set((k2->x - k1->x) * inv, (k2->y - k1->y) * inv, (k2->z - k1->z) * inv);
+		Vector s2;
+		inv = 1.0f / d2;
+		s2.Set((k3->x - k2->x) * inv, (k3->y - k2->y) * inv, (k3->z - k2->z) * inv);
+		// The tangents are the mean chord slopes around k1 and k2, in units of the k1-k2 interval
+		float h = d1 * 0.5f;
+		geometry.m[0][0] = k1->x;
+		geometry.m[0][1] = k1->y;
+		geometry.m[0][2] = k1->z;
+		geometry.m[0][3] = k1->w;
+		geometry.m[1][0] = (s1.x + s0.x) * h;
+		geometry.m[1][1] = (s1.y + s0.y) * h;
+		geometry.m[1][2] = (s1.z + s0.z) * h;
+		geometry.m[2][0] = k2->x;
+		geometry.m[2][1] = k2->y;
+		geometry.m[2][2] = k2->z;
+		geometry.m[2][3] = k2->w;
+		geometry.m[3][0] = (s2.x + s1.x) * h;
+		geometry.m[3][1] = (s2.y + s1.y) * h;
+		geometry.m[3][2] = (s2.z + s1.z) * h;
 	}
 
 	// Kochanek-Bartels key parameters as BuildHermite reads them through its tangent pointers (names guessed)
