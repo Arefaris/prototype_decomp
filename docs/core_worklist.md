@@ -431,6 +431,14 @@ them through the 22 forwarders 0x10643C00 - 0x10643D50 (another unit). Notes:
 - An open drive's 4th argument is passed but unused.
 Validation (2026-10-11): free roam in the hybrid (every game file is opened through these functions).
 
+## file/win32/devices.cpp (0x1064F810 - 0x1064FA88): 6 functions
+
+The Win32 devices (all names and the file name guessed): the current directory's drive letter, four device names
+mapped to RAM drives (core::RamDrive; the mapped value goes to its constructor), whether a device exists (a mapping
+or a bit of GetLogicalDrives) and the drive behind a device (CreateRamDrive 0x10652320 or CreateWin32Drive 0x10651CE0,
+mapped, then the root path through Drive slot 23). All match; IsValidDevice needs the drive index in a local before
+the GetLogicalDrives call.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

@@ -59,8 +59,8 @@ namespace core
 	void OpenCementLibraryAsync(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
 	void OpenCementLibrary(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
 
-	// The Win32 devices (0x1064F810 - 0x1064FA88, not reconstructed): the current drive letter, the names mapped to
-	// paths, whether a device exists and the drive behind it
+	// The Win32 devices (file/win32/devices.cpp, 0x1064F810 - 0x1064FA88): the current drive letter, the names mapped
+	// to RAM drives, whether a device exists and the drive behind it
 	void GetCurrentDevice(char* device);
 	bool AddDeviceMapping(const char* device, const char* path, int heap);
 	void RemoveDeviceMapping(const char* device);
