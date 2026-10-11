@@ -102,16 +102,27 @@ against the VC8 object) passed 956 comparisons against the pinned original funct
 boundaries, microsecond carries, subtraction to zero, float conversion and 64-bit scaling. The hybrid DLL
 reached free roam in an isolated test copy; movement, pause, single-step and resume commands completed.
 
-## controllerxinput.cpp (0x10648FF0 - 0x106492BA): leaf methods
+## controllerxinput.cpp (0x10648750 - 0x10649F5A): 85 functions
 
-RTTI identifies the two reconstructed classes as `core::ControllerOutputPointXInput` and
-`core::ControllerInputPointXInput`. Eleven leaf virtual methods match: scalar output get/set, scalar input count/read,
-clamped scale get/set, binding pair set/clear, scaled range read, and range get/set. The output setter preserves the
-original NaN behavior and marks the value dirty only when the incoming value is not equal to the stored value.
-Class names are observed; method/member names are guesses from vtable position and behavior.
-Validation (2026-10-10): `ninja check` passes all 326 matching annotations. These eleven functions contribute
-271 exact bytes. The hybrid DLL verifier reports no differing bytes or relocation targets, the unit compiles with
-MSVC 2022 x86, and the refreshed test copy reaches free roam and accepts movement input.
+The XInput controllers (`code/core/controllerxinput.h`; RTTI names core::ControllerSystemXInput, core::ControllerXInput,
+core::ControllerInputPointXInput, core::ControllerOutputPointXInput; file, member and method names guessed), the twin of
+the DirectInput unit on the same interfaces. The system holds the four pads as a member array; each pad allocates
+point arrays (`new (heap) T[n]`) sized for the largest entry of a static table of controller types (0x110BD178: one
+type, the XBox 360 controller, with 20 inputs and 2 motors described by name, kind and a field offset / size / mask
+in XINPUT_GAMEPAD / XINPUT_VIBRATION) and sets them up when XInputGetCapabilities reports the pad. Pads continue the
+DirectInput joystick numbers ("JoystickN"). All 85 annotated functions match (the 11 leaf methods matched earlier
+kept their code; SetScale / GetScale are now SetThreshold / GetThreshold of IControllerInputPoint). Notes:
+- `core::Object` gained `operator new[](size, heap)` / `operator delete[]`: the vector deleting destructors (slot 2 of
+  the point vftables) and `delete[]` inline them; VS2005 itself calls the global `operator new[](4)` for a zero count.
+- ReadField / WriteField are inline functions of the unit (their out-of-line copies 0x10648750 / 0x10648770 are
+  annotated); the type lookup in Connect is written in place (an inline helper would leave a copy the original lacks).
+- The XInput functions are called through the image's own import thunks (imported by ordinal), mapped as
+  `_XInputGetState@8` etc.
+- The input point's +0x28 is the time from Init to the last change (Update never moves the start time).
+- Float results: `result = raw != 0 ? 1.0f : 0.0f` (the if form skips the store); the inactive branch of Update is
+  the else of `if (active)`.
+Validation (2026-10-11): free roam in the hybrid, keyboard input works (no pad attached: the pads stay disconnected).
+Left alone: 0x106489C0 - 0x106489E0 (interlocked helpers with register arguments).
 
 ## memory/twowayallocator.cpp (0x10645370 - 0x10645D3A): class done
 
@@ -407,5 +418,3 @@ follow (0x10643C00 - 0x10643D50) forward to the file system (0x10649F90 onwards)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
-- 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
-  input conversion.

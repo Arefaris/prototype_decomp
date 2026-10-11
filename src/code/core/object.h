@@ -46,6 +46,20 @@ namespace core
 			}
 			gObjectHeap = -1;
 		}
+		// The XInput controllers' point arrays (their vector deleting destructors inline operator delete[])
+		void* operator new[](unsigned int size, int heap)
+		{
+			gObjectHeap = heap;
+			return HeapAlloc(heap, size);
+		}
+		void operator delete[](void* block)
+		{
+			if (gObjectHeap != -1)
+			{
+				HeapFree(gObjectHeap, block);
+			}
+			gObjectHeap = -1;
+		}
 
 		int heap;
 	};
