@@ -75,7 +75,7 @@ alignment padding inside) match as two descending loops into a Matrix temporary,
 | 0x107D1AA0 | RotationFromTo(a, b) | EQUIVALENT | in the tree (96.5 %): axis = a cross b, s = axis.Normalize(), c = a . b, two `static const float` locals (EPSILON_SMALL and 1 - it: dynamic initialisation with guard bits, mapped in symbols.txt), the parallel fallback a cross X / a cross Z written out with the `* 0.0f` / `* 1.0f` terms, cosine = +-sqrt(1 - s^2), FromAxisCosSin. Only the operand loads of two dot products (b first) differ; sweeps of the dot's groupings change nothing, moving the declarations makes it worse |
 | 0x107D1C90 / 1D20 / 1DB0 | rotation about Y / X / Z from a direction | 37.5 % | x87 1 / sqrt of the two squared components, then the 3x3; only the scaling multiplies differ (the original multiplies x and z in place, we copy inv); locals, Vector temporaries, Scale(1 / ...), row Sets and operand orders plateau at 26-28 % standalone |
 | 0x107D1E40 | SetBasis(z, up) | EQUIVALENT | in the tree (42.5 %): rows through `Vector&` references to m[i]; x = up cross z as three float locals stored z, y, x (the permuter found that order: the first cross and both fallbacks then match), fallback X cross z / Y cross z through Set, y = z cross x through Set, z copied (fld / fstp), each row normalised with x87 1 / sqrtf on float copies. The original keeps the rows in registers for the lengths with separate spill slots for x and y (frame 0x18, ours 8) |
-| 0x107D20B0 | Inverse (general 4x4) | - | 1 536 bytes |
+| 0x107D20B0 | Invert4x4 | EQUIVALENT | in the tree (9.4 %): the 2x2 minors s0..s5 (rows 0-1) and c0..c5 (rows 2-3) in the original's order and operand order, the adjugate into a Matrix temporary (column 0 from row 1 and c, column 1 from row 0 and c, column 2 from row 3 and s, column 3 from row 2 and s), det `((((c5 s0 - c4 s1) + c2 s3) + c3 s2) - c1 s4) + c0 s5`, a 4-iteration row loop scaling by 1 / det (a `float* row` pointer keeps it a loop; `t.m[i][j]` indexing unrolls it), then 16 element copies. The original reloads the matrix elements from `this` where ours keeps copies on the stack (1599 vs 1536 bytes) |
 | 0x107D26B0 | Invert (orthonormal fast path) | 21.1 % | det of the 3x3; |det - 1| <= EPSILON_SMALL tail-calls InvertOrthonormal, else adjugate / det into a Matrix temporary with the translation brought back, ClearProjection on the temporary, `*this = t`. The original adds the three negative determinant terms as `+ (-x)` (separate negations), which every source form tried folds into subtractions |
 
 ## triangle.cpp (0x107D2ED0 - 0x107D3B50)
@@ -120,7 +120,7 @@ IntersectSegment, Transform match. Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D89E0 | Plane::Set(a, b, c) | 93.1 % | EQUIVALENT in tree (Sub, Cross, Dot inline helpers); two commutative products come out with the operands swapped (e1.z * e2.y in the cross, a.z * normal.z in the dot); the compiler canonicalises them regardless of source order. 99 % in a spike where NormalizeFast was called through a cast wrapper |
+| 0x107D89E0 | Plane::Set(a, b, c) | 99.0 % | EQUIVALENT in tree: the normal through `Vector& n = *reinterpret_cast<Vector*>(this)` (Cross, NormalizeFast and the dot `(a.x * n.x + a.z * n.z) + a.y * n.y` on it) leaves only e1.z * e2.y with the other register copied; a sweep over all 64 operand orders of the cross inline, edge declaration orders, constructor / Set / written-out edges change nothing or get worse |
 | 0x107D8C80 | Plane::IntersectRay(origin, direction, hit) | 51 % | same instructions; SSE registers of normal.y / direction.x / normal.z rotated (original xmm2 / xmm3 / xmm4, ours xmm4 / xmm2 / xmm3); permuter plateau with Dot / Distance helpers, nested ifs, operand and term orders |
 
 ## intersect.cpp (0x107D9A20 - 0x107DAB30, unit name guessed)
@@ -212,7 +212,7 @@ Multiply(a, b) (0x107D9100) matches: the six sums of the product's upper triangl
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D96C0 | Transform(const Vector&, Vector&) | 10.4 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first |
+| 0x107D96C0 | Transform(const Vector&, Vector&) | 36.2 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first and loads xz twice (141 bytes, ours 133-137). A coordinate-descent sweep over the three sums in `out.Set(...)` reaches 36.2 %; v copied into locals, a Vector temporary or float locals stored member-wise are worse |
 | 0x107D9290 | Transform(const Matrix&) (R^T S R) | 16 % | T = S R as nine floats, then the six sums into a temporary copied with dword moves; ours comes out 50+ bytes longer |
 | 0x107D9510 | SkewTransform(v): [v]x^T S [v]x | 100 % | in the tree: four products of S [v]x as locals (t10, t20, t00, t01 in that order), the rest inline, the six results in a temporary in the order xx, xy, xz, yy, yz, zz, then `*this = r`; only `v.y * yz` in t10 needed its operands swapped |
 | 0x107D9820 | Invert(a) | EQUIVALENT | in the tree (26 %): scale = 1 / a.xx when |a.xx| > EPSILON_SMALL, Multiply(a, scale), cofactors c00 / c01 / c02, det = c00 xx + c01 xy + c02 xz, inv = scale / det, zero (`xx = yy = zz = 0; xy = xz = yz = 0`) when |det| <= 0. The original recomputes yz * yz and the c00 difference for r.xx; inline expansions with `- xy * (...)` give subtractions where the original adds |
