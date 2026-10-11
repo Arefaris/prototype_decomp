@@ -282,6 +282,24 @@ Wait / WaitSignal / IsIdle as in File; the last Release closes an open search). 
 Left alone: 0x1064EAF0 (an EventSignal helper with a register argument) and 0x1064EB00 / 0x1064F780 (interface
 destructor and constructor copies).
 
+## file/common/drive.cpp (0x1064FAA0 - 0x1065028C): 43 matched, 1 EQUIVALENT
+
+`core::Drive` (RTTI name; file name guessed): the abstract drive, `Drive : IRefCount, Object, SafeRefCount` (the
+drive's 24 virtual slots sit on IRefCount's vtable: there is no separate drive interface, which is why the
+constructor leaves the IRefCount vftable store in place). SafeRefCount (RTTI name) is IMutable plus a count, its
+AddRef / Release under the object's own lock (the concrete drives implement Lock / Unlock). The base defaults of
+the virtual slots, the state calls the instances forward, the completion queue (Queue, Update) and the request
+queue forwarders all match; CompletionCallbackRequest::IsFromThread (0x1064C600, request.cpp) joined the request
+unit. Update walks the completion list with a link that, after a kept request, points at a local copy of its
+next pointer (so only a run at the head is unlinked); kept as in the original.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10650180 | Drive::Update | 98.9 % | EQUIVALENT in tree: the original loads `this` into ecx before pushing the fault handler's result for ClearFault |
+
+Not reconstructed yet: the file cache (0x10650690 - 0x106511C0, FileCacheList 0x10650540 - 0x10650670) and the
+request queue (0x106524C0 onwards), declared in drive.h / file.h and mapped.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

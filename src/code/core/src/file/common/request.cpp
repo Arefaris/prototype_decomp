@@ -93,6 +93,12 @@ namespace core
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x1064C600
+	bool CompletionCallbackRequest::IsFromThread(int thread)
+	{
+		return thread == value;
+	}
+
 	// FUNCTION: ENGINE 0x1064C610
 	int CompletionCallbackRequest::Prepare()
 	{

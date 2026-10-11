@@ -73,15 +73,6 @@ namespace core
 		unsigned char data[0x30];
 	};
 
-	// The drive's list of file caches, walked in two passes (0x10650640 - 0x10650670)
-	class FileCacheList
-	{
-	public:
-		void Begin(int pass);
-		FileCache* Next();
-		void End();
-	};
-
 	// The reference-counted table an open-by-key request looks its file up in
 	class FileKeyTable
 	{
@@ -203,15 +194,15 @@ namespace core
 		virtual void Wait() = 0;
 		virtual void WaitSignal() = 0;
 		virtual int GetError() = 0;
-		virtual void BeginExclusive(int a, int b) = 0;
+		virtual void BeginExclusive(IDriveFaultHandler* handler, int value) = 0;
 		virtual void EndExclusive(int a) = 0;
-		virtual void Suspend(int value) = 0;
-		virtual void Resume(int value) = 0;
+		virtual void Suspend(void* semaphore) = 0;
+		virtual void Resume(void* semaphore) = 0;
 		virtual bool IsFaulted() = 0;
 		virtual void ClearFault(int value) = 0;
 		virtual void SetMode(int mode) = 0;
 		virtual void SetFlag(bool flag) = 0;
-		virtual void Configure(int a, int b) = 0;
+		virtual bool Configure(int* a, int* b) = 0;
 		virtual void OpenFile(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option) = 0;
 		virtual void OpenFileWait(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option) = 0;
 		virtual void OpenSaveGame(IFile** file, const char* path, bool writable, int mode, int a, int b, int key) = 0;
@@ -260,15 +251,15 @@ namespace core
 		virtual void Wait();
 		virtual void WaitSignal();
 		virtual int GetError();
-		virtual void BeginExclusive(int a, int b);
+		virtual void BeginExclusive(IDriveFaultHandler* handler, int value);
 		virtual void EndExclusive(int a);
-		virtual void Suspend(int value);
-		virtual void Resume(int value);
+		virtual void Suspend(void* semaphore);
+		virtual void Resume(void* semaphore);
 		virtual bool IsFaulted();
 		virtual void ClearFault(int value);
 		virtual void SetMode(int mode);
 		virtual void SetFlag(bool flag);
-		virtual void Configure(int a, int b);
+		virtual bool Configure(int* a, int* b);
 		virtual void OpenFile(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option);
 		virtual void OpenFileWait(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option);
 		virtual void OpenSaveGame(IFile** file, const char* path, bool writable, int mode, int a, int b, int key);

@@ -72,6 +72,9 @@ namespace core
 		// Runs the callback once the drive has handled the request
 		virtual void Complete() = 0;
 
+		// Whether the request was made on the given thread (Drive::Update completes only the caller's)
+		bool IsFromThread(int thread);
+
 		int value;
 	};
 

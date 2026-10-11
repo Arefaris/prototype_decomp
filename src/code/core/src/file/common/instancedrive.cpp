@@ -322,9 +322,9 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064F390
-	void InstanceDrive::BeginExclusive(int a, int b)
+	void InstanceDrive::BeginExclusive(IDriveFaultHandler* handler, int value)
 	{
-		drive->BeginExclusive(a, b);
+		drive->BeginExclusive(handler, value);
 	}
 
 	// FUNCTION: ENGINE 0x1064F3A0
@@ -334,15 +334,15 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064F3B0
-	void InstanceDrive::Suspend(int value)
+	void InstanceDrive::Suspend(void* semaphore)
 	{
-		drive->Suspend(value);
+		drive->Suspend(semaphore);
 	}
 
 	// FUNCTION: ENGINE 0x1064F3C0
-	void InstanceDrive::Resume(int value)
+	void InstanceDrive::Resume(void* semaphore)
 	{
-		drive->Resume(value);
+		drive->Resume(semaphore);
 	}
 
 	// FUNCTION: ENGINE 0x1064F3D0
@@ -370,9 +370,9 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064F410
-	void InstanceDrive::Configure(int a, int b)
+	bool InstanceDrive::Configure(int* a, int* b)
 	{
-		drive->Configure(a, b);
+		return drive->Configure(a, b);
 	}
 
 	// FUNCTION: ENGINE 0x1064F420
