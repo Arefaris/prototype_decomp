@@ -135,6 +135,7 @@ _sCrc32TableBuilt = 0x1127A880 ; data size:0x1 | core crc32.cpp: the table-built
 ?TransformTransposed@Matrix3@math@@QBEXABVVector@2@AAV32@@Z = 0x107D3E60 ; function size:0x8B | math::Matrix3::TransformTransposed(v, out): out = M * v, rows dotted with v (name guess)
 ?DistanceSquared@Segment@math@@QBEMABVVector@2@@Z = 0x107D7420 ; function size:0x14D | math::Segment::DistanceSquared(const Vector&) (name guess)
 ?DistanceSquared@Segment@math@@QBEMABV12@@Z = 0x107D7770 ; function size:0x3C3 | math::Segment::DistanceSquared(const Segment&) (name guess)
+?ClosestPoints@Segment@math@@QBEMABV12@AAVVector@2@1@Z = 0x107D7B40 ; function size:0x57F | math::Segment::ClosestPoints(other, p&, q&) (name guess)
 ?TestBoxAxes@math@@YA_NABVVector@1@00M@Z = 0x107D9A20 ; function size:0x134 | math::TestBoxAxes(extents, direction, delta, length): segment vs box separating axes (name guess)
 ?IntersectsAABB@math@@YA_NABVVector@1@0MABVAABB@1@@Z = 0x107D9B60 ; function size:0xB5 | math::IntersectsAABB(direction, point, length, box): segment vs AABB through TestBoxAxes (name guess)
 ?IntersectsOBB@math@@YA_NABVVector@1@0MABVOBB@1@@Z = 0x107D9C20 ; function size:0x84 | math::IntersectsOBB(direction, point, length, box): segment vs OBB through TestBoxAxes (name guess)

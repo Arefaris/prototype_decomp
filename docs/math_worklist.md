@@ -192,7 +192,7 @@ grouping but reorders flat sums).
 | 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
 | 0x107D7570 | DistanceSquaredToLine(p) | 100 % | in the tree; numerator `d.y * v.y + (d.z * v.z + d.x * v.x)` found by a sweep |
 | 0x107D7650 | ClosestPointOnLine(p, out) | EQUIVALENT | in the tree (98.6 %): dz^2 + dx^2 of the denominator in swapped registers |
-| 0x107D7770 / 0x107D7B40 | segment-segment distance / closest points | - | 963 / 1407 bytes, not attempted |
+| 0x107D7770 / 0x107D7B40 | DistanceSquared(const Segment&) / ClosestPoints(other, p, q) | EQUIVALENT | in the tree (19.1 / 19.6 %): d1, d2, r = other.start - start, the five dots with `(z + y) + x` groupings, denom = e a - b b, s = c e - f b, t = c b - f a; outside the segments the point-segment helpers (DistanceSquared(p, t, lengthSquared) tail calls / ClosestPoint(p, t, lengthSquared, out) four times with `Min(Min(d0, d1), Min(d2, d3))`), else the scaled closest-point difference. The original loads both start points into registers before the differences and keeps more values on the stack (frames 0x34 / 0x64) |
 | 0x107D80C0 | LineDistanceSquared(other) | EQUIVALENT | in the tree (76 %): `n.Cross(d, e)`, parallel case tail-calls DistanceSquaredToLine(other.start); e.x / d.y / d.z registers rotated |
 
 ## random.cpp (0x107D8380-0x107D8740), mostly in the tree
