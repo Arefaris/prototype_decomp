@@ -28,6 +28,9 @@ namespace core
 		{
 		}
 		bool operator==(const Name& other) const;
+		// 0x10061ED0 / 0x10061EF0 (another unit)
+		Name& operator=(const Name& other);
+		bool IsEmpty() const;
 	};
 }
 
