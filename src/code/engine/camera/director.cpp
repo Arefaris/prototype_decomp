@@ -2,7 +2,7 @@
 #include "code/engine/camera/cameramessages.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
-#include "code/engine/memory/memory.h"
+#include "code/engine/system/enginememory.h"
 #include <new>
 
 #include "code/math/matrix.h"

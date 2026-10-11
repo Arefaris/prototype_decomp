@@ -1,7 +1,7 @@
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/strings.h"
-#include "code/engine/memory/memory.h"
+#include "code/engine/system/enginememory.h"
 
 // FUNCTION: ENGINE 0x107DEF50
 void* operator new(unsigned int size)

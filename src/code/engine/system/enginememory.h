@@ -1,8 +1,8 @@
-// The engine's memory setup unit (0x107DEAE0-0x107DF240): the global operator new / delete that route to the core
-// heaps once gHeapReady is set, heap creation and the configuration structs it is driven by. Names and the meaning
-// of the configuration fields are guesses.
-#ifndef ENGINE_MEMORY_MEMORY_H
-#define ENGINE_MEMORY_MEMORY_H
+// code/engine/system/enginememory.cpp (assert path at 0x10E6818C), 0x107DEAE0-0x107DF240: the global operator new /
+// delete that route to the core heaps once gHeapReady is set, heap creation and the configuration structs it is
+// driven by. Names and the meaning of the configuration fields are guesses.
+#ifndef ENGINE_SYSTEM_ENGINEMEMORY_H
+#define ENGINE_SYSTEM_ENGINEMEMORY_H
 
 namespace core
 {
