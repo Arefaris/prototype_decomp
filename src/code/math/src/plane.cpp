@@ -16,14 +16,14 @@ namespace math
 	// FUNCTION: ENGINE 0x107D89E0
 	// EQUIVALENT: 99.0 %; the original copies e1.z instead of e2.y for the product e1.z * e2.y (operand orders inside
 	// the cross product, edge declaration orders and written-out forms do not change it). The normal through a
-	// Vector reference to the plane is what gets the rest; through the member the dot product's terms move (93.1 %)
+	// reference local is what gets the rest; through the member directly the dot product's terms move (93.1 %)
 	void Plane::Set(const Vector& a, const Vector& b, const Vector& c)
 	{
 		Vector e1;
 		e1.Sub(b, a);
 		Vector e2;
 		e2.Sub(c, a);
-		Vector& n = *reinterpret_cast<Vector*>(this);
+		Vector& n = normal;
 		n.Cross(e1, e2);
 		n.NormalizeFast();
 		d = -((a.x * n.x + a.z * n.z) + a.y * n.y);
