@@ -106,6 +106,19 @@ namespace math
 		while (i < 3);
 	}
 
+	// FUNCTION: ENGINE 0x107DD470
+	void Matrix::SetRowsLerp(float t, const Vector4& v)
+	{
+		Vector s;
+		s.x = v.x;
+		s.y = v.y;
+		s.z = v.z;
+		float u = 1.0f - t;
+		m[0][0] = u * s.x + t; m[0][1] = u * s.x; m[0][2] = u * s.x;
+		m[1][0] = u * s.y; m[1][1] = u * s.y + t; m[1][2] = u * s.y;
+		m[2][0] = u * s.z; m[2][1] = u * s.z; m[2][2] = u * s.z + t;
+	}
+
 	// FUNCTION: ENGINE 0x107DD4F0
 	void Matrix::SetScale(const Vector4& s)
 	{

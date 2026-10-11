@@ -198,9 +198,11 @@ Lattice and Interpolate (0x10104140, cosine interpolation, no caller) match. The
 
 ## vector4.cpp (0x107DD200–0x107DD690), mostly in the tree
 
+Matrix::SetRowsLerp(t, v) (0x107DD470) matches once v is first copied member-wise into a local Vector (like the
+unit's other Vector4 wrappers) and the nine elements are written in memory order.
+
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107DD470 | Matrix::SetRowsLerp(t, v): row i = (1-t) v_i (1,1,1) + t e_i | 71.4 % | same code, registers of t and v.x swapped; loop forms are worse |
 | 0x107DD690 | 726 bytes | — | not looked at |
 
 ## sphere.cpp / capsule.cpp (0x107DC390–0x107DD1A0), partly in the tree

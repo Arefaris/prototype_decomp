@@ -1346,3 +1346,4 @@ _sInstancePool = 0x1127CA9C ; data size:0x4 | core instancedrive.cpp: the instan
 ?sPrint@?1??Print@SymmetricMatrix@math@@QBEXXZ@4_NA = 0x111BBDE8 ; data size:0x1 | math symmetricmatrix.cpp: Print's report still enabled (static local; name guess)
 ?GetAABB@Cylinder@math@@QBEXAAVAABB@2@@Z = 0x107DCC10 ; function size:0x10B | math::Cylinder::GetAABB (name guess)
 ?Contains@Triangle@math@@QBE_NABVVector@2@@Z = 0x107D31C0 ; function size:0x191 | math::Triangle::Contains(p): barycentric sign test (name guess)
+?SetRowsLerp@Matrix@math@@QAEXMABVVector4@2@@Z = 0x107DD470 ; function size:0x77 | math::Matrix::SetRowsLerp(t, v): rows (1 - t) v_i blended towards identity (name guess)

@@ -130,6 +130,8 @@ namespace math
 		void SetPosition(float x, float y, float z);
 		// Fills row i of the upper 3x3 with v's i-th component
 		void SetRows(const Vector4& v);
+		// Row i = (1 - t) * v_i * (1, 1, 1) + t * e_i: the SetRows matrix blended towards identity (name guessed)
+		void SetRowsLerp(float t, const Vector4& v);
 		void SetScale(const Vector4& s);
 		void SetScale(float x, float y, float z);
 		void SetScale(float s);
