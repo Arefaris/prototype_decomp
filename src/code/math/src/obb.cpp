@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "code/math/matrix.h"
 #include "code/math/obb.h"
 
@@ -22,5 +24,21 @@ namespace math
 		extents.x = src.extents.x;
 		extents.y = src.extents.y;
 		extents.z = src.extents.z;
+	}
+
+	// FUNCTION: ENGINE 0x107D4630
+	bool OBB::Contains(const Vector& p) const
+	{
+		Vector d;
+		d.Sub(p, centre);
+		for (int i = 3; i--; )
+		{
+			const Vector& v = axis[i];
+			if (fabsf((v.x * d.x + v.y * d.y) + v.z * d.z) > (&extents.x)[i])
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -593,3 +593,4 @@ _sReportLiveAllocations = 0x111BBF84 ; data size:0x1 | engine enginememory.cpp: 
 ?ClosestPointOnLine@Segment@math@@QBEMABVVector@2@AAV32@@Z = 0x107D7650 ; function size:0x114 | math::Segment::ClosestPointOnLine(p, out) (name guess)
 ?LineDistanceSquared@Segment@math@@QBEMABV12@@Z = 0x107D80C0 ; function size:0x134 | math::Segment::LineDistanceSquared(other): squared distance between the two lines (name guess)
 ?Contains@Capsule@math@@QBE_NABVVector@2@@Z = 0x107DC550 ; function size:0xC7 | math::Capsule::Contains(p) (name guess)
+?Contains@OBB@math@@QBE_NABVVector@2@@Z = 0x107D4630 ; function size:0x95 | math::OBB::Contains(p) (name guess)

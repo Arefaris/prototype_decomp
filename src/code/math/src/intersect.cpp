@@ -69,8 +69,6 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107DA410
-	// EQUIVALENT: same operations; the original adds the dot product's y term before the x term (a commutation only)
-	// and loads axis.z into st(0) before multiplying (96.9 %)
 	int Intersects(const OBB& box, const Sphere& sphere)
 	{
 		Vector d;
@@ -78,7 +76,8 @@ namespace math
 		float distanceSquared = 0.0f;
 		for (int i = 3; i--; )
 		{
-			float excess = fabsf(box.axis[i].x * d.x + box.axis[i].y * d.y + box.axis[i].z * d.z) - (&box.extents.x)[i];
+			const Vector& v = box.axis[i];
+			float excess = fabsf((v.x * d.x + v.y * d.y) + v.z * d.z) - (&box.extents.x)[i];
 			if (excess > 0.0f)
 			{
 				distanceSquared += excess * excess;
