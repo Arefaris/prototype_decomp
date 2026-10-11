@@ -5,9 +5,8 @@
 
 namespace math
 {
-	// Not reconstructed yet: 0x107D4B40 .. 0x107D4EA0 (Step and the other segment steppers), 0x107D5010 ..
-	// 0x107D5C00 (BuildCatmullRom, BuildHermite, the evaluators), 0x107D5FE0 .. 0x107D6540, 0x107D6760 .. 0x107D6810
-	// and 0x107D6C40 (docs/math_worklist.md).
+	// Not reconstructed yet: 0x107D5040 / 0x107D5240 (BuildCatmullRom, BuildHermite), 0x107D5FE0 and 0x107D6480 (the
+	// switches on the mode) and 0x107D6C40 (docs/math_worklist.md).
 
 	// GLOBAL: ENGINE 0x111BBAD0
 	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
@@ -17,6 +16,14 @@ namespace math
 	SplineSegment::SplineSegment()
 	{
 		flag = false;
+	}
+
+	// FUNCTION: ENGINE 0x107D5010
+	SplineSegment::SplineSegment(const SplineSegment& other)
+	{
+		coefficients = other.coefficients;
+		derivative = other.derivative;
+		flag = other.flag;
 	}
 
 	// FUNCTION: ENGINE 0x107D49F0
@@ -72,12 +79,132 @@ namespace math
 		out.z = v.z;
 	}
 
+	// FUNCTION: ENGINE 0x107D4B40
+	void SplineSegment::EvaluateSecondDerivative(Vector& out, float t) const
+	{
+		float u = t;
+		if (u < 0.0f)
+		{
+			u = 0.0f;
+		}
+		else if (u > 1.0f)
+		{
+			u = 1.0f;
+		}
+		Vector4 v(0.0f, 0.0f, 2.0f, u * 6.0f);
+		v.Transform(coefficients);
+		out.x = v.x;
+		out.y = v.y;
+		out.z = v.z;
+	}
+
+	// FUNCTION: ENGINE 0x107D4BC0
+	// EQUIVALENT: the same additions and stores; the original loads the three addends and then the three targets of
+	// each row into six registers before adding, and reloads every row from memory
+	Vector& SplineSegment::Step(Vector& out)
+	{
+		Vector& r0 = *(Vector*)derivative.m[0];
+		Vector& r1 = *(Vector*)derivative.m[1];
+		Vector& r2 = *(Vector*)derivative.m[2];
+		Vector& r3 = *(Vector*)derivative.m[3];
+		r0.Set(r0.x + r1.x, r0.y + r1.y, r0.z + r1.z);
+		r1.Set(r1.x + r2.x, r1.y + r2.y, r1.z + r2.z);
+		r2.Set(r2.x + r3.x, r2.y + r3.y, r2.z + r3.z);
+		out.x = derivative.m[0][0];
+		out.y = derivative.m[0][1];
+		out.z = derivative.m[0][2];
+		return out;
+	}
+
 	// FUNCTION: ENGINE 0x107D4C90
 	Spline::~Spline()
 	{
 		delete keys;
 		delete tangents;
 		delete lengths;
+	}
+
+	// FUNCTION: ENGINE 0x107D4CC0
+	void Spline::SetMode(int newMode)
+	{
+		mode = newMode;
+		current = -1;
+		delete lengths;
+		lengths = 0;
+		if (mode == 4 || mode == 9 || mode == 14)
+		{
+			if (tangents == 0 && count > 0)
+			{
+				tangents = new Vector4[count];
+			}
+		}
+		else
+		{
+			delete tangents;
+			tangents = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D4D60
+	void Spline::SetClosed(bool value)
+	{
+		if (value != closed)
+		{
+			if (lengths != 0)
+			{
+				float* resized;
+				if (closed)
+				{
+					// Closed to open: three segments fewer
+					resized = new float[count - 2];
+					for (unsigned int i = 0; i < count - 3; i++)
+					{
+						resized[i] = lengths[i];
+					}
+					resized[count - 3] = -1.0f;
+				}
+				else
+				{
+					resized = new float[count + 1];
+					unsigned int i;
+					for (i = 0; i < count - 3; i++)
+					{
+						resized[i] = lengths[i];
+					}
+					for (i = count - 3; i < count + 1; i++)
+					{
+						resized[i] = -1.0f;
+					}
+				}
+				delete lengths;
+				lengths = resized;
+			}
+			closed = value;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D4EA0
+	void Spline::SetKeyCount(unsigned int keyCount)
+	{
+		current = -1;
+		if (count != keyCount)
+		{
+			delete keys;
+			delete tangents;
+			delete lengths;
+			keys = 0;
+			tangents = 0;
+			lengths = 0;
+			count = keyCount;
+			if (keyCount > 0)
+			{
+				keys = new Vector4[keyCount];
+				if (mode == 4 || mode == 9 || mode == 14)
+				{
+					tangents = new Vector4[count];
+				}
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D4F60
@@ -204,9 +331,9 @@ namespace math
 	bool Spline::SelectSegment(float t)
 	{
 		int index = (int)t;
-		if (index > count - 4)
+		if (index > (int)count - 4)
 		{
-			index = count - 4;
+			index = (int)count - 4;
 		}
 		if (index == current)
 		{
@@ -224,7 +351,7 @@ namespace math
 			t0 = &tangents[(index + 1) % n];
 			t1 = &tangents[(index + 2) % n];
 		}
-		segment.Build(unknown8c, k0, k1, k2, k3, t0, t1);
+		segment.Build(mode, k0, k1, k2, k3, t0, t1);
 		current = index;
 		return true;
 	}
@@ -390,5 +517,222 @@ namespace math
 		float start = (float)count;
 		SelectSegment(start);
 		return ArcLength(&segment, u - start) + sum;
+	}
+
+	// FUNCTION: ENGINE 0x107D5820
+	void SplineSegment::BeginStepping(Vector& out, int steps)
+	{
+		// derivative = D(h) * coefficients, D the forward-difference matrix of step h: rows 1, (h, h^2, h^3),
+		// (2h^2, 6h^3), (6h^3) on and above the diagonal
+		float h = 1.0f / (float)(unsigned int)steps;
+		Matrix fd;
+		fd.m[0][0] = 1.0f;
+		fd.m[0][1] = 0.0f;
+		fd.m[0][2] = 0.0f;
+		fd.m[0][3] = 0.0f;
+		fd.m[1][0] = 0.0f;
+		fd.m[1][1] = h;
+		fd.m[1][2] = h * h;
+		fd.m[1][3] = h * h * h;
+		fd.m[2][0] = 0.0f;
+		fd.m[2][1] = 0.0f;
+		fd.m[2][2] = h * h * 2.0f;
+		fd.m[2][3] = h * h * h * 6.0f;
+		fd.m[3][0] = 0.0f;
+		fd.m[3][1] = 0.0f;
+		fd.m[3][2] = 0.0f;
+		fd.m[3][3] = h * h * h * 6.0f;
+		Matrix& d = derivative;
+		d.Multiply(fd, coefficients);
+		out.x = d.m[0][0];
+		out.y = d.m[0][1];
+		out.z = d.m[0][2];
+	}
+
+	// FUNCTION: ENGINE 0x107D5900
+	Spline::Spline(unsigned int keyCount, int splineMode, bool isClosed)
+	{
+		closed = isClosed;
+		current = -1;
+		flag = false;
+		mode = splineMode;
+		count = keyCount;
+		keys = 0;
+		tangents = 0;
+		lengths = 0;
+		step = 0;
+		stepsPerSegment = 0;
+		if (keyCount > 0)
+		{
+			keys = new Vector4[keyCount];
+			if (mode == 4 || mode == 9 || mode == 14)
+			{
+				tangents = new Vector4[count];
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D59C0
+	// EQUIVALENT: same code with ebx and ebp swapped: the original keeps the null in ebp and the loop counters in
+	// ebx, and compares other.lengths with an immediate 0
+	Spline::Spline(const Spline& other)
+	{
+		current = other.current;
+		segment = other.segment;
+		closed = other.closed;
+		flag = other.flag;
+		mode = other.mode;
+		count = other.count;
+		keys = 0;
+		tangents = 0;
+		lengths = 0;
+		step = other.step;
+		stepsPerSegment = other.stepsPerSegment;
+		if (count > 0)
+		{
+			keys = new Vector4[count];
+			for (unsigned int i = 0; i < count; i++)
+			{
+				const Vector4& source = other.keys[i];
+				Vector4& key = keys[i];
+				key.x = source.x;
+				key.y = source.y;
+				key.z = source.z;
+				key.w = source.w;
+			}
+			if (mode == 4 || mode == 9 || mode == 14)
+			{
+				tangents = new Vector4[count];
+				for (unsigned int i = 0; i < count; i++)
+				{
+					tangents[i] = other.tangents[i];
+				}
+			}
+		}
+		unsigned int n = GetSegmentCount() + 1;
+		if (other.lengths != 0)
+		{
+			lengths = new float[n];
+			for (unsigned int i = 0; i < n; i++)
+			{
+				lengths[i] = other.lengths[i];
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107D5C00
+	// EQUIVALENT: as the copy constructor (ebx / ebp swapped)
+	Spline& Spline::operator=(const Spline& other)
+	{
+		current = other.current;
+		segment = other.segment;
+		closed = other.closed;
+		flag = other.flag;
+		mode = other.mode;
+		count = other.count;
+		delete keys;
+		delete tangents;
+		delete lengths;
+		keys = 0;
+		tangents = 0;
+		lengths = 0;
+		step = other.step;
+		stepsPerSegment = other.stepsPerSegment;
+		if (count > 0)
+		{
+			keys = new Vector4[count];
+			for (unsigned int i = 0; i < count; i++)
+			{
+				const Vector4& source = other.keys[i];
+				Vector4& key = keys[i];
+				key.x = source.x;
+				key.y = source.y;
+				key.z = source.z;
+				key.w = source.w;
+			}
+			if (mode == 4 || mode == 9 || mode == 14)
+			{
+				tangents = new Vector4[count];
+				for (unsigned int i = 0; i < count; i++)
+				{
+					tangents[i] = other.tangents[i];
+				}
+			}
+		}
+		unsigned int n = GetSegmentCount() + 1;
+		if (other.lengths != 0)
+		{
+			lengths = new float[n];
+			for (unsigned int i = 0; i < n; i++)
+			{
+				lengths[i] = other.lengths[i];
+			}
+		}
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x107D6760
+	Vector& Spline::StartStepping(Vector& out, int steps, unsigned int index)
+	{
+		if ((float)index > GetSegmentCountF())
+		{
+			index = (unsigned int)GetSegmentCountF();
+		}
+		step = index * steps;
+		stepsPerSegment = steps;
+		SelectSegment((float)index);
+		segment.BeginStepping(out, stepsPerSegment);
+		return out;
+	}
+
+	// FUNCTION: ENGINE 0x107D6810
+	Vector& Spline::NextStep(Vector& out)
+	{
+		step++;
+		float t = (float)step / (float)stepsPerSegment;
+		if (closed && GetSegmentCountF() <= t)
+		{
+			step = 0;
+			t = 0.0f;
+		}
+		else if (t < 0.0f)
+		{
+			t = 0.0f;
+		}
+		if (t > GetSegmentCountF())
+		{
+			t = GetSegmentCountF();
+		}
+		if (SelectSegment(t))
+		{
+			// A new segment: start it and catch up to the current step
+			Vector position;
+			segment.BeginStepping(position, stepsPerSegment);
+			float x, y, z;
+			int i = step % stepsPerSegment;
+			if (i > 0)
+			{
+				do
+				{
+					const Vector& next = segment.Step(position);
+					x = next.x;
+					y = next.y;
+					z = next.z;
+				}
+				while (--i > 0);
+			}
+			else
+			{
+				z = position.z;
+				y = position.y;
+				x = position.x;
+			}
+			out.x = x;
+			out.y = y;
+			out.z = z;
+			return out;
+		}
+		segment.Step(out);
+		return out;
 	}
 }

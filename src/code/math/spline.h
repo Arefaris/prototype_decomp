@@ -19,12 +19,15 @@ namespace math
 		bool flag;
 
 		SplineSegment();
+		SplineSegment(const SplineSegment& other);
 		SplineSegment& operator=(const SplineSegment& other);
 		void SetFlag(bool value);
 		// out = (1, t, t^2, t^3) * coefficients, t clamped to [0, 1]
 		void Evaluate(Vector& out, float t) const;
 		// out = (0, 1, 2t, 3t^2) * coefficients, t clamped to [0, 1]
 		void EvaluateDerivative(Vector& out, float t) const;
+		// out = (0, 0, 2, 6t) * coefficients, t clamped to [0, 1]
+		void EvaluateSecondDerivative(Vector& out, float t) const;
 		// |EvaluateDerivative(t)| and the 5-point Gauss-Legendre arc length over [0, t] are static helpers of
 		// spline.cpp (0x107D5F30 / 0x107D5F60, register calling convention); they enter the tree with their callers
 		// coefficients = basis matrix of `mode` (SPLINE_BASIS, 15 of them) times the geometry matrix: the four keys
@@ -39,8 +42,11 @@ namespace math
 		void BuildHermite(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
 			const Vector4* t0, const Vector4* t1, Matrix& geometry) const;
 		// Forward differencing: adds row 1 to row 0, 2 to 1, 3 to 2 of `derivative` (x, y, z) and returns row 0 in
-		// out (0x107D4BC0, not reconstructed yet)
+		// out
 		Vector& Step(Vector& out);
+		// Sets `derivative` up for `steps` forward-differencing steps per segment (the difference matrix of h = 1 /
+		// steps times coefficients) and returns the start point in out
+		void BeginStepping(Vector& out, int steps);
 	};
 
 	class Spline
@@ -51,14 +57,32 @@ namespace math
 		SplineSegment segment;
 		bool closed;
 		bool flag;
-		int unknown8c;
-		int count;
+		// Spline type: selects the basis matrix of SplineSegment::Build (0-14; 3, 8, 13 Catmull-Rom, 4, 9, 14 Hermite)
+		int mode;
+		unsigned int count;
 		Vector4* keys;
 		Vector4* tangents;
 		// Arc length per segment, -1 when not computed yet; null when lengths are not tracked
 		float* lengths;
+		// Forward-differencing iteration: the current step and the steps per segment
+		int step;
+		int stepsPerSegment;
 
+		// Allocates keyCount keys (and tangents for the Hermite modes 4, 9, 14); nothing else is initialised
+		Spline(unsigned int keyCount, int splineMode, bool isClosed);
+		Spline(const Spline& other);
+		Spline& operator=(const Spline& other);
 		~Spline();
+		// Changes the mode: drops the lengths, allocates the tangents for a Hermite mode (4, 9, 14) or frees them
+		void SetMode(int newMode);
+		// Opens or closes the spline, resizing the cached lengths (the kept ones copied, the new ones -1)
+		void SetClosed(bool value);
+		// Reallocates keys (and tangents) for a new key count; the old keys, tangents and lengths are dropped
+		void SetKeyCount(unsigned int keyCount);
+		// Starts a forward-differencing walk with `steps` steps per segment at key `index`; returns out = the point
+		Vector& StartStepping(Vector& out, int steps, unsigned int index);
+		// The next point of the walk (wraps on a closed spline); rebuilds the segment and catches up when it changes
+		Vector& NextStep(Vector& out);
 		// Sets the flag of the spline and of its cached segment
 		void SetFlag(bool value);
 		// Number of segments: the key count, minus 3 for an open spline (0 below 4 keys), as float / unsigned

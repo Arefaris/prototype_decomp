@@ -111,33 +111,29 @@ Left:
 
 Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
 
-## spline.cpp (0x107D49F0 - 0x107D6F10), partly in the tree
+## spline.cpp (0x107D49F0 - 0x107D6F10), mostly in the tree
 
 A keyed cubic spline (class names SplineSegment / Spline guessed, src/code/math/spline.h): `int current; SplineSegment
 segment (Matrix coefficients, Matrix derivative, bool flag; 0x84 bytes); bool closed (0x88); bool flag (0x89); int
-(0x8c); int count (0x90); Vector4* keys (0x94); Vector4* tangents (0x98); float* lengths (0x9c)`. Fourteen small
-methods match (constructor, operator=, SetFlag x2, Evaluate / EvaluateDerivative with the clamp on a copy of t,
-destructor, GetSegmentCount / F, GetKey, InvalidateLengths with the `Min` template, SetKey / SetTangent,
-Spline::Evaluate). Left:
+mode (0x8c); unsigned count (0x90); Vector4* keys (0x94); Vector4* tangents (0x98); float* lengths (0x9c); int step
+(0xa0); int stepsPerSegment (0xa4)`. Matched: the segment's constructors, operator=, SetFlag, Evaluate /
+EvaluateDerivative / EvaluateSecondDerivative, BeginStepping, Build; the spline's constructor, destructor, SetMode,
+SetClosed (functions.tsv ends it 16 bytes early), SetKeyCount, SetFlag, GetSegmentCount / F, GetKey,
+InvalidateLengths, SetKey x2, SetTangent, SelectSegment (`count` is unsigned, compared as `(int)count - 4` there),
+Evaluate x2, StartStepping (the clamp reassigns the `index` parameter), NextStep (needs Step compiled in the unit: the
+original keeps `edx` across the call), the lengths (DerivativeLength, ArcLength, GetSegmentLength, GetTotalLength,
+GetLength). EQUIVALENT in tree: Step (0x107D4BC0, 18.9 %: the original loads the three addends, then the three
+targets of each row into six registers and reloads every row; plain `+=`, Set, Add, float / Vector temporaries and
+loops all schedule differently), the copy constructor and operator= (0x107D59C0 / 0x107D5C00, 85 %: ebx / ebp swapped,
+the original holds the null in ebp and compares other.lengths with an immediate; shared or int loop counters do not
+change it). Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D4BC0 | SplineSegment::Step(Vector& out): derivative rows 0 += 1, 1 += 2, 2 += 3 (x, y, z), out = row 0 | 16.4 % | the original loads the three addends, then the three targets, adds and stores, row by row, and copies row 0 through the x87 unit at the end; plain `+=`, Vector / Vector4 row references with Add, and float temporaries all interleave differently (159-173 bytes vs 195) |
-| 0x107D4B40, 0x107D4CC0 - 0x107D4EA0 | other segment steppers / builders | - | not attempted |
 | 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | 28.5 % | rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
 | 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
-| 0x107D5820 - 0x107D5C00 | evaluators (forward differencing setup, arc-length lookups) | - | not attempted |
-| 0x107D5FE0, 0x107D6480 | 15-way switches on the mode (jump tables with 3 targets) | - | not attempted |
-| 0x107D6760, 0x107D6810, 0x107D6C40 | iteration accessors (start at key / next step with Step, 709-byte evaluator) | - | not attempted |
-
-SplineSegment::Build (0x107D6300) matches: a switch on the mode with the jump table's three targets (keys as rows /
-BuildCatmullRom / BuildHermite), `coefficients.Multiply(*SPLINE_BASIS[mode], geometry)` written in every case (the
-compiler duplicates it for the first case and merges the other two). The lengths match too: the static register-
-convention helpers DerivativeLength (0x107D5F30) and ArcLength (0x107D5F60, 5-point Gauss-Legendre over [0, t] with
-separate `scale` / `offset` locals and `return sum * scale`; functions.tsv ends it 11 bytes early) as
-`static __declspec(noinline)` free functions, GetSegmentLength (0x107D6940, `new float[n + 1]` filled with -1 on first
-use), GetTotalLength (0x107D6A50, the cached test written `lengths != 0 && lengths[n] >= 0.0f` inline) and GetLength
-(0x107D6B60).
+| 0x107D5FE0, 0x107D6480 | 15-way switches on the mode (jump tables with 3 targets) | - | not attempted; functions.tsv sizes cover only the dispatch |
+| 0x107D6C40 | 709-byte evaluator | - | not attempted |
 
 ## segment.cpp (0x107D6F40–0x107D7650), not in the tree
 
