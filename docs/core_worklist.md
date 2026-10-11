@@ -332,11 +332,27 @@ precision. All match. PlatformInit keeps the new object in a local (the original
 compiler knows Reset leaves ecx and edx alone). Mapped, not annotated: the out-of-line IPlatformWin32 constructor /
 destructor and Platform constructor copies and the scalar deleting destructor.
 
+## codec/*.cpp (0x10646E20 - 0x10647BE9): 30 functions, 22 matched, 8 EQUIVALENT
+
+The character codecs behind the text converters (`code/core/textcodec.h`; file and function names guessed): ASCII,
+Windows-1252, UTF-8 (Unicode, Inc.'s ConvertUTF.c: isLegalUTF8 and its tables), UTF-16, UTF-32 and Shift-JIS, each
+with Decode / Encode / Copy / Count, plus the half-width / full-width form mapping (DecomposeWidthForm, in the UTF-8
+file) that the Shift-JIS encoder calls. Six translation units, not one: the Shift-JIS encoder's recursive call stays
+a call only when DecomposeWidthForm is compiled elsewhere (in the same file the compiler turns it into a loop). The
+data tables are declared extern and mapped. Matching notes: Utf8DecodeChar advances the `source` parameter itself;
+the UTF-16 surrogate pair is written through `*target++`; Windows-1252 0x80 - 0x9F is an else-if chain
+(`c < 0x80`, `c <= 0x9F`); AsciiToShiftJis subtracts in 16 bits (`(unsigned short)(c - '0') + 0x824F`).
+EQUIVALENT: AsciiEncodeChar (register choice), AsciiCopyString / Cp1252CopyString (registers saved after the
+empty-source test), Utf8CopyString / Utf8CountChars (pointer and index registers swapped), Utf16CopyString /
+Utf16CountChars (the original tests the surrogate ranges with two compares each; every form tried folds them),
+ShiftJisEncodeChar (block order). Not reconstructed: 0x106478C0, a static trail-byte test with its argument in al
+that nothing calls (the compiler drops an unreferenced static function).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
-- 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
-  encoding, leaf, recursive fallback).
+- 0x1063E750 - 0x10640850: the text converters over the codecs (one per source / target encoding pair, plus
+  small wrappers that jump to the codecs' Copy / Count).
 - 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
   input conversion.
