@@ -7,6 +7,22 @@ through float copies read as `*(int*)&`; the flags are mapped in symbols.txt und
 State of every function of `code/math` looked at so far (2026-10-10). Matched functions are in `src/code/math`;
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
+Levers that turned functions into matches (2026-10-11 session), worth trying first on the rest:
+- matrices written element by element in memory order (m[0][0], m[0][1], ...), loops for 3x3 bodies do not unroll;
+- results computed before any store: an inline `Set(...)` (Matrix3 transforms) or a temporary copied back;
+- reciprocal scaling through an inline taking the reciprocal as its parameter (`v.Scale(1.0f / length)`), not a
+  local `inv`;
+- the `Dot` inline instead of written-out sums when the x87 / SSE operand order will not follow the source
+  (Triangle::SmallestAngle, ClassifyBox);
+- one variable reused for several stages (Cylinder::GetAABB) or an array reused for later values
+  (Intersects(Triangle, OBB)) when the original's frame is smaller than ours: the compiler does not share stack
+  slots between distinct locals;
+- `const T&` reference locals (or their absence: `planes[i]` indexed directly) change which operand of a product
+  is loaded first;
+- copying a const reference argument member-wise into a local Vector first (Matrix::SetRowsLerp);
+- for sums that no operand order fixes, a coordinate-descent search over the 12 groupings of each three-term sum
+  (`z*z + (x*x + y*y)` forms included) found Triangle::Contains.
+
 ## quaternion.cpp (0x107CD360 - 0x107CE3C0)
 
 ToAxisAngle (0x107CE310) matches: `axis.Set(x, y, z)`, the x87 length, `if (!(fabsf(length) <= EPSILON_SMALL))` and
