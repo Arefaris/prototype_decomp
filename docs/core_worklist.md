@@ -470,6 +470,22 @@ ended with a line break) and stops on errors while a never-written flag (0x11279
 constructors and destructors are inline in the classes (their copies are mapped, not annotated). The record object
 itself (0x11279430) is only declared: a dynamic initializer elsewhere constructs it.
 
+## thread.cpp (0x10644890 - 0x106452F6): 44 matched, 2 EQUIVALENT
+
+The core threads and fibers (`code/core/thread.h`; file and all names guessed): every thread the core creates and the
+main thread have a Thread record (0xB4 bytes) in a global list under one critical section, reachable from the thread
+through a TLS slot (GetThreadData, 0x10644DC0); each thread runs as a fiber of its own (ConvertThreadToFiber) and can
+switch to fibers it creates; threads and fibers get eight user slots from global defaults (the registration unit at
+0x106469A0 fills them). The start-up entry the memory init calls (InitMemoryStage3, 0x10645120) starts the system. Notes:
+- The kernel32 calls are `__declspec(dllimport)` with `/alternatename` (as in controllerdirectinput.cpp).
+- GetThreadSlotDefaults and RemoveFiber are `inline` in the .cpp (inlined by their callers, copies annotated).
+- The stack-tracking fibers read esp with inline `__asm`.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10644EC0 | InitMainThread | - | EQUIVALENT in tree: the push of ConvertThreadToFiber's argument is scheduled one store earlier |
+| 0x10645190 | SetThreadValue | - | EQUIVALENT in tree: the original keeps the Enter argument on the stack until after Leave (one `add esp, 8`); ours ends in a jump to Leave (ClearThreadValue, same shape, does end in the jump) |
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
