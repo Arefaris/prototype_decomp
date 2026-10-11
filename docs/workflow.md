@@ -77,3 +77,10 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
   COMDAT function (the vftable needs its address) and gets inlined into the compiler's scalar deleting destructor
   (`??_G...`), which is how the engine's `??_G` functions look. Functions defined in headers cannot carry a
   `// FUNCTION:` annotation yet, so such destructors are not counted.
+- A by-value class argument built from a constructor call (`f(Info(0, 1, -1))`) is constructed in place in the
+  argument area (`sub esp, N; mov ecx, esp; call ctor`) only when the class declares a copy constructor (a
+  declaration is enough, the copy is elided). Without one the compiler builds a temporary and copies it. A call
+  that is evaluated before the object in the original (`fld` of a spilled result after the constructor) goes into a
+  local first.
+- A heap store that the original issues after a load (`mov [global], esi` after `mov eax, [esi + 8]`) is usually
+  written after that load in the source too; the compiler does not move global stores across member loads.
