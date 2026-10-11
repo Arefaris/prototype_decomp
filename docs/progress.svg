@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="520" height="112" viewBox="0 0 520 112" role="img" aria-label="Decompilation progress: 0.577 % of the code">
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="112" viewBox="0 0 520 112" role="img" aria-label="Decompilation progress: 0.583 % of the code">
 <style>.l,.v{font:600 13px sans-serif;fill:#e6edf3}.d{font:11px sans-serif;fill:#9da7b3}.t{fill:#30363d}.f{fill:#3fb950}</style>
 <rect width="520" height="112" rx="8" fill="#161b22"/>
-<text x="16" y="28" class="l">Code</text><rect x="120" y="14" width="300" height="18" rx="4" class="t"/><rect x="120" y="14" width="2.0" height="18" rx="4" class="f"/><text x="430" y="28" class="v">0.577 %</text><text x="120" y="46" class="d">56,267 of 9,746,922 bytes byte-identical</text>
-<text x="16" y="76" class="l">Functions</text><rect x="120" y="62" width="300" height="18" rx="4" class="t"/><rect x="120" y="62" width="2.1" height="18" rx="4" class="f"/><text x="430" y="76" class="v">0.715 %</text><text x="120" y="94" class="d">1,003 of 140,196 functions</text>
+<text x="16" y="28" class="l">Code</text><rect x="120" y="14" width="300" height="18" rx="4" class="t"/><rect x="120" y="14" width="2.0" height="18" rx="4" class="f"/><text x="430" y="28" class="v">0.583 %</text><text x="120" y="46" class="d">56,814 of 9,746,922 bytes byte-identical</text>
+<text x="16" y="76" class="l">Functions</text><rect x="120" y="62" width="300" height="18" rx="4" class="t"/><rect x="120" y="62" width="2.2" height="18" rx="4" class="f"/><text x="430" y="76" class="v">0.718 %</text><text x="120" y="94" class="d">1,006 of 140,196 functions</text>
 </svg>

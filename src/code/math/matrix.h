@@ -97,6 +97,8 @@ namespace math
 		void PerspectiveOffCenter(float left, float right, float bottom, float top, float nearZ, float farZ);
 		// Left-handed perspective projection (Direct3D PerspectiveFovLH layout) over an identity matrix
 		void PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ);
+		// Reports the rows through core::Report, as floats and as raw bits (debug output)
+		void Print() const;
 		// Orthographic projections (Direct3D OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH layouts)
 		void OrthoLH(float width, float height, float nearZ, float farZ);
 		void OrthoRH(float width, float height, float nearZ, float farZ);

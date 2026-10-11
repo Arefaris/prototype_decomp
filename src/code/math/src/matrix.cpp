@@ -1,3 +1,4 @@
+#include "code/core/report.h"
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/matrix3.h"
@@ -511,6 +512,33 @@ namespace math
 		m[2][3] = 1.0f;
 		m[3][2] = (nearZ * farZ) / (nearZ - farZ);
 		m[3][3] = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107D1910
+	void Matrix::Print() const
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			static bool sPrintFloat = true;
+			if (sPrintFloat && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\matrix.cpp", 1789, 0, "[ %f | %f | %f | %f ]",
+				m[i][0], m[i][1], m[i][2], m[i][3], 0) == 3)
+			{
+				sPrintFloat = false;
+			}
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			float a = m[i][0];
+			float b = m[i][1];
+			float c = m[i][2];
+			float d = m[i][3];
+			static bool sPrintHex = true;
+			if (sPrintHex && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\matrix.cpp", 1803, 0, "[ %#x | %#x | %#x | %#x ]",
+				*(int*)&a, *(int*)&b, *(int*)&c, *(int*)&d, 0) == 3)
+			{
+				sPrintHex = false;
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D17F0

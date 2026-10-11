@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "code/core/report.h"
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
@@ -127,5 +128,25 @@ namespace math
 	void Vector::Rotate(const Vector& v, const Matrix& m)
 	{
 		m.Rotate(v, *this);
+	}
+
+	// FUNCTION: ENGINE 0x107CEA20
+	void Vector::Print() const
+	{
+		// Copies so the components can be reported as raw bits too
+		float vx = x;
+		float vy = y;
+		float vz = z;
+		static bool sPrintFloat = true;
+		if (sPrintFloat && core::Report(0, " Pre ", "..\\..\\..\\code\\math\\src\\vector.cpp", 213, 0, "[ %f, %f, %f ]", vx, vy, vz, 0) == 3)
+		{
+			sPrintFloat = false;
+		}
+		static bool sPrintHex = true;
+		if (sPrintHex && core::Report(0, " Pre ", "..\\..\\..\\code\\math\\src\\vector.cpp", 214, 0, "[ %#x, %#x, %#x ]", *(int*)&vx,
+			*(int*)&vy, *(int*)&vz, 0) == 3)
+		{
+			sPrintHex = false;
+		}
 	}
 }

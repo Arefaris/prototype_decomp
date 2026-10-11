@@ -69,6 +69,8 @@ namespace math
 			return x * v.x + y * v.y + z * v.z;
 		}
 
+		// Reports the components through core::Report, as floats and as raw bits (debug output)
+		void Print() const;
 		// Nonzero when every component is within EPSILON_SMALL of zero
 		int IsZero() const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X

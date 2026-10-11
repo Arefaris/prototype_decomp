@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "code/core/report.h"
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/symmetricmatrix.h"
@@ -135,6 +136,17 @@ namespace math
 	{
 		return fabsf(xx) < EPSILON_SMALL && fabsf(yy) < EPSILON_SMALL && fabsf(zz) < EPSILON_SMALL
 			&& fabsf(xy) < EPSILON_SMALL && fabsf(xz) < EPSILON_SMALL && fabsf(yz) < EPSILON_SMALL;
+	}
+
+	// FUNCTION: ENGINE 0x107D97B0
+	void SymmetricMatrix::Print() const
+	{
+		static bool sPrint = true;
+		if (sPrint && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\symmetricmatrix.cpp", 250, 0,
+			"Symmetrix matrix: xx=%f, yy=%f, zz=%f, xy=%f, xz=%f, yz=%f", xx, yy, zz, xy, xz, yz, 0) == 3)
+		{
+			sPrint = false;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D9A00

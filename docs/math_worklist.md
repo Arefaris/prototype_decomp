@@ -1,5 +1,9 @@
 # math module: work list
 
+The three debug prints (Vector::Print 0x107CEA20, Matrix::Print 0x107D1910, SymmetricMatrix::Print 0x107D97B0) match:
+`static bool` flags next to `core::Report(0, tag, file, line, 0, format, ..., 0) == 3` calls, the raw-bits variants
+through float copies read as `*(int*)&`; the flags are mapped in symbols.txt under their static-local names.
+
 State of every function of `code/math` looked at so far (2026-10-10). Matched functions are in `src/code/math`;
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
@@ -23,7 +27,6 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107CE4D0 | Normalize(const Vector&) | 80 % | x87 operand order for y (NONMATCHING in tree) |
 | 0x107CE5E0 | RotateAboutAxis | 18.5 % | Rodrigues with `this` overwritten by the axis first; aliasing reloads |
 | 0x107CE850 | CrossProduct | 73.7 % | store scheduling (NONMATCHING in tree) |
-| 0x107CEA20 | debug print | - | assert output function 0x1063C750 and two enable flags; not attempted |
 
 ## matrix.cpp (0x107CEAE0 - 0x107D2EC0)
 
@@ -48,7 +51,6 @@ alignment padding inside) match as two descending loops into a Matrix temporary,
 | 0x107CFF70 / 0x107D03A0 | LookAt LH / RH | 52.8 % | |
 | 0x107D0190 / 0x107D05C0 | orientation from direction and up | 67.8 % | |
 | 0x107D16B0 | IsIdentity(tolerance) | 29.1 % | |
-| 0x107D1910 | debug print | - | as vector.cpp's |
 | 0x107D1AA0 | rotation taking a onto b | - | function-local statics with VS2005 guard bits |
 | 0x107D1C90 / 1D20 / 1DB0 | rotation about Y / X / Z from a direction | 37.5 % | |
 | 0x107D1E40 | basis from a Z axis | - | |
@@ -181,7 +183,6 @@ Multiply(a, b) (0x107D9100) matches: the six sums of the product's upper triangl
 | 0x107D9290 | Transform(const Matrix&) (R^T S R) | 16 % | T = S R as nine floats, then the six sums into a temporary copied with dword moves; ours comes out 50+ bytes longer |
 | 0x107D9510 | adjugate-like | — | not drafted |
 | 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
-| 0x107D97B0 | Print (assert channel " Math  Pre ", static enable flag 0x111BBDE8) | — | needs the log function 0x1063C750 |
 
 ## perlin.cpp (0x101040C0–0x101043F0), partly in the tree
 
