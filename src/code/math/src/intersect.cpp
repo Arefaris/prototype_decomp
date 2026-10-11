@@ -434,6 +434,33 @@ namespace math
 #undef AXISTEST_Z12
 #undef AXISTEST_Z0
 
+	// FUNCTION: ENGINE 0x107DBA10
+	// EQUIVALENT: 80.8 %; the original keeps max.z in the register that held centre.y and copies the corners through
+	// the other one (statement orders, scalar forms and reference locals are worse)
+	bool Intersects(const Triangle& triangle, const AABB& box)
+	{
+		Vector centre;
+		centre.Add(box.max, box.min);
+		centre.Scale(0.5f);
+		Vector extents;
+		extents.x = box.max.x - centre.x;
+		extents.y = box.max.y - centre.y;
+		float maxZ = box.max.z;
+		// The corners in a Vector4 array as TriangleBoxOverlap takes them (w unused; four slots give the original's frame)
+		Vector4 vertices[4];
+		vertices[0].x = triangle.a.x;
+		vertices[0].y = triangle.a.y;
+		vertices[0].z = triangle.a.z;
+		vertices[1].x = triangle.b.x;
+		vertices[1].y = triangle.b.y;
+		vertices[1].z = triangle.b.z;
+		vertices[2].x = triangle.c.x;
+		vertices[2].y = triangle.c.y;
+		vertices[2].z = triangle.c.z;
+		extents.z = maxZ - centre.z;
+		return TriangleBoxOverlap(centre, extents, vertices);
+	}
+
 	// FUNCTION: ENGINE 0x107DBB10
 	bool Intersects(const Triangle& triangle, const OBB& box)
 	{
