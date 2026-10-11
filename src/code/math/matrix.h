@@ -102,6 +102,8 @@ namespace math
 		void PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ);
 		// Reports the rows through core::Report, as floats and as raw bits (debug output)
 		void Print() const;
+		// The rotation axis and angle of the upper 3x3 (axis zero for a (near) zero angle)
+		void ToAxisAngle(Vector& axis, float& angle) const;
 		// Orthographic projections (Direct3D OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH layouts)
 		void OrthoLH(float width, float height, float nearZ, float farZ);
 		void OrthoRH(float width, float height, float nearZ, float farZ);

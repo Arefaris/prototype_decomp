@@ -1,5 +1,6 @@
 #include "code/core/report.h"
 #include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
 #include "code/math/matrix.h"
 #include "code/math/matrix3.h"
 #include "code/math/quaternion.h"
@@ -608,6 +609,19 @@ namespace math
 			}
 		}
 		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2D80
+	void Matrix::ToAxisAngle(Vector& axis, float& angle) const
+	{
+		// cos = (trace - 1) / 2; the axis from the antisymmetric part over 2 sin
+		float c = Clamp((m[2][2] + m[1][1] + m[0][0] - 1.0f) * 0.5f, -1.0f, 1.0f);
+		float a = acosf(c);
+		float s = (fabsf(a) - EPSILON_SMALL >= 0.0f) ? 0.5f / sinf(a) : 0.0f;
+		Vector v(m[1][2] - m[2][1], m[2][0] - m[0][2], m[0][1] - m[1][0]);
+		v.Scale(s);
+		axis.Set(v.x, v.y, v.z);
+		angle = a;
 	}
 
 	// FUNCTION: ENGINE 0x107D2E70
