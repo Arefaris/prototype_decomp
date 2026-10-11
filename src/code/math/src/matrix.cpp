@@ -552,6 +552,96 @@ namespace math
 		return d < tolerance * tolerance;
 	}
 
+	// FUNCTION: ENGINE 0x107D1AA0
+	// EQUIVALENT: 96.5 %; the original loads b first in the products b.z * a.z and b.y * a.y of the dot product (no
+	// source order or grouping changes it) and reloads the sine before clearing xmm2 after the fallback
+	void Matrix::RotationFromTo(const Vector& a, const Vector& b)
+	{
+		Vector axis;
+		axis.Cross(a, b);
+		float s = axis.Normalize();
+		float c = a.Dot(b);
+		// Function-local statics initialised at run time (VS2005 guard bits 1 and 2)
+		static const float sParallel = EPSILON_SMALL;
+		static const float sAlongX = 1.0f - sParallel;
+		if (fabsf(s) < sParallel)
+		{
+			// a and b (anti)parallel: any axis perpendicular to a, a cross X or a cross Z written out
+			if (fabsf(a.x) < sAlongX)
+			{
+				axis.Set(a.y * 0.0f - a.z * 0.0f, a.z * 1.0f - a.x * 0.0f, a.x * 0.0f - a.y * 1.0f);
+			}
+			else
+			{
+				axis.Set(a.y * 1.0f - a.z * 0.0f, a.z * 0.0f - a.x * 1.0f, a.x * 0.0f - a.y * 0.0f);
+			}
+			axis.Normalize();
+		}
+		float cosine = 0.0f;
+		if (fabsf(s) < 1.0f)
+		{
+			cosine = sqrtf(1.0f - s * s);
+		}
+		if (c < 0.0f)
+		{
+			cosine = -cosine;
+		}
+		FromAxisCosSin(axis, cosine, s);
+	}
+
+	// FUNCTION: ENGINE 0x107D1E40
+	// EQUIVALENT: the first cross product and both fallbacks match; the original keeps the rows' values in registers
+	// and gives x and y their own spill slots (frame 0x18) for the x87 lengths, and stores the first fallback z first
+	// (42.5 %)
+	void Matrix::SetBasis(const Vector& z, const Vector& up)
+	{
+		Vector& x = *reinterpret_cast<Vector*>(m[0]);
+		Vector& y = *reinterpret_cast<Vector*>(m[1]);
+		Vector& w = *reinterpret_cast<Vector*>(m[2]);
+		// x = up cross z, all three components before the stores (z, y, x)
+		float cx = up.y * z.z - up.z * z.y;
+		float cy = up.z * z.x - up.x * z.z;
+		float cz = up.x * z.y - up.y * z.x;
+		x.z = cz;
+		x.y = cy;
+		x.x = cx;
+		// up parallel to z: X cross z, or Y cross z when z lies along X
+		if (x.z * x.z + x.y * x.y + x.x * x.x < EPSILON_SMALL)
+		{
+			x.Set(0.0f, -z.z, z.y);
+			if (x.z * x.z + x.y * x.y < EPSILON_SMALL)
+			{
+				x.Set(z.z, 0.0f, -z.x);
+			}
+		}
+		y.Set(z.y * x.z - z.z * x.y, z.z * x.x - z.x * x.z, z.x * x.y - z.y * x.x);
+		w.x = z.x;
+		w.y = z.y;
+		w.z = z.z;
+		// Each row scaled to unit length (x87 lengths), y's locals reused for the third row
+		float ax = x.x;
+		float ay = x.y;
+		float az = x.z;
+		float s = 1.0f / sqrtf(az * az + ay * ay + ax * ax);
+		x.x = ax * s;
+		x.y = ay * s;
+		x.z = az * s;
+		float bx = y.x;
+		float by = y.y;
+		float bz = y.z;
+		s = 1.0f / sqrtf(bz * bz + by * by + bx * bx);
+		y.x = bx * s;
+		y.y = by * s;
+		y.z = bz * s;
+		bx = w.x;
+		by = w.y;
+		bz = w.z;
+		s = 1.0f / sqrtf(bz * bz + by * by + bx * bx);
+		w.x = bx * s;
+		w.y = by * s;
+		w.z = bz * s;
+	}
+
 	// FUNCTION: ENGINE 0x107D29C0
 	void Matrix::Add(const Matrix& a, const Matrix& b)
 	{

@@ -62,6 +62,11 @@
 ?Add@Matrix@math@@QAEXABV12@0@Z = 0x107D29C0 ; function size:0x117 | math::Matrix::Add(const Matrix&, const Matrix&) (name guess)
 ?Subtract@Matrix@math@@QAEXABV12@0@Z = 0x107D2AE0 ; function size:0x117 | math::Matrix::Subtract(const Matrix&, const Matrix&) (name guess)
 ?RotateByVector@Matrix@math@@QAEXABVVector@2@@Z = 0x107D2E70 ; function size:0x4B | math::Matrix::RotateByVector (name guess)
+?SetBasis@Matrix@math@@QAEXABVVector@2@0@Z = 0x107D1E40 ; function size:0x262 | math::Matrix::SetBasis(z, up): orthonormal basis around a Z axis (name guess)
+?RotationFromTo@Matrix@math@@QAEXABVVector@2@0@Z = 0x107D1AA0 ; function size:0x1E5 | math::Matrix::RotationFromTo(a, b) (name guess)
+?sParallel@?1??RotationFromTo@Matrix@math@@QAEXABVVector@3@0@Z@4MB = 0x11283244 ; data size:0x4 | math matrix.cpp: RotationFromTo's parallel threshold (static local; name guess)
+?sAlongX@?1??RotationFromTo@Matrix@math@@QAEXABVVector@3@0@Z@4MB = 0x11283240 ; data size:0x4 | math matrix.cpp: RotationFromTo's 1 - threshold (static local; name guess)
+?$S1@?1??RotationFromTo@Matrix@math@@QAEXABVVector@3@0@Z@4IA = 0x11283248 ; data size:0x4 | math matrix.cpp: RotationFromTo's static-initialisation guard bits
 ?Identity@Matrix3@math@@QAEXXZ = 0x107D3D90 ; function size:0x38 | math::Matrix3::Identity (class name guess)
 ?CopyTo@Matrix3@math@@QBEXAAVMatrix@2@@Z = 0x107D3CF0 ; function size:0x41 | math::Matrix3::CopyTo (name guess)
 ?CopyFrom@Matrix3@math@@QAEXABVMatrix@2@@Z = 0x107D3D40 ; function size:0x41 | math::Matrix3::CopyFrom (name guess)
