@@ -39,6 +39,36 @@ namespace engine
 		}
 	};
 
+	// FUNCTION: ENGINE 0x107E0650
+	content::ClassInfo* GameObject::AttributeEntry::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::GameObject::AttributeEntry";
+		sInfo.code = "pnm";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x107E0690
+	content::ClassInfo* GameObject::DynamicAttributeList::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::GameObject::DynamicAttributeList";
+		sInfo.code = "nm";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x107E06D0
+	content::ClassInfo* GameObject::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "GameObject";
+		sInfo.code = "pnm";
+		return &sInfo;
+	}
+
 	// FUNCTION: ENGINE 0x107E0710
 	void GameObject::Slot3(int unused)
 	{
@@ -344,4 +374,33 @@ namespace engine
 		}
 		attributes.Reset();
 	}
+
+	// Kept copies of inline functions: the message bit and listening test, the message classes, IsRegistered,
+	// ArrayDynamic<AttributeEntry>'s members and helpers, ClassInfo's and AttributeEntry's constructors and
+	// operator=, DynamicAttributeList's constructor and destructors
+	// FUNCTION: ENGINE 0x107E05E0
+	// FUNCTION: ENGINE 0x107E05F0
+	// FUNCTION: ENGINE 0x107E0620
+	// FUNCTION: ENGINE 0x107E0640
+	// FUNCTION: ENGINE 0x107E0780
+	// FUNCTION: ENGINE 0x107E0970
+	// FUNCTION: ENGINE 0x107E09A0
+	// FUNCTION: ENGINE 0x107E09B0
+	// FUNCTION: ENGINE 0x107E09C0
+	// FUNCTION: ENGINE 0x107E0A30
+	// FUNCTION: ENGINE 0x107E0A90
+	// FUNCTION: ENGINE 0x107E0B30
+	// FUNCTION: ENGINE 0x107E0B90
+	// FUNCTION: ENGINE 0x107E0BA0
+	// FUNCTION: ENGINE 0x107E0BC0
+	// FUNCTION: ENGINE 0x107E0CB0
+	// FUNCTION: ENGINE 0x107E0CD0
+	// FUNCTION: ENGINE 0x107E0CF0
+	// FUNCTION: ENGINE 0x107E1250
+	// FUNCTION: ENGINE 0x107E1280
+	// FUNCTION: ENGINE 0x107E1410
+	// FUNCTION: ENGINE 0x107E1430
+	// FUNCTION: ENGINE 0x107E1650
+	// FUNCTION: ENGINE 0x107E16E0
+	// FUNCTION: ENGINE 0x107E19D0
 }

@@ -6,6 +6,7 @@
 
 #include "code/container/arraydynamic.h"
 #include "code/content/loadinventory.h"
+#include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/math/matrix.h"
 
@@ -49,6 +50,8 @@ namespace engine
 		// An attribute kept under a name (16 bytes; the copy keeps the last word)
 		struct AttributeEntry
 		{
+			static content::ClassInfo* GetClassInfo();
+
 			AttributeEntry()
 				: name(0, 1)
 			{
@@ -81,6 +84,8 @@ namespace engine
 		// The attributes added at run time (allocated from the dynamic attribute heap)
 		struct DynamicAttributeList : AttributeList
 		{
+			static content::ClassInfo* GetClassInfo();
+
 			DynamicAttributeList()
 				: AttributeList(gAttributeListLength, container::AllocatorCoreAligned<16>(gAttributeListHeap))
 			{
@@ -89,6 +94,9 @@ namespace engine
 
 		GameObject();
 		static void* operator new(unsigned int size);
+
+		// The reflection data (the class name is plain "GameObject")
+		static content::ClassInfo* GetClassInfo();
 
 		// The vftable (RTTI: 7 slots; slot 2 is the deleting destructor, slot 6 MetaLoadObject's)
 		virtual void AddRef();
