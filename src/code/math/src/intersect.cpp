@@ -228,7 +228,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107DA580
-	int Intersects(const Capsule& capsule, const Segment& other)
+	bool Intersects(const Capsule& capsule, const Segment& other)
 	{
 		Segment segment;
 		capsule.GetSegment(segment);
@@ -320,6 +320,112 @@ namespace math
 			}
 		}
 		return result;
+	}
+
+	// FUNCTION: ENGINE 0x107DAB30
+	// EQUIVALENT: the same calls and operations in the same order (14.5 %, 1759 bytes against 1813): the compiler also
+	// keeps Segment(a, b), IsEqual and the last DistanceSquared out of line here (inlining budget), as the original
+	// did; registers, spills and the frame (0x6c against 0x60) differ
+	bool Intersects(const Triangle& triangle, const Capsule& capsule)
+	{
+		Vector e1;
+		e1.Sub(triangle.a, triangle.b);
+		Vector e2;
+		e2.Sub(triangle.a, triangle.c);
+		Vector n;
+		n.Cross(e1, e2);
+		n.Normalize();
+		float d = -((n.z * triangle.a.z + triangle.a.x * n.x) + triangle.a.y * n.y);
+		// The capsule's end points against the triangle's plane
+		float h = capsule.halfLength;
+		Vector offset;
+		offset.Set(capsule.direction.x * h, capsule.direction.y * h, capsule.direction.z * h);
+		Vector p;
+		p.Add(capsule.centre, offset);
+		float d1 = (p.x * n.x + p.z * n.z) + p.y * n.y + d;
+		p.Sub(capsule.centre, offset);
+		float d2 = (p.x * n.x + p.z * n.z) + p.y * n.y + d;
+		float r = capsule.radius;
+		if (d1 - r > 0.0f && d2 - r > 0.0f)
+		{
+			return false;
+		}
+		if (r + d1 < 0.0f && r + d2 < 0.0f)
+		{
+			return false;
+		}
+		// The end points ordered by the side of the plane they lie on
+		float side = (capsule.direction.z * n.z + capsule.direction.y * n.y) + capsule.direction.x * n.x;
+		float sign = 0.0f;
+		if (side < 0.0f)
+		{
+			sign = -1.0f;
+		}
+		else if (side > 0.0f)
+		{
+			sign = 1.0f;
+		}
+		sign = -sign;
+		Vector axis;
+		axis.Set(sign * capsule.direction.x, capsule.direction.y * sign, capsule.direction.z * sign);
+		Vector front;
+		front.Set(capsule.centre.x + h * axis.x, axis.y * h + capsule.centre.y, axis.z * h + capsule.centre.z);
+		Vector back;
+		back.Set(capsule.centre.x - h * axis.x, capsule.centre.y - axis.y * h, capsule.centre.z - axis.z * h);
+		// Each end projected onto the plane: inside the triangle, or within the radius of its edges
+		Vector q;
+		Vector closest;
+		float t = (back.x * n.x + back.z * n.z) + back.y * n.y + d;
+		q.Set(back.x - n.x * t, back.y - n.y * t, back.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		if (DistanceSquared(q, closest) < r * r)
+		{
+			return true;
+		}
+		t = (front.x * n.x + front.z * n.z) + front.y * n.y + d;
+		q.Set(front.x - n.x * t, front.y - n.y * t, front.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		if (DistanceSquared(q, closest) < r * r)
+		{
+			return true;
+		}
+		// The triangle's edges against the capsule
+		if (Intersects(capsule, Segment(triangle.a, triangle.b)) || Intersects(capsule, Segment(triangle.b, triangle.c))
+			|| Intersects(capsule, Segment(triangle.c, triangle.a)))
+		{
+			return true;
+		}
+		// The axis crossing the plane
+		Vector axisSegment;
+		axisSegment.Sub(front, back);
+		float denominator = (axisSegment.x * n.x + axisSegment.z * n.z) + axisSegment.y * n.y;
+		if (IsEqual(denominator, 0.0f, EPSILON_SMALL))
+		{
+			return false;
+		}
+		t = (((n.z * triangle.a.z + triangle.a.x * n.x) + triangle.a.y * n.y) - ((back.x * n.x + back.z * n.z) + back.y * n.y)) / denominator;
+		if (t < 0.0f || t > 1.0f)
+		{
+			return false;
+		}
+		Vector hit;
+		hit.Set(axisSegment.x * t + back.x, axisSegment.y * t + back.y, axisSegment.z * t + back.z);
+		t = (hit.x * n.x + hit.z * n.z) + hit.y * n.y + d;
+		q.Set(hit.x - n.x * t, hit.y - n.y * t, hit.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		return DistanceSquared(q, closest) < r * r;
 	}
 
 	// Akenine-Moller's triangle / box separating axis tests: the nine edge cross axes (AXISTEST), the box faces

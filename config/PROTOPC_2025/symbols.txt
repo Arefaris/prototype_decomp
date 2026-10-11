@@ -146,7 +146,8 @@ _sCrc32TableBuilt = 0x1127A880 ; data size:0x1 | core crc32.cpp: the table-built
 ?Intersects@math@@YAHABVOBB@1@ABVSphere@1@@Z = 0x107DA410 ; function size:0xC0 | math::Intersects(const OBB&, const Sphere&) (name guess)
 ?Intersects@math@@YAHABVCapsule@1@0@Z = 0x107DA4D0 ; function size:0x5A | math::Intersects(const Capsule&, const Capsule&) (name guess)
 ?Intersects@math@@YAHABVCapsule@1@ABVSphere@1@@Z = 0x107DA530 ; function size:0x48 | math::Intersects(const Capsule&, const Sphere&) (name guess)
-?Intersects@math@@YAHABVCapsule@1@ABVSegment@1@@Z = 0x107DA580 ; function size:0x45 | math::Intersects(const Capsule&, const Segment&) (name guess)
+?Intersects@math@@YA_NABVCapsule@1@ABVSegment@1@@Z = 0x107DA580 ; function size:0x45 | math::Intersects(const Capsule&, const Segment&) (name guess)
+?Intersects@math@@YA_NABVTriangle@1@ABVCapsule@1@@Z = 0x107DAB30 ; function size:0x715 | math::Intersects(const Triangle&, const Capsule&) (name guess)
 ?Intersects@math@@YAHABVPlane@1@ABVOBB@1@@Z = 0x107DA5D0 ; function size:0x84 | math::Intersects(const Plane&, const OBB&): centre distance <= projected radius (name guess)
 ?Intersects@math@@YAHABVPlane@1@ABVCapsule@1@@Z = 0x107DA660 ; function size:0xC8 | math::Intersects(const Plane&, const Capsule&) (name guess)
 ?PlaneCrossesBox@math@@YA_NABVVector@1@00@Z = 0x107DA730 ; function size:0x111 | math::PlaneCrossesBox(normal, point, halfExtents): plane through point crosses the origin-centred box (name guess)
@@ -2498,3 +2499,6 @@ _atexit = 0x10A882DA ; function size:0x12 | CRT atexit (statically linked, calls
 ?gMetaObjectTemplateName@engine@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x11283518 ; data | data engine attribute name "meta object template" (name guess)
 ?gPackageNameName@engine@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x11283508 ; data | data engine attribute name "packageName" (name guess)
 ?sNameCount@GameObjectSpawner@engine@@2HA = 0x11283830 ; data | data engine::GameObjectSpawner generated name counter
+??0Segment@math@@QAE@ABVVector@1@0@Z = 0x100F6A60 ; function size:0x2E | math::Segment::Segment(a, b), inline, kept copy (name guess)
+?IsEqual@math@@YA_NMMM@Z = 0x100631C0 ; function size:0x1D | math::IsEqual(a, b, tolerance), inline, kept copy (name guess)
+?DistanceSquared@math@@YAMABVVector@1@0@Z = 0x100A2ED0 ; function size:0x2B | math::DistanceSquared(a, b), inline, kept copy (name guess)

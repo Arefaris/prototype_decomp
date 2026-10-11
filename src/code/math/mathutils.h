@@ -2,6 +2,8 @@
 #ifndef MATH_MATHUTILS_H
 #define MATH_MATHUTILS_H
 
+#include <math.h>
+
 namespace math
 {
 	// The smaller of two values (an inline template is what Spline::InvalidateLengths needs to match: it keeps the
@@ -22,6 +24,12 @@ namespace math
 	inline float Select(float test, float a, float b)
 	{
 		return test >= 0.0f ? a : b;
+	}
+
+	// True when a and b differ by at most tolerance (kept out of line at 0x100631C0 in large callers; name guessed)
+	inline bool IsEqual(float a, float b, float tolerance)
+	{
+		return fabsf(a - b) <= tolerance;
 	}
 
 	// value clamped to [lo, hi] with two Selects (seen in the triangle angle function)

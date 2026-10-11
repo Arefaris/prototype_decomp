@@ -8,6 +8,8 @@ State of every function of `code/math` looked at so far (2026-10-10). Matched fu
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
 Levers that turned functions into matches (2026-10-11 session), worth trying first on the rest:
+- in very large functions VS2005 stops inlining after a budget: an out-of-line call to an inline helper in the original (Min / Max, Segment(a, b), IsEqual) is that, not a different helper; write the inline helper and the compiler leaves the same calls out of line;
+- a function whose callers test only al returns bool even when it sets eax (`mov eax, 1`); several return types guessed as int were bool;
 - unreferenced code with a register calling convention (argument in xmm1) is a `static inline` helper: VS2005 emits those even when all calls are inlined;
 - for polynomials the compiler factors common products unless the source groups them the original's way: enumerate product orders and associations (a small script, a few hundred compiles);
 - NONMATCHING functions described as "store scheduling" or "interleaving" may be a different sum order in disguise: CrossProduct matched once its squared length was grouped `(x * x + z * z) + y * y`; try the groupings first;
@@ -254,15 +256,21 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 
 ## State at the end of the 2026-10-11 session, and math-adjacent helpers
 
-Not attempted yet in math: Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
-plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
-Intersects(Capsule, Segment)), and 0x107D2EC0 (11 bytes, unreferenced: an inline member kept as a COMDAT copy, storing its 4-byte by-value argument at
-offset 0 and returning this; VS2005 emits inline members that it inlines, so its caller is some function of matrix.cpp or triangle.cpp;
-header-defined, so not annotatable yet). The atan helpers and FastAtan match (see the sphere / capsule table).
+Intersects(const Triangle&, const Capsule&) (0x107DAB30) is EQUIVALENT in the tree (14.5 %): plane of the triangle (n = (a - b) x (a - c),
+Normalize), the capsule ends against it, the ends ordered by the side of the plane, each end projected onto the plane (Contains, or
+DistanceSquared to ClosestPoint below r^2), the three edges through `Intersects(capsule, Segment(a, b))`, then the axis crossing the
+plane. Its call list is the original's exactly: Segment(a, b), IsEqual and the third DistanceSquared stay out of line (the inlining
+budget runs out in this function), the first two DistanceSquared are inlined. Intersects(const Capsule&, const Segment&) is bool (the
+caller tests al; VS2005 compiles such branchy bool returns as `mov eax, 1`) and still matches.
 
-Math-adjacent helpers seen from math code, kept out of line by the compiler in engine units (inline functions, so they cannot carry a
-FUNCTION annotation from a header yet): 0x100631C0 `IsEqual(a, b, tolerance)` (|a - b| <= tolerance, returns int; called once by
-IsOrthonormal 0x107CF720 and by 0x107DAB30), 0x100A2ED0 squared distance of two Vectors (x87, cdecl), 0x100F6A60
-`Segment(const Vector&, const Vector&)` (fld / fstp copies). std::sort<float*> sits at 0x102CFF00 (mapped in symbols.txt; called out of
+0x107D2EC0 (11 bytes, unreferenced) is an inline member kept as a COMDAT copy: VS2005 emits inline members that it inlines, so its
+caller is some function of matrix.cpp or triangle.cpp; it stores a 4-byte by-value argument at offset 0 and returns this. Header-defined,
+so not annotatable yet.
+
+Math-adjacent helpers kept out of line by the compiler (inline functions in the math headers, so no FUNCTION annotation yet; they
+are in symbols.txt and our copies are byte-identical): 0x100631C0 `IsEqual(a, b, tolerance)` (mathutils.h, bool; also called once
+out of line by IsOrthonormal 0x107CF720), 0x100A2ED0 `DistanceSquared(a, b)` (vector.h: `d.Sub(a, b); return d.Dot(d);`), 0x100F6A60
+`Segment(const Vector&, const Vector&)` (segment.h). Min / Max<float> are kept at 0x10071300 / 0x1006FB70 (the Max copy returns a on
+equality, math::Max returns b; not mapped). std::sort<float*> sits at 0x102CFF00 (mapped in symbols.txt; called out of
 line by SegmentBoxDistanceSquared).
 

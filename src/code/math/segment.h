@@ -16,6 +16,14 @@ namespace math
 		Vector start;
 		Vector end;
 
+		Segment()
+		{
+		}
+		// Kept out of line by the compiler in large callers (0x100F6A60)
+		Segment(const Vector& a, const Vector& b) : start(a), end(b)
+		{
+		}
+
 		// Component-wise min and max of the two end points
 		void GetAABB(AABB& out) const;
 		// Sphere around the midpoint with radius |start - end| (name guess)
