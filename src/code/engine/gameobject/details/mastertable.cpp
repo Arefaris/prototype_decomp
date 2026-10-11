@@ -95,15 +95,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107E2120
-	void MasterTable::SetFlags(unsigned short index, unsigned short mask)
+	void MasterTable::SetFlags(GameObjectHandle handle, unsigned short mask)
 	{
-		entries[index].SetFlags(mask);
+		entries[handle.index].SetFlags(mask);
 	}
 
 	// FUNCTION: ENGINE 0x107E2140
-	void MasterTable::ClearFlags(unsigned short index, int mask)
+	void MasterTable::ClearFlags(GameObjectHandle handle, int mask)
 	{
-		entries[index].ClearFlags(mask);
+		entries[handle.index].ClearFlags(mask);
 	}
 
 	// FUNCTION: ENGINE 0x107E2160

@@ -185,13 +185,17 @@ namespace engine
 		void ClearReservedHandle();
 		void SetReservedHandle(GameObjectHandle handle);
 
+		unsigned short GetSerial(unsigned short index)
+		{
+			return entries[index].serial;
+		}
 		unsigned short IncrementSerial(unsigned short index);
 		void Release(unsigned short index);
 		void Swap(unsigned short a, unsigned short b);
 		void Unreserve(unsigned short index);
 		bool IsReserved(GameObjectHandle handle);
-		void SetFlags(unsigned short index, unsigned short mask);
-		void ClearFlags(unsigned short index, int mask);
+		void SetFlags(GameObjectHandle handle, unsigned short mask);
+		void ClearFlags(GameObjectHandle handle, int mask);
 		unsigned short Allocate(void* object);
 		GameObjectHandle Reserve();
 		unsigned short Move(const GameObjectHandle* from, GameObjectHandle* to);
@@ -200,6 +204,9 @@ namespace engine
 		container::ArrayFixed<Entry, CAPACITY> entries;
 		Entry* freeList;
 	};
+
+	// The engine's master table (0x1128348C; gGameObjects in gameobjecthandle.h views the same pointer)
+	extern MasterTable* gMasterTable;
 }
 
 #endif

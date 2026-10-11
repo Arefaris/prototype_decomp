@@ -45,15 +45,16 @@ namespace engine
 	// The game object table (0x1128348C)
 	extern GameObjectEntry* gGameObjects;
 
-	// The handle data with the out-of-line null constructor (0x107EE330, another unit). GameObjectHandle's own
+	// The handle data with the out-of-line constructors (gameobjecthandle.cpp). GameObjectHandle's own
 	// constructor is inline, which is why callers take the address of a constructed temporary again instead of using
 	// the base constructor's return value.
 	class HandleBase
 	{
 	public:
 		HandleBase();
-		// 0x107EE340 (another unit)
 		HandleBase(unsigned short newIndex, unsigned short newSerial);
+		// The current serial of the table entry
+		explicit HandleBase(unsigned short newIndex);
 
 		unsigned short index;
 		unsigned short serial;
@@ -72,6 +73,15 @@ namespace engine
 		{
 			return serial;
 		}
+		// Delivers the message to the object (engine::SendMessage, 0x107EF710)
+		void Send(Message* message) const;
+		// The message router's per-object registrations (0x11318090; meanings unknown)
+		void RouterAdd(int value) const;
+		void RouterRemove(int value) const;
+		void RouterQuery(int value) const;
+		// The master table flags of the entry
+		void ClearFlags(int mask) const;
+		void SetFlags(unsigned short mask) const;
 
 		GameObject* Get() const
 		{
