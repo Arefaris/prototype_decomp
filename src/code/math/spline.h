@@ -34,6 +34,11 @@ namespace math
 		// as rows (modes 0-2, 5-7, 10-12), the Catmull-Rom rows (3, 8, 13) or the Hermite rows (4, 9, 14)
 		void Build(int mode, const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
 			const Vector4* t0, const Vector4* t1);
+		// The same with the keys as the rows of a matrix
+		void Build(int mode, const Matrix& keys, const Vector4* t0, const Vector4* t1);
+		// The same from Vector keys (w = 1)
+		void Build(int mode, const Vector* k0, const Vector* k1, const Vector* k2, const Vector* k3,
+			const Vector4* t0, const Vector4* t1);
 		// Geometry rows k1, tangent at k1, k2, tangent at k2 from the chord slopes, scaled by the k1-k2 interval
 		// when the flag says the keys' w are times (0x107D5040, not reconstructed yet)
 		void BuildCatmullRom(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
@@ -109,6 +114,9 @@ namespace math
 		float GetSegmentLength(unsigned int index);
 		float GetTotalLength();
 		float GetLength(float t);
+		// The parameter t at arc length `length` from the start: the segment from the cached lengths, then up to 32
+		// Newton steps on GetLength (tolerance 1e-5)
+		float GetParameter(float length);
 	};
 }
 

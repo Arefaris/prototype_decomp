@@ -5,8 +5,8 @@
 
 namespace math
 {
-	// Not reconstructed yet: 0x107D5040 / 0x107D5240 (BuildCatmullRom, BuildHermite), 0x107D5FE0 and 0x107D6480 (the
-	// switches on the mode) and 0x107D6C40 (docs/math_worklist.md).
+	// Not reconstructed yet: 0x107D5040 / 0x107D5240 (BuildCatmullRom, BuildHermite); GetParameter (0x107D6C40) is
+	// NONMATCHING (docs/math_worklist.md).
 
 	// GLOBAL: ENGINE 0x111BBAD0
 	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
@@ -312,6 +312,40 @@ namespace math
 		return out;
 	}
 
+	// FUNCTION: ENGINE 0x107D6480
+	void SplineSegment::Build(int mode, const Matrix& keys, const Vector4* t0, const Vector4* t1)
+	{
+		Matrix geometry;
+		switch (mode)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 5:
+		case 6:
+		case 7:
+		case 10:
+		case 11:
+		case 12:
+			coefficients.Multiply(*SPLINE_BASIS[mode], keys);
+			break;
+		case 3:
+		case 8:
+		case 13:
+			BuildCatmullRom((const Vector4*)keys.m[0], (const Vector4*)keys.m[1], (const Vector4*)keys.m[2],
+				(const Vector4*)keys.m[3], geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		case 4:
+		case 9:
+		case 14:
+			BuildHermite((const Vector4*)keys.m[0], (const Vector4*)keys.m[1], (const Vector4*)keys.m[2],
+				(const Vector4*)keys.m[3], t0, t1, geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x107D6540
 	void Spline::SetKey(int index, const Vector& key)
 	{
@@ -361,6 +395,67 @@ namespace math
 	{
 		Evaluate(out, (float)key);
 		return out;
+	}
+
+	// FUNCTION: ENGINE 0x107D5FE0
+	void SplineSegment::Build(int mode, const Vector* k0, const Vector* k1, const Vector* k2, const Vector* k3,
+		const Vector4* t0, const Vector4* t1)
+	{
+		Matrix geometry;
+		switch (mode)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 5:
+		case 6:
+		case 7:
+		case 10:
+		case 11:
+		case 12:
+			geometry.m[0][0] = k0->x;
+			geometry.m[0][1] = k0->y;
+			geometry.m[0][2] = k0->z;
+			geometry.m[0][3] = 1.0f;
+			geometry.m[1][0] = k1->x;
+			geometry.m[1][1] = k1->y;
+			geometry.m[1][2] = k1->z;
+			geometry.m[1][3] = 1.0f;
+			geometry.m[2][0] = k2->x;
+			geometry.m[2][1] = k2->y;
+			geometry.m[2][2] = k2->z;
+			geometry.m[2][3] = 1.0f;
+			geometry.m[3][0] = k3->x;
+			geometry.m[3][1] = k3->y;
+			geometry.m[3][2] = k3->z;
+			geometry.m[3][3] = 1.0f;
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		case 3:
+		case 8:
+		case 13:
+		{
+			Vector4 v0(k0->x, k0->y, k0->z, 1.0f);
+			Vector4 v1(k1->x, k1->y, k1->z, 1.0f);
+			Vector4 v2(k2->x, k2->y, k2->z, 1.0f);
+			Vector4 v3(k3->x, k3->y, k3->z, 1.0f);
+			BuildCatmullRom(&v0, &v1, &v2, &v3, geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		}
+		case 4:
+		case 9:
+		case 14:
+		{
+			Vector4 v0(k0->x, k0->y, k0->z, 1.0f);
+			Vector4 v1(k1->x, k1->y, k1->z, 1.0f);
+			Vector4 v2(k2->x, k2->y, k2->z, 1.0f);
+			Vector4 v3(k3->x, k3->y, k3->z, 1.0f);
+			BuildHermite(&v0, &v1, &v2, &v3, t0, t1, geometry);
+			coefficients.Multiply(*SPLINE_BASIS[mode], geometry);
+			break;
+		}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D6300
@@ -518,6 +613,67 @@ namespace math
 		SelectSegment(start);
 		return ArcLength(&segment, u - start) + sum;
 	}
+
+	// FUNCTION: ENGINE 0x107D6C40
+	// NONMATCHING: the search loop, the Select clamps and the Newton step match; the original converts the segment
+	// start to SSE through memory and computes end and the first t with SSE, where we get one x87 expression, and
+	// the stack slots and the spills in the loop follow from that (22 %)
+#ifdef NONMATCHING
+	float Spline::GetParameter(float length)
+	{
+		if (length < 0.0f)
+		{
+			length = 0.0f;
+		}
+		if (length > GetTotalLength())
+		{
+			length = GetTotalLength();
+		}
+		// Caches every segment length
+		GetTotalLength();
+		float sum = 0.0f;
+		unsigned int index = 0;
+		unsigned int n = GetSegmentCount();
+		for (; index < n; index++)
+		{
+			sum += lengths[index];
+			if (sum >= length)
+			{
+				break;
+			}
+		}
+		float segmentLength = GetSegmentLength(index);
+		float start = (float)index;
+		float end = start + 1.0f;
+		float t = (length - sum + segmentLength) / segmentLength + start;
+		SelectSegment(start);
+		// Newton iterations on GetLength(t) = length within the segment
+		for (unsigned int i = 0; i < 32; i++)
+		{
+			t = Select(t - start, t, start);
+			t = Select(t - end, end, t);
+			float error = GetLength(t) - length;
+			if (fabsf(error) <= 1e-5f)
+			{
+				return t;
+			}
+			Vector derivative;
+			segment.EvaluateDerivative(derivative, t - start);
+			float speed = sqrtf(derivative.z * derivative.z + derivative.y * derivative.y + derivative.x * derivative.x);
+			if (speed != 0.0f)
+			{
+				t -= error / speed;
+			}
+			else
+			{
+				t -= error;
+			}
+		}
+		t = Select(t - start, t, start);
+		t = Select(t - end, end, t);
+		return t;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x107D5820
 	void SplineSegment::BeginStepping(Vector& out, int steps)

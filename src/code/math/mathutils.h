@@ -11,6 +11,13 @@ namespace math
 		return a < b ? a : b;
 	}
 
+	// a when test >= 0, else b: the PowerPC fsel the console code was written around (compare against zero after a
+	// subtraction; seen in Spline::GetParameter)
+	inline float Select(float test, float a, float b)
+	{
+		return test >= 0.0f ? a : b;
+	}
+
 	// 1 / sqrt(value), on the x87 unit
 	float InvSqrt(float value);
 	// Polynomial arctangent of a / b for 0 <= a, b: atan(a / b) when a < b, else pi/2 - atan(b / a)

@@ -120,7 +120,7 @@ mode (0x8c); unsigned count (0x90); Vector4* keys (0x94); Vector4* tangents (0x9
 EvaluateDerivative / EvaluateSecondDerivative, BeginStepping, Build; the spline's constructor, destructor, SetMode,
 SetClosed (functions.tsv ends it 16 bytes early), SetKeyCount, SetFlag, GetSegmentCount / F, GetKey,
 InvalidateLengths, SetKey x2, SetTangent, SelectSegment (`count` is unsigned, compared as `(int)count - 4` there),
-Evaluate x2, StartStepping (the clamp reassigns the `index` parameter), NextStep (needs Step compiled in the unit: the
+Evaluate x2, the two other Build overloads (0x107D5FE0 from Vector keys with w = 1, 0x107D6480 from a Matrix of keys; functions.tsv sizes cover only their dispatch), StartStepping (the clamp reassigns the `index` parameter), NextStep (needs Step compiled in the unit: the
 original keeps `edx` across the call), the lengths (DerivativeLength, ArcLength, GetSegmentLength, GetTotalLength,
 GetLength). EQUIVALENT in tree: Step (0x107D4BC0, 18.9 %: the original loads the three addends, then the three
 targets of each row into six registers and reloads every row; plain `+=`, Set, Add, float / Vector temporaries and
@@ -132,8 +132,7 @@ change it). Left:
 |---|---|---:|---|
 | 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | 28.5 % | rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
 | 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
-| 0x107D5FE0, 0x107D6480 | 15-way switches on the mode (jump tables with 3 targets) | - | not attempted; functions.tsv sizes cover only the dispatch |
-| 0x107D6C40 | 709-byte evaluator | - | not attempted |
+| 0x107D6C40 | Spline::GetParameter(length) | 22 % | NONMATCHING in tree: segment search over `lengths` (matches), first guess `(length - sum + segmentLength) / segmentLength + start`, then 32 Newton steps with fsel-style clamps (`Select(t - start, t, start)`, `Select(t - end, end, t)`, mathutils.h) and GetLength / EvaluateDerivative; the original computes `end` and the first `t` in SSE (start converted through memory), we get x87 |
 
 ## segment.cpp (0x107D6F40–0x107D7650), not in the tree
 
