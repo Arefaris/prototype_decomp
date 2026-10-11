@@ -445,6 +445,7 @@ __aulldiv = 0x10A88530 ; function size:0x68 | MSVC unsigned 64-bit division
 ?GetParameter@Spline@math@@QAEMM@Z = 0x107D6C40 ; function size:0x2C5 | math::Spline::GetParameter(length): segment from the cached lengths, then Newton steps on GetLength (name guess)
 ?Transform@Cylinder@math@@QAEXABVMatrix@2@@Z = 0x107DC7E0 ; function size:0x1C | math::Cylinder::Transform(m): centre as a point, direction as a direction (class name guess)
 ?Contains@Cylinder@math@@QBE_NABVVector@2@@Z = 0x107DC800 ; function size:0xC0 | math::Cylinder::Contains(p) (name guess)
+?GetDirection@Cylinder@math@@QBEXABVVector@2@AAV32@AAM@Z = 0x107DC8C0 ; function size:0x342 | math::Cylinder::GetDirection(p, out&, distance&) (name guess)
 ?ToMatrix@Quaternion@math@@QBEXAAVMatrix@2@@Z = 0x107CDA00 ; function size:0x10D | math::Quaternion::ToMatrix(Matrix&) (name guess)
 ?FromQuaternion@Matrix@math@@QAEXABVQuaternion@2@@Z = 0x107CEB70 ; function size:0xD | math::Matrix::FromQuaternion(q): q.ToMatrix(*this) (name guess)
 ?Transpose3x3@Matrix@math@@QAEXABV12@@Z = 0x107CF4F0 ; function size:0x3B | math::Matrix::Transpose3x3(const Matrix& src) (name guess)
