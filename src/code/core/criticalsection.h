@@ -9,6 +9,8 @@ namespace core
 	void CriticalSectionDelete(void* section);
 	void CriticalSectionLeave(void* section);
 	void CriticalSectionEnter(void* section);
+	// 0x1063D2D0: ReleaseSemaphore(*semaphore, count, 0)
+	void SemaphoreRelease(void* semaphore, int count);
 }
 
 #endif

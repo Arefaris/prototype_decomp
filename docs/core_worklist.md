@@ -236,6 +236,25 @@ static request (0x1127A474) serves every copy; it is constructed by a dynamic in
 so our source only declares it (`gMemorySpaceCopyRequest`, mapped in symbols.txt) instead of defining it, which
 would add an initializer of our own. Left alone: 0x10645D50 / 0x10645D60 (empty functions of unknown owner).
 
+## file/common/request.cpp (0x1064C4A0 - 0x1064DF2B): 144 functions
+
+`core::Request` and its 28 subclasses (RTTI names; file name guessed, next to the asserted file/common/file.cpp):
+the work items drives execute (open / open by key / save-game open / close / commit / read / write / seek / tell /
+size / cancel for files; open / media / can-create / format / directories / find first-next-close / destroy /
+cancel for drive instances; event and callback completions). Requests come from one MemoryPool (0x114-byte blocks,
+"FileRequest") under one lock (InitRequests / ShutdownRequests, class operator new / delete). Every function
+matches, including the 29 scalar deleting destructors (mapped, not annotated). Notes:
+- `code/core/file/drive.h` / `file.h` declare core::Drive, core::File, core::InstanceDrive, the file cache and the
+  cache list only as far as the requests use them: slot numbers kept with placeholder slots, fields at the
+  offsets the requests access, non-virtual methods mapped in symbols.txt (not reconstructed: 0x1064DF30 onwards).
+- The request vtable: dtor, Execute, IsFor(owner), GetDrive, Prepare (default: Drive::Mount through Finish),
+  GetPath, GetType; the completion callbacks add Complete. Finish(result, error) stores the drive error in the
+  file / instance under its IMutable lock.
+- Constructors are plain out-of-line functions at the end of the unit; each ends with CoreName().
+- FileOpenRequest::Execute needs its shared-handle tail as a `__forceinline` helper (OpenShared): the original has
+  it twice; as a plain inline member VS2005 does not inline it.
+- 0x1064C5E0 (a jump to ~Request) and 0x1064C600 (an IsFor-like compare) are in no vtable; left alone.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
