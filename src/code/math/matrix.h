@@ -140,6 +140,14 @@ namespace math
 		// out.xyz = v.xyz as a point through this matrix, out.w = v.w
 		void TransformPoint(const Vector4& v, Vector4& out) const;
 		Matrix& GetMatrix();
+		// Hue rotation of a colour matrix by angle radians about the grey axis, keeping the luminance (weights in
+		// luminance) constant: rotate grey onto Z, shear, rotate, unshear, rotate back (Haeberli's construction)
+		void SetHueRotation(float angle, const Vector4& luminance);
+		// this = this * other / this = a * b through GetMatrix (the colour matrix code's concatenation)
+		void Concatenate(Matrix& other);
+		void Concatenate(Matrix& a, Matrix& b);
+		// SetPosition(s, s, s)
+		void SetPosition(float s);
 	};
 }
 

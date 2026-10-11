@@ -23,6 +23,9 @@ namespace math
 	int TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
 	// 0x107DB250: separating-axis test of a triangle (three Vector4 corners) against a box (centre, half extents)
 	int TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices);
+	// 0x107DBD20: squared distance from the segment start + direction * t, t in [0, length], to a box of half
+	// extents extents centred on the origin
+	float SegmentBoxDistanceSquared(const Vector& extents, const Vector& start, const Vector& direction, float length);
 
 	// FUNCTION: ENGINE 0x107D9B60
 	// EQUIVALENT: same operations in the same order; the original schedules delta.y's subtraction after the push of
@@ -264,5 +267,101 @@ namespace math
 		Vector d;
 		d.Sub(sphere.centre, closest);
 		return sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= sphere.radius;
+	}
+
+	// FUNCTION: ENGINE 0x107DBFE0
+	// EQUIVALENT: the separating-axis tests (three faces, three edge cross products) and the segment tail keep the
+	// original's operations and order; the original reloads capsule.direction from memory for the tail where we reuse
+	// the spilled test values, which costs us a fourth spill slot (28.7 %; float locals, a Vector copy of the centre,
+	// a reference local and an offset Vector tried)
+	bool IntersectsCentredBox(const Vector& extents, const Capsule& capsule)
+	{
+		float cx = capsule.centre.x;
+		float adx = fabsf(capsule.direction.x);
+		float h = capsule.halfLength;
+		float r = capsule.radius;
+		float ex = extents.x;
+		if (fabsf(cx) > ex + adx * h + r)
+		{
+			return false;
+		}
+		float cy = capsule.centre.y;
+		float ady = fabsf(capsule.direction.y);
+		float ey = extents.y;
+		if (fabsf(cy) > ey + ady * h + r)
+		{
+			return false;
+		}
+		float cz = capsule.centre.z;
+		float adz = fabsf(capsule.direction.z);
+		float ez = extents.z;
+		if (fabsf(cz) > ez + adz * h + r)
+		{
+			return false;
+		}
+		if (fabsf(cz * capsule.direction.y - capsule.direction.z * cy) > ey * adz + ez * ady + r)
+		{
+			return false;
+		}
+		if (fabsf(cx * capsule.direction.z - cz * capsule.direction.x) > ex * adz + ez * adx + r)
+		{
+			return false;
+		}
+		if (fabsf(cy * capsule.direction.x - cx * capsule.direction.y) > ex * ady + ey * adx + r)
+		{
+			return false;
+		}
+		Vector start;
+		start.x = cx - capsule.direction.x * capsule.halfLength;
+		start.y = cy - capsule.direction.y * capsule.halfLength;
+		start.z = cz - capsule.direction.z * capsule.halfLength;
+		float distance = SegmentBoxDistanceSquared(extents, start, capsule.direction, capsule.halfLength * 2.0f);
+		return capsule.radius * capsule.radius > distance;
+	}
+
+	// FUNCTION: ENGINE 0x107DC1D0
+	// EQUIVALENT: same operations; the original defers the stores of local.centre.x / z past the member copies, we
+	// store z first (60.8 %; Capsule copy construction, an operator- temporary and statement orders do not fix it)
+	bool Intersects(const Capsule& capsule, const AABB& box)
+	{
+		Vector centre;
+		centre.Add(box.max, box.min);
+		centre.x *= 0.5f;
+		centre.y *= 0.5f;
+		centre.z *= 0.5f;
+		Vector extents;
+		extents.Sub(box.max, centre);
+		Capsule local;
+		local.centre.Sub(capsule.centre, centre);
+		local.halfLength = capsule.halfLength;
+		local.direction.x = capsule.direction.x;
+		local.direction.y = capsule.direction.y;
+		local.direction.z = capsule.direction.z;
+		local.radius = capsule.radius;
+		return IntersectsCentredBox(extents, local);
+	}
+
+	// FUNCTION: ENGINE 0x107DC2B0
+	bool Intersects(const Capsule& capsule, const OBB& box)
+	{
+		const Matrix3& axes = *(const Matrix3*)box.axis;
+		Vector direction;
+		axes.TransformTransposed(capsule.direction, direction);
+		Vector d;
+		d.x = capsule.centre.x - box.centre.x;
+		d.y = capsule.centre.y - box.centre.y;
+		d.z = capsule.centre.z - box.centre.z;
+		Vector centre;
+		axes.TransformTransposed(d, centre);
+		Capsule local;
+		local.centre.x = centre.x;
+		local.centre.y = centre.y;
+		local.centre.z = centre.z;
+		local.halfLength = capsule.halfLength;
+		local.direction.x = direction.x;
+		local.direction.y = direction.y;
+		local.direction.z = direction.z;
+		local.radius = capsule.radius;
+		return IntersectsCentredBox(box.extents, local);
 	}
 }
