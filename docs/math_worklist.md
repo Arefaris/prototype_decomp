@@ -198,6 +198,6 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
 | 0x107DC550 | Capsule::Contains(p) (t clamped to +-halfLength, dist² < r²) | 13.6 % | |
-| 0x107DC800 | Capsule::ContainsStrict? (|t| > halfLength -> false) | 12.3 % | returns bool |
 | 0x107DC620 | Capsule::GetDirection(p, dir, dist) | 24.1 % | zero case builds a perpendicular and NormalizeFast |
-| 0x107DCC10 | AABB of {centre, direction(3..5), halfLength(6), radius(7)} (another class) | — | not drafted |
+| 0x107DCC10 | Cylinder::GetAABB (centre, direction, halfLength, radius; capsule.h) | - | not drafted; Cylinder::Transform (0x107DC7E0) matches, Cylinder::Contains (0x107DC800) is EQUIVALENT (88 %: z before y in the commutative dot sums; the member Dot / Sub / Set inlines are what get the copies right, direct expressions come out 5 bytes shorter) |
+| 0x107DC8C0 | 834 bytes, probably a Cylinder ray test | - | not looked at |
