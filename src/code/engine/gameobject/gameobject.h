@@ -23,6 +23,10 @@ namespace engine
 	class BaseAttribute
 	{
 	public:
+		// 0x1086C900 / 0x1086C940 (the attribute unit)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		virtual ~BaseAttribute();
 	};
 
@@ -52,29 +56,32 @@ namespace engine
 		{
 			static content::ClassInfo* GetClassInfo();
 
+			static content::MemberList* GetMembers();
+
 			AttributeEntry()
-				: name(0, 1)
+				: key(0, 1)
 			{
 				attribute = 0;
 			}
-			AttributeEntry(content::ObjectName newName, BaseAttribute* newAttribute)
-				: name(newName)
+			AttributeEntry(content::ObjectName newKey, BaseAttribute* newAttribute)
+				: key(newKey)
 			{
 				attribute = newAttribute;
 			}
 			AttributeEntry(const AttributeEntry& other)
-				: name(other.name)
+				: key(other.key)
 			{
 				attribute = other.attribute;
 			}
 			AttributeEntry& operator=(const AttributeEntry& other)
 			{
-				name = other.name;
+				key = other.key;
 				attribute = other.attribute;
 				return *this;
 			}
 
-			content::ObjectName name;
+			// The reflected members are "key" and "attribute"
+			content::ObjectName key;
 			BaseAttribute* attribute;
 			int unknownC;
 		};
@@ -85,6 +92,7 @@ namespace engine
 		struct DynamicAttributeList : AttributeList
 		{
 			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
 
 			DynamicAttributeList()
 				: AttributeList(gAttributeListLength, container::AllocatorCoreAligned<16>(gAttributeListHeap))
@@ -95,8 +103,10 @@ namespace engine
 		GameObject();
 		static void* operator new(unsigned int size);
 
-		// The reflection data (the class name is plain "GameObject")
+		// The reflection data (the class name is plain "GameObject"; members "attributes", "dynamicAttributes" and
+		// "behaviourController")
 		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 
 		// The vftable (RTTI: 7 slots; slot 2 is the deleting destructor, slot 6 MetaLoadObject's)
 		virtual void AddRef();
@@ -108,10 +118,7 @@ namespace engine
 		virtual bool IsReady();
 		virtual bool Slot5();
 
-		bool IsRegistered() const
-		{
-			return index != 0xffff;
-		}
+		bool IsRegistered() const;
 		bool TestUpdateMask(unsigned short mask) const
 		{
 			return (behaviours.updateMask & mask) != 0;
@@ -122,9 +129,9 @@ namespace engine
 		bool PostMessage(Message* message);
 		void SetTransform(const math::Matrix& matrix);
 		void SetPosition(const math::Vector& position);
-		void Unknown107E0940(int value);
-		void Slot8(int a, int b);
-		void Slot9(int a);
+		void RegisterBehaviour(Behaviour* behaviour);
+		void SetRequestBit(unsigned char bit, bool on);
+		void SetBehavioursEnabled(bool enabled);
 		BaseAttribute* FindAttribute(const content::ObjectName& name);
 		void SetActive(bool active);
 		void AddAttribute(content::ObjectName name, BaseAttribute* attribute);

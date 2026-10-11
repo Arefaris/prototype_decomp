@@ -105,10 +105,11 @@ First part: the constructor, destructor and scalar deleting destructor, vftable 
 forward to LoadObject, slot 3 registers the object, IsReady, slot 5 ends construction), the construction helpers
 (heap and object in thread-local slots), SendMessage / PostMessage, SetTransform / SetPosition, the controller
 forwards, FindAttribute, SetActive, AddAttribute and AddDynamicAttribute. EQUIVALENT: RemoveDynamicAttribute (the
-engine saves esi / edi before testing for the list). Left: the reflection data (GetClassInfo of AttributeEntry,
-DynamicAttributeList and GameObject, their member tables and meta types built with content::ArrayDynamicHelper and
-MetaInstanceHelper), the ArrayDynamic<AttributeEntry> kept copies the helpers use, 0x107E1CD0 (sends
-AttributeUpdatedMessage) and small copies. Lessons:
+engine saves esi / edi before testing for the list). Second and third parts: the reflection data (GetClassInfo
+and GetMembers of AttributeEntry, DynamicAttributeList and GameObject), the content meta type getters (class, name,
+object and ArrayDynamic meta types), MemberOffset, the MetaInstanceHelper / ArrayDynamicHelper templates and the
+ArrayDynamic<AttributeEntry> members they use. Left: 0x107E1CD0 (sends AttributeUpdatedMessage), 0x107E1500
+(Compact), the uninitialised copy / fill helpers and a few duplicate one-instruction copies. Lessons:
 
 - The "behaviour container" is engine::BehaviourController (RTTI); its 64-bit listen mask is at +0x20 and the update
   mask at +0x28.
@@ -119,3 +120,46 @@ AttributeUpdatedMessage) and small copies. Lessons:
   in-place construction; Size / Capacity are signed (`sar`) and a capacity read once into a local keeps the shifts.
 - `x ? false : true` gives `test; sete` where `!x` gives `neg; sbb; add`.
 - Vftable slots a class inherits without overriding are mapped to the incremental link thunks the vftables hold.
+- content::MemberOffset is a template on the member type (MemberOffset<unsigned char> is 0x10568950,
+  <core::Name> 0x10066120); each new member type gets a copy in the unit that first uses it. Templates defined in a
+  header without `inline` stay calls, so the meta type getters (GetClassMetaType<T>, GetObjectMetaType<T>,
+  GetNameMetaType<Key>, GetArrayDynamicMetaType<Owner, A>) are templates; a plain inline getter gets inlined.
+- The real container is container::ArrayDynamic<T, Allocator> (RTTI); ArrayDynamicHeap<T> is the
+  AllocatorCoreAligned<16> instance. Size / Capacity are unsigned.
+- A function-local static with a destructor registers it with `_atexit` (0x10A882DA, mapped in symbols.txt).
+
+## scenariomessage.cpp (0x107F09D0 - 0x107F1960)
+
+Complete (76 functions): engine::ScenarioMessage's GetHandle / SetHandle / WriteEvent, the WriteFields and Clone of
+the engine's scenario messages (NullMessage, ScenarioInitializeMessage, StringMessage, the trigger, object, NIS and
+stream package messages), TriggerMessage's and StringMessage's constructors, the trigger messages' reflection data
+and every kept copy (constructors, destructors, scalar deleting destructors, base class casters). The file name is a
+guess (no assert path). Lessons:
+
+- Slot 1 of a scenario message copies it into caller memory: placement new of the class's ordinary constructor, then
+  the handles, as many as the class's handle info (20-byte statics at 0x111BD558 + 0x14 n) says.
+- The meta type getters are templates on the owning class (GetNameMetaType<EnterTriggerMessage>, ...), so every
+  class gets its own copy.
+- A class whose base has a reflected type stores its base meta type and a content::BaseClassCasterImpl<B, D> in its
+  MemberList (members +8 / +0xC).
+- `if (a == 0) return false; if (!b) return false;` keeps both early-out branches where `a == 0 || !b` merges them.
+
+## gameobject/behaviourcontroller.cpp (0x108390F0 - 0x1083AD20)
+
+engine::BehaviourController, the GameObject's behaviour list (the GameObject member `behaviours` at +0x20): construction
+and destruction, the per-message dispatch table shared through a pool of reference-counted tables, the update pass
+mask and per-behaviour schedule (time slicing, frame skip, phase), message listening masks, message handling,
+removal, type queries and the reflection data. UpdatePasses and UpdateBehaviours are equivalent; everything else
+matches. The file name is a guess (no assert path). Lessons:
+
+- The schedule entry's flags are bitfields (13 pass bits, updated, scheduled, active) in a union with the 16-bit
+  word; a set written as `if (x) bit = 1; else bit = 0;` gives the engine's `or` / `and` pair.
+- Branches the compiler tail-duplicates need the same locals assigned in both arms, or it merges them.
+- `dt = updateTimeScalar * dt` (reusing the parameter) keeps the engine's single stack slot.
+- Parameters the callers push without extension (`push al`) are `unsigned char`, not bool.
+- GameObject::IsRegistered is out of line: the controller calls a copy at 0x107E0780 instead of inlining it.
+- The controller overrides Behaviour's slot 0 (0x1083AC70, called by GameObject::Slot5 when construction ends): it
+  compacts the behaviour list through a range-constructed copy and a swap (container::CompactSwap; `copy.Swap(array)`,
+  not `array.Swap(copy)`), moves the schedule and message masks into the construction heap with container::Swap,
+  then gives every behaviour its slot 0. Without the override the game crashed while loading although every
+  function matched: tools/vtcheck.py now compares vftables.

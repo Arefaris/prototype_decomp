@@ -582,7 +582,7 @@ namespace engine
 				{
 					if (object->behaviours.IsActive())
 					{
-						object->behaviours.Update(context.dt, mask);
+						object->behaviours.UpdateBehaviours(context.dt, mask);
 					}
 				}
 				else
@@ -605,7 +605,7 @@ namespace engine
 					{
 						if (object->behaviours.IsActive())
 						{
-							object->behaviours.Update(context.dt, mask);
+							object->behaviours.UpdateBehaviours(context.dt, mask);
 						}
 					}
 					else

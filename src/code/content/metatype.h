@@ -104,20 +104,37 @@ namespace content
 		const char* name;
 	};
 
+	class MetaType;
+
+	// Tests whether an object of a base class is of the derived class (content::IBaseClassCaster)
+	struct IBaseClassCaster
+	{
+		virtual bool IsDerived(void* object) = 0;
+	};
+
+	template<class B, class D> struct BaseClassCasterImpl : IBaseClassCaster
+	{
+		virtual bool IsDerived(void* object)
+		{
+			return dynamic_cast<D*>((B*)object) != 0;
+		}
+	};
+
+	// A reflected class's members, and its base class (meta type and caster) when it has one
 	struct MemberList
 	{
 		MemberList()
 		{
 			members = 0;
 			count = 0;
-			unknown8 = 0;
-			unknownC = 0;
+			baseType = 0;
+			baseCaster = 0;
 		}
 
 		MemberInfo* members;
 		int count;
-		int unknown8;
-		int unknownC;
+		MetaType* baseType;
+		IBaseClassCaster* baseCaster;
 	};
 
 	// A reflected class: its name, a version and a type code
@@ -132,8 +149,225 @@ namespace content
 		const char* code;
 	};
 
-	// 0x10568950: the offset of a member (the first argument is not used)
-	int MemberOffset(int unused, int offset);
+	// The offset of a member: the first argument (the member's address in a null object) only selects the template;
+	// each member type gets its own copy (MemberOffset<unsigned char> is 0x10568950, <core::Name> 0x10066120)
+	template<class T> int MemberOffset(T* member, int offset);
+
+	template<class T> int MemberOffset(T* member, int offset)
+	{
+		return offset;
+	}
+
+	// A meta type with a name and a member list (another unit, 0x105FA750 / 0x105FA790; 0x2C bytes)
+	class NamedMetaType : public MetaType
+	{
+	public:
+		explicit NamedMetaType(const char* code) : MetaType(code)
+		{
+		}
+	};
+
+	class ClassMetaType : public NamedMetaType
+	{
+	public:
+		explicit ClassMetaType(const ClassInfo* info);
+		void SetMembers(const MemberList* list);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		int unknown8[(0x2c - 8) / 4];
+	};
+
+	// The meta type of a core::Name member (0x105FCC70; the two flags are unknown)
+	class NameMetaType : public MetaType
+	{
+	public:
+		NameMetaType(bool unknown8, bool unknown9, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		bool flag8;
+		bool flag9;
+	};
+
+	// Creates and deletes the instances an object member points to
+	class MetaInstanceHelperBase
+	{
+	public:
+		virtual void Delete(void* object) = 0;
+	};
+
+	template<class T, int N> class MetaInstanceHelper : public MetaInstanceHelperBase
+	{
+	public:
+		virtual void Delete(void* object)
+		{
+			delete (T*)object;
+		}
+	};
+
+	// The meta type of a pointer to a reflected object (0x10603860)
+	class ObjectMetaType : public MetaType
+	{
+	public:
+		ObjectMetaType(MetaType* type, MetaInstanceHelperBase* helper, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		MetaType* type;
+		MetaInstanceHelperBase* helper;
+	};
+
+	// The element access of a container::ArrayDynamic for its meta type
+	class ArrayDynamicHelperBase
+	{
+	public:
+		virtual int Size(void* array) = 0;
+		virtual void* Get(void* array, int index) = 0;
+		virtual void* GetConst(void* array, int index) = 0;
+		virtual void Insert(void* array, int index, int unused) = 0;
+		virtual void Erase(void* array, int index, int unused) = 0;
+		virtual int Capacity(void* array) = 0;
+		virtual void Expand(void* array, unsigned int count) = 0;
+	};
+
+	template<class A> class ArrayDynamicHelper : public ArrayDynamicHelperBase
+	{
+	public:
+		typedef typename A::Element T;
+
+		virtual int Size(void* array)
+		{
+			return ((A*)array)->Size();
+		}
+		virtual void* Get(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void Insert(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			if (a->Size() >= a->Capacity())
+			{
+				a->Reserve(a->Size() + 1);
+			}
+			T* position = a->begin + index;
+			static T sDefault;
+			a->Insert(position, sDefault);
+		}
+		virtual void Erase(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			a->Erase(a->begin + index);
+		}
+		virtual int Capacity(void* array)
+		{
+			return ((A*)array)->Capacity();
+		}
+		virtual void Expand(void* array, unsigned int count)
+		{
+			A* a = (A*)array;
+			if (a->Capacity() == 0)
+			{
+				a->Allocate(count);
+			}
+			else if (count + a->Size() > a->Capacity())
+			{
+				a->Reserve(count + a->Size());
+			}
+		}
+	};
+
+	// The meta type of a container::ArrayDynamic member (0x105FD3C0)
+	class ArrayDynamicMetaType : public MetaType
+	{
+	public:
+		ArrayDynamicMetaType(MetaType* element, ArrayDynamicHelperBase* helper, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		MetaType* element;
+		ArrayDynamicHelperBase* helper;
+	};
+
+	// The class meta type of T, built on first use from T::GetClassInfo and T::GetMembers
+	template<class T> ClassMetaType* GetClassMetaType()
+	{
+		static ClassMetaType* sType;
+		if (sType == 0)
+		{
+			static ClassMetaType sStorage(T::GetClassInfo());
+			sType = &sStorage;
+			sStorage.SetMembers(T::GetMembers());
+		}
+		return sType;
+	}
+
+	// The meta type of a core::Name member of class C
+	template<class C> NameMetaType* GetNameMetaType(bool unknown8, bool unknown9, const char* code)
+	{
+		static NameMetaType sType(unknown8, unknown9, code);
+		return &sType;
+	}
+
+	template<class T> ObjectMetaType* GetObjectMetaType(const char* code)
+	{
+		static MetaInstanceHelper<T, 1> sHelper;
+		static ObjectMetaType sType(GetClassMetaType<T>(), &sHelper, code);
+		return &sType;
+	}
+
+	// Owner only keeps the instantiations of different classes apart
+	template<class Owner, class A> ArrayDynamicMetaType* GetArrayDynamicMetaType(MetaType* element, const char* code)
+	{
+		static ArrayDynamicHelper<A> sHelper;
+		static ArrayDynamicMetaType sType(element, &sHelper, code);
+		return &sType;
+	}
 
 	template<class T> PrimitiveMetaType<T>* GetPrimitiveMetaType(const char* code)
 	{
