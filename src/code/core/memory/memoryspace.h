@@ -11,6 +11,10 @@
 namespace core
 {
 	const char* CoreName();
+	// 0x10645D50 / 0x10645D60: start-up and shut-down of the memory spaces (empty in main memory), called by
+	// InitMemoryStage2 / ShutdownMemoryStage2
+	void InitMemorySpace();
+	void ShutdownMemorySpace();
 
 	struct IMemorySpaceCopyRequest : IRefCount
 	{

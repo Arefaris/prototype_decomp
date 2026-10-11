@@ -106,6 +106,20 @@ namespace core
 	void CreateFiber(Fiber* fiber, int (*function)(void* argument), void* argument, int stackSize, int b);
 	void CreateTrackedFiber(Fiber* fiber, int (*function)(void* argument), void* argument, int stackSize, int a, int b);
 	void CreateTrackedFiber(Fiber* fiber, int (*function)(void* argument), void* argument, int stackSize, int b);
+	// threadslots.cpp (0x106469A0 - 0x10646D06): the slots of the Thread records ("data" slots) and of the fibers
+	bool AllocThreadDataSlot(int* slot, int value);
+	bool FreeThreadDataSlot(int slot);
+	bool SetThreadDataValue(int slot, int value);
+	bool GetThreadDataValue(int slot, int* value);
+	bool ExchangeThreadDataValue(int slot, int* previous, int value);
+	// Walks the thread list: NextThread(0) takes the thread lock, the call that returns 0 releases it
+	Thread* NextThread(Thread* thread);
+	Fiber* NextFiber(Thread* thread, Fiber* fiber);
+	bool AllocThreadSlot(int* slot, int value);
+	bool FreeThreadSlot(int slot);
+	bool SetThreadValue(int slot, int value);
+	bool GetThreadValue(int slot, int* value);
+	bool ExchangeThreadValue(int slot, int* previous, int value);
 }
 
 #endif

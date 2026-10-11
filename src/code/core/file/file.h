@@ -47,30 +47,44 @@ namespace core
 		virtual int GetKey() = 0;
 		virtual bool GetFlag() = 0;
 		virtual void SetField12C(unsigned int value) = 0;
-		virtual class FileCache* GetCache() = 0;
 	};
 
-	// The read cache inside a file (0x30 bytes at +0x138); methods at 0x10650AB0 - 0x106511C0
+	// The read cache inside a file (0x30 bytes at +0x138; unit 0x10650DC0 - 0x106511DB, file name filecache.cpp and
+	// all names guessed): a file inside another (a Cement library entry) reads through the source file's handle at an
+	// offset; mode 1 reads compressed data (chunks with a 4-byte header: packed size, unpacked size; packed size 0
+	// means stored) into the buffer and unpacks it.
 	class FileCache
 	{
 	public:
-		// 0x10650DD0 / 0x10650E00
 		FileCache();
 		~FileCache();
-		// 0x10650E10
 		bool IsActive();
-		// 0x10650E20: the file whose handle the cache shares
+		// The file whose handle the cache shares
 		class File* GetSource();
-		// 0x10650E40
+		unsigned int GetOffset();
 		unsigned int GetSize();
-		// 0x10650E50
 		void Reset();
-		// 0x10650CF0: whether this cache holds `path` (and then attaches `target` to it)
+		int ReadDirect(Drive* drive, int handle, const char* path, unsigned int a, unsigned int position, void* buffer, unsigned int size, unsigned int* done, int b);
+		int ReadPacked(Drive* drive, int handle, const char* path, unsigned int a, unsigned int position, void* buffer, unsigned int size, unsigned int* done, int b);
+		// Attaches the cache to source (AddRef): the data starts at offset in it (plus the offsets of the caches
+		// source itself reads through)
+		void Open(class File* source, unsigned int offset, unsigned int size, unsigned int packedSize, int mode, void* buffer, unsigned int bufferSize, int unused);
+		// 0x10650CF0 (the Cement library unit): whether this cache holds `path` (and then attaches `target` to it)
 		bool Matches(const char* path, FileCache* target);
-		// 0x106511C0
 		int Read(Drive* drive, int handle, const char* path, unsigned int a, unsigned int position, void* buffer, unsigned int size, unsigned int* done, int b);
 
-		unsigned char data[0x30];
+		class File* source;
+		unsigned int offset;
+		unsigned int position;
+		unsigned int size;
+		unsigned int packedPosition;
+		unsigned int skip;
+		unsigned int packedSize;
+		int mode;
+		unsigned int granularity;
+		unsigned char* buffer;
+		unsigned int bufferSize;
+		int unknown2C;
 	};
 
 	// The reference-counted table an open-by-key request looks its file up in
@@ -126,6 +140,7 @@ namespace core
 		virtual int GetKey();
 		virtual bool GetFlag();
 		virtual void SetField12C(unsigned int value);
+		// Slot 32: File's own (IFile's vftable 0x10E3388C ends with slot 31)
 		virtual FileCache* GetCache();
 		virtual void Lock();
 		virtual void Unlock();

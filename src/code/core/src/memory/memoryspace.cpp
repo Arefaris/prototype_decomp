@@ -5,6 +5,16 @@
 
 namespace core
 {
+	// FUNCTION: ENGINE 0x10645D50
+	void InitMemorySpace()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10645D60
+	void ShutdownMemorySpace()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10645D70
 	void* MemorySpaceCopy(void* destination, int destinationSpace, const void* source, int sourceSpace, unsigned int size)
 	{

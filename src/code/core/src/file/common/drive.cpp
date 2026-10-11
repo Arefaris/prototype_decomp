@@ -183,9 +183,9 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064FEB0
-	int Drive::Submit(Request* request, int key, int flags)
+	int Drive::Submit(Request* request, int key, bool front)
 	{
-		return queue->Submit(request, key, flags);
+		return queue->Submit(request, key, front);
 	}
 
 	// FUNCTION: ENGINE 0x1064FEC0

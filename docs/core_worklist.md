@@ -70,7 +70,19 @@ are InitSystemAllocator (0x10646960) and its forwarding entry (0x10646990).
 `ninja check` passes all 315 matching annotations; the relink verifier reports no differences outside replaced
 functions or relocation targets. The unit also compiles with MSVC 2022 x86, and the hybrid DLL reaches free roam.
 
-## time.cpp (0x1063CBB0 - 0x1063CE32): done
+## time.cpp (0x1063C7A0 - 0x1063D1E8): done (49 functions)
+
+The whole unit now (2026-10-11): besides the Time value below, the performance counter clock (InitMemoryStage1 is
+really the clock start-up, reference-counted, reading the frequency; GetTicks / GetSeconds / GetMicroseconds /
+GetMilliseconds), the local date and day of the week, and `core::Timer` / `core::TimerList` (RTTI names; interfaces
+ITimer 14 slots, ITimerList 6 slots in `code/core/time.h`): timers come from the list's MemoryPool ("TimerList",
+0x24-byte blocks, class operator new(size, list)), sit in its table while running, and the list's Update adds the
+time since the last call and calls the callback (slot 0: elapsed, userData) when the period is reached (mode 1 stops
+first). Everything matched on the first or second compile; TimerList::Update needs `timers[i]` read twice (a slot
+pointer loads it once). The compiler-generated functions (ITimer / ITimerList constructor copies, the deleting
+destructors, the Object-vftable thunk) are mapped. Left alone: 0x1063C780 / 0x1063C790 (IRefCount constructor
+copies). The older notes:
+
 
 `core::Time` stores an unsigned microsecond remainder at +0, unsigned milliseconds at +4, and cached float
 seconds at +8 (12 bytes). The class association and method/member/file names are guesses: `core::Time` appears
@@ -427,7 +439,7 @@ them through the 22 forwarders 0x10643C00 - 0x10643D50 (another unit). Notes:
   open code, or a slot pointer, puts the blocks or registers elsewhere. The Cement open keeps the source drive in a
   variable of its own until the end.
 - SetMountPath returns with the lock held when the device is unknown or the table full (kept).
-- Drive::FlushRequests / RequestQueue::Flush return whether requests are still queued (UnmountDrive waits on it).
+- Drive::FlushRequests / DriveThread::Flush return whether requests are still queued (UnmountDrive waits on it).
 - An open drive's 4th argument is passed but unused.
 Validation (2026-10-11): free roam in the hybrid (every game file is opened through these functions).
 
@@ -486,7 +498,137 @@ switch to fibers it creates; threads and fibers get eight user slots from global
 | 0x10644EC0 | InitMainThread | - | EQUIVALENT in tree: the push of ConvertThreadToFiber's argument is scheduled one store earlier |
 | 0x10645190 | SetThreadValue | - | EQUIVALENT in tree: the original keeps the Enter argument on the stack until after Leave (one `add esp, 8`); ours ends in a jump to Leave (ClearThreadValue, same shape, does end in the jump) |
 
+## debugger.cpp (0x10644760 - 0x10644880): 16 functions
+
+The debugger link of the core module (`code/core/debugger.h`; file and all names guessed): in this build only stubs
+(empty DebugInit / DebugShutdown / DebugSignal / DebugWait, getters of globals nothing writes), `CoreName` (returns
+"core", the name every allocator and request constructor asks for) and a reference-counted critical section. All
+match. DebugHasPending needs `return 0 < gDebugPending;` (unsigned): `!= 0` gives setne, the original cmp / sbb / neg.
+
+## threadslots.cpp (0x106469A0 - 0x10646D06): 16 functions
+
+The user slots of threads and fibers (declared in `code/core/thread.h`; file and all names guessed): eight slots per
+Thread record ("data" slots, +0x64) and eight per fiber (+0x14), each set allocated from a bit mask (0x1127A9B4 /
+0x1127A9B8); a new slot is set to its value in every existing thread (or every fiber of every thread) and in the
+defaults that new threads / fibers copy. Allocation runs under the thread lock once the thread system is up
+(the static ...Locked helpers take register arguments). NextThread / NextFiber walk the lists (NextThread(0) takes
+the lock, the call returning 0 releases it). All match. The fiber slots are the ones the engine calls
+AllocThreadSlot / Get / SetThreadValue (names kept). The ...Locked helpers need `mask = used | bit` stored in one
+expression: `used |= bit; ...; mask = used;` keeps the slot pointer in edi.
+
+## heap.cpp (0x1063A6A0 - 0x1063AF72): 34 matched, 5 EQUIVALENT
+
+The heaps (`code/core/heap.h`; file and all names guessed): a table of 0x101 entries (allocator, children, next,
+parent; `gHeaps` 0x110BC5A4 points at the static table 0x11276F78), the system heap entry (0x11276F58, index 0x100),
+the address map `gHeapMap` (0x11277F98, a RangeMap over a fixed buffer of 0x100 ranges, constructed by a dynamic
+initializer elsewhere, so only declared), the current heap per thread in a thread data slot, a failure hook
+(user, heap, size, align, flags; engine::OnAllocFail takes those arguments). HeapAlloc / Aligned / Flags / Zero,
+the frees by heap and by block, Register / UnregisterHeap (the tree of heaps follows the address ranges),
+IsBlockInHeap, the start-up / shut-down. Matching notes:
+- Virtual calls on `gHeaps[heap].allocator` need the allocator in a local (the expression form loads it twice).
+- The reset of every entry needs the table pointer in a local and an index loop (`heaps[i].children = 0` ...):
+  that gives the original's base + 0xC strength reduction; the pointer-walking loop does not. `__forceinline`
+  (static) for the helper, plain `inline` is not inlined (loop).
+- RegisterHeap's out value of RangeMap::Set is a fresh local per range, copied to the running parent index.
+- RangeMap: ~RangeMap is the empty 0x10646150 (the heap map's destructor jumps to it); 0x10646570 (jmp Destroy, no
+  callers) is now `RangeMap::Free`. memoryspace.cpp gained its two empty functions (InitMemorySpace /
+  ShutdownMemorySpace, 0x10645D50 / 0x10645D60), which InitMemoryStage2 / ShutdownMemoryStage2 call.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063AC00, 0x1063AC30, 0x1063AC60 | Free / FreeAligned / FreeFlags | 71 % | EQUIVALENT in tree: the original loads the allocator into ecx directly, ours into eax plus a copy |
+| 0x1063AD50 | UnregisterHeap | 79.5 % | EQUIVALENT in tree: one block (`owner = parent`) placed out of line in the original; the reset store order only comes with a register swap |
+| 0x1063AE10 | RegisterHeap | 52 % | EQUIVALENT in tree: loop identical; the entry lives in edi (spilled) in the original, in ebx in ours |
+
+Left alone: 0x1063AF80 / 0x1063AF90 (lower / upper case tests with the character in al, no references: unreferenced
+statics are not emitted).
+Validation (2026-10-11): free roam in the hybrid, movement works.
+
+## report.cpp (0x1063BC30 - 0x1063C77B): 48 matched, 1 EQUIVALENT
+
+Reports and debug channels (`code/core/report.h`; file and all names guessed): Report / ReportV format the message
+(format and arguments, or "Failed condition at %s (%d)" with the expression) and call a dispatcher that is a stub in
+this build (answers 2); a table of 0x48-byte debug channels (name, level, flags) under a lock with Add / Find /
+Remove and the list setters (names separated by " 	;,[]\"'", default levels for " oldwarning ", " Warning ",
+" Severe ", flags of " Pre "); core::DefaultOutputHandler (OutputDebugString and stderr in 256-byte pieces); the
+output handler pointer, level, settings; core::IsolatedTask (a task on its own thread, run in place when the thread
+does not start within a second). Matching notes:
+- The separator test is a `static inline` function: the loops that call it are not rotated, and its out-of-line copy
+  (character in al) is still emitted although nothing calls it. Loops written with strchr directly are rotated.
+- OnOutput needs its piece loop in a `__forceinline` helper (`if (length == 0) return;` survives there) written as a
+  `while` with `&text[i * 0x100]`; the `for` and pointer forms move the loop pointer into memory.
+- AddChannel returns `sChannelCount - 1` after `sChannels[sChannelCount++]...`; RemoveChannel reads the count anew
+  for the copy and decrements it in place.
+- MatchChannel (0x1063BB30) belongs to strings.cpp (it keeps a pointer in edx across MatchWildcard, which only works
+  inside the unit); MatchWildcard and MatchChannel return bool (`return c == 0 ? true : false;` gives the original's
+  sete without the xor).
+- The initialised data (output handler pointer, level, task generation, settings, level names) is only declared.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063BF40 | TokenLength (static) | 98.9 % | EQUIVALENT in tree: one SIB byte ([length + token] against our [token + length]) |
+
+## memory/align.cpp (0x10645300 - 0x1064536D): done
+
+RoundUp / RoundDown / IsRoundedUp (`code/core/memory/align.h`; names and file name guessed): the out-of-line
+rounding helpers every allocator unit calls, byte for byte the same as the AlignUp / AlignDown templates that
+twowayallocator.cpp instantiates right behind them.
+
+## file/common/filecache.cpp (0x10650DC0 - 0x106511DB): 11 matched, 1 EQUIVALENT
+
+core::FileCache (declared in `code/core/file/file.h`; file and all names guessed): the read cache inside a file. A
+file inside another (a Cement library entry) reads through its source file's handle at an offset (summed over the
+chain of sources, File slot 32 GetCache); mode 1 reads compressed data: chunks with a 4-byte header (packed size,
+unpacked size; packed size 0 means stored) are read granularity-aligned into the buffer and unpacked by 0x10652AA0
+(Unpack, another unit, mapped). Open stores the packed size before the mode (the other order swaps the stores).
+Validation (2026-10-11): free roam and a teleport (cells streamed) in the hybrid.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10650ED0 | ReadPacked | 18 % | EQUIVALENT in tree: same steps in the same order; the original keeps this in ebp (spilled) and the read count in memory (a branch where ours has a cmovb) |
+
+## file/win32/win32drive.cpp (0x106511E0 - 0x10651D1B): 23 matched, 1 EQUIVALENT
+
+core::Win32Drive (RTTI name; `code/core/file/win32drive.h`; file and member names guessed): files are Win32 handles,
+paths made absolute against the volume or the current directory (GetFullPathNameA), Win32 errors mapped to file
+errors, volume information (state, free space, 512-byte granularity, volume name in DriveInfo) refreshed when the
+first file opens; Mount fails when the volume serial changed. Each drive owns a core::DriveThread (RTTI name; what
+drive.h called RequestQueue, renamed with its mapped methods) created with `new (heap)`. Notes:
+- Drive slot 8 (GetFlags) returns int (the original loads the whole word); Drive::Close returns int (1).
+- The find data's directory flag reads the attribute low byte: `((unsigned char)attributes >> 4) & 1`.
+- MakePath computes strlen once; Open has the success branch first (`if (*handle != -1)`).
+- strcpy / strcat / strlen are intrinsics (inline copies); the root path buffer is char[4] (the serial sits right
+  behind it).
+Validation (2026-10-11): free roam, movement and a teleport in the hybrid (every game file is read through it).
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x106512C0 | RefreshInfo | 93 % | EQUIVALENT in tree: the failure branch clears the serial before the state stores in the original, after them in ours |
+
+## file/common/ramdrive.cpp (0x10651D20 - 0x106523A3): 15 matched, 1 EQUIVALENT
+
+core::RamDrive (RTTI name; `code/core/file/ramdrive.h`; file and member names guessed): up to 32 files found by the
+Hash32 of their path (leading back slash dropped); a file is one 4 KB block of the drive's page pool (open count,
+size, page pointers), its pages come from the same pool, a handle points at the table slot. The size the device
+mapping hands to the constructor (devices.cpp passes it as a string pointer) sets the pool's page count. Notes: the
+slot loops need `unsigned int` indices (jb); Open's search tests `file != 0` first and keeps the first free slot in
+the else branch. Validation (2026-10-11): free roam in the hybrid.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10651E80 | Write | 59 % | EQUIVALENT in tree: registers permuted (size, page index, page pointer) |
+
+## file/common/drivethread.cpp (0x106523B0 - 0x10652A83): done (19 functions)
+
+core::DriveThread (RTTI name; declared in `code/core/file/drive.h`; file and member names guessed): a drive's request
+thread with three queues (by key, the lowest non-empty key first; `front` puts a request ahead of its queue) under the
+drive's lock, a counting semaphore for the queued requests and one for faults: a request that finds the drive
+faulted hands itself to the drive as the fault (Drive::SetFault) and waits until ClearFault restarts the thread
+(retry: queue it again). Drive::Submit and DriveThread::Submit take `bool front` (the thread compares a byte; the
+pushes of the constants stay the same); Submit falls off its end (no return value, C4716 silenced). Notes: the
+semaphores are handle-sized members (a char array lands one byte off); queue loops use `unsigned int`; in Run the
+fault-retry branch needs `if (retry == 0) { finish; break; }` and then the cancelled case before the requeue.
+Validation (2026-10-11): free roam and a teleport in the hybrid.
+
 ## Candidates nearby (leaf functions, not started)
 
-- 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
-  0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.

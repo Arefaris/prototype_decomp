@@ -6,10 +6,12 @@
 
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/object.h"
+#include "code/core/thread.h"
 
 namespace core
 {
 	class Request;
+	class Drive;
 	class FileCache;
 
 	// core::IMutable (RTTI name; two slots): the lock interface of files and drives
@@ -76,17 +78,6 @@ namespace core
 		unsigned char data[0x3C];
 	};
 
-	// The request queue a drive submits to (methods 0x106524C0 - 0x10652670, not reconstructed)
-	class RequestQueue
-	{
-	public:
-		int Submit(Request* request, int key, int flags);
-		void Cancel(void* owner, int key);
-		// Whether requests are still queued
-		bool Flush();
-		void Restart(int value);
-	};
-
 	// Told when a faulted drive is updated while held exclusively (slot 0)
 	struct IDriveFaultHandler
 	{
@@ -105,6 +96,48 @@ namespace core
 		virtual int GetA() = 0;
 	};
 
+	// core::DriveThread (RTTI name; vftables 0x10E48140 / 0x10E48138 / 0x10E48128): the thread that executes a
+	// drive's requests from three queues (by key, the first non-empty one first) under the drive's lock (0x100 bytes;
+	// unit 0x106523B0 - 0x10652A83, file name file/common/drivethread.cpp and member names guessed). A request that
+	// finds the drive faulted waits (with the drive told about it) until ClearFault restarts the thread.
+	class DriveThread : public IRefCount, public Object, public SafeRefCount
+	{
+	public:
+		DriveThread(void* lock, int heap);
+		virtual ~DriveThread();
+		virtual void AddRef();
+		virtual void Release();
+		virtual void Lock();
+		virtual void Unlock();
+
+		// Queues a request (front: ahead of the others of its key) and wakes the thread
+		int Submit(Request* request, int key, bool front);
+		void Cancel(void* owner, int key);
+		// Whether requests are still queued
+		bool Flush();
+		// Wakes the thread that waits on a fault (retry: run the request again)
+		void Restart(int retry);
+		void WaitFault(Drive* drive, Request* request);
+		// Takes the next request off the queues (the current one from now on)
+		Request* Next(int* key);
+		bool IsCancelled();
+		// Deletes the current request
+		void FinishCurrent();
+		static int Run(void* thread);
+
+		void* lock;
+		Thread thread;
+		bool quit;
+		void* semaphore;
+		Request* heads[3];
+		Request* tails[3];
+		void* faultSemaphore;
+		unsigned char retry;
+		int pending;
+		Request* current;
+		bool cancelled;
+	};
+
 	// The drive (24 virtual slots on IRefCount; the pure ones are the concrete drives')
 	class Drive : public IRefCount, public Object, public SafeRefCount
 	{
@@ -120,12 +153,12 @@ namespace core
 		virtual int CanCreateFile(int a, int b);
 		virtual bool Slot7(int a, int b);
 		// Bit 0: space checks; bit 7: the drive hides its file names
-		virtual unsigned char GetFlags() = 0;
+		virtual int GetFlags() = 0;
 		// Makes the drive usable (the requests' default preparation step)
 		virtual int Mount() = 0;
 		virtual int Open(const char* path, int mode, bool flag, int* handle, unsigned int* size);
 		virtual int OpenSaveGame(const char* path, int mode, bool flag, int a, int b, int* handle, unsigned int* size);
-		virtual void Close(int handle, const char* path) = 0;
+		virtual int Close(int handle, const char* path) = 0;
 		virtual int Commit(int handle, const char* path);
 		virtual int Read(int handle, const char* path, unsigned int a, unsigned int position, void* buffer, unsigned int size, unsigned int* done, int b) = 0;
 		virtual int Write(int handle, const char* path, unsigned int a, unsigned int position, const void* buffer, unsigned int size, unsigned int* done, unsigned int* fileSize, int b);
@@ -145,7 +178,7 @@ namespace core
 		// Appends a completion request to the drive's queue
 		void Queue(Request* request);
 		// Hands a request to the drive's request queue (flags 1: ahead of the others); null requests are allowed
-		int Submit(Request* request, int key, int flags);
+		int Submit(Request* request, int key, bool front);
 		// Cancels the requests of one file or drive instance
 		void CancelRequests(void* owner, int key);
 		// Whether requests are still queued
@@ -182,7 +215,7 @@ namespace core
 		bool busy;
 		DriveInfo info;
 		int error;
-		RequestQueue* queue;
+		DriveThread* queue;
 	};
 }
 
