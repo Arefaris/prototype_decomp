@@ -6,10 +6,12 @@
 
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/object.h"
+#include "code/core/thread.h"
 
 namespace core
 {
 	class Request;
+	class Drive;
 	class FileCache;
 
 	// core::IMutable (RTTI name; two slots): the lock interface of files and drives
@@ -95,7 +97,9 @@ namespace core
 	};
 
 	// core::DriveThread (RTTI name; vftables 0x10E48140 / 0x10E48138 / 0x10E48128): the thread that executes a
-	// drive's requests, with the queue the drive submits to (0x100 bytes; unit 0x10652440 onwards, not reconstructed)
+	// drive's requests from three queues (by key, the first non-empty one first) under the drive's lock (0x100 bytes;
+	// unit 0x106523B0 - 0x10652A83, file name file/common/drivethread.cpp and member names guessed). A request that
+	// finds the drive faulted waits (with the drive told about it) until ClearFault restarts the thread.
 	class DriveThread : public IRefCount, public Object, public SafeRefCount
 	{
 	public:
@@ -106,13 +110,32 @@ namespace core
 		virtual void Lock();
 		virtual void Unlock();
 
-		int Submit(Request* request, int key, int flags);
+		// Queues a request (front: ahead of the others of its key) and wakes the thread
+		int Submit(Request* request, int key, bool front);
 		void Cancel(void* owner, int key);
 		// Whether requests are still queued
 		bool Flush();
-		void Restart(int value);
+		// Wakes the thread that waits on a fault (retry: run the request again)
+		void Restart(int retry);
+		void WaitFault(Drive* drive, Request* request);
+		// Takes the next request off the queues (the current one from now on)
+		Request* Next(int* key);
+		bool IsCancelled();
+		// Deletes the current request
+		void FinishCurrent();
+		static int Run(void* thread);
 
-		unsigned char data[0x100 - 0x14];
+		void* lock;
+		Thread thread;
+		bool quit;
+		void* semaphore;
+		Request* heads[3];
+		Request* tails[3];
+		void* faultSemaphore;
+		unsigned char retry;
+		int pending;
+		Request* current;
+		bool cancelled;
 	};
 
 	// The drive (24 virtual slots on IRefCount; the pure ones are the concrete drives')
@@ -155,7 +178,7 @@ namespace core
 		// Appends a completion request to the drive's queue
 		void Queue(Request* request);
 		// Hands a request to the drive's request queue (flags 1: ahead of the others); null requests are allowed
-		int Submit(Request* request, int key, int flags);
+		int Submit(Request* request, int key, bool front);
 		// Cancels the requests of one file or drive instance
 		void CancelRequests(void* owner, int key);
 		// Whether requests are still queued

@@ -618,5 +618,17 @@ the else branch. Validation (2026-10-11): free roam in the hybrid.
 |---|---|---:|---|
 | 0x10651E80 | Write | 59 % | EQUIVALENT in tree: registers permuted (size, page index, page pointer) |
 
+## file/common/drivethread.cpp (0x106523B0 - 0x10652A83): done (19 functions)
+
+core::DriveThread (RTTI name; declared in `code/core/file/drive.h`; file and member names guessed): a drive's request
+thread with three queues (by key, the lowest non-empty key first; `front` puts a request ahead of its queue) under the
+drive's lock, a counting semaphore for the queued requests and one for faults: a request that finds the drive
+faulted hands itself to the drive as the fault (Drive::SetFault) and waits until ClearFault restarts the thread
+(retry: queue it again). Drive::Submit and DriveThread::Submit take `bool front` (the thread compares a byte; the
+pushes of the constants stay the same); Submit falls off its end (no return value, C4716 silenced). Notes: the
+semaphores are handle-sized members (a char array lands one byte off); queue loops use `unsigned int`; in Run the
+fault-retry branch needs `if (retry == 0) { finish; break; }` and then the cancelled case before the requeue.
+Validation (2026-10-11): free roam and a teleport in the hybrid.
+
 ## Candidates nearby (leaf functions, not started)
 
