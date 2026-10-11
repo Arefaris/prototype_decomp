@@ -64,7 +64,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10641400
-	IControllerSystem* GetDirectInputSystem()
+	ControllerSystemDirectInput* GetDirectInputSystem()
 	{
 		return sDirectInputSystem;
 	}

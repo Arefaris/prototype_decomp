@@ -179,7 +179,7 @@ namespace core
 		DIRECTINPUT_EXCLUSIVE_KEYBOARD = 0x10
 	};
 
-	IControllerSystem* GetDirectInputSystem();
+	ControllerSystemDirectInput* GetDirectInputSystem();
 	void UpdateDirectInput();
 	void ShutdownDirectInput();
 	void InitDirectInput(IControllerListener* listener, int heap, unsigned int options);

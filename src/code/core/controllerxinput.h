@@ -2,8 +2,17 @@
 #ifndef CORE_CONTROLLERXINPUT_H
 #define CORE_CONTROLLERXINPUT_H
 
+#include "code/core/controller.h"
+
 namespace core
 {
+	// The XInput controller system (not reconstructed; names guessed): 0x106487B0 returns it, 0x10649F00 creates it
+	// (its joysticks numbered from firstJoystick on), 0x10649F50 reads the pads, 0x10649910 destroys it
+	IControllerSystem* GetXInputSystem();
+	void InitXInput(IControllerListener* listener, int heap, unsigned int firstJoystick);
+	void UpdateXInput();
+	void ShutdownXInput();
+
 	class ControllerOutputPointXInput
 	{
 	public:

@@ -389,6 +389,20 @@ mapped. Notes:
   HRESULT need the if / return true / return false form.
 Left alone: 0x10641390, 0x106425B0 and 0x10641D80 - 0x10641DA0 (interlocked helpers with register arguments).
 
+Validation (2026-10-11): the hybrid DLL reaches free roam in a private test copy; the keyboard and mouse devices
+are polled through the reconstructed code and injected movement, jump and mouse input take effect.
+
+## controllersystem.cpp (0x10643840 - 0x10643BFE): 16 functions
+
+`core::ControllerSystem` (RTTI name; `code/core/controllersystem.h`, file and function names guessed): the system
+the engine uses, the DirectInput and the XInput systems behind one IControllerSystem. Controllers count DirectInput
+first; FindController sends "JoystickN" with N past the DirectInput joysticks to XInput (whose pads are numbered
+from there on: InitXInput gets the DirectInput joystick count). All match; the XInput system's entry points
+(0x106487B0, 0x10649F00, 0x10649F50, 0x10649910) are declared in controllerxinput.h and mapped. FindController
+needs its choice in a bool (`xinput = true`, then one if / else): the early-return forms swap esi / edi or the
+block order. Left alone: 0x106438A0 - 0x106438C0 (interlocked helpers with register arguments). The 22 jumps that
+follow (0x10643C00 - 0x10643D50) forward to the file system (0x10649F90 onwards), a unit of their own.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
