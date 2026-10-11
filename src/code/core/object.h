@@ -78,7 +78,8 @@ namespace core
 			}
 		}
 
-		long count;
+		// volatile: the stores around the constructor's count = 0 stay (the RefCount vftable store, eax clearing)
+		volatile long count;
 	};
 }
 

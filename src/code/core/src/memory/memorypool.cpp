@@ -224,9 +224,6 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1063DA80
-	// EQUIVALENT: the original clears eax after the RefCount vftable store, ours before it (94.5 %); the
-	// MemoryTwoWayAllocator constructor, the same shape with nine members, matches. Initialiser list, other zero
-	// spellings, CoreName first and explicit base initialisers change nothing.
 	MemoryPool::MemoryPool()
 	{
 		memory = 0;

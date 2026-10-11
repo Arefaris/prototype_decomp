@@ -6,6 +6,8 @@
 
 namespace core
 {
+	struct IMemoryAllocator;
+
 	void* HeapAlloc(int heap, unsigned int size);
 	// 0x1063A9A0: returns a block to its heap
 	void HeapFree(int heap, void* block);
@@ -16,6 +18,8 @@ namespace core
 	int GetCurrentHeap();
 	// 0x1063AC00: returns a block to whichever heap owns it
 	void Free(void* block);
+	// 0x1063AA00: the allocator object behind a heap index (the table's first field)
+	IMemoryAllocator* GetHeapAllocator(int heap);
 }
 
 #endif

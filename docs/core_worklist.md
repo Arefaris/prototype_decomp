@@ -145,7 +145,7 @@ class layout is in `code/core/memory/allocatorbase.h`). SetName copies with the 
 0x1063D260 - 0x1063D290 (`code/core/criticalsection.h`, not reconstructed: they call the kernel32 imports as
 `__stdcall`, which the generated import library may not name).
 
-## memory/memorypool.cpp (0x1063D430 - 0x1063DB97): 25 matched, 1 EQUIVALENT
+## memory/memorypool.cpp (0x1063D430 - 0x1063DB97): done (26 functions)
 
 `core::MemoryPool` (RTTI name; `IMemoryPool` adds AllocBlock / GetIndex / GetBlock as slots 18 - 20): fixed-size
 blocks on a free list, the same frame as MemoryTwoWayAllocator (`code/core/memory/memorypool.h`, file name
@@ -155,20 +155,19 @@ adjustor thunk) match as well and are mapped. Init calls the twoway unit's `Alig
 the rounding templates are shared COMDATs, declared in allocatorbase.h. AllocBlock and the two-way AllocAligned
 need an inline `Max` template (`code/core/utility.h`): the plain conditional forms become `cmov`.
 
-| Address | Guess | Best | Notes |
-|---|---|---:|---|
-| 0x1063DA80 | MemoryPool constructor | 94.5 % | EQUIVALENT in tree: the original clears eax after the RefCount vftable store, ours before it; init list, zero spellings, statement order and explicit base initialisers change nothing |
+The constructor matches once `RefCount::count` is `volatile` (the original keeps the RefCount vftable store and
+clears eax after it; a plain `long` lets the compiler move both).
 
 Left alone: 0x1063D450 - 0x1063D480 and 0x1063D700 - 0x1063D730 (empty functions), 0x1063D7D0 - 0x1063D7F0
 (interlocked helpers with register arguments).
 
-## memory/segmentpoolallocator.cpp (0x1063DBA0 - 0x1063E72B): 53 matched, 1 EQUIVALENT
+## memory/segmentpoolallocator.cpp (0x1063DBA0 - 0x1063E72B): done (54 functions)
 
 `core::SegmentPoolAllocator` (RTTI name; assert path known): one heap block cut into equal segments with 12-byte
 headers (`Segment`: cursor, mark, count), one segment open for bump allocation, lock bits, a stack of byte
 counters. Its base `core::AllocatorBaseSub` (IMemoryAllocator + AllocatorBase at 4, name / safety / flag slots;
-shared with MemoryDlAllocator) has its methods here (0x1063E400 - 0x1063E470). All functions match except the
-constructor; the compiler-generated ones (AllocatorBaseSub constructor / destructor / deleting destructor, the
+shared with MemoryDlAllocator) has its methods here (0x1063E400 - 0x1063E470). All functions match (the constructor
+since `RefCount::count` became volatile); the compiler-generated ones (AllocatorBaseSub constructor / destructor / deleting destructor, the
 adjustor thunk 0x1063E560, the scalar deleting destructor) match and are mapped. Notes:
 - The second factory starts at 0x1063E6E0 (functions.tsv has 0x1063E6F0, a misaligned start).
 - Segment::Segment is `inline` in the .cpp (Init's placement new inlines it, and our object still emits the copy
@@ -182,11 +181,28 @@ adjustor thunk 0x1063E560, the scalar deleting destructor) match and are mapped.
 - `core::Report` is (kind, tag, file, line, expression, format, ...): asserts pass (1, " oldassert ", file, line,
   "condition", 0).
 
+Left alone: 0x1063E520 - 0x1063E540 (interlocked helpers with register arguments).
+
+## memory/spilloverallocator.cpp (0x10B803A0 - 0x10B80B12): 23 matched, 3 EQUIVALENT
+
+`core::MemorySpillOverAllocator` (RTTI name; RefCount at 0, the interface at 0xC, file name guessed): allocates
+from a primary allocator and falls back to a second allocator or a heap (`GetHeapAllocator`, 0x1063AA00),
+counting spilled bytes / blocks (stats 15 / 16) and calling an optional callback. The static range test
+`Contains` (allocator in edi) matches; each unit of this area has its own copy (0x10B80B30 is the debug
+allocator's). Slot 9 of IMemoryAllocator is evidently the range count (`Contains` loops over it with GetRange);
+it is still called GetType here. The Free family needs the fallback in a local (the original tail-duplicates the
+call).
+
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x1063E5D0 | SegmentPoolAllocator constructor | 86.3 % | EQUIVALENT in tree: the same eax-clearing position as the MemoryPool constructor |
+| 0x10B80720 | Alloc | 94.8 % | EQUIVALENT in tree: registers rotate around the callback call (callback / primary / userData); local copies, (*callback), volatile members, a notifier struct and an inline Notify helper (not inlined) do not help |
+| 0x10B807D0 | AllocAligned | 95.0 % | EQUIVALENT in tree: as Alloc |
+| 0x10B80890 | AllocFlags | 93.5 % | EQUIVALENT in tree: as Alloc, plus the vtable load of the fallback call in edx instead of eax |
 
-Left alone: 0x1063E520 - 0x1063E540 (interlocked helpers with register arguments).
+Left alone: 0x10B80350 - 0x10B80390, 0x10B80460, 0x10B80690 (interlocked helpers with register arguments);
+0x10B80300 / 0x10B80320 belong to the class before (destructor 0x10B801D0, singleton at 0x1132FE78).
+Next in line: core::MemoryDebugAllocator (0x10B80B20 - 0x10B813E0) and core::MemoryExternalAllocator /
+AllocatorBaseSub_NoStubs (0x10B813F0 - 0x10B81A60).
 
 ## Candidates nearby (leaf functions, not started)
 

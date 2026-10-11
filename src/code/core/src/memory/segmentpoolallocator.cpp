@@ -511,8 +511,6 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1063E5D0
-	// EQUIVALENT: as in the MemoryPool constructor, the original clears eax after the RefCount vftable store and
-	// ours right after the heap is copied (86.3 %); everything else is identical.
 	// The reference count starts at one: the factories hand the allocator out without an AddRef
 	SegmentPoolAllocator::SegmentPoolAllocator()
 		: RefCount(1)
