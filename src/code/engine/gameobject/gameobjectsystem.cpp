@@ -3,31 +3,18 @@
 #include "code/core/memory/memorypool.h"
 #include "code/core/memory/segmentpoolallocator.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace core
 {
 	// 0x10646C10: allocates one of the eight thread-local slots into *slot and sets it to value in every thread
 	bool AllocThreadSlot(int* slot, int value);
+	// 0x10646C60: gives the slot back
+	bool FreeThreadSlot(int slot);
 }
 
 namespace engine
 {
-	// The message router (0x11318090, gameobjecthandle.cpp declares the class); InitListeners is 0x108A5370
-	class MessageRouter
-	{
-	public:
-		// 0x108A5510
-		explicit MessageRouter(const container::AllocatorCoreAligned<16>& allocator);
-
-		void InitListeners(MessageListeners* listeners, int count);
-		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
-		void Invalidate(GameObjectHandle handle);
-		void SwapHandles(GameObjectHandle first, GameObjectHandle second);
-
-		unsigned char unknown[0x2fe8];
-	};
-	extern MessageRouter* gMessageRouter;
-
 	// The game object inventory's name in the root inventory (0x11283700)
 	extern content::ObjectName gGameObjectsName;
 	// The shared identity transform new game objects start with (0x1128329C)
@@ -50,6 +37,9 @@ namespace engine
 	void InitVTablePool(int count);
 	// 0x1086C0F0: registers the go_* script commands (name guess)
 	void RegisterGameObjectCommands();
+	// 0x108980B0 / 0x10867DD0: the counterparts
+	void ShutdownVTablePool();
+	void UnregisterGameObjectCommands();
 
 	// GLOBAL: ENGINE 0x112836EC
 	// GLOBAL: ENGINE 0x112836F8
@@ -462,6 +452,84 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x107F0080
+	bool ReleaseReadyGameObjects()
+	{
+		bool released = true;
+		bool unknown = gGameObjects->GetUnknown8();
+		gGameObjects->SetUnknown8(false);
+		{
+			content::LoadInventory::Iterator it(gGameObjects);
+			for (GameObject* object = it.First<GameObject>(); object != 0; object = it.Next<GameObject>())
+			{
+				if (object->IsReady())
+				{
+					gGameObjects->Remove(object, true);
+				}
+				else
+				{
+					released = false;
+				}
+			}
+			gGameObjects->SetUnknown8(unknown);
+		}
+		return released;
+	}
+
+	// FUNCTION: ENGINE 0x107F03E0
+	bool UpdateGameObjectSystemShutdown()
+	{
+		if (!ReleaseReadyGameObjects())
+		{
+			return false;
+		}
+		gTimeSliceCounter = 0;
+		gGameObjectSystemShutdown = false;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x107F0790
+	// EQUIVALENT: the engine loads gDeferredObjects before it stores the router's list end; our build stores first
+	void ClearGameObjectSystem()
+	{
+		gMasterTable->entries.Clear();
+		gMessageRouter->Clear();
+		gDeferredObjects->end = gDeferredObjects->begin;
+	}
+
+	// FUNCTION: ENGINE 0x107F0870
+	// EQUIVALENT: the engine's inlined deferred list destructor keeps the loaded begin pointer for the free; ours
+	// reloads it (a local copy in the destructor fixes this but breaks container::Destroy<MessageListenerList>)
+	void ShutdownGameObjectSystem()
+	{
+		while (gGameObjectSystemShutdown)
+		{
+			UpdateGameObjectSystemShutdown();
+		}
+		core::FreeThreadSlot(gThreadSlotA);
+		core::FreeThreadSlot(gThreadSlotB);
+		core::FreeThreadSlot(gThreadSlotC);
+		UnregisterGameObjectCommands();
+		ClearGameObjectSystem();
+		delete gMasterTable;
+		gMasterTable = 0;
+		delete gMessageRouter;
+		gMessageRouter = 0;
+		delete gDeferredObjects;
+		content::gRootInventory->Remove(gGameObjectsName, gGameObjects, true);
+		gGameObjects = 0;
+		delete gIdentityTransform;
+		core::UnregisterHeap(8);
+		gAttributePool->Release();
+		gAttributePool = 0;
+		gAttributeHeap = -1;
+		core::UnregisterHeap(9);
+		gAttributeListPool->Release();
+		gAttributeListHeap = -1;
+		gAttributeListPool = 0;
+		ShutdownVTablePool();
+	}
+
 	// Kept copies of inline functions: GameObjectIterator's members, container::Swap<unsigned short> and
 	// GameObjectHandle's (index) constructor
 	// FUNCTION: ENGINE 0x107EEBE0
@@ -470,4 +538,21 @@ namespace engine
 	// FUNCTION: ENGINE 0x107EF0A0
 	// FUNCTION: ENGINE 0x107EF410
 	// FUNCTION: ENGINE 0x107EF450
+	// ArrayDynamicHeap<unsigned short>'s destructor and scalar deleting destructor, LoadInventory::Iterator's destructor
+	// and First<GameObject>, MessageListenerList's destructors, the container::Destroy copies, ArrayFixed's Clear and
+	// destructor, MessageRouter's Clear and destructors, MasterTable's scalar deleting destructor
+	// FUNCTION: ENGINE 0x107EFAF0
+	// FUNCTION: ENGINE 0x107EFED0
+	// FUNCTION: ENGINE 0x107EEDB0
+	// FUNCTION: ENGINE 0x107EFB60
+	// FUNCTION: ENGINE 0x107F03C0
+	// FUNCTION: ENGINE 0x107F0670
+	// FUNCTION: ENGINE 0x107F06D0
+	// FUNCTION: ENGINE 0x107F0700
+	// FUNCTION: ENGINE 0x107F0750
+	// FUNCTION: ENGINE 0x107F07E0
+	// FUNCTION: ENGINE 0x107F0770
+	// FUNCTION: ENGINE 0x107F0800
+	// FUNCTION: ENGINE 0x107F0830
+	// FUNCTION: ENGINE 0x107F06A0
 }

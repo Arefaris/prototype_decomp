@@ -1,4 +1,4 @@
-// The game object system (unit 0x107EEBC0 - 0x107F0400; no assert path, the file name is a guess): it creates the
+// The game object system (unit 0x107EEBC0 - 0x107F09D0; no assert path, the file name is a guess): it creates the
 // master table and the message router, registers game objects in the table, iterates them and keeps the list of
 // objects whose update is deferred. Names are guesses unless noted.
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECTSYSTEM_H
@@ -8,118 +8,8 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 
+#include "code/container/arraydynamic.h"
 #include "code/core/heap.h"
-
-namespace container
-{
-	// Copies [first, last) to dest (front to back)
-	template<class T> inline T* Copy(T* first, T* last, T* dest)
-	{
-		for (; first != last; ++first, ++dest)
-		{
-			*dest = *first;
-		}
-		return dest;
-	}
-
-	// A growable array over an AllocatorCoreAligned<16>: begin / end / capacity, then the allocator's heap (probably
-	// container::ArrayDynamic with a stateful allocator; names guessed)
-	template<class T> class ArrayDynamicHeap
-	{
-	public:
-		ArrayDynamicHeap(unsigned int count, const AllocatorCoreAligned<16>& newAllocator) : allocator(newAllocator)
-		{
-			if (count != 0)
-			{
-				begin = (T*)allocator.Alloc(count * sizeof(T));
-				if (begin != 0)
-				{
-					capacity = begin + count;
-					end = begin;
-					return;
-				}
-			}
-			else
-			{
-				begin = 0;
-			}
-			end = 0;
-			capacity = 0;
-		}
-		~ArrayDynamicHeap()
-		{
-			end = begin;
-			if (begin != 0)
-			{
-				allocator.Free(begin);
-			}
-		}
-		bool Allocate(unsigned int count);
-		void Clear();
-		T* Find(const T& value)
-		{
-			T* item = begin;
-			while (item != end && *item != value)
-			{
-				item++;
-			}
-			return item;
-		}
-		bool PushBack(const T& value)
-		{
-			if (end < capacity)
-			{
-				T* item = end++;
-				if (item != 0)
-				{
-					*item = value;
-				}
-				return true;
-			}
-			return false;
-		}
-		void Erase(T* item)
-		{
-			Copy(item + 1, end, item);
-			end--;
-		}
-
-		T* begin;
-		T* end;
-		T* capacity;
-		AllocatorCoreAligned<16> allocator;
-	};
-
-	template<class T> bool ArrayDynamicHeap<T>::Allocate(unsigned int count)
-	{
-		if (count != 0)
-		{
-			begin = (T*)allocator.Alloc(count * sizeof(T));
-			if (begin != 0)
-			{
-				capacity = begin + count;
-				end = begin;
-				return true;
-			}
-		}
-		else
-		{
-			begin = 0;
-		}
-		end = 0;
-		capacity = 0;
-		return false;
-	}
-
-	template<class T> void ArrayDynamicHeap<T>::Clear()
-	{
-		end = begin;
-		if (begin != 0)
-		{
-			allocator.Free(begin);
-		}
-	}
-}
 
 namespace engine
 {
@@ -272,6 +162,10 @@ namespace engine
 	};
 
 	bool InitGameObjectSystem(const GameObjectSystemConfig* config);
+	bool ReleaseReadyGameObjects();
+	bool UpdateGameObjectSystemShutdown();
+	void ClearGameObjectSystem();
+	void ShutdownGameObjectSystem();
 }
 
 #endif

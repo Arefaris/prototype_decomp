@@ -6,6 +6,7 @@
 #ifndef CONTENT_LOADINVENTORY_H
 #define CONTENT_LOADINVENTORY_H
 
+#include "code/core/criticalsection.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 
@@ -23,9 +24,101 @@ namespace content
 		virtual void Release();
 	};
 
+	// The lock of every inventory (a critical section, 0x11276950)
+	extern unsigned char gInventoryLock[24];
+
 	class LoadInventory : public LoadObject
 	{
 	public:
+		// The name table (0x28 bytes): count slots of objects and their names; a removed slot points at deleted
+		struct Table
+		{
+			unsigned int count;
+			int unknown4;
+			int unknown8;
+			bool unknownC;
+			int unknown10;
+			int unknown14;
+			int unknown18;
+			core::IRefCount** objects;
+			ObjectName* names;
+			int deleted;
+		};
+
+		// Walks the objects of an inventory, holding a reference to it and optionally the inventory lock
+		class Iterator
+		{
+		public:
+			// Holding the lock
+			explicit Iterator(LoadInventory* newInventory)
+			{
+				table = newInventory->table;
+				inventory = newInventory;
+				lock = true;
+				newInventory->AddRef();
+				core::CriticalSectionEnter(gInventoryLock);
+			}
+			Iterator(LoadInventory* newInventory, bool newLock)
+			{
+				table = newInventory->table;
+				index = 0;
+				inventory = newInventory;
+				lock = newLock;
+				inventory->AddRef();
+				if (lock)
+				{
+					core::CriticalSectionEnter(gInventoryLock);
+				}
+			}
+			~Iterator()
+			{
+				if (lock)
+				{
+					core::CriticalSectionLeave(gInventoryLock);
+				}
+				inventory->Release();
+			}
+
+			// The next used slot's object, null at the end (the engine's calls go to a copy at 0x102D22C0)
+			core::IRefCount* NextObject()
+			{
+				Table* t = table;
+				unsigned int i = index;
+				do
+				{
+					i++;
+				}
+				while (i < t->count && (t->objects[i] == 0 || t->objects[i] == (core::IRefCount*)&t->deleted));
+				index = i;
+				return i >= t->count ? 0 : t->objects[i];
+			}
+			// The first / next object that is a T
+			template<class T> T* First()
+			{
+				index = -1;
+				core::IRefCount* object = NextObject();
+				if (dynamic_cast<T*>(object) != 0)
+				{
+					return static_cast<T*>(object);
+				}
+				return Next<T>();
+			}
+			template<class T> T* Next()
+			{
+				core::IRefCount* object = NextObject();
+				while (object != 0 && dynamic_cast<T*>(object) == 0)
+				{
+					object = NextObject();
+				}
+				return static_cast<T*>(object);
+			}
+
+			Table* table;
+			unsigned int index;
+			LoadInventory* inventory;
+			bool lock;
+		};
+
 		// The filter of a lookup: answers the object as T, or null (one virtual slot)
 		template<class T> class DynamicCaster
 		{
@@ -46,12 +139,16 @@ namespace content
 		// 0x106032F0 / 0x10603560: adds an object under a name / takes it out again
 		void Add(const ObjectName& name, LoadObject* object);
 		bool Remove(LoadObject* object, bool unknown);
+		// 0x106036C0: takes the object out of the slot of name (lock: take the inventory lock)
+		void Remove(const ObjectName& name, LoadObject* object, bool lock);
+		// 0x10601C30 / 0x106031D0 (meaning unknown; the setter takes the lock and copies the flag into the table)
+		bool GetUnknown8();
+		void SetUnknown8(bool value);
 
 		int unknown4;
 		bool unknown8;
 		bool unknown9;
-		// The name table (0x28 bytes)
-		void* table;
+		Table* table;
 		unsigned char unknown10[0x24 - 0x10];
 	};
 

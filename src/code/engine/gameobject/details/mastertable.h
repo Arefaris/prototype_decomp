@@ -24,29 +24,51 @@ namespace container
 		new (p) T(value);
 	}
 
-	// A fixed-capacity array filled from the front (name guessed)
+	template<class T> inline void Destroy(T* p)
+	{
+		p->~T();
+	}
+
+	template<class T> inline void Destroy(T* first, T* last)
+	{
+		for (; first != last; ++first)
+		{
+			Destroy(first);
+		}
+	}
+
+	// A fixed-capacity array filled from the front over raw storage (the elements are constructed and destroyed by
+	// the array; name guessed)
 	template<class T, int N> class ArrayFixed
 	{
 	public:
 		ArrayFixed()
 		{
-			end = data;
+			end = Data();
 		}
 		~ArrayFixed()
 		{
-			end = data;
+			Clear();
+		}
+		T* Data()
+		{
+			return (T*)storage;
+		}
+		const T* Data() const
+		{
+			return (const T*)storage;
 		}
 		T* Begin()
 		{
-			return data;
+			return Data();
 		}
 		int Size() const
 		{
-			return end - data;
+			return end - Data();
 		}
 		T& operator[](int index)
 		{
-			return data[index];
+			return Data()[index];
 		}
 		bool PushBack(const T& value)
 		{
@@ -59,14 +81,15 @@ namespace container
 		}
 		void Clear()
 		{
-			end = data;
+			Destroy(Data(), end);
+			end = Data();
 		}
 		void Reset()
 		{
-			end = data;
+			end = Data();
 		}
 
-		T data[N];
+		int storage[N * sizeof(T) / sizeof(int)];
 		T* end;
 	};
 }
