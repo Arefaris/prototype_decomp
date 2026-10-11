@@ -6,6 +6,12 @@
 #ifndef ENGINE_MESSAGE_H
 #define ENGINE_MESSAGE_H
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace engine
 {
 	class Message
@@ -32,6 +38,10 @@ namespace engine
 		IntrusiveMessage(int newType, short newId) : Message(newType, newId)
 		{
 		}
+
+		// 0x108476E0 / 0x10847720 (another unit): the reflection data
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 		virtual ~IntrusiveMessage()
 		{
 		}

@@ -104,20 +104,37 @@ namespace content
 		const char* name;
 	};
 
+	class MetaType;
+
+	// Tests whether an object of a base class is of the derived class (content::IBaseClassCaster)
+	struct IBaseClassCaster
+	{
+		virtual bool IsDerived(void* object) = 0;
+	};
+
+	template<class B, class D> struct BaseClassCasterImpl : IBaseClassCaster
+	{
+		virtual bool IsDerived(void* object)
+		{
+			return dynamic_cast<D*>((B*)object) != 0;
+		}
+	};
+
+	// A reflected class's members, and its base class (meta type and caster) when it has one
 	struct MemberList
 	{
 		MemberList()
 		{
 			members = 0;
 			count = 0;
-			unknown8 = 0;
-			unknownC = 0;
+			baseType = 0;
+			baseCaster = 0;
 		}
 
 		MemberInfo* members;
 		int count;
-		int unknown8;
-		int unknownC;
+		MetaType* baseType;
+		IBaseClassCaster* baseCaster;
 	};
 
 	// A reflected class: its name, a version and a type code
@@ -330,8 +347,8 @@ namespace content
 		return sType;
 	}
 
-	// The meta type of a core::Name<Key> member
-	template<class Key> NameMetaType* GetNameMetaType(bool unknown8, bool unknown9, const char* code)
+	// The meta type of a core::Name member of class C
+	template<class C> NameMetaType* GetNameMetaType(bool unknown8, bool unknown9, const char* code)
 	{
 		static NameMetaType sType(unknown8, unknown9, code);
 		return &sType;

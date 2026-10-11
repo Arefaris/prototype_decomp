@@ -127,3 +127,19 @@ ArrayDynamic<AttributeEntry> members they use. Left: 0x107E1CD0 (sends Attribute
 - The real container is container::ArrayDynamic<T, Allocator> (RTTI); ArrayDynamicHeap<T> is the
   AllocatorCoreAligned<16> instance. Size / Capacity are unsigned.
 - A function-local static with a destructor registers it with `_atexit` (0x10A882DA, mapped in symbols.txt).
+
+## scenariomessage.cpp (0x107F09D0 - 0x107F1960)
+
+Complete (76 functions): engine::ScenarioMessage's GetHandle / SetHandle / WriteEvent, the WriteFields and Clone of
+the engine's scenario messages (NullMessage, ScenarioInitializeMessage, StringMessage, the trigger, object, NIS and
+stream package messages), TriggerMessage's and StringMessage's constructors, the trigger messages' reflection data
+and every kept copy (constructors, destructors, scalar deleting destructors, base class casters). The file name is a
+guess (no assert path). Lessons:
+
+- Slot 1 of a scenario message copies it into caller memory: placement new of the class's ordinary constructor, then
+  the handles, as many as the class's handle info (20-byte statics at 0x111BD558 + 0x14 n) says.
+- The meta type getters are templates on the owning class (GetNameMetaType<EnterTriggerMessage>, ...), so every
+  class gets its own copy.
+- A class whose base has a reflected type stores its base meta type and a content::BaseClassCasterImpl<B, D> in its
+  MemberList (members +8 / +0xC).
+- `if (a == 0) return false; if (!b) return false;` keeps both early-out branches where `a == 0 || !b` merges them.

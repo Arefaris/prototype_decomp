@@ -247,7 +247,7 @@ namespace engine
 		static content::MemberList sList;
 		static content::MemberInfo sMembers[] =
 		{
-			{ content::GetNameMetaType<core::CaseSensitiveKey>(true, true, "porn"),
+			{ content::GetNameMetaType<AttributeEntry>(true, true, "porn"),
 				content::MemberOffset(&((AttributeEntry*)0)->key, (int)&((AttributeEntry*)0)->key), "key" },
 			{ content::GetObjectMetaType<BaseAttribute>("pnrm"),
 				content::MemberOffset(&((AttributeEntry*)0)->attribute, (int)&((AttributeEntry*)0)->attribute),
