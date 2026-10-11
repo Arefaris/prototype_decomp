@@ -36,6 +36,8 @@ namespace math
 	float InvSqrt(float value);
 	// Polynomial arctangent of a / b for 0 <= a, b: atan(a / b) when a < b, else pi/2 - atan(b / a)
 	float AtanRatio(float a, float b);
+	// Polynomial arctangent of any x (|error| about 0.0015 rad), capsule.cpp's unit (name guessed)
+	float FastAtan(float x);
 	// Odd polynomial (degree 13) approximation of sin(x) for small x
 	float SinPolynomial(float x);
 	// (r, angle) to x = r sin(angle), z = r cos(angle)

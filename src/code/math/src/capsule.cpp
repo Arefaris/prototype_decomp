@@ -2,12 +2,44 @@
 
 #include "code/math/aabb.h"
 #include "code/math/capsule.h"
+#include "code/math/mathconstants.h"
 #include "code/math/mathutils.h"
 #include "code/math/matrix.h"
 #include "code/math/segment.h"
 
 namespace math
 {
+	// The arctangent approximation x (pi/4 + 0.2447 (1 - |x|) + 0.0663 |x| (1 - |x|)) rearranged, for |x| <= 1 (x87,
+	// cdecl). Static inline: VS2005 inlines it into FastAtan and still emits it (names guessed)
+	// FUNCTION: ENGINE 0x107DC390
+	static inline float AtanPolySigned(float x)
+	{
+		float a = fabsf(x);
+		return x - (0.0707963705f * (a * a * x) + 0.143805444f * (a * x));
+	}
+
+	// The same for 0 <= y <= 1 in factored form; emitted with the compiler's register convention for static
+	// functions (y in xmm1, result in xmm0)
+	// FUNCTION: ENGINE 0x107DC3C0
+	static inline float AtanPolyPositive(float y)
+	{
+		return (1.0f - (y * 0.0707963705f + 0.143805444f) * y) * y;
+	}
+
+	// FUNCTION: ENGINE 0x107DC3F0
+	float FastAtan(float x)
+	{
+		if (fabsf(x) <= 1.0f)
+		{
+			return AtanPolySigned(x);
+		}
+		if (x > 0.0f)
+		{
+			return HALF_PI - AtanPolyPositive(1.0f / x);
+		}
+		return AtanPolyPositive(-1.0f / x) - HALF_PI;
+	}
+
 	// FUNCTION: ENGINE 0x107DC470
 	void Capsule::Transform(const Matrix& m)
 	{

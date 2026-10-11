@@ -8,6 +8,8 @@ State of every function of `code/math` looked at so far (2026-10-10). Matched fu
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
 Levers that turned functions into matches (2026-10-11 session), worth trying first on the rest:
+- unreferenced code with a register calling convention (argument in xmm1) is a `static inline` helper: VS2005 emits those even when all calls are inlined;
+- for polynomials the compiler factors common products unless the source groups them the original's way: enumerate product orders and associations (a small script, a few hundred compiles);
 - NONMATCHING functions described as "store scheduling" or "interleaving" may be a different sum order in disguise: CrossProduct matched once its squared length was grouped `(x * x + z * z) + y * y`; try the groupings first;
 - a reference local (`Vector& n = normal;`) for a member used in several products changes the operand loads (Plane::Set 93 -> 99 %);
 - matrices written element by element in memory order (m[0][0], m[0][1], ...), loops for 3x3 bodies do not unroll;
@@ -243,8 +245,8 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 | --- | --- | --- | --- |
 | 0x107DCD20 / 0x107DCDF0 | Sphere::IntersectRay / IntersectRayFirst | 100 % | in the tree: `d.Sub(origin, centre)`, `b = direction.Dot(d)`, `c = d.Dot(d) - radius * radius` |
 | 0x107DD090 | Sphere::AddSphere | 68 % | the `*this = other` branch matches as member-wise copies; the tail stores the new centre and radius together at the end while ours interleaves (Scale, Set, float and Vector temporaries tried). Earlier notes: `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
-| 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
-| 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
+| 0x107DC3F0 | FastAtan(x) | 100 % | in the tree (capsule.cpp, before Capsule::Transform): `|x| <= 1 ? AtanPolySigned(x) : (x > 0 ? HALF_PI - AtanPolyPositive(1 / x) : AtanPolyPositive(-1 / x) - HALF_PI)` |
+| 0x107DC390 / 0x107DC3C0 | AtanPolySigned / AtanPolyPositive | 100 % | in the tree: `static inline` helpers, which VS2005 inlines into FastAtan and still emits, the second with its register convention for static functions (y in xmm1); AtanPolySigned needs `x - (0.0707963705f * (a * a * x) + 0.143805444f * (a * x))` (found by enumerating product orders and associations; every other form gets factored) |
 | 0x107DC550 | Capsule::Contains(p) | EQUIVALENT | in the tree (68 %), as Cylinder::Contains: z terms added before y terms (commutative) |
 | 0x107DC620 | Capsule::GetDirection(p, out, distance) | 33 % | d.Sub, Dot, clamp to +-halfLength, out = d - direction t, Normalize, distance = length - radius; on the axis out = direction x (direction.z, direction.x, -direction.y) computed into registers first, then NormalizeFast. The original places the `t <= halfLength` branch at the end with a duplicated multiply (316 bytes vs our 296-300) |
 | 0x107DCC10 | Cylinder::GetAABB | 100 % | in the tree: `Min(fabsf(direction.x), 1.0f)` into one variable reused for the three axes (separate variables give a smaller frame); Cylinder::Transform (0x107DC7E0) matches, Cylinder::Contains (0x107DC800) is EQUIVALENT (88 %: z before y in the commutative dot sums; the member Dot / Sub / Set inlines are what get the copies right, direct expressions come out 5 bytes shorter) |
@@ -255,9 +257,8 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 Not attempted yet in math: TestBoxesSAT (0x107D9CB0, 1 111 bytes of x87 with 15 tests: an EQUIVALENT needs every sum order read off the
 x87 stack by hand), TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
 plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
-Intersects(Capsule, Segment)), the SSE copy of the atan polynomial (0x107DC3C0, custom register convention) and 0x107D2EC0 (11 bytes,
-an unreferenced one-member constructor or setter at the end of matrix.cpp). The x87 atan polynomial 0x107DC390 is plain cdecl: every
-form tried comes out factored `(c1 a + c2) a` where the original multiplies a a x c1 and a x c2 separately (65.5 %).
+Intersects(Capsule, Segment)), and 0x107D2EC0 (11 bytes,
+an unreferenced one-member constructor or setter at the end of matrix.cpp). The atan helpers and FastAtan match (see the sphere / capsule table).
 
 Math-adjacent helpers seen from math code, kept out of line by the compiler in engine units (inline functions, so they cannot carry a
 FUNCTION annotation from a header yet): 0x100631C0 `IsEqual(a, b, tolerance)` (|a - b| <= tolerance, returns int; called once by
