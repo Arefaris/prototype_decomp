@@ -37,6 +37,28 @@ namespace math
 		out.end.z = centre.z + dz;
 	}
 
+	// FUNCTION: ENGINE 0x107DC550
+	// EQUIVALENT: as Cylinder::Contains: the original adds the z terms before the y terms (commutative) and offsets z
+	// first (68 %)
+	bool Capsule::Contains(const Vector& p) const
+	{
+		Vector d;
+		d.Sub(p, centre);
+		float t = d.Dot(direction);
+		if (t > halfLength)
+		{
+			t = halfLength;
+		}
+		else if (t < -halfLength)
+		{
+			t = -halfLength;
+		}
+		Vector offset;
+		offset.Set(direction.x * t, direction.y * t, direction.z * t);
+		d.Sub(d, offset);
+		return d.Dot(d) < radius * radius;
+	}
+
 	// FUNCTION: ENGINE 0x107DC760
 	void Capsule::GetAABB(AABB& out) const
 	{

@@ -27,6 +27,8 @@ namespace math
 		void GetSegment(Segment& out) const;
 		// The axis' box grown by the radius
 		void GetAABB(AABB& out) const;
+		// True when p lies strictly within the radius of the axis segment (name guess)
+		bool Contains(const Vector& p) const;
 	};
 
 	// A capped cylinder: centre, unit axis direction, half length along the axis and radius (layout from the
