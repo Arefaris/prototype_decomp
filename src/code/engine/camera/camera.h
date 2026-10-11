@@ -69,6 +69,8 @@ namespace engine
 			int GetPlayerIndex() const;
 			bool IsActive() const;
 			void SetUnknown7AD(bool value);
+			// The target's matrix (0x107DDAF0; name guessed)
+			math::Matrix* GetTargetMatrix() const;
 			// 0x1084E260: back to the default state (another unit)
 			void Reset();
 			// 0x1084DF40 (another unit)

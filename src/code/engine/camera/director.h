@@ -104,6 +104,9 @@ namespace engine
 			int unknown8;
 			int controllerCount;
 			int playerCount;
+
+			// Defaults: heap 0, 32 controllers, 8 players
+			CameraSystemConfig();
 		};
 		// Stores the configuration, creates the Director in the camera heap and sizes the reset listener lists
 		bool InitCameraSystem(const CameraSystemConfig* config);
@@ -128,6 +131,8 @@ namespace engine
 			static void Shutdown();
 
 			int GetMaxControllerIndex() const;
+			// Index of a player's camera slot in the cameras array (0x107DD9E0; name guessed)
+			int GetCameraIndex(int playerIndex, int kind) const;
 			// Puts the controller in the first free slot and gives it the next id
 			void AddController(Cinematographer* controller);
 			void RemoveController(Cinematographer* controller);

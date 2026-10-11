@@ -36,6 +36,20 @@ namespace engine
 {
 	namespace camera
 	{
+		// Cinematographer::GetName is inline in the header; its kept copy is 0x107DDCB0
+		// FUNCTION: ENGINE 0x107DDCB0
+		// FUNCTION: ENGINE 0x107DD9D0
+		int Cinematographer::IsRunningFlags(unsigned int flags)
+		{
+			return ~(flags >> 1) & 1;
+		}
+
+		// FUNCTION: ENGINE 0x107DD9E0
+		int Director::GetCameraIndex(int playerIndex, int kind) const
+		{
+			return playerIndex * 2 + kind;
+		}
+
 		// FUNCTION: ENGINE 0x107DD9F0
 		inline CameraResetMessage::CameraResetMessage() : IntrusiveMessage(sizeof(CameraResetMessage), 2)
 		{
@@ -60,6 +74,15 @@ namespace engine
 		{
 		}
 
+		// FUNCTION: ENGINE 0x107DDA50
+		void Cinematographer::OnKindEventIfRunning(float param)
+		{
+			if (IsRunning())
+			{
+				OnKindEvent(param);
+			}
+		}
+
 		// FUNCTION: ENGINE 0x107DDA70
 		int Director::GetMaxControllerIndex() const
 		{
@@ -70,6 +93,12 @@ namespace engine
 		void Cinematographer::SetSlot(int value)
 		{
 			slot = value;
+		}
+
+		// FUNCTION: ENGINE 0x107DDA90
+		int Cinematographer::GetSlot() const
+		{
+			return slot;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAA0
@@ -100,6 +129,22 @@ namespace engine
 		void Camera::SetUnknown7AD(bool value)
 		{
 			unknown7AD = value;
+		}
+
+		// FUNCTION: ENGINE 0x107DDAF0
+		math::Matrix* Camera::GetTargetMatrix() const
+		{
+			return target->MatrixAt90();
+		}
+
+		// FUNCTION: ENGINE 0x107DDB00
+		CameraSystemConfig::CameraSystemConfig()
+		{
+			heap = 0;
+			unknown4 = 1;
+			unknown8 = 1;
+			controllerCount = 0x20;
+			playerCount = 8;
 		}
 
 		// FUNCTION: ENGINE 0x107DDB50
