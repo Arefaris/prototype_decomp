@@ -7,6 +7,7 @@
 
 namespace math
 {
+	class Quaternion;
 	class Vector4;
 
 	class Matrix
@@ -49,6 +50,10 @@ namespace math
 		void Transpose3x3();
 		// Sets this matrix to the transpose of src (src must not be this matrix)
 		void Transpose(const Matrix& src);
+		// The transposed upper 3x3 of src into this one; the rest unchanged
+		void Transpose3x3(const Matrix& src);
+		// The rotation of q (Quaternion::ToMatrix)
+		void FromQuaternion(const Quaternion& q);
 		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
 		void InvertOrthonormal();
 		// Multiplies the upper 3x3 by s
@@ -96,6 +101,8 @@ namespace math
 		void Transform(int count, const Vector* in, Vector* out) const;
 		// out = v times the full 4x4 (0x107CF990, not reconstructed yet)
 		void Transform(const Vector4& v, Vector4& out) const;
+		// Transform for count Vector4s from in to out
+		void Transform(int count, const Vector4* in, Vector4* out) const;
 
 		// Vector4 wrappers (vector4.cpp); names guessed
 		void Reset();

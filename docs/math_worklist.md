@@ -35,6 +35,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107CF5D0 | Orthonormalize | 30.8 % | |
 | 0x107CF720 | IsOrthonormal | 16 % | six dot products spilled, inline IsEqual x5 + one out-of-line call |
 | 0x107CF8F0 / FA80 / FB10 | Transform / Rotate / RotateInverse | EQUIVALENT | y/z registers swapped |
+| 0x107CF990 | Transform(const Vector4&, Vector4&) | EQUIVALENT | sums need explicit grouping `((a + b) + c) + d` to keep the original order; v.z / v.y / v.w registers rotated. FromQuaternion (0x107CEB70), Transpose3x3(src) (0x107CF4F0) and Transform(count, Vector4*) (0x107CFBD0, needs this one compiled in the unit) match |
 | 0x107CFC00 | PerspectiveFovLH | - | calls Identity first; not attempted |
 | 0x107CFC80 / FD20 | Ortho / OrthoRH | 98.7 / 92.3 % | constant register only |
 | 0x107CFE90 | OrthoOffCenterRH | 66.4 % | |
@@ -59,8 +60,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107D31C0 | contains (3D, barycentric signs) | - | |
 | 0x107D3360 | Triangle::ContainsXZ(p) | 88 % | EQUIVALENT in tree: three 2D edge tests with early returns; the two factors of the first test come out in swapped registers |
 | 0x107D3420 | Triangle::ClosestPoint(p, out) | 9 % | Ericson's region test; returns 1 / 2 / 4 for edges ab / bc / ca, 5 / 3 / 6 for corners, 0 inside. Original frame 0x7c with Vector locals in memory (p copy at 0, ac at 0x1c, bc at 0x28, a - p at 0x34, n at 0x40, c - p at 0x4c, b - p at 0x58, ab in registers), d1 / d3 / d4 / d2 at 0xc-0x18; the dots are written as -(ab . (a - p)) etc. Scalar and Sub/Dot/Cross-helper versions both land at 9 %: the compiler's schedule of the first block differs from the start (REA pseudocode is a faithful guide to the arithmetic) |
-| 0x107D3AA0 | Area(a, b, c) | 48.1 % | free function, cross of (a - b) and (b - c), sqrt in x87 of three SSE squares spilled to the stack; permuter plateau over subtraction lines, products and the sum |
-| 0x107D3B50 | angle (three normalisations, acos) | - | |
+| 0x107D3B50 | angle (three normalisations, acos) | - | Area (0x107D3AA0) matches: z, x, y cross components as float locals, `n.Set(x, y, z)`, flat sum in the sqrt |
 
 ## matrix3.cpp (0x107D3CF0 - 0x107D4150)
 
@@ -75,7 +75,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 |---|---|---:|---|
 | 0x107D4450 | GetAABB | 13.5 % | products in SSE through Vector temporaries, fabs in x87 |
 | 0x107D4560 | GetCornerOffset(out, bits) | 45.6 % | permuter plateau (300 compilations); structure differs |
-| 0x107D4630 | Contains | 96.6 % | dot product term order |
+| 0x107D4630 | Contains | 100 % | in the tree: `const Vector& v = axis[i]` in a `for (int i = 3; i--; )` loop with the x87 dot grouped `(v.x * d.x + v.y * d.y) + v.z * d.z` |
 | 0x107D46D0 | closest point / depth | - | |
 | 0x107D48E0 | GetSphere | 12.6 % | |
 | 0x107D49B0 | GetCorner | 100 % | waits for GetCornerOffset (same unit, register knowledge) |
@@ -102,7 +102,7 @@ Left:
 | 0x107D9A20 | TestBoxAxes(extents, direction, delta, length) | 37.8 % | x87 throughout: three face tests then three cross-product tests with early returns; the stack temporaries (abs values) and the operand order of each test differ |
 | 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | - | 1 111 bytes, box vs box SAT; called by 0x107DA110 / 0x107DA360; not attempted |
 | 0x107DA110 | Intersects(OBB, OBB) | 15.2 % | delta in A's space and the 3x3 of axis dots on the stack, then TestBoxesSAT; the straight version is 625 bytes vs 583: the original shares the a.axis loads between the dots |
-| 0x107DA410 | Intersects(OBB, Sphere) | 96.9 % | EQUIVALENT in tree: `for (int i = 3; i--; )` with the x87 dot inside; only the dot's term order (y, x, z in the original, a commutation) is left; permuter reached 99 % |
+| 0x107DA410 | Intersects(OBB, Sphere) | 100 % | in the tree: the same `const Vector& v` + grouping trick as OBB::Contains |
 | 0x107DA5D0 | Intersects(Plane, OBB) | 61.8 % | x87: the distance matches; the three abs(axis . n) * extent terms are evaluated axis 2, 0, 1 with the dots in y, z, x order; permuter plateau |
 | 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
 | 0x107DA850 | ClassifyBox(box, planes, count) | 47.4 % | frame matches with two Vector locals (far corner declared first); the plane pointer register (ecx vs edx) and the reload of normal.x differ |
@@ -111,58 +111,58 @@ Left:
 
 Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
 
-## spline.cpp (0x107D49F0 - 0x107D6F10), partly in the tree
+## spline.cpp (0x107D49F0 - 0x107D6F10), mostly in the tree
 
 A keyed cubic spline (class names SplineSegment / Spline guessed, src/code/math/spline.h): `int current; SplineSegment
 segment (Matrix coefficients, Matrix derivative, bool flag; 0x84 bytes); bool closed (0x88); bool flag (0x89); int
-(0x8c); int count (0x90); Vector4* keys (0x94); Vector4* tangents (0x98); float* lengths (0x9c)`. Fourteen small
-methods match (constructor, operator=, SetFlag x2, Evaluate / EvaluateDerivative with the clamp on a copy of t,
-destructor, GetSegmentCount / F, GetKey, InvalidateLengths with the `Min` template, SetKey / SetTangent,
-Spline::Evaluate). Left:
+mode (0x8c); unsigned count (0x90); Vector4* keys (0x94); Vector4* tangents (0x98); float* lengths (0x9c); int step
+(0xa0); int stepsPerSegment (0xa4)`. Matched: the segment's constructors, operator=, SetFlag, Evaluate /
+EvaluateDerivative / EvaluateSecondDerivative, BeginStepping, Build; the spline's constructor, destructor, SetMode,
+SetClosed (functions.tsv ends it 16 bytes early), SetKeyCount, SetFlag, GetSegmentCount / F, GetKey,
+InvalidateLengths, SetKey x2, SetTangent, SelectSegment (`count` is unsigned, compared as `(int)count - 4` there),
+Evaluate x2, the two other Build overloads (0x107D5FE0 from Vector keys with w = 1, 0x107D6480 from a Matrix of keys; functions.tsv sizes cover only their dispatch), StartStepping (the clamp reassigns the `index` parameter), NextStep (needs Step compiled in the unit: the
+original keeps `edx` across the call), the lengths (DerivativeLength, ArcLength, GetSegmentLength, GetTotalLength,
+GetLength). EQUIVALENT in tree: Step (0x107D4BC0, 18.9 %: the original loads the three addends, then the three
+targets of each row into six registers and reloads every row; plain `+=`, Set, Add, float / Vector temporaries and
+loops all schedule differently), the copy constructor and operator= (0x107D59C0 / 0x107D5C00, 85 %: ebx / ebp swapped,
+the original holds the null in ebp and compares other.lengths with an immediate; shared or int loop counters do not
+change it). Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D4BC0 | SplineSegment::Step(Vector& out): derivative rows 0 += 1, 1 += 2, 2 += 3 (x, y, z), out = row 0 | 16.4 % | the original loads the three addends, then the three targets, adds and stores, row by row, and copies row 0 through the x87 unit at the end; plain `+=`, Vector / Vector4 row references with Add, and float temporaries all interleave differently (159-173 bytes vs 195) |
-| 0x107D4B40, 0x107D4CC0 - 0x107D4EA0 | other segment steppers / builders | - | not attempted |
 | 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | 28.5 % | rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
 | 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
-| 0x107D5820 - 0x107D5C00 | evaluators (forward differencing setup, arc-length lookups) | - | not attempted |
-| 0x107D5FE0, 0x107D6480 | 15-way switches on the mode (jump tables with 3 targets) | - | not attempted |
-| 0x107D6760, 0x107D6810, 0x107D6C40 | iteration accessors (start at key / next step with Step, 709-byte evaluator) | - | not attempted |
+| 0x107D6C40 | Spline::GetParameter(length) | 22 % | NONMATCHING in tree: segment search over `lengths` (matches), first guess `(length - sum + segmentLength) / segmentLength + start`, then 32 Newton steps with fsel-style clamps (`Select(t - start, t, start)`, `Select(t - end, end, t)`, mathutils.h) and GetLength / EvaluateDerivative; the original computes `end` and the first `t` in SSE (start converted through memory), we get x87 |
 
-SplineSegment::Build (0x107D6300) matches: a switch on the mode with the jump table's three targets (keys as rows /
-BuildCatmullRom / BuildHermite), `coefficients.Multiply(*SPLINE_BASIS[mode], geometry)` written in every case (the
-compiler duplicates it for the first case and merges the other two). The lengths match too: the static register-
-convention helpers DerivativeLength (0x107D5F30) and ArcLength (0x107D5F60, 5-point Gauss-Legendre over [0, t] with
-separate `scale` / `offset` locals and `return sum * scale`; functions.tsv ends it 11 bytes early) as
-`static __declspec(noinline)` free functions, GetSegmentLength (0x107D6940, `new float[n + 1]` filled with -1 on first
-use), GetTotalLength (0x107D6A50, the cached test written `lengths != 0 && lengths[n] >= 0.0f` inline) and GetLength
-(0x107D6B60).
-
-## segment.cpp (0x107D6F40–0x107D7650), not in the tree
+## segment.cpp (0x107D6F40-0x107D7650), partly in the tree
 
 Segment is `{Vector start; Vector end;}`. The compiler keeps `d = end - start` and `v = p - start` as memory Vectors
 and reads them back in x87 with term orders that change from function to function (x,z,y dot products; (z²+y²)+x²
-lengths), so plain float locals, Vector locals with inline Dot/Length and operator- forms all plateau.
+lengths). Explicitly parenthesised x87 sums on `d.Sub(...)` Vectors are what reproduce them (the compiler keeps the
+grouping but reorders flat sums).
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D6F40 | component-wise min/max of two vectors into (min, max) | — | not drafted (do-while from 3, `if (b <= a)`) |
-| 0x107D7020 | closest point + distance² | — | not drafted |
-| 0x107D72D0 | Parameter(p) = dot(p-s, d) / dot(d, d) | 23.5 % | SSE prologue matches, x87 part does not |
-| 0x107D7380 | GetSphere(centre = (s+e)/2, radius = |s-e|) | 21.4 % | d must be an SSE-stored Vector, Length in x87 |
-| 0x107D7420 | DistanceSquared(p) (clamped projection) | 4.3 % | three different sum orders in one function |
-| 0x107D7570 | DistanceSquaredToLine(p) | 17.0 % | |
+| 0x107D6F40 | GetAABB | 100 % | in the tree. DistanceSquared(p, t, lengthSquared) (0x107D6F90) matches: `t <= EPSILON_FLOAT`, the x87 sums need explicit groupings per branch (`(y^2 + x^2) + z^2` then `(x^2 + z^2) + y^2` on `d.Sub` vectors) |
+| 0x107D7020 / 0x107D7190 | ClosestPoint(p, out) / ClosestPoint(p, t, lengthSquared, out) | 100 % | in the tree; groupings found by sweeps (the two direct-difference branches of the second one only match as a pair: the compiler shares choices across branches) |
+| 0x107D72D0 | Parameter(p) | 100 % | in the tree: `(v.y * d.y + (d.z * v.z + d.x * v.x)) / ((d.x * d.x + d.y * d.y) + d.z * d.z)`, found by sweeping groupings and operand orders |
+| 0x107D7380 | GetSphere | 100 % | in the tree: `sum.Set(start.x + end.x, end.y + start.y, end.z + start.z)`: the operand order inside Set arguments is kept, unlike plain statements |
+| 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
+| 0x107D7570 | DistanceSquaredToLine(p) | 100 % | in the tree; numerator `d.y * v.y + (d.z * v.z + d.x * v.x)` found by a sweep |
+| 0x107D7650 | ClosestPointOnLine(p, out) | EQUIVALENT | in the tree (98.6 %): dz^2 + dx^2 of the denominator in swapped registers |
+| 0x107D7770 / 0x107D7B40 | segment-segment distance / closest points | - | 963 / 1407 bytes, not attempted |
+| 0x107D80C0 | LineDistanceSquared(other) | EQUIVALENT | in the tree (76 %): `n.Cross(d, e)`, parallel case tail-calls DistanceSquaredToLine(other.start); e.x / d.y / d.z registers rotated |
 
-## random.cpp (0x107D8380–0x107D8740), partly in the tree
+## random.cpp (0x107D8380-0x107D8740), mostly in the tree
 
-Seed x2 match (Step by reference). The vector functions keep the three raw 32-bit values live and convert them late.
+Seed x2, NextVector01 and NextVector11 match. The vector functions return `Vector` by value (the hidden result
+pointer is the `out` the old notes assumed; NRVO puts the local in it): `Vector v; v.x = NextFloat01(); ...; return v;`
+with `Next()` built on `Step` returning the new state (`unsigned low = Step(w, 18000) & 0xFFFF`), so the w value is
+reused from the register.
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D8460 | NextVector01(Vector&) -> Vector& | 21.4 % | `out.Set(NextFloat01() x3)`; original interleaves the three Next() before the bit tricks |
-| 0x107D8560 | NextVector11(Vector&) -> Vector& | 5 % | same shape with 0x40000000 / -3.0f |
-| 0x107D8660 | NextUnitVector(Vector&) | 26.3 % | rejection loop on NextVector11 (0.001 < len² <= 1), x87 1/sqrt |
+| 0x107D8660 | NextUnitVector() | ~70 % | NONMATCHING in tree: rejection loop on NextVector11 (0.001 <= len^2 <= 1), x87 1 / sqrt; the original copies each candidate member-wise into the result and a second local and scales the local into the result |
 
 ## symmetricmatrix.cpp (0x107D9100–0x107D9A00), partly in the tree
 
@@ -196,12 +196,10 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | --- | --- | --- | --- |
 | 0x107DCD20 | Sphere::IntersectRay | 95.5 % | EQUIVALENT in the tree: only the xmm numbers of dx/dy/dz differ, every sum/product order gives the same code |
 | 0x107DCDF0 | Sphere::IntersectRayFirst | 93.3 % | EQUIVALENT in the tree, same difference |
-| 0x107DCF50 | Sphere::GetAABB | 38.6 % | original keeps centre in xmm7/1/2 and copies before subtracting; max.x = r + c.x |
-| 0x107DCFB0 | Sphere::AddPoint | 33.8 % | |
-| 0x107DD090 | Sphere::AddSphere | 69.9 % | Vector d local (three stack slots), early returns `if (radius >= other.radius + distance)` |
+| 0x107DD090 | Sphere::AddSphere | 68 % | `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
-| 0x107DC550 | Capsule::Contains(p) (t clamped to +-halfLength, dist² < r²) | 13.6 % | |
-| 0x107DC800 | Capsule::ContainsStrict? (|t| > halfLength -> false) | 12.3 % | returns bool |
-| 0x107DC620 | Capsule::GetDirection(p, dir, dist) | 24.1 % | zero case builds a perpendicular and NormalizeFast |
-| 0x107DCC10 | AABB of {centre, direction(3..5), halfLength(6), radius(7)} (another class) | — | not drafted |
+| 0x107DC550 | Capsule::Contains(p) | EQUIVALENT | in the tree (68 %), as Cylinder::Contains: z terms added before y terms (commutative) |
+| 0x107DC620 | Capsule::GetDirection(p, out, distance) | 33 % | d.Sub, Dot, clamp to +-halfLength, out = d - direction t, Normalize, distance = length - radius; on the axis out = direction x (direction.z, direction.x, -direction.y) computed into registers first, then NormalizeFast. The original places the `t <= halfLength` branch at the end with a duplicated multiply (316 bytes vs our 296-300) |
+| 0x107DCC10 | Cylinder::GetAABB (centre, direction, halfLength, radius; capsule.h) | - | not drafted; Cylinder::Transform (0x107DC7E0) matches, Cylinder::Contains (0x107DC800) is EQUIVALENT (88 %: z before y in the commutative dot sums; the member Dot / Sub / Set inlines are what get the copies right, direct expressions come out 5 bytes shorter) |
+| 0x107DC8C0 | 834 bytes, probably a Cylinder ray test | - | not looked at |
