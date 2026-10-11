@@ -74,6 +74,30 @@ namespace core
 
 		T* p;
 	};
+
+	// Releases the object and clears the pointer (out of line: each unit that uses it keeps a copy per type)
+	template<class T> void SafeRelease(T*& object)
+	{
+		if (object != 0)
+		{
+			object->Release();
+			object = 0;
+		}
+	}
+
+	// Takes a reference to object and releases the one pointer held
+	template<class T> void RefAssign(T*& pointer, T* object)
+	{
+		if (object != 0)
+		{
+			object->AddRef();
+		}
+		if (pointer != 0)
+		{
+			pointer->Release();
+		}
+		pointer = object;
+	}
 }
 
 #endif

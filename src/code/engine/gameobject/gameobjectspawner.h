@@ -6,6 +6,7 @@
 #define ENGINE_GAMEOBJECT_GAMEOBJECTSPAWNER_H
 
 #include "code/content/loadinventory.h"
+#include "code/core/refptr.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/math/matrix.h"
 
@@ -34,12 +35,6 @@ namespace content
 		int unknownC;
 		ObjectName name;
 	};
-}
-
-namespace core
-{
-	// Releases the object and clears the pointer (out of line in another unit; MetaObjectTemplate: 0x1007F110)
-	template<class T> void SafeRelease(T*& object);
 }
 
 namespace engine

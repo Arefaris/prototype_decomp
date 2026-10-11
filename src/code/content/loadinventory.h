@@ -237,11 +237,70 @@ namespace content
 		LoadInventory::DynamicCasterBase* caster;
 	};
 
+	// Reads and writes a reference member through accessors (RTTI: 2 slots)
+	class ReferenceMetaTypeGetSetter
+	{
+	public:
+		virtual LoadObject* Get(const void* object) = 0;
+		virtual void Set(void* object, LoadObject* value) = 0;
+	};
+
+	// A reference member reached through accessors (0x105FEF80)
+	class ReferenceMetaTypeGetSet : public ReferenceMetaType
+	{
+	public:
+		ReferenceMetaTypeGetSet(LoadInventory::DynamicCasterBase* caster, ReferenceMetaTypeGetSetter* getSetter,
+			const char* code);
+
+		virtual void Slot12();
+		virtual void Slot13();
+
+		ReferenceMetaTypeGetSetter* getSetter;
+	};
+
 	// The meta type of a reference to a T member of class C
 	template<class C, class T> ReferenceMetaType* GetReferenceMetaType(const char* code)
 	{
 		static LoadInventory::DynamicCaster<T> sCaster;
 		static ReferenceMetaType sType(&sCaster, code);
+		return &sType;
+	}
+}
+
+// A reference member of class C reached through a getter and a setter (RTTI: global namespace)
+template<class C, class T> class ReferenceMemberGetSetter : public content::ReferenceMetaTypeGetSetter
+{
+public:
+	typedef T* (C::*Getter)() const;
+	typedef void (C::*Setter)(T*);
+
+	ReferenceMemberGetSetter(Getter newGetter, Setter newSetter)
+	{
+		getter = newGetter;
+		setter = newSetter;
+	}
+
+	virtual content::LoadObject* Get(const void* object)
+	{
+		return (((const C*)object)->*getter)();
+	}
+	virtual void Set(void* object, content::LoadObject* value)
+	{
+		(((C*)object)->*setter)((T*)value);
+	}
+
+	Getter getter;
+	Setter setter;
+};
+
+namespace content
+{
+	template<class C, class T> ReferenceMetaType* GetReferenceMemberMetaType(T* (C::*getter)() const,
+		void (C::*setter)(T*), const char* code)
+	{
+		static ReferenceMemberGetSetter<C, T> sGetSetter(getter, setter);
+		static LoadInventory::DynamicCaster<T> sCaster;
+		static ReferenceMetaTypeGetSet sType(&sCaster, &sGetSetter, code);
 		return &sType;
 	}
 }

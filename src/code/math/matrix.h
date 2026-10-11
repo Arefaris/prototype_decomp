@@ -18,6 +18,30 @@ namespace math
 		// The identity matrix, a constant in the engine's data (0x111BB9E0)
 		static const Matrix IDENTITY;
 
+		Matrix()
+		{
+		}
+		// User-defined like Vector's: copy construction moves the elements one by one (movss)
+		__forceinline Matrix(const Matrix& other)
+		{
+			m[0][0] = other.m[0][0];
+			m[0][1] = other.m[0][1];
+			m[0][2] = other.m[0][2];
+			m[0][3] = other.m[0][3];
+			m[1][0] = other.m[1][0];
+			m[1][1] = other.m[1][1];
+			m[1][2] = other.m[1][2];
+			m[1][3] = other.m[1][3];
+			m[2][0] = other.m[2][0];
+			m[2][1] = other.m[2][1];
+			m[2][2] = other.m[2][2];
+			m[2][3] = other.m[2][3];
+			m[3][0] = other.m[3][0];
+			m[3][1] = other.m[3][1];
+			m[3][2] = other.m[3][2];
+			m[3][3] = other.m[3][3];
+		}
+
 		// Member-wise copy; the engine keeps this out of line (0x100600B0, outside matrix.cpp's code)
 		Matrix& operator=(const Matrix& other);
 		// *this = IDENTITY

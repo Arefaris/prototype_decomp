@@ -198,3 +198,30 @@ does not change that). Tested in game: `online_DeterminePlayerIndex(PLAYER_1)` a
   code/engine/scriptcontext.h.
 - `GetScriptContext()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
   local.
+
+## physics/supportinglimb.cpp (0x107F2970 - 0x107F66E0), first part
+
+SupportingLimbDefinition (reflected loader object, 21 members), SupportingLimbDefinitionList, SupportingLimb (state of
+one limb) and SmoothingVelocityMap: reflection, constructors, destructors, copy / swap, SetDefinition and the
+explicitly instantiated containers (container::ArrayCDynamic<T, N>, an inline array of N with an end pointer, and
+the new[]-based array the RTTI calls ArrayDynamic<T, AllocatorNew>, kept here as container::ArrayDynamicNew).
+Six class functions are EQUIVALENT (see the source). Open:
+
+- The runtime part: 0x107F2B20 - 0x107F2CC0, 0x107F34D0 - 0x107F37F0, 0x107F41E0, 0x107F4240, the ray / sphere
+  casts 0x107F5540 / 0x107F5AC0 / 0x107F66B0 and the update 0x107F5D20 (2.4 KB, ravenphysics queries).
+- Container members that do not match yet (left unmapped, the engine's copies stay): ArrayDynamicNew::Create /
+  Allocate / Erase / Reserve / Insert, ArrayCDynamic Erase / ShiftUp / Insert (Entry), the UninitializedFill and
+  CopyRange copies, the helpers' Insert / Erase. Mostly register allocation.
+- 0x107F3020, 0x107F31A0, the empty functions 0x107F2F40 / 0x107F31E0 - 0x107F3200 / 0x107F3CC0 - 0x107F3CE0: owners
+  unknown (more identical copies than names).
+
+Lessons:
+
+- Runs of tiny unreferenced functions are explicit instantiations (`template class X<...>;`): every member gets a copy.
+- The member meta type getters are one instance per member (PrimitiveMetaType / VectorMetaType statics), so the getter
+  is a template with an id; use the member index, not __LINE__ (any edit would rename the symbols).
+- ArrayCDynamic keeps raw storage: constructing the array does not construct its elements.
+- math::Matrix has a user-defined (inlined) copy constructor like Vector's: copies move element by element (movss).
+- A loop that leaves through `break` into a bool result (`sorted = false; break;`) matches where `return false` in the
+  loop does not.
+- scratchpad tool kept2.py (in-process byte comparison) replaces kept.py: seconds instead of an hour.

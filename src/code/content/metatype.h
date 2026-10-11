@@ -356,6 +356,128 @@ namespace content
 		ArrayDynamicHelperBase* helper;
 	};
 
+	// The element access of a container::ArrayCDynamic for its meta type
+	class ArrayCDynamicHelperBase
+	{
+	public:
+		virtual int Size(void* array) = 0;
+		virtual void* Get(void* array, int index) = 0;
+		virtual void* GetConst(void* array, int index) = 0;
+		virtual void Insert(void* array, int index, int unused) = 0;
+		virtual void Erase(void* array, int index, int unused) = 0;
+	};
+
+	template<class A> class ArrayCDynamicHelper : public ArrayCDynamicHelperBase
+	{
+	public:
+		typedef typename A::Element T;
+
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
+
+		virtual int Size(void* array)
+		{
+			return ((A*)array)->Size();
+		}
+		virtual void* Get(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+		virtual void Insert(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			a->Insert(a->Begin() + index, 1, Default());
+		}
+		virtual void Erase(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			a->Erase(a->Begin() + index);
+		}
+	};
+
+	// The meta type of a container::ArrayCDynamic member of capacity elements (0x10600280)
+	class ArrayCDynamicMetaType : public MetaType
+	{
+	public:
+		ArrayCDynamicMetaType(int capacity, MetaType* element, ArrayCDynamicHelperBase* helper, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		int capacity;
+		MetaType* element;
+		ArrayCDynamicHelperBase* helper;
+	};
+
+	// One value of a reflected enumeration
+	struct EnumValue
+	{
+		const char* name;
+		int value;
+	};
+
+	// The values of enumeration E (a specialisation per enumeration, defined out of line in its unit)
+	template<class E> struct EnumInfo
+	{
+		static void Get(const char** name, const EnumValue** values, int* count, const char** code);
+	};
+
+	// The meta type of an enumeration (0x105FE7C0; the second argument is passed as 1, meaning unknown)
+	class EnumMetaType : public MetaType
+	{
+	public:
+		EnumMetaType(const char* name, int unknown, const char* code, const EnumValue* values, int count);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		int unknown8[(0x1c - 8) / 4];
+	};
+
+	// The meta type of a math::Vector member (0x105FB5F0)
+	class VectorMetaType : public MetaType
+	{
+	public:
+		explicit VectorMetaType(const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+	};
+
 	// The class meta type of T, built on first use from T::GetClassInfo and T::GetMembers
 	template<class T> ClassMetaType* GetClassMetaType()
 	{
@@ -395,6 +517,40 @@ namespace content
 	{
 		static ArrayDynamicHelper<A> sHelper;
 		static ArrayDynamicMetaType sType(element, &sHelper, code);
+		return &sType;
+	}
+
+	template<class E> EnumMetaType* GetEnumMetaType()
+	{
+		static const char* sName;
+		static const EnumValue* sValues;
+		static int sCount;
+		static const char* sCode;
+		EnumInfo<E>::Get(&sName, &sValues, &sCount, &sCode);
+		static EnumMetaType sType(sName, 1, sCode, sValues, sCount);
+		return &sType;
+	}
+
+	// Owner only keeps the instantiations of different classes apart
+	template<class Owner, class A> ArrayCDynamicMetaType* GetArrayCDynamicMetaType(int capacity, MetaType* element,
+		const char* code)
+	{
+		static ArrayCDynamicHelper<A> sHelper;
+		static ArrayCDynamicMetaType sType(capacity, element, &sHelper, code);
+		return &sType;
+	}
+
+	// The meta types of the primitive and vector members a class reflects member by member: one instance per member
+	// (Id tells them apart; the reconstruction uses the source line), so each gets its own copy in the class's unit
+	template<class C, class T, int Id> PrimitiveMetaType<T>* GetMemberPrimitiveMetaType(const char* code)
+	{
+		static PrimitiveMetaType<T> sType(code);
+		return &sType;
+	}
+
+	template<class C, int Id> VectorMetaType* GetMemberVectorMetaType(const char* code)
+	{
+		static VectorMetaType sType(code);
 		return &sType;
 	}
 
