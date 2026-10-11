@@ -86,6 +86,12 @@ namespace engine
 		}
 	}
 
+	// FUNCTION: ENGINE 0x107E0780
+	bool GameObject::IsRegistered() const
+	{
+		return index != 0xffff;
+	}
+
 	// FUNCTION: ENGINE 0x107E0790
 	int GetConstructionHeap()
 	{
@@ -156,21 +162,21 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107E0940
-	void GameObject::Unknown107E0940(int value)
+	void GameObject::RegisterBehaviour(Behaviour* behaviour)
 	{
-		behaviours.Unknown10839D80(value);
+		behaviours.RegisterBehaviour(behaviour);
 	}
 
 	// FUNCTION: ENGINE 0x107E0950
-	void GameObject::Slot8(int a, int b)
+	void GameObject::SetRequestBit(unsigned char bit, bool on)
 	{
-		behaviours.Slot8(a, b);
+		behaviours.SetRequestBitAll(bit, on);
 	}
 
 	// FUNCTION: ENGINE 0x107E0960
-	void GameObject::Slot9(int a)
+	void GameObject::SetBehavioursEnabled(bool enabled)
 	{
-		behaviours.Slot9(a);
+		behaviours.SetEnabledAll(enabled);
 	}
 
 	// FUNCTION: ENGINE 0x107E0BE0
@@ -234,7 +240,7 @@ namespace engine
 				return false;
 			}
 		}
-		if (IsRegistered())
+		if (index != 0xffff)
 		{
 			UnregisterGameObject(this);
 		}
@@ -405,7 +411,7 @@ namespace engine
 				static_cast<core::SegmentPoolAllocator*>(allocator)->Next();
 			}
 		}
-		behaviours.Slot10();
+		behaviours.RemoveAll();
 		if (GetConstructingObject() == this)
 		{
 			SetConstructingObject(0);
@@ -436,7 +442,6 @@ namespace engine
 	// FUNCTION: ENGINE 0x107E05F0
 	// FUNCTION: ENGINE 0x107E0620
 	// FUNCTION: ENGINE 0x107E0640
-	// FUNCTION: ENGINE 0x107E0780
 	// FUNCTION: ENGINE 0x107E0970
 	// FUNCTION: ENGINE 0x107E09A0
 	// FUNCTION: ENGINE 0x107E09B0

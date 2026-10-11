@@ -185,6 +185,7 @@ namespace container
 		{
 			Allocate(count);
 		}
+		ArrayDynamicHeap(T* first, T* last, const AllocatorCoreAligned<16>& newAllocator);
 		~ArrayDynamicHeap()
 		{
 			end = begin;
@@ -364,6 +365,30 @@ namespace container
 		return DistanceImpl(first, last, RandomAccessTag());
 	}
 
+	// UninitializedCopy's inline twin (the range constructor inlines its copy loop)
+	template<class T> inline T* ConstructCopies(T* first, unsigned int count, T* dest)
+	{
+		while (count != 0)
+		{
+			count--;
+			Construct(dest, *first);
+			first++;
+			dest++;
+		}
+		return dest;
+	}
+
+	// A copy of [first, last) in storage of exactly that size
+	template<class T> ArrayDynamicHeap<T>::ArrayDynamicHeap(T* first, T* last, const AllocatorCoreAligned<16>& newAllocator)
+		: allocator(newAllocator)
+	{
+		unsigned int count = Distance(first, last);
+		if (Allocate(count))
+		{
+			end = ConstructCopies(first, count, begin);
+		}
+	}
+
 	// Copy-constructs count elements of first into raw storage at dest; answers the end of the copies
 	template<class T> T* UninitializedCopy(T* first, unsigned int count, T* dest)
 	{
@@ -415,6 +440,13 @@ namespace container
 		{
 			core::HeapFreeAligned(previousHeap, previous);
 		}
+	}
+
+	// Compact through a copy: the array takes over an exact-size copy in heap and the copy frees the old storage
+	template<class T> void CompactSwap(ArrayDynamicHeap<T>& array, int heap)
+	{
+		ArrayDynamicHeap<T> copy(array.begin, array.end, AllocatorCoreAligned<16>(heap));
+		copy.Swap(array);
 	}
 
 	template<class T> void ArrayDynamicHeap<T>::Clear()

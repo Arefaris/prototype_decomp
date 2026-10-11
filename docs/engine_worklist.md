@@ -143,3 +143,23 @@ guess (no assert path). Lessons:
 - A class whose base has a reflected type stores its base meta type and a content::BaseClassCasterImpl<B, D> in its
   MemberList (members +8 / +0xC).
 - `if (a == 0) return false; if (!b) return false;` keeps both early-out branches where `a == 0 || !b` merges them.
+
+## gameobject/behaviourcontroller.cpp (0x108390F0 - 0x1083AD20)
+
+engine::BehaviourController, the GameObject's behaviour list (the GameObject member `behaviours` at +0x20): construction
+and destruction, the per-message dispatch table shared through a pool of reference-counted tables, the update pass
+mask and per-behaviour schedule (time slicing, frame skip, phase), message listening masks, message handling,
+removal, type queries and the reflection data. UpdatePasses and UpdateBehaviours are equivalent; everything else
+matches. The file name is a guess (no assert path). Lessons:
+
+- The schedule entry's flags are bitfields (13 pass bits, updated, scheduled, active) in a union with the 16-bit
+  word; a set written as `if (x) bit = 1; else bit = 0;` gives the engine's `or` / `and` pair.
+- Branches the compiler tail-duplicates need the same locals assigned in both arms, or it merges them.
+- `dt = updateTimeScalar * dt` (reusing the parameter) keeps the engine's single stack slot.
+- Parameters the callers push without extension (`push al`) are `unsigned char`, not bool.
+- GameObject::IsRegistered is out of line: the controller calls a copy at 0x107E0780 instead of inlining it.
+- The controller overrides Behaviour's slot 0 (0x1083AC70, called by GameObject::Slot5 when construction ends): it
+  compacts the behaviour list through a range-constructed copy and a swap (container::CompactSwap; `copy.Swap(array)`,
+  not `array.Swap(copy)`), moves the schedule and message masks into the construction heap with container::Swap,
+  then gives every behaviour its slot 0. Without the override the game crashed while loading although every
+  function matched: tools/vtcheck.py now compares vftables.

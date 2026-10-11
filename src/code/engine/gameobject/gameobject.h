@@ -118,10 +118,7 @@ namespace engine
 		virtual bool IsReady();
 		virtual bool Slot5();
 
-		bool IsRegistered() const
-		{
-			return index != 0xffff;
-		}
+		bool IsRegistered() const;
 		bool TestUpdateMask(unsigned short mask) const
 		{
 			return (behaviours.updateMask & mask) != 0;
@@ -132,9 +129,9 @@ namespace engine
 		bool PostMessage(Message* message);
 		void SetTransform(const math::Matrix& matrix);
 		void SetPosition(const math::Vector& position);
-		void Unknown107E0940(int value);
-		void Slot8(int a, int b);
-		void Slot9(int a);
+		void RegisterBehaviour(Behaviour* behaviour);
+		void SetRequestBit(unsigned char bit, bool on);
+		void SetBehavioursEnabled(bool enabled);
 		BaseAttribute* FindAttribute(const content::ObjectName& name);
 		void SetActive(bool active);
 		void AddAttribute(content::ObjectName name, BaseAttribute* attribute);

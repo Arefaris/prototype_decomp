@@ -14,6 +14,8 @@ namespace content
 
 namespace engine
 {
+	class Behaviour;
+
 	class Message
 	{
 	public:
@@ -26,6 +28,9 @@ namespace engine
 		virtual ~Message()
 		{
 		}
+
+		// 0x108A08F0 (another unit): hands the message to one behaviour (name guess)
+		void SendTo(Behaviour* behaviour);
 
 		int type;
 		short id;

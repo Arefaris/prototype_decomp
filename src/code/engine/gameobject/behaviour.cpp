@@ -39,22 +39,22 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE4E0
-	void Behaviour::Remove(int value)
+	void Behaviour::Remove(unsigned char frameSkip)
 	{
 		if (owner != 0)
 		{
-			owner->behaviours.Remove(value, this);
+			owner->behaviours.Remove(frameSkip, this);
 		}
 	}
 
 	// FUNCTION: ENGINE 0x107EE500
-	bool Behaviour::Query1()
+	unsigned char Behaviour::GetFrameSkip()
 	{
 		if (owner == 0)
 		{
-			return true;
+			return 1;
 		}
-		return owner->behaviours.Query1(this);
+		return owner->behaviours.GetFrameSkip(this);
 	}
 
 	// FUNCTION: ENGINE 0x107EE520
@@ -100,7 +100,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE5A0
-	void Behaviour::Slot4(int a, int b)
+	void Behaviour::Update(float dt, unsigned short mask)
 	{
 		// A warn-once whose report is compiled out of this build
 		static bool sWarn = true;
