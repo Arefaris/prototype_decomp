@@ -41,6 +41,20 @@ namespace core
 		virtual void SetUnused(int value) = 0;
 		virtual bool IsThreadSafe() = 0;
 	};
+
+	// core::IMemoryLinearAllocator (vftable 0x10E472CC, 19 slots): one more, Reset
+	struct IMemoryLinearAllocator : IMemoryAllocator
+	{
+		virtual void Reset() = 0;
+	};
+
+	// core::IMemoryTwoWayAllocator (vftable 0x10E47384, 22 slots): the two-ended arena
+	struct IMemoryTwoWayAllocator : IMemoryLinearAllocator
+	{
+		virtual void SetDirection(int direction) = 0;
+		virtual int GetDirection() = 0;
+		virtual void ResetSide(int side) = 0;
+	};
 }
 
 #endif
