@@ -587,3 +587,6 @@ _sReportLiveAllocations = 0x111BBF84 ; data size:0x1 | engine enginememory.cpp: 
 ?Remove@SListBase@container@@QAEXPAUNode@12@@Z = 0x106104E0 ; function | container::SListBase::Remove (name guess)
 ?PushBack@SListBase@container@@QAEXPAUNode@12@@Z = 0x10610450 ; function | container::SListBase::PushBack (name guess)
 ?FindSlot@SlotManager@controller@engine@@QAEHI@Z = 0x108A1A50 ; function | engine::controller::SlotManager::FindSlot (name guess)
+?NextVector01@Random@math@@QAE?AVVector@2@XZ = 0x107D8460 ; function size:0xFF | math::Random::NextVector01: three values in [0, 1) (name guess)
+?NextVector11@Random@math@@QAE?AVVector@2@XZ = 0x107D8560 ; function size:0xFF | math::Random::NextVector11: three values in [-1, 1) (name guess)
+?NextUnitVector@Random@math@@QAE?AVVector@2@XZ = 0x107D8660 ; function size:0xAD | math::Random::NextUnitVector (name guess)

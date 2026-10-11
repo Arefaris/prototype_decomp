@@ -151,15 +151,16 @@ grouping but reorders flat sums).
 | 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
 | 0x107D7570 | DistanceSquaredToLine(p) | 100 % | in the tree; numerator `d.y * v.y + (d.z * v.z + d.x * v.x)` found by a sweep |
 
-## random.cpp (0x107D8380–0x107D8740), partly in the tree
+## random.cpp (0x107D8380-0x107D8740), mostly in the tree
 
-Seed x2 match (Step by reference). The vector functions keep the three raw 32-bit values live and convert them late.
+Seed x2, NextVector01 and NextVector11 match. The vector functions return `Vector` by value (the hidden result
+pointer is the `out` the old notes assumed; NRVO puts the local in it): `Vector v; v.x = NextFloat01(); ...; return v;`
+with `Next()` built on `Step` returning the new state (`unsigned low = Step(w, 18000) & 0xFFFF`), so the w value is
+reused from the register.
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D8460 | NextVector01(Vector&) -> Vector& | 21.4 % | `out.Set(NextFloat01() x3)`; original interleaves the three Next() before the bit tricks |
-| 0x107D8560 | NextVector11(Vector&) -> Vector& | 5 % | same shape with 0x40000000 / -3.0f |
-| 0x107D8660 | NextUnitVector(Vector&) | 26.3 % | rejection loop on NextVector11 (0.001 < len² <= 1), x87 1/sqrt |
+| 0x107D8660 | NextUnitVector() | ~70 % | NONMATCHING in tree: rejection loop on NextVector11 (0.001 <= len^2 <= 1), x87 1 / sqrt; the original copies each candidate member-wise into the result and a second local and scales the local into the result |
 
 ## symmetricmatrix.cpp (0x107D9100–0x107D9A00), partly in the tree
 
