@@ -414,6 +414,23 @@ needs its choice in a bool (`xinput = true`, then one if / else): the early-retu
 block order. Left alone: 0x106438A0 - 0x106438C0 (interlocked helpers with register arguments). The 22 jumps that
 follow (0x10643C00 - 0x10643D50) forward to the file system (0x10649F90 onwards), a unit of their own.
 
+## file/common/mounts.cpp (0x10649F60 - 0x1064ACE5): 30 functions
+
+The device mounts of the file system (`code/core/file/mounts.h`; all names and the file name guessed): a table of 27
+devices (name, drive, root path) under one critical section, the default device (the current directory's drive
+letter at start-up), the device-to-path mappings and drive creation of the Win32 device unit (0x1064F810 - 0x1064FA88,
+declared and mapped), automatic mounting, and the file, save-game, drive instance and Cement library opens that split
+the path and look its device up (Cement libraries: core::CementLibrary, RTTI name). All match. The engine reaches
+them through the 22 forwarders 0x10643C00 - 0x10643D50 (another unit). Notes:
+- The device lookups need a `drive = 0; if (index != -1) drive = sMounts[index].drive; if (drive == 0) { retry,
+  if (drive == 0) fail }` shape and the drive read again as `sMounts[index].drive` where it is used: a `goto` to the
+  open code, or a slot pointer, puts the blocks or registers elsewhere. The Cement open keeps the source drive in a
+  variable of its own until the end.
+- SetMountPath returns with the lock held when the device is unknown or the table full (kept).
+- Drive::FlushRequests / RequestQueue::Flush return whether requests are still queued (UnmountDrive waits on it).
+- An open drive's 4th argument is passed but unused.
+Validation (2026-10-11): free roam in the hybrid (every game file is opened through these functions).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
