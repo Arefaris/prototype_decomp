@@ -8,6 +8,8 @@ State of every function of `code/math` looked at so far (2026-10-10). Matched fu
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
 Levers that turned functions into matches (2026-10-11 session), worth trying first on the rest:
+- NONMATCHING functions described as "store scheduling" or "interleaving" may be a different sum order in disguise: CrossProduct matched once its squared length was grouped `(x * x + z * z) + y * y`; try the groupings first;
+- a reference local (`Vector& n = normal;`) for a member used in several products changes the operand loads (Plane::Set 93 -> 99 %);
 - matrices written element by element in memory order (m[0][0], m[0][1], ...), loops for 3x3 bodies do not unroll;
 - results computed before any store: an inline `Set(...)` (Matrix3 transforms) or a temporary copied back;
 - reciprocal scaling through an inline taking the reciprocal as its parameter (`v.Scale(1.0f / length)`), not a
@@ -31,22 +33,22 @@ local `inv` does not (Vector::Scale added to vector.h).
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107CD410 | SinPolynomial | 98.2 % | sign of the leading coefficient folded differently (NONMATCHING in tree); it is an inline helper, inlined twice in Slerp. Also tried (2026-10-11): a namespace `const float` for the coefficient, a Horner chain on a variable starting at -2.39e-8f, `(0.0f - 2.39e-8f)`, `(-1.0f * 2.39e-8f)`, `(float)-2.39e-8`: all fold into fsubr / subss. The coefficients sit at 0x10E67C10-1C as ordinary __real constants of the unit (AtanRatio's precede them, all in reverse order of use) |
+| 0x107CD410 | SinPolynomial | 98.2 % | sign of the leading coefficient folded differently (EQUIVALENT in tree: bit-identical results); it is an inline helper, inlined twice in Slerp. Also tried (2026-10-11): a namespace `const float` for the coefficient, a Horner chain on a variable starting at -2.39e-8f, `(0.0f - 2.39e-8f)`, `(-1.0f * 2.39e-8f)`, `(float)-2.39e-8`: all fold into fsubr / subss. The coefficients sit at 0x10E67C10-1C as ordinary __real constants of the unit (AtanRatio's precede them, all in reverse order of use) |
 | 0x107CD7A0 | FromEuler (variant A) | 92.7 % | SinCos of the three half angles, then `a = cy * sx; b = sy * cx; c = cy * cx; d = sy * sx` and x, y, z, w as `a * cz - b * sz` etc. get everything but the stack slots of cx / sx / cy (original 0 / 4 / 8, ours 8 / 0 / 4; declaration order, half-angle forms and a cosine-first inline do not change it) |
 | 0x107CD8D0 | FromEuler (variant B) | 77.2 % | as above |
 | | | | 2026-10-11: the original's second sine lands in the first parameter's slot (ours too); a `float& sy = x` alias, writing the sine into `x` and arrays drop to 49-57 %, a permuter over the product operands and declaration order reaches 83 % |
 | 0x107CDA00 | ToMatrix | 83.3 % | x2 / y2 / z2 = 2x, the nine products, the 3x3 stored column by column (m[0][0], m[1][0], m[2][0], ...); y and z end up in swapped registers whatever the order of the products and sums |
 | 0x107CDCE0 | FromVectors (rotation from a to b) | 38.7 % | c = a cross b, length = c.Normalize(); below 0.0005: identity when a . b > 0, else c reused for a perpendicular of a (Set, three cases) and NormalizeFast, w = 0; else the x87 half-angle form. Structure and layout match (486 vs 488 bytes); the SSE dot of the fallback and the x87 dot of the main path load their operands in another order |
 | 0x107CDF90 | Slerp | 20 % | c = (w + x) + (y + z) dot, invSin = 1 / sqrtf(1 - c^2), angle = AtanRatio(1 / invSin, |c|), two inlined SinPolynomials scaled by invSin, Select(1 - c^2 - EPSILON_SMALL, ..., linear weights) twice, negated second weight when c < 0, then an inline x87 normalisation. Blocked by the SinPolynomial sign folding, which the SSE inline shows too (subss from the constant) |
-| 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (NONMATCHING in tree) |
+| 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (EQUIVALENT in tree) |
 
 ## vector.cpp (0x107CE3D0 - 0x107CEAE0)
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107CE4D0 | Normalize(const Vector&) | 80 % | x87 operand order for y (NONMATCHING in tree) |
+| 0x107CE4D0 | Normalize(const Vector&) | 80 % | EQUIVALENT in tree: x87 operand order for y; groupings of the sum, Set / Scale forms and a local copy of v.x are worse |
 | 0x107CE5E0 | RotateAboutAxis | 18.5 % | Rodrigues with `this` overwritten by the axis first; aliasing reloads |
-| 0x107CE850 | CrossProduct | 73.7 % | store scheduling (NONMATCHING in tree) |
+| 0x107CE850 | CrossProduct | 100 % | in the tree: the squared length grouped `(x * x + z * z) + y * y` (the "store scheduling" was the compiler following another sum order) |
 
 ## matrix.cpp (0x107CEAE0 - 0x107D2EC0)
 
