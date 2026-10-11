@@ -142,7 +142,7 @@ Left:
 | 0x107DA410 | Intersects(OBB, Sphere) | 100 % | in the tree: the same `const Vector& v` + grouping trick as OBB::Contains |
 | 0x107DA5D0 | Intersects(Plane, OBB) | 82.6 % | NONMATCHING in tree: `Vector n(plane.normal)` (copy constructor) and grouped dots get the shape; the original keeps n.z, n.y, n.x on the x87 stack and sums the radius terms axis 2, 0, 1 (ours 1, 0, 2 whatever the source order) |
 | 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
-| 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | - | 1 981 bytes, triangle vs box SAT; not attempted |
+| 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | EQUIVALENT | in the tree (14.9 %): Akenine-Moller's triBoxOverlap with its AXISTEST macros (X01 / Y02 / Z12 for e0, X01 / Y02 / Z0 for e1, X2 / Y1 / Z12 for e2), FINDMINMAX as `Min(Min(v0.x, v1.x), v2.x)` / Max (the compiler leaves these calls out of line in this large function, as the original does; its copies are 0x10071300 Min and 0x1006FB70 Max, the latter returning a on equality), then PlaneCrossesBox(e0 x e1, v0, halfExtents). Returns bool, so does Intersects(const Triangle&, const OBB&) (still 100 %); Intersects(const Triangle&, const AABB&) (0x107DBA10) will need bool too |
 | 0x107DBA10 | Intersects(const Triangle&, const AABB&) | 44.5 % | frame 0x58 matches with `Vector4 vertices[4]` (three copied member-wise, 16-byte stride), centre.Add(max, min) * 0.5, extents.Sub; the original sinks centre.z / extents.z and the first `max.x + min.x` load order differs |
 
 Capsule vs box (0x107DBFE0 - 0x107DC390): Intersects(const Capsule&, const OBB&) (0x107DC2B0) matches (direction and
@@ -254,10 +254,11 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 
 ## State at the end of the 2026-10-11 session, and math-adjacent helpers
 
-Not attempted yet in math: TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
+Not attempted yet in math: Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
 plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
-Intersects(Capsule, Segment)), and 0x107D2EC0 (11 bytes,
-an unreferenced one-member constructor or setter at the end of matrix.cpp). The atan helpers and FastAtan match (see the sphere / capsule table).
+Intersects(Capsule, Segment)), and 0x107D2EC0 (11 bytes, unreferenced: an inline member kept as a COMDAT copy, storing its 4-byte by-value argument at
+offset 0 and returning this; VS2005 emits inline members that it inlines, so its caller is some function of matrix.cpp or triangle.cpp;
+header-defined, so not annotatable yet). The atan helpers and FastAtan match (see the sphere / capsule table).
 
 Math-adjacent helpers seen from math code, kept out of line by the compiler in engine units (inline functions, so they cannot carry a
 FUNCTION annotation from a header yet): 0x100631C0 `IsEqual(a, b, tolerance)` (|a - b| <= tolerance, returns int; called once by
