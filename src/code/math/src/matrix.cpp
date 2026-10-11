@@ -552,6 +552,160 @@ namespace math
 		return d < tolerance * tolerance;
 	}
 
+	// FUNCTION: ENGINE 0x107D1AA0
+	// EQUIVALENT: 96.5 %; the original loads b first in the products b.z * a.z and b.y * a.y of the dot product (no
+	// source order or grouping changes it) and reloads the sine before clearing xmm2 after the fallback
+	void Matrix::RotationFromTo(const Vector& a, const Vector& b)
+	{
+		Vector axis;
+		axis.Cross(a, b);
+		float s = axis.Normalize();
+		float c = a.Dot(b);
+		// Function-local statics initialised at run time (VS2005 guard bits 1 and 2)
+		static const float sParallel = EPSILON_SMALL;
+		static const float sAlongX = 1.0f - sParallel;
+		if (fabsf(s) < sParallel)
+		{
+			// a and b (anti)parallel: any axis perpendicular to a, a cross X or a cross Z written out
+			if (fabsf(a.x) < sAlongX)
+			{
+				axis.Set(a.y * 0.0f - a.z * 0.0f, a.z * 1.0f - a.x * 0.0f, a.x * 0.0f - a.y * 1.0f);
+			}
+			else
+			{
+				axis.Set(a.y * 1.0f - a.z * 0.0f, a.z * 0.0f - a.x * 1.0f, a.x * 0.0f - a.y * 0.0f);
+			}
+			axis.Normalize();
+		}
+		float cosine = 0.0f;
+		if (fabsf(s) < 1.0f)
+		{
+			cosine = sqrtf(1.0f - s * s);
+		}
+		if (c < 0.0f)
+		{
+			cosine = -cosine;
+		}
+		FromAxisCosSin(axis, cosine, s);
+	}
+
+	// FUNCTION: ENGINE 0x107D1E40
+	// EQUIVALENT: the first cross product and both fallbacks match; the original keeps the rows' values in registers
+	// and gives x and y their own spill slots (frame 0x18) for the x87 lengths, and stores the first fallback z first
+	// (42.5 %)
+	void Matrix::SetBasis(const Vector& z, const Vector& up)
+	{
+		Vector& x = *reinterpret_cast<Vector*>(m[0]);
+		Vector& y = *reinterpret_cast<Vector*>(m[1]);
+		Vector& w = *reinterpret_cast<Vector*>(m[2]);
+		// x = up cross z, all three components before the stores (z, y, x)
+		float cx = up.y * z.z - up.z * z.y;
+		float cy = up.z * z.x - up.x * z.z;
+		float cz = up.x * z.y - up.y * z.x;
+		x.z = cz;
+		x.y = cy;
+		x.x = cx;
+		// up parallel to z: X cross z, or Y cross z when z lies along X
+		if (x.z * x.z + x.y * x.y + x.x * x.x < EPSILON_SMALL)
+		{
+			x.Set(0.0f, -z.z, z.y);
+			if (x.z * x.z + x.y * x.y < EPSILON_SMALL)
+			{
+				x.Set(z.z, 0.0f, -z.x);
+			}
+		}
+		y.Set(z.y * x.z - z.z * x.y, z.z * x.x - z.x * x.z, z.x * x.y - z.y * x.x);
+		w.x = z.x;
+		w.y = z.y;
+		w.z = z.z;
+		// Each row scaled to unit length (x87 lengths), y's locals reused for the third row
+		float ax = x.x;
+		float ay = x.y;
+		float az = x.z;
+		float s = 1.0f / sqrtf(az * az + ay * ay + ax * ax);
+		x.x = ax * s;
+		x.y = ay * s;
+		x.z = az * s;
+		float bx = y.x;
+		float by = y.y;
+		float bz = y.z;
+		s = 1.0f / sqrtf(bz * bz + by * by + bx * bx);
+		y.x = bx * s;
+		y.y = by * s;
+		y.z = bz * s;
+		bx = w.x;
+		by = w.y;
+		bz = w.z;
+		s = 1.0f / sqrtf(bz * bz + by * by + bx * bx);
+		w.x = bx * s;
+		w.y = by * s;
+		w.z = bz * s;
+	}
+
+	// FUNCTION: ENGINE 0x107D20B0
+	// EQUIVALENT: same operations in the same order (9.4 %, 1599 bytes against 1536); the original reloads the matrix
+	// elements from this where ours keeps copies on the stack, so registers and spills differ throughout
+	void Matrix::Invert4x4()
+	{
+		// The 2x2 minors of the top two rows (s) and the bottom two rows (c), the adjugate into a temporary from
+		// their products, then the temporary scaled by 1 / det row by row and copied back
+		float s0 = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+		float s1 = m[1][2] * m[0][0] - m[0][2] * m[1][0];
+		float s2 = m[1][3] * m[0][0] - m[0][3] * m[1][0];
+		float s3 = m[1][2] * m[0][1] - m[0][2] * m[1][1];
+		float s4 = m[1][3] * m[0][1] - m[0][3] * m[1][1];
+		float s5 = m[1][3] * m[0][2] - m[0][3] * m[1][2];
+		float c0 = m[2][0] * m[3][1] - m[2][1] * m[3][0];
+		float c1 = m[3][2] * m[2][0] - m[2][2] * m[3][0];
+		float c2 = m[3][3] * m[2][0] - m[2][3] * m[3][0];
+		float c3 = m[3][2] * m[2][1] - m[2][2] * m[3][1];
+		float c4 = m[3][3] * m[2][1] - m[2][3] * m[3][1];
+		float c5 = m[3][3] * m[2][2] - m[2][3] * m[3][2];
+		Matrix t;
+		t.m[0][0] = (m[1][1] * c5 - m[1][2] * c4) + m[1][3] * c3;
+		t.m[1][0] = (m[1][2] * c2 - m[1][0] * c5) - m[1][3] * c1;
+		t.m[2][0] = (m[1][0] * c4 - m[1][1] * c2) + m[1][3] * c0;
+		t.m[3][0] = (m[1][1] * c1 - m[1][0] * c3) - m[1][2] * c0;
+		t.m[0][1] = (m[0][2] * c4 - m[0][1] * c5) - m[0][3] * c3;
+		t.m[1][1] = (m[0][0] * c5 - m[0][2] * c2) + m[0][3] * c1;
+		t.m[2][1] = (m[0][1] * c2 - m[0][0] * c4) - m[0][3] * c0;
+		t.m[3][1] = (m[0][0] * c3 - m[0][1] * c1) + m[0][2] * c0;
+		t.m[0][2] = (m[3][1] * s5 - m[3][2] * s4) + m[3][3] * s3;
+		t.m[1][2] = (m[3][2] * s2 - m[3][0] * s5) - m[3][3] * s1;
+		t.m[2][2] = (m[3][0] * s4 - m[3][1] * s2) + m[3][3] * s0;
+		t.m[3][2] = (m[3][1] * s1 - m[3][0] * s3) - m[3][2] * s0;
+		t.m[0][3] = (m[2][2] * s4 - m[2][1] * s5) - m[2][3] * s3;
+		t.m[1][3] = (m[2][0] * s5 - m[2][2] * s2) + m[2][3] * s1;
+		t.m[2][3] = (m[2][1] * s2 - m[2][0] * s4) - m[2][3] * s0;
+		t.m[3][3] = (m[2][0] * s3 - m[2][1] * s1) + m[2][2] * s0;
+		float inv = 1.0f / (((((c5 * s0 - c4 * s1) + c2 * s3) + c3 * s2) - c1 * s4) + c0 * s5);
+		float* row = t.m[0];
+		for (int i = 4; i != 0; i--)
+		{
+			row[0] *= inv;
+			row[1] *= inv;
+			row[2] *= inv;
+			row[3] *= inv;
+			row += 4;
+		}
+		m[0][0] = t.m[0][0];
+		m[0][1] = t.m[0][1];
+		m[0][2] = t.m[0][2];
+		m[0][3] = t.m[0][3];
+		m[1][0] = t.m[1][0];
+		m[1][1] = t.m[1][1];
+		m[1][2] = t.m[1][2];
+		m[1][3] = t.m[1][3];
+		m[2][0] = t.m[2][0];
+		m[2][1] = t.m[2][1];
+		m[2][2] = t.m[2][2];
+		m[2][3] = t.m[2][3];
+		m[3][0] = t.m[3][0];
+		m[3][1] = t.m[3][1];
+		m[3][2] = t.m[3][2];
+		m[3][3] = t.m[3][3];
+	}
+
 	// FUNCTION: ENGINE 0x107D29C0
 	void Matrix::Add(const Matrix& a, const Matrix& b)
 	{

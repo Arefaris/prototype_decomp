@@ -46,6 +46,9 @@ namespace math
 		// The box around the cylinder (axis extent plus the end discs)
 		void GetAABB(AABB& out) const;
 		// True when p lies within the half length along the axis and strictly within the radius of it
+		// Unit direction from the nearest point of the surface (side wall or cap) to p and the signed distance to it
+		// (negative inside, direction then pointing out through the nearest face); name guessed after Sphere's
+		void GetDirection(const Vector& p, Vector& out, float& distance) const;
 		bool Contains(const Vector& p) const;
 	};
 }

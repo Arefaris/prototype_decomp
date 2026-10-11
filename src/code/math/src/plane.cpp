@@ -14,17 +14,19 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107D89E0
-	// EQUIVALENT: same operations; the original multiplies e1.z * e2.y with the operands the other way round and adds
-	// the dot product's z term before its y term (commutative); 96.1 % with the grouped dot
+	// EQUIVALENT: 99.0 %; the original copies e1.z instead of e2.y for the product e1.z * e2.y (operand orders inside
+	// the cross product, edge declaration orders and written-out forms do not change it). The normal through a
+	// reference local is what gets the rest; through the member directly the dot product's terms move (93.1 %)
 	void Plane::Set(const Vector& a, const Vector& b, const Vector& c)
 	{
 		Vector e1;
 		e1.Sub(b, a);
 		Vector e2;
 		e2.Sub(c, a);
-		normal.Cross(e1, e2);
-		normal.NormalizeFast();
-		d = -((a.x * normal.x + a.y * normal.y) + a.z * normal.z);
+		Vector& n = normal;
+		n.Cross(e1, e2);
+		n.NormalizeFast();
+		d = -((a.x * n.x + a.z * n.z) + a.y * n.y);
 	}
 
 	// FUNCTION: ENGINE 0x107D8AB0

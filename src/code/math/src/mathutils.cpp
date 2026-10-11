@@ -27,16 +27,15 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107CD410
-	// NONMATCHING: the original loads the leading coefficient as -2.39e-8 and adds; VS 2005 always folds the sign
-	// into fsubr with +2.39e-8 for every form tried (98.2 %)
-#ifdef NONMATCHING
+	// EQUIVALENT: the original loads the leading coefficient as -2.39e-8 and adds; VS 2005 folds the sign into fsubr
+	// with +2.39e-8 for every form tried (98.2 %; also a named constant, a Horner chain on a variable and constant
+	// expressions); the result is bit-identical
 	float SinPolynomial(float x)
 	{
 		float x2 = x * x;
 		return (((((-2.39e-8f * x2 + 2.7526e-6f) * x2 - 0.000198409f) * x2 + 0.00833333191f) * x2 - 0.166666672f) * x2
 			+ 1.0f) * x;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x107D8740
 	void PolarToCartesian(float r, float angle, float* x, float* z)

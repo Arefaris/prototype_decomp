@@ -99,6 +99,65 @@ namespace math
 		return d.Dot(d) < radius * radius;
 	}
 
+	// FUNCTION: ENGINE 0x107DC8C0
+	// EQUIVALENT: same operations in the same order (26.7 %); the original's frame is 0x1c (ours 0x28), it reloads
+	// the direction components between the products of the cap branch and keeps r in registers
+	void Cylinder::GetDirection(const Vector& p, Vector& out, float& distance) const
+	{
+		Vector d;
+		d.Sub(p, centre);
+		float t = direction.Dot(d);
+		float at = fabsf(t);
+		if (at > halfLength)
+		{
+			float h = (t > 0.0f) ? halfLength : -halfLength;
+			float k = h - t;
+			float qx = direction.x * k + d.x;
+			float qy = direction.y * k + d.y;
+			float qz = direction.z * k + d.z;
+			// q: d moved onto the cap's plane; c: the cap's centre (both relative to centre)
+			Vector c;
+			c.Set(direction.x * h, direction.y * h, direction.z * h);
+			Vector r;
+			r.Set(qx - c.x, qy - c.y, qz - c.z);
+			float lengthSquared = r.z * r.z + r.y * r.y + r.x * r.x;
+			// Outside the cap's disc: pulled back onto its rim
+			if (lengthSquared > radius * radius)
+			{
+				r.Scale(radius / sqrtf(lengthSquared));
+				qx = r.x + c.x;
+				qy = r.y + c.y;
+				qz = r.z + c.z;
+			}
+			out.Set(d.x - qx, d.y - qy, d.z - qz);
+			distance = out.Normalize();
+			return;
+		}
+		// Beside the side wall: away from the axis
+		out.Set(d.x - direction.x * t, d.y - direction.y * t, d.z - direction.z * t);
+		float length = out.Normalize();
+		distance = length - radius;
+		if (length - radius < 0.0f)
+		{
+			// Inside: through the nearer cap when that is closer than the wall
+			float e = halfLength - at;
+			if (e + length < radius)
+			{
+				float h = (t > 0.0f) ? e : -e;
+				out.Set(direction.x * h + d.x - d.x, direction.y * h + d.y - d.y, direction.z * h + d.z - d.z);
+				distance = -out.Normalize();
+				return;
+			}
+			// On the axis: any direction perpendicular to it
+			if (length == 0.0f)
+			{
+				out.Set(direction.y * -direction.y - direction.z * direction.x, direction.z * direction.z - direction.x * -direction.y,
+					direction.x * direction.x - direction.y * direction.z);
+				out.NormalizeFast();
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x107DCC10
 	void Cylinder::GetAABB(AABB& out) const
 	{

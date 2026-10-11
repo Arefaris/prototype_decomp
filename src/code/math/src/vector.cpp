@@ -30,8 +30,8 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107CE4D0
-	// NONMATCHING: the original multiplies y as "fld v.y; fmul st(1)", we get "fld st(0); fmul v.y" (80 %)
-#ifdef NONMATCHING
+	// EQUIVALENT: the original multiplies y as "fld v.y; fmul st(1)", we get "fld st(0); fmul v.y" (80 %); groupings
+	// of the squared length and Set / Scale forms are worse
 	void Vector::Normalize(const Vector& v)
 	{
 		float scale = 1.0f / sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
@@ -39,7 +39,6 @@ namespace math
 		y = v.y * scale;
 		z = v.z * scale;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x107CE7A0
 	int Vector::IsZero() const
@@ -61,19 +60,17 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107CE850
-	// NONMATCHING: same size and instructions; the original interleaves the squares with the stores x, z, y (73.7 %)
-#ifdef NONMATCHING
 	bool Vector::CrossProduct(const Vector& a, const Vector& b)
 	{
 		Set(a.y * b.z - b.y * a.z, b.x * a.z - a.x * b.z, b.y * a.x - a.y * b.x);
-		if (x * x + y * y + z * z <= EPSILON_FLOAT)
+		// The squared length grouped as the original adds it (x, z, then y)
+		if ((x * x + z * z) + y * y <= EPSILON_FLOAT)
 		{
 			Perpendicular(a);
 			return true;
 		}
 		return false;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x107CE8F0
 	unsigned int Vector::PackNormal() const

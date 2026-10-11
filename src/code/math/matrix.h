@@ -54,11 +54,20 @@ namespace math
 		void Transpose3x3(const Matrix& src);
 		// The rotation of q (Quaternion::ToMatrix)
 		void FromQuaternion(const Quaternion& q);
+		// The rotation taking direction a onto direction b (unit vectors): axis a cross b, through FromAxisCosSin
+		// (name guessed)
+		void RotationFromTo(const Vector& a, const Vector& b);
+		// An orthonormal basis with z as its third row: x = up cross z (X or Y cross z when up is parallel to z),
+		// y = z cross x, each row normalised; translation and the last column unchanged (name guessed)
+		void SetBasis(const Vector& z, const Vector& up);
 		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
 		void InvertOrthonormal();
 		// Inverts an affine matrix: InvertOrthonormal when the 3x3 determinant is 1 (within EPSILON_SMALL), else the
 		// adjugate over the determinant with the translation brought back through it
 		void Invert();
+		// Inverts the full 4x4 matrix in place (cofactors from 2x2 minors over the determinant, no singularity check;
+		// name guessed)
+		void Invert4x4();
 		// Multiplies the upper 3x3 by s
 		void Scale3x3(float s);
 		// this = a * s, element-wise

@@ -22,9 +22,11 @@ namespace math
 		void GetSphere(Sphere& out) const;
 		// Projection parameter of p: (p - start) . (end - start) / |end - start|^2 (name guess)
 		float Parameter(const Vector& p) const;
-		// Squared distance from a point / between two segments (0x107D7420 / 0x107D7770, not reconstructed yet)
+		// Squared distance from a point / between two segments
 		float DistanceSquared(const Vector& point) const;
 		float DistanceSquared(const Segment& other) const;
+		// The closest points p (on this segment) and q (on other); returns their squared distance (name guess)
+		float ClosestPoints(const Segment& other, Vector& p, Vector& q) const;
 		// Squared distance from p to the infinite line through the segment (name guess)
 		float DistanceSquaredToLine(const Vector& p) const;
 		// The point of the infinite line closest to p into out; returns the squared distance (name guess)

@@ -6,7 +6,62 @@
 
 namespace math
 {
-	// 0x107D2ED0 ray test and 0x107D3420 ClosestPoint are not reconstructed yet (docs/math_worklist.md).
+	// 0x107D3420 ClosestPoint is not reconstructed yet (docs/math_worklist.md).
+
+	// FUNCTION: ENGINE 0x107D2ED0
+	// NONMATCHING: 52 %; Moller-Trumbore with the two sign cases written out. The grouping of each dot product was
+	// swept; the original adds direction . q as (z + x) + y, which no source form reproduces, and keeps
+	// direction.x in a register from the first cross product
+#ifdef NONMATCHING
+	bool Triangle::IntersectRay(const Vector& origin, const Vector& direction, float& t) const
+	{
+		Vector e1;
+		e1.Sub(b, a);
+		Vector e2;
+		e2.Sub(c, a);
+		Vector p;
+		p.Cross(direction, e2);
+		float det = (e1.y * p.y + e1.z * p.z) + e1.x * p.x;
+		Vector s;
+		Vector q;
+		if (det > EPSILON_SMALL)
+		{
+			s.Sub(origin, a);
+			float u = (s.y * p.y + s.z * p.z) + s.x * p.x;
+			if (u < 0.0f || u > det)
+			{
+				return false;
+			}
+			q.Cross(s, e1);
+			float v = (direction.y * q.y + direction.z * q.z) + direction.x * q.x;
+			if (v < 0.0f || u + v > det)
+			{
+				return false;
+			}
+		}
+		else if (det < -EPSILON_SMALL)
+		{
+			s.Sub(origin, a);
+			float u = (s.y * p.y + s.z * p.z) + s.x * p.x;
+			if (u > 0.0f || u < det)
+			{
+				return false;
+			}
+			q.Cross(s, e1);
+			float v = (direction.y * q.y + direction.z * q.z) + direction.x * q.x;
+			if (v > 0.0f || u + v < det)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+		t = ((e2.x * q.x + e2.y * q.y) + e2.z * q.z) / det;
+		return true;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x107D31C0
 	bool Triangle::Contains(const Vector& p) const

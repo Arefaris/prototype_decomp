@@ -8,6 +8,8 @@ State of every function of `code/math` looked at so far (2026-10-10). Matched fu
 this list is for the rest. Percentages are objcmp's byte identity of the best attempt (relocations as wildcards).
 
 Levers that turned functions into matches (2026-10-11 session), worth trying first on the rest:
+- NONMATCHING functions described as "store scheduling" or "interleaving" may be a different sum order in disguise: CrossProduct matched once its squared length was grouped `(x * x + z * z) + y * y`; try the groupings first;
+- a reference local (`Vector& n = normal;`) for a member used in several products changes the operand loads (Plane::Set 93 -> 99 %);
 - matrices written element by element in memory order (m[0][0], m[0][1], ...), loops for 3x3 bodies do not unroll;
 - results computed before any store: an inline `Set(...)` (Matrix3 transforms) or a temporary copied back;
 - reciprocal scaling through an inline taking the reciprocal as its parameter (`v.Scale(1.0f / length)`), not a
@@ -31,21 +33,22 @@ local `inv` does not (Vector::Scale added to vector.h).
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107CD410 | SinPolynomial | 98.2 % | sign of the leading coefficient folded differently (NONMATCHING in tree); it is an inline helper, inlined twice in Slerp |
+| 0x107CD410 | SinPolynomial | 98.2 % | sign of the leading coefficient folded differently (EQUIVALENT in tree: bit-identical results); it is an inline helper, inlined twice in Slerp. Also tried (2026-10-11): a namespace `const float` for the coefficient, a Horner chain on a variable starting at -2.39e-8f, `(0.0f - 2.39e-8f)`, `(-1.0f * 2.39e-8f)`, `(float)-2.39e-8`: all fold into fsubr / subss. The coefficients sit at 0x10E67C10-1C as ordinary __real constants of the unit (AtanRatio's precede them, all in reverse order of use) |
 | 0x107CD7A0 | FromEuler (variant A) | 92.7 % | SinCos of the three half angles, then `a = cy * sx; b = sy * cx; c = cy * cx; d = sy * sx` and x, y, z, w as `a * cz - b * sz` etc. get everything but the stack slots of cx / sx / cy (original 0 / 4 / 8, ours 8 / 0 / 4; declaration order, half-angle forms and a cosine-first inline do not change it) |
 | 0x107CD8D0 | FromEuler (variant B) | 77.2 % | as above |
+| | | | 2026-10-11: the original's second sine lands in the first parameter's slot (ours too); a `float& sy = x` alias, writing the sine into `x` and arrays drop to 49-57 %, a permuter over the product operands and declaration order reaches 83 % |
 | 0x107CDA00 | ToMatrix | 83.3 % | x2 / y2 / z2 = 2x, the nine products, the 3x3 stored column by column (m[0][0], m[1][0], m[2][0], ...); y and z end up in swapped registers whatever the order of the products and sums |
 | 0x107CDCE0 | FromVectors (rotation from a to b) | 38.7 % | c = a cross b, length = c.Normalize(); below 0.0005: identity when a . b > 0, else c reused for a perpendicular of a (Set, three cases) and NormalizeFast, w = 0; else the x87 half-angle form. Structure and layout match (486 vs 488 bytes); the SSE dot of the fallback and the x87 dot of the main path load their operands in another order |
-| 0x107CDF90 | Slerp | - | AtanRatio called out of line, SinPolynomial inlined twice; not attempted |
-| 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (NONMATCHING in tree) |
+| 0x107CDF90 | Slerp | 20 % | c = (w + x) + (y + z) dot, invSin = 1 / sqrtf(1 - c^2), angle = AtanRatio(1 / invSin, |c|), two inlined SinPolynomials scaled by invSin, Select(1 - c^2 - EPSILON_SMALL, ..., linear weights) twice, negated second weight when c < 0, then an inline x87 normalisation. Blocked by the SinPolynomial sign folding, which the SSE inline shows too (subss from the constant) |
+| 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (EQUIVALENT in tree) |
 
 ## vector.cpp (0x107CE3D0 - 0x107CEAE0)
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107CE4D0 | Normalize(const Vector&) | 80 % | x87 operand order for y (NONMATCHING in tree) |
+| 0x107CE4D0 | Normalize(const Vector&) | 80 % | EQUIVALENT in tree: x87 operand order for y; groupings of the sum, Set / Scale forms and a local copy of v.x are worse |
 | 0x107CE5E0 | RotateAboutAxis | 18.5 % | Rodrigues with `this` overwritten by the axis first; aliasing reloads |
-| 0x107CE850 | CrossProduct | 73.7 % | store scheduling (NONMATCHING in tree) |
+| 0x107CE850 | CrossProduct | 100 % | in the tree: the squared length grouped `(x * x + z * z) + y * y` (the "store scheduling" was the compiler following another sum order) |
 
 ## matrix.cpp (0x107CEAE0 - 0x107D2EC0)
 
@@ -62,7 +65,7 @@ alignment padding inside) match as two descending loops into a Matrix temporary,
 |---|---|---:|---|
 | 0x107CED00 | FromAxisCosSin | 23.7 % | the axis components are loaded into SSE registers and spilled for the x87 check `|len^2 - 1| > 4e-5`, copied into a local Vector only on the Normalize path; our copies are loaded with fld, and our formula bodies come out shorter (278 vs 323 bytes) |
 | 0x107CEE50 / EF70 / F0A0 | Euler rotations | 50 / 52 / 62 % | permuter plateau; products of three factors |
-| 0x107CF280 | Reflection(plane) | 89.7 % | memory-order assignment, `float d = p.d * 2.0f`, products `(a * b) * -2.0f` (81.7 %) or `b * (a * -2.0f)` (89.7 %, other association); only the two x*y products (m[0][1], m[1][0]) and d*y load their operands the other way round; the compiler canonicalises every operand order tried, a Vector4 plane changes nothing |
+| 0x107CF280 | Reflection(plane) | 89.7 % | memory-order assignment, `float d = p.d * 2.0f`, products `(a * b) * -2.0f` (81.7 %) or `b * (a * -2.0f)` (89.7 %, other association); only the two x*y products (m[0][1], m[1][0]) and d*y load their operands the other way round; the compiler canonicalises every operand order tried, a Vector4 plane changes nothing. 2026-10-11: a permuter over both operand orders of all 18 products in the `b * (a * -2.0f)` form (and over the 12 products with a `const Vector&` normal) never leaves 73 % / 28 %: VS2005 canonicalises these operands whatever the source says; the original also reads p.d first (before any store), so `float d = p.d * 2.0f` belongs at the top |
 | 0x107CF5D0 | Orthonormalize | 50.9 % | rows 0 and 1 copied with Set, x.NormalizeFast(), z = x cross y written out in a Set, z.NormalizeFast(), y = z cross x, rows stored in memory order; the original loads x.y / x.z into registers during the first copy and differs in registers in the second cross |
 | 0x107CF720 | IsOrthonormal | 16 % | six dot products spilled, inline IsEqual x5 + one out-of-line call |
 | 0x107CF8F0 / FA80 / FB10 | Transform / Rotate / RotateInverse | EQUIVALENT | y/z registers swapped |
@@ -71,10 +74,10 @@ alignment padding inside) match as two descending loops into a Matrix temporary,
 | 0x107CFF70 / 0x107D03A0 | LookAt LH / RH | 52.8 % | (target, eye, up): z = target - eye, x = up cross z, y = z cross x, translation -axis . eye; the original spills the running sum of -x . eye three times into a reused argument slot (540 bytes vs our 510) |
 | 0x107D0190 / 0x107D05C0 | orientation from direction and up | 89.5 % | `Vector z(direction)` (copy constructor), NormalizeFast, x.Cross(up, z), NormalizeFast, y.Cross(z, x) match the first half exactly; the permuter's best store order (89.5 %) is not a natural one, so the original's statement order is still unknown |
 | 0x107D16B0 | IsIdentity(tolerance) | 29.1 % | sum of the squared differences from identity < tolerance^2; the original sums rows 2-3 off-diagonal, then the diagonal, then rows 0-1 off-diagonal, the compiler sorts every flat sum tried as off-diagonal in memory order then diagonal; explicit groupings get longer |
-| 0x107D1AA0 | rotation taking a onto b | - | function-local statics with VS2005 guard bits |
+| 0x107D1AA0 | RotationFromTo(a, b) | EQUIVALENT | in the tree (96.5 %): axis = a cross b, s = axis.Normalize(), c = a . b, two `static const float` locals (EPSILON_SMALL and 1 - it: dynamic initialisation with guard bits, mapped in symbols.txt), the parallel fallback a cross X / a cross Z written out with the `* 0.0f` / `* 1.0f` terms, cosine = +-sqrt(1 - s^2), FromAxisCosSin. Only the operand loads of two dot products (b first) differ; sweeps of the dot's groupings change nothing, moving the declarations makes it worse |
 | 0x107D1C90 / 1D20 / 1DB0 | rotation about Y / X / Z from a direction | 37.5 % | x87 1 / sqrt of the two squared components, then the 3x3; only the scaling multiplies differ (the original multiplies x and z in place, we copy inv); locals, Vector temporaries, Scale(1 / ...), row Sets and operand orders plateau at 26-28 % standalone |
-| 0x107D1E40 | basis from a Z axis | - | |
-| 0x107D20B0 | Inverse (general 4x4) | - | 1 536 bytes |
+| 0x107D1E40 | SetBasis(z, up) | EQUIVALENT | in the tree (42.5 %): rows through `Vector&` references to m[i]; x = up cross z as three float locals stored z, y, x (the permuter found that order: the first cross and both fallbacks then match), fallback X cross z / Y cross z through Set, y = z cross x through Set, z copied (fld / fstp), each row normalised with x87 1 / sqrtf on float copies. The original keeps the rows in registers for the lengths with separate spill slots for x and y (frame 0x18, ours 8) |
+| 0x107D20B0 | Invert4x4 | EQUIVALENT | in the tree (9.4 %): the 2x2 minors s0..s5 (rows 0-1) and c0..c5 (rows 2-3) in the original's order and operand order, the adjugate into a Matrix temporary (column 0 from row 1 and c, column 1 from row 0 and c, column 2 from row 3 and s, column 3 from row 2 and s), det `((((c5 s0 - c4 s1) + c2 s3) + c3 s2) - c1 s4) + c0 s5`, a 4-iteration row loop scaling by 1 / det (a `float* row` pointer keeps it a loop; `t.m[i][j]` indexing unrolls it), then 16 element copies. The original reloads the matrix elements from `this` where ours keeps copies on the stack (1599 vs 1536 bytes) |
 | 0x107D26B0 | Invert (orthonormal fast path) | 21.1 % | det of the 3x3; |det - 1| <= EPSILON_SMALL tail-calls InvertOrthonormal, else adjugate / det into a Matrix temporary with the translation brought back, ClearProjection on the temporary, `*this = t`. The original adds the three negative determinant terms as `+ (-x)` (separate negations), which every source form tried folds into subtractions |
 
 ## triangle.cpp (0x107D2ED0 - 0x107D3B50)
@@ -87,7 +90,7 @@ two-Select Clamp in mathutils.h.
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D2ED0 | ray intersection | - | 750 bytes |
+| 0x107D2ED0 | IntersectRay(origin, direction, t&) | 52 % | NONMATCHING in tree: Moller-Trumbore with both windings written out (det > EPSILON_SMALL / det < -EPSILON_SMALL, shared tail t = e2 . q / det). A coordinate-descent sweep over the groupings and operand orders of the four dot products plateaus: the original adds direction . q as (z + x) + y, which the compiler never emits from source; declaring e2 before e1 lines up the middle but not the head |
 | 0x107D3360 | Triangle::ContainsXZ(p) | 88 % | EQUIVALENT in tree: three 2D edge tests with early returns; the two factors of the first test come out in swapped registers |
 | 0x107D3420 | Triangle::ClosestPoint(p, out) | 9 % | Ericson's region test; returns 1 / 2 / 4 for edges ab / bc / ca, 5 / 3 / 6 for corners, 0 inside. Original frame 0x7c with Vector locals in memory (p copy at 0, ac at 0x1c, bc at 0x28, a - p at 0x34, n at 0x40, c - p at 0x4c, b - p at 0x58, ab in registers), d1 / d3 / d4 / d2 at 0xc-0x18; the dots are written as -(ab . (a - p)) etc. Scalar and Sub/Dot/Cross-helper versions both land at 9 %: the compiler's schedule of the first block differs from the start (REA pseudocode is a faithful guide to the arithmetic) |
 | 0x107D3AA0 | Area | 100 % | z, x, y cross components as float locals, `n.Set(x, y, z)`, flat sum in the sqrt |
@@ -106,11 +109,11 @@ before any store); term order does not matter there.
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107D4450 | GetAABB | 13.5 % | products in SSE through Vector temporaries, fabs in x87 |
-| 0x107D4560 | GetCornerOffset(out, bits) | 45.1 % | e = (bits & 1 / 2 / 4) ? -extents : extents per axis, axis2 * ez + axis1 * ey + axis0 * ex; copying axis[2] first gets the early loads, the register assignment still differs (64 combinations of copy / accumulate / store forms) |
+| 0x107D4560 | GetCornerOffset(out, bits) | EQUIVALENT | in the tree (29.7 %): e = (bits & 1 / 2 / 4) ? -extents : extents per axis (bit 0 is axis[2]), stage-wise sums axis2 * ez, + axis1 * ey, + axis0 * ex; the original loads axis[2] and the first factor of each stage before the sign branches; copies / Vector temporaries / Set forms come out longer (201-233 bytes) |
 | 0x107D4630 | Contains | 100 % | in the tree: `const Vector& v = axis[i]` in a `for (int i = 3; i--; )` loop with the x87 dot grouped `(v.x * d.x + v.y * d.y) + v.z * d.z` |
-| 0x107D46D0 | closest point / depth | - | |
+| 0x107D46D0 | GetDirection(p, direction&, distance&) | EQUIVALENT | in the tree (56.7 %): d = p - centre, t[i] = axis[i] . d, a do-while over i = 2..0 clamping t[i] to +-extents (`for (i = 3; i != 0; ) { i--; ...}` gives the original's loop without the entry jump; `float a` separate from `t[i]`), the nearest face replaces its t when inside, direction = d - sum axis[i] t[i] (Set of grouped sums), Normalize, negated inside. The original computes the offset stage by stage across the components; Vector operators (by-value temporaries) are far off (16 %) |
 | 0x107D48E0 | GetSphere | 41.8 % | out = (centre, |axis0 ex + axis1 ey + axis2 ez|): the centre goes out as an x87 copy (copy constructor) after the products, so probably returned by value through a Sphere(centre, radius) constructor; the three scaled axes as Vectors (axis 2 first) give 41.8 %, the frame is 0x18 instead of 0xc |
-| 0x107D49B0 | GetCorner | 100 % | waits for GetCornerOffset (same unit, register knowledge) |
+| 0x107D49B0 | GetCorner | 100 % | in the tree, with GetCornerOffset compiled in the unit (it keeps `edx` / `ecx` across the call) |
 
 ## plane.cpp (0x107D8740 - 0x107D8E10)
 
@@ -119,7 +122,7 @@ IntersectSegment, Transform match. Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D89E0 | Plane::Set(a, b, c) | 93.1 % | EQUIVALENT in tree (Sub, Cross, Dot inline helpers); two commutative products come out with the operands swapped (e1.z * e2.y in the cross, a.z * normal.z in the dot); the compiler canonicalises them regardless of source order. 99 % in a spike where NormalizeFast was called through a cast wrapper |
+| 0x107D89E0 | Plane::Set(a, b, c) | 99.0 % | EQUIVALENT in tree: the normal through a reference local `Vector& n = normal` (Cross, NormalizeFast and the dot `(a.x * n.x + a.z * n.z) + a.y * n.y` on it) leaves only e1.z * e2.y with the other register copied; a sweep over all 64 operand orders of the cross inline, edge declaration orders, constructor / Set / written-out edges change nothing or get worse |
 | 0x107D8C80 | Plane::IntersectRay(origin, direction, hit) | 51 % | same instructions; SSE registers of normal.y / direction.x / normal.z rotated (original xmm2 / xmm3 / xmm4, ours xmm4 / xmm2 / xmm3); permuter plateau with Dot / Distance helpers, nested ifs, operand and term orders |
 
 ## intersect.cpp (0x107D9A20 - 0x107DAB30, unit name guessed)
@@ -146,7 +149,7 @@ IntersectsCentredBox(extents, capsule) (0x107DBFE0, 28.7 %: the six SAT tests in
 form, but the original reloads capsule.direction from memory in the tail where we reuse the spilled test values;
 returns bool, `xor al, al`), Intersects(const Capsule&, const AABB&) (0x107DC1D0, 60.8 %: the stores of
 local.centre x / z are deferred past the member copies in the original; a permuter found 91 % only with an unnatural
-statement order). SegmentBoxDistanceSquared (0x107DBD20, 695 bytes) is not attempted.
+statement order). SegmentBoxDistanceSquared (0x107DBD20) is EQUIVALENT in tree (14.9 %): face-crossing parameters of the three slabs into `float t[8]`, `std::sort(t, t + count)` called out of line (the original calls the COMDAT copy at 0x102CFF00, mapped in symbols.txt; the tree declares the template without including <algorithm>, whose inline definition VS2005 would expand), the start's excess per axis, then per interval a projection from the midpoint clamped to the interval; the inner `u = (e - s) * d + u` / `(-e - s)` / `-s * d` branches reproduce the original's tail sharing. The original keeps the loop counter in ebx, spills the direction component into length's slot and compares the excess on the x87 with a hoisted fldz.
 
 ClassifyBox(box, planes, count) (0x107DA850) matches with `planes[i]` indexed directly (a `const Plane&` local
 gives other registers) and `normal.Dot(corner) + d` tests. Intersects(const Triangle&, const OBB&) (0x107DBB10) matches with the corners transformed into a `Vector local[3]`
@@ -171,8 +174,8 @@ change it). Left:
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
-| 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | 28.5 % | rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
-| 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
+| 0x107D5040 | SplineSegment::BuildCatmullRom(k0, k1, k2, k3, Matrix& g) | EQUIVALENT | in the tree (2026-10-11, the Build overloads keep matching with it in the unit); earlier best 28.5 %: rows k1, (chord slopes sum) * (d1 / 2), k2, ...; the intervals d0..d2 come from the keys' w when `flag` is set (returns early when one is <= 0), else 1; 504 bytes of SSE scheduling, permuter over the slope lines and sums plateaus |
+| 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | EQUIVALENT | in the tree (10.3 %): Kochanek-Bartels: t0 / t1 point to {tension, continuity, bias, bool adjust}; intervals from w as in BuildCatmullRom (return when one is <= 0), chord slopes s0..s2 scaled by 1 / interval, outgoing tangent at k1 = s0 (1+C)(1+B)(1-T)/2 + s1 (1-C)(1-B)(1-T)/2, incoming at k2 = s1 (1+B)(1-C)(1-T)/2 + s2 (1+C)(1-B)(1-T)/2; with `adjust` and C != 0 a tangent is rescaled by 2|alt| / (|tangent| + |alt|) with the other weighting (x87 lengths `(x^2 + z^2) + y^2`); rows k1, out * d1, k2, in * d1 (w of the tangent rows untouched). Compiled in the unit, the matched Build overloads keep matching |
 | 0x107D6C40 | Spline::GetParameter(length) | 22 % | NONMATCHING in tree: segment search over `lengths` (matches), first guess `(length - sum + segmentLength) / segmentLength + start`, then 32 Newton steps with fsel-style clamps (`Select(t - start, t, start)`, `Select(t - end, end, t)`, mathutils.h) and GetLength / EvaluateDerivative; the original computes `end` and the first `t` in SSE (start converted through memory), we get x87 |
 
 ## segment.cpp (0x107D6F40-0x107D7650), partly in the tree
@@ -191,7 +194,7 @@ grouping but reorders flat sums).
 | 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
 | 0x107D7570 | DistanceSquaredToLine(p) | 100 % | in the tree; numerator `d.y * v.y + (d.z * v.z + d.x * v.x)` found by a sweep |
 | 0x107D7650 | ClosestPointOnLine(p, out) | EQUIVALENT | in the tree (98.6 %): dz^2 + dx^2 of the denominator in swapped registers |
-| 0x107D7770 / 0x107D7B40 | segment-segment distance / closest points | - | 963 / 1407 bytes, not attempted |
+| 0x107D7770 / 0x107D7B40 | DistanceSquared(const Segment&) / ClosestPoints(other, p, q) | EQUIVALENT | in the tree (19.1 / 19.6 %): d1, d2, r = other.start - start, the five dots with `(z + y) + x` groupings, denom = e a - b b, s = c e - f b, t = c b - f a; outside the segments the point-segment helpers (DistanceSquared(p, t, lengthSquared) tail calls / ClosestPoint(p, t, lengthSquared, out) four times with `Min(Min(d0, d1), Min(d2, d3))`), else the scaled closest-point difference. The original loads both start points into registers before the differences and keeps more values on the stack (frames 0x34 / 0x64) |
 | 0x107D80C0 | LineDistanceSquared(other) | EQUIVALENT | in the tree (76 %): `n.Cross(d, e)`, parallel case tail-calls DistanceSquaredToLine(other.start); e.x / d.y / d.z registers rotated |
 
 ## random.cpp (0x107D8380-0x107D8740), mostly in the tree
@@ -211,10 +214,10 @@ Multiply(a, b) (0x107D9100) matches: the six sums of the product's upper triangl
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D96C0 | Transform(const Vector&, Vector&) | 10.4 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first |
+| 0x107D96C0 | Transform(const Vector&, Vector&) | 36.2 % | plain sums plateau; original loads xy, v.z, v.y, v.x, xz, yz first and loads xz twice (141 bytes, ours 133-137). A coordinate-descent sweep over the three sums in `out.Set(...)` reaches 36.2 %; v copied into locals, a Vector temporary or float locals stored member-wise are worse |
 | 0x107D9290 | Transform(const Matrix&) (R^T S R) | 16 % | T = S R as nine floats, then the six sums into a temporary copied with dword moves; ours comes out 50+ bytes longer |
-| 0x107D9510 | adjugate-like | — | not drafted |
-| 0x107D9820 | Invert (scales by 1/xx first, 0x107D90A0) | — | not drafted |
+| 0x107D9510 | SkewTransform(v): [v]x^T S [v]x | 100 % | in the tree: four products of S [v]x as locals (t10, t20, t00, t01 in that order), the rest inline, the six results in a temporary in the order xx, xy, xz, yy, yz, zz, then `*this = r`; only `v.y * yz` in t10 needed its operands swapped |
+| 0x107D9820 | Invert(a) | EQUIVALENT | in the tree (26 %): scale = 1 / a.xx when |a.xx| > EPSILON_SMALL, Multiply(a, scale), cofactors c00 / c01 / c02, det = c00 xx + c01 xy + c02 xz, inv = scale / det, zero (`xx = yy = zz = 0; xy = xz = yz = 0`) when |det| <= 0. The original recomputes yz * yz and the c00 difference for r.xx; inline expansions with `- xy * (...)` give subtractions where the original adds |
 
 ## perlin.cpp (0x101040C0–0x101043F0), partly in the tree
 
@@ -245,4 +248,20 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 | 0x107DC550 | Capsule::Contains(p) | EQUIVALENT | in the tree (68 %), as Cylinder::Contains: z terms added before y terms (commutative) |
 | 0x107DC620 | Capsule::GetDirection(p, out, distance) | 33 % | d.Sub, Dot, clamp to +-halfLength, out = d - direction t, Normalize, distance = length - radius; on the axis out = direction x (direction.z, direction.x, -direction.y) computed into registers first, then NormalizeFast. The original places the `t <= halfLength` branch at the end with a duplicated multiply (316 bytes vs our 296-300) |
 | 0x107DCC10 | Cylinder::GetAABB | 100 % | in the tree: `Min(fabsf(direction.x), 1.0f)` into one variable reused for the three axes (separate variables give a smaller frame); Cylinder::Transform (0x107DC7E0) matches, Cylinder::Contains (0x107DC800) is EQUIVALENT (88 %: z before y in the commutative dot sums; the member Dot / Sub / Set inlines are what get the copies right, direct expressions come out 5 bytes shorter) |
-| 0x107DC8C0 | 834 bytes, probably a Cylinder ray test | - | not looked at |
+| 0x107DC8C0 | Cylinder::GetDirection(p, out&, distance&) | EQUIVALENT | in the tree (26.7 %): d = p - centre, t = direction . d; beyond a cap: q = d moved onto the cap plane, c = direction * (+-halfLength), q pulled onto the rim when |q - c| > radius (`r.Scale(radius / sqrtf(...))` keeps it SSE, a scalar `s` turns the products x87), out = d - q; beside the wall: out = d - direction t, distance = length - radius, inside: through the nearer cap (`(direction.x * h + d.x) - d.x` literally) or, on the axis, direction x (z, x, -y) through NormalizeFast. The original's frame is 0x1c (ours 0x28) |
+
+## State at the end of the 2026-10-11 session, and math-adjacent helpers
+
+Not attempted yet in math: TestBoxesSAT (0x107D9CB0, 1 111 bytes of x87 with 15 tests: an EQUIVALENT needs every sum order read off the
+x87 stack by hand), TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
+plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
+Intersects(Capsule, Segment)), the SSE copy of the atan polynomial (0x107DC3C0, custom register convention) and 0x107D2EC0 (11 bytes,
+an unreferenced one-member constructor or setter at the end of matrix.cpp). The x87 atan polynomial 0x107DC390 is plain cdecl: every
+form tried comes out factored `(c1 a + c2) a` where the original multiplies a a x c1 and a x c2 separately (65.5 %).
+
+Math-adjacent helpers seen from math code, kept out of line by the compiler in engine units (inline functions, so they cannot carry a
+FUNCTION annotation from a header yet): 0x100631C0 `IsEqual(a, b, tolerance)` (|a - b| <= tolerance, returns int; called once by
+IsOrthonormal 0x107CF720 and by 0x107DAB30), 0x100A2ED0 squared distance of two Vectors (x87, cdecl), 0x100F6A60
+`Segment(const Vector&, const Vector&)` (fld / fstp copies). std::sort<float*> sits at 0x102CFF00 (mapped in symbols.txt; called out of
+line by SegmentBoxDistanceSquared).
+
