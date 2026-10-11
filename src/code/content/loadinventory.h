@@ -17,15 +17,24 @@ namespace content
 	class LoadObject : public core::IRefCount
 	{
 	public:
-		// 0x105FE690: the class's allocation forwards to operator new[]
+		LoadObject()
+		{
+			refCount = 0;
+		}
+
+		// 0x105FE690 / 0x105FE720: the class's allocation forwards to operator new[] / delete[]
 		static void* operator new(unsigned int size);
+		static void operator delete(void* block);
 
 		// The vftable (RTTI: 5 slots; slot 2 is the deleting destructor)
 		virtual void AddRef();
 		virtual void Release();
-		virtual void Slot3();
+		virtual void Slot3(int unused);
 		// True when the object may be released (meaning guessed from the game objects)
 		virtual bool IsReady();
+
+		// The reference count (AddRef / Release are interlocked)
+		volatile int refCount;
 	};
 
 	// content::MetaLoadObject (RTTI: 7 slots, the reflected load objects' base)
@@ -197,7 +206,6 @@ namespace content
 		bool GetUnknown8();
 		void SetUnknown8(bool value);
 
-		int unknown4;
 		bool unknown8;
 		bool unknown9;
 		Table* table;

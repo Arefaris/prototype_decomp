@@ -8,35 +8,9 @@
 
 #include "code/container/arraydynamic.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
-#include <new>
 
 namespace container
 {
-	template<class T> inline void Swap(T& a, T& b)
-	{
-		T t = a;
-		a = b;
-		b = t;
-	}
-
-	template<class T> inline void Construct(T* p, const T& value)
-	{
-		new (p) T(value);
-	}
-
-	template<class T> inline void Destroy(T* p)
-	{
-		p->~T();
-	}
-
-	template<class T> inline void Destroy(T* first, T* last)
-	{
-		for (; first != last; ++first)
-		{
-			Destroy(first);
-		}
-	}
-
 	// A fixed-capacity array filled from the front over raw storage (the elements are constructed and destroyed by
 	// the array; name guessed)
 	template<class T, int N> class ArrayFixed

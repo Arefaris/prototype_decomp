@@ -46,8 +46,10 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
      compiled and replaces the original in the hybrid DLL (callers in the same unit may rely on its register use),
      but does not count as matched. Floating-point operations must keep the original's order.
    - `// NONMATCHING: <why>` with the body inside `#ifdef NONMATCHING`: not compiled, the original stays.
-6. **Run** it: `ninja dll` (relink + verify), `python tools/re/testcopy.py`, then
-   `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature.
+6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/re/testcopy.py`, then
+   `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
+   the vftables our constructors install with the original's: a constructor matches byte for byte even when our
+   vftable misses an override (its address is a relocation), and only the game notices.
 7. **Commit**: source, header, `symbols.txt`, and the refreshed progress (`ninja report progress` updates
    `docs/progress.md`, `docs/progress.svg` and the README's bar). Never anything from `orig/`, `build/`, `local/`
    ([LEGAL.md](../LEGAL.md)).
