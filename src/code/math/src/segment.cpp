@@ -211,4 +211,26 @@ namespace math
 		out.z -= w.z;
 		return (w.y * w.y + w.z * w.z) + w.x * w.x;
 	}
+
+	// FUNCTION: ENGINE 0x107D80C0
+	// EQUIVALENT: same operations; the original keeps e.x, d.y, d.z in xmm1, xmm5, xmm6 (we get xmm6, xmm1, xmm5)
+	// and multiplies e.x * d.y where we get d.y * e.x (76 %)
+	float Segment::LineDistanceSquared(const Segment& other) const
+	{
+		Vector d;
+		d.Sub(end, start);
+		Vector e;
+		e.Sub(other.end, other.start);
+		Vector n;
+		n.Cross(d, e);
+		float nn = (n.y * n.y + n.z * n.z) + n.x * n.x;
+		if (nn < EPSILON_SMALL)
+		{
+			return DistanceSquaredToLine(other.start);
+		}
+		Vector w;
+		w.Sub(other.start, start);
+		float t = (w.z * n.z + w.y * n.y) + w.x * n.x;
+		return t * (t / nn);
+	}
 }

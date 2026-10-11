@@ -29,6 +29,9 @@ namespace math
 		float DistanceSquaredToLine(const Vector& p) const;
 		// The point of the infinite line closest to p into out; returns the squared distance (name guess)
 		float ClosestPointOnLine(const Vector& p, Vector& out) const;
+		// Squared distance between the infinite lines through this segment and other (parallel lines: the distance
+		// of other.start to this line) (name guess)
+		float LineDistanceSquared(const Segment& other) const;
 		// Squared distance from p given t = (p - start) . (end - start) and lengthSquared = |end - start|^2: to start
 		// when t <= 1e-10, to end when t >= lengthSquared, else to the line (name guess)
 		float DistanceSquared(const Vector& p, float t, float lengthSquared) const;
