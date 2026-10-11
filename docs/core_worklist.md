@@ -486,6 +486,13 @@ switch to fibers it creates; threads and fibers get eight user slots from global
 | 0x10644EC0 | InitMainThread | - | EQUIVALENT in tree: the push of ConvertThreadToFiber's argument is scheduled one store earlier |
 | 0x10645190 | SetThreadValue | - | EQUIVALENT in tree: the original keeps the Enter argument on the stack until after Leave (one `add esp, 8`); ours ends in a jump to Leave (ClearThreadValue, same shape, does end in the jump) |
 
+## debugger.cpp (0x10644760 - 0x10644880): 16 functions
+
+The debugger link of the core module (`code/core/debugger.h`; file and all names guessed): in this build only stubs
+(empty DebugInit / DebugShutdown / DebugSignal / DebugWait, getters of globals nothing writes), `CoreName` (returns
+"core", the name every allocator and request constructor asks for) and a reference-counted critical section. All
+match. DebugHasPending needs `return 0 < gDebugPending;` (unsigned): `!= 0` gives setne, the original cmp / sbb / neg.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
