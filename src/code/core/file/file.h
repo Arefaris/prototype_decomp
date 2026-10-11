@@ -176,29 +176,132 @@ namespace core
 	// Reports every file still open (when the pool runs dry)
 	void ReportOpenFiles();
 
-	// core::IDrive (45 slots)
-	struct IDrive
+	// core::IDrive (45 slots): a drive as one owner (key) sees it; the requests and waits work like IFile's
+	struct IDrive : IRefCount
 	{
-		virtual void AddRef() = 0;
-		virtual void Release() = 0;
-		virtual ~IDrive();
+		virtual unsigned char GetFlags() = 0;
+		virtual int GetMedia(DriveInfo* info) = 0;
+		virtual int CanCreateFile(int a, int b, int* result) = 0;
+		virtual int Format() = 0;
+		virtual int CreateDirectory(const char* path) = 0;
+		virtual int DestroyDirectory(const char* path) = 0;
+		virtual int FindFirst(const char* path, int flags) = 0;
+		virtual int FindNext(void* data) = 0;
+		virtual int DestroyFile(const char* path) = 0;
+		virtual void GetMediaWait(DriveInfo* info) = 0;
+		virtual void CanCreateFileWait(int a, int b, int* result) = 0;
+		virtual void FormatWait() = 0;
+		virtual void CreateDirectoryWait(const char* path) = 0;
+		virtual void DestroyDirectoryWait(const char* path) = 0;
+		virtual void FindFirstWait(const char* path, int flags) = 0;
+		virtual void FindNextWait(void* data) = 0;
+		virtual void DestroyFileWait(const char* path) = 0;
+		virtual int Cancel() = 0;
+		virtual int Notify(ICompletionCallback* callback, void* userData) = 0;
+		virtual int Signal(void* event) = 0;
+		virtual bool IsIdle() = 0;
+		virtual void Wait() = 0;
+		virtual void WaitSignal() = 0;
+		virtual int GetError() = 0;
+		virtual void BeginExclusive(int a, int b) = 0;
+		virtual void EndExclusive(int a) = 0;
+		virtual void Suspend(int value) = 0;
+		virtual void Resume(int value) = 0;
+		virtual bool IsFaulted() = 0;
+		virtual void ClearFault(int value) = 0;
+		virtual void SetMode(int mode) = 0;
+		virtual void SetFlag(bool flag) = 0;
+		virtual void Configure(int a, int b) = 0;
+		virtual void OpenFile(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option) = 0;
+		virtual void OpenFileWait(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option) = 0;
+		virtual void OpenSaveGame(IFile** file, const char* path, bool writable, int mode, int a, int b, int key) = 0;
+		virtual void OpenSaveGameWait(IFile** file, const char* path, bool writable, int mode, int a, int b, int key) = 0;
+		virtual void SetUnused(int value) = 0;
+		virtual int GetKey() = 0;
+		virtual int GetDriveId() = 0;
+		virtual int GetDriveSlot5(int a, int b) = 0;
+		virtual bool GetDriveSlot7(int a, int b) = 0;
 	};
 
+	// 0x10643D60: splits a path into the drive's full path, the device name and the relative and native forms
+	void SplitPath(const char* path, char* full, char* device, const char** relative, const char** native);
+
+	// core::InstanceDrive (vftables 0x10E47D2C / 0x10E47D1C): one owner's handle on a drive. Instances come from
+	// one pool ("InstanceDrive", 0x30-byte blocks); their IMutable lock is the global instance lock. Unit
+	// 0x1064EB00 - 0x1064F805 (file/common/instancedrive.cpp, name guessed).
 	class InstanceDrive : public IDrive, public IMutable
 	{
 	public:
+		InstanceDrive(Drive* drive, int key);
+		virtual ~InstanceDrive();
+		virtual void AddRef();
+		virtual void Release();
+		virtual unsigned char GetFlags();
+		virtual int GetMedia(DriveInfo* info);
+		virtual int CanCreateFile(int a, int b, int* result);
+		virtual int Format();
+		virtual int CreateDirectory(const char* path);
+		virtual int DestroyDirectory(const char* path);
+		virtual int FindFirst(const char* path, int flags);
+		virtual int FindNext(void* data);
+		virtual int DestroyFile(const char* path);
+		virtual void GetMediaWait(DriveInfo* info);
+		virtual void CanCreateFileWait(int a, int b, int* result);
+		virtual void FormatWait();
+		virtual void CreateDirectoryWait(const char* path);
+		virtual void DestroyDirectoryWait(const char* path);
+		virtual void FindFirstWait(const char* path, int flags);
+		virtual void FindNextWait(void* data);
+		virtual void DestroyFileWait(const char* path);
+		virtual int Cancel();
+		virtual int Notify(ICompletionCallback* callback, void* userData);
+		virtual int Signal(void* event);
+		virtual bool IsIdle();
+		virtual void Wait();
+		virtual void WaitSignal();
+		virtual int GetError();
+		virtual void BeginExclusive(int a, int b);
+		virtual void EndExclusive(int a);
+		virtual void Suspend(int value);
+		virtual void Resume(int value);
+		virtual bool IsFaulted();
+		virtual void ClearFault(int value);
+		virtual void SetMode(int mode);
+		virtual void SetFlag(bool flag);
+		virtual void Configure(int a, int b);
+		virtual void OpenFile(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option);
+		virtual void OpenFileWait(IFile** file, const char* path, bool writable, int mode, int key, int unused1, int unused2, int unused3, int option);
+		virtual void OpenSaveGame(IFile** file, const char* path, bool writable, int mode, int a, int b, int key);
+		virtual void OpenSaveGameWait(IFile** file, const char* path, bool writable, int mode, int a, int b, int key);
+		virtual void SetUnused(int value);
+		virtual int GetKey();
+		virtual int GetDriveId();
+		virtual int GetDriveSlot5(int a, int b);
+		virtual bool GetDriveSlot7(int a, int b);
+		virtual void Lock();
+		virtual void Unlock();
+
+		static void* operator new(unsigned int size);
+		static void operator delete(void* block);
+
 		// 0x1064F6B0 / 0x1064F6D0: a request starts / ends on this drive instance
 		void BeginRequest();
 		void EndRequest();
 
-		int field8;
+		int refCount;
 		Drive* drive;
 		int key;
-		unsigned char pad14[0x10];
+		unsigned int pending;
+		int event[2];
+		bool hasEvent;
+		bool waiting;
 		int error;
 		int findHandle;
 		bool searching;
 	};
+
+	void InitInstanceDrives(unsigned int count, int heap);
+	void ShutdownInstanceDrives();
 }
 
 #endif

@@ -268,6 +268,20 @@ the constructors initialise every member before the cache in the mem-initializer
 runs between them and the last two). Left alone: 0x1064DF30 (an EventSignal helper with a register argument
 that nothing here calls) and 0x1064DF40 (the IMutable constructor copy).
 
+## file/common/instancedrive.cpp (0x1064EB10 - 0x1064F805): 54 functions
+
+`core::InstanceDrive` (RTTI name; file name guessed): one owner's handle on a core::Drive, the drive-side twin of
+File (own pool "InstanceDrive", 0x30 bytes; global instance lock as IMutable; requests submitted to the drive;
+Wait / WaitSignal / IsIdle as in File; the last Release closes an open search). Every function matches. Notes:
+- The path calls split the path (SplitPath, 0x10643D60) into locals declared `native, relative, device[0x14],
+  full[0x104]` and take `relative`, or `native` when the drive hides names (GetFlags bit 7), written as an
+  assignment plus `if`: the ternary gives a branch, the original a cmovs.
+- GetError needs the single-exit form (value in a local, one Unlock).
+- IDrive slots 43 / 44 forward Drive slots 5 / 6 with two arguments (a forwarder's jump register is edx without
+  stack arguments and eax with them, a handy hint for the argument count of pure forwarders).
+Left alone: 0x1064EAF0 (an EventSignal helper with a register argument) and 0x1064EB00 / 0x1064F780 (interface
+destructor and constructor copies).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /

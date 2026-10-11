@@ -31,9 +31,9 @@ namespace core
 		// Pumps the drive's queue (files call it while they wait)
 		virtual void Update() = 0;
 		virtual int GetId() = 0;
-		virtual void Slot5() = 0;
+		virtual int Slot5(int a, int b) = 0;
 		virtual int CanCreateFile(int a, int b) = 0;
-		virtual void Slot7() = 0;
+		virtual bool Slot7(int a, int b) = 0;
 		// Bit 7: the drive hides its file names
 		virtual unsigned char GetFlags() = 0;
 		// Makes the drive usable (the requests' default preparation step)
@@ -67,6 +67,16 @@ namespace core
 		void CancelRequests(void* owner, int key);
 		// 0x1064FF10
 		FileCacheList* GetCacheList();
+		// 0x1064FC40 - 0x1064FE90: the state calls drive instances forward (names guessed from the fields they set)
+		void BeginExclusive(int a, int b);
+		void EndExclusive(int a);
+		void Suspend(int value);
+		void Resume(int value);
+		void SetMode(int mode);
+		void ClearFault(int value);
+		bool IsFaulted();
+		void Configure(int a, int b);
+		void SetFlag(bool flag);
 	};
 }
 
