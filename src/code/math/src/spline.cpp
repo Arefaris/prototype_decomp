@@ -5,8 +5,8 @@
 
 namespace math
 {
-	// Not reconstructed yet: 0x107D5040 / 0x107D5240 (BuildCatmullRom, BuildHermite); GetParameter (0x107D6C40) is
-	// NONMATCHING (docs/math_worklist.md).
+	// Not reconstructed yet: 0x107D5040 (BuildCatmullRom); GetParameter (0x107D6C40) is NONMATCHING
+	// (docs/math_worklist.md).
 
 	// GLOBAL: ENGINE 0x111BBAD0
 	// The 15 basis matrices of SplineSegment::Build, by mode; defined by the engine's data (name guessed)
@@ -247,6 +247,103 @@ namespace math
 	Vector4* Spline::GetKey(int index)
 	{
 		return keys + index;
+	}
+
+	// Kochanek-Bartels key parameters as BuildHermite reads them through its tangent pointers (names guessed)
+	struct SplineTCB
+	{
+		float tension;
+		float continuity;
+		float bias;
+		bool adjust;
+	};
+
+	// FUNCTION: ENGINE 0x107D5240
+	// EQUIVALENT: same operations in the same order (10.3 %, 1394 bytes against 1501); register and stack-slot
+	// choices differ throughout. The Build overloads that call it still match with it compiled in the unit
+	void SplineSegment::BuildHermite(const Vector4* k0, const Vector4* k1, const Vector4* k2, const Vector4* k3,
+		const Vector4* t0, const Vector4* t1, Matrix& geometry) const
+	{
+		if (t0 == 0 || t1 == 0)
+		{
+			return;
+		}
+		const SplineTCB* a = (const SplineTCB*)t0;
+		const SplineTCB* b = (const SplineTCB*)t1;
+		float d0 = 1.0f;
+		float d1 = 1.0f;
+		float d2 = 1.0f;
+		if (flag)
+		{
+			d0 = k1->w - k0->w;
+			d1 = k2->w - k1->w;
+			d2 = k3->w - k2->w;
+			if (d0 <= 0.0f || d1 <= 0.0f || d2 <= 0.0f)
+			{
+				return;
+			}
+		}
+		Vector s0;
+		float inv = 1.0f / d0;
+		s0.Set((k1->x - k0->x) * inv, (k1->y - k0->y) * inv, (k1->z - k0->z) * inv);
+		Vector s1;
+		inv = 1.0f / d1;
+		s1.Set((k2->x - k1->x) * inv, (k2->y - k1->y) * inv, (k2->z - k1->z) * inv);
+		Vector s2;
+		inv = 1.0f / d2;
+		s2.Set((k3->x - k2->x) * inv, (k3->y - k2->y) * inv, (k3->z - k2->z) * inv);
+		// Outgoing tangent at k1 and incoming tangent at k2
+		float ta = 1.0f - a->tension;
+		float w1 = (1.0f - a->continuity) * (1.0f - a->bias) * ta * 0.5f;
+		float w0 = (a->continuity + 1.0f) * (a->bias + 1.0f) * ta * 0.5f;
+		Vector out;
+		out.Set(w0 * s0.x + w1 * s1.x, s0.y * w0 + s1.y * w1, s0.z * w0 + s1.z * w1);
+		float tb = 1.0f - b->tension;
+		float w2 = (b->continuity + 1.0f) * (1.0f - b->bias) * tb * 0.5f;
+		float w3 = (b->bias + 1.0f) * (1.0f - b->continuity) * tb * 0.5f;
+		Vector in;
+		in.Set(s1.x * w3 + w2 * s2.x, s1.y * w3 + s2.y * w2, s1.z * w3 + s2.z * w2);
+		// With the adjust flag and a continuity, each tangent is rescaled to the length of the other weighting
+		if (a->continuity != 0.0f && a->adjust)
+		{
+			float wa = (a->continuity + 1.0f) * (1.0f - a->bias) * ta * 0.5f;
+			float wb = (a->bias + 1.0f) * (1.0f - a->continuity) * ta * 0.5f;
+			float x = wb * s0.x + wa * s1.x;
+			float y = s0.y * wb + s1.y * wa;
+			float z = s0.z * wb + s1.z * wa;
+			float length = sqrtf((x * x + z * z) + y * y);
+			float s = length * 2.0f / (sqrtf((out.x * out.x + out.z * out.z) + out.y * out.y) + length);
+			out.x = s * out.x;
+			out.y = out.y * s;
+			out.z = out.z * s;
+		}
+		if (b->continuity != 0.0f && b->adjust)
+		{
+			float wc = (1.0f - b->continuity) * (1.0f - b->bias) * tb * 0.5f;
+			float wd = (b->continuity + 1.0f) * (b->bias + 1.0f) * tb * 0.5f;
+			float x = wd * s1.x + wc * s2.x;
+			float y = s1.y * wd + s2.y * wc;
+			float z = s1.z * wd + s2.z * wc;
+			float length = sqrtf((x * x + z * z) + y * y);
+			float s = length * 2.0f / (sqrtf((in.x * in.x + in.z * in.z) + in.y * in.y) + length);
+			in.x = s * in.x;
+			in.y = in.y * s;
+			in.z = in.z * s;
+		}
+		geometry.m[0][0] = k1->x;
+		geometry.m[0][1] = k1->y;
+		geometry.m[0][2] = k1->z;
+		geometry.m[0][3] = k1->w;
+		geometry.m[1][0] = out.x * d1;
+		geometry.m[1][1] = out.y * d1;
+		geometry.m[1][2] = out.z * d1;
+		geometry.m[2][0] = k2->x;
+		geometry.m[2][1] = k2->y;
+		geometry.m[2][2] = k2->z;
+		geometry.m[2][3] = k2->w;
+		geometry.m[3][0] = in.x * d1;
+		geometry.m[3][1] = in.y * d1;
+		geometry.m[3][2] = in.z * d1;
 	}
 
 	// FUNCTION: ENGINE 0x107D5E70
