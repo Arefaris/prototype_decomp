@@ -14,6 +14,13 @@
 #include "code/math/vector.h"
 #include "code/math/vector4.h"
 
+// std::sort<float*> is called out of line, as the original does (its copy sits at 0x102CFF00 with another unit's
+// code); declared here without <algorithm>, whose inline definition the compiler would expand
+namespace std
+{
+	template<class RandomIt> void sort(RandomIt first, RandomIt last);
+}
+
 namespace math
 {
 	// 0x107D9A20: separating-axis test of a segment (midpoint offset delta from the box centre, half direction
@@ -267,6 +274,110 @@ namespace math
 		Vector d;
 		d.Sub(sphere.centre, closest);
 		return sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= sphere.radius;
+	}
+
+	// FUNCTION: ENGINE 0x107DBD20
+	// EQUIVALENT: same operations in the same order (14.9 %); the original keeps the loop counter in ebx and spills the
+	// start offset and the direction component (into length's slot), and compares the start's excess on the x87
+	float SegmentBoxDistanceSquared(const Vector& extents, const Vector& start, const Vector& direction, float length)
+	{
+		// The segment parameters where it crosses a face plane of a slab, sorted: the distance is convex between them
+		float t[8];
+		t[0] = 0.0f;
+		t[1] = length;
+		int count = 2;
+		for (int i = 3; i != 0; )
+		{
+			i--;
+			float d = (&direction.x)[i];
+			if (!(EPSILON_SMALL > fabsf(d)))
+			{
+				float e = (&extents.x)[i];
+				float s = (&start.x)[i];
+				float inv = 1.0f / d;
+				float a = (e - s) * inv;
+				if (a > 0.0f && a < length)
+				{
+					t[count++] = a;
+				}
+				float b = (-e - s) * inv;
+				if (b > 0.0f && b < length)
+				{
+					t[count++] = b;
+				}
+			}
+		}
+		std::sort(t, t + count);
+		// The start's own distance, then the best point of each interval (a projection step from its midpoint)
+		float best = 0.0f;
+		for (int i = 3; i != 0; )
+		{
+			i--;
+			float a = fabsf((&start.x)[i]);
+			if (a - (&extents.x)[i] > 0.0f)
+			{
+				float excess = a - (&extents.x)[i];
+				best = excess * excess + best;
+			}
+		}
+		for (int i = 0; i < count - 1; i++)
+		{
+			if (best < EPSILON_SMALL)
+			{
+				break;
+			}
+			float mid = (t[i + 1] + t[i]) * 0.5f;
+			float u = 0.0f;
+			for (int j = 3; j != 0; )
+			{
+				j--;
+				float d = (&direction.x)[j];
+				float s = (&start.x)[j];
+				float e = (&extents.x)[j];
+				float p = d * mid + s;
+				if (p - e > 0.0f)
+				{
+					u = (e - s) * d + u;
+				}
+				else if (e + p < 0.0f)
+				{
+					u = (-e - s) * d + u;
+				}
+				else
+				{
+					u = -s * d + u;
+				}
+			}
+			if (t[i] > u)
+			{
+				u = t[i];
+			}
+			else if (u > t[i + 1])
+			{
+				u = t[i + 1];
+			}
+			float distance = 0.0f;
+			float ex = fabsf(direction.x * u + start.x) - extents.x;
+			if (ex > 0.0f)
+			{
+				distance = ex * ex;
+			}
+			float ey = fabsf(direction.y * u + start.y) - extents.y;
+			if (ey > 0.0f)
+			{
+				distance = ey * ey + distance;
+			}
+			float ez = fabsf(u * direction.z + start.z) - extents.z;
+			if (ez > 0.0f)
+			{
+				distance = ez * ez + distance;
+			}
+			if (distance < best)
+			{
+				best = distance;
+			}
+		}
+		return best;
 	}
 
 	// FUNCTION: ENGINE 0x107DBFE0

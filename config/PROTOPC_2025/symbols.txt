@@ -2116,6 +2116,7 @@ _XInputGetCapabilities@12 = 0x10A9ACF0 ; function size:0x86 | XInputGetCapabilit
 ?Concatenate@Matrix@math@@QAEXAAV12@0@Z = 0x107DD990 ; function size:0x20 | math::Matrix::Concatenate(a, b): this = a * b (name guess)
 ?SetPosition@Matrix@math@@QAEXM@Z = 0x107DD9B0 ; function size:0x1A | math::Matrix::SetPosition(float) (name guess)
 ?SegmentBoxDistanceSquared@math@@YAMABVVector@1@00M@Z = 0x107DBD20 ; function size:0x2B7 | math::SegmentBoxDistanceSquared(extents, start, direction, length) (name guess)
+??$sort@PAM@std@@YAXPAM0@Z = 0x102CFF00 ; function size:0x1B | std::sort<float*> (template, kept copy)
 ?IntersectsCentredBox@math@@YA_NABVVector@1@ABVCapsule@1@@Z = 0x107DBFE0 ; function size:0x1E4 | math::IntersectsCentredBox(extents, capsule): capsule vs origin-centred box SAT (name guess)
 ?Intersects@math@@YA_NABVCapsule@1@ABVAABB@1@@Z = 0x107DC1D0 ; function size:0xDE | math::Intersects(const Capsule&, const AABB&) (name guess)
 ?Intersects@math@@YA_NABVCapsule@1@ABVOBB@1@@Z = 0x107DC2B0 ; function size:0xD6 | math::Intersects(const Capsule&, const OBB&) (name guess)
