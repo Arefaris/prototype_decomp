@@ -310,11 +310,59 @@ the relinker's import libraries name the slots `__imp__Name` without the `@N` a 
 would reference. Left alone: 0x1063D1F0 / 0x1063D210 (interlocked helpers with register arguments that nothing
 calls, like the ones in the allocator units).
 
+## string.cpp (0x10647F70 - 0x106486FE): 29 functions (35 mapped)
+
+core::String (`code/core/istring.h`; RTTI names IString / String, file and method names guessed): a reference-counted
+heap string, the buffer from the object's own heap, capacity and a null flag in one bitfield word. All match. What
+the matching showed: the methods test the null flag through an inline bool accessor (`shr` / `test al, 1`, while
+the out-of-line IsNull at 0x10648010 exists too); the buffers come from an inline `new(heap) char[size]` (the heap is read
+before the capacity call); string.cpp uses a static forceinline NewBuffer(size, heap) for it, since an inline
+operator new[](size, heap) would clash with the engine's out-of-line one (0x107DEFB0) in the hybrid link; the destructor is defined in the class (the deleting destructor inlines it, 0x106485C0 is the
+COMDAT copy); overloaded virtuals are declared in reverse vftable order. Mapped, not annotated: the IString
+constructor 0x10647F70, the deleting destructor and its thunk, and out-of-line copies of Object's operator new /
+delete (0x10648700 / 0x10648720). Left alone: 0x10647FE0 - 0x10648000 (interlocked helpers with register arguments).
+
+## platform.cpp (0x10647BF0 - 0x10647F5A): 20 functions (24 mapped)
+
+core::IPlatformWin32 / core::Platform (`code/core/platform.h`; RTTI names, file and member names guessed): the Win32
+platform object PlatformInit builds in static storage (0x1127A9C0, class placement operator new defined in the
+unit): window and instance, CoInitialize / CoUninitialize, a chain of window-message hooks that subclass the window
+(SetWindowLongA with GWL_WNDPROC, CallWindowProcA), two 256-byte strings, the purecall handler, and the x87
+precision. All match. PlatformInit keeps the new object in a local (the original does not reload gPlatform: the
+compiler knows Reset leaves ecx and edx alone). Mapped, not annotated: the out-of-line IPlatformWin32 constructor /
+destructor and Platform constructor copies and the scalar deleting destructor.
+
+## codec/*.cpp (0x10646E20 - 0x10647BE9): 30 functions, 22 matched, 8 EQUIVALENT
+
+The character codecs behind the text converters (`code/core/textcodec.h`; file and function names guessed): ASCII,
+Windows-1252, UTF-8 (Unicode, Inc.'s ConvertUTF.c: isLegalUTF8 and its tables), UTF-16, UTF-32 and Shift-JIS, each
+with Decode / Encode / Copy / Count, plus the half-width / full-width form mapping (DecomposeWidthForm, in the UTF-8
+file) that the Shift-JIS encoder calls. Six translation units, not one: the Shift-JIS encoder's recursive call stays
+a call only when DecomposeWidthForm is compiled elsewhere (in the same file the compiler turns it into a loop). The
+data tables are declared extern and mapped. Matching notes: Utf8DecodeChar advances the `source` parameter itself;
+the UTF-16 surrogate pair is written through `*target++`; Windows-1252 0x80 - 0x9F is an else-if chain
+(`c < 0x80`, `c <= 0x9F`); AsciiToShiftJis subtracts in 16 bits (`(unsigned short)(c - '0') + 0x824F`).
+EQUIVALENT: AsciiEncodeChar (register choice), AsciiCopyString / Cp1252CopyString (registers saved after the
+empty-source test), Utf8CopyString / Utf8CountChars (pointer and index registers swapped), Utf16CopyString /
+Utf16CountChars (the original tests the surrogate ranges with two compares each; every form tried folds them),
+ShiftJisEncodeChar (block order). Not reconstructed: 0x106478C0, a static trail-byte test with its argument in al
+that nothing calls (the compiler drops an unreferenced static function).
+
+## textconvert.cpp (0x1063E730 - 0x106412AF): 61 functions
+
+The text converters (`code/core/textconvert.h`; file and names guessed): Copy / Count forwarders per encoding (the
+Count ones return 0 for a null string), and ConvertText(target, targetEncoding, source, sourceEncoding, replacement,
+size, flags, &bytes, &chars) with the encodings ASCII, UTF-8, UTF-16, UTF-32, Shift-JIS, Windows-1252 (0 - 5). All
+match. Three static function templates: ConvertTo<target> dispatches on the source encoding (or copies when the
+encodings are equal and there are no flags), ConvertChars<source, target> converts character by character,
+CopyChars<encoding> validates and copies. The 48 instances carry stacked FUNCTION annotations above their template;
+the compiler emits them in the original's order. The instances take register arguments, and which register gets
+which argument follows the parameter order (target before source); ConvertChars walks a copy of its target
+parameter, which frees the parameter's stack slot for the decoded character as in the original.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
-- 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
-  encoding, leaf, recursive fallback).
 - 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
   input conversion.
