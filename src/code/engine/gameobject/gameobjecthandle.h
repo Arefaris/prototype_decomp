@@ -45,6 +45,9 @@ namespace engine
 		GameObjectHandle(unsigned short newIndex, unsigned short newSerial) : HandleBase(newIndex, newSerial)
 		{
 		}
+		explicit GameObjectHandle(unsigned short newIndex) : HandleBase(newIndex)
+		{
+		}
 		unsigned short GetSerial() const
 		{
 			return serial;

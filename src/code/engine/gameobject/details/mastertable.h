@@ -68,6 +68,8 @@ namespace container
 
 namespace engine
 {
+	class GameObjectIterator;
+
 	class MasterTable
 	{
 	public:
@@ -184,6 +186,10 @@ namespace engine
 		static bool sHasReservedHandle;
 		void ClearReservedHandle();
 		void SetReservedHandle(GameObjectHandle handle);
+
+		// The valid entries (gameobjectsystem.h; Begin is inline, End out of line in gameobjectsystem.cpp)
+		GameObjectIterator Begin();
+		GameObjectIterator End();
 
 		unsigned short GetSerial(unsigned short index)
 		{
