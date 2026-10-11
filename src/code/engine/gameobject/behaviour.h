@@ -19,6 +19,12 @@ namespace engine
 
 	// A small set of flag bits. The members are defined outside the class without inline, so every unit keeps its
 	// own called copies (the constructor's and Test's copies the engine kept sit in other units).
+	// The listening mask bit of a message type
+	inline unsigned __int64 GetMessageBit(int type)
+	{
+		return (unsigned __int64)1 << type;
+	}
+
 	template<class T> class BitField
 	{
 	public:
@@ -92,10 +98,11 @@ namespace engine
 		// Called when the computed activity changes
 		virtual void OnActiveChanged(bool active);
 		virtual void Slot4(int a, int b);
-		virtual void Slot5(int a)
+		// Messages handed on by the game object: posted / sent (the controller distributes them; names guessed)
+		virtual void OnPostedMessage(Message* message)
 		{
 		}
-		virtual void Slot6(int a)
+		virtual void OnMessage(Message* message)
 		{
 		}
 		virtual ~Behaviour();
@@ -131,10 +138,10 @@ namespace engine
 		unsigned char timeSliceFrameSkip;
 	};
 
-	// The GameObject's behaviour container (another unit, 0x1083xxxx): message type listening (a 64-bit mask) and
-	// scheduling. Method meanings beyond SetListening are unknown.
+	// The GameObject's behaviour controller (RTTI engine::BehaviourController, another unit, 0x1083xxxx): message type listening (a
+	// 64-bit mask) and scheduling. Method meanings beyond SetListening are unknown.
 	// It is a Behaviour itself (Behaviour::ApplyActive skips notifying the container about itself).
-	class BehaviourContainer : public Behaviour
+	class BehaviourController : public Behaviour
 	{
 	public:
 		// 0x1083A420: the behaviour's activity changed
@@ -153,6 +160,37 @@ namespace engine
 		bool Query2(int value, Behaviour* behaviour);
 		bool Query3(Behaviour* behaviour);
 		bool Query4(int value, Behaviour* behaviour);
+		// 0x10839D80 (meaning unknown)
+		void Unknown10839D80(int value);
+		// 0x1083AAA0 / 0x1083AB00
+		explicit BehaviourController(GameObject* newOwner);
+		~BehaviourController();
+
+		// Vftable slots 8 - 10 (0x10839EF0 / 0x10839F90 / 0x1083A680; meanings unknown)
+		virtual void Slot8(int a, int b);
+		virtual void Slot9(int a);
+		virtual void Slot10();
+
+		// True when a behaviour listens for messages of type
+		bool IsListening(int type) const
+		{
+			return (GetMessageBit(type) & listenMask) != 0;
+		}
+
+		float unknownC;
+		int unknown10;
+		int unknown14;
+		int unknown18;
+		int unknown1C;
+		// Bit n: a behaviour listens for message type n
+		unsigned __int64 listenMask;
+		// The update passes of the object (UpdateGameObjects' mask; meaning guessed)
+		unsigned short updateMask;
+		unsigned char unknown2A;
+		unsigned char unknown2B;
+		int unknown2C;
+		int unknown30;
+		int unknown34;
 	};
 }
 

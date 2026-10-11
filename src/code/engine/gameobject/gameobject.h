@@ -1,16 +1,22 @@
 // engine::GameObject (RTTI: 7 vftable slots, bases content::MetaLoadObject / LoadObject / core::IRefCount; 0x60
-// bytes): only the members the engine units reconstructed so far use. The class itself (0x107E05A0 - 0x107E1CB0)
-// is not reconstructed yet.
+// bytes), gameobject.cpp (unit 0x107E05A0 - 0x107E1D20, no assert path; the file name is a guess): named attributes
+// (the transform among them), a dynamic attribute list, the behaviour controller and the master table index.
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECT_H
 #define ENGINE_GAMEOBJECT_GAMEOBJECT_H
 
+#include "code/container/arraydynamic.h"
 #include "code/content/loadinventory.h"
+#include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/math/matrix.h"
 
 namespace engine
 {
 	class Message;
+
+	// The dynamic attribute list heap and length (gameobjectsystem.cpp's InitGameObjectSystem sets them)
+	extern int gAttributeListHeap;
+	extern unsigned int gAttributeListLength;
 
 	// engine::BaseAttribute / engine::Attribute<T> (RTTI names; the GameObject's transform is an
 	// Attribute<math::Matrix> found through dynamic_cast)
@@ -31,42 +37,104 @@ namespace engine
 		T value;
 	};
 
+	// The construction helpers (gameobject.cpp): the heap a game object is being created in and the object being
+	// constructed, kept in thread-local slots (names guessed)
+	int GetConstructionHeap();
+	void SetConstructionHeap(int heap);
+	GameObject* GetConstructingObject();
+	void SetConstructingObject(GameObject* object);
+
 	class GameObject : public content::MetaLoadObject
 	{
 	public:
-		// 0x107E1670 / 0x107E0BE0 (the GameObject unit)
+		// An attribute kept under a name (16 bytes; the copy keeps the last word)
+		struct AttributeEntry
+		{
+			static content::ClassInfo* GetClassInfo();
+
+			AttributeEntry()
+				: name(0, 1)
+			{
+				attribute = 0;
+			}
+			AttributeEntry(content::ObjectName newName, BaseAttribute* newAttribute)
+				: name(newName)
+			{
+				attribute = newAttribute;
+			}
+			AttributeEntry(const AttributeEntry& other)
+				: name(other.name)
+			{
+				attribute = other.attribute;
+			}
+			AttributeEntry& operator=(const AttributeEntry& other)
+			{
+				name = other.name;
+				attribute = other.attribute;
+				return *this;
+			}
+
+			content::ObjectName name;
+			BaseAttribute* attribute;
+			int unknownC;
+		};
+
+		typedef container::ArrayDynamicHeap<AttributeEntry> AttributeList;
+
+		// The attributes added at run time (allocated from the dynamic attribute heap)
+		struct DynamicAttributeList : AttributeList
+		{
+			static content::ClassInfo* GetClassInfo();
+
+			DynamicAttributeList()
+				: AttributeList(gAttributeListLength, container::AllocatorCoreAligned<16>(gAttributeListHeap))
+			{
+			}
+		};
+
 		GameObject();
 		static void* operator new(unsigned int size);
 
-		// The vftable (RTTI: 7 slots; slots 0 / 1 are the reference count, slot 2 the deleting destructor)
+		// The reflection data (the class name is plain "GameObject")
+		static content::ClassInfo* GetClassInfo();
+
+		// The vftable (RTTI: 7 slots; slot 2 is the deleting destructor, slot 6 MetaLoadObject's)
 		virtual void AddRef();
 		virtual void Release();
 		virtual ~GameObject();
-		virtual void Slot3();
-		// 0x107E0F40: true when the object may leave the deferred list (meaning guessed)
+		// Registers the object in the master table and starts its behaviours (name guessed)
+		virtual void Slot3(int unused);
+		// True when the object may be released: its behaviours are stopped and it is unregistered (guessed)
 		virtual bool IsReady();
 		virtual bool Slot5();
-		// Takes the name the object is kept under in the game object inventory (meaning guessed)
-		virtual void SetName(const content::ObjectName& name);
 
+		bool IsRegistered() const
+		{
+			return index != 0xffff;
+		}
 		bool TestUpdateMask(unsigned short mask) const
 		{
-			return (updateMask & mask) != 0;
+			return (behaviours.updateMask & mask) != 0;
 		}
 
-		// 0x107E0810 (another unit): delivers the message when the object listens for its type
+		// Delivers the message when a behaviour listens for its type (through the controller's slot 6 / 5)
 		bool SendMessage(Message* message);
-		// 0x107E0850: the same through the behaviour container's other slot (name guess)
 		bool PostMessage(Message* message);
+		void SetTransform(const math::Matrix& matrix);
+		void SetPosition(const math::Vector& position);
+		void Unknown107E0940(int value);
+		void Slot8(int a, int b);
+		void Slot9(int a);
+		BaseAttribute* FindAttribute(const content::ObjectName& name);
+		void SetActive(bool active);
+		void AddAttribute(content::ObjectName name, BaseAttribute* attribute);
+		bool AddDynamicAttribute(content::ObjectName name, BaseAttribute* attribute);
+		void RemoveDynamicAttribute(const content::ObjectName& name);
 
-		unsigned char unknown4[0x1c - 4];
+		AttributeList attributes;
+		DynamicAttributeList* dynamicAttributes;
 		Attribute<math::Matrix>* transform;
-		// The behaviour container (a Behaviour itself)
-		BehaviourContainer behaviours;
-		unsigned char unknown2C[0x48 - 0x2c];
-		// The update passes the object takes part in (UpdateGameObjects' mask; meaning guessed)
-		unsigned short updateMask;
-		unsigned char unknown4A[0x58 - 0x4a];
+		BehaviourController behaviours;
 		// The master table index, 0xFFFF while unregistered
 		unsigned short index;
 		// 0: updated in the first pass; n: in the n-th deferred pass (after the objects it depends on; guessed)
@@ -74,7 +142,6 @@ namespace engine
 		unsigned char unknown5B;
 		int unknown5C;
 	};
-
 }
 
 #endif

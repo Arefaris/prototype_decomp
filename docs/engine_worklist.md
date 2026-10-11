@@ -98,3 +98,24 @@ Lessons:
   mapped in symbols.txt.
 - `__RTDynamicCast` is an import stub (0x10A88356); leave it out of symbols.txt, the relink takes it from
   msvcr80.lib. The RTTI type descriptors `??_R0...@8` it is passed are mapped as data.
+
+## gameobject/gameobject.cpp (0x107E05A0 - 0x107E1D20)
+
+First part: the constructor, destructor and scalar deleting destructor, vftable slots 0 - 5 (AddRef / Release
+forward to LoadObject, slot 3 registers the object, IsReady, slot 5 ends construction), the construction helpers
+(heap and object in thread-local slots), SendMessage / PostMessage, SetTransform / SetPosition, the controller
+forwards, FindAttribute, SetActive, AddAttribute and AddDynamicAttribute. EQUIVALENT: RemoveDynamicAttribute (the
+engine saves esi / edi before testing for the list). Left: the reflection data (GetClassInfo of AttributeEntry,
+DynamicAttributeList and GameObject, their member tables and meta types built with content::ArrayDynamicHelper and
+MetaInstanceHelper), the ArrayDynamic<AttributeEntry> kept copies the helpers use, 0x107E1CD0 (sends
+AttributeUpdatedMessage) and small copies. Lessons:
+
+- The "behaviour container" is engine::BehaviourController (RTTI); its 64-bit listen mask is at +0x20 and the update
+  mask at +0x28.
+- content::LoadObject's reference count is volatile: the LoadObject vftable store survives in the GameObject
+  constructor only because the volatile store after it stops dead-store elimination.
+- Members set in the constructor before a member object's constructor call are in the initialiser list.
+- Placement new on a "room for one more" helper (`new (array.Grow()) T(...)`) gives the engine's null-checked
+  in-place construction; Size / Capacity are signed (`sar`) and a capacity read once into a local keeps the shifts.
+- `x ? false : true` gives `test; sete` where `!x` gives `neg; sbb; add`.
+- Vftable slots a class inherits without overriding are mapped to the incremental link thunks the vftables hold.
