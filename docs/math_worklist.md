@@ -140,6 +140,14 @@ Left:
 | 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | - | 1 981 bytes, triangle vs box SAT; not attempted |
 | 0x107DBA10 | Intersects(const Triangle&, const AABB&) | 44.5 % | frame 0x58 matches with `Vector4 vertices[4]` (three copied member-wise, 16-byte stride), centre.Add(max, min) * 0.5, extents.Sub; the original sinks centre.z / extents.z and the first `max.x + min.x` load order differs |
 
+Capsule vs box (0x107DBFE0 - 0x107DC390): Intersects(const Capsule&, const OBB&) (0x107DC2B0) matches (direction and
+centre offset through Matrix3::TransformTransposed, the local capsule written member-wise). EQUIVALENT in tree:
+IntersectsCentredBox(extents, capsule) (0x107DBFE0, 28.7 %: the six SAT tests in x87 and the segment tail match in
+form, but the original reloads capsule.direction from memory in the tail where we reuse the spilled test values;
+returns bool, `xor al, al`), Intersects(const Capsule&, const AABB&) (0x107DC1D0, 60.8 %: the stores of
+local.centre x / z are deferred past the member copies in the original; a permuter found 91 % only with an unnatural
+statement order). SegmentBoxDistanceSquared (0x107DBD20, 695 bytes) is not attempted.
+
 ClassifyBox(box, planes, count) (0x107DA850) matches with `planes[i]` indexed directly (a `const Plane&` local
 gives other registers) and `normal.Dot(corner) + d` tests. Intersects(const Triangle&, const OBB&) (0x107DBB10) matches with the corners transformed into a `Vector local[3]`
 array that is then reused for the zero centre and the extents (the original's 0x60 frame). Intersects(const Triangle&, const Sphere&) (0x107DBCC0) matches: `d.Sub(centre, closest); sqrtf(d.y * d.y + d.z * d.z + d.x * d.x) <= radius`, compiled in intersect.cpp (ClosestPoint external, so the sphere pointer lives in esi).
@@ -224,7 +232,7 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107DD690 | 726 bytes | — | not looked at |
+| 0x107DD690 | Matrix::SetHueRotation(angle, luminance) | 100 % | in the tree: Haeberli's hue rotation (rotate grey onto Z, shear, RotationZ, unshear, rotate back) through Matrix temporaries and Multiply; Concatenate x2 (0x107DD970 / 990) and SetPosition(float) (0x107DD9B0) match too |
 
 ## sphere.cpp / capsule.cpp (0x107DC390–0x107DD1A0), partly in the tree
 

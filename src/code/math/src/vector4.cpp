@@ -173,4 +173,85 @@ namespace math
 	{
 		SetScale(s, s, s);
 	}
+
+	// FUNCTION: ENGINE 0x107DD690
+	void Matrix::SetHueRotation(float angle, const Vector4& luminance)
+	{
+		Matrix rx;
+		Matrix ry;
+		rx.Identity();
+		ry.Identity();
+		// rotate the grey vector onto +Z
+		float mag = sqrt(2.0);
+		float xrs = 1.0f / mag;
+		float xrc = 1.0f / mag;
+		rx.m[1][1] = xrc;
+		rx.m[1][2] = xrs;
+		rx.m[2][1] = -xrs;
+		rx.m[2][2] = xrc;
+		float inv = 1.0 / sqrt(3.0);
+		float yrs = -1.0f * inv;
+		float yrc = mag * inv;
+		ry.m[0][0] = yrc;
+		ry.m[0][2] = -yrs;
+		ry.m[2][0] = yrs;
+		ry.m[2][2] = yrc;
+		Matrix result;
+		result.Identity();
+		result.Multiply(result, rx);
+		result.Multiply(result, ry);
+		// shear the space to make the luminance plane horizontal
+		Vector l;
+		l.x = luminance.x;
+		l.y = luminance.y;
+		l.z = luminance.z;
+		Vector t;
+		result.Transform(l, t);
+		float zsx = t.x / t.z;
+		float zsy = t.y / t.z;
+		Matrix shear;
+		shear.Identity();
+		shear.m[0][2] = zsx;
+		shear.m[1][2] = zsy;
+		result.Multiply(result, shear);
+		// rotate the hue
+		Matrix rz;
+		rz.Identity();
+		rz.RotationZ(angle);
+		result.Multiply(result, rz);
+		// unshear, then rotate the grey vector back
+		shear.Identity();
+		shear.m[0][2] = -zsx;
+		shear.m[1][2] = -zsy;
+		result.Multiply(result, shear);
+		ry.m[0][0] = yrc;
+		ry.m[0][2] = yrs;
+		ry.m[2][0] = -yrs;
+		ry.m[2][2] = yrc;
+		result.Multiply(result, ry);
+		rx.m[1][1] = xrc;
+		rx.m[1][2] = -xrs;
+		rx.m[2][1] = xrs;
+		rx.m[2][2] = xrc;
+		result.Multiply(result, rx);
+		*this = result;
+	}
+
+	// FUNCTION: ENGINE 0x107DD970
+	void Matrix::Concatenate(Matrix& other)
+	{
+		Multiply(*this, other.GetMatrix());
+	}
+
+	// FUNCTION: ENGINE 0x107DD990
+	void Matrix::Concatenate(Matrix& a, Matrix& b)
+	{
+		Multiply(a.GetMatrix(), b.GetMatrix());
+	}
+
+	// FUNCTION: ENGINE 0x107DD9B0
+	void Matrix::SetPosition(float s)
+	{
+		SetPosition(s, s, s);
+	}
 }
