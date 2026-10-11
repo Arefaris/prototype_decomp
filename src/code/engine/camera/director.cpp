@@ -51,7 +51,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DD9F0
-		inline CameraResetMessage::CameraResetMessage() : IntrusiveMessage(sizeof(CameraResetMessage), 2)
+		inline CameraResetMessage::CameraResetMessage() : IntrusiveMessage(12, 2)
 		{
 		}
 
@@ -63,7 +63,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDA20
-		inline CameraCutMessage::CameraCutMessage() : IntrusiveMessage(sizeof(CameraCutMessage), 3)
+		inline CameraCutMessage::CameraCutMessage() : IntrusiveMessage(12, 3)
 		{
 		}
 

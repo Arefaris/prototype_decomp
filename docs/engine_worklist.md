@@ -32,3 +32,16 @@ The unit is complete except for these EQUIVALENT functions:
 Lesson: inline accessors whose kept copies sit in the unit were used by the unit's code. Writing the code through
 them (instead of the field expressions) changes inlining and register allocation; `SetFactory` only matched once
 it used `GetInput` / `SetInput`.
+
+## system/poimanager.cpp (0x10825AF0 - 0x10826776)
+
+Complete except two EQUIVALENT functions: the `WorldStreamerPOI(GameObjectHandle)` constructor (the engine keeps
+the handle serial in memory for the table check) and `WorldStreamerPOI::GetPosition` (the engine checks the handle
+twice, IsValid then Get; our build folds the second check). Lessons from this unit:
+
+- `math::Vector` has a user-defined copy constructor (copy construction is `fld` / `fstp` per component) and a
+  `(x, y, z)` constructor (a by-value `Vector(x, y, z)` argument is built in place with `movss`).
+- `GameObjectHandle`'s own constructor is inline over a base whose constructor (`0x107EE330`) is out of line:
+  callers take the temporary's address again after the call instead of using the returned `this`.
+- The engine's asserts keep a per-site `static bool` and pass file, line, expression text and message to
+  `core::ReportError` (`OLD_ASSERT_AT` in `code/core/debug.h`).
