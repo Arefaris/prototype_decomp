@@ -98,9 +98,12 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 				if not known or target not in known:
 					continue  # a pointer to something we cannot place
 				expected = known[target]
+				width = 4
 			else:
-				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + 4], "little")
-			width = 4
+				# Only up to the next symbol of the section: a static bool is one byte, its neighbours are not ours
+				following = [v for n, v, s, st in coff.symbols if s == section and v > value]
+				width = min(4, min(following) - value) if following else 4
+				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
 		else:
 			continue
 		target = struct.unpack_from("<I", original, offset)[0]
