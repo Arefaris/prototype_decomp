@@ -320,8 +320,17 @@ before the capacity call), so string.cpp carries an inline `operator new[](size,
 one is 0x107DEFB0); the destructor is defined in the class (the deleting destructor inlines it, 0x106485C0 is the
 COMDAT copy); overloaded virtuals are declared in reverse vftable order. Mapped, not annotated: the IString
 constructor 0x10647F70, the deleting destructor and its thunk, and out-of-line copies of Object's operator new /
-delete (0x10648700 / 0x10648720). Left alone: 0x10647FE0 - 0x10648000 (interlocked helpers with register arguments)
-and core::Platform (0x10647C60 - 0x10647F5A, vftable 0x10E475AC, the next candidate).
+delete (0x10648700 / 0x10648720). Left alone: 0x10647FE0 - 0x10648000 (interlocked helpers with register arguments).
+
+## platform.cpp (0x10647BF0 - 0x10647F5A): 20 functions (24 mapped)
+
+core::IPlatformWin32 / core::Platform (`code/core/platform.h`; RTTI names, file and member names guessed): the Win32
+platform object PlatformInit builds in static storage (0x1127A9C0, class placement operator new defined in the
+unit): window and instance, CoInitialize / CoUninitialize, a chain of window-message hooks that subclass the window
+(SetWindowLongA with GWL_WNDPROC, CallWindowProcA), two 256-byte strings, the purecall handler, and the x87
+precision. All match. PlatformInit keeps the new object in a local (the original does not reload gPlatform: the
+compiler knows Reset leaves ecx and edx alone). Mapped, not annotated: the out-of-line IPlatformWin32 constructor /
+destructor and Platform constructor copies and the scalar deleting destructor.
 
 ## Candidates nearby (leaf functions, not started)
 
