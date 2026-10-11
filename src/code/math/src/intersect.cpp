@@ -115,6 +115,23 @@ namespace math
 		return segment.DistanceSquared(other) <= r * r;
 	}
 
+	// FUNCTION: ENGINE 0x107DA5D0
+	// NONMATCHING: the distance and the three dots match in form, but the original keeps normal z, y, x on the x87
+	// stack (we load x first) and sums the projected radius as axis 2, axis 0, axis 1 where every source order gives
+	// axis 1, axis 0, axis 2 (82.6 %)
+#ifdef NONMATCHING
+	int Intersects(const Plane& plane, const OBB& box)
+	{
+		Vector n(plane.normal);
+		float distance = (box.centre.z * n.z + box.centre.y * n.y) + box.centre.x * n.x + plane.d;
+		const Vector& a0 = box.axis[0];
+		const Vector& a1 = box.axis[1];
+		const Vector& a2 = box.axis[2];
+		float r = fabsf((a2.x * n.x + a2.y * n.y) + a2.z * n.z) * box.extents.z + fabsf((a0.y * n.y + a0.z * n.z) + n.x * a0.x) * box.extents.x + fabsf((a1.x * n.x + a1.y * n.y) + a1.z * n.z) * box.extents.y;
+		return distance <= r;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x107DA660
 	// EQUIVALENT: same operations; the original keeps normal.x in xmm1 and normal.z in xmm3, we get the reverse, and
 	// the second dot product adds its x and y terms the other way round (76 %)

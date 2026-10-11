@@ -103,7 +103,7 @@ Left:
 | 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | - | 1 111 bytes, box vs box SAT; called by 0x107DA110 / 0x107DA360; not attempted |
 | 0x107DA110 | Intersects(OBB, OBB) | 15.2 % | delta in A's space and the 3x3 of axis dots on the stack, then TestBoxesSAT; the straight version is 625 bytes vs 583: the original shares the a.axis loads between the dots |
 | 0x107DA410 | Intersects(OBB, Sphere) | 100 % | in the tree: the same `const Vector& v` + grouping trick as OBB::Contains |
-| 0x107DA5D0 | Intersects(Plane, OBB) | 61.8 % | x87: the distance matches; the three abs(axis . n) * extent terms are evaluated axis 2, 0, 1 with the dots in y, z, x order; permuter plateau |
+| 0x107DA5D0 | Intersects(Plane, OBB) | 82.6 % | NONMATCHING in tree: `Vector n(plane.normal)` (copy constructor) and grouped dots get the shape; the original keeps n.z, n.y, n.x on the x87 stack and sums the radius terms axis 2, 0, 1 (ours 1, 0, 2 whatever the source order) |
 | 0x107DA730 | PlaneCrossesBox(normal, point, halfExtents) | 8.5 % | the original subtracts `point` right after each sign branch joins (shared tail) and keeps the max corner on the stack; all scalar / Vector forms tried come out longer (271-306 bytes) |
 | 0x107DA850 | ClassifyBox(box, planes, count) | 47.4 % | frame matches with two Vector locals (far corner declared first); the plane pointer register (ecx vs edx) and the reload of normal.x differ |
 | 0x107DB250 | TriangleBoxOverlap(centre, halfExtents, Vector4 vertices[]) | - | 1 981 bytes, triangle vs box SAT; not attempted |
@@ -194,8 +194,7 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107DCD20 | Sphere::IntersectRay | 95.5 % | EQUIVALENT in the tree: only the xmm numbers of dx/dy/dz differ, every sum/product order gives the same code |
-| 0x107DCDF0 | Sphere::IntersectRayFirst | 93.3 % | EQUIVALENT in the tree, same difference |
+| 0x107DCD20 / 0x107DCDF0 | Sphere::IntersectRay / IntersectRayFirst | 100 % | in the tree: `d.Sub(origin, centre)`, `b = direction.Dot(d)`, `c = d.Dot(d) - radius * radius` |
 | 0x107DD090 | Sphere::AddSphere | 68 % | `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |

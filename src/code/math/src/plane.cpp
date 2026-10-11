@@ -14,8 +14,8 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107D89E0
-	// EQUIVALENT: same operations in the same order; the original multiplies e1.z * e2.y and a.z * normal.z with the
-	// operands the other way round (93.1 %)
+	// EQUIVALENT: same operations; the original multiplies e1.z * e2.y with the operands the other way round and adds
+	// the dot product's z term before its y term (commutative); 96.1 % with the grouped dot
 	void Plane::Set(const Vector& a, const Vector& b, const Vector& c)
 	{
 		Vector e1;
@@ -24,7 +24,7 @@ namespace math
 		e2.Sub(c, a);
 		normal.Cross(e1, e2);
 		normal.NormalizeFast();
-		d = -normal.Dot(a);
+		d = -((a.x * normal.x + a.y * normal.y) + a.z * normal.z);
 	}
 
 	// FUNCTION: ENGINE 0x107D8AB0
