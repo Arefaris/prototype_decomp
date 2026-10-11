@@ -268,6 +268,10 @@ namespace engine
 	GameObject* CreateGameObjectHere(int key, int unused);
 	void DeferUpdate(GameObjectHandle handle, bool force);
 	void FlushDeferredUpdates();
+	void InvalidateHandle(GameObjectHandle* handle, bool notify);
+	void SwapGameObjects(GameObjectHandle first, GameObjectHandle second);
+	void MoveHandle(GameObjectHandle* from, GameObjectHandle* to);
+	void ReplaceHandle(const GameObjectHandle* target, const GameObjectHandle* source);
 }
 
 #endif

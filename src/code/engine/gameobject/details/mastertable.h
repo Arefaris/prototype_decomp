@@ -211,7 +211,7 @@ namespace engine
 		Entry* freeList;
 	};
 
-	// The engine's master table (0x1128348C; gGameObjects in gameobjecthandle.h views the same pointer)
+	// The engine's master table (0x1128348C)
 	extern MasterTable* gMasterTable;
 }
 

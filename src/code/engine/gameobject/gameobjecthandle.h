@@ -18,8 +18,14 @@ namespace engine
 		unsigned short flags;
 	};
 
-	// The game object table (0x1128348C)
-	extern GameObjectEntry* gGameObjects;
+	// The master table (0x1128348C, mastertable.h); its entries come first, which is all the handles need
+	class MasterTable;
+	extern MasterTable* gMasterTable;
+
+	inline GameObjectEntry* GetGameObjectEntries()
+	{
+		return (GameObjectEntry*)gMasterTable;
+	}
 
 	// The handle data with the out-of-line constructors (gameobjecthandle.cpp). GameObjectHandle's own
 	// constructor is inline, which is why callers take the address of a constructed temporary again instead of using
@@ -64,15 +70,15 @@ namespace engine
 
 		GameObject* Get() const
 		{
-			if (index != 0xffff && gGameObjects[index].serial == serial)
+			if (index != 0xffff && GetGameObjectEntries()[index].serial == serial)
 			{
-				return gGameObjects[index].object;
+				return GetGameObjectEntries()[index].object;
 			}
 			return 0;
 		}
 		bool IsValid() const
 		{
-			return index != 0xffff && gGameObjects[index].serial == serial && gGameObjects[index].object != 0;
+			return index != 0xffff && GetGameObjectEntries()[index].serial == serial && GetGameObjectEntries()[index].object != 0;
 		}
 	};
 }

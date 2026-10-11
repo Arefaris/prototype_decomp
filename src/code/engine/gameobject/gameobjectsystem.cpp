@@ -10,6 +10,9 @@ namespace engine
 	{
 	public:
 		void InitListeners(MessageListeners* listeners, int count);
+		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
+		void Invalidate(GameObjectHandle handle);
+		void SwapHandles(GameObjectHandle first, GameObjectHandle second);
 	};
 	extern MessageRouter* gMessageRouter;
 
@@ -322,7 +325,54 @@ namespace engine
 		}
 	}
 
-	// Kept copies of GameObjectIterator's inline members
+	// FUNCTION: ENGINE 0x107EF8C0
+	void InvalidateHandle(GameObjectHandle* handle, bool notify)
+	{
+		if (handle->Get() != 0)
+		{
+			if (notify)
+			{
+				gMessageRouter->Invalidate(*handle);
+			}
+			unsigned short index = handle->index;
+			handle->serial = gMasterTable->IncrementSerial(index);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107EF920
+	void SwapGameObjects(GameObjectHandle first, GameObjectHandle second)
+	{
+		gMessageRouter->SwapHandles(first, second);
+		gMasterTable->Swap(first.index, second.index);
+		GameObject* secondObject = second.Get();
+		GameObject* firstObject = first.Get();
+		container::Swap(firstObject->index, secondObject->index);
+	}
+
+	// FUNCTION: ENGINE 0x107EF9B0
+	// EQUIVALENT: the engine resolves the handle twice (validity, then the object); our build folds the second
+	// lookup into the first
+	void MoveHandle(GameObjectHandle* from, GameObjectHandle* to)
+	{
+		if (from->IsValid())
+		{
+			GameObject* object = from->Get();
+			object->index = gMasterTable->Move(from, to);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107EFA20
+	void ReplaceHandle(const GameObjectHandle* target, const GameObjectHandle* source)
+	{
+		GameObject* object = target->Get();
+		object->index = gMasterTable->Replace(target, source);
+	}
+
+	// Kept copies of inline functions: GameObjectIterator's members, container::Swap<unsigned short> and
+	// GameObjectHandle's (index) constructor
+	// FUNCTION: ENGINE 0x107EEBE0
+	// FUNCTION: ENGINE 0x107EF060
+	// FUNCTION: ENGINE 0x107EEC70
 	// FUNCTION: ENGINE 0x107EF0A0
 	// FUNCTION: ENGINE 0x107EF410
 	// FUNCTION: ENGINE 0x107EF450
