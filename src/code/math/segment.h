@@ -8,6 +8,7 @@
 namespace math
 {
 	class AABB;
+	class Sphere;
 
 	class Segment
 	{
@@ -17,9 +18,16 @@ namespace math
 
 		// Component-wise min and max of the two end points
 		void GetAABB(AABB& out) const;
+		// Sphere around the midpoint with radius |start - end| (name guess)
+		void GetSphere(Sphere& out) const;
+		// Projection parameter of p: (p - start) . (end - start) / |end - start|^2 (name guess)
+		float Parameter(const Vector& p) const;
 		// Squared distance from a point / between two segments (0x107D7420 / 0x107D7770, not reconstructed yet)
 		float DistanceSquared(const Vector& point) const;
 		float DistanceSquared(const Segment& other) const;
+		// Squared distance from p given t = (p - start) . (end - start) and lengthSquared = |end - start|^2: to start
+		// when t <= 1e-10, to end when t >= lengthSquared, else to the line (name guess)
+		float DistanceSquared(const Vector& p, float t, float lengthSquared) const;
 	};
 }
 

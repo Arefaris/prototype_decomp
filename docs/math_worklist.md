@@ -135,18 +135,19 @@ change it). Left:
 | 0x107D5240 | SplineSegment::BuildHermite(k0, k1, k2, k3, t0, t1, Matrix& g) | - | 1 501 bytes, not attempted |
 | 0x107D6C40 | Spline::GetParameter(length) | 22 % | NONMATCHING in tree: segment search over `lengths` (matches), first guess `(length - sum + segmentLength) / segmentLength + start`, then 32 Newton steps with fsel-style clamps (`Select(t - start, t, start)`, `Select(t - end, end, t)`, mathutils.h) and GetLength / EvaluateDerivative; the original computes `end` and the first `t` in SSE (start converted through memory), we get x87 |
 
-## segment.cpp (0x107D6F40–0x107D7650), not in the tree
+## segment.cpp (0x107D6F40-0x107D7650), partly in the tree
 
 Segment is `{Vector start; Vector end;}`. The compiler keeps `d = end - start` and `v = p - start` as memory Vectors
 and reads them back in x87 with term orders that change from function to function (x,z,y dot products; (z²+y²)+x²
-lengths), so plain float locals, Vector locals with inline Dot/Length and operator- forms all plateau.
+lengths). Explicitly parenthesised x87 sums on `d.Sub(...)` Vectors are what reproduce them (the compiler keeps the
+grouping but reorders flat sums).
 
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
-| 0x107D6F40 | component-wise min/max of two vectors into (min, max) | — | not drafted (do-while from 3, `if (b <= a)`) |
+| 0x107D6F40 | GetAABB | 100 % | in the tree. DistanceSquared(p, t, lengthSquared) (0x107D6F90) matches: `t <= EPSILON_FLOAT`, the x87 sums need explicit groupings per branch (`(y^2 + x^2) + z^2` then `(x^2 + z^2) + y^2` on `d.Sub` vectors) |
 | 0x107D7020 | closest point + distance² | — | not drafted |
 | 0x107D72D0 | Parameter(p) = dot(p-s, d) / dot(d, d) | 23.5 % | SSE prologue matches, x87 part does not |
-| 0x107D7380 | GetSphere(centre = (s+e)/2, radius = |s-e|) | 21.4 % | d must be an SSE-stored Vector, Length in x87 |
+| 0x107D7380 | GetSphere | 100 % | in the tree: `sum.Set(start.x + end.x, end.y + start.y, end.z + start.z)`: the operand order inside Set arguments is kept, unlike plain statements |
 | 0x107D7420 | DistanceSquared(p) (clamped projection) | 4.3 % | three different sum orders in one function |
 | 0x107D7570 | DistanceSquaredToLine(p) | 17.0 % | |
 
@@ -192,9 +193,7 @@ Lattice matches. The two big ones keep the right operations but not the schedule
 | --- | --- | --- | --- |
 | 0x107DCD20 | Sphere::IntersectRay | 95.5 % | EQUIVALENT in the tree: only the xmm numbers of dx/dy/dz differ, every sum/product order gives the same code |
 | 0x107DCDF0 | Sphere::IntersectRayFirst | 93.3 % | EQUIVALENT in the tree, same difference |
-| 0x107DCF50 | Sphere::GetAABB | 67 % | original keeps centre in xmm7/1/2 and copies before subtracting; max.x = r + c.x; eight registers and no reuse, as if every value had its own temporary; permuter plateau with float locals |
-| 0x107DCFB0 | Sphere::AddPoint | 60 % | `d.Sub(p, centre)`, `sqrtf(d.z * d.z + d.y * d.y + d.x * d.x)` gives the original's x-first x87 sum; `if (radius >= distance) return`; the original computes (inv * d.x) * half without CSE of inv * half and copies dist / inv before use |
-| 0x107DD090 | Sphere::AddSphere | 69.9 % | Vector d local (three stack slots), early returns `if (radius >= other.radius + distance)` |
+| 0x107DD090 | Sphere::AddSphere | 68 % | `d.Sub(other.centre, centre)`, `sqrtf((d.y * d.y + d.z * d.z) + d.x * d.x)` and the early returns give the original's head (register numbers off); the original scales d in place by inv without copies, every Set / direct form tried copies inv. GetAABB (low / high through `Set` with `radius + centre.x` first) and AddPoint (`half` before `inv`, `direction.Set(inv * d.x, ...)`, `centre.Set(direction.x * half + centre.x, ...)`) match |
 | 0x107DC3F0 | FastAtan(x) (atan approximation, constants 0.0708/0.1438) | 53.3 % | first branch x87 product order |
 | 0x107DC390 / 0x107DC3C0 | the same polynomial as static helpers (x87 arg / xmm1 arg) | — | custom calling convention, only reachable from this unit |
 | 0x107DC550 | Capsule::Contains(p) (t clamped to +-halfLength, dist² < r²) | 13.6 % | |
