@@ -32,15 +32,13 @@ namespace math
 		out.max.Set(high.x, high.y, high.z);
 	}
 
-	// FUNCTION: ENGINE 0x107DCD20
-	// EQUIVALENT: same instructions, the registers of the three origin - centre differences are numbered differently
+					// FUNCTION: ENGINE 0x107DCD20
 	bool Sphere::IntersectRay(const Vector& origin, const Vector& direction, float& t) const
 	{
-		float dx = origin.x - centre.x;
-		float dy = origin.y - centre.y;
-		float dz = origin.z - centre.z;
-		float b = direction.x * dx + direction.y * dy + direction.z * dz;
-		float c = dx * dx + dy * dy + dz * dz - radius * radius;
+		Vector d;
+		d.Sub(origin, centre);
+		float b = direction.Dot(d);
+		float c = d.Dot(d) - radius * radius;
 		if (c > 0.0f && b > 0.0f)
 		{
 			return false;
@@ -59,15 +57,13 @@ namespace math
 		return true;
 	}
 
-	// FUNCTION: ENGINE 0x107DCDF0
-	// EQUIVALENT: as IntersectRay
+		// FUNCTION: ENGINE 0x107DCDF0
 	bool Sphere::IntersectRayFirst(const Vector& origin, const Vector& direction, float& t) const
 	{
-		float dx = origin.x - centre.x;
-		float dy = origin.y - centre.y;
-		float dz = origin.z - centre.z;
-		float b = direction.x * dx + direction.y * dy + direction.z * dz;
-		float c = dx * dx + dy * dy + dz * dz - radius * radius;
+		Vector d;
+		d.Sub(origin, centre);
+		float b = direction.Dot(d);
+		float c = d.Dot(d) - radius * radius;
 		if (c > 0.0f && b > 0.0f)
 		{
 			return false;
