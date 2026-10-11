@@ -9,6 +9,10 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 
 ## quaternion.cpp (0x107CD360 - 0x107CE3C0)
 
+ToAxisAngle (0x107CE310) matches: `axis.Set(x, y, z)`, the x87 length, `if (!(fabsf(length) <= EPSILON_SMALL))` and
+`axis.Scale(1.0f / length)`: an inline taking the reciprocal as its parameter keeps the original's registers, a
+local `inv` does not (Vector::Scale added to vector.h).
+
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107CD410 | SinPolynomial | 98.2 % | sign of the leading coefficient folded differently (NONMATCHING in tree); it is an inline helper, inlined twice in Slerp |
@@ -18,7 +22,6 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107CDCE0 | FromVectors (rotation from a to b) | 34.5 % | the original reuses the cross-product local for the fallback axis; block layout after Normalize differs |
 | 0x107CDF90 | Slerp | - | AtanRatio called out of line, SinPolynomial inlined twice; not attempted |
 | 0x107CE220 | MakeClosest | 3.8 % | same instructions, `this`/`q` registers swapped (NONMATCHING in tree) |
-| 0x107CE310 | ToAxisAngle | 20.7 % | x87/SSE mix for the axis copy |
 
 ## vector.cpp (0x107CE3D0 - 0x107CEAE0)
 

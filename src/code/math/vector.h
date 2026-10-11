@@ -64,6 +64,14 @@ namespace math
 			y = a.z * b.x - a.x * b.z;
 			z = a.x * b.y - a.y * b.x;
 		}
+		// this *= s; an inline whose parameter takes the reciprocal (Scale(1.0f / length)) keeps the original's
+		// register use where a local inv does not (name guessed)
+		void Scale(float s)
+		{
+			x *= s;
+			y *= s;
+			z *= s;
+		}
 		float Dot(const Vector& v) const
 		{
 			return x * v.x + y * v.y + z * v.z;
