@@ -19,6 +19,16 @@ namespace core
 
 	struct IMemoryAllocator;
 
+	// 0x1063AAD0 / 0x1063AAF0: makes heap the thread's current heap for the object's lifetime
+	class HeapScope
+	{
+	public:
+		explicit HeapScope(int heap);
+		~HeapScope();
+
+		int previous;
+	};
+
 	// 0x1063AA00: the allocator object behind a heap index
 	IMemoryAllocator* GetHeapAllocator(int heap);
 	// 0x1063AF60 / 0x1063AE10: install an allocator in the heap table (the first form also records the heap it was
