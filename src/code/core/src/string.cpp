@@ -6,16 +6,18 @@
 #include "code/core/istring.h"
 #include "code/core/strings.h"
 
-// Array allocation from a heap, inlined here (`new(heap) char[size]`: the heap is read before the size is computed);
-// the engine defines the same operator out of line (code/engine/memory/memory.cpp, 0x107DEFB0)
-inline void* operator new[](unsigned int size, int heap)
-{
-	return core::HeapAlloc(heap, size);
-}
-
 namespace core
 {
 	const char* CoreName();
+
+	// The buffer allocation, inlined: the heap is read before the size is computed (the arguments are evaluated
+	// right to left), as an inline `new(heap) char[size]` reads it. A static helper rather than the operator itself:
+	// the engine defines operator new[](size, heap) out of line (enginememory.cpp, 0x107DEFB0) and an inline copy
+	// here would clash with it in the hybrid link
+	static __forceinline char* NewBuffer(unsigned int size, int heap)
+	{
+		return (char*)HeapAlloc(heap, size);
+	}
 
 	// FUNCTION: ENGINE 0x10647F80
 	String::String()
@@ -92,7 +94,7 @@ namespace core
 		{
 			if (buffer != 0)
 			{
-				char* grown = new(heap) char[size];
+				char* grown = NewBuffer(size, heap);
 				strcpy(grown, buffer);
 				HeapFree(heap, buffer);
 				buffer = grown;
@@ -114,11 +116,11 @@ namespace core
 				{
 					HeapFree(heap, buffer);
 				}
-				buffer = new(heap) char[GetCapacity()];
+				buffer = NewBuffer(GetCapacity(), heap);
 			}
 			else if (buffer == 0)
 			{
-				buffer = new(heap) char[GetCapacity()];
+				buffer = NewBuffer(GetCapacity(), heap);
 			}
 			strcpy(buffer, string);
 			null = 0;
@@ -199,7 +201,7 @@ namespace core
 		if (size > GetCapacity())
 		{
 			capacity = size;
-			char* grown = new(heap) char[GetCapacity()];
+			char* grown = NewBuffer(GetCapacity(), heap);
 			strcpy(grown, buffer);
 			strcat(grown, string);
 			HeapFree(heap, buffer);

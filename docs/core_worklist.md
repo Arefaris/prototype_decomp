@@ -315,9 +315,9 @@ calls, like the ones in the allocator units).
 core::String (`code/core/istring.h`; RTTI names IString / String, file and method names guessed): a reference-counted
 heap string, the buffer from the object's own heap, capacity and a null flag in one bitfield word. All match. What
 the matching showed: the methods test the null flag through an inline bool accessor (`shr` / `test al, 1`, while
-the out-of-line IsNull at 0x10648010 exists too); the buffers come from `new(heap) char[size]` (the heap is read
-before the capacity call), so string.cpp carries an inline `operator new[](size, heap)` (the engine's out-of-line
-one is 0x107DEFB0); the destructor is defined in the class (the deleting destructor inlines it, 0x106485C0 is the
+the out-of-line IsNull at 0x10648010 exists too); the buffers come from an inline `new(heap) char[size]` (the heap is read
+before the capacity call); string.cpp uses a static forceinline NewBuffer(size, heap) for it, since an inline
+operator new[](size, heap) would clash with the engine's out-of-line one (0x107DEFB0) in the hybrid link; the destructor is defined in the class (the deleting destructor inlines it, 0x106485C0 is the
 COMDAT copy); overloaded virtuals are declared in reverse vftable order. Mapped, not annotated: the IString
 constructor 0x10647F70, the deleting destructor and its thunk, and out-of-line copies of Object's operator new /
 delete (0x10648700 / 0x10648720). Left alone: 0x10647FE0 - 0x10648000 (interlocked helpers with register arguments).
@@ -348,11 +348,21 @@ Utf16CountChars (the original tests the surrogate ranges with two compares each;
 ShiftJisEncodeChar (block order). Not reconstructed: 0x106478C0, a static trail-byte test with its argument in al
 that nothing calls (the compiler drops an unreferenced static function).
 
+## textconvert.cpp (0x1063E730 - 0x106412AF): 61 functions
+
+The text converters (`code/core/textconvert.h`; file and names guessed): Copy / Count forwarders per encoding (the
+Count ones return 0 for a null string), and ConvertText(target, targetEncoding, source, sourceEncoding, replacement,
+size, flags, &bytes, &chars) with the encodings ASCII, UTF-8, UTF-16, UTF-32, Shift-JIS, Windows-1252 (0 - 5). All
+match. Three static function templates: ConvertTo<target> dispatches on the source encoding (or copies when the
+encodings are equal and there are no flags), ConvertChars<source, target> converts character by character,
+CopyChars<encoding> validates and copies. The 48 instances carry stacked FUNCTION annotations above their template;
+the compiler emits them in the original's order. The instances take register arguments, and which register gets
+which argument follows the parameter order (target before source); ConvertChars walks a copy of its target
+parameter, which frees the parameter's stack slot for the decoded character as in the original.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
-- 0x1063E750 - 0x10640850: the text converters over the codecs (one per source / target encoding pair, plus
-  small wrappers that jump to the codecs' Copy / Count).
 - 0x10648F70 - 0x106493BB: remaining XInput point destructors, table lookups, constructors, output commit and encoded
   input conversion.
