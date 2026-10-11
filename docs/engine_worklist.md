@@ -55,3 +55,17 @@ into one xor / and / xor insert where the engine keeps SetCount's and / or). Not
 (MasterTable constructor) are not emitted because nothing in the unit uses them. `0x107EE340` is HandleBase's
 (index, serial) constructor. Lesson: a `bool` inline returning a bit-field compiles to `shr; test` in conditions,
 an `unsigned int` one to `test mask`.
+
+## gameobject/behaviour.cpp (0x107EE450 - 0x107EEBBA)
+
+Complete (47 functions with the reflection templates). Lessons:
+
+- The reflection library (`code/content/metatype.h`): each reflected class builds its meta types in function-local
+  statics (`GetPrimitiveMetaType<T>`, `GetMemberMetaType<C, T>`) and a member table; the type codes are short string
+  literals ("p", "pn", "n"). PrimitiveMetaType<T>'s twelve content-library slots are declared only and mapped in
+  symbols.txt to the incremental link thunks the engine's vftables hold (objcmp checks vftable words against them).
+- A setter given as a pointer to a virtual member produces the compiler's vcall thunk (`??_9Behaviour@...`), which
+  the engine kept as a function of the unit.
+- Template members defined outside the class without `inline` are called, not inlined (BitField); their bit index is
+  an int shifted as `1 << (unsigned char)bit`.
+- A `bool` result written as `x == y ? true : false` drops the `xor eax, eax` before `sete`.
