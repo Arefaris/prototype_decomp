@@ -95,6 +95,14 @@ namespace math
 		void Rotate(const Matrix& m);
 		void Rotate(const Vector& v, const Matrix& m);
 	};
+
+	// |a - b|^2 (kept out of line at 0x100A2ED0 in large callers; name guessed)
+	inline float DistanceSquared(const Vector& a, const Vector& b)
+	{
+		Vector d;
+		d.Sub(a, b);
+		return d.Dot(d);
+	}
 }
 
 #endif

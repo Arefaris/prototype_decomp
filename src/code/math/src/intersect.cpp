@@ -5,6 +5,7 @@
 #include "code/math/aabb.h"
 #include "code/math/capsule.h"
 #include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
 #include "code/math/matrix3.h"
 #include "code/math/obb.h"
 #include "code/math/plane.h"
@@ -27,9 +28,11 @@ namespace math
 	// direction scaled by length) against a box of half extents extents, in the box's axis space
 	bool TestBoxAxes(const Vector& extents, const Vector& direction, const Vector& delta, float length);
 	// 0x107D9CB0: separating-axis test of two boxes (extents, centre offset in A's space, rotation B in A's space)
-	int TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
+	bool TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
 	// 0x107DB250: separating-axis test of a triangle (three Vector4 corners) against a box (centre, half extents)
-	int TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices);
+	bool TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices);
+	// 0x107DA730: the plane through point with the given normal crosses the origin-centred box (not reconstructed)
+	bool PlaneCrossesBox(const Vector& normal, const Vector& point, const Vector& halfExtents);
 	// 0x107DBD20: squared distance from the segment start + direction * t, t in [0, length], to a box of half
 	// extents extents centred on the origin
 	float SegmentBoxDistanceSquared(const Vector& extents, const Vector& start, const Vector& direction, float length);
@@ -66,11 +69,91 @@ namespace math
 		return TestBoxAxes(box.extents, localDirection, localDelta, length);
 	}
 
+	// FUNCTION: ENGINE 0x107D9CB0
+	// EQUIVALENT: the same 15 tests with the same sums in the same order (16.3 %, 1147 bytes against 1111); the x87
+	// stack allocation differs: the original keeps all eight registers full and spills b.x where ours spills b.y, and
+	// it reuses the dead pointer parameters' slots for t.y, t.z, a.y, a.z. Returns bool (al), so do its callers
+	bool TestBoxesSAT(const Vector& a, const Vector& t, const Matrix3& r, const Vector& b)
+	{
+		// |r|, then the face axes of A and of B and the nine edge-pair axes (Gottschalk's separating axis test)
+		float f[3][3];
+		f[0][0] = fabsf(r.m[0][0]);
+		f[1][0] = fabsf(r.m[1][0]);
+		f[2][0] = fabsf(r.m[2][0]);
+		f[0][1] = fabsf(r.m[0][1]);
+		f[1][1] = fabsf(r.m[1][1]);
+		f[2][1] = fabsf(r.m[2][1]);
+		f[0][2] = fabsf(r.m[0][2]);
+		f[1][2] = fabsf(r.m[1][2]);
+		f[2][2] = fabsf(r.m[2][2]);
+		if (fabsf(t.x) > f[0][0] * b.x + f[1][0] * b.y + f[2][0] * b.z + a.x)
+		{
+			return false;
+		}
+		if (fabsf(t.y) > f[0][1] * b.x + f[1][1] * b.y + f[2][1] * b.z + a.y)
+		{
+			return false;
+		}
+		if (fabsf(t.z) > f[0][2] * b.x + f[1][2] * b.y + f[2][2] * b.z + a.z)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[0][2] + t.y * r.m[0][1] + t.x * r.m[0][0]) > f[0][2] * a.z + f[0][1] * a.y + f[0][0] * a.x + b.x)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[1][2] + t.y * r.m[1][1] + t.x * r.m[1][0]) > f[1][2] * a.z + f[1][1] * a.y + f[1][0] * a.x + b.y)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[2][2] + t.y * r.m[2][1] + t.x * r.m[2][0]) > f[2][2] * a.z + f[2][1] * a.y + f[2][0] * a.x + b.z)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[0][1] - t.y * r.m[0][2]) > (f[0][1] * a.z + f[0][2] * a.y) + (f[2][0] * b.y + f[1][0] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[1][1] - t.y * r.m[1][2]) > (f[1][1] * a.z + f[1][2] * a.y) + (f[2][0] * b.x + f[0][0] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[2][1] - t.y * r.m[2][2]) > (f[2][1] * a.z + f[2][2] * a.y) + (f[1][0] * b.x + f[0][0] * b.y))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[0][2] - t.z * r.m[0][0]) > (f[0][0] * a.z + f[0][2] * a.x) + (f[2][1] * b.y + f[1][1] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[1][2] - t.z * r.m[1][0]) > (f[1][0] * a.z + f[1][2] * a.x) + (f[2][1] * b.x + f[0][1] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[2][2] - t.z * r.m[2][0]) > (f[2][0] * a.z + f[2][2] * a.x) + (f[1][1] * b.x + f[0][1] * b.y))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[0][0] - t.x * r.m[0][1]) > (f[0][0] * a.y + f[0][1] * a.x) + (f[2][2] * b.y + f[1][2] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[1][0] - t.x * r.m[1][1]) > (f[1][0] * a.y + f[1][1] * a.x) + (f[2][2] * b.x + f[0][2] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[2][0] - t.x * r.m[2][1]) > (f[2][0] * a.y + f[2][1] * a.x) + (f[1][2] * b.x + f[0][2] * b.y))
+		{
+			return false;
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x107DA110
 	// EQUIVALENT: same operations in the same order; the x terms of r[0][1] and r[1][2] multiply a's axis by b's
 	// where we get b's by a's (commutative). The reference locals for the two boxes are what make the other products
 	// load b's axis first, as the original does (98.6 %)
-	int Intersects(const OBB& a, const OBB& b)
+	bool Intersects(const OBB& a, const OBB& b)
 	{
 		// b's centre and axes in a's frame, then the box-box separating axis test
 		Vector d;
@@ -92,7 +175,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107DA360
-	int Intersects(const OBB& obb, const AABB& box)
+	bool Intersects(const OBB& obb, const AABB& box)
 	{
 		Vector centre;
 		centre.Add(box.max, box.min);
@@ -145,7 +228,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107DA580
-	int Intersects(const Capsule& capsule, const Segment& other)
+	bool Intersects(const Capsule& capsule, const Segment& other)
 	{
 		Segment segment;
 		capsule.GetSegment(segment);
@@ -239,8 +322,253 @@ namespace math
 		return result;
 	}
 
+	// FUNCTION: ENGINE 0x107DAB30
+	// EQUIVALENT: the same calls and operations in the same order (14.5 %, 1759 bytes against 1813): the compiler also
+	// keeps Segment(a, b), IsEqual and the last DistanceSquared out of line here (inlining budget), as the original
+	// did; registers, spills and the frame (0x6c against 0x60) differ
+	bool Intersects(const Triangle& triangle, const Capsule& capsule)
+	{
+		Vector e1;
+		e1.Sub(triangle.a, triangle.b);
+		Vector e2;
+		e2.Sub(triangle.a, triangle.c);
+		Vector n;
+		n.Cross(e1, e2);
+		n.Normalize();
+		float d = -((n.z * triangle.a.z + triangle.a.x * n.x) + triangle.a.y * n.y);
+		// The capsule's end points against the triangle's plane
+		float h = capsule.halfLength;
+		Vector offset;
+		offset.Set(capsule.direction.x * h, capsule.direction.y * h, capsule.direction.z * h);
+		Vector p;
+		p.Add(capsule.centre, offset);
+		float d1 = (p.x * n.x + p.z * n.z) + p.y * n.y + d;
+		p.Sub(capsule.centre, offset);
+		float d2 = (p.x * n.x + p.z * n.z) + p.y * n.y + d;
+		float r = capsule.radius;
+		if (d1 - r > 0.0f && d2 - r > 0.0f)
+		{
+			return false;
+		}
+		if (r + d1 < 0.0f && r + d2 < 0.0f)
+		{
+			return false;
+		}
+		// The end points ordered by the side of the plane they lie on
+		float side = (capsule.direction.z * n.z + capsule.direction.y * n.y) + capsule.direction.x * n.x;
+		float sign = 0.0f;
+		if (side < 0.0f)
+		{
+			sign = -1.0f;
+		}
+		else if (side > 0.0f)
+		{
+			sign = 1.0f;
+		}
+		sign = -sign;
+		Vector axis;
+		axis.Set(sign * capsule.direction.x, capsule.direction.y * sign, capsule.direction.z * sign);
+		Vector front;
+		front.Set(capsule.centre.x + h * axis.x, axis.y * h + capsule.centre.y, axis.z * h + capsule.centre.z);
+		Vector back;
+		back.Set(capsule.centre.x - h * axis.x, capsule.centre.y - axis.y * h, capsule.centre.z - axis.z * h);
+		// Each end projected onto the plane: inside the triangle, or within the radius of its edges
+		Vector q;
+		Vector closest;
+		float t = (back.x * n.x + back.z * n.z) + back.y * n.y + d;
+		q.Set(back.x - n.x * t, back.y - n.y * t, back.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		if (DistanceSquared(q, closest) < r * r)
+		{
+			return true;
+		}
+		t = (front.x * n.x + front.z * n.z) + front.y * n.y + d;
+		q.Set(front.x - n.x * t, front.y - n.y * t, front.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		if (DistanceSquared(q, closest) < r * r)
+		{
+			return true;
+		}
+		// The triangle's edges against the capsule
+		if (Intersects(capsule, Segment(triangle.a, triangle.b)) || Intersects(capsule, Segment(triangle.b, triangle.c))
+			|| Intersects(capsule, Segment(triangle.c, triangle.a)))
+		{
+			return true;
+		}
+		// The axis crossing the plane
+		Vector axisSegment;
+		axisSegment.Sub(front, back);
+		float denominator = (axisSegment.x * n.x + axisSegment.z * n.z) + axisSegment.y * n.y;
+		if (IsEqual(denominator, 0.0f, EPSILON_SMALL))
+		{
+			return false;
+		}
+		t = (((n.z * triangle.a.z + triangle.a.x * n.x) + triangle.a.y * n.y) - ((back.x * n.x + back.z * n.z) + back.y * n.y)) / denominator;
+		if (t < 0.0f || t > 1.0f)
+		{
+			return false;
+		}
+		Vector hit;
+		hit.Set(axisSegment.x * t + back.x, axisSegment.y * t + back.y, axisSegment.z * t + back.z);
+		t = (hit.x * n.x + hit.z * n.z) + hit.y * n.y + d;
+		q.Set(hit.x - n.x * t, hit.y - n.y * t, hit.z - n.z * t);
+		if (triangle.Contains(q))
+		{
+			return true;
+		}
+		triangle.ClosestPoint(q, closest);
+		return DistanceSquared(q, closest) < r * r;
+	}
+
+	// Akenine-Moller's triangle / box separating axis tests: the nine edge cross axes (AXISTEST), the box faces
+	// (FINDMINMAX through Min / Max) and the triangle's plane
+#define AXISTEST_X01(a, b, fa, fb) \
+	p0 = a * v0.y - b * v0.z; \
+	p2 = a * v2.y - b * v2.z; \
+	if (p0 < p2) { minimum = p0; maximum = p2; } else { minimum = p2; maximum = p0; } \
+	rad = fa * halfExtents.y + fb * halfExtents.z; \
+	if (minimum > rad || maximum < -rad) return false;
+#define AXISTEST_X2(a, b, fa, fb) \
+	p0 = a * v0.y - b * v0.z; \
+	p1 = a * v1.y - b * v1.z; \
+	if (p0 < p1) { minimum = p0; maximum = p1; } else { minimum = p1; maximum = p0; } \
+	rad = fa * halfExtents.y + fb * halfExtents.z; \
+	if (minimum > rad || maximum < -rad) return false;
+#define AXISTEST_Y02(a, b, fa, fb) \
+	p0 = -a * v0.x + b * v0.z; \
+	p2 = -a * v2.x + b * v2.z; \
+	if (p0 < p2) { minimum = p0; maximum = p2; } else { minimum = p2; maximum = p0; } \
+	rad = fa * halfExtents.x + fb * halfExtents.z; \
+	if (minimum > rad || maximum < -rad) return false;
+#define AXISTEST_Y1(a, b, fa, fb) \
+	p0 = -a * v0.x + b * v0.z; \
+	p1 = -a * v1.x + b * v1.z; \
+	if (p0 < p1) { minimum = p0; maximum = p1; } else { minimum = p1; maximum = p0; } \
+	rad = fa * halfExtents.x + fb * halfExtents.z; \
+	if (minimum > rad || maximum < -rad) return false;
+#define AXISTEST_Z12(a, b, fa, fb) \
+	p1 = a * v1.x - b * v1.y; \
+	p2 = a * v2.x - b * v2.y; \
+	if (p2 < p1) { minimum = p2; maximum = p1; } else { minimum = p1; maximum = p2; } \
+	rad = fa * halfExtents.x + fb * halfExtents.y; \
+	if (minimum > rad || maximum < -rad) return false;
+#define AXISTEST_Z0(a, b, fa, fb) \
+	p0 = a * v0.x - b * v0.y; \
+	p1 = a * v1.x - b * v1.y; \
+	if (p0 < p1) { minimum = p0; maximum = p1; } else { minimum = p1; maximum = p0; } \
+	rad = fa * halfExtents.x + fb * halfExtents.y; \
+	if (minimum > rad || maximum < -rad) return false;
+
+	// FUNCTION: ENGINE 0x107DB250
+	// EQUIVALENT: the same tests in the same order (14.9 %, 2008 bytes against 1981); registers and spills differ.
+	// Min / Max stay calls here as in the original (the function exceeds the inlining budget); the original calls
+	// the kept copies at 0x10071300 / 0x1006FB70, ours its own, and returns bool like its callers
+	bool TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices)
+	{
+		float minimum;
+		float maximum;
+		float p0;
+		float p1;
+		float p2;
+		float rad;
+		float fex;
+		float fey;
+		float fez;
+		Vector v0;
+		v0.Set(vertices[0].x - centre.x, vertices[0].y - centre.y, vertices[0].z - centre.z);
+		Vector v1;
+		v1.Set(vertices[1].x - centre.x, vertices[1].y - centre.y, vertices[1].z - centre.z);
+		Vector v2;
+		v2.Set(vertices[2].x - centre.x, vertices[2].y - centre.y, vertices[2].z - centre.z);
+		Vector e0;
+		e0.Sub(v1, v0);
+		Vector e1;
+		e1.Sub(v2, v1);
+		Vector e2;
+		e2.Sub(v0, v2);
+		fex = fabsf(e0.x);
+		fey = fabsf(e0.y);
+		fez = fabsf(e0.z);
+		AXISTEST_X01(e0.z, e0.y, fez, fey);
+		AXISTEST_Y02(e0.z, e0.x, fez, fex);
+		AXISTEST_Z12(e0.y, e0.x, fey, fex);
+		fex = fabsf(e1.x);
+		fey = fabsf(e1.y);
+		fez = fabsf(e1.z);
+		AXISTEST_X01(e1.z, e1.y, fez, fey);
+		AXISTEST_Y02(e1.z, e1.x, fez, fex);
+		AXISTEST_Z0(e1.y, e1.x, fey, fex);
+		fex = fabsf(e2.x);
+		fey = fabsf(e2.y);
+		fez = fabsf(e2.z);
+		AXISTEST_X2(e2.z, e2.y, fez, fey);
+		AXISTEST_Y1(e2.z, e2.x, fez, fex);
+		AXISTEST_Z12(e2.y, e2.x, fey, fex);
+		if (Min(Min(v0.x, v1.x), v2.x) > halfExtents.x || Max(Max(v0.x, v1.x), v2.x) < -halfExtents.x)
+		{
+			return false;
+		}
+		if (Min(Min(v0.y, v1.y), v2.y) > halfExtents.y || Max(Max(v0.y, v1.y), v2.y) < -halfExtents.y)
+		{
+			return false;
+		}
+		if (Min(Min(v0.z, v1.z), v2.z) > halfExtents.z || Max(Max(v0.z, v1.z), v2.z) < -halfExtents.z)
+		{
+			return false;
+		}
+		Vector normal;
+		normal.Cross(e0, e1);
+		if (!PlaneCrossesBox(normal, v0, halfExtents))
+		{
+			return false;
+		}
+		return true;
+	}
+
+#undef AXISTEST_X01
+#undef AXISTEST_X2
+#undef AXISTEST_Y02
+#undef AXISTEST_Y1
+#undef AXISTEST_Z12
+#undef AXISTEST_Z0
+
+	// FUNCTION: ENGINE 0x107DBA10
+	// EQUIVALENT: 80.8 %; the original keeps max.z in the register that held centre.y and copies the corners through
+	// the other one (statement orders, scalar forms and reference locals are worse)
+	bool Intersects(const Triangle& triangle, const AABB& box)
+	{
+		Vector centre;
+		centre.Add(box.max, box.min);
+		centre.Scale(0.5f);
+		Vector extents;
+		extents.x = box.max.x - centre.x;
+		extents.y = box.max.y - centre.y;
+		float maxZ = box.max.z;
+		// The corners in a Vector4 array as TriangleBoxOverlap takes them (w unused; four slots give the original's frame)
+		Vector4 vertices[4];
+		vertices[0].x = triangle.a.x;
+		vertices[0].y = triangle.a.y;
+		vertices[0].z = triangle.a.z;
+		vertices[1].x = triangle.b.x;
+		vertices[1].y = triangle.b.y;
+		vertices[1].z = triangle.b.z;
+		vertices[2].x = triangle.c.x;
+		vertices[2].y = triangle.c.y;
+		vertices[2].z = triangle.c.z;
+		extents.z = maxZ - centre.z;
+		return TriangleBoxOverlap(centre, extents, vertices);
+	}
+
 	// FUNCTION: ENGINE 0x107DBB10
-	int Intersects(const Triangle& triangle, const OBB& box)
+	bool Intersects(const Triangle& triangle, const OBB& box)
 	{
 		// The corners in the box's axis space; the array is reused for the (zero) centre and the extents, which is
 		// what gives the original's frame (0x60 bytes, the two call arguments in local[1] and local[2])
