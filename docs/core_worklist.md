@@ -568,5 +568,24 @@ does not start within a second). Matching notes:
 |---|---|---:|---|
 | 0x1063BF40 | TokenLength (static) | 98.9 % | EQUIVALENT in tree: one SIB byte ([length + token] against our [token + length]) |
 
+## memory/align.cpp (0x10645300 - 0x1064536D): done
+
+RoundUp / RoundDown / IsRoundedUp (`code/core/memory/align.h`; names and file name guessed): the out-of-line
+rounding helpers every allocator unit calls, byte for byte the same as the AlignUp / AlignDown templates that
+twowayallocator.cpp instantiates right behind them.
+
+## file/common/filecache.cpp (0x10650DC0 - 0x106511DB): 11 matched, 1 EQUIVALENT
+
+core::FileCache (declared in `code/core/file/file.h`; file and all names guessed): the read cache inside a file. A
+file inside another (a Cement library entry) reads through its source file's handle at an offset (summed over the
+chain of sources, File slot 32 GetCache); mode 1 reads compressed data: chunks with a 4-byte header (packed size,
+unpacked size; packed size 0 means stored) are read granularity-aligned into the buffer and unpacked by 0x10652AA0
+(Unpack, another unit, mapped). Open stores the packed size before the mode (the other order swaps the stores).
+Validation (2026-10-11): free roam and a teleport (cells streamed) in the hybrid.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10650ED0 | ReadPacked | 18 % | EQUIVALENT in tree: same steps in the same order; the original keeps this in ebp (spilled) and the read count in memory (a branch where ours has a cmovb) |
+
 ## Candidates nearby (leaf functions, not started)
 
