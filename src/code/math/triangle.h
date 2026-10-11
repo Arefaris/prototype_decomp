@@ -21,6 +21,9 @@ namespace math
 		// True when p's (x, z) lies inside or on the triangle's projection onto the XZ plane (counter-clockwise order)
 		bool ContainsXZ(const Vector& p) const;
 	};
+
+	// Area of the triangle a, b, c: half the length of (a - b) x (b - c) (name guess)
+	float Area(const Vector& a, const Vector& b, const Vector& c);
 }
 
 #endif

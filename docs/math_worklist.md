@@ -60,8 +60,7 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 | 0x107D31C0 | contains (3D, barycentric signs) | - | |
 | 0x107D3360 | Triangle::ContainsXZ(p) | 88 % | EQUIVALENT in tree: three 2D edge tests with early returns; the two factors of the first test come out in swapped registers |
 | 0x107D3420 | Triangle::ClosestPoint(p, out) | 9 % | Ericson's region test; returns 1 / 2 / 4 for edges ab / bc / ca, 5 / 3 / 6 for corners, 0 inside. Original frame 0x7c with Vector locals in memory (p copy at 0, ac at 0x1c, bc at 0x28, a - p at 0x34, n at 0x40, c - p at 0x4c, b - p at 0x58, ab in registers), d1 / d3 / d4 / d2 at 0xc-0x18; the dots are written as -(ab . (a - p)) etc. Scalar and Sub/Dot/Cross-helper versions both land at 9 %: the compiler's schedule of the first block differs from the start (REA pseudocode is a faithful guide to the arithmetic) |
-| 0x107D3AA0 | Area(a, b, c) | 48.1 % | free function, cross of (a - b) and (b - c), sqrt in x87 of three SSE squares spilled to the stack; permuter plateau over subtraction lines, products and the sum |
-| 0x107D3B50 | angle (three normalisations, acos) | - | |
+| 0x107D3B50 | angle (three normalisations, acos) | - | Area (0x107D3AA0) matches: z, x, y cross components as float locals, `n.Set(x, y, z)`, flat sum in the sqrt |
 
 ## matrix3.cpp (0x107D3CF0 - 0x107D4150)
 
