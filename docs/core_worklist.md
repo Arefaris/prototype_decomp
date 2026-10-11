@@ -544,5 +544,29 @@ Left alone: 0x1063AF80 / 0x1063AF90 (lower / upper case tests with the character
 statics are not emitted).
 Validation (2026-10-11): free roam in the hybrid, movement works.
 
+## report.cpp (0x1063BC30 - 0x1063C77B): 48 matched, 1 EQUIVALENT
+
+Reports and debug channels (`code/core/report.h`; file and all names guessed): Report / ReportV format the message
+(format and arguments, or "Failed condition at %s (%d)" with the expression) and call a dispatcher that is a stub in
+this build (answers 2); a table of 0x48-byte debug channels (name, level, flags) under a lock with Add / Find /
+Remove and the list setters (names separated by " 	;,[]\"'", default levels for " oldwarning ", " Warning ",
+" Severe ", flags of " Pre "); core::DefaultOutputHandler (OutputDebugString and stderr in 256-byte pieces); the
+output handler pointer, level, settings; core::IsolatedTask (a task on its own thread, run in place when the thread
+does not start within a second). Matching notes:
+- The separator test is a `static inline` function: the loops that call it are not rotated, and its out-of-line copy
+  (character in al) is still emitted although nothing calls it. Loops written with strchr directly are rotated.
+- OnOutput needs its piece loop in a `__forceinline` helper (`if (length == 0) return;` survives there) written as a
+  `while` with `&text[i * 0x100]`; the `for` and pointer forms move the loop pointer into memory.
+- AddChannel returns `sChannelCount - 1` after `sChannels[sChannelCount++]...`; RemoveChannel reads the count anew
+  for the copy and decrements it in place.
+- MatchChannel (0x1063BB30) belongs to strings.cpp (it keeps a pointer in edx across MatchWildcard, which only works
+  inside the unit); MatchWildcard and MatchChannel return bool (`return c == 0 ? true : false;` gives the original's
+  sete without the xor).
+- The initialised data (output handler pointer, level, task generation, settings, level names) is only declared.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063BF40 | TokenLength (static) | 98.9 % | EQUIVALENT in tree: one SIB byte ([length + token] against our [token + length]) |
+
 ## Candidates nearby (leaf functions, not started)
 

@@ -50,7 +50,9 @@ namespace core
 	char* StrCpyAlias(char* destination, const char* source);
 	unsigned int StrLenAlias(const char* string);
 	// Matches string against a pattern with '*' and '?'; returns 1 or 0
-	unsigned char MatchWildcard(const char* string, const char* pattern);
+	bool MatchWildcard(const char* string, const char* pattern);
+	// 0x1063BB30: MatchWildcard on dotted names part by part (the first part, then the rest; the pattern has a dot)
+	bool MatchChannel(const char* name, const char* pattern);
 	// Removes "." and ".." components in place ('\\' and '/' separate); returns the path (not matched yet)
 	char* NormalisePath(char* path);
 	// _vsnprintf that always terminates the buffer

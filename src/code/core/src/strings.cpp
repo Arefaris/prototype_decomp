@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "code/core/strings.h"
 
@@ -542,7 +543,7 @@ namespace core
 
 	// FUNCTION: ENGINE 0x1063B7F0
 	// Matches string against a pattern with '*' (any run) and '?' (any one character); returns 0 or 1 in al
-	unsigned char MatchWildcard(const char* string, const char* pattern)
+	bool MatchWildcard(const char* string, const char* pattern)
 	{
 		int c = *string;
 		int p = *pattern;
@@ -554,7 +555,7 @@ namespace core
 				{
 					goto star;
 				}
-				return 0;
+				return false;
 			}
 			if (p == '*')
 			{
@@ -562,12 +563,12 @@ namespace core
 			}
 			if (p != '?' && c != p)
 			{
-				return 0;
+				return false;
 			}
 			p = *++pattern;
 			c = *++string;
 		}
-		return c == 0;
+		return c == 0 ? true : false;
 	star:
 		pattern++;
 		if (*pattern != 0)
@@ -576,12 +577,12 @@ namespace core
 			{
 				if (*string == 0)
 				{
-					return 0;
+					return false;
 				}
 				string++;
 			}
 		}
-		return 1;
+		return true;
 	}
 
 	// FUNCTION: ENGINE 0x1063B880
@@ -765,5 +766,40 @@ namespace core
 	{
 		SNPrintf(buffer, size, format, value);
 		return buffer;
+	}
+
+	// FUNCTION: ENGINE 0x1063BB30
+	bool MatchChannel(const char* name, const char* pattern)
+	{
+		if (strchr(pattern, '.') == 0)
+		{
+			return MatchWildcard(name, pattern);
+		}
+		char nameCopy[0x101];
+		char patternCopy[0x101];
+		strncpy(nameCopy, name, 0x100);
+		nameCopy[0x100] = 0;
+		strncpy(patternCopy, pattern, 0x100);
+		patternCopy[0x100] = 0;
+		char* nameRest = strchr(nameCopy, '.');
+		char* patternRest = strchr(patternCopy, '.');
+		if (nameRest != 0)
+		{
+			*nameRest = 0;
+			nameRest++;
+		}
+		*patternRest = 0;
+		patternRest++;
+		bool first = MatchWildcard(nameCopy, patternCopy);
+		bool second;
+		if (nameRest != 0)
+		{
+			second = MatchWildcard(nameRest, patternRest);
+		}
+		else
+		{
+			second = MatchWildcard("", patternRest);
+		}
+		return first && second;
 	}
 }
