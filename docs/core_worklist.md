@@ -300,6 +300,16 @@ next pointer (so only a run at the head is unlinked); kept as in the original.
 Not reconstructed yet: the file cache (0x10650690 - 0x106511C0, FileCacheList 0x10650540 - 0x10650670) and the
 request queue (0x106524C0 onwards), declared in drive.h / file.h and mapped.
 
+## sync.cpp (0x1063D220 - 0x1063D428): 16 functions
+
+The thread-synchronisation wrappers (`code/core/criticalsection.h`; file and all names guessed): critical
+sections, semaphores (address of a handle), counted events (count + manual-reset event; EventSignal counts down
+through a static helper with register arguments and sets the event at zero) and AtomicRead. All match. The kernel32
+calls go through the import slots declared as function pointers (`extern "C" ... (__stdcall* _imp__Name)(...)`):
+the relinker's import libraries name the slots `__imp__Name` without the `@N` a dllimport __stdcall declaration
+would reference. Left alone: 0x1063D1F0 / 0x1063D210 (interlocked helpers with register arguments that nothing
+calls, like the ones in the allocator units).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
