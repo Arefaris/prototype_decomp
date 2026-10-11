@@ -68,6 +68,13 @@ namespace math
 		// this -= other, all 16 elements / only the upper 3x3
 		void Subtract(const Matrix& other);
 		void Subtract3x3(const Matrix& other);
+		// The upper 3x3 from a * s / a + b / a - b / a * b / a * b^T (3x3 products), built in a Matrix3 temporary and
+		// copied in with Matrix3::CopyTo; the rest of this matrix is unchanged
+		void Scale3x3(const Matrix& a, float s);
+		void Add3x3(const Matrix& a, const Matrix& b);
+		void Subtract3x3(const Matrix& a, const Matrix& b);
+		void Multiply3x3(const Matrix& a, const Matrix& b);
+		void MultiplyTranspose3x3(const Matrix& a, const Matrix& b);
 		// The outer product a * b^T in the upper 3x3, zeros elsewhere (m[3][3] too)
 		void OuterProduct(const Vector& a, const Vector& b);
 		// Rotation matrix about a unit axis by angle radians (identity rotation when |angle| <= EPSILON_SMALL)

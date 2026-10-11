@@ -29,7 +29,9 @@ this list is for the rest. Percentages are objcmp's byte identity of the best at
 
 OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH (0x107CFC80 / FD20 / FDB0 / FE90) match once all 16 elements
 are assigned in memory order (m[0][0], m[0][1], ...): the store order of the source, not the order of the
-computations, drives the schedule.
+computations, drives the schedule. The five 3x3 operations through a Matrix3 temporary (0x107D0E20 / 0F60 / 10A0 /
+1150 / 1320: scale, add, subtract, a * b, a * b^T) match written out element by element (loops do not unroll) and
+finished with `t.CopyTo(*this)`.
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
@@ -43,7 +45,6 @@ computations, drives the schedule.
 | 0x107CFC00 | PerspectiveFovLH | - | calls Identity first; not attempted |
 | 0x107CFF70 / 0x107D03A0 | LookAt LH / RH | 52.8 % | |
 | 0x107D0190 / 0x107D05C0 | orientation from direction and up | 67.8 % | |
-| 0x107D0E20 / 0F60 / 10A0 / 1150 / 1320 | 3x3 ops through a Matrix3 temporary | - | scale, add, subtract, multiply x2; Matrix3::CopyTo is matched |
 | 0x107D16B0 | IsIdentity(tolerance) | 29.1 % | |
 | 0x107D1910 | debug print | - | as vector.cpp's |
 | 0x107D1AA0 | rotation taking a onto b | - | function-local statics with VS2005 guard bits |

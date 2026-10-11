@@ -1,5 +1,6 @@
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
+#include "code/math/matrix3.h"
 #include "code/math/quaternion.h"
 #include "code/math/sincos.h"
 #include "code/math/vector.h"
@@ -402,6 +403,86 @@ namespace math
 		m[0][0] -= o.m[0][0]; m[0][1] -= o.m[0][1]; m[0][2] -= o.m[0][2];
 		m[1][0] -= o.m[1][0]; m[1][1] -= o.m[1][1]; m[1][2] -= o.m[1][2];
 		m[2][0] -= o.m[2][0]; m[2][1] -= o.m[2][1]; m[2][2] -= o.m[2][2];
+	}
+
+	// FUNCTION: ENGINE 0x107D0E20
+	void Matrix::Scale3x3(const Matrix& a, float s)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * s;
+		t.m[0][1] = a.m[0][1] * s;
+		t.m[0][2] = a.m[0][2] * s;
+		t.m[1][0] = a.m[1][0] * s;
+		t.m[1][1] = a.m[1][1] * s;
+		t.m[1][2] = a.m[1][2] * s;
+		t.m[2][0] = a.m[2][0] * s;
+		t.m[2][1] = a.m[2][1] * s;
+		t.m[2][2] = a.m[2][2] * s;
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D0F60
+	void Matrix::Add3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] + b.m[0][0];
+		t.m[0][1] = a.m[0][1] + b.m[0][1];
+		t.m[0][2] = a.m[0][2] + b.m[0][2];
+		t.m[1][0] = a.m[1][0] + b.m[1][0];
+		t.m[1][1] = a.m[1][1] + b.m[1][1];
+		t.m[1][2] = a.m[1][2] + b.m[1][2];
+		t.m[2][0] = a.m[2][0] + b.m[2][0];
+		t.m[2][1] = a.m[2][1] + b.m[2][1];
+		t.m[2][2] = a.m[2][2] + b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D10A0
+	void Matrix::Subtract3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] - b.m[0][0];
+		t.m[0][1] = a.m[0][1] - b.m[0][1];
+		t.m[0][2] = a.m[0][2] - b.m[0][2];
+		t.m[1][0] = a.m[1][0] - b.m[1][0];
+		t.m[1][1] = a.m[1][1] - b.m[1][1];
+		t.m[1][2] = a.m[1][2] - b.m[1][2];
+		t.m[2][0] = a.m[2][0] - b.m[2][0];
+		t.m[2][1] = a.m[2][1] - b.m[2][1];
+		t.m[2][2] = a.m[2][2] - b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D1150
+	void Matrix::Multiply3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * b.m[0][0] + a.m[0][1] * b.m[1][0] + a.m[0][2] * b.m[2][0];
+		t.m[0][1] = a.m[0][0] * b.m[0][1] + a.m[0][1] * b.m[1][1] + a.m[0][2] * b.m[2][1];
+		t.m[0][2] = a.m[0][0] * b.m[0][2] + a.m[0][1] * b.m[1][2] + a.m[0][2] * b.m[2][2];
+		t.m[1][0] = a.m[1][0] * b.m[0][0] + a.m[1][1] * b.m[1][0] + a.m[1][2] * b.m[2][0];
+		t.m[1][1] = a.m[1][0] * b.m[0][1] + a.m[1][1] * b.m[1][1] + a.m[1][2] * b.m[2][1];
+		t.m[1][2] = a.m[1][0] * b.m[0][2] + a.m[1][1] * b.m[1][2] + a.m[1][2] * b.m[2][2];
+		t.m[2][0] = a.m[2][0] * b.m[0][0] + a.m[2][1] * b.m[1][0] + a.m[2][2] * b.m[2][0];
+		t.m[2][1] = a.m[2][0] * b.m[0][1] + a.m[2][1] * b.m[1][1] + a.m[2][2] * b.m[2][1];
+		t.m[2][2] = a.m[2][0] * b.m[0][2] + a.m[2][1] * b.m[1][2] + a.m[2][2] * b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D1320
+	void Matrix::MultiplyTranspose3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * b.m[0][0] + a.m[0][1] * b.m[0][1] + a.m[0][2] * b.m[0][2];
+		t.m[0][1] = a.m[0][0] * b.m[1][0] + a.m[0][1] * b.m[1][1] + a.m[0][2] * b.m[1][2];
+		t.m[0][2] = a.m[0][0] * b.m[2][0] + a.m[0][1] * b.m[2][1] + a.m[0][2] * b.m[2][2];
+		t.m[1][0] = a.m[1][0] * b.m[0][0] + a.m[1][1] * b.m[0][1] + a.m[1][2] * b.m[0][2];
+		t.m[1][1] = a.m[1][0] * b.m[1][0] + a.m[1][1] * b.m[1][1] + a.m[1][2] * b.m[1][2];
+		t.m[1][2] = a.m[1][0] * b.m[2][0] + a.m[1][1] * b.m[2][1] + a.m[1][2] * b.m[2][2];
+		t.m[2][0] = a.m[2][0] * b.m[0][0] + a.m[2][1] * b.m[0][1] + a.m[2][2] * b.m[0][2];
+		t.m[2][1] = a.m[2][0] * b.m[1][0] + a.m[2][1] * b.m[1][1] + a.m[2][2] * b.m[1][2];
+		t.m[2][2] = a.m[2][0] * b.m[2][0] + a.m[2][1] * b.m[2][1] + a.m[2][2] * b.m[2][2];
+		t.CopyTo(*this);
 	}
 
 	// FUNCTION: ENGINE 0x107D1A20
