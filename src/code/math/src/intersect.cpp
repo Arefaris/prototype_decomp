@@ -152,6 +152,58 @@ namespace math
 			|| -shifted.d >= segment.end.x * shifted.normal.x + segment.end.z * shifted.normal.z + segment.end.y * shifted.normal.y;
 	}
 
+	// FUNCTION: ENGINE 0x107DA850
+	int ClassifyBox(const AABB& box, const Plane* planes, unsigned int count)
+	{
+		// Per plane: the corner nearest the back side (lo) in front means the box is outside; the far corner (hi) on or
+		// in front means it crosses. Indexing planes[i] directly (no reference) gives the original's registers
+		int result = 2;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			Vector hi;
+			Vector lo;
+			if (planes[i].normal.x >= 0.0f)
+			{
+				lo.x = box.min.x;
+				hi.x = box.max.x;
+			}
+			else
+			{
+				lo.x = box.max.x;
+				hi.x = box.min.x;
+			}
+			if (planes[i].normal.y >= 0.0f)
+			{
+				lo.y = box.min.y;
+				hi.y = box.max.y;
+			}
+			else
+			{
+				lo.y = box.max.y;
+				hi.y = box.min.y;
+			}
+			if (planes[i].normal.z >= 0.0f)
+			{
+				lo.z = box.min.z;
+				hi.z = box.max.z;
+			}
+			else
+			{
+				lo.z = box.max.z;
+				hi.z = box.min.z;
+			}
+			if (planes[i].normal.Dot(lo) + planes[i].d > 0.0f)
+			{
+				return 0;
+			}
+			if (planes[i].normal.Dot(hi) + planes[i].d >= 0.0f)
+			{
+				result = 1;
+			}
+		}
+		return result;
+	}
+
 	// FUNCTION: ENGINE 0x107DBB10
 	int Intersects(const Triangle& triangle, const OBB& box)
 	{

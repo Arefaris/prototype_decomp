@@ -56,6 +56,9 @@ namespace math
 		void FromQuaternion(const Quaternion& q);
 		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
 		void InvertOrthonormal();
+		// Inverts an affine matrix: InvertOrthonormal when the 3x3 determinant is 1 (within EPSILON_SMALL), else the
+		// adjugate over the determinant with the translation brought back through it
+		void Invert();
 		// Multiplies the upper 3x3 by s
 		void Scale3x3(float s);
 		// this = a * s, element-wise
