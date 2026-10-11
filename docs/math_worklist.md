@@ -249,3 +249,19 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 | 0x107DC620 | Capsule::GetDirection(p, out, distance) | 33 % | d.Sub, Dot, clamp to +-halfLength, out = d - direction t, Normalize, distance = length - radius; on the axis out = direction x (direction.z, direction.x, -direction.y) computed into registers first, then NormalizeFast. The original places the `t <= halfLength` branch at the end with a duplicated multiply (316 bytes vs our 296-300) |
 | 0x107DCC10 | Cylinder::GetAABB | 100 % | in the tree: `Min(fabsf(direction.x), 1.0f)` into one variable reused for the three axes (separate variables give a smaller frame); Cylinder::Transform (0x107DC7E0) matches, Cylinder::Contains (0x107DC800) is EQUIVALENT (88 %: z before y in the commutative dot sums; the member Dot / Sub / Set inlines are what get the copies right, direct expressions come out 5 bytes shorter) |
 | 0x107DC8C0 | Cylinder::GetDirection(p, out&, distance&) | EQUIVALENT | in the tree (26.7 %): d = p - centre, t = direction . d; beyond a cap: q = d moved onto the cap plane, c = direction * (+-halfLength), q pulled onto the rim when |q - c| > radius (`r.Scale(radius / sqrtf(...))` keeps it SSE, a scalar `s` turns the products x87), out = d - q; beside the wall: out = d - direction t, distance = length - radius, inside: through the nearer cap (`(direction.x * h + d.x) - d.x` literally) or, on the axis, direction x (z, x, -y) through NormalizeFast. The original's frame is 0x1c (ours 0x28) |
+
+## State at the end of the 2026-10-11 session, and math-adjacent helpers
+
+Not attempted yet in math: TestBoxesSAT (0x107D9CB0, 1 111 bytes of x87 with 15 tests: an EQUIVALENT needs every sum order read off the
+x87 stack by hand), TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
+plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
+Intersects(Capsule, Segment)), the SSE copy of the atan polynomial (0x107DC3C0, custom register convention) and 0x107D2EC0 (11 bytes,
+an unreferenced one-member constructor or setter at the end of matrix.cpp). The x87 atan polynomial 0x107DC390 is plain cdecl: every
+form tried comes out factored `(c1 a + c2) a` where the original multiplies a a x c1 and a x c2 separately (65.5 %).
+
+Math-adjacent helpers seen from math code, kept out of line by the compiler in engine units (inline functions, so they cannot carry a
+FUNCTION annotation from a header yet): 0x100631C0 `IsEqual(a, b, tolerance)` (|a - b| <= tolerance, returns int; called once by
+IsOrthonormal 0x107CF720 and by 0x107DAB30), 0x100A2ED0 squared distance of two Vectors (x87, cdecl), 0x100F6A60
+`Segment(const Vector&, const Vector&)` (fld / fstp copies). std::sort<float*> sits at 0x102CFF00 (mapped in symbols.txt; called out of
+line by SegmentBoxDistanceSquared).
+
