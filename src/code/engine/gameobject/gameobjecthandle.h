@@ -52,8 +52,8 @@ namespace engine
 		{
 			return serial;
 		}
-		// Delivers the message to the object (engine::SendMessage, 0x107EF710)
-		void Send(Message* message) const;
+		// Puts the object on the deferred list (engine::DeferUpdate, 0x107EF710)
+		void DeferUpdate(bool force) const;
 		// The message router's per-object registrations (0x11318090; meanings unknown)
 		void RouterAdd(int value) const;
 		void RouterRemove(int value) const;

@@ -1,4 +1,6 @@
 #include "code/core/heap.h"
+#include "code/core/memory/imemoryallocator.h"
+#include "code/core/memory/segmentpoolallocator.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
@@ -224,6 +226,100 @@ namespace engine
 			count++;
 		}
 		return count;
+	}
+
+	// FUNCTION: ENGINE 0x107EED60
+	GameObject* CreateGameObject(int key, int heap, UpdateGroup* group)
+	{
+		GameObject* object;
+		{
+			core::HeapScope scope(heap);
+			object = new GameObject;
+		}
+		if (group != 0)
+		{
+			group->Add(key, object);
+		}
+		return object;
+	}
+
+	// FUNCTION: ENGINE 0x107EEE00
+	void MoveGameObject(GameObject* object, int key)
+	{
+		if (object != 0)
+		{
+			object->AddRef();
+			if (gUpdateGroup->Remove(object, true))
+			{
+				gUpdateGroup->Add(key, object);
+			}
+			object->Release();
+			object->Slot6(key);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107EF160
+	GameObject* CreateGameObjectInHeap(int key, int heap, int unused)
+	{
+		core::SegmentPoolAllocator* pool = 0;
+		int value;
+		if (core::GetHeapAllocator(heap)->GetStat(0xb, &value))
+		{
+			SetGameObjectHeap();
+			pool = static_cast<core::SegmentPoolAllocator*>(core::GetHeapAllocator(heap));
+			pool->PushCounter();
+			pool->Open();
+		}
+		GameObject* object = CreateGameObject(key, heap, gUpdateGroup);
+		if (pool != 0)
+		{
+			pool->PopCounter();
+		}
+		return object;
+	}
+
+	// FUNCTION: ENGINE 0x107EF6F0
+	GameObject* CreateGameObjectHere(int key, int unused)
+	{
+		return CreateGameObjectInHeap(key, core::GetCurrentHeap(), unused);
+	}
+
+	// FUNCTION: ENGINE 0x107EF710
+	void DeferUpdate(GameObjectHandle handle, bool force)
+	{
+		GameObject* object = handle.Get();
+		if (object != 0)
+		{
+			container::ArrayDynamicHeap<unsigned short>* deferred = gDeferredObjects;
+			if (deferred->Find(object->index) == deferred->end)
+			{
+				if (!force && object->IsReady())
+				{
+					gUpdateGroup->Remove(object, true);
+					return;
+				}
+				gDeferredObjects->PushBack(object->index);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107EF7B0
+	void FlushDeferredUpdates()
+	{
+		unsigned short* end = gDeferredObjects->end;
+		for (unsigned short* item = gDeferredObjects->begin; item != end; item++)
+		{
+			GameObject* object = (GameObject*)gMasterTable->entries[*item].object;
+			if (object != 0 && object->IsReady())
+			{
+				container::ArrayDynamicHeap<unsigned short>* deferred = gDeferredObjects;
+				container::Copy(item + 1, deferred->end, item);
+				deferred->end--;
+				gUpdateGroup->Remove(object, true);
+				item--;
+				end--;
+			}
+		}
 	}
 
 	// Kept copies of GameObjectIterator's inline members

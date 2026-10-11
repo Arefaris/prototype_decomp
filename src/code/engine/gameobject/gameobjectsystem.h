@@ -8,9 +8,141 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 
+#include "code/core/heap.h"
+
+namespace container
+{
+	// The allocator of a heap chosen at run time, 16-byte aligned (RTTI names AllocatorCoreAligned<16>)
+	template<int Align> struct AllocatorCoreAligned
+	{
+		int heap;
+	};
+
+	// Copies [first, last) to dest (front to back)
+	template<class T> inline T* Copy(T* first, T* last, T* dest)
+	{
+		for (; first != last; ++first, ++dest)
+		{
+			*dest = *first;
+		}
+		return dest;
+	}
+
+	// A growable array over such an allocator: begin / end / capacity, then the allocator's heap (names guessed)
+	template<class T> class ArrayDynamicHeap
+	{
+	public:
+		ArrayDynamicHeap(unsigned int count, const AllocatorCoreAligned<16>& allocator)
+		{
+			heap = allocator.heap;
+			if (count != 0)
+			{
+				begin = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+				if (begin != 0)
+				{
+					capacity = begin + count;
+					end = begin;
+					return;
+				}
+			}
+			else
+			{
+				begin = 0;
+			}
+			end = 0;
+			capacity = 0;
+		}
+		~ArrayDynamicHeap()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				core::HeapFreeAligned(heap, begin);
+			}
+		}
+		bool Allocate(unsigned int count);
+		void Clear();
+		T* Find(const T& value)
+		{
+			T* item = begin;
+			while (item != end && *item != value)
+			{
+				item++;
+			}
+			return item;
+		}
+		bool PushBack(const T& value)
+		{
+			if (end < capacity)
+			{
+				T* item = end++;
+				if (item != 0)
+				{
+					*item = value;
+				}
+				return true;
+			}
+			return false;
+		}
+		void Erase(T* item)
+		{
+			Copy(item + 1, end, item);
+			end--;
+		}
+
+		T* begin;
+		T* end;
+		T* capacity;
+		int heap;
+	};
+
+	template<class T> bool ArrayDynamicHeap<T>::Allocate(unsigned int count)
+	{
+		if (count != 0)
+		{
+			begin = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+			if (begin != 0)
+			{
+				capacity = begin + count;
+				end = begin;
+				return true;
+			}
+		}
+		else
+		{
+			begin = 0;
+		}
+		end = 0;
+		capacity = 0;
+		return false;
+	}
+
+	template<class T> void ArrayDynamicHeap<T>::Clear()
+	{
+		end = begin;
+		if (begin != 0)
+		{
+			core::HeapFreeAligned(heap, begin);
+		}
+	}
+}
+
 namespace engine
 {
 	class Message;
+
+	// The group game objects are updated in (another unit, 0x1060xxxx; names guessed)
+	class UpdateGroup
+	{
+	public:
+		// 0x106032F0 / 0x10603560
+		void Add(int key, void* object);
+		bool Remove(void* object, bool unknown);
+	};
+
+	// The update group (0x112836F4) and the master table indices of the objects whose update is deferred (0x112836F0)
+	extern UpdateGroup* gUpdateGroup;
+	extern container::ArrayDynamicHeap<unsigned short>* gDeferredObjects;
 	class MessageListeners;
 
 	// The valid entries of the master table, in table order
@@ -130,6 +262,12 @@ namespace engine
 	void BroadcastMessage(Message* message);
 	void BroadcastBehaviourMessage(Message* message);
 	int CountGameObjects();
+	GameObject* CreateGameObject(int key, int heap, UpdateGroup* group);
+	void MoveGameObject(GameObject* object, int key);
+	GameObject* CreateGameObjectInHeap(int key, int heap, int unused);
+	GameObject* CreateGameObjectHere(int key, int unused);
+	void DeferUpdate(GameObjectHandle handle, bool force);
+	void FlushDeferredUpdates();
 }
 
 #endif

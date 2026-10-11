@@ -28,10 +28,24 @@ namespace engine
 	class GameObject
 	{
 	public:
+		// 0x107E1670 / 0x107E0BE0 (the GameObject unit)
+		GameObject();
+		static void* operator new(unsigned int size);
+
+		// The vftable (RTTI: 7 slots; slots 0 / 1 are the reference count, slot 2 the deleting destructor)
+		virtual void AddRef();
+		virtual void Release();
+		virtual ~GameObject();
+		virtual void Slot3();
+		// 0x107E0F40: true when the object may leave the deferred list (meaning guessed)
+		virtual bool IsReady();
+		virtual bool Slot5();
+		virtual void Slot6(int value);
+
 		// 0x107E0810 (another unit): delivers the message when the object listens for its type
 		bool SendMessage(Message* message);
 
-		unsigned char unknown0[0x1c];
+		unsigned char unknown4[0x1c - 4];
 		Attribute<math::Matrix>* transform;
 		// The behaviour container (a Behaviour itself)
 		BehaviourContainer behaviours;

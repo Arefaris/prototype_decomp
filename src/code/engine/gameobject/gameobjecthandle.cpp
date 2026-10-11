@@ -3,8 +3,8 @@
 
 namespace engine
 {
-	// 0x107EF710 (another unit): delivers a message to the object behind a handle
-	void SendMessage(GameObjectHandle handle, Message* message);
+	// 0x107EF710 (gameobjectsystem.cpp)
+	void DeferUpdate(GameObjectHandle handle, bool force);
 
 	// The message router (0x11318090, another unit); its methods take the handle by value
 	class MessageRouter
@@ -32,9 +32,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE360
-	void GameObjectHandle::Send(Message* message) const
+	void GameObjectHandle::DeferUpdate(bool force) const
 	{
-		SendMessage(*this, message);
+		engine::DeferUpdate(*this, force);
 	}
 
 	// FUNCTION: ENGINE 0x107EE380
