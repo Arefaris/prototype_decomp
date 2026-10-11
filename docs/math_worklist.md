@@ -137,7 +137,7 @@ Left:
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
 | 0x107D9A20 | TestBoxAxes(extents, direction, delta, length) | 37.8 % | x87 throughout: three face tests then three cross-product tests with early returns; the stack temporaries (abs values) and the operand order of each test differ |
-| 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | - | 1 111 bytes, box vs box SAT; called by 0x107DA110 / 0x107DA360; not attempted |
+| 0x107D9CB0 | TestBoxesSAT(extentsA, delta, rotation, extentsB) | EQUIVALENT | in the tree (16.3 %): |r| into `float f[3][3]` column by column, face tests of A (`f[0][i] * b.x + f[1][i] * b.y + f[2][i] * b.z + a[i]`), of B (`|t.z r[k][2] + t.y r[k][1] + t.x r[k][0]|` against `f[k][2] a.z + f[k][1] a.y + f[k][0] a.x + b[k]`) and the nine edge axes with radii `(P1 + P2) + (P3 + P4)`; returns bool (al), so TestBoxesSAT, Intersects(OBB, OBB) and Intersects(OBB, AABB) are bool now (the latter still matches). The x87 allocation differs (the original keeps eight registers live and spills b.x; ours spills b.y); local copies of the vectors and operand swaps are worse |
 | 0x107DA110 | Intersects(OBB, OBB) | EQUIVALENT | in the tree (98.6 %): d = b.centre - a.centre, t = a.axis[i].Dot(d), r[i][j] = aa.axis[i].Dot(bb.axis[j]) through `const OBB&` reference locals for both boxes (without them every product loads a's axis first), then TestBoxesSAT; only the x terms of r[0][1] and r[1][2] keep the operands the other way round |
 | 0x107DA410 | Intersects(OBB, Sphere) | 100 % | in the tree: the same `const Vector& v` + grouping trick as OBB::Contains |
 | 0x107DA5D0 | Intersects(Plane, OBB) | 82.6 % | NONMATCHING in tree: `Vector n(plane.normal)` (copy constructor) and grouped dots get the shape; the original keeps n.z, n.y, n.x on the x87 stack and sums the radius terms axis 2, 0, 1 (ours 1, 0, 2 whatever the source order) |
@@ -254,8 +254,7 @@ unit's other Vector4 wrappers) and the nine elements are written in memory order
 
 ## State at the end of the 2026-10-11 session, and math-adjacent helpers
 
-Not attempted yet in math: TestBoxesSAT (0x107D9CB0, 1 111 bytes of x87 with 15 tests: an EQUIVALENT needs every sum order read off the
-x87 stack by hand), TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
+Not attempted yet in math: TriangleBoxOverlap (0x107DB250, 1 981 bytes), Intersects(const Triangle&, const Capsule&) (0x107DAB30, 1 813 bytes:
 plane of the triangle, capsule ends against it, Triangle::Contains / ClosestPoint, then the three edges through Segment(a, b) and
 Intersects(Capsule, Segment)), and 0x107D2EC0 (11 bytes,
 an unreferenced one-member constructor or setter at the end of matrix.cpp). The atan helpers and FastAtan match (see the sphere / capsule table).

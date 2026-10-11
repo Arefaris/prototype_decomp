@@ -27,7 +27,7 @@ namespace math
 	// direction scaled by length) against a box of half extents extents, in the box's axis space
 	bool TestBoxAxes(const Vector& extents, const Vector& direction, const Vector& delta, float length);
 	// 0x107D9CB0: separating-axis test of two boxes (extents, centre offset in A's space, rotation B in A's space)
-	int TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
+	bool TestBoxesSAT(const Vector& extentsA, const Vector& delta, const Matrix3& rotation, const Vector& extentsB);
 	// 0x107DB250: separating-axis test of a triangle (three Vector4 corners) against a box (centre, half extents)
 	int TriangleBoxOverlap(const Vector& centre, const Vector& halfExtents, Vector4* vertices);
 	// 0x107DBD20: squared distance from the segment start + direction * t, t in [0, length], to a box of half
@@ -66,11 +66,91 @@ namespace math
 		return TestBoxAxes(box.extents, localDirection, localDelta, length);
 	}
 
+	// FUNCTION: ENGINE 0x107D9CB0
+	// EQUIVALENT: the same 15 tests with the same sums in the same order (16.3 %, 1147 bytes against 1111); the x87
+	// stack allocation differs: the original keeps all eight registers full and spills b.x where ours spills b.y, and
+	// it reuses the dead pointer parameters' slots for t.y, t.z, a.y, a.z. Returns bool (al), so do its callers
+	bool TestBoxesSAT(const Vector& a, const Vector& t, const Matrix3& r, const Vector& b)
+	{
+		// |r|, then the face axes of A and of B and the nine edge-pair axes (Gottschalk's separating axis test)
+		float f[3][3];
+		f[0][0] = fabsf(r.m[0][0]);
+		f[1][0] = fabsf(r.m[1][0]);
+		f[2][0] = fabsf(r.m[2][0]);
+		f[0][1] = fabsf(r.m[0][1]);
+		f[1][1] = fabsf(r.m[1][1]);
+		f[2][1] = fabsf(r.m[2][1]);
+		f[0][2] = fabsf(r.m[0][2]);
+		f[1][2] = fabsf(r.m[1][2]);
+		f[2][2] = fabsf(r.m[2][2]);
+		if (fabsf(t.x) > f[0][0] * b.x + f[1][0] * b.y + f[2][0] * b.z + a.x)
+		{
+			return false;
+		}
+		if (fabsf(t.y) > f[0][1] * b.x + f[1][1] * b.y + f[2][1] * b.z + a.y)
+		{
+			return false;
+		}
+		if (fabsf(t.z) > f[0][2] * b.x + f[1][2] * b.y + f[2][2] * b.z + a.z)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[0][2] + t.y * r.m[0][1] + t.x * r.m[0][0]) > f[0][2] * a.z + f[0][1] * a.y + f[0][0] * a.x + b.x)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[1][2] + t.y * r.m[1][1] + t.x * r.m[1][0]) > f[1][2] * a.z + f[1][1] * a.y + f[1][0] * a.x + b.y)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[2][2] + t.y * r.m[2][1] + t.x * r.m[2][0]) > f[2][2] * a.z + f[2][1] * a.y + f[2][0] * a.x + b.z)
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[0][1] - t.y * r.m[0][2]) > (f[0][1] * a.z + f[0][2] * a.y) + (f[2][0] * b.y + f[1][0] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[1][1] - t.y * r.m[1][2]) > (f[1][1] * a.z + f[1][2] * a.y) + (f[2][0] * b.x + f[0][0] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.z * r.m[2][1] - t.y * r.m[2][2]) > (f[2][1] * a.z + f[2][2] * a.y) + (f[1][0] * b.x + f[0][0] * b.y))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[0][2] - t.z * r.m[0][0]) > (f[0][0] * a.z + f[0][2] * a.x) + (f[2][1] * b.y + f[1][1] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[1][2] - t.z * r.m[1][0]) > (f[1][0] * a.z + f[1][2] * a.x) + (f[2][1] * b.x + f[0][1] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.x * r.m[2][2] - t.z * r.m[2][0]) > (f[2][0] * a.z + f[2][2] * a.x) + (f[1][1] * b.x + f[0][1] * b.y))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[0][0] - t.x * r.m[0][1]) > (f[0][0] * a.y + f[0][1] * a.x) + (f[2][2] * b.y + f[1][2] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[1][0] - t.x * r.m[1][1]) > (f[1][0] * a.y + f[1][1] * a.x) + (f[2][2] * b.x + f[0][2] * b.z))
+		{
+			return false;
+		}
+		if (fabsf(t.y * r.m[2][0] - t.x * r.m[2][1]) > (f[2][0] * a.y + f[2][1] * a.x) + (f[1][2] * b.x + f[0][2] * b.y))
+		{
+			return false;
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x107DA110
 	// EQUIVALENT: same operations in the same order; the x terms of r[0][1] and r[1][2] multiply a's axis by b's
 	// where we get b's by a's (commutative). The reference locals for the two boxes are what make the other products
 	// load b's axis first, as the original does (98.6 %)
-	int Intersects(const OBB& a, const OBB& b)
+	bool Intersects(const OBB& a, const OBB& b)
 	{
 		// b's centre and axes in a's frame, then the box-box separating axis test
 		Vector d;
@@ -92,7 +172,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107DA360
-	int Intersects(const OBB& obb, const AABB& box)
+	bool Intersects(const OBB& obb, const AABB& box)
 	{
 		Vector centre;
 		centre.Add(box.max, box.min);
