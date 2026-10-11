@@ -43,6 +43,8 @@ namespace math
 
 		// Moves the cylinder through m: the centre as a point, the direction as a direction
 		void Transform(const Matrix& m);
+		// The box around the cylinder (axis extent plus the end discs)
+		void GetAABB(AABB& out) const;
 		// True when p lies within the half length along the axis and strictly within the radius of it
 		bool Contains(const Vector& p) const;
 	};

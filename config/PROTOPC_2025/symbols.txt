@@ -1344,3 +1344,4 @@ _sInstancePool = 0x1127CA9C ; data size:0x4 | core instancedrive.cpp: the instan
 ?sPrintHex@?8??Print@Matrix@math@@QBEXXZ@4_NA = 0x111BB9D4 ; data size:0x1 | math matrix.cpp: Print's raw-bits report still enabled (static local; name guess)
 ?Print@SymmetricMatrix@math@@QBEXXZ = 0x107D97B0 ; function size:0x63 | math::SymmetricMatrix::Print through core::Report (name guess)
 ?sPrint@?1??Print@SymmetricMatrix@math@@QBEXXZ@4_NA = 0x111BBDE8 ; data size:0x1 | math symmetricmatrix.cpp: Print's report still enabled (static local; name guess)
+?GetAABB@Cylinder@math@@QBEXAAVAABB@2@@Z = 0x107DCC10 ; function size:0x10B | math::Cylinder::GetAABB (name guess)
