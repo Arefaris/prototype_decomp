@@ -310,6 +310,19 @@ the relinker's import libraries name the slots `__imp__Name` without the `@N` a 
 would reference. Left alone: 0x1063D1F0 / 0x1063D210 (interlocked helpers with register arguments that nothing
 calls, like the ones in the allocator units).
 
+## string.cpp (0x10647F70 - 0x106486FE): 29 functions (35 mapped)
+
+core::String (`code/core/istring.h`; RTTI names IString / String, file and method names guessed): a reference-counted
+heap string, the buffer from the object's own heap, capacity and a null flag in one bitfield word. All match. What
+the matching showed: the methods test the null flag through an inline bool accessor (`shr` / `test al, 1`, while
+the out-of-line IsNull at 0x10648010 exists too); the buffers come from `new(heap) char[size]` (the heap is read
+before the capacity call), so string.cpp carries an inline `operator new[](size, heap)` (the engine's out-of-line
+one is 0x107DEFB0); the destructor is defined in the class (the deleting destructor inlines it, 0x106485C0 is the
+COMDAT copy); overloaded virtuals are declared in reverse vftable order. Mapped, not annotated: the IString
+constructor 0x10647F70, the deleting destructor and its thunk, and out-of-line copies of Object's operator new /
+delete (0x10648700 / 0x10648720). Left alone: 0x10647FE0 - 0x10648000 (interlocked helpers with register arguments)
+and core::Platform (0x10647C60 - 0x10647F5A, vftable 0x10E475AC, the next candidate).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
