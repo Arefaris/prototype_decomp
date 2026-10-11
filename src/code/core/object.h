@@ -55,6 +55,11 @@ namespace core
 		{
 			count = 0;
 		}
+		// SegmentPoolAllocator starts at one (its factories do not AddRef)
+		RefCount(long initial)
+		{
+			count = initial;
+		}
 		virtual ~RefCount()
 		{
 		}

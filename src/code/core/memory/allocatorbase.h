@@ -5,6 +5,8 @@
 #ifndef CORE_MEMORY_ALLOCATORBASE_H
 #define CORE_MEMORY_ALLOCATORBASE_H
 
+#include "code/core/memory/imemoryallocator.h"
+
 namespace core
 {
 	struct AllocatorBase_Name
@@ -63,6 +65,19 @@ namespace core
 
 	private:
 		AllocatorBase_Safety* safety;
+	};
+
+	// core::AllocatorBaseSub (RTTI name; vftable 0x10E46C24): the allocator interface with the name / safety slots and
+	// the flag forwarders filled in, AllocatorBase at 4. Shared by SegmentPoolAllocator and MemoryDlAllocator; the
+	// methods are defined in memory/segmentpoolallocator.cpp (0x1063E400 - 0x1063E470).
+	struct AllocatorBaseSub : IMemoryAllocator, AllocatorBase
+	{
+		virtual void* AllocFlags(unsigned int size, unsigned int align, int flags, int unused);
+		virtual void FreeFlags(void* block);
+		virtual const char* GetName();
+		virtual void SetSafetyMode(int mode);
+		virtual int GetSafetyMode();
+		virtual void SetUnused(int value);
 	};
 
 	// Rounding helpers (templates: the original's units share one COMDAT copy, the memory pool calls the one at

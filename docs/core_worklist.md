@@ -162,6 +162,32 @@ need an inline `Max` template (`code/core/utility.h`): the plain conditional for
 Left alone: 0x1063D450 - 0x1063D480 and 0x1063D700 - 0x1063D730 (empty functions), 0x1063D7D0 - 0x1063D7F0
 (interlocked helpers with register arguments).
 
+## memory/segmentpoolallocator.cpp (0x1063DBA0 - 0x1063E72B): 53 matched, 1 EQUIVALENT
+
+`core::SegmentPoolAllocator` (RTTI name; assert path known): one heap block cut into equal segments with 12-byte
+headers (`Segment`: cursor, mark, count), one segment open for bump allocation, lock bits, a stack of byte
+counters. Its base `core::AllocatorBaseSub` (IMemoryAllocator + AllocatorBase at 4, name / safety / flag slots;
+shared with MemoryDlAllocator) has its methods here (0x1063E400 - 0x1063E470). All functions match except the
+constructor; the compiler-generated ones (AllocatorBaseSub constructor / destructor / deleting destructor, the
+adjustor thunk 0x1063E560, the scalar deleting destructor) match and are mapped. Notes:
+- The second factory starts at 0x1063E6E0 (functions.tsv has 0x1063E6F0, a misaligned start).
+- Segment::Segment is `inline` in the .cpp (Init's placement new inlines it, and our object still emits the copy
+  0x1063DBA0); ~Segment (0x1063DBB0, empty) is never called here, so it has no copy to annotate.
+- The address helpers read `segments` into a local before calling GetHeaderSize (the original keeps it in edi);
+  the sums only match in the spelled orders. Bool helpers need `if (...) return true; return false;` (the
+  expression form returns through eax), lock bits test `lockMask & 0x80000000` (a `< 0` test is jge, not jns).
+- Next keeps the result in a local `found = -1` and breaks; AllocAligned has two separate early returns and the
+  segment base in a local before the Segment::Alloc call.
+- RefCount gained a `RefCount(long initial)` constructor: this allocator starts at one, its factories do not AddRef.
+- `core::Report` is (kind, tag, file, line, expression, format, ...): asserts pass (1, " oldassert ", file, line,
+  "condition", 0).
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x1063E5D0 | SegmentPoolAllocator constructor | 86.3 % | EQUIVALENT in tree: the same eax-clearing position as the MemoryPool constructor |
+
+Left alone: 0x1063E520 - 0x1063E540 (interlocked helpers with register arguments).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
