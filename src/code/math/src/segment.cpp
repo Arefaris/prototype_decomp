@@ -46,6 +46,82 @@ namespace math
 		return dx * dx + dy * dy + dz * dz - t * (t / lengthSquared);
 	}
 
+	// FUNCTION: ENGINE 0x107D7020
+	float Segment::ClosestPoint(const Vector& p, Vector& out) const
+	{
+		Vector d;
+		d.Sub(end, start);
+		Vector v;
+		v.Sub(p, start);
+		float t = d.y * v.y + (d.x * v.x + d.z * v.z);
+		if (t <= EPSILON_FLOAT)
+		{
+			out.x = start.x;
+			out.y = start.y;
+			out.z = start.z;
+		}
+		else
+		{
+			float lengthSquared = (d.z * d.z + d.x * d.x) + d.y * d.y;
+			if (t >= lengthSquared)
+			{
+				out.x = end.x;
+				out.y = end.y;
+				out.z = end.z;
+				float dx = p.x - end.x;
+				float dy = p.y - end.y;
+				float dz = p.z - end.z;
+				return dx * dx + dy * dy + dz * dz;
+			}
+			out.x = start.x;
+			out.y = start.y;
+			out.z = start.z;
+			t /= lengthSquared;
+			out.x += d.x * t;
+			out.y += d.y * t;
+			out.z += d.z * t;
+			v.Sub(p, out);
+		}
+		return (v.y * v.y + v.z * v.z) + v.x * v.x;
+	}
+
+	// FUNCTION: ENGINE 0x107D7190
+	float Segment::ClosestPoint(const Vector& p, float t, float lengthSquared, Vector& out) const
+	{
+		if (t <= EPSILON_FLOAT)
+		{
+			out.x = start.x;
+			out.y = start.y;
+			out.z = start.z;
+			float dx = p.x - start.x;
+			float dy = p.y - start.y;
+			float dz = p.z - start.z;
+			return (dx * dx + dy * dy) + dz * dz;
+		}
+		if (t >= lengthSquared)
+		{
+			out.x = end.x;
+			out.y = end.y;
+			out.z = end.z;
+			float dx = p.x - end.x;
+			float dy = p.y - end.y;
+			float dz = p.z - end.z;
+			return (dx * dx + dz * dz) + dy * dy;
+		}
+		t /= lengthSquared;
+		out.x = start.x;
+		out.y = start.y;
+		out.z = start.z;
+		Vector d;
+		d.Sub(end, start);
+		out.x += d.x * t;
+		out.y += d.y * t;
+		out.z += d.z * t;
+		Vector v;
+		v.Sub(p, out);
+		return (v.y * v.y + v.z * v.z) + v.x * v.x;
+	}
+
 	// FUNCTION: ENGINE 0x107D72D0
 	float Segment::Parameter(const Vector& p) const
 	{

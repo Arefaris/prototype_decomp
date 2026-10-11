@@ -145,7 +145,7 @@ grouping but reorders flat sums).
 | Address | Function | Best | Note |
 | --- | --- | --- | --- |
 | 0x107D6F40 | GetAABB | 100 % | in the tree. DistanceSquared(p, t, lengthSquared) (0x107D6F90) matches: `t <= EPSILON_FLOAT`, the x87 sums need explicit groupings per branch (`(y^2 + x^2) + z^2` then `(x^2 + z^2) + y^2` on `d.Sub` vectors) |
-| 0x107D7020 | closest point + distance² | — | not drafted |
+| 0x107D7020 / 0x107D7190 | ClosestPoint(p, out) / ClosestPoint(p, t, lengthSquared, out) | 100 % | in the tree; groupings found by sweeps (the two direct-difference branches of the second one only match as a pair: the compiler shares choices across branches) |
 | 0x107D72D0 | Parameter(p) | 100 % | in the tree: `(v.y * d.y + (d.z * v.z + d.x * v.x)) / ((d.x * d.x + d.y * d.y) + d.z * d.z)`, found by sweeping groupings and operand orders |
 | 0x107D7380 | GetSphere | 100 % | in the tree: `sum.Set(start.x + end.x, end.y + start.y, end.z + start.z)`: the operand order inside Set arguments is kept, unlike plain statements |
 | 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
