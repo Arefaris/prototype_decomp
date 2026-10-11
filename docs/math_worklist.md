@@ -148,8 +148,8 @@ grouping but reorders flat sums).
 | 0x107D7020 | closest point + distance² | — | not drafted |
 | 0x107D72D0 | Parameter(p) | 100 % | in the tree: `(v.y * d.y + (d.z * v.z + d.x * v.x)) / ((d.x * d.x + d.y * d.y) + d.z * d.z)`, found by sweeping groupings and operand orders |
 | 0x107D7380 | GetSphere | 100 % | in the tree: `sum.Set(start.x + end.x, end.y + start.y, end.z + start.z)`: the operand order inside Set arguments is kept, unlike plain statements |
-| 0x107D7420 | DistanceSquared(p) (clamped projection) | 22.6 % | Ericson's SqDistPointSegment: d = end - start and t = (v.z d.z + v.x d.x) + d.y v.y in SSE, `t <= EPSILON_FLOAT` -> |v|^2, dd = (d.y^2 + d.x^2) + d.z^2, `t >= dd` -> |p - end|^2 with direct x87 fsubs, else |v - d t / dd|^2. The original keeps p.y / p.z in [esp] / [esp+4] and p.x in the argument slot (three floats, not a Vector) with v at 8 and w at 0x14; structure right, stack layout and registers not |
-| 0x107D7570 | DistanceSquaredToLine(p) | 17.0 % | |
+| 0x107D7420 | DistanceSquared(p) (clamped projection) | EQUIVALENT | in the tree (99.4 %): only the first branch's z^2 + x^2 comes out as x^2 + z^2; the first pair of a three-term x87 sum is ordered by the compiler, only the last term follows the source |
+| 0x107D7570 | DistanceSquaredToLine(p) | 100 % | in the tree; numerator `d.y * v.y + (d.z * v.z + d.x * v.x)` found by a sweep |
 
 ## random.cpp (0x107D8380–0x107D8740), partly in the tree
 

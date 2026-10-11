@@ -458,3 +458,4 @@ __aulldiv = 0x10A88530 ; function size:0x68 | MSVC unsigned 64-bit division
 ?GetAABB@Sphere@math@@QBEXAAVAABB@2@@Z = 0x107DCF50 ; function size:0x5B | math::Sphere::GetAABB (name guess)
 ?AddPoint@Sphere@math@@QAEXABVVector@2@@Z = 0x107DCFB0 ; function size:0xD7 | math::Sphere::AddPoint: grow to contain p (name guess)
 ?Parameter@Segment@math@@QBEMABVVector@2@@Z = 0x107D72D0 ; function size:0xA8 | math::Segment::Parameter(p): projection parameter (name guess)
+?DistanceSquaredToLine@Segment@math@@QBEMABVVector@2@@Z = 0x107D7570 ; function size:0xD5 | math::Segment::DistanceSquaredToLine(p) (name guess)
