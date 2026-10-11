@@ -60,6 +60,8 @@ namespace core
 	char* StrNCpyCount(char* destination, const char* source, int size, int* count);
 	char* StrNCpyAppend(char* destination, const char* source, int size, int* count);
 	char* StrNCpy(char* destination, const char* source, int size);
+	// 0x1063B0D0: the unsigned overload, a plain forward to the copy loop (AllocatorBase_Name::SetName uses it)
+	char* StrNCpy(char* destination, const char* source, unsigned int count);
 	// SNPrintf with one argument, returning the buffer
 	char* FormatValue(char* buffer, int size, const char* format, int value);
 }

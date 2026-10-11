@@ -1,7 +1,7 @@
 // The pieces every real allocator of the core module is built from (RTTI names core::AllocatorBase,
 // core::AllocatorBase_Name, core::AllocatorBase_Safety; member and method names guessed from their users).
 // AllocatorBase is 0x40 bytes: the name buffer at 0, the safety block (a critical section plus its mode) at 0x20.
-// The methods live in another unit (0x10646D10 - 0x10646E10, see the work list); only their shapes are known here.
+// The methods are their own unit, 0x10646D10 - 0x10646E10 (memory/allocatorbase.cpp, file name guessed).
 #ifndef CORE_MEMORY_ALLOCATORBASE_H
 #define CORE_MEMORY_ALLOCATORBASE_H
 

@@ -16,7 +16,8 @@ at 0x1064DF9A); the sub-directories of the units below are not known, so the sou
 
 ## strings.cpp (0x1063AFA0 - 0x1063BB20, without the string heap)
 
-28 matched, 2 EQUIVALENT, 3 NONMATCHING.
+29 matched, 2 EQUIVALENT, 3 NONMATCHING (0x1063B0D0, the unsigned StrNCpy that only forwards to StrNCpyTail, matches
+against the EQUIVALENT helper).
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
@@ -136,9 +137,17 @@ Left alone: 0x106453E0 (stores two bytes to 0x110BCCE4 / 0x110BCCE5, no referenc
 (`return this->field4`), 0x106456C0 / 0x10645720 (empty) and the interlocked helpers 0x10645970 - 0x10645990
 (register arguments); which unit they belong to is not clear.
 
+## memory/allocatorbase.cpp (0x10646D10 - 0x10646E10): done
+
+All 11 functions of `core::AllocatorBase_Name` and `core::AllocatorBase_Safety` match (file name guessed; the
+class layout is in `code/core/memory/allocatorbase.h`). SetName copies with the unsigned StrNCpy and
+`sizeof(name)`; Safety mode 2 creates / deletes / enters / leaves the critical section through the wrappers
+0x1063D260 - 0x1063D290 (`code/core/criticalsection.h`, not reconstructed: they call the kernel32 imports as
+`__stdcall`, which the generated import library may not name).
+
 ## Candidates nearby (leaf functions, not started)
 
-- 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
+- 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
   encoding, leaf, recursive fallback).
