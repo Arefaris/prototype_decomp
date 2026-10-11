@@ -70,7 +70,19 @@ are InitSystemAllocator (0x10646960) and its forwarding entry (0x10646990).
 `ninja check` passes all 315 matching annotations; the relink verifier reports no differences outside replaced
 functions or relocation targets. The unit also compiles with MSVC 2022 x86, and the hybrid DLL reaches free roam.
 
-## time.cpp (0x1063CBB0 - 0x1063CE32): done
+## time.cpp (0x1063C7A0 - 0x1063D1E8): done (49 functions)
+
+The whole unit now (2026-10-11): besides the Time value below, the performance counter clock (InitMemoryStage1 is
+really the clock start-up, reference-counted, reading the frequency; GetTicks / GetSeconds / GetMicroseconds /
+GetMilliseconds), the local date and day of the week, and `core::Timer` / `core::TimerList` (RTTI names; interfaces
+ITimer 14 slots, ITimerList 6 slots in `code/core/time.h`): timers come from the list's MemoryPool ("TimerList",
+0x24-byte blocks, class operator new(size, list)), sit in its table while running, and the list's Update adds the
+time since the last call and calls the callback (slot 0: elapsed, userData) when the period is reached (mode 1 stops
+first). Everything matched on the first or second compile; TimerList::Update needs `timers[i]` read twice (a slot
+pointer loads it once). The compiler-generated functions (ITimer / ITimerList constructor copies, the deleting
+destructors, the Object-vftable thunk) are mapped. Left alone: 0x1063C780 / 0x1063C790 (IRefCount constructor
+copies). The older notes:
+
 
 `core::Time` stores an unsigned microsecond remainder at +0, unsigned milliseconds at +4, and cached float
 seconds at +8 (12 bytes). The class association and method/member/file names are guesses: `core::Time` appears
@@ -530,6 +542,7 @@ IsBlockInHeap, the start-up / shut-down. Matching notes:
 
 Left alone: 0x1063AF80 / 0x1063AF90 (lower / upper case tests with the character in al, no references: unreferenced
 statics are not emitted).
+Validation (2026-10-11): free roam in the hybrid, movement works.
 
 ## Candidates nearby (leaf functions, not started)
 
