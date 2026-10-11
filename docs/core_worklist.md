@@ -461,6 +461,15 @@ atoi / written with sprintf) and the code / name conversions (names and file nam
 include `case '?'` (the jump tables start at '?'); a failed registry query falls through to its own close-and-fail
 tail (`if (query == 0) { close; return atoi(...); } close; return -1;`, otherwise the two failure tails merge).
 
+## crashrecord.cpp (0x106444D0 - 0x1064475C): 8 functions (15 mapped)
+
+The debug output and crash handler chains (`code/core/crashrecord.h`; RTTI class names, members guessed): handlers
+pass a message (fields kind, tag, file, line, expression, text, level, flags as Report fills them) or a crash on to
+the next handler; the crash record keeps the last 4 KB of output in a ring (every message but "/autotest" ones, each
+ended with a line break) and stops on errors while a never-written flag (0x11279429) is set. All match; the base
+constructors and destructors are inline in the classes (their copies are mapped, not annotated). The record object
+itself (0x11279430) is only declared: a dynamic initializer elsewhere constructs it.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
