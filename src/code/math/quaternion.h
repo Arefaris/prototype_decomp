@@ -34,6 +34,8 @@ namespace math
 		void Transform(const Vector& v, Vector& out) const;
 		// this = a * conjugate(b)
 		void MultiplyInverse(const Quaternion& a, const Quaternion& b);
+		// The unit rotation axis and the angle in (-pi, pi]; the axis stays (x, y, z) when that is (nearly) zero
+		void ToAxisAngle(float& angle, Vector& axis) const;
 		// Negates this quaternion if it lies in the other hemisphere than q, so blending takes the short way
 		void MakeClosest(const Quaternion& q);
 	};

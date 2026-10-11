@@ -164,4 +164,20 @@ namespace math
 		}
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x107CE310
+	void Quaternion::ToAxisAngle(float& angle, Vector& axis) const
+	{
+		axis.Set(x, y, z);
+		float length = sqrtf(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
+		if (!(fabsf(length) <= EPSILON_SMALL))
+		{
+			axis.Scale(1.0f / length);
+		}
+		angle = 2.0f * atan2f(length, w);
+		if (angle >= 3.14159265f)
+		{
+			angle -= 6.28318531f;
+		}
+	}
 }

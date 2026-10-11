@@ -56,18 +56,29 @@ namespace math
 		void FromQuaternion(const Quaternion& q);
 		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
 		void InvertOrthonormal();
+		// Inverts an affine matrix: InvertOrthonormal when the 3x3 determinant is 1 (within EPSILON_SMALL), else the
+		// adjugate over the determinant with the translation brought back through it
+		void Invert();
 		// Multiplies the upper 3x3 by s
 		void Scale3x3(float s);
 		// this = a * s, element-wise
 		void Multiply(const Matrix& a, float s);
-		// this = a * b (0x107D2C00, not reconstructed yet)
+		// this = a * b, built in a temporary (this may be a or b); Multiply4x4 is an identical copy
 		void Multiply(const Matrix& a, const Matrix& b);
+		void Multiply4x4(const Matrix& a, const Matrix& b);
 		// this += other, all 16 elements / only the upper 3x3
 		void Add(const Matrix& other);
 		void Add3x3(const Matrix& other);
 		// this -= other, all 16 elements / only the upper 3x3
 		void Subtract(const Matrix& other);
 		void Subtract3x3(const Matrix& other);
+		// The upper 3x3 from a * s / a + b / a - b / a * b / a * b^T (3x3 products), built in a Matrix3 temporary and
+		// copied in with Matrix3::CopyTo; the rest of this matrix is unchanged
+		void Scale3x3(const Matrix& a, float s);
+		void Add3x3(const Matrix& a, const Matrix& b);
+		void Subtract3x3(const Matrix& a, const Matrix& b);
+		void Multiply3x3(const Matrix& a, const Matrix& b);
+		void MultiplyTranspose3x3(const Matrix& a, const Matrix& b);
 		// The outer product a * b^T in the upper 3x3, zeros elsewhere (m[3][3] too)
 		void OuterProduct(const Vector& a, const Vector& b);
 		// Rotation matrix about a unit axis by angle radians (identity rotation when |angle| <= EPSILON_SMALL)
@@ -89,6 +100,15 @@ namespace math
 		void PerspectiveOffCenter(float left, float right, float bottom, float top, float nearZ, float farZ);
 		// Left-handed perspective projection (Direct3D PerspectiveFovLH layout) over an identity matrix
 		void PerspectiveFovLH(float fov, float aspect, float nearZ, float farZ);
+		// Reports the rows through core::Report, as floats and as raw bits (debug output)
+		void Print() const;
+		// The rotation axis and angle of the upper 3x3 (axis zero for a (near) zero angle)
+		void ToAxisAngle(Vector& axis, float& angle) const;
+		// Orthographic projections (Direct3D OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH layouts)
+		void OrthoLH(float width, float height, float nearZ, float farZ);
+		void OrthoRH(float width, float height, float nearZ, float farZ);
+		void OrthoOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ);
+		void OrthoOffCenterRH(float left, float right, float bottom, float top, float nearZ, float farZ);
 		// Right-handed perspective projection (Direct3D PerspectiveFovRH layout: w = -z, z in [0, 1])
 		void PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ);
 		// out = v as a point through this matrix (row vector times the 3x3, plus the translation row)
@@ -112,6 +132,8 @@ namespace math
 		void SetPosition(float x, float y, float z);
 		// Fills row i of the upper 3x3 with v's i-th component
 		void SetRows(const Vector4& v);
+		// Row i = (1 - t) * v_i * (1, 1, 1) + t * e_i: the SetRows matrix blended towards identity (name guessed)
+		void SetRowsLerp(float t, const Vector4& v);
 		void SetScale(const Vector4& s);
 		void SetScale(float x, float y, float z);
 		void SetScale(float s);

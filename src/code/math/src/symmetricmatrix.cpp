@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "code/core/report.h"
 #include "code/math/mathconstants.h"
 #include "code/math/matrix.h"
 #include "code/math/symmetricmatrix.h"
@@ -101,6 +102,20 @@ namespace math
 		zz = a.zz * s;
 	}
 
+	// FUNCTION: ENGINE 0x107D9100
+	void SymmetricMatrix::Multiply(const SymmetricMatrix& a, const SymmetricMatrix& b)
+	{
+		// The product's upper triangle (a times b is symmetric when they commute), built in a temporary like Add
+		SymmetricMatrix result;
+		result.xx = a.xx * b.xx + a.xy * b.xy + a.xz * b.xz;
+		result.xy = a.xx * b.xy + a.xy * b.yy + a.xz * b.yz;
+		result.xz = a.xx * b.xz + a.xy * b.yz + a.xz * b.zz;
+		result.yy = a.xy * b.xy + a.yy * b.yy + a.yz * b.yz;
+		result.yz = a.xy * b.xz + a.yy * b.yz + a.yz * b.zz;
+		result.zz = a.xz * b.xz + a.yz * b.yz + a.zz * b.zz;
+		*this = result;
+	}
+
 	// FUNCTION: ENGINE 0x107D9240
 	void SymmetricMatrix::CopyTo(Matrix& out) const
 	{
@@ -121,6 +136,17 @@ namespace math
 	{
 		return fabsf(xx) < EPSILON_SMALL && fabsf(yy) < EPSILON_SMALL && fabsf(zz) < EPSILON_SMALL
 			&& fabsf(xy) < EPSILON_SMALL && fabsf(xz) < EPSILON_SMALL && fabsf(yz) < EPSILON_SMALL;
+	}
+
+	// FUNCTION: ENGINE 0x107D97B0
+	void SymmetricMatrix::Print() const
+	{
+		static bool sPrint = true;
+		if (sPrint && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\symmetricmatrix.cpp", 250, 0,
+			"Symmetrix matrix: xx=%f, yy=%f, zz=%f, xy=%f, xz=%f, yz=%f", xx, yy, zz, xy, xz, yz, 0) == 3)
+		{
+			sPrint = false;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D9A00

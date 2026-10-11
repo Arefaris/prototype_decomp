@@ -1,5 +1,8 @@
+#include "code/core/report.h"
 #include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
 #include "code/math/matrix.h"
+#include "code/math/matrix3.h"
 #include "code/math/quaternion.h"
 #include "code/math/sincos.h"
 #include "code/math/vector.h"
@@ -268,6 +271,46 @@ namespace math
 		m[1][1] = cot;
 	}
 
+	// The projections below assign all 16 elements in memory order; that order (not the order of the
+	// computations) is what reproduces the original's schedule
+	// FUNCTION: ENGINE 0x107CFC80
+	void Matrix::OrthoLH(float width, float height, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / width; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / height; m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (farZ - nearZ); m[2][3] = 0.0f;
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFD20
+	void Matrix::OrthoRH(float width, float height, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / width; m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / height; m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (nearZ - farZ); m[2][3] = 0.0f;
+		m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFDB0
+	void Matrix::OrthoOffCenterLH(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / (right - left); m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / (top - bottom); m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (farZ - nearZ); m[2][3] = 0.0f;
+		m[3][0] = (left + right) / (left - right); m[3][1] = (bottom + top) / (bottom - top);
+		m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107CFE90
+	void Matrix::OrthoOffCenterRH(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		m[0][0] = 2.0f / (right - left); m[0][1] = 0.0f; m[0][2] = 0.0f; m[0][3] = 0.0f;
+		m[1][0] = 0.0f; m[1][1] = 2.0f / (top - bottom); m[1][2] = 0.0f; m[1][3] = 0.0f;
+		m[2][0] = 0.0f; m[2][1] = 0.0f; m[2][2] = 1.0f / (nearZ - farZ); m[2][3] = 0.0f;
+		m[3][0] = (left + right) / (left - right); m[3][1] = (bottom + top) / (bottom - top);
+		m[3][2] = nearZ / (nearZ - farZ); m[3][3] = 1.0f;
+	}
+
 	// FUNCTION: ENGINE 0x107D0300
 	void Matrix::PerspectiveFovRH(float fov, float aspect, float nearZ, float farZ)
 	{
@@ -364,6 +407,86 @@ namespace math
 		m[2][0] -= o.m[2][0]; m[2][1] -= o.m[2][1]; m[2][2] -= o.m[2][2];
 	}
 
+	// FUNCTION: ENGINE 0x107D0E20
+	void Matrix::Scale3x3(const Matrix& a, float s)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * s;
+		t.m[0][1] = a.m[0][1] * s;
+		t.m[0][2] = a.m[0][2] * s;
+		t.m[1][0] = a.m[1][0] * s;
+		t.m[1][1] = a.m[1][1] * s;
+		t.m[1][2] = a.m[1][2] * s;
+		t.m[2][0] = a.m[2][0] * s;
+		t.m[2][1] = a.m[2][1] * s;
+		t.m[2][2] = a.m[2][2] * s;
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D0F60
+	void Matrix::Add3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] + b.m[0][0];
+		t.m[0][1] = a.m[0][1] + b.m[0][1];
+		t.m[0][2] = a.m[0][2] + b.m[0][2];
+		t.m[1][0] = a.m[1][0] + b.m[1][0];
+		t.m[1][1] = a.m[1][1] + b.m[1][1];
+		t.m[1][2] = a.m[1][2] + b.m[1][2];
+		t.m[2][0] = a.m[2][0] + b.m[2][0];
+		t.m[2][1] = a.m[2][1] + b.m[2][1];
+		t.m[2][2] = a.m[2][2] + b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D10A0
+	void Matrix::Subtract3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] - b.m[0][0];
+		t.m[0][1] = a.m[0][1] - b.m[0][1];
+		t.m[0][2] = a.m[0][2] - b.m[0][2];
+		t.m[1][0] = a.m[1][0] - b.m[1][0];
+		t.m[1][1] = a.m[1][1] - b.m[1][1];
+		t.m[1][2] = a.m[1][2] - b.m[1][2];
+		t.m[2][0] = a.m[2][0] - b.m[2][0];
+		t.m[2][1] = a.m[2][1] - b.m[2][1];
+		t.m[2][2] = a.m[2][2] - b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D1150
+	void Matrix::Multiply3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * b.m[0][0] + a.m[0][1] * b.m[1][0] + a.m[0][2] * b.m[2][0];
+		t.m[0][1] = a.m[0][0] * b.m[0][1] + a.m[0][1] * b.m[1][1] + a.m[0][2] * b.m[2][1];
+		t.m[0][2] = a.m[0][0] * b.m[0][2] + a.m[0][1] * b.m[1][2] + a.m[0][2] * b.m[2][2];
+		t.m[1][0] = a.m[1][0] * b.m[0][0] + a.m[1][1] * b.m[1][0] + a.m[1][2] * b.m[2][0];
+		t.m[1][1] = a.m[1][0] * b.m[0][1] + a.m[1][1] * b.m[1][1] + a.m[1][2] * b.m[2][1];
+		t.m[1][2] = a.m[1][0] * b.m[0][2] + a.m[1][1] * b.m[1][2] + a.m[1][2] * b.m[2][2];
+		t.m[2][0] = a.m[2][0] * b.m[0][0] + a.m[2][1] * b.m[1][0] + a.m[2][2] * b.m[2][0];
+		t.m[2][1] = a.m[2][0] * b.m[0][1] + a.m[2][1] * b.m[1][1] + a.m[2][2] * b.m[2][1];
+		t.m[2][2] = a.m[2][0] * b.m[0][2] + a.m[2][1] * b.m[1][2] + a.m[2][2] * b.m[2][2];
+		t.CopyTo(*this);
+	}
+
+	// FUNCTION: ENGINE 0x107D1320
+	void Matrix::MultiplyTranspose3x3(const Matrix& a, const Matrix& b)
+	{
+		Matrix3 t;
+		t.m[0][0] = a.m[0][0] * b.m[0][0] + a.m[0][1] * b.m[0][1] + a.m[0][2] * b.m[0][2];
+		t.m[0][1] = a.m[0][0] * b.m[1][0] + a.m[0][1] * b.m[1][1] + a.m[0][2] * b.m[1][2];
+		t.m[0][2] = a.m[0][0] * b.m[2][0] + a.m[0][1] * b.m[2][1] + a.m[0][2] * b.m[2][2];
+		t.m[1][0] = a.m[1][0] * b.m[0][0] + a.m[1][1] * b.m[0][1] + a.m[1][2] * b.m[0][2];
+		t.m[1][1] = a.m[1][0] * b.m[1][0] + a.m[1][1] * b.m[1][1] + a.m[1][2] * b.m[1][2];
+		t.m[1][2] = a.m[1][0] * b.m[2][0] + a.m[1][1] * b.m[2][1] + a.m[1][2] * b.m[2][2];
+		t.m[2][0] = a.m[2][0] * b.m[0][0] + a.m[2][1] * b.m[0][1] + a.m[2][2] * b.m[0][2];
+		t.m[2][1] = a.m[2][0] * b.m[1][0] + a.m[2][1] * b.m[1][1] + a.m[2][2] * b.m[1][2];
+		t.m[2][2] = a.m[2][0] * b.m[2][0] + a.m[2][1] * b.m[2][1] + a.m[2][2] * b.m[2][2];
+		t.CopyTo(*this);
+	}
+
 	// FUNCTION: ENGINE 0x107D1A20
 	void Matrix::RotationAxisAngle(const Vector& axis, float angle)
 	{
@@ -390,6 +513,33 @@ namespace math
 		m[2][3] = 1.0f;
 		m[3][2] = (nearZ * farZ) / (nearZ - farZ);
 		m[3][3] = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107D1910
+	void Matrix::Print() const
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			static bool sPrintFloat = true;
+			if (sPrintFloat && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\matrix.cpp", 1789, 0, "[ %f | %f | %f | %f ]",
+				m[i][0], m[i][1], m[i][2], m[i][3], 0) == 3)
+			{
+				sPrintFloat = false;
+			}
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			float a = m[i][0];
+			float b = m[i][1];
+			float c = m[i][2];
+			float d = m[i][3];
+			static bool sPrintHex = true;
+			if (sPrintHex && core::Report(0, " Math  Pre ", "..\\..\\..\\code\\math\\src\\matrix.cpp", 1803, 0, "[ %#x | %#x | %#x | %#x ]",
+				*(int*)&a, *(int*)&b, *(int*)&c, *(int*)&d, 0) == 3)
+			{
+				sPrintHex = false;
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x107D17F0
@@ -422,6 +572,56 @@ namespace math
 			t.m[i][0] = a.m[i][0] - b.m[i][0]; t.m[i][1] = a.m[i][1] - b.m[i][1]; t.m[i][2] = a.m[i][2] - b.m[i][2]; t.m[i][3] = a.m[i][3] - b.m[i][3];
 		}
 		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2C00
+	void Matrix::Multiply(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 4; i--; )
+		{
+			float a1 = a.m[i][1];
+			float a0 = a.m[i][0];
+			float a2 = a.m[i][2];
+			float a3 = a.m[i][3];
+			for (int j = 4; j--; )
+			{
+				t.m[i][j] = ((a0 * b.m[0][j] + a1 * b.m[1][j]) + a2 * b.m[2][j]) + a3 * b.m[3][j];
+			}
+		}
+		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2CC0
+	// The same code again under another name (no direct caller found)
+	void Matrix::Multiply4x4(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 4; i--; )
+		{
+			float a1 = a.m[i][1];
+			float a0 = a.m[i][0];
+			float a2 = a.m[i][2];
+			float a3 = a.m[i][3];
+			for (int j = 4; j--; )
+			{
+				t.m[i][j] = ((a0 * b.m[0][j] + a1 * b.m[1][j]) + a2 * b.m[2][j]) + a3 * b.m[3][j];
+			}
+		}
+		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2D80
+	void Matrix::ToAxisAngle(Vector& axis, float& angle) const
+	{
+		// cos = (trace - 1) / 2; the axis from the antisymmetric part over 2 sin
+		float c = Clamp((m[2][2] + m[1][1] + m[0][0] - 1.0f) * 0.5f, -1.0f, 1.0f);
+		float a = acosf(c);
+		float s = (fabsf(a) - EPSILON_SMALL >= 0.0f) ? 0.5f / sinf(a) : 0.0f;
+		Vector v(m[1][2] - m[2][1], m[2][0] - m[0][2], m[0][1] - m[1][0]);
+		v.Scale(s);
+		axis.Set(v.x, v.y, v.z);
+		angle = a;
 	}
 
 	// FUNCTION: ENGINE 0x107D2E70
