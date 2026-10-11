@@ -1,11 +1,12 @@
 // code/engine/gameobject/details/mastertable.cpp (assert path at 0x10E68734): the game object master table behind
 // GameObjectHandle. 0x1800 entries of {object, serial, flags} filled from the front (a fixed array with an end
 // pointer) and recycled through a free list threaded through the object pointers; a handle can be reserved before
-// its object exists. Unit 0x107E1D20 - 0x107E2420. Class and member names are guesses (the file name gives
+// its object exists. Unit 0x107E1D20 - 0x107E2440. Class and member names are guesses (the file name gives
 // MasterTable); most of the small functions are kept copies of inline functions.
 #ifndef ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
 #define ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
 
+#include "code/container/arraydynamic.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include <new>
 
@@ -23,25 +24,59 @@ namespace container
 		new (p) T(value);
 	}
 
-	// A fixed-capacity array filled from the front (name guessed)
+	template<class T> inline void Destroy(T* p)
+	{
+		p->~T();
+	}
+
+	template<class T> inline void Destroy(T* first, T* last)
+	{
+		for (; first != last; ++first)
+		{
+			Destroy(first);
+		}
+	}
+
+	// A fixed-capacity array filled from the front over raw storage (the elements are constructed and destroyed by
+	// the array; name guessed)
 	template<class T, int N> class ArrayFixed
 	{
 	public:
 		ArrayFixed()
 		{
-			end = data;
+			end = Data();
+		}
+		~ArrayFixed()
+		{
+			Clear();
+		}
+		T* Data()
+		{
+			return (T*)storage;
+		}
+		const T* Data() const
+		{
+			return (const T*)storage;
 		}
 		T* Begin()
 		{
-			return data;
+			return Data();
+		}
+		T* End()
+		{
+			return end;
+		}
+		bool IsEmpty() const
+		{
+			return Data() == end;
 		}
 		int Size() const
 		{
-			return end - data;
+			return end - Data();
 		}
 		T& operator[](int index)
 		{
-			return data[index];
+			return Data()[index];
 		}
 		bool PushBack(const T& value)
 		{
@@ -54,20 +89,23 @@ namespace container
 		}
 		void Clear()
 		{
-			end = data;
+			Destroy(Data(), end);
+			end = Data();
 		}
 		void Reset()
 		{
-			end = data;
+			end = Data();
 		}
 
-		T data[N];
+		int storage[N * sizeof(T) / sizeof(int)];
 		T* end;
 	};
 }
 
 namespace engine
 {
+	class GameObjectIterator;
+
 	class MasterTable
 	{
 	public:
@@ -174,16 +212,17 @@ namespace engine
 			};
 		};
 
-		MasterTable(int unknown1, int unknown2)
-		{
-			freeList = 0;
-		}
+		MasterTable(int unknown, const container::AllocatorCoreAligned<16>& allocator);
 
 		// A handle the next Allocate hands out (0x11283490 / 0x11283488)
 		static GameObjectHandle sReservedHandle;
 		static bool sHasReservedHandle;
 		void ClearReservedHandle();
 		void SetReservedHandle(GameObjectHandle handle);
+
+		// The valid entries (gameobjectsystem.h; Begin is inline, End out of line in gameobjectsystem.cpp)
+		GameObjectIterator Begin();
+		GameObjectIterator End();
 
 		unsigned short GetSerial(unsigned short index)
 		{
@@ -205,7 +244,7 @@ namespace engine
 		Entry* freeList;
 	};
 
-	// The engine's master table (0x1128348C; gGameObjects in gameobjecthandle.h views the same pointer)
+	// The engine's master table (0x1128348C)
 	extern MasterTable* gMasterTable;
 }
 

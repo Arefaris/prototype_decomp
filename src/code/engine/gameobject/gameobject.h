@@ -4,6 +4,7 @@
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECT_H
 #define ENGINE_GAMEOBJECT_GAMEOBJECT_H
 
+#include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/math/matrix.h"
 
@@ -22,23 +23,55 @@ namespace engine
 	template<class T> class Attribute : public BaseAttribute
 	{
 	public:
+		// Out of line in the attribute's unit (Attribute<math::Matrix>: 0x1028AB90, starts at the identity)
+		Attribute();
+
+		virtual T& Get();
+
 		T value;
 	};
 
-	class GameObject
+	class GameObject : public content::MetaLoadObject
 	{
 	public:
+		// 0x107E1670 / 0x107E0BE0 (the GameObject unit)
+		GameObject();
+		static void* operator new(unsigned int size);
+
+		// The vftable (RTTI: 7 slots; slots 0 / 1 are the reference count, slot 2 the deleting destructor)
+		virtual void AddRef();
+		virtual void Release();
+		virtual ~GameObject();
+		virtual void Slot3();
+		// 0x107E0F40: true when the object may leave the deferred list (meaning guessed)
+		virtual bool IsReady();
+		virtual bool Slot5();
+		// Takes the name the object is kept under in the game object inventory (meaning guessed)
+		virtual void SetName(const content::ObjectName& name);
+
+		bool TestUpdateMask(unsigned short mask) const
+		{
+			return (updateMask & mask) != 0;
+		}
+
 		// 0x107E0810 (another unit): delivers the message when the object listens for its type
 		bool SendMessage(Message* message);
+		// 0x107E0850: the same through the behaviour container's other slot (name guess)
+		bool PostMessage(Message* message);
 
-		unsigned char unknown0[0x1c];
+		unsigned char unknown4[0x1c - 4];
 		Attribute<math::Matrix>* transform;
 		// The behaviour container (a Behaviour itself)
 		BehaviourContainer behaviours;
-		unsigned char unknown2C[0x58 - 0x2c];
+		unsigned char unknown2C[0x48 - 0x2c];
+		// The update passes the object takes part in (UpdateGameObjects' mask; meaning guessed)
+		unsigned short updateMask;
+		unsigned char unknown4A[0x58 - 0x4a];
 		// The master table index, 0xFFFF while unregistered
 		unsigned short index;
-		unsigned short unknown5A;
+		// 0: updated in the first pass; n: in the n-th deferred pass (after the objects it depends on; guessed)
+		unsigned char updatePass;
+		unsigned char unknown5B;
 		int unknown5C;
 	};
 

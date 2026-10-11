@@ -182,4 +182,10 @@ namespace engine
 		Release(source->index);
 		return index;
 	}
+
+	// FUNCTION: ENGINE 0x107E2420
+	MasterTable::MasterTable(int unknown, const container::AllocatorCoreAligned<16>& allocator)
+	{
+		freeList = 0;
+	}
 }

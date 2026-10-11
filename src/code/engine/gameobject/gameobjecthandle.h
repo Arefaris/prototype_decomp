@@ -18,8 +18,14 @@ namespace engine
 		unsigned short flags;
 	};
 
-	// The game object table (0x1128348C)
-	extern GameObjectEntry* gGameObjects;
+	// The master table (0x1128348C, mastertable.h); its entries come first, which is all the handles need
+	class MasterTable;
+	extern MasterTable* gMasterTable;
+
+	inline GameObjectEntry* GetGameObjectEntries()
+	{
+		return (GameObjectEntry*)gMasterTable;
+	}
 
 	// The handle data with the out-of-line constructors (gameobjecthandle.cpp). GameObjectHandle's own
 	// constructor is inline, which is why callers take the address of a constructed temporary again instead of using
@@ -45,12 +51,15 @@ namespace engine
 		GameObjectHandle(unsigned short newIndex, unsigned short newSerial) : HandleBase(newIndex, newSerial)
 		{
 		}
+		explicit GameObjectHandle(unsigned short newIndex) : HandleBase(newIndex)
+		{
+		}
 		unsigned short GetSerial() const
 		{
 			return serial;
 		}
-		// Delivers the message to the object (engine::SendMessage, 0x107EF710)
-		void Send(Message* message) const;
+		// Puts the object on the deferred list (engine::DeferUpdate, 0x107EF710)
+		void DeferUpdate(bool force) const;
 		// The message router's per-object registrations (0x11318090; meanings unknown)
 		void RouterAdd(int value) const;
 		void RouterRemove(int value) const;
@@ -61,15 +70,15 @@ namespace engine
 
 		GameObject* Get() const
 		{
-			if (index != 0xffff && gGameObjects[index].serial == serial)
+			if (index != 0xffff && GetGameObjectEntries()[index].serial == serial)
 			{
-				return gGameObjects[index].object;
+				return GetGameObjectEntries()[index].object;
 			}
 			return 0;
 		}
 		bool IsValid() const
 		{
-			return index != 0xffff && gGameObjects[index].serial == serial && gGameObjects[index].object != 0;
+			return index != 0xffff && GetGameObjectEntries()[index].serial == serial && GetGameObjectEntries()[index].object != 0;
 		}
 	};
 }

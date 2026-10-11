@@ -51,8 +51,8 @@ twice, IsValid then Get; our build folds the second check). Lessons from this un
 Complete except `Allocate`, `Move` and `Replace` (EQUIVALENT: register choice; Move / Replace merge the count copy
 into one xor / and / xor insert where the engine keeps SetCount's and / or). Not reproduced yet: the kept copies
 `0x107E1E20` (Entry::GetObject), `0x107E1E80` (GameObjectHandle::GetSerial), `0x107E1EB0` (ArrayFixed constructor),
-`0x107E1F30` / `0x107E21C0` (empty), `0x107E2400` / `0x107E2410` (ArrayFixed Clear / Reset) and `0x107E2420`
-(MasterTable constructor) are not emitted because nothing in the unit uses them. `0x107EE340` is HandleBase's
+`0x107E1F30` / `0x107E21C0` (empty) and `0x107E2400` / `0x107E2410` (ArrayFixed Clear / Reset) are not emitted
+because nothing in the unit uses them. `0x107E2420` is the out-of-line MasterTable constructor (matched). `0x107EE340` is HandleBase's
 (index, serial) constructor. Lesson: a `bool` inline returning a bit-field compiles to `shr; test` in conditions,
 an `unsigned int` one to `test mask`.
 
@@ -69,3 +69,32 @@ Complete (47 functions with the reflection templates). Lessons:
 - Template members defined outside the class without `inline` are called, not inlined (BitField); their bit index is
   an int shifted as `1 << (unsigned char)bit`.
 - A `bool` result written as `x == y ? true : false` drops the `xor eax, eax` before `sete`.
+
+## gameobject/gameobjectsystem.cpp (0x107EEBC0 - 0x107F09D0)
+
+In progress. Done: handle and registration helpers, iteration, creation, deferred updates, handle operations,
+InitGameObjectSystem, ReleaseReadyGameObjects, the shutdown, FindGameObject / SearchGameObject, the channel functions
+(GetListeners, SendMessage, PostMessage, CountListeners), plus the kept copies of the container, iterator, LoadInventory
+and MessageRouter helpers. EQUIVALENT: SendMessage / PostMessage / CountListeners (the engine keeps the handle
+iterator in a register and copies the end iterator every round), GetGameObjectName (the serial is compared again for
+Get after IsValid), MoveHandle (the engine resolves the handle twice),
+ClearGameObjectSystem (the engine loads gDeferredObjects before storing the router's list end) and
+ShutdownGameObjectSystem (its inlined ArrayDynamicHeap destructor keeps the loaded begin pointer; a local copy in the
+destructor fixes it but breaks `container::Destroy<MessageListenerList>`). Also UpdateGameObjects (0x107F0410). Left: `Iterator::Next<GameObject>`
+(0x107EF2E0: the engine does not jump-thread the null result of the inlined NextObject) and small kept copies.
+Lessons:
+
+- The "update group" is content::LoadInventory (RTTI); game objects are LoadObjects kept by name, and the names are
+  core::Name references.
+- container::ArrayFixed keeps its elements in raw storage, not `T data[N]`: with a real array the compiler destroys
+  all N elements in the array's destructor, and the engine's destructors only destroy [data, end).
+- A constructor that tests its bool parameter (not the member it stored) lets the compiler drop the test for a
+  constant argument; the engine's locked LoadInventory::Iterator has a separate one-argument constructor.
+- A dead loop (`while (bit != 0x400) bit <<= 1;` with an unused result) is left in by the compiler.
+- UpdateGameObjects takes a 12-byte context by value (the callers copy three words); the time step is its last word.
+  Reading the object again for an argument (`GetHandle((GameObject*)it.entry->GetObject())`) instead of reusing the
+  local fixed the register allocation of the whole loop.
+- A function with more than a page of locals calls `__chkstk` (the engine's `__alloca_probe`, 0x10A883B0); it is
+  mapped in symbols.txt.
+- `__RTDynamicCast` is an import stub (0x10A88356); leave it out of symbols.txt, the relink takes it from
+  msvcr80.lib. The RTTI type descriptors `??_R0...@8` it is passed are mapped as data.

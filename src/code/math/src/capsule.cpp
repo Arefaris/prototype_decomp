@@ -2,6 +2,7 @@
 
 #include "code/math/aabb.h"
 #include "code/math/capsule.h"
+#include "code/math/mathutils.h"
 #include "code/math/matrix.h"
 #include "code/math/segment.h"
 
@@ -96,5 +97,21 @@ namespace math
 		offset.Set(direction.x * t, direction.y * t, direction.z * t);
 		d.Sub(d, offset);
 		return d.Dot(d) < radius * radius;
+	}
+
+	// FUNCTION: ENGINE 0x107DCC10
+	void Cylinder::GetAABB(AABB& out) const
+	{
+		// Per axis: the end discs' extent sqrt(1 - a^2) * radius plus the axis' a * halfLength, a = |direction[i]|
+		// clamped to 1; one variable reused for the three axes gives the original's frame
+		Vector e;
+		float a = Min(fabsf(direction.x), 1.0f);
+		e.x = sqrtf(1.0f - a * a) * radius + halfLength * a;
+		a = Min(fabsf(direction.y), 1.0f);
+		e.y = sqrtf(1.0f - a * a) * radius + halfLength * a;
+		a = Min(fabsf(direction.z), 1.0f);
+		e.z = sqrtf(1.0f - a * a) * radius + halfLength * a;
+		out.min.Sub(centre, e);
+		out.max.Add(centre, e);
 	}
 }

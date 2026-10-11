@@ -1,21 +1,11 @@
 #include "code/engine/gameobject/details/mastertable.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
-	// 0x107EF710 (another unit): delivers a message to the object behind a handle
-	void SendMessage(GameObjectHandle handle, Message* message);
-
-	// The message router (0x11318090, another unit); its methods take the handle by value
-	class MessageRouter
-	{
-	public:
-		// 0x108A5170 / 0x108A54C0 / 0x108A51B0
-		void Add(GameObjectHandle handle, int value);
-		void Remove(GameObjectHandle handle, int value);
-		void Query(GameObjectHandle handle, int value);
-	};
-	extern MessageRouter* gMessageRouter;
+	// 0x107EF710 (gameobjectsystem.cpp)
+	void DeferUpdate(GameObjectHandle handle, bool force);
 
 	// FUNCTION: ENGINE 0x107EE330
 	HandleBase::HandleBase()
@@ -32,9 +22,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE360
-	void GameObjectHandle::Send(Message* message) const
+	void GameObjectHandle::DeferUpdate(bool force) const
 	{
-		SendMessage(*this, message);
+		engine::DeferUpdate(*this, force);
 	}
 
 	// FUNCTION: ENGINE 0x107EE380

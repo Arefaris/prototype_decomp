@@ -35,10 +35,14 @@ namespace math
 		// this *= s / this = a * s
 		void Multiply(float s);
 		void Multiply(const SymmetricMatrix& a, float s);
+		// this = the upper triangle of a * b
+		void Multiply(const SymmetricMatrix& a, const SymmetricMatrix& b);
 		// Writes the 3x3 block of a Matrix and clears its translation
 		void CopyTo(Matrix& out) const;
 		// Nonzero when every element is within EPSILON_SMALL of zero
 		int IsZero() const;
+		// Reports the six elements through core::Report (debug output)
+		void Print() const;
 		void GetDiagonal(float& x, float& y, float& z) const;
 	};
 }

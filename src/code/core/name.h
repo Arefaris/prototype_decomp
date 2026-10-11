@@ -21,6 +21,8 @@ namespace core
 		// 0x1005D5E0 (another unit): the 64-bit hash of text (core::Hash64(text, 0)); the second argument is passed as 0
 		// by its users and its meaning is unknown
 		Name(const char* text, int unknown);
+		// 0x1005E520 (another unit): the empty name
+		Name();
 		Name(const Name& other);
 		~Name()
 		{
