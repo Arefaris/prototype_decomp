@@ -439,6 +439,20 @@ or a bit of GetLogicalDrives) and the drive behind a device (CreateRamDrive 0x10
 mapped, then the root path through Drive slot 23). All match; IsValidDevice needs the drive index in a local before
 the GetLogicalDrives call.
 
+## file/common/filesystem.cpp (0x10643C00 - 0x10643EE7): 25 functions
+
+The file system entry points the engine calls (`code/core/file/filesystem.h`; names and the file name guessed): 22
+forwarders to the mounts (compiled as jumps), SplitPath (device, full path with back slashes, normalised; the
+default device when the path names none or a device name longer than 16 characters), a path comparison and a path
+hash. All match. SplitPath needs `char* target = device == 0 ? full : device` (the plain if becomes a cmove) and the
+slash loop on a pointer of its own with `NormalisePath(full + length)`.
+
+## language.cpp (0x1064ACF0 - 0x1064AE22): 5 functions
+
+The game language (`code/core/language.h`; names guessed): a language code ('E', '?' before init) in gLanguage
+(external: the language entry points at 0x10643EF0 read it), eight listeners told in three priority rounds. All
+match; RemoveLanguageListener decrements the count in place (`count--`, then compares with it).
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
