@@ -31,7 +31,9 @@ OrthoLH / OrthoRH / OrthoOffCenterLH / OrthoOffCenterRH (0x107CFC80 / FD20 / FDB
 are assigned in memory order (m[0][0], m[0][1], ...): the store order of the source, not the order of the
 computations, drives the schedule. The five 3x3 operations through a Matrix3 temporary (0x107D0E20 / 0F60 / 10A0 /
 1150 / 1320: scale, add, subtract, a * b, a * b^T) match written out element by element (loops do not unroll) and
-finished with `t.CopyTo(*this)`.
+finished with `t.CopyTo(*this)`. Multiply(a, b) and its identical copy (0x107D2C00 / 2CC0, 0xBC bytes with the
+alignment padding inside) match as two descending loops into a Matrix temporary, `a`'s row in four locals (loaded
+1, 0, 2, 3) and the sum grouped `((a0 * b0j + a1 * b1j) + a2 * b2j) + a3 * b3j`, then `*this = t`.
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
@@ -52,7 +54,6 @@ finished with `t.CopyTo(*this)`.
 | 0x107D1E40 | basis from a Z axis | - | |
 | 0x107D20B0 | Inverse (general 4x4) | - | 1 536 bytes |
 | 0x107D26B0 | Invert (orthonormal fast path) | 18.1 % | |
-| 0x107D2C00 / 2CC0 | Multiply(a, b) / MultiplyTranspose | 5.6 % | descending loops; the original keeps `a`'s row in registers |
 | 0x107D2D80 | ToAxisAngle | 26.6 % | clamp of the acos argument written as subtractions |
 
 ## triangle.cpp (0x107D2ED0 - 0x107D3B50)

@@ -545,6 +545,43 @@ namespace math
 		*this = t;
 	}
 
+	// FUNCTION: ENGINE 0x107D2C00
+	void Matrix::Multiply(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 4; i--; )
+		{
+			float a1 = a.m[i][1];
+			float a0 = a.m[i][0];
+			float a2 = a.m[i][2];
+			float a3 = a.m[i][3];
+			for (int j = 4; j--; )
+			{
+				t.m[i][j] = ((a0 * b.m[0][j] + a1 * b.m[1][j]) + a2 * b.m[2][j]) + a3 * b.m[3][j];
+			}
+		}
+		*this = t;
+	}
+
+	// FUNCTION: ENGINE 0x107D2CC0
+	// The same code again under another name (no direct caller found)
+	void Matrix::Multiply4x4(const Matrix& a, const Matrix& b)
+	{
+		Matrix t;
+		for (int i = 4; i--; )
+		{
+			float a1 = a.m[i][1];
+			float a0 = a.m[i][0];
+			float a2 = a.m[i][2];
+			float a3 = a.m[i][3];
+			for (int j = 4; j--; )
+			{
+				t.m[i][j] = ((a0 * b.m[0][j] + a1 * b.m[1][j]) + a2 * b.m[2][j]) + a3 * b.m[3][j];
+			}
+		}
+		*this = t;
+	}
+
 	// FUNCTION: ENGINE 0x107D2E70
 	void Matrix::RotateByVector(const Vector& rotation)
 	{
