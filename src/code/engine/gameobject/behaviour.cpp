@@ -251,7 +251,7 @@ namespace engine
 			{ content::GetMemberMetaType(&Behaviour::GetInactiveMask, &Behaviour::SetInactiveMask, "p"), 0,
 				"inactiveMask" },
 			{ content::GetPrimitiveMetaType<unsigned char>("p"),
-				content::MemberOffset((int)&((Behaviour*)0)->timeSliceFrameSkip,
+				content::MemberOffset(&((Behaviour*)0)->timeSliceFrameSkip,
 				(int)&((Behaviour*)0)->timeSliceFrameSkip), "timeSliceFrameSkip" }
 		};
 		sList.members = sMembers;

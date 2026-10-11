@@ -105,10 +105,11 @@ First part: the constructor, destructor and scalar deleting destructor, vftable 
 forward to LoadObject, slot 3 registers the object, IsReady, slot 5 ends construction), the construction helpers
 (heap and object in thread-local slots), SendMessage / PostMessage, SetTransform / SetPosition, the controller
 forwards, FindAttribute, SetActive, AddAttribute and AddDynamicAttribute. EQUIVALENT: RemoveDynamicAttribute (the
-engine saves esi / edi before testing for the list). Left: the reflection data (GetClassInfo of AttributeEntry,
-DynamicAttributeList and GameObject, their member tables and meta types built with content::ArrayDynamicHelper and
-MetaInstanceHelper), the ArrayDynamic<AttributeEntry> kept copies the helpers use, 0x107E1CD0 (sends
-AttributeUpdatedMessage) and small copies. Lessons:
+engine saves esi / edi before testing for the list). Second and third parts: the reflection data (GetClassInfo
+and GetMembers of AttributeEntry, DynamicAttributeList and GameObject), the content meta type getters (class, name,
+object and ArrayDynamic meta types), MemberOffset, the MetaInstanceHelper / ArrayDynamicHelper templates and the
+ArrayDynamic<AttributeEntry> members they use. Left: 0x107E1CD0 (sends AttributeUpdatedMessage), 0x107E1500
+(Compact), the uninitialised copy / fill helpers and a few duplicate one-instruction copies. Lessons:
 
 - The "behaviour container" is engine::BehaviourController (RTTI); its 64-bit listen mask is at +0x20 and the update
   mask at +0x28.
@@ -119,3 +120,10 @@ AttributeUpdatedMessage) and small copies. Lessons:
   in-place construction; Size / Capacity are signed (`sar`) and a capacity read once into a local keeps the shifts.
 - `x ? false : true` gives `test; sete` where `!x` gives `neg; sbb; add`.
 - Vftable slots a class inherits without overriding are mapped to the incremental link thunks the vftables hold.
+- content::MemberOffset is a template on the member type (MemberOffset<unsigned char> is 0x10568950,
+  <core::Name> 0x10066120); each new member type gets a copy in the unit that first uses it. Templates defined in a
+  header without `inline` stay calls, so the meta type getters (GetClassMetaType<T>, GetObjectMetaType<T>,
+  GetNameMetaType<Key>, GetArrayDynamicMetaType<Owner, A>) are templates; a plain inline getter gets inlined.
+- The real container is container::ArrayDynamic<T, Allocator> (RTTI); ArrayDynamicHeap<T> is the
+  AllocatorCoreAligned<16> instance. Size / Capacity are unsigned.
+- A function-local static with a destructor registers it with `_atexit` (0x10A882DA, mapped in symbols.txt).

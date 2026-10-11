@@ -162,6 +162,9 @@ namespace engine
 		bool Query4(int value, Behaviour* behaviour);
 		// 0x10839D80 (meaning unknown)
 		void Unknown10839D80(int value);
+		// 0x10839340 / 0x1083A9C0: the controller's reflection data
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 		// 0x1083AAA0 / 0x1083AB00
 		explicit BehaviourController(GameObject* newOwner);
 		~BehaviourController();

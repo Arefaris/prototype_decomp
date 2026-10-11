@@ -173,6 +173,8 @@ namespace container
 	template<class T> class ArrayDynamicHeap
 	{
 	public:
+		typedef T Element;
+
 		ArrayDynamicHeap()
 		{
 			begin = 0;
@@ -215,11 +217,11 @@ namespace container
 			}
 			return false;
 		}
-		int Size() const
+		unsigned int Size() const
 		{
 			return end - begin;
 		}
-		int Capacity() const
+		unsigned int Capacity() const
 		{
 			return capacity - begin;
 		}
@@ -250,10 +252,34 @@ namespace container
 			}
 		}
 		void Reserve(int count);
-		void Erase(T* item)
+		// Moves [position, end) up by count elements (copy-constructing them backwards)
+		void ShiftUp(T* position, int count)
+		{
+			T* source = end;
+			end += count;
+			T* dest = end;
+			while (source != position)
+			{
+				--source;
+				--dest;
+				Construct(dest, *source);
+			}
+		}
+		T* Insert(T* position, const T& value)
+		{
+			if (end + 1 > capacity)
+			{
+				return end;
+			}
+			ShiftUp(position, 1);
+			Construct(position, value);
+			return position;
+		}
+		T* Erase(T* item)
 		{
 			Copy(item + 1, end, item);
 			end--;
+			return item;
 		}
 
 		T* begin;

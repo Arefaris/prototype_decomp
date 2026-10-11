@@ -186,7 +186,7 @@ namespace engine
 		AttributeEntry* entry = attributes.begin;
 		for (AttributeEntry* end = attributes.end; entry < end; entry++)
 		{
-			if (entry->name == name)
+			if (entry->key == name)
 			{
 				return entry->attribute;
 			}
@@ -197,7 +197,7 @@ namespace engine
 			entry = list->begin;
 			for (AttributeEntry* listEnd = list->end; entry < listEnd; entry++)
 			{
-				if (entry->name == name)
+				if (entry->key == name)
 				{
 					return entry->attribute;
 				}
@@ -241,6 +241,60 @@ namespace engine
 		return behaviours.Slot2();
 	}
 
+	// FUNCTION: ENGINE 0x107E11A0
+	content::MemberList* GameObject::AttributeEntry::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetNameMetaType<core::CaseSensitiveKey>(true, true, "porn"),
+				content::MemberOffset(&((AttributeEntry*)0)->key, (int)&((AttributeEntry*)0)->key), "key" },
+			{ content::GetObjectMetaType<BaseAttribute>("pnrm"),
+				content::MemberOffset(&((AttributeEntry*)0)->attribute, (int)&((AttributeEntry*)0)->attribute),
+				"attribute" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x107E1380
+	content::MemberList* GameObject::DynamicAttributeList::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetArrayDynamicMetaType<DynamicAttributeList, AttributeList>(
+				content::GetClassMetaType<AttributeEntry>(), "nm"),
+				content::MemberOffset((AttributeList*)(DynamicAttributeList*)0, 0), "attributes" }
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x107E1900
+	content::MemberList* GameObject::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetArrayDynamicMetaType<GameObject, AttributeList>(
+				content::GetClassMetaType<AttributeEntry>(), "rpnm"),
+				content::MemberOffset(&((GameObject*)0)->attributes, (int)&((GameObject*)0)->attributes),
+				"attributes" },
+			{ content::GetObjectMetaType<DynamicAttributeList>("nrm"),
+				content::MemberOffset(&((GameObject*)0)->dynamicAttributes,
+				(int)&((GameObject*)0)->dynamicAttributes), "dynamicAttributes" },
+			{ content::GetClassMetaType<BehaviourController>(),
+				content::MemberOffset(&((GameObject*)0)->behaviours, (int)&((GameObject*)0)->behaviours),
+				"behaviourController" }
+		};
+		sList.members = sMembers;
+		sList.count = 3;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x107E1670
 	GameObject::GameObject()
 		: dynamicAttributes(0), transform(0), behaviours(this)
@@ -265,7 +319,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x107E1700
 	void GameObject::AddAttribute(content::ObjectName name, BaseAttribute* attribute)
 	{
-		int capacity = attributes.Capacity();
+		unsigned int capacity = attributes.Capacity();
 		if (attributes.Size() == capacity)
 		{
 			attributes.Reserve(capacity + 8);
@@ -323,7 +377,7 @@ namespace engine
 		{
 			for (AttributeEntry* entry = dynamicAttributes->begin; entry < dynamicAttributes->end; entry++)
 			{
-				if (entry->name == name)
+				if (entry->key == name)
 				{
 					delete entry->attribute;
 					dynamicAttributes->EraseFast(entry);
@@ -403,4 +457,33 @@ namespace engine
 	// FUNCTION: ENGINE 0x107E1650
 	// FUNCTION: ENGINE 0x107E16E0
 	// FUNCTION: ENGINE 0x107E19D0
+	// The reflection templates instantiated here (code/content/metatype.h): the meta type getters, the member
+	// offsets, the instance and array helpers, and the ArrayDynamic members they use
+	// FUNCTION: ENGINE 0x107E0AB0
+	// FUNCTION: ENGINE 0x107E0F90
+	// FUNCTION: ENGINE 0x107E0FE0
+	// FUNCTION: ENGINE 0x107E1030
+	// FUNCTION: ENGINE 0x107E1290
+	// FUNCTION: ENGINE 0x107E1580
+	// FUNCTION: ENGINE 0x107E1810
+	// FUNCTION: ENGINE 0x107E09E0
+	// FUNCTION: ENGINE 0x107E0AF0
+	// FUNCTION: ENGINE 0x107E0B00
+	// FUNCTION: ENGINE 0x107E0B10
+	// FUNCTION: ENGINE 0x107E0B20
+	// FUNCTION: ENGINE 0x107E0D20
+	// FUNCTION: ENGINE 0x107E1B70
+	// FUNCTION: ENGINE 0x107E0D10
+	// FUNCTION: ENGINE 0x107E0DC0
+	// FUNCTION: ENGINE 0x107E0D40
+	// FUNCTION: ENGINE 0x107E0D50
+	// FUNCTION: ENGINE 0x107E0DF0
+	// FUNCTION: ENGINE 0x107E0D60
+	// FUNCTION: ENGINE 0x107E1860
+	// FUNCTION: ENGINE 0x107E1310
+	// FUNCTION: ENGINE 0x107E0D70
+	// FUNCTION: ENGINE 0x107E15D0
+	// FUNCTION: ENGINE 0x107E1110
+	// FUNCTION: ENGINE 0x107E1610
+	// FUNCTION: ENGINE 0x107E10E0
 }
