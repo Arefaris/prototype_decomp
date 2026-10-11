@@ -163,3 +163,24 @@ matches. The file name is a guess (no assert path). Lessons:
   not `array.Swap(copy)`), moves the schedule and message masks into the construction heap with container::Swap,
   then gives every behaviour its slot 0. Without the override the game crashed while loading although every
   function matched: tools/vtcheck.py now compares vftables.
+
+## gameobject/gameobjectspawner.cpp (0x107F22C0 - 0x107F27D0)
+
+engine::GameObjectSpawner: builds game objects from a content::MetaObjectTemplate (slot 9 of the template) in a heap,
+adds them to an inventory, stamps the template's name into their "meta object template" attribute and, on request,
+takes them off the message channel of their "packageName" attribute. Complete except two EQUIVALENT functions:
+the constructor (the transform address is computed before the reference count store) and the main Create (stack
+slot sharing: the engine packs the heap statistic, the attribute lookup and the handle into one slot and puts the
+attribute writer at +8; that looks like 8-byte alignment of core::Name, which the other users lay out at 4).
+`0x107F27D0` (`mov eax, [ecx]`, unreferenced) is not placed yet. Lessons:
+
+- A pointer-or-default argument written as `if (p == 0) p = global;` before the call compiles to `cmove`; the
+  ternary inside the argument list gives a branch.
+- Attribute access goes through out-of-line templates of other units (GetAttributeWriter<T> 0x10081FE0, whose
+  writer sends AttributeUpdatedMessage from its destructor through 0x107E1CD0, and GetAttributePtr<T> 0x1006AD60)
+  wrapped by an inline GetAttributeValue<T>: the struct temporary dies inside the wrapper, which is what lets the
+  engine reuse its stack slot.
+- The message router's "value" is a channel (const MessageListeners&, a core::Name); RouterAdd / RouterRemove /
+  RouterQuery were retyped.
+- A meta type getter's static caster vftable is checked as a constant: leave an inline template's slot functions
+  unmapped when the original vftable holds incremental link thunks for them.

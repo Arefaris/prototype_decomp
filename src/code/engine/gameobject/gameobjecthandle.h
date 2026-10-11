@@ -8,6 +8,8 @@
 
 namespace engine
 {
+	class MessageListeners;
+
 	class GameObject;
 	class Message;
 
@@ -60,10 +62,10 @@ namespace engine
 		}
 		// Puts the object on the deferred list (engine::DeferUpdate, 0x107EF710)
 		void DeferUpdate(bool force) const;
-		// The message router's per-object registrations (0x11318090; meanings unknown)
-		void RouterAdd(int value) const;
-		void RouterRemove(int value) const;
-		void RouterQuery(int value) const;
+		// The message router's registrations of the object on a channel (0x11318090; Query's meaning unknown)
+		void RouterAdd(const MessageListeners& listeners) const;
+		void RouterRemove(const MessageListeners& listeners) const;
+		void RouterQuery(const MessageListeners& listeners) const;
 		// The master table flags of the entry
 		void ClearFlags(int mask) const;
 		void SetFlags(unsigned short mask) const;

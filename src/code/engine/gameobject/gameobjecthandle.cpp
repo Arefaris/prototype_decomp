@@ -28,9 +28,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE380
-	void GameObjectHandle::RouterAdd(int value) const
+	void GameObjectHandle::RouterAdd(const MessageListeners& listeners) const
 	{
-		gMessageRouter->Add(*this, value);
+		gMessageRouter->Add(*this, listeners);
 	}
 
 	// FUNCTION: ENGINE 0x107EE3A0
@@ -46,15 +46,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE3E0
-	void GameObjectHandle::RouterRemove(int value) const
+	void GameObjectHandle::RouterRemove(const MessageListeners& listeners) const
 	{
-		gMessageRouter->Remove(*this, value);
+		gMessageRouter->Remove(*this, listeners);
 	}
 
 	// FUNCTION: ENGINE 0x107EE400
-	void GameObjectHandle::RouterQuery(int value) const
+	void GameObjectHandle::RouterQuery(const MessageListeners& listeners) const
 	{
-		gMessageRouter->Query(*this, value);
+		gMessageRouter->Query(*this, listeners);
 	}
 
 	// MasterTable::GetSerial is inline (mastertable.h); this is its kept copy

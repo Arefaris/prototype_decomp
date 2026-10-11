@@ -6,6 +6,7 @@
 #ifndef CONTENT_LOADINVENTORY_H
 #define CONTENT_LOADINVENTORY_H
 
+#include "code/content/metatype.h"
 #include "code/core/criticalsection.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
@@ -214,6 +215,35 @@ namespace content
 
 	// The root inventory (0x11283818)
 	extern LoadInventory* gRootInventory;
+
+	// The meta type of a member that refers to an inventory object the caster accepts (0x105FEC50)
+	class ReferenceMetaType : public MetaType
+	{
+	public:
+		ReferenceMetaType(LoadInventory::DynamicCasterBase* caster, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		LoadInventory::DynamicCasterBase* caster;
+	};
+
+	// The meta type of a reference to a T member of class C
+	template<class C, class T> ReferenceMetaType* GetReferenceMetaType(const char* code)
+	{
+		static LoadInventory::DynamicCaster<T> sCaster;
+		static ReferenceMetaType sType(&sCaster, code);
+		return &sType;
+	}
 }
 
 #endif

@@ -103,10 +103,10 @@ namespace engine
 
 		// 0x108A5370
 		void InitListeners(MessageListeners* listeners, int count);
-		// 0x108A5170 / 0x108A54C0 / 0x108A51B0: the handle's registrations (meaning of value unknown)
-		void Add(GameObjectHandle handle, int value);
-		void Remove(GameObjectHandle handle, int value);
-		void Query(GameObjectHandle handle, int value);
+		// 0x108A5170 / 0x108A54C0 / 0x108A51B0: the handle's registrations on a channel (Query's meaning unknown)
+		void Add(GameObjectHandle handle, const MessageListeners& listeners);
+		void Remove(GameObjectHandle handle, const MessageListeners& listeners);
+		void Query(GameObjectHandle handle, const MessageListeners& listeners);
 		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
 		void Invalidate(GameObjectHandle handle);
 		void SwapHandles(GameObjectHandle first, GameObjectHandle second);

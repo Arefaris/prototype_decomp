@@ -210,6 +210,28 @@ namespace content
 		bool flag9;
 	};
 
+	// The meta type of a math::Matrix member (0x10604370; the two flags are unknown)
+	class MatrixMetaType : public MetaType
+	{
+	public:
+		MatrixMetaType(bool unknown8, bool unknown9, const char* code);
+
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+
+		bool flag8;
+		bool flag9;
+	};
+
 	// Creates and deletes the instances an object member points to
 	class MetaInstanceHelperBase
 	{
@@ -351,6 +373,13 @@ namespace content
 	template<class C> NameMetaType* GetNameMetaType(bool unknown8, bool unknown9, const char* code)
 	{
 		static NameMetaType sType(unknown8, unknown9, code);
+		return &sType;
+	}
+
+	// The meta type of a math::Matrix member of class C
+	template<class C> MatrixMetaType* GetMatrixMetaType(bool unknown8, bool unknown9, const char* code)
+	{
+		static MatrixMetaType sType(unknown8, unknown9, code);
 		return &sType;
 	}
 

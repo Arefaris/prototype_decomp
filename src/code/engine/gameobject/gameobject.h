@@ -48,6 +48,36 @@ namespace engine
 	GameObject* GetConstructingObject();
 	void SetConstructingObject(GameObject* object);
 
+	// Write access to an attribute's value (null when the object has no such attribute); the object is told with an
+	// AttributeUpdatedMessage when the writer goes away (names guessed)
+	template<class T> struct AttributeWriter
+	{
+		~AttributeWriter()
+		{
+			if (value != 0)
+			{
+				Notify();
+			}
+		}
+		// Out of line (AttributeWriter<core::Name>: 0x107E1CD0)
+		void Notify();
+
+		content::ObjectName name;
+		GameObject* object;
+		int unknownC;
+		T* value;
+	};
+
+	// An attribute's value, null when the object has no such attribute (returned in memory: it has a constructor)
+	template<class T> struct AttributePtr
+	{
+		AttributePtr()
+		{
+		}
+
+		T* value;
+	};
+
 	class GameObject : public content::MetaLoadObject
 	{
 	public:
@@ -133,6 +163,16 @@ namespace engine
 		void SetRequestBit(unsigned char bit, bool on);
 		void SetBehavioursEnabled(bool enabled);
 		BaseAttribute* FindAttribute(const content::ObjectName& name);
+		// The access to a named attribute of type T (out of line in other units: for core::Name 0x10081FE0 and
+		// 0x1006AD60)
+		template<class T> AttributeWriter<T> GetAttributeWriter(const content::ObjectName& name);
+		template<class T> AttributePtr<T> GetAttributePtr(const content::ObjectName& name);
+		// The value of a named attribute of type T, null when there is none
+		template<class T> T* GetAttributeValue(const content::ObjectName& name)
+		{
+			AttributePtr<T> attribute = GetAttributePtr<T>(name);
+			return attribute.value;
+		}
 		void SetActive(bool active);
 		void AddAttribute(content::ObjectName name, BaseAttribute* attribute);
 		bool AddDynamicAttribute(content::ObjectName name, BaseAttribute* attribute);
