@@ -187,4 +187,28 @@ namespace math
 		w.Sub(v, projection);
 		return (w.y * w.y + w.z * w.z) + w.x * w.x;
 	}
+
+	// FUNCTION: ENGINE 0x107D7650
+	// EQUIVALENT: the original squares d.z before d.x for the denominator (dz^2 + dx^2, commutative); we get the
+	// two in swapped registers (98.6 %)
+	float Segment::ClosestPointOnLine(const Vector& p, Vector& out) const
+	{
+		Vector d;
+		d.Sub(end, start);
+		Vector v;
+		v.Sub(p, start);
+		float t = ((v.z * d.z + d.x * v.x) + d.y * v.y) / ((d.x * d.x + d.z * d.z) + d.y * d.y);
+		Vector projection;
+		projection.Set(d.x * t, d.y * t, d.z * t);
+		Vector w;
+		w.Sub(v, projection);
+		// The closest point is p - w
+		out.x = p.x;
+		out.y = p.y;
+		out.z = p.z;
+		out.x -= w.x;
+		out.y -= w.y;
+		out.z -= w.z;
+		return (w.y * w.y + w.z * w.z) + w.x * w.x;
+	}
 }
