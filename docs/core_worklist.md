@@ -113,6 +113,29 @@ Validation (2026-10-10): `ninja check` passes all 326 matching annotations. Thes
 271 exact bytes. The hybrid DLL verifier reports no differing bytes or relocation targets, the unit compiles with
 MSVC 2022 x86, and the refreshed test copy reaches free roam and accepts movement input.
 
+## memory/twowayallocator.cpp (0x10645370 - 0x10645D3A): class done
+
+`core::MemoryTwoWayAllocator` (RTTI name; assert path `code\core\src\memory\twowayallocator.cpp`): 33 annotated
+functions match: this unit's copies of the rounding helpers (`AlignUp` / `AlignDown` templates, `IsAligned`), all 22
+virtual methods, the constructor and destructor, Init / Create / AllocImpl / FreeImpl and the three factories. The
+compiler-generated functions match too (scalar deleting destructor 0x10645B50, the RefCount adjustor thunk
+0x10645A30, the interface constructors / deleting destructors 0x106456D0, 0x106458E0, 0x106458F0, 0x10645B90,
+0x10645BA0) and are mapped in symbols.txt, but are not annotated (no source definition). Notes:
+- Classes: `code/core/object.h` (core::Object / core::RefCount: the heap travels through `gObjectHeap` 0x110BCCBC
+  from operator new into the constructor and back), `code/core/memory/allocatorbase.h` (AllocatorBase_Name /
+  AllocatorBase_Safety, only declared: their unit is 0x10646D10 - 0x10646E10), `code/core/report.h` (the assert
+  report 0x1063C750, variadic).
+- The constructor is out of line (the factories call it); the factories call `CoreName()` once more after `new`.
+- AllocImpl's failure branches set `block = 0` and fall through (a `return 0` there loses the tail duplication);
+  the two `static bool` report switches are locals (0x110BCCF0 high end, 0x110BCCF1 low end). `__FILE__` is spelled
+  out as the original build's `..\..\..\code\...` literal.
+- AllocAligned needs the two-sided if / else: the one-sided form becomes a `cmova`.
+- objcmp now compares a data constant of our object only up to the next symbol or the section end (the static bools).
+Left alone: 0x106453E0 (stores two bytes to 0x110BCCE4 / 0x110BCCE5, no references), 0x10645400 / 0x10645430 /
+0x10645460 (three argument-shuffling wrappers around 0x1064C300 with callers all over the engine), 0x106454A0
+(`return this->field4`), 0x106456C0 / 0x10645720 (empty) and the interlocked helpers 0x10645970 - 0x10645990
+(register arguments); which unit they belong to is not clear.
+
 ## Candidates nearby (leaf functions, not started)
 
 - 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
