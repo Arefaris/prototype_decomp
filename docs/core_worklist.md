@@ -493,7 +493,15 @@ The debugger link of the core module (`code/core/debugger.h`; file and all names
 "core", the name every allocator and request constructor asks for) and a reference-counted critical section. All
 match. DebugHasPending needs `return 0 < gDebugPending;` (unsigned): `!= 0` gives setne, the original cmp / sbb / neg.
 
+## threadslots.cpp (0x106469A0 - 0x10646D06): 16 functions
+
+The user slots of threads and fibers (declared in `code/core/thread.h`; file and all names guessed): eight slots per
+Thread record ("data" slots, +0x64) and eight per fiber (+0x14), each set allocated from a bit mask (0x1127A9B4 /
+0x1127A9B8); a new slot is set to its value in every existing thread (or every fiber of every thread) and in the
+defaults that new threads / fibers copy. Allocation runs under the thread lock once the thread system is up
+(the static ...Locked helpers take register arguments). NextThread / NextFiber walk the lists (NextThread(0) takes
+the lock, the call returning 0 releases it). All match. The fiber slots are the ones the engine calls
+AllocThreadSlot / Get / SetThreadValue (names kept). The ...Locked helpers need `mask = used | bit` stored in one
+expression: `used |= bit; ...; mask = used;` keeps the slot pointer in edi.
 ## Candidates nearby (leaf functions, not started)
 
-- 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
-  0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
