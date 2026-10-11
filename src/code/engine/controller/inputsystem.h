@@ -269,6 +269,12 @@ namespace engine
 			virtual void OnRelease(unsigned int id, int value);
 
 			static InputSystem* sInstance;
+			static InputSystem* Get();
+			// Inline; 0x10825AF0 (in poimanager.cpp's range) is a kept copy
+			int GetPlayerCount() const
+			{
+				return playerCount;
+			}
 			static void Create(const Config& config);
 			static void Destroy();
 			// The player in list whose id matches

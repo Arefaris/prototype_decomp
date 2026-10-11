@@ -32,3 +32,26 @@ The unit is complete except for these EQUIVALENT functions:
 Lesson: inline accessors whose kept copies sit in the unit were used by the unit's code. Writing the code through
 them (instead of the field expressions) changes inlining and register allocation; `SetFactory` only matched once
 it used `GetInput` / `SetInput`.
+
+## system/poimanager.cpp (0x10825AF0 - 0x10826776)
+
+Complete except two EQUIVALENT functions: the `WorldStreamerPOI(GameObjectHandle)` constructor (the engine keeps
+the handle serial in memory for the table check) and `WorldStreamerPOI::GetPosition` (the engine checks the handle
+twice, IsValid then Get; our build folds the second check). Lessons from this unit:
+
+- `math::Vector` has a user-defined copy constructor (copy construction is `fld` / `fstp` per component) and a
+  `(x, y, z)` constructor (a by-value `Vector(x, y, z)` argument is built in place with `movss`).
+- `GameObjectHandle`'s own constructor is inline over a base whose constructor (`0x107EE330`) is out of line:
+  callers take the temporary's address again after the call instead of using the returned `this`.
+- The engine's asserts keep a per-site `static bool` and pass file, line, expression text and message to
+  `core::ReportError` (`OLD_ASSERT_AT` in `code/core/debug.h`).
+
+## gameobject/details/mastertable.cpp (0x107E1D20 - 0x107E2420)
+
+Complete except `Allocate`, `Move` and `Replace` (EQUIVALENT: register choice; Move / Replace merge the count copy
+into one xor / and / xor insert where the engine keeps SetCount's and / or). Not reproduced yet: the kept copies
+`0x107E1E20` (Entry::GetObject), `0x107E1E80` (GameObjectHandle::GetSerial), `0x107E1EB0` (ArrayFixed constructor),
+`0x107E1F30` / `0x107E21C0` (empty), `0x107E2400` / `0x107E2410` (ArrayFixed Clear / Reset) and `0x107E2420`
+(MasterTable constructor) are not emitted because nothing in the unit uses them. `0x107EE340` is HandleBase's
+(index, serial) constructor. Lesson: a `bool` inline returning a bit-field compiles to `shr; test` in conditions,
+an `unsigned int` one to `test mask`.

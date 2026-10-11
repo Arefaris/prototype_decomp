@@ -63,6 +63,12 @@ namespace engine
 			name = "hud";
 		}
 
+		// FUNCTION: ENGINE 0x107DF530
+		InputSystem* InputSystem::Get()
+		{
+			return sInstance;
+		}
+
 		// FUNCTION: ENGINE 0x107DF540
 		void InputSystem::Destroy()
 		{

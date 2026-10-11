@@ -116,6 +116,13 @@ namespace core
 		return count;
 	}
 
+	// FUNCTION: ENGINE 0x1063B0D0
+	char* StrNCpy(char* destination, const char* source, unsigned int count)
+	{
+		StrNCpyTail(destination, source, count);
+		return destination;
+	}
+
 	// FUNCTION: ENGINE 0x1063B130
 	char* StrCat(char* destination, const char* source)
 	{

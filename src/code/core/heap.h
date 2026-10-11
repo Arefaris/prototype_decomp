@@ -6,6 +6,8 @@
 
 namespace core
 {
+	struct IMemoryAllocator;
+
 	void* HeapAlloc(int heap, unsigned int size);
 	// 0x1063A9A0: returns a block to its heap
 	void HeapFree(int heap, void* block);
@@ -39,9 +41,6 @@ namespace core
 	void SetSystemAllocator(IMemoryAllocator* allocator);
 	// 0x1063AD50: removes a heap from the table again
 	void UnregisterHeap(int heap);
-	// 0x1063E690: an allocator object of 0x16C bytes from `heap`, returned through out with a reference held (kind
-	// and argument meanings unknown)
-	void CreateBlockAllocator(IMemoryAllocator** out, unsigned int a, unsigned int b, int c, int heap, int d);
 	// 0x1063A7F0: the hook a failed allocation reports to (0x11277F8C) and the value passed back to it (0x11277F90)
 	void SetAllocFailHook(void (*hook)(int heap), void* user);
 	// 0x1063C7D0, 0x1063AB80, 0x10645120: start-up of the core memory system, called before the first heap exists
@@ -53,12 +52,7 @@ namespace core
 		bool flag);
 	IMemoryAllocator* NewHeapAllocatorAt(void* memory, unsigned int size, const char* name, int unknown1,
 		unsigned int align, int unknown2, int unknown3);
-	// 0x10645CA0: a two-way (double-ended linear) allocator carved from a heap
-	IMemoryAllocator* NewTwoWayAllocator(unsigned int size, int heap, const char* name, unsigned int align);
-	// 0x10B814A0 / 0x10B80AC0 / 0x10B81A70: wrappers stacked on an allocator (guard and tracking layers, guessed) and
-	// a third allocator kind; the meaning of the arguments is unknown
-	IMemoryAllocator* WrapAllocatorGuard(IMemoryAllocator* allocator, int mode, int heap);
-	IMemoryAllocator* WrapAllocatorTrack(IMemoryAllocator* allocator, int track, int heap, int unknown1, int unknown2);
+	// 0x10B81A70: an allocator factory of another kind (arguments partly unknown)
 	IMemoryAllocator* NewPoolAllocator(int a, int b, unsigned int c, unsigned int d, int e, const char* name);
 }
 

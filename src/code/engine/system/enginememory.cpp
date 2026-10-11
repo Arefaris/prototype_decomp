@@ -1,6 +1,10 @@
 #include "code/core/debug.h"
 #include "code/core/heap.h"
+#include "code/core/memory/debugallocator.h"
 #include "code/core/memory/imemoryallocator.h"
+#include "code/core/memory/segmentpoolallocator.h"
+#include "code/core/memory/spilloverallocator.h"
+#include "code/core/memory/twowayallocator.h"
 #include "code/core/strings.h"
 #include "code/engine/system/enginememory.h"
 
@@ -63,11 +67,11 @@ namespace engine
 			config.name, config.alignment, 0, config.flag);
 		if (config.guard)
 		{
-			allocator = core::WrapAllocatorGuard(allocator, 2, config.heap);
+			allocator = core::CreateDebugAllocator(allocator, 2, config.heap);
 		}
 		if (config.track != -1)
 		{
-			allocator = core::WrapAllocatorTrack(allocator, config.track, config.heap, 0, 0);
+			allocator = core::CreateSpillOverHeapAllocator(allocator, config.track, config.heap, 0, 0);
 		}
 		allocator->SetSafetyMode(config.safetyMode);
 		core::RegisterHeap(config.index, config.heap, allocator);
@@ -81,11 +85,11 @@ namespace engine
 		core::IMemoryAllocator* allocator = core::NewTwoWayAllocator(size + extraSize, heap, name, 16);
 		if (guard)
 		{
-			allocator = core::WrapAllocatorGuard(allocator, 2, heap);
+			allocator = core::CreateDebugAllocator(allocator, 2, heap);
 		}
 		if (track != -1)
 		{
-			allocator = core::WrapAllocatorTrack(allocator, track, heap, 0, 0);
+			allocator = core::CreateSpillOverHeapAllocator(allocator, track, heap, 0, 0);
 		}
 		allocator->SetSafetyMode(safetyMode);
 		core::RegisterHeap(index, heap, allocator);
@@ -190,15 +194,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107DF2D0
-	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int a, unsigned int b, const char* name, int c, int d,
-		int heap, int safetyMode)
+	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,
+		const char* name, int heap, int safetyMode)
 	{
-		core::IMemoryAllocator* allocator;
-		core::CreateBlockAllocator(&allocator, a, b, c, heap, d);
-		allocator->SetSafetyMode(safetyMode);
-		core::RegisterHeap(index, heap, allocator);
-		allocator->Release();
-		return allocator;
+		core::SegmentPoolAllocator* pool;
+		core::CreateSegmentPoolAllocator(&pool, count, size, unused, heap, name);
+		pool->SetSafetyMode(safetyMode);
+		core::RegisterHeap(index, heap, pool);
+		pool->Release();
+		return pool;
 	}
 
 	// GLOBAL: ENGINE 0x111BBF84
@@ -212,7 +216,7 @@ namespace engine
 		GetHeapStats(heap, 0, 0, 0, &liveBlocks, &name);
 		if (liveBlocks != 0 && sReportLiveAllocations)
 		{
-			if (core::ReportError(0, 0, "..\\..\\..\\code\\engine\\system\\enginememory.cpp", 911, 0,
+			if (core::Report(0, 0, "..\\..\\..\\code\\engine\\system\\enginememory.cpp", 911, 0,
 				"Error: Allocator \"%s\" is being destroyed with %d objects still allocated\n", name, liveBlocks, 0) == 3)
 			{
 				sReportLiveAllocations = false;

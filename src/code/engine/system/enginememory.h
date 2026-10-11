@@ -72,9 +72,9 @@ namespace engine
 	// The same from the fields as arguments (the alignment stays 16)
 	core::IMemoryAllocator* CreateHeap(int index, unsigned int size, unsigned int extraSize, const char* name, int heap,
 		int safetyMode, bool guard, int track, bool flag);
-	// A heap of the 0x16C-byte allocator kind (core::CreateBlockAllocator); name is not used
-	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int a, unsigned int b, const char* name, int c, int d,
-		int heap, int safetyMode);
+	// A heap backed by a segment pool allocator (core::CreateSegmentPoolAllocator); the fourth argument is not used
+	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,
+		const char* name, int heap, int safetyMode);
 	// Reports allocations still live in the heap, then removes it from the heap table
 	void DestroyHeap(int heap);
 	// The same for a two-way allocator taken from another heap

@@ -16,7 +16,8 @@ at 0x1064DF9A); the sub-directories of the units below are not known, so the sou
 
 ## strings.cpp (0x1063AFA0 - 0x1063BB20, without the string heap)
 
-28 matched, 2 EQUIVALENT, 3 NONMATCHING.
+29 matched, 2 EQUIVALENT, 3 NONMATCHING (0x1063B0D0, the unsigned StrNCpy that only forwards to StrNCpyTail, matches
+against the EQUIVALENT helper).
 
 | Address | Guess | Best | Notes |
 |---|---|---:|---|
@@ -38,8 +39,7 @@ own. 0x1063B7E0, a jump to 0x1063AC00 (another unit), is left alone. HeapAlloc 0
 15 functions matched: seven static helpers (memcpy / memset, register arguments) and eight public wrappers that
 check the size first (MemCopyUnchecked does not). memcpy and memset resolve to the generated msvcr80 import
 library, not to symbols.txt (the import thunks 0x10A884EE / 0x10A8835C are defined by that library already).
-0x10645D40 - 0x10645EDB in front of it are allocator interface objects (vftables 0x10D96DB8, 0x10E473E0,
-0x10E473F4), another unit.
+0x10645D40 - 0x10645EDB in front of it are the memory-space unit (see memory/memoryspace.cpp).
 
 ## memory/rangemap.cpp (0x10646140 - 0x10646574): 13 matched, 1 EQUIVALENT
 
@@ -113,9 +113,206 @@ Validation (2026-10-10): `ninja check` passes all 326 matching annotations. Thes
 271 exact bytes. The hybrid DLL verifier reports no differing bytes or relocation targets, the unit compiles with
 MSVC 2022 x86, and the refreshed test copy reaches free roam and accepts movement input.
 
+## memory/twowayallocator.cpp (0x10645370 - 0x10645D3A): class done
+
+`core::MemoryTwoWayAllocator` (RTTI name; assert path `code\core\src\memory\twowayallocator.cpp`): 33 annotated
+functions match: this unit's copies of the rounding helpers (`AlignUp` / `AlignDown` templates, `IsAligned`), all 22
+virtual methods, the constructor and destructor, Init / Create / AllocImpl / FreeImpl and the three factories. The
+compiler-generated functions match too (scalar deleting destructor 0x10645B50, the RefCount adjustor thunk
+0x10645A30, the interface constructors / deleting destructors 0x106456D0, 0x106458E0, 0x106458F0, 0x10645B90,
+0x10645BA0) and are mapped in symbols.txt, but are not annotated (no source definition). Notes:
+- Classes: `code/core/object.h` (core::Object / core::RefCount: the heap travels through `gObjectHeap` 0x110BCCBC
+  from operator new into the constructor and back), `code/core/memory/allocatorbase.h` (AllocatorBase_Name /
+  AllocatorBase_Safety, only declared: their unit is 0x10646D10 - 0x10646E10), `code/core/report.h` (the assert
+  report 0x1063C750, variadic).
+- The constructor is out of line (the factories call it); the factories call `CoreName()` once more after `new`.
+- AllocImpl's failure branches set `block = 0` and fall through (a `return 0` there loses the tail duplication);
+  the two `static bool` report switches are locals (0x110BCCF0 high end, 0x110BCCF1 low end). `__FILE__` is spelled
+  out as the original build's `..\..\..\code\...` literal.
+- AllocAligned needs the two-sided if / else: the one-sided form becomes a `cmova`.
+- objcmp now compares a data constant of our object only up to the next symbol or the section end (the static bools).
+Left alone: 0x106453E0 (stores two bytes to 0x110BCCE4 / 0x110BCCE5, no references), 0x10645400 / 0x10645430 /
+0x10645460 (three argument-shuffling wrappers around 0x1064C300 with callers all over the engine), 0x106454A0
+(`return this->field4`), 0x106456C0 / 0x10645720 (empty) and the interlocked helpers 0x10645970 - 0x10645990
+(register arguments); which unit they belong to is not clear.
+
+## memory/allocatorbase.cpp (0x10646D10 - 0x10646E10): done
+
+All 11 functions of `core::AllocatorBase_Name` and `core::AllocatorBase_Safety` match (file name guessed; the
+class layout is in `code/core/memory/allocatorbase.h`). SetName copies with the unsigned StrNCpy and
+`sizeof(name)`; Safety mode 2 creates / deletes / enters / leaves the critical section through the wrappers
+0x1063D260 - 0x1063D290 (`code/core/criticalsection.h`, not reconstructed: they call the kernel32 imports as
+`__stdcall`, which the generated import library may not name).
+
+## memory/memorypool.cpp (0x1063D430 - 0x1063DB97): done (26 functions)
+
+`core::MemoryPool` (RTTI name; `IMemoryPool` adds AllocBlock / GetIndex / GetBlock as slots 18 - 20): fixed-size
+blocks on a free list, the same frame as MemoryTwoWayAllocator (`code/core/memory/memorypool.h`, file name
+guessed). All methods, Init, Contains and the two factories match; the compiler-generated functions (AllocatorLock
+and AllocatorBase constructor / destructor copies, the interface constructors and deleting destructors, the
+adjustor thunk) match as well and are mapped. Init calls the twoway unit's `AlignUp<unsigned int>` (0x10645370):
+the rounding templates are shared COMDATs, declared in allocatorbase.h. AllocBlock and the two-way AllocAligned
+need an inline `Max` template (`code/core/utility.h`): the plain conditional forms become `cmov`.
+
+The constructor matches once `RefCount::count` is `volatile` (the original keeps the RefCount vftable store and
+clears eax after it; a plain `long` lets the compiler move both).
+
+Left alone: 0x1063D450 - 0x1063D480 and 0x1063D700 - 0x1063D730 (empty functions), 0x1063D7D0 - 0x1063D7F0
+(interlocked helpers with register arguments).
+
+## memory/segmentpoolallocator.cpp (0x1063DBA0 - 0x1063E72B): done (54 functions)
+
+`core::SegmentPoolAllocator` (RTTI name; assert path known): one heap block cut into equal segments with 12-byte
+headers (`Segment`: cursor, mark, count), one segment open for bump allocation, lock bits, a stack of byte
+counters. Its base `core::AllocatorBaseSub` (IMemoryAllocator + AllocatorBase at 4, name / safety / flag slots;
+shared with MemoryDlAllocator) has its methods here (0x1063E400 - 0x1063E470). All functions match (the constructor
+since `RefCount::count` became volatile); the compiler-generated ones (AllocatorBaseSub constructor / destructor / deleting destructor, the
+adjustor thunk 0x1063E560, the scalar deleting destructor) match and are mapped. Notes:
+- The second factory starts at 0x1063E6E0 (functions.tsv has 0x1063E6F0, a misaligned start).
+- Segment::Segment is `inline` in the .cpp (Init's placement new inlines it, and our object still emits the copy
+  0x1063DBA0); ~Segment (0x1063DBB0, empty) is never called here, so it has no copy to annotate.
+- The address helpers read `segments` into a local before calling GetHeaderSize (the original keeps it in edi);
+  the sums only match in the spelled orders. Bool helpers need `if (...) return true; return false;` (the
+  expression form returns through eax), lock bits test `lockMask & 0x80000000` (a `< 0` test is jge, not jns).
+- Next keeps the result in a local `found = -1` and breaks; AllocAligned has two separate early returns and the
+  segment base in a local before the Segment::Alloc call.
+- RefCount gained a `RefCount(long initial)` constructor: this allocator starts at one, its factories do not AddRef.
+- `core::Report` is (kind, tag, file, line, expression, format, ...): asserts pass (1, " oldassert ", file, line,
+  "condition", 0).
+
+Left alone: 0x1063E520 - 0x1063E540 (interlocked helpers with register arguments).
+
+## memory/spilloverallocator.cpp (0x10B803A0 - 0x10B80B12): 23 matched, 3 EQUIVALENT
+
+`core::MemorySpillOverAllocator` (RTTI name; RefCount at 0, the interface at 0xC, file name guessed): allocates
+from a primary allocator and falls back to a second allocator or a heap (`GetHeapAllocator`, 0x1063AA00),
+counting spilled bytes / blocks (stats 15 / 16) and calling an optional callback. The static range test
+`Contains` (allocator in edi) matches; each unit of this area has its own copy (0x10B80B30 is the debug
+allocator's). Slot 9 of IMemoryAllocator is evidently the range count (`Contains` loops over it with GetRange);
+it is still called GetType here. The Free family needs the fallback in a local (the original tail-duplicates the
+call).
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10B80720 | Alloc | 94.8 % | EQUIVALENT in tree: registers rotate around the callback call (callback / primary / userData); local copies, (*callback), volatile members, a notifier struct and an inline Notify helper (not inlined) do not help |
+| 0x10B807D0 | AllocAligned | 95.0 % | EQUIVALENT in tree: as Alloc |
+| 0x10B80890 | AllocFlags | 93.5 % | EQUIVALENT in tree: as Alloc, plus the vtable load of the fallback call in edx instead of eax |
+
+Left alone: 0x10B80350 - 0x10B80390, 0x10B80460, 0x10B80690 (interlocked helpers with register arguments);
+0x10B80300 / 0x10B80320 belong to the class before (destructor 0x10B801D0, singleton at 0x1132FE78).
+
+## memory/debugallocator.cpp (0x10B80B20 - 0x10B814DF): done (36 functions)
+
+`core::MemoryDebugAllocator` (RTTI name; `IMemoryDebugAllocator` adds SetAllocCallback / SetFreeCallback /
+GetHeaderSize as slots 18 - 20; file name guessed): wraps an allocator; mode 0 passes through, other modes frame
+every block with a CRC-32 checked 16-byte header (crc, size, next, prev) and footer (crc, raw pointer, total,
+owner) kept in a list, and every call reports to optional callbacks. All debug allocators are in one global list
+under one critical section. Every function matches, including the frame checks and the compiler-generated ones.
+Notes:
+- The list head / tail / count / lock are class statics, not file statics: the original rereads them after each
+  store through a pointer (internal linkage lets our compiler cache them). Likewise CheckHeaders /
+  CheckAllocators / CheckAllocatorsLocked are external functions: as statics our compiler passes the allocator in
+  ebx, the original on the stack.
+- The callbacks are read into locals userData first, then the function pointer.
+- Synchronise is a switch with two identical cases (2 and 3), not one case list.
+- AllocAligned drops the inner allocator's result in mode 0 and returns null (the original's bug, kept).
+- The range test is the same code as the spill-over one; named OwnsBlock here so symbols.txt has distinct names.
+- Slot 17 (still called IsThreadSafe) validates here before asking the inner allocator: probably a check method.
+
+## memory/externalallocator.cpp (0x10B814E0 - 0x10B81A61): done (25 functions)
+
+`core::MemoryExternalAllocator` and its base `core::AllocatorBaseSub_NoStubs` (RTTI names; file name guessed):
+an allocator over memory managed by an embedded heap object at 0x44 (`ExternalHeap`, class name guessed, 0x590
+bytes; its methods 0x10B833E0 - 0x10B853A0 are declared and mapped, not reconstructed: the next unit to look at).
+Plain (non-atomic) reference count; the last Release destroys the object in place and frees the block it lives
+in; AllocFlags only serves the allocator's own tag. Init reads GetName back through the vtable and drops it. Every
+function matched on the first compile.
+
+## memory/memoryspace.cpp (0x10645D40 - 0x10645EDB): done (13 functions)
+
+The main-memory "memory space" (all names guessed): copy / async copy / heap wrappers that take a space id first
+and ignore it, and `core::MemorySpaceAsyncRequest_Copy` (RTTI name), the request an async copy returns. One
+static request (0x1127A474) serves every copy; it is constructed by a dynamic initializer elsewhere (0x10D66930),
+so our source only declares it (`gMemorySpaceCopyRequest`, mapped in symbols.txt) instead of defining it, which
+would add an initializer of our own. Left alone: 0x10645D50 / 0x10645D60 (empty functions of unknown owner).
+
+## file/common/request.cpp (0x1064C4A0 - 0x1064DF2B): 144 functions
+
+`core::Request` and its 28 subclasses (RTTI names; file name guessed, next to the asserted file/common/file.cpp):
+the work items drives execute (open / open by key / save-game open / close / commit / read / write / seek / tell /
+size / cancel for files; open / media / can-create / format / directories / find first-next-close / destroy /
+cancel for drive instances; event and callback completions). Requests come from one MemoryPool (0x114-byte blocks,
+"FileRequest") under one lock (InitRequests / ShutdownRequests, class operator new / delete). Every function
+matches, including the 29 scalar deleting destructors (mapped, not annotated). Notes:
+- `code/core/file/drive.h` / `file.h` declare core::Drive, core::File, core::InstanceDrive, the file cache and the
+  cache list only as far as the requests use them: slot numbers kept with placeholder slots, fields at the
+  offsets the requests access, non-virtual methods mapped in symbols.txt (not reconstructed: 0x1064DF30 onwards).
+- The request vtable: dtor, Execute, IsFor(owner), GetDrive, Prepare (default: Drive::Mount through Finish),
+  GetPath, GetType; the completion callbacks add Complete. Finish(result, error) stores the drive error in the
+  file / instance under its IMutable lock.
+- Constructors are plain out-of-line functions at the end of the unit; each ends with CoreName().
+- FileOpenRequest::Execute needs its shared-handle tail as a `__forceinline` helper (OpenShared): the original has
+  it twice; as a plain inline member VS2005 does not inline it.
+- 0x1064C5E0 (a jump to ~Request) and 0x1064C600 (an IsFor-like compare) are in no vtable; left alone.
+
+## file/common/file.cpp (0x1064DF50 - 0x1064E9DF): 45 functions
+
+`core::File` (RTTI name, assert path known): every function matches. Files come from a pool ("File", 0x174
+bytes) and sit in a table by pool index (InitFiles / ShutdownFiles, ReportOpenFiles when the pool runs dry); the
+IMutable lock of every file is the global file lock. The asynchronous calls submit requests to the drive
+(Drive::Submit, 0x1064FEB0) and return its answer; the ...Wait forms then poll IsIdle, pumping the drive.
+WaitSignal blocks on a per-file event (count + manual-reset event, the 0x1063D320 - 0x1063D400 helpers) that
+EndRequest signals. Notes: IFile derives from IRefCount (its inline destructor is what leaves the IRefCount
+vftable in ~File); `pending` is unsigned; CanShare and operator new needed their exact return structure;
+the constructors initialise every member before the cache in the mem-initializer list (the cache constructor
+runs between them and the last two). Left alone: 0x1064DF30 (an EventSignal helper with a register argument
+that nothing here calls) and 0x1064DF40 (the IMutable constructor copy).
+
+## file/common/instancedrive.cpp (0x1064EB10 - 0x1064F805): 54 functions
+
+`core::InstanceDrive` (RTTI name; file name guessed): one owner's handle on a core::Drive, the drive-side twin of
+File (own pool "InstanceDrive", 0x30 bytes; global instance lock as IMutable; requests submitted to the drive;
+Wait / WaitSignal / IsIdle as in File; the last Release closes an open search). Every function matches. Notes:
+- The path calls split the path (SplitPath, 0x10643D60) into locals declared `native, relative, device[0x14],
+  full[0x104]` and take `relative`, or `native` when the drive hides names (GetFlags bit 7), written as an
+  assignment plus `if`: the ternary gives a branch, the original a cmovs.
+- GetError needs the single-exit form (value in a local, one Unlock).
+- IDrive slots 43 / 44 forward Drive slots 5 / 6 with two arguments (a forwarder's jump register is edx without
+  stack arguments and eax with them, a handy hint for the argument count of pure forwarders).
+Left alone: 0x1064EAF0 (an EventSignal helper with a register argument) and 0x1064EB00 / 0x1064F780 (interface
+destructor and constructor copies).
+
+## file/common/drive.cpp (0x1064FAA0 - 0x1065028C): 43 matched, 1 EQUIVALENT
+
+`core::Drive` (RTTI name; file name guessed): the abstract drive, `Drive : IRefCount, Object, SafeRefCount` (the
+drive's 24 virtual slots sit on IRefCount's vtable: there is no separate drive interface, which is why the
+constructor leaves the IRefCount vftable store in place). SafeRefCount (RTTI name) is IMutable plus a count, its
+AddRef / Release under the object's own lock (the concrete drives implement Lock / Unlock). The base defaults of
+the virtual slots, the state calls the instances forward, the completion queue (Queue, Update) and the request
+queue forwarders all match; CompletionCallbackRequest::IsFromThread (0x1064C600, request.cpp) joined the request
+unit. Update walks the completion list with a link that, after a kept request, points at a local copy of its
+next pointer (so only a run at the head is unlinked); kept as in the original.
+
+| Address | Guess | Best | Notes |
+|---|---|---:|---|
+| 0x10650180 | Drive::Update | 98.9 % | EQUIVALENT in tree: the original loads `this` into ecx before pushing the fault handler's result for ClearFault |
+
+Not reconstructed yet: the file cache (0x10650690 - 0x106511C0, FileCacheList 0x10650540 - 0x10650670) and the
+request queue (0x106524C0 onwards), declared in drive.h / file.h and mapped.
+
+## sync.cpp (0x1063D220 - 0x1063D428): 16 functions
+
+The thread-synchronisation wrappers (`code/core/criticalsection.h`; file and all names guessed): critical
+sections, semaphores (address of a handle), counted events (count + manual-reset event; EventSignal counts down
+through a static helper with register arguments and sets the event at zero) and AtomicRead. All match. The kernel32
+calls go through the import slots declared as function pointers (`extern "C" ... (__stdcall* _imp__Name)(...)`):
+the relinker's import libraries name the slots `__imp__Name` without the `@N` a dllimport __stdcall declaration
+would reference. Left alone: 0x1063D1F0 / 0x1063D210 (interlocked helpers with register arguments that nothing
+calls, like the ones in the allocator units).
+
 ## Candidates nearby (leaf functions, not started)
 
-- 0x106469A0 - 0x10646D20: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
+- 0x106469A0 - 0x10646D06: allocator registration tables guarded by a lock (0x1127A99C), bit masks 0x1127A9B4 /
   0x1127A9B8, lists at 0x1127A958; a unit of the memory system that needs its data named first.
 - 0x10646E50 - 0x10647200: wide-to-ANSI character conversion with a 32-entry table at 0x110BCE28 (string
   encoding, leaf, recursive fallback).

@@ -100,8 +100,9 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 				expected = known[target]
 				width = 4
 			else:
-				# Small data (a bool) may end its section: compare only the bytes that belong to it
-				width = min(4, sec["size"] - value)
+				# Only up to the next symbol or the end of the section: a static bool is one byte, its neighbours are not ours
+				following = [v for n, v, s, st in coff.symbols if s == section and v > value]
+				width = min(4, (min(following) if following else sec["size"]) - value)
 				expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
 		else:
 			continue
