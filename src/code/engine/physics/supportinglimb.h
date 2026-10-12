@@ -99,9 +99,10 @@ namespace engine
 		float randomRayCircleRadius;
 	};
 
-	class SupportingLimbDefinitionList : public content::MetaLoadObject
+	// A struct in the original (the RTTI name is .?AU...): the game's dynamic_cast compares type names, so the class key
+	// must match or the cast to the list fails and no character finds its limbs
+	struct SupportingLimbDefinitionList : public content::MetaLoadObject
 	{
-	public:
 		SupportingLimbDefinitionList();
 		virtual ~SupportingLimbDefinitionList();
 
@@ -157,6 +158,31 @@ namespace engine
 			bool active;
 		};
 
+		// The support a limb found (0x30 bytes; filled by Update)
+		struct Support
+		{
+			bool supported;
+			SupportingLimb* limb;
+			math::Vector normal;
+			math::Vector position;
+			int unknown20;
+			int unknown24;
+			unsigned char material;
+			// Seconds without a hit
+			float unsupportedTime;
+		};
+
+		// The state of the last cast (Update)
+		struct CastStatus
+		{
+			bool found;
+			float distance;
+			// Set by every update; while it is set and unknown9 is clear the cast is skipped and the support slides
+			// along its plane
+			bool unknown8;
+			bool unknown9;
+		};
+
 		SupportingLimb();
 		SupportingLimb(const SupportingLimb& other);
 		~SupportingLimb();
@@ -186,6 +212,10 @@ namespace engine
 		// goes to rayIndex) when the definition has them and rayIndex is given
 		bool Cast(const CastInput& input, CastResult& result, int* rayIndex);
 		bool Cast(const CastInput& input, CastResult& result);
+		// Casts the limb for a move of the character from previous to current, updates the support, the limb's
+		// length and direction, and moves current so that the limb keeps its support
+		void Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep, int ignore,
+			float dt, CastStatus& status, bool predict);
 
 		SupportingLimbDefinition* limbDef;
 		math::Vector castDirection;

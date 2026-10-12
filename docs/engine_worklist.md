@@ -207,7 +207,6 @@ explicitly instantiated containers (container::ArrayCDynamic<T, N>, an inline ar
 the new[]-based array the RTTI calls ArrayDynamic<T, AllocatorNew>, kept here as container::ArrayDynamicNew).
 Six class functions are EQUIVALENT (see the source). Open:
 
-- The update 0x107F5D20 (2.4 KB; calls Cast, the smoothing helpers and the axis helpers below).
 - Container members that do not match yet (left unmapped, the engine's copies stay): ArrayDynamicNew::Create /
   Allocate / Erase / Reserve / Insert, ArrayCDynamic Erase / ShiftUp / Insert (Entry), the UninitializedFill and
   CopyRange copies, the helpers' Insert / Erase. Mostly register allocation.
@@ -232,6 +231,19 @@ IntersectionFilter, copied whole into the query). Validation (2026-10-12): free 
 | 0x107F36C0 | SmoothDirection | EQUIVALENT: load order of the direction and the dot product's sum order |
 | 0x107F5540 | CastRay | EQUIVALENT: this in edi and an 8 byte larger frame in the engine |
 | 0x107F5AC0 | Cast | EQUIVALENT: result flag in bl in the engine, the two matrices swapped on the stack |
+| 0x107F5D20 | Update | EQUIVALENT: the engine calls its kept copy of SmoothingVelocityMap::IsEmpty (0x107F3210), ours inlines it |
+
+Update (2.4 KB) casts for a move of the character from the previous to the current frame (a second, predicting cast
+from the new frame when the first finds the ground beyond the resting length), turns the random rays that found
+nothing, smooths the limb's length (SmoothValue with the velocity map or the linear / fractional limits) and its
+direction (SmoothDirection towards the surface normal), orients the character frame (OrientAxes / AlignAxis against
+the up vector) and finally moves `current` across the cast direction so that the limb's end stays on the support.
+
+**Bug found on 2026-10-12 (since part 1):** every character fell over sideways in the hybrid. The cause was the class
+key: the original's RTTI names `.?AUSupportingLimbDefinitionList@engine@@` (a struct), ours was a class, and the
+game's `dynamic_cast` (LoadInventory::DynamicCaster) compares type names, so the cast to the list returned null and
+no character got its limb definitions. Byte matching and the slot check cannot see this; vtcheck now compares the
+class key of every vftable's RTTI type too (it found 20 more, fixed in the same commit).
 
 Matching notes: a `Set(a, b, c)` call (arguments evaluated before any store) is what makes a cross product load all six
 components first; component-wise row stores through a `Vector&` to the matrix row give the engine's pointer forms;

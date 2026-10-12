@@ -238,7 +238,7 @@ namespace content
 	};
 
 	// Reads and writes a reference member through accessors (RTTI: 2 slots)
-	class ReferenceMetaTypeGetSetter
+	struct ReferenceMetaTypeGetSetter
 	{
 	public:
 		virtual LoadObject* Get(const void* object) = 0;

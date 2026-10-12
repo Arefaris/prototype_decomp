@@ -56,7 +56,7 @@ namespace content
 		virtual void Set(void* object, T value);
 	};
 
-	template<class T> class PrimitiveMetaTypeGetSetter
+	template<class T> struct PrimitiveMetaTypeGetSetter
 	{
 	public:
 		PrimitiveMetaTypeGetSetter()
@@ -233,7 +233,7 @@ namespace content
 	};
 
 	// Creates and deletes the instances an object member points to
-	class MetaInstanceHelperBase
+	struct MetaInstanceHelperBase
 	{
 	public:
 		virtual void Delete(void* object) = 0;
@@ -271,7 +271,7 @@ namespace content
 	};
 
 	// The element access of a container::ArrayDynamic for its meta type
-	class ArrayDynamicHelperBase
+	struct ArrayDynamicHelperBase
 	{
 	public:
 		virtual int Size(void* array) = 0;
@@ -357,7 +357,7 @@ namespace content
 	};
 
 	// The element access of a container::ArrayCDynamic for its meta type
-	class ArrayCDynamicHelperBase
+	struct ArrayCDynamicHelperBase
 	{
 	public:
 		virtual int Size(void* array) = 0;

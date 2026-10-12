@@ -11,8 +11,9 @@
 namespace core
 {
 	// AllocatorBaseSub without the AllocFlags / FreeFlags stubs (only the name and safety slots are filled in)
-	struct AllocatorBaseSub_NoStubs : IMemoryAllocator, AllocatorBase
+	class AllocatorBaseSub_NoStubs : public IMemoryAllocator, public AllocatorBase
 	{
+	public:
 		virtual const char* GetName();
 		virtual void SetSafetyMode(int mode);
 		virtual int GetSafetyMode();

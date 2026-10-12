@@ -16,7 +16,7 @@ namespace engine
 {
 	class Behaviour;
 
-	class Message
+	struct Message
 	{
 	public:
 		Message(int newType, short newId)
@@ -37,7 +37,7 @@ namespace engine
 		short flags;
 	};
 
-	class IntrusiveMessage : public Message
+	struct IntrusiveMessage : public Message
 	{
 	public:
 		IntrusiveMessage(int newType, short newId) : Message(newType, newId)

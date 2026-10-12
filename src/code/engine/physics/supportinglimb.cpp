@@ -207,12 +207,12 @@ namespace engine
 
 	// FUNCTION: ENGINE 0x107F2BF0
 	// Moves value towards target by at most maxVelocity * dt, then clamps it to [minValue, maxValue]
-	void SmoothValue(float* value, float target, float maxVelocity, float dt, float minValue, float maxValue)
+	void SmoothValue(float* value, float target, float dt, float maxVelocity, float minValue, float maxValue)
 	{
 		if (!math::IsEqual(*value, target, math::EPSILON_SMALL))
 		{
 			float delta = target - *value;
-			float step = maxVelocity * dt;
+			float step = dt * maxVelocity;
 			float fraction = math::Clamp(math::Clamp(delta, -step, step) / delta, 0.0f, 1.0f);
 			*value = fraction * delta + *value;
 			*value = math::Clamp(*value, minValue, maxValue);
@@ -270,14 +270,14 @@ namespace engine
 	// EQUIVALENT: the engine loads the direction as y, z, x and sums the dot product as (y + z) + x; ours x, z, y and
 	// (x + z) + y (no source order of the terms changes it); the rest is the same
 	// Turns direction towards target by at most maxAngularVelocity * dt
-	void SmoothDirection(math::Vector& direction, const math::Vector& target, float maxAngularVelocity, float dt)
+	void SmoothDirection(math::Vector& direction, const math::Vector& target, float dt, float maxAngularVelocity)
 	{
 		math::Vector current(direction);
 		float cosine = target.Dot(current);
 		if (!math::IsEqual(cosine, 1.0f, math::EPSILON_SMALL))
 		{
 			float angle = acosf(cosine);
-			float fraction = math::Min(angle, maxAngularVelocity * dt) / angle;
+			float fraction = math::Min(angle, dt * maxAngularVelocity) / angle;
 			fraction = math::Select(fraction, fraction, 0.0f);
 			fraction = math::Select(fraction - 1.0f, 1.0f, fraction);
 			direction.x = (target.x - current.x) * fraction + current.x;
@@ -798,6 +798,263 @@ namespace engine
 			}
 		}
 		return found;
+	}
+
+	// The random rays' turn per update while they find nothing (80 degrees) and their step outwards
+	static inline float ToRadians(float degrees)
+	{
+		return degrees * (3.1415927f / 180.0f);
+	}
+	static float sRayRadiusStep = 0.3f;
+	static math::Vector sUp(0.0f, 1.0f, 0.0f);
+
+	// FUNCTION: ENGINE 0x107F5D20
+	// EQUIVALENT: same calls in the same order except that the engine calls its kept copy of
+	// SmoothingVelocityMap::IsEmpty (0x107F3210) where ours inlines it; registers and stack slots differ throughout
+	void SupportingLimb::Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep,
+		int ignore, float dt, CastStatus& status, bool predict)
+	{
+		math::Matrix inverse;
+		inverse = transform;
+		inverse.InvertOrthonormal();
+		math::Matrix previousLocal;
+		previousLocal.Multiply(inverse, previous);
+		math::Matrix currentLocal;
+		currentLocal.Multiply(inverse, current);
+		// The move, split into its part along the cast direction and the rest
+		math::Vector move(current.m[3][0] - previous.m[3][0], current.m[3][1] - previous.m[3][1],
+			current.m[3][2] - previous.m[3][2]);
+		float along = castDirection.Dot(move);
+		move.x -= castDirection.x * along;
+		move.y -= castDirection.y * along;
+		move.z -= castDirection.z * along;
+		const math::Matrix* frame = &previousLocal;
+		if (!status.unknown8 || status.unknown9)
+		{
+			float startOffset = 0.0f > along ? 0.0f : along;
+			RandomRay* last = rays.End();
+			if (limbDef->numRandomRays != 0)
+			{
+				for (RandomRay* ray = rays.Begin(); ray != last; ray++)
+				{
+					if (!ray->active)
+					{
+						static float sRayAngleStep = ToRadians(80.0f);
+						ray->angle += sRayAngleStep;
+						if (ray->angle > 6.2831855f)
+						{
+							ray->angle -= 6.2831855f;
+						}
+						ray->radius += sRayRadiusStep;
+						if (ray->radius > 1.0f)
+						{
+							ray->radius -= 1.0f;
+						}
+					}
+				}
+			}
+			if (keep || !(0.0f < along))
+			{
+				predict = false;
+			}
+			float extraLength = 0.0f;
+			if (predict)
+			{
+				extraLength = along * 1.5f;
+			}
+			CastResult result;
+			int rayIndex;
+			bool found;
+			for (;;)
+			{
+				support.unknown20 = -1;
+				support.unknown24 = -1;
+				CastInput input;
+				input.transform.m[0][0] = frame->m[0][0];
+				input.transform.m[0][1] = frame->m[0][1];
+				input.transform.m[0][2] = frame->m[0][2];
+				input.transform.m[0][3] = frame->m[0][3];
+				input.transform.m[1][0] = frame->m[1][0];
+				input.transform.m[1][1] = frame->m[1][1];
+				input.transform.m[1][2] = frame->m[1][2];
+				input.transform.m[1][3] = frame->m[1][3];
+				input.transform.m[2][0] = frame->m[2][0];
+				input.transform.m[2][1] = frame->m[2][1];
+				input.transform.m[2][2] = frame->m[2][2];
+				input.transform.m[2][3] = frame->m[2][3];
+				input.transform.m[3][0] = frame->m[3][0];
+				input.transform.m[3][1] = frame->m[3][1];
+				input.transform.m[3][2] = frame->m[3][2];
+				input.transform.m[3][3] = frame->m[3][3];
+				input.down.x = castDirection.x;
+				input.down.y = castDirection.y;
+				input.down.z = castDirection.z;
+				input.unknown0 = ignore;
+				input.startOffset = startOffset;
+				input.extraLength = extraLength;
+				rayIndex = 0;
+				found = Cast(input, result, &rayIndex);
+				status.found = found;
+				if (frame == &currentLocal)
+				{
+					result.position.x -= move.x;
+					result.position.y -= move.y;
+					result.position.z -= move.z;
+				}
+				// A predicting cast that finds the ground beyond the resting length tries again from the new frame
+				if (!found || !predict || frame != &previousLocal
+					|| result.distance < limbDef->restingLength + math::EPSILON_SMALL)
+				{
+					break;
+				}
+				frame = &currentLocal;
+			}
+			if (found)
+			{
+				support.limb = this;
+				support.position.z = result.position.z;
+				support.position.x = result.position.x;
+				support.position.y = result.position.y;
+				support.normal.x = result.normal.x;
+				support.normal.y = result.normal.y;
+				support.normal.z = result.normal.z;
+				status.distance = result.distance;
+				support.unknown20 = result.unknown1C;
+				support.unknown24 = result.unknown20;
+				support.material = result.material;
+				support.unsupportedTime = 0.0f;
+			}
+			else
+			{
+				support.unsupportedTime = support.unsupportedTime + dt;
+			}
+			if (limbDef->numRandomRays != 0)
+			{
+				for (RandomRay* ray = rays.Begin(); ray != last; ray++)
+				{
+					ray->active = false;
+				}
+				if (status.found)
+				{
+					rays[rayIndex].active = true;
+				}
+			}
+		}
+		else
+		{
+			if (support.supported)
+			{
+				// Slide the support along its plane under the limb's origin
+				math::Plane plane;
+				plane.normal.Set(support.normal.x, support.normal.y, support.normal.z);
+				plane.d = -support.position.Dot(plane.normal);
+				math::Vector origin;
+				frame->Transform(limbDef->origin, origin);
+				plane.IntersectRay(origin, castDirection, &support.position);
+			}
+			support.unsupportedTime += dt;
+		}
+		status.unknown8 = true;
+		status.unknown9 = false;
+		support.supported = false;
+		if (!status.found)
+		{
+			return;
+		}
+		if (!keep)
+		{
+			if (!(limbDef->restingLength + math::EPSILON_SMALL > status.distance) || along < -math::EPSILON_SMALL)
+			{
+				return;
+			}
+		}
+		support.supported = true;
+		math::Vector origin;
+		frame->Transform(limbDef->origin, origin);
+		float* length = &unknown68;
+		*length = castDirection.z * (support.position.z - origin.z) + castDirection.y * (support.position.y - origin.y)
+			+ (support.position.x - origin.x) * castDirection.x;
+		if (frame == &currentLocal)
+		{
+			unknown70 = true;
+		}
+		const SupportingLimbDefinition* definition = limbDef;
+		if (definition->smoothRestingLength && !unknown70)
+		{
+			float maxVelocity = 1.0f;
+			if (definition->smoothMaxLinearVelocityMap.IsEmpty())
+			{
+				maxVelocity = definition->smoothMaxLinearVelocity;
+				float fractional = definition->smoothFractionalMaxLinearVelocity;
+				if (fractional > 0.0f && dt > math::EPSILON_SMALL)
+				{
+					maxVelocity = sqrtf(move.x * move.x + move.z * move.z + move.y * move.y) / dt * fractional
+						+ maxVelocity;
+				}
+			}
+			else if (dt > math::EPSILON_SMALL)
+			{
+				maxVelocity = definition->smoothMaxLinearVelocityMap.Evaluate(
+					sqrtf(move.x * move.x + move.z * move.z + move.y * move.y) / dt);
+			}
+			SmoothValue(length, definition->restingLength, dt, maxVelocity, definition->smoothMinRestingLength,
+				definition->smoothMaxRestingLength);
+		}
+		else
+		{
+			*length = definition->restingLength;
+		}
+		definition = limbDef;
+		if (definition->directionFollowsSurfaceNormal)
+		{
+			if (definition->smoothDirection && !unknown70)
+			{
+				math::Vector target = -support.normal;
+				SmoothDirection(castDirection, target, dt, definition->smoothMaxAngularVelocity);
+				UpdateBasis();
+			}
+			else
+			{
+				castDirection.Set(-support.normal.x, -support.normal.y, -support.normal.z);
+				UpdateBasis();
+			}
+		}
+		definition = limbDef;
+		unknown70 = false;
+		int surfaceAxis = definition->characterSurfaceOrientation;
+		int upAxis = definition->characterUpVectorOrientation;
+		if (surfaceAxis != SupportingLimbDefinition::None && upAxis != SupportingLimbDefinition::None)
+		{
+			if (!math::IsEqual(fabsf(castDirection.y * sUp.y + castDirection.z * sUp.z + castDirection.x * sUp.x),
+				1.0f, math::EPSILON_SMALL))
+			{
+				OrientAxes(surfaceAxis, castDirection, upAxis, sUp, currentLocal);
+			}
+			else
+			{
+				AlignAxis(surfaceAxis, castDirection, currentLocal);
+			}
+		}
+		else if (surfaceAxis != SupportingLimbDefinition::None)
+		{
+			AlignAxis(surfaceAxis, castDirection, currentLocal);
+		}
+		else if (upAxis != SupportingLimbDefinition::None)
+		{
+			AlignAxis(upAxis, sUp, currentLocal);
+		}
+		// Move the character so that the limb's end stays on the support (across the cast direction only)
+		math::Vector offset;
+		currentLocal.Rotate(limbDef->origin, offset);
+		float l = *length;
+		math::Vector correction(support.position.x - (castDirection.x * l + offset.x) - previousLocal.m[3][0],
+			support.position.y - (castDirection.y * l + offset.y) - previousLocal.m[3][1],
+			support.position.z - (castDirection.z * l + offset.z) - previousLocal.m[3][2]);
+		float d = castDirection.Dot(correction);
+		currentLocal.m[3][0] += correction.x - castDirection.x * d;
+		currentLocal.m[3][1] += correction.y - castDirection.y * d;
+		currentLocal.m[3][2] += correction.z - castDirection.z * d;
+		current.Multiply(transform, currentLocal);
 	}
 
 	// FUNCTION: ENGINE 0x107F66B0
