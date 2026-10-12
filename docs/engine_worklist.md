@@ -371,3 +371,20 @@ Lessons:
   compiler merges the stores and hoists the constant), not from a goto.
 - `bool active = false; if (...) active = call(); return active;` gives the engine's `xor al, al` before the test and
   a tail jump.
+
+## audio/audiomessage.cpp (0x107FE2B0 - 0x107FE508)
+
+engine::AudioEmitterTriggerMessage::Apply (vftable slot 1 of the RTTI class; the messages' other members live in
+another unit): finds or creates the emitter's sound, plays / stops it ("play" / "stop" with three modes) and sets
+its min / max distance, pitch range and volume. The audio emitter, its sound list and sounds are only declared. Apply
+is EQUIVALENT (99.4 %: the engine computes the volume parameter table pointer in eax, ours in ecx); three kept
+accessor copies match. Not reproduced: 0x107FE2B0 (`lea eax, [ecx + 0x20]`) and 0x107FE2E0 (forwards
+`this + 0x10` to 0x1087D7F0 of its argument).
+
+Lessons:
+
+- A by-value argument built with `sub esp, 8; mov ebx, esp; call ...; copy` is constructed in place by an inline
+  converting constructor that itself makes the call (here a hash struct built from a core::Name); converting first
+  and copying pushes the words instead.
+- Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
+  `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
