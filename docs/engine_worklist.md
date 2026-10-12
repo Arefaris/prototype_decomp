@@ -225,3 +225,35 @@ Lessons:
 - A loop that leaves through `break` into a bool result (`sorted = false; break;`) matches where `return false` in the
   loop does not.
 - scratchpad tool kept2.py (in-process byte comparison) replaces kept.py: seconds instead of an hour.
+
+## motiontrackingfilter.cpp (0x107FC800 - 0x107FE2A6)
+
+engine::MotionTrackingFilter and its reflected filters (Rigid, DampedLinear, SpringBasedLinear, DampedAngular,
+SpringBasedAngular): each update moves a tracked transform with its velocities and accelerations (MotionState, 0x74
+bytes, name guessed) towards a target transform. Reflection data, constructors, the inline destructors and scalar
+deleting destructors, the base class casters, the member meta types, MotionState's constructor and velocity updates
+and the rotation delta helper all match (51 functions). The directory and file name are guesses (no assert path).
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107FCEF0 SpringBasedLinearMotionFilter::Update | EQUIVALENT | scheduling: the engine reloads the state's velocity for each use |
+| 0x107FD340 DampedAngularMotionTrackingFilter::Update | EQUIVALENT | else branch: axis.y / axis.z loaded into a register where ours multiplies from memory |
+| 0x107FD580 SpringBasedAngularMotionFilter::Update | EQUIVALENT | as SpringBasedLinear |
+
+Lessons:
+
+- /fp:fast reorders commutative sums freely: `x*x + y*y + z*z` and `z*z + y*y + x*x` compile alike. The engine's
+  `(z*z + y*y) + x*x` length came from math::DistanceSquared(a, b) (Sub into a local, then Dot), not from Dot.
+- A position read as a by-value temporary (`Vector p(m.m[3][0], m.m[3][1], m.m[3][2])`) loads all three components
+  into registers first (reg-reg subtracts); writing the field expressions folds the loads into the arithmetic.
+- `Vector& acceleration = state.linearAcceleration; acceleration.Sub(...); acceleration.Scale(dt);` reproduces the
+  engine's load / multiply / store per component where the same calls on `state.linearAcceleration` let the compiler
+  hoist the loads. A reference local for the velocity fixed DampedAngular's first branch the same way.
+- fabsf of a value then multiplied stays on x87 (`fabs; fmul`); the engine stores the fabs results first (a separate
+  Vector of magnitudes), then multiplies with SSE.
+- `float dt = step.dt;` as a plain copy becomes an x87 `fld / fst` spill; using `step.dt` in the expressions keeps one
+  SSE load.
+- Inline virtual destructors in the class body are inlined into the scalar deleting destructor and still emitted as
+  7-byte COMDATs (the engine's unreferenced `mov [ecx], base vftable; ret` copies); out-of-line ones are called.
+- An `angle > pi` fold-back negating the axis (`axis = -axis`) needs all three negations computed before the stores
+  (a temporary Vector), not Set(-x, -y, -z) or three assignments.
