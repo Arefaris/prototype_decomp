@@ -249,7 +249,9 @@ an allocator over memory managed by an embedded heap object at 0x44 (`ExternalHe
 bytes; its methods 0x10B833E0 - 0x10B853A0 are declared and mapped, not reconstructed: the next unit to look at).
 Plain (non-atomic) reference count; the last Release destroys the object in place and frees the block it lives
 in; AllocFlags only serves the allocator's own tag. Init reads GetName back through the vtable and drops it. Every
-function matched on the first compile.
+function matched on the first compile. The two factories behind it match too (2026-10-12): NewPoolAllocator (0x10B81A70: the allocator and its
+block bookkeeping in one block of `heap`, the managed memory from a second heap) and NewPoolAllocatorAt (0x10B81B00:
+over caller memory, memory heap -1); both construct with the global placement new.
 
 ## memory/memoryspace.cpp (0x10645D40 - 0x10645EDB): done (13 functions)
 

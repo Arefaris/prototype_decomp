@@ -78,8 +78,12 @@ namespace core
 		bool flag);
 	IMemoryAllocator* NewHeapAllocatorAt(void* memory, unsigned int size, const char* name, int unknown1,
 		unsigned int align, int unknown2, int unknown3);
-	// 0x10B81A70: an allocator factory of another kind (arguments partly unknown)
-	IMemoryAllocator* NewPoolAllocator(int a, int b, unsigned int c, unsigned int d, int e, const char* name);
+	// 0x10B81A70 / 0x10B81B00 (memory/externalallocator.cpp): a MemoryExternalAllocator (block heap) in a block of
+	// `heap`, over memory from `memoryHeap` / over the caller's memory
+	IMemoryAllocator* NewPoolAllocator(int heap, int memoryHeap, unsigned int size, unsigned int count, int tag,
+		const char* name);
+	IMemoryAllocator* NewPoolAllocatorAt(int heap, void* memory, unsigned int size, unsigned int count, int tag,
+		const char* name);
 }
 
 #endif

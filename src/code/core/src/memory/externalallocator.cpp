@@ -1,3 +1,5 @@
+#include <new>
+
 #include "code/core/heap.h"
 #include "code/core/memory/externalallocator.h"
 
@@ -194,5 +196,30 @@ namespace core
 		self = 0;
 		tag = 0;
 		refCount = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10B81A70
+	// The allocator and its block bookkeeping in one block of `heap`, the managed memory from `memoryHeap`
+	IMemoryAllocator* NewPoolAllocator(int heap, int memoryHeap, unsigned int size, unsigned int count, int tag,
+		const char* name)
+	{
+		void* self = HeapAlloc(heap, MemoryExternalAllocator::GetOverhead(count) + 0x5F0);
+		void* bookkeeping = (char*)self + 0x5F0;
+		void* memory = HeapAlloc(memoryHeap, size);
+		MemoryExternalAllocator* allocator = new (self) MemoryExternalAllocator;
+		allocator->Init(memory, size, count, (unsigned int)bookkeeping, name, memoryHeap, heap, self, tag);
+		return allocator;
+	}
+
+	// FUNCTION: ENGINE 0x10B81B00
+	// The same over memory the caller provides
+	IMemoryAllocator* NewPoolAllocatorAt(int heap, void* memory, unsigned int size, unsigned int count, int tag,
+		const char* name)
+	{
+		void* self = HeapAlloc(heap, MemoryExternalAllocator::GetOverhead(count) + 0x5F0);
+		void* bookkeeping = (char*)self + 0x5F0;
+		MemoryExternalAllocator* allocator = new (self) MemoryExternalAllocator;
+		allocator->Init(memory, size, count, (unsigned int)bookkeeping, name, -1, heap, self, tag);
+		return allocator;
 	}
 }
