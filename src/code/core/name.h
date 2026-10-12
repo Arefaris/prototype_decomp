@@ -24,6 +24,8 @@ namespace core
 		// 0x1005E520 (another unit): the empty name
 		Name();
 		Name(const Name& other);
+		// 0x1007EE00 (another unit's copy): the name of a 64-bit hash
+		explicit Name(const unsigned __int64& newHash);
 		~Name()
 		{
 		}
@@ -31,7 +33,22 @@ namespace core
 		// 0x10061ED0 / 0x10061EF0 (another unit)
 		Name& operator=(const Name& other);
 		bool IsEmpty() const;
+		// 0x1007EE20 (another unit's copy): the name as its 64-bit hash
+		const unsigned __int64& GetHash() const;
 	};
+
+	// Out of line (templates defined outside the class are not inlined): copies like 0x1007EE00 / 0x1007EE20 exist
+	// in the units that use them
+	template<class Key> Name<Key>::Name(const unsigned __int64& newHash)
+	{
+		hash = ((const unsigned int*)&newHash)[0];
+		index = ((const unsigned int*)&newHash)[1];
+	}
+
+	template<class Key> const unsigned __int64& Name<Key>::GetHash() const
+	{
+		return *(const unsigned __int64*)this;
+	}
 }
 
 #endif

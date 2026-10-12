@@ -257,3 +257,42 @@ Lessons:
   7-byte COMDATs (the engine's unreferenced `mov [ecx], base vftable; ret` copies); out-of-line ones are called.
 - An `angle > pi` fold-back negating the axis (`axis = -axis`) needs all three negations computed before the stores
   (a temporary Vector), not Set(-x, -y, -z) or three assignments.
+
+## database/gamedatabase.cpp (0x107F6B30 - 0x107F9F49)
+
+engine::GameDatabase (the RTTI name; the engine's earlier "Console" guesses for it are renamed): the named subjects
+(int, float, string and wide string values per player) the scripts, the front end and the online helper read and
+write, kept in a `container::Map<unsigned __int64, DBSubject*, AllocatorCoreStatic<0x80,16>>` keyed by the name hash.
+The unit has the subject API, the input / online / storage / front end callbacks, profile building, the db_* script
+functions (registered through engine::Function wrappers, `MethodN` / `ClosureN`, and the inline
+`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 113 kept copies (the
+method wrappers, the registration templates, the inline callback base members, the Map / SList members and the
+scalar deleting destructors). The file name is a guess (no assert path); DBSubject, OnlineGameDBHelper,
+GameDBStorage and GameDBHelper live in other units and are only declared.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107F6C50 FindPlayer | EQUIVALENT | register choice and block layout: the engine saves edi on entry and keeps the player in edi |
+| 0x107F6E30 StorageSlot3 | EQUIVALENT | the engine adds the member offset to ecx before loading the vftable |
+| 0x107F6E40 StorageSlot4 | EQUIVALENT | as StorageSlot3 |
+| 0x107F71F0 SetIntValue | EQUIVALENT | the engine spills `scope == 1` to a stack slot before pushing the arguments |
+| 0x107F72B0 SetFloatValue | EQUIVALENT | as SetIntValue |
+| 0x107F7380 SetStringValue | EQUIVALENT | as SetIntValue |
+| 0x107F8DB0 BuildProfile | EQUIVALENT | `add eax, -4` where ours has `sub eax, 4` |
+
+Unreferenced kept copies not reproduced: 0x107F6FB0, 0x107F6FE0, 0x107F70A0, 0x107F7170, 0x107F7180, 0x107F7190,
+0x107F75C0, 0x107F75E0, 0x107F7600 (small Map / SList / allocator members whose exact form is unknown).
+
+Lessons:
+
+- The script wrappers read their arguments one after another (`A1 a1 = *(const A1*)arguments++; ...`) in a static
+  `Call(object, arguments, result, method)`, and `ClosureN::Invoke` calls `MethodN::Invoke(object, ...)` explicitly;
+  the result is stored only `if (result != 0)`.
+- `RegisterMethod` is an inline member template defined out of the class; the engine emits it as a kept copy per
+  instantiation, next to the wrappers' members.
+- Template members defined out of the class without `inline` (core::Name's hash constructor and GetHash) are
+  emitted as calls, but the optimizer still knows they are pure: repeated GetHash calls are merged and hoisted.
+- Lookups copy the map pointer into a local first (`SubjectMap* map = subjects;`) and name the found subject
+  (`DBSubject* subject = it->value;`) to get the engine's load order.
+- SList needs its (empty) allocator member: sizeof 0x10, which the engine's SList::Size loop and `new` sizes show.
+- `ResetSubject` / `ResetInt` / `ResetFloat` reset the subject twice (engine behaviour, kept).

@@ -4,6 +4,8 @@
 #ifndef CONTAINER_SLIST_H
 #define CONTAINER_SLIST_H
 
+#include <new>
+
 namespace container
 {
 	class SListBase
@@ -46,10 +48,101 @@ namespace container
 		{
 			return static_cast<T*>(static_cast<Node*>(head));
 		}
+		void PushBack(T* item)
+		{
+			SListBase::PushBack(static_cast<Node*>(item));
+		}
 		static T* Next(T* item)
 		{
 			return static_cast<T*>(static_cast<Node*>(static_cast<Node*>(item)->next));
 		}
+	};
+}
+
+namespace container
+{
+	// A list of values of T in nodes from Allocator (name guessed)
+	template<class T, class Allocator> class SList : public SListBase
+	{
+	public:
+		struct ValueNode : public SListBase::Node
+		{
+			T value;
+		};
+
+		class Iterator
+		{
+		public:
+			explicit Iterator(ValueNode* newNode)
+			{
+				node = newNode;
+			}
+
+			T& operator*() const
+			{
+				return node->value;
+			}
+			Iterator& operator++()
+			{
+				node = (ValueNode*)node->next;
+				return *this;
+			}
+			Iterator operator++(int)
+			{
+				Iterator old = *this;
+				node = (ValueNode*)node->next;
+				return old;
+			}
+			bool operator!=(const Iterator& other) const
+			{
+				return node != other.node;
+			}
+
+			ValueNode* node;
+		};
+
+		SList()
+		{
+		}
+		~SList()
+		{
+			Clear();
+		}
+
+		unsigned int Size() const
+		{
+			return count;
+		}
+		Iterator Begin() const
+		{
+			return Iterator((ValueNode*)head);
+		}
+		Iterator End() const
+		{
+			return Iterator(0);
+		}
+		void PushBack(const T& value)
+		{
+			ValueNode* node = (ValueNode*)Allocator().Alloc(sizeof(ValueNode), 16);
+			if (node != 0)
+			{
+				node->value = value;
+				SListBase::PushBack(node);
+			}
+		}
+		void Clear()
+		{
+			ValueNode* node = (ValueNode*)head;
+			while (node != 0)
+			{
+				ValueNode* current = node;
+				node = (ValueNode*)node->next;
+				Allocator().Free(current);
+			}
+			new (this) SListBase;
+		}
+
+		Allocator allocator;
 	};
 }
 

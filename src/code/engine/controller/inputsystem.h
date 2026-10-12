@@ -247,9 +247,16 @@ namespace engine
 			class InputCallback : public container::SListLite<InputCallback>::Node
 			{
 			public:
-				virtual void OnFlags(unsigned int id, int local, unsigned int flags, bool set) = 0;
-				virtual void OnValue(unsigned int id, int local, PlayerInput* input) = 0;
-				virtual void OnNotify(int a, int b, int c) = 0;
+				// The defaults do nothing (0x107F6B40 - 0x107F6B60, kept in the database unit)
+				virtual void OnFlags(unsigned int id, int local, unsigned int flags, bool set)
+				{
+				}
+				virtual void OnValue(unsigned int id, int local, PlayerInput* input)
+				{
+				}
+				virtual void OnNotify(int a, int b, int c)
+				{
+				}
 			};
 
 			// Per controller: a stack of up to five contexts
@@ -284,6 +291,11 @@ namespace engine
 				return FindPlayer(id, &connected);
 			}
 
+			// Inline (0x107F71A0 is a kept copy in the database unit)
+			void AddCallback(InputCallback* callback)
+			{
+				callbacks.PushBack(callback);
+			}
 			static bool IsLocal(unsigned int id)
 			{
 				return (id & 0xffffff00) == 0xfe00;
