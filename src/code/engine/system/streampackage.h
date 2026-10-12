@@ -4,16 +4,16 @@
 // engine::streampackagestates (RTTI names; another unit, 0x108A6070 - 0x108A6D20) and keeps the inventory, the
 // resources' loaders and the clients. Unit 0x107F9F50 - 0x107FBE3C (no assert path; directory and file name are
 // guesses). The reflected member names are original; the other names are guesses.
-#ifndef ENGINE_STREAM_STREAMPACKAGE_H
-#define ENGINE_STREAM_STREAMPACKAGE_H
+#ifndef ENGINE_SYSTEM_STREAMPACKAGE_H
+#define ENGINE_SYSTEM_STREAMPACKAGE_H
 
-#include "code/container/arraydynamic.h"
-#include "code/container/arraydynamicstatic.h"
+#include "code/container/staticarray.h"
 #include "code/container/string.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/content/stringmetatype.h"
 #include "code/core/name.h"
+#include "code/engine/system/tagset.h"
 
 namespace engine
 {
@@ -30,18 +30,6 @@ namespace engine
 		virtual bool Load(StreamPackageInstance* instance) = 0;
 		virtual bool Unload(StreamPackageInstance* instance) = 0;
 		virtual void Slot3();
-	};
-
-	// The tags of a package (another unit: 0x10834D60 / 0x10834690 / 0x10835010; names guessed)
-	class TagSet
-	{
-	public:
-		TagSet();
-		const char* Get() const;
-		void Set(const char* text);
-
-		container::ArrayDynamicStatic<unsigned int, StreamAllocator> tags;
-		bool unknown10;
 	};
 
 	// A group of package slots (another unit); its packages get at least its priority
@@ -84,7 +72,6 @@ namespace engine
 		static void RemoveActive(StreamPackage* package);
 		static void Register(StreamPackage* package);
 		static void AddActive(StreamPackage* package);
-		static StreamPackage* FindPackage(const content::ObjectName& name);
 		static StreamSlotGroup* FindSlotGroup(const content::ObjectName& name);
 		static void Unregister(StreamPackage* package);
 
@@ -93,6 +80,9 @@ namespace engine
 	};
 
 	extern StreamManager* gStreamManager;
+
+	// 0x1082E010 (the stream manager's unit): the package of name, null if none
+	StreamPackage* FindStreamPackage(const core::Name<core::CaseSensitiveKey>& name);
 
 	inline StreamManager::Settings* StreamManager::GetSettings()
 	{
@@ -299,7 +289,7 @@ namespace engine
 		content::LoadInventory* inventory;
 		unsigned short priority;
 		LoaderList loaders;
-		container::ArrayDynamic<content::LoadObject*, StreamAllocator> objects;
+		container::ArrayFixedStatic<content::LoadObject*, StreamAllocator> objects;
 		StreamPackage* package;
 		content::ObjectName slotGroupName;
 		StreamSlotGroup* group;
@@ -337,15 +327,15 @@ namespace engine
 		ResourceList* GetResourceList() const;
 		unsigned int GetInventoryInitialSize() const;
 		void SetInventoryInitialSize(unsigned int value);
-		const char* GetTags() const;
+		const char* GetTags();
 		void SetTags(const char* text);
 		bool GetSync() const;
 		void SetSync(bool value);
 		void SetEvicting(bool value);
 		content::LoadInventory* GetInventory() const;
-		const char* GetPrerequisites() const;
+		const char* GetPrerequisites();
 		void SetPrerequisites(const char* text);
-		const char* GetResources() const;
+		const char* GetResources();
 		void SetResources(const char* text);
 		int GetState() const;
 		bool IsLoading() const;

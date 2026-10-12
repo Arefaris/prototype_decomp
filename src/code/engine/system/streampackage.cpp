@@ -1,4 +1,4 @@
-#include "code/engine/stream/streampackage.h"
+#include "code/engine/system/streampackage.h"
 #include "code/core/heap.h"
 #include "code/engine/system/enginememory.h"
 
@@ -401,9 +401,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107FAC80
-	const char* StreamPackage::GetTags() const
+	const char* StreamPackage::GetTags()
 	{
-		return tags.Get();
+		return tags.ToString();
 	}
 
 	// FUNCTION: ENGINE 0x107FAC90
@@ -469,7 +469,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107FADF0
-	const char* StreamPackage::GetPrerequisites() const
+	const char* StreamPackage::GetPrerequisites()
 	{
 		return "";
 	}
@@ -514,7 +514,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107FB090
-	const char* StreamPackage::GetResources() const
+	const char* StreamPackage::GetResources()
 	{
 		static container::StringC<256> sText;
 		sText.Clear();
@@ -609,7 +609,7 @@ namespace engine
 	static void AddPrerequisite(const char* name, void* context)
 	{
 		content::ObjectName prerequisiteName(name, 1);
-		StreamPackage* prerequisite = StreamManager::FindPackage(prerequisiteName);
+		StreamPackage* prerequisite = FindStreamPackage(prerequisiteName);
 		if (prerequisite != 0)
 		{
 			((StreamPackage*)context)->prerequisites->PushBack(prerequisite);
@@ -629,7 +629,7 @@ namespace engine
 		if (prerequisiteText != 0 && prerequisites == 0)
 		{
 			prerequisites = new (0xc) PackageList(prerequisiteText->Count(';') + 1, StreamAllocator());
-			prerequisiteText->Split(';', AddPrerequisite, this);
+			prerequisiteText->ForEachToken(';', AddPrerequisite, this);
 		}
 	}
 
@@ -661,7 +661,7 @@ namespace engine
 			container::StringLiteral literal(text);
 			unsigned int count = literal.Count(';') + 1;
 			resources = new (0xc) ResourceList(count, StreamAllocator());
-			literal.Split(';', AddResource, this);
+			literal.ForEachToken(';', AddResource, this);
 		}
 	}
 
@@ -753,7 +753,7 @@ namespace engine
 
 	void StreamPackage::SetTags(const char* text)
 	{
-		tags.Set(text);
+		tags.FromString(text);
 	}
 
 	void StreamPackage::SetSync(bool value)
@@ -771,7 +771,6 @@ namespace engine
 // FUNCTION: ENGINE 0x107FA210
 // FUNCTION: ENGINE 0x107FA220
 // FUNCTION: ENGINE 0x107FA230
-// FUNCTION: ENGINE 0x107FA250
 // FUNCTION: ENGINE 0x107FA3B0
 // FUNCTION: ENGINE 0x107FA3E0
 // FUNCTION: ENGINE 0x107FA400

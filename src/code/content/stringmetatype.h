@@ -1,7 +1,7 @@
-// The meta types of string members (names from the RTTI: content::StringMetaType, StringMetaTypeGetSet,
-// StringMetaTypeGetSetter and the global StringMemberGetSetter<C>). StringMetaType lives in the content library
-// (0x10600FC0 - 0x10601400); StringMetaTypeGetSet adds Get / Set (slots 12 / 13) that go through a getter / setter
-// object for members reached through accessors. Member names are guesses.
+// content::StringMetaType, StringMetaTypeGetSet and StringMetaTypeGetSetter (RTTI names) and the global
+// StringMemberGetSetter<C>: the meta type of a string member, reached directly (a char array of capacity bytes) or
+// through a getter and a setter of class C. StringMetaType's 15 slots are in the content library (0x10E32F2C); slot
+// 12 answers the string, slot 13 copies one in. Names other than the classes' are guesses.
 #ifndef CONTENT_STRINGMETATYPE_H
 #define CONTENT_STRINGMETATYPE_H
 
@@ -12,8 +12,8 @@ namespace content
 	class StringMetaType : public MetaType
 	{
 	public:
-		// 0x10600FC0: strings of at most maxLength characters
-		StringMetaType(int maxLength, const char* code);
+		// 0x10600FC0
+		StringMetaType(int newCapacity, const char* code);
 
 		virtual void Slot0();
 		virtual void Slot1();
@@ -31,7 +31,7 @@ namespace content
 		virtual void Set(void* object, const char* value);
 		virtual void Slot14();
 
-		int maxLength;
+		int capacity;
 	};
 
 	struct StringMetaTypeGetSetter
@@ -40,15 +40,15 @@ namespace content
 		StringMetaTypeGetSetter()
 		{
 		}
-		virtual const char* Get(const void* object) = 0;
+		virtual const char* Get(void* object) = 0;
 		virtual void Set(void* object, const char* value) = 0;
 	};
 
 	class StringMetaTypeGetSet : public StringMetaType
 	{
 	public:
-		StringMetaTypeGetSet(StringMetaTypeGetSetter* newGetSetter, int maxLength, const char* code)
-			: StringMetaType(maxLength, code)
+		StringMetaTypeGetSet(StringMetaTypeGetSetter* newGetSetter, int newCapacity, const char* code)
+			: StringMetaType(newCapacity, code)
 		{
 			getSetter = newGetSetter;
 		}
@@ -59,7 +59,7 @@ namespace content
 			{
 				return StringMetaType::Get(object);
 			}
-			return getSetter->Get(object);
+			return getSetter->Get((void*)object);
 		}
 		virtual void Set(void* object, const char* value)
 		{
@@ -75,11 +75,11 @@ namespace content
 	};
 }
 
-// A string member of class C reached through a getter and a setter (RTTI: global namespace)
+// A string member reached through a getter and a setter of class C (RTTI: global namespace)
 template<class C> class StringMemberGetSetter : public content::StringMetaTypeGetSetter
 {
 public:
-	typedef const char* (C::*Getter)() const;
+	typedef const char* (C::*Getter)();
 	typedef void (C::*Setter)(const char*);
 
 	StringMemberGetSetter(Getter newGetter, Setter newSetter)
@@ -88,9 +88,9 @@ public:
 		setter = newSetter;
 	}
 
-	virtual const char* Get(const void* object)
+	virtual const char* Get(void* object)
 	{
-		return (((const C*)object)->*getter)();
+		return (((C*)object)->*getter)();
 	}
 	virtual void Set(void* object, const char* value)
 	{
@@ -103,8 +103,8 @@ public:
 
 namespace content
 {
-	// One instance per member (Id tells them apart), strings of up to 0x400 characters
-	template<class C, int Id> MetaType* GetStringMemberMetaType(const char* (C::*getter)() const,
+	// One instance per member (Id tells them apart), as for the primitive members
+	template<class C, int Id> StringMetaTypeGetSet* GetStringMemberMetaType(const char* (C::*getter)(),
 		void (C::*setter)(const char*), const char* code)
 	{
 		static StringMemberGetSetter<C> sGetSetter(getter, setter);

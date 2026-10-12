@@ -123,7 +123,7 @@ namespace container
 		}
 		void PushBack(const T& value)
 		{
-			ValueNode* node = (ValueNode*)Allocator().Alloc(sizeof(ValueNode), 16);
+			ValueNode* node = (ValueNode*)Allocator::Alloc(sizeof(ValueNode));
 			if (node != 0)
 			{
 				node->value = value;
@@ -137,7 +137,7 @@ namespace container
 			{
 				ValueNode* current = node;
 				node = (ValueNode*)node->next;
-				Allocator().Free(current);
+				Allocator::Free(current);
 			}
 			new (this) SListBase;
 		}

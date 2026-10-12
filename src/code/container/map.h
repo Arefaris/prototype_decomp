@@ -1,28 +1,15 @@
 // container::TreeBase and container::Map<Key, Value, Allocator> (names guessed): an intrusive red-black tree whose
 // functions take the comparison as a callback, and the keyed map over it. TreeBase is out of line in another unit
 // (0x10610990 - 0x10610DD0); Map is a header template, so each unit that uses one has copies of the members it uses.
-// container::AllocatorCoreStatic<Heap, Align> is the RTTI name of the allocators of a fixed heap.
 #ifndef CONTAINER_MAP_H
 #define CONTAINER_MAP_H
 
+#include "code/container/arraydynamicstatic.h"
 #include "code/core/heap.h"
 #include <new>
 
 namespace container
 {
-	// The allocator of heap Heap (RTTI: AllocatorCoreStatic<12,16>)
-	template<int Heap, int Align> struct AllocatorCoreStatic
-	{
-		void* Alloc(unsigned int size, unsigned int align)
-		{
-			return core::HeapAllocAligned(Heap, size, align);
-		}
-		void Free(void* block)
-		{
-			core::HeapFreeAligned(Heap, block);
-		}
-	};
-
 	class TreeBase
 	{
 	public:
@@ -137,7 +124,7 @@ namespace container
 		}
 		static bool DeleteNode(Node* node, void* context)
 		{
-			Allocator().Free(node);
+			Allocator::Free(node);
 			return true;
 		}
 
@@ -168,7 +155,7 @@ namespace container
 			{
 				return Iterator(0, 0);
 			}
-			MapNode* node = new (allocator.Alloc(sizeof(MapNode), 16)) MapNode(pair);
+			MapNode* node = new (Allocator::Alloc(sizeof(MapNode))) MapNode(pair);
 			TreeBase::Insert(node, CompareNodes, parent);
 			return Iterator(node, this);
 		}
@@ -177,7 +164,7 @@ namespace container
 			Iterator next = position;
 			++next;
 			Remove(position.node);
-			allocator.Free(position.node);
+			Allocator::Free(position.node);
 			return next;
 		}
 		bool Erase(const Key& key)

@@ -305,7 +305,7 @@ engine::GameDatabase (the RTTI name; the engine's earlier "Console" guesses for 
 write, kept in a `container::Map<unsigned __int64, DBSubject*, AllocatorCoreStatic<0x80,16>>` keyed by the name hash.
 The unit has the subject API, the input / online / storage / front end callbacks, profile building, the db_* script
 functions (registered through engine::Function wrappers, `MethodN` / `ClosureN`, and the inline
-`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 113 kept copies (the
+`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
 method wrappers, the registration templates, the inline callback base members, the Map / SList members and the
 scalar deleting destructors). The file name is a guess (no assert path); DBSubject, OnlineGameDBHelper,
 GameDBStorage and GameDBHelper live in other units and are only declared.
@@ -337,7 +337,7 @@ Lessons:
 - SList needs its (empty) allocator member: sizeof 0x10, which the engine's SList::Size loop and `new` sizes show.
 - `ResetSubject` / `ResetInt` / `ResetFloat` reset the subject twice (engine behaviour, kept).
 
-## stream/streampackage.cpp (0x107F9F50 - 0x107FBE3C)
+## system/streampackage.cpp (0x107F9F50 - 0x107FBE3C)
 
 engine::StreamPackage (RTTI; a reflected MetaLoadObject with slotGroup, prerequisites, resources, tags, sync,
 xenonMaxSize, inventoryInitialSize) and its run-time half, StreamPackageInstance (name guessed, 0xA0 bytes): the
@@ -388,3 +388,26 @@ Lessons:
   and copying pushes the words instead.
 - Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
   `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
+
+## system/streamtrigger.cpp (0x108352B0 - 0x10836640): done (75 functions: 73 match, 2 equivalent)
+
+engine::StreamTrigger (RTTI; reflected members neighbours, packages, hulls, boundingBox, tags): a world volume (box,
+refined by StreamTriggerHull plane hulls) for the stream manager; neighbours and packages are ';'-separated name lists
+held as `container::StringDynamic<AllocatorCoreStatic<12,16> >` and resolved (ResolveLinks, through the manager's
+lookups 0x1082E090 / 0x1082E010) into arrays of triggers / packages. 21 class functions plus 54 kept copies (the
+explicitly instantiated hull and plane arrays, the hull array's ArrayDynamicHelper, StringMemberGetSetter and the
+per-member string meta type getters). Both constructors are EQUIVALENT (the reference count is cleared before the
+name's address is computed in the engine, after in ours; same as SupportingLimbDefinition). Validation (2026-10-12):
+free roam, long teleports, pedestrians normal.
+
+New shared pieces: `code/container/arraydynamicstatic.h` (a partial specialisation of container::ArrayDynamic for
+AllocatorCoreStatic<Heap, Align>: begin / end / capacity plus the empty allocator, 16 bytes; Create = bool, Allocate =
+void, as the ArrayDynamicNew helpers), `code/content/stringmetatype.h` (StringMetaType, StringMetaTypeGetSet,
+StringMemberGetSetter<C>, GetStringMemberMetaType<C, Id>), `code/engine/system/tagset.h` (TagSet, unit 0x108340A0 -
+0x108351A0 not reconstructed yet), StringDynamic in `code/container/string.h`, AABB's reflection declarations.
+
+Not mapped (no identical copy of ours): 0x108357C0 (plane AssignRange), 0x10836170 / 0x10836220 / 0x108362F0 /
+0x108363A0 (hull array ShiftUp / Reserve / Insert / Insert), 0x10836590 (helper Insert), 0x10836620 (deleting
+destructor). Matching notes: free function templates need `inline` to be inlined (/Ob1) — ConstructCopyAt is,
+ConstructFill / AssignRange / ConstructCopiesN are not; an empty allocator argument must be a named local (a
+value-initialised temporary gets a byte store); loops over a list cache its end before the loop.
