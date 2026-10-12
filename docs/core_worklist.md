@@ -696,5 +696,40 @@ destructors; mapped). Notes:
   this, else the explicit destructor call).
 Validation (2026-10-12): free roam, a teleport and movement in the hybrid (engine heaps run on it).
 
+## memory/externalheap.cpp (0x10B82F80 - 0x10B85713): 55 matched, 8 EQUIVALENT, 1 not reconstructed
+
+core::ExternalHeap (`code/core/memory/externalheap.h`; class, file and all names guessed), the heap inside
+MemoryExternalAllocator: a TLSF allocator (Matthew Conte's TLSF 3.0: fl / sl bitmaps, 20 x 32 list heads, mapping
+insert / search) whose bookkeeping lives outside the managed memory. Every block has a 16-byte descriptor (offset and
+size in 16-byte units, TLSF next / prev links with prev split 12 + 3 bits, a black bit, parent / right / left links,
+15-bit indices, 0x7FFF none) in an array of limit + 3; free descriptors are chained through `next`; all blocks sit in
+a red-black tree by offset (Julienne Walker's top-down insertion and deletion with parent links) used to find the
+block of a pointer and its neighbours; a free list entry is the block in front of a gap, keyed by the gap's size. Two
+sentinels mark the ends; strategy 0 allocates from the low end, 1 from the high end; Resize / Grow / Shrink move the
+managed memory around the allocations. Notes:
+- The descriptor is a class template (ExternalBlockT<0>, explicitly instantiated): its accessors are inlined
+  where the methods call them and also emitted out of line, unreferenced, as in the original (22 copies at
+  0x10B82F80 - 0x10B832D0). Offset and size are read / written as masks on the raw first word (`location`), the
+  15-bit links as bitfields with `int` setters (SetLeft and SetChild mask with 0x7FFF explicitly), GetChild as
+  `if (side == 0) return left; return right;`, Clear as memset 0xFF. VC8 makes the same per-call inlining choices as
+  the original (SetOffset stays a call in Alloc and Resize).
+- tlsf_fls is `static inline` (emitted although only inlined), tlsf_fls_sizet / tlsf_ffs static with register
+  arguments.
+- The methods mix block pointers (`ExternalBlock* block = &blocks[i]`) and indexed access exactly as the original
+  reloads `blocks`; InsertFree re-reads the link it just wrote; the strategy tests are a switch in Alloc / FindFree /
+  AllocEnd's address step and if / else if elsewhere; Alloc needs early returns.
+- Not reconstructed: TreeRemove (0x10B840B0, 2314 bytes, Walker's top-down deletion; mapped, the original stays).
+Validation (2026-10-12): free roam, two teleports and movement in the hybrid (engine::CreatePoolHeap builds one).
+
+| Address | Function | Notes |
+|---|---|---|
+| 0x10B83670 | FindBlock | EQUIVALENT: the original's search loop is not rotated (two separate child reads jumping back to the test) |
+| 0x10B836E0, 0x10B837E0 | GetSuccessor / GetPredecessor | EQUIVALENT: registers and the walk-up flag handling differ |
+| 0x10B838E0 | Rotate | EQUIVALENT: the original keeps one child read as two separate __aullshr calls through memory |
+| 0x10B83D00 | TreeInsert | EQUIVALENT: as Rotate, plus registers / spill slots |
+| 0x10B84AF0 | FindFree | EQUIVALENT: the second loop is not rotated in the original |
+| 0x10B85150 | AllocEnd | EQUIVALENT: register allocation at the join of the strategy branches (one more stack slot in the original) |
+| 0x10B85520 | Resize | EQUIVALENT: the original saves ebx before the count test (its early returns stay apart) |
+
 ## Candidates nearby (leaf functions, not started)
 

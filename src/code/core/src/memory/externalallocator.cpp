@@ -185,7 +185,7 @@ namespace core
 		self = block;
 		tag = value;
 		GetName();
-		externalHeap.Init(memory, size, param, overhead, (unsigned int)memory - 16, 16, count, 0);
+		externalHeap.Init(memory, size, (void*)param, overhead, (unsigned int)memory - 16, 16, count, 0);
 	}
 
 	// FUNCTION: ENGINE 0x10B81A10
