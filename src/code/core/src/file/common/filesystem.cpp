@@ -89,15 +89,15 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10643CD0
-	void FileSystemOpenCementLibraryAsync(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source)
+	void FileSystemOpenCementLibraryAsync(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source)
 	{
-		OpenCementLibraryAsync(library, path, a, b, heap, source);
+		OpenCementLibraryAsync(library, path, pass, heap, preload, source);
 	}
 
 	// FUNCTION: ENGINE 0x10643CE0
-	void FileSystemOpenCementLibrary(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source)
+	void FileSystemOpenCementLibrary(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source)
 	{
-		OpenCementLibrary(library, path, a, b, heap, source);
+		OpenCementLibrary(library, path, pass, heap, preload, source);
 	}
 
 	// FUNCTION: ENGINE 0x10643CF0

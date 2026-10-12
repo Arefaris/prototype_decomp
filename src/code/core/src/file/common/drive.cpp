@@ -207,21 +207,21 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064FEF0
-	void Drive::AddCache(FileCache* cache)
+	void Drive::AddLibrary(CementLibrary* library)
 	{
-		caches.Add(cache);
+		libraries.Add(library);
 	}
 
 	// FUNCTION: ENGINE 0x1064FF00
-	void Drive::RemoveCache(FileCache* cache)
+	void Drive::RemoveLibrary(CementLibrary* library)
 	{
-		caches.Remove(cache);
+		libraries.Remove(library);
 	}
 
 	// FUNCTION: ENGINE 0x1064FF10
-	FileCacheList* Drive::GetCacheList()
+	CementLibraryList* Drive::GetLibraries()
 	{
-		return &caches;
+		return &libraries;
 	}
 
 	// FUNCTION: ENGINE 0x1064FF20

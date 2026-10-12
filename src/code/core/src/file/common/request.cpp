@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "code/core/criticalsection.h"
+#include "code/core/file/cementlibrary.h"
 #include "code/core/file/request.h"
 #include "code/core/memory/memorypool.h"
 
@@ -225,22 +226,22 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064C820
-	// Shares a cached file when one matches, opens it on the drive otherwise; a second pass over the caches
+	// Opens the file from a Cement library of the drive's list 0 when one holds it, on the drive otherwise; list 1
 	// follows a failed (or skipped, option 1) open
 	int FileOpenRequest::Execute()
 	{
 		Drive* drive = file->drive;
-		FileCacheList* caches = drive->GetCacheList();
-		caches->Begin(0);
-		for (FileCache* cache = caches->Next(); cache != 0; cache = caches->Next())
+		CementLibraryList* libraries = drive->GetLibraries();
+		libraries->Begin(0);
+		for (CementLibrary* library = libraries->Next(); library != 0; library = libraries->Next())
 		{
-			if (cache->Matches(file->path, &file->cache))
+			if (library->Matches(file->path, &file->cache))
 			{
-				caches->End();
+				libraries->End();
 				return OpenShared();
 			}
 		}
-		caches->End();
+		libraries->End();
 		int result = 0;
 		if (option == 1)
 		{
@@ -256,16 +257,16 @@ namespace core
 				return Finish(result, drive->GetError());
 			}
 		}
-		caches->Begin(1);
-		for (FileCache* cache = caches->Next(); cache != 0; cache = caches->Next())
+		libraries->Begin(1);
+		for (CementLibrary* library = libraries->Next(); library != 0; library = libraries->Next())
 		{
-			if (cache->Matches(file->path, &file->cache))
+			if (library->Matches(file->path, &file->cache))
 			{
-				caches->End();
+				libraries->End();
 				return OpenShared();
 			}
 		}
-		caches->End();
+		libraries->End();
 		return Finish(result, drive->GetError());
 	}
 
@@ -912,7 +913,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064D670
-	FileCompletionRequest::FileCompletionRequest(int data, File* target, ICompletionCallback* function, void* user)
+	FileCompletionRequest::FileCompletionRequest(int data, File* target, IFileCompletionCallback* function, void* user)
 		: CompletionCallbackRequest(data)
 	{
 		file = target;
@@ -925,7 +926,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064D6E0
-	DriveCompletionRequest::DriveCompletionRequest(int data, InstanceDrive* target, ICompletionCallback* function, void* user)
+	DriveCompletionRequest::DriveCompletionRequest(int data, InstanceDrive* target, IFileCompletionCallback* function, void* user)
 		: CompletionCallbackRequest(data)
 	{
 		instance = target;
@@ -957,7 +958,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064D810
-	FileOpenByKeyRequest::FileOpenByKeyRequest(File* target, int value, FileKeyTable* keys)
+	FileOpenByKeyRequest::FileOpenByKeyRequest(File* target, int value, CementLibrary* keys)
 		: FileRequest(target)
 	{
 		key = value;
