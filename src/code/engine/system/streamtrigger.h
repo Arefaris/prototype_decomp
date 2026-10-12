@@ -10,6 +10,7 @@
 #include "code/container/string.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
+#include "code/engine/system/streampackage.h"
 #include "code/engine/system/tagset.h"
 #include "code/math/aabb.h"
 #include "code/math/plane.h"
@@ -34,14 +35,6 @@ namespace engine
 		bool Contains(const math::Vector& point) const;
 
 		container::ArrayDynamic<math::Plane, container::AllocatorCoreStatic<12, 16> > planes;
-	};
-
-	// A package of the stream manager (another unit); only its tags are used here
-	class StreamPackage
-	{
-	public:
-		unsigned char unknown0[0x30];
-		TagSet tags;
 	};
 
 	// The stream manager's registry (another unit, 0x1082xxxx; names guessed)

@@ -177,10 +177,10 @@ namespace engine
 			playerCamera[0] = -1;
 			playerCamera[1] = -1;
 			core::Name<core::CaseSensitiveKey> name("ConsoleAspectRatio", 0);
-			Console* console = gConsole;
+			GameDatabase* database = gGameDatabase;
 			float ratio = gDisplay->GetAspectRatio();
-			console->AddVariable(name, 1, ratio, ConsoleVariableInfo(false, 1, -1));
-			console->Register(name, this, 0, 0);
+			database->AddFloatSubject(name, 1, ratio, DBSubjectInfo(false, 1, -1));
+			database->AddObserver(name, this, 0, 0);
 		}
 
 		// 0x107DEAA0 is the compiler's scalar deleting destructor of this class
@@ -194,9 +194,9 @@ namespace engine
 			controllers.Clear();
 			sDirector = 0;
 			core::Name<core::CaseSensitiveKey> name("ConsoleAspectRatio", 0);
-			Console* console = gConsole;
-			console->Unregister(name, this);
-			console->RemoveVariable(name);
+			GameDatabase* database = gGameDatabase;
+			database->RemoveObserver(name, this);
+			database->ReleaseSubject(name);
 		}
 
 		// FUNCTION: ENGINE 0x107DEA30

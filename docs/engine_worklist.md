@@ -266,6 +266,129 @@ Lessons:
   loop does not.
 - scratchpad tool kept2.py (in-process byte comparison) replaces kept.py: seconds instead of an hour.
 
+## motiontrackingfilter.cpp (0x107FC800 - 0x107FE2A6)
+
+engine::MotionTrackingFilter and its reflected filters (Rigid, DampedLinear, SpringBasedLinear, DampedAngular,
+SpringBasedAngular): each update moves a tracked transform with its velocities and accelerations (MotionState, 0x74
+bytes, name guessed) towards a target transform. Reflection data, constructors, the inline destructors and scalar
+deleting destructors, the base class casters, the member meta types, MotionState's constructor and velocity updates
+and the rotation delta helper all match (51 functions). The directory and file name are guesses (no assert path).
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107FCEF0 SpringBasedLinearMotionFilter::Update | EQUIVALENT | scheduling: the engine reloads the state's velocity for each use |
+| 0x107FD340 DampedAngularMotionTrackingFilter::Update | EQUIVALENT | else branch: axis.y / axis.z loaded into a register where ours multiplies from memory |
+| 0x107FD580 SpringBasedAngularMotionFilter::Update | EQUIVALENT | as SpringBasedLinear |
+
+Lessons:
+
+- /fp:fast reorders commutative sums freely: `x*x + y*y + z*z` and `z*z + y*y + x*x` compile alike. The engine's
+  `(z*z + y*y) + x*x` length came from math::DistanceSquared(a, b) (Sub into a local, then Dot), not from Dot.
+- A position read as a by-value temporary (`Vector p(m.m[3][0], m.m[3][1], m.m[3][2])`) loads all three components
+  into registers first (reg-reg subtracts); writing the field expressions folds the loads into the arithmetic.
+- `Vector& acceleration = state.linearAcceleration; acceleration.Sub(...); acceleration.Scale(dt);` reproduces the
+  engine's load / multiply / store per component where the same calls on `state.linearAcceleration` let the compiler
+  hoist the loads. A reference local for the velocity fixed DampedAngular's first branch the same way.
+- fabsf of a value then multiplied stays on x87 (`fabs; fmul`); the engine stores the fabs results first (a separate
+  Vector of magnitudes), then multiplies with SSE.
+- `float dt = step.dt;` as a plain copy becomes an x87 `fld / fst` spill; using `step.dt` in the expressions keeps one
+  SSE load.
+- Inline virtual destructors in the class body are inlined into the scalar deleting destructor and still emitted as
+  7-byte COMDATs (the engine's unreferenced `mov [ecx], base vftable; ret` copies); out-of-line ones are called.
+- An `angle > pi` fold-back negating the axis (`axis = -axis`) needs all three negations computed before the stores
+  (a temporary Vector), not Set(-x, -y, -z) or three assignments.
+
+## database/gamedatabase.cpp (0x107F6B30 - 0x107F9F49)
+
+engine::GameDatabase (the RTTI name; the engine's earlier "Console" guesses for it are renamed): the named subjects
+(int, float, string and wide string values per player) the scripts, the front end and the online helper read and
+write, kept in a `container::Map<unsigned __int64, DBSubject*, AllocatorCoreStatic<0x80,16>>` keyed by the name hash.
+The unit has the subject API, the input / online / storage / front end callbacks, profile building, the db_* script
+functions (registered through engine::Function wrappers, `MethodN` / `ClosureN`, and the inline
+`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
+method wrappers, the registration templates, the inline callback base members, the Map / SList members and the
+scalar deleting destructors). The file name is a guess (no assert path); DBSubject, OnlineGameDBHelper,
+GameDBStorage and GameDBHelper live in other units and are only declared.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107F6C50 FindPlayer | EQUIVALENT | register choice and block layout: the engine saves edi on entry and keeps the player in edi |
+| 0x107F6E30 StorageSlot3 | EQUIVALENT | the engine adds the member offset to ecx before loading the vftable |
+| 0x107F6E40 StorageSlot4 | EQUIVALENT | as StorageSlot3 |
+| 0x107F71F0 SetIntValue | EQUIVALENT | the engine spills `scope == 1` to a stack slot before pushing the arguments |
+| 0x107F72B0 SetFloatValue | EQUIVALENT | as SetIntValue |
+| 0x107F7380 SetStringValue | EQUIVALENT | as SetIntValue |
+| 0x107F8DB0 BuildProfile | EQUIVALENT | `add eax, -4` where ours has `sub eax, 4` |
+
+Unreferenced kept copies not reproduced: 0x107F6FB0, 0x107F6FE0, 0x107F70A0, 0x107F7170, 0x107F7180, 0x107F7190,
+0x107F75C0, 0x107F75E0, 0x107F7600 (small Map / SList / allocator members whose exact form is unknown).
+
+Lessons:
+
+- The script wrappers read their arguments one after another (`A1 a1 = *(const A1*)arguments++; ...`) in a static
+  `Call(object, arguments, result, method)`, and `ClosureN::Invoke` calls `MethodN::Invoke(object, ...)` explicitly;
+  the result is stored only `if (result != 0)`.
+- `RegisterMethod` is an inline member template defined out of the class; the engine emits it as a kept copy per
+  instantiation, next to the wrappers' members.
+- Template members defined out of the class without `inline` (core::Name's hash constructor and GetHash) are
+  emitted as calls, but the optimizer still knows they are pure: repeated GetHash calls are merged and hoisted.
+- Lookups copy the map pointer into a local first (`SubjectMap* map = subjects;`) and name the found subject
+  (`DBSubject* subject = it->value;`) to get the engine's load order.
+- SList needs its (empty) allocator member: sizeof 0x10, which the engine's SList::Size loop and `new` sizes show.
+- `ResetSubject` / `ResetInt` / `ResetFloat` reset the subject twice (engine behaviour, kept).
+
+## system/streampackage.cpp (0x107F9F50 - 0x107FBE3C)
+
+engine::StreamPackage (RTTI; a reflected MetaLoadObject with slotGroup, prerequisites, resources, tags, sync,
+xenonMaxSize, inventoryInitialSize) and its run-time half, StreamPackageInstance (name guessed, 0xA0 bytes): the
+nine-state load machine over engine::streampackagestates (states and their transition table in this unit, the
+states themselves in another), the inventory, the resource loaders and the stream clients. 58 functions match, plus
+63 kept copies (the lists' members, StringDynamic, the string / primitive meta type getters and setters, the member
+meta type getters, the scalar deleting destructors). The directory and file name are guesses (no assert path). The
+reflected setters of tags / sync / inventoryInitialSize were folded by the linker with identical functions of other
+units (0x104E13C0 / 0x104E13D0 / 0x104E13E0), so they are compiled but not annotated.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107F9FA0 StreamPackageInstance::Update | EQUIVALENT | the engine adds the state to request * 9 as a memory operand and reloads it for the comparison |
+| 0x107FA050 StreamPackageInstance::CreateInventory | EQUIVALENT | register choice in the AddRef call |
+| 0x107FBC90 StreamPackage(const Name&) | EQUIVALENT | scheduling of the reference count store |
+| 0x107FBDC0 StreamPackage() | EQUIVALENT | as the other constructor |
+
+Unreferenced kept copies not reproduced: 0x107FA240 / 0x107FA260 / 0x107FA280 (`mov eax, ecx`), 0x107FA2A0 /
+0x107FAF40 (a cdecl `if (p) *p = value`), 0x107FAE40 / 0x107FAE70 (`mov eax, [ecx]`) and the one-byte `ret`s.
+
+Lessons:
+
+- StringDynamic's constructor is inlined into `new String(name)` but not into `new String(text, StreamAllocator())`:
+  one in-class constructor with a defaulted allocator argument gives both call sites; a separate out-of-class
+  template constructor for the explicit form was not needed.
+- A countdown that reads `[base + i*4 - 4]` and then `[base + i*4]` after the decrement is `while (i-- != 0)` with
+  both accesses at `[i]`, not `[i - 1]` / `--i`.
+- Find-and-erase loops that keep the end pointer in a register across the erase need a local end that is reloaded
+  after the erase (`end = list.end;`), placed before any following push.
+- A state machine loop that keeps a constant in ebx came from writing `request = REQUEST_NONE` on both paths (the
+  compiler merges the stores and hoists the constant), not from a goto.
+- `bool active = false; if (...) active = call(); return active;` gives the engine's `xor al, al` before the test and
+  a tail jump.
+
+## audio/audiomessage.cpp (0x107FE2B0 - 0x107FE508)
+
+engine::AudioEmitterTriggerMessage::Apply (vftable slot 1 of the RTTI class; the messages' other members live in
+another unit): finds or creates the emitter's sound, plays / stops it ("play" / "stop" with three modes) and sets
+its min / max distance, pitch range and volume. The audio emitter, its sound list and sounds are only declared. Apply
+is EQUIVALENT (99.4 %: the engine computes the volume parameter table pointer in eax, ours in ecx); three kept
+accessor copies match. Not reproduced: 0x107FE2B0 (`lea eax, [ecx + 0x20]`) and 0x107FE2E0 (forwards
+`this + 0x10` to 0x1087D7F0 of its argument).
+
+Lessons:
+
+- A by-value argument built with `sub esp, 8; mov ebx, esp; call ...; copy` is constructed in place by an inline
+  converting constructor that itself makes the call (here a hash struct built from a core::Name); converting first
+  and copying pushes the words instead.
+- Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
+  `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
+
 ## system/streamtrigger.cpp (0x108352B0 - 0x10836640): done (75 functions: 73 match, 2 equivalent)
 
 engine::StreamTrigger (RTTI; reflected members neighbours, packages, hulls, boundingBox, tags): a world volume (box,

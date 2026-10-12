@@ -6,6 +6,7 @@
 
 #include "code/container/arraydynamic.h"
 #include "code/core/name.h"
+#include "code/engine/database/gamedatabase.h"
 #include "code/engine/dbobserver.h"
 
 namespace math
@@ -24,33 +25,6 @@ namespace engine
 	void BroadcastMessage(Message* message);
 	// 0x107EED20 (another unit): sizes a listener list
 	void InitMessageListeners(MessageListeners* listeners, int count);
-
-	// How a console variable is shown and edited (0x10842F10 constructs it, another unit; field meanings unknown)
-	class ConsoleVariableInfo
-	{
-	public:
-		ConsoleVariableInfo(bool flag, int a, int b);
-		ConsoleVariableInfo(const ConsoleVariableInfo& other);
-
-		bool flag;
-		int a;
-		int b;
-	};
-
-	// The console variable registry (0x11283CB4; another unit). Only what the Director uses is declared.
-	class Console
-	{
-	public:
-		// 0x107F9A40: registers a float variable (type 1 guessed to mean float)
-		void AddVariable(const core::Name<core::CaseSensitiveKey>& name, int type, float value, ConsoleVariableInfo info);
-		// 0x107F85B0: observes the variable; the two trailing arguments are unknown
-		void Register(const core::Name<core::CaseSensitiveKey>& name, DBObserver* owner, int a, int b);
-		// 0x107F8620: drops owner's registration for the variable
-		void Unregister(const core::Name<core::CaseSensitiveKey>& name, void* owner);
-		// 0x107F8500: removes the variable
-		bool RemoveVariable(const core::Name<core::CaseSensitiveKey>& name);
-	};
-	extern Console* gConsole;
 
 	// The display settings object (0x1127F35C; another unit, names guessed): GetAspectRatio (0x10616740) divides the
 	// floats at +0x80C and +0x810

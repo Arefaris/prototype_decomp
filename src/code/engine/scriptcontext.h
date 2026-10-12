@@ -10,6 +10,7 @@
 namespace engine
 {
 	struct SerializedHandle;
+	class Function;
 
 	class ScriptContext
 	{
@@ -29,6 +30,17 @@ namespace engine
 		// Registers a native function under name (out of line in the units that instantiate it; <int, LuaGOH>:
 		// 0x10289C10, which wraps the function in a Function1<int, LuaGOH>)
 		template<class R, class A> void Register(const char* name, R (*function)(A));
+		// 0x10801D50: adds the function under name
+		void AddFunction(const char* name, Function* function);
+		// Binds method of object under name as a closure (function.h; out of line per instantiation)
+		template<class C, class R> void RegisterMethod(const char* name, C* object, R (C::*method)());
+		template<class C, class R, class A1> void RegisterMethod(const char* name, C* object, R (C::*method)(A1));
+		template<class C, class R, class A1, class A2> void RegisterMethod(const char* name, C* object,
+			R (C::*method)(A1, A2));
+		template<class C, class R, class A1, class A2, class A3> void RegisterMethod(const char* name, C* object,
+			R (C::*method)(A1, A2, A3));
+		template<class C, class R, class A1, class A2, class A3, class A4> void RegisterMethod(const char* name,
+			C* object, R (C::*method)(A1, A2, A3, A4));
 	};
 
 	// 0x107FEFB0: the current script context, null when no script runs

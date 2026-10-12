@@ -205,6 +205,8 @@ namespace content
 		void Remove(const ObjectName& name, LoadObject* object, bool lock);
 		// 0x10601C30 / 0x106031D0 (meaning unknown; the setter takes the lock and copies the flag into the table)
 		bool GetUnknown8();
+		// 0x10602DF0: empties the name table (under the inventory lock; meaning guessed)
+		void Clear();
 		void SetUnknown8(bool value);
 
 		bool unknown8;

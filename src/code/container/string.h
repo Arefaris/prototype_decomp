@@ -5,6 +5,8 @@
 #ifndef CONTAINER_STRING_H
 #define CONTAINER_STRING_H
 
+#include "code/core/strings.h"
+
 namespace container
 {
 	class String
@@ -22,10 +24,29 @@ namespace container
 
 		// 0x1060ED50: printf into the string
 		void Format(const char* format, ...);
+		// 0x1060E960: empties the string
+		void Clear();
+		// 0x1060EDE0: appends other (as much as fits); the result's meaning is unknown
+		int Append(const String& other);
 		// 0x1060EEE0: how often c occurs
 		int Count(char c);
 		// 0x1060F080: calls function with every part of the string between separators (and context)
 		void ForEachToken(char separator, void (*function)(const char* token, void* context), void* context);
+	};
+
+	// A string over a constant buffer (RTTI: container::StringLiteral; its vftable lives in another unit)
+	class StringLiteral : public String
+	{
+	public:
+		explicit StringLiteral(const char* newText)
+		{
+			text = newText;
+		}
+		virtual char* Data();
+		virtual const char* ConstData() const;
+		virtual int Capacity() const;
+
+		const char* text;
 	};
 
 	template<int N> class StringC : public String
@@ -52,16 +73,42 @@ namespace container
 	};
 
 	// A heap copy of a string through Allocator (RTTI: StringDynamic<struct container::AllocatorCoreStatic<12,16> >;
-	// the constructors and virtual functions are in other units, member names guessed)
+	// copies of the members are in the stream package unit, 0x107FB1D0 - 0x107FB2D0; member names guessed)
 	template<class Allocator> class StringDynamic : public String
 	{
 	public:
-		// The allocator argument is an empty object passed by reference
-		StringDynamic(const char* text, const Allocator& allocator);
-		virtual ~StringDynamic();
-		virtual char* Data();
-		virtual const char* ConstData() const;
-		virtual int Capacity() const;
+		// The allocator argument is an empty object passed by reference (the stream packages inline the constructor
+		// where the argument is defaulted, and call it where it is passed)
+		StringDynamic(const char* text, const Allocator& allocator = Allocator())
+		{
+			size = 0;
+			data = 0;
+			if (text != 0)
+			{
+				size = core::StrLen(text) + 1;
+				data = (char*)Allocator::Alloc(size);
+				core::StrNCpy(data, text, size);
+			}
+		}
+		virtual ~StringDynamic()
+		{
+			if (size > 0)
+			{
+				Allocator::Free(data);
+			}
+		}
+		virtual char* Data()
+		{
+			return data;
+		}
+		virtual const char* ConstData() const
+		{
+			return data;
+		}
+		virtual int Capacity() const
+		{
+			return size;
+		}
 
 		int unknown4;
 		unsigned int size;
