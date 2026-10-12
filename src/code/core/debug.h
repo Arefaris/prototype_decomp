@@ -20,4 +20,7 @@
 		} \
 	} while (0)
 
+// The same without a message: the report gets the expression text and a null format and no further argument
+#define OLD_ASSERT_TEXT_AT(file, line, expression, text) 	do 	{ 		static bool sEnabled = true; 		if (sEnabled && !(expression)) 		{ 			if (core::Report(1, " oldassert ", file, line, text, 0) == 3) 			{ 				sEnabled = false; 			} 		} 	} while (0)
+
 #endif
