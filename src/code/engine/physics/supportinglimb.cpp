@@ -1,5 +1,8 @@
 #include "code/engine/physics/supportinglimb.h"
 #include "code/container/arraydynamic.h"
+#include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
+#include "code/math/sincos.h"
 #include <float.h>
 #include <math.h>
 
@@ -90,8 +93,8 @@ namespace engine
 	{
 		if (intersectionProperties != 0)
 		{
-			properties.unknown0 = intersectionProperties->unknown3C;
-			properties.unknown4 = intersectionProperties->unknown40;
+			filter.properties.unknown0 = intersectionProperties->unknown3C;
+			filter.properties.unknown4 = intersectionProperties->unknown40;
 		}
 	}
 
@@ -185,6 +188,147 @@ namespace engine
 		basisV.x = castDirection.y * basisU.z - castDirection.z * basisU.y;
 		basisV.y = castDirection.z * basisU.x - castDirection.x * basisU.z;
 		basisV.z = castDirection.x * basisU.y - castDirection.y * basisU.x;
+	}
+
+	// FUNCTION: ENGINE 0x107F2B20
+	// EQUIVALENT: the engine computes the end point as x, z, y (y as length * normal.y) and loads the normal's z
+	// before its y; ours x, y, z
+	void SupportingLimb::GetSupportPlane(const math::Matrix& m, math::Plane& plane) const
+	{
+		math::Vector back = -castDirection;
+		math::Vector normal;
+		m.Rotate(back, normal);
+		float length = -unknown68;
+		const math::Vector& origin = limbDef->origin;
+		math::Vector end(normal.x * length + origin.x, normal.y * length + origin.y, normal.z * length + origin.z);
+		plane.normal.Set(normal.x, normal.y, normal.z);
+		plane.d = -normal.Dot(end);
+	}
+
+	// FUNCTION: ENGINE 0x107F2BF0
+	// Moves value towards target by at most maxVelocity * dt, then clamps it to [minValue, maxValue]
+	void SmoothValue(float* value, float target, float maxVelocity, float dt, float minValue, float maxValue)
+	{
+		if (!math::IsEqual(*value, target, math::EPSILON_SMALL))
+		{
+			float delta = target - *value;
+			float step = maxVelocity * dt;
+			float fraction = math::Clamp(math::Clamp(delta, -step, step) / delta, 0.0f, 1.0f);
+			*value = fraction * delta + *value;
+			*value = math::Clamp(*value, minValue, maxValue);
+		}
+	}
+
+	// Which axis completes a pair of different axes (-1 for the same axis twice)
+	static const signed char sThirdAxis[3][3] =
+	{
+		{ -1, 2, 1 },
+		{ 2, -1, 0 },
+		{ 1, 0, -1 }
+	};
+
+	// FUNCTION: ENGINE 0x107F34D0
+	// out = the unit cross product of the two axis vectors, in the order that keeps the axes right-handed
+	void CrossAxes(const math::Vector& a, int axisA, const math::Vector& b, int axisB, math::Vector& out)
+	{
+		const math::Vector* first = &a;
+		const math::Vector* second = &b;
+		if ((unsigned int)(axisB + 1) % 3 == (unsigned int)axisA)
+		{
+			first = &b;
+			second = &a;
+		}
+		out.Set(first->y * second->z - first->z * second->y, first->z * second->x - first->x * second->z,
+			first->x * second->y - first->y * second->x);
+		out.NormalizeFast();
+	}
+
+	// FUNCTION: ENGINE 0x107F3560
+	// EQUIVALENT: the engine keeps the axis in esi (saved first) and the direction in ecx; ours the axis in ecx and the
+	// direction in edx, esi saved later
+	// Rotates m so that its axis (ORIENTATION_AXIS) points along direction
+	void AlignAxis(int axis, const math::Vector& direction, math::Matrix& m)
+	{
+		math::Vector target = axis / 3 != 0 ? -direction : direction;
+		math::Vector current(*(const math::Vector*)m.m[axis % 3]);
+		if (!math::IsEqual(current.x, target.x, math::EPSILON_SMALL)
+			|| !math::IsEqual(current.y, target.y, math::EPSILON_SMALL)
+			|| !math::IsEqual(current.z, target.z, math::EPSILON_SMALL))
+		{
+			float cosine = math::Clamp(current.Dot(target), -1.0f, 1.0f);
+			if (cosine != 1.0f)
+			{
+				math::Matrix rotation;
+				rotation.Identity();
+				rotation.RotationFromTo(current, target);
+				m.Multiply3x3(m, rotation);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107F36C0
+	// EQUIVALENT: the engine loads the direction as y, z, x and sums the dot product as (y + z) + x; ours x, z, y and
+	// (x + z) + y (no source order of the terms changes it); the rest is the same
+	// Turns direction towards target by at most maxAngularVelocity * dt
+	void SmoothDirection(math::Vector& direction, const math::Vector& target, float maxAngularVelocity, float dt)
+	{
+		math::Vector current(direction);
+		float cosine = target.Dot(current);
+		if (!math::IsEqual(cosine, 1.0f, math::EPSILON_SMALL))
+		{
+			float angle = acosf(cosine);
+			float fraction = math::Min(angle, maxAngularVelocity * dt) / angle;
+			fraction = math::Select(fraction, fraction, 0.0f);
+			fraction = math::Select(fraction - 1.0f, 1.0f, fraction);
+			direction.x = (target.x - current.x) * fraction + current.x;
+			direction.y = (target.y - current.y) * fraction + current.y;
+			direction.z = (target.z - current.z) * fraction + current.z;
+			direction.NormalizeFast();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107F41E0
+	void SupportingLimb::ResetDirection(const math::Matrix& m)
+	{
+		if (limbDef->directionFollowsSurfaceNormal)
+		{
+			m.Rotate(limbDef->direction, castDirection);
+		}
+		else
+		{
+			const math::Vector& direction = limbDef->direction;
+			castDirection.x = direction.x;
+			castDirection.y = direction.y;
+			castDirection.z = direction.z;
+		}
+		UpdateBasis();
+		transform.Identity();
+	}
+
+	// FUNCTION: ENGINE 0x107F4240
+	// Sets two axes of m (ORIENTATION_AXIS each) from a and b, made orthonormal around a, and the third from them
+	void OrientAxes(int axisA, const math::Vector& a, int axisB, const math::Vector& b, math::Matrix& m)
+	{
+		math::Vector first = axisA / 3 != 0 ? -a : a;
+		math::Vector second = axisB / 3 != 0 ? -b : b;
+		int rowA = axisA % 3;
+		int rowB = axisB % 3;
+		int rowC = sThirdAxis[rowA][rowB];
+		math::Vector third;
+		CrossAxes(first, rowA, second, rowB, third);
+		CrossAxes(first, rowA, third, rowC, second);
+		math::Vector& x = *(math::Vector*)m.m[rowA];
+		x.x = first.x;
+		x.y = first.y;
+		x.z = first.z;
+		math::Vector& y = *(math::Vector*)m.m[rowB];
+		y.x = second.x;
+		y.y = second.y;
+		y.z = second.z;
+		math::Vector& z = *(math::Vector*)m.m[rowC];
+		z.x = third.x;
+		z.y = third.y;
+		z.z = third.z;
 	}
 
 	// FUNCTION: ENGINE 0x107F4130
@@ -415,15 +559,15 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F53F0
 	// EQUIVALENT: the engine stores LoadObject's vftable before pushing the name's arguments, ours after
 	SupportingLimbDefinition::SupportingLimbDefinition()
-		: name("", 1), sphereRadius(0.2f), unknown1C(0), intersectionProperties(0), origin(math::kZeroVector),
+		: name("", 1), sphereRadius(0.2f), intersectionProperties(0), origin(math::kZeroVector),
 		direction(0.0f, -1.0f, 0.0f), restingLength(1.0f), maxLength(2.0f), cosineSupportAngleTolerance(0.0f),
 		directionFollowsSurfaceNormal(false), smoothDirection(true), smoothRestingLength(true),
 		characterSurfaceOrientation(None), characterUpVectorOrientation(None), smoothMaxLinearVelocity(3.0f),
 		smoothFractionalMaxLinearVelocity(0.0f), smoothMaxAngularVelocity(1.3f), smoothMinRestingLength(0.0f),
 		smoothMaxRestingLength(2.0f), numRandomRays(0), randomRayCircleRadius(0.0f)
 	{
-		properties.unknown0 = -1;
-		properties.unknown4 = 4;
+		filter.properties.unknown0 = -1;
+		filter.properties.unknown4 = 4;
 	}
 
 	// Kept copies: the containers' explicitly instantiated members, the reflection helpers and meta type getters,
@@ -520,9 +664,153 @@ namespace engine
 }
 
 // The containers' explicit instantiations
+namespace engine
+{
+	// FUNCTION: ENGINE 0x107F2CC0
+	SupportingLimb::CastInput::CastInput()
+		: unknown0(0), transform(math::Matrix::IDENTITY), down(0.0f, -1.0f, 0.0f), startOffset(0.0f), extraLength(0.0f)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107F37F0
+	SupportingLimb::CastResult::CastResult()
+		: position(1e12f, 1e12f, 1e12f), normal(1e12f, 1e12f, 1e12f), distance(1e12f), unknown1C(-1), unknown20(-1),
+		material(0xff)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107F5540
+	// EQUIVALENT: same calls and blocks (the hit loop unrolled by four as in the engine); the engine keeps this in edi
+	// and its frame is 8 bytes larger, ours keeps this in ebp, so stack offsets and registers differ throughout
+	bool SupportingLimb::CastRay(const CastInput& input, const math::Vector& origin, float maxDistance,
+		CastResult& result)
+	{
+		math::Matrix inverse;
+		inverse = transform;
+		inverse.InvertOrthonormal();
+		math::Matrix frame;
+		frame.Multiply(inverse, input.transform);
+		math::Vector limbOrigin;
+		frame.Transform(limbDef->origin, limbOrigin);
+		math::Vector point;
+		frame.Transform(origin, point);
+		math::Vector start(point.x - input.down.x * input.startOffset, point.y - input.down.y * input.startOffset,
+			point.z - input.down.z * input.startOffset);
+		float length = limbDef->maxLength + input.extraLength + unknown6C;
+		math::Vector end(input.down.x * length + point.x, input.down.y * length + point.y,
+			input.down.z * length + point.z);
+		bool found = false;
+		unsigned int index = 0;
+		ravenphysics::RayQuery query;
+		query.start.Set(start.x, start.y, start.z);
+		query.end.Set(end.x, end.y, end.z);
+		query.filter = limbDef->filter;
+		query.unknown24 = input.unknown0;
+		RayHitBufferLock lock(true);
+		ravenphysics::RayHitArray& hits = lock.Get();
+		if (ravenphysics::gContext->CastRay(query, &hits) && maxDistance > hits.begin->distance)
+		{
+			if (hits.begin->normal.Dot(input.down) > -limbDef->cosineSupportAngleTolerance)
+			{
+				// The nearest hit facing against the cast direction closely enough
+				ravenphysics::SortHits(hits.begin, hits.end);
+				unsigned int count = hits.end - hits.begin;
+				for (unsigned int i = 1; i < count; i++)
+				{
+					if (!(maxDistance > hits.begin[i].distance))
+					{
+						break;
+					}
+					if (-limbDef->cosineSupportAngleTolerance > hits.begin[i].normal.Dot(input.down))
+					{
+						index = i;
+						found = true;
+					}
+				}
+			}
+			else
+			{
+				found = true;
+			}
+			if (found)
+			{
+				const ravenphysics::RayHit& hit = hits.begin[index];
+				result.normal.x = hit.normal.x;
+				result.normal.y = hit.normal.y;
+				result.normal.z = hit.normal.z;
+				math::Vector delta(end.x - start.x, end.y - start.y, end.z - start.z);
+				float scale = hit.distance / sqrtf(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+				result.unknown20 = hit.unknown4;
+				result.unknown1C = hit.unknown8;
+				delta.Scale(scale);
+				result.position.x = delta.x + start.x + limbOrigin.x - point.x;
+				result.position.y = delta.y + start.y + limbOrigin.y - point.y;
+				result.position.z = delta.z + start.z + limbOrigin.z - point.z;
+				result.distance = sqrtf(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z) - input.startOffset;
+				result.material = hit.GetMaterial();
+			}
+		}
+		return found;
+	}
+
+	// FUNCTION: ENGINE 0x107F5AC0
+	// EQUIVALENT: the engine keeps the result flag in bl (ebx saved first) and the inverse matrix below the frame
+	// matrix; ours keeps the flag on the stack, saves ebx in the loop and swaps the two matrices
+	bool SupportingLimb::Cast(const CastInput& input, CastResult& result, int* rayIndex)
+	{
+		bool found = false;
+		if (limbDef->numRandomRays == 0 || rayIndex == 0)
+		{
+			return CastRay(input, limbDef->origin, 1e12f, result);
+		}
+		math::Matrix inverse;
+		inverse = transform;
+		inverse.InvertOrthonormal();
+		math::Matrix frame;
+		frame.Multiply(inverse, input.transform);
+		math::Vector u;
+		frame.Rotate(basisU, u);
+		math::Vector v;
+		frame.Rotate(basisV, v);
+		float nearest = 1e12f;
+		int i = 0;
+		RandomRay* last = rays.End();
+		for (RandomRay* ray = rays.Begin(); ray != last; ray++, i++)
+		{
+			float sine = 0.0f;
+			float cosine = 1.0f;
+			math::SinCos(ray->angle, &sine, &cosine);
+			const math::Vector& center = limbDef->origin;
+			math::Vector origin(center);
+			float radius = limbDef->randomRayCircleRadius * ray->radius * cosine;
+			origin.x = u.x * radius + origin.x;
+			origin.y = u.y * radius + origin.y;
+			origin.z = u.z * radius + origin.z;
+			radius = limbDef->randomRayCircleRadius * ray->radius * sine;
+			origin.x = v.x * radius + origin.x;
+			origin.y = v.y * radius + origin.y;
+			origin.z = v.z * radius + origin.z;
+			if (CastRay(input, origin, nearest, result))
+			{
+				nearest = result.distance;
+				*rayIndex = i;
+				found = true;
+			}
+		}
+		return found;
+	}
+
+	// FUNCTION: ENGINE 0x107F66B0
+	bool SupportingLimb::Cast(const CastInput& input, CastResult& result)
+	{
+		return Cast(input, result, 0);
+	}
+}
+
 namespace container
 {
 	template class ArrayCDynamic<engine::SupportingLimbDefinition::SmoothingVelocityMap::Entry, 3>;
 	template class ArrayCDynamic<engine::SupportingLimb::RandomRay, 4>;
 	template class ArrayDynamicNew<engine::SupportingLimbDefinition*>;
+
 }

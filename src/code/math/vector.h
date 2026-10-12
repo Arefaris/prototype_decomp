@@ -76,6 +76,10 @@ namespace math
 		{
 			return x * v.x + y * v.y + z * v.z;
 		}
+		Vector operator-() const
+		{
+			return Vector(-x, -y, -z);
+		}
 
 		// Reports the components through core::Report, as floats and as raw bits (debug output)
 		void Print() const;

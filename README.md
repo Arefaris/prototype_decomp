@@ -15,14 +15,14 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.305 %
-Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.509 %  (2115 / 140196)
+Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.317 %
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.514 %  (2122 / 140196)
   core       1249 functions matched, 68,003 bytes
-  engine      661 functions matched, 33,684 bytes
+  engine      668 functions matched, 34,842 bytes
   math        205 functions matched, 25,529 bytes
 ```
 
-Updated 2026-10-11 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
+Updated 2026-10-12 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
 <!-- progress:end -->
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
