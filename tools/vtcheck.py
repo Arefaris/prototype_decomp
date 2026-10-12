@@ -3,7 +3,8 @@
     python tools/vtcheck.py [--version PROTOPC_2025] [--all]
 
 A constructor that matches byte for byte still installs our vftable (its address is a relocation), so a missing
-override or a slot in the wrong place passes the function comparison and breaks only the running game. For every
+override or a slot in the wrong place passes the function comparison and breaks only the running game. The same
+goes for the class key (struct / class): it is part of the RTTI type name that dynamic_cast compares. For every
 `??_7<class>6B@` an object defines, the original vftable comes from the RTTI tables (config/<VERSION>/classes.tsv
 and rtti.tsv); each slot's symbol must be mapped in symbols.txt to the original slot's function (or to the
 incremental link thunk the original slot holds). Unmapped slot functions are reported with --all.
@@ -89,6 +90,7 @@ def main():
 	seen = set()
 	for path in sorted((ROOT / "build" / args.version / "obj").rglob("*.obj")):
 		coff = Coff(path)
+		names = set(name for name, value, section, storage in coff.symbols)
 		for vftable, mangled, offset, slots in ourVftables(coff):
 			if vftable in seen:
 				continue
@@ -98,6 +100,13 @@ def main():
 				continue
 			address, count = original
 			lines = []
+			# The class key is part of the RTTI type name, and dynamic_cast compares type names: a class the
+			# original declares as a struct (or the other way round) fails every cast from the game's code
+			originalKey = "U" if (".?AU" + mangled, offset) in vftables else "V"
+			ourKey = "U" if "??_R0?AU" + mangled + "@8" in names else "V"
+			if ourKey != originalKey:
+				kinds = {"U": "struct", "V": "class"}
+				lines.append(f"  declared {kinds[ourKey]}, the original's RTTI says {kinds[originalKey]}")
 			if len(slots) != count:
 				lines.append(f"  {len(slots)} slots, the original has {count}")
 			for i, target in enumerate(slots[:count]):

@@ -16,7 +16,7 @@ namespace math
 
 namespace engine
 {
-	class Message;
+	struct Message;
 	class MessageListeners;
 
 	// 0x107EFF00 (another unit): delivers message to every listener of the list

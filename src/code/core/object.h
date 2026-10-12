@@ -22,8 +22,9 @@ namespace core
 	// The heap handed from operator new to the constructor and from the destructor to operator delete; -1 = none
 	extern int gObjectHeap;
 
-	struct Object
+	class Object
 	{
+	public:
 		Object()
 		{
 			heap = gObjectHeap;
@@ -64,8 +65,9 @@ namespace core
 		int heap;
 	};
 
-	struct RefCount : Object
+	class RefCount : public Object
 	{
+	public:
 		RefCount()
 		{
 			count = 0;

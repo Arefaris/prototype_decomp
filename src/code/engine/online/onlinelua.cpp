@@ -9,7 +9,7 @@
 namespace engine
 {
 	// engine::CharacterQueryMessage (RTTI): the questions a character's behaviours answer (message type 0x10)
-	class CharacterQueryMessage : public IntrusiveMessage
+	struct CharacterQueryMessage : public IntrusiveMessage
 	{
 	public:
 		explicit CharacterQueryMessage(short newId) : IntrusiveMessage(0x10, newId)
@@ -18,7 +18,7 @@ namespace engine
 	};
 
 	// engine::CharacterQueryPlayerControlStateMessage (RTTI): the answer points at the controlling player's index
-	class CharacterQueryPlayerControlStateMessage : public CharacterQueryMessage
+	struct CharacterQueryPlayerControlStateMessage : public CharacterQueryMessage
 	{
 	public:
 		CharacterQueryPlayerControlStateMessage() : CharacterQueryMessage(1)

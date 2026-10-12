@@ -36,7 +36,7 @@ namespace engine
 
 	// engine::PlayerControlChangedMessage (RTTI name): sent to a game object when a player takes or loses control
 	// of it; message type 14
-	class PlayerControlChangedMessage : public IntrusiveMessage
+	struct PlayerControlChangedMessage : public IntrusiveMessage
 	{
 	public:
 		PlayerControlChangedMessage();
