@@ -521,7 +521,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064AAD0
-	void OpenCementLibraryAsync(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source)
+	void OpenCementLibraryAsync(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source)
 	{
 		const char* native = 0;
 		const char* relative = 0;
@@ -591,14 +591,14 @@ namespace core
 		{
 			name = native;
 		}
-		CreateCementLibrary(library, sMounts[index].drive, name, a, b, heap, sourceDrive);
+		CreateCementLibrary(library, sMounts[index].drive, name, pass, heap, preload, sourceDrive);
 		UnlockMounts();
 	}
 
 	// FUNCTION: ENGINE 0x1064ACB0
-	void OpenCementLibrary(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source)
+	void OpenCementLibrary(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source)
 	{
-		OpenCementLibraryAsync(library, path, a, b, heap, source);
+		OpenCementLibraryAsync(library, path, pass, heap, preload, source);
 		if (*library != 0)
 		{
 			(*library)->Wait();

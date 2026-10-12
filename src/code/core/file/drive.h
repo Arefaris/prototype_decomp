@@ -13,6 +13,7 @@ namespace core
 	class Request;
 	class Drive;
 	class FileCache;
+	class CementLibrary;
 
 	// core::IMutable (RTTI name; two slots): the lock interface of files and drives
 	struct IMutable
@@ -61,21 +62,34 @@ namespace core
 		int data[21];
 	};
 
-	// The list of file caches a drive keeps, walked in two passes (0x3C bytes; methods 0x10650540 - 0x10650670)
-	class FileCacheList
+	// The Cement libraries registered on a drive, in two lists (by the library's pass: the file opens search list 0
+	// before trying the drive itself and list 1 after it), and the buffer the packed library entries unpack through
+	// (shared, reference counted). 0x3C bytes; methods 0x10650540 - 0x10650716 and 0x10650B60 (cementer.cpp).
+	class CementLibraryList
 	{
 	public:
-		// 0x10650B60 / 0x10650540
-		FileCacheList();
-		~FileCacheList();
-		// 0x10650580 / 0x106505D0
-		void Add(FileCache* cache);
-		void Remove(FileCache* cache);
+		CementLibraryList();
+		~CementLibraryList();
+		void Add(CementLibrary* library);
+		void Remove(CementLibrary* library);
+		// Locks the list and starts a walk over one of the two lists
 		void Begin(int pass);
-		FileCache* Next();
+		CementLibrary* Next();
+		// Ends the walk and unlocks the list
 		void End();
+		void GetBuffer(void** buffer, unsigned int* size);
+		// The first reference allocates the buffer (the mounts' buffer size rounded up to `round`)
+		void AcquireBuffer(int heap, unsigned int align, unsigned int round);
+		void ReleaseBuffer();
 
-		unsigned char data[0x3C];
+		CementLibrary* heads[2];
+		CementLibrary* tails[2];
+		CementLibrary* cursor;
+		unsigned char section[0x18];
+		void* buffer;
+		unsigned int bufferSize;
+		int bufferRefs;
+		int bufferHeap;
 	};
 
 	// Told when a faulted drive is updated while held exclusively (slot 0)
@@ -184,9 +198,9 @@ namespace core
 		// Whether requests are still queued
 		bool FlushRequests();
 		bool HasCompletions();
-		void AddCache(FileCache* cache);
-		void RemoveCache(FileCache* cache);
-		FileCacheList* GetCacheList();
+		void AddLibrary(CementLibrary* library);
+		void RemoveLibrary(CementLibrary* library);
+		CementLibraryList* GetLibraries();
 		// The state calls drive instances forward (names guessed from the fields they set)
 		void BeginExclusive(IDriveFaultHandler* handler, int value);
 		void EndExclusive(int a);
@@ -201,7 +215,7 @@ namespace core
 		void SetFlag(bool flag);
 		bool GetFlag();
 
-		FileCacheList caches;
+		CementLibraryList libraries;
 		Request* first;
 		Request* last;
 		int mode;

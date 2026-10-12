@@ -21,8 +21,8 @@ namespace core
 	void FileSystemOpenDrive(IDrive** drive, const char* device, int key, int unused);
 	bool FileSystemSetDefaultDevice(const char* device);
 	void FileSystemGetDefaultDevice(char* device);
-	void FileSystemOpenCementLibraryAsync(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
-	void FileSystemOpenCementLibrary(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
+	void FileSystemOpenCementLibraryAsync(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source);
+	void FileSystemOpenCementLibrary(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source);
 	void FileSystemSetTimeout(int timeout);
 	bool FileSystemMount(const char* device, int heap);
 	bool FileSystemUnmount(const char* device);

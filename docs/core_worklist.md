@@ -320,8 +320,7 @@ next pointer (so only a run at the head is unlinked); kept as in the original.
 |---|---|---:|---|
 | 0x10650180 | Drive::Update | 98.9 % | EQUIVALENT in tree: the original loads `this` into ecx before pushing the fault handler's result for ClearFault |
 
-Not reconstructed yet: the file cache (0x10650690 - 0x106511C0, FileCacheList 0x10650540 - 0x10650670) and the
-request queue (0x106524C0 onwards), declared in drive.h / file.h and mapped.
+The units that follow are cementer.cpp (0x10650290 - 0x10650DB4) and filecache.cpp (0x10650DC0 onwards).
 
 ## sync.cpp (0x1063D220 - 0x1063D428): 16 functions
 
@@ -629,6 +628,48 @@ pushes of the constants stay the same); Submit falls off its end (no return valu
 semaphores are handle-sized members (a char array lands one byte off); queue loops use `unsigned int`; in Run the
 fault-retry branch needs `if (retry == 0) { finish; break; }` and then the cancelled case before the requeue.
 Validation (2026-10-11): free roam and a teleport in the hybrid.
+
+## pack.cpp (0x10652A90 - 0x1065314C): done (7 functions)
+
+The core module's LZ77 packer (`code/core/pack.h`; file and all names guessed): GetPackWorkSize, Unpack (the file
+cache's ReadPacked unpacks chunks with it) and Pack with its four static helpers (a binary tree of earlier positions
+as match finder, an exhaustive search for matches at writable distances, the token writer). Format: a token byte,
+high nibble 0 = literal run of the low nibble's length, otherwise a match of that length at distance (next byte << 4
+| high nibble); length nibble 0 means 15 plus an extension (zero bytes worth 255 each, then a closing byte). All
+match. Notes:
+- Unpack takes `const unsigned char*` / `unsigned char*` and walks its parameters (local copies get loaded before
+  the size test); the match branch comes first (`token > 0xF`); the offset is computed into `token` itself
+  (`token = (*in << 4) | (token >> 4); from = out - token;`), which puts `from` in the token's register; the
+  full-chunk copy is 15 / 4 times unrolled by hand and needs `length -= quads << 2` (`quads * 4` gives neg / lea).
+- The static helpers take register arguments (InitPackTree eax / ecx, InsertPackNode size in ecx, FindPackMatch pos
+  in ecx, WritePackToken edi / ecx / al with the parameter order (out, length, token): the other orders schedule the
+  argument loads differently in Pack). FindPackMatch tests `(i - pos) & 0xF`; WritePackToken's zero-byte loop
+  becomes a memset; Pack's two `fast` insertions are one statement after the if / else, its inner loop runs over
+  a copy of the match length.
+Validation (2026-10-12): free roam and a teleport in the hybrid.
+
+## file/common/cementer.cpp (0x10650290 - 0x10650DB4): done (31 functions)
+
+core::CementLibrary (RTTI name; assert path `code\core\srcile\common\cementer.cpp`; `code/core/file/cementlibrary.h`;
+members m_pDrive / m_pRegistrationDrive from the assert text, everything else guessed): an open Cement archive
+("ATG CORE CEMENT LIBRARY", the game's .rcf files). The constructor AddRefs both drives and the archive file and
+starts the open through the file's completion callback (step 0 header, step 1 directory, step 2 register; a preload
+skips the reads); registered libraries sit in the registration drive's CementLibraryList (two lists by pass, walked
+by FileOpenRequest before and after the drive itself) and serve file opens by the hash of the path (binary search of
+the sorted directory, 12-byte entries or 20-byte ones with packing); packed libraries share the list's unpack buffer.
+What used to be FileCacheList is this list, FileKeyTable and FileCache::Matches are CementLibrary, and the
+completion callback interface is core::IFileCompletionCallback (RTTI name, IRefCount base); drive.h / file.h /
+request.h / mounts.h and their symbols were renamed accordingly (Drive::AddLibrary / RemoveLibrary / GetLibraries).
+The cement open parameters are (pass, heap, preload). Everything matches, including the compiler-generated
+functions (ICementLibrary constructor / destructor copies, the four adjustor thunks, the scalar deleting
+destructor; mapped). Notes:
+- The magic test is `strcmp` against the literal (VC8 turns it into `repe cmpsb` over 0x18 bytes; memcmp gives a
+  dword loop), as `valid = true; if (strcmp(...) != 0) valid = false;`.
+- GetEntrySize and FindEntry are external functions (as statics they take register arguments); GetEntrySize is
+  `inline` (inlined by Find, copy still emitted).
+- Find needs nested ifs with the success path inside; OnComplete passes the Object heap through a local (read
+  before the GetGranularity call); Matches hashes into a local first.
+Validation (2026-10-12): free roam and a teleport in the hybrid (every archive opens through it).
 
 ## Candidates nearby (leaf functions, not started)
 

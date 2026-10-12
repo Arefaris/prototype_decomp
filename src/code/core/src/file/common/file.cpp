@@ -227,7 +227,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064E520
-	int File::Notify(ICompletionCallback* callback, void* userData)
+	int File::Notify(IFileCompletionCallback* callback, void* userData)
 	{
 		return drive->Submit(new FileCompletionRequest(GetThreadData(), this, callback, userData), key, 0);
 	}

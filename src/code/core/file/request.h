@@ -11,14 +11,6 @@ namespace core
 {
 	const char* CoreName();
 
-	// What a completion callback request reports to (reference counted; slot 3 receives the user data)
-	struct ICompletionCallback
-	{
-		virtual void AddRef() = 0;
-		virtual void Release() = 0;
-		virtual ~ICompletionCallback();
-		virtual void OnComplete(void* userData) = 0;
-	};
 
 	class Request
 	{
@@ -81,7 +73,7 @@ namespace core
 	class FileCompletionRequest : public CompletionCallbackRequest
 	{
 	public:
-		FileCompletionRequest(int value, File* file, ICompletionCallback* callback, void* userData);
+		FileCompletionRequest(int value, File* file, IFileCompletionCallback* callback, void* userData);
 		virtual ~FileCompletionRequest();
 		virtual int Execute();
 		virtual Drive* GetDrive();
@@ -89,14 +81,14 @@ namespace core
 		virtual void Complete();
 
 		File* file;
-		ICompletionCallback* callback;
+		IFileCompletionCallback* callback;
 		void* userData;
 	};
 
 	class DriveCompletionRequest : public CompletionCallbackRequest
 	{
 	public:
-		DriveCompletionRequest(int value, InstanceDrive* instance, ICompletionCallback* callback, void* userData);
+		DriveCompletionRequest(int value, InstanceDrive* instance, IFileCompletionCallback* callback, void* userData);
 		virtual ~DriveCompletionRequest();
 		virtual int Execute();
 		virtual Drive* GetDrive();
@@ -104,7 +96,7 @@ namespace core
 		virtual void Complete();
 
 		InstanceDrive* instance;
-		ICompletionCallback* callback;
+		IFileCompletionCallback* callback;
 		void* userData;
 	};
 
@@ -161,13 +153,13 @@ namespace core
 	class FileOpenByKeyRequest : public FileRequest
 	{
 	public:
-		FileOpenByKeyRequest(File* file, int key, FileKeyTable* table);
+		FileOpenByKeyRequest(File* file, int key, CementLibrary* library);
 		virtual ~FileOpenByKeyRequest();
 		virtual int Execute();
 		virtual int GetType();
 
 		int key;
-		FileKeyTable* table;
+		CementLibrary* table;
 	};
 
 	class SaveGameOpenRequest : public FileRequest
