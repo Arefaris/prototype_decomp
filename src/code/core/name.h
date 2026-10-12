@@ -12,6 +12,13 @@ namespace core
 	{
 	};
 
+	// A 32-bit case-insensitive name key (RTTI type argument core::CaseInsensitiveKey32, 4 bytes, passed by value; also
+	// a key type of core::Name)
+	struct CaseInsensitiveKey32
+	{
+		unsigned int hash;
+	};
+
 	template<class Key> class Name
 	{
 	public:
@@ -32,6 +39,8 @@ namespace core
 		bool operator==(const Name& other) const;
 		// 0x10061F40 (another unit)
 		bool operator!=(const Name& other) const;
+		// 0x1027F1A0 (another unit): the text, null when the name has none
+		const char* GetText() const;
 		// 0x10061ED0 / 0x10061EF0 (another unit)
 		Name& operator=(const Name& other);
 		bool IsEmpty() const;
@@ -51,6 +60,20 @@ namespace core
 	{
 		return *(const unsigned __int64*)this;
 	}
+
+	// The 32-bit names (4 bytes; RTTI type argument core::Name<struct core::CaseInsensitiveKey32>)
+	template<> class Name<CaseInsensitiveKey32>
+	{
+	public:
+		// 0x1007F380 (another unit)
+		Name(const CaseInsensitiveKey32& key);
+		// 0x10611F30 (another unit)
+		Name(const Name& other);
+		// 0x1054D960 (another unit)
+		bool operator==(const Name& other) const;
+
+		unsigned int hash;
+	};
 }
 
 #endif
