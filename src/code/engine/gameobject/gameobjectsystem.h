@@ -13,7 +13,7 @@
 
 namespace engine
 {
-	class Message;
+	struct Message;
 
 	// The inventory of every game object (0x112836F4) and the master table indices of the objects whose update is
 	// deferred (0x112836F0)

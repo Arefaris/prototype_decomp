@@ -28,7 +28,7 @@ namespace engine
 	extern content::ObjectName gUnknownName11276940;
 
 	// engine::TransformAttributeUpdatedMessage (RTTI): type 0x1A, sent when the transform is set
-	class TransformAttributeUpdatedMessage : public Message
+	struct TransformAttributeUpdatedMessage : public Message
 	{
 	public:
 		TransformAttributeUpdatedMessage() : Message(0x1a, 0)

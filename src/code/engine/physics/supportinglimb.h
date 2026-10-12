@@ -11,28 +11,9 @@
 #include "code/content/metatype.h"
 #include "code/core/refptr.h"
 #include "code/math/matrix.h"
+#include "code/math/plane.h"
 #include "code/math/vector.h"
-
-namespace ravenphysics
-{
-	// What a query collides with (0x10653860 constructs it from the physics library's defaults; meanings unknown)
-	struct IntersectionProperties
-	{
-		IntersectionProperties();
-
-		int unknown0;
-		int unknown4;
-	};
-
-	// ravenphysics::IntersectionPropertiesLoader (RTTI; a load object of the physics library)
-	class IntersectionPropertiesLoader : public content::LoadObject
-	{
-	public:
-		unsigned char unknown8[0x3c - 8];
-		int unknown3C;
-		int unknown40;
-	};
-}
+#include "code/ravenphysics/context.h"
 
 namespace engine
 {
@@ -96,8 +77,7 @@ namespace engine
 
 		core::Name<core::CaseSensitiveKey> name;
 		float sphereRadius;
-		ravenphysics::IntersectionProperties properties;
-		int unknown1C;
+		ravenphysics::IntersectionFilter filter;
 		ravenphysics::IntersectionPropertiesLoader* intersectionProperties;
 		math::Vector origin;
 		math::Vector direction;
@@ -119,9 +99,10 @@ namespace engine
 		float randomRayCircleRadius;
 	};
 
-	class SupportingLimbDefinitionList : public content::MetaLoadObject
+	// A struct in the original (the RTTI name is .?AU...): the game's dynamic_cast compares type names, so the class key
+	// must match or the cast to the list fails and no character finds its limbs
+	struct SupportingLimbDefinitionList : public content::MetaLoadObject
 	{
-	public:
 		SupportingLimbDefinitionList();
 		virtual ~SupportingLimbDefinitionList();
 
@@ -135,6 +116,38 @@ namespace engine
 	class SupportingLimb
 	{
 	public:
+		// Where a cast starts from (0x58 bytes; members other than the transform are guesses)
+		struct CastInput
+		{
+			CastInput();
+
+			// Replaces the definition's word behind its intersection properties in the query's filter
+			int filterWord;
+			// The character's frame
+			math::Matrix transform;
+			// The cast direction in the world (default down)
+			math::Vector down;
+			// How far behind the origin the ray starts
+			float startOffset;
+			// Added to the definition's maximum length
+			float extraLength;
+		};
+
+		// What a cast found (0x28 bytes)
+		struct CastResult
+		{
+			CastResult();
+
+			// The point hit, moved back by the offset of the cast origin from the limb's origin
+			math::Vector position;
+			math::Vector normal;
+			// From the ray start (less the start offset)
+			float distance;
+			int unknown1C;
+			int unknown20;
+			unsigned char material;
+		};
+
 		// One of the random rays around the limb's direction (angle and fraction of the circle radius)
 		struct RandomRay
 		{
@@ -143,6 +156,31 @@ namespace engine
 			float angle;
 			float radius;
 			bool active;
+		};
+
+		// The support a limb found (0x30 bytes; filled by Update)
+		struct Support
+		{
+			bool supported;
+			SupportingLimb* limb;
+			math::Vector normal;
+			math::Vector position;
+			int unknown20;
+			int unknown24;
+			unsigned char material;
+			// Seconds without a hit
+			float unsupportedTime;
+		};
+
+		// The state of the last cast (Update)
+		struct CastStatus
+		{
+			bool found;
+			float distance;
+			// Set by every update; while it is set and unknown9 is clear the cast is skipped and the support slides
+			// along its plane
+			bool unknown8;
+			bool unknown9;
 		};
 
 		SupportingLimb();
@@ -162,6 +200,22 @@ namespace engine
 		void Swap(SupportingLimb& other);
 		// Recomputes the two directions perpendicular to the cast direction
 		void UpdateBasis();
+		// The cast direction back to the definition's (through m when the definition says so), the basis and an
+		// identity transform
+		void ResetDirection(const math::Matrix& m);
+		// The plane facing back along the cast direction (rotated by m) through the end of the limb at its current
+		// length (unknown68)
+		void GetSupportPlane(const math::Matrix& m, math::Plane& plane) const;
+		// The nearest supporting hit along the cast from origin (in the limb's frame) no farther than maxDistance
+		bool CastRay(const CastInput& input, const math::Vector& origin, float maxDistance, CastResult& result);
+		// A cast from the definition's origin, or from each random ray around it (keeping the nearest, whose index
+		// goes to rayIndex) when the definition has them and rayIndex is given
+		bool Cast(const CastInput& input, CastResult& result, int* rayIndex);
+		bool Cast(const CastInput& input, CastResult& result);
+		// Casts the limb for a move of the character from previous to current, updates the support, the limb's
+		// length and direction, and moves current so that the limb keeps its support
+		void Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep, int filterWord,
+			float dt, CastStatus& status, bool predict);
 
 		SupportingLimbDefinition* limbDef;
 		math::Vector castDirection;

@@ -12,7 +12,7 @@
 
 namespace engine
 {
-	class Message;
+	struct Message;
 
 	// The dynamic attribute list heap and length (gameobjectsystem.cpp's InitGameObjectSystem sets them)
 	extern int gAttributeListHeap;

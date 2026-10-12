@@ -49,7 +49,10 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
    the vftables our constructors install with the original's: a constructor matches byte for byte even when our
-   vftable misses an override (its address is a relocation), and only the game notices.
+   vftable misses an override (its address is a relocation), and only the game notices. It also checks the class key:
+   declare a type `struct` or `class` exactly as its RTTI name says (`.?AU` / `.?AV` in config/<VERSION>/classes.tsv),
+   because the game's `dynamic_cast` compares type names. Look at the characters' poses in the game test, not just
+   the coordinates (a wrong key once made every character fall over while `where` looked fine).
 7. **Commit**: source, header, `symbols.txt`, and the refreshed progress (`ninja report progress` updates
    `docs/progress.md`, `docs/progress.svg` and the README's bar). Never anything from `orig/`, `build/`, `local/`
    ([LEGAL.md](../LEGAL.md)).

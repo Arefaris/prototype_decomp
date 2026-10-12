@@ -21,7 +21,7 @@ namespace core
 		virtual bool IsComplete() = 0;
 	};
 
-	class MemorySpaceAsyncRequest_Copy : public IMemorySpaceCopyRequest
+	struct MemorySpaceAsyncRequest_Copy : public IMemorySpaceCopyRequest
 	{
 	public:
 		MemorySpaceAsyncRequest_Copy();

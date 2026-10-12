@@ -11,14 +11,14 @@ namespace engine
 {
 	namespace camera
 	{
-		class CameraResetMessage : public IntrusiveMessage
+		struct CameraResetMessage : public IntrusiveMessage
 		{
 		public:
 			CameraResetMessage();
 			virtual ~CameraResetMessage();
 		};
 
-		class CameraCutMessage : public IntrusiveMessage
+		struct CameraCutMessage : public IntrusiveMessage
 		{
 		public:
 			CameraCutMessage();

@@ -207,13 +207,53 @@ explicitly instantiated containers (container::ArrayCDynamic<T, N>, an inline ar
 the new[]-based array the RTTI calls ArrayDynamic<T, AllocatorNew>, kept here as container::ArrayDynamicNew).
 Six class functions are EQUIVALENT (see the source). Open:
 
-- The runtime part: 0x107F2B20 - 0x107F2CC0, 0x107F34D0 - 0x107F37F0, 0x107F41E0, 0x107F4240, the ray / sphere
-  casts 0x107F5540 / 0x107F5AC0 / 0x107F66B0 and the update 0x107F5D20 (2.4 KB, ravenphysics queries).
 - Container members that do not match yet (left unmapped, the engine's copies stay): ArrayDynamicNew::Create /
   Allocate / Erase / Reserve / Insert, ArrayCDynamic Erase / ShiftUp / Insert (Entry), the UninitializedFill and
   CopyRange copies, the helpers' Insert / Erase. Mostly register allocation.
 - 0x107F3020, 0x107F31A0, the empty functions 0x107F2F40 / 0x107F31E0 - 0x107F3200 / 0x107F3CC0 - 0x107F3CE0: owners
   unknown (more identical copies than names).
+
+Second part (runtime, 12 functions: 7 match, 5 EQUIVALENT): the cast input / result structs (CastInput 0x58 bytes:
+ignore word, frame, down, start offset, extra length; CastResult 0x28 bytes, constructed with 1e12 / -1 / 0xff),
+CastRay (a ravenphysics segment query from the limb origin along `down`, through the engine's shared hit buffer
+0x107E6CD0 / 0x107E3C30 / 0x107E3C20 and `ravenphysics::Context::CastRay` 0x106593A0 on the context 0x1128356C; the
+nearest hit whose normal faces the cast within cosineSupportAngleTolerance), Cast (the random rays on a circle of
+randomRayCircleRadius around the origin, keeping the nearest), ResetDirection, GetSupportPlane and the free helpers
+SmoothValue, SmoothDirection, CrossAxes, AlignAxis, OrientAxes (ORIENTATION_AXIS: axis % 3 is the matrix row, axis / 3
+the sign; the third axis of a pair comes from a 3x3 table). The physics library's types live in
+`code/ravenphysics/context.h` (the definition's properties plus the word behind them are one 12-byte
+IntersectionFilter, copied whole into the query). Validation (2026-10-12): free roam, sprint, jump, fight, teleport.
+
+| Address | Guess | Notes |
+|---|---|---|
+| 0x107F2B20 | GetSupportPlane | EQUIVALENT: end point computed x, z, y in the engine (y as length * normal.y) |
+| 0x107F3560 | AlignAxis | EQUIVALENT: axis in esi / direction in ecx in the engine, ecx / edx in ours |
+| 0x107F36C0 | SmoothDirection | EQUIVALENT: load order of the direction and the dot product's sum order |
+| 0x107F5540 | CastRay | EQUIVALENT: this in edi and an 8 byte larger frame in the engine |
+| 0x107F5AC0 | Cast | EQUIVALENT: result flag in bl in the engine, the two matrices swapped on the stack |
+| 0x107F5D20 | Update | EQUIVALENT: the engine calls its kept copy of SmoothingVelocityMap::IsEmpty (0x107F3210), ours inlines it |
+
+Update (2.4 KB) casts for a move of the character from the previous to the current frame (a second, predicting cast
+from the new frame when the first finds the ground beyond the resting length), turns the random rays that found
+nothing, smooths the limb's length (SmoothValue with the velocity map or the linear / fractional limits) and its
+direction (SmoothDirection towards the surface normal), orients the character frame (OrientAxes / AlignAxis against
+the up vector) and finally moves `current` across the cast direction so that the limb's end stays on the support.
+
+**Bug found on 2026-10-12 (since part 1):** every character fell over sideways in the hybrid. The cause was the class
+key: the original's RTTI names `.?AUSupportingLimbDefinitionList@engine@@` (a struct), ours was a class, and the
+game's `dynamic_cast` (LoadInventory::DynamicCaster) compares type names, so the cast to the list returned null and
+no character got its limb definitions. Byte matching and the slot check cannot see this; vtcheck now compares the
+class key of every vftable's RTTI type too (it found 20 more, fixed in the same commit).
+
+**Second bug (same day): pedestrians sank to their knees.** CastRay stored the input's word into the query's flags
+(+0x24, which must stay 3) instead of the filter's last word (+0x20): a `mov [esp+0x78]` right after a `push` is
+`[esp+0x74]` of the frame. Alex's limbs still found the ground, the pedestrians' did not. Found with a differential
+build: the original CastRay kept, ours compiled under another name, Cast calling both and logging every difference.
+Count the pending pushes when reading stack stores; an EQUIVALENT function is only as good as that reading.
+
+Matching notes: a `Set(a, b, c)` call (arguments evaluated before any store) is what makes a cross product load all six
+components first; component-wise row stores through a `Vector&` to the matrix row give the engine's pointer forms;
+`Clamp(t, 0, 1)` sometimes becomes a different branch layout than two explicit `Select`s; `-v` is `-0.0f - x` (subss).
 
 Lessons:
 

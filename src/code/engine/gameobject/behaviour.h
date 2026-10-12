@@ -18,7 +18,7 @@ namespace engine
 {
 	class Behaviour;
 	class GameObject;
-	class Message;
+	struct Message;
 	class DispatchTable;
 
 	// A small set of flag bits. The members are defined outside the class without inline, so every unit keeps its

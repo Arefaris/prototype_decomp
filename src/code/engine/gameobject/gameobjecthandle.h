@@ -11,7 +11,7 @@ namespace engine
 	class MessageListeners;
 
 	class GameObject;
-	class Message;
+	struct Message;
 
 	struct GameObjectEntry
 	{

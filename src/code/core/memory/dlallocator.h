@@ -78,7 +78,7 @@ namespace core
 		char* base;
 	};
 
-	class MemoryDlAllocator_Implementation : public AllocatorBaseSub, public Object, public coreDlMalloc
+	struct MemoryDlAllocator_Implementation : public AllocatorBaseSub, public Object, public coreDlMalloc
 	{
 	public:
 		// The heap's own block (freed by the last Release), the block the malloc works in

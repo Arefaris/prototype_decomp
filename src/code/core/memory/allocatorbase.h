@@ -70,8 +70,9 @@ namespace core
 	// core::AllocatorBaseSub (RTTI name; vftable 0x10E46C24): the allocator interface with the name / safety slots and
 	// the flag forwarders filled in, AllocatorBase at 4. Shared by SegmentPoolAllocator and MemoryDlAllocator; the
 	// methods are defined in memory/segmentpoolallocator.cpp (0x1063E400 - 0x1063E470).
-	struct AllocatorBaseSub : IMemoryAllocator, AllocatorBase
+	class AllocatorBaseSub : public IMemoryAllocator, public AllocatorBase
 	{
+	public:
 		virtual void* AllocFlags(unsigned int size, unsigned int align, int flags, int unused);
 		virtual void FreeFlags(void* block);
 		virtual const char* GetName();

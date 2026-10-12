@@ -21,8 +21,9 @@ namespace core
 		unsigned int flags;
 	};
 
-	struct IDebugOutputHandler
+	class IDebugOutputHandler
 	{
+	public:
 		virtual void OnOutput(DebugMessage* message) = 0;
 		virtual ~IDebugOutputHandler()
 		{
@@ -63,8 +64,9 @@ namespace core
 		unsigned int total;
 	};
 
-	struct ICrashHandler
+	class ICrashHandler
 	{
+	public:
 		virtual bool OnCrash(void* context) = 0;
 	};
 
