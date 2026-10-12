@@ -22,6 +22,10 @@ namespace container
 
 		// 0x1060ED50: printf into the string
 		void Format(const char* format, ...);
+		// 0x1060EEE0: how often c occurs
+		int Count(char c);
+		// 0x1060F080: calls function with every part of the string between separators (and context)
+		void ForEachToken(char separator, void (*function)(const char* token, void* context), void* context);
 	};
 
 	template<int N> class StringC : public String
@@ -45,6 +49,23 @@ namespace container
 		}
 
 		char buffer[N];
+	};
+
+	// A heap copy of a string through Allocator (RTTI: StringDynamic<struct container::AllocatorCoreStatic<12,16> >;
+	// the constructors and virtual functions are in other units, member names guessed)
+	template<class Allocator> class StringDynamic : public String
+	{
+	public:
+		// The allocator argument is an empty object passed by reference
+		StringDynamic(const char* text, const Allocator& allocator);
+		virtual ~StringDynamic();
+		virtual char* Data();
+		virtual const char* ConstData() const;
+		virtual int Capacity() const;
+
+		int unknown4;
+		unsigned int size;
+		char* data;
 	};
 }
 
