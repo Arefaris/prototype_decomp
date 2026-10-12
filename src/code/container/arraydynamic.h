@@ -95,6 +95,21 @@ namespace container
 			begin = 0;
 			end = 0;
 		}
+		// The same with an allocator argument (not used)
+		ArrayDynamic(unsigned int count, const Allocator& allocator)
+		{
+			if (count > 0)
+			{
+				begin = (T*)Allocator().Alloc(count * sizeof(T), 16);
+				if (begin != 0)
+				{
+					end = begin + count;
+					return;
+				}
+			}
+			begin = 0;
+			end = 0;
+		}
 		~ArrayDynamic()
 		{
 			if (begin != 0)

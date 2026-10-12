@@ -336,3 +336,38 @@ Lessons:
   (`DBSubject* subject = it->value;`) to get the engine's load order.
 - SList needs its (empty) allocator member: sizeof 0x10, which the engine's SList::Size loop and `new` sizes show.
 - `ResetSubject` / `ResetInt` / `ResetFloat` reset the subject twice (engine behaviour, kept).
+
+## stream/streampackage.cpp (0x107F9F50 - 0x107FBE3C)
+
+engine::StreamPackage (RTTI; a reflected MetaLoadObject with slotGroup, prerequisites, resources, tags, sync,
+xenonMaxSize, inventoryInitialSize) and its run-time half, StreamPackageInstance (name guessed, 0xA0 bytes): the
+nine-state load machine over engine::streampackagestates (states and their transition table in this unit, the
+states themselves in another), the inventory, the resource loaders and the stream clients. 58 functions match, plus
+63 kept copies (the lists' members, StringDynamic, the string / primitive meta type getters and setters, the member
+meta type getters, the scalar deleting destructors). The directory and file name are guesses (no assert path). The
+reflected setters of tags / sync / inventoryInitialSize were folded by the linker with identical functions of other
+units (0x104E13C0 / 0x104E13D0 / 0x104E13E0), so they are compiled but not annotated.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107F9FA0 StreamPackageInstance::Update | EQUIVALENT | the engine adds the state to request * 9 as a memory operand and reloads it for the comparison |
+| 0x107FA050 StreamPackageInstance::CreateInventory | EQUIVALENT | register choice in the AddRef call |
+| 0x107FBC90 StreamPackage(const Name&) | EQUIVALENT | scheduling of the reference count store |
+| 0x107FBDC0 StreamPackage() | EQUIVALENT | as the other constructor |
+
+Unreferenced kept copies not reproduced: 0x107FA240 / 0x107FA260 / 0x107FA280 (`mov eax, ecx`), 0x107FA2A0 /
+0x107FAF40 (a cdecl `if (p) *p = value`), 0x107FAE40 / 0x107FAE70 (`mov eax, [ecx]`) and the one-byte `ret`s.
+
+Lessons:
+
+- StringDynamic's constructor is inlined into `new String(name)` but not into `new String(text, StreamAllocator())`:
+  one in-class constructor with a defaulted allocator argument gives both call sites; a separate out-of-class
+  template constructor for the explicit form was not needed.
+- A countdown that reads `[base + i*4 - 4]` and then `[base + i*4]` after the decrement is `while (i-- != 0)` with
+  both accesses at `[i]`, not `[i - 1]` / `--i`.
+- Find-and-erase loops that keep the end pointer in a register across the erase need a local end that is reloaded
+  after the erase (`end = list.end;`), placed before any following push.
+- A state machine loop that keeps a constant in ebx came from writing `request = REQUEST_NONE` on both paths (the
+  compiler merges the stores and hoists the constant), not from a goto.
+- `bool active = false; if (...) active = call(); return active;` gives the engine's `xor al, al` before the test and
+  a tail jump.
