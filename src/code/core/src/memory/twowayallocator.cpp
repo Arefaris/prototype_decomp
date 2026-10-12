@@ -1,4 +1,5 @@
 #include "code/core/heap.h"
+#include "code/core/memory/dlallocator.h"
 #include "code/core/memory/twowayallocator.h"
 #include "code/core/report.h"
 #include "code/core/utility.h"
@@ -37,6 +38,38 @@ namespace core
 	bool IsAligned(unsigned int value, unsigned int align)
 	{
 		return value == AlignUp(value, align);
+	}
+
+	// Two flags nothing reads (0x110BCCE4 / 0x110BCCE5; names guessed)
+	extern bool gHeapFlagLow;
+	extern bool gHeapFlagHigh;
+
+	// FUNCTION: ENGINE 0x106453E0
+	void SetHeapFlags(bool high, bool low)
+	{
+		gHeapFlagLow = low;
+		gHeapFlagHigh = high;
+	}
+
+	// FUNCTION: ENGINE 0x10645400
+	IMemoryAllocator* NewHeapAllocator(unsigned int size, int parent, const char* name, unsigned int align,
+		bool noFastbins, bool manual)
+	{
+		return CreateDlAllocator(true, parent, false, 0, size, name, align, noFastbins, manual);
+	}
+
+	// FUNCTION: ENGINE 0x10645430
+	IMemoryAllocator* NewHeapAllocatorAt(void* memory, unsigned int size, const char* name, int unused,
+		unsigned int align, bool noFastbins, bool manual)
+	{
+		return CreateDlAllocator(false, 0, true, memory, size, name, align, noFastbins, manual);
+	}
+
+	// FUNCTION: ENGINE 0x10645460
+	IMemoryAllocator* NewHeapAllocatorOver(void* memory, unsigned int size, int heap, const char* name, int unused,
+		unsigned int align, bool noFastbins, bool manual)
+	{
+		return CreateDlAllocator(false, heap, false, memory, size, name, align, noFastbins, manual);
 	}
 
 	// FUNCTION: ENGINE 0x106454B0

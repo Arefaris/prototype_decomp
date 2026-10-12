@@ -154,8 +154,9 @@ compiler-generated functions match too (scalar deleting destructor 0x10645B50, t
   out as the original build's `..\..\..\code\...` literal.
 - AllocAligned needs the two-sided if / else: the one-sided form becomes a `cmova`.
 - objcmp now compares a data constant of our object only up to the next symbol or the section end (the static bools).
-Left alone: 0x106453E0 (stores two bytes to 0x110BCCE4 / 0x110BCCE5, no references), 0x10645400 / 0x10645430 /
-0x10645460 (three argument-shuffling wrappers around 0x1064C300 with callers all over the engine), 0x106454A0
+Added later (2026-10-12): SetHeapFlags (0x106453E0, two flags nothing reads) and the three CreateDlAllocator
+wrappers NewHeapAllocator / NewHeapAllocatorAt / NewHeapAllocatorOver (0x10645400 - 0x10645460; their last two
+arguments are bool, as the dlmalloc factory passes them through unconverted). Left alone: 0x106454A0
 (`return this->field4`), 0x106456C0 / 0x10645720 (empty) and the interlocked helpers 0x10645970 - 0x10645990
 (register arguments); which unit they belong to is not clear.
 
