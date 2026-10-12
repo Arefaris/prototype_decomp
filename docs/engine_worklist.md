@@ -288,3 +288,14 @@ Not mapped (no identical copy of ours): 0x108357C0 (plane AssignRange), 0x108361
 destructor). Matching notes: free function templates need `inline` to be inlined (/Ob1) — ConstructCopyAt is,
 ConstructFill / AssignRange / ConstructCopiesN are not; an empty allocator argument must be a named local (a
 value-initialised temporary gets a byte store); loops over a list cache its end before the loop.
+
+## system/tagset.cpp (0x108340A0 - 0x108351A0): open, blocked on core::Name
+
+TagSet (declared in `code/engine/system/tagset.h`): sorted core::Name tags plus an "all" flag; ToString (static
+StringC buffer, tags joined), Find / Contains / Remove, Intersects / Includes (merge walks), FromString, an insert by a
+comparison function (0x10834D70) and the VS2005 Dinkumware std::sort / lower_bound instances for Name* (`<algorithm>`
+from the toolchain would reproduce them). Blocked: several of those instances align their frames (`and esp, -8`)
+around local Name copies, which suggests core::Name holds a 64-bit member in the original (our Name is two ints, laid
+out with 4-byte alignment by its users). Tried 2026-10-12: `unsigned __int64 key` breaks only the 15 camera functions
+(Cinematographer keeps a Name at offset 4); the same inside `#pragma pack(push, 4)` keeps all 2376 matching. Next step:
+compile TagSet's std::sort with that Name and see whether the frames get `and esp, -8`.
