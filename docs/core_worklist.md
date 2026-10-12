@@ -671,5 +671,28 @@ destructor; mapped). Notes:
   before the GetGranularity call); Matches hashes into a local first.
 Validation (2026-10-12): free roam and a teleport in the hybrid (every archive opens through it).
 
+## memory/dlallocator.cpp (0x1064AE30 - 0x1064C41B): done (28 functions)
+
+core::MemoryDlAllocator and core::`anonymous namespace'::MemoryDlAllocator_Implementation (RTTI names; declared in core,
+`code/core/memory/dlallocator.h`, since anonymous namespace names carry a hash of the build path; file and member
+names guessed): an allocator over one block run by Doug Lea's malloc 2.7.2 (`anonymous namespace'::coreDlMalloc, a
+base at 0x4C), stripped of mmap and trimming: MORECORE moves a break between the malloc state / fastbin array at the
+start of the block and its end, MALLOC_ALIGNMENT is a member (at least 8), malloc_getpagesize is 8, the fastbins live
+in an array of their own (none with `noFastbins`, which also sets max_fast to 0), the thresholds are 128 KB. The
+wrapper keeps counts / bytes / peak statistics, starts the malloc over when the last block is freed, and the factory
+(CreateDlAllocator, 0x1064C300; NewHeapAllocator / NewHeapAllocatorAt forward to it) places the allocator in front of
+a heap block, at the start of caller memory or in its own heap block. Everything matches, including the dlmalloc
+functions written from the 2.7.2 source (malloc_init_state, malloc_consolidate, mALLOPt, fREe, sYSMALLOc, mALLOc,
+mEMALIGn) and the compiler-generated ones (coreDlMalloc constructor / destructor copies, thunks, scalar deleting
+destructors; mapped). Notes:
+- Inline in the .cpp (their copies are annotated): MORECORE (inlined by sYSMALLOc, whose impossible checks then fold
+  away), ResetStatUnlocked, both destructors, the placement operator new; `__forceinline`: Reset and
+  coreDlMalloc::DisableFastbins (Free reads the state through the coreDlMalloc base).
+- The constructor initialises the counters, block, flags in its mem-initializer list and `refs` in the body; the
+  in-place path of the factory uses an in-class constructor that VC8 inlines (the other paths call 0x1064C1E0).
+- GetStatUnlocked's free-bytes case updates the capacity variable in place; Release tests `!inPlace` first (delete
+  this, else the explicit destructor call).
+Validation (2026-10-12): free roam, a teleport and movement in the hybrid (engine heaps run on it).
+
 ## Candidates nearby (leaf functions, not started)
 
