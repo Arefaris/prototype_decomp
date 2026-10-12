@@ -245,6 +245,12 @@ game's `dynamic_cast` (LoadInventory::DynamicCaster) compares type names, so the
 no character got its limb definitions. Byte matching and the slot check cannot see this; vtcheck now compares the
 class key of every vftable's RTTI type too (it found 20 more, fixed in the same commit).
 
+**Second bug (same day): pedestrians sank to their knees.** CastRay stored the input's word into the query's flags
+(+0x24, which must stay 3) instead of the filter's last word (+0x20): a `mov [esp+0x78]` right after a `push` is
+`[esp+0x74]` of the frame. Alex's limbs still found the ground, the pedestrians' did not. Found with a differential
+build: the original CastRay kept, ours compiled under another name, Cast calling both and logging every difference.
+Count the pending pushes when reading stack stores; an EQUIVALENT function is only as good as that reading.
+
 Matching notes: a `Set(a, b, c)` call (arguments evaluated before any store) is what makes a cross product load all six
 components first; component-wise row stores through a `Vector&` to the matrix row give the engine's pointer forms;
 `Clamp(t, 0, 1)` sometimes becomes a different branch layout than two explicit `Select`s; `-v` is `-0.0f - x` (subss).

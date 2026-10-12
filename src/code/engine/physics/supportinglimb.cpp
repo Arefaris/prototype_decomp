@@ -668,7 +668,7 @@ namespace engine
 {
 	// FUNCTION: ENGINE 0x107F2CC0
 	SupportingLimb::CastInput::CastInput()
-		: unknown0(0), transform(math::Matrix::IDENTITY), down(0.0f, -1.0f, 0.0f), startOffset(0.0f), extraLength(0.0f)
+		: filterWord(0), transform(math::Matrix::IDENTITY), down(0.0f, -1.0f, 0.0f), startOffset(0.0f), extraLength(0.0f)
 	{
 	}
 
@@ -705,7 +705,7 @@ namespace engine
 		query.start.Set(start.x, start.y, start.z);
 		query.end.Set(end.x, end.y, end.z);
 		query.filter = limbDef->filter;
-		query.unknown24 = input.unknown0;
+		query.filter.unknown8 = input.filterWord;
 		RayHitBufferLock lock(true);
 		ravenphysics::RayHitArray& hits = lock.Get();
 		if (ravenphysics::gContext->CastRay(query, &hits) && maxDistance > hits.begin->distance)
@@ -812,7 +812,7 @@ namespace engine
 	// EQUIVALENT: same calls in the same order except that the engine calls its kept copy of
 	// SmoothingVelocityMap::IsEmpty (0x107F3210) where ours inlines it; registers and stack slots differ throughout
 	void SupportingLimb::Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep,
-		int ignore, float dt, CastStatus& status, bool predict)
+		int filterWord, float dt, CastStatus& status, bool predict)
 	{
 		math::Matrix inverse;
 		inverse = transform;
@@ -889,7 +889,7 @@ namespace engine
 				input.down.x = castDirection.x;
 				input.down.y = castDirection.y;
 				input.down.z = castDirection.z;
-				input.unknown0 = ignore;
+				input.filterWord = filterWord;
 				input.startOffset = startOffset;
 				input.extraLength = extraLength;
 				rayIndex = 0;

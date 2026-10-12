@@ -121,8 +121,8 @@ namespace engine
 		{
 			CastInput();
 
-			// Handed to the query (whose object to ignore, presumably)
-			int unknown0;
+			// Replaces the definition's word behind its intersection properties in the query's filter
+			int filterWord;
 			// The character's frame
 			math::Matrix transform;
 			// The cast direction in the world (default down)
@@ -214,7 +214,7 @@ namespace engine
 		bool Cast(const CastInput& input, CastResult& result);
 		// Casts the limb for a move of the character from previous to current, updates the support, the limb's
 		// length and direction, and moves current so that the limb keeps its support
-		void Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep, int ignore,
+		void Update(const math::Matrix& previous, math::Matrix& current, Support& support, bool keep, int filterWord,
 			float dt, CastStatus& status, bool predict);
 
 		SupportingLimbDefinition* limbDef;
