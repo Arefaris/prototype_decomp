@@ -11,7 +11,13 @@
 namespace core
 {
 	class Request;
-	struct ICompletionCallback;
+
+	// core::IFileCompletionCallback (RTTI name; vftable 0x10E2C0B8): what a completion request reports to (slot 3
+	// receives the user data)
+	struct IFileCompletionCallback : IRefCount
+	{
+		virtual void OnComplete(void* userData) = 0;
+	};
 
 	// core::IFile (33 slots). The asynchronous calls queue a request on the drive and return what the drive's
 	// Submit answers; the ...Wait forms queue and then wait until the file has no pending request.
@@ -32,7 +38,7 @@ namespace core
 		virtual unsigned int GetCurrentSize() = 0;
 		virtual int GetGranularity() = 0;
 		virtual int Cancel() = 0;
-		virtual int Notify(ICompletionCallback* callback, void* userData) = 0;
+		virtual int Notify(IFileCompletionCallback* callback, void* userData) = 0;
 		virtual int Signal(void* event) = 0;
 		virtual bool IsIdle() = 0;
 		virtual void Wait() = 0;
@@ -69,8 +75,6 @@ namespace core
 		// Attaches the cache to source (AddRef): the data starts at offset in it (plus the offsets of the caches
 		// source itself reads through)
 		void Open(class File* source, unsigned int offset, unsigned int size, unsigned int packedSize, int mode, void* buffer, unsigned int bufferSize, int unused);
-		// 0x10650CF0 (the Cement library unit): whether this cache holds `path` (and then attaches `target` to it)
-		bool Matches(const char* path, FileCache* target);
 		int Read(Drive* drive, int handle, const char* path, unsigned int a, unsigned int position, void* buffer, unsigned int size, unsigned int* done, int b);
 
 		class File* source;
@@ -85,17 +89,6 @@ namespace core
 		unsigned char* buffer;
 		unsigned int bufferSize;
 		int unknown2C;
-	};
-
-	// The reference-counted table an open-by-key request looks its file up in
-	class FileKeyTable
-	{
-	public:
-		virtual void AddRef() = 0;
-		virtual void Release() = 0;
-
-		// 0x10650AB0
-		bool Find(int key, FileCache* cache);
 	};
 
 	// core::File (vftables 0x10E47C84 / 0x10E47C78): an open file on a drive. Files come from one pool ("File",
@@ -126,7 +119,7 @@ namespace core
 		virtual unsigned int GetCurrentSize();
 		virtual int GetGranularity();
 		virtual int Cancel();
-		virtual int Notify(ICompletionCallback* callback, void* userData);
+		virtual int Notify(IFileCompletionCallback* callback, void* userData);
 		virtual int Signal(void* event);
 		virtual bool IsIdle();
 		virtual void Wait();
@@ -203,7 +196,7 @@ namespace core
 		virtual void FindNextWait(void* data) = 0;
 		virtual void DestroyFileWait(const char* path) = 0;
 		virtual int Cancel() = 0;
-		virtual int Notify(ICompletionCallback* callback, void* userData) = 0;
+		virtual int Notify(IFileCompletionCallback* callback, void* userData) = 0;
 		virtual int Signal(void* event) = 0;
 		virtual bool IsIdle() = 0;
 		virtual void Wait() = 0;
@@ -260,7 +253,7 @@ namespace core
 		virtual void FindNextWait(void* data);
 		virtual void DestroyFileWait(const char* path);
 		virtual int Cancel();
-		virtual int Notify(ICompletionCallback* callback, void* userData);
+		virtual int Notify(IFileCompletionCallback* callback, void* userData);
 		virtual int Signal(void* event);
 		virtual bool IsIdle();
 		virtual void Wait();

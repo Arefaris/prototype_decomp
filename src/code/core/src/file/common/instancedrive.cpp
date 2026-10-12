@@ -247,7 +247,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x1064F1B0
-	int InstanceDrive::Notify(ICompletionCallback* callback, void* userData)
+	int InstanceDrive::Notify(IFileCompletionCallback* callback, void* userData)
 	{
 		return drive->Submit(new DriveCompletionRequest(GetThreadData(), this, callback, userData), key, 0);
 	}

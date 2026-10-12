@@ -3,12 +3,10 @@
 #include "code/core/file/file.h"
 #include "code/core/memory/align.h"
 #include "code/core/memory/allocatorbase.h"
+#include "code/core/pack.h"
 
 namespace core
 {
-	// 0x10652AA0 (another unit): unpacks one chunk; size is how much of it to produce, full its unpacked size
-	void Unpack(const void* source, unsigned int packedSize, void* target, unsigned int size, unsigned int full);
-
 	// FUNCTION: ENGINE 0x10650DC0
 	unsigned short ReadUInt16(const void* data)
 	{

@@ -154,8 +154,9 @@ compiler-generated functions match too (scalar deleting destructor 0x10645B50, t
   out as the original build's `..\..\..\code\...` literal.
 - AllocAligned needs the two-sided if / else: the one-sided form becomes a `cmova`.
 - objcmp now compares a data constant of our object only up to the next symbol or the section end (the static bools).
-Left alone: 0x106453E0 (stores two bytes to 0x110BCCE4 / 0x110BCCE5, no references), 0x10645400 / 0x10645430 /
-0x10645460 (three argument-shuffling wrappers around 0x1064C300 with callers all over the engine), 0x106454A0
+Added later (2026-10-12): SetHeapFlags (0x106453E0, two flags nothing reads) and the three CreateDlAllocator
+wrappers NewHeapAllocator / NewHeapAllocatorAt / NewHeapAllocatorOver (0x10645400 - 0x10645460; their last two
+arguments are bool, as the dlmalloc factory passes them through unconverted). Left alone: 0x106454A0
 (`return this->field4`), 0x106456C0 / 0x10645720 (empty) and the interlocked helpers 0x10645970 - 0x10645990
 (register arguments); which unit they belong to is not clear.
 
@@ -249,7 +250,9 @@ an allocator over memory managed by an embedded heap object at 0x44 (`ExternalHe
 bytes; its methods 0x10B833E0 - 0x10B853A0 are declared and mapped, not reconstructed: the next unit to look at).
 Plain (non-atomic) reference count; the last Release destroys the object in place and frees the block it lives
 in; AllocFlags only serves the allocator's own tag. Init reads GetName back through the vtable and drops it. Every
-function matched on the first compile.
+function matched on the first compile. The two factories behind it match too (2026-10-12): NewPoolAllocator (0x10B81A70: the allocator and its
+block bookkeeping in one block of `heap`, the managed memory from a second heap) and NewPoolAllocatorAt (0x10B81B00:
+over caller memory, memory heap -1); both construct with the global placement new.
 
 ## memory/memoryspace.cpp (0x10645D40 - 0x10645EDB): done (13 functions)
 
@@ -320,8 +323,7 @@ next pointer (so only a run at the head is unlinked); kept as in the original.
 |---|---|---:|---|
 | 0x10650180 | Drive::Update | 98.9 % | EQUIVALENT in tree: the original loads `this` into ecx before pushing the fault handler's result for ClearFault |
 
-Not reconstructed yet: the file cache (0x10650690 - 0x106511C0, FileCacheList 0x10650540 - 0x10650670) and the
-request queue (0x106524C0 onwards), declared in drive.h / file.h and mapped.
+The units that follow are cementer.cpp (0x10650290 - 0x10650DB4) and filecache.cpp (0x10650DC0 onwards).
 
 ## sync.cpp (0x1063D220 - 0x1063D428): 16 functions
 
@@ -629,6 +631,106 @@ pushes of the constants stay the same); Submit falls off its end (no return valu
 semaphores are handle-sized members (a char array lands one byte off); queue loops use `unsigned int`; in Run the
 fault-retry branch needs `if (retry == 0) { finish; break; }` and then the cancelled case before the requeue.
 Validation (2026-10-11): free roam and a teleport in the hybrid.
+
+## pack.cpp (0x10652A90 - 0x1065314C): done (7 functions)
+
+The core module's LZ77 packer (`code/core/pack.h`; file and all names guessed): GetPackWorkSize, Unpack (the file
+cache's ReadPacked unpacks chunks with it) and Pack with its four static helpers (a binary tree of earlier positions
+as match finder, an exhaustive search for matches at writable distances, the token writer). Format: a token byte,
+high nibble 0 = literal run of the low nibble's length, otherwise a match of that length at distance (next byte << 4
+| high nibble); length nibble 0 means 15 plus an extension (zero bytes worth 255 each, then a closing byte). All
+match. Notes:
+- Unpack takes `const unsigned char*` / `unsigned char*` and walks its parameters (local copies get loaded before
+  the size test); the match branch comes first (`token > 0xF`); the offset is computed into `token` itself
+  (`token = (*in << 4) | (token >> 4); from = out - token;`), which puts `from` in the token's register; the
+  full-chunk copy is 15 / 4 times unrolled by hand and needs `length -= quads << 2` (`quads * 4` gives neg / lea).
+- The static helpers take register arguments (InitPackTree eax / ecx, InsertPackNode size in ecx, FindPackMatch pos
+  in ecx, WritePackToken edi / ecx / al with the parameter order (out, length, token): the other orders schedule the
+  argument loads differently in Pack). FindPackMatch tests `(i - pos) & 0xF`; WritePackToken's zero-byte loop
+  becomes a memset; Pack's two `fast` insertions are one statement after the if / else, its inner loop runs over
+  a copy of the match length.
+Validation (2026-10-12): free roam and a teleport in the hybrid.
+
+## file/common/cementer.cpp (0x10650290 - 0x10650DB4): done (31 functions)
+
+core::CementLibrary (RTTI name; assert path `code\core\srcile\common\cementer.cpp`; `code/core/file/cementlibrary.h`;
+members m_pDrive / m_pRegistrationDrive from the assert text, everything else guessed): an open Cement archive
+("ATG CORE CEMENT LIBRARY", the game's .rcf files). The constructor AddRefs both drives and the archive file and
+starts the open through the file's completion callback (step 0 header, step 1 directory, step 2 register; a preload
+skips the reads); registered libraries sit in the registration drive's CementLibraryList (two lists by pass, walked
+by FileOpenRequest before and after the drive itself) and serve file opens by the hash of the path (binary search of
+the sorted directory, 12-byte entries or 20-byte ones with packing); packed libraries share the list's unpack buffer.
+What used to be FileCacheList is this list, FileKeyTable and FileCache::Matches are CementLibrary, and the
+completion callback interface is core::IFileCompletionCallback (RTTI name, IRefCount base); drive.h / file.h /
+request.h / mounts.h and their symbols were renamed accordingly (Drive::AddLibrary / RemoveLibrary / GetLibraries).
+The cement open parameters are (pass, heap, preload). Everything matches, including the compiler-generated
+functions (ICementLibrary constructor / destructor copies, the four adjustor thunks, the scalar deleting
+destructor; mapped). Notes:
+- The magic test is `strcmp` against the literal (VC8 turns it into `repe cmpsb` over 0x18 bytes; memcmp gives a
+  dword loop), as `valid = true; if (strcmp(...) != 0) valid = false;`.
+- GetEntrySize and FindEntry are external functions (as statics they take register arguments); GetEntrySize is
+  `inline` (inlined by Find, copy still emitted).
+- Find needs nested ifs with the success path inside; OnComplete passes the Object heap through a local (read
+  before the GetGranularity call); Matches hashes into a local first.
+Validation (2026-10-12): free roam and a teleport in the hybrid (every archive opens through it).
+
+## memory/dlallocator.cpp (0x1064AE30 - 0x1064C41B): done (28 functions)
+
+core::MemoryDlAllocator and core::`anonymous namespace'::MemoryDlAllocator_Implementation (RTTI names; declared in core,
+`code/core/memory/dlallocator.h`, since anonymous namespace names carry a hash of the build path; file and member
+names guessed): an allocator over one block run by Doug Lea's malloc 2.7.2 (`anonymous namespace'::coreDlMalloc, a
+base at 0x4C), stripped of mmap and trimming: MORECORE moves a break between the malloc state / fastbin array at the
+start of the block and its end, MALLOC_ALIGNMENT is a member (at least 8), malloc_getpagesize is 8, the fastbins live
+in an array of their own (none with `noFastbins`, which also sets max_fast to 0), the thresholds are 128 KB. The
+wrapper keeps counts / bytes / peak statistics, starts the malloc over when the last block is freed, and the factory
+(CreateDlAllocator, 0x1064C300; NewHeapAllocator / NewHeapAllocatorAt forward to it) places the allocator in front of
+a heap block, at the start of caller memory or in its own heap block. Everything matches, including the dlmalloc
+functions written from the 2.7.2 source (malloc_init_state, malloc_consolidate, mALLOPt, fREe, sYSMALLOc, mALLOc,
+mEMALIGn) and the compiler-generated ones (coreDlMalloc constructor / destructor copies, thunks, scalar deleting
+destructors; mapped). Notes:
+- Inline in the .cpp (their copies are annotated): MORECORE (inlined by sYSMALLOc, whose impossible checks then fold
+  away), ResetStatUnlocked, both destructors, the placement operator new; `__forceinline`: Reset and
+  coreDlMalloc::DisableFastbins (Free reads the state through the coreDlMalloc base).
+- The constructor initialises the counters, block, flags in its mem-initializer list and `refs` in the body; the
+  in-place path of the factory uses an in-class constructor that VC8 inlines (the other paths call 0x1064C1E0).
+- GetStatUnlocked's free-bytes case updates the capacity variable in place; Release tests `!inPlace` first (delete
+  this, else the explicit destructor call).
+Validation (2026-10-12): free roam, a teleport and movement in the hybrid (engine heaps run on it).
+
+## memory/externalheap.cpp (0x10B82F80 - 0x10B85713): 55 matched, 8 EQUIVALENT, 1 not reconstructed
+
+core::ExternalHeap (`code/core/memory/externalheap.h`; class, file and all names guessed), the heap inside
+MemoryExternalAllocator: a TLSF allocator (Matthew Conte's TLSF 3.0: fl / sl bitmaps, 20 x 32 list heads, mapping
+insert / search) whose bookkeeping lives outside the managed memory. Every block has a 16-byte descriptor (offset and
+size in 16-byte units, TLSF next / prev links with prev split 12 + 3 bits, a black bit, parent / right / left links,
+15-bit indices, 0x7FFF none) in an array of limit + 3; free descriptors are chained through `next`; all blocks sit in
+a red-black tree by offset (Julienne Walker's top-down insertion and deletion with parent links) used to find the
+block of a pointer and its neighbours; a free list entry is the block in front of a gap, keyed by the gap's size. Two
+sentinels mark the ends; strategy 0 allocates from the low end, 1 from the high end; Resize / Grow / Shrink move the
+managed memory around the allocations. Notes:
+- The descriptor is a class template (ExternalBlockT<0>, explicitly instantiated): its accessors are inlined
+  where the methods call them and also emitted out of line, unreferenced, as in the original (22 copies at
+  0x10B82F80 - 0x10B832D0). Offset and size are read / written as masks on the raw first word (`location`), the
+  15-bit links as bitfields with `int` setters (SetLeft and SetChild mask with 0x7FFF explicitly), GetChild as
+  `if (side == 0) return left; return right;`, Clear as memset 0xFF. VC8 makes the same per-call inlining choices as
+  the original (SetOffset stays a call in Alloc and Resize).
+- tlsf_fls is `static inline` (emitted although only inlined), tlsf_fls_sizet / tlsf_ffs static with register
+  arguments.
+- The methods mix block pointers (`ExternalBlock* block = &blocks[i]`) and indexed access exactly as the original
+  reloads `blocks`; InsertFree re-reads the link it just wrote; the strategy tests are a switch in Alloc / FindFree /
+  AllocEnd's address step and if / else if elsewhere; Alloc needs early returns.
+- Not reconstructed: TreeRemove (0x10B840B0, 2314 bytes, Walker's top-down deletion; mapped, the original stays).
+Validation (2026-10-12): free roam, two teleports and movement in the hybrid (engine::CreatePoolHeap builds one).
+
+| Address | Function | Notes |
+|---|---|---|
+| 0x10B83670 | FindBlock | EQUIVALENT: the original's search loop is not rotated (two separate child reads jumping back to the test) |
+| 0x10B836E0, 0x10B837E0 | GetSuccessor / GetPredecessor | EQUIVALENT: registers and the walk-up flag handling differ |
+| 0x10B838E0 | Rotate | EQUIVALENT: the original keeps one child read as two separate __aullshr calls through memory |
+| 0x10B83D00 | TreeInsert | EQUIVALENT: as Rotate, plus registers / spill slots |
+| 0x10B84AF0 | FindFree | EQUIVALENT: the second loop is not rotated in the original |
+| 0x10B85150 | AllocEnd | EQUIVALENT: register allocation at the join of the strategy branches (one more stack slot in the original) |
+| 0x10B85520 | Resize | EQUIVALENT: the original saves ebx before the count test (its early returns stay apart) |
 
 ## Candidates nearby (leaf functions, not started)
 

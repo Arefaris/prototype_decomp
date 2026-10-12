@@ -5,17 +5,10 @@
 #ifndef CORE_FILE_MOUNTS_H
 #define CORE_FILE_MOUNTS_H
 
-#include "code/core/file/file.h"
+#include "code/core/file/cementlibrary.h"
 
 namespace core
 {
-	// core::ICementLibrary (RTTI name; 9 slots): an open Cement archive
-	struct ICementLibrary : IRefCount
-	{
-		virtual void Slot3() = 0;
-		virtual void Wait() = 0;
-	};
-
 	struct Mount
 	{
 		char name[17];
@@ -56,8 +49,8 @@ namespace core
 	void OpenDriveAsync(IDrive** drive, const char* device, int key, int unused);
 	void OpenDrive(IDrive** drive, const char* device, int key, int unused);
 	// The archive's files can come from another device (null: the archive's own)
-	void OpenCementLibraryAsync(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
-	void OpenCementLibrary(ICementLibrary** library, const char* path, int a, int b, int heap, const char* source);
+	void OpenCementLibraryAsync(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source);
+	void OpenCementLibrary(ICementLibrary** library, const char* path, int pass, int heap, int preload, const char* source);
 
 	// The Win32 devices (file/win32/devices.cpp, 0x1064F810 - 0x1064FA88): the current drive letter, the names mapped
 	// to RAM drives, whether a device exists and the drive behind it
@@ -66,8 +59,6 @@ namespace core
 	void RemoveDeviceMapping(const char* device);
 	bool IsValidDevice(const char* device);
 	void CreateDeviceDrive(Drive** drive, const char* device, int heap, const char* path);
-	// 0x10650D20 (not reconstructed)
-	void CreateCementLibrary(ICementLibrary** library, Drive* drive, const char* path, int a, int b, int heap, Drive* source);
 	// 0x1064C470 / 0x1064C480: empty start-up and shut-down hooks; 0x1064C490 returns 0
 	void InitMountsHook();
 	void ShutdownMountsHook();
