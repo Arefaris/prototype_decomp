@@ -79,48 +79,52 @@ namespace pure3d
 		const math::Matrix& cameraMatrix = context->camera->transform;
 		math::Vector cameraPosition;
 		cameraMatrix.GetTranslation(cameraPosition);
-		float radius;
+		// The sphere's radius keeps the value of the last part that had a state (the engine does not clear it)
+		math::Sphere sphere;
 		// The parts that are not decals fade in by their distance
-		for (DrawablePart** it = list->begin; it != list->end; it++)
+		for (DrawablePart** it = list->begin, **end = list->end; it != end; it++)
 		{
 			DrawablePart* part = *it;
-			math::Vector centre(0.0f, 0.0f, 0.0f);
+			sphere.centre.x = 0.0f;
+			sphere.centre.y = 0.0f;
+			sphere.centre.z = 0.0f;
 			if (part->state)
 			{
 				math::AABB box;
 				part->state->GetBoundingBox(&box);
-				float cx, cy, cz, r;
 				if (!box.IsEmpty())
 				{
 					float hx = (box.max.x - box.min.x) * 0.5f;
 					float hz = (box.max.z - box.min.z) * 0.5f;
 					float hy = (box.max.y - box.min.y) * 0.5f;
-					cx = hx + box.min.x;
-					cy = hy + box.min.y;
-					cz = hz + box.min.z;
-					r = sqrtf(hx * hx + hz * hz + hy * hy);
+					sphere.centre.x = hx + box.min.x;
+					sphere.centre.y = hy + box.min.y;
+					sphere.centre.z = hz + box.min.z;
+					float squared = hx * hx;
+					squared += hz * hz;
+					squared += hy * hy;
+					sphere.radius = sqrtf(squared);
 				}
 				else
 				{
-					cx = 0.0f;
-					cy = 0.0f;
-					cz = 0.0f;
-					r = 0.0f;
+					sphere.centre.x = 0.0f;
+					sphere.centre.y = 0.0f;
+					sphere.centre.z = 0.0f;
+					sphere.radius = 0.0f;
 				}
-				centre.x = cx;
-				centre.y = cy;
-				centre.z = cz;
-				radius = r;
 			}
 			else
 			{
-				part->primitive->GetCentre(&centre);
+				part->primitive->GetCentre(&sphere.centre);
 			}
-			centre.Transform(part->worldMatrix);
-			float dx = centre.x - cameraPosition.x;
-			float dy = centre.y - cameraPosition.y;
-			float dz = centre.z - cameraPosition.z;
-			if (part->primitive->type != 0x200 && sqrtf(dx * dx + dz * dz + dy * dy) - radius <= 175.0f)
+			sphere.centre.Transform(part->worldMatrix);
+			float dy = sphere.centre.y - cameraPosition.y;
+			float dz = sphere.centre.z - cameraPosition.z;
+			float dx = sphere.centre.x - cameraPosition.x;
+			float squared = dx * dx;
+			squared += dz * dz;
+			squared += dy * dy;
+			if (part->primitive->type != 0x200 && sqrtf(squared) - sphere.radius <= 175.0f)
 			{
 				float lod = part->unknown1C;
 				if (lod > 0.0f)
@@ -131,17 +135,18 @@ namespace pure3d
 			}
 		}
 		// The decals fade out by their distance
-		for (DrawablePart** it = list->begin; it != list->end; it++)
+		for (DrawablePart** it = list->begin, **end = list->end; it != end; it++)
 		{
 			DrawablePart* part = *it;
 			if (part->primitive->type == 0x200)
 			{
-				math::Vector centre(0.0f, 0.0f, 0.0f);
+				sphere.centre.x = 0.0f;
+				sphere.centre.y = 0.0f;
+				sphere.centre.z = 0.0f;
 				if (part->state)
 				{
 					math::AABB box;
 					part->state->GetBoundingBox(&box);
-					math::Sphere sphere;
 					if (!box.IsEmpty())
 					{
 						float hx = (box.max.x - box.min.x) * 0.5f;
@@ -150,7 +155,10 @@ namespace pure3d
 						sphere.centre.x = hx + box.min.x;
 						sphere.centre.y = hy + box.min.y;
 						sphere.centre.z = hz + box.min.z;
-						sphere.radius = sqrtf(hx * hx + hz * hz + hy * hy);
+						float squared = hx * hx;
+					squared += hz * hz;
+					squared += hy * hy;
+					sphere.radius = sqrtf(squared);
 					}
 					else
 					{
@@ -159,18 +167,19 @@ namespace pure3d
 						sphere.centre.z = 0.0f;
 						sphere.radius = 0.0f;
 					}
-					centre = sphere.centre;
-					radius = sphere.radius;
 				}
 				else
 				{
-					part->primitive->GetCentre(&centre);
+					part->primitive->GetCentre(&sphere.centre);
 				}
-				centre.Transform(part->worldMatrix);
-				float dx = centre.x - cameraPosition.x;
-				float dy = centre.y - cameraPosition.y;
-				float dz = centre.z - cameraPosition.z;
-				float distance = (sqrtf(dx * dx + dy * dy + dz * dz) - 100.0f) * 0.013333334f;
+				sphere.centre.Transform(part->worldMatrix);
+				float dx = sphere.centre.x - cameraPosition.x;
+				float dy = sphere.centre.y - cameraPosition.y;
+				float dz = sphere.centre.z - cameraPosition.z;
+				float squared = dx * dx;
+				squared += dz * dz;
+				squared += dy * dy;
+				float distance = (sqrtf(squared) - 100.0f) * 0.013333334f;
 				float fade = distance;
 				if (distance < 0.0f)
 				{
@@ -219,17 +228,14 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1076F010
-	// EQUIVALENT: registers of the part and primitive loads differ
 	void ProtoSlowZPass::Render(PassContext* context)
 	{
 		PartList* list = GetParts(context->scene);
 		for (DrawablePart** it = list->begin; it != list->end; it++)
 		{
 			DrawablePart* part = *it;
-			Primitive* primitive = part->primitive;
-			PartBindingSource* source = (PartBindingSource*)primitive->unknown18;
+			const PrimStreamParameters* parameters = &((PartBindingSource*)part->primitive->unknown18)->parameters;
 			PrimitiveState* state = part->state;
-			const PrimStreamParameters* parameters = &source->parameters;
 			if (state)
 			{
 				state->Unknown9();
@@ -349,12 +355,10 @@ namespace pure3d
 		int count = 0;
 		for (DrawablePart** it = list->begin; it != list->end; it++)
 		{
-			DrawablePart* part = *it;
-			scene->batches[count] = &part->batch;
-			count++;
-			if (part->state)
+			scene->batches[count++] = &(*it)->batch;
+			if ((*it)->state)
 			{
-				part->state->Unknown9();
+				(*it)->state->Unknown9();
 			}
 		}
 		if (count != 0)
@@ -371,12 +375,13 @@ namespace pure3d
 			part->renderBits.Set(10, false);
 			SetObjectSpaceLightPosition(camera, &part->worldMatrix);
 			float* joint = pddi->GetConstant(gConstantProtoJointMatrix, pddiBaseContext::CONSTANT_MATRIX);
-			const float* matrix = &part->jointMatrix.m[0][0];
+			const float* from = &part->jointMatrix.m[0][0];
+			float* to = joint;
 			for (int row = 0; row < 4; row++)
 			{
 				for (int column = 0; column < 4; column++)
 				{
-					joint[row * 4 + column] = matrix[row * 4 + column];
+					*to++ = *from++;
 				}
 			}
 			PartBindingSource* source = (PartBindingSource*)part->primitive->unknown18;
@@ -385,7 +390,6 @@ namespace pure3d
 			{
 				part->state->Unknown9();
 			}
-			const PartBatch* batch = &part->batch;
 			if (part->client.GetFlag(0x13))
 			{
 				if (!parameters.flag0)
@@ -393,16 +397,16 @@ namespace pure3d
 					parameters.flag0 = 1;
 					parameters.unknown4Bits10 = 4;
 					parameters.unknown0 = 0.0f;
-					pddi->DrawBatch(&gShaderLitPR, batch, &parameters);
+					pddi->DrawBatch(&gShaderLitPR, &part->batch, &parameters);
 				}
 				else
 				{
-					pddi->DrawBatch(&gShaderZFill, batch, &parameters);
+					pddi->DrawBatch(&gShaderZFill, &part->batch, &parameters);
 				}
 			}
 			else
 			{
-				pddi->DrawBatch(shader, batch, &parameters);
+				pddi->DrawBatch(shader, &part->batch, &parameters);
 			}
 		}
 		manager->Unknown10715AC0(viewState);
@@ -474,12 +478,27 @@ namespace pure3d
 	namespace
 	{
 		// sum += colour * scale (the four components, w the intensity)
+		inline math::Vector4 Scaled(const math::Vector4& colour, float scale)
+		{
+			return math::Vector4(colour.x * scale, colour.y * scale, colour.z * scale, colour.w * scale);
+		}
+		// constant = (colour * scale, w)
+
+		inline void StoreScaled(float* constant, const math::Vector4& colour, float scale, float w)
+		{
+			math::Vector4 scaled = Scaled(colour, scale);
+			constant[0] = scaled.x;
+			constant[1] = scaled.y;
+			constant[2] = scaled.z;
+			constant[3] = w;
+		}
 		inline void AddScaled(math::Vector4& sum, const math::Vector4& colour, float scale)
 		{
-			sum.x = colour.x * scale + sum.x;
-			sum.y = colour.y * scale + sum.y;
-			sum.z = colour.z * scale + sum.z;
-			sum.w = colour.w * scale + sum.w;
+			math::Vector4 scaled = Scaled(colour, scale);
+			sum.x = scaled.x + sum.x;
+			sum.y = scaled.y + sum.y;
+			sum.z = scaled.z + sum.z;
+			sum.w = scaled.w + sum.w;
 		}
 	}
 
@@ -506,12 +525,6 @@ namespace pure3d
 			ProtoLightUserData* data = dynamic_cast<ProtoLightUserData*>(light->GetUserData());
 			switch (light->type)
 			{
-			case Light::TYPE_AMBIENT:
-				{
-					const math::Vector4* colour = light->GetColour();
-					AddScaled(ambient, *colour, LightSelection::Get()->GetIntensityScale(light, mode));
-				}
-				break;
 			case Light::TYPE_DIRECTIONAL:
 				if (light->mName == shadowLight)
 				{
@@ -541,6 +554,12 @@ namespace pure3d
 					spots.PushBack(light);
 				}
 				break;
+			case Light::TYPE_AMBIENT:
+				{
+					const math::Vector4* colour = light->GetColour();
+					AddScaled(ambient, *colour, LightSelection::Get()->GetIntensityScale(light, mode));
+				}
+				break;
 			}
 		}
 		// The disabled directional lights and spots come after the enabled ones
@@ -549,16 +568,17 @@ namespace pure3d
 			Light* light = lights->begin[i];
 			if (!light->IsEnabled())
 			{
-				if (light->type == Light::TYPE_DIRECTIONAL)
+				switch (light->type)
 				{
+				case Light::TYPE_DIRECTIONAL:
 					if (light->mName != shadowLight)
 					{
 						directional.PushBack(light);
 					}
-				}
-				else if (light->type == Light::TYPE_SPOT)
-				{
+					break;
+				case Light::TYPE_SPOT:
 					spots.PushBack(light);
+					break;
 				}
 			}
 		}
@@ -586,10 +606,7 @@ namespace pure3d
 				float range = LightSelection::Get()->GetRangeScale(light);
 				const math::Vector4* colour = light->GetColour();
 				float* c = pddi->GetConstant(*colours[i], pddiBaseContext::CONSTANT_FLOAT4);
-				c[0] = colour->x * scale;
-				c[1] = colour->y * scale;
-				c[2] = colour->z * scale;
-				c[3] = range;
+				StoreScaled(c, *colour, scale, range);
 				float* d = pddi->GetConstant(*directions[i], pddiBaseContext::CONSTANT_FLOAT3);
 				const math::Vector* direction = light->GetDirection();
 				d[0] = direction->x;
@@ -628,10 +645,7 @@ namespace pure3d
 			float range = LightSelection::Get()->GetRangeScale(shadowLightSource);
 			const math::Vector4* colour = shadowLightSource->GetColour();
 			float* c = pddi->GetConstant(gConstantPRLightColour2, pddiBaseContext::CONSTANT_FLOAT4);
-			c[3] = range;
-			c[0] = colour->x * scale;
-			c[1] = colour->y * scale;
-			c[2] = colour->z * scale;
+			StoreScaled(c, *colour, scale, range);
 			float* d = pddi->GetConstant(gConstantPRLightDirection2, pddiBaseContext::CONSTANT_FLOAT3);
 			const math::Vector* direction = shadowLightSource->GetDirection();
 			d[0] = direction->x;
