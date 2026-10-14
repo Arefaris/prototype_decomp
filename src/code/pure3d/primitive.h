@@ -77,8 +77,10 @@ namespace pure3d
 	public:
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
-		// 0x10731700: prepares the expression state and mixes it into the expression
+		// 0x10731700: prepares the expression and mixes the state into it
 		void Apply(Expression* expression, ExpressionState* state);
+		// 0x10731630
+		void Mix(Expression* expression, ExpressionState* state);
 
 		void* unknown10;
 	};
@@ -271,6 +273,14 @@ namespace pure3d
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
 		unsigned int GetMaxParts();
+		// 0x106EDC90 / 0x106EDCA0
+		bool HasUnknown1A0();
+		unsigned __int64 GetUnknown1B0();
+
+		unsigned char unknown0[0x1A0];
+		int unknown1A0;
+		unsigned char unknown1A4[0xC];
+		unsigned __int64 unknown1B0;
 	};
 	// 0x106EDA80
 	ParticleManager* GetParticleManager();
@@ -338,6 +348,8 @@ namespace pure3d
 		void Unknown10709CD0();
 		// 0x10709CE0: the flag at +0x490
 		bool GetUnknown490();
+		// 0x106ED9D0: the flag at +0x4BC, or the parent's when it is inherited
+		bool GetUnknown4BC();
 		// 0x10709D30: the emitter transform (+0x10, handed on to the generator)
 		void SetTransform(const math::Matrix& transform);
 
@@ -446,6 +458,12 @@ namespace pure3d
 		float unknown4A8;
 		unsigned char unknown4AC[0xC];
 		bool unknown4B8;
+		unsigned char unknown4B9[3];
+		bool unknown4BC;
+		bool inheritUnknown4BC;
+		unsigned char unknown4BE[2];
+		// The state this one was made from
+		ParticleSystemState* parent;
 	};
 }
 

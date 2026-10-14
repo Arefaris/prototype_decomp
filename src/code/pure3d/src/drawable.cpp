@@ -27,6 +27,31 @@ template void core::BitField<unsigned short>::Clear(unsigned short bit);
 // FUNCTION: ENGINE 0x10433D90
 template void core::BitField<unsigned int>::ClearAll();
 
+namespace math
+{
+	// FUNCTION: ENGINE 0x102CBD60
+	// An inline of the math headers whose kept copy sits in another unit (the drawable bounds are its users here)
+	void AABB::Inflate()
+	{
+		const float epsilon = 1e-5f;
+		if (IsEqual(max.x, min.x, epsilon))
+		{
+			max.x += epsilon;
+			min.x -= epsilon;
+		}
+		if (IsEqual(max.y, min.y, epsilon))
+		{
+			max.y += epsilon;
+			min.y -= epsilon;
+		}
+		if (IsEqual(max.z, min.z, epsilon))
+		{
+			max.z += epsilon;
+			min.z -= epsilon;
+		}
+	}
+}
+
 namespace pure3d
 {
 	// The frame number the drawables compare their marks with is pure3d::context's, unless overridden

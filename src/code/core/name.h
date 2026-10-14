@@ -71,6 +71,8 @@ namespace core
 		Name(const Name& other);
 		// 0x1054D960 (another unit)
 		bool operator==(const Name& other) const;
+		// 0x102E8910 (another unit's copy)
+		Name& operator=(const Name& other);
 
 		unsigned int hash;
 	};
