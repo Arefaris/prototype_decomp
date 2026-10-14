@@ -519,6 +519,25 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
 
+## render/async/private/deferreddeletion.cpp (0x108BC250 - 0x108BC7B0): 5 functions match, 15 kept copies
+
+engine::render::DeferredDeletionManager (the name is in the overflow assert; the singleton is the pointer at
+0x1130CCCC): a ring of 3200 reference-counted objects (`mRefCountedItems`, `mHead`, `mTail` are the assert texts) that
+the game thread is done with. `Add` (0x108BC640) stamps an entity with the next frame and keeps a reference;
+`Process` (0x108BC400, once per frame, called through 0x10817AF0) releases the items whose frame has passed and
+returns the frame counter it increments; `Clear` (0x108BC550) releases everything and runs when the ring overflows.
+Layout: count at +0, frame at +4, head at +8, tail at +0xC, the items (frame, reference) from +0x10. All
+counters are accessed interlocked (`_InterlockedAnd(&x, -1)` is the atomic read).
+- The helper classes (AtomicInt, RingIndex<3200>, RefPtr<pure3d::RefCounted>, RefCountedItem, FixedArray<T, N>) are
+  in deferreddeletion.h; the 15 small functions between and after the real ones are their members, kept as separate
+  code (annotated at the end of the cpp). `Load` must be `inline` (the project inlines only inline functions at /Ob1),
+  and `return frame->ExchangeAdd(1)` through a local pointer gives the original's `add edi, 4` before `mov eax, 1`.
+- RefPtr::operator= compares first (`if (mPointer != object)`) and returns the pointer after the block.
+- Not reproduced: 0x108BC250 (an atomic read taking the address in edx, `this` unused) and 0x108BC290 (`xchg [ecx],
+  eax` with the value already in eax), two unreferenced leftovers.
+- renderglobals.cpp still lacks the callers of this class: 0x10817AF0 (Process), the constructor / destructor calls
+  at 0x108190B4 / 0x108179B3 / 0x1081924D.
+
 ## pure3d animation and the choreo pose blending
 
 Three units, none of them named by an assert except the first:

@@ -5,6 +5,7 @@
 #include "code/core/debug.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/async/renderevent.h"
+#include "code/engine/render/async/private/deferreddeletion.h"
 #include "code/engine/render/async/private/drawableimpl.h"
 
 extern "C"
@@ -48,13 +49,6 @@ namespace engine
 			virtual void Free(void* block);
 		};
 
-		// The deferred deletion list (0x108BC640 adds an entity; another unit)
-		class DeferredDeletionList
-		{
-		public:
-			void Add(pure3d::Entity* entity);
-		};
-
 		// A queue the game thread pushes into and the render thread pops from: a ring of 0x20000 values behind two
 		// semaphores (free slots, ready values); a pushed slot becomes readable once every slot before it has been
 		// committed (the commit bookkeeping at +0x10 is not reconstructed)
@@ -75,7 +69,7 @@ namespace engine
 		// The unit's globals stay the image's (0x1130CCC0, 0x1130CCC4, 0x1130CCCC, 0x1130CCDC, 0x11284C60)
 		extern RenderList* gRenderList;
 		extern DrawableTable* gDrawableTable;
-		extern DeferredDeletionList* gDeferredDeletionList;
+		extern DeferredDeletionManager* gDeferredDeletionManager;
 		extern RenderEventAllocator* gRenderEventAllocator;
 		extern AsyncQueue<RenderEvent*> gRenderEventQueue;
 
@@ -110,7 +104,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10817B40
 		void DeferDelete(pure3d::Entity* entity)
 		{
-			gDeferredDeletionList->Add(entity);
+			gDeferredDeletionManager->Add(entity);
 		}
 
 		// FUNCTION: ENGINE 0x10817F40
