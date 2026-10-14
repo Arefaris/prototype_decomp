@@ -10,7 +10,7 @@
 #include "code/core/name.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
-#include "code/engine/scriptcontext.h"
+#include "code/engine/luascriptmanager.h"
 #include <new>
 
 namespace engine
@@ -43,7 +43,7 @@ namespace engine
 		virtual ScenarioMessage* Clone(void* memory, int unused) = 0;
 		virtual bool WriteEvent();
 		// 0x10007C2A (the incremental link thunk of the other unit's copy)
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		GameObjectHandle GetHandle(unsigned int index) const;
 		void SetHandle(unsigned int index, GameObjectHandle handle);
@@ -81,7 +81,7 @@ namespace engine
 		{
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> string;
@@ -106,7 +106,7 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 		virtual ScenarioMessage* Clone(void* memory, int unused);
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> extraString;
@@ -123,7 +123,7 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 		virtual ScenarioMessage* Clone(void* memory, int unused);
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> extraString;
@@ -138,7 +138,7 @@ namespace engine
 		{
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		static ScenarioHandleInfo sHandleInfo;
 	};
@@ -152,7 +152,7 @@ namespace engine
 		{
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
-		virtual void WriteFields(ScriptContext* context);
+		virtual void WriteFields(LuaScriptManager* context);
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> newState;
@@ -167,7 +167,7 @@ namespace engine
 		{ \
 		} \
 		virtual ScenarioMessage* Clone(void* memory, int unused); \
-		virtual void WriteFields(ScriptContext* context); \
+		virtual void WriteFields(LuaScriptManager* context); \
 \
 		static ScenarioHandleInfo sHandleInfo; \
 		core::Name<core::CaseSensitiveKey> name; \

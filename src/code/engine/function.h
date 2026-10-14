@@ -7,7 +7,7 @@
 #ifndef ENGINE_FUNCTION_H
 #define ENGINE_FUNCTION_H
 
-#include "code/engine/scriptcontext.h"
+#include "code/engine/luascriptmanager.h"
 #include <typeinfo>
 
 namespace engine
@@ -25,7 +25,7 @@ namespace engine
 	class Function
 	{
 	public:
-		// 0x108351B0 (another unit): the name is not kept
+		// 0x108351B0 (another unit): the name is set afterwards (SetName)
 		Function(const char* name, int argumentCount);
 		// 0x108351E0 (another unit): 'v' void, 'b' bool, 's' strings, 'i' int and unsigned int, 'f' float,
 		// 'V' math::Vector, 'n' core::Name, 'h' handles, else 'e' for 4-byte types (enumerations) and 'v'
@@ -36,12 +36,52 @@ namespace engine
 
 		virtual void Invoke(void* object, const FunctionArgument* arguments, void* result) = 0;
 
-		void* unknown4;
-		int unknown8;
+		// 0x108351D0 (another unit)
+		void SetName(const char* newName);
+		const char* GetName() const
+		{
+			return name;
+		}
+		const void* GetOwner() const
+		{
+			return owner;
+		}
+		void SetOwner(const void* newOwner)
+		{
+			owner = newOwner;
+		}
+		unsigned char GetArgumentCount() const
+		{
+			return argumentCount;
+		}
+		// The type code of argument index, 'v' past the last
+		char GetArgumentType(unsigned int index) const
+		{
+			if (index < argumentCount)
+			{
+				return argumentTypes[index];
+			}
+			return 'v';
+		}
+		char GetResultType() const
+		{
+			return resultType;
+		}
+		unsigned char GetGeneration() const
+		{
+			return generation;
+		}
+		void SetGeneration(unsigned char value)
+		{
+			generation = value;
+		}
+
+		const char* name;
+		const void* owner;
 		char argumentTypes[8];
 		char resultType;
 		unsigned char argumentCount;
-		bool unknown16;
+		unsigned char generation;
 	};
 
 	// sizeof(T) for the type codes, 0 for void
@@ -413,30 +453,30 @@ public:
 	int unknown24;
 };
 
-template<class C, class R> inline void engine::ScriptContext::RegisterMethod(const char* name, C* object, R (C::*method)())
+template<class C, class R> inline void engine::LuaScriptManager::RegisterMethod(const char* name, C* object, R (C::*method)())
 {
 	AddFunction(name, new Closure0<C, R>(name, object, method));
 }
 
-template<class C, class R, class A1> inline void engine::ScriptContext::RegisterMethod(const char* name, C* object,
+template<class C, class R, class A1> inline void engine::LuaScriptManager::RegisterMethod(const char* name, C* object,
 	R (C::*method)(A1))
 {
 	AddFunction(name, new Closure1<C, R, A1>(name, object, method));
 }
 
-template<class C, class R, class A1, class A2> inline void engine::ScriptContext::RegisterMethod(const char* name, C* object,
+template<class C, class R, class A1, class A2> inline void engine::LuaScriptManager::RegisterMethod(const char* name, C* object,
 	R (C::*method)(A1, A2))
 {
 	AddFunction(name, new Closure2<C, R, A1, A2>(name, object, method));
 }
 
-template<class C, class R, class A1, class A2, class A3> inline void engine::ScriptContext::RegisterMethod(const char* name,
+template<class C, class R, class A1, class A2, class A3> inline void engine::LuaScriptManager::RegisterMethod(const char* name,
 	C* object, R (C::*method)(A1, A2, A3))
 {
 	AddFunction(name, new Closure3<C, R, A1, A2, A3>(name, object, method));
 }
 
-template<class C, class R, class A1, class A2, class A3, class A4> inline void engine::ScriptContext::RegisterMethod(
+template<class C, class R, class A1, class A2, class A3, class A4> inline void engine::LuaScriptManager::RegisterMethod(
 	const char* name, C* object, R (C::*method)(A1, A2, A3, A4))
 {
 	AddFunction(name, new Closure4<C, R, A1, A2, A3, A4>(name, object, method));

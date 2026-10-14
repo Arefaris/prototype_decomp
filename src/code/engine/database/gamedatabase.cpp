@@ -3,7 +3,7 @@
 #include "code/core/heap.h"
 #include "code/core/strings.h"
 #include "code/engine/function.h"
-#include "code/engine/scriptcontext.h"
+#include "code/engine/luascriptmanager.h"
 #include "code/engine/system/enginememory.h"
 #include <string.h>
 
@@ -945,7 +945,7 @@ namespace engine
 		profileSize = params.profileSize;
 		bufferSize = params.bufferSize;
 		controller::InputSystem::Get()->AddCallback(this);
-		ScriptContext* context = GetScriptContext();
+		LuaScriptManager* context = GetScriptManager();
 		context->SetOwner(this);
 		context->RegisterMethod("db_GetInt", this, &GameDatabase::ScriptGetInt);
 		context->RegisterMethod("db_GetFloat", this, &GameDatabase::ScriptGetFloat);
@@ -1077,7 +1077,7 @@ namespace engine
 			released = 0;
 		}
 		FEMovie::RemoveCallback("db_GetWideString");
-		ScriptContext* context = GetScriptContext();
+		LuaScriptManager* context = GetScriptManager();
 		context->Unregister(this);
 	}
 
@@ -1133,7 +1133,7 @@ template class Closure2<engine::GameDatabase, bool, const char*, unsigned int>;
 template class Closure1<engine::GameDatabase, void, unsigned int>;
 template class Closure0<engine::GameDatabase, bool>;
 template class Closure2<engine::GameDatabase, void, const char*, unsigned int>;
-template void engine::ScriptContext::RegisterMethod<engine::GameDatabase, void, unsigned int>(const char*,
+template void engine::LuaScriptManager::RegisterMethod<engine::GameDatabase, void, unsigned int>(const char*,
 	engine::GameDatabase*, void (engine::GameDatabase::*)(unsigned int));
 
 // Kept copies: the script method wrappers and their registration templates, the inline callback base members, the
