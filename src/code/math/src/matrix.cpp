@@ -201,15 +201,19 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107CF8F0
-	// EQUIVALENT: same operations in the same order; the original keeps v.y in xmm1 and v.z in xmm0, we get the reverse
+	// EQUIVALENT: the same sums in the same order (the first pair of out.x is commuted, which is exact); the original
+	// keeps v.y in xmm1 and v.z in xmm0, we get the reverse. Without the partial sums the compiler adds the z products
+	// of out.y and out.z before the y ones, which differs in the last bit
 	void Matrix::Transform(const Vector& v, Vector& out) const
 	{
 		float y = v.y;
 		float z = v.z;
 		float x = v.x;
 		out.x = m[1][0] * y + m[2][0] * z + x * m[0][0] + m[3][0];
-		out.y = m[0][1] * x + m[1][1] * y + m[2][1] * z + m[3][1];
-		out.z = m[0][2] * x + m[1][2] * y + m[2][2] * z + m[3][2];
+		float partialY = m[0][1] * x + m[1][1] * y;
+		out.y = partialY + m[2][1] * z + m[3][1];
+		float partialZ = m[0][2] * x + m[1][2] * y;
+		out.z = partialZ + m[2][2] * z + m[3][2];
 	}
 
 	// FUNCTION: ENGINE 0x107CF990
