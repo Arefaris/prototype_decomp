@@ -10,27 +10,12 @@
 #include "code/math/pddicolour.h"
 #include "code/math/aabb.h"
 #include "code/math/matrix.h"
+#include "code/pure3d/animation.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
 
 namespace pure3d
 {
-	class Animation : public Entity
-	{
-	public:
-		enum CycleMode
-		{
-			CYCLE_MODE_0,
-			CYCLE_MODE_1,
-			CYCLE_MODE_2,
-			CYCLE_MODE_3,
-			CYCLE_MODE_4,
-			CYCLE_MODE_5
-		};
-
-		float numFrames;
-	};
-
 	class Shader;
 
 	// What a texture keeps at +0x10 (its loader settings; the int at +0x20 is passed to the loader)
@@ -128,13 +113,32 @@ namespace pure3d
 		void SetBindingSource(void* source);
 	};
 
+	struct JointChannels;
+	struct PoseAnimationInfo;
+
+	// Bases in the RTTI: BlendFrameController, AnimationFrameController
 	class PoseAnimationController : public FrameController
 	{
 	public:
 		// 0x10732120 (0x168 bytes)
 		PoseAnimationController();
 
-		unsigned char unknown10[0x158];
+		// 0x10732320: lays the animation's joint values over the pose with the given weight. The root joint gets
+		// the change of its channels since previousTime (the root motion), the other joints the values at time; the
+		// weight 1 replaces the pose's values, the weight 0 keeps them. previousTime becomes time.
+		void Apply(int unknown, float time, float weight, JointChannels* channels, float* previousTime);
+
+		unsigned char unknown10[0x100];
+		Pose* mPose;
+		unsigned char unknown114[0x31];
+		bool mUseFrameTimes;
+		unsigned char unknown146[2];
+		float* mFrameTimes;
+		unsigned char unknown14C[0x10];
+		bool mAnimatesRoot;
+		unsigned char unknown15D[3];
+		PoseAnimationInfo* mInfo;
+		unsigned char unknown164[4];
 	};
 
 	class VertexRegionAnimController : public FrameController

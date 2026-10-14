@@ -144,7 +144,7 @@ namespace pure3d
 		{
 			if (IsPoseCurrent() || frameC0 == GetCurrentFrame())
 			{
-				if (pose->mFlags & 2)
+				if (pose->mData.mFlags & 2)
 				{
 					pose->Update();
 				}
@@ -174,7 +174,7 @@ namespace pure3d
 					if (mesh && mesh->GetController3())
 					{
 						((VertexRegionAnimController*)mesh->GetController3())->SetTransform(
-							((math::Matrix*)pose->mJoints)[partJoints.begin[i]]);
+							pose->mData.mWorldMatrices[partJoints.begin[i]]);
 					}
 				}
 			}
@@ -265,7 +265,7 @@ namespace pure3d
 				if (pose && partJoints.begin[i] != 0xFFFF)
 				{
 					math::Matrix world;
-					world.Multiply(((math::Matrix*)pose->mJoints)[partJoints.begin[i]], transform);
+					world.Multiply(pose->mData.mWorldMatrices[partJoints.begin[i]], transform);
 					if (!box.IsEmpty())
 					{
 						worldBox.SetTransformed(world, box);
@@ -365,11 +365,11 @@ namespace pure3d
 				const math::Matrix* jointMatrix;
 				if (pose)
 				{
-					jointMatrix = &((const math::Matrix*)pose->mJoints)[joint];
+					jointMatrix = &pose->mData.mWorldMatrices[joint];
 				}
 				else
 				{
-					jointMatrix = &((const math::Matrix*)skeleton->mJoints)[joint];
+					jointMatrix = &skeleton->mData.mJoints[joint];
 				}
 				if (part.client.IsRegistered())
 				{
