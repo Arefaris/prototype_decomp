@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "code/math/mathconstants.h"
+#include "code/math/mathutils.h"
 #include "code/math/matrix.h"
 #include "code/math/quaternion.h"
 #include "code/math/sincos.h"
@@ -137,6 +138,42 @@ namespace math
 		out.x = t.x;
 		out.y = t.y;
 		out.z = t.z;
+	}
+
+	// The sine series of mathutils.cpp's SinPolynomial (0x107CD410), inline as the engine has it in Slerp
+	inline float SinSeries(float x)
+	{
+		float x2 = x * x;
+		return (((((-2.39e-8f * x2 + 2.7526e-6f) * x2 - 0.000198409f) * x2 + 0.00833333191f) * x2 - 0.166666672f) * x2
+			+ 1.0f) * x;
+	}
+
+	// FUNCTION: ENGINE 0x107CDF90
+	// EQUIVALENT: the inlined sine series folds the sign of its leading coefficient (see SinPolynomial; bit-identical
+	// results), which shifts the registers of the rest
+	void Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t)
+	{
+		float cosine = (b.w * a.w + b.x * a.x) + (a.y * b.y + b.z * a.z);
+		float sinSquared = 1.0f - cosine * cosine;
+		float invSin = 1.0f / sqrtf(sinSquared);
+		float angle = AtanRatio(1.0f / invSin, fabsf(cosine));
+		float wa = SinSeries((1.0f - t) * angle) * invSin;
+		float wb = SinSeries(angle * t) * invSin;
+		wb = Select(sinSquared - EPSILON_SMALL, wb, t);
+		wa = Select(sinSquared - EPSILON_SMALL, wa, 1.0f - t);
+		if (cosine < 0.0f)
+		{
+			wb = -wb;
+		}
+		x = b.x * wb + a.x * wa;
+		y = a.y * wa + wb * b.y;
+		z = b.z * wb + wa * a.z;
+		w = b.w * wb + wa * a.w;
+		float scale = 1.0f / sqrtf((x * x + y * y) + (z * z + w * w));
+		x *= scale;
+		y *= scale;
+		z *= scale;
+		w *= scale;
 	}
 
 	// FUNCTION: ENGINE 0x107CE2B0

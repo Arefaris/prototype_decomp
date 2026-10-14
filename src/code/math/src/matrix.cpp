@@ -175,6 +175,31 @@ namespace math
 		m[3][2] = m[2][2] * z + m[1][2] * y + m[0][2] * x;
 	}
 
+	// FUNCTION: ENGINE 0x107CF5D0
+	// EQUIVALENT: same operations; the original loads row 0 into registers before storing the copy and keeps x.y in
+	// memory for the second cross product (50.9 %; constructor, copy, local and order variants do not get closer)
+	void Matrix::Orthonormalize()
+	{
+		Vector x;
+		x.Set(m[0][0], m[0][1], m[0][2]);
+		Vector y;
+		y.Set(m[1][0], m[1][1], m[1][2]);
+		x.NormalizeFast();
+		Vector z;
+		z.Set(x.y * y.z - x.z * y.y, x.z * y.x - x.x * y.z, x.x * y.y - x.y * y.x);
+		z.NormalizeFast();
+		y.Set(z.y * x.z - z.z * x.y, z.z * x.x - z.x * x.z, z.x * x.y - z.y * x.x);
+		m[0][0] = x.x;
+		m[0][1] = x.y;
+		m[0][2] = x.z;
+		m[1][0] = y.x;
+		m[1][1] = y.y;
+		m[1][2] = y.z;
+		m[2][0] = z.x;
+		m[2][1] = z.y;
+		m[2][2] = z.z;
+	}
+
 	// FUNCTION: ENGINE 0x107CF8F0
 	// EQUIVALENT: same operations in the same order; the original keeps v.y in xmm1 and v.z in xmm0, we get the reverse
 	void Matrix::Transform(const Vector& v, Vector& out) const

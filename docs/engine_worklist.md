@@ -157,6 +157,8 @@ matches. The file name is a guess (no assert path). Lessons:
 - Branches the compiler tail-duplicates need the same locals assigned in both arms, or it merges them.
 - `dt = updateTimeScalar * dt` (reusing the parameter) keeps the engine's single stack slot.
 - Parameters the callers push without extension (`push al`) are `unsigned char`, not bool.
+- UpdateBehaviours' second loop tests `(!dirty && entry.IsScheduled()) || (dirty && entry.IsActive())`: the
+  ternary form materialises the bit, the two-armed form gives the engine's branches (still EQUIVALENT: registers).
 - GameObject::IsRegistered is out of line: the controller calls a copy at 0x107E0780 instead of inlining it.
 - The controller overrides Behaviour's slot 0 (0x1083AC70, called by GameObject::Slot5 when construction ends): it
   compacts the behaviour list through a range-constructed copy and a swap (container::CompactSwap; `copy.Swap(array)`,
@@ -457,6 +459,37 @@ around local Name copies, which suggests core::Name holds a 64-bit member in the
 out with 4-byte alignment by its users). Tried 2026-10-12: `unsigned __int64 key` breaks only the 15 camera functions
 (Cinematographer keeps a Name at offset 4); the same inside `#pragma pack(push, 4)` keeps all 2376 matching. Next step:
 compile TagSet's std::sort with that Name and see whether the frames get `and esp, -8`.
+
+## audio/audiomanager.cpp (around 0x10844C00 - 0x10845800): 1 function, EQUIVALENT
+
+engine::AudioManager (class name guessed from the system name "AudioManager" its constructor 0x108453D0 registers;
+no RTTI; singleton at 0x1130E74C). Update (0x108451C0, called from the engine's real-time update with the 12-byte
+UpdateContext by value) runs the audio subsystems (0x1085AB40, AudioSystem 0x108712D0), then, unless the time step is
+within 1e-5 of zero, calls slot 8 with the time step on every object of an intrusive list (head / tail 0x1130E750 /
+0x1130E754, node at +0x50 of the object; register / unregister are 0x108452B0 / 0x10845310), then the audio clock
+(0x10AA9B50) and the emitter system (0x10878010). EQUIVALENT: the engine materialises the zero test as 0 / 1
+(`setne` / `test` / `ja`) and keeps the join of each null-checked node-to-object adjustment before testing the object
+(no jump threading); `Abs` as `x >= 0 ? x : -x` gives the original's `-0.0 - x`.
+
+## render/async/private/renderglobals.cpp (0x10817A10 - about 0x10818F00): 13 functions, 10 match, 3 EQUIVALENT
+
+The drawable table (0x1130CCC4: slots, serials, count), the render event allocator (0x1130CCDC, slots 3 / 4), the
+deferred deletion list and the render event queues. Each queue is a template instance (two queues, 0x11284C60 and
+0x11304C90, with identical copies of every helper): a ring of 0x20000 values behind a free and a ready semaphore,
+lock-free read / write indices and a commit structure at +0x10 (0x10817F90, not reconstructed) that releases the
+slots that became readable. Only the first queue's instances are mapped. Notes:
+- The two "FATAL: Async render event queue overflowed..." asserts are OLD_ASSERT_AT with the original line numbers
+  (0xA9, 0xBE).
+- ExecuteRenderEvents is `while (TryPop(&queue, &event) && event != 0) event->Execute();`.
+
+| Address | Name | Status | Notes |
+|---|---|---|---|
+| 0x10817A50 / 0x10817AD0 / 0x10817B10 / 0x10817B40 | AllocRenderEvent / FreeRenderEvent / GetRenderList / DeferDelete | match | |
+| 0x10817F40 | AllocAsyncQueueSlot<RenderEvent*> | EQUIVALENT | same loop, other registers for the index pointer and the slot |
+| 0x10818260 / 0x10818920 | IsValidDrawable / GetDrawableData | EQUIVALENT | the original loads the whole handle and masks the index; every form tried (masks, bitfields, accessors, volatile) loads it as a word |
+| 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
+| 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
+
 
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 

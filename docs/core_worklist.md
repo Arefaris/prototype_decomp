@@ -732,5 +732,67 @@ Validation (2026-10-12): free roam, two teleports and movement in the hybrid (en
 | 0x10B85150 | AllocEnd | EQUIVALENT: register allocation at the join of the strategy branches (one more stack slot in the original) |
 | 0x10B85520 | Resize | EQUIVALENT: the original saves ebx before the count test (its early returns stay apart) |
 
+## asynctask.cpp (0x10B7EB10 - about 0x10B80390): 28 functions, 22 matched, 6 EQUIVALENT
+
+The asynchronous tasks (`code/core/asynctask.h`; file and all names guessed except `core::AsyncTaskCallback`, from
+RTTI, and the worker thread name "core::AsyncTaskWorker"): 32-byte task records go onto one lock-free queue
+(asynctaskqueue.cpp) drained by up to seven worker threads (one per processor of the process affinity mask unless
+configured). A task runs a function on its data; a chain of tasks is pushed together and each one queues the rest of
+its chain when it has run; a task can fill a timing record, signal a counted event, count down a task group (128
+"has run" bits) and pass a result to its callback. While it runs, a thread-data slot (0x11327D00) points at the
+worker's state on the stack: up to 16 spawned tasks (run on the same worker afterwards) and the result.
+Left alone: 0x10B7EB10 / 0x10B7EB30 / 0x10B7EB50 (interlocked helpers with register arguments), the empty
+0x10B7F2C0, and the task tree (AsyncTaskNode / AsyncTaskJob, 0x10B7F3A0 onwards) apart from AsyncTaskJob::Submit.
+AsyncTaskCallback::SetResult / ClearResult / GetResult are thiscall methods that only touch that state. The system
+(queue, worker records of 0xC0 bytes: core::Thread plus processor, index and queue) is the global at 0x11327D10.
+
+| Address | Name | Status | Notes |
+|---|---|---|---|
+| 0x10B7EB60 | AtomicOr64 (static) | match | `while (expected != seen)` around _InterlockedCompareExchange64; the result variable is assigned only inside the loop |
+| 0x10B7EBD0 | DestroyAsyncTaskSystem (static, esi) | match | the stop task is `memset` (eight dword stores in the original's order), then function / kind set again |
+| 0x10B7EC90 | RunAsyncTasks (static, eax) | match | the spawned tasks are copied with `__movsd(..., (count << 5) >> 2)`: only the shift form folds into `and 0x7FFFFFF` + three adds (`* 32` or memcpy do not); the word pointer of the group bit is computed before the bit |
+| 0x10B7EE70 | AsyncTaskWorkerMain (static) | match | |
+| 0x10B7EEC0 | ShutdownAsyncTasks | match | |
+| 0x10B7F2E0 | AsyncTaskCallback::SetResult | match | the slot value read into an int first (a pointer local whose address is taken is reloaded after the first store) |
+| 0x10B7FA80 | AsyncTaskJob::Submit | match | |
+| 0x10B7EED0 - 0x10B7EFE0 | Init / Wait / Close / Signal task group, GetAsyncTaskInfo | match | the "has run" words are not volatile; GetAsyncTaskInfo returns the worker count it reads first |
+| 0x10B7EF90 | AddToAsyncTaskGroup | EQUIVALENT | the original keeps the task pointer in edx while computing the next slot |
+| 0x10B7F000 / 0x10B7F050 / 0x10B7F0F0 / 0x10B7F190 | Submit / RunAsyncTasksHere / Spawn / GetSpawned | match | RunAsyncTasksHere's flag is an int (tested as a dword); GetSpawned needs the two-sided `if (max > state->count) count = state->count; else count = max;` (the one-sided forms and Min become cmov) |
+| 0x10B7F030 / 0x10B7F0D0 / 0x10B7F170 | forwarders | EQUIVALENT | the original pushes the arguments again and calls; ours tail-jumps |
+| 0x10B7F210 / 0x10B7F250 | GetAsyncTaskProcessor / GetAsyncTaskWorkerIndex | match | |
+| 0x10B7F290 | IsAsyncTaskTimingDone | EQUIVALENT | the original branches on `done == 1` (`mov al, al`); ours sete |
+| 0x10B7F2D0 / 0x10B7F320 / 0x10B7F350 | AsyncTaskCallback constructor / ClearResult / GetResult | match | |
+| 0x10B7FB30 | CreateAsyncTaskSystem (static, esi) | EQUIVALENT 99.1 % | the store of the next processor index comes two instructions earlier in every order tried (permute.py) |
+| 0x10B7FD00 | InitAsyncTasks | match | the popcount walks a doubling bit; `count <= -processors` first |
+
+## asynctaskqueue.cpp (0x10B81CE0 - 0x10B82797): 10 functions, 3 matched, 7 EQUIVALENT
+
+The lock-free queue of asynctask.cpp (`AsyncTaskQueue` in `code/core/asynctask.h`; file and all names guessed): a
+ring of 1024 task slots. Writers reserve room in a packed (free, waiting) word, take slots at the write index, copy
+in and mark the slots in a "used" bitmap; readers take tasks at the read index of a packed (index:28, available:28,
+waiting:8) word, take the rest of a chain once all of it is marked, and mark the slots in a "free" bitmap. The
+bitmaps are 18 words of 58 bits (the last 38) plus the head position in the low six bits; marking a range returns
+how far the head advanced, which is what becomes readable or free. The 0x10B81B70 - 0x10B81CD0 stubs before it
+(a host-connection name: "PS2 Tool Deci", "PS2 Firewire", "Socket") belong to another unit. Notes:
+- The queue members are not volatile: with volatile members the stores around the calls are scheduled differently
+  (InitAsyncTaskQueue and InitSlotWords only match without).
+- Every CAS loop is `expected = ~seen; while (expected != seen) { ...; expected = seen; seen = CAS(...); }`; the
+  results the code tests after a loop are initialised before it (`wait = false`, `free = 0`, `waiting = 0`): the
+  original jumps past those tests when the loop is not entered.
+- InitSlotWords fills the words by an overlapping forward memcpy of the second word over the rest.
+- The 64-bit CompareExchange intrinsic (`_InterlockedCompareExchange64`) is available to VS2005 on x86 and gives the
+  original's `lock cmpxchg8b` loops; a read is CAS(p, 0, 0).
+
+| Address | Name | Status | Notes |
+|---|---|---|---|
+| 0x10B81CE0 | CountLeadingZeros64 (static) | EQUIVALENT | the original tests low and high words of each masked value separately (looks like a two-word helper type) |
+| 0x10B81DB0 / 0x10B81E10 | CopyToRing / CopyFromRing (static, eax / ecx) | EQUIVALENT | the original branches for the minimum; every form tried gives a cmov, a register copy or swapped register arguments |
+| 0x10B81E70 | InitSlotWords (static, eax) | match | |
+| 0x10B81EA0 | MarkSlots (static, ecx) | EQUIVALENT | returns {position : 31, moved : 1} in edx:eax; branch layout and the position's home differ |
+| 0x10B82030 | MarkSlotRange (static) | EQUIVALENT | register allocation (restart in al / cl) |
+| 0x10B82110 / 0x10B82180 | InitAsyncTaskQueue / DestroyAsyncTaskQueue | match | |
+| 0x10B821B0 | PushAsyncTasks | EQUIVALENT | same branches; registers and one stack slot differ from the reservation loop on |
+| 0x10B82400 | PopAsyncTasks | EQUIVALENT | same branches; registers and two stack slots differ |
+
 ## Candidates nearby (leaf functions, not started)
 

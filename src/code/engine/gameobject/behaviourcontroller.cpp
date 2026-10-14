@@ -249,8 +249,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x108398A0
-	// EQUIVALENT: register allocation (the engine keeps the schedule offset in edi and the entry in ebx, ours the other
-	// way round) and the order of two local stores
+	// EQUIVALENT: same branches (the second loop's test needs the two-armed || form); register allocation differs
+	// (the engine keeps the schedule offset in edi and the entry in ebx, and the second loop's index and count in
+	// memory) and the order of two local stores
 	void BehaviourController::UpdateBehaviours(float dt, unsigned short mask)
 	{
 		dt = updateTimeScalar * dt;
@@ -305,7 +306,7 @@ namespace engine
 				schedule[i].SetUpdated(false);
 			}
 			ScheduleEntry& entry = schedule[i];
-			if (dirty ? entry.IsActive() : entry.IsScheduled())
+			if ((!dirty && entry.IsScheduled()) || (dirty && entry.IsActive()))
 			{
 				if (entry.frameSkip == 1 || frame % entry.frameSkip == entry.phase)
 				{

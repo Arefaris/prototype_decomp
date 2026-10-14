@@ -64,6 +64,10 @@ namespace core
 	char* StrNCpy(char* destination, const char* source, int size);
 	// 0x1063B0D0: the unsigned overload, a plain forward to the copy loop (AllocatorBase_Name::SetName uses it)
 	char* StrNCpy(char* destination, const char* source, unsigned int count);
+	// 0x1063B0F0: the same, *length (when given) receiving the number of characters copied
+	char* StrNCpy(char* destination, const char* source, unsigned int count, unsigned int* length);
+	// 0x1120983C
+	extern char gHexDigits[17];
 	// 0x1063E750 (a jump to 0x10647430): copies whole UTF-8 sequences while they fit in `size` bytes (with the
 	// terminator); the length copied, negative on bad input
 	int Utf8Copy(char* destination, const char* source, unsigned int size);
