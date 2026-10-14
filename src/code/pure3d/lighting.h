@@ -18,12 +18,22 @@ namespace pure3d
 		Light** capacity;
 	};
 
-	// What picks the lights that touch a region (0x1060FE00 sorts and counts the given light indices)
+	// What picks the lights that touch a region (0x1060FE00 expands the region's light mask into indices)
 	class LightQuery
 	{
 	public:
 		unsigned int Select(unsigned int* indices, unsigned int count, int region);
+		// 0x1060FC30 (mapped, not reconstructed): writes the region's light mask into mask
+		void SetRegionMask(unsigned int* mask, int region);
+
+		unsigned char unknown0[0x3c];
+		unsigned int regionBits;   // the region's light groups (group count << 7)
+		unsigned int unknown40;
+		unsigned int* mask;        // the light mask words (128 bits per group)
 	};
+
+	// 0x1060F840: the indices of the set bits of the 128-bit groups of masks, in order
+	unsigned int BuildLightIndices(unsigned int* out, unsigned int* masks, unsigned int count);
 
 	// The lights of a lighting scene, selected by region
 	class LightingScene
