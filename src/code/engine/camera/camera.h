@@ -60,7 +60,10 @@ namespace engine
 			int unknown44;
 			// Slot and id of the Cinematographer driving this camera (Director::GetController)
 			ControllerRef controller;
-			unsigned char unknown50[0x7a5 - 0x50];
+			unsigned char unknown50[0xcc - 0x50];
+			// Read by proto::VehicleCamera's vftable slot 4 (0x10354B60); meaning unknown, name is a guess
+			bool unknownCC;
+			unsigned char unknownCD[0x7a5 - 0xcd];
 			bool unknown7A5;
 			unsigned char unknown7A6[0x7ac - 0x7a6];
 			bool active;
