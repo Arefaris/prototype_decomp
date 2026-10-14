@@ -1358,7 +1358,7 @@ namespace engine
 			{
 				DrawableImpl* impl = data->drawable;
 				pure3d::Pose* pose = impl->GetPose();
-				unsigned int n = count < pose->mData.mJointCount ? count : pose->mData.mJointCount;
+				unsigned int n = count < pose->mData.mArrays.mJointCount ? count : pose->mData.mArrays.mJointCount;
 				for (unsigned int i = 0; i < n; i++)
 				{
 					((JointMatrix*)pose->mData.mWorldMatrices)[i] = matrices[i];

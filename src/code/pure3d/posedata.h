@@ -11,6 +11,13 @@
 
 namespace pure3d
 {
+	// The joints an animation drives: bit n of the words after the first is set for joint n
+	struct JointMask
+	{
+		unsigned int unknown0;
+		unsigned int words[1];
+	};
+
 	// The skeleton's part that the poses read: the Skeleton's own members from +8. The rest pose of every joint is
 	// kept in arrays like the pose's own (16 bytes per joint), the same kinds in a different order
 	struct SkeletonData
@@ -36,6 +43,19 @@ namespace pure3d
 		signed char* mUnknown40;
 	};
 
+	// The per-joint transforms of a pose: the rotation, translation, scale and three further kinds of three-component
+	// value, 16 bytes per joint each
+	struct JointArrays
+	{
+		unsigned int mJointCount;
+		math::Quaternion* mRotations;
+		math::Vector4* mTranslations;
+		math::Vector4* mUnknown10;
+		math::Vector4* mUnknown14;
+		math::Vector4* mScales;
+		math::Vector4* mUnknown1C;
+	};
+
 	class PoseData
 	{
 	public:
@@ -47,13 +67,7 @@ namespace pure3d
 		void UpdateWorld();
 
 		SkeletonData* mSkeleton;
-		unsigned int mJointCount;
-		math::Quaternion* mRotations;
-		math::Vector4* mTranslations;
-		math::Vector4* mUnknown10;
-		math::Vector4* mUnknown14;
-		math::Vector4* mScales;
-		math::Vector4* mUnknown1C;
+		JointArrays mArrays;
 		math::Matrix* mLocalMatrices;
 		math::Matrix* mWorldMatrices;
 		math::Matrix* mSkinMatrices;

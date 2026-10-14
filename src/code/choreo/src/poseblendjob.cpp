@@ -45,17 +45,15 @@ namespace choreo
 	}
 
 	// FUNCTION: ENGINE 0x10958120
-	// EQUIVALENT: the same cursors and steps in the same order; the engine keeps the buffers in edx and the counts in
-	// esi (ours the reverse) and loads the blocks in another order
 	void PoseBlendBuffers::Fill(Puppet** begin, Puppet** end)
 	{
 		PoseBlendCursors cursors;
 		cursors.cursor[0] = (unsigned char*)mRootNodes;
+		cursors.cursor[1] = mBlock[2];
+		cursors.cursor[2] = mBlock[4];
 		cursors.cursor[3] = mBlock[0];
 		cursors.cursor[4] = mBlock[1];
-		cursors.cursor[1] = mBlock[2];
 		cursors.cursor[5] = mBlock[3];
-		cursors.cursor[2] = mBlock[4];
 		cursors.cursor[6] = mBlock[5];
 		PuppetCounts* counts = mCounts;
 		for (; begin < end; begin++, counts++)

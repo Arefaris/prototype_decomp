@@ -13,7 +13,7 @@ namespace pure3d
 	{
 		float alpha = 1.0f - weight;
 		Skeleton* skeleton = mPose->mSkeleton;
-		unsigned int jointCount = mPose->mData.mJointCount;
+		unsigned int jointCount = mPose->mData.mArrays.mJointCount;
 		JointMask* mask = mInfo->mJointMask;
 		unsigned int joint = 0;
 		math::Vector vector;
@@ -35,8 +35,8 @@ namespace pure3d
 				{
 					rotation = skeleton->mData.mRotations[0];
 				}
-				rotation.Slerp(rotation, mPose->mData.mRotations[0], alpha);
-				mPose->mData.mRotations[0] = rotation;
+				rotation.Slerp(rotation, mPose->mData.mArrays.mRotations[0], alpha);
+				mPose->mData.mArrays.mRotations[0] = rotation;
 				if (channels->translation)
 				{
 					channels->translation->GetDelta(*previousTime, time, &vector);
@@ -52,7 +52,7 @@ namespace pure3d
 				vector.x = (local->m[3][0] - vector.x) * alpha + vector.x;
 				vector.y = (local->m[3][1] - vector.y) * alpha + vector.y;
 				vector.z = (local->m[3][2] - vector.z) * alpha + vector.z;
-				math::Vector4* target = mPose->mData.mTranslations;
+				math::Vector4* target = mPose->mData.mArrays.mTranslations;
 				target->x = vector.x;
 				target->y = vector.y;
 				target->z = vector.z;
@@ -78,8 +78,8 @@ namespace pure3d
 				{
 					rotation = skeleton->mData.mRotations[joint];
 				}
-				rotation.Slerp(rotation, mPose->mData.mRotations[joint], alpha);
-				mPose->mData.mRotations[joint] = rotation;
+				rotation.Slerp(rotation, mPose->mData.mArrays.mRotations[joint], alpha);
+				mPose->mData.mArrays.mRotations[joint] = rotation;
 				{
 					VectorChannel* channel = jointChannels->translation;
 					if (channel)
@@ -97,7 +97,7 @@ namespace pure3d
 					vector.x = (local->m[3][0] - vector.x) * alpha + vector.x;
 					vector.y = (local->m[3][1] - vector.y) * alpha + vector.y;
 					vector.z = (local->m[3][2] - vector.z) * alpha + vector.z;
-					math::Vector4* target = &mPose->mData.mTranslations[joint];
+					math::Vector4* target = &mPose->mData.mArrays.mTranslations[joint];
 					target->x = vector.x;
 					target->y = vector.y;
 					target->z = vector.z;
@@ -115,11 +115,11 @@ namespace pure3d
 						vector.y = rest->y;
 						vector.z = rest->z;
 					}
-					math::Vector4* current = &mPose->mData.mUnknown10[joint];
+					math::Vector4* current = &mPose->mData.mArrays.mUnknown10[joint];
 					vector.x = (current->x - vector.x) * alpha + vector.x;
 					vector.y = (current->y - vector.y) * alpha + vector.y;
 					vector.z = (current->z - vector.z) * alpha + vector.z;
-					math::Vector4* target = &mPose->mData.mUnknown10[joint];
+					math::Vector4* target = &mPose->mData.mArrays.mUnknown10[joint];
 					target->x = vector.x;
 					target->y = vector.y;
 					target->z = vector.z;
@@ -137,11 +137,11 @@ namespace pure3d
 						vector.y = rest->y;
 						vector.z = rest->z;
 					}
-					math::Vector4* current = &mPose->mData.mScales[joint];
+					math::Vector4* current = &mPose->mData.mArrays.mScales[joint];
 					vector.x = (current->x - vector.x) * alpha + vector.x;
 					vector.y = (current->y - vector.y) * alpha + vector.y;
 					vector.z = (current->z - vector.z) * alpha + vector.z;
-					math::Vector4* target = &mPose->mData.mScales[joint];
+					math::Vector4* target = &mPose->mData.mArrays.mScales[joint];
 					target->x = vector.x;
 					target->y = vector.y;
 					target->z = vector.z;
@@ -159,11 +159,11 @@ namespace pure3d
 						vector.y = rest->y;
 						vector.z = rest->z;
 					}
-					math::Vector4* current = &mPose->mData.mUnknown14[joint];
+					math::Vector4* current = &mPose->mData.mArrays.mUnknown14[joint];
 					vector.x = (current->x - vector.x) * alpha + vector.x;
 					vector.y = (current->y - vector.y) * alpha + vector.y;
 					vector.z = (current->z - vector.z) * alpha + vector.z;
-					math::Vector4* target = &mPose->mData.mUnknown14[joint];
+					math::Vector4* target = &mPose->mData.mArrays.mUnknown14[joint];
 					target->x = vector.x;
 					target->y = vector.y;
 					target->z = vector.z;
@@ -181,11 +181,11 @@ namespace pure3d
 						vector.y = rest->y;
 						vector.z = rest->z;
 					}
-					math::Vector4* current = &mPose->mData.mUnknown1C[joint];
+					math::Vector4* current = &mPose->mData.mArrays.mUnknown1C[joint];
 					vector.x = (current->x - vector.x) * alpha + vector.x;
 					vector.y = (current->y - vector.y) * alpha + vector.y;
 					vector.z = (current->z - vector.z) * alpha + vector.z;
-					math::Vector4* target = &mPose->mData.mUnknown1C[joint];
+					math::Vector4* target = &mPose->mData.mArrays.mUnknown1C[joint];
 					target->x = vector.x;
 					target->y = vector.y;
 					target->z = vector.z;

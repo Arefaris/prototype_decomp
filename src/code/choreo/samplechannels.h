@@ -4,6 +4,7 @@
 #define CHOREO_SAMPLECHANNELS_H
 
 #include "code/pure3d/channel.h"
+#include "code/pure3d/posedata.h"
 
 namespace choreo
 {
@@ -19,6 +20,13 @@ namespace choreo
 		pure3d::VectorChannel* GetScale(int joint);
 		pure3d::VectorChannel* GetUnknown14(int joint);
 		pure3d::VectorChannel* GetUnknown1C(int joint);
+
+		// 0x10953E40: lays the values of the channels at time over the joints first to last of the arrays, each moving
+		// from the pose towards the value by weight (the rotations by the shortest arc). Only the joints of the mask
+		// take part (all without one); a joint without a channel takes the rest pose's value; the kinds of value
+		// beyond the rotation and translation are only done when full is set.
+		void Blend(pure3d::JointArrays* arrays, unsigned int first, unsigned int last, const pure3d::JointMask* mask,
+			const pure3d::SkeletonData* rest, pure3d::FrameTime time, bool full, float weight);
 
 		pure3d::QuaternionChannel* mRotations[MAX_JOINTS];
 		pure3d::VectorChannel* mTranslations[MAX_JOINTS];

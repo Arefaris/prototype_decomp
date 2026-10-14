@@ -9,13 +9,6 @@
 
 namespace pure3d
 {
-	// The joints an animation drives: bit n of the words after the first is set for joint n
-	struct JointMask
-	{
-		unsigned int unknown0;
-		unsigned int words[1];
-	};
-
 	// What the controller keeps at +0x160 (the joint mask is at +0x10)
 	struct PoseAnimationInfo
 	{

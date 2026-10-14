@@ -12,19 +12,19 @@ namespace choreo
 	{
 		mRootDelta.Identity();
 		dt = mTimeScale * dt;
-		if (mPose->mJointCount > 0)
+		if (mPose->mArrays.mJointCount > 0)
 		{
 			math::Quaternion identity;
 			identity.x = 0.0f;
 			identity.y = 0.0f;
 			identity.z = 0.0f;
 			identity.w = 1.0f;
-			*mPose->mRotations = identity;
-			mPose->mTranslations->Set(0.0f, 0.0f, 0.0f);
-			mPose->mUnknown10->Set(0.0f, 0.0f, 0.0f);
-			mPose->mScales->Set(1.0f, 1.0f, 1.0f);
-			mPose->mUnknown14->Set(0.0f, 0.0f, 0.0f);
-			mPose->mUnknown1C->Set(0.0f, 0.0f, 0.0f);
+			*mPose->mArrays.mRotations = identity;
+			mPose->mArrays.mTranslations->Set(0.0f, 0.0f, 0.0f);
+			mPose->mArrays.mUnknown10->Set(0.0f, 0.0f, 0.0f);
+			mPose->mArrays.mScales->Set(1.0f, 1.0f, 1.0f);
+			mPose->mArrays.mUnknown14->Set(0.0f, 0.0f, 0.0f);
+			mPose->mArrays.mUnknown1C->Set(0.0f, 0.0f, 0.0f);
 		}
 		unsigned int index = 0;
 		for (DriverEntry* entry = mEntries; index < mDriverCount; entry++)
