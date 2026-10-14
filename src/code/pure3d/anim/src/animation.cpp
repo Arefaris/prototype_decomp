@@ -98,8 +98,8 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x106E34E0
-	// EQUIVALENT: same search and branches; the engine keeps the time in esi, the bounds in ebx / edi and starts the
-	// loop without the alignment jump (register allocation of the loop variables)
+	// EQUIVALENT: the engine's search tests once more whether the key is above the time before it drops the upper
+	// half (a comparison that cannot be true there; 206 bytes against 204)
 	bool ChannelKeysBase::FindKeys(FrameTime time, unsigned int* index0, unsigned int* index1, short* frame0,
 		short* frame1)
 	{
@@ -118,16 +118,12 @@ namespace pure3d
 		}
 		unsigned int low = 0;
 		unsigned int high = count - 1;
-		unsigned int middle = high;
-		do
+		unsigned int sum = low + high;
+		for (;;)
 		{
-			middle = middle >> 1;
+			unsigned int middle = sum >> 1;
 			short frame = keys[middle];
-			if (frame > time.frame)
-			{
-				high = middle - 1;
-			}
-			else
+			if (frame <= time.frame)
 			{
 				if (time.frame < keys[middle + 1])
 				{
@@ -140,17 +136,14 @@ namespace pure3d
 				if (frame < time.frame)
 				{
 					low = middle + 1;
-					middle = high + low;
-					continue;
-				}
-				if (frame > time.frame)
-				{
-					high = middle - 1;
 				}
 			}
-			middle = high + low;
+			else
+			{
+				high = middle - 1;
+			}
+			sum = high + low;
 		}
-		while (true);
 	}
 
 	// The key readers: one value (or two) of a key array by index
