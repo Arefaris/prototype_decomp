@@ -73,7 +73,8 @@ namespace pure3d
 					__m128 pivot = _mm_loadu_ps(&mArrays.mUnknown10[i].x);
 					__m128 shear = _mm_loadu_ps(&mArrays.mUnknown14[i].x);
 					__m128 scale = _mm_loadu_ps(&mArrays.mScales[i].x);
-					__m128 shear1 = _mm_shuffle_ps(_mm_movelh_ps(gPoseUnitY, shear), gPoseUnitY, _MM_SHUFFLE(3, 2, 1, 2));
+					__m128 shear1 = _mm_shuffle_ps(_mm_movelh_ps(gPoseUnitY, shear), gPoseUnitY,
+						_MM_SHUFFLE(3, 2, 1, 2));
 					__m128 shearZ = _mm_shuffle_ps(gPoseUnitZ, shear, _MM_SHUFFLE(2, 1, 3, 2));
 					__m128 shear2 = _mm_shuffle_ps(shearZ, shearZ, _MM_SHUFFLE(1, 0, 3, 2));
 					__m128 scaled2 = _mm_mul_ps(SPLAT(scale, 2), shear2);
@@ -83,8 +84,10 @@ namespace pure3d
 					__m128 offset = _mm_add_ps(_mm_add_ps(_mm_mul_ps(SPLAT(negativePivot, 0), gPoseUnitX),
 						_mm_mul_ps(SPLAT(negativePivot, 1), shear1)), _mm_mul_ps(SPLAT(negativePivot, 2), shear2));
 					__m128 move = _mm_loadu_ps(&mArrays.mUnknown1C[i].x);
-					offset = _mm_add_ps(offset, _mm_shuffle_ps(pivot, _mm_movehl_ps(pivot, zero), _MM_SHUFFLE(1, 2, 1, 0)));
-					offset = _mm_add_ps(offset, _mm_shuffle_ps(move, _mm_movehl_ps(move, zero), _MM_SHUFFLE(1, 2, 1, 0)));
+					offset = _mm_add_ps(offset, _mm_shuffle_ps(pivot, _mm_movehl_ps(pivot, zero),
+						_MM_SHUFFLE(1, 2, 1, 0)));
+					offset = _mm_add_ps(offset, _mm_shuffle_ps(move, _mm_movehl_ps(move, zero),
+						_MM_SHUFFLE(1, 2, 1, 0)));
 					__m128 translation = _mm_loadu_ps(&mArrays.mTranslations[i].x);
 					offset = _mm_add_ps(_mm_add_ps(_mm_add_ps(_mm_mul_ps(SPLAT(translation, 0), scaled0), offset),
 						_mm_mul_ps(SPLAT(translation, 2), scaled2)), _mm_mul_ps(SPLAT(translation, 1), scaled1));

@@ -53,11 +53,11 @@ namespace choreo
 		return _mm_add_ps(poly, _mm_or_ps(_mm_and_ps(zero, sineLess), _mm_andnot_ps(sineLess, gHalfPi)));
 	}
 
-	// angle moved into [-pi, pi] (pi added, reduced by whole turns, pi taken off again); the two steps are split
-	// because the engine interleaves the second step of one angle with the first of the other
+	// The angle (pi has been added to it) less its whole turns, truncated: the callers take the pi off again
 	static __forceinline __m128 ReduceAngle(__m128 angleWithPi)
 	{
-		return _mm_sub_ps(angleWithPi, _mm_mul_ps(_mm_cvtepi32_ps(_mm_cvttps_epi32(_mm_mul_ps(angleWithPi, gInvTwoPi))), gTwoPi));
+		__m128 turns = _mm_cvtepi32_ps(_mm_cvttps_epi32(_mm_mul_ps(angleWithPi, gInvTwoPi)));
+		return _mm_sub_ps(angleWithPi, _mm_mul_ps(turns, gTwoPi));
 	}
 
 	// The sine of an angle in [-pi, pi] by the polynomial x + x * x^2 * Q(x^2), not yet limited
