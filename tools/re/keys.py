@@ -5,7 +5,7 @@
 	python tools/re/keys.py tap e                           # press and release
 	python tools/re/keys.py click 128 646                   # left click at a point of the game's 1280x720 frame
 
-Brings the game's window to the front first (docs/re/running_original.md).
+Brings the game's window to the front first.
 """
 
 import ctypes
@@ -16,7 +16,7 @@ import time
 
 SCAN_CODES = {"space": 0x39, "e": 0x12, "f": 0x21, "q": 0x10, "w": 0x11, "a": 0x1E, "s": 0x1F, "d": 0x20,
 	"shift": 0x2A, "enter": 0x1C, "escape": 0x01, "1": 0x02, "2": 0x03, "3": 0x04, "4": 0x05, "5": 0x06,
-	# the power hot keys F1 - F11 (docs/re/input.md 2), R the power wheel, Tab lock-on, X camera reset, Ctrl walk
+	# the power hot keys F1 - F11, R the power wheel, Tab lock-on, X camera reset, Ctrl walk
 	"f1": 0x3B, "f2": 0x3C, "f3": 0x3D, "f4": 0x3E, "f5": 0x3F, "f6": 0x40, "f7": 0x41, "f8": 0x42, "f9": 0x43, "f10": 0x44,
 	"f11": 0x57, "r": 0x13, "tab": 0x0F, "x": 0x2D, "ctrl": 0x1D}
 

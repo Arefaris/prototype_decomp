@@ -1,4 +1,4 @@
-// d3d9.dll proxy for the original game (tools/re, docs/re/running_original.md). Placed next to prototypef.exe it
+// d3d9.dll proxy for the original game (tools/re). Placed next to prototypef.exe it
 // forwards Direct3DCreate9 to the system d3d9.dll and changes how the game's frames are presented; the game's code
 // is untouched.
 //   - The device is created windowed, in a movable window whose client area matches the back buffer
@@ -9,10 +9,10 @@
 //     opprobe_shot.request in the game folder; the next frame is saved there as a BMP and the request is removed.
 //     Every draw of that frame is recorded next to it (<path>.frame): vertex and pixel shader constants, shader
 //     hashes, bound textures, blend and depth state and the render target, so the camera and the inputs of each
-//     pixel shader can be recovered from what the game hands to Direct3D (docs/re/frame_capture.md). Every render
+//     pixel shader can be recovered from what the game hands to Direct3D. Every render
 //     target of that frame is saved as well each time the game switches away from it (<path>.rt<id>.bin: raw
 //     texels, the last state wins), and every small texture (up to 256 x 256) it samples (<path>.tex<id>.dds).
-//   - Control of the game (gamecontrol.cpp, docs/re/game_control.md): requests in opprobe_cmd.request run Lua in the
+//   - Control of the game (gamecontrol.cpp): requests in opprobe_cmd.request run Lua in the
 //     game's script state, set the chase camera, and feed keys and mouse to its DirectInput devices.
 #define CINTERFACE
 #include <windows.h>

@@ -1,7 +1,7 @@
 """Memory probe for the running original (prototypef.exe), used to find Alex's and the camera's position.
 
 Observation only: snapshots of the game's writable memory are compared while the player moves, the way memory
-scanners work. Findings go to docs/re/memory.md; snapshots stay in the untracked local/probe/ folder.
+scanners work. Snapshots stay in the untracked local/probe/ folder.
 
 	python tools/re/probe.py snap s0                  # snapshot of all writable memory
 	python tools/re/probe.py scan s0                  # position-like float triples inside Manhattan

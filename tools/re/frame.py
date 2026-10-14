@@ -1,4 +1,4 @@
-"""Reads the frame records of the proxy d3d9.dll (<shot>.frame, docs/re/frame_capture.md).
+"""Reads the frame records of the proxy d3d9.dll (<shot>.frame).
 
 Every draw of the captured frame: kind, primitive counts, vertex and pixel shader hashes, render target, blend and
 depth state, bound textures and the first vertex (c0..c95) and pixel (c0..c63) shader constant registers.

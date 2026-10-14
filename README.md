@@ -29,6 +29,18 @@ Phase 0: foundation. The hybrid DLL works: the original image relinked with our 
 game into free roam. See [docs/methodology.md](docs/methodology.md) for how, [docs/plan.md](docs/plan.md) for the
 phases and [CONTRIBUTING.md](CONTRIBUTING.md) to take part.
 
+## Why?
+
+- **Preservation.** The engine depends on Direct3D 9, 32-bit Windows and dead middleware services; source code
+  outlives operating systems, drivers and store updates.
+- **Portability.** Source can be built for other operating systems and devices, always running with your own copy of
+  the PC game's data.
+- **Fixes and improvements.** High frame rates, widescreen and field of view, modern controllers, crashes, and
+  graphical upgrades to the renderer, done in the code instead of binary patches.
+- **Modding.** Reconstructed headers, names and formats make mods ordinary programming.
+- **Understanding.** How a 2009 open-world engine streams a city, runs crowds and its own physics is worth reading.
+- **It's fun.**
+
 ## Target
 
 | Version | File | SHA-256 |

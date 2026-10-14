@@ -1,4 +1,4 @@
-// Control of the running original (docs/re/game_control.md). Everything here calls the engine's own functions or
+// Control of the running original. Everything here calls the engine's own functions or
 // fills in what DirectInput returns; addresses are those of prototypeenginef.dll at its preferred base 0x10000000,
 // checked against the bytes of each function before the first use.
 //
@@ -66,7 +66,7 @@ namespace
 	// engine::LuaScriptManager: the one instance is at this global; its main lua_State at + 0x0C
 	constexpr uintptr_t LUA_MANAGER_GLOBAL = 0x11284254;
 	constexpr uintptr_t LUA_MANAGER_STATE = 0x0C;
-	// proto::ChaseCamera (docs/re/camera.md)
+	// proto::ChaseCamera
 	constexpr uintptr_t CHASE_CAMERA_VTABLE = 0x10DF29A4;
 
 	bool engineMatches()
@@ -258,7 +258,7 @@ namespace
 	}
 
 	// The orbit is (radius, direction from the focus to the camera, elevation), radians; the fields and their meaning
-	// are those of docs/re/camera.md ("held" regime: the orbit stays as the player left it)
+	// are the camera's ("held" regime: the orbit stays as the player left it)
 	bool setCamera(float viewYaw, float viewPitch, float distance, std::string& output)
 	{
 		const uintptr_t camera = findCamera();
@@ -338,7 +338,7 @@ namespace
 			{"a", 0x1E}, {"s", 0x1F}, {"d", 0x20}, {"f", 0x21}, {"g", 0x22}, {"shift", 0x2A}, {"z", 0x2C}, {"x", 0x2D},
 			{"c", 0x2E}, {"v", 0x2F}, {"space", 0x39}, {"tab", 0x0F}, {"alt", 0x38}, {"up", 0xC8}, {"down", 0xD0},
 			{"left", 0xCB}, {"right", 0xCD}, {"lmb", 0x100}, {"rmb", 0x101}, {"mmb", 0x102},
-			// the power hot keys F1 - F11 (docs/re/input.md 2)
+			// the power hot keys F1 - F11
 			{"f1", 0x3B}, {"f2", 0x3C}, {"f3", 0x3D}, {"f4", 0x3E}, {"f5", 0x3F}, {"f6", 0x40}, {"f7", 0x41}, {"f8", 0x42}, {"f9", 0x43},
 			{"f10", 0x44}, {"f11", 0x57}};
 		return names;

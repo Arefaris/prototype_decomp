@@ -1,4 +1,4 @@
-// Control of the running original from outside (docs/re/game_control.md): a command channel served on the game's main
+// Control of the running original from outside: a command channel served on the game's main
 // thread, Lua run in the game's own script state, the chase camera's orbit, and keys and mouse fed to the game's
 // DirectInput devices without the window in front.
 #pragma once

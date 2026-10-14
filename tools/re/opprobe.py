@@ -1,4 +1,4 @@
-"""opprobe: puts Alex somewhere in the running original and captures what the game shows (docs/re/memory.md).
+"""opprobe: puts Alex somewhere in the running original and captures what the game shows.
 
 The player is found without hard-coded heap addresses:
   1. proto::MusicTreeBehaviour exists once, on the player; its vtable is a fixed address in prototypeenginef.dll

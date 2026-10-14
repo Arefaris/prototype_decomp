@@ -1,4 +1,4 @@
-"""gamectl: controls the running original through the proxy d3d9.dll (docs/re/game_control.md).
+"""gamectl: controls the running original through the proxy d3d9.dll.
 
 Every request runs on the game's main thread between two engine frames: Lua in the game's own script state (the
 functions its mission scripts use), the chase camera's orbit, keys and mouse fed to the game's DirectInput devices.
@@ -40,7 +40,7 @@ REQUEST = GAME_DIR / "opprobe_cmd.request"
 RESULT = GAME_DIR / "opprobe_cmd.result"
 LOCK = GAME_DIR / "opprobe_cmd.lock"
 WAKE_MESSAGE = 0x8000 + 0x4F50  # WM_APP + 0x4F50, as in gamecontrol.hpp
-# Engine options read from args.txt at start (docs/re/game_control.md): no legal screens and movies, no "press a key"
+# Engine options read from args.txt at start: no legal screens and movies, no "press a key"
 # after loading, no autosave (the copies share the saves), keep running without focus
 FAST_OPTIONS = ["SkipMovies", "NoMovie", "NoFELoadingPrompt", "NoAutoSave", "NoSleepOnLostFocus"]
 
@@ -212,7 +212,7 @@ def openLoadDialog():
 	"""sgm_LoadGame opens the save list (newest save highlighted) at the main menu; sgm_IsActive tells that it did.
 	The list takes about a second to take the keyboard: an Enter before that goes to the menu behind it, which then
 	keeps the focus, so confirmLoad waits first. (In the game the same dialog loads too, but the engine then crashes
-	while it restarts the world: docs/re/game_control.md; a clean state is a new launch.)"""
+	while it restarts the world; a clean state is a new launch.)"""
 	if not storageActive():
 		lua("sgm_LoadGame()")
 	return storageActive()

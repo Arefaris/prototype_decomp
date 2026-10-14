@@ -1,4 +1,4 @@
-// ImHex pattern for Radical Cement File archives, version 2.1. See docs/formats/rcf.md
+// ImHex pattern for Radical Cement File archives, version 2.1.
 #pragma endian little
 #pragma pattern_limit 1000000
 

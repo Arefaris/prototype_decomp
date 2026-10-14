@@ -1219,7 +1219,7 @@ address	topics	context
 0x10412530	pedestrians	A slot is taken from the pool by `0x10412530` (pushes it on the active list, sets its position, optionally puts it
 0x10412870	traffic	spawn attempts: loop `0x1041B420`; lane list prep `0x1041AFC0` (clip `0x1041ACC0`, `0x1040CD00`); random lane `0x1040FCE0`, point `0x10412990`; occupancy `0x104
 0x10412990	traffic,vehicles	spawn attempts: loop `0x1041B420`; lane list prep `0x1041AFC0` (clip `0x1041ACC0`, `0x1040CD00`); random lane `0x1040FCE0`, point `0x10412990`; occupancy `0x104
-0x10412EC0	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760, docs/re/pedestrians.md) method 0x10418680: on a change to false it calls 0x10412E
+0x10412EC0	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760) method 0x10418680: on a change to false it calls 0x10412E
 0x10412F90	audio_mix	the ambient manager's lane tree (`0x11267760` → `0x104186B0` → `0x10412F90`, a sphere query over an AABB tree of
 0x10413680	pedestrians	function at `0x10413680` lets a request for a full character make room by downgrading one.
 0x10413990	missions	Ambient** (0): the ambient manager hands over **a walker** near the locator (`0x10413990` with a pedestrian
@@ -1232,11 +1232,11 @@ address	topics	context
 0x10416800	hit_reactions	`0x10416800`, which keeps a list of **kill spots** (24-byte records: position, radius², count, weight; a death within
 0x10416B20	base_building	> (`AmbientManager` `0x1040CB40`, per frame `0x10416B20`); `ai_HiveDestructionZoneModifications` (`0x10370AD0` →
 0x10417500	traffic	exact clipping of lanes by the volumes (`0x1041ACC0`, `0x10417500`, `0x1040F2A0`): the spawn band was measured, not
-0x10418680	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760, docs/re/pedestrians.md) method 0x10418680: on a change to false it calls 0x10412E
+0x10418680	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760) method 0x10418680: on a change to false it calls 0x10412E
 0x104186B0	audio_mix	the ambient manager's lane tree (`0x11267760` → `0x104186B0` → `0x10412F90`, a sphere query over an AABB tree of
 0x10419240	pedestrians	important). Each frame the first **two** are applied (`0x1041bcc0`, applying = `0x10419320` → `0x10419240`: a
 0x10419320	pedestrians	important). Each frame the first **two** are applied (`0x1041bcc0`, applying = `0x10419320` → `0x10419240`: a
-0x10419A20	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760, docs/re/pedestrians.md) method 0x10418680: on a change to false it calls 0x10412E
+0x10419A20	game_control	`amb_EnableManager(b)` | C 0x10419A20 → the AmbientManager (global 0x11267760) method 0x10418680: on a change to false it calls 0x10412E
 0x1041ACC0	traffic	spawn attempts: loop `0x1041B420`; lane list prep `0x1041AFC0` (clip `0x1041ACC0`, `0x1040CD00`); random lane `0x1040FCE0`, point `0x10412990`; occupancy `0x104
 0x1041AFC0	traffic	spawn attempts: loop `0x1041B420`; lane list prep `0x1041AFC0` (clip `0x1041ACC0`, `0x1040CD00`); random lane `0x1040FCE0`, point `0x10412990`; occupancy `0x104
 0x1041B1B0	pedestrians	(`0x1041b1b0`) runs over the dead-body records of the list at +0x260 (§4).
@@ -2403,7 +2403,7 @@ address	topics	context
 0x10DEED10	car_physics,traffic	> statically — `proto::VehicleConstraintsBehaviour` (vtable `0x10DEED10`; message handler `0x1030DEC0`; build
 0x10DEFF94	car_physics	`proto::WheelConstraintParams` / `proto::WheelConstraint` (vtable `0x10DEFF94`) belong to the helicopter data of
 0x10DF1BFC	camera_shake	delay = d / 340 s constant 0x10DF1BFC = 1/340 (speed of sound)
-0x10DF29A4	game_control	docs/re/camera.md: the `proto::ChaseCamera` object (vtable 0x10DF29A4; the proxy finds it once by scanning the game's
+0x10DF29A4	game_control	the `proto::ChaseCamera` object (vtable 0x10DF29A4; the proxy finds it once by scanning the game's
 0x10DF42C4	vehicles	`Air_vehicle_gunner` (helicopter); both are `proto::VehicleCamera` (vtable `0x10DF42C4`, update `0x103575E0`, the
 0x10DF49D8	camera_shake	instant: it makes an action (0x10359410, vtable 0x10DF49D8) that stores the owner object's world position (row 3 of its transform,
 0x10DF4B80	dramatic_camera	graph action | `…::DramaticCameraAction` | vtable `0x10DF4B80`: begin `0x10359A40`, end `0x10359E20`, update `0x10359780` |
