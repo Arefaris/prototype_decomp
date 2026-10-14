@@ -106,18 +106,26 @@ namespace core
 		int index;
 	};
 
-	// The queue the workers drain (asynctaskqueue.cpp): 1024 task slots behind lock-free counters, three semaphores
+	// The queue the workers drain (asynctaskqueue.cpp): 1024 task slots in a ring. Writers reserve room in `space`
+	// (the free slot count and the writers waiting for room), take slots at `writeIndex`, copy their tasks in and
+	// mark them in `usedSlots`; readers take tasks at the read index in `readState` once they are marked, then mark
+	// the slots in `freeSlots` to give the room back. The two slot bitmaps are 18 words of 58 bits (the last one 38)
+	// with the position of the first unmarked slot in the low six bits (58: not in this word); marking a range
+	// returns how far the run of marked slots at the head grew.
 	struct AsyncTaskQueue
 	{
-		unsigned __int64 volatile freeSlots[18];
-		unsigned __int64 volatile readState;
-		unsigned __int64 volatile usedSlots[18];
-		long volatile writeIndex;
+		unsigned __int64 freeSlots[18];
+		// Bits 0 - 27: the read index; 28 - 55: the tasks ready to read; 56 - 63: the readers waiting
+		unsigned __int64 readState;
+		unsigned __int64 usedSlots[18];
+		long writeIndex;
 		int unknown12C;
-		unsigned __int64 volatile space;
+		// Low word: the free slots (negative when writers reserved more); high word: the writers waiting for room
+		unsigned __int64 space;
+		// Writers waiting for room, readers waiting for tasks, writers waiting for an over-reservation to clear
 		void* spaceSemaphore;
 		void* taskSemaphore;
-		void* fullSemaphore;
+		void* overflowSemaphore;
 		int unknown144[3];
 		AsyncTask tasks[1024];
 	};
