@@ -5,6 +5,7 @@
 #define PURE3D_POSE_H
 
 #include "code/core/memory/imemoryallocator.h"
+#include "code/pure3d/posedata.h"
 
 namespace pure3d
 {
@@ -16,9 +17,8 @@ namespace pure3d
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
 
-		unsigned char unknown0[0x38];
-		// The bind pose's joint matrices (0x40 bytes each)
-		void* mJoints;
+		unsigned char unknown0[8];
+		SkeletonData mData;
 	};
 
 	class LockableRefCounted : public core::IRefCount
@@ -46,19 +46,12 @@ namespace pure3d
 		void CopyFrom(Pose* other);
 		// 0x106DD830: a new pose of the same skeleton with this one's joints
 		Pose* CreateInstance(int kind);
-		// 0x106DD6E0: recomputes the joints and counts the update
+		// 0x106DD6E0: recomputes the joint matrices and counts the update
 		void Update();
 
 		Skeleton* mSkeleton;
-		unsigned char unknown10[4];
-		unsigned int mJointCount;
-		unsigned char unknown18[0x1C];
-		// The joint matrices (0x40 bytes each)
-		void* mJoints;
-		unsigned char unknown38[8];
-		// Bit 1: the joints need Update
-		unsigned char mFlags;
-		unsigned char unknown41[0xF];
+		PoseData mData;
+		unsigned int mUpdateCount;
 	};
 }
 

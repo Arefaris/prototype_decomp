@@ -8,8 +8,7 @@ namespace pure3d
 	void Float1Channel::GetValue(float frame, float* out)
 	{
 		ChannelKeys<float> keys;
-		keys.Set(frames, count, values, mode);
-		FrameTime time;
-		keys.Evaluate(time.Set(frame), out);
+		keys.Set(mode, count, frames, values);
+		keys.Evaluate(FrameTime(frame), out);
 	}
 }

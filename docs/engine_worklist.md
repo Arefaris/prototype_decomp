@@ -491,6 +491,74 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
 
+## pure3d animation and the choreo pose blending
+
+Three units, none of them named by an assert except the first:
+
+- `code/pure3d/anim/src/animation.cpp` (0x106E2A30 - 0x106E7BE0): the key readers of the channels (`ChannelKeys<T>`
+  with the compressed rotations), `FrameTime`, `Animation::Touch`. Source in `pure3d/anim/src/animation.cpp`,
+  `pure3d/channel.h`, `math/compressedquaternion.h`.
+- `code/pure3d/anim/src/posedata.cpp` (0x10707240 - 0x10709AA0, asserts) and the pose controller around 0x10732100.
+  Source in `pure3d/anim/src/{pose,posedata,poseanimationcontroller}.cpp`, `pure3d/{pose,posedata,posecontroller}.h`.
+- `choreo` (RTTI: `choreo::Puppet`, `Driver` and its subclasses; asserts name `poseblendjob.cpp`,
+  `deltatransform.cpp`): the puppet update, the pose blend job and the sampling of channels into poses. Source in
+  `choreo/src/{puppet,poseblendjob,poseblend,samplechannels,drivers}.cpp`.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x106E2FE0 / 0x106E3010 / 0x106E3030 | FrameTime::FrameTime() / FrameTime(float) / SetFrame(short) | match |
+| 0x106E3070 / 0x106E3080 / 0x106E30C0 | ChannelKeysBase::SetMode / Set, ChannelKeys<float>::Set (were SetFrames / Set with the wrong argument order) | match |
+| 0x106E34E0 | ChannelKeysBase::FindKeys (binary search for the keys around a time) | EQUIVALENT (99 % of the instructions: the engine repeats a comparison the optimizer removes from our form) |
+| 0x106E3A40 / 0x106E3A60 | GetKey<float> / GetKeys<float> | match |
+| 0x106E3CC0 / 0x106E3CE0 / 0x106E3D60 / 0x106E3D80 | GetKey / GetKeys of the 16-bit and 8-bit compressed rotations | match |
+| 0x106E3E10 / 0x106E3F50 | math::CompressedQuaternion6 / 8 ::ToQuaternion (COMDAT copies of inline members) | match |
+| 0x106E41C0 / 0x106E6350 / 0x106E69B0 | ChannelKeys<float / CompressedQuaternion6 / CompressedQuaternion8>::Evaluate | match |
+| 0x106E7B20 | Animation::Touch | match |
+| 0x106DD6E0 / 0x107098A0 | Pose::Update / PoseData::Update | match |
+| 0x10708E00 / 0x10708330 | PoseData::UpdateLocal / UpdateWorld (local matrices from rotation, scale, shear and pivots; joint and skinning matrices) | EQUIVALENT (SSE intrinsics: same operations, other schedule; UpdateLocal has the engine's size) |
+| 0x10732320 | PoseAnimationController::Apply (animation channels over the pose with a weight, root motion as a delta) | EQUIVALENT (registers; the flow and the frame size are the engine's) |
+| 0x10949080 | choreo::Puppet::Update (fades, drops finished drivers, steps the rest) | EQUIVALENT (x87 load of the step hoisted in the engine; a stack slot for the next entry) |
+| 0x109560C0 | choreo::UpdateDriver (the driver type's update function) | match |
+| 0x109580C0 / 0x109580E0 | PoseBlendCursors / PoseBlendBuffers constructors | match |
+| 0x10958120 | PoseBlendBuffers::Fill | match |
+| 0x10958210 / 0x10958D50 / 0x10959150 | HasLastNodes / ApplyRootNodes / UpdatePuppets | match |
+| 0x10958DA0 | RunPoseBlendJob (the task body of a batch of puppets) | match |
+| 0x10952150 - 0x109521A0 | SampleChannels::GetRotation / GetTranslation / GetUnknown10 / GetScale / GetUnknown14 / GetUnknown1C | match |
+| 0x10953A90 / 0x10953160 | SlerpRotation / RotationBuffer::BlendInto (four-wide spherical interpolation of rotations) | EQUIVALENT (SSE intrinsics, other schedule) |
+| 0x10953E40 | SampleChannels::Blend (channels sampled over joints first to last with a weight) | EQUIVALENT (stack slots; the engine's size) |
+
+Matching notes:
+
+- The compressed rotation keys are `short x, y, z` (six bytes) and `signed char x, y, z` (three bytes); w comes from
+  the unit length. `ToQuaternion` is an inline member whose out-of-line copies exist; defined `inline` in the .cpp
+  above its users, it is inlined into the one place where the engine inlines it and called elsewhere, and the
+  annotation sits on the definition. `Max(1.0f - (...), 0.0f)` under the `sqrtf` and the four stores after the
+  computation (a local `qw` first) give the engine's order.
+- `ChannelKeysBase` is `{mode, count, frames}` and `ChannelKeys<T>` adds `values` (the old guess had frames and
+  values in the wrong places; Float1Channel's fields follow). Evaluation clamps outside the keys and interpolates only
+  when `mode` is set; the interpolated value is `((b - a) / (t1 - t0)) * (t - t0) + a`, tested as `alpha == 0.0f`
+  first.
+- `FrameTime(float)` is a constructor (it returns this), which is why `Float1Channel::GetValue` copies the temporary
+  from the returned pointer.
+- `Puppet::Update`'s comparisons `0.0f >= x` give the engine's `comiss 0, x` / `jae` forms (`x > 0.0f` gives the
+  reversed operands); the loop is `for (entry = mEntries; index < count; entry++)` with `memmove(entry,
+  &mEntries[index + 1], ...)`: indexing the next entry keeps a separate induction variable like the engine's.
+- `PoseBlendBuffers::Fill` matched only with the cursor stores in the struct's order and the `counts` pointer
+  declared after them, right before the loop (declaration order decides which of the buffers and the counts gets the
+  callee-saved register).
+- SSE intrinsics (`<emmintrin.h>`; `cvttps2dq` is SSE2): VS2005 passes the first `__m128` argument in xmm0 and
+  refuses further `__m128` parameters by value (C2719), so four-vector helpers are macros or take references. A
+  `static` function whose callers it can see gets the register convention for its pointers too; an `inline` function
+  keeps cdecl pointers on the stack like the engine's. Constant tables of the original (masks, coefficients packed
+  four to a vector and used by shuffling a lane across the vector, the unit axes) are `extern const __m128` data
+  symbols at their addresses. Exactness of the intrinsics code was checked bit for bit against the original on
+  random inputs (including parallel, opposite and out-of-order rotations, every flag combination of the pose data
+  and masked / unmasked channel blending).
+- The row-times-matrix helper is `(x * m0 + z * m2) + (w * m3 + y * m1)`; the rotation matrix of a quaternion comes
+  out of `(z, x, y, w)` / `(y, z, x, w)` shuffles of `q` and `2q`, with `diagonal = (1 - yzx*2yzx) - 2zxy*zxy`.
+- PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
+  further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
+
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
 The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side

@@ -1,0 +1,40 @@
+// The channels that animate the joints of a pose, arranged by kind (an array of channel pointers per kind, one entry
+// per joint; the same kinds and order as pure3d::JointChannels, which arranges them by joint). Names are guesses.
+#ifndef CHOREO_SAMPLECHANNELS_H
+#define CHOREO_SAMPLECHANNELS_H
+
+#include "code/pure3d/channel.h"
+#include "code/pure3d/posedata.h"
+
+namespace choreo
+{
+	class SampleChannels
+	{
+	public:
+		static const unsigned int MAX_JOINTS = 96;
+
+		// 0x10952150 - 0x109521A0: the channel of a joint, by kind
+		pure3d::QuaternionChannel* GetRotation(int joint);
+		pure3d::VectorChannel* GetTranslation(int joint);
+		pure3d::VectorChannel* GetUnknown10(int joint);
+		pure3d::VectorChannel* GetScale(int joint);
+		pure3d::VectorChannel* GetUnknown14(int joint);
+		pure3d::VectorChannel* GetUnknown1C(int joint);
+
+		// 0x10953E40: lays the values of the channels at time over the joints first to last of the arrays, each moving
+		// from the pose towards the value by weight (the rotations by the shortest arc). Only the joints of the mask
+		// take part (all without one); a joint without a channel takes the rest pose's value; the kinds of value
+		// beyond the rotation and translation are only done when full is set.
+		void Blend(pure3d::JointArrays* arrays, unsigned int first, unsigned int last, const pure3d::JointMask* mask,
+			const pure3d::SkeletonData* rest, pure3d::FrameTime time, bool full, float weight);
+
+		pure3d::QuaternionChannel* mRotations[MAX_JOINTS];
+		pure3d::VectorChannel* mTranslations[MAX_JOINTS];
+		pure3d::VectorChannel* mUnknown10[MAX_JOINTS];
+		pure3d::VectorChannel* mScales[MAX_JOINTS];
+		pure3d::VectorChannel* mUnknown14[MAX_JOINTS];
+		pure3d::VectorChannel* mUnknown1C[MAX_JOINTS];
+	};
+}
+
+#endif
