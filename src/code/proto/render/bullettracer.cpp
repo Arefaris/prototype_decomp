@@ -141,20 +141,18 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102CCFB0
-	// EQUIVALENT: the same operations in the same order (62 %); the engine keeps the constant and the first clamp in other
-	// registers
 	float BulletTracerState::GetTrailFade(const BulletTracerParams::Data* data, float time, float distance)
 	{
 		float fade = math::Clamp(1.0f - GetInverseFadeOutTrailTime(data) * time, 0.0f, 1.0f);
-		if (data->startFadeDistance > 0.0f)
+		float grow = 1.0f;
+		if (0.0f < data->startFadeDistance)
 		{
 			fade = math::Clamp(distance / data->startFadeDistance, 0.0f, 1.0f) * fade;
 		}
-		if (data->endFadeDistance > 0.0f)
+		if (0.0f < data->endFadeDistance)
 		{
 			fade = math::Clamp((length - distance) / data->endFadeDistance, 0.0f, 1.0f) * fade;
 		}
-		float grow = 1.0f;
 		if (0.0f != GetInverseFadeInTrailTime(data))
 		{
 			float scaled = GetInverseFadeInTrailTime(data) * age;
@@ -177,62 +175,23 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102CDE90
-	// EQUIVALENT: the same operations in the same order, all in SSE; the engine keeps the fade in a register through the
-	// branches
 	float BulletTracerState::GetFade(const BulletTracerParams::Data* data)
 	{
-		float fadeIn = data->fadeInTime;
 		float elapsed = age - wait;
-		float fade;
-		if (fadeIn >= elapsed)
-		{
-			fade = elapsed / fadeIn;
-		}
-		else
-		{
-			float hold = data->generateTime + fadeIn;
-			if (hold >= elapsed)
-			{
-				fade = 1.0f;
-			}
-			else
-			{
-				float fadeOut = data->fadeOutTime;
-				if (fadeOut > 0.0f)
-				{
-					float out = (elapsed - hold) / fadeOut;
-					if (out < 0.0f)
-					{
-						out = 0.0f;
-					}
-					if (out - 1.0f >= 0.0f)
-					{
-						out = 1.0f;
-					}
-					fade = 1.0f - out;
-				}
-				else
-				{
-					fade = 0.0f;
-				}
-			}
-		}
+		float fadeIn = data->fadeInTime;
+		float fade = fadeIn >= elapsed ? elapsed / fadeIn
+			: data->generateTime + fadeIn >= elapsed ? 1.0f
+			: data->fadeOutTime > 0.0f
+				? 1.0f - math::Clamp((elapsed - (data->generateTime + fadeIn)) / data->fadeOutTime, 0.0f, 1.0f)
+				: 0.0f;
 		float trail = age - unknown140;
 		float result = fade;
-		if (trail >= 0.0f && trail > 0.0f)
+		if (!(0.0f > trail) && 0.0f < trail)
 		{
 			float fadeOut = data->fadeOutTime;
-			if (fadeOut > 0.0f)
+			if (0.0f < fadeOut)
 			{
-				float out = trail / fadeOut;
-				if (out < 0.0f)
-				{
-					out = 0.0f;
-				}
-				if (out - 1.0f >= 0.0f)
-				{
-					out = 1.0f;
-				}
+				float out = math::Clamp(trail / fadeOut, 0.0f, 1.0f);
 				result = (1.0f - out) * fade;
 			}
 			else

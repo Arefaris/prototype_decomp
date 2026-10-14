@@ -579,12 +579,12 @@ original gives is `code/pure3d/effects/src/particles.cpp`); `particlekernels.cpp
 | 0x102CFF50 | proto::BulletTracer::DrawLayer (6686 bytes; the ribbon of one layer) | EQUIVALENT (6 350 of 6 686 bytes, identical output by emulation) |
 | 0x102CCCF0 | proto::ScaleColour | EQUIVALENT (two operand/register choices) |
 | 0x102CD130 | BulletTracerState::GetWidthFade | match |
-| 0x102CDE90 | BulletTracerState::GetFade | EQUIVALENT (17 %) |
+| 0x102CDE90 | BulletTracerState::GetFade | match |
 | 0x102CDFB0 | BulletTracerState::GetDistanceFade | EQUIVALENT (the engine spills the age twice) |
 | 0x102CD7F0 | math::pddiColour(const Colour128&) (a second copy of the Vector4 one at 0x102CD6D0) | EQUIVALENT (clamp test order, as 0x102CD6D0) |
 | 0x102CFF00 | std::sort<float*> | match |
 | 0x102CCEB0 / 0x102CCEF0 / 0x102CCF30 / 0x102CCF70 | BulletTracerState::GetInverse{FadeOutTrail,FadeInTrail,ShrinkOut,ShrinkIn}Time (callees of the tracer) | match |
-| 0x102CCFB0 | BulletTracerState::GetTrailFade (callee of the tracer) | EQUIVALENT (62 %) |
+| 0x102CCFB0 | BulletTracerState::GetTrailFade (callee of the tracer) | match |
 | 0x102CE4D0 ... 0x102CFDD0 | the 13 other instances of VS2005's `<algorithm>` for float* that std::sort needs (`_Sort`, `_Median`, `_Med3`, `_Unguarded_partition`, the heap functions) | match |
 
 The tracer unit's own `pddiColour(const Vector4&)` call is the copy in particlemanager.cpp; both copies are the same
@@ -602,6 +602,8 @@ Matching notes:
   grouping than written. Separate statements pin the order (`float scaled = inv * age; ... scaled / age * x`, and
   `sum = dx * dx; sum += dy * dy; sum += dz * dz;`); a differential emulation of old against new code at both x87
   precisions (24 and 64 bits) found three functions whose first versions rounded differently.
+- Clamp chains: a ternary chain with `math::Clamp` and `!(0.0f > t)` reproduced `GetFade`; for `GetTrailFade`, declaring
+  the identity value (`float grow = 1.0f;`) right after the first clamp fixed the register order.
 - `0.0f != f()` and `f() != 0.0f` compile to different `fucompi` operand orders; a comparison written `x <= 0` instead
   of `!(x > 0)` changes what a NaN does (the engine returns early on NaN).
 - A float to `unsigned int` conversion is `fistp qword` with a control word change; the conversion of an unsigned
