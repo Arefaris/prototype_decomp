@@ -24,7 +24,8 @@ contribution.
 
 Requirements: Windows, Python 3.11 with `pyyaml`, `pefile` and `capstone`, Ninja, Ghidra 12.1+ with JDK 21, and the
 Visual Studio 2005 SP1 compiler, which `tools/toolchain/setup_vc8.py` extracts from a free Microsoft SDK download
-([docs/toolchain.md](docs/toolchain.md)). Ghidra or REA for reading the original; objdiff is
+([docs/toolchain.md](docs/toolchain.md)). Ghidra reads the original (the project keeps a
+persistent database with scripts); objdiff is
 optional.
 
 ```bash
@@ -35,7 +36,7 @@ python tools/configure.py
 ninja
 ```
 
-The full list, including the Ghidra exports and the REA copy of the DLL, is in [docs/workflow.md](docs/workflow.md).
+The full list, including the Ghidra exports, is in [docs/workflow.md](docs/workflow.md).
 
 ## Picking work
 
@@ -51,7 +52,7 @@ The full list, including the Ghidra exports and the REA copy of the DLL, is in [
 
 The step-by-step guide is [docs/workflow.md](docs/workflow.md); in short:
 
-1. Read the function in REA or Ghidra and find its real name (RTTI, vftable slot, assert text, reflection or Lua
+1. Read the function from the Ghidra database (`DecompileRange.java`, `tools/disasm.py`) and find its real name (RTTI, vftable slot, assert text, reflection or Lua
    registration string, export). An invented name is marked `guess` in `symbols.txt`.
 2. Add it to `config/PROTOPC_2025/symbols.txt`
    (`?Name@Class@ns@@QAEXXZ = 0x10123456 ; function size:0x4C | ns::Class::Name`).

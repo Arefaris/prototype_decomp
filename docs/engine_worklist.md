@@ -195,10 +195,10 @@ into the masked register) and the two handle helpers, which hit the open IsValid
 compares the handle's serial again for Get, our build folds it (also poimanager.cpp; `IsValid() { return Get() != 0; }`
 does not change that). Tested in game: `online_DeterminePlayerIndex(PLAYER_1)` answers 0. Lessons:
 
-- Units register script functions with ScriptContext::SetOwner(&static), Register<R, A>(name, function) (out of line
-  per instantiation, in other units) and ClearOwner; Unregister(&static) removes them. ScriptContext moved to
-  code/engine/scriptcontext.h.
-- `GetScriptContext()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
+- Units register script functions with LuaScriptManager::SetOwner(&static), Register<R, A>(name, function) (out of
+  line per instantiation, in other units) and ClearOwner; Unregister(&static) removes them. The class (first called
+  ScriptContext here) is engine::LuaScriptManager in code/engine/luascriptmanager.h.
+- `GetScriptManager()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
   local.
 
 ## physics/supportinglimb.cpp (0x107F2970 - 0x107F66E0), first part
@@ -307,7 +307,7 @@ engine::GameDatabase (the RTTI name; the engine's earlier "Console" guesses for 
 write, kept in a `container::Map<unsigned __int64, DBSubject*, AllocatorCoreStatic<0x80,16>>` keyed by the name hash.
 The unit has the subject API, the input / online / storage / front end callbacks, profile building, the db_* script
 functions (registered through engine::Function wrappers, `MethodN` / `ClosureN`, and the inline
-`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
+`LuaScriptManager::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
 method wrappers, the registration templates, the inline callback base members, the Map / SList members and the
 scalar deleting destructors). The file name is a guess (no assert path); DBSubject, OnlineGameDBHelper,
 GameDBStorage and GameDBHelper live in other units and are only declared.
@@ -391,6 +391,41 @@ Lessons:
 - Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
   `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
 
+## luascriptmanager.cpp (0x107FE510 - 0x10804EC0), first part
+
+engine::LuaScriptManager (RTTI; the singleton gScriptManager at 0x11284254): the engine's Lua 5.1 state and the
+native functions the units register with it. The file name is a guess from the class name (no assert path). Done:
+0x107FE6B0 - 0x10800843, 86 functions, all match, plus 12 kept copies (the explicitly instantiated
+ScriptNameTable<Function> / ScriptNameTable<LuaCFunction> members, mapped in symbols.txt). They cover the script
+allocator (ScriptBlockPool, two 0x14000-byte blocks handed out first; Function::operator new / delete, 0x107FE720 /
+0x107FE760, which the Lua allocator ScriptRealloc also uses), the base script functions (print, type, traceback,
+breakpoint), the registration tables, the global / registry / table accessors, the context table (event fields),
+references, garbage collection and the LuaGet* / LuaPush* helpers. The Lua library itself is linked in and only
+declared (`code/lua/lua.h`; its functions are mapped in symbols.txt from the engine's calls). The Vector / UID / Name
+userdata helpers (0x10840770 - 0x10841040) and the service pump (0x10853890) live in other units.
+
+Open:
+
+- 0x10800850 - 0x10804EC0: the rest of the class (AddFunction 0x10801D50, Unregister 0x108016C0, OpenEvent
+  0x108021F0 and the rest).
+- ScriptNameTable<T>::Complete (0x107FE910 / 0x107FECC0) does not match and is left unmapped: our COMDAT copy (same
+  logic, checked against the engine's) serves our callers, the engine's copies stay for the rest. The engine
+  recomputes strlen(prefix) and reloads the strncmp import on every iteration of the first loop; ours hoists both.
+- Small kept copies at 0x107FE510 - 0x107FE6A0, 0x107FEFC0 - 0x107FEFE0 and 0x108002E0 (a constructor initialising a
+  HandleBase at +0xC): owners unknown.
+
+Lessons:
+
+- Unresolved Lua API functions are found by pairing our object's relocations with the call targets in the engine's
+  copy of a matching function (follow the incremental link thunks); the lapi.c order of upstream Lua 5.1 confirms them.
+- The LuaGet* helpers test `lua_gettop(L) == 0` and the type in two separate `if (...) return false;`: the engine
+  places the false return right after the type test. One `&&` condition puts it at the end of the function (but
+  LuaGetVector, whose second test is a call returning bool, matches with `&&`).
+- LuaType is a switch whose cases push and `break` to one `return 1`, with the lua_typename push written both in the
+  userdata fallback and in `default`: the compiler then hoists the shared `push 1; push esi` above the branch. Cases
+  that `return 1` themselves do not get that.
+- "ScriptFree" was Function::operator delete: ScriptNameTable<Function>::Remove's `delete entry` calls it directly.
+
 ## system/streamtrigger.cpp (0x108352B0 - 0x10836640): done (75 functions: 73 match, 2 equivalent)
 
 engine::StreamTrigger (RTTI; reflected members neighbours, packages, hulls, boundingBox, tags): a world volume (box,
@@ -455,3 +490,65 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
+
+## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
+
+The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
+used to call it DrawableImpl, which is now a typedef in `drawableimpl.h`). Its unit runs 0x106DE950 - 0x106E28F0;
+`pure3d::Scene` (vftable 0x10E5B358, the engine's "render list") 0x10710930 - 0x10714400; the visibility server
+0x10726540 - 0x10729AE0. Paths below `code/pure3d/` are guessed from the class names.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x106DEA40 / 0x106DEBE0 / 0x101E0520 / 0x10444290 / 0x10433D90 | core::BitField Test / Set(bit, value) / Set / Clear / ClearAll (COMDAT copies) | match |
+| 0x106DF480 | pure3d::GetCurrentFrame | match |
+| 0x106DF4F0 / 0x106DF520 / 0x106DF620 | Drawable::IsPoseCurrent / IsCyclic / GetPose | match |
+| 0x106DFFD0 | Drawable::Update(dt) | EQUIVALENT (72 %: loop registers) |
+| 0x106E0680 | Drawable::MarkPoseDirty | match |
+| 0x106E0D60 | Drawable::UpdateBounds(force) | EQUIVALENT (39 %: registers, frame 4 bytes larger) |
+| 0x106E13C0 | DrawablePart::GetWorldMatrix | match |
+| 0x106E14E0 / 0x106E18A0 | Drawable::UpdatePart / UpdateParts | match |
+| 0x10710B40 / 0x10711400 | Scene::GetUnknownD8 / UpdateDrawables (the AsyncDrawableUpdate task body) | match |
+| 0x107283A0 | visibility::RunTest (the frustum test task body) | EQUIVALENT (index and constant registers) |
+| 0x102CBD60 | math::AABB::Inflate (COMDAT copy, defined in drawable.cpp) | match |
+| 0x106F31D0 / 0x106F3630 / 0x106F4100 | RenderStateBackup::Restore, PrimStream::End / Begin (src/primitive.cpp) | match |
+| 0x10707680 / 0x10707B00 | MeshState::GetController3, ShaderParameters::operator= (src/mesh.cpp) | match |
+| 0x10709CE0 | ParticleSystemState::GetUnknown490 (effects/src/particlesystem.cpp) | match |
+| 0x106ED9D0 / 0x106EDA80 / 0x106EDC90 / 0x106EDCA0 | ParticleSystemState::GetUnknown4BC, GetParticleManager, ParticleManager accessors (effects/src/particlemanager.cpp) | match |
+| 0x102CD6D0 | math::pddiColour(const Vector4&) (COMDAT copy, defined in particlemanager.cpp) | EQUIVALENT (clamp test order) |
+| 0x1070EE10 | Context::GetView (src/context.cpp) | match |
+| 0x1071B200 / 0x1071B210 | SkinState::GetExpression / GetExpressionState (atg4/platform/win32/skin.cpp) | match |
+| 0x10731700 | VertexOffsetExpressionMixer::Apply | match |
+| 0x106E3070 / 0x106E3080 / 0x106E30C0 | ChannelKeysBase::SetFrames / Set, ChannelKeys<float>::Set (anim/src/animation.cpp) | match |
+| 0x107350B0 | Float1Channel::GetValue (src/channel.cpp) | match |
+| 0x1074F3B0 / 0x1074F3C0 | RenderParams::GetViewState / GetCameraData | match |
+| 0x10756AA0 | LightingScene::GetLights (lighting/lightingscene.cpp) | EQUIVALENT (the engine's loop is unrolled 4x) |
+| 0x1075C750 | MergeLightBits (lighting/src/light.cpp) | match |
+| 0x107A6B10 | LightingInputs::SetShaderConstant | match |
+| 0x1077FFD0 | Occluder::GetShadowPlanes (src/occluder.cpp) | EQUIVALENT (scheduling, 12 %) |
+| 0x10860E80 | engine::render::RenderQueue::SendAndWait (engine/render/renderthread.cpp) | match |
+| 0x10B7EF00 | (core event wait in the job queue area) | not done: left to the job queue unit |
+
+Matching notes:
+
+- `core::BitField<T>` members are defined outside the class (not inlined under /Ob1, COMDAT copies everywhere); the
+  annotations sit on explicit instantiations in drawable.cpp. Set / Clear build the mask in a `T` local
+  (`T mask = 1; mask <<= bit;`), which is what loads the bit with `mov cx, word ptr`.
+- Flags read in place (`shr; test cl, 1`) come from inline accessors (`IsSet`, Primitive's `GetFlagN` over
+  bit-fields); a mask OR through an inline member (`SetMask`) keeps the original's store order around it, a direct
+  `mBits |= 4` is sunk below neighbouring stores.
+- Bool functions written as `return !a || b;` return through eax (`xor eax, eax` / `mov eax, 1`), an if/return form
+  through al.
+- The part flag updates are `flags = value ? flags | mask : flags & ~mask` (an inline helper): the byte is loaded
+  before the branch.
+- `DrawablePart::GetBindingSource` (0x102D3D30 elsewhere) is inlined twice in UpdatePart; the state's half of it
+  is itself an inline (it reloads the state's word), see `PrimitiveState::GetBindingSource`.
+- Update's emitter matrix copy is a pointer loop counted `do ... while (--row >= 0)` (x87 copies, `jns`); the
+  implicit copy of any matrix or row struct comes out as 16 unrolled movss.
+- A self-recursive accessor (`return inherit ? parent->Get() : flag;`) becomes the engine's tail jump to its own
+  entry; the if / return form and explicit loops are rotated into a do-while.
+- Bit ranges as `x << 5` match where `x * 32` changes the load order.
+- A global pointer read twice around a store through it is cached in a local in the source (`pddi`), and a nested
+  member pointer as well (`Constants* constants = context->constants`) when the index global is loaded between.
+- Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
+  operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.

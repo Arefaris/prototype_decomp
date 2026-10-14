@@ -8,7 +8,10 @@
 
 #include "code/core/name.h"
 #include "code/math/pddicolour.h"
+#include "code/math/aabb.h"
+#include "code/math/matrix.h"
 #include "code/pure3d/entity.h"
+#include "code/pure3d/pose.h"
 
 namespace pure3d
 {
@@ -66,9 +69,19 @@ namespace pure3d
 		unsigned char unknown0[0x10];
 	};
 
+	class Expression;
+	class ExpressionState;
+
 	class VertexOffsetExpressionMixer : public Entity
 	{
 	public:
+		// 0x107316F0: recomputes the mix when it changed
+		void Update();
+		// 0x10731700: prepares the expression and mixes the state into it
+		void Apply(Expression* expression, ExpressionState* state);
+		// 0x10731630
+		void Mix(Expression* expression, ExpressionState* state);
+
 		void* unknown10;
 	};
 
@@ -89,7 +102,8 @@ namespace pure3d
 	{
 	public:
 		virtual void Unknown3();
-		virtual void Unknown4();
+		// Advances the controller by dt
+		virtual void Advance(float dt, bool unknown);
 		virtual void Unknown5();
 		virtual void SetRelativeSpeed(float speed);
 		virtual void Unknown7();
@@ -128,23 +142,74 @@ namespace pure3d
 	public:
 		// 0x1072F8C0
 		void SetRegion(VertexDeformRegion* region);
+		// 0x1072ED10: the region's transform (+0x98, kept inverted)
+		void SetTransform(const math::Matrix& transform);
 	};
 
-	class Primitive
+	// A primitive's flags (+0xC) and type (+0x14); slot 5 is its bounding box
+	class Primitive : public LockableRefCounted
 	{
 	public:
-		unsigned char unknown0[0x14];
+		virtual ~Primitive();
+		virtual void Unknown3();
+		virtual void Unknown4();
+		virtual void GetBoundingBox(math::AABB* box);
+
+		// The flags the drawable copies into its parts' render bits (meanings unknown)
+		bool GetFlag3() const
+		{
+			return flag3;
+		}
+		bool GetFlag4() const
+		{
+			return flag4;
+		}
+		bool GetFlag5() const
+		{
+			return flag5;
+		}
+		bool GetFlag8() const
+		{
+			return flag8;
+		}
+
+		unsigned int flag0 : 1;
+		unsigned int flag1 : 1;
+		unsigned int flag2 : 1;
+		unsigned int flag3 : 1;
+		unsigned int flag4 : 1;
+		unsigned int flag5 : 1;
+		unsigned int flag6 : 1;
+		unsigned int flag7 : 1;
+		unsigned int flag8 : 1;
+		unsigned int flags9 : 23;
+		unsigned int unknown10;
 		int type;
 		void* unknown18;
 	};
 
+	// Slot 4 advances the state by a time step, slot 7 is its bounding box
 	class PrimitiveState : public RefCounted
 	{
 	public:
+		virtual ~PrimitiveState();
 		virtual void Unknown3();
-		virtual void Unknown4();
+		virtual void Update(float dt);
 		virtual void Unknown5();
+		virtual void Unknown6();
+		virtual void GetBoundingBox(math::AABB* box);
 
+		// 0x106F2DE0
+		Primitive* GetPrimitive();
+		// The state's own binding source, else its primitive's
+		void* GetBindingSource()
+		{
+			if (unknownC)
+			{
+				return unknownC;
+			}
+			return primitive->unknown18;
+		}
 		// 0x106F2F00
 		void Unknown106F2F00(int value);
 
@@ -208,6 +273,14 @@ namespace pure3d
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
 		unsigned int GetMaxParts();
+		// 0x106EDC90 / 0x106EDCA0
+		bool HasUnknown1A0();
+		unsigned __int64 GetUnknown1B0();
+
+		unsigned char unknown0[0x1A0];
+		int unknown1A0;
+		unsigned char unknown1A4[0xC];
+		unsigned __int64 unknown1B0;
 	};
 	// 0x106EDA80
 	ParticleManager* GetParticleManager();
@@ -231,14 +304,27 @@ namespace pure3d
 		FrameController* GetController1();
 		FrameController* GetController2();
 		FrameController* GetController3();
+
+		unsigned char unknown10[0xC];
+		FrameController* controller1;
+		int unknown20;
+		FrameController* controller2;
+		FrameController* controller3;
 	};
 
 	class SkinState : public PrimitiveState
 	{
 	public:
+		// 0x1071B200, 0x1071B210: the expression and its state at +0x74 / +0x78
+		Expression* GetExpression();
+		ExpressionState* GetExpressionState();
 		// 0x1071B220, 0x1071B230
 		FrameController* GetController1();
 		FrameController* GetController2();
+
+		unsigned char unknown10[0x64];
+		Expression* expression;
+		ExpressionState* expressionState;
 	};
 
 	class GpuSkinState : public PrimitiveState
@@ -260,6 +346,12 @@ namespace pure3d
 		void Unknown10709E40(int value);
 		void Unknown10709CC0(int value);
 		void Unknown10709CD0();
+		// 0x10709CE0: the flag at +0x490
+		bool GetUnknown490();
+		// 0x106ED9D0: the flag at +0x4BC, or the parent's when it is inherited
+		bool GetUnknown4BC();
+		// 0x10709D30: the emitter transform (+0x10, handed on to the generator)
+		void SetTransform(const math::Matrix& transform);
 
 		void SetUnknown49C(float value)
 		{
@@ -357,13 +449,21 @@ namespace pure3d
 		float bias410;
 		float override414;
 		float override418;
-		unsigned char unknown41C[0x80];
+		unsigned char unknown41C[0x74];
+		bool unknown490;
+		unsigned char unknown491[0xB];
 		float unknown49C;
 		float unknown4A0;
 		float unknown4A4;
 		float unknown4A8;
 		unsigned char unknown4AC[0xC];
 		bool unknown4B8;
+		unsigned char unknown4B9[3];
+		bool unknown4BC;
+		bool inheritUnknown4BC;
+		unsigned char unknown4BE[2];
+		// The state this one was made from
+		ParticleSystemState* parent;
 	};
 }
 

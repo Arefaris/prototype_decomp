@@ -1181,7 +1181,7 @@ namespace engine
 						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709CD0();
 					}
 				}
-				impl->Unknown106E0D60(1);
+				impl->UpdateBounds(true);
 			}
 		}
 
@@ -1549,8 +1549,8 @@ namespace engine
 				{
 					DrawablePart* part = PartRef(impl, i).Get();
 					PartAnimationState state;
-					PartAnimation* animation = &part->animation;
-					if (animation->unknown4 != -1 || animation->unknown8 != 0)
+					pure3d::visibility::Client* animation = &part->client;
+					if (animation->index != -1 || animation->server != 0)
 					{
 						animation->GetState(&state);
 						state.unknown28.Set(a, b);

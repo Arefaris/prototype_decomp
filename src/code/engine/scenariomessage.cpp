@@ -46,7 +46,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F0AB0
 	bool ScenarioMessage::WriteEvent()
 	{
-		ScriptContext* context = GetScriptContext();
+		LuaScriptManager* context = GetScriptManager();
 		if (context == 0)
 		{
 			return false;
@@ -61,21 +61,21 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F0AF0
-	void EnterTriggerMessage::WriteFields(ScriptContext* context)
+	void EnterTriggerMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetHandle("trigger", SerializeHandle(handles[0]));
 		context->SetHandle("touch", SerializeHandle(handles[1]));
 	}
 
 	// FUNCTION: ENGINE 0x107F0B40
-	void ExitTriggerMessage::WriteFields(ScriptContext* context)
+	void ExitTriggerMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetHandle("trigger", SerializeHandle(handles[0]));
 		context->SetHandle("touch", SerializeHandle(handles[1]));
 	}
 
 	// FUNCTION: ENGINE 0x107F0B90
-	void StringMessage::WriteFields(ScriptContext* context)
+	void StringMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("string", string);
 		for (int i = 0; i < HANDLE_COUNT; i++)
@@ -87,13 +87,13 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F0C00
-	void ObjectDestroyedMessage::WriteFields(ScriptContext* context)
+	void ObjectDestroyedMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetHandle("object", SerializeHandle(handles[0]));
 	}
 
 	// FUNCTION: ENGINE 0x107F0C30
-	void ObjectStateChangedMessage::WriteFields(ScriptContext* context)
+	void ObjectStateChangedMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetHandle("object", SerializeHandle(handles[0]));
 		context->SetHandle("prop", SerializeHandle(handles[0]));
@@ -101,43 +101,43 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F0C90
-	void ScenarioNISBeginMessage::WriteFields(ScriptContext* context)
+	void ScenarioNISBeginMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("NISName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0CB0
-	void ScenarioNISEndMessage::WriteFields(ScriptContext* context)
+	void ScenarioNISEndMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("NISName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0CD0
-	void ScenarioNISLoadCompleteMessage::WriteFields(ScriptContext* context)
+	void ScenarioNISLoadCompleteMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("NISName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0CF0
-	void ScenarioNISStallMessage::WriteFields(ScriptContext* context)
+	void ScenarioNISStallMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("NISName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0D10
-	void ScenarioNISResumeMessage::WriteFields(ScriptContext* context)
+	void ScenarioNISResumeMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("NISName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0D30
-	void ScenarioStreamPackageLoadedMessage::WriteFields(ScriptContext* context)
+	void ScenarioStreamPackageLoadedMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("packageName", name);
 	}
 
 	// FUNCTION: ENGINE 0x107F0D50
-	void ScenarioStreamPackageUnloadedMessage::WriteFields(ScriptContext* context)
+	void ScenarioStreamPackageUnloadedMessage::WriteFields(LuaScriptManager* context)
 	{
 		context->SetName("packageName", name);
 	}

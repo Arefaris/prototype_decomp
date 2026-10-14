@@ -25,11 +25,13 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 ## Per function
 
 1. **Pick** a function: from `config/PROTOPC_2025/functions.tsv`, preferably one whose callees are done or trivial,
-   inside a unit you are working on. Find what calls it and what it calls (Ghidra, or REA's `procedure_callers`,
-   `procedure_callees`).
-2. **Read** it: REA `analyze_function` / `procedure_pseudo_code` on `local/re/prototypeenginef_rea.exe` (addresses
-   are the DLL's), or Ghidra. Look up what is known about its address (Ghidra bookmarks, or grep
-   `docs/address_index.tsv`).
+   inside a unit you are working on. Find what calls it and what it calls (Ghidra references, `tools/disasm.py`).
+2. **Read** it from the Ghidra database:
+   `python tools/ghidra/ghidra.py run DecompileRange.java local/decomp/<unit> <start> <end> --readonly` (or
+   `@list.txt`, one address per line) writes pseudocode per function in seconds, with our names once
+   `ImportSymbols.java` has run; `python tools/disasm.py <addr>` gives the exact instructions. Look up what is known
+   about its address (Ghidra bookmarks, or grep `docs/address_index.tsv`). REA works too but re-analyses the DLL in
+   every session (~10 min) and cannot open the junctioned `local/` of a worktree.
 3. **Name** it: the real name when the binary has one (RTTI class of `this`, vftable slot, assert text, Lua or
    reflection registration string, export); otherwise a descriptive guess marked `guess`. Add it to
    `config/PROTOPC_2025/symbols.txt` with its kind and size:
@@ -75,8 +77,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
   stored together look like an inline `Set(x, y, z)`.
 - Namespace-scope `const float` constants become data symbols; their values are checked like `__real@` ones.
 - The CRT is statically linked into the original, so compiler helpers (`__allmul`, `_CIacos`, `_ftol2`, ...) are
-  functions of the image: when the relink reports one unresolved, find it (REA `search_procedures`, or the call in
-  the original function) and add it to `symbols.txt` like any function.
+  functions of the image: when the relink reports one unresolved, find it (the call in the original function,
+  `tools/disasm.py`) and add it to `symbols.txt` like any function.
 - Classes with virtual functions: our object emits their vftables and RTTI itself (the type descriptors need
   `??_7type_info@@6B@`, mapped in `symbols.txt`); a virtual destructor defined in the class body is still emitted as a
   COMDAT function (the vftable needs its address) and gets inlined into the compiler's scalar deleting destructor

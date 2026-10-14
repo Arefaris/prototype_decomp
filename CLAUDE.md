@@ -19,7 +19,9 @@ drop-in `prototypeenginef.dll`.
 - **Matching first:** a function counts as done when objdiff shows 100 % against the original object. Otherwise
   `// EQUIVALENT: reason` (same operations in the same order, compiled into the hybrid DLL, not counted) or
   `// NONMATCHING: reason` with the body inside `#ifdef NONMATCHING` (not compiled). See `docs/workflow.md`.
-- **REA:** analyse `local/re/prototypeenginef_rea.exe` (`python tools/re/rea_target.py`), never the game's file.
+- **Reading the original:** through the persistent Ghidra database (`tools/ghidra/ghidra.py run DecompileRange.java`,
+  `tools/disasm.py`); it is analysed once and carries our names. REA re-analyses the DLL every session (~10 min) and
+  rejects the junctioned `local/` in worktrees; if used, open `local/re/prototypeenginef_rea.exe`, never the game's file.
 - **Parallel agents work in their own worktrees:** `python tools/worktree.py new <name>` (branch `<name>`,
   `../protototype_decomp_wt/<name>`, `orig/` and `local/` linked in). Agents commit on their branch and never push or
   touch the main tree; the main session merges the branches into `main`.
