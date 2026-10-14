@@ -422,3 +422,40 @@ around local Name copies, which suggests core::Name holds a 64-bit member in the
 out with 4-byte alignment by its users). Tried 2026-10-12: `unsigned __int64 key` breaks only the 15 camera functions
 (Cinematographer keeps a Name at offset 4); the same inside `#pragma pack(push, 4)` keeps all 2376 matching. Next step:
 compile TagSet's std::sort with that Name and see whether the frames get `and esp, -8`.
+
+## pure3d: src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp (render module)
+
+The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
+used to call it DrawableImpl, which is now a typedef in `drawableimpl.h`). Its unit runs 0x106DE950 - 0x106E28F0;
+`pure3d::Scene` (vftable 0x10E5B358, the engine's "render list") 0x10710930 - 0x10714400; the visibility server
+0x10726540 - 0x10729AE0. Paths below `code/pure3d/` are guessed from the class names.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x106DEA40 / 0x106DEBE0 / 0x101E0520 / 0x10444290 / 0x10433D90 | core::BitField Test / Set(bit, value) / Set / Clear / ClearAll (COMDAT copies) | match |
+| 0x106DF480 | pure3d::GetCurrentFrame | match |
+| 0x106DF4F0 / 0x106DF520 / 0x106DF620 | Drawable::IsPoseCurrent / IsCyclic / GetPose | match |
+| 0x106DFFD0 | Drawable::Update(dt) | EQUIVALENT (72 %: loop registers) |
+| 0x106E0680 | Drawable::MarkPoseDirty | match |
+| 0x106E0D60 | Drawable::UpdateBounds(force) | EQUIVALENT (39 %: registers, frame 4 bytes larger) |
+| 0x106E13C0 | DrawablePart::GetWorldMatrix | match |
+| 0x106E14E0 / 0x106E18A0 | Drawable::UpdatePart / UpdateParts | match |
+| 0x10710B40 / 0x10711400 | Scene::GetUnknownD8 / UpdateDrawables (the AsyncDrawableUpdate task body) | match |
+| 0x107283A0 | visibility::RunTest (the frustum test task body) | EQUIVALENT (index and constant registers) |
+
+Matching notes:
+
+- `core::BitField<T>` members are defined outside the class (not inlined under /Ob1, COMDAT copies everywhere); the
+  annotations sit on explicit instantiations in drawable.cpp. Set / Clear build the mask in a `T` local
+  (`T mask = 1; mask <<= bit;`), which is what loads the bit with `mov cx, word ptr`.
+- Flags read in place (`shr; test cl, 1`) come from inline accessors (`IsSet`, Primitive's `GetFlagN` over
+  bit-fields); a mask OR through an inline member (`SetMask`) keeps the original's store order around it, a direct
+  `mBits |= 4` is sunk below neighbouring stores.
+- Bool functions written as `return !a || b;` return through eax (`xor eax, eax` / `mov eax, 1`), an if/return form
+  through al.
+- The part flag updates are `flags = value ? flags | mask : flags & ~mask` (an inline helper): the byte is loaded
+  before the branch.
+- `DrawablePart::GetBindingSource` (0x102D3D30 elsewhere) is inlined twice in UpdatePart; the state's half of it
+  is itself an inline (it reloads the state's word), see `PrimitiveState::GetBindingSource`.
+- Update's emitter matrix copy is a pointer loop counted `do ... while (--row >= 0)` (x87 copies, `jns`); the
+  implicit copy of any matrix or row struct comes out as 16 unrolled movss.
