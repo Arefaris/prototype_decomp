@@ -4,6 +4,12 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1074EE10
+	int RenderParams::GetUnknown14()
+	{
+		return unknown14;
+	}
+
 	// FUNCTION: ENGINE 0x1074F3B0
 	void* RenderParams::GetViewState(int view)
 	{

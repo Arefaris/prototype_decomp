@@ -57,7 +57,9 @@ namespace core
 
 	template<class T> bool BitField<T>::Test(T bit) const
 	{
-		return ((1 << bit) & mBits) != 0;
+		T mask = 1;
+		mask <<= bit;
+		return (mask & mBits) != 0;
 	}
 
 	template<class T> void BitField<T>::Set(T bit, bool value)

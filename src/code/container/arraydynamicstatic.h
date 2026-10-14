@@ -5,6 +5,8 @@
 #ifndef CONTAINER_ARRAYDYNAMICSTATIC_H
 #define CONTAINER_ARRAYDYNAMICSTATIC_H
 
+#include "code/container/constructcopies.h"
+
 #include "code/container/arraydynamic.h"
 #include "code/content/metatype.h"
 
@@ -22,22 +24,6 @@ namespace container
 			core::HeapFreeAligned(Heap, block);
 		}
 	};
-
-	// Copy-constructs count elements from first into raw storage at dest; answers the end of the copies
-	template<class T> T* ConstructCopiesN(const T* first, unsigned int count, T* dest)
-	{
-		while (count != 0)
-		{
-			count--;
-			if (dest != 0)
-			{
-				new (dest) T(*first);
-			}
-			first++;
-			dest++;
-		}
-		return dest;
-	}
 
 	// Assigns [first, last) to dest; answers the end of the copies
 	template<class T> T* AssignRange(const T* first, const T* last, T* dest)

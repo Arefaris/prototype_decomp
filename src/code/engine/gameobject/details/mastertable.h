@@ -7,74 +7,8 @@
 #define ENGINE_GAMEOBJECT_DETAILS_MASTERTABLE_H
 
 #include "code/container/arraydynamic.h"
+#include "code/container/arrayfixed.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
-
-namespace container
-{
-	// A fixed-capacity array filled from the front over raw storage (the elements are constructed and destroyed by
-	// the array; name guessed)
-	template<class T, int N> class ArrayFixed
-	{
-	public:
-		ArrayFixed()
-		{
-			end = Data();
-		}
-		~ArrayFixed()
-		{
-			Clear();
-		}
-		T* Data()
-		{
-			return (T*)storage;
-		}
-		const T* Data() const
-		{
-			return (const T*)storage;
-		}
-		T* Begin()
-		{
-			return Data();
-		}
-		T* End()
-		{
-			return end;
-		}
-		bool IsEmpty() const
-		{
-			return Data() == end;
-		}
-		int Size() const
-		{
-			return end - Data();
-		}
-		T& operator[](int index)
-		{
-			return Data()[index];
-		}
-		bool PushBack(const T& value)
-		{
-			if (Size() != N)
-			{
-				Construct(end++, value);
-				return true;
-			}
-			return false;
-		}
-		void Clear()
-		{
-			Destroy(Data(), end);
-			end = Data();
-		}
-		void Reset()
-		{
-			end = Data();
-		}
-
-		int storage[N * sizeof(T) / sizeof(int)];
-		T* end;
-	};
-}
 
 namespace engine
 {

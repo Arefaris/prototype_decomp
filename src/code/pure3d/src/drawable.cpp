@@ -15,6 +15,9 @@
 // FUNCTION: ENGINE 0x106DEA40
 template bool core::BitField<unsigned int>::Test(unsigned int bit) const;
 
+// FUNCTION: ENGINE 0x10204C10
+template bool core::BitField<unsigned short>::Test(unsigned short bit) const;
+
 // FUNCTION: ENGINE 0x106DEBE0
 template void core::BitField<unsigned short>::Set(unsigned short bit, bool value);
 
@@ -330,6 +333,37 @@ namespace pure3d
 			sphere.radius = radius;
 			boundsDirty = false;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x102D3D30
+	PartBindingSource* DrawablePart::GetBindingSource()
+	{
+		if (binding)
+		{
+			return (PartBindingSource*)binding;
+		}
+		if (state && state->GetBindingSource())
+		{
+			return (PartBindingSource*)state->GetBindingSource();
+		}
+		if (primitive && primitive->unknown18)
+		{
+			return (PartBindingSource*)primitive->unknown18;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106DEF20
+	bool DrawablePart::UpdateBatch()
+	{
+		bool unknown = true;
+		bool filled = primitive->FillBatch(&batch, state, &unknown);
+		if (filled)
+		{
+			unknown10C = GetBindingSource()->shader;
+		}
+		renderBits.Set(9, filled);
+		return unknown;
 	}
 
 	// FUNCTION: ENGINE 0x106E13C0
