@@ -552,3 +552,60 @@ Matching notes:
   member pointer as well (`Constants* constants = context->constants`) when the index global is loaded between.
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
+
+
+## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
+
+The sequencer a fight node runs (engine/fight/sequencer.h): the action list, the schedule clock and the node's track.
+The classes are `fight::Action` (RTTI, 9 slots), `fight::Track` / `fight::Condition` / `fight::Item` / `fight::Param`
+and fight::RefCounted; the sequencer class itself has no RTTI. 256 bytes of `Action::SetFlag`, `Sequencer::Clear`,
+`Stop`, `Update`, `ConditionList::Evaluate` and `Action::End` / `Sequencer::SetTrack` / `Schedule` / `Track::Unregister`
+match; Advance and the NPC unit's pose copy are EQUIVALENT.
+
+Lessons (the important ones):
+
+- **A one-bit `unsigned int` bit-field tested directly compiles to a mask test (`test al, 4`); testing it through an
+  inline accessor that returns `bool` gives the engine's `mov ecx, eax; shr ecx, 2; test cl, 1`.** The value has to be
+  materialised as 0/1, and only the accessor's `bool` return type forces that. Writing `(flags >> 2) & 1` by hand does
+  *not* work: the optimiser folds it back into the mask test. A `bool` bit-field is wrong too (MSVC 2005 then loads the
+  byte: `mov al, byte ptr [ecx + 0xc]`). The flag word is a union of the raw `unsigned int` and the bit-field struct,
+  because the same code also masks it (`flags.all & (0x800 << arg)`).
+- **A call to a function defined in the same source file lets the caller keep values in xmm across it** — the compiler
+  knows the callee does not touch them, and the spill the engine makes disappears. `Sequencer::Advance` only reached
+  90 % until `Action::SetFlag` moved to its own unit (action.cpp): with the body visible, our build kept `now` and
+  `timeBegin` in xmm0/xmm1 across the call where the engine reloads both from the stack. The same applies to
+  `fight::ReleaseRef`-style helpers: `core::SafeReleaseRef` (0x10098F90, one of the per-type copies of core's release
+  helper that sit together at 0x10098F60 / 0x10098FB0 / 0x10098FD0) has to stay out of the sequencer's unit.
+- `Sequencer::Advance` reuses its `dt` parameter for the scaled step (`dt = timeScale * dt;`), which is what puts the
+  step in the argument's stack slot and `now` in the only fresh local.
+- A `switch` on three values gives the engine's `sub ecx, 0 / sub ecx, 1 / sub ecx, 1` chain where an if/else-if chain
+  gives `cmp`. `ConditionList::Evaluate` did not match until the op was written as a switch with case 0 last and
+  falling through to the loop's tail, and the early `return true` became `if (condition != 0) { do ... } while (...);`.
+
+## proto/navmesh.cpp (proto::NavMeshHull, 0x10568390 - 0x105691D0)
+
+The navigation mesh (global 0x112730C0) is `proto::AmbientNavMesh`; the hull class, its 28-byte edge records and the
+area records are guesses. `AreaHeight` (0x10568390) matches; `Contains` and `HasOpenArea` are EQUIVALENT (register
+roles of the loop index / cursor swapped).
+
+- **The hull test is a 2D cross product in the XZ plane**, not XY: the point's `y` is never read in the loop and the
+  two `vertices[a * 3]` reads are `+0` and `+8` (x and z).
+- **A helper the unit calls has to be defined in that unit**, or the compiler cannot know it leaves the globals alone
+  and reloads them every iteration. `HasOpenArea` reloaded `gNavMesh` inside the loop until `AreaHeight` was defined
+  next to it (which also let the `fldz` / `xorps` zero constants hoist out of the loop); it went from 36 % to 73 %.
+- A loop over a member array matches better with the base cached in a local (`NavEdge* edge = begin; int count =
+  end - edge;`): that is what produces the engine's `mov edi, [ecx] / mov ecx, [ecx + 4] / sub ecx, edi` and the
+  `edi + 4` cursor.
+
+## Other units touched
+
+- `pure3d::Camera::Contains` (0x106DCC20, src/code/pure3d/camera.cpp): the view volume test (a frustum of four planes
+  in the first branch, an axis-aligned box around the world minimum 0x10D94664 in the second). EQUIVALENT — the engine
+  merges both branches' failing exits into one block and cross-jumps their last test.
+- `container::TreeBase::Find` (0x106109C0, src/code/container/treebase.cpp) and
+  `proto::NPCInstanceManager::Update` / `NPCInstance::UpdatePose` (0x10479B10 / 0x10476A50,
+  src/code/proto/npcinstancemanager.cpp) match except UpdatePose (EQUIVALENT: the engine loads the destination pose
+  between the source test and its branch).
+- `engine::Display::GetWidth` (0x10616130) and `engine::GetStreamHullPool` (0x108C7750) are one-accessor guesses
+  placed in their own units; the 0x10616xxx region is one large class (offsets up to 0x82C), so the small accessors
+  the linker scattered between its functions may belong to others.

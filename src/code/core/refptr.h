@@ -4,6 +4,8 @@
 #ifndef CORE_REFPTR_H
 #define CORE_REFPTR_H
 
+#include "code/core/memory/imemoryallocator.h"
+
 namespace core
 {
 	template<class T> class RefPtr
@@ -74,6 +76,10 @@ namespace core
 
 		T* p;
 	};
+
+	// Releases the IRefCount reference and clears the pointer (0x10098F90; the caller's unit treats it as clobbering
+	// every register, so it is kept out of line rather than inlined from the template below)
+	void SafeReleaseRef(IRefCount*& object);
 
 	// Releases the object and clears the pointer (out of line: each unit that uses it keeps a copy per type)
 	template<class T> void SafeRelease(T*& object)
