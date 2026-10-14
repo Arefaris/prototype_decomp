@@ -7,6 +7,10 @@
 #define ENGINE_LUASCRIPTMANAGER_H
 
 #include "code/core/name.h"
+#include "code/core/time.h"
+#include "code/container/arraydynamicnew.h"
+#include "code/container/arraydynamicstatic.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/math/vector.h"
 #include "code/engine/system/enginememory.h"
 #include <string.h>
@@ -17,7 +21,6 @@ namespace engine
 {
 	struct SerializedHandle;
 	class Function;
-	class GameObjectHandle;
 	class LuaScriptManager;
 
 	// A destination string for LuaGetString
@@ -34,6 +37,8 @@ namespace engine
 	// state's large arrays; 0x11284250)
 	struct ScriptBlockPool
 	{
+		// 0x107FE6A0
+		ScriptBlockPool();
 		void Reset()
 		{
 			free[0] = true;
@@ -56,15 +61,11 @@ namespace engine
 	// A C function registered with the scripts, with an optional upvalue (0x14 bytes)
 	struct LuaCFunction
 	{
-		LuaCFunction(const char* newName, int (*newFunction)(lua_State*), bool newHasUpvalue, void* newUpvalue)
-		{
-			name = newName;
-			function = newFunction;
-			hasUpvalue = newHasUpvalue;
-			owner = 0;
-			upvalue = newUpvalue;
-			generation = 0;
-		}
+		// 0x107FE7E0
+		LuaCFunction(const char* newName, int (*newFunction)(lua_State*), bool newHasUpvalue, void* newUpvalue);
+		// The same heap as Function (luascriptmanager.cpp)
+		static void* operator new(unsigned int size);
+		static void operator delete(void* block);
 
 		int (*function)(lua_State*);
 		void* upvalue;
@@ -78,16 +79,8 @@ namespace engine
 	template<class T> class ScriptNameTable
 	{
 	public:
-		explicit ScriptNameTable(unsigned int newCapacity)
-		{
-			capacity = newCapacity;
-			count = 0;
-			entries = new (0x7a) T*[newCapacity];
-		}
-		~ScriptNameTable()
-		{
-			delete[] entries;
-		}
+		explicit ScriptNameTable(unsigned int newCapacity);
+		~ScriptNameTable();
 		bool Add(T* entry);
 		// The next name after previous that starts with prefix (the first such name when previous is not one)
 		const char* Complete(const char* prefix, const char* previous);
@@ -102,9 +95,115 @@ namespace engine
 		int count;
 	};
 
+	// What the manager is created from (EngineInitialize fills it in; names guessed)
+	struct ScriptManagerConfig
+	{
+		int scheduleCapacity;
+		bool unknownB4;
+		int functionCapacity;
+		int cfunctionCapacity;
+	};
+
+	// A Lua function to call later: the manager's schedule is a heap ordered by time (0x14 bytes; names guessed)
+	struct ScheduledCall
+	{
+		// 0x107FEF70: whether this call comes after other (later time, or the same time and a later id)
+		bool IsLater(const ScheduledCall& other) const;
+
+		float time;
+		unsigned int id;
+		int reference;
+		GameObjectHandle owner;
+		bool hasOwner;
+		bool persistent;
+	};
+
+	typedef container::ArrayDynamic<ScheduledCall, container::AllocatorCoreStatic<0x7a, 16> > ScheduleArray;
+
+	// The (empty) ordering of the schedule heap (the heap helpers take it by value)
+	struct ScheduleOrder
+	{
+		// 0x10800E40
+		bool operator()(const ScheduledCall& first, const ScheduledCall& second) const;
+	};
+
+	// An enumeration value to register again when the script state is rebuilt (0xC bytes; names guessed)
+	struct LuaEnumValue
+	{
+		const char* table;
+		const char* key;
+		int value;
+	};
+
+	// The arguments of a call as Function::Invoke takes them: values stored one after the other in 4-byte slots
+	// (a cursor in front of a 0x40-byte buffer; the last slot of the buffer is never used). Names guessed.
+	struct ScriptArguments
+	{
+		// The slot the value went to, null when the buffer is full (the value is dropped)
+		template<class T> T* Push(T value)
+		{
+			if ((unsigned int)(cursor - data + sizeof(T)) >= 0x40)
+			{
+				return 0;
+			}
+			T* slot = (T*)cursor;
+			Store(slot, value);
+			cursor += (sizeof(T) + 3) & ~3;
+			return slot;
+		}
+		template<class T> static void Store(T* slot, const T& value)
+		{
+			*slot = value;
+		}
+		// Vectors are copied component by component
+		static void Store(math::Vector* slot, const math::Vector& value)
+		{
+			slot->x = value.x;
+			slot->y = value.y;
+			slot->z = value.z;
+		}
+
+		char* cursor;
+		char data[0x40];
+	};
+
+	// A growable array of words the manager never fills (names guessed)
+	struct UnusedArray
+	{
+		UnusedArray()
+		{
+			begin = 0;
+			capacity = 0;
+			end = 0;
+		}
+		~UnusedArray()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				delete[] begin;
+			}
+		}
+
+		int* begin;
+		int* end;
+		int* capacity;
+	};
+
 	class LuaScriptManager
 	{
 	public:
+		// The result of running a script file (RTTI engine::LuaScriptManager::ScriptResult; values guessed from
+		// GetErrorLevel)
+		enum ScriptResult
+		{
+			SCRIPT_OK = 0,
+			SCRIPT_MISSING = 1,
+			SCRIPT_SYNTAX_ERROR = 2,
+			SCRIPT_RUN_ERROR = 3
+		};
+
+		explicit LuaScriptManager(const ScriptManagerConfig& config);
 		virtual ~LuaScriptManager();
 
 		// 0x108021F0: pushes context.event; 0x108000B0: pops it again
@@ -151,9 +250,17 @@ namespace engine
 		void ClearOwner();
 		// 0x108016C0: removes the functions and the other registrations of owner
 		void Unregister(const void* owner);
+		// 0x10801740: removes every registered function
+		void UnregisterAll();
+		// 0x10801550 / 0x10801630: a table of the data in the globals (or in the table of reference) that holds no
+		// functions / puts such a table back
+		void CopyPlainData(lua_State* L, int reference, int unused);
+		void RestorePlainData(lua_State* L, int reference);
 		// Registers a native function under name (out of line in the units that instantiate it; <int, LuaGOH>:
 		// 0x10289C10, which wraps the function in a Function1<int, LuaGOH>)
 		template<class R, class A> void Register(const char* name, R (*function)(A));
+		// 0x10803630: the same for a function without arguments (the Function0 form)
+		template<class R> void Register(const char* name, R (*function)());
 		// 0x10801D50: adds the function under name
 		void AddFunction(const char* name, Function* function);
 		// Binds method of object under name as a closure (function.h; out of line per instantiation)
@@ -165,6 +272,13 @@ namespace engine
 			R (C::*method)(A1, A2, A3));
 		template<class C, class R, class A1, class A2, class A3, class A4> void RegisterMethod(const char* name,
 			C* object, R (C::*method)(A1, A2, A3, A4));
+		// 0x10802DB0 / 0x10802E00: registers a C function (with an upvalue)
+		void RegisterCFunction(const char* name, int (*function)(lua_State*));
+		void RegisterCFunction(const char* name, int (*function)(lua_State*, void*), void* upvalue);
+		// 0x10801480 / 0x10801500: a global table for an enumeration and its values (kept to be registered again
+		// when the state is rebuilt)
+		void CreateEnum(const char* name);
+		void AddEnumValue(const char* table, const char* key, int value);
 
 		bool RemoveCFunction(const char* name);
 		bool RemoveFunction(const char* name);
@@ -187,25 +301,113 @@ namespace engine
 		const char* Complete(const char* prefix, const char* previous);
 		int GetErrorLevel(int status);
 
+		// 0x10801410: pushes a registered C function (its pointer and upvalue) and stores it as a global
+		void BindCFunction(LuaCFunction* function);
+		// 0x10801D10: stores the closure that dispatches to function as the global name in L
+		void BindFunction(const char* name, Function* function, lua_State* L);
+		// 0x10801D90: counts the references left and closes the state
+		void CloseScriptState();
+		// 0x10801DB0: binds every registered function in the (new) state; 0x10801E00: creates the enumerations again
+		void BindFunctions();
+		void RestoreEnums();
+		// 0x10801E90 / 0x10803FD0: closes the state / opens it again (functions, enumerations, scripts)
+		void Shutdown();
+		void Restart();
+		// 0x10804000: closes the state, rebuilds it and starts a new generation of registrations
+		void Reload();
+		// 0x10803F60: creates the Lua state
+		void OpenState();
+		bool IsVariableDefined(const char* name);
+		// 0x10801ED0: loads and runs a chunk; the Lua status
+		int DoLuaBuffer(lua_State* L, const char* buffer, int length, const char* chunkName);
+		// 0x10803300: the same for the manager's own state, as a ScriptResult; 0x10803330: runs a script file
+		ScriptResult DoBuffer(const char* buffer, const char* chunkName, int length);
+		ScriptResult DoFile(const char* path, int unused);
+		// 0x10803930 (0x10803970 for the script function sh_ProcessFile): runs the file and remembers it to run it
+		// again when the state is rebuilt; 0x10803450 runs the remembered files
+		ScriptResult ProcessFile(const char* path, int unused);
+		ScriptResult ProcessFile(const char* path);
+		// 0x10803D40
+		void RunInitScript();
+		// 0x10803800: registers the global functions of the scripts (print, tostring, type, the debugging helpers)
+		void RegisterBaseFunctions(lua_State* L);
+		// 0x10803980: creates the Lua state at *target, closing the one it holds
+		void CreateState(lua_State** target);
+		// 0x10802E50 / 0x10802F10: writes / reads the script state
+		void SaveState(lua_State* L, int stream, int reference, int unused, int flags);
+		void LoadState(lua_State* L, int stream, int reference, int flags);
+		void RunScripts();
+		// 0x10801F50 / 0x10801F60: stores the value on top as a reference / releases a reference
+		int MakeReference();
+		bool ReleaseReference(int reference);
+		// A table by name: the global one or one in the table below the top, optionally created when missing
+		bool OpenTable(const char* name, bool global, bool create);
+		bool ClearEvent();
+		// 0x108022D0
+		bool SetCollisionEvent(const char* actor, const math::Vector* pushbackVelocity, const char* sourceMotionNode);
+		const char* GetActorCommand(const char* actor, const char* command);
+		bool IsScheduleFull();
+		bool IsPersistent(const ScheduledCall* call);
+		void SetContext(core::IRefCount* newContext);
+		// 0x10802550: turns the function on top into a coroutine and keeps it as a reference
+		int CreateCoroutine();
+		int LoadCoroutine(const char* buffer, int length, const char* name);
+		int CreateCoroutineFromReference(int reference);
+		// 0x10802590: resumes the coroutine of reference; false when it finished or failed (then the reference is
+		// released; failed is set on an error)
+		bool ResumeCoroutine(int reference, bool* failed);
+		// 0x108048E0: calls the function of reference at the given time (seconds from now), for owner
+		int Schedule(float delay, int reference, bool persistent, GameObjectHandle owner);
+		// 0x108049A0 / 0x10804A70: removes the scheduled call with the id / the calls of an owner
+		bool CancelScheduled(int id);
+		bool CancelScheduledFor(GameObjectHandle owner);
+		// 0x10804B50: the schedule runs the calls that are due; 0x10804E80: the frame update
+		void RunScheduled(core::Time elapsed);
+		void Update(core::Time elapsed);
+		// 0x10804D10 / 0x10804D50: removes all scheduled calls / moves the persistent ones back to the schedule
+		void CancelAllScheduled();
+		void RestoreScheduled();
+		// 0x10803A60: asks the objects on the Lua environment channel for their environment and looks the function
+		// up in it; its source file (into sourceBuffer, when given) and line
+		bool FindFunctionSource(const char* functionName, char* sourceBuffer, unsigned int bufferSize, int* line);
+		// 0x10803C20: releases the references of the persistent calls that are no longer scheduled
+		void ReleasePersistent();
+		// 0x10804020: copies the persistent calls (their times relative to now)
+		void SavePersistent();
+
 		int unknown4;
 		int unknown8;
 		lua_State* state;
-		int unknown10;
+		// The thread a coroutine runs in
+		lua_State* currentState;
 		ScriptNameTable<Function> functions;
 		ScriptNameTable<LuaCFunction> cfunctions;
-		unsigned char unknown2C[0x55 - 0x2C];
+		// Set by Reload: from then on enumeration values and script files are no longer recorded
+		bool reloaded;
+		unsigned char unknown2D[3];
+		container::ArrayDynamicNew<LuaEnumValue> enumValues;
+		int unknown3C;
+		container::ArrayDynamicNew<const char*> scripts;
+		int unknown4C;
+		core::IRefCount* context;
+		bool open;
 		unsigned char generation;
-		unsigned char unknown56[0x5C - 0x56];
+		unsigned char unknown56[2];
+		int unknown58;
 		// The stack tops of the nested table walks
 		int walkTops[8];
 		int walkDepth;
 		const void* owner;
-		unsigned char unknown84[0xB4 - 0x84];
+		container::ArrayDynamic<ScheduledCall, container::AllocatorCoreStatic<0x7a, 16> > scheduled;
+		int nextScheduleId;
+		core::Time time;
+		container::ArrayDynamic<ScheduledCall, container::AllocatorCoreStatic<0x7a, 16> > persistent;
 		bool unknownB4;
 		bool hasError;
 		bool unknownB6;
 		char errorText[0x100];
-		unsigned char unknown1B7[0x1C8 - 0x1B7];
+		UnusedArray unknown1B8;
+		int unknown1C4;
 	};
 
 	// The script manager (0x11284254)

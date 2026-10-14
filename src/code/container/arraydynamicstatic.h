@@ -106,6 +106,10 @@ namespace container
 		{
 			Create(count);
 		}
+		ArrayDynamic(unsigned int count, const Allocator& newAllocator)
+		{
+			Create(count);
+		}
 		ArrayDynamic(const ArrayDynamic& other);
 		~ArrayDynamic()
 		{
@@ -125,6 +129,10 @@ namespace container
 		bool IsEmpty() const
 		{
 			return begin == end;
+		}
+		bool IsFull() const
+		{
+			return end == capacity;
 		}
 		unsigned int Capacity() const
 		{
@@ -154,8 +162,8 @@ namespace container
 				begin = (T*)Allocator::Alloc(count * sizeof(T));
 				if (begin != 0)
 				{
-					capacity = begin + count;
 					end = begin;
+					capacity = begin + count;
 					return true;
 				}
 			}
@@ -234,14 +242,43 @@ namespace container
 			}
 		}
 		void Reserve(int count);
+		// Removes [first, last) by moving the elements behind it down (they are not destroyed)
+		void Erase(T* first, T* last)
+		{
+			end = AssignRange(last, end, first);
+		}
+		// Grows by copies of value or shrinks to count elements
+		void Resize(unsigned int count, const T& value)
+		{
+			if (begin == 0)
+			{
+				Create(count);
+			}
+			unsigned int size = Size();
+			if (size < count)
+			{
+				Insert(end, count - size, value);
+			}
+			else if (count < size)
+			{
+				Erase(begin + count, end);
+			}
+		}
+		void Resize(unsigned int count)
+		{
+			T blank;
+			Resize(count, blank);
+		}
 		T* Insert(T* position, unsigned int count, const T& value)
 		{
+			T* result = end;
 			if (end + count <= capacity)
 			{
 				ShiftUp(position, count);
 				ConstructFill(position, count, value);
+				result = position;
 			}
-			return position;
+			return result;
 		}
 		T* Insert(T* position, const T& value)
 		{

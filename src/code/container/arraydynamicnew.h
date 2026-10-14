@@ -37,6 +37,33 @@ namespace container
 		{
 			end = begin;
 		}
+		bool IsFull() const
+		{
+			return end == capacity;
+		}
+		// Appends a copy of value when there is room
+		bool PushBack(const T& value)
+		{
+			if (end < capacity)
+			{
+				T* item = end++;
+				if (item != 0)
+				{
+					*item = value;
+				}
+				return true;
+			}
+			return false;
+		}
+		// Room for one more element at the end (uninitialised), or null when the array is full
+		T* Grow()
+		{
+			if (end < capacity)
+			{
+				return end++;
+			}
+			return 0;
+		}
 		T& operator[](int index)
 		{
 			return begin[index];
@@ -58,11 +85,11 @@ namespace container
 		{
 			if (count != 0)
 			{
-				begin = new T[count];
+				begin = (T*)operator new[](count * sizeof(T));
 				if (begin != 0)
 				{
-					capacity = begin + count;
 					end = begin;
+					capacity = begin + count;
 					return true;
 				}
 			}
@@ -78,7 +105,7 @@ namespace container
 		{
 			if (count != 0)
 			{
-				begin = new T[count];
+				begin = (T*)operator new[](count * sizeof(T));
 				if (begin != 0)
 				{
 					capacity = begin + count;
