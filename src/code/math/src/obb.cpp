@@ -132,4 +132,26 @@ namespace math
 		out.y = centre.y + out.y;
 		out.z = centre.z + out.z;
 	}
+
+	// A kept copy of the engine's component-wise assignment (the compiler keeps it out of line in large callers)
+	// FUNCTION: ENGINE 0x100F7120
+	OBB& OBB::operator=(const OBB& other)
+	{
+		centre.x = other.centre.x;
+		centre.y = other.centre.y;
+		centre.z = other.centre.z;
+		axis[0].x = other.axis[0].x;
+		axis[0].y = other.axis[0].y;
+		axis[0].z = other.axis[0].z;
+		axis[1].x = other.axis[1].x;
+		axis[1].y = other.axis[1].y;
+		axis[1].z = other.axis[1].z;
+		axis[2].x = other.axis[2].x;
+		axis[2].y = other.axis[2].y;
+		axis[2].z = other.axis[2].z;
+		extents.x = other.extents.x;
+		extents.y = other.extents.y;
+		extents.z = other.extents.z;
+		return *this;
+	}
 }

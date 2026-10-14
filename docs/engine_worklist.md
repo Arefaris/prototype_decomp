@@ -906,3 +906,82 @@ Matching notes:
   the end in a register where the engine has it; leaving `list->end` in the condition re-reads it each time.
 - A stack variable that is never initialised on one path (the decal pass's bounding sphere radius when a part has no
   state) keeps the previous part's value in the engine; the reconstruction keeps the same hole.
+
+## ravenphysics (the physics library, 0x10650000 - 0x106DB000): stack allocator, broad / narrow phase glue
+
+37 functions were looked at (`local` pseudocode of each), 18 match, 1 is EQUIVALENT and 6 have their reconstructed body
+in the tree under `#ifdef NONMATCHING`. Sources: `src/code/ravenphysics/common/` (StackAllocator, a pointer hash
+table), `broadphase/` (the sweep-and-prune sort chain, endpoints, the quantising grid), `collision/` (collision
+objects, volumes, collision info, the narrow-phase dispatch, GJK, clipping, the tree query), `batch/` (the mid-phase
+pair batch, the narrow-phase batcher's job and pair records) and `src/physicsobject.cpp`. Shared headers touched:
+`code/math/obb.h` + `obb.cpp` (`OBB::operator=`, the component-wise copy at 0x100F7120) and the new
+`code/core/interlocked.h`.
+
+| Address | Function (names are guesses) | Status |
+|---|---|---|
+| 0x10686160 | StackAllocatorScope::~StackAllocatorScope (also the ctor 0x10686140, Mark / Release / Init / ctor of the allocator) | match |
+| 0x10691BD0 | PairBatch::Begin | match |
+| 0x106BA4A0 | std::sort<SortEntry*> (and the eight functions of its chain: _Sort, _Unguarded_partition, _Insertion_sort1, _Make_heap, _Sort_heap, _Median, _Med3, _Adjust_heap) | match |
+| 0x106A3EE0, 0x106D8790, 0x106D87C0 | StackAllocator::AllocArray<unsigned short / float / Vector> | match |
+| 0x106B2110 | CollideVolumes (7 x 7 dispatch on the volumes' type bytes) | match |
+| 0x106B2150 | CollideVolumesSwapped | EQUIVALENT: the original widens both type bytes late (`mov al, [ecx]` ... `movzx eax, al`) and keeps the index in edi |
+| 0x10668D10 | CollisionInfo::GetMaterial (and GetFace, 0x10668C60) | match |
+| 0x10686570 | PointerHashTable::Find (bucket index truncated to 16 bits before the lookup) | match |
+| 0x10662F50 | BroadPhaseGrid::Quantize (16-bit grid cell of a point; `!(v >= 0.0f)` gives the original's `comiss v, 0`) | match |
+| 0x106736F0 | GjkSimplex::AddVertex (returns int; the vertex is a `Vector` passed by value) | match |
+| 0x100F7120 | OBB::operator= | match |
+| 0x10690100 | PairDetails::Set (a method, not a constructor: no `mov eax, ecx`) | match |
+| 0x106608A0, 0x106612C0 | PhysicsObject::UpdateBounds / RefreshBounds | match |
+| 0x10691C30 | MidPhaseBatcher::Finish | match |
+| 0x10690A50 | NarrowPhaseJob::Submit | match |
+| 0x106A4BC0 | CollidePair | match |
+| 0x10690F70 | NarrowPhaseJob::AddPair | NONMATCHING: late `push ebx / ebp / esi` after the switch and `this` kept on the stack |
+| 0x106C0140 | ClipEdges | NONMATCHING: late register saves; edges walked with two induction pointers (edge, edge + 0x14) |
+| 0x106C1320 | BuildClipLists | NONMATCHING: late saves; loop pointers biased to the middle of the element |
+| 0x106D9260 | BuildEndpoints | NONMATCHING: index in ebp, loop pointers in esi / edi with copies in eax / ecx |
+| 0x10677180 | GjkDistance | NONMATCHING: ours merges the first support points' stores with the copies of the closest points |
+| 0x106A7750 | QueryTree (compressed tree walk) | NONMATCHING: eight stack-slot locals in the original |
+| 0x106D90F0 | SortEndpoints (radix sort of an endpoint list, then the overlap counts) | not done: static with the allocator in eax (called twice from 0x106D9400) |
+| 0x106BF5F0, 0x106DAF50 | the contact solver's per-record loop and its SIMD step | not done: the callee takes two `__m128` in xmm0 / xmm1 and six stack words; the caller loops over 36-byte records |
+| 0x106D0B80, 0x106D0E90 | corner copy and a contact-add wrapper with debug prints | not done: they call static helpers with eax / ecx / edi arguments (0x106D08B0) |
+| 0x106BA4E0 | BroadPhaseDetectorSingleAxisSweepAndPrune::vf22 (the sweep over three sorted endpoint lists) | not done |
+| 0x106D9400, 0x106D8890, 0x106BEC40, 0x106D2F90, 0x106A2630, 0x10673750 | large SIMD / pointer-heavy functions (the biggest, 14880 bytes, is the GJK simplex solver) | not done |
+
+What the code shows about the library:
+
+- Static functions with register conventions (the allocator in eax, a list in ecx, `__m128` in xmm0 / xmm1) and
+  prologues that push callee-saved registers in the middle of the function are link-time code generation (`/GL`)
+  output; per-unit compilation cannot reproduce them (see also enginememory.cpp above). That is what stops AddPair,
+  ClipEdges, BuildClipLists and the 0x106D... group; the functions that match have an ordinary prologue.
+- The library has two stack allocators: `StackAllocator` instances over a caller buffer (0x10686040 ...) and one
+  global scratch stack with its state in globals (0x1127D408 on, `!sLock` asserts, `ScratchStack::Alloc` 0x10666FE0
+  whose `this` is a dummy empty object, `ScratchStackFrame` for the mark / release).
+- The narrow-phase job (`NarrowPhaseJob`, 0x134 bytes) is a snapshot of the batcher's queues: six batch pointers, the
+  batch pool, a spin lock, the batch slots (0x60 bytes each behind a counter), a copy of each type's `AsyncTask` and
+  the profiling log; `Submit` queues a batch with `core::SubmitAsyncTasks`. `PairDetails` is `__declspec(align(16))`
+  (sizeof 0x40), which is why `CollidePair` has an aligned frame (`and esp, -16`).
+- Collision volumes carry their type in the first byte (0 - 6, the dispatch tables 0x110C48D8 / 0x110C49A0 are 7 x 7),
+  the byte after it says "swapped", and mesh volumes keep corners / edge pairs / planes in a `ConvexMesh`.
+
+Matching lessons:
+
+- The STL is the toolchain's own: `std::sort` on an 8-byte struct with `operator<` reproduces the whole chain (nine
+  functions) once the instances are explicitly instantiated in the unit; give each instance its `// FUNCTION:` line.
+- A member template that the engine calls (not inlines) must be defined after the class body, without `inline`.
+- `_InterlockedIncrement(p) - 1` gives `lock xadd; inc; sub 1`, `_InterlockedDecrement(p)` gives `lock xadd -1; dec`,
+  `_InterlockedAnd(p, -1)` the compare-exchange loop of an atomic read, `_InterlockedCompareExchange(p, 1, 0)` the spin
+  lock. A value that the original reads before it pushes a call's arguments needs a comma expression or a local
+  (`if (flag && (n = _InterlockedAnd(p, -1), Report(..., n, 0)) == 3)`); a pointer the original reads late has to be
+  loaded inside the condition too.
+- Writing the end of a struct through `Vector::Set(x, y, z)` (arguments evaluated first) keeps the following loads
+  after the stores as in the original; component-wise stores let the compiler hoist them.
+- A one-bit flag read-and-cleared by an inline helper must be a bit-field member (`unsigned char changed : 1`) for
+  the `mov cl, al; and cl, 1; and al, 0FEh` form.
+- `static bool` report flags that sit next to a call are the pattern of `core::Report(0, " Pre ", file, line, 0,
+  format, ...) == 3`; with an assert (`OLD_ASSERT_TEXT_AT`) the expression text is passed and the format is null.
+- Two copies of the same call with different argument sources (the pair details built from the objects or from
+  stack copies of their ids) must be written as two calls; the compiler shares only the last pushes.
+- `if (a != 0 || b != 0) swapped else normal` compiled to the wrong block order; a local
+  `bool normalPair = x->swapped == 0 && y->swapped == 0; if (!normalPair) ...` gives the original's.
+- Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
+  (identical case bodies are merged into the default otherwise and the table shrinks to the used range).

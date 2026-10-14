@@ -16,6 +16,9 @@ namespace math
 		Vector axis[3];
 		Vector extents;
 
+		// Component-wise copy (0x100F7120, a kept out-of-line copy)
+		OBB& operator=(const OBB& other);
+
 		// Moves the box through m: the centre as a point, the axes as directions; extents unchanged
 		void Transform(const Matrix& m);
 		// The same from src into this box
