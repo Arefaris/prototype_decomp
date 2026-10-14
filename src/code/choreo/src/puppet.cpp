@@ -27,7 +27,7 @@ namespace choreo
 			mPose->mArrays.mUnknown1C->Set(0.0f, 0.0f, 0.0f);
 		}
 		unsigned int index = 0;
-		for (DriverEntry* entry = mEntries; index < mDriverCount; entry++)
+		for (DriverEntry* entry = mEntries; index < mDriverCount; )
 		{
 			Driver* driver = entry->mDriver;
 			if ((entry->mLifetime < 0.0f && !entry->mEndless) || (driver->mFlags & 0x20))
@@ -71,6 +71,7 @@ namespace choreo
 			}
 			UpdateDriver(driver, dt);
 			index++;
+			entry++;
 		}
 		if (mDriverCount > 0)
 		{
