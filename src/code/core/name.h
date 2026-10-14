@@ -65,6 +65,8 @@ namespace core
 	template<> class Name<CaseInsensitiveKey32>
 	{
 	public:
+		// 0x1007EE60 (kept copies sit in several units): the empty name
+		Name();
 		// 0x1007F380 (another unit)
 		Name(const CaseInsensitiveKey32& key);
 		// 0x10611F30 (another unit)

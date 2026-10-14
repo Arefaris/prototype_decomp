@@ -11,13 +11,21 @@ namespace pure3d
 		return controller3;
 	}
 
+	// FUNCTION: ENGINE 0x102E8BB0
+	// A kept copy of an inline constructor
+	ShaderParameters::ShaderParameters() : unknown0(0), unknown4(0), unknown8(2), unknownC(0)
+	{
+		unknown110 = false;
+		unknown114 = 0;
+	}
+
 	// FUNCTION: ENGINE 0x10707B00
 	ShaderParameters& ShaderParameters::operator=(const ShaderParameters& other)
 	{
-		unknown0[0] = other.unknown0[0];
-		unknown0[1] = other.unknown0[1];
-		unknown0[2] = other.unknown0[2];
-		unknown0[3] = other.unknown0[3];
+		unknown0 = other.unknown0;
+		unknown4 = other.unknown4;
+		unknown8 = other.unknown8;
+		unknownC = other.unknownC;
 		for (int i = 0; i < 16; i++)
 		{
 			parameters[i] = other.parameters[i];

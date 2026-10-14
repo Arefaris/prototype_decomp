@@ -6,10 +6,13 @@
 #ifndef PURE3D_PRIMITIVE_H
 #define PURE3D_PRIMITIVE_H
 
+#include "code/core/asynctask.h"
 #include "code/core/name.h"
 #include "code/math/pddicolour.h"
 #include "code/math/aabb.h"
 #include "code/math/matrix.h"
+#include "code/math/vector.h"
+#include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
 
@@ -152,7 +155,8 @@ namespace pure3d
 	public:
 		virtual ~Primitive();
 		virtual void Unknown3();
-		virtual void Unknown4();
+		// Prepares the primitive to be drawn with a shader (the bullet tracer's ribbons pass theirs)
+		virtual void Unknown4(Shader* shader);
 		virtual void GetBoundingBox(math::AABB* box);
 
 		// The flags the drawable copies into its parts' render bits (meanings unknown)
@@ -285,9 +289,31 @@ namespace pure3d
 	// 0x106EDA80
 	ParticleManager* GetParticleManager();
 
+	class ParticleGenerator;
+	class ParticlePointGenerator;
+	class ParticlePlaneGenerator;
+	class ParticleSphereGenerator;
+	class ParticleGridGenerator;
+	class ParticleMeshGenerator;
+
 	class ParticleGenerator : public Entity
 	{
 	public:
+		virtual void Unknown3();
+		virtual void Unknown4();
+		virtual void Unknown5();
+		virtual void Unknown6();
+		virtual void Unknown7();
+		virtual void Unknown8();
+		// Advances the generator by the update data
+		virtual void Update(ParticleUpdateData* data);
+		// Makes the particles of the update data; unknownE4 of the state is the second argument
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
+
+		// 0x10740E50: the generator's current transform
+		void GetUnknown10740E50(math::Matrix* out);
+		// 0x107404B0
+		void Unknown107404B0(float value);
 		// 0x10741730, 0x10741850, 0x10741CE0, 0x10741990, 0x10741250: set a parameter (named by key) of the
 		// generator; the meaning of type (0 or 2) is unknown
 		void SetParameter(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
@@ -295,6 +321,33 @@ namespace pure3d
 		void SetParameter3(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 		void SetParameter4(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 		void SetParameter5(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
+
+		unsigned char unknown10[0xC0];
+		void* data;
+		ParticleAttributes attributes;
+		unsigned char unknown240[0x60];
+		math::Matrix transform;
+	};
+
+	// The kinds of generator (RTTI names; only the types are used so far)
+	class ParticlePointGenerator : public ParticleGenerator
+	{
+	};
+
+	class ParticlePlaneGenerator : public ParticleGenerator
+	{
+	};
+
+	class ParticleSphereGenerator : public ParticleGenerator
+	{
+	};
+
+	class ParticleGridGenerator : public ParticleGenerator
+	{
+	};
+
+	class ParticleMeshGenerator : public ParticleGenerator
+	{
 	};
 
 	class MeshState : public PrimitiveState
@@ -340,6 +393,34 @@ namespace pure3d
 	class ParticleSystemState : public PrimitiveState
 	{
 	public:
+		// What the states made from one system share (RTTI pure3d::ParticleSystemState::SharedDetails): the block
+		// of data of the system and the tables that say where its attributes are
+		struct SharedDetails : public RefCounted
+		{
+			unsigned char unknown8[0x1CC];
+			unsigned char* block;
+			unsigned char unknown1D8[8];
+			ParticleAttributeTable* attributes1E0;
+			unsigned char unknown1E4[0xC];
+			ParticleAttributeTable* attributes1F0;
+			unsigned char unknown1F4[4];
+			ParticleAttributeTable* attributes1F8;
+		};
+
+		// 0x1073FD30: prepares the update of the particles and submits its task (called through 0x10709C00)
+		void BeginUpdate(float x, float y, float z, bool flag);
+		// 0x1079F570: the body of the update task (the system's channels, the generator, the kernels)
+		void UpdateParticles(ParticleUpdateData* data);
+		// 0x1079F320: the box around the particles, in the emitter's space
+		void UpdateBounds(ParticleUpdateData* data);
+		// 0x1070C560: counts the live particles (into liveCount); returns how many of the block to update
+		unsigned int CountParticles();
+		// 0x106E9940: the flag at +0x3F4, or the parent's when it is inherited
+		bool GetUnknown3F4();
+		// 0x10709D60: the emitter transform
+		math::Matrix* GetTransform();
+		// 0x10709D70: the first member of the generator of the state that owns the data
+		void* GetGeneratorUnknown10();
 		// 0x10709E70, 0x10709E50, 0x10709E40, 0x10709CC0, 0x10709CD0
 		void Unknown10709E70(float value);
 		void Unknown10709E50(float value);
@@ -350,7 +431,7 @@ namespace pure3d
 		bool GetUnknown490();
 		// 0x106ED9D0: the flag at +0x4BC, or the parent's when it is inherited
 		bool GetUnknown4BC();
-		// 0x10709D30: the emitter transform (+0x10, handed on to the generator)
+		// 0x10709D30: the emitter transform (handed on to the generator)
 		void SetTransform(const math::Matrix& transform);
 
 		void SetUnknown49C(float value)
@@ -441,22 +522,90 @@ namespace pure3d
 			}
 		}
 
-		unsigned char unknown10[0x39C];
-		math::pddiColour biasColours[4];
+		unsigned char unknown10[0xC];
+		// The update kernels that run in UpdateParticles (bit n: kernel n)
+		unsigned int updateKernels;
+		unsigned char unknown20[4];
+		// A counted event (core::EventReset) that the update task signals
+		int event[2];
+		unsigned char unknown2C[4];
+		// The task that runs UpdateParticles (0x107A0310)
+		core::AsyncTaskJob job;
+		unsigned char unknown78[0xC];
+		// 1 - 5: the generator is a point, plane, sphere, grid or mesh generator
+		int generatorType;
+		unsigned char unknown88[4];
+		float unknown8C;
+		float unknown90;
+		float unknown94;
+		bool unknown98;
+		bool unknown99;
+		unsigned char unknown9A[6];
+		unsigned __int64 unknownA0;
+		int unknownA8;
+		unsigned int unknownAC;
+		int unknownB0;
+		int unknownB4;
+		int unknownB8;
+		math::Vector unknownBC;
+		unsigned char unknownC8[4];
+		int heap;
+		unsigned char unknownD0[0x10];
+		// Set by CountParticles
+		unsigned int liveCount;
+		unsigned char unknownE4[0x1D0];
+		// The block of particle data: the tables give the offsets of the attributes in it
+		unsigned char* block;
+		unsigned char unknown2B8[8];
+		ParticleAttributeTable* attributes2C0;
+		unsigned char unknown2C4[0xC];
+		ParticleAttributeTable* attributes2D0;
+		unsigned char unknown2D4[4];
+		ParticleAttributeTable* attributes2D8;
+		unsigned char unknown2DC[4];
+		float unknown2E0;
+		float unknown2E4;
+		float unknown2E8;
+		float unknown2EC;
+		float unknown2F0;
+		float unknown2F4;
+		unsigned char unknown2F8[0x10];
+		math::Vector unknown308;
+		math::Vector unknown314;
+		math::Vector unknown320;
+		math::Matrix unknown32C;
+		math::Matrix unknown36C;
+		// Indexed by the colour parameter (the members after the first colour are not colours)
+		math::pddiColour biasColours[1];
+		unsigned int particleCount;
+		unsigned char unknown3B4[4];
+		SharedDetails* shared;
 		ParticleGenerator* generator;
-		unsigned char unknown3C0[0x4C];
+		unsigned char unknown3C0[0x30];
+		RefCountedBoolChannel* unknown3F0;
+		bool unknown3F4;
+		unsigned char unknown3F5[3];
+		FrameController* unknown3F8;
+		FrameController* unknown3FC;
+		RefCountedFloat1Channel* unknown400;
+		RefCountedFloat1Channel* unknown404;
+		RefCountedVectorChannel* unknown408;
 		float bias40C;
 		float bias410;
 		float override414;
 		float override418;
-		unsigned char unknown41C[0x74];
+		// The box around the particles (UpdateBounds) and the emitter transform
+		math::AABB bounds;
+		math::Matrix transform;
+		unsigned char unknown474[0x1C];
 		bool unknown490;
 		unsigned char unknown491[0xB];
 		float unknown49C;
 		float unknown4A0;
 		float unknown4A4;
 		float unknown4A8;
-		unsigned char unknown4AC[0xC];
+		unsigned char unknown4AC[8];
+		int unknown4B4;
 		bool unknown4B8;
 		unsigned char unknown4B9[3];
 		bool unknown4BC;

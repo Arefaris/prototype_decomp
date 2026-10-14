@@ -91,11 +91,14 @@ namespace pure3d
 		unsigned char unknown0[0x4C];
 	};
 
-	// The draw parameters (12 bytes)
+	// The draw parameters (12 bytes; they are the shader's at +0x14). The bits of the second word that the tracer
+	// reads: the blend mode (signed) and the factor of the blend
 	struct PrimStreamParameters
 	{
 		float unknown0;
-		unsigned int unknown4;
+		int blendMode : 5;
+		unsigned int blendFactor : 5;
+		unsigned int unknown4Rest : 22;
 		unsigned int unknown8;
 	};
 
@@ -112,12 +115,37 @@ namespace pure3d
 		// 0x106F3CD0
 		bool Open(Shader* shader, int type, int format, int count);
 
+		// Writes the next vertex (the texture coordinates, the colour with its red and blue bytes swapped, and the
+		// position) and moves on to the one after; inline in the engine, the name is a guess
+		void Vertex(float u, float v, unsigned int colour, float x, float y, float z)
+		{
+			float* coordinates = (float*)(vertex + coordinatesOffset);
+			coordinates[0] = u;
+			coordinates[1] = v;
+			*(unsigned int*)(vertex + colourOffset) = colour >> 16 & 0xff | (colour & 0xff) << 16 | colour & 0xff00ff00;
+			float* position = (float*)(vertex + positionOffset);
+			position[0] = x;
+			position[1] = y;
+			position[2] = z;
+			vertex += stride;
+			count++;
+		}
+
 		int unknown4;
 		int count;
 		core::Name<core::CaseInsensitiveKey32> name;
 		PrimStreamParameters parameters;
 		int type;
-		unsigned char unknown20[0x44];
+		// Where the next vertex goes, the size of a vertex and where in a vertex the position, colour and texture
+		// coordinates go
+		unsigned char* vertex;
+		int stride;
+		int positionOffset;
+		unsigned char unknown2C[0xC];
+		int colourOffset;
+		unsigned char unknown3C[4];
+		int coordinatesOffset;
+		unsigned char unknown44[0x20];
 		PrimStreamBuffer* buffer;
 		bool written;
 	};

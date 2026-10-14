@@ -6,6 +6,7 @@
 
 namespace math
 {
+	class Colour128;
 	class Vector4;
 
 	class pddiColour
@@ -19,6 +20,8 @@ namespace math
 		}
 		// 0x102CD6D0 (a copy in another unit): the colour of x, y, z, w as red, green, blue, alpha in 0 - 1
 		explicit pddiColour(const Vector4& colour);
+		// 0x102CD7F0 (another copy, in the bullet tracer's unit): the same for a Colour128
+		explicit pddiColour(const Colour128& colour);
 
 		unsigned int b : 8;
 		unsigned int g : 8;

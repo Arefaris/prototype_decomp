@@ -7,6 +7,7 @@
 #define PURE3D_PDDI_H
 
 #include "code/core/name.h"
+#include "code/math/matrix.h"
 
 namespace pure3d
 {
@@ -88,6 +89,9 @@ namespace pure3d
 		virtual void EnableFog(bool enable);
 		virtual void SetFogRange(float nearZ, float farZ);
 		virtual void SetAlphaRef(float ref);
+
+		// 0x10614840: the matrix at +0x15C (the current view matrix)
+		const math::Matrix* GetUnknown10614840();
 
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);

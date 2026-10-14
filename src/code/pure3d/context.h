@@ -5,6 +5,7 @@
 
 namespace pure3d
 {
+	class PrimStream;
 	class View;
 
 	class Context
@@ -13,7 +14,10 @@ namespace pure3d
 		// 0x1070EE10: the view at +0x28
 		View* GetView();
 
-		unsigned char unknown0[0x28];
+		unsigned char unknown0[0x20];
+		// The stream the primitives write their vertices to
+		PrimStream* primStream;
+		unsigned char unknown24[4];
 		View* view;
 		unsigned char unknown2C[8];
 		// The number of the frame being built
