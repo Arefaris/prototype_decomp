@@ -499,7 +499,10 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1076CD90
-	// EQUIVALENT: register allocation and the stack layout of the four light lists; every call and float operation is the engine's
+	// NONMATCHING: register allocation and the stack layout of the four light lists differ; compiled into the game it
+	// crashes at start-up (its static locals are ours, not the engine's 0x11282BD0 / 0x11282BE0 / guard 0x11282BE8),
+	// so the body is not trusted yet
+#ifdef NONMATCHING
 	void ProtoLitPass::SetupLights(int mode)
 	{
 		LightList* lights = LightSelection::Get()->GetActiveLights();
@@ -685,6 +688,7 @@ namespace pure3d
 		*pddi->GetConstant(gConstantLightEnableSpotKill, pddiBaseContext::CONSTANT_FLOAT) = 0.0f;
 		pddi->SetFlagConstant(gConstantLightIsLitPass);
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10768670
 	// EQUIVALENT: the engine loads the device pointer before converting the clear colour and keeps the result in eax
