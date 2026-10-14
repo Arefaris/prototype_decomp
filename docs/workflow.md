@@ -28,8 +28,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    inside a unit you are working on. Find what calls it and what it calls (Ghidra, or REA's `procedure_callers`,
    `procedure_callees`).
 2. **Read** it: REA `analyze_function` / `procedure_pseudo_code` on `local/re/prototypeenginef_rea.exe` (addresses
-   are the DLL's), or Ghidra. Look up the reference notes at its address (Ghidra bookmarks, or grep
-   `docs/reference/address_index.tsv`).
+   are the DLL's), or Ghidra. Look up what is known about its address (Ghidra bookmarks, or grep
+   `docs/address_index.tsv`).
 3. **Name** it: the real name when the binary has one (RTTI class of `this`, vftable slot, assert text, Lua or
    reflection registration string, export); otherwise a descriptive guess marked `guess`. Add it to
    `config/PROTOPC_2025/symbols.txt` with its kind and size:

@@ -72,6 +72,6 @@ minutes). Scripts in `tools/ghidra/scripts` then run on the saved program in sec
 |---|---|
 | `ExportFunctions.java <out.tsv>` | every function: entry, size, thunk flag, calling convention, name, body ranges |
 | `ImportSymbols.java config/<VERSION>/symbols.txt` | our names as primary labels, demangled into signatures; creates dead functions auto-analysis missed |
-| `ImportReferenceIndex.java docs/reference/address_index.tsv` | a bookmark at each of the 2 644 addresses the reference notes discuss, naming the notes |
+| `ImportReferenceIndex.java docs/address_index.tsv` | a bookmark at each of the 2 644 known addresses, with its topic and note |
 
 Run `ImportSymbols.java` after every change to `symbols.txt` so the decompiler shows our names.

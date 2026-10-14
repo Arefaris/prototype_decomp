@@ -1,6 +1,6 @@
-# prototype_recomp License, version 1
+# prototype_decomp License, version 1
 
-Copyright (c) 2026 the prototype_recomp contributors.
+Copyright (c) 2026 the prototype_decomp contributors.
 
 This repository contains tools, documentation and C++ source code that reconstructs, by decompilation, the engine
 of **Prototype** (2009) as shipped in `prototypeenginef.dll`. Most of the reconstructed source is written to behave,
@@ -63,7 +63,7 @@ contributors are not liable for any claim, damages or other liability arising fr
 ## Credits
 
 - **Prototype** and its engine: Radical Entertainment; published and owned by Activision.
-- **prototype_recomp**: its contributors (see the git history).
+- **prototype_decomp**: its contributors (see the git history).
 
 This license is modelled on the conditions of the RSDKv3 / RSDKv4 decompilation licenses (non-commercial, no
 assets, paid content off by default, attribution, same license for forks); its text is our own.

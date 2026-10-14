@@ -1,6 +1,6 @@
 // Export every function of the program: entry, name, size, body ranges, thunk flag, calling convention.
 // Usage: python tools/ghidra/ghidra.py run ExportFunctions.java <output.tsv> --readonly
-// @category prototype_recomp
+// @category prototype_decomp
 
 import java.io.PrintWriter;
 

@@ -53,7 +53,7 @@ keep paid content off by default.
 
 ## Licence
 
-The repository is under its own [prototype_recomp License v1](LICENSE.md), modelled on the RSDKv3 / RSDKv4
+The repository is under its own [prototype_decomp License v1](LICENSE.md), modelled on the RSDKv3 / RSDKv4
 decompilation licenses: use and distribution in source form for non-commercial purposes only; no original files and
 no binaries containing the original program; sold content off by default in any build; attribution to Radical
 Entertainment and Activision; no trademark rights; forks under the same license; no warranty. The rules above are

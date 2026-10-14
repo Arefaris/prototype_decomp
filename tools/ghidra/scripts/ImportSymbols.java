@@ -2,7 +2,7 @@
 // label at that address (demangled by Ghidra's demangler where possible), and a function is created there if the
 // comment says "function" and none exists.
 // Usage: python tools/ghidra/ghidra.py run ImportSymbols.java <symbols.txt>
-// @category prototype_recomp
+// @category prototype_decomp
 
 import java.nio.file.Files;
 import java.nio.file.Path;

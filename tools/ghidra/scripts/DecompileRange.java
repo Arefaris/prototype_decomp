@@ -2,7 +2,7 @@
 // or the functions listed one address per line in a file. Writes one file per function: <outdir>/<ADDRESS>.c
 // Usage: python tools/ghidra/ghidra.py run DecompileRange.java <outdir> <start> <end> --readonly
 //        python tools/ghidra/ghidra.py run DecompileRange.java <outdir> @<list.txt> --readonly
-// @category prototype_recomp
+// @category prototype_decomp
 
 import java.io.PrintWriter;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-# prototype_recomp — project instructions
+# prototype_decomp — project instructions
 
 Matching decompilation of Prototype (2009) PC: reconstruct C++ source that Visual Studio 2005 SP1 compiles into a
 drop-in `prototypeenginef.dll`.

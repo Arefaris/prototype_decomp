@@ -2,7 +2,7 @@
 // linker kept: targets of incremental link thunks, code after int3 padding). One "0xADDRESS" per line.
 // A candidate inside an existing function, or one that does not disassemble, is skipped.
 // Usage: python tools/ghidra/ghidra.py run CreateFunctions.java <candidates.txt>
-// @category prototype_recomp
+// @category prototype_decomp
 
 import java.nio.file.Files;
 import java.nio.file.Path;

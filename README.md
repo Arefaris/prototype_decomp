@@ -1,4 +1,4 @@
-# prototype_recomp
+# prototype_decomp
 
 A decompilation of **Prototype** (Radical Entertainment, 2009), PC version: C++ source that rebuilds the game's
 engine, `prototypeenginef.dll`, function by function, with the compiler the original was built with (Visual Studio
@@ -27,7 +27,7 @@ Updated 2026-10-12 by `ninja progress`; details in [docs/progress.md](docs/progr
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
 game into free roam. See [docs/methodology.md](docs/methodology.md) for how, [docs/plan.md](docs/plan.md) for the
-phases and [docs/decisions.md](docs/decisions.md) for the decisions made so far.
+phases and [CONTRIBUTING.md](CONTRIBUTING.md) to take part.
 
 ## Target
 
@@ -57,12 +57,12 @@ compiler, extracted from a free Microsoft SDK by `tools/toolchain/setup_vc8.py` 
 | `src/`, `include/` | the reconstructed source, mirroring the original tree (`code/core`, `code/pure3d`, `code/proto`, …) |
 | `thirdparty/` | upstream third-party source the game links (Lua 5.1) |
 | `tools/` | Ghidra scripts, build generator, verification |
-| `docs/` | methodology, toolchain, the original's source tree and class hierarchy |
+| `docs/` | methodology, workflow, toolchain, the original's source tree, worklists per module, `address_index.tsv` (2 644 known engine addresses with a topic and a note) |
 | `build/`, `local/` | generated output (ignored by git) |
 
 ## License
 
-[prototype_recomp License v1](LICENSE.md): source only, non-commercial, no original files or binaries containing the
+[prototype_decomp License v1](LICENSE.md): source only, non-commercial, no original files or binaries containing the
 original program, sold content off by default, attribution, forks under the same license. Policy and reasoning:
 [LEGAL.md](LEGAL.md). *Prototype* is a trademark of its owners; the engine and game were created by Radical
 Entertainment and published by Activision.

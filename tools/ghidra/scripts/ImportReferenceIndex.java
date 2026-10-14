@@ -1,7 +1,7 @@
-// Bookmark every address that docs/reference mentions (docs/reference/address_index.tsv): category "reference",
-// text = the notes and the first line naming it.
+// Bookmark every known address (docs/address_index.tsv: address, topics, note): category "reference",
+// text = the topics and the note.
 // Usage: python tools/ghidra/ghidra.py run ImportReferenceIndex.java <address_index.tsv>
-// @category prototype_recomp
+// @category prototype_decomp
 
 import java.nio.file.Files;
 import java.nio.file.Path;
