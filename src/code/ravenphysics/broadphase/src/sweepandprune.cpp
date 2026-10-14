@@ -9,70 +9,65 @@
 namespace ravenphysics
 {
 	// FUNCTION: ENGINE 0x106D9260
-	// NONMATCHING: the original keeps its loop pointers in esi / edi and works through copies in eax / ecx; ours
-	// folds the copies and orders the stores differently
+	// NONMATCHING: the original keeps the index in ebp, the loop pointers in esi / edi and works through copies in
+	// eax / ecx; ours picks other registers (about 30 % of the instructions line up)
 #ifdef NONMATCHING
 	int BuildEndpoints(const BroadPhaseBox* boxes, unsigned int boxCount, const unsigned char* flags,
 		unsigned int flagCount, Endpoint* second, unsigned int secondCount, Endpoint* first,
 		unsigned int firstCount, unsigned int total, unsigned int firstBoxes)
 	{
-		Endpoint* nextBegin = first;
-		Endpoint* nextEnd = first + 1;
 		unsigned int i = 0;
+		Endpoint* begin = first;
+		Endpoint* end = first + 1;
+		int count = 0;
 		for (; i < firstBoxes; i++)
 		{
-			Endpoint* begin = nextBegin;
-			Endpoint* end = nextEnd;
-			begin->position = boxes[i].boundsMin.x;
-			end->position = boxes[i].boundsMax.x;
-			begin->box = i;
-			begin->kind = 2;
-			float endPosition = end->position;
-			end->box = i;
-			end->kind = 0;
-			float beginPosition = begin->position;
-			nextBegin = begin + 2;
-			nextEnd = end + 2;
-			if (endPosition <= beginPosition)
+			Endpoint& b = *begin;
+			Endpoint& e = *end;
+			b.position = boxes[i].boundsMin.x;
+			e.position = boxes[i].boundsMax.x;
+			b.box = i;
+			b.kind = 2;
+			e.box = i;
+			e.kind = 0;
+			begin += 2;
+			end += 2;
+			if (e.position <= b.position)
 			{
-				nextBegin = begin;
-				nextEnd = end;
+				begin -= 2;
+				end -= 2;
 			}
-			if (1e12f <= fabs(beginPosition) || 1e12f <= fabs(endPosition))
+			if (!(fabs((double)b.position) < 1e12f) || !(fabs((double)e.position) < 1e12f))
 			{
-				nextBegin -= 2;
-				nextEnd -= 2;
+				begin -= 2;
+				end -= 2;
 			}
 		}
-		int count = 0;
-		nextBegin = second;
-		nextEnd = second + 1;
+		begin = second;
+		end = second + 1;
 		for (i = firstBoxes; i < total; i++)
 		{
-			Endpoint* begin = nextBegin;
-			Endpoint* end = nextEnd;
-			begin->position = boxes[i].boundsMin.x;
-			end->position = boxes[i].boundsMax.x;
-			begin->box = i;
-			begin->kind = 2 - ((flags[i >> 3] & (1 << (i & 7))) != 0);
-			float endPosition = end->position;
-			end->box = i;
-			end->kind = 0;
-			float beginPosition = begin->position;
-			nextBegin = begin + 2;
-			nextEnd = end + 2;
-			int nextCount = count + 2;
-			if (endPosition <= beginPosition)
+			Endpoint& b = *begin;
+			Endpoint& e = *end;
+			b.position = boxes[i].boundsMin.x;
+			e.position = boxes[i].boundsMax.x;
+			b.box = i;
+			b.kind = 2 - ((flags[i >> 3] & (1 << (i & 7))) != 0);
+			e.box = i;
+			e.kind = 0;
+			begin += 2;
+			end += 2;
+			count += 2;
+			if (e.position <= b.position)
 			{
-				nextBegin = begin;
-				nextEnd = end;
-				nextCount = count;
+				begin -= 2;
+				end -= 2;
+				count -= 2;
 			}
-			count = nextCount;
-			if (1e12f <= fabs(beginPosition) || 1e12f <= fabs(endPosition))
+			if (!(fabs((double)b.position) < 1e12f) || !(fabs((double)e.position) < 1e12f))
 			{
-				nextBegin -= 2;
-				nextEnd -= 2;
+				begin -= 2;
+				end -= 2;
 				count -= 2;
 			}
 		}
