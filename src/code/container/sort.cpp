@@ -9,8 +9,9 @@ namespace container
 	// the record, bit 2 set for the final (signed / float) byte, bit 3 set on the last pass. indices is initialised to
 	// 0 .. count - 1 first when initIndices; out is scratch. Returns the sorted index array (indices or out).
 	// FUNCTION: ENGINE 0x10610E40
-	// EQUIVALENT: the prefix sums of the signed pass are a separate array here; the original keeps the high-byte sums
-	// in place over the histogram
+	// NONMATCHING: the prefix sums of the signed pass are a separate array here, where the original keeps the high-byte
+	// sums in place over the histogram; compiled into the game it crashes at start-up, so the body is not trusted yet
+#ifdef NONMATCHING
 	unsigned short* RadixSort(unsigned char* data, unsigned short count, unsigned short* indices,
 		unsigned short* out, unsigned int keyDesc, unsigned short stride, bool initIndices)
 	{
@@ -115,4 +116,5 @@ namespace container
 		}
 		return indices;
 	}
+#endif
 }

@@ -3924,7 +3924,6 @@ __ftol2_sse = 0x10A883F0 ; function size:0x1C | CRT float to integer conversion 
 ?IsBlocking@VehicleBehaviourAmbient@proto@@UAE_NXZ = 0x104455C0 ; function size:0x1A | proto::VehicleBehaviourAmbient::IsBlocking (vftable slot 10; name guess)
 ?Count@PathRing@proto@@QBEHXZ = 0x10440A90 ; function size:0x53 | proto::PathRing::Count (another unit; names guessed)
 ?At@PathRing@proto@@QAEPAVPathNode@2@H@Z = 0x10443550 ; function size:0x44 | proto::PathRing::At (another unit; names guessed)
-?gNavMesh@proto@@3PAVNavMesh@1@A = 0x112730C0 ; data size:0x4 | proto::gNavMesh: the shared navigation mesh (name guess)
 ?RankSpawners@ParkedCarCloudManager@proto@@QAEXXZ = 0x104EB720 ; function size:0x155 | proto::ParkedCarCloudManager::RankSpawners (name guess)
 ?Update@ParkedCarCloudManager@proto@@QAEXXZ = 0x104ECBB0 ; function size:0x39A | proto::ParkedCarCloudManager::Update (name guess)
 ?Rank@CloudSpawnerBase@proto@@QAEXPAXPBMPBMMMMIEPAE@Z = 0x104F1DC0 ; function size:0x321 | proto::CloudSpawnerBase::Rank (another unit; names guessed)
