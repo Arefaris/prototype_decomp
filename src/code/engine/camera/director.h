@@ -7,6 +7,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/display.h"
 #include "code/engine/dbobserver.h"
 
 namespace math
@@ -25,15 +26,6 @@ namespace engine
 	void BroadcastMessage(Message* message);
 	// 0x107EED20 (another unit): sizes a listener list
 	void InitMessageListeners(MessageListeners* listeners, int count);
-
-	// The display settings object (0x1127F35C; another unit, names guessed): GetAspectRatio (0x10616740) divides the
-	// floats at +0x80C and +0x810
-	class Display
-	{
-	public:
-		float GetAspectRatio();
-	};
-	extern Display* gDisplay;
 
 	// What 0x10836AD0 returns (another unit): the frame's timing. The Director copies the 12 bytes at +4 and passes
 	// their last float to the cameras; the other fields are unknown.

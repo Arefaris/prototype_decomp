@@ -677,3 +677,68 @@ roles of the loop index / cursor swapped).
 - `engine::Display::GetWidth` (0x10616130) and `engine::GetStreamHullPool` (0x108C7750) are one-accessor guesses
   placed in their own units; the 0x10616xxx region is one large class (offsets up to 0x82C), so the small accessors
   the linker scattered between its functions may belong to others.
+
+## effects: particle update code and bullet tracers (pure3d/effects/src/*, proto/render/bullettracer.cpp)
+
+Particle system states (`pure3d::ParticleSystemState`, a 0x4C4-byte object whose layout is now spelled out up to the
+tables it reads), the update task that advances them, the generators' attribute arrays, the update kernels and the
+bullet tracer's ribbon drawing. The units are guessed from the address ranges and the class names (the one path the
+original gives is `code/pure3d/effects/src/particles.cpp`); `particlekernels.cpp` is 0x107836D0 - 0x10791D00,
+`particlegeneratorupdate.cpp` 0x1079C000 - 0x107A0600, `particleupdate.cpp` around 0x1073F400, `particlearray.cpp` around
+0x10740000 - 0x10748800.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x10748980 | ParticleArray::MultiplyAdd (particlearray.cpp) | match |
+| 0x1079CE80 | ParticleAttributes::Apply | match |
+| 0x1073FD30 | ParticleSystemState::BeginUpdate (particleupdate.cpp) | EQUIVALENT (86 %: the camera position is copied through x87 for its first component) |
+| 0x1079F320 | ParticleSystemState::UpdateBounds | EQUIVALENT (31 %: the engine keeps the box minimum x in a register through the loop) |
+| 0x1079F570 | ParticleSystemState::UpdateParticles (the task body; 3488 bytes) | EQUIVALENT (every call, argument and store identical by emulation; 14 %) |
+| 0x10709D60 / 0x10709D70 | ParticleSystemState::GetTransform / GetGeneratorUnknown10 | match |
+| 0x107837F0 | UpdateFrameBlend (particlekernels.cpp) | EQUIVALENT (94 %: SSE register numbers) |
+| 0x1078B550 | UpdateNothing (a kernel that does nothing) | match |
+| 0x100D5AC0 | math::AABB::GetSphere (math/src/aabb.cpp, a kept copy) | EQUIVALENT (9 %: the emptiness test keeps the far corner in a register) |
+| 0x10625AC0 | dxVertexDeclaration constructor (pddi/src/dx9/dxvertexdeclaration.cpp) | match |
+| 0x102E8BB0 | ShaderParameters constructor (src/mesh.cpp) | match |
+| 0x1007EE60 | core::Name<CaseInsensitiveKey32> default constructor (core/src/name.cpp, a kept copy) | match |
+| 0x102CFF50 | proto::BulletTracer::DrawLayer (6686 bytes; the ribbon of one layer) | EQUIVALENT (6 350 of 6 686 bytes, identical output by emulation) |
+| 0x102CCCF0 | proto::ScaleColour | EQUIVALENT (two operand/register choices) |
+| 0x102CD130 | BulletTracerState::GetWidthFade | match |
+| 0x102CDE90 | BulletTracerState::GetFade | match |
+| 0x102CDFB0 | BulletTracerState::GetDistanceFade | EQUIVALENT (the engine spills the age twice) |
+| 0x102CD7F0 | math::pddiColour(const Colour128&) (a second copy of the Vector4 one at 0x102CD6D0) | EQUIVALENT (clamp test order, as 0x102CD6D0) |
+| 0x102CFF00 | std::sort<float*> | match |
+| 0x102CCEB0 / 0x102CCEF0 / 0x102CCF30 / 0x102CCF70 | BulletTracerState::GetInverse{FadeOutTrail,FadeInTrail,ShrinkOut,ShrinkIn}Time (callees of the tracer) | match |
+| 0x102CCFB0 | BulletTracerState::GetTrailFade (callee of the tracer) | match |
+| 0x102CE4D0 ... 0x102CFDD0 | the 13 other instances of VS2005's `<algorithm>` for float* that std::sort needs (`_Sort`, `_Median`, `_Med3`, `_Unguarded_partition`, the heap functions) | match |
+
+The tracer unit's own `pddiColour(const Vector4&)` call is the copy in particlemanager.cpp; both copies are the same
+code, and the one at 0x102CD7F0 belongs to `Colour128` (RTTI `math::Colour128`).
+
+Matching notes:
+
+- The compiler (VS2005) unrolls a simple counted loop by four: a plain `for (; dest < limit; dest += 4)` body of four
+  statements gives the 16-element loop with the `(end - begin + 15) / 16 >= 4` guard and the one-group remainder loop
+  (ParticleArray::MultiplyAdd). The bound must be a local (a member read each time keeps the loop rolled).
+- A float function that sets its result in several branches and returns it is spilled to the stack at each
+  assignment; a single ternary (`return time != 0.0f ? 1.0f / time : 0.0f;`) or a result variable assigned last
+  avoids that.
+- Float expressions are re-associated under /fp:fast: `a * b / c * d` and `x*x + y*y + z*z` come out in a different
+  grouping than written. Separate statements pin the order (`float scaled = inv * age; ... scaled / age * x`, and
+  `sum = dx * dx; sum += dy * dy; sum += dz * dz;`); a differential emulation of old against new code at both x87
+  precisions (24 and 64 bits) found three functions whose first versions rounded differently.
+- Clamp chains: a ternary chain with `math::Clamp` and `!(0.0f > t)` reproduced `GetFade`; for `GetTrailFade`, declaring
+  the identity value (`float grow = 1.0f;`) right after the first clamp fixed the register order.
+- `0.0f != f()` and `f() != 0.0f` compile to different `fucompi` operand orders; a comparison written `x <= 0` instead
+  of `!(x > 0)` changes what a NaN does (the engine returns early on NaN).
+- A float to `unsigned int` conversion is `fistp qword` with a control word change; the conversion of an unsigned
+  loop counter to float is `fild` plus a fixup for the sign.
+- A callee that is compiled in the same unit keeps its caller's `ecx`/`edx` live; the tracer's seven small helpers had
+  to be reconstructed for `DrawLayer` to see them as such. The default `Name` constructor (0x1007EE60) must stay in
+  another unit, or the loops that construct 16 shader parameters keep their zero in `edx`.
+- The compiler inlines the sort wrapper into `DrawLayer` where the engine (inlining budget) did not: calling it through
+  a function pointer (`void (*sort)(float*, float*) = std::sort<float*>`) reproduces the call.
+- Ghidra's function sizes cut some epilogues (0x1079F320 is 577 bytes, not 570; 0x102CFF50 is 6686); the sizes in
+  symbols.txt for these are the real ones.
+- Dynamic casts to the generator classes (`dynamic_cast<ParticlePointGenerator*>`) need the RTTI type descriptor
+  addresses mapped in symbols.txt (`??_R0?AV...@8`).

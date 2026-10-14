@@ -9,6 +9,16 @@ namespace pure3d
 {
 	struct ShaderParameter
 	{
+		ShaderParameter() : name()
+		{
+			unknownC = 0;
+			unknown8 = 0;
+			unknown9 = 0;
+			value = 0;
+			unknownA = 4;
+			unknownA3 = 0;
+		}
+
 		core::Name<core::CaseInsensitiveKey32> name;
 		int value;
 		unsigned int unknown8 : 8;
@@ -21,9 +31,14 @@ namespace pure3d
 	class ShaderParameters
 	{
 	public:
+		// 0x102E8BB0
+		ShaderParameters();
 		ShaderParameters& operator=(const ShaderParameters& other);
 
-		int unknown0[4];
+		int unknown0;
+		int unknown4;
+		int unknown8;
+		int unknownC;
 		ShaderParameter parameters[16];
 		bool unknown110;
 		int unknown114;
