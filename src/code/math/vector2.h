@@ -11,6 +11,11 @@ namespace math
 		Vector2()
 		{
 		}
+		Vector2(float newX, float newY)
+		{
+			x = newX;
+			y = newY;
+		}
 		Vector2(const Vector2& v)
 		{
 			x = v.x;

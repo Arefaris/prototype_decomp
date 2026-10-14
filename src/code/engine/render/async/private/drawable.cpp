@@ -3,15 +3,19 @@
 // render thread, and engine::render::DeferredDeletionProxy (RTTI name). Names are guesses unless noted.
 #include "code/core/debug.h"
 #include "code/core/heap.h"
+#include "code/core/memutils.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/async/renderevent.h"
 #include "code/engine/render/async/private/drawableimpl.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/matrix.h"
 #include "code/math/vector2.h"
 #include "code/math/vector4.h"
 #include "code/core/strings.h"
 #include "code/content/memorystream.h"
+#include "code/core/file/filesystem.h"
+#include "code/engine/system/enginememory.h"
 
 #define DRAWABLE_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\drawable.cpp"
 
@@ -21,6 +25,8 @@ namespace engine
 	{
 		// The newest frame whose deferred deletions have run (raised by the proxies' destructors)
 		static unsigned int gDeletedFrame;
+		// The number of the next deferred deletion (the image's variable, 0x111BC664)
+		extern unsigned int gDeferredFrame;
 
 		// An entity on the deferred deletion list that records, when the list deletes it, that every deletion
 		// deferred in its frame has run
@@ -48,6 +54,7 @@ namespace engine
 			unsigned int mUnknown14;
 		};
 
+		// FUNCTION: ENGINE 0x107E8100
 		static void DoSetRegistered(Drawable drawable, bool registered)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -65,6 +72,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8150
 		static void DoUnknown106E02C0(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -74,6 +82,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8170
 		static void DoSetFlag10(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -83,6 +92,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8190
 		static void DoClearFlag10(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -92,15 +102,18 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E81B0
 		static void DoSetSegmentVisible(Drawable drawable, unsigned __int64 segment, bool visible)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data)
 			{
-				data->drawable->SetSegmentVisible(data->drawable->FindSegment(segment), visible);
+				unsigned short index = data->drawable->FindSegment(segment);
+				data->drawable->SetSegmentVisible(index, visible);
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E81F0
 		static void DoUnknown106E09A0(Drawable drawable, Drawable other)
 		{
 			DrawableImpl* otherImpl = 0;
@@ -122,6 +135,7 @@ namespace engine
 		}
 
 		// Sets up a frame controller for a play request: the start frame by mode, the range, speed, mode and cycles
+		// FUNCTION: ENGINE 0x107E8230
 		static void ApplyPlayback(pure3d::FrameController* controller, float start, float end, float speed,
 			pure3d::Animation::CycleMode mode, unsigned int cycles)
 		{
@@ -147,6 +161,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E82E0
 		static void DoUnknown106E03E0(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -156,6 +171,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8300
 		static void DoUnknown106E0490(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -165,7 +181,8 @@ namespace engine
 			}
 		}
 
-		static void DoSetUnknownCC(Drawable drawable, int value)
+		// FUNCTION: ENGINE 0x107E8320
+		static void DoSetUnknownCC(Drawable drawable, unsigned int value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data && data->drawable)
@@ -174,6 +191,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8350
 		static void DoSetName(Drawable drawable, unsigned __int64 name)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -183,6 +201,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8380
 		static void DoSetTransform(Drawable drawable, math::Matrix transform)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -192,6 +211,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E83B0
 		static void DoSharePose(Drawable drawable, Drawable other)
 		{
 			DrawableImpl* otherImpl = 0;
@@ -212,6 +232,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8400
 		static void DoCopyPoseState(Drawable drawable, Drawable other)
 		{
 			DrawableImpl* otherImpl = 0;
@@ -233,6 +254,7 @@ namespace engine
 		}
 
 		// The event holds a reference to the pose, released here
+		// FUNCTION: ENGINE 0x107E8450
 		static void DoSetPose(Drawable drawable, pure3d::Pose* pose)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -244,12 +266,14 @@ namespace engine
 		}
 
 		// Does nothing in this build but look the drawable up under the heap
+		// FUNCTION: ENGINE 0x107E8480
 		static void DoSetShader(Drawable drawable, pure3d::Shader* shader, bool enable, int heap)
 		{
 			core::HeapScope scope(heap);
 			GetDrawableData(drawable);
 		}
 
+		// FUNCTION: ENGINE 0x107E84B0
 		static void DoClearUnknown78(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -259,6 +283,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E84D0
 		static void DoApplyExpressionPose(Drawable drawable, pure3d::ExpressionPose* pose)
 		{
 			if (pose)
@@ -276,6 +301,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8510
 		static void DoSetFlag101Bit1(Drawable drawable, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -285,6 +311,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8530
 		static void DoApplyModifier(Drawable drawable, DrawableModifier* modifier)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -296,6 +323,41 @@ namespace engine
 			{
 				modifier->Apply(0);
 			}
+		}
+
+		// FUNCTION: ENGINE 0x107E8560
+		Drawable Drawable::Allocate(SourceDrawable* source)
+		{
+			return AllocateDrawable(source, true);
+		}
+
+		// FUNCTION: ENGINE 0x107E8580
+		bool Drawable::IsValid() const
+		{
+			return IsValidDrawable(*this);
+		}
+
+		// FUNCTION: ENGINE 0x107E8590
+		void* Drawable::GetSourceParameters() const
+		{
+			void* result = 0;
+			DrawableData* data = GetDrawableData(*this);
+			if (data && data->sourceDrawable)
+			{
+				result = data->sourceDrawable->GetParameters();
+			}
+			return result;
+		}
+
+		// FUNCTION: ENGINE 0x107E85C0
+		bool Drawable::IsUnknown8() const
+		{
+			DrawableData* data = GetDrawableData(*this);
+			if (data)
+			{
+				return data->unknown8;
+			}
+			return true;
 		}
 
 		// FUNCTION: ENGINE 0x107E86C0
@@ -372,6 +434,16 @@ namespace engine
 			if (data)
 			{
 				data->drawable->SetUnknownFloat(index, value);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107E87C0
+		void Drawable::Method106E0830(int value) const
+		{
+			DrawableData* data = GetDrawableData(*this);
+			if (data)
+			{
+				data->drawable->Unknown106E0830(value);
 			}
 		}
 
@@ -471,6 +543,7 @@ namespace engine
 			return gDeletedFrame >= frame;
 		}
 
+		// FUNCTION: ENGINE 0x107E8B60
 		static void DoCreate(Drawable drawable, int heap, DrawableCreator* creator)
 		{
 			core::HeapScope scope(heap);
@@ -495,6 +568,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8BE0
 		static void DoDestroy(Drawable drawable, DestroyMode mode)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -515,24 +589,25 @@ namespace engine
 		}
 
 		// The visibilities come in memory from the event queue, freed here
+		// FUNCTION: ENGINE 0x107E8C90
 		static void DoSetSegmentVisibility(Drawable drawable, engine::DrawableSegmentVisibility* visibilities,
 			unsigned int count)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data)
 			{
-				engine::DrawableSegmentVisibility* visibility = visibilities;
-				for (unsigned int i = count; i != 0; i--)
+				for (unsigned int i = 0; i < count; i++)
 				{
-					core::Name<core::CaseSensitiveKey> name(visibility->name);
-					data->drawable->SetSegmentVisible(data->drawable->FindSegment(name), visibility->visible);
-					visibility++;
+					core::Name<core::CaseSensitiveKey> name(visibilities[i].name);
+					unsigned short segment = data->drawable->FindSegment(name);
+					data->drawable->SetSegmentVisible(segment, visibilities[i].visible);
 				}
 			}
 			FreeRenderEvent(visibilities);
 		}
 
-		static void DoSetPartsUnknown(Drawable drawable, int value)
+		// FUNCTION: ENGINE 0x107E8D10
+		static void DoSetPartsUnknown(Drawable drawable, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data)
@@ -546,6 +621,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E8D90
 		static void DoPlay(Drawable drawable, float start, float end, float speed, pure3d::Animation::CycleMode mode,
 			unsigned int cycles)
 		{
@@ -589,12 +665,13 @@ namespace engine
 			}
 		}
 
-		// Shares the binding objects of another drawable with the same parts
+		// FUNCTION: ENGINE 0x107E8FF0
+		// EQUIVALENT: same instructions; the original compares the part counts the other way round (cmp ebx, ecx)
 		static void DoShareBindings(Drawable drawable, Drawable other, int heap)
 		{
 			core::HeapScope scope(heap);
-			DrawableImpl* impl = 0;
 			DrawableImpl* otherImpl = 0;
+			DrawableImpl* impl = 0;
 			DrawableData* data = GetDrawableData(other);
 			if (data)
 			{
@@ -605,22 +682,26 @@ namespace engine
 			{
 				impl = data->drawable;
 			}
-			if (otherImpl && impl && otherImpl->parts.Size() == impl->parts.Size())
+			if (otherImpl && impl && impl->parts.Size() == otherImpl->parts.Size())
 			{
+				unsigned int i = 0;
 				unsigned int count = otherImpl->parts.Size();
-				for (unsigned int i = 0; i < count; i++)
+				for (; i < count; i++)
 				{
-					PartBindingSource* source = PartRef(otherImpl, i)->GetBindingSource();
+					PartRef sourcePart(otherImpl, i);
+					PartBindingSource* source = sourcePart->GetBindingSource();
 					if (source)
 					{
 						PartBinding* binding = source->CreateBinding();
-						PartRef(impl, i)->SetBinding(binding);
+						PartRef targetPart(impl, i);
+						targetPart->SetBinding(binding);
 					}
 				}
 			}
 		}
 
 		// Looks for a part with a binding source and does nothing with it in this build
+		// FUNCTION: ENGINE 0x107E9110
 		static void DoFindBindingSource(Drawable drawable, Drawable other, int heap)
 		{
 			core::HeapScope scope(heap);
@@ -636,38 +717,45 @@ namespace engine
 			{
 				impl = data->drawable;
 			}
-			if (otherImpl && impl)
+			if (!otherImpl || !impl)
 			{
-				unsigned int count = otherImpl->parts.Size();
-				for (unsigned int i = 0; i < count; i++)
+				return;
+			}
+			unsigned int count = otherImpl->parts.Size();
+			for (unsigned int i = 0; i < count; i++)
+			{
+				PartRef part(otherImpl, i);
+				if (part->primitive && part->primitive->unknown18)
 				{
-					PartRef part(otherImpl, i);
-					if (part->primitive && part->primitive->unknown18)
-					{
-						break;
-					}
+					break;
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E91D0
 		static void DoResetStates(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
-			if (data && data->drawable)
+			if (data)
 			{
-				unsigned int count = data->drawable->parts.Size();
-				for (unsigned int i = 0; i < count; i++)
+				DrawableImpl* impl = data->drawable;
+				if (impl)
 				{
-					PartRef part(data->drawable, i);
-					pure3d::PrimitiveState* state = part->state;
-					if (state && (state->unknownC || state->primitive->unknown18))
+					unsigned int count = impl->parts.Size();
+					for (unsigned int i = 0; i < count; i++)
 					{
-						state->Unknown106F2F00(0);
+						PartRef part(impl, i);
+						pure3d::PrimitiveState* state = part->state;
+						if (state && state->GetBindingSource())
+						{
+							state->Unknown106F2F00(0);
+						}
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9260
 		static void DoPlayAnimation(Drawable drawable, pure3d::Animation* animation, float speed, float frame,
 			float start, float end, pure3d::Animation::CycleMode mode)
 		{
@@ -697,18 +785,20 @@ namespace engine
 						}
 						controller->SetNameFrom(animation);
 						controller->SetAnimation(animation, 0.0f, 0.0f);
-						if (0.0f > frame)
+						float startFrame = frame;
+						if (0.0f > startFrame)
 						{
-							float wrapped = animation->numFrames + frame;
-							frame = 0.0f > wrapped ? 0.0f : wrapped;
+							float wrapped = animation->numFrames + startFrame;
+							startFrame = 0.0f > wrapped ? 0.0f : wrapped;
 						}
-						if (0.0f > end)
+						float endFrame = end;
+						if (0.0f > endFrame)
 						{
-							float wrapped = animation->numFrames + end;
-							end = 0.0f > wrapped ? 0.0f : wrapped;
+							float wrapped = animation->numFrames + endFrame;
+							endFrame = 0.0f > wrapped ? 0.0f : wrapped;
 						}
-						controller->SetFrameRange(start, end);
-						controller->SetFrame(frame);
+						controller->SetFrameRange(start, endFrame);
+						controller->SetFrame(startFrame);
 						controller->SetRelativeSpeed(speed);
 						controller->SetCycleMode(mode);
 					}
@@ -716,6 +806,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E93F0
 		static void DoPlaySkinAnimation(Drawable drawable, pure3d::Animation* animation, float speed, float frame,
 			float start, float end, pure3d::Animation::CycleMode mode)
 		{
@@ -741,18 +832,20 @@ namespace engine
 									controller->Reset();
 									controller->SetNameFrom(animation);
 									controller->SetAnimation(animation, 0.0f, 0.0f);
-									if (0.0f > frame)
+									float startFrame = frame;
+									if (0.0f > startFrame)
 									{
-										float wrapped = animation->numFrames + frame;
-										frame = 0.0f > wrapped ? 0.0f : wrapped;
+										float wrapped = animation->numFrames + startFrame;
+										startFrame = 0.0f > wrapped ? 0.0f : wrapped;
 									}
-									if (0.0f > end)
+									float endFrame = end;
+									if (0.0f > endFrame)
 									{
-										float wrapped = animation->numFrames + end;
-										end = 0.0f > wrapped ? 0.0f : wrapped;
+										float wrapped = animation->numFrames + endFrame;
+										endFrame = 0.0f > wrapped ? 0.0f : wrapped;
 									}
-									controller->SetFrameRange(start, end);
-									controller->SetFrame(frame);
+									controller->SetFrameRange(start, endFrame);
+									controller->SetFrame(startFrame);
 									controller->SetRelativeSpeed(speed);
 									controller->SetCycleMode(mode);
 								}
@@ -763,6 +856,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9590
+		// EQUIVALENT: same instructions; the original's frame puts the heap scope below the spilled drawable and render object pointers
 		static void DoPlayPartAnimation(Drawable drawable, pure3d::Animation* animation, float speed, float frame,
 			float start, float end, pure3d::Animation::CycleMode mode, int heap)
 		{
@@ -819,18 +914,20 @@ namespace engine
 						controller->SetNameFrom(animation);
 						controller->SetAnimation(animation, 0.0f, 0.0f);
 						controller->SetBindingSource(part->GetBindingSource());
-						if (0.0f > frame)
+						float startFrame = frame;
+						if (0.0f > startFrame)
 						{
-							float wrapped = animation->numFrames + frame;
-							frame = 0.0f > wrapped ? 0.0f : wrapped;
+							float wrapped = animation->numFrames + startFrame;
+							startFrame = 0.0f > wrapped ? 0.0f : wrapped;
 						}
-						if (0.0f > end)
+						float endFrame = end;
+						if (0.0f > endFrame)
 						{
-							float wrapped = animation->numFrames + end;
-							end = 0.0f > wrapped ? 0.0f : wrapped;
+							float wrapped = animation->numFrames + endFrame;
+							endFrame = 0.0f > wrapped ? 0.0f : wrapped;
 						}
-						controller->SetFrameRange(start, end);
-						controller->SetFrame(frame);
+						controller->SetFrameRange(start, endFrame);
+						controller->SetFrame(startFrame);
 						controller->SetRelativeSpeed(speed);
 						controller->SetCycleMode(mode);
 					}
@@ -843,20 +940,26 @@ namespace engine
 			}
 		}
 
-		// The event holds a reference to the region, released here
+		// FUNCTION: ENGINE 0x107E97B0
 		static void DoSetVertexDeformRegion(Drawable drawable, pure3d::VertexDeformRegion* region)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data)
 			{
+				unsigned int i = 0;
 				unsigned int count = data->drawable->parts.Size();
-				for (unsigned int i = 0; i < count; i++)
+				for (; i < count; i++)
 				{
 					PartRef part(data->drawable, i);
-					pure3d::MeshState* mesh = dynamic_cast<pure3d::MeshState*>(part->state);
-					if (mesh && mesh->GetController3())
+					pure3d::PrimitiveState* state = part->state;
+					pure3d::MeshState* mesh = dynamic_cast<pure3d::MeshState*>(state);
+					if (mesh)
 					{
-						((pure3d::VertexRegionAnimController*)mesh->GetController3())->SetRegion(region);
+						pure3d::FrameController* controller = mesh->GetController3();
+						if (controller)
+						{
+							((pure3d::VertexRegionAnimController*)controller)->SetRegion(region);
+						}
 					}
 				}
 			}
@@ -866,6 +969,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9870
 		static void DoSetPartsUnknown2C(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -879,21 +983,25 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E98D0
 		static void DoSetSegmentUnknown2C(Drawable drawable, core::Name<core::CaseSensitiveKey> segment, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
 			if (data)
 			{
-				unsigned int first;
-				unsigned int count;
-				data->drawable->GetSegmentParts(data->drawable->FindSegment(segment), &first, &count);
-				for (unsigned int i = first; i < first + count; i++)
+				unsigned short index = data->drawable->FindSegment(segment);
+				unsigned int first = 0;
+				unsigned int count = 0;
+				data->drawable->GetSegmentParts(index, &first, &count);
+				unsigned int end = first + count;
+				for (unsigned int i = first; i < end; i++)
 				{
 					data->drawable->SetPartUnknown2C(i, value);
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9950
 		static void DoResetParticles(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -903,20 +1011,25 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
+						PartRef statePart(impl, i);
+						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)statePart->state;
 						float zero = 0.0f;
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetOverride(
-							pure3d::gParticleKey1127F214, 2, &zero);
+						state->SetOverride(pure3d::gParticleKey1127F214, 2,
+							&zero);
 					}
 					else
 					{
-						PartRef(impl, i).Unknown106E14B0(0);
+						PartRef otherPart(impl, i);
+						otherPart.Unknown106E14B0(0);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9A30
 		static void DoSetEffectOverrides(Drawable drawable, EffectOverrides overrides)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -926,9 +1039,11 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)PartRef(impl, i)->state;
+						PartRef statePart(impl, i);
+						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)statePart->state;
 						state->SetOverride(pure3d::gParticleKey1127F214, 2, &overrides.values[0]);
 						state->SetOverride(pure3d::gParticleKey1127F2C8, 2, &overrides.values[1]);
 						state->SetOverride(pure3d::gParticleKey1127F15C, 2, &overrides.values[2]);
@@ -958,6 +1073,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9CF0
 		static void DoSetGeneratorVector(Drawable drawable, core::Name<core::CaseInsensitiveKey32> name,
 			math::Vector value)
 		{
@@ -968,14 +1084,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetGeneratorParameter(name, 0, &value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetGeneratorParameter(name, 0, &value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9DB0
 		static void DoSetGeneratorFloat2(Drawable drawable, core::Name<core::CaseInsensitiveKey32> name, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -985,15 +1104,18 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetGeneratorParameter2(name, 2,
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetGeneratorParameter2(name, 2,
 							&value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9E70
 		static void DoSetParticleFloat(Drawable drawable, core::Name<core::CaseInsensitiveKey32> name, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1003,14 +1125,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetOverride(name, 2, &value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetOverride(name, 2, &value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9F20
 		static void DoSetGeneratorFloat3(Drawable drawable, core::Name<core::CaseInsensitiveKey32> name, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1020,15 +1145,18 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetGeneratorParameter3(name, 2,
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetGeneratorParameter3(name, 2,
 							&value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107E9FE0
 		static void DoSetParticleUnknownE70(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1038,14 +1166,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709E70(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->Unknown10709E70(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA090
 		static void DoSetParticleUnknownE50(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1055,14 +1186,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709E50(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->Unknown10709E50(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA140
 		static void DoSetParticleUnknownE40(Drawable drawable, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1072,14 +1206,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709E40(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->Unknown10709E40(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA1F0
 		static void DoSetParticleUnknownCC0(Drawable drawable, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1089,14 +1226,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709CC0(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->Unknown10709CC0(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA2A0
 		static void DoSetParticleUnknown49C(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1106,14 +1246,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetUnknown49C(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetUnknown49C(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA350
 		static void DoSetParticleUnknown4A8(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1123,14 +1266,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetUnknown4A8(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetUnknown4A8(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA400
 		static void DoSetParticleUnknown4B8(Drawable drawable, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1140,9 +1286,11 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetUnknown4B8(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetUnknown4B8(value);
 					}
 				}
 			}
@@ -1150,6 +1298,7 @@ namespace engine
 
 		// The distance fade of a particle system (state +0x4A4 reaches the
 		// vertex colour through the TEXCOORD1.w fade)
+		// FUNCTION: ENGINE 0x107EA4B0
 		static void DoSetParticleFade(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1159,14 +1308,17 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetUnknown4A4(value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetUnknown4A4(value);
 					}
 				}
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA560
 		static void DoParticleUnknownCD0(Drawable drawable)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1176,17 +1328,18 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->Unknown10709CD0();
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->Unknown10709CD0();
 					}
 				}
 				impl->UpdateBounds(true);
 			}
 		}
 
-		// Gives every part without a binding one made from its binding source (the shader input description is
-		// not used in this build)
+		// FUNCTION: ENGINE 0x107EA610
 		static void DoCreateBindings(Drawable drawable, pure3d::pddiShaderInputInitData init, int heap)
 		{
 			core::HeapScope scope(heap);
@@ -1196,23 +1349,11 @@ namespace engine
 				DrawableImpl* impl = data->drawable;
 				for (unsigned int i = 0; i < (unsigned int)impl->parts.Size(); i++)
 				{
-					DrawablePart* part = PartRef(impl, i).Get();
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
 					if (!part->binding)
 					{
-						PartBindingSource* source;
-						pure3d::PrimitiveState* state = part->state;
-						if (state && (state->unknownC || state->primitive->unknown18))
-						{
-							source = (PartBindingSource*)(state->unknownC ? state->unknownC : state->primitive->unknown18);
-						}
-						else if (part->primitive && part->primitive->unknown18)
-						{
-							source = (PartBindingSource*)part->primitive->unknown18;
-						}
-						else
-						{
-							continue;
-						}
+						PartBindingSource* source = (PartBindingSource*)part->GetRenderBinding();
 						if (source)
 						{
 							part->SetBinding(source->CreateBinding());
@@ -1222,6 +1363,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA710
+		// EQUIVALENT: our compile folds the part's address into the load of the binding; the original computes the address first
 		static void DoSetBindingVector4(Drawable drawable, core::CaseInsensitiveKey32 key, math::Vector4 value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1230,7 +1373,9 @@ namespace engine
 				DrawableImpl* impl = data->drawable;
 				for (unsigned int i = 0; i < (unsigned int)impl->parts.Size(); i++)
 				{
-					PartBinding* binding = PartRef(impl, i)->binding;
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
+					PartBinding* binding = part->binding;
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
@@ -1240,6 +1385,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA7C0
+		// EQUIVALENT: as DoSetBindingVector4
 		static void DoSetBindingVector(Drawable drawable, core::CaseInsensitiveKey32 key, math::Vector value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1248,7 +1395,9 @@ namespace engine
 				DrawableImpl* impl = data->drawable;
 				for (unsigned int i = 0; i < (unsigned int)impl->parts.Size(); i++)
 				{
-					PartBinding* binding = PartRef(impl, i)->binding;
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
+					PartBinding* binding = part->binding;
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
@@ -1259,10 +1408,13 @@ namespace engine
 		}
 
 		// Two-component parameters are not passed on in this build
+		// FUNCTION: ENGINE 0x107EA870
 		static void DoSetBindingVector2(Drawable drawable, core::CaseInsensitiveKey32 key, math::Vector2 value)
 		{
 		}
 
+		// FUNCTION: ENGINE 0x107EA880
+		// EQUIVALENT: as DoSetBindingVector4
 		static void DoSetBindingFloat(Drawable drawable, core::CaseInsensitiveKey32 key, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1271,7 +1423,9 @@ namespace engine
 				DrawableImpl* impl = data->drawable;
 				for (unsigned int i = 0; i < (unsigned int)impl->parts.Size(); i++)
 				{
-					PartBinding* binding = PartRef(impl, i)->binding;
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
+					PartBinding* binding = part->binding;
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
@@ -1281,6 +1435,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA930
+		// EQUIVALENT: as DoSetBindingVector4
 		static void DoSetBindingBool(Drawable drawable, core::CaseInsensitiveKey32 key, bool value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1289,7 +1445,9 @@ namespace engine
 				DrawableImpl* impl = data->drawable;
 				for (unsigned int i = 0; i < (unsigned int)impl->parts.Size(); i++)
 				{
-					PartBinding* binding = PartRef(impl, i)->binding;
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
+					PartBinding* binding = part->binding;
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
@@ -1299,6 +1457,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EA9E0
 		static void DoUnknown106E1250(Drawable drawable, core::Name<core::CaseSensitiveKey> name)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1308,6 +1467,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EAA00
 		Drawable::InstanceOptions::InstanceOptions(const InstanceOptions& other)
 		{
 			b0 = other.b0;
@@ -1318,13 +1478,17 @@ namespace engine
 			b5 = other.b5;
 			shareSource = other.shareSource;
 			instanceOf = other.instanceOf;
-			colour = other.colour;
+			colour.x = other.colour.x;
+			colour.y = other.colour.y;
+			colour.z = other.colour.z;
+			colour.w = other.colour.w;
 			unknown1C = other.unknown1C;
 			unknown20 = other.unknown20;
 			unknown24 = other.unknown24;
 		}
 
 		// The drawable of a game object (it answers a GetCurrentDrawable message)
+		// FUNCTION: ENGINE 0x107EAA70
 		Drawable::Drawable(GameObject* object) : mHandle(0xffffffff)
 		{
 			GetCurrentDrawable message;
@@ -1351,6 +1515,8 @@ namespace engine
 			return 0;
 		}
 
+		// FUNCTION: ENGINE 0x107EAB00
+		// EQUIVALENT: the clamp of the count is a conditional move here and a branch in the original
 		void Drawable::SetJointMatrices(const JointMatrix* matrices, unsigned int count) const
 		{
 			DrawableData* data = GetDrawableData(*this);
@@ -1358,8 +1524,11 @@ namespace engine
 			{
 				DrawableImpl* impl = data->drawable;
 				pure3d::Pose* pose = impl->GetPose();
-				unsigned int n = count < pose->mData.mArrays.mJointCount ? count : pose->mData.mArrays.mJointCount;
-				for (unsigned int i = 0; i < n; i++)
+				if (count > pose->mData.mArrays.mJointCount)
+				{
+					count = pose->mData.mArrays.mJointCount;
+				}
+				for (unsigned int i = 0; i != count; i++)
 				{
 					((JointMatrix*)pose->mData.mWorldMatrices)[i] = matrices[i];
 				}
@@ -1368,6 +1537,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EABD0
 		bool Drawable::IsSkinAnimationUnknown() const
 		{
 			DrawableData* data = GetDrawableData(*this);
@@ -1383,7 +1553,8 @@ namespace engine
 			unsigned int count = impl->parts.Size();
 			for (unsigned int i = 0; i < count; i++)
 			{
-				pure3d::PrimitiveState* state = PartRef(impl, i)->state;
+				PartRef part(impl, i);
+				pure3d::PrimitiveState* state = part->state;
 				if (state)
 				{
 					pure3d::SkinState* skin = dynamic_cast<pure3d::SkinState*>(state);
@@ -1401,6 +1572,7 @@ namespace engine
 		}
 
 		// Loads a texture from memory the event owns (freed here)
+		// FUNCTION: ENGINE 0x107EAC90
 		static void DoLoadTexture(unsigned char* data, unsigned int size, pure3d::Texture* texture, unsigned int a,
 			unsigned int b)
 		{
@@ -1416,6 +1588,8 @@ namespace engine
 		}
 
 		// Makes the render object as an instance of the source drawable's
+		// FUNCTION: ENGINE 0x107EBDA0
+		// EQUIVALENT: the original expands CreateOptions(bool) in place (the colour from the white constant); ours calls it
 		static void DoCreateInstance(Drawable drawable, int heap, bool flag)
 		{
 			core::HeapScope scope(heap);
@@ -1438,6 +1612,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EBED0
+		// EQUIVALENT: the original ends both failed lookups in one shared block; ours repeats it
 		static void DoCreateInstanceWithOptions(Drawable drawable, int heap, Drawable::InstanceOptions options)
 		{
 			core::HeapScope scope(heap);
@@ -1504,6 +1680,7 @@ namespace engine
 		}
 
 		// Makes the render object as an instance of another drawable's
+		// FUNCTION: ENGINE 0x107EC0C0
 		static void DoCreateInstanceOf(Drawable drawable, Drawable other, int heap)
 		{
 			core::HeapScope scope(heap);
@@ -1528,6 +1705,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EC170
 		static void DoSetUnknownBC(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1538,6 +1716,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EC1B0
 		static void DoSetPartAnimations(Drawable drawable, int a, bool b)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1547,7 +1726,8 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					DrawablePart* part = PartRef(impl, i).Get();
+					PartRef ref(impl, i);
+					DrawablePart* part = ref.Get();
 					PartAnimationState state;
 					pure3d::visibility::Client* animation = &part->client;
 					if (animation->index != -1 || animation->server != 0)
@@ -1560,6 +1740,8 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EC280
+		// EQUIVALENT: same instructions; the registers of the part temporaries are rotated against the original
 		static void DoSetBiasUnknown(Drawable drawable, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1569,17 +1751,20 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					int type = PartRef(impl, i)->primitive->type;
+					PartRef part(impl, i);
+					int type = part->primitive->type;
 					if (type == 0x10)
 					{
-						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)PartRef(impl, i)->state;
+						PartRef statePart(impl, i);
+						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)statePart->state;
 						state->SetBias(pure3d::gParticleKey1127F20C, 2, &value);
 						state->SetBias(pure3d::gParticleKey1127F2DC, 2, &value);
 						state->SetBias(pure3d::gParticleKey1127F2BC, 2, &value);
 					}
 					else if (type == 8)
 					{
-						pure3d::GpuSkinState* state = (pure3d::GpuSkinState*)PartRef(impl, i)->state;
+						PartRef statePart(impl, i);
+						pure3d::GpuSkinState* state = (pure3d::GpuSkinState*)statePart->state;
 						if (state)
 						{
 							state->Unknown10B87050(value);
@@ -1589,6 +1774,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EC3A0
 		static void DoSetEffectBiases(Drawable drawable, EffectBiases biases)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1598,9 +1784,11 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)PartRef(impl, i)->state;
+						PartRef statePart(impl, i);
+						pure3d::ParticleSystemState* state = (pure3d::ParticleSystemState*)statePart->state;
 						state->SetBias(pure3d::gParticleKey1127F214, 2, &biases.values[0]);
 						state->SetBias(pure3d::gParticleKey1127F2DC, 2, &biases.values[1]);
 						state->SetBias(pure3d::gParticleKey1127F338, 2, &biases.values[2]);
@@ -1638,6 +1826,7 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x107EC710
 		static void DoSetParticleBias(Drawable drawable, core::Name<core::CaseInsensitiveKey32> name, float value)
 		{
 			DrawableData* data = GetDrawableData(drawable);
@@ -1647,12 +1836,676 @@ namespace engine
 				int count = impl->parts.Size();
 				for (int i = 0; i < count; i++)
 				{
-					if (PartRef(impl, i)->primitive->type == 0x10)
+					PartRef part(impl, i);
+					if (part->primitive->type == 0x10)
 					{
-						((pure3d::ParticleSystemState*)PartRef(impl, i)->state)->SetBias(name, 2, &value);
+						PartRef statePart(impl, i);
+						((pure3d::ParticleSystemState*)statePart->state)->SetBias(name, 2, &value);
 					}
 				}
 			}
 		}
+
+		// The event classes the drawable methods queue; the render thread calls the stored function with the
+		// stored arguments (an instantiation per argument list)
+		// FUNCTION: ENGINE 0x107EAF80
+		// FUNCTION: ENGINE 0x107EAFB0
+		template class RenderEvent3<Drawable, int, bool>;
+		// FUNCTION: ENGINE 0x107EAFD0
+		// FUNCTION: ENGINE 0x107EB010
+		template class RenderEvent3<Drawable, int, Drawable::InstanceOptions>;
+		// FUNCTION: ENGINE 0x107EB040
+		// FUNCTION: ENGINE 0x107EB070
+		template class RenderEvent3<Drawable, int, DrawableCreator*>;
+		// FUNCTION: ENGINE 0x107EB090
+		// FUNCTION: ENGINE 0x107EB0C0
+		template class RenderEvent3<Drawable, Drawable, int>;
+		// FUNCTION: ENGINE 0x107EB0E0
+		// FUNCTION: ENGINE 0x107EB100
+		template class RenderEvent2<Drawable, DestroyMode>;
+		// FUNCTION: ENGINE 0x107EB120
+		// FUNCTION: ENGINE 0x107EB140
+		template class RenderEvent2<Drawable, Drawable>;
+		// FUNCTION: ENGINE 0x107EB160
+		// FUNCTION: ENGINE 0x107EB180
+		template class RenderEvent2<Drawable, DrawableModifier*>;
+		// FUNCTION: ENGINE 0x107EB1A0
+		// FUNCTION: ENGINE 0x107EB1C0
+		template class RenderEvent2<Drawable, bool>;
+		// FUNCTION: ENGINE 0x107EB1E0
+		// FUNCTION: ENGINE 0x107EB200
+		template class RenderEvent1<Drawable>;
+		// FUNCTION: ENGINE 0x107EB220
+		// FUNCTION: ENGINE 0x107EB250
+		template class RenderEvent3<Drawable, unsigned __int64, bool>;
+		// FUNCTION: ENGINE 0x107EB280
+		// FUNCTION: ENGINE 0x107EB2B0
+		template class RenderEvent3<Drawable, engine::DrawableSegmentVisibility*, unsigned int>;
+		// FUNCTION: ENGINE 0x107EB2D0
+		// FUNCTION: ENGINE 0x107EB320
+		template class RenderEvent6<Drawable, float, float, float, pure3d::Animation::CycleMode, unsigned int>;
+		// FUNCTION: ENGINE 0x107EB360
+		// FUNCTION: ENGINE 0x107EB390
+		template class RenderEvent2<Drawable, unsigned __int64>;
+		// FUNCTION: ENGINE 0x107EB3B0
+		// FUNCTION: ENGINE 0x107EB3D0
+		template class RenderEvent2<Drawable, unsigned int>;
+		// FUNCTION: ENGINE 0x107EB3F0
+		// FUNCTION: ENGINE 0x107EB4C0
+		// EQUIVALENT: the original copies the matrix argument with the compiler's vector copy-constructor helper (four rows); ours copies the sixteen floats inline
+		template class RenderEvent2<Drawable, math::Matrix>;
+		// FUNCTION: ENGINE 0x107EB4F0
+		// FUNCTION: ENGINE 0x107EB510
+		template class RenderEvent2<Drawable, pure3d::Pose*>;
+		// FUNCTION: ENGINE 0x107EB530
+		// FUNCTION: ENGINE 0x107ED4E0
+		template class RenderEvent3<Drawable, pure3d::pddiShaderInputInitData, int>;
+		// FUNCTION: ENGINE 0x107EB580
+		// FUNCTION: ENGINE 0x107EB5D0
+		template class RenderEvent3<Drawable, core::CaseInsensitiveKey32, math::Vector4>;
+		// FUNCTION: ENGINE 0x107EB610
+		// FUNCTION: ENGINE 0x107EB660
+		template class RenderEvent3<Drawable, core::CaseInsensitiveKey32, math::Vector>;
+		// FUNCTION: ENGINE 0x107EB6A0
+		// FUNCTION: ENGINE 0x107EB6E0
+		template class RenderEvent3<Drawable, core::CaseInsensitiveKey32, math::Vector2>;
+		// FUNCTION: ENGINE 0x107EB710
+		// FUNCTION: ENGINE 0x107EB740
+		template class RenderEvent3<Drawable, core::CaseInsensitiveKey32, float>;
+		// FUNCTION: ENGINE 0x107EB770
+		// FUNCTION: ENGINE 0x107EB7A0
+		template class RenderEvent3<Drawable, core::CaseInsensitiveKey32, bool>;
+		// FUNCTION: ENGINE 0x107EB7C0
+		// FUNCTION: ENGINE 0x107EB7F0
+		template class RenderEvent4<Drawable, pure3d::Shader*, bool, int>;
+		// FUNCTION: ENGINE 0x107EB820
+		// FUNCTION: ENGINE 0x107EB880
+		template class RenderEvent7<Drawable, pure3d::Animation*, float, float, float, float,
+			pure3d::Animation::CycleMode>;
+		// FUNCTION: ENGINE 0x107EB8C0
+		// FUNCTION: ENGINE 0x107EB8E0
+		template class RenderEvent2<Drawable, pure3d::ExpressionPose*>;
+		// FUNCTION: ENGINE 0x107EB900
+		// FUNCTION: ENGINE 0x107EB960
+		template class RenderEvent8<Drawable, pure3d::Animation*, float, float, float, float,
+			pure3d::Animation::CycleMode, int>;
+		// FUNCTION: ENGINE 0x107EB9B0
+		// FUNCTION: ENGINE 0x107EB9D0
+		template class RenderEvent2<Drawable, pure3d::VertexDeformRegion*>;
+		// FUNCTION: ENGINE 0x107EB9F0
+		// FUNCTION: ENGINE 0x107EBA20
+		template class RenderEvent2<Drawable, float>;
+		// FUNCTION: ENGINE 0x107EBA40
+		// FUNCTION: ENGINE 0x107ED520
+		template class RenderEvent3<Drawable, core::Name<core::CaseSensitiveKey>, float>;
+		// FUNCTION: ENGINE 0x107EBA90
+		// FUNCTION: ENGINE 0x107EBAC0
+		template class RenderEvent2<Drawable, EffectBiases>;
+		// FUNCTION: ENGINE 0x107EBAF0
+		// FUNCTION: ENGINE 0x107EBB20
+		template class RenderEvent2<Drawable, EffectOverrides>;
+		// FUNCTION: ENGINE 0x107EBB50
+		// FUNCTION: ENGINE 0x107ED550
+		template class RenderEvent3<Drawable, core::Name<core::CaseInsensitiveKey32>, float>;
+		// FUNCTION: ENGINE 0x107EBBA0
+		// FUNCTION: ENGINE 0x107ED580
+		template class RenderEvent3<Drawable, core::Name<core::CaseInsensitiveKey32>, math::Vector>;
+		// FUNCTION: ENGINE 0x107EBC00
+		// FUNCTION: ENGINE 0x107ED5C0
+		template class RenderEvent2<Drawable, core::Name<core::CaseSensitiveKey> >;
+		// FUNCTION: ENGINE 0x107EBC40
+		// FUNCTION: ENGINE 0x107EBC60
+		template class RenderEvent1<unsigned int>;
+		// FUNCTION: ENGINE 0x107EBC80
+		// FUNCTION: ENGINE 0x107EBCC0
+		template class RenderEvent5<unsigned char*, unsigned int, pure3d::Texture*, unsigned int, unsigned int>;
+
+		// The heap a render object is made in: the current one, or the game object heap when the allocator of the
+		// current heap says so
+		static inline int GetRenderObjectHeap()
+		{
+			int heap = core::GetCurrentHeap();
+			int unknown;
+			if (core::GetHeapAllocator(heap)->GetStat(0xb, &unknown))
+			{
+				heap = engine::GetGameObjectHeap();
+			}
+			return heap;
+		}
+
+		// FUNCTION: ENGINE 0x107ED5F0
+		Drawable Drawable::CreateInstance(SourceDrawable* source, bool registerOnCreate, bool flag)
+		{
+			Drawable drawable = AllocateDrawable(source, registerOnCreate);
+			int heap = GetRenderObjectHeap();
+			QueueRenderEvent(DoCreateInstance, drawable, heap, flag);
+			return drawable;
+		}
+
+		// FUNCTION: ENGINE 0x107ED650
+		Drawable Drawable::CreateInstance(SourceDrawable* source, const InstanceOptions& options,
+			bool registerOnCreate)
+		{
+			int heap = GetRenderObjectHeap();
+			Drawable drawable = AllocateDrawable(source, registerOnCreate);
+			QueueRenderEvent(DoCreateInstanceWithOptions, drawable, heap, options);
+			return drawable;
+		}
+
+		// FUNCTION: ENGINE 0x107ED6C0
+		Drawable Drawable::Create(DrawableCreator* creator, bool registerOnCreate)
+		{
+			Drawable drawable = AllocateDrawable(0, registerOnCreate);
+			QueueRenderEvent(DoCreate, drawable, core::GetCurrentHeap(), creator);
+			return drawable;
+		}
+
+		// FUNCTION: ENGINE 0x107ED700
+		Drawable Drawable::CreateInstanceOf(Drawable other)
+		{
+			Drawable drawable;
+			DrawableData* data = GetDrawableData(other);
+			if (data)
+			{
+				drawable = AllocateDrawable(data->sourceDrawable, true);
+				QueueRenderEvent(DoCreateInstanceOf, drawable, other, core::GetCurrentHeap());
+			}
+			return drawable;
+		}
+
+		// FUNCTION: ENGINE 0x107ED750
+		void Drawable::Destroy(Drawable* drawable)
+		{
+			QueueRenderEvent(DoDestroy, *drawable, DESTROY_MODE_DEFERRED);
+			drawable->mHandle = 0xffffffff;
+		}
+
+		// FUNCTION: ENGINE 0x107ED770
+		Drawable Drawable::Clone() const
+		{
+			DrawableData* data = GetDrawableData(*this);
+			if (data)
+			{
+				Drawable drawable = CreateInstance(data->sourceDrawable, true, false);
+				QueueRenderEvent(DoUnknown106E09A0, drawable, *this);
+				return drawable;
+			}
+			return Drawable();
+		}
+
+		// FUNCTION: ENGINE 0x107ED7D0
+		void Drawable::ApplyModifier(DrawableModifier* modifier) const
+		{
+			QueueRenderEvent(DoApplyModifier, *this, modifier);
+		}
+
+		// FUNCTION: ENGINE 0x107ED7F0
+		void Drawable::ApplyModifierAgain(DrawableModifier* modifier) const
+		{
+			QueueRenderEventSecondary(DoApplyModifier, *this, modifier);
+		}
+
+		// FUNCTION: ENGINE 0x107ED810
+		void Drawable::SetRegistered(bool registered) const
+		{
+			QueueRenderEvent(DoSetRegistered, *this, registered);
+		}
+
+		// FUNCTION: ENGINE 0x107ED830
+		void Drawable::Method106E02C0() const
+		{
+			QueueRenderEvent(DoUnknown106E02C0, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107ED850
+		void Drawable::SetFlag10() const
+		{
+			QueueRenderEvent(DoSetFlag10, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107ED870
+		void Drawable::ClearFlag10() const
+		{
+			QueueRenderEvent(DoClearFlag10, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107ED890
+		void Drawable::SetSegmentVisible(const core::Name<core::CaseSensitiveKey>& segment, bool visible) const
+		{
+			QueueRenderEvent(DoSetSegmentVisible, *this, segment.GetHash(), visible);
+		}
+
+		// FUNCTION: ENGINE 0x107ED8C0
+		void Drawable::SetSegmentVisibilities(const DrawableSegmentVisibility* visibilities,
+			unsigned int count) const
+		{
+			unsigned int size = count << 4;
+			void* copy = AllocRenderEvent(size);
+			core::MemCopyUnchecked(copy, visibilities, size);
+			QueueRenderEvent(DoSetSegmentVisibility, *this, (DrawableSegmentVisibility*)copy, count);
+		}
+
+		// FUNCTION: ENGINE 0x107ED900
+		void Drawable::SetPartsUnknown(bool value) const
+		{
+			QueueRenderEvent(DoSetPartsUnknown, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107ED920
+		void Drawable::Play(float start, float end, float speed, pure3d::Animation::CycleMode mode,
+			unsigned int cycles) const
+		{
+			QueueRenderEvent(DoPlay, *this, start, end, speed, mode, cycles);
+		}
+
+		// FUNCTION: ENGINE 0x107ED960
+		void Drawable::SetName(const core::Name<core::CaseSensitiveKey>& name) const
+		{
+			QueueRenderEvent(DoSetName, *this, name.GetHash());
+		}
+
+		// FUNCTION: ENGINE 0x107ED990
+		void Drawable::SetUnknownCC(unsigned int value) const
+		{
+			QueueRenderEvent(DoSetUnknownCC, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107ED9B0
+		// EQUIVALENT: as RenderEvent2<Drawable, Matrix>::Execute: the argument copy is the vector copy-constructor helper in the original
+		void Drawable::SetTransformQueued(const math::Matrix& transform) const
+		{
+			QueueRenderEvent(DoSetTransform, *this, transform);
+		}
+
+		// FUNCTION: ENGINE 0x107ED9E0
+		void Drawable::FindBindingSource(Drawable other) const
+		{
+			QueueRenderEvent(DoFindBindingSource, *this, other, core::GetCurrentHeap());
+		}
+
+		// FUNCTION: ENGINE 0x107EDA10
+		void Drawable::ShareBindings(Drawable other) const
+		{
+			QueueRenderEvent(DoShareBindings, *this, other, core::GetCurrentHeap());
+		}
+
+		// FUNCTION: ENGINE 0x107EDA40
+		void Drawable::SharePose(Drawable other) const
+		{
+			QueueRenderEvent(DoSharePose, *this, other);
+		}
+
+		// FUNCTION: ENGINE 0x107EDA60
+		void Drawable::CopyPoseState(Drawable other) const
+		{
+			QueueRenderEvent(DoCopyPoseState, *this, other);
+		}
+
+		// FUNCTION: ENGINE 0x107EDA80
+		void Drawable::SetPose(pure3d::Pose* pose) const
+		{
+			pose->AddRef();
+			QueueRenderEvent(DoSetPose, *this, pose);
+		}
+
+		// FUNCTION: ENGINE 0x107EDAB0
+		void Drawable::CreateBindings(const pure3d::pddiShaderInputInitData& init) const
+		{
+			int heap = GetRenderObjectHeap();
+			QueueRenderEvent(DoCreateBindings, *this, init, heap);
+		}
+
+		// FUNCTION: ENGINE 0x107EDB10
+		void Drawable::SetBindingVector4(const core::Name<core::CaseInsensitiveKey32>& name, float x, float y,
+			float z, float w) const
+		{
+			QueueRenderEventSecondary(DoSetBindingVector4, *this, name.GetKey(), math::Vector4(x, y, z, w));
+		}
+
+		// FUNCTION: ENGINE 0x107EDB70
+		void Drawable::SetBindingVector(const core::Name<core::CaseInsensitiveKey32>& name, float x, float y,
+			float z) const
+		{
+			QueueRenderEventSecondary(DoSetBindingVector, *this, name.GetKey(), math::Vector(x, y, z));
+		}
+
+		// FUNCTION: ENGINE 0x107EDBC0
+		void Drawable::SetBindingVector2(const core::Name<core::CaseInsensitiveKey32>& name, float x, float y) const
+		{
+			QueueRenderEventSecondary(DoSetBindingVector2, *this, name.GetKey(), math::Vector2(x, y));
+		}
+
+		// FUNCTION: ENGINE 0x107EDC00
+		void Drawable::SetBindingFloat(const core::Name<core::CaseInsensitiveKey32>& name, float value) const
+		{
+			QueueRenderEventSecondary(DoSetBindingFloat, *this, name.GetKey(), value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDC30
+		void Drawable::SetBindingBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value) const
+		{
+			QueueRenderEventSecondary(DoSetBindingBool, *this, name.GetKey(), value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDC60
+		void Drawable::SetShader(pure3d::Shader* shader, bool enable) const
+		{
+			QueueRenderEvent(DoSetShader, *this, shader, enable, core::GetCurrentHeap());
+		}
+
+		// FUNCTION: ENGINE 0x107EDC90
+		void Drawable::ResetStates() const
+		{
+			QueueRenderEvent(DoResetStates, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EDCB0
+		void Drawable::PlayAnimation(pure3d::Animation* animation, float speed, float frame, float start,
+			float end, pure3d::Animation::CycleMode mode) const
+		{
+			QueueRenderEvent(DoPlayAnimation, *this, animation, speed, frame, start, end, mode);
+		}
+
+		// FUNCTION: ENGINE 0x107EDCF0
+		void Drawable::StopAnimation() const
+		{
+			DrawableData* data = GetDrawableData(*this);
+			if (data)
+			{
+				data->unknown8 = true;
+			}
+			QueueRenderEvent(DoClearUnknown78, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EDD20
+		void Drawable::ApplyExpressionPose(pure3d::ExpressionPose* pose) const
+		{
+			if (pose)
+			{
+				pose->AddRef();
+				QueueRenderEvent(DoApplyExpressionPose, *this, pose);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107EDD50
+		void Drawable::PlaySkinAnimation(pure3d::Animation* animation, float speed, float frame, float start,
+			float end, pure3d::Animation::CycleMode mode) const
+		{
+			QueueRenderEvent(DoPlaySkinAnimation, *this, animation, speed, frame, start, end, mode);
+		}
+
+		// FUNCTION: ENGINE 0x107EDD90
+		void Drawable::PlayPartAnimation(pure3d::Animation* animation, float speed, float frame, float start,
+			float end, pure3d::Animation::CycleMode mode) const
+		{
+			QueueRenderEvent(DoPlayPartAnimation, *this, animation, speed, frame, start, end, mode,
+				core::GetCurrentHeap());
+		}
+
+		// FUNCTION: ENGINE 0x107EDDE0
+		void Drawable::Method106E0490() const
+		{
+			QueueRenderEvent(DoUnknown106E0490, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EDE00
+		void Drawable::Method106E03E0() const
+		{
+			QueueRenderEvent(DoUnknown106E03E0, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EDE20
+		void Drawable::SetVertexDeformRegion(pure3d::VertexDeformRegion* region) const
+		{
+			if (region)
+			{
+				region->AddRef();
+			}
+			QueueRenderEvent(DoSetVertexDeformRegion, *this, region);
+		}
+
+		// FUNCTION: ENGINE 0x107EDE50
+		void Drawable::SetUnknownBC(float value) const
+		{
+			QueueRenderEvent(DoSetUnknownBC, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDE70
+		void Drawable::SetPartsUnknown2C(float value) const
+		{
+			QueueRenderEvent(DoSetPartsUnknown2C, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDE90
+		void Drawable::SetSegmentUnknown2C(const core::Name<core::CaseSensitiveKey>& segment, float value) const
+		{
+			QueueRenderEvent(DoSetSegmentUnknown2C, *this, segment, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDEC0
+		void Drawable::SetFlag101Bit1(bool value) const
+		{
+			QueueRenderEvent(DoSetFlag101Bit1, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDEE0
+		void Drawable::SetPartAnimations(int a, bool b) const
+		{
+			QueueRenderEvent(DoSetPartAnimations, *this, a, b);
+		}
+
+		// FUNCTION: ENGINE 0x107EDF00
+		void Drawable::ResetParticles() const
+		{
+			QueueRenderEvent(DoResetParticles, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EDF20
+		void Drawable::SetBiasUnknown(float value) const
+		{
+			QueueRenderEvent(DoSetBiasUnknown, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDF40
+		void Drawable::SetEffectBiases(EffectBiases biases) const
+		{
+			QueueRenderEvent(DoSetEffectBiases, *this, biases);
+		}
+
+		// FUNCTION: ENGINE 0x107EDF70
+		void Drawable::SetEffectOverrides(EffectOverrides overrides) const
+		{
+			QueueRenderEvent(DoSetEffectOverrides, *this, overrides);
+		}
+
+		// FUNCTION: ENGINE 0x107EDFA0
+		void Drawable::SetParticleBias(core::Name<core::CaseInsensitiveKey32> name, float value) const
+		{
+			QueueRenderEvent(DoSetParticleBias, *this, name, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EDFD0
+		void Drawable::SetGeneratorVector(core::Name<core::CaseInsensitiveKey32> name, float x, float y,
+			float z) const
+		{
+			QueueRenderEvent(DoSetGeneratorVector, *this, name, math::Vector(x, y, z));
+		}
+
+		// FUNCTION: ENGINE 0x107EE020
+		void Drawable::SetGeneratorFloat2(core::Name<core::CaseInsensitiveKey32> name, float value) const
+		{
+			QueueRenderEvent(DoSetGeneratorFloat2, *this, name, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE050
+		void Drawable::SetParticleFloat(core::Name<core::CaseInsensitiveKey32> name, float value) const
+		{
+			QueueRenderEvent(DoSetParticleFloat, *this, name, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE080
+		void Drawable::SetGeneratorFloat3(core::Name<core::CaseInsensitiveKey32> name, float value) const
+		{
+			QueueRenderEvent(DoSetGeneratorFloat3, *this, name, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE0B0
+		void Drawable::SetParticleUnknownE70(float value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknownE70, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE0D0
+		void Drawable::SetParticleUnknownE50(float value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknownE50, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE0F0
+		void Drawable::SetParticleUnknownE40(bool value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknownE40, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE110
+		void Drawable::SetParticleUnknownCC0(bool value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknownCC0, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE130
+		void Drawable::SetParticleUnknown49C(float value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknown49C, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE150
+		void Drawable::SetParticleUnknown4A8(float value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknown4A8, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE170
+		void Drawable::SetParticleUnknown4B8(bool value) const
+		{
+			QueueRenderEvent(DoSetParticleUnknown4B8, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE190
+		void Drawable::SetParticleFade(float value) const
+		{
+			QueueRenderEvent(DoSetParticleFade, *this, value);
+		}
+
+		// FUNCTION: ENGINE 0x107EE1B0
+		void Drawable::ParticleUnknownCD0() const
+		{
+			QueueRenderEvent(DoParticleUnknownCD0, *this);
+		}
+
+		// FUNCTION: ENGINE 0x107EE1D0
+		void Drawable::Method106E1250(const core::Name<core::CaseSensitiveKey>& name) const
+		{
+			QueueRenderEvent(DoUnknown106E1250, *this, name);
+		}
+
+		// FUNCTION: ENGINE 0x107EE230
+		// EQUIVALENT: the order of the lookup's pushes: the original loads the inventory and its vftable entry first
+		void Drawable::LoadTexture(const char* name, int unknown, unsigned int a, unsigned int b)
+		{
+			content::LoadInventory::DynamicCaster<pure3d::Texture> caster;
+			pure3d::Texture* texture = (pure3d::Texture*)content::gRootInventory->FindObject(&caster,
+				core::Name<core::CaseSensitiveKey>(name, 1), true);
+			if (texture)
+			{
+				core::IFile* file;
+				core::FileSystemOpenFileAsync(&file, name, false, 0, 1, 0, 1, 1, 0);
+				if (file)
+				{
+					texture->AddRef();
+					file->Wait();
+					unsigned char* buffer = new (1) unsigned char[file->GetCurrentSize()];
+					file->Read(buffer, file->GetCurrentSize(), 1);
+					file->Wait();
+					QueueRenderEvent(DoLoadTexture, buffer, file->GetCurrentSize(), texture, a, b);
+					file->Release();
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107EE200
+		int Drawable::QueueDeferredDeletion()
+		{
+			QueueRenderEvent(DeferredDeletionProxy::Defer, gDeferredFrame);
+			return gDeferredFrame++;
+		}
 	}
 }
+
+// Kept copies: inline members of the headers that the original left as separate code
+// FUNCTION: ENGINE 0x107E85E0
+// FUNCTION: ENGINE 0x107E8020
+// FUNCTION: ENGINE 0x107E89F0
+// FUNCTION: ENGINE 0x107E8030
+// FUNCTION: ENGINE 0x107E8050
+// FUNCTION: ENGINE 0x107E8060
+// FUNCTION: ENGINE 0x107E8080
+// FUNCTION: ENGINE 0x107E80A0
+// FUNCTION: ENGINE 0x107E80C0
+// FUNCTION: ENGINE 0x107E80D0
+// FUNCTION: ENGINE 0x107E8AA0
+// FUNCTION: ENGINE 0x107E8B10
+// FUNCTION: ENGINE 0x107E8B30
+// FUNCTION: ENGINE 0x107EAD50
+// EQUIVALENT: the original converts the channels with the x87 truncation and merges them with xor masks; ours narrows to byte stores
+
+// Instantiations of QueueRenderEvent that the drawable methods use
+// FUNCTION: ENGINE 0x107EC7C0
+// FUNCTION: ENGINE 0x107EC810
+// FUNCTION: ENGINE 0x107EC880
+// FUNCTION: ENGINE 0x107EC8D0
+// FUNCTION: ENGINE 0x107EC920
+// FUNCTION: ENGINE 0x107EC960
+// FUNCTION: ENGINE 0x107EC9A0
+// FUNCTION: ENGINE 0x107EC9E0
+// FUNCTION: ENGINE 0x107ECA20
+// FUNCTION: ENGINE 0x107ECA60
+// FUNCTION: ENGINE 0x107ECAA0
+// FUNCTION: ENGINE 0x107ECAF0
+// FUNCTION: ENGINE 0x107ECB40
+// FUNCTION: ENGINE 0x107ECBB0
+// FUNCTION: ENGINE 0x107ECC00
+// FUNCTION: ENGINE 0x107ECC40
+// FUNCTION: ENGINE 0x107ECD30
+// FUNCTION: ENGINE 0x107ECD70
+// FUNCTION: ENGINE 0x107ECDE0
+// FUNCTION: ENGINE 0x107ECE50
+// FUNCTION: ENGINE 0x107ECEB0
+// FUNCTION: ENGINE 0x107ECF10
+// FUNCTION: ENGINE 0x107ECF60
+// FUNCTION: ENGINE 0x107ECFB0
+// FUNCTION: ENGINE 0x107ED000
+// FUNCTION: ENGINE 0x107ED070
+// FUNCTION: ENGINE 0x107ED0B0
+// FUNCTION: ENGINE 0x107ED130
+// FUNCTION: ENGINE 0x107ED170
+// FUNCTION: ENGINE 0x107ED1B0
+// FUNCTION: ENGINE 0x107ED220
+// FUNCTION: ENGINE 0x107ED2A0
+// FUNCTION: ENGINE 0x107ED2F0
+// FUNCTION: ENGINE 0x107ED360
+// FUNCTION: ENGINE 0x107ED3E0
+// FUNCTION: ENGINE 0x107ED450
+// FUNCTION: ENGINE 0x107ED490
+
+// Destructors and scalar deleting destructors of the event classes whose members have destructors
+// FUNCTION: ENGINE 0x107EB570
+// FUNCTION: ENGINE 0x107EBA80
+// FUNCTION: ENGINE 0x107EBB90
+// FUNCTION: ENGINE 0x107EBBF0
+// FUNCTION: ENGINE 0x107EBC30
+// FUNCTION: ENGINE 0x107EBCF0
+// FUNCTION: ENGINE 0x107EBD20
+// FUNCTION: ENGINE 0x107EBD40
+// FUNCTION: ENGINE 0x107EBD60
+// FUNCTION: ENGINE 0x107EBD80

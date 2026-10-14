@@ -8,23 +8,52 @@
 #define ENGINE_RENDER_ASYNC_RENDEREVENT_H
 
 #include <new>
+#include "code/core/name.h"
 
 namespace engine
 {
 	namespace render
 	{
+		// 0x10817AD0
+		void FreeRenderEvent(void* event);
+
+		// An event frees itself with `delete this` after it ran: the class's own operator delete returns the memory to
+		// the event allocator (the destructors of the members of an event class are the implicit ones)
+		// The type an event keeps an argument as. A name is laid out at a multiple of 8 inside an event (the class
+		// has the alignment of the 64-bit hash there, a hole follows the previous 4-byte member)
+		template<class T> struct EventMember
+		{
+			typedef T Type;
+		};
+
+		template<> struct EventMember<core::Name<core::CaseSensitiveKey> >
+		{
+			class __declspec(align(8)) Type : public core::Name<core::CaseSensitiveKey>
+			{
+			public:
+				Type(const core::Name<core::CaseSensitiveKey>& name) : core::Name<core::CaseSensitiveKey>(name)
+				{
+				}
+			};
+		};
+
 		class RenderEvent
 		{
 		public:
 			virtual void Execute() = 0;
+			static void operator delete(void* block)
+			{
+				FreeRenderEvent(block);
+			}
 		};
 
 		// 0x10817A50: memory for an event (flushes the queue once when it is full)
 		void* AllocRenderEvent(unsigned int size);
-		// 0x10817AD0
-		void FreeRenderEvent(void* event);
 		// 0x10818CC0: hands the event to the render thread (frees it when the queue stays full)
 		void PushRenderEvent(RenderEvent* event);
+		// 0x10818D30: the same for the second queue (0x11304C90), which carries the shader parameters and the
+		// modifiers of the render objects (renderglobals.cpp has not reconstructed it)
+		void PushRenderEventSecondary(RenderEvent* event);
 
 		template<class A1> class RenderEvent1 : public RenderEvent
 		{
@@ -37,7 +66,7 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
@@ -55,12 +84,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 		};
 
 		template<class A1, class A2, class A3> class RenderEvent3 : public RenderEvent
@@ -74,12 +103,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 		};
 
@@ -95,12 +124,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3, mA4);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 			A4 mA4;
 		};
@@ -117,12 +146,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3, mA4, mA5);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 			A4 mA4;
 			A5 mA5;
@@ -140,12 +169,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3, mA4, mA5, mA6);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 			A4 mA4;
 			A5 mA5;
@@ -165,12 +194,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3, mA4, mA5, mA6, mA7);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 			A4 mA4;
 			A5 mA5;
@@ -191,12 +220,12 @@ namespace engine
 			virtual void Execute()
 			{
 				mFunction(mA1, mA2, mA3, mA4, mA5, mA6, mA7, mA8);
-				FreeRenderEvent(this);
+				delete this;
 			}
 
 			Function mFunction;
 			A1 mA1;
-			A2 mA2;
+			typename EventMember<A2>::Type mA2;
 			A3 mA3;
 			A4 mA4;
 			A5 mA5;
@@ -221,6 +250,20 @@ namespace engine
 		{
 			PushRenderEvent(new (AllocRenderEvent(sizeof(RenderEvent3<A1, A2, A3>))) RenderEvent3<A1, A2, A3>(
 				function, a1, a2, a3));
+		}
+
+		// The same on the second queue
+		template<class A1, class A2> void QueueRenderEventSecondary(void (*function)(A1, A2), A1 a1, A2 a2)
+		{
+			PushRenderEventSecondary(new (AllocRenderEvent(sizeof(RenderEvent2<A1, A2>))) RenderEvent2<A1, A2>(
+				function, a1, a2));
+		}
+
+		template<class A1, class A2, class A3> void QueueRenderEventSecondary(void (*function)(A1, A2, A3), A1 a1,
+			A2 a2, A3 a3)
+		{
+			PushRenderEventSecondary(new (AllocRenderEvent(sizeof(RenderEvent3<A1, A2, A3>)))
+				RenderEvent3<A1, A2, A3>(function, a1, a2, a3));
 		}
 
 		template<class A1, class A2, class A3, class A4> void QueueRenderEvent(void (*function)(A1, A2, A3, A4), A1 a1,

@@ -519,6 +519,45 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
 
+## render/async/private/drawable.cpp (0x107E8020 - 0x107EE322): 288 annotated functions, 274 match, 14 EQUIVALENT
+
+engine::render::Drawable is the game thread's handle to a render-thread drawable (a 16-bit slot index and the slot's
+16-bit serial). Its methods queue render events (`QueueRenderEvent`, renderevent.h) whose "Do" function runs on the
+render thread; the unit is, in address order: the Do functions (static, address taken by the event), the methods that
+read the render object directly, the explicit instantiations of the event classes (constructor and `Execute` each),
+the `QueueRenderEvent` instantiations, then the queueing methods.
+- A `RenderEventN` instance frees itself with `delete this` (the base class's operator delete is `FreeRenderEvent`).
+  The classes with a member that has a destructor (the pddi shader input data, the names) therefore get an implicit
+  destructor and a scalar deleting destructor of their own, and their `Execute` expands the destructor
+  (0x107EB570 and the nine like it).
+- `core::Name<CaseSensitiveKey>` is laid out at a multiple of 8 inside the events (`EventMember` in renderevent.h
+  pads it); 4-byte names (`Name<CaseInsensitiveKey32>`) have an empty user destructor, which is what makes their
+  event classes non-trivial. `GetCurrentDrawable` (0x20 bytes) has a trailing member for the same reason.
+- The shader parameter events and one of the two modifier events go through the second queue (0x10818D30,
+  `QueueRenderEventSecondary`); `PushRenderEventSecondary` is declared in renderevent.h and not reconstructed.
+- Kept copies: members of header classes are compiled after their callers, so the callers cannot rely on the
+  registers the copy leaves alone (`EffectBiases`' copy constructor is defined in the struct for that reason; defined
+  in the cpp the event constructor keeps `this` in edx). The copies the unit keeps are annotated in blocks at the end
+  of the cpp (pure3d accessors, the particle state setters, name destructors, the event destructors).
+- Matching notes for the Do functions: the loop idiom is `unsigned int i = 0; unsigned int count = parts.Size();
+  for (; i < count; ...)` (the zero is loaded before the division) or a plain `for` for the others; parts are read
+  through named `PartRef` locals (`PartRef part(impl, i); part->state`, a second named local for the state when the
+  type test and the access are separate); `FindSegment` goes into a local before the call that uses it; a second
+  exit that frees nothing is an early `return` (the heap scope is destroyed in two places); the playback frame
+  clamps are local copies (`float startFrame = frame; if (0 > startFrame) { float wrapped = ...; startFrame = 0 > wrapped
+  ? 0 : wrapped; }`).
+- EQUIVALENT: DoShareBindings (the part counts are compared the other way round), DoPlayPartAnimation (frame
+  layout), the four DoSetBinding functions (the part's address is folded into the load of the binding), DoCreateInstance
+  (the original expands `CreateOptions(bool)` in place), DoCreateInstanceWithOptions (the failed lookups share one
+  exit), DoSetBiasUnknown (register rotation), SetJointMatrices (conditional move for the count clamp),
+  RenderEvent2<Drawable, Matrix>::Execute and Drawable::SetTransformQueued (the original copies the matrix argument
+  with the compiler's vector copy-constructor helper), Drawable::LoadTexture (evaluation order of the lookup; its two
+  last parameters are passed on to the uploader), ParticleSystemState::SetBias (kept copy; the original converts the
+  channels with the x87 truncation and merges them with xor masks).
+- Not annotated: 0x107E80F0 (a one-byte empty function whose symbol name is already taken by the copy in
+  streamtrigger.cpp) and 0x107E8B50 (the size of a 16-byte-element array of the drawable at +0xA4, no user in the
+  unit).
+
 ## render/async/private/deferreddeletion.cpp (0x108BC250 - 0x108BC7B0): 5 functions match, 15 kept copies
 
 engine::render::DeferredDeletionManager (the name is in the overflow assert; the singleton is the pointer at

@@ -441,8 +441,8 @@ namespace pure3d
 		// 0x10709E70, 0x10709E50, 0x10709E40, 0x10709CC0, 0x10709CD0
 		void Unknown10709E70(float value);
 		void Unknown10709E50(float value);
-		void Unknown10709E40(int value);
-		void Unknown10709CC0(int value);
+		void Unknown10709E40(bool value);
+		void Unknown10709CC0(bool value);
 		void Unknown10709CD0();
 		// 0x10709CE0: the flag at +0x490
 		bool GetUnknown490();

@@ -154,7 +154,7 @@ namespace pure3d
 			return Get();
 		}
 		// 0x106E14B0
-		void Unknown106E14B0(int value);
+		void Unknown106E14B0(bool value);
 		// 0x106DFD70, 0x106DFE20
 		void Unknown106DFD70();
 		FrameController* Unknown106DFE20();
