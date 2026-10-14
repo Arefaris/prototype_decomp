@@ -17,8 +17,19 @@ namespace pure3d
 	class View
 	{
 	public:
+		// 0x1073A300: takes the camera (reference counted)
+		void SetCamera(CameraData* newCamera);
+		// 0x1073A340: the window of the view in the target (left, top, right, bottom as fractions)
+		void SetWindow(float left, float top, float right, float bottom);
+		// 0x1073A490: puts the view's camera, window and clear settings on the device
+		void Apply();
+		// 0x10739BD0: does nothing
+		void End();
+
 		unsigned char unknown0[0x18];
 		CameraData* camera;
+		unsigned char unknown1C[0xC];
+		int unknown28;
 	};
 }
 

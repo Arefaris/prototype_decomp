@@ -62,10 +62,23 @@ namespace pure3d
 		unsigned int* words;
 	};
 
+	// The light sets a light group object keeps (named by its pointer at +0x48): the sets that are merged
+	struct LightSets
+	{
+		unsigned char unknown0[0x90];
+		LightBits shared90;
+		unsigned char unknown9C[0x54];
+		LightBits merged0F0;
+		unsigned char unknownFC[0x84];
+		LightBits shared180;
+	};
+
 	// The bit ranges of the light groups: group i covers words first[i] ... first[i] + count[i] - 1
 	struct LightGroups
 	{
-		unsigned char unknown0[0x94];
+		unsigned char unknown0[0x48];
+		LightSets* sets;
+		unsigned char unknown4C[0x48];
 		unsigned int* first;
 		unsigned char unknown98[8];
 		unsigned int* count;
@@ -84,6 +97,11 @@ namespace pure3d
 		// 0x107A6B10: the shader constant (enabled, unknown8, unknownC, 0); without unknown4 the middle pair is
 		// (0, 1)
 		void SetShaderConstant();
+		// 0x107A7400: takes the colour, position and direction of a light as the shader constants of the key light
+		void SetLight(Light* light);
+		// 0x107A8E20: takes the light's spot settings (the light may be null; hasShadow says whether the lit
+		// passes sample a shadow map)
+		void SetSpotLight(Light* light, bool hasShadow, int unknown);
 
 		bool unknown4;
 		bool enabled;
@@ -104,8 +122,12 @@ namespace pure3d
 		// each, at the pointer at +0x320) of a view
 		void* GetViewState(int view);
 		void* GetCameraData(int view);
+		// 0x1074EE10: the word at +0x14 (1: the lit passes draw into the shadow map)
+		int GetUnknown14();
 
-		unsigned char unknown4[0x74];
+		unsigned char unknown4[0x10];
+		int unknown14;
+		unsigned char unknown18[0x60];
 		struct ViewState
 		{
 			unsigned char data[0x7C];

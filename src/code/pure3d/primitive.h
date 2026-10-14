@@ -19,7 +19,10 @@
 
 namespace pure3d
 {
+	class PartBinding;
 	class Shader;
+	class PrimitiveState;
+	struct PrimStreamParameters;
 
 	// What a texture keeps at +0x10 (its loader settings; the int at +0x20 is passed to the loader)
 	struct TextureInfo
@@ -158,10 +161,17 @@ namespace pure3d
 	{
 	public:
 		virtual ~Primitive();
-		virtual void Unknown3();
+		// Draws the primitive in the state of a part with the shader of that name
+		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
 		// Prepares the primitive to be drawn with a shader (the bullet tracer's ribbons pass theirs)
 		virtual void Unknown4(Shader* shader);
 		virtual void GetBoundingBox(math::AABB* box);
+		// The centre of the primitive's bounding sphere
+		virtual void GetCentre(math::Vector* centre);
+		// Fills the batch of a part (see DrawablePart::UpdateBatch); the last argument is cleared when the batch
+		// is not drawable as it is
+		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
 
 		// The flags the drawable copies into its parts' render bits (meanings unknown)
 		bool GetFlag3() const
@@ -206,6 +216,9 @@ namespace pure3d
 		virtual void Unknown5();
 		virtual void Unknown6();
 		virtual void GetBoundingBox(math::AABB* box);
+		virtual void Unknown8();
+		// Called for every part drawn in a shadow pass
+		virtual void Unknown9();
 
 		// 0x106F2DE0
 		Primitive* GetPrimitive();

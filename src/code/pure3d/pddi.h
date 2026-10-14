@@ -15,19 +15,58 @@ namespace pure3d
 	{
 	};
 
+	// A surface of the device (a render target or texture; names are guesses). The handle is what the device's
+	// target setters take, the size is behind the info pointer
+	struct pddiSize
+	{
+		unsigned int width;
+		unsigned int height;
+	};
+
+	struct pddiSurfaceInfo
+	{
+		int unknown0;
+		pddiSize* size;
+	};
+
+	class pddiSurface
+	{
+	public:
+		// 0x1061C480
+		int GetHandle();
+
+		unsigned char unknown0[0x40];
+		int handle;
+		pddiSurfaceInfo* info;
+	};
+
+	// The render targets the device draws into (five handles; only the first two are set by the passes)
+	struct pddiRenderTargets
+	{
+		int depth;
+		int colour;
+		int unknown8;
+		int unknownC;
+		int unknown10;
+	};
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
-		virtual void Unknown0();
+		// Clears the buffers named by the flags (1: colour) to the view state's clear colour
+		virtual void Clear(int flags);
 		// Draws a primitive buffer with a shader and its parameters
 		virtual void DrawPrimitive(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
 			const void* parameters);
 		virtual void Unknown2();
 		virtual void Unknown3();
-		virtual void Unknown4();
-		virtual void Unknown5();
-		virtual void Unknown6();
-		virtual void Unknown7();
+		// Draws a part's batch (the 0x2C bytes at +0xA0 of a drawable part) with a shader and its parameters
+		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
+			const void* parameters);
+		// Draws a list of batches (the shadow casters of a pass)
+		virtual void DrawBatches(const void* const* batches, int count);
+		virtual void SetRenderTargets(const pddiRenderTargets* targets);
+		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e);
 		virtual void Unknown8();
 		virtual void Unknown9();
 		virtual void Unknown10();
@@ -104,16 +143,79 @@ namespace pure3d
 		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed)
 		struct Constants
 		{
+			// 0x1061A470: binds a texture to the constant at *slot (a texture constant keeps its sampler state word
+			// at values[*slot + 1])
+			void SetTexture(int* slot, pddiSurface* surface);
+
 			int unknown0;
 			int unknown4;
 			float* values;
 		};
 
+		// A group of the constant table: the bit of constantsDirty a write marks (1 textures, 2 floats, 4 float
+		// pairs, 8 float triples, 0x10 float quads, 0x20 matrices, 0x40 flags)
+		enum ConstantGroup
+		{
+			CONSTANT_TEXTURE = 1,
+			CONSTANT_FLOAT = 2,
+			CONSTANT_FLOAT2 = 4,
+			CONSTANT_FLOAT3 = 8,
+			CONSTANT_FLOAT4 = 0x10,
+			CONSTANT_MATRIX = 0x20,
+			CONSTANT_FLAG = 0x40
+		};
+
+		// The value of a constant, marked as changed
+		__forceinline float* GetConstant(const int& slot, unsigned int group)
+		{
+			constantsDirty |= group;
+			Constants* table = constants;
+			return &table->values[slot];
+		}
+		// The flag constants share the first word of the table: bit `bit` is cleared / set
+		void ClearFlagConstant(const int& bit)
+		{
+			constantsDirty |= CONSTANT_FLAG;
+			Constants* table = constants;
+			*(unsigned int*)table->values &= ~(1 << bit);
+		}
+		void SetFlagConstant(const int& bit)
+		{
+			constantsDirty |= CONSTANT_FLAG;
+			Constants* table = constants;
+			*(unsigned int*)table->values |= 1 << bit;
+		}
+		// The sampler state word of a texture constant (the word after its value), marked as changed
+		unsigned int* GetSamplerState(const int& slot)
+		{
+			constantsDirty |= CONSTANT_TEXTURE;
+			return (unsigned int*)&constants->values[slot] + 1;
+		}
+
 		unsigned char unknown4[0x38];
 		Constants* constants;
 		unsigned char unknown40[0x10C];
 		unsigned int constantsDirty;
+		unsigned char unknown150[0x4A0];
+		// Bit 0: a pass draws, bit 2: lit parts, bit 3: shadow parts (set around the passes' draw loops)
+		unsigned int drawFlags;
 	};
+
+	// The surfaces of the display (the object at 0x112818C0; names are guesses)
+	class pddiDisplay
+	{
+	public:
+		unsigned char unknown0[0x20];
+		pddiSurface* colour;
+		pddiSurface* depth;
+	};
+
+	// 0x112818C0
+	extern pddiDisplay* gDisplay;
+
+	// The fog range the passes set (0x111B9514, 0x11282BC8)
+	extern float gFogRangeNear;
+	extern float gFogRangeFar;
 
 	// 0x1127F354: the render device
 	extern pddiBaseContext* pddi;

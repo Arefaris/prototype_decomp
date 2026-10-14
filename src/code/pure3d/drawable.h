@@ -18,6 +18,7 @@
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/primstream.h"
 #include "code/pure3d/visibility.h"
 
 namespace pure3d
@@ -48,12 +49,36 @@ namespace pure3d
 		core::BitField<unsigned int> flags;
 	};
 
+	// The data the device draws a part with (0x2C bytes; the second word is part of the sort key)
+	struct PartBatch
+	{
+		unsigned int unknown0;
+		unsigned int sortKey;
+		unsigned char unknown8[0x24];
+	};
+
+	// The shader a part draws with (its object is another unit's; slot 4 answers the number the parts are sorted by)
+	class PartShader
+	{
+	public:
+		virtual ~PartShader();
+		virtual void Unknown1();
+		virtual void Unknown2();
+		virtual void Unknown3();
+		virtual int GetSortKey();
+	};
+
 	// What a part's binding comes from
 	class PartBindingSource
 	{
 	public:
 		// 0x10706550
 		PartBinding* CreateBinding();
+
+		unsigned char unknown0[0x10];
+		PartShader* shader;
+		// The draw parameters of the shader (what the passes hand the primitive)
+		PrimStreamParameters parameters;
 	};
 
 	// A part of a drawable (0x12C bytes)
@@ -67,6 +92,11 @@ namespace pure3d
 		void SetBinding(PartBinding* binding);
 		// 0x106E13C0: the world matrix, marked as not the identity
 		math::Matrix* GetWorldMatrix();
+		// 0x10761750: draws the part with the shader of that name (the batch or the primitive, by render bit 9)
+		void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, const PrimStreamParameters* parameters);
+		// 0x106DEF20: lets the primitive fill the batch (the data the device draws the part with); the answer says
+		// whether it did (render bit 9). Answers the primitive's own flag.
+		bool UpdateBatch();
 
 		// The binding whose flags the part follows: the part's own, else the state's, else the primitive's
 		PartBinding* GetRenderBinding()
@@ -98,10 +128,13 @@ namespace pure3d
 		Primitive* primitive;
 		PrimitiveState* state;
 		PartBinding* binding;
-		unsigned char unknown9C[0x30];
+		unsigned char unknown9C[4];
+		// What the device draws the part with when render bit 9 is set (0x2C bytes)
+		PartBatch batch;
 		// The part's world matrix (render bit 10 says whether it is the identity)
 		math::Matrix worldMatrix;
-		unsigned char unknown10C[0x1C];
+		PartShader* unknown10C;
+		unsigned char unknown110[0x18];
 		// The render state bits (1 - 5 from the binding's flags, 7 from the primitive, 10: identity world matrix)
 		core::BitField<unsigned short> renderBits;
 		unsigned char unknown12A;

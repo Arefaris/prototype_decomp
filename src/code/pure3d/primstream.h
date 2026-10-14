@@ -17,6 +17,8 @@ namespace pure3d
 	class RenderStateBackup
 	{
 	public:
+		// 0x106F3420: dismissed 0 saves the states right away
+		RenderStateBackup(pddiBaseContext* context, unsigned int groups, int dismissed);
 		// 0x106F3460
 		~RenderStateBackup();
 		// 0x106F3050
@@ -95,11 +97,30 @@ namespace pure3d
 	// reads: the blend mode (signed) and the factor of the blend
 	struct PrimStreamParameters
 	{
+		// The defaults the render passes start from (bits 0 - 23 of the second word and the three flags of the third;
+		// the rest is left as it is)
+		PrimStreamParameters()
+		{
+			blendMode = 1;
+			blendFactor = 0;
+			unknown4Bits10 = 4;
+			unknown4Bits14 = 1;
+			flag0 = 0;
+			flag1 = 0;
+			flag2 = 0;
+		}
+
 		float unknown0;
 		int blendMode : 5;
 		unsigned int blendFactor : 5;
-		unsigned int unknown4Rest : 22;
-		unsigned int unknown8;
+		unsigned int unknown4Bits10 : 4;
+		unsigned int unknown4Bits14 : 10;
+		unsigned int unknown4Bits24 : 8;
+		unsigned char flag0 : 1;
+		unsigned char flag1 : 1;
+		unsigned char flag2 : 1;
+		unsigned char unknown8Rest : 5;
+		unsigned char unknown9[3];
 	};
 
 	class PrimStream

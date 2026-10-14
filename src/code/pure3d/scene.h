@@ -36,6 +36,9 @@ namespace pure3d
 		void* unknownD8;
 		unsigned char unknownDC[4];
 		void* unknownE0;
+		unsigned char unknownE4[0x38];
+		// The batches of the parts a shadow pass draws (room for as many as a pass finds)
+		const void* batches[1];
 	};
 }
 
