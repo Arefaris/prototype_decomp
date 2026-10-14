@@ -32,7 +32,8 @@ namespace ravenphysics
 	public:
 		math::Vector boundsMin;
 		math::Vector boundsMax;
-		unsigned char unknown20[0x34 - 0x20];
+		int id;
+		unsigned char unknown24[0x34 - 0x24];
 		BroadPhaseDetector* detector;
 		unsigned short detectorIndex;
 		unsigned char unknown3A[0x54 - 0x3A];

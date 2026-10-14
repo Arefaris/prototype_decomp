@@ -29,7 +29,9 @@ namespace ravenphysics
 			return wasChanged;
 		}
 
-		unsigned char unknown0[0x50];
+		unsigned char unknown0[0x48];
+		int id;
+		int unknown4C;
 		CollisionVolume** volumes;
 		unsigned short volumeCount;
 		unsigned char changed : 1;
