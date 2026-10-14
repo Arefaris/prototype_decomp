@@ -86,6 +86,8 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 			sec = coff.sections[section - 1]
 			width = sec["size"] - value
 			expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
+			if width == 1 and expected == 0:
+				continue  # "": a developer message of the original's that the repository leaves out
 		elif name in defined and not coff.sections[defined[name][1] - 1]["name"].startswith(".text"):
 			# A constant of our own object (e.g. a namespace-scope const float): compare its first four bytes
 			value, section = defined[name]

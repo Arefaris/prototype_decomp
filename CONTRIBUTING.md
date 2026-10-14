@@ -17,6 +17,8 @@ contribution.
   Contributions that look derived from such material are rejected.
 - **No binaries.** Do not publish or attach built DLLs, patched game folders or installers, in pull requests or
   anywhere else.
+- **No developer messages.** The free-text messages of the original's asserts and reports (remarks, names, bug
+  numbers) are written as `""`; the comparison accepts that.
 - **No DRM work and no content unlocking** (LEGAL.md rules 5 and 6).
 - **Non-commercial.** By contributing you agree that your contribution is distributed under the project license.
 

@@ -76,6 +76,9 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - Struct copies come out as `mov`; member-by-member float copies as `movss`. Results computed into temporaries and
   stored together look like an inline `Set(x, y, z)`.
 - Namespace-scope `const float` constants become data symbols; their values are checked like `__real@` ones.
+- String literals are compared with the original's, except `""`: the free-text messages of the original's asserts and
+  reports (developers' remarks, names, bug numbers) are not reproduced; write `""` in their place. Expressions, file
+  paths and output formats are code and stay.
 - The CRT is statically linked into the original, so compiler helpers (`__allmul`, `_CIacos`, `_ftol2`, ...) are
   functions of the image: when the relink reports one unresolved, find it (the call in the original function,
   `tools/disasm.py`) and add it to `symbols.txt` like any function.
