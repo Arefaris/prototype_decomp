@@ -3726,3 +3726,5 @@ __aullshr = 0x10BA2B50 ; function size:0x1F | CRT 64-bit unsigned shift right (s
 ?gDeferredDeletionList@render@engine@@3PAVDeferredDeletionList@12@A = 0x1130CCCC ; data size:0x4 | engine::render::gDeferredDeletionList (name guess)
 ?gRenderEventAllocator@render@engine@@3PAVRenderEventAllocator@12@A = 0x1130CCDC ; data size:0x4 | engine::render::gRenderEventAllocator (name guess)
 ?gRenderEventQueue@render@engine@@3U?$AsyncQueue@PAVRenderEvent@render@engine@@@12@A = 0x11284C60 ; data size:0x80030 | engine::render::gRenderEventQueue (name guess)
+?Slerp@Quaternion@math@@QAEXABV12@0M@Z = 0x107CDF90 ; function size:0x286 | math::Quaternion::Slerp(a, b, t) (name guess)
+?Orthonormalize@Matrix@math@@QAEXXZ = 0x107CF5D0 ; function size:0x14B | math::Matrix::Orthonormalize (name guess)

@@ -91,6 +91,8 @@ namespace math
 		void SetBasis(const Vector& z, const Vector& up);
 		// Inverts a rotation-plus-translation matrix in place: transposed 3x3, translation rotated back and negated
 		void InvertOrthonormal();
+		// Makes the 3x3 orthonormal again: row 0 normalised, row 2 = row 0 x row 1 normalised, row 1 = row 2 x row 0
+		void Orthonormalize();
 		// Inverts an affine matrix: InvertOrthonormal when the 3x3 determinant is 1 (within EPSILON_SMALL), else the
 		// adjugate over the determinant with the translation brought back through it
 		void Invert();

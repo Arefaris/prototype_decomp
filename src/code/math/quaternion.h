@@ -38,6 +38,9 @@ namespace math
 		void ToAxisAngle(float& angle, Vector& axis) const;
 		// Negates this quaternion if it lies in the other hemisphere than q, so blending takes the short way
 		void MakeClosest(const Quaternion& q);
+		// Spherical interpolation from a (t = 0) to b (t = 1) the short way, linear when they are (nearly) parallel,
+		// normalised
+		void Slerp(const Quaternion& a, const Quaternion& b, float t);
 	};
 
 	// out = a * b (out may be a or b); a free function in the original (cdecl, three pointers)
