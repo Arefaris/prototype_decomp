@@ -6,11 +6,19 @@
 
 namespace math
 {
+	class Vector4;
+
 	class pddiColour
 	{
 	public:
 		// 0x111BBA24
 		static const pddiColour WHITE;
+
+		pddiColour()
+		{
+		}
+		// 0x102CD6D0 (a copy in another unit): the colour of x, y, z, w as red, green, blue, alpha in 0 - 1
+		explicit pddiColour(const Vector4& colour);
 
 		unsigned int b : 8;
 		unsigned int g : 8;

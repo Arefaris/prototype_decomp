@@ -15,11 +15,12 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.704 %
-Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.959 %  (2746 / 140196)
+Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.736 %
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   1.987 %  (2785 / 140196)
   core       1360 functions matched, 76,587 bytes
-  engine     1181 functions matched, 64,018 bytes
+  engine     1182 functions matched, 64,121 bytes
   math        205 functions matched, 25,529 bytes
+  pure3d       38 functions matched, 2,978 bytes
 ```
 
 Updated 2026-10-14 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
