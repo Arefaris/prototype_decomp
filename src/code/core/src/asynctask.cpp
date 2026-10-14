@@ -18,17 +18,18 @@ extern "C"
 
 extern "C"
 {
+	long _InterlockedAnd(long volatile*, long);
 	long _InterlockedExchange(long volatile*, long);
 	__int64 _InterlockedCompareExchange64(__int64 volatile*, __int64, __int64);
 	void __movsd(unsigned long*, unsigned long*, unsigned int);
 }
-#pragma intrinsic(_InterlockedExchange, _InterlockedCompareExchange64, __movsd)
+#pragma intrinsic(_InterlockedAnd, _InterlockedExchange, _InterlockedCompareExchange64, __movsd)
 
 namespace core
 {
 	// FUNCTION: ENGINE 0x10B7EB60
 	// Sets the bits of `mask` in a 64-bit word atomically; the word before
-	static unsigned __int64 AtomicOr64(unsigned __int64 volatile* value, unsigned __int64 mask)
+	static unsigned __int64 AtomicOr64(unsigned __int64* value, unsigned __int64 mask)
 	{
 		unsigned __int64 old;
 		unsigned __int64 seen = _InterlockedCompareExchange64((__int64 volatile*)value, 0, 0);
@@ -81,7 +82,7 @@ namespace core
 			AsyncTaskGroup* group = task->group;
 			if (group != 0)
 			{
-				unsigned __int64 volatile* word = &group->done[task->slot >> 6];
+				unsigned __int64* word = &group->done[task->slot >> 6];
 				unsigned __int64 bit = (unsigned __int64)1 << (task->slot & 63);
 				if (bit == (AtomicOr64(word, bit) & bit))
 				{
@@ -160,6 +161,229 @@ namespace core
 		DestroyAsyncTaskSystem(&gAsyncTasks);
 	}
 
+	// FUNCTION: ENGINE 0x10B7EED0
+	void InitAsyncTaskGroup(AsyncTaskGroup* group)
+	{
+		group->done[0] = 0;
+		group->done[1] = 0;
+		EventInit(group, 0xFFFF);
+		group->slots = 0;
+		group->added = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10B7EF00
+	// Closes the group (the event counts down from 0xFFFF: what was not added is signalled now) and waits for it
+	void WaitAsyncTaskGroup(AsyncTaskGroup* group)
+	{
+		unsigned int added = group->added;
+		if (added == 0)
+		{
+			EventSignal(group, 0xFFFF);
+			return;
+		}
+		group->added = 0xFFFF;
+		if (added < 0xFFFF)
+		{
+			EventSignal(group, 0xFFFF - added);
+		}
+		EventWait(group);
+	}
+
+	// FUNCTION: ENGINE 0x10B7EF50
+	// Closes the group; whether all of its tasks have run
+	bool CloseAsyncTaskGroup(AsyncTaskGroup* group)
+	{
+		unsigned int added = group->added;
+		group->added = 0xFFFF;
+		if (added < 0xFFFF)
+		{
+			EventSignal(group, 0xFFFF - added);
+		}
+		return AtomicRead(&group->count) == 0;
+	}
+
+	// FUNCTION: ENGINE 0x10B7EF90
+	// EQUIVALENT: same stores; the original loads added and count into registers before adding and keeps the task
+	// pointer in edx while computing the next slot (saving esi)
+	// Puts a task (that counts `count` times) into the group: false when the group is full
+	bool AddToAsyncTaskGroup(AsyncTaskGroup* group, AsyncTask* task, unsigned int count)
+	{
+		unsigned int added = group->added + count;
+		if (added >= 0xFFFF)
+		{
+			return false;
+		}
+		unsigned int slot = group->slots;
+		if (slot >= 0x80)
+		{
+			return false;
+		}
+		group->added = added;
+		group->slots = slot + 1;
+		task->group = group;
+		task->slot = (unsigned char)slot;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10B7EFD0
+	void SignalAsyncTaskGroup(AsyncTaskGroup* group, int count)
+	{
+		EventSignal(group, count);
+	}
+
+	// FUNCTION: ENGINE 0x10B7EFE0
+	unsigned int GetAsyncTaskInfo(unsigned int* workers, int* unknown)
+	{
+		unsigned int count = gAsyncTasks.workerCount;
+		if (workers != 0)
+		{
+			*workers = count;
+		}
+		if (unknown != 0)
+		{
+			*unknown = 0;
+		}
+		return count;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F000
+	void SubmitAsyncTasks(AsyncTask* tasks, unsigned int count, int unused)
+	{
+		if (count != 0)
+		{
+			PushAsyncTasks(&gAsyncTasks.queue, tasks, count);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10B7F030
+	// EQUIVALENT: the original pushes the three arguments again and calls; ours jumps (a sibling call)
+	void QueueAsyncTasks(AsyncTask* tasks, unsigned int count, int unused)
+	{
+		SubmitAsyncTasks(tasks, count, unused);
+	}
+
+	// FUNCTION: ENGINE 0x10B7F050
+	// Runs tasks on the calling thread: chain by chain, or task by task when `single` is set
+	void RunAsyncTasksHere(AsyncTask* tasks, unsigned int count, int single)
+	{
+		AsyncTask buffer[16];
+		while (count > 0)
+		{
+			if (single == 0)
+			{
+				unsigned int length = (tasks->flags >> 1) + 1;
+				RunAsyncTasks(tasks, length, &gAsyncTasks.queue, -1, -1, buffer);
+				count -= length;
+				tasks += length;
+			}
+			else
+			{
+				RunAsyncTasks(tasks, 1, &gAsyncTasks.queue, -1, -1, buffer);
+				count--;
+				tasks++;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10B7F0D0
+	// EQUIVALENT: as QueueAsyncTasks
+	void RunAsyncTasksNow(AsyncTask* tasks, unsigned int count, int single)
+	{
+		RunAsyncTasksHere(tasks, count, single);
+	}
+
+	// FUNCTION: ENGINE 0x10B7F0F0
+	// Called by a running task: these tasks run on the same worker once it returns
+	void SpawnAsyncTasks(const AsyncTask* tasks, unsigned int count)
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			state->tasks[i] = tasks[i];
+		}
+		state->count = count;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F170
+	// EQUIVALENT: as QueueAsyncTasks
+	void SpawnAsyncTasksNow(const AsyncTask* tasks, unsigned int count)
+	{
+		SpawnAsyncTasks(tasks, count);
+	}
+
+	// FUNCTION: ENGINE 0x10B7F190
+	// Copies out up to max of the tasks the running task spawned; their number (all of them without a buffer)
+	unsigned int GetSpawnedAsyncTasks(AsyncTask* tasks, unsigned int max)
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		if (tasks == 0 || max == 0)
+		{
+			return state->count;
+		}
+		unsigned int count;
+		if (max > state->count)
+		{
+			count = state->count;
+		}
+		else
+		{
+			count = max;
+		}
+		for (unsigned int i = 0; i < count; i++)
+		{
+			tasks[i] = state->tasks[i];
+		}
+		return count;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F210
+	// The processor of the worker running the calling task (-1 outside a task)
+	int GetAsyncTaskProcessor()
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		if (state == 0)
+		{
+			return -1;
+		}
+		return state->processor;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F250
+	int GetAsyncTaskWorkerIndex()
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		if (state == 0)
+		{
+			return -1;
+		}
+		return state->index;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F290
+	// EQUIVALENT: the original branches on the comparison (`jne` / `mov al, al` / `xor al, al`); every form
+	// tried gives sete
+	bool IsAsyncTaskTimingDone(AsyncTaskTiming* timing)
+	{
+		if (_InterlockedAnd(&timing->done, -1) == 1)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F2D0
+	AsyncTaskCallback::AsyncTaskCallback()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10B7F2E0
 	void AsyncTaskCallback::SetResult(int result)
 	{
@@ -168,6 +392,29 @@ namespace core
 		AsyncTaskState* state = (AsyncTaskState*)value;
 		state->result = result;
 		state->hasResult = true;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F320
+	void AsyncTaskCallback::ClearResult()
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		state->hasResult = false;
+	}
+
+	// FUNCTION: ENGINE 0x10B7F350
+	bool AsyncTaskCallback::GetResult(int* result)
+	{
+		int value = 0;
+		GetThreadDataValue(gAsyncTaskSlot, &value);
+		AsyncTaskState* state = (AsyncTaskState*)value;
+		if (state->hasResult)
+		{
+			*result = state->result;
+			return true;
+		}
+		return false;
 	}
 }
 

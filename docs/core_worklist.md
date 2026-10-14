@@ -732,7 +732,7 @@ Validation (2026-10-12): free roam, two teleports and movement in the hybrid (en
 | 0x10B85150 | AllocEnd | EQUIVALENT: register allocation at the join of the strategy branches (one more stack slot in the original) |
 | 0x10B85520 | Resize | EQUIVALENT: the original saves ebx before the count test (its early returns stay apart) |
 
-## asynctask.cpp (0x10B7EB10 - about 0x10B80390): 9 functions, 8 matched, 1 EQUIVALENT
+## asynctask.cpp (0x10B7EB10 - about 0x10B80390): 28 functions, 22 matched, 6 EQUIVALENT
 
 The asynchronous tasks (`code/core/asynctask.h`; file and all names guessed except `core::AsyncTaskCallback`, from
 RTTI, and the worker thread name "core::AsyncTaskWorker"): 32-byte task records go onto one lock-free queue
@@ -741,6 +741,8 @@ configured). A task runs a function on its data; a chain of tasks is pushed toge
 its chain when it has run; a task can fill a timing record, signal a counted event, count down a task group (128
 "has run" bits) and pass a result to its callback. While it runs, a thread-data slot (0x11327D00) points at the
 worker's state on the stack: up to 16 spawned tasks (run on the same worker afterwards) and the result.
+Left alone: 0x10B7EB10 / 0x10B7EB30 / 0x10B7EB50 (interlocked helpers with register arguments), the empty
+0x10B7F2C0, and the task tree (AsyncTaskNode / AsyncTaskJob, 0x10B7F3A0 onwards) apart from AsyncTaskJob::Submit.
 AsyncTaskCallback::SetResult / ClearResult / GetResult are thiscall methods that only touch that state. The system
 (queue, worker records of 0xC0 bytes: core::Thread plus processor, index and queue) is the global at 0x11327D10.
 
@@ -753,6 +755,13 @@ AsyncTaskCallback::SetResult / ClearResult / GetResult are thiscall methods that
 | 0x10B7EEC0 | ShutdownAsyncTasks | match | |
 | 0x10B7F2E0 | AsyncTaskCallback::SetResult | match | the slot value read into an int first (a pointer local whose address is taken is reloaded after the first store) |
 | 0x10B7FA80 | AsyncTaskJob::Submit | match | |
+| 0x10B7EED0 - 0x10B7EFE0 | Init / Wait / Close / Signal task group, GetAsyncTaskInfo | match | the "has run" words are not volatile; GetAsyncTaskInfo returns the worker count it reads first |
+| 0x10B7EF90 | AddToAsyncTaskGroup | EQUIVALENT | the original keeps the task pointer in edx while computing the next slot |
+| 0x10B7F000 / 0x10B7F050 / 0x10B7F0F0 / 0x10B7F190 | Submit / RunAsyncTasksHere / Spawn / GetSpawned | match | RunAsyncTasksHere's flag is an int (tested as a dword); GetSpawned needs the two-sided `if (max > state->count) count = state->count; else count = max;` (the one-sided forms and Min become cmov) |
+| 0x10B7F030 / 0x10B7F0D0 / 0x10B7F170 | forwarders | EQUIVALENT | the original pushes the arguments again and calls; ours tail-jumps |
+| 0x10B7F210 / 0x10B7F250 | GetAsyncTaskProcessor / GetAsyncTaskWorkerIndex | match | |
+| 0x10B7F290 | IsAsyncTaskTimingDone | EQUIVALENT | the original branches on `done == 1` (`mov al, al`); ours sete |
+| 0x10B7F2D0 / 0x10B7F320 / 0x10B7F350 | AsyncTaskCallback constructor / ClearResult / GetResult | match | |
 | 0x10B7FB30 | CreateAsyncTaskSystem (static, esi) | EQUIVALENT 99.1 % | the store of the next processor index comes two instructions earlier in every order tried (permute.py) |
 | 0x10B7FD00 | InitAsyncTasks | match | the popcount walks a doubling bit; `count <= -processors` first |
 

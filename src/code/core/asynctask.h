@@ -36,7 +36,7 @@ namespace core
 	{
 		long volatile count;
 		void* handle;
-		unsigned __int64 volatile done[2];
+		unsigned __int64 done[2];
 		unsigned int slots;
 		unsigned int added;
 	};
@@ -182,9 +182,19 @@ namespace core
 	void ShutdownAsyncTasks();
 	void InitAsyncTaskGroup(AsyncTaskGroup* group);
 	void WaitAsyncTaskGroup(AsyncTaskGroup* group);
-	bool IsAsyncTaskGroupDone(AsyncTaskGroup* group);
+	bool CloseAsyncTaskGroup(AsyncTaskGroup* group);
 	bool AddToAsyncTaskGroup(AsyncTaskGroup* group, AsyncTask* task, unsigned int count);
+	void SignalAsyncTaskGroup(AsyncTaskGroup* group, int count);
+	unsigned int GetAsyncTaskInfo(unsigned int* workers, int* unknown);
 	void SubmitAsyncTasks(AsyncTask* tasks, unsigned int count, int unused);
+	void QueueAsyncTasks(AsyncTask* tasks, unsigned int count, int unused);
+	void RunAsyncTasksHere(AsyncTask* tasks, unsigned int count, int single);
+	void RunAsyncTasksNow(AsyncTask* tasks, unsigned int count, int single);
+	void SpawnAsyncTasks(const AsyncTask* tasks, unsigned int count);
+	void SpawnAsyncTasksNow(const AsyncTask* tasks, unsigned int count);
+	unsigned int GetSpawnedAsyncTasks(AsyncTask* tasks, unsigned int max);
+	int GetAsyncTaskProcessor();
+	int GetAsyncTaskWorkerIndex();
 	bool IsAsyncTaskTimingDone(AsyncTaskTiming* timing);
 }
 
