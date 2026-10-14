@@ -391,7 +391,7 @@ Lessons:
 - Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
   `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
 
-## luascriptmanager.cpp (0x107FE510 - 0x10804EC0), first part
+## luascriptmanager.cpp (0x107FE510 - 0x10804EC0): done except the items under Open
 
 engine::LuaScriptManager (RTTI; the singleton gScriptManager at 0x11284254): the engine's Lua 5.1 state and the
 native functions the units register with it. The file name is a guess from the class name (no assert path). Done:
@@ -404,10 +404,25 @@ references, garbage collection and the LuaGet* / LuaPush* helpers. The Lua libra
 declared (`code/lua/lua.h`; its functions are mapped in symbols.txt from the engine's calls). The Vector / UID / Name
 userdata helpers (0x10840770 - 0x10841040) and the service pump (0x10853890) live in other units.
 
+The rest of the class (0x10800850 - 0x10804EC0, 183 functions) is reconstructed too: the Lua error / print handlers,
+enum and C function binding, Unregister, the argument dispatcher LuaDispatch, state creation / restart / reload,
+coroutines, the LuaGet*Field helpers, persistent references, the scheduled-call min-heap (Schedule, RunScheduled,
+CancelScheduled*, RestoreScheduled, Update) and the constructor / destructor. About 240 functions of the unit match,
+including the kept template copies (explicit instantiations of the containers, ScriptArguments::Push, Function0 /
+Function1 / Method1 / Closure1 and Register / RegisterMethod).
+
 Open:
 
-- 0x10800850 - 0x10804EC0: the rest of the class (AddFunction 0x10801D50, Unregister 0x108016C0, OpenEvent
-  0x108021F0 and the rest).
+- EQUIVALENT (same operations, different register choice, spill slot or block layout): LuaChannelPrint 0x10801220
+  (the engine keeps -1 in edi), LuaDispatch 0x10801790 (frame one word larger), RestoreEnums 0x10801E00 (address
+  operand order), OpenTable 0x10801F80 (block layout), LuaGetIntField 0x108020D0, LuaDumpTable 0x10802FB0 (shared
+  formatting tails), DoFile 0x10803330 (path stack slot), FindFunctionSource 0x10803A60 (iterator kept in memory),
+  LuaDumpTables 0x10803EA0, the constructor 0x10804230 (order of the third store of the unused array), Schedule
+  0x108048E0 (spill order), RestoreScheduled 0x10804D50 (addss operand order).
+- Kept copies with no source found, not reproduced: 0x10800850 (a lone ret), 0x10800A50 / A60 / AF0 / B20 / B30
+  (identity constructor / empty destructor pairs), 0x10800B00 / B40 (empty allocator Free / Alloc), 0x10800B60 /
+  B70 / B80 (RemoveFunction trampolines), 0x10800D30 - D50 and 0x10802850 - 0x10802880 (empty returns), 0x10800D70
+  (heap ShiftUp, register allocation), 0x10802730 (PushBack for ScheduledCall) and 0x10803610 (a folded jmp thunk).
 - ScriptNameTable<T>::Complete (0x107FE910 / 0x107FECC0) does not match and is left unmapped: our COMDAT copy (same
   logic, checked against the engine's) serves our callers, the engine's copies stay for the rest. The engine
   recomputes strlen(prefix) and reloads the strncmp import on every iteration of the first loop; ours hoists both.
@@ -425,6 +440,19 @@ Lessons:
   userdata fallback and in `default`: the compiler then hoists the shared `push 1; push esi` above the branch. Cases
   that `return 1` themselves do not get that.
 - "ScriptFree" was Function::operator delete: ScriptNameTable<Function>::Remove's `delete entry` calls it directly.
+- A by-value empty struct argument (the heap helpers' ScheduleOrder) pushes a garbage dword: declare a local
+  `ScheduleOrder order;` and pass it, as free cdecl functions.
+- The heap helpers SchedulePush / ScheduleRemove / ScheduleRemoveFirst are free cdecl functions around inline
+  PushHeap / PopHeap; in SiftDown declare the left child before the right one.
+- The constructor needs `__forceinline` closure construction (the `ClosureInPlace` tag constructors), an out-of-line
+  Create for the arrays, byte-size array allocation (`operator new[](count * sizeof(T))`) and
+  `memset(walkTops, 0xff, ...)`; ScriptNameTable's constructor / destructor are out of line.
+- LuaDispatch only matches in control flow when the result-push tails are merged with `goto`; the state-less
+  `ScriptArguments` buffer holds the pushed values (vectors per component).
+- Kept template copies are made with explicit instantiations (`template class X<...>`), then mapped by byte identity
+  with the automap tool; 5-byte `jmp` candidates are skipped, because the linker folds identical thunks.
+- Compare the owner handle (not the reference) when cancelling the calls of one object (CancelScheduledFor).
+
 
 ## system/streamtrigger.cpp (0x108352B0 - 0x10836640): done (75 functions: 73 match, 2 equivalent)
 
@@ -490,6 +518,25 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
+
+## render/async/private/deferreddeletion.cpp (0x108BC250 - 0x108BC7B0): 5 functions match, 15 kept copies
+
+engine::render::DeferredDeletionManager (the name is in the overflow assert; the singleton is the pointer at
+0x1130CCCC): a ring of 3200 reference-counted objects (`mRefCountedItems`, `mHead`, `mTail` are the assert texts) that
+the game thread is done with. `Add` (0x108BC640) stamps an entity with the next frame and keeps a reference;
+`Process` (0x108BC400, once per frame, called through 0x10817AF0) releases the items whose frame has passed and
+returns the frame counter it increments; `Clear` (0x108BC550) releases everything and runs when the ring overflows.
+Layout: count at +0, frame at +4, head at +8, tail at +0xC, the items (frame, reference) from +0x10. All
+counters are accessed interlocked (`_InterlockedAnd(&x, -1)` is the atomic read).
+- The helper classes (AtomicInt, RingIndex<3200>, RefPtr<pure3d::RefCounted>, RefCountedItem, FixedArray<T, N>) are
+  in deferreddeletion.h; the 15 small functions between and after the real ones are their members, kept as separate
+  code (annotated at the end of the cpp). `Load` must be `inline` (the project inlines only inline functions at /Ob1),
+  and `return frame->ExchangeAdd(1)` through a local pointer gives the original's `add edi, 4` before `mov eax, 1`.
+- RefPtr::operator= compares first (`if (mPointer != object)`) and returns the pointer after the block.
+- Not reproduced: 0x108BC250 (an atomic read taking the address in edx, `this` unused) and 0x108BC290 (`xchg [ecx],
+  eax` with the value already in eax), two unreferenced leftovers.
+- renderglobals.cpp still lacks the callers of this class: 0x10817AF0 (Process), the constructor / destructor calls
+  at 0x108190B4 / 0x108179B3 / 0x1081924D.
 
 ## pure3d animation and the choreo pose blending
 

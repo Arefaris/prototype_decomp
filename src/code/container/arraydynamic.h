@@ -185,6 +185,12 @@ namespace container
 		{
 			Allocate(count);
 		}
+		explicit ArrayDynamicHeap(const AllocatorCoreAligned<16>& newAllocator) : allocator(newAllocator)
+		{
+			begin = 0;
+			end = 0;
+			capacity = 0;
+		}
 		ArrayDynamicHeap(T* first, T* last, const AllocatorCoreAligned<16>& newAllocator);
 		~ArrayDynamicHeap()
 		{
@@ -221,6 +227,10 @@ namespace container
 		unsigned int Size() const
 		{
 			return end - begin;
+		}
+		T& operator[](int index)
+		{
+			return begin[index];
 		}
 		unsigned int Capacity() const
 		{

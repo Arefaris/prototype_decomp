@@ -102,6 +102,85 @@ namespace engine
 	};
 }
 
+template<class R> class Function0 : public engine::Function
+{
+public:
+	typedef R (*Pointer)();
+
+	Function0(const char* name, Pointer newFunction) : engine::Function(name, 0)
+	{
+		function = newFunction;
+		resultType = GetTypeCode(typeid(R), engine::FunctionTypeSize<R>::value);
+	}
+	// Calls the function and stores the result, if any
+	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
+	{
+		R value = function();
+		if (result != 0)
+		{
+			*(R*)result = value;
+		}
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call(object, arguments, result, function);
+	}
+
+	Pointer function;
+};
+
+template<class R, class A1> class Function1 : public engine::Function
+{
+public:
+	typedef R (*Pointer)(A1);
+
+	Function1(const char* name, Pointer newFunction) : engine::Function(name, 1)
+	{
+		function = newFunction;
+		resultType = GetTypeCode(typeid(R), engine::FunctionTypeSize<R>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+	}
+	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
+	{
+		A1 a1 = *(const A1*)arguments;
+		R value = function(a1);
+		if (result != 0)
+		{
+			*(R*)result = value;
+		}
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call(object, arguments, result, function);
+	}
+
+	Pointer function;
+};
+
+template<class A1> class Function1<void, A1> : public engine::Function
+{
+public:
+	typedef void (*Pointer)(A1);
+
+	Function1(const char* name, Pointer newFunction) : engine::Function(name, 1)
+	{
+		function = newFunction;
+		resultType = GetTypeCode(typeid(void), engine::FunctionTypeSize<void>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+	}
+	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
+	{
+		A1 a1 = *(const A1*)arguments;
+		function(a1);
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call(object, arguments, result, function);
+	}
+
+	Pointer function;
+};
+
 template<class C, class R> class Method0 : public engine::Function
 {
 public:
@@ -369,20 +448,37 @@ public:
 	Pointer method;
 };
 
+// The object a closure calls its method on. A method pointer of a class without a single inheritance chain is wider
+// than one word; the closures of those carry one more word after the object.
+template<class C, int PointerSize> struct ClosureTarget
+{
+	C* object;
+	int unknown;
+};
+
+template<class C> struct ClosureTarget<C, 4>
+{
+	C* object;
+};
+
 template<class C, class R> class Closure0 : public Method0<C, R>
 {
 public:
 	Closure0(const char* name, C* newObject, typename Method0<C, R>::Pointer newMethod) : Method0<C, R>(name, newMethod)
 	{
-		object = newObject;
+		target.object = newObject;
 	}
 	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
 	{
-		Method0<C, R>::Invoke(object, arguments, result);
+		Method0<C, R>::Invoke(target.object, arguments, result);
 	}
 
-	C* object;
-	int unknown24;
+	ClosureTarget<C, sizeof(typename Method0<C, R>::Pointer)> target;
+};
+
+// Selects the constructor of a closure that the compiler always expands in place
+struct ClosureInPlace
+{
 };
 
 template<class C, class R, class A1> class Closure1 : public Method1<C, R, A1>
@@ -391,15 +487,20 @@ public:
 	Closure1(const char* name, C* newObject, typename Method1<C, R, A1>::Pointer newMethod)
 		: Method1<C, R, A1>(name, newMethod)
 	{
-		object = newObject;
+		target.object = newObject;
+	}
+	// The engine's script manager registers its own closures with the construction expanded in its constructor
+	__forceinline Closure1(const char* name, C* newObject, typename Method1<C, R, A1>::Pointer newMethod, ClosureInPlace)
+		: Method1<C, R, A1>(name, newMethod)
+	{
+		target.object = newObject;
 	}
 	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
 	{
-		Method1<C, R, A1>::Invoke(object, arguments, result);
+		Method1<C, R, A1>::Invoke(target.object, arguments, result);
 	}
 
-	C* object;
-	int unknown24;
+	ClosureTarget<C, sizeof(typename Method1<C, R, A1>::Pointer)> target;
 };
 
 template<class C, class R, class A1, class A2> class Closure2 : public Method2<C, R, A1, A2>
@@ -408,15 +509,14 @@ public:
 	Closure2(const char* name, C* newObject, typename Method2<C, R, A1, A2>::Pointer newMethod)
 		: Method2<C, R, A1, A2>(name, newMethod)
 	{
-		object = newObject;
+		target.object = newObject;
 	}
 	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
 	{
-		Method2<C, R, A1, A2>::Invoke(object, arguments, result);
+		Method2<C, R, A1, A2>::Invoke(target.object, arguments, result);
 	}
 
-	C* object;
-	int unknown24;
+	ClosureTarget<C, sizeof(typename Method2<C, R, A1, A2>::Pointer)> target;
 };
 
 template<class C, class R, class A1, class A2, class A3> class Closure3 : public Method3<C, R, A1, A2, A3>
@@ -425,15 +525,14 @@ public:
 	Closure3(const char* name, C* newObject, typename Method3<C, R, A1, A2, A3>::Pointer newMethod)
 		: Method3<C, R, A1, A2, A3>(name, newMethod)
 	{
-		object = newObject;
+		target.object = newObject;
 	}
 	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
 	{
-		Method3<C, R, A1, A2, A3>::Invoke(object, arguments, result);
+		Method3<C, R, A1, A2, A3>::Invoke(target.object, arguments, result);
 	}
 
-	C* object;
-	int unknown24;
+	ClosureTarget<C, sizeof(typename Method3<C, R, A1, A2, A3>::Pointer)> target;
 };
 
 template<class C, class R, class A1, class A2, class A3, class A4> class Closure4 : public Method4<C, R, A1, A2, A3, A4>
@@ -442,16 +541,20 @@ public:
 	Closure4(const char* name, C* newObject, typename Method4<C, R, A1, A2, A3, A4>::Pointer newMethod)
 		: Method4<C, R, A1, A2, A3, A4>(name, newMethod)
 	{
-		object = newObject;
+		target.object = newObject;
 	}
 	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
 	{
-		Method4<C, R, A1, A2, A3, A4>::Invoke(object, arguments, result);
+		Method4<C, R, A1, A2, A3, A4>::Invoke(target.object, arguments, result);
 	}
 
-	C* object;
-	int unknown24;
+	ClosureTarget<C, sizeof(typename Method4<C, R, A1, A2, A3, A4>::Pointer)> target;
 };
+
+template<class R> inline void engine::LuaScriptManager::Register(const char* name, R (*function)())
+{
+	AddFunction(name, new Function0<R>(name, function));
+}
 
 template<class C, class R> inline void engine::LuaScriptManager::RegisterMethod(const char* name, C* object, R (C::*method)())
 {

@@ -51,6 +51,18 @@ namespace engine
 		{
 		}
 	};
+
+	// A message that is not written into the script's event table (RTTI name; layout and members as Message)
+	struct NonintrusiveMessage : public Message
+	{
+	public:
+		NonintrusiveMessage(int newType, short newId) : Message(newType, newId)
+		{
+		}
+		virtual ~NonintrusiveMessage()
+		{
+		}
+	};
 }
 
 #endif
