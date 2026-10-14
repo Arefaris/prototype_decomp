@@ -185,11 +185,12 @@ namespace pure3d
 			Constants* table = constants;
 			*(unsigned int*)table->values |= 1 << bit;
 		}
-		// The sampler state word of a texture constant (the word after its value), marked as changed
-		unsigned int* GetSamplerState(const int& slot)
+		// The words of a texture constant (the value, then the sampler state), marked as changed
+		unsigned int* GetTextureConstant(const int& slot)
 		{
 			constantsDirty |= CONSTANT_TEXTURE;
-			return (unsigned int*)&constants->values[slot] + 1;
+			Constants* table = constants;
+			return (unsigned int*)&table->values[slot];
 		}
 
 		unsigned char unknown4[0x38];

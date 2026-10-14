@@ -742,3 +742,81 @@ Matching notes:
   symbols.txt for these are the real ones.
 - Dynamic casts to the generator classes (`dynamic_cast<ParticlePointGenerator*>`) need the RTTI type descriptor
   addresses mapped in symbols.txt (`??_R0?AV...@8`).
+
+
+## pure3d render passes (pass/src/pass.cpp, pass/src/protopasses.cpp and the neighbours they call)
+
+The passes of the render pipeline derive from `pure3d::Pass` (vftable 0x10E5E4D0, nine slots). Slot 4, which the first
+reconstruction called a pure `Prepare`, is `Render(PassContext*)`: `Pass::Run` (0x10754AF0) saves the render states the
+mask at +0x10 names, calls it, restores them, and `RunChildren` (0x10754B60) runs the children through the sibling
+link. Slot 8, which asks the scene which parts the pass draws, is `GetParts(Scene*)` and answers a begin / end /
+capacity triple (`PartList`); the filter it applies is the `PassEntries` at +0x28 (a word and sixteen 8-byte entries,
+the engine's `container::ArrayFixed<PassEntry, 16>`; the shadow pass keeps a second filter at +0xC0 and swaps it in
+around its first query). What the passes draw are `DrawablePart`s (0x12C bytes): the primitive at +0x90, its state at
++0x94, the binding at +0x98, the 0x2C-byte batch the device draws at +0xA0, the joint matrix at +0x50 and the world
+matrix at +0xCC; render bit 9 says whether the batch or the primitive draws it. The passes write the shader
+constants straight into the device's constant table (`pddi->constants->values[slot]`, the group bit of
+`constantsDirty` first); the slot indices are globals filled by the static initialisers 0x10D6C000 - 0x10D70000, and
+their names (`p3dPRLight_Colour2`, `p3dShader_LODGeo`, ...) come from the strings those initialisers hash
+(`shaderconstants.h`).
+
+| Address | Function | Status |
+|---|---|---|
+| 0x10754AF0 / 0x10754B60 | Pass::Run / RunChildren | match |
+| 0x10610240 | PassEntries::~PassEntries (an ArrayFixed destructor in another unit) | match |
+| 0x10766000 / 0x10766040 / 0x10766090 | ConstructCopiesN<PassEntry>, ArrayFixed<PassEntry, 16> copy constructor / operator= | match |
+| 0x1076BE40 | ArrayFixed<Light*, 8>::PushBack (the engine calls it at two of the lit pass's six sites) | match |
+| 0x1061C480 | pddiSurface::GetHandle | match |
+| 0x10715910 / 0x10715AC0 | ShadowRenderManager::Get / the function that does nothing (unit shadowrendermanager.cpp from the asserts) | match |
+| 0x10717920 - 0x10717980, 0x10717990, 0x107179D0 | LightSelection accessors and the user data scales (the per-draw light selection, global 0x112817D8) | match |
+| 0x1074EE10 | RenderParams::GetUnknown14 | match |
+| 0x102D3D30 / 0x106DEF20 | DrawablePart::GetBindingSource (a kept copy) / UpdateBatch (the "RootPass method" of the work list) | match |
+| 0x10761750 | DrawablePart::Draw (batch or primitive by render bit 9) | match |
+| 0x10204C10 | core::BitField<unsigned short>::Test (kept copy) | match |
+| 0x1076AF90 / 0x107678C0 | ViewPass::GetUnknownE4 / ProtoShadowPass::GetShadowParts | match |
+| 0x1076B020 / 0x1076B030 | ProtoLitPass::HasShadowMap / UploadVertexLights | match |
+| 0x1076F010 | ProtoSlowZPass::Render | match |
+| 0x1076BB70 | ProtoLitPass::DrawParts | EQUIVALENT (one instruction: a constant store is scheduled before the loop's first load here, after the compare in the engine) |
+| 0x10768670 | ViewPass::Render | EQUIVALENT (6 instructions: the engine loads the device pointer before the colour conversion and keeps the result in eax) |
+| 0x10766170 | ProtoOpaquePass::SortParts | EQUIVALENT (the key and scratch arrays sit in the other order in the frame; the last loop reloads the list) |
+| 0x10767B60 | ProtoShadowPass::DrawShadowCasters | EQUIVALENT (stack slots of the spilled locals, the loop counters) |
+| 0x107654E0 | ProtoDecalPass::Render | EQUIVALENT (registers and the frame; every call, store and float operation is in the engine's order) |
+| 0x1076CD90 | ProtoLitPass::SetupLights | EQUIVALENT (stack layout of the four light lists and the scheduling of the constant stores) |
+
+Every EQUIVALENT body makes the same calls with the same arguments in the same order as the engine's (compared
+through the call sequence of both) and has the same float operations (same counts of every x87 and SSE instruction);
+the sums of squares that /fp:fast reassociates are pinned to the engine's order.
+
+Matching notes:
+
+- `container::ArrayFixed<T, N>` (storage as an `int` array, then the end pointer) is the engine's fixed-capacity array;
+  `~PassEntries` only matches (`lea eax, [ecx + 4]; mov [eax + 0x80], eax`) with the storage declared that way. The
+  copy constructor is the loop written out (the engine does not call the kept `ConstructCopiesN`), the assignment
+  caches the source's end pointer and calls `ConstructCopiesN` for the tail.
+- A member defined in the class body is inlined where the compiler likes: the lit pass's list appends came out as
+  calls at exactly two sites only once the shader-constant accessor was `__forceinline` (the inline budget of the
+  function); the sites that check the fullness first (`if (list.Size() != 8) list.PushBack(light)`) are the calls.
+- A pass writes a constant through one inline accessor (`GetConstant(slot, group)`): the slot has to be passed by
+  reference (`const int&`) so that its load stays after the `constantsDirty` update, and the accessor takes the table
+  pointer into a local between the two.
+- The draw parameters are a 12-byte bit-field struct (`PrimStreamParameters`): its constructor assigns blendMode 1,
+  blendFactor 0, the 4-bit and 10-bit groups at bits 10 and 14 and three 1-bit flags in the third word. The compiler
+  folds consecutive bit-field stores into one `and` / `or` pair, so the engine's three pairs in the decal pass come
+  from statement order (blend, bits 14 - 23, the flags, then bits 10 - 13); setting `flag0` and `flag2` as two
+  1-bit fields gives `and cl, 0xF8; or cl, 5`, one 3-bit field gives `and cl, 0xFD; or cl, 5`.
+- `bool` functions returning a pointer test: `if (p) return true; return false;` gives `setne al`, `return p != 0;`
+  gives the longer `xor ecx, ecx; setne cl; mov al, cl`.
+- Float to `unsigned int` conversion in a call argument is the inline `fnstcw` / `fistp qword` sequence.
+- `core::BitField<T>::Test` has to be `T mask = 1; mask <<= bit; return (mask & mBits) != 0;` for the 16-bit copy
+  (`and dx, [eax]`) and the 32-bit one at once.
+- A float that comes back from a call is consumed by x87 instructions when it is multiplied in an expression; the
+  engine's SSE form (`fstp [tmp]; movss xmm4, [tmp]; mulss ...`) comes from passing the products through an inline
+  function that builds a `math::Vector4` (`Scaled(colour, scale)`) and adding its members to the sum. Without it the
+  last bit of the light colours would differ (x87 keeps 64 bits between the multiplication and the addition).
+- With /fp:fast the order of a sum of three squares follows the order in which the three differences were defined,
+  last defined first: `float dy = ...; float dz = ...; float dx = ...; dx * dx + dz * dz + dy * dy` adds x, z, y. A sum
+  that stays in x87 registers keeps the left-to-right order of partial-sum statements.
+- Caching a loop's end pointer in a local (`for (it = list->begin, end = list->end; it != end; it++)`) is what puts
+  the end in a register where the engine has it; leaving `list->end` in the condition re-reads it each time.
+- A stack variable that is never initialised on one path (the decal pass's bounding sphere radius when a part has no
+  state) keeps the previous part's value in the engine; the reconstruction keeps the same hole.

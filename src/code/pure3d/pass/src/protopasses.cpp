@@ -48,8 +48,38 @@ namespace pure3d
 		}
 	}
 
+	namespace
+	{
+		// The sphere around a box (zero for an empty one): math::AABB::GetSphere as the engine inlines it
+		__forceinline math::Sphere BoxSphere(const math::AABB& box)
+		{
+			math::Sphere sphere;
+			if (!box.IsEmpty())
+			{
+				float hx = (box.max.x - box.min.x) * 0.5f;
+				float hz = (box.max.z - box.min.z) * 0.5f;
+				float hy = (box.max.y - box.min.y) * 0.5f;
+				sphere.centre.x = hx + box.min.x;
+				sphere.centre.y = hy + box.min.y;
+				sphere.centre.z = hz + box.min.z;
+				float squared = hx * hx;
+				squared += hz * hz;
+				squared += hy * hy;
+				sphere.radius = sqrtf(squared);
+			}
+			else
+			{
+				sphere.centre.x = 0.0f;
+				sphere.centre.y = 0.0f;
+				sphere.centre.z = 0.0f;
+				sphere.radius = 0.0f;
+			}
+			return sphere;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x107654E0
-	// EQUIVALENT: the inlined bounding sphere of the parts keeps its results in other registers and the frame is smaller
+	// EQUIVALENT: register allocation and the frame (the engine keeps the part in a stack slot in the first loop); every call, store and float operation is the engine's
 	void ProtoDecalPass::Render(PassContext* context)
 	{
 		pddiSurface* colour = gDisplay->colour;
@@ -92,26 +122,11 @@ namespace pure3d
 			{
 				math::AABB box;
 				part->state->GetBoundingBox(&box);
-				if (!box.IsEmpty())
-				{
-					float hx = (box.max.x - box.min.x) * 0.5f;
-					float hz = (box.max.z - box.min.z) * 0.5f;
-					float hy = (box.max.y - box.min.y) * 0.5f;
-					sphere.centre.x = hx + box.min.x;
-					sphere.centre.y = hy + box.min.y;
-					sphere.centre.z = hz + box.min.z;
-					float squared = hx * hx;
-					squared += hz * hz;
-					squared += hy * hy;
-					sphere.radius = sqrtf(squared);
-				}
-				else
-				{
-					sphere.centre.x = 0.0f;
-					sphere.centre.y = 0.0f;
-					sphere.centre.z = 0.0f;
-					sphere.radius = 0.0f;
-				}
+				math::Sphere found = BoxSphere(box);
+				sphere.centre.x = found.centre.x;
+				sphere.centre.y = found.centre.y;
+				sphere.centre.z = found.centre.z;
+				sphere.radius = found.radius;
 			}
 			else
 			{
@@ -124,7 +139,7 @@ namespace pure3d
 			float squared = dx * dx;
 			squared += dz * dz;
 			squared += dy * dy;
-			if (part->primitive->type != 0x200 && sqrtf(squared) - sphere.radius <= 175.0f)
+			if (part->primitive->type != 0x200 && !(sqrtf(squared) - sphere.radius > 175.0f))
 			{
 				float lod = part->unknown1C;
 				if (lod > 0.0f)
@@ -147,26 +162,11 @@ namespace pure3d
 				{
 					math::AABB box;
 					part->state->GetBoundingBox(&box);
-					if (!box.IsEmpty())
-					{
-						float hx = (box.max.x - box.min.x) * 0.5f;
-						float hz = (box.max.z - box.min.z) * 0.5f;
-						float hy = (box.max.y - box.min.y) * 0.5f;
-						sphere.centre.x = hx + box.min.x;
-						sphere.centre.y = hy + box.min.y;
-						sphere.centre.z = hz + box.min.z;
-						float squared = hx * hx;
-					squared += hz * hz;
-					squared += hy * hy;
-					sphere.radius = sqrtf(squared);
-					}
-					else
-					{
-						sphere.centre.x = 0.0f;
-						sphere.centre.y = 0.0f;
-						sphere.centre.z = 0.0f;
-						sphere.radius = 0.0f;
-					}
+					math::Sphere found = BoxSphere(box);
+					sphere.centre.x = found.centre.x;
+					sphere.centre.y = found.centre.y;
+					sphere.centre.z = found.centre.z;
+					sphere.radius = found.radius;
 				}
 				else
 				{
@@ -180,11 +180,7 @@ namespace pure3d
 				squared += dz * dz;
 				squared += dy * dy;
 				float distance = (sqrtf(squared) - 100.0f) * 0.013333334f;
-				float fade = distance;
-				if (distance < 0.0f)
-				{
-					fade = 0.0f;
-				}
+				float fade = distance >= 0.0f ? distance : 0.0f;
 				if (fade - 1.0f >= 0.0f)
 				{
 					fade = 1.0f;
@@ -211,14 +207,14 @@ namespace pure3d
 		pddi->SetRenderTargets(&targets);
 		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
 		pddi->constants->SetTexture(&gConstantDecalColourBuffer, decalTarget->surface);
-		unsigned int* sampler = pddi->GetSamplerState(gConstantDecalColourBuffer);
-		*sampler = (*sampler & 0xf8444754) | 0x444454;
-		sampler = pddi->GetSamplerState(gConstantDecalColourBuffer);
-		*sampler = (*sampler & 0xf8488bff) | 0x488800;
+		unsigned int* texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		texture[1] = (texture[1] & 0xf8444754) | 0x444454;
+		texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		texture[1] = (texture[1] & 0xf8488bff) | 0x488800;
 		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
 		pddi->constants->SetTexture(&gConstantDecalNormalBuffer, 0);
-		sampler = pddi->GetSamplerState(gConstantDecalNormalBuffer);
-		*sampler = (*sampler & 0xf8444752) | 0x444452;
+		texture = pddi->GetTextureConstant(gConstantDecalNormalBuffer);
+		texture[1] = (texture[1] & 0xf8444752) | 0x444452;
 		pddiSize* size = decalTarget->surface->info->size;
 		float halfWidth = 0.5f / size->width;
 		float halfHeight = 0.5f / size->height;
@@ -269,7 +265,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10766170
-	// EQUIVALENT: the engine keeps the sorted list pointer on the stack in the last loop and lays the key arrays out differently
+	// EQUIVALENT: the engine lays the key and scratch arrays out in the other order and reloads the list pointer in the last loop
 	void ProtoOpaquePass::SortParts(PartList* parts)
 	{
 		unsigned int count = parts->end - parts->begin;
@@ -327,7 +323,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10767B60
-	// EQUIVALENT: register choices and the order of the spilled locals differ
+	// EQUIVALENT: stack slots of the spilled locals and the loop counters differ; every call and store is the engine's
 	void ProtoShadowPass::DrawShadowCasters(RenderParams* params, int view, Scene* scene)
 	{
 		ShadowRenderManager* manager = ShadowRenderManager::Get();
@@ -437,7 +433,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1076BB70
-	// EQUIVALENT: one constant store sits before the loop start here, after it in the engine
+	// EQUIVALENT: one constant store sits before the loop's first load here, after its compare in the engine
 	void ProtoLitPass::DrawParts(PartList* parts, PrimStreamParameters* parameters, PassContext* context)
 	{
 		pddi->ClearFlagConstant(gConstantLightIsLitPass);
@@ -503,7 +499,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1076CD90
-	// EQUIVALENT: the ambient sums are computed on the x87 stack here, in SSE registers in the engine
+	// EQUIVALENT: register allocation and the stack layout of the four light lists; every call and float operation is the engine's
 	void ProtoLitPass::SetupLights(int mode)
 	{
 		LightList* lights = LightSelection::Get()->GetActiveLights();
@@ -668,8 +664,8 @@ namespace pure3d
 		UploadVertexLights(mode);
 		if (lit && HasShadowMap())
 		{
-			unsigned int* sampler = pddi->GetSamplerState(gConstantShadowMap);
-			*sampler = (*sampler & 0xf8408bff) | 0x408800;
+			unsigned int* texture = pddi->GetTextureConstant(gConstantShadowMap);
+			texture[1] = (texture[1] & 0xf8408bff) | 0x408800;
 		}
 		else
 		{
@@ -691,7 +687,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10768670
-	// EQUIVALENT: the clear colour is converted with the device pointer loaded earlier
+	// EQUIVALENT: the engine loads the device pointer before converting the clear colour and keeps the result in eax
 	void ViewPass::Render(PassContext* context)
 	{
 		view->SetWindow(window[0], window[1], window[2], window[3]);
