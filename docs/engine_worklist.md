@@ -193,10 +193,10 @@ into the masked register) and the two handle helpers, which hit the open IsValid
 compares the handle's serial again for Get, our build folds it (also poimanager.cpp; `IsValid() { return Get() != 0; }`
 does not change that). Tested in game: `online_DeterminePlayerIndex(PLAYER_1)` answers 0. Lessons:
 
-- Units register script functions with ScriptContext::SetOwner(&static), Register<R, A>(name, function) (out of line
-  per instantiation, in other units) and ClearOwner; Unregister(&static) removes them. ScriptContext moved to
-  code/engine/scriptcontext.h.
-- `GetScriptContext()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
+- Units register script functions with LuaScriptManager::SetOwner(&static), Register<R, A>(name, function) (out of
+  line per instantiation, in other units) and ClearOwner; Unregister(&static) removes them. The class (first called
+  ScriptContext here) is engine::LuaScriptManager in code/engine/luascriptmanager.h.
+- `GetScriptManager()->Unregister(x)` pushes the argument before the call; the engine calls first, through a named
   local.
 
 ## physics/supportinglimb.cpp (0x107F2970 - 0x107F66E0), first part
@@ -305,7 +305,7 @@ engine::GameDatabase (the RTTI name; the engine's earlier "Console" guesses for 
 write, kept in a `container::Map<unsigned __int64, DBSubject*, AllocatorCoreStatic<0x80,16>>` keyed by the name hash.
 The unit has the subject API, the input / online / storage / front end callbacks, profile building, the db_* script
 functions (registered through engine::Function wrappers, `MethodN` / `ClosureN`, and the inline
-`ScriptContext::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
+`LuaScriptManager::RegisterMethod` templates) and Create / Destroy. 60 functions match, plus 111 kept copies (the
 method wrappers, the registration templates, the inline callback base members, the Map / SList members and the
 scalar deleting destructors). The file name is a guess (no assert path); DBSubject, OnlineGameDBHelper,
 GameDBStorage and GameDBHelper live in other units and are only declared.
@@ -388,6 +388,41 @@ Lessons:
   and copying pushes the words instead.
 - Float tests written `0.0f != x` / `1.0f != x` load the constant into the register (`xorps` / `movss` then
   `ucomiss reg, [mem]`); `x != 0.0f` loads the member instead.
+
+## luascriptmanager.cpp (0x107FE510 - 0x10804EC0), first part
+
+engine::LuaScriptManager (RTTI; the singleton gScriptManager at 0x11284254): the engine's Lua 5.1 state and the
+native functions the units register with it. The file name is a guess from the class name (no assert path). Done:
+0x107FE6B0 - 0x10800843, 86 functions, all match, plus 12 kept copies (the explicitly instantiated
+ScriptNameTable<Function> / ScriptNameTable<LuaCFunction> members, mapped in symbols.txt). They cover the script
+allocator (ScriptBlockPool, two 0x14000-byte blocks handed out first; Function::operator new / delete, 0x107FE720 /
+0x107FE760, which the Lua allocator ScriptRealloc also uses), the base script functions (print, type, traceback,
+breakpoint), the registration tables, the global / registry / table accessors, the context table (event fields),
+references, garbage collection and the LuaGet* / LuaPush* helpers. The Lua library itself is linked in and only
+declared (`code/lua/lua.h`; its functions are mapped in symbols.txt from the engine's calls). The Vector / UID / Name
+userdata helpers (0x10840770 - 0x10841040) and the service pump (0x10853890) live in other units.
+
+Open:
+
+- 0x10800850 - 0x10804EC0: the rest of the class (AddFunction 0x10801D50, Unregister 0x108016C0, OpenEvent
+  0x108021F0 and the rest).
+- ScriptNameTable<T>::Complete (0x107FE910 / 0x107FECC0) does not match and is left unmapped: our COMDAT copy (same
+  logic, checked against the engine's) serves our callers, the engine's copies stay for the rest. The engine
+  recomputes strlen(prefix) and reloads the strncmp import on every iteration of the first loop; ours hoists both.
+- Small kept copies at 0x107FE510 - 0x107FE6A0, 0x107FEFC0 - 0x107FEFE0 and 0x108002E0 (a constructor initialising a
+  HandleBase at +0xC): owners unknown.
+
+Lessons:
+
+- Unresolved Lua API functions are found by pairing our object's relocations with the call targets in the engine's
+  copy of a matching function (follow the incremental link thunks); the lapi.c order of upstream Lua 5.1 confirms them.
+- The LuaGet* helpers test `lua_gettop(L) == 0` and the type in two separate `if (...) return false;`: the engine
+  places the false return right after the type test. One `&&` condition puts it at the end of the function (but
+  LuaGetVector, whose second test is a call returning bool, matches with `&&`).
+- LuaType is a switch whose cases push and `break` to one `return 1`, with the lua_typename push written both in the
+  userdata fallback and in `default`: the compiler then hoists the shared `push 1; push esi` above the branch. Cases
+  that `return 1` themselves do not get that.
+- "ScriptFree" was Function::operator delete: ScriptNameTable<Function>::Remove's `delete entry` calls it directly.
 
 ## system/streamtrigger.cpp (0x108352B0 - 0x10836640): done (75 functions: 73 match, 2 equivalent)
 

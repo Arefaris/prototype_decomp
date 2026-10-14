@@ -4,7 +4,7 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/message.h"
-#include "code/engine/scriptcontext.h"
+#include "code/engine/luascriptmanager.h"
 
 namespace engine
 {
@@ -36,7 +36,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F27E0
 	void UnregisterOnlineScript()
 	{
-		ScriptContext* context = GetScriptContext();
+		LuaScriptManager* context = GetScriptManager();
 		context->Unregister(&gOnlineScriptOwner);
 	}
 
@@ -92,7 +92,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F2940
 	void RegisterOnlineScript()
 	{
-		ScriptContext* context = GetScriptContext();
+		LuaScriptManager* context = GetScriptManager();
 		context->SetOwner(&gOnlineScriptOwner);
 		context->Register("online_DeterminePlayerIndex", DeterminePlayerIndex);
 		context->ClearOwner();
