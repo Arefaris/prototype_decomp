@@ -6,7 +6,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10756AA0
 	// EQUIVALENT: the engine's copy loop is unrolled four times (the members loaded once for the unrolled part);
 	// our compiler keeps the plain loop for every form tried
-	void LightingScene::GetLights(LightArray* lights, int region)
+	void LightingScene::GetLights(LightArray* lights, const unsigned int* region)
 	{
 		unsigned int count = query.Select(indicesBegin, indicesEnd - indicesBegin, region);
 		Light* none = 0;

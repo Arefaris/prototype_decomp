@@ -77,9 +77,9 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x1060FE00
 	// EQUIVALENT: the three arguments load into eax / esi / ecx in the original, ecx / edx / eax in ours
-	unsigned int LightQuery::Select(unsigned int* indices, unsigned int count, int region)
+	unsigned int LightQuery::Select(unsigned int* indices, unsigned int count, const unsigned int* region)
 	{
-		SetRegionMask(&regionBits, region);
-		return BuildLightIndices(indices, mask, regionBits >> 7);
+		SetRegionMask(&bitCount, region);
+		return BuildLightIndices(indices, mask, bitCount >> 7);
 	}
 }

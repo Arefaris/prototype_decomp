@@ -22,14 +22,17 @@ namespace pure3d
 	class LightQuery
 	{
 	public:
-		unsigned int Select(unsigned int* indices, unsigned int count, int region);
-		// 0x1060FC30 (mapped, not reconstructed): writes the region's light mask into mask
-		void SetRegionMask(unsigned int* mask, int region);
+		// region names a shared light bit set: the count of set light bits is its first word (the group count is
+		// that >> 7). The count argument is not read.
+		unsigned int Select(unsigned int* indices, unsigned int count, const unsigned int* region);
+		// 0x1060FC30 (mapped, not reconstructed): copies the region's bit set into bits (its three words at
+		// +0 / +4 / +8 are the caller's bit count, a spare word and the mask pointer)
+		void SetRegionMask(unsigned int* bits, const unsigned int* region);
 
 		unsigned char unknown0[0x3c];
-		unsigned int regionBits;   // the region's light groups (group count << 7)
-		unsigned int unknown40;
-		unsigned int* mask;        // the light mask words (128 bits per group)
+		unsigned int bitCount;     // +0x3c: how many light bits the region has (the group count is this >> 7)
+		unsigned int unknown40;    // +0x40
+		unsigned int* mask;        // +0x44: the light mask words (128 bits per group)
 	};
 
 	// 0x1060F840: the indices of the set bits of the 128-bit groups of masks, in order
@@ -39,8 +42,8 @@ namespace pure3d
 	class LightingScene
 	{
 	public:
-		// 0x10756AA0: the lights the query selects for region, in its order
-		void GetLights(LightArray* lights, int region);
+		// 0x10756AA0: the lights the query selects for a region (the shared bit set), in its order
+		void GetLights(LightArray* lights, const unsigned int* region);
 
 		unsigned char unknown0[0x30];
 		Light** lights;
