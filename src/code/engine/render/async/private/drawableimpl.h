@@ -97,10 +97,46 @@ namespace engine
 			float values[24];
 		};
 
-		// 34 floats; the copy constructor is out of line (0x107E85E0)
+		// 34 floats; the copy constructor is an inline member the original left out of line (0x107E85E0)
 		struct EffectBiases
 		{
-			EffectBiases(const EffectBiases& other);
+			EffectBiases(const EffectBiases& other)
+			{
+				values[0] = other.values[0];
+				values[1] = other.values[1];
+				values[2] = other.values[2];
+				values[3] = other.values[3];
+				values[4] = other.values[4];
+				values[5] = other.values[5];
+				values[6] = other.values[6];
+				values[7] = other.values[7];
+				values[8] = other.values[8];
+				values[9] = other.values[9];
+				values[10] = other.values[10];
+				values[11] = other.values[11];
+				values[12] = other.values[12];
+				values[13] = other.values[13];
+				values[14] = other.values[14];
+				values[15] = other.values[15];
+				values[16] = other.values[16];
+				values[17] = other.values[17];
+				values[18] = other.values[18];
+				values[19] = other.values[19];
+				values[20] = other.values[20];
+				values[21] = other.values[21];
+				values[22] = other.values[22];
+				values[23] = other.values[23];
+				values[24] = other.values[24];
+				values[25] = other.values[25];
+				values[26] = other.values[26];
+				values[27] = other.values[27];
+				values[28] = other.values[28];
+				values[29] = other.values[29];
+				values[30] = other.values[30];
+				values[31] = other.values[31];
+				values[32] = other.values[32];
+				values[33] = other.values[33];
+			}
 
 			float values[34];
 		};

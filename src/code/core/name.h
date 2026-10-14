@@ -73,13 +73,26 @@ namespace core
 		Name(const CaseInsensitiveKey32& key);
 		// 0x10611F30 (another unit)
 		Name(const Name& other);
+		// User-declared and empty like the other names' (the event classes that hold one have a destructor)
+		~Name()
+		{
+		}
 		// 0x1054D960 (another unit)
 		bool operator==(const Name& other) const;
 		// 0x102E8910 (another unit's copy)
 		Name& operator=(const Name& other);
+		// 0x1007EE80 (another unit's copy): the key of the name, which is the name itself
+		const CaseInsensitiveKey32& GetKey() const;
 
 		unsigned int hash;
 	};
+
+	// Out of line like the generic template's accessors (a specialization's members are not templates, so the
+	// compiler is told not to expand it)
+	inline __declspec(noinline) const CaseInsensitiveKey32& Name<CaseInsensitiveKey32>::GetKey() const
+	{
+		return *(const CaseInsensitiveKey32*)this;
+	}
 }
 
 #endif
