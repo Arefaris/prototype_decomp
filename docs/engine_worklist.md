@@ -423,7 +423,7 @@ out with 4-byte alignment by its users). Tried 2026-10-12: `unsigned __int64 key
 (Cinematographer keeps a Name at offset 4); the same inside `#pragma pack(push, 4)` keeps all 2376 matching. Next step:
 compile TagSet's std::sort with that Name and see whether the frames get `and esp, -8`.
 
-## pure3d: src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp (render module)
+## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
 The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
 used to call it DrawableImpl, which is now a typedef in `drawableimpl.h`). Its unit runs 0x106DE950 - 0x106E28F0;
@@ -442,6 +442,24 @@ used to call it DrawableImpl, which is now a typedef in `drawableimpl.h`). Its u
 | 0x106E14E0 / 0x106E18A0 | Drawable::UpdatePart / UpdateParts | match |
 | 0x10710B40 / 0x10711400 | Scene::GetUnknownD8 / UpdateDrawables (the AsyncDrawableUpdate task body) | match |
 | 0x107283A0 | visibility::RunTest (the frustum test task body) | EQUIVALENT (index and constant registers) |
+| 0x102CBD60 | math::AABB::Inflate (COMDAT copy, defined in drawable.cpp) | match |
+| 0x106F31D0 / 0x106F3630 / 0x106F4100 | RenderStateBackup::Restore, PrimStream::End / Begin (src/primitive.cpp) | match |
+| 0x10707680 / 0x10707B00 | MeshState::GetController3, ShaderParameters::operator= (src/mesh.cpp) | match |
+| 0x10709CE0 | ParticleSystemState::GetUnknown490 (effects/src/particlesystem.cpp) | match |
+| 0x106ED9D0 / 0x106EDA80 / 0x106EDC90 / 0x106EDCA0 | ParticleSystemState::GetUnknown4BC, GetParticleManager, ParticleManager accessors (effects/src/particlemanager.cpp) | match |
+| 0x102CD6D0 | math::pddiColour(const Vector4&) (COMDAT copy, defined in particlemanager.cpp) | EQUIVALENT (clamp test order) |
+| 0x1070EE10 | Context::GetView (src/context.cpp) | match |
+| 0x1071B200 / 0x1071B210 | SkinState::GetExpression / GetExpressionState (atg4/platform/win32/skin.cpp) | match |
+| 0x10731700 | VertexOffsetExpressionMixer::Apply | match |
+| 0x106E3070 / 0x106E3080 / 0x106E30C0 | ChannelKeysBase::SetFrames / Set, ChannelKeys<float>::Set (anim/src/animation.cpp) | match |
+| 0x107350B0 | Float1Channel::GetValue (src/channel.cpp) | match |
+| 0x1074F3B0 / 0x1074F3C0 | RenderParams::GetViewState / GetCameraData | match |
+| 0x10756AA0 | LightingScene::GetLights (lighting/lightingscene.cpp) | EQUIVALENT (the engine's loop is unrolled 4x) |
+| 0x1075C750 | MergeLightBits (lighting/src/light.cpp) | match |
+| 0x107A6B10 | LightingInputs::SetShaderConstant | match |
+| 0x1077FFD0 | Occluder::GetShadowPlanes (src/occluder.cpp) | EQUIVALENT (scheduling, 12 %) |
+| 0x10860E80 | engine::render::RenderQueue::SendAndWait (engine/render/renderthread.cpp) | match |
+| 0x10B7EF00 | (core event wait in the job queue area) | not done: left to the job queue unit |
 
 Matching notes:
 
@@ -459,3 +477,10 @@ Matching notes:
   is itself an inline (it reloads the state's word), see `PrimitiveState::GetBindingSource`.
 - Update's emitter matrix copy is a pointer loop counted `do ... while (--row >= 0)` (x87 copies, `jns`); the
   implicit copy of any matrix or row struct comes out as 16 unrolled movss.
+- A self-recursive accessor (`return inherit ? parent->Get() : flag;`) becomes the engine's tail jump to its own
+  entry; the if / return form and explicit loops are rotated into a do-while.
+- Bit ranges as `x << 5` match where `x * 32` changes the load order.
+- A global pointer read twice around a store through it is cached in a local in the source (`pddi`), and a nested
+  member pointer as well (`Constants* constants = context->constants`) when the index global is loaded between.
+- Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
+  operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.

@@ -96,6 +96,19 @@ namespace pure3d
 		void SetViewUnknown10(int value);
 		void SetViewUnknown14(float a, float b, float c, float d);
 		void SetViewUnknown24(float a, float b, float c, float d, float e, float f);
+
+		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed)
+		struct Constants
+		{
+			int unknown0;
+			int unknown4;
+			float* values;
+		};
+
+		unsigned char unknown4[0x38];
+		Constants* constants;
+		unsigned char unknown40[0x10C];
+		unsigned int constantsDirty;
 	};
 
 	// 0x1127F354: the render device

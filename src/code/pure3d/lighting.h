@@ -62,6 +62,25 @@ namespace pure3d
 	void MergeLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
 		unsigned int groups);
 
+	// The lighting inputs of a pass (RTTI name pure3d::LightingInputs; one virtual function)
+	class LightingInputs
+	{
+	public:
+		virtual ~LightingInputs();
+
+		// 0x107A6B10: the shader constant (enabled, unknown8, unknownC, 0); without unknown4 the middle pair is
+		// (0, 1)
+		void SetShaderConstant();
+
+		bool unknown4;
+		bool enabled;
+		float unknown8;
+		float unknownC;
+	};
+
+	// 0x11280A28: the index of the constant SetShaderConstant writes
+	extern int gLightingInputsConstant;
+
 	// The views and cameras a render pass uses (RTTI name pure3d::RenderParams; one virtual function)
 	class RenderParams
 	{
