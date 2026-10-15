@@ -784,6 +784,25 @@ replay/CRC reporting (`ReplayMode`, `recordCRC`, `DesyncHunt` are looked up by n
 - The unit's own members: `OnlineManager` is 0x98 bytes (its constructor 0x108BF160 zeroes +0x70 / +0x74 / +0x78,
   builds a `core::Time` at +0x84 out of (0, 0), and installs the vftable 0x10E7DE58; the count at +0x94);
   its deleting destructor is 0x108BF880 and goes through 0x108BF690 and 0x10836820.
+- `OnlineManager::OnlineManager` (0x108BF160, 50 bytes) itself is understood and ready to write: base constructor
+  0x108372E0, then the vftable, then +0x70 / +0x74 / +0x78 = 0, `core::Time` (0, 0) at +0x84, then +0x94 = 0. It
+  stores one vptr, so the class is one polymorphic chain (`engine::ISimulationDriver` over
+  `engine::SimulationDriverTimeData`, the order the RTTI gives) and the ten slots of that chain have to be declared
+  for it to compile; nothing in `src/` shows them yet (`engine::ISimulationDriver` and
+  `engine::SimulationDriverTimeData` do not exist), so the constructor is not written.
+- The unit's small pieces, none of which needs more than the class above: 0x108BEFF0 (`return this->unknown6C`),
+  0x108BF4A0 (a virtual call at +0x78), 0x108BF4B0 (+0x80 = 0, then 0x1063CCE0), 0x108BF5B0 (0x10836990, then a
+  virtual call at +0x78), 0x108BF5D0 / 0x108BFBD0 / 0x108BFCC0 (1-byte `ret`), 0x108BFBA0 / 0x108BFBB0
+  (`return 0`), 0x108BFBC0 (+0x20 = 0) and 0x108BFCD0 (`return param_2`). 0x108BEFE0 and 0x108BF1A0 are not
+  functions of the unit: both are 5-byte COMDAT-folded jumps to 0x1063AC00.
+- The replay/CRC reporter is a second class in the unit: 0x108BF030 is its default constructor (a config struct with
+  0x40 at +4, 0x32000 at +8, 0x1400 at +0xC, 0x32 at +0x10, 0x25800 at +0x14 when `ReplayMode` / `recordCRC` /
+  `DesyncHunt` are on, 0x81 at +0x1C, 3 at +0x24, 10 at +0x2C, 100 at +0x30, 0x1E at +0x38, 1 at +0x3C, 0x3C at
+  +0x44, 0x32 at +0x48 and 0x1E at +0x4C), 0x108BF000 is its "all the bits of +0x28 are set" test and 0x108BF020
+  its +4 getter. None of the three is written: the struct has no name and no RTTI.
+- The last two functions of the block, 0x108C02B0 (`return this->unknown30`) and 0x108C02C0
+  (`return this->unknown20`), are still unplaced; the desync dump 0x108BFD30 (1382 bytes) is the class they most
+  likely belong to.
 
 ## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C0FE0): 38 functions match, 0 nonmatching
 
