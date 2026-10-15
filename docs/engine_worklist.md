@@ -1061,6 +1061,148 @@ Findings carried over from the third session:
   (`sWindow = settings.window; sPreviousWindowProc = GetWindowLongA(sWindow, -4);`) - that is what makes the
   compiler reuse the register instead of reloading the settings.
 
+## choreo/src/rootdriver.cpp (0x1094EF30 - 0x1094F805): 32 functions match, 5 NONMATCHING, 0 not done
+
+The unit after deltatransform.cpp. It holds `choreo::RootDriver : Driver` (RTTI 0x111EC1A0, vftable 0x10E8C1D4,
+constructor 0x1094EF30, driver type 9) and `choreo::AnimationDriver : PartitionDriver` (RTTI 0x111EC240, vftable
+0x10E8C2F4), plus the helpers around them.
+
+`choreo::Driver` (the base of every driver) has five vtable slots: 0x109496E0 (slot 0, `ret 4`, the bind hook),
+0x109496F0 (slot 1, `ret`, the release hook), the two pure virtuals of slots 2 and 3 (`__purecall` in the base's
+vftable, every driver class overrides them), and the destructor in slot 4. Its constructor is 0x1094A4E0:
+`{ vptr, core::Name +4 (an 8-byte name built by 0x1005E520), unknown +0xC, int +0x10 = 0, type +0x14,
+flags byte +0x18 }`, 0x1C bytes; the flag bits are set by 0x1094A440 (bit 1, takes part in the blend), 0x1094A4A0
+(bit 4, moves the root) and 0x1094A4C0 (bit 5, the owner stopped the driver).
+
+`choreo::PartitionDriver` (0x38 bytes) adds the joint range it drives: `mFirstJoint +0x20`, `mLastJoint +0x24`
+(the overrides of slots 2 and 3, 0x1094B100 / 0x1094B110), `mPose +0x28` (the object of the DriverInfo it was bound
+with), `mJoint +0x2C` (whose name is at +8 and whose joint mask is at +0x10), `mJointMask +0x30`, and slot 5
+(0x1094D4B0) `mFirstJoint == 0` (`CoversRoot`).
+
+`choreo::AnimationDriver` (0xF0 bytes): `AnimationBinding mBinding +0x38` = `{ pure3d::Animation* mSource +0,
+AnimationClip mClip +4 }` (the binding's destructor is 0x10955560: release the animation, destroy the clip)
+`| +0x54 mUnknown54 (the driver moves the root translation) | +0x55 mUnknown55 (the rotation) | +0x58 rate |
++0x5C first frame | +0x60 last frame | +0x64..+0x67 the four root motion flags | +0x68 DeltaTransform |
++0xE4 the current frame | +0xE8 a direction | +0xEC the frame the step started at`. The clip is
+`{ channel +0, duration +4, rate +8, +0xC, flags byte +0x10, the animation bound to it +0x14 }` (methods
+0x10952290 - 0x10952480 and the samplers 0x10955260 / 0x109552C0 / 0x10955360, all in the sample channel unit).
+
+Match (new): the RootDriver constructor 0x1094EF30 and destructor 0x1094EF80, BlendIntoMatrix's neighbours
+0x1094F040 FillPose (the pose blend node's `SetNone` / `SetRotation` / `SetTranslation`), the AnimationDriver
+destructor 0x1094F200, SetAnimation 0x1094F240, the Bind override 0x1094F290, the Unbind override 0x1094F2D0,
+IsSet 0x1094F2E0, UpdateRest 0x1094F2F0, GetRangeTime 0x1094F3A0, 0x1094F420, GetTimeLeft 0x1094F440, the two
+root motion flag setters 0x1094F4F0 / 0x1094F510, the CoversRoot override 0x1094F530, the two clip samplers
+0x1094F630 / 0x1094F670 and the blend node filler 0x1094F6D0. Both classes' vftables are emitted by this object
+(the type-9 casts 0x1094EFA0 / 0x1094EFC0, GetFirstJoint / GetLastJoint 0x1094EFE0 / 0x1094EFF0, SetMask
+0x1094F000, RootDriver::Update 0x1094F020, the four flag getters, the type-0 cast 0x1094F230, ClampFrame
+0x1094F5C0, GetFrameAdvance 0x1094F5F0 and SetUnknownE4 0x1094F610 were already matched).
+
+Matching notes:
+
+- The two float locals of GetRangeTime and GetTimeLeft (`float to = ...; float from = ...; float rate =
+  mClip.GetFrameRate();`) are what keeps the engine's two operand spills: without them the compiler folds the
+  members into the members and subtracts before the call.
+- `mDelta.Transform::Reset()` (a qualified call) is the engine's call to 0x1094D910, a thunk of `Transform::Reset`;
+  `mDelta.Reset()` would be the DeltaTransform overload at 0x1094D920.
+- The vftable of a class with a virtual destructor holds the *vector* deleting destructor (`??_E`), the engine's
+  holds the scalar one (`??_G`); both of ours are byte-identical to the engine's function, so `??_E` is mapped to
+  the same address in symbols.txt.
+
+NONMATCHING:
+
+- 0x1094F300 SetStartFrame, 0x1094F350 SetEndFrame: every instruction is the same but the engine encodes the two
+  float comparisons with `comiss` of the constant and then of the frame against the limit, ours always puts the
+  argument first (`comiss frame, value`); 90 %. No spelling of the condition changes it.
+- 0x1094F0A0 BlendIntoMatrix: the engine keeps the copy of the matrix translation in the lower of the two
+  `math::Vector` locals (the one the delta transform's position is returned into in ours); every instruction after
+  that follows from the two slots; 36 %.
+- 0x1094F550 ClampFrame: the engine keeps the comparisons of the frame's ends as they are written (the minimum on
+  the left) where ours are canonicalised into the other order, the same two bytes twice; 74 %.
+- 0x1094F6B0: the engine loads both frames before the call and pushes their slots one at a time, ours loads the
+  second frame first into an argument area of its own; 35 %.
+
+## choreo/src/deltatransform.cpp (0x1094D730 - 0x1094EF30): 7 functions match, 28 NONMATCHING, 1 not done
+
+`choreo::DeltaTransform` (the asserts at 0x1094D730 - 0x1094ECC0 name the file and the class): the movement of a
+character over one step. It derives from a `choreo::Transform` (declared in the unit before this one, not
+reconstructed: a `math::Matrix` at +0, the `math::Quaternion` it was decomposed to at +0x40, the three axis scales at
++0x50 - +0x58 and the mode at +0x5C saying which of the two is current) and adds the linear delta at +0x60, the
+angular delta at +0x6C and the two "was set this step" flags at +0x78 / +0x79 (size 0x7C). The unit is told either the
+two deltas or the root matrix the step ends on and gives back the matrix, the position, the rotation or the facing
+vector.
+
+The unit is one `// FUNCTION:` block per function in address order; the four overloads of the file-local
+`ValidateDeltaInput` and the two reports the asserts call are the validation layer. Matching notes:
+
+- The reports are `core::Report(0, "Choreo  Pre ", FILE, line, 0, format, ...)` behind a per-site `static bool`, and
+  the assert sites are the `OLD_ASSERT_AT(FILE, line, ValidateDeltaInput(x), "ValidateDeltaInput( x )", "")` macro
+  (the expression text is the engine's, the developer message is `""`).
+- `math::Vector` copies from a reference are component-wise, not a block copy: `mVelocity.Set(0, 0, 0)` in the
+  constructor and three separate assignments in the delta setters give the engine's `fld` / `fstp`; `mVelocity = v`
+  gives integer `mov`s.
+- The order the two zero vectors are written in decides the constructor's match (`Set` forward) and the Reset's
+  (the engine writes each vector's components backwards; 88 % is the best reached).
+
+NONMATCHING:
+
+- 0x1094D730 ReportBadVector, 0x1094D7B0 ReportBadQuaternion: the engine takes the value in `esi`, ours in `ecx`;
+  61 % / 60 %.
+- 0x1094D9B0 / 0x1094D9F0 / 0x1094DB40 ValidateDeltaInput(vector / quaternion / float): the engine takes its argument
+  in `eax` and keeps it in `esi` across the report, ours in `ecx`; 24 %.
+- 0x1094D920 Reset: 88 %, the component order of the two zero vectors.
+- The twenty setters that call the three validators above (0x1094DB70 - 0x1094E430, SetVelocity / SetAngularVelocity /
+  SetDelta / SetPosition / SetDeltaFacing): every instruction is the same, the call setup is `mov eax, edi` in the
+  engine and `mov ecx, edi` in ours; 99 %. The two matrix setters (0x1094DF50, 0x1094DFB0) match because the matrix
+  validation keeps its argument in `ecx` like ours.
+- The ten output setters, 0x1094E490 - 0x1094ECC0 (SetOrientation with an angle and a root, SetRotation, the
+  velocity-and-orientation pair and the facing-delta pair): the two that call only the matrix validation
+  (0x1094E6C0, 0x1094E800) match; the other eight call the vector, quaternion or float validation, which the engine
+  passes in `eax`, so they are off by that one `mov`; 99 %.
+- 0x1094ED90 Update: 25 %, the engine expands the identity matrix into sixteen locals and schedules the two branches
+  differently.
+
+Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled and called by the matching matrix
+setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
+0x1094D9B0 - 0x1094DB40 are compiled nowhere: the engine's copies stay.
+
+## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 3 functions match, 0 NONMATCHING, 50 not done
+
+Source in `choreo/src/partitiondriver.cpp` (file name guessed; `choreo::AnimationBlendDriver`'s destructor 0x1094D290
+destroys fifteen 0x2C-byte clip entries from +0x3C, so the unit is the one that builds and drives the drivers that
+partition the pose). Matched: `PartitionDriver::~PartitionDriver` 0x1094D430 (releases the pose through its vftable),
+`CoversRoot` 0x1094D4B0 and `Unknown1094D4C0` 0x1094D4C0 (whether the clip is at rest against the pose).
+
+The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
+0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the
+clip lengths and rates (0x1094C850, 0x1094CEA0, 0x1094CEF0), the partition bit-set indexing and the blends. Nothing
+is written up yet. What the rootdriver unit has since recovered (the classes are laid out in
+`src/code/choreo/{rootdriver,puppet}.h` now):
+
+- `choreo::PartitionDriver` (0x38 bytes) = `Driver` (0x1C: vptr, an 8-byte core::Name at +4, +0xC, an int at +0x10,
+  the type at +0x14, the flags byte at +0x18) plus `mFirstJoint +0x20`, `mLastJoint +0x24`, `mPose +0x28`,
+  `mJoint +0x2C`, `mJointMask +0x30`, `+0x34`. Its vftable is 0x10E8BC84, six slots: 0x1094D690 the bind override,
+  0x109496F0 inherited, 0x1094B100 / 0x1094B110 the two joint getters, `??_G` 0x1094D550 and 0x1094D4B0
+  `CoversRoot` (`mFirstJoint == 0`); the destructor is 0x1094D430 (releases the object at +0x28 through its
+  vftable slot 1, then `~Driver`), not 0x1094D550.
+- 0x1094D690 takes a `DriverInfo` (`{ unknown0[0xC], void* mPose +0xC }`), assigns it with 0x1094D4F0
+  (`AssignRefCounted`), looks the joint up by name through 0x1094D630 -> `0x106DDC80(Pose*, const core::Name&)`
+  (returns the 0x18-byte joint whose `core::Name` is at +8) and stores it with 0x1094D570 (the joint at +0x2C, its
+  mask at +0x30, then a scan of the mask for the first and last joint of the range). 0x1094D4C0 returns whether the
+  clip is at rest against the pose: `!(binding.mSource && mPose && binding.mClip.Unknown10952390(mJointMask))`.
+- `choreo::AnimationBlendDriver`'s vftable is 0x10E8BB64: slot 0 0x1094CB50, slot 1 0x1094CB20, slots 2/3 inherited,
+  `??_G` 0x1094D3C0, slot 5 inherited. Its own members start after the 0x38 bytes of PartitionDriver.
+- The clip class (`choreo::AnimationClip`, 0x18 bytes: a channel pointer +0, the duration in frames +4, the rate +8,
+  +0xC, a flags byte +0x10, the animation bound to it +0x14; methods 0x10952290 destroy, 0x109522A0 set,
+  0x10952310 IsSet, 0x10952320 duration, 0x10952330 rate, 0x10952380 bit 1 of the flags, 0x10952390 whether the
+  animation drives any joint of a mask, 0x10952480 the animation) and the two blend nodes of the job
+  (`choreo::PoseBlendNode`, 0x70 bytes, and `choreo::PoseBlendSample`, 0x20 bytes, declared in poseblendjob.h) are
+  already in the choreo headers.
+
+**The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
+compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation
+(/GL), not of plain /O2: our build puts them all in `ecx`. Everything that calls such a helper is off by that one
+`mov`. If a later session finds a way to reproduce it, the twenty setters come with it.
+
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
 The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
