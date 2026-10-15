@@ -3,6 +3,92 @@
 #include "code/container/arraydynamicnew.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/ravenphysics/common/hashtable.h"
+
+namespace ravenphysics
+{
+	// The keys the manager's table holds are the objects' ids, so a key's slot is its index in the table. The chain
+	// of a bucket runs from buckets[bucket] through next[] and ends at 0xFFFF; every slot is taken once, so
+	// Insert of a key the table already holds gives it a second slot.
+
+	// FUNCTION: ENGINE 0x107E7120
+	void KeyTable::Create(unsigned int entries, ScratchStack* stack)
+	{
+		Init((unsigned short)entries, (unsigned short)entries, stack);
+		keys = (unsigned int*)stack->Alloc(entries * 4, 16);
+		count = 0;
+		capacity = entries;
+		order = (unsigned int*)stack->Alloc(entries * 4, 16);
+		orderCapacity = entries;
+		orderCount = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107E6BC0
+	unsigned short KeyTable::Find(unsigned int key) const
+	{
+		unsigned int bucket = ((key + 3) * key) % bucketCount;
+		unsigned short slot = buckets[bucket];
+		while (slot != 0xFFFF)
+		{
+			if (keys[slot] == key)
+			{
+				break;
+			}
+			slot = next[slot];
+		}
+		return slot;
+	}
+
+	// FUNCTION: ENGINE 0x107E6C00
+	unsigned short KeyTable::FindFrom(unsigned short slot, unsigned int key) const
+	{
+		for (slot = next[slot]; slot != 0xFFFF; slot = next[slot])
+		{
+			if (keys[slot] == key)
+			{
+				break;
+			}
+		}
+		return slot;
+	}
+
+	// FUNCTION: ENGINE 0x107E6C40
+	// NONMATCHING: same instructions in the same order, but the new slot and the old chain head come out in the other
+	// pair of registers (eax/esi swapped), 87 %
+#ifdef NONMATCHING
+	void KeyTable::Insert(unsigned int key)
+	{
+		unsigned int bucket = ((key + 3) * key) % bucketCount;
+		unsigned short slot = buckets[bucket];
+		while (slot != 0xFFFF)
+		{
+			if (keys[slot] == key)
+			{
+				break;
+			}
+			slot = next[slot];
+		}
+		if (slot == 0xFFFF)
+		{
+			orderCount++;
+			unsigned int* item = order + orderCount - 1;
+			if (item != 0)
+			{
+				*item = key;
+			}
+		}
+		unsigned short index = (unsigned short)count++;
+		unsigned int* entry = keys + count - 1;
+		if (entry != 0)
+		{
+			*entry = key;
+		}
+		unsigned short previous = buckets[bucket];
+		buckets[bucket] = index;
+		next[index] = previous;
+	}
+#endif
+}
 
 // The unit's instantiations of the growable array: the manager collects collisions and unsolved constraints into one
 // array each and hands the ranges to the collision messages (0x107E4340 - 0x107E4720 and 0x107E5830 - 0x107E5930)

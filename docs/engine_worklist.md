@@ -562,11 +562,23 @@ it too). 84 functions match so far, in address order:
   unidentified and 0x107E6AE0 is left unclaimed.
 - `Erase` is **not** this class's: the original's (0x107E6AA0 / 0x107E6B10) walks the range through a copy loop, ours
   shifts one element at a time (19 %).
+- the `pm_` registration 0x107E6F20 (`RegisterPhysicsCommands`): it registers all twenty commands, so the unit needs
+  the `Function` wrappers the header had only for zero and one argument. `function.h` gained `Function0<void>`,
+  `Function2`, `Function3`, `Function4` and their `void` forms, and `Register` gained the two-, three- and
+  four-argument overloads; the unit then emits the four-argument wrapper's constructor, `Call` and `Invoke`
+  (0x107E59C0 / 0x107E5A30 / 0x107E5A70) and the `Register` copy 0x107E6B70 by itself. The 0- and 1-argument
+  `Register` copies are calls to another unit (0x10280020 / 0x10374950), which `symbols.txt` maps.
+- the uid table, `ravenphysics::KeyTable` (name guess; the engine's copy has no RTTI): `Find` 0x107E6BC0,
+  `FindFrom` 0x107E6C00 and `Create` 0x107E7120 match, and `Init` (0x106883B0, another unit) is mapped. The layout
+  is `next / slotCount / buckets / bucketCount / keys / count / capacity / order / orderCount / orderCapacity`, all
+  of it cut out of the scratch stack when the table is created.
 
 NONMATCHING:
 
 - 0x107E37B0 AtomicExchange: the engine's copy takes the value in `eax` (a link-time code generation convention),
   ours in `edx`; 60 %.
+- 0x107E6C40 KeyTable::Insert: the same instructions in the same order, but the new slot and the old chain head come
+  out in the other pair of registers (`eax`/`esi` swapped); 87 %.
 
 Not done (owners or layouts not recovered yet; the reasons are what blocks them, not just "unknown"):
 
