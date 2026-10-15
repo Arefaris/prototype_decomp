@@ -3,6 +3,7 @@
 #include "code/core/debug.h"
 #include "code/core/heap.h"
 #include "code/core/interlocked.h"
+#include "code/ravenphysics/batch/midphasebatcher.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/ravenphysics/context.h"
@@ -1061,60 +1062,350 @@ namespace ravenphysics
 		return item;
 	}
 
-	// FUNCTION: ENGINE 0x10658080
-	// NONMATCHING: the engine tests the slot pointer with an explicit `test eax, eax` before the `je`, ours reuses
-	// the flags of the `add` that computes it, so the branch and everything after it sit two bytes earlier. Casting
-	// the base to the class's pointer type (which restores the test) still leaves it 71 bytes against 70.
-#ifdef NONMATCHING
-	bool SlotPool::Add(const Record32& value)
+	// The slot the log hands out, or null when it is full; the engine's Add has this inlined, and the inliner's
+	// copy of the returned pointer is what carries the explicit null test.
+	inline void* AcquireStatSlot(StatLog* log)
 	{
-		if (mCounter != 0)
+		if (log->count != 0)
 		{
-			int slot = _InterlockedIncrement(mCounter) - 1;
-			if (slot < mCapacity)
+			int slot = _InterlockedIncrement(log->count) - 1;
+			if (slot < log->capacity)
 			{
-				Record32* item = (Record32*)((unsigned int)mSlots + (slot << 5));
-				if (item != 0)
-				{
-					*item = value;
-					return true;
-				}
+				return (char*)log->entries + (slot << 4);
 			}
-			else
-			{
-				_InterlockedDecrement(mCounter);
-			}
+			_InterlockedDecrement(log->count);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658200
+	bool StatLog::Add(const StatEntry& entry)
+	{
+		StatEntry* item = (StatEntry*)AcquireStatSlot(this);
+		if (item != 0)
+		{
+			*item = entry;
+			return true;
 		}
 		return false;
+	}
+
+	// The slot a 32-byte pool hands out, or null when it is full; the engine's Add has its own copy of this
+	// inlined, and the inliner's copy of the returned pointer is what carries the explicit null test
+	template<class Pool>
+	inline void* AcquireSlot32(Pool* pool)
+	{
+		if (pool->mCounter != 0)
+		{
+			int slot = _InterlockedIncrement(pool->mCounter) - 1;
+			if (slot < pool->mCapacity)
+			{
+				return (char*)pool->mSlots + (slot << 5);
+			}
+			_InterlockedDecrement(pool->mCounter);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658080
+	bool SlotPool::Add(const Record32& value)
+	{
+		Record32* item = (Record32*)AcquireSlot32(this);
+		if (item != 0)
+		{
+			*item = value;
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106580D0
+	bool SlotPoolSecond::Add(const Record32& value)
+	{
+		Record32* item = (Record32*)AcquireSlot32(this);
+		if (item != 0)
+		{
+			*item = value;
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10658180
+	void ScratchArray::Init(unsigned int count)
+	{
+		if (count != 0)
+		{
+			mBegin = (void**)allocator.Alloc(count * 4, 16);
+			if (mBegin != 0)
+			{
+				mCapacity = mBegin + count;
+				mEnd = mBegin;
+				return;
+			}
+		}
+		else
+		{
+			mBegin = 0;
+		}
+		mEnd = 0;
+		mCapacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106581D0
+	bool PointerRunSecond::PushBack(void* const& value)
+	{
+		if (mEnd < mCapacity)
+		{
+			void** item = mEnd++;
+			if (item != 0)
+			{
+				*item = value;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10658260
+	unsigned short ShortValues::Get(int index) const
+	{
+		return mValues[index];
+	}
+
+	// FUNCTION: ENGINE 0x10658270
+	unsigned short ShortValuesSecond::Get(unsigned short index) const
+	{
+		return mValues[index];
+	}
+
+	// FUNCTION: ENGINE 0x10658280
+	void WalkableBatch::BeginWalk(RecordWalk* walk) const
+	{
+		walk->value = *mRecords;
+		walk->owner = (void*)this;
+		walk->limit = (char*)this + 0x20;
+	}
+
+	// FUNCTION: ENGINE 0x106582A0
+	void ShortRun::Fill()
+	{
+		memset(mSecond, 0xff, mSecondCount * 2);
+		memset(mFirst, 0xff, mFirstCount * 2);
+		memset(mThird, -1, mThirdCount * 2);
+	}
+
+	// FUNCTION: ENGINE 0x106582F0
+	template StatEntry* ScratchStack::AllocOne<StatEntry>(int unused);
+
+	// FUNCTION: ENGINE 0x10658300
+	template Box400* ScratchStack::AllocOne<Box400>(int unused);
+
+	// FUNCTION: ENGINE 0x10658310
+	template Box128* ScratchStack::AllocOne<Box128>(int unused);
+
+	// FUNCTION: ENGINE 0x10658320
+	void* IndexedHandle::Get() const
+	{
+		if (index != 0xffff)
+		{
+			return table->items[index];
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658340
+	void ChainedIndex::Next()
+	{
+		index = (*items)[index];
+	}
+
+	// FUNCTION: ENGINE 0x10658400
+	void FillByteRun(char* target, unsigned int count, const char* value)
+	{
+		char* current = target;
+		while (count != 0)
+		{
+			count--;
+			if (current != 0)
+			{
+				*current = *value;
+			}
+			current++;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658430
+	void Context::RefreshMovableObjects()
+	{
+		RefreshObjectList(&movableObjects);
+	}
+
+	// FUNCTION: ENGINE 0x10658440
+	void* IndexedHandleSecond::Get() const
+	{
+		if (index != 0xffff)
+		{
+			return table->items[index];
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658460
+	void IndexedSlot::Set(ShortHead* newOwner, unsigned short newIndex)
+	{
+		owner = newOwner;
+		index = newOwner->values[newIndex];
+	}
+
+	// FUNCTION: ENGINE 0x10658480
+	// NONMATCHING: register allocation, 32 %: the engine reads the slot index before it stores the owner and then
+	// loads the owner's run through the same register it stored, ours keeps the owner in a second register and
+	// reloads through it (25 bytes against 28 with a `value` local, 28 against 28 without)
+#ifdef NONMATCHING
+	void IndexedSlotSecond::Get(RecordWalk* walk) const
+	{
+		unsigned short value = owner->values[index];
+		walk->owner = owner;
+		walk->value = value;
 	}
 #endif
 
-	// FUNCTION: ENGINE 0x106580D0
-	// NONMATCHING: as SlotPool::Add above: the engine's explicit `test eax, eax` before the `je`, ours reuses the
-	// flags of the `add`, 71 bytes against 70
-#ifdef NONMATCHING
-	bool SlotPoolSecond::Add(const Record32& value)
+	// FUNCTION: ENGINE 0x106584A0
+	Block6::Block6()
 	{
-		if (mCounter != 0)
-		{
-			int slot = _InterlockedIncrement(mCounter) - 1;
-			if (slot < mCapacity)
-			{
-				Record32* item = (Record32*)((unsigned int)mSlots + (slot << 5));
-				if (item != 0)
-				{
-					*item = value;
-					return true;
-				}
-			}
-			else
-			{
-				_InterlockedDecrement(mCounter);
-			}
-		}
-		return false;
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
 	}
-#endif
+
+	// FUNCTION: ENGINE 0x106584C0
+	Block11::Block11()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown20 = 0;
+		unknown24 = 0;
+		unknown28 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106584F0
+	Block8::Block8()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658510
+	Block11Second::Block11Second()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown20 = 0;
+		unknown24 = 0;
+		unknown28 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658540
+	Block8Second::Block8Second()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658560
+	Block11Third::Block11Third()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown20 = 0;
+		unknown24 = 0;
+		unknown28 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658590
+	Block11Fourth::Block11Fourth()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown20 = 0;
+		unknown24 = 0;
+		unknown28 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106585C0
+	Block3::Block3()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106585D0
+	Block3Second::Block3Second()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106585E0
+	Block7::Block7()
+	{
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658600
+	Block3Third::Block3Third()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
 
 	// FUNCTION: ENGINE 0x10658120
 	TripleBlock::TripleBlock()

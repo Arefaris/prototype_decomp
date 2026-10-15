@@ -52,6 +52,9 @@ namespace ravenphysics
 		// count objects of T, the byte size rounded up to the alignment
 		template<class T>
 		T* AllocArray(int count, int align);
+		// One object of T, aligned to 16 (the copies the engine emits take an argument they do not use)
+		template<class T>
+		T* AllocOne(int unused);
 	};
 
 	// Defined outside the class, so the compiler keeps it out of line like the engine does
@@ -59,6 +62,13 @@ namespace ravenphysics
 	T* ScratchStack::AllocArray(int count, int align)
 	{
 		return (T*)Alloc((count * sizeof(T) + align - 1) & ~(align - 1), align);
+	}
+
+	template<class T>
+	T* ScratchStack::AllocOne(int unused)
+	{
+		(void)unused;
+		return (T*)Alloc(sizeof(T), 16);
 	}
 
 	// Marks the scratch stack on construction and gives back everything allocated since on destruction

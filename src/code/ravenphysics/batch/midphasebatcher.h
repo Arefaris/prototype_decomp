@@ -45,7 +45,9 @@ namespace ravenphysics
 	class StatLog
 	{
 	public:
-		unsigned int Add(const StatEntry& entry);
+		// Copies the entry into the next free slot, false once the log is full (0x10658200; the engine returns
+		// one byte - `mov al, 1` and a bare `ret 4` - so the result is a bool, not the word the callers ignore)
+		bool Add(const StatEntry& entry);
 
 		StatEntry* entries;
 		int capacity;

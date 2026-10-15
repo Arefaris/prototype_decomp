@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 120 functions match, 3 NONMATCHING
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 155 functions match, 4 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1804,10 +1804,19 @@ NONMATCHING in this range:
   two `movzx` differ. `WakeObject`, whose tail is the same code, does load the movable count first, so the order is
   not a property of the expression: both orders of the sum, the unparenthesised chain and a local holding it all
   compile to the movable-first pair here.
-- `0x10658080 SlotPool::Add` / `0x106580D0 SlotPoolSecond::Add`: the engine tests the slot pointer with an explicit
-  `test eax, eax` before the `je`, ours reuses the flags of the `add` that computes the pointer, so every branch and
-  the whole copy sit two bytes earlier (71 bytes against 70). Casting the base to an integer (which restores the
-  test, but leaves the size at 71) was the second attempt.
+- `0x10658480 IndexedSlotSecond::Get`: register allocation, 32 % - the engine reads the slot index before it stores
+  the owner and then loads the owner's run through the same register it stored; ours keeps the owner in a second
+  register and reloads through it (25 bytes against 28 with a `value` local, 28 against 28 without).
+
+Two systematic findings worth reusing:
+
+- `Add` on the slot pools and on `StatLog` (0x10658080 / 0x106580D0 / 0x10658200) all carry an explicit
+  `test eax, eax` before the `je` where the same code written inline in `Add` reuses the `add`'s flags. The engine's
+  `Acquire` is **inlined** into them, and it is the inliner's materialised copy of the returned pointer that keeps
+  the test: with the acquire logic in a local `inline` helper that `Add` calls, all three match byte for byte.
+- `StatLog` is not this unit's class: it lives in `ravenphysics/batch/midphasebatcher.h`, and its `Add` returns one
+  byte there too (`unsigned int` was the earlier guess), so the declaration and the `symbols.txt` name changed from
+  `QAEI...` to `QAE_N...`. `MidPhaseBatcher::Finish` calls it and ignores the result.
 
 Still not done in this range:
 

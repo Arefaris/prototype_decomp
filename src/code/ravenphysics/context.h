@@ -681,6 +681,312 @@ namespace ravenphysics
 		void* unknown8;
 	};
 
+	// A second run of pointers a batch fills (name guess)
+	struct PointerRunSecond
+	{
+		// Appends value when there is room, false when the run is full (name guess)
+		bool PushBack(void* const& value);
+
+		void** mBegin;    // 0x00
+		void** mEnd;      // 0x04
+		void** mCapacity; // 0x08
+	};
+
+	// A run of 16-bit values behind a head (name guess)
+	struct ShortValues
+	{
+		// The value the index picks (name guess)
+		unsigned short Get(int index) const;
+
+		unsigned char unknown0[8];
+		unsigned short* mValues; // 0x08
+	};
+
+	// A run of 16-bit values (name guess)
+	struct ShortValuesSecond
+	{
+		// The value the index picks (name guess)
+		unsigned short Get(unsigned short index) const;
+
+		unsigned short* mValues; // 0x00
+	};
+
+	// Three runs of 16-bit values with their counts (name guess)
+	struct ShortRun
+	{
+		// Fills all three with 0xFF, the third with -1 (name guess)
+		void Fill();
+
+		short* mFirst;    // 0x00
+		int mFirstCount;  // 0x04
+		short* mSecond;   // 0x08
+		int mSecondCount; // 0x0C
+		short* mThird;    // 0x10
+		int mThirdCount;  // 0x14
+	};
+
+	// Where a walk over a batch's records starts: the current value, the batch and its end (name guess)
+	struct RecordWalk
+	{
+		unsigned short value; // 0x00
+		unsigned char unknown2[2];
+		void* owner;          // 0x04
+		void* limit;          // 0x08
+	};
+
+	// The head of a batch whose records a walk runs over (name guess)
+	struct WalkableBatch
+	{
+		unsigned char unknown0[8];
+		unsigned short* mRecords; // 0x08
+
+		// Starts a walk over this batch's records (name guess)
+		void BeginWalk(RecordWalk* walk) const;
+	};
+
+	// A slot of a table the index picks, 0xFFFF meaning "none" (name guess)
+	struct IndexedTable
+	{
+		void** items; // 0x00
+	};
+
+	struct IndexedHandle
+	{
+		unsigned short index; // 0x00
+		unsigned char unknown2[0x8 - 2];
+		IndexedTable* table;  // 0x08
+
+		// The entry the index picks, or null when there is none (name guess)
+		void* Get() const;
+	};
+
+	// A slot with the index of its successor behind it (name guess)
+	struct ChainedIndex
+	{
+		unsigned short index; // 0x00
+		unsigned char unknown2[2];
+		unsigned short** items; // 0x04
+
+		// Steps to the successor (name guess)
+		void Next();
+	};
+
+	// A head whose word at +8 points at a run of 16-bit values (name guess)
+	struct ShortHead
+	{
+		unsigned char unknown0[8];
+		unsigned short* values; // 0x08
+	};
+
+	// A head whose first word points at a run of 16-bit values (name guess)
+	struct ShortHeadSecond
+	{
+		unsigned short* values; // 0x00
+	};
+
+	// A slot of a head's run, 0xFFFF meaning "none" (name guess)
+	struct IndexedSlot
+	{
+		unsigned short index; // 0x00
+		unsigned char unknown2[2];
+		ShortHead* owner;     // 0x04
+
+		// Takes the slot of newIndex in newOwner's run (name guess)
+		void Set(ShortHead* newOwner, unsigned short newIndex);
+	};
+
+	// The same slot over a head whose run is its first word (name guess)
+	struct IndexedSlotSecond
+	{
+		unsigned short index; // 0x00
+		unsigned char unknown2[2];
+		ShortHeadSecond* owner; // 0x04
+
+		// Writes the slot's value and its owner into the walk (name guess)
+		void Get(RecordWalk* walk) const;
+	};
+
+	// A second slot type whose table keeps its entries behind +0x30 (name guess)
+	struct IndexedTableSecond
+	{
+		unsigned char unknown0[0x30];
+		void** items; // 0x30
+	};
+
+	struct IndexedHandleSecond
+	{
+		unsigned short index; // 0x00
+		unsigned char unknown2[2];
+		IndexedTableSecond* table; // 0x04
+
+		// The entry the index picks, or null when there is none (name guess)
+		void* Get() const;
+	};
+
+	// Copies the byte value points at count times (name guess)
+	void FillByteRun(char* target, unsigned int count, const char* value);
+
+	// Blocks of words the unit zeroes on construction, one constructor each (name guesses)
+	struct Block6
+	{
+		Block6();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+	};
+
+	struct Block8
+	{
+		Block8();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+	};
+
+	struct Block8Second
+	{
+		Block8Second();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+	};
+
+	struct Block11
+	{
+		Block11();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+		void* unknown20;
+		void* unknown24;
+		void* unknown28;
+	};
+
+	struct Block11Second
+	{
+		Block11Second();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+		void* unknown20;
+		void* unknown24;
+		void* unknown28;
+	};
+
+	struct Block11Third
+	{
+		Block11Third();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+		void* unknown20;
+		void* unknown24;
+		void* unknown28;
+	};
+
+	struct Block11Fourth
+	{
+		Block11Fourth();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+		void* unknown1C;
+		void* unknown20;
+		void* unknown24;
+		void* unknown28;
+	};
+
+	// A block whose first word its constructor leaves alone (name guess)
+	struct Block7
+	{
+		Block7();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+		void* unknown10;
+		void* unknown14;
+		void* unknown18;
+	};
+
+	struct Block3
+	{
+		Block3();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct Block3Second
+	{
+		Block3Second();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct Block3Third
+	{
+		Block3Third();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	// A 128-byte box and a 1024-byte one the scratch stack allocates single instances of (name guesses)
+	struct Box128
+	{
+		int unknown0[32];
+	};
+
+	struct Box400
+	{
+		int unknown0[256];
+	};
+
 	// Zeroes the two counters of the pair behind +0x114 (name guess)
 	struct CounterPair
 	{
@@ -700,6 +1006,8 @@ namespace ravenphysics
 		ScratchArray* Self();
 		// count pointers of raw storage, or an empty array when the stack is exhausted (name guess)
 		bool Allocate(unsigned int count);
+		// The same without a result (name guess)
+		void Init(unsigned int count);
 
 		void** mBegin;          // 0x00
 		void** mEnd;            // 0x04
@@ -829,6 +1137,8 @@ namespace ravenphysics
 		void UntrackObjects(ObjectList* objects);
 		// 0x10656E90
 		PlacementTracker* GetPlacement();
+		// Recomputes the bounds of the movable list's objects (0x10658430)
+		void RefreshMovableObjects();
 		// Clears the "changed" flag of every object of the list that is not left out of the queries and
 		// recomputes the bounds of those that had it set (0x10657C90; name guess)
 		void RefreshObjectList(ObjectList* objects);
