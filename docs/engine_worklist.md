@@ -748,10 +748,11 @@ the address order (the two units interleave their statics):
 | frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
 | path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
 
-Done: **31 functions match**, nothing is marked NONMATCHING (the rest were not attempted, so no body was written and
+Done: **33 functions match**, nothing is marked NONMATCHING (the rest were not attempted, so no body was written and
 nothing was excluded from the build).
 
-- fight unit (6, earlier session): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863B90.
+- fight unit (7): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863A90, 0x10863B90.
+- path unit: the same trick below gives 0x10864FA0.
 - `src/code/engine/frontend/frontend.cpp` (20, new): 0x108642D0 `fe_SetUpdateEnable`, 0x10864310 `SetFrontend`,
   0x10864330 `GetFrontend`, 0x10864340 `GetFrontendHeap`, 0x10864390 `SetScreenCentre`, 0x10864420 `GetScreenWidth`,
   0x10864430 `GetScreenHeight`, 0x10864440 `UpdateScreenCentre`, 0x10864490 `SetCursorFade`, 0x108644A0
@@ -822,6 +823,15 @@ Not done, by unit (each is a place to start, not a verdict):
   the tree's "Fight Pre" dump, whose free-text messages are `""` in this reconstruction.
 - 0x108644B0 / 0x108644C0 / 0x108644D0 are 5-byte `jmp` thunks in the middle of `.text` (targets 0x10881220 /
   0x10881290 / 0x108812B0): linker artefacts of the original incremental link, not source functions - leave them.
+- **A kept copy of a header-defined template member can be matched with an explicit instantiation.** The original
+  keeps `content::BaseClassCasterImpl<B, D>::IsDerived` out of line (it takes its address for the meta type's caster);
+  `template struct content::BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>;` in the unit's source makes the
+  compiler emit the same 0x24 bytes at 0x10864FA0 (and the fight unit's at 0x10863A90, from `template struct
+  content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour>;`). Its **constructor is not emitted this way** - an
+  explicit instantiation does not instantiate the implicit default constructor - so 0x10864D90 / 0x10863A80 still
+  need either a user-provided `BaseClassCasterImpl()` in `metatype.h` (which would touch every unit) or a different
+  route. The same trick should work for the `container::ArrayDynamic<T>` members of the path unit
+  (0x10864EE0 - 0x10864F90, 0x10864FD0) once the element types are known.
 - **`FightTreeBehaviour`'s `branch` is a `fight::Branch*`, not a `fight::Track*`.** `SetBranch` (0x10863BA0) hands
   it to `__RTDynamicCast` with the source type descriptor 0x1103DA18 = `.?AVBranch@fight@@` and the target
   0x111CEEB8 = `engine::PlaybackSet` (`engine::PlaybackSet : fight::Branch; fight::Entity; ...`), and `fight::Track`

@@ -4,6 +4,11 @@
 
 namespace engine
 {
+	// 0x10863A80 (constructor, kept copy) and 0x10863A90 (IsDerived): the caster the class meta type of
+	// engine::FightTreeBehaviour carries. The unit kept them out of line, which is what an explicit instantiation
+	// makes the compiler do.
+	template struct content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour>;
+
 	// FUNCTION: ENGINE 0x108638C0
 	content::ClassInfo* FightTreeBehaviour::GetClassInfo()
 	{
