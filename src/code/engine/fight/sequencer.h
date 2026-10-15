@@ -176,6 +176,8 @@ namespace fight
 		void Advance(int arg, float dt);
 		// 0x105A4120: releases the two scheduled members
 		void Clear();
+		// 0x105A3EC0: ends every action of the pending list (name guess)
+		void EndPending();
 		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old
 		void SetTrack(Track* track);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
