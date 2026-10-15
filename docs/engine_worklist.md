@@ -1856,20 +1856,67 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## collision/src/collisionobject.cpp (0x10653150 - 0x1065xxxx), started
+## collision/src/minimalcollisioninfo.cpp (0x10653150 - 0x10654490), started
+
+The unit that is linked just before collision/src/collisionobject.cpp. It carries no assert string of its own, so
+the image does not name its source file: the file name is a guess, and the boundary against collisionobject.cpp is
+established by the compiler, not by a string. `CollisionObject::UpdateProperties` (0x106559C0) proves the split
+exists: while `IntersectionProperties::IntersectionProperties` (0x10653860) was defined in the same unit as it,
+MSVC could see through the constructor and kept the local `IntersectionProperties` in registers, and
+UpdateProperties came out 133 bytes and 68.4 % instead of 152 bytes and 100 %. With the registry in a unit of its
+own, the constructor is an external call again and UpdateProperties matches.
+
+The unit holds the table of collision object handles (0x1127CAC0, 0x10653150 - 0x10653530), the registry of known
+intersection properties (0x10653610 - 0x106538D0, its table at 0x1127CAC4) and the CollisionShape flag accessors
+and volume destructors (0x10654380 - 0x10654490).
+
+The IntersectionProperties registry is a flat array: `gIntersectionProperties` (0x1127CAC4, pointer) holds
+0x10-byte entries of two unknown words and then the `IntersectionProperties` at +8,
+`gIntersectionPropertyCount` (0x1127CACC) is the length, and `IntersectionProperties`'s default constructor is the
+first entry's properties, or (-1, -1) when the registry is empty. All three globals (and the loader at 0x1127CAD0)
+are the engine's - declared, not defined here - and are mapped in symbols.txt.
+
+## collision/src/collisionobject.cpp (0x106544B0 - 0x10655FC0), started
 
 The unit's assert path (`..\..\..\code\ravenphysics\collision\src\collisionobject.cpp`, lines 322 - 1016) names it.
-The code before 0x106544E0 has no assert at all, so the unit's start is not certain: the physics handle table
-(0x1127CAC0, 0x10653150 - 0x10653530), the IntersectionProperties registry (0x10653610 - 0x106538D0, its table at
-0x1127CAC4) and the CollisionShape methods (0x106543B0 - 0x10654470) may belong to earlier units of the same
-library. What is reconstructed is `ravenphysics::CollisionObject` (0x106544B0 on), the two `IntersectionProperties`
-accessors, and the cross-unit declarations the rest needs.
+What is reconstructed is `ravenphysics::CollisionObject` and the cross-unit declarations it needs.
 
 The IntersectionProperties registry (0x10653610 - 0x10653860) is a flat array: `gIntersectionProperties`
 (0x1127CAC4, pointer) holds 0x10-byte entries of two unknown words and then the `IntersectionProperties` at +8,
 `gIntersectionPropertyCount` (0x1127CACC) is the length, and `IntersectionProperties`'s default constructor is the
-first entry's properties, or (-1, -1) when the registry is empty. Both globals are the engine's (declared, not
-defined here) and are mapped in symbols.txt.
+first entry's properties, or (-1, -1) when the registry is empty. All three globals (and the loader at 0x1127CAD0)
+are the engine's - declared, not defined here - and are mapped in symbols.txt.
+
+Done in this unit (all 100 %): `0x10653610` IntersectionProperties::operator==, `0x10653630`
+IntersectionPropertiesEntry::GetProperties, `0x106536D0` FindIntersectionProperty, `0x10653720`
+GetIntersectionPropertyCount, `0x10653730` GetIntersectionProperty, `0x10653860` IntersectionProperties
+constructor, `0x106538D0` ClearIntersectionPropertiesLoader (a call to `core::RefAssign` with the loader at
+0x1127CAD0, which itself is 0x10653800 - a header template instance, so not counted), `0x10654380`
+CollisionShape::SetFlag3, `0x106543A0` CollisionShape::IsFlag3 and `0x10654410` CollisionShape::SetFlag4.
+
+NONMATCHING in this unit:
+
+- `0x10653250` CollisionObjectTable::Add: the bumped serial, 70.2 %: the engine reads it out of the slot once and
+  keeps it in a register for both stores, ours loads it a second time for the handle; naming the value only moves
+  the extra load.
+- `0x106532B0` CollisionObjectTable::Remove: the serial test, 35.6 %: the engine materialises the second half of
+  the `&&` as a bool (`sete dl` / `test dl, dl`), ours branches on the comparison directly. Every other
+  instruction, and the `&&`'s short-circuit, is the same.
+
+Still to do in this unit: the container helpers the handle table is built from (0x10653150 - 0x10653240 and
+0x10653360 - 0x10653530: a stack of 16-bit indexes over (begin / size / capacity) at +0/+4/+8 with `IsEmpty` /
+`Push` / `Pop` / `Top`, two-argument constructors, a `Free`, and one 3-field and two 2-field `Create` / `Free`
+pairs, plus `CollisionObjectTable`'s creation 0x10653530 / 0x106534B0 and the free-list fill 0x10653310, which
+`functions.tsv` does not list), the meta type statics of `IntersectionPropertiesLoader` and `ColliderTypeNames`
+(0x10653640 / 0x10653680 / 0x10653740 / 0x10653780 / 0x106537C0: `content::ClassInfo` and
+`content::NameMetaType` locals behind guard bytes at 0x1127CAE0 and on, which need that unit's own copy of the
+`content` meta type templates), the two other refcounted pointer wrappers 0x106538B0, 0x106543B0 (a
+`MoveTo(position, flag)` that forwards to `MoveTo(position, center, flag)`; the shape's own `MoveTo(Vector, int)`
+is 0x10669E60 in another unit, so this one belongs to a class that is not `CollisionShape` as declared here) and
+the four deleting destructors 0x10654430 - 0x10654490 (they need the headers' destructors to be defined and a
+matched `delete`, which only a matched ~CollisionObject would emit).
+
+## collision/src/collisionobject.cpp (0x106544B0 - 0x10655FC0)
 
 The engine's `CollisionObject` is 0x80 bytes: a `math::Matrix` at 0, its `core::Name` at 0x40, a 4-byte handle
 (index / serial) at 0x48, the volume array at 0x50 with its 16-bit count at 0x54, the changed bit at 0x56, a state
@@ -1888,32 +1935,15 @@ NONMATCHING:
   7.9 % (the frame is 8 bytes larger).
 - `0x10655EA0` ~CollisionObject: the engine emits `test esi, esi` before each of the four destructor calls, ours
   drops it because the volume pointer was just dereferenced for its type byte; 59.6 %.
-- `0x10653250` CollisionObjectTable::Add: the bumped serial, 70.2 %: the engine reads it out of the slot once and
-  keeps it in a register for both stores, ours loads it a second time for the handle; naming the value only moves
-  the extra load.
-- `0x106532B0` CollisionObjectTable::Remove: the serial test, 35.6 %: the engine materialises the second half of
-  the `&&` as a bool (`sete dl` / `test dl, dl`), ours branches on the comparison directly. Every other
-  instruction, and the `&&`'s short-circuit, is the same.
 
 Done (all 100 %): `0x10655A60` Print, `0x10655AE0` constructor, `0x10655B60` Initialize, `0x10655BE0` Clone,
-`0x10655D90` SetName, `0x10655F60` / `0x10655FC0` CreateCollisionObject, `0x106559C0` UpdateProperties (was
+`0x10655D90` SetName, `0x10655F60` / `0x10655FC0` CreateCollisionObject and `0x106559C0` UpdateProperties (was
 64.4 %: it is an indexed `for (i < volumeCount)` loop, not a countdown, and the volume's two filter words are
-one sub-struct, so MSVC forms its address once and reuses it for the second field), and the registry accessors
-`0x10653610` IntersectionProperties::operator==, `0x10653630` IntersectionPropertiesEntry::GetProperties,
-`0x106536D0` FindIntersectionProperty, `0x10653720` GetIntersectionPropertyCount and `0x10653730`
-GetIntersectionProperty.
+one sub-struct, so MSVC forms its address once and reuses it for the second field).
 
-Still to do in 0x10653000 - 0x106564E0 (nothing matched yet): the container helpers the handle table is built
-from (0x10653150 - 0x10653240 and 0x10653360 - 0x10653530: a stack of 16-bit indexes over
-(begin / size / capacity) at +0/+4/+8 with `IsEmpty` / `Push` / `Pop` / `Top`, two-argument constructors, a
-`Free`, and one 3-field and two 2-field `Create` / `Free` pairs), the meta type statics of
-`IntersectionPropertiesLoader` and `ColliderTypeNames` (0x10653640 / 0x10653680 / 0x10653740 / 0x10653780 /
-0x106537C0: `content::ClassInfo` and `content::NameMetaType` locals behind guard bytes at 0x1127CAE0 and on),
-the refcounted pointer setters 0x10653800 / 0x106538B0 / 0x106538D0, the CollisionShape COMDATs
-(0x10654380 / 0x106543A0 / 0x10654410 the flag-3 and flag-4 accessors, 0x106543B0 `MoveTo(position, flag)` that
-calls `MoveTo(position, center, flag)`) and the four deleting destructors 0x10654430 - 0x10654490. The meta type
-statics need the `content` meta type machinery to be instantiated the way that unit does it, which is why they
-are untouched.
+Nothing of 0x10656020 - 0x106564C0 is reconstructed: those functions belong to the units after this one (they use
+the handle table's slots and the refcount helpers at 0x106560D0 / 0x106560E0) and the last of them, 0x106564E0, is
+ravenphysics/src/context.cpp, another agent's unit.
 
 Lessons:
 

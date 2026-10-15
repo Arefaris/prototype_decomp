@@ -1,6 +1,7 @@
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/core/debug.h"
+#include "code/core/refptr.h"
 #include "code/engine/system/enginememory.h"
 #include <math.h>
 
@@ -12,99 +13,6 @@ namespace ravenphysics
 	CollisionShape* CreateVolumeShape(CollisionVolume* volume, float size, CollisionObject* object);
 	// The same for a box (0x1066A220, another unit)
 	CollisionShape* CreateBoxShape(float size, int a, int b, CollisionObject* object);
-
-	// FUNCTION: ENGINE 0x10653610
-	bool IntersectionProperties::operator==(const IntersectionProperties& other) const
-	{
-		return unknown0 == other.unknown0 && unknown4 == other.unknown4;
-	}
-
-	// FUNCTION: ENGINE 0x10653630
-	IntersectionProperties* IntersectionPropertiesEntry::GetProperties()
-	{
-		return &properties;
-	}
-
-	// FUNCTION: ENGINE 0x10653720
-	unsigned int GetIntersectionPropertyCount()
-	{
-		return gIntersectionPropertyCount;
-	}
-
-	// FUNCTION: ENGINE 0x10653730
-	IntersectionPropertiesEntry* GetIntersectionProperty(unsigned short index)
-	{
-		return &gIntersectionProperties[index];
-	}
-
-	// FUNCTION: ENGINE 0x106536D0
-	IntersectionPropertiesEntry* FindIntersectionProperty(const IntersectionProperties& properties)
-	{
-		for (unsigned int i = 0; i < gIntersectionPropertyCount; i++)
-		{
-			const IntersectionProperties& current = gIntersectionProperties[i].properties;
-			if (current.unknown0 == properties.unknown0 && current.unknown4 == properties.unknown4)
-			{
-				return &gIntersectionProperties[i];
-			}
-		}
-		return 0;
-	}
-
-	// FUNCTION: ENGINE 0x10653250
-	// NONMATCHING: the bumped serial, 70.2 %: the engine reads it out of the slot once and reuses the register
-	// for both stores, ours loads it a second time for the handle (`movzx esi, word ptr [eax]` then
-	// `mov dx, word ptr [eax]`); naming the value only moves the extra load
-#ifdef NONMATCHING
-	void CollisionObjectTable::Add(void* object, CollisionHandle* handle)
-	{
-		if (free.IsEmpty())
-		{
-			handle->value = 0xffffffff;
-			return;
-		}
-		unsigned short index = free.Pop();
-		unsigned short& serial = serials[index];
-		serial++;
-		CollisionHandleEntry* entry = &entries[index];
-		entry->object = object;
-		entry->serial = serial;
-		handle->index = index;
-		handle->serial = serial;
-	}
-#endif
-
-	// FUNCTION: ENGINE 0x106532B0
-	// NONMATCHING: the serial test, 35.6 %: the engine materialises the second half of the `&&` as a bool
-	// (`sete dl` / `test dl, dl`), ours branches on the comparison directly; every other instruction, and the
-	// `&&`'s short-circuit, is the same
-#ifdef NONMATCHING
-	void CollisionObjectTable::Remove(CollisionHandle* handle)
-	{
-		if (handle->index < slotCount && entries[handle->index].serial == handle->serial)
-		{
-			free.Push(handle->index);
-			CollisionHandleEntry* entry = &entries[handle->index];
-			entry->object = 0;
-			entry->serial = 0xffffffff;
-			handle->value = 0xffffffff;
-		}
-	}
-#endif
-
-	// FUNCTION: ENGINE 0x10653860
-	IntersectionProperties::IntersectionProperties()
-	{
-		if (GetIntersectionPropertyCount() > 0)
-		{
-			*this = GetIntersectionProperty(0)->properties;
-		}
-		else
-		{
-			unknown0 = -1;
-			unknown4 = -1;
-		}
-	}
 
 	// FUNCTION: ENGINE 0x106544E0
 	void CollisionObject::UpdateTransform(const math::Matrix& matrix)

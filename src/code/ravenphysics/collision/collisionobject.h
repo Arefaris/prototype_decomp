@@ -252,6 +252,12 @@ namespace ravenphysics
 		// Empty (0x10669120, another unit)
 		~CollisionShape();
 
+		// The shape's own flags, in the bits of the byte at 0 (0x10654380, 0x106543A0, 0x10654410; the shape's
+		// unit is elsewhere, these copies sit in this object file)
+		void SetFlag3(bool value);
+		bool IsFlag3();
+		void SetFlag4(bool value);
+
 		unsigned int unknownA8;    // 0xA8
 		math::Vector unknownAC;    // 0xAC
 		math::Vector unknownB8;    // 0xB8

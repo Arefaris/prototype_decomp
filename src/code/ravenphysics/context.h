@@ -53,6 +53,9 @@ namespace ravenphysics
 		int unknown40;
 	};
 
+	// The loader the registry takes its default properties from (0x1127CAD0; name guess)
+	extern IntersectionPropertiesLoader* gIntersectionPropertiesLoader;
+
 	// The properties plus one more word, copied as a whole into a query
 	struct IntersectionFilter
 	{
