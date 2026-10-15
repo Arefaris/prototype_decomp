@@ -76,6 +76,13 @@ namespace content
 	template engine::StreamPackage* LoadInventory::Find<engine::StreamPackage>(const char*);
 }
 
+namespace content
+{
+	// The offset of the subtitles member in the manager, which the manager's own member list holds
+	template int MemberOffset<engine::FmvSubtitleManager::SubTitleArray>(
+		engine::FmvSubtitleManager::SubTitleArray*, int);
+}
+
 namespace container
 {
 	// The range copies the array's elements with
@@ -92,6 +99,7 @@ namespace container
 // FUNCTION: ENGINE 0x108C05E0 Create
 // FUNCTION: ENGINE 0x108C0630 Size
 // FUNCTION: ENGINE 0x108C06A0 content::MemberOffset<char [256]>
+// FUNCTION: ENGINE 0x108C06B0 content::MemberOffset<SubTitleEnty array>
 // FUNCTION: ENGINE 0x108C06D0 the constructor
 // FUNCTION: ENGINE 0x108C06E0 Allocate
 // FUNCTION: ENGINE 0x108C0750 content::GetMemberPrimitiveMetaType (startTime)
