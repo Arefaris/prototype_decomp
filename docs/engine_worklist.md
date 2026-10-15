@@ -1545,3 +1545,10 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
   0x10807910 are missing from it).
 - The unit continues past 0x10809000 (the scenario track and its conditions are at 0x10809460 on), so its boundary
   is a guess. Nothing here is reconstructed: the property and factory templates have to be recovered first.
+
+## Open naming conflict (from the fight units)
+
+`0x105A3A40` / `0x105A3A90` are named both `fight::Branch::Register` / `Unregister` (fighttreebehaviour.cpp) and
+`fight::Track::Register` / `Unregister` (effecttrack.cpp) in symbols.txt. One function cannot belong to both classes:
+the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
+name should go.
