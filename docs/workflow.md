@@ -52,7 +52,11 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/datacheck.py`, `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
    the vftables our constructors install with the original's: a constructor matches byte for byte even when our
-   vftable misses an override (its address is a relocation), and only the game notices. It also checks the class key:
+   vftable misses an override (its address is a relocation), and only the game notices. Every slot's function must
+   be mapped in `symbols.txt` to the engine's function of that slot; an unmapped one leads to our own compiled copy
+   (an empty stub, a header copy nothing compared), and a pure slot where the engine has a function is a missing
+   override. Only `__purecall` in a slot the engine also leaves pure, and the compiler-generated deleting
+   destructors, may stay unmapped (`--all` lists them). It also checks the class key:
    declare a type `struct` or `class` exactly as its RTTI name says (`.?AU` / `.?AV` in config/<VERSION>/classes.tsv),
    because the game's `dynamic_cast` compares type names. Look at the characters' poses in the game test, not just
    the coordinates (a wrong key once made every character fall over while `where` looked fine).
