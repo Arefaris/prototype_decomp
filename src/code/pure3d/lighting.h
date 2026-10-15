@@ -124,6 +124,8 @@ namespace pure3d
 		void* GetCameraData(int view);
 		// 0x1074EE10: the word at +0x14 (1: the lit passes draw into the shadow map)
 		int GetUnknown14();
+		// 0x1074F290 (another unit): lays the frame's window over the views of the render parameters
+		void Unknown1074F290();
 
 		unsigned char unknown4[0x10];
 		int unknown14;

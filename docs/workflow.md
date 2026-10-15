@@ -48,7 +48,9 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    - `// EQUIVALENT: <why>`: same operations in the same order, different register or scheduling choices. It is
      compiled and replaces the original in the hybrid DLL (callers in the same unit may rely on its register use),
      but does not count as matched. Floating-point operations must keep the original's order.
-   - `// NONMATCHING: <why>` with the body inside `#ifdef NONMATCHING`: not compiled, the original stays.
+   - `// NONMATCHING: <why>` with the whole definition (signature to closing brace) inside `#ifdef NONMATCHING`:
+     not compiled, the original stays. An empty body left outside the `#ifdef` would still be compiled and replace
+     the engine's function, so relink refuses it.
 6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/datacheck.py`, `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
    the vftables our constructors install with the original's: a constructor matches byte for byte even when our

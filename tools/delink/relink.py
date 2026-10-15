@@ -152,6 +152,24 @@ def scanRel32(text, textVa, targets):
 	return sites
 
 
+def nonmatchingAddresses():
+	"""Addresses whose `// FUNCTION: ENGINE` annotation is followed by `// NONMATCHING` in its comment block."""
+	addresses = set()
+	for path in (ROOT / "src").rglob("*.c*"):
+		lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+		for i, line in enumerate(lines):
+			match = re.match(r"\s*//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+			if not match:
+				continue
+			for following in lines[i + 1:i + 12]:
+				if not following.strip().startswith("//"):
+					break
+				if re.match(r"\s*//\s*NONMATCHING", following):
+					addresses.add(int(match.group(1), 16))
+					break
+	return addresses
+
+
 def definedSymbols(objects):
 	names = set()
 	for path in objects:
@@ -297,6 +315,14 @@ def main():
 	ours = definedSymbols(objects)
 	replaced = {name: symbols[name] for name in ours if name in symbols}
 	print(f"{len(symbols)} known symbols, {len(replaced)} replaced by {len(objects)} objects")
+	# a NONMATCHING function keeps the original; a definition left outside its #ifdef (an empty body) would replace it
+	nonmatching = nonmatchingAddresses()
+	leaked = sorted((address, name) for name, address in replaced.items() if address in nonmatching)
+	if leaked:
+		for address, name in leaked:
+			print(f"error: 0x{address:08X} {name} is NONMATCHING but our objects define it; put the whole definition"
+				" inside #ifdef NONMATCHING")
+		sys.exit(1)
 
 	slots, libraries = buildImportLibraries(pe, out)
 	exports = buildExportDef(pe, out, dllName)

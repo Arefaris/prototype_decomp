@@ -37,9 +37,6 @@ template void std::_Insertion_sort1<float*, float>(float*, float*, float*);
 // FUNCTION: ENGINE 0x102CF0B0
 template void std::_Pop_heap_0<float*, float>(float*, float*, float*);
 
-// FUNCTION: ENGINE 0x102CF5C0
-template void std::sort_heap<float*>(float*, float*);
-
 // FUNCTION: ENGINE 0x102CF7C0
 template std::pair<float*, float*> std::_Unguarded_partition<float*>(float*, float*);
 
