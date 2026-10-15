@@ -42,6 +42,28 @@ namespace ravenphysics
 		// 0x3E: flags the body tests (bits 1 and 3)
 		unsigned short collisionFlags;
 		unsigned char unknown40[0x54 - 0x40];
+
+		// The broad phase's state in collisionFlags: bit 0 - the object is asleep, bit 3 - the object is left out
+		// of the queries and of the solver (name guess)
+		bool IsAsleep() const
+		{
+			return (collisionFlags & 1) != 0;
+		}
+
+		bool IsSkipped() const
+		{
+			return (collisionFlags & 8) != 0;
+		}
+
+		// Whether the low two bits of collisionMode are clear (name guess; the wake path passes this on to
+		// RefreshBounds)
+		bool IsUnflagged() const
+		{
+			return (collisionMode & 3) == 0;
+		}
+
+		// Sets or clears the low three bits of collisionMode (0x1065F540; name guess)
+		void SetState(unsigned char mask, bool set);
 	};
 
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects
@@ -52,8 +74,9 @@ namespace ravenphysics
 		// writes them into the detector's box (0x106608A0)
 		void UpdateBounds();
 		// Clears the collision objects' changed flags and recomputes the bounds when one of them was set
-		// (0x106612C0)
-		void RefreshBounds(int unused);
+		// (0x106612C0). The parameter is one byte, not a word: the wake path calls it with the result of a
+		// comparison, which the engine passes on without widening (`sete al` then a bare `push eax`).
+		void RefreshBounds(bool unused);
 		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
 		void SetCollisionMode(unsigned short mode);
 		// Marks one of the body's collision objects as needing an update in the detector (0x10683510, another unit)

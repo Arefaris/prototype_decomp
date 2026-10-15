@@ -49,7 +49,29 @@ namespace ravenphysics
 	public:
 		// size bytes aligned to align, or null when the buffer is exhausted (0x10666FE0)
 		void* Alloc(unsigned int size, int align);
+		// Takes the library's scratch stack lock off again, asserting it was set (0x10667250; name guess)
+		void Unlock();
+		// count objects of T, the byte size rounded up to the alignment
+		template<class T>
+		T* AllocArray(int count, int align);
+		// One object of T, aligned to 16 (the copies the engine emits take an argument they do not use)
+		template<class T>
+		T* AllocOne(int unused);
 	};
+
+	// Defined outside the class, so the compiler keeps it out of line like the engine does
+	template<class T>
+	T* ScratchStack::AllocArray(int count, int align)
+	{
+		return (T*)Alloc((count * sizeof(T) + align - 1) & ~(align - 1), align);
+	}
+
+	template<class T>
+	T* ScratchStack::AllocOne(int unused)
+	{
+		(void)unused;
+		return (T*)Alloc(sizeof(T), 16);
+	}
 
 	// Marks the scratch stack on construction and gives back everything allocated since on destruction
 	// (0x106671A0 / 0x106671C0)

@@ -45,7 +45,9 @@ namespace ravenphysics
 	class StatLog
 	{
 	public:
-		unsigned int Add(const StatEntry& entry);
+		// Copies the entry into the next free slot, false once the log is full (0x10658200; the engine returns
+		// one byte - `mov al, 1` and a bare `ret 4` - so the result is a bool, not the word the callers ignore)
+		bool Add(const StatEntry& entry);
 
 		StatEntry* entries;
 		int capacity;
@@ -59,6 +61,8 @@ namespace ravenphysics
 		// Queues what is left and, for the last of the callers sharing the batcher, flushes the narrow phase's
 		// batches and reports the statistics (0x10691C30)
 		void Finish();
+		// Asserts that every batch the mid phase queued has been picked up (0x10691690; name guess)
+		void Complete();
 
 		PairBatch pairs;
 		unsigned char unknown18[0x28 - 0x18];

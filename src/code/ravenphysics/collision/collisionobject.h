@@ -395,6 +395,9 @@ namespace ravenphysics
 		bool IsFlag1();
 		void SetFlag4(bool value);
 
+		// Hands the object to the world it now belongs to (0x10655600; name guess)
+		void SetWorld(void* world);
+
 		// Accumulates the volumes' query filters (0x106559C0)
 		void UpdateProperties();
 

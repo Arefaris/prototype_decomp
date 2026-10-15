@@ -12,17 +12,22 @@ namespace ravenphysics
 	public:
 		// The slot of key, 0xFFFF when it is not in the table (0x10686570)
 		unsigned short Find(unsigned int key);
+		// Empties the table: the chains and the buckets back to 0xFFFF and the free list rebuilt from capacity
+		// (0x10658AE0; the code sits in the context unit's range, but the class is this one's)
+		void Reset();
 
 		unsigned short* next;
 		int unknown4;
 		unsigned short* buckets;
-		unsigned short bucketCount;
+		unsigned int bucketCount;
 		unsigned short* slotBuckets;
 		int unknown14;
 		unsigned int* keys;
 		int unknown1C;
 		unsigned short* freeSlots;
-		int freeCount;
+		unsigned int freeCount;
+		// How many slots the table was built with: the free list is this long after a reset (name guess)
+		unsigned int capacity;
 	};
 
 	// A set of 32-bit keys that hands out a 16-bit slot per distinct key: the slots are chained per bucket, and the

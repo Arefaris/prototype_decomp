@@ -2126,3 +2126,177 @@ Lessons:
   stack's `Pop` reads `begin[size - 1]` and *then* decrements when the caller inlines it, while the standalone
   copy at 0x10653190 decrements first - the two are separate instantiations, so a container header has to be
   written to match the call site that is being reconstructed, not the standalone copy.
+
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 206 functions match, 6 NONMATCHING
+
+The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
+Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
+(every name is a guess): `mWorld` +0x00 (the polymorphic object the context forwards its queries into by vtable slot
+0x10 - 0x54), `placement` +0x08 (a position tracker whose methods live in another unit), `registry` +0x0C,
+`unknown10` +0x10 (the body `SetSolverIterations` writes at +0x1C / +0x24), `staticObjects` +0x14 and
+`movableObjects` +0x1C (the pm_ commands' lists), `collisionBatch` +0x24 (48-byte entries), `constraintBatch` +0x58
+(168-byte entries), `queryBatch` +0x8C, `unknownC4` +0xC4 (the broad phase detector the lists point into),
+`unknownD8` +0xD8, `detector` +0x108 (whose own +0x24 holds a pointer to itself and to which the `mCollisionDetectorInternal`
+asserts belong), `unknown10C` +0x10C.
+
+Matchable patterns worth reusing:
+
+- Every method that touches the library starts with `OLD_ASSERT_AT(CONTEXT_FILE, <line>, !gLock.IsLocked(),
+  "!gLock.IsLocked()", "")`; the per-site `static bool` is the `0x110BDBB0 + n` the code tests.
+- The forwards into `mWorld` are direct virtual calls: `mWorld->Slot(a, b, c, unknownC4, d)` pushes right to left, so
+  the source argument order is the reverse of the push order (`unknownC4` is the second to last).
+- The methods of the classes whose members live in other units (`CollisionBatch`, `ConstraintBatch`, `QueryBatch`,
+  `PlacementTracker`, `CollisionDetector`) are only declared here; their symbols are mapped in symbols.txt.
+- A method that "returns its first argument" is the engine's idiom for the list inserters (`collisionBatch.Add(first,
+  second, 4)` then `return first;`): the compiler loads the first argument into esi at the entry and reuses it.
+- `Context::ResetObjectWorld` takes its handle **by value** and is a Context method although it never touches `this`
+  (the prologue is `lea ecx, [esp + 0x10]` over a `ret 8`); a free function of the same body fails on the `ret`.
+- `Context::RefreshObjectList` is the same shape (`ret 4`, `this` unused) - a free function does not compile to it.
+- `CollisionDetector::GetObject` and `GetBodyChecked` load the asserted member before the `cmp eax, 3` (the compiler
+  hoists it) and end in **two** epilogues; writing the assert as `OLD_ASSERT_AT` and the `return` once reproduces it.
+
+**Second session (85 more functions match, 3 NONMATCHING).** The 0x10656EA0 - 0x10658170 block is reconstructed: the
+library's record runs (`Count()` dividing by 0x34 / 0xA8 / 0xC / 0x2C / 4), the two pointer-run families
+(`Begin` / `End` / `SetBegin` / `SetEnd` / `Count` / `operator[]` / `PushBack` / `Find`), the interlocked slot pools
+(`Acquire` / `Add` / `Reset` / `ReadCounter` / `Init` / `Release`, with 32- and 16-byte strides), `WorkPools` (the two
+pools the collision detection takes its work from, with `Init` / `ResetCounters` / `ReleaseAll` / `Slot`),
+`ScratchArray` / `ScratchBytes` (the growable arrays over the scratch stack) and the profiler records. Where the
+engine's output names no owner - a bare `ret`, a `(begin, end)` pair, a three-word constructor - the function is
+written on a stand-in type named after what its accessor computes, and symbols.txt says "(name guess)"; the stand-ins
+are grouped in `context.h` under one comment. `ravenphysics::ScratchStack::AllocArray<T>` (the shape
+`StackAllocator::AllocArray` already had) was added to `stackallocator.h` for the 40-, 8- and 124-byte instances.
+
+`Context::WakeObject` (0x10657A50) matches. It needs the engine's *second* copy of the object lookup, 0x1065F500,
+which is byte-identical to `ObjectHandle::GetObject` at 0x106560A0 and outside this agent's range: it is reconstructed
+here as `ObjectHandle::GetObjectSecond` (`symbols.txt` maps it) and the merge should check that no other unit claims
+0x1065F500. `Physicsobject.h`'s `RefreshBounds` takes **one byte**, not a word - the wake path calls it with the
+result of a comparison and the engine passes that on with `sete al` and a bare `push eax`, without widening; the
+declaration and its `symbols.txt` name changed from `QAEXH@Z` to `QAEX_N@Z`.
+
+NONMATCHING in this range:
+
+- `0x10657B60 Context::SleepObject`: register allocation, 97.6 % - the last list end loads the detector's movable
+  count into ecx where the engine loads the static count; both counts are then added the other way round, so only the
+  two `movzx` differ. `WakeObject`, whose tail is the same code, does load the movable count first, so the order is
+  not a property of the expression: both orders of the sum, the unparenthesised chain and a local holding it all
+  compile to the movable-first pair here.
+- `0x10658480 IndexedSlotSecond::Get`: register allocation, 32 % - the engine reads the slot index before it stores
+  the owner and then loads the owner's run through the same register it stored; ours keeps the owner in a second
+  register and reloads through it (25 bytes against 28 with a `value` local, 28 against 28 without).
+- `0x10657F20 Context::GetIslandTable` (register allocation, 86.6 %) and `0x10657FA0 Context::GetAwakeTable`
+  (88.2 %): the two fill a 40-byte snapshot (32 bytes copied whole from `detector + 0x150` / `+0x34`, then the run
+  and count from `+0x124` / `+0x128`, resp. `+0x6C` / `+0x70`), and the engine keeps the detector in edx and the
+  output pointer in eax where ours swaps the two; the instructions and their order are otherwise the same. A local
+  for either of them, a local for the output, `memcpy` instead of the struct copy, and taking the output by
+  reference all compile to the same pair.
+- `0x10657D70 Context::GetStatistics`: register allocation and scheduling, 42.4 % - the offsets and the arithmetic
+  are the engine's (22 words from the two object lists, the three batches' runs and the detector's counters), but it
+  interleaves the detector loads with the words between them and takes each pair's maximum with `cmp; jae; mov`
+  where ours compiles to `cmp; cmovb`. Writing the statements in the engine's instruction order moves it from
+  38.8 % to 42.4 %.
+- `0x10658C50 IndexedSlotThird::Get`: register allocation, 57.7 % - the second copy of the same accessor (owner at
+  +0, index at +4, the owner's run at +8), and the engine puts the owner in edx and the walk in eax where ours picks
+  the other way round; every instruction is otherwise identical. Naming the owner in a local, dropping the local,
+  taking the walk by reference and swapping the two statements all compile to the same 26 bytes.
+
+Two systematic findings worth reusing:
+
+- `Add` on the slot pools and on `StatLog` (0x10658080 / 0x106580D0 / 0x10658200) all carry an explicit
+  `test eax, eax` before the `je` where the same code written inline in `Add` reuses the `add`'s flags. The engine's
+  `Acquire` is **inlined** into them, and it is the inliner's materialised copy of the returned pointer that keeps
+  the test: with the acquire logic in a local `inline` helper that `Add` calls, all three match byte for byte.
+- `StatLog` is not this unit's class: it lives in `ravenphysics/batch/midphasebatcher.h`, and its `Add` returns one
+  byte there too (`unsigned int` was the earlier guess), so the declaration and the `symbols.txt` name changed from
+  `QAEI...` to `QAE_N...`. `MidPhaseBatcher::Finish` calls it and ignores the result.
+- **`delete[]` needs `#include <new>`**: without it the compiler's implicit `operator delete[]` is the *scalar*
+  `??3@YAXPAX@Z` (0x107DEFD0), and a guarded `delete[] p` compiles to a call to it; the engine's code calls
+  `??_V@YAXPAX@Z` (0x107DEFE0). `context.cpp` now includes `<new>` for that reason. (`gamedatabase.cpp` and
+  `enginememory.h` get the array operator from `code/engine/system/enginememory.h`, which declares it.)
+- A "release the run" cleanup stores the end unconditionally and only *then* tests the pointer -
+  `mEnd = mBegin; if (mBegin != 0) delete[] mBegin;` - and the engine's compiler schedules the store between the
+  `test` and the `je`; writing the store inside the `if` gives the same instructions one byte order off.
+
+**Third session (39 more functions match, 1 NONMATCHING).** What the collision detection block is made of, so far:
+
+- `Context::detector` (+0x108) is a `CollisionDetector` that **derives from `ScratchStackFrame`** (its `this` is the
+  frame: 0x106596F0 opens the level, its destructor 0x10658610 closes it last). While the detection runs it holds
+  *itself* in `mCollisionDetectorInternal` (+0x24), which is what every assert in the block tests, and the object the
+  detection works on in +0x28 (`GetObject`). +0x08 is **the event its gate waits on** (`core::EventInit` 0x1063D320,
+  `EventWait`/`EventDestroy` in the destructor) - the earlier `GetBody`/`body` names were wrong and changed to
+  `GetEvent`/`GetEventChecked`/`event`. +0x0C is the `NarrowPhaseBatcher` (0x400 bytes, its own assert path is
+  narrowphasebatcher.cpp) and +0x10 the `MidPhaseBatcher` (0x80 bytes, midphasebatcher.cpp); +0x14 the scratch
+  allocator scope, +0x18 a pointer to the context's profiler pool (Context+0x10C), +0x1C the context, +0x20 the data.
+- `Context`+0x0C is a registry whose own six words are the same (run of 16-bit values, count) pairs the hash table
+  has, followed by a `PointerHashTable` at +0x18 and its own count at +0x44 (the constructor 0x10658CC0 zeroes
+  everything up to and including the table's last member and leaves +0x44 alone).
+- `PointerHashTable` (common/hashtable.h): +0x04 / +0x0C / +0x14 are **32-bit** run counts and +0x24 / +0x28 the free
+  list's count and the capacity (the header had `bucketCount` 16-bit, which `Find` matched only because its modulo
+  truncates; the member is 32-bit and `Find` now spells the truncation out). `Reset` 0x10658AE0 is the library's, but
+  the copy the context calls sits in this unit's range: it is written in context.cpp with the address mapped in
+  symbols.txt and **without a `// FUNCTION:` line**, because functions.tsv has no entry for it.
+
+Matched in the third session: the nine ownerless runs of 0x10658A90 - 0x10659620 and their cleanup, the two
+`ScratchBytesSecond::Reserve` forms, the two statistics-log forwarders, `Context::CastRay` (0x106593A0) and
+`Context::QueryObjectShapeHits` (0x10659420, the world's vtable slot 0x44, which the header now types),
+`CollisionDetector::Destructor/Destroy/End/Begin`, `Context::BeginCollision`, `ObjectRegistry`'s constructor and
+`Reset`, and `PointerHashTable::Reset`.
+
+The detector's destructor (0x10658610) is written and matches. Its record is a `Record32` local, and that local is
+what makes the engine align those methods' frames (`push ebp; mov ebp, esp; and esp, -16`), so `Record32` is
+`__declspec(align(16))` in the header; the record's fields are `start`, `end`, `unknown8` (-1), `unknownC`,
+`unknown10` / `unknown11` (1) and its `kind` (1 Synchronize, 2 Self collisions, 6 Collide Awoken Islands, 7 Waiting
+on gate). Its pool `Add` is inlined at that call site in the engine, so the source calls `AcquireSlot32` directly.
+
+The two getters need `BroadPhaseDetector`'s two tables (heads at +0x34 / +0x150, runs and counts at +0x6C / +0x70
+and +0x124 / +0x128) and the statistics getter needs the batches' second runs (`CollisionBatch` +0x24/+0x28,
+`ConstraintBatch` +0x24/+0x28, `QueryBatch` +0x20/+0x24) and `Context`'s counters at +0xC8, +0xCC, +0xD0, +0xDC,
++0xEC, +0xF0, +0xF4, +0xF8, +0xFC, +0x100; all of those are now declared, with the layouts the accessors imply.
+
+Also matched in the third session: `Context::ClearObjects` (0x10658F00 - it sleeps every object the detector holds
+and then empties the detector, the tracker's tables and the registry, the last two through a tail call) and
+`EmptyMembers::Twentieth` (0x10658B60, one of the bare `ret`s).
+
+What is still open in the collision detection block, and what it needs:
+
+- `0x106596F0 CollisionDetector::Run` (714 bytes) and `0x10659F70` (255 bytes, the context's "collide" step) both
+  build the detection's scratch buffer: `Alloc(0x10000)` from the scratch stack, then a **0x30-byte local** whose
+  constructor stores a byte at +0x18, a dword at +0x1C and calls `StackAllocator::Init(buffer, 0x10000, false)` on
+  itself (`0x106596F0` allocates one of those with `Alloc(0x30)` for `detector + 0x14`). Its destructor is the
+  one-byte empty function at **0x106860E0**, which the allocator unit owns. Who declares that class is the open
+  question for those two functions; `NarrowPhaseBatcher`'s and `MidPhaseBatcher`'s constructors (0x10658F90 /
+  0x10659030) are COMDATs of inline constructors those two units' headers define, and `Run` needs them inlined.
+  A class that *contains* a `StackAllocator` cannot be written as it stands: our `StackAllocator` declares only its
+  three-argument constructor (`??0StackAllocator@...` at 0x10686040), so a member of it is not default-constructible
+  and the constructor body cannot write `allocator.unknown18` and call `allocator.Init` on it. Either the original's
+  `StackAllocator` is default-constructible - 0x10686040 has exactly `Init`'s body plus `return this`, so it may be a
+  plain method whose constructor name is only the earlier session's guess - or the 0x30-byte class derives from it.
+- `0x106586E0`, `0x106588B0`, `0x10658D00`, `0x10659070`, `0x106599C0`, `0x10659D50`: the walks themselves (they
+  use the detector's +0x150/+0x34 tables, the registry's island runs and `GetObject()`'s object) - not started.
+- `0x10657D00`: takes an object out of the detector (`BroadPhaseDetector::RemoveSecond`, 0x106846F0) and clears
+  flag bit 2 of the word at the object's +0x0C (`0x1065E560` clears it and zeroes +0x20); nothing in this unit or
+  the tree says what class that object is, whose +0x0C is a flags word rather than the bounds a `PhysicsObject`
+  has there.
+- `0x10658F90` / `0x10659030` are the two batcher constructors (see above); `0x10658F90` zeroes 35 members of a
+  0x400-byte object.
+
+Not annotated, because functions.tsv has no entry for it: **0x10658AE0 `PointerHashTable::Reset`**, written in
+context.cpp and mapped in symbols.txt (see above). The merge should keep an eye out for another unit claiming that
+address.
+
+Still not done in this range:
+
+- `0x10656570` (`jmp 0x106860E0`, a five-byte forwarder), `0x106860E0` itself (an empty function another unit owns)
+  and the one-byte `ret` functions 0x10658360 - 0x106583F0, 0x10658B60: which class each belongs to cannot be told
+  from the code (the two other runs of bare `ret`s, 0x10657270 - 0x106572E0 and 0x10657780 - 0x10657820, are written
+  on `EmptyMembers`).
+- `0x10657D00`, `0x10657D70`, `0x10657F20`, `0x10657FA0`: `Context` methods and one big statistics getter over
+  `Context`'s batches and the detector's lists. `0x10657D00` calls 0x106846F0 and 0x1065E560, which nothing has
+  named yet; 0x10657F20 / 0x10657FA0 copy 32 bytes from `detector + 0x150` / `+0x34` plus two words from
+  `+0x124` / `+0x128` (resp. `+0x6C` / `+0x70`), and `BroadPhaseDetector` declares nothing past `unknown0[0x18]`.
+  `0x10657D70` reads nine `(begin, end)` pairs of `Context` between +0x24 and +0xB0 and eleven words between +0xC4
+  and +0x100, so it needs a fuller `Context` layout than the one above.
+- `0x10658610` - `0x10659F70` (the collision detection itself: 0x10658610, 0x106586E0, 0x106588B0, 0x10658D00,
+  0x10659070, `Context::CastRay` 0x106593A0, 0x106596F0, 0x106599C0, 0x10659D50, 0x10659EE0, 0x10659F40, 0x10659F70)
+  is not started; 0x106599C0 and 0x10659D50 build the detector and its islands (0x10659F70 registers "Collide Awoken
+  Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
+  pool at `this + 0x18`, so the gate and the job classes have to be placed first.
