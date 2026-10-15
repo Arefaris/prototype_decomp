@@ -356,6 +356,11 @@ namespace ravenphysics
 	{
 		SlotPool();
 
+		// Builds the slot array and the counter on the current heap; the allocator the library would pass is not
+		// used by the body (0x10657500; name guess)
+		void Init(unsigned int count, const ScratchStack& allocator);
+		// Gives the slot array and the counter back to the heap (name guess)
+		void Release(int unused);
 		// Empties the counter (name guess)
 		void Reset();
 		// The counter's value, read atomically (name guess)
@@ -383,6 +388,121 @@ namespace ravenphysics
 		long* mCounter; // 0x08
 	};
 
+	// A pool of 16-byte slots, otherwise the same shape as SlotPool (name guess)
+	struct SlotPoolThird
+	{
+		SlotPoolThird();
+
+		// Builds the slot array and the counter on the current heap (0x10657550; name guess)
+		void Init(unsigned int count, const ScratchStack& allocator);
+		// Gives the slot array and the counter back to the heap (name guess)
+		void Release(int unused);
+		// The next free slot, or null once the pool is exhausted (name guess)
+		void* Acquire();
+
+		unsigned char* mSlots; // 0x00
+		int mCapacity;         // 0x04
+		long* mCounter;        // 0x08
+	};
+
+	// A run of bytes whose storage comes from the scratch stack (name guess)
+	struct ScratchBytes
+	{
+		// size bytes of raw storage, or an empty run when the stack is exhausted (name guess)
+		bool Reserve(unsigned int size);
+
+		unsigned char* mBegin;  // 0x00
+		unsigned char* mEnd;    // 0x04
+		ScratchStack allocator; // 0x08
+	};
+
+	// A 32-byte profiling record (name guess)
+	struct Record32
+	{
+		int unknown0[8];
+	};
+
+	// The pair of words that identifies a record (name guess)
+	struct Pair8
+	{
+		int unknown0;
+		int unknown4;
+	};
+
+	// A profiling record plus the pair that identifies it (name guess; the element ScratchStack allocates
+	// arrays of, 0x28 bytes)
+	struct Record40
+	{
+		Record40(const Record32& record, const Pair8& id);
+
+		Record32 mRecord; // 0x00
+		Pair8 mId;        // 0x20
+	};
+
+	// The same record over a second payload the unit emits a copy of (name guess)
+	struct Record40Second
+	{
+		Record40Second(const Record32& record, const Pair8& id);
+
+		Record32 mRecord; // 0x00
+		Pair8 mId;        // 0x20
+	};
+
+	// Two more payloads this unit emits the same constructor for (name guesses)
+	struct Record40Third
+	{
+		Record40Third(const Record32& record, const Pair8& id);
+
+		Record32 mRecord; // 0x00
+		Pair8 mId;        // 0x20
+	};
+
+	struct Record40Fourth
+	{
+		Record40Fourth(const Record32& record, const Pair8& id);
+
+		Record32 mRecord; // 0x00
+		Pair8 mId;        // 0x20
+	};
+
+	// Writes the byte the value points at through the target pointer, when the target is not null (name guess)
+	void StoreByte(char* target, const char* value);
+
+	// The two halves of a 16-bit grid with their element counts (name guess)
+	struct ShortPair
+	{
+		short* Begin() const;
+		short* At(int index);
+		// The first half's size in bytes (name guess)
+		int ByteSize() const;
+		// Fills both halves with 0xFF (name guess)
+		void Fill();
+
+		short* mFirst;    // 0x00
+		int mFirstCount;  // 0x04
+		short* mSecond;   // 0x08
+		int mSecondCount; // 0x0C
+	};
+
+	// A run of 32-bit values (name guess)
+	struct IntArray
+	{
+		int* At(int index);
+
+		int* mBegin; // 0x00
+		int* mEnd;   // 0x04
+	};
+
+	// Writes the word the value points at through the target pointer, when the target is not null (name guesses)
+	void StoreId(int* target, const int* value);
+	void StoreIdSecond(int* target, const int* value);
+
+	// A 124-byte box a query walks (name guess; the element ScratchStack allocates arrays of)
+	struct Box124
+	{
+		int unknown0[31];
+	};
+
 	// The head the library's jobs hang at 0x18 of themselves (name guess)
 	struct Head18
 	{
@@ -404,6 +524,61 @@ namespace ravenphysics
 		void Sixth();
 		void Seventh();
 		void Eighth();
+		void Ninth();
+		void Tenth();
+		void Eleventh();
+		void Twelfth();
+		void Thirteenth();
+		void Fourteenth();
+		void Fifteenth();
+		void Sixteenth();
+		void Seventeenth();
+		void Eighteenth();
+		void Nineteenth();
+	};
+
+	// A short and two words (name guess)
+	struct ShortTriple
+	{
+		ShortTriple(unsigned short first, int second, int third);
+
+		unsigned short mFirst; // 0x00
+		int mSecond;           // 0x04
+		int mThird;            // 0x08
+	};
+
+	// The two pools the collision detection takes its work from: a 32-byte-slot pool and a 16-byte-slot one, each
+	// with its own counter (name guess; the layout is what the unit's Init, its accessors and WakeObject read)
+	struct WorkPools
+	{
+		WorkPools();
+
+		// Both slot arrays and their counters, from the current heap (0x10657900; name guess)
+		void Init(unsigned int firstCount, unsigned int secondCount);
+		// Empties both counters (name guess)
+		void ResetCounters();
+		// Gives both pairs back to the heap (name guess)
+		void ReleaseAll();
+		// The slot of the second pool (0x106578D0; name guess)
+		void* Slot(unsigned short index) const;
+
+		void** mFirstSlots;   // 0x00
+		int mFirstCount;      // 0x04
+		long* mFirstCounter;  // 0x08
+		void** mSecondSlots;  // 0x0C
+		int mSecondCount;     // 0x10
+		long* mSecondCounter; // 0x14
+	};
+
+	// A block of four words the unit zeroes on construction (name guess)
+	struct WordBlock4
+	{
+		WordBlock4();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
 	};
 
 	// An array whose storage comes from the scratch stack: begin / end / capacity, then the (empty) allocator the

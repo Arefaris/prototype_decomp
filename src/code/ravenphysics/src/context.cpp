@@ -1,4 +1,7 @@
+#include <string.h>
+
 #include "code/core/debug.h"
+#include "code/core/heap.h"
 #include "code/core/interlocked.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
@@ -645,6 +648,329 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10657420
 	void EmptyTail::Empty()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10657430
+	void* SlotPoolThird::Acquire()
+	{
+		if (mCounter != 0)
+		{
+			int slot = _InterlockedIncrement(mCounter) - 1;
+			if (slot < mCapacity)
+			{
+				return mSlots + (slot << 4);
+			}
+			_InterlockedDecrement(mCounter);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657460
+	bool ScratchBytes::Reserve(unsigned int size)
+	{
+		if (size > 0)
+		{
+			mBegin = (unsigned char*)allocator.Alloc(size, 16);
+			if (mBegin != 0)
+			{
+				mEnd = mBegin + size;
+				return true;
+			}
+		}
+		mBegin = 0;
+		mEnd = 0;
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106574A0
+	Record40::Record40(const Record32& record, const Pair8& id)
+	{
+		mRecord = record;
+		mId = id;
+	}
+
+	// FUNCTION: ENGINE 0x106574D0
+	Record40Second::Record40Second(const Record32& record, const Pair8& id)
+	{
+		mRecord = record;
+		mId = id;
+	}
+
+	// FUNCTION: ENGINE 0x10657500
+	void SlotPool::Init(unsigned int count, const ScratchStack&)
+	{
+		mSlots = core::HeapAllocAligned(core::GetCurrentHeap(), count << 5, 16);
+		mCounter = (long*)core::HeapAllocAligned(core::GetCurrentHeap(), 4, 16);
+		mCapacity = count;
+		if (mCounter != 0)
+		{
+			_InterlockedExchange(mCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657550
+	void SlotPoolThird::Init(unsigned int count, const ScratchStack&)
+	{
+		mSlots = (unsigned char*)core::HeapAllocAligned(core::GetCurrentHeap(), count << 4, 16);
+		mCounter = (long*)core::HeapAllocAligned(core::GetCurrentHeap(), 4, 16);
+		mCapacity = count;
+		if (mCounter != 0)
+		{
+			_InterlockedExchange(mCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106575A0
+	void SlotPool::Release(int)
+	{
+		if (mSlots != 0)
+		{
+			core::FreeAligned(mSlots);
+			core::FreeAligned(mCounter);
+			mCounter = 0;
+			mSlots = 0;
+			mCapacity = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106575E0
+	void SlotPoolThird::Release(int)
+	{
+		if (mSlots != 0)
+		{
+			core::FreeAligned(mSlots);
+			core::FreeAligned(mCounter);
+			mCounter = 0;
+			mSlots = 0;
+			mCapacity = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657620
+	void StoreId(int* target, const int* value)
+	{
+		if (target != 0)
+		{
+			*target = *value;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657640
+	void StoreIdSecond(int* target, const int* value)
+	{
+		if (target != 0)
+		{
+			*target = *value;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657660
+	short* ShortPair::At(int index)
+	{
+		return mFirst + index;
+	}
+
+	// FUNCTION: ENGINE 0x10657670
+	short* ShortPair::Begin() const
+	{
+		return mFirst;
+	}
+
+	// FUNCTION: ENGINE 0x10657680
+	int ShortPair::ByteSize() const
+	{
+		return mFirstCount * 2;
+	}
+
+	// FUNCTION: ENGINE 0x10657690
+	int* IntArray::At(int index)
+	{
+		return mBegin + index;
+	}
+
+	// FUNCTION: ENGINE 0x106576A0
+	void ShortPair::Fill()
+	{
+		memset(mSecond, 0xff, mSecondCount * 2);
+		memset(mFirst, 0xff, mFirstCount * 2);
+	}
+
+	// FUNCTION: ENGINE 0x106576D0
+	template Record40* ScratchStack::AllocArray<Record40>(int count, int align);
+
+	// FUNCTION: ENGINE 0x10657700
+	template Pair8* ScratchStack::AllocArray<Pair8>(int count, int align);
+
+	// FUNCTION: ENGINE 0x10657750
+	template Box124* ScratchStack::AllocArray<Box124>(int count, int align);
+
+	// FUNCTION: ENGINE 0x10657780
+	void EmptyMembers::Ninth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657790
+	void EmptyMembers::Tenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577A0
+	void EmptyMembers::Eleventh()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577B0
+	void EmptyMembers::Twelfth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577C0
+	void EmptyMembers::Thirteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577D0
+	void EmptyMembers::Fourteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577E0
+	void EmptyMembers::Fifteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106577F0
+	void EmptyMembers::Sixteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657800
+	void EmptyMembers::Seventeenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657810
+	void EmptyMembers::Eighteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657820
+	void EmptyMembers::Nineteenth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657830
+	void StoreByte(char* target, const char* value)
+	{
+		if (target != 0)
+		{
+			*target = *value;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657850
+	ShortTriple::ShortTriple(unsigned short first, int second, int third)
+	{
+		mFirst = first;
+		mSecond = second;
+		mThird = third;
+	}
+
+	// FUNCTION: ENGINE 0x10657870
+	Record40Third::Record40Third(const Record32& record, const Pair8& id)
+	{
+		mRecord = record;
+		mId = id;
+	}
+
+	// FUNCTION: ENGINE 0x106578A0
+	Record40Fourth::Record40Fourth(const Record32& record, const Pair8& id)
+	{
+		mRecord = record;
+		mId = id;
+	}
+
+	// FUNCTION: ENGINE 0x106578D0
+	void* WorkPools::Slot(unsigned short index) const
+	{
+		return mSecondSlots[index];
+	}
+
+	// FUNCTION: ENGINE 0x106578E0
+	void WorkPools::ResetCounters()
+	{
+		if (mFirstCounter != 0)
+		{
+			_InterlockedExchange(mFirstCounter, 0);
+		}
+		if (mSecondCounter != 0)
+		{
+			_InterlockedExchange(mSecondCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657900
+	void WorkPools::Init(unsigned int firstCount, unsigned int secondCount)
+	{
+		mFirstSlots = (void**)core::HeapAllocAligned(core::GetCurrentHeap(), firstCount << 5, 16);
+		mFirstCounter = (long*)core::HeapAllocAligned(core::GetCurrentHeap(), 4, 16);
+		mFirstCount = firstCount;
+		if (mFirstCounter != 0)
+		{
+			_InterlockedExchange(mFirstCounter, 0);
+		}
+		mSecondSlots = (void**)core::HeapAllocAligned(core::GetCurrentHeap(), secondCount << 4, 16);
+		mSecondCounter = (long*)core::HeapAllocAligned(core::GetCurrentHeap(), 4, 16);
+		mSecondCount = secondCount;
+		if (mSecondCounter != 0)
+		{
+			_InterlockedExchange(mSecondCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657990
+	void WorkPools::ReleaseAll()
+	{
+		if (mFirstSlots != 0)
+		{
+			core::FreeAligned(mFirstSlots);
+			core::FreeAligned(mFirstCounter);
+			mFirstCounter = 0;
+			mFirstSlots = 0;
+			mFirstCount = 0;
+		}
+		if (mSecondCounter != 0)
+		{
+			long free = _InterlockedAnd(mSecondCounter, -1);
+			if (free > 0 && mSecondSlots != 0)
+			{
+				core::FreeAligned(mSecondSlots);
+				core::FreeAligned(mSecondCounter);
+				mSecondCounter = 0;
+				mSecondSlots = 0;
+				mSecondCount = 0;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657A00
+	WorkPools::WorkPools()
+	{
+		mFirstSlots = 0;
+		mFirstCount = 0;
+		mFirstCounter = 0;
+		mSecondSlots = 0;
+		mSecondCount = 0;
+		mSecondCounter = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657A20
+	WordBlock4::WordBlock4()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10656E90
