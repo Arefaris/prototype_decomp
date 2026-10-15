@@ -15,6 +15,10 @@
 
 namespace choreo
 {
+	// 0x109459A0: the heading of the vector's horizontal part, atan2(-x, -z) wrapped into [0, 2 pi) (the unit before
+	// this one; name guessed)
+	float Heading(const math::Vector& vector);
+
 	// The transform a delta transform is built on
 	class Transform
 	{
@@ -77,6 +81,21 @@ namespace choreo
 		void SetPosition(const math::Vector& position, const math::Matrix& rootTransform);
 		void SetDelta(float deltaOrientation);
 		void SetDeltaFacing(const math::Vector& deltaFacingVector);
+
+		// The orientation of the step, given as the angle about Y and the space it is measured in
+		void SetOrientation(float orientation, const math::Quaternion& invRootQuaternion);
+		void SetOrientation(float orientation, const math::Matrix& rootMatrix);
+		void SetOrientation(const math::Matrix& deltaRotationMatrix);
+		void SetRotation(const math::Matrix& rotationMatrix, const math::Quaternion& invRootQuaternion);
+		void SetRotation(const math::Matrix& rotationMatrix, const math::Matrix& rootMatrix);
+		// The linear delta of the step and the orientation that goes with it
+		void SetVelocityOrientation(const math::Vector& velocity, const math::Quaternion& inverseRootQuaternion);
+		void SetVelocityOrientation(const math::Vector& velocity, const math::Matrix& rootMatrix);
+		// The rotation that turns the old facing direction into the new one
+		void SetDeltaFacing(const math::Vector& newFacingVector, const math::Vector& oldFacingVector);
+		void SetDeltaFacing(const math::Vector& facingVector, const math::Quaternion& invRootQuaternion);
+		void SetDeltaFacing(const math::Vector& facingVector, const math::Matrix& rootTransform);
+
 		// 0x1094ED90: applies the two deltas of the step to the transform
 		void Update(float dt);
 

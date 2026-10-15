@@ -380,6 +380,171 @@ namespace choreo
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1094E490
+	// NONMATCHING: as SetDelta(quat); 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetOrientation(float orientation, const math::Quaternion& invRootQuaternion)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xDA, ValidateDeltaInput(orientation), "ValidateDeltaInput( orientation )", "");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xDB, ValidateDeltaInput(invRootQuaternion),
+			"ValidateDeltaInput( inverseRootQuaternion )", "");
+		Transform rotation;
+		rotation.SetRotationY(orientation);
+		math::Quaternion quaternion = rotation.GetQuaternion();
+		math::Multiply(quaternion, quaternion, invRootQuaternion);
+		SetQuaternion(quaternion);
+		mHasAngularVelocity = false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094E5A0
+	// NONMATCHING: the float and the quaternion validation are called with their argument in eax in the engine, in
+	// ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetOrientation(float orientation, const math::Matrix& rootMatrix)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xE7, ValidateDeltaInput(orientation), "ValidateDeltaInput( orientation )", "");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xE8, ValidateDeltaInput(rootMatrix), "ValidateDeltaInput( rootMatrix )", "");
+		math::Matrix inverse;
+		inverse = rootMatrix;
+		inverse.InvertOrthonormal();
+		Transform rotation;
+		rotation.SetRotationY(orientation);
+		rotation.Multiply(inverse);
+		math::Quaternion quaternion = rotation.GetQuaternion();
+		SetQuaternion(quaternion);
+		mHasAngularVelocity = false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094E6C0
+	void DeltaTransform::SetOrientation(const math::Matrix& deltaRotationMatrix)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xF8, ValidateDeltaInput(deltaRotationMatrix),
+			"ValidateDeltaInput( deltaRotationMatrix )", "");
+		math::Quaternion quaternion;
+		quaternion.FromMatrix(deltaRotationMatrix);
+		SetDelta(quaternion);
+	}
+
+	// FUNCTION: ENGINE 0x1094E730
+	// NONMATCHING: the quaternion validation is called with its argument in eax in the engine, in ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetRotation(const math::Matrix& rotationMatrix, const math::Quaternion& invRootQuaternion)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0xFF, ValidateDeltaInput(rotationMatrix), "ValidateDeltaInput( rotationMatrix )",
+			"");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x100, ValidateDeltaInput(invRootQuaternion),
+			"ValidateDeltaInput( invRootQuaternion )", "");
+		math::Quaternion quaternion;
+		quaternion.FromMatrix(rotationMatrix);
+		math::Multiply(quaternion, quaternion, invRootQuaternion);
+		SetDelta(quaternion);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094E800
+	void DeltaTransform::SetRotation(const math::Matrix& rotationMatrix, const math::Matrix& rootMatrix)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x108, ValidateDeltaInput(rotationMatrix), "ValidateDeltaInput( rotationMatrix )",
+			"");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x109, ValidateDeltaInput(rootMatrix), "ValidateDeltaInput( rootMatrix )", "");
+		math::Matrix inverse;
+		inverse = rootMatrix;
+		inverse.InvertOrthonormal();
+		math::Matrix matrix;
+		matrix.Multiply(rotationMatrix, inverse);
+		SetOrientation(matrix);
+	}
+
+	// FUNCTION: ENGINE 0x1094E8E0
+	// NONMATCHING: as SetDelta(quat); 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetVelocityOrientation(const math::Vector& velocity, const math::Quaternion& inverseRootQuaternion)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x115, ValidateDeltaInput(velocity), "ValidateDeltaInput( velocity )", "");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x116, ValidateDeltaInput(inverseRootQuaternion),
+			"ValidateDeltaInput( inverseRootQuaternion )", "");
+		inverseRootQuaternion.Transform(velocity, mVelocity);
+		mHasVelocity = true;
+		SetOrientation(Heading(velocity), inverseRootQuaternion);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094E9A0
+	// NONMATCHING: the vector validation is called with its argument in eax in the engine, in ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetVelocityOrientation(const math::Vector& velocity, const math::Matrix& rootMatrix)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x11E, ValidateDeltaInput(velocity), "ValidateDeltaInput( velocity )", "");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x11F, ValidateDeltaInput(rootMatrix), "ValidateDeltaInput( rootMatrix )", "");
+		math::Matrix inverse;
+		inverse = rootMatrix;
+		inverse.InvertOrthonormal();
+		inverse.Rotate(velocity, mVelocity);
+		mHasVelocity = true;
+		Transform rotation;
+		rotation.SetRotationY(Heading(velocity));
+		rotation.Multiply(inverse);
+		SetQuaternion(rotation.GetQuaternion());
+		mHasAngularVelocity = false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094EAC0
+	// NONMATCHING: the vector validation is called with its argument in eax in the engine, in ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetDeltaFacing(const math::Vector& newFacingVector, const math::Vector& oldFacingVector)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x132, ValidateDeltaInput(newFacingVector),
+			"ValidateDeltaInput( newFacingVector )", "");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x133, ValidateDeltaInput(oldFacingVector),
+			"ValidateDeltaInput( oldFacingVector )", "");
+		math::Vector translation;
+		mMatrix.GetTranslation(translation);
+		SetRotation(newFacingVector);
+		Transform old;
+		old.SetRotation(oldFacingVector);
+		math::Matrix inverse;
+		inverse = old.ToMatrix();
+		inverse.InvertOrthonormal();
+		Multiply(inverse);
+		mMatrix.SetTranslation(translation);
+		mHasAngularVelocity = false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094EBF0
+	// NONMATCHING: the vector and the quaternion validation are called with their argument in eax in the engine, in
+	// ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetDeltaFacing(const math::Vector& facingVector, const math::Quaternion& invRootQuaternion)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x143, ValidateDeltaInput(facingVector), "ValidateDeltaInput( facingVector )",
+			"");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x144, ValidateDeltaInput(invRootQuaternion),
+			"ValidateDeltaInput( invRootQuaternion )", "");
+		Transform rotation;
+		rotation.SetRotation(facingVector);
+		SetRotation(rotation.ToMatrix(), invRootQuaternion);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094ECC0
+	// NONMATCHING: the vector validation is called with its argument in eax in the engine, in ecx in ours; 99 %
+#ifdef NONMATCHING
+	void DeltaTransform::SetDeltaFacing(const math::Vector& facingVector, const math::Matrix& rootTransform)
+	{
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x14B, ValidateDeltaInput(facingVector), "ValidateDeltaInput( facingVector )",
+			"");
+		OLD_ASSERT_AT(DELTATRANSFORM_FILE, 0x14C, ValidateDeltaInput(rootTransform),
+			"ValidateDeltaInput( rootTransform )", "");
+		Transform rotation;
+		rotation.SetRotation(facingVector);
+		SetRotation(rotation.ToMatrix(), rootTransform);
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1094ED90
 	// NONMATCHING: the engine expands the identity matrix into sixteen locals and schedules the two branches
 	// differently; 25 %
