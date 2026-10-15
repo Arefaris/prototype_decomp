@@ -19,9 +19,14 @@ namespace engine
 		{
 			enum { STRING_CAPACITY = 0x100 };
 
-			SubTitleEnty();
+			// 0x108C07F0: the interval the subtitle is not shown in yet (-1) and the text object it is up in
+			SubTitleEnty() : startTime(-1.0f), endTime(-1.0f), unknown108(0)
+			{
+				subtitleId[0] = 0;
+			}
 
-			// 0x108C0AD0: the class's reflected members (subtitleId / startTime / endTime)
+			// 0x108C0500 / 0x108C0AD0: the class's name and version, and its reflected members
+			static const content::ClassInfo* GetClassInfo();
 			static const content::MemberList* GetMembers();
 
 			char subtitleId[STRING_CAPACITY];   // +0x000

@@ -81,6 +81,11 @@ namespace container
 			end = 0;
 			capacity = 0;
 		}
+		// Drops the elements (the storage stays)
+		void Clear()
+		{
+			end = begin;
+		}
 		void Free()
 		{
 			if (begin != 0)

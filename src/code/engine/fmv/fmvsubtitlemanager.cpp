@@ -6,6 +6,7 @@
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/container/arraydynamicstatic.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
+#include "code/engine/system/streampackage.h"
 
 namespace container
 {
@@ -14,11 +15,24 @@ namespace container
 
 namespace engine
 {
-	// FUNCTION: ENGINE 0x108C07F0
-	FmvSubtitleManager::SubTitleEnty::SubTitleEnty()
-		: startTime(-1.0f), endTime(-1.0f), unknown108(0)
+	// FUNCTION: ENGINE 0x108C0500
+	const content::ClassInfo* FmvSubtitleManager::SubTitleEnty::GetClassInfo()
 	{
-		subtitleId[0] = 0;
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::FmvSubtitleManager::SubTitleEnty";
+		sInfo.code = "";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x108C0540
+	const content::ClassInfo* FmvSubtitleManager::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::FmvSubtitleManager";
+		sInfo.code = "";
+		return &sInfo;
 	}
 
 	// FUNCTION: ENGINE 0x108C0AD0
@@ -50,8 +64,30 @@ namespace content
 	}
 }
 
-// The members of the element array and of the template functions it uses, which the header defines and this unit
-// instantiates (the array's own copies, in address order):
+namespace content
+{
+	// The class meta type of a subtitle and the meta type of the array the subtitles live in, which the manager's
+	// reflection is built from (the copies also come out of the classes' own reflection units)
+	template ClassMetaType* GetClassMetaType<engine::FmvSubtitleManager::SubTitleEnty>();
+	template ArrayDynamicMetaType* GetArrayDynamicMetaType<engine::FmvSubtitleManager,
+		engine::FmvSubtitleManager::SubTitleArray>(MetaType*, const char*);
+	// The lookups the unit makes in the inventory
+	template engine::FmvSubtitleManager* LoadInventory::Find<engine::FmvSubtitleManager>(const char*);
+	template engine::StreamPackage* LoadInventory::Find<engine::StreamPackage>(const char*);
+}
+
+namespace container
+{
+	// The range copies the array's elements with
+	template engine::FmvSubtitleManager::SubTitleEnty* AssignRange(
+		const engine::FmvSubtitleManager::SubTitleEnty* first,
+		const engine::FmvSubtitleManager::SubTitleEnty* last,
+		engine::FmvSubtitleManager::SubTitleEnty* dest);
+}
+
+// The headers' members this unit instantiates, in address order:
+// FUNCTION: ENGINE 0x108C07F0 the element's constructor
+// The element array's members and the template functions it uses:
 // FUNCTION: ENGINE 0x108C0580 operator[]
 // FUNCTION: ENGINE 0x108C05E0 Create
 // FUNCTION: ENGINE 0x108C0630 Size
@@ -69,3 +105,18 @@ namespace content
 // FUNCTION: ENGINE 0x108C0A80 ShiftUp
 // FUNCTION: ENGINE 0x108C0F00 Reserve
 // FUNCTION: ENGINE 0x108C0FE0 Insert (count copies)
+// FUNCTION: ENGINE 0x108C07E0 the array helper's constructor
+// FUNCTION: ENGINE 0x108C0820 the array helper's Size
+// FUNCTION: ENGINE 0x108C0840 the array helper's Get
+// FUNCTION: ENGINE 0x108C08A0 the array helper's Default
+// FUNCTION: ENGINE 0x108C0900 container::AssignRange
+// FUNCTION: ENGINE 0x108C0980 the caster's constructor
+// FUNCTION: ENGINE 0x108C0990 the caster's Cast
+// FUNCTION: ENGINE 0x108C09B0 the array helper's GetConst
+// FUNCTION: ENGINE 0x108C09D0 the array helper's Capacity
+// FUNCTION: ENGINE 0x108C0DB0 Clear
+// FUNCTION: ENGINE 0x108C0DC0 content::GetClassMetaType<SubTitleEnty>
+// FUNCTION: ENGINE 0x108C0E10 content::GetArrayDynamicMetaType (the subtitles member)
+// FUNCTION: ENGINE 0x108C0E60 content::LoadInventory::Find<FmvSubtitleManager>
+// FUNCTION: ENGINE 0x108C0EA0 content::LoadInventory::Find<StreamPackage>
+// FUNCTION: ENGINE 0x108C0EE0 the array helper's Erase

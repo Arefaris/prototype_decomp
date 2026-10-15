@@ -197,6 +197,13 @@ namespace content
 			DynamicCaster<T> caster;
 			return static_cast<T*>(GetObject(&caster, name));
 		}
+		// 0x108C0E60 / 0x108C0EA0: the object of this name as a T, searching the inventories inside too (the flag
+		// the name is built with is unknown)
+		template<class T> T* Find(const char* name)
+		{
+			DynamicCaster<T> caster;
+			return static_cast<T*>(FindObject(&caster, ObjectName(name, 1), true));
+		}
 
 		// 0x106032F0 / 0x10603560: adds an object under a name / takes it out again
 		void Add(const ObjectName& name, LoadObject* object);
