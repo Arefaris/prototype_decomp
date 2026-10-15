@@ -956,7 +956,38 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## choreo/src/deltatransform.cpp (0x1094C810 - 0x1094F805): 5 functions match, 20 NONMATCHING, the rest not done
+## choreo/src/rootdriver.cpp (0x1094EF30 - 0x1094F805): 14 functions match, 2 NONMATCHING, 22 not done
+
+The unit after deltatransform.cpp. It holds `choreo::RootDriver : Driver` (RTTI 0x111EC1A0, vftable 0x10E8C1D4,
+constructor 0x1094EF30, driver type 9) and `choreo::AnimationDriver : PartitionDriver` (RTTI 0x111EC240, vftable
+0x10E8C2F4), plus the helpers around them. `choreo::PartitionDriver : Driver` (the unit before deltatransform.cpp)
+is declared in the same header but not reconstructed.
+
+RootDriver is `{ vptr, Driver's 0x1C, unknown +0x1C, mask +0x20 (3 = both deltas), choreo::DeltaTransform +0x24 }`.
+AnimationDriver is `{ PartitionDriver's 0x38, source +0x38, the clip it plays +0x3C, +0x54/+0x55 and +0x66/+0x67
+flags, rate +0x58, the first and last frame +0x5C/+0x60, +0xE4 }`; the clip at +0x3C (`choreo::AnimationClip`, source
++0, length in frames +4, rate +8, flags +0x10, the animation +0x14) is read through the getters at 0x10952310,
+0x10952320, 0x10952330 and 0x10952380, which the engine keeps in the samplechannels unit.
+
+Match: the two type-9 casts 0x1094EFA0 / 0x1094EFC0, the two `return 0` bodies 0x1094EFE0 / 0x1094EFF0, SetMask
+0x1094F000, RootDriver::Update 0x1094F020, the four flag getters 0x1094F1C0 - 0x1094F1F0, the type-0 cast 0x1094F230,
+AnimationDriver::ClampFrame 0x1094F5C0, GetFrameAdvance 0x1094F5F0 and SetUnknownE4 0x1094F610.
+
+NONMATCHING:
+
+- 0x1094F300 SetStartFrame, 0x1094F350 SetEndFrame: every instruction is the same but the engine encodes the two
+  float comparisons with `comiss` of the constant and then of the frame against the limit, ours always puts the
+  argument first (`comiss frame, value`); 90 %. No spelling of the condition changes it.
+
+Not done (21): the constructors and destructors 0x1094EF30 / 0x1094EF80 / 0x1094F200 and the scalar deleting
+destructor 0x1094F1A0 need the two vftables and the `Driver` base's virtuals, which are not reconstructed (the
+classes are declared without overrides, as `src/code/proto/camera/vehiclecamera.h` does). 0x1094F040, 0x1094F0A0,
+0x1094F240, 0x1094F290, 0x1094F2D0, 0x1094F2E0, 0x1094F2F0, 0x1094F3A0, 0x1094F420, 0x1094F440, 0x1094F4F0,
+0x1094F510, 0x1094F530, 0x1094F550, 0x1094F630, 0x1094F670, 0x1094F6B0 and 0x1094F6D0 call the pose blend and
+sample channel functions of the surrounding units (0x1094D4C0, 0x10951F30, 0x109522A0, 0x109578B0 ... 0x10958A80,
+0x106E7B20) that have no names in symbols.txt yet; they are the ones to write next.
+
+## choreo/src/deltatransform.cpp (0x1094D730 - 0x1094EF30): 7 functions match, 28 NONMATCHING, 1 not done
 
 `choreo::DeltaTransform` (the asserts at 0x1094D730 - 0x1094ECC0 name the file and the class): the movement of a
 character over one step. It derives from a `choreo::Transform` (declared in the unit before this one, not
@@ -989,17 +1020,25 @@ NONMATCHING:
   SetDelta / SetPosition / SetDeltaFacing): every instruction is the same, the call setup is `mov eax, edi` in the
   engine and `mov ecx, edi` in ours; 99 %. The two matrix setters (0x1094DF50, 0x1094DFB0) match because the matrix
   validation keeps its argument in `ecx` like ours.
+- The ten output setters, 0x1094E490 - 0x1094ECC0 (SetOrientation with an angle and a root, SetRotation, the
+  velocity-and-orientation pair and the facing-delta pair): the two that call only the matrix validation
+  (0x1094E6C0, 0x1094E800) match; the other eight call the vector, quaternion or float validation, which the engine
+  passes in `eax`, so they are off by that one `mov`; 99 %.
 - 0x1094ED90 Update: 25 %, the engine expands the identity matrix into sixteen locals and schedules the two branches
   differently.
 
-Not done (107 functions): the whole first part of the range, 0x1094C810 - 0x1094D720, which builds and drives
-`choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (their vftables are already in symbols.txt; the 0x2C-byte
-entries at +0x3C, the partition bit-set indexing and the blends are not written up yet), and 0x1094E490 - 0x1094ED80
-(the orientation, facing and matrix combinations of the output setters, 0x1094E6C0 - 0x1094E800 among them). 0x1094D9B0
+Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled and called by the matching matrix
+setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
+0x1094D9B0 - 0x1094DB40 are compiled nowhere: the engine's copies stay.
 
-- 0x1094DB40 are compiled nowhere: the engine's copies stay, and `ValidateDeltaInput(const math::Matrix&)`
-(0x1094DA40) is compiled and called by the two matching matrix setters but is not annotated (the engine unrolls its
-sixteen comparisons where ours keeps the loop).
+## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 0 functions match, 0 NONMATCHING, 53 not done
+
+The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
+0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the
+clip lengths and rates (0x1094C850, 0x1094CEA0, 0x1094CEF0), the partition bit-set indexing and the blends. Nothing
+is written up yet: the class layout, the `choreo::SampleChannels` methods it calls (0x109522A0 - 0x10952380) and its
+vftable still have to be recovered, so no function of it could be placed. The clip object at the driver's +0x3C is
+now partly known (see the rootdriver.cpp section: `choreo::AnimationClip`, 0x18 bytes).
 
 **The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
 compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation

@@ -70,4 +70,61 @@ namespace choreo
 	{
 		return driver->mType ? 0 : driver;
 	}
+
+	// FUNCTION: ENGINE 0x1094F300
+	// NONMATCHING: the engine encodes the two float comparisons with the operands the other way round (comiss of the
+	// constant and then of the frame against the limit, against ours of the frame first); 90 %
+#ifdef NONMATCHING
+	void AnimationDriver::SetStartFrame(float frame)
+	{
+		float limit = mClip.GetDuration() - 1.0f;
+		float value = 0.0f;
+		if (value <= frame)
+		{
+			value = limit;
+			if (frame <= limit)
+			{
+				value = frame;
+			}
+		}
+		mStartFrame = value;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094F350
+	// NONMATCHING: as SetStartFrame; 90 %
+#ifdef NONMATCHING
+	void AnimationDriver::SetEndFrame(float frame)
+	{
+		float limit = mClip.GetDuration() - 1.0f;
+		float value = 0.0f;
+		if (value <= frame)
+		{
+			value = limit;
+			if (frame <= limit)
+			{
+				value = frame;
+			}
+		}
+		mEndFrame = value;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094F5C0
+	float AnimationDriver::ClampFrame(float frame) const
+	{
+		return choreo::ClampFrame(frame, mStartFrame, mEndFrame, mUnknown54);
+	}
+
+	// FUNCTION: ENGINE 0x1094F5F0
+	float AnimationDriver::GetFrameAdvance(float dt) const
+	{
+		return mClip.GetFrameRate() * mUnknown58 * dt;
+	}
+
+	// FUNCTION: ENGINE 0x1094F610
+	void AnimationDriver::SetUnknownE4(float frame)
+	{
+		mUnknownE4 = ClampFrame(frame);
+	}
 }
