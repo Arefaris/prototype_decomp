@@ -92,11 +92,6 @@ namespace engine
 	class EffectTrack : public fight::Track
 	{
 	public:
-		unsigned char unknown4[4];
-		// The head of the list of the actions the track drives: every action carries a core::Link node at +0x1C
-		// and inserts itself into it (0x10805B90 is the converting copy of that node's constructor)
-		core::LinkList<EffectTrack> watchList;
-		unsigned char unknownC[4];
 		int unknown10;
 		int unknown14;
 		math::Vector unknown18;

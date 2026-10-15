@@ -6,6 +6,7 @@
 #ifndef ENGINE_FIGHT_SEQUENCER_H
 #define ENGINE_FIGHT_SEQUENCER_H
 
+#include "code/core/linklist.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/refptr.h"
 
@@ -114,25 +115,34 @@ namespace fight
 		float timeEnd;
 	};
 
-	// A reflected property base (RTTI: fight::Param, 2 vftable slots); no data of its own
+	// A reflected property of a node's class (another unit's header; the node hands its properties out by index)
+	class Property;
+
+	// A reflected node base (RTTI: fight::Param, 2 vftable slots); no data of its own. Slot 0 is the list of the
+	// node's own properties and slot 1 the one of the nodes below it, both by index.
 	class Param
 	{
 	public:
-		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
+		// vftable slot 0
+		virtual Property* GetProperty(int index) = 0;
+		// vftable slot 1 (0x10034324, another unit)
+		virtual Property* Slot1(int index);
 	};
 
-	// RTTI: fight::Item (9 vftable slots, base fight::Param); no data of its own
+	// RTTI: fight::Item (9 vftable slots, base fight::Param); no data of its own. Slots 2, 3 and 4 walk the
+	// properties and hand an argument to each of them, slot 5 and 6 take two arguments and slot 8 passes one
+	// through to every node below.
 	class Item : public Param
 	{
 	public:
-		virtual void Slot2() = 0;
-		virtual void Slot3() = 0;
-		virtual void Slot4() = 0;
-		virtual void Slot5() = 0;
-		virtual void Slot6() = 0;
-		virtual void Slot7() = 0;
-		virtual void Slot8() = 0;
+		virtual void Slot2(int arg);
+		virtual void Slot3(int arg);
+		virtual void Slot4(int arg);
+		virtual void Slot5(int a, int b, int c);
+		virtual void Slot6(int a, int b);
+		// vftable slot 7: the object is destroyed (the compiler's scalar deleting destructor sits here)
+		virtual ~Item();
+		virtual void Slot8(int a, int b);
 	};
 
 	// A condition predicate of the fight tree (RTTI: fight::Condition, 10 vftable slots). The base is the node of a
@@ -151,19 +161,35 @@ namespace fight
 	class Track : public Item
 	{
 	public:
-		virtual void Slot9() = 0;
-		virtual void Slot10() = 0;
-		virtual void Slot11() = 0;
+		// 0x105AA160 (another unit): sets the vftable and clears the three words below
+		Track();
+		// the destructor slot (7): clears the watch list, then the base's
+		virtual ~Track();
+
+		// vftable slot 9: the time the track begins at
+		virtual float GetTimeBegin() const = 0;
+		// vftable slot 10: the time it ends at
+		virtual float Slot10() const = 0;
+		// vftable slot 11 (0x1002C7D7, another unit)
+		virtual void Slot11();
 		// vftable slot 12: begins the track on the sequencer
-		virtual void Slot12(int a, core::IRefCount* b, Sequencer* sequencer) = 0;
-		virtual void Slot13() = 0;
-		virtual void Slot14() = 0;
+		virtual void Slot12(int a, core::IRefCount* b, Sequencer* sequencer);
+		// vftable slot 13 (0x1003B9B2, another unit)
+		virtual void Slot13();
+		// vftable slot 14 (0x105AA0F0, another unit)
+		virtual void Slot14(int a, int b);
+		// vftable slot 15
 		virtual void Slot15() = 0;
 
 		// 0x105A3A40 (another function of this unit): enters the listener list (under the load listeners' lock)
 		void Register(void* entry);
 		// 0x105A3A90 (another function of this unit): leaves the listener list
 		void Unregister(void* entry);
+
+		unsigned int unknown4;
+		// The head of the list of the nodes that watch this track (0x105AA160 clears all three words)
+		core::LinkList<Track> watchList;
+		unsigned int unknownC;
 	};
 
 	// The head of a condition expression (name guessed)
