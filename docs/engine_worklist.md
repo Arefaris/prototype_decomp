@@ -1750,3 +1750,51 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 `fight::Track::Register` / `Unregister` (effecttrack.cpp) in symbols.txt. One function cannot belong to both classes:
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
+
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): started, 34 functions match
+
+The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
+Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
+(every name is a guess): `mWorld` +0x00 (the polymorphic object the context forwards its queries into by vtable slot
+0x10 - 0x54), `placement` +0x08 (a position tracker whose methods live in another unit), `registry` +0x0C,
+`unknown10` +0x10 (the body `SetSolverIterations` writes at +0x1C / +0x24), `staticObjects` +0x14 and
+`movableObjects` +0x1C (the pm_ commands' lists), `collisionBatch` +0x24 (48-byte entries), `constraintBatch` +0x58
+(168-byte entries), `queryBatch` +0x8C, `unknownC4` +0xC4 (the broad phase detector the lists point into),
+`unknownD8` +0xD8, `detector` +0x108 (whose own +0x24 holds a pointer to itself and to which the `mCollisionDetectorInternal`
+asserts belong), `unknown10C` +0x10C.
+
+Matchable patterns worth reusing:
+
+- Every method that touches the library starts with `OLD_ASSERT_AT(CONTEXT_FILE, <line>, !gLock.IsLocked(),
+  "!gLock.IsLocked()", "")`; the per-site `static bool` is the `0x110BDBB0 + n` the code tests.
+- The forwards into `mWorld` are direct virtual calls: `mWorld->Slot(a, b, c, unknownC4, d)` pushes right to left, so
+  the source argument order is the reverse of the push order (`unknownC4` is the second to last).
+- The methods of the classes whose members live in other units (`CollisionBatch`, `ConstraintBatch`, `QueryBatch`,
+  `PlacementTracker`, `CollisionDetector`) are only declared here; their symbols are mapped in symbols.txt.
+- A method that "returns its first argument" is the engine's idiom for the list inserters (`collisionBatch.Add(first,
+  second, 4)` then `return first;`): the compiler loads the first argument into esi at the entry and reuses it.
+- `Context::ResetObjectWorld` takes its handle **by value** and is a Context method although it never touches `this`
+  (the prologue is `lea ecx, [esp + 0x10]` over a `ret 8`); a free function of the same body fails on the `ret`.
+- `Context::RefreshObjectList` is the same shape (`ret 4`, `this` unused) - a free function does not compile to it.
+- `CollisionDetector::GetObject` and `GetBodyChecked` load the asserted member before the `cmp eax, 3` (the compiler
+  hoists it) and end in **two** epilogues; writing the assert as `OLD_ASSERT_AT` and the `return` once reproduces it.
+
+Not done in this range (the owner or the layout is still unknown, so nothing could be written):
+
+- `0x10656570` (`jmp 0x106860E0`, a five-byte forwarder) and the one-byte `ret` functions 0x10657270 - 0x106572E0,
+  0x10657780 - 0x10657820, 0x10658360 - 0x106583F0, 0x10658B60: whose classes they belong to cannot be told from the
+  code, and 0x106860E0 itself is an empty function another unit owns.
+- The collision library's own containers: `0x10656E70` - `0x106573C0` (the `(begin, end)` array accessors and the
+  `Size()` copies dividing by 0x34 / 0xA8 / 0xC / 0x2C / 4, the interlocked slot pools 0x10657430 - 0x106575E0 and
+  0x10657900 - 0x10657990) are unreferenced copies of the library's templates. Every one of them is 4 - 40 bytes of
+  pure offset arithmetic, but nothing in the unit says which element type each instantiation belongs to, so assigning
+  them would be invented rather than recovered.
+- `0x10657A50` (`WakeObject`, 265 bytes) and `0x10657B60` (`SleepObject`, 210 bytes): the structure is clear (the
+  detector's `[+0]` / `[+2]` counts and `[+0xC]` array are split into `staticObjects` / `movableObjects` after the
+  world answers a query), but the members live inside `BroadPhaseDetector::unknown0[0x18]`, which this unit may only
+  add to, and the unit needs two more collapsed copies of the object lookup (0x1065F500, identical to the
+  `ObjectHandle::GetObject` at 0x106560A0) before they can be written.
+- `0x10658610` - `0x10659F70` (the collision detection itself: 0x10658610, 0x106586E0, 0x106588B0, 0x10658D00,
+  0x10659070, `Context::CastRay` 0x106593A0, 0x106596F0, 0x106599C0, 0x10659D50, 0x10659EE0, 0x10659F40, 0x10659F70)
+  is not started; 0x106599C0 and 0x10659D50 build the detector and its islands (0x10659F70 registers "Collide Awoken
+  Islands" with the profiler).
