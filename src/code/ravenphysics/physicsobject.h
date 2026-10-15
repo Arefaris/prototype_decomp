@@ -39,8 +39,9 @@ namespace ravenphysics
 		unsigned char unknown3A[2];
 		// How the body's collision objects collide (0x1065F6D0 sets the low two bits; 0x3C)
 		unsigned short collisionMode;
-		// 0x3E: flags the body tests (bits 1 and 3)
-		unsigned short collisionFlags;
+		// 0x3E: the broad phase's state bits (the engine tests them as a byte)
+		unsigned char collisionFlags;
+		unsigned char unknown3F;
 		unsigned char unknown40[0x54 - 0x40];
 
 		// The broad phase's state in collisionFlags: bit 0 - the object is asleep, bit 3 - the object is left out

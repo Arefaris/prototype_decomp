@@ -719,9 +719,8 @@ namespace ravenphysics
 	};
 
 	// A 32-byte record of the profiler pools: the tick counts around the work, the two words between them (the second
-	// one is always -1), two bytes the record carries, its name and its kind (name guesses). A local of it is what
-	// makes the engine align the frame of the methods that build one, so the record is 16-byte aligned.
-	__declspec(align(16)) struct Record32
+	// one is always -1), two bytes the record carries, its name and its kind (name guesses).
+	struct Record32
 	{
 		unsigned int start;    // 0x00
 		unsigned int end;      // 0x04
@@ -733,6 +732,12 @@ namespace ravenphysics
 		const char* name;      // 0x14
 		unsigned short kind;   // 0x18
 		unsigned char unknown1A[0x20 - 0x1A]; // 0x1A
+	};
+
+	// A record built on the stack: the engine aligns the frame of the methods that build one to 16 bytes, while the
+	// records it keeps in arrays (Record40) are packed at 0x28 bytes
+	__declspec(align(16)) struct AlignedRecord32 : Record32
+	{
 	};
 
 	// The pair of words that identifies a record (name guess)

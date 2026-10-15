@@ -1875,7 +1875,7 @@ namespace ravenphysics
 	CollisionDetector::~CollisionDetector()
 	{
 		ScratchStack stack;
-		Record32 record;
+		AlignedRecord32 record;
 		record.name = "Waiting on gate";
 		record.unknown8 = -1;
 		record.kind = 7;
