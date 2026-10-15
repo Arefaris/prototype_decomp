@@ -5,6 +5,14 @@
 #ifndef ENGINE_FIGHT_BRANCH_H
 #define ENGINE_FIGHT_BRANCH_H
 
+#include "code/core/name.h"
+
+namespace core
+{
+	struct IRefCount;
+	struct CaseSensitiveKey;
+}
+
 namespace engine
 {
 	class GameObject;
@@ -12,6 +20,8 @@ namespace engine
 
 namespace fight
 {
+	class Sequencer;
+
 	class Branch
 	{
 	public:
@@ -21,14 +31,18 @@ namespace fight
 		virtual void Slot3();
 		virtual void Slot4();
 		virtual void Slot5();
-		// 0x10863B00 / 0x10863FB0 read it: the track the branch runs
-		virtual void* Slot6();
+		// 0x10863B00 / 0x10863FB0 read it: the track the branch runs (its own kind, so the two can be compared and
+		// its own name asked for)
+		virtual Branch* Slot6();
 		virtual void Slot7();
 		virtual void Slot8();
 		virtual void Slot9();
-		virtual void Slot10();
-		virtual void Slot11();
-		virtual void Slot12();
+		// 0x10863FB0: runs the branch on a sequencer with parameters, answering the track it started (or null)
+		virtual Branch* Slot10(Sequencer* sequencer, void* params, int a, int b);
+		// 0x10863FB0: starts that track, answering whether it began
+		virtual bool Slot11(Sequencer* sequencer, void* params, int a);
+		// 0x105A4780 (the sequencer's unit) starts a pending track through it
+		virtual void Slot12(int a, core::IRefCount* b, Sequencer* sequencer);
 		virtual void Slot13();
 		virtual void Slot14();
 		virtual void Slot15();
@@ -38,6 +52,15 @@ namespace fight
 		// 0x105A3A40 / 0x105A3A90 (the sequencer's unit): enters the branch's listener list / leaves it
 		void Register(void* entry);
 		void Unregister(void* entry);
+
+		// The reference count of the load object the branch derives from
+		int unknown4;
+		// 0x10863FB0 compares it with the running track's name
+		core::Name<core::CaseSensitiveKey> name;
+		int unknown10;
+		int unknown14;
+		// 0x10863B00 walks the chain through it
+		Branch* unknown18;
 	};
 }
 

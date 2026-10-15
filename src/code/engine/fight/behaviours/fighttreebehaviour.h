@@ -11,9 +11,30 @@
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobjectparams.h"
+#include "code/engine/message.h"
 
 namespace engine
 {
+	// The message the fight behaviours run branches with (message type 0xb; its class and members are guesses, the
+	// two payloads share the word at +0xC because the ids tell them apart)
+	struct FightTreeMessage : public Message
+	{
+		FightTreeMessage(int newType, short newId) : Message(newType, newId)
+		{
+		}
+
+		union
+		{
+			// id 8: the track to look for in the running one's chain
+			fight::Branch* track;
+			// id 0x10: the parameters to fill in when the message carries none
+			GameObjectParams* params;
+		};
+		// id 8: whether the chain is to be walked at all, and the answer
+		bool walk;
+		bool found;
+	};
+
 	class FightTreeBehaviour : public Behaviour
 	{
 	public:

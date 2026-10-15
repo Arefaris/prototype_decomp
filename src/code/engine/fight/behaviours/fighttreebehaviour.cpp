@@ -22,6 +22,27 @@ namespace engine
 	// line by its own instantiation.
 	template class FightBranchRefMemberGetSetter<FightTreeBehaviour>;
 
+	// FUNCTION: ENGINE 0x10864180
+	// FUNCTION: ENGINE 0x108641E0
+	content::MemberList* FightTreeBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<Behaviour>();
+		static content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[] =
+		{
+			{ GetFightBranchRefMetaType<FightTreeBehaviour>("GameObject", &FightTreeBehaviour::GetBranch,
+				&FightTreeBehaviour::SetBranch, "p"), 0, "fightBranch" },
+			{ content::GetClassMetaType<fight::Sequencer>(),
+				content::MemberOffset(&((FightTreeBehaviour*)0)->sequencer,
+				(int)&((FightTreeBehaviour*)0)->sequencer), "sequencer" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x108638C0
 	content::ClassInfo* FightTreeBehaviour::GetClassInfo()
 	{
@@ -31,6 +52,58 @@ namespace engine
 		sInfo.code = "pn";
 		return &sInfo;
 	}
+
+	// FUNCTION: ENGINE 0x10863B00
+	// NONMATCHING: the two ids' blocks come out in the other order and the chain walk is rotated, 23 % (the whole
+	// middle of the function - the check order, the `sete`/`test` pair the found flag is built from and the id
+	// comparison - is already identical)
+#ifdef NONMATCHING
+	void FightTreeBehaviour::OnPostedMessage(Message* message)
+	{
+		FightTreeMessage* fightMessage = static_cast<FightTreeMessage*>(message);
+		if (fightMessage->type != 0xb)
+		{
+			return;
+		}
+		unsigned int id = (unsigned short)fightMessage->id;
+		if (id == 8)
+		{
+			fight::Branch* node = branch->Slot6();
+			if (fightMessage->track->Slot6() == node)
+			{
+				node = GetSequencer()->track;
+				if (node != 0)
+				{
+					bool same = (fightMessage->track == node);
+					fightMessage->found = same;
+					if (fightMessage->walk && !same)
+					{
+						node = node->unknown18;
+						if (node != 0)
+						{
+							while (fightMessage->track != node)
+							{
+								node = node->unknown18;
+								if (node == 0)
+								{
+									return;
+								}
+							}
+							fightMessage->found = true;
+						}
+					}
+				}
+			}
+		}
+		else if (id == 0x10)
+		{
+			if (fightMessage->params == 0)
+			{
+				fightMessage->params = GetParams();
+			}
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10863900
 	// NONMATCHING: the parameters load and the generator step's registers, 54 %

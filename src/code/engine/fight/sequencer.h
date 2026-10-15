@@ -9,12 +9,19 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/refptr.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace fight
 {
 	class Sequencer;
 	class Action;
 	class Track;
 	class Condition;
+	class Branch;
 
 	// A reference-counted fight node (RTTI: fight::RefCounted, base core::IRefCount; 3 vftable slots)
 	class RefCounted : public core::IRefCount
@@ -180,6 +187,10 @@ namespace fight
 	class Sequencer
 	{
 	public:
+		// 0x105A3E80 / 0x105A43F0 (the sequencer's own unit): the reflection data
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		// 0x105A4020: starts empty - the track nodes, the action lists and the clock zero, timeScale 1
 		Sequencer();
 		// 0x105A4140: stops every started action and empties the lists
@@ -195,17 +206,18 @@ namespace fight
 		void Clear();
 		// 0x105A3EC0: ends every action of the pending list (name guess)
 		void EndPending();
-		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old
-		void SetTrack(Track* track);
+		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old. The engine types it
+		// as the branch kind (its Register / Unregister are fight::Branch's); 0x10863B00 compares it with a branch
+		void SetTrack(Branch* track);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
 
 		int unknown0;
 		int unknown4;
-		Track* track;
+		Branch* track;
 		int unknownC;
 		int unknown10;
-		Track* pendingTrack;
+		Branch* pendingTrack;
 		int unknown18;
 		int unknown1C;
 		int unknown20;
