@@ -1,0 +1,55 @@
+// The path behaviours: see the header. The unit has no name of its own in the binary, the file name is a guess.
+#include "code/engine/gameobject/behaviours/pathbehaviour.h"
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x10864C30
+	content::ClassInfo* IPathBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::IPathBehaviour";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10864C70
+	content::ClassInfo* PatrolPoint::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::PatrolPoint";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10864CB0
+	content::ClassInfo* PatrolPathBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::PatrolPathBehaviour";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10864D00
+	content::ClassInfo* SplineCV::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::SplineCV";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10864D40
+	content::ClassInfo* SplineBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::SplineBehaviour";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+}
