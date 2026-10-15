@@ -106,11 +106,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10805B40
+	// NONMATCHING: the +0x3C reference is released through another unit's copy of the release helper (0x104FF200),
+	// ours calls ReleaseEffectRef for both members (same bytes, wrong call target)
+#ifdef NONMATCHING
 	EffectAction::~EffectAction()
 	{
 		ReleaseEffectRef(unknown44);
 		ReleaseEffectRef(unknown3c);
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10805CF0
 	MotionTrailAction::~MotionTrailAction()

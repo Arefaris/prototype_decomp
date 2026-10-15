@@ -1224,6 +1224,7 @@ belongs to. Reconstructed:
 | Function | Status | Why |
 |---|---|---|
 | 0x10804EE0 EffectTrack::GetUnknown14 | NONMATCHING | the engine loads the member into ecx and the out pointer into eax; ours the other way round (75 %) |
+| 0x10805B40 EffectAction::~EffectAction | NONMATCHING | the bytes match, but the +0x3C member is released through 0x104FF200 (another unit's copy of the release helper) where ours calls ReleaseEffectRef twice; caught by objcmp's target check |
 | 0x108075F0 EffectAction::EffectAction | NONMATCHING | the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it past the argument setup of the trailing `AssignEffectRef` call (92.6 %); the statement order and a member-init list both give the same |
 | 0x10807700 MotionTrailAction::MotionTrailAction | NONMATCHING | the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the parameter store right after its load and sinks the -1 into the epilogue (90.8 %) |
 
