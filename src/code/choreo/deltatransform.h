@@ -19,6 +19,9 @@ namespace choreo
 	// this one; name guessed)
 	float Heading(const math::Vector& vector);
 
+	// 0x1008C890: wraps a frame around [minimum, maximum) (the unit of the frame times; name guessed)
+	float WrapFrame(float minimum, float maximum, float frame);
+
 	// The transform a delta transform is built on
 	class Transform
 	{
@@ -62,6 +65,8 @@ namespace choreo
 		DeltaTransform();
 		// 0x1094D920: clears the transform and both deltas
 		void Reset();
+		// 0x1094D8F0: the translation of the delta's matrix
+		math::Vector GetPosition() const;
 
 		// The linear delta of the step, in world space
 		void SetVelocity(const math::Vector& velocity);

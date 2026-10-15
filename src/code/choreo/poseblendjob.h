@@ -4,9 +4,47 @@
 #ifndef CHOREO_POSEBLENDJOB_H
 #define CHOREO_POSEBLENDJOB_H
 
+#include "code/pure3d/channel.h"
+
 namespace choreo
 {
 	class Puppet;
+
+	// The clip a driver plays, sampled over the frames of one step: the animation its channels come from, the two
+	// frames and the joint arrays they are read into. Its methods are in the unit of the job and only declared here.
+	class PoseBlendSample
+	{
+	public:
+		// 0x109577A0: the frames to sample, how fast and in which direction
+		void Set(float first, float rate, float from, float to, bool forward);
+
+		void* mAnimation;             // 0x00
+		float mFirst;                 // 0x04
+		float mRate;                  // 0x08
+		pure3d::FrameTime mFrom;      // 0x0C
+		pure3d::FrameTime mTo;        // 0x14
+		bool mForward;                // 0x1C
+		unsigned char unknown1D[3];
+		void* mArrays;                // 0x20
+	};
+
+	// One driver's blend node: the sample it shows and the root motion it adds to the pose (0x70 bytes)
+	class PoseBlendNode
+	{
+	public:
+		// 0x109578B0: the node adds no root motion (bit 1 of the state of the two parts)
+		void SetNone(bool rotation, bool translation);
+		// 0x109578E0: the node shows the sample, taking the rotation and the translation from the sample or from the
+		// identity (the state of each part is cleared, and full says whether the further channels take part)
+		void Set(PoseBlendSample* sample, void* arrays, bool rotation, bool translation, bool full);
+		// 0x109579B0 / 0x109579F0: the root rotation / translation the node adds
+		void SetRotation(const math::Quaternion& rotation);
+		void SetTranslation(const math::Vector& translation);
+		// 0x10958A80: which joints of the pose the node is blended into
+		void SetJoints(unsigned int first, unsigned int last, void* mask);
+
+		unsigned char unknown0[0x70];
+	};
 
 	// How many blend nodes of each kind a puppet has (4 words per puppet)
 	struct PuppetCounts

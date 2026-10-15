@@ -5,6 +5,7 @@
 #ifndef CHOREO_PUPPET_H
 #define CHOREO_PUPPET_H
 
+#include "code/core/name.h"
 #include "code/math/matrix.h"
 #include "code/pure3d/posedata.h"
 
@@ -13,19 +14,42 @@ namespace choreo
 	struct PuppetCounts;
 	struct PoseBlendCursors;
 
-	// The drivers are not updated through their vftable but through a table indexed by the driver's type
+	// What a driver is told about what it drives (the pose its channels belong to)
+	struct DriverInfo
+	{
+		unsigned char unknown0[0xC];
+		void* mPose;                 // 0x0C
+	};
+
+	// The drivers are not updated through their vftable but through a table indexed by the driver's type.
+	// The virtuals are in the order of the engine's vftables: the binding of slot 0, the release of slot 1, the two
+	// ranges of the pose a driver partitions (slots 2 and 3, which every driver class overrides) and the destructor.
 	class Driver
 	{
 	public:
-		virtual void Unknown0();
+		// 0x1094A4E0: a driver of the given type, not yet taking part in the blend
+		Driver(int type);
+		// slot 0: binds the driver to the pose it drives (nothing in the base, 0x109496E0)
+		virtual void Bind(const DriverInfo& info);
+		// slot 1: releases what the driver was bound to (nothing in the base, 0x109496F0)
+		virtual void Unbind();
+		// The first and the last joint of the pose the driver drives
+		virtual unsigned int GetFirstJoint() const = 0;
+		virtual unsigned int GetLastJoint() const = 0;
+		// 0x1094A5B0
+		virtual ~Driver();
 
-		unsigned char unknown4[0x10];
-		int mType;
-		// Bit 5: the owner stopped the driver
-		unsigned int mFlags;
-
-		// 0x1094A440: whether the driver takes part in the blend (name guess)
+		// 0x1094A440 / 0x1094A4A0: whether the driver takes part in the blend / moves the root (names guessed)
 		void Unknown1094A440(bool enabled);
+		void Unknown1094A4A0(bool enabled);
+
+		core::Name<core::CaseSensitiveKey> mName;  // 0x04
+		unsigned char unknownC[4];                 // 0x0C
+		int mUnknown10;                            // 0x10
+		int mType;                                 // 0x14
+		// Bit 1: the driver takes part in the blend, bit 4: it moves the root, bit 5: the owner stopped it
+		unsigned char mFlags;                      // 0x18
+		unsigned char unknown19[3];
 	};
 
 	// The update function of each driver type

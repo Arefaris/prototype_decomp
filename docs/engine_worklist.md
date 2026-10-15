@@ -956,36 +956,65 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## choreo/src/rootdriver.cpp (0x1094EF30 - 0x1094F805): 14 functions match, 2 NONMATCHING, 22 not done
+## choreo/src/rootdriver.cpp (0x1094EF30 - 0x1094F805): 32 functions match, 5 NONMATCHING, 0 not done
 
 The unit after deltatransform.cpp. It holds `choreo::RootDriver : Driver` (RTTI 0x111EC1A0, vftable 0x10E8C1D4,
 constructor 0x1094EF30, driver type 9) and `choreo::AnimationDriver : PartitionDriver` (RTTI 0x111EC240, vftable
-0x10E8C2F4), plus the helpers around them. `choreo::PartitionDriver : Driver` (the unit before deltatransform.cpp)
-is declared in the same header but not reconstructed.
+0x10E8C2F4), plus the helpers around them.
 
-RootDriver is `{ vptr, Driver's 0x1C, unknown +0x1C, mask +0x20 (3 = both deltas), choreo::DeltaTransform +0x24 }`.
-AnimationDriver is `{ PartitionDriver's 0x38, source +0x38, the clip it plays +0x3C, +0x54/+0x55 and +0x66/+0x67
-flags, rate +0x58, the first and last frame +0x5C/+0x60, +0xE4 }`; the clip at +0x3C (`choreo::AnimationClip`, source
-+0, length in frames +4, rate +8, flags +0x10, the animation +0x14) is read through the getters at 0x10952310,
-0x10952320, 0x10952330 and 0x10952380, which the engine keeps in the samplechannels unit.
+`choreo::Driver` (the base of every driver) has five vtable slots: 0x109496E0 (slot 0, `ret 4`, the bind hook),
+0x109496F0 (slot 1, `ret`, the release hook), the two pure virtuals of slots 2 and 3 (`__purecall` in the base's
+vftable, every driver class overrides them), and the destructor in slot 4. Its constructor is 0x1094A4E0:
+`{ vptr, core::Name +4 (an 8-byte name built by 0x1005E520), unknown +0xC, int +0x10 = 0, type +0x14,
+flags byte +0x18 }`, 0x1C bytes; the flag bits are set by 0x1094A440 (bit 1, takes part in the blend), 0x1094A4A0
+(bit 4, moves the root) and 0x1094A4C0 (bit 5, the owner stopped the driver).
 
-Match: the two type-9 casts 0x1094EFA0 / 0x1094EFC0, the two `return 0` bodies 0x1094EFE0 / 0x1094EFF0, SetMask
-0x1094F000, RootDriver::Update 0x1094F020, the four flag getters 0x1094F1C0 - 0x1094F1F0, the type-0 cast 0x1094F230,
-AnimationDriver::ClampFrame 0x1094F5C0, GetFrameAdvance 0x1094F5F0 and SetUnknownE4 0x1094F610.
+`choreo::PartitionDriver` (0x38 bytes) adds the joint range it drives: `mFirstJoint +0x20`, `mLastJoint +0x24`
+(the overrides of slots 2 and 3, 0x1094B100 / 0x1094B110), `mPose +0x28` (the object of the DriverInfo it was bound
+with), `mJoint +0x2C` (whose name is at +8 and whose joint mask is at +0x10), `mJointMask +0x30`, and slot 5
+(0x1094D4B0) `mFirstJoint == 0` (`CoversRoot`).
+
+`choreo::AnimationDriver` (0xF0 bytes): `AnimationBinding mBinding +0x38` = `{ pure3d::Animation* mSource +0,
+AnimationClip mClip +4 }` (the binding's destructor is 0x10955560: release the animation, destroy the clip)
+`| +0x54 mUnknown54 (the driver moves the root translation) | +0x55 mUnknown55 (the rotation) | +0x58 rate |
++0x5C first frame | +0x60 last frame | +0x64..+0x67 the four root motion flags | +0x68 DeltaTransform |
++0xE4 the current frame | +0xE8 a direction | +0xEC the frame the step started at`. The clip is
+`{ channel +0, duration +4, rate +8, +0xC, flags byte +0x10, the animation bound to it +0x14 }` (methods
+0x10952290 - 0x10952480 and the samplers 0x10955260 / 0x109552C0 / 0x10955360, all in the sample channel unit).
+
+Match (new): the RootDriver constructor 0x1094EF30 and destructor 0x1094EF80, BlendIntoMatrix's neighbours
+0x1094F040 FillPose (the pose blend node's `SetNone` / `SetRotation` / `SetTranslation`), the AnimationDriver
+destructor 0x1094F200, SetAnimation 0x1094F240, the Bind override 0x1094F290, the Unbind override 0x1094F2D0,
+IsSet 0x1094F2E0, UpdateRest 0x1094F2F0, GetRangeTime 0x1094F3A0, 0x1094F420, GetTimeLeft 0x1094F440, the two
+root motion flag setters 0x1094F4F0 / 0x1094F510, the CoversRoot override 0x1094F530, the two clip samplers
+0x1094F630 / 0x1094F670 and the blend node filler 0x1094F6D0. Both classes' vftables are emitted by this object
+(the type-9 casts 0x1094EFA0 / 0x1094EFC0, GetFirstJoint / GetLastJoint 0x1094EFE0 / 0x1094EFF0, SetMask
+0x1094F000, RootDriver::Update 0x1094F020, the four flag getters, the type-0 cast 0x1094F230, ClampFrame
+0x1094F5C0, GetFrameAdvance 0x1094F5F0 and SetUnknownE4 0x1094F610 were already matched).
+
+Matching notes:
+
+- The two float locals of GetRangeTime and GetTimeLeft (`float to = ...; float from = ...; float rate =
+  mClip.GetFrameRate();`) are what keeps the engine's two operand spills: without them the compiler folds the
+  members into the members and subtracts before the call.
+- `mDelta.Transform::Reset()` (a qualified call) is the engine's call to 0x1094D910, a thunk of `Transform::Reset`;
+  `mDelta.Reset()` would be the DeltaTransform overload at 0x1094D920.
+- The vftable of a class with a virtual destructor holds the *vector* deleting destructor (`??_E`), the engine's
+  holds the scalar one (`??_G`); both of ours are byte-identical to the engine's function, so `??_E` is mapped to
+  the same address in symbols.txt.
 
 NONMATCHING:
 
 - 0x1094F300 SetStartFrame, 0x1094F350 SetEndFrame: every instruction is the same but the engine encodes the two
   float comparisons with `comiss` of the constant and then of the frame against the limit, ours always puts the
   argument first (`comiss frame, value`); 90 %. No spelling of the condition changes it.
-
-Not done (21): the constructors and destructors 0x1094EF30 / 0x1094EF80 / 0x1094F200 and the scalar deleting
-destructor 0x1094F1A0 need the two vftables and the `Driver` base's virtuals, which are not reconstructed (the
-classes are declared without overrides, as `src/code/proto/camera/vehiclecamera.h` does). 0x1094F040, 0x1094F0A0,
-0x1094F240, 0x1094F290, 0x1094F2D0, 0x1094F2E0, 0x1094F2F0, 0x1094F3A0, 0x1094F420, 0x1094F440, 0x1094F4F0,
-0x1094F510, 0x1094F530, 0x1094F550, 0x1094F630, 0x1094F670, 0x1094F6B0 and 0x1094F6D0 call the pose blend and
-sample channel functions of the surrounding units (0x1094D4C0, 0x10951F30, 0x109522A0, 0x109578B0 ... 0x10958A80,
-0x106E7B20) that have no names in symbols.txt yet; they are the ones to write next.
+- 0x1094F0A0 BlendIntoMatrix: the engine keeps the copy of the matrix translation in the lower of the two
+  `math::Vector` locals (the one the delta transform's position is returned into in ours); every instruction after
+  that follows from the two slots; 36 %.
+- 0x1094F550 ClampFrame: the engine keeps the comparisons of the frame's ends as they are written (the minimum on
+  the left) where ours are canonicalised into the other order, the same two bytes twice; 74 %.
+- 0x1094F6B0: the engine loads both frames before the call and pushes their slots one at a time, ours loads the
+  second frame first into an argument area of its own; 35 %.
 
 ## choreo/src/deltatransform.cpp (0x1094D730 - 0x1094EF30): 7 functions match, 28 NONMATCHING, 1 not done
 
@@ -1036,9 +1065,28 @@ setters but carries no annotation (the engine unrolls its sixteen comparisons wh
 The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
 0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the
 clip lengths and rates (0x1094C850, 0x1094CEA0, 0x1094CEF0), the partition bit-set indexing and the blends. Nothing
-is written up yet: the class layout, the `choreo::SampleChannels` methods it calls (0x109522A0 - 0x10952380) and its
-vftable still have to be recovered, so no function of it could be placed. The clip object at the driver's +0x3C is
-now partly known (see the rootdriver.cpp section: `choreo::AnimationClip`, 0x18 bytes).
+is written up yet. What the rootdriver unit has since recovered (the classes are laid out in
+`src/code/choreo/{rootdriver,puppet}.h` now):
+
+- `choreo::PartitionDriver` (0x38 bytes) = `Driver` (0x1C: vptr, an 8-byte core::Name at +4, +0xC, an int at +0x10,
+  the type at +0x14, the flags byte at +0x18) plus `mFirstJoint +0x20`, `mLastJoint +0x24`, `mPose +0x28`,
+  `mJoint +0x2C`, `mJointMask +0x30`, `+0x34`. Its vftable is 0x10E8BC84, six slots: 0x1094D690 the bind override,
+  0x109496F0 inherited, 0x1094B100 / 0x1094B110 the two joint getters, `??_G` 0x1094D550 and 0x1094D4B0
+  `CoversRoot` (`mFirstJoint == 0`); the destructor is 0x1094D430 (releases the object at +0x28 through its
+  vftable slot 1, then `~Driver`), not 0x1094D550.
+- 0x1094D690 takes a `DriverInfo` (`{ unknown0[0xC], void* mPose +0xC }`), assigns it with 0x1094D4F0
+  (`AssignRefCounted`), looks the joint up by name through 0x1094D630 -> `0x106DDC80(Pose*, const core::Name&)`
+  (returns the 0x18-byte joint whose `core::Name` is at +8) and stores it with 0x1094D570 (the joint at +0x2C, its
+  mask at +0x30, then a scan of the mask for the first and last joint of the range). 0x1094D4C0 returns whether the
+  clip is at rest against the pose: `!(binding.mSource && mPose && binding.mClip.Unknown10952390(mJointMask))`.
+- `choreo::AnimationBlendDriver`'s vftable is 0x10E8BB64: slot 0 0x1094CB50, slot 1 0x1094CB20, slots 2/3 inherited,
+  `??_G` 0x1094D3C0, slot 5 inherited. Its own members start after the 0x38 bytes of PartitionDriver.
+- The clip class (`choreo::AnimationClip`, 0x18 bytes: a channel pointer +0, the duration in frames +4, the rate +8,
+  +0xC, a flags byte +0x10, the animation bound to it +0x14; methods 0x10952290 destroy, 0x109522A0 set,
+  0x10952310 IsSet, 0x10952320 duration, 0x10952330 rate, 0x10952380 bit 1 of the flags, 0x10952390 whether the
+  animation drives any joint of a mask, 0x10952480 the animation) and the two blend nodes of the job
+  (`choreo::PoseBlendNode`, 0x70 bytes, and `choreo::PoseBlendSample`, 0x20 bytes, declared in poseblendjob.h) are
+  already in the choreo headers.
 
 **The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
 compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation

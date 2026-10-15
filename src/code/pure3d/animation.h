@@ -39,6 +39,10 @@ namespace pure3d
 
 		// 0x106E7B20: touches the animation's data in the manager
 		void Touch();
+		// 0x106E7B50: releases the animation's data through the manager (name guess)
+		void Unknown106E7B50();
+		// 0x106E9310: keeps the data of mode in the manager's memory (name guess)
+		void Unknown106E9310(int mode);
 
 		float numFrames;
 		unsigned char unknown14[0x28];
