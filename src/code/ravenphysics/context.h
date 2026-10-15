@@ -74,12 +74,26 @@ namespace ravenphysics
 		RayHit* capacity;
 	};
 
+	// One of the context's object lists: an array of object pointers (name guess)
+	struct ObjectList
+	{
+		void** begin;
+		void** end;
+	};
+
 	class Context
 	{
 	public:
 		// The hits along the query's segment, appended to hits after clearing it; false when there are none
 		// (0x106593A0)
 		bool CastRay(const RayQuery& query, RayHitArray* hits);
+
+		// The solver's iteration counts (0x10656E70; name guess)
+		void SetSolverIterations(int a, int b);
+
+		unsigned char unknown0[0x14];
+		ObjectList staticObjects;  // 0x14 (the pm_ commands' "static" list)
+		ObjectList movableObjects; // 0x1C (the pm_ commands' "movable" list)
 	};
 
 	// The physics context (0x1128356C)
