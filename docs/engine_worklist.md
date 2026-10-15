@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 205 functions match, 6 NONMATCHING
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 206 functions match, 6 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1875,6 +1875,32 @@ The two getters need `BroadPhaseDetector`'s two tables (heads at +0x34 / +0x150,
 and +0x124 / +0x128) and the statistics getter needs the batches' second runs (`CollisionBatch` +0x24/+0x28,
 `ConstraintBatch` +0x24/+0x28, `QueryBatch` +0x20/+0x24) and `Context`'s counters at +0xC8, +0xCC, +0xD0, +0xDC,
 +0xEC, +0xF0, +0xF4, +0xF8, +0xFC, +0x100; all of those are now declared, with the layouts the accessors imply.
+
+Also matched in the third session: `Context::ClearObjects` (0x10658F00 - it sleeps every object the detector holds
+and then empties the detector, the tracker's tables and the registry, the last two through a tail call) and
+`EmptyMembers::Twentieth` (0x10658B60, one of the bare `ret`s).
+
+What is still open in the collision detection block, and what it needs:
+
+- `0x106596F0 CollisionDetector::Run` (714 bytes) and `0x10659F70` (255 bytes, the context's "collide" step) both
+  build the detection's scratch buffer: `Alloc(0x10000)` from the scratch stack, then a **0x30-byte local** whose
+  constructor stores a byte at +0x18, a dword at +0x1C and calls `StackAllocator::Init(buffer, 0x10000, false)` on
+  itself (`0x106596F0` allocates one of those with `Alloc(0x30)` for `detector + 0x14`). Its destructor is the
+  one-byte empty function at **0x106860E0**, which the allocator unit owns. Who declares that class is the open
+  question for those two functions; `NarrowPhaseBatcher`'s and `MidPhaseBatcher`'s constructors (0x10658F90 /
+  0x10659030) are COMDATs of inline constructors those two units' headers define, and `Run` needs them inlined.
+- `0x106586E0`, `0x106588B0`, `0x10658D00`, `0x10659070`, `0x106599C0`, `0x10659D50`: the walks themselves (they
+  use the detector's +0x150/+0x34 tables, the registry's island runs and `GetObject()`'s object) - not started.
+- `0x10657D00`: takes an object out of the detector (`BroadPhaseDetector::RemoveSecond`, 0x106846F0) and clears
+  flag bit 2 of the word at the object's +0x0C (`0x1065E560` clears it and zeroes +0x20); nothing in this unit or
+  the tree says what class that object is, whose +0x0C is a flags word rather than the bounds a `PhysicsObject`
+  has there.
+- `0x10658F90` / `0x10659030` are the two batcher constructors (see above); `0x10658F90` zeroes 35 members of a
+  0x400-byte object.
+
+Not annotated, because functions.tsv has no entry for it: **0x10658AE0 `PointerHashTable::Reset`**, written in
+context.cpp and mapped in symbols.txt (see above). The merge should keep an eye out for another unit claiming that
+address.
 
 Still not done in this range:
 

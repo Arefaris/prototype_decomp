@@ -67,6 +67,8 @@ namespace ravenphysics
 			return *(ObjectTable*)this;
 		}
 
+		// Takes every object out of the table and of the tables the detection walks (0x106848C0; name guess)
+		void RemoveAll();
 		// Takes an object into the table and stamps it with its box (0x10684740; name guess)
 		void Add(PhysicsObject* object);
 		// Takes it out again (0x10684840; name guess)

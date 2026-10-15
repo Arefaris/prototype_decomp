@@ -156,6 +156,8 @@ namespace ravenphysics
 		void Reset();
 		// 0x10686DB0
 		void SetPosition(const math::Vector& position);
+		// Empties the tracker's own tables and their counters (0x10688470; name guess)
+		void ResetTables();
 		// 0x10687C10
 		void Track(ObjectList* objects);
 		// 0x10687CA0
@@ -809,6 +811,7 @@ namespace ravenphysics
 		void Seventeenth();
 		void Eighteenth();
 		void Nineteenth();
+		void Twentieth();
 	};
 
 	// A short and two words (name guess)
@@ -1386,6 +1389,10 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+
+		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
+		// registry's tables (0x10658F00; name guess)
+		void ClearObjects();
 
 		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
 		// names are guesses)

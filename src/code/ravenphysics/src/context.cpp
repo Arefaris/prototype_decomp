@@ -1517,6 +1517,11 @@ namespace ravenphysics
 		return StatLog::Add(entry);
 	}
 
+	// FUNCTION: ENGINE 0x10658B60
+	void EmptyMembers::Twentieth()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10658B70
 	void HeapRunSecond::Clear()
 	{
@@ -1816,6 +1821,22 @@ namespace ravenphysics
 		{
 			freeSlots[i] = freeCount - i - 1;
 			keys[i] = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658F00
+	void Context::ClearObjects()
+	{
+		while (unknownC4->Table().staticCount + unknownC4->Table().movableCount != 0)
+		{
+			SleepObject((PhysicsObject*)unknownC4->Table().objects[0]);
+		}
+		mWorld->Unknown0C();
+		unknownC4->RemoveAll();
+		if (!unknownD8)
+		{
+			placement->ResetTables();
+			registry->Reset();
 		}
 	}
 

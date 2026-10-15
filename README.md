@@ -16,7 +16,7 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 
 ```text
 Code       █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   2.328 %
-Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   2.788 %  (3909 / 140196)
+Functions  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   2.789 %  (3910 / 140196)
   choreo       14 functions matched, 682 bytes
   container     1 functions matched, 63 bytes
   core       1385 functions matched, 78,456 bytes
@@ -24,7 +24,7 @@ Functions  █░░░░░░░░░░░░░░░░░░░░░░
   math        206 functions matched, 25,626 bytes
   proto        26 functions matched, 2,993 bytes
   pure3d       90 functions matched, 6,450 bytes
-  ravenphysics   232 functions matched, 9,884 bytes
+  ravenphysics   233 functions matched, 9,885 bytes
 ```
 
 Updated 2026-10-15 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
