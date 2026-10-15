@@ -14,9 +14,35 @@ namespace ravenphysics
 	{
 		IntersectionProperties();
 
+		// Whether two sets of properties name the same thing (0x10653610)
+		bool operator==(const IntersectionProperties& other) const;
+
 		int unknown0;
 		int unknown4;
 	};
+
+	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC): two words of unknown meaning
+	// and then the properties the entry stands for (0x10 bytes)
+	struct IntersectionPropertiesEntry
+	{
+		// The properties the entry stands for (0x10653630)
+		IntersectionProperties* GetProperties();
+
+		int unknown0;
+		int unknown4;
+		IntersectionProperties properties;
+	};
+
+	// The registry of known properties (names guessed)
+	extern IntersectionPropertiesEntry* gIntersectionProperties;
+	extern unsigned int gIntersectionPropertyCount;
+
+	// How many entries the registry holds (0x10653720)
+	unsigned int GetIntersectionPropertyCount();
+	// One entry of the registry (0x10653730)
+	IntersectionPropertiesEntry* GetIntersectionProperty(unsigned short index);
+	// The entry whose properties these are, or null (0x106536D0)
+	IntersectionPropertiesEntry* FindIntersectionProperty(const IntersectionProperties& properties);
 
 	// ravenphysics::IntersectionPropertiesLoader (RTTI; a load object of the physics library)
 	class IntersectionPropertiesLoader : public content::LoadObject

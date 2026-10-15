@@ -140,22 +140,52 @@ namespace ravenphysics
 		unsigned int serial;
 	};
 
+	// The free slots of the handle table: a stack of 16-bit slot indexes over a block it does not grow itself
+	// (name and members are guesses)
+	struct CollisionSlotStack
+	{
+		unsigned short* begin;
+		unsigned int size;
+		unsigned int capacity;
+
+		// Whether every slot is handed out (0x10653150)
+		bool IsEmpty() const
+		{
+			return size == 0;
+		}
+		// Takes the top slot index off the stack (0x10653190)
+		unsigned short Pop()
+		{
+			unsigned short index = begin[size - 1];
+			size--;
+			return index;
+		}
+		// Puts a slot index back on top (0x10653170)
+		void Push(const unsigned short& index)
+		{
+			size++;
+			unsigned short* slot = begin + size - 1;
+			if (slot != 0)
+			{
+				*slot = index;
+			}
+		}
+	};
+
 	// The table the collision objects register themselves in (name guess; the class is created by 0x10653530 and
 	// lives behind the pointer 0x1127CAC0)
 	class CollisionObjectTable
 	{
 	public:
-		// The free slots (a stack of 16-bit indexes) and the number left
-		unsigned short* free;
-		unsigned int freeCount;
-		unsigned int freeCapacity;
+		// The free slots
+		CollisionSlotStack free;
 		// The slots
-		CollisionHandleEntry* entries;
-		unsigned int entryCapacity;
-		unsigned short slotCount;
+		CollisionHandleEntry* entries;    // 0x0C
+		unsigned int entryCapacity;       // 0x10
+		unsigned short slotCount;         // 0x14
 		// One serial per slot, raised every time the slot is handed out
-		unsigned short* serials;
-		unsigned int serialCapacity;
+		unsigned short* serials;          // 0x18
+		unsigned int serialCapacity;      // 0x1C
 
 		// Takes a slot for the object and writes its handle (0x10653250)
 		void Add(void* object, CollisionHandle* handle);
