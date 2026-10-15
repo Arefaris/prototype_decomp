@@ -6,6 +6,8 @@
 
 namespace ravenphysics
 {
+	class PhysicsObject;
+
 	// The grid the broad phase quantises positions into: 16-bit coordinates per axis
 	class BroadPhaseGrid
 	{
@@ -30,6 +32,29 @@ namespace ravenphysics
 	class BroadPhaseDetector
 	{
 	public:
+		// The head of the detector: the objects it holds, the movable ones from the start, the static ones from
+		// staticCount on, the boxes the sweep works on (the member names are guesses; the layout is what the
+		// context unit's code reads)
+		struct ObjectTable
+		{
+			unsigned short movableCount; // 0x00
+			unsigned short staticCount;  // 0x02
+			unsigned char unknown4[0xC - 4];
+			void** objects;              // 0x0C
+			unsigned char unknown10[0x18 - 0x10];
+			BroadPhaseBox* boxes;        // 0x18
+		};
+
+		ObjectTable& Table()
+		{
+			return *(ObjectTable*)this;
+		}
+
+		// Takes an object into the table and stamps it with its box (0x10684740; name guess)
+		void Add(PhysicsObject* object);
+		// Takes it out again (0x10684840; name guess)
+		void Remove(PhysicsObject* object);
+
 		unsigned char unknown0[0x18];
 		BroadPhaseBox* boxes;
 	};

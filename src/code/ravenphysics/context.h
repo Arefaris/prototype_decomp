@@ -6,6 +6,7 @@
 
 #include "code/content/loadinventory.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/broadphase/broadphasedetector.h"
 
 namespace ravenphysics
 {
@@ -95,6 +96,15 @@ namespace ravenphysics
 		void** end;
 	};
 
+	// The registry behind Context+0x0C: the objects by the identity they carry (name guess). Its members live in
+	// another unit; this unit only calls them.
+	class ObjectRegistry
+	{
+	public:
+		// 0x10686980
+		void Remove(PhysicsObject* object);
+	};
+
 	// The tracker behind Context+0x08: a position the objects of a list are handed to (the class name and the
 	// member names are guesses). Its members live in another unit; this unit only calls them.
 	class PlacementTracker
@@ -109,7 +119,7 @@ namespace ravenphysics
 		// 0x10687CA0
 		void Untrack(ObjectList* objects);
 		// The simulation step: moves and solves the objects of every list against the body (0x10689EE0; name guess)
-		void Advance(WorldBody* body, void* data, void* a, float dt, void* worldData, int flags, void* b);
+		void Advance(WorldBody* body, void* data, void* a, float dt, void* worldData, void* registry, void* b);
 
 		math::Vector position; // 0x00
 	};
@@ -144,9 +154,9 @@ namespace ravenphysics
 		virtual void Unknown08();
 		virtual void Unknown0C();
 		// 0x10
-		virtual bool Overlaps(PhysicsBody* object, void* world);
+		virtual bool Overlaps(void* object, void* world);
 		// 0x14
-		virtual bool Contains(PhysicsBody* object, void* world);
+		virtual bool Contains(void* object, void* world);
 		virtual void Unknown18();
 		virtual void Unknown1C();
 		virtual void Unknown20();
@@ -271,6 +281,8 @@ namespace ravenphysics
 
 		// Hands every collision object of the handle's object to a world (0x106564E0; name guess)
 		void ResetObjectWorld(ObjectHandle handle, void* world);
+		// Takes a sleeping object out of the registry and the detector (0x10657B60; name guess)
+		void SleepObject(PhysicsObject* object);
 		// One simulation step of the whole context (0x106565F0; name guess)
 		void Advance(void* a, float dt, void* b);
 		// The flag the body carries at +0x0E, set when the tracker exists (0x10656640; name guess)
@@ -290,15 +302,15 @@ namespace ravenphysics
 
 		World* mWorld;             // 0x00
 		int unknown4;              // 0x04
-		PlacementTracker* placement; // 0x08
-		int unknownC;              // 0x0C
+		PlacementTracker* placement;   // 0x08
+		ObjectRegistry* registry;      // 0x0C
 		WorldBody* unknown10;      // 0x10
 		ObjectList staticObjects;  // 0x14 (the pm_ commands' "static" list)
 		ObjectList movableObjects; // 0x1C (the pm_ commands' "movable" list)
 		CollisionBatch collisionBatch;   // 0x24
 		ConstraintBatch constraintBatch; // 0x58
 		QueryBatch queryBatch;           // 0x8C
-		void* unknownC4;                 // 0xC4
+		BroadPhaseDetector* unknownC4;   // 0xC4
 		unsigned char unknownC8[0xD8 - 0xC8];
 		bool unknownD8; // 0xD8
 		unsigned char unknownD9[0x108 - 0xD9];

@@ -49,6 +49,9 @@ namespace ravenphysics
 		{
 			return (unknown3A[0x3E - 0x3A] & 8) != 0;
 		}
+
+		// Sets or clears the low three bits of the same byte (0x1065F540; name guess)
+		void SetState(unsigned char mask, bool set);
 	};
 
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects

@@ -20,6 +20,36 @@ namespace ravenphysics
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10657B60
+	// NONMATCHING: register allocation, 97.6 %: the last list end loads the detector's movable count into ecx
+	// where the engine loads the static count; no spelling of the sum (both orders, with and without parentheses)
+	// moves it, every other instruction is identical
+#ifdef NONMATCHING
+	void Context::SleepObject(PhysicsObject* object)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x1d8, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		if (!object->IsAsleep())
+		{
+			return;
+		}
+		if (!mWorld->Contains(object, unknownC4))
+		{
+			return;
+		}
+		if (!object->IsSkipped() && !unknownD8)
+		{
+			registry->Remove(object);
+		}
+		unknownC4->Remove(object);
+		object->SetState(1, false);
+		BroadPhaseDetector::ObjectTable* table = &unknownC4->Table();
+		staticObjects.begin = table->objects;
+		staticObjects.end = table->objects + table->staticCount;
+		movableObjects.begin = table->objects + table->staticCount;
+		movableObjects.end = table->objects + (table->staticCount + table->movableCount);
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10656580
 	CollisionDetector* CollisionDetector::Clear()
 	{
@@ -198,7 +228,7 @@ namespace ravenphysics
 			return;
 		}
 		gLock.locked = true;
-		placement->Advance(unknown10, unknown10C, a, dt, unknownC4, unknownC, b);
+		placement->Advance(unknown10, unknown10C, a, dt, unknownC4, registry, b);
 		gLock.locked = false;
 	}
 

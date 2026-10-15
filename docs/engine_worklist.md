@@ -1789,7 +1789,10 @@ Not done in this range (the owner or the layout is still unknown, so nothing cou
   0x10657900 - 0x10657990) are unreferenced copies of the library's templates. Every one of them is 4 - 40 bytes of
   pure offset arithmetic, but nothing in the unit says which element type each instantiation belongs to, so assigning
   them would be invented rather than recovered.
-- `0x10657A50` (`WakeObject`, 265 bytes) and `0x10657B60` (`SleepObject`, 210 bytes): the structure is clear (the
+- `0x10657B60 Context::SleepObject`: register allocation, 97.6 % - the last list end loads the detector's movable
+  count into ecx where the engine loads the static count, and no spelling of that sum (both orders, with and without
+  parentheses) moves it.
+- `0x10657A50` (`WakeObject`, 265 bytes): the structure is clear (the
   detector's `[+0]` / `[+2]` counts and `[+0xC]` array are split into `staticObjects` / `movableObjects` after the
   world answers a query), but the members live inside `BroadPhaseDetector::unknown0[0x18]`, which this unit may only
   add to, and the unit needs two more collapsed copies of the object lookup (0x1065F500, identical to the
