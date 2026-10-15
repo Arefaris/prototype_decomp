@@ -1750,3 +1750,41 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 `fight::Track::Register` / `Unregister` (effecttrack.cpp) in symbols.txt. One function cannot belong to both classes:
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
+
+## collision/src/collisionobject.cpp (0x10653150 - 0x1065xxxx), started
+
+The unit's assert path (`..\..\..\code\ravenphysics\collision\src\collisionobject.cpp`, lines 322 - 1016) names it.
+Two calls before 0x106544E0 have no assert, so the unit's start is not certain: the physics handle table
+(0x1127CAC0, 0x10653150 - 0x10653530), the IntersectionProperties registry (0x10653610 - 0x106538D0, its table at
+0x1127CAC4) and the CollisionShape methods (0x106543B0 - 0x10654470) may belong to earlier units of the same
+library. What is reconstructed so far is `ravenphysics::CollisionObject` (0x106544B0 on) and the cross-unit
+declarations it needs.
+
+The engine's `CollisionObject` is 0x80 bytes: a `math::Matrix` at 0, its `core::Name` at 0x40, a 4-byte handle
+(index / serial) at 0x48, the volume array at 0x50 with its 16-bit count at 0x54, the changed bit at 0x56, a state
+word at 0x58 (bit 31 = active, the low bits a per-volume mask), `IntersectionProperties` at 0x5C, then the shape
+(0x64), the owning `PhysicsObject` (0x68), the mesh (0x6C) and one word at 0x70 whose meaning is unknown. The shape
+is the 0xE0-byte object the broad phase sees (transform vectors at 0x10 / 0x1C / 0x28 / 0x34, an AABB at 0x70, a
+bounding sphere centre at 0x9C, flags in byte 0). The last 12 bytes of the object are not touched by any
+reconstructed function, which is why 0x74 - 0x80 is still unknown.
+
+NONMATCHING:
+
+- `0x106559C0` UpdateProperties: the engine tests the volume count in memory and loads it into `edi` inside the
+  loop, ours loads it before the guard and the volume pointer is biased to the element in the engine; 64.4 %.
+- `0x10654790` SetShape: the detector test, 89.6 %: the engine keeps the loaded pointer in a register and tests
+  that, ours compares the member against zero.
+
+Lessons:
+
+- The volume types are 7 (the type byte); `CollisionVolume::UpdateBounds(CollisionObject*)` (0x10665690, another
+  unit) is the switch that runs the per-type update, and `CollisionObject`'s `SetCapsuleVolume` / `SetSphereVolume`
+  call a per-type setter and a per-type update directly (0x10664BA0 / 0x10664C10 and so on, another unit), so those
+  two calls take the *concrete* volume - the class the object stores is typed `CollisionVolume*` and the engine
+  hands the same pointer to both.
+- `changed = true;` and `changed = count > 0;` are both bitfield stores of a `bool` value: `or byte [this+0x56], 1`
+  and the `seta` / `xor` / `and` / `xor` sequence. `changed = count != 0;` gives `setne` and does not match.
+- A loop that calls a function taking the object itself reloads the volume count every round (the callee may change
+  it); naming the volume (`CollisionVolume* volume = volumes[i];`) is what makes both calls use one register.
+- `if (x) { } else { }` has to be written with the non-empty branch first when the engine's branch layout puts the
+  else arm out of line.
