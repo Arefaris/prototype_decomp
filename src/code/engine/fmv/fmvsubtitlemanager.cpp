@@ -92,6 +92,16 @@ namespace container
 		engine::FmvSubtitleManager::SubTitleEnty* dest);
 }
 
+namespace content
+{
+	// the default element the reflection inserts (Insert is the engine's copy, which calls this one)
+	ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::T& ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::Default()
+	{
+		static T sDefault;
+		return sDefault;
+	}
+}
+
 // The headers' members this unit instantiates, in address order:
 // FUNCTION: ENGINE 0x108C07F0 the element's constructor
 // The element array's members and the template functions it uses:

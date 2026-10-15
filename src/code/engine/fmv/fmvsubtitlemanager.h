@@ -59,11 +59,7 @@ namespace content
 		typedef engine::FmvSubtitleManager::SubTitleArray A;
 		typedef A::Element T;
 
-		static T& Default()
-		{
-			static T sDefault;
-			return sDefault;
-		}
+		static T& Default();
 
 		virtual int Size(void* array)
 		{
@@ -77,15 +73,8 @@ namespace content
 		{
 			return &(*(A*)array)[index];
 		}
-		virtual void Insert(void* array, int index, int unused)
-		{
-			A* a = (A*)array;
-			if (a->Size() >= a->Capacity())
-			{
-				a->Reserve(a->Size() + 1);
-			}
-			a->Insert(a->begin + index, Default());
-		}
+		// the engine's copy (0x108C13C0); ours did not match
+		virtual void Insert(void* array, int index, int unused);
 		virtual void Erase(void* array, int index, int unused)
 		{
 			A* a = (A*)array;

@@ -323,3 +323,7 @@ namespace container
 	template class ArrayDynamic<engine::StreamTriggerHull, AllocatorCoreStatic<12, 16> >;
 	template class ArrayDynamic<math::Plane, AllocatorCoreStatic<12, 16> >;
 }
+
+// the default element the reflection helper's Insert used; kept as the engine kept it
+template engine::StreamTriggerHull&
+	content::ArrayDynamicHelper<container::ArrayDynamic<engine::StreamTriggerHull, container::AllocatorCoreStatic<12, 16> > >::Default();

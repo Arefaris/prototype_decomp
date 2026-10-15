@@ -259,9 +259,8 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDD70
-		// NONMATCHING: the engine builds the message over the dead argument slots, our build over the dead copy of the
-		// time info (98.6 %)
-#ifdef NONMATCHING
+		// EQUIVALENT: identical code except the stack slot of the message: the engine builds it over the dead argument
+		// slots, our build over the dead copy of the time info (98.6 %)
 		void Director::Update(int unused1, int unused2, float delta, int flags)
 		{
 			FrameTime* frame = GetFrameTime();
@@ -302,7 +301,6 @@ namespace engine
 				BroadcastMessage(&message);
 			}
 		}
-#endif
 
 		// FUNCTION: ENGINE 0x107DDEE0
 		void Director::UpdateCameras(float a, float b, int flags)

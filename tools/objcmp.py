@@ -80,6 +80,7 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 	for offset, name, kind in coff.relocations(symbol):
 		if kind != 0x06:
 			continue
+		isPointer = False
 		if name.startswith("__real@"):
 			expected = int(name[7:], 16)
 			width = 8 if len(name) - 7 > 8 else 4
@@ -104,6 +105,7 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 					continue  # a pointer to something we cannot place
 				expected = known[target]
 				width = 4
+				isPointer = True
 			else:
 				# Only up to the next symbol or the end of the section: a static bool is one byte, its neighbours are not ours
 				following = [v for n, v, s, st in coff.symbols if s == section and v > value]
@@ -117,6 +119,8 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 			problems.append(f"+0x{offset:X}: {name} but the original points outside the image (0x{target:08X})")
 			continue
 		actual = int.from_bytes(image[at:at + width], "little")
+		if isPointer and followThunks(image, base, actual) == followThunks(image, base, expected):
+			continue  # the original's word holds an incremental link thunk of the same function
 		if actual != expected:
 			problems.append(f"+0x{offset:X}: {name}, the original's 0x{target:08X} holds 0x{actual:0{2 * width}X}")
 	return problems

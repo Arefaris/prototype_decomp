@@ -1071,3 +1071,7 @@ namespace container
 	template class ArrayDynamicNew<engine::SupportingLimbDefinition*>;
 
 }
+
+// the default element the reflection helper's Insert used; kept as the engine kept it
+template engine::SupportingLimbDefinition::SmoothingVelocityMap::Entry& content::ArrayCDynamicHelper<
+	container::ArrayCDynamic<engine::SupportingLimbDefinition::SmoothingVelocityMap::Entry, 3> >::Default();
