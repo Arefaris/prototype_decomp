@@ -233,7 +233,7 @@ namespace engine
 #endif
 
 	// The manager's frame counter and the two debug flags around it (names guessed)
-	int gPhysicsFrame;        // 0x111BC2E4
+	int gPhysicsFrame = 1;    // 0x111BC2E4 (the engine starts it at 1)
 	int gDebugUnknown;        // 0x11283590
 
 	// FUNCTION: ENGINE 0x107E3CF0
