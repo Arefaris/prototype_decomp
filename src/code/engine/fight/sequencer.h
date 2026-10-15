@@ -58,6 +58,10 @@ namespace fight
 	class Action : public RefCounted
 	{
 	public:
+		// 0x105A23E0 (another unit): the action's flag word and the three timers
+		explicit Action(int newFlags);
+		virtual ~Action();
+
 		// vftable slot 3: the child sequencer this action owns (or 0)
 		virtual Sequencer* GetChild() = 0;
 		virtual void Slot4() = 0;
@@ -150,6 +154,8 @@ namespace fight
 		virtual void Slot14() = 0;
 		virtual void Slot15() = 0;
 
+		// 0x105A3A40 (another function of this unit): enters the listener list (under the load listeners' lock)
+		void Register(void* entry);
 		// 0x105A3A90 (another function of this unit): leaves the listener list
 		void Unregister(void* entry);
 	};
