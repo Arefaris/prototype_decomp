@@ -6,6 +6,7 @@
 #ifndef ENGINE_FIGHT_EFFECTTRACK_H
 #define ENGINE_FIGHT_EFFECTTRACK_H
 
+#include "code/core/linklist.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/math/vector.h"
 
@@ -86,7 +87,11 @@ namespace engine
 	class EffectTrack : public fight::Track
 	{
 	public:
-		unsigned char unknown4[0xC];
+		unsigned char unknown4[4];
+		// The head of the list of the actions the track drives: every action carries a core::Link node at +0x1C
+		// and inserts itself into it (0x10805B90 is the converting copy of that node's constructor)
+		core::LinkList<EffectTrack> watchList;
+		unsigned char unknownC[4];
 		int unknown10;
 		int unknown14;
 		math::Vector unknown18;
@@ -276,6 +281,85 @@ namespace engine
 		float GetUnknowndc() const;
 		// 0x108052C0
 		float GetUnknownc8() const;
+	};
+
+	// The variants of the effect track the game names (RTTI: engine::AbortEffectTrack / MotionTrailTrack, 16 vtable
+	// slots each; nothing of their own is read here, they only have to be the type the actions link themselves on)
+	class AbortEffectTrack : public EffectTrack
+	{
+	};
+
+	class MotionTrailTrack : public EffectTrack
+	{
+	};
+
+	// The node an action registers on a track it watches instead of driving it: the track keeps that list at +0x24
+	// and the node is inserted and removed through the track (register, unregister)
+	class TrackWatch
+	{
+	public:
+		TrackWatch(fight::Track* newTrack)
+		{
+			track = newTrack;
+			next = 0;
+			prev = 0;
+			if (newTrack != 0)
+			{
+				newTrack->Register(this);
+			}
+		}
+		~TrackWatch()
+		{
+			if (track != 0)
+			{
+				track->Unregister(this);
+			}
+		}
+
+		fight::Track* track;
+		TrackWatch* next;
+		TrackWatch* prev;
+	};
+
+	// The action that plays a particle effect (RTTI: engine::EffectAction, 9 vtable slots, size 0x50)
+	class EffectAction : public fight::Action
+	{
+	public:
+		EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode);
+		virtual ~EffectAction();
+
+		core::Link<EffectTrack> link;
+		TrackWatch watch;
+		int unknown34;
+		int unknown38;
+		core::IRefCount* unknown3c;
+		int unknown40;
+		core::IRefCount* unknown44;
+		int unknown48;
+		bool unknown4c;
+	};
+
+	// The action that stops an effect again (RTTI: engine::AbortEffectAction, 9 vtable slots, size 0x28)
+	class AbortEffectAction : public fight::Action
+	{
+	public:
+		AbortEffectAction(AbortEffectTrack* newTrack, fight::Track* listener);
+		virtual ~AbortEffectAction();
+
+		core::Link<EffectTrack> link;
+	};
+
+	// The action that starts a motion trail (RTTI: engine::MotionTrailAction, 9 vtable slots, size 0x3C)
+	class MotionTrailAction : public fight::Action
+	{
+	public:
+		MotionTrailAction(EffectTrack* newTrack, fight::Track* listener, int value);
+		virtual ~MotionTrailAction();
+
+		core::Link<EffectTrack> link;
+		TrackWatch watch;
+		int unknown34;
+		int unknown38;
 	};
 }
 

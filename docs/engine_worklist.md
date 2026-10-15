@@ -986,11 +986,12 @@ Matching lessons:
 - Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
   (identical case bodies are merged into the default otherwise and the table shrinks to the used range).
 
-## fight/effecttrack.cpp (0x10804EC0 - 0x10807550): open, 83 of 292 functions match, 1 NONMATCHING
+## fight/effecttrack.cpp (0x10804EC0 - 0x108078E0): open, 87 of 292 functions match, 3 NONMATCHING
 
-The effect track of the fight tree and the actions that carry it. The unit runs from the thunk of
-`LuaScriptManager::CancelAllScheduled` (0x10804ED0) to just before the track factory at 0x10807550 and has no assert
-path; `src/code/engine/fight/effecttrack.{h,cpp}` is named after the RTTI classes it belongs to. Reconstructed:
+The effect track of the fight tree, the actions that carry it and the effect it plays. The unit runs from the thunk
+of `LuaScriptManager::CancelAllScheduled` (0x10804ED0) to the first property setter of the track factory
+(0x108078E0) and has no assert path; `src/code/engine/fight/effecttrack.{h,cpp}` is named after the RTTI classes it
+belongs to. Reconstructed:
 
 - 78 accessors, all matching: 63 on the track (RTTI `engine::EffectTrack` / `AbortEffectTrack` / `MotionTrailTrack`;
   guessed owner) and 15 on the particle effect an action plays (RTTI `engine::Effect`). The track's begin at
@@ -1001,12 +1002,29 @@ path; `src/code/engine/fight/effecttrack.{h,cpp}` is named after the RTTI classe
 - 6 free functions around the game's hook on an effect track (0x108056E0 - 0x10805740) and their four globals.
 - This unit's own copies of `core::RefAssign` (0x108058E0) and `core::SafeRelease` (0x10805910), written against
   `core::IRefCount` (`AddRef` slot 0, `Release` slot 1).
+- The three action classes the tracks drive (RTTI `engine::EffectAction` / `AbortEffectAction` / `MotionTrailAction`,
+  nine vtable slots each from `fight::Action`): 0x10807550 / 0x108075F0 / 0x10807700 and their destructors at
+  0x10805B10 / 0x10805B40 / 0x10805CF0, plus the three compiler-made scalar deleting destructors at 0x108075A0 /
+  0x10807690 / 0x10807770 (no annotation, `symbols.txt` only). An action carries a 12-byte `core::Link<EffectTrack>`
+  at +0x1C that inserts itself into the head the track keeps at +8 of itself, and `EffectAction` / `MotionTrailAction`
+  a 12-byte `engine::TrackWatch` at +0x28 that registers itself through `fight::Track::Register` / `Unregister` (the
+  track's second list at +0x24). The layout the constructors fix: `EffectAction` 0x50 (mode at +0x34, -1 at +0x38,
+  a reference at +0x3C and one at +0x44, 0xFFFF at +0x48, a flag at +0x4C), `AbortEffectAction` 0x28,
+  `MotionTrailAction` 0x3C. All four action classes are created with the flag word 0xE00.
+- `fight::Action` in `sequencer.h` now declares the two out-of-line members of that unit it needs,
+  `Action(int flags)` (0x105A23E0) and `virtual ~Action()` (0x105A2530), and `fight::Track::Register` (0x105A3A40);
+  the three are new `symbols.txt` entries.
+- `core::LinkList<T>` / `core::Link<T>` in the new `src/code/core/linklist.h`: the watch list the engine keeps on an
+  object, removed out of line by `core::LinkList<engine::EffectTrack>::Remove` (0x10095300, a kept copy shared with
+  the rest of the engine and the only new symbol outside the fight module).
 
 | Function | Status | Why |
 |---|---|---|
 | 0x10804EE0 EffectTrack::GetUnknown14 | NONMATCHING | the engine loads the member into ecx and the out pointer into eax; ours the other way round (75 %) |
+| 0x108075F0 EffectAction::EffectAction | NONMATCHING | the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it past the argument setup of the trailing `AssignEffectRef` call (92.6 %); the statement order and a member-init list both give the same |
+| 0x10807700 MotionTrailAction::MotionTrailAction | NONMATCHING | the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the parameter store right after its load and sinks the -1 into the epilogue (90.8 %) |
 
-Not done (the remaining 208 of the 292 functions of the range):
+Not done (the remaining 205 of the 292 functions of the range):
 
 - 0x108058A0 - 0x10805B00 and 0x10806020 - 0x108060B0: 21 kept template copies with no owner in this unit — the
   engine's 12-byte intrusive reference (the object, then `next` at +4 and `prev` at +8; the object keeps the head of
@@ -1015,16 +1033,15 @@ Not done (the remaining 208 of the 292 functions of the range):
   reads the source's pointer first (59 bytes); there are also four 16-byte destructors, seven `return p;` getters,
   `operator bool` at 0x108058A0 and three 3-byte getters next to them. Which type each copy belongs to is not in the
   code, only the node layout is, so they are left alone (as the other units did with their unowned kept copies).
-- 0x10805B10 / 0x10805B40 / 0x10805CF0: the destructors of `engine::AbortEffectAction`, `EffectAction` and
-  `MotionTrailAction` (vftables 0x10E6B23C / 0x10E6B264 / 0x10E6B28C; they release the reference at +0x1C, unregister
-  the track's listener and tail-jump to `fight::Action`'s destructor at 0x105A2530). They need the nine-slot
-  `fight::Action` vftable, and `fight::RefCounted` in `sequencer.h` carries only its destructor today (the engine's has
-  three slots); fixing that header would move the sequencer unit's slots, so it is left for a session that can check
-  the sequencer's vtables at the same time.
+  Our `core::Link<T>` constructor and destructor are now emitted as COMDATs in this unit (`??0?$Link@VEffectTrack...`
+  48 bytes, `??1?$Link@VEffectTrack...` 16); the copies here are all byte-identical, so which address belongs to
+  which type cannot be told and they are kept out of `symbols.txt`.
 - 0x10805750, 0x10805BD0, 0x10805CA0, 0x10805D30 (696 bytes), 0x10805FF0, 0x10806020 - 0x108060B0: the track's real
   body — the check that lets the game veto a begin, the effect creation through `0x1081BA90` and the per-mode setup.
 - 0x108060F0 (5153 bytes): the track's begin, switching on the mode word at +0x1A4 with nine arguments.
-- 0x10807550 - 0x10809000: the fight track factory (see below).
+- 0x10807790, 0x10807860, 0x108078A0: the three functions that make an action of a track (197 / 55 / 60 bytes); they
+  call the action constructors and `engine::FindGameObject`, so they can be done now that the constructors are fixed.
+- 0x108078E0 - 0x10809000: the fight track factory (see below).
 
 ## fight track factory (0x10807550 - 0x10809000 and on): not done
 

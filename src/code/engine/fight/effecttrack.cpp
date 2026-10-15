@@ -69,6 +69,54 @@ namespace engine
 		}
 	}
 
+	// ---- the actions that carry the effect ---------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x108075F0
+	// NONMATCHING: the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it
+	// past the argument setup of the trailing call (92.6 %; the two statements and the member-init list both give it)
+#ifdef NONMATCHING
+	EffectAction::EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode)
+		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(mode), unknown38(-1), unknown3c(0),
+		  unknown40(object), unknown44(0), unknown48(0xffff), unknown4c(false)
+	{
+		AssignEffectRef(unknown44, effect);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10807550
+	AbortEffectAction::AbortEffectAction(AbortEffectTrack* newTrack, fight::Track* listener)
+		: fight::Action(0xE00), link(newTrack)
+	{
+		(void)listener;
+	}
+
+	// FUNCTION: ENGINE 0x10807700
+	// NONMATCHING: the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the
+	// parameter store right after its load and sinks the -1 into the epilogue (90.8 %)
+#ifdef NONMATCHING
+	MotionTrailAction::MotionTrailAction(EffectTrack* newTrack, fight::Track* listener, int value)
+		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(-1), unknown38(value)
+	{
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10805B10
+	AbortEffectAction::~AbortEffectAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10805B40
+	EffectAction::~EffectAction()
+	{
+		ReleaseEffectRef(unknown44);
+		ReleaseEffectRef(unknown3c);
+	}
+
+	// FUNCTION: ENGINE 0x10805CF0
+	MotionTrailAction::~MotionTrailAction()
+	{
+	}
+
 	// ---- the effect --------------------------------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x10805550
