@@ -43,6 +43,32 @@ namespace engine
 		gEffectSuspendCount--;
 	}
 
+	// ---- the engine's copies of core's reference helpers ---------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x108058E0
+	void AssignEffectRef(core::IRefCount*& pointer, core::IRefCount* object)
+	{
+		if (object != 0)
+		{
+			object->AddRef();
+		}
+		if (pointer != 0)
+		{
+			pointer->Release();
+		}
+		pointer = object;
+	}
+
+	// FUNCTION: ENGINE 0x10805910
+	void ReleaseEffectRef(core::IRefCount*& object)
+	{
+		if (object != 0)
+		{
+			object->Release();
+			object = 0;
+		}
+	}
+
 	// ---- the effect --------------------------------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x10805550

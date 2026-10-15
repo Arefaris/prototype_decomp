@@ -986,7 +986,7 @@ Matching lessons:
 - Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
   (identical case bodies are merged into the default otherwise and the table shrinks to the used range).
 
-## fight/effecttrack.cpp (0x10804EC0 - 0x10807550): open, 85 functions placed
+## fight/effecttrack.cpp (0x10804EC0 - 0x10807550): open, 83 of 292 functions match, 1 NONMATCHING
 
 The effect track of the fight tree and the actions that carry it. The unit runs from the thunk of
 `LuaScriptManager::CancelAllScheduled` (0x10804ED0) to just before the track factory at 0x10807550 and has no assert
@@ -999,17 +999,22 @@ path; `src/code/engine/fight/effecttrack.{h,cpp}` is named after the RTTI classe
   accessors; the effect's layout (six handles from 0x10, nine Vectors from 0x50, the counter at 0xC8 and the flag at
   0xD0) comes from 0x10805D30 and the action read at +0x1C of the action object.
 - 6 free functions around the game's hook on an effect track (0x108056E0 - 0x10805740) and their four globals.
+- This unit's own copies of `core::RefAssign` (0x108058E0) and `core::SafeRelease` (0x10805910), written against
+  `core::IRefCount` (`AddRef` slot 0, `Release` slot 1).
 
 | Function | Status | Why |
 |---|---|---|
 | 0x10804EE0 EffectTrack::GetUnknown14 | NONMATCHING | the engine loads the member into ecx and the out pointer into eax; ours the other way round (75 %) |
 
-Not done (292 functions in the range):
+Not done (the remaining 208 of the 292 functions of the range):
 
-- 0x108058A0 - 0x10805B00 and 0x10806020 - 0x108060B0: 23 kept template copies with no owner in this unit — the
-  engine's 12-byte intrusive reference (object, then two links, `insert at the head of the list at +8 of the object`),
-  its constructor, destructor, `operator bool`, the pointer getter and the out-of-line `SafeRelease` at 0x10805910.
-  Each copy belongs to a different type and the layout of the 12-byte node is the only thing the code fixes.
+- 0x108058A0 - 0x10805B00 and 0x10806020 - 0x108060B0: 21 kept template copies with no owner in this unit — the
+  engine's 12-byte intrusive reference (the object, then `next` at +4 and `prev` at +8; the object keeps the head of
+  the list at +8 of itself). A copy for one type is `node->object = t; node->next = t->link; if (t->link)
+  t->link->prev = node; node->prev = 0; t->link = node;` (55 bytes) and the converting copy from another reference
+  reads the source's pointer first (59 bytes); there are also four 16-byte destructors, seven `return p;` getters,
+  `operator bool` at 0x108058A0 and three 3-byte getters next to them. Which type each copy belongs to is not in the
+  code, only the node layout is, so they are left alone (as the other units did with their unowned kept copies).
 - 0x10805B10 / 0x10805B40 / 0x10805CF0: the destructors of `engine::AbortEffectAction`, `EffectAction` and
   `MotionTrailAction` (vftables 0x10E6B23C / 0x10E6B264 / 0x10E6B28C; they release the reference at +0x1C, unregister
   the track's listener and tail-jump to `fight::Action`'s destructor at 0x105A2530). They need the nine-slot

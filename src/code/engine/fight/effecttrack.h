@@ -19,6 +19,11 @@ namespace engine
 	extern int gEffectSuspendSaved;
 	extern int gEffectSuspendCount;
 
+	// The engine's own copies of core's reference helpers, per type (core::RefAssign / core::SafeRelease)
+	// 0x108058E0 / 0x10805910
+	void AssignEffectRef(core::IRefCount*& pointer, core::IRefCount* object);
+	void ReleaseEffectRef(core::IRefCount*& object);
+
 	// The particle effect an action plays (RTTI: engine::Effect, another unit). Only the members this unit touches
 	// are laid out here.
 	class Effect
