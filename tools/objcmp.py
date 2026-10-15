@@ -4,7 +4,10 @@
     python tools/objcmp.py OBJ --list
 
 The function is the whole COMDAT section of SYMBOL (compile with /Gy). Bytes covered by a relocation in the object
-are compared as wildcards (they hold addresses the linker fills in); everything else must be identical. Prints the
+are compared as wildcards (they hold addresses the linker fills in); everything else must be identical. On an identical
+function two more checks run: the values behind float-constant and string relocations (checkConstants), and where every
+relocation against a symbol that symbols.txt places leads (checkTargets: the original's operand must reach the same
+address, incremental-link thunks followed), so a call or global mapped to the wrong address is not a match. Prints the
 match ratio and, unless --quiet, both disassemblies side by side with the differing lines marked.
 A quick check for spikes; objdiff is the project's real diff tool.
 """
@@ -119,6 +122,42 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 	return problems
 
 
+def followThunks(image, base, address):
+	"""The incremental link table holds `jmp rel32` thunks; follow up to two of them to the code they lead to."""
+	for _ in range(2):
+		at = address - base
+		if not 0 <= at < len(image) - 5 or image[at] != 0xE9:
+			break
+		address = address + 5 + struct.unpack_from("<i", image, at + 1)[0]
+	return address
+
+
+def checkTargets(coff, symbol, original, address, image, base, known):
+	"""Relocations are wildcards in the byte comparison; check where they lead. For every relocation against a symbol
+	that symbols.txt places, the original's operand must lead to the same address (thunks followed on both sides).
+	Symbols we cannot place (our own literals, statics, emitted vftables, unknown names) are skipped. Returns a list
+	of mismatch descriptions."""
+	problems = []
+	defined = {name for name, value, section, storage in coff.symbols if section > 0}
+	code, _ = coff.function(symbol)
+	for offset, name, kind in coff.relocations(symbol):
+		if kind not in (0x06, 0x14) or name not in known or offset < 0 or offset + 4 > len(original):
+			continue
+		if name.startswith(("__real@", "??_C@")):
+			continue  # values, not places: checkConstants compares them
+		inplace = struct.unpack_from("<i", code, offset)[0]
+		expected = known[name] + inplace
+		value = struct.unpack_from("<I", original, offset)[0]
+		actual = value if kind == 0x06 else (address + offset + 4 + struct.unpack_from("<i", original, offset)[0]) & 0xFFFFFFFF
+		if followThunks(image, base, expected) == followThunks(image, base, actual):
+			continue
+		if name in defined and followThunks(image, base, actual) == followThunks(image, base, known[name]):
+			continue
+		problems.append(f"+0x{offset:X}: {name} is 0x{expected:08X} in symbols.txt, the original's operand leads to "
+			f"0x{actual:08X}")
+	return problems
+
+
 def loadSymbols(version):
 	"""symbols.txt: one 'name = 0xADDRESS  ; comment' per line (as tools/delink/relink.py reads it)."""
 	path = ROOT / "config" / version / "symbols.txt"
@@ -161,13 +200,18 @@ def main():
 	same = sum(1 for k in range(len(code)) if mask[k] or code[k] == original[k])
 	ratio = same / len(code)
 	known = loadSymbols(args.version) if ratio == 1.0 else None
-	problems = checkConstants(coff, args.symbol, original, image, pe.OPTIONAL_HEADER.ImageBase, known) if ratio == 1.0 else []
-	if problems:
-		ratio = (len(code) - 1) / len(code)  # identical instructions, wrong constant: not a match
+	base = pe.OPTIONAL_HEADER.ImageBase
+	problems = checkConstants(coff, args.symbol, original, image, base, known) if ratio == 1.0 else []
+	targets = checkTargets(coff, args.symbol, original, address, image, base, known) if ratio == 1.0 else []
+	if problems or targets:
+		ratio = (len(code) - 1) / len(code)  # identical instructions, wrong constant or target: not a match
 	print(f"{args.symbol} vs 0x{address:08X}: {len(code)} bytes, {ratio:.1%} identical (relocations as wildcards)"
-		+ (f", {len(problems)} constant(s) differ" if problems else ""))
+		+ (f", {len(problems)} constant(s) differ" if problems else "")
+		+ (f", {len(targets)} target(s) differ" if targets else ""))
 	for problem in problems:
 		print("  constant " + problem)
+	for problem in targets:
+		print("  target " + problem)
 	if not args.quiet and ratio < 1.0:
 		ours = [t for _, _, t in disassemble(code, address)]
 		theirs = [t for _, _, t in disassemble(original, address)]

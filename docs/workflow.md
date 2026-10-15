@@ -40,7 +40,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 4. **Write** it in the unit's source file under `src/code/...`, with `// FUNCTION: ENGINE 0x10123456` directly above
    the definition. Declarations go in headers next to the module (`src/code/<module>/...h`).
 5. **Match** it: `ninja && ninja check` (objcmp), or objdiff on the unit (`D:/tools/objdiff/objdiff.exe`, project =
-   repository root). objcmp also checks the values behind float-constant relocations. Iterate on the source until it
+   repository root). objcmp also checks the values behind float-constant and string relocations, and that every call or data reference
+   it can place through symbols.txt leads where the original's does (a symbol mapped to the wrong address is not a match). Iterate on the source until it
    is identical; `tools/permute.py` tries statement, sum-term and operand orders automatically (mark a copy with
    `// PERMUTE_LINES_BEGIN/END`, `PERMUTE_SUM(...)`, `PERMUTE_MUL(...)`). A function that will not match after real
    effort gets one of:
