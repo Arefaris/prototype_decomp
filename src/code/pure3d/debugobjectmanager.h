@@ -19,10 +19,8 @@ namespace pure3d
 		{
 		}
 
-		// The second slot; nothing in the reconstructed units calls it
-		virtual void Unknown4()
-		{
-		}
+		// The second slot; the engine keeps it pure, the derived debug managers override it
+		virtual void Unknown4() = 0;
 	};
 }
 

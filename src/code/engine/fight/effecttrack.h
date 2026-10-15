@@ -461,6 +461,9 @@ namespace engine
 		AbortEffectAction(AbortEffectTrack* newTrack, fight::Track* listener);
 		virtual ~AbortEffectAction();
 
+		// vftable slot 5 (0x108075C0): stops the effect the track plays (name guess)
+		virtual bool Slot5(int arg, float value);
+
 		core::Link<EffectTrack> link;
 	};
 
@@ -470,6 +473,10 @@ namespace engine
 	public:
 		MotionTrailAction(EffectTrack* newTrack, fight::Track* listener, int value);
 		virtual ~MotionTrailAction();
+
+		// vftable slot 5 (0x10805D30) and slot 6 (0x10805FF0) (names guessed)
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
 
 		core::Link<EffectTrack> link;
 		TrackWatch watch;

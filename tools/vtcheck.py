@@ -7,7 +7,9 @@ override or a slot in the wrong place passes the function comparison and breaks 
 goes for the class key (struct / class): it is part of the RTTI type name that dynamic_cast compares. For every
 `??_7<class>6B@` an object defines, the original vftable comes from the RTTI tables (config/<VERSION>/classes.tsv
 and rtti.tsv); each slot's symbol must be mapped in symbols.txt to the original slot's function (or to the
-incremental link thunk the original slot holds). Unmapped slot functions are reported with --all.
+incremental link thunk the original slot holds). An unmapped slot function is a problem too: the slot then leads to
+our compiled copy, which nothing compared with the original. Exempt are `__purecall` where the original slot is pure
+as well, and the compiler-generated deleting destructors (`??_E`, `??_G`); --all lists those as well.
 """
 
 import argparse
@@ -86,6 +88,10 @@ def main():
 
 	symbols = loadSymbols(args.version)
 	vftables = loadVftables(args.version)
+	# the original's pure slots lead to its import stub of the CRT's _purecall (jmp dword ptr [import])
+	pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY["IMAGE_DIRECTORY_ENTRY_IMPORT"]])
+	iat = next(imp.address for entry in pe.DIRECTORY_ENTRY_IMPORT for imp in entry.imports if imp.name == b"_purecall")
+	purecall = base + bytes(image).find(b"\xff\x25" + iat.to_bytes(4, "little"))
 	problems = 0
 	seen = set()
 	for path in sorted((ROOT / "build" / args.version / "obj").rglob("*.obj")):
@@ -113,8 +119,14 @@ def main():
 				slot = u32(address + 4 * i)
 				mapped = symbols.get(target)
 				if mapped is None:
-					if args.all:
-						lines.append(f"  [{i}] {target} is not mapped (original 0x{follow(slot):08X})")
+					if target == "__purecall" and follow(slot) != purecall:
+						lines.append(f"  [{i}] pure in ours, the original slot holds 0x{follow(slot):08X}")
+					elif target == "__purecall" or target.startswith(("??_E", "??_G")):
+						if args.all:
+							lines.append(f"  [{i}] {target} is not mapped (original 0x{follow(slot):08X})")
+					else:
+						lines.append(f"  [{i}] {target} is not mapped: the slot leads to our copy, not to the original"
+							f" 0x{follow(slot):08X}")
 				elif mapped not in (slot, follow(slot)) and follow(mapped) != follow(slot):
 					lines.append(f"  [{i}] {target} = 0x{mapped:08X}, the original slot holds 0x{follow(slot):08X}")
 			if lines:

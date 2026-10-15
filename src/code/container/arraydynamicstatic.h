@@ -395,15 +395,7 @@ namespace content
 		{
 			return &(*(A*)array)[index];
 		}
-		virtual void Insert(void* array, int index, int unused)
-		{
-			A* a = (A*)array;
-			if (a->Size() >= a->Capacity())
-			{
-				a->Reserve(a->Size() + 1);
-			}
-			a->Insert(a->Begin() + index, Default());
-		}
+		virtual void Insert(void* array, int index, int unused);
 		virtual void Erase(void* array, int index, int unused)
 		{
 			A* a = (A*)array;

@@ -10,7 +10,7 @@ namespace engine
 	{
 	public:
 		virtual void OnDBSlot0(int a, int b) = 0;
-		virtual void OnDBSlot1(int a, int b) = 0;
+		virtual void OnDBSlot1(int a, int b);
 	};
 }
 
