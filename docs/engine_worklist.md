@@ -1359,7 +1359,7 @@ Matching lessons:
 - Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
   (identical case bodies are merged into the default otherwise and the table shrinks to the used range).
 
-## fight/effecttrack.cpp (0x10804EC0 - 0x108078E0): open, 87 of 292 functions match, 3 NONMATCHING
+## fight/effecttrack.cpp (0x10804EC0 - 0x108078E0): open, 127 of 292 functions match, 4 NONMATCHING
 
 The effect track of the fight tree, the actions that carry it and the effect it plays. The unit runs from the thunk
 of `LuaScriptManager::CancelAllScheduled` (0x10804ED0) to the first property setter of the track factory
@@ -1397,9 +1397,51 @@ belongs to. Reconstructed:
 | 0x10805B40 EffectAction::~EffectAction | NONMATCHING | the bytes match, but the +0x3C member is released through 0x104FF200 (another unit's copy of the release helper) where ours calls ReleaseEffectRef twice; caught by objcmp's target check |
 | 0x108075F0 EffectAction::EffectAction | NONMATCHING | the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it past the argument setup of the trailing `AssignEffectRef` call (92.6 %); the statement order and a member-init list both give the same |
 | 0x10807700 MotionTrailAction::MotionTrailAction | NONMATCHING | the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the parameter store right after its load and sinks the -1 into the epilogue (90.8 %) |
+| 0x10805750 EffectSpawnTransform::BuildMatrix | NONMATCHING | register allocation and scheduling of the head: the engine keeps the 1.0f constant in xmm3 from the first instruction (it is also the static's y component) and loads the direction's components z, x, y where ours loads x, z, y and reloads 1.0f twice; the tail from the comparison on is the engine's (23.6 %) |
 
-Not done (the remaining 205 of the 292 functions of the range):
+The second run of accessors (0x108052D0 - 0x10805540, 39 functions) is reconstructed too: `GetUnknown60` and the floats at 0x118 - 0x17C and 0xA4 - 0xBC, `GetUnknown84`, the second `GetUnknown40` and `GetUnknown1ac`, plus `Effect::GetD1` / `GetHandle48`. **Eight of them repeat an offset the first run already has an accessor for** (0xA4 - 0xBC and 0x40), which one class cannot do: RTTI gives the three track classes the *same* base (`fight::Track`, not `EffectTrack`), so they are siblings that declare their own copies of the members, and this run is written on `MotionTrailTrack`. Which of the two siblings owns it is a guess; the offsets fit both.
 
+### What the next agent needs to know (2026-10-15, ds-4)
+
+- **`engine::Effect`'s layout is now readable off the begin's callers.** `link.object` of an `EffectAction` /
+  `AbortEffectAction` is an `EffectTrack` (its +0x1a8 / +0x110 / +0x1a4 are read through it), but the object
+  `MotionTrailAction` links to (also at +0x1C) is an **`engine::Effect`**: 0x10805D30 reads +0x50..+0x94 as six
+  `math::Vector`s, +0x98..+0xa0 as a seventh, +0xa4..+0xbc as seven single floats, +0xc8 as a value and +0xd0 /
+  +0xd1 as two bools. So `Effect` is `{ 8 x core::Name (8 bytes) at 0x10, 7 x math::Vector at 0x50, 7 floats at
+  0xa4, float 0xc0, float 0xc4, int 0xc8, float 0xcc, bool 0xd0, bool 0xd1 }` - the "handles" the earlier pass called
+  `GetHandle10` .. `GetHandle48` are `core::Name`s and the singles at 0xa4 - 0xbc belong to `Effect`, not to a track.
+  The second accessor run (0x108052D0 - 0x10805520) is written on `MotionTrailTrack` as a guess; the owner is still
+  open.
+- **`EffectAction::Slot5` (0x108076B0)** is `if (link.object == 0) return false; if (gEffectSuspendCount != 0)
+  return BeginEffect(link, unknown40, &unknown38, &watch, unknown34, &unknown3c, unknown44, this); unknown4c = true;
+  return true;` - the begin (0x108060F0) is a **free function (cdecl)** taking the 12-byte `core::Link` **by value**
+  (built in place through 0x10805B90) plus seven dwords, and `link.object` reaches it as the Link's first word.
+  `EffectAction::Slot6` (0x10805CA0) and `MotionTrailAction::Slot6` (0x10805FF0) go through the global at
+  **0x1130CCE0** (`GetManager`, the getter is 0x108193A0) with **0x1081B730(handle, float)** and
+  **0x10819560(Drawable*)**; the second is `if (manager && effect && effect->unknownd0) manager->ReleaseDrawable(&unknown34)`
+  and tells that a `MotionTrailAction`'s +0x34 holds the **4-byte `engine::render::Drawable`** the begin produced.
+  `MotionTrailAction::Slot5` (0x10805D30, 696 bytes) copies six `Name`s and six `Vector`s out of the Effect, resolves
+  the `GameObjectHandle` at the action's +0x38 through gMasterTable (0x1128348C), reads two attributes off it
+  (0x112834C8 / 0x112834D0, `FindAttribute`, 0x107E0C00) and calls **0x1081BA90** (`this` = the manager, `ret 0x4C`,
+  76 bytes of arguments: the flag pointer, the Drawable, the first attribute's word, a 12-byte and a 28-byte by-value
+  block and five pointers/values).
+- `AbortEffectAction::Slot5` (0x108075C0) `return false` after
+  `manager->0x1081E260(&track->unknown10, track->unknown24, track->unknown18.x)`, so **`EffectTrack`'s +0x10 is a
+  `core::Name`** (8 bytes), not an `int`: the accessors `GetUnknown10` / `GetUnknown14` read its two halves.
+- Every setter of the track classes is a `bool (__thiscall T::*)(value)` returning true (`mov al, 1; ret 4`), which is
+  what the property objects store as their accessor.
+
+Not done (about 160 of the 298 functions of the range):
+
+- **`fight::RefCounted`'s `AddRef` (0x105A73E0) / `Release` (0x105A73F0) and `fight::Action`'s own slots 3
+  (0x105A2430 `GetChild`), 4 (0x105A2460 `Slot4(int, float)`) and 8 (0x105A24A0 `Slot8(Action*, int, float)`, which
+  copies the flags and the three times) are reconstructed and match** - six of them are in `sequencer.cpp`, which
+  makes the three action vtables that far correct (`tools/vtcheck.py` compares every slot it can map). Slots 6
+  (0x105A2480) and 7 (0x105A2490) are *declared pure* and defined in `sequencer.cpp` only for their bytes: slot 6 and
+  slot 7 are overridden per class (EffectAction 0x10805CA0 / 0x10805BD0, MotionTrailAction 0x10805FF0), and until
+  those bodies are written the classes stay abstract, which keeps their vtables dead data (`??_7EffectAction@engine@@6B@`
+  and its two siblings are deliberately **not** in `symbols.txt`; the engine's own tables stay). Never map an action
+  vtable before its class's overrides are all in place - `ninja dll` would install a table with `_purecall` slots.
 - **The three action classes are abstract in our tree and the engine's are not.** The engine's vftables read
   (the dwords at the address `rtti.tsv` gives, the COL pointer right before and the next table right after confirm
   the nine slots) are:
@@ -1455,7 +1497,17 @@ Not done (the remaining 205 of the 292 functions of the range):
 - 0x108060F0 (5153 bytes): the engine's effect begin, called by all three Slot5 bodies with ten arguments (the action
   link, the object handle, the effect's members and the action itself) — the check that lets the game veto a begin,
   the effect creation through 0x1081BA90 and the per-mode setup.
-- 0x108078E0 - 0x10809000: the fight track factory (see below).
+- 0x108078E0 - 0x10809000: the fight track factory (see below). Its first ten functions are understood:
+  0x108078E0 `PlaybackTrack`'s float setter (`bool (__thiscall*)(float)`: `movss [ecx+0x20]; mov al,1; ret 4`),
+  0x10807920 / 0x10807940 its `Name` setters at +0x18 / +0x10 (`core::Name::operator=`, 0x100278B3),
+  0x10807900 the static list getter (`gList[0x11284B50][index]`), 0x10807960 the constructor (base
+  `fight::Track` 0x105AA160, vftable 0x10E6B304, two `core::Name`s at +0x10 / +0x18, 0.0f at +0x20, a byte at +0x24),
+  0x10807990 its getter, 0x108079A0 a three-byte `fldz` (`return 0.0f`), 0x108079B0 the destructor (vftable then a tail
+  jump to 0x105AA180), 0x108079C0 the factory caster's constructor (`mov [ecx], 0x10E6B348`) and 0x108079D0 a
+  `__RTDynamicCast` test (`neg` / `sbb` / `neg`). **`fight::Track`'s constructor and destructor (0x105AA160 /
+  0x105AA180) are not reconstructed yet** - they are only needed as declarations plus `symbols.txt` entries. A
+  `PlaybackTrack` constructor also installs a 16-slot vtable, so the class must have all of its overrides before its
+  constructor may go in (see the note on the action vtables above).
 
 ## the engine tracks and the fight track factory (0x108078E0 - 0x10809000 and on): not done
 

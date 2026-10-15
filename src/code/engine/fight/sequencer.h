@@ -23,8 +23,12 @@ namespace fight
 		virtual ~RefCounted()
 		{
 		}
+		// 0x105A73E0
+		virtual void AddRef();
+		// 0x105A73F0: below two references the count is parked at 0x8000000 and the object deletes itself
+		virtual void Release();
 
-		long count;
+		unsigned long count;
 	};
 
 	// The action's flag word: the sequencer reads single bits out of it (each test compiles to a shift and a bit
@@ -62,16 +66,18 @@ namespace fight
 		explicit Action(int newFlags);
 		virtual ~Action();
 
-		// vftable slot 3: the child sequencer this action owns (or 0)
-		virtual Sequencer* GetChild() = 0;
-		virtual void Slot4() = 0;
-		// vftable slot 5
+		// vftable slot 3 (0x105A2430): the child sequencer this action owns (or 0; the engine has no action with one)
+		virtual Sequencer* GetChild();
+		// vftable slot 4 (0x105A2460): accepts, the actions that care override it
+		virtual bool Slot4(int arg, float value);
+		// vftable slot 5 (per action class): begins on the track, false ends the action at once
 		virtual bool Slot5(int arg, float value) = 0;
-		// vftable slot 6
+		// vftable slot 6 (0x105A2480): the action was stopped; only actions without their own copy keep this one
 		virtual void Slot6() = 0;
-		// vftable slot 7
+		// vftable slot 7 (0x105A2490): updates; only actions without their own copy keep this one
 		virtual bool Slot7(int arg, float value) = 0;
-		virtual void Slot8() = 0;
+		// vftable slot 8 (0x105A24A0): copies the action's flags and three times into another action (name guessed)
+		virtual void Slot8(Action* other, int arg, float value);
 
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
@@ -104,7 +110,7 @@ namespace fight
 		Action* next;
 		ActionFlags flags;
 		float timeBegin;
-		int unknown14;
+		float unknown14;
 		float timeEnd;
 	};
 
