@@ -77,6 +77,7 @@ ninja dll                                                             # relink t
 python tools/delink/verify.py --version PROTOPC_2025                  # IDENTICAL
 python tools/vtcheck.py                                               # 0 problems
 python tools/datacheck.py                                             # 0 problems (our mapped globals start like the engine's)
+python tools/namecheck.py                                             # 0 (symbols.txt spells our symbols as the compiler does)
 ninja report progress                                                 # refresh the README bar and docs/progress.*
 ```
 
