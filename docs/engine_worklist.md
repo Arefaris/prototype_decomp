@@ -1060,7 +1060,12 @@ Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled
 setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
 0x1094D9B0 - 0x1094DB40 are compiled nowhere: the engine's copies stay.
 
-## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 0 functions match, 0 NONMATCHING, 53 not done
+## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 3 functions match, 0 NONMATCHING, 50 not done
+
+Source in `choreo/src/partitiondriver.cpp` (file name guessed; `choreo::AnimationBlendDriver`'s destructor 0x1094D290
+destroys fifteen 0x2C-byte clip entries from +0x3C, so the unit is the one that builds and drives the drivers that
+partition the pose). Matched: `PartitionDriver::~PartitionDriver` 0x1094D430 (releases the pose through its vftable),
+`CoversRoot` 0x1094D4B0 and `Unknown1094D4C0` 0x1094D4C0 (whether the clip is at rest against the pose).
 
 The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
 0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the

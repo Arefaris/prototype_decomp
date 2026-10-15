@@ -7,6 +7,7 @@
 
 #include "code/core/name.h"
 #include "code/math/matrix.h"
+#include "code/pure3d/pose.h"
 #include "code/pure3d/posedata.h"
 
 namespace choreo
@@ -18,7 +19,7 @@ namespace choreo
 	struct DriverInfo
 	{
 		unsigned char unknown0[0xC];
-		void* mPose;                 // 0x0C
+		pure3d::Pose* mPose;         // 0x0C
 	};
 
 	// The drivers are not updated through their vftable but through a table indexed by the driver's type.

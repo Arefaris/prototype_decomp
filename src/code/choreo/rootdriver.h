@@ -7,6 +7,7 @@
 #include "code/choreo/deltatransform.h"
 #include "code/choreo/puppet.h"
 #include "code/pure3d/animation.h"
+#include "code/pure3d/pose.h"
 
 namespace choreo
 {
@@ -120,7 +121,7 @@ namespace choreo
 		// The first and the last joint of the pose the driver drives
 		unsigned int mFirstJoint;      // 0x20
 		unsigned int mLastJoint;       // 0x24
-		void* mPose;                   // 0x28
+		pure3d::Pose* mPose;           // 0x28
 		void* mJoint;                  // 0x2C
 		const void* mJointMask;        // 0x30
 		unsigned char unknown34[4];    // 0x34
