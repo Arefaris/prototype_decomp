@@ -53,6 +53,58 @@ namespace engine
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x10863B00
+	// NONMATCHING: the two ids' blocks come out in the other order and the chain walk is rotated, 23 % (the whole
+	// middle of the function - the check order, the `sete`/`test` pair the found flag is built from and the id
+	// comparison - is already identical)
+#ifdef NONMATCHING
+	void FightTreeBehaviour::OnPostedMessage(Message* message)
+	{
+		FightTreeMessage* fightMessage = static_cast<FightTreeMessage*>(message);
+		if (fightMessage->type != 0xb)
+		{
+			return;
+		}
+		unsigned int id = (unsigned short)fightMessage->id;
+		if (id == 8)
+		{
+			fight::Branch* node = branch->Slot6();
+			if (fightMessage->track->Slot6() == node)
+			{
+				node = GetSequencer()->track;
+				if (node != 0)
+				{
+					bool same = (fightMessage->track == node);
+					fightMessage->found = same;
+					if (fightMessage->walk && !same)
+					{
+						node = node->unknown18;
+						if (node != 0)
+						{
+							while (fightMessage->track != node)
+							{
+								node = node->unknown18;
+								if (node == 0)
+								{
+									return;
+								}
+							}
+							fightMessage->found = true;
+						}
+					}
+				}
+			}
+		}
+		else if (id == 0x10)
+		{
+			if (fightMessage->params == 0)
+			{
+				fightMessage->params = GetParams();
+			}
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10863900
 	// NONMATCHING: the parameters load and the generator step's registers, 54 %
 #ifdef NONMATCHING

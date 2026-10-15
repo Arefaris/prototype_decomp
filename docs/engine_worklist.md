@@ -972,8 +972,17 @@ the address order (the two units interleave their statics):
 | frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
 | path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
 
-Done: **44 functions match**, five are marked NONMATCHING (the rest were not attempted, so no body was written and
+Done: **47 functions match**, six are marked NONMATCHING (the rest were not attempted, so no body was written and
 nothing was excluded from the build).
+
+Fight unit, added by the third session: 0x108641E0 `GetMembers` (the member list: "fightBranch" through
+`GetFightBranchRefMetaType` and "sequencer" through `content::GetClassMetaType<fight::Sequencer>()` /
+`content::MemberOffset<fight::Sequencer>`), 0x10864180 (`engine::GetFightBranchRefMetaType<C>` - its **first
+parameter is the class name the caller passes and never reads**, so the template takes a leading `const char*
+unused`) and 0x10863A80 (`BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`'s constructor, which the explicit
+instantiation alone does **not** emit - it appears as soon as `GetMembers` declares `static
+content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour> sCaster;`, which is also how the path unit's 0x10864D90
+can be had once `SplineBehaviour::GetMembers` exists).
 
 - fight unit (12): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863A90, 0x10863AC0 (`~FightTreeBehaviour`:
   `core::SafeRelease(params)`, `sequencer.End()`, then `branch->Unregister(&branch)`), 0x10863B90, 0x10863BA0
@@ -987,6 +996,9 @@ nothing was excluded from the build).
   - 0x10863900 `Slot1`: the parameters load and the two generator steps' registers, 54 %.
   - 0x108639A0 `GetParams`: the parameters load and the handle copy swap places, 89 %.
   - 0x108639E0 constructor: the vftable store and the sequencer's `this` swap places, 97 %.
+  - 0x10863B00 `OnPostedMessage`: the two ids' blocks come out in the other order and the chain walk is rotated,
+    23 % of 142 bytes (the middle - the check order, the `sete`/`test` pair the answer flag is built from and the
+    `movzx` + 32-bit id comparison - is already identical; the source is in the file, behind the ifdef).
 - `src/code/engine/gameobject/behaviours/pathbehaviour.cpp`: 0x10864DF0 `SplineCV::SplineCV` (seven floats and a
   flag), 0x10864E30 `~SplineCV`, and 0x10864FA0 (the caster's `IsDerived`).
 - `src/code/engine/frontend/frontend.cpp` (20, new): 0x108642D0 `fe_SetUpdateEnable`, 0x10864310 `SetFrontend`,
@@ -1014,9 +1026,7 @@ Not done, by unit (each is a place to start, not a verdict):
 
 - **fight unit**: 0x108639D0 (`[ecx+8]` getter - the owner is at +4 and +8 is `Behaviour::state`, so this is probably
   a method of another class in the file: `fight::Params::value` (+8) and `fight::Sequencer::track` (+8) are the two
-  candidates this unit knows); 0x10863A80 (the kept copy of the `BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`
-  constructor - an explicit instantiation does not emit it, it needs a defined object of the type, which is what
-  0x108641E0's `static BaseClassCasterImpl<...> sCaster` would give); 0x10863B00 `OnPostedMessage` (type 0xb: id 8
+  candidates this unit knows); 0x10863B00 `OnPostedMessage` (type 0xb: id 8
   reads a branch at +0xC, compares its slot 6 (`+0x18`) with `branch`'s and walks `sequencer.track`'s `+0x18` chain
   into the bools at +0x10 / +0x11; id 0x10 writes `GetParams()` into +0xC when it is 0, so the two ids are two
   message classes with a payload at +0xC); 0x10863FB0 `OnMessage` (384 bytes: type 2 ends the sequencer, type 0xb
@@ -1108,6 +1118,35 @@ Not done, by unit (each is a place to start, not a verdict):
   `call dword ptr [0x11331xxx]` in the range without guessing.
 - `0x10D95365` is the empty string (its first byte is 0), so a `core::Report` format of `"%*sFight Context: %s"`
   takes `(indent, "", name)` and `%*s` with `0x10D94FF4`-style codes is how the reflection member table prints.
+
+### The third session's findings (strings, message layouts, the dump)
+
+- **The range's string constants** (`python tools/disasm.py --bytes` reads data too): 0x10D94E7C `"pn"`,
+  0x10D94FF4 `"p"` (the code of a *reference* member - both the fight tree's `fightBranch` and the render unit's
+  `drawableSource` pass it), 0x10D97FAC `"GameObject"`, 0x10D97FA0 `"sequencer"`, 0x10E73144 `"%*s}"`,
+  0x10E7314C `"%*s{"`, 0x10E73154 `"%*s%s"`, 0x10E7315C `"%*sStart branch is %s"`,
+  0x10E73174 `"%*s<%s> doesn't have a branch to run."`, 0x10E731E8 `"%*sFight Context: %s"`, 0x10E09CC4 `" "`.
+- **`0x10863C50`'s signature is `Dump(fight::Sequencer* sequencer, bool children, bool header, int indent)`**
+  (`ret 0x10`), called from `OnMessage` as `Dump(&sequencer, message[0xC], true, 0)`. Its `static bool` report
+  flags are seven consecutive bytes **0x111CEED9 - 0x111CEEDF** (0x111CEEDF = the line-0x130 site, then 0x134,
+  0x13b, 0x141, 0x142, 0x155, 0x162 - i.e. **the addresses run opposite to the source order**, as MSVC assigns its
+  statics), and `OnMessage`'s type-0xE site has an eighth at **0x111CEF32**. Everything it walks hangs off the
+  sequencer: `sequencer[+8]` is the track (`Sequencer::track`), `sequencer[+0x3C]` a list whose nodes link at
+  **+8** and whose vtable slot 3 (`+0xC`) answers the child `Sequencer*` the dump recurses into - that is
+  `Action::GetChild`, so **`Action`'s list link is at +8, not at +4** as `sequencer.h` has it, and `Action`'s +
+  `vftable` slot 3 (`+0xC`) returns a `Sequencer*`. `sequencer[+8]` is a `fight::Track*` (the id-8 message's +0xC
+  is compared with it directly), and the dump's `start->Slot6()` result is discarded, so that call is a
+  statement of its own.
+- **0x10864130 sits in a `functions.tsv` hole** between `OnMessage` (0x10863FB0, which ends at 0x10864130) and the
+  reflection helper: 0x50 bytes, `this->SetBranch(gLoadListeners->Find(ObjectName(text, 1))[+0x8C] -> 0x105A3690())`
+  - the `PlaybackTreeBehaviour` message that names the branch to run. `split.py` needs a `symbols.txt` entry with
+  its size before it can be carved out.
+- `0x10863C00` is a two-argument **free** function that builds an `ObjectName(text, 1)`, finds it through
+  `engine::gLoadListeners` (0x105A4F90) and returns `found[+0x8C].Method(arg1) != 0` (0x105A3690); it is *not* a
+  boundary function of this unit (its `arg1` is at `[esp+4]` after the callee-cleaned `Name` constructor).
+- The `content::BaseClassCasterImpl` constructor trick (see the fight unit's entry above) is the general answer to
+  the "kept copy of a template member" problem: **an explicit instantiation emits the virtual members, and a
+  declared object of the type is what makes the compiler emit the constructor**.
 
 ## proto/navmesh.cpp (proto::NavMeshHull, 0x10568390 - 0x105691D0)
 
