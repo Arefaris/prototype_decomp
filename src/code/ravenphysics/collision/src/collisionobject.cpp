@@ -1,11 +1,18 @@
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/core/debug.h"
+#include "code/engine/system/enginememory.h"
+#include <math.h>
 
 #define COLLISIONOBJECT_FILE "..\\..\\..\\code\\ravenphysics\\collision\\src\\collisionobject.cpp"
 
 namespace ravenphysics
 {
+	// Builds the shape an object with a single volume of this description is seen through (0x1066A1B0, another unit)
+	CollisionShape* CreateVolumeShape(CollisionVolume* volume, float size, CollisionObject* object);
+	// The same for a box (0x1066A220, another unit)
+	CollisionShape* CreateBoxShape(float size, int a, int b, CollisionObject* object);
+
 	// FUNCTION: ENGINE 0x106544E0
 	void CollisionObject::UpdateTransform(const math::Matrix& matrix)
 	{
@@ -39,7 +46,7 @@ namespace ravenphysics
 			CollisionVolume* volume = volumes[i];
 			if (volume->type == 4)
 			{
-				volume->materials.SetMaterial(material);
+				((CollisionVolume4*)volume)->materials.SetMaterial(material);
 			}
 			volume->material = material;
 		}
@@ -409,35 +416,201 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106559C0
-	// NONMATCHING: register allocation, 64.4 %: the engine tests the count in memory and loads it into edi inside
-	// the loop, ours loads it before the guard; the volume pointer is biased to the element in the engine
 	void CollisionObject::UpdateProperties()
 	{
-#ifdef NONMATCHING
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 1016, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		IntersectionProperties accumulated;
 		accumulated.unknown0 = 0;
 		accumulated.unknown4 = 0;
-		if (volumeCount > 0)
+		for (unsigned int i = 0; i < volumeCount; i++)
 		{
-			CollisionVolume** volume = volumes;
-			unsigned int left = volumeCount;
-			do
-			{
-				CollisionVolume* current = *volume;
-				accumulated.unknown0 |= current->unknown1C;
-				accumulated.unknown4 |= current->unknown20;
-				volume++;
-			}
-			while (--left != 0);
+			CollisionVolume* current = volumes[i];
+			CollisionFilter* filter = &current->filter;
+			accumulated.unknown0 |= filter->unknown0;
+			accumulated.unknown4 |= filter->unknown4;
 		}
 		properties = accumulated;
-#endif
 	}
 
 	// FUNCTION: ENGINE 0x10655D90
 	void CollisionObject::SetName(core::Name<core::CaseSensitiveKey> newName)
 	{
 		name = newName;
+	}
+
+	// FUNCTION: ENGINE 0x10655A60
+	void CollisionObject::Print()
+	{
+		transform.Print();
+		for (unsigned int i = 0; i < volumeCount; i++)
+		{
+			volumes[i]->Print();
+		}
+		if (shape != 0)
+		{
+			shape->Print();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10655AE0
+	CollisionObject::CollisionObject()
+		: name()
+		, handle()
+		, changed(true)
+		, properties()
+	{
+		volumes = 0;
+		shape = 0;
+		owner = 0;
+		unknown70 = 0;
+		mesh = 0;
+		unknown4C = 0;
+		gCollisionObjectTable->Add(this, &handle);
+	}
+
+	// FUNCTION: ENGINE 0x10655B60
+	void CollisionObject::Initialize(CollisionVolume** newVolumes, unsigned int count)
+	{
+		mesh = 0;
+		shape = 0;
+		volumes = newVolumes;
+		volumeCount = count;
+		owner = 0;
+		unknown70 = 0;
+		state = (1 << (volumeCount < 31 ? volumeCount : 31)) - 1;
+		SetActive(true);
+		transform.Identity();
+		UpdateProperties();
+		for (unsigned int i = 0; i < count; i++)
+		{
+			newVolumes[i]->Retain();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10655DA0
+	// NONMATCHING: the six accumulators, 7.9 %: the engine keeps them in xmm6/xmm5/xmm4 and xmm0/xmm1/xmm2
+	// across the loop and computes the three sizes with SSE, ours spills all six to the stack and finishes in
+	// x87 (the frame is 8 bytes larger)
+	float CollisionObject::GetRadius() const
+	{
+#ifdef NONMATCHING
+		float minX = 1e12f;
+		float minY = 1e12f;
+		float minZ = 1e12f;
+		float maxX = -1e12f;
+		float maxY = -1e12f;
+		float maxZ = -1e12f;
+		unsigned int count = volumeCount;
+		if (count > 0)
+		{
+			CollisionVolume** volume = volumes;
+			do
+			{
+				CollisionVolume* current = *volume;
+				if (current->boundsMin.x <= minX)
+				{
+					minX = current->boundsMin.x;
+				}
+				if (current->boundsMin.y <= minY)
+				{
+					minY = current->boundsMin.y;
+				}
+				if (current->boundsMin.z <= minZ)
+				{
+					minZ = current->boundsMin.z;
+				}
+				if (current->boundsMax.x > maxX)
+				{
+					maxX = current->boundsMax.x;
+				}
+				if (current->boundsMax.y > maxY)
+				{
+					maxY = current->boundsMax.y;
+				}
+				if (current->boundsMax.z > maxZ)
+				{
+					maxZ = current->boundsMax.z;
+				}
+				volume++;
+			}
+			while (--count != 0);
+			if (minX <= maxX && minY <= maxY && minZ <= maxZ)
+			{
+				float sizeZ = (maxZ - minZ) * 0.5f;
+				float sizeY = (maxY - minY) * 0.5f;
+				float sizeX = (maxX - minX) * 0.5f;
+				return sqrtf(sizeX * sizeX + sizeY * sizeY + sizeZ * sizeZ);
+			}
+		}
+		return 0.0f;
+#endif
+		return 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x10655EA0
+	// NONMATCHING: the null checks of the four deletes, 59.6 %: the engine emits `test esi, esi` before every
+	// destructor call, ours drops it because the volume pointer was just dereferenced for its type byte
+	CollisionObject::~CollisionObject()
+	{
+#ifdef NONMATCHING
+		gCollisionObjectTable->Remove(&handle);
+		if (mesh != 0)
+		{
+			mesh->Release();
+		}
+		for (unsigned int i = 0; i < volumeCount; i++)
+		{
+			volumes[i]->Release();
+			CollisionVolume* volume = volumes[i];
+			if (volume->type == 6)
+			{
+				delete (CollisionVolume6*)volume;
+			}
+			else if (volume->type == 3)
+			{
+				delete (CollisionVolume3*)volume;
+			}
+			else if (volume->type == 4)
+			{
+				delete (CollisionVolume4*)volume;
+			}
+			else
+			{
+				delete volume;
+			}
+		}
+		delete[] volumes;
+		if (shape != 0)
+		{
+			delete shape;
+		}
+#endif
+	}
+
+	// FUNCTION: ENGINE 0x10655F60
+	CollisionObject* CreateCollisionObject(CollisionVolume* volume, bool makeShape, float size)
+	{
+		CollisionObject* object = new CollisionObject();
+		CollisionVolume** volumes = new CollisionVolume*[1];
+		volumes[0] = volume;
+		object->Initialize(volumes, 1);
+		if (makeShape)
+		{
+			object->shape = CreateVolumeShape(volume, size, object);
+		}
+		return object;
+	}
+
+	// FUNCTION: ENGINE 0x10655FC0
+	CollisionObject* CreateCollisionObject(CollisionVolume** volumes, unsigned int count, bool makeShape, float size,
+		int a, int b)
+	{
+		CollisionObject* object = new CollisionObject();
+		object->Initialize(volumes, count);
+		if (makeShape)
+		{
+			object->shape = CreateBoxShape(size, a, b, object);
+		}
+		return object;
 	}
 }

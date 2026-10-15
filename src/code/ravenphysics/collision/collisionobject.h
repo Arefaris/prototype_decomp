@@ -18,12 +18,11 @@ namespace ravenphysics
 	class ConvexMesh;
 	class PhysicsObject;
 
-	// The material list of a type 4 volume, at +0x60 of the volume (class and member names are guesses)
-	class MaterialList
+	// The query filters a volume asks for, accumulated by the object it belongs to (meanings unknown)
+	struct CollisionFilter
 	{
-	public:
-		// Gives every face of the volume a material (0x10654150, another unit)
-		void SetMaterial(unsigned char material);
+		unsigned int unknown0;
+		unsigned int unknown4;
 	};
 
 	// The head shared by all collision volume types; type indexes the narrow phase's dispatch tables
@@ -35,12 +34,15 @@ namespace ravenphysics
 		unsigned char unknown3;
 		math::Vector boundsMin;
 		math::Vector boundsMax;
-		// The query filters the volume asks for, accumulated by the object (0x106559C0; meanings unknown)
-		unsigned int unknown1C;
-		unsigned int unknown20;
+		CollisionFilter filter;     // 0x1C
 		unsigned char unknown24[0x60 - 0x24];
-		// The per-type half of a type 4 volume (0x10654670 gives every face a material)
-		MaterialList materials;
+
+		// The end every volume subclass's destructor reaches: marks the volume destroyed (0x10663EB0, another
+		// unit)
+		~CollisionVolume()
+		{
+			MarkDestroyed();
+		}
 
 		// Recomputes the volume's world bounds from the object's transform; a switch over the type byte that runs
 		// the volume's own per-type update (0x10665690, another unit)
@@ -63,14 +65,59 @@ namespace ravenphysics
 		void UpdateBounds6(CollisionObject* object);
 		// Hands the query setup to the volume (0x10665A90, another unit)
 		void SetQuery(const void* query);
+		// Writes the bounds and the type-specific part out (0x10664660, another unit)
+		void Print();
+		// Frees the volume's own array of faces and marks it destroyed (0x10681C40, another unit)
+		void Destroy();
+		// Gives up a type 6 volume's slot in the physics table and clears its mesh (0x10666640, another unit)
+		void DestroyMesh();
+		// The body of the destructor: writes the destroyed mark into the state byte (0x10663EB0, another unit)
+		void MarkDestroyed();
+		// Raises and lowers the state byte, the volume's destruction count (0x10663EC0 / 0x10663ED0, another unit)
+		void Retain();
+		void Release();
+	};
+
+	// A volume of type 3, and the face list a type 4 volume keeps at +0x60 (class and member names are guesses)
+	class CollisionVolume3 : public CollisionVolume
+	{
+	public:
+		// Gives every face of the volume a material (0x10654150, another unit)
+		void SetMaterial(unsigned char material);
+		// Frees the volume's own array of faces, then the base's mark (0x10681C40, another unit)
+		~CollisionVolume3();
+	};
+
+	// A volume of type 4: the volume plus its face list (0x10654670 gives every face a material)
+	struct CollisionVolume4 : CollisionVolume
+	{
+		CollisionVolume3 materials;    // 0x60
+	};
+
+	// A volume of type 6 (0x10666640)
+	struct CollisionVolume6 : CollisionVolume
+	{
+		~CollisionVolume6();
 	};
 
 	// The entry of the physics handle table that names one object (the table hands out the pair of a slot index and
-	// the serial the slot carries; the names are guesses)
+	// the serial the slot carries; the names are guesses). An untouched handle names no slot.
 	struct CollisionHandle
 	{
-		unsigned short index;
-		unsigned short serial;
+		CollisionHandle()
+		{
+			value = 0xffffffff;
+		}
+
+		union
+		{
+			unsigned int value;
+			struct
+			{
+				unsigned short index;
+				unsigned short serial;
+			};
+		};
 	};
 
 	// One slot of the physics handle table (0x1127CAC0): the object and the serial it is registered under
@@ -155,6 +202,10 @@ namespace ravenphysics
 		void MoveTo(math::Vector from, math::Vector to, int flag);
 		// Sets the shape's width and marks it (0x1066A0B0, another unit)
 		void SetSize(int a, int b, float size);
+		// Writes the transform, the matrices and the vectors out (0x10669730, another unit)
+		void Print();
+		// Empty (0x10669120, another unit)
+		~CollisionShape();
 
 		unsigned int unknownA8;    // 0xA8
 		math::Vector unknownAC;    // 0xAC
@@ -179,6 +230,20 @@ namespace ravenphysics
 	class CollisionObject
 	{
 	public:
+		// Takes a slot in the physics handle table and clears every member but the transform (0x10655AE0)
+		CollisionObject();
+		// Gives the handle back, releases the mesh, destroys the volumes and deletes the shape (0x10655EA0)
+		~CollisionObject();
+		// Writes the transform, every volume and the shape out (0x10655A60)
+		void Print();
+		// Takes over the volume array, decides which volumes collide and initialises every volume (0x10655B60)
+		void Initialize(CollisionVolume** newVolumes, unsigned int count);
+		// A copy of the object with copies of its volumes and, unless unused, of its shape (0x10655BE0)
+		CollisionObject* Clone(bool unused);
+		// The radius of the box that holds every volume's bounds, or 0 when the volumes do not overlap
+		// (0x10655DA0)
+		float GetRadius() const;
+
 		// Clears the changed flag and tells whether it was set
 		bool TestAndClearChanged()
 		{

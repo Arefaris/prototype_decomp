@@ -1770,12 +1770,28 @@ reconstructed function, which is why 0x74 - 0x80 is still unknown.
 
 NONMATCHING:
 
-- `0x106559C0` UpdateProperties: the engine tests the volume count in memory and loads it into `edi` inside the
-  loop, ours loads it before the guard and the volume pointer is biased to the element in the engine; 64.4 %.
 - `0x10654790` SetShape: the detector test, 89.6 %: the engine keeps the loaded pointer in a register and tests
   that, ours compares the member against zero.
+- `0x10655DA0` GetRadius: the six min/max accumulators stay in xmm6/xmm5/xmm4 and xmm0/xmm1/xmm2 across the loop
+  in the engine and the three sizes are computed with SSE; ours spills all six to the stack and finishes in x87,
+  7.9 % (the frame is 8 bytes larger).
+- `0x10655EA0` ~CollisionObject: the engine emits `test esi, esi` before each of the four destructor calls, ours
+  drops it because the volume pointer was just dereferenced for its type byte; 59.6 %.
+
+Done (all 100 %): `0x10655A60` Print, `0x10655AE0` constructor, `0x10655B60` Initialize, `0x10655D90` SetName,
+`0x10655F60` / `0x10655FC0` CreateCollisionObject, and `0x106559C0` UpdateProperties (was 64.4 %: it is an
+indexed `for (i < volumeCount)` loop, not a countdown, and the volume's two filter words are one sub-struct, so
+MSVC forms its address once and reuses it for the second field).
 
 Lessons:
+
+- An empty body left by `#ifdef NONMATCHING` is inlined away at every call site: a function that is a caller's
+  only reason for a call has to be matched for the caller to match too.
+- A `delete` of a pointer that the code has already dereferenced keeps no null check in our build, while the
+  engine has one; the check is only reproduced when the deleted pointer is not provably non-null.
+- The engine's `CollisionVolume` is a base of `CollisionVolume3` (also the face list a type 4 volume keeps at
+  +0x60), `CollisionVolume4` (the volume plus that list) and `CollisionVolume6`; their destructors are what the
+  object's destructor's four `delete`s call.
 
 - The volume types are 7 (the type byte); `CollisionVolume::UpdateBounds(CollisionObject*)` (0x10665690, another
   unit) is the switch that runs the per-type update, and `CollisionObject`'s `SetCapsuleVolume` / `SetSphereVolume`
