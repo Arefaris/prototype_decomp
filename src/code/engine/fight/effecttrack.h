@@ -8,6 +8,7 @@
 
 #include "code/core/linklist.h"
 #include "code/engine/fight/sequencer.h"
+#include "code/math/matrix.h"
 #include "code/math/vector.h"
 
 namespace engine
@@ -78,6 +79,10 @@ namespace engine
 		unsigned char* GetHandle38();
 		// 0x108056A0
 		math::Vector GetVector8c() const;
+		// 0x10805530
+		bool GetD1() const;
+		// 0x10805540
+		unsigned char* GetHandle48();
 		// 0x108056D0
 		bool GetD0() const;
 	};
@@ -100,7 +105,8 @@ namespace engine
 		unsigned char unknown30[8];
 		unsigned char unknown38[8];
 		unsigned char unknown40[8];
-		unsigned char unknown48[0x24];
+		unsigned char unknown48[0x18];
+		math::Vector unknown60;
 		math::Vector unknown6c;
 		math::Vector unknown78;
 		float unknown84;
@@ -141,7 +147,33 @@ namespace engine
 		float unknown10c;
 		float unknown110;
 		float unknown114;
-		unsigned char unknown118[0x68];
+		// The second run of floats the unit keeps accessors for (0x108052D0 - 0x10805520)
+		float unknown118;
+		float unknown11c;
+		float unknown120;
+		float unknown124;
+		float unknown128;
+		float unknown12c;
+		float unknown130;
+		float unknown134;
+		float unknown138;
+		float unknown13c;
+		float unknown140;
+		float unknown144;
+		float unknown148;
+		float unknown14c;
+		float unknown150;
+		float unknown154;
+		float unknown158;
+		float unknown15c;
+		float unknown160;
+		float unknown164;
+		float unknown168;
+		float unknown16c;
+		float unknown170;
+		float unknown174;
+		float unknown178;
+		float unknown17c;
 		float unknown180;
 		float unknown184;
 		float unknown188;
@@ -283,14 +315,102 @@ namespace engine
 		float GetUnknownc8() const;
 	};
 
+	// 0x10805750 builds the spawn matrix of an effect from the parent matrix it hangs off: the parent's second row is
+	// the direction the effect is aimed along and its translation row the origin. The engine's copy pops two arguments
+	// and never reads ecx, so it is a member function that does not touch its object; its class is not known.
+	class EffectSpawnTransform
+	{
+	public:
+		void BuildMatrix(const math::Matrix& parent, math::Matrix& matrix) const;
+	};
+
 	// The variants of the effect track the game names (RTTI: engine::AbortEffectTrack / MotionTrailTrack, 16 vtable
 	// slots each; nothing of their own is read here, they only have to be the type the actions link themselves on)
 	class AbortEffectTrack : public EffectTrack
 	{
 	};
 
+	// 0x108052D0 - 0x10805520: the second run of accessors, over the same members. RTTI gives the three track
+	// classes the same base (fight::Track), so they are siblings that declare their own copies of the members and of
+	// their accessors; which of the two variants owns this run is a guess. They are written on the motion trail
+	// track, which shares the effect track's layout.
 	class MotionTrailTrack : public EffectTrack
 	{
+	public:
+		// 0x108052D0
+		math::Vector GetUnknown60() const;
+		// 0x108052F0
+		bool GetUnknown1ac() const;
+		// 0x10805300
+		float GetUnknown13c() const;
+		// 0x10805310
+		float GetUnknown140() const;
+		// 0x10805320
+		float GetUnknown158() const;
+		// 0x10805330
+		float GetUnknown15c() const;
+		// 0x10805340
+		float GetUnknown150() const;
+		// 0x10805350
+		float GetUnknown154() const;
+		// 0x10805360
+		float GetUnknown168() const;
+		// 0x10805370
+		float GetUnknown16c() const;
+		// 0x10805380
+		float GetUnknown160() const;
+		// 0x10805390
+		float GetUnknown164() const;
+		// 0x108053A0
+		float GetUnknown170() const;
+		// 0x108053B0
+		float GetUnknown174() const;
+		// 0x108053C0
+		float GetUnknown178() const;
+		// 0x108053D0
+		float GetUnknown17c() const;
+		// 0x108053E0
+		float GetUnknown120() const;
+		// 0x108053F0
+		float GetUnknown124() const;
+		// 0x10805400
+		float GetUnknown14c() const;
+		// 0x10805410
+		float GetUnknown138() const;
+		// 0x10805420
+		float GetUnknown130() const;
+		// 0x10805430
+		float GetUnknown12c() const;
+		// 0x10805440
+		float GetUnknown128() const;
+		// 0x10805450
+		float GetUnknown118() const;
+		// 0x10805460
+		float GetUnknown134() const;
+		// 0x10805470
+		float GetUnknown11c() const;
+		// 0x10805480
+		float GetUnknown148() const;
+		// 0x10805490
+		float GetUnknown144() const;
+		// 0x108054A0
+		float* GetUnknown84();
+		// 0x108054B0
+		unsigned char* GetUnknown40();
+		// 0x108054C0
+		float GetUnknownb4() const;
+		// 0x108054D0
+		float GetUnknowna4() const;
+		// 0x108054E0
+		float GetUnknownac() const;
+		// 0x108054F0
+		float GetUnknownbc() const;
+		// 0x10805500
+		float GetUnknownb0() const;
+		// 0x10805510
+		float GetUnknowna8() const;
+		// 0x10805520
+		float GetUnknownb8() const;
 	};
 
 	// The node an action registers on a track it watches instead of driving it: the track keeps that list at +0x24

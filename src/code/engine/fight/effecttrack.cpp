@@ -43,6 +43,34 @@ namespace engine
 		gEffectSuspendCount--;
 	}
 
+	// ---- the spawn matrix --------------------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x10805750
+	// NONMATCHING: register allocation and scheduling of the head: the engine keeps the 1.0f constant in xmm3 from the
+	// function's first instruction (the static's own y component) and loads the direction's components z, x, y where
+	// ours loads x, z, y and reloads 1.0f twice; the tail from the comparison on is the engine's (23.6 %)
+#ifdef NONMATCHING
+	void EffectSpawnTransform::BuildMatrix(const math::Matrix& parent, math::Matrix& matrix) const
+	{
+		// The world up axis, built on the first call
+		static math::Vector sUp(0.0f, 1.0f, 0.0f);
+		math::Vector direction(parent.m[1][0], parent.m[1][1], parent.m[1][2]);
+		if (1.0f - direction.Dot(sUp) > 0.01f)
+		{
+			math::Vector side;
+			side.Cross(direction, sUp);
+			matrix.Identity();
+			matrix.SetTranslation(math::Vector(parent.m[3][0], parent.m[3][1], parent.m[3][2]));
+			matrix.SetBasis(side, sUp);
+		}
+		else
+		{
+			// The effect already points along the up axis: the parent's frame is the spawn frame
+			matrix = parent;
+		}
+	}
+#endif
+
 	// ---- the engine's copies of core's reference helpers ---------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x108058E0
@@ -211,6 +239,18 @@ namespace engine
 	bool Effect::GetD0() const
 	{
 		return unknownd0;
+	}
+
+	// FUNCTION: ENGINE 0x10805530
+	bool Effect::GetD1() const
+	{
+		return unknownd1;
+	}
+
+	// FUNCTION: ENGINE 0x10805540
+	unsigned char* Effect::GetHandle48()
+	{
+		return unknown48;
 	}
 
 	// ---- the track --------------------------------------------------------------------------------------------
@@ -582,5 +622,229 @@ namespace engine
 	float EffectTrack::GetUnknownc8() const
 	{
 		return unknownc8;
+	}
+
+	// ---- the second run of accessors, over the motion trail track's own copies of the members -------------------
+
+	// FUNCTION: ENGINE 0x108052D0
+	math::Vector MotionTrailTrack::GetUnknown60() const
+	{
+		return unknown60;
+	}
+
+	// FUNCTION: ENGINE 0x108052F0
+	bool MotionTrailTrack::GetUnknown1ac() const
+	{
+		return unknown1ac;
+	}
+
+	// FUNCTION: ENGINE 0x10805300
+	float MotionTrailTrack::GetUnknown13c() const
+	{
+		return unknown13c;
+	}
+
+	// FUNCTION: ENGINE 0x10805310
+	float MotionTrailTrack::GetUnknown140() const
+	{
+		return unknown140;
+	}
+
+	// FUNCTION: ENGINE 0x10805320
+	float MotionTrailTrack::GetUnknown158() const
+	{
+		return unknown158;
+	}
+
+	// FUNCTION: ENGINE 0x10805330
+	float MotionTrailTrack::GetUnknown15c() const
+	{
+		return unknown15c;
+	}
+
+	// FUNCTION: ENGINE 0x10805340
+	float MotionTrailTrack::GetUnknown150() const
+	{
+		return unknown150;
+	}
+
+	// FUNCTION: ENGINE 0x10805350
+	float MotionTrailTrack::GetUnknown154() const
+	{
+		return unknown154;
+	}
+
+	// FUNCTION: ENGINE 0x10805360
+	float MotionTrailTrack::GetUnknown168() const
+	{
+		return unknown168;
+	}
+
+	// FUNCTION: ENGINE 0x10805370
+	float MotionTrailTrack::GetUnknown16c() const
+	{
+		return unknown16c;
+	}
+
+	// FUNCTION: ENGINE 0x10805380
+	float MotionTrailTrack::GetUnknown160() const
+	{
+		return unknown160;
+	}
+
+	// FUNCTION: ENGINE 0x10805390
+	float MotionTrailTrack::GetUnknown164() const
+	{
+		return unknown164;
+	}
+
+	// FUNCTION: ENGINE 0x108053A0
+	float MotionTrailTrack::GetUnknown170() const
+	{
+		return unknown170;
+	}
+
+	// FUNCTION: ENGINE 0x108053B0
+	float MotionTrailTrack::GetUnknown174() const
+	{
+		return unknown174;
+	}
+
+	// FUNCTION: ENGINE 0x108053C0
+	float MotionTrailTrack::GetUnknown178() const
+	{
+		return unknown178;
+	}
+
+	// FUNCTION: ENGINE 0x108053D0
+	float MotionTrailTrack::GetUnknown17c() const
+	{
+		return unknown17c;
+	}
+
+	// FUNCTION: ENGINE 0x108053E0
+	float MotionTrailTrack::GetUnknown120() const
+	{
+		return unknown120;
+	}
+
+	// FUNCTION: ENGINE 0x108053F0
+	float MotionTrailTrack::GetUnknown124() const
+	{
+		return unknown124;
+	}
+
+	// FUNCTION: ENGINE 0x10805400
+	float MotionTrailTrack::GetUnknown14c() const
+	{
+		return unknown14c;
+	}
+
+	// FUNCTION: ENGINE 0x10805410
+	float MotionTrailTrack::GetUnknown138() const
+	{
+		return unknown138;
+	}
+
+	// FUNCTION: ENGINE 0x10805420
+	float MotionTrailTrack::GetUnknown130() const
+	{
+		return unknown130;
+	}
+
+	// FUNCTION: ENGINE 0x10805430
+	float MotionTrailTrack::GetUnknown12c() const
+	{
+		return unknown12c;
+	}
+
+	// FUNCTION: ENGINE 0x10805440
+	float MotionTrailTrack::GetUnknown128() const
+	{
+		return unknown128;
+	}
+
+	// FUNCTION: ENGINE 0x10805450
+	float MotionTrailTrack::GetUnknown118() const
+	{
+		return unknown118;
+	}
+
+	// FUNCTION: ENGINE 0x10805460
+	float MotionTrailTrack::GetUnknown134() const
+	{
+		return unknown134;
+	}
+
+	// FUNCTION: ENGINE 0x10805470
+	float MotionTrailTrack::GetUnknown11c() const
+	{
+		return unknown11c;
+	}
+
+	// FUNCTION: ENGINE 0x10805480
+	float MotionTrailTrack::GetUnknown148() const
+	{
+		return unknown148;
+	}
+
+	// FUNCTION: ENGINE 0x10805490
+	float MotionTrailTrack::GetUnknown144() const
+	{
+		return unknown144;
+	}
+
+	// FUNCTION: ENGINE 0x108054A0
+	float* MotionTrailTrack::GetUnknown84()
+	{
+		return &unknown84;
+	}
+
+	// FUNCTION: ENGINE 0x108054B0
+	unsigned char* MotionTrailTrack::GetUnknown40()
+	{
+		return unknown40;
+	}
+
+	// FUNCTION: ENGINE 0x108054C0
+	float MotionTrailTrack::GetUnknownb4() const
+	{
+		return unknownb4;
+	}
+
+	// FUNCTION: ENGINE 0x108054D0
+	float MotionTrailTrack::GetUnknowna4() const
+	{
+		return unknowna4;
+	}
+
+	// FUNCTION: ENGINE 0x108054E0
+	float MotionTrailTrack::GetUnknownac() const
+	{
+		return unknownac;
+	}
+
+	// FUNCTION: ENGINE 0x108054F0
+	float MotionTrailTrack::GetUnknownbc() const
+	{
+		return unknownbc;
+	}
+
+	// FUNCTION: ENGINE 0x10805500
+	float MotionTrailTrack::GetUnknownb0() const
+	{
+		return unknownb0;
+	}
+
+	// FUNCTION: ENGINE 0x10805510
+	float MotionTrailTrack::GetUnknowna8() const
+	{
+		return unknowna8;
+	}
+
+	// FUNCTION: ENGINE 0x10805520
+	float MotionTrailTrack::GetUnknownb8() const
+	{
+		return unknownb8;
 	}
 }

@@ -1189,7 +1189,7 @@ Matching lessons:
 - Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
   (identical case bodies are merged into the default otherwise and the table shrinks to the used range).
 
-## fight/effecttrack.cpp (0x10804EC0 - 0x108078E0): open, 87 of 292 functions match, 3 NONMATCHING
+## fight/effecttrack.cpp (0x10804EC0 - 0x108078E0): open, 127 of 292 functions match, 4 NONMATCHING
 
 The effect track of the fight tree, the actions that carry it and the effect it plays. The unit runs from the thunk
 of `LuaScriptManager::CancelAllScheduled` (0x10804ED0) to the first property setter of the track factory
@@ -1227,6 +1227,9 @@ belongs to. Reconstructed:
 | 0x10805B40 EffectAction::~EffectAction | NONMATCHING | the bytes match, but the +0x3C member is released through 0x104FF200 (another unit's copy of the release helper) where ours calls ReleaseEffectRef twice; caught by objcmp's target check |
 | 0x108075F0 EffectAction::EffectAction | NONMATCHING | the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it past the argument setup of the trailing `AssignEffectRef` call (92.6 %); the statement order and a member-init list both give the same |
 | 0x10807700 MotionTrailAction::MotionTrailAction | NONMATCHING | the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the parameter store right after its load and sinks the -1 into the epilogue (90.8 %) |
+| 0x10805750 EffectSpawnTransform::BuildMatrix | NONMATCHING | register allocation and scheduling of the head: the engine keeps the 1.0f constant in xmm3 from the first instruction (it is also the static's y component) and loads the direction's components z, x, y where ours loads x, z, y and reloads 1.0f twice; the tail from the comparison on is the engine's (23.6 %) |
+
+The second run of accessors (0x108052D0 - 0x10805540, 39 functions) is reconstructed too: `GetUnknown60` and the floats at 0x118 - 0x17C and 0xA4 - 0xBC, `GetUnknown84`, the second `GetUnknown40` and `GetUnknown1ac`, plus `Effect::GetD1` / `GetHandle48`. **Eight of them repeat an offset the first run already has an accessor for** (0xA4 - 0xBC and 0x40), which one class cannot do: RTTI gives the three track classes the *same* base (`fight::Track`, not `EffectTrack`), so they are siblings that declare their own copies of the members, and this run is written on `MotionTrailTrack`. Which of the two siblings owns it is a guess; the offsets fit both.
 
 Not done (the remaining 205 of the 292 functions of the range):
 
