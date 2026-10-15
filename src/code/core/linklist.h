@@ -28,20 +28,23 @@ namespace core
 			prev = 0;
 			if (newObject != 0)
 			{
-				next = newObject->watchList.head;
-				if (newObject->watchList.head != 0)
+				// The head sits in the class that declares the list, which may be a base of T: every node has the
+				// same 12-byte layout, so the list is the same list seen as this node's type
+				LinkList<T>& list = reinterpret_cast<LinkList<T>&>(newObject->watchList);
+				next = list.head;
+				if (list.head != 0)
 				{
-					newObject->watchList.head->prev = this;
+					list.head->prev = this;
 				}
 				prev = 0;
-				newObject->watchList.head = this;
+				list.head = this;
 			}
 		}
 		~Link()
 		{
 			if (object != 0)
 			{
-				object->watchList.Remove(this);
+				reinterpret_cast<LinkList<T>&>(object->watchList).Remove(this);
 			}
 		}
 

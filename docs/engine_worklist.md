@@ -1639,7 +1639,75 @@ Not done (about 160 of the 298 functions of the range):
   `PlaybackTrack` constructor also installs a 16-slot vtable, so the class must have all of its overrides before its
   constructor may go in (see the note on the action vtables above).
 
-## the engine tracks and the fight track factory (0x108078E0 - 0x10809000 and on): not done
+## the fight track factory, first pass (0x108078E0 - 0x10807D00): 26 match, 1 NONMATCHING
+
+`src/code/engine/fight/trackfactory.{h,cpp}` (new unit, no assert path; the file name is a guess) holds the fight
+tracks the engine registers and the factory machinery they are looked up with. Reconstructed and byte-identical:
+
+- **`fight::Property` and its type classes** (RTTI: fight::Property 7 slots, PropertyTypeFloat / TypeBool /
+  TypeString 8, PropertyTypeName 9; another unit's classes, mapped in `symbols.txt`): 0x10 bytes (vftable, a word at
+  +4, the `core::Name` at +8), no virtual destructor; slot 0 is the value's type id (PropertyTypeFloat returns 2),
+  slot 1 is "nothing attached yet" and slot 6 hands the value read off an object to slot 7, the class's own setter.
+  `fight::PropertyFloatConstRange<T>` / `PropertyBool<T>` override slot 1 (`IsNull`, 0x10807A60 / 0x10807AB0) and
+  slot 7 (`Set`, 0x10807A40 / 0x10807A90); `fight::PropertyName<T>` overrides slot 8 (0x10807B30). The setter is a
+  `bool (T::*)(value)` at +0x10 (the class is 0x18 bytes, the header's three constructors 0x10807A20 / 0x10807A70 /
+  0x10807B10 are 0x20).
+- **`fight::TrackFactory`** (2 slots, 0x18 bytes: vftable, a word at +4, the name at +8, 0 at +0x10 and the clear
+  function at +0x14) and **`TrackFactoryCaster`** (2 slots, the vfptr alone). The per-class templates
+  `TrackFactoryTemplate<T>` (0x10807C60 ctor, 0x10807C90 `CreateTrack` = `new T()`) and
+  `TrackFactoryCasterTemplate<T>` (0x108079C0 ctor, 0x108079D0 `IsType` = a `dynamic_cast` test, 0x10807CB0
+  `CreateFactory` = `new TrackFactoryTemplate<T>(name)`) are in the header; their out-of-line copies are emitted by
+  the explicit instantiations at the end of the .cpp and are byte-identical (objcmp on the mangled names: the
+  tooling only reads annotations from .cpp files, so these carry `symbols.txt` entries instead).
+- **`engine::PlaybackTrack`** (16 slots, 0x28 bytes): 0x108078E0 / 0x108078F0 the "timeBegin" float and the
+  "notifyOnPlaybackFinished" bool, 0x10807920 / 0x10807940 the "state" and "specificPlaybackSet" names (at +0x18 and
+  +0x10), 0x10807900 slot 0 = the property list (`Property**` at 0x11284B50), 0x10807910 the list's clear function,
+  0x10807960 / 0x108079B0 ctor and destructor, 0x10807990 slot 9 (`GetTimeBegin`, reads +0x20) and 0x108079A0 slot 10
+  (returns 0.0f), 0x10807A00 the compiler's scalar deleting destructor, 0x10807AC0 / 0x10807AE0 the two functions
+  that make its factory (0x105A9E90 `FindTrackFactory` and 0x105A5D10 `TrackRegistry::AddFactory`).
+- **`fight::Track`'s own data** is now in the header: the three words the engine's constructor (0x105AA160) clears —
+  +4, the watch head at +8 (`core::LinkList<Track>`) and +0xC. `fight::Param` / `Item` / `Track` also declare the
+  vftable slots the engine's tables show (0 pure at Param's slot 0 = the property list, 1-6 and 8 implemented by
+  Param/Item, the destructor at slot 7, 9-14 from Track and 15 pure), each mapped in `symbols.txt`; 0x105AA1C0 is
+  `??_GTrack`.
+
+NONMATCHING:
+
+- 0x10807B50 `PlaybackTrack::RegisterProperties`: every instruction, the array's 0x3fc memset and the four
+  `new PropertyX<PlaybackTrack>(name, setter)` match, but the engine's prologue saves esi *before* the guard test
+  (`sub esp, 0x400; cmp [gList], 0; push esi; jne end`) where ours schedules the push after the branch, which shifts
+  the jump displacements (98.1 %; the four property objects are built into a `Property* [256]` local and passed to
+  0x105A8420).
+
+### What the next agent needs to know (2026-10-15, ds-4)
+
+- **`core::Name` is 8-byte aligned in the engine, 4-byte in our tree.** The evidence: `?FindController@Director@...`
+  (0x107DE2A0) opens with `and esp, 0xfffffff8` (MSVC's 8-byte realignment for a by-value 8-aligned class
+  parameter), `?GetName@Cinematographer@...` reads its name at +8 (`add ecx, 8`), and the engine's property objects
+  are 0x18 bytes although their last member sits at +0x10 — four bytes of tail padding only an 8-byte alignment
+  gives. Declaring the name `align(8)` makes the engine's property layout come out right (`+0x10` for the setter,
+  0x18 for the object) **but breaks the camera unit and others** (`?StartTransition@Director@...` falls to 33.7 %,
+  `?GetName@Cinematographer` moves to +0x10), so it is not a change one agent can make: the tree's other units were
+  matched with a 4-aligned name and the whole repository has to be re-checked before the alignment is corrected.
+  This unit therefore adds a word at +4 in `Property` and `TrackFactory` (the engine never writes it) to place the
+  name at +8, which is what the engine's own constructors expect.
+- **`core::Link<T>` in `src/code/core/linklist.h`** now reaches the head through
+  `reinterpret_cast<LinkList<T>&>(object->watchList)`: `Track` declares `LinkList<Track> watchList` while the nodes
+  that watch a track are `Link<DerivedTrack>`, and every node has the same 12-byte layout.
+- **The factory machinery's remaining half** is the seven other track classes: `DialogueTrack` (0x34 bytes,
+  properties registered by 0x108A86B0 / 0x108A8A50), `SoundTrack`, `SoundBoolValueTrack`, `MixerTrack`,
+  `MusicTrack` (0x98, 0x1087AB10 / 0x1087CC10), `ReverbTrack`, `SoundZoneTrack` (0x1087ABD0 / 0x1087D120), each with
+  a 9-byte caster constructor (0x10807CF0 / 0x10807DC0 / 0x10807E90 / 0x10807F60 / 0x10808030 / 0x10808100 /
+  0x108081D0), a 36-byte `IsType`, a 35-byte `TrackFactoryTemplate` constructor, a 24-byte `CreateTrack` and a
+  57-byte `CreateFactory` — all of them the same templates, so each class only needs its own vtable (read from
+  `rtti.tsv`) declared and its own track functions (another unit's) mapped. Then the seven 27-byte
+  `CreateXTrackFactory(name)` free functions (0x108082A0 - 0x10808360) and the registration at 0x10808380 that
+  binds them to "dialogue", "sound", "soundBoolValue", "mixer", "music", "reverb" and "soundZone".
+- The vtable addresses of the classes above are in `rtti.tsv` (0x10E6B46C on), and their `??_R0` type descriptors at
+  0x111BECF0 on; the 36-byte `IsType` is a `dynamic_cast` against `fight::TrackFactory` (0x10FFE8B8) and the
+  per-class `TrackFactoryTemplate` descriptor.
+
+## the engine tracks and the fight track factory (0x108078E0 - 0x10809000 and on): partially done (see above)
 
 The unit starts at 0x108078E0, the first setter of `engine::PlaybackTrack`, not at 0x10807550 (the actions above
 belong to it). It holds the engine tracks themselves — `PlaybackTrack` (vftable 0x10E6B304, 16 slots) is built at
