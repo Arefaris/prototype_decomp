@@ -72,6 +72,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10654790
 	// NONMATCHING: the detector test, 89.6 %: the engine keeps the loaded pointer in a register and tests that
 	// (`mov ecx, [owner + 0x34]; test ecx, ecx`), ours compares the member against zero
+#ifdef NONMATCHING
 	CollisionShape* CollisionObject::SetShape(CollisionShape* newShape)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 498, !gLock.IsLocked(), "!gLock.IsLocked()", "");
@@ -95,6 +96,7 @@ namespace ravenphysics
 		}
 		return oldShape;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10654820
 	void CollisionObject::SetCapsuleVolume(int index, const math::Capsule& capsule)
@@ -491,9 +493,9 @@ namespace ravenphysics
 	// NONMATCHING: the six accumulators, 7.9 %: the engine keeps them in xmm6/xmm5/xmm4 and xmm0/xmm1/xmm2
 	// across the loop and computes the three sizes with SSE, ours spills all six to the stack and finishes in
 	// x87 (the frame is 8 bytes larger)
+#ifdef NONMATCHING
 	float CollisionObject::GetRadius() const
 	{
-#ifdef NONMATCHING
 		float minX = 1e12f;
 		float minY = 1e12f;
 		float minZ = 1e12f;
@@ -543,16 +545,15 @@ namespace ravenphysics
 			}
 		}
 		return 0.0f;
-#endif
-		return 0.0f;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10655EA0
 	// NONMATCHING: the null checks of the four deletes, 59.6 %: the engine emits `test esi, esi` before every
 	// destructor call, ours drops it because the volume pointer was just dereferenced for its type byte
+#ifdef NONMATCHING
 	CollisionObject::~CollisionObject()
 	{
-#ifdef NONMATCHING
 		gCollisionObjectTable->Remove(&handle);
 		if (mesh != 0)
 		{
@@ -584,8 +585,8 @@ namespace ravenphysics
 		{
 			delete shape;
 		}
-#endif
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10655BE0
 	CollisionObject* CollisionObject::Clone(bool unused)
