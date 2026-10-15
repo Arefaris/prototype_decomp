@@ -6,7 +6,14 @@
 #define PURE3D_CONTEXT_H
 
 #include "code/container/map.h"
+#include "code/core/name.h"
 #include "code/core/time.h"
+
+namespace content
+{
+	class LoadInventory;
+	typedef core::Name<core::CaseSensitiveKey> ObjectName;
+}
 
 namespace pure3d
 {
@@ -23,7 +30,9 @@ namespace pure3d
 		WrappedDrawableHelper();
 		// 0x1070ED90
 		virtual int GetUnknown0(int value);
-		virtual void Unknown1();
+		// 0x1070FC60: the drawable of that name in the inventory (the cast the lookup is made with is typed, the
+		// answer is dropped)
+		virtual void Unknown1(content::LoadInventory* inventory, const content::ObjectName& name);
 	};
 
 	class RenderParams;

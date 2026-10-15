@@ -1,8 +1,10 @@
 // pure3d::Context (code/pure3d/src/context.cpp, path from the asserts; unit 0x1070E7xx - 0x10710930). Names are
 // guesses.
+#include "code/content/loadinventory.h"
 #include "code/core/debug.h"
 #include "code/engine/display.h"
 #include "code/pure3d/context.h"
+#include "code/pure3d/drawable.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
@@ -251,9 +253,13 @@ namespace pure3d
 		return value;
 	}
 
-	// The second slot: an empty function (the original's address is not known)
-	void WrappedDrawableHelper::Unknown1()
+	// FUNCTION: ENGINE 0x1070FC60
+	// The drawable the name holds in the inventory: the lookup is made with a caster of the drawable type and the
+	// answer is dropped (the pass registers the drawable with it)
+	void WrappedDrawableHelper::Unknown1(content::LoadInventory* inventory, const content::ObjectName& name)
 	{
+		content::LoadInventory::DynamicCaster<Drawable> caster;
+		inventory->FindObject(&caster, name, true);
 	}
 
 	// FUNCTION: ENGINE 0x1070EE00

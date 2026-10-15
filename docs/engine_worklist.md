@@ -956,7 +956,7 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## pure3d/src/context.cpp (0x1070E7xx - 0x10710930): 21 functions match, 4 nonmatching, the rest not done
+## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 22 functions match, 4 nonmatching, the rest not done
 
 `pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
 (0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
@@ -987,23 +987,79 @@ many subsystems named first (they call 0x106dde80, 0x1061bbc0 / 0x1061b4c0 / 0x1
 wrapped drawable helper's neighbours (0x10710110 = a `+0x10` this-adjusting thunk to 0x106E2AA0) and the render
 parameters' pools are the same story.
 
-Findings for the next session:
+### The fourth session (2026-10-15, ds-7): the helper's slot 1 and what the rest of the unit is
+
+- **0x1070FC60 is `WrappedDrawableHelper` vftable slot 1 and it matches** (100 %, `?Unknown1@WrappedDrawableHelper
+  @pure3d@@UAEXPAVLoadInventory@content@@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z`). It builds a
+  `content::LoadInventory::DynamicCaster<pure3d::Drawable>` and calls the inventory's slot 5
+  (`FindObject(&caster, name, true)`), dropping the answer. That fixes the defect the third session left: our
+  vftable's slot 1 was an empty stub, so in the hybrid DLL the context's own helper did nothing. `vtcheck.py`
+  (333 vftables, 0 problems) and `vtcheck.py --all` are clean for `??_7WrappedDrawableHelper`.
+- Two symbols were mapped for it: `?Unknown1@WrappedDrawableHelper@pure3d@@...` = 0x1070FC60 and
+  `??_7?$DynamicCaster@VDrawable@pure3d@@@LoadInventory@content@@6B@` = 0x10E5B1CC (the engine's slot 0 at that
+  vftable is 0x1070F7D0, which is `DynamicCaster<Drawable>::Cast` - a kept copy in this unit).
+
+**The unit's shape, read off the constructor 0x107103E0 and the neighbours.** Besides the `Context` and its
+`WrappedDrawableHelper` (0x1070ED50 - 0x1070EF00), the object carries a whole block of template instantiations, so
+most of the addresses in 0x1070F1E0 - 0x1070FBE0 and 0x1070FF50 - 0x10710370 are the engine's container members, not
+hand-written functions:
+
+- `container::TreeBase::Node`'s payload at +0x10 is a `Pair` of a 0x10-byte **key** and a 4-byte **value**; the
+  value is the frame's `RenderContext*` (0x1070FFA0 calls its slots 0 / 1 / 2 and 0x1074D880 on it, 0x10710190 and
+  0x10710370 release / AddRef it). Node size 0x28 (`operator new[](0x28)` in 0x10710230), key at +0x10, value at
+  +0x20. The key starts with a `core::Name` (`GetHash` = 0x1007EE20 is called on key+0x10 and the tree's own linear
+  walk 0x1070FF50 compares the two 4-byte halves of that hash) and then holds a `const char*` at +8 with an "owns
+  the text" flag at +0xC (0x1070F730 copies it - through `Name(const unsigned __int64&)`, i.e. the copy is written
+  `name(other.name)` - and 0x1070FC20 / 0x106E2AA0 free it through `core::Free`).
+- The map's own members: `Find` 0x10710090, `Erase(Iterator)` 0x10710040, `Insert` 0x10710230, `Begin` 0x1070FA60,
+  `End` 0x1070FA80, the key comparator 0x1070FAB0 (`if (key < nodeKey) return -1; return nodeKey < key;` - note the
+  `neg/sbb/neg` on the second test, ours in `container/map.h` writes `if (b < a) return 1; return 0;` and will not
+  match), the node comparator 0x1070FB60, `MapNode(const Pair&)` 0x107100E0, `Pair(const Pair&)` 0x1070FBA0,
+  `MapNode(const Key&, const Value&)` 0x1070FB40, the iterators (0x1070F690 / 0x1070F2B0 `operator->` = `pair` at
+  +0x10, 0x1070F2C0 / 0x1070F6A0 `operator++`, 0x1070F270 / 0x1070F290 `==` / `!=`, 0x1070FA80 / 0x1070F230 a null
+  iterator) and `Context::ClearEntries` (0x107103D0, done) / `DeleteContextEntry` (0x107102B0) on top of them.
+- The frame pool at +0x70 / +0x74 is a **dynamic array of 8-byte entries** built with `operator new[]` and
+  `operator delete[]` (0x107DEF70 / 0x107DEFE0): 0x1070F2E0 `Allocate(count)`, 0x1070FAE0 `Allocate(count, value)`
+  (fills through 0x1070F790), 0x1070FAA0 the destructor, 0x1070F250 `Size()` (`sar eax, 3`), 0x1070F260
+  `operator[]`, 0x1070F360 `Construct` and 0x1070F330 / 0x1070F350 the rest of one instantiation. The constructor
+  inlines all of them, so the pool is *not* the raw byte pair the class header guesses - it is an
+  `ArrayDynamic<T, Allocator>` whose allocator's `Alloc` takes one argument (ours in `container/arraydynamic.h`
+  calls `Allocator().Alloc(size, 16)`), and `Context::RenderParamsCount()` is its `Size()`.
+- **The unit is smaller than the address range suggests.** 0x1070E790 - 0x1070ED40 (the "add_color" /
+  "distortion_shape" code, `GetClientRect` / `GetWindowRect` on `Context::sWindow`, a 0x4E0-byte object built at
+  0x1070EA40) is a **neighbouring unit**, not `context.cpp` - it works on a different object (+0x3B0, +0x474,
+  +0x4D4) and its asserts would name that file. 0x1070ECE0 / 0x1070ED00 (the `surface->info[i].size->width`
+  accessors) and 0x1070ED20 / 0x1070ED30 / 0x1070ED40 belong to it too. `context.cpp` starts at 0x1070ED50.
+- The unit's other debug-draw members: 0x1070F380 draws a line of text (a `RenderStateBackup`, then the font at
+  Context+0x24 through slots 0x14 / 0x18 / 0x44 / 0x2C) with the two globals at 0x11281398 / 0x1128139C as the
+  scale; 0x1070F540 is its "y + the font's height" wrapper; 0x1070EF80 renders the colour / depth `RenderTarget`s
+  (protopass.h) through `0x1074E5A0` and runs the passes; 0x1070F850 sets `p3dTimeElapsed` / `p3dTimeCos`; 0x1070FC90
+  loads `dummy.p3d` and keeps the `pure3d_debug_font` `TextureFont` at Context+0x24; 0x10710120 builds a 0x4E0-byte
+  object (10000, the 0x10E5DA34 default, `FUN_106179B0` / `FUN_10714D60`, +0x16C = 8) which is the `RenderParams`
+  the pool holds.
+- 0x1070EDB0 / 0x1070EDD0 are the scalar deleting destructors of two classes whose destructors are another unit's
+  0x1074D730 and 0x1061BEC0; 0x1070F680 / 0x1070F6E0 / 0x1070F780 / 0x1070F7C0 / 0x1070F7F0 / 0x1070F820 /
+  0x1070F840 are `TreeBase` and `DynamicCaster` members, and 0x1070F7D0 / 0x1070F800 are the `Cast`s of
+  `DynamicCaster<Drawable>` (0x10E5B1CC) and `DynamicCaster<pure3d::TextureFont>` (0x10E5B1D4).
+
+Still not done after this session: everything above except 0x1070FC60. The tree / pool members cannot be claimed
+with a `// FUNCTION:` annotation while they live in `container/map.h` and `container/arraydynamic.h` (configure.py
+only scans `src/**/*.cpp`), so matching them means giving this unit its own copy of the two containers - with the
+one-argument allocator and the `return b < a;` comparator - and then writing the `Context` members on top of it.
+0x1070ED20 / 0x1070ED30 (empty, one byte of `ret`) are the only trivial ones left in the neighbouring unit.
+
+Findings carried over from the third session:
 
 - The unit is `context.cpp`: 0x1070EF80 (line 790), 0x107107F0 (line 92) and 0x107108A0 (line 119) carry the path.
 - `ContextWindowProc` is a `__stdcall` free function (the mangled name is in symbols.txt); the engine's imports are
   called through their `__imp__` slots (`GetWindowLongA` / `SetWindowLongA` / `CallWindowProcA`).
 - The constructor shows the class's size (0x7C), the settings layout and that the embedded helper's vftable is
   stored inline (so `WrappedDrawableHelper`'s constructor is defined in its class body, and 0x1070EDA0 is a kept
-  copy). The helper's vftable 0x10E5B114 has two slots: 0x1070ED90 (returns its argument) is slot 0, slot 1 could
-  not be found (the empty functions 0x1070ED20 / 0x1070ED30 are candidates); ours is an empty function, so the
-  hybrid keeps a stub there for the base class (the derived `engine::render::EngineWrappedDrawableHelper` is
-  unaffected).
+  copy). The helper's vftable 0x10E5B114 has two slots: 0x1070ED90 (returns its argument) is slot 0 and 0x1070FC60
+  is slot 1 (found and matched by the fourth session, see above).
 - `Context::Startup` reads the window from the settings *through the static* it just wrote
   (`sWindow = settings.window; sPreviousWindowProc = GetWindowLongA(sWindow, -4);`) - that is what makes the
   compiler reuse the register instead of reloading the settings.
-- `RenderTarget` (protopass.h) is the type of the colour / depth arguments of 0x1070EF80: the surface is at +0x10 and
-  its size comes from `surface->info[index].size->width` (0x1070ECE0 / 0x1070ED00 are that accessor's kept copies).
-  0x1070EF80 itself is not done yet.
 
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
