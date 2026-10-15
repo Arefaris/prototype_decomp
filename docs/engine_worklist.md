@@ -985,3 +985,51 @@ Matching lessons:
   `bool normalPair = x->swapped == 0 && y->swapped == 0; if (!normalPair) ...` gives the original's.
 - Dispatch on a byte with explicit `case 5: return; case 6: return; default: return;` keeps the jump table at 0 - 6
   (identical case bodies are merged into the default otherwise and the table shrinks to the used range).
+
+## fight/effecttrack.cpp (0x10804EC0 - 0x10807550): open, 85 functions placed
+
+The effect track of the fight tree and the actions that carry it. The unit runs from the thunk of
+`LuaScriptManager::CancelAllScheduled` (0x10804ED0) to just before the track factory at 0x10807550 and has no assert
+path; `src/code/engine/fight/effecttrack.{h,cpp}` is named after the RTTI classes it belongs to. Reconstructed:
+
+- 78 accessors, all matching: 63 on the track (RTTI `engine::EffectTrack` / `AbortEffectTrack` / `MotionTrailTrack`;
+  guessed owner) and 15 on the particle effect an action plays (RTTI `engine::Effect`). The track's begin at
+  0x108060F0 switches on its member at 0x1A4, so that word, the two Vectors at 0x6C / 0x78, the 36 floats at
+  0x88 - 0x114 (nine four-float colours) and the flag bytes at 0x1A8 - 0x1AD are read straight off the engine's
+  accessors; the effect's layout (six handles from 0x10, nine Vectors from 0x50, the counter at 0xC8 and the flag at
+  0xD0) comes from 0x10805D30 and the action read at +0x1C of the action object.
+- 6 free functions around the game's hook on an effect track (0x108056E0 - 0x10805740) and their four globals.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x10804EE0 EffectTrack::GetUnknown14 | NONMATCHING | the engine loads the member into ecx and the out pointer into eax; ours the other way round (75 %) |
+
+Not done (292 functions in the range):
+
+- 0x108058A0 - 0x10805B00 and 0x10806020 - 0x108060B0: 23 kept template copies with no owner in this unit — the
+  engine's 12-byte intrusive reference (object, then two links, `insert at the head of the list at +8 of the object`),
+  its constructor, destructor, `operator bool`, the pointer getter and the out-of-line `SafeRelease` at 0x10805910.
+  Each copy belongs to a different type and the layout of the 12-byte node is the only thing the code fixes.
+- 0x10805B10 / 0x10805B40 / 0x10805CF0: the destructors of `engine::AbortEffectAction`, `EffectAction` and
+  `MotionTrailAction` (vftables 0x10E6B23C / 0x10E6B264 / 0x10E6B28C; they release the reference at +0x1C, unregister
+  the track's listener and tail-jump to `fight::Action`'s destructor at 0x105A2530). They need the nine-slot
+  `fight::Action` vftable, and `fight::RefCounted` in `sequencer.h` carries only its destructor today (the engine's has
+  three slots); fixing that header would move the sequencer unit's slots, so it is left for a session that can check
+  the sequencer's vtables at the same time.
+- 0x10805750, 0x10805BD0, 0x10805CA0, 0x10805D30 (696 bytes), 0x10805FF0, 0x10806020 - 0x108060B0: the track's real
+  body — the check that lets the game veto a begin, the effect creation through `0x1081BA90` and the per-mode setup.
+- 0x108060F0 (5153 bytes): the track's begin, switching on the mode word at +0x1A4 with nine arguments.
+- 0x10807550 - 0x10809000: the fight track factory (see below).
+
+## fight track factory (0x10807550 - 0x10809000 and on): not done
+
+`fight::TrackFactoryTemplate<T>` / `TrackFactoryCasterTemplate<T>` with the property objects of
+`engine::PlaybackTrack`, `DialogueTrack`, `SoundTrack`, `SoundBoolValueTrack`, `MixerTrack`, `MusicTrack`,
+`ReverbTrack`, `SoundZoneTrack`, `ScenarioStringTrack` and `engine::scenario::LuaTrack`, plus the registration
+function at 0x10808380 that binds them to "dialogue", "sound", "soundBoolValue", "mixer", "music", "reverb" and
+"soundZone". Every one of them registers properties through `fight::Property<T>` subclasses (`PropertyFloatConstRange`,
+`PropertyBool`, `PropertyName`, `PropertyNameList`, `PropertyEnumConstList`, `PropertyVector`, `PropertyColour`,
+`PropertyIntConstRange`, `PropertyGroup`, `PropertyTrackGroup`, `PropertyScript`) whose accessors are function
+pointers stored at +0x10 of the property object, and their templates live in another unit (0x105Axxxx). The unit
+continues past 0x10809000 (the scenario track and its conditions are at 0x10809460 on), so its boundary is a guess.
+Nothing here is reconstructed: the property and factory templates have to be recovered first.
