@@ -76,6 +76,10 @@ namespace container
 		{
 			return begin;
 		}
+		T* End()
+		{
+			return end;
+		}
 		unsigned int Capacity() const
 		{
 			return capacity - begin;

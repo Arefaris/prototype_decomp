@@ -8,6 +8,37 @@
 
 namespace engine
 {
+	// The element types of the growable arrays the manager builds (container::ArrayDynamicNew). Their sizes come from
+	// the code that allocates and copies them (0x1C bytes, copied as seven words); the names and the members are
+	// guesses. The manager collects collisions into them and hands the ranges to the collision messages.
+	struct CollisionItem
+	{
+		void* unknown0;
+		void* unknown4;
+		unsigned int unknown8;
+		unsigned int unknownC;
+		unsigned int unknown10;
+		unsigned int unknown14;
+		unsigned int unknown18;
+	};
+
+	struct ConstraintItem
+	{
+		void* unknown0;
+		void* unknown4;
+		unsigned int unknown8;
+		unsigned int unknownC;
+		unsigned int unknown10;
+		unsigned int unknown14;
+		unsigned int unknown18;
+	};
+
+	// 0x70 bytes: the widest element the manager's arrays hold (name and members are guesses)
+	struct CollisionPair
+	{
+		unsigned int unknown0[0x1C];
+	};
+
 	// The physics manager's shared query buffers. Each has a lock flag that keeps a second query out while one is
 	// running; the buffers live at file scope so the locks address them directly (the classes hold no data).
 	// The arrays other than the ray hits are guesses from the element sizes the manager allocates for them.

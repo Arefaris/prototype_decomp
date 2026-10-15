@@ -1,5 +1,49 @@
 #include "code/engine/physics/physicsmanager.h"
 #include "code/core/interlocked.h"
+#include "code/container/arraydynamicnew.h"
+
+// The unit's instantiations of the growable array: the manager collects collisions and unsolved constraints into one
+// array each and hands the ranges to the collision messages (0x107E4340 - 0x107E4720 and 0x107E5830 - 0x107E5930)
+namespace container
+{
+	template class ArrayDynamicNew<unsigned int>;
+	template class ArrayDynamicNew<engine::CollisionItem>;
+	template class ArrayDynamicNew<engine::ConstraintItem>;
+	template class ArrayDynamicNew<engine::CollisionPair>;
+}
+
+// FUNCTION: ENGINE 0x107E4340
+// FUNCTION: ENGINE 0x107E4390
+// FUNCTION: ENGINE 0x107E43A0
+// FUNCTION: ENGINE 0x107E43B0
+// FUNCTION: ENGINE 0x107E43C0
+// FUNCTION: ENGINE 0x107E43E0
+// FUNCTION: ENGINE 0x107E4400
+// FUNCTION: ENGINE 0x107E4410
+// FUNCTION: ENGINE 0x107E4420
+// FUNCTION: ENGINE 0x107E4440
+// FUNCTION: ENGINE 0x107E44B0
+// FUNCTION: ENGINE 0x107E4500
+// FUNCTION: ENGINE 0x107E4550
+// FUNCTION: ENGINE 0x107E45D0
+// FUNCTION: ENGINE 0x107E4720
+// FUNCTION: ENGINE 0x107E4770
+// FUNCTION: ENGINE 0x107E5830
+// FUNCTION: ENGINE 0x107E5840
+// FUNCTION: ENGINE 0x107E5890
+// FUNCTION: ENGINE 0x107E58B0
+// FUNCTION: ENGINE 0x107E58E0
+// FUNCTION: ENGINE 0x107E5900
+// FUNCTION: ENGINE 0x107E5930
+// FUNCTION: ENGINE 0x107E69C0
+// FUNCTION: ENGINE 0x107E69F0
+// FUNCTION: ENGINE 0x107E6A20
+// FUNCTION: ENGINE 0x107E6A40
+// FUNCTION: ENGINE 0x107E6A70
+// FUNCTION: ENGINE 0x107E6B50
+// FUNCTION: ENGINE 0x107E6B60
+// FUNCTION: ENGINE 0x107E70E0
+// FUNCTION: ENGINE 0x107E7100
 
 namespace engine
 {
@@ -182,34 +226,45 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107E38A0
-	CollisionBrokeringMessage::~CollisionBrokeringMessage()
+	inline CollisionBrokeringMessage::~CollisionBrokeringMessage()
 	{
 	}
 
 	// FUNCTION: ENGINE 0x107E38E0
-	CollisionResponseMessage::~CollisionResponseMessage()
+	inline CollisionResponseMessage::~CollisionResponseMessage()
 	{
 	}
 
 	// FUNCTION: ENGINE 0x107E3940
-	BatchedRayCastMessage::~BatchedRayCastMessage()
+	inline BatchedRayCastMessage::~BatchedRayCastMessage()
 	{
 	}
 
 	// FUNCTION: ENGINE 0x107E3990
-	BatchedRayCastHitMessage::~BatchedRayCastHitMessage()
+	inline BatchedRayCastHitMessage::~BatchedRayCastHitMessage()
 	{
 	}
 
 	// FUNCTION: ENGINE 0x107E3A30
-	BatchedShapeCastMessage::~BatchedShapeCastMessage()
+	inline BatchedShapeCastMessage::~BatchedShapeCastMessage()
 	{
 	}
 
 	// FUNCTION: ENGINE 0x107E3A70
-	BatchedShapeCastHitMessage::~BatchedShapeCastHitMessage()
+	inline BatchedShapeCastHitMessage::~BatchedShapeCastHitMessage()
 	{
 	}
+
+	// The compiler's scalar deleting destructors of the eight messages: the destructor is empty and sits in the class
+	// body, so `??_G` expands it into the vftable store (the destructors above are its out-of-line copies).
+	// FUNCTION: ENGINE 0x107E4810
+	// FUNCTION: ENGINE 0x107E4830
+	// FUNCTION: ENGINE 0x107E4850
+	// FUNCTION: ENGINE 0x107E4870
+	// FUNCTION: ENGINE 0x107E4890
+	// FUNCTION: ENGINE 0x107E48B0
+	// FUNCTION: ENGINE 0x107E48D0
+	// FUNCTION: ENGINE 0x107E48F0
 
 	// FUNCTION: ENGINE 0x107E3790
 	long __fastcall AtomicIncrement(long volatile* value)

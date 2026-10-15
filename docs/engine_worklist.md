@@ -526,7 +526,7 @@ functions run from 0x107E2440 (right after `engine::MasterTable`'s constructor) 
 unit registers the `pm_*` console commands (0x107E6F20). One source file holds everything in the range: the
 collision messages, the shared query buffers and the manager's Lua commands share one translation unit (the small
 class at 0x107E2BF0 that reads the pad axes is constructed by 0x107E3710, so the "climbing" input map is part of
-it too). 44 functions match so far, in address order:
+it too). 84 functions match so far, in address order:
 
 - the eight collision messages (RTTI): `CollisionBrokeringMessage` (type 4), `CollisionResponseMessage` (type 5),
   `BatchedRayCastMessage` / `BatchedRayCastHitMessage` / `BatchedShapeCastMessage` / `BatchedShapeCastHitMessage`
@@ -545,28 +545,62 @@ it too). 44 functions match so far, in address order:
   `pm_ListObjects`, `pm_Substeps`, plus the frame counter and the update flag under them.
 - the interlocked helpers `AtomicIncrement` / `AtomicDecrement` (0x107E3790 / 0x107E37A0) - **`__fastcall`**, the
   pointer arrives in ecx.
+- the messages' eight scalar deleting destructors (0x107E4810 - 0x107E48F0). A destructor written out of line in the
+  cpp is *not* inlined into `??_G` under `/Ob1` (ours called `??1` and came out 30 bytes), so the empty destructors
+  of the six batched/collision messages are marked `inline`: their out-of-line copies at 0x107E38A0 - 0x107E3A70 stay
+  byte-identical and `??_G` expands them the way the original does. The two PhysicsFixup messages declare no
+  destructor at all, so theirs is implicit; the original's linker folded the two identical copies into one (the eight
+  message classes leave seven seven-byte destructors), which is also why 0x107E3AB0 carries the two classes' shared
+  code and why every one of these functions stores the same vftable address.
+- the unit's four `container::ArrayDynamicNew` instantiations, as a commented `// FUNCTION:` block over the explicit
+  `template class` statements: `unsigned int`, `engine::CollisionItem` and `engine::ConstraintItem` (0x1C bytes,
+  copied as seven words - the element sizes come from the code, the names are guesses) and `engine::CollisionPair`
+  (0x70 bytes). They give 0x107E4340 - 0x107E4770 and 0x107E5830 - 0x107E5930 (Begin / End / Size / operator[] /
+  Create / Allocate / PushBack / ConstructAt), and their `Free` / `Clear` / destructors at 0x107E69C0 - 0x107E6B60
+  and 0x107E70E0 - 0x107E7100. `container::ArrayDynamicNew` gained an `End()` (the original's class has one; the
+  array's users here call it). Five `Free` copies stand for four element types, so a fifth element type is still
+  unidentified and 0x107E6AE0 is left unclaimed.
+- `Erase` is **not** this class's: the original's (0x107E6AA0 / 0x107E6B10) walks the range through a copy loop, ours
+  shifts one element at a time (19 %).
 
 NONMATCHING:
 
 - 0x107E37B0 AtomicExchange: the engine's copy takes the value in `eax` (a link-time code generation convention),
   ours in `edx`; 60 %.
 
-Not done (owners or layouts not recovered yet):
+Not done (owners or layouts not recovered yet; the reasons are what blocks them, not just "unknown"):
 
-- 0x107E3830 - 0x107E3860, 0x107E3AC0 - 0x107E3B00, 0x107E3B60 / 0x107E3B70, 0x107E3B80 / 0x107E3BC0: accessors of
-  classes the unit's messages and manager own (member offsets 0x14, 0x1C, 0x70, 0xC0, 0xC2, 0xE0).
-- 0x107E3D00 / 0x107E3D10, 0x107E3C00 / 0x107E3CB0 / 0x107E3CD0, 0x107E3D60: ravenphysics::Context wrappers and a
+- 0x107E37B0, 0x107E37C0 - 0x107E3800 (a `BitField<unsigned short>` read at +2, three `mov eax,ecx` copies and a
+  virtual dispatch guarded by a float member at +0x10), 0x107E3830 - 0x107E3860, 0x107E3AC0 - 0x107E3B00,
+  0x107E3B60 / 0x107E3B70, 0x107E3B80 / 0x107E3BC0, 0x107E3DA0, 0x107E45B0 / 0x107E4630, 0x107E45C0 / 0x107E4640 /
+  0x107E47E0: accessors and one- and three-byte stubs of classes the unit's messages and manager own (member offsets
+  0x14, 0x1C, 0x70, 0xC0, 0xC2, 0xE0). The owner of the three-byte `mov eax,ecx` copies is not recoverable from the
+  code alone and no assert or RTTI names it.
+- 0x107E3D00 / 0x107E3D10, 0x107E3C00 / 0x107E3CB0 / 0x107E3CD0, 0x107E3D60: ravenphysics::Context wrappers (the
+  callees at 0x10656660 / 0x10656670 / 0x10659D50 are not named yet, so the calls cannot be declared) and a
   constructor whose members are still unknown.
-- 0x107E3DB0, 0x107E3DD0 (done) - 0x107E3F90 (the collision log), the container helpers 0x107E4340 - 0x107E4AE0,
-  `ListObjects` 0x107E4F40, 0x107E4E10 / 0x107E4E60 / 0x107E4F00 (the object lookup by uid and by collision-object
-  index), 0x107E4910 / 0x107E49B0 / 0x107E49E0 / 0x107E4A50 (the uid lookup loops), 0x107E52A0 - 0x107E6B70 (the
-  remaining list commands, the `Function4` script wrapper 0x107E59C0 and the constraint dumps) and 0x107E6C40 -
-  0x107E75F0 (the uid hash table, `Create` 0x107E7180, `Destroy` 0x107E6D30 and `Update` 0x107E75F0).
-- 0x107E2BF0 and its 0x107E24B0 - 0x107E3290 neighbours (the pad-driven "climbing"/"wall_run" input map; the class
-  is 0x58 bytes with a state pointer at +0x10 and a `Vector` at +0x34).
+- 0x107E3DB0, 0x107E3DF0, 0x107E3EA0, 0x107E3ED0, 0x107E3F90 / 0x107E4010 (the collision log: it opens
+  `collisionLog.txt` through `core::OpenFile` and logs with `core::Report`, but the log's reader/writer object and the
+  `Logging collisions frame %d.` frame counter's owner are not placed), 0x107E40B0 (`pm_Help`), the rest of the
+  container helpers (see above), `ListObjects` 0x107E4F40, 0x107E4E10 / 0x107E4E60 / 0x107E4F00 (the object lookup
+  by uid and by collision-object index - they need the ravenphysics object layout at 0x22 / 0x3c / 0x3e / 0x54 /
+  0x5c), 0x107E4910 / 0x107E49B0 / 0x107E49E0 / 0x107E4A50 (the uid lookup loops over the console's token tables at
+  0x111BC2EC / 0x111BC2FC), 0x107E52A0 - 0x107E6B70 (the remaining list commands, the `Function4` script wrapper
+  0x107E59C0 and the constraint dumps) and 0x107E6C40 - 0x107E75F0 (the uid hash table - `Insert` 0x107E6C40,
+  `Find` 0x107E6BC0 / 0x107E6C00, `Create` 0x107E7180, `Destroy` 0x107E6D30, the `pm_` registration 0x107E6F20 and
+  `Update` 0x107E75F0).
+- 0x107E2BF0 and its 0x107E24B0 - 0x107E3710 neighbours (the pad-driven "climbing"/"wall_run" input map). It is one
+  coherent block: a 12-byte state machine (0x107E2490 / 0x107E24B0 / 0x107E2580), an 8-byte and a 16-byte sibling
+  (0x107E25C0 - 0x107E2640), the axis readers 0x107E26A0 - 0x107E2840, the map's arrays of those states
+  (0x107E2B40 / 0x107E31C0 / 0x107E3530 - 0x107E3710, 0xC-byte elements) and the update 0x107E3290, which walks a
+  0x18-byte-stride binding table with rows at +8, +0x18, +0x28, +0x38, +0x48 and 0x28-byte rows at +0x58. What blocks
+  it is the object behind `+0x2b8` (its axis table at +0x58, button words at +0x100 and float pairs at +0x1a8 are
+  read by every axis reader) - it is a controller/entity the unit does not define.
+- Not reachable at all: 0x107E58A0 / 0x107E58F0, five-byte `jmp` thunks of 0x107E4550 / 0x107E45D0 (the original's
+  incremental link table leaves a copy at each call site); our linker emits no such thunk, so they cannot be matched.
 
 Shared headers touched: `code/ravenphysics/context.h` (the query buffer lock, `Context::SetSolverIterations`, the
-`ObjectList` members at 0x14 / 0x1C and `Context::unknown0`).
+`ObjectList` members at 0x14 / 0x1C and `Context::unknown0`) and `code/container/arraydynamicnew.h` (`End`).
 
 ## render/async/private/drawable.cpp (0x107E8020 - 0x107EE322): 288 annotated functions, 274 match, 14 EQUIVALENT
 
