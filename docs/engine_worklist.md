@@ -1057,8 +1057,12 @@ Not done, by unit (each is a place to start, not a verdict):
   0x10864DB0 / 0x10864EA0 (`GetScriptManager()->Unregister(&static)` for 0x11315C98 / 0x11315C9C - most likely the
   compiler's atexit destructors of two file-scope statics whose class unregisters itself, which is the cheapest way
   to write them); 0x10864E60 (`FindGameObject(name, "")` (0x107F0170) then 0x108679D0 then
-  `dynamic_cast<SplineBehaviour*>`: the second argument is the empty string 0x10D95365, so the entry in
-  `symbols.txt` that types it `const Name&` is probably wrong); 0x10864ED0 (`mov eax, [ecx + 0x1C]`, a *value* not an
+  `dynamic_cast<SplineBehaviour*>`: the second argument is 0x10D95365, and **the address is both** - the engine's
+  `FindGameObject` is matched and types that parameter `const ObjectName&`, so the call site passes the object at
+  0x10D95365, while the `Report` sites of the fight dump push the same address where a `const char*` is expected
+  (its first byte is 0, so it reads as `""`). Declaring an `extern const content::ObjectName` at that address and
+  using `""` in the reports reproduces both instruction streams without having to decide which it is);
+  0x10864ED0 (`mov eax, [ecx + 0x1C]`, a *value* not an
   address) and the `container::ArrayDynamic<T>` members 0x10864EE0 - 0x10864F90 and 0x10864FD0 - the two
   instantiations are `ArrayDynamic<engine::PatrolPoint*>` and `ArrayDynamic<engine::SplineCV*>` (the RTTI names in
   classes.tsv), and they are inline template members: annotate them only if the instantiation can be forced out of
