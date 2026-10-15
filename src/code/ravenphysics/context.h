@@ -15,11 +15,34 @@ namespace ravenphysics
 	class PhysicsObject;
 	class ObjectTable;
 
+	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
+	struct PhysicsObjectEntry
+	{
+		PhysicsObject* object; // 0x00
+		int generation;        // 0x04
+	};
+
+	// The table the physics handles index into (0x1127CAC0): the entries and how many of them there are (the name
+	// and the layout are guesses; this unit only reads it)
+	class PhysicsObjectTable
+	{
+	public:
+		unsigned char unknown0[0xC];
+		PhysicsObjectEntry* entries; // 0x0C
+		unsigned char unknown10[0x14 - 0x10];
+		unsigned short capacity;     // 0x14
+	};
+
+	// The physics handle table (0x1127CAC0)
+	extern PhysicsObjectTable* gObjectTable;
+
 	// An object the library refers to by its index in its object table (name guess)
 	struct ObjectHandle
 	{
 		// The object the index refers to (0x106560A0; name guess)
 		PhysicsObject* GetObject() const;
+		// The engine's second copy of the same lookup, the one this unit's own code calls (0x1065F500; name guess)
+		PhysicsObject* GetObjectSecond() const;
 
 		unsigned short index;    // 0x00
 		unsigned short unknown2; // 0x02
@@ -350,6 +373,8 @@ namespace ravenphysics
 		void** mEnd;   // 0x04
 	};
 
+	struct Record32;
+
 	// A pool of fixed slots handed out by an atomic counter: the slot array, how many slots it holds, and the
 	// counter the acquirer bumps (name guess; the slot stride comes from the acquirer's shift)
 	struct SlotPool
@@ -369,6 +394,8 @@ namespace ravenphysics
 		long* GetCounter();
 		// The next free slot, or null once the pool is exhausted (name guess)
 		void* Acquire();
+		// Copies the record into the next free slot, false once the pool is exhausted (name guess)
+		bool Add(const Record32& value);
 
 		void* mSlots;   // 0x00
 		int mCapacity;  // 0x04
@@ -382,6 +409,8 @@ namespace ravenphysics
 
 		// Empties the counter (name guess)
 		void Reset();
+		// Copies the record into the next free slot, false once the pool is exhausted (name guess)
+		bool Add(const Record32& value);
 
 		void* mSlots;   // 0x00
 		int mCapacity;  // 0x04
@@ -581,6 +610,88 @@ namespace ravenphysics
 		void* unknownC;
 	};
 
+	// A growable run of pointers a batch fills (name guess; the shape container::ArrayDynamicStatic has, without
+	// its allocator)
+	struct PointerRun
+	{
+		// Appends value when there is room, false when the run is full (name guess)
+		bool PushBack(void* const& value);
+		// The first entry equal to value, or the end of the run (name guess)
+		void** Find(void* const& value);
+
+		void** mBegin;    // 0x00
+		void** mEnd;      // 0x04
+		void** mCapacity; // 0x08
+	};
+
+	// A block of three words with an array of pointers behind it (name guess)
+	struct IndexedBlock
+	{
+		unsigned char unknown0[0x18];
+		void** mItems; // 0x18
+
+		// The entry the index picks (name guess)
+		void* Get(unsigned short index) const;
+	};
+
+	// More blocks of three words the unit zeroes on construction, and which nothing reconstructed calls yet
+	// (name guesses)
+	struct TripleBlock
+	{
+		TripleBlock();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct TripleBlockSecond
+	{
+		TripleBlockSecond();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct TripleBlockThird
+	{
+		TripleBlockThird();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct TripleBlockFourth
+	{
+		TripleBlockFourth();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	struct TripleBlockFifth
+	{
+		TripleBlockFifth();
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+	};
+
+	// Zeroes the two counters of the pair behind +0x114 (name guess)
+	struct CounterPair
+	{
+		unsigned char unknown0[0x114];
+		long* mFirstCounter;  // 0x114
+		unsigned char unknown118[0x120 - 0x118];
+		long* mSecondCounter; // 0x120
+
+		void ResetCounters(int unused, int unusedSecond);
+	};
+
 	// An array whose storage comes from the scratch stack: begin / end / capacity, then the (empty) allocator the
 	// library allocates through (name guess; the same shape container::ArrayDynamicStatic has, with the allocator
 	// as an object instead of a static)
@@ -702,6 +813,9 @@ namespace ravenphysics
 		void ResetObjectWorld(ObjectHandle handle, void* world);
 		// Takes a sleeping object out of the registry and the detector (0x10657B60; name guess)
 		void SleepObject(PhysicsObject* object);
+		// Wakes the object of the handle: back into the detector, its collision objects stamped and both lists
+		// rebuilt (0x10657A50; name guess)
+		void WakeObject(ObjectHandle handle);
 		// One simulation step of the whole context (0x106565F0; name guess)
 		void Advance(void* a, float dt, void* b);
 		// The flag the body carries at +0x0E, set when the tracker exists (0x10656640; name guess)

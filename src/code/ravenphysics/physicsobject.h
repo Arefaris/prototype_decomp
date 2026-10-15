@@ -50,6 +50,13 @@ namespace ravenphysics
 			return (unknown3A[0x3E - 0x3A] & 8) != 0;
 		}
 
+		// Whether the low two bits of the byte at +0x3C are clear (name guess; the wake path passes this on to
+		// RefreshBounds)
+		bool IsUnflagged() const
+		{
+			return (unknown3A[0x3C - 0x3A] & 3) == 0;
+		}
+
 		// Sets or clears the low three bits of the same byte (0x1065F540; name guess)
 		void SetState(unsigned char mask, bool set);
 	};
@@ -62,8 +69,9 @@ namespace ravenphysics
 		// writes them into the detector's box (0x106608A0)
 		void UpdateBounds();
 		// Clears the collision objects' changed flags and recomputes the bounds when one of them was set
-		// (0x106612C0)
-		void RefreshBounds(int unused);
+		// (0x106612C0). The parameter is one byte, not a word: the wake path calls it with the result of a
+		// comparison, which the engine passes on without widening (`sete al` then a bare `push eax`).
+		void RefreshBounds(bool unused);
 
 		CollisionObject** objects;
 		int unknown58;

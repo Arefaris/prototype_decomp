@@ -24,10 +24,59 @@ namespace ravenphysics
 		}
 	}
 
+	// The engine keeps two identical out-of-line copies of the object lookup; this unit's own code calls the one
+	// inside its own object, so it is reconstructed here as well.
+	// FUNCTION: ENGINE 0x1065F500
+	PhysicsObject* ObjectHandle::GetObjectSecond() const
+	{
+		return gObjectTable->entries[index].object;
+	}
+
+	// FUNCTION: ENGINE 0x10657A50
+	void Context::WakeObject(ObjectHandle handle)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x15c, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		PhysicsObject* object = handle.GetObjectSecond();
+		if (object->IsAsleep())
+		{
+			return;
+		}
+		if (!object->IsSkipped())
+		{
+			object->RefreshBounds(object->IsUnflagged());
+		}
+		unknownC4->Add(object);
+		if (!mWorld->Overlaps(object, unknownC4))
+		{
+			return;
+		}
+		if (!object->IsSkipped())
+		{
+			unsigned int count = object->objectCount;
+			for (unsigned int i = 0; i < count; i++)
+			{
+				CollisionObject* collision = object->objects[i];
+				if (++unknown4 == 0)
+				{
+					unknown4 = 1;
+				}
+				collision->unknown4C = unknown4;
+			}
+		}
+		object->SetState(1, true);
+		BroadPhaseDetector::ObjectTable* table = &unknownC4->Table();
+		staticObjects.begin = table->objects;
+		staticObjects.end = table->objects + table->staticCount;
+		movableObjects.begin = table->objects + table->staticCount;
+		movableObjects.end = table->objects + (table->movableCount + table->staticCount);
+	}
+
 	// FUNCTION: ENGINE 0x10657B60
 	// NONMATCHING: register allocation, 97.6 %: the last list end loads the detector's movable count into ecx
-	// where the engine loads the static count; no spelling of the sum (both orders, with and without parentheses)
-	// moves it, every other instruction is identical
+	// where the engine loads the static count (both are then added the other way round, so only the two `movzx`
+	// differ). The engine's WakeObject, whose tail is the same code, does load the movable count first, so the
+	// order is not a property of the expression: both orders of the sum, the unparenthesised chain and a local
+	// holding it all compile to the movable-first pair here.
 #ifdef NONMATCHING
 	void Context::SleepObject(PhysicsObject* object)
 	{
@@ -50,7 +99,7 @@ namespace ravenphysics
 		staticObjects.begin = table->objects;
 		staticObjects.end = table->objects + table->staticCount;
 		movableObjects.begin = table->objects + table->staticCount;
-		movableObjects.end = table->objects + (table->staticCount + table->movableCount);
+		movableObjects.end = table->objects + table->staticCount + table->movableCount;
 	}
 #endif
 
@@ -971,6 +1020,146 @@ namespace ravenphysics
 		unknown4 = 0;
 		unknown8 = 0;
 		unknownC = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658010
+	void CounterPair::ResetCounters(int, int)
+	{
+		if (mFirstCounter != 0)
+		{
+			_InterlockedExchange(mFirstCounter, 0);
+		}
+		if (mSecondCounter != 0)
+		{
+			_InterlockedExchange(mSecondCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658030
+	bool PointerRun::PushBack(void* const& value)
+	{
+		if (mEnd < mCapacity)
+		{
+			void** item = mEnd++;
+			if (item != 0)
+			{
+				*item = value;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10658060
+	void** PointerRun::Find(void* const& value)
+	{
+		void** item = mBegin;
+		while (item != mEnd && *item != value)
+		{
+			item++;
+		}
+		return item;
+	}
+
+	// FUNCTION: ENGINE 0x10658080
+	// NONMATCHING: the engine tests the slot pointer with an explicit `test eax, eax` before the `je`, ours reuses
+	// the flags of the `add` that computes it, so the branch and everything after it sit two bytes earlier. Casting
+	// the base to the class's pointer type (which restores the test) still leaves it 71 bytes against 70.
+#ifdef NONMATCHING
+	bool SlotPool::Add(const Record32& value)
+	{
+		if (mCounter != 0)
+		{
+			int slot = _InterlockedIncrement(mCounter) - 1;
+			if (slot < mCapacity)
+			{
+				Record32* item = (Record32*)((unsigned int)mSlots + (slot << 5));
+				if (item != 0)
+				{
+					*item = value;
+					return true;
+				}
+			}
+			else
+			{
+				_InterlockedDecrement(mCounter);
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106580D0
+	// NONMATCHING: as SlotPool::Add above: the engine's explicit `test eax, eax` before the `je`, ours reuses the
+	// flags of the `add`, 71 bytes against 70
+#ifdef NONMATCHING
+	bool SlotPoolSecond::Add(const Record32& value)
+	{
+		if (mCounter != 0)
+		{
+			int slot = _InterlockedIncrement(mCounter) - 1;
+			if (slot < mCapacity)
+			{
+				Record32* item = (Record32*)((unsigned int)mSlots + (slot << 5));
+				if (item != 0)
+				{
+					*item = value;
+					return true;
+				}
+			}
+			else
+			{
+				_InterlockedDecrement(mCounter);
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10658120
+	TripleBlock::TripleBlock()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658130
+	TripleBlockSecond::TripleBlockSecond()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658140
+	void* IndexedBlock::Get(unsigned short index) const
+	{
+		return mItems[index];
+	}
+
+	// FUNCTION: ENGINE 0x10658150
+	TripleBlockThird::TripleBlockThird()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658160
+	TripleBlockFourth::TripleBlockFourth()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658170
+	TripleBlockFifth::TripleBlockFifth()
+	{
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10656E90

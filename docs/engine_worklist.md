@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): started, 34 functions match
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 120 functions match, 3 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1779,25 +1779,50 @@ Matchable patterns worth reusing:
 - `CollisionDetector::GetObject` and `GetBodyChecked` load the asserted member before the `cmp eax, 3` (the compiler
   hoists it) and end in **two** epilogues; writing the assert as `OLD_ASSERT_AT` and the `return` once reproduces it.
 
-Not done in this range (the owner or the layout is still unknown, so nothing could be written):
+**Second session (85 more functions match, 3 NONMATCHING).** The 0x10656EA0 - 0x10658170 block is reconstructed: the
+library's record runs (`Count()` dividing by 0x34 / 0xA8 / 0xC / 0x2C / 4), the two pointer-run families
+(`Begin` / `End` / `SetBegin` / `SetEnd` / `Count` / `operator[]` / `PushBack` / `Find`), the interlocked slot pools
+(`Acquire` / `Add` / `Reset` / `ReadCounter` / `Init` / `Release`, with 32- and 16-byte strides), `WorkPools` (the two
+pools the collision detection takes its work from, with `Init` / `ResetCounters` / `ReleaseAll` / `Slot`),
+`ScratchArray` / `ScratchBytes` (the growable arrays over the scratch stack) and the profiler records. Where the
+engine's output names no owner - a bare `ret`, a `(begin, end)` pair, a three-word constructor - the function is
+written on a stand-in type named after what its accessor computes, and symbols.txt says "(name guess)"; the stand-ins
+are grouped in `context.h` under one comment. `ravenphysics::ScratchStack::AllocArray<T>` (the shape
+`StackAllocator::AllocArray` already had) was added to `stackallocator.h` for the 40-, 8- and 124-byte instances.
 
-- `0x10656570` (`jmp 0x106860E0`, a five-byte forwarder) and the one-byte `ret` functions 0x10657270 - 0x106572E0,
-  0x10657780 - 0x10657820, 0x10658360 - 0x106583F0, 0x10658B60: whose classes they belong to cannot be told from the
-  code, and 0x106860E0 itself is an empty function another unit owns.
-- The collision library's own containers: `0x10656E70` - `0x106573C0` (the `(begin, end)` array accessors and the
-  `Size()` copies dividing by 0x34 / 0xA8 / 0xC / 0x2C / 4, the interlocked slot pools 0x10657430 - 0x106575E0 and
-  0x10657900 - 0x10657990) are unreferenced copies of the library's templates. Every one of them is 4 - 40 bytes of
-  pure offset arithmetic, but nothing in the unit says which element type each instantiation belongs to, so assigning
-  them would be invented rather than recovered.
+`Context::WakeObject` (0x10657A50) matches. It needs the engine's *second* copy of the object lookup, 0x1065F500,
+which is byte-identical to `ObjectHandle::GetObject` at 0x106560A0 and outside this agent's range: it is reconstructed
+here as `ObjectHandle::GetObjectSecond` (`symbols.txt` maps it) and the merge should check that no other unit claims
+0x1065F500. `Physicsobject.h`'s `RefreshBounds` takes **one byte**, not a word - the wake path calls it with the
+result of a comparison and the engine passes that on with `sete al` and a bare `push eax`, without widening; the
+declaration and its `symbols.txt` name changed from `QAEXH@Z` to `QAEX_N@Z`.
+
+NONMATCHING in this range:
+
 - `0x10657B60 Context::SleepObject`: register allocation, 97.6 % - the last list end loads the detector's movable
-  count into ecx where the engine loads the static count, and no spelling of that sum (both orders, with and without
-  parentheses) moves it.
-- `0x10657A50` (`WakeObject`, 265 bytes): the structure is clear (the
-  detector's `[+0]` / `[+2]` counts and `[+0xC]` array are split into `staticObjects` / `movableObjects` after the
-  world answers a query), but the members live inside `BroadPhaseDetector::unknown0[0x18]`, which this unit may only
-  add to, and the unit needs two more collapsed copies of the object lookup (0x1065F500, identical to the
-  `ObjectHandle::GetObject` at 0x106560A0) before they can be written.
+  count into ecx where the engine loads the static count; both counts are then added the other way round, so only the
+  two `movzx` differ. `WakeObject`, whose tail is the same code, does load the movable count first, so the order is
+  not a property of the expression: both orders of the sum, the unparenthesised chain and a local holding it all
+  compile to the movable-first pair here.
+- `0x10658080 SlotPool::Add` / `0x106580D0 SlotPoolSecond::Add`: the engine tests the slot pointer with an explicit
+  `test eax, eax` before the `je`, ours reuses the flags of the `add` that computes the pointer, so every branch and
+  the whole copy sit two bytes earlier (71 bytes against 70). Casting the base to an integer (which restores the
+  test, but leaves the size at 71) was the second attempt.
+
+Still not done in this range:
+
+- `0x10656570` (`jmp 0x106860E0`, a five-byte forwarder), `0x106860E0` itself (an empty function another unit owns)
+  and the one-byte `ret` functions 0x10658360 - 0x106583F0, 0x10658B60: which class each belongs to cannot be told
+  from the code (the two other runs of bare `ret`s, 0x10657270 - 0x106572E0 and 0x10657780 - 0x10657820, are written
+  on `EmptyMembers`).
+- `0x10657D00`, `0x10657D70`, `0x10657F20`, `0x10657FA0`: `Context` methods and one big statistics getter over
+  `Context`'s batches and the detector's lists. `0x10657D00` calls 0x106846F0 and 0x1065E560, which nothing has
+  named yet; 0x10657F20 / 0x10657FA0 copy 32 bytes from `detector + 0x150` / `+0x34` plus two words from
+  `+0x124` / `+0x128` (resp. `+0x6C` / `+0x70`), and `BroadPhaseDetector` declares nothing past `unknown0[0x18]`.
+  `0x10657D70` reads nine `(begin, end)` pairs of `Context` between +0x24 and +0xB0 and eleven words between +0xC4
+  and +0x100, so it needs a fuller `Context` layout than the one above.
 - `0x10658610` - `0x10659F70` (the collision detection itself: 0x10658610, 0x106586E0, 0x106588B0, 0x10658D00,
   0x10659070, `Context::CastRay` 0x106593A0, 0x106596F0, 0x106599C0, 0x10659D50, 0x10659EE0, 0x10659F40, 0x10659F70)
   is not started; 0x106599C0 and 0x10659D50 build the detector and its islands (0x10659F70 registers "Collide Awoken
-  Islands" with the profiler).
+  Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
+  pool at `this + 0x18`, so the gate and the job classes have to be placed first.

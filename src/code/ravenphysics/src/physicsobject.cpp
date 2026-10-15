@@ -71,7 +71,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106612C0
-	void PhysicsObject::RefreshBounds(int unused)
+	void PhysicsObject::RefreshBounds(bool unused)
 	{
 		OLD_ASSERT_AT(PHYSICSOBJECT_FILE, 328, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		bool changed = false;
