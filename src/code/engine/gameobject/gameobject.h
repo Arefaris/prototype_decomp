@@ -177,6 +177,8 @@ namespace engine
 		void AddAttribute(content::ObjectName name, BaseAttribute* attribute);
 		bool AddDynamicAttribute(content::ObjectName name, BaseAttribute* attribute);
 		void RemoveDynamicAttribute(const content::ObjectName& name);
+		// 0x10963B90 (another unit): the byte at +0x9C, answering the old value (name guess)
+		bool SetUnknown9C(bool value);
 
 		AttributeList attributes;
 		DynamicAttributeList* dynamicAttributes;

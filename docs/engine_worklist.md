@@ -835,20 +835,23 @@ the address order (the two units interleave their statics):
 | frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
 | path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
 
-Done: **35 functions match**, three are marked NONMATCHING (the rest were not attempted, so no body was written and
+Done: **44 functions match**, five are marked NONMATCHING (the rest were not attempted, so no body was written and
 nothing was excluded from the build).
 
-- fight unit (9): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863A90, 0x10863AC0 (`~FightTreeBehaviour`:
+- fight unit (12): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863A90, 0x10863AC0 (`~FightTreeBehaviour`:
   `core::SafeRelease(params)`, `sequencer.End()`, then `branch->Unregister(&branch)`), 0x10863B90, 0x10863BA0
-  (`SetBranch`: the register / unregister pair, then `dynamic_cast<engine::PlaybackSet*>` and the owner), 0x10863F90
-  (`??_G`). 0x10863990 is **not** `FightTreeBehaviour`'s own slot 0 any more: the class does not override
-  `Behaviour::Slot0`, so that byte is this unit's kept copy of the base's; the fight unit's vftable slot 0 holds the
-  incremental link thunk 0x1002C0C5, which is how `symbols.txt` maps `?Slot0@Behaviour@engine@@UAEXXZ`.
+  (`SetBranch`: the register / unregister pair, then `dynamic_cast<engine::PlaybackSet*>` and the owner), 0x10863F40 /
+  0x10863F60 / 0x10863F70 (`FightBranchRefMemberGetSetter<FightTreeBehaviour>` ctor / Get / Set - its own explicit
+  instantiation in `src/code/engine/fight/fightbranchref.h` brings them out of line) and 0x10863F90 (`??_G`).
+  0x10863990 is **not** `FightTreeBehaviour`'s own slot 0 any more: the class does not override `Behaviour::Slot0`,
+  so that byte is this unit's kept copy of the base's; the fight unit's vftable slot 0 holds the incremental link
+  thunk 0x1002C0C5, which is how `symbols.txt` maps `?Slot0@Behaviour@engine@@UAEXXZ`.
 - fight unit, NONMATCHING:
   - 0x10863900 `Slot1`: the parameters load and the two generator steps' registers, 54 %.
   - 0x108639A0 `GetParams`: the parameters load and the handle copy swap places, 89 %.
   - 0x108639E0 constructor: the vftable store and the sequencer's `this` swap places, 97 %.
-- path unit: the same trick below gives 0x10864FA0.
+- `src/code/engine/gameobject/behaviours/pathbehaviour.cpp`: 0x10864DF0 `SplineCV::SplineCV` (seven floats and a
+  flag), 0x10864E30 `~SplineCV`, and 0x10864FA0 (the caster's `IsDerived`).
 - `src/code/engine/frontend/frontend.cpp` (20, new): 0x108642D0 `fe_SetUpdateEnable`, 0x10864310 `SetFrontend`,
   0x10864330 `GetFrontend`, 0x10864340 `GetFrontendHeap`, 0x10864390 `SetScreenCentre`, 0x10864420 `GetScreenWidth`,
   0x10864430 `GetScreenHeight`, 0x10864440 `UpdateScreenCentre`, 0x10864490 `SetCursorFade`, 0x108644A0
@@ -858,8 +861,17 @@ nothing was excluded from the build).
   `fe_ToggleHideHUDOption` (a `^= 1`, `!flag` compiles to `cmp`/`sete`), 0x10864AE0 `ResetLanguage`, 0x108649F0
   `SetLanguageName` and 0x10864A00 `GetLanguageName` (the `core::Name<core::CaseSensitiveKey>` at 0x11315C78). The
   unit has no assert path and no class static, so the file name, the free-function shape and every name are guesses.
-- `src/code/engine/gameobject/behaviours/pathbehaviour.cpp` (5, new): the five reflection statics 0x10864C30,
-  0x10864C70, 0x10864CB0, 0x10864D00, 0x10864D40. File name and header are guesses too.
+- `src/code/engine/gameobject/behaviours/pathbehaviour.cpp` (7, new): the five reflection statics 0x10864C30,
+  0x10864C70, 0x10864CB0, 0x10864D00, 0x10864D40, plus 0x10864DF0 `SplineCV::SplineCV` (seven floats at +4 and the
+  byte at +0x20) and 0x10864E30 `~SplineCV`. File name and header are guesses too.
+- `src/code/engine/frontend/frontend.cpp`, more: 0x108642C0 (`FrontendObject::GetUnknown5C`, the member at +0x5C),
+  0x108642E0 `CreateFrontend` (`operator new(0x1238, sFrontendHeap)` then the object's constructor), 0x10864350
+  `SetScreenFlag` (the flag array at 0x11315C58 and `SetScreenValue` 0x10881340) and 0x108643B0
+  `SetScreenClampedFloat` (the `!= 0` test is the two-`comiss` form, and the clamp is `math::Clamp`, which inlines
+  `Select`'s subtraction: the `-120` is 0x10E73254 and the `120` 0x10DA57E0, both namespace-scope `const float`).
+  NONMATCHING here: 0x10864540 `fe_EnableCatchupBehaviour` (57 %: the argument is pushed before `GetFrontend()` is
+  called) and 0x108645A0 `ShutdownFrontend` (98 %: the instruction stream is the same, two bytes of the encoding
+  differ).
 
 Not done, by unit (each is a place to start, not a verdict):
 

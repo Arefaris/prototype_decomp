@@ -3,6 +3,7 @@
 #include "code/engine/fight/behaviours/fighttreebehaviour.h"
 
 #include "code/core/refptr.h"
+#include "code/engine/fight/fightbranchref.h"
 #include "code/engine/fight/playbackset.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/random.h"
@@ -13,6 +14,13 @@ namespace engine
 	// engine::FightTreeBehaviour carries. The unit kept them out of line, which is what an explicit instantiation
 	// makes the compiler do.
 	template struct content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour>;
+
+	// FUNCTION: ENGINE 0x10863F40
+	// FUNCTION: ENGINE 0x10863F60
+	// FUNCTION: ENGINE 0x10863F70
+	// The object the "fightBranch" member of the class meta type reads and writes the branch through, kept out of
+	// line by its own instantiation.
+	template class FightBranchRefMemberGetSetter<FightTreeBehaviour>;
 
 	// FUNCTION: ENGINE 0x108638C0
 	content::ClassInfo* FightTreeBehaviour::GetClassInfo()
