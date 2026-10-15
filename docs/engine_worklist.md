@@ -1026,6 +1026,39 @@ belongs to. Reconstructed:
 
 Not done (the remaining 205 of the 292 functions of the range):
 
+- **The three action classes are abstract in our tree and the engine's are not.** The engine's vftables read
+  (the dwords at the address `rtti.tsv` gives, the COL pointer right before and the next table right after confirm
+  the nine slots) are:
+
+  | slot | `engine::EffectAction` (0x10E6B264) | `AbortEffectAction` (0x10E6B23C) | `MotionTrailAction` (0x10E6B28C) |
+  |---|---|---|---|
+  | 0 AddRef | 0x105A73E0 | 0x105A73E0 | 0x105A73E0 |
+  | 1 Release | 0x105A73F0 | 0x105A73F0 | 0x105A73F0 |
+  | 2 destructor | 0x10807690 (`??_G`) | 0x108075A0 (`??_G`) | 0x10807770 (`??_G`) |
+  | 3 | 0x105A2430 | 0x105A2430 | 0x105A2430 |
+  | 4 | 0x105A2460 | 0x105A2460 | 0x105A2460 |
+  | 5 | 0x108076B0 | 0x108075C0 | 0x10805D30 |
+  | 6 | 0x10805CA0 | 0x105A2480 | 0x10805FF0 |
+  | 7 | 0x10805BD0 | 0x105A2490 | 0x105A2490 |
+  | 8 | 0x105A24A0 | 0x105A24A0 | 0x105A24A0 |
+
+  The destructor slot holds the *scalar deleting destructor* — the compiler puts `??_G` there, so `??1EffectAction`
+  (0x10805B40) is only ever called from it and the match of 0x10807690 confirms it. The engine's `fight::Action`
+  therefore has six non-pure virtuals beyond `AddRef` / `Release` / the destructor, and `fight::RefCounted`
+  implements `AddRef` (0x105A73E0, `add [ecx+4], 1; ret`), `Release` (0x105A73F0, the 0x8000000 park) and the
+  destructor (0x105A73D0, stores the `fight::RefCounted` vftable 0x10D96DB8 and returns — the 7-byte
+  `??1RefCounted@fight@@UAE@XZ` this unit already emits is byte-identical to it). Action's own slots:
+  3 = 0x105A2430 (`xor eax,eax; ret`), 4 = 0x105A2460 (`mov al,1; ret 8`), 6 = 0x105A2480 (`ret`),
+  7 = 0x105A2490 (`mov al,1; ret 8`), 8 = 0x105A24A0 (three arguments, copies +0xC, +0x10, +0x14, +0x18 into the
+  argument). Because `sequencer.h` declares those six pure and `fight::RefCounted` inherits `core::IRefCount`'s pure
+  `AddRef` / `Release`, today the three action classes are abstract: our constructors compile and match, but
+  `new EffectAction(...)` and the vtables do not. Declaring the six virtuals on `Action` (in the vtable order above,
+  with those signatures) and `AddRef` / `Release` / `~RefCounted` on `RefCounted`, with the seven addresses above as
+  `symbols.txt` entries, makes the three classes concrete; `vtcheck` then checks every slot. Only then can
+  0x10807790 / 0x10807860 / 0x108078A0 (the three functions that make an action — they call the constructors and
+  `engine::FindGameObject`, and 0x107FC7A0, an out-of-line `HandleBase` from an object that the first of them
+  inlines) and the six slot bodies 0x108075C0 / 0x108076B0 / 0x10805CA0 / 0x10805BD0 / 0x10805D30 (696 bytes) /
+  0x10805FF0 be written.
 - 0x108058A0 - 0x10805B00 and 0x10806020 - 0x108060B0: 21 kept template copies with no owner in this unit — the
   engine's 12-byte intrusive reference (the object, then `next` at +4 and `prev` at +8; the object keeps the head of
   the list at +8 of itself). A copy for one type is `node->object = t; node->next = t->link; if (t->link)
@@ -1033,25 +1066,56 @@ Not done (the remaining 205 of the 292 functions of the range):
   reads the source's pointer first (59 bytes); there are also four 16-byte destructors, seven `return p;` getters,
   `operator bool` at 0x108058A0 and three 3-byte getters next to them. Which type each copy belongs to is not in the
   code, only the node layout is, so they are left alone (as the other units did with their unowned kept copies).
-  Our `core::Link<T>` constructor and destructor are now emitted as COMDATs in this unit (`??0?$Link@VEffectTrack...`
-  48 bytes, `??1?$Link@VEffectTrack...` 16); the copies here are all byte-identical, so which address belongs to
-  which type cannot be told and they are kept out of `symbols.txt`.
-- 0x10805750, 0x10805BD0, 0x10805CA0, 0x10805D30 (696 bytes), 0x10805FF0, 0x10806020 - 0x108060B0: the track's real
-  body — the check that lets the game veto a begin, the effect creation through `0x1081BA90` and the per-mode setup.
-- 0x108060F0 (5153 bytes): the track's begin, switching on the mode word at +0x1A4 with nine arguments.
-- 0x10807790, 0x10807860, 0x108078A0: the three functions that make an action of a track (197 / 55 / 60 bytes); they
-  call the action constructors and `engine::FindGameObject`, so they can be done now that the constructors are fixed.
+  Our `core::Link<EffectTrack>` constructor and destructor are now emitted as COMDATs in this unit and are
+  byte-identical to these copies: the constructor to the 55-byte form (0x10805A70 / 0x10805AB0 / 0x10806020 /
+  0x10806060 / 0x108060B0) and the destructor to the 16-byte form (0x108059C0 / 0x10805A10 / 0x10805AF0 /
+  0x10805CE0). Five constructor copies and four destructor copies are more than this unit has link types, so the
+  addresses cannot be told apart and they are kept out of `symbols.txt`. 0x10805980 is the *converting* constructor
+  (`mov eax,ecx; mov ecx,[esp+4]; mov edx,[ecx]; ...`, 59 bytes) and there is a fourth address 0x10805930
+  (`read four floats from +0x50 into the argument`) that is a member of some other kept type.
+- 0x10805750 (325 bytes): reads a world direction at +0x10 / +0x14 / +0x18 and a position at +0x30 / +0x34 / +0x38,
+  compares `1 - dot((0,1,0), direction)` with 0.01 (the constant at 0x10E6B234) and either copies the whole matrix
+  or builds an identity matrix with the position and a basis from the cross products. The static (0,1,0) lives at
+  0x11284B40 with its initialised flag at 0x11284B4C. Both arguments are taken from the stack and `ret 8`, ecx is
+  not read: a static member or a free function whose class is not known.
+- 0x108060F0 (5153 bytes): the engine's effect begin, called by all three Slot5 bodies with ten arguments (the action
+  link, the object handle, the effect's members and the action itself) — the check that lets the game veto a begin,
+  the effect creation through 0x1081BA90 and the per-mode setup.
 - 0x108078E0 - 0x10809000: the fight track factory (see below).
 
-## fight track factory (0x10807550 - 0x10809000 and on): not done
+## the engine tracks and the fight track factory (0x108078E0 - 0x10809000 and on): not done
 
-`fight::TrackFactoryTemplate<T>` / `TrackFactoryCasterTemplate<T>` with the property objects of
-`engine::PlaybackTrack`, `DialogueTrack`, `SoundTrack`, `SoundBoolValueTrack`, `MixerTrack`, `MusicTrack`,
-`ReverbTrack`, `SoundZoneTrack`, `ScenarioStringTrack` and `engine::scenario::LuaTrack`, plus the registration
-function at 0x10808380 that binds them to "dialogue", "sound", "soundBoolValue", "mixer", "music", "reverb" and
-"soundZone". Every one of them registers properties through `fight::Property<T>` subclasses (`PropertyFloatConstRange`,
+The unit starts at 0x108078E0, the first setter of `engine::PlaybackTrack`, not at 0x10807550 (the actions above
+belong to it). It holds the engine tracks themselves — `PlaybackTrack` (vftable 0x10E6B304, 16 slots) is built at
+0x10807960: it calls the base `fight::Track` constructor at 0x105AA160, constructs two `core::Name`s at +0x10 and
++0x18, a float at +0x20 and a byte at +0x24, so `fight::Track` is 0x10 bytes (the watch head of `sequencer.h`'s
+`Action`/`core::Link` at +8 included) and `PlaybackTrack` is 0x28. Its members are the setters 0x108078E0 (float
++0x20), 0x108078F0 (byte +0x24), 0x10807920 (`Name` +0x18), 0x10807940 (`Name` +0x10) and the getter 0x10807990,
+plus 0x108079B0 (destructor, sets 0x10E6B304 and tail-jumps to 0x105AA180) and the scalar deleting destructor
+0x10807A00 — none of them need the property templates.
+
+The rest is `fight::TrackFactoryTemplate<T>` / `TrackFactoryCasterTemplate<T>` with the property objects of
+`PlaybackTrack`, `DialogueTrack`, `SoundTrack`, `SoundBoolValueTrack`, `MixerTrack`, `MusicTrack`, `ReverbTrack`,
+`SoundZoneTrack`, `ScenarioStringTrack` and `engine::scenario::LuaTrack`, plus the registration function at
+0x10808380 that binds them to "dialogue", "sound", "soundBoolValue", "mixer", "music", "reverb" and "soundZone".
+Every one of them registers properties through `fight::Property<T>` subclasses (`PropertyFloatConstRange`,
 `PropertyBool`, `PropertyName`, `PropertyNameList`, `PropertyEnumConstList`, `PropertyVector`, `PropertyColour`,
-`PropertyIntConstRange`, `PropertyGroup`, `PropertyTrackGroup`, `PropertyScript`) whose accessors are function
-pointers stored at +0x10 of the property object, and their templates live in another unit (0x105Axxxx). The unit
-continues past 0x10809000 (the scenario track and its conditions are at 0x10809460 on), so its boundary is a guess.
-Nothing here is reconstructed: the property and factory templates have to be recovered first.
+`PropertyIntConstRange`, `PropertyGroup`, `PropertyTrackGroup`, `PropertyScript`). What the built code fixes:
+
+- A property is 0x18 bytes: the base constructor (external: `fight::PropertyTypeFloat` 0x105A8E90,
+  `PropertyTypeName` 0x105A96A0, `PropertyTypeBool` 0x105A8C40, `PropertyGroup` 0x105A9E40) takes the property's
+  name as a `const char*`, the derived vtable is set after it (`PropertyFloatConstRange<PlaybackTrack>` 0x10E6B354,
+  `PropertyBool<PlaybackTrack>` 0x10E6B378, `PropertyName<PlaybackTrack>` 0x10E6B39C) and the accessor — a pointer
+  to a `bool (__thiscall T::*)(value)` setter such as 0x108078E0 — is stored at +0x10. So the templates take the
+  setter as a constructor argument and the derived constructors are inline (0x10807A20 is the out-of-line
+  `PropertyFloatConstRange<PlaybackTrack>(name, setter)`).
+- `TrackFactoryTemplate<T>` (2 slots, 9-byte constructor that only sets the vtable) and
+  `TrackFactoryCasterTemplate<T>` (2 slots); each has a pair of heap helpers (24 and 57 bytes) and a name test
+  (36 bytes) that calls 0x10A88356 with the RTTI type-descriptor string at 0x10FFE8B8 and the global at
+  0x111BEBE0 / 0x111BED40.
+- The registration function (0x10807B50, 267 bytes) checks the global at 0x11284B50, builds an array of four
+  property pointers on the stack and calls 0x105A8420 with it; 0x10807900 / 0x10807910 / 0x108078F0 / 0x10807910
+  are the list's accessors (only 0x10807900 / 0x10807920 / 0x10807940 are in `functions.tsv`, 0x108078F0 and
+  0x10807910 are missing from it).
+- The unit continues past 0x10809000 (the scenario track and its conditions are at 0x10809460 on), so its boundary
+  is a guess. Nothing here is reconstructed: the property and factory templates have to be recovered first.
