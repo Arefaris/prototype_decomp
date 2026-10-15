@@ -36,7 +36,12 @@ namespace ravenphysics
 		unsigned char unknown24[0x34 - 0x24];
 		BroadPhaseDetector* detector;
 		unsigned short detectorIndex;
-		unsigned char unknown3A[0x54 - 0x3A];
+		unsigned char unknown3A[2];
+		// How the body's collision objects collide (0x1065F6D0 sets the low two bits; 0x3C)
+		unsigned short collisionMode;
+		// 0x3E: flags the body tests (bits 1 and 3)
+		unsigned short collisionFlags;
+		unsigned char unknown40[0x54 - 0x40];
 	};
 
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects
@@ -49,6 +54,10 @@ namespace ravenphysics
 		// Clears the collision objects' changed flags and recomputes the bounds when one of them was set
 		// (0x106612C0)
 		void RefreshBounds(int unused);
+		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
+		void SetCollisionMode(unsigned short mode);
+		// Marks one of the body's collision objects as needing an update in the detector (0x10683510, another unit)
+		void UpdateCollisionObject(CollisionObject* object);
 
 		CollisionObject** objects;
 		int unknown58;

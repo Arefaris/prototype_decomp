@@ -1997,3 +1997,132 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 `fight::Track::Register` / `Unregister` (effecttrack.cpp) in symbols.txt. One function cannot belong to both classes:
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
+
+## collision/src/minimalcollisioninfo.cpp (0x10653150 - 0x10654490), started
+
+The unit that is linked just before collision/src/collisionobject.cpp. It carries no assert string of its own, so
+the image does not name its source file: the file name is a guess, and the boundary against collisionobject.cpp is
+established by the compiler, not by a string. `CollisionObject::UpdateProperties` (0x106559C0) proves the split
+exists: while `IntersectionProperties::IntersectionProperties` (0x10653860) was defined in the same unit as it,
+MSVC could see through the constructor and kept the local `IntersectionProperties` in registers, and
+UpdateProperties came out 133 bytes and 68.4 % instead of 152 bytes and 100 %. With the registry in a unit of its
+own, the constructor is an external call again and UpdateProperties matches.
+
+The unit holds the table of collision object handles (0x1127CAC0, 0x10653150 - 0x10653530), the registry of known
+intersection properties (0x10653610 - 0x106538D0, its table at 0x1127CAC4) and the CollisionShape flag accessors
+and volume destructors (0x10654380 - 0x10654490).
+
+The IntersectionProperties registry is a flat array: `gIntersectionProperties` (0x1127CAC4, pointer) holds
+0x10-byte entries of two unknown words and then the `IntersectionProperties` at +8,
+`gIntersectionPropertyCount` (0x1127CACC) is the length, and `IntersectionProperties`'s default constructor is the
+first entry's properties, or (-1, -1) when the registry is empty. All three globals (and the loader at 0x1127CAD0)
+are the engine's - declared, not defined here - and are mapped in symbols.txt.
+
+## collision/src/collisionobject.cpp (0x106544B0 - 0x10655FC0), started
+
+The unit's assert path (`..\..\..\code\ravenphysics\collision\src\collisionobject.cpp`, lines 322 - 1016) names it.
+What is reconstructed is `ravenphysics::CollisionObject` and the cross-unit declarations it needs.
+
+The IntersectionProperties registry (0x10653610 - 0x10653860) is a flat array: `gIntersectionProperties`
+(0x1127CAC4, pointer) holds 0x10-byte entries of two unknown words and then the `IntersectionProperties` at +8,
+`gIntersectionPropertyCount` (0x1127CACC) is the length, and `IntersectionProperties`'s default constructor is the
+first entry's properties, or (-1, -1) when the registry is empty. All three globals (and the loader at 0x1127CAD0)
+are the engine's - declared, not defined here - and are mapped in symbols.txt.
+
+Done in this unit (all 100 %): `0x10653610` IntersectionProperties::operator==, `0x10653630`
+IntersectionPropertiesEntry::GetProperties, `0x106536D0` FindIntersectionProperty, `0x10653720`
+GetIntersectionPropertyCount, `0x10653730` GetIntersectionProperty, `0x10653860` IntersectionProperties
+constructor, `0x106538D0` ClearIntersectionPropertiesLoader (a call to `core::RefAssign` with the loader at
+0x1127CAD0, which itself is 0x10653800 - a header template instance, so not counted), `0x10654380`
+CollisionShape::SetFlag3, `0x106543A0` CollisionShape::IsFlag3 and `0x10654410` CollisionShape::SetFlag4.
+
+NONMATCHING in this unit:
+
+- `0x10653250` CollisionObjectTable::Add: the bumped serial, 70.2 %: the engine reads it out of the slot once and
+  keeps it in a register for both stores, ours loads it a second time for the handle; naming the value only moves
+  the extra load.
+- `0x106532B0` CollisionObjectTable::Remove: the serial test, 35.6 %: the engine materialises the second half of
+  the `&&` as a bool (`sete dl` / `test dl, dl`), ours branches on the comparison directly. Every other
+  instruction, and the `&&`'s short-circuit, is the same.
+
+Still to do in this unit: the container helpers the handle table is built from (0x10653150 - 0x10653240 and
+0x10653360 - 0x10653530: a stack of 16-bit indexes over (begin / size / capacity) at +0/+4/+8 with `IsEmpty` /
+`Push` / `Pop` / `Top`, two-argument constructors, a `Free`, and one 3-field and two 2-field `Create` / `Free`
+pairs, plus `CollisionObjectTable`'s creation 0x10653530 / 0x106534B0 and the free-list fill 0x10653310, which
+`functions.tsv` does not list), the meta type statics of `IntersectionPropertiesLoader` and `ColliderTypeNames`
+(0x10653640 / 0x10653680 / 0x10653740 / 0x10653780 / 0x106537C0: `content::ClassInfo` and
+`content::NameMetaType` locals behind guard bytes at 0x1127CAE0 and on, which need that unit's own copy of the
+`content` meta type templates), the two other refcounted pointer wrappers 0x106538B0, 0x106543B0 (a
+`MoveTo(position, flag)` that forwards to `MoveTo(position, center, flag)`; the shape's own `MoveTo(Vector, int)`
+is 0x10669E60 in another unit, so this one belongs to a class that is not `CollisionShape` as declared here) and
+the four deleting destructors 0x10654430 - 0x10654490 (they need the headers' destructors to be defined and a
+matched `delete`, which only a matched ~CollisionObject would emit).
+
+## collision/src/collisionobject.cpp (0x106544B0 - 0x10655FC0)
+
+The engine's `CollisionObject` is 0x80 bytes: a `math::Matrix` at 0, its `core::Name` at 0x40, a 4-byte handle
+(index / serial) at 0x48, the volume array at 0x50 with its 16-bit count at 0x54, the changed bit at 0x56, a state
+word at 0x58 (bit 31 = active, the low bits a per-volume mask), `IntersectionProperties` at 0x5C, then the shape
+(0x64), the owning `PhysicsObject` (0x68), the mesh (0x6C) and one word at 0x70 whose meaning is unknown. The shape
+is the 0xE0-byte object the broad phase sees (transform vectors at 0x10 / 0x1C / 0x28 / 0x34, an AABB at 0x70, a
+bounding sphere centre at 0x9C, flags in byte 0). The last 12 bytes of the object are not touched by any
+reconstructed function, which is why 0x74 - 0x80 is still unknown.
+
+NONMATCHING:
+
+- `0x10654790` SetShape: the detector test, 89.6 %: the engine keeps the loaded pointer in a register and tests
+  that, ours compares the member against zero.
+- `0x10655DA0` GetRadius: the six min/max accumulators stay in xmm6/xmm5/xmm4 and xmm0/xmm1/xmm2 across the loop
+  in the engine and the three sizes are computed with SSE; ours spills all six to the stack and finishes in x87,
+  7.9 % (the frame is 8 bytes larger).
+- `0x10655EA0` ~CollisionObject: the engine emits `test esi, esi` before each of the four destructor calls, ours
+  drops it because the volume pointer was just dereferenced for its type byte; 59.6 %.
+
+Done (all 100 %): `0x10655A60` Print, `0x10655AE0` constructor, `0x10655B60` Initialize, `0x10655BE0` Clone,
+`0x10655D90` SetName, `0x10655F60` / `0x10655FC0` CreateCollisionObject and `0x106559C0` UpdateProperties (was
+64.4 %: it is an indexed `for (i < volumeCount)` loop, not a countdown, and the volume's two filter words are
+one sub-struct, so MSVC forms its address once and reuses it for the second field).
+
+Nothing of 0x10656020 - 0x106564C0 is reconstructed: those functions belong to the units after this one (they use
+the handle table's slots and the refcount helpers at 0x106560D0 / 0x106560E0) and the last of them, 0x106564E0, is
+ravenphysics/src/context.cpp, another agent's unit.
+
+Lessons:
+
+- An empty body left by `#ifdef NONMATCHING` is inlined away at every call site: a function that is a caller's
+  only reason for a call has to be matched for the caller to match too.
+- A `delete` of a pointer that the code has already dereferenced keeps no null check in our build, while the
+  engine has one; the check is only reproduced when the deleted pointer is not provably non-null.
+- The engine's `CollisionVolume` is a base of `CollisionVolume3` (also the face list a type 4 volume keeps at
+  +0x60), `CollisionVolume4` (the volume plus that list) and `CollisionVolume6`; their destructors are what the
+  object's destructor's four `delete`s call.
+- A sub-object whose address the code uses twice in a row (the volume's filter pair, the mesh's element array)
+  makes MSVC materialise the address (`add eax, 0x1C` / `add eax, 0x28`) even when the value is dead
+  afterwards; a plain pair of scalar members is addressed with two displacements instead. Naming a reference to
+  the sub-object is what reproduces it.
+- `new ConvexMesh()` only calls the engine's `ConvexMesh` constructor when that constructor is declared; with
+  only the members declared the compiler writes its own inline one.
+- The mesh of a mesh volume is 0x38 bytes and holds an array of 8-byte elements at +0x28 (begin / end /
+  capacity); `CollisionObject::Clone` reserves the same count and re-adds every type 6 volume to it.
+
+- The volume types are 7 (the type byte); `CollisionVolume::UpdateBounds(CollisionObject*)` (0x10665690, another
+  unit) is the switch that runs the per-type update, and `CollisionObject`'s `SetCapsuleVolume` / `SetSphereVolume`
+  call a per-type setter and a per-type update directly (0x10664BA0 / 0x10664C10 and so on, another unit), so those
+  two calls take the *concrete* volume - the class the object stores is typed `CollisionVolume*` and the engine
+  hands the same pointer to both.
+- `changed = true;` and `changed = count > 0;` are both bitfield stores of a `bool` value: `or byte [this+0x56], 1`
+  and the `seta` / `xor` / `and` / `xor` sequence. `changed = count != 0;` gives `setne` and does not match.
+- A loop that calls a function taking the object itself reloads the volume count every round (the callee may change
+  it); naming the volume (`CollisionVolume* volume = volumes[i];`) is what makes both calls use one register.
+- `if (x) { } else { }` has to be written with the non-empty branch first when the engine's branch layout puts the
+  else arm out of line.
+- A null check on a pointer member (`if (shape != 0) shape->flag = value;`) compares the member against zero in our
+  build but loads it into a register in the engine; naming the local (`CollisionShape* currentShape = shape;`) is
+  what materialises the load (SetFlag4, 0x10655960). The same trick did not fix the detector test of SetShape.
+- A search over an array of structs (`gIntersectionProperties[i].properties.unknown0 == that.unknown0 && ...`)
+  materialises `&entry.properties` in the engine; naming the reference (`const IntersectionProperties& current =
+  gIntersectionProperties[i].properties;`) is what reproduces the `lea ecx, [ebx + 8]` (FindIntersectionProperty).
+- A `switch` over the volume type is not the only shape the engine's COMDAT helper copies take: the free-slot
+  stack's `Pop` reads `begin[size - 1]` and *then* decrements when the caller inlines it, while the standalone
+  copy at 0x10653190 decrements first - the two are separate instantiations, so a container header has to be
+  written to match the call site that is being reconstructed, not the standalone copy.
