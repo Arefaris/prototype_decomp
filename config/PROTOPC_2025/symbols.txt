@@ -3431,6 +3431,17 @@ __aullshr = 0x10BA2B50 ; function size:0x1F | CRT 64-bit unsigned shift right (s
 ??0?$ArrayDynamicNew@UCollisionPair@engine@@@container@@QAE@XZ = 0x107E58E0 ; function size:0xD | container::ArrayDynamicNew<engine::CollisionPair> constructor
 ?PushBack@?$ArrayDynamicNew@UConstraintItem@engine@@@container@@QAE_NABUConstraintItem@engine@@@Z = 0x107E5900 ; function size:0x2C | container::ArrayDynamicNew<engine::ConstraintItem>::PushBack
 ??0?$ArrayDynamicNew@I@container@@QAE@XZ = 0x107E5930 ; function size:0xD | container::ArrayDynamicNew<unsigned int> constructor
+; The same instantiations' Free / Clear / destructors, emitted where the arrays are freed (every Free is the same
+; code, so which of the five copies belongs to which element type is a guess)
+?Free@?$ArrayDynamicNew@UCollisionItem@engine@@@container@@QAEXXZ = 0x107E69C0 ; function size:0x28 | container::ArrayDynamicNew<engine::CollisionItem>::Free
+?Free@?$ArrayDynamicNew@I@container@@QAEXXZ = 0x107E69F0 ; function size:0x28 | container::ArrayDynamicNew<unsigned int>::Free
+??1?$ArrayDynamicNew@UCollisionPair@engine@@@container@@QAE@XZ = 0x107E6A20 ; function size:0x11 | container::ArrayDynamicNew<engine::CollisionPair> destructor
+?Free@?$ArrayDynamicNew@UConstraintItem@engine@@@container@@QAEXXZ = 0x107E6A40 ; function size:0x28 | container::ArrayDynamicNew<engine::ConstraintItem>::Free
+?Free@?$ArrayDynamicNew@UCollisionPair@engine@@@container@@QAEXXZ = 0x107E6A70 ; function size:0x28 | container::ArrayDynamicNew<engine::CollisionPair>::Free
+?Clear@?$ArrayDynamicNew@I@container@@QAEXXZ = 0x107E6B50 ; function size:0x6 | container::ArrayDynamicNew<unsigned int>::Clear
+?Clear@?$ArrayDynamicNew@UCollisionItem@engine@@@container@@QAEXXZ = 0x107E6B60 ; function size:0x6 | container::ArrayDynamicNew<engine::CollisionItem>::Clear
+??1?$ArrayDynamicNew@UCollisionItem@engine@@@container@@QAE@XZ = 0x107E70E0 ; function size:0x11 | container::ArrayDynamicNew<engine::CollisionItem> destructor
+??1?$ArrayDynamicNew@UConstraintItem@engine@@@container@@QAE@XZ = 0x107E7100 ; function size:0x11 | container::ArrayDynamicNew<engine::ConstraintItem> destructor
 ?AtomicIncrement@engine@@YIJPCJ@Z = 0x107E3790 ; function size:0xB | engine physicsmanager.cpp: interlocked increment (name guess)
 ?AtomicDecrement@engine@@YIJPCJ@Z = 0x107E37A0 ; function size:0x9 | engine physicsmanager.cpp: interlocked decrement (name guess)
 ?AtomicExchange@engine@@YIJPCJJ@Z = 0x107E37B0 ; function size:0x3 | engine physicsmanager.cpp: interlocked exchange (name guess)
