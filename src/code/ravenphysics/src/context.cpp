@@ -146,4 +146,70 @@ namespace ravenphysics
 		unknown10->solverIterations = a;
 		unknown10->solverIterations2 = b;
 	}
+
+	// FUNCTION: ENGINE 0x10656640
+	void Context::SetWorldFlag(unsigned char value)
+	{
+		if (placement != 0)
+		{
+			unknown10->unknownE = value;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10656660
+	void Context::ResetPlacement()
+	{
+		placement->Reset();
+	}
+
+	// FUNCTION: ENGINE 0x10656670
+	void Context::SetPlacementPosition(math::Vector position)
+	{
+		placement->SetPosition(position);
+	}
+
+	// FUNCTION: ENGINE 0x10656680
+	void Context::TrackMovableObjects()
+	{
+		placement->Track(&movableObjects);
+	}
+
+	// FUNCTION: ENGINE 0x10656690
+	void Context::TrackObjects(ObjectList* objects)
+	{
+		placement->Track(objects);
+	}
+
+	// FUNCTION: ENGINE 0x106566A0
+	void Context::UntrackMovableObjects()
+	{
+		placement->Untrack(&movableObjects);
+	}
+
+	// FUNCTION: ENGINE 0x106566B0
+	void Context::UntrackObjects(ObjectList* objects)
+	{
+		placement->Untrack(objects);
+	}
+
+	// FUNCTION: ENGINE 0x10656E90
+	PlacementTracker* Context::GetPlacement()
+	{
+		return placement;
+	}
+
+	// FUNCTION: ENGINE 0x10657C90
+	void Context::RefreshObjectList(ObjectList* objects)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x42f, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		void** it = objects->begin;
+		for (; it != objects->end; it++)
+		{
+			PhysicsObject* object = static_cast<PhysicsObject*>(*it);
+			if (!object->IsSkipped())
+			{
+				object->RefreshBounds(0);
+			}
+		}
+	}
 }

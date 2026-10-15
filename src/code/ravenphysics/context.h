@@ -81,6 +81,23 @@ namespace ravenphysics
 		void** end;
 	};
 
+	// The tracker behind Context+0x08: a position the objects of a list are handed to (the class name and the
+	// member names are guesses). Its members live in another unit; this unit only calls them.
+	class PlacementTracker
+	{
+	public:
+		// 0x10686DA0
+		void Reset();
+		// 0x10686DB0
+		void SetPosition(const math::Vector& position);
+		// 0x10687C10
+		void Track(ObjectList* objects);
+		// 0x10687CA0
+		void Untrack(ObjectList* objects);
+
+		math::Vector position; // 0x00
+	};
+
 	// The objects the context's queries run against, as far as this unit reads them: the flag word whose low two
 	// bits select the intersection filter of the query (layout from this unit's code; the name is a guess)
 	struct PhysicsBody
@@ -215,9 +232,24 @@ namespace ravenphysics
 		// 0x10656C40
 		void* AddQuery(void* a, void* b, void* c, void* d);
 
+		// The flag the body carries at +0x0E, set when the tracker exists (0x10656640; name guess)
+		void SetWorldFlag(unsigned char value);
+		// The tracker's position and the lists it hands over (0x10656660 - 0x106566B0; names are guesses)
+		void ResetPlacement();
+		void SetPlacementPosition(math::Vector position);
+		void TrackMovableObjects();
+		void TrackObjects(ObjectList* objects);
+		void UntrackMovableObjects();
+		void UntrackObjects(ObjectList* objects);
+		// 0x10656E90
+		PlacementTracker* GetPlacement();
+		// Clears the "changed" flag of every object of the list that is not left out of the queries and
+		// recomputes the bounds of those that had it set (0x10657C90; name guess)
+		void RefreshObjectList(ObjectList* objects);
+
 		World* mWorld;             // 0x00
 		int unknown4;              // 0x04
-		void* unknown8;            // 0x08
+		PlacementTracker* placement; // 0x08
 		int unknownC;              // 0x0C
 		WorldBody* unknown10;      // 0x10
 		ObjectList staticObjects;  // 0x14 (the pm_ commands' "static" list)

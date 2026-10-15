@@ -37,6 +37,18 @@ namespace ravenphysics
 		BroadPhaseDetector* detector;
 		unsigned short detectorIndex;
 		unsigned char unknown3A[0x54 - 0x3A];
+
+		// The state the broad phase keeps in the head (at +0x3E): bit 0 - the object is asleep, bit 3 - the
+		// object is left out of the queries and of the solver (name guess)
+		bool IsAsleep() const
+		{
+			return (unknown3A[0x3E - 0x3A] & 1) != 0;
+		}
+
+		bool IsSkipped() const
+		{
+			return (unknown3A[0x3E - 0x3A] & 8) != 0;
+		}
 	};
 
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects
