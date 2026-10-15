@@ -674,10 +674,48 @@ agree, see `tools/rtti.py`'s vftable order):
 
 | Range | Unit | Contents |
 |---|---|---|
-| 0x108BC810 - 0x108BEF7F | not placed (73 functions) | `engine::render::LetterboxRenderPass`, `pure3d::DebugObjectManager` / `debugoverlay::DebugSelectionManager`, `engine::MotionTrail`, `MotionTrailCreator`, `MotionTrailState` (their six vftables are consecutive in `.rdata`) |
+| 0x108BC810 - 0x108BEF7F | `code/engine/render/letterboxrenderpass.cpp` (0x108BC810 - 0x108BD880) and `code/engine/motiontrail.cpp` (0x108BD890 - 0x108BEF7F) - both file names are guesses | `engine::render::LetterboxRenderPass`, `pure3d::DebugObjectManager` / `debugoverlay::DebugSelectionManager`, `engine::MotionTrail`, `MotionTrailCreator`, `MotionTrailState` (their six vftables are consecutive in `.rdata`) |
 | 0x108BEF80 - 0x108C02C4 | not placed (55 functions) | `engine::OnlineManager` (0x108BEF80 / 0x108BEFA0 / 0x108BEFC0 register it and its peers), replay / CRC / desync reporting (0x108BF030 reads `ReplayMode`, `recordCRC`, `DesyncHunt`; 0x108BFD30 dumps a controller desync) |
 | 0x108C02D0 - 0x108C04D9 | this unit (6 functions) | the pool |
 | 0x108C04E0 - past 0x108C1000 | `code/engine/fmv/fmvsubtitlemanager.cpp` (not started) | `engine::FmvSubtitleManager` and its `SubTitleEnty` (0x10C bytes), the `content::ArrayDynamic` / `ArrayDynamicHelper` copies |
+
+### What the last session did in these four units (and what is left)
+
+`render/letterboxrenderpass.cpp` (7 functions match, 1 NONMATCHING, ~53 not done):
+
+- Matched: 0x108BC810 `Letterbox::SetEnabled` (the byte at +0x16), 0x108BCB30 `Letterbox::GetAspectRatio` (a tail call
+  into `engine::gDisplay`) and 0x108BCDE0 `DebugSelectionManager::DebugSelectionManager`. 0x108BC8C0
+  `DebugObjectManager::DebugObjectManager` is defined in the class body (the derived constructor inlines it, which is
+  what the original does), so it is emitted and objcmp reports it 100 % but it carries no annotation and is not counted.
+- `engine::render::Letterbox` (the class owning the pool, the two fade helpers and the pass) is only partly placed: the
+  constructor 0x108BD150, the destructor 0x108BCBE0 and the update 0x108BCC50 need the fade helper class
+  (`108FD0A0` - `108FD8C0`, another unit, not reconstructed), `1074DF40` / `1074E8F0`, `10754A40` (`Context::FindPass`
+  by name), `108BD0D0` (the pass factory), `106DF460`, `10710AA0` and `10A9B7B0` named first.
+- `LetterboxRenderPass::LetterboxRenderPass` (0x108BC830) takes one four-byte argument that it pushes straight into
+  0x10754A70; that function copies a `core::Name` from +8, a byte from +0x10 and a dword from +0x14, so it is **not**
+  `Pass::Pass(const Pass&)` as the class layout suggests and its parameter type is still unknown.
+- 0x108BC860 and 0x108BC880 are the compiler's scalar deleting destructors of the fade helper and of something holding
+  the pool at +0; they call `~FadeHelper` (0x108FD8B0) and `~ParameterInterpolatorPool` (0x108C0340) with `this`
+  unchanged, so neither class can be polymorphic. How the original emits them is unsolved.
+- Not done, unplaced: 0x108BC820 / 0x108BC8A0 (1-byte `ret`), 0x108BCA00 (`ret 4`), 0x108BCDF0 (`ret 8`),
+  0x108BCB60 (`return this->unknown14`), 0x108BCB70 / 0x108BCEA0 (`return *(void**)this + 0x10`), 0x108BCE80,
+  0x108BCEB0 and 0x108BCB80 are `container::Map`-style iterator helpers of a container this unit instantiates (the
+  key and value types are still unknown), 0x108BD470 (`al = this+0x68`), 0x108BD480 / 0x108BD8D0 / 0x108BDC70
+  (`mov eax,ecx; ret`, three classes' "return this" accessors), 0x108BD900 (a four-byte swap), 0x108BCB30's
+  neighbours 0x108BD2C0 - 0x108BD740 (a class with a tree, floats at +0x5c - +0x68 and a 0xD0-byte copy at
+  0x108BD490).
+
+`engine/motiontrail.cpp` (4 functions match, 0 nonmatching, ~18 not done): 0x108BD960 `MotionTrailCreator`'s
+constructor (the vftable and the -1 at +4) and 0x108BD8A0 / 0x108BD920 / 0x108BD940, the two `MotionTrail` buffers
+(six floats at +0x1C and four at +0x34; the getter at 0x108BD8A0 writes the second three-float vector first, and
+naming the destination pointer `second = values + 3` is what makes the original's `mov eax, [esp+4]` come before its
+first `fld`).
+- `MotionTrail`'s own constructor 0x108BD890 stores the vftable and tail-jumps to 0x106F2FB0, which a base constructor
+  could not survive: the base is not `pure3d::Primitive`'s constructor, or it is not a base constructor at all. The
+  base is unplaced, and the class is declared in motiontrail.h without its bases for that reason.
+- 0x108BD970 (749 bytes), 0x108BDCA0 (1189), 0x108BE810 (1350), 0x108BED80 (464) and 0x108BE4A0 (517) are the unit's
+  bulk and are not started; 0x108BD8D0 / 0x108BDC70 (`mov eax,ecx; ret`) and 0x108BD900 (a four-byte swap) are
+  unplaced.
 
 ## render/async/private/deferreddeletion.cpp (0x108BC250 - 0x108BC7B0): 5 functions match, 15 kept copies
 
