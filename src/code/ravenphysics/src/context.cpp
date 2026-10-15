@@ -1,3 +1,4 @@
+#include <new>
 #include <string.h>
 
 #include "code/core/debug.h"
@@ -1471,6 +1472,332 @@ namespace ravenphysics
 			{
 				object->RefreshBounds(0);
 			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658A90
+	void HeapRunFirst::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658AA0
+	void AlignedRunFirst::Release()
+	{
+		if (mBegin != 0)
+		{
+			core::FreeAligned(mBegin);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658AB0
+	void AlignedRunSecond::Release()
+	{
+		if (mBegin != 0)
+		{
+			core::FreeAligned(mBegin);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658AC0
+	void AlignedRunThird::Release()
+	{
+		if (mBegin != 0)
+		{
+			core::FreeAligned(mBegin);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658AD0
+	bool StatLogSecond::Add(const StatEntry& entry)
+	{
+		return StatLog::Add(entry);
+	}
+
+	// FUNCTION: ENGINE 0x10658B70
+	void HeapRunSecond::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658B80
+	void HeapRunThird::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658B90
+	void HeapRunFourth::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658BA0
+	void HeapRunFifth::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658BB0
+	void HeapRunSixth::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658BC0
+	void HeapRunSeventh::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658BD0
+	void HeapRunEighth::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10658BE0
+	bool ScratchBytesSecond::Reserve(unsigned int size, const char* value)
+	{
+		if (mBegin != 0)
+		{
+			return false;
+		}
+		if (size > 0)
+		{
+			unsigned char* begin = (unsigned char*)allocator.Alloc(size, 16);
+			mBegin = begin;
+			if (begin != 0)
+			{
+				mEnd = begin + size;
+				FillByteRun((char*)begin, size, value);
+				return true;
+			}
+		}
+		mBegin = 0;
+		mEnd = 0;
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10658C40
+	void StatLogThird::Add(const StatEntry& entry)
+	{
+		mLog.Add(entry);
+	}
+
+	// FUNCTION: ENGINE 0x10658C50
+	// NONMATCHING: register allocation, 57.7 %: the engine keeps the owner in edx and the walk in eax where ours picks
+	// the other way round, every instruction otherwise identical (the same source on the twin slot at 0x10658480 has
+	// the same problem)
+#ifdef NONMATCHING
+	void IndexedSlotThird::Get(RecordWalk* walk) const
+	{
+		ShortHead* owner = mOwner;
+		walk->owner = owner;
+		walk->value = owner->values[mIndex];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106594B0
+	void HeapRunFirst::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106594D0
+	void HeapRunSecond::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106594F0
+	void HeapRunThird::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659510
+	void HeapRunFourth::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659530
+	void HeapRunFifth::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659550
+	void HeapRunSixth::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659570
+	void HeapRunSeventh::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659590
+	void HeapRunNinth::Clear()
+	{
+		mEnd = mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x106595A0
+	bool ScratchBytesSecond::Reserve(unsigned int size)
+	{
+		char value = 0;
+		return Reserve(size, &value);
+	}
+
+	// FUNCTION: ENGINE 0x106595C0
+	void RunsFirst::Finalize()
+	{
+		unknown24 = unknown20;
+		if (unknown20 != 0)
+		{
+			delete[] unknown20;
+		}
+		unknown14 = unknown10;
+		if (unknown10 != 0)
+		{
+			delete[] unknown10;
+		}
+		unknown4 = unknown0;
+		if (unknown0 != 0)
+		{
+			delete[] unknown0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659600
+	void HeapRunEighth::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659620
+	void HeapRunNinth::Release()
+	{
+		mEnd = mBegin;
+		if (mBegin != 0)
+		{
+			delete[] mBegin;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659640
+	AlignedRuns* AlignedRuns::FinalizeDeleting(unsigned int flag)
+	{
+		if (unknown24 != 0)
+		{
+			core::FreeAligned(unknown24);
+		}
+		if (unknown18 != 0)
+		{
+			core::FreeAligned(unknown18);
+		}
+		if (unknownC != 0)
+		{
+			core::FreeAligned(unknownC);
+		}
+		if ((flag & 1) != 0)
+		{
+			operator delete(this);
+		}
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x10658EC0
+	void AlignedRuns::Finalize()
+	{
+		if (unknown24 != 0)
+		{
+			core::FreeAligned(unknown24);
+		}
+		if (unknown18 != 0)
+		{
+			core::FreeAligned(unknown18);
+		}
+		unsigned char* third = (unsigned char*)unknownC;
+		if (third != 0)
+		{
+			core::FreeAligned(third);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659CD0
+	void RunsSecond::Finalize()
+	{
+		unknown28 = unknown24;
+		if (unknown24 != 0)
+		{
+			delete[] unknown24;
+		}
+		unknown14 = unknown10;
+		if (unknown10 != 0)
+		{
+			delete[] unknown10;
+		}
+		unknown4 = unknown0;
+		if (unknown0 != 0)
+		{
+			delete[] unknown0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10659D10
+	void RunsThird::Finalize()
+	{
+		unknown28 = unknown24;
+		if (unknown24 != 0)
+		{
+			delete[] unknown24;
+		}
+		unknown14 = unknown10;
+		if (unknown10 != 0)
+		{
+			delete[] unknown10;
+		}
+		unknown4 = unknown0;
+		if (unknown0 != 0)
+		{
+			delete[] unknown0;
 		}
 	}
 }

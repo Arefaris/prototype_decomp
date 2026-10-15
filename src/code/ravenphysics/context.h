@@ -6,8 +6,10 @@
 
 #include "code/content/loadinventory.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/batch/midphasebatcher.h"
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
 #include "code/ravenphysics/common/stackallocator.h"
+#include "code/ravenphysics/common/hashtable.h"
 
 namespace ravenphysics
 {
@@ -445,6 +447,219 @@ namespace ravenphysics
 		ScratchStack allocator; // 0x08
 	};
 
+	// A second run of bytes over the scratch stack: this one refuses to reserve twice and fills what it takes with
+	// the byte it is given (name guess)
+	struct ScratchBytesSecond
+	{
+		// The same with the fill removed, the byte written being zero (name guess)
+		bool Reserve(unsigned int size);
+		// size bytes filled with the byte value points at; refuses when the run is already there (0x10658BE0)
+		bool Reserve(unsigned int size, const char* value);
+
+		unsigned char* mBegin;  // 0x00
+		unsigned char* mEnd;    // 0x04
+		ScratchStack allocator; // 0x08
+	};
+
+	// The runs of pointers the classes of this range hold but whose owners nothing gives away: the unit emits the
+	// accessors of nine of them and they all have the same shape, so they are written here as nine stand-ins, one
+	// per emitted copy (name guesses). `Clear` drops the run and `Release` gives its storage back.
+
+	struct HeapRunFirst
+	{
+		void Clear();   // 0x10658A90
+		void Release(); // 0x106594B0
+
+		char* mBegin; // 0x00
+		char* mEnd;   // 0x04
+	};
+
+	struct HeapRunSecond
+	{
+		void Clear();   // 0x10658B70
+		void Release(); // 0x106594D0
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunThird
+	{
+		void Clear();   // 0x10658B80
+		void Release(); // 0x106594F0
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunFourth
+	{
+		void Clear();   // 0x10658B90
+		void Release(); // 0x10659510
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunFifth
+	{
+		void Clear();   // 0x10658BA0
+		void Release(); // 0x10659530
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunSixth
+	{
+		void Clear();   // 0x10658BB0
+		void Release(); // 0x10659550
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunSeventh
+	{
+		void Clear();   // 0x10658BC0
+		void Release(); // 0x10659570
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunEighth
+	{
+		void Clear();   // 0x10658BD0
+		void Release(); // 0x10659600
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct HeapRunNinth
+	{
+		void Clear();   // 0x10659590
+		void Release(); // 0x10659620
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	// Three more runs whose storage the library allocated aligned (name guesses)
+	struct AlignedRunFirst
+	{
+		void Release(); // 0x10658AA0
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct AlignedRunSecond
+	{
+		void Release(); // 0x10658AB0
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct AlignedRunThird
+	{
+		void Release(); // 0x10658AC0
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	// The classes that hold three runs of the kind above; the unit emits their cleanup, once with the aligned frees
+	// and once as the destructor the compiler makes of them (name guesses). The member names are the offsets.
+
+	struct RunsFirst
+	{
+		void Finalize(); // 0x106595C0
+
+		void* unknown0;  // 0x00
+		void* unknown4;  // 0x04
+		void* unknown8;  // 0x08
+		void* unknownC;  // 0x0C
+		void* unknown10; // 0x10
+		void* unknown14; // 0x14
+		void* unknown18; // 0x18
+		void* unknown1C; // 0x1C
+		void* unknown20; // 0x20
+		void* unknown24; // 0x24
+		void* unknown28; // 0x28
+	};
+
+	struct RunsSecond
+	{
+		void Finalize(); // 0x10659CD0
+
+		void* unknown0;  // 0x00
+		void* unknown4;  // 0x04
+		void* unknown8;  // 0x08
+		void* unknownC;  // 0x0C
+		void* unknown10; // 0x10
+		void* unknown14; // 0x14
+		void* unknown18; // 0x18
+		void* unknown1C; // 0x1C
+		void* unknown20; // 0x20
+		void* unknown24; // 0x24
+		void* unknown28; // 0x28
+	};
+
+	struct RunsThird
+	{
+		void Finalize(); // 0x10659D10
+
+		void* unknown0;  // 0x00
+		void* unknown4;  // 0x04
+		void* unknown8;  // 0x08
+		void* unknownC;  // 0x0C
+		void* unknown10; // 0x10
+		void* unknown14; // 0x14
+		void* unknown18; // 0x18
+		void* unknown1C; // 0x1C
+		void* unknown20; // 0x20
+		void* unknown24; // 0x24
+		void* unknown28; // 0x28
+	};
+
+	// The same over three runs the library allocated aligned, and the deleting form the compiler makes of a
+	// destructor with a flag (name guesses)
+	struct AlignedRuns
+	{
+		void Finalize();                          // 0x10658EC0
+		AlignedRuns* FinalizeDeleting(unsigned int flag); // 0x10659640
+
+		void* unknown0;  // 0x00
+		void* unknown4;  // 0x04
+		void* unknown8;  // 0x08
+		void* unknownC;  // 0x0C
+		void* unknown10; // 0x10
+		void* unknown14; // 0x14
+		void* unknown18; // 0x18
+		void* unknown1C; // 0x1C
+		void* unknown20; // 0x20
+		void* unknown24; // 0x24
+		void* unknown28; // 0x28
+	};
+
+	// A class whose first member is the library's statistics log: its own Add forwards to it (name guess)
+	struct StatLogSecond : StatLog
+	{
+		bool Add(const StatEntry& entry); // 0x10658AD0
+	};
+
+	// A class that keeps the log behind a head of its own (name guess)
+	struct StatLogThird
+	{
+		void Add(const StatEntry& entry); // 0x10658C40
+
+		unsigned char unknown0[0xC];
+		StatLog mLog; // 0x0C
+	};
+
 	// A 32-byte profiling record (name guess)
 	struct Record32
 	{
@@ -776,6 +991,16 @@ namespace ravenphysics
 	{
 		unsigned char unknown0[8];
 		unsigned short* values; // 0x08
+	};
+
+	// A slot that holds its owner first and its index behind it (name guess)
+	struct IndexedSlotThird
+	{
+		// Writes the slot's value and its owner into the walk (0x10658C50)
+		void Get(RecordWalk* walk) const;
+
+		ShortHead* mOwner;     // 0x00
+		unsigned short mIndex; // 0x04
 	};
 
 	// A head whose first word points at a run of 16-bit values (name guess)

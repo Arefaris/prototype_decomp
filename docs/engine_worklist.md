@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 165 functions match, 2 NONMATCHING
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 195 functions match, 3 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1807,6 +1807,10 @@ NONMATCHING in this range:
 - `0x10658480 IndexedSlotSecond::Get`: register allocation, 32 % - the engine reads the slot index before it stores
   the owner and then loads the owner's run through the same register it stored; ours keeps the owner in a second
   register and reloads through it (25 bytes against 28 with a `value` local, 28 against 28 without).
+- `0x10658C50 IndexedSlotThird::Get`: register allocation, 57.7 % - the second copy of the same accessor (owner at
+  +0, index at +4, the owner's run at +8), and the engine puts the owner in edx and the walk in eax where ours picks
+  the other way round; every instruction is otherwise identical. Naming the owner in a local, dropping the local,
+  taking the walk by reference and swapping the two statements all compile to the same 26 bytes.
 
 Two systematic findings worth reusing:
 
@@ -1817,6 +1821,13 @@ Two systematic findings worth reusing:
 - `StatLog` is not this unit's class: it lives in `ravenphysics/batch/midphasebatcher.h`, and its `Add` returns one
   byte there too (`unsigned int` was the earlier guess), so the declaration and the `symbols.txt` name changed from
   `QAEI...` to `QAE_N...`. `MidPhaseBatcher::Finish` calls it and ignores the result.
+- **`delete[]` needs `#include <new>`**: without it the compiler's implicit `operator delete[]` is the *scalar*
+  `??3@YAXPAX@Z` (0x107DEFD0), and a guarded `delete[] p` compiles to a call to it; the engine's code calls
+  `??_V@YAXPAX@Z` (0x107DEFE0). `context.cpp` now includes `<new>` for that reason. (`gamedatabase.cpp` and
+  `enginememory.h` get the array operator from `code/engine/system/enginememory.h`, which declares it.)
+- A "release the run" cleanup stores the end unconditionally and only *then* tests the pointer -
+  `mEnd = mBegin; if (mBegin != 0) delete[] mBegin;` - and the engine's compiler schedules the store between the
+  `test` and the `je`; writing the store inside the `if` gives the same instructions one byte order off.
 
 Still not done in this range:
 
