@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 204 functions match, 3 NONMATCHING
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 205 functions match, 6 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1807,6 +1807,17 @@ NONMATCHING in this range:
 - `0x10658480 IndexedSlotSecond::Get`: register allocation, 32 % - the engine reads the slot index before it stores
   the owner and then loads the owner's run through the same register it stored; ours keeps the owner in a second
   register and reloads through it (25 bytes against 28 with a `value` local, 28 against 28 without).
+- `0x10657F20 Context::GetIslandTable` (register allocation, 86.6 %) and `0x10657FA0 Context::GetAwakeTable`
+  (88.2 %): the two fill a 40-byte snapshot (32 bytes copied whole from `detector + 0x150` / `+0x34`, then the run
+  and count from `+0x124` / `+0x128`, resp. `+0x6C` / `+0x70`), and the engine keeps the detector in edx and the
+  output pointer in eax where ours swaps the two; the instructions and their order are otherwise the same. A local
+  for either of them, a local for the output, `memcpy` instead of the struct copy, and taking the output by
+  reference all compile to the same pair.
+- `0x10657D70 Context::GetStatistics`: register allocation and scheduling, 42.4 % - the offsets and the arithmetic
+  are the engine's (22 words from the two object lists, the three batches' runs and the detector's counters), but it
+  interleaves the detector loads with the words between them and takes each pair's maximum with `cmp; jae; mov`
+  where ours compiles to `cmp; cmovb`. Writing the statements in the engine's instruction order moves it from
+  38.8 % to 42.4 %.
 - `0x10658C50 IndexedSlotThird::Get`: register allocation, 57.7 % - the second copy of the same accessor (owner at
   +0, index at +4, the owner's run at +8), and the engine puts the owner in edx and the walk in eax where ours picks
   the other way round; every instruction is otherwise identical. Naming the owner in a local, dropping the local,
@@ -1853,6 +1864,17 @@ Matched in the third session: the nine ownerless runs of 0x10658A90 - 0x10659620
 `Context::QueryObjectShapeHits` (0x10659420, the world's vtable slot 0x44, which the header now types),
 `CollisionDetector::Destructor/Destroy/End/Begin`, `Context::BeginCollision`, `ObjectRegistry`'s constructor and
 `Reset`, and `PointerHashTable::Reset`.
+
+The detector's destructor (0x10658610) is written and matches. Its record is a `Record32` local, and that local is
+what makes the engine align those methods' frames (`push ebp; mov ebp, esp; and esp, -16`), so `Record32` is
+`__declspec(align(16))` in the header; the record's fields are `start`, `end`, `unknown8` (-1), `unknownC`,
+`unknown10` / `unknown11` (1) and its `kind` (1 Synchronize, 2 Self collisions, 6 Collide Awoken Islands, 7 Waiting
+on gate). Its pool `Add` is inlined at that call site in the engine, so the source calls `AcquireSlot32` directly.
+
+The two getters need `BroadPhaseDetector`'s two tables (heads at +0x34 / +0x150, runs and counts at +0x6C / +0x70
+and +0x124 / +0x128) and the statistics getter needs the batches' second runs (`CollisionBatch` +0x24/+0x28,
+`ConstraintBatch` +0x24/+0x28, `QueryBatch` +0x20/+0x24) and `Context`'s counters at +0xC8, +0xCC, +0xD0, +0xDC,
++0xEC, +0xF0, +0xF4, +0xF8, +0xFC, +0x100; all of those are now declared, with the layouts the accessors imply.
 
 Still not done in this range:
 

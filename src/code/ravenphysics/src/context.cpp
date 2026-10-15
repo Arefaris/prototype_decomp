@@ -1,10 +1,13 @@
 #include <new>
 #include <string.h>
 
+#include "code/core/criticalsection.h"
 #include "code/core/debug.h"
 #include "code/core/heap.h"
 #include "code/core/interlocked.h"
+#include "code/core/time.h"
 #include "code/ravenphysics/batch/midphasebatcher.h"
+#include "code/ravenphysics/batch/narrowphasebatcher.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/ravenphysics/context.h"
@@ -283,7 +286,7 @@ namespace ravenphysics
 			return;
 		}
 		gLock.locked = true;
-		placement->Advance(unknown10, unknown10C, a, dt, unknownC4, registry, b);
+		placement->Advance(unknown10, &recordPool, a, dt, unknownC4, registry, b);
 		gLock.locked = false;
 	}
 
@@ -1847,6 +1850,31 @@ namespace ravenphysics
 		table.Reset();
 	}
 
+	// FUNCTION: ENGINE 0x10658610
+	CollisionDetector::~CollisionDetector()
+	{
+		ScratchStack stack;
+		Record32 record;
+		record.name = "Waiting on gate";
+		record.unknown8 = -1;
+		record.kind = 7;
+		record.unknown10 = true;
+		record.unknown11 = true;
+		record.start = (unsigned int)core::GetTicks();
+		core::EventWait(event);
+		record.end = (unsigned int)core::GetTicks();
+		Record32* item = (Record32*)AcquireSlot32(recordPool);
+		if (item != 0)
+		{
+			*item = record;
+		}
+		gLock.locked = false;
+		stack.Unlock();
+		midPhase->Complete();
+		narrowPhase->Complete();
+		core::EventDestroy(event);
+	}
+
 	// FUNCTION: ENGINE 0x10658F70
 	CollisionDetector* CollisionDetector::Destroy(unsigned int flag)
 	{
@@ -1900,4 +1928,87 @@ namespace ravenphysics
 		detector->Begin(this, data);
 		detector->GetEventChecked();
 	}
+
+	// FUNCTION: ENGINE 0x10657F20
+	// NONMATCHING: register allocation, 86.6 %: the engine keeps the detector in edx and the output pointer in eax,
+	// ours picks the other way round (and stores the lower half of the copy's two words one instruction later); the
+	// instructions and their order are otherwise identical. A named local for either, a named local for the output,
+	// a struct assignment instead of the memcpy and taking the output by pointer instead of by address all compile
+	// to the same pair.
+#ifdef NONMATCHING
+	void Context::GetIslandTable(DetectorTable* out)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x86b, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		BroadPhaseDetector* detector = unknownC4;
+		out->head = detector->unknown150;
+		out->records = detector->unknown124;
+		out->count = detector->unknown128;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10657FA0
+	// NONMATCHING: register allocation, 88.2 %: the same swap of the detector and the output pointer as 0x10657F20,
+	// the code being the same shape with the other table's offsets
+#ifdef NONMATCHING
+	void Context::GetAwakeTable(DetectorTable* out)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x871, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		BroadPhaseDetector* detector = unknownC4;
+		out->head = detector->unknown34;
+		out->records = detector->unknown6C;
+		out->count = detector->unknown70;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10657D70
+	// NONMATCHING: register allocation and scheduling, 42.4 %: the offsets and the arithmetic are the engine's, but
+	// it interleaves the four detector loads with the words that follow them and takes the maximum of each pair of
+	// counts with a branch (`cmp; jae; mov`) where ours compiles it to `cmp; cmovb` (and the division's magic lets
+	// the values sit in different registers). Reordering the statements to the engine's instruction order moves the
+	// ratio to 42.4 % from 38.8 % without closing it.
+#ifdef NONMATCHING
+	void Context::GetStatistics(int* out)
+	{
+		out[0] = (int)(staticObjects.end - staticObjects.begin);
+		out[1] = (int)(movableObjects.end - movableObjects.begin);
+		out[2] = unknownC4->Table().unknown4;
+		out[3] = unknownC8;
+		out[4] = unknownC4->Table().unknown6;
+		out[5] = unknownCC;
+		out[6] = unknownC4->Table().unknown8;
+		out[7] = unknownD0;
+		out[8] = unknownC4->Table().unknownA;
+		out[9] = unknownDC;
+		unsigned int slots = (unsigned int)((collisionBatch.slotsEnd - collisionBatch.slots) / 0xc);
+		unsigned int records = (unsigned int)((collisionBatch.recordsEnd - collisionBatch.records) / 0x30);
+		if (slots < records)
+		{
+			slots = records;
+		}
+		out[10] = slots;
+		out[0xb] = unknownEC;
+		out[0xc] = (int)((collisionBatch.recordsSecondEnd - collisionBatch.recordsSecond) / 0x30);
+		out[0xd] = unknownF0;
+		slots = (unsigned int)((constraintBatch.slotsEnd - constraintBatch.slots) / 0xc);
+		records = (unsigned int)((constraintBatch.recordsEnd - constraintBatch.records) / 0xa8);
+		if (slots < records)
+		{
+			slots = records;
+		}
+		out[0xe] = slots;
+		out[0xf] = unknownF4;
+		out[0x10] = (int)((constraintBatch.recordsSecondEnd - constraintBatch.recordsSecond) / 0x34);
+		out[0x11] = unknownF8;
+		slots = (unsigned int)((queryBatch.slotsEnd - queryBatch.slots) / 0xc);
+		records = (unsigned int)((queryBatch.recordsEnd - queryBatch.records) / 0x2c);
+		if (slots < records)
+		{
+			slots = records;
+		}
+		out[0x12] = slots;
+		out[0x13] = unknownFC;
+		out[0x14] = (int)(queryBatch.unknown24 - queryBatch.unknown20);
+		out[0x15] = unknown100;
+	}
+#endif
 }

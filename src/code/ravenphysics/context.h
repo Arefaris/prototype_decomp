@@ -679,10 +679,21 @@ namespace ravenphysics
 		StatLog mLog; // 0x0C
 	};
 
-	// A 32-byte profiling record (name guess)
-	struct Record32
+	// A 32-byte record of the profiler pools: the tick counts around the work, the two words between them (the second
+	// one is always -1), two bytes the record carries, its name and its kind (name guesses). A local of it is what
+	// makes the engine align the frame of the methods that build one, so the record is 16-byte aligned.
+	__declspec(align(16)) struct Record32
 	{
-		int unknown0[8];
+		unsigned int start;    // 0x00
+		unsigned int end;      // 0x04
+		int unknown8;          // 0x08
+		int unknownC;          // 0x0C
+		bool unknown10;        // 0x10
+		bool unknown11;        // 0x11
+		unsigned short unknown12; // 0x12
+		const char* name;      // 0x14
+		unsigned short kind;   // 0x18
+		unsigned char unknown1A[0x20 - 0x1A]; // 0x1A
 	};
 
 	// The pair of words that identifies a record (name guess)
@@ -1306,6 +1317,9 @@ namespace ravenphysics
 		void* unknown28;                               // 0x28
 	};
 
+	// The three work lists the context queues for the detection: each holds a run of its own records and, behind it,
+	// a run of the small records the solver hands on (the sizes are what the statistics getter divides by; the
+	// member names are guesses).
 	class CollisionBatch
 	{
 	public:
@@ -1314,7 +1328,15 @@ namespace ravenphysics
 		// Appends an entry; mode is 4, 8 or 0x10 (0x1068B340)
 		void* Add(void* first, void* second, int mode);
 
-		unsigned char unknown0[0x34];
+		unsigned char* records;          // 0x00 (0x30-byte entries)
+		unsigned char* recordsEnd;       // 0x04
+		unsigned char unknown8[8];       // 0x08
+		unsigned char* slots;            // 0x10 (0xC-byte entries)
+		unsigned char* slotsEnd;         // 0x14
+		unsigned char unknown18[0xC];    // 0x18
+		unsigned char* recordsSecond;    // 0x24 (the second run of 0x30-byte entries; name guess)
+		unsigned char* recordsSecondEnd; // 0x28
+		unsigned char unknown2C[0x34 - 0x2C];
 	};
 
 	class ConstraintBatch
@@ -1325,7 +1347,15 @@ namespace ravenphysics
 		// Appends an entry; mode is 0, 1 or 2 (0x1068DD60)
 		void* Add(void* first, void* second, int mode);
 
-		unsigned char unknown0[0x34];
+		unsigned char* records;          // 0x00 (0xA8-byte entries)
+		unsigned char* recordsEnd;       // 0x04
+		unsigned char unknown8[8];       // 0x08
+		unsigned char* slots;            // 0x10 (0xC-byte entries)
+		unsigned char* slotsEnd;         // 0x14
+		unsigned char unknown18[0xC];    // 0x18
+		unsigned char* recordsSecond;    // 0x24 (the second run, 0x34-byte entries; name guess)
+		unsigned char* recordsSecondEnd; // 0x28
+		unsigned char unknown2C[0x34 - 0x2C];
 	};
 
 	class QueryBatch
@@ -1336,7 +1366,15 @@ namespace ravenphysics
 		// Appends an entry (0x10671580)
 		void* Add(void* a, void* b, void* c, void* d);
 
-		unsigned char unknown0[0x38];
+		unsigned char* records;     // 0x00 (0x2C-byte entries)
+		unsigned char* recordsEnd;  // 0x04
+		unsigned char unknown8[8];  // 0x08
+		unsigned char* slots;       // 0x10 (0xC-byte entries)
+		unsigned char* slotsEnd;    // 0x14
+		unsigned char unknown18[8]; // 0x18
+		void** unknown20;           // 0x20 (a run of pointers; name guess)
+		void** unknown24;           // 0x24
+		unsigned char unknown28[0x38 - 0x28];
 	};
 
 	class Context
@@ -1348,6 +1386,14 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+
+		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
+		// names are guesses)
+		void GetIslandTable(DetectorTable* out);
+		void GetAwakeTable(DetectorTable* out);
+		// The counters the statistics display shows: the object counts, the batches' fill and the detector's own
+		// (0x10657D70; name guess)
+		void GetStatistics(int* out);
 
 		// Starts the detection over data: the detector opens its gate and the caller checks it did (0x10659F40)
 		void BeginCollision(void* data);
@@ -1419,11 +1465,26 @@ namespace ravenphysics
 		ConstraintBatch constraintBatch; // 0x58
 		QueryBatch queryBatch;           // 0x8C
 		BroadPhaseDetector* unknownC4;   // 0xC4
-		unsigned char unknownC8[0xD8 - 0xC8];
-		bool unknownD8; // 0xD8
-		unsigned char unknownD9[0x108 - 0xD9];
+		// What the statistics getter reports next to the detector's own counters (the four lists it counts are the
+		// four runs above; every name here is a guess)
+		int unknownC8;   // 0xC8
+		int unknownCC;   // 0xCC
+		int unknownD0;   // 0xD0
+		int unknownD4;   // 0xD4
+		bool unknownD8;  // 0xD8
+		unsigned char unknownD9[0xDC - 0xD9];
+		int unknownDC;   // 0xDC
+		unsigned char unknownE0[0xEC - 0xE0];
+		int unknownEC;   // 0xEC
+		int unknownF0;   // 0xF0
+		int unknownF4;   // 0xF4
+		int unknownF8;   // 0xF8
+		int unknownFC;   // 0xFC
+		int unknown100;  // 0x100
+		unsigned char unknown104[0x108 - 0x104];
 		CollisionDetector* detector; // 0x108
-		unsigned char unknown10C[4];
+		SlotPool recordPool;         // 0x10C (the profiler pool the record's SlotPool methods use)
+		StatLog statLog;             // 0x118
 	};
 
 	// The physics context (0x1128356C)

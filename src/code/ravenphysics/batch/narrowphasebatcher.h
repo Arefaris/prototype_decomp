@@ -9,9 +9,20 @@
 
 namespace ravenphysics
 {
-	class NarrowPhaseBatcher;
 	class PhysicsObject;
 	struct PairDetails;
+
+	// The batcher the narrow phase's pairs are queued in and worked off from (assert path
+	// code/ravenphysics/batch/src/narrowphasebatcher.cpp; the class name is the unit's, the layout is not recovered
+	// yet and the context unit only holds a pointer to it)
+	class NarrowPhaseBatcher
+	{
+	public:
+		// Waits for every queued batch and reports what was left over (0x106911D0; name guess)
+		void Complete();
+
+		unsigned char unknown0[0x400];
+	};
 
 	// The pairs of one collision-type queue, filled until the capacity is reached
 	struct Batch

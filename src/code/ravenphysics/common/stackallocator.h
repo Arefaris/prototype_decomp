@@ -49,6 +49,8 @@ namespace ravenphysics
 	public:
 		// size bytes aligned to align, or null when the buffer is exhausted (0x10666FE0)
 		void* Alloc(unsigned int size, int align);
+		// Takes the library's scratch stack lock off again, asserting it was set (0x10667250; name guess)
+		void Unlock();
 		// count objects of T, the byte size rounded up to the alignment
 		template<class T>
 		T* AllocArray(int count, int align);

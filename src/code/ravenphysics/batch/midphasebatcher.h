@@ -61,6 +61,8 @@ namespace ravenphysics
 		// Queues what is left and, for the last of the callers sharing the batcher, flushes the narrow phase's
 		// batches and reports the statistics (0x10691C30)
 		void Finish();
+		// Asserts that every batch the mid phase queued has been picked up (0x10691690; name guess)
+		void Complete();
 
 		PairBatch pairs;
 		unsigned char unknown18[0x28 - 0x18];
