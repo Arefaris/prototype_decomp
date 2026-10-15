@@ -10,6 +10,18 @@
 namespace ravenphysics
 {
 	class WorldBody;
+	class PhysicsObject;
+	class ObjectTable;
+
+	// An object the library refers to by its index in its object table (name guess)
+	struct ObjectHandle
+	{
+		// The object the index refers to (0x106560A0; name guess)
+		PhysicsObject* GetObject() const;
+
+		unsigned short index;    // 0x00
+		unsigned short unknown2; // 0x02
+	};
 
 	// What a query collides with (0x10653860 constructs it from the physics library's defaults; meanings unknown)
 	struct IntersectionProperties
@@ -257,6 +269,8 @@ namespace ravenphysics
 		// 0x10656C40
 		void* AddQuery(void* a, void* b, void* c, void* d);
 
+		// Hands every collision object of the handle's object to a world (0x106564E0; name guess)
+		void ResetObjectWorld(ObjectHandle handle, void* world);
 		// One simulation step of the whole context (0x106565F0; name guess)
 		void Advance(void* a, float dt, void* b);
 		// The flag the body carries at +0x0E, set when the tracker exists (0x10656640; name guess)

@@ -7,6 +7,19 @@
 
 namespace ravenphysics
 {
+	// FUNCTION: ENGINE 0x106564E0
+	void Context::ResetObjectWorld(ObjectHandle handle, void* world)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x215, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		PhysicsObject* object = handle.GetObject();
+		unsigned int count = object->objectCount;
+		object->objects[0]->IsSurfaceActive();
+		for (unsigned int i = 0; i < count; i++)
+		{
+			object->objects[i]->SetWorld(world);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10656580
 	CollisionDetector* CollisionDetector::Clear()
 	{

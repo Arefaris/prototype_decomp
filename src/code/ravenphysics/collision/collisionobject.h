@@ -29,6 +29,11 @@ namespace ravenphysics
 			return wasChanged;
 		}
 
+		// Bit 1 of the surface flags behind +0x64 (0x106555F0; name guess)
+		bool IsSurfaceActive() const;
+		// Hands the object to the world it now belongs to (0x10655600; name guess)
+		void SetWorld(void* world);
+
 		unsigned char unknown0[0x48];
 		int id;
 		int unknown4C;

@@ -5489,3 +5489,7 @@ __RTDynamicCast = 0x10A88356 ; function size:0x6 | the CRT's dynamic_cast helper
 ?GetObject@CollisionDetector@ravenphysics@@QAEPAXXZ = 0x10656590 ; function size:0x4D | ravenphysics::CollisionDetector::GetObject (name guess)
 ?GetBody@CollisionDetector@ravenphysics@@QAEPAXXZ = 0x106565E0 ; function size:0x4 | ravenphysics::CollisionDetector::GetBody (name guess)
 ?GetBodyChecked@CollisionDetector@ravenphysics@@QAEPAXXZ = 0x10657C40 ; function size:0x4C | ravenphysics::CollisionDetector::GetBodyChecked (name guess)
+?GetObject@ObjectHandle@ravenphysics@@QBEPAVPhysicsObject@2@XZ = 0x106560A0 ; function size:0x10 | ravenphysics::ObjectHandle::GetObject (name guess)
+?ResetObjectWorld@Context@ravenphysics@@QAEXUObjectHandle@2@PAX@Z = 0x106564E0 ; function size:0x8A | ravenphysics::Context::ResetObjectWorld (name guess)
+?IsSurfaceActive@CollisionObject@ravenphysics@@QBE_NXZ = 0x106555F0 ; function size:0xB | ravenphysics::CollisionObject::IsSurfaceActive (name guess)
+?SetWorld@CollisionObject@ravenphysics@@QAEXPAX@Z = 0x10655600 ; function size:0x67 | ravenphysics::CollisionObject::SetWorld (name guess)
