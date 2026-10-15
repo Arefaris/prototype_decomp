@@ -168,6 +168,14 @@ namespace ravenphysics
 		math::Vector position; // 0x00
 	};
 
+	// What the collision detection is handed to work on: the counters its "Collisions" statistic reports (name guess)
+	struct DetectionData
+	{
+		int unknown0;
+		int first;  // 0x04
+		int second; // 0x08
+	};
+
 	// The objects the context's queries run against, as far as this unit reads them: the flag word whose low two
 	// bits select the intersection filter of the query (layout from this unit's code; the name is a guess)
 	struct PhysicsBody
@@ -1404,6 +1412,12 @@ namespace ravenphysics
 
 		// Starts the detection over data: the detector opens its gate and the caller checks it did (0x10659F40)
 		void BeginCollision(void* data);
+		// The detection's islands, over the objects the object list holds, out of the scratch buffer (0x106599C0;
+		// name guess)
+		void RunIslands(DetectionData* data, StackAllocator* allocator);
+		// Ends the detection and, unless the world is torn down, runs the islands and reports what it counted
+		// (0x10659F70; name guess)
+		void Collide();
 		// The same shape query as QueryObjectShape, with the hits emptied first (0x10659420; name guess)
 		void QueryObjectShapeHits(void* object, RayHitArray* hits, void* a);
 

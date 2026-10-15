@@ -1889,6 +1889,11 @@ What is still open in the collision detection block, and what it needs:
   one-byte empty function at **0x106860E0**, which the allocator unit owns. Who declares that class is the open
   question for those two functions; `NarrowPhaseBatcher`'s and `MidPhaseBatcher`'s constructors (0x10658F90 /
   0x10659030) are COMDATs of inline constructors those two units' headers define, and `Run` needs them inlined.
+  A class that *contains* a `StackAllocator` cannot be written as it stands: our `StackAllocator` declares only its
+  three-argument constructor (`??0StackAllocator@...` at 0x10686040), so a member of it is not default-constructible
+  and the constructor body cannot write `allocator.unknown18` and call `allocator.Init` on it. Either the original's
+  `StackAllocator` is default-constructible - 0x10686040 has exactly `Init`'s body plus `return this`, so it may be a
+  plain method whose constructor name is only the earlier session's guess - or the 0x30-byte class derives from it.
 - `0x106586E0`, `0x106588B0`, `0x10658D00`, `0x10659070`, `0x106599C0`, `0x10659D50`: the walks themselves (they
   use the detector's +0x150/+0x34 tables, the registry's island runs and `GetObject()`'s object) - not started.
 - `0x10657D00`: takes an object out of the detector (`BroadPhaseDetector::RemoveSecond`, 0x106846F0) and clears
