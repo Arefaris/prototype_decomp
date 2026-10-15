@@ -290,6 +290,8 @@ namespace pure3d
 	public:
 		// 0x106EE860: releases what the module keeps for a particle system state
 		void ReleaseState(PrimitiveState* state);
+		// 0x106EE570: prepares the module's frame (called when a frame opens)
+		void Unknown106EE570();
 		// 0x106EE6E0: the index of a parameter
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have

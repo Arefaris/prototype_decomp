@@ -956,6 +956,55 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
+## pure3d/src/context.cpp (0x1070E7xx - 0x10710930): 21 functions match, 4 nonmatching, the rest not done
+
+`pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
+(0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
+(0x107107F0) makes it from a settings struct (the window handle at +0x10) and replaces the window procedure with the
+unit's own `ContextWindowProc` (0x1070ED50, a WM_SIZE handler for `engine::gDisplay`); `Context::BeginFrame` /
+`EndFrame` (0x1070EE70 / 0x1070EF00) open and close a frame on `pure3d::pddi`, the display and the passes' context.
+The class derives from a `container::Map` (its first member is the tree; the node payload at +0x10 is destroyed by
+0x106E2AA0 and the value at +0x20 is released through its vftable, the deleter is 0x107102B0).
+
+Layout (read off the constructor): TreeBase +0; +0x1C the passes' context (vftable, slots 1 / 2 and 0x1074D880 with
+the frame's render parameters), +0x20 the primitive stream, +0x24 unknown, +0x28 the view, +0x2C the drawable state,
++0x30 the maximum frame time 24000, +0x34 the frame number, +0x38 / +0x39 two flags (the second one is set while a
+frame is built), +0x3C and +0x48 two `core::Time`s, +0x54 eight bytes, +0x5C a flag, +0x60 the helper (the context's
+own one is embedded at +0x64), +0x68 the passes' chain, +0x6C a flag, +0x70 / +0x74 the pool of the frame's render
+parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread bytes.
+
+| Function | Status | Why |
+|---|---|---|
+| 0x107108A0 Shutdown | NONMATCHING | the engine keeps the context in esi across `~Context()` and passes the assert's condition register as the report's last argument; ours reloads the global and pushes the constant, 86 % |
+| 0x1070F5C0 AllocRenderParams | NONMATCHING | the engine walks the pool with a running pointer and a signed count; ours indexes it, 6 % |
+| 0x1070F600 FreeRenderParams | NONMATCHING | as AllocRenderParams, 6 % |
+| 0x1070F650 UpdateRenderParams | NONMATCHING | the engine keeps the pool's begin in a register, ours reloads it, 10 % |
+
+Not done: the constructor 0x107103E0 (673 bytes) and the destructor 0x107106A0 (336 bytes) - both need the frame's
+many subsystems named first (they call 0x106dde80, 0x1061bbc0 / 0x1061b4c0 / 0x1061b530 / 0x1061b660 (the display),
+0x1073e1d0, 0x107063a0, 0x1073e2c0, 0x1073e2e0, 0x1071f7d0, 0x10716830, 0x1073b790, 0x10754560, 0x10755120,
+0x1074d770, 0x1073e260, 0x107265e0 and the `pure3d::RefCounted` objects 0x10751a00 makes). The functions of the
+wrapped drawable helper's neighbours (0x10710110 = a `+0x10` this-adjusting thunk to 0x106E2AA0) and the render
+parameters' pools are the same story.
+
+Findings for the next session:
+
+- The unit is `context.cpp`: 0x1070EF80 (line 790), 0x107107F0 (line 92) and 0x107108A0 (line 119) carry the path.
+- `ContextWindowProc` is a `__stdcall` free function (the mangled name is in symbols.txt); the engine's imports are
+  called through their `__imp__` slots (`GetWindowLongA` / `SetWindowLongA` / `CallWindowProcA`).
+- The constructor shows the class's size (0x7C), the settings layout and that the embedded helper's vftable is
+  stored inline (so `WrappedDrawableHelper`'s constructor is defined in its class body, and 0x1070EDA0 is a kept
+  copy). The helper's vftable 0x10E5B114 has two slots: 0x1070ED90 (returns its argument) is slot 0, slot 1 could
+  not be found (the empty functions 0x1070ED20 / 0x1070ED30 are candidates); ours is an empty function, so the
+  hybrid keeps a stub there for the base class (the derived `engine::render::EngineWrappedDrawableHelper` is
+  unaffected).
+- `Context::Startup` reads the window from the settings *through the static* it just wrote
+  (`sWindow = settings.window; sPreviousWindowProc = GetWindowLongA(sWindow, -4);`) - that is what makes the
+  compiler reuse the register instead of reloading the settings.
+- `RenderTarget` (protopass.h) is the type of the colour / depth arguments of 0x1070EF80: the surface is at +0x10 and
+  its size comes from `surface->info[index].size->width` (0x1070ECE0 / 0x1070ED00 are that accessor's kept copies).
+  0x1070EF80 itself is not done yet.
+
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
 The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
