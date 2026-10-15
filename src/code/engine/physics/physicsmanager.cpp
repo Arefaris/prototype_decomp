@@ -4,6 +4,9 @@
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/ravenphysics/common/hashtable.h"
+#include "code/core/debug.h"
+#include "code/core/file/file.h"
+#include "code/core/file/filesystem.h"
 
 namespace ravenphysics
 {
@@ -262,6 +265,60 @@ namespace engine
 		gDebugTrackObject = value;
 		gDebugTrackMode = 0;
 	}
+
+	// The collision log the pm_LogCollisions command opens: 1 while the log is on, the frames left to log and the
+	// file itself (0x11283594 - 0x1128359C; names guessed)
+	int gCollisionLogState;            // 0x11283594
+	unsigned int gCollisionLogFrames;  // 0x11283598
+	core::IFile* gCollisionLog;        // 0x1128359C
+
+	// FUNCTION: ENGINE 0x107E4010
+	// NONMATCHING: the engine materialises the path argument in its stack slot after pushing the other eight (one
+	// wildcard push, the address, then the literal), ours pushes the literal directly; 53 %
+#ifdef NONMATCHING
+	void pm_LogCollisions(int frames)
+	{
+		if (gCollisionLogState == 0)
+		{
+			core::FileSystemOpenFile(&gCollisionLog, "collisionLog.txt", true, 3, 1, 0, 1, 1, 0);
+			if (!gCollisionLog->IsOpen())
+			{
+				gCollisionLog->Release();
+				gCollisionLog = 0;
+			}
+			gCollisionLogState = 1;
+			gCollisionLogFrames = frames;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107E3F90
+	// NONMATCHING: the engine issues the "logging off" store between the two loads that prepare the Release call,
+	// ours issues it right after the pointer load; 90 %
+#ifdef NONMATCHING
+	void UpdateCollisionLog()
+	{
+		if (gCollisionLogState == 1)
+		{
+			if (gCollisionLogFrames <= 0)
+			{
+				gCollisionLogState = 0;
+				gCollisionLog->Release();
+				gCollisionLog = 0;
+			}
+			else
+			{
+				static bool sLog = true;
+				if (sLog && core::Report(0, " Pre ", "..\\..\\..\\code\\engine\\physics\\physicsmanager.cpp", 2529, 0,
+					"Logging collisions frame %d.", gCollisionLogFrames, 0) == 3)
+				{
+					sLog = false;
+				}
+				gCollisionLogFrames--;
+			}
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x107E4090
 	void pm_SetSolverIterations(int a, int b)

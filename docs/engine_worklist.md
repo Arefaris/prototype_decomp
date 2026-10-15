@@ -579,6 +579,15 @@ NONMATCHING:
   ours in `edx`; 60 %.
 - 0x107E6C40 KeyTable::Insert: the same instructions in the same order, but the new slot and the old chain head come
   out in the other pair of registers (`eax`/`esi` swapped); 87 %.
+- 0x107E4010 pm_LogCollisions: the engine materialises the `"collisionLog.txt"` argument in its stack slot *after*
+  pushing the other eight (a wildcard `push ecx`, then `mov eax, esp`, then the literal into the slot); ours pushes
+  the literal directly. The same shape blocks `LuaScriptManager::DoFile` in another unit; 53 %.
+- 0x107E3F90 UpdateCollisionLog: the engine issues the `gCollisionLogState = 0` store between the two loads that
+  prepare the `Release` call (`mov ecx,[file]; mov eax,[ecx]; mov edx,[eax+4]; mov [state],0; call edx`), ours issues
+  it right after the pointer load; 90 %.
+- The collision log's globals **are** now known and written down: state 0x11283594, frames left 0x11283598, the file
+  0x1128359C, the report-once flag 0x111BC613 (the ` Report(0, " Pre ", ...)` in 0x107E3F90 is the original's). The
+  line in that report is 0x9E1 and the format `Logging collisions frame %d.`.
 
 Not done (owners or layouts not recovered yet; the reasons are what blocks them, not just "unknown"):
 
