@@ -50,6 +50,9 @@ namespace ravenphysics
 		// Raises the volume against a query, answering whether it hit and writing the point and the distance
 		// (0x10663FE0, another unit)
 		bool CastVolume(const void* query, math::Vector* point, float* distance);
+		// A copy of the volume of the same type (0x10665990, another unit)
+		CollisionVolume* Clone();
+
 		// The per-type setters and bounds updates the object's Set*Volume methods call (0x10664BA0 / 0x10664C10,
 		// 0x10665060 / 0x10665120, 0x10665790 / 0x106645D0, 0x10665510 / 0x106643E0, 0x10681DE0 / 0x10680AB0;
 		// another unit, names are guesses)
@@ -94,9 +97,19 @@ namespace ravenphysics
 		CollisionVolume3 materials;    // 0x60
 	};
 
-	// A volume of type 6 (0x10666640)
+	// One slot the geometry of a mesh volume refers to (its own unit names it)
+	struct MeshSlot
+	{
+		unsigned int unknown0;
+		unsigned int unknown4;
+	};
+
+	// A volume of type 6 (0x10666640; 0x130 bytes)
 	struct CollisionVolume6 : CollisionVolume
 	{
+		unsigned char unknown60[0x110 - 0x60];
+		MeshSlot* unknown110;      // 0x110
+		unsigned char unknown114[0x130 - 0x114];
 		~CollisionVolume6();
 	};
 
@@ -202,6 +215,8 @@ namespace ravenphysics
 		void MoveTo(math::Vector from, math::Vector to, int flag);
 		// Sets the shape's width and marks it (0x1066A0B0, another unit)
 		void SetSize(int a, int b, float size);
+		// A copy of another shape, held by the object it is built for (0x10669A70, another unit)
+		CollisionShape(const CollisionShape& other, CollisionObject* object);
 		// Writes the transform, the matrices and the vectors out (0x10669730, another unit)
 		void Print();
 		// Empty (0x10669120, another unit)
@@ -215,13 +230,36 @@ namespace ravenphysics
 		float radius;              // 0xDC
 	};
 
+	// One geometry element of a mesh (8 bytes; its own unit names it)
+	struct MeshElement
+	{
+		unsigned int unknown0;
+		unsigned int unknown4;
+	};
+
+	// The elements a mesh holds (begin / end / end of storage)
+	struct MeshGeometry
+	{
+		MeshElement* begin;
+		MeshElement* end;
+		MeshElement* capacity;
+	};
+
 	// The mesh a mesh volume keeps its geometry in (0x38 bytes, a content::LoadObject of the RTTI; the class is only
 	// declared here, its own unit builds it)
-	class ConvexMesh : public core::IRefCount
+	class ConvexMesh : public content::LoadObject
 	{
 	public:
-		unsigned int unknown4;
-		unsigned char unknown8[0x38 - 8];
+		// An empty mesh (0x10685E50, another unit)
+		ConvexMesh();
+		// Makes room for count geometry elements (0x106853F0, another unit)
+		void Reserve(int count);
+		// Appends one of the object's volumes (0x106855B0, another unit)
+		void AddVolume(CollisionVolume* volume);
+
+		unsigned char unknown8[0x28 - 8];
+		MeshGeometry geometry;    // 0x28
+		unsigned int unknown34;
 	};
 
 	// The physics object handle table (0x1127CAC0)

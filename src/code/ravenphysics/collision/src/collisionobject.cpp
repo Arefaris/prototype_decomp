@@ -587,6 +587,55 @@ namespace ravenphysics
 #endif
 	}
 
+	// FUNCTION: ENGINE 0x10655BE0
+	CollisionObject* CollisionObject::Clone(bool unused)
+	{
+		CollisionObject* copy = new CollisionObject();
+		copy->properties = properties;
+		copy->name = name;
+		copy->unknown70 = unknown70;
+		copy->transform = transform;
+		copy->volumeCount = volumeCount;
+		copy->state = state;
+		copy->volumes = new CollisionVolume*[volumeCount];
+		if (mesh != 0)
+		{
+			copy->mesh = new ConvexMesh();
+			mesh->AddRef();
+			MeshGeometry& geometry = mesh->geometry;
+			copy->mesh->Reserve(geometry.end - geometry.begin);
+			for (unsigned int i = 0; i < volumeCount; i++)
+			{
+				copy->volumes[i] = volumes[i]->Clone();
+				if (volumes[i]->Clone()->type == 6
+					&& ((CollisionVolume6*)copy->volumes[i])->unknown110->unknown4 != 0)
+				{
+					copy->mesh->AddVolume(copy->volumes[i]);
+				}
+			}
+		}
+		else
+		{
+			for (unsigned int i = 0; i < volumeCount; i++)
+			{
+				copy->volumes[i] = volumes[i]->Clone();
+			}
+		}
+		for (unsigned int i = 0; i < volumeCount; i++)
+		{
+			copy->volumes[i]->Retain();
+		}
+		if (!unused && shape != 0)
+		{
+			copy->shape = new CollisionShape(*shape, copy);
+		}
+		else
+		{
+			copy->shape = 0;
+		}
+		return copy;
+	}
+
 	// FUNCTION: ENGINE 0x10655F60
 	CollisionObject* CreateCollisionObject(CollisionVolume* volume, bool makeShape, float size)
 	{

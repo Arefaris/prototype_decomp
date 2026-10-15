@@ -1778,10 +1778,10 @@ NONMATCHING:
 - `0x10655EA0` ~CollisionObject: the engine emits `test esi, esi` before each of the four destructor calls, ours
   drops it because the volume pointer was just dereferenced for its type byte; 59.6 %.
 
-Done (all 100 %): `0x10655A60` Print, `0x10655AE0` constructor, `0x10655B60` Initialize, `0x10655D90` SetName,
-`0x10655F60` / `0x10655FC0` CreateCollisionObject, and `0x106559C0` UpdateProperties (was 64.4 %: it is an
-indexed `for (i < volumeCount)` loop, not a countdown, and the volume's two filter words are one sub-struct, so
-MSVC forms its address once and reuses it for the second field).
+Done (all 100 %): `0x10655A60` Print, `0x10655AE0` constructor, `0x10655B60` Initialize, `0x10655BE0` Clone,
+`0x10655D90` SetName, `0x10655F60` / `0x10655FC0` CreateCollisionObject, and `0x106559C0` UpdateProperties (was
+64.4 %: it is an indexed `for (i < volumeCount)` loop, not a countdown, and the volume's two filter words are
+one sub-struct, so MSVC forms its address once and reuses it for the second field).
 
 Lessons:
 
@@ -1792,6 +1792,14 @@ Lessons:
 - The engine's `CollisionVolume` is a base of `CollisionVolume3` (also the face list a type 4 volume keeps at
   +0x60), `CollisionVolume4` (the volume plus that list) and `CollisionVolume6`; their destructors are what the
   object's destructor's four `delete`s call.
+- A sub-object whose address the code uses twice in a row (the volume's filter pair, the mesh's element array)
+  makes MSVC materialise the address (`add eax, 0x1C` / `add eax, 0x28`) even when the value is dead
+  afterwards; a plain pair of scalar members is addressed with two displacements instead. Naming a reference to
+  the sub-object is what reproduces it.
+- `new ConvexMesh()` only calls the engine's `ConvexMesh` constructor when that constructor is declared; with
+  only the members declared the compiler writes its own inline one.
+- The mesh of a mesh volume is 0x38 bytes and holds an array of 8-byte elements at +0x28 (begin / end /
+  capacity); `CollisionObject::Clone` reserves the same count and re-adds every type 6 volume to it.
 
 - The volume types are 7 (the type byte); `CollisionVolume::UpdateBounds(CollisionObject*)` (0x10665690, another
   unit) is the switch that runs the per-type update, and `CollisionObject`'s `SetCapsuleVolume` / `SetSphereVolume`
