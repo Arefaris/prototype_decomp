@@ -48,6 +48,24 @@ namespace engine
 	// explicit instantiation makes the compiler do.
 	template struct content::BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>;
 
+	// FUNCTION: ENGINE 0x10864DF0
+	SplineCV::SplineCV() :
+		x(0.0f),
+		y(0.0f),
+		z(0.0f),
+		unknown10(0.0f),
+		unknown14(0.0f),
+		unknown18(0.0f),
+		unknown1C(0.0f),
+		flag(false)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10864E30
+	SplineCV::~SplineCV()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10864D40
 	content::ClassInfo* SplineBehaviour::GetClassInfo()
 	{

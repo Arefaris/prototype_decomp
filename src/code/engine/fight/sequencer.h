@@ -174,8 +174,13 @@ namespace fight
 	class Sequencer
 	{
 	public:
+		// 0x105A4020: starts empty - the track nodes, the action lists and the clock zero, timeScale 1
+		Sequencer();
 		// 0x105A4140: stops every started action and empties the lists
 		void Stop();
+		// 0x105A44A0: stops the sequencer, empties it and unregisters both of its track nodes (a behaviour's
+		// destructor calls it; name guess)
+		void End();
 		// 0x105A42F0: updates the actions that need it, then their children
 		void Update(int arg);
 		// 0x105A4780: advances the clock and begins / ends the actions due

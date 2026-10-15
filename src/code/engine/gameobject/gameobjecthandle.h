@@ -62,6 +62,8 @@ namespace engine
 		}
 		// Puts the object on the deferred list (engine::DeferUpdate, 0x107EF710)
 		void DeferUpdate(bool force) const;
+		// 0x10885E10 (another unit): finds the object and sets its byte at +0x9C, answering the old value
+		bool SetUnknown9C(bool value) const;
 		// The message router's registrations of the object on a channel (0x11318090; Query's meaning unknown)
 		void RouterAdd(const MessageListeners& listeners) const;
 		void RouterRemove(const MessageListeners& listeners) const;

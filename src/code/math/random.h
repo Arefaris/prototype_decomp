@@ -50,6 +50,9 @@ namespace math
 			return state = multiplier * (state & 0xFFFF) + (state >> 16);
 		}
 	};
+
+	// The engine's global generator: the pointer at 0x111BDA0C points at its instance (another unit defines both)
+	extern Random* gRandom;
 }
 
 #endif

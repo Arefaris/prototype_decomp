@@ -4,6 +4,10 @@
 // them.
 #include "code/engine/frontend/frontend.h"
 
+#include "code/engine/luascriptmanager.h"
+#include "code/engine/system/enginememory.h"
+#include "code/math/mathutils.h"
+
 namespace engine
 {
 	// GLOBAL: ENGINE 0x111CEF38
@@ -30,6 +34,54 @@ namespace engine
 	static int sScreenCentreY = 0;
 	// GLOBAL: ENGINE 0x11315C78
 	static core::Name<core::CaseSensitiveKey> sLanguageName;
+	// GLOBAL: ENGINE 0x11315C5C
+	static int sUnknown5C = 0;
+	// GLOBAL: ENGINE 0x11315C64
+	static bool sUnknown64 = false;
+
+	// FUNCTION: ENGINE 0x108642C0
+	void** FrontendObject::GetUnknown5C()
+	{
+		return &unknown5C;
+	}
+
+	// FUNCTION: ENGINE 0x108642E0
+	void* CreateFrontend(int a, int b)
+	{
+		FrontendObject* memory = (FrontendObject*)operator new(0x1238, sFrontendHeap);
+		if (memory != 0)
+		{
+			return memory->Construct(a, b);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10864540
+	// NONMATCHING: the argument is pushed before the frontend is fetched, 57 %
+#ifdef NONMATCHING
+	void fe_EnableCatchupBehaviour(bool enable)
+	{
+		FrontendObject* frontend = (FrontendObject*)GetFrontend();
+		frontend->handle.SetUnknown9C(enable);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x108645A0
+	// NONMATCHING: two bytes of the instruction encoding, 98 %
+#ifdef NONMATCHING
+	void ShutdownFrontend()
+	{
+		core::Name<core::CaseSensitiveKey> name("", 1);
+		sLanguageName = name;
+		GetScriptManager()->Unregister(&sUnknown5C);
+		ReleaseSubsystemAA6C();
+		ReleaseSubsystemAA68();
+		ReleaseSubsystem16C90();
+		ReleaseScreen();
+		SetFrontend(0);
+		sUnknown64 = 0;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x108642D0
 	bool fe_SetUpdateEnable(bool enable)
@@ -117,6 +169,34 @@ namespace engine
 	void ResetCursorScale()
 	{
 		SetCursorScale(-1.0f);
+	}
+
+	// GLOBAL: ENGINE 0x11315C58
+	static bool sScreenFlags[4];
+
+	// GLOBAL: ENGINE 0x10E73254
+	const float kScreenClampMin = -120.0f;
+	// GLOBAL: ENGINE 0x10DA57E0
+	const float kScreenClampMax = 120.0f;
+
+	// FUNCTION: ENGINE 0x10864350
+	void SetScreenFlag(int index, bool value, int a, int b)
+	{
+		if (value || sScreenFlags[index])
+		{
+			SetScreenValue(index, value, a, b);
+		}
+		sScreenFlags[index] = value;
+	}
+
+	// FUNCTION: ENGINE 0x108643B0
+	void SetScreenClampedFloat(int index, int a, float value)
+	{
+		if (value > 0.0f || value < 0.0f)
+		{
+			value = math::Clamp(value, kScreenClampMin, kScreenClampMax);
+			SetScreenFloat(index, a, value);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10864520

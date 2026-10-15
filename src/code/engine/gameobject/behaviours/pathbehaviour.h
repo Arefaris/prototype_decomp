@@ -42,9 +42,22 @@ namespace engine
 	class SplineCV
 	{
 	public:
+		// 0x10864DF0: starts at the origin, unset
+		SplineCV();
+		virtual ~SplineCV();
+
 		// 0x10864D00
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		float x;
+		float y;
+		float z;
+		float unknown10;
+		float unknown14;
+		float unknown18;
+		float unknown1C;
+		bool flag;
 	};
 
 	// 0x10864D40
