@@ -875,35 +875,47 @@ nothing was excluded from the build).
 
 Not done, by unit (each is a place to start, not a verdict):
 
-- **fight unit**: 0x10863900 + 0x108639A0 (the context update: `GetHandle(owner)` into `context + 0xC`, the first one
-  followed by the two 16-bit LCG steps of 0x111BDA0C); 0x108639D0 (`[ecx+8]` getter - the owner is at +4 and +8 is
-  `Behaviour::state`, so this is probably a method of another class in the file); 0x108639E0 (ctor, `ret 8`: the second
-  argument is the context, and `new (0x18) engine::GameObjectParams(0x10001)` - 0x107FC710 - when it is null);
-  0x10863A80 + 0x10863A90 (kept copies of `BaseClassCasterImpl<engine::Behaviour, engine::FightTreeBehaviour>`
-  ctor / `IsDerived`); 0x10863AC0 (dtor), 0x10863B00 + 0x10863FB0 (message handlers), 0x10863BA0 `SetBranch`,
-  0x10863C00, 0x10863C50 (the "Fight Pre " dump, 751 bytes and recursive), 0x10863F40 / 0x10863F60 / 0x10863F70
-  (`engine::FightBranchRefMemberGetSetter` ctor / Get / Set - vftable 0x10E73204), 0x10863F90 (`??_G`, a kept copy),
-  0x10864180 + 0x108641E0 (`GetMembers`: the members are named **"fightBranch"** and **"sequencer"**, the base is
-  `content::GetClassMetaType<engine::Behaviour>()` and the caster `BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`;
-  the getter/setter pair for the branch is `GetBranch`/`SetBranch` with the code string at 0x10D94FF4).
-- **render unit** 0x10862A60 - 0x108638BF: nothing attempted. 0x10863060 is a `switch` whose case bodies and jump
+- **fight unit**: 0x108639D0 (`[ecx+8]` getter - the owner is at +4 and +8 is `Behaviour::state`, so this is probably
+  a method of another class in the file: `fight::Params::value` (+8) and `fight::Sequencer::track` (+8) are the two
+  candidates this unit knows); 0x10863A80 (the kept copy of the `BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`
+  constructor - an explicit instantiation does not emit it, it needs a defined object of the type, which is what
+  0x108641E0's `static BaseClassCasterImpl<...> sCaster` would give); 0x10863B00 `OnPostedMessage` (type 0xb: id 8
+  reads a branch at +0xC, compares its slot 6 (`+0x18`) with `branch`'s and walks `sequencer.track`'s `+0x18` chain
+  into the bools at +0x10 / +0x11; id 0x10 writes `GetParams()` into +0xC when it is 0, so the two ids are two
+  message classes with a payload at +0xC); 0x10863FB0 `OnMessage` (384 bytes: type 2 ends the sequencer, type 0xb
+  id 2 runs the branch / pending track with `fight::Track::Slot10` at `+0x28`, id 0xE calls 0x10863C50 itself, as
+  `Dump(this + 0x18, message[0xC], true, 0)`); 0x10863C00
+  (a `core::Name<CaseSensitiveKey>` lookup in `engine::gLoadListeners`' `Find` (0x105A4F90) followed by the `+0x8C`
+  member's method 0x105A3690 - both of the sequencer's unit); 0x10863C50 (the "Fight Pre " dump: `Dump(Sequencer*,
+  bool children, bool header, int indent)`, its Report calls are `core::Report(0, "Fight Pre ", file, line, 0, format,
+  indent * 4, "", argument, 0)` with one `static bool sEnabled` per site, and the lines are 0x130 / 0x134 / 0x13b /
+  0x141 / 0x142 / 0x155 / 0x162); 0x10864180 + 0x108641E0 (`GetMembers`: the members are named **"fightBranch"** and
+  **"sequencer"**, the base is `content::GetClassMetaType<engine::Behaviour>()` and the caster
+  `BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`; the getter/setter pair is `GetBranch`/`SetBranch` with the
+  code string at 0x10D94FF4; the sequencer's meta type is `content::GetClassMetaType<fight::Sequencer>()` and its
+  offset is `content::MemberOffset(&((FightTreeBehaviour*)0)->sequencer, 0x18)`).
+- **render unit** 0x10862A60 - 0x108638BF: **nothing attempted**. 0x10863060 is a `switch` whose case bodies and jump
   tables run to 0x1086369F although `functions.tsv` says 52 bytes (see the note below), and 0x10863850 - 0x108638B0
-  are five 4 - 20 byte functions that read +0x3C / +0x8 and call through a slot.
-- **frontend unit**: 0x108642C0 (`&member[0x5C]` of the frontend object - the object is 0x1238 bytes, built by
-  0x10872D70, held in 0x11315C68), 0x10864350, 0x108643B0 (float clamp to +-120 then 0x108814F0), 0x108644B0 /
-  0x108644C0 / 0x108644D0 (5-byte `jmp` thunks - linker artefacts, leave them), 0x10864540 `fe_EnableCatchupBehaviour`
-  (`GetFrontend() + 0x2C` then 0x10885E10 - needs the frontend class layout), 0x108645A0 (shutdown), 0x10864600
-  (1007 bytes), 0x10864A20 `SetLanguage`, 0x10864AF0 (init, 308 bytes; it registers the `fe_*` natives through 0x102893A0 /
-  0x10280020 / 0x1036BA70 and calls `engine::LuaScriptManager::AddFunction` / `SetOwner`).
+  are five 4 - 20 byte functions that read +0x3C / +0x8 and call through a slot. 0x10862AC0 is the reflection helper
+  of the unit: `NamedReferenceMemberGetSetter<engine::RenderBehaviour, engine::render::DrawableArchetype>` (vftable)
+  plus `content::LoadInventory::DynamicCaster<engine::render::DrawableArchetype>` and 0x105FF030.
+- **frontend unit**: 0x108644B0 / 0x108644C0 / 0x108644D0 (5-byte `jmp` thunks - linker artefacts, leave them),
+  0x10864600 (1007 bytes), 0x10864A20 `SetLanguage`, 0x10864AF0 (init, 308 bytes; it registers the `fe_*` natives
+  through 0x102893A0 / 0x10280020 / 0x1036BA70 and calls `engine::LuaScriptManager::AddFunction` / `SetOwner`).
 - **path unit**: 0x10864CF0 / 0x10864D80 / 0x10864DE0 / 0x10864E40 / 0x10864E50 (1-byte `ret`) and 0x10864DD0 /
   0x10864EC0 (`ret 8`) - vtable fillers or kept copies of header-defined members, not writable source; 0x10864D90
-  (kept copy of the `BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>` ctor) and 0x10864FA0 (its `IsDerived`);
-  0x10864DA0 (`engine::PatrolPoint` ctor/dtor: vtable 0x10E7335C at +0 and `container::String::vftable` at +0x1C);
-  0x10864DB0 / 0x10864EA0 (`GetScriptManager()->Unregister(&static)` for 0x11315C98 / 0x11315C9C); 0x10864DF0
-  (`engine::SplineCV` ctor: vtable 0x10E73364, seven floats at +4, a flag at +0x20) and 0x10864E30 (its vtable reset);
-  0x10864E60 (`dynamic_cast<SplineBehaviour*>(GetGameObject(FindGameObject(name, "")))`); 0x10864ED0
-  (0x10864ED0 and the `container::ArrayDynamic<T>` members 0x10864EE0 - 0x10864F90 and 0x10864FD0 are inline
-  template members - annotate them only if the instantiation can be forced out of line).
+  (kept copy of the `BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>` ctor - the same problem as 0x10863A80);
+  0x10864DA0 (`engine::PatrolPoint` ctor: vtable 0x10E7335C at +0 and `container::String::vftable` at +0x1C - the
+  member is a `container::String`, which our header declares abstract, so it needs a concrete spelling first);
+  0x10864DB0 / 0x10864EA0 (`GetScriptManager()->Unregister(&static)` for 0x11315C98 / 0x11315C9C - most likely the
+  compiler's atexit destructors of two file-scope statics whose class unregisters itself, which is the cheapest way
+  to write them); 0x10864E60 (`FindGameObject(name, "")` (0x107F0170) then 0x108679D0 then
+  `dynamic_cast<SplineBehaviour*>`: the second argument is the empty string 0x10D95365, so the entry in
+  `symbols.txt` that types it `const Name&` is probably wrong); 0x10864ED0 (`mov eax, [ecx + 0x1C]`, a *value* not an
+  address) and the `container::ArrayDynamic<T>` members 0x10864EE0 - 0x10864F90 and 0x10864FD0 - the two
+  instantiations are `ArrayDynamic<engine::PatrolPoint*>` and `ArrayDynamic<engine::SplineCV*>` (the RTTI names in
+  classes.tsv), and they are inline template members: annotate them only if the instantiation can be forced out of
+  line.
   The five `GetClassInfo`s prove the file owns `engine::IPathBehaviour` (vftable 0x10E734AC, 15 slots),
   `engine::PatrolPathBehaviour` (0x10E733FC, 16) and `engine::SplineBehaviour` (0x10E73454, 16).
 
