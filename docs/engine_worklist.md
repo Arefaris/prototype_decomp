@@ -956,6 +956,56 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
+## choreo/src/deltatransform.cpp (0x1094C810 - 0x1094F805): 5 functions match, 20 NONMATCHING, the rest not done
+
+`choreo::DeltaTransform` (the asserts at 0x1094D730 - 0x1094ECC0 name the file and the class): the movement of a
+character over one step. It derives from a `choreo::Transform` (declared in the unit before this one, not
+reconstructed: a `math::Matrix` at +0, the `math::Quaternion` it was decomposed to at +0x40, the three axis scales at
++0x50 - +0x58 and the mode at +0x5C saying which of the two is current) and adds the linear delta at +0x60, the
+angular delta at +0x6C and the two "was set this step" flags at +0x78 / +0x79 (size 0x7C). The unit is told either the
+two deltas or the root matrix the step ends on and gives back the matrix, the position, the rotation or the facing
+vector.
+
+The unit is one `// FUNCTION:` block per function in address order; the four overloads of the file-local
+`ValidateDeltaInput` and the two reports the asserts call are the validation layer. Matching notes:
+
+- The reports are `core::Report(0, "Choreo  Pre ", FILE, line, 0, format, ...)` behind a per-site `static bool`, and
+  the assert sites are the `OLD_ASSERT_AT(FILE, line, ValidateDeltaInput(x), "ValidateDeltaInput( x )", "")` macro
+  (the expression text is the engine's, the developer message is `""`).
+- `math::Vector` copies from a reference are component-wise, not a block copy: `mVelocity.Set(0, 0, 0)` in the
+  constructor and three separate assignments in the delta setters give the engine's `fld` / `fstp`; `mVelocity = v`
+  gives integer `mov`s.
+- The order the two zero vectors are written in decides the constructor's match (`Set` forward) and the Reset's
+  (the engine writes each vector's components backwards; 88 % is the best reached).
+
+NONMATCHING:
+
+- 0x1094D730 ReportBadVector, 0x1094D7B0 ReportBadQuaternion: the engine takes the value in `esi`, ours in `ecx`;
+  61 % / 60 %.
+- 0x1094D9B0 / 0x1094D9F0 / 0x1094DB40 ValidateDeltaInput(vector / quaternion / float): the engine takes its argument
+  in `eax` and keeps it in `esi` across the report, ours in `ecx`; 24 %.
+- 0x1094D920 Reset: 88 %, the component order of the two zero vectors.
+- The twenty setters that call the three validators above (0x1094DB70 - 0x1094E430, SetVelocity / SetAngularVelocity /
+  SetDelta / SetPosition / SetDeltaFacing): every instruction is the same, the call setup is `mov eax, edi` in the
+  engine and `mov ecx, edi` in ours; 99 %. The two matrix setters (0x1094DF50, 0x1094DFB0) match because the matrix
+  validation keeps its argument in `ecx` like ours.
+- 0x1094ED90 Update: 25 %, the engine expands the identity matrix into sixteen locals and schedules the two branches
+  differently.
+
+Not done (107 functions): the whole first part of the range, 0x1094C810 - 0x1094D720, which builds and drives
+`choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (their vftables are already in symbols.txt; the 0x2C-byte
+entries at +0x3C, the partition bit-set indexing and the blends are not written up yet), and 0x1094E490 - 0x1094ED80
+(the orientation, facing and matrix combinations of the output setters, 0x1094E6C0 - 0x1094E800 among them). 0x1094D9B0
+
+- 0x1094DB40 are compiled nowhere: the engine's copies stay, and `ValidateDeltaInput(const math::Matrix&)`
+(0x1094DA40) is compiled and called by the two matching matrix setters but is not annotated (the engine unrolls its
+sixteen comparisons where ours keeps the loop).
+
+**The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
+compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation
+(/GL), not of plain /O2: our build puts them all in `ecx`. Everything that calls such a helper is off by that one
+`mov`. If a later session finds a way to reproduce it, the twenty setters come with it.
+
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
 The render object of an engine drawable is a `pure3d::Drawable` (RTTI name, vftable 0x10E55238; the engine side
