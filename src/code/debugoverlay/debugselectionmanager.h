@@ -12,6 +12,9 @@ namespace debugoverlay
 	{
 	public:
 		DebugSelectionManager();
+
+		// The slot the base keeps pure (0x108BCE00); nothing reconstructed calls it
+		virtual void Unknown4();
 	};
 }
 

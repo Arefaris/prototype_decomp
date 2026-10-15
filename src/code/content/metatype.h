@@ -390,11 +390,7 @@ namespace content
 		{
 			return &(*(A*)array)[index];
 		}
-		virtual void Insert(void* array, int index, int unused)
-		{
-			A* a = (A*)array;
-			a->Insert(a->Begin() + index, 1, Default());
-		}
+		virtual void Insert(void* array, int index, int unused);
 		virtual void Erase(void* array, int index, int unused)
 		{
 			A* a = (A*)array;

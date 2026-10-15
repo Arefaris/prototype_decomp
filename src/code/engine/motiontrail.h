@@ -32,6 +32,9 @@ namespace engine
 	public:
 		MotionTrailCreator();
 
+		// The slot the base declares pure (0x108BED80): builds the trail the drawable's parts make (name guess)
+		virtual render::DrawableImpl* Create();
+
 		int unknown4; // +0x04
 	};
 }
