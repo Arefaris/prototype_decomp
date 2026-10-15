@@ -7,6 +7,36 @@
 
 namespace ravenphysics
 {
+	// FUNCTION: ENGINE 0x10656580
+	CollisionDetector* CollisionDetector::Clear()
+	{
+		mCollisionDetectorInternal = 0;
+		unknown28 = 0;
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x10656590
+	void* CollisionDetector::GetObject()
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x270, mCollisionDetectorInternal, "mCollisionDetectorInternal",
+			"Collision detection not running");
+		return unknown28;
+	}
+
+	// FUNCTION: ENGINE 0x106565E0
+	void* CollisionDetector::GetBody()
+	{
+		return body;
+	}
+
+	// FUNCTION: ENGINE 0x10657C40
+	void* CollisionDetector::GetBodyChecked()
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x26a, mCollisionDetectorInternal, "mCollisionDetectorInternal",
+			"Collision detection not running");
+		return mCollisionDetectorInternal->GetBody();
+	}
+
 	// FUNCTION: ENGINE 0x106566C0
 	void Context::QueryObject(PhysicsBody* object)
 	{
@@ -145,6 +175,18 @@ namespace ravenphysics
 	{
 		unknown10->solverIterations = a;
 		unknown10->solverIterations2 = b;
+	}
+
+	// FUNCTION: ENGINE 0x106565F0
+	void Context::Advance(void* a, float dt, void* b)
+	{
+		if (unknownD8)
+		{
+			return;
+		}
+		gLock.locked = true;
+		placement->Advance(unknown10, unknown10C, a, dt, unknownC4, unknownC, b);
+		gLock.locked = false;
 	}
 
 	// FUNCTION: ENGINE 0x10656640

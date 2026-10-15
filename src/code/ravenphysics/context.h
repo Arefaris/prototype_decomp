@@ -9,6 +9,8 @@
 
 namespace ravenphysics
 {
+	class WorldBody;
+
 	// What a query collides with (0x10653860 constructs it from the physics library's defaults; meanings unknown)
 	struct IntersectionProperties
 	{
@@ -94,6 +96,8 @@ namespace ravenphysics
 		void Track(ObjectList* objects);
 		// 0x10687CA0
 		void Untrack(ObjectList* objects);
+		// The simulation step: moves and solves the objects of every list against the body (0x10689EE0; name guess)
+		void Advance(WorldBody* body, void* data, void* a, float dt, void* worldData, int flags, void* b);
 
 		math::Vector position; // 0x00
 	};
@@ -161,6 +165,27 @@ namespace ravenphysics
 	// the constraints its solver works on (Context+0x58, 168-byte entries) and a third one (Context+0x8C). Their
 	// members live in the collision library's own units; this unit only calls them, so nothing but the calls is
 	// declared here (every name and the sizes are guesses).
+	// The collision detector wrapper behind Context+0x108 (the class name and the member names are guesses; the two
+	// members the asserts name are the detector's own pointer and the object it belongs to)
+	class CollisionDetector
+	{
+	public:
+		// Clears the detector pointer and the object (0x10656580)
+		CollisionDetector* Clear();
+		// The object the detector works on; asserts that the detection is running (0x10656590)
+		void* GetObject();
+		// 0x106565E0
+		void* GetBody();
+		// As GetBody, through the detector pointer (0x10657C40)
+		void* GetBodyChecked();
+
+		unsigned char unknown0[8];
+		void* body; // 0x08
+		unsigned char unknownC[0x24 - 0xC];
+		CollisionDetector* mCollisionDetectorInternal; // 0x24
+		void* unknown28;                               // 0x28
+	};
+
 	class CollisionBatch
 	{
 	public:
@@ -232,6 +257,8 @@ namespace ravenphysics
 		// 0x10656C40
 		void* AddQuery(void* a, void* b, void* c, void* d);
 
+		// One simulation step of the whole context (0x106565F0; name guess)
+		void Advance(void* a, float dt, void* b);
 		// The flag the body carries at +0x0E, set when the tracker exists (0x10656640; name guess)
 		void SetWorldFlag(unsigned char value);
 		// The tracker's position and the lists it hands over (0x10656660 - 0x106566B0; names are guesses)
@@ -261,7 +288,7 @@ namespace ravenphysics
 		unsigned char unknownC8[0xD8 - 0xC8];
 		bool unknownD8; // 0xD8
 		unsigned char unknownD9[0x108 - 0xD9];
-		void* unknown108; // 0x108
+		CollisionDetector* detector; // 0x108
 		unsigned char unknown10C[4];
 	};
 
