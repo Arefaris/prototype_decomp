@@ -558,11 +558,11 @@ the `QueueRenderEvent` instantiations, then the queueing methods.
   streamtrigger.cpp) and 0x107E8B50 (the size of a 16-byte-element array of the drawable at +0xA4, no user in the
   unit).
 
-## render/async/private/parameterinterpolator.cpp (0x108C02D0 - 0x108C04D6): 5 functions match, 1 kept copy
+## render/async/private/parameterinterpolator.cpp (0x108C02D0 - 0x108C04D6): 5 functions match, 1 NONMATCHING
 
 engine::render::ParameterInterpolatorPool (name guessed; the file is named by the assert in `Alloc` at 0x108C03B0):
-the hands the render parameters are interpolated between two frames out of. The pool is one `operator new[]` block per
-pool holding the 0x40-byte `engine::render::ParameterInterpolatorTypeless` objects, then a free list of their
+the pool the render parameters are interpolated between two frames out of. It is one `operator new[]` block holding
+the 0x40-byte `engine::render::ParameterInterpolatorTypeless` objects, then a free list of their
 addresses, then one "in use" byte per slot (`mMemory` +0, `mCapacity` +4, `mUsed` +8, `mUsedFlags` +0xC, `mFree`
 +0x10; the member names are guesses). `mMemory` is a `char*` on purpose: `delete[]` of a pointer to the polymorphic
 slot type would run the slot destructors and match neither the constructor's `??_U` nor the destructor's plain

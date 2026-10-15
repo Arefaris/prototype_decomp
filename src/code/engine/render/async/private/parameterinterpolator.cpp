@@ -4,7 +4,6 @@
 // walk push the finished ones back, and a pool that runs out reports once and answers with a null interpolator.
 #include <string.h>
 
-#include "code/core/debug.h"
 #include "code/core/report.h"
 #include "code/engine/render/async/private/parameterinterpolator.h"
 
