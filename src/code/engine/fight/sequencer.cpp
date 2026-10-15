@@ -7,6 +7,71 @@ namespace fight
 	int gActiveActions;
 	int gPeakActiveActions;
 
+	// ---- the reference count -----------------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x105A73E0
+	void RefCounted::AddRef()
+	{
+		count = count + 1;
+	}
+
+	// FUNCTION: ENGINE 0x105A73F0
+	void RefCounted::Release()
+	{
+		if (count < 2)
+		{
+			count = 0x8000000;
+			delete this;
+		}
+		else
+		{
+			count = count - 1;
+		}
+	}
+
+	// ---- the action's own vftable slots -----------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x105A2430
+	Sequencer* Action::GetChild()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x105A2460
+	bool Action::Slot4(int arg, float value)
+	{
+		(void)arg;
+		(void)value;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A2480
+	void Action::Slot6()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A2490
+	bool Action::Slot7(int arg, float value)
+	{
+		(void)arg;
+		(void)value;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A24A0
+	void Action::Slot8(Action* other, int arg, float value)
+	{
+		(void)arg;
+		(void)value;
+		if (other != 0)
+		{
+			other->flags = flags;
+			other->timeBegin = timeBegin;
+			other->unknown14 = unknown14;
+			other->timeEnd = timeEnd;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x105A4120
 	void Sequencer::Clear()
 	{

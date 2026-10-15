@@ -1233,6 +1233,15 @@ The second run of accessors (0x108052D0 - 0x10805540, 39 functions) is reconstru
 
 Not done (the remaining 205 of the 292 functions of the range):
 
+- **`fight::RefCounted`'s `AddRef` (0x105A73E0) / `Release` (0x105A73F0) and `fight::Action`'s own slots 3
+  (0x105A2430 `GetChild`), 4 (0x105A2460 `Slot4(int, float)`) and 8 (0x105A24A0 `Slot8(Action*, int, float)`, which
+  copies the flags and the three times) are reconstructed and match** - six of them are in `sequencer.cpp`, which
+  makes the three action vtables that far correct (`tools/vtcheck.py` compares every slot it can map). Slots 6
+  (0x105A2480) and 7 (0x105A2490) are *declared pure* and defined in `sequencer.cpp` only for their bytes: slot 6 and
+  slot 7 are overridden per class (EffectAction 0x10805CA0 / 0x10805BD0, MotionTrailAction 0x10805FF0), and until
+  those bodies are written the classes stay abstract, which keeps their vtables dead data (`??_7EffectAction@engine@@6B@`
+  and its two siblings are deliberately **not** in `symbols.txt`; the engine's own tables stay). Never map an action
+  vtable before its class's overrides are all in place - `ninja dll` would install a table with `_purecall` slots.
 - **The three action classes are abstract in our tree and the engine's are not.** The engine's vftables read
   (the dwords at the address `rtti.tsv` gives, the COL pointer right before and the next table right after confirm
   the nine slots) are:
