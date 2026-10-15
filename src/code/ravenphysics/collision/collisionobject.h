@@ -139,6 +139,22 @@ namespace ravenphysics
 		void Update(CollisionObject* object);
 		// Recomputes the bounds from the transform the shape already has (0x10669C90, another unit)
 		void Refresh();
+		// Clears the two orientation vectors and the transform (0x10669C60, another unit)
+		void Clear();
+		// Sets the scale and remembers its inverse (0x106691B0, another unit)
+		void SetScale(float scale);
+		// Sets the inverse scale directly, or the scale when it is degenerate (0x10669200, another unit)
+		void SetInverseScale(float inverse);
+		// Copies six floats into the shape's vectors (0x106541C0, another unit)
+		void SetVectors(const void* values);
+		// Writes a position into the shape's offset vector (0x10669620, another unit)
+		void SetPosition(math::Vector position);
+		// Moves the shape to a point and marks it by the flag (0x10669E60, another unit)
+		void MoveTo(math::Vector position, int flag);
+		// Moves the shape from one point to another (0x10669F60, another unit)
+		void MoveTo(math::Vector from, math::Vector to, int flag);
+		// Sets the shape's width and marks it (0x1066A0B0, another unit)
+		void SetSize(int a, int b, float size);
 
 		unsigned int unknownA8;    // 0xA8
 		math::Vector unknownAC;    // 0xAC
@@ -218,8 +234,19 @@ namespace ravenphysics
 		math::Vector* GetUnknown90();
 		math::Vector* GetUnknown9C();
 		math::Vector* GetUnknown34();
-		float GetUnknown88();
-		float GetUnknown8C();
+		float GetScale();
+		float GetInverseScale();
+
+		// The shape's own settings, one method per shape setter (0x10654CE0, 0x10654DD0, 0x10655190,
+		// 0x106553E0, 0x106554B0, 0x10655520, 0x10655590, 0x10655600, 0x10655670)
+		void Clear();
+		void MoveTo(math::Vector position);
+		void SetPosition(math::Vector position);
+		void SetVectors(const void* values);
+		void SetScale(float scale);
+		void SetInverseScale(float inverse);
+		void SetSize(math::Vector size);
+		void SetSize(int a, int b, float size);
 
 		// The shape's flags (0x106552D0, 0x10655330, 0x106555F0, 0x106556E0, 0x10655740, 0x10655960)
 		void SetFlag3(bool value);

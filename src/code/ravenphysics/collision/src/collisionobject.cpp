@@ -318,15 +318,57 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10655510
-	float CollisionObject::GetUnknown88()
+	float CollisionObject::GetScale()
 	{
 		return shape->unknown88;
 	}
 
 	// FUNCTION: ENGINE 0x10655580
-	float CollisionObject::GetUnknown8C()
+	float CollisionObject::GetInverseScale()
 	{
 		return shape->unknown8C;
+	}
+
+	// FUNCTION: ENGINE 0x10654CE0
+	void CollisionObject::Clear()
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 742, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->Clear();
+	}
+
+	// FUNCTION: ENGINE 0x10654DD0
+	void CollisionObject::MoveTo(math::Vector position)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 766, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->MoveTo(position, 1);
+	}
+
+	// FUNCTION: ENGINE 0x106553E0
+	void CollisionObject::SetPosition(math::Vector position)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 875, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetPosition(position);
+	}
+
+	// FUNCTION: ENGINE 0x106554B0
+	void CollisionObject::SetVectors(const void* values)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 887, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetVectors(values);
+	}
+
+	// FUNCTION: ENGINE 0x10655520
+	void CollisionObject::SetScale(float scale)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 898, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetScale(scale);
+	}
+
+	// FUNCTION: ENGINE 0x10655590
+	void CollisionObject::SetInverseScale(float inverse)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 909, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetInverseScale(inverse);
 	}
 
 	// FUNCTION: ENGINE 0x106555F0
@@ -359,9 +401,10 @@ namespace ravenphysics
 	void CollisionObject::SetFlag4(bool value)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 1000, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		if (shape != 0)
+		CollisionShape* currentShape = shape;
+		if (currentShape != 0)
 		{
-			shape->flag4 = value;
+			currentShape->flag4 = value;
 		}
 	}
 

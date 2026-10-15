@@ -1788,3 +1788,6 @@ Lessons:
   it); naming the volume (`CollisionVolume* volume = volumes[i];`) is what makes both calls use one register.
 - `if (x) { } else { }` has to be written with the non-empty branch first when the engine's branch layout puts the
   else arm out of line.
+- A null check on a pointer member (`if (shape != 0) shape->flag = value;`) compares the member against zero in our
+  build but loads it into a register in the engine; naming the local (`CollisionShape* currentShape = shape;`) is
+  what materialises the load (SetFlag4, 0x10655960). The same trick did not fix the detector test of SetShape.
