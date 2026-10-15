@@ -81,6 +81,102 @@ namespace ravenphysics
 		void** end;
 	};
 
+	// The objects the context's queries run against, as far as this unit reads them: the flag word whose low two
+	// bits select the intersection filter of the query (layout from this unit's code; the name is a guess)
+	struct PhysicsBody
+	{
+		unsigned char unknown0[0x24];
+		unsigned int filter; // 0x24
+	};
+
+	// The body the context's setter methods write (the object at Context+0x10; name and members are guesses)
+	class WorldBody
+	{
+	public:
+		unsigned char unknown0[0xE];
+		unsigned char unknownE;  // 0xE
+		unsigned char unknownF[0x1C - 0xF];
+		int solverIterations;    // 0x1C
+		int unknown20;
+		int solverIterations2;   // 0x24
+	};
+
+	// The world behind Context+0: this unit forwards its queries into it by vtable slot (0x00 - 0x54; the class
+	// name and every slot name are guesses, only the slots this unit calls are declared, in vtable order)
+	class World
+	{
+	public:
+		virtual void Unknown00();
+		virtual void Unknown04();
+		virtual void Unknown08();
+		virtual void Unknown0C();
+		// 0x10
+		virtual bool Overlaps(PhysicsBody* object, void* world);
+		// 0x14
+		virtual bool Contains(PhysicsBody* object, void* world);
+		virtual void Unknown18();
+		virtual void Unknown1C();
+		virtual void Unknown20();
+		virtual void Unknown24();
+		virtual void Unknown28();
+		virtual void Unknown2C();
+		// 0x30
+		virtual void QueryShape(void* a, void* b, void* c, void* world, void* d);
+		// 0x34
+		virtual void QueryShapeOther(void* a, void* b, void* c, void* world, void* d);
+		virtual void Unknown38();
+		// 0x3C
+		virtual void QueryPair(void* a, void* b, void* world, unsigned int flags);
+		// 0x40
+		virtual void QueryBody(PhysicsBody* object, void* world, unsigned int flag);
+		virtual void Unknown44();
+		// 0x48
+		virtual void QueryBodyShape(void* a, void* b, void* world, void* c);
+		// 0x4C
+		virtual void QueryBodyRay(void* a, void* world, void* b);
+		// 0x50
+		virtual void QueryShape2(void* a, void* b, void* c, void* world, void* d);
+		// 0x54
+		virtual void QueryShape3(void* a, void* b, void* c, void* world, void* d);
+	};
+
+	// The context's internal work lists: the collision pairs it is processing (Context+0x24, 48-byte entries),
+	// the constraints its solver works on (Context+0x58, 168-byte entries) and a third one (Context+0x8C). Their
+	// members live in the collision library's own units; this unit only calls them, so nothing but the calls is
+	// declared here (every name and the sizes are guesses).
+	class CollisionBatch
+	{
+	public:
+		// Runs every entry of the list against the world (0x1068B190)
+		void Update(World* world, void* worldData);
+		// Appends an entry; mode is 4, 8 or 0x10 (0x1068B340)
+		void* Add(void* first, void* second, int mode);
+
+		unsigned char unknown0[0x34];
+	};
+
+	class ConstraintBatch
+	{
+	public:
+		// Runs every entry of the list against the world (0x1068DE00)
+		void Update(World* world, void* worldData);
+		// Appends an entry; mode is 0, 1 or 2 (0x1068DD60)
+		void* Add(void* first, void* second, int mode);
+
+		unsigned char unknown0[0x34];
+	};
+
+	class QueryBatch
+	{
+	public:
+		// Runs every entry of the list against the world (0x10671A60)
+		void Update(World* world, void* worldData);
+		// Appends an entry (0x10671580)
+		void* Add(void* a, void* b, void* c, void* d);
+
+		unsigned char unknown0[0x38];
+	};
+
 	class Context
 	{
 	public:
@@ -91,9 +187,50 @@ namespace ravenphysics
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
 
-		unsigned char unknown0[0x14];
+		// The world's line-of-sight test: what lies between the object and its target (0x106566C0; name guess)
+		void QueryObject(PhysicsBody* object);
+		// The sweep-and-prune detector's ray against the object (0x10656730; name guess)
+		void QuerySweepObject(PhysicsBody* object, void* ray);
+		// The object's ray cast (0x106567A0; name guess)
+		void QueryObjectRay(PhysicsBody* object, void* ray);
+		// The object's shape cast (0x10656810; name guess)
+		void QueryObjectShape(PhysicsBody* object, void* a, void* b);
+		// The shape query against one body (0x10656CB0 / 0x10656D20 / 0x10656D90 / 0x10656E00; names are guesses)
+		void QueryShape(void* a, void* b, void* c, void* d);
+		void QueryShapeSwept(void* a, void* b, void* c, void* d);
+		void QuerySphere(void* a, void* b, void* c, void* d);
+		void QuerySphereSwept(void* a, void* b, void* c, void* d);
+
+		// Runs the lists' entries against the world (0x10656880 / 0x10656A30 / 0x10656BE0; names are guesses)
+		void UpdateCollisionPairs();
+		void UpdateConstraints();
+		void UpdateQueries();
+		// Appends to one of the lists and returns the first argument (0x106568E0 - 0x10656B70; names are guesses)
+		void* AddCollisionPair(void* first, void* second);
+		void* AddCollisionPairSlow(void* first, void* second);
+		void* AddCollisionPairStatic(void* first, void* second);
+		void* AddConstraint(void* first, void* second);
+		void* AddConstraintAwake(void* first, void* second);
+		void* AddConstraintAsleep(void* first, void* second);
+		// 0x10656C40
+		void* AddQuery(void* a, void* b, void* c, void* d);
+
+		World* mWorld;             // 0x00
+		int unknown4;              // 0x04
+		void* unknown8;            // 0x08
+		int unknownC;              // 0x0C
+		WorldBody* unknown10;      // 0x10
 		ObjectList staticObjects;  // 0x14 (the pm_ commands' "static" list)
 		ObjectList movableObjects; // 0x1C (the pm_ commands' "movable" list)
+		CollisionBatch collisionBatch;   // 0x24
+		ConstraintBatch constraintBatch; // 0x58
+		QueryBatch queryBatch;           // 0x8C
+		void* unknownC4;                 // 0xC4
+		unsigned char unknownC8[0xD8 - 0xC8];
+		bool unknownD8; // 0xD8
+		unsigned char unknownD9[0x108 - 0xD9];
+		void* unknown108; // 0x108
+		unsigned char unknown10C[4];
 	};
 
 	// The physics context (0x1128356C)
