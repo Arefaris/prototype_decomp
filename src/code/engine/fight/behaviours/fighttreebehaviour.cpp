@@ -22,6 +22,27 @@ namespace engine
 	// line by its own instantiation.
 	template class FightBranchRefMemberGetSetter<FightTreeBehaviour>;
 
+	// FUNCTION: ENGINE 0x10864180
+	// FUNCTION: ENGINE 0x108641E0
+	content::MemberList* FightTreeBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<Behaviour>();
+		static content::BaseClassCasterImpl<Behaviour, FightTreeBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[] =
+		{
+			{ GetFightBranchRefMetaType<FightTreeBehaviour>("GameObject", &FightTreeBehaviour::GetBranch,
+				&FightTreeBehaviour::SetBranch, "p"), 0, "fightBranch" },
+			{ content::GetClassMetaType<fight::Sequencer>(),
+				content::MemberOffset(&((FightTreeBehaviour*)0)->sequencer,
+				(int)&((FightTreeBehaviour*)0)->sequencer), "sequencer" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x108638C0
 	content::ClassInfo* FightTreeBehaviour::GetClassInfo()
 	{

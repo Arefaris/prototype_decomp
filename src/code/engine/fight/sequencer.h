@@ -9,6 +9,12 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/refptr.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace fight
 {
 	class Sequencer;
@@ -180,6 +186,10 @@ namespace fight
 	class Sequencer
 	{
 	public:
+		// 0x105A3E80 / 0x105A43F0 (the sequencer's own unit): the reflection data
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		// 0x105A4020: starts empty - the track nodes, the action lists and the clock zero, timeScale 1
 		Sequencer();
 		// 0x105A4140: stops every started action and empties the lists
