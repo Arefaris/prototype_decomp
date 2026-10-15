@@ -49,7 +49,7 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
      compiled and replaces the original in the hybrid DLL (callers in the same unit may rely on its register use),
      but does not count as matched. Floating-point operations must keep the original's order.
    - `// NONMATCHING: <why>` with the body inside `#ifdef NONMATCHING`: not compiled, the original stays.
-6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/re/testcopy.py`, then
+6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/datacheck.py`, `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
    the vftables our constructors install with the original's: a constructor matches byte for byte even when our
    vftable misses an override (its address is a relocation), and only the game notices. It also checks the class key:
@@ -76,6 +76,9 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
   `edx` or `ecx` across such calls; put functions in the same source file as the original's unit had them.
 - Struct copies come out as `mov`; member-by-member float copies as `movss`. Results computed into temporaries and
   stored together look like an inline `Set(x, y, z)`.
+- A global or static our unit defines and symbols.txt maps replaces the engine's object: every reference to it, and
+  inside it, goes to our copy. Give it the original's initial value (`int gFrame = 1;`, not a bare `int gFrame;`) and
+  its size (`; data size:0xN` for anything larger than a word); `tools/datacheck.py` checks both against the original.
 - Namespace-scope `const float` constants become data symbols; their values are checked like `__real@` ones.
 - String literals are compared with the original's, except `""`: the free-text messages of the original's asserts and
   reports (developers' remarks, names, bug numbers) are not reproduced; write `""` in their place. Expressions, file

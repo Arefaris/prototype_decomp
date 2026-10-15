@@ -76,6 +76,7 @@ python tools/build.py --version PROTOPC_2025 --no-link --no-compile   # every an
 ninja dll                                                             # relink the hybrid DLL
 python tools/delink/verify.py --version PROTOPC_2025                  # IDENTICAL
 python tools/vtcheck.py                                               # 0 problems
+python tools/datacheck.py                                             # 0 problems (our mapped globals start like the engine's)
 ninja report progress                                                 # refresh the README bar and docs/progress.*
 ```
 

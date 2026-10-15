@@ -87,6 +87,9 @@ def main():
 	origReplaced = {address: name for name, address in report["replaced"].items()}
 	ourReplaced = {mapped[name]: name for name in report["replaced"]}
 	rel32 = {r["site"] - base: r["symbol"] for r in report["redirects"] if r["kind"] == "rel32"}
+	# References inside a replaced data object (relink.py: "offset"): the original's pointed at the member of its own
+	# object, ours must point at the same member of our copy
+	interior = {r["site"] - base: (r["symbol"], r["offset"]) for r in report["redirects"] if r.get("offset")}
 	badRedirects = 0
 	for name in (".text", ".rdata", ".data"):
 		start, size = origSecs[name]
@@ -111,8 +114,13 @@ def main():
 					masked[at + k] = 1
 				va = struct.unpack_from("<I", a, at)[0]
 				vb = struct.unpack_from("<I", b, at)[0]
-				ca = ("replaced", origReplaced[va]) if va in origReplaced else classify(va, origSecs, origSlots, imageSecs)
-				cb = ("replaced", ourReplaced[vb]) if vb in ourReplaced else classify(vb, ourSecs, ourSlots, imageSecs)
+				if site in interior:
+					symbol, offset = interior[site]
+					ca = ("replaced", symbol, offset) if va == report["replaced"][symbol] + offset else ("?", va)
+					cb = ("replaced", symbol, offset) if vb == mapped[symbol] + offset else ("?", vb)
+				else:
+					ca = ("replaced", origReplaced[va]) if va in origReplaced else classify(va, origSecs, origSlots, imageSecs)
+					cb = ("replaced", ourReplaced[vb]) if vb in ourReplaced else classify(vb, ourSecs, ourSlots, imageSecs)
 				if ca != cb:
 					badRelocs += 1
 					if badRelocs <= 10:

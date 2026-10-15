@@ -42,6 +42,18 @@ def runTool(tool, args, cwd):
 		sys.exit(f"{tool} failed ({code})")
 
 
+def loadDataSizes(version):
+	"""The sizes symbols.txt gives data symbols ('name = 0x... ; data size:0xN | ...')."""
+	path = ROOT / "config" / version / "symbols.txt"
+	sizes = {}
+	if path.exists():
+		for line in path.read_text(encoding="utf-8").splitlines():
+			match = re.match(r"\s*(\S+)\s*=\s*0x[0-9A-Fa-f]+\s*;\s*data\s+size:(0x[0-9A-Fa-f]+|\d+)", line)
+			if match:
+				sizes[match.group(1)] = int(match.group(2), 0)
+	return sizes
+
+
 def loadSymbols(version):
 	"""symbols.txt: one 'name = 0xADDRESS  ; comment' per line."""
 	path = ROOT / "config" / version / "symbols.txt"
@@ -150,7 +162,7 @@ def definedSymbols(objects):
 	return names
 
 
-def buildImageObject(pe, slots, exports, symbols, replaced, path):
+def buildImageObject(pe, slots, exports, symbols, replaced, path, dataSizes=None):
 	base = pe.OPTIONAL_HEADER.ImageBase
 	image = pe.get_memory_mapped_image()
 	writer = coff.CoffWriter()
@@ -184,7 +196,18 @@ def buildImageObject(pe, slots, exports, symbols, replaced, path):
 		return None, None
 
 	byAddress = {address: name for name, address in replaced.items()}
-	stats = {"section": 0, "import": 0, "imagebase": 0, "replaced": 0, "unresolved": 0}
+	# A replaced data object larger than a word is referenced inside too (a struct's members, an array's elements):
+	# those references must reach our copy at the same offset, or the object is split between ours and the original's
+	interiors = sorted((address, address + dataSizes[name], name) for name, address in replaced.items()
+		if dataSizes and dataSizes.get(name, 0) > 1)
+
+	def interior(value):
+		for start, end, name in interiors:
+			if start < value < end:
+				return name, value - start
+		return None, None
+
+	stats = {"section": 0, "import": 0, "imagebase": 0, "replaced": 0, "interior": 0, "unresolved": 0}
 	redirects = []  # image sites now pointing at our code, for verify.py
 	for block in pe.DIRECTORY_ENTRY_BASERELOC:
 		for entry in block.entries:
@@ -201,6 +224,12 @@ def buildImageObject(pe, slots, exports, symbols, replaced, path):
 				site.relocations.append((siteOffset, writer.external(byAddress[value]), coff.IMAGE_REL_I386_DIR32))
 				stats["replaced"] += 1
 				redirects.append({"site": siteVa, "kind": "dir32", "symbol": byAddress[value]})
+			elif interior(value)[0] is not None:
+				name, offset = interior(value)
+				struct.pack_into("<I", site.data, siteOffset, offset)  # x86 COFF DIR32: the addend is in place
+				site.relocations.append((siteOffset, writer.external(name), coff.IMAGE_REL_I386_DIR32))
+				stats["interior"] += 1
+				redirects.append({"site": siteVa, "kind": "dir32", "symbol": name, "offset": offset})
 			elif value in slots:
 				struct.pack_into("<I", site.data, siteOffset, 0)
 				site.relocations.append((siteOffset, writer.external(slots[value]), coff.IMAGE_REL_I386_DIR32))
@@ -272,7 +301,8 @@ def main():
 	slots, libraries = buildImportLibraries(pe, out)
 	exports = buildExportDef(pe, out, dllName)
 	buildResources(pe, out)
-	stats, redirects = buildImageObject(pe, slots, exports, symbols, replaced, out / "image.obj")
+	stats, redirects = buildImageObject(pe, slots, exports, symbols, replaced, out / "image.obj",
+		loadDataSizes(args.version))
 	print("relocations:", ", ".join(f"{k} {v}" for k, v in stats.items()))
 	report = {"replaced": {name: address for name, address in sorted(replaced.items())}, "redirects": redirects}
 	(out / "relink.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
