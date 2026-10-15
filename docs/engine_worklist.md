@@ -1751,7 +1751,7 @@ Every one of them registers properties through `fight::Property<T>` subclasses (
 the sequencer unit should settle which class owns it (or whether both derive it from a common base) and the other
 name should go.
 
-## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 195 functions match, 3 NONMATCHING
+## ravenphysics/src/context.cpp (0x106564E0 - 0x1065A070): 204 functions match, 3 NONMATCHING
 
 The unit's assert path (`..\..\..\code\ravenphysics\src\context.cpp`, lines 0x15C - 0x81A) names it; `ravenphysics::
 Context` is its class and the file starts at 0x106564E0 (right after collisionobject.cpp). Layout recovered so far
@@ -1828,6 +1828,31 @@ Two systematic findings worth reusing:
 - A "release the run" cleanup stores the end unconditionally and only *then* tests the pointer -
   `mEnd = mBegin; if (mBegin != 0) delete[] mBegin;` - and the engine's compiler schedules the store between the
   `test` and the `je`; writing the store inside the `if` gives the same instructions one byte order off.
+
+**Third session (39 more functions match, 1 NONMATCHING).** What the collision detection block is made of, so far:
+
+- `Context::detector` (+0x108) is a `CollisionDetector` that **derives from `ScratchStackFrame`** (its `this` is the
+  frame: 0x106596F0 opens the level, its destructor 0x10658610 closes it last). While the detection runs it holds
+  *itself* in `mCollisionDetectorInternal` (+0x24), which is what every assert in the block tests, and the object the
+  detection works on in +0x28 (`GetObject`). +0x08 is **the event its gate waits on** (`core::EventInit` 0x1063D320,
+  `EventWait`/`EventDestroy` in the destructor) - the earlier `GetBody`/`body` names were wrong and changed to
+  `GetEvent`/`GetEventChecked`/`event`. +0x0C is the `NarrowPhaseBatcher` (0x400 bytes, its own assert path is
+  narrowphasebatcher.cpp) and +0x10 the `MidPhaseBatcher` (0x80 bytes, midphasebatcher.cpp); +0x14 the scratch
+  allocator scope, +0x18 a pointer to the context's profiler pool (Context+0x10C), +0x1C the context, +0x20 the data.
+- `Context`+0x0C is a registry whose own six words are the same (run of 16-bit values, count) pairs the hash table
+  has, followed by a `PointerHashTable` at +0x18 and its own count at +0x44 (the constructor 0x10658CC0 zeroes
+  everything up to and including the table's last member and leaves +0x44 alone).
+- `PointerHashTable` (common/hashtable.h): +0x04 / +0x0C / +0x14 are **32-bit** run counts and +0x24 / +0x28 the free
+  list's count and the capacity (the header had `bucketCount` 16-bit, which `Find` matched only because its modulo
+  truncates; the member is 32-bit and `Find` now spells the truncation out). `Reset` 0x10658AE0 is the library's, but
+  the copy the context calls sits in this unit's range: it is written in context.cpp with the address mapped in
+  symbols.txt and **without a `// FUNCTION:` line**, because functions.tsv has no entry for it.
+
+Matched in the third session: the nine ownerless runs of 0x10658A90 - 0x10659620 and their cleanup, the two
+`ScratchBytesSecond::Reserve` forms, the two statistics-log forwarders, `Context::CastRay` (0x106593A0) and
+`Context::QueryObjectShapeHits` (0x10659420, the world's vtable slot 0x44, which the header now types),
+`CollisionDetector::Destructor/Destroy/End/Begin`, `Context::BeginCollision`, `ObjectRegistry`'s constructor and
+`Reset`, and `PointerHashTable::Reset`.
 
 Still not done in this range:
 

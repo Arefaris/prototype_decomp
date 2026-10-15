@@ -16,6 +16,8 @@ namespace ravenphysics
 	class WorldBody;
 	class PhysicsObject;
 	class ObjectTable;
+	class NarrowPhaseBatcher;
+	class Context;
 
 	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
 	struct PhysicsObjectEntry
@@ -123,12 +125,26 @@ namespace ravenphysics
 	};
 
 	// The registry behind Context+0x0C: the objects by the identity they carry (name guess). Its members live in
-	// another unit; this unit only calls them.
+	// another unit; this unit only calls them. The first six words are the same run pair as the hash table it keeps
+	// at +0x18 (two counts and a run of 16-bit slot values each), and the count at +0x44 is the registry's own.
 	class ObjectRegistry
 	{
 	public:
+		// Zeroes the six words and the table (0x10658CC0; the count at +0x44 is left alone)
+		ObjectRegistry();
+		// Back to the empty state: the three runs are filled with 0xFF and the table reset (0x10658C70)
+		void Reset();
 		// 0x10686980
 		void Remove(PhysicsObject* object);
+
+		unsigned short* next;        // 0x00
+		int nextCount;               // 0x04
+		unsigned short* buckets;     // 0x08
+		int bucketCount;             // 0x0C
+		unsigned short* slotBuckets; // 0x10
+		int slotBucketCount;         // 0x14
+		PointerHashTable table;      // 0x18
+		int unknown44;               // 0x44
 	};
 
 	// The tracker behind Context+0x08: a position the objects of a list are handed to (the class name and the
@@ -193,12 +209,15 @@ namespace ravenphysics
 		virtual void QueryShape(void* a, void* b, void* c, void* world, void* d);
 		// 0x34
 		virtual void QueryShapeOther(void* a, void* b, void* c, void* world, void* d);
-		virtual void Unknown38();
+		// 0x38: the segment query the context's CastRay runs, the hits appended to hits (name guess)
+		virtual bool QueryRay(const void* query, void* hits, void* world, unsigned int flags);
 		// 0x3C
 		virtual void QueryPair(void* a, void* b, void* world, unsigned int flags);
 		// 0x40
 		virtual void QueryBody(PhysicsBody* object, void* world, unsigned int flag);
-		virtual void Unknown44();
+		// 0x44: the same shape query as QueryBodyShape, but against a body and with the hit buffer emptied first
+		// (the context's 0x10659420; name guess)
+		virtual void QueryBodyShapeHits(void* object, void* hits, void* world, void* a);
 		// 0x48
 		virtual void QueryBodyShape(void* a, void* b, void* world, void* c);
 		// 0x4C
@@ -1250,23 +1269,39 @@ namespace ravenphysics
 	// the constraints its solver works on (Context+0x58, 168-byte entries) and a third one (Context+0x8C). Their
 	// members live in the collision library's own units; this unit only calls them, so nothing but the calls is
 	// declared here (every name and the sizes are guesses).
-	// The collision detector wrapper behind Context+0x108 (the class name and the member names are guesses; the two
-	// members the asserts name are the detector's own pointer and the object it belongs to)
-	class CollisionDetector
+	// The collision detector behind Context+0x108: the object the whole detection runs in. It opens its own scratch
+	// level (it is a ScratchStackFrame itself) and, while it runs, holds itself in mCollisionDetectorInternal, which
+	// is what the asserts the library guards the detection with test. The class name is a guess; the members the
+	// asserts name are mCollisionDetectorInternal and the object the detection works on.
+	class CollisionDetector : public ScratchStackFrame
 	{
 	public:
+		// Gives the scratch buffer and the event back and closes the level (0x10658610)
+		~CollisionDetector();
+		// Starts the detection over the context's objects and blocks on the gate (0x106596F0; name guess)
+		CollisionDetector* Run(Context* context, void* data);
+		// Points the detector at the running detection and hands the work to Run (0x10659EE0; name guess)
+		void Begin(Context* context, void* data);
+		// Ends the detection the assertion checks for (0x10659690; name guess)
+		void End();
 		// Clears the detector pointer and the object (0x10656580)
 		CollisionDetector* Clear();
 		// The object the detector works on; asserts that the detection is running (0x10656590)
 		void* GetObject();
-		// 0x106565E0
-		void* GetBody();
-		// As GetBody, through the detector pointer (0x10657C40)
-		void* GetBodyChecked();
+		// The gate the detection waits on (0x106565E0)
+		void* GetEvent();
+		// As GetEvent, through the detector pointer (0x10657C40)
+		void* GetEventChecked();
+		// The deleting form the compiler makes of the destructor (0x10658F70)
+		CollisionDetector* Destroy(unsigned int flag);
 
-		unsigned char unknown0[8];
-		void* body; // 0x08
-		unsigned char unknownC[0x24 - 0xC];
+		void* event;                      // 0x08 (the gate the detection waits on)
+		NarrowPhaseBatcher* narrowPhase;  // 0x0C (the in-flight narrow phase work)
+		MidPhaseBatcher* midPhase;        // 0x10 (the record its batches are reported into)
+		void* unknown14;                  // 0x14
+		SlotPool* recordPool;             // 0x18 (the context's profiler pool)
+		Context* context;                 // 0x1C
+		void* data;                       // 0x20
 		CollisionDetector* mCollisionDetectorInternal; // 0x24
 		void* unknown28;                               // 0x28
 	};
@@ -1313,6 +1348,11 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+
+		// Starts the detection over data: the detector opens its gate and the caller checks it did (0x10659F40)
+		void BeginCollision(void* data);
+		// The same shape query as QueryObjectShape, with the hits emptied first (0x10659420; name guess)
+		void QueryObjectShapeHits(void* object, RayHitArray* hits, void* a);
 
 		// The world's line-of-sight test: what lies between the object and its target (0x106566C0; name guess)
 		void QueryObject(PhysicsBody* object);

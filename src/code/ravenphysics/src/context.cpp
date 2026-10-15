@@ -122,17 +122,17 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106565E0
-	void* CollisionDetector::GetBody()
+	void* CollisionDetector::GetEvent()
 	{
-		return body;
+		return event;
 	}
 
 	// FUNCTION: ENGINE 0x10657C40
-	void* CollisionDetector::GetBodyChecked()
+	void* CollisionDetector::GetEventChecked()
 	{
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x26a, mCollisionDetectorInternal, "mCollisionDetectorInternal",
 			"Collision detection not running");
-		return mCollisionDetectorInternal->GetBody();
+		return mCollisionDetectorInternal->GetEvent();
 	}
 
 	// FUNCTION: ENGINE 0x106566C0
@@ -1799,5 +1799,105 @@ namespace ravenphysics
 		{
 			delete[] unknown0;
 		}
+	}
+
+	// 0x10658AE0: the library's own copy of this walks in the hashtable unit, but the code the context calls sits
+	// in this unit's range, so it is written here (the address has no functions.tsv entry of its own).
+	void PointerHashTable::Reset()
+	{
+		memset(buckets, 0xff, bucketCount * 2);
+		memset(next, 0xff, unknown4 * 2);
+		memset(slotBuckets, -1, unknown14 * 2);
+		freeCount = capacity;
+		for (unsigned short i = 0; i < freeCount; i++)
+		{
+			freeSlots[i] = freeCount - i - 1;
+			keys[i] = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10658CC0
+	ObjectRegistry::ObjectRegistry()
+	{
+		next = 0;
+		nextCount = 0;
+		buckets = 0;
+		bucketCount = 0;
+		slotBuckets = 0;
+		slotBucketCount = 0;
+		table.next = 0;
+		table.unknown4 = 0;
+		table.buckets = 0;
+		table.bucketCount = 0;
+		table.slotBuckets = 0;
+		table.unknown14 = 0;
+		table.keys = 0;
+		table.unknown1C = 0;
+		table.freeSlots = 0;
+		table.freeCount = 0;
+		table.capacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658C70
+	void ObjectRegistry::Reset()
+	{
+		memset(buckets, 0xff, bucketCount * 2);
+		memset(next, 0xff, nextCount * 2);
+		memset(slotBuckets, -1, slotBucketCount * 2);
+		table.Reset();
+	}
+
+	// FUNCTION: ENGINE 0x10658F70
+	CollisionDetector* CollisionDetector::Destroy(unsigned int flag)
+	{
+		this->~CollisionDetector();
+		if ((flag & 1) != 0)
+		{
+			operator delete(this);
+		}
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x106593A0
+	bool Context::CastRay(const RayQuery& query, RayHitArray* hits)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x622, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		hits->end = hits->begin;
+		return mWorld->QueryRay(&query, hits, unknownC4, query.unknown24 & 3);
+	}
+
+	// FUNCTION: ENGINE 0x10659420
+	void Context::QueryObjectShapeHits(void* object, RayHitArray* hits, void* a)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x681, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		hits->end = hits->begin;
+		mWorld->QueryBodyShapeHits(object, hits, unknownC4, a);
+	}
+
+	// FUNCTION: ENGINE 0x10659690
+	void CollisionDetector::End()
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x262, mCollisionDetectorInternal, "mCollisionDetectorInternal",
+			"Collision detection not running");
+		mCollisionDetectorInternal->~CollisionDetector();
+		mCollisionDetectorInternal = 0;
+		unknown28 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10659EE0
+	void CollisionDetector::Begin(Context* context, void* data)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x25a, !mCollisionDetectorInternal, "!mCollisionDetectorInternal",
+			"Collision detection already running");
+		unknown28 = data;
+		mCollisionDetectorInternal = this;
+		Run(context, data);
+	}
+
+	// FUNCTION: ENGINE 0x10659F40
+	void Context::BeginCollision(void* data)
+	{
+		detector->Begin(this, data);
+		detector->GetEventChecked();
 	}
 }
