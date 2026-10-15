@@ -698,6 +698,109 @@ counters are accessed interlocked (`_InterlockedAnd(&x, -1)` is the atomic read)
 - renderglobals.cpp still lacks the callers of this class: 0x10817AF0 (Process), the constructor / destructor calls
   at 0x108190B4 / 0x108179B3 / 0x1081924D.
 
+## render/letterboxrenderpass.cpp (0x108BC810 - 0x108BD880) and engine/motiontrail.cpp (0x108BD890 - 0x108BEF7F): 0 functions, not started
+
+The two units between deferreddeletion.cpp and the OnlineManager block. The split is the one the previous session
+recorded (0x108BC810 - 0x108BEF7F), cut at 0x108BD890 where the MotionTrail constructors start; the file names are
+guesses (the only vftables the block carries are `engine::render::LetterboxRenderPass`,
+`pure3d::DebugObjectManager`, `debugoverlay::DebugSelectionManager`, `engine::MotionTrail`,
+`engine::MotionTrailCreator` and `engine::MotionTrailState`, in that order in `.rdata`, and one unit's namespaces
+say nothing about its file).
+
+What the two units are, from their code:
+
+- 0x108BC810 - 0x108BD880: `engine::render::LetterboxRenderPass` (a pure3d::Pass, 0xb0 bytes, created by the
+  factory 0x108BD0D0 through `new` + the pass name "LetterboxRenderPass"), `pure3d::DebugObjectManager` and
+  `debugoverlay::DebugSelectionManager` (both trivial: their constructors only store their vftable), a screen-fade
+  helper class (0x38 bytes: a colour, a `pure3d::Shader` named "unlit" at +0x10 and two
+  `engine::render::ParameterInterpolator<float>` at +0x14 and +0x24; its methods are 0x108FD0A0 - 0x108FD8C0, in
+  another unit) and the class that owns them (constructor 0x108BD150, destructor 0x108BCBE0: `core::Name` at +0x38,
+  a `ParameterInterpolatorPool` of 0x20 slots at +8, two fade helpers at +0x2C / +0x30, a direct-3D view at +0x10,
+  the letterbox pass looked up by name, `sub_1074DF40` / `sub_1074E8F0` handles at +4 / +0xC; the bool at +0x16
+  switches it on, +0x18 the letterbox). 0x108BC8E0 fills the global viewport rect at 0x113184F4 from
+  `pure3d::pddi` (`GetUnknown`/`GetWidth`-style entries 0x20 / 0x21 / 0x24 / 0x25 / 0x26 / 0x27, each scaled by
+  1/1024).
+- 0x108BD890 - 0x108BEF7F: `engine::MotionTrail` (a pure3d::Primitive), `MotionTrailCreator` (an
+  engine::render::DrawableCreator) and `MotionTrailState` (a pure3d::PrimitiveState); the factory 0x108BED80 builds
+  a MotionTrail out of an engine::render::Drawable and a stream package.
+- The three little functions at 0x108BC850 (`jmp ??1Pass@pure3d@@UAE@XZ`), 0x108BC880 and 0x108BC8B0 are
+  linker/compiler leftovers: 0x108BC850 is a COMDAT-folded jump and cannot be reproduced from source.
+
+## engine/online/onlinemanager.cpp (0x108BEF80 - 0x108C02C4): 2 functions match, 0 nonmatching
+
+The unit between the two above and parameterinterpolator.cpp; the file name is a guess (the block's only names are
+the strings `engine::OnlineManager`, `ConsoleManagerPeer` and `ChannelManager` its registration functions pass to
+0x108EC860, which is the metaclass/factory registration the other manager units use). Contents: the manager
+constructor 0x108BF160 and its vftable slot 0x108BF880, an update that walks the peer list (0x108BF1B0), the
+replay/CRC reporting (`ReplayMode`, `recordCRC`, `DesyncHunt` are looked up by name at 0x108BF030; 0x108BFD30 is
+1382 bytes and dumps two controller states), and the command line option `HardwareProfile`.
+- 0x108BEF80 / 0x108BEFA0 / 0x108BEFC0 are NOT registrations: they are the class-specific `operator new` of
+  engine::OnlineManager, engine::ConsoleManagerPeer and ChannelManager (21 bytes each), and they all forward to the
+  same helper 0x108EC860 with the selector 0 and their own class name as the third argument. The helper picks the
+  heap: 0 is heap 0x81, 2 is heap 0x82 and 1 is the heap the global at 0x111E2060 holds (that is the value the
+  third and fourth branches use), so `OnlineManager::operator new` and `ConsoleManagerPeer::operator new` are
+  reconstructed in `engine/onlinemanager.cpp` against the helper, which `symbols.txt` names
+  `engine::AllocateManagerObject`.
+- 0x108BEFC0 is the same for ChannelManager, and is not done: the class has no RTTI entry, so neither its
+  namespace nor its mangled name is known.
+- The unit's own members: `OnlineManager` is 0x98 bytes (its constructor 0x108BF160 zeroes +0x70 / +0x74 / +0x78,
+  builds a `core::Time` at +0x84 out of (0, 0), and installs the vftable 0x10E7DE58; the count at +0x94);
+  its deleting destructor is 0x108BF880 and goes through 0x108BF690 and 0x10836820.
+
+## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C0FE0): 38 functions match, 0 nonmatching
+
+engine::FmvSubtitleManager (the name is the string its own reflection carries): the subtitles of a full-motion video.
+The unit is the one after parameterinterpolator.cpp in `.text` and the file name comes from
+`docs/original_tree.md`; the manager is a content library object (content::MetaLoadObject) whose single reflected
+member is the element array `subtitles`.
+- FmvSubtitleManager::SubTitleEnty is 0x10C bytes: `char subtitleId[0x100]` at +0 (a content::StringMetaType
+  member, capacity 0x100), `float startTime` at +0x100, `float endTime` at +0x104 and a text handle at +0x108. It
+  is a plain struct (no vtable): its copy is the compiler's 0x10C-byte dword loop.
+- `subtitles` sits at +8 of the manager (right after IRefCount's vtable and count) and is a
+  `container::ArrayDynamic<SubTitleEnty, container::AllocatorNew>`; its members are the ones this unit
+  instantiates (Create, Allocate, Size, Capacity, operator[] twice, Clear, Free, Erase, ShiftUp, Reserve, Insert).
+  The class is a partial specialisation of the primary template in `arraydynamic.h`, whose members (the camera
+  director's instantiation) differ, so it lives in `code/container/arraydynamicallocatornew.h` under the same name
+  and with the same mangling as the original's.
+- The instance the array is reflected through (`ArrayDynamicHelper<...>`) has its own copy here, because its
+  `Insert` inserts `Default()` — the static element at 0x113185E0 — and not a local static: the explicit
+  specialisation is in `fmvsubtitlemanager.h`. Note the helper's vtable puts `Get` at slot 1 and `GetConst` at
+  slot 2 (the two bodies are identical, only the vtable tells them apart).
+- The reflection is built in function-local statics, so the unit's `.data` is the SubTitleEnty's ClassInfo
+  (0x11318594), the manager's (0x113185A4), the two PrimitiveMetaType<float> of its float members (0x113185C4 /
+  0x113185D0), the default element (0x113185E0), the metabject tables and the two meta types. Their guard dwords
+  sit right after each object; a ClassInfo is 0xC bytes and a MetaType-derived static 8 or 0xC.
+- The `Id` the two `GetMemberPrimitiveMetaType<SubTitleEnty, float, Id>` are told apart by is 32 and 35 (the values
+  the unit's mangled names carry), not `__LINE__`: writing `__LINE__` makes the name move with every edit.
+- 0x108C0DC0 (`content::GetClassMetaType<SubTitleEnty>`) and 0x108C0E10 (`content::GetArrayDynamicMetaType`) are
+  the metatype.h templates; the manager's own reflection (GetClassInfo / GetMembers) is *not* in this unit — it
+  starts past 0x108C1000 — so the two are emitted here through an explicit instantiation.
+- 0x108C0E60 / 0x108C0EA0 are the same `LoadInventory::Find<T>(const char*)` for FmvSubtitleManager and
+  engine::StreamPackage: `DynamicCaster<T>` on the stack, `ObjectName(name, 1)`, then virtual slot 5
+  (`FindObject`) with recursive = true. The template was added to `code/content/loadinventory.h` and both
+  instantiations are explicit.
+
+Not done (11 functions):
+
+- 0x108C04E0 (20 bytes): `StringSomething(a, b, 0)`, a forwarder into 0x1060F1B0, which builds a
+  `container::StringLiteral` (vftable 0x10E0D5FC) on the stack and calls 0x1060EBA0.
+- 0x108C0590 `container::StringC<256>::StringC(const StringC&)` (52 bytes): the copy constructor, a kept copy.
+  `container::StringC` in `code/container/string.h` has no copy constructor yet.
+- 0x108C05D0 (4 bytes): `container::StringC<256>::Data()` — emitted only if the class's vftable is, which needs a
+  use of StringC<256> in this unit (0x108C0BB0 has it).
+- 0x108C0650 (3 bytes, `mov eax, ecx`), 0x108C0660 / 0x108C06C0 / 0x108C07D0 (1 byte, `ret`): four functions of
+  classes the unit does not otherwise show.
+- 0x108C0730 (23 bytes): a second copy of the array's `Size()`, identical to 0x108C0630; the two cannot be told
+  apart without knowing the second owner.
+- 0x108C0880 (3 bytes, `mov eax, [ecx]`): a `begin` accessor of an unknown class.
+- 0x108C0BB0 (287 bytes): the unit's string helper — it builds a StringC<256> from a name, searches it with
+  0x1060F460 for two separators, and copies the part between them out.
+- 0x108C0CD0 (210 bytes) `FmvSubtitleManager::Update(float)`: understood (the loop walks the elements,
+  creates the text object through 0x10877110 when start <= time < end and destroys it through 0x10876B70 when the
+  interval has passed, both on the object the global at 0x11316A58 points at, with the two 8-byte globals at
+  0x11316A70 / 0x11316A78 as parameters) but not written: the text object's class and those three globals belong
+  to another unit and their initial values are unknown.
+
 ## pure3d animation and the choreo pose blending
 
 Three units, none of them named by an assert except the first:
