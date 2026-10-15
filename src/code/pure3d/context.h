@@ -91,6 +91,10 @@ namespace pure3d
 		{
 			return (FrameEntry*)(frames + index * 8);
 		}
+		// 0x1070FEF0: advances the frame (the frame number, the device's matrices and the display)
+		void AdvanceFrame();
+		// 0x1070F850 (not reconstructed yet): prepares the frame's state
+		void Unknown1070F850();
 		// 0x107103D0: takes every entry out of the context's tree
 		void ClearEntries();
 		// 0x1070EDF0: updates the passes' chain (nothing when there is none)

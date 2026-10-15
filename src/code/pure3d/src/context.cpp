@@ -63,6 +63,21 @@ namespace pure3d
 #endif
 
 
+	// FUNCTION: ENGINE 0x1070FEF0
+	void Context::AdvanceFrame()
+	{
+		Unknown1070F850();
+		frame++;
+		unknown38 = true;
+		pddi->Unknown27();
+		pddi->SetWorldMatrix(&math::Matrix::IDENTITY);
+		if (inFrame == 0)
+		{
+			gDisplay->SetSize(0, 0);
+		}
+		gDisplay->Unknown1073B450();
+	}
+
 	// FUNCTION: ENGINE 0x107103D0
 	void Context::ClearEntries()
 	{

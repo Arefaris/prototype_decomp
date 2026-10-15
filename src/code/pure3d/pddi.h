@@ -133,6 +133,8 @@ namespace pure3d
 		const math::Matrix* GetUnknown10614840();
 		// 0x10614C20: the word at +0x14 is not 0 (the meaning is unknown)
 		bool IsUnknown14Set();
+		// 0x10615770: sets the world matrix (nothing when it is the one already set)
+		void SetWorldMatrix(const math::Matrix* matrix);
 
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);
@@ -212,6 +214,8 @@ namespace pure3d
 	public:
 		// 0x1073B850: the size of the display (0, 0: the engine's display's); false when the surfaces cannot be made
 		bool SetSize(unsigned int width, unsigned int height);
+		// 0x1073B450: puts the display's state back (the word at +0x3C into +0x40)
+		void Unknown1073B450();
 
 		unsigned char unknown0[0x20];
 		pddiSurface* colour;
