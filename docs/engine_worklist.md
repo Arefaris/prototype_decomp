@@ -835,10 +835,19 @@ the address order (the two units interleave their statics):
 | frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
 | path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
 
-Done: **33 functions match**, nothing is marked NONMATCHING (the rest were not attempted, so no body was written and
+Done: **35 functions match**, three are marked NONMATCHING (the rest were not attempted, so no body was written and
 nothing was excluded from the build).
 
-- fight unit (7): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863A90, 0x10863B90.
+- fight unit (9): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863A90, 0x10863AC0 (`~FightTreeBehaviour`:
+  `core::SafeRelease(params)`, `sequencer.End()`, then `branch->Unregister(&branch)`), 0x10863B90, 0x10863BA0
+  (`SetBranch`: the register / unregister pair, then `dynamic_cast<engine::PlaybackSet*>` and the owner), 0x10863F90
+  (`??_G`). 0x10863990 is **not** `FightTreeBehaviour`'s own slot 0 any more: the class does not override
+  `Behaviour::Slot0`, so that byte is this unit's kept copy of the base's; the fight unit's vftable slot 0 holds the
+  incremental link thunk 0x1002C0C5, which is how `symbols.txt` maps `?Slot0@Behaviour@engine@@UAEXXZ`.
+- fight unit, NONMATCHING:
+  - 0x10863900 `Slot1`: the parameters load and the two generator steps' registers, 54 %.
+  - 0x108639A0 `GetParams`: the parameters load and the handle copy swap places, 89 %.
+  - 0x108639E0 constructor: the vftable store and the sequencer's `this` swap places, 97 %.
 - path unit: the same trick below gives 0x10864FA0.
 - `src/code/engine/frontend/frontend.cpp` (20, new): 0x108642D0 `fe_SetUpdateEnable`, 0x10864310 `SetFrontend`,
   0x10864330 `GetFrontend`, 0x10864340 `GetFrontendHeap`, 0x10864390 `SetScreenCentre`, 0x10864420 `GetScreenWidth`,
