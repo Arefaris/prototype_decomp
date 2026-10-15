@@ -42,8 +42,22 @@ namespace ravenphysics
 		return slot;
 	}
 
-	// FUNCTION: ENGINE 0x107E6C00
+	// FUNCTION: ENGINE 0x107E5AB0
 	unsigned short KeyTable::FindFrom(unsigned short slot, unsigned int key) const
+	{
+		while (slot != 0xFFFF)
+		{
+			if (keys[slot] == key)
+			{
+				return slot;
+			}
+			slot = next[slot];
+		}
+		return slot;
+	}
+
+	// FUNCTION: ENGINE 0x107E6C00
+	unsigned short KeyTable::FindAfter(unsigned short slot, unsigned int key) const
 	{
 		for (slot = next[slot]; slot != 0xFFFF; slot = next[slot])
 		{

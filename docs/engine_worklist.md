@@ -569,9 +569,18 @@ it too). 84 functions match so far, in address order:
   (0x107E59C0 / 0x107E5A30 / 0x107E5A70) and the `Register` copy 0x107E6B70 by itself. The 0- and 1-argument
   `Register` copies are calls to another unit (0x10280020 / 0x10374950), which `symbols.txt` maps.
 - the uid table, `ravenphysics::KeyTable` (name guess; the engine's copy has no RTTI): `Find` 0x107E6BC0,
-  `FindFrom` 0x107E6C00 and `Create` 0x107E7120 match, and `Init` (0x106883B0, another unit) is mapped. The layout
-  is `next / slotCount / buckets / bucketCount / keys / count / capacity / order / orderCount / orderCapacity`, all
-  of it cut out of the scratch stack when the table is created.
+  `FindFrom` 0x107E5AB0, `FindAfter` 0x107E6C00 and `Create` 0x107E7120 match, and `Init` (0x106883B0, another
+  unit) is mapped. The layout is `next / slotCount / buckets / bucketCount / keys / count / capacity / order /
+  orderCount / orderCapacity`, all of it cut out of the scratch stack when the table is created. **The chain walk
+  is written with an early `return slot`**, not a `break` (that is the whole difference between 0x107E5AB0 and
+  0x107E6C00's shape): `while (slot != 0xFFFF) { if (keys[slot] == key) return slot; slot = next[slot]; }`.
+- the object lookup by id 0x107E4E60 (thiscall on an `ObjectList`, three stack arguments: the id, and the two
+  outputs - the physics object and the collision object), which fills the layout the `pm_` listings need:
+  object +0x22 (16-bit id), +0x3E (flags, bit 3 tested), +0x5C (16-bit count), +0x54 (pointer array), and the
+  collision objects' own id at +0x4A. 0x107E4F00 is the same lookup over `movableObjects` (the context at +0x1C)
+  then `staticObjects` (+0x14) - **it takes its two outputs in `esi`/`edi`**, a link-time code generation
+  convention like `AtomicExchange`'s, so it and its callers (0x107E5770 and the other listings) cannot be written
+  in C++ as they are.
 
 NONMATCHING:
 

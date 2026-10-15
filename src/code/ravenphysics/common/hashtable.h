@@ -38,8 +38,10 @@ namespace ravenphysics
 		void Create(unsigned int count, ScratchStack* stack);
 		// The slot of key, or 0xFFFF when the key is not in the table (0x107E6BC0)
 		unsigned short Find(unsigned int key) const;
-		// The first slot of key's chain that holds key, or 0xFFFF (0x107E6C00)
+		// The first slot from slot on that holds key, or 0xFFFF (0x107E5AB0)
 		unsigned short FindFrom(unsigned short slot, unsigned int key) const;
+		// The same from the slot after the one given (0x107E6C00)
+		unsigned short FindAfter(unsigned short slot, unsigned int key) const;
 		// Adds key when it is not in the table yet and gives it the next slot (0x107E6C40)
 		void Insert(unsigned int key);
 
