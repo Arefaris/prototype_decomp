@@ -519,55 +519,6 @@ slots that became readable. Only the first queue's instances are mapped. Notes:
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 
 
-## engine/physics/physicsmanager.cpp (0x107E2440 - 0x107E7A00), started
-
-The unit's assert path (`..\..\..\code\engine\physics\physicsmanager.cpp`, lines 0x794 - 0xA4F) names it; its
-functions run from 0x107E2440 (right after `engine::MasterTable`'s constructor) to 0x107E75F0 (2598 bytes) and the
-unit registers the `pm_*` console commands (0x107E6F20). One source file holds everything in the range: the
-collision messages, the shared query buffers and the manager's Lua commands share one translation unit (the small
-class at 0x107E2BF0 that reads the pad axes is constructed by 0x107E3710, so the "climbing" input map is part of
-it too). 44 functions match so far, in address order:
-
-- the eight collision messages (RTTI): `CollisionBrokeringMessage` (type 4), `CollisionResponseMessage` (type 5),
-  `BatchedRayCastMessage` / `BatchedRayCastHitMessage` / `BatchedShapeCastMessage` / `BatchedShapeCastHitMessage`
-  (type 3, ids 1 - 4), `PhysicsFixupUnsolvedConstraintsMessage` (id 0x1D) and
-  `PhysicsFixupPoweredConstraintsMessage` (id 0x1E) - constructors and destructors. The batched cast payloads are
-  **separate scalar arguments**, not a by-value struct: a struct argument schedules one store differently (the
-  engine stores the first word with the others, ours after the vftable) and never matches.
-- the three shared query buffers and their locks (`RayHitBufferLock` 0x107E6CD0 / 0x107E3C20 / 0x107E3C30, plus
-  `HitIndexBufferLock` and `CollisionBufferLock` at 0x107E6CF0 / 0x107E6D10 - both names are guesses). The locks
-  hold **no data**: the buffers are file-scope variables, which is what makes the engine address them absolutely
-  (`arg = ctx ? ctx : (Type*)field` would use `this`). The three array types are `{begin, end, capacity}`.
-  `engine::RayHitBufferLock` is declared in `code/ravenphysics/context.h` because supportinglimb.cpp uses it.
-- the `pm_` console commands 0x107E3F20 - 0x107E57E0: `pm_DrawInertia`, `pm_DrawObjectUIDs`, `pm_TrackAABB`,
-  `pm_SetSolverIterations`, `pm_ListStaticObjects`, `pm_ListMovableObjects`, `pm_ListAwakePhysicsObjects`,
-  `pm_ListAsleepObjects`, `pm_ListSelectedObjects`, `pm_ListPhysicsObjects`, `pm_ListTriggerObjects`,
-  `pm_ListObjects`, `pm_Substeps`, plus the frame counter and the update flag under them.
-- the interlocked helpers `AtomicIncrement` / `AtomicDecrement` (0x107E3790 / 0x107E37A0) - **`__fastcall`**, the
-  pointer arrives in ecx.
-
-NONMATCHING:
-
-- 0x107E37B0 AtomicExchange: the engine's copy takes the value in `eax` (a link-time code generation convention),
-  ours in `edx`; 60 %.
-
-Not done (owners or layouts not recovered yet):
-
-- 0x107E3830 - 0x107E3860, 0x107E3AC0 - 0x107E3B00, 0x107E3B60 / 0x107E3B70, 0x107E3B80 / 0x107E3BC0: accessors of
-  classes the unit's messages and manager own (member offsets 0x14, 0x1C, 0x70, 0xC0, 0xC2, 0xE0).
-- 0x107E3D00 / 0x107E3D10, 0x107E3C00 / 0x107E3CB0 / 0x107E3CD0, 0x107E3D60: ravenphysics::Context wrappers and a
-  constructor whose members are still unknown.
-- 0x107E3DB0, 0x107E3DD0 (done) - 0x107E3F90 (the collision log), the container helpers 0x107E4340 - 0x107E4AE0,
-  `ListObjects` 0x107E4F40, 0x107E4E10 / 0x107E4E60 / 0x107E4F00 (the object lookup by uid and by collision-object
-  index), 0x107E4910 / 0x107E49B0 / 0x107E49E0 / 0x107E4A50 (the uid lookup loops), 0x107E52A0 - 0x107E6B70 (the
-  remaining list commands, the `Function4` script wrapper 0x107E59C0 and the constraint dumps) and 0x107E6C40 -
-  0x107E75F0 (the uid hash table, `Create` 0x107E7180, `Destroy` 0x107E6D30 and `Update` 0x107E75F0).
-- 0x107E2BF0 and its 0x107E24B0 - 0x107E3290 neighbours (the pad-driven "climbing"/"wall_run" input map; the class
-  is 0x58 bytes with a state pointer at +0x10 and a `Vector` at +0x34).
-
-Shared headers touched: `code/ravenphysics/context.h` (the query buffer lock, `Context::SetSolverIterations`, the
-`ObjectList` members at 0x14 / 0x1C and `Context::unknown0`).
-
 ## render/async/private/drawable.cpp (0x107E8020 - 0x107EE322): 288 annotated functions, 274 match, 14 EQUIVALENT
 
 engine::render::Drawable is the game thread's handle to a render-thread drawable (a 16-bit slot index and the slot's
