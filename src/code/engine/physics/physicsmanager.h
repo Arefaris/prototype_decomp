@@ -89,7 +89,9 @@ namespace engine
 	// Walks one of the context's object lists and reports the objects the flags select (0x107E4F40)
 	void ListObjects(ravenphysics::ObjectList* objects, bool awake, bool asleep, bool physics, bool trigger);
 
-	// The pm_ console commands and the script function behind the ones with arguments (0x107E5180 - 0x107E6B70)
+	// The pm_ console commands and the script function behind the ones with arguments (0x107E5180 - 0x107E6B70).
+	// The names are the ones the manager registers them under (0x107E6F20).
+	void pm_Help();
 	void pm_ListStaticObjects();
 	void pm_ListMovableObjects();
 	void pm_ListAwakePhysicsObjects();
@@ -98,7 +100,16 @@ namespace engine
 	void pm_ListPhysicsObjects();
 	void pm_ListTriggerObjects();
 	void pm_ListObjects();
+	void pm_ListCollisionObjects(int value);
+	void pm_ListConstraints(int value);
+	void pm_ListAllConstraints();
+	void pm_ListVolumes(int value);
+	void pm_ObjectInfo(int value);
+	void pm_LogCollisions(int value);
 	void pm_Substeps(int substeps);
+
+	// 0x107E6F20: hands the manager's commands to the script manager under gContext as their owner
+	void RegisterPhysicsCommands();
 	// A pair of pointers (begin / end) handed to the collision messages; name guess.
 	struct CollisionItemList
 	{

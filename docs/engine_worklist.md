@@ -562,11 +562,41 @@ it too). 84 functions match so far, in address order:
   unidentified and 0x107E6AE0 is left unclaimed.
 - `Erase` is **not** this class's: the original's (0x107E6AA0 / 0x107E6B10) walks the range through a copy loop, ours
   shifts one element at a time (19 %).
+- the `pm_` registration 0x107E6F20 (`RegisterPhysicsCommands`): it registers all twenty commands, so the unit needs
+  the `Function` wrappers the header had only for zero and one argument. `function.h` gained `Function0<void>`,
+  `Function2`, `Function3`, `Function4` and their `void` forms, and `Register` gained the two-, three- and
+  four-argument overloads; the unit then emits the four-argument wrapper's constructor, `Call` and `Invoke`
+  (0x107E59C0 / 0x107E5A30 / 0x107E5A70) and the `Register` copy 0x107E6B70 by itself. The 0- and 1-argument
+  `Register` copies are calls to another unit (0x10280020 / 0x10374950), which `symbols.txt` maps.
+- the uid table, `ravenphysics::KeyTable` (name guess; the engine's copy has no RTTI): `Find` 0x107E6BC0,
+  `FindFrom` 0x107E5AB0, `FindAfter` 0x107E6C00 and `Create` 0x107E7120 match, and `Init` (0x106883B0, another
+  unit) is mapped. The layout is `next / slotCount / buckets / bucketCount / keys / count / capacity / order /
+  orderCount / orderCapacity`, all of it cut out of the scratch stack when the table is created. **The chain walk
+  is written with an early `return slot`**, not a `break` (that is the whole difference between 0x107E5AB0 and
+  0x107E6C00's shape): `while (slot != 0xFFFF) { if (keys[slot] == key) return slot; slot = next[slot]; }`.
+- the object lookup by id 0x107E4E60 (thiscall on an `ObjectList`, three stack arguments: the id, and the two
+  outputs - the physics object and the collision object), which fills the layout the `pm_` listings need:
+  object +0x22 (16-bit id), +0x3E (flags, bit 3 tested), +0x5C (16-bit count), +0x54 (pointer array), and the
+  collision objects' own id at +0x4A. 0x107E4F00 is the same lookup over `movableObjects` (the context at +0x1C)
+  then `staticObjects` (+0x14) - **it takes its two outputs in `esi`/`edi`**, a link-time code generation
+  convention like `AtomicExchange`'s, so it and its callers (0x107E5770 and the other listings) cannot be written
+  in C++ as they are.
 
 NONMATCHING:
 
 - 0x107E37B0 AtomicExchange: the engine's copy takes the value in `eax` (a link-time code generation convention),
   ours in `edx`; 60 %.
+- 0x107E6C40 KeyTable::Insert: the same instructions in the same order, but the new slot and the old chain head come
+  out in the other pair of registers (`eax`/`esi` swapped); 87 %.
+- 0x107E4010 pm_LogCollisions: the engine materialises the `"collisionLog.txt"` argument in its stack slot *after*
+  pushing the other eight (a wildcard `push ecx`, then `mov eax, esp`, then the literal into the slot); ours pushes
+  the literal directly. The same shape blocks `LuaScriptManager::DoFile` in another unit; 53 %.
+- 0x107E3F90 UpdateCollisionLog: the engine issues the `gCollisionLogState = 0` store between the two loads that
+  prepare the `Release` call (`mov ecx,[file]; mov eax,[ecx]; mov edx,[eax+4]; mov [state],0; call edx`), ours issues
+  it right after the pointer load; 90 %.
+- The collision log's globals **are** now known and written down: state 0x11283594, frames left 0x11283598, the file
+  0x1128359C, the report-once flag 0x111BC613 (the ` Report(0, " Pre ", ...)` in 0x107E3F90 is the original's). The
+  line in that report is 0x9E1 and the format `Logging collisions frame %d.`.
 
 Not done (owners or layouts not recovered yet; the reasons are what blocks them, not just "unknown"):
 
