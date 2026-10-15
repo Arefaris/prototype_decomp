@@ -4453,7 +4453,6 @@ __ftol2_sse = 0x10A883F0 ; function size:0x1C | CRT float to integer conversion 
 ??$_Make_heap@PAMHM@std@@YAXPAM0PAH0@Z = 0x102CEF90 ; function size:0x3E | std::_Make_heap<float*, int, float> (template instance, kept copy)
 ??$_Insertion_sort1@PAMM@std@@YAXPAM00@Z = 0x102CEFE0 ; function size:0xA3 | std::_Insertion_sort1<float*, float> (template instance, kept copy)
 ??$_Pop_heap_0@PAMM@std@@YAXPAM00@Z = 0x102CF0B0 ; function size:0x29 | std::_Pop_heap_0<float*, float> (template instance, kept copy)
-??$sort_heap@PAM@std@@YAXPAM0@Z = 0x102CF5C0 ; function size:0x5 | std::sort_heap<float*> (template instance, kept copy)
 ??$_Unguarded_partition@PAM@std@@YA?AU?$pair@PAMPAM@0@PAM0@Z = 0x102CF7C0 ; function size:0x294 | std::_Unguarded_partition<float*> (template instance, kept copy)
 ??$make_heap@PAM@std@@YAXPAM0@Z = 0x102CFB00 ; function size:0x23 | std::make_heap<float*> (template instance, kept copy)
 ??$_Insertion_sort@PAM@std@@YAXPAM0@Z = 0x102CFB30 ; function size:0x15 | std::_Insertion_sort<float*> (template instance, kept copy)
