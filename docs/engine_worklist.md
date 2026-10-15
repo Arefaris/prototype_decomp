@@ -748,9 +748,55 @@ the address order (the two units interleave their statics):
 | frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
 | path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
 
-Done: 6 functions match (fight unit: 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863B90). Everything
-else in the range is **not done** (nothing is marked NONMATCHING: the functions were not attempted, so no body was
-written and nothing was excluded from the build).
+Done: **31 functions match**, nothing is marked NONMATCHING (the rest were not attempted, so no body was written and
+nothing was excluded from the build).
+
+- fight unit (6, earlier session): 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863B90.
+- `src/code/engine/frontend/frontend.cpp` (20, new): 0x108642D0 `fe_SetUpdateEnable`, 0x10864310 `SetFrontend`,
+  0x10864330 `GetFrontend`, 0x10864340 `GetFrontendHeap`, 0x10864390 `SetScreenCentre`, 0x10864420 `GetScreenWidth`,
+  0x10864430 `GetScreenHeight`, 0x10864440 `UpdateScreenCentre`, 0x10864490 `SetCursorFade`, 0x108644A0
+  `GetCursorFade`, 0x108644E0 `SetCursorScale`, 0x108644F0 `GetCursorScale`, 0x10864500 `ResetCursorScale`,
+  0x10864520 `GetScreenCentreX`, 0x10864530 `GetScreenCentreY`, 0x10864560 `ShouldHideHUD` (returns `int`, not
+  `bool` - with `bool` the compiler emits `mov al, 1` where the original has `mov eax, 1`), 0x10864590
+  `fe_ToggleHideHUDOption` (a `^= 1`, `!flag` compiles to `cmp`/`sete`), 0x10864AE0 `ResetLanguage`, 0x108649F0
+  `SetLanguageName` and 0x10864A00 `GetLanguageName` (the `core::Name<core::CaseSensitiveKey>` at 0x11315C78). The
+  unit has no assert path and no class static, so the file name, the free-function shape and every name are guesses.
+- `src/code/engine/gameobject/behaviours/pathbehaviour.cpp` (5, new): the five reflection statics 0x10864C30,
+  0x10864C70, 0x10864CB0, 0x10864D00, 0x10864D40. File name and header are guesses too.
+
+Not done, by unit (each is a place to start, not a verdict):
+
+- **fight unit**: 0x10863900 + 0x108639A0 (the context update: `GetHandle(owner)` into `context + 0xC`, the first one
+  followed by the two 16-bit LCG steps of 0x111BDA0C); 0x108639D0 (`[ecx+8]` getter - the owner is at +4 and +8 is
+  `Behaviour::state`, so this is probably a method of another class in the file); 0x108639E0 (ctor, `ret 8`: the second
+  argument is the context, and `new (0x18) engine::GameObjectParams(0x10001)` - 0x107FC710 - when it is null);
+  0x10863A80 + 0x10863A90 (kept copies of `BaseClassCasterImpl<engine::Behaviour, engine::FightTreeBehaviour>`
+  ctor / `IsDerived`); 0x10863AC0 (dtor), 0x10863B00 + 0x10863FB0 (message handlers), 0x10863BA0 `SetBranch`,
+  0x10863C00, 0x10863C50 (the "Fight Pre " dump, 751 bytes and recursive), 0x10863F40 / 0x10863F60 / 0x10863F70
+  (`engine::FightBranchRefMemberGetSetter` ctor / Get / Set - vftable 0x10E73204), 0x10863F90 (`??_G`, a kept copy),
+  0x10864180 + 0x108641E0 (`GetMembers`: the members are named **"fightBranch"** and **"sequencer"**, the base is
+  `content::GetClassMetaType<engine::Behaviour>()` and the caster `BaseClassCasterImpl<Behaviour, FightTreeBehaviour>`;
+  the getter/setter pair for the branch is `GetBranch`/`SetBranch` with the code string at 0x10D94FF4).
+- **render unit** 0x10862A60 - 0x108638BF: nothing attempted. 0x10863060 is a `switch` whose case bodies and jump
+  tables run to 0x1086369F although `functions.tsv` says 52 bytes (see the note below), and 0x10863850 - 0x108638B0
+  are five 4 - 20 byte functions that read +0x3C / +0x8 and call through a slot.
+- **frontend unit**: 0x108642C0 (`&member[0x5C]` of the frontend object - the object is 0x1238 bytes, built by
+  0x10872D70, held in 0x11315C68), 0x10864350, 0x108643B0 (float clamp to +-120 then 0x108814F0), 0x108644B0 /
+  0x108644C0 / 0x108644D0 (5-byte `jmp` thunks - linker artefacts, leave them), 0x10864540 `fe_EnableCatchupBehaviour`
+  (`GetFrontend() + 0x2C` then 0x10885E10 - needs the frontend class layout), 0x108645A0 (shutdown), 0x10864600
+  (1007 bytes), 0x10864A20 `SetLanguage`, 0x10864AF0 (init, 308 bytes; it registers the `fe_*` natives through 0x102893A0 /
+  0x10280020 / 0x1036BA70 and calls `engine::LuaScriptManager::AddFunction` / `SetOwner`).
+- **path unit**: 0x10864CF0 / 0x10864D80 / 0x10864DE0 / 0x10864E40 / 0x10864E50 (1-byte `ret`) and 0x10864DD0 /
+  0x10864EC0 (`ret 8`) - vtable fillers or kept copies of header-defined members, not writable source; 0x10864D90
+  (kept copy of the `BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>` ctor) and 0x10864FA0 (its `IsDerived`);
+  0x10864DA0 (`engine::PatrolPoint` ctor/dtor: vtable 0x10E7335C at +0 and `container::String::vftable` at +0x1C);
+  0x10864DB0 / 0x10864EA0 (`GetScriptManager()->Unregister(&static)` for 0x11315C98 / 0x11315C9C); 0x10864DF0
+  (`engine::SplineCV` ctor: vtable 0x10E73364, seven floats at +4, a flag at +0x20) and 0x10864E30 (its vtable reset);
+  0x10864E60 (`dynamic_cast<SplineBehaviour*>(GetGameObject(FindGameObject(name, "")))`); 0x10864ED0
+  (0x10864ED0 and the `container::ArrayDynamic<T>` members 0x10864EE0 - 0x10864F90 and 0x10864FD0 are inline
+  template members - annotate them only if the instantiation can be forced out of line).
+  The five `GetClassInfo`s prove the file owns `engine::IPathBehaviour` (vftable 0x10E734AC, 15 slots),
+  `engine::PatrolPathBehaviour` (0x10E733FC, 16) and `engine::SplineBehaviour` (0x10E73454, 16).
 
 ### What the next agent needs to know
 
@@ -776,6 +822,25 @@ written and nothing was excluded from the build).
   the tree's "Fight Pre" dump, whose free-text messages are `""` in this reconstruction.
 - 0x108644B0 / 0x108644C0 / 0x108644D0 are 5-byte `jmp` thunks in the middle of `.text` (targets 0x10881220 /
   0x10881290 / 0x108812B0): linker artefacts of the original incremental link, not source functions - leave them.
+- **`FightTreeBehaviour`'s `branch` is a `fight::Branch*`, not a `fight::Track*`.** `SetBranch` (0x10863BA0) hands
+  it to `__RTDynamicCast` with the source type descriptor 0x1103DA18 = `.?AVBranch@fight@@` and the target
+  0x111CEEB8 = `engine::PlaybackSet` (`engine::PlaybackSet : fight::Branch; fight::Entity; ...`), and `fight::Track`
+  is a different class (`.?AVTrack@fight@@`, vtable 0x10E2CD54, 16 slots). The `?GetBranch@FightTreeBehaviour@engine@@
+  QBEPAVTrack@fight@@XZ` name in `symbols.txt` and the `fight::Track* branch` member of the header are stale guesses:
+  the bytes of 0x10863B90 (`mov eax, [ecx + 0xC]; ret`) do not change, but the declaration should become
+  `fight::Branch*` once that class is declared. `fight::Branch` has 18 vftable slots (vtable 0x10E2C294) and the
+  three slot numbers this unit uses are 6 (`+0x18`, returns what the message carries a copy of), and 10 / 11
+  (`+0x28` / `+0x2C`, the run and the start of a track on a sequencer).
+- **0x11331DFC is an IAT slot**, not engine data: `call dword ptr [0x11331DFC]` after `__RTtypeid` is
+  `type_info::_name_internal_method(&__type_info_node)`, i.e. `typeid(*p).name()`. The slot table can be resolved
+  from the import libraries the relinker writes to `build/<VERSION>/relink/*.def`: the .def line number minus 2 is
+  the import's index in its DLL and the slot of index *i* is the one 0x10A88356-style thunk of that import points
+  at, offset by 4*(i-1). `msvcr80.def` index 9 (line 11) is
+  `?_name_internal_method@type_info@@QBEPBDPAU__type_info_node@@@Z`, and index 8 (line 10, `__RTDynamicCast`,
+  slot 0x11331DF8) is the anchor: 0x11331DF8 - 4*7 = 0x11331DDC is index 1. This is how to name any bare
+  `call dword ptr [0x11331xxx]` in the range without guessing.
+- `0x10D95365` is the empty string (its first byte is 0), so a `core::Report` format of `"%*sFight Context: %s"`
+  takes `(indent, "", name)` and `%*s` with `0x10D94FF4`-style codes is how the reflection member table prints.
 
 ## proto/navmesh.cpp (proto::NavMeshHull, 0x10568390 - 0x105691D0)
 

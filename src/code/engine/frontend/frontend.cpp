@@ -20,12 +20,16 @@ namespace engine
 	int sFrontendHeap = 0;
 	// GLOBAL: ENGINE 0x11315C65
 	static bool sScreenCentreSet = false;
+	// GLOBAL: ENGINE 0x11315C66
+	static bool sHideHUD = false;
 	// GLOBAL: ENGINE 0x11315C68
 	void* sFrontend = 0;
 	// GLOBAL: ENGINE 0x11315C6C
 	static int sScreenCentreX = 0;
 	// GLOBAL: ENGINE 0x11315C70
 	static int sScreenCentreY = 0;
+	// GLOBAL: ENGINE 0x11315C78
+	static core::Name<core::CaseSensitiveKey> sLanguageName;
 
 	// FUNCTION: ENGINE 0x108642D0
 	bool fe_SetUpdateEnable(bool enable)
@@ -101,5 +105,63 @@ namespace engine
 	void SetCursorScale(float scale)
 	{
 		sCursorScale = scale;
+	}
+
+	// FUNCTION: ENGINE 0x108644F0
+	float GetCursorScale()
+	{
+		return sCursorScale;
+	}
+
+	// FUNCTION: ENGINE 0x10864500
+	void ResetCursorScale()
+	{
+		SetCursorScale(-1.0f);
+	}
+
+	// FUNCTION: ENGINE 0x10864520
+	float GetScreenCentreX()
+	{
+		return (float)sScreenCentreX;
+	}
+
+	// FUNCTION: ENGINE 0x10864530
+	float GetScreenCentreY()
+	{
+		return (float)sScreenCentreY;
+	}
+
+	// FUNCTION: ENGINE 0x10864560
+	int ShouldHideHUD()
+	{
+		if (sHideHUD || HasCommandLineOption("HideHUD"))
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10864590
+	void fe_ToggleHideHUDOption()
+	{
+		sHideHUD ^= 1;
+	}
+
+	// FUNCTION: ENGINE 0x10864AE0
+	void ResetLanguage()
+	{
+		SetLanguage('?');
+	}
+
+	// FUNCTION: ENGINE 0x108649F0
+	void SetLanguageName(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		sLanguageName = name;
+	}
+
+	// FUNCTION: ENGINE 0x10864A00
+	core::Name<core::CaseSensitiveKey> GetLanguageName()
+	{
+		return sLanguageName;
 	}
 }

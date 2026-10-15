@@ -3,6 +3,7 @@
 #ifndef ENGINE_FRONTEND_FRONTEND_H
 #define ENGINE_FRONTEND_FRONTEND_H
 
+#include "code/core/name.h"
 #include "code/engine/display.h"
 
 namespace engine
@@ -22,10 +23,28 @@ namespace engine
 	float GetScreenHeight();
 	// 0x10864440: the centre of the display, once
 	void UpdateScreenCentre();
-	// 0x10864490 / 0x108644A0 / 0x108644E0: the cursor's fade time and scale
+	// 0x10864490 / 0x108644A0 / 0x108644E0 / 0x108644F0 / 0x10864500: the cursor's fade time and scale
 	void SetCursorFade(float fade);
 	float GetCursorFade();
 	void SetCursorScale(float scale);
+	float GetCursorScale();
+	void ResetCursorScale();
+	// 0x10864520 / 0x10864530: the centre of the screen as floats
+	float GetScreenCentreX();
+	float GetScreenCentreY();
+	// 0x10864560 / 0x10864590: the HideHUD option (its Lua native toggles it)
+	int ShouldHideHUD();
+	void fe_ToggleHideHUDOption();
+	// 0x10864AE0: back to the language the system asks for ('?')
+	void ResetLanguage();
+	// 0x10864A20 (another function of this unit): selects the language of the frontend
+	void SetLanguage(int language);
+	// 0x108649F0 / 0x10864A00: the language the frontend is set to now
+	void SetLanguageName(const core::Name<core::CaseSensitiveKey>& name);
+	core::Name<core::CaseSensitiveKey> GetLanguageName();
+
+	// 0x10848E70 (another unit): whether the game's command line has the option
+	bool HasCommandLineOption(const char* option);
 
 	// The cursor's position (another function of this unit)
 	void UpdateCursorPosition(int x, int y);
