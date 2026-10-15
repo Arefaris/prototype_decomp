@@ -2,6 +2,7 @@
 // parameterinterpolator.cpp): the pool the renderer's parameters to interpolate are handed out of. The used slots sit
 // at the front of the pool and the free list is a stack of their addresses: Alloc pops one, Release and the update
 // walk push the finished ones back, and a pool that runs out reports once and answers with a null interpolator.
+#include <new>
 #include <string.h>
 
 #include "code/core/report.h"
