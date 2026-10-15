@@ -80,6 +80,9 @@ namespace ravenphysics
 		// The hits along the query's segment, appended to hits after clearing it; false when there are none
 		// (0x106593A0)
 		bool CastRay(const RayQuery& query, RayHitArray* hits);
+
+		// The solver's iteration counts (0x10656E70; name guess)
+		void SetSolverIterations(int a, int b);
 	};
 
 	// The physics context (0x1128356C)
