@@ -1,4 +1,5 @@
 #include "code/core/debug.h"
+#include "code/core/interlocked.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/ravenphysics/context.h"
@@ -275,6 +276,375 @@ namespace ravenphysics
 	void Context::UntrackObjects(ObjectList* objects)
 	{
 		placement->Untrack(objects);
+	}
+
+	// ---- the collision library's container accessors this unit emits --------------------------------------------
+
+	// FUNCTION: ENGINE 0x10656EB0
+	int RecordList52::Count() const
+	{
+		return (int)((mEnd - mBegin) / 52);
+	}
+
+	// FUNCTION: ENGINE 0x10656ED0
+	int RecordList168::Count() const
+	{
+		return (int)((mEnd - mBegin) / 168);
+	}
+
+	// FUNCTION: ENGINE 0x10656EF0
+	int RecordList12::Count() const
+	{
+		return (int)((mEnd - mBegin) / 12);
+	}
+
+	// FUNCTION: ENGINE 0x10656F10
+	int PointerList::Count() const
+	{
+		return (int)(mEnd - mBegin);
+	}
+
+	// FUNCTION: ENGINE 0x10656F20
+	int RecordList44::Count() const
+	{
+		return (int)((mEnd - mBegin) / 44);
+	}
+
+	// FUNCTION: ENGINE 0x10656F40
+	int RecordList12Second::Count() const
+	{
+		return (int)((mEnd - mBegin) / 12);
+	}
+
+	// FUNCTION: ENGINE 0x106570B0
+	int RecordList12Third::Count() const
+	{
+		return (int)((mEnd - mBegin) / 12);
+	}
+
+	// FUNCTION: ENGINE 0x106571A0
+	int PointerListSecond::Count() const
+	{
+		return (int)(mEnd - mBegin);
+	}
+
+	// FUNCTION: ENGINE 0x10657240
+	int PointerListThird::Count() const
+	{
+		return (int)(mEnd - mBegin);
+	}
+
+	// FUNCTION: ENGINE 0x10656EA0
+	void** PointerList::End() const
+	{
+		return mEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10656F60
+	PointerList* PointerList::Clear()
+	{
+		mBegin = 0;
+		mEnd = 0;
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x10656FB0
+	void** PointerList::Begin() const
+	{
+		return mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10656FC0
+	void*& PointerList::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x10656FD0
+	PointerListSecond::PointerListSecond(unsigned int)
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10656FF0
+	PointerListThird::PointerListThird(unsigned int)
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657010
+	unsigned char* Head18::GetHead()
+	{
+		return &head;
+	}
+
+	// FUNCTION: ENGINE 0x10657020
+	PointerListFourth::PointerListFourth()
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657060
+	PointerListFifth::PointerListFifth()
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106570D0
+	SlotPool::SlotPool()
+	{
+		mSlots = 0;
+		mCapacity = 0;
+		mCounter = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106570E0
+	void SlotPool::Reset()
+	{
+		if (mCounter != 0)
+		{
+			_InterlockedExchange(mCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106570F0
+	SlotPoolSecond::SlotPoolSecond()
+	{
+		mSlots = 0;
+		mCapacity = 0;
+		mCounter = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657100
+	void SlotPoolSecond::Reset()
+	{
+		if (mCounter != 0)
+		{
+			_InterlockedExchange(mCounter, 0);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10657110
+	int SlotPool::ReadCounter()
+	{
+		if (mCounter != 0)
+		{
+			return _InterlockedAnd(mCounter, -1);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657130
+	long* SlotPool::GetCounter()
+	{
+		return mCounter;
+	}
+
+	// FUNCTION: ENGINE 0x10657140
+	PointerListSecond::PointerListSecond(void** newBegin, void** newEnd)
+	{
+		mBegin = newBegin;
+		mEnd = newEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10657160
+	void** PointerListSecond::Begin() const
+	{
+		return mBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10657170
+	void** PointerListSecond::End() const
+	{
+		return mEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10657180
+	void PointerListSecond::SetBegin(void** value)
+	{
+		mBegin = value;
+	}
+
+	// FUNCTION: ENGINE 0x10657190
+	void PointerListSecond::SetEnd(void** value)
+	{
+		mEnd = value;
+	}
+
+	// FUNCTION: ENGINE 0x106571B0
+	void*& PointerListSecond::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x106571C0
+	PointerListSecond::PointerListSecond()
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657200
+	void*& PointerListFifth::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x10657210
+	PointerListFifth::PointerListFifth(unsigned int)
+	{
+		mBegin = 0;
+		mEnd = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657230
+	unsigned char* PointerListFifth::ByteAt(int offset)
+	{
+		return (unsigned char*)mBegin + offset;
+	}
+
+	// FUNCTION: ENGINE 0x10657250
+	void*& PointerListThird::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x10657260
+	void PointerListThird::SetEnd(void** value)
+	{
+		mEnd = value;
+	}
+
+	// FUNCTION: ENGINE 0x10657270
+	void EmptyMembers::First()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657280
+	void EmptyMembers::Second()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10657290
+	void EmptyMembers::Third()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572A0
+	void EmptyMembers::Fourth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572B0
+	void EmptyMembers::Fifth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572C0
+	void EmptyMembers::Sixth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572D0
+	void EmptyMembers::Seventh()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572E0
+	void EmptyMembers::Eighth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106572F0
+	void* SlotPool::Acquire()
+	{
+		if (mCounter != 0)
+		{
+			int slot = _InterlockedIncrement(mCounter) - 1;
+			if (slot < mCapacity)
+			{
+				return (char*)mSlots + (slot << 5);
+			}
+			_InterlockedDecrement(mCounter);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10657320
+	PointerListSixth::PointerListSixth(void** newBegin, void** newEnd)
+	{
+		mBegin = newBegin;
+		mEnd = newEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10657340
+	PointerListSeventh::PointerListSeventh(void** newBegin, void** newEnd)
+	{
+		mBegin = newBegin;
+		mEnd = newEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10657360
+	void*& PointerListSixth::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x10657370
+	void*& PointerListSeventh::operator[](int index)
+	{
+		return mBegin[index];
+	}
+
+	// FUNCTION: ENGINE 0x10657380
+	PointerListEighth::PointerListEighth(void** newBegin, void** newEnd)
+	{
+		mBegin = newBegin;
+		mEnd = newEnd;
+	}
+
+	// FUNCTION: ENGINE 0x106573A0
+	PointerListNinth::PointerListNinth(void** newBegin, void** newEnd)
+	{
+		mBegin = newBegin;
+		mEnd = newEnd;
+	}
+
+	// FUNCTION: ENGINE 0x106573C0
+	bool ScratchArray::Allocate(unsigned int count)
+	{
+		if (count != 0)
+		{
+			mBegin = (void**)allocator.Alloc(count * 4, 16);
+			if (mBegin != 0)
+			{
+				mCapacity = mBegin + count;
+				mEnd = mBegin;
+				return true;
+			}
+		}
+		else
+		{
+			mBegin = 0;
+		}
+		mEnd = 0;
+		mCapacity = 0;
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10657410
+	ScratchArray* ScratchArray::Self()
+	{
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x10657420
+	void EmptyTail::Empty()
+	{
 	}
 
 	// FUNCTION: ENGINE 0x10656E90

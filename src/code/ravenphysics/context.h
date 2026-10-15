@@ -7,6 +7,7 @@
 #include "code/content/loadinventory.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
+#include "code/ravenphysics/common/stackallocator.h"
 
 namespace ravenphysics
 {
@@ -181,6 +182,249 @@ namespace ravenphysics
 		virtual void QueryShape2(void* a, void* b, void* c, void* world, void* d);
 		// 0x54
 		virtual void QueryShape3(void* a, void* b, void* c, void* world, void* d);
+	};
+
+	// The collision library's own small containers, as far as this unit emits their accessors. The library keeps
+	// several runs of fixed-size records between two byte pointers and hands a few of its batches on through a run
+	// of pointers; its headers define them, and the reconstruction does not call any of the accessors below yet, so
+	// every type here is a stand-in named after the record size its accessor divides by and every member is a guess.
+	// A unit that recovers the real containers should move these accessors onto them.
+
+	// A run of 52-byte records (name guess)
+	struct RecordList52
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A run of 168-byte records (name guess)
+	struct RecordList168
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A run of 12-byte records (name guess)
+	struct RecordList12
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A second run of 12-byte records (name guess)
+	struct RecordList12Second
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A third run of 12-byte records (name guess)
+	struct RecordList12Third
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A run of 44-byte records (name guess)
+	struct RecordList44
+	{
+		unsigned char* mBegin; // 0x00
+		unsigned char* mEnd;   // 0x04
+
+		int Count() const;
+	};
+
+	// A run of pointers (name guess). The library hands records between batches through one of these, and every
+	// instantiation it used in this unit is written here as its own stand-in, because nothing reconstructed so far
+	// calls them: the grouping of the functions over these types and every member name is a guess.
+	struct PointerList
+	{
+		void** Begin() const;
+		void** End() const;
+		// The pointer after the last one (name guess)
+		int Count() const;
+		void*& operator[](int index);
+		// Drops both ends without releasing the storage (name guess)
+		PointerList* Clear();
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListSecond
+	{
+		PointerListSecond();
+		PointerListSecond(unsigned int unused);
+		PointerListSecond(void** newBegin, void** newEnd);
+
+		void** Begin() const;
+		void** End() const;
+		void SetBegin(void** value);
+		void SetEnd(void** value);
+		int Count() const;
+		void*& operator[](int index);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListThird
+	{
+		PointerListThird(unsigned int unused);
+
+		int Count() const;
+		void*& operator[](int index);
+		void SetEnd(void** value);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListFourth
+	{
+		PointerListFourth();
+		PointerListFourth(unsigned int unused);
+
+		void*& operator[](int index);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListFifth
+	{
+		PointerListFifth();
+		PointerListFifth(unsigned int unused);
+
+		void*& operator[](int index);
+		// The address offset bytes into the run (name guess)
+		unsigned char* ByteAt(int offset);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListSixth
+	{
+		PointerListSixth(void** newBegin, void** newEnd);
+
+		void*& operator[](int index);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListSeventh
+	{
+		PointerListSeventh(void** newBegin, void** newEnd);
+
+		void*& operator[](int index);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListEighth
+	{
+		PointerListEighth(void** newBegin, void** newEnd);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	struct PointerListNinth
+	{
+		PointerListNinth(void** newBegin, void** newEnd);
+
+		void** mBegin; // 0x00
+		void** mEnd;   // 0x04
+	};
+
+	// A pool of fixed slots handed out by an atomic counter: the slot array, how many slots it holds, and the
+	// counter the acquirer bumps (name guess; the slot stride comes from the acquirer's shift)
+	struct SlotPool
+	{
+		SlotPool();
+
+		// Empties the counter (name guess)
+		void Reset();
+		// The counter's value, read atomically (name guess)
+		int ReadCounter();
+		// The counter itself (name guess)
+		long* GetCounter();
+		// The next free slot, or null once the pool is exhausted (name guess)
+		void* Acquire();
+
+		void* mSlots;   // 0x00
+		int mCapacity;  // 0x04
+		long* mCounter; // 0x08
+	};
+
+	// A second pool of the same shape (name guess)
+	struct SlotPoolSecond
+	{
+		SlotPoolSecond();
+
+		// Empties the counter (name guess)
+		void Reset();
+
+		void* mSlots;   // 0x00
+		int mCapacity;  // 0x04
+		long* mCounter; // 0x08
+	};
+
+	// The head the library's jobs hang at 0x18 of themselves (name guess)
+	struct Head18
+	{
+		unsigned char unknown0[0x18];
+		unsigned char head; // 0x18
+
+		unsigned char* GetHead();
+	};
+
+	// The empty members the library's classes declare; the engine's copies are bare returns, and which class each
+	// of them belongs to cannot be told from the code (name guess)
+	struct EmptyMembers
+	{
+		void First();
+		void Second();
+		void Third();
+		void Fourth();
+		void Fifth();
+		void Sixth();
+		void Seventh();
+		void Eighth();
+	};
+
+	// An array whose storage comes from the scratch stack: begin / end / capacity, then the (empty) allocator the
+	// library allocates through (name guess; the same shape container::ArrayDynamicStatic has, with the allocator
+	// as an object instead of a static)
+	struct ScratchArray
+	{
+		ScratchArray* Self();
+		// count pointers of raw storage, or an empty array when the stack is exhausted (name guess)
+		bool Allocate(unsigned int count);
+
+		void** mBegin;          // 0x00
+		void** mEnd;            // 0x04
+		void** mCapacity;       // 0x08
+		ScratchStack allocator; // 0x0C
+	};
+
+	// The one-byte member after the array (name guess)
+	struct EmptyTail
+	{
+		void Empty();
 	};
 
 	// The context's internal work lists: the collision pairs it is processing (Context+0x24, 48-byte entries),
