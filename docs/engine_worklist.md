@@ -692,15 +692,26 @@ What the two units are, from their code:
 - The three little functions at 0x108BC850 (`jmp ??1Pass@pure3d@@UAE@XZ`), 0x108BC880 and 0x108BC8B0 are
   linker/compiler leftovers: 0x108BC850 is a COMDAT-folded jump and cannot be reproduced from source.
 
-## engine/online/onlinemanager.cpp (0x108BEF80 - 0x108C02C4): 0 functions, not started
+## engine/online/onlinemanager.cpp (0x108BEF80 - 0x108C02C4): 2 functions match, 0 nonmatching
 
 The unit between the two above and parameterinterpolator.cpp; the file name is a guess (the block's only names are
 the strings `engine::OnlineManager`, `ConsoleManagerPeer` and `ChannelManager` its registration functions pass to
 0x108EC860, which is the metaclass/factory registration the other manager units use). Contents: the manager
 constructor 0x108BF160 and its vftable slot 0x108BF880, an update that walks the peer list (0x108BF1B0), the
 replay/CRC reporting (`ReplayMode`, `recordCRC`, `DesyncHunt` are looked up by name at 0x108BF030; 0x108BFD30 is
-1382 bytes and dumps two controller states), and the command line option `HardwareProfile`. The register functions
-at 0x108BEF80 / 0x108BEFA0 / 0x108BEFC0 are 21 bytes each (`RegisterClass(this, 0, "OnlineManager")`).
+1382 bytes and dumps two controller states), and the command line option `HardwareProfile`.
+- 0x108BEF80 / 0x108BEFA0 / 0x108BEFC0 are NOT registrations: they are the class-specific `operator new` of
+  engine::OnlineManager, engine::ConsoleManagerPeer and ChannelManager (21 bytes each), and they all forward to the
+  same helper 0x108EC860 with the selector 0 and their own class name as the third argument. The helper picks the
+  heap: 0 is heap 0x81, 2 is heap 0x82 and 1 is the heap the global at 0x111E2060 holds (that is the value the
+  third and fourth branches use), so `OnlineManager::operator new` and `ConsoleManagerPeer::operator new` are
+  reconstructed in `engine/onlinemanager.cpp` against the helper, which `symbols.txt` names
+  `engine::AllocateManagerObject`.
+- 0x108BEFC0 is the same for ChannelManager, and is not done: the class has no RTTI entry, so neither its
+  namespace nor its mangled name is known.
+- The unit's own members: `OnlineManager` is 0x98 bytes (its constructor 0x108BF160 zeroes +0x70 / +0x74 / +0x78,
+  builds a `core::Time` at +0x84 out of (0, 0), and installs the vftable 0x10E7DE58; the count at +0x94);
+  its deleting destructor is 0x108BF880 and goes through 0x108BF690 and 0x10836820.
 
 ## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C0FE0): 38 functions match, 0 nonmatching
 
