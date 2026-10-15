@@ -736,6 +736,47 @@ Lessons (the important ones):
   gives `cmp`. `ConditionList::Evaluate` did not match until the op was written as a switch with case 0 last and
   falling through to the loop's tail, and the early `return true` became `if (condition != 0) { do ... } while (...);`.
 
+## engine/fight/behaviours/fighttreebehaviour.cpp and its neighbours (0x10862A60 - 0x10864EF0)
+
+112 functions. The range holds **four** units; the boundaries are read off the class statics and the vtables, not off
+the address order (the two units interleave their statics):
+
+| unit | range | identified by |
+|---|---|---|
+| `code/engine/render/behaviours/renderbehaviour.cpp` | 0x10862A60 - 0x108638BF | ctor 0x108636B0 and deleting destructor 0x10862C10 install `engine::RenderBehaviour` (vftable 0x10E730C8, 8 slots); 0x10862F60 / 0x10862AC0 are its reflection statics; 0x10863060 is the message handler and its switch bodies and jump tables run to 0x1086369F; the five small functions 0x10863850 - 0x108638B0 sit between the ctor and the fight unit's `GetClassInfo` and are the only ones whose owner is not certain (they read +0x3C / +0x8 and call through a slot) |
+| `code/engine/fight/behaviours/fighttreebehaviour.cpp` | 0x108638C0 - 0x108642B7 | `GetClassInfo` 0x108638C0, ctor 0x108639E0 and destructor 0x10863AC0 install `engine::FightTreeBehaviour` (vftable 0x10E7311C, 8 slots); the debug dump 0x10863C50 and the message handler 0x10863FB0 carry the assert path `..\\..\\..\\code\\engine\\fight\\behaviours\\fighttreebehaviour.cpp` |
+| frontend (a Scaleform/HUD unit, no class static) | 0x108642C0 - 0x10864C2F | the `fe_*` Lua natives (`fe_SetUpdateEnable`, `fe_ToggleHideHUDOption`, `fe_SetMouseVisibility`), the mouse-cursor and HideHUD statics at 0x111CEF38-0x111CEF48 / 0x11315C58-0x11315C70, and the Scaleform screen calls 0x10872AD0 / 0x10873220 / 0x108816F0 |
+| path behaviour (IPathBehaviour / PatrolPoint / SplineBehaviour) | 0x10864C30 - 0x10864EF0 | the five class statics 0x10864C30 / 0x10864C70 / 0x10864CB0 / 0x10864D00 / 0x10864D40 naming `engine::IPathBehaviour`, `engine::PatrolPoint`, `engine::PatrolPathBehaviour`, `engine::SplineCV`, `engine::SplineBehaviour` |
+
+Done: 6 functions match (fight unit: 0x108638C0, 0x10863950, 0x10863970, 0x10863980, 0x10863990, 0x10863B90). Everything
+else in the range is **not done** (nothing is marked NONMATCHING: the functions were not attempted, so no body was
+written and nothing was excluded from the build).
+
+### What the next agent needs to know
+
+- **`functions.tsv` sizes are wrong inside 0x10863060.** The table says 52 bytes, but the function is a `switch`
+  whose case bodies and its two jump tables run to 0x1086369F - the region is a hole in Ghidra's function map, not
+  data. `symbols.txt` entries in this range must take the size from the disassembly; a truncating size makes
+  `split.py` cut a target object that can never match.
+- **`engine::FightTreeBehaviour`'s layout**: `Behaviour` (12 bytes: vftable, owner +4, state +8, flags +9,
+  requested +0xA, timeSliceFrameSkip +0xB), then branch +0xC, two unknown dwords +0x10 / +0x14, the
+  `fight::Sequencer` at +0x18, and the context pointer at +0x60. `fight::Sequencer` is 0x44 bytes (its constructor
+  0x105A4020 inits 0x00-0x43: a `core::Name` at +0, then zeros, timeScale 1.0f at +0x34, clock at +0x38), so the
+  four bytes at +0x5C are a member of the behaviour that no function in this range touches.
+- 0x10863900 (vftable slot 1) stores the owner handle in the context and advances the engine's two 16-bit random
+  streams (0x111BDA0C) - `(x & 0xffff) * 0x9069 + (x >> 16)` and `* 0x4650`. 0x10863950 (slot 3) calls
+  `Behaviour::OnActiveChanged` and, when deactivating, `fight::Sequencer::EndPending` (0x105A3EC0, mapped in
+  `symbols.txt` with that guess name - the sequencer's own unit should take it over).
+- `FightTreeBehaviour::SetBranch` (0x10863BA0) is `if (branch != b) { if (branch) branch->Unregister(&branch);
+  branch = b; if (b) b->Register(&branch); }` followed by `dynamic_cast<engine::PlaybackSet*>(b)` and a tail call
+  into 0x108B0880 with the owner. `branch` is therefore an intrusive member: its destructor is what
+  `~FightTreeBehaviour` (0x10863AC0) runs last, after `core::SafeRelease` of the context (0x1007F0F0) and the
+  sequencer's cleanup (0x105A44A0).
+- 0x10863B00 takes the `*_AVPlaybackSet_engine_*` debug statics at 0x111CEEC0 and 0x10863C50 writes them; they are
+  the tree's "Fight Pre" dump, whose free-text messages are `""` in this reconstruction.
+- 0x108644B0 / 0x108644C0 / 0x108644D0 are 5-byte `jmp` thunks in the middle of `.text` (targets 0x10881220 /
+  0x10881290 / 0x108812B0): linker artefacts of the original incremental link, not source functions - leave them.
+
 ## proto/navmesh.cpp (proto::NavMeshHull, 0x10568390 - 0x105691D0)
 
 The navigation mesh (global 0x112730C0) is `proto::AmbientNavMesh`; the hull class, its 28-byte edge records and the
