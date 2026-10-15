@@ -261,6 +261,11 @@ namespace engine
 		template<class R, class A> void Register(const char* name, R (*function)(A));
 		// 0x10803630: the same for a function without arguments (the Function0 form)
 		template<class R> void Register(const char* name, R (*function)());
+		// Defined in function.h with the rest of the wrappers: the forms of two, three and four arguments
+		template<class R, class A1, class A2> void Register(const char* name, R (*function)(A1, A2));
+		template<class R, class A1, class A2, class A3> void Register(const char* name, R (*function)(A1, A2, A3));
+		template<class R, class A1, class A2, class A3, class A4> void Register(const char* name,
+			R (*function)(A1, A2, A3, A4));
 		// 0x10801D50: adds the function under name
 		void AddFunction(const char* name, Function* function);
 		// Binds method of object under name as a closure (function.h; out of line per instantiation)

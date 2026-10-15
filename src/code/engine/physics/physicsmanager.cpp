@@ -1,6 +1,8 @@
 #include "code/engine/physics/physicsmanager.h"
 #include "code/core/interlocked.h"
 #include "code/container/arraydynamicnew.h"
+#include "code/engine/function.h"
+#include "code/engine/luascriptmanager.h"
 
 // The unit's instantiations of the growable array: the manager collects collisions and unsolved constraints into one
 // array each and hands the ranges to the collision messages (0x107E4340 - 0x107E4720 and 0x107E5830 - 0x107E5930)
@@ -11,6 +13,14 @@ namespace container
 	template class ArrayDynamicNew<engine::ConstraintItem>;
 	template class ArrayDynamicNew<engine::CollisionPair>;
 }
+
+// The four-argument script wrapper the pm_ListSelectedObjects registration builds (function.h), and the
+// LuaScriptManager::Register instantiation that goes with it: the compiler inlines the wrapper at the call site but
+// keeps this copy too (0x107E6B70), which is why the unit has the constructor, Call and Invoke of the wrapper as well.
+// FUNCTION: ENGINE 0x107E59C0
+// FUNCTION: ENGINE 0x107E5A30
+// FUNCTION: ENGINE 0x107E5A70
+// FUNCTION: ENGINE 0x107E6B70
 
 // FUNCTION: ENGINE 0x107E4340
 // FUNCTION: ENGINE 0x107E4390
@@ -367,6 +377,33 @@ namespace engine
 
 	// The number of solver substeps the console limits to 1 .. 10
 	int gSubsteps = 2;    // 0x111BC2E8
+
+	// FUNCTION: ENGINE 0x107E6F20
+	void RegisterPhysicsCommands()
+	{
+		LuaScriptManager* manager = GetScriptManager();
+		manager->SetOwner(ravenphysics::gContext);
+		manager->Register("pm_Help", pm_Help);
+		manager->Register("pm_ListObjects", pm_ListObjects);
+		manager->Register("pm_ListStaticObjects", pm_ListStaticObjects);
+		manager->Register("pm_ListMovableObjects", pm_ListMovableObjects);
+		manager->Register("pm_ListAwakePhysicsObjects", pm_ListAwakePhysicsObjects);
+		manager->Register("pm_ListAsleepObjects", pm_ListAsleepObjects);
+		manager->Register("pm_ListTriggerObjects", pm_ListTriggerObjects);
+		manager->Register("pm_ListPhysicsObjects", pm_ListPhysicsObjects);
+		manager->Register("pm_ListSelectedObjects", pm_ListSelectedObjects);
+		manager->Register("pm_ListCollisionObjects", pm_ListCollisionObjects);
+		manager->Register("pm_ListConstraints", pm_ListConstraints);
+		manager->Register("pm_ListAllConstraints", pm_ListAllConstraints);
+		manager->Register("pm_ListVolumes", pm_ListVolumes);
+		manager->Register("pm_ObjectInfo", pm_ObjectInfo);
+		manager->Register("pm_DrawObjectUIDs", pm_DrawObjectUIDs);
+		manager->Register("pm_DrawInertia", pm_DrawInertia);
+		manager->Register("pm_TrackAABB", pm_TrackAABB);
+		manager->Register("pm_LogCollisions", pm_LogCollisions);
+		manager->Register("pm_Substeps", pm_Substeps);
+		manager->Register("pm_SetSolverIterations", pm_SetSolverIterations);
+	}
 
 	// FUNCTION: ENGINE 0x107E57E0
 	void pm_Substeps(int substeps)
