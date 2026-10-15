@@ -74,6 +74,13 @@ namespace ravenphysics
 		RayHit* capacity;
 	};
 
+	// One of the context's object lists: an array of object pointers (name guess)
+	struct ObjectList
+	{
+		void** begin;
+		void** end;
+	};
+
 	class Context
 	{
 	public:
@@ -83,6 +90,10 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+
+		unsigned char unknown0[0x14];
+		ObjectList staticObjects;  // 0x14 (the pm_ commands' "static" list)
+		ObjectList movableObjects; // 0x1C (the pm_ commands' "movable" list)
 	};
 
 	// The physics context (0x1128356C)

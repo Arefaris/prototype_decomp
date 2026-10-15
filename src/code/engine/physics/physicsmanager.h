@@ -54,6 +54,20 @@ namespace engine
 	void SetPhysicsUpdating();
 	void ClearPhysicsUpdating();
 	bool IsPhysicsUpdating();
+
+	// Walks one of the context's object lists and reports the objects the flags select (0x107E4F40)
+	void ListObjects(ravenphysics::ObjectList* objects, bool awake, bool asleep, bool physics, bool trigger);
+
+	// The pm_ console commands and the script function behind the ones with arguments (0x107E5180 - 0x107E6B70)
+	void pm_ListStaticObjects();
+	void pm_ListMovableObjects();
+	void pm_ListAwakePhysicsObjects();
+	void pm_ListAsleepObjects();
+	void pm_ListSelectedObjects(bool awake, bool asleep, bool physics, bool trigger);
+	void pm_ListPhysicsObjects();
+	void pm_ListTriggerObjects();
+	void pm_ListObjects();
+	void pm_Substeps(int substeps);
 	// A pair of pointers (begin / end) handed to the collision messages; name guess.
 	struct CollisionItemList
 	{
@@ -66,6 +80,7 @@ namespace engine
 	{
 	public:
 		CollisionBrokeringMessage(const CollisionItemList& newItems);
+		~CollisionBrokeringMessage();
 
 		CollisionItemList items;
 	};
@@ -75,6 +90,7 @@ namespace engine
 	{
 	public:
 		CollisionResponseMessage(const CollisionItemList& newItems);
+		~CollisionResponseMessage();
 
 		CollisionItemList items;
 	};
@@ -85,6 +101,7 @@ namespace engine
 	public:
 		BatchedRayCastMessage(unsigned int newUnknownC, unsigned int newUnknown10, unsigned int newUnknown14,
 			unsigned int newUnknown18, unsigned int newUnknown1C);
+		~BatchedRayCastMessage();
 
 		unsigned int unknownC;
 		unsigned int unknown10;
@@ -98,6 +115,7 @@ namespace engine
 	{
 	public:
 		BatchedRayCastHitMessage(unsigned int newIndex, unsigned int newUnknown10, unsigned int newUnknown14);
+		~BatchedRayCastHitMessage();
 
 		unsigned int index;
 		unsigned int unknown10;
@@ -110,6 +128,7 @@ namespace engine
 	public:
 		BatchedShapeCastMessage(unsigned int newUnknownC, unsigned int newUnknown10, unsigned int newUnknown14,
 			unsigned int newUnknown18, unsigned int newUnknown1C);
+		~BatchedShapeCastMessage();
 
 		unsigned int unknownC;
 		unsigned int unknown10;
@@ -123,6 +142,7 @@ namespace engine
 	{
 	public:
 		BatchedShapeCastHitMessage(unsigned int newIndex, unsigned int newUnknown10, unsigned int newUnknown14);
+		~BatchedShapeCastHitMessage();
 
 		unsigned int index;
 		unsigned int unknown10;

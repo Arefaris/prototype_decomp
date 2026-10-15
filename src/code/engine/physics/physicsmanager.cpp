@@ -1,4 +1,5 @@
 #include "code/engine/physics/physicsmanager.h"
+#include "code/core/interlocked.h"
 
 namespace engine
 {
@@ -178,5 +179,151 @@ namespace engine
 	PhysicsFixupPoweredConstraintsMessage::PhysicsFixupPoweredConstraintsMessage(unsigned int newUnknown10)
 		: IntrusiveMessage(3, 0x1E), unknown10(newUnknown10)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x107E38A0
+	CollisionBrokeringMessage::~CollisionBrokeringMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E38E0
+	CollisionResponseMessage::~CollisionResponseMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E3940
+	BatchedRayCastMessage::~BatchedRayCastMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E3990
+	BatchedRayCastHitMessage::~BatchedRayCastHitMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E3A30
+	BatchedShapeCastMessage::~BatchedShapeCastMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E3A70
+	BatchedShapeCastHitMessage::~BatchedShapeCastHitMessage()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107E3790
+	long __fastcall AtomicIncrement(long volatile* value)
+	{
+		return _InterlockedIncrement(value);
+	}
+
+	// FUNCTION: ENGINE 0x107E37A0
+	long __fastcall AtomicDecrement(long volatile* value)
+	{
+		return _InterlockedDecrement(value);
+	}
+
+	// FUNCTION: ENGINE 0x107E37B0
+	// NONMATCHING: the engine's copy takes the value in eax (a link-time code generation convention), ours in edx, 60 %
+#ifdef NONMATCHING
+	long __fastcall AtomicExchange(long volatile* value, long newValue)
+	{
+		return _InterlockedExchange(value, newValue);
+	}
+#endif
+
+	// The manager's frame counter and the two debug flags around it (names guessed)
+	int gPhysicsFrame;        // 0x111BC2E4
+	int gDebugUnknown;        // 0x11283590
+
+	// FUNCTION: ENGINE 0x107E3CF0
+	void ResetPhysicsFrame()
+	{
+		gPhysicsFrame = 1;
+	}
+
+	// FUNCTION: ENGINE 0x107E3D40
+	int NextPhysicsFrame()
+	{
+		return gPhysicsFrame++;
+	}
+
+	// FUNCTION: ENGINE 0x107E3DD0
+	void SetDebugUnknown(int value)
+	{
+		gDebugUnknown = value;
+	}
+
+	// FUNCTION: ENGINE 0x107E3DE0
+	void ClearDebugUnknown()
+	{
+		gDebugUnknown = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107E5180
+	void pm_ListStaticObjects()
+	{
+		ListObjects(&ravenphysics::gContext->staticObjects, false, false, false, false);
+	}
+
+	// FUNCTION: ENGINE 0x107E51A0
+	void pm_ListMovableObjects()
+	{
+		ListObjects(&ravenphysics::gContext->movableObjects, false, false, false, false);
+	}
+
+	// FUNCTION: ENGINE 0x107E51C0
+	void pm_ListAwakePhysicsObjects()
+	{
+		ListObjects(&ravenphysics::gContext->movableObjects, true, false, true, false);
+	}
+
+	// FUNCTION: ENGINE 0x107E51E0
+	void pm_ListAsleepObjects()
+	{
+		ListObjects(&ravenphysics::gContext->movableObjects, false, true, true, false);
+	}
+
+	// FUNCTION: ENGINE 0x107E5200
+	void pm_ListSelectedObjects(bool awake, bool asleep, bool physics, bool trigger)
+	{
+		ListObjects(&ravenphysics::gContext->movableObjects, awake, asleep, physics, trigger);
+		ListObjects(&ravenphysics::gContext->staticObjects, awake, asleep, physics, trigger);
+	}
+
+	// FUNCTION: ENGINE 0x107E5250
+	void pm_ListPhysicsObjects()
+	{
+		pm_ListSelectedObjects(false, false, true, false);
+	}
+
+	// FUNCTION: ENGINE 0x107E5270
+	void pm_ListTriggerObjects()
+	{
+		pm_ListSelectedObjects(false, false, false, true);
+	}
+
+	// FUNCTION: ENGINE 0x107E5290
+	void pm_ListObjects()
+	{
+		pm_ListStaticObjects();
+		pm_ListMovableObjects();
+	}
+
+	// The number of solver substeps the console limits to 1 .. 10
+	int gSubsteps = 2;    // 0x111BC2E8
+
+	// FUNCTION: ENGINE 0x107E57E0
+	void pm_Substeps(int substeps)
+	{
+		if (substeps < 1)
+		{
+			substeps = 1;
+		}
+		else if (substeps >= 10)
+		{
+			substeps = 10;
+		}
+		gSubsteps = substeps;
 	}
 }
