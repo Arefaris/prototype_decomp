@@ -607,6 +607,44 @@ the `QueueRenderEvent` instantiations, then the queueing methods.
   streamtrigger.cpp) and 0x107E8B50 (the size of a 16-byte-element array of the drawable at +0xA4, no user in the
   unit).
 
+## render/async/private/parameterinterpolator.cpp (0x108C02D0 - 0x108C04D6): 5 functions match, 1 NONMATCHING
+
+engine::render::ParameterInterpolatorPool (name guessed; the file is named by the assert in `Alloc` at 0x108C03B0):
+the pool the render parameters are interpolated between two frames out of. It is one `operator new[]` block holding
+the 0x40-byte `engine::render::ParameterInterpolatorTypeless` objects, then a free list of their
+addresses, then one "in use" byte per slot (`mMemory` +0, `mCapacity` +4, `mUsed` +8, `mUsedFlags` +0xC, `mFree`
++0x10; the member names are guesses). `mMemory` is a `char*` on purpose: `delete[]` of a pointer to the polymorphic
+slot type would run the slot destructors and match neither the constructor's `??_U` nor the destructor's plain
+`??_V` call.
+- 0x108C02D0 fills the free list so that slot *i* is the *i*-th object of the block; writing the offset as a loop
+  variable (`offset += 0x40` before the loop) leaves the initialization before the loop's top test and the function
+  does not match — `mMemory + i * 0x40` inside the loop gives the original's strength-reduced induction variable.
+- 0x108C0350 (`ReleaseAll`) and 0x108C0440 (`Release`) walk the *objects* (`mMemory + i * 0x40`), not the free list;
+  only `Alloc` (0x108C03B0) pops `mFree[mUsed]`, and the update walk pushes the finished slots back with it.
+- The assert in `Alloc` is a `core::Report(1, "Engine", __FILE__, 0x5f, 0, "...", 0)` behind a file-local
+  `static bool` that a "3" answer switches off; the message is the original's.
+- 0x108C0420 is `ParameterInterpolatorTypeless::GetName`, the copy constructor of the name at +0x18 through the
+  hidden return pointer. The original inlines it into `Release`, but writing it out of line in the cpp matches the
+  original's own copy exactly (and `Release` does not match either way).
+- slot *i*'s id is the int at +0x20 and its name (`core::Name<core::CaseSensitiveKey>`) at +0x18.
+- NONMATCHING: 0x108C0440 Release (`?Release@ParameterInterpolatorPool...QQAEXHABV?$Name...`): register allocation,
+  96 %, the original holds the id in eax and the name copy's source in ecx where ours picks ecx and edx, every
+  instruction otherwise identical (swapping the `==` operands makes it 95 %).
+- Not done: 0x108C02B0 (`return *(int*)(this + 0x30)`) and 0x108C02C0 (`this + 0x20`): two four-byte accessors
+  between the previous unit and the pool constructor. The unit before this one ends with 0x108C02C4 and this one
+  starts at 0x108C02D0, so they are most likely its tail rather than the pool's slot accessors.
+
+The four units of the block after deferreddeletion.cpp (the only one of them whose file name survives in the binary
+is this one, in the `Alloc` assert at 0x108C03B0; the boundaries are where the code and the `.data`/`.rdata` order
+agree, see `tools/rtti.py`'s vftable order):
+
+| Range | Unit | Contents |
+|---|---|---|
+| 0x108BC810 - 0x108BEF7F | not placed (73 functions) | `engine::render::LetterboxRenderPass`, `pure3d::DebugObjectManager` / `debugoverlay::DebugSelectionManager`, `engine::MotionTrail`, `MotionTrailCreator`, `MotionTrailState` (their six vftables are consecutive in `.rdata`) |
+| 0x108BEF80 - 0x108C02C4 | not placed (55 functions) | `engine::OnlineManager` (0x108BEF80 / 0x108BEFA0 / 0x108BEFC0 register it and its peers), replay / CRC / desync reporting (0x108BF030 reads `ReplayMode`, `recordCRC`, `DesyncHunt`; 0x108BFD30 dumps a controller desync) |
+| 0x108C02D0 - 0x108C04D9 | this unit (6 functions) | the pool |
+| 0x108C04E0 - past 0x108C1000 | `code/engine/fmv/fmvsubtitlemanager.cpp` (not started) | `engine::FmvSubtitleManager` and its `SubTitleEnty` (0x10C bytes), the `content::ArrayDynamic` / `ArrayDynamicHelper` copies |
+
 ## render/async/private/deferreddeletion.cpp (0x108BC250 - 0x108BC7B0): 5 functions match, 15 kept copies
 
 engine::render::DeferredDeletionManager (the name is in the overflow assert; the singleton is the pointer at
