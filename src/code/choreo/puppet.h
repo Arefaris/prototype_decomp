@@ -23,6 +23,9 @@ namespace choreo
 		int mType;
 		// Bit 5: the owner stopped the driver
 		unsigned int mFlags;
+
+		// 0x1094A440: whether the driver takes part in the blend (name guess)
+		void Unknown1094A440(bool enabled);
 	};
 
 	// The update function of each driver type
