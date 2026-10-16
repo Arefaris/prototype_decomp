@@ -3,6 +3,7 @@
 #include <xmmintrin.h>
 
 #include "code/core/interlocked.h"
+#include "code/core/thread.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
@@ -32,6 +33,13 @@ namespace pure3d
 		*head = node;
 	}
 
+	// The queue of skin states whose skinning job is running (a state's entry at +0x33C is the node) and the number
+	// of jobs that have not finished
+	// GLOBAL: ENGINE 0x11281814
+	void* gPendingSkins = 0;
+	// GLOBAL: ENGINE 0x11281828
+	int gSkinJobCount = 0;
+
 	// Pushes a node on a list head, retrying while another thread changes it; the node's first word is its next
 	// FUNCTION: ENGINE 0x1071B010
 	void PushListHead(void** head, void** node)
@@ -51,7 +59,7 @@ namespace pure3d
 
 	// Pops a node off a list head, retrying while another thread changes it; null when the list is empty
 	// FUNCTION: ENGINE 0x1071B040
-	void* PopListHead(void** head)
+	__inline void* PopListHead(void** head)
 	{
 		void* node = *head;
 		void* expected;
@@ -269,6 +277,28 @@ namespace pure3d
 		if (buffer != 0)
 		{
 			buffer->Unknown10625FA0(value);
+		}
+	}
+
+	// Submits every queued skinning job (once, the queue is a lock-free stack)
+	// FUNCTION: ENGINE 0x1071F780
+	void SubmitPendingSkins()
+	{
+		SkinJobEntry* entry = (SkinJobEntry*)PopListHead(&gPendingSkins);
+		while (entry != 0)
+		{
+			entry->skin->SubmitTask();
+			entry = (SkinJobEntry*)PopListHead(&gPendingSkins);
+		}
+	}
+
+	// Waits for the running skinning jobs to finish
+	// FUNCTION: ENGINE 0x1071F7F0
+	void WaitForSkinJobs()
+	{
+		while ((int)_InterlockedAnd((long volatile*)&gSkinJobCount, -1) > 0)
+		{
+			core::ThreadSleep(0);
 		}
 	}
 

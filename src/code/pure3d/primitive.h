@@ -387,6 +387,16 @@ namespace pure3d
 		FrameController* controller3;
 	};
 
+	class Skin;
+
+	// One entry of the queue a skin state is put on while its skinning job runs (0x10720CF0 pushes it, 0x1071F780
+	// drains it); its first word is the list link
+	struct SkinJobEntry
+	{
+		void* next;
+		Skin* skin;
+	};
+
 	// The two poses a skin state blends over: the one at +0x7C is built by the state's Init, the one at +0x194 only
 	// when it animates two of them (the flag at +0x2AC). mPoses holds the two of them.
 	class SkinState : public PrimitiveState
@@ -454,6 +464,9 @@ namespace pure3d
 		math::AABB bounds;
 		FrameController* controller1;
 		FrameController* controller2;
+		unsigned char unknown2E4[0x58];
+		SkinJobEntry entry;
+		unsigned char unknown344[0xC];
 	};
 
 	// The instanced skin: a primitive whose parts are drawn from a skin state's pose (skin.cpp). The layout is
