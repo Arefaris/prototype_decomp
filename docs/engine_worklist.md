@@ -2656,6 +2656,11 @@ The units are named by the two assert paths the range keeps (`dxdefaultpoolmanag
 - `pure3d::dxIndexBuffer::Create` (0x10626770): the usage bits go through a **named local** (`unsigned int flags =
   description->usage;`), which is what makes the engine's register test (`test al, 1`) instead of a memory test, and
   the format is declared before the usage flags.
+- 0x1061CA00 (`dxTexture::Unknown1061CA00`): the surface this texture was made from is stretched into its first
+  level with a linear filter when the caller asks for one. Two findings of it: an int-returning helper whose callers
+  test its **low byte** (`test al, al`) keeps its answer in a `char` local — a `bool` return would make the helper
+  itself emit `mov al, 1` and stop matching — and the format test is `char supported =
+  IsTextureFormatSupported(d3dFormat); if (supported == 0)`.
 - `pure3d::dxVertexBuffer::dxVertexBuffer` (0x106262D0), `dxContext::NewTexture` (0x1061B550 / 0x1061B5A0),
   `dxContext::NewVertexBuffer` (0x1061B600), `dxContext::NewIndexBuffer` (0x1061B660), the two `dxContext`
   accessors 0x1061B530 (`+8`) and 0x1061B540 (the device at +0xC), and `IsTextureFormatSupported` (0x1061C360), the

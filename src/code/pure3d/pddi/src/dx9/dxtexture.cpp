@@ -20,8 +20,8 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
-	// formats; the single bytes are the back end's own format codes). The result is a 32-bit 0 or 1: the engine's
-	// callers read the low byte of it, but its own code sets the whole register.
+	// formats; the single bytes are the back end's own format codes). It is an int (the engine's code sets the whole
+	// register), while its callers test its low byte, so they keep the answer in a char.
 	int IsTextureFormatSupported(unsigned int format)
 	{
 		if (format == 0x49 || format == 0x50 || format == 0x46 || format == 0x4F || format == 0x53 ||
@@ -38,6 +38,31 @@ namespace pure3d
 		: surface(0), levelData(0), texture(0), defaultTexture(0), volumeTexture(0), cubeTexture(0), d3dFormat(0),
 			lockLevel(-1), lockSlice(-1), locked(0), memory(0), unknown84(0), unknown88(0), unknown8C(0)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1061CA00
+	void dxTexture::Unknown1061CA00(bool stretched)
+	{
+		if (unknown84)
+		{
+			char supported = IsTextureFormatSupported(d3dFormat);
+			if (supported == 0)
+			{
+				IDirect3DSurface9* level;
+				texture->lpVtbl->GetSurfaceLevel(texture, 0, &level);
+				unsigned int filter;
+				if (stretched)
+				{
+					filter = (engine::gRenderDisplay->unknown78F != 0) + 1;
+				}
+				else
+				{
+					filter = 1;
+				}
+				gD3DDevice->lpVtbl->StretchRect(gD3DDevice, surface->surface, 0, level, 0, filter);
+				level->Release();
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x1061CBE0
