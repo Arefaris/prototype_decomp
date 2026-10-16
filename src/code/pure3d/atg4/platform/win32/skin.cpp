@@ -1,5 +1,6 @@
 // pure3d::SkinState and the skinning code (code/pure3d/atg4/platform/win32/skin.cpp, path from the asserts). Names
 // are guesses.
+#include <mmintrin.h>
 #include <xmmintrin.h>
 
 #include "code/core/debug.h"
@@ -88,7 +89,7 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B270
-	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+	__inline __m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
 		const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
@@ -102,7 +103,7 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B2C0
-	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	__inline __m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
@@ -112,39 +113,36 @@ namespace pure3d
 		return _mm_add_ps(blended, _mm_mul_ps(z, c));
 	}
 
-	// The body below is the engine's, instruction for instruction: the vertex and matrix loads, the two blends, the
-	// fourth lane fixed by hand, the four-lane min/max accumulation and the six component stores of the box. The
-	// compiler of the hybrid build allocates the two blend temps and the first two matrix rows the other way round
-	// (x to xmm7 and the first row to xmm3 where the engine has xmm6 and xmm4), which mirrors the first eight
-	// shuffles and multiplies of every pass; it also keeps the output and the vertex pointer in swapped registers
-	// (18 %). The layout of the vertex, the helpers and the box accumulation are settled, so this is a shared source
-	// or a front-end difference, not a missing piece.
+	// The engine's shape is recovered - the box accumulators are two math::Vector4 locals (four ascending stores
+	// each), the loop is `for (unsigned int i = count; i > 0; i--)` (its guard is an unsigned compare), the matrix
+	// rows go into the blends straight from memory, and the box write is preceded by _mm_empty() - and the whole
+	// loop body now comes out instruction for instruction. What does not is the frame around it: the engine spills
+	// both `this` and `matrices` (0x74 bytes of frame, the addresses of the bone rows materialised in edx / edi),
+	// this compiler keeps `matrices` in ebx, folds it into the addressing modes and needs 0x64 bytes, which moves
+	// the whole function.
 	// FUNCTION: ENGINE 0x1071B9A0
-	// NONMATCHING: register allocation (the blend temps and the first matrix row are mirrored), 18 %
+	// NONMATCHING: register allocation (the engine spills `this` and `matrices`, we keep `matrices` in a register), 13 %
 #ifdef NONMATCHING
 	void SkinState::Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x2E6, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		__m128 maxBounds = _mm_set_ps(-1e12f, -1e12f, -1e12f, -1e12f);
-		__m128 minBounds = _mm_set_ps(1e12f, 1e12f, 1e12f, 1e12f);
-		while (count != 0)
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
 		{
 			__m128 v0 = _mm_load_ps(&vertices->position.x);
 			__m128 v1 = _mm_load_ps(&vertices->normal.x);
 			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
 			const math::Matrix& bone = matrices[vertices->bones[0]];
-			__m128 m0 = _mm_load_ps(bone.m[0]);
-			__m128 m1 = _mm_load_ps(bone.m[1]);
-			__m128 m2 = _mm_load_ps(bone.m[2]);
-			__m128 m3 = _mm_load_ps(bone.m[3]);
 			// The position goes through the whole 4x4, the two directions through the 3x3 only. The engine keeps
 			// the rows in memory (it writes their fourth lane by hand): the position's and the normal's is 1, the
 			// tangent's is the one it came with.
-			__m128 r0 = BlendRows4(m0, m1, m2, m3, v0);
-			__m128 r1 = BlendRows3(m0, m1, m2, v1);
-			__m128 r2 = BlendRows3(m0, m1, m2, v2);
+			__m128 r0 = BlendRows4(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]),
+				_mm_load_ps(bone.m[3]), v0);
+			__m128 r1 = BlendRows3(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]), v1);
+			__m128 r2 = BlendRows3(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]), v2);
 			((float*)&r0)[3] = 1.0f;
 			((float*)&r1)[3] = 1.0f;
 			((float*)&r2)[3] = ((float*)&v2)[3];
@@ -152,17 +150,100 @@ namespace pure3d
 			_mm_storeu_ps(&out[1].x, r1);
 			_mm_storeu_ps(&out[2].x, r2);
 			out += 3;
-			maxBounds = _mm_max_ps(maxBounds, r0);
-			minBounds = _mm_min_ps(minBounds, r0);
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
 			vertices++;
-			count--;
 		}
-		bounds.min.x = ((float*)&minBounds)[0];
-		bounds.min.y = ((float*)&minBounds)[1];
-		bounds.min.z = ((float*)&minBounds)[2];
-		bounds.max.x = ((float*)&maxBounds)[0];
-		bounds.max.y = ((float*)&maxBounds)[1];
-		bounds.max.z = ((float*)&maxBounds)[2];
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+#endif
+
+#ifdef NONMATCHING
+	// Blends the four rows of four bone matrices, weighted by the four lanes of the weights (out = m0 * w.x +
+	// m1 * w.y + m2 * w.z + m3 * w.w), for the vertex record whose bone indices sit at +0x40. The callers are in
+	// other units, so the name is a guess and the row pointers are the four rows of the destination matrix.
+	// The body is the engine's block for block (each phase widens one lane of the weights and multiplies the four
+	// rows of one bone by it, the first phase storing and the other three accumulating), and the whole of it is
+	// straight-line code without a single branch, but the engine re-reads every argument pointer from the stack in
+	// every phase (45 bytes of reloads we do not need) and materialises the first bone's address in edx, so its
+	// allocation of the seven pointers cannot be reproduced from the source.
+	// FUNCTION: ENGINE 0x1071B310
+	// NONMATCHING: register allocation (the engine re-loads the argument pointers, we keep them), 21 %
+	void BlendBoneRows(const SkinVertex* vertex, const math::Matrix* matrices, const math::Vector4* weights,
+		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
+	{
+		const math::Matrix& m0 = matrices[vertex->bones[0]];
+		const math::Matrix& m1 = matrices[vertex->bones[1]];
+		const math::Matrix& m2 = matrices[vertex->bones[2]];
+		const math::Matrix& m3 = matrices[vertex->bones[3]];
+		__m128 w = _mm_load_ps(&weights->x);
+		_mm_store_ps(&row0->x, _mm_mul_ps(_mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0)), _mm_load_ps(m0.m[0])));
+		_mm_store_ps(&row1->x, _mm_mul_ps(_mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0)), _mm_load_ps(m0.m[1])));
+		_mm_store_ps(&row2->x, _mm_mul_ps(_mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0)), _mm_load_ps(m0.m[2])));
+		_mm_store_ps(&row3->x, _mm_mul_ps(_mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0)), _mm_load_ps(m0.m[3])));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[0]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1))), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[1]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1))), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[2]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1))), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[3]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1))), _mm_load_ps(&row3->x)));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[0]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2))), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[1]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2))), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[2]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2))), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[3]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2))), _mm_load_ps(&row3->x)));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[0]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3))), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[1]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3))), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[2]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3))), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]),
+			_mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3))), _mm_load_ps(&row3->x)));
+	}
+
+	// The same for the wider vertex record (its bone indices sit at +0x50)
+	// FUNCTION: ENGINE 0x1071B490
+	// NONMATCHING: register allocation, the same as 0x1071B310, 21 %
+	void BlendBoneRowsWide(const SkinVertex2* vertex, const math::Matrix* matrices, const math::Vector4* weights,
+		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
+	{
+		const math::Matrix& m0 = matrices[vertex->bones[0]];
+		const math::Matrix& m1 = matrices[vertex->bones[1]];
+		const math::Matrix& m2 = matrices[vertex->bones[2]];
+		const math::Matrix& m3 = matrices[vertex->bones[3]];
+		__m128 w = _mm_load_ps(&weights->x);
+		__m128 x = _mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 y = _mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 z = _mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2));
+		__m128 q = _mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3));
+		_mm_store_ps(&row0->x, _mm_mul_ps(x, _mm_load_ps(m0.m[0])));
+		_mm_store_ps(&row1->x, _mm_mul_ps(x, _mm_load_ps(m0.m[1])));
+		_mm_store_ps(&row2->x, _mm_mul_ps(x, _mm_load_ps(m0.m[2])));
+		_mm_store_ps(&row3->x, _mm_mul_ps(x, _mm_load_ps(m0.m[3])));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[0]), y), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[1]), y), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[2]), y), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[3]), y), _mm_load_ps(&row3->x)));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[0]), z), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[1]), z), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[2]), z), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[3]), z), _mm_load_ps(&row3->x)));
+		_mm_store_ps(&row0->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[0]), q), _mm_load_ps(&row0->x)));
+		_mm_store_ps(&row1->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[1]), q), _mm_load_ps(&row1->x)));
+		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[2]), q), _mm_load_ps(&row2->x)));
+		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]), q), _mm_load_ps(&row3->x)));
 	}
 #endif
 
@@ -580,4 +661,5 @@ namespace pure3d
 	{
 		return unknown2AC;
 	}
+
 }
