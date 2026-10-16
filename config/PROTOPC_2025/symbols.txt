@@ -3863,11 +3863,17 @@ __aullshr = 0x10BA2B50 ; function size:0x1F | CRT 64-bit unsigned shift right (s
 ?IsDeleted@DeferredDeletionProxy@render@engine@@SA_NI@Z = 0x107E8A90 ; function size:0xF | drawable.cpp
 ?GetExpressionData@Drawable@render@engine@@QBEPAXXZ = 0x107EAAD0 ; function size:0x2D | drawable.cpp
 ??0Entity@pure3d@@QAE@XZ = 0x1072D4B0 ; function | drawable.cpp extern
+??0PrimGroupLoader@pure3d@@QAE@XZ = 0x10B8BD30 ; function size:0x39 | pure3d::PrimGroupLoader constructor
 ?AddRef@RefCounted@pure3d@@UAEXXZ = 0x106E2A00 ; function | drawable.cpp extern
 ?Release@RefCounted@pure3d@@UAEXXZ = 0x106E2A10 ; function | drawable.cpp extern
 ??1Entity@pure3d@@UAE@XZ = 0x1072D4E0 ; function | drawable.cpp extern
 ??$SafeRelease@UTextureInfo@pure3d@@@core@@YAXAAPAUTextureInfo@pure3d@@@Z = 0x1061CA90 ; function size:0x1A | core::SafeRelease for pure3d::TextureInfo: releases the object and clears the pointer
 ??0Texture@pure3d@@QAE@XZ = 0x10729AE0 ; function size:0x19 | pure3d::Texture constructor
+?LoadObject@TextureLoader@pure3d@@UAEXPAPAUIRefCount@core@@PAV?$Name@UCaseSensitiveKey@core@@@4@PAVChunkReader@content@@H@Z = 0x1072A470 ; function size:0x3D | pure3d::TextureLoader vftable slot 7
+?FindTexture@TextureLoader@pure3d@@AAEPAVTexture@2@PAVChunkReader@content@@_NH@Z = 0x1072A1E0 ; function size:0x281 | pure3d::TextureLoader: the texture of the chunk's image (name guess)
+??4?$Name@UCaseSensitiveKey@core@@@core@@QAEAAV01@ABV01@@Z = 0x100278B3 ; function | core::Name<core::CaseSensitiveKey>::operator= (incremental link thunk)
+??1TextureLoader@pure3d@@UAE@XZ = 0x1072A170 ; function size:0x2A | pure3d::TextureLoader destructor
+??_GTextureLoader@pure3d@@UAEPAXI@Z = 0x1072A1C0 ; function size:0x1E | pure3d::TextureLoader scalar deleting destructor
 ?Load@DDSParser@pure3d@@UAEXPAUIRefCount@core@@PBDH_NH@Z = 0x1072B470 ; function size:0x18E | pure3d::DDSParser vftable slot 2
 ?Parse@DDSParser@pure3d@@UAEIPAUIRefCount@core@@IIIIIII@Z = 0x1072B6D0 ; function size:0xD9 | pure3d::DDSParser vftable slot 3 (name guess)
 ??1Texture@pure3d@@UAE@XZ = 0x1072A0E0 ; function size:0x1D | pure3d::Texture destructor

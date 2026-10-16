@@ -24,6 +24,19 @@ namespace pure3d
 		core::SafeRelease(info);
 	}
 
+	// FUNCTION: ENGINE 0x1072A470
+	void TextureLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
+		content::ChunkReader* reader, int flags)
+	{
+		Texture* texture = FindTexture(reader, engine::render::gTextureLoadFlag, flags);
+		if (texture != 0)
+		{
+			texture->AddRef();
+			*object = texture;
+			*name = texture->mName;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1072B420
 	bool DDSParser::IsSupportedFormat(unsigned int format)
 	{

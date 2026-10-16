@@ -5,12 +5,40 @@
 #ifndef PURE3D_TEXTURE_TEXTURE_H
 #define PURE3D_TEXTURE_TEXTURE_H
 
+#include "code/content/chunkhandler.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 #include "code/pure3d/primitive.h"
 
+namespace engine
+{
+	namespace render
+	{
+		// 0x1128186A: whether the textures of this load may be uploaded (declared in the render unit)
+		extern bool gTextureLoadFlag;
+	}
+}
+
 namespace pure3d
 {
+	// The chunk handler that turns a texture chunk of a P3D stream into a pure3d::Texture (RTTI: pure3d::TextureLoader,
+	// 8 vftable slots; slot 7 is LoadObject). The destructor is declared first and not defined here, so that the
+	// class's key function stays in the engine's copy of the unit and this file emits no vftable of its own.
+	class TextureLoader : public content::SimpleChunkHandler
+	{
+	public:
+		virtual ~TextureLoader();
+
+		// 0x1072A470: the texture the chunk's image makes, written into `object` under the name `name`. The reader
+		// is the chunk the caller opened, `flags` is one of its words.
+		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			int flags);
+
+	private:
+		// 0x1072A1E0: the texture of the chunk's image, or null (name guess)
+		Texture* FindTexture(content::ChunkReader* reader, bool flag, int unknown);
+	};
+
 	// Reads an image file into the texture it was made for (RTTI: pure3d::TextureParser, 4 slots: the deleting
 	// destructor and the three below). Only the DDS parser implements it so far.
 	class TextureParser

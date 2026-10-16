@@ -1265,7 +1265,7 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
-## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 3 match, 2 NONMATCHING, 3 not done
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 4 match, 3 NONMATCHING, 2 not done
 
 The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
 a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d::TextureLoader` and the file parsers
@@ -1277,8 +1277,19 @@ a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d:
 | 0x1072B420 | DDSParser::IsSupportedFormat (vftable slot 1) | match (the switch keeps its 0x20-byte jump table after the code) |
 | 0x1072B470 | DDSParser::Load (slot 2) | NONMATCHING |
 | 0x1072B6D0 | DDSParser::Parse (slot 3) | NONMATCHING |
-| 0x1072A470 | TextureLoader::LoadObject | not done |
+| 0x1072A470 | TextureLoader::LoadObject (slot 7) | match |
 | 0x1072ADB0 / 0x1072AF80 | the upload of one texture's levels | not done |
+
+`TextureLoader::LoadObject` (0x1072A470) matches once the loader bases exist: it is slot 7 of `content::SimpleChunkHandler`
+(8 slots, RTTI), which is what the loader vftables 0x10E5C1D8 and the others hold. The bases are reconstructed in
+`code/content/chunkhandler.h`: `content::ObjectLoader` (6 slots: LoadObject's five plus a pure `CreateObject`) and
+`content::SimpleChunkHandler` (slot 5 `CreateObject` 0x1060B780, slot 6 the chunk flags at +8 0x105FFA40, slot 7 the
+pure `LoadObject`). The reader the handler hands on is `content::ChunkReader` (0x288 bytes, stream at +0x284;
+0x1060BB60 constructor, 0x1060B8E0 opens a chunk, 0x1060B8A0 asks whether one is left). `TextureLoader`'s signature is
+`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` — the object output is an
+`IRefCount**` because a texture is a `pure3d::Entity`, not a `LoadObject`. Its workhorse 0x1072A1E0 takes
+`(ChunkReader*, bool flag, int unknown)` and returns the `Texture*`. The class declares its destructor first and does
+not define it, so the vftable stays with the engine's copy of the unit.
 
 NONMATCHING:
 
@@ -1310,6 +1321,24 @@ Matching notes:
 - An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
   two-entry jump table; the 8 table bytes after the code are part of the compared function.
 
+
+## pure3d/geometry: the loaders (0x10B8B000 - 0x10BA0000), started
+
+`pure3d::PrimGroupLoader` (RTTI; base `pure3d::RefCounted`, 3 slots, vftable 0x10EAF644, unit 0x10B8BD30 - 0x10B8C800)
+and the loaders after it in the same code range: `PolySkinLoader` (vftable 0x10EAF784, LoadObject 0x10B90CA0),
+`CompositeDrawableLoader` (0x10EAF8B4, LoadObject 0x10B91410) and `GeometryLoader` (0x10EB0314, LoadObject 0x10B9C3E0).
+`PrimGroupLoader`'s layout, read off its constructor and destructor: a reference-counted group list at +8 (released by
+`core::SafeRelease`, 0x102CD490), an int at +0xC, three flags at +0x10 - +0x12 (the second true), an int at +0x14 and
+the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28.
+
+NONMATCHING:
+
+- 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader`: the engine's copy keeps the vftable store of the base constructor it
+  inlines (`mov [eax], 0x10DA05B0`, RefCounted's) between the count store and the class's own
+  (`mov [eax], 0x10EAF644`) — 57 bytes. Our compiler drops that store from every derived constructor; the same shape
+  compiled in this unit (three levels, the base constructor in the class body, out of line, `__forceinline`, with an
+  initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
+  (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 
