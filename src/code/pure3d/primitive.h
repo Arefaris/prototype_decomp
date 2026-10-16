@@ -390,6 +390,18 @@ namespace pure3d
 	class SkinState : public PrimitiveState
 	{
 	public:
+		// The callback the state's skinning task reports its result to (skin.cpp)
+		class AsyncTaskAdaptor : public core::AsyncTaskCallback
+		{
+		public:
+			// 0x1071B090
+			AsyncTaskAdaptor();
+			// 0x1071FCC0: hands the result on to the state at +4
+			virtual void OnResult(int result);
+
+			SkinState* mState;
+		};
+
 		// Slots 3 - 9 and the state's own slot 10 (skin.cpp)
 		virtual PrimitiveState* Unknown3();
 		virtual void Unknown5();

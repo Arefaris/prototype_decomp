@@ -1,9 +1,81 @@
 // pure3d::SkinState and the skinning code (code/pure3d/atg4/platform/win32/skin.cpp, path from the asserts). Names
 // are guesses.
+#include <xmmintrin.h>
+
+#include "code/core/interlocked.h"
 #include "code/pure3d/primitive.h"
 
 namespace pure3d
 {
+	// Stores a node in a list head the caller owns (no interlocked exchange); the node's first word is its next
+	// FUNCTION: ENGINE 0x1071B000
+	void StoreListHead(void** head, void* node)
+	{
+		*head = node;
+	}
+
+	// Pushes a node on a list head, retrying while another thread changes it; the node's first word is its next
+	// FUNCTION: ENGINE 0x1071B010
+	void PushListHead(void** head, void** node)
+	{
+		void* old = *head;
+		for (;;)
+		{
+			*node = old;
+			void* expected = old;
+			old = (void*)_InterlockedCompareExchange((long volatile*)head, (long)node, (long)old);
+			if (old == expected)
+			{
+				break;
+			}
+		}
+	}
+
+	// Pops a node off a list head, retrying while another thread changes it; null when the list is empty
+	// FUNCTION: ENGINE 0x1071B040
+	void* PopListHead(void** head)
+	{
+		void* node = *head;
+		void* expected;
+		do
+		{
+			if (node == 0)
+			{
+				return 0;
+			}
+			void* next = *(void**)node;
+			expected = node;
+			node = (void*)_InterlockedCompareExchange((long volatile*)head, (long)next, (long)node);
+		} while (node != expected);
+		return node;
+	}
+
+	// FUNCTION: ENGINE 0x1071B090
+	SkinState::AsyncTaskAdaptor::AsyncTaskAdaptor()
+	{
+	}
+
+	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time
+	// FUNCTION: ENGINE 0x1071B270
+	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+		const __m128& weights)
+	{
+		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 z = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(2, 2, 2, 2));
+		return _mm_add_ps(_mm_add_ps(_mm_add_ps(_mm_mul_ps(x, a), _mm_mul_ps(y, b)), _mm_mul_ps(z, c)), d);
+	}
+
+	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
+	// FUNCTION: ENGINE 0x1071B2C0
+	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	{
+		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
+		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
+		__m128 z = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(2, 2, 2, 2));
+		return _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, a), _mm_mul_ps(y, b)), _mm_mul_ps(z, c));
+	}
+
 	// FUNCTION: ENGINE 0x1071B070
 	bool SkinState::GetUnknown298()
 	{
