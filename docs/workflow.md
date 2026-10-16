@@ -79,12 +79,18 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    --original`, `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch 1`), in free roam:
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/difftest/difftest.py 0x1071B610 --capture 3 --seconds 60 --play "keys w:2.5,:2"`;
    put the hybrid DLL back afterwards (`python tools/re/testcopy.py`).
-   The entry gets a jump to a spin stub (no debugger: the game's main thread is hidden from debuggers and an int3 there
-   ends the process); the parked thread's registers and every committed page of the process go to
-   `local/difftest/states/<address>/NNN.state` (pages deduplicated in `local/difftest/store/`; never committed, they are the
-   game's memory). `--play` takes gamectl commands (`keys`, `teleport`) to drive the game onto the path; a function whose
-   path does not run (device reset, a district change) stays `NOT REACHED` until a state is captured on it. The game is
-   frozen for about five seconds per state.
+   Every requested function gets a jump to its own spin stub (no debugger: the game's main thread is hidden from
+   debuggers and an int3 there ends the process), all armed at once in one game session (`difftest.py all 0x1071B610
+   --capture 3` arms every EQUIVALENT function plus the extra address). The parked thread's registers and the pages the
+   runs need go to `local/difftest/states/<address>/NNN.state` (pages deduplicated in `local/difftest/store/`; never
+   committed, they are the game's memory). By default a state is taken live: while the process is frozen the engine's
+   function and ours run in the emulator with pages fetched on demand from the process (a per-state `--freeze` budget,
+   default 3 s), and only the pages those runs touched plus their `--margin` neighbours are saved, so the freeze drops to
+   well under a second; `--full` copies every committed page as before. A later offline run that needs a page the live
+   capture did not save reports `INCONCLUSIVE (missing page)`, never guesses. A function shorter than five bytes or with a
+   jump into its own first five bytes cannot be parked and is reported. `--play` takes gamectl commands (`keys`,
+   `teleport`) to drive the game onto the path; a function whose path does not run (device reset, a district change) stays
+   `NOT REACHED` until a state is captured on it.
 2. **Replay**: `python tools/difftest/difftest.py 0x1071B610 [--fuzz 200]` runs every state in Unicorn twice, on the engine's
    function and on ours (from the build's object, or `--obj` for another compile), with the engine's own callees running
    as real code on the snapshot; only calls that leave the image (kernel32, d3d9) are answered by stubs and logged. It

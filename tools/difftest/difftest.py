@@ -2,8 +2,11 @@
 game on both and compares everything they do (docs/workflow.md, "Checking an EQUIVALENT function").
 
     python tools/difftest/difftest.py 0x1071B610 --capture 3 [--seconds 30] [--play "keys w:2.5,:2"]
-        attach to the test copy in OP_ORIGINAL_DIR (the original DLL in it), break at the function's entry and
-        save up to 3 states (registers plus the whole memory) under local/difftest/states/0x1071B610/
+        attach to the test copy in OP_ORIGINAL_DIR (the original DLL in it), break at every function's entry in
+        one game session and save up to 3 states under local/difftest/states/<address>/. By default the states are
+        taken live (the emulator runs the engine and ours against the frozen process, saving only the pages the
+        runs touch); --full copies the whole memory instead. 'all' arms every EQUIVALENT function; extra addresses
+        (e.g. the crash case 0x1071B610) can be added: difftest.py all 0x1071B610 --capture 3
     python tools/difftest/difftest.py 0x1071B610 [--fuzz 200] [--no-variants] [--obj X.obj] [--symbol NAME]
         replay every captured state on the engine's function and on ours (from the build's object unless --obj),
         then sentinel variants of the inputs for the blocks the real states miss, then random mutations
@@ -45,7 +48,7 @@ class Result:
 
 
 class FunctionTest:
-	def __init__(self, address, objPath=None, symbol=None, unitMode=False, budget=5000000, timeout=20.0):
+	def __init__(self, address, objPath=None, symbol=None, unitMode=False, budget=5000000, timeout=20.0, pageStore=None):
 		self.address = address
 		self.symbol = symbol or project.symbolAt(address)
 		self.unit, self.status, located = project.locate(address)
@@ -63,7 +66,7 @@ class FunctionTest:
 		self.returnKind = project.returnKind(self.symbol)
 		self.functionStarts = set(sizes)
 		self.starts = sorted(sizes)
-		self.pageStore = store.PageStore()
+		self.pageStore = pageStore or store.PageStore()
 		self.lines = []
 		self.noted = False
 		self.touched = {}  # state path -> set of snapshot pages the runs on it read or wrote
@@ -120,7 +123,7 @@ class FunctionTest:
 
 	# --- dynamic: one state ------------------------------------------------------------------------------------
 
-	def runState(self, state, label, overlay=None, policyVariant=0, emulator=None):
+	def runState(self, state, label, overlay=None, policyVariant=0, emulator=None, deadline=None):
 		policy = externals.Policy(policyVariant)
 		engineRange = (self.address, self.address + self.size)
 		if emulator is None:
@@ -128,7 +131,10 @@ class FunctionTest:
 		else:
 			emulator.policy = policy
 			emulator.setOverlay(overlay)
-		engineTrace = emulator.run(self.address, self.argBytes, self.budget, self.timeout, watch=[engineRange])
+		engineTimeout = self.timeout
+		if deadline is not None:
+			engineTimeout = min(engineTimeout, max(0.001, deadline - time.time()))
+		engineTrace = emulator.run(self.address, self.argBytes, self.budget, engineTimeout, watch=[engineRange])
 		loaded = emulator.loaded
 		if loaded is None:
 			def importFallback(name):
@@ -157,7 +163,10 @@ class FunctionTest:
 			emulator.seal()
 			emulator.loaded = loaded
 		oursRange = (loaded.entry, loaded.entry + loaded.size)
-		oursTrace = emulator.run(loaded.entry, self.argBytes, self.budget, self.timeout, watch=[oursRange])
+		oursTimeout = self.timeout
+		if deadline is not None:
+			oursTimeout = min(oursTimeout, max(0.001, deadline - time.time()))
+		oursTrace = emulator.run(loaded.entry, self.argBytes, self.budget, oursTimeout, watch=[oursRange])
 		context = compare.Context(emulator, emulator, self.returnKind, self.argBytes, engineRange, oursRange)
 		context.placedVtables = {a: n for n, a in loaded.placed.items() if n.startswith("??_7")}
 		findings = compare.compareTraces(engineTrace, oursTrace, context)
@@ -234,7 +243,7 @@ class FunctionTest:
 		self.say("verdict: %s" % verdict)
 		return verdict
 
-	def runVariants(self, realResults, states, variantHit, verbose, maxVariants):
+	def runVariants(self, realResults, states, variantHit, verbose, maxVariants, deadline=None):
 		results = []
 		perState = max(1, maxVariants // len(realResults))
 		for result, path in zip(realResults, states):
@@ -252,7 +261,9 @@ class FunctionTest:
 			for label, overlay in candidates:
 				if budget <= 0:
 					break
-				variant = self.runState(state, "%s %s" % (path.name, label), overlay, 1 if overlay is None else 0, machine)
+				if deadline is not None and time.time() >= deadline:
+					break
+				variant = self.runState(state, "%s %s" % (path.name, label), overlay, 1 if overlay is None else 0, machine, deadline)
 				budget -= 1
 				tried += 1
 				if variant.error:
@@ -342,9 +353,19 @@ class FunctionTest:
 
 
 def parseAddresses(items):
-	if items == ["all"]:
-		return [address for address, status, unit in project.annotated(("equivalent",))]
-	return [int(item, 16) for item in items]
+	result = []
+	for item in items:
+		if item == "all":
+			result.extend(address for address, status, unit in project.annotated(("equivalent",)))
+		else:
+			result.append(int(item, 16))
+	seen = set()
+	unique = []
+	for address in result:
+		if address not in seen:
+			seen.add(address)
+			unique.append(address)
+	return unique
 
 
 def main():
@@ -353,6 +374,11 @@ def main():
 	parser.add_argument("--capture", type=int, metavar="N", help="capture N states per function from the running test copy")
 	parser.add_argument("--seconds", type=float, default=30.0, help="how long to wait for hits (default 30)")
 	parser.add_argument("--spacing", type=float, default=1.0, help="seconds between two captures of one function")
+	parser.add_argument("--full", action="store_true", help="capture every committed page (the old full-copy capture) instead of the live one")
+	parser.add_argument("--freeze", type=float, default=3.0, help="per-state freeze budget for the live capture in seconds (default 3)")
+	parser.add_argument("--margin", type=int, default=1, help="neighbour pages saved around each touched page in the live capture (default 1)")
+	parser.add_argument("--fresh", action="store_true", help="remove each address's existing states before capturing (re-capture from 000)")
+	parser.add_argument("--clear", action="store_true", help="remove each address's existing states, then stop")
 	parser.add_argument("--play", action="append", metavar="CMD",
 		help="a gamectl command to run once the breakpoints are in, e.g. \"keys w:2.5,:2\" or \"teleport 1000 20 -500\" (repeatable, run in order)")
 	parser.add_argument("--replay", action="store_true", help="replay captured states (the default without --capture)")
@@ -364,17 +390,24 @@ def main():
 	parser.add_argument("--symbol", help="decorated name of our function (default: symbols.txt at the address)")
 	parser.add_argument("--unit", action="store_true", help="resolve calls to functions our object defines to our copies, as the hybrid DLL does")
 	parser.add_argument("--budget", type=int, default=5000000, help="instruction budget per run")
+	parser.add_argument("--timeout", type=float, default=20.0, help="wall-clock budget per emulated run (default 20 s)")
 	parser.add_argument("-v", "--verbose", action="store_true")
 	args = parser.parse_args()
 	addresses = parseAddresses(args.addresses)
+	if args.clear:
+		from difftest import capture
+		capture.clearStates(addresses)
+		return
 	if args.capture:
 		from difftest import capture
-		capture.capture(addresses, args.capture, args.seconds, args.spacing, args.play)
+		capture.capture(addresses, args.capture, args.seconds, args.spacing, args.play, full=args.full,
+			obj=args.obj, symbol=args.symbol, unit=args.unit, budget=args.budget, timeout=args.timeout,
+			freeze=args.freeze, margin=args.margin, fresh=args.fresh)
 		if not args.replay:
 			return
 	verdicts = {}
 	for address in addresses:
-		test = FunctionTest(address, args.obj, args.symbol, args.unit, args.budget)
+		test = FunctionTest(address, args.obj, args.symbol, args.unit, args.budget, args.timeout)
 		states = project.listStates(address)
 		if args.states:
 			states = states[:args.states]
