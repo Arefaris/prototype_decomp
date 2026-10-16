@@ -2301,7 +2301,7 @@ Still not done in this range:
   Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
   pool at `this + 0x18`, so the gate and the job classes have to be placed first.
 
-## The start-up, stream and LOD units (2026-10-16, ds-9): 5 match, 2 NONMATCHING, the rest not started
+## The start-up, stream, LOD and deform units (2026-10-16, ds-9): 6 match, 2 NONMATCHING, the rest not started
 
 New units, all with guessed file names (none of them has an assert path):
 
@@ -2323,6 +2323,10 @@ New units, all with guessed file names (none of them has an assert path):
   then has 0x105676F0 (destructor), 0x10567670 (`ReleaseScript`) and 0x10567920 (`??_G`).
 - `code/engine/system/streammanager.cpp` (0x1082BEC0 - 0x1082E9xx): `engine::StreamManager` itself stays declared in
   `streampackage.h`; this unit holds the collection pass.
+- `code/proto/render/deformshaderbehaviour.cpp` (0x102D31B0 - 0x102D50F1): `proto::DeformShaderBehaviour` (vftable
+  0x10DEA3CC) keeps the last four dents in a 0x84-byte ring at +4: the buffer runs from the ring's own address and
+  its `end` pointer sits at +0x80. A dent is 0x20 bytes - a `math::Vector`, then five floats of which +0x10 and
+  +0x1C are zero.
 - `code/engine/system/enginememory.cpp` gained the heap kind name.
 
 Matching notes:
@@ -2367,9 +2371,10 @@ Not started (the reason each is blocked, not just "unknown"):
   0x1082E3F0 named first.
 - `0x10899830` (454, `engine::StreamDriverBehaviour::update`) and `0x1082E100` (752, the stream transition): not read
   yet.
-- `0x102D4350` (107, the dent storage of `proto::DeformShaderBehaviour`): the ring it pushes into (0x102D41C0) is a
-  4-by-0x20 circular buffer whose `end` sits at +0x80 of the buffer itself; the class that owns it and the mask test
-  `(end - begin) & ~0x1F == 0x80` are not placed.
+- `0x102D41C0` (`DentBuffer::Push`, 94 bytes): the full test is `((end - dents) & ~0x1F) == sizeof(dents)` -> false,
+  then `slot = end; end = slot + 1;` and a copy of the dent guarded by `slot != 0`. The engine copies the 0x20 bytes
+  with eight x87 `fld` / `fstp` pairs, i.e. the record's copy *constructor*; our record is trivially copyable, so the
+  assignment comes out as one `rep movsd` (26 %). The record type the engine copy-constructs is not recovered.
 - `0x102D4920` (602) and `0x102D4C50` (1097, `DeformShaderModifier::apply`): not read yet.
 - `0x102DA540` (350, `LODRenderBehaviour`'s per-frame update): the engine leaves a dead `add ecx, 4` in it (the
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
