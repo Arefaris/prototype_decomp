@@ -159,6 +159,35 @@ namespace pure3d
 		void SetTransform(const math::Matrix& transform);
 	};
 
+	// What a primitive fills the device's draw data with: the object at DrawablePart::batch (+0xA0). The engine's
+	// type runs to the part's render bits, so it covers the world matrix and the block after it that drawable.h
+	// names separately; only the fields a primitive's FillBatch writes are named here.
+	struct PrimBatch
+	{
+		int unknown0;
+		int sortKey;
+		unsigned char unknown8[0x20];
+		int unknown28;
+		unsigned char unknown2C[0x44];
+		unsigned short unknown70;
+		unsigned short unknown72;
+		int unknown74;
+		int unknown78;
+		int unknown7C;
+		int unknown80;
+		int unknown84;
+	};
+
+	// The groups a mesh or a state keeps (the two share the call the primitives make into them; the name is a guess)
+	class PrimGroupList
+	{
+	public:
+		// 0x106268B0: prepares the batch before the groups go into it
+		void PrepareBatch(PrimBatch* batch);
+		// 0x10625910: puts the group (or nothing) into the batch and answers the group that went in
+		PrimGroupList* AddGroup(PrimBatch* batch, PrimGroupList* group);
+	};
+
 	// A primitive's flags (+0xC) and type (+0x14); slot 5 is its bounding box
 	class Primitive : public LockableRefCounted
 	{
@@ -249,6 +278,32 @@ namespace pure3d
 
 		Primitive* primitive;
 		void* unknownC;
+	};
+
+	// What a state keeps past the fields above (the mesh and skin loaders walk its group table). The engine's own
+	// PrimitiveState declares those members; inserting them here would move every member of the classes derived
+	// from it in this header, so the loaders read the same object through this view instead.
+	struct PartStateView
+	{
+		unsigned char unknown0[0x30];
+		// The groups the state was made with, and which of them the part draws
+		PrimGroupList* groups[2];
+		int unknown38;
+	};
+
+	// A mesh: the primitive groups its geometry is cut into (slot 3 draws it, slot 7 fills the part's batch).
+	// The destructor is declared first and not defined here, so that the vftable stays with the engine's unit.
+	class Mesh : public Primitive
+	{
+	public:
+		virtual ~Mesh();
+		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+
+		// The word the batch carries (the kind of primitive?), then the two lists its groups live in
+		unsigned short unknown1C;
+		unsigned short unknown1E;
+		PrimGroupList* unknown20;
+		PrimGroupList* unknown24;
 	};
 
 	// Particle system parameter names (globals of the particle module at 0x1127F0B8 - 0x1127F338; set up from

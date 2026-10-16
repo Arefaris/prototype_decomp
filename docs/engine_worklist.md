@@ -1322,6 +1322,25 @@ Matching notes:
   two-entry jump table; the 8 table bytes after the code are part of the compared function.
 
 
+## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
+
+Mesh overrides slot 3 (`Draw`, 0x10707280, 5 arguments) and slot 7 (`FillBatch`, 0x10707330, 3 arguments) of
+`Primitive` (whose layout in primitive.h is right: `LockableRefCounted` is 0xC bytes, so the flags sit at +0xC, the
+type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C). Matched:
+
+- 0x10707330 `Mesh::FillBatch`. Lesson: **the batch a primitive fills is the object at `DrawablePart::batch`
+  (+0xA0) and it is 0x88 bytes, not the 0x2C drawable.h keeps it as** — `+0x2C` is the part's world matrix and
+  `+0x10C` / `+0x110` are the words after it, so the fields the primitives write at +0x28 and +0x70 - +0x84 are the
+  same memory under other names. `PrimBatch` (a view, in primitive.h alongside `PrimGroupList` and `PartStateView`)
+  names them; its +0x70 member is 16-bit, which is what makes the compiler copy it with `mov ax`. The state's group
+  table is `state->groups[state->unknown38]` at +0x30 / +0x38 and must be written as an **array member** — through a
+  pointer member the compiler loads the pointer first instead of folding it into `[ecx + edx*4 + 0x30]`. The two
+  calls are `PrimGroupList::PrepareBatch(batch)` (0x106268B0) and `PrimGroupList::AddGroup(batch, group)`
+  (0x10625910, note the argument order).
+- Adding members to `PrimitiveState` in primitive.h moves every member of `MeshState`, `SkinState`, `GpuSkinState`
+  and `ParticleSystemState`, which breaks 26 matched functions in the engine, pure3d and proto units. Use a view
+  struct (`PartStateView`) instead.
+
 ## pure3d/geometry: the loaders (0x10B8B000 - 0x10BA0000), started
 
 `pure3d::PrimGroupLoader` (RTTI; base `pure3d::RefCounted`, 3 slots, vftable 0x10EAF644, unit 0x10B8BD30 - 0x10B8C800)
