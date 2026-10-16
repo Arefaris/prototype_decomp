@@ -1,14 +1,19 @@
 """Captures real entry states from the running game (a 32-bit process, driven from 64-bit Python with ctypes).
 
 No debugger is attached: the game's main thread is hidden from debuggers (an int3 it executes never reaches one
-and ends the process instead). Instead the first five bytes of a function's entry are replaced by a jump to a
-small spin stub in a page allocated in the game (`mov byte [flag], 1; pause; jmp back`): the thread that enters
-the function parks there without touching its registers or flags. The tool polls the flags; on a hit it suspends
-the whole process, reads the parked thread's registers (Wow64GetThreadContext), copies every committed page
-(store.py), puts the original bytes back, points the thread's eip at the function's first instruction and resumes
-the process, so the game continues as if nothing had happened. The stub is armed again after `spacing` seconds
-until `wanted` hits are taken or `seconds` have passed. `play` (gamectl commands) can drive the game meanwhile.
-Attach only to the copy in OP_ORIGINAL_DIR, in free roam.
+and ends the process instead). Instead the first five bytes of every requested function's entry are replaced by a
+jump to its own spin stub in a page allocated in the game (`mov byte [flag], 1; pause; jmp back`): the thread that
+enters a function parks there without touching its registers or flags. Every function is armed at once; the tool
+polls the flags and, on a hit, suspends the whole process, reads the parked thread's registers
+(Wow64GetThreadContext) and takes a state.
+
+By default a state is taken live: while the process is frozen the engine's function and ours are run in the
+emulator with pages fetched on demand from the process (ReadProcessMemory per 4 KiB page, cached), plus the
+sentinel variants that fit a per-state freeze budget (`--freeze`). Only the pages those runs touched (and their
+`--margin` neighbours) are saved. `--full` copies every committed page instead, as before.
+
+The entry is then re-armed after `spacing` seconds until `wanted` hits are taken or `seconds` have passed.
+`play` (gamectl commands) can drive the game meanwhile. Attach only to the copy in OP_ORIGINAL_DIR, in free roam.
 """
 
 import ctypes
@@ -20,7 +25,7 @@ import subprocess
 import sys
 import time
 
-from . import project, store
+from . import project, store, cfg
 
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 psapi = ctypes.WinDLL("psapi", use_last_error=True)
@@ -39,7 +44,35 @@ THREAD_ALL = 0x001F03FF
 TH32CS_SNAPTHREAD = 0x04
 JUMP = 5
 STUB_STRIDE = 16
-FLAGS_OFFSET = 0x800
+
+
+def clearStates(addresses):
+	"""Removes every .state and .trim file under each address's state directory (used by --clear and --fresh)."""
+	for address in addresses:
+		removed = 0
+		for path in sorted(project.stateDirectory(address).glob("*")):
+			if path.suffix in (".state", ".trim"):
+				print("0x%08X: removing %s" % (address, path.name))
+				path.unlink()
+				removed += 1
+		if removed == 0:
+			print("0x%08X: no states" % address)
+
+
+def parkingIssues(address):
+	"""Why the function at `address` cannot be parked, or None. Parking replaces the first five bytes with a
+	jump, so the function must be at least five bytes long and no instruction in those five bytes may jump to a
+	target inside them (a jump in from elsewhere could land mid-jump, and the parked thread is always restored to
+	the entry)."""
+	extent = project.functionExtent(address)
+	if extent < JUMP:
+		return "function is %d bytes, shorter than the 5-byte jump" % extent
+	code = project.image().read(address, JUMP)
+	for insn in cfg.disassemble(code, address):
+		target = cfg.jumpTarget(insn)
+		if target is not None and address <= target < address + JUMP:
+			return "jump at 0x%08X lands inside the first 5 bytes (0x%08X)" % (insn.address, target)
+	return None
 
 
 class MemoryBasicInformation(ctypes.Structure):
@@ -240,19 +273,84 @@ class Process:
 		return store.State(header, pages)
 
 
+def captureLiveState(process, pageStore, address, handle, tid, patches, test, freeze, margin, verbose):
+	"""Takes one state live: the process is suspended and the thread parked, so the engine's function and ours run
+	in the emulator with pages fetched on demand from the frozen process; the pages they (and the sentinel variants
+	that fit) touch are then the state, plus `margin` neighbours. The game stays frozen for at most `freeze`
+	seconds; whatever ran up to then is saved and the rest replays offline (a page it needs and lacks is
+	INCONCLUSIVE, never guessed)."""
+	raw = process.context(handle)
+	regs = parseContext(raw)
+	regs["eip"] = address  # the thread is parked in the stub; its registers are the entry's
+	fsBase = process.selectorBase(handle, regs["segfs"])
+	header = store.newHeader(address, regs, tid, fsBase, process.modules(), bytes(raw))
+
+	committed = set()
+	for start, size in process.regions():
+		for page in range(start & ~(project.PAGE - 1), (start + size + project.PAGE - 1) & ~(project.PAGE - 1), project.PAGE):
+			committed.add(page)
+
+	cache = {}
+
+	def live(page):
+		"""A page straight from the frozen process, with the still-armed jumps hidden, or None."""
+		if page in cache:
+			return cache[page]
+		data = process.read(page, project.PAGE)
+		if data is None or len(data) != project.PAGE:
+			cache[page] = None
+			return None
+		touched = [a for a in patches if page < a + len(patches[a]) and a < page + project.PAGE]
+		if touched:
+			data = bytearray(data)
+			for a in touched:
+				for k, byte in enumerate(patches[a]):
+					if page <= a + k < page + project.PAGE:
+						data[a + k - page] = byte
+			data = bytes(data)
+		cache[page] = data
+		return data
+
+	liveState = store.State(header, {}, live=live, mappedPages=committed)
+	deadline = time.time() + freeze
+	result = test.runState(liveState, "live", deadline=deadline)
+	machine = result.machine
+	header["layout"] = machine.layout.asDict()
+	if result.error is None:
+		test.runVariants([result], [pathlib.Path("live")], set(), False, 240, deadline)
+	pages = {}
+	for page in sorted(machine.touched):
+		for k in range(-margin, margin + 1):
+			candidate = page + k * project.PAGE
+			if candidate in pages:
+				continue
+			data = live(candidate)
+			if data is not None:
+				pages[candidate] = pageStore.put(bytes(data))
+	pageStore.flush()
+	if verbose:
+		print("    live: %d touched pages -> %d saved pages (margin %d)" % (len(machine.touched), len(pages), margin))
+	state = store.State(header, pages)
+	state.liveInfo = {"touched": len(machine.touched), "saved": len(pages)}
+	return state
+
+
 class Breakpoints:
-	"""Entry jumps to spin stubs in a page allocated in the game."""
+	"""Entry jumps to spin stubs in memory allocated in the game. One stub per function (16 bytes, `STUB_STRIDE`),
+	then a page-aligned block of flag bytes the stubs set, so any number of functions fits."""
 
 	def __init__(self, process, addresses):
 		self.process = process
 		self.addresses = list(addresses)
-		self.page = process.allocate(0x1000)
+		stubBytes = len(self.addresses) * STUB_STRIDE
+		self.flagsOffset = (stubBytes + 0xFFF) & ~0xFFF
+		self.page = process.allocate(self.flagsOffset + len(self.addresses))
 		self.originals = {}
 		self.armed = set()
 		code = bytearray()
 		for i, address in enumerate(self.addresses):
 			stub = self.page + STUB_STRIDE * i
-			flag = self.page + FLAGS_OFFSET + i
+			flag = self.page + self.flagsOffset + i
 			# mov byte ptr [flag], 1 ; pause ; jmp pause
 			piece = b"\xC6\x05" + struct.pack("<I", flag) + b"\x01" + b"\xF3\x90" + b"\xEB\xFC"
 			code += piece + b"\xCC" * (STUB_STRIDE - len(piece))
@@ -261,7 +359,7 @@ class Breakpoints:
 				raise SystemExit("cannot read 0x%08X in the game" % address)
 			self.originals[address] = original
 		process.write(self.page, bytes(code))
-		process.write(self.page + FLAGS_OFFSET, bytes(len(self.addresses)))
+		process.write(self.page + self.flagsOffset, bytes(len(self.addresses)))
 
 	def stub(self, address):
 		return self.page + STUB_STRIDE * self.addresses.index(address)
@@ -297,11 +395,11 @@ class Breakpoints:
 			self.armed.discard(address)
 
 	def flags(self):
-		data = self.process.read(self.page + FLAGS_OFFSET, len(self.addresses))
+		data = self.process.read(self.page + self.flagsOffset, len(self.addresses))
 		return [self.addresses[i] for i, byte in enumerate(data or b"") if byte]
 
 	def clearFlag(self, address):
-		self.process.write(self.page + FLAGS_OFFSET + self.addresses.index(address), b"\x00")
+		self.process.write(self.page + self.flagsOffset + self.addresses.index(address), b"\x00")
 
 	def parked(self, address, threads):
 		"""[(tid, handle, context)] of the threads spinning in this entry's stub (the process is suspended)."""
@@ -332,10 +430,14 @@ class Breakpoints:
 			self.process.resume()
 
 
-def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=True):
-	"""Captures up to `wanted` states for each address; returns {address: [state paths]}. `play` is a list of
-	gamectl commands ("keys w:2.5,:2", "teleport 1000 20 -500") run one after another once the entries are
-	armed, to drive the game onto the paths wanted."""
+def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=True, full=False, obj=None,
+		symbol=None, unit=False, budget=5000000, timeout=20.0, freeze=3.0, margin=1, fresh=False):
+	"""Captures up to `wanted` states for each address; returns {address: [state paths]}. Every address is armed
+	at once and a state is taken live (the emulator fetches pages from the frozen process on demand and saves only
+	the pages its runs touched) unless `full` copies the whole memory. `fresh` removes each address's existing
+	states first, so the capture is indexed from 000 again. `play` is a list of gamectl commands
+	("keys w:2.5,:2", "teleport 1000 20 -500") run one after another once the entries are armed, to drive the game
+	onto the paths wanted."""
 	deadline = time.time() + seconds
 	# the game may still be starting (to capture its start-up, launch it and run this at once): wait for the
 	# process, then for the engine DLL to be mapped
@@ -353,21 +455,38 @@ def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=T
 		if time.time() > deadline or not process.alive():
 			raise SystemExit("the engine DLL is not mapped in the game")
 		time.sleep(0.05)
-	breakpoints = Breakpoints(process, addresses)
-	hits = {a: 0 for a in addresses}
-	armAt = {a: 0.0 for a in addresses}
-	saved = {a: [] for a in addresses}
-	existing = {a: len(project.listStates(a)) for a in addresses}
+	parkable = []
+	for address in addresses:
+		issue = parkingIssues(address)
+		if issue:
+			print("0x%08X: cannot park (%s); skipped" % (address, issue))
+		else:
+			parkable.append(address)
+	if not parkable:
+		pageStore.close()
+		raise SystemExit("none of the requested functions can be parked")
+	if fresh:
+		clearStates(parkable)
+	tests = {}
+	if not full:
+		from difftest.difftest import FunctionTest
+		for address in parkable:
+			tests[address] = FunctionTest(address, obj, symbol, unit, budget, timeout, pageStore)
+	breakpoints = Breakpoints(process, parkable)
+	hits = {a: 0 for a in parkable}
+	armAt = {a: 0.0 for a in parkable}
+	saved = {a: [] for a in parkable}
+	existing = {a: len(project.listStates(a)) for a in parkable}
 	player = None
 	try:
-		for address in addresses:
+		for address in parkable:
 			if not breakpoints.arm(address):
 				armAt[address] = time.time() + 0.05
 		if play:
 			script = " & ".join("%s %s %s" % (sys.executable, project.ROOT / "tools" / "re" / "gamectl.py", command) for command in play)
 			player = subprocess.Popen(["cmd", "/c", script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 		while time.time() < deadline:
-			if all(hits[a] >= wanted for a in addresses):
+			if all(hits[a] >= wanted for a in parkable):
 				break
 			if not process.alive():
 				print("the game ended")
@@ -390,14 +509,21 @@ def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=T
 							tid, handle, raw = parked[0]
 							t0 = time.time()
 							patches = {a: breakpoints.originals[a] for a in breakpoints.armed}
-							state = process.snapshot(pageStore, address, handle, tid, patches)
+							if full:
+								state = process.snapshot(pageStore, address, handle, tid, patches)
+							else:
+								state = captureLiveState(process, pageStore, address, handle, tid, patches,
+									tests[address], freeze, margin, verbose)
 							index = existing[address] + hits[address]
 							path = project.stateDirectory(address) / ("%03d.state" % index)
 							state.save(path)
 							saved[address].append(path)
 							hits[address] += 1
 							if verbose:
-								print("0x%08X hit %d: %s (%d pages, %.1f s)" % (address, hits[address], state.describe(), len(state.pages), time.time() - t0))
+								live = getattr(state, "liveInfo", None)
+								print("0x%08X hit %d: %s (%d pages, %.2f s%s)" % (address, hits[address],
+									state.describe(), len(state.pages), time.time() - t0,
+									", live %d touched" % live["touched"] if live else ""))
 							if hits[address] < wanted:
 								armAt[address] = time.time() + spacing
 						breakpoints.release(address, threads)
@@ -411,7 +537,7 @@ def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=T
 		pageStore.close()
 		if player is not None:
 			player.wait()
-	for address in addresses:
+	for address in parkable:
 		if hits[address] == 0 and verbose:
 			print("0x%08X: not reached in %.0f s" % (address, seconds))
 	return saved

@@ -106,6 +106,8 @@ def describeFault(fault):
 		return "returned"
 	access = fault.get("access")
 	where = " (%s)" % fault["where"] if fault.get("where") else ""
+	if access and access[0] == "missing-page":
+		return "needs a page the state did not save (0x%08X)%s" % (access[1], where)
 	if access:
 		return "faults at 0x%08X%s: %s of %d bytes at 0x%08X" % (fault["eip"], where, access[0], access[2], access[1])
 	return "faults at 0x%08X%s: %s" % (fault["eip"], where, fault["error"])
@@ -127,7 +129,13 @@ def compareTraces(engine, ours, context):
 		compareCalls(engine, ours, context, add)
 		return findings
 	if ours.fault:
-		add(Finding("FAIL", "fault", "engine returned; ours %s" % describeFault(ours.fault)))
+		access = ours.fault.get("access")
+		if access and access[0] == "missing-page":
+			# a live capture saved only the pages its runs touched; a run (here ours) that needs a page it did
+			# not save is inconclusive, never a behavioural difference
+			add(Finding("INCONCLUSIVE", "emulation", "ours %s" % describeFault(ours.fault)))
+		else:
+			add(Finding("FAIL", "fault", "engine returned; ours %s" % describeFault(ours.fault)))
 	if ours.timedOut:
 		add(Finding("FAIL", "budget", "the engine returned after %d instructions; ours runs past the budget (%d)" % (engine.instructions, ours.instructions)))
 	if ours.fault or ours.timedOut:

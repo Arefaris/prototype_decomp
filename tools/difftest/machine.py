@@ -115,10 +115,22 @@ class Trace:
 
 
 class Layout:
-	"""Addresses free in a snapshot for our code, the data beside it, the return page and the GDT."""
+	"""Addresses free in a snapshot for our code, the data beside it, the return page and the GDT.
+
+	A live-captured state saves the addresses it used (its page table does not span the whole process, so a
+	replay would otherwise pick a different base); `state.header["layout"]` wins when present."""
 
 	def __init__(self, state):
-		pages = state.pages
+		saved = state.header.get("layout")
+		if saved:
+			self.code = saved["code"]
+			self.data = saved["data"]
+			self.ret = saved["ret"]
+			self.gdt = saved["gdt"]
+			self.scratch = saved["scratch"]
+			self.end = saved["end"]
+			return
+		pages = state.mappedPages
 		start = 0x60000000
 		while True:
 			if all((start + k) not in pages for k in range(0, 0x300000, PAGE)):
@@ -130,6 +142,10 @@ class Layout:
 		self.gdt = start + 0x201000
 		self.scratch = start + 0x202000
 		self.end = start + 0x300000
+
+	def asDict(self):
+		return {"code": self.code, "data": self.data, "ret": self.ret, "gdt": self.gdt,
+			"scratch": self.scratch, "end": self.end}
 
 
 class Machine:
@@ -156,6 +172,7 @@ class Machine:
 		self.loaded = None
 		self.rdtsc = set(imageRdtsc())  # instruction addresses whose rdtsc gets a fixed value
 		self.touched = set()  # snapshot pages any run read or wrote (for --trim)
+		self.missing = set()  # pages a run needed but the snapshot lacks (a live capture's offline replay)
 		self.dirty = set()  # mapped pages the last run modified
 		self.clean = {}  # page -> bytes for mapped pages the snapshot does not hold (our code, grown stack)
 		self.overlay = {}
@@ -203,13 +220,22 @@ class Machine:
 			uc.reg_write(reg, 0x10)
 		uc.reg_write(UC_X86_REG_FS, 0x18)
 
-	def pageBytes(self, page):
-		"""The snapshot's bytes of a page with the overlay applied, or None."""
+	def pageData(self, page):
+		"""The raw bytes of a page: the snapshot's store, or the live process during a live capture."""
 		offset = self.state.pages.get(page)
-		if offset is None:
+		if offset is not None:
+			return self.store.get(offset)
+		if self.state.live is not None:
+			return self.state.live(page)
+		return None
+
+	def pageBytes(self, page):
+		"""A page's bytes with the overlay applied, or None. Any page read from the snapshot or the live
+		process is recorded in `touched` so a live capture can save exactly the pages its runs used."""
+		data = self.pageData(page)
+		if data is None:
 			return None
 		self.touched.add(page)
-		data = self.store.get(offset)
 		patches = self.overlayPages.get(page)
 		if patches:
 			data = bytearray(data)
@@ -229,6 +255,7 @@ class Machine:
 			if self.stackLow <= page < self.entryEsp:
 				data = bytes(PAGE)  # stack growth below the committed pages: the system would commit zeros
 			else:
+				self.missing.add(page)
 				return False
 		prot = UC_PROT_ALL if self.isExecutable(page) else UC_PROT_READ | UC_PROT_WRITE
 		self.uc.mem_map(page, PAGE, prot)
@@ -277,13 +304,13 @@ class Machine:
 			i = data.find(b"\x0F\x31", i + 1)
 
 	def resetToClean(self):
-		"""Undoes the previous run's writes: dirty snapshot pages get their snapshot bytes back, dirty non-snapshot
-		pages their sealed content."""
+		"""Undoes the previous run's writes: dirty pages get their clean bytes back (snapshot store or live
+		process, with the current overlay re-applied); pages neither source holds (our loaded code, grown stack)
+		get their sealed content."""
 		if self.dirty:
 			for page in self.dirty:
-				if page in self.state.pages:
-					data = self.pageBytes(page)
-				else:
+				data = self.pageBytes(page)
+				if data is None:
 					data = self.clean.get(page)
 				if data is not None:
 					self.uc.mem_write(page, data)
@@ -301,7 +328,10 @@ class Machine:
 		for p in range(page, address + max(size, 1), PAGE):
 			ok = self.mapPage(p) and ok
 		if not ok:
-			self.invalid = (ACCESS_NAMES.get(access, str(access)), address, size)
+			# a page the snapshot does not hold (a live capture saved only what its runs touched): report it as
+			# a missing page, never guess its bytes
+			kind = "missing-page" if self.missing else ACCESS_NAMES.get(access, str(access))
+			self.invalid = (kind, address, size)
 		return ok
 
 	def readSnapshot(self, address, size):

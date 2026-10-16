@@ -83,12 +83,19 @@ class PageStore:
 
 
 class State:
-	"""One captured entry state. `pages` maps page address -> offset in the store."""
+	"""One captured entry state. `pages` maps page address -> offset in the store.
 
-	def __init__(self, header, pages, path=None):
+	During a live capture (tools/difftest/capture.py) the pages are not copied up front: the state carries a
+	`live` reader (page address -> bytes from the frozen game, or None) and the committed pages as `mappedPages`
+	(just their addresses, for the layout), and `pages` starts empty. The run then materialises the pages it
+	touched into the store, and the saved state is a plain one (no `live`, `mappedPages` == its page table)."""
+
+	def __init__(self, header, pages, path=None, live=None, mappedPages=None):
 		self.header = header
 		self.pages = pages
 		self.path = path
+		self.live = live
+		self.mappedPages = set(pages) if mappedPages is None else mappedPages
 
 	@property
 	def regs(self):
