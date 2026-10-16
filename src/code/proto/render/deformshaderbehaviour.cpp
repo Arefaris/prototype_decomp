@@ -4,23 +4,20 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102D41C0
-	// NONMATCHING: branch layout (the engine tests for a free slot with je, ours inverts it), 26 %
-#ifdef NONMATCHING
 	bool DentBuffer::Push(const Dent& dent)
 	{
-		if ((((unsigned char*)end - (unsigned char*)dents) & ~0x1Fu) == sizeof(dents))
-		{
-			return false;
-		}
 		Dent* slot = end;
-		end = slot + 1;
-		if (slot != 0)
+		if ((((unsigned char*)slot - (unsigned char*)this) & ~0x1Fu) != sizeof(dents))
 		{
-			*slot = dent;
+			end = slot + 1;
+			if (slot != 0)
+			{
+				*slot = dent;
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102D4350
 	bool DeformShaderBehaviour::AddDent(const math::Vector& position, float unknownC, float unknown14, float unknown18)

@@ -2516,6 +2516,40 @@ Fixed in the third session (the two findings below):
   needs `Dent` to carry a user-defined `operator=` that assigns the members one by one (`position.x = dent.position.x;`
   ...), which is what makes the engine's eight `fld` / `fstp` pairs.
 
+Fourth session (2026-10-16, ds-9 continuation):
+
+- `0x102D41C0 DentBuffer::Push` **matches** (100 %). The third session's body was right, the block order was not:
+  written as `if (free) { ...; return true; } return false;` (the test inverted, the body inside) the compiler puts
+  the `return false` at the tail behind a `je`, as the engine does; with the early `if (full) return false;` it
+  inverts the branch and emits `jne` over an in-line `xor al, al; ret`.
+- `0x1082DB20 AddTriggerPackages` is at **85.3 %**, not 36 %: the corner loads are not the problem. With
+  `float x = min.x + max.x;` (and y, z), `package->unknown4C.x = x * 0.5f;` ... the three sums, the single 0.5f
+  and the three products all live in registers exactly as in the engine. What is left is the order: the engine
+  evaluates x, y, z with xmm0 / xmm1 / xmm2 and the 0.5f in xmm3 and stores the three products last, ours rotates
+  the three register assignments and sinks each store behind its product. A `math::Vector centre` with
+  `Add` / `Scale` and an assignment gives the same order as the engine but materialises centre on the stack (the
+  assignment goes through memory, 36 %); `package->unknown4C.Add(...); .Scale(0.5f);` is not forwarded (32.7 %);
+  the operand order of the sums (`max + min`) makes no difference at all - the front end normalises it.
+- `0x102DA540 LODRenderBehaviour::UpdateFade` is at **28.3 %**, not 30 %. The body is the third session's; the wall is
+  that the engine computes the three coordinate differences in **SSE** and stores each into the x87 stack slot it
+  reads them back from, while this compiler evaluates the whole `dz * dz + dy * dy + dx * dx` on the x87 stack and
+  never stores (the frame is 8 bytes instead of 0x14). The three locals (declared z, y, x) reproduce the engine's
+  loads, its `add ecx, 4` artifact and its order, so only the SSE/x87 choice is left - the same wall
+  `0x102CDFB0 BulletTracerState::GetDistanceFade` hit; it needs a shared answer.
+- `0x102DDD30 CellLoaded` / `0x102DDE30 CellUnloaded` are at **86.8 % / 62 %** and are blocked on one fact:
+  the engine's `MidgroundCellRecord` is **0x18 bytes** for four members that are 0x14, and its copy leaves the tail
+  four bytes alone - the record is eight-byte aligned there because the engine's `core::Name` is (its hash is one
+  64-bit word). The tree's `code/core/name.h` declares it as two 32-bit words, so the record is 0x14 and the array
+  strides 0x14. Every other byte of both functions is the engine's (verified by putting the alignment back:
+  `__declspec(align(8))` on the struct, on the last member, or a union with a `double`, all make the compiler
+  realign the frame with `and esp, -8`, which the engine does not have). **`code/core/name.h` is a core header, so
+  this session did not touch it: whoever owns it should decide whether `core::Name` carries an 8-byte-aligned
+  64-bit hash, which would also shift any other struct that holds one.**
+- The class layout `MidgroundManager` needed was the vftable pointer: the engine's class is polymorphic (RTTI base
+  `engine::RenderTask::PresentationTask`, vftable 0x10DEAB90) and its constructor 0x102DE380 writes the vftable at
+  +0 and a byte 1 at +4, then the scale at +8. Without a virtual member everything after it was 8 bytes off. The
+  header now declares a destructor (declared, never defined, so no vftable of ours is emitted) and the base's word.
+
 0x107DECD0's `?GetHeapKindName@engine@@YAPBDH@Z` symbol in symbols.txt names an internal-linkage function: the
 engine's own table entry for it.
 

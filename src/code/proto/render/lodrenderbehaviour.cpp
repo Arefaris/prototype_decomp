@@ -10,7 +10,8 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DA540
-	// NONMATCHING: the coordinate differences in SSE vs x87, 30 % in the build (reported matched by the agent, not reproduced)
+	// NONMATCHING: the engine computes the three coordinate differences in SSE and spills them for the x87 sum; this
+	// compiler evaluates the whole expression on the x87 stack (same values and order, 28 %)
 #ifdef NONMATCHING
 	void LODRenderBehaviour::UpdateFade()
 	{
@@ -27,10 +28,10 @@ namespace proto
 			return;
 		}
 		const math::Matrix& transform = owner->transform->value;
-		math::Vector difference(transform.m[3][0] - camera->position.x,
-			transform.m[3][1] - camera->position.y, transform.m[3][2] - camera->position.z);
-		float distance = sqrtf(difference.z * difference.z + difference.y * difference.y
-			+ difference.x * difference.x);
+		float dz = transform.m[3][2] - camera->position.z;
+		float dy = transform.m[3][1] - camera->position.y;
+		float dx = transform.m[3][0] - camera->position.x;
+		float distance = sqrtf(dz * dz + dy * dy + dx * dx);
 		float scale = gLODDetailScale->GetScale(camera);
 		float divisor = scale > 1.0f ? scale : 1.0f;
 		float value = fadeScale * gLODDistanceScale * (distance / divisor);

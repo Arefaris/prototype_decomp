@@ -70,7 +70,11 @@ namespace proto
 		MidgroundCellData* unknown54;
 	};
 
-	// One cell the manager has loaded: its name, the drawable it streams in and the manager's scale (name guess)
+	// One cell the manager has loaded: its name, the drawable it streams in and the manager's scale (name guess).
+	// Its four members are 0x14 bytes, but the engine steps through the array 0x18 at a time and the copy into it
+	// leaves the last four bytes alone: the record is eight-byte aligned there because the engine's core::Name is (a
+	// 64-bit hash). Ours is two 32-bit words, so this record is 0x14 and the two walking functions are NONMATCHING
+	// until core::Name's alignment is settled; the member layout is otherwise the engine's.
 	struct MidgroundCellRecord
 	{
 		core::Name<core::CaseSensitiveKey> name;
@@ -82,6 +86,13 @@ namespace proto
 	class MidgroundManager
 	{
 	public:
+		// The class is polymorphic in the engine (RTTI base engine::RenderTask::PresentationTask, vftable
+		// 0x10DEAB90). That base is not recovered yet, so the vftable pointer and its own word at +0x04 are declared
+		// here and no destructor is defined: the compiler then emits no vftable of ours for the class.
+		virtual ~MidgroundManager();
+		// +0x04: the base class's own word, a byte set to 1 by the constructor 0x102DE380
+		unsigned char unknown4[4];
+
 		// 0x102DDD30: the cell's drawable is shown and the cell is recorded
 		void CellLoaded(MidgroundCell* cell);
 		// 0x102DDE30: the cell's drawable is taken down and its record erased
