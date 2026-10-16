@@ -2345,6 +2345,14 @@ Matching notes:
 
 NONMATCHING:
 
+- 0x102DA540 `LODRenderBehaviour::UpdateFade` (second session): the engine materialises the three coordinate
+  differences in SSE (it loads both members of each pair into a register and stores the difference to the vector's
+  slot at +8 / +0xC / +0x10, then reloads them with `fld` for the squares), our build keeps them on the x87 stack
+  and folds `camera->position` into the `fsub`, 30 %. Tried a `Vector` temporary built from the three differences,
+  three float locals, the squares in both orders (`z*z + y*y + x*x`, the order the engine's other length code
+  writes, gives the engine's component order but not its instructions) and the detail-scale call before and after
+  the distance. The engine's frame is five dwords (the scale at +0, the distance at +4, the three differences at
+  +8 / +0xC / +0x10); ours is two.
 - 0x107DECD0 `GetHeapKindName`: the heap kind arrives in **eax**, not on the stack, 0 %. `OnAllocFail` (0x107DED20)
   already holds it there, so the compiler gave this internal function a register parameter - a convention MSVC 2005
   hands out only under whole-program optimisation, so plain `/O2` puts the argument on the stack and the switch can
@@ -2384,7 +2392,39 @@ Not started (the reason each is blocked, not just "unknown"):
 - `0x102DDD30` / `0x102DDE30` / `0x102DE130` (`proto::MidgroundManager`, vtable 0x10DEAB90, constructor 0x102DE380):
   the cell list is 0x18-byte records between +0x44 and +0x48, and the three need 0x102DD6F0, 0x1007EE20,
   0x1005E500, 0x10061ED0 / 0x10061F10 and 0x107EDE50 / 0x107ED900 named first.
+  Read in the second session: +0x1C is a hash map (its own +0 is the table pointer), the key is the 8 bytes of
+  `cell->field54->name.GetHash()` and the value is the cell's `render::Drawable`; the table is
+  `{mask, used, ?, ?, ?, ?, ?, heap, void* buckets[], Key keys[], sentinel at the table's own +0x24}` and the unit
+  holds copies of its `Find` (0x102DD6F0), `Find` from an index (0x102DD7B0), `Next` (0x102DD3B0), `Insert`
+  (0x102DDAD0) and `Grow` (0x102DDBA0). The iterator both functions build on the stack is seven dwords
+  (`table`, +4, the 8-byte key, +0x10, +0x14, +0x18), of which only +4, +8, +0x10, +0x14 and +0x18 are zeroed.
+  The record (`+0x44` .. `+0x48`, capacity at +0x4C) is `Name name; Drawable drawable; int unknownC; float unknown10;`,
+  and `0x102DDE30` erases one by moving the last record over it (`Name::operator=` then the three fields, the float
+  with `fld` / `fstp`). To reach them the map class must be declared here with that exact iterator: nothing in the
+  tree has it yet (0x102F6470, `engine::AudioParameterTable::Find`, is a different table).
+  The cell is reached through its +0x54, and the `%s_midground` name of `0x102DE130` goes through
+  0x1082E010 / 0x108258B0 / 0x108258C0 and the `content::LoadInventory` iterator (0x102D22C0 / 0x102D2830).
+
+Layouts recovered in the second session (all in headers, nothing compiled yet):
+
+- `proto::LODRenderBehaviour` derives from `engine::Behaviour` (0xC bytes), so its own members start at +0x0C:
+  +0x0C the pose source (a `pure3d::Pose` at its +4), +0x10 the scale source (a `math::Vector` at its +4),
+  +0x1C / +0x24 the level records of the level drawn and +0x20 / +0x28 the ones drawn before it was forced,
+  +0x2C the drawable the animation plays on, +0x30 the object the levels come from with the chosen index at +0x34,
+  +0x38 the distance range the object is in, +0x3C `minimumLevels`, +0x40 / +0x44 the ready drawables (0x10-byte
+  records), +0x50 / +0x54 the level table (8-byte records: a `render::Drawable` and four more bytes),
+  +0x60 the level drawn, +0x64 the fade, +0x68 a second fade (0x102D9BF0 advances it by the level's rate × dt),
+  +0x6C / +0x70 / +0x74 the fade-in position and its target and scale, +0x78 the behaviour's fade-distance
+  multiplier, +0x90 / +0x94 / +0x98 the level object's heap, +0x9C the flags. `UpdateLevel` still matches with the
+  real base class. The unit's globals are 0x11075114 (the three distance thresholds), 0x11075120 (a distance
+  multiplier, 1.0), 0x1107517C (three 12-byte records: minimum, maximum, rate) and 0x11263108 (the pointer the
+  fade asks for the camera's detail scale through, 0x1032C430: `scale / camera->+0x2C`, 1 without one).
+- `engine::camera::Camera` has its world position at +0xC0 (a `math::Vector`); `Director::GetCameraUnknown40`
+  hands out the word at the camera's +0x40, which the LOD code uses as a camera of its own.
 
 Shared headers touched: `code/engine/system/streampackage.h` (`StreamPackage::unknown4C` is a `math::Vector`, the
-centre of the trigger's box the manager writes into it) and `code/pure3d/shadows/shadowrendermanager.h` (the class's
-layout grew to its real 0x34 bytes, plus the constructor, `Create` and `gShadowMapHeap`).
+centre of the trigger's box the manager writes into it), `code/pure3d/shadows/shadowrendermanager.h` (the class's
+layout grew to its real 0x34 bytes, plus the constructor, `Create` and `gShadowMapHeap`) and, in the second session,
+`code/engine/camera/camera.h` (the position at +0xC0) and `code/proto/render/lodrenderbehaviour.h` (the base class,
+the members above and `LODRange` / `gLODRanges` / `gLODDistanceScale` / `LODDetailScale` / `gLODDetailScale`, four
+of whose symbols are in symbols.txt but referenced by nothing yet).
