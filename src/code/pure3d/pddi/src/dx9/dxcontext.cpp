@@ -4,6 +4,18 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1061B530
+	int dxContext::GetUnknown8()
+	{
+		return unknown8;
+	}
+
+	// FUNCTION: ENGINE 0x1061B540
+	IDirect3DDevice9* dxContext::GetUnknownC()
+	{
+		return unknownC;
+	}
+
 	// FUNCTION: ENGINE 0x1061B550
 	dxTexture* dxContext::NewTexture(const TextureDescription* description)
 	{

@@ -14,6 +14,9 @@ namespace pure3d
 	class dxContext : public pddiBaseContext
 	{
 	public:
+		// 0x1061B530 / 0x1061B540: the words the factories above use
+		int GetUnknown8();
+		IDirect3DDevice9* GetUnknownC();
 		// 0x1061B550 / 0x1061B5A0: a texture from the pool, released again when the description cannot be built
 		dxTexture* NewTexture(const TextureDescription* description);
 		dxTexture* NewTexture(const TextureDescription* description, const TextureLevels* levels);

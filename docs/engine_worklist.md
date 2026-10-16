@@ -2301,7 +2301,7 @@ Still not done in this range:
   Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
   pool at `this + 0x18`, so the gate and the job classes have to be placed first.
 
-## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B550 - 0x1062B800): started, 6 functions match
+## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 9 functions match
 
 The units are named by the two assert paths the range keeps (`dxdefaultpoolmanager.cpp` in 0x106238B0 and
 `dxvertexdeclaration.cpp` in 0x1062B170 / 0x1062B710); the others are guessed from their contents. Done so far:
@@ -2312,7 +2312,14 @@ The units are named by the two assert paths the range keeps (`dxdefaultpoolmanag
 - `pure3d::dxVertexDeclaration` (0x10625AC0) and the manager's statistics dump (0x1062B710) in
   `src/code/pure3d/pddi/src/dx9/dxvertexdeclaration.cpp`.
 - `pure3d::dxVertexBuffer::dxVertexBuffer` (0x106262D0), `dxContext::NewTexture` (0x1061B550 / 0x1061B5A0),
-  `dxContext::NewVertexBuffer` (0x1061B600) and `dxContext::NewIndexBuffer` (0x1061B660).
+  `dxContext::NewVertexBuffer` (0x1061B600), `dxContext::NewIndexBuffer` (0x1061B660), the two `dxContext`
+  accessors 0x1061B530 (`+8`) and 0x1061B540 (the device at +0xC), and `IsTextureFormatSupported` (0x1061C360), the
+  format test the two texture creations open with. That one is an **if-chain of `==` joined by `||`**, not a
+  `switch`: the values 0x46 - 0x53 are dense enough that a switch becomes a jump table, and it returns a 32-bit 0 /
+  1 (`mov eax, 1`), not the `bool` its callers' `test al, al` suggests.
+- Two more findings of the unit: the four-byte member holders of `dxTexture` are released by **free function
+  templates** `ReleaseRef<T>(T**)` (the argument is on the stack, so these are not destructors; one copy per T,
+  0x1061CA90 - 0x1061CB10), and 0x1061C8F0 validates and copies a texture description into the object.
 
 New headers: `code/pure3d/pddi/dx9/d3d9.h` (the COM interfaces; the toolchain has no SDK, and the engine's calls
 are the C form `device->lpVtbl->Method(device, ...)`, so the entries are `__stdcall` and the interface is pushed),
