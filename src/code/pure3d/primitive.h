@@ -478,11 +478,15 @@ namespace pure3d
 		void SubmitTask();
 		// 0x1071EFB0: the pointer at +0x1C
 		void* GetUnknown1C();
+		// 0x1071EFE0: unlocks the vertex buffer when there is one
+		void UnlockBuffer();
+		// 0x1071F000: fills the buffer's descriptor
+		void FillBufferDesc(int value);
 
 		void* unknown1C;
 		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
 		core::AsyncTaskJob job;
-		unsigned char unknown64[0xC];
+		unsigned char unknown68[8];
 		Pose* pose;
 		unsigned char unknown74[0xD0];
 		// 0x144: the vertex buffer the skinned vertices go into

@@ -5,6 +5,7 @@
 #include "code/core/interlocked.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/primstream.h"
 
 namespace pure3d
 {
@@ -215,10 +216,72 @@ namespace pure3d
 		job.Submit(0);
 	}
 
+	// FUNCTION: ENGINE 0x1071EF00
+	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
+	// change every unit (40 %)
+#ifdef NONMATCHING
+	void Skin::GetBoundingBox(math::AABB* box)
+	{
+		box->max = bounds.max;
+		box->min = bounds.min;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1071EF40
+	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
+	// change every unit (52 %)
+#ifdef NONMATCHING
+	void Skin::SetBoundingBox(const math::AABB& box)
+	{
+		bounds.max = box.max;
+		bounds.min = box.min;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1071EF80
+	// NONMATCHING: the engine copies the four components through fld/fstp; needs a user-defined
+	// Vector4::operator=, which would change every unit (55 %)
+#ifdef NONMATCHING
+	void Skin::SetCentre(const math::Vector4& value)
+	{
+		centre = value;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1071EFB0
 	void* Skin::GetUnknown1C()
 	{
 		return unknown1C;
+	}
+
+	// FUNCTION: ENGINE 0x1071EFE0
+	void Skin::UnlockBuffer()
+	{
+		if (buffer != 0)
+		{
+			buffer->Unlock();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071F000
+	void Skin::FillBufferDesc(int value)
+	{
+		if (buffer != 0)
+		{
+			buffer->Unknown10625FA0(value);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071F9B0 (slot 9 of the vtable)
+	int Skin::GetUnknown294()
+	{
+		return unknown294;
+	}
+
+	// FUNCTION: ENGINE 0x1071F9C0 (slot 10 of the vtable)
+	void Skin::SetUnknown294(int value)
+	{
+		unknown294 = value;
 	}
 
 	// FUNCTION: ENGINE 0x10721160
