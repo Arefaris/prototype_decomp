@@ -289,11 +289,10 @@ namespace pure3d
 		return true;
 	}
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061C600
-	// NONMATCHING: register allocation, 17.9 %: the checks, the three lock paths and the description the caller
-	// gets back are all there; the engine keeps `level` in edx and reloads it from the argument slot after every
-	// call where this compiler caches it in ebx and shrinks the prologue around it, which shifts the whole body.
+	// EQUIVALENT: register allocation, 8 %: the engine keeps `level` in edx and reloads it from the argument slot
+	// after every call where this compiler caches it in ebx and shrinks the prologue around it, which shifts the
+	// whole body. Both bodies make the same device calls with the same arguments and leave the same description.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)
@@ -348,7 +347,7 @@ namespace pure3d
 			lock->slice = slice;
 			lock->width = levelData_->width;
 			lock->height = levelData_->height;
-			lock->format = d3dFormat;
+			lock->format = description.format;
 			lock->size = levelData_->size;
 			lock->unknown1C = 1;
 			if (description.type == 3)
@@ -381,7 +380,6 @@ namespace pure3d
 		}
 		return false;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth

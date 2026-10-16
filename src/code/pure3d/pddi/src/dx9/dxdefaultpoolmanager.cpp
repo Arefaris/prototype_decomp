@@ -213,9 +213,8 @@ namespace pure3d
 		core::CriticalSectionLeave(gDefaultPoolLock);
 	}
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x10623FB0
-	// NONMATCHING: scheduling, 27.4 %. Every loop, every call and every argument is the engine's (the five arrays in
+	// EQUIVALENT: scheduling, 27.4 %. Every loop, every call and every argument is the engine's (the five arrays in
 	// their order, the scaled path's unsigned-int conversion of the display size, the vertex buffer's lock/copy/unlock,
 	// the particle and shadow managers at the end); the engine reloads the manager into ecx later than this compiler
 	// does and interleaves the pushes with the address computations differently, which shifts every block behind it.
@@ -227,7 +226,7 @@ namespace pure3d
 			core::CriticalSectionEnter(gDefaultPoolLock);
 			for (unsigned int i = 0; i < gDefaultPoolManager->textures.Size(); i++)
 			{
-				if (gDefaultPoolManager->textures[i]->scale == 1.0f)
+				if (gDefaultPoolManager->textures[i]->scale == 0.0f)
 				{
 					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateTexture(
 						gDefaultPoolManager->device, gDefaultPoolManager->textures[i]->width,
@@ -288,7 +287,7 @@ namespace pure3d
 			{
 				gDefaultPoolManager->renderTargets[i]->multiSample =
 					GetMultiSampleType(engine::gRenderDisplay->GetUnknown28());
-				if (gDefaultPoolManager->renderTargets[i]->scale == 1.0f)
+				if (gDefaultPoolManager->renderTargets[i]->scale == 0.0f)
 				{
 					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateRenderTarget(
 						gDefaultPoolManager->device, gDefaultPoolManager->renderTargets[i]->width,
@@ -317,7 +316,7 @@ namespace pure3d
 			{
 				gDefaultPoolManager->depthStencils[i]->multiSample =
 					GetMultiSampleType(engine::gRenderDisplay->GetUnknown28());
-				if (gDefaultPoolManager->depthStencils[i]->scale == 1.0f)
+				if (gDefaultPoolManager->depthStencils[i]->scale == 0.0f)
 				{
 					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateDepthStencilSurface(
 						gDefaultPoolManager->device, gDefaultPoolManager->depthStencils[i]->width,
@@ -350,5 +349,4 @@ namespace pure3d
 			gDefaultPoolManager->released = false;
 		}
 	}
-#endif
 }

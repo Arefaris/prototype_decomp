@@ -82,6 +82,21 @@ namespace pure3d
 		int unknown10;
 	};
 
+	// What the device's slot 24 hands out for a set of flags (a query on the device; the name and the slots are
+	// guesses, only slot 7 is used)
+	class pddiQuery
+	{
+	public:
+		virtual void Unknown0();
+		virtual void Unknown1();
+		virtual void Unknown2();
+		virtual void Unknown3();
+		virtual void Unknown4();
+		virtual void Unknown5();
+		virtual void Unknown6();
+		virtual bool Unknown7();
+	};
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
@@ -120,7 +135,7 @@ namespace pure3d
 		virtual void Unknown21();
 		virtual void Unknown22();
 		virtual void Unknown23();
-		virtual void Unknown24();
+		virtual pddiQuery* Unknown24(int flags);
 		virtual void Unknown25();
 		virtual void Unknown26();
 		virtual void Unknown27();

@@ -18,7 +18,7 @@ namespace pure3d
 		int width;
 		int height;
 		int levels;
-		// The fraction of the display's width and height it is made with again (1.0 for the size it was asked for)
+		// The fraction of the display's width and height it is made with again (0 for the size it was asked for)
 		float scale;
 		int usage;
 		unsigned int format;

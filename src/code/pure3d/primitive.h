@@ -68,7 +68,21 @@ namespace pure3d
 		int unknown4;
 	};
 
-	class Expression;
+	// A mesh expression (a morph): the offsets its skin state adds to the vertices, three floats a vertex each,
+	// null when the expression has none of a kind. The rest of the class lives in the expression unit.
+	class Expression
+	{
+	public:
+		// 0x1073F220
+		void Prepare();
+
+		unsigned char unknown0[0x10];
+		const float* positionOffsets;
+		const float* normalOffsets;
+		unsigned char unknown18[4];
+		const float* tangentOffsets;
+	};
+
 	class ExpressionState;
 
 	class VertexOffsetExpressionMixer : public Entity
@@ -496,7 +510,7 @@ namespace pure3d
 		math::Vector4 position;
 		math::Vector4 normal;
 		math::Vector4 tangent;
-		math::Vector4 unknown30;
+		math::Vector4 weights;
 		unsigned short bones[4];
 		unsigned char unknown48[8];
 	};
@@ -508,8 +522,8 @@ namespace pure3d
 		math::Vector4 position;
 		math::Vector4 normal;
 		math::Vector4 tangent;
-		math::Vector4 unknown30;
-		math::Vector4 unknown40;
+		math::Vector4 weights;
+		math::Vector4 offset;
 		unsigned short bones[4];
 		unsigned char unknown58[8];
 	};
@@ -559,6 +573,31 @@ namespace pure3d
 		// 0x1071B9A0: skins the vertices with the pose's skinning matrices, one bone each (the position through
 		// the 4x4, the normal and the tangent through the 3x3), and writes the box of the positions
 		void Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071B610: the same with the four bones of each vertex blended by its weights (the first step checks the
+		// device and does nothing when it answers)
+		void Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071BBD0 / 0x1071BEE0: the same without the tangent (four bones / one bone each)
+		void Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071BEE0(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071C0C0 / 0x1071C390: the positions only
+		void Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071C390(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071C530 - 0x1071D770: the same with the expression's offsets added to the vertices first (the
+		// positions, normals and tangents, then the positions and normals, then the positions only; four bones or
+		// one each) and 0x1071D960 - 0x1071E8F0 for the wider vertex record, which carries a second position
+		// offset: the outputs are the skinned positions, normals and tangents and then the skinned offset
+		void Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071DD60(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E390(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E8F0(math::Vector4* out, const SkinVertex2* vertices, int count);
 
 		// 0x107211D0: the flag at +0x2AC (the state blends two poses while it is set)
 		bool GetUnknown2AC();
