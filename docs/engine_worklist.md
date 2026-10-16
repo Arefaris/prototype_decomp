@@ -2770,7 +2770,8 @@ and 0x11281828 (the number of running jobs); 0x1071F780 `SubmitPendingSkins` dra
 - One unused-by-us helper: `SubmitTask` (0x1071EAE0) sits at the top of the Skin layout and is called from
   0x1071F780, so the `job` member has to stay at +0x20.
 
-Remaining, in address order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
+0x1071B310 / 0x1071B490 are written now (both NONMATCHING, see the end of the section). Remaining, in address
+order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
 four `unsigned short` indices sit at +0x40 / +0x50; their source is four statement-shaped accumulations -
 `out = m0 * w0; out += m1 * w1; ...`, each row of the record transformed by a different bone - so they are
 `BlendRows4`/`BlendRows3`-like but written as accumulate-into-memory, and 0x1071F060 shows the same helper family),
@@ -2835,15 +2836,68 @@ Not done, with the reason:
   (+0 valid, +4 pointer, +8 / +0xC / +0x10, +0x14 count) and of `core::SafeRelease<T>`; the template arguments are
   not readable off the bodies (identical code) and have to come from the callers or from other units
 
+**The box and centre accessors are matched now** (0x1071B130, 0x1071B170, 0x1071EF00, 0x1071EF40, 0x1071EF80, all
+100 % on 2026-10-16, third session): the component-wise copies of the "three ways" above are what they needed, and
+no user-defined `operator=` was invented. The NONMATCHING list those five sat in was stale.
+
+**The skinning paths' source shape, settled (2026-10-16, third session).** Every one of the 21 large paths is the
+same skeleton - widen the vertex's rows, blend one bone's four rows per lane of a weight vector, fix the fourth lane
+of each result by hand, store three rows, accumulate the first row into the box - and four details of it are what
+the engine's bytes ask for. Measured with variants of 0x1071B9A0 compiled on their own:
+
+- the two box accumulators are **`math::Vector4` locals** (`math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f,
+  -1e12f);`), not `__m128` from `_mm_set_ps`: `_mm_set_ps` / `_mm_set1_ps` / `_mm_setr_ps` all store their four
+  lanes in *descending* address order and then copy the vector to the local, where the engine stores them
+  **ascending** with no copy - which is `Vector4(float, float, float, float)`'s four member assignments. The
+  accumulation itself is `*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);` and the box write then reads
+  `maxBounds.x` / `.y` / `.z`;
+- the loop is **`for (unsigned int i = count; i > 0; i--)`** over a copy of the `int count` argument: the engine's
+  guard is `test eax, eax` + **`jbe`** (an unsigned compare), where `while (count != 0)` gives `je` and
+  `while (count > 0)` on the signed argument gives `jle`;
+- the matrix rows are passed to the blend helpers **straight from memory** (`BlendRows4(_mm_load_ps(bone.m[0]), ...)`)
+  rather than through `__m128 m0..m3` locals. This one matters most: with the locals the compiler loads all four
+  rows up front, and it then allocates the two blend temps and the first two rows *mirrored* (the x broadcast to
+  xmm7 where the engine has xmm6 and row0 to xmm3 where the engine has xmm4), which is the 18 % the second session
+  reported. Passing the loads inline makes the whole loop body **come out instruction for instruction**, the x
+  broadcast in xmm6, y in xmm7, row0 in xmm4, row1 in xmm3, row2 in xmm5, row3 in xmm0;
+- `_mm_empty()` sits between the loop and the box write, in 0x1071B9A0 and in 0x1071B610 (and 0x1071C0C0) alike.
+
+What is left of 0x1071B9A0 is its frame: the engine spills **both** `this` and `matrices` (0x74 bytes of frame,
+`matrices` re-read as `[esp+0x18]` in the loop and the bone address materialised in edx/edi), this compiler keeps
+`matrices` in `ebx`, folds it into the addressing modes and needs 0x64 bytes, which moves the whole function.
+Making the loads inline made it *worse* positionally (13 %) than the locals were (18 %) even though the loop body
+is now right, because the frame is 16 bytes shorter and everything after shifts.
+
+**The 19 skinning paths that are left (0x1071B610, 0x1071BBD0, 0x1071BEE0, 0x1071C0C0, 0x1071C390, 0x1071C530,
+0x1071CA40, 0x1071CDC0, 0x1071D1B0, 0x1071D440, 0x1071D770, 0x1071D960, 0x1071DD60, 0x1071DFF0, 0x1071E390,
+0x1071E5D0, 0x1071E8F0 and 0x10720CF0) are not reconstructed.** They are 500 - 1100 byte SSE loops of exactly the
+family the four details above settle - 0x1071C390 is the one-bone case (four rows widened by one bone's 4x4, the
+position through `BlendRows4`, the normal and the tangent through `BlendRows3`, three `movups` stores, the same
+box), 0x1071B610 the four-bone one whose weights are the vertex's own fourth row at +0x30 and whose matrix is built
+by blending four bone matrices' *rows* with those weights by the same `BlendRows4`, and the rest the same with the
+expression, the second pose and the vertex-format flag of 0x10720CF0's six-way dispatch switching between them.
+0x10720CF0 itself is the one that is not a loop at all (its layout is readable in the pseudocode: the pose's vertex
+declaration, the lock, the two asserts at 0x87B / 0x880, the three offset triples at +0x2E8 / +0x300 / +0x318 and
+the `SkinJobEntry` push at +0x33C). Writing them is not the work; the work is the frame each of them ends up with,
+and that is the wall below, so the session stopped rather than write nineteen functions it could not close.
+
 NONMATCHING:
 
-- 0x1071B130 SkinState::GetBoundingBox: the engine copies the box through fld/fstp; needs a user-defined
-  Vector::operator=, which would change every unit (the instructions are the same, integer moves instead)
-- 0x1071B170 SkinState::SetBoundingBox: same reason
-- 0x1071EF00 Skin::GetBoundingBox: same reason, 40 %
-- 0x1071EF40 Skin::SetBoundingBox: same reason, 52 %
-- 0x1071EF80 Skin::SetCentre: the four components go through fld/fstp; needs a user-defined Vector4::operator=,
-  which would change every unit, 55 %
+- 0x1071ED50 Skin::Draw: register allocation (the engine's state in edi, skin in esi, binding source in ebx and
+  group count in ebp are our esi, edi, ebp, ebx) plus the tail the engine clones into the blend path (the nine
+  argument pushes of its PrimDrawDesc, the count as the constant 3 there and in ebp in the other path, 29 bytes we
+  do not emit); declaring the source before the groups and the count, the one thing the engine's instruction order
+  suggests, keeps the shape and only moves the percentage down to 16.7 %. 21.6 %
+- 0x1071B9A0 SkinState::Unknown1071B9A0: register allocation (the engine spills `this` and `matrices`, we keep
+  `matrices` in a register and fold it into the addressing modes), 13 %, best 18 % with the rows in locals
+- 0x1071B310 / 0x1071B490 BlendBoneRows / BlendBoneRowsWide: register allocation, 21 %. The body is the engine's
+  block for block (one lane of the weights widened per phase, the four rows of one bone multiplied by it, the first
+  phase storing and the other three accumulating into memory) and there is not a branch in it, but the engine
+  re-reads every one of its seven argument pointers from the stack once per phase (45 bytes of reloads this
+  compiler does not need) and materialises the first bone's address in edx, so its allocation cannot be
+  reproduced from the source. Both take the same shape: `(const <vertex>*, const math::Matrix*, const
+  math::Vector4* weights, math::Vector4* row0..row3)`, the vertex's four `unsigned short` bone indices at +0x40
+  (SkinVertex) resp. +0x50 (SkinVertex2, one more row of four floats, 0x60 bytes).
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 

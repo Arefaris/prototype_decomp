@@ -476,6 +476,19 @@ namespace pure3d
 		unsigned char unknown48[8];
 	};
 
+	// The wider vertex record 0x1071B490 blends: one more row of four floats before the bone indices, so they sit
+	// at +0x50 (0x60 bytes)
+	struct SkinVertex2
+	{
+		math::Vector4 position;
+		math::Vector4 normal;
+		math::Vector4 tangent;
+		math::Vector4 unknown30;
+		math::Vector4 unknown40;
+		unsigned short bones[4];
+		unsigned char unknown58[8];
+	};
+
 	// The two poses a skin state blends over: the one at +0x7C is built by the state's Init, the one at +0x194 only
 	// when it animates two of them (the flag at +0x2AC). mPoses holds the two of them.
 	class SkinState : public PrimitiveState
