@@ -18,6 +18,7 @@ at it), SAME with the coverage of the engine's basic blocks, NOT REACHED (no sta
 import argparse
 import bisect
 import pathlib
+import struct
 import sys
 import time
 
@@ -65,6 +66,7 @@ class FunctionTest:
 		self.pageStore = store.PageStore()
 		self.lines = []
 		self.noted = False
+		self.touched = {}  # state path -> set of snapshot pages the runs on it read or wrote
 
 	def say(self, text=""):
 		self.lines.append(text)
@@ -118,38 +120,50 @@ class FunctionTest:
 
 	# --- dynamic: one state ------------------------------------------------------------------------------------
 
-	def runState(self, state, label, overlay=None, policyVariant=0):
+	def runState(self, state, label, overlay=None, policyVariant=0, emulator=None):
 		policy = externals.Policy(policyVariant)
 		engineRange = (self.address, self.address + self.size)
-		me = machine.Machine(state, self.pageStore, overlay, policy, self.functionStarts, watch=[engineRange])
-		engineTrace = me.run(self.address, self.argBytes, self.budget, self.timeout)
-		mo = machine.Machine(state, self.pageStore, overlay, externals.Policy(policyVariant), self.functionStarts)
+		if emulator is None:
+			emulator = machine.Machine(state, self.pageStore, overlay, policy, self.functionStarts)
+		else:
+			emulator.policy = policy
+			emulator.setOverlay(overlay)
+		engineTrace = emulator.run(self.address, self.argBytes, self.budget, self.timeout, watch=[engineRange])
+		loaded = emulator.loaded
+		if loaded is None:
+			def importFallback(name):
+				"""A C runtime import (`_memcpy`, `__imp__memset`): the engine's IAT slot, or what it holds."""
+				viaSlot = name.startswith("__imp_")
+				base = (name[6:] if viaSlot else name).split("@")[0]
+				imports = self.image.imports()
+				# a C symbol carries one leading underscore (`__purecall` is the import `_purecall`)
+				slot = imports.get(base[1:] if base.startswith("_") else base) or imports.get(base.lstrip("_"))
+				if slot is None:
+					return None
+				if viaSlot:
+					return slot
+				data = emulator.readSnapshot(slot, 4)
+				return struct.unpack("<I", data)[0] if data is not None else None
 
-		def importFallback(name):
-			"""A C runtime import (`_memcpy`, `__imp__memset`): the engine's IAT slot, or what it holds."""
-			viaSlot = name.startswith("__imp_")
-			base = (name[6:] if viaSlot else name).split("@")[0]
-			imports = self.image.imports()
-			# a C symbol carries one leading underscore (`__purecall` is the import `_purecall`)
-			slot = imports.get(base[1:] if base.startswith("_") else base) or imports.get(base.lstrip("_"))
-			if slot is None:
-				return None
-			return slot if viaSlot else mo.u32(slot)
-
-		try:
-			loaded = loader.load(self.obj, self.symbol, mo.write, mo.layout.code, mo.layout.data, self.unitMode, importFallback)
-		except loader.LoadError as e:
-			return Result(label, [], engineTrace, None, None, error=str(e))
-		# functions placed beside ours (local helpers), not the compiler's labels inside them ($LN8)
-		mo.ours = {a: n for n, a in loaded.placed.items() if mo.layout.code <= a < mo.layout.data and not n.startswith("$")}
+			try:
+				loaded = loader.load(self.obj, self.symbol, emulator.write, emulator.layout.code, emulator.layout.data, self.unitMode, importFallback)
+			except loader.LoadError as e:
+				result = Result(label, [], engineTrace, None, None, error=str(e))
+				result.machine = emulator
+				return result
+			# functions placed beside ours (local helpers), not the compiler's labels inside them ($LN8)
+			emulator.ours = {a: n for n, a in loaded.placed.items() if emulator.layout.code <= a < emulator.layout.data and not n.startswith("$")}
+			emulator.resetToClean()  # the engine run's writes are not part of our clean memory
+			emulator.seal()
+			emulator.loaded = loaded
 		oursRange = (loaded.entry, loaded.entry + loaded.size)
-		mo.watch = [oursRange]
-		oursTrace = mo.run(loaded.entry, self.argBytes, self.budget, self.timeout)
-		context = compare.Context(me, mo, self.returnKind, self.argBytes, engineRange, oursRange)
+		oursTrace = emulator.run(loaded.entry, self.argBytes, self.budget, self.timeout, watch=[oursRange])
+		context = compare.Context(emulator, emulator, self.returnKind, self.argBytes, engineRange, oursRange)
 		context.placedVtables = {a: n for n, a in loaded.placed.items() if n.startswith("??_7")}
 		findings = compare.compareTraces(engineTrace, oursTrace, context)
 		result = Result(label, findings, engineTrace, oursTrace, context)
 		result.loaded = loaded
+		result.machine = emulator
 		return result
 
 	def blocksHit(self, traces):
@@ -200,7 +214,7 @@ class FunctionTest:
 		if doVariants and realResults:
 			variantResults = self.runVariants(realResults, states, variantHit, verbose, maxVariants)
 		fuzzResults = []
-		if fuzz and realResults:
+		if fuzz and realResults and not any(r.worst() == "FAIL" for r in variantResults):
 			fuzzResults = self.runFuzz(realResults, states, variantHit, verbose, fuzz)
 		unreached = [b for b in self.blocks if b not in variantHit]
 		self.say("coverage with variants: %d/%d engine blocks%s" % (len(variantHit), len(self.blocks),
@@ -211,6 +225,11 @@ class FunctionTest:
 				h, _ = self.oursBlocks(r)
 				oursHit |= h
 		self.say("coverage of ours: %d/%d blocks" % (len(oursHit), len(oursBlocks)))
+		self.touched = {}
+		for r, path in zip(realResults, states):
+			machine = getattr(r, "machine", None)
+			if machine is not None:
+				self.touched[str(path)] = set(machine.touched)
 		verdict = self.verdict(conventionFindings, realResults, variantResults + fuzzResults, realHit, variantHit)
 		self.say("verdict: %s" % verdict)
 		return verdict
@@ -219,8 +238,13 @@ class FunctionTest:
 		results = []
 		perState = max(1, maxVariants // len(realResults))
 		for result, path in zip(realResults, states):
+			if result.worst() in ("INCONCLUSIVE", "FAIL"):
+				# INCONCLUSIVE: the engine's own run does not complete, so perturbing it cannot add evidence.
+				# FAIL: the real state already differs, so the verdict is DIFFERENT and variants add no verdict.
+				continue
 			budget = perState
-			state = store.State.load(path)
+			machine = result.machine
+			state = machine.state
 			candidates = variants.perturbations(result.engine, result.context, result.context.engine)
 			# external answers that fail, as a variant class of its own
 			candidates.insert(0, ("externals fail (variant policy 1)", None))
@@ -228,7 +252,7 @@ class FunctionTest:
 			for label, overlay in candidates:
 				if budget <= 0:
 					break
-				variant = self.runState(state, "%s %s" % (path.name, label), overlay, 1 if overlay is None else 0)
+				variant = self.runState(state, "%s %s" % (path.name, label), overlay, 1 if overlay is None else 0, machine)
 				budget -= 1
 				tried += 1
 				if variant.error:
@@ -241,6 +265,9 @@ class FunctionTest:
 						if f.severity == "FAIL" or verbose:
 							self.say("    " + str(f))
 				results.append(variant)
+				if variant.worst() == "FAIL":
+					# a perturbed state differs: the verdict is already VARIANT-DIFFERENT
+					break
 			self.say("%s: %d sentinel variants tried" % (path.name, tried))
 		return results
 
@@ -248,11 +275,14 @@ class FunctionTest:
 		results = []
 		per = max(1, count // len(realResults))
 		for seed, (result, path) in enumerate(zip(realResults, states)):
-			state = store.State.load(path)
+			if result.worst() in ("INCONCLUSIVE", "FAIL"):
+				continue
+			machine = result.machine
+			state = machine.state
 			fails = 0
 			newTotal = 0
 			for label, overlay in variants.fuzzVariants(result.engine, result.context, result.context.engine, per, seed=seed + 1):
-				variant = self.runState(state, "%s %s" % (path.name, label), overlay)
+				variant = self.runState(state, "%s %s" % (path.name, label), overlay, 0, machine)
 				if variant.error:
 					continue
 				newBlocks = self.blocksHit([variant.engine]) - variantHit

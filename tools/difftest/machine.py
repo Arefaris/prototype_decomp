@@ -2,13 +2,22 @@
 overlay of perturbed bytes); only the engine image, our loaded function and the return page may execute, so a call
 into another module stops at its first instruction and is answered by externals.Policy. Every read and write, every
 call (a block starting at a known function entry), the instructions executed inside the tested functions and the
-end registers are recorded in a Trace."""
+end registers are recorded in a Trace.
+
+One Machine can run several times (the engine's function, ours, every sentinel variant) on the same state: run()
+restores the pages the previous run dirtied (the snapshot is immutable, so their bytes come straight back) and the
+entry registers, so the same emulator, its mappings and our loaded function are reused instead of rebuilt."""
 
 import struct
+import time
 
 from unicorn import Uc, UcError, UC_ARCH_X86, UC_MODE_32, UC_HOOK_MEM_UNMAPPED, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE, \
 	UC_HOOK_BLOCK, UC_HOOK_CODE, UC_HOOK_MEM_FETCH_PROT, UC_PROT_ALL, UC_PROT_READ, UC_PROT_WRITE, UC_MEM_FETCH_UNMAPPED, \
 	UC_MEM_READ_UNMAPPED, UC_MEM_WRITE_UNMAPPED
+try:
+	from unicorn import UC_HOOK_INSN
+except ImportError:
+	UC_HOOK_INSN = None
 from unicorn.x86_const import *
 
 from capstone import x86 as csx86
@@ -31,8 +40,28 @@ EFLAGS_MASK = 0x0CD5
 STACK_GROWTH = 0x100000
 ACCESS_NAMES = {UC_MEM_FETCH_UNMAPPED: "fetch", UC_MEM_READ_UNMAPPED: "read", UC_MEM_WRITE_UNMAPPED: "write"}
 
-
 FP = [UC_X86_REG_FP0, UC_X86_REG_FP1, UC_X86_REG_FP2, UC_X86_REG_FP3, UC_X86_REG_FP4, UC_X86_REG_FP5, UC_X86_REG_FP6, UC_X86_REG_FP7]
+
+# instruction counts, hook counts and wall time per hook, when profiling is on (bench.py --profile)
+PROFILE = False
+
+_rdtscImage = None
+
+
+def imageRdtsc():
+	"""The addresses of `rdtsc` in the engine image (scanned once; the original's fixed clock value must be
+	substituted in both runs or a real TSC would differ between them)."""
+	global _rdtscImage
+	if _rdtscImage is None:
+		data = project.image().data
+		base = project.image().base
+		addresses = set()
+		i = data.find(b"\x0F\x31")
+		while i != -1:
+			addresses.add(base + i)
+			i = data.find(b"\x0F\x31", i + 1)
+		_rdtscImage = addresses
+	return _rdtscImage
 
 
 def extended(value):
@@ -107,10 +136,6 @@ class Machine:
 	def __init__(self, state, pageStore, overlay=None, policy=None, functionStarts=None, watch=(), codeHook=True):
 		self.state = state
 		self.store = pageStore
-		self.overlay = overlay or {}
-		self.overlayPages = {}
-		for address, value in self.overlay.items():
-			self.overlayPages.setdefault(address & ~(PAGE - 1), {})[address] = value
 		self.policy = policy or externals.Policy()
 		self.entryAddress = None
 		self.functionStarts = functionStarts or set()
@@ -121,12 +146,23 @@ class Machine:
 		self.exports = externals.Exports(self.readSnapshot)
 		self.trace = Trace()
 		self.alignCache = {}
+		self.blockCache = {}  # block address -> (instruction count, [instruction addresses])
 		self.mapped = set()
 		self.invalid = None
 		self.entryEsp = 0
 		self.stackLow = 0
 		self.privateLimit = 0
 		self.ours = None
+		self.loaded = None
+		self.rdtsc = set(imageRdtsc())  # instruction addresses whose rdtsc gets a fixed value
+		self.touched = set()  # snapshot pages any run read or wrote (for --trim)
+		self.dirty = set()  # mapped pages the last run modified
+		self.clean = {}  # page -> bytes for mapped pages the snapshot does not hold (our code, grown stack)
+		self.overlay = {}
+		self.overlayPages = {}
+		self.stats = {"emu": 0.0, "block": 0.0, "read": 0.0, "write": 0.0, "code": 0.0, "external": 0.0,
+			"blocks": 0, "reads": 0, "writes": 0, "codes": 0, "externals": 0, "maps": 0, "emuCalls": 0}
+		self.lastBlock = None  # (instruction count, [instruction addresses]) of the block being executed
 		uc = self.uc = Uc(UC_ARCH_X86, UC_MODE_32)
 		for address in (self.layout.code, self.layout.data):
 			uc.mem_map(address, 0x100000, UC_PROT_ALL)
@@ -136,12 +172,21 @@ class Machine:
 			self.mapped.add(address)
 		uc.mem_write(self.layout.ret, b"\x90" * 16)
 		self.setupSegments(state.header.get("fsBase", 0))
+		self.setOverlay(overlay)
 		uc.hook_add(UC_HOOK_MEM_UNMAPPED, self.onUnmapped)
 		uc.hook_add(UC_HOOK_MEM_FETCH_PROT, self.onFetchProt)
 		uc.hook_add(UC_HOOK_MEM_READ, self.onRead)
 		uc.hook_add(UC_HOOK_MEM_WRITE, self.onWrite)
 		uc.hook_add(UC_HOOK_BLOCK, self.onBlock)
-		if codeHook:
+		# rdtsc: a fixed value in both runs, so the two runs cannot see different clocks
+		if UC_HOOK_INSN is not None:
+			try:
+				uc.hook_add(UC_HOOK_INSN, self.onRdtsc, None, 1, 0, UC_X86_INS_RDTSC)
+			except Exception as e:
+				if PROFILE:
+					print("    UC_HOOK_INSN failed (%s); falling back to UC_HOOK_CODE" % e, flush=True)
+				uc.hook_add(UC_HOOK_CODE, self.onCode)
+		elif codeHook:
 			uc.hook_add(UC_HOOK_CODE, self.onCode)
 
 	# --- memory ---------------------------------------------------------------------------------------------------
@@ -163,6 +208,7 @@ class Machine:
 		offset = self.state.pages.get(page)
 		if offset is None:
 			return None
+		self.touched.add(page)
 		data = self.store.get(offset)
 		patches = self.overlayPages.get(page)
 		if patches:
@@ -188,7 +234,60 @@ class Machine:
 		self.uc.mem_map(page, PAGE, prot)
 		self.uc.mem_write(page, data)
 		self.mapped.add(page)
+		if page not in self.state.pages and page not in self.clean:
+			self.clean[page] = data
+		if PROFILE:
+			self.stats["maps"] += 1
 		return True
+
+	def setOverlay(self, overlay):
+		"""Applies a new overlay of perturbed bytes to the clean snapshot, re-writing the pages it touches."""
+		overlay = overlay or {}
+		if overlay == self.overlay:
+			return
+		old = set(self.overlayPages)
+		self.overlay = overlay
+		self.overlayPages = {}
+		for address, value in overlay.items():
+			self.overlayPages.setdefault(address & ~(PAGE - 1), {})[address] = value
+		for page in old | set(self.overlayPages):
+			if page in self.mapped:
+				data = self.pageBytes(page)
+				if data is not None:
+					self.uc.mem_write(page, data)
+			self.dirty.discard(page)
+
+	def seal(self):
+		"""Captures the clean content of every mapped page the snapshot does not hold (our loaded code and data,
+		the GDT), so run() can restore the pages later runs modify."""
+		self.clean = {}
+		for page in self.mapped:
+			if page not in self.state.pages:
+				data = bytes(self.uc.mem_read(page, PAGE))
+				self.clean[page] = data
+				if self.layout.code <= page < self.layout.data:
+					self.noteRdtsc(data, page)
+		self.dirty.clear()
+
+	def noteRdtsc(self, data, base):
+		"""Adds the addresses of `rdtsc` in freshly loaded code to the fixed-clock set."""
+		i = data.find(b"\x0F\x31")
+		while i != -1:
+			self.rdtsc.add(base + i)
+			i = data.find(b"\x0F\x31", i + 1)
+
+	def resetToClean(self):
+		"""Undoes the previous run's writes: dirty snapshot pages get their snapshot bytes back, dirty non-snapshot
+		pages their sealed content."""
+		if self.dirty:
+			for page in self.dirty:
+				if page in self.state.pages:
+					data = self.pageBytes(page)
+				else:
+					data = self.clean.get(page)
+				if data is not None:
+					self.uc.mem_write(page, data)
+			self.dirty.clear()
 
 	def onFetchProt(self, uc, access, address, size, value, data):
 		"""A fetch from a page that may not execute: a call into another module. The hook's address is exact
@@ -251,9 +350,30 @@ class Machine:
 		if not data:
 			return
 		self.write(address, data)
-		for i in range(0, len(data), 4):
-			chunk = data[i:i + 4]
-			self.onWrite(self.uc, 0, address + i, len(chunk), int.from_bytes(chunk, "little"), None)
+		for page in range(address & ~(PAGE - 1), address + len(data), PAGE):
+			self.dirty.add(page)
+		stackLow = self.stackLow
+		stackHigh = self.entryEsp + 4
+		writes = self.trace.writes
+		private = 0
+		view = memoryview(data)
+		n = len(data)
+		i = 0
+		while i + 4 <= n:
+			a = address + i
+			if stackLow <= a < stackHigh:
+				private += 1
+			else:
+				writes.append((a, 4, int.from_bytes(view[i:i + 4], "little")))
+			i += 4
+		while i < n:
+			a = address + i
+			if stackLow <= a < stackHigh:
+				private += 1
+			else:
+				writes.append((a, 1, data[i]))
+			i += 1
+		self.trace.privateWrites += private
 
 	def setSt0(self, value):
 		"""Leaves `value` in st0 as a function returning a double does (one entry on the x87 stack)."""
@@ -265,22 +385,37 @@ class Machine:
 	# --- hooks ----------------------------------------------------------------------------------------------------
 
 	def onRead(self, uc, access, address, size, value, data):
+		t0 = time.perf_counter() if PROFILE else 0.0
 		if size == 8 and address & 15:
 			self.checkAlignment(uc, address)
 		if self.stackLow <= address < self.entryEsp + 4:
+			if PROFILE:
+				self.stats["read"] += time.perf_counter() - t0
+				self.stats["reads"] += 1
 			return
 		key = (address, size)
 		if key not in self.trace.reads:
 			self.trace.reads.add(key)
 			self.trace.readOrder.append(address)
+		if PROFILE:
+			self.stats["read"] += time.perf_counter() - t0
+			self.stats["reads"] += 1
 
 	def onWrite(self, uc, access, address, size, value, data):
+		t0 = time.perf_counter() if PROFILE else 0.0
 		if size == 8 and address & 15:
 			self.checkAlignment(uc, address)
+		self.dirty.add(address & ~(PAGE - 1))
 		if self.stackLow <= address < self.entryEsp + 4:
 			self.trace.privateWrites += 1
+			if PROFILE:
+				self.stats["write"] += time.perf_counter() - t0
+				self.stats["writes"] += 1
 			return
 		self.trace.writes.append((address, size, value))
+		if PROFILE:
+			self.stats["write"] += time.perf_counter() - t0
+			self.stats["writes"] += 1
 
 	def checkAlignment(self, uc, address):
 		"""QEMU does not fault on a misaligned 16-byte SSE access (movaps, addps, ... need a 16-byte aligned
@@ -314,10 +449,34 @@ class Machine:
 				"eip": eip, "access": ("aligned-access", effective & 0xFFFFFFFF, 16), "where": self.where(eip)}
 			uc.emu_stop()
 
+	def decodeBlock(self, address, size):
+		"""(instruction count, [instruction addresses]) of one basic block, decoded once per address."""
+		code = self.read(address, size)
+		if not code:
+			return 0, []
+		count = 0
+		addresses = []
+		for insn in cfg.disassemble(code, address):
+			if insn.address >= address + size:
+				break
+			count += 1
+			addresses.append(insn.address)
+		return count, addresses
+
 	def onBlock(self, uc, address, size, data):
-		if address == self.entryAddress:
-			return
-		if address in self.functionStarts or (self.ours is not None and address in self.ours):
+		t0 = time.perf_counter() if PROFILE else 0.0
+		info = self.blockCache.get(address)
+		if info is None:
+			info = self.decodeBlock(address, size)
+			self.blockCache[address] = info
+		self.lastBlock = info
+		self.trace.instructions += info[0]
+		for insnAddress in info[1]:
+			for start, end in self.watch:
+				if start <= insnAddress < end:
+					self.trace.executed.add(insnAddress)
+					break
+		if address != self.entryAddress and (address in self.functionStarts or (self.ours is not None and address in self.ours)):
 			esp = uc.reg_read(UC_X86_REG_ESP)
 			frame = self.read(esp, 36)
 			words = struct.unpack("<9I", frame) if frame is not None and len(frame) == 36 else (0,) * 9
@@ -326,6 +485,26 @@ class Machine:
 				"eax": uc.reg_read(UC_X86_REG_EAX), "external": False}
 			self.frameArguments(call)
 			self.trace.calls.append(call)
+		if PROFILE:
+			self.stats["block"] += time.perf_counter() - t0
+			self.stats["blocks"] += 1
+
+	def onCode(self, uc, address, size, data):
+		"""Fallback per-instruction hook (only when UC_HOOK_INSN is unavailable): rdtsc gets a fixed value."""
+		t0 = time.perf_counter() if PROFILE else 0.0
+		if address in self.rdtsc:
+			uc.reg_write(UC_X86_REG_EAX, 0x12345678)
+			uc.reg_write(UC_X86_REG_EDX, 0x1)
+			uc.reg_write(UC_X86_REG_EIP, address + 2)
+		if PROFILE:
+			self.stats["code"] += time.perf_counter() - t0
+			self.stats["codes"] += 1
+
+	def onRdtsc(self, uc, user_data):
+		eip = uc.reg_read(UC_X86_REG_EIP)
+		uc.reg_write(UC_X86_REG_EAX, 0x12345678)
+		uc.reg_write(UC_X86_REG_EDX, 0x1)
+		uc.reg_write(UC_X86_REG_EIP, eip + 2)
 
 	def isPrivate(self, value):
 		return self.stackLow <= value < self.entryEsp + 4
@@ -342,16 +521,19 @@ class Machine:
 		if frame:
 			call["frame"] = frame
 
-	def onCode(self, uc, address, size, data):
-		self.trace.instructions += 1
-		for start, end in self.watch:
-			if start <= address < end:
-				self.trace.executed.add(address)
-				break
-		if size == 2 and uc.mem_read(address, 2) == b"\x0F\x31":  # rdtsc: a fixed value in both runs
-			uc.reg_write(UC_X86_REG_EAX, 0x12345678)
-			uc.reg_write(UC_X86_REG_EDX, 0x1)
-			uc.reg_write(UC_X86_REG_EIP, address + 2)
+	def adjustPartialBlock(self, eip, started):
+		"""The block hook counts a whole block at entry; when a run stops mid-block, the instructions after `eip`
+		(and `eip` itself when it did not start, as on the instruction limit) never executed."""
+		info = self.lastBlock
+		if not info:
+			return
+		unexecuted = 0
+		for address in info[1]:
+			if (address > eip) if started else (address >= eip):
+				unexecuted += 1
+				self.trace.executed.discard(address)
+		self.trace.instructions -= unexecuted
+		self.lastBlock = None
 
 	def calleeName(self, address):
 		name = project.symbolAt(address)
@@ -389,6 +571,7 @@ class Machine:
 
 	def external(self, target):
 		"""Answers a call that reached code outside the engine image: logs it and returns to the caller."""
+		t0 = time.perf_counter() if PROFILE else 0.0
 		uc = self.uc
 		esp = uc.reg_read(UC_X86_REG_ESP)
 		frame = self.read(esp, 36)
@@ -419,21 +602,30 @@ class Machine:
 		uc.reg_write(UC_X86_REG_ECX, externals.CLOBBER)
 		uc.reg_write(UC_X86_REG_EDX, externals.CLOBBER)
 		uc.reg_write(UC_X86_REG_ESP, esp + 4 + cleanup)
+		if PROFILE:
+			self.stats["external"] += time.perf_counter() - t0
+			self.stats["externals"] += 1
 		return words[0]
 
-	def run(self, entry, argBytes=0, budget=20000000, timeout=60.0):
+	def run(self, entry, argBytes=0, budget=20000000, timeout=60.0, watch=None):
 		"""Runs from `entry` with the state's registers until the function returns to the return page."""
 		uc = self.uc
+		if watch is not None:
+			self.watch = watch
+		self.resetToClean()
 		regs = self.state.regs
 		self.loadRegisters(regs)
+		self.trace = Trace()
 		self.entryEsp = regs["esp"]
 		self.stackLow = self.entryEsp - STACK_GROWTH
 		self.privateLimit = self.entryEsp + 4 + max(argBytes, 32)
 		self.write(self.entryEsp, struct.pack("<I", self.layout.ret))
 		self.trace.entry = dict(regs)
 		self.entryAddress = entry
+		self.invalid = None
+		self.trace.timedOut = False
+		self.lastBlock = None
 		pc = entry
-		import time
 		deadline = time.time() + timeout
 		while True:
 			# hard limits across the segments between external calls: instructions, wall clock, externals
@@ -443,9 +635,18 @@ class Machine:
 				self.trace.timedOut = True
 				break
 			self.invalid = None
+			t0 = time.perf_counter() if PROFILE else 0.0
+			if PROFILE:
+				self.stats["emuCalls"] += 1
 			try:
-				uc.emu_start(pc, self.layout.ret, timeout=int(max(0.05, deadline - time.time()) * 1000000), count=remaining)
+				# no `timeout` here: Unicorn 2.1.4 spends ~15 ms per emu_start call whenever a timeout is
+				# given (Windows timer resolution), which dominates functions that call out often. The
+				# instruction `count` bounds a single segment; the deadline at the top of the loop bounds
+				# the wall clock across segments.
+				uc.emu_start(pc, self.layout.ret, count=remaining)
 			except UcError as e:
+				if PROFILE:
+					self.stats["emu"] += time.perf_counter() - t0
 				eip = uc.reg_read(UC_X86_REG_EIP)
 				if self.invalid and self.invalid[0] == "fetchprot":
 					pc = self.external(self.invalid[1])
@@ -453,15 +654,26 @@ class Machine:
 				if self.invalid and self.invalid[0] == "fetch":
 					eip = self.invalid[1]
 				self.trace.fault = {"error": str(e), "eip": eip, "access": self.invalid, "where": self.where(eip)}
+				self.adjustPartialBlock(eip, True)
 				break
+			if PROFILE:
+				self.stats["emu"] += time.perf_counter() - t0
 			eip = uc.reg_read(UC_X86_REG_EIP)
 			if self.trace.fault:  # stopped by a hook (alignment)
+				self.adjustPartialBlock(eip, True)
 				break
 			if eip == self.layout.ret:
+				self.lastBlock = None
 				break
 			self.trace.timedOut = True
+			self.adjustPartialBlock(eip, False)
 			break
 		self.trace.end = self.registers()
+		if PROFILE:
+			s = self.stats
+			print("    profile: emu %.2fs (%d calls, avg %.2f ms) block %.2fs read %.2fs write %.2fs code %.2fs ext %.2fs; blocks %d reads %d writes %d codes %d ext %d maps %d insns %d"
+				% (s["emu"], s["emuCalls"], 1000.0 * s["emu"] / max(1, s["emuCalls"]), s["block"], s["read"], s["write"], s["code"], s["external"],
+					s["blocks"], s["reads"], s["writes"], s["codes"], s["externals"], s["maps"], self.trace.instructions), flush=True)
 		return self.trace
 
 	def where(self, eip):

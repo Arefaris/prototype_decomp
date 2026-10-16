@@ -101,6 +101,14 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    blocks covered; random inputs alone prove nothing, and a `SAME` with half the blocks unreached says only that much.
    `python tools/difftest/difftest.py all` runs every EQUIVALENT function that has states.
 
+4. **Timing and trimming** (`python tools/difftest/bench.py`): the same replay without writing reports, with per-function
+   and total times and the verdict compared against `local/difftest/reports/*.txt` (snapshotted to
+   `local/scratch/difftest-speed/baseline/` with `--copy-baseline` first). `--no-variants` times the replay alone;
+   `--profile` prints where each run's time goes. `--trim` replays to record the pages each state's runs touch and writes
+   `NNN.trim` states referencing only those pages (plus a margin); it verifies the trimmed state still gives the same
+   verdict before you replace the original. `--compact` rewrites `local/difftest/store/pages.bin` to keep only the pages
+   the state files still reference and remaps their page tables, shrinking the store from gigabytes to a few MB.
+
 ## Matching tips for this compiler
 
 - Options: `/O2 /arch:SSE /fp:fast /GS- /GR /MD /Gy`, no exceptions. Scalar float math is SSE, float returns and
