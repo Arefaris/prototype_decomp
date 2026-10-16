@@ -2872,3 +2872,13 @@ constructor is NONMATCHING, so nothing checked it against the engine's slot.
   multiplies of every pass, and keeps the output pointer and the vertex pointer in swapped registers (18 %). Every
   other path of the run 0x1071B9A0 - 0x1071E8F0 has the same shape, so this has to be settled once for all of them;
   a shared source or a front-end difference, not a missing piece.
+
+## Merge notes (2026-10-16)
+
+- Not reproduced at the merge and marked NONMATCHING: 0x1082DB20 `AddTriggerPackages` (36 %), 0x102D41C0
+  `DentBuffer::Push` (26 %, branch layout), 0x102DA540 `LODRenderBehaviour::UpdateFade` (30 %), 0x102DDD30 /
+  0x102DDE30 `MidgroundManager::CellLoaded` / `CellUnloaded` (63 % / 62 %).
+- 0x107DECD0 `GetHeapKindName` is file-local and its only caller (OnAllocFail 0x107DED20) is not reconstructed, so
+  the compiler drops it: NONMATCHING until the caller exists.
+- skin.cpp's `BlendRows4` / `BlendRows3` are plain functions, not `__inline`: their only caller (0x1071B9A0) is
+  NONMATCHING, and an inline function nothing calls is not emitted.

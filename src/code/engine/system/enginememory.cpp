@@ -194,6 +194,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107DECD0
+	// NONMATCHING: file-local (the engine passes the kind in eax); its only caller, OnAllocFail 0x107DED20, is not
+	// reconstructed, so the compiler drops the unused static function and there is nothing to compare
+#ifdef NONMATCHING
 	static const char* GetHeapKindName(int kind)
 	{
 		switch (kind)
@@ -214,6 +217,7 @@ namespace engine
 			return "Unknown";
 		}
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x107DF2D0
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,

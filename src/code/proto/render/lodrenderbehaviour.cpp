@@ -10,6 +10,8 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DA540
+	// NONMATCHING: the coordinate differences in SSE vs x87, 30 % in the build (reported matched by the agent, not reproduced)
+#ifdef NONMATCHING
 	void LODRenderBehaviour::UpdateFade()
 	{
 		fade = 1.0f;
@@ -37,6 +39,7 @@ namespace proto
 		fade = 1.0f - (clamped - range.minimum) / (range.maximum - range.minimum);
 		fade = math::Clamp(fade, 0.0f, 1.0f);
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x102DA700
 	void LODRenderBehaviour::UpdateLevel()

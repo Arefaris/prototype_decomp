@@ -4,6 +4,8 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DDD30
+	// NONMATCHING: 63 % in the build (reported matched by the agent, not reproduced)
+#ifdef NONMATCHING
 	void MidgroundManager::CellLoaded(MidgroundCell* cell)
 	{
 		MidgroundMap::Iterator iterator(&map);
@@ -21,8 +23,11 @@ namespace proto
 		record.unknown10 = unknown8;
 		records.PushBack(record);
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x102DDE30
+	// NONMATCHING: 62 % in the build (reported matched by the agent, not reproduced)
+#ifdef NONMATCHING
 	void MidgroundManager::CellUnloaded(MidgroundCell* cell)
 	{
 		MidgroundMap::Iterator iterator(&map);
@@ -45,4 +50,5 @@ namespace proto
 			item++;
 		}
 	}
+#endif
 }

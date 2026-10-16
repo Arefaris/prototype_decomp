@@ -9,6 +9,8 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x1082DB20
+	// NONMATCHING: register allocation and the corner loads, 36 % in the build (reported matched by the agent, not reproduced)
+#ifdef NONMATCHING
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -40,4 +42,5 @@ namespace engine
 			}
 		}
 	}
+#endif
 }

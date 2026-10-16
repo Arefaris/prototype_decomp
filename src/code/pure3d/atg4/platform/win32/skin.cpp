@@ -88,7 +88,7 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B270
-	__inline __m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
 		const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
@@ -102,7 +102,7 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B2C0
-	__inline __m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
