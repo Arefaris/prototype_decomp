@@ -75,10 +75,10 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 An EQUIVALENT function replaces the engine's code in the hybrid DLL, so it must behave exactly like it; objcmp says
 nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` replays real states on both:
 
-1. **Capture** real entry states from the game running the original DLL in the test copy (`python tools/re/testcopy.py
-   --original --copy D:/PrototypeRecomp2`, `OP_ORIGINAL_DIR='D:\PrototypeRecomp2' python tools/re/gamectl.py launch 1`),
-   in free roam:
-   `OP_ORIGINAL_DIR='D:\PrototypeRecomp2' python tools/difftest/difftest.py 0x1071B610 --capture 3 --seconds 60 --play "keys w:2.5,:2"`.
+1. **Capture** real entry states from the game running the ORIGINAL DLL in the test copy (`python tools/re/testcopy.py
+   --original`, `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch 1`), in free roam:
+   `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/difftest/difftest.py 0x1071B610 --capture 3 --seconds 60 --play "keys w:2.5,:2"`;
+   put the hybrid DLL back afterwards (`python tools/re/testcopy.py`).
    The entry gets a jump to a spin stub (no debugger: the game's main thread is hidden from debuggers and an int3 there
    ends the process); the parked thread's registers and every committed page of the process go to
    `local/difftest/states/<address>/NNN.state` (pages deduplicated in `local/difftest/store/`; never committed, they are the
