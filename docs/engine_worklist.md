@@ -2300,3 +2300,55 @@ Still not done in this range:
   is not started; 0x106599C0 and 0x10659D50 build the detector and its islands (0x10659F70 registers "Collide Awoken
   Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
   pool at `this + 0x18`, so the gate and the job classes have to be placed first.
+
+## pure3d/atg4/platform/win32/skin.cpp (0x1071B000 - 0x10721200), started
+
+The unit's assert path names it (`..\..\..\code\pure3d\atg4\platform\win32\skin.cpp`, lines 0x298 - 0x880, about 2200
+lines of source). It is big: 128 functions, about 25 KB, and it holds **pure3d::SkinState**, **pure3d::Skin** and the
+task adaptor `pure3d::SkinState::AsyncTaskAdaptor` (the RTTI vftables are 0x10E5BE50 / 0x10E5BE88 / 0x10E5BDC4). The
+first session (2026-10-16) placed the SkinState class and matched the small accessors.
+
+**What is known about the two classes** (layouts recovered from the vtable slots and the code):
+
+- `pure3d::SkinState` (0x2E4 bytes, vtable 0x10E5BE88, 11 slots): RefCounted's AddRef / Release at 0 / 1, then
+  `~`(2), `Unknown3`(3 = 0x10720C60, makes a 0x350-byte copy of the state through 0x10720A00), `Update`(4 =
+  0x10721160), `Unknown5`(5 = 0x1071B0B0), `Unknown6`(6 = 0x1071B0F0), `GetBoundingBox`(7 = 0x1071B130),
+  `Unknown8`(8 = 0x1071B240), `Unknown9`(9 = 0x1071F900) and its own slot 10 (0x1071B1C0). Members: a controller at
+  +0x70, the expression and its state at +0x74 / +0x78, two pose-sized (0x118-byte) members at +0x7C and +0x194
+  built by `FUN_1061B600` and pointed at by `mPoses[2]` at +0x2B0 (index at +0x2C0, the blend index at +0x2B8, the
+  frame counter at +0x2BC), the bounding box at +0x2C4 (min) / +0x2D0 (max), the two FrameControllers at +0x2DC /
+  +0x2E0. `GetPose` / `GetBlendPose` / `GetPose(int)` index `mPoses` (the last two one element on, which is what the
+  original's `[ecx + i*4 + 0x2B4]` addresses are).
+- `pure3d::Skin` (vtable 0x10E5BE50, 13 slots): AddRef / Release, `~`(2 = 0x10720200), `Draw`(3 = 0x1071ED50),
+  `Unknown4`(4 = 0x10721140), `GetBoundingBox`(5 = 0x1071EF00, copies the box at +0x26C), `GetCentre`(6 =
+  0x1071F9D0, copies 16 bytes from +0x284), `FillBatch`(7 = 0x1071EE50), slot 8 (0x1001D6DD, an inherited pure slot),
+  +0x294(get / set) at 9 / 10, `SetBoundingBox`(11 = 0x1071EF40) and the 16-byte setter at 12 (0x1071EF80). Own
+  members start at +0x1C; +0x70 holds the pose the bone matrices (+0x38) come from; +0x138 / +0x13C / +0x140 /
+  +0x144 (a `pure3d::PrimBuffer*`, `Unlock`ed at 0x1071EFE0) / +0x148 (three one-line wrappers at 0x1071ED40 /
+  0x1071EFD0 / 0x1071EFF0); an `core::AsyncTaskJob` at +0x20 (0x1071EAE0 submits it).
+
+**Do not start the big functions before this: the unit's Vector copies go through the x87 stack.** 0x1071B130 and
+0x1071B170 (and everything that hands a bounding box out) copy each component with `fld` / `fstp`, in the order
+(max, min), while our `math::Vector` copies with integer moves. Measured on 2026-10-16 with scratch functions in
+skin.cpp: MSVC 2005 gives `fld` / `fstp` for a **user-defined `operator=`** (`T& operator=(const T& v) { x = v.x; y =
+v.y; z = v.z; return *this; }` as a member of the 3-float class) and for the **return-value copy** of a class with a
+user-defined copy constructor; it gives integer moves for the implicit assignment of a POD, for an in-place copy
+construction through a temporary, and `movss` for a user-defined copy constructor built into a local. So the engine's
+`math::Vector` almost certainly declares its own `operator=` (which our `math/vector.h` does not). **Adding it to
+`math/vector.h` is the fix for this whole unit, but it changes code everywhere** — do that in a tree where the whole
+object tree can be re-checked, not in the middle of a unit.
+
+NONMATCHING (both blocked on the item above, 48 %):
+
+- `0x1071B130` SkinState::GetBoundingBox: the engine copies the two vectors with `fld`/`fstp`
+- `0x1071B170` SkinState::SetBoundingBox: as above
+
+Not started, in address order: the lock-free stack trio 0x1071B000 / 0x1071B010 / 0x1071B040 (a `void**` head; the
+first is a plain `*head = node`), the empty 0x1071B080 / 0x1071B1F0, `AsyncTaskAdaptor`'s constructor 0x1071B090
+(vftable 0x10E5BDC4, needs its `OnResult` override placed), the two `__m128` vector helpers 0x1071B270 / 0x1071B2C0
+(a row blend: `a*v.x + b*v.y + c*v.z + d`, five resp. four `Vector4*` arguments, returning in xmm0), the SkinState
+constructor and the bulk of the unit: 0x1071B310, 0x1071B490, 0x1071B610 (Draw) and the long run 0x1071B9A0 -
+0x1071E8F0 (the skinning paths, each ending by writing the box at +0x2C4 / +0x2D0 from stack accumulators), the
+controllers' wrappers 0x1071EAE0 - 0x1071F020, the SkinState setters 0x1071F840 - 0x1071F880, 0x1071F900 -
+0x10721200 (the `GpuSkinState` / `GpuSkin` half) and 0x107209E0 - 0x10720CF0 (the destructor and the copy
+constructor).

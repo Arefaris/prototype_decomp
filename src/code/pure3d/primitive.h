@@ -211,12 +211,13 @@ namespace pure3d
 	{
 	public:
 		virtual ~PrimitiveState();
-		virtual void Unknown3();
+		// SkinState's override makes another state of the same kind (skin.cpp)
+		virtual PrimitiveState* Unknown3();
 		virtual void Update(float dt);
 		virtual void Unknown5();
-		virtual void Unknown6();
+		virtual bool Unknown6();
 		virtual void GetBoundingBox(math::AABB* box);
-		virtual void Unknown8();
+		virtual void Unknown8(void* source);
 		// Called for every part drawn in a shadow pass
 		virtual void Unknown9();
 
@@ -384,19 +385,51 @@ namespace pure3d
 		FrameController* controller3;
 	};
 
+	// The two poses a skin state blends over: the one at +0x7C is built by the state's Init, the one at +0x194 only
+	// when it animates two of them (the flag at +0x2AC). mPoses holds the two of them.
 	class SkinState : public PrimitiveState
 	{
 	public:
+		// Slots 3 - 9 and the state's own slot 10 (skin.cpp)
+		virtual PrimitiveState* Unknown3();
+		virtual void Unknown5();
+		virtual bool Unknown6();
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void Unknown8(void* source);
+		virtual void Unknown9();
+		virtual Pose* GetPose();
+
+		// 0x1071B070: the flag at +0x298
+		bool GetUnknown298();
+		// 0x1071B1B0: the pointer at +0x70 (the pose the state renders from)
+		void* GetUnknown70();
 		// 0x1071B200, 0x1071B210: the expression and its state at +0x74 / +0x78
 		Expression* GetExpression();
 		ExpressionState* GetExpressionState();
 		// 0x1071B220, 0x1071B230
 		FrameController* GetController1();
 		FrameController* GetController2();
+		// 0x1071B1D0: the pose the state blends towards (the second of mPoses)
+		Pose* GetBlendPose();
+		// 0x1071B1E0
+		Pose* GetPose(int index);
+		// 0x1071B170
+		void SetBoundingBox(const math::AABB& box);
 
-		unsigned char unknown10[0x64];
+		unsigned char unknown10[0x60];
+		FrameController* unknown70;
 		Expression* expression;
 		ExpressionState* expressionState;
+		unsigned char unknown7C[0x21C];
+		bool unknown298;
+		unsigned char unknown299[0x17];
+		Pose* mPoses[2];
+		int mBlendIndex;
+		int mFrame;
+		int mPoseIndex;
+		math::AABB bounds;
+		FrameController* controller1;
+		FrameController* controller2;
 	};
 
 	class GpuSkinState : public PrimitiveState
