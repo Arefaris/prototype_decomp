@@ -38,18 +38,26 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B130
+	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
+	// change every unit
+#ifdef NONMATCHING
 	void SkinState::GetBoundingBox(math::AABB* box)
 	{
 		box->max = bounds.max;
 		box->min = bounds.min;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071B170
+	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
+	// change every unit
+#ifdef NONMATCHING
 	void SkinState::SetBoundingBox(const math::AABB& box)
 	{
 		bounds.max = box.max;
 		bounds.min = box.min;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071B1B0
 	void* SkinState::GetUnknown70()
