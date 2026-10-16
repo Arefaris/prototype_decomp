@@ -9,13 +9,6 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x1082DB20
-	// NONMATCHING: register allocation of the box centre, 92 %. Every call and store is the engine's and in its order;
-	// the engine's three components come out in xmm0 / xmm1 / xmm2 with one `movss` store each, ours land in other
-	// registers of the same file and its loads of the box corners commute the other way (the sums are written
-	// `min + max` in both). Tried: a Vector temporary built with Add/Scale and then assigned (spills the temporary),
-	// a Set of the three sums (arguments evaluate right to left, so the components come out in the other order) and
-	// three float locals with a Set.
-#ifdef NONMATCHING
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -47,5 +40,4 @@ namespace engine
 			}
 		}
 	}
-#endif
 }

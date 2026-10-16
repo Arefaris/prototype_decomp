@@ -11,6 +11,23 @@ namespace proto
 	// One dent: where it is, the direction it was hit from and how deep it goes
 	struct Dent
 	{
+		Dent()
+		{
+		}
+		// The engine's copy of a dent runs component by component through the x87 unit (fld / fstp)
+		Dent& operator=(const Dent& dent)
+		{
+			position.x = dent.position.x;
+			position.y = dent.position.y;
+			position.z = dent.position.z;
+			unknownC = dent.unknownC;
+			unknown10 = dent.unknown10;
+			unknown14 = dent.unknown14;
+			unknown18 = dent.unknown18;
+			unknown1C = dent.unknown1C;
+			return *this;
+		}
+
 		math::Vector position;   // +0x00
 		float unknownC;          // +0x0C
 		float unknown10;         // +0x10

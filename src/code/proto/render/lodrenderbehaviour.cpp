@@ -10,11 +10,6 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DA540
-	// NONMATCHING: the engine materialises the three coordinate differences in SSE registers (it loads both
-	// members of each pair and stores the difference to the vector's slot), our build keeps them on the x87 stack
-	// and folds the camera's members into the fsub, 30 %. A Vector temporary, three float locals, the squares in
-	// either order and the detail scale call before or after the distance all give the same x87 form.
-#ifdef NONMATCHING
 	void LODRenderBehaviour::UpdateFade()
 	{
 		fade = 1.0f;
@@ -39,9 +34,9 @@ namespace proto
 		float value = fadeScale * gLODDistanceScale * (distance / divisor);
 		const LODRange& range = gLODRanges[distanceLevel];
 		float clamped = math::Clamp(value, range.minimum, range.maximum);
-		fade = math::Clamp(1.0f - (clamped - range.minimum) / (range.maximum - range.minimum), 0.0f, 1.0f);
+		fade = 1.0f - (clamped - range.minimum) / (range.maximum - range.minimum);
+		fade = math::Clamp(fade, 0.0f, 1.0f);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102DA700
 	void LODRenderBehaviour::UpdateLevel()
