@@ -2352,6 +2352,11 @@ NONMATCHING:
 - 0x1061C600 `dxTexture::Lock`: register allocation, 17.9 %. The checks, the three lock paths (volume box, cube
   face, the system-memory copy of a 2D texture) and the lock description handed back are all there; the register
   difference above shifts the body.
+- 0x10626770 `dxIndexBuffer::Create`: register allocation, 61.3 %. The body is complete and in the engine's order
+  (the two tables at 0x10E3464C / 0x110BB934, the state block at +0x1C, the pooled or device allocation and the
+  retry loop), but the engine keeps the usage flags in `ebx` and the Direct3D format in `ebp` where this compiler
+  swaps them, and it caches the description's usage bits (`test al, 1`) where this compiler tests the field in
+  place (`test byte [eax + 8], 1`); every later instruction moves. Swapping the two declarations changes neither.
 - 0x1061C400 `dxTexture::dxTexture`: scheduling, 31.0 %. Every store is there with the engine's value in the
   engine's order (the -1 / 1 group at 0x28 - 0x3C sits between the runs of zero stores), but our compiler sinks that
   group behind the whole zero run and moves the vftable store with it. Writing the statements in document order and
