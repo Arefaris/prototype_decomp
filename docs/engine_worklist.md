@@ -1121,7 +1121,7 @@ NONMATCHING:
 - 0x1094F6B0: the engine loads both frames before the call and pushes their slots one at a time, ours loads the
   second frame first into an argument area of its own; 35 %.
 
-## choreo/src/deltatransform.cpp (0x1094D730 - 0x1094EF30): 7 functions match, 28 NONMATCHING, 1 not done
+## choreo/src/deltatransform.cpp (0x1094D730 - 0x1094EF30): 25 functions match, 10 NONMATCHING, 1 not done
 
 `choreo::DeltaTransform` (the asserts at 0x1094D730 - 0x1094ECC0 name the file and the class): the movement of a
 character over one step. It derives from a `choreo::Transform` (declared in the unit before this one, not
@@ -1140,30 +1140,26 @@ The unit is one `// FUNCTION:` block per function in address order; the four ove
 - `math::Vector` copies from a reference are component-wise, not a block copy: `mVelocity.Set(0, 0, 0)` in the
   constructor and three separate assignments in the delta setters give the engine's `fld` / `fstp`; `mVelocity = v`
   gives integer `mov`s.
+- The reports and the four validators are file-local (`static`), as the engine's are: VS2005 gives a function with
+  internal linkage its own register convention (here the argument in `eax` or `esi`), so declared `static` they and
+  every setter that calls them match; with external linkage they take their argument on the stack and every caller
+  is one `mov` off.
 - The order the two zero vectors are written in decides the constructor's match (`Set` forward) and the Reset's
   (the engine writes each vector's components backwards; 88 % is the best reached).
 
 NONMATCHING:
 
-- 0x1094D730 ReportBadVector, 0x1094D7B0 ReportBadQuaternion: the engine takes the value in `esi`, ours in `ecx`;
-  61 % / 60 %.
-- 0x1094D9B0 / 0x1094D9F0 / 0x1094DB40 ValidateDeltaInput(vector / quaternion / float): the engine takes its argument
-  in `eax` and keeps it in `esi` across the report, ours in `ecx`; 24 %.
+- 0x1094DB40 ValidateDeltaInput(float): the engine takes the float through a pointer in `eax` (a `const float&`
+  parameter is the next thing to try); 26 %.
 - 0x1094D920 Reset: 88 %, the component order of the two zero vectors.
-- The twenty setters that call the three validators above (0x1094DB70 - 0x1094E430, SetVelocity / SetAngularVelocity /
-  SetDelta / SetPosition / SetDeltaFacing): every instruction is the same, the call setup is `mov eax, edi` in the
-  engine and `mov ecx, edi` in ours; 99 %. The two matrix setters (0x1094DF50, 0x1094DFB0) match because the matrix
-  validation keeps its argument in `ecx` like ours.
-- The ten output setters, 0x1094E490 - 0x1094ECC0 (SetOrientation with an angle and a root, SetRotation, the
-  velocity-and-orientation pair and the facing-delta pair): the two that call only the matrix validation
-  (0x1094E6C0, 0x1094E800) match; the other eight call the vector, quaternion or float validation, which the engine
-  passes in `eax`, so they are off by that one `mov`; 99 %.
+- The setters that call the float validation or rebuild a matrix: 0x1094DC90 / 0x1094DE80 (SetVelocity /
+  SetAngularVelocity with a matrix, 43 %), 0x1094E3C0 SetDelta(float) (46 %), 0x1094E490 / 0x1094E5A0 SetOrientation
+  with an angle (41 % / 43 %).
 - 0x1094ED90 Update: 25 %, the engine expands the identity matrix into sixteen locals and schedules the two branches
   differently.
 
 Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled and called by the matching matrix
 setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
-0x1094D9B0 - 0x1094DB40 are compiled nowhere: the engine's copies stay.
 
 ## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 3 functions match, 0 NONMATCHING, 50 not done
 

@@ -48,6 +48,10 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    - `// EQUIVALENT: <why>`: same operations in the same order, different register or scheduling choices. It is
      compiled and replaces the original in the hybrid DLL (callers in the same unit may rely on its register use),
      but does not count as matched. Floating-point operations must keep the original's order.
+   - A function only its own unit calls (a helper, a report) that takes an argument in a register such as `eax`,
+     `esi` or `edi` is file-local in the original: declare it `static` (or in an unnamed namespace). VS2005 gives a
+     function with internal linkage its own register convention without any link-time code generation; declared
+     with external linkage it takes its arguments on the stack, and every caller then differs by one `mov`.
    - `// NONMATCHING: <why>` with the whole definition (signature to closing brace) inside `#ifdef NONMATCHING`:
      not compiled, the original stays. An empty body left outside the `#ifdef` would still be compiled and replace
      the engine's function, so relink refuses it.

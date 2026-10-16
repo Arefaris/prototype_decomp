@@ -4,7 +4,7 @@ Every request runs on the game's main thread between two engine frames: Lua in t
 functions its mission scripts use), the chase camera's orbit, keys and mouse fed to the game's DirectInput devices.
 Nothing needs the window in front, so no input lock is taken.
 
-	python tools/re/gamectl.py launch                    # (re)start this copy and load the newest save: free roam in ~25 s
+	python tools/re/gamectl.py launch [n]                # (re)start this copy and load the newest save (or the n-th older one)
 	python tools/re/gamectl.py where                     # feet position and facing yaw
 	python tools/re/gamectl.py teleport x y z [yaw]      # the game's own mission teleport (streams the cells there)
 	python tools/re/gamectl.py camera yaw pitch [dist]   # chase camera: view yaw (0 = +Z), pitch (> 0 looks down)
@@ -218,9 +218,12 @@ def openLoadDialog():
 	return storageActive()
 
 
-def confirmLoad():
-	"""Enter on the highlighted (newest) save, then Enter on Yes until the save system starts loading."""
+def confirmLoad(older=0):
+	"""Enter on the highlighted save (the newest, or `older` entries further down the list), then Enter on Yes until
+	the save system starts loading."""
 	time.sleep(2.0)
+	for _ in range(older):
+		press("s:0.2,:0.3")
 	press("enter:0.2")
 	for _ in range(8):
 		time.sleep(1.5)
@@ -232,8 +235,8 @@ def confirmLoad():
 	waitFreeRoam()
 
 
-def launch():
-	"""Restarts this copy and loads the newest save: the title, two notices, then the load dialog, all without the
+def launch(older=0):
+	"""Restarts this copy and loads the newest save (or the `older`-th older one): the title, two notices, then the load dialog, all without the
 	window in front. The front end has no state Lua can read, so the menus are timed; the load dialog is checked."""
 	began = time.time()
 	stop()
@@ -248,7 +251,7 @@ def launch():
 		press("enter:0.2,:2.5")  # a notice that came late
 	else:
 		raise SystemExit("the main menu did not come up (see gamectl.py shot)")
-	confirmLoad()
+	confirmLoad(older)
 	print(f"free roam after {time.time() - began:.1f} s")
 	where()
 
@@ -310,8 +313,8 @@ def main(args):
 		return
 	command, rest = args[0], args[1:]
 	try:
-		if command == "launch":
-			launch()
+		if command == "launch" and len(rest) <= 1:
+			launch(int(rest[0]) if rest else 0)
 		elif command == "stop":
 			stop()
 		elif command == "start":
