@@ -2650,7 +2650,9 @@ first session (2026-10-16) placed the SkinState class and matched the small acce
   +0x144 (a `pure3d::PrimBuffer*`, `Unlock`ed at 0x1071EFE0) / +0x148 (three one-line wrappers at 0x1071ED40 /
   0x1071EFD0 / 0x1071EFF0); an `core::AsyncTaskJob` at +0x20 (0x1071EAE0 submits it).
 
-**The unit's Vector copies go through the x87 stack (0x1071B130 and 0x1071B170, both NONMATCHING).** They copy each
+**The unit's Vector copies go through the x87 stack - solved, see the three ways above; no user-defined operator= is
+needed and `math/vector.h` stays as it is.** The first session's measurements still explain why a struct assignment
+would not do: they copy each
 component with `fld` / `fstp`, in the order (max, min), while our `math::Vector` copies with integer moves. Measured
 on 2026-10-16 with scratch functions in skin.cpp: MSVC 2005 gives `fld` / `fstp` for a **user-defined `operator=`**
 (`T& operator=(const T& v) { x = v.x; y = v.y; z = v.z; return *this; }` as a member of the 3-float class) and for
@@ -2690,7 +2692,10 @@ and 0x11281828 (the number of running jobs); 0x1071F780 `SubmitPendingSkins` dra
   0x1071F780, so the `job` member has to stay at +0x20.
 
 Remaining, in address order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
-four `unsigned short` indices sit at +0x40 / +0x50), 0x1071B610 and the long run 0x1071B9A0 - 0x1071E8F0 (the
+four `unsigned short` indices sit at +0x40 / +0x50; their source is four statement-shaped accumulations -
+`out = m0 * w0; out += m1 * w1; ...`, each row of the record transformed by a different bone - so they are
+`BlendRows4`/`BlendRows3`-like but written as accumulate-into-memory, and 0x1071F060 shows the same helper family),
+0x1071B610 and the long run 0x1071B9A0 - 0x1071E8F0 (the
 skinning paths; each ends by writing the box at +0x2C4 / +0x2D0 from stack accumulators and is picked by the
 0x350-byte job state's flags at +0x2AE / +0xBF / +0xC5 / +0x1D and the `unsigned` at 0x1071ED50's +0x20000000 bit),
 the Skin methods 0x1071ED40 - 0x1071F020 (the +0x148 wrappers, `FillBatch`, `Draw`), the ~100-byte cluster
@@ -2703,11 +2708,39 @@ callers), 0x1071F7D0 (`"AsyncSkinning"` registered with the task callback 0x1071
   `GpuSkin` half) and 0x10720200 - 0x10720CF0 (the destructors, the copy constructor and the job dispatcher
   0x10720CF0).
 
-Match so far (32 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
-0x1071B0F0, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B1F0, 0x1071B200, 0x1071B210, 0x1071B220,
-0x1071B230, 0x1071B240, 0x1071B270, 0x1071B2C0, 0x1071EAE0, 0x1071EFB0, 0x1071EFC0, 0x1071EFE0, 0x1071F000,
-0x1071F780, 0x1071F7F0, 0x1071F880, 0x1071F9B0, 0x1071F9C0, 0x10721160, 0x107211D0 (and the `core::RefAssign
-<FrameController>` COMDAT copy at 0x1071F4B0, which carries no annotation).
+Match so far (42 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
+0x1071B0F0, 0x1071B130, 0x1071B170, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B1F0, 0x1071B200,
+0x1071B210, 0x1071B220, 0x1071B230, 0x1071B240, 0x1071B270, 0x1071B2C0, 0x1071EAE0, 0x1071EF00, 0x1071EF40,
+0x1071EF80, 0x1071EFB0, 0x1071EFC0, 0x1071EFE0, 0x1071F000, 0x1071F020, 0x1071F060, 0x1071F180, 0x1071F2A0,
+0x1071F780, 0x1071F7F0, 0x1071F880, 0x1071F9B0, 0x1071F9C0, 0x1071F9D0, 0x10721160, 0x107211D0 (and the
+`core::RefAssign<FrameController>` COMDAT copy at 0x1071F4B0, which carries no annotation).
+
+**The three ways the box and centre accessors were closed (2026-10-16, second session).** 0x1071B130 / 0x1071B170 /
+0x1071EF00 / 0x1071EF40 / 0x1071EF80 are all component assignments (`box->max.x = bounds.max.x;` ...), not struct
+assignments; the two *out* accessors (0x1071B130, 0x1071EF00) additionally need two `math::Vector*` locals
+(`math::Vector* outMax = &box->max; math::Vector* outMin = &box->min;`) before the copies: without them the compiler
+hoists the first `fld` above the load of the argument and the function stops at 83.3 %. `Skin::GetCentre`
+(0x1071F9D0) copies a fourth component past the `math::Vector` its slot is declared with, so it is written
+`centre[0].x = this->centre.x; ... centre[1].x = this->centre.w;`.
+
+**The three ten-bit packers (0x1071F060 / 0x1071F180 / 0x1071F2A0)** take three float pointers and pack the same
+component of the first, the third and the fourth lane of the second: `(v + 1) * 512 + 0.5` for the first two (from
+[-1, 1]), `v * 1024 + 0.5` for the third (from [0, 1]), each clamped to 0x3FF by an *unsigned* compare, and
+`(unsigned)second[3]` in the top two bits. The final word is built with `+` (the engine emits `add`, not `or`):
+`(((((iw << 10) + (iz & 0x3FF)) << 10) + (iy & 0x3FF)) << 10) + (ix & 0x3FF)`.
+
+**What the skinning paths are built on (recovered while attempting 0x1071B9A0).** `SkinVertex` (0x50 bytes, declared
+in `pure3d/primitive.h`) is four 16-byte rows - position, normal, tangent, a fourth the paths ignore - and four
+`unsigned short` bone indices at +0x40. The bone matrices are `Pose::mData.mSkinMatrices`, i.e. `*(pose + 0x38)`
+(`SkinState::pose` is the member at +0x70, now typed `Pose*`). A path loops over the vertices, loads the four rows of
+the bone's `math::Matrix` with `_mm_load_ps`, blends them with `BlendRows4` (position, through the 4x4) and
+`BlendRows3` (the two directions, through the 3x3) - the two helpers must be `__inline`, otherwise the compiler emits
+calls to the COMDAT copies - fixes the fourth lane of each result by hand through `((float*)&r)[3]`, stores the three
+rows, and accumulates `_mm_max_ps` / `_mm_min_ps` of the first row into two `__m128` locals that start at -1e12 and
++1e12 (`_mm_set_ps` with four equal constants) and end up in the box at +0x2C4 (min) / +0x2D0 (max) as six `movss`.
+The assert of the paths is `OLD_ASSERT_AT(SKIN_FILE, <line>, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices)
+& 0x0F) == 0", "Bad Skin bone matrices ptr")` with `SKIN_FILE` = the unit's own path; the per-site `static bool` it
+leaves behind is a flag of our own unit and needs no symbols.txt entry.
 
 Not done, with the reason:
 
@@ -2831,3 +2864,11 @@ emitted, `vtcheck.py` shows the pddi stream's slot 1 holding 0x10A88350 and the 
 `?Unknown1@dxPrimStream@pure3d@@UAEXXZ` holding 0x1062AC90, and both are mapped that way now. The old text:
 0x1062AA90's vftable was not emitted while the
 constructor is NONMATCHING, so nothing checked it against the engine's slot.
+
+- 0x1071B9A0 SkinState::Unknown1071B9A0: the body is the engine's instruction for instruction (the loads, the two
+  blends, the fourth lane, the four-lane min/max, the six stores of the box), but the compiler of the hybrid build
+  allocates the two blend temps the other way round (the `shufps ..., 0` temp to xmm7 where the engine has it in
+  xmm6, and the first matrix row to xmm3 where the engine has it in xmm4), which mirrors the first eight shuffles and
+  multiplies of every pass, and keeps the output pointer and the vertex pointer in swapped registers (18 %). Every
+  other path of the run 0x1071B9A0 - 0x1071E8F0 has the same shape, so this has to be settled once for all of them;
+  a shared source or a front-end difference, not a missing piece.

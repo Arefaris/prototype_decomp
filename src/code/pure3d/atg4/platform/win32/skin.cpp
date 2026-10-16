@@ -2,6 +2,7 @@
 // are guesses.
 #include <xmmintrin.h>
 
+#include "code/core/debug.h"
 #include "code/core/interlocked.h"
 #include "code/core/refptr.h"
 #include "code/core/thread.h"
@@ -11,6 +12,9 @@
 
 namespace pure3d
 {
+	// The file the unit's asserts carry (skin.cpp)
+	#define SKIN_FILE "..\\..\\..\\code\\pure3d\\atg4\\platform\\win32\\skin.cpp"
+
 	// Two empty helpers of the unit (their callers are in other units, so their real names and classes are unknown)
 	// FUNCTION: ENGINE 0x1071B080
 	void Unknown1071B080()
@@ -84,24 +88,83 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B270
-	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+	__inline __m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
 		const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
 		__m128 z = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(2, 2, 2, 2));
-		return _mm_add_ps(_mm_add_ps(_mm_add_ps(_mm_mul_ps(x, a), _mm_mul_ps(y, b)), _mm_mul_ps(z, c)), d);
+		__m128 blended = _mm_mul_ps(x, a);
+		blended = _mm_add_ps(blended, _mm_mul_ps(y, b));
+		blended = _mm_add_ps(blended, _mm_mul_ps(z, c));
+		return _mm_add_ps(blended, d);
 	}
 
 	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B2C0
-	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	__inline __m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
 		__m128 z = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(2, 2, 2, 2));
-		return _mm_add_ps(_mm_add_ps(_mm_mul_ps(x, a), _mm_mul_ps(y, b)), _mm_mul_ps(z, c));
+		__m128 blended = _mm_mul_ps(x, a);
+		blended = _mm_add_ps(blended, _mm_mul_ps(y, b));
+		return _mm_add_ps(blended, _mm_mul_ps(z, c));
 	}
+
+	// The body below is the engine's, instruction for instruction: the vertex and matrix loads, the two blends, the
+	// fourth lane fixed by hand, the four-lane min/max accumulation and the six component stores of the box. The
+	// compiler of the hybrid build allocates the two blend temps and the first two matrix rows the other way round
+	// (x to xmm7 and the first row to xmm3 where the engine has xmm6 and xmm4), which mirrors the first eight
+	// shuffles and multiplies of every pass; it also keeps the output and the vertex pointer in swapped registers
+	// (18 %). The layout of the vertex, the helpers and the box accumulation are settled, so this is a shared source
+	// or a front-end difference, not a missing piece.
+	// FUNCTION: ENGINE 0x1071B9A0
+	// NONMATCHING: register allocation (the blend temps and the first matrix row are mirrored), 18 %
+#ifdef NONMATCHING
+	void SkinState::Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x2E6, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		__m128 maxBounds = _mm_set_ps(-1e12f, -1e12f, -1e12f, -1e12f);
+		__m128 minBounds = _mm_set_ps(1e12f, 1e12f, 1e12f, 1e12f);
+		while (count != 0)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			const math::Matrix& bone = matrices[vertices->bones[0]];
+			__m128 m0 = _mm_load_ps(bone.m[0]);
+			__m128 m1 = _mm_load_ps(bone.m[1]);
+			__m128 m2 = _mm_load_ps(bone.m[2]);
+			__m128 m3 = _mm_load_ps(bone.m[3]);
+			// The position goes through the whole 4x4, the two directions through the 3x3 only. The engine keeps
+			// the rows in memory (it writes their fourth lane by hand): the position's and the normal's is 1, the
+			// tangent's is the one it came with.
+			__m128 r0 = BlendRows4(m0, m1, m2, m3, v0);
+			__m128 r1 = BlendRows3(m0, m1, m2, v1);
+			__m128 r2 = BlendRows3(m0, m1, m2, v2);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			_mm_storeu_ps(&out[0].x, r0);
+			_mm_storeu_ps(&out[1].x, r1);
+			_mm_storeu_ps(&out[2].x, r2);
+			out += 3;
+			maxBounds = _mm_max_ps(maxBounds, r0);
+			minBounds = _mm_min_ps(minBounds, r0);
+			vertices++;
+			count--;
+		}
+		bounds.min.x = ((float*)&minBounds)[0];
+		bounds.min.y = ((float*)&minBounds)[1];
+		bounds.min.z = ((float*)&minBounds)[2];
+		bounds.max.x = ((float*)&maxBounds)[0];
+		bounds.max.y = ((float*)&maxBounds)[1];
+		bounds.max.z = ((float*)&maxBounds)[2];
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071B070
 	bool SkinState::GetUnknown298()
@@ -136,32 +199,36 @@ namespace pure3d
 		return true;
 	}
 
+	// The component-wise copies below are what the engine's fld/fstp pairs are: an implicit Vector::operator= would
+	// copy the three floats with integer moves instead
 	// FUNCTION: ENGINE 0x1071B130
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit
-#ifdef NONMATCHING
 	void SkinState::GetBoundingBox(math::AABB* box)
 	{
-		box->max = bounds.max;
-		box->min = bounds.min;
+		math::Vector* outMax = &box->max;
+		math::Vector* outMin = &box->min;
+		outMax->x = bounds.max.x;
+		outMax->y = bounds.max.y;
+		outMax->z = bounds.max.z;
+		outMin->x = bounds.min.x;
+		outMin->y = bounds.min.y;
+		outMin->z = bounds.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B170
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit
-#ifdef NONMATCHING
 	void SkinState::SetBoundingBox(const math::AABB& box)
 	{
-		bounds.max = box.max;
-		bounds.min = box.min;
+		bounds.max.x = box.max.x;
+		bounds.max.y = box.max.y;
+		bounds.max.z = box.max.z;
+		bounds.min.x = box.min.x;
+		bounds.min.y = box.min.y;
+		bounds.min.z = box.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B1B0
 	void* SkinState::GetUnknown70()
 	{
-		return unknown70;
+		return pose;
 	}
 
 	// FUNCTION: ENGINE 0x1071B1C0
@@ -226,36 +293,37 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071EF00
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit (40 %)
-#ifdef NONMATCHING
 	void Skin::GetBoundingBox(math::AABB* box)
 	{
-		box->max = bounds.max;
-		box->min = bounds.min;
+		math::Vector* outMax = &box->max;
+		math::Vector* outMin = &box->min;
+		outMax->x = bounds.max.x;
+		outMax->y = bounds.max.y;
+		outMax->z = bounds.max.z;
+		outMin->x = bounds.min.x;
+		outMin->y = bounds.min.y;
+		outMin->z = bounds.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EF40
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit (52 %)
-#ifdef NONMATCHING
 	void Skin::SetBoundingBox(const math::AABB& box)
 	{
-		bounds.max = box.max;
-		bounds.min = box.min;
+		bounds.max.x = box.max.x;
+		bounds.max.y = box.max.y;
+		bounds.max.z = box.max.z;
+		bounds.min.x = box.min.x;
+		bounds.min.y = box.min.y;
+		bounds.min.z = box.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EF80
-	// NONMATCHING: the engine copies the four components through fld/fstp; needs a user-defined
-	// Vector4::operator=, which would change every unit (55 %)
-#ifdef NONMATCHING
 	void Skin::SetCentre(const math::Vector4& value)
 	{
-		centre = value;
+		centre.x = value.x;
+		centre.y = value.y;
+		centre.z = value.z;
+		centre.w = value.w;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EFB0
 	unsigned int Skin::GetUnknown1C()
@@ -345,6 +413,103 @@ namespace pure3d
 		{
 			buffer->Unknown10625FA0(value);
 		}
+	}
+
+	// Packs x and y, taken from [-1, 1], and z, taken from [0, 1], into ten bits each and the fourth lane of the
+	// second argument into the top two; the rounding is to the nearest bit (name and parameters are guesses, the
+	// callers are in other units)
+	// FUNCTION: ENGINE 0x1071F060
+	unsigned int PackNormal10(const float* x, const float* y, const float* z)
+	{
+		unsigned int ix = (unsigned int)((*x + 1.0f) * 512.0f + 0.5f);
+		unsigned int iy = (unsigned int)((*y + 1.0f) * 512.0f + 0.5f);
+		unsigned int iz = (unsigned int)(*z * 1024.0f + 0.5f);
+		unsigned int iw = (unsigned int)y[3];
+		if (ix > 0x3FF)
+		{
+			ix = 0x3FF;
+		}
+		if (iy > 0x3FF)
+		{
+			iy = 0x3FF;
+		}
+		if (iz > 0x3FF)
+		{
+			iz = 0x3FF;
+		}
+		return (((((iw << 10) + (iz & 0x3FF)) << 10) + (iy & 0x3FF)) << 10) + (ix & 0x3FF);
+	}
+
+	// The same for the second component of each of the three (the fourth is the same lane of the second)
+	// FUNCTION: ENGINE 0x1071F180
+	unsigned int PackNormal10Y(const float* x, const float* y, const float* z)
+	{
+		unsigned int ix = (unsigned int)((x[1] + 1.0f) * 512.0f + 0.5f);
+		unsigned int iy = (unsigned int)((y[1] + 1.0f) * 512.0f + 0.5f);
+		unsigned int iz = (unsigned int)(z[1] * 1024.0f + 0.5f);
+		unsigned int iw = (unsigned int)y[3];
+		if (ix > 0x3FF)
+		{
+			ix = 0x3FF;
+		}
+		if (iy > 0x3FF)
+		{
+			iy = 0x3FF;
+		}
+		if (iz > 0x3FF)
+		{
+			iz = 0x3FF;
+		}
+		return (((((iw << 10) + (iz & 0x3FF)) << 10) + (iy & 0x3FF)) << 10) + (ix & 0x3FF);
+	}
+
+	// And for the third
+	// FUNCTION: ENGINE 0x1071F2A0
+	unsigned int PackNormal10Z(const float* x, const float* y, const float* z)
+	{
+		unsigned int ix = (unsigned int)((x[2] + 1.0f) * 512.0f + 0.5f);
+		unsigned int iy = (unsigned int)((y[2] + 1.0f) * 512.0f + 0.5f);
+		unsigned int iz = (unsigned int)(z[2] * 1024.0f + 0.5f);
+		unsigned int iw = (unsigned int)y[3];
+		if (ix > 0x3FF)
+		{
+			ix = 0x3FF;
+		}
+		if (iy > 0x3FF)
+		{
+			iy = 0x3FF;
+		}
+		if (iz > 0x3FF)
+		{
+			iz = 0x3FF;
+		}
+		return (((((iw << 10) + (iz & 0x3FF)) << 10) + (iy & 0x3FF)) << 10) + (ix & 0x3FF);
+	}
+
+	// FUNCTION: ENGINE 0x1071F020
+	void Skin::GetDrawData(void** data, int* size)
+	{
+		if (unknown138 != 0)
+		{
+			*data = unknown138;
+			*size = unknown13C;
+		}
+		else
+		{
+			*data = unknown140;
+			*size = 0x50;
+		}
+	}
+
+	// The centre is a Vector4 but the caller's pointer (the vtable takes a Vector) is followed by a fourth float in
+	// the engine too: it copies all four components
+	// FUNCTION: ENGINE 0x1071F9D0 (slot 6 of the vtable)
+	void Skin::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = this->centre.x;
+		centre[0].y = this->centre.y;
+		centre[0].z = this->centre.z;
+		centre[1].x = this->centre.w;
 	}
 
 	// Submits every queued skinning job (once, the queue is a lock-free stack)

@@ -459,6 +459,19 @@ namespace pure3d
 		Skin* skin;
 	};
 
+	// One vertex of a skinned mesh as the skinning paths read it: four rows of four floats (the position, the normal,
+	// the tangent and a fourth the paths do not use) and the four bones that move it. 0x50 bytes, and the assert of
+	// the paths checks that the block they come in is 16-byte aligned.
+	struct SkinVertex
+	{
+		math::Vector4 position;
+		math::Vector4 normal;
+		math::Vector4 tangent;
+		math::Vector4 unknown30;
+		unsigned short bones[4];
+		unsigned char unknown48[8];
+	};
+
 	// The two poses a skin state blends over: the one at +0x7C is built by the state's Init, the one at +0x194 only
 	// when it animates two of them (the flag at +0x2AC). mPoses holds the two of them.
 	class SkinState : public PrimitiveState
@@ -501,6 +514,9 @@ namespace pure3d
 		Pose* GetPose(int index);
 		// 0x1071B170
 		void SetBoundingBox(const math::AABB& box);
+		// 0x1071B9A0: skins the vertices with the pose's skinning matrices, one bone each (the position through
+		// the 4x4, the normal and the tangent through the 3x3), and writes the box of the positions
+		void Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count);
 
 		// 0x107211D0: the flag at +0x2AC (the state blends two poses while it is set)
 		bool GetUnknown2AC();
@@ -514,7 +530,9 @@ namespace pure3d
 		void SetController2(FrameController* value);
 
 		unsigned char unknown10[0x60];
-		FrameController* unknown70;
+		// 0x70: the pose the state renders from (its skinning matrices at +0x38 are the bone matrices the
+		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
+		Pose* pose;
 		Expression* expression;
 		ExpressionState* expressionState;
 		unsigned char unknown7C[0x21C];
@@ -560,14 +578,20 @@ namespace pure3d
 		void UnlockBuffer();
 		// 0x1071F000: fills the buffer's descriptor
 		void FillBufferDesc(int value);
+		// 0x1071F020: the vertex data the engine draws from and its size (0x50 when the data comes from +0x140)
+		void GetDrawData(void** data, int* size);
 
 		unsigned int unknown1C;
 		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
 		core::AsyncTaskJob job;
 		unsigned char unknown68[8];
 		Pose* pose;
-		unsigned char unknown74[0xD0];
-		// 0x144: the vertex buffer the skinned vertices go into, and one of the groups the parts are drawn from
+		unsigned char unknown74[0xC4];
+		// 0x138: the vertex data of the last skinning job; 0x13C its size and 0x140 the fallback block
+		void* unknown138;
+		int unknown13C;
+		void* unknown140;
+		// 0x144: the vertex buffer the skinned vertices go into
 		PrimBuffer* buffer;
 		// 0x148: the group list of this skin's geometry (the batch is prepared through it)
 		PrimGroupList* stream;
