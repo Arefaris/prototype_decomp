@@ -3,10 +3,27 @@
 #include <xmmintrin.h>
 
 #include "code/core/interlocked.h"
+#include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
 
 namespace pure3d
 {
+	// Two empty helpers of the unit (their callers are in other units, so their real names and classes are unknown)
+	// FUNCTION: ENGINE 0x1071B080
+	void Unknown1071B080()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1071B1F0
+	void Unknown1071B1F0()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1071EFC0
+	void Unknown1071EFC0()
+	{
+	}
+
 	// Stores a node in a list head the caller owns (no interlocked exchange); the node's first word is its next
 	// FUNCTION: ENGINE 0x1071B000
 	void StoreListHead(void** head, void* node)
@@ -190,5 +207,42 @@ namespace pure3d
 		{
 			controller1->SetBindingSource(source);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1071EAE0
+	void Skin::SubmitTask()
+	{
+		job.Submit(0);
+	}
+
+	// FUNCTION: ENGINE 0x1071EFB0
+	void* Skin::GetUnknown1C()
+	{
+		return unknown1C;
+	}
+
+	// FUNCTION: ENGINE 0x10721160
+	void SkinState::Update(float dt)
+	{
+		int frame = pddi->GetFrameCount(0);
+		if (frame != (int)_InterlockedExchange((long volatile*)&mFrame, frame))
+		{
+			mBlendIndex = 0;
+			if (controller1 != 0)
+			{
+				controller1->Advance(dt, true);
+			}
+			if (controller2 != 0)
+			{
+				controller2->Advance(dt, true);
+			}
+			Unknown10720CF0();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107211D0
+	bool SkinState::GetUnknown2AC()
+	{
+		return unknown2AC;
 	}
 }

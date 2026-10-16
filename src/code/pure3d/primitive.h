@@ -13,6 +13,7 @@
 #include "code/math/matrix.h"
 #include "code/pure3d/animation.h"
 #include "code/math/vector.h"
+#include "code/math/vector4.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
@@ -21,6 +22,7 @@ namespace pure3d
 {
 	class PartBinding;
 	class Shader;
+	class PrimBuffer;
 	class PrimitiveState;
 	struct PrimStreamParameters;
 
@@ -428,13 +430,23 @@ namespace pure3d
 		// 0x1071B170
 		void SetBoundingBox(const math::AABB& box);
 
+		// 0x107211D0: the flag at +0x2AC (the state blends two poses while it is set)
+		bool GetUnknown2AC();
+		// 0x10721160: the frame's update (the controllers advance when the device's frame changed) and the skinning
+		// job of this frame
+		virtual void Update(float dt);
+		// 0x10720CF0: the skinning job itself (skin.cpp, not reconstructed)
+		void Unknown10720CF0();
+
 		unsigned char unknown10[0x60];
 		FrameController* unknown70;
 		Expression* expression;
 		ExpressionState* expressionState;
 		unsigned char unknown7C[0x21C];
 		bool unknown298;
-		unsigned char unknown299[0x17];
+		unsigned char unknown299[0x13];
+		bool unknown2AC;
+		unsigned char unknown2AD[3];
 		Pose* mPoses[2];
 		int mBlendIndex;
 		int mFrame;
@@ -442,6 +454,45 @@ namespace pure3d
 		math::AABB bounds;
 		FrameController* controller1;
 		FrameController* controller2;
+	};
+
+	// The instanced skin: a primitive whose parts are drawn from a skin state's pose (skin.cpp). The layout is
+	// partial: the skinning job is at +0x1C, the pose whose bone matrices the skinning code reads at +0x70, the
+	// bounding box at +0x26C, the centre at +0x284 and the vertex buffer at +0x144 (+0x148 its stream).
+	class Skin : public Primitive
+	{
+	public:
+		// Slots 3 - 7 and 9 - 12 (skin.cpp)
+		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
+		virtual void Unknown4(int value);
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void GetCentre(math::Vector* centre);
+		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		virtual int GetUnknown294();
+		virtual void SetUnknown294(int value);
+		virtual void SetBoundingBox(const math::AABB& box);
+		virtual void SetCentre(const math::Vector4& centre);
+
+		// 0x1071EAE0: submits the skinning job
+		void SubmitTask();
+		// 0x1071EFB0: the pointer at +0x1C
+		void* GetUnknown1C();
+
+		void* unknown1C;
+		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
+		core::AsyncTaskJob job;
+		unsigned char unknown64[0xC];
+		Pose* pose;
+		unsigned char unknown74[0xD0];
+		// 0x144: the vertex buffer the skinned vertices go into
+		PrimBuffer* buffer;
+		// 0x148: its stream
+		void* stream;
+		unsigned char unknown14C[0x120];
+		math::AABB bounds;
+		math::Vector4 centre;
+		int unknown294;
 	};
 
 	class GpuSkinState : public PrimitiveState
