@@ -360,6 +360,10 @@ namespace pure3d
 		// 0x106EDC90 / 0x106EDCA0
 		bool HasUnknown1A0();
 		unsigned __int64 GetUnknown1B0();
+		// 0x106EE500: hands the buffers over again after the device came back (called by the default pool)
+		void Unknown106EE500();
+		// 0x106EEC50: the multisample mode the surfaces are made with, from the display's sample count
+		void Unknown106EEC50(int samples);
 
 		unsigned char unknown0[0x1A0];
 		int unknown1A0;

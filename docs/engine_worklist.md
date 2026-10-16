@@ -2627,7 +2627,7 @@ NONMATCHING:
 - 0x1071EF80 Skin::SetCentre: the four components go through fld/fstp; needs a user-defined Vector4::operator=,
   which would change every unit, 55 %
 
-## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 12 functions match
+## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
 The units are named by the two assert paths the range keeps (`dxdefaultpoolmanager.cpp` in 0x106238B0 and
 `dxvertexdeclaration.cpp` in 0x1062B170 / 0x1062B710); the others are guessed from their contents. Done so far:
@@ -2678,18 +2678,19 @@ NONMATCHING:
 - 0x1061C600 `dxTexture::Lock`: register allocation, 17.9 %. The checks, the three lock paths (volume box, cube
   face, the system-memory copy of a 2D texture) and the lock description handed back are all there; the register
   difference above shifts the body.
-- 0x10626770 `dxIndexBuffer::Create`: register allocation, 61.3 %. The body is complete and in the engine's order
-  (the two tables at 0x10E3464C / 0x110BB934, the state block at +0x1C, the pooled or device allocation and the
-  retry loop), but the engine keeps the usage flags in `ebx` and the Direct3D format in `ebp` where this compiler
-  swaps them, and it caches the description's usage bits (`test al, 1`) where this compiler tests the field in
-  place (`test byte [eax + 8], 1`); every later instruction moves. Swapping the two declarations changes neither.
 - 0x1061C400 `dxTexture::dxTexture`: scheduling, 31.0 %. Every store is there with the engine's value in the
   engine's order (the -1 / 1 group at 0x28 - 0x3C sits between the runs of zero stores), but our compiler sinks that
   group behind the whole zero run and moves the vftable store with it. Writing the statements in document order and
   in the engine's order gives the same schedule.
-- 0x106266D0 `dxIndexBuffer::dxIndexBuffer`: register allocation, 64.9 %. The engine clears the state block at +0x1C
-  with a zero it materialises in `eax` (`xor eax, eax` after the member's constructor call), ours reuses the zero
-  the initialiser list left in `ebx`.
+- 0x106266D0 `dxIndexBuffer::dxIndexBuffer`: register allocation, 62.3 %. Every store is in the engine's order (the
+  initialiser list, then -1 at +0x34, then the six words of the state block), but the engine clears the state block
+  with a zero it materialises in `eax` (`xor eax, eax` after the state's constructor call) where this compiler
+  reuses the zero the initialiser list left in `ebx`, and it schedules the -1 store in front of them.
+- 0x10623FB0 `RestoreDefaultPool`: scheduling, 27.4 %. Every loop, every call and every argument is the engine's
+  (the five arrays in their order, the scaled path's conversion of the display size, the vertex buffer's
+  lock/copy/unlock, the particle and shadow managers at the end), but the engine reloads the manager into `ecx`
+  later than this compiler does and interleaves the pushes with the address computations differently, which moves
+  every block behind it. The frame and the conversions themselves match.
 - 0x1062AA90 `dxPrimStream::dxPrimStream`: one relocation target, 99.5 %. The buffer pool is
   `new IDirect3DVertexBuffer9*[count]`; the engine builds it through `operator new[]` (0x107DEF70), our compiler
   through `operator new` (0x107DEF50) — the body, the array-size overflow guard included, is otherwise identical.
@@ -2697,23 +2698,26 @@ NONMATCHING:
 
 Not done (each is a large function of a unit whose other members are still missing):
 
-- `dxdefaultpoolmanager.cpp`: 0x10623860 (the D3DERR text) and 0x106238B0 (the allocation failure report) are
-  **static helpers with link-time-codegen conventions** — the HRESULT arrives in `eax` resp. `edi`, which plain
-  `/O2` cannot produce (the same wall as 0x107DECD0 in `enginememory.cpp`). That also blocks the four pool
-  allocations 0x10624990, 0x10624A70, 0x10624B10 and 0x10624BA0, which all call 0x106238B0 that way, and the big
-  restore pass 0x10623FB0. The manager itself is the singleton at 0x11276DA4: five `{begin, end, capacity}` arrays
-  at +0x00, +0x10, +0x20, +0x30, +0x40 (one per texture, vertex buffer, index buffer, render target and
-  depth/stencil surface, each followed by an unused word), the D3D device at +0x50 and a byte at +0x54; the lock is
-  `0x11276D8C`. The pool works through the device's global at 0x11276D38 (+0x50 of the manager holds the same
-  pointer), and the entries it hands out are {Width, Height, Levels, float scale, Usage, Format, texture, surface}
-  for a texture (0x20 bytes), {Length, Usage, FVF, buffer, data} for a vertex buffer (0x14), {Length, Usage, Format,
-  buffer} for an index buffer (0x10) and {width, float scale, bool flag, height, depth, surface} for a render
-  target (0x1C).
+- `dxdefaultpoolmanager.cpp` is reconstructed now (`src/code/pure3d/pddi/src/dx9/dxdefaultpoolmanager.cpp` and its
+  header): 0x10623860 (the D3DERR text) and 0x106238B0 (the allocation failure report) are **static helpers** whose
+  HRESULT arrives in `edi` — the static declaration is what makes that convention (`/O2` gives an external function
+  its arguments on the stack) — and the four pool allocations 0x10624990, 0x10624A70, 0x10624B10, 0x10624BA0,
+  0x10624C60 and the release 0x10624D10 followed them in. The manager is the singleton at 0x11276DA4: five
+  `{begin, end, capacity}` arrays at +0x00, +0x10, +0x20, +0x30, +0x40 (one per texture, vertex buffer, index
+  buffer, render target and depth/stencil surface, each followed by a word the engine never touches — the shared
+  `container::ArrayDynamicNew` is 0xC bytes, so the manager declares the padding, as the Lua script manager's own
+  arrays do), the D3D device at +0x50 and a byte at +0x54; the lock is `0x11276D8C`. The pool works through the
+  device's global at 0x11276D38, and the entries it hands out are {width, height, levels, float scale, usage,
+  format, texture slot, surface slot} for a texture (0x20 bytes), {length, usage, fvf, buffer slot, data} for a
+  vertex buffer (0x14), {length, usage, format, buffer slot} for an index buffer (0x10), {width, height, float
+  scale, lockable, format, multiSample, surface slot} for a render target (0x1C) and {width, height, float scale,
+  format, multiSample, surface slot} for a depth/stencil surface (0x18). 0x1061B140 (the multisample mode of a
+  sample count) is declared there too, as `pure3d::GetMultiSampleType`.
 - `dxtexture.cpp`: the texture from an image 0x1061D3A0 and the surface rebind 0x1061CA00. The creations branch on
   the texture type at +8 (1 a 2D texture, 2 a cube texture, 3 a volume texture, through the device's +0x5C / +0x64 /
   +0x60), 0x1061C600 locks a level of each kind, and 0x1061C490 lays its levels out.
-- the buffer creations 0x10626350 (dxVertexBuffer::Create, 873 bytes) and 0x10626770 (dxIndexBuffer::Create),
-  `dxVertexDeclaration`'s own dump 0x1062B170 and the declaration table's lookup 0x1062B5C0.
+- `dxvertexbuffer.cpp` 0x10626350 (dxVertexBuffer::Create, 873 bytes), `dxvertexdeclaration.cpp` 0x1062B170 (the
+  declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
 - the context / device-reset functions 0x10616BB0, 0x106182C0, 0x1061FB40, 0x10620A20, 0x10620B00, 0x10621060 and
   0x10623250: they belong to the big `engine::Display` / `dxContext` class at 0x10616xxx - 0x10623xxx (members up to
   +0x82C, `+0x3C` the constant table, `+0x664` and `+0x690` further state), whose layout is not recovered yet.
