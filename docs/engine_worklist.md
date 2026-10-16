@@ -2462,8 +2462,23 @@ Not started (the reason each is blocked, not just "unknown"):
   array of 0x10-byte slots (the element's first word is a per-slot allocator), creates the slots' `CreateTwoWayHeap`
   (0x107DEB60) and dynamic-casts the result; it needs `container::String`, 0x1083EC30, 0x1083E880, 0x1082D630 and
   0x1082E3F0 named first.
-- `0x10899830` (454, `engine::StreamDriverBehaviour::update`) and `0x1082E100` (752, the stream transition): not read
-  yet.
+- `0x10899830` (454, `engine::StreamDriverBehaviour::update`): read in the third session, it is `Update(float,
+  unsigned short)` (ret 8) so it needs that class's vftable like the LOD slots. Its callees are
+  `StreamTrigger::Contains` (0x10835480), `StreamTrigger::FindPackage` (0x10835550), `AddTriggerPackages` (0x1082DB20,
+  done), `StreamPackage::IsLoaded` (0x107FB040), 0x1082BF40, 0x104B1860, 0x10899770 and 0x1082E100. Its members:
+  +0x0C the `TagSet`, +0x34 / +0x38 two package arrays (each a pointer to an array object whose +0 and +4 are the
+  begin and end), +0x3C and +0x40 trigger pointers, +0x4C / +0x4D / +0x4E / +0x4F / +0x50 / +0x51 bytes.
+- `0x1082E100` (752, the stream transition): four arguments (two package arrays, a `char*` flag and a `bool`), no
+  class layout of its own - it works on `int*` pairs - so it is the best candidate of the block that needs no vtable.
+  Its callees are 0x1063A8D0 / 0x1063A9C0 (a fixed-block heap alloc and free over heap 0xC, 0x40 bytes, 16-aligned),
+  0x1082E050, 0x107FB080, 0x107FB050, 0x1083E950, 0x1083E990, 0x1083E9E0, 0x107FB500, 0x107FB450, the stream manager
+  (0x1130D350, its +0x11C is set to 0xFFFF) and 0x1130D388.
+- `0x1083EC50` (484, the stream slot group's create): `void Create(int unused, bool immediate)` (ret 8). The object
+  is +0x08 a `core::Name`, +0x10 the 0x10-byte slot array (`count * 0x10 + 4` bytes, the first word the count),
+  +0x14 the heap, +0x18 the two-way allocator, +0x20 the slot count and +0x66 a byte; the per-slot strings are
+  `"%s StreamSlot"` and `"%s StreamSlot[%d]"`. It needs 0x1083EC30 (the factory interface's vtable getter),
+  0x1083E6A0 (the slot's placement constructor the vector-constructor iterator at 0x10005100 calls), 0x1083E880,
+  0x1082D630 and 0x1082E3F0 named and declared first.
 - `0x102D4920` (602, `DeformShaderBehaviour`'s vftable slot 4) and `0x102D4C50` (1097,
   `DeformShaderModifier::apply`): not read yet. Both need the behaviour's vftable emitted with its slots mapped, so
   they carry the same block as the LOD slots below.
@@ -2475,7 +2490,23 @@ Not started (the reason each is blocked, not just "unknown"):
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
   body reproduces.
 - `0x102DAF80` (681) and `0x102DC5F0` (557) are `LODRenderBehaviour`'s vftable slots 4 and 1, so they need the whole
-  class with its vftable and every slot mapped.
+  class with its vftable and every slot mapped. **The eight slots are** (declaring the class with Behaviour's eight
+  virtuals and running `tools/vtcheck.py` prints them): 0 `Behaviour::Slot0` (0x100610E0, the copy the engine's vftable
+  holds - leave the override out and the slot follows the engine's own), 1 `0x102DC5F0`, 2 `Behaviour::Slot2`
+  (0x107EE490, likewise not overridden), 3 `0x102DA2C0`, 4 `0x102DAF80`, 5 `0x102D9E80` (60 bytes, an easy one: it
+  only reads message type 0x16, id 6 and scales a byte at `message->+0xC` by the level count at `available->+0x18`),
+  6 `0x102DC8C0` (a 61-case switch on the message type at `message->+4`, its jump table of seven handlers starts at
+  0x102DC9B8 and its byte index table at 0x102DC9D8), 7 the deleting destructor (exempt).
+  The class members the slots need: +0x0C a pointer whose +4 is a `pure3d::Pose*`, +0x10 a pointer whose +4 is a
+  `math::Vector`, +0x1C / +0x24 and +0x20 / +0x28 `LODLevel*` pointers (`struct LODLevel { render::Drawable drawable;
+  unsigned short unknown4; unsigned short unknown6; };` - 0x102D9450 clears the two words and calls
+  `Drawable::SetRegistered(false)`, the engine's level records are 8 bytes), +0x2C another `Drawable*`, +0x30 the
+  available-levels object with its index at +0x34, +0x38 `distanceLevel`, +0x3C `minimumLevels`, +0x40 / +0x44 the
+  ready drawables and +0x50 / +0x54 the level table (0x10- and 8-byte records), +0x60 level, +0x64 fade, +0x68 a
+  second fade, +0x6C / +0x70 / +0x74 / +0x78 four floats `OnMessage` sets to 1, +0x90 / +0x94 / +0x98 the level
+  object's heap, heap and handle, +0x9C flags. `0x102DAF80` also shows the matrix copy (16 `movss` from
+  `owner->transform->value`, `math::Matrix`'s user copy constructor), `Matrix::Scale` on a `Matrix::IDENTITY` copy and
+  `matrix.Multiply(scale, matrix)`.
 - `0x102DE130` (`proto::MidgroundManager::Load`, 425 bytes): the third session declared the class and matched
   `CellLoaded` (0x102DDD30) and `CellUnloaded` (0x102DDE30) from it; `Load` still needs `engine::GameDatabase::
   GetString` (0x107F8850), 0x104DF9E0, `container::String::Format` (0x1060ED50), 0x108258B0 / 0x108258C0 on the
@@ -2485,16 +2516,18 @@ Not started (the reason each is blocked, not just "unknown"):
   +0x0C a `container::ArrayDynamicHeap<render::Drawable>` (its `end` at +0x10 and `capacity` at +0x14 are what
   `Load` walks), +0x1C the 0x28-byte cell index, +0x44 a `container::ArrayDynamicHeap<MidgroundCellRecord>`
   (0x18-byte records: a `core::Name`, a `render::Drawable*`, an int and a float).
-  Read in the second session: +0x1C is a hash map (its own +0 is the table pointer), the key is the 8 bytes of
-  `cell->field54->name.GetHash()` and the value is the cell's `render::Drawable`; the table is
-  `{mask, used, ?, ?, ?, ?, ?, heap, void* buckets[], Key keys[], sentinel at the table's own +0x24}` and the unit
-  holds copies of its `Find` (0x102DD6F0), `Find` from an index (0x102DD7B0), `Next` (0x102DD3B0), `Insert`
-  (0x102DDAD0) and `Grow` (0x102DDBA0). The iterator both functions build on the stack is seven dwords
-  (`table`, +4, the 8-byte key, +0x10, +0x14, +0x18), of which only +4, +8, +0x10, +0x14 and +0x18 are zeroed.
-  The record (`+0x44` .. `+0x48`, capacity at +0x4C) is `Name name; Drawable drawable; int unknownC; float unknown10;`,
-  and `0x102DDE30` erases one by moving the last record over it (`Name::operator=` then the three fields, the float
-  with `fld` / `fstp`). To reach them the map class must be declared here with that exact iterator: nothing in the
-  tree has it yet (0x102F6470, `engine::AudioParameterTable::Find`, is a different table).
+  The map is `proto::MidgroundMap` in the unit's header (the third session): +0x00 the capacity (a power of two, the
+  mask is it minus one), +0x04 the live count, +0x18 the heap the tables come from, +0x1C the bucket array,
+  +0x20 the key array and +0x24 a `render::Drawable` sentinel whose *address* is what an empty bucket holds. The
+  key is the 8 bytes `cell->unknown54->name.GetHash()` returns. The iterator is
+  `{MidgroundMap* map; int unknown4; unsigned __int64 key; int index; int current; int step;}`, its `step` is
+  `((key >> 9) & 0xFE) | 1` and `unknown4` is deliberately left uninitialised by the constructor (the engine's own
+  code does not write it). `Find` is the engine's 0x102DD6F0 and the unit also has a second copy of it at 0x102DD7B0
+  (the one `Insert` calls), plus `Next` (0x102DD3B0), `Insert` (0x102DDAD0) and `Grow` (0x102DDBA0) - none of those
+  is declared in our header yet, only `Find` is, because that is what the two matched functions call.
+  The record is `MidgroundCellRecord { core::Name name; render::Drawable* drawable; int unknownC; float unknown10; }`
+  in a `container::ArrayDynamicHeap` at +0x44: the drawable member is a *pointer*, and the 0x18-byte stride comes
+  from the record's eight-byte alignment (`ArrayDynamicHeap::EraseFast` is what `CellUnloaded` calls).
   The cell is reached through its +0x54, and the `%s_midground` name of `0x102DE130` goes through
   0x1082E010 / 0x108258B0 / 0x108258C0 and the `content::LoadInventory` iterator (0x102D22C0 / 0x102D2830).
 
