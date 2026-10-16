@@ -112,6 +112,12 @@ namespace pure3d
 		IDirect3DSurface9** surface, float scale);
 	// 0x10624D10: takes the texture that was made into a handle back out of the pool
 	void FreePooledTexture(IDirect3DTexture9** texture);
+	// 0x10623FB0: makes every resource the pool recorded again after the device came back (engine::Display's reset
+	// calls it; 0x10623DB0, the release on the way in, is the other half)
+	void RestoreDefaultPool();
+
+	// 0x1061B140: the Direct3D multisample mode of a sample count (a table at 0x10E33DA0; name guess)
+	int GetMultiSampleType(int samples);
 }
 
 #endif

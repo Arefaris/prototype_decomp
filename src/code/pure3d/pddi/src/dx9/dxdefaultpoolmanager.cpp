@@ -1,8 +1,13 @@
 // pure3d's default pool: what the back end makes in Direct3D's default pool (the pool a device reset empties) is
 // recorded here and made again after the reset. The file name is the assert path of 0x106238B0 and 0x10623FB0.
+#include <string.h>
+
 #include "code/core/criticalsection.h"
 #include "code/core/report.h"
+#include "code/engine/display.h"
 #include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
+#include "code/pure3d/primitive.h"
+#include "code/pure3d/shadows/shadowrendermanager.h"
 
 // The one kernel32 call the pool's failure report makes (declared here as thread.cpp declares its imports)
 extern "C"
@@ -207,4 +212,143 @@ namespace pure3d
 		}
 		core::CriticalSectionLeave(gDefaultPoolLock);
 	}
+
+#ifdef NONMATCHING
+	// FUNCTION: ENGINE 0x10623FB0
+	// NONMATCHING: scheduling, 27.4 %. Every loop, every call and every argument is the engine's (the five arrays in
+	// their order, the scaled path's unsigned-int conversion of the display size, the vertex buffer's lock/copy/unlock,
+	// the particle and shadow managers at the end); the engine reloads the manager into ecx later than this compiler
+	// does and interleaves the pushes with the address computations differently, which shifts every block behind it.
+	// The frame and the conversions themselves (fnstcw / fldcw / fistp) do match.
+	void RestoreDefaultPool()
+	{
+		if (gDefaultPoolManager->released)
+		{
+			core::CriticalSectionEnter(gDefaultPoolLock);
+			for (unsigned int i = 0; i < gDefaultPoolManager->textures.Size(); i++)
+			{
+				if (gDefaultPoolManager->textures[i]->scale == 1.0f)
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateTexture(
+						gDefaultPoolManager->device, gDefaultPoolManager->textures[i]->width,
+						gDefaultPoolManager->textures[i]->height, gDefaultPoolManager->textures[i]->levels,
+						gDefaultPoolManager->textures[i]->usage, gDefaultPoolManager->textures[i]->format,
+						D3DPOOL_DEFAULT, gDefaultPoolManager->textures[i]->texture, 0);
+					ReportAllocationFailure(result, "texture");
+				}
+				else
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateTexture(
+						gDefaultPoolManager->device,
+						(unsigned int)((double)engine::gDisplay->GetWidth()
+							* gDefaultPoolManager->textures[i]->scale),
+						(unsigned int)((double)engine::gDisplay->GetUnknown8()
+							* gDefaultPoolManager->textures[i]->scale),
+						gDefaultPoolManager->textures[i]->levels, gDefaultPoolManager->textures[i]->usage,
+						gDefaultPoolManager->textures[i]->format, D3DPOOL_DEFAULT,
+						gDefaultPoolManager->textures[i]->texture, 0);
+					ReportAllocationFailure(result, "texture");
+				}
+				if (*gDefaultPoolManager->textures[i]->texture != 0
+					&& gDefaultPoolManager->textures[i]->surface != 0)
+				{
+					(*gDefaultPoolManager->textures[i]->texture)->lpVtbl->GetSurfaceLevel(
+						*gDefaultPoolManager->textures[i]->texture, 0, gDefaultPoolManager->textures[i]->surface);
+				}
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->vertexBuffers.Size(); i++)
+			{
+				HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateVertexBuffer(
+					gDefaultPoolManager->device, gDefaultPoolManager->vertexBuffers[i]->length,
+					gDefaultPoolManager->vertexBuffers[i]->usage, gDefaultPoolManager->vertexBuffers[i]->fvf,
+					D3DPOOL_DEFAULT, gDefaultPoolManager->vertexBuffers[i]->buffer, 0);
+				ReportAllocationFailure(result, "vertex buffer");
+				if (gDefaultPoolManager->vertexBuffers[i]->data != 0)
+				{
+					D3DLOCKED_RECT locked;
+					locked.Pitch = 0;
+					HRESULT lockResult = (*gDefaultPoolManager->vertexBuffers[i]->buffer)->lpVtbl->Lock(
+						*gDefaultPoolManager->vertexBuffers[i]->buffer, 0, 0, &locked, D3DLOCK_DISCARD);
+					ReportAllocationFailure(lockResult, "vertex buffer");
+					memcpy(locked.pBits, gDefaultPoolManager->vertexBuffers[i]->data,
+						gDefaultPoolManager->vertexBuffers[i]->length);
+					(*gDefaultPoolManager->vertexBuffers[i]->buffer)->lpVtbl->Unlock(
+						*gDefaultPoolManager->vertexBuffers[i]->buffer);
+				}
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->indexBuffers.Size(); i++)
+			{
+				HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateIndexBuffer(
+					gDefaultPoolManager->device, gDefaultPoolManager->indexBuffers[i]->length,
+					gDefaultPoolManager->indexBuffers[i]->usage, gDefaultPoolManager->indexBuffers[i]->format,
+					D3DPOOL_DEFAULT, gDefaultPoolManager->indexBuffers[i]->buffer, 0);
+				ReportAllocationFailure(result, "index buffer");
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->renderTargets.Size(); i++)
+			{
+				gDefaultPoolManager->renderTargets[i]->multiSample =
+					GetMultiSampleType(engine::gRenderDisplay->GetUnknown28());
+				if (gDefaultPoolManager->renderTargets[i]->scale == 1.0f)
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateRenderTarget(
+						gDefaultPoolManager->device, gDefaultPoolManager->renderTargets[i]->width,
+						gDefaultPoolManager->renderTargets[i]->height, gDefaultPoolManager->renderTargets[i]->format,
+						gDefaultPoolManager->renderTargets[i]->multiSample, 0,
+						gDefaultPoolManager->renderTargets[i]->lockable,
+						gDefaultPoolManager->renderTargets[i]->surface, 0);
+					ReportAllocationFailure(result, "render target");
+				}
+				else
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateRenderTarget(
+						gDefaultPoolManager->device,
+						(unsigned int)((double)engine::gDisplay->GetWidth()
+							* gDefaultPoolManager->renderTargets[i]->scale),
+						(unsigned int)((double)engine::gDisplay->GetUnknown8()
+							* gDefaultPoolManager->renderTargets[i]->scale),
+						gDefaultPoolManager->renderTargets[i]->format,
+						gDefaultPoolManager->renderTargets[i]->multiSample, 0,
+						gDefaultPoolManager->renderTargets[i]->lockable,
+						gDefaultPoolManager->renderTargets[i]->surface, 0);
+					ReportAllocationFailure(result, "render target");
+				}
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->depthStencils.Size(); i++)
+			{
+				gDefaultPoolManager->depthStencils[i]->multiSample =
+					GetMultiSampleType(engine::gRenderDisplay->GetUnknown28());
+				if (gDefaultPoolManager->depthStencils[i]->scale == 1.0f)
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateDepthStencilSurface(
+						gDefaultPoolManager->device, gDefaultPoolManager->depthStencils[i]->width,
+						gDefaultPoolManager->depthStencils[i]->height, gDefaultPoolManager->depthStencils[i]->format,
+						gDefaultPoolManager->depthStencils[i]->multiSample, 0, 0,
+						gDefaultPoolManager->depthStencils[i]->surface, 0);
+					ReportAllocationFailure(result, "depth/stencil surface");
+				}
+				else
+				{
+					HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateDepthStencilSurface(
+						gDefaultPoolManager->device,
+						(unsigned int)((double)engine::gDisplay->GetWidth()
+							* gDefaultPoolManager->depthStencils[i]->scale),
+						(unsigned int)((double)engine::gDisplay->GetUnknown8()
+							* gDefaultPoolManager->depthStencils[i]->scale),
+						gDefaultPoolManager->depthStencils[i]->format,
+						gDefaultPoolManager->depthStencils[i]->multiSample, 0, 0,
+						gDefaultPoolManager->depthStencils[i]->surface, 0);
+					ReportAllocationFailure(result, "depth/stencil surface");
+				}
+			}
+			core::CriticalSectionLeave(gDefaultPoolLock);
+			if (GetParticleManager() != 0)
+			{
+				GetParticleManager()->Unknown106EE500();
+				GetParticleManager()->Unknown106EEC50(engine::gRenderDisplay->GetUnknown28());
+			}
+			ShadowRenderManager::Get()->Unknown10715F30();
+			gDefaultPoolManager->released = false;
+		}
+	}
+#endif
 }
