@@ -2585,11 +2585,15 @@ both undersized there:
   (the declaration in the tree is right - the callee reads exactly those eight, `ret`) and the four constants
   pushed before it (`0`, `&core::IMemoryAllocator::RTTI_Type_Descriptor`, `&core::IMemoryLinearAllocator::
   RTTI_Type_Descriptor`, `0`) are the scheduler setting up `__RTDynamicCast`, which runs after the `add esp, 0x20`.
-  **The one thing to settle first:** both `Format` call sites push the `StringC<64>` object's address as the
-  *first argument* (`lea ecx, [esp+0x28]` then `push ecx`) on top of passing it in `ecx` -
-  `container::String::Format` is a thiscall `(const char*, ...)`, so either the engine's call reads differently or
-  the call goes through a second function with a leading `String*`; compare against the call sites of the same
-  0x1060ED50 in a matched unit (gameobjectspawner.cpp calls it twice) before writing it.
+  Both `Format` calls look like they push the `StringC<64>` object's address as an extra leading argument
+  (`lea ecx, [esp+0x28]` then `push ecx`, and `add esp, 0xc` for three arguments). They do not: **MSVC passes a
+  variadic member function's `this` as the first *stack* argument, not in `ecx`.** `GameObjectSpawner::Spawn`
+  (0x107F2390, 100 % matched) calls the same 0x1060ED50 the same way from the plain source
+  `text.Format("gameobject%d", sNameCount++);`, with `ecx` left holding something else entirely. So the two calls
+  here are `text.Format("%s StreamSlot", name.GetText());` and
+  `text.Format("%s StreamSlot[%d]", name.GetText(), i);` and need nothing special.
+  `GetSlotHeapConfig` must be declared **returning `int*`** (`int* GetSlotHeapConfig(int* config)`): the caller
+  reads `config[0]` through the call's `eax` with no reload.
 
 0x107DECD0's `?GetHeapKindName@engine@@YAPBDH@Z` symbol in symbols.txt names an internal-linkage function: the
 engine's own table entry for it.
