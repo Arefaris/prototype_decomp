@@ -258,10 +258,76 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071EFB0
-	void* Skin::GetUnknown1C()
+	unsigned int Skin::GetUnknown1C()
 	{
 		return unknown1C;
 	}
+
+	// FUNCTION: ENGINE 0x1071EE50
+	bool Skin::FillBatch(void* batch, PrimitiveState* state, bool* unknown)
+	{
+		PrimBatch* data = (PrimBatch*)batch;
+		data->unknown70 = unknown1C;
+		data->unknown74 = 0;
+		data->unknown78 = 0;
+		data->unknown7C = 0;
+		data->unknown28 = 0;
+		data->unknown80 = 0;
+		stream->PrepareBatch(data);
+		SkinState* skinState = (SkinState*)state;
+		PrimGroupList* group = ((PrimGroupList*)skinState->GetPose())->AddGroup(data, 0);
+		if (skinState->GetBlendPose() != 0)
+		{
+			data->unknown84 = true;
+			group = ((PrimGroupList*)skinState->GetBlendPose())->AddGroup(data, group);
+		}
+		else
+		{
+			data->unknown84 = false;
+		}
+		if (buffer != 0)
+		{
+			((PrimGroupList*)buffer)->AddGroup(data, group);
+		}
+		*unknown = true;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1071ED50
+	// NONMATCHING: the engine keeps the state in edi, the skin in esi, the binding source in ebx and the group count
+	// in ebp and pushes the one or three groups as an immediate; ours assigns those registers the other way round
+	// (state esi, skin edi, source ebp, count ebx), which no local order tried changes, 14 %
+#ifdef NONMATCHING
+	void Skin::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
+	{
+		SkinState* skinState = (SkinState*)state;
+		skinState->Unknown9();
+		PrimGroupList* groups[3] = {0, 0, 0};
+		int count = 1;
+		void* source = binding;
+		if (source == 0)
+		{
+			source = skinState->GetBindingSource();
+		}
+		Pose* pose = skinState->GetPose();
+		groups[0] = (PrimGroupList*)pose;
+		if (skinState->GetBlendPose() != 0)
+		{
+			((PoseSkinView*)pose)->unknown138 = -1;
+			groups[1] = (PrimGroupList*)buffer;
+			groups[2] = (PrimGroupList*)skinState->GetBlendPose();
+			count = 3;
+		}
+		else if (buffer != 0)
+		{
+			groups[1] = (PrimGroupList*)buffer;
+			count = 2;
+		}
+		PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, (void**)groups, stream, unknown1C, 0, 0, 0);
+		pddi->DrawPrimitive(shader, &desc, parameters);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071EFE0
 	void Skin::UnlockBuffer()

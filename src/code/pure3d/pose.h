@@ -53,6 +53,14 @@ namespace pure3d
 		PoseData mData;
 		unsigned int mUpdateCount;
 	};
+
+	// What a pose keeps past the data above, which this partial view does not lay out: the word the skinning code
+	// stamps when it draws the pose (+0x138)
+	struct PoseSkinView
+	{
+		unsigned char unknown0[0x138];
+		int unknown138;
+	};;
 }
 
 #endif

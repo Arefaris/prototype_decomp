@@ -11,6 +11,7 @@
 namespace pure3d
 {
 	class Shader;
+	class PrimGroupList;
 
 	// A copy of the device's render states, taken by Save and put back by Restore (or by the destructor unless it
 	// was dismissed). Bits of `groups`: 1 render state, 2 view state, 4 z state, 8 stencil state.
@@ -87,12 +88,19 @@ namespace pure3d
 		PrimBuffer* buffer;
 	};
 
-	// What the device draws (0x4C bytes, constructor 0x10611CB0)
+	// What the device draws (0x54 bytes; the constructors at 0x10611CB0, 0x10611C30 and 0x10611DC0 fill it from the
+	// primitive's own object, the part's world matrix and the list of objects to draw)
 	struct PrimDrawDesc
 	{
-		PrimDrawDesc(void* format, int a, int b, PrimBuffer** buffers, int c, int count, int type, int d);
+		PrimDrawDesc(void* format, int a, int count, PrimBuffer** buffers, int c, int d, int e, int f);
+		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, PrimGroupList* list, int d,
+			int e, int f, int g);
+		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, int list, int d, int e,
+			int f, int g, int h);
 
-		unsigned char unknown0[0x4C];
+		// The vertex format of the object the parts of this primitive are drawn from
+		void* format;
+		unsigned char unknown4[0x50];
 	};
 
 	// The draw parameters (12 bytes; they are the shader's at +0x14). The bits of the second word that the tracer

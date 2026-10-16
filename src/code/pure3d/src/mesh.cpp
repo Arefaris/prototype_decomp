@@ -1,6 +1,8 @@
 // pure3d::Mesh and pure3d::MeshState (unit around 0x10707400 - 0x10709A00; file name guessed from the classes).
 // Names are guesses.
+#include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/primstream.h"
 #include "code/pure3d/shaderparameters.h"
 
 namespace pure3d
@@ -10,6 +12,43 @@ namespace pure3d
 	{
 		return controller3;
 	}
+
+	// FUNCTION: ENGINE 0x10707280
+	// NONMATCHING: the engine fills the draw descriptor the same way but sets its count and its list up inside each
+	// branch of the state test (push 2 / push 1 and the matching lea, converging on a shared call); ours computes
+	// both before the branch and keeps them in registers, 13 %
+#ifdef NONMATCHING
+	void Mesh::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
+	{
+		void* source = binding;
+		if (binding == 0)
+		{
+			source = unknown18;
+		}
+		int count = 1;
+		PrimGroupList* parts[2];
+		void** list = (void**)&unknown20;
+		if (state != 0)
+		{
+			if (binding == 0)
+			{
+				source = state->GetBindingSource();
+			}
+			PartStateView* view = (PartStateView*)state;
+			PrimGroupList* group = view->groups[view->unknown38];
+			if (group != 0)
+			{
+				parts[0] = unknown20;
+				parts[1] = group;
+				list = (void**)parts;
+				count = 2;
+			}
+		}
+		PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, list, unknown24, unknown1C, 0, 0, 0);
+		pddi->DrawPrimitive(shader, &desc, parameters);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10707330
 	bool Mesh::FillBatch(void* batch, PrimitiveState* state, bool* unknown)
