@@ -177,7 +177,8 @@ namespace pure3d
 		int unknown78;
 		int unknown7C;
 		int unknown80;
-		int unknown84;
+		// Set by a skin's FillBatch: whether the state had a second pose to blend in
+		bool unknown84;
 	};
 
 	// The groups a mesh or a state keeps (the two share the call the primitives make into them; the name is a guess)
@@ -300,11 +301,13 @@ namespace pure3d
 	{
 	public:
 		virtual ~Mesh();
+		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
 
-		// The word the batch carries (the kind of primitive?), then the two lists its groups live in
-		unsigned short unknown1C;
-		unsigned short unknown1E;
+		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
+		// groups live in
+		unsigned int unknown1C;
 		PrimGroupList* unknown20;
 		PrimGroupList* unknown24;
 	};
@@ -550,23 +553,23 @@ namespace pure3d
 
 		// 0x1071EAE0: submits the skinning job
 		void SubmitTask();
-		// 0x1071EFB0: the pointer at +0x1C
-		void* GetUnknown1C();
+		// 0x1071EFB0: the word at +0x1C (the kind of primitive the batch carries)
+		unsigned int GetUnknown1C();
 		// 0x1071EFE0: unlocks the vertex buffer when there is one
 		void UnlockBuffer();
 		// 0x1071F000: fills the buffer's descriptor
 		void FillBufferDesc(int value);
 
-		void* unknown1C;
+		unsigned int unknown1C;
 		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
 		core::AsyncTaskJob job;
 		unsigned char unknown68[8];
 		Pose* pose;
 		unsigned char unknown74[0xD0];
-		// 0x144: the vertex buffer the skinned vertices go into
+		// 0x144: the vertex buffer the skinned vertices go into, and one of the groups the parts are drawn from
 		PrimBuffer* buffer;
-		// 0x148: its stream
-		void* stream;
+		// 0x148: the group list of this skin's geometry (the batch is prepared through it)
+		PrimGroupList* stream;
 		unsigned char unknown14C[0x120];
 		math::AABB bounds;
 		math::Vector4 centre;

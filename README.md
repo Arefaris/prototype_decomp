@@ -23,7 +23,7 @@ Functions  █░░░░░░░░░░░░░░░░░░░░░░
   engine     1955 functions matched, 102,757 bytes
   math        206 functions matched, 25,626 bytes
   proto        30 functions matched, 4,634 bytes
-  pure3d      146 functions matched, 8,382 bytes
+  pure3d      146 functions matched, 8,412 bytes
   ravenphysics   291 functions matched, 13,707 bytes
 ```
 
