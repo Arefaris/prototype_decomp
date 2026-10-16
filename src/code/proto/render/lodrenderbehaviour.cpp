@@ -72,10 +72,9 @@ namespace proto
 
 	// The first update: the entry of the shader palette is picked and every level gets its drawable bound
 	// FUNCTION: ENGINE 0x102DC5F0
-	// NONMATCHING: the half extents of the first ready drawable: the engine subtracts the box corners in the order z,
-	// y, x with memory operands and multiplies afterwards in the same order, this compiler does x, z, y and sums the
-	// squares in another order (the float sum is not the engine's), 79.4 %; the rest of the function is the engine's
-#ifdef NONMATCHING
+	// EQUIVALENT: scheduling (79.4 %): the half extents of the first ready drawable are subtracted, halved, squared and
+	// summed in the engine's order (z, y, x); this compiler only stores the distance level earlier and picks other
+	// registers
 	inline float HalfDiagonal(const math::AABB& box)
 	{
 		math::Vector half;
@@ -149,7 +148,6 @@ namespace proto
 			boneData = pure3d::AllocateBoneData(joints, &boneDataSize, 3);
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102DAF80
 	void LODRenderBehaviour::Update(float dt, unsigned short mask)

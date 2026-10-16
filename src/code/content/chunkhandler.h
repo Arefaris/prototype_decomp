@@ -13,9 +13,31 @@ namespace content
 {
 	// The stream a chunk handler reads through (0x288 bytes; 0x1060BB60 is the constructor, 0x1060B8E0 opens the
 	// chunks, 0x1060B8A0 answers whether there is another one). The layout is partial.
+	// The stream a chunk reader reads through (reference counted; only its read is known)
+	class ChunkStream : public core::IRefCount
+	{
+	public:
+		// 0x1060B260: reads count items of size bytes into destination (the last word is unknown)
+		void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
+	};
+
 	class ChunkReader
 	{
 	public:
+		// 0x1060B8A0: whether there is another chunk in the one the reader sits in
+		bool HasChunk();
+		// 0x1060B8E0: opens the next chunk
+		void BeginChunk();
+		// 0x1060BAE0: the id of the chunk the reader sits in
+		unsigned int GetChunkId();
+		// 0x1060BA90: closes the chunk
+		void EndChunk();
+		// Reads from the stream the chunks come from
+		__forceinline void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown)
+		{
+			((ChunkStream*)stream)->Read(destination, count, size, unknown);
+		}
+
 		unsigned char unknown0[0x280];
 		// The index of the chunk the reader sits in
 		unsigned int chunk;

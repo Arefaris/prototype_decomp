@@ -12,6 +12,8 @@ namespace pure3d
 {
 	class Shader;
 	class PrimGroupList;
+	class dxVertexBuffer;
+	class dxIndexBuffer;
 
 	// A copy of the device's render states, taken by Save and put back by Restore (or by the destructor unless it
 	// was dismissed). Bits of `groups`: 1 render state, 2 view state, 4 z state, 8 stencil state.
@@ -98,9 +100,23 @@ namespace pure3d
 		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, int list, int d, int e,
 			int f, int g, int h);
 
-		// The vertex format of the object the parts of this primitive are drawn from
+		// The vertex format of the object the parts of this primitive are drawn from (the shader the device draws
+		// it with: a dxShader)
 		void* format;
-		unsigned char unknown4[0x48];
+		// The world matrix the primitive is drawn with (null when the device keeps the one it has)
+		const math::Matrix* world;
+		unsigned char unknown8[4];
+		// The vertices the part draws from
+		dxVertexBuffer* vertices;
+		unsigned char unknown10[0x1C];
+		// The indices it draws them with (null for a plain draw)
+		dxIndexBuffer* indices;
+		// How many vertices (a plain draw) or indices (an indexed one) are drawn; 0 draws everything there is
+		unsigned int count;
+		int primitiveType;
+		unsigned char unknown38[0xC];
+		int baseVertex;
+		int startIndex;
 	};
 
 	// The descriptor pure3d::GpuSkin::Draw builds: the same first 0x4C bytes (the constructor at 0x10611DC0 forwards

@@ -24,6 +24,8 @@ namespace pure3d
 		dxVertexBuffer();
 		// 0x10626350
 		void Create(const VertexBufferDescription* description);
+		// 0x10625900: the first word of the declaration (the draws take it for how many vertices there are)
+		int GetUnknown14();
 
 		bool unknown8;
 		int unknownC;

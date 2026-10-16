@@ -61,6 +61,8 @@ namespace pure3d
 		dxIndexBuffer();
 		// 0x10626770
 		void Create(const IndexBufferDescription* description);
+		// 0x10626920: the first word of the state (the draws take it for how many indices there are)
+		int GetUnknown1C();
 
 		bool unknown8;
 		// The buffer the device made

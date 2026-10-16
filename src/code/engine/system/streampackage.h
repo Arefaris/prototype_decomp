@@ -74,6 +74,11 @@ namespace engine
 		SlotHeapFactory GetSlotHeapFactory() const;
 		// 0x1083E880: the size of the heap of a slot and the two flags it is made with (out[0], out[1] and out[2])
 		int* GetSlotHeapConfig(int* out) const;
+		// 0x1083E950 / 0x1083E990 / 0x1083E9E0: questions about the slots' state (the first counts the slots that
+		// are in use and in state 9, the others ask whether one of them is loading; names unknown)
+		unsigned int Unknown1083E950() const;
+		bool Unknown1083E990() const;
+		bool Unknown1083E9E0() const;
 
 		core::Name<core::CaseSensitiveKey> name;   // +0x08
 		StreamSlot* slots;                         // +0x10
@@ -134,9 +139,15 @@ namespace engine
 
 		unsigned char unknown4[0x4c - 4];
 		Settings settings;
+		unsigned char unknown74[0x11C - 0x74];
+		// The priority loads are made at while a group's packages are changing (0xFFFF: none; 0x1082E100 sets it)
+		unsigned int transitionPriority;
 	};
 
 	extern StreamManager* gStreamManager;
+
+	// 0x1130D388: the slot group name loads without a group of their own are made with (name guess)
+	extern content::ObjectName gNoSlotGroup;
 
 	// 0x1082E010 (the stream manager's unit): the package of name, null if none
 	StreamPackage* FindStreamPackage(const core::Name<core::CaseSensitiveKey>& name);

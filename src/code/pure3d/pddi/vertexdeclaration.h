@@ -43,6 +43,10 @@ namespace pure3d
 		container::ArrayDynamic<dxVertexDeclarationEntry, container::AllocatorCoreStatic<12, 16> > entries;
 		// How many declarations have been made in all
 		int count;
+		int unknown14;
+		int unknown18;
+		// The number of the declaration the device has set (the draws set it when theirs is another)
+		int current;
 	};
 	extern dxVertexDeclarationManager* gVertexDeclarationManager;
 

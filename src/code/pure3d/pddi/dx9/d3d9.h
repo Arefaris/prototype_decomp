@@ -310,13 +310,75 @@ inline ULONG IDirect3DVolumeTexture9::Release()
 	return lpVtbl->Release(this);
 }
 
+// The parameters a device is made or reset with (0x38 bytes)
+struct D3DPRESENT_PARAMETERS
+{
+	UINT BackBufferWidth;
+	UINT BackBufferHeight;
+	D3DFORMAT BackBufferFormat;
+	UINT BackBufferCount;
+	D3DMULTISAMPLE_TYPE MultiSampleType;
+	DWORD MultiSampleQuality;
+	unsigned int SwapEffect;
+	void* hDeviceWindow;
+	BOOL Windowed;
+	BOOL EnableAutoDepthStencil;
+	D3DFORMAT AutoDepthStencilFormat;
+	DWORD Flags;
+	UINT FullScreen_RefreshRateInHz;
+	UINT PresentationInterval;
+};
+
+struct D3DDISPLAYMODE
+{
+	UINT Width;
+	UINT Height;
+	UINT RefreshRate;
+	D3DFORMAT Format;
+};
+
+// The device's capabilities (0x130 bytes; only the fields the back end reads are named)
+struct D3DCAPS9
+{
+	unsigned int unknown0[0x16];
+	UINT MaxTextureWidth;
+	UINT MaxTextureHeight;
+	unsigned int unknown60[0x1D];
+	DWORD DevCaps2;
+	unsigned int unknownD8[7];
+	DWORD StretchRectFilterCaps;
+	unsigned int unknownF8[14];
+};
+
+struct IDirect3D9;
+
+// The slots of the Direct3D object the display uses (indices as in d3d9.h)
+struct IDirect3D9Vtbl
+{
+	void* unknown0[8];
+	// 0x20 GetAdapterDisplayMode
+	HRESULT (__stdcall* GetAdapterDisplayMode)(IDirect3D9* d3d, UINT adapter, D3DDISPLAYMODE* mode);
+	void* unknown24[5];
+	// 0x38 GetDeviceCaps
+	HRESULT (__stdcall* GetDeviceCaps)(IDirect3D9* d3d, UINT adapter, unsigned int deviceType, D3DCAPS9* caps);
+	void* getAdapterMonitor;
+	// 0x40 CreateDevice
+	HRESULT (__stdcall* CreateDevice)(IDirect3D9* d3d, UINT adapter, unsigned int deviceType, void* focusWindow,
+		DWORD behaviourFlags, D3DPRESENT_PARAMETERS* parameters, IDirect3DDevice9** device);
+};
+
+struct IDirect3D9
+{
+	IDirect3D9Vtbl* lpVtbl;
+};
+
 // The slots the dx9 back end uses, in d3d9.h's order (the index is the offset divided by four)
 struct IDirect3DDevice9Vtbl
 {
 	void* queryInterface;
 	void* addRef;
 	void* release;
-	void* testCooperativeLevel;
+	HRESULT (__stdcall* TestCooperativeLevel)(IDirect3DDevice9* device);
 	// 0x10
 	UINT (__stdcall* GetAvailableTextureMem)(IDirect3DDevice9* device);
 	void* evictManagedResources;
@@ -332,14 +394,15 @@ struct IDirect3DDevice9Vtbl
 	// 0x38
 	void* getSwapChain;
 	void* getNumberOfSwapChains;
-	void* reset;
+	HRESULT (__stdcall* Reset)(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* parameters);
 	void* present;
 	void* getBackBuffer;
 	// 0x4C
 	void* getRasterStatus;
 	void* setDialogBoxMode;
 	void* setGammaRamp;
-	void* getGammaRamp;
+	// 0x58 GetGammaRamp
+	HRESULT (__stdcall* GetGammaRamp)(IDirect3DDevice9* device, UINT swapChain, void* ramp);
 	// 0x5C CreateTexture
 	HRESULT (__stdcall* CreateTexture)(IDirect3DDevice9* device, UINT width, UINT height, UINT levels, DWORD usage,
 		D3DFORMAT format, D3DPOOL pool, IDirect3DTexture9** texture, HANDLE* sharedHandle);
@@ -391,10 +454,24 @@ struct IDirect3DDevice9Vtbl
 		IDirect3DVertexDeclaration9** declaration);
 	// 0x15C SetVertexDeclaration
 	HRESULT (__stdcall* SetVertexDeclaration)(IDirect3DDevice9* device, void* declaration);
-	// 0x160 - 0x19C: the vertex shaders' constants and the stream sources
-	void* unknown160[16];
+	// 0x160 - 0x19C: the vertex shaders and their constants and the stream sources
+	void* unknown160[4];
+	// 0x170 SetVertexShader
+	HRESULT (__stdcall* SetVertexShader)(IDirect3DDevice9* device, void* shader);
+	void* unknown174;
+	// 0x178 SetVertexShaderConstantF
+	HRESULT (__stdcall* SetVertexShaderConstantF)(IDirect3DDevice9* device, UINT startRegister,
+		const float* constantData, UINT vector4fCount);
+	void* unknown17C[5];
+	// 0x190 SetStreamSource
+	HRESULT (__stdcall* SetStreamSource)(IDirect3DDevice9* device, UINT streamNumber, void* streamData,
+		UINT offsetInBytes, UINT stride);
+	void* unknown194[3];
 	// 0x1A0 SetIndices
 	HRESULT (__stdcall* SetIndices)(IDirect3DDevice9* device, IDirect3DIndexBuffer9* indexBuffer);
+	void* unknown1A4[2];
+	// 0x1AC SetPixelShader
+	HRESULT (__stdcall* SetPixelShader)(IDirect3DDevice9* device, void* shader);
 };
 
 struct IDirect3DDevice9

@@ -69,4 +69,10 @@ namespace pure3d
 			}
 		}
 	}
+
+	// FUNCTION: ENGINE 0x10626920
+	int dxIndexBuffer::GetUnknown1C()
+	{
+		return state.unknown0;
+	}
 }
