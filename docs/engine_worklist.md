@@ -2695,10 +2695,8 @@ NONMATCHING:
   lock/copy/unlock, the particle and shadow managers at the end), but the engine reloads the manager into `ecx`
   later than this compiler does and interleaves the pushes with the address computations differently, which moves
   every block behind it. The frame and the conversions themselves match.
-- 0x1062AA90 `dxPrimStream::dxPrimStream`: one relocation target, 99.5 %. The buffer pool is
-  `new IDirect3DVertexBuffer9*[count]`; the engine builds it through `operator new[]` (0x107DEF70), our compiler
-  through `operator new` (0x107DEF50) — the body, the array-size overflow guard included, is otherwise identical.
-  (`operator new[](len)` written out drops the guard and is worse.)
+- 0x1062AA90 `dxPrimStream::dxPrimStream` matched after all (the relocation into the buffer pool resolves to the
+  engine's `operator new[]` now): it is 100 % against 0x1062AA90 and no longer counted as NONMATCHING.
 
 Not done (each is a large function of a unit whose other members are still missing):
 
