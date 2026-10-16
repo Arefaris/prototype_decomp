@@ -14,6 +14,8 @@ namespace pure3d
 	public:
 		// 0x1062AA90: takes the vertex format length the stream's buffers are made with
 		dxPrimStream(unsigned int length);
+		// 0x1062AC90: the slot the base class leaves to its back ends
+		virtual void Unknown1();
 
 		int unknown4;
 		int unknown8;

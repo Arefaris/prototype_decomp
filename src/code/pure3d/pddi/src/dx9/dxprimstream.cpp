@@ -1,5 +1,7 @@
 // pure3d::dxPrimStream, the Direct3D 9 primitive stream of the pddi layer (unit around 0x1062AA90; the file name is
 // guessed, no assert path survives).
+#include <new>
+
 #include "code/pure3d/pddi/dx9/dxprimstream.h"
 
 namespace pure3d
@@ -8,11 +10,7 @@ namespace pure3d
 	extern int gStreamBufferCount;
 	extern unsigned int gStreamBufferLength;
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1062AA90
-	// NONMATCHING: one relocation target, 99.5 %: the pool is `new IDirect3DVertexBuffer9*[count]`, which the engine
-	// builds through operator new[] (0x107DEF70) and our compiler through operator new (0x107DEF50) -- the whole
-	// body, the overflow guard included, is otherwise identical.
 	dxPrimStream::dxPrimStream(unsigned int bufferLength)
 	{
 		length = bufferLength;
@@ -34,5 +32,4 @@ namespace pure3d
 		current = buffers[slot];
 		unknown140 = 0;
 	}
-#endif
 }

@@ -1,9 +1,19 @@
-// pure3d::dxTexture, the Direct3D 9 texture of the pddi layer (unit around 0x1061C400 - 0x1061D3A0; the file name is
+// pure3d::dxTexture, the Direct3D 9 texture of the pddi layer (unit around 0x1061C400 - 0x1061F200; the file name is
 // guessed, no assert path survives).
+#include <new>
+
 #include "code/pure3d/pddi/dx9/dxtexture.h"
+
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 
 namespace pure3d
 {
+	// 0x11276D48: the bytes of texture memory all the textures hold (name guess)
+	extern int gTextureMemory;
+
+	// The level records of the texture leave the level array through the pool manager (0x10624D10)
+	void FreePooledTexture(IDirect3DTexture9** slot);
+
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
 	// formats; the single bytes are the back end's own format codes). The result is a 32-bit 0 or 1: the engine's
@@ -19,41 +29,41 @@ namespace pure3d
 		return false;
 	}
 
-#ifdef NONMATCHING
-	// FUNCTION: ENGINE 0x1061C400
-	// NONMATCHING: scheduling, 31.0 %: every store is there with the engine's value and the engine's order, but our
-	// compiler sinks the -1 / 1 group (0x28 - 0x3C) behind the whole run of zero stores and moves the vftable store
-	// with it; reordering the source statements (document order, the engine's order) does not change the schedule.
-	dxTexture::dxTexture(IDirect3DDevice9* device)
+	// FUNCTION: ENGINE 0x1061CBE0
+	dxTexture::~dxTexture()
 	{
-		unknown8 = 0;
-		unknownC = 0;
-		unknown10 = 0;
-		unknown14 = 0;
-		unknown18 = 0;
-		unknown1C = 0;
-		unknown20 = 0;
-		unknown24 = 0;
-		unknown28 = -1;
-		unknown2C = -1;
-		unknown30 = 1;
-		unknown34 = 0;
-		unknown38 = 0;
-		unknown3C = true;
-		unknown40.pointer = 0;
-		unknown44 = 0;
-		texture = 0;
-		unknown4C.pointer = 0;
-		unknown50.pointer = 0;
-		unknown54.pointer = 0;
-		unknown58 = 0;
-		unknown60 = -1;
-		unknown64 = -1;
-		unknown7C = false;
-		unknown80 = 0;
-		unknown84 = false;
-		unknown88.pointer = 0;
-		unknown8C = 0;
+		if (unknown88 != 0)
+		{
+			ReleaseRef(&unknown88->unknown8C);
+			ReleaseRef(&unknown88);
+		}
+		for (unsigned int i = 0; i < (unsigned int)description.levels; i++)
+		{
+			operator delete[](levelData[i].data);
+			levelData[i].data = 0;
+		}
+		operator delete[](levelData);
+		levelData = 0;
+		if (texture != 0)
+		{
+			if (pool == 0)
+			{
+				FreePooledTexture(&texture);
+			}
+			else
+			{
+				texture->Release();
+			}
+			texture = 0;
+		}
+		ReleaseRef(&surface);
+		ReleaseRef(&volumeTexture);
+		ReleaseRef(&cubeTexture);
+		ReleaseRef(&defaultTexture);
+		gTextureMemory -= memory;
+		if (gContext != 0)
+		{
+			gContext->textureMemory = (float)(-memory) + gContext->textureMemory;
+		}
 	}
-#endif
 }

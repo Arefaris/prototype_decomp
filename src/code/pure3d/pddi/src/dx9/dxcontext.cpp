@@ -29,10 +29,10 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061B5A0
-	dxTexture* dxContext::NewTexture(const TextureDescription* description, const TextureLevels* levels)
+	dxTexture* dxContext::NewTexture(const TextureDescription* description, const dxTexture* image)
 	{
 		dxTexture* texture = new dxTexture(unknownC);
-		if (!texture->Create(description, levels))
+		if (!texture->Create(description, image))
 		{
 			delete texture;
 			return 0;

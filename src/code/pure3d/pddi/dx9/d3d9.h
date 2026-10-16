@@ -131,7 +131,15 @@ struct IDirect3DSurface9Vtbl
 struct IDirect3DSurface9
 {
 	IDirect3DSurface9Vtbl* lpVtbl;
+
+	// Releases the interface (the engine drops the references it holds through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DSurface9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 // 0x48 GetSurfaceLevel, 0x4C LockRect, 0x50 UnlockRect, 0x54 AddDirtyRect (indices 18 - 21)
 struct IDirect3DTexture9Vtbl
@@ -164,7 +172,15 @@ struct IDirect3DTexture9Vtbl
 struct IDirect3DTexture9
 {
 	IDirect3DTexture9Vtbl* lpVtbl;
+
+	// Releases the interface (the engine drops the references it holds through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DTexture9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 struct IDirect3DCubeTexture9Vtbl
 {
@@ -196,7 +212,15 @@ struct IDirect3DCubeTexture9Vtbl
 struct IDirect3DCubeTexture9
 {
 	IDirect3DCubeTexture9Vtbl* lpVtbl;
+
+	// Releases the interface (the engine drops the references it holds through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DCubeTexture9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 struct IDirect3DVolumeTexture9Vtbl
 {
@@ -228,7 +252,15 @@ struct IDirect3DVolumeTexture9Vtbl
 struct IDirect3DVolumeTexture9
 {
 	IDirect3DVolumeTexture9Vtbl* lpVtbl;
+
+	// Releases the interface (the engine drops the references it holds through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DVolumeTexture9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 // The slots the dx9 back end uses, in d3d9.h's order (the index is the offset divided by four)
 struct IDirect3DDevice9Vtbl

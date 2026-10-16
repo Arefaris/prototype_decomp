@@ -237,7 +237,11 @@ namespace pure3d
 		int unknown14;
 		unsigned char unknown18[0x24];
 		Constants* constants;
-		unsigned char unknown40[0x10C];
+		unsigned char unknown40[0xF8];
+		// The bytes of texture memory the textures made on this device hold (0x1061CD70 adds a new texture's size
+		// to it, 0x1061CBE0 takes it away again)
+		float textureMemory;
+		unsigned char unknown13C[0x10];
 		unsigned int constantsDirty;
 		unsigned char unknown150[0x4A0];
 		// Bit 0: a pass draws, bit 2: lit parts, bit 3: shadow parts (set around the passes' draw loops)
