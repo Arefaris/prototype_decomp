@@ -50,6 +50,8 @@ enum
 
 // 0x10: the lock is only read
 #define D3DLOCK_READONLY 0x10
+// 0x2000: the buffer's old contents are dropped (what the pool locks a recreated vertex buffer with)
+#define D3DLOCK_DISCARD 0x2000
 
 struct D3DLOCKED_RECT
 {
@@ -87,7 +89,8 @@ struct IDirect3DVertexBuffer9Vtbl
 	void* getPriority;
 	void* preLoad;
 	void* getType;
-	HRESULT (__stdcall* Lock)(IDirect3DVertexBuffer9* buffer, UINT offsetToLock, UINT sizeToLock, void** data,
+	// The engine hands Lock the address of a D3DLOCKED_RECT, so the fourth argument is declared as a plain pointer
+	HRESULT (__stdcall* Lock)(IDirect3DVertexBuffer9* buffer, UINT offsetToLock, UINT sizeToLock, void* data,
 		DWORD flags);
 	HRESULT (__stdcall* Unlock)(IDirect3DVertexBuffer9* buffer);
 	void* getDesc;

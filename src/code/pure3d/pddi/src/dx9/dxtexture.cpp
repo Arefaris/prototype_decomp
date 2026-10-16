@@ -20,8 +20,8 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
-	// formats; the single bytes are the back end's own format codes). The result is a 32-bit 0 or 1: the engine's
-	// callers read the low byte of it, but its own code sets the whole register.
+	// formats; the single bytes are the back end's own format codes). It is an int (the engine's code sets the whole
+	// register), while its callers test its low byte, so they keep the answer in a char.
 	int IsTextureFormatSupported(unsigned int format)
 	{
 		if (format == 0x49 || format == 0x50 || format == 0x46 || format == 0x4F || format == 0x53 ||
@@ -31,6 +31,38 @@ namespace pure3d
 			return true;
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1061C400
+	dxTexture::dxTexture(IDirect3DDevice9* device)
+		: surface(0), levelData(0), texture(0), defaultTexture(0), volumeTexture(0), cubeTexture(0), d3dFormat(0),
+			lockLevel(-1), lockSlice(-1), locked(0), memory(0), unknown84(0), unknown88(0), unknown8C(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061CA00
+	void dxTexture::Unknown1061CA00(bool stretched)
+	{
+		if (unknown84)
+		{
+			char supported = IsTextureFormatSupported(d3dFormat);
+			if (supported == 0)
+			{
+				IDirect3DSurface9* level;
+				texture->lpVtbl->GetSurfaceLevel(texture, 0, &level);
+				unsigned int filter;
+				if (stretched)
+				{
+					filter = (engine::gRenderDisplay->unknown78F != 0) + 1;
+				}
+				else
+				{
+					filter = 1;
+				}
+				gD3DDevice->lpVtbl->StretchRect(gD3DDevice, surface->surface, 0, level, 0, filter);
+				level->Release();
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x1061CBE0
@@ -75,24 +107,26 @@ namespace pure3d
 
 #ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061CD70
-	// NONMATCHING: register allocation, 22.7 %: the body is complete and in the engine's order, but the engine puts
-	// `usage` in ebp and &this->description in edi, this compiler the other way round, and it folds the usage test
-	// `(usage >> 1) & 1` into `test byte [this+0x20], 2` where the engine keeps the shift. Rewriting the test
-	// (`% 2`, a named bool) and swapping the declarations of pool and usage do not change either.
+	// NONMATCHING: register allocation, 26.4 %. Every part is the engine's and in its order (the description check,
+	// the usage bit that picks the default pool, the level build, the memory counters, the three texture kinds, the
+	// pooled surface path and the retry loop), and the size is within a byte, but this compiler puts `usage` in edi
+	// and `&this->description` in ebp where the engine has them the other way round, and it folds
+	// `(usage >> 1) & 1` into `test byte [this + 0x20], 2` where the engine keeps the shift. A named shift result
+	// and swapped declarations change neither.
 	bool dxTexture::Create(const TextureDescription* description)
 	{
 		if (!SetDescription(description))
 		{
 			return false;
 		}
-		pool = D3DPOOL_MANAGED;
 		int usage = 0;
-		if ((this->description.usage >> 1) % 2 != 0)
+		pool = D3DPOOL_MANAGED;
+		if (((this->description.usage >> 1) & 1) != 0)
 		{
 			bool supported = IsTextureFormatSupported(d3dFormat);
-			usage = supported + 1;
 			this->description.levels = 1;
 			pool = D3DPOOL_DEFAULT;
+			usage = supported + 1;
 		}
 		BuildLevels(&this->description);
 		if (gContext != 0)

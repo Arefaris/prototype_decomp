@@ -15,6 +15,26 @@ namespace pure3d
 	// at +8, where the texture reads it at every later step)
 	struct TextureDescription
 	{
+		// What a description starts from (0x1061C400 stores exactly these values into its own description, which
+		// means the engine's constructor here is inlined into it; the values are the engine's)
+		TextureDescription()
+		{
+			type = 0;
+			levels = 0;
+			depth = 0;
+			width = 0;
+			height = 0;
+			format = 0;
+			usage = 0;
+			flags = 0;
+			unknown20 = -1;
+			unknown24 = -1;
+			unknown28 = 1;
+			unknown2C = 0;
+			unknown30 = 0;
+			unknown34 = true;
+		}
+
 		// 1: a 2D texture, 2: a cube texture, 3: a volume texture
 		int type;              // +0
 		// How many mip levels
@@ -119,6 +139,9 @@ namespace pure3d
 		bool Create(const TextureDescription* description, const dxTexture* image);
 		// 0x1061C600: locks one level (one face of a cube texture, one slice of a volume texture) and describes it
 		bool Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice);
+		// 0x1061CA00: copies the surface this texture was made from into its first level again (a texture whose
+		// format the device does not take directly goes through a stretched copy, with a linear filter when asked)
+		void Unknown1061CA00(bool stretched);
 
 		// What the texture was asked for, copied in by 0x1061C8F0
 		TextureDescription description;   // +8
