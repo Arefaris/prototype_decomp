@@ -65,6 +65,43 @@ namespace pure3d
 		}
 	}
 
+	// Whether the format is one of the block-compressed ones (0x1061C340)
+	bool IsCompressedFormat(unsigned int format);
+	// Copies `rows` rows of `rowBytes` bytes from one locked level to another (0x1061C8B0); a compressed level
+	// copies a quarter of the rows, one per block row
+	void CopyLevelRows(void* dest, const void* source, int rowBytes, int rows, bool compressed);
+	// 0x110BB608: the cube map faces (the back end's own numbering, which is the Direct3D one)
+	extern int gCubeFaces[6];
+
+	// 0x10624990: makes a texture in the default pool and records it (the unit it lives in is not reconstructed yet)
+	bool PoolAllocateTexture(int width, int height, int levels, int usage, unsigned int format,
+		IDirect3DTexture9** texture, IDirect3DSurface9** surface, float scale);
+
+	// The box a volume texture's level is locked with: a rectangle and the range of slices (0x1061C600 fills one in)
+	struct TextureBox
+	{
+		int left;
+		int top;
+		int right;
+		int bottom;
+		int front;
+		int back;
+	};
+
+	// What a locked level is described by (0x1061C600 fills one in; the first word is the caller's)
+	struct TextureLock
+	{
+		void* bits;              // +0
+		unsigned int slice;      // +4
+		int width;               // +8
+		int height;              // +0xC
+		unsigned int format;     // +0x10
+		int pitch;               // +0x14
+		int size;                // +0x18
+		int unknown1C;           // +0x1C
+		int offset;              // +0x20
+	};
+
 	class dxTexture : public pddiObject
 	{
 	public:
@@ -72,10 +109,16 @@ namespace pure3d
 		dxTexture(IDirect3DDevice9* device);
 		// 0x1061CBE0
 		virtual ~dxTexture();
+		// 0x1061C8F0: checks the description, resolves its format and copies it into the object
+		bool SetDescription(const TextureDescription* description);
+		// 0x1061C490: lays the levels' row and slice sizes out and totals the bytes of the texture
+		void BuildLevels(const TextureDescription* description);
 		// 0x1061CD70
 		bool Create(const TextureDescription* description);
 		// 0x1061D010: a copy of a texture that is already on the device, level by level
 		bool Create(const TextureDescription* description, const dxTexture* image);
+		// 0x1061C600: locks one level (one face of a cube texture, one slice of a volume texture) and describes it
+		bool Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice);
 
 		// What the texture was asked for, copied in by 0x1061C8F0
 		TextureDescription description;   // +8
@@ -93,13 +136,13 @@ namespace pure3d
 		// The Direct3D pool the texture was made in (0: the default pool)
 		unsigned int pool;                // +0x5C
 		// The level and slice a locked level points at
+		// The level and slice the current lock points at
 		int lockLevel;                    // +0x60
 		int lockSlice;                    // +0x64
-		int unknown68;                    // +0x68
-		int unknown6C;                    // +0x6C
-		int unknown70;                    // +0x70
-		int unknown74;                    // +0x74
-		int unknown78;                    // +0x78
+		// The locked level of the 2D or cube texture
+		D3DLOCKED_RECT lockRect;          // +0x68
+		// The locked level of the volume texture
+		D3DLOCKED_BOX lockBox;            // +0x70
 		// True while a level of this texture is locked
 		bool locked;                      // +0x7C
 		// The bytes of texture memory this texture counts for
@@ -110,6 +153,11 @@ namespace pure3d
 		dxTexture* unknown88;             // +0x88
 		dxTexture* unknown8C;             // +0x8C
 	};
+
+	// Holds the new value in a four-byte slot, releasing what it held (0x1061CB50 / 0x1061CB80 are the copies the
+	// texture's slots use)
+	void AssignRef(dxSurface** slot, dxSurface* value);
+	void AssignRef(dxTexture** slot, dxTexture* value);
 }
 
 #endif

@@ -9,6 +9,24 @@
 
 namespace pure3d
 {
+	// What a surface is made from: the size, the format and the sample count of the level (0x1061BF80 constructs
+	// one, in the device unit, so its constructor is only declared here)
+	class dxSurfaceLevel
+	{
+	public:
+		// 0x1061BF80
+		dxSurfaceLevel();
+
+		int width;              // +0
+		int height;             // +4
+		unsigned int format;    // +8
+		int multiSampleType;    // +0xC
+		int unknown10;          // +0x10
+		int unknown14;          // +0x14
+		int unknown18;          // +0x18
+		bool unknown1C;         // +0x1C
+	};
+
 	class dxSurface : public pddiObject
 	{
 	public:
@@ -16,6 +34,8 @@ namespace pure3d
 		dxSurface();
 		// 0x1061F0C0: keeps the surface and takes format, sample count and size from its description
 		void SetSurface(IDirect3DSurface9* surface);
+		// 0x1061F000: takes the size, the format and the sample count of the level and makes the surface for it
+		void SetLevel(const dxSurfaceLevel* level);
 
 		IDirect3DSurface9* surface;   // +8
 		unsigned int format;          // +0xC

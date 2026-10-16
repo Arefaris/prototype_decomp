@@ -23,11 +23,15 @@ namespace pure3d
 		// 0x1061B600 / 0x1061B660: a buffer from the pool (the creator's result is dropped)
 		dxVertexBuffer* NewVertexBuffer(const VertexBufferDescription* description);
 		dxIndexBuffer* NewIndexBuffer(const IndexBufferDescription* description);
+		// 0x10606D30: whether the calling thread is the one this object was made on (it reads nothing of the object)
+		bool IsCurrentThread();
 	};
 
 	// 0x11276D2C: the device the back end was built on (0x106202F0 installs it); the textures it made keep their
 	// bytes of texture memory in its `textureMemory`
 	extern dxContext* gContext;
+	// 0x11276A64: the device a failing texture creation is retried for (name guess)
+	extern dxContext* gRenderDevice;
 }
 
 #endif

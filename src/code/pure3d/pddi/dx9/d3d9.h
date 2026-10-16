@@ -48,6 +48,22 @@ enum
 	D3DTEXF_ANISOTROPIC = 3
 };
 
+// 0x10: the lock is only read
+#define D3DLOCK_READONLY 0x10
+
+struct D3DLOCKED_RECT
+{
+	int Pitch;
+	void* pBits;
+};
+
+struct D3DLOCKED_BOX
+{
+	int RowPitch;
+	int SlicePitch;
+	void* pBits;
+};
+
 struct IDirect3DDevice9;
 struct IDirect3DBaseTexture9;
 struct IDirect3DTexture9;
