@@ -7,23 +7,40 @@
 
 #include "code/pure3d/pddi.h"
 
+namespace core
+{
+	struct IMemoryAllocator;
+}
+
 namespace pure3d
 {
 	class ShadowRenderManager
 	{
 	public:
+		// 0x10716770: builds the manager over the shadow quality mode its argument names (it must be the first one)
+		ShadowRenderManager(int mode);
+		// 0x10716830: creates the shadow map heap and the manager over it
+		static void Create(int mode);
+
 		// 0x10715910
 		static ShadowRenderManager* Get();
 		// 0x10715AC0: does nothing (the view state of the render parameters is the argument)
 		void Unknown10715AC0(const void* viewState);
 
-		unsigned char unknown0[0x20];
+		unsigned char unknown0[0x18];
+		// 0x107064A0 over the name "unlit"
+		void* unknown18;
+		// The mode Create was given (0 - 3, from the context settings' shadow setting)
+		int mode;
 		// The shadow map the lit passes sample (null: none)
 		pddiSurface* shadowMap;
+		unsigned char unknown24[0x10];
 	};
 
 	// 0x11281730
 	extern ShadowRenderManager* gShadowRenderManager;
+	// 0x11281734: the heap the shadow maps and their surfaces are allocated from
+	extern core::IMemoryAllocator* gShadowMapHeap;
 }
 
 #endif
