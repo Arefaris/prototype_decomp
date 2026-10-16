@@ -53,6 +53,8 @@ namespace pure3d
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
+		// 0x10615180: one of the device's clocks, as a whole frame number
+		int GetFrameCount(int index);
 		// Clears the buffers named by the flags (1: colour) to the view state's clear colour
 		virtual void Clear(int flags);
 		// Draws a primitive buffer with a shader and its parameters

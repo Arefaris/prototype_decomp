@@ -2517,3 +2517,112 @@ layout grew to its real 0x34 bytes, plus the constructor, `Create` and `gShadowM
 `code/engine/camera/camera.h` (the position at +0xC0) and `code/proto/render/lodrenderbehaviour.h` (the base class,
 the members above and `LODRange` / `gLODRanges` / `gLODDistanceScale` / `LODDetailScale` / `gLODDetailScale`, four
 of whose symbols are in symbols.txt but referenced by nothing yet).
+
+## pure3d/atg4/platform/win32/skin.cpp (0x1071B000 - 0x10721200), started
+
+The unit's assert path names it (`..\..\..\code\pure3d\atg4\platform\win32\skin.cpp`, lines 0x298 - 0x880, about 2200
+lines of source). It is big: 128 functions, about 25 KB, and it holds **pure3d::SkinState**, **pure3d::Skin** and the
+task adaptor `pure3d::SkinState::AsyncTaskAdaptor` (the RTTI vftables are 0x10E5BE50 / 0x10E5BE88 / 0x10E5BDC4). The
+first session (2026-10-16) placed the SkinState class and matched the small accessors.
+
+**What is known about the two classes** (layouts recovered from the vtable slots and the code):
+
+- `pure3d::SkinState` (0x2E4 bytes, vtable 0x10E5BE88, 11 slots): RefCounted's AddRef / Release at 0 / 1, then
+  `~`(2), `Unknown3`(3 = 0x10720C60, makes a 0x350-byte copy of the state through 0x10720A00), `Update`(4 =
+  0x10721160), `Unknown5`(5 = 0x1071B0B0), `Unknown6`(6 = 0x1071B0F0), `GetBoundingBox`(7 = 0x1071B130),
+  `Unknown8`(8 = 0x1071B240), `Unknown9`(9 = 0x1071F900) and its own slot 10 (0x1071B1C0). Members: a controller at
+  +0x70, the expression and its state at +0x74 / +0x78, two pose-sized (0x118-byte) members at +0x7C and +0x194
+  built by `FUN_1061B600` and pointed at by `mPoses[2]` at +0x2B0 (index at +0x2C0, the blend index at +0x2B8, the
+  frame counter at +0x2BC), the bounding box at +0x2C4 (min) / +0x2D0 (max), the two FrameControllers at +0x2DC /
+  +0x2E0. `GetPose` / `GetBlendPose` / `GetPose(int)` index `mPoses` (the last two one element on, which is what the
+  original's `[ecx + i*4 + 0x2B4]` addresses are).
+- `pure3d::Skin` (vtable 0x10E5BE50, 13 slots): AddRef / Release, `~`(2 = 0x10720200), `Draw`(3 = 0x1071ED50),
+  `Unknown4`(4 = 0x10721140), `GetBoundingBox`(5 = 0x1071EF00, copies the box at +0x26C), `GetCentre`(6 =
+  0x1071F9D0, copies 16 bytes from +0x284), `FillBatch`(7 = 0x1071EE50), slot 8 (0x1001D6DD, an inherited pure slot),
+  +0x294(get / set) at 9 / 10, `SetBoundingBox`(11 = 0x1071EF40) and the 16-byte setter at 12 (0x1071EF80). Own
+  members start at +0x1C; +0x70 holds the pose the bone matrices (+0x38) come from; +0x138 / +0x13C / +0x140 /
+  +0x144 (a `pure3d::PrimBuffer*`, `Unlock`ed at 0x1071EFE0) / +0x148 (three one-line wrappers at 0x1071ED40 /
+  0x1071EFD0 / 0x1071EFF0); an `core::AsyncTaskJob` at +0x20 (0x1071EAE0 submits it).
+
+**The unit's Vector copies go through the x87 stack (0x1071B130 and 0x1071B170, both NONMATCHING).** They copy each
+component with `fld` / `fstp`, in the order (max, min), while our `math::Vector` copies with integer moves. Measured
+on 2026-10-16 with scratch functions in skin.cpp: MSVC 2005 gives `fld` / `fstp` for a **user-defined `operator=`**
+(`T& operator=(const T& v) { x = v.x; y = v.y; z = v.z; return *this; }` as a member of the 3-float class) and for
+the **return-value copy** of a class with a user-defined copy constructor; it gives integer moves for the implicit
+assignment of a POD, for an in-place copy construction through a temporary, and `movss` for a user-defined copy
+constructor built into a local. A user-defined `operator=` in `math/vector.h` made both functions match but changed
+every unit that copies vectors through assignment: it moved one function in `math` from matching to not matching (75
+bytes) and one in `engine` the other way, so it is not viable. `math/vector.h` must stay exactly as it is; units whose
+vectors are copied member by member depend on the implicit operator.
+
+**The unit's own helpers that are placed.** The three lock-free list helpers at 0x1071B000 / 0x1071B010 / 0x1071B040
+(`void**` head, the node's first word is its link) are `StoreListHead` / `PushListHead` / `PopListHead`; `PopListHead`
+is `__inline` (0x1071F780 has its body copied in twice, and the standalone copy at 0x1071B040 is the COMDAT one).
+0x1071B270 / 0x1071B2C0 are the two four-wide blends returning `__m128` (`a * w.x + b * w.y + c * w.z [+ d]`), with
+`const __m128&` arguments (pointers on the stack). 0x1071B080 / 0x1071B1F0 / 0x1071EFC0 are empty one-byte
+functions, named `Unknown<address>` because their classes and callers are in other units. The two globals the queue
+uses are 0x11281814 (the head of the pending-skin list, a `SkinJobEntry*` whose node is `SkinState::entry` at +0x33C)
+and 0x11281828 (the number of running jobs); 0x1071F780 `SubmitPendingSkins` drains the list and 0x1071F7F0
+`WaitForSkinJobs` spins on `_InterlockedAnd(&gSkinJobCount, -1) > 0` with `core::ThreadSleep(0)`.
+
+**The classes the second session added to shared headers** (all append-only; `pure3d::Skin` is new):
+
+- `pure3d::Skin` in `src/code/pure3d/primitive.h`: `Primitive` (0x1C) + a pointer at +0x1C, `core::AsyncTaskJob job`
+  at +0x20 (72 bytes, so it ends at +0x67), 8 bytes of padding, the pose at +0x70, the `pure3d::PrimBuffer*` at +0x144
+  (its stream, still an untyped pointer, at +0x148), the box at +0x26C, a `math::Vector4` centre at +0x284 and a word
+  at +0x294 (vtable slots 9 / 10). The class is declared with the 13 known slots but only the non-`Draw` slots are
+  defined yet, so MSVC emits no vftable for it here; `Draw`(3), `Unknown4`(4), `GetCentre`(6) and `FillBatch`(7) are
+  still unmapped in symbols.txt and have to be added when they are reconstructed.
+- `pure3d::SkinState`: `Update`(4 = 0x10721160), `Unknown10720CF0` (0x10720CF0, declared, mapped, not reconstructed),
+  `GetUnknown2AC` (0x107211D0), the flag at +0x2AC and the entry at +0x33C. The class is 0x350 bytes (0x10720C60
+  allocates 0x350 and 0x10720A00 copies that much), not 0x2E4 as the first session thought.
+- `pure3d::SkinState::AsyncTaskAdaptor` (nested, `core::AsyncTaskCallback` + `SkinState* mState` at +4, constructor
+  0x1071B090, `OnResult` 0x1071FCC0 = `mState-><0x1071F8A0>` which is mapped in symbols.txt but not reconstructed).
+- `pure3d::pddiBaseContext::GetFrameCount` (0x10615180) and `pure3d::PrimBuffer::Unknown10625FA0` (0x10625FA0) were
+  added as declarations for the same reason.
+- One unused-by-us helper: `SubmitTask` (0x1071EAE0) sits at the top of the Skin layout and is called from
+  0x1071F780, so the `job` member has to stay at +0x20.
+
+Remaining, in address order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
+four `unsigned short` indices sit at +0x40 / +0x50), 0x1071B610 and the long run 0x1071B9A0 - 0x1071E8F0 (the
+skinning paths; each ends by writing the box at +0x2C4 / +0x2D0 from stack accumulators and is picked by the
+0x350-byte job state's flags at +0x2AE / +0xBF / +0xC5 / +0x1D and the `unsigned` at 0x1071ED50's +0x20000000 bit),
+the Skin methods 0x1071ED40 - 0x1071F020 (the +0x148 wrappers, `FillBatch`, `Draw`), the ~100-byte cluster
+0x1071F3C0 - 0x1071FCC0 (COMDAT copies of a 6-field ring/table class - +0 valid, +4 pointer, +8 / +0xC / +0x10, +0x14
+count - and of `core::SafeRelease<T>` / `core::RefAssign<T>`, whose template arguments still have to be read off the
+callers), 0x1071F7D0 (`"AsyncSkinning"` registered with the task callback 0x1071EAF0 through 0x10B80220), 0x1071F840
+- 0x1071F880 (the three SkinState setters, which are 0x1071F480 / 0x10707710 / 0x1071F4B0 on +0x78 / +0x2DC /
+  +0x2E0), 0x1071F8A0 (the state's job-result handler; its first call is `*(void**)(this + 0x70)` released through
+  0x106E2A50, a non-virtual `Release` whose class is still unknown), 0x1071F900 - 0x10721200 (the `GpuSkinState` /
+  `GpuSkin` half) and 0x10720200 - 0x10720CF0 (the destructors, the copy constructor and the job dispatcher
+  0x10720CF0).
+
+Match so far (32 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
+0x1071B0F0, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B1F0, 0x1071B200, 0x1071B210, 0x1071B220,
+0x1071B230, 0x1071B240, 0x1071B270, 0x1071B2C0, 0x1071EAE0, 0x1071EFB0, 0x1071EFC0, 0x1071EFE0, 0x1071F000,
+0x1071F780, 0x1071F7F0, 0x1071F880, 0x1071F9B0, 0x1071F9C0, 0x10721160, 0x107211D0 (and the `core::RefAssign
+<FrameController>` COMDAT copy at 0x1071F4B0, which carries no annotation).
+
+Not done, with the reason:
+
+- 0x1071F860 SkinState::SetController1: the very same code as 0x1071F880, but its `core::RefAssign` copy is
+  0x10707710 (another unit), so `controller1` must be declared with the type that instantiation belongs to before the
+  call can be written; `core::RefAssign<FrameController>` only reaches 0x1071F4B0 (objcmp reports 1 target differ)
+- 0x1071F840 SkinState::SetExpressionState: `core::RefAssign(expressionState, ...)` needs a complete
+  `pure3d::ExpressionState`, which no header in the tree defines yet (only a forward declaration)
+- 0x1071ED40 / 0x1071EFD0 / 0x1071EFF0: the three one-line wrappers on the pointer at +0x148; its class is the one
+  behind 0x10626860 / 0x106268D0 / 0x10626950 (the pddi dx9 unit, 0x106258D0 `PrimBuffer::Unlock` next door is a
+  different layout: +0xC owner, +8 locked, +0x11C vs +0x14 and +0x2C)
+- 0x1071F3C0 - 0x1071FCC0 (about 30 functions, 4 - 92 bytes): COMDAT copies of a six-field ring/table class
+  (+0 valid, +4 pointer, +8 / +0xC / +0x10, +0x14 count) and of `core::SafeRelease<T>`; the template arguments are
+  not readable off the bodies (identical code) and have to come from the callers or from other units
+
+NONMATCHING:
+
+- 0x1071B130 SkinState::GetBoundingBox: the engine copies the box through fld/fstp; needs a user-defined
+  Vector::operator=, which would change every unit (the instructions are the same, integer moves instead)
+- 0x1071B170 SkinState::SetBoundingBox: same reason
+- 0x1071EF00 Skin::GetBoundingBox: same reason, 40 %
+- 0x1071EF40 Skin::SetBoundingBox: same reason, 52 %
+- 0x1071EF80 Skin::SetCentre: the four components go through fld/fstp; needs a user-defined Vector4::operator=,
+  which would change every unit, 55 %

@@ -69,6 +69,8 @@ namespace pure3d
 	public:
 		// 0x106258D0
 		void Unlock();
+		// 0x10625FA0: fills the descriptor of the buffer (its name and its flags)
+		void Unknown10625FA0(int value);
 	};
 
 	struct PrimBufferOwner : core::IRefCount
