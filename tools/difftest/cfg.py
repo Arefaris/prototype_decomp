@@ -78,9 +78,19 @@ def registerInputs(code, address, limit=400):
 	(stopped at the first return): its register arguments, approximately. Returns a set of names."""
 	written = set()
 	inputs = set()
+	prologue = True
+	saved = {X86_REG_EBX, X86_REG_ESI, X86_REG_EDI, X86_REG_EBP}
 	for insn in disassemble(code, address)[:limit]:
 		if insn.mnemonic in ("ret", "retn"):
 			break
+		if prologue:
+			# the prologue's saves (push ebx / esi / edi / ebp) read the registers without taking them as arguments
+			if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved:
+				continue
+			if insn.mnemonic in ("mov", "sub", "and") and insn.operands and insn.operands[0].type == X86_OP_REG \
+					and insn.operands[0].reg in (X86_REG_EBP, X86_REG_ESP) and insn.operands[1].type != X86_OP_MEM:
+				continue
+			prologue = False
 		read, write = insn.regs_access()
 		# an operand's memory base / index registers count as reads too (capstone lists them in regs_access)
 		for reg in read:

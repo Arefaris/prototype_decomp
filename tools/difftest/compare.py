@@ -168,6 +168,23 @@ def compareWrites(engine, ours, context, add):
 	oFinal = ours.finalBytes()
 	shared = [a for a in set(eFinal) | set(oFinal) if context.shared(a)]
 	different = sorted(a for a in shared if eFinal.get(a) != oFinal.get(a))
+	# a vftable pointer: the engine installs its table, ours the one our object emits (vtcheck compares their
+	# slots); the hybrid DLL does the same, so this is not a behaviour difference
+	vtables = getattr(context, "placedVtables", {})
+	if vtables and different:
+		installed = set()
+		for a in different:
+			base = a & ~3
+			ev = bytes(eFinal.get(base + k, 0) for k in range(4))
+			ov = bytes(oFinal.get(base + k, 0) for k in range(4))
+			ourValue = struct.unpack("<I", ov)[0]
+			engineValue = struct.unpack("<I", ev)[0]
+			if ourValue in vtables and context.image.contains(engineValue) and context.image.readOnly(engineValue):
+				installed.update(range(base, base + 4))
+		if installed:
+			add(Finding("NOTE", "memory", "vftable pointers installed: ours %s (the engine's own table in the engine's run)"
+				% ", ".join(sorted({vtables[struct.unpack('<I', bytes(oFinal.get(b + k, 0) for k in range(4)))[0]] for b in installed if b % 4 == 0}))))
+			different = [a for a in different if a not in installed]
 	if different:
 		samples = []
 		for a in different[:8]:
@@ -220,13 +237,29 @@ def callText(call, count, regs):
 	return "%s(%s)" % (call["name"], ", ".join(parts))
 
 
-def normalizedArguments(call, machine, count, regs):
+def constantAt(value, machine, context):
+	"""The bytes a pointer to a constant designates: the engine's constants live in the image's read-only
+	sections, ours beside our function, so such arguments are compared by content (a string, a float table)."""
+	layout = context.layout
+	if layout.data <= value < layout.ret or (context.image.contains(value) and context.image.readOnly(value)):
+		data = machine.read(value, 64)
+		if data is not None:
+			return data.split(b"\0", 1)[0] if data[0] else data[:16]
+	return None
+
+
+def normalizedArguments(call, machine, count, regs, context):
 	"""Argument values with pointers into the function's own frame replaced by a marker (the frame layouts of
-	the two builds differ, so such addresses legitimately differ; their contents are compared apart)."""
+	the two builds differ, so such addresses legitimately differ; their contents are compared apart) and
+	pointers to constants replaced by the constants themselves."""
 	values = []
 	for key in [r for r in ("ecx", "edx", "eax") if r in regs] + list(range(count)):
 		value = call[key] if isinstance(key, str) else (call["args"][key] if key < len(call["args"]) else 0)
-		values.append("STK" if machine.isPrivate(value) else value)
+		if machine.isPrivate(value):
+			values.append("STK")
+			continue
+		constant = constantAt(value, machine, context)
+		values.append(("CONST", constant) if constant is not None else value)
 	return values
 
 
@@ -243,7 +276,7 @@ def compareCalls(engine, ours, context, add):
 				continue
 			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (i, callText(ec, count, regs), callText(oc, count, regs))))
 			return
-		if normalizedArguments(ec, context.engine, count, regs) != normalizedArguments(oc, context.ours, count, regs):
+		if normalizedArguments(ec, context.engine, count, regs, context) != normalizedArguments(oc, context.ours, count, regs, context):
 			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (i, callText(ec, count, regs), callText(oc, count, regs))))
 			return
 		eFrame, oFrame = ec.get("frame", {}), oc.get("frame", {})

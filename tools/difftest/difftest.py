@@ -128,8 +128,10 @@ class FunctionTest:
 		def importFallback(name):
 			"""A C runtime import (`_memcpy`, `__imp__memset`): the engine's IAT slot, or what it holds."""
 			viaSlot = name.startswith("__imp_")
-			short = (name[6:] if viaSlot else name).lstrip("_").split("@")[0]
-			slot = self.image.imports().get(short)
+			base = (name[6:] if viaSlot else name).split("@")[0]
+			imports = self.image.imports()
+			# a C symbol carries one leading underscore (`__purecall` is the import `_purecall`)
+			slot = imports.get(base[1:] if base.startswith("_") else base) or imports.get(base.lstrip("_"))
 			if slot is None:
 				return None
 			return slot if viaSlot else mo.u32(slot)
@@ -144,6 +146,7 @@ class FunctionTest:
 		mo.watch = [oursRange]
 		oursTrace = mo.run(loaded.entry, self.argBytes, self.budget, self.timeout)
 		context = compare.Context(me, mo, self.returnKind, self.argBytes, engineRange, oursRange)
+		context.placedVtables = {a: n for n, a in loaded.placed.items() if n.startswith("??_7")}
 		findings = compare.compareTraces(engineTrace, oursTrace, context)
 		result = Result(label, findings, engineTrace, oursTrace, context)
 		result.loaded = loaded
