@@ -75,6 +75,35 @@ struct IDirect3DVertexBuffer9;
 struct IDirect3DIndexBuffer9;
 struct IDirect3DSurface9;
 
+// One element of a vertex declaration (D3DVERTEXELEMENT9, 8 bytes)
+struct D3DVERTEXELEMENT9
+{
+	unsigned short Stream;
+	unsigned short Offset;
+	unsigned char Type;
+	unsigned char Method;
+	unsigned char Usage;
+	unsigned char UsageIndex;
+};
+
+struct IDirect3DVertexDeclaration9;
+
+// 0x10 GetDeclaration (index 4)
+struct IDirect3DVertexDeclaration9Vtbl
+{
+	void* queryInterface;
+	void* addRef;
+	void* release;
+	void* getDevice;
+	HRESULT (__stdcall* GetDeclaration)(IDirect3DVertexDeclaration9* declaration, D3DVERTEXELEMENT9* elements,
+		UINT* count);
+};
+
+struct IDirect3DVertexDeclaration9
+{
+	IDirect3DVertexDeclaration9Vtbl* lpVtbl;
+};
+
 // 0x2C Lock, 0x30 Unlock (index 11 / 12 of the resource interfaces)
 struct IDirect3DVertexBuffer9Vtbl
 {
@@ -358,8 +387,8 @@ struct IDirect3DDevice9Vtbl
 	// 0x14C - 0x154
 	void* unknown14C[3];
 	// 0x158 CreateVertexDeclaration
-	HRESULT (__stdcall* CreateVertexDeclaration)(IDirect3DDevice9* device, const void* elements,
-		void** declaration);
+	HRESULT (__stdcall* CreateVertexDeclaration)(IDirect3DDevice9* device, const D3DVERTEXELEMENT9* elements,
+		IDirect3DVertexDeclaration9** declaration);
 	// 0x15C SetVertexDeclaration
 	HRESULT (__stdcall* SetVertexDeclaration)(IDirect3DDevice9* device, void* declaration);
 	// 0x160 - 0x19C: the vertex shaders' constants and the stream sources

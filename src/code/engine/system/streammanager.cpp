@@ -9,10 +9,8 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x1082DB20
-	// NONMATCHING: the engine's centre is fully scalarised (the three sums, one 0.5f and the three products live in
-	// xmm0 - xmm3 and go straight into the package) and its three statements evaluate in x, y, z order; ours rotates
-	// the three register assignments and sinks each store behind its product, 85.3 %
-#ifdef NONMATCHING
+	// EQUIVALENT: operand order of the x sum: the engine loads min.x and adds max.x, this compiler loads max.x and adds
+	// min.x (98.9 %)
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -22,12 +20,14 @@ namespace engine
 			StreamPackage* package = trigger->FindPackage(tags);
 			if (package != 0)
 			{
-				float x = trigger->boundingBox.min.x + trigger->boundingBox.max.x;
-				float y = trigger->boundingBox.min.y + trigger->boundingBox.max.y;
-				float z = trigger->boundingBox.min.z + trigger->boundingBox.max.z;
-				package->unknown4C.x = x * 0.5f;
-				package->unknown4C.y = y * 0.5f;
-				package->unknown4C.z = z * 0.5f;
+				math::Vector centre;
+				centre.x = trigger->boundingBox.max.x + trigger->boundingBox.min.x;
+				centre.y = trigger->boundingBox.max.y + trigger->boundingBox.min.y;
+				centre.z = trigger->boundingBox.max.z + trigger->boundingBox.min.z;
+				centre.Scale(0.5f);
+				package->unknown4C.x = centre.x;
+				package->unknown4C.y = centre.y;
+				package->unknown4C.z = centre.z;
 				packages->PushBack(package);
 			}
 		}
@@ -46,5 +46,4 @@ namespace engine
 			}
 		}
 	}
-#endif
 }

@@ -4,6 +4,8 @@
 #ifndef PURE3D_PDDI_VERTEXDECLARATION_H
 #define PURE3D_PDDI_VERTEXDECLARATION_H
 
+#include "code/container/arraydynamicstatic.h"
+#include "code/pure3d/pddi/dx9/d3d9.h"
 #include "code/pure3d/shaderparameters.h"
 
 namespace pure3d
@@ -23,27 +25,30 @@ namespace pure3d
 		int unknown110;
 	};
 
-	// One entry of the declaration manager's table (0x10 bytes; the meanings of the last three words are unknown)
+	// One entry of the declaration manager's table (0x10 bytes): the device's declaration, how many elements it has
+	// (the end marker included), how many users it has and the number it is known by
 	struct dxVertexDeclarationEntry
 	{
-		dxVertexDeclaration* declaration;
-		int unknown4;
-		int unknown8;
-		int unknownC;
+		IDirect3DVertexDeclaration9* declaration;
+		int elementCount;
+		int users;
+		int id;
 	};
 
-	// The declarations the device holds (the global at 0x11276F48; layout and names are guesses)
+	// The declarations the device holds (the global at 0x11276F48; layout and names are guesses; the heap and the
+	// alignment of the array's allocator are guesses too)
 	class dxVertexDeclarationManager
 	{
 	public:
-		dxVertexDeclarationEntry* begin;
-		dxVertexDeclarationEntry* end;
-		dxVertexDeclarationEntry* capacity;
-		int unknownC;
+		container::ArrayDynamic<dxVertexDeclarationEntry, container::AllocatorCoreStatic<12, 16> > entries;
 		// How many declarations have been made in all
 		int count;
 	};
 	extern dxVertexDeclarationManager* gVertexDeclarationManager;
+
+	// 0x1062B5C0: the number of the device declaration that has the elements (the list ends with an element of type
+	// 0x11), made when the device has none yet (name guess)
+	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements);
 }
 
 #endif

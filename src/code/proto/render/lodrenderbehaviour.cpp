@@ -9,10 +9,14 @@
 
 namespace proto
 {
+	inline float LengthOf(const math::Vector& v)
+	{
+		return sqrtf(v.z * v.z + v.y * v.y + v.x * v.x);
+	}
+
 	// FUNCTION: ENGINE 0x102DA540
-	// NONMATCHING: the engine computes the three coordinate differences in SSE and spills them for the x87 sum; this
-	// compiler evaluates the whole expression on the x87 stack (same values and order, 28 %)
-#ifdef NONMATCHING
+	// EQUIVALENT: scheduling: the engine issues the store of the fade of 1.0 before the load and compare of the ready
+	// range, this compiler after them (97.1 %)
 	void LODRenderBehaviour::UpdateFade()
 	{
 		fade = 1.0f;
@@ -28,19 +32,21 @@ namespace proto
 			return;
 		}
 		const math::Matrix& transform = owner->transform->value;
-		float dz = transform.m[3][2] - camera->position.z;
-		float dy = transform.m[3][1] - camera->position.y;
-		float dx = transform.m[3][0] - camera->position.x;
-		float distance = sqrtf(dz * dz + dy * dy + dx * dx);
+		math::Vector position;
+		transform.GetTranslation(position);
+		math::Vector delta;
+		math::Vector cameraPosition = camera->position;
+		delta.Sub(position, cameraPosition);
+		float distance = LengthOf(delta);
 		float scale = gLODDetailScale->GetScale(camera);
 		float divisor = scale > 1.0f ? scale : 1.0f;
-		float value = fadeScale * gLODDistanceScale * (distance / divisor);
-		const LODRange& range = gLODRanges[distanceLevel];
-		float clamped = math::Clamp(value, range.minimum, range.maximum);
-		fade = 1.0f - (clamped - range.minimum) / (range.maximum - range.minimum);
+		float scaled = fadeScale * gLODDistanceScale;
+		float value = scaled * (distance / divisor);
+		float clamped = math::Clamp(value, gLODRanges[distanceLevel].minimum, gLODRanges[distanceLevel].maximum);
+		fade = 1.0f - (clamped - gLODRanges[distanceLevel].minimum) /
+			(gLODRanges[distanceLevel].maximum - gLODRanges[distanceLevel].minimum);
 		fade = math::Clamp(fade, 0.0f, 1.0f);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102DA700
 	void LODRenderBehaviour::UpdateLevel()

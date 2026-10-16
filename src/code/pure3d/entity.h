@@ -13,6 +13,12 @@ namespace pure3d
 	class RefCounted : public core::IRefCount
 	{
 	public:
+		// The engine's constructor stores the class's vftable and the count (volatile: the count is changed with
+		// interlocked operations), which keeps the store of the vftable in the derived constructors
+		RefCounted()
+		{
+			mRefCount = 0;
+		}
 		// 0x106E2930 / 0x106E2910
 		static void* operator new(unsigned int size);
 		static void operator delete(void* block);
@@ -26,7 +32,7 @@ namespace pure3d
 		template<class T> static void Assign(T*& pointer, T* object);
 		template<class T> static void Release(T*& pointer);
 
-		int mRefCount;
+		volatile int mRefCount;
 	};
 
 	class Entity : public RefCounted

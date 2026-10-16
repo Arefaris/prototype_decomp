@@ -445,18 +445,9 @@ namespace pure3d
 		return true;
 	}
 
-	// The body is the engine's statement for statement (the state's Unknown9, the binding fallback through the
-	// state's own source at +0xC and then its primitive's at +0x18, the three group slots, the pose and the blend
-	// pose, the -1 the skinning path is given through the pose's +0x138, and the one PrimDrawDesc the two paths
-	// both reach). What differs is the allocation: the engine keeps the state in edi and the skin in esi (we swap
-	// them), the binding source in ebx and the group count in ebp (we swap those too), and it clones the nine
-	// argument pushes of the descriptor into the blend path, where the count is the constant 3, keeping only the
-	// constructor call shared - 29 bytes we do not emit. Declaring the source before the groups and the count
-	// instead of after them keeps the same shape and only moves the percentage (21.6 % -> 16.7 %).
+	// The skinning path and the plain one each build their own descriptor (the engine's compiler merges the common
+	// tail: the constructor call and the draw)
 	// FUNCTION: ENGINE 0x1071ED50
-	// NONMATCHING: register allocation (the state and the skin, the source and the count are swapped) and the
-	// cloned descriptor arguments, 21.6 %
-#ifdef NONMATCHING
 	void Skin::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
 	{
@@ -476,17 +467,20 @@ namespace pure3d
 			((PoseSkinView*)pose)->unknown138 = -1;
 			groups[1] = (PrimGroupList*)buffer;
 			groups[2] = (PrimGroupList*)skinState->GetBlendPose();
-			count = 3;
+			PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, 3, (void**)groups, stream, unknown1C, 0, 0, 0);
+			pddi->DrawPrimitive(shader, &desc, parameters);
 		}
-		else if (buffer != 0)
+		else
 		{
-			groups[1] = (PrimGroupList*)buffer;
-			count = 2;
+			if (buffer != 0)
+			{
+				groups[1] = (PrimGroupList*)buffer;
+				count = 2;
+			}
+			PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, (void**)groups, stream, unknown1C, 0, 0, 0);
+			pddi->DrawPrimitive(shader, &desc, parameters);
 		}
-		PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, (void**)groups, stream, unknown1C, 0, 0, 0);
-		pddi->DrawPrimitive(shader, &desc, parameters);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EFE0
 	void Skin::UnlockBuffer()
