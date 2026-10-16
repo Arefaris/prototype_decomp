@@ -2,6 +2,32 @@
 // the directory are guesses (no assert path survives in the binary).
 #include "code/pure3d/geometry/primgrouploader.h"
 
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x10B90A70
+	void PrimGroupLoader::MakePrimitive(void* object, content::ChunkReader* reader, content::LoadInventory* inventory,
+		bool skin, bool gpu)
+	{
+		if (ReadGroup(reader, inventory))
+		{
+			if (skin)
+			{
+				if (gpu)
+				{
+					BuildGpuSkin(object, reader, inventory);
+					core::SafeRelease(shader);
+					return;
+				}
+				BuildSkin(object, reader, inventory);
+				core::SafeRelease(shader);
+				return;
+			}
+			BuildMesh(object, reader, inventory);
+			core::SafeRelease(shader);
+		}
+	}
+}
+
 #ifdef NONMATCHING
 namespace pure3d
 {
@@ -11,7 +37,7 @@ namespace pure3d
 	// (checked against the same shape in this unit); the rest of the body is identical, 27.5 %.
 	PrimGroupLoader::PrimGroupLoader()
 	{
-		groups = 0;
+		shader = 0;
 		unknownC = 0;
 		unknown10 = false;
 		unknown11 = true;
