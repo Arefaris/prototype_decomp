@@ -125,6 +125,46 @@ def crtStrcpy(machine, args):
 	return args[0]
 
 
+def teb(machine):
+	return machine.state.header.get("fsBase", 0)
+
+
+def apiTlsGetValue(machine, args):
+	"""The thread's TLS slot, from its TEB in the snapshot (the engine's heap finds its per-thread state there)."""
+	index = args[0]
+	if index < 64:
+		data = machine.readTraced(teb(machine) + 0xE10 + 4 * index, 4)
+	else:
+		expansion = machine.readTraced(teb(machine) + 0xF94, 4)
+		pointer = struct.unpack("<I", expansion)[0] if expansion else 0
+		data = machine.readTraced(pointer + 4 * (index - 64), 4) if pointer else None
+	return struct.unpack("<I", data)[0] if data else 0
+
+
+def apiTebDword(offset):
+	def handler(machine, args):
+		data = machine.readTraced(teb(machine) + offset, 4)
+		return struct.unpack("<I", data)[0] if data else 0
+	return handler
+
+
+def apiSetLastError(machine, args):
+	machine.writeTraced(teb(machine) + 0x34, struct.pack("<I", args[0]))
+	return 0
+
+
+def interlocked(operation):
+	def handler(machine, args):
+		data = machine.readTraced(args[0], 4)
+		if data is None:
+			return None
+		old = struct.unpack("<I", data)[0]
+		new, result = operation(old, args)
+		machine.writeTraced(args[0], struct.pack("<I", new & 0xFFFFFFFF))
+		return result & 0xFFFFFFFF
+	return handler
+
+
 def crtFloat(function):
 	def handler(machine, args):
 		value = struct.unpack("<d", struct.pack("<II", args[0], args[1]))[0]
@@ -157,6 +197,14 @@ CRT = {
 	"fabs": crtFloat(abs), "atan": crtFloat(math.atan), "asin": crtFloat(math.asin), "acos": crtFloat(math.acos),
 	"atan2": crtFloat2(math.atan2), "pow": crtFloat2(math.pow), "fmod": crtFloat2(math.fmod),
 	"abs": lambda m, a: abs(a[0] - 0x100000000 if a[0] & 0x80000000 else a[0]) & 0xFFFFFFFF,
+	# Win32 calls whose effect is in the thread's own memory: performed exactly from the snapshot
+	"TlsGetValue": apiTlsGetValue, "GetCurrentThreadId": apiTebDword(0x24), "GetCurrentProcessId": apiTebDword(0x20),
+	"GetLastError": apiTebDword(0x34), "SetLastError": apiSetLastError,
+	"InterlockedIncrement": interlocked(lambda old, a: (old + 1, old + 1)),
+	"InterlockedDecrement": interlocked(lambda old, a: (old - 1, old - 1)),
+	"InterlockedExchange": interlocked(lambda old, a: (a[1], old)),
+	"InterlockedExchangeAdd": interlocked(lambda old, a: (old + a[1], old)),
+	"InterlockedCompareExchange": interlocked(lambda old, a: (a[1] if old == a[2] else old, old)),
 }
 
 
