@@ -2338,21 +2338,59 @@ every unit that copies vectors through assignment: it moved one function in `mat
 bytes) and one in `engine` the other way, so it is not viable. `math/vector.h` must stay exactly as it is; units whose
 vectors are copied member by member depend on the implicit operator.
 
-Not started, in address order: the lock-free stack trio 0x1071B000 / 0x1071B010 / 0x1071B040 (a `void**` head; the
-first is a plain `*head = node`), the empty 0x1071B080 / 0x1071B1F0, `AsyncTaskAdaptor`'s constructor 0x1071B090
-(vftable 0x10E5BDC4, needs its `OnResult` override placed), the two `__m128` vector helpers 0x1071B270 / 0x1071B2C0
-(a row blend: `a*v.x + b*v.y + c*v.z + d`, five resp. four `Vector4*` arguments, returning in xmm0), the SkinState
-constructor and the bulk of the unit: 0x1071B310, 0x1071B490, 0x1071B610 (Draw) and the long run 0x1071B9A0 -
-0x1071E8F0 (the skinning paths, each ending by writing the box at +0x2C4 / +0x2D0 from stack accumulators), the
-controllers' wrappers 0x1071EAE0 - 0x1071F020, the SkinState setters 0x1071F840 - 0x1071F880, 0x1071F900 -
-0x10721200 (the `GpuSkinState` / `GpuSkin` half) and 0x107209E0 - 0x10720CF0 (the destructor and the copy
-constructor).
+**The unit's own helpers that are placed.** The three lock-free list helpers at 0x1071B000 / 0x1071B010 / 0x1071B040
+(`void**` head, the node's first word is its link) are `StoreListHead` / `PushListHead` / `PopListHead`; `PopListHead`
+is `__inline` (0x1071F780 has its body copied in twice, and the standalone copy at 0x1071B040 is the COMDAT one).
+0x1071B270 / 0x1071B2C0 are the two four-wide blends returning `__m128` (`a * w.x + b * w.y + c * w.z [+ d]`), with
+`const __m128&` arguments (pointers on the stack). 0x1071B080 / 0x1071B1F0 / 0x1071EFC0 are empty one-byte
+functions, named `Unknown<address>` because their classes and callers are in other units. The two globals the queue
+uses are 0x11281814 (the head of the pending-skin list, a `SkinJobEntry*` whose node is `SkinState::entry` at +0x33C)
+and 0x11281828 (the number of running jobs); 0x1071F780 `SubmitPendingSkins` drains the list and 0x1071F7F0
+`WaitForSkinJobs` spins on `_InterlockedAnd(&gSkinJobCount, -1) > 0` with `core::ThreadSleep(0)`.
 
-Match so far (12 functions): 0x1071B070, 0x1071B0B0, 0x1071B0F0, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0,
-0x1071B200, 0x1071B210, 0x1071B220, 0x1071B230, 0x1071B240.
+**The classes the second session added to shared headers** (all append-only; `pure3d::Skin` is new):
+
+- `pure3d::Skin` in `src/code/pure3d/primitive.h`: `Primitive` (0x1C) + a pointer at +0x1C, `core::AsyncTaskJob job`
+  at +0x20 (72 bytes, so it ends at +0x67), 8 bytes of padding, the pose at +0x70, the `pure3d::PrimBuffer*` at +0x144
+  (its stream, still an untyped pointer, at +0x148), the box at +0x26C, a `math::Vector4` centre at +0x284 and a word
+  at +0x294 (vtable slots 9 / 10). The class is declared with the 13 known slots but only the non-`Draw` slots are
+  defined yet, so MSVC emits no vftable for it here; `Draw`(3), `Unknown4`(4), `GetCentre`(6) and `FillBatch`(7) are
+  still unmapped in symbols.txt and have to be added when they are reconstructed.
+- `pure3d::SkinState`: `Update`(4 = 0x10721160), `Unknown10720CF0` (0x10720CF0, declared, mapped, not reconstructed),
+  `GetUnknown2AC` (0x107211D0), the flag at +0x2AC and the entry at +0x33C. The class is 0x350 bytes (0x10720C60
+  allocates 0x350 and 0x10720A00 copies that much), not 0x2E4 as the first session thought.
+- `pure3d::SkinState::AsyncTaskAdaptor` (nested, `core::AsyncTaskCallback` + `SkinState* mState` at +4, constructor
+  0x1071B090, `OnResult` 0x1071FCC0 = `mState-><0x1071F8A0>` which is mapped in symbols.txt but not reconstructed).
+- `pure3d::pddiBaseContext::GetFrameCount` (0x10615180) and `pure3d::PrimBuffer::Unknown10625FA0` (0x10625FA0) were
+  added as declarations for the same reason.
+- One unused-by-us helper: `SubmitTask` (0x1071EAE0) sits at the top of the Skin layout and is called from
+  0x1071F780, so the `job` member has to stay at +0x20.
+
+Remaining, in address order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
+four `unsigned short` indices sit at +0x40 / +0x50), 0x1071B610 and the long run 0x1071B9A0 - 0x1071E8F0 (the
+skinning paths; each ends by writing the box at +0x2C4 / +0x2D0 from stack accumulators and is picked by the
+0x350-byte job state's flags at +0x2AE / +0xBF / +0xC5 / +0x1D and the `unsigned` at 0x1071ED50's +0x20000000 bit),
+the Skin methods 0x1071ED40 - 0x1071F020 (the +0x148 wrappers, `FillBatch`, `Draw`), the ~100-byte cluster
+0x1071F3C0 - 0x1071FCC0 (COMDAT copies of a 6-field ring/table class - +0 valid, +4 pointer, +8 / +0xC / +0x10, +0x14
+count - and of `core::SafeRelease<T>` / `core::RefAssign<T>`, whose template arguments still have to be read off the
+callers), 0x1071F7D0 (`"AsyncSkinning"` registered with the task callback 0x1071EAF0 through 0x10B80220), 0x1071F840
+- 0x1071F880 (the three SkinState setters, which are 0x1071F480 / 0x10707710 / 0x1071F4B0 on +0x78 / +0x2DC /
+  +0x2E0), 0x1071F8A0 (the state's job-result handler; its first call is `*(void**)(this + 0x70)` released through
+  0x106E2A50, a non-virtual `Release` whose class is still unknown), 0x1071F900 - 0x10721200 (the `GpuSkinState` /
+  `GpuSkin` half) and 0x10720200 - 0x10720CF0 (the destructors, the copy constructor and the job dispatcher
+  0x10720CF0).
+
+Match so far (31 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
+0x1071B0F0, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B1F0, 0x1071B200, 0x1071B210, 0x1071B220,
+0x1071B230, 0x1071B240, 0x1071B270, 0x1071B2C0, 0x1071EAE0, 0x1071EFB0, 0x1071EFC0, 0x1071EFE0, 0x1071F000,
+0x1071F780, 0x1071F7F0, 0x1071F9B0, 0x1071F9C0, 0x10721160, 0x107211D0.
 
 NONMATCHING:
 
 - 0x1071B130 SkinState::GetBoundingBox: the engine copies the box through fld/fstp; needs a user-defined
-  Vector::operator=, which would change every unit (100 % of the instructions, integer moves instead)
+  Vector::operator=, which would change every unit (the instructions are the same, integer moves instead)
 - 0x1071B170 SkinState::SetBoundingBox: same reason
+- 0x1071EF00 Skin::GetBoundingBox: same reason, 40 %
+- 0x1071EF40 Skin::SetBoundingBox: same reason, 52 %
+- 0x1071EF80 Skin::SetCentre: the four components go through fld/fstp; needs a user-defined Vector4::operator=,
+  which would change every unit, 55 %
