@@ -15,6 +15,26 @@ namespace pure3d
 	// at +8, where the texture reads it at every later step)
 	struct TextureDescription
 	{
+		// What a description starts from (0x1061C400 stores exactly these values into its own description, which
+		// means the engine's constructor here is inlined into it; the values are the engine's)
+		TextureDescription()
+		{
+			type = 0;
+			levels = 0;
+			depth = 0;
+			width = 0;
+			height = 0;
+			format = 0;
+			usage = 0;
+			flags = 0;
+			unknown20 = -1;
+			unknown24 = -1;
+			unknown28 = 1;
+			unknown2C = 0;
+			unknown30 = 0;
+			unknown34 = true;
+		}
+
 		// 1: a 2D texture, 2: a cube texture, 3: a volume texture
 		int type;              // +0
 		// How many mip levels

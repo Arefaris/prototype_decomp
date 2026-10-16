@@ -33,6 +33,13 @@ namespace pure3d
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x1061C400
+	dxTexture::dxTexture(IDirect3DDevice9* device)
+		: surface(0), levelData(0), texture(0), defaultTexture(0), volumeTexture(0), cubeTexture(0), d3dFormat(0),
+			lockLevel(-1), lockSlice(-1), locked(0), memory(0), unknown84(0), unknown88(0), unknown8C(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1061CBE0
 	dxTexture::~dxTexture()
 	{
@@ -75,24 +82,26 @@ namespace pure3d
 
 #ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061CD70
-	// NONMATCHING: register allocation, 22.7 %: the body is complete and in the engine's order, but the engine puts
-	// `usage` in ebp and &this->description in edi, this compiler the other way round, and it folds the usage test
-	// `(usage >> 1) & 1` into `test byte [this+0x20], 2` where the engine keeps the shift. Rewriting the test
-	// (`% 2`, a named bool) and swapping the declarations of pool and usage do not change either.
+	// NONMATCHING: register allocation, 26.4 %. Every part is the engine's and in its order (the description check,
+	// the usage bit that picks the default pool, the level build, the memory counters, the three texture kinds, the
+	// pooled surface path and the retry loop), and the size is within a byte, but this compiler puts `usage` in edi
+	// and `&this->description` in ebp where the engine has them the other way round, and it folds
+	// `(usage >> 1) & 1` into `test byte [this + 0x20], 2` where the engine keeps the shift. A named shift result
+	// and swapped declarations change neither.
 	bool dxTexture::Create(const TextureDescription* description)
 	{
 		if (!SetDescription(description))
 		{
 			return false;
 		}
-		pool = D3DPOOL_MANAGED;
 		int usage = 0;
-		if ((this->description.usage >> 1) % 2 != 0)
+		pool = D3DPOOL_MANAGED;
+		if (((this->description.usage >> 1) & 1) != 0)
 		{
 			bool supported = IsTextureFormatSupported(d3dFormat);
-			usage = supported + 1;
 			this->description.levels = 1;
 			pool = D3DPOOL_DEFAULT;
+			usage = supported + 1;
 		}
 		BuildLevels(&this->description);
 		if (gContext != 0)

@@ -2648,7 +2648,14 @@ The units are named by the two assert paths the range keeps (`dxdefaultpoolmanag
   line in the texture unit (0x1061CA90 - 0x1061CB10, one copy per type: two pddi types through their virtual
   Release, three Direct3D interfaces through the interface's own) even though the destructor's own call sites are
   inlined by the engine too. `AssignRef<T>(T**, T*)` (0x1061CB50 / 0x1061CB80) is its holding counterpart.
-- `pure3d::dxTexture::~dxTexture` (0x1061CBE0), the five `ReleaseRef` copies and the layout above.
+- `pure3d::dxTexture::~dxTexture` (0x1061CBE0), the five `ReleaseRef` copies and the layout above, and the
+  constructor 0x1061C400. That one proves the description has a constructor of its own: the engine stores the
+  description's fourteen fields **before** the object's other members, which a constructor body (it runs after the
+  initialiser list) cannot do — `TextureDescription` therefore carries an inline default constructor that sets
+  `unknown20 = -1`, `unknown24 = -1`, `unknown28 = 1`, `unknown34 = true` and zero elsewhere.
+- `pure3d::dxIndexBuffer::Create` (0x10626770): the usage bits go through a **named local** (`unsigned int flags =
+  description->usage;`), which is what makes the engine's register test (`test al, 1`) instead of a memory test, and
+  the format is declared before the usage flags.
 - `pure3d::dxVertexBuffer::dxVertexBuffer` (0x106262D0), `dxContext::NewTexture` (0x1061B550 / 0x1061B5A0),
   `dxContext::NewVertexBuffer` (0x1061B600), `dxContext::NewIndexBuffer` (0x1061B660), the two `dxContext`
   accessors 0x1061B530 (`+8`) and 0x1061B540 (the device at +0xC), and `IsTextureFormatSupported` (0x1061C360), the
@@ -2667,21 +2674,18 @@ the third).
 
 NONMATCHING:
 
-- 0x1061CD70 `dxTexture::Create`: register allocation, 22.7 %. The whole body is there in the engine's order (the
-  scale path, the level build, the three texture kinds, the pooled surface path and the retry loop), but the engine
-  keeps `usage` in `ebp` and `&this->description` in `edi` where this compiler does the opposite, and it keeps
-  `(usage >> 1) & 1` as a shift where this compiler folds it into `test byte [this + 0x20], 2`. Walking the
-  condition through `% 2`, a named `bool` and swapping the `pool` / `usage` declarations changes neither.
+- 0x1061CD70 `dxTexture::Create`: register allocation, 26.4 %. The whole body is there in the engine's order (the
+  scale path, the level build, the three texture kinds, the pooled surface path and the retry loop) and within a
+  byte of the engine's size, but the engine keeps `usage` in `ebp` and `&this->description` in `edi` where this
+  compiler does the opposite, and it keeps `(usage >> 1) & 1` as a shift where this compiler folds it into
+  `test byte [this + 0x20], 2`. Walking the condition through `% 2`, a named shift result, a named `bool` and
+  swapping the `pool` / `usage` declarations changes none of it.
 - 0x1061D010 `dxTexture::Create` from an image: register allocation, 30.3 %. Same cause: the engine keeps the level
   in `edx` and reloads it from its argument slot after every Direct3D call, this compiler caches it in a
   callee-saved register, which moves every instruction behind it.
 - 0x1061C600 `dxTexture::Lock`: register allocation, 17.9 %. The checks, the three lock paths (volume box, cube
   face, the system-memory copy of a 2D texture) and the lock description handed back are all there; the register
   difference above shifts the body.
-- 0x1061C400 `dxTexture::dxTexture`: scheduling, 31.0 %. Every store is there with the engine's value in the
-  engine's order (the -1 / 1 group at 0x28 - 0x3C sits between the runs of zero stores), but our compiler sinks that
-  group behind the whole zero run and moves the vftable store with it. Writing the statements in document order and
-  in the engine's order gives the same schedule.
 - 0x106266D0 `dxIndexBuffer::dxIndexBuffer`: register allocation, 62.3 %. Every store is in the engine's order (the
   initialiser list, then -1 at +0x34, then the six words of the state block), but the engine clears the state block
   with a zero it materialises in `eax` (`xor eax, eax` after the state's constructor call) where this compiler
