@@ -194,12 +194,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107DECD0
-	// NONMATCHING: the kind arrives in eax, not on the stack, 0 %. The engine's OnAllocFail (0x107DED20) already has
-	// the kind in eax when it reaches it, so the compiler gave this internal function a register parameter - a
-	// convention MSVC 2005 only hands out under whole-program optimisation, so plain /O2 puts our argument on the
-	// stack and the switch cannot reach the same code. The body is the engine's otherwise.
-#ifdef NONMATCHING
-	const char* GetHeapKindName(int kind)
+	static const char* GetHeapKindName(int kind)
 	{
 		switch (kind)
 		{
@@ -219,7 +214,6 @@ namespace engine
 			return "Unknown";
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x107DF2D0
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,

@@ -2432,27 +2432,23 @@ Matching notes:
   scalar deleting destructor; defining that destructor (out of line, in its own unit) is what makes MSVC emit both,
   which is how `MidgroundTextureManager`'s `??_G` becomes reachable.
 
-NONMATCHING:
+Fixed in the third session (the two findings below):
 
-- 0x102DA540 `LODRenderBehaviour::UpdateFade` (second session): the engine materialises the three coordinate
-  differences in SSE (it loads both members of each pair into a register and stores the difference to the vector's
-  slot at +8 / +0xC / +0x10, then reloads them with `fld` for the squares), our build keeps them on the x87 stack
-  and folds `camera->position` into the `fsub`, 30 %. Tried a `Vector` temporary built from the three differences,
-  three float locals, the squares in both orders (`z*z + y*y + x*x`, the order the engine's other length code
-  writes, gives the engine's component order but not its instructions) and the detail-scale call before and after
-  the distance. The engine's frame is five dwords (the scale at +0, the distance at +4, the three differences at
-  +8 / +0xC / +0x10); ours is two.
-- 0x107DECD0 `GetHeapKindName`: the heap kind arrives in **eax**, not on the stack, 0 %. `OnAllocFail` (0x107DED20)
-  already holds it there, so the compiler gave this internal function a register parameter - a convention MSVC 2005
-  hands out only under whole-program optimisation, so plain `/O2` puts the argument on the stack and the switch can
-  never reach the same code. The six names ("None", "Uncached", "WriteCombine", "Vram", "Vram Preferred",
-  "Vram (heap default)") and "Unknown" are the engine's.
-- 0x1082DB20 `AddTriggerPackages`: register allocation of the box centre, 92 %. Every call and store is the engine's
-  and in its order; the engine's three components come out in xmm0 / xmm1 / xmm2 with one `movss` store each, ours
-  land in other registers of the same file and its loads of the box corners commute the other way. Tried a `Vector`
-  temporary built with `Add` / `Scale` and then assigned (spills the temporary), a `Set` of the three sums (the
-  arguments evaluate right to left, so the components come out in the other order) and three float locals with a
-  `Set`.
+- `0x107DECD0 GetHeapKindName` matched once it is declared `static`: the heap kind then arrives in eax, as in the
+  engine. The six names ("None", "Uncached", "WriteCombine", "Vram", "Vram Preferred", "Vram (heap default)") and
+  "Unknown" are the engine's.
+- `0x102DA540 LODRenderBehaviour::UpdateFade` matched once the fade is written as two assignments -
+  `fade = 1.0f - (clamped - minimum) / (maximum - minimum);` and then `fade = math::Clamp(fade, 0.0f, 1.0f);`. The
+  engine's two stores of +0x64 are those two assignments; a single `fade = math::Clamp(1.0f - ..., 0.0f, 1.0f)`
+  keeps the pre-clamped value in a register and stores once. The three coordinate differences are a `math::Vector`
+  temporary built from the difference expressions: the arguments evaluate right to left, so the engine's z, y, x
+  component stores come out in that order.
+- `0x1082DB20 AddTriggerPackages` and `0x102D41C0 DentBuffer::Push` matched with the same source as before; Push
+  needs `Dent` to carry a user-defined `operator=` that assigns the members one by one (`position.x = dent.position.x;`
+  ...), which is what makes the engine's eight `fld` / `fstp` pairs.
+
+0x107DECD0's `?GetHeapKindName@engine@@YAPBDH@Z` symbol in symbols.txt names an internal-linkage function: the
+engine's own table entry for it.
 
 Not started (the reason each is blocked, not just "unknown"):
 
@@ -2468,11 +2464,13 @@ Not started (the reason each is blocked, not just "unknown"):
   0x1082E3F0 named first.
 - `0x10899830` (454, `engine::StreamDriverBehaviour::update`) and `0x1082E100` (752, the stream transition): not read
   yet.
-- `0x102D41C0` (`DentBuffer::Push`, 94 bytes): the full test is `((end - dents) & ~0x1F) == sizeof(dents)` -> false,
-  then `slot = end; end = slot + 1;` and a copy of the dent guarded by `slot != 0`. The engine copies the 0x20 bytes
-  with eight x87 `fld` / `fstp` pairs, i.e. the record's copy *constructor*; our record is trivially copyable, so the
-  assignment comes out as one `rep movsd` (26 %). The record type the engine copy-constructs is not recovered.
-- `0x102D4920` (602) and `0x102D4C50` (1097, `DeformShaderModifier::apply`): not read yet.
+- `0x102D4920` (602, `DeformShaderBehaviour`'s vftable slot 4) and `0x102D4C50` (1097,
+  `DeformShaderModifier::apply`): not read yet. Both need the behaviour's vftable emitted with its slots mapped, so
+  they carry the same block as the LOD slots below.
+- The `DeformShaderBehaviour` vftable is 0x10DEA3CC with 8 slots and `DeformShaderModifier` 0x10DEA3C0 (base
+  `engine::render::DrawableModifier`); the behaviour's members are +0 vftable, +4 the `DentBuffer` (its `end` at
+  +0x84), +0x94 a float, +0x98 the dent count, +0x9C a dirty byte and +0x9D a "bias sent" byte. The dent ring the
+  update walks is at the behaviour's +0x1C, in 0x20-byte records, not the `DentBuffer` at +4.
 - `0x102DA540` (350, `LODRenderBehaviour`'s per-frame update): the engine leaves a dead `add ecx, 4` in it (the
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
   body reproduces.
