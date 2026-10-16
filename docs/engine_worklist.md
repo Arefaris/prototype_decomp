@@ -2691,7 +2691,8 @@ and 0x11281828 (the number of running jobs); 0x1071F780 `SubmitPendingSkins` dra
 - One unused-by-us helper: `SubmitTask` (0x1071EAE0) sits at the top of the Skin layout and is called from
   0x1071F780, so the `job` member has to stay at +0x20.
 
-Remaining, in address order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
+0x1071B310 / 0x1071B490 are written now (both NONMATCHING, see the end of the section). Remaining, in address
+order: 0x1071B310 / 0x1071B490 (the two 4-bone row blends over a 0x40-byte bone record whose
 four `unsigned short` indices sit at +0x40 / +0x50; their source is four statement-shaped accumulations -
 `out = m0 * w0; out += m1 * w1; ...`, each row of the record transformed by a different bone - so they are
 `BlendRows4`/`BlendRows3`-like but written as accumulate-into-memory, and 0x1071F060 shows the same helper family),
@@ -2788,8 +2789,26 @@ What is left of 0x1071B9A0 is its frame: the engine spills **both** `this` and `
 Making the loads inline made it *worse* positionally (13 %) than the locals were (18 %) even though the loop body
 is now right, because the frame is 16 bytes shorter and everything after shifts.
 
+**The 19 skinning paths that are left (0x1071B610, 0x1071BBD0, 0x1071BEE0, 0x1071C0C0, 0x1071C390, 0x1071C530,
+0x1071CA40, 0x1071CDC0, 0x1071D1B0, 0x1071D440, 0x1071D770, 0x1071D960, 0x1071DD60, 0x1071DFF0, 0x1071E390,
+0x1071E5D0, 0x1071E8F0 and 0x10720CF0) are not reconstructed.** They are 500 - 1100 byte SSE loops of exactly the
+family the four details above settle - 0x1071C390 is the one-bone case (four rows widened by one bone's 4x4, the
+position through `BlendRows4`, the normal and the tangent through `BlendRows3`, three `movups` stores, the same
+box), 0x1071B610 the four-bone one whose weights are the vertex's own fourth row at +0x30 and whose matrix is built
+by blending four bone matrices' *rows* with those weights by the same `BlendRows4`, and the rest the same with the
+expression, the second pose and the vertex-format flag of 0x10720CF0's six-way dispatch switching between them.
+0x10720CF0 itself is the one that is not a loop at all (its layout is readable in the pseudocode: the pose's vertex
+declaration, the lock, the two asserts at 0x87B / 0x880, the three offset triples at +0x2E8 / +0x300 / +0x318 and
+the `SkinJobEntry` push at +0x33C). Writing them is not the work; the work is the frame each of them ends up with,
+and that is the wall below, so the session stopped rather than write nineteen functions it could not close.
+
 NONMATCHING:
 
+- 0x1071ED50 Skin::Draw: register allocation (the engine's state in edi, skin in esi, binding source in ebx and
+  group count in ebp are our esi, edi, ebp, ebx) plus the tail the engine clones into the blend path (the nine
+  argument pushes of its PrimDrawDesc, the count as the constant 3 there and in ebp in the other path, 29 bytes we
+  do not emit); declaring the source before the groups and the count, the one thing the engine's instruction order
+  suggests, keeps the shape and only moves the percentage down to 16.7 %. 21.6 %
 - 0x1071B9A0 SkinState::Unknown1071B9A0: register allocation (the engine spills `this` and `matrices`, we keep
   `matrices` in a register and fold it into the addressing modes), 13 %, best 18 % with the rows in locals
 - 0x1071B310 / 0x1071B490 BlendBoneRows / BlendBoneRowsWide: register allocation, 21 %. The body is the engine's

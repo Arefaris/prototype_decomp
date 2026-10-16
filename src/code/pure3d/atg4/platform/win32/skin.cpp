@@ -87,9 +87,12 @@ namespace pure3d
 	{
 	}
 
-	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time
+	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time. The engine inlines these into the
+	// skinning paths, but every caller here is NONMATCHING, and MSVC emits no out-of-line copy of a function it
+	// inlined everywhere: they stay plain functions so that the engine's standalone copies at 0x1071B270 / 0x1071B2C0
+	// are still emitted and checked.
 	// FUNCTION: ENGINE 0x1071B270
-	__inline __m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
 		const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
@@ -103,7 +106,7 @@ namespace pure3d
 
 	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
 	// FUNCTION: ENGINE 0x1071B2C0
-	__inline __m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
@@ -442,10 +445,17 @@ namespace pure3d
 		return true;
 	}
 
+	// The body is the engine's statement for statement (the state's Unknown9, the binding fallback through the
+	// state's own source at +0xC and then its primitive's at +0x18, the three group slots, the pose and the blend
+	// pose, the -1 the skinning path is given through the pose's +0x138, and the one PrimDrawDesc the two paths
+	// both reach). What differs is the allocation: the engine keeps the state in edi and the skin in esi (we swap
+	// them), the binding source in ebx and the group count in ebp (we swap those too), and it clones the nine
+	// argument pushes of the descriptor into the blend path, where the count is the constant 3, keeping only the
+	// constructor call shared - 29 bytes we do not emit. Declaring the source before the groups and the count
+	// instead of after them keeps the same shape and only moves the percentage (21.6 % -> 16.7 %).
 	// FUNCTION: ENGINE 0x1071ED50
-	// NONMATCHING: the engine keeps the state in edi, the skin in esi, the binding source in ebx and the group count
-	// in ebp and pushes the one or three groups as an immediate; ours assigns those registers the other way round
-	// (state esi, skin edi, source ebp, count ebx), which no local order tried changes, 14 %
+	// NONMATCHING: register allocation (the state and the skin, the source and the count are swapped) and the
+	// cloned descriptor arguments, 21.6 %
 #ifdef NONMATCHING
 	void Skin::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
