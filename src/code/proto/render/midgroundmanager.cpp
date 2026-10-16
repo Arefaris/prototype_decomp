@@ -4,7 +4,8 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DDD30
-	// NONMATCHING: 63 % in the build (reported matched by the agent, not reproduced)
+	// NONMATCHING: everything but the array stride is the engine's (86.8 %); the engine's MidgroundCellRecord is
+	// 0x18 bytes because its core::Name is eight-byte aligned, ours is 0x14 (see the header)
 #ifdef NONMATCHING
 	void MidgroundManager::CellLoaded(MidgroundCell* cell)
 	{
@@ -26,7 +27,7 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x102DDE30
-	// NONMATCHING: 62 % in the build (reported matched by the agent, not reproduced)
+	// NONMATCHING: as CellLoaded, the records array's 0x18 stride (the engine's core::Name is eight-byte aligned)
 #ifdef NONMATCHING
 	void MidgroundManager::CellUnloaded(MidgroundCell* cell)
 	{

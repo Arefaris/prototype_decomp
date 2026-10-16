@@ -2516,6 +2516,85 @@ Fixed in the third session (the two findings below):
   needs `Dent` to carry a user-defined `operator=` that assigns the members one by one (`position.x = dent.position.x;`
   ...), which is what makes the engine's eight `fld` / `fstp` pairs.
 
+Fourth session (2026-10-16, ds-9 continuation):
+
+- `0x102D41C0 DentBuffer::Push` **matches** (100 %). The third session's body was right, the block order was not:
+  written as `if (free) { ...; return true; } return false;` (the test inverted, the body inside) the compiler puts
+  the `return false` at the tail behind a `je`, as the engine does; with the early `if (full) return false;` it
+  inverts the branch and emits `jne` over an in-line `xor al, al; ret`.
+- `0x1082DB20 AddTriggerPackages` is at **85.3 %**, not 36 %: the corner loads are not the problem. With
+  `float x = min.x + max.x;` (and y, z), `package->unknown4C.x = x * 0.5f;` ... the three sums, the single 0.5f
+  and the three products all live in registers exactly as in the engine. What is left is the order: the engine
+  evaluates x, y, z with xmm0 / xmm1 / xmm2 and the 0.5f in xmm3 and stores the three products last, ours rotates
+  the three register assignments and sinks each store behind its product. A `math::Vector centre` with
+  `Add` / `Scale` and an assignment gives the same order as the engine but materialises centre on the stack (the
+  assignment goes through memory, 36 %); `package->unknown4C.Add(...); .Scale(0.5f);` is not forwarded (32.7 %);
+  the operand order of the sums (`max + min`) makes no difference at all - the front end normalises it.
+- `0x102DA540 LODRenderBehaviour::UpdateFade` is at **28.3 %**, not 30 %. The body is the third session's; the wall is
+  that the engine computes the three coordinate differences in **SSE** and stores each into the x87 stack slot it
+  reads them back from, while this compiler evaluates the whole `dz * dz + dy * dy + dx * dx` on the x87 stack and
+  never stores (the frame is 8 bytes instead of 0x14). The three locals (declared z, y, x) reproduce the engine's
+  loads, its `add ecx, 4` artifact and its order, so only the SSE/x87 choice is left - the same wall
+  `0x102CDFB0 BulletTracerState::GetDistanceFade` hit; it needs a shared answer.
+- `0x102DDD30 CellLoaded` / `0x102DDE30 CellUnloaded` are at **86.8 % / 62 %** and are blocked on one fact:
+  the engine's `MidgroundCellRecord` is **0x18 bytes** for four members that are 0x14, and its copy leaves the tail
+  four bytes alone - the record is eight-byte aligned there because the engine's `core::Name` is (its hash is one
+  64-bit word). The tree's `code/core/name.h` declares it as two 32-bit words, so the record is 0x14 and the array
+  strides 0x14. Every other byte of both functions is the engine's (verified by putting the alignment back:
+  `__declspec(align(8))` on the struct, on the last member, or a union with a `double`, all make the compiler
+  realign the frame with `and esp, -8`, which the engine does not have). **`code/core/name.h` is a core header, so
+  this session did not touch it: whoever owns it should decide whether `core::Name` carries an 8-byte-aligned
+  64-bit hash, which would also shift any other struct that holds one.**
+- The class layout `MidgroundManager` needed was the vftable pointer: the engine's class is polymorphic (RTTI base
+  `engine::RenderTask::PresentationTask`, vftable 0x10DEAB90) and its constructor 0x102DE380 writes the vftable at
+  +0 and a byte 1 at +4, then the scale at +8. Without a virtual member everything after it was 8 bytes off. The
+  header now declares a destructor (declared, never defined, so no vftable of ours is emitted) and the base's word.
+
+**`0x1083EC50` `StreamSlotGroup::Create` read in full (fourth session), not written yet - everything below is what it
+needs, so the next attempt starts from the source, not from the disassembly.**
+
+Its unit is the cluster 0x1083E760 - 0x1083EC50 (`StreamSlot::Attach` / `Detach` at 0x1083E760 / 0x1083E7A0 are
+already named in the header); no source file exists for it yet. The two classes live in `streampackage.h` and are
+both undersized there:
+
+- `engine::StreamSlotGroup` is **0x70 bytes** and is polymorphic (its constructor 0x1083EAD0 writes the vftable
+  0x10E6F838, and 0x1082D550 `CreateSlotGroup` allocates 0x70 through 0x105FE6C0 and calls its virtual slot 7 with
+  (0, 0)). The constructor's writes give the layout: +0x04 a word, +0x08 the `core::Name<core::CaseSensitiveKey>`
+  (copy-constructed from the first argument), +0x10 the slot array, +0x14 an int (-1), +0x18 a pointer, +0x1C a byte
+  (1, what 0x1083E880 reads), +0x20 the slot count (the constructor's second argument), +0x24 - +0x54 zeroed,
+  **+0x5C the slot-heap factory override, +0x60 a word (both written by 0x1082D550), +0x64 the priority
+  (0x7FFF, and the constructor's arguments 3 / 4 / 5 are the bytes at +0x66 / +0x67 / +0x68)**. The header's
+  `int unknown0[0x64/4]; unsigned short priority;` already puts priority at +0x64, but everything else has to be
+  named for `Create` to be writable.
+- `engine::StreamSlot` is **0x10 bytes**, not 4: 0x1083E6A0 (the constructor the array's vector-constructor
+  iterator calls) writes -1 at +0, a zero at +4, and the three bytes +0xC / +0xD / +0xE as 0 / 1 / 0; +8 is left
+  uninitialised and `Create` fills it with the slot's index.
+- `Create`'s signature is `void Create(int unused, bool immediate)` (`ret 8`, the first argument is never read).
+  Its callees, none of them named yet: `0x1083EC30` = the factory getter (`this->+0x5C`, else
+  `engine::gStreamManager->+0x88`, else the default 0x1083EB80), `0x1083E880` = the three config words the factory
+  is built from (`out[0] = +0x24 + 1024 * (+0x28 + 1024 * +0x2C)`, `out[1] = the byte at +0x1C`, `out[2] = +0x54`),
+  `0x1083EB80` = the default factory (`engine::CreateHeap(handle, config[0], 0, name, 0xC, 2, false, -1, 0)`),
+  `0x1082D630` = pops a free slot handle off `engine::gStreamManager->+0xD8` / `+0xDC` (-1 when empty) and
+  `0x1082E3F0` = registers the slot in `gStreamManager->+0xE8` under `slot->name.GetHash()`.
+  The pieces it is built from are all in the tree: `core::HeapScope` (0x1063AAD0 / 0x1063AAF0),
+  `core::GetCurrentHeap` / `SetCurrentHeap`, `container::StringC<64>::Format`, `core::Name::GetText`,
+  `engine::CreateTwoWayHeap` (0x107DEB60), `operator new[]` (0x107DEF70) and `new StreamSlot[count]` (MSVC's
+  overflow check, the `+4` array cookie and `_vector_constructor_iterator_` at 0x10005100).
+  The two-way heap call looks like twelve pushes against a declared eight-argument function, but it is not:
+  `CreateTwoWayHeap(heap, count * config[0] + 0x10000, 0, text.buffer, core::GetCurrentHeap(), 2, false, -1)`
+  (the declaration in the tree is right - the callee reads exactly those eight, `ret`) and the four constants
+  pushed before it (`0`, `&core::IMemoryAllocator::RTTI_Type_Descriptor`, `&core::IMemoryLinearAllocator::
+  RTTI_Type_Descriptor`, `0`) are the scheduler setting up `__RTDynamicCast`, which runs after the `add esp, 0x20`.
+  Both `Format` calls look like they push the `StringC<64>` object's address as an extra leading argument
+  (`lea ecx, [esp+0x28]` then `push ecx`, and `add esp, 0xc` for three arguments). They do not: **MSVC passes a
+  variadic member function's `this` as the first *stack* argument, not in `ecx`.** `GameObjectSpawner::Spawn`
+  (0x107F2390, 100 % matched) calls the same 0x1060ED50 the same way from the plain source
+  `text.Format("gameobject%d", sNameCount++);`, with `ecx` left holding something else entirely. So the two calls
+  here are `text.Format("%s StreamSlot", name.GetText());` and
+  `text.Format("%s StreamSlot[%d]", name.GetText(), i);` and need nothing special.
+  `GetSlotHeapConfig` must be declared **returning `int*`** (`int* GetSlotHeapConfig(int* config)`): the caller
+  reads `config[0]` through the call's `eax` with no reload.
+
 0x107DECD0's `?GetHeapKindName@engine@@YAPBDH@Z` symbol in symbols.txt names an internal-linkage function: the
 engine's own table entry for it.
 
