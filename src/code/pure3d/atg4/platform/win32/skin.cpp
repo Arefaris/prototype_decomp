@@ -194,7 +194,8 @@ namespace pure3d
 	// instruction for instruction apart from the order of two shuffles; the frame around it differs (the engine
 	// spills both `this` and `matrices` and needs 0x74 bytes, this compiler keeps `matrices` in ebx and needs 0x64).
 	// FUNCTION: ENGINE 0x1071B9A0
-	// EQUIVALENT: register allocation and the order of two shuffles (the engine spills `this` and `matrices`), 12.2 %
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and the order of two shuffles (the engine spills `this` and `matrices`), 12.2 %
+#ifdef NONMATCHING
 	void SkinState::Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -236,9 +237,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071B610
-	// EQUIVALENT: register allocation and scheduling (the engine spills part of the blended rows)
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling (the engine spills part of the blended rows)
+#ifdef NONMATCHING
 	void SkinState::Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -280,9 +283,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071BBD0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -319,9 +324,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071BEE0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071BEE0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -354,9 +361,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071C0C0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -388,9 +397,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071C390
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071C390(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -418,9 +429,11 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071C530
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -501,10 +514,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071CA40
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -581,10 +596,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071CDC0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -647,10 +664,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071D1B0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -709,10 +728,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071D440
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -754,10 +775,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071D770
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -795,10 +818,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071D960
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -844,10 +869,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071DD60
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071DD60(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -889,10 +916,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071DFF0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -933,10 +962,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071E390
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071E390(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -973,10 +1004,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071E5D0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -1012,10 +1045,12 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// FUNCTION: ENGINE 0x1071E8F0
-	// EQUIVALENT: register allocation and scheduling
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation and scheduling
+#ifdef NONMATCHING
 	void SkinState::Unknown1071E8F0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -1047,6 +1082,7 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
+#endif
 
 
 	// Blends the four rows of four bone matrices, weighted by the four lanes of the weights (out = m0 * w.x +
@@ -1058,7 +1094,8 @@ namespace pure3d
 	// every phase (45 bytes of reloads we do not need) and materialises the first bone's address in edx, so its
 	// allocation of the seven pointers cannot be reproduced from the source.
 	// FUNCTION: ENGINE 0x1071B310
-	// EQUIVALENT: register allocation (the engine re-loads the argument pointers, we keep them), 21 %
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation (the engine re-loads the argument pointers, we keep them), 21 %
+#ifdef NONMATCHING
 	void BlendBoneRows(const SkinVertex* vertex, const math::Matrix* matrices, const math::Vector4* weights,
 		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
 	{
@@ -1096,10 +1133,12 @@ namespace pure3d
 		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]),
 			_mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3))), _mm_load_ps(&row3->x)));
 	}
+#endif
 
 	// The same for the wider vertex record (its bone indices sit at +0x50)
 	// FUNCTION: ENGINE 0x1071B490
-	// EQUIVALENT: register allocation, the same as 0x1071B310, 21 %
+	// NONMATCHING (crashed in the game as EQUIVALENT): register allocation, the same as 0x1071B310, 21 %
+#ifdef NONMATCHING
 	void BlendBoneRowsWide(const SkinVertex2* vertex, const math::Matrix* matrices, const math::Vector4* weights,
 		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
 	{
@@ -1129,6 +1168,7 @@ namespace pure3d
 		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[2]), q), _mm_load_ps(&row2->x)));
 		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]), q), _mm_load_ps(&row3->x)));
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x1071B070
 	bool SkinState::GetUnknown298()

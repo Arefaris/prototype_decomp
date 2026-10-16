@@ -3114,3 +3114,7 @@ Still NONMATCHING or not started, one line each:
   behaviour: they build stack messages whose vftables the unit would have to emit) and the loaders 0x10B9C3E0,
   0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts, inline string
   comparisons and bit-field states): not started.
+- skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)
+  were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
+  game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to
+  NONMATCHING, whole definitions under the ifdef.
