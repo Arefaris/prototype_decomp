@@ -14,6 +14,7 @@
 #include "code/content/stringmetatype.h"
 #include "code/core/name.h"
 #include "code/engine/system/tagset.h"
+#include "code/math/vector.h"
 
 namespace engine
 {
@@ -364,7 +365,8 @@ namespace engine
 		TagSet tags;
 		bool sync;
 		unsigned int xenonMaxSize;
-		int unknown4C[3];
+		// Where the package sits: the centre of the trigger's box when the manager collects it
+		math::Vector unknown4C;
 		float unknown58;
 		unsigned int inventoryInitialSize;
 	};
