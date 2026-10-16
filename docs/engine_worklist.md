@@ -1261,6 +1261,99 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 4 match, 3 NONMATCHING, 2 not done
+
+The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
+a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d::TextureLoader` and the file parsers
+`pure3d::TextureParser` / `pure3d::DDSParser`; the visibility server's unit ends exactly at 0x10729AE0.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x10729AE0 / 0x1072A0E0 | pure3d::Texture constructor / destructor | match |
+| 0x1072B420 | DDSParser::IsSupportedFormat (vftable slot 1) | match (the switch keeps its 0x20-byte jump table after the code) |
+| 0x1072B470 | DDSParser::Load (slot 2) | NONMATCHING |
+| 0x1072B6D0 | DDSParser::Parse (slot 3) | NONMATCHING |
+| 0x1072A470 | TextureLoader::LoadObject (slot 7) | match |
+| 0x1072ADB0 / 0x1072AF80 | the upload of one texture's levels | not done |
+
+`TextureLoader::LoadObject` (0x1072A470) matches once the loader bases exist: it is slot 7 of `content::SimpleChunkHandler`
+(8 slots, RTTI), which is what the loader vftables 0x10E5C1D8 and the others hold. The bases are reconstructed in
+`code/content/chunkhandler.h`: `content::ObjectLoader` (6 slots: LoadObject's five plus a pure `CreateObject`) and
+`content::SimpleChunkHandler` (slot 5 `CreateObject` 0x1060B780, slot 6 the chunk flags at +8 0x105FFA40, slot 7 the
+pure `LoadObject`). The reader the handler hands on is `content::ChunkReader` (0x288 bytes, stream at +0x284;
+0x1060BB60 constructor, 0x1060B8E0 opens a chunk, 0x1060B8A0 asks whether one is left). `TextureLoader`'s signature is
+`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` — the object output is an
+`IRefCount**` because a texture is a `pure3d::Entity`, not a `LoadObject`. Its workhorse 0x1072A1E0 takes
+`(ChunkReader*, bool flag, int unknown)` and returns the `Texture*`. The class declares its destructor first and does
+not define it, so the vftable stays with the engine's copy of the unit.
+
+NONMATCHING:
+
+- 0x1072B470 DDSParser::Load and 0x1072B6D0 DDSParser::Parse: this half of the unit is compiled with link-time code
+  generation. The reader at 0x1072AB40 takes its stream in **eax** and the 0x35-byte descriptor it fills in **esi**,
+  the header decoder at 0x1072B600 takes the decoded header in **esi** and one of the loader's arguments in **eax**,
+  and the predicates 0x1072A530 and 0x1072AD80/0x1072A540 take their argument in **eax** and answer in **eax**. A
+  caller has to set those registers itself, which no C++ declaration produces. The bodies under `#ifdef NONMATCHING`
+  in `texture.cpp` record the reconstruction.
+
+Not done:
+
+- 0x1072A470 TextureLoader::LoadObject: `TextureLoader`'s vftable has 8 slots, so the class needs its
+  `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
+  are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
+- 0x1072ADB0 and 0x1072AF80 (the per-level upload, and the resize path that calls 0x1072AB40/0x1072A540) take extra
+  parameters in eax/esi like the two above and have no class in the unit's symbols.
+
+Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
+constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
+private/drawable.cpp's DoLoadTexture (0x107EAC90) was updated and still matches.
+
+Matching notes:
+
+- `pure3d::Texture`'s own vftable exists although the class declares no new virtual: it overrides the destructor
+  (`virtual ~Texture();`), and an empty body still emits the `mov [ecx], ??_7Texture` store the engine's has.
+- `pure3d::TextureInfo` (what `Texture` keeps at +0x10) is reference-counted: the destructor releases it through the
+  out-of-line `core::SafeRelease<TextureInfo>` the unit keeps at 0x1061CA90 (`if (p) { p->Release(); p = 0; }`).
+- An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
+  two-entry jump table; the 8 table bytes after the code are part of the compared function.
+
+
+## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
+
+Mesh overrides slot 3 (`Draw`, 0x10707280, 5 arguments) and slot 7 (`FillBatch`, 0x10707330, 3 arguments) of
+`Primitive` (whose layout in primitive.h is right: `LockableRefCounted` is 0xC bytes, so the flags sit at +0xC, the
+type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C). Matched:
+
+- 0x10707330 `Mesh::FillBatch`. Lesson: **the batch a primitive fills is the object at `DrawablePart::batch`
+  (+0xA0) and it is 0x88 bytes, not the 0x2C drawable.h keeps it as** — `+0x2C` is the part's world matrix and
+  `+0x10C` / `+0x110` are the words after it, so the fields the primitives write at +0x28 and +0x70 - +0x84 are the
+  same memory under other names. `PrimBatch` (a view, in primitive.h alongside `PrimGroupList` and `PartStateView`)
+  names them; its +0x70 member is 16-bit, which is what makes the compiler copy it with `mov ax`. The state's group
+  table is `state->groups[state->unknown38]` at +0x30 / +0x38 and must be written as an **array member** — through a
+  pointer member the compiler loads the pointer first instead of folding it into `[ecx + edx*4 + 0x30]`. The two
+  calls are `PrimGroupList::PrepareBatch(batch)` (0x106268B0) and `PrimGroupList::AddGroup(batch, group)`
+  (0x10625910, note the argument order).
+- Adding members to `PrimitiveState` in primitive.h moves every member of `MeshState`, `SkinState`, `GpuSkinState`
+  and `ParticleSystemState`, which breaks 26 matched functions in the engine, pure3d and proto units. Use a view
+  struct (`PartStateView`) instead.
+
+## pure3d/geometry: the loaders (0x10B8B000 - 0x10BA0000), started
+
+`pure3d::PrimGroupLoader` (RTTI; base `pure3d::RefCounted`, 3 slots, vftable 0x10EAF644, unit 0x10B8BD30 - 0x10B8C800)
+and the loaders after it in the same code range: `PolySkinLoader` (vftable 0x10EAF784, LoadObject 0x10B90CA0),
+`CompositeDrawableLoader` (0x10EAF8B4, LoadObject 0x10B91410) and `GeometryLoader` (0x10EB0314, LoadObject 0x10B9C3E0).
+`PrimGroupLoader`'s layout, read off its constructor and destructor: a reference-counted group list at +8 (released by
+`core::SafeRelease`, 0x102CD490), an int at +0xC, three flags at +0x10 - +0x12 (the second true), an int at +0x14 and
+the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28.
+
+NONMATCHING:
+
+- 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader`: the engine's copy keeps the vftable store of the base constructor it
+  inlines (`mov [eax], 0x10DA05B0`, RefCounted's) between the count store and the class's own
+  (`mov [eax], 0x10EAF644`) — 57 bytes. Our compiler drops that store from every derived constructor; the same shape
+  compiled in this unit (three levels, the base constructor in the class body, out of line, `__forceinline`, with an
+  initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
+  (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 

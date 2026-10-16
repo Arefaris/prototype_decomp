@@ -11,6 +11,33 @@ namespace pure3d
 		return controller3;
 	}
 
+	// FUNCTION: ENGINE 0x10707330
+	bool Mesh::FillBatch(void* batch, PrimitiveState* state, bool* unknown)
+	{
+		PrimBatch* data = (PrimBatch*)batch;
+		data->unknown70 = unknown1C;
+		data->unknown74 = 0;
+		data->unknown78 = 0;
+		data->unknown7C = 0;
+		data->unknown80 = 0;
+		data->unknown28 = 0;
+		unknown24->PrepareBatch(data);
+		*unknown = false;
+		PrimGroupList* group = 0;
+		if (state != 0)
+		{
+			PartStateView* view = (PartStateView*)state;
+			PrimGroupList* found = view->groups[view->unknown38];
+			if (found != 0)
+			{
+				group = found->AddGroup(data, 0);
+				*unknown = true;
+			}
+		}
+		unknown20->AddGroup(data, group);
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x102E8BB0
 	// A kept copy of an inline constructor
 	ShaderParameters::ShaderParameters() : unknown0(0), unknown4(0), unknown8(2), unknownC(0)

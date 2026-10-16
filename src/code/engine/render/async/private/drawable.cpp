@@ -16,6 +16,7 @@
 #include "code/content/memorystream.h"
 #include "code/core/file/filesystem.h"
 #include "code/engine/system/enginememory.h"
+#include "code/pure3d/texture/texture.h"
 
 #define DRAWABLE_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\drawable.cpp"
 
@@ -1578,7 +1579,7 @@ namespace engine
 		{
 			content::MemoryStream* stream = new content::MemoryStream(data, size);
 			stream->AddRef();
-			pure3d::TextureUploader loader(texture, a, b);
+			pure3d::DDSParser loader(texture, a, b);
 			int unknown = texture->info->unknown20;
 			const char* name = texture->mName.GetText() ? texture->mName.GetText() : core::GetDefaultString();
 			loader.Load(stream, name, unknown, gTextureLoadFlag, 0);
