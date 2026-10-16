@@ -24,16 +24,31 @@ namespace pure3d
 	class PrimitiveState;
 	struct PrimStreamParameters;
 
-	// What a texture keeps at +0x10 (its loader settings; the int at +0x20 is passed to the loader)
-	struct TextureInfo
+	// What a texture keeps at +0x10: the reference-counted description of the image the loaders fill and the device
+	// upload reads (the int at +0x20 is handed to the loader, the pointer at +0x44 to its array of levels)
+	struct TextureInfo : public core::IRefCount
 	{
-		unsigned char unknown0[0x20];
+		unsigned int unknown4;
+		// Which upload path the loader takes: 1 the levels the file names, 2 its mip chain, 3 a single surface
+		unsigned int kind;
+		unsigned int unknownC;
+		unsigned int unknown10;
+		unsigned int unknown14;
+		unsigned int unknown18;
+		unsigned int unknown1C;
 		int unknown20;
+		unsigned char unknown24[0x20];
+		// The levels of the image: pairs of a count and the pointer to upload them from
+		unsigned char* levels;
 	};
 
 	class Texture : public Entity
 	{
 	public:
+		// 0x10729AE0 / 0x1072A0E0
+		Texture();
+		virtual ~Texture();
+
 		TextureInfo* info;
 	};
 
@@ -46,18 +61,6 @@ namespace pure3d
 
 		void* unknown0;
 		int unknown4;
-	};
-
-	// Reads a texture from a stream into an existing texture object (a 0x10-byte helper; names guessed)
-	class TextureUploader
-	{
-	public:
-		// 0x1072B3D0, 0x1072B400, 0x1072B470
-		TextureUploader(Texture* texture, unsigned int a, unsigned int b);
-		~TextureUploader();
-		void Load(core::IRefCount* stream, const char* name, int unknown, bool flag, int zero);
-
-		unsigned char unknown0[0x10];
 	};
 
 	class Expression;

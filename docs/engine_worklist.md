@@ -1265,6 +1265,51 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 3 match, 2 NONMATCHING, 3 not done
+
+The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
+a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d::TextureLoader` and the file parsers
+`pure3d::TextureParser` / `pure3d::DDSParser`; the visibility server's unit ends exactly at 0x10729AE0.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x10729AE0 / 0x1072A0E0 | pure3d::Texture constructor / destructor | match |
+| 0x1072B420 | DDSParser::IsSupportedFormat (vftable slot 1) | match (the switch keeps its 0x20-byte jump table after the code) |
+| 0x1072B470 | DDSParser::Load (slot 2) | NONMATCHING |
+| 0x1072B6D0 | DDSParser::Parse (slot 3) | NONMATCHING |
+| 0x1072A470 | TextureLoader::LoadObject | not done |
+| 0x1072ADB0 / 0x1072AF80 | the upload of one texture's levels | not done |
+
+NONMATCHING:
+
+- 0x1072B470 DDSParser::Load and 0x1072B6D0 DDSParser::Parse: this half of the unit is compiled with link-time code
+  generation. The reader at 0x1072AB40 takes its stream in **eax** and the 0x35-byte descriptor it fills in **esi**,
+  the header decoder at 0x1072B600 takes the decoded header in **esi** and one of the loader's arguments in **eax**,
+  and the predicates 0x1072A530 and 0x1072AD80/0x1072A540 take their argument in **eax** and answer in **eax**. A
+  caller has to set those registers itself, which no C++ declaration produces. The bodies under `#ifdef NONMATCHING`
+  in `texture.cpp` record the reconstruction.
+
+Not done:
+
+- 0x1072A470 TextureLoader::LoadObject: `TextureLoader`'s vftable has 8 slots, so the class needs its
+  `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
+  are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
+- 0x1072ADB0 and 0x1072AF80 (the per-level upload, and the resize path that calls 0x1072AB40/0x1072A540) take extra
+  parameters in eax/esi like the two above and have no class in the unit's symbols.
+
+Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
+constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
+private/drawable.cpp's DoLoadTexture (0x107EAC90) was updated and still matches.
+
+Matching notes:
+
+- `pure3d::Texture`'s own vftable exists although the class declares no new virtual: it overrides the destructor
+  (`virtual ~Texture();`), and an empty body still emits the `mov [ecx], ??_7Texture` store the engine's has.
+- `pure3d::TextureInfo` (what `Texture` keeps at +0x10) is reference-counted: the destructor releases it through the
+  out-of-line `core::SafeRelease<TextureInfo>` the unit keeps at 0x1061CA90 (`if (p) { p->Release(); p = 0; }`).
+- An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
+  two-entry jump table; the 8 table bytes after the code are part of the compared function.
+
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 
