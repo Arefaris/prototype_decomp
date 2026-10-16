@@ -6,13 +6,45 @@
 #ifndef PURE3D_PDDI_H
 #define PURE3D_PDDI_H
 
+#include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 #include "code/math/matrix.h"
+#include "code/pure3d/pddi/dx9/d3d9.h"
 
 namespace pure3d
 {
 	class pddiEmptyClass
 	{
+	};
+
+	// Everything the pddi layer hands out by reference count (RTTI name; base core::IRefCount, four slots). The
+	// constructor and the destructor the derived classes call live in the pddi base unit (0x10611F90 / 0x10611AF0),
+	// so they are only declared here.
+	class pddiObject : public core::IRefCount
+	{
+	public:
+		// 0x10611F90: installs the pddiObject vftable and clears the count
+		pddiObject();
+		// 0x10612FC0 / 0x10611FD0
+		virtual void AddRef();
+		virtual void Release();
+		// 0x10611AF0: installs the core::IRefCount vftable (the body of the derived destructors' base call)
+		virtual ~pddiObject();
+		// Slot 3; its meaning is unknown
+		virtual void Unknown3();
+
+		int mRefCount;
+	};
+
+	// The stream a primitive batch is built through (RTTI name, two slots). dxPrimStream is the Direct3D 9 one; the
+	// class itself has no data, so its destructor stays in the header and only the second slot is out of line.
+	class pddiPrimStream
+	{
+	public:
+		virtual ~pddiPrimStream()
+		{
+		}
+		virtual void Unknown1();
 	};
 
 	// A surface of the device (a render target or texture; names are guesses). The handle is what the device's
@@ -197,7 +229,11 @@ namespace pure3d
 			return (unsigned int*)&table->values[slot];
 		}
 
-		unsigned char unknown4[0x10];
+		int unknown4;
+		int unknown8;
+		// 0x1061B550 and 0x1061B5A0 hand this to a new dxTexture
+		IDirect3DDevice9* unknownC;
+		int unknown10;
 		int unknown14;
 		unsigned char unknown18[0x24];
 		Constants* constants;

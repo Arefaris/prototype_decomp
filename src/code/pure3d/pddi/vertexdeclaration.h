@@ -22,6 +22,28 @@ namespace pure3d
 		int unknown10C;
 		int unknown110;
 	};
+
+	// One entry of the declaration manager's table (0x10 bytes; the meanings of the last three words are unknown)
+	struct dxVertexDeclarationEntry
+	{
+		dxVertexDeclaration* declaration;
+		int unknown4;
+		int unknown8;
+		int unknownC;
+	};
+
+	// The declarations the device holds (the global at 0x11276F48; layout and names are guesses)
+	class dxVertexDeclarationManager
+	{
+	public:
+		dxVertexDeclarationEntry* begin;
+		dxVertexDeclarationEntry* end;
+		dxVertexDeclarationEntry* capacity;
+		int unknownC;
+		// How many declarations have been made in all
+		int count;
+	};
+	extern dxVertexDeclarationManager* gVertexDeclarationManager;
 }
 
 #endif
