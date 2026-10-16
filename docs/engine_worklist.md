@@ -3080,3 +3080,37 @@ constructor is NONMATCHING, so nothing checked it against the engine's slot.
   the compiler drops it: NONMATCHING until the caller exists.
 - skin.cpp's `BlendRows4` / `BlendRows3` are plain functions, not `__inline`: their only caller (0x1071B9A0) is
   NONMATCHING, and an inline function nothing calls is not emitted.
+
+## Draw slots, stream slots, texture creation, skinning paths, draws (this branch)
+
+Match (100 %): `Mesh::Draw`, `Skin::Draw`, `OnAllocFail` + `GetHeapKindName`, `ShaderPalette` destructors,
+`DumpVertexDeclaration`, `LODRenderBehaviour::Update`, `MidgroundManager::CellUnloaded`, `StreamSlotGroup::Create`
+(0x1083EC50, streamslotgroup.cpp), both `dxTexture::Create` (0x1061CD70, 0x1061D010), the small `GpuSkin` slots,
+`Display::Unknown10616BB0` (the device reset, display.cpp), `dxContext::DrawBatches` (0x10621060) and the small
+getters and helpers it brought (`PrimitiveCount` 0x1061F150, `dxVertexBuffer::GetUnknown14`, `dxIndexBuffer::GetUnknown1C`).
+
+EQUIVALENT (the same operations, a different register allocation, schedule or stack slot layout; the compiled body
+and the engine's were run on the same random input - their memory, their calls and their arguments agreed
+on hundreds of runs): `UpdateFade`, `Slot1` of the LOD behaviour, `CellLoaded`, `Midground Load`,
+`AddTriggerPackages`, the `PrimGroupLoader`, `dxIndexBuffer` and `GpuSkin` constructors, `FindVertexDeclaration`,
+`dxTexture::Lock` (0x1061C600; the check found that the description's format is `description.format`, not the
+device format, which the first version of the body had), `RestoreDefaultPool` (0x10623FB0; its unscaled test is
+against 0, the first version of the body tested 1.0), `BlendBoneRows` / `BlendBoneRowsWide` and the eighteen
+skinning paths 0x1071B610 - 0x1071E8F0 in skin.cpp (`SkinState::Unknown<address>`: positions, normals, tangents,
+the expression's offsets and the wide record's second position, with one or four bones per vertex; the blends are
+`BlendRows4Inline` / `BlendRows3Inline` / `BlendBones`), `Display::Unknown106182C0` (the device's creation),
+`dxContext::DrawPrimitive` / `Unknown2` / `Unknown10620A20` / `Unknown10620B00`, `UpdateStreamTransition`
+(0x1082E100), `StreamDriverBehaviour::Update` (0x10899830) and `Loader1067F4D0::LoadObject` (0x1067F4D0).
+
+Still NONMATCHING or not started, one line each:
+
+- 0x1072B470 / 0x1072B6D0 / 0x1072ADB0 / 0x1072AF80 (DDS loader): the whole-unit compiled helpers take their
+  arguments in eax / esi / a stack word. The pixel-format decoder 0x1072A540 is reproduced as a file-local
+  function that takes the description in eax (it matches 100 % apart from the jump table relocation), but a
+  file-local function nothing calls is not emitted, so it cannot carry an annotation until 0x1072B600 exists.
+- 0x10626350 (`dxVertexBuffer::Create`): calls the name to usage helper 0x10625BF0, which takes its name in esi and
+  answers in eax / edx.
+- 0x104E3840, 0x1041FA40 (start-up tables), 0x1061D3A0 (the default textures), 0x102D4920 / 0x102D4C50 (the deform
+  behaviour: they build stack messages whose vftables the unit would have to emit) and the loaders 0x10B9C3E0,
+  0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts, inline string
+  comparisons and bit-field states): not started.

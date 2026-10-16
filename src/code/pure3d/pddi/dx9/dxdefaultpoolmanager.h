@@ -18,7 +18,7 @@ namespace pure3d
 		int width;
 		int height;
 		int levels;
-		// The fraction of the display's width and height it is made with again (1.0 for the size it was asked for)
+		// The fraction of the display's width and height it is made with again (0 for the size it was asked for)
 		float scale;
 		int usage;
 		unsigned int format;
@@ -112,6 +112,8 @@ namespace pure3d
 		IDirect3DSurface9** surface, float scale);
 	// 0x10624D10: takes the texture that was made into a handle back out of the pool
 	void FreePooledTexture(IDirect3DTexture9** texture);
+	// 0x10623DB0: releases every resource of the pool before the device is reset
+	void ReleaseDefaultPool();
 	// 0x10623FB0: makes every resource the pool recorded again after the device came back (engine::Display's reset
 	// calls it; 0x10623DB0, the release on the way in, is the other half)
 	void RestoreDefaultPool();

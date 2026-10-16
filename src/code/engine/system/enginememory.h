@@ -87,7 +87,7 @@ namespace engine
 	void GetHeapStats(int heap, int* capacity, int* betweenCursors, int* bytesFree, int* liveBlocks, const char** name);
 	// Starts the core memory system, reserves memory, creates the system heap and points strings at heap 0x6F
 	void InitMemory(const HeapConfig& config);
-	// 0x107DED20 (not reconstructed): the allocation failure hook InitMemory installs
+	// 0x107DED20: the allocation failure hook InitMemory installs; it reports the heap's figures
 	void OnAllocFail(void* user, int heap, unsigned int size, unsigned int align, int flags);
 }
 

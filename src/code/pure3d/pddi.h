@@ -82,6 +82,21 @@ namespace pure3d
 		int unknown10;
 	};
 
+	// What the device's slot 24 hands out for a set of flags (a query on the device; the name and the slots are
+	// guesses, only slot 7 is used)
+	class pddiQuery
+	{
+	public:
+		virtual void Unknown0();
+		virtual void Unknown1();
+		virtual void Unknown2();
+		virtual void Unknown3();
+		virtual void Unknown4();
+		virtual void Unknown5();
+		virtual void Unknown6();
+		virtual bool Unknown7();
+	};
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
@@ -120,7 +135,7 @@ namespace pure3d
 		virtual void Unknown21();
 		virtual void Unknown22();
 		virtual void Unknown23();
-		virtual void Unknown24();
+		virtual pddiQuery* Unknown24(int flags);
 		virtual void Unknown25();
 		virtual void Unknown26();
 		virtual void Unknown27();
@@ -168,6 +183,8 @@ namespace pure3d
 
 		// 0x10614840: the matrix at +0x15C (the current view matrix)
 		const math::Matrix* GetUnknown10614840();
+		// 0x10614870: the matrix at +0x1EC (the projection matrix)
+		const math::Matrix* GetUnknown10614870();
 		// 0x10614C20: the word at +0x14 is not 0 (the meaning is unknown)
 		bool IsUnknown14Set();
 		// 0x10615770: sets the world matrix (nothing when it is the one already set)
@@ -242,7 +259,19 @@ namespace pure3d
 		int unknown14;
 		unsigned char unknown18[0x24];
 		Constants* constants;
-		unsigned char unknown40[0xF8];
+		unsigned char unknown40[0x24];
+		// 0x64 - 0x74: what the draw calls added up to this frame (floats): the primitives and the vertices of
+		// the plain draws, then of the indexed ones, then how many draws there were (names are guesses)
+		float drawnPrimitives;
+		float drawnVertices;
+		float drawnIndexedPrimitives;
+		float drawnIndexedVertices;
+		float drawCalls;
+		unsigned char unknown78[0x10];
+		// 0x88 / 0x8C: what the batch draws added up to (the primitives, then how many draws there were)
+		float batchedPrimitives;
+		float batchDraws;
+		unsigned char unknown90[0x138 - 0x90];
 		// The bytes of texture memory the textures made on this device hold (0x1061CD70 adds a new texture's size
 		// to it, 0x1061CBE0 takes it away again)
 		float textureMemory;

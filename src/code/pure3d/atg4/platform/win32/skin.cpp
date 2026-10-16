@@ -88,11 +88,9 @@ namespace pure3d
 	}
 
 	// a * weights.x + b * weights.y + c * weights.z + d, four lanes at a time. The engine inlines these into the
-	// skinning paths, but every caller here is NONMATCHING, and MSVC emits no out-of-line copy of a function it
-	// inlined everywhere: they stay plain functions so that the engine's standalone copies at 0x1071B270 / 0x1071B2C0
-	// are still emitted and checked.
-	// FUNCTION: ENGINE 0x1071B270
-	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
+	// skinning paths and also keeps standalone copies (0x1071B270 / 0x1071B2C0): the forced-inline bodies are for the
+	// paths, the plain functions are the standalone copies.
+	__forceinline __m128 BlendRows4Inline(const __m128& a, const __m128& b, const __m128& c, const __m128& d,
 		const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
@@ -105,8 +103,7 @@ namespace pure3d
 	}
 
 	// a * weights.x + b * weights.y + c * weights.z, four lanes at a time
-	// FUNCTION: ENGINE 0x1071B2C0
-	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	__forceinline __m128 BlendRows3Inline(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
 	{
 		__m128 x = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(0, 0, 0, 0));
 		__m128 y = _mm_shuffle_ps(weights, weights, _MM_SHUFFLE(1, 1, 1, 1));
@@ -116,16 +113,88 @@ namespace pure3d
 		return _mm_add_ps(blended, _mm_mul_ps(z, c));
 	}
 
-	// The engine's shape is recovered - the box accumulators are two math::Vector4 locals (four ascending stores
-	// each), the loop is `for (unsigned int i = count; i > 0; i--)` (its guard is an unsigned compare), the matrix
-	// rows go into the blends straight from memory, and the box write is preceded by _mm_empty() - and the whole
-	// loop body now comes out instruction for instruction. What does not is the frame around it: the engine spills
-	// both `this` and `matrices` (0x74 bytes of frame, the addresses of the bone rows materialised in edx / edi),
-	// this compiler keeps `matrices` in ebx, folds it into the addressing modes and needs 0x64 bytes, which moves
-	// the whole function.
+	// FUNCTION: ENGINE 0x1071B270
+	__m128 BlendRows4(const __m128& a, const __m128& b, const __m128& c, const __m128& d, const __m128& weights)
+	{
+		return BlendRows4Inline(a, b, c, d, weights);
+	}
+
+	// FUNCTION: ENGINE 0x1071B2C0
+	__m128 BlendRows3(const __m128& a, const __m128& b, const __m128& c, const __m128& weights)
+	{
+		return BlendRows3Inline(a, b, c, weights);
+	}
+
+	__forceinline __m128 NextRow(const __m128*& p)
+	{
+		return *p++;
+	}
+
+	// The four rows of a bone matrix
+	struct BoneRows
+	{
+		__m128 r0;
+		__m128 r1;
+		__m128 r2;
+		__m128 r3;
+	};
+
+	__forceinline BoneRows LoadBoneRows(const math::Matrix* matrices, unsigned short bone)
+	{
+		const __m128* rows = (const __m128*)&matrices[bone];
+		BoneRows result;
+		result.r0 = NextRow(rows);
+		result.r1 = NextRow(rows);
+		result.r2 = NextRow(rows);
+		result.r3 = NextRow(rows);
+		return result;
+	}
+
+	// The matrix the four bones of a vertex blend to, by the vertex's weights: bone after bone, each adding its
+	// four rows scaled by its weight
+	template <class Vertex>
+	__forceinline BoneRows BlendBones(const math::Matrix* matrices, const Vertex* vertex)
+	{
+		__m128 w = _mm_load_ps(&vertex->weights.x);
+		const math::Matrix& m0 = matrices[vertex->bones[0]];
+		const math::Matrix& m1 = matrices[vertex->bones[1]];
+		const math::Matrix& m2 = matrices[vertex->bones[2]];
+		const math::Matrix& m3 = matrices[vertex->bones[3]];
+		__m128 x = _mm_shuffle_ps(w, w, _MM_SHUFFLE(0, 0, 0, 0));
+		BoneRows result;
+		result.r0 = _mm_mul_ps(x, _mm_load_ps(m0.m[0]));
+		result.r1 = _mm_mul_ps(x, _mm_load_ps(m0.m[1]));
+		result.r2 = _mm_mul_ps(x, _mm_load_ps(m0.m[2]));
+		result.r3 = _mm_mul_ps(x, _mm_load_ps(m0.m[3]));
+		__m128 y = _mm_shuffle_ps(w, w, _MM_SHUFFLE(1, 1, 1, 1));
+		result.r0 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[0]), y), result.r0);
+		result.r1 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[1]), y), result.r1);
+		result.r2 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[2]), y), result.r2);
+		result.r3 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m1.m[3]), y), result.r3);
+		__m128 z = _mm_shuffle_ps(w, w, _MM_SHUFFLE(2, 2, 2, 2));
+		result.r0 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[0]), z), result.r0);
+		result.r1 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[1]), z), result.r1);
+		result.r2 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[2]), z), result.r2);
+		result.r3 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m2.m[3]), z), result.r3);
+		__m128 q = _mm_shuffle_ps(w, w, _MM_SHUFFLE(3, 3, 3, 3));
+		result.r0 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[0]), q), result.r0);
+		result.r1 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[1]), q), result.r1);
+		result.r2 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[2]), q), result.r2);
+		result.r3 = _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]), q), result.r3);
+		return result;
+	}
+
+	// The zeros the offset paths read when the expression has no offsets of a kind
+	// GLOBAL: ENGINE 0x11281818
+	float gNoVertexOffsets[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	// The engine's shape: the box accumulators are two math::Vector4 locals (four ascending stores each), the loop is
+	// `for (unsigned int i = count; i > 0; i--)` (its guard is an unsigned compare), the matrix rows go into the
+	// blends straight from memory and the box write is preceded by _mm_empty(). The loop body is the engine's
+	// instruction for instruction apart from the order of two shuffles; the frame around it differs (the engine
+	// spills both `this` and `matrices` and needs 0x74 bytes, this compiler keeps `matrices` in ebx and needs 0x64).
 	// FUNCTION: ENGINE 0x1071B9A0
-	// NONMATCHING: register allocation (the engine spills `this` and `matrices`, we keep `matrices` in a register), 13 %
-#ifdef NONMATCHING
+	// EQUIVALENT: register allocation and the order of two shuffles (the engine spills `this` and `matrices`), 12.2 %
 	void SkinState::Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -138,21 +207,23 @@ namespace pure3d
 			__m128 v0 = _mm_load_ps(&vertices->position.x);
 			__m128 v1 = _mm_load_ps(&vertices->normal.x);
 			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
-			const math::Matrix& bone = matrices[vertices->bones[0]];
-			// The position goes through the whole 4x4, the two directions through the 3x3 only. The engine keeps
-			// the rows in memory (it writes their fourth lane by hand): the position's and the normal's is 1, the
-			// tangent's is the one it came with.
-			__m128 r0 = BlendRows4(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]),
-				_mm_load_ps(bone.m[3]), v0);
-			__m128 r1 = BlendRows3(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]), v1);
-			__m128 r2 = BlendRows3(_mm_load_ps(bone.m[0]), _mm_load_ps(bone.m[1]), _mm_load_ps(bone.m[2]), v2);
+			const __m128* rows = (const __m128*)&matrices[vertices->bones[0]];
+			__m128 m0 = NextRow(rows);
+			__m128 m1 = NextRow(rows);
+			__m128 m2 = NextRow(rows);
+			__m128 m3 = NextRow(rows);
+			__m128 r0 = BlendRows4Inline(m0, m1, m2, m3, v0);
+			__m128 r1 = BlendRows3Inline(m0, m1, m2, v1);
+			__m128 r2 = BlendRows3Inline(m0, m1, m2, v2);
 			((float*)&r0)[3] = 1.0f;
 			((float*)&r1)[3] = 1.0f;
 			((float*)&r2)[3] = ((float*)&v2)[3];
-			_mm_storeu_ps(&out[0].x, r0);
-			_mm_storeu_ps(&out[1].x, r1);
-			_mm_storeu_ps(&out[2].x, r2);
-			out += 3;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
 			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
 			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
 			vertices++;
@@ -165,9 +236,819 @@ namespace pure3d
 		bounds.max.y = maxBounds.y;
 		bounds.max.z = maxBounds.z;
 	}
-#endif
 
-#ifdef NONMATCHING
+	// FUNCTION: ENGINE 0x1071B610
+	// EQUIVALENT: register allocation and scheduling (the engine spills part of the blended rows)
+	void SkinState::Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x298, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			__m128 r2 = BlendRows3Inline(m.r0, m.r1, m.r2, v2);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+	// FUNCTION: ENGINE 0x1071BBD0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x338, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+	// FUNCTION: ENGINE 0x1071BEE0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071BEE0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x37B, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+	// FUNCTION: ENGINE 0x1071C0C0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x3C7, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			((float*)&r0)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+	// FUNCTION: ENGINE 0x1071C390
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071C390(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x3FD, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			((float*)&r0)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+	// FUNCTION: ENGINE 0x1071C530
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x43D, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		const float* normals = expression->normalOffsets;
+		const float* tangents = expression->tangentOffsets;
+		int positionStride = 3;
+		int normalStride = 3;
+		int tangentStride = 3;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+			positionStride = 0;
+		}
+		if (normals == 0)
+		{
+			normals = gNoVertexOffsets;
+			normalStride = 0;
+		}
+		if (tangents == 0)
+		{
+			tangents = gNoVertexOffsets;
+			tangentStride = 0;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 normalOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 tangentOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			positions += positionStride;
+			normalOffset.x = normals[0];
+			normalOffset.y = normals[1];
+			normalOffset.z = normals[2];
+			normals += normalStride;
+			tangentOffset.x = tangents[0];
+			tangentOffset.y = tangents[1];
+			tangentOffset.z = tangents[2];
+			tangents += tangentStride;
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
+			__m128 p2 = _mm_add_ps(v2, _mm_load_ps(&tangentOffset.x));
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, p1);
+			__m128 r2 = BlendRows3Inline(m.r0, m.r1, m.r2, p2);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071CA40
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x4AF, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		const float* normals = expression->normalOffsets;
+		const float* tangents = expression->tangentOffsets;
+		int positionStride = 3;
+		int normalStride = 3;
+		int tangentStride = 3;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+			positionStride = 0;
+		}
+		if (normals == 0)
+		{
+			normals = gNoVertexOffsets;
+			normalStride = 0;
+		}
+		if (tangents == 0)
+		{
+			tangents = gNoVertexOffsets;
+			tangentStride = 0;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 normalOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 tangentOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			positions += positionStride;
+			normalOffset.x = normals[0];
+			normalOffset.y = normals[1];
+			normalOffset.z = normals[2];
+			normals += normalStride;
+			tangentOffset.x = tangents[0];
+			tangentOffset.y = tangents[1];
+			tangentOffset.z = tangents[2];
+			tangents += tangentStride;
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
+			__m128 p2 = _mm_add_ps(v2, _mm_load_ps(&tangentOffset.x));
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, p1);
+			__m128 r2 = BlendRows3Inline(m.r0, m.r1, m.r2, p2);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071CDC0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x529, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		const float* normals = expression->normalOffsets;
+		int positionStride = 3;
+		int normalStride = 3;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+			positionStride = 0;
+		}
+		if (normals == 0)
+		{
+			normals = gNoVertexOffsets;
+			normalStride = 0;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 normalOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			positions += positionStride;
+			normalOffset.x = normals[0];
+			normalOffset.y = normals[1];
+			normalOffset.z = normals[2];
+			normals += normalStride;
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, p1);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071D1B0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x585, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		const float* normals = expression->normalOffsets;
+		int positionStride = 3;
+		int normalStride = 3;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+			positionStride = 0;
+		}
+		if (normals == 0)
+		{
+			normals = gNoVertexOffsets;
+			normalStride = 0;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 normalOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			positions += positionStride;
+			normalOffset.x = normals[0];
+			normalOffset.y = normals[1];
+			normalOffset.z = normals[2];
+			normals += normalStride;
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, p1);
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071D440
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x5E9, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			((float*)&r0)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071D770
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x630, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		const float* positions = expression->positionOffsets;
+		if (positions == 0)
+		{
+			positions = gNoVertexOffsets;
+		}
+		math::Vector4 positionOffset(0.0f, 0.0f, 0.0f, 0.0f);
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			positionOffset.x = positions[0];
+			positionOffset.y = positions[1];
+			positionOffset.z = positions[2];
+			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, p0);
+			((float*)&r0)[3] = 1.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071D960
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x680, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			__m128 r2 = BlendRows3Inline(m.r0, m.r1, m.r2, v2);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071DD60
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071DD60(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x6D2, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			__m128 r2 = BlendRows3Inline(m.r0, m.r1, m.r2, v2);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r2)[3] = ((float*)&v2)[3];
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, r2);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071DFF0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x72C, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071E390
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071E390(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x772, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			__m128 v1 = _mm_load_ps(&vertices->normal.x);
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r1 = BlendRows3Inline(m.r0, m.r1, m.r2, v1);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r1)[3] = 1.0f;
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, r1);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071E5D0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		if (pddi->Unknown24(0x400001)->Unknown7())
+		{
+			return;
+		}
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x7C1, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			BoneRows m = BlendBones(matrices, vertices);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
+	// FUNCTION: ENGINE 0x1071E8F0
+	// EQUIVALENT: register allocation and scheduling
+	void SkinState::Unknown1071E8F0(math::Vector4* out, const SkinVertex2* vertices, int count)
+	{
+		const math::Matrix* matrices = pose->mData.mSkinMatrices;
+		OLD_ASSERT_AT(SKIN_FILE, 0x801, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
+			"Bad Skin bone matrices ptr");
+		math::Vector4 maxBounds(-1e12f, -1e12f, -1e12f, -1e12f);
+		math::Vector4 minBounds(1e12f, 1e12f, 1e12f, 1e12f);
+		for (unsigned int i = count; i > 0; i--)
+		{
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			BoneRows m = LoadBoneRows(matrices, vertices->bones[0]);
+			__m128 r0 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, v0);
+			__m128 r3 = BlendRows4Inline(m.r0, m.r1, m.r2, m.r3, _mm_add_ps(_mm_load_ps(&vertices->offset.x), v0));
+			((float*)&r0)[3] = 1.0f;
+			((float*)&r3)[3] = 0.0f;
+			_mm_storeu_ps(&out->x, r0);
+			out++;
+			_mm_storeu_ps(&out->x, _mm_sub_ps(r3, r0));
+			out++;
+			*(__m128*)&maxBounds = _mm_max_ps(*(__m128*)&maxBounds, r0);
+			*(__m128*)&minBounds = _mm_min_ps(*(__m128*)&minBounds, r0);
+			vertices++;
+		}
+		_mm_empty();
+		bounds.min.x = minBounds.x;
+		bounds.min.y = minBounds.y;
+		bounds.min.z = minBounds.z;
+		bounds.max.x = maxBounds.x;
+		bounds.max.y = maxBounds.y;
+		bounds.max.z = maxBounds.z;
+	}
+
+
 	// Blends the four rows of four bone matrices, weighted by the four lanes of the weights (out = m0 * w.x +
 	// m1 * w.y + m2 * w.z + m3 * w.w), for the vertex record whose bone indices sit at +0x40. The callers are in
 	// other units, so the name is a guess and the row pointers are the four rows of the destination matrix.
@@ -177,7 +1058,7 @@ namespace pure3d
 	// every phase (45 bytes of reloads we do not need) and materialises the first bone's address in edx, so its
 	// allocation of the seven pointers cannot be reproduced from the source.
 	// FUNCTION: ENGINE 0x1071B310
-	// NONMATCHING: register allocation (the engine re-loads the argument pointers, we keep them), 21 %
+	// EQUIVALENT: register allocation (the engine re-loads the argument pointers, we keep them), 21 %
 	void BlendBoneRows(const SkinVertex* vertex, const math::Matrix* matrices, const math::Vector4* weights,
 		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
 	{
@@ -218,7 +1099,7 @@ namespace pure3d
 
 	// The same for the wider vertex record (its bone indices sit at +0x50)
 	// FUNCTION: ENGINE 0x1071B490
-	// NONMATCHING: register allocation, the same as 0x1071B310, 21 %
+	// EQUIVALENT: register allocation, the same as 0x1071B310, 21 %
 	void BlendBoneRowsWide(const SkinVertex2* vertex, const math::Matrix* matrices, const math::Vector4* weights,
 		math::Vector4* row0, math::Vector4* row1, math::Vector4* row2, math::Vector4* row3)
 	{
@@ -248,7 +1129,6 @@ namespace pure3d
 		_mm_store_ps(&row2->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[2]), q), _mm_load_ps(&row2->x)));
 		_mm_store_ps(&row3->x, _mm_add_ps(_mm_mul_ps(_mm_load_ps(m3.m[3]), q), _mm_load_ps(&row3->x)));
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B070
 	bool SkinState::GetUnknown298()
@@ -445,18 +1325,9 @@ namespace pure3d
 		return true;
 	}
 
-	// The body is the engine's statement for statement (the state's Unknown9, the binding fallback through the
-	// state's own source at +0xC and then its primitive's at +0x18, the three group slots, the pose and the blend
-	// pose, the -1 the skinning path is given through the pose's +0x138, and the one PrimDrawDesc the two paths
-	// both reach). What differs is the allocation: the engine keeps the state in edi and the skin in esi (we swap
-	// them), the binding source in ebx and the group count in ebp (we swap those too), and it clones the nine
-	// argument pushes of the descriptor into the blend path, where the count is the constant 3, keeping only the
-	// constructor call shared - 29 bytes we do not emit. Declaring the source before the groups and the count
-	// instead of after them keeps the same shape and only moves the percentage (21.6 % -> 16.7 %).
+	// The skinning path and the plain one each build their own descriptor (the engine's compiler merges the common
+	// tail: the constructor call and the draw)
 	// FUNCTION: ENGINE 0x1071ED50
-	// NONMATCHING: register allocation (the state and the skin, the source and the count are swapped) and the
-	// cloned descriptor arguments, 21.6 %
-#ifdef NONMATCHING
 	void Skin::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
 	{
@@ -476,17 +1347,20 @@ namespace pure3d
 			((PoseSkinView*)pose)->unknown138 = -1;
 			groups[1] = (PrimGroupList*)buffer;
 			groups[2] = (PrimGroupList*)skinState->GetBlendPose();
-			count = 3;
+			PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, 3, (void**)groups, stream, unknown1C, 0, 0, 0);
+			pddi->DrawPrimitive(shader, &desc, parameters);
 		}
-		else if (buffer != 0)
+		else
 		{
-			groups[1] = (PrimGroupList*)buffer;
-			count = 2;
+			if (buffer != 0)
+			{
+				groups[1] = (PrimGroupList*)buffer;
+				count = 2;
+			}
+			PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, (void**)groups, stream, unknown1C, 0, 0, 0);
+			pddi->DrawPrimitive(shader, &desc, parameters);
 		}
-		PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, (void**)groups, stream, unknown1C, 0, 0, 0);
-		pddi->DrawPrimitive(shader, &desc, parameters);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EFE0
 	void Skin::UnlockBuffer()
@@ -636,13 +1510,13 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071F9B0 (slot 9 of the vtable)
-	int Skin::GetUnknown294()
+	int Skin::GetUnknown9()
 	{
 		return unknown294;
 	}
 
 	// FUNCTION: ENGINE 0x1071F9C0 (slot 10 of the vtable)
-	void Skin::SetUnknown294(int value)
+	void Skin::SetUnknown10(int value)
 	{
 		unknown294 = value;
 	}

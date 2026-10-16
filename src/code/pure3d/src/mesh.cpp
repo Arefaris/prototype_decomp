@@ -14,10 +14,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10707280
-	// NONMATCHING: the engine fills the draw descriptor the same way but sets its count and its list up inside each
-	// branch of the state test (push 2 / push 1 and the matching lea, converging on a shared call); ours computes
-	// both before the branch and keeps them in registers, 13 %
-#ifdef NONMATCHING
 	void Mesh::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 		const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding)
 	{
@@ -26,29 +22,37 @@ namespace pure3d
 		{
 			source = unknown18;
 		}
-		int count = 1;
 		PrimGroupList* parts[2];
-		void** list = (void**)&unknown20;
-		if (state != 0)
+		if (state == 0)
+		{
+			PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, 1, (void**)&unknown20, unknown24, unknown1C, 0, 0,
+				0);
+			pddi->DrawPrimitive(shader, &desc, parameters);
+		}
+		else
 		{
 			if (binding == 0)
 			{
 				source = state->GetBindingSource();
 			}
 			PartStateView* view = (PartStateView*)state;
-			PrimGroupList* group = view->groups[view->unknown38];
-			if (group != 0)
+			PrimGroupList** slot = &view->groups[view->unknown38];
+			if (*slot != 0)
 			{
 				parts[0] = unknown20;
-				parts[1] = group;
-				list = (void**)parts;
-				count = 2;
+				parts[1] = *slot;
+				PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, 2, (void**)parts, unknown24, unknown1C, 0, 0,
+					0);
+				pddi->DrawPrimitive(shader, &desc, parameters);
+			}
+			else
+			{
+				PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, 1, (void**)&unknown20, unknown24, unknown1C,
+					0, 0, 0);
+				pddi->DrawPrimitive(shader, &desc, parameters);
 			}
 		}
-		PrimDrawDesc desc(((PrimBufferOwner*)source)->format, world, count, list, unknown24, unknown1C, 0, 0, 0);
-		pddi->DrawPrimitive(shader, &desc, parameters);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10707330
 	bool Mesh::FillBatch(void* batch, PrimitiveState* state, bool* unknown)

@@ -28,13 +28,11 @@ namespace pure3d
 	}
 }
 
-#ifdef NONMATCHING
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10B8BD30
-	// NONMATCHING: the engine's copy keeps the vftable store of the base constructor it inlines (RefCounted's
-	// 0x10DA05B0 before the class's own 0x10EAF644). Our compiler removes that store from every derived constructor
-	// (checked against the same shape in this unit); the rest of the body is identical, 27.5 %.
+	// EQUIVALENT: scheduling: the engine issues the `or edx, -1` of the two -1 members after the base constructor's
+	// two stores, this compiler before them (86 %)
 	PrimGroupLoader::PrimGroupLoader()
 	{
 		shader = 0;
@@ -50,4 +48,3 @@ namespace pure3d
 		unknown28 = 0;
 	}
 }
-#endif

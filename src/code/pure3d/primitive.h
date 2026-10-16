@@ -59,6 +59,8 @@ namespace pure3d
 	class pddiShaderInputInitData
 	{
 	public:
+		// 0x10612990: an empty description (it allocates its array)
+		pddiShaderInputInitData();
 		pddiShaderInputInitData(const pddiShaderInputInitData& other);
 		~pddiShaderInputInitData();
 
@@ -66,7 +68,21 @@ namespace pure3d
 		int unknown4;
 	};
 
-	class Expression;
+	// A mesh expression (a morph): the offsets its skin state adds to the vertices, three floats a vertex each,
+	// null when the expression has none of a kind. The rest of the class lives in the expression unit.
+	class Expression
+	{
+	public:
+		// 0x1073F220
+		void Prepare();
+
+		unsigned char unknown0[0x10];
+		const float* positionOffsets;
+		const float* normalOffsets;
+		unsigned char unknown18[4];
+		const float* tangentOffsets;
+	};
+
 	class ExpressionState;
 
 	class VertexOffsetExpressionMixer : public Entity
@@ -192,10 +208,21 @@ namespace pure3d
 		PrimGroupList* AddGroup(PrimBatch* batch, PrimGroupList* group);
 	};
 
+	// The word a primitive keeps its flags in (+0xC, the engine's PartAnimationFlags); the setter below is the copy of
+	// it that the primitives' unit holds (0x102CC900; it calls 0x102CC2A0 to set and 0x102CC2C0 to clear the bit)
+	struct PrimitiveFlagWord
+	{
+		void SetBit(int bit, bool on);
+
+		int bits;
+	};
+
 	// A primitive's flags (+0xC) and type (+0x14); slot 5 is its bounding box
 	class Primitive : public LockableRefCounted
 	{
 	public:
+		// 0x106F2F20: the type is what the primitive is drawn as (0x4000 for the gpu skin)
+		explicit Primitive(unsigned int newType);
 		virtual ~Primitive();
 		// Draws the primitive in the state of a part with the shader of that name
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
@@ -208,6 +235,11 @@ namespace pure3d
 		// Fills the batch of a part (see DrawablePart::UpdateBatch); the last argument is cleared when the batch
 		// is not drawable as it is
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		// Slots 8 - 10 (the skins override two of them): the base answers 0, -1 and nothing (the vftable holds the
+		// incremental link thunks 0x1001D6DD, 0x10001401 and 0x1001A1A9)
+		virtual int Unknown8();
+		virtual int GetUnknown9();
+		virtual void SetUnknown10(int value);
 
 		// The flags the drawable copies into its parts' render bits (meanings unknown)
 		bool GetFlag3() const
@@ -227,16 +259,23 @@ namespace pure3d
 			return flag8;
 		}
 
-		unsigned int flag0 : 1;
-		unsigned int flag1 : 1;
-		unsigned int flag2 : 1;
-		unsigned int flag3 : 1;
-		unsigned int flag4 : 1;
-		unsigned int flag5 : 1;
-		unsigned int flag6 : 1;
-		unsigned int flag7 : 1;
-		unsigned int flag8 : 1;
-		unsigned int flags9 : 23;
+		union
+		{
+			struct
+			{
+				unsigned int flag0 : 1;
+				unsigned int flag1 : 1;
+				unsigned int flag2 : 1;
+				unsigned int flag3 : 1;
+				unsigned int flag4 : 1;
+				unsigned int flag5 : 1;
+				unsigned int flag6 : 1;
+				unsigned int flag7 : 1;
+				unsigned int flag8 : 1;
+				unsigned int flags9 : 23;
+			};
+			PrimitiveFlagWord flagWord;
+		};
 		unsigned int unknown10;
 		int type;
 		void* unknown18;
@@ -471,7 +510,7 @@ namespace pure3d
 		math::Vector4 position;
 		math::Vector4 normal;
 		math::Vector4 tangent;
-		math::Vector4 unknown30;
+		math::Vector4 weights;
 		unsigned short bones[4];
 		unsigned char unknown48[8];
 	};
@@ -483,8 +522,8 @@ namespace pure3d
 		math::Vector4 position;
 		math::Vector4 normal;
 		math::Vector4 tangent;
-		math::Vector4 unknown30;
-		math::Vector4 unknown40;
+		math::Vector4 weights;
+		math::Vector4 offset;
 		unsigned short bones[4];
 		unsigned char unknown58[8];
 	};
@@ -534,6 +573,31 @@ namespace pure3d
 		// 0x1071B9A0: skins the vertices with the pose's skinning matrices, one bone each (the position through
 		// the 4x4, the normal and the tangent through the 3x3), and writes the box of the positions
 		void Unknown1071B9A0(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071B610: the same with the four bones of each vertex blended by its weights (the first step checks the
+		// device and does nothing when it answers)
+		void Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071BBD0 / 0x1071BEE0: the same without the tangent (four bones / one bone each)
+		void Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071BEE0(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071C0C0 / 0x1071C390: the positions only
+		void Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071C390(math::Vector4* out, const SkinVertex* vertices, int count);
+		// 0x1071C530 - 0x1071D770: the same with the expression's offsets added to the vertices first (the
+		// positions, normals and tangents, then the positions and normals, then the positions only; four bones or
+		// one each) and 0x1071D960 - 0x1071E8F0 for the wider vertex record, which carries a second position
+		// offset: the outputs are the skinned positions, normals and tangents and then the skinned offset
+		void Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count);
+		void Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071DD60(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E390(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count);
+		void Unknown1071E8F0(math::Vector4* out, const SkinVertex2* vertices, int count);
 
 		// 0x107211D0: the flag at +0x2AC (the state blends two poses while it is set)
 		bool GetUnknown2AC();
@@ -582,8 +646,8 @@ namespace pure3d
 		virtual void GetBoundingBox(math::AABB* box);
 		virtual void GetCentre(math::Vector* centre);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
-		virtual int GetUnknown294();
-		virtual void SetUnknown294(int value);
+		virtual int GetUnknown9();
+		virtual void SetUnknown10(int value);
 		virtual void SetBoundingBox(const math::AABB& box);
 		virtual void SetCentre(const math::Vector4& centre);
 
@@ -618,6 +682,9 @@ namespace pure3d
 		int unknown294;
 	};
 
+	struct VertexBufferDescription;
+	struct IndexBufferDescription;
+
 	class GpuSkinState : public PrimitiveState
 	{
 	public:
@@ -636,9 +703,21 @@ namespace pure3d
 	class GpuSkin : public Primitive
 	{
 	public:
+		// 0x1072E3E0: the buffers are made from the descriptions (the second may be empty) and held
+		GpuSkin(const VertexBufferDescription* vertices, const IndexBufferDescription* indices, unsigned int kind);
+		// 0x1072E200
 		virtual ~GpuSkin();
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
+		// 0x1072E4F0: the shader goes to the base and to the skin's own state (not reconstructed)
+		virtual void Unknown4(Shader* shader);
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void GetCentre(math::Vector* centre);
+		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		virtual int GetUnknown9();
+		virtual void SetUnknown10(int value);
+		virtual void SetBoundingBox(const math::AABB& box);
+		virtual void SetCentre(const math::Vector4& centre);
 
 		// The kind of primitive the batch carries
 		unsigned int unknown1C;
@@ -649,11 +728,8 @@ namespace pure3d
 		void* unknown138;
 		unsigned int unknown13C;
 		unsigned int unknown140;
-		unsigned char unknown144[0x18];
-		float unknown15C;
-		float unknown160;
-		float unknown164;
-		unsigned char unknown168[4];
+		math::AABB bounds;
+		math::Vector4 centre;
 		int unknown16C;
 	};
 

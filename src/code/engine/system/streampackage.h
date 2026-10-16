@@ -33,24 +33,83 @@ namespace engine
 		virtual void Slot3();
 	};
 
-	// A group of package slots (another unit; 0x70 bytes and polymorphic, layout in the worklist); its packages get
-	// at least its priority
-	struct StreamSlotGroup
-	{
-		int unknown0[0x64 / 4];
-		unsigned short priority;
-	};
-
-	// A slot a loaded package occupies in a heap (another unit, 0x1083E6A0 / 0x1083E760 / 0x1083E7A0; 0x10 bytes,
-	// layout in the worklist)
+	// A slot a loaded package occupies in a heap (0x10 bytes; 0x1083E6A0 is the constructor, 0x1083E6A0 - 0x1083E7A0
+	// the unit it lives in)
 	class StreamSlot
 	{
 	public:
+		// 0x1083E6A0: no heap yet, no package
+		StreamSlot();
+		// Declared only for its effect on the arrays of slots (they carry the element count in front)
+		~StreamSlot();
 		bool Attach(StreamPackage* package);
 		void Detach();
 
 		int heap;
+		int unknown4;
+		// The slot's number in its group
+		int index;
+		bool unknownC;
+		bool unknownD;
+		bool unknownE;
+		unsigned char unknownF;
 	};
+
+	struct StreamSlotGroup;
+
+	// Makes the heap of a slot of group (the slot's handle, the group, the heap's name); the engine's default is 0x1083EB80
+	typedef core::IMemoryAllocator* (*SlotHeapFactory)(int handle, StreamSlotGroup* group, const char* name);
+
+	// A group of package slots (RTTI engine::StreamSlotGroup, vftable 0x10E6F838, 0x70 bytes, base
+	// content::MetaLoadObject; the manager's 0x1082D550 builds them); its packages get at least its priority. The
+	// layout follows the constructor 0x1083EAD0 and Create; the names are guesses.
+	struct StreamSlotGroup : public content::MetaLoadObject
+	{
+	public:
+		// vftable slot 7 (0x1083EC50): makes the group's slots and, for a group of several that is not shared, the
+		// heap they share; the first argument is never read
+		virtual void Create(int unused, bool immediate);
+
+		// 0x1083EC30: the function that makes the heap of a slot: the group's own, else the manager's, else the default
+		SlotHeapFactory GetSlotHeapFactory() const;
+		// 0x1083E880: the size of the heap of a slot and the two flags it is made with (out[0], out[1] and out[2])
+		int* GetSlotHeapConfig(int* out) const;
+		// 0x1083E950 / 0x1083E990 / 0x1083E9E0: questions about the slots' state (the first counts the slots that
+		// are in use and in state 9, the others ask whether one of them is loading; names unknown)
+		unsigned int Unknown1083E950() const;
+		bool Unknown1083E990() const;
+		bool Unknown1083E9E0() const;
+
+		core::Name<core::CaseSensitiveKey> name;   // +0x08
+		StreamSlot* slots;                         // +0x10
+		// The heap the slots of a group of several share (-1: none)
+		int heap;                                  // +0x14
+		core::IMemoryLinearAllocator* allocator;   // +0x18
+		bool unknown1C;
+		unsigned char unknown1D[3];
+		unsigned int slotCount;                    // +0x20
+		// The size of the heap of a slot is built from these three
+		int unknown24;
+		int unknown28;
+		int unknown2C;
+		unsigned char unknown30[0x54 - 0x30];
+		int unknown54;
+		unsigned char unknown58[4];
+		// A group's own function that makes the heaps of its slots (null: the manager's, else the default)
+		SlotHeapFactory factory;                   // +0x5C
+		int unknown60;
+		unsigned short priority;                   // +0x64
+		// A shared group's slots all use the heap of the first
+		bool shared;                               // +0x66
+		bool unknown67;
+		bool unknown68;
+		unsigned char unknown69[7];
+	};
+
+	// 0x1082D630: a free handle for a slot's heap, -1 when there is none; 0x1082E3F0: registers the group in the
+	// manager under its name's hash
+	int AllocateSlotHandle();
+	void RegisterSlotGroup(StreamSlotGroup* group);
 
 	// The stream manager (RTTI: engine::StreamManager, base StreamClient; the singleton is 0x1130D350). Only the
 	// statics the packages call are declared (0x1082BEC0 - 0x1082E990)
@@ -80,9 +139,15 @@ namespace engine
 
 		unsigned char unknown4[0x4c - 4];
 		Settings settings;
+		unsigned char unknown74[0x11C - 0x74];
+		// The priority loads are made at while a group's packages are changing (0xFFFF: none; 0x1082E100 sets it)
+		unsigned int transitionPriority;
 	};
 
 	extern StreamManager* gStreamManager;
+
+	// 0x1130D388: the slot group name loads without a group of their own are made with (name guess)
+	extern content::ObjectName gNoSlotGroup;
 
 	// 0x1082E010 (the stream manager's unit): the package of name, null if none
 	StreamPackage* FindStreamPackage(const core::Name<core::CaseSensitiveKey>& name);

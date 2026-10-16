@@ -8,6 +8,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/engine/render/async/drawable.h"
+#include "code/engine/render/drawablearchetype.h"
 
 namespace proto
 {
@@ -40,6 +41,9 @@ namespace proto
 			int step;
 		};
 
+		// 0x102DDAD0: stores the drawable under the key (the key is copied)
+		void Insert(const unsigned __int64& key, engine::render::Drawable* drawable);
+
 		// +0x00: the number of slots (a power of two; the mask is this minus one)
 		unsigned int capacity;
 		// +0x04: the number of live entries
@@ -71,16 +75,45 @@ namespace proto
 	};
 
 	// One cell the manager has loaded: its name, the drawable it streams in and the manager's scale (name guess).
-	// Its four members are 0x14 bytes, but the engine steps through the array 0x18 at a time and the copy into it
-	// leaves the last four bytes alone: the record is eight-byte aligned there because the engine's core::Name is (a
-	// 64-bit hash). Ours is two 32-bit words, so this record is 0x14 and the two walking functions are NONMATCHING
-	// until core::Name's alignment is settled; the member layout is otherwise the engine's.
+	// Its four members are 0x14 bytes, but the engine steps through the array 0x18 at a time: the record is
+	// eight-byte aligned there because the engine's core::Name is (a 64-bit hash). Ours is two 32-bit words, so the
+	// record carries the padding itself.
 	struct MidgroundCellRecord
 	{
 		core::Name<core::CaseSensitiveKey> name;
 		engine::render::Drawable* drawable;
 		int unknownC;
 		float unknown10;
+		// The four bytes after the members (the record is eight-byte aligned in the engine); the copies leave them alone
+		int padding14;
+
+		MidgroundCellRecord()
+		{
+		}
+		MidgroundCellRecord(const MidgroundCellRecord& other) : name(other.name)
+		{
+			engine::render::Drawable* d = other.drawable;
+			int c = other.unknownC;
+			float s = other.unknown10;
+			drawable = d;
+			unknownC = c;
+			unknown10 = s;
+		}
+		MidgroundCellRecord& operator=(const MidgroundCellRecord& other)
+		{
+			name = other.name;
+			drawable = other.drawable;
+			unknownC = other.unknownC;
+			unknown10 = other.unknown10;
+			return *this;
+		}
+		MidgroundCellRecord(engine::render::Drawable* newDrawable, MidgroundCell* cell, const float& newScale)
+		{
+			drawable = newDrawable;
+			unknownC = 1;
+			name = cell->unknown54->name;
+			unknown10 = newScale;
+		}
 	};
 
 	class MidgroundManager
@@ -97,6 +130,8 @@ namespace proto
 		void CellLoaded(MidgroundCell* cell);
 		// 0x102DDE30: the cell's drawable is taken down and its record erased
 		void CellUnloaded(MidgroundCell* cell);
+		// 0x102DE130: makes a drawable of every archetype of the level's midground package that is not flagged
+		void Load();
 
 		// +0x08: the scale the records are given
 		float unknown8;

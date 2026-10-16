@@ -12,4 +12,10 @@ namespace pure3d
 	{
 		memset(&declaration, 0, sizeof(declaration));
 	}
+
+	// FUNCTION: ENGINE 0x10625900
+	int dxVertexBuffer::GetUnknown14()
+	{
+		return declaration.unknown0;
+	}
 }

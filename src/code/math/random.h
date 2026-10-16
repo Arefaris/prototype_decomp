@@ -23,6 +23,9 @@ namespace math
 		// A random unit vector: NextVector11 rejected until 0.001 <= |v|^2 <= 1, then normalised (name guess)
 		Vector NextUnitVector();
 
+		// 0x100CED50 (another unit's copy): an integer in [low, high], one step of the generator
+		int Range(int low, int high);
+
 		// One combined step: z and w advanced, (z << 16) + low 16 bits of w (name guess)
 		unsigned int Next()
 		{

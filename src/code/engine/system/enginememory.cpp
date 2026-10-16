@@ -194,9 +194,6 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107DECD0
-	// NONMATCHING: file-local (the engine passes the kind in eax); its only caller, OnAllocFail 0x107DED20, is not
-	// reconstructed, so the compiler drops the unused static function and there is nothing to compare
-#ifdef NONMATCHING
 	static const char* GetHeapKindName(int kind)
 	{
 		switch (kind)
@@ -217,7 +214,44 @@ namespace engine
 			return "Unknown";
 		}
 	}
-#endif
+
+	// The report of an allocation that failed: the heap's figures, and the figures of the normal memory when the
+	// allocator tells them apart from the rest
+	// FUNCTION: ENGINE 0x107DED20
+	void OnAllocFail(void* user, int heap, unsigned int size, unsigned int align, int flags)
+	{
+		core::IMemoryAllocator* allocator = core::GetHeapAllocator(heap);
+		int live = 0;
+		int total = 0;
+		int used = 0;
+		int free = 0;
+		int normalUsed = 0;
+		int normalFree = 0;
+		int normalLive = 0;
+		char text[0x400];
+		allocator->GetStat(0, &live);
+		allocator->GetStat(1, &total);
+		allocator->GetStat(2, &used);
+		allocator->GetStat(3, &free);
+		bool hasNormalUsed = allocator->GetStat(4, &normalUsed);
+		bool hasNormalFree = allocator->GetStat(5, &normalFree);
+		bool hasNormalLive = allocator->GetStat(6, &normalLive);
+		if (hasNormalLive + hasNormalFree + hasNormalUsed != 0 && normalFree + normalUsed != free + used)
+		{
+			core::SNPrintf(text, 0x400,
+				"",
+				size, heap, allocator->GetName(), GetHeapKindName(flags), total, normalFree, normalUsed,
+				normalFree + normalUsed, normalLive, free - normalFree, used - normalUsed,
+				free - normalFree - normalUsed + used, live - normalLive);
+		}
+		else
+		{
+			core::SNPrintf(text, 0x400,
+				"",
+				size, heap, allocator->GetName(), GetHeapKindName(flags), total, free, used, free + used, live);
+		}
+		OLD_ASSERT_AT("..\\..\\..\\code\\engine\\system\\enginememory.cpp", 0x435, false, "false", text);
+	}
 
 	// FUNCTION: ENGINE 0x107DF2D0
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,

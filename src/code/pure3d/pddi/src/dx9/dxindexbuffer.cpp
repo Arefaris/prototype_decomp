@@ -14,23 +14,14 @@ namespace pure3d
 		D3DUSAGE_DYNAMIC = 0x200
 	};
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x106266D0
-	// NONMATCHING: register allocation, 62.3 %: every store is in the engine's order (the initialiser list, then -1
-	// at +0x34, then the six words of the state block), but the engine clears the state block with a zero it
-	// materialises in eax (`xor eax, eax` after the state's constructor call) where this compiler reuses the zero the
-	// initialiser list left in ebx, and it schedules the -1 store in front of them.
+	// EQUIVALENT: register allocation: the engine clears the state block with a zero it materialises in eax after the
+	// state's constructor call, this compiler reuses the zero the initialiser list left in ebx (64.9 %)
 	dxIndexBuffer::dxIndexBuffer() : unknown8(0), buffer(0), unknown10(0), unknown14(0), unknown18(1)
 	{
 		unknown34 = -1;
-		state.unknown0 = 0;
-		state.unknown4 = 0;
-		state.unknown8 = 0;
-		state.unknownC = 0;
-		state.unknown10 = 0;
-		state.unknown14 = 0;
+		state.Clear();
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10626770
 	void dxIndexBuffer::Create(const IndexBufferDescription* description)
@@ -77,5 +68,11 @@ namespace pure3d
 				core::ThreadSleep(100);
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10626920
+	int dxIndexBuffer::GetUnknown1C()
+	{
+		return state.unknown0;
 	}
 }
