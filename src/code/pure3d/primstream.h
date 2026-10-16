@@ -88,7 +88,7 @@ namespace pure3d
 		PrimBuffer* buffer;
 	};
 
-	// What the device draws (0x54 bytes; the constructors at 0x10611CB0, 0x10611C30 and 0x10611DC0 fill it from the
+	// What the device draws (0x4C bytes; the constructors at 0x10611CB0, 0x10611C30 and 0x10611DC0 fill it from the
 	// primitive's own object, the part's world matrix and the list of objects to draw)
 	struct PrimDrawDesc
 	{
@@ -100,7 +100,7 @@ namespace pure3d
 
 		// The vertex format of the object the parts of this primitive are drawn from
 		void* format;
-		unsigned char unknown4[0x50];
+		unsigned char unknown4[0x48];
 	};
 
 	// The draw parameters (12 bytes; they are the shader's at +0x14). The bits of the second word that the tracer

@@ -1349,7 +1349,9 @@ type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C
 - 0x1071EE50 `Skin::FillBatch` matches (skin.cpp). `*unknown` is set to true at the end in *both* paths, and the
   batch's +0x84 is a `bool` saying whether the state had a second pose to blend in — which is why `PrimBatch`'s
   +0x84 is declared as one.
-- 0x1072DEC0 `GpuSkinState::GetBuffer` and 0x1072DF10 `GpuSkin::Draw` match (the new unit
+- 0x1072DEC0 `GpuSkinState::GetBuffer` matches; 0x1072DF10 `GpuSkin::Draw` is NONMATCHING: it matches only with a
+  0x54-byte `PrimDrawDesc`, while `PrimStream::End` (0x106F3630) needs the 0x4C one, so the descriptor the third
+  constructor (0x10611DC0) fills is a larger type not recovered yet (the new unit
   `src/code/pure3d/atg4/platform/win32/gpuskin.cpp`). The gpu skin's `GpuSkinState` keeps a buffer pointer at +0x1C
   whose word at +0x38 goes into the descriptor; `GpuSkin` itself is `Primitive` + the word at +0x1C + a
   `ShaderParameters` at +0x20 (0x118 bytes) + +0x138 (the device buffer) / +0x13C (its stream) / +0x140 (its index
