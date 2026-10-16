@@ -132,6 +132,15 @@ namespace container
 			}
 			end--;
 		}
+		// Takes the element a position points at out; the last element moves into its place
+		void Remove(T* position)
+		{
+			end--;
+			if (position < end)
+			{
+				*position = *end;
+			}
+		}
 		void Free()
 		{
 			if (begin != 0)

@@ -1,0 +1,210 @@
+// pure3d's default pool: what the back end makes in Direct3D's default pool (the pool a device reset empties) is
+// recorded here and made again after the reset. The file name is the assert path of 0x106238B0 and 0x10623FB0.
+#include "code/core/criticalsection.h"
+#include "code/core/report.h"
+#include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
+
+// The one kernel32 call the pool's failure report makes (declared here as thread.cpp declares its imports)
+extern "C"
+{
+	struct MEMORYSTATUS
+	{
+		unsigned long dwLength;
+		unsigned long dwMemoryLoad;
+		unsigned long dwTotalPhys;
+		unsigned long dwAvailPhys;
+		unsigned long dwTotalPageFile;
+		unsigned long dwAvailPageFile;
+		unsigned long dwTotalVirtual;
+		unsigned long dwAvailVirtual;
+	};
+
+	__declspec(dllimport) void __stdcall GlobalMemoryStatus(MEMORYSTATUS* status);
+}
+#pragma comment(linker, "/alternatename:__imp__GlobalMemoryStatus@4=__imp__GlobalMemoryStatus")
+
+namespace pure3d
+{
+	// GLOBAL: ENGINE 0x110BB75C
+	// Switched off for good once the report has been answered with 3
+	static bool sReportAllocationFailure = true;
+
+	// The factor the report shows the byte counts in: one megabyte (the engine keeps it at 0x10E34590)
+	static const float kMegabyte = 9.5367431640625e-07f;
+
+	// FUNCTION: ENGINE 0x10623860
+	static const char* GetErrorText(HRESULT result)
+	{
+		switch (result)
+		{
+		case D3DERR_NOTAVAILABLE:
+			return "D3DERR_NOTAVAILABLE";
+		case E_OUTOFMEMORY:
+			return "E_OUTOFMEMORY";
+		case D3DERR_OUTOFVIDEOMEMORY:
+			return "D3DERR_OUTOFVIDEOMEMORY";
+		case D3DERR_INVALIDCALL:
+			return "D3DERR_INVALIDCALL";
+		case D3DXERR_INVALIDDATA:
+			return "D3DXERR_INVALIDDATA";
+		}
+		return "Unknown";
+	}
+
+	// FUNCTION: ENGINE 0x106238B0
+	static void ReportAllocationFailure(HRESULT result, const char* name)
+	{
+		MEMORYSTATUS status;
+		if (result != 0)
+		{
+			UINT available = gD3DDevice->lpVtbl->GetAvailableTextureMem(gD3DDevice);
+			GlobalMemoryStatus(&status);
+			if (sReportAllocationFailure)
+			{
+				if (core::Report(1, " oldassert ",
+						"..\\..\\..\\code\\pure3d\\pddi\\src\\dx9\\dxdefaultpoolmanager.cpp", 0x36,
+						"res == ((HRESULT)0x00000000L)",
+						"Could not allocate %s\nD3D Error : %s\nAvalible video memory : %.2f\nWindows memory status - load:%d phys:%.2f availphys:%.2f\n    page:%.2f availpage:%.2f virt:%.2f availvirt:%.2f\nIf this assert occurs during an Alt-Tab it may be spurious\nQA, please try to continue and report if a crash occurs after\ncontinuing (ideally with a callstack), rather than just reporting\nthis assert",
+						name, GetErrorText(result), (float)available * kMegabyte, status.dwMemoryLoad,
+						(float)status.dwTotalPhys * kMegabyte, (float)status.dwAvailPhys * kMegabyte,
+						(float)status.dwTotalPageFile * kMegabyte, (float)status.dwAvailPageFile * kMegabyte,
+						(float)status.dwTotalVirtual * kMegabyte, (float)status.dwAvailVirtual * kMegabyte, 0) == 3)
+				{
+					sReportAllocationFailure = false;
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10624990
+	bool PoolAllocateTexture(int width, int height, int levels, int usage, unsigned int format,
+		IDirect3DTexture9** texture, IDirect3DSurface9** surface, float scale)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateTexture(gDefaultPoolManager->device, width,
+			height, levels, usage, format, D3DPOOL_DEFAULT, texture, 0);
+		ReportAllocationFailure(result, "texture");
+		DefaultPoolTexture* entry = new DefaultPoolTexture;
+		entry->width = width;
+		entry->height = height;
+		entry->levels = levels;
+		entry->usage = usage;
+		entry->format = format;
+		entry->texture = texture;
+		entry->scale = scale;
+		entry->surface = surface;
+		if (surface != 0 && texture != 0)
+		{
+			(*texture)->lpVtbl->GetSurfaceLevel(*texture, 0, surface);
+		}
+		gDefaultPoolManager->textures.PushBack(entry);
+		core::CriticalSectionLeave(gDefaultPoolLock);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10624A70
+	bool PoolAllocateVertexBuffer(int length, unsigned int usage, unsigned int fvf,
+		IDirect3DVertexBuffer9** buffer, void* data)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateVertexBuffer(gDefaultPoolManager->device,
+			length, usage, fvf, D3DPOOL_DEFAULT, buffer, 0);
+		ReportAllocationFailure(result, "vertex buffer");
+		DefaultPoolVertexBuffer* entry = new DefaultPoolVertexBuffer;
+		entry->length = length;
+		entry->usage = usage;
+		entry->fvf = fvf;
+		entry->buffer = buffer;
+		entry->data = data;
+		gDefaultPoolManager->vertexBuffers.PushBack(entry);
+		core::CriticalSectionLeave(gDefaultPoolLock);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10624B10
+	bool PoolAllocateIndexBuffer(int length, unsigned int usage, unsigned int format,
+		IDirect3DIndexBuffer9** buffer)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateIndexBuffer(gDefaultPoolManager->device,
+			length, usage, format, D3DPOOL_DEFAULT, buffer, 0);
+		ReportAllocationFailure(result, "index buffer");
+		DefaultPoolIndexBuffer* entry = new DefaultPoolIndexBuffer;
+		entry->length = length;
+		entry->usage = usage;
+		entry->format = format;
+		entry->buffer = buffer;
+		gDefaultPoolManager->indexBuffers.PushBack(entry);
+		core::CriticalSectionLeave(gDefaultPoolLock);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10624BA0
+	bool PoolAllocateRenderTarget(int width, int height, unsigned int format, unsigned int multiSample,
+		bool lockable, IDirect3DSurface9** surface, float scale)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateRenderTarget(gDefaultPoolManager->device,
+			width, height, format, multiSample, 0, lockable, surface, 0);
+		ReportAllocationFailure(result, "render target");
+		DefaultPoolRenderTarget* entry = new DefaultPoolRenderTarget;
+		entry->width = width;
+		entry->height = height;
+		entry->scale = scale;
+		entry->format = format;
+		entry->lockable = lockable;
+		entry->multiSample = multiSample;
+		entry->surface = surface;
+		gDefaultPoolManager->renderTargets.PushBack(entry);
+		core::CriticalSectionLeave(gDefaultPoolLock);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10624C60
+	bool PoolAllocateDepthStencil(int width, int height, unsigned int format, unsigned int multiSample,
+		IDirect3DSurface9** surface, float scale)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateDepthStencilSurface(
+			gDefaultPoolManager->device, width, height, format, multiSample, 0, 0, surface, 0);
+		ReportAllocationFailure(result, "depth/stencil surface");
+		DefaultPoolDepthStencil* entry = new DefaultPoolDepthStencil;
+		entry->width = width;
+		entry->height = height;
+		entry->scale = scale;
+		entry->format = format;
+		entry->multiSample = multiSample;
+		entry->surface = surface;
+		gDefaultPoolManager->depthStencils.PushBack(entry);
+		core::CriticalSectionLeave(gDefaultPoolLock);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10624D10
+	void FreePooledTexture(IDirect3DTexture9** texture)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		unsigned int index = 0;
+		unsigned int count = gDefaultPoolManager->textures.Size();
+		while (index < count)
+		{
+			if (gDefaultPoolManager->textures[index]->texture == texture)
+			{
+				if (*gDefaultPoolManager->textures[index]->texture != 0)
+				{
+					(*gDefaultPoolManager->textures[index]->texture)->Release();
+					if (gDefaultPoolManager->textures[index]->surface != 0)
+					{
+						(*gDefaultPoolManager->textures[index]->surface)->Release();
+					}
+				}
+				delete gDefaultPoolManager->textures[index];
+				gDefaultPoolManager->textures[index] = 0;
+				gDefaultPoolManager->textures.Remove(&gDefaultPoolManager->textures[index]);
+				break;
+			}
+			index++;
+		}
+		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+}
