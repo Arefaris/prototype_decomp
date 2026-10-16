@@ -193,6 +193,34 @@ namespace engine
 		return CreateHeap(config);
 	}
 
+	// FUNCTION: ENGINE 0x107DECD0
+	// NONMATCHING: the kind arrives in eax, not on the stack, 0 %. The engine's OnAllocFail (0x107DED20) already has
+	// the kind in eax when it reaches it, so the compiler gave this internal function a register parameter - a
+	// convention MSVC 2005 only hands out under whole-program optimisation, so plain /O2 puts our argument on the
+	// stack and the switch cannot reach the same code. The body is the engine's otherwise.
+#ifdef NONMATCHING
+	const char* GetHeapKindName(int kind)
+	{
+		switch (kind)
+		{
+		case 0:
+			return "None";
+		case 1:
+			return "Uncached";
+		case 2:
+			return "WriteCombine";
+		case 3:
+			return "Vram";
+		case 4:
+			return "Vram Preferred";
+		case 5:
+			return "Vram (heap default)";
+		default:
+			return "Unknown";
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x107DF2D0
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,
 		const char* name, int heap, int safetyMode)

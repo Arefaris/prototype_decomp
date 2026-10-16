@@ -3,6 +3,8 @@
 #ifndef ENGINE_CAMERA_CAMERA_H
 #define ENGINE_CAMERA_CAMERA_H
 
+#include "code/math/vector.h"
+
 namespace math
 {
 	class Matrix;
@@ -60,7 +62,10 @@ namespace engine
 			int unknown44;
 			// Slot and id of the Cinematographer driving this camera (Director::GetController)
 			ControllerRef controller;
-			unsigned char unknown50[0xcc - 0x50];
+			unsigned char unknown50[0xc0 - 0x50];
+			// The camera's position in the world (proto::LODRenderBehaviour's fade measures the object's distance
+			// to it); name guess
+			math::Vector position;
 			// Read by proto::VehicleCamera's vftable slot 4 (0x10354B60); meaning unknown, name is a guess
 			bool unknownCC;
 			unsigned char unknownCD[0x7a5 - 0xcd];
