@@ -2720,9 +2720,9 @@ Not done (each is a large function of a unit whose other members are still missi
   scale, lockable, format, multiSample, surface slot} for a render target (0x1C) and {width, height, float scale,
   format, multiSample, surface slot} for a depth/stencil surface (0x18). 0x1061B140 (the multisample mode of a
   sample count) is declared there too, as `pure3d::GetMultiSampleType`.
-- `dxtexture.cpp`: the texture from an image 0x1061D3A0 and the surface rebind 0x1061CA00. The creations branch on
-  the texture type at +8 (1 a 2D texture, 2 a cube texture, 3 a volume texture, through the device's +0x5C / +0x64 /
-  +0x60), 0x1061C600 locks a level of each kind, and 0x1061C490 lays its levels out.
+- `dxtexture.cpp`: the texture from an image 0x1061D3A0 (not written yet). The creations branch on the texture type
+  at +8 (1 a 2D texture, 2 a cube texture, 3 a volume texture, through the device's +0x5C / +0x64 / +0x60), 0x1061C600
+  locks a level of each kind, and 0x1061C490 lays its levels out. 0x1061CA00 is done (see above).
 - `dxvertexbuffer.cpp` 0x10626350 (dxVertexBuffer::Create, 873 bytes), `dxvertexdeclaration.cpp` 0x1062B170 (the
   declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
 - the context / device-reset functions 0x10616BB0, 0x106182C0, 0x1061FB40, 0x10620A20, 0x10620B00, 0x10621060 and
