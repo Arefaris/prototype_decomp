@@ -2390,7 +2390,7 @@ Still not done in this range:
   Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
   pool at `this + 0x18`, so the gate and the job classes have to be placed first.
 
-## The start-up, stream, LOD and deform units (2026-10-16, ds-9): 6 match, 2 NONMATCHING, the rest not started
+## The start-up, stream, LOD and deform units (2026-10-16, ds-9): 8 match, 0 NONMATCHING, the rest not started
 
 New units, all with guessed file names (none of them has an assert path):
 
@@ -2476,9 +2476,15 @@ Not started (the reason each is blocked, not just "unknown"):
   body reproduces.
 - `0x102DAF80` (681) and `0x102DC5F0` (557) are `LODRenderBehaviour`'s vftable slots 4 and 1, so they need the whole
   class with its vftable and every slot mapped.
-- `0x102DDD30` / `0x102DDE30` / `0x102DE130` (`proto::MidgroundManager`, vtable 0x10DEAB90, constructor 0x102DE380):
-  the cell list is 0x18-byte records between +0x44 and +0x48, and the three need 0x102DD6F0, 0x1007EE20,
-  0x1005E500, 0x10061ED0 / 0x10061F10 and 0x107EDE50 / 0x107ED900 named first.
+- `0x102DE130` (`proto::MidgroundManager::Load`, 425 bytes): the third session declared the class and matched
+  `CellLoaded` (0x102DDD30) and `CellUnloaded` (0x102DDE30) from it; `Load` still needs `engine::GameDatabase::
+  GetString` (0x107F8850), 0x104DF9E0, `container::String::Format` (0x1060ED50), 0x108258B0 / 0x108258C0 on the
+  inventory's `content::IRefCount`s, `core::HeapScope` (0x1063AAD0), `content::gInventoryLock` (0x11276950) with
+  `core::CriticalSectionEnter` / `Leave`, 0x108490A0 / 0x10849540 over 0x1125E2C0, and `__RTDynamicCast` to
+  `engine::render::DrawableArchetype`. The manager's layout the two matched functions gave: +0x08 a float,
+  +0x0C a `container::ArrayDynamicHeap<render::Drawable>` (its `end` at +0x10 and `capacity` at +0x14 are what
+  `Load` walks), +0x1C the 0x28-byte cell index, +0x44 a `container::ArrayDynamicHeap<MidgroundCellRecord>`
+  (0x18-byte records: a `core::Name`, a `render::Drawable*`, an int and a float).
   Read in the second session: +0x1C is a hash map (its own +0 is the table pointer), the key is the 8 bytes of
   `cell->field54->name.GetHash()` and the value is the cell's `render::Drawable`; the table is
   `{mask, used, ?, ?, ?, ?, ?, heap, void* buckets[], Key keys[], sentinel at the table's own +0x24}` and the unit
