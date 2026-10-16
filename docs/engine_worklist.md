@@ -1302,7 +1302,10 @@ Not done:
   `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
   are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
 - 0x1072ADB0 and 0x1072AF80 (the per-level upload, and the resize path that calls 0x1072AB40/0x1072A540) take extra
-  parameters in eax/esi like the two above and have no class in the unit's symbols.
+  parameters in eax/esi like the two above and have no class in the unit's symbols. The second session did not
+  retry this unit: what it needs is those helpers reconstructed in texture.cpp as `static` file-local functions
+  (the trick that took choreo/deltatransform.cpp from 7 to 25 matches), since a helper that takes its argument in
+  eax/esi/edi is file-local in the original.
 
 Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
 constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
@@ -1323,6 +1326,44 @@ Matching notes:
 Mesh overrides slot 3 (`Draw`, 0x10707280, 5 arguments) and slot 7 (`FillBatch`, 0x10707330, 3 arguments) of
 `Primitive` (whose layout in primitive.h is right: `LockableRefCounted` is 0xC bytes, so the flags sit at +0xC, the
 type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C). Matched:
+
+- **The draw descriptor** is `pure3d::PrimDrawDesc` (0x54 bytes, `primstream.h`). The engine has three constructors:
+  0x10611CB0 (8 arguments, the one `PrimStream::End` uses), 0x10611C30 (9, the one `Mesh::Draw` and `Skin::Draw` use)
+  and 0x10611DC0 (10, the one `GpuSkin::Draw` uses); all three are declarations here, mapped in symbols.txt, and
+  their argument orders differ. Map for the 9-argument one: `(void* format, const math::Matrix* world, int count,
+  void** parts, PrimGroupList* list, int a, int b, int c, int d)`. The device call is `pddi->DrawPrimitive(shader,
+  &desc, parameters)` (pddi slot 1) from Mesh and Skin, and `pddi->Unknown2(shader, &desc, parameters)` (pddi slot 2,
+  `pddi.h`) from GpuSkin. The first member of the descriptor is the *vertex format* of the drawing object and is read
+  at +0x10 of what `Primitive::unknown18`, `PrimitiveState::GetBindingSource()` or the part's binding point at
+  (`PrimBufferOwner::format`); `GpuSkin::Draw` overwrites it from the part's binding after the constructor.
+- **A `Mesh`'s own members**: `+0x1C` is a 32-bit word (the kind of primitive the batch carries; `FillBatch` copies
+  only its low half into the batch's 16-bit +0x70, which the compiler does with a 16-bit load), then a
+  `PrimGroupList*` pair at +0x20 / +0x24 (the groups and the list the batch is prepared through). A `Skin` has the
+  same word at +0x1C (so `Skin::GetUnknown1C` is `?GetUnknown1C@Skin@pure3d@@QAEIXZ`, not `...PAXXZ`), a
+  `PrimBuffer*` at +0x144 (a group to add and the buffer `UnlockBuffer` unlocks) and a `PrimGroupList*` at +0x148.
+- **`PrimitiveState`'s slot numbering starts after `RefCounted`**: the vftable is [destructor, AddRef, Release,
+  then the class's own virtuals], so `Unknown3` is slot 3, `Unknown9` is slot 9 (offset 0x24) and `SkinState::GetPose`
+  is slot 10 (offset 0x28). `Primitive` is the same: `Draw` is slot 3 and `FillBatch` slot 7.
+- **`Pose` is much larger than pose.h lays out** (0x138 is past `PoseData`); the skinning code stamps the word there,
+  so `pose.h` carries a `PoseSkinView` for it.
+- 0x1071EE50 `Skin::FillBatch` matches (skin.cpp). `*unknown` is set to true at the end in *both* paths, and the
+  batch's +0x84 is a `bool` saying whether the state had a second pose to blend in — which is why `PrimBatch`'s
+  +0x84 is declared as one.
+- 0x1072DEC0 `GpuSkinState::GetBuffer` and 0x1072DF10 `GpuSkin::Draw` match (the new unit
+  `src/code/pure3d/atg4/platform/win32/gpuskin.cpp`). The gpu skin's `GpuSkinState` keeps a buffer pointer at +0x1C
+  whose word at +0x38 goes into the descriptor; `GpuSkin` itself is `Primitive` + the word at +0x1C + a
+  `ShaderParameters` at +0x20 (0x118 bytes) + +0x138 (the device buffer) / +0x13C (its stream) / +0x140 (its index
+  data, whose +8 goes into the descriptor) + three floats at +0x15C and an int at +0x16C.
+
+NONMATCHING (this range):
+
+- 0x10707280 `Mesh::Draw`: every instruction is the engine's except that the engine sets the descriptor's count and
+  its parts pointer up *inside* each branch of the state test (`push 2` / `push 1`, the matching `lea`) and converges
+  on a shared call to the constructor, while ours computes both before the branch and keeps them in registers; the
+  shared-tail form needs one call site, the two-call-site form makes the compiler allocate two stack slots. 13 %.
+- 0x1071ED50 `Skin::Draw`: the engine keeps the state in edi, the skin in esi, the binding source in ebx and the
+  group count in ebp; ours assigns those four the other way round (state esi, skin edi, source ebp, count ebx) and no
+  order of the locals changes it. 14 %.
 
 - 0x10707330 `Mesh::FillBatch`. Lesson: **the batch a primitive fills is the object at `DrawablePart::batch`
   (+0xA0) and it is 0x88 bytes, not the 0x2C drawable.h keeps it as** — `+0x2C` is the part's world matrix and
@@ -1354,6 +1395,32 @@ NONMATCHING:
   compiled in this unit (three levels, the base constructor in the class body, out of line, `__forceinline`, with an
   initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
   (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
+
+Not done in the geometry range (each is 1500 - 2300 bytes and needs its loader class laid out first; the unit's
+helpers are the ones the asserts name):
+
+- 0x10B9C3E0 `GeometryLoader::LoadObject` (2232), 0x10B90CA0 `PolySkinLoader::LoadObject` (1575), 0x10B91410
+  `CompositeDrawableLoader::LoadObject` (2232), 0x10B90A70 (130, a shared call of the mesh and skin loaders: it
+  tests 0x10B8F1C0, then dispatches to 0x10B8FFE0 / 0x10B8F400 / 0x10B8DFF0 and releases the loader's list at +8
+  through `core::SafeRelease` 0x102CD490).
+
+Not done in the shader/palette range: 0x10706960 `ShaderLoader::LoadObject` (2239), 0x10B96280
+`NewShaderLoader::LoadObject` (1759), 0x10B95780 `ShaderTemplateLoader::LoadObject` (1552), 0x106DE090
+`SkeletonLoader::LoadObject` (2234), 0x1067F4D0 `ravenphysics::PhysicsObjectLoader::LoadObject` (761).
+
+- 0x102A6140 `proto::ShaderPalette`'s scalar deleting destructor (`??_GShaderPalette@proto@@UAEPAXI@Z`, 30 bytes)
+  is compiler-generated: it calls `??1ShaderPalette` (0x102A60B0, 107 bytes, which walks and frees the two
+  `container::ArrayDynamic` members at +8 and +0x18 and restores the `content::MetaLoadObject` vftable 0x10D96DB8)
+  and then `content::LoadObject::operator delete` (0x105FE720). Counting it needs the class and its destructor
+  reconstructed first, in `code/proto/shaders/`; the annotation itself can be written the way
+  `engine/physics/physicsmanager.cpp` annotates eight generated `??_G` bodies (a block of `// FUNCTION: ENGINE`
+  lines with no definition under it).
+- 0x1072E3E0 `GpuSkin::GpuSkin` (259 bytes): its shape is read off (base `Primitive::Primitive(0x4000)` 0x106F2F20,
+  the vftable 0x10E5CFA0, the word at +0x1C from the third argument, `ShaderParameters` at +0x20, +0x140 / +0x15C -
+  +0x164 / +0x16C initialised, the parameters copied in, a device buffer made through the global at 0x1127F358 with
+  0x1061B600 (the second argument's count) and 0x1061B660, then a walk over the copied parameters comparing their
+  names with the globals at 0x1127F1B8 / 0x1127F1DC and setting flags 6 / 7 through 0x102CC900 on the primitive's
+  flag word at +0xC), but none of those seven callees is named yet.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 
