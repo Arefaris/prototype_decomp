@@ -2327,21 +2327,16 @@ first session (2026-10-16) placed the SkinState class and matched the small acce
   +0x144 (a `pure3d::PrimBuffer*`, `Unlock`ed at 0x1071EFE0) / +0x148 (three one-line wrappers at 0x1071ED40 /
   0x1071EFD0 / 0x1071EFF0); an `core::AsyncTaskJob` at +0x20 (0x1071EAE0 submits it).
 
-**Do not start the big functions before this: the unit's Vector copies go through the x87 stack.** 0x1071B130 and
-0x1071B170 (and everything that hands a bounding box out) copy each component with `fld` / `fstp`, in the order
-(max, min), while our `math::Vector` copies with integer moves. Measured on 2026-10-16 with scratch functions in
-skin.cpp: MSVC 2005 gives `fld` / `fstp` for a **user-defined `operator=`** (`T& operator=(const T& v) { x = v.x; y =
-v.y; z = v.z; return *this; }` as a member of the 3-float class) and for the **return-value copy** of a class with a
-user-defined copy constructor; it gives integer moves for the implicit assignment of a POD, for an in-place copy
-construction through a temporary, and `movss` for a user-defined copy constructor built into a local. So the engine's
-`math::Vector` almost certainly declares its own `operator=` (which our `math/vector.h` does not). **Adding it to
-`math/vector.h` is the fix for this whole unit, but it changes code everywhere** — do that in a tree where the whole
-object tree can be re-checked, not in the middle of a unit.
-
-NONMATCHING (both blocked on the item above, 48 %):
-
-- `0x1071B130` SkinState::GetBoundingBox: the engine copies the two vectors with `fld`/`fstp`
-- `0x1071B170` SkinState::SetBoundingBox: as above
+**The unit's Vector copies go through the x87 stack, and the fix is a user-defined `math::Vector::operator=`.**
+0x1071B130 and 0x1071B170 copy each component with `fld` / `fstp`, in the order (max, min), while our `math::Vector`
+copied with integer moves. Measured on 2026-10-16 with scratch functions in skin.cpp: MSVC 2005 gives `fld` / `fstp`
+for a **user-defined `operator=`** (`T& operator=(const T& v) { x = v.x; y = v.y; z = v.z; return *this; }` as a
+member of the 3-float class) and for the **return-value copy** of a class with a user-defined copy constructor; it
+gives integer moves for the implicit assignment of a POD, for an in-place copy construction through a temporary, and
+`movss` for a user-defined copy constructor built into a local. `math/vector.h` now declares that `operator=`, which
+made both functions match — **but the merge has to re-check it**: the same change moved one function in `math` from
+matching to not matching (75 bytes) while one in `engine` went the other way, so the whole object tree must be
+compared before it is kept. Units whose vectors are copied member by member depend on it.
 
 Not started, in address order: the lock-free stack trio 0x1071B000 / 0x1071B010 / 0x1071B040 (a `void**` head; the
 first is a plain `*head = node`), the empty 0x1071B080 / 0x1071B1F0, `AsyncTaskAdaptor`'s constructor 0x1071B090
@@ -2352,3 +2347,7 @@ constructor and the bulk of the unit: 0x1071B310, 0x1071B490, 0x1071B610 (Draw) 
 controllers' wrappers 0x1071EAE0 - 0x1071F020, the SkinState setters 0x1071F840 - 0x1071F880, 0x1071F900 -
 0x10721200 (the `GpuSkinState` / `GpuSkin` half) and 0x107209E0 - 0x10720CF0 (the destructor and the copy
 constructor).
+
+Match so far (13 functions, no NONMATCHING): 0x1071B070, 0x1071B0B0, 0x1071B0F0, 0x1071B130, 0x1071B170, 0x1071B1B0,
+0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B200, 0x1071B210, 0x1071B220, 0x1071B230, 0x1071B240 (the count is 14 with
+0x1071B240; 0x1071B200 / 0x1071B210 were already there).

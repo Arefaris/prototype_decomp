@@ -37,11 +37,7 @@ namespace pure3d
 		return true;
 	}
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1071B130
-	// NONMATCHING: the engine's math::Vector assigns component by component through the x87 stack
-	// (`fld`/`fstp`, which a user-defined operator= gives and the implicit one does not), ours with integer
-	// moves; 48 %
 	void SkinState::GetBoundingBox(math::AABB* box)
 	{
 		box->max = bounds.max;
@@ -49,13 +45,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B170
-	// NONMATCHING: as the getter above; 48 %
 	void SkinState::SetBoundingBox(const math::AABB& box)
 	{
 		bounds.max = box.max;
 		bounds.min = box.min;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B1B0
 	void* SkinState::GetUnknown70()

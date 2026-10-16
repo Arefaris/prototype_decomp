@@ -31,6 +31,15 @@ namespace math
 			y = v.y;
 			z = v.z;
 		}
+		// User-defined: a user-defined assignment is what makes MSVC copy the components through the x87 stack
+		// (fld / fstp) instead of with integer moves
+		Vector& operator=(const Vector& v)
+		{
+			x = v.x;
+			y = v.y;
+			z = v.z;
+			return *this;
+		}
 
 		// Scales to unit length and returns the old length; a vector shorter than EPSILON_FLOAT becomes zero
 		float Normalize();
