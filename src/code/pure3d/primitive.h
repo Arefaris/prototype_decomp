@@ -556,13 +556,19 @@ namespace pure3d
 		void UnlockBuffer();
 		// 0x1071F000: fills the buffer's descriptor
 		void FillBufferDesc(int value);
+		// 0x1071F020: the vertex data the engine draws from and its size (0x50 when the data comes from +0x140)
+		void GetDrawData(void** data, int* size);
 
 		void* unknown1C;
 		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
 		core::AsyncTaskJob job;
 		unsigned char unknown68[8];
 		Pose* pose;
-		unsigned char unknown74[0xD0];
+		unsigned char unknown74[0xC4];
+		// 0x138: the vertex data of the last skinning job; 0x13C its size and 0x140 the fallback block
+		void* unknown138;
+		int unknown13C;
+		void* unknown140;
 		// 0x144: the vertex buffer the skinned vertices go into
 		PrimBuffer* buffer;
 		// 0x148: its stream

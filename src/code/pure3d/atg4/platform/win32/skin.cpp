@@ -136,27 +136,31 @@ namespace pure3d
 		return true;
 	}
 
+	// The component-wise copies below are what the engine's fld/fstp pairs are: an implicit Vector::operator= would
+	// copy the three floats with integer moves instead
 	// FUNCTION: ENGINE 0x1071B130
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit
-#ifdef NONMATCHING
 	void SkinState::GetBoundingBox(math::AABB* box)
 	{
-		box->max = bounds.max;
-		box->min = bounds.min;
+		math::Vector* outMax = &box->max;
+		math::Vector* outMin = &box->min;
+		outMax->x = bounds.max.x;
+		outMax->y = bounds.max.y;
+		outMax->z = bounds.max.z;
+		outMin->x = bounds.min.x;
+		outMin->y = bounds.min.y;
+		outMin->z = bounds.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B170
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit
-#ifdef NONMATCHING
 	void SkinState::SetBoundingBox(const math::AABB& box)
 	{
-		bounds.max = box.max;
-		bounds.min = box.min;
+		bounds.max.x = box.max.x;
+		bounds.max.y = box.max.y;
+		bounds.max.z = box.max.z;
+		bounds.min.x = box.min.x;
+		bounds.min.y = box.min.y;
+		bounds.min.z = box.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071B1B0
 	void* SkinState::GetUnknown70()
@@ -226,36 +230,37 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071EF00
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit (40 %)
-#ifdef NONMATCHING
 	void Skin::GetBoundingBox(math::AABB* box)
 	{
-		box->max = bounds.max;
-		box->min = bounds.min;
+		math::Vector* outMax = &box->max;
+		math::Vector* outMin = &box->min;
+		outMax->x = bounds.max.x;
+		outMax->y = bounds.max.y;
+		outMax->z = bounds.max.z;
+		outMin->x = bounds.min.x;
+		outMin->y = bounds.min.y;
+		outMin->z = bounds.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EF40
-	// NONMATCHING: the engine copies the box through fld/fstp; needs a user-defined Vector::operator=, which would
-	// change every unit (52 %)
-#ifdef NONMATCHING
 	void Skin::SetBoundingBox(const math::AABB& box)
 	{
-		bounds.max = box.max;
-		bounds.min = box.min;
+		bounds.max.x = box.max.x;
+		bounds.max.y = box.max.y;
+		bounds.max.z = box.max.z;
+		bounds.min.x = box.min.x;
+		bounds.min.y = box.min.y;
+		bounds.min.z = box.min.z;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EF80
-	// NONMATCHING: the engine copies the four components through fld/fstp; needs a user-defined
-	// Vector4::operator=, which would change every unit (55 %)
-#ifdef NONMATCHING
 	void Skin::SetCentre(const math::Vector4& value)
 	{
-		centre = value;
+		centre.x = value.x;
+		centre.y = value.y;
+		centre.z = value.z;
+		centre.w = value.w;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071EFB0
 	void* Skin::GetUnknown1C()
@@ -279,6 +284,32 @@ namespace pure3d
 		{
 			buffer->Unknown10625FA0(value);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1071F020
+	void Skin::GetDrawData(void** data, int* size)
+	{
+		if (unknown138 != 0)
+		{
+			*data = unknown138;
+			*size = unknown13C;
+		}
+		else
+		{
+			*data = unknown140;
+			*size = 0x50;
+		}
+	}
+
+	// The centre is a Vector4 but the caller's pointer (the vtable takes a Vector) is followed by a fourth float in
+	// the engine too: it copies all four components
+	// FUNCTION: ENGINE 0x1071F9D0 (slot 6 of the vtable)
+	void Skin::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = this->centre.x;
+		centre[0].y = this->centre.y;
+		centre[0].z = this->centre.z;
+		centre[1].x = this->centre.w;
 	}
 
 	// Submits every queued skinning job (once, the queue is a lock-free stack)
