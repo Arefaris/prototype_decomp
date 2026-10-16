@@ -17,6 +17,7 @@
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
+#include "code/pure3d/shaderparameters.h"
 
 namespace pure3d
 {
@@ -582,6 +583,37 @@ namespace pure3d
 		// 0x10B87040, 0x10B87050
 		FrameController* GetController();
 		void Unknown10B87050(float value);
+		// 0x1072DEC0: the object at +0x1C (a buffer; the draw reads its word at +0x38)
+		int* GetBuffer();
+
+		unsigned char unknown10[0xC];
+		int* buffer;
+	};
+
+	// The instanced skin the device skins: a primitive whose parts are drawn from a skin state's pose by a vertex
+	// shader (gpuskin.cpp). The members the draw reads are named here; the layout is partial.
+	class GpuSkin : public Primitive
+	{
+	public:
+		virtual ~GpuSkin();
+		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
+			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
+
+		// The kind of primitive the batch carries
+		unsigned int unknown1C;
+		// The shader parameters the device is set up with
+		ShaderParameters parameters;
+		// 0x138: the device buffer the skin is drawn from, 0x13C its stream and 0x140 its index data (the draw
+		// descriptor takes the word at +8 of it)
+		void* unknown138;
+		unsigned int unknown13C;
+		unsigned int unknown140;
+		unsigned char unknown144[0x18];
+		float unknown15C;
+		float unknown160;
+		float unknown164;
+		unsigned char unknown168[4];
+		int unknown16C;
 	};
 
 	// The per-instance state of a particle system. The setters and parameter forwarders are inline (0x107E8060 -

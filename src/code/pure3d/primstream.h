@@ -95,10 +95,12 @@ namespace pure3d
 		PrimDrawDesc(void* format, int a, int count, PrimBuffer** buffers, int c, int d, int e, int f);
 		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, PrimGroupList* list, int d,
 			int e, int f, int g);
-		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, PrimGroupList* list, int d,
-			int e, int f, int g, int h);
+		PrimDrawDesc(void* format, const math::Matrix* world, int count, void** parts, int list, int d, int e,
+			int f, int g, int h);
 
-		unsigned char unknown0[0x54];
+		// The vertex format of the object the parts of this primitive are drawn from
+		void* format;
+		unsigned char unknown4[0x50];
 	};
 
 	// The draw parameters (12 bytes; they are the shader's at +0x14). The bits of the second word that the tracer

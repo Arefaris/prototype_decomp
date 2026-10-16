@@ -60,7 +60,10 @@ namespace pure3d
 		// Draws a primitive buffer with a shader and its parameters
 		virtual void DrawPrimitive(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
 			const void* parameters);
-		virtual void Unknown2();
+		// Draws a primitive buffer with a shader whose world matrix is not the current one (the gpu skin's Draw; the
+		// descriptor is the one DrawPrimitive takes)
+		virtual void Unknown2(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
+			const void* parameters);
 		virtual void Unknown3();
 		// Draws a part's batch (the 0x2C bytes at +0xA0 of a drawable part) with a shader and its parameters
 		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
