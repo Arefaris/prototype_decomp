@@ -2380,10 +2380,25 @@ callers), 0x1071F7D0 (`"AsyncSkinning"` registered with the task callback 0x1071
   `GpuSkin` half) and 0x10720200 - 0x10720CF0 (the destructors, the copy constructor and the job dispatcher
   0x10720CF0).
 
-Match so far (31 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
+Match so far (32 functions): 0x1071B000, 0x1071B010, 0x1071B040, 0x1071B070, 0x1071B080, 0x1071B090, 0x1071B0B0,
 0x1071B0F0, 0x1071B1B0, 0x1071B1C0, 0x1071B1D0, 0x1071B1E0, 0x1071B1F0, 0x1071B200, 0x1071B210, 0x1071B220,
 0x1071B230, 0x1071B240, 0x1071B270, 0x1071B2C0, 0x1071EAE0, 0x1071EFB0, 0x1071EFC0, 0x1071EFE0, 0x1071F000,
-0x1071F780, 0x1071F7F0, 0x1071F9B0, 0x1071F9C0, 0x10721160, 0x107211D0.
+0x1071F780, 0x1071F7F0, 0x1071F880, 0x1071F9B0, 0x1071F9C0, 0x10721160, 0x107211D0 (and the `core::RefAssign
+<FrameController>` COMDAT copy at 0x1071F4B0, which carries no annotation).
+
+Not done, with the reason:
+
+- 0x1071F860 SkinState::SetController1: the very same code as 0x1071F880, but its `core::RefAssign` copy is
+  0x10707710 (another unit), so `controller1` must be declared with the type that instantiation belongs to before the
+  call can be written; `core::RefAssign<FrameController>` only reaches 0x1071F4B0 (objcmp reports 1 target differ)
+- 0x1071F840 SkinState::SetExpressionState: `core::RefAssign(expressionState, ...)` needs a complete
+  `pure3d::ExpressionState`, which no header in the tree defines yet (only a forward declaration)
+- 0x1071ED40 / 0x1071EFD0 / 0x1071EFF0: the three one-line wrappers on the pointer at +0x148; its class is the one
+  behind 0x10626860 / 0x106268D0 / 0x10626950 (the pddi dx9 unit, 0x106258D0 `PrimBuffer::Unlock` next door is a
+  different layout: +0xC owner, +8 locked, +0x11C vs +0x14 and +0x2C)
+- 0x1071F3C0 - 0x1071FCC0 (about 30 functions, 4 - 92 bytes): COMDAT copies of a six-field ring/table class
+  (+0 valid, +4 pointer, +8 / +0xC / +0x10, +0x14 count) and of `core::SafeRelease<T>`; the template arguments are
+  not readable off the bodies (identical code) and have to come from the callers or from other units
 
 NONMATCHING:
 

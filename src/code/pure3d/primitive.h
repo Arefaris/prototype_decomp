@@ -447,6 +447,9 @@ namespace pure3d
 		virtual void Update(float dt);
 		// 0x10720CF0: the skinning job itself (skin.cpp, not reconstructed)
 		void Unknown10720CF0();
+		// 0x1071F880: takes a reference to the state's controller at +0x2E0 (the +0x2DC one, 0x1071F860, is the
+		// same code but its core::RefAssign copy lives in another unit, so its member's type is not known yet)
+		void SetController2(FrameController* value);
 
 		unsigned char unknown10[0x60];
 		FrameController* unknown70;

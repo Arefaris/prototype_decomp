@@ -3,6 +3,7 @@
 #include <xmmintrin.h>
 
 #include "code/core/interlocked.h"
+#include "code/core/refptr.h"
 #include "code/core/thread.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
@@ -300,6 +301,16 @@ namespace pure3d
 		{
 			core::ThreadSleep(0);
 		}
+	}
+
+	// 0x1071F860 (SkinState::SetController1) is not done: it is the same body as 0x1071F880 but its
+	// core::RefAssign copy is the one at 0x10707710 (another unit), so controller1 has to be declared with the type
+	// that instantiation belongs to before it can be written.
+
+	// FUNCTION: ENGINE 0x1071F880
+	void SkinState::SetController2(FrameController* value)
+	{
+		core::RefAssign(controller2, value);
 	}
 
 	// FUNCTION: ENGINE 0x1071F9B0 (slot 9 of the vtable)
