@@ -3,7 +3,10 @@
 
 #include "code/engine/camera/camera.h"
 #include "code/engine/camera/director.h"
+#include "code/core/heap.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/math/random.h"
+#include "code/pure3d/primitive.h"
 #include "code/math/mathutils.h"
 #include "code/proto/render/lodrenderbehaviour.h"
 
@@ -54,7 +57,7 @@ namespace proto
 		unsigned int wanted = 0;
 		if ((flags & 1) != 0 && readyBegin != readyEnd)
 		{
-			unsigned int size = (levelsEnd - levelsBegin) >> 3;
+			unsigned int size = levelsEnd - levelsBegin;
 			float t = math::Clamp(fade, 0.0f, 1.0f);
 			wanted = (unsigned int)((1.0f - t) * (float)(unsigned int)(size - 1));
 		}
@@ -63,7 +66,139 @@ namespace proto
 		{
 			level = wanted;
 			unsigned int last = wanted >= minimumLevels ? wanted : minimumLevels;
-			ChangeDrawableLevels(previous, levelsBegin + wanted * 8, levelsBegin + last * 8);
+			ChangeDrawableLevels(previous, levelsBegin + wanted, levelsBegin + last);
+		}
+	}
+
+	// The first update: the entry of the shader palette is picked and every level gets its drawable bound
+	// FUNCTION: ENGINE 0x102DC5F0
+	// NONMATCHING: the half extents of the first ready drawable: the engine subtracts the box corners in the order z,
+	// y, x with memory operands and multiplies afterwards in the same order, this compiler does x, z, y and sums the
+	// squares in another order (the float sum is not the engine's), 79.4 %; the rest of the function is the engine's
+#ifdef NONMATCHING
+	inline float HalfDiagonal(const math::AABB& box)
+	{
+		math::Vector half;
+		half.Sub(box.max, box.min);
+		half.x *= 0.5f;
+		half.y *= 0.5f;
+		half.z *= 0.5f;
+		return LengthOf(half);
+	}
+
+	void LODRenderBehaviour::Slot1()
+	{
+		ShaderPaletteData* entry = 0;
+		availableIndex = -1;
+		if (available != 0 && available->data.begin != available->data.end)
+		{
+			availableIndex = math::gRandom->Range(0, available->data.Size() - 1);
+			entry = &available->data.begin[availableIndex];
+			Listen(0x16, true);
+		}
+		if ((flags & 8) == 0)
+		{
+			for (unsigned int i = 0; i < (unsigned int)(readyEnd - readyBegin); i++)
+			{
+				AddLevel(readyBegin + i);
+			}
+			for (unsigned int i = 0; i < (unsigned int)(levelsEnd - levelsBegin); i++)
+			{
+				LODLevel* item = levelsBegin + i;
+				if (entry != 0)
+				{
+					pure3d::pddiShaderInputInitData inputs;
+					entry->FillShaderInputs(&inputs);
+					item->drawable.CreateBindings(inputs);
+					item->ApplyPalette(entry);
+				}
+				if (animation != 0)
+				{
+					item->drawable.PlayAnimation(animation, 1.0f, 0.0f, 0.0f, animation->numFrames,
+						pure3d::Animation::CYCLE_MODE_2);
+				}
+			}
+			if (readyBegin != readyEnd && levelsBegin != levelsEnd)
+			{
+				const math::AABB* box = readyBegin->source->GetBounds();
+				distanceLevel = 0;
+				float length = HalfDiagonal(*box);
+				for (int i = 0; i < 3; i++)
+				{
+					if (length < gLODDistances[i])
+					{
+						distanceLevel = i;
+						break;
+					}
+				}
+			}
+		}
+		int count = levelsEnd - levelsBegin;
+		if (count != 0)
+		{
+			unsigned int joints = 0;
+			for (int i = 0; i < count; i++)
+			{
+				pure3d::Skeleton* skeleton = levelsBegin[i].drawable.GetSkeleton();
+				if (skeleton != 0 && skeleton->mData.mJointCount > joints)
+				{
+					joints = skeleton->mData.mJointCount;
+				}
+			}
+			core::HeapScope scope(heap);
+			boneData = pure3d::AllocateBoneData(joints, &boneDataSize, 3);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x102DAF80
+	void LODRenderBehaviour::Update(float dt, unsigned short mask)
+	{
+		math::Matrix matrix = owner->transform->value;
+		if (scaleSource != 0)
+		{
+			LODScaleSource* source = scaleSource;
+			math::Matrix scale = math::Matrix::IDENTITY;
+			scale.Scale(source->scale.x, source->scale.y, source->scale.z);
+			matrix.Multiply(scale, matrix);
+		}
+		if (shownFirst != 0)
+		{
+			shownFirst->drawable.SetTransform(matrix);
+			if (shownFirst != shownLast)
+			{
+				shownLast->drawable.SetTransform(matrix);
+			}
+		}
+		if (1.0f != fadeInPosition || 1.0f != fadeInTarget)
+		{
+			UpdateFadeIn(dt);
+		}
+		if ((flags & 4) != 0)
+		{
+			forcedFirst->drawable.SetTransform(matrix);
+			if (forcedFirst != forcedLast)
+			{
+				forcedLast->drawable.SetTransform(matrix);
+			}
+			UpdateForced(dt);
+		}
+		else
+		{
+			if ((flags & 1) != 0)
+			{
+				UpdateFade();
+			}
+			UpdateLevel();
+		}
+		if (poseSource != 0)
+		{
+			pure3d::Pose* pose = poseSource->pose;
+			if (pose != 0)
+			{
+				pose->Update();
+				shownFirst->drawable.CopyPoseStateFrom(pose);
+			}
 		}
 	}
 }

@@ -7,11 +7,15 @@
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/pddi/dx9/d3d9.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
+#include "code/pure3d/shaderparameters.h"
 
 namespace pure3d
 {
-	// The description a vertex buffer is created from (0x10626350 reads +0, +4, +0x18 and the elements from +0x18)
-	struct VertexBufferDescription;
+	// The description a vertex buffer is created from: the shader parameters the gpu skin was made with (0x10626350
+	// reads +0, +4, +0x18 and the elements from +0x18, +0x110 and +0x114)
+	struct VertexBufferDescription : ShaderParameters
+	{
+	};
 
 	class dxVertexBuffer : public pddiObject
 	{

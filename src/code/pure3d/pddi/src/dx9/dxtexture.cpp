@@ -18,20 +18,7 @@ namespace pure3d
 
 	int gCubeFaces[6] = { 0, 1, 2, 3, 4, 5 };
 
-	// FUNCTION: ENGINE 0x1061C360
-	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
-	// formats; the single bytes are the back end's own format codes). It is an int (the engine's code sets the whole
-	// register), while its callers test its low byte, so they keep the answer in a char.
-	int IsTextureFormatSupported(unsigned int format)
-	{
-		if (format == 0x49 || format == 0x50 || format == 0x46 || format == 0x4F || format == 0x53 ||
-			format == 0x4D || format == 0x4B || format == 0x52 || format == 0x47 || format == 0x34324644 ||
-			format == 0x36314644)
-		{
-			return true;
-		}
-		return false;
-	}
+	int IsTextureFormatSupported(unsigned int format);
 
 	// FUNCTION: ENGINE 0x1061C400
 	dxTexture::dxTexture(IDirect3DDevice9* device)
@@ -105,14 +92,7 @@ namespace pure3d
 		}
 	}
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061CD70
-	// NONMATCHING: register allocation, 26.4 %. Every part is the engine's and in its order (the description check,
-	// the usage bit that picks the default pool, the level build, the memory counters, the three texture kinds, the
-	// pooled surface path and the retry loop), and the size is within a byte, but this compiler puts `usage` in edi
-	// and `&this->description` in ebp where the engine has them the other way round, and it folds
-	// `(usage >> 1) & 1` into `test byte [this + 0x20], 2` where the engine keeps the shift. A named shift result
-	// and swapped declarations change neither.
 	bool dxTexture::Create(const TextureDescription* description)
 	{
 		if (!SetDescription(description))
@@ -121,12 +101,12 @@ namespace pure3d
 		}
 		int usage = 0;
 		pool = D3DPOOL_MANAGED;
-		if (((this->description.usage >> 1) & 1) != 0)
+		if ((((unsigned char)(this->description.usage >> 1)) & 1) != 0)
 		{
-			bool supported = IsTextureFormatSupported(d3dFormat);
+			char supported = IsTextureFormatSupported(d3dFormat);
+			usage = (supported != 0) + 1;
 			this->description.levels = 1;
 			pool = D3DPOOL_DEFAULT;
-			usage = supported + 1;
 		}
 		BuildLevels(&this->description);
 		if (gContext != 0)
@@ -195,14 +175,8 @@ namespace pure3d
 		}
 		return true;
 	}
-#endif
 
-#ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061D010
-	// NONMATCHING: register allocation, 30.3 %: the whole body is there (the description checks, the level copy
-	// through the two locked levels, the link back to the source texture) but the engine keeps the level in edx and
-	// reloads it from its argument slot where this compiler caches it in a callee-saved register, which moves every
-	// later instruction; the surface path of the 2D case has the same difference.
 	bool dxTexture::Create(const TextureDescription* description, const dxTexture* image)
 	{
 		if (!SetDescription(description))
@@ -225,7 +199,11 @@ namespace pure3d
 		{
 			return false;
 		}
-		if (this->description.usage == 2 || this->description.levels != 1)
+		if (this->description.usage == 2)
+		{
+			return false;
+		}
+		if (this->description.levels != 1)
 		{
 			return false;
 		}
@@ -301,6 +279,8 @@ namespace pure3d
 				}
 			}
 			break;
+		case 3:
+			return false;
 		default:
 			return false;
 		}
@@ -308,7 +288,6 @@ namespace pure3d
 		const_cast<dxTexture*>(image)->unknown8C = this;
 		return true;
 	}
-#endif
 
 #ifdef NONMATCHING
 	// FUNCTION: ENGINE 0x1061C600
@@ -322,89 +301,101 @@ namespace pure3d
 			return false;
 		}
 		unsigned int readOnly = flags & 1;
-		if ((readOnly != 0 && (~description.usage & 1) != 0) ||
-			((flags & 2) != 0 && (description.usage & 2) != 0))
+		if (!((readOnly != 0 && (~description.usage & 1) != 0) || ((flags & 2) != 0 && (description.usage & 2) != 0)) &&
+			level < (unsigned int)description.levels && slice < (unsigned int)levelData[level].count)
 		{
-			return false;
-		}
-		if (level >= (unsigned int)description.levels || slice >= (unsigned int)levelData[level].count)
-		{
-			return false;
-		}
-		TextureLevelData* levelData_ = &levelData[level].data[slice];
-		switch (description.type)
-		{
-		case 3:
+			TextureLevelData* levelData_ = &levelData[level].data[slice];
+			switch (description.type)
 			{
-				TextureBox box;
-				box.left = 0;
-				box.top = 0;
-				box.bottom = levelData_->height;
-				box.right = levelData_->width;
-				box.front = slice;
-				box.back = slice + 1;
-				volumeTexture->lpVtbl->LockBox(volumeTexture, level, &lockBox, &box, readOnly << 4);
-			}
-			break;
-		case 2:
-			cubeTexture->lpVtbl->LockRect(cubeTexture, gCubeFaces[slice], level, &lockRect, 0, readOnly << 4);
-			break;
-		case 1:
-			if ((description.usage & 2) != 0)
-			{
-				if (defaultTexture == 0)
+			case 3:
 				{
-					gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, description.width, description.height,
-						description.levels, 0, d3dFormat, D3DPOOL_SYSTEMMEM, &defaultTexture, 0);
+					TextureBox box;
+					box.left = 0;
+					box.top = 0;
+					box.bottom = levelData_->height;
+					box.right = levelData_->width;
+					box.front = slice;
+					box.back = slice + 1;
+					volumeTexture->lpVtbl->LockBox(volumeTexture, level, &lockBox, &box, readOnly << 4);
 				}
-				IDirect3DSurface9* defaultSurface = 0;
-				IDirect3DSurface9* textureSurface = 0;
-				defaultTexture->lpVtbl->GetSurfaceLevel(defaultTexture, 0, &defaultSurface);
-				texture->lpVtbl->GetSurfaceLevel(texture, 0, &textureSurface);
-				gD3DDevice->lpVtbl->GetRenderTargetData(gD3DDevice, textureSurface, defaultSurface);
-				textureSurface->lpVtbl->Release(textureSurface);
-				defaultSurface->lpVtbl->Release(defaultSurface);
-				defaultTexture->lpVtbl->LockRect(defaultTexture, level, &lockRect, 0, readOnly << 4);
+				break;
+			case 2:
+				cubeTexture->lpVtbl->LockRect(cubeTexture, gCubeFaces[slice], level, &lockRect, 0, readOnly << 4);
+				break;
+			case 1:
+				if ((description.usage & 2) != 0)
+				{
+					if (defaultTexture == 0)
+					{
+						gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, description.width, description.height,
+							description.levels, 0, d3dFormat, D3DPOOL_SYSTEMMEM, &defaultTexture, 0);
+					}
+					IDirect3DSurface9* defaultSurface = 0;
+					IDirect3DSurface9* textureSurface = 0;
+					defaultTexture->lpVtbl->GetSurfaceLevel(defaultTexture, 0, &defaultSurface);
+					texture->lpVtbl->GetSurfaceLevel(texture, 0, &textureSurface);
+					gD3DDevice->lpVtbl->GetRenderTargetData(gD3DDevice, textureSurface, defaultSurface);
+					textureSurface->lpVtbl->Release(textureSurface);
+					defaultSurface->lpVtbl->Release(defaultSurface);
+					defaultTexture->lpVtbl->LockRect(defaultTexture, level, &lockRect, 0, readOnly << 4);
+				}
+				else
+				{
+					texture->lpVtbl->LockRect(texture, level, &lockRect, 0, readOnly << 4);
+				}
+				break;
 			}
-			else
+			lock->slice = slice;
+			lock->width = levelData_->width;
+			lock->height = levelData_->height;
+			lock->format = d3dFormat;
+			lock->size = levelData_->size;
+			lock->unknown1C = 1;
+			if (description.type == 3)
 			{
-				texture->lpVtbl->LockRect(texture, level, &lockRect, 0, readOnly << 4);
+				if ((description.flags & 2) != 0)
+				{
+					lock->pitch = lockBox.RowPitch;
+					lock->offset = (int)lockBox.pBits;
+				}
+				else
+				{
+					lock->pitch = -lockBox.RowPitch;
+					lock->offset = (levelData_->height - 1) * lockBox.RowPitch + (int)lockBox.pBits;
+				}
 			}
-			break;
-		}
-		lock->slice = slice;
-		lock->width = levelData_->width;
-		lock->height = levelData_->height;
-		lock->format = d3dFormat;
-		lock->size = levelData_->size;
-		lock->unknown1C = 1;
-		if (description.type == 3)
-		{
-			if ((description.flags & 2) != 0)
+			else if ((description.flags & 2) != 0)
 			{
-				lock->pitch = lockBox.RowPitch;
-				lock->offset = (int)lockBox.pBits;
+				lock->pitch = lockRect.Pitch;
+				lock->offset = (int)lockRect.pBits;
 			}
-			else
+			else if (description.type == 1)
 			{
-				lock->pitch = -lockBox.RowPitch;
-				lock->offset = (levelData_->height - 1) * lockBox.RowPitch + (int)lockBox.pBits;
+				lock->pitch = -lockRect.Pitch;
+				lock->offset = (levelData_->height - 1) * lockRect.Pitch + (int)lockRect.pBits;
 			}
+			lockLevel = level;
+			lockSlice = slice;
+			locked = true;
+			return true;
 		}
-		else if ((description.flags & 2) != 0)
-		{
-			lock->pitch = lockRect.Pitch;
-			lock->offset = (int)lockRect.pBits;
-		}
-		else if (description.type == 1)
-		{
-			lock->pitch = -lockRect.Pitch;
-			lock->offset = (levelData_->height - 1) * lockRect.Pitch + (int)lockRect.pBits;
-		}
-		lockLevel = level;
-		lockSlice = slice;
-		locked = true;
-		return true;
+		return false;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x1061C360
+	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
+	// formats; the single bytes are the back end's own format codes). It is an int (the engine's code sets the whole
+	// register), while its callers test its low byte, so they keep the answer in a char.
+	// Declared inline so that its callers are not given its register use (the engine's callers do not know it)
+	inline int IsTextureFormatSupported(unsigned int format)
+	{
+		if (format == 0x49 || format == 0x50 || format == 0x46 || format == 0x4F || format == 0x53 ||
+			format == 0x4D || format == 0x4B || format == 0x52 || format == 0x47 || format == 0x34324644 ||
+			format == 0x36314644)
+		{
+			return true;
+		}
+		return false;
+	}
 }

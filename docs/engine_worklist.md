@@ -3080,3 +3080,27 @@ constructor is NONMATCHING, so nothing checked it against the engine's slot.
   the compiler drops it: NONMATCHING until the caller exists.
 - skin.cpp's `BlendRows4` / `BlendRows3` are plain functions, not `__inline`: their only caller (0x1071B9A0) is
   NONMATCHING, and an inline function nothing calls is not emitted.
+
+## Draw slots, stream slots, texture creation (this branch)
+
+Match (100 %): `Mesh::Draw`, `Skin::Draw`, `OnAllocFail` + `GetHeapKindName`, `ShaderPalette` destructors,
+`DumpVertexDeclaration`, `LODRenderBehaviour::Update`, `MidgroundManager::CellUnloaded`, `StreamSlotGroup::Create`
+(0x1083EC50, streamslotgroup.cpp), both `dxTexture::Create` (0x1061CD70, 0x1061D010) and the small `GpuSkin` slots.
+
+EQUIVALENT (same operations in the same order, a different register or schedule): `UpdateFade` (scheduling of the
+fade store), `CellLoaded` (97.5 %), `Midground Load` (98.8 %), `AddTriggerPackages`, the `PrimGroupLoader`,
+`dxIndexBuffer` and `GpuSkin` constructors, `FindVertexDeclaration`.
+
+Still NONMATCHING, one line each:
+
+- 0x102DC5F0 `LODRenderBehaviour` slot 1: the box corners are subtracted in a different order (79.4 %).
+- 0x1061C600 `dxTexture::Lock`: the engine keeps level and slice in registers (17.9 %).
+- 0x10623FB0 default-pool restore: scheduling of the five resource arrays (27.4 %).
+- 0x1071B9A0 and the rest of the SIMD skin run: the engine spills `this` and `matrices` (13 - 21 %).
+- 0x1072B470 / 0x1072B6D0 / 0x1072ADB0 / 0x1072AF80 (DDS loader): the whole-unit compiled helpers take their
+  arguments in eax / esi / a stack word. The pixel-format decoder 0x1072A540 is reproduced as a file-local
+  function that takes the description in eax (it matches 100 % apart from the jump table relocation), but a
+  file-local function nothing calls is not emitted, so it cannot carry an annotation until 0x1072B600 exists.
+- 0x104E3840, 0x1041FA40, 0x1082E100, 0x10899830, 0x1061D3A0, 0x10626350 (needs the name to usage helper
+  0x10625BF0), the deform functions and the loaders: not started, too large or dependent on helpers that are not
+  reconstructed.

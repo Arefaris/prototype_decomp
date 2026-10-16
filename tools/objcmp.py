@@ -95,6 +95,9 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 		elif name in defined and not coff.sections[defined[name][1] - 1]["name"].startswith(".text"):
 			# A constant of our own object (e.g. a namespace-scope const float): compare its first four bytes
 			value, section = defined[name]
+			ours, _ = coff.function(symbol)
+			if struct.unpack_from("<I", ours, offset)[0] != 0:
+				continue  # the operand carries an offset into the object (an end pointer, a member): not a constant
 			sec = coff.sections[section - 1]
 			if sec["raw"] == 0:
 				continue  # uninitialised data

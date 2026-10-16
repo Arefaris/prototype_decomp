@@ -8,6 +8,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/engine/render/async/drawable.h"
+#include "code/engine/render/drawablearchetype.h"
 
 namespace proto
 {
@@ -39,6 +40,9 @@ namespace proto
 			int current;
 			int step;
 		};
+
+		// 0x102DDAD0: stores the drawable under the key (the key is copied)
+		void Insert(const unsigned __int64& key, engine::render::Drawable* drawable);
 
 		// +0x00: the number of slots (a power of two; the mask is this minus one)
 		unsigned int capacity;
@@ -126,6 +130,8 @@ namespace proto
 		void CellLoaded(MidgroundCell* cell);
 		// 0x102DDE30: the cell's drawable is taken down and its record erased
 		void CellUnloaded(MidgroundCell* cell);
+		// 0x102DE130: makes a drawable of every archetype of the level's midground package that is not flagged
+		void Load();
 
 		// +0x08: the scale the records are given
 		float unknown8;

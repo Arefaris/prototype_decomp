@@ -630,13 +630,13 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071F9B0 (slot 9 of the vtable)
-	int Skin::GetUnknown294()
+	int Skin::GetUnknown9()
 	{
 		return unknown294;
 	}
 
 	// FUNCTION: ENGINE 0x1071F9C0 (slot 10 of the vtable)
-	void Skin::SetUnknown294(int value)
+	void Skin::SetUnknown10(int value)
 	{
 		unknown294 = value;
 	}

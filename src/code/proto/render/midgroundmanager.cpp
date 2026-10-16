@@ -1,5 +1,30 @@
 // proto::MidgroundManager: see the header. The file name, the member names and the layout are guesses.
+#include "code/container/string.h"
+#include "code/core/heap.h"
+#include "code/engine/database/gamedatabase.h"
+#include "code/engine/system/streampackage.h"
 #include "code/proto/render/midgroundmanager.h"
+
+namespace proto
+{
+	// 0x1126E538: the key of the game database string that names the level (name guess)
+	extern core::Name<core::CaseSensitiveKey> gLevelNameKey;
+	// 0x104DF9E0: the name of the level a game database string stands for (name guess)
+	const char* FindLevelName(const char* text);
+}
+
+namespace engine
+{
+	// 0x1130EFE0 and 0x1125E2C0: a list the midground drawables are added to and the value that is added (name guesses)
+	class DrawableRegistry
+	{
+	public:
+		// 0x10849540
+		void Add(void* entry);
+	};
+	DrawableRegistry* GetDrawableRegistry();
+	extern void* gMidgroundRegistryEntry;
+}
 
 namespace proto
 {
@@ -40,5 +65,40 @@ namespace proto
 				return;
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x102DE130
+	// EQUIVALENT: stack slot layout: the name of the package and the temporary drawable share a slot that sits 4 bytes
+	// higher than the engine's, every instruction is the engine's (98.8 %)
+	void MidgroundManager::Load()
+	{
+		const char* levelName = FindLevelName(engine::gGameDatabase->GetString(gLevelNameKey, 0, 0));
+		container::StringC<1024> text;
+		text.Format("%s_midground", levelName);
+		engine::StreamPackage* package;
+		{
+			core::Name<core::CaseSensitiveKey> packageName(text.buffer, 1);
+			package = engine::FindStreamPackage(packageName);
+		}
+		if (package != 0)
+		{
+			core::HeapScope scope(package->instance->slot->heap);
+			content::LoadInventory::Iterator it(package->GetInventory());
+			engine::render::DrawableArchetype* archetype = it.First<engine::render::DrawableArchetype>();
+			while (archetype != 0)
+			{
+				if (!archetype->IsFlagged())
+				{
+					core::Name<core::CaseSensitiveKey> name(*archetype->GetName());
+					engine::render::Drawable drawable = engine::render::Drawable::CreateInstance(
+						(engine::render::SourceDrawable*)archetype, true, false);
+					drawable.SetUnknownCC(2);
+					drawables.PushBack(drawable);
+					map.Insert(name.GetHash(), drawables.end - 1);
+				}
+				archetype = it.Next<engine::render::DrawableArchetype>();
+			}
+		}
+		engine::GetDrawableRegistry()->Add(engine::gMidgroundRegistryEntry);
 	}
 }
