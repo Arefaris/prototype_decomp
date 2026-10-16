@@ -70,6 +70,37 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    `docs/progress.md`, `docs/progress.svg` and the README's bar). Never anything from `orig/`, `build/`, `local/`
    ([LEGAL.md](../LEGAL.md)).
 
+## Checking an EQUIVALENT function (tools/difftest)
+
+An EQUIVALENT function replaces the engine's code in the hybrid DLL, so it must behave exactly like it; objcmp says
+nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` replays real states on both:
+
+1. **Capture** real entry states from the game running the original DLL in the test copy (`python tools/re/testcopy.py
+   --original --copy D:/PrototypeRecomp2`, `OP_ORIGINAL_DIR='D:\PrototypeRecomp2' python tools/re/gamectl.py launch 1`),
+   in free roam:
+   `OP_ORIGINAL_DIR='D:\PrototypeRecomp2' python tools/difftest/difftest.py 0x1071B610 --capture 3 --seconds 60 --play "keys w:2.5,:2"`.
+   The entry gets a jump to a spin stub (no debugger: the game's main thread is hidden from debuggers and an int3 there
+   ends the process); the parked thread's registers and every committed page of the process go to
+   `local/difftest/states/<address>/NNN.state` (pages deduplicated in `local/difftest/store/`; never committed, they are the
+   game's memory). `--play` takes gamectl commands (`keys`, `teleport`) to drive the game onto the path; a function whose
+   path does not run (device reset, a district change) stays `NOT REACHED` until a state is captured on it. The game is
+   frozen for about five seconds per state.
+2. **Replay**: `python tools/difftest/difftest.py 0x1071B610 [--fuzz 200]` runs every state in Unicorn twice, on the engine's
+   function and on ours (from the build's object, or `--obj` for another compile), with the engine's own callees running
+   as real code on the snapshot; only calls that leave the image (kernel32, d3d9) are answered by stubs and logged. It
+   compares faults (a misaligned SSE operand counts as one), the return registers, esp after return, the callee-saved
+   registers, every byte written outside the function's own stack frame (final value, and order as a warning), the
+   shared memory read, and the call sequence with each callee's arguments (its `ret N`, or the caller's cleanup for cdecl),
+   and checks the calling convention statically (`ret N`, registers read before written, the engine's call sites). It then
+   perturbs the dwords the engine read to sentinels (0, -1, 1, large) and, with `--fuzz`, mutates them at random, to reach
+   the engine's basic blocks the real states miss; what stays unreached is listed.
+3. **Read the verdict** (printed and `local/difftest/reports/<address>.txt`): `DIFFERENT` means a real state behaves
+   differently (the first finding says where: a fault with the instruction, a byte, a call); `VARIANT-DIFFERENT` means only
+   a perturbed state differs (it may be an impossible state: look at it); `SAME` comes with the block coverage on real
+   states and with variants. Evidence for keeping `// EQUIVALENT` is `SAME` on several real states with the function's
+   blocks covered; random inputs alone prove nothing, and a `SAME` with half the blocks unreached says only that much.
+   `python tools/difftest/difftest.py all` runs every EQUIVALENT function that has states.
+
 ## Matching tips for this compiler
 
 - Options: `/O2 /arch:SSE /fp:fast /GS- /GR /MD /Gy`, no exceptions. Scalar float math is SSE, float returns and
