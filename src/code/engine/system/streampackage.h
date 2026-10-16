@@ -33,14 +33,16 @@ namespace engine
 		virtual void Slot3();
 	};
 
-	// A group of package slots (another unit); its packages get at least its priority
+	// A group of package slots (another unit; 0x70 bytes and polymorphic, layout in the worklist); its packages get
+	// at least its priority
 	struct StreamSlotGroup
 	{
 		int unknown0[0x64 / 4];
 		unsigned short priority;
 	};
 
-	// A slot a loaded package occupies in a heap (another unit, 0x1083E760 / 0x1083E7A0)
+	// A slot a loaded package occupies in a heap (another unit, 0x1083E6A0 / 0x1083E760 / 0x1083E7A0; 0x10 bytes,
+	// layout in the worklist)
 	class StreamSlot
 	{
 	public:

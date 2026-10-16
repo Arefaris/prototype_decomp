@@ -2550,6 +2550,47 @@ Fourth session (2026-10-16, ds-9 continuation):
   +0 and a byte 1 at +4, then the scale at +8. Without a virtual member everything after it was 8 bytes off. The
   header now declares a destructor (declared, never defined, so no vftable of ours is emitted) and the base's word.
 
+**`0x1083EC50` `StreamSlotGroup::Create` read in full (fourth session), not written yet - everything below is what it
+needs, so the next attempt starts from the source, not from the disassembly.**
+
+Its unit is the cluster 0x1083E760 - 0x1083EC50 (`StreamSlot::Attach` / `Detach` at 0x1083E760 / 0x1083E7A0 are
+already named in the header); no source file exists for it yet. The two classes live in `streampackage.h` and are
+both undersized there:
+
+- `engine::StreamSlotGroup` is **0x70 bytes** and is polymorphic (its constructor 0x1083EAD0 writes the vftable
+  0x10E6F838, and 0x1082D550 `CreateSlotGroup` allocates 0x70 through 0x105FE6C0 and calls its virtual slot 7 with
+  (0, 0)). The constructor's writes give the layout: +0x04 a word, +0x08 the `core::Name<core::CaseSensitiveKey>`
+  (copy-constructed from the first argument), +0x10 the slot array, +0x14 an int (-1), +0x18 a pointer, +0x1C a byte
+  (1, what 0x1083E880 reads), +0x20 the slot count (the constructor's second argument), +0x24 - +0x54 zeroed,
+  **+0x5C the slot-heap factory override, +0x60 a word (both written by 0x1082D550), +0x64 the priority
+  (0x7FFF, and the constructor's arguments 3 / 4 / 5 are the bytes at +0x66 / +0x67 / +0x68)**. The header's
+  `int unknown0[0x64/4]; unsigned short priority;` already puts priority at +0x64, but everything else has to be
+  named for `Create` to be writable.
+- `engine::StreamSlot` is **0x10 bytes**, not 4: 0x1083E6A0 (the constructor the array's vector-constructor
+  iterator calls) writes -1 at +0, a zero at +4, and the three bytes +0xC / +0xD / +0xE as 0 / 1 / 0; +8 is left
+  uninitialised and `Create` fills it with the slot's index.
+- `Create`'s signature is `void Create(int unused, bool immediate)` (`ret 8`, the first argument is never read).
+  Its callees, none of them named yet: `0x1083EC30` = the factory getter (`this->+0x5C`, else
+  `engine::gStreamManager->+0x88`, else the default 0x1083EB80), `0x1083E880` = the three config words the factory
+  is built from (`out[0] = +0x24 + 1024 * (+0x28 + 1024 * +0x2C)`, `out[1] = the byte at +0x1C`, `out[2] = +0x54`),
+  `0x1083EB80` = the default factory (`engine::CreateHeap(handle, config[0], 0, name, 0xC, 2, false, -1, 0)`),
+  `0x1082D630` = pops a free slot handle off `engine::gStreamManager->+0xD8` / `+0xDC` (-1 when empty) and
+  `0x1082E3F0` = registers the slot in `gStreamManager->+0xE8` under `slot->name.GetHash()`.
+  The pieces it is built from are all in the tree: `core::HeapScope` (0x1063AAD0 / 0x1063AAF0),
+  `core::GetCurrentHeap` / `SetCurrentHeap`, `container::StringC<64>::Format`, `core::Name::GetText`,
+  `engine::CreateTwoWayHeap` (0x107DEB60), `operator new[]` (0x107DEF70) and `new StreamSlot[count]` (MSVC's
+  overflow check, the `+4` array cookie and `_vector_constructor_iterator_` at 0x10005100).
+  The two-way heap call looks like twelve pushes against a declared eight-argument function, but it is not:
+  `CreateTwoWayHeap(heap, count * config[0] + 0x10000, 0, text.buffer, core::GetCurrentHeap(), 2, false, -1)`
+  (the declaration in the tree is right - the callee reads exactly those eight, `ret`) and the four constants
+  pushed before it (`0`, `&core::IMemoryAllocator::RTTI_Type_Descriptor`, `&core::IMemoryLinearAllocator::
+  RTTI_Type_Descriptor`, `0`) are the scheduler setting up `__RTDynamicCast`, which runs after the `add esp, 0x20`.
+  **The one thing to settle first:** both `Format` call sites push the `StringC<64>` object's address as the
+  *first argument* (`lea ecx, [esp+0x28]` then `push ecx`) on top of passing it in `ecx` -
+  `container::String::Format` is a thiscall `(const char*, ...)`, so either the engine's call reads differently or
+  the call goes through a second function with a leading `String*`; compare against the call sites of the same
+  0x1060ED50 in a matched unit (gameobjectspawner.cpp calls it twice) before writing it.
+
 0x107DECD0's `?GetHeapKindName@engine@@YAPBDH@Z` symbol in symbols.txt names an internal-linkage function: the
 engine's own table entry for it.
 
