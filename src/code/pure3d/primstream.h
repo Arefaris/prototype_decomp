@@ -103,6 +103,18 @@ namespace pure3d
 		unsigned char unknown4[0x48];
 	};
 
+	// The descriptor pure3d::GpuSkin::Draw builds: the same first 0x4C bytes (the constructor at 0x10611DC0 forwards
+	// its own arguments to the 8-argument one) plus the two words it adds at +0x4C and +0x50. Only the declaration is
+	// reconstructed: the engine's copy of the constructor fills it.
+	struct PrimDrawDescGpuSkin : PrimDrawDesc
+	{
+		PrimDrawDescGpuSkin(void* format, const math::Matrix* world, int count, void** parts, int a, int b, int c,
+			int kind, int d, int e);
+
+		unsigned int unknown4C;
+		unsigned int unknown50;
+	};
+
 	// The draw parameters (12 bytes; they are the shader's at +0x14). The bits of the second word that the tracer
 	// reads: the blend mode (signed) and the factor of the blend
 	struct PrimStreamParameters

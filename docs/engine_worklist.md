@@ -1289,23 +1289,27 @@ not define it, so the vftable stays with the engine's copy of the unit.
 
 NONMATCHING:
 
-- 0x1072B470 DDSParser::Load and 0x1072B6D0 DDSParser::Parse: this half of the unit is compiled with link-time code
-  generation. The reader at 0x1072AB40 takes its stream in **eax** and the 0x35-byte descriptor it fills in **esi**,
-  the header decoder at 0x1072B600 takes the decoded header in **esi** and one of the loader's arguments in **eax**,
-  and the predicates 0x1072A530 and 0x1072AD80/0x1072A540 take their argument in **eax** and answer in **eax**. A
-  caller has to set those registers itself, which no C++ declaration produces. The bodies under `#ifdef NONMATCHING`
-  in `texture.cpp` record the reconstruction.
+- 0x1072B470 DDSParser::Load, 0x1072B6D0 DDSParser::Parse, 0x1072ADB0 and 0x1072AF80: every one of them calls a helper
+  of the unit that takes two or more of its arguments in registers the engine's whole-unit compilation picked, and a
+  `static` function of ours does not get the same ones. The third session (2026-10-16) measured it: with
+  `static bool IsDepthFormat(int format)` written as the three-case `switch` below, 0x1072A530 comes out **100 %**
+  (single `int` argument: eax on both sides), but the natural `static void RoundToFour(int format, unsigned* width,
+  unsigned* height)` against 0x1072AD80 is **2.7 %** - ours takes `(eax = format, ecx = width, edx = height)` where the
+  engine takes `(eax = format, edx = height, width on the stack)`, the same split for every permutation of the
+  parameter order. 0x1072AB40 wants its stream in eax, its 0x35-byte descriptor in **esi** (a callee-saved register,
+  which the non-LTCG register allocator never uses for a parameter) and the flag's address on the stack. Since the
+  call sites of 0x1072AD80 (0x1072ADB0, 0x1072AF80, 0x1072AF20, 0x1072B050) and of 0x1072AB40 (0x1072B470) each have
+  to set those registers themselves, no source produces them; the bodies under `#ifdef NONMATCHING` in `texture.cpp`
+  record the reconstruction, and the helpers are left out (a file-local helper no compiled function calls is not
+  emitted, so it could not be compared either).
+- 0x1072A530 `IsDepthFormat` itself is *not* counted: it would match 100 % (see above) but its only callers are the
+  functions in this list, so the compiler drops it.
 
 Not done:
 
 - 0x1072A470 TextureLoader::LoadObject: `TextureLoader`'s vftable has 8 slots, so the class needs its
   `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
   are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
-- 0x1072ADB0 and 0x1072AF80 (the per-level upload, and the resize path that calls 0x1072AB40/0x1072A540) take extra
-  parameters in eax/esi like the two above and have no class in the unit's symbols. The second session did not
-  retry this unit: what it needs is those helpers reconstructed in texture.cpp as `static` file-local functions
-  (the trick that took choreo/deltatransform.cpp from 7 to 25 matches), since a helper that takes its argument in
-  eax/esi/edi is file-local in the original.
 
 Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
 constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
@@ -1327,11 +1331,15 @@ Mesh overrides slot 3 (`Draw`, 0x10707280, 5 arguments) and slot 7 (`FillBatch`,
 `Primitive` (whose layout in primitive.h is right: `LockableRefCounted` is 0xC bytes, so the flags sit at +0xC, the
 type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C). Matched:
 
-- **The draw descriptor** is `pure3d::PrimDrawDesc` (0x54 bytes, `primstream.h`). The engine has three constructors:
+- **The draw descriptor** is `pure3d::PrimDrawDesc` (0x4C bytes, `primstream.h`). The engine has three constructors:
   0x10611CB0 (8 arguments, the one `PrimStream::End` uses), 0x10611C30 (9, the one `Mesh::Draw` and `Skin::Draw` use)
   and 0x10611DC0 (10, the one `GpuSkin::Draw` uses); all three are declarations here, mapped in symbols.txt, and
   their argument orders differ. Map for the 9-argument one: `(void* format, const math::Matrix* world, int count,
-  void** parts, PrimGroupList* list, int a, int b, int c, int d)`. The device call is `pddi->DrawPrimitive(shader,
+  void** parts, PrimGroupList* list, int a, int b, int c, int d)`. **The 10-argument one fills a 0x54-byte object**:
+  0x10611DC0 forwards its arguments 1 - 7 and 10 to the 8-argument constructor and then stores argument 9 at +0x4C
+  and argument 10 at +0x50. That larger type is `pure3d::PrimDrawDescGpuSkin` (a `PrimDrawDesc` plus the two words,
+  `primstream.h`), and with it `GpuSkin::Draw` matches 100 %; its argument order is the same as the 9-argument one's
+  (`format, world, count, parts, a, b, c, kind, d, e`). The device call is `pddi->DrawPrimitive(shader,
   &desc, parameters)` (pddi slot 1) from Mesh and Skin, and `pddi->Unknown2(shader, &desc, parameters)` (pddi slot 2,
   `pddi.h`) from GpuSkin. The first member of the descriptor is the *vertex format* of the drawing object and is read
   at +0x10 of what `Primitive::unknown18`, `PrimitiveState::GetBindingSource()` or the part's binding point at
@@ -1349,10 +1357,12 @@ type at +0x14 and the binding source at +0x18; Mesh's own members start at +0x1C
 - 0x1071EE50 `Skin::FillBatch` matches (skin.cpp). `*unknown` is set to true at the end in *both* paths, and the
   batch's +0x84 is a `bool` saying whether the state had a second pose to blend in — which is why `PrimBatch`'s
   +0x84 is declared as one.
-- 0x1072DEC0 `GpuSkinState::GetBuffer` matches; 0x1072DF10 `GpuSkin::Draw` is NONMATCHING: it matches only with a
-  0x54-byte `PrimDrawDesc`, while `PrimStream::End` (0x106F3630) needs the 0x4C one, so the descriptor the third
-  constructor (0x10611DC0) fills is a larger type not recovered yet (the new unit
-  `src/code/pure3d/atg4/platform/win32/gpuskin.cpp`). The gpu skin's `GpuSkinState` keeps a buffer pointer at +0x1C
+- 0x1072DEC0 `GpuSkinState::GetBuffer` and 0x1072DF10 `GpuSkin::Draw` match (gpuskin.cpp). The draw builds
+  `PrimDrawDescGpuSkin` (the 0x54-byte type above) as
+  `(source->format, world, 1, &unknown138, unknown13C, 0, unknown1C, buffer[0x38/4], unknown140 + 8, 0)` where
+  `source` is the state's binding source and `buffer` is `GpuSkinState::GetBuffer()`, then overwrites the descriptor's
+  format from the part's binding when the caller passes one, and calls `pddi->Unknown2` (slot 2). The gpu skin's
+  `GpuSkinState` keeps a buffer pointer at +0x1C
   whose word at +0x38 goes into the descriptor; `GpuSkin` itself is `Primitive` + the word at +0x1C + a
   `ShaderParameters` at +0x20 (0x118 bytes) + +0x138 (the device buffer) / +0x13C (its stream) / +0x140 (its index
   data, whose +8 goes into the descriptor) + three floats at +0x15C and an int at +0x16C.
@@ -1385,9 +1395,27 @@ NONMATCHING (this range):
 `pure3d::PrimGroupLoader` (RTTI; base `pure3d::RefCounted`, 3 slots, vftable 0x10EAF644, unit 0x10B8BD30 - 0x10B8C800)
 and the loaders after it in the same code range: `PolySkinLoader` (vftable 0x10EAF784, LoadObject 0x10B90CA0),
 `CompositeDrawableLoader` (0x10EAF8B4, LoadObject 0x10B91410) and `GeometryLoader` (0x10EB0314, LoadObject 0x10B9C3E0).
-`PrimGroupLoader`'s layout, read off its constructor and destructor: a reference-counted group list at +8 (released by
-`core::SafeRelease`, 0x102CD490), an int at +0xC, three flags at +0x10 - +0x12 (the second true), an int at +0x14 and
-the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28.
+`PrimGroupLoader`'s layout, read off its constructor and destructor: the shader it draws with at +8 (released by
+`core::SafeRelease<pure3d::Shader>`, 0x102CD490 — 0x10B8F1C0 finds it in the `LoadInventory` through
+`DynamicCaster<pure3d::Shader>`), an int at +0xC, three flags at +0x10 - +0x12 (the second true), an int at +0x14 and
+the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28. Its methods, all reconstructed in primgrouploader.cpp/.h:
+
+- 0x10B8BD80 `SetIndex(int)`: `unknown18 = value` (10 bytes).
+- 0x10B8F1C0 `bool ReadGroup(ChunkReader*, LoadInventory*)`: the 0x10020 chunk only, reads the shader's name, finds
+  the shader in the inventory (`Shader*` at +8) and then the group's own words.
+- 0x10B8FFE0 / 0x10B8F400 / 0x10B8DFF0 `BuildGpuSkin` / `BuildSkin` / `BuildMesh(void* object, ChunkReader*,
+  LoadInventory*)`: the three 0x10020 - 0x121305 chunk loops. 0x10B8FFE0 is the gpu-skin one (0x10B8BD90 makes the
+  `GpuSkin` through 0x1072E3E0 and holds it in `object`).
+- **0x10B90A70 `MakePrimitive(void* object, ChunkReader* reader, LoadInventory* inventory, bool skin, bool gpu)`
+  matches 100 %** (130 bytes): `if (ReadGroup(reader, inventory)) { if (skin) { if (gpu) BuildGpuSkin(...) else
+  BuildSkin(...); core::SafeRelease(shader); return; } BuildMesh(...); core::SafeRelease(shader); }` — note the
+  `SafeRelease` and the `return` inside each branch, and that the third branch falls through. The two bools are the
+  arguments the callers pass (`PolySkinLoader::LoadObject` passes `true` and the flag of the 0x1002B chunk).
+
+`PolySkinLoader`'s own layout, from its constructor (0x10B90BD0): the vftable at 0, the `content::LoadObject` count at
++4, 0x10001 at +8, 0 at +0xC, a `true` byte at +0x10, -1 at +0x14, and a `PrimGroupLoader*` at +0x18 (0x2C bytes,
+allocated by the constructor and set through 0x10B90B60). `PolySkinLoader::LoadObject` calls
+`[this+0x18]->SetIndex([this+0x14])` and `[this+0x18]->MakePrimitive(&part, reader, inventory, true, flag)`.
 
 NONMATCHING:
 
@@ -1398,13 +1426,28 @@ NONMATCHING:
   initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
   (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
 
-Not done in the geometry range (each is 1500 - 2300 bytes and needs its loader class laid out first; the unit's
-helpers are the ones the asserts name):
+Not done in the geometry range (each is 1500 - 2300 bytes; the third session decoded `PolySkinLoader::LoadObject`
+but did not write it out):
 
 - 0x10B9C3E0 `GeometryLoader::LoadObject` (2232), 0x10B90CA0 `PolySkinLoader::LoadObject` (1575), 0x10B91410
-  `CompositeDrawableLoader::LoadObject` (2232), 0x10B90A70 (130, a shared call of the mesh and skin loaders: it
-  tests 0x10B8F1C0, then dispatches to 0x10B8FFE0 / 0x10B8F400 / 0x10B8DFF0 and releases the loader's list at +8
-  through `core::SafeRelease` 0x102CD490).
+  `CompositeDrawableLoader::LoadObject` (2232). What they need, read off the disassembly of 0x10B90CA0:
+
+  - the chunk reader's own methods, none of them mapped yet: `content::ChunkReader::Read` is actually
+    **`content::MemoryStream::Read`** (0x1060B260, `ret 0x10`, `Read(void* destination, unsigned size, unsigned
+    count, unsigned unknown)`) on the stream at the reader's +0x284 — 0x1060A530 / 0x1060B260 / 0x1060B2C0 are
+    `GetPosition` / `Read` / `Skip` of `content::MemoryStream` (0x4C bytes, its constructor is 0x1060AAE0), which is
+    what `chunkhandler.h`'s `stream` member should be typed as. The reader's own are 0x1060B8A0
+    (has another chunk, bool), 0x1060B8E0 (opens it, answers its id), 0x1060BA90 (closes it), 0x1060B260's
+    `[reader+0x284]` indirection.
+  - the shape every loader repeats: read a one-byte length and that many characters into a 256-byte buffer, terminate
+    it, read a four-byte count (`MemoryStream::Read(&count, 1, 4, 1)`), repeat for a second name, find the
+    `Skeleton` by that second name (`LoadInventory::DynamicCaster<Skeleton>` + `FindObject(&caster, name, true)`),
+    make a `Pose` (`Skeleton::CreatePose(3)`, 0x106DDA70) when 0x11209D84 is set, then
+    `container::ArrayDynamic<T, container::AllocatorNew>::Allocate(count)` (elements are 300 bytes; `Allocate`, not
+    `Create`, is what the store order matches) and a `while (reader->HasChunk())` loop over the chunk ids
+    0x10003 / 0x10004 / 0x10020 / 0x1002B / 0x121201 / 0x121305 / 0x122000 with the byte-index + jump table form.
+    Each 0x10020 pass makes a 300-byte part (0x106DF020), calls `MakePrimitive` on it, `PushBack`s it (0x106DF110 is
+    the copy) and destroys it (0x106DF340).
 
 Not done in the shader/palette range: 0x10706960 `ShaderLoader::LoadObject` (2239), 0x10B96280
 `NewShaderLoader::LoadObject` (1759), 0x10B95780 `ShaderTemplateLoader::LoadObject` (1552), 0x106DE090
@@ -1417,12 +1460,23 @@ Not done in the shader/palette range: 0x10706960 `ShaderLoader::LoadObject` (223
   reconstructed first, in `code/proto/shaders/`; the annotation itself can be written the way
   `engine/physics/physicsmanager.cpp` annotates eight generated `??_G` bodies (a block of `// FUNCTION: ENGINE`
   lines with no definition under it).
-- 0x1072E3E0 `GpuSkin::GpuSkin` (259 bytes): its shape is read off (base `Primitive::Primitive(0x4000)` 0x106F2F20,
-  the vftable 0x10E5CFA0, the word at +0x1C from the third argument, `ShaderParameters` at +0x20, +0x140 / +0x15C -
-  +0x164 / +0x16C initialised, the parameters copied in, a device buffer made through the global at 0x1127F358 with
-  0x1061B600 (the second argument's count) and 0x1061B660, then a walk over the copied parameters comparing their
-  names with the globals at 0x1127F1B8 / 0x1127F1DC and setting flags 6 / 7 through 0x102CC900 on the primitive's
-  flag word at +0xC), but none of those seven callees is named yet.
+- 0x1072E3E0 `GpuSkin::GpuSkin(const ShaderParameters*, const IndexBufferDescription*, unsigned kind)` (259 bytes):
+  the third session read the whole body and it is ready to write except for one call.
+  `Primitive::Primitive(0x4000)` (0x106F2F20, not mapped yet), the vftable 0x10E5CFA0, `unknown1C = kind`,
+  `ShaderParameters::ShaderParameters()` at +0x20 (0x102E8BB0, through the thunk 0x100428B1), `unknown140 = 0`,
+  three floats at +0x15C - +0x164 zeroed, `unknown16C = -1`, `parameters = *arguments1` (0x10707B00),
+  `unknown138 = context->NewVertexBuffer(arguments1)` and AddRef'ed (global 0x1127F358, 0x1061B600),
+  `unknown13C = context->NewIndexBuffer(arguments2)` when `*arguments2 != 0` (0x1061B660), then
+  `for (i = 0; i < parameters.unknown4; i++)`: `if (gName1127F1B8 == parameters.parameters[i].name)
+  flags.Set(6, true); else if (gName1127F1DC == parameters.parameters[i].name) flags.Set(7, true);` — the entries are
+  0x10 bytes apart from `parameters + 0x10`, and `flags` is the primitive's word at +0xC.
+  **The blocker**: the engine's call goes through the incremental link thunk 0x10027318 to 0x102CC900, *this unit's*
+  copy of `PartAnimationFlags::Set`, while the copy symbols.txt maps (`?Set@PartAnimationFlags@pure3d@@QAEXH_N@Z`)
+  sits at 0x102E8B80 and calls its own unit's SetBit/ClearBit (0x102E8950 / 0x102E8970 against 0x102CC2A0 /
+  0x102CC2C0). objcmp's target check follows the thunk and compares the addresses, so a `flags.Set(...)` written with
+  the shared name is not a match; it needs a second, unit-local name for the copy the way
+  `engine::ReleaseEffectRef` (0x10805910) stands for another unit's `core::SafeRelease`. That naming decision is left
+  to the next session; the call is the only thing missing.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 

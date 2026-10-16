@@ -1,12 +1,17 @@
 // The texture unit: pure3d::Texture, the upload helpers that push its levels into the device and the loaders that
 // read the image files (pure3d::TextureLoader and the parsers behind it). See texture.h.
 //
-// Open in this unit: its upload half is compiled with link-time code generation, so the helpers cannot be written in
-// C++. The reader at 0x1072AB40 takes its stream in eax and the descriptor it fills in esi, the header decoder at
-// 0x1072B600 takes the decoded header in esi and one of the loader's arguments in eax, and the predicates 0x1072A530
-// (is the format a depth one), 0x1072AD80 (round both sizes up to four) and 0x1072A540 (the pixel format of a DDS
-// header) take their argument in eax and answer in eax. Every caller has to set those registers itself, which is
-// what blocks 0x1072B470, 0x1072B6D0, 0x1072ADB0 and 0x1072AF80 below.
+// Open in this unit: its upload half is compiled with link-time code generation, so its helpers cannot be written in
+// C++. The predicates 0x1072A530 (is the format a depth one) and 0x1072AD80 (round both sizes up to four up), the
+// reader 0x1072AB40 and the header decoder 0x1072B600 all take part of their arguments in registers the engine's
+// whole-unit compilation picked (eax for a lone int, eax + edx + one stack word for the two pointers of 0x1072AD80,
+// eax + esi + one stack word for 0x1072AB40); a file-local (`static`) function of ours gets the same treatment for a
+// lone int - `static bool IsDepthFormat(int format) { switch (format) { case 0x20: case 0x21: case 0x22: return true;
+// } return false; }` is 0x1072A530 instruction for instruction - but for two or more parameters our /O2 hands out
+// eax, ecx, edx where the engine used eax, edx and a stack word, so every caller of 0x1072AD80 (0x1072ADB0,
+// 0x1072AF80, 0x1072AF20, 0x1072B050) and of 0x1072AB40 (0x1072B470) differs by the registers it loads. That is what
+// blocks 0x1072B470, 0x1072B6D0, 0x1072ADB0 and 0x1072AF80 below; the helpers themselves are not reconstructed, since
+// a file-local helper no compiled function calls is not emitted at all.
 #include "code/pure3d/texture/texture.h"
 #include "code/core/refptr.h"
 
