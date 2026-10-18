@@ -17,10 +17,10 @@ namespace pure3d
 	extern const unsigned short gNoJoint;
 
 	// FUNCTION: ENGINE 0x10B91410
-	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (41.8 %); the engine keeps
-	// the inventory in ebp, a zero in ebx and the heap index in memory through the chunk loop, this compiler picks other
-	// registers, orders the frame's variables differently (the same frame size), lays the controller case out before
-	// the end of the chunk loop and releases the controller loader once instead of in each branch
+	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (42.4 %); the engine keeps
+	// the inventory in ebp and a zero in ebx through the chunk loop, this compiler picks other registers, orders the
+	// frame's variables differently (the same frame size), lays the controller case out before the end of the chunk
+	// loop and releases the controller loader once instead of in each branch
 	void CompositeDrawableLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
@@ -43,6 +43,10 @@ namespace pure3d
 		}
 		Skeleton* skeleton = inventory->Find<Skeleton>(skeletonName);
 		unsigned int count = ReadWord(reader);
+		FrameController* controller = 0;
+		FrameController* visibility = 0;
+		VertexOffsetExpressionMixer* subMixer = 0;
+		VertexOffsetExpressionMixer* chunkMixer = 0;
 		int heap = core::GetCurrentHeap();
 		core::SetCurrentHeap(1);
 		SegmentArray segments;
@@ -52,10 +56,6 @@ namespace pure3d
 		JointArray joints;
 		joints.Create(256);
 		core::SetCurrentHeap(heap);
-		FrameController* controller = 0;
-		FrameController* visibility = 0;
-		VertexOffsetExpressionMixer* subMixer = 0;
-		VertexOffsetExpressionMixer* chunkMixer = 0;
 		while (reader->HasChunk())
 		{
 			unsigned int id = reader->BeginChunk();

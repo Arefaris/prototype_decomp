@@ -1561,7 +1561,33 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   skeleton's `AddRef`. What is left is the rotation of the volatile registers the temporaries take, which starts to
   differ at the joint name's length (`movzx eax` in the engine, `ecx` here), the position of the name's terminator
   store and of the `mov ecx, [reader + 0x284]` load relative to the pushes. difftest SAME.
-- (op-finish) 0x10B91410, 0x10B95780 (EQUIVALENT) and 0x10706960 (NONMATCHING) not reworked.
+- (mp-load) 0x10B91410 `CompositeDrawableLoader::LoadObject` stays EQUIVALENT (42.4 %, was 41.8): declaring the four
+  pointers (controller, visibility, the two mixers) before the heap is saved, not after it is restored, moves the zero
+  stores and the heap index into the engine's arrangement (the heap index in memory); what remains is the register
+  choice (the engine keeps the inventory in ebp and a zero in ebx through the chunk loop, ours the inventory in ebx),
+  the frame order of the three arrays and the pointers, and the position of the controller case behind the loop exit.
+  Releasing the controller loader inside each branch (as the engine does) gives the engine's instruction count but a
+  worse layout with the pointers moved.
+- (mp-load) 0x10B95780 `ShaderTemplateLoader::LoadObject` stays EQUIVALENT (39.4 %): the engine's frame is 16 bytes
+  larger (0x50C against 0x4FC); reading the sampler word into its own local instead of reusing `first` makes it 8 bytes
+  larger but moves the stack slots away from the engine's. The engine tests the slot with `cmp [slot], -1; setne al;
+  test al, al; jne`, this compiler folds every spelling of `IsValid()` into `cmp; jne`.
+- (mp-load) 0x10706960 `ShaderLoader::LoadObject` stays NONMATCHING (41.8 %, instruction sequence 96 % the same): the
+  engine caches the draw parameters' bit word in esi at the top of each chunk and writes it back after each change,
+  this compiler loads it in every branch; with `Shader::SetParameters` taking the parameters by value the word is
+  promoted to esi the same way, with a reference parameter (the engine's) it never is, whatever the loop contains.
+- Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
+  what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
+  `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a
+  register (ebx here, the engine's edi), and one more real use of the texture in its loops gives the engine's edi; no
+  spelling of the same code found the engine's registers, so 0x1072B230 and 0x1072B470 stay as they are; (2)
+  `#include <intrin.h>` in a header switches the register conventions of all unit-local functions of every unit
+  that includes it off (use `extern "C"` plus `#pragma intrinsic` for a single intrinsic); (3) values the engine
+  reads through an inline reader (`ReadWord`, `ReadShort`) are plain locals, `reader->Read(&local, ...)` makes them
+  address-taken and changes the allocation of the whole function (SkeletonLoader 15 % -> 80 %); (4) a `switch` over
+  the chunk id lays the case bodies and the allocation out like the engine's where an `if` chain does not
+  (Loader1067F4D0); (5) a one-word `ArrayDynamicHeap::Allocate` as an inline member (early `return true`, `begin =
+  0` only for an empty request) gives the engine's shared tails.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 
