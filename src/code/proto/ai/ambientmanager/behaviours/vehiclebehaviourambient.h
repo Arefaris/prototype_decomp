@@ -396,6 +396,14 @@ namespace proto
 		void Unknown10442D60();
 		bool Unknown10445A90(float dt);
 		void Unknown1044B480(float dt, int node);
+		// 0x1044E960: the update of a car that is driven by the engine's own model: the physics object follows the
+		// transform, the two models (wheeled by the mode 0, the path follower otherwise) move the car, then the drive
+		// and the box are refreshed
+		void Unknown1044E960(float dt);
+		// 0x1044E200: the wheeled model's step (false when the car is not to be driven this frame)
+		bool Unknown1044E200(float dt);
+		// 0x1044D200: (not reconstructed yet; takes the frame time)
+		void Unknown1044D200(float dt);
 		// 0x1044AE90: chooses the speed the car aims at and its braking force
 		void UpdateTargetSpeed();
 		// 0x10446A70: works the desired facing out into the steering angle
@@ -439,7 +447,7 @@ namespace proto
 		// 0x1044AAB0: finds the drawable's wheel parts once
 		void FindWheelParts();
 		// 0x1044B110: points the desired facing at the place five metres further along the path
-		void AimAhead(int unused, const math::Vector* from, int* progress);
+		void AimAhead(float dt, const math::Vector* from, int* progress);
 		// 0x10442900 / 0x10447D20 (path walks: the first measures from a position along the path, the second finds the
 		// point a distance along it)
 		void Unknown10442900(math::Vector* position, int count, const math::Vector* from, int* progress);

@@ -17,11 +17,18 @@
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
 #include "code/math/obb.h"
+#include "code/math/plane.h"
 #include "code/math/quaternion.h"
 #include "code/pure3d/pose.h"
 #include <float.h>
 #include <math.h>
 #include <new>
+
+namespace math
+{
+	// The zero vector (0x11283234)
+	extern const Vector kZeroVector;
+}
 
 namespace proto
 {
@@ -39,9 +46,8 @@ namespace proto
 		bool Unknown10567FE0();
 
 		unsigned char unknown0[0x10];
-		// The plane the area lies in: the normal and the offset (0x1044B480)
-		math::Vector normal;
-		float offset;
+		// The plane the area lies in (0x1044B480)
+		math::Plane plane;
 		int state;
 		unsigned char unknown24[0x28 - 0x24];
 		container::ListBase::Node* vehicles;
@@ -158,7 +164,7 @@ namespace proto
 	#define VEHICLE_ASSERT_NOT_NAN(line, text, value) 		{ 			static bool sReport = true; 			if (sReport && _isnan((double)(value)) 				&& core::Report(1, " oldassert ", VEHICLEBEHAVIOURAMBIENT_FILE, line, text, 0) == 3) 			{ 				sReport = false; 			} 		}
 
 	// The widest angle a wheel is turned to (0x1108CB20, fifty degrees)
-	static float sMaxWheelAngle = 0.87266463f;
+	float sMaxWheelAngle = 0.87266463f;
 
 	// The attribute of a game object that holds its drawable (the name at 0x112834C8) and the part lookup of the
 	// drawable (0x106DD6D0, which forwards to a member at +0x10)
@@ -231,7 +237,7 @@ namespace proto
 	extern float Min(float a, float b);
 
 	// The probe distance the car's placement test is given (0x1108CB14, all ones)
-	static int sPlacementProbe = -1;
+	int sPlacementProbe = -1;
 
 	// FUNCTION: ENGINE 0x10443550
 	PathNode* VehicleBehaviour::GetPathNode(int index)
@@ -602,6 +608,86 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1044E200
+	bool VehicleBehaviourAmbient::Unknown1044E200(float dt)
+	{
+		VEHICLE_ASSERT_NOT_NAN(0xba2, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+		VEHICLE_ASSERT_NOT_NAN(0xba3, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+		VEHICLE_ASSERT_NOT_NAN(0xba4, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+		VEHICLE_ASSERT_NOT_NAN(0xba6, "!math::IsNan( mTurningAngle )", turningAngle);
+		Unknown10442D60();
+		unsigned int count = path88.Count();
+		if (count <= 3)
+		{
+			UpdateLaneChange();
+			count = path88.Count();
+			if (count <= 2)
+			{
+				speed = 0.0f;
+				return false;
+			}
+		}
+		int progress = -1;
+		math::Vector from(math::kZeroVector.x, math::kZeroVector.y, math::kZeroVector.z);
+		VEHICLE_ASSERT_NOT_NAN(0xbbd, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+		VEHICLE_ASSERT_NOT_NAN(0xbbe, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+		VEHICLE_ASSERT_NOT_NAN(0xbbf, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+		VEHICLE_ASSERT_NOT_NAN(0xbc1, "!math::IsNan( mTurningAngle )", turningAngle);
+		AimAhead(dt, &from, &progress);
+		UpdateTurning();
+		VEHICLE_ASSERT_NOT_NAN(0xbc9, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+		VEHICLE_ASSERT_NOT_NAN(0xbca, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+		VEHICLE_ASSERT_NOT_NAN(0xbcb, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+		VEHICLE_ASSERT_NOT_NAN(0xbcd, "!math::IsNan( mTurningAngle )", turningAngle);
+		PathNode* node = path88.At(progress);
+		float dx = node->position.x - from.x;
+		float dy = node->position.y - from.y;
+		float dz = node->position.z - from.z;
+		float distance = sqrt(dz * dz + dy * dy + dx * dx);
+		UpdateGap(dt, progress, distance);
+		Unknown1044D200(dt);
+		UpdateTargetSpeed();
+		Unknown10443290(progress);
+		VEHICLE_ASSERT_NOT_NAN(0xbe4, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+		VEHICLE_ASSERT_NOT_NAN(0xbe5, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+		VEHICLE_ASSERT_NOT_NAN(0xbe6, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+		VEHICLE_ASSERT_NOT_NAN(0xbe8, "!math::IsNan( mTurningAngle )", turningAngle);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1044E960
+	void VehicleBehaviourAmbient::Unknown1044E960(float dt)
+	{
+		if (simulated)
+		{
+			ravenphysics::PhysicsObject* object = physicsHandle.GetObjectUnchecked();
+			object->SetTransform(owner->transform->value);
+		}
+		if (mode == 0)
+		{
+			if (!Unknown1044E200(dt))
+			{
+				return;
+			}
+		}
+		else
+		{
+			VEHICLE_ASSERT_NOT_NAN(0xc06, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+			VEHICLE_ASSERT_NOT_NAN(0xc07, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+			VEHICLE_ASSERT_NOT_NAN(0xc08, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+			VEHICLE_ASSERT_NOT_NAN(0xc0a, "!math::IsNan( mTurningAngle )", turningAngle);
+			Unknown1044C040(dt);
+			VEHICLE_ASSERT_NOT_NAN(0xc0c, "!math::IsNan( mDesiredFacing.x )", desiredFacing.x);
+			VEHICLE_ASSERT_NOT_NAN(0xc0d, "!math::IsNan( mDesiredFacing.y )", desiredFacing.y);
+			VEHICLE_ASSERT_NOT_NAN(0xc0e, "!math::IsNan( mDesiredFacing.z )", desiredFacing.z);
+			VEHICLE_ASSERT_NOT_NAN(0xc10, "!math::IsNan( mTurningAngle )", turningAngle);
+			engine::PhysicsWakeUpMessage message(false);
+			owner->SendMessage(&message);
+		}
+		UpdateDrive(dt);
+		Unknown10447280(dt);
+	}
+
 	// FUNCTION: ENGINE 0x1044DA10
 	VehicleBehaviourAmbient::~VehicleBehaviourAmbient()
 	{
@@ -653,9 +739,8 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x104473E0
-	// EQUIVALENT: the same calls, tests and float operations in the same order; ours reloads ecx before the fourth
-	// callee (the engine's callees of the unit keep it) and saves edi after the first test instead of before it,
-	// 76.9 %
+	// EQUIVALENT: the same calls, tests and float operations in the same order; ours saves edi after the first test
+	// instead of before it (the test's branch then lands on the epilogue's second instruction), 98 %
 	bool VehicleBehaviourAmbient::UpdateGap(float dt, int node, float distance)
 	{
 		if (Unknown10442200())
@@ -751,8 +836,6 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x10448250
-	// EQUIVALENT: the same calls with the same arguments in the same order; the engine's callee tests and
-	// state setters are compiled earlier in the unit and keep ecx, ours reloads it (three `mov ecx, esi`), 43.8 %
 	bool VehicleBehaviourAmbient::TryHalt()
 	{
 		if (unknown74 != 0)
@@ -764,6 +847,37 @@ namespace proto
 				return true;
 			}
 			unknown9C = true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10446700
+	// EQUIVALENT: the same reads, products and tests in the same order; the engine loads the plane's normal components
+	// into other registers (z and y swapped) and forms the pointer to the plane's offset before it reads it, 87 %
+	bool VehicleBehaviourAmbient::Unknown10446700()
+	{
+		math::Matrix& matrix = owner->transform->value;
+		math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+		math::Plane& plane = unknown74->plane;
+		float height = plane.normal.x * position.x + plane.normal.z * position.z + plane.normal.y * position.y + plane.d;
+		math::Vector onPlane(position.x - plane.normal.x * height, position.y - plane.normal.y * height,
+			position.z - plane.normal.z * height);
+		if (fabs(position.x - onPlane.x) <= 0.2f && fabs(position.y - onPlane.y) <= 0.2f && fabs(position.z - onPlane.z) <= 0.2f)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10446890
+	bool VehicleBehaviourAmbient::Unknown10446890()
+	{
+		math::Matrix& matrix = owner->transform->value;
+		math::Vector up(matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]);
+		float alignment = up.Dot(unknown74->plane.normal);
+		if (fabs(alignment - 1.0f) <= 0.001f)
+		{
+			return true;
 		}
 		return false;
 	}
@@ -996,18 +1110,18 @@ namespace proto
 	{
 		math::Matrix& matrix = owner->transform->value;
 		NavArea* area = unknown74;
-		float height = area->normal.x * matrix.m[3][0] + area->normal.y * matrix.m[3][1] + area->normal.z * matrix.m[3][2] + area->offset;
+		float height = area->plane.normal.x * matrix.m[3][0] + area->plane.normal.y * matrix.m[3][1] + area->plane.normal.z * matrix.m[3][2] + area->plane.d;
 		int first = path88.arrayEnd - path88.begin;
-		float flatY = matrix.m[3][1] - area->normal.y * height;
-		float flatZ = matrix.m[3][2] - area->normal.z * height;
-		float flatX = matrix.m[3][0] - area->normal.x * height;
+		float flatY = matrix.m[3][1] - area->plane.normal.y * height;
+		float flatZ = matrix.m[3][2] - area->plane.normal.z * height;
+		float flatX = matrix.m[3][0] - area->plane.normal.x * height;
 		PathNode* target = path88.At(node);
 		math::Vector toTarget(flatX - target->position.x, flatY - target->position.y, flatZ - target->position.z);
 		float distance = toTarget.Normalize();
 		unknown198 = distance - 1.0f;
 		if (0.0f <= distance - 1.0f)
 		{
-			math::Vector normal(unknown74->normal.x, unknown74->normal.y, unknown74->normal.z);
+			math::Vector normal(unknown74->plane.normal.x, unknown74->plane.normal.y, unknown74->plane.normal.z);
 			math::Vector right(toTarget.z * normal.y - toTarget.y * normal.z, toTarget.x * normal.z - toTarget.z * normal.x,
 				toTarget.y * normal.x - toTarget.x * normal.y);
 			right.NormalizeFast();
@@ -1086,10 +1200,6 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x10446A70
-	// NONMATCHING: the asserts and the arithmetic come out in the engine's order (the first block, the frame size and
-	// every report block are identical), but the engine keeps the signed arc on the x87 stack through the
-	// direction test and the assert and places two of the float locals four bytes lower, 72 %
-#ifdef NONMATCHING
 	void VehicleBehaviourAmbient::UpdateTurning()
 	{
 		math::Matrix& matrix = owner->transform->value;
@@ -1107,29 +1217,16 @@ namespace proto
 		VEHICLE_ASSERT_NOT_NAN(0x989, "!math::IsNan( currentWorldAngle )", currentWorldAngle);
 		VEHICLE_ASSERT_NOT_NAN(0x98a, "!math::IsNan(desiredWorldAngle )", desiredWorldAngle);
 		float arc = choreo::AngleDifference(currentWorldAngle, desiredWorldAngle);
-		float desiredArcDirection = -1.0f;
-		if (arc >= 0.0f)
-		{
-			desiredArcDirection = 0.0f;
-			if (arc > 0.0f)
-			{
-				desiredArcDirection = 1.0f;
-			}
-		}
+		float desiredArcDirection = (arc < 0.0f) ? -1.0f : ((arc > 0.0f) ? 1.0f : 0.0f);
 		VEHICLE_ASSERT_NOT_NAN(0x98f, "!math::IsNan( arc )", arc);
 		VEHICLE_ASSERT_NOT_NAN(0x990, "!math::IsNan( desiredArcDirection )", desiredArcDirection);
 		float absDesiredWheelAngle = Unknown10446A30(fabs(arc));
-		float cappedAngle = sMaxWheelAngle;
-		if (absDesiredWheelAngle < sMaxWheelAngle)
-		{
-			cappedAngle = absDesiredWheelAngle;
-		}
+		float cappedAngle = (absDesiredWheelAngle < sMaxWheelAngle) ? absDesiredWheelAngle : sMaxWheelAngle;
 		VEHICLE_ASSERT_NOT_NAN(0x995, "!math::IsNan( absDesiredWheelAngle )", absDesiredWheelAngle);
 		VEHICLE_ASSERT_NOT_NAN(0x996, "!math::IsNan( cappedAngle )", cappedAngle);
 		turningAngle = cappedAngle * desiredArcDirection;
 		VEHICLE_ASSERT_NOT_NAN(0x99a, "!math::IsNan( mTurningAngle )", turningAngle);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1044ABD0
 	// NONMATCHING: the loop over the three wheel pairs, the steering follow-up of the first pair and the rotations are
@@ -1330,7 +1427,7 @@ namespace proto
 	// FUNCTION: ENGINE 0x1044B110
 	// EQUIVALENT: the same calls and float operations in the same order; the engine computes both coordinates of the
 	// facing before it stores the first one, ours stores x before it works z out, 76 %
-	void VehicleBehaviourAmbient::AimAhead(int unused, const math::Vector* from, int* progress)
+	void VehicleBehaviourAmbient::AimAhead(float dt, const math::Vector* from, int* progress)
 	{
 		math::Matrix& matrix = owner->transform->value;
 		math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);

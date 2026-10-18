@@ -87,6 +87,21 @@ namespace engine
 		bool enabled;
 	};
 
+	// Wakes the physics object up (engine::PhysicsWakeUpMessage, id 0x14); the flag at +0xC is false when it is sent
+	// by the ambient cars
+	struct PhysicsWakeUpMessage : public IntrusiveMessage
+	{
+		explicit PhysicsWakeUpMessage(bool newFlag) : IntrusiveMessage(3, 0x14)
+		{
+			flag = newFlag;
+		}
+		virtual ~PhysicsWakeUpMessage()
+		{
+		}
+
+		bool flag;
+	};
+
 	// Switches the physics simulation of the object on or off (id 0x11)
 	struct PhysicsSetEnabledMessage : public IntrusiveMessage
 	{

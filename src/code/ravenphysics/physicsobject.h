@@ -102,6 +102,8 @@ namespace ravenphysics
 		// 0x106780A0: gives the object's first volume the box (placed by the matrix), copies the volume's bounds into
 		// the object and its detector box and sets the collision mode to 2 (name guess)
 		void SetBox(const math::OBB& box, const math::Matrix& transform);
+		// 0x10677F90: the same for the volume it has (placed by the matrix; name guess)
+		void SetTransform(const math::Matrix& transform);
 
 		CollisionObject** objects;
 		int unknown58;
