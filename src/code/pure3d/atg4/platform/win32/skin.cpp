@@ -1767,8 +1767,18 @@ namespace pure3d
 		unknown294 = value;
 	}
 
+	// Points a stream of the destination at its first vertex (the start, the current position and the end). The
+	// engine's stores go through the stream's address: the loads of the next stream stay behind them.
+	__forceinline void BeginStream(SkinStream* stream, int base, int count)
+	{
+		int start = stream->offset + base;
+		stream->end = stream->stride * count + start;
+		stream->start = start;
+		stream->current = start;
+	}
+
 	// FUNCTION: ENGINE 0x10720CF0
-	// EQUIVALENT: the engine's instructions in its registers and frame, 91.3 %; the order of the loads and the multiply in the three stream set-ups, of the flag test in front of the third one and of one store and the load of the format word in the queueing branch differs
+	// EQUIVALENT: the engine's instructions in its registers and frame, 97.5 %; the test of gSkinAsync comes after the third stream's stores (the engine: before them) and the load of the format word in the queueing branch after the store of hasTangents (the engine: before it). The first two streams are set up through their address (BeginStream), which keeps the loads of the next stream behind the stores as in the engine
 	void SkinState::Unknown10720CF0()
 	{
 		if (unknown2AE)
@@ -1803,14 +1813,8 @@ namespace pure3d
 			"Bad Skin src ptr");
 		ShaderParameters skinParameters;
 		skin->GetParameters(&skinParameters);
-		int start0 = streams[0].offset + destLock.unknown108;
-		streams[0].end = streams[0].stride * destLock.unknown0 + start0;
-		streams[0].start = start0;
-		streams[0].current = start0;
-		int start1 = streams[1].offset + destLock.unknown108;
-		streams[1].end = streams[1].stride * destLock.unknown0 + start1;
-		streams[1].start = start1;
-		streams[1].current = start1;
+		BeginStream(&streams[0], destLock.unknown108, destLock.unknown0);
+		BeginStream(&streams[1], destLock.unknown108, destLock.unknown0);
 		int start2 = streams[2].offset + destLock.unknown108;
 		streams[2].start = start2;
 		streams[2].current = start2;

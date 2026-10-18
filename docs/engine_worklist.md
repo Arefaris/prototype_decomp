@@ -3302,6 +3302,11 @@ method of the pose at +0x70) and the job record at +0x330.
   the skin (one bone each when set). `gSkinAsync` (0x11137804, true) and `gSkinQueuedCount` (0x1128180C) are skin.cpp's
   globals. The counters use `_InterlockedIncrement` / `_InterlockedDecrement` (the exchange-add form puts the operands
   in the other registers).
+- (op-map1) 0x10720CF0 stays EQUIVALENT, now 97.5 % (was 91.3): the first two streams are set up through their address
+  (`BeginStream(&streams[i], base, count)`, an inline taking a `SkinStream*`), which keeps the next stream's loads
+  behind the stores as in the engine; the third one written on the member directly. Left: the test of `gSkinAsync`
+  comes after the third stream's stores (the engine: before them) and the format word's load in the queueing branch
+  after the store of `hasTangents` (the engine: before it). No captured states.
 - (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
   differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
   loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
@@ -3733,6 +3738,12 @@ access path (through the array object or through the owner) are part of the sour
   the engine holds the dropped count in esi and the package in edi (ours the other way round, in the whole loop),
   the known array's begin in edx and its first package in eax, and copies the end of the list into edx / esi after the
   search (ours reuses one register or reloads); one alignment byte.
+- (op-map1) 0x1082E100 stays EQUIVALENT, now 94.5 % (was 84.9): `EraseElement` reads the end before it steps past the
+  position (the engine's copy of the end into another register after the search) and the group search takes the first
+  package into a local. `EraseElement(*current, FindElement(*current, package))` in the unload loop (instead of
+  `RemoveElement`) gives the engine's registers there (count esi, package edi, the end copied), but then the zero of
+  the group and of the loop counter stop being shared (`mov ebp, 0` between `sar` and `je`) and the search loop is
+  aligned with a jump over the padding (762 bytes). difftest SAME (9 states).
 - 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
   computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
   0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the

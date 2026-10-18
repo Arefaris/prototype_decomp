@@ -57,8 +57,8 @@ namespace engine
 	// Takes the element at position out of list (the ones behind it move down)
 	template<class A> inline void EraseElement(A* list, typename A::Element* position)
 	{
-		typename A::Element* next = position + 1;
 		typename A::Element* end = list->end;
+		typename A::Element* next = position + 1;
 		if (next != end)
 		{
 			typename A::Element* to = position;
@@ -96,13 +96,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1082E100
-	// EQUIVALENT: register allocation (84.9 %): the engine puts the dropped count in esi and the package in edi, this
-	// compiler the other way round, which swaps them in the whole unload loop (and the known array's begin and first
-	// package in edx / eax); the engine also copies the end of the list it searched into another register where this
-	// compiler uses the same one or reloads it
+	// EQUIVALENT: register allocation (94.5 %): the engine puts the dropped count in esi and the package in edi, this
+	// compiler the other way round, which swaps them in the whole unload loop; the engine also copies the end of the
+	// list it searched there into another register. Erase(Find) in the unload loop gives the engine's registers and
+	// the copy, but then the zero of the group and of the loop counter are no longer shared and the search loop
+	// gets aligned (762 bytes).
 	// The two arrays are made with Create(16) after their declaration; the sizes are compared with > 0 and <= 0
 	// (the engine's tests keep the shift's flags). The unload loop reads the list's end once, before its search
-	// (RemoveElement); the one after the unload goes through Find and Erase.
+	// (RemoveElement); the one after the unload goes through Find and Erase, and Erase reads the end before it steps
+	// past the position (that gives the engine's copy of the end); the first package of the group search is a local.
 	void UpdateStreamTransition(StreamPackageArray** target, StreamPackageArray** current, bool* active,
 		bool restricted)
 	{
@@ -131,11 +133,13 @@ namespace engine
 		StreamSlotGroup* group = 0;
 		if ((*current)->Size() > 0)
 		{
-			group = StreamManager::FindSlotGroup((**current)[0]->slotGroup);
+			StreamPackage* first = (**current)[0];
+			group = StreamManager::FindSlotGroup(first->slotGroup);
 		}
 		else if ((*target)->Size() > 0)
 		{
-			group = StreamManager::FindSlotGroup((**target)[0]->slotGroup);
+			StreamPackage* first = (**target)[0];
+			group = StreamManager::FindSlotGroup(first->slotGroup);
 		}
 		unsigned int droppedCount = dropped.Size();
 		for (unsigned int i = 0; i < droppedCount; i++)
