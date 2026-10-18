@@ -29,9 +29,11 @@ namespace proto
 
 	// FUNCTION: ENGINE 0x1041FA40
 	// EQUIVALENT: the same members started the same way in the same order, the same calls (the nine array
-	// allocations, the pools, the cloud manager, the script natives and the three block heaps); what is left are
-	// register choices: the engine copies the pools' heap into eax / ecx before pushing it, picks other registers
-	// for the empty name and the cloud's sums and pushes one argument later (28.9 %, 37 of 396 instruction lines)
+	// allocations, the pools, the cloud manager, the script natives and the three block heaps); the one difference
+	// (98.0 %) is where the scheduler puts the push of the empty name's second argument: the engine pushes it between
+	// the stores of the last members, this compiler right after the first of them
+	// The pools take their heap from an AllocatorCoreAligned member, which is what makes the engine's `mov eax, esi`
+	// before the push of the heap and the register choices of the whole body come out the same.
 	AmbientManager::AmbientManager(const AmbientConfig* newConfig) :
 		unknown10(newConfig->physicsCount, container::AllocatorCoreAligned<16>(0xA8)),
 		unknown40(false),

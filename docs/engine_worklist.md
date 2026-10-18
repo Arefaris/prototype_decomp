@@ -3601,3 +3601,18 @@ access path (through the array object or through the owner) are part of the sour
 - 0x102D4C50 `DeformShaderModifier::Apply` **matches**: the emptiness test and the loop bound go through `dents.IsEmpty()`
   / `dents.Size()` and the elements are read as `dents.dents[i]`; the old source reached all three through a local
   `DentBuffer* buffer = &dents;`, which the compiler folded into the modifier's base register and CSE'd the end pointer.
+- 0x1041FA40 `AmbientManager::AmbientManager` stays EQUIVALENT but at **98.0 %** (was 28.9 %): the fixed pools
+  (+0x270, +0x540, +0x5DC, +0x5EC) now carry a `container::AllocatorCoreAligned<16>` as their fourth word and allocate
+  with `allocator.Alloc(count * sizeof(T))`; the heap then reaches the call as a member read (`mov eax, esi`) and the
+  whole body's register choices fall into the engine's. What is left is the scheduler's place for the `push 1` of the
+  empty name (`Name("", 1)`): the engine pushes it between the stores of members +0x604 and +0x608, we right after
+  `or esi, -1`. Moving members into the body, the name block, the name as a temporary: no effect.
+- 0x1082E100 `UpdateStreamTransition` stays EQUIVALENT, **45.5 %** byte-wise and about 95 % of the instruction lines
+  (was 21.1 %): the two lists are `container::ArrayDynamic` locals made with `Create(16)` after their declaration
+  (the construction order and the declaration order decide which of them lies lower in the frame), the counts are
+  `Size()` and every size test is `> 0` / `<= 0` (VS2005 keeps the flags of the shift for those; `!= 0` and `== 0`
+  become `test reg, -4`), the erase is a Find followed by an Erase that moves the tail down, and the group of the first
+  package is searched in `*current` and then `*target`. Left: the engine shares one zero register between
+  `group = 0` and the unload loop's counter (`xor ebp, ebp` before the group search), keeps the known array's begin
+  in edx and the first package in eax, and copies the end of the list it searched into edx instead of reloading it.
+
