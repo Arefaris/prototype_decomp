@@ -272,6 +272,8 @@ namespace proto
 		void StopSimulation();
 		// 0x10446A70: works the desired facing out into the steering angle
 		void UpdateTurning();
+		// 0x10446A30: the wheel angle a turn of that size asks for
+		float Unknown10446A30(float angle);
 		// 0x10445FB0: a point of the car in world space
 		math::Vector TransformPoint(math::Vector offset);
 		// 0x104483C0 / 0x10448400: the points the wheels' axes are at in world space
@@ -297,6 +299,21 @@ namespace proto
 		// 0x10447280 (the argument is not read) / 0x1044CEA0
 		void Unknown10447280(float unused);
 		void Unknown1044CEA0();
+		// 0x1044B110: points the desired facing at the place five metres further along the path
+		void AimAhead(int unused, const math::Vector* from, int* progress);
+		// 0x10442900 / 0x10447D20 (path walks: the first measures from a position along the path, the second finds the
+		// point a distance along it)
+		void Unknown10442900(math::Vector* position, int count, const math::Vector* from, int* progress);
+		math::Vector* PointAlongPath(math::Vector* result, const math::Vector* from, int node, float distance);
+		// 0x104473E0: counts the cooldown down and, when it has run out, looks ahead on the path for a gap (the
+		// answer is always false)
+		bool UpdateGap(float dt, int node, float distance);
+		// 0x10442200 / 0x10442B20 / 0x10445A60 / 0x10442BF0 / 0x104435B0 (path measurements, names unknown)
+		bool Unknown10442200();
+		int Unknown10442B20(int count);
+		float Unknown10445A60(float speed);
+		float Unknown10442BF0(int node, int count);
+		float Unknown104435B0(int count);
 
 		float unknownA8;
 		unsigned char unknownAC[0xb0 - 0xac];
@@ -320,7 +337,8 @@ namespace proto
 		math::Vector desiredFacing;   // +0x104
 		unsigned char unknown110[0x11c - 0x110];
 		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
-		unsigned char unknown120[0x188 - 0x120];
+		float turningAngle;        // +0x120: the steering angle (0x10446A70)
+		unsigned char unknown124[0x188 - 0x124];
 		int mode;                  // +0x188
 		unsigned char unknown18C[0x198 - 0x18c];
 		float unknown198;          // +0x198: the distance to the next path node less one (0x104482B0)
