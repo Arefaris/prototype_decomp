@@ -28,6 +28,13 @@ namespace math
 		{
 			return min.x > max.x || min.y > max.y || min.z > max.z;
 		}
+		// The middle of the box: the corners added and halved (inline in the engine's callers; the sums keep the order
+		// Vector::Add gives them, which a hand-written (min + max) * 0.5 does not)
+		void GetCentre(Vector* centre) const
+		{
+			centre->Add(min, max);
+			centre->Scale(0.5f);
+		}
 		// The empty box that any point enlarges (+-1e12)
 		void Reset()
 		{

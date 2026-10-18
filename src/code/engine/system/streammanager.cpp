@@ -10,9 +10,6 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x1082DB20
-	// EQUIVALENT: operand order of the x sum: the engine loads min.x and adds max.x, this compiler loads max.x and adds
-	// min.x (98.9 %)
-	// Helpers, references, Set and every operand and statement order give the same canonical order.
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -23,10 +20,7 @@ namespace engine
 			if (package != 0)
 			{
 				math::Vector centre;
-				centre.x = trigger->boundingBox.max.x + trigger->boundingBox.min.x;
-				centre.y = trigger->boundingBox.max.y + trigger->boundingBox.min.y;
-				centre.z = trigger->boundingBox.max.z + trigger->boundingBox.min.z;
-				centre.Scale(0.5f);
+				trigger->boundingBox.GetCentre(&centre);
 				package->unknown4C.x = centre.x;
 				package->unknown4C.y = centre.y;
 				package->unknown4C.z = centre.z;
@@ -78,12 +72,37 @@ namespace engine
 		list->end--;
 	}
 
+	// Takes the first place in list that holds value out of it (the end is read once, before the search)
+	template<class A> inline void RemoveElement(A* list, typename A::Element value)
+	{
+		typename A::Element* position = list->begin;
+		typename A::Element* end = list->end;
+		while (position != end && *position != value)
+		{
+			position++;
+		}
+		typename A::Element* next = position + 1;
+		if (next != end)
+		{
+			typename A::Element* to = position;
+			while (next != end)
+			{
+				*to = *next;
+				to++;
+				next++;
+			}
+		}
+		list->end--;
+	}
+
 	// FUNCTION: ENGINE 0x1082E100
-	// EQUIVALENT: register allocation (45.5 %, 95 % of the instruction lines): the engine keeps the group's zero and
-	// the unload loop's counter in one register, the first package of the known array in edx / eax and the end of
-	// the list it searches in a copy; this compiler stores the zero as a constant and reloads the end
+	// EQUIVALENT: register allocation (84.9 %): the engine puts the dropped count in esi and the package in edi, this
+	// compiler the other way round, which swaps them in the whole unload loop (and the known array's begin and first
+	// package in edx / eax); the engine also copies the end of the list it searched into another register where this
+	// compiler uses the same one or reloads it
 	// The two arrays are made with Create(16) after their declaration; the sizes are compared with > 0 and <= 0
-	// (the engine's tests keep the shift's flags), and the unload loop's erase goes through Find and Erase.
+	// (the engine's tests keep the shift's flags). The unload loop reads the list's end once, before its search
+	// (RemoveElement); the one after the unload goes through Find and Erase.
 	void UpdateStreamTransition(StreamPackageArray** target, StreamPackageArray** current, bool* active,
 		bool restricted)
 	{
@@ -124,7 +143,7 @@ namespace engine
 			StreamPackage* package = dropped[i];
 			if (package->IsUnloaded() || package->IsUnloading())
 			{
-				EraseElement(*current, FindElement(*current, package));
+				RemoveElement(*current, package);
 			}
 		}
 		if (group != 0)
