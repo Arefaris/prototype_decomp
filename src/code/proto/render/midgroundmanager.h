@@ -77,27 +77,24 @@ namespace proto
 	// One cell the manager has loaded: its name, the drawable it streams in and the manager's scale (name guess).
 	// Its four members are 0x14 bytes, but the engine steps through the array 0x18 at a time: the record is
 	// eight-byte aligned there because the engine's core::Name is (a 64-bit hash). Ours is two 32-bit words, so the
-	// record carries the padding itself.
+	// record asks for the alignment itself with a zero-length array of 64-bit words (it adds no bytes, the copies
+	// leave the four padding bytes alone, and the stack does not get realigned for it).
 	struct MidgroundCellRecord
 	{
 		core::Name<core::CaseSensitiveKey> name;
 		engine::render::Drawable* drawable;
 		int unknownC;
 		float unknown10;
-		// The four bytes after the members (the record is eight-byte aligned in the engine); the copies leave them alone
-		int padding14;
+		unsigned __int64 align8[0];
 
 		MidgroundCellRecord()
 		{
 		}
-		MidgroundCellRecord(const MidgroundCellRecord& other) : name(other.name)
+		// Forced inline: the manager copies the record into the array in its own body, where the compiler would
+		// leave a call (the engine's copy is the compiler-made one, inline everywhere)
+		__forceinline MidgroundCellRecord(const MidgroundCellRecord& other) : name(other.name), drawable(other.drawable),
+			unknownC(other.unknownC), unknown10(other.unknown10)
 		{
-			engine::render::Drawable* d = other.drawable;
-			int c = other.unknownC;
-			float s = other.unknown10;
-			drawable = d;
-			unknownC = c;
-			unknown10 = s;
 		}
 		MidgroundCellRecord& operator=(const MidgroundCellRecord& other)
 		{

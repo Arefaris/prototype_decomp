@@ -1,4 +1,6 @@
 // proto::MidgroundManager: see the header. The file name, the member names and the layout are guesses.
+#include <new>
+
 #include "code/container/string.h"
 #include "code/core/heap.h"
 #include "code/engine/database/gamedatabase.h"
@@ -29,10 +31,9 @@ namespace engine
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102DDD30
-	// EQUIVALENT: register allocation: the record's copy loads the drawable and the 1 through eax / ecx where the
-	// engine uses ecx / edx (97.5 %)
-	// A reference to the drawable member in the copy constructor gets the drawable into ecx (99.0 %); the 1 still
-	// goes to eax.
+	// The record goes into the array through a restrict pointer in this body (the engine's loads of the record's
+	// members come before the stores into the array, which is what a restrict destination allows), and it lives in a
+	// block of its own so that its frame slot is the iterator's
 	void MidgroundManager::CellLoaded(MidgroundCell* cell)
 	{
 		engine::render::Drawable* drawable;
@@ -44,7 +45,17 @@ namespace proto
 		{
 			drawable->SetUnknownBC(1.0f);
 			drawable->SetPartsUnknown(true);
-			records.PushBack(MidgroundCellRecord(drawable, cell, unknown8));
+			{
+				MidgroundCellRecord record(drawable, cell, unknown8);
+				if (records.end < records.capacity)
+				{
+					MidgroundCellRecord* __restrict item = records.end++;
+					if (item != 0)
+					{
+						new (item) MidgroundCellRecord(record);
+					}
+				}
+			}
 		}
 	}
 

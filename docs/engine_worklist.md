@@ -3624,3 +3624,16 @@ access path (through the array object or through the owner) are part of the sour
   higher offset first in all three. The method is `StreamTriggerBox::GetCentre` (streamtrigger.h, a `math::AABB`
   with the member); it is not in `math::AABB` itself because any new name in that class moves the stack slots of
   `pure3d::Context::LoadDebugFont` (0x1070FC90) and that function drops from 100 % to 98.7 %.
+- 0x102DDD30 `MidgroundManager::CellLoaded` **matches**. Three facts, found one after the other: (1) the engine copies
+  the record with loads of all three members before the stores into the array (`mov ecx / mov edx / movss xmm0`, then
+  three stores); VS2005 only reorders those loads above the stores when the destination pointer is a **local
+  `__restrict` pointer in the same function** (a pointer loaded from a member, a parameter of an inline function, a
+  restrict member or parameter, `/Oa` and `/Ow` all keep the load-store pairs), so the body of `PushBack` is written
+  out with `MidgroundCellRecord* __restrict item = records.end++`; (2) the compiler-made copy then needs the record's
+  copy constructor inline in a body that already has calls, which only `__forceinline` gets (the member-wise copy is
+  written as an initialiser list, the order name, drawable, unknownC, unknown10); (3) the record has to live in a block
+  of its own after the two calls (`if (drawable != 0) { calls; { record ... } }`), because a local declared after
+  calls in the same block gets its own 0x18 frame bytes instead of the iterator's, and the frame is 0x38 instead of
+  0x20. The record's eight-byte alignment is a trailing `unsigned __int64 align8[0]` (it adds no bytes and does not
+  realign the stack; the earlier `int padding14` made the copies move it).
+
