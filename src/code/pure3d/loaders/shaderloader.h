@@ -5,6 +5,7 @@
 #ifndef PURE3D_LOADERS_SHADERLOADER_H
 #define PURE3D_LOADERS_SHADERLOADER_H
 
+#include "code/container/map.h"
 #include "code/content/chunkhandler.h"
 
 namespace pure3d
@@ -20,8 +21,21 @@ namespace pure3d
 		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 			content::LoadInventory* inventory);
 
-		// The names of the inputs by code (a tree at +0x10)
-		struct InputNames
+		// The nodes of the name table come from the global array new and delete
+		struct InputNameAllocator
+		{
+			static void* Alloc(unsigned int size)
+			{
+				return operator new[](size);
+			}
+			static void Free(void* block)
+			{
+				operator delete[](block);
+			}
+		};
+
+		// The names of the inputs by code (a map at +0x10)
+		struct InputNames : public container::Map<unsigned int, const char*, InputNameAllocator>
 		{
 			// 0x107065F0: the name of a code (the entry is made when there is none)
 			const char** At(const unsigned int* code);

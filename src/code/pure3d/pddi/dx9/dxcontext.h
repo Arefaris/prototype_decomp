@@ -19,7 +19,9 @@ namespace pure3d
 	class pddiShaderInputInitData;
 	struct DisplaySettings;
 
-	// The techniques of a shader (name guess; 0x10618C90 is its only known method)
+	// The techniques of a shader (name guess). 0x10618560 is `bool IsEnabled(int technique)` (the entry's first byte), not
+	// declared here: a fifth member function of this class moves two locals of Context::LoadDebugFont (0x1070FC90)
+	// out of their slots.
 	class dxTechniques
 	{
 	public:

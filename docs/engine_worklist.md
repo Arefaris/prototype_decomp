@@ -1621,6 +1621,29 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   for the joint names (61 %), a barrier after any statement (80.6 % after the terminator, not kept) and the orders of
   the joint chunk's first seven statements leave the register rotation. 0x10B91410 (42.9 % with a barrier at best) and
   0x10B95780 (43.2 %) not improved by barriers; 0x10706960 not reworked.
+- (op-map4) 0x10706960 `ShaderLoader::LoadObject` stays NONMATCHING but goes from 41.8 % to 51.6 % of the bytes
+  (493 of the engine's 617 instructions in its order, from 435) once `Shader::SetParameters` (0x107062D0) is compiled
+  in the same unit: VS2005 looks at a callee it has already compiled in the unit and, when that callee only reads
+  through the pointer or reference it is given, the caller's local does not count as exposed to the *other* calls,
+  so the loader keeps the draw parameters' bit word in esi across the chunk stream's Read calls as the engine does
+  (the callee being external, or a copy, restrict, const_cast and noalias spellings, never gave that). The same
+  trick did not help 0x10720CF0 (its callee hands the pointer on to an external operator=). `SetParameters` is
+  written (95.9 %: its two virtual GetTechniques calls take the vftable in eax and the slot in edx, the engine the
+  reverse) but stays NONMATCHING: it needs `dxTechniques::IsEnabled` (0x10618560) declared, and a fifth member
+  function of that class moves two locals of `Context::LoadDebugFont` (0x1070FC90) out of their slots (any member,
+  whatever its name, type or place; removing one of the four restores them; the locals' names, types and declaration
+  order in LoadDebugFont do not). `ShaderLoader::HasName` (0x107065C0) and `InputNames::At` (0x107065F0) **match**: the name table is a
+  `container::Map<unsigned int, const char*>` over the global array new / delete (0x10706420 is its Insert, 0x10706070
+  / 0x107060A0 its comparators, 0x107060C0 its deleter), `HasName` is `if (Find(code).node != 0) return true; return
+  false;` (the `!= 0` as a plain bool gives `neg / sbb / neg`), `At` is Find, then Insert(Pair(code, 0)) when there is
+  no node, and the address of the node's value. The loader's HasName / At being in the unit changed nothing more;
+  left are one frame slot (0x4E4 against 0x4E0, the low region's slots are laid out differently) and the position of
+  the 0x11003 case's SetFloat path.
+- (op-map4) 0x106DE090 stays EQUIVALENT (79.9 %, 538 of 628 instructions): compiling its unit's own callees (the
+  Skeleton constructor 0x106DDF20, Finish 0x106DDAA0 and the SkeletonDebugInfo constructor) next to it changes
+  nothing in it, so the register rotation is not the callee knowledge that moved the shader loader.
+  `SkeletonDebugInfo::SkeletonDebugInfo` (0x106DD980) **matches** (six stores). The Skeleton constructor is written
+  (15 %: the partitions' vector constructor and the joint masks' loop) but not kept.
 - Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
   what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
   `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a

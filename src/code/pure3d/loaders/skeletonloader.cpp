@@ -19,6 +19,19 @@ namespace pure3d
 		return value;
 	}
 
+	// The debug names of a skeleton start empty (the loader fills them when names are kept); the constructor shares
+	// the unit with the loader
+	// FUNCTION: ENGINE 0x106DD980
+	SkeletonDebugInfo::SkeletonDebugInfo(Skeleton* owner)
+	{
+		skeleton = owner;
+		name = 0;
+		jointNames = 0;
+		partitionCount = 0;
+		partitionNames = 0;
+		limbNames = 0;
+	}
+
 	// FUNCTION: ENGINE 0x106DE090
 	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order; registers and frame
 	// follow the engine's (reader in ebp, skeleton in esi), what differs is the scheduling of some loads and

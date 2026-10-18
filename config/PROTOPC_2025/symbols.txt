@@ -4299,6 +4299,7 @@ __ftol2_sse = 0x10A883F0 ; function size:0x1C | CRT float to integer conversion 
 ?gD3DPrimitiveTypes@pure3d@@3PAHA = 0x110BB690 ; data size:0x14 | pure3d::gD3DPrimitiveTypes: the Direct3D primitive type of each of the five pddi ones (name guess)
 ?gShaderFallback@pure3d@@3V?$Name@UCaseInsensitiveKey32@core@@@core@@A = 0x1127F294 ; data size:0x4 | pure3d::gShaderFallback: the shader name a draw falls back to (name guess)
 ?Find@dxTechniques@pure3d@@QAEHPBV?$Name@UCaseInsensitiveKey32@core@@@core@@@Z = 0x10618C90 ; function size:0x6C | pure3d::dxTechniques::Find: the number of the technique a shader name draws with (name guess)
+?IsEnabled@dxTechniques@pure3d@@QAE_NH@Z = 0x10618560 ; function size:0x12 | pure3d::dxTechniques::IsEnabled: the first byte of a technique's entry (name guess)
 ?Unknown1062A8F0@dxDrawTracker@pure3d@@QAEXHHH@Z = 0x1062A8F0 ; function | pure3d::dxDrawTracker: counts a draw (name guess)
 ?Unknown1062B7B0@pure3d@@YAXHPAH0@Z = 0x1062B7B0 ; function | pure3d: the vertex declaration a draw needs (name guess)
 ?Unknown1061F950@dxContext@pure3d@@QAEXMMMM@Z = 0x1061F950 ; function size:0xFE | pure3d::dxContext: the viewport's rectangle (name guess)
