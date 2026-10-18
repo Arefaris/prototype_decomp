@@ -3379,8 +3379,8 @@ What the unit showed about the compiler (each of these decided a function):
   (0x1044C040); the pure3d code that includes it is unchanged.
 - `GetGameObjectEntries()[index]` checks (index, serial, object) in the order of the handle: written out, the three
   tests share one exit (0x1044D200); `GameObjectHandle::Get()` makes three exits.
-- The engine's `PathRing::At` and `Count` are inlined in some functions and called in others; a function that calls
-  `Count` first and then loops with `At` inlined (0x1044D730) keeps `Count` out of line the second time too.
+- The engine's `PathRing::At` is inlined everywhere and `Count` is a call in most functions; 0x1044D730 calls it once
+  and has the size written out inline the second time (see below).
 - `x - x` is not folded; `-v` loads the -0.0 constant and subtracts.
 - A ternary of two handles (`cond ? global : GameObjectHandle()`) selects by pointer; the engine stores the global
   into the temporary, so 0x104485E0 stays EQUIVALENT.
