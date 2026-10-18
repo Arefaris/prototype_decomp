@@ -563,13 +563,14 @@ namespace pure3d
 	};
 
 	class Skin;
+	class SkinState;
 
 	// One entry of the queue a skin state is put on while its skinning job runs (0x10720CF0 pushes it, 0x1071F780
-	// drains it); its first word is the list link
+	// drains it); its first word is the list link, the second the state whose job is submitted
 	struct SkinJobEntry
 	{
 		void* next;
-		Skin* skin;
+		SkinState* state;
 	};
 
 	// One stream of vertices a skin state's job writes (0x18 bytes): whether the stream is there, where it starts in
@@ -708,6 +709,8 @@ namespace pure3d
 		// 0x10720CF0: the skinning job itself: locks the buffer, works out where each stream goes and either queues the
 		// job for the worker or skins on the spot
 		void Unknown10720CF0();
+		// 0x1071EAE0: submits the skinning task
+		void SubmitTask();
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
 		// 0x1071F880: takes a reference to the state's controller at +0x2E0 (the +0x2DC one, 0x1071F860, is the
@@ -715,7 +718,11 @@ namespace pure3d
 		void SetController2(FrameController* value);
 
 		int unknown10;
-		unsigned char unknown14[0x5C];
+		unsigned char unknown14[0xC];
+		// 0x20: the skinning task of this state (0x1071EAE0 submits it, 0x1071EAF0 is its body; the task's callback
+		// carries the state at +4)
+		core::AsyncTaskJob job;
+		unsigned char unknown68[8];
 		// 0x70: the pose the state renders from (its skinning matrices at +0x38 are the bone matrices the
 		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
 		Pose* pose;
@@ -750,8 +757,8 @@ namespace pure3d
 	};
 
 	// The instanced skin: a primitive whose parts are drawn from a skin state's pose (skin.cpp). The layout is
-	// partial: the skinning job is at +0x1C, the pose whose bone matrices the skinning code reads at +0x70, the
-	// bounding box at +0x26C, the centre at +0x284 and the vertex buffer at +0x144 (+0x148 its stream).
+	// partial: its shader parameters are at +0x20 (0x107202B0 copies them out), the bounding box at +0x26C, the
+	// centre at +0x284 and the vertex buffer at +0x144 (+0x148 its stream).
 	class Skin : public Primitive
 	{
 	public:
@@ -767,8 +774,6 @@ namespace pure3d
 		virtual void SetBoundingBox(const math::AABB& box);
 		virtual void SetCentre(const math::Vector4& centre);
 
-		// 0x1071EAE0: submits the skinning job
-		void SubmitTask();
 		// 0x1071EFB0: the word at +0x1C (the kind of primitive the batch carries)
 		unsigned int GetUnknown1C();
 		// 0x1071EFE0: unlocks the vertex buffer when there is one
@@ -781,11 +786,8 @@ namespace pure3d
 		void GetDrawData(void** data, int* size);
 
 		unsigned int unknown1C;
-		// The skinning task of this skin (0x1071EAE0 submits it, 0x1071EAF0 is its body)
-		core::AsyncTaskJob job;
-		unsigned char unknown68[8];
-		Pose* pose;
-		unsigned char unknown74[0xC4];
+		// 0x20: the shader parameters of the skin (GetParameters hands out a copy)
+		ShaderParameters parameters;
 		// 0x138: the vertex data of the last skinning job; 0x13C its size and 0x140 the fallback block
 		void* unknown138;
 		int unknown13C;
