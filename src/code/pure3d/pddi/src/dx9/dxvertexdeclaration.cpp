@@ -27,6 +27,8 @@ namespace pure3d
 	// Every store order, references, a constructor or an inline Set for the entry leave the order as it is, and so do
 	// copies of the count and the number in locals, the device in a local, a declaration pointer set afterwards and
 	// the three spellings of the manager's count increment (about 600 compilations).
+	// Writing the entry through a pointer or an inline helper, or `users` as a member object set by its constructor,
+	// changes nothing either.
 	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements)
 	{
 		unsigned int count = 0;

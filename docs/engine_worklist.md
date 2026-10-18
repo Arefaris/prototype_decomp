@@ -1391,6 +1391,11 @@ Matching notes:
   `ClearLock(&lock)`, the same nine stores); written on the local itself the compiler turns the operands of the
   destination's sum and of the skipped rows' product around. A constructor in `TextureLock` gives the same match but
   moves two stack slots of `Context::LoadDebugFont` (0x1070FC90; any inline function body in dxtexture.h does).
+- (op-map1) 0x1072B230 / 0x1072B470 unchanged (7.4 % / 13.8 %). Measured on reduced copies of the unit: with two nested
+  loops whose outer counter is used inside the inner loop the compiler never passes the texture in a register (a single
+  loop, or an inner loop that does not use the outer counter, gives edi; using the texture twice in the inner loop gives
+  esi); no order of the parameters, counter types, loop forms, `if` / `else` layout, local for `count + 1` or bound read
+  in the condition changes that for the real body.
 - (op-finish) 0x1072B470 `DDSParser::Load` stays EQUIVALENT (13.8 %): it needs `UploadVolumeLevels` (0x1072B230) to
   take the texture in edi like the engine's (stack order stream, description, dropTop: the signature `(stream,
   description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
@@ -1565,6 +1570,9 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   skeleton's `AddRef`. What is left is the rotation of the volatile registers the temporaries take, which starts to
   differ at the joint name's length (`movzx eax` in the engine, `ecx` here), the position of the name's terminator
   store and of the `mov ecx, [reader + 0x284]` load relative to the pushes. difftest SAME.
+- (op-map1) 0x106DE090 stays EQUIVALENT (79.9 %): reading the joint name's length into a byte and copying it into an
+  `unsigned int` (as the other name reads do) gives the engine's `movzx eax`, but the extra local moves the byte slots
+  and the frame (61 %); the local's name does not matter. 0x10B91410, 0x10706960 and 0x10B95780 not reworked.
 - (mp-load) 0x10B91410 `CompositeDrawableLoader::LoadObject` stays EQUIVALENT (42.4 %, was 41.8): declaring the four
   pointers (controller, visibility, the two mixers) before the heap is saved, not after it is restored, moves the zero
   stores and the heap index into the engine's arrangement (the heap index in memory); what remains is the register
@@ -3317,6 +3325,17 @@ method of the pose at +0x70) and the job record at +0x330.
 - (op-map1) 0x1071CA40 **matches**: the three offset vectors are `__m128` locals filled lane by lane through float
   casts (like the box accumulators) and added as values (`_mm_add_ps(v2, tangentOffset)`); as `math::Vector4` locals
   read back with `_mm_load_ps(&offset.x)` the tangent and the normal's offset trade xmm2 / xmm3.
+- (op-map1) The four-bone paths stay NONMATCHING, but closer. Their real sizes are larger than symbols.txt had: the
+  epilogue after the last bounds store (`pop esi; pop ebx; mov esp, ebp; pop ebp; ret 0xC`, reached by the early return
+  too) belongs to them (0x1071B610 0x387, 0x1071BBD0 0x30F, 0x1071C0C0 0x2CD, 0x1071C530 0x505, 0x1071CA40 0x379,
+  0x1071D960 0x3F3, 0x1071DFF0 0x391, 0x1071E5D0 0x31B; corrected in symbols.txt and functions.tsv). The blend that comes
+  closest takes the rows as values walked with `*p++` and writes the four blended rows through pointers to `__m128`
+  locals (`*q0 = _mm_mul_ps(b00, splat)`, `*q0 = _mm_add_ps(_mm_mul_ps(b10, splat), *q0)`): 0x1071C0C0 63.2 % with one
+  uniform spelling (was 43.2). A genetic search over per-bone spellings (value / reference / indexed rows, loads before
+  or between the products, splats inline or as locals, where the vertex loads sit) reaches 59 - 73 % for the others
+  (0x1071DFF0 72.9 %, 0x1071D440 / 0x1071E5D0 66.4 %), always with the engine's size but never its spills: the engine
+  delays the first bone's translation row product until after the second bone and spills an accumulator to the stack,
+  this compiler schedules every DAG it is given without that spill.
 - (mp-skin) The slot order of equal-weight locals (the engine's stack table is sorted by reference count; ties come out
   in an order the source's statement order, declaration order and names do not change) and the register a vector
   gets can depend on declarations in the headers a unit includes: a new type name in primitive.h flipped two locals of
@@ -3502,6 +3521,17 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   (references to the system-memory copy, local copies, other arm orders) changes the choice. 0x1061D3A0 stays
   NONMATCHING (36 %): the engine keeps the zero in edi and the one in ebx for the whole function and sets them again
   after every fill, with different registers for each fill's width and pitch.
+- (op-map1) Third pass, none of the five closes: 0x106182C0 all 120 orders of the five statements between the two
+  device calls (the reference for the first store kept) give 97.7 % at best (the height store moves the other way);
+  inline helpers for the stores or the window test and a struct copy of the two sizes change nothing. 0x1062B5C0: the
+  entry written through a local pointer, through an inline `StartEntry(entry, count)`, with a constructor in a derived
+  entry or with `users` as a member object whose constructor sets 1 all stay at 96.6 %. 0x10623250: the index buffer
+  set-up in its own block, as nested tests or with the device in a local is canonicalised to the same code (28.7 %).
+  0x1061C600: the usage test as its own early return gives the engine's prologue up to the level check (17.9 %, 586
+  bytes) but `level` keeps ebx. 0x1061D3A0: the lock cleared through a pointer changes nothing (35.8 %); its ramp
+  computes `t = x / 255` in SSE before the switch (one stack temporary the two cosine cases read) and each case has its
+  own clamp tree (`v < 0` first, then `v > 0xFF` on both paths; the cosine cases cross-jump into the first two cases'
+  trees), where the source has one clamp after the switch.
 
 ## Merge notes (2026-10-16)
 

@@ -300,6 +300,8 @@ namespace pure3d
 	// checks and are read again from the argument slots after the calls, which lets it push ebx / ebp only after the
 	// checks. A pointer or reference to the system-memory copy, local copies and the order of the arms did not change
 	// that.
+	// The usage test as an early return of its own gives the engine's prologue up to the level check (17.9 %), but
+	// `level` still takes ebx.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)

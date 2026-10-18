@@ -702,6 +702,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1072B230
 	// EQUIVALENT: the same loops and calls in the same order; the engine passes the texture in edi, ours on the
 	// stack (7.4 %)
+	// With two nested loops whose outer counter is used in the inner one this compiler gives no parameter a register.
 	// Reads the slices of every level of a volume texture
 	static void UploadVolumeLevels(content::ChunkStream* stream, bool dropTop, Texture* texture, const TextureDescription* description)
 	{
