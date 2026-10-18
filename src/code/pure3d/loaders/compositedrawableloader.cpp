@@ -21,6 +21,8 @@ namespace pure3d
 	// the inventory in ebp and a zero in ebx through the chunk loop, this compiler picks other registers, orders the
 	// frame's variables differently (the same frame size), lays the controller case out before the end of the chunk
 	// loop and releases the controller loader once instead of in each branch
+	// The engine stores the four pointers' zeros after the heap is restored; declared there they put the heap index
+	// into ebp (41.8 %).
 	void CompositeDrawableLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{

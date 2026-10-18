@@ -1344,8 +1344,8 @@ registers.
 | 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
 | 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
 | 0x1072ADB0 | UploadLevel (static) | match |
-| 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
-| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
+| 0x1072B230 | UploadVolumeLevels (static) | matches |
+| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (22.6 %; same block layout as the engine's) |
 
 The EQUIVALENT functions differ only in register homes and scheduling: UploadLevel keeps the rect in ebx where the
 engine uses esi, tests `rect->x & 3` through a byte test, multiplies in the other operand order and orders two
@@ -1401,6 +1401,14 @@ Matching notes:
   description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
   never chooses a register parameter for it (no permutation of the four parameters does); `UploadLevels` (0x1072B050)
   does get its rect in edi. With that the stream would sit in ebx as in the engine.
+- (op-map2) 0x1072B230 `UploadVolumeLevels` **matches**: each branch reads the level count itself
+  (`unsigned int count = texture->info->description.levels + 1;` inside the dropTop branch, the plain count after
+  it), as `UploadCubeLevels` does; one count read before the test is what kept the texture on the stack. The signature
+  is the cube version's `(stream, texture, description, dropTop)` (the symbol is renamed); the texture then comes in edi.
+- (op-map2) 0x1072B470 `DDSParser::Load` stays EQUIVALENT, now 22.6 % (was 13.8): the texture goes to the volume upload
+  in edi; the stream stays in its argument slot where the engine keeps it in ebx. One more use of the stream right after
+  the header read (a null test) gives it ebx and the engine's prologue, so its weight is what is missing; two upload
+  calls in the 2D case and casts at each use do not add it.
 
 ## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
 
@@ -1573,6 +1581,9 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
 - (op-map1) 0x106DE090 stays EQUIVALENT (79.9 %): reading the joint name's length into a byte and copying it into an
   `unsigned int` (as the other name reads do) gives the engine's `movzx eax`, but the extra local moves the byte slots
   and the frame (61 %); the local's name does not matter. 0x10B91410, 0x10706960 and 0x10B95780 not reworked.
+- (op-map2) 0x106DE090 stays EQUIVALENT (79.9 %): the joint name read through an inline helper, with the length cast,
+  through a nested `unsigned int` count, a local buffer pointer or the stream's Read called directly all compile to
+  the same code.
 - (mp-load) 0x10B91410 `CompositeDrawableLoader::LoadObject` stays EQUIVALENT (42.4 %, was 41.8): declaring the four
   pointers (controller, visibility, the two mixers) before the heap is saved, not after it is restored, moves the zero
   stores and the heap index into the engine's arrangement (the heap index in memory); what remains is the register
@@ -1580,14 +1591,28 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   the frame order of the three arrays and the pointers, and the position of the controller case behind the loop exit.
   Releasing the controller loader inside each branch (as the engine does) gives the engine's instruction count but a
   worse layout with the pointers moved.
+- (op-map2) 0x10B91410 stays EQUIVALENT (42.4 %): the engine's zero stores for the four pointers come after the heap
+  is restored (controller, visibility, the sub-drawable mixer, then the chunk mixer from edi), but declaring them
+  there puts the heap index into ebp (41.8 %, in every declaration order).
 - (mp-load) 0x10B95780 `ShaderTemplateLoader::LoadObject` stays EQUIVALENT (39.4 %): the engine's frame is 16 bytes
   larger (0x50C against 0x4FC); reading the sampler word into its own local instead of reusing `first` makes it 8 bytes
   larger but moves the stack slots away from the engine's. The engine tests the slot with `cmp [slot], -1; setne al;
   test al, al; jne`, this compiler folds every spelling of `IsValid()` into `cmp; jne`.
+- (op-map2) 0x10B95780 stays EQUIVALENT (39.4 %): this compiler materialises a validity test as `setne al; test al, al`
+  only when the bool has a second use (a test small enough to fold otherwise, in every spelling of IsValid); the
+  default's test moved behind the inner loop as `if (!found && !slot.IsValid())` gives 43.3 % but still folds the
+  first test, and the frame is still 16 bytes smaller. Not kept.
 - (mp-load) 0x10706960 `ShaderLoader::LoadObject` stays NONMATCHING (41.8 %, instruction sequence 96 % the same): the
   engine caches the draw parameters' bit word in esi at the top of each chunk and writes it back after each change,
   this compiler loads it in every branch; with `Shader::SetParameters` taking the parameters by value the word is
   promoted to esi the same way, with a reference parameter (the engine's) it never is, whatever the loop contains.
+- (op-map2) 0x10706960 stays NONMATCHING (41.8 %). The engine keeps the bit word in esi across the two Read calls of
+  the 0x11003 case and loads it once at the loop head, so to the engine's compiler the parameters are not exposed to
+  those calls, yet SetParameters gets the struct's own slot (no copy). Not reproduced: a copy before the call, a
+  temporary, an inline wrapper taking the parameters by value (all copy), a `__restrict` pointer to them, `const`
+  plus const_cast, `__declspec(noalias)` on the chunk stream's Read. The difftest difference is in bytes both
+  functions leave uninitialised (the top byte of the bit word, bits 3-7 of the flag byte and the three bytes after it
+  come from the stack), so it is not a behaviour difference, but the conversion needs SAME.
 - Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
   what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
   `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a
@@ -3315,6 +3340,13 @@ method of the pose at +0x70) and the job record at +0x330.
   behind the stores as in the engine; the third one written on the member directly. Left: the test of `gSkinAsync`
   comes after the third stream's stores (the engine: before them) and the format word's load in the queueing branch
   after the store of `hasTangents` (the engine: before it). No captured states.
+- (op-map2) The four-bone paths not reworked. Reading the engine's 0x1071C0C0 / 0x1071E5D0: the accumulators it keeps
+  on the stack are spill slots (the blended rows are never stored as such; the slots are shared later with the
+  results whose fourth lane is written), and the vertex position is loaded between the second and the third bone.
+- (op-map2) 0x10720CF0 stays EQUIVALENT, now 99.1 %: `gSkinAsync` is a file-level `static` (the dispatcher is the only
+  code that reads it), which lets the compiler schedule its test ahead of the third stream's stores as the engine does;
+  the third stream is written through a local `SkinStream*`. Left: the format word's load in the queueing branch after
+  the store of `hasTangents`. Note for the hybrid build: the static is our own copy (the engine's byte is no longer read).
 - (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
   differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
   loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
@@ -3497,6 +3529,8 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   compilations) gave the order now in the source.
 - 0x1062B5C0 stays EQUIVALENT (96.6 %): every store order, references, a constructor or `Set` for the new entry and the
   `+= users` form leave `users = 1` behind the element count.
+- (op-map2) 0x1062B5C0 stays EQUIVALENT (96.6 %): the new entry declared before the search loop with `users` (and the
+  element count) set there gives 20 - 44 %; `_ReadWriteBarrier()` around the stores reloads the manager (70 %).
 - 0x1061C600 `dxTexture::Lock` stays EQUIVALENT (8 %): the engine has two `return false` blocks (early returns) and does
   not clear the two surface pointers; both bring it to 14.6 % only, `level` stays cached in ebx (engine: re-read).
 - 0x10623FB0 `RestoreDefaultPool` **matches**: the vertex buffer's lock goes through a `void* data` local and a named buffer
@@ -3532,6 +3566,21 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   computes `t = x / 255` in SSE before the switch (one stack temporary the two cosine cases read) and each case has its
   own clamp tree (`v < 0` first, then `v > 0xFF` on both paths; the cosine cases cross-jump into the first two cases'
   trees), where the source has one clamp after the switch.
+- (op-map2) 0x10623250 `Unknown2` stays EQUIVALENT (28.7 %): the vertex count kept in a second variable across the
+  technique's Get, the shader's technique table taken inline and the index buffer read into a local for the index
+  count all compile as before. 0x106182C0 not reworked (97.5 %).
+- (op-map2) 0x1061C600 `dxTexture::Lock` stays EQUIVALENT, 9.7 % (was 8): the usage, level and slice checks written as an
+  inline returning a bool (`CanLock`) give the engine's blocks (the locked texture's early return, one shared
+  `return false` for the failed checks, the body behind them), with the surfaces uninitialised and the system-memory
+  copy reached through a pointer. `level` still takes ebx (the engine: edx, read again after the calls), which keeps
+  the push of ebx in front of the checks. difftest SAME (11 states).
+- (op-map2) 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING, now 75 % (was 36 %, same size as the engine's): the fills
+  write through a `__restrict` row pointer and read `lock.width` / `lock.pitch` in their loops (that gives the engine's
+  zero in edi and one in ebx), every description sets levels, depth and format again before its texture is made, the
+  ramp computes `t` before the switch and each case packs its own pixel through an inline helper, the first ramp packs
+  with multiplications and the cosine ramps are `float ramp = (cos(t * f) + 1.0f) * 0.5f;` then `ramp * 255.5f` (one
+  expression folds the two constants). Left: the clamp tree (the engine: `v < 0` first, then `v > 0xFF` on both paths,
+  no cmov); every spelling tried folds the negative path, uses cmov / setcc or tests `> 0xFF` first.
 
 ## Merge notes (2026-10-16)
 
@@ -3774,6 +3823,11 @@ access path (through the array object or through the owner) are part of the sour
   `RemoveElement`) gives the engine's registers there (count esi, package edi, the end copied), but then the zero of
   the group and of the loop counter stop being shared (`mov ebp, 0` between `sar` and `je`) and the search loop is
   aligned with a jump over the padding (762 bytes). difftest SAME (9 states).
+- (op-map2) 0x1082E100 stays EQUIVALENT (94.5 %): which of the two states comes out follows whether the unload loop's
+  search reads the list's end in its condition (FindElement: the engine's registers, no shared zero) or caches it in a
+  local first (RemoveElement: the shared zero, swapped registers); no other spelling of the search (for / while forms,
+  a break, an index) gives both. Declaring the loop counter before the group search restores the shared zero with
+  Find + Erase but moves the pushes of ebx / ebp / esi behind the first two loops (56 %).
 - 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
   computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
   0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the

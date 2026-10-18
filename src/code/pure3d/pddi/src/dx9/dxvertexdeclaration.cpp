@@ -29,6 +29,7 @@ namespace pure3d
 	// the three spellings of the manager's count increment (about 600 compilations).
 	// Writing the entry through a pointer or an inline helper, or `users` as a member object set by its constructor,
 	// changes nothing either.
+	// The new entry declared before the search loop (its users, or users and count, set there) gives 20 - 44 %.
 	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements)
 	{
 		unsigned int count = 0;

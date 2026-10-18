@@ -100,7 +100,8 @@ namespace engine
 	// compiler the other way round, which swaps them in the whole unload loop; the engine also copies the end of the
 	// list it searched there into another register. Erase(Find) in the unload loop gives the engine's registers and
 	// the copy, but then the zero of the group and of the loop counter are no longer shared and the search loop
-	// gets aligned (762 bytes).
+	// gets aligned (762 bytes). Which of the two comes out follows whether the unload search reads the list's end in
+	// its condition or caches it first; no other spelling of the search gives both.
 	// The two arrays are made with Create(16) after their declaration; the sizes are compared with > 0 and <= 0
 	// (the engine's tests keep the shift's flags). The unload loop reads the list's end once, before its search
 	// (RemoveElement); the one after the unload goes through Find and Erase, and Erase reads the end before it steps
