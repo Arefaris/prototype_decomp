@@ -4,6 +4,7 @@
 
 #include "code/core/heap.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/intersectionproperties.h"
 
 namespace ravenphysics
 {
@@ -26,15 +27,70 @@ namespace ravenphysics
 	// A box in the detector's bounds array (24 bytes)
 	struct BroadPhaseBox
 	{
+		// Copies another box component by component, the maximum first
+		void Set(const BroadPhaseBox& other)
+		{
+			boundsMax.x = other.boundsMax.x;
+			boundsMax.y = other.boundsMax.y;
+			boundsMax.z = other.boundsMax.z;
+			boundsMin.x = other.boundsMin.x;
+			boundsMin.y = other.boundsMin.y;
+			boundsMin.z = other.boundsMin.z;
+		}
+
 		math::Vector boundsMin;
 		math::Vector boundsMax;
+	};
+
+	// The three words of an object's filter the detector keeps next to its box (12 bytes): the two words of the
+	// properties and one more
+	struct BroadPhaseMasks : IntersectionProperties
+	{
+		BroadPhaseMasks()
+		{
+			unknown8 = 0;
+		}
+
+		// Takes the properties and keeps the third word
+		void SetProperties(const IntersectionProperties& other)
+		{
+			*(IntersectionProperties*)this = other;
+		}
+
+		int unknown8;
+	};
+
+	// The pointers to the detector's arrays and their element accessors (0x1065FCF0 / 0x1065FD00 / 0x1065FD10; the
+	// classes are guesses, the engine's compiler kept an out-of-line copy of each)
+	struct BoxArray
+	{
+		BroadPhaseBox* At(int index);
+
+		BroadPhaseBox* items;
+	};
+
+	struct VectorArray
+	{
+		math::Vector* At(int index);
+
+		math::Vector* items;
+	};
+
+	struct MaskArray
+	{
+		BroadPhaseMasks* At(int index);
+
+		BroadPhaseMasks* items;
 	};
 
 	// What one of the detector's tables is walked from: the head the walk starts at (32 bytes, copied whole by the
 	// context's getters) and the run of records it walks (name guesses)
 	struct DetectorHead
 	{
-		unsigned char unknown0[0x20];
+		unsigned short* next;       // 0x00 (the index of the record that follows each record, 0xFFFF at the end)
+		unsigned char unknown4[4];
+		unsigned short* first;      // 0x08 (the index of the first record)
+		unsigned char unknown0C[0x14];
 	};
 
 	struct DetectorTable
@@ -91,9 +147,9 @@ namespace ravenphysics
 		// Frees the three blocks the detector keeps
 		~BroadPhaseDetector()
 		{
-			if (unknown24 != 0)
+			if (masks != 0)
 			{
-				core::FreeAligned(unknown24);
+				core::FreeAligned(masks);
 			}
 			if (boxes != 0)
 			{
@@ -104,6 +160,9 @@ namespace ravenphysics
 				core::FreeAligned(Table().objects);
 			}
 		}
+		// Overwrites the box / the filter words of one object (0x1065FD80 / 0x1065FDC0; name guesses)
+		void SetBox(unsigned short index, const BroadPhaseBox* box);
+		void SetMasks(unsigned short index, const BroadPhaseMasks* newMasks);
 		// Tells the detector that a collision object of one of its bodies changed (0x10683510, another unit; name
 		// guess)
 		void UpdateCollisionObject(CollisionObject* object);
@@ -111,7 +170,7 @@ namespace ravenphysics
 		unsigned char unknown0[0x18];
 		BroadPhaseBox* boxes;            // 0x18
 		unsigned char unknown1C[0x24 - 0x1C];
-		void* unknown24;                 // 0x24
+		BroadPhaseMasks* masks;          // 0x24 (one per object)
 		unsigned char unknown28[0x34 - 0x28];
 		DetectorHead unknown34;          // 0x34 (the head of the second table; name guess)
 		unsigned char unknown54[0x6C - 0x54];

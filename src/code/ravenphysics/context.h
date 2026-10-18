@@ -11,6 +11,7 @@
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
 #include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/common/hashtable.h"
+#include "code/ravenphysics/intersectionproperties.h"
 
 namespace ravenphysics
 {
@@ -24,27 +25,6 @@ namespace ravenphysics
 	struct BodyPairRun;
 	struct PointerRun;
 
-	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
-	struct PhysicsObjectEntry
-	{
-		PhysicsObject* object; // 0x00
-		int generation;        // 0x04
-	};
-
-	// The table the physics handles index into (0x1127CAC0): the entries and how many of them there are (the name
-	// and the layout are guesses; this unit only reads it)
-	class PhysicsObjectTable
-	{
-	public:
-		unsigned char unknown0[0xC];
-		PhysicsObjectEntry* entries; // 0x0C
-		unsigned char unknown10[0x14 - 0x10];
-		unsigned short capacity;     // 0x14
-	};
-
-	// The physics handle table (0x1127CAC0)
-	extern PhysicsObjectTable* gObjectTable;
-
 	// An object the library refers to by its index in its object table (name guess)
 	struct ObjectHandle
 	{
@@ -55,23 +35,6 @@ namespace ravenphysics
 
 		unsigned short index;    // 0x00
 		unsigned short unknown2; // 0x02
-	};
-
-	// What a query collides with (0x10653860 constructs it from the physics library's defaults; meanings unknown)
-	struct IntersectionProperties
-	{
-		IntersectionProperties();
-		IntersectionProperties(int a, int b)
-		{
-			unknown0 = a;
-			unknown4 = b;
-		}
-
-		// Whether two sets of properties name the same thing (0x10653610)
-		bool operator==(const IntersectionProperties& other) const;
-
-		int unknown0;
-		int unknown4;
 	};
 
 	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC, capacity 0x1127CAC8): the name
@@ -920,6 +883,16 @@ namespace ravenphysics
 		void Eighteenth();
 		void Nineteenth();
 		void Twentieth();
+		void TwentyFirst();
+		void TwentySecond();
+		void TwentyThird();
+		void TwentyFourth();
+		void TwentyFifth();
+		void TwentySixth();
+		void TwentySeventh();
+		void TwentyEighth();
+		void TwentyNinth();
+		void Thirtieth();
 	};
 
 	// A short and two words (name guess)
@@ -1530,14 +1503,17 @@ namespace ravenphysics
 
 		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
 		// names are guesses)
-		void GetIslandTable(DetectorTable* out);
-		void GetAwakeTable(DetectorTable* out);
+		DetectorTable* GetIslandTable(DetectorTable* out);
+		DetectorTable* GetAwakeTable(DetectorTable* out);
 		// The counters the statistics display shows: the object counts, the batches' fill and the detector's own
 		// (0x10657D70; name guess)
 		void GetStatistics(int* out);
 
 		// Starts the detection over data: the detector opens its gate and the caller checks it did (0x10659F40)
 		void BeginCollision(void* data);
+		// Whether every active collision object of the body is touched by a pair of the island table, true for a body
+		// that does not move or has a single object (0x106588B0; name guess)
+		bool IsBodyConnected(ObjectHandle handle);
 		// The detection's islands, over the objects the object list holds, out of the scratch buffer (0x106599C0;
 		// name guess)
 		void RunIslands(DetectionData* data, StackAllocator* allocator);

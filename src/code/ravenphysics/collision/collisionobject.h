@@ -48,11 +48,18 @@ namespace ravenphysics
 		// Recomputes the volume's world bounds from the object's transform; a switch over the type byte that runs
 		// the volume's own per-type update (0x10665690, another unit)
 		void UpdateBounds(CollisionObject* object);
+		// The name of the volume's type (0x10664740, another unit; name guess)
+		const char* GetTypeName();
 		// Raises the volume against a query, answering whether it hit and writing the point and the distance
 		// (0x10663FE0, another unit)
 		bool CastVolume(const void* query, math::Vector* point, float* distance);
 		// A copy of the volume of the same type (0x10665990, another unit)
 		CollisionVolume* Clone();
+		// Takes over the filter of a query and passes it on to a mesh volume's mesh (0x10664120, another unit; name
+		// guess); the two functions below set or clear the bits of one word of it (0x10664140 / 0x10664170)
+		void SetFilter(const CollisionFilter* newFilter);
+		void SetFilterBits(unsigned int mask, bool set);
+		void SetFilterBits2(unsigned int mask, bool set);
 
 		// The per-type setters and bounds updates the object's Set*Volume methods call (0x10664BA0 / 0x10664C10,
 		// 0x10665060 / 0x10665120, 0x10665790 / 0x106645D0, 0x10665510 / 0x106643E0, 0x10681DE0 / 0x10680AB0;
@@ -120,6 +127,8 @@ namespace ravenphysics
 		~CollisionVolume6();
 		// Whether the first slot of the mesh carries geometry (0x10654180)
 		bool HasSlotGeometry() const;
+		// Prints the hull; there is nothing to print (0x106805C0, another unit; name guess)
+		void DumpHull();
 		// The destructor and, when bit 0 of the flags is set, the delete behind it (0x10654430)
 		void* DestroyAndFree(unsigned int flags);
 	};
@@ -246,6 +255,28 @@ namespace ravenphysics
 		void* GetObject(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
 		void Remove(CollisionHandle* handle);
+		// The same for a body's id word
+		void Remove(int* id)
+		{
+			Remove(reinterpret_cast<CollisionHandle*>(id));
+		}
+		// The physics objects share the table; this is the entry the bodies use to take a slot (0x1065FD20, a
+		// forward to Add; name guess)
+		void AddPhysicsObject(PhysicsObject* object, int* id);
+	};
+
+	// A collision object around one volume, or around an array of them (0x10655F60 / 0x10655FC0)
+	CollisionObject* CreateCollisionObject(CollisionVolume* volume, bool makeShape, float size);
+	CollisionObject* CreateCollisionObject(CollisionVolume** volumes, unsigned int count, bool makeShape, float size,
+		int a, int b);
+
+	// A pair of collision objects that touch, as the detector's tables list them (0x20 bytes; the handles of the two
+	// objects at 0x18 and 0x1C)
+	struct ContactPair
+	{
+		unsigned char unknown0[0x18];
+		CollisionHandle handleA;  // 0x18
+		CollisionHandle handleB;  // 0x1C
 	};
 
 	// The smaller of two slot counts (0x10655AC0)
@@ -393,7 +424,7 @@ namespace ravenphysics
 		unsigned int unknown34;
 	};
 
-	// The physics object handle table (0x1127CAC0)
+	// The handle table of the collision objects and of the physics objects (0x1127CAC0)
 	extern CollisionObjectTable* gCollisionObjectTable;
 
 	class CollisionObject
@@ -425,6 +456,8 @@ namespace ravenphysics
 		void UpdateTransform(const math::Matrix& matrix);
 		// The same and then the owner's bounds (0x10654580)
 		void SetTransform(const math::Matrix& matrix);
+		// Multiplies the transform by the matrix and sets the result (0x1065FED0)
+		void TransformBy(const math::Matrix& matrix);
 		// Copies the transform and refreshes the volumes (0x10654C30)
 		void SetMatrix(const math::Matrix& matrix);
 		// Gives every volume (and the faces of a type 4 volume) a material (0x10654670)
