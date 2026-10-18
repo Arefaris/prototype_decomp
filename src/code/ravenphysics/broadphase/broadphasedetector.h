@@ -7,6 +7,7 @@
 namespace ravenphysics
 {
 	class PhysicsObject;
+	class CollisionObject;
 
 	// The grid the broad phase quantises positions into: 16-bit coordinates per axis
 	class BroadPhaseGrid
@@ -75,6 +76,9 @@ namespace ravenphysics
 		void Remove(PhysicsObject* object);
 		// The same out of the tables the detection walks, leaving the object's slots free (0x106846F0; name guess)
 		void RemoveSecond(PhysicsObject* object);
+		// Tells the detector that a collision object of one of its bodies changed (0x10683510, another unit; name
+		// guess)
+		void UpdateCollisionObject(CollisionObject* object);
 
 		unsigned char unknown0[0x18];
 		BroadPhaseBox* boxes;            // 0x18

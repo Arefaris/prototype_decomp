@@ -80,8 +80,6 @@ namespace ravenphysics
 		void RefreshBounds(bool unused);
 		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
 		void SetCollisionMode(unsigned short mode);
-		// Marks one of the body's collision objects as needing an update in the detector (0x10683510, another unit)
-		void UpdateCollisionObject(CollisionObject* object);
 
 		CollisionObject** objects;
 		int unknown58;
