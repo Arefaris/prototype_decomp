@@ -1426,32 +1426,25 @@ NONMATCHING:
   initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
   (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
 
-Not done in the geometry range (each is 1500 - 2300 bytes; the third session decoded `PolySkinLoader::LoadObject`
-but did not write it out):
+The chunk loaders of this range (the geometry, polygon skin, composite drawable, skeleton and the three shader loaders)
+are reconstructed, one source file per unit under src/code/pure3d/loaders/:
 
-- 0x10B9C3E0 `GeometryLoader::LoadObject` (2232), 0x10B90CA0 `PolySkinLoader::LoadObject` (1575), 0x10B91410
-  `CompositeDrawableLoader::LoadObject` (2232). What they need, read off the disassembly of 0x10B90CA0:
-
-  - the chunk reader's own methods, none of them mapped yet: `content::ChunkReader::Read` is actually
-    **`content::MemoryStream::Read`** (0x1060B260, `ret 0x10`, `Read(void* destination, unsigned size, unsigned
-    count, unsigned unknown)`) on the stream at the reader's +0x284 — 0x1060A530 / 0x1060B260 / 0x1060B2C0 are
-    `GetPosition` / `Read` / `Skip` of `content::MemoryStream` (0x4C bytes, its constructor is 0x1060AAE0), which is
-    what `chunkhandler.h`'s `stream` member should be typed as. The reader's own are 0x1060B8A0
-    (has another chunk, bool), 0x1060B8E0 (opens it, answers its id), 0x1060BA90 (closes it), 0x1060B260's
-    `[reader+0x284]` indirection.
-  - the shape every loader repeats: read a one-byte length and that many characters into a 256-byte buffer, terminate
-    it, read a four-byte count (`MemoryStream::Read(&count, 1, 4, 1)`), repeat for a second name, find the
-    `Skeleton` by that second name (`LoadInventory::DynamicCaster<Skeleton>` + `FindObject(&caster, name, true)`),
-    make a `Pose` (`Skeleton::CreatePose(3)`, 0x106DDA70) when 0x11209D84 is set, then
-    `container::ArrayDynamic<T, container::AllocatorNew>::Allocate(count)` (elements are 300 bytes; `Allocate`, not
-    `Create`, is what the store order matches) and a `while (reader->HasChunk())` loop over the chunk ids
-    0x10003 / 0x10004 / 0x10020 / 0x1002B / 0x121201 / 0x121305 / 0x122000 with the byte-index + jump table form.
-    Each 0x10020 pass makes a 300-byte part (0x106DF020), calls `MakePrimitive` on it, `PushBack`s it (0x106DF110 is
-    the copy) and destroys it (0x106DF340).
-
-Not done in the shader/palette range: 0x10706960 `ShaderLoader::LoadObject` (2239), 0x10B96280
-`NewShaderLoader::LoadObject` (1759), 0x10B95780 `ShaderTemplateLoader::LoadObject` (1552), 0x106DE090
-`SkeletonLoader::LoadObject` (2234), 0x1067F4D0 `ravenphysics::PhysicsObjectLoader::LoadObject` (761).
+- Matching: 0x10B9C3E0 `GeometryLoader::LoadObject`, 0x10B90CA0 `PolySkinLoader::LoadObject`, 0x10B96280
+  `NewShaderLoader::LoadObject` (100 %).
+- EQUIVALENT (the same calls, arguments, branches and memory accesses in the same order; they differ in registers,
+  the order of the frame's variables and the scheduling of the reader's stream loads, and are replayed against the
+  engine's function with random chunk streams and stubbed callees): 0x10B91410 `CompositeDrawableLoader::LoadObject`
+  (42 %), 0x106DE090 `SkeletonLoader::LoadObject` (15 %), 0x10706960 `ShaderLoader::LoadObject` (42 %), 0x10B95780
+  `ShaderTemplateLoader::LoadObject` (39 %). What keeps them from matching: the engine keeps the inventory in ebp and a
+  zero in ebx through the chunk loop (this compiler picks other registers), `ShaderLoader` keeps the draw parameters'
+  bit word in esi and writes it through after each change, `SkeletonLoader` saves edi only inside its block and caches
+  the joint's kind in cx, `CompositeDrawableLoader` releases the controller loader inside each branch and keeps the heap
+  index in memory.
+- Findings the units share: `container::ArrayDynamic<T, AllocatorNew>` is 16 bytes (begin, end, capacity, allocator) in
+  the engine and its `Create` / `Allocate` store order differs; `pddiShaderInputInitData::SetBool` ... `SetDefault`
+  (0x106138A0 - 0x10613990) take the input's name as `const char*` and build the `Name` themselves; the
+  `LoadObject` virtual (slot 7) takes a `LoadInventory*` as its fourth parameter; `ChunkReader::BeginChunk` answers the
+  chunk id; functions.tsv gives 1552 bytes for 0x10B95780 (the unit is 0x9E2 bytes of code and two tables).
 
 - 0x102A6140 `proto::ShaderPalette`'s scalar deleting destructor (`??_GShaderPalette@proto@@UAEPAXI@Z`, 30 bytes)
   is compiler-generated: it calls `??1ShaderPalette` (0x102A60B0, 107 bytes, which walks and frees the two
@@ -3183,9 +3176,8 @@ Still NONMATCHING or not started, one line each:
 - 0x10626350 (`dxVertexBuffer::Create`): calls the name to usage helper 0x10625BF0, which takes its name in esi and
   answers in eax / edx.
 - 0x104E3840, 0x1041FA40 (start-up tables), 0x1061D3A0 (the default textures), 0x102D4920 / 0x102D4C50 (the deform
-  behaviour: they build stack messages whose vftables the unit would have to emit) and the loaders 0x10B9C3E0,
-  0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts, inline string
-  comparisons and bit-field states): not started.
+  behaviour: they build stack messages whose vftables the unit would have to emit): not started. (The chunk loaders
+  0x10B9C3E0 ... 0x10B95780 are in the pure3d/geometry section above.)
 - skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
   game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to

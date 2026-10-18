@@ -5,6 +5,8 @@
 #define PURE3D_PDDI_DX9_DXCONTEXT_H
 
 #include "code/core/name.h"
+#include "code/math/vector.h"
+#include "code/math/vector4.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
@@ -14,6 +16,8 @@
 namespace pure3d
 {
 	class dxProgram;
+	class pddiShaderInputInitData;
+	struct TextureInfo;
 
 	// The techniques of a shader (name guess; 0x10618C90 is its only known method)
 	class dxTechniques
@@ -23,6 +27,10 @@ namespace pure3d
 		int Find(const core::Name<core::CaseInsensitiveKey32>* name);
 		// 0x10618550: the entry of the table at +0x2D0 for a technique number
 		void* Get(int technique);
+
+		unsigned char unknown0[0x2E8];
+		// The name of the shader template the techniques belong to
+		core::Name<core::CaseInsensitiveKey32> templateName;
 		// 0x106283E0 / 0x10628400: the first and second program of the Z fill technique
 		dxProgram* Unknown106283E0();
 		dxProgram* Unknown10628400();
@@ -40,6 +48,34 @@ namespace pure3d
 		virtual dxTechniques* GetTechniques();
 		virtual void Unknown5();
 		virtual void Draw(int technique, pddiBaseContext::Constants* constants, const void* parameters);
+
+		// The values of the shader's inputs by name (pddiShaderCommon's setters; the same code as
+		// BindingParameters' in the engine): 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
+		// 0x106140C0, 0x10614140
+		void SetBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value);
+		void SetTexture(const core::Name<core::CaseInsensitiveKey32>& name, TextureInfo* texture);
+		void SetFloat(const core::Name<core::CaseInsensitiveKey32>& name, float value);
+		void SetVector2(const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void SetVector3(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector& value);
+		void SetVector4(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
+		void SetMatrix(const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		// 0x10614130: the same code as SetVector4 (the colour of an input)
+		void SetColour(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
+	};
+
+	// RTTI: pure3d::dxShaderTemplate (bases pddiBaseShaderTemplate, pddiObject, core::IRefCount; the object is
+	// 0x2F0 bytes, made by dxContext::NewShaderTemplate)
+	class dxShaderTemplate : public pddiObject
+	{
+	public:
+		// Slot 4: adds a pass of the template (the names of the pass, its vertex program and its pixel program and
+		// its draw state; the last argument is 0 where the template loader calls it)
+		virtual void AddPass(const char* name, const char* vertexProgram, const char* pixelProgram,
+			const PrimStreamParameters* state, int unknown);
+
+		// 0x10619F70: finishes the template once the loader has read every input (the context and the defaults of
+		// the inputs)
+		void Finish(pddiBaseContext* context, pddiShaderInputInitData* inputs);
 	};
 
 	// A vertex or pixel shader program of a technique (name guess; the kind decides which of the two it is)
@@ -101,6 +137,8 @@ namespace pure3d
 		// 0x1061B550 / 0x1061B5A0: a texture from the pool, released again when the description cannot be built
 		dxTexture* NewTexture(const TextureDescription* description);
 		dxTexture* NewTexture(const TextureDescription* description, const dxTexture* image);
+		// 0x1061BCD0: a new shader template of that name, kept by its name (the last two arguments are the file's)
+		dxShaderTemplate* NewShaderTemplate(const char* name, unsigned int unknown, unsigned int unknown2);
 		// 0x1061B600 / 0x1061B660: a buffer from the pool (the creator's result is dropped)
 		dxVertexBuffer* NewVertexBuffer(const VertexBufferDescription* description);
 		dxIndexBuffer* NewIndexBuffer(const IndexBufferDescription* description);

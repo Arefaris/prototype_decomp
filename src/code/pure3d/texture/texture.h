@@ -32,7 +32,7 @@ namespace pure3d
 		// 0x1072A470: the texture the chunk's image makes, written into `object` under the name `name`. The reader
 		// is the chunk the caller opened, `flags` is one of its words.
 		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
-			int flags);
+			content::LoadInventory* inventory);
 
 	private:
 		// 0x1072A1E0: the texture of the chunk's image, or null (name guess)

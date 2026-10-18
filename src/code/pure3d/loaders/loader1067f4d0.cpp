@@ -11,15 +11,15 @@ namespace pure3d
 	extern unsigned char gLoaderLock[24];
 
 	// 0x1067CF80: reads the sub-chunk of the tables into them (name unknown)
-	void Unknown1067CF80(content::ChunkReader* reader, int flags, Loaded1066F430Tables* tables);
+	void Unknown1067CF80(content::ChunkReader* reader, content::LoadInventory* inventory, Loaded1066F430Tables* tables);
 	// 0x1067EB90: reads the entries chunk into the object (name unknown)
-	void Unknown1067EB90(Loaded1066F430* loaded, content::ChunkReader* reader, int flags);
+	void Unknown1067EB90(Loaded1066F430* loaded, content::ChunkReader* reader, content::LoadInventory* inventory);
 
 	// FUNCTION: ENGINE 0x1067F4D0
 	// EQUIVALENT: register allocation and scheduling (27.9 %): the engine keeps the object in a stack slot and the
 	// entry count in ebx, this compiler the other way round; every read, call and store is the same
 	void Loader1067F4D0::LoadObject(core::IRefCount** object, content::ObjectName* name,
-		content::ChunkReader* reader, int flags)
+		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
 		core::CriticalSectionEnter(gLoaderLock);
 		unsigned char length;
@@ -86,14 +86,14 @@ namespace pure3d
 					reader->BeginChunk();
 					if (reader->GetChunkId() == 0x7020002)
 					{
-						Unknown1067CF80(reader, flags, tables);
+						Unknown1067CF80(reader, inventory, tables);
 					}
 					reader->EndChunk();
 				}
 			}
 			else if (id == 0x7021100 || id == 0x7021101)
 			{
-				Unknown1067EB90(loaded, reader, flags);
+				Unknown1067EB90(loaded, reader, inventory);
 			}
 			reader->EndChunk();
 		}

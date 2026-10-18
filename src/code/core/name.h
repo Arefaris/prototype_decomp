@@ -71,6 +71,9 @@ namespace core
 		Name();
 		// 0x1007F380 (another unit)
 		Name(const CaseInsensitiveKey32& key);
+		// 0x1008CC20 (another unit): the 32-bit hash of text, ignoring case; the second argument is passed as 1 by
+		// its users and its meaning is unknown
+		Name(const char* text, int unknown);
 		// 0x10611F30 (another unit)
 		Name(const Name& other);
 		// User-declared and empty like the other names' (the event classes that hold one have a destructor)

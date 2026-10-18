@@ -26,12 +26,19 @@ namespace content
 	public:
 		// 0x1060B8A0: whether there is another chunk in the one the reader sits in
 		bool HasChunk();
-		// 0x1060B8E0: opens the next chunk
-		void BeginChunk();
+		// 0x1060B8E0: opens the next chunk and answers its id
+		unsigned int BeginChunk();
+		// 0x1060BB10: how many bytes of the chunk's data have been read
+		unsigned int GetPosition();
+		// 0x1060BAF0: how many bytes of data the chunk has
+		unsigned int GetSize();
 		// 0x1060BAE0: the id of the chunk the reader sits in
 		unsigned int GetChunkId();
 		// 0x1060BA90: closes the chunk
 		void EndChunk();
+		// 0x105FF620: reads a length byte and that many characters into the buffer and terminates it; answers the
+		// buffer
+		char* ReadString(char* buffer);
 		// Reads from the stream the chunks come from
 		__forceinline void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown)
 		{
@@ -53,7 +60,7 @@ namespace content
 		virtual void Slot3(int unused);
 		virtual bool IsReady();
 		// Slot 5: makes the reader the chunk handler loads out of (the pure slot SimpleChunkHandler fills)
-		virtual void CreateObject(void** object, void** name, void* source, void* unknown, int flags) = 0;
+		virtual void CreateObject(void** object, void** name, void* source, void* unknown, LoadInventory* inventory) = 0;
 	};
 
 	class SimpleChunkHandler : public ObjectLoader
@@ -61,12 +68,18 @@ namespace content
 	public:
 		virtual ~SimpleChunkHandler();
 		// Slot 5: makes the reader (0x288 bytes) and loads the object out of it through slot 7
-		virtual void CreateObject(void** object, void** name, void* source, void* unknown, int flags);
-		// Slot 6: the chunk flags at +8
+		virtual void CreateObject(void** object, void** name, void* source, void* unknown, LoadInventory* inventory);
+		// Slot 6: the id of the chunk the handler is registered for (+8)
 		virtual int GetChunkFlags();
 		// Slot 7: reads the object the chunk describes into the two outputs (which the derived loader fills; the
-		// object is any reference-counted one, not only a LoadObject)
-		virtual void LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags) = 0;
+		// object is any reference-counted one, not only a LoadObject); the inventory is where it looks up the objects
+		// the chunk refers to
+		virtual void LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader,
+			LoadInventory* inventory) = 0;
+
+		// The chunk id the constructor is given, and a word the derived loaders do not use
+		unsigned int chunkId;
+		int unknownC;
 	};
 }
 
