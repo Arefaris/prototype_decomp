@@ -74,7 +74,7 @@ namespace engine
 		int safetyMode, bool guard, int track, bool flag);
 	// A heap backed by a segment pool allocator (core::CreateSegmentPoolAllocator); the fourth argument is not used
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,
-		const char* name, int heap, int safetyMode);
+		const char* name, int heap, int safetyMode, int unknown9);
 	// Reports allocations still live in the heap, then removes it from the heap table
 	void DestroyHeap(int heap);
 	// The same for a two-way allocator taken from another heap

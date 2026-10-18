@@ -2674,15 +2674,22 @@ Not started (the reason each is blocked, not just "unknown"):
   name constructor in front of the pushes. The report file's flag is `Autotester && !IsDebugLinkClosed()` written as
   one `if`/`else` (the `&&` form compiles to the engine's branches, `autotest = !closed` to `sete`). `SetLanguage`'s
   name needs the language as a local (`int language = LanguageGet();`): nested in the call, the second argument is pushed first.
-- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760): not written. The object
-  is 0x618 bytes; its constructor takes a configuration of 0x28+ words (copied to +0x44) and sets up
-  `container::ArrayDynamic`-style arrays (begin, end, capacity, heap id at +0xC: +0x10, +0x20, +0x30 with the
-  out-of-line `Reserve` instances 0x1040B2A0 / 0x1040B330 / 0x1040B3C0 / 0x1040B450 / 0x1040B4E0 / 0x1040B570 /
-  0x1040B690 / 0x1040B720 / 0x1040B840 for the element sizes 8, 4 ...), 0x12C / 0x1E0 / 0x78 / 0xF0 byte pools made
-  with `core::HeapAllocAligned`, a dozen `math::Vector` members started from `math::kZeroVector`, `core::Name`s
-  (+0x518 and the six from +0x568), the parked car cloud manager (+0x550, 0x104 bytes, constructor 0x104EF830), the
-  Lua closures registered by 0x1041F210 and the three `CreateBlockHeap` pools ("PedGameObjectPool" 0xA3,
-  "VehGameObjectPool" 0xAA, "VehiclePhysicsObjectPool" 0xAB).
+- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760) is EQUIVALENT (324 of 391
+  instructions line up; `ambientmanager.cpp`, with the nine `ArrayDynamicHeap<T>::Allocate` instances the unit keeps,
+  which match). The object is 0x618 bytes and the constructor is a long member initialiser list: the 0xA0-byte
+  configuration it is given is copied to +0x44; `container::ArrayDynamicHeap` arrays (begin, end, capacity, heap)
+  at +0x10, +0x210, +0x220, +0x230, +0x240, +0x250 / +0x260 (0x790-byte elements), +0x520, +0x530 and +0x5A8 are made
+  from its counts (heaps 0xA8 and 0xA1; every element size has its own type, as each size has its own `Allocate`
+  instance); the fixed pools at +0x270, +0x540, +0x5DC and +0x5EC allocate once with an inline `HeapAllocAligned`
+  (end first, then capacity: not `ArrayDynamicHeap`'s order); arrays that are only emptied (+0, +0x20, +0x30 with no
+  allocator, +0x5B8 and +0x5CC with the heap stored first) call the copy of the emptying function another unit kept
+  (0x1060E6C0, `proto::ArrayStorage::Reset`); eleven 16-byte points start with three float zeros, six of them are
+  set again after the script natives are registered (0x1041F210); two 0x8C-byte blocks (constructor 0x104279C0) sit
+  at +0xE4 and +0x170; seven `core::Name`s at +0x568. The body makes the parked car cloud manager (0x104 bytes, in
+  heap 0xA8) from a 0x60-byte configuration (0x104E7D00 starts it) and creates the three block heaps "PedGameObjectPool"
+  (0xA3), "VehGameObjectPool" (0xAA) and "VehiclePhysicsObjectPool" (0xAB); `CreateBlockHeap` takes nine arguments
+  (the last is unused). What differs: the schedule of the six points' stores and loads, a few register choices
+  and the place of one byte store. `ParkedCarCloudManager` is 0x104 bytes (its `table1C` was far too large).
 - `0x1083EC50` (484, the stream slots): it builds a `%s StreamSlot` string, allocates `count * 0x10 + 4` bytes for an
   array of 0x10-byte slots (the element's first word is a per-slot allocator), creates the slots' `CreateTwoWayHeap`
   (0x107DEB60) and dynamic-casts the result; it needs `container::String`, 0x1083EC30, 0x1083E880, 0x1082D630 and
@@ -3146,8 +3153,7 @@ Still NONMATCHING or not started, one line each:
 - 0x1061D3A0 (`CreateDefaultTextures`, dxdefaulttextures.cpp): NONMATCHING at 36 %. The fills compile to the engine's
   `rep stosd` once the width and pitch are copied into locals before the loop; the register allocation (the zero
   register, the pitch kept in a register) and the order of the description's stores still differ.
-- 0x1041FA40 (`proto::AmbientManager`'s constructor) and the loaders
-  0x10B9C3E0, 0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts,
+- The loaders 0x10B9C3E0, 0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts,
   inline string comparisons and bit-field states): not started.
 - skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
