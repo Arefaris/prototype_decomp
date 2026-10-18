@@ -28,6 +28,10 @@ namespace pure3d
 		void Unknown10715AC0(const void* viewState);
 		// 0x10715F30: makes the shadow map again after the device came back (called by the default pool)
 		void Unknown10715F30();
+		// 0x10715C80: gives the shadow map memory up to a borrower (the pause state) and answers the heap it is in
+		int LendShadowMapHeap();
+		// 0x10716900: takes the shadow map memory back and makes the map again
+		void ReclaimShadowMapHeap();
 
 		unsigned char unknown0[0x18];
 		// 0x107064A0 over the name "unlit"
@@ -36,7 +40,9 @@ namespace pure3d
 		int mode;
 		// The shadow map the lit passes sample (null: none)
 		pddiSurface* shadowMap;
-		unsigned char unknown24[0x10];
+		// Set while the shadow map memory is lent out (0x10715C80, 0x10716900)
+		bool lent;
+		unsigned char unknown25[0xf];
 	};
 
 	// 0x11281730

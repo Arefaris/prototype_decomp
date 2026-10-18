@@ -63,9 +63,20 @@ namespace engine
 	// A group of package slots (RTTI engine::StreamSlotGroup, vftable 0x10E6F838, 0x70 bytes, base
 	// content::MetaLoadObject; the manager's 0x1082D550 builds them); its packages get at least its priority. The
 	// layout follows the constructor 0x1083EAD0 and Create; the names are guesses.
+	// What a slot group builds the heap of its slots from (the group copies the three words into 0x24 - 0x2C)
+	struct SlotHeapConfig
+	{
+		unsigned int size;
+		bool flag;
+		unsigned int alignment;
+	};
+
 	struct StreamSlotGroup : public content::MetaLoadObject
 	{
 	public:
+		// 0x1083EAD0: the group of slotCount slots under name; the manager's 0x1082D550 makes one and registers it
+		StreamSlotGroup(const core::Name<core::CaseSensitiveKey>& name, unsigned int slotCount,
+			const SlotHeapConfig* config, bool shared, bool unknown67);
 		// vftable slot 7 (0x1083EC50): makes the group's slots and, for a group of several that is not shared, the
 		// heap they share; the first argument is never read
 		virtual void Create(int unused, bool immediate);

@@ -3316,3 +3316,23 @@ builds (Closure0 - Closure3 of FREventManager, in the RTTI) give each method's s
 - Constant arguments that the engine pushes after a call (`lua_pushstring(L, info->GetString(0))`) need the call's
   result in a local first; the engine's `strstr(...)` returned as a bool is `return strstr(keys, key);` (an
   explicit `!= 0` compiles to neg / sbb / neg).
+
+## proto/architecture/pausestate.cpp (0x104E7180 - 0x104E76F0): 19 functions match
+
+proto::GamePauseState (RTTI; PauseState, IRealTimeTask at +0x6C, OLS::Callback at +0x70 with its list node at +0x74,
+the borrowed slot group at +0x78 and the state flags 0x7C - 0x90). The unit runs 0x104E6730 - 0x104E7E00; the slot
+functions Enter / Leave / Update (0x104E6940, 0x104E6C70, 0x104E6EC0), 0x104E7100 and 0x104E7110 and everything after
+0x104E76F0 are not reconstructed (their symbols map to the engine's code, so the vftables our constructor installs
+lead to the original functions). What the unit shows:
+
+- A virtual function the derived class overrides only for a second base (IRealTimeTask::Update at 0x6C, the
+  callback at 0x70) is compiled with the subobject's `this`: 0x104E6EC0 reads the state at `[this + 0x10]` (= +0x7C of
+  the object) and 0x104E7280 sets the byte at `[this + 0x1A]` (= +0x8A). Writing the members of the full object and
+  letting the compiler adjust gives the same code.
+- The explicit COMDAT copies of inline members that appear in a unit (container::SListLite<OLS::Callback>::PushBack
+  and Remove, engine::OLS::AddCallback and RemoveCallback, the Method0 / Closure0 of the class and the RegisterMethod
+  instance) are emitted by the compiler once the constructor and the destructor that use them are compiled.
+- 0x104E74C0 / 0x104E71D0 borrow and return the memory of the shadow maps as a slot group "PauseBorrowed" (they have
+  no callers in the image). The name is built by an inline helper that returns it by value: that puts the Name
+  constructor before the argument pushes and the address is loaded with a lea afterwards.
+- `Slot2` is called by fe_PauseGame with the id of the first active player (`InputSystem::active.head->id`).
