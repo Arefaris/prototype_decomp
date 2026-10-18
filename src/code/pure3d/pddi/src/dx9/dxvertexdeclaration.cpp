@@ -24,7 +24,9 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1062B5C0
 	// EQUIVALENT: scheduling: the engine stores the new entry's user count before its element count, this compiler
 	// the other way round (96.6 %)
-	// Every store order, references, a constructor or an inline Set for the entry leave the order as it is.
+	// Every store order, references, a constructor or an inline Set for the entry leave the order as it is, and so do
+	// copies of the count and the number in locals, the device in a local, a declaration pointer set afterwards and
+	// the three spellings of the manager's count increment (about 600 compilations).
 	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements)
 	{
 		unsigned int count = 0;

@@ -47,9 +47,10 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061D3A0
-	// NONMATCHING: the fills compile to the engine's rep stosd, but the register allocation (the zero in ebp
-	// against edi,
-	// the pitch spilled) and the order of the description's stores differ (best 36 %)
+	// NONMATCHING: the fills compile to the engine's rep stosd, but the register allocation differs (best 36 %): the
+	// engine keeps the zero in edi from the first null test on (and sets it again after every rep stosd), the one in
+	// ebx (set again after every fill), and gives the three fills different registers for the width and the pitch;
+	// this compiler puts the zero in ebp and treats the fills alike. The order of the description's stores differs too.
 #ifdef NONMATCHING
 	void CreateDefaultTextures(IDirect3DDevice9* device)
 	{

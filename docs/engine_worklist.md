@@ -3329,7 +3329,7 @@ method of the pose at +0x70) and the job record at +0x330.
   floats once, ahead of the loop, like its one-bone sibling 0x1071D770); the earlier source gave it the stride of the
   paths with several offsets. Its pre-loop part is the engine's now (71 instructions identical), the blend is not.
 
-## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
+## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 22 functions match
 
 The units are named by the two assert paths the range keeps (`dxdefaultpoolmanager.cpp` in 0x106238B0 and
 `dxvertexdeclaration.cpp` in 0x1062B170 / 0x1062B710); the others are guessed from their contents. Done so far:
@@ -3397,11 +3397,7 @@ NONMATCHING:
   initialiser list, then -1 at +0x34, then the six words of the state block), but the engine clears the state block
   with a zero it materialises in `eax` (`xor eax, eax` after the state's constructor call) where this compiler
   reuses the zero the initialiser list left in `ebx`, and it schedules the -1 store in front of them.
-- 0x10623FB0 `RestoreDefaultPool`: scheduling, 27.4 %. Every loop, every call and every argument is the engine's
-  (the five arrays in their order, the scaled path's conversion of the display size, the vertex buffer's
-  lock/copy/unlock, the particle and shadow managers at the end), but the engine reloads the manager into `ecx`
-  later than this compiler does and interleaves the pushes with the address computations differently, which moves
-  every block behind it. The frame and the conversions themselves match.
+- 0x10623FB0 `RestoreDefaultPool` **matches** (what it took is in the last notes of this section).
 - 0x1062AA90 `dxPrimStream::dxPrimStream` matched after all (the relocation into the buffer pool resolves to the
   engine's `operator new[]` now): it is 100 % against 0x1062AA90 and no longer counted as NONMATCHING.
 
@@ -3472,10 +3468,28 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   `+= users` form leave `users = 1` behind the element count.
 - 0x1061C600 `dxTexture::Lock` stays EQUIVALENT (8 %): the engine has two `return false` blocks (early returns) and does
   not clear the two surface pointers; both bring it to 14.6 % only, `level` stays cached in ebx (engine: re-read).
-- 0x10623FB0 `RestoreDefaultPool` stays EQUIVALENT (27.4 %): the engine does not tail-merge the two
-  `ReportAllocationFailure` calls of each texture / target branch (each branch recomputes `&textures[i]` with other
-  registers); a device local in a branch makes it worse.
+- 0x10623FB0 `RestoreDefaultPool` **matches**: the vertex buffer's lock goes through a `void* data` local and a named buffer
+  local (not a `D3DLOCKED_RECT`), the surface fix-up behind a texture's creation is written once as an inline function
+  that both creation branches call (the engine keeps a copy in each branch and does not tail-merge the two
+  `ReportAllocationFailure` calls), and the vertex buffer's output pointer is read as `Begin()[i]`: with the plain
+  `operator[]` there this compiler turns the operands of one address in the depth/stencil loop around (`[esi+eax]` against
+  `[eax+esi]`, one byte); the same single change at the index buffer's or a render target's output pointer does it too, so
+  the choice is arbitrary.
 - 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (36 %, 1400 of 1517 bytes); not reworked.
+- Second pass over the six (2026-10-18; objdiff's percentages are given where objcmp's position-by-position ones are
+  far lower): 0x10623FB0 matches (above, 100 % over its real 1553 bytes; `functions.tsv` and `symbols.txt` had 1536, the
+  shared epilogue after the last call belongs to it). 0x106182C0 stays EQUIVALENT (97.5 %, objdiff 98.7 %) after about
+  1700 more compilations (every order of the capability stores and of the window-mode test, references, locals, flag
+  types, the display-mode local's place): only the height store moves. 0x1062B5C0 stays EQUIVALENT (96.6 %, objdiff
+  98.8 %) after about 600 (orders, copies in locals, an inline initialiser, the three spellings of the count's increment):
+  `users = 1` stays behind the element count. 0x10623250 stays EQUIVALENT (28.7 %, objdiff 89.4 %): a local for the
+  technique table, a conditional for the vertex count and the device taken in each draw branch give the technique ebp as
+  in the engine (64.5 %) but lose the engine's order of the first two calls and the device table's single load, so the
+  source keeps the plain form. 0x1061C600 stays EQUIVALENT (8 %, objdiff 81 %): the engine keeps `level` and `slice` in
+  edx / ecx and reads them again after the calls, so ebx and ebp are pushed only after the checks; nothing tried
+  (references to the system-memory copy, local copies, other arm orders) changes the choice. 0x1061D3A0 stays
+  NONMATCHING (36 %): the engine keeps the zero in edi and the one in ebx for the whole function and sets them again
+  after every fill, with different registers for each fill's width and pitch.
 
 ## Merge notes (2026-10-16)
 

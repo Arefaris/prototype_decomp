@@ -295,7 +295,11 @@ namespace pure3d
 	// after every call where this compiler caches it in ebx and shrinks the prologue around it, which shifts the
 	// whole body. Both bodies make the same device calls with the same arguments and leave the same description.
 	// The engine returns false from two separate blocks (early returns) and leaves the two surface pointers
-	// uninitialised; both together bring it to 14.6 % with `level` still cached.
+	// uninitialised; both together bring it to 14.6 % with `level` still cached (81 % when the shifted lines are
+	// aligned). The engine never gives `level` or `slice` a callee-saved register: both stay in edx / ecx for the
+	// checks and are read again from the argument slots after the calls, which lets it push ebx / ebp only after the
+	// checks. A pointer or reference to the system-memory copy, local copies and the order of the arms did not change
+	// that.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)
