@@ -215,6 +215,8 @@ namespace ravenphysics
 		ObjectRegistry();
 		// Back to the empty state: the three runs are filled with 0xFF and the table reset (0x10658C70)
 		void Reset();
+		// Gives the runs and the table back (0x10686410; name guess)
+		void Release();
 		// 0x10686980
 		void Remove(PhysicsObject* object);
 		// Empties the registry's tables once the detection starts (0x10686870; name guess)
@@ -250,6 +252,10 @@ namespace ravenphysics
 		void Track(ObjectList* objects);
 		// 0x10687CA0
 		void Untrack(ObjectList* objects);
+		// Gives the tracker's tables back (0x10688950, its destructor)
+		~PlacementTracker();
+		// The deleting form of the destructor (0x106564A0)
+		void* DestroyAndFree(unsigned int flags);
 		// The simulation step: moves and solves the objects of every list against the body (0x10689EE0; name guess)
 		void Advance(WorldBody* body, void* data, void* a, float dt, void* worldData, void* registry, void* b);
 
@@ -289,7 +295,8 @@ namespace ravenphysics
 	class World
 	{
 	public:
-		virtual void Unknown00();
+		// The destructor's slot: destroys the world and, with bit 0 set, frees it
+		virtual void Unknown00(int flags);
 		virtual void Unknown04();
 		virtual void Unknown08();
 		virtual void Unknown0C();
@@ -1502,6 +1509,9 @@ namespace ravenphysics
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)
 		void ClearObjects();
+		// Takes the context apart: the world, the tracker, the registry, the detectors and the batches' blocks
+		// (0x10659D50; name guess)
+		void Destroy();
 
 		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
 		// names are guesses)

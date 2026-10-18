@@ -300,9 +300,9 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106564A0
-	void* SolverScratch::DestroyAndFree(unsigned int flags)
+	void* PlacementTracker::DestroyAndFree(unsigned int flags)
 	{
-		Destroy();
+		PlacementTracker::~PlacementTracker();
 		if (flags & 1)
 		{
 			operator delete(this);

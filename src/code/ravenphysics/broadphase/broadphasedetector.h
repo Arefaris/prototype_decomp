@@ -2,6 +2,7 @@
 #ifndef RAVENPHYSICS_BROADPHASE_BROADPHASEDETECTOR_H
 #define RAVENPHYSICS_BROADPHASE_BROADPHASEDETECTOR_H
 
+#include "code/core/heap.h"
 #include "code/math/vector.h"
 
 namespace ravenphysics
@@ -85,13 +86,33 @@ namespace ravenphysics
 		void Remove(PhysicsObject* object);
 		// The same out of the tables the detection walks, leaving the object's slots free (0x106846F0; name guess)
 		void RemoveSecond(PhysicsObject* object);
+		// Gives the tables back (0x106840A0; name guess)
+		void Unknown106840A0();
+		// Frees the three blocks the detector keeps
+		~BroadPhaseDetector()
+		{
+			if (unknown24 != 0)
+			{
+				core::FreeAligned(unknown24);
+			}
+			if (boxes != 0)
+			{
+				core::FreeAligned(boxes);
+			}
+			if (Table().objects != 0)
+			{
+				core::FreeAligned(Table().objects);
+			}
+		}
 		// Tells the detector that a collision object of one of its bodies changed (0x10683510, another unit; name
 		// guess)
 		void UpdateCollisionObject(CollisionObject* object);
 
 		unsigned char unknown0[0x18];
 		BroadPhaseBox* boxes;            // 0x18
-		unsigned char unknown1C[0x34 - 0x1C];
+		unsigned char unknown1C[0x24 - 0x1C];
+		void* unknown24;                 // 0x24
+		unsigned char unknown28[0x34 - 0x28];
 		DetectorHead unknown34;          // 0x34 (the head of the second table; name guess)
 		unsigned char unknown54[0x6C - 0x54];
 		// The address of the second table's head, of the area behind it, of the area at 0x10C and of the first

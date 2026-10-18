@@ -2159,6 +2159,83 @@ namespace ravenphysics
 		return this;
 	}
 
+	// FUNCTION: ENGINE 0x10659D50
+	void Context::Destroy()
+	{
+		ClearObjects();
+		((WorkPools*)&recordPool)->ReleaseAll();
+		if (mWorld != 0)
+		{
+			mWorld->Unknown00(1);
+		}
+		if (!unknownD8)
+		{
+			PlacementTracker* tracker = placement;
+			if (tracker != 0)
+			{
+				tracker->~PlacementTracker();
+				operator delete(tracker);
+			}
+			registry->Release();
+			operator delete(registry);
+			core::FreeAligned(unknown10);
+		}
+		unknownC4->Unknown106840A0();
+		BroadPhaseDetector* broadPhase = unknownC4;
+		if (broadPhase != 0)
+		{
+			broadPhase->~BroadPhaseDetector();
+			operator delete(broadPhase);
+		}
+		operator delete(detector);
+		((WorkPools*)&recordPool)->ReleaseAll();
+		queryBatch.unknown24 = queryBatch.unknown20;
+		if (queryBatch.unknown20 != 0)
+		{
+			operator delete[](queryBatch.unknown20);
+		}
+		queryBatch.slotsEnd = queryBatch.slots;
+		if (queryBatch.slots != 0)
+		{
+			operator delete[](queryBatch.slots);
+		}
+		queryBatch.recordsEnd = queryBatch.records;
+		if (queryBatch.records != 0)
+		{
+			operator delete[](queryBatch.records);
+		}
+		constraintBatch.recordsSecondEnd = constraintBatch.recordsSecond;
+		if (constraintBatch.recordsSecond != 0)
+		{
+			operator delete[](constraintBatch.recordsSecond);
+		}
+		constraintBatch.slotsEnd = constraintBatch.slots;
+		if (constraintBatch.slots != 0)
+		{
+			operator delete[](constraintBatch.slots);
+		}
+		constraintBatch.recordsEnd = constraintBatch.records;
+		if (constraintBatch.records != 0)
+		{
+			operator delete[](constraintBatch.records);
+		}
+		collisionBatch.recordsSecondEnd = collisionBatch.recordsSecond;
+		if (collisionBatch.recordsSecond != 0)
+		{
+			operator delete[](collisionBatch.recordsSecond);
+		}
+		collisionBatch.slotsEnd = collisionBatch.slots;
+		if (collisionBatch.slots != 0)
+		{
+			operator delete[](collisionBatch.slots);
+		}
+		collisionBatch.recordsEnd = collisionBatch.records;
+		if (collisionBatch.records != 0)
+		{
+			operator delete[](collisionBatch.records);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10659EE0
 	void CollisionDetector::Begin(Context* context, void* data)
 	{

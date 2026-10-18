@@ -138,13 +138,6 @@ namespace ravenphysics
 		unsigned short slot;          // 0x04
 	};
 
-	// An object with a destructor of its own (0x10688950, another unit) and the delete behind it (0x106564A0)
-	struct SolverScratch
-	{
-		void Destroy();
-		void* DestroyAndFree(unsigned int flags);
-	};
-
 	// The limits a context is made with (0x106563D0 / 0x10656430; name guess)
 	struct ContextLimits
 	{
