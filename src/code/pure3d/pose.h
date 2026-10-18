@@ -5,20 +5,38 @@
 #define PURE3D_POSE_H
 
 #include "code/core/memory/imemoryallocator.h"
+#include "code/core/name.h"
 #include "code/pure3d/posedata.h"
 
 namespace pure3d
 {
 	class Pose;
 
+	// A named group of the joints of a skeleton (0x18 bytes): the joints it covers are the bits of its mask
+	struct SkeletonPartition
+	{
+		unsigned char unknown0[8];
+		core::Name<core::CaseSensitiveKey> mName;  // 0x08
+		JointMask* mMask;                          // 0x10
+		unsigned char unknown14[4];
+	};
+
 	class Skeleton
 	{
 	public:
+		// Reference counting through the vftable (slots 0 and 1)
+		virtual void AddRef();
+		virtual void Release();
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
+		// 0x106DDC80: the partition of that name (null when there is none; the empty names get a static empty one)
+		SkeletonPartition* FindPartition(const core::Name<core::CaseSensitiveKey>& name);
 
-		unsigned char unknown0[8];
+		unsigned char unknown4[4];
 		SkeletonData mData;
+		unsigned char unknown4C[0xC];
+		unsigned int mPartitionCount;              // 0x58
+		SkeletonPartition* mPartitions;            // 0x5C
 	};
 
 	class LockableRefCounted : public core::IRefCount

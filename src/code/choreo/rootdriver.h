@@ -15,6 +15,8 @@ namespace choreo
 	// methods sit in the unit of the sample channels (0x10952290 - 0x10952390) and are only declared here.
 	struct AnimationClip
 	{
+		// 0x109521E0: an empty clip with its channel block
+		AnimationClip();
 		// 0x10952290
 		~AnimationClip();
 		// 0x109522A0: binds the clip to an animation (nothing is copied while reset is clear)
@@ -24,6 +26,9 @@ namespace choreo
 		// 0x10952320 / 0x10952330: the length of the clip in frames and its rate in frames per second
 		float GetDuration() const;
 		float GetFrameRate() const;
+		// 0x10952350 / 0x10952360: the word at +0xC
+		float Unknown10952350() const;
+		void Unknown10952360(float value);
 		// 0x10952380: bit 1 of the clip's flags
 		bool Unknown10952380() const;
 		// 0x10952390: whether the animation drives any joint of the mask
@@ -47,6 +52,8 @@ namespace choreo
 	// The animation a driver plays and the clip of it that it shows (the pair at the animation driver's +0x38)
 	struct AnimationBinding
 	{
+		// 0x10952490: no animation and an empty clip
+		AnimationBinding();
 		// 0x10955560: releases the animation and the clip
 		~AnimationBinding();
 
@@ -101,13 +108,17 @@ namespace choreo
 	};
 
 	// The driver that partitions the pose of the puppet over a range of joints (0x38 bytes). Its methods are the unit
-	// before deltatransform.cpp and are only declared here.
+	// before deltatransform.cpp (partitiondriver.cpp).
 	class PartitionDriver : public Driver
 	{
 	public:
+		// 0x1094D520: a driver of the given type over the joints of the skeleton (all of them until a partition is set)
+		PartitionDriver(pure3d::Skeleton* skeleton, int type);
+		// 0x1094D3E0
+		PartitionDriver(const PartitionDriver& other);
 		// 0x1094D430
 		virtual ~PartitionDriver();
-		// slot 0 (0x1094D690): binds the driver to the pose and to the joint it drives
+		// slot 0 (0x1094D690): binds the driver to the skeleton and to the partition it drives
 		virtual void Bind(const DriverInfo& info);
 		// slots 2/3 (0x1094B100 / 0x1094B110): the first and the last joint of the range the driver drives
 		virtual unsigned int GetFirstJoint() const;
@@ -116,14 +127,25 @@ namespace choreo
 		virtual bool CoversRoot() const;
 		// 0x1094D4C0: whether the driver's clip is at rest against the pose
 		bool Unknown1094D4C0(const AnimationBinding& binding) const;
+		// 0x1094D450 / 0x1094D470: the first and the last joint of the range
+		void SetFirstJoint(unsigned int joint);
+		void SetLastJoint(unsigned int joint);
+		// 0x1094D490: the range covers the whole skeleton
+		void ResetRange();
+		// 0x1094D570: the range is the one the partition covers (the whole skeleton for none)
+		void SetPartition(pure3d::SkeletonPartition* partition);
+		// 0x1094D610: the same for the partition of the skeleton with that index
+		void SetPartitionIndex(int index);
+		// 0x1094D630: the same for the partition with that name (the empty name means none)
+		void SetPartitionByName(const core::Name<core::CaseSensitiveKey>& name);
 
 		unsigned char unknown1C[4];    // 0x1C
 		// The first and the last joint of the pose the driver drives
 		unsigned int mFirstJoint;      // 0x20
 		unsigned int mLastJoint;       // 0x24
-		pure3d::Pose* mPose;           // 0x28
-		void* mJoint;                  // 0x2C
-		const void* mJointMask;        // 0x30
+		pure3d::Skeleton* mSkeleton;   // 0x28
+		pure3d::SkeletonPartition* mPartition;  // 0x2C
+		const pure3d::JointMask* mJointMask;    // 0x30
 		unsigned char unknown34[4];    // 0x34
 	};
 

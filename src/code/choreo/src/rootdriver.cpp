@@ -147,7 +147,7 @@ namespace choreo
 		mBinding.mSource = animation;
 		mBinding.mSource->AddRef();
 		mBinding.mSource->Unknown106E9310(1);
-		mBinding.mClip.Set(mBinding.mSource, mPose, true);
+		mBinding.mClip.Set(mBinding.mSource, mSkeleton, true);
 		Unknown1094A4A0(mBinding.mClip.Unknown10952380());
 	}
 
@@ -157,7 +157,7 @@ namespace choreo
 		PartitionDriver::Bind(info);
 		if (mBinding.mSource != 0)
 		{
-			mBinding.mClip.Set(mBinding.mSource, mPose, false);
+			mBinding.mClip.Set(mBinding.mSource, mSkeleton, false);
 			Unknown1094A4A0(mBinding.mClip.Unknown10952380());
 		}
 	}
@@ -412,7 +412,7 @@ namespace choreo
 		if (mBinding.mClip.IsSet())
 		{
 			blendNode->SetJoints(first, mLastJoint, (void*)mJointMask);
-			blendNode->Set(blendSample, &blendSample->mArrays, rotation, translation, full);
+			blendNode->Set(blendSample, blendSample + 1, rotation, translation, full);
 			mBinding.mClip.Unknown10952480(blendSample);
 			blendSample->Set(1.0f, 1.0f, mUnknownE4, mUnknownEC, mUnknownE8 >= 0.0f);
 			mBinding.mSource->Touch();

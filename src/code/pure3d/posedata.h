@@ -14,7 +14,8 @@ namespace pure3d
 	// The joints an animation drives: bit n of the words after the first is set for joint n
 	struct JointMask
 	{
-		unsigned int unknown0;
+		// How many joints the mask covers
+		unsigned int mJointCount;
 		unsigned int words[1];
 	};
 

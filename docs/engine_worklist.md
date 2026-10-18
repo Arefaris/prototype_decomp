@@ -1161,43 +1161,43 @@ NONMATCHING:
 Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled and called by the matching matrix
 setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
 
-## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 3 functions match, 0 NONMATCHING, 50 not done
+## choreo/src/partitiondriver.cpp (0x1094C790 - 0x1094D6F0): 50 functions match, 0 NONMATCHING, 0 not done
 
-Source in `choreo/src/partitiondriver.cpp` (file name guessed; `choreo::AnimationBlendDriver`'s destructor 0x1094D290
-destroys fifteen 0x2C-byte clip entries from +0x3C, so the unit is the one that builds and drives the drivers that
-partition the pose). Matched: `PartitionDriver::~PartitionDriver` 0x1094D430 (releases the pose through its vftable),
-`CoversRoot` 0x1094D4B0 and `Unknown1094D4C0` 0x1094D4C0 (whether the clip is at rest against the pose).
+The unit before deltatransform.cpp (file name guessed): `choreo::AnimationBlendDriver : PartitionDriver` (RTTI
+0x111EC030, vftable 0x10E8BB64, driver type 1) and the partition half of `choreo::PartitionDriver` (RTTI 0x111EBF84,
+vftable 0x10E8BC84). Classes in `choreo/blenddriver.h` and `choreo/rootdriver.h`.
 
-The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
-0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the
-clip lengths and rates (0x1094C850, 0x1094CEA0, 0x1094CEF0), the partition bit-set indexing and the blends. Nothing
-is written up yet. What the rootdriver unit has since recovered (the classes are laid out in
-`src/code/choreo/{rootdriver,puppet}.h` now):
+- `PartitionDriver` (0x38 bytes): the object at +0x28 is a `pure3d::Skeleton` (not a Pose: its +8 is the joint count
+  and its virtuals 0 / 1 are AddRef / Release), `mPartition +0x2C` is the skeleton's named group of joints
+  (`pure3d::SkeletonPartition`, 0x18 bytes, name at +8, joint mask at +0x10; the skeleton keeps the count at +0x58 and
+  the array at +0x5C, `Skeleton::FindPartition` 0x106DDC80), `mJointMask +0x30` its mask (a bit per joint). The ranges
+  `mFirstJoint` / `mLastJoint` are the first and last set bit (0x1094D570); `SetPartition` ends with a virtual call
+  of `CoversRoot` whose result is dropped.
+- `AnimationBlendDriver` (0x2E4 bytes): `mActiveCount +0x38`, fifteen `BlendEntry` (0x2C bytes: `AnimationBinding` +0,
+  start frame +0x1C, end frame +0x20 (negative counts back from the last frame, default -1), rate +0x24, weight +0x28)
+  from +0x3C, `mLooping +0x2D0`, +0x2D1, `mScale +0x2D4`, `mPreviousPhase +0x2D8`, `mPhase +0x2DC`, `mPhaseStep +0x2E0`.
+  The entries are blended by weight (a running mean, `(x - mean) * share + mean`) into one phase running from 0 to 1.
+- `PoseBlendSample` is 0x20 bytes: the joint arrays that `PoseBlendNode::Set` takes start right after the samples,
+  not in a member.
 
-- `choreo::PartitionDriver` (0x38 bytes) = `Driver` (0x1C: vptr, an 8-byte core::Name at +4, +0xC, an int at +0x10,
-  the type at +0x14, the flags byte at +0x18) plus `mFirstJoint +0x20`, `mLastJoint +0x24`, `mPose +0x28`,
-  `mJoint +0x2C`, `mJointMask +0x30`, `+0x34`. Its vftable is 0x10E8BC84, six slots: 0x1094D690 the bind override,
-  0x109496F0 inherited, 0x1094B100 / 0x1094B110 the two joint getters, `??_G` 0x1094D550 and 0x1094D4B0
-  `CoversRoot` (`mFirstJoint == 0`); the destructor is 0x1094D430 (releases the object at +0x28 through its
-  vftable slot 1, then `~Driver`), not 0x1094D550.
-- 0x1094D690 takes a `DriverInfo` (`{ unknown0[0xC], void* mPose +0xC }`), assigns it with 0x1094D4F0
-  (`AssignRefCounted`), looks the joint up by name through 0x1094D630 -> `0x106DDC80(Pose*, const core::Name&)`
-  (returns the 0x18-byte joint whose `core::Name` is at +8) and stores it with 0x1094D570 (the joint at +0x2C, its
-  mask at +0x30, then a scan of the mask for the first and last joint of the range). 0x1094D4C0 returns whether the
-  clip is at rest against the pose: `!(binding.mSource && mPose && binding.mClip.Unknown10952390(mJointMask))`.
-- `choreo::AnimationBlendDriver`'s vftable is 0x10E8BB64: slot 0 0x1094CB50, slot 1 0x1094CB20, slots 2/3 inherited,
-  `??_G` 0x1094D3C0, slot 5 inherited. Its own members start after the 0x38 bytes of PartitionDriver.
-- The clip class (`choreo::AnimationClip`, 0x18 bytes: a channel pointer +0, the duration in frames +4, the rate +8,
-  +0xC, a flags byte +0x10, the animation bound to it +0x14; methods 0x10952290 destroy, 0x109522A0 set,
-  0x10952310 IsSet, 0x10952320 duration, 0x10952330 rate, 0x10952380 bit 1 of the flags, 0x10952390 whether the
-  animation drives any joint of a mask, 0x10952480 the animation) and the two blend nodes of the job
-  (`choreo::PoseBlendNode`, 0x70 bytes, and `choreo::PoseBlendSample`, 0x20 bytes, declared in poseblendjob.h) are
-  already in the choreo headers.
+Matching notes:
 
-**The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
-compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation
-(/GL), not of plain /O2: our build puts them all in `ecx`. Everything that calls such a helper is off by that one
-`mov`. If a later session finds a way to reproduce it, the twenty setters come with it.
+- The file-local register convention blocker recorded earlier does not exist: every helper of this unit takes its
+  arguments on the stack or in `ecx`. The `RefAssign` pair at 0x1094D1C0 / 0x1094D4F0 are `core::RefAssign` for
+  `pure3d::Animation` and `pure3d::Skeleton` (instantiated by the compiler, not annotated).
+- A `bool` function returning `return !(a && b);` is compiled with `xor eax, eax` / `mov eax, 1`, `if (...) return false;
+  return true;` with `xor al, al` (BlendEntry::IsIdle).
+- The engine's clamp ladders are ternaries: `float s = x >= 0 ? x : 0; if (s - last >= 0) s = last;` keeps the
+  intermediate in a register, a plain `if (x < 0) x = 0;` stores it in the stack slot (GetLength / GetFrame; the
+  wrapped end frame is a separate local).
+- A reciprocal guarded by an epsilon is `if (EPS >= fabsf(x)) r = 0; else r = 1 / x;` (zero branch first, `fcomip` against
+  the constant) or the ternary `!(EPS >= fabsf(x)) ? a / x : 0`; `fabsf(x) > EPS` compiles to `fxch` + `fcomip` instead.
+- A float result assigned in each arm of an if / else chain and returned (`float result; ...; return result;`) is
+  spilled to a stack slot and reloaded (`fstp` / `fld`) like the engine's GetFrame.
+- `UpdateFinished`: `finished = mPhase >= 1.0f` in the `mScale >= 0` arm and `0.0f >= mPhase` in the other share one
+  flag test; any `playing` variable breaks that.
+- `SetAnimation`: `movesRoot = movesRoot || clip.Unknown10952380();` (not `if (...) movesRoot = true`) keeps the engine's
+  register split of `this`.
 
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
