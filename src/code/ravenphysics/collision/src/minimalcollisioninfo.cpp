@@ -23,7 +23,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10653170
-	void CollisionSlotStack::Push(const unsigned short& index)
+	inline void CollisionSlotStack::Push(const unsigned short& index)
 	{
 		size++;
 		unsigned short* slot = begin + size - 1;
@@ -507,9 +507,8 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10653250
-	// NONMATCHING: the bumped serial, 70.2 %: the engine reads it out of the slot once and reuses the register
-	// for both stores, ours loads it a second time for the handle (`movzx esi, word ptr [eax]` then
-	// `mov dx, word ptr [eax]`); naming the value only moves the extra load
+	// NONMATCHING: the engine keeps the stack frame register behind the free-list update and widens the bumped
+	// serial only for the slot's word (`movzx esi, ax`), ours pushes esi earlier and widens it in eax first, 81 %
 #ifdef NONMATCHING
 	void CollisionObjectTable::Add(void* object, CollisionHandle* handle)
 	{
@@ -518,9 +517,11 @@ namespace ravenphysics
 			handle->value = 0xffffffff;
 			return;
 		}
-		unsigned short index = free.Pop();
-		unsigned short& serial = serials.begin[index];
-		serial++;
+		unsigned short index = free.begin[free.size - 1];
+		free.size--;
+		unsigned short* serialSlot = &serials.begin[index];
+		(*serialSlot)++;
+		unsigned int serial = *serialSlot;
 		CollisionHandleEntry* entry = &entries.begin[index];
 		entry->object = object;
 		entry->serial = serial;
@@ -530,13 +531,9 @@ namespace ravenphysics
 #endif
 
 	// FUNCTION: ENGINE 0x106532B0
-	// NONMATCHING: the serial test, 35.6 %: the engine materialises the second half of the `&&` as a bool
-	// (`sete dl` / `test dl, dl`), ours branches on the comparison directly; every other instruction, and the
-	// `&&`'s short-circuit, is the same
-#ifdef NONMATCHING
 	void CollisionObjectTable::Remove(CollisionHandle* handle)
 	{
-		if (handle->index < slotCount && entries.begin[handle->index].serial == handle->serial)
+		if (IsLive(handle))
 		{
 			free.Push(handle->index);
 			CollisionHandleEntry* entry = &entries.begin[handle->index];
@@ -545,5 +542,4 @@ namespace ravenphysics
 			handle->value = 0xffffffff;
 		}
 	}
-#endif
 }

@@ -58,6 +58,8 @@ namespace ravenphysics
 	class MidPhaseBatcher
 	{
 	public:
+		// Every pointer and counter starts at zero (0x10659030)
+		MidPhaseBatcher();
 		// Queues what is left and, for the last of the callers sharing the batcher, flushes the narrow phase's
 		// batches and reports the statistics (0x10691C30)
 		void Finish();
@@ -65,7 +67,10 @@ namespace ravenphysics
 		void Complete();
 
 		PairBatch pairs;
-		unsigned char unknown18[0x28 - 0x18];
+		int unknown18;
+		int unknown1C;
+		unsigned char unknown20[4];
+		int unknown24;
 		int batchCount;
 		int batchTotal;
 		unsigned char unknown30[0x50 - 0x30];
@@ -74,7 +79,9 @@ namespace ravenphysics
 		NarrowPhaseBatcher* narrowPhase;
 		int unknown5C;
 		long* users;
-		unsigned char unknown64[0x70 - 0x64];
+		int unknown64;
+		int unknown68;
+		int unknown6C;
 		StatLog log;
 	};
 }

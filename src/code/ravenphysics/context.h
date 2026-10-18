@@ -20,6 +20,9 @@ namespace ravenphysics
 	class NarrowPhaseBatcher;
 	class Context;
 	struct RegistryRef;
+	struct HandlePairRun;
+	struct BodyPairRun;
+	struct PointerRun;
 
 	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
 	struct PhysicsObjectEntry
@@ -1474,6 +1477,10 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+		// Sorts the bodies of a batch's pairs into the static and the movable list, each body once; the context is not
+		// used (0x106586E0; name guess)
+		void CollectBodies(const HandlePairRun* pairs, const BodyPairRun* records, PointerRun* staticBodies,
+			PointerRun* movableBodies);
 		// The area at 0x10C (0x106562E0; name guess)
 		SlotPool* GetRecordPool();
 		// Hands a sleeping object on to the world (0x106564C0; name guess)

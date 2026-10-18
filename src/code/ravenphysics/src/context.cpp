@@ -1041,7 +1041,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10658030
-	bool PointerRun::PushBack(void* const& value)
+	inline bool PointerRun::PushBack(void* const& value)
 	{
 		if (mEnd < mCapacity)
 		{
@@ -1056,7 +1056,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10658060
-	void** PointerRun::Find(void* const& value)
+	inline void** PointerRun::Find(void* const& value)
 	{
 		void** item = mBegin;
 		while (item != mEnd && *item != value)
@@ -1475,6 +1475,95 @@ namespace ravenphysics
 			{
 				object->RefreshBounds(0);
 			}
+		}
+	}
+
+	// Two collision objects, named by the handles the table gave them (name and layout are guesses)
+	struct HandlePair
+	{
+		unsigned char unknown0[0x18];
+		CollisionHandle first;         // 0x18
+		CollisionHandle second;        // 0x1C
+	};
+
+	// The pairs of a batch: the run of pointers to them (name guess)
+	struct HandlePairRun
+	{
+		HandlePair** begin;
+		HandlePair** end;
+	};
+
+	// Two bodies and what the narrow phase knows about them (0x70 bytes; name and layout are guesses)
+	struct BodyPairRecord
+	{
+		unsigned char unknown0[0x10];
+		PhysicsObject* first;          // 0x10
+		PhysicsObject* second;         // 0x14
+		unsigned char unknown18[0x70 - 0x18];
+	};
+
+	// The records of a batch and how many there are (name guess)
+	struct BodyPairRun
+	{
+		BodyPairRecord* records;
+		unsigned int count;
+	};
+
+	// The handle that names nothing (0x110BE234)
+	extern const CollisionHandle gInvalidCollisionHandle;
+
+	// Adds a body to the list unless it is in it already or the list is full
+	inline void AddBody(PointerRun* list, PhysicsObject* body)
+	{
+		if (list->Find(body) == list->mEnd)
+		{
+			list->PushBack(body);
+		}
+	}
+
+	// Whether the slot the handle names still carries the handle's serial
+	inline bool IsLiveHandle(unsigned int handle)
+	{
+		if ((unsigned short)handle >= gCollisionObjectTable->slotCount)
+		{
+			return false;
+		}
+		return gCollisionObjectTable->entries.begin[(unsigned short)handle].serial == (handle >> 16);
+	}
+
+	// The body of the collision object a handle names
+	inline PhysicsObject* GetHandleBody(unsigned int handle)
+	{
+		return ((CollisionObject*)gCollisionObjectTable->entries.begin[(unsigned short)handle].object)->owner;
+	}
+
+	// Sorts the bodies of a batch's pairs into the static and the movable list, each body once (0x106586E0; name
+	// guess)
+	// FUNCTION: ENGINE 0x106586E0
+	void Context::CollectBodies(const HandlePairRun* pairs, const BodyPairRun* records, PointerRun* staticBodies,
+		PointerRun* movableBodies)
+	{
+		for (unsigned int i = 0; i < (unsigned int)(pairs->end - pairs->begin); i++)
+		{
+			unsigned int handle = pairs->begin[i]->first.value;
+			if (IsLiveHandle(handle) && handle != gInvalidCollisionHandle.value)
+			{
+				PhysicsObject* body = GetHandleBody(handle);
+				AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			}
+			handle = pairs->begin[i]->second.value;
+			if (IsLiveHandle(handle) && handle != gInvalidCollisionHandle.value)
+			{
+				PhysicsObject* body = GetHandleBody(handle);
+				AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			}
+		}
+		for (unsigned int i = 0; i < records->count; i++)
+		{
+			PhysicsObject* body = records->records[i].first;
+			AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			body = records->records[i].second;
+			AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
 		}
 	}
 
@@ -1921,6 +2010,68 @@ namespace ravenphysics
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x681, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		hits->end = hits->begin;
 		mWorld->QueryBodyShapeHits(object, hits, unknownC4, a);
+	}
+
+	// FUNCTION: ENGINE 0x10658F90
+	NarrowPhaseBatcher::NarrowPhaseBatcher()
+	{
+		batches[0].storage = 0;
+		batches[0].count = 0;
+		batches[0].capacity = 0;
+		batches[1].storage = 0;
+		batches[1].count = 0;
+		batches[1].capacity = 0;
+		batches[2].storage = 0;
+		batches[2].count = 0;
+		batches[2].capacity = 0;
+		batches[3].storage = 0;
+		batches[3].count = 0;
+		batches[3].capacity = 0;
+		batches[4].storage = 0;
+		batches[4].count = 0;
+		batches[4].capacity = 0;
+		batches[5].storage = 0;
+		batches[5].count = 0;
+		batches[5].capacity = 0;
+		unknown64 = 0;
+		unknown68 = 0;
+		unknown6C = 0;
+		unknown74 = 0;
+		unknown78 = 0;
+		unknown184 = 0;
+		unknown188 = 0;
+		unknown18C = 0;
+		unknown190 = 0;
+		unknown194 = 0;
+		unknown198 = 0;
+		unknown398 = 0;
+		unknown39C = 0;
+		unknown3A0 = 0;
+		unknown3A4 = 0;
+		unknown3A8 = 0;
+		unknown3AC = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10659030
+	MidPhaseBatcher::MidPhaseBatcher()
+	{
+		pairs.entries = 0;
+		pairs.count = 0;
+		pairs.capacity = 0;
+		pairs.buffer = 0;
+		pairs.offset = 0;
+		pairs.total = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown24 = 0;
+		batchCount = 0;
+		batchTotal = 0;
+		unknown64 = 0;
+		unknown68 = 0;
+		unknown6C = 0;
+		log.entries = 0;
+		log.capacity = 0;
+		log.count = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10659690

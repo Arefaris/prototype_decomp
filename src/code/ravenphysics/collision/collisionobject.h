@@ -233,6 +233,15 @@ namespace ravenphysics
 		void Add(void* object, CollisionHandle* handle);
 		// The same under another name (0x10655AB0)
 		void Register(void* object, CollisionHandle* handle);
+		// Whether the slot the handle names still carries the handle's serial
+		bool IsLive(const CollisionHandle* handle) const
+		{
+			if (handle->index >= slotCount)
+			{
+				return false;
+			}
+			return entries.begin[handle->index].serial == handle->serial;
+		}
 		// The object a handle names (0x10656090)
 		void* GetObject(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
