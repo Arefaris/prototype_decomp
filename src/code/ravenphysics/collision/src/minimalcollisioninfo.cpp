@@ -5,6 +5,7 @@
 // the copies of CollisionShape's flag accessors and of the volume destructors that its own code needs.
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/core/heap.h"
+#include <new>
 #include "code/core/refptr.h"
 
 namespace ravenphysics
@@ -214,6 +215,140 @@ namespace ravenphysics
 		return &gIntersectionProperties[index];
 	}
 
+	// FUNCTION: ENGINE 0x10653830
+	inline IntersectionPropertiesEntry::IntersectionPropertiesEntry(const core::Name<core::CaseSensitiveKey>& entryName,
+		const IntersectionProperties& entryProperties) : name(entryName), properties(entryProperties)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106538F0
+	IntersectionPropertiesEntry::~IntersectionPropertiesEntry()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10653900
+	// EQUIVALENT: the engine loads the registry's address behind the test of the count (nothing is loaded for an
+	// empty registry), ours before it, 94.8 %
+	IntersectionPropertiesEntry* FindIntersectionPropertyByName(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unsigned int count = gIntersectionPropertyCount;
+		IntersectionPropertiesEntry* entries = gIntersectionProperties;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (entries[i].name == name)
+			{
+				return &gIntersectionProperties[i];
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10653950
+	// EQUIVALENT: as FindIntersectionPropertyByName, 94.4 %
+	unsigned short FindIntersectionPropertyIndex(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unsigned int count = gIntersectionPropertyCount;
+		IntersectionPropertiesEntry* entries = gIntersectionProperties;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (entries[i].name == name)
+			{
+				return (unsigned short)i;
+			}
+		}
+		return 0xFFFF;
+	}
+
+	// FUNCTION: ENGINE 0x106539A0
+	bool FindColliderTypeIndex(const core::Name<core::CaseSensitiveKey>& name, unsigned int* index)
+	{
+		if (gColliderTypeNames != 0)
+		{
+			core::Name<core::CaseSensitiveKey>* names = gColliderTypeNames->names;
+			unsigned int i = 0;
+			unsigned int count = gColliderTypeNames->namesEnd - names;
+			for (; i < count; i++)
+			{
+				if (names[i] == name)
+				{
+					*index = i;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106539F0
+	bool GetColliderTypeName(unsigned int index, core::Name<core::CaseSensitiveKey>* name)
+	{
+		if (gColliderTypeNames != 0)
+		{
+			core::Name<core::CaseSensitiveKey>* names = gColliderTypeNames->names;
+			core::Name<core::CaseSensitiveKey>* end = gColliderTypeNames->namesEnd;
+			if (index < (unsigned int)(end - names))
+			{
+				*name = names[index];
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10653AA0
+	IntersectionPropertiesEntry::IntersectionPropertiesEntry()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10653B00
+	void ClearIntersectionPropertyRegistry()
+	{
+		delete[] gIntersectionProperties;
+		gIntersectionProperties = 0;
+		gIntersectionPropertyCount = 0;
+		gIntersectionPropertyCapacity = 0;
+		core::RefAssign(gColliderTypeNames, (ColliderTypeNames*)0);
+	}
+
+	// FUNCTION: ENGINE 0x10653B50
+	// EQUIVALENT: the same reads, writes and calls in the same order; the engine keeps the name in edi and saves ebx
+	// only in the appending branch where ours keeps it in ebx for the whole function and reloads the registry
+	// pointer for the second half of the copy, 26.2 %
+	unsigned int RegisterIntersectionProperties(const core::Name<core::CaseSensitiveKey>& name,
+		const IntersectionProperties& properties)
+	{
+		unsigned int index = FindIntersectionPropertyIndex(name);
+		if (index != 0xFFFF)
+		{
+			IntersectionPropertiesEntry* entry = &gIntersectionProperties[index];
+			entry->properties = properties;
+			return index;
+		}
+		unsigned int count = gIntersectionPropertyCount;
+		new (&gIntersectionProperties[count]) IntersectionPropertiesEntry(name, properties);
+		count++;
+		gIntersectionPropertyCount = count;
+		return count - 1;
+	}
+
+	// FUNCTION: ENGINE 0x10653F50
+	void RegisterDefaultIntersectionProperties()
+	{
+		gIntersectionPropertyCount = 0;
+		IntersectionProperties properties(-1, -1);
+		RegisterIntersectionProperties(core::Name<core::CaseSensitiveKey>("Default", 1), properties);
+		core::RefAssign(gColliderTypeNames, (ColliderTypeNames*)0);
+	}
+
+	// FUNCTION: ENGINE 0x10653FA0
+	void CreateIntersectionPropertyRegistry(unsigned int count)
+	{
+		gIntersectionPropertyCapacity = count;
+		gIntersectionProperties = new IntersectionPropertiesEntry[count];
+		core::RefAssign(gColliderTypeNames, (ColliderTypeNames*)0);
+		RegisterDefaultIntersectionProperties();
+	}
+
 	// FUNCTION: ENGINE 0x10653860
 	IntersectionProperties::IntersectionProperties()
 	{
@@ -231,7 +366,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106538D0
 	bool ClearIntersectionPropertiesLoader()
 	{
-		core::RefAssign(gIntersectionPropertiesLoader, (IntersectionPropertiesLoader*)0);
+		core::RefAssign(gColliderTypeNames, (ColliderTypeNames*)0);
 		return true;
 	}
 

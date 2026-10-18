@@ -5,6 +5,7 @@
 #define RAVENPHYSICS_CONTEXT_H
 
 #include "code/content/loadinventory.h"
+#include "code/core/name.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/batch/midphasebatcher.h"
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
@@ -57,6 +58,11 @@ namespace ravenphysics
 	struct IntersectionProperties
 	{
 		IntersectionProperties();
+		IntersectionProperties(int a, int b)
+		{
+			unknown0 = a;
+			unknown4 = b;
+		}
 
 		// Whether two sets of properties name the same thing (0x10653610)
 		bool operator==(const IntersectionProperties& other) const;
@@ -65,21 +71,28 @@ namespace ravenphysics
 		int unknown4;
 	};
 
-	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC): two words of unknown meaning
-	// and then the properties the entry stands for (0x10 bytes)
+	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC, capacity 0x1127CAC8): the name
+	// they are registered under and the properties the entry stands for (0x10 bytes)
 	struct IntersectionPropertiesEntry
 	{
+		// An empty name and the default properties (0x10653AA0)
+		IntersectionPropertiesEntry();
+		// The entry for these properties under that name (0x10653830)
+		IntersectionPropertiesEntry(const core::Name<core::CaseSensitiveKey>& entryName,
+			const IntersectionProperties& entryProperties);
+		// Empty (0x106538F0)
+		~IntersectionPropertiesEntry();
 		// The properties the entry stands for (0x10653630)
 		IntersectionProperties* GetProperties();
 
-		int unknown0;
-		int unknown4;
-		IntersectionProperties properties;
+		core::Name<core::CaseSensitiveKey> name;   // 0x00
+		IntersectionProperties properties;         // 0x08
 	};
 
 	// The registry of known properties (names guessed)
 	extern IntersectionPropertiesEntry* gIntersectionProperties;
 	extern unsigned int gIntersectionPropertyCount;
+	extern unsigned int gIntersectionPropertyCapacity;
 
 	// How many entries the registry holds (0x10653720)
 	unsigned int GetIntersectionPropertyCount();
@@ -97,8 +110,32 @@ namespace ravenphysics
 		int unknown40;
 	};
 
-	// The loader the registry takes its default properties from (0x1127CAD0; name guess)
-	extern IntersectionPropertiesLoader* gIntersectionPropertiesLoader;
+	// ravenphysics::ColliderTypeNames (RTTI; a load object that names the collider types): the names are a run at +8
+	class ColliderTypeNames : public content::LoadObject
+	{
+	public:
+		core::Name<core::CaseSensitiveKey>* names;     // 0x08
+		core::Name<core::CaseSensitiveKey>* namesEnd;  // 0x0C
+	};
+
+	// The names of the collider types the properties refer to (0x1127CAD0; name guess)
+	extern ColliderTypeNames* gColliderTypeNames;
+
+	// The entry registered under that name, or null (0x10653900)
+	IntersectionPropertiesEntry* FindIntersectionPropertyByName(const core::Name<core::CaseSensitiveKey>& name);
+	// Its index, or 0xFFFF (0x10653950)
+	unsigned short FindIntersectionPropertyIndex(const core::Name<core::CaseSensitiveKey>& name);
+	// The index of a collider type name (0x106539A0) and the name of an index (0x106539F0)
+	bool FindColliderTypeIndex(const core::Name<core::CaseSensitiveKey>& name, unsigned int* index);
+	bool GetColliderTypeName(unsigned int index, core::Name<core::CaseSensitiveKey>* name);
+	// Registers the properties under the name, replacing the ones already there; the entry's index (0x10653B50)
+	unsigned int RegisterIntersectionProperties(const core::Name<core::CaseSensitiveKey>& name,
+		const IntersectionProperties& properties);
+	// Drops the registry (0x10653B00) and builds it with room for count entries and the default one (0x10653FA0,
+	// 0x10653F50)
+	void ClearIntersectionPropertyRegistry();
+	void CreateIntersectionPropertyRegistry(unsigned int count);
+	void RegisterDefaultIntersectionProperties();
 
 	// The properties plus one more word, copied as a whole into a query
 	struct IntersectionFilter
