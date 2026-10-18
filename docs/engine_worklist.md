@@ -3291,3 +3291,28 @@ Still NONMATCHING or not started, one line each:
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
   game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to
   NONMATCHING, whole definitions under the ifdef.
+
+## proto/freeroamevents/eventscripting.cpp (0x1058E3A0 - 0x1058F0A0): 41 functions match
+
+The methods of proto::FREventManager (RTTI; derives engine::DBObserver) that the `fre_` script functions are bound
+to, and the Lua C functions that answer questions about the event lists. The registration function (0x1058D180) names
+every address (the pairs of a native's name and its address are in the strings it pushes); the closure classes it
+builds (Closure0 - Closure3 of FREventManager, in the RTTI) give each method's signature. Layout facts the unit uses:
+
+- The manager: `events` (list of FREvent, next at +4) at +8, `infos` (list of FREventInfo, next at +0) at +0xC,
+  a cached event at +0x18, `active` at +0x3C, `unlockedAll` at +0x3D, the package slot pool at +0x40. The global
+  is 0x11274F08 (`gFREventManager`).
+- FREvent: next +4, medal thresholds from +0x10, name (`core::Name`) at +0x28, flag at +0x9C. FREventInfo: next +0,
+  the name text at +4 (seven characters), category +0xC, index +0x10, sub type +0x14, name key +0x18.
+- A native that uses `gFREventManager` instead of `this` (AssociateStateMachine) is still a member: the closure
+  passes the manager in ecx and the callee pops its arguments. Natives that are registered with RegisterCFunction
+  (the `fre_Get...String` family) are plain functions; they have to be non-static here because the registration
+  function is not reconstructed (an unused static function is not emitted).
+- 0x1058E5F0 (`RemoveUnlockKey`) ends in `ret 4`: a member; the data of the received keys is the game database
+  string named by the global 0x1126E4B8.
+- Not in this unit's range but needed so the callers keep ecx across the call: 0x1058E3A0 (`IsFreeRoamActive`) and
+  0x1058E3B0 are reconstructed too (a caller keeps `this` in ecx across a callee of the same unit that does not
+  clobber it).
+- Constant arguments that the engine pushes after a call (`lua_pushstring(L, info->GetString(0))`) need the call's
+  result in a local first; the engine's `strstr(...)` returned as a bool is `return strstr(keys, key);` (an
+  explicit `!= 0` compiles to neg / sbb / neg).
