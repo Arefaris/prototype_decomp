@@ -730,12 +730,8 @@ namespace pure3d
 		bool unknown2AE;
 		unsigned char unknown2AF;
 		// The vertex buffers the skinned vertices go into (the engine's callers take them for poses and groups; the
-		// job locks the one mPoseIndex names)
-		union
-		{
-			Pose* mPoses[2];
-			PrimBuffer* mBuffers[2];
-		};
+		// job locks the one mPoseIndex names, as a PrimBuffer)
+		Pose* mPoses[2];
 		int mBlendIndex;
 		int mFrame;
 		int mPoseIndex;

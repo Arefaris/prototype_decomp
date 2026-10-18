@@ -1799,13 +1799,13 @@ namespace pure3d
 		}
 		Skin* skin = (Skin*)GetPrimitive();
 		ShaderParameters bufferParameters;
-		mBuffers[mPoseIndex]->Unknown10625FA0(&bufferParameters);
+		((PrimBuffer*)mPoses[mPoseIndex])->Unknown10625FA0(&bufferParameters);
 		dxVertexDeclaration destLock;
 		destLock.unknown110 = 0;
-		mBuffers[mPoseIndex]->Lock(&destLock, 0);
+		((PrimBuffer*)mPoses[mPoseIndex])->Lock(&destLock, 0);
 		if (destLock.unknown108 == 0)
 		{
-			mBuffers[mPoseIndex]->Unlock();
+			((PrimBuffer*)mPoses[mPoseIndex])->Unlock();
 			return;
 		}
 		_InterlockedIncrement((long volatile*)&gSkinJobCount);
@@ -1960,7 +1960,7 @@ namespace pure3d
 				Unknown1071C0C0(out, vertices, destLock.unknown0);
 			}
 		}
-		mBuffers[mPoseIndex]->Unlock();
+		((PrimBuffer*)mPoses[mPoseIndex])->Unlock();
 		_InterlockedDecrement((long volatile*)&gSkinJobCount);
 	}
 
