@@ -1,6 +1,6 @@
 """Git worktrees for parallel agents: each agent works in its own tree and branch, the main session merges.
 
-    python tools/worktree.py new NAME       # ../<repo>_wt/NAME on branch NAME (created from main if missing)
+    python tools/worktree.py new NAME [--from BRANCH]   # ../<repo>_wt/NAME on branch NAME (created from main or BRANCH)
     python tools/worktree.py remove NAME    # removes the worktree (the branch stays)
     python tools/worktree.py list
 
@@ -61,7 +61,7 @@ def junctions(path):
 				yield entry
 
 
-def new(name):
+def new(name, base="main"):
 	path = BASE / name
 	if path.exists():
 		sys.exit(f"{path} already exists")
@@ -70,7 +70,7 @@ def new(name):
 	if branches.strip():
 		subprocess.check_call(["git", "worktree", "add", str(path), name], cwd=ROOT)
 	else:
-		subprocess.check_call(["git", "worktree", "add", "-b", name, str(path), "main"], cwd=ROOT)
+		subprocess.check_call(["git", "worktree", "add", "-b", name, str(path), base], cwd=ROOT)
 	for shared in SHARED:
 		linkShared(path, ROOT / shared)
 	subprocess.check_call([sys.executable, str(path / "tools" / "configure.py")], cwd=path)
@@ -90,13 +90,17 @@ def main():
 	parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 	parser.add_argument("command", choices=["new", "remove", "list"])
 	parser.add_argument("name", nargs="?")
+	parser.add_argument("--from", dest="base", default="main", help="branch a new worktree starts from (default main)")
 	args = parser.parse_args()
 	if args.command == "list":
 		subprocess.call(["git", "worktree", "list"], cwd=ROOT)
 		return
 	if not args.name:
 		sys.exit("NAME is required")
-	(new if args.command == "new" else remove)(args.name)
+	if args.command == "new":
+		new(args.name, args.base)
+	else:
+		remove(args.name)
 
 
 if __name__ == "__main__":
