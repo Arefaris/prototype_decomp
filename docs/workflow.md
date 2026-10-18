@@ -166,3 +166,28 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
   local first.
 - A global store that the original issues after a load (`mov [global], esi` after `mov eax, [esi + 8]`) is usually
   written after that load in the source too; the compiler does not move global stores across member loads.
+
+Findings of the start-up / texture / deform sessions (2026-10-18):
+
+- A chain of `if (a == x) { r = ...; } else if (a == y) { ... }` that falls out of the last test into one `return result;`
+  compiles to the engine's blocks of a name-to-enum function; separate `if (...) { ...; return result; }` statements, or
+  `||` chains, give another block layout (`dxVertexBuffer`'s usage helper 0x10625BF0).
+- A byte-wide bit-field member that the engine reads with `movsx` is declared signed (`int unknown8 : 8;`); unsigned
+  gives a mask (`ShaderParameter::unknown8`, dxVertexBuffer::Create).
+- Locals that are objects with an address taken (`pure3d::PartRef` built for every use) must be *named* locals to land in
+  the engine's frame slots; the same expression written as temporaries compiles to other offsets. Naming them also
+  changes how the part address folds (`[idx*0x12c + begin + 0x90]`).
+- A frame with many same-typed locals (the 28 stream slot group configurations) keeps the engine's offsets when they
+  are declared in the order of their uses. The order the *stores* come out in, and which of the repeated constants stay
+  in registers, follows the order the source assigns them in: the pair of equal values finished first gets the free
+  register, so move assignments until the first stores match.
+- The register parameters of a `static` helper depend on `/arch:SSE2` for the texture unit (`// CFLAGS: /arch:SSE2` on
+  the first line) and on the declaration order of its parameters; permute them (tools/permute.py) before blaming the body.
+- A float member copied member to member goes through the x87 unit (`fld` / `fstp`) unless the value is also needed in
+  an SSE register, in which case the compiler loads it once into xmm and stores from there. `flag = !f()` compiles to
+  `sete`; the engine's `flag = true; if (f()) flag = false;` branches come from `if (a && !f()) flag = true; else
+  flag = false;`.
+- A class whose first non-inline virtual is declared and not defined (`virtual void Slot0();`) emits no vftable, but a
+  stack message of a class with only inline functions (`SetLODBiasMessage`) does emit its own one-slot vftable.
+- `core::Name<CaseSensitiveKey> n("...", 1)` in its own block before the call puts the constructor in front of the
+  arguments' pushes; as a temporary inside the call it comes after them.

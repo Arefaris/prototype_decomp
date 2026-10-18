@@ -17,7 +17,6 @@ namespace pure3d
 {
 	class dxProgram;
 	class pddiShaderInputInitData;
-	struct TextureInfo;
 
 	// The techniques of a shader (name guess; 0x10618C90 is its only known method)
 	class dxTechniques
@@ -53,7 +52,7 @@ namespace pure3d
 		// BindingParameters' in the engine): 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
 		// 0x106140C0, 0x10614140
 		void SetBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value);
-		void SetTexture(const core::Name<core::CaseInsensitiveKey32>& name, TextureInfo* texture);
+		void SetTexture(const core::Name<core::CaseInsensitiveKey32>& name, dxTexture* texture);
 		void SetFloat(const core::Name<core::CaseInsensitiveKey32>& name, float value);
 		void SetVector2(const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
 		void SetVector3(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector& value);

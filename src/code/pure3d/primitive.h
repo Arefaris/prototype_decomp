@@ -27,24 +27,10 @@ namespace pure3d
 	class PrimitiveState;
 	struct PrimStreamParameters;
 
-	// What a texture keeps at +0x10: the reference-counted description of the image the loaders fill and the device
-	// upload reads (the int at +0x20 is handed to the loader, the pointer at +0x44 to its array of levels)
-	struct TextureInfo : public core::IRefCount
-	{
-		unsigned int unknown4;
-		// Which upload path the loader takes: 1 the levels the file names, 2 its mip chain, 3 a single surface
-		unsigned int kind;
-		unsigned int unknownC;
-		unsigned int unknown10;
-		unsigned int unknown14;
-		unsigned int unknown18;
-		unsigned int unknown1C;
-		int unknown20;
-		unsigned char unknown24[0x20];
-		// The levels of the image: pairs of a count and the pointer to upload them from
-		unsigned char* levels;
-	};
+	class dxTexture;
+	struct TextureDescription;
 
+	// A texture of the engine (0x18 bytes): the Direct3D 9 texture it keeps at +0x10 (the word after it is never set)
 	class Texture : public Entity
 	{
 	public:
@@ -52,7 +38,12 @@ namespace pure3d
 		Texture();
 		virtual ~Texture();
 
-		TextureInfo* info;
+		// 0x10729B00: makes the device texture the description asks for (a copy of the other texture's image when
+		// one is given) and keeps a reference to it; false when the device cannot make it (name guess)
+		bool Create(const TextureDescription* description, const Texture* source);
+
+		dxTexture* info;
+		unsigned int unknown14;
 	};
 
 	// The settings of a sampler input as the chunk packs them: a word and the bit fields (the unit 0x106139F0 reads)
@@ -412,6 +403,9 @@ namespace pure3d
 		virtual void SetFlag175(bool value);
 		virtual void Unknown13();
 		virtual void Unknown14();
+
+		// 0x10707460: the word at +0x148 (its bit 29 is read by the deform shader's modifier)
+		unsigned int GetUnknown148() const;
 
 		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
 		// groups live in

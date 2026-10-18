@@ -255,7 +255,7 @@ namespace engine
 
 	// FUNCTION: ENGINE 0x107DF2D0
 	core::IMemoryAllocator* CreateBlockHeap(int index, unsigned int count, unsigned int size, int unknown, int unused,
-		const char* name, int heap, int safetyMode)
+		const char* name, int heap, int safetyMode, int unknown9)
 	{
 		core::SegmentPoolAllocator* pool;
 		core::CreateSegmentPoolAllocator(&pool, count, size, unused, heap, name);

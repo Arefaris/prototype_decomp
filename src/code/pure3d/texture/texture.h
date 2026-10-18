@@ -47,11 +47,14 @@ namespace pure3d
 		virtual ~TextureParser() = 0;
 		// True when the parser can turn the texture's pixel format into one it writes
 		virtual bool IsSupportedFormat(unsigned int format) = 0;
-		// Reads the image of a stream into the texture
-		virtual void Load(core::IRefCount* stream, const char* name, int unknown, bool flag, int zero) = 0;
-		// Checks the block's own header and loads it (the arguments are the loader's)
-		virtual unsigned int Parse(core::IRefCount* reader, unsigned int a, unsigned int b, unsigned int c,
-			unsigned int d, unsigned int e, unsigned int f, unsigned int g) = 0;
+		// Reads the image of a stream into the texture (the parser's own, or a new one made like `source`); the
+		// texture, or null when the file is not an image it can read. `flag` asks for the top level to be dropped
+		// and is cleared when the image cannot do without it.
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source) = 0;
+		// Checks the block's own header and uploads one level of its image into `texture`, or into a new one when
+		// there is none; the texture, or null
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice) = 0;
 	};
 
 	// The DirectDraw surface reader (RTTI: pure3d::DDSParser, 16 bytes): the texture it uploads into and the width
@@ -64,14 +67,33 @@ namespace pure3d
 		virtual ~DDSParser();
 
 		virtual bool IsSupportedFormat(unsigned int format);
-		virtual void Load(core::IRefCount* stream, const char* name, int unknown, bool flag, int zero);
-		virtual unsigned int Parse(core::IRefCount* reader, unsigned int a, unsigned int b, unsigned int c,
-			unsigned int d, unsigned int e, unsigned int f, unsigned int g);
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source);
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice);
 
 		Texture* texture;
 		unsigned int width;
 		unsigned int height;
 	};
+
+	// The stream the texture writers put a DDS file into (a file or a memory block; the slots before Write are not
+	// reconstructed, the class name is a guess)
+	class OutputStream : public core::IRefCount
+	{
+	public:
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot5();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		// Slot 10: writes `count` blocks of `bytes` bytes
+		virtual void Write(const void* data, unsigned int bytes, unsigned int count);
+	};
+
+	// 0x1072B360: writes the texture's levels to a stream as a DDS file; false when its format has no DDS form
+	bool SaveTexture(OutputStream* stream, Texture* texture);
 }
 
 #endif

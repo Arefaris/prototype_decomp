@@ -17,6 +17,7 @@
 #include "code/core/file/filesystem.h"
 #include "code/engine/system/enginememory.h"
 #include "code/pure3d/texture/texture.h"
+#include "code/pure3d/pddi/dx9/dxtexture.h"
 
 #define DRAWABLE_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\drawable.cpp"
 
@@ -1580,9 +1581,9 @@ namespace engine
 			content::MemoryStream* stream = new content::MemoryStream(data, size);
 			stream->AddRef();
 			pure3d::DDSParser loader(texture, a, b);
-			int unknown = texture->info->unknown20;
+			int usage = texture->info->description.usage;
 			const char* name = texture->mName.GetText() ? texture->mName.GetText() : core::GetDefaultString();
-			loader.Load(stream, name, unknown, gTextureLoadFlag, 0);
+			loader.Load(stream, name, usage, gTextureLoadFlag, 0);
 			stream->Release();
 			texture->Release();
 			delete[] data;

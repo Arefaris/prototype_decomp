@@ -166,6 +166,9 @@ namespace pure3d
 		// 0x106DF4B0
 		PartRef(Drawable* owner, int index);
 		DrawablePart* Get() const;
+		// 0x106DFE00 / 0x106DFDE0: the binding of the part and putting one on it (out-of-line copies)
+		PartBinding* GetBinding() const;
+		void SetBinding(PartBinding* binding);
 		DrawablePart* operator->() const
 		{
 			return Get();

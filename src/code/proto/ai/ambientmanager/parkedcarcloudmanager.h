@@ -31,10 +31,14 @@ namespace proto
 		unsigned char flagsBB;     // +0xbb: bit 6
 	};
 
+	struct CloudConfig;
+
 	// The manager the two functions below belong to (the RTTI class of the singleton 0x1126F15C)
 	class ParkedCarCloudManager
 	{
 	public:
+		// 0x104EF830
+		explicit ParkedCarCloudManager(const CloudConfig* config);
 		// 0x104EB720: hands the spawners the positions they rank against (the camera-relative ranking of section
 		// 2.1: one pass over the list at 0xe8, at most 0x0c of it per call)
 		void RankSpawners();
@@ -45,7 +49,7 @@ namespace proto
 		unsigned char unknown0[0xc];
 		int limitC;                 // +0x0c: how many spawners one call of RankSpawners handles
 		unsigned char unknown10[0x1c - 0x10];
-		float table1C[0x48 - 0x1c]; // +0x1c: indexed by the spawner's kind (flagsB9 >> 4)
+		float table1C[(0x48 - 0x1c) / 4]; // +0x1c: indexed by the spawner's kind (flagsB9 >> 4)
 		float distance48;           // +0x48
 		float distance4C;           // +0x4c
 		unsigned char unknown50[0x60 - 0x50];
@@ -81,6 +85,7 @@ namespace proto
 		unsigned int rankedF4;      // +0xf4: the 0xec value the last ranking ran for
 		unsigned int unknownF8;
 		unsigned char unknownFC;
+		unsigned char unknownFD[11];
 	};
 }
 

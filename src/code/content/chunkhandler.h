@@ -19,6 +19,8 @@ namespace content
 	public:
 		// 0x1060B260: reads count items of size bytes into destination (the last word is unknown)
 		void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
+		// 0x1060B2C0: steps over `bytes` bytes of the stream without reading them (name guess)
+		void Skip(unsigned int bytes);
 	};
 
 	class ChunkReader

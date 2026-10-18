@@ -58,6 +58,15 @@ byte for byte. With `/fp:precise` the first one comes out as x87 code with a sta
 VS 2005 inlines it; with `/Ob1` only functions declared `inline` or defined in the class body are inlined, which is
 what the original shows. Every match so far holds under `/Ob1`. Still open: `/Oi`, `/GF`, struct packing.
 
+**Per-unit options (2026-10-18):** the DDS part of the texture unit (0x1072AB40 - 0x1072B6D0, pure3d/texture) is not
+compiled with the options above: its file-local helpers take their arguments in registers exactly as the engine has them
+only with `/arch:SSE2`. Under `/arch:SSE` the compiler passes up to three arguments in volatile registers to a static
+function, under `/arch:SSE2` at most two, and the engine's helpers never have more than two (their parameters decide
+which: the last two declared parameters are the ones passed in registers, the others go on the stack). A source asks for
+another option with a comment among its first lines, `// CFLAGS: /arch:SSE2`; `tools/build.py` (`cflagsFor`),
+`tools/configure.py` and `tools/permute.py` substitute it for the default of the same name. The unit has no float code,
+so the option changes nothing but the register choices; the rest of the engine stays `/arch:SSE`.
+
 **Inline assembly:** the engine computes sine and cosine with `fsincos` in an inline `__asm` helper that is inlined
 into its callers (`src/code/math/sincos.h`); VS 2005 reproduces it exactly.
 

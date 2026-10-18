@@ -143,7 +143,7 @@ def score(source, directory, symbol, address):
 	cpp = directory / "permute_candidate.cpp"
 	obj = directory / "permute_candidate.obj"
 	cpp.write_text(source, encoding="utf-8")
-	compiled = subprocess.run([sys.executable, str(ROOT / "tools" / "toolchain" / "cl8.py"), "cl"] + build.CFLAGS +
+	compiled = subprocess.run([sys.executable, str(ROOT / "tools" / "toolchain" / "cl8.py"), "cl"] + build.cflagsFor(cpp) +
 		[f"/Fo{obj}", str(cpp)], capture_output=True, text=True)
 	if compiled.returncode != 0:
 		return -1.0

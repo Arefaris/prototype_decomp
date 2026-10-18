@@ -1261,20 +1261,38 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
-## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 4 match, 3 NONMATCHING, 2 not done
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), 18 match, 3 EQUIVALENT
 
 The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
-a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d::TextureLoader` and the file parsers
+a guess from it). One unit holds `pure3d::Texture`, the DDS helpers, `pure3d::TextureLoader` and the file parsers
 `pure3d::TextureParser` / `pure3d::DDSParser`; the visibility server's unit ends exactly at 0x10729AE0.
+
+The unit was compiled with `/arch:SSE2` (`// CFLAGS: /arch:SSE2` on the first line of `texture.cpp`, see
+docs/toolchain.md): under `/arch:SSE` the calling conventions the compiler gives the file-local helpers differ from the
+engine's. The helpers are `static`; the order the parameters are declared in decides which of them travel in
+registers.
 
 | Address | Function | Status |
 |---|---|---|
-| 0x10729AE0 / 0x1072A0E0 | pure3d::Texture constructor / destructor | match |
-| 0x1072B420 | DDSParser::IsSupportedFormat (vftable slot 1) | match (the switch keeps its 0x20-byte jump table after the code) |
-| 0x1072B470 | DDSParser::Load (slot 2) | NONMATCHING |
-| 0x1072B6D0 | DDSParser::Parse (slot 3) | NONMATCHING |
+| 0x10729AE0 / 0x1072A0E0 / 0x10729B00 | Texture constructor / destructor / Create | match |
 | 0x1072A470 | TextureLoader::LoadObject (slot 7) | match |
-| 0x1072ADB0 / 0x1072AF80 | the upload of one texture's levels | not done |
+| 0x1072A530 / 0x1072A540 / 0x1072A850 | IsBlockFormat, GetFormat, FillPixelFormat (static) | match |
+| 0x1072AB40 / 0x1072ACA0 / 0x1072AD80 | ReadHeader, WriteHeader, RoundToBlock (static) | match |
+| 0x1072AF20 / 0x1072AF80 / 0x1072B110 | SkipLevel, SaveLevel, SaveLevels (static) | match |
+| 0x1072B050 / 0x1072B150 | UploadLevels, UploadCubeLevels (static) | match (once `UploadLevel` takes its parameters as stream, texture, rect, level, slice) |
+| 0x1072B1F0 / 0x1072B300 / 0x1072B360 | SaveCubeLevels, SaveVolumeLevels, SaveTexture | match |
+| 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
+| 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
+| 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (46.6 %) |
+| 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
+| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
+
+The EQUIVALENT functions differ only in register homes and scheduling: UploadLevel keeps the rect in ebx where the
+engine uses esi, tests `rect->x & 3` through a byte test, multiplies in the other operand order and orders two
+additions differently; UploadVolumeLevels passes the texture on the stack where the engine passes it in edi (no
+order of the parameters, local copy or loop shape made the compiler hand it over in a register, as it does for the rect
+of UploadLevels); Load keeps the stream in a stack slot where the engine keeps it in ebx. SkipLevel reads the format
+through a volatile access because the engine reloads it after the call.
 
 `TextureLoader::LoadObject` (0x1072A470) matches once the loader bases exist: it is slot 7 of `content::SimpleChunkHandler`
 (8 slots, RTTI), which is what the loader vftables 0x10E5C1D8 and the others hold. The bases are reconstructed in
@@ -1282,34 +1300,10 @@ a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d:
 `content::SimpleChunkHandler` (slot 5 `CreateObject` 0x1060B780, slot 6 the chunk flags at +8 0x105FFA40, slot 7 the
 pure `LoadObject`). The reader the handler hands on is `content::ChunkReader` (0x288 bytes, stream at +0x284;
 0x1060BB60 constructor, 0x1060B8E0 opens a chunk, 0x1060B8A0 asks whether one is left). `TextureLoader`'s signature is
-`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` — the object output is an
+`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` - the object output is an
 `IRefCount**` because a texture is a `pure3d::Entity`, not a `LoadObject`. Its workhorse 0x1072A1E0 takes
 `(ChunkReader*, bool flag, int unknown)` and returns the `Texture*`. The class declares its destructor first and does
 not define it, so the vftable stays with the engine's copy of the unit.
-
-NONMATCHING:
-
-- 0x1072B470 DDSParser::Load, 0x1072B6D0 DDSParser::Parse, 0x1072ADB0 and 0x1072AF80: every one of them calls a helper
-  of the unit that takes two or more of its arguments in registers the engine's whole-unit compilation picked, and a
-  `static` function of ours does not get the same ones. The third session (2026-10-16) measured it: with
-  `static bool IsDepthFormat(int format)` written as the three-case `switch` below, 0x1072A530 comes out **100 %**
-  (single `int` argument: eax on both sides), but the natural `static void RoundToFour(int format, unsigned* width,
-  unsigned* height)` against 0x1072AD80 is **2.7 %** - ours takes `(eax = format, ecx = width, edx = height)` where the
-  engine takes `(eax = format, edx = height, width on the stack)`, the same split for every permutation of the
-  parameter order. 0x1072AB40 wants its stream in eax, its 0x35-byte descriptor in **esi** (a callee-saved register,
-  which the non-LTCG register allocator never uses for a parameter) and the flag's address on the stack. Since the
-  call sites of 0x1072AD80 (0x1072ADB0, 0x1072AF80, 0x1072AF20, 0x1072B050) and of 0x1072AB40 (0x1072B470) each have
-  to set those registers themselves, no source produces them; the bodies under `#ifdef NONMATCHING` in `texture.cpp`
-  record the reconstruction, and the helpers are left out (a file-local helper no compiled function calls is not
-  emitted, so it could not be compared either).
-- 0x1072A530 `IsDepthFormat` itself is *not* counted: it would match 100 % (see above) but its only callers are the
-  functions in this list, so the compiler drops it.
-
-Not done:
-
-- 0x1072A470 TextureLoader::LoadObject: `TextureLoader`'s vftable has 8 slots, so the class needs its
-  `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
-  are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
 
 Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
 constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
@@ -1319,8 +1313,8 @@ Matching notes:
 
 - `pure3d::Texture`'s own vftable exists although the class declares no new virtual: it overrides the destructor
   (`virtual ~Texture();`), and an empty body still emits the `mov [ecx], ??_7Texture` store the engine's has.
-- `pure3d::TextureInfo` (what `Texture` keeps at +0x10) is reference-counted: the destructor releases it through the
-  out-of-line `core::SafeRelease<TextureInfo>` the unit keeps at 0x1061CA90 (`if (p) { p->Release(); p = 0; }`).
+- `Texture` keeps its `pure3d::dxTexture` (the back end's texture) at +0x10 and releases it through `ReleaseRef` in the
+  destructor; `Texture::Create` (0x10729B00) makes it from a `TextureDescription` and an optional source texture.
 - An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
   two-entry jump table; the 8 table bytes after the code are part of the compared function.
 
@@ -2588,9 +2582,12 @@ New units, all with guessed file names (none of them has an assert path):
 - `code/engine/system/streammanager.cpp` (0x1082BEC0 - 0x1082E9xx): `engine::StreamManager` itself stays declared in
   `streampackage.h`; this unit holds the collection pass.
 - `code/proto/render/deformshaderbehaviour.cpp` (0x102D31B0 - 0x102D50F1): `proto::DeformShaderBehaviour` (vftable
-  0x10DEA3CC) keeps the last four dents in a 0x84-byte ring at +4: the buffer runs from the ring's own address and
-  its `end` pointer sits at +0x80. A dent is 0x20 bytes - a `math::Vector`, then five floats of which +0x10 and
-  +0x1C are zero.
+  0x10DEA3CC, base `engine::Behaviour`) keeps the last four dents in a `DentBuffer` (4 dents of 0x20 bytes, then the
+  `end` pointer: 0x84 bytes) at +0x10, a bias at +0x94, the live dent count at +0x98, a "changed" byte at +0x9C and a
+  "bias message sent" byte at +0x9D. The `DeformShaderModifier` (vtable 0x10DEA3C0, 0x8C bytes, allocated through the
+  render event allocator 0x10817A50) carries its own `DentBuffer` at +4 and the bias at +0x88: `AddDent` (0x102D4350)
+  is the modifier's. A dent is a `math::Vector`, then five floats - two (target, value) pairs and the time the fade
+  has left: {+0x0C target, +0x10 value, +0x14 time, +0x18 target, +0x1C value}.
 - `code/engine/system/enginememory.cpp` gained the heap kind name.
 
 Matching notes:
@@ -2706,12 +2703,44 @@ engine's own table entry for it.
 
 Not started (the reason each is blocked, not just "unknown"):
 
-- `0x104E3840` (2354 bytes, the stream slot groups): mechanical but needs the signatures of ~35 callees
-  (`0x1082D550` `CreateSlotGroup` with its 3-word configuration, `core::Name` construction from a literal,
-  `0x10894830` / `0x10894850`, the script manager calls, `CreateFrontend`), and the configuration of each group is a
-  3-word local (size, two alignment words) whose last field is only sometimes written.
-- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760): the manager's layout and
-  its ~30 callees are not recovered.
+- `0x104E3840` (2354 bytes, `proto::GameEngine` vftable slot 9, the game's start-up) matches: `protomain.cpp`, with the
+  seven template instances the unit keeps (the script wrappers of the two natives and `Register<float>`). Its callees
+  are named from their own code: 0x104E1440 opens the front end's data file, 0x102E52A0 / 0x10487D10 / 0x105814D0 /
+  0x10561A30 / 0x104B55E0 / 0x104BDB70 / 0x104A29E0 make the singletons `ProtoRenderManager`, `SaveGameManager`,
+  `UnlockablesManager`, `WebOfIntrigueManager`, `GameFEManager`, `MissionObjectivesManager` and the online manager
+  (0x320 bytes; the class is named only by the constructor it jumps to), 0x104E6790 / 0x104DE970 / 0x104E7710 are the
+  constructors of `InGameState`, `FrontEndState` and `GamePauseState` (the game keeps them at +4 / +8 / +0xC and the
+  simulation driver, `engine::SimulationDriver` 0x10897AC0, at +0x10), 0x10836B40 enters a state in the table of
+  states under its number (3 the front end, 2 the game), 0x10836AB0 makes the driver the one the main loop runs,
+  0x1082D550 `CreateSlotGroup(name, slotCount, &{size, flag, alignment}, shared, unknown, heap factory, unknown)`
+  builds each of the 28 stream slot groups, the Lua natives `util_GetRandomFloat` / `util_GetWorldOrientation` are
+  registered between `SetOwner(this)` and `ClearOwner()`, and 0x104E2BC0 / 0x104DDBB0 load the front end packages and
+  set the language (`SetLanguage(name, 0)`, the name from `core::GetLanguageName(language)`).
+  Matching notes: the 28 `SlotGroupConfig` locals are declared in the order of the calls (that fixes the 0x15C-byte
+  frame's offsets); the engine fills them before the first call, and which constants stay in registers there (and so
+  the order of the stores) follows the order the source assigns them in - the pair of equal sizes that is finished
+  first gets edx. The assignments in `protomain.cpp` are in the order that matches (the call order, with the location
+  groups' props and the 7-slot group moved); the last three configs are assigned just before their calls.
+  A named group is a block-scope `core::Name<CaseSensitiveKey> name("...", 1)` followed by the call, which puts the
+  name constructor in front of the pushes. The report file's flag is `Autotester && !IsDebugLinkClosed()` written as
+  one `if`/`else` (the `&&` form compiles to the engine's branches, `autotest = !closed` to `sete`). `SetLanguage`'s
+  name needs the language as a local (`int language = LanguageGet();`): nested in the call, the second argument is pushed first.
+- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760) is EQUIVALENT (324 of 391
+  instructions line up; `ambientmanager.cpp`, with the nine `ArrayDynamicHeap<T>::Allocate` instances the unit keeps,
+  which match). The object is 0x618 bytes and the constructor is a long member initialiser list: the 0xA0-byte
+  configuration it is given is copied to +0x44; `container::ArrayDynamicHeap` arrays (begin, end, capacity, heap)
+  at +0x10, +0x210, +0x220, +0x230, +0x240, +0x250 / +0x260 (0x790-byte elements), +0x520, +0x530 and +0x5A8 are made
+  from its counts (heaps 0xA8 and 0xA1; every element size has its own type, as each size has its own `Allocate`
+  instance); the fixed pools at +0x270, +0x540, +0x5DC and +0x5EC allocate once with an inline `HeapAllocAligned`
+  (end first, then capacity: not `ArrayDynamicHeap`'s order); arrays that are only emptied (+0, +0x20, +0x30 with no
+  allocator, +0x5B8 and +0x5CC with the heap stored first) call the copy of the emptying function another unit kept
+  (0x1060E6C0, `proto::ArrayStorage::Reset`); eleven 16-byte points start with three float zeros, six of them are
+  set again after the script natives are registered (0x1041F210); two 0x8C-byte blocks (constructor 0x104279C0) sit
+  at +0xE4 and +0x170; seven `core::Name`s at +0x568. The body makes the parked car cloud manager (0x104 bytes, in
+  heap 0xA8) from a 0x60-byte configuration (0x104E7D00 starts it) and creates the three block heaps "PedGameObjectPool"
+  (0xA3), "VehGameObjectPool" (0xAA) and "VehiclePhysicsObjectPool" (0xAB); `CreateBlockHeap` takes nine arguments
+  (the last is unused). What differs: the schedule of the six points' stores and loads, a few register choices
+  and the place of one byte store. `ParkedCarCloudManager` is 0x104 bytes (its `table1C` was far too large).
 - `0x1083EC50` (484, the stream slots): it builds a `%s StreamSlot` string, allocates `count * 0x10 + 4` bytes for an
   array of 0x10-byte slots (the element's first word is a per-slot allocator), creates the slots' `CreateTwoWayHeap`
   (0x107DEB60) and dynamic-casts the result; it needs `container::String`, 0x1083EC30, 0x1083E880, 0x1082D630 and
@@ -2733,13 +2762,26 @@ Not started (the reason each is blocked, not just "unknown"):
   `"%s StreamSlot"` and `"%s StreamSlot[%d]"`. It needs 0x1083EC30 (the factory interface's vtable getter),
   0x1083E6A0 (the slot's placement constructor the vector-constructor iterator at 0x10005100 calls), 0x1083E880,
   0x1082D630 and 0x1082E3F0 named and declared first.
-- `0x102D4920` (602, `DeformShaderBehaviour`'s vftable slot 4) and `0x102D4C50` (1097,
-  `DeformShaderModifier::apply`): not read yet. Both need the behaviour's vftable emitted with its slots mapped, so
-  they carry the same block as the LOD slots below.
-- The `DeformShaderBehaviour` vftable is 0x10DEA3CC with 8 slots and `DeformShaderModifier` 0x10DEA3C0 (base
-  `engine::render::DrawableModifier`); the behaviour's members are +0 vftable, +4 the `DentBuffer` (its `end` at
-  +0x84), +0x94 a float, +0x98 the dent count, +0x9C a dirty byte and +0x9D a "bias sent" byte. The dent ring the
-  update walks is at the behaviour's +0x1C, in 0x20-byte records, not the `DentBuffer` at +4.
+- `0x102D4920` (602, `DeformShaderBehaviour::Update`, vftable slot 4) matches. The class declares `Slot0` first and
+  never defines it, so the vftable stays with the engine's copy; the bias message (`SetLODBiasMessage`, vftable
+  0x10DEA384, a `ProtoRenderMsg` of type 0x3D with id 2) is built inline, so the unit emits that one-slot vftable. The
+  stack message's final destructor store is the base `Message` vftable, which the inline destructors leave. The two
+  clamps are `math::Min` written as two assignments (a store, then `Min` of the value and the target), and the bias is
+  copied as raw bits (`unsigned int`), where a `float` member is copied through the x87 unit.
+- `0x102D4C50` (1097, `DeformShaderModifier::Apply`, the modifier's only virtual) is EQUIVALENT (236 of 284
+  instructions line up; the modifier's constructor 0x102D4810, destructor 0x102D4830 and the five atexit stubs of its
+  names match, so the unit emits the modifier's vftable). It runs on the render thread for a `DrawableImpl` (a
+  `pure3d::Drawable`): five function-local `core::Name<CaseInsensitiveKey32>` statics ("damage_pt1" .. "damage_pt4",
+  "crush_params", guard bits at 0x1125E020) and, for every part (0x12C bytes each) that has all four damage inputs
+  (`shader->GetSortKey()` answers the shader's input table, whose `Find(4, name)` is 0x106184E0; the helper is a
+  `pure3d::ShaderInputs` here) and, for a mesh primitive (type 2), bit 29 of its word at +0x148 (0x10707460), the part's
+  binding (made through the inlined `DrawablePart::GetBindingSource` and `PartBindingSource::CreateBinding` when it has
+  none): the four dents as `SetVector4(damage_ptN, {x, y, z, value})` and the second values as `crush_params`; with no
+  dents all five are set to zero. It destroys itself at the end (`delete this`: 0x102D4830, `FreeRenderEvent`).
+  What differs: the engine keeps the binding in ebp and the buffer in ebx, tests the buffer's emptiness with its own
+  compare, and has the object and the part number in the other order in the frame. The six `PartRef`s are named
+  locals (temporaries put them in other slots), the buffer is reached through `DentBuffer::Size()`, and a `Mesh`
+  pointer local makes the part address fold the way the engine's does.
 - `0x102DA540` (350, `LODRenderBehaviour`'s per-frame update): the engine leaves a dead `add ecx, 4` in it (the
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
   body reproduces.
@@ -3170,11 +3212,14 @@ Not done (each is a large function of a unit whose other members are still missi
   scale, lockable, format, multiSample, surface slot} for a render target (0x1C) and {width, height, float scale,
   format, multiSample, surface slot} for a depth/stencil surface (0x18). 0x1061B140 (the multisample mode of a
   sample count) is declared there too, as `pure3d::GetMultiSampleType`.
-- `dxtexture.cpp`: the texture from an image 0x1061D3A0 (not written yet). The creations branch on the texture type
+- `dxdefaulttextures.cpp`: the default textures 0x1061D3A0 (NONMATCHING). The creations branch on the texture type
   at +8 (1 a 2D texture, 2 a cube texture, 3 a volume texture, through the device's +0x5C / +0x64 / +0x60), 0x1061C600
   locks a level of each kind, and 0x1061C490 lays its levels out. 0x1061CA00 is done (see above).
-- `dxvertexbuffer.cpp` 0x10626350 (dxVertexBuffer::Create, 873 bytes), `dxvertexdeclaration.cpp` 0x1062B170 (the
-  declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
+- `dxvertexdeclaration.cpp` 0x1062B170 (the declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
+  `dxVertexBuffer::Create` (0x10626350) and its name-to-usage helper 0x10625BF0 (a file-local `static` that takes the
+  name in esi) match. The helper is a chain of `else if` tests with one `return result;` after it - separate `return`
+  blocks or `||` chains give another block layout. `Create` needs the byte-wide fields of `ShaderParameter` to be
+  *signed* (`int unknown8 : 8`, so the kind index is read with `movsx`) and the locals declared offset, length, stride.
 - the context / device-reset functions 0x10616BB0, 0x106182C0, 0x1061FB40, 0x10620A20, 0x10620B00, 0x10621060 and
   0x10623250: they belong to the big `engine::Display` / `dxContext` class at 0x10616xxx - 0x10623xxx (members up to
   +0x82C, `+0x3C` the constant table, `+0x664` and `+0x690` further state), whose layout is not recovered yet.
@@ -3237,6 +3282,11 @@ Still NONMATCHING or not started, one line each:
 - 0x104E3840, 0x1041FA40 (start-up tables), 0x1061D3A0 (the default textures), 0x102D4920 / 0x102D4C50 (the deform
   behaviour: they build stack messages whose vftables the unit would have to emit): not started. (The chunk loaders
   0x10B9C3E0 ... 0x10B95780 are in the pure3d/geometry section above.)
+- 0x1061D3A0 (`CreateDefaultTextures`, dxdefaulttextures.cpp): NONMATCHING at 36 %. The fills compile to the engine's
+  `rep stosd` once the width and pitch are copied into locals before the loop; the register allocation (the zero
+  register, the pitch kept in a register) and the order of the description's stores still differ.
+- The loaders 0x10B9C3E0, 0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts,
+  inline string comparisons and bit-field states): not started.
 - skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
   game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to
