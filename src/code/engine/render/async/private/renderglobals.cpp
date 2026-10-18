@@ -208,8 +208,9 @@ namespace engine
 					{
 						return 0;
 					}
+					HandleNode<T>* next = node->next;
 					expected = node;
-					node = (HandleNode<T>*)_InterlockedCompareExchange((long volatile*)&mFreeList, (long)node->next, (long)expected);
+					node = (HandleNode<T>*)_InterlockedCompareExchange((long volatile*)&mFreeList, (long)next, (long)expected);
 				} while (node != expected);
 				if (node == 0)
 				{
@@ -378,7 +379,6 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10817F40
-		// EQUIVALENT: same loop; the original keeps the index pointer in esi and the slot in edi (ours edx / esi)
 		// The next write slot (the ring index wraps at the ring size)
 		template<class T, int Bits> long AllocAsyncQueueSlot(AsyncQueue<T, Bits>* queue)
 		{
@@ -388,8 +388,9 @@ namespace engine
 			while (expected != index)
 			{
 				slot = index;
+				long next = (index + 1) & ((1 << Bits) - 1);
 				expected = index;
-				index = _InterlockedCompareExchange(&queue->writeIndex, (index + 1) & ((1 << Bits) - 1), expected);
+				index = _InterlockedCompareExchange(&queue->writeIndex, next, expected);
 			}
 			return slot;
 		}
@@ -410,7 +411,6 @@ namespace engine
 				unsigned __int64 expected = ~seen;
 				while (expected != seen)
 				{
-					expected = seen;
 					unsigned int head = (unsigned int)seen & headMask;
 					unsigned __int64 later = seen >> Bits;
 					if (head == (unsigned int)slot)
@@ -442,7 +442,9 @@ namespace engine
 							later |= (unsigned __int64)1 << offset;
 						}
 					}
-					seen = _InterlockedCompareExchange64((__int64 volatile*)commits, (later << Bits) | head, expected);
+					unsigned __int64 updated = (later << Bits) | head;
+					expected = seen;
+					seen = _InterlockedCompareExchange64((__int64 volatile*)commits, updated, expected);
 				}
 			} while (offset >= bitCount);
 			return count;
@@ -479,7 +481,6 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108186B0
-		// EQUIVALENT: same operations in the same order; the queue, the pointer to the read index and the slot sit in other registers and the loop top is not padded (30.8%)
 		// Takes the value at the read index and gives its slot back
 		template<class T, int Bits> void TakeAsyncQueueValue(AsyncQueue<T, Bits>* queue, T* value)
 		{
@@ -489,8 +490,9 @@ namespace engine
 			while (expected != index)
 			{
 				slot = index;
+				long next = (index + 1) & ((1 << Bits) - 1);
 				expected = index;
-				index = _InterlockedCompareExchange(&queue->readIndex, (index + 1) & ((1 << Bits) - 1), expected);
+				index = _InterlockedCompareExchange(&queue->readIndex, next, expected);
 			}
 			*value = queue->values[slot];
 			core::SemaphoreRelease(&queue->freeSemaphore, 1);
@@ -786,7 +788,6 @@ namespace engine
 		// FUNCTION: ENGINE 0x10817E50
 		template void ShutdownAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue);
 		// FUNCTION: ENGINE 0x108180C0
-		// EQUIVALENT: same loop; the original keeps the index pointer in esi and the slot in edi (ours edx / esi)
 		template long AllocAsyncQueueSlot<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue);
 		// FUNCTION: ENGINE 0x10818110
 		// EQUIVALENT: same operations in the same order; the head, the bitmap and the counters sit in other registers, the comparand of the compare exchange in other stack slots
@@ -796,7 +797,6 @@ namespace engine
 		// FUNCTION: ENGINE 0x10818680
 		template void CommitAsyncQueueSlot<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, long slot);
 		// FUNCTION: ENGINE 0x10818720
-		// EQUIVALENT: same operations in the same order; the queue, the pointer to the read index and the slot sit in other registers and the loop top is not padded
 		template void TakeAsyncQueueValue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent** value);
 		// FUNCTION: ENGINE 0x10818C30
 		template bool TryPushAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent* const& value);
@@ -939,10 +939,8 @@ namespace engine
 		// FUNCTION: ENGINE 0x10817C10
 		template unsigned int HandleTable<ControllerSlot>::GetCount() const;
 		// FUNCTION: ENGINE 0x108182C0
-		// EQUIVALENT: same operations in the same order; the pointer to the free list and the two scratch registers of the compare exchange are swapped (93.5%)
 		template DrawableData* HandleTable<DrawableData>::Alloc(HandleParts* handle);
 		// FUNCTION: ENGINE 0x108183E0
-		// EQUIVALENT: same operations in the same order; the pointer to the free list and the two scratch registers of the compare exchange are swapped (93.7%)
 		template ControllerSlot* HandleTable<ControllerSlot>::Alloc(HandleParts* handle);
 		// FUNCTION: ENGINE 0x10818350
 		template void HandleTable<DrawableData>::Free(const HandleParts& handle);
