@@ -74,8 +74,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10620A20
-	// EQUIVALENT: scheduling (95.0 %): the engine stores the batched primitive count before it loads the tracker for the
-	// last call, this compiler after; every call and every value is the same
 	dxDrawTracker* dxContext::Unknown10620A20(dxShader* shader, int a, int b, int count,
 		const core::Name<core::CaseInsensitiveKey32>* name, const void* parameters)
 	{
@@ -90,13 +88,14 @@ namespace pure3d
 		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, parameters);
 		batchDraws += 1.0f;
-		batchedPrimitives += (float)count;
+		// Added through a reference: the store then stays ahead of the load of the tracker
+		float& primitives = batchedPrimitives;
+		primitives += (float)count;
 		tracker->Unknown1062A8F0(a, b, count);
 		return tracker;
 	}
 
 	// FUNCTION: ENGINE 0x10620B00
-	// EQUIVALENT: scheduling, the same store as 0x10620A20 (95.0 %)
 	dxDrawTracker* dxContext::Unknown10620B00(dxShader* shader, int a, int b, int count, int unused)
 	{
 		if (shader == 0)
@@ -110,7 +109,9 @@ namespace pure3d
 		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, 0);
 		batchDraws += 1.0f;
-		batchedPrimitives += (float)count;
+		// Added through a reference: the store then stays ahead of the load of the tracker
+		float& primitives = batchedPrimitives;
+		primitives += (float)count;
 		tracker->Unknown1062A8F0(a, b, count);
 		return tracker;
 	}

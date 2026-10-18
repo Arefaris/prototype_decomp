@@ -8,8 +8,6 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x10899830
-	// EQUIVALENT: scheduling and block layout (33.1 %): the engine lays the search of the trigger out in another order
-	// and loads the position through other registers; every call, test and store is the same
 	void StreamDriverBehaviour::Update(float dt, unsigned short mask)
 	{
 		if (unknown4D)
@@ -21,8 +19,9 @@ namespace engine
 			}
 			return;
 		}
+		const math::Matrix& m = owner->transform->value;
 		math::Vector position;
-		owner->transform->value.GetTranslation(position);
+		position.Set(m.m[3][0], m.m[3][1], m.m[3][2]);
 		StreamTrigger* found = 0;
 		if (last != 0)
 		{
@@ -36,9 +35,10 @@ namespace engine
 				StreamTriggerArray* neighbours = last->neighbourTriggers;
 				if (neighbours != 0)
 				{
-					for (unsigned int i = neighbours->end - neighbours->begin; i != 0; i--)
+					for (unsigned int i = neighbours->end - neighbours->begin; i != 0;)
 					{
-						StreamTrigger* trigger = neighbours->begin[i - 1];
+						i--;
+						StreamTrigger* trigger = neighbours->begin[i];
 						if (trigger->Contains(position, 0.0f))
 						{
 							found = trigger;
@@ -50,9 +50,10 @@ namespace engine
 		}
 		if (found == 0)
 		{
-			for (unsigned int i = triggers->end - triggers->begin; i != 0; i--)
+			for (unsigned int i = triggers->end - triggers->begin; i != 0;)
 			{
-				StreamTrigger* trigger = triggers->begin[i - 1];
+				i--;
+				StreamTrigger* trigger = triggers->begin[i];
 				if (trigger->Contains(position, 0.0f))
 				{
 					found = trigger;
@@ -60,13 +61,13 @@ namespace engine
 				}
 			}
 		}
-		if (found == 0)
+		if (found != 0)
 		{
-			wanted->end = wanted->begin;
+			AddTriggerPackages(wanted, found, tags, 0, 1);
 		}
 		else
 		{
-			AddTriggerPackages(wanted, found, tags, 0, 1);
+			wanted->end = wanted->begin;
 		}
 		StreamPackage* package = 0;
 		if (found != 0)
