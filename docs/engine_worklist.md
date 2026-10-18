@@ -1644,6 +1644,10 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   nothing in it, so the register rotation is not the callee knowledge that moved the shader loader.
   `SkeletonDebugInfo::SkeletonDebugInfo` (0x106DD980) **matches** (six stores). The Skeleton constructor is written
   (15 %: the partitions' vector constructor and the joint masks' loop) but not kept.
+- (op-map4) 0x10B91410 and 0x10B95780 stay EQUIVALENT (42.4 % / 39.4 %), not reworked: neither calls a function of
+  its own unit (the callee-knowledge finding of the shader loader does not apply), and the template loader's 16
+  missing frame bytes are not its local objects (the engine's constructors write 4 bytes of a `ConstantSlot` and 8 of
+  a `pddiShaderInputInitData`, as declared).
 - Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
   what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
   `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a
