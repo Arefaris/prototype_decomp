@@ -96,6 +96,9 @@ def registerInputs(code, address, limit=400):
 		if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved 				and insn.operands[0].reg not in written:
 			continue
 		read, write = insn.regs_access()
+		if insn.mnemonic == "call":
+			# the callee's result and scratch registers: eax / ecx / edx are written by the call
+			write = list(write) + [X86_REG_EAX, X86_REG_ECX, X86_REG_EDX]
 		# an operand's memory base / index registers count as reads too (capstone lists them in regs_access)
 		for reg in read:
 			full = FULL.get(reg)

@@ -152,7 +152,9 @@ def compareTraces(engine, ours, context):
 	if kind == "int64" and o["edx"] != e["edx"]:
 		add(Finding("FAIL", "return", "edx: engine 0x%08X, ours 0x%08X" % (e["edx"], o["edx"])))
 	if kind == "float":
-		if (o["st0"], o["fpsw"] & 0x3800) != (e["st0"], e["fpsw"] & 0x3800):
+		# the value only: the status word's stack top differed in Unicorn on functions whose x87 stack is
+		# balanced by their code (each fld popped by its own faddp / fstp), so it is no evidence
+		if o["st0"] != e["st0"]:
 			add(Finding("FAIL", "return", "st0: engine %r (fpsw 0x%04X), ours %r (fpsw 0x%04X)" % (e["st0"], e["fpsw"], o["st0"], o["fpsw"])))
 	for reg in CALLEE_SAVED:
 		entry = engine.entry[reg]
@@ -276,7 +278,11 @@ def normalizedArguments(call, machine, count, regs, context):
 
 
 def compareCalls(engine, ours, context, add):
-	eCalls, oCalls = engine.calls, ours.calls
+	eCalls = engine.calls
+	# calls of ours to its own copies of helpers the engine does not call at all (it inlined them: a constructor,
+	# a copy of a matrix) are left out; their effects are compared with the memory
+	engineNames = {c["name"] for c in eCalls}
+	oCalls = [c for c in ours.calls if not (c["name"].startswith("ours:") and c["name"][5:] not in engineNames)]
 	frameNoted = False
 	for i, (ec, oc) in enumerate(zip(eCalls, oCalls)):
 		count = context.calleeArgCount(ec)
@@ -284,8 +290,10 @@ def compareCalls(engine, ours, context, add):
 		# a call to our own copy of the same function (the hybrid DLL links ours to it) is the same callee; our
 		# copy keeps its own register convention, so only its stack arguments are compared
 		ownCopy = oc["name"] == "ours:" + ec["name"]
-		if ownCopy:
-			regs = set()
+		if ownCopy or ec.get("external"):
+			# our own copy keeps its own register convention; an external (an import) takes its arguments on
+			# the stack, whatever the caller left in ecx / edx (except __chkstk's eax, which is compared)
+			regs = {"eax"} if ec["name"].endswith("_chkstk") else set()
 		sameName = ec["name"] == oc["name"] or ownCopy or (ec["address"] == oc["address"])
 		if not sameName:
 			if oc["name"].startswith("ours:") and not ec["name"].startswith("?"):

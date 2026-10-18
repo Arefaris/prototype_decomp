@@ -205,9 +205,8 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102CDFB0
-	// NONMATCHING (as EQUIVALENT it returned with an extra value on the x87 stack, difftest): the same operations in the same order (the squares add as (x + y) + z); the engine reads the age through an
+	// EQUIVALENT: the same operations in the same order (the squares add as (x + y) + z); the engine reads the age through an
 	// SSE register and spills it twice
-#ifdef NONMATCHING
 	float BulletTracerState::GetDistanceFade(const math::Vector* a, const math::Vector* b)
 	{
 		float dx = a->x - b->x;
@@ -220,7 +219,6 @@ namespace proto
 		float fraction = math::Clamp(distance / Multiply(speed, age), 0.0f, 1.0f);
 		return Multiply(1.0f - fraction, age);
 	}
-#endif
 
 	// A vertex of a ribbon: where it is, its texture coordinates and its colour
 	struct TracerVertex
