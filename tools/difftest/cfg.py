@@ -4,7 +4,7 @@ function from the build's object; nothing is written anywhere)."""
 
 import struct
 
-from capstone import Cs, CS_ARCH_X86, CS_MODE_32
+from capstone import Cs, CS_ARCH_X86, CS_MODE_32, CS_AC_WRITE
 from capstone.x86 import X86_OP_IMM, X86_OP_MEM, X86_OP_REG, X86_REG_EAX, X86_REG_ECX, X86_REG_EDX, X86_REG_EBX, \
 	X86_REG_ESI, X86_REG_EDI, X86_REG_EBP, X86_REG_ESP, X86_REG_AL, X86_REG_AX, X86_REG_CL, X86_REG_CX, X86_REG_DL, \
 	X86_REG_DX, X86_REG_BL, X86_REG_BX, X86_REG_AH, X86_REG_CH, X86_REG_DH, X86_REG_BH, X86_REG_SI, X86_REG_DI, X86_REG_BP
@@ -67,6 +67,28 @@ def retImmediates(code, address):
 		if insn.mnemonic in ("ret", "retn"):
 			result.add(int(insn.op_str, 16) if insn.op_str else 0)
 	return result
+
+
+def isPureLeaf(code, address):
+	"""True for a small function that only computes a value: no call, no jump out of it, no store to memory (pushes
+	and pops aside) and no string instruction. Such a call can be inlined or kept without changing anything but the
+	returned registers, whose use shows in what the caller does next."""
+	insns = disassemble(code, address)
+	if not insns or insns[-1].address + insns[-1].size != address + len(code):
+		return False
+	end = address + len(code)
+	for insn in insns:
+		if insn.mnemonic.startswith(("call", "rep", "int", "sys", "cmpxchg", "xchg", "lock")) or insn.mnemonic in ("hlt", "ud2"):
+			return False
+		target = jumpTarget(insn)
+		if target is not None and not address <= target < end:
+			return False
+		if insn.mnemonic.startswith(("movs", "stos", "cmps", "scas", "lods")) and insn.mnemonic not in ("movss", "movsd", "movsx", "movsxd"):
+			return False
+		for operand in insn.operands:
+			if operand.type == X86_OP_MEM and operand.access & CS_AC_WRITE:
+				return False
+	return True
 
 
 def hasInstruction(code, address, mnemonics):

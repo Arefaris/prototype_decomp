@@ -467,6 +467,13 @@ namespace math
 	rad = fa * halfExtents.x + fb * halfExtents.y; \
 	if (minimum > rad || maximum < -rad) return false;
 
+	// The larger of two values the way the kept out-of-line copy of the original (0x1006FB70) takes it: the first operand
+	// on equality and when the operands are unordered (Max above returns the second)
+	template<class T> inline T MaxFirst(T a, T b)
+	{
+		return a < b ? b : a;
+	}
+
 	// FUNCTION: ENGINE 0x107DB250
 	// EQUIVALENT: the same tests in the same order (14.9 %, 2008 bytes against 1981); registers and spills differ.
 	// Min / Max stay calls here as in the original (the function exceeds the inlining budget); the original calls
@@ -512,15 +519,15 @@ namespace math
 		AXISTEST_X2(e2.z, e2.y, fez, fey);
 		AXISTEST_Y1(e2.z, e2.x, fez, fex);
 		AXISTEST_Z12(e2.y, e2.x, fey, fex);
-		if (Min(Min(v0.x, v1.x), v2.x) > halfExtents.x || Max(Max(v0.x, v1.x), v2.x) < -halfExtents.x)
+		if (Min(Min(v0.x, v1.x), v2.x) > halfExtents.x || MaxFirst(MaxFirst(v0.x, v1.x), v2.x) < -halfExtents.x)
 		{
 			return false;
 		}
-		if (Min(Min(v0.y, v1.y), v2.y) > halfExtents.y || Max(Max(v0.y, v1.y), v2.y) < -halfExtents.y)
+		if (Min(Min(v0.y, v1.y), v2.y) > halfExtents.y || MaxFirst(MaxFirst(v0.y, v1.y), v2.y) < -halfExtents.y)
 		{
 			return false;
 		}
-		if (Min(Min(v0.z, v1.z), v2.z) > halfExtents.z || Max(Max(v0.z, v1.z), v2.z) < -halfExtents.z)
+		if (Min(Min(v0.z, v1.z), v2.z) > halfExtents.z || MaxFirst(MaxFirst(v0.z, v1.z), v2.z) < -halfExtents.z)
 		{
 			return false;
 		}

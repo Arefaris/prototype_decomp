@@ -37,6 +37,15 @@ class Context:
 		self.argCounts = {}
 		self.conventions = {}
 
+	def ownObjectSize(self, address):
+		"""The bytes from `address` to the end of the data symbol of ours that holds it (to the next symbol or the
+		section's end), at most 64; None when `address` is not in the data ours placed."""
+		for start, end in getattr(self, "dataSections", ()):
+			if start <= address < end:
+				following = [a for a in self.dataSymbols if address < a < end]
+				return min(64, (min(following) if following else end) - address)
+		return None
+
 	def isArgs(self, address):
 		return self.entryEsp + 4 <= address < self.argsEnd
 
@@ -143,7 +152,7 @@ def compareTraces(engine, ours, context):
 		return findings
 	# 2. registers after return
 	e, o = engine.end, ours.end
-	if o["esp"] != e["esp"]:
+	if o["esp"] != e["esp"] and not getattr(context, "callersReplaced", False):
 		add(Finding("FAIL", "stack", "esp after return: engine 0x%08X, ours 0x%08X (entry 0x%08X): different stack cleanup" % (e["esp"], o["esp"], context.entryEsp)))
 	kind = context.returnKind
 	mask = {"byte": 0xFF, "word": 0xFFFF}.get(kind, 0xFFFFFFFF)
@@ -182,8 +191,12 @@ def compareWrites(engine, ours, context, add):
 	# a vftable pointer: the engine installs its table, ours the one our object emits (vtcheck compares their
 	# slots); the hybrid DLL does the same, so this is not a behaviour difference
 	vtables = getattr(context, "placedVtables", {})
-	if vtables and different:
+	# likewise a pointer to a function ours placed itself (a callback stored in an event): the same function when
+	# symbols.txt names the engine's address as the one ours defines
+	ownFunctions = getattr(context.ours, "ours", None) or {}
+	if (vtables or ownFunctions) and different:
 		installed = set()
+		functionPointers = set()
 		for a in different:
 			base = a & ~3
 			ev = bytes(eFinal.get(base + k, 0) for k in range(4))
@@ -192,6 +205,11 @@ def compareWrites(engine, ours, context, add):
 			engineValue = struct.unpack("<I", ev)[0]
 			if ourValue in vtables and context.image.contains(engineValue) and context.image.readOnly(engineValue):
 				installed.update(range(base, base + 4))
+			elif ourValue in ownFunctions and context.image.contains(engineValue) and project.symbolAt(engineValue) == ownFunctions[ourValue]:
+				functionPointers.update(range(base, base + 4))
+		if functionPointers:
+			add(Finding("NOTE", "memory", "pointers to functions ours placed itself stored where the engine stores its own (the hybrid DLL links them to one)"))
+			different = [a for a in different if a not in functionPointers]
 		if installed:
 			add(Finding("NOTE", "memory", "vftable pointers installed: ours %s (the engine's own table in the engine's run)"
 				% ", ".join(sorted({vtables[struct.unpack('<I', bytes(oFinal.get(b + k, 0) for k in range(4)))[0]] for b in installed if b % 4 == 0}))))
@@ -272,51 +290,134 @@ def normalizedArguments(call, machine, count, regs, context):
 		if machine.isPrivate(value):
 			values.append("STK")
 			continue
+		own = (getattr(machine, "ours", None) or {}).get(value)
+		name = own or (project.symbolAt(value) if context.image.contains(value) and value in project.functionSizes() else None)
+		if name is not None:
+			values.append(("FUNCTION", name))
+			continue
 		constant = constantAt(value, machine, context)
 		values.append(("CONST", constant) if constant is not None else value)
 	return values
 
 
+def rawArguments(call, count, regs):
+	return [call[key] if isinstance(key, str) else (call["args"][key] if key < len(call["args"]) else 0)
+		for key in [r for r in ("ecx", "edx", "eax") if r in regs] + list(range(count))]
+
+
+def sameStaticObject(engineValue, oursValue, context):
+	"""A pointer to a data object of the engine against one to our own copy of it (a file-level static symbols.txt
+	cannot name, which ours keeps in its own data): the same object when the bytes the copy occupies are equal."""
+	size = context.ownObjectSize(oursValue)
+	if size is None or not context.image.contains(engineValue) or context.image.readOnly(engineValue):
+		return False
+	engineBytes = context.engine.read(engineValue, size)
+	return engineBytes is not None and engineBytes == context.ours.read(oursValue, size)
+
+
+def sameArguments(ec, oc, count, regs, context):
+	engineValues = normalizedArguments(ec, context.engine, count, regs, context)
+	oursValues = normalizedArguments(oc, context.ours, count, regs, context)
+	if engineValues == oursValues:
+		return True
+	if len(engineValues) != len(oursValues):
+		return False
+	engineRaw, oursRaw = rawArguments(ec, count, regs), rawArguments(oc, count, regs)
+	return all(e == o or sameStaticObject(er, orw, context) for e, o, er, orw in zip(engineValues, oursValues, engineRaw, oursRaw))
+
+
+_pureLeaves = {}
+
+
+def pureLeaf(context, address):
+	"""Whether the engine's function at `address` is a small leaf without stores (cfg.isPureLeaf); cached."""
+	if address not in _pureLeaves:
+		extent = project.functionExtent(address) if address in project.functionSizes() else 0
+		code = context.image.read(address, extent) if 0 < extent <= 0x40 else None
+		_pureLeaves[address] = code is not None and cfg.isPureLeaf(code, address)
+	return _pureLeaves[address]
+
+
 def compareCalls(engine, ours, context, add):
 	eCalls = engine.calls
 	# calls of ours to its own copies of helpers the engine does not call at all (it inlined them: a constructor,
-	# a copy of a matrix) are left out; their effects are compared with the memory
+	# a copy of a matrix) are skipped as they come; their effects are compared with the memory
 	engineNames = {c["name"] for c in eCalls}
-	oCalls = [c for c in ours.calls if not (c["name"].startswith("ours:") and c["name"][5:] not in engineNames)]
+
+	def unmatched(call):
+		return call["name"].startswith("ours:") and call["name"][5:] not in engineNames
+
+	def unnamed(call):
+		# a local helper symbols.txt does not name: ours' own copies of those pair with them below
+		return not call.get("external") and not call["name"].startswith("?")
+
+	anyUnmatched = any(unmatched(c) for c in ours.calls)
+	# the same the other way: a call of the engine to a small value-computing function (no store, no call: a test of a
+	# member, a comparison) that ours does not make at all is a function ours inlined; what it returned shows in the
+	# arguments, calls and stores that follow, which are compared
+	oursCallees = {c["address"] for c in ours.calls if not unmatched(c)} | {c["name"][5:] for c in ours.calls if c["name"].startswith("ours:")}
+
+	# and a call to a function ours never calls that stores nothing outside the frame before the next call starts (a
+	# copy into a temporary, a constructor of one): ours did the work inline; the temporary's contents show in the
+	# arguments of the calls that follow, any store to shared memory in the memory, and a call that leaves the image
+	# is never dropped
+	def inlined(i, c):
+		if c.get("external") or c["address"] in oursCallees or c["name"] in oursCallees:
+			return False
+		if anyUnmatched and unnamed(c):
+			return False
+		after = eCalls[i + 1]["writes"] if i + 1 < len(eCalls) else len(engine.writes)
+		return pureLeaf(context, c["address"]) or after == c["writes"]
+
+	eCalls = [c for i, c in enumerate(eCalls) if not inlined(i, c)]
+	oCalls = ours.calls
 	frameNoted = False
-	for i, (ec, oc) in enumerate(zip(eCalls, oCalls)):
+	i = j = 0
+	while i < len(eCalls) and j < len(oCalls):
+		ec, oc = eCalls[i], oCalls[j]
+		if unmatched(oc) and not unnamed(ec):
+			j += 1
+			continue
+		index = i
+		i += 1
+		j += 1
 		count = context.calleeArgCount(ec)
 		regs = context.registerArguments(ec)
 		# a call to our own copy of the same function (the hybrid DLL links ours to it) is the same callee; our
 		# copy keeps its own register convention, so only its stack arguments are compared
 		ownCopy = oc["name"] == "ours:" + ec["name"]
-		if ownCopy or ec.get("external"):
+		if ec["name"].endswith("_chkstk"):
+			# the frame size in eax is its only input: it saves ecx and gives it back, so the caller's ecx (a leftover)
+			# is no argument, and reading it before writing is only that save
+			regs = {"eax"}
+		elif ownCopy or ec.get("external"):
 			# our own copy keeps its own register convention; an external (an import) takes its arguments on
-			# the stack, whatever the caller left in ecx / edx (except __chkstk's eax, which is compared)
-			regs = {"eax"} if ec["name"].endswith("_chkstk") else set()
+			# the stack, whatever the caller left in ecx / edx
+			regs = set()
 		sameName = ec["name"] == oc["name"] or ownCopy or (ec["address"] == oc["address"])
 		if not sameName:
 			if oc["name"].startswith("ours:") and not ec["name"].startswith("?"):
-				add(Finding("WARN", "calls", "call %d: engine calls %s, ours its own copy %s (an unnamed local helper; add it to symbols.txt to pair them)" % (i, ec["name"], oc["name"])))
+				add(Finding("WARN", "calls", "call %d: engine calls %s, ours its own copy %s (an unnamed local helper; add it to symbols.txt to pair them)" % (index, ec["name"], oc["name"])))
 				continue
-			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (i, callText(ec, count, regs), callText(oc, count, regs))))
+			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (index, callText(ec, count, regs), callText(oc, count, regs))))
 			return
-		if normalizedArguments(ec, context.engine, count, regs, context) != normalizedArguments(oc, context.ours, count, regs, context):
-			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (i, callText(ec, count, regs), callText(oc, count, regs))))
+		if not sameArguments(ec, oc, count, regs, context):
+			add(Finding("FAIL", "calls", "call %d: engine %s, ours %s" % (index, callText(ec, count, regs), callText(oc, count, regs))))
 			return
 		eFrame, oFrame = ec.get("frame", {}), oc.get("frame", {})
 		for key in eFrame:
 			if key in oFrame and eFrame[key] != oFrame[key] and not frameNoted:
 				frameNoted = True
-				k = next(j for j in range(64) if eFrame[key][j] != oFrame[key][j])
+				k = next(n for n in range(64) if eFrame[key][n] != oFrame[key][n])
 				add(Finding("WARN", "calls", "call %d %s: the temporary passed as %s differs at byte %d (64 bytes compared; a temporary smaller than that is followed by other frame data)"
-					% (i, ec["name"], key, k)))
+					% (index, ec["name"], key, k)))
 		if ec.get("external") and ec.get("cleanup") != oc.get("cleanup"):
-			add(Finding("FAIL", "calls", "call %d: external %s cleaned %d vs %d bytes" % (i, ec["name"], ec.get("cleanup", 0), oc.get("cleanup", 0))))
+			add(Finding("FAIL", "calls", "call %d: external %s cleaned %d vs %d bytes" % (index, ec["name"], ec.get("cleanup", 0), oc.get("cleanup", 0))))
 			return
-	if len(eCalls) != len(oCalls):
-		longer, who = (eCalls, "engine") if len(eCalls) > len(oCalls) else (oCalls, "ours")
-		k = min(len(eCalls), len(oCalls))
-		call = longer[k]
-		add(Finding("FAIL", "calls", "%s makes %d calls, the other %d; first extra (%s): %s" % (who, len(longer), k, who,
+	eRest = eCalls[i:]
+	oRest = [c for c in oCalls[j:] if not unmatched(c)]
+	if eRest or oRest:
+		longer, who = (eRest, "engine") if eRest else (oRest, "ours")
+		call = longer[0]
+		add(Finding("FAIL", "calls", "%s makes %d calls, the other %d; first extra (%s): %s" % (who, i + len(longer), i, who,
 			callText(call, context.calleeArgCount(call), context.registerArguments(call)))))

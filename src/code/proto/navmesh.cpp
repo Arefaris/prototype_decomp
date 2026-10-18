@@ -15,7 +15,8 @@ namespace proto
 
 	// FUNCTION: ENGINE 0x105691D0
 	// EQUIVALENT: same operations in the same order; the engine keeps the point in ebx, the index in ebp and the
-	// cursor in edi, ours allocates the callee-saved registers the other way round
+	// cursor in edi, ours allocates the callee-saved registers the other way round. The edge test is written
+	// `!(a >= b)`: the engine's branch also rejects a point whose products are unordered
 	bool NavMeshHull::Contains(const math::Vector& point, float below, float above)
 	{
 		NavEdge* edge = begin;
@@ -28,7 +29,7 @@ namespace proto
 			float az = gNavMesh->vertices[edge[i].a * 3 + 2];
 			float dx = gNavMesh->vertices[*edge[i].b * 3] - ax;
 			float dz = az - gNavMesh->vertices[*edge[i].b * 3 + 2];
-			if (dx * az + dz * ax < dx * pz + dz * px)
+			if (!(dx * az + dz * ax >= dx * pz + dz * px))
 			{
 				return false;
 			}

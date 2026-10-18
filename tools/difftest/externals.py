@@ -9,6 +9,9 @@ and the run notes it. Export names come from the modules' own export tables in t
 import math
 import struct
 
+from unicorn.x86_const import UC_X86_REG_ECX, UC_X86_REG_FPSW, UC_X86_REG_FPTAG, UC_X86_REG_FP0, UC_X86_REG_FP1, \
+	UC_X86_REG_FP2, UC_X86_REG_FP3, UC_X86_REG_FP4, UC_X86_REG_FP5, UC_X86_REG_FP6, UC_X86_REG_FP7
+
 from . import cfg
 
 # stdcall byte counts of APIs whose call sites cannot be analysed (called from the CRT or through thunks)
@@ -21,11 +24,22 @@ KNOWN_CLEANUP = {
 	"SetEvent": 4, "ResetEvent": 4, "WaitForSingleObject": 8, "ReleaseSemaphore": 12, "CloseHandle": 4,
 	"HeapAlloc": 12, "HeapFree": 12, "VirtualAlloc": 16, "VirtualFree": 12, "TlsGetValue": 4, "TlsSetValue": 8,
 	"GetModuleHandleA": 4, "GetProcAddress": 8, "DebugBreak": 0, "RaiseException": 16,
+	"?before@type_info@@QBEHABV1@@Z": 4,
+	"CreateEventA": 16, "CreateEventW": 16, "CreateSemaphoreA": 16, "CreateSemaphoreW": 16, "CreateMutexA": 12,
+	"CreateMutexW": 12, "CreateThread": 24, "ExitThread": 4, "SuspendThread": 4, "ResumeThread": 4, "GetCurrentThread": 0,
+	"WaitForMultipleObjects": 16, "SwitchToThread": 0, "SetThreadPriority": 8, "SleepEx": 8, "GetCurrentProcess": 0,
+	"ReleaseMutex": 4, "GetSystemInfo": 4, "GlobalMemoryStatus": 4, "GetLocalTime": 4, "GetSystemTimeAsFileTime": 4,
+	"timeGetTime": 0, "FlushFileBuffers": 4, "GetFileSize": 8, "SetFilePointer": 16, "ReadFile": 20, "WriteFile": 20,
+	"CreateFileA": 28, "CreateFileW": 28, "lstrlenA": 4, "lstrcpyA": 8, "MultiByteToWideChar": 24, "WideCharToMultiByte": 32,
 }
 
 # what a stub answers: by export name, else 0
 RETURNS = {"TryEnterCriticalSection": 1, "InterlockedIncrement": 1, "IsDebuggerPresent": 0, "WaitForSingleObject": 0,
-	"QueryPerformanceCounter": 1, "QueryPerformanceFrequency": 1, "TlsGetValue": 0}
+	"QueryPerformanceCounter": 1, "QueryPerformanceFrequency": 1, "TlsGetValue": 0,
+	# handle-creating calls succeed, with a handle that is not 0 or -1
+	"CreateEventA": 0x1F0, "CreateEventW": 0x1F0, "CreateSemaphoreA": 0x1F4, "CreateSemaphoreW": 0x1F4,
+	"CreateMutexA": 0x1F8, "CreateMutexW": 0x1F8, "CreateThread": 0x1FC, "GetCurrentThread": 0xFFFFFFFE,
+	"GetCurrentProcess": 0xFFFFFFFF}
 CLOBBER = 0xCCCCCCCC
 
 
@@ -138,6 +152,88 @@ def crtStrcmp(machine, args, fold=False, limit=None):
 	return 0 if a == b else (1 if a > b else 0xFFFFFFFF)
 
 
+def crtTypeInfoBefore(machine, args):
+	"""type_info::before(const type_info&), a thiscall: the decorated names (at +8 of a type descriptor) in strcmp order,
+	as the runtime does. A stub answering 0 for every pair would send a search through a type-keyed tree round in
+	circles."""
+	this = machine.uc.reg_read(UC_X86_REG_ECX)
+	a = cString(machine, this + 8)
+	b = cString(machine, args[0] + 8)
+	return 1 if a < b else 0
+
+
+def typeName(read, descriptor):
+	"""The decorated name at +8 of an RTTI type descriptor (descriptors of one type can be duplicated, so types are compared by name)."""
+	out = bytearray()
+	while len(out) < 512:
+		byte = read(descriptor + 8 + len(out), 1)
+		if byte is None:
+			return None
+		if byte == b"\0":
+			break
+		out += byte
+	return bytes(out)
+
+
+def dynamicCast(read, pointer, vfDelta, targetType):
+	"""The address __RTDynamicCast gives for a pointer to a polymorphic object: the unique base of the complete object
+	that has the target type, found through the object's complete object locator (vftable[-1]) and its class hierarchy
+	descriptor, with the member displacements of the base class descriptors (and the virtual base table for a virtual
+	base). None when the walk reads something the snapshot lacks or the cast needs a case this does not cover; 0 when
+	the target is not a base (a null result)."""
+	def u32(address, signed=False):
+		data = read(address, 4)
+		return None if data is None else struct.unpack("<i" if signed else "<I", data)[0]
+
+	vftable = u32(pointer)
+	locator = u32(vftable - 4) if vftable else None
+	if not locator or vfDelta:
+		return None
+	offset, cdOffset, hierarchy = u32(locator + 4), u32(locator + 8), u32(locator + 16)
+	if None in (offset, cdOffset, hierarchy):
+		return None
+	complete = pointer - offset
+	if cdOffset:
+		adjust = u32(pointer - cdOffset, True)
+		if adjust is None:
+			return None
+		complete += adjust
+	count, array = u32(hierarchy + 8), u32(hierarchy + 12)
+	wanted = typeName(read, targetType)
+	if count is None or array is None or wanted is None or count > 256:
+		return None
+	found = set()
+	for i in range(count):
+		base = u32(array + 4 * i)
+		descriptor = u32(base) if base else None
+		name = typeName(read, descriptor) if descriptor else None
+		if name is None:
+			return None
+		if name != wanted:
+			continue
+		mdisp, pdisp, vdisp = u32(base + 8, True), u32(base + 12, True), u32(base + 16, True)
+		if None in (mdisp, pdisp, vdisp):
+			return None
+		displacement = mdisp
+		if pdisp >= 0:
+			table = u32(complete + pdisp)
+			virtualOffset = u32(table + vdisp, True) if table else None
+			if virtualOffset is None:
+				return None
+			displacement = mdisp + pdisp + virtualOffset
+		found.add(complete + displacement)
+	return found.pop() if len(found) == 1 else 0
+
+
+def crtDynamicCast(machine, args):
+	"""__RTDynamicCast(pointer, vfDelta, sourceType, targetType, isReference): performed from the object's RTTI. A
+	null pointer stays null; a case it cannot walk is answered 0 like any stub."""
+	if args[0] == 0:
+		return 0
+	result = dynamicCast(lambda address, size: machine.readTraced(address, size), args[0], args[1], args[3])
+	return result or 0
+
+
 def crtStrcpy(machine, args):
 	machine.writeTraced(args[0], cString(machine, args[1]) + b"\0")
 	return args[0]
@@ -171,6 +267,21 @@ def apiSetLastError(machine, args):
 	return 0
 
 
+def apiQueryPerformanceCounter(machine, args):
+	"""Writes a counter that depends only on how many times the run has asked (the engine's run and ours get the same
+	values): the real call fills the caller's 64-bit slot, and a stub that left it alone would hand each run the
+	garbage of its own stack frame."""
+	index = sum(1 for call in machine.trace.calls if call["name"].endswith("QueryPerformanceCounter"))
+	machine.writeTraced(args[0], struct.pack("<Q", 0x100000000 + 0x1000 * index))
+	return 1
+
+
+def apiQueryPerformanceFrequency(machine, args):
+	"""A non-zero frequency (10 MHz) in the caller's 64-bit slot, for the same reason."""
+	machine.writeTraced(args[0], struct.pack("<Q", 10000000))
+	return 1
+
+
 def interlocked(operation):
 	def handler(machine, args):
 		data = machine.readTraced(args[0], 4)
@@ -194,6 +305,63 @@ def crtFloat(function):
 	return handler
 
 
+FP = [UC_X86_REG_FP0, UC_X86_REG_FP1, UC_X86_REG_FP2, UC_X86_REG_FP3, UC_X86_REG_FP4, UC_X86_REG_FP5, UC_X86_REG_FP6, UC_X86_REG_FP7]
+
+
+def fpuTop(uc):
+	return (uc.reg_read(UC_X86_REG_FPSW) >> 11) & 7
+
+
+def fpuRead(uc, depth):
+	"""st(depth) of the x87 stack as a float."""
+	mantissa, exponent = uc.reg_read(FP[(fpuTop(uc) + depth) & 7])
+	sign = -1.0 if exponent & 0x8000 else 1.0
+	exponent &= 0x7FFF
+	if exponent == 0x7FFF:
+		return sign * math.inf if mantissa & ((1 << 63) - 1) == 0 else math.nan
+	if exponent == 0 and mantissa == 0:
+		return sign * 0.0
+	return sign * math.ldexp(mantissa / (1 << 63), exponent - 16383)
+
+
+def fpuWrite(uc, depth, value):
+	from .machine import extended
+	uc.reg_write(FP[(fpuTop(uc) + depth) & 7], extended(value))
+
+
+def fpuPop(uc):
+	top = fpuTop(uc)
+	uc.reg_write(UC_X86_REG_FPTAG, uc.reg_read(UC_X86_REG_FPTAG) | (3 << (2 * top)))
+	uc.reg_write(UC_X86_REG_FPSW, (uc.reg_read(UC_X86_REG_FPSW) & ~(7 << 11)) | (((top + 1) & 7) << 11))
+
+
+def crtIntrinsic1(function):
+	"""A `_CI` function of the C runtime: the argument in st0 (no stack arguments), the result left in st0 in its place."""
+	def handler(machine, args):
+		uc = machine.uc
+		try:
+			result = function(fpuRead(uc, 0))
+		except (ValueError, OverflowError):
+			result = math.nan
+		fpuWrite(uc, 0, result)
+		return 0
+	return handler
+
+
+def crtIntrinsic2(function):
+	"""A two-argument `_CI` function: the first argument in st1, the second in st0; both are replaced by the result."""
+	def handler(machine, args):
+		uc = machine.uc
+		try:
+			result = function(fpuRead(uc, 1), fpuRead(uc, 0))
+		except (ValueError, OverflowError, ZeroDivisionError):
+			result = math.nan
+		fpuWrite(uc, 1, result)
+		fpuPop(uc)
+		return 0
+	return handler
+
+
 def crtFloat2(function):
 	def handler(machine, args):
 		a = struct.unpack("<d", struct.pack("<II", args[0], args[1]))[0]
@@ -210,6 +378,13 @@ CRT = {
 	"memcpy": crtMemcpy, "memmove": crtMemcpy, "memset": crtMemset, "memcmp": crtMemcmp, "strlen": crtStrlen,
 	"strcmp": crtStrcmp, "_stricmp": lambda m, a: crtStrcmp(m, a, fold=True), "strncmp": lambda m, a: crtStrcmp(m, a, limit=a[2]),
 	"_strnicmp": lambda m, a: crtStrcmp(m, a, fold=True, limit=a[2]), "strcpy": crtStrcpy,
+	"?before@type_info@@QBEHABV1@@Z": crtTypeInfoBefore, "__RTDynamicCast": crtDynamicCast,
+	"_CIacos": crtIntrinsic1(math.acos), "_CIasin": crtIntrinsic1(math.asin), "_CIatan": crtIntrinsic1(math.atan),
+	"_CIcos": crtIntrinsic1(math.cos), "_CIsin": crtIntrinsic1(math.sin), "_CItan": crtIntrinsic1(math.tan),
+	"_CIexp": crtIntrinsic1(math.exp), "_CIlog": crtIntrinsic1(math.log), "_CIlog10": crtIntrinsic1(math.log10),
+	"_CIsqrt": crtIntrinsic1(math.sqrt), "_CIcosh": crtIntrinsic1(math.cosh), "_CIsinh": crtIntrinsic1(math.sinh),
+	"_CItanh": crtIntrinsic1(math.tanh), "_CIatan2": crtIntrinsic2(math.atan2), "_CIpow": crtIntrinsic2(math.pow),
+	"_CIfmod": crtIntrinsic2(math.fmod),
 	"floor": crtFloat(math.floor), "ceil": crtFloat(math.ceil), "sqrt": crtFloat(math.sqrt), "sin": crtFloat(math.sin),
 	"cos": crtFloat(math.cos), "tan": crtFloat(math.tan), "exp": crtFloat(math.exp), "log": crtFloat(math.log),
 	"fabs": crtFloat(abs), "atan": crtFloat(math.atan), "asin": crtFloat(math.asin), "acos": crtFloat(math.acos),
@@ -218,6 +393,7 @@ CRT = {
 	# Win32 calls whose effect is in the thread's own memory: performed exactly from the snapshot
 	"TlsGetValue": apiTlsGetValue, "GetCurrentThreadId": apiTebDword(0x24), "GetCurrentProcessId": apiTebDword(0x20),
 	"GetLastError": apiTebDword(0x34), "SetLastError": apiSetLastError,
+	"QueryPerformanceCounter": apiQueryPerformanceCounter, "QueryPerformanceFrequency": apiQueryPerformanceFrequency,
 	"InterlockedIncrement": interlocked(lambda old, a: (old + 1, old + 1)),
 	"InterlockedDecrement": interlocked(lambda old, a: (old - 1, old - 1)),
 	"InterlockedExchange": interlocked(lambda old, a: (a[1], old)),

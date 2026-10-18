@@ -107,6 +107,19 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    blocks covered; random inputs alone prove nothing, and a `SAME` with half the blocks unreached says only that much.
    `python tools/difftest/difftest.py all` runs every EQUIVALENT function that has states.
 
+   What the replay treats as the same (each of these hid real work behind a false `DIFFERENT` or `INCONCLUSIVE`): a
+   function-local static or other writable data symbols.txt maps stays at the engine's address in `--unit` runs (map a
+   static with its mangled name and its guard bits, as for `SupportingLimb::Update`, so ours and the engine share the
+   state); a pointer to a file-level static of ours against the engine's copy compares by the bytes of the object; a
+   pointer to a function ours placed itself against the engine's address compares by symbol; calls of the engine to
+   small value-computing leaf functions, or to helpers that store nothing outside the frame before the next call (a
+   copy into a temporary), which ours did inline, are skipped; a stack cleanup that differs from the engine's does not
+   fail when every caller of the function is compiled from our sources too (the hybrid DLL replaces them as well). The
+   emulator performs `QueryPerformanceCounter` / `Frequency` (a counter that depends only on the call index),
+   `type_info::before`, `__RTDynamicCast` (from the object's RTTI), the `_CI` x87 math intrinsics, and takes code and
+   constants a state does not hold from the original image. Still `INCONCLUSIVE`: Direct3D COM calls (the stubs do not
+   fill their out-parameters) and states whose run now reaches heap pages the capture never saved (capture again).
+
 4. **Timing and trimming** (`python tools/difftest/bench.py`): the same replay without writing reports, with per-function
    and total times and the verdict compared against `local/difftest/reports/*.txt` (snapshotted to
    `local/scratch/difftest-speed/baseline/` with `--copy-baseline` first). `--no-variants` times the replay alone;
