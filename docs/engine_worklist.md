@@ -499,24 +499,35 @@ within 1e-5 of zero, calls slot 8 with the time step on every object of an intru
 (`setne` / `test` / `ja`) and keeps the join of each null-checked node-to-object adjustment before testing the object
 (no jump threading); `Abs` as `x >= 0 ? x : -x` gives the original's `-0.0 - x`.
 
-## render/async/private/renderglobals.cpp (0x10817A10 - about 0x10818F00): 13 functions, 10 match, 3 EQUIVALENT
+## render/async/private/renderglobals.cpp (0x10817A10 - about 0x10819400): the tables and controller API match, the queue instances are open
 
-The drawable table (0x1130CCC4: slots, serials, count), the render event allocator (0x1130CCDC, slots 3 / 4), the
-deferred deletion list and the render event queues. Each queue is a template instance (two queues, 0x11284C60 and
-0x11304C90, with identical copies of every helper): a ring of 0x20000 values behind a free and a ready semaphore,
-lock-free read / write indices and a commit structure at +0x10 (0x10817F90, not reconstructed) that releases the
-slots that became readable. Only the first queue's instances are mapped. Notes:
+The drawable table (0x1130CCC4) and the controller table (0x1130CCC8) are `HandleTable<T>` instances: slots, a lock-free
+free list of index nodes (+0xC), nodes (+0x10), serials (+0x1C) and a count (+0x28); the serial counter is a static of
+each instance (0x111C2E84 / 0x111C2E88, 1 .. 0xFFFE). The arrays are `SlotArray<T>` (begin, end, empty allocator). Other
+globals: the render event allocator (0x1130CCDC, slots 3 / 4), the deferred deletion list and the render event queues.
+Each queue is a template instance (two queues, 0x11284C60 and 0x11304C90, with identical copies of every helper): a
+ring of 0x20000 values behind a free and a ready semaphore, lock-free read / write indices and a commit structure at
++0x10 (0x10817F90, not reconstructed) that releases the slots that became readable. Only the first queue's instances
+are mapped. Notes:
 - The two "FATAL: Async render event queue overflowed..." asserts are OLD_ASSERT_AT with the original line numbers
   (0xA9, 0xBE).
 - ExecuteRenderEvents is `while (TryPop(&queue, &event) && event != 0) event->Execute();`.
+- The thirteen one-byte functions between 0x10817B30 and 0x108185E0 are the construct / destroy helpers of the plain
+  types (`ConstructRange` / `DestroyRange` / `DestroyAt`); the original keeps an out-of-line copy of each instance.
+- Inlining: the element-constructing array constructor of the controller slots stays a call in the table
+  constructor (declared `noinline` as an explicit specialisation); the others are `__forceinline` in the
+  generic template. `ConstructRange<DrawableData>` is likewise an out-of-line specialisation.
+- HandleParts index: the engine loads the handle as a word and masks it, which needs a signed `int value` member.
 
 | Address | Name | Status | Notes |
 |---|---|---|---|
 | 0x10817A50 / 0x10817AD0 / 0x10817B10 / 0x10817B40 | AllocRenderEvent / FreeRenderEvent / GetRenderList / DeferDelete | match | |
 | 0x10817F40 | AllocAsyncQueueSlot<RenderEvent*> | EQUIVALENT | same loop, other registers for the index pointer and the slot |
-| 0x10818260 / 0x10818920 | IsValidDrawable / GetDrawableData | EQUIVALENT | the original loads the whole handle and masks the index; every form tried (masks, bitfields, accessors, volatile) loads it as a word |
 | 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
+| 0x10818B30 | SlotArray<ControllerSlot> constructor | EQUIVALENT (98.9%) | the branch for an empty range goes to the second of two identical epilogue copies, the original's to the first |
+| 0x10818E20 | HandleTable<DrawableData> constructor | EQUIVALENT (81.7%) | the block clearing the first array after a failed allocation sits behind a jump after the construct call (the original puts it after the second array's success branch); one operand order of an address |
+| 0x108182C0 / 0x108183E0 | HandleTable<DrawableData / ControllerSlot>::Alloc | EQUIVALENT (93.5% / 93.7%) | the free list pointer and the compare exchange's scratch registers are swapped |
 
 
 ## engine/physics/physicsmanager.cpp (0x107E2440 - 0x107E7A00), started

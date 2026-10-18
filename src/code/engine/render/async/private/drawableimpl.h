@@ -45,6 +45,15 @@ namespace engine
 		// A slot of the drawable table (16 bytes)
 		struct DrawableData
 		{
+			// The table makes its slots with these values
+			DrawableData()
+			{
+				drawable = 0;
+				unknown4 = 0;
+				unknown8 = false;
+				sourceDrawable = 0;
+			}
+
 			DrawableImpl* drawable;
 			pure3d::FrameController* unknown4;
 			bool unknown8;
