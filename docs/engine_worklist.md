@@ -2940,14 +2940,9 @@ Matching session (op-finish, 2026-10-18):
 - 0x102DC5F0 `Slot1` stays EQUIVALENT (79.4 %): `distanceLevel = 0` after the half diagonal gives the engine's store
   (its zero shared with the loop), but the readiness tests and the joint loop still pick other registers (60 % with
   it).
-- 0x102DE130 `MidgroundManager::Load` stays EQUIVALENT (98.8 %). It matches 100 % when `core::Name` holds its hash as
-  `union { struct { unsigned int hash, index; }; unsigned __int64 value64; }` (8-byte aligned): the name's slot then
-  sits where the engine's does. That change alone breaks 92 functions in six units (choreo drivers.cpp,
-  partitiondriver.cpp, rootdriver.cpp, engine/camera/director.cpp, render/async/private/parameterinterpolator.cpp,
-  pure3d/src/renderparams.cpp: classes with a Name at a 4-mod-8 offset); compiling those six units with
-  `// CFLAGS: /Zp4` restores every one of them (4884 of 4891 as before) and Load matches. Not committed: a core
-  header and the packing of six units are the main session's call, and classes shared between packings would
-  differ between units.
+- 0x102DE130 `MidgroundManager::Load` matches: the package's name is an eight-byte aligned local
+  (`__declspec(align(8))`); `core::Name` itself stays four-byte aligned (an eight-byte aligned Name breaks 92
+  functions whose classes hold a Name at a 4-mod-8 offset).
 - 0x102DDD30 `CellLoaded` stays EQUIVALENT (97.5 %): a reference to the drawable member in the record's copy
   constructor gets ecx right (99.0 %), the 1 still goes to eax for the engine's edx; the union Name above does not
   change it.

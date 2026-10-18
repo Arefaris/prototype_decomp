@@ -70,10 +70,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102DE130
-	// EQUIVALENT: stack slot layout: the name of the package and the temporary drawable share a slot that sits 4 bytes
-	// higher than the engine's, every instruction is the engine's (98.8 %)
-	// The slot is the engine's when core::Name is eight-byte aligned (its hash a 64-bit word): with that the function
-	// is byte for byte the engine's.
 	void MidgroundManager::Load()
 	{
 		const char* levelName = FindLevelName(engine::gGameDatabase->GetString(gLevelNameKey, 0, 0));
@@ -81,7 +77,8 @@ namespace proto
 		text.Format("%s_midground", levelName);
 		engine::StreamPackage* package;
 		{
-			core::Name<core::CaseSensitiveKey> packageName(text.buffer, 1);
+			// the engine keeps the package's name on an eight-byte boundary of the frame
+			__declspec(align(8)) core::Name<core::CaseSensitiveKey> packageName(text.buffer, 1);
 			package = engine::FindStreamPackage(packageName);
 		}
 		if (package != 0)
