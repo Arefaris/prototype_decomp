@@ -1,6 +1,6 @@
 // pure3d::CompositeDrawableLoader (RTTI name; bases content::SimpleChunkHandler, content::ObjectLoader,
 // content::LoadObject, core::IRefCount; 8 vftable slots, vftable 0x10EAF8B4): the loader of the composite drawable
-// chunk (0x10011), which puts the parts of other drawables together under one skeleton. The unit is around
+// chunk (0x123000), which puts the parts of other drawables together under one skeleton. The unit is around
 // 0x10B91300 - 0x10B91CD0 (file name guessed).
 #ifndef PURE3D_LOADERS_COMPOSITEDRAWABLELOADER_H
 #define PURE3D_LOADERS_COMPOSITEDRAWABLELOADER_H

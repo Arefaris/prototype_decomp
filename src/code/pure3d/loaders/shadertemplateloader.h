@@ -1,6 +1,6 @@
 // pure3d::ShaderTemplateLoader (RTTI name; bases content::SimpleChunkHandler, content::ObjectLoader,
 // content::LoadObject, core::IRefCount; 8 vftable slots, vftable 0x10EAFC50): the loader of the shader template
-// chunk. It makes no object; the template it builds goes into the device. The unit is around 0x10B95330 -
+// chunk (0x11009). It makes no object; the template it builds goes into the device. The unit is around 0x10B95330 -
 // 0x10B96280 (file name guessed).
 #ifndef PURE3D_LOADERS_SHADERTEMPLATELOADER_H
 #define PURE3D_LOADERS_SHADERTEMPLATELOADER_H
