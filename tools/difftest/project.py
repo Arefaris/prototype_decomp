@@ -42,7 +42,8 @@ def symbolAt(address):
 
 
 def functionSizes():
-	"""{address: size} from functions.tsv."""
+	"""{address: size} from functions.tsv; a larger `function size:` in symbols.txt wins (the analysis splits some
+	functions at a jump target, and the symbol records the whole one)."""
 	global _functions
 	if _functions is None:
 		_functions = {}
@@ -50,6 +51,11 @@ def functionSizes():
 			parts = line.split("\t")
 			if len(parts) >= 2 and parts[0].startswith("0x"):
 				_functions[int(parts[0], 16)] = int(parts[1])
+		for match in re.finditer(r"^\S+ = (0x[0-9A-Fa-f]+) ; function size:(0x[0-9A-Fa-f]+)",
+				(ROOT / "config" / VERSION / "symbols.txt").read_text(encoding="utf-8"), re.MULTILINE):
+			address, size = int(match.group(1), 16), int(match.group(2), 16)
+			if address in _functions and size > _functions[address]:
+				_functions[address] = size
 	return _functions
 
 
@@ -82,6 +88,9 @@ def functionExtent(address):
 	starts = sortedStarts()
 	import bisect
 	i = bisect.bisect_right(starts, address)
+	if address in sizes and i < len(starts) and starts[i] < address + size:
+		# starts inside the known size are pieces the analysis split off (a larger symbols.txt size covers them)
+		i = bisect.bisect_left(starts, address + size)
 	nextStart = starts[i] if i < len(starts) else address + size
 	extent = min(nextStart - address, size + 16) if nextStart > address else size
 	code = image().read(address, extent)

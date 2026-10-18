@@ -2,6 +2,7 @@
 engine's call sites of it. Capstone over bytes the caller supplies (the original image is read from orig/, our
 function from the build's object; nothing is written anywhere)."""
 
+import re
 import struct
 
 from capstone import Cs, CS_ARCH_X86, CS_MODE_32, CS_AC_WRITE
@@ -287,6 +288,49 @@ def directCallSites(image, address):
 			words += 1
 			j = data.find(needle, j + 1, stop - image.base)
 	return sites, words
+
+
+def writtenRegisters(code, address):
+	"""Names of the volatile registers (ecx, edx) any instruction of the function writes; a call writes both."""
+	written = set()
+	for insn in disassemble(code, address):
+		if insn.mnemonic == "call":
+			return {"ecx", "edx"}
+		read, write = insn.regs_access()
+		for reg in write:
+			full = FULL.get(reg)
+			if full in (X86_REG_ECX, X86_REG_EDX):
+				written.add(NAMES[full])
+	return written
+
+
+def readAfterCall(image, site, name, limit=40):
+	"""Whether the caller at `site` (a 5-byte call) reads the volatile register `name` after the call before writing
+	it: along the fall-through path up to the next jmp / ret, a `call` to a thiscall callee counts as a read of ecx
+	(the caller passes on the `this` it kept there). VS2005 knows which registers a function of its own unit leaves
+	intact and its callers rely on it."""
+	from . import project
+	target = X86_REG_ECX if name == "ecx" else X86_REG_EDX
+	start = site + 5
+	for insn in disassemble(image.read(start, 0x100), start)[:limit]:
+		if insn.mnemonic == "call":
+			if target == X86_REG_ECX and insn.operands and insn.operands[0].type == X86_OP_IMM:
+				callee = insn.operands[0].imm & 0xFFFFFFFF
+				thunk = image.read(callee, 5)
+				if thunk and thunk[0] == 0xE9:  # an incremental link thunk: its jmp's target
+					callee = (callee + 5 + struct.unpack("<i", thunk[1:5])[0]) & 0xFFFFFFFF
+				callee = project.symbolAt(callee) or ""
+				if re.search(r"@@[QAIUEM][AB]E", callee):
+					return True
+			return False
+		read, write = insn.regs_access()
+		if any(FULL.get(reg) == target for reg in read):
+			return True
+		if any(FULL.get(reg) == target for reg in write):
+			return False
+		if insn.mnemonic in ("jmp", "ret", "retn"):
+			return False
+	return False
 
 
 def callSiteArguments(image, site, functionStart):

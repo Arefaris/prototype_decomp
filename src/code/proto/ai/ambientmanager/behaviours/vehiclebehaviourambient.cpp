@@ -202,12 +202,15 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10445A10
-	// EQUIVALENT: the same test of the steering angle against 0.05 and the same answer; the engine builds the answer
-	// of the inline test in eax and negates it with test / sete al, ours negates through cl, 58 %
+	// NONMATCHING: the same test of the steering angle against 0.05 and the same answer, 51 %; the engine negates the
+	// answer in al and leaves ecx (this) as it was, ours negates through cl, and the engine's callers use ecx after the
+	// call (the game crashes reading this+0x74 in 0x10442200)
+#ifdef NONMATCHING
 	bool VehicleBehaviourAmbient::Unknown10445A10()
 	{
 		return !IsNearZero(turningAngle);
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10445A40
 	float VehicleBehaviourAmbient::Unknown10445A40(float squaredSpeed)

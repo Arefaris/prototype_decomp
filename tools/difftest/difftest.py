@@ -111,6 +111,19 @@ class FunctionTest:
 		extra = oursInputs - engineInputs - {"ebp"}
 		if extra:
 			findings.append(compare.Finding("FAIL", "convention", "ours reads %s before writing them; the engine's function does not take them" % sorted(extra)))
+		# volatile registers the engine's function leaves intact and a caller that stays engine code reads after the
+		# call: VS2005 knows what a function of its own unit touches (0x10445A10 crashed the game through ecx)
+		kept = {"ecx", "edx"} - cfg.writtenRegisters(self.code, self.address)
+		if self.returnKind == "int64":
+			kept.discard("edx")
+		clobbered = kept & cfg.writtenRegisters(oursCode, 0)
+		if clobbered:
+			replaced = project.replacedFunctions()
+			for reg in sorted(clobbered):
+				users = [site for site, viaThunk in sites if self.containingFunction(site) not in replaced
+					and cfg.readAfterCall(self.image, site, reg)]
+				if users:
+					findings.append(compare.Finding("FAIL", "convention", "the engine's function leaves %s intact and its caller at 0x%08X uses it after the call; ours changes it" % (reg, users[0])))
 		missing = engineInputs - oursInputs - {"ebp"}
 		if missing:
 			findings.append(compare.Finding("WARN", "convention", "the engine's function takes %s; ours never reads them" % sorted(missing)))
@@ -217,6 +230,10 @@ class FunctionTest:
 			self.say("verdict: INCONCLUSIVE (no object: run ninja, or pass --obj)")
 			return "INCONCLUSIVE"
 		conventionFindings = self.conventionCheck()
+		if not states and any(f.severity == "FAIL" and f.text.startswith("the engine's function leaves") for f in conventionFindings):
+			# a convention the engine's callers depend on fails without any state
+			self.say("verdict: DIFFERENT (convention, no state needed)")
+			return "DIFFERENT"
 		if not states:
 			self.say("no captured states: capture some with --capture N while the game runs the path")
 			self.say("verdict: NOT REACHED")

@@ -3476,7 +3476,9 @@ the path vectors; the sum of the products is added z, y, x in both), 0x1044B110 
 0x1044C040 (85 %, registers of the branch and the slot address), 0x1044CEA0 (59 %, esi / edi in the generator
 steps), 0x1044D0F0 (70 %, registers), 0x1044D730 (92 %, the engine keeps 1.0 on the x87 stack and compares the
 stored distance with an SSE compare where ours compares the x87 value; the value is never within the single's
-range of zero) and the neighbours 0x10446700 (87 %) and 0x10445A10 (58 %, the negation of the inline test).
+range of zero) and the neighbour 0x10446700 (87 %). 0x10445A10 is NONMATCHING: ours negates the answer through cl
+and so changes ecx, which the engine's copy leaves holding `this`; its caller 0x1044D200 calls 0x10442200 right
+after it with that ecx, and the game crashed in free roam.
 With /fp:fast the compiler adds a sum of products in the opposite order to the source's: a dot product written
 x, y, z comes out z, y, x (0x1044AE90); check that order in the listing before an EQUIVALENT is accepted.
 

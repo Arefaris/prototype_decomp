@@ -107,6 +107,11 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    blocks covered; random inputs alone prove nothing, and a `SAME` with half the blocks unreached says only that much.
    `python tools/difftest/difftest.py all` runs every EQUIVALENT function that has states.
 
+   Before any state, the test checks the convention statically: a volatile register (ecx, edx) that the engine's
+   function never writes and that one of its callers left as engine code reads after the call (or passes on as the
+   `this` of the next thiscall) must stay intact in ours too. VS2005 knows which registers a function of its own unit
+   touches and its callers rely on it: an EQUIVALENT that changes such a register crashes the game (0x10445A10).
+   Such a function is reported `DIFFERENT` even without states.
    What the replay treats as the same (each of these hid real work behind a false `DIFFERENT` or `INCONCLUSIVE`): a
    function-local static or other writable data symbols.txt maps stays at the engine's address in `--unit` runs (map a
    static with its mangled name and its guard bits, as for `SupportingLimb::Update`, so ours and the engine share the
