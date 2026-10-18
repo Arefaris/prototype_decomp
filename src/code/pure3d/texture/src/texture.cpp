@@ -827,12 +827,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072B470
-	// EQUIVALENT: the same header read, texture creation, type switch and calls in the same order and the same
-	// block layout (22.6 %); the engine keeps the stream in ebx (reloaded after the part's checks), this compiler
-	// reads it from its argument slot at each call, which shifts the frame by one push. The texture goes to the
-	// volume upload in edi as in the engine. An extra use of the stream right after the header read gives it ebx
-	// and the engine's prologue; separate upload calls for the part and the whole texture, or a cast at each use,
-	// do not.
 	Texture* DDSParser::Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source)
 	{
 		content::ChunkStream* chunks = static_cast<content::ChunkStream*>(stream);
@@ -867,11 +861,14 @@ namespace pure3d
 				UploadRect* part = 0;
 				if (texture != 0)
 				{
-					rect.height = description.height;
-					rect.width = description.width;
-					rect.x = width;
-					rect.y = height;
+					// The part is pointed at before its fields are set, the position first: the stream then keeps ebx
+					// for the whole function (set after the fields, the rect's stores take ebx and the stream its
+					// argument slot)
 					part = &rect;
+					rect.y = height;
+					rect.x = width;
+					rect.width = description.width;
+					rect.height = description.height;
 					unsigned int full = target->info->levelData[0].data->width;
 					if (width + description.width > full)
 					{

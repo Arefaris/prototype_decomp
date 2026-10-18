@@ -24,6 +24,9 @@ namespace pure3d
 	// follow the engine's (reader in ebp, skeleton in esi), what differs is the scheduling of some loads and
 	// temporaries (79.9 %)
 	// The joint name read through an inline helper, a cast length, a nested count or a buffer pointer compiles alike.
+	// The length declared before the buffer, the skeleton name's byte reused for the joint names (61 %), a barrier
+	// after any statement (80.6 % at best, after the name's terminator; not kept) and the orders of the joint chunk's
+	// first seven statements do not change the rotation of the volatile registers.
 	void SkeletonLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)
 	{

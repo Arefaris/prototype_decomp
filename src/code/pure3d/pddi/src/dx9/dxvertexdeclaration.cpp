@@ -7,6 +7,10 @@
 #include "code/core/report.h"
 #include "code/core/strings.h"
 
+// The compiler barrier (the full <intrin.h> would change the register conventions of the unit-local functions)
+extern "C" void _ReadWriteBarrier();
+#pragma intrinsic(_ReadWriteBarrier)
+
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10625AC0
@@ -22,14 +26,6 @@ namespace pure3d
 	static bool sDumpCountEnabled = true;
 
 	// FUNCTION: ENGINE 0x1062B5C0
-	// EQUIVALENT: scheduling: the engine stores the new entry's user count before its element count, this compiler
-	// the other way round (96.6 %)
-	// Every store order, references, a constructor or an inline Set for the entry leave the order as it is, and so do
-	// copies of the count and the number in locals, the device in a local, a declaration pointer set afterwards and
-	// the three spellings of the manager's count increment (about 600 compilations).
-	// Writing the entry through a pointer or an inline helper, or `users` as a member object set by its constructor,
-	// changes nothing either.
-	// The new entry declared before the search loop (its users, or users and count, set there) gives 20 - 44 %.
 	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements)
 	{
 		unsigned int count = 0;
@@ -70,6 +66,9 @@ namespace pure3d
 		made.users = 1;
 		made.elementCount = count;
 		made.id = gVertexDeclarationManager->count;
+		// The new entry's stores are a scheduling region of their own (the barrier ends it): the engine stores the user
+		// count before the element count, which the scheduler turns around when the device call belongs to the region
+		_ReadWriteBarrier();
 		gD3DDevice->lpVtbl->CreateVertexDeclaration(gD3DDevice, elements, &made.declaration);
 		gVertexDeclarationManager->entries.PushBack(made);
 		gVertexDeclarationManager->count++;
