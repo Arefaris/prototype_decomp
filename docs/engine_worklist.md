@@ -3616,10 +3616,11 @@ access path (through the array object or through the owner) are part of the sour
   the engine holds the dropped count in esi and the package in edi (ours the other way round, in the whole loop),
   the known array's begin in edx and its first package in eax, and copies the end of the list into edx / esi after the
   search (ours reuses one register or reloads); one alignment byte.
-- 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is `math::AABB::GetCentre(Vector*)`
-  (inline in the engine, five callers compute it the same way: this function, `CollectPackages`, and three in the
-  0x108EB920 / 0x108EBC80 functions), which is `centre->Add(min, max); centre->Scale(0.5f)` - the operands of the three
-  sums then keep the order `Vector::Add` gives them (min.x first, but max.y and max.z first, the compiler's own
-  choice), which a hand-written `(min.x + max.x) * 0.5f` per axis never reproduces (it always loads the higher
-  offset first). Shared header change: `code/math/aabb.h` got the method.
-
+- 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
+  computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
+  0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the
+  engine's operand order (min.x + max.x, but max.y + min.y and max.z + min.z); the same call written on the trigger's
+  box from outside, a hand-written `(min.x + max.x) * 0.5f` per axis, or a free function taking the box, loads the
+  higher offset first in all three. The method is `StreamTriggerBox::GetCentre` (streamtrigger.h, a `math::AABB`
+  with the member); it is not in `math::AABB` itself because any new name in that class moves the stack slots of
+  `pure3d::Context::LoadDebugFont` (0x1070FC90) and that function drops from 100 % to 98.7 %.
