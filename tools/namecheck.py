@@ -62,7 +62,9 @@ def main():
 			continue
 		key = qualified(name)
 		# the same declaration spelled differently (overloads undecorate differently and are left alone)
-		same = [ours for ours in byQualified.get(key, []) if undecorate(ours) == undecorate(name)] if key else []
+		# or cut short (a data name without its final storage letter, `2PAD` for `2PADA`, does not undecorate)
+		same = [ours for ours in byQualified.get(key, []) if undecorate(ours) == undecorate(name)
+			or ours.startswith(name)] if key else []
 		if same:
 			problems += 1
 			print(f"0x{address:08X} {name}")
