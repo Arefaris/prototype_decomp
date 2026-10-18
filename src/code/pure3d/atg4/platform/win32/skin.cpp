@@ -567,7 +567,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071CA40
 	// NONMATCHING: the stack slots of the offset locals and the scalar spills are laid out differently (the frames have the same size), 24 %
 #ifdef NONMATCHING
@@ -669,7 +668,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071CDC0
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 34 %
 #ifdef NONMATCHING
@@ -753,7 +751,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071D1B0
 	// NONMATCHING: the loop count's copy and the loop-invariant stride scalings come out in a different order in the loop pre-header (the rest is byte for byte), 96 %
 #ifdef NONMATCHING
@@ -836,7 +833,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071D440
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 21 %
 #ifdef NONMATCHING
@@ -901,7 +897,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071D770
 	void SkinState::Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -958,7 +953,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-
 
 	// FUNCTION: ENGINE 0x1071D960
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 29 %
@@ -1021,7 +1015,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071DD60
 	void SkinState::Unknown1071DD60(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1079,7 +1072,6 @@ namespace pure3d
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
 
-
 	// FUNCTION: ENGINE 0x1071DFF0
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 32 %
 #ifdef NONMATCHING
@@ -1136,7 +1128,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071E390
 	void SkinState::Unknown1071E390(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1189,7 +1180,6 @@ namespace pure3d
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
 
-
 	// FUNCTION: ENGINE 0x1071E5D0
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 33 %
 #ifdef NONMATCHING
@@ -1241,7 +1231,6 @@ namespace pure3d
 	}
 #endif
 
-
 	// FUNCTION: ENGINE 0x1071E8F0
 	void SkinState::Unknown1071E8F0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1288,7 +1277,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-
 
 	// Blends the four rows of four bone matrices, weighted by the four lanes of the weights (out = m0 * w.x +
 	// m1 * w.y + m2 * w.z + m3 * w.w), for the vertex record whose bone indices sit at +0x40. Nothing calls it (the
