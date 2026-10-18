@@ -47,9 +47,11 @@ namespace pure3d
 	// GLOBAL: ENGINE 0x11281828
 	int gSkinJobCount = 0;
 
-	// Whether the skinning jobs run on a worker thread, and how many have been queued
+	// Whether the skinning jobs run on a worker thread, and how many have been queued. The flag is file-local (only
+	// the job dispatcher reads it): the dispatcher's test of it is scheduled ahead of the stream stores, which this
+	// compiler does only for a static whose address is never taken.
 	// GLOBAL: ENGINE 0x11137804
-	bool gSkinAsync = true;
+	static bool gSkinAsync = true;
 	// GLOBAL: ENGINE 0x1128180C
 	int gSkinQueuedCount = 0;
 
@@ -1818,7 +1820,12 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10720CF0
-	// EQUIVALENT: the engine's instructions in its registers and frame, 97.5 %; the test of gSkinAsync comes after the third stream's stores (the engine: before them) and the load of the format word in the queueing branch after the store of hasTangents (the engine: before it). The first two streams are set up through their address (BeginStream), which keeps the loads of the next stream behind the stores as in the engine
+	// EQUIVALENT: the engine's instructions in its registers and frame, 99.1 %; the load of the format word in the
+	// queueing branch comes after the store of hasTangents (the engine: before it; a local for the format or the
+	// flag, a restrict pointer for the record and the other spellings of the bit change the registers instead). The
+	// first two streams are set up through their address (BeginStream), which keeps the loads of the next stream
+	// behind the stores as in the engine; the third through a local pointer, which puts its end store ahead of the
+	// flags' loads.
 	void SkinState::Unknown10720CF0()
 	{
 		if (unknown2AE)
@@ -1855,10 +1862,11 @@ namespace pure3d
 		skin->GetParameters(&skinParameters);
 		BeginStream(&streams[0], destLock.unknown108, destLock.unknown0);
 		BeginStream(&streams[1], destLock.unknown108, destLock.unknown0);
-		int start2 = streams[2].offset + destLock.unknown108;
-		streams[2].start = start2;
-		streams[2].current = start2;
-		streams[2].end = streams[2].stride * destLock.unknown0 + start2;
+		SkinStream* s2 = &streams[2];
+		int start2 = s2->offset + destLock.unknown108;
+		s2->start = start2;
+		s2->current = start2;
+		s2->end = s2->stride * destLock.unknown0 + start2;
 		bool hasNormals = streams[1].enabled;
 		bool hasTangents = streams[2].enabled;
 		if (gSkinAsync)

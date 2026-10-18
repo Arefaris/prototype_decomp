@@ -1344,8 +1344,8 @@ registers.
 | 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
 | 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
 | 0x1072ADB0 | UploadLevel (static) | match |
-| 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
-| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
+| 0x1072B230 | UploadVolumeLevels (static) | matches |
+| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (22.6 %; same block layout as the engine's) |
 
 The EQUIVALENT functions differ only in register homes and scheduling: UploadLevel keeps the rect in ebx where the
 engine uses esi, tests `rect->x & 3` through a byte test, multiplies in the other operand order and orders two
@@ -1401,6 +1401,14 @@ Matching notes:
   description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
   never chooses a register parameter for it (no permutation of the four parameters does); `UploadLevels` (0x1072B050)
   does get its rect in edi. With that the stream would sit in ebx as in the engine.
+- (op-map2) 0x1072B230 `UploadVolumeLevels` **matches**: each branch reads the level count itself
+  (`unsigned int count = texture->info->description.levels + 1;` inside the dropTop branch, the plain count after
+  it), as `UploadCubeLevels` does; one count read before the test is what kept the texture on the stack. The signature
+  is the cube version's `(stream, texture, description, dropTop)` (the symbol is renamed); the texture then comes in edi.
+- (op-map2) 0x1072B470 `DDSParser::Load` stays EQUIVALENT, now 22.6 % (was 13.8): the texture goes to the volume upload
+  in edi; the stream stays in its argument slot where the engine keeps it in ebx. One more use of the stream right after
+  the header read (a null test) gives it ebx and the engine's prologue, so its weight is what is missing; two upload
+  calls in the 2D case and casts at each use do not add it.
 
 ## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
 
@@ -3315,6 +3323,10 @@ method of the pose at +0x70) and the job record at +0x330.
   behind the stores as in the engine; the third one written on the member directly. Left: the test of `gSkinAsync`
   comes after the third stream's stores (the engine: before them) and the format word's load in the queueing branch
   after the store of `hasTangents` (the engine: before it). No captured states.
+- (op-map2) 0x10720CF0 stays EQUIVALENT, now 99.1 %: `gSkinAsync` is a file-level `static` (the dispatcher is the only
+  code that reads it), which lets the compiler schedule its test ahead of the third stream's stores as the engine does;
+  the third stream is written through a local `SkinStream*`. Left: the format word's load in the queueing branch after
+  the store of `hasTangents`. Note for the hybrid build: the static is our own copy (the engine's byte is no longer read).
 - (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
   differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
   loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has

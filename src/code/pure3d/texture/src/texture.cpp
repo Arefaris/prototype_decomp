@@ -700,16 +700,15 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072B230
-	// EQUIVALENT: the same loops and calls in the same order; the engine passes the texture in edi, ours on the
-	// stack (7.4 %)
-	// With two nested loops whose outer counter is used in the inner one this compiler gives no parameter a register.
-	// Reads the slices of every level of a volume texture
-	static void UploadVolumeLevels(content::ChunkStream* stream, bool dropTop, Texture* texture, const TextureDescription* description)
+	// Reads the slices of every level of a volume texture. Each branch reads the level count itself (as the cube
+	// version does); with one count before the test this compiler passes the texture on the stack, with these the
+	// texture comes in edi as in the engine.
+	static void UploadVolumeLevels(content::ChunkStream* stream, Texture* texture, const TextureDescription* description, bool dropTop)
 	{
-		unsigned int count = texture->info->description.levels;
 		if (dropTop == true)
 		{
-			for (unsigned int level = 0; level < count + 1; ++level)
+			unsigned int count = texture->info->description.levels + 1;
+			for (unsigned int level = 0; level < count; ++level)
 			{
 				unsigned int slices = texture->info->levelData[level].count;
 				for (unsigned int slice = 0; slice < slices; ++slice)
@@ -726,6 +725,7 @@ namespace pure3d
 			}
 			return;
 		}
+		unsigned int count = texture->info->description.levels;
 		for (unsigned int level = 0; level < count; ++level)
 		{
 			unsigned int slices = texture->info->levelData[level].count;
@@ -828,7 +828,11 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x1072B470
 	// EQUIVALENT: the same header read, texture creation, type switch and calls in the same order and the same
-	// block layout; the engine keeps the stream in ebx and passes the texture to the volume upload in edi (13.8 %)
+	// block layout (22.6 %); the engine keeps the stream in ebx (reloaded after the part's checks), this compiler
+	// reads it from its argument slot at each call, which shifts the frame by one push. The texture goes to the
+	// volume upload in edi as in the engine. An extra use of the stream right after the header read gives it ebx
+	// and the engine's prologue; separate upload calls for the part and the whole texture, or a cast at each use,
+	// do not.
 	Texture* DDSParser::Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source)
 	{
 		content::ChunkStream* chunks = static_cast<content::ChunkStream*>(stream);
@@ -885,7 +889,7 @@ namespace pure3d
 			UploadCubeLevels(chunks, target, &description, flag);
 			break;
 		case 3:
-			UploadVolumeLevels(chunks, flag, target, &description);
+			UploadVolumeLevels(chunks, target, &description, flag);
 			break;
 		}
 		return target;
