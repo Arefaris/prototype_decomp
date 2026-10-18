@@ -127,6 +127,8 @@ namespace ravenphysics
 		~CollisionVolume6();
 		// Whether the first slot of the mesh carries geometry (0x10654180)
 		bool HasSlotGeometry() const;
+		// Prints the hull; there is nothing to print (0x106805C0, another unit; name guess)
+		void DumpHull();
 		// The destructor and, when bit 0 of the flags is set, the delete behind it (0x10654430)
 		void* DestroyAndFree(unsigned int flags);
 	};
