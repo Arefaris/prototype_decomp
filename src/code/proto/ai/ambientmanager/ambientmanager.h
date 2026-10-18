@@ -107,6 +107,17 @@ namespace proto
 		int heap;
 	};
 
+	// A flag and a point (0x10 bytes; names are guesses)
+	struct AmbientTarget
+	{
+		AmbientTarget() : position(0.0f, 0.0f, 0.0f)
+		{
+			flag = false;
+		}
+		bool flag;
+		math::Vector position;
+	};
+
 	// Where something is, with a fourth value (the first three start at zero)
 	struct AmbientPoint
 	{
@@ -222,8 +233,7 @@ namespace proto
 		AmbientPoint unknown4AC;
 		AmbientPoint unknown4BC;
 		AmbientPoint unknown4CC;
-		bool unknown4DC;
-		math::Vector unknown4E0;
+		AmbientTarget unknown4DC;
 		math::Vector unknown4EC;
 		float unknown4F8;
 		float unknown4FC;
