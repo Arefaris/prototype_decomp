@@ -4,7 +4,10 @@
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/physics/physicsmessages.h"
+#include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
+#include <new>
 
 namespace proto
 {
@@ -40,13 +43,13 @@ namespace proto
 	}
 
 	// A vehicle behaviour of the ambient manager is the object its list node at 0x68 sits in
-	static VehicleBehaviourAmbient* BehaviourOf(container::ListBase::Node* node)
+	static VehicleBehaviour* BehaviourOf(container::ListBase::Node* node)
 	{
-		return (VehicleBehaviourAmbient*)((char*)node - 0x68);
+		return (VehicleBehaviour*)((char*)node - 0x68);
 	}
 
 	// FUNCTION: ENGINE 0x104421F0
-	bool VehicleBehaviourAmbient::GetUnknown84()
+	bool VehicleBehaviour::GetUnknown84()
 	{
 		return halted;
 	}
@@ -56,7 +59,7 @@ namespace proto
 	// share an area, and the car ahead is picked by the distance between the two owners' transforms), but the loop
 	// and index forms were not brought to byte identity.
 #ifdef NONMATCHING
-	bool VehicleBehaviourAmbient::IsVehicleAhead(float maxDistanceSquared)
+	bool VehicleBehaviour::IsVehicleAhead(float maxDistanceSquared)
 	{
 		container::ListBase::Node* node = node68.next;
 		int count = path88.Count();
@@ -65,7 +68,7 @@ namespace proto
 			PathNode* here = path88.At(i);
 			for (; node != 0; node = node->next)
 			{
-				VehicleBehaviourAmbient* vehicle = BehaviourOf(node);
+				VehicleBehaviour* vehicle = BehaviourOf(node);
 				if (!vehicle->halted)
 				{
 					continue;
@@ -109,4 +112,195 @@ namespace proto
 		return false;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x104474D0
+	bool PathRing::PushFront(const PathNode& node)
+	{
+		PathNode* limit = arrayEnd;
+		PathNode* last = end;
+		if (last < limit)
+		{
+			PathNode* block = array;
+			if (begin == block)
+			{
+				begin = limit;
+			}
+			begin--;
+			PathNode* slot = begin;
+			if (slot == last)
+			{
+				end = last + (limit - block);
+			}
+			new (slot) PathNode(node);
+			return true;
+		}
+		return false;
+	}
+
+	// The meta types and accessors the two member lists build; the compiler keeps these out of line
+	// (GetClassMetaType<VehicleBehaviour>, MemberOffset of the properties reference, the properties' caster and member
+	// accessors, and one meta type per float member)
+	// FUNCTION: ENGINE 0x102AB360
+	// FUNCTION: ENGINE 0x102AB3A0
+	// FUNCTION: ENGINE 0x10444220
+	// FUNCTION: ENGINE 0x10445CC0
+	// FUNCTION: ENGINE 0x10445BB0
+	// FUNCTION: ENGINE 0x104476A0
+	// FUNCTION: ENGINE 0x104476B0
+	// FUNCTION: ENGINE 0x104476E0
+	// FUNCTION: ENGINE 0x10447700
+	// FUNCTION: ENGINE 0x10447720
+	// FUNCTION: ENGINE 0x10447560
+	// FUNCTION: ENGINE 0x104475A0
+	// FUNCTION: ENGINE 0x104475E0
+	// FUNCTION: ENGINE 0x10447620
+	// FUNCTION: ENGINE 0x10447660
+	// FUNCTION: ENGINE 0x1044B860
+	// FUNCTION: ENGINE 0x1044B940
+	content::MemberList* VehicleProperties::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[6] = {
+			{ content::GetMemberPrimitiveMetaType<VehicleProperties, float, 1>("p"),
+				content::MemberOffset(&((VehicleProperties*)0)->wheelRadius, 0x24), "wheelRadius" },
+			{ content::GetMemberMetaType<VehicleProperties, float>(&VehicleProperties::GetMaxSpeed,
+				&VehicleProperties::SetMaxSpeed, "p"), 0, "maxSpeed" },
+			{ content::GetMemberPrimitiveMetaType<VehicleProperties, float, 2>("p"),
+				content::MemberOffset(&((VehicleProperties*)0)->accelerationForce, 0x1c), "accelerationForce" },
+			{ content::GetMemberPrimitiveMetaType<VehicleProperties, float, 3>("p"),
+				content::MemberOffset(&((VehicleProperties*)0)->brakingForce, 0x20), "brakingForcemax" },
+			{ content::GetMemberPrimitiveMetaType<VehicleProperties, float, 4>("p"),
+				content::MemberOffset(&((VehicleProperties*)0)->collisionImpulse, 0x28), "collisionImpulse" },
+			{ content::GetMemberPrimitiveMetaType<VehicleProperties, float, 5>("p"),
+				content::MemberOffset(&((VehicleProperties*)0)->collisionDamage, 0x2c), "collisionDamage" },
+		};
+		sList.members = sMembers;
+		sList.count = 6;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1044B8E0
+	// FUNCTION: ENGINE 0x1044BAE0
+	content::MemberList* VehicleBehaviourAmbient::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<VehicleBehaviour>();
+		static content::BaseClassCasterImpl<VehicleBehaviour, VehicleBehaviourAmbient> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[1] = {
+			{ content::GetReferenceMetaType<VehicleBehaviourAmbient, VehicleProperties>("p"),
+				content::MemberOffset(&((VehicleBehaviourAmbient*)0)->vehicleProperties, 0xec), "vehicleProperties" },
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x10448240
+	void VehicleBehaviourAmbient::StopSimulation()
+	{
+		SetSimulated(false);
+	}
+
+	// FUNCTION: ENGINE 0x10449650
+	void VehicleBehaviourAmbient::OnSetFacing(AmbientVectorMessage* message)
+	{
+		desiredFacing.x = message->vector.x;
+		desiredFacing.y = message->vector.y;
+		desiredFacing.z = message->vector.z;
+		UpdateTurning();
+	}
+
+	// FUNCTION: ENGINE 0x104483C0
+	math::Vector VehicleBehaviourAmbient::GetFrontWheelPosition()
+	{
+		return TransformPoint(wheelFront);
+	}
+
+	// FUNCTION: ENGINE 0x10448400
+	math::Vector VehicleBehaviourAmbient::GetRearWheelPosition()
+	{
+		return TransformPoint(wheelRear);
+	}
+
+	// FUNCTION: ENGINE 0x1044C1C0
+	void VehicleBehaviourAmbient::SetParked(bool parked)
+	{
+		mode = parked ? 1 : 0;
+		ApplyMode();
+	}
+
+	// FUNCTION: ENGINE 0x1044C1E0
+	void VehicleBehaviourAmbient::OnSetMode(int newMode)
+	{
+		int old = mode;
+		if (newMode != old)
+		{
+			bool apply = false;
+			if (newMode == 0 || old == 0)
+			{
+				apply = true;
+			}
+			mode = newMode;
+			if (apply)
+			{
+				ApplyMode();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1044DAE0
+	void VehicleBehaviourAmbient::OnStop(engine::Message* message)
+	{
+		ReleasePhysics();
+		sequencer.Reset();
+		unknown9C = true;
+	}
+
+	// FUNCTION: ENGINE 0x1044DB10
+	void VehicleBehaviourAmbient::OnStopIfHalted(engine::Message* message)
+	{
+		if (halted)
+		{
+			ReleasePhysics();
+			sequencer.Reset();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1044DB40
+	void VehicleBehaviourAmbient::OnReset()
+	{
+		unknown9C = false;
+		speed = 0.0f;
+		Unknown1044CEA0();
+	}
+
+	// FUNCTION: ENGINE 0x104481F0
+	void VehicleBehaviourAmbient::OnSetup(AmbientVehicleInfoMessage* message)
+	{
+		SetupPhysics();
+		unknownB0 = (char*)message->info->list + 4;
+		gAmbientManager->AddVehicle(this);
+		name = message->info->name;
+	}
+
+	// FUNCTION: ENGINE 0x104480F0
+	void VehicleBehaviourAmbient::OnSwitchIntersection(AmbientSwitchMessage* message)
+	{
+		if (message->enabled)
+		{
+			if (halted)
+			{
+				ApplyPhysicsState(false);
+				SetSimulated(true);
+			}
+			engine::SetIntersectionPropertiesMessage first(0x8000, true, 0, false);
+			owner->SendMessage(&first);
+			engine::SetIntersectionPropertiesMessage second(0x4000, true, 1, false);
+			owner->SendMessage(&second);
+			return;
+		}
+		ApplyPhysicsState(true);
+		SetSimulated(false);
+	}
 }

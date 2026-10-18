@@ -1,13 +1,18 @@
-// proto::VehicleBehaviour and proto::VehicleBehaviourAmbient (RTTI names; the original chains
-// VehicleBehaviourAmbient : VehicleBehaviour : engine::FightTreeBehaviour : engine::Behaviour, with
-// container::ListBase::Node at 0x68). The intermediate classes and the 11-slot vftable (0x10E05340) are not
-// reconstructed, so the class derives from engine::Behaviour directly and keeps the list node as a member; only the
-// members the reconstructed functions read are declared. Names are guesses.
+// proto::VehicleProperties, proto::VehicleBehaviour and proto::VehicleBehaviourAmbient (RTTI names; the original
+// chains VehicleBehaviourAmbient : VehicleBehaviour : engine::FightTreeBehaviour : engine::Behaviour, with
+// container::ListBase::Node at 0x68). The unit is code\proto\ai\ambientmanager\behaviours\vehiclebehaviourambient.cpp
+// (path from its asserts); the vehicle's reflected properties record and the ambient traffic car's steering and path
+// following code. Only the members the reconstructed functions use are declared; the others, and every name that
+// is not a RTTI name or a string of the unit, are guesses.
 #ifndef PROTO_AI_AMBIENTMANAGER_BEHAVIOURS_VEHICLEBEHAVIOURAMBIENT_H
 #define PROTO_AI_AMBIENTMANAGER_BEHAVIOURS_VEHICLEBEHAVIOURAMBIENT_H
 
 #include "code/container/listbase.h"
-#include "code/engine/gameobject/behaviour.h"
+#include "code/content/loadinventory.h"
+#include "code/content/metatype.h"
+#include "code/core/name.h"
+#include "code/engine/fight/behaviours/fighttreebehaviour.h"
+#include "code/math/vector.h"
 
 namespace math
 {
@@ -16,13 +21,37 @@ namespace math
 
 namespace proto
 {
+	// The tuning record a vehicle refers to (RTTI: proto::VehicleProperties, a reflected load object): the members the
+	// script data sets, in the units the data uses. The maximum speed is kept in metres per second and read and
+	// written in kilometres per hour.
+	class VehicleProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		// 0x1044B940
+		static content::MemberList* GetMembers();
+
+		// 0x10445320 / 0x10445300
+		float GetMaxSpeed() const;
+		void SetMaxSpeed(float kilometresPerHour);
+
+		unsigned char unknown8[0x18 - 0x8];
+		float maxSpeed;
+		float accelerationForce;
+		float brakingForce;
+		float wheelRadius;
+		float collisionImpulse;
+		float collisionDamage;
+	};
+
 	// One node of a vehicle's path (0x18 bytes): at +0x10 the record of the navigation area it lies in (its 16-bit
 	// index at +4 selects an entry of the navmesh's area array, 0xFFFF for none) and at +0x14 the record of the lane
 	// link it belongs to (two identifying bytes at +0 and +1). Field names are guesses.
 	class PathNode
 	{
 	public:
-		unsigned char unknown0[0x10];
+		math::Vector position;
+		int unknownC;
 		struct AreaLink
 		{
 			unsigned char unknown0[4];
@@ -49,6 +78,8 @@ namespace proto
 		int Count() const;
 		// 0x10443550: the index-th node of the sequence, walking around the wrap
 		PathNode* At(int index);
+		// 0x104474D0: puts a node in front of the sequence; false when the block is used up
+		bool PushFront(const PathNode& node);
 
 		PathNode* begin;    // +0: the read cursor
 		PathNode* end;      // +4: the write cursor
@@ -56,11 +87,15 @@ namespace proto
 		PathNode* arrayEnd; // +0xc: the end of the block
 	};
 
-	class VehicleBehaviourAmbient : public engine::Behaviour
+	class VehicleBehaviour : public engine::FightTreeBehaviour
 	{
 	public:
-		// Slots 8 - 10 of the original's vftable (0x10E05340) come from proto::VehicleBehaviour and
-		// engine::FightTreeBehaviour, which are not reconstructed; only slot 10 (0x104455C0) is called here. Its
+		// 0x10442100 / 0x10442880 (the vehicle layer's reflection, another part of the unit)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// Slots 8 - 10 are the vehicle layer's own (0x10442160, 0x10443870, 0x104421A0 in VehicleBehaviour); the
+		// ambient car overrides them with 0x104455B0, 0x1044BBC0 and 0x104455C0. Only slot 10 is called here. Its
 		// answer is a "this vehicle blocks the query" test (name guessed).
 		virtual void Slot8();
 		virtual void Slot9();
@@ -72,7 +107,7 @@ namespace proto
 		// "car ahead" test of the ambient traffic; the name is a guess)
 		bool IsVehicleAhead(float maxDistanceSquared);
 
-		unsigned char unknownC[0x68 - 0xc];
+		unsigned char unknown64[4];
 		// The ambient manager's list of vehicle behaviours (container::ListBase::Node in the original)
 		container::ListBase::Node node68;
 		unsigned char unknown6C[0x78 - 0x6c];
@@ -82,12 +117,134 @@ namespace proto
 		bool halted;
 		unsigned char unknown85[0x88 - 0x85];
 		PathRing path88;      // +0x88
-		unsigned char unknown98[0x9d - 0x98];
+		unsigned char unknown98[0x9c - 0x98];
+		bool unknown9C;       // +0x9c, set when the car is to be updated again (0x1044DAE0)
 		bool unknown9D;       // +0x9d (0x104421C0 / D0 / E0)
 		bool unknown9E;       // +0x9e (0x10442170)
 		unsigned char unknown9F;
 		float unknownA0;      // +0xa0 (0x10442170 tests it against zero)
 		int unknownA4;        // +0xa4 (0x10442190)
+	};
+
+	// The message family of the ambient traffic (RTTI: proto::AmbientMessage, type 0x24; the id selects the message)
+	struct AmbientMessage : public engine::IntrusiveMessage
+	{
+		explicit AmbientMessage(short newId) : engine::IntrusiveMessage(0x24, newId)
+		{
+		}
+	};
+
+	// A message that carries a vector (the desired facing of the car)
+	struct AmbientVectorMessage : public AmbientMessage
+	{
+		AmbientVectorMessage(short newId) : AmbientMessage(newId)
+		{
+		}
+
+		math::Vector vector;
+	};
+
+	// The description an ambient car is spawned from: its name and the record of its list
+	struct AmbientVehicleInfo
+	{
+		core::Name<core::CaseSensitiveKey> name;
+		unsigned char unknown8[0x28 - 8];
+		void* list;
+	};
+
+	// A message that hands the car its description
+	struct AmbientVehicleInfoMessage : public AmbientMessage
+	{
+		AmbientVehicleInfoMessage(short newId) : AmbientMessage(newId)
+		{
+		}
+
+		AmbientVehicleInfo* info;
+	};
+
+	// A message that switches something on or off (type 6 messages: the flag is at +0xC)
+	struct AmbientSwitchMessage : public engine::IntrusiveMessage
+	{
+		AmbientSwitchMessage(short newId) : engine::IntrusiveMessage(6, newId)
+		{
+		}
+
+		bool enabled;
+	};
+
+	class VehicleBehaviourAmbient : public VehicleBehaviour
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		// 0x1044BAE0
+		static content::MemberList* GetMembers();
+
+		// Message handlers (0x1044F710 dispatches to them by the message's type and id)
+		// 0x104481F0: the car is made from its description (id 5)
+		void OnSetup(AmbientVehicleInfoMessage* message);
+		// 0x10449650: the car is to face a direction (id 0xC)
+		void OnSetFacing(AmbientVectorMessage* message);
+		// 0x104480F0: the car's intersection tests are switched (type 6)
+		void OnSwitchIntersection(AmbientSwitchMessage* message);
+		// 0x1044C1E0: the mode is set to the value of the message (id 0x16)
+		void OnSetMode(int mode);
+		// 0x1044DAE0 / 0x1044DB10 (types 0xF and 0x14): the car stops what it does
+		void OnStop(engine::Message* message);
+		void OnStopIfHalted(engine::Message* message);
+		// 0x1044DB40 (type 2): the car stands still again
+		void OnReset();
+
+		// 0x1044C1C0: sets the mode to parked or driving and applies it
+		void SetParked(bool parked);
+		// 0x1044B1F0: applies the mode (the intersection test mask of the physics object)
+		void ApplyMode();
+		// 0x10448240: stops the car's physics
+		void StopSimulation();
+		// 0x10446A70: works the desired facing out into the steering angle
+		void UpdateTurning();
+		// 0x10445FB0: a point of the car in world space
+		math::Vector TransformPoint(math::Vector offset);
+		// 0x104483C0 / 0x10448400: the points the wheels' axes are at in world space
+		math::Vector GetFrontWheelPosition();
+		math::Vector GetRearWheelPosition();
+		// 0x10447740: sets up the car's physics object, its ray casts and its random variations
+		void SetupPhysics();
+		// 0x1044BE00 / 0x1044BF10 / 0x10445E50 / 0x104462F0: the physics state of the car
+		void ReleasePhysics();
+		void HaltPhysics();
+		void ApplyPhysicsState(bool keyframed);
+		void SetSimulated(bool simulated);
+		// 0x10446890 / 0x10443F30 / 0x10446700 (tests the car makes before it settles)
+		bool Unknown10446890();
+		bool Unknown10443F30();
+		bool Unknown10446700();
+		// 0x10448250: halts the car when the tests allow it
+		bool TryHalt();
+		// 0x1044BE00 is called by several of the above
+		void Unknown1044CEA0();
+
+		float unknownA8;
+		unsigned char unknownAC[0xb0 - 0xac];
+		void* unknownB0;      // +0xb0: the record of the car's list (vehicle manager)
+		unsigned char unknownB4[0xb8 - 0xb4];
+		math::Vector wheelFront;   // +0xb8
+		math::Vector wheelRear;    // +0xc4
+		float unknownD0;
+		float speed;               // +0xd4
+		bool unknownD8;
+		bool unknownD9;
+		unsigned char unknownDA[0xe0 - 0xda];
+		core::Name<core::CaseSensitiveKey> name;   // +0xe0
+		bool unknownE8;
+		unsigned char unknownE9[0xec - 0xe9];
+		// +0xec: the tuning record ("vehicleProperties", reached by reference)
+		VehicleProperties* vehicleProperties;
+		unsigned char unknownF0[0x100 - 0xf0];
+		bool simulated;            // +0x100
+		unsigned char unknown101[0x104 - 0x101];
+		math::Vector desiredFacing;   // +0x104
+		unsigned char unknown110[0x188 - 0x110];
+		int mode;                  // +0x188
 	};
 }
 

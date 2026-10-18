@@ -53,6 +53,12 @@ namespace ravenphysics
 		// The engine's second copy of the same lookup, the one this unit's own code calls (0x1065F500; name guess)
 		PhysicsObject* GetObjectSecond() const;
 
+		// Whether the table still holds the object the handle was made for (inline in the engine's code)
+		bool IsValid() const
+		{
+			return index < gObjectTable->capacity && gObjectTable->entries[index].generation == unknown2;
+		}
+
 		unsigned short index;    // 0x00
 		unsigned short unknown2; // 0x02
 	};

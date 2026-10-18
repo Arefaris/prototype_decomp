@@ -13,6 +13,7 @@
 namespace proto
 {
 	class ParkedCarCloudManager;
+	class VehicleBehaviourAmbient;
 
 	// The sizes and counts the manager is made from (0xA0 bytes, copied into the manager at +0x44); only what the
 	// constructor reads is named
@@ -166,6 +167,8 @@ namespace proto
 	public:
 		// 0x1041FA40
 		explicit AmbientManager(const AmbientConfig* newConfig);
+		// 0x10411FF0: adds the car to the list its record points at (this is not read)
+		void AddVehicle(VehicleBehaviourAmbient* vehicle);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
 
