@@ -1825,7 +1825,11 @@ namespace pure3d
 	// flag, a restrict pointer for the record and the other spellings of the bit change the registers instead). The
 	// first two streams are set up through their address (BeginStream), which keeps the loads of the next stream
 	// behind the stores as in the engine; the third through a local pointer, which puts its end store ahead of the
-	// flags' loads.
+	// flags' loads. Measured on small units: this compiler never schedules the load of an address-taken local above a
+	// store through a pointer it loaded from memory, whatever the callee that took the address (in the unit or not,
+	// noalias, by reference) or the record's declaration (restrict member or local, volatile); a local for the format
+	// between the two flag stores puts the load first but rotates the registers (73 %), and a barrier after any
+	// statement or any order of the queueing stores leaves 99.1 %.
 	void SkinState::Unknown10720CF0()
 	{
 		if (unknown2AE)

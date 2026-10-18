@@ -310,7 +310,8 @@ namespace pure3d
 	// texture, one shared `return false` for the failed checks and the body behind them; the surface pointers are
 	// left uninitialised and the system-memory copy is reached through a pointer, as in the engine. A copy of
 	// `level` after the checks, the plain arm first, the bookkeeping stores moved up and the members written
-	// directly do not take ebx away from `level`.
+	// directly do not take ebx away from `level`; nor do a barrier after any statement (14.6 % at best) or the
+	// orders of the box's and of the lock's stores.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)

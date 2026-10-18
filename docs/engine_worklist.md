@@ -1409,6 +1409,10 @@ Matching notes:
   in edi; the stream stays in its argument slot where the engine keeps it in ebx. One more use of the stream right after
   the header read (a null test) gives it ebx and the engine's prologue, so its weight is what is missing; two upload
   calls in the 2D case and casts at each use do not add it.
+- (op-map3) 0x1072B470 `DDSParser::Load` **matches**: the part is pointed at before its fields are set
+  (`part = &rect; rect.y = height; rect.x = width; rect.width = ...; rect.height = ...;`); with the pointer taken after
+  the fields the rect's stores take ebx and the stream its argument slot. Found with tools/permute.py over the six
+  statements of the part's set-up; a barrier between the fields and the width check also gives the stream ebx (78 %).
 
 ## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
 
@@ -1613,6 +1617,10 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   plus const_cast, `__declspec(noalias)` on the chunk stream's Read. The difftest difference is in bytes both
   functions leave uninitialised (the top byte of the bit word, bits 3-7 of the flag byte and the three bytes after it
   come from the stack), so it is not a behaviour difference, but the conversion needs SAME.
+- (op-map3) 0x106DE090 stays EQUIVALENT (79.9 %): the length declared before the buffer, the skeleton name's byte reused
+  for the joint names (61 %), a barrier after any statement (80.6 % after the terminator, not kept) and the orders of
+  the joint chunk's first seven statements leave the register rotation. 0x10B91410 (42.9 % with a barrier at best) and
+  0x10B95780 (43.2 %) not improved by barriers; 0x10706960 not reworked.
 - Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
   what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
   `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a
@@ -3347,6 +3355,11 @@ method of the pose at +0x70) and the job record at +0x330.
   code that reads it), which lets the compiler schedule its test ahead of the third stream's stores as the engine does;
   the third stream is written through a local `SkinStream*`. Left: the format word's load in the queueing branch after
   the store of `hasTangents`. Note for the hybrid build: the static is our own copy (the engine's byte is no longer read).
+- (op-map3) 0x10720CF0 stays EQUIVALENT (99.1 %). On small units this compiler never schedules the load of an
+  address-taken local above a store through a pointer it loaded from memory, whatever took the address (a callee of
+  the unit or another, noalias, a reference) and however the record is declared (restrict member or local, volatile);
+  a local for the format between the two flag stores puts the load first but rotates the registers (73 %); barriers
+  after every statement and all orders of the queueing stores leave 99.1 %. The four-bone paths not reworked.
 - (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
   differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
   loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
@@ -3587,6 +3600,16 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   the element count's store above the constant. Barriers elsewhere (before or between the stores) reload the manager
   (70 %); a volatile read of the count, a volatile device pointer, an empty `__asm` block and a device local do not end
   the region the same way.
+- (op-map3) 0x106182C0 stays EQUIVALENT (97.5 %): the two capability bits as mask tests, a barrier after every statement
+  and the orders of the present parameters' stores leave the height store where it is. 0x10623250 stays EQUIVALENT
+  (28.7 %): the index buffer's test as nested ifs or without a local (the parameters take ebp then), the technique
+  declared first or unsigned, barriers (the engine's size with one in a draw branch, 51 %) and the statement orders
+  that keep the engine's call order change nothing. 0x1061C600 stays EQUIVALENT (9.7 %): barriers (14.6 % at best) and
+  the orders of the box's and the lock's stores leave `level` in ebx. 0x1061D3A0 stays NONMATCHING (75.3 %): the
+  engine's clamp tree is `clamped = value; if (value < 0) clamped = 0; if (value > 0xFF) clamped = 0xFF;` without the
+  if-conversion of the first test (the second test copied into both paths, the zero sunk into its leaf); this compiler
+  makes the first test a `cmovs` from the unit's zero register (edi) whenever one exists, and other result types,
+  explicit nesting (setcc), `else if` forms and /Os, /O1, /Oy- keep a cmov or setcc.
 
 ## Merge notes (2026-10-16)
 
@@ -3834,6 +3857,10 @@ access path (through the array object or through the owner) are part of the sour
   local first (RemoveElement: the shared zero, swapped registers); no other spelling of the search (for / while forms,
   a break, an index) gives both. Declaring the loop counter before the group search restores the shared zero with
   Find + Erase but moves the pushes of ebx / ebp / esi behind the first two loops (56 %).
+- (op-map3) 0x1082E100 stays EQUIVALENT (94.5 %): a barrier after any statement of either form, an inline wrapper around
+  Find + Erase, the counter declared outside the loop and the orders of the lists' set-up statements change nothing;
+  the group pointer declared ahead of the two loops gives the Find + Erase form its shared zero but one more frame
+  slot (77 %).
 - 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
   computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
   0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the

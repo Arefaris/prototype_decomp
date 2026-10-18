@@ -63,6 +63,13 @@ namespace pure3d
 	// with the first two), the first ramp's pixel is built with multiplications (shifts of one value become the
 	// nested form the clamped cases use) and the cosine ramps are a float `(cos + 1) * 0.5f` times `255.5f` in two
 	// statements (in one expression the two constants fold into 127.75).
+	// The engine's tree is what `int clamped = value; if (value < 0) clamped = 0; if (value > 0xFF) clamped = 0xFF;`
+	// means when the first test is not if-converted: the second test is copied into both paths of the first (the
+	// value's register compared again on the negative path) and the zero sinks into its leaf. This compiler turns
+	// the first test into `cmovs` from the function's zero register (edi) whenever that register exists (in a unit
+	// without one it branches, but does not copy the second test); the result as unsigned char / short / long, the
+	// tests nested explicitly (setcc on the negative side), `else if` forms, /Os, /O1 and /Oy- keep the cmov or
+	// setcc. 75.3 % as it is.
 #ifdef NONMATCHING
 	void CreateDefaultTextures(IDirect3DDevice9* device)
 	{

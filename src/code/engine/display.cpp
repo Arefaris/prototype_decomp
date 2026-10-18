@@ -41,7 +41,8 @@ namespace engine
 	// About 1700 compilations did not move it: every order of the capability stores and of the window-mode test (with
 	// and without the reference for the first store), references or locals for the stores and the capability words,
 	// the type of the window-mode flag and the place of the display-mode local (97.7 % at best, with another
-	// instruction displaced).
+	// instruction displaced). The two bits as mask tests (`(caps & 0x200) != 0`), a compiler barrier after every
+	// statement of the body and every order of the present parameters' stores leave it at 97.5 %.
 	bool Display::Unknown106182C0(void* unknown)
 	{
 		if (unknown != 0)

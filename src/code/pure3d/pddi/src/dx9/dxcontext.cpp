@@ -247,7 +247,10 @@ namespace pure3d
 	// (the name pushed before the table is asked for) and the device's table loaded once before the branch are lost;
 	// that variant is not used.
 	// The vertex count kept in a second variable, the technique table taken inline and the index buffer read into a
-	// local for the index count compile as before.
+	// local for the index count compile as before; so do the index buffer's test as nested ifs or without a local
+	// (the parameters take ebp then), the technique declared first or unsigned, and a barrier after any statement
+	// (the engine's size with one inside a draw branch, 51 %). The orders of the statements between the Draw and the
+	// primitive count that keep the engine's call order compile as before.
 	void dxContext::Unknown2(const core::Name<core::CaseInsensitiveKey32>* shaderName, const void* descPointer,
 		const void* parameters)
 	{
