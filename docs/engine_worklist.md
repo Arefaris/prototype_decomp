@@ -3400,7 +3400,7 @@ NONMATCHING (inside `#ifdef NONMATCHING`): 0x10447280 (12 %, the engine's frame 
 in xmm3), 0x10447D20 (52 %, the stack copies of the start point), 0x1044A580 (55 %, the three matrix rows are read
 into registers first), 0x1044ABD0 (41 %, ebp / esi allocation and two separate read-modify-write flag updates; the
 engine reaches the spin angle as `this + (i + 0x14) * 16` and the part indices as `this + i * 16 + 0x148`),
-0x1044B2A0 (56 %, the engine reuses the dead float parameter's slot), 0x1044B480 (24 %) and 0x1044D200 (46 %, the
+0x1044B2A0 (56 %, the engine reuses the dead float parameter's slot), 0x1044B480 (55 %) and 0x1044D200 (46 %, the
 audio message's destructor is declared out of line in audiomessage.h; the engine has none and shares the tail that
 sends the message). The ring size that 0x1044D730 needs is written out by hand (`begin <= end ? end - begin :
 (end - array) + (arrayEnd - begin)`); calling `PathRing::Count` there keeps it out of line.

@@ -1239,31 +1239,35 @@ namespace proto
 
 	// FUNCTION: ENGINE 0x1044B480
 	// NONMATCHING: the projection onto the area's plane, the unit direction to the path node, the step along it and
-	// the rebuilt orientation and position of the car are the engine's arithmetic; the engine loads the matrix and
-	// plane components in a different order, keeps three of them on the stack and uses a larger frame (0x48), 24 %
+	// the rebuilt orientation and position of the car are the engine's arithmetic; the engine schedules the products of
+	// the cross products in another order, keeps the plane's normal on the stack through the normalization and has a
+	// frame of 0x48 bytes, 55 %
 #ifdef NONMATCHING
 	void VehicleBehaviourAmbient::Unknown1044B480(float dt, int node)
 	{
 		math::Matrix& matrix = owner->transform->value;
-		NavArea* area = unknown74;
-		float height = area->plane.normal.x * matrix.m[3][0] + area->plane.normal.y * matrix.m[3][1] + area->plane.normal.z * matrix.m[3][2] + area->plane.d;
-		int first = path88.arrayEnd - path88.begin;
-		float flatY = matrix.m[3][1] - area->plane.normal.y * height;
-		float flatZ = matrix.m[3][2] - area->plane.normal.z * height;
-		float flatX = matrix.m[3][0] - area->plane.normal.x * height;
+		math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+		math::Plane& plane = unknown74->plane;
+		float height = plane.normal.x * position.x + plane.normal.y * position.y + plane.normal.z * position.z + plane.d;
+		math::Vector flat(position.x - plane.normal.x * height, position.y - plane.normal.y * height,
+			position.z - plane.normal.z * height);
 		PathNode* target = path88.At(node);
-		math::Vector toTarget(flatX - target->position.x, flatY - target->position.y, flatZ - target->position.z);
-		float distance = toTarget.Normalize();
-		unknown198 = distance - 1.0f;
-		if (0.0f <= distance - 1.0f)
+		math::Vector toTarget(flat.x - target->position.x, flat.y - target->position.y, flat.z - target->position.z);
+		double remaining = toTarget.Normalize() - 1.0f;
+		unknown198 = remaining;
+		if (0.0 <= remaining)
 		{
-			math::Vector normal(unknown74->plane.normal.x, unknown74->plane.normal.y, unknown74->plane.normal.z);
+			math::Plane& current = unknown74->plane;
+			math::Vector normal(current.normal.x, current.normal.y, current.normal.z);
 			math::Vector right(toTarget.z * normal.y - toTarget.y * normal.z, toTarget.x * normal.z - toTarget.z * normal.x,
 				toTarget.y * normal.x - toTarget.x * normal.y);
 			right.NormalizeFast();
 			float step = -0.0f - speed * dt;
 			unknown198 = unknown198 + step;
-			float newY = (toTarget.y * step + flatY) - 0.15f;
+			math::Vector forward(right.y * normal.z - right.z * normal.y, right.z * normal.x - right.x * normal.z,
+				right.x * normal.y - right.y * normal.x);
+			math::Vector newPosition(toTarget.x * step + flat.x, (toTarget.y * step + flat.y) - 0.15f,
+				toTarget.z * step + flat.z);
 			math::Matrix& result = owner->transform->Get();
 			result.m[0][0] = right.x;
 			result.m[0][1] = right.y;
@@ -1273,13 +1277,13 @@ namespace proto
 			result.m[1][1] = normal.y;
 			result.m[1][2] = normal.z;
 			result.m[1][3] = 0.0f;
-			result.m[2][0] = right.y * normal.z - right.z * normal.y;
-			result.m[2][1] = right.z * normal.x - right.x * normal.z;
-			result.m[2][2] = right.x * normal.y - right.y * normal.x;
+			result.m[2][0] = forward.x;
+			result.m[2][1] = forward.y;
+			result.m[2][2] = forward.z;
 			result.m[2][3] = 0.0f;
-			result.m[3][0] = toTarget.x * step + flatX;
-			result.m[3][1] = newY;
-			result.m[3][2] = toTarget.z * step + flatZ;
+			result.m[3][0] = newPosition.x;
+			result.m[3][1] = newPosition.y;
+			result.m[3][2] = newPosition.z;
 			result.m[3][3] = 1.0f;
 		}
 	}
