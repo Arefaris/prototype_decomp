@@ -336,6 +336,9 @@ namespace pure3d
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
 
+		// 0x10707460: the word at +0x148 (its bit 29 is read by the deform shader's modifier)
+		unsigned int GetUnknown148() const;
+
 		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
 		// groups live in
 		unsigned int unknown1C;

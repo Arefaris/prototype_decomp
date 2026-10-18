@@ -73,6 +73,8 @@ namespace core
 		Name(const CaseInsensitiveKey32& key);
 		// 0x10611F30 (another unit)
 		Name(const Name& other);
+		// 0x1008CC20 (another unit): the 32-bit case-insensitive hash of text (core::Hash32NoCase(text, 0))
+		Name(const char* text, int unknown);
 		// User-declared and empty like the other names' (the event classes that hold one have a destructor)
 		~Name()
 		{

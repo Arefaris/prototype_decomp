@@ -2710,12 +2710,20 @@ Not started (the reason each is blocked, not just "unknown"):
   stack message's final destructor store is the base `Message` vftable, which the inline destructors leave. The two
   clamps are `math::Min` written as two assignments (a store, then `Min` of the value and the target), and the bias is
   copied as raw bits (`unsigned int`), where a `float` member is copied through the x87 unit.
-- `0x102D4C50` (1097, `DeformShaderModifier::Apply`, the modifier's only virtual): not written. It runs on the render
-  thread for a `DrawableImpl`: five function-local `core::Name<CaseInsensitiveKey32>` statics ("damage_pt1" ..
-  "damage_pt4", "crush_params", guard bits at 0x1125E020), for every part (0x12C bytes each, from +0x54 of the
-  drawable) a `pure3d::PartRef` (0x106DF4B0), lookups of the binding parameters through the part's shader
-  (`BindingParameters::SetVector4` 0x106140C0), a `PartBindingSource::CreateBinding` (0x10706550) with its inlined
-  search of the part's source, and at the end it destroys itself (0x102D4830, `FreeRenderEvent`).
+- `0x102D4C50` (1097, `DeformShaderModifier::Apply`, the modifier's only virtual) is EQUIVALENT (236 of 284
+  instructions line up; the modifier's constructor 0x102D4810, destructor 0x102D4830 and the five atexit stubs of its
+  names match, so the unit emits the modifier's vftable). It runs on the render thread for a `DrawableImpl` (a
+  `pure3d::Drawable`): five function-local `core::Name<CaseInsensitiveKey32>` statics ("damage_pt1" .. "damage_pt4",
+  "crush_params", guard bits at 0x1125E020) and, for every part (0x12C bytes each) that has all four damage inputs
+  (`shader->GetSortKey()` answers the shader's input table, whose `Find(4, name)` is 0x106184E0; the helper is a
+  `pure3d::ShaderInputs` here) and, for a mesh primitive (type 2), bit 29 of its word at +0x148 (0x10707460), the part's
+  binding (made through the inlined `DrawablePart::GetBindingSource` and `PartBindingSource::CreateBinding` when it has
+  none): the four dents as `SetVector4(damage_ptN, {x, y, z, value})` and the second values as `crush_params`; with no
+  dents all five are set to zero. It destroys itself at the end (`delete this`: 0x102D4830, `FreeRenderEvent`).
+  What differs: the engine keeps the binding in ebp and the buffer in ebx, tests the buffer's emptiness with its own
+  compare, and has the object and the part number in the other order in the frame. The six `PartRef`s are named
+  locals (temporaries put them in other slots), the buffer is reached through `DentBuffer::Size()`, and a `Mesh`
+  pointer local makes the part address fold the way the engine's does.
 - `0x102DA540` (350, `LODRenderBehaviour`'s per-frame update): the engine leaves a dead `add ecx, 4` in it (the
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
   body reproduces.
@@ -3138,7 +3146,7 @@ Still NONMATCHING or not started, one line each:
 - 0x1061D3A0 (`CreateDefaultTextures`, dxdefaulttextures.cpp): NONMATCHING at 36 %. The fills compile to the engine's
   `rep stosd` once the width and pitch are copied into locals before the loop; the register allocation (the zero
   register, the pitch kept in a register) and the order of the description's stores still differ.
-- 0x1041FA40 (`proto::AmbientManager`'s constructor), 0x102D4C50 (`DeformShaderModifier::Apply`) and the loaders
+- 0x1041FA40 (`proto::AmbientManager`'s constructor) and the loaders
   0x10B9C3E0, 0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts,
   inline string comparisons and bit-field states): not started.
 - skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)

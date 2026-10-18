@@ -59,6 +59,24 @@ namespace proto
 	public:
 		// 0x102D41C0 (another function of the same unit): appends dent, false when the four slots are taken
 		bool Push(const Dent& dent);
+		// Empty: the end is the start (the modifier's constructor 0x102D4810 and destructor 0x102D4830 show it)
+		DentBuffer()
+		{
+			end = dents;
+		}
+		~DentBuffer()
+		{
+			end = dents;
+		}
+		bool IsEmpty() const
+		{
+			return dents == end;
+		}
+		// How many dents are in the buffer
+		unsigned int Size() const
+		{
+			return end - dents;
+		}
 		// 0x102D43F0: replaces the dents with another buffer's
 		DentBuffer& operator=(const DentBuffer& other);
 
@@ -102,6 +120,8 @@ namespace proto
 		public:
 			// 0x102D4810: no dents yet
 			DeformShaderModifier();
+			// 0x102D4830: leaves the dents empty again
+			~DeformShaderModifier();
 			// 0x102D4C50: writes the dents into the drawable's shader parameters and deletes itself
 			virtual void Apply(engine::render::DrawableImpl* drawable);
 			// 0x102D4350: stores one more dent
