@@ -19,9 +19,15 @@ namespace content
 
 namespace pure3d
 {
+	class Context;
+	class RenderTarget;
+	class TargetParams;
+	class pddiSurface;
 	class Drawable;
 	class PrimStream;
 	class View;
+	class dxIndexBuffer;
+	class dxContext;
 
 	// The hook the engine's renderer installs on a pure3d drawable (engine::render::EngineWrappedDrawableHelper
 	// derives from it); the context keeps one at +0x64 and hands it out through GetWrappedDrawableHelper. Vftable
@@ -180,6 +186,21 @@ namespace pure3d
 		explicit ContextTree(int unused)
 		{
 		}
+		~ContextTree()
+		{
+			Clear();
+		}
+		// 0x107102B0: takes a node out of the tree for Clear (destroys its key and frees it)
+		static bool DeleteNode(container::TreeBase::Node* node, void* context)
+		{
+			((MapNode*)node)->~MapNode();
+			operator delete[](node);
+			return true;
+		}
+		void Clear()
+		{
+			container::TreeBase::Clear(DeleteNode, this);
+		}
 
 		// 0x1070FA60 / 0x1070FA80 / 0x10710090 / 0x10710230 / 0x10710040
 		Iterator Begin()
@@ -228,6 +249,20 @@ namespace pure3d
 	};
 
 	// The frame pool's array: begin and end pointers over operator new[] (names guessed)
+	template<class T> inline T* FillCopies(T* dest, unsigned int count, const T& value)
+	{
+		while (count != 0)
+		{
+			count--;
+			if (dest != 0)
+			{
+				new (dest) T(value);
+			}
+			dest++;
+		}
+		return dest;
+	}
+
 	template<class T> class ContextArray
 	{
 	public:
@@ -289,7 +324,7 @@ namespace pure3d
 				if (begin != 0)
 				{
 					end = begin + count;
-					container::ConstructFill(begin, count, value);
+					FillCopies(begin, count, value);
 					return true;
 				}
 			}
@@ -310,21 +345,21 @@ namespace pure3d
 	// The default of the second setting (0x10E5DA34, a constant in the image)
 	extern const int gDefaultSettingsUnknown4;
 
+	// The settings of the display (0x138 bytes): the window it is created on first
+	struct DisplaySettings
+	{
+		// 0x106179B0 (another unit)
+		DisplaySettings();
+
+		void* window;
+		unsigned char unknown4[0x134];
+	};
+
 	// What Context::Startup is given: the display's mode at +0xC, the window the display is created on at +0x10 and
 	// the number of the scene's drawables at +0x16C (only the members this unit reads are named, and they are
 	// guesses).
 	struct ContextSettings
 	{
-		// The settings of the display (0x138 bytes): the window it is created on first
-		struct DisplaySettings
-		{
-			// 0x106179B0 (another unit)
-			DisplaySettings();
-
-			void* window;
-			unsigned char unknown4[0x134];
-		};
-
 		// 8 bytes with a constructor of their own (0x10714D60, another unit)
 		struct Unknown148
 		{
@@ -377,6 +412,27 @@ namespace pure3d
 	// The debug font (RTTI name pure3d::TextureFont); the context keeps one at +0x24
 	class TextureFont : public core::IRefCount
 	{
+	public:
+		// 0x1070EC40 (another unit): widens a text into the buffer (as much as fits, ended); the length
+		int ToWide(const char* text, unsigned short* buffer, int capacity);
+
+		virtual void Unknown3();
+		virtual void Unknown4();
+		virtual float Unknown5();
+		// The height of a line
+		virtual float Unknown6();
+		virtual void Unknown7();
+		virtual void Unknown8();
+		virtual void Unknown9();
+		virtual void Unknown10();
+		// Draws the wide text
+		virtual void Draw(const unsigned short* text, int unknown);
+		virtual void Unknown12();
+		virtual void Unknown13();
+		virtual void Unknown14();
+		virtual void Unknown15();
+		virtual void Unknown16();
+		virtual void SetColour(unsigned int colour);
 	};
 
 	// The chain of render passes the context's frame runs (the object at +0x68); 0x1074D650 walks the passes of
@@ -442,6 +498,14 @@ namespace pure3d
 		// 0x1070F170 / 0x1070F180
 		bool GetUnknown5C();
 		void SetUnknown5C(bool value);
+		// 0x1070EF80: runs the passes with the colour and the depth target (they must be the same size)
+		void RunPassesInto(const TargetParams* params, RenderTarget* colour, RenderTarget* depth);
+		// 0x1070F380: draws a text with the debug font at the position (the font's colour first)
+		void DrawDebugText(const char* text, float x, float y, unsigned int colour);
+		// 0x1070F540: the same for a line of text below the position (whole pixels)
+		void DrawDebugTextLine(const char* text, int x, int y, unsigned int colour);
+		// 0x1070FC90: loads the debug font (dummy.p3d, "pure3d_debug_font") and keeps it
+		void LoadDebugFont();
 		// 0x1070FF50: the render context of a name's hash (null when there is none)
 		RenderContext* FindContext(const unsigned __int64& hash);
 		// 0x1070FFA0: draws with the render context the parameters name and keeps the size of the picture
@@ -469,9 +533,10 @@ namespace pure3d
 		PrimStream* primStream;
 		TextureFont* font;
 		View* view;
-		void* unknown2C;
-		// The maximum frame time, 24000 (milliseconds)
-		unsigned int unknown30;
+		// The index buffer of the quads the debug drawing uses
+		dxIndexBuffer* indexBuffer;
+		// How many indices the quad index buffer holds, 24000 (six per quad)
+		unsigned int indexCount;
 		// The number of the frame being built
 		unsigned int frame;
 		bool unknown38;
@@ -498,12 +563,71 @@ namespace pure3d
 		static void* sWindow;
 		// 0x11281394: the window procedure the context replaced
 		static void* sPreviousWindowProc;
+		// 0x11281398 / 0x1128139C: the half pixel the debug text is moved by
+		static float sTextOffsetX;
+		static float sTextOffsetY;
 	};
 
+	// 0x1070F1E0: tells the display (0x112818C0) to go back to its state
+	void Unknown1070F1E0();
+	// What the lighting is started with (0x10754560 makes it: 0 and -1)
+	struct ContextRenderSettings
+	{
+		ContextRenderSettings();
+
+		int unknown0;
+		int unknown4;
+	};
+
+	// The parameters a render into targets runs the passes with: a copy of the ones it was given, with the colour and
+	// depth surfaces and the size of the picture set (0x88 bytes; the constructor is 0x1074E5A0, the destructor
+	// 0x1074E590; the name is a guess)
+	class TargetParams
+	{
+	public:
+		TargetParams(const TargetParams* source);
+		virtual ~TargetParams();
+
+		unsigned char unknown4[0xC];
+		pddiSurface* colour;
+		pddiSurface* depth;
+		unsigned int flags;
+		unsigned int width;
+		unsigned int height;
+		unsigned char unknown24[0x88 - 0x24];
+	};
+
+	// The subsystems the context starts (the constructor) and stops (the destructor), named after their addresses
+	void Unknown106DDB60();
+	void Unknown106DDE80();
+	dxContext* Unknown1061BBC0();
+	void Unknown1073E1D0();
+	void Unknown107063A0();
+	void Unknown1073E2C0();
+	void Unknown1073E2E0();
+	void Unknown1071F7D0();
+	void Unknown1073B790(int value);
+	void Unknown10755120(const ContextRenderSettings* settings);
+	void Unknown1074D770(Context* context);
+	void Unknown1073E260(Context* context);
+	void Unknown107265E0();
+	void Unknown107265F0();
+	void Unknown107076C0(dxIndexBuffer** buffer);
+	void Unknown106F3B10();
+	void Unknown10715380();
+	void Unknown10755EC0();
+	void Unknown1073A6F0();
+	void Unknown107168B0();
+	void Unknown1071B080();
+	void Unknown1073E2D0();
+	void Unknown106F4820();
+	void Unknown1073E2F0();
+	void Unknown10704B60();
+	void Unknown1073E1F0();
+	// 0x1127F358: the Direct3D 9 context the display is made on
+	extern dxContext* gPddiDx;
 	// 0x106F36C0 (another unit): counts a frame the display drew
 	void Unknown106F36C0();
-	// 0x107102B0 (another unit): destroys an entry of the context's tree and frees it (the TreeBase::Clear deleter)
-	bool DeleteContextEntry(container::TreeBase::Node* node, void* context);
 
 	// 0x1127F350
 	extern Context* context;

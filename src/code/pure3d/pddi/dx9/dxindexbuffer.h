@@ -12,6 +12,8 @@ namespace pure3d
 	// The description an index buffer is created from (0x10626770 reads +0, +4 and +8)
 	struct IndexBufferDescription
 	{
+		// 0x10611BB0 (another unit)
+		IndexBufferDescription(int newCount, int newIndexSize, unsigned int newUsage);
 		// How many indices
 		int count;             // +0
 		// The size of one index, which is what the format tables are indexed by
@@ -61,6 +63,10 @@ namespace pure3d
 		dxIndexBuffer();
 		// 0x10626770
 		void Create(const IndexBufferDescription* description);
+		// 0x10626950 / 0x10626860: lock the buffer (the pointer to the indices comes back in the state's fifth word)
+		// and let go of it again
+		void Lock(dxIndexBufferState* lockState);
+		void Unlock();
 		// 0x10626920: the first word of the state (the draws take it for how many indices there are)
 		int GetUnknown1C();
 

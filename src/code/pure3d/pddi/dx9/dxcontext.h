@@ -18,6 +18,7 @@ namespace pure3d
 	class dxProgram;
 	class pddiShaderInputInitData;
 	struct TextureInfo;
+	struct DisplaySettings;
 
 	// The techniques of a shader (name guess; 0x10618C90 is its only known method)
 	class dxTechniques
@@ -134,6 +135,10 @@ namespace pure3d
 		// 0x1061BEC0 (another unit): the destructor; 0x1070EDD0: its scalar deleting form (made in the context unit)
 		~dxContext();
 		void* DeleteThis(unsigned int flags);
+		// 0x1061B4C0: makes the display and the device over the settings of the display
+		void Initialize(const DisplaySettings* settings);
+		// 0x1061B480 (it does not read the object): fills in the description of the device
+		void GetVersion(void* version);
 		// 0x1061B530 / 0x1061B540: the words the factories above use
 		int GetUnknown8();
 		IDirect3DDevice9* GetUnknownC();

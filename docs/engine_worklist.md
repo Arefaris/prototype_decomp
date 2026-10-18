@@ -972,7 +972,7 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 78 functions match, the large ones and the constructor / destructor not done
+## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 85 functions match, 2 EQUIVALENT, LoadDebugFont (0x1070FC90) not done
 
 `pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
 (0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
@@ -991,15 +991,22 @@ parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread 
 
 | Function | Status | Why |
 |---|---|---|
-| 0x107108A0 Shutdown | NONMATCHING | the engine keeps the context in esi across `~Context()` and passes the assert's condition register as the report's last argument; ours reloads the global and pushes the constant, 86 % |
+| 0x107108A0 Shutdown | match | `delete context;` (the null check and the delete are one statement) |
+| 0x107103E0 Context constructor | EQUIVALENT (64.2%) | same calls in the same order; the quad index loop keeps a zero-extended copy of its counter and the pool's empty-on-failure block sits elsewhere |
+| 0x1070F380 DrawDebugText | EQUIVALENT (93.1%) | the loads of the font and of 0.5 are scheduled differently around the two stores of it |
+| 0x1070FC90 LoadDebugFont | not done | loads the font out of the image's embedded p3d through the content system (needs its classes named) |
 | 0x1070F5C0 / 0x1070F600 / 0x1070F650 AllocRenderParams / FreeRenderParams / UpdateRenderParams | match | the pool is a `ContextArray<FrameEntry>` (signed `Size()`), the loops index it with an unsigned counter |
 
-Not done: the constructor 0x107103E0 (673 bytes) and the destructor 0x107106A0 (336 bytes) - both need the frame's
-many subsystems named first (they call 0x106dde80, 0x1061bbc0 / 0x1061b4c0 / 0x1061b530 / 0x1061b660 (the display),
-0x1073e1d0, 0x107063a0, 0x1073e2c0, 0x1073e2e0, 0x1071f7d0, 0x10716830, 0x1073b790, 0x10754560, 0x10755120,
-0x1074d770, 0x1073e260, 0x107265e0 and the `pure3d::RefCounted` objects 0x10751a00 makes). The functions of the
-wrapped drawable helper's neighbours (0x10710110 = a `+0x10` this-adjusting thunk to 0x106E2AA0) and the render
-parameters' pools are the same story.
+The constructor and the destructor are written (the destructor matches; the constructor is EQUIVALENT). The subsystems
+they start and stop are declared as `Unknown<address>` in `context.h`; the context's object of the display
+(`gPddiDx`, 0x1127F358), the settings struct (`ContextSettings`, with its constructor 0x10710120) and the render
+target parameters (`TargetParams`, 0x1074E5A0 / 0x1074E590) are named from their use. Findings:
+- `Context::Context` keeps the pool of `RenderParams` (an `Entity`: 0x330 bytes, made with `RefCounted::operator new`)
+  in a `ContextArray<FrameEntry>`; `FillCopies` (the fill with a constant value) must be `inline` for the constructor
+  to expand it with zero stores while the out-of-line `Allocate(count, value)` calls it.
+- The scoped locals of an inlined helper share their stack slots (`FindConstant` in `Unknown1070F850`); locals of
+  one scope do not.
+- The assert macro's last argument is the constant 0; the engine passes the register that is known to hold 0.
 
 ### The fourth session (2026-10-15, ds-7): the helper's slot 1 and what the rest of the unit is
 

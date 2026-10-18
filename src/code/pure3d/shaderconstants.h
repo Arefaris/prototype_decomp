@@ -18,6 +18,7 @@ namespace pure3d
 	// Single floats, float pairs, vectors and flags
 	extern int gConstantShaderLODGeo; // 0x11280A2C p3dShader_LODGeo
 	extern int gConstantHalfPixel; // 0x112810EC p3dHalfPixel
+	extern int gConstantTime; // 0x11281004 p3dTime
 	extern int gConstantLightEnableSpotKill; // 0x11280FD4 p3dLight_EnableSpotKill
 	extern int gConstantLightIsLitPass; // 0x11280D54 p3dLight_IsLitPass (a flag)
 	extern int gConstantLightColour; // 0x11281094 p3dLight_Colour

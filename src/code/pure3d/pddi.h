@@ -102,6 +102,8 @@ namespace pure3d
 	{
 		// 0x10611E10: no slot (-1)
 		ConstantSlot();
+		// 0x10611E20 (another unit): the slot of the constant of that kind and name
+		ConstantSlot(int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
 		bool IsValid() const
 		{
@@ -203,6 +205,8 @@ namespace pure3d
 		bool IsUnknown14Set();
 		// 0x10615770: sets the world matrix (nothing when it is the one already set)
 		void SetWorldMatrix(const math::Matrix* matrix);
+		// 0x10615390: sets the view matrix (nothing when it is the one already set)
+		void SetViewMatrix(const math::Matrix* matrix);
 
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);
@@ -306,6 +310,8 @@ namespace pure3d
 		bool SetSize(unsigned int width, unsigned int height);
 		// 0x1073B450: puts the display's state back (the word at +0x3C into +0x40)
 		void Unknown1073B450();
+		// 0x1073AA10 (another unit, 342 bytes; 0x1070F1E0 jumps to it)
+		void Unknown1073AA10();
 
 		unsigned char unknown0[0x20];
 		pddiSurface* colour;

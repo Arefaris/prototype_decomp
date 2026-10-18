@@ -6,9 +6,14 @@
 #include "code/pure3d/context.h"
 #include "code/pure3d/drawable.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
+#include "code/pure3d/shadows/shadowrendermanager.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/primstream.h"
+#include "code/pure3d/protopass.h"
+#include "code/pure3d/shaderconstants.h"
+#include <math.h>
 
 // The user32 imports, declared as the import-table slots (see core/src/platform.cpp)
 extern "C"
@@ -64,6 +69,129 @@ namespace pure3d
 		_imp__SetWindowLongA(settings.display.window, -4, (long)ContextWindowProc);
 	}
 
+	// FUNCTION: ENGINE 0x1070EDA0
+	inline WrappedDrawableHelper::WrappedDrawableHelper()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107103E0
+	// EQUIVALENT: same calls with the same arguments in the same order; the quad index loop keeps a zero-extended copy of its counter in another register and the block that empties the pool when its allocation fails sits after the filling loop, the original's after the construction loop (64.2%)
+	Context::Context(const ContextSettings& settings) : ContextTree(0), passes(0), view(0), indexBuffer(0), indexCount(0),
+		frame(0), unknown38(false), inFrame(false), frameTime(0, 0), unknown48(0, 0), unknown5C(false), helper(&ownHelper),
+		passChain(0), unknown6C(false), frames(0)
+	{
+		Unknown106DDE80();
+		gPddiDx = Unknown1061BBC0();
+		gPddiDx->Initialize(&settings.display);
+		engine::gDisplay = (engine::Display*)gPddiDx->GetUnknown8();
+		if (settings.unknown8)
+		{
+			Unknown1073E1D0();
+		}
+		Unknown107063A0();
+		Unknown1073E2C0();
+		Unknown1073E2E0();
+		Unknown1071F7D0();
+		switch (settings.displayMode)
+		{
+		case 1:
+			ShadowRenderManager::Create(3);
+			break;
+		case 2:
+			ShadowRenderManager::Create(0);
+			break;
+		case 3:
+			ShadowRenderManager::Create(1);
+			break;
+		case 4:
+			ShadowRenderManager::Create(2);
+			break;
+		}
+		primStream = new PrimStream;
+		font = 0;
+		LoadDebugFont();
+		indexCount = 24000;
+		IndexBufferDescription description(24000, 3, 1);
+		indexBuffer = gPddiDx->NewIndexBuffer(&description);
+		indexBuffer->AddRef();
+		dxIndexBufferState state;
+		indexBuffer->Lock(&state);
+		unsigned short* indices = (unsigned short*)state.unknown10;
+		int quads = indexCount / 6;
+		for (int quad = 0; quad < quads; quad++)
+		{
+			int v = quad * 4 + 2;
+			*indices++ = v - 2;
+			*indices++ = v;
+			*indices++ = v - 1;
+			*indices++ = v - 2;
+			*indices++ = v + 1;
+			*indices++ = v;
+		}
+		indexBuffer->Unlock();
+		Unknown1073B790(settings.unknown4);
+		ContextRenderSettings renderSettings;
+		renderSettings.unknown0 = settings.unknown0;
+		renderSettings.unknown4 = settings.unknown150;
+		Unknown10755120(&renderSettings);
+		Unknown1074D770(this);
+		Unknown1073E260(this);
+		Unknown107265E0();
+		unsigned char version[0x110];
+		gPddiDx->GetVersion(version);
+		frames.AllocateEmpty(settings.drawableCount);
+		for (unsigned int i = 0; i < settings.drawableCount; i++)
+		{
+			frames[i].inUse = false;
+			frames[i].params = new RenderParams;
+			frames[i].params->AddRef();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107106A0
+	Context::~Context()
+	{
+		delete passChain;
+		Unknown107265F0();
+		Unknown107076C0(&indexBuffer);
+		if (font != 0)
+		{
+			font->Release();
+		}
+		Unknown106F36C0();
+		Unknown106F36C0();
+		Unknown106F36C0();
+		Unknown106F3B10();
+		Unknown10715380();
+		delete primStream;
+		primStream = 0;
+		Unknown10755EC0();
+		Unknown1073A6F0();
+		Unknown107168B0();
+		Unknown1071B080();
+		Unknown1073E2D0();
+		Unknown106F4820();
+		Unknown1073E2F0();
+		Unknown10704B60();
+		Unknown1073E1F0();
+		passes->Unknown2();
+		passes = 0;
+		for (MapNode* node = (MapNode*)First(); node != 0; node = (MapNode*)Next(node))
+		{
+			delete node->pair.value;
+			node->pair.value = 0;
+		}
+		for (unsigned int i = 0; i < frames.Size(); i++)
+		{
+			frames[i].params->Release();
+		}
+		engine::gDisplay = 0;
+		pddi = 0;
+		delete gPddiDx;
+		gPddiDx = 0;
+		Unknown106DDB60();
+	}
+
 	// FUNCTION: ENGINE 0x10710880
 	void* Context::DeleteThis(unsigned int flags)
 	{
@@ -76,21 +204,13 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107108A0
-	// NONMATCHING: the engine keeps the context in esi across the destructor call and passes the assert's condition
-	// register as the report's last argument; ours reloads the global and pushes a constant, 86 %
-#ifdef NONMATCHING
 	void Context::Shutdown()
 	{
 		_imp__SetWindowLongA(sWindow, -4, (long)sPreviousWindowProc);
 		OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\pure3d\\src\\context.cpp", 0x77, context != 0, "pure3d::context != 0");
-		if (context != 0)
-		{
-			context->~Context();
-			operator delete(context);
-		}
+		delete context;
 		context = 0;
 	}
-#endif
 
 
 	// FUNCTION: ENGINE 0x10710120
@@ -103,6 +223,12 @@ namespace pure3d
 		unknown164 = 0;
 		unknown150 = -1;
 		drawableCount = 8;
+	}
+
+	// FUNCTION: ENGINE 0x1070F1E0
+	void Unknown1070F1E0()
+	{
+		gDisplay->Unknown1073AA10();
 	}
 
 	// FUNCTION: ENGINE 0x1070F1F0
@@ -213,6 +339,95 @@ namespace pure3d
 		return true;
 	}
 
+	// The time in microseconds
+	inline unsigned __int64 TimeMicroseconds(const core::Time& time)
+	{
+		return (unsigned __int64)time.milliseconds * 1000 + time.microseconds;
+	}
+
+	// The slot of the constant of that name
+	inline ConstantSlot FindConstant(const char* text)
+	{
+		core::Name<core::CaseInsensitiveKey32> name(text, 0);
+		core::Name<core::CaseInsensitiveKey32> key(name);
+		return ConstantSlot(1, &key);
+	}
+
+	// FUNCTION: ENGINE 0x1070F850
+	// Hands the shaders the time: the total, the time since the last call and the cosine of the total
+	void Context::Unknown1070F850()
+	{
+		unsigned __int64 total = TimeMicroseconds(frameTime);
+		__int64 delta = ((__int64)frameTime.milliseconds - (__int64)unknown48.milliseconds) * 1000 - unknown48.microseconds + frameTime.microseconds;
+		float totalSeconds = (float)(total / 1000000) + (float)(total % 1000000) * 0.000001f;
+		ConstantSlot elapsedSlot = FindConstant("p3dTimeElapsed");
+		ConstantSlot cosSlot = FindConstant("p3dTimeCos");
+		*pddi->GetConstant(gConstantTime, pddiBaseContext::CONSTANT_FLOAT) = totalSeconds;
+		float deltaSeconds = (float)((unsigned __int64)delta / 1000000) + (float)((unsigned __int64)delta % 1000000) * 0.000001f;
+		*pddi->GetConstant(elapsedSlot.index, pddiBaseContext::CONSTANT_FLOAT) = deltaSeconds;
+		*pddi->GetConstant(cosSlot.index, pddiBaseContext::CONSTANT_FLOAT) = cosf(totalSeconds);
+		unknown48 = frameTime;
+	}
+
+	// GLOBAL: ENGINE 0x11281398
+	float Context::sTextOffsetX;
+	// GLOBAL: ENGINE 0x1128139C
+	float Context::sTextOffsetY;
+
+	// FUNCTION: ENGINE 0x1070F380
+	// EQUIVALENT: same operations in the same order; the loads of the font and of the constant 0.5 are scheduled differently around the two stores of it (93.1%)
+	void Context::DrawDebugText(const char* text, float x, float y, unsigned int colour)
+	{
+		if (font != 0)
+		{
+			RenderStateBackup states(pddi, 7, 0);
+			ViewMatrixBackup viewMatrix;
+			pddi->SetViewUnknown10(2);
+			pddi->SetCullMode(0);
+			pddi->EnableZBuffer(false);
+			sTextOffsetY = 0.5f;
+			sTextOffsetX = 0.5f;
+			float left = x + sTextOffsetX;
+			float top = font->Unknown6() + sTextOffsetY + y;
+			math::Matrix matrix;
+			matrix.m[0][0] = 1.0f;
+			matrix.m[0][1] = 0.0f;
+			matrix.m[0][2] = 0.0f;
+			matrix.m[0][3] = 0.0f;
+			matrix.m[1][0] = 0.0f;
+			matrix.m[1][1] = -1.0f;
+			matrix.m[1][2] = 0.0f;
+			matrix.m[1][3] = 0.0f;
+			matrix.m[2][0] = 0.0f;
+			matrix.m[2][1] = 0.0f;
+			matrix.m[2][2] = 1.0f;
+			matrix.m[2][3] = 0.0f;
+			matrix.m[3][0] = left;
+			matrix.m[3][1] = top;
+			matrix.m[3][2] = 1.0f;
+			matrix.m[3][3] = 1.0f;
+			pddi->SetWorldMatrix(&math::Matrix::IDENTITY);
+			pddi->SetViewMatrix(&matrix);
+			font->SetColour(colour);
+			TextureFont* textFont = font;
+			if (text != 0)
+			{
+				unsigned short wide[0x200];
+				textFont->ToWide(text, wide, 0x200);
+				textFont->Draw(wide, 0);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1070F540
+	void Context::DrawDebugTextLine(const char* text, int x, int y, unsigned int colour)
+	{
+		if (font != 0)
+		{
+			DrawDebugText(text, (float)x, font->Unknown5() + y - font->Unknown6(), colour);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1070FEF0
 	void Context::AdvanceFrame()
 	{
@@ -231,7 +446,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x107103D0
 	void Context::ClearEntries()
 	{
-		container::TreeBase::Clear(DeleteContextEntry, this);
+		Clear();
 	}
 
 	// FUNCTION: ENGINE 0x1070EDB0
@@ -336,6 +551,62 @@ namespace pure3d
 		}
 	}
 
+	// The size of the picture a surface holds
+	inline unsigned int SurfaceWidth(pddiSurface* surface)
+	{
+		return surface->info->size->width;
+	}
+
+	inline unsigned int SurfaceHeight(pddiSurface* surface)
+	{
+		return surface->info->size->height;
+	}
+
+	// FUNCTION: ENGINE 0x1070EF80
+	void Context::RunPassesInto(const TargetParams* params, RenderTarget* colour, RenderTarget* depth)
+	{
+		OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\pure3d\\src\\context.cpp", 0x316, colour != 0 && colour->surface != 0 && depth != 0 && depth->surface != 0 && colour->surface->info->size->width == depth->surface->info->size->width, "0 != colour && 0 != colour->GetTexture() && 0 != depth && 0 != depth->GetTexture() && colour->GetWidth() == depth->GetWidth()");
+		bool state = pddi->IsUnknown14Set();
+		if (state)
+		{
+			pddi->Unknown28();
+			engine::gDisplay->Unknown106162D0();
+		}
+		bool wasInFrame = inFrame;
+		if (!wasInFrame)
+		{
+			pddiSize* size = colour->surface->info->size;
+			BeginFrame(size->width, size->height);
+		}
+		TargetParams targetParams(params);
+		targetParams.width = SurfaceWidth(colour->surface);
+		targetParams.height = SurfaceHeight(colour->surface);
+		targetParams.flags &= ~0x20;
+		targetParams.colour = colour->surface;
+		targetParams.depth = depth->surface;
+		pddi->Unknown27();
+		pddiRenderTargets targets = {0, 0, 0, 0, 0};
+		targets.depth = depth->surface->GetHandle();
+		targets.colour = colour->surface->GetHandle();
+		pddi->SetRenderTargets(&targets);
+		pddi->Clear(-1);
+		pddi->Unknown28();
+		engine::gDisplay->Unknown106162D0();
+		pddi->Unknown27();
+		pddi->Clear(-1);
+		RunPasses((const RenderParams*)&targetParams);
+		pddi->Unknown28();
+		engine::gDisplay->Unknown106162D0();
+		if (!wasInFrame)
+		{
+			EndFrame();
+		}
+		if (state)
+		{
+			pddi->Unknown27();
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1070EE70
 	void Context::BeginFrame(unsigned int width, unsigned int height)
 	{
@@ -380,11 +651,6 @@ namespace pure3d
 			}
 			inFrame = false;
 		}
-	}
-
-	// FUNCTION: ENGINE 0x1070EDA0
-	WrappedDrawableHelper::WrappedDrawableHelper()
-	{
 	}
 
 	// FUNCTION: ENGINE 0x1070ED90
@@ -461,6 +727,8 @@ namespace pure3d
 	template EntryTree::Pair::Pair(const Pair& other);
 	// FUNCTION: ENGINE 0x1070FB40
 	template EntryTree::Pair::Pair(const ContextKey& newKey, RenderContext* const& newValue);
+	// FUNCTION: ENGINE 0x107102B0
+	template bool EntryTree::DeleteNode(container::TreeBase::Node* node, void* context);
 	// FUNCTION: ENGINE 0x1070F6D0
 	template EntryTree::Pair::~Pair();
 	// FUNCTION: ENGINE 0x107100E0
