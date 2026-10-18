@@ -68,7 +68,10 @@ namespace proto
 		};
 		struct AreaLink
 		{
-			unsigned char unknown0[4];
+			unsigned char unknown0[2];
+			// The index of the handle of the object the segment belongs to in the navmesh's handle table (0xFFFF for
+			// none)
+			unsigned short owner;
 			unsigned short area;
 			unsigned char unknown6[0xc - 6];
 			// +0xC: the lanes of the segment
@@ -77,6 +80,9 @@ namespace proto
 		};
 		struct Link
 		{
+			// 0x10567F60: the low four bits of the fourth byte (the lane count of the link; name guess)
+			signed char GetLaneCount() const;
+
 			union
 			{
 				unsigned short key;
@@ -349,8 +355,7 @@ namespace proto
 		void UpdateLaneChange();
 		// 0x1044C340 (the lane change attempt; the argument is a chance), 0x10567F60 / 0x10431520
 		bool Unknown1044C340(float chance);
-		float Unknown10431520(engine::GameObjectHandle* handle, int lanes);
-		int Unknown10567F60(PathNode::Link* link);
+		static float Unknown10431520(engine::GameObjectHandle* handle, int lanes);
 		// 0x1044C1C0: sets the mode to parked or driving and applies it
 		void SetParked(bool parked);
 		// 0x1044B1F0: applies the mode (the intersection test mask of the physics object)

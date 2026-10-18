@@ -7062,3 +7062,6 @@ _sLuaString = 0x11274FC8 ; data size:0x80 | eventscripting.cpp: the buffer GetLu
 ?sReport@?CP@??UpdateTurning@VehicleBehaviourAmbient@proto@@QAEXXZ@4_NA = 0x1108CD02 ; data size:0x1 | proto::VehicleBehaviourAmbient::UpdateTurning: the report-once flag of the assert at line 0x995 (static)
 ?sReport@?DD@??UpdateTurning@VehicleBehaviourAmbient@proto@@QAEXXZ@4_NA = 0x1108CD01 ; data size:0x1 | proto::VehicleBehaviourAmbient::UpdateTurning: the report-once flag of the assert at line 0x996 (static)
 ?sReport@?DH@??UpdateTurning@VehicleBehaviourAmbient@proto@@QAEXXZ@4_NA = 0x1108CD00 ; data size:0x1 | proto::VehicleBehaviourAmbient::UpdateTurning: the report-once flag of the assert at line 0x99a (static)
+?Unknown1044C340@VehicleBehaviourAmbient@proto@@QAE_NM@Z = 0x1044C340 ; function size:0x912 | proto::VehicleBehaviourAmbient::Unknown1044C340 (name guess)
+?Unknown10431520@VehicleBehaviourAmbient@proto@@SAMPAVGameObjectHandle@engine@@H@Z = 0x10431520 ; function size:0xA5 | proto::VehicleBehaviourAmbient::Unknown10431520 (name guess)
+?GetLaneCount@Link@PathNode@proto@@QBECXZ = 0x10567F60 ; function size:0x6 | proto::PathNode::Link::GetLaneCount (name guess)

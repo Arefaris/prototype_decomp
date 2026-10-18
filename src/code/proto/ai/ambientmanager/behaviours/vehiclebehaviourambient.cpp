@@ -64,7 +64,10 @@ namespace proto
 		bool Find(const math::Vector* position, float below, float above, NavArea** result, math::Vector* closest,
 			core::BitField<unsigned short> filter);
 
-		unsigned char unknown0[0x38];
+		unsigned char unknown0[0x28];
+		// The handles of the objects the road segments belong to (4 bytes each)
+		engine::GameObjectHandle* handles;
+		unsigned char unknown2C[0x38 - 0x2c];
 		NavArea* areas;
 	};
 
@@ -77,7 +80,7 @@ namespace proto
 	extern engine::GameObjectHandle gPlayerHandles[];
 
 	// The area a path node lies in, or null when the node names none
-	static NavArea* GetArea(PathNode* node)
+	static inline NavArea* GetArea(PathNode* node)
 	{
 		unsigned short index = node->areaLink->area;
 		if (index == 0xffff)
@@ -454,24 +457,21 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x1044CEA0
-	// NONMATCHING: the same two random draws, spreads and stores in the same order, but the engine's float schedule
-	// and the registers of the inlined generator steps differ (it keeps the first conversion before the draw and the
-	// generator pointer in esi), 40 %
-#ifdef NONMATCHING
+	// EQUIVALENT: the same two draws of the generator (the state words are read, stepped and written in the same
+	// order), spreads and stores in the same order; the engine keeps the address of the second state word in esi and
+	// uses edi for the steps where ours uses esi alone, and its temporary for the mantissa sits four bytes higher,
+	// 59 %
 	void VehicleBehaviourAmbient::Unknown1044CEA0()
 	{
 		unknown17C = 0.4f;
-		float speedRandom = math::gRandom->NextFloat01();
 		float speedSpread = ((float)unknown174 + 1.0f) * 5.0f;
-		unknownF0 = speedRandom * speedSpread + vehicleProperties->maxSpeed;
-		float accelerationRandom = math::gRandom->NextFloat01();
+		unknownF0 = math::gRandom->NextFloat01() * speedSpread + vehicleProperties->maxSpeed;
 		float accelerationSpread = (float)unknown174 * 0.5f;
-		unknownF4 = accelerationRandom * accelerationSpread + vehicleProperties->accelerationForce;
+		unknownF4 = math::gRandom->NextFloat01() * accelerationSpread + vehicleProperties->accelerationForce;
 		unknownF8 = vehicleProperties->brakingForce;
 		unknownA8 = 0.0f;
 		SetParked(false);
 	}
-#endif
 
 	// The registry that maps a name of a car to the target the cars aim at (the global at 0x11267730)
 	class TargetRegistry
@@ -514,29 +514,28 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x1044D0F0
-	// NONMATCHING: the tests and the two chances are the engine's, but the engine reads the lane's record through
-	// register conventions of its unit and compares the answer with zero on the x87 stack, 40 %
-#ifdef NONMATCHING
+	// EQUIVALENT: the same tests, handle selection, calls and results in the same order and the same layout of the two
+	// branches; the engine widens the index before it loads the handle table and keeps the owner link and the lane
+	// count in eax where ours uses edx and ecx, 70 %
 	void VehicleBehaviourAmbient::UpdateLaneChange()
 	{
 		if (unknown74->state == 1)
 		{
 			PathNode* first = path88.At(0);
-			unsigned short index = *(unsigned short*)((char*)first->areaLink + 2);
-			engine::GameObjectHandle handle;
-			if (index != 0xffff)
+			unsigned short owner = first->areaLink->owner;
+			engine::GameObjectHandle handle = (owner != 0xffff) ? gNavMesh->handles[owner] : engine::GameObjectHandle();
+			if (Unknown10431520(&handle, first->link->GetLaneCount()) == 0.0f)
 			{
-				handle = ((engine::GameObjectHandle*)gNavMesh->areas)[index];
+				unknown170 = Unknown1044C340(4.5f);
 			}
-			if (Unknown10431520(&handle, Unknown10567F60(first->link)) != 0.0f)
+			else
 			{
 				unknown170 = Unknown1044C340(1.0f);
-				return;
 			}
+			return;
 		}
 		unknown170 = Unknown1044C340(4.5f);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1044D730
 	// NONMATCHING: the passed-node search, the speed rules (stop at the light, brake for a car ahead, accelerate to 7)
@@ -1465,9 +1464,10 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10448440
-	// NONMATCHING: the same walk of the path and the same stop test, but the engine keeps this in ebx, the ring in esi
-	// and its start in ebp where ours uses ecx and ebp, 41 %
-#ifdef NONMATCHING
+	// EQUIVALENT: the same tests, the same walk of the path's areas, the same orientation and position and the same
+	// call; the engine keeps the car in a stack slot (ebx is a scratch register inside the loop and it reloads the car
+	// from the slot), the ring in esi and the loop count in edi where ours has the car in ebp and the ring in edi, and
+	// it tests the car count against zero where ours tests against one, 54 %
 	void VehicleBehaviourAmbient::CheckBlockedStop()
 	{
 		if (halted && mode != 1)
@@ -1493,7 +1493,6 @@ namespace proto
 			}
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10448FC0
 	bool VehicleBehaviourAmbient::FindNeighbourLanes(int* lower, int* upper)
@@ -1572,9 +1571,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x104482B0
-	// NONMATCHING: the three differences are computed with SSE and spilled before the x87 sum of squares in the
-	// engine; ours subtracts in the x87 unit, 60 %
-#ifdef NONMATCHING
 	bool VehicleBehaviourAmbient::UpdateNodeDistance()
 	{
 		unsigned int count = path88.Count();
@@ -1582,14 +1578,12 @@ namespace proto
 		{
 			PathNode* node = path88.At(1);
 			math::Matrix& matrix = owner->transform->value;
-			float dz = matrix.m[3][2] - node->position.z;
-			float dx = matrix.m[3][0] - node->position.x;
-			float dy = matrix.m[3][1] - node->position.y;
-			unknown198 = sqrt(dz * dz + dx * dx + dy * dy) - 1.0f;
+			math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+			math::Vector difference(position.x - node->position.x, position.y - node->position.y, position.z - node->position.z);
+			unknown198 = sqrt(difference.Dot(difference)) - 1.0f;
 			return true;
 		}
 		unknown198 = -1.0f;
 		return true;
 	}
-#endif
 }
