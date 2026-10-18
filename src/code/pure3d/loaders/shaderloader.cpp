@@ -12,8 +12,12 @@
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10706960
-	// NONMATCHING: 42 %; difftest on real states: the draw parameters' bit word ends with other bytes than the
-	// engine's (the engine keeps it in a register through the chunk loop and writes it back after each change)
+	// NONMATCHING: 42 %; the engine keeps the draw parameters' bit word in a register through the chunk loop (loaded
+	// at the loop head, kept across the Read calls, written back after each change), so its compiler did not treat
+	// the parameters as exposed to those calls although SetParameters gets their own slot; a copy, a by-value
+	// wrapper, a restrict pointer, const plus const_cast and noalias on Read do not reproduce that. The difftest
+	// difference on real states is in bytes both leave uninitialised (the bit word's top byte, the flag byte's
+	// bits 3-7 and the three bytes after it).
 #ifdef NONMATCHING
 	void ShaderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)

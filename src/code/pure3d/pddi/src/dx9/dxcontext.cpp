@@ -246,6 +246,8 @@ namespace pure3d
 	// draw branch together give the technique ebp (64.5 %), but then the engine's order of the first two calls
 	// (the name pushed before the table is asked for) and the device's table loaded once before the branch are lost;
 	// that variant is not used.
+	// The vertex count kept in a second variable, the technique table taken inline and the index buffer read into a
+	// local for the index count compile as before.
 	void dxContext::Unknown2(const core::Name<core::CaseInsensitiveKey32>* shaderName, const void* descPointer,
 		const void* parameters)
 	{

@@ -19,6 +19,8 @@ namespace pure3d
 	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (39 %); the engine lays the
 	// frame out in 16 bytes more (the name buffers and the matrix keep separate slots) and keeps other scalars in
 	// registers
+	// This compiler materialises the slot's validity as `setne; test` only when the bool has a second use; the
+	// default's test moved behind the inner loop as `!found && !slot.IsValid()` gives 43 % but still folds the first.
 	void ShaderTemplateLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{

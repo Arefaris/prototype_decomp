@@ -23,6 +23,7 @@ namespace pure3d
 	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order; registers and frame
 	// follow the engine's (reader in ebp, skeleton in esi), what differs is the scheduling of some loads and
 	// temporaries (79.9 %)
+	// The joint name read through an inline helper, a cast length, a nested count or a buffer pointer compiles alike.
 	void SkeletonLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)
 	{
