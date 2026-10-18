@@ -12,7 +12,9 @@
 
 namespace proto
 {
+	class NavMesh;
 	class ParkedCarCloudManager;
+	class VehicleBehaviourAmbient;
 
 	// The sizes and counts the manager is made from (0xA0 bytes, copied into the manager at +0x44); only what the
 	// constructor reads is named
@@ -166,6 +168,12 @@ namespace proto
 	public:
 		// 0x1041FA40
 		explicit AmbientManager(const AmbientConfig* newConfig);
+		// 0x10411FF0: adds the car to the list its record points at (this is not read)
+		void AddVehicle(VehicleBehaviourAmbient* vehicle);
+		// 0x104120F0: takes the car out of the manager's list
+		void RemoveVehicle(VehicleBehaviourAmbient* vehicle);
+		// 0x1040A110: lets go of the name a car was registered under (the flag is the car's)
+		void ReleaseName(const core::Name<core::CaseSensitiveKey>& name, bool flag);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
 
@@ -187,7 +195,7 @@ namespace proto
 		unsigned int unknown200;
 		unsigned int unknown204;
 		unsigned int unknown208;
-		int unknown20C;
+		NavMesh* unknown20C;
 		container::ArrayDynamicHeap<AmbientElement4A> unknown210;
 		container::ArrayDynamicHeap<AmbientElement4B> unknown220;
 		container::ArrayDynamicHeap<AmbientElement20> unknown230;

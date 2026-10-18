@@ -411,6 +411,29 @@ public:
 	Pointer method;
 };
 
+template<class C> class Method0<C, void> : public engine::Function
+{
+public:
+	typedef void (C::*Pointer)();
+
+	Method0(const char* name, Pointer newMethod) : engine::Function(name, 0)
+	{
+		method = newMethod;
+		resultType = GetTypeCode(typeid(void), engine::FunctionTypeSize<void>::value);
+	}
+	// Calls the method on object
+	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
+	{
+		(object->*method)();
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call((C*)object, arguments, result, method);
+	}
+
+	Pointer method;
+};
+
 template<class C, class R, class A1> class Method1 : public engine::Function
 {
 public:

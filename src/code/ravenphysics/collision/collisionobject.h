@@ -427,6 +427,15 @@ namespace ravenphysics
 	// The handle table of the collision objects and of the physics objects (0x1127CAC0)
 	extern CollisionObjectTable* gCollisionObjectTable;
 
+	inline bool ObjectHandle::IsValid() const
+	{
+		if (index >= gCollisionObjectTable->slotCount)
+		{
+			return false;
+		}
+		return gCollisionObjectTable->entries.begin[index].serial == unknown2;
+	}
+
 	class CollisionObject
 	{
 	public:

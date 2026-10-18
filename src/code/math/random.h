@@ -23,6 +23,8 @@ namespace math
 		// A random unit vector: NextVector11 rejected until 0.001 <= |v|^2 <= 1, then normalised (name guess)
 		Vector NextUnitVector();
 
+		// 0x10069B80: a float in [low, high), one step of the generator
+		float Range(float low, float high);
 		// 0x100CED50 (another unit's copy): an integer in [low, high], one step of the generator
 		int Range(int low, int high);
 

@@ -165,6 +165,10 @@ namespace engine
 			MODE_ONCE = 3
 		};
 
+		// 0x1008CEE0 (another unit): the sound and the event named, the volume, the distances and the pitches, the
+		// flag at +0x34 and the mode
+		AudioEmitterTriggerMessage(const AudioName& newSound, const AudioName& newEvent, float newVolume,
+			float newMinDistance, float newMaxDistance, float newMinPitch, float newMaxPitch, bool newFlag, int newMode);
 		virtual void Apply(AudioEmitter* emitter);
 
 		AudioName event;

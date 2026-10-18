@@ -139,6 +139,7 @@ extern "C"
 	int luaL_callmeta(lua_State* L, int obj, const char* e);
 	int luaL_argerror(lua_State* L, int numarg, const char* extramsg);
 	const char* luaL_checklstring(lua_State* L, int numArg, size_t* l);
+	lua_Integer luaL_checkinteger(lua_State* L, int numArg);
 	lua_Integer luaL_optinteger(lua_State* L, int nArg, lua_Integer def);
 	void luaL_checkany(lua_State* L, int narg);
 	int luaL_error(lua_State* L, const char* fmt, ...);

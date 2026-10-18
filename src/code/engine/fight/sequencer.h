@@ -228,6 +228,12 @@ namespace fight
 		void Update(int arg);
 		// 0x105A4780: advances the clock and begins / ends the actions due
 		void Advance(int arg, float dt);
+		// 0x105A45A0: whether the sequencer has actions (with the flag also when a track is pending; name unknown)
+		bool Unknown105A45A0(bool flag);
+		// 0x105A4910: walks the actions and their children (name unknown)
+		void Unknown105A4910(bool flag);
+		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
+		void Reset();
 		// 0x105A4120: releases the two scheduled members
 		void Clear();
 		// 0x105A3EC0: ends every action of the pending list (name guess)

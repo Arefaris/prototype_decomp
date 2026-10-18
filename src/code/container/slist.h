@@ -52,6 +52,10 @@ namespace container
 		{
 			SListBase::PushBack(static_cast<Node*>(item));
 		}
+		void Remove(T* item)
+		{
+			SListBase::Remove(static_cast<Node*>(item));
+		}
 		static T* Next(T* item)
 		{
 			return static_cast<T*>(static_cast<Node*>(static_cast<Node*>(item)->next));

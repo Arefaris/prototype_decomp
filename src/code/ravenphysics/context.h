@@ -32,9 +32,25 @@ namespace ravenphysics
 		PhysicsObject* GetObject() const;
 		// The engine's second copy of the same lookup, the one this unit's own code calls (0x1065F500; name guess)
 		PhysicsObject* GetObjectSecond() const;
+		// A third copy of the lookup (0x1066AAC0), the one the vehicle behaviours call; it reads the entry without any check
+		PhysicsObject* GetObjectUnchecked() const;
+		// 0x1065F510: removes the object from the world
+		void DestroyObject();
 
-		unsigned short index;    // 0x00
-		unsigned short unknown2; // 0x02
+		// Whether the table still holds the object the handle was made for (inline in the engine's code; defined in
+		// collision/collisionobject.h after the table)
+		bool IsValid() const;
+
+		union
+		{
+			struct
+			{
+				unsigned short index;    // 0x00
+				unsigned short unknown2; // 0x02
+			};
+			// Both words at once (an invalid handle is all ones)
+			unsigned int value;
+		};
 	};
 
 	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC, capacity 0x1127CAC8): the name

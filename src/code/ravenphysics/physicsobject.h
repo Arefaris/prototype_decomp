@@ -12,8 +12,15 @@
 #include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/context.h"
 
+namespace math
+{
+	class Matrix;
+	class OBB;
+}
+
 namespace ravenphysics
 {
+	struct IntersectionFilter;
 
 	// The library's lock: set while a simulation step runs, when the objects must not be touched (0x1127D3D8)
 	class PhysicsLock
@@ -276,6 +283,13 @@ namespace ravenphysics
 		void RefreshBounds(bool unused);
 		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
 		void SetCollisionMode(unsigned short mode);
+		// 0x10678250: sets what the object is tested against (the three words go to +0x28)
+		void SetFilter(const IntersectionFilter* filter);
+		// 0x106780A0: gives the object's first volume the box (placed by the matrix), copies the volume's bounds into
+		// the object and its detector box and sets the collision mode to 2 (name guess)
+		void SetBox(const math::OBB& box, const math::Matrix& transform);
+		// 0x10677F90: the same for the volume it has (placed by the matrix; name guess)
+		void SetTransform(const math::Matrix& transform);
 
 		core::Name<core::CaseSensitiveKey> name;   // 0x40
 		int unknown48;

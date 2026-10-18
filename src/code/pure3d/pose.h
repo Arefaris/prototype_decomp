@@ -91,6 +91,8 @@ namespace pure3d
 		Pose* CreateInstance(int kind);
 		// 0x106DD6E0: recomputes the joint matrices and counts the update
 		void Update();
+		// 0x10070FC0: stores the rotation of a joint
+		void SetJointRotation(int joint, const math::Quaternion* rotation);
 
 		Skeleton* mSkeleton;
 		PoseData mData;

@@ -76,6 +76,8 @@ namespace engine
 		int unknown5C;
 		// What the tree runs on
 		GameObjectParams* params;
+		// The class ends at +0x68 (the derived behaviours put their first base's next member there)
+		int unknown64;
 	};
 }
 
