@@ -1503,9 +1503,10 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x1044AE90
-	// EQUIVALENT: the same calls, tests, float operations and stores in the same order; the engine keeps the second
-	// path vector in the lowest of the three slots and the vector of the first leg in the middle one where ours swaps
-	// them, and our zero store for the stopped case shares the epilogue of the early return, 84 %
+	// EQUIVALENT: the same calls, tests, float operations (the sum of the products is added z, y, x in both) and
+	// stores in the same order; the engine keeps the second path vector in the lowest of the three slots and the
+	// vector of the first leg in the middle one where ours swaps them (so ours normalizes the two vectors in the other
+	// order), and our zero store for the stopped case shares the epilogue of the early return, 87 %
 	void VehicleBehaviourAmbient::UpdateTargetSpeed()
 	{
 		unknownF8 = vehicleProperties->brakingForce;
@@ -1541,7 +1542,7 @@ namespace proto
 				math::Vector toThird(third.x - second.x, third.y - second.y, third.z - second.z);
 				toThird.Normalize();
 				toSecond.Normalize();
-				double alignment = toThird.z * toSecond.z + toThird.y * toSecond.y + toThird.x * toSecond.x;
+				double alignment = toThird.x * toSecond.x + toThird.y * toSecond.y + toThird.z * toSecond.z;
 				if (alignment < 0.6)
 				{
 					targetSpeed = vehicleProperties->maxSpeed * 0.5f;
