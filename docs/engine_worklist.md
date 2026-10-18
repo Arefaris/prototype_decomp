@@ -3235,6 +3235,9 @@ method of the pose at +0x70) and the job record at +0x330.
   copy of the count ahead of the two stride scalings in the pre-header (the engine scales the normal stride, then the
   position stride, then copies the count). The nine four-bone paths and 0x1071CA40 not reworked (see above);
   0x10720CF0 not reconstructed (its callees' types: 0x106F2DE0, 0x10625F00, 0x1071F020, 0x107202B0, 0x106E2A30).
+- (mp-skin) 0x1071D1B0 **matches**: the offset paths' loop is `for (unsigned int i = 0; i < (unsigned int)count; i++)`
+  (the induction variable is replaced by a down counter, which is created after the loop-invariant stride scalings, in
+  the engine's order), not the guard plus `do { } while (--i)` the earlier sessions wrote.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 

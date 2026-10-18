@@ -752,8 +752,6 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071D1B0
-	// NONMATCHING: the loop count's copy and the loop-invariant stride scalings come out in a different order in the loop pre-header (the rest is byte for byte), 96.5 %; the counter's place, type and decrement, the order of the strides, of the two offset tests and of the loop's loads do not move it
-#ifdef NONMATCHING
 	void SkinState::Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -788,10 +786,7 @@ namespace pure3d
 		((float*)&minBounds)[2] = 1e12f;
 		((float*)&minBounds)[3] = 1e12f;
 		math::Vector4* __restrict dst = out;
-		if ((unsigned int)count > 0)
-		{
-		unsigned int i = count;
-		do
+		for (unsigned int i = 0; i < (unsigned int)count; i++)
 		{
 			__m128 v0 = _mm_load_ps(&vertices->position.x);
 			__m128 v1 = _mm_load_ps(&vertices->normal.x);
@@ -821,7 +816,6 @@ namespace pure3d
 			maxBounds = _mm_max_ps(maxBounds, r0);
 			minBounds = _mm_min_ps(minBounds, r0);
 			vertices++;
-		} while (--i);
 		}
 		_mm_empty();
 		bounds.min.x = ((float*)&minBounds)[0];
@@ -831,7 +825,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071D440
 	// NONMATCHING: the same four-bone blend schedule as 0x1071B610, 21 %
