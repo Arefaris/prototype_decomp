@@ -31,6 +31,8 @@ namespace ravenphysics
 		NarrowPhaseBatcher();
 		// Waits for every queued batch and reports what was left over (0x106911D0; name guess)
 		void Complete();
+		// Takes the work to batch, the event and the profiler pool (0x10690D20; name guess)
+		void Init(void* work, void* gate, void* recordPool);
 
 		Batch batches[6];                       // 0x00
 		unsigned char unknown60[4];

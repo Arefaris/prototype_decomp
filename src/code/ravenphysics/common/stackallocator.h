@@ -54,6 +54,14 @@ namespace ravenphysics
 		int owner;  // 0x1C
 	};
 
+	// The same object built in place, where the engine inlines the constructor and the destructor of the scratch
+	// allocator
+	class LocalScratchAllocator : public StackAllocator
+	{
+	public:
+		int owner;  // 0x1C
+	};
+
 	// Defined outside the class, so the compiler keeps it out of line like the engine does
 	template<class T>
 	T* StackAllocator::AllocArray(int count, int align)
@@ -99,6 +107,8 @@ namespace ravenphysics
 	public:
 		ScratchStackFrame();
 		~ScratchStackFrame();
+		// Opens the level again over an existing frame (0x106671A0, the constructor's body)
+		void Open();
 
 		void* mark;
 		int depth;

@@ -2053,7 +2053,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10659030
-	MidPhaseBatcher::MidPhaseBatcher()
+	inline MidPhaseBatcher::MidPhaseBatcher()
 	{
 		pairs.entries = 0;
 		pairs.count = 0;
@@ -2084,6 +2084,81 @@ namespace ravenphysics
 		unknown28 = 0;
 	}
 
+	// The scratch allocator the detector keeps for the detection (0x30 bytes; name guess)
+	class DetectorScratch : public LocalScratchAllocator
+	{
+	public:
+		DetectorScratch(void* buffer, unsigned int size)
+		{
+			unknown18 = false;
+			owner = 0;
+			Init(buffer, size, false);
+		}
+
+		unsigned char unknown20[0x10];
+	};
+
+	// FUNCTION: ENGINE 0x106596F0
+	CollisionDetector* CollisionDetector::Run(Context* owner, void* work)
+	{
+		Open();
+		context = owner;
+		recordPool = &owner->recordPool;
+		data = work;
+		AlignedRecord32 record;
+		record.name = "Synchronize";
+		record.unknown8 = -1;
+		record.kind = 1;
+		record.unknown10 = true;
+		record.unknown11 = true;
+		record.start = (unsigned int)core::GetTicks();
+		if (!owner->unknownD8)
+		{
+			owner->RefreshObjectList(&owner->movableObjects);
+			owner->registry->Unknown10686870();
+		}
+		record.end = (unsigned int)core::GetTicks();
+		Record32* item = (Record32*)AcquireSlot32(recordPool);
+		if (item != 0)
+		{
+			*item = record;
+		}
+		ScratchStack stack;
+		void* buffer = stack.Alloc(0x10000, 0x10);
+		unknown14 = new (stack.Alloc(0x30, 0x10)) DetectorScratch(buffer, 0x10000);
+		event = stack.Alloc(0x10, 0x10);
+		core::EventInit(event, 0xFFFF);
+		narrowPhase = new (stack.Alloc(0x400, 0x10)) NarrowPhaseBatcher();
+		narrowPhase->Init(work, event, recordPool);
+		midPhase = new (stack.Alloc(0x80, 0x10)) MidPhaseBatcher();
+		midPhase->Init(narrowPhase, event, recordPool, work);
+		record.name = "Self collisions";
+		record.unknown8 = -1;
+		record.kind = 2;
+		record.unknown10 = true;
+		record.unknown11 = true;
+		record.start = (unsigned int)core::GetTicks();
+		midPhase->pairs.Begin();
+		for (unsigned int i = 0; i < owner->movableObjects.Count(); i++)
+		{
+			PhysicsObject* body = (PhysicsObject*)owner->movableObjects.Get(i);
+			if (!body->IsSkipped() && (body->collisionMode & 3) == 2 && body->IsLinked())
+			{
+				midPhase->pairs.Add((CollisionObject*)body, (CollisionObject*)body);
+			}
+		}
+		midPhase->pairs.Flush();
+		record.end = (unsigned int)core::GetTicks();
+		item = (Record32*)AcquireSlot32(recordPool);
+		if (item != 0)
+		{
+			*item = record;
+		}
+		gLock.locked = true;
+		owner->mWorld->Unknown28(work, owner->unknownC4, unknown14, recordPool, midPhase);
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x10659EE0
 	void CollisionDetector::Begin(Context* context, void* data)
 	{
@@ -2093,6 +2168,43 @@ namespace ravenphysics
 		mCollisionDetectorInternal = this;
 		Run(context, data);
 	}
+
+	// FUNCTION: ENGINE 0x10659F70
+	// NONMATCHING: every instruction and the order are the engine's, but its frame keeps eight bytes between the
+	// record and the scratch allocator (the allocator at +0x48, ours at +0x40), 95.3 %
+#ifdef NONMATCHING
+	void Context::Collide()
+	{
+		DetectionData* data = (DetectionData*)detector->GetObject();
+		detector->End();
+		if (!unknownD8)
+		{
+			ScratchStackFrame frame;
+			ScratchStack stack;
+			void* buffer = stack.Alloc(0x10000, 0x10);
+			LocalScratchAllocator allocator;
+			allocator.unknown18 = false;
+			allocator.owner = 0;
+			allocator.Init(buffer, 0x10000, false);
+			AlignedRecord32 record;
+			record.name = "Collide Awoken Islands";
+			record.unknown8 = -1;
+			record.kind = 6;
+			record.unknown10 = true;
+			record.unknown11 = true;
+			record.start = (unsigned int)core::GetTicks();
+			RunIslands(data, &allocator);
+			record.end = (unsigned int)core::GetTicks();
+			recordPool.Add(record);
+		}
+		StatEntry entry;
+		entry.first = data->first;
+		entry.second = data->second;
+		entry.unknown8 = 0;
+		entry.name = "Collisions";
+		statLog.Add(entry);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10659F40
 	void Context::BeginCollision(void* data)

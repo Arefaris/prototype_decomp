@@ -190,6 +190,17 @@ namespace ravenphysics
 	// One of the context's object lists: an array of object pointers (name guess)
 	struct ObjectList
 	{
+		// How many objects the list holds
+		unsigned int Count() const
+		{
+			return end - begin;
+		}
+		// The object with that index
+		void* Get(unsigned int index) const
+		{
+			return begin[index];
+		}
+
 		void** begin;
 		void** end;
 	};
@@ -206,6 +217,8 @@ namespace ravenphysics
 		void Reset();
 		// 0x10686980
 		void Remove(PhysicsObject* object);
+		// Empties the registry's tables once the detection starts (0x10686870; name guess)
+		void Unknown10686870();
 		// Files an object under a slot (0x10686790) and takes a slot out again (0x106867F0; names are guesses)
 		void Unknown10686790(unsigned int key, unsigned short slot);
 		void Unknown106867F0(unsigned short slot);
@@ -288,7 +301,7 @@ namespace ravenphysics
 		virtual void Unknown1C();
 		virtual void Unknown20();
 		virtual void Unknown24();
-		virtual void Unknown28();
+		virtual void Unknown28(void* work, void* detector, void* scratch, void* recordPool, void* midPhase);
 		virtual void Unknown2C();
 		// 0x30
 		virtual void QueryShape(void* a, void* b, void* c, void* world, void* d);

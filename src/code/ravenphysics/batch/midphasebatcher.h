@@ -21,6 +21,8 @@ namespace ravenphysics
 	public:
 		// Starts a window of 20 pairs at the current offset (0x10691BD0)
 		void Begin();
+		// Adds a pair to the window (0x10691BF0)
+		void Add(CollisionObject* first, CollisionObject* second);
 		// Queues the window when it holds pairs (0x10691C20)
 		void Flush();
 
@@ -60,6 +62,8 @@ namespace ravenphysics
 	public:
 		// Every pointer and counter starts at zero (0x10659030)
 		MidPhaseBatcher();
+		// Takes the narrow phase, the event, the profiler pool and the work to batch (0x10691920; name guess)
+		void Init(NarrowPhaseBatcher* narrowPhaseBatcher, void* gate, void* recordPool, void* work);
 		// Queues what is left and, for the last of the callers sharing the batcher, flushes the narrow phase's
 		// batches and reports the statistics (0x10691C30)
 		void Finish();

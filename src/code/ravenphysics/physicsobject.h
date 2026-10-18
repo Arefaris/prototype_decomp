@@ -44,7 +44,8 @@ namespace ravenphysics
 		// 0x3E: the broad phase's state bits (the engine tests them as a byte)
 		unsigned char collisionFlags;
 		unsigned char unknown3F;
-		unsigned char unknown40[0x54 - 0x40];
+		unsigned char unknown40[0x50 - 0x40];
+		unsigned int unknown50;
 
 		// The broad phase's state in collisionFlags: bit 0 - the object is asleep, bit 3 - the object is left out
 		// of the queries and of the solver (name guess)
@@ -69,6 +70,13 @@ namespace ravenphysics
 		void SetState(unsigned char mask, bool set);
 	};
 
+	// What a body is linked to (name and layout are guesses)
+	struct PhysicsLink
+	{
+		unsigned char unknown0[0xC];
+		int member;
+	};
+
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects
 	class PhysicsObject : public BroadPhaseObject
 	{
@@ -86,6 +94,14 @@ namespace ravenphysics
 		CollisionObject** objects;
 		int unknown58;
 		unsigned short objectCount;
+		unsigned char unknown5E[2];
+		PhysicsLink* link;     // 0x60
+
+		// Whether the body takes part in the self collisions (0x10656320)
+		bool IsLinked() const
+		{
+			return link != 0 && link->member != 0 && !(unknown50 & 1);
+		}
 	};
 }
 
