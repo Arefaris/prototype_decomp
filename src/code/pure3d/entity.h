@@ -7,7 +7,10 @@
 
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
-#include <intrin.h>
+
+// The compiler barrier (the full <intrin.h> would also change the register conventions of the unit-local functions)
+extern "C" void _ReadWriteBarrier();
+#pragma intrinsic(_ReadWriteBarrier)
 
 namespace pure3d
 {

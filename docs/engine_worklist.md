@@ -1495,7 +1495,9 @@ Constructor:
   there, so the derived constructors' constants come after the count store. A call to an inline function or to a member
   object's constructor that does the count store has the same effect, but adds a declaration to the unit and moved the
   stack slots of 0x1070FC90 (`Context::LoadDebugFont`); the barrier changed no other function of the 43 units that
-  include entity.h.
+  include entity.h. The barrier is declared in entity.h itself (`extern "C" void _ReadWriteBarrier();` and the
+  intrinsic pragma): including `<intrin.h>` there switches off the unit-local register conventions of every unit
+  that includes the header (a static helper takes all its parameters on the stack again).
 
 The chunk loaders of this range (the geometry, polygon skin, composite drawable, skeleton and the three shader loaders)
 are reconstructed, one source file per unit under src/code/pure3d/loaders/:
