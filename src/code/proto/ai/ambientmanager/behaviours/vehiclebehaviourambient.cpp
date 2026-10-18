@@ -3,6 +3,7 @@
 // members, the update 0x1044F060, the message dispatch 0x1044F710 and the state machine) is not.
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 
+#include "code/engine/audio/audiomessage.h"
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/choreo/deltatransform.h"
@@ -189,6 +190,25 @@ namespace proto
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10445600
+	const core::Name<core::CaseSensitiveKey>& VehicleBehaviourAmbient::GetName()
+	{
+		return name;
+	}
+
+	static inline bool IsNearZero(float value)
+	{
+		return fabs(value) <= 0.05f;
+	}
+
+	// FUNCTION: ENGINE 0x10445A10
+	// EQUIVALENT: the same test of the steering angle against 0.05 and the same answer; the engine builds the answer
+	// of the inline test in eax and negates it with test / sete al, ours negates through cl, 58 %
+	bool VehicleBehaviourAmbient::Unknown10445A10()
+	{
+		return !IsNearZero(turningAngle);
+	}
+
 	// FUNCTION: ENGINE 0x10445A40
 	float VehicleBehaviourAmbient::Unknown10445A40(float squaredSpeed)
 	{
@@ -241,6 +261,10 @@ namespace proto
 
 	// The probe distance the car's placement test is given (0x1108CB14, all ones)
 	int sPlacementProbe = -1;
+
+	// The chances a lane change is tried with, by the car's random number below three (0x10E04E70 and 0x10E04E7C)
+	float sSecondChances[3] = {4.5f, 5.0f, 5.5f};
+	float sFirstChances[3] = {6.0f, 6.0f, 6.0f};
 
 	// FUNCTION: ENGINE 0x10443550
 	PathNode* VehicleBehaviour::GetPathNode(int index)
@@ -526,7 +550,7 @@ namespace proto
 			engine::GameObjectHandle handle = (owner != 0xffff) ? gNavMesh->handles[owner] : engine::GameObjectHandle();
 			if (Unknown10431520(&handle, first->link->GetLaneCount()) == 0.0f)
 			{
-				unknown170 = Unknown1044C340(4.5f);
+				unknown170 = Unknown1044C340(sSecondChances[0]);
 			}
 			else
 			{
@@ -534,8 +558,114 @@ namespace proto
 			}
 			return;
 		}
-		unknown170 = Unknown1044C340(4.5f);
+		unknown170 = Unknown1044C340(sSecondChances[0]);
 	}
+
+	// FUNCTION: ENGINE 0x1044D200
+	// NONMATCHING: the tests, the stopping distance, the slide, the lane change tries, the waiting query and the horn
+	// choice are the engine's in the same order; the audio message class declares its destructor out of line so ours
+	// calls it and keeps one message object per branch (frame of 0xb8 bytes against the engine's 0x78), and the engine
+	// shares the tail that sends the message, 46 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044D200(float dt)
+	{
+		engine::GameObjectEntry& entry = engine::GetGameObjectEntries()[blockerHandle.index];
+		if (blockerHandle.index == 0xffff || entry.serial != blockerHandle.serial || entry.object == 0)
+		{
+			unknown13C = 0.0f;
+			unknown170 = false;
+			return;
+		}
+		engine::GameObject* blocker = entry.object;
+		engine::GetPhysicsObjectMessage query;
+		blocker->PostMessage(&query);
+		if (!query.handle.IsValid())
+		{
+			blockerHandle = engine::GameObjectHandle();
+			return;
+		}
+		ravenphysics::PhysicsObject* blockerObject = query.handle.GetObject();
+		float relativeSquared;
+		if ((blockerObject->collisionMode & 3) != 0)
+		{
+			math::Vector* blockerVelocity = blockerObject->objects[0]->GetUnknown10();
+			math::Vector relative(unknown110.x * speed - blockerVelocity->x, unknown110.y * speed - blockerVelocity->y,
+				unknown110.z * speed - blockerVelocity->z);
+			relativeSquared = relative.Dot(relative);
+		}
+		else
+		{
+			relativeSquared = speed * speed;
+		}
+		float stoppingDistance = Unknown10445A40(relativeSquared);
+		if (unknown180 - unknown178 * 5.0f > stoppingDistance)
+		{
+			return;
+		}
+		if (!Unknown1044B2A0(blocker, stoppingDistance))
+		{
+			mode = 2;
+			ApplyMode();
+			engine::AudioEmitterTriggerMessage skid(core::Name<core::CaseSensitiveKey>("car_skids", 1), engine::gAudioPlay,
+				4.0f, 0.0f, 0.0f, 1.0f, 1.0f, false, 0);
+			owner->SendMessage(&skid);
+			return;
+		}
+		if (!unknown170 && speed >= vehicleProperties->maxSpeed * 0.1f && !Unknown10445A10() && !Unknown10442200()
+			&& unknown13C < 0.00001f)
+		{
+			unknown170 = Unknown1044C340(sFirstChances[unknown174]);
+		}
+		unknown13C = unknown13C + dt;
+		if (!(unknown13C > 2.0f))
+		{
+			return;
+		}
+		unknown170 = Unknown1044C340(sSecondChances[unknown174]);
+		if (unknown170)
+		{
+			unknown13C = 0.0f;
+			return;
+		}
+		unknown13C = 0.1f;
+		GetWaitingForObjectMessage waiting;
+		blocker->SendMessage(&waiting);
+		unknown134 = waiting.state;
+		if (waiting.state == 1)
+		{
+			return;
+		}
+		if (!(math::gRandom->Range(0.0f, 1.0f) < 0.25f))
+		{
+			return;
+		}
+		core::Name<core::CaseSensitiveKey> model(GetName());
+		core::Name<core::CaseSensitiveKey> horn;
+		if (model == core::Name<core::CaseSensitiveKey>("nypd_suv", 1))
+		{
+			horn.SetText("police_horns");
+		}
+		else if (model == core::Name<core::CaseSensitiveKey>("nypd_police_car", 1))
+		{
+			horn.SetText("police_horns");
+		}
+		else if (model == core::Name<core::CaseSensitiveKey>("one_ton_delivery_truck", 1))
+		{
+			horn.SetText("truck_horns");
+		}
+		else if (model == core::Name<core::CaseSensitiveKey>("compact001", 1)
+			|| model == core::Name<core::CaseSensitiveKey>("toyota_sienna_taxi", 1))
+		{
+			horn.SetText("smallcar_horns");
+		}
+		if (horn.IsEmpty())
+		{
+			return;
+		}
+		engine::AudioEmitterTriggerMessage trigger(horn, engine::gAudioPlay, 4.0f, 0.0f, 0.0f, 1.0f, 1.0f, false, 0);
+		owner->SendMessage(&trigger);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1044D730
 	// NONMATCHING: the passed-node search, the speed rules (stop at the light, brake for a car ahead, accelerate to 7)

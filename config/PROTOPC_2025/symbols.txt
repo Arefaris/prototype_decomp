@@ -7065,3 +7065,5 @@ _sLuaString = 0x11274FC8 ; data size:0x80 | eventscripting.cpp: the buffer GetLu
 ?Unknown1044C340@VehicleBehaviourAmbient@proto@@QAE_NM@Z = 0x1044C340 ; function size:0x912 | proto::VehicleBehaviourAmbient::Unknown1044C340 (name guess)
 ?Unknown10431520@VehicleBehaviourAmbient@proto@@SAMPAVGameObjectHandle@engine@@H@Z = 0x10431520 ; function size:0xA5 | proto::VehicleBehaviourAmbient::Unknown10431520 (name guess)
 ?GetLaneCount@Link@PathNode@proto@@QBECXZ = 0x10567F60 ; function size:0x6 | proto::PathNode::Link::GetLaneCount (name guess)
+?GetName@VehicleBehaviourAmbient@proto@@QAEABV?$Name@UCaseSensitiveKey@core@@@core@@XZ = 0x10445600 ; function size:0x7 | VehicleBehaviourAmbient::GetName (name guess)
+?Unknown10445A10@VehicleBehaviourAmbient@proto@@QAE_NXZ = 0x10445A10 ; function size:0x27 | VehicleBehaviourAmbient::Unknown10445A10 (name guess)

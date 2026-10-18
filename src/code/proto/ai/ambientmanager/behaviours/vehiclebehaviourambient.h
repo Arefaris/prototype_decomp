@@ -227,6 +227,18 @@ namespace proto
 		int state;
 	};
 
+	// The query whether the car waits for another object (RTTI: proto::GetWaitingForObjectMessage; id 2, the answer
+	// comes back at +0xC; the constructor 0x10445100 is inline)
+	struct GetWaitingForObjectMessage : public AmbientMessage
+	{
+		GetWaitingForObjectMessage() : AmbientMessage(2)
+		{
+			state = 0;
+		}
+
+		int state;
+	};
+
 	// The query for the motion state of a character (RTTI: proto::GetMotionStateMsg, a character motion message of
 	// type 0x21, id 0xB; its constructor is another unit's, 0x10119AB0). The answer comes back at +0xC.
 	struct GetMotionStateMsg : public engine::IntrusiveMessage
@@ -407,8 +419,13 @@ namespace proto
 		void Unknown1044E960(float dt);
 		// 0x1044E200: the wheeled model's step (false when the car is not to be driven this frame)
 		bool Unknown1044E200(float dt);
-		// 0x1044D200: (not reconstructed yet; takes the frame time)
+		// 0x1044D200: reacts to the object the car is held up by: its distance to stop, the answer of the car's own
+		// state (the car slides when it cannot stop in time), a new lane change try and the horn
 		void Unknown1044D200(float dt);
+		// 0x10445A10: whether the steering angle is small (name guess)
+		bool Unknown10445A10();
+		// 0x10445600: the name of the car's model
+		const core::Name<core::CaseSensitiveKey>& GetName();
 		// 0x1044AE90: chooses the speed the car aims at and its braking force
 		void UpdateTargetSpeed();
 		// 0x10446A70: works the desired facing out into the steering angle
@@ -493,7 +510,9 @@ namespace proto
 		math::Vector unknown110;   // +0x110
 		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
 		float turningAngle;        // +0x120: the steering angle (0x10446A70)
-		unsigned char unknown124[0x138 - 0x124];
+		engine::GameObjectHandle blockerHandle;   // +0x124: the object the car is held up by
+		math::Vector blockerPoint; // +0x128: where it was seen (0x10448790)
+		int unknown134;            // +0x134: the answer to the question whether the blocker is waiting (0x1044D200)
 		bool unknown138;           // +0x138
 		unsigned char unknown139[0x13c - 0x139];
 		float unknown13C;          // +0x13c
@@ -503,7 +522,7 @@ namespace proto
 		bool unknown170;           // +0x170: set while the car changes lanes
 		unsigned char unknown171[0x174 - 0x171];
 		int unknown174;            // +0x174: a random number below three picked when the car is set up
-		unsigned char unknown178[0x17c - 0x178];
+		float unknown178;          // +0x178
 		float unknown17C;          // +0x17c
 		float unknown180;          // +0x180
 		unsigned char unknown184[0x188 - 0x184];

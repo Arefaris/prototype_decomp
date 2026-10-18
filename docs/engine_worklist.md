@@ -3336,3 +3336,76 @@ lead to the original functions). What the unit shows:
   no callers in the image). The name is built by an inline helper that returns it by value: that puts the Name
   constructor before the argument pushes and the address is loaded with a lea afterwards.
 - `Slot2` is called by fe_PauseGame with the id of the first active player (`InputSystem::active.head->id`).
+
+## proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.cpp (0x10446A70 - 0x1044E960): 41 match, 8 EQUIVALENT, 8 NONMATCHING, 6 not started
+
+proto::VehicleBehaviourAmbient (RTTI; VehicleBehaviour : FightTreeBehaviour, container::ListBase::Node at +0x68; vftable
+0x10E05340), the ambient traffic car. Of the 63 functions of the range 41 match, 8 are EQUIVALENT (see below), 8 are
+NONMATCHING and 6 are not started; the unit also holds 19 neighbours outside the range (the path ring, the speed
+update 0x104468F0, the plane tests 0x10446700 / 0x10446890, the stopping distance 0x10445A40 / 0x10445A60, the yaw
+rate 0x10445960 ...), which are reconstructed so their callers keep ecx and edx across the call.
+
+Layout facts the unit uses (names are guesses except the reflected ones):
+
+- `VehicleBehaviour`: `extents` (half the size of the car) at +0x78, `halted` at +0x84, the path ring `path88` at +0x88
+  (read cursor, write cursor, block, block end; nodes of 0x18 bytes), the byte +0x9C "update again", `unknownA0` /
+  `unknownA4` at +0xA0 / +0xA4 (A4 is the start state: 0 free, 2 parked and waiting).
+- `VehicleBehaviourAmbient`: wait timer +0xA8, `vehicleProperties` (maxSpeed +0x18, accelerationForce +0x1C, braking
+  force +0x20, wheel radius +0x24, damage fields to +0x30) at +0xEC, speed +0xD4, name +0xE0, speed / acceleration /
+  braking of this car +0xF0 / +0xF4 / +0xF8, target speed +0xFC, `simulated` +0x100, desired facing +0x104, the facing
+  of the car +0x110, physics handle +0x11C, steering angle +0x120, the blocker (game object handle +0x124, point
+  +0x128, answer +0x134), the three wheel pairs (spin, steer, two part indices; 0x10 bytes each) from +0x140, the
+  "changing lanes" byte +0x170, a random number below three +0x174, mode +0x188 (0 wheeled model, 1 parked,
+  2 skidding, 4 dead), the distance to the next node +0x198 / +0x19C.
+- `NavArea` (the engine's 0x40-byte navigation records, `gNavMesh->areas`): a plane (normal, offset) at +0x10, a state
+  at +0x20 (0, 4, 5, 6, 7 close the area to cars), the list of the cars standing in it at +0x28 and their count at
+  +0x38. `unknown74` is the area the car stands in; `NavArea::AddVehicle` / `RemoveVehicle` (0x105680A0 / 0x105680D0)
+  take the car's list node (+0x68). `AreaLink::owner` (the index of the object a road segment belongs to) selects
+  a handle in `gNavMesh->handles` (+0x28).
+- The report-once flags of `VEHICLE_ASSERT_NOT_NAN` are function-local statics of 1 byte, mapped one by one in
+  symbols.txt (0x1108CD00 - 0x1108CDD9, descending in the order of the asserts of a function).
+
+What the unit showed about the compiler (each of these decided a function):
+
+- A `math::Vector` local built from the matrix row (`math::Vector p(m[3][0], m[3][1], m[3][2])`) and a second local
+  built from arithmetic on it, then copied component by component into the member, gives the engine's loads and
+  stores; assigning the member directly or keeping scalars does not (0x104470A0, 0x1044E200, 0x10446A70).
+- The length of a difference is `sqrt(d.Dot(d))` (0x104482B0): the compiler then adds the squares in the order z, x, y
+  that the engine has; spelling the sum of the squares out lets it pick another order.
+- A sign (-1, 0, 1) of a float is `(x < 0.0f) ? -1.0f : ((x > 0.0f) ? 1.0f : 0.0f)` in 0x10446A70 and the if / else
+  form in 0x104468F0; the clamp of the steering angle is `(a < max) ? a : max`.
+- A temporary of a class with a user-declared copy constructor is constructed in place in the argument (push ecx /
+  mov ecx, esp / call constructor): core::BitField<unsigned short> got an inline copy constructor for the nav query
+  (0x1044C040); the pure3d code that includes it is unchanged.
+- `GetGameObjectEntries()[index]` checks (index, serial, object) in the order of the handle: written out, the three
+  tests share one exit (0x1044D200); `GameObjectHandle::Get()` makes three exits.
+- The engine's `PathRing::At` and `Count` are inlined in some functions and called in others; a function that calls
+  `Count` first and then loops with `At` inlined (0x1044D730) keeps `Count` out of line the second time too.
+- `x - x` is not folded; `-v` loads the -0.0 constant and subtracts.
+- A ternary of two handles (`cond ? global : GameObjectHandle()`) selects by pointer; the engine stores the global
+  into the temporary, so 0x104485E0 stays EQUIVALENT.
+
+EQUIVALENT (compiled into the DLL in place of the engine's code; none of them has captured states yet, so the
+difftest has not run): 0x104473E0 (98 %, push of edi one instruction later), 0x10448440 (54 %, the car lives in a
+stack slot), 0x104485E0 (66 %, the handle of the player is selected by pointer), 0x1044AE90 (84 %, stack slots of
+the path vectors), 0x1044B110 (90 %, order of two stores), 0x1044C040 (85 %, registers of the branch and the slot
+address), 0x1044CEA0 (59 %, esi / edi in the generator steps), 0x1044D0F0 (70 %, registers) and the neighbours
+0x10446700 (87 %) and 0x10445A10 (58 %, the negation of the inline test).
+
+NONMATCHING (inside `#ifdef NONMATCHING`): 0x10447280 (12 %, the engine's frame is 0x18 bytes larger and keeps the zero
+in xmm3), 0x10447D20 (52 %, the stack copies of the start point), 0x1044A580 (55 %, the three matrix rows are read
+into registers first), 0x1044ABD0 (41 %, ebp / esi allocation and two separate read-modify-write flag updates),
+0x1044B2A0 (56 %, the engine reuses the dead float parameter's slot), 0x1044B480 (24 %), 0x1044D730 (43 %, the
+engine inlines the ring's size the second time) and 0x1044D200 (46 %, the audio message's destructor is declared out
+of line in audiomessage.h; the engine has none and shares the tail that sends the message).
+
+Not started (all are large; what is known): 0x10447740 sets the physics up (the LOD message, the object's bounds
+into a box with the identity matrix, the collision object of 0x84 bytes, the handle, the filter 0x8000 / 0x2000, the
+random speed, acceleration and brake spread and the wheel parts reset); 0x10448790 casts the rays in front of the
+car (the matrix rows copied as 16 words, the OBB sweep through 0x100F7C40 and the nearest other car by a loop over the
+physics bodies; it fills the blocker fields +0x124 - +0x138 and the distance at +0x180); 0x104490F0 is the damage
+routine (two bodies, the impulse along the contact normal scaled by the car's damage factor, a message to each body
+and the deformation message); 0x10449680 sets the car on the ground (the height and the up direction from the
+physics world, 3062 bytes); 0x1044C340 executes a lane change (the neighbour lanes from 0x10448FC0, the path nodes
+rebuilt around the new lane, 2322 bytes); 0x1044DB60 is the
+collision handler (the contact, the damage routine, the horn and the state change to mode 3).
