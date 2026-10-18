@@ -3304,11 +3304,7 @@ NONMATCHING:
   initialiser list, then -1 at +0x34, then the six words of the state block), but the engine clears the state block
   with a zero it materialises in `eax` (`xor eax, eax` after the state's constructor call) where this compiler
   reuses the zero the initialiser list left in `ebx`, and it schedules the -1 store in front of them.
-- 0x10623FB0 `RestoreDefaultPool`: scheduling, 27.4 %. Every loop, every call and every argument is the engine's
-  (the five arrays in their order, the scaled path's conversion of the display size, the vertex buffer's
-  lock/copy/unlock, the particle and shadow managers at the end), but the engine reloads the manager into `ecx`
-  later than this compiler does and interleaves the pushes with the address computations differently, which moves
-  every block behind it. The frame and the conversions themselves match.
+- 0x10623FB0 `RestoreDefaultPool` **matches** (what it took is in the last notes of this section).
 - 0x1062AA90 `dxPrimStream::dxPrimStream` matched after all (the relocation into the buffer pool resolves to the
   engine's `operator new[]` now): it is 100 % against 0x1062AA90 and no longer counted as NONMATCHING.
 
@@ -3379,9 +3375,13 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   `+= users` form leave `users = 1` behind the element count.
 - 0x1061C600 `dxTexture::Lock` stays EQUIVALENT (8 %): the engine has two `return false` blocks (early returns) and does
   not clear the two surface pointers; both bring it to 14.6 % only, `level` stays cached in ebx (engine: re-read).
-- 0x10623FB0 `RestoreDefaultPool` stays EQUIVALENT (27.4 %): the engine does not tail-merge the two
-  `ReportAllocationFailure` calls of each texture / target branch (each branch recomputes `&textures[i]` with other
-  registers); a device local in a branch makes it worse.
+- 0x10623FB0 `RestoreDefaultPool` **matches**: the vertex buffer's lock goes through a `void* data` local and a named buffer
+  local (not a `D3DLOCKED_RECT`), the surface fix-up behind a texture's creation is written once as an inline function
+  that both creation branches call (the engine keeps a copy in each branch and does not tail-merge the two
+  `ReportAllocationFailure` calls), and the vertex buffer's output pointer is read as `Begin()[i]`: with the plain
+  `operator[]` there this compiler turns the operands of one address in the depth/stencil loop around (`[esi+eax]` against
+  `[eax+esi]`, one byte); the same single change at the index buffer's or a render target's output pointer does it too, so
+  the choice is arbitrary.
 - 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (36 %, 1400 of 1517 bytes); not reworked.
 
 ## Merge notes (2026-10-16)

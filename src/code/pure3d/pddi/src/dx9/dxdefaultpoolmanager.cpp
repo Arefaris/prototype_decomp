@@ -213,14 +213,21 @@ namespace pure3d
 		core::CriticalSectionLeave(gDefaultPoolLock);
 	}
 
+	// The texture made again gets its first level's surface back
+	static inline void RemakeTextureSurface(unsigned int i)
+	{
+		if (*gDefaultPoolManager->textures[i]->texture != 0
+			&& gDefaultPoolManager->textures[i]->surface != 0)
+		{
+			(*gDefaultPoolManager->textures[i]->texture)->lpVtbl->GetSurfaceLevel(
+				*gDefaultPoolManager->textures[i]->texture, 0, gDefaultPoolManager->textures[i]->surface);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10623FB0
-	// EQUIVALENT: scheduling, 27.4 %. Every loop, every call and every argument is the engine's (the five arrays in
-	// their order, the scaled path's unsigned-int conversion of the display size, the vertex buffer's lock/copy/unlock,
-	// the particle and shadow managers at the end); the engine reloads the manager into ecx later than this compiler
-	// does and interleaves the pushes with the address computations differently, which shifts every block behind it.
-	// The frame and the conversions themselves (fnstcw / fldcw / fistp) do match.
-	// The engine also keeps a ReportAllocationFailure call in each of the two creation branches (each recomputing the
-	// record's address) where this compiler merges them.
+	// The surface fix-up behind a texture's creation is expanded in both branches, as the engine has it, and the
+	// vertex buffer's output pointer is read through the array's first element: with the plain element access
+	// this compiler turns the operands of a later address (the depth/stencil loop's) around.
 	void RestoreDefaultPool()
 	{
 		if (gDefaultPoolManager->released)
@@ -236,6 +243,7 @@ namespace pure3d
 						gDefaultPoolManager->textures[i]->usage, gDefaultPoolManager->textures[i]->format,
 						D3DPOOL_DEFAULT, gDefaultPoolManager->textures[i]->texture, 0);
 					ReportAllocationFailure(result, "texture");
+					RemakeTextureSurface(i);
 				}
 				else
 				{
@@ -249,12 +257,7 @@ namespace pure3d
 						gDefaultPoolManager->textures[i]->format, D3DPOOL_DEFAULT,
 						gDefaultPoolManager->textures[i]->texture, 0);
 					ReportAllocationFailure(result, "texture");
-				}
-				if (*gDefaultPoolManager->textures[i]->texture != 0
-					&& gDefaultPoolManager->textures[i]->surface != 0)
-				{
-					(*gDefaultPoolManager->textures[i]->texture)->lpVtbl->GetSurfaceLevel(
-						*gDefaultPoolManager->textures[i]->texture, 0, gDefaultPoolManager->textures[i]->surface);
+					RemakeTextureSurface(i);
 				}
 			}
 			for (unsigned int i = 0; i < gDefaultPoolManager->vertexBuffers.Size(); i++)
@@ -262,16 +265,15 @@ namespace pure3d
 				HRESULT result = gDefaultPoolManager->device->lpVtbl->CreateVertexBuffer(
 					gDefaultPoolManager->device, gDefaultPoolManager->vertexBuffers[i]->length,
 					gDefaultPoolManager->vertexBuffers[i]->usage, gDefaultPoolManager->vertexBuffers[i]->fvf,
-					D3DPOOL_DEFAULT, gDefaultPoolManager->vertexBuffers[i]->buffer, 0);
+					D3DPOOL_DEFAULT, gDefaultPoolManager->vertexBuffers.Begin()[i]->buffer, 0);
 				ReportAllocationFailure(result, "vertex buffer");
 				if (gDefaultPoolManager->vertexBuffers[i]->data != 0)
 				{
-					D3DLOCKED_RECT locked;
-					locked.Pitch = 0;
-					HRESULT lockResult = (*gDefaultPoolManager->vertexBuffers[i]->buffer)->lpVtbl->Lock(
-						*gDefaultPoolManager->vertexBuffers[i]->buffer, 0, 0, &locked, D3DLOCK_DISCARD);
+					void* data = 0;
+					IDirect3DVertexBuffer9* vertexBuffer = *gDefaultPoolManager->vertexBuffers[i]->buffer;
+					HRESULT lockResult = vertexBuffer->lpVtbl->Lock(vertexBuffer, 0, 0, &data, D3DLOCK_DISCARD);
 					ReportAllocationFailure(lockResult, "vertex buffer");
-					memcpy(locked.pBits, gDefaultPoolManager->vertexBuffers[i]->data,
+					memcpy(data, gDefaultPoolManager->vertexBuffers[i]->data,
 						gDefaultPoolManager->vertexBuffers[i]->length);
 					(*gDefaultPoolManager->vertexBuffers[i]->buffer)->lpVtbl->Unlock(
 						*gDefaultPoolManager->vertexBuffers[i]->buffer);
