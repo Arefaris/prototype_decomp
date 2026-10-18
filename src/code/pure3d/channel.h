@@ -19,6 +19,13 @@ namespace pure3d
 		FrameTime(float time);
 		// 0x106E3030: sets the frame and the time that goes with it
 		void SetFrame(short frame);
+		// 0x106E3050: sets the time and the frame that goes with it
+		void SetTime(float newTime);
+		// The exact time (inline in the engine)
+		float GetFloat() const
+		{
+			return time;
+		}
 
 		short frame;
 		float time;

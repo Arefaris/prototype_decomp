@@ -59,10 +59,25 @@ namespace pure3d
 		core::Name<core::CaseSensitiveKey>* mNames;
 	};
 
+	// The layout of the arrays of a pose (0x10 bytes): the joint count, the kinds of array that exist, the pose's flags
+	// and the memory they sit in
+	struct PoseLayout
+	{
+		unsigned int jointCount;
+		unsigned int spaces : 5;
+		unsigned char updateLocal : 1;
+		unsigned char updateWorld : 1;
+		unsigned char further : 1;
+		void* memory;
+	};
+
 	// The per-joint transforms of a pose: the rotation, translation, scale and three further kinds of three-component
 	// value, 16 bytes per joint each
 	struct JointArrays
 	{
+		// 0x10708CA0: the arrays of a layout, one after the other from its memory
+		void Set(const PoseLayout* layout);
+
 		unsigned int mJointCount;
 		math::Quaternion* mRotations;
 		math::Vector4* mTranslations;
@@ -75,6 +90,8 @@ namespace pure3d
 	class PoseData
 	{
 	public:
+		// 0x10708260: the layout of the pose
+		void GetLayout(PoseLayout* layout);
 		// 0x107098A0: builds the local and then the joint matrices
 		void Update();
 		// 0x10708E00: the local matrices from the joint transforms (flag 1), leaves flag 2 for UpdateWorld

@@ -28,6 +28,19 @@ namespace choreo
 		void Blend(pure3d::JointArrays* arrays, unsigned int first, unsigned int last, const pure3d::JointMask* mask,
 			const pure3d::SkeletonData* rest, pure3d::FrameTime time, bool full, float weight);
 
+		// 0x10952ED0 / 0x10952F90 / 0x109530F0: what the channels give for the root: the rotation and the
+		// translation that carry it from one frame to the other (the second frame first when not forward), and the
+		// root's scale at a time. They answer whether there were channels to read.
+		int GetRootRotation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Quaternion* out);
+		bool GetRootTranslation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Vector* out);
+		bool GetRootScale(pure3d::FrameTime time, math::Vector* out);
+
+		// 0x10954E00 / 0x10954C20: lay the channels at time over a two-component value / over the local matrices of a
+		// pose (only the joints of the mask when there is one) by weight
+		void BlendValue(pure3d::FrameTime time, float* value, float weight);
+		void BlendMatrices(math::Matrix* matrices, const pure3d::JointMask* mask, const pure3d::SkeletonData* skeleton,
+			pure3d::FrameTime time, float weight);
+
 		pure3d::QuaternionChannel* mRotations[MAX_JOINTS];
 		pure3d::VectorChannel* mTranslations[MAX_JOINTS];
 		pure3d::VectorChannel* mUnknown10[MAX_JOINTS];
