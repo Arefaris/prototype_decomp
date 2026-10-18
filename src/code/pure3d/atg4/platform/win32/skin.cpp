@@ -235,7 +235,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B610
-	// NONMATCHING: the four-bone blend: the engine loads the first bone's rows and the vertex's vectors earlier and keeps the blended rows in memory (frame 0xA4, ours 0x74), the translation row's first product comes late; the loop's counter, guard and pre-header are the engine's, 16.6 %
+	// NONMATCHING: the four-bone blend: the engine loads the first bone's rows and the vertex's vectors earlier and keeps the blended rows in memory (frame 0xA4, ours 0x74), the translation row's first product comes late; the loop's counter, guard and pre-header are the engine's, 16.6 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 59.4 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -291,7 +291,7 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071BBD0
-	// NONMATCHING: the four-bone blend (see 0x1071B610): frame 0x64 against ours 0x54, 35.1 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610): frame 0x64 against ours 0x54, 35.1 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 61.0 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -389,7 +389,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071C0C0
-	// NONMATCHING: the four-bone blend (see 0x1071B610): the loop, its pre-header and the frame are the engine's; the first bone's rows come out in other registers and the translation row's product is not delayed, 43.2 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610), 63.2 % (717 bytes, the engine's size: the function ends with the epilogue after the last store): the rows as values walked with `*p++`, the blended rows written through pointers to `__m128` locals, the position loaded after the blend; the engine delays the first bone's translation row product until after the second bone and spills an accumulator, this compiler keeps all eight values in registers
 #ifdef NONMATCHING
 	void SkinState::Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -413,9 +413,49 @@ namespace pure3d
 		math::Vector4* dst = out;
 		for (unsigned int i = 0; i < (unsigned int)count; i++)
 		{
-			__m128 v0 = _mm_load_ps(&vertices->position.x);
+			const __m128* bp0 = (const __m128*)&matrices[vertices->bones[0]];
+			const __m128* bp1 = (const __m128*)&matrices[vertices->bones[1]];
+			const __m128* bp2 = (const __m128*)&matrices[vertices->bones[2]];
+			const __m128* bp3 = (const __m128*)&matrices[vertices->bones[3]];
+			__m128 w = _mm_load_ps(&vertices->weights.x);
 			__m128 m0, m1, m2, m3;
-			BlendBoneRowsInline(vertices, matrices, &vertices->weights, (math::Vector4*)&m0, (math::Vector4*)&m1, (math::Vector4*)&m2, (math::Vector4*)&m3);
+			__m128* q0 = &m0;
+			__m128* q1 = &m1;
+			__m128* q2 = &m2;
+			__m128* q3 = &m3;
+			__m128 b00 = *bp0++;
+			*q0 = _mm_mul_ps(b00, _mm_shuffle_ps(w, w, 0x00));
+			__m128 b01 = *bp0++;
+			*q1 = _mm_mul_ps(b01, _mm_shuffle_ps(w, w, 0x00));
+			__m128 b02 = *bp0++;
+			*q2 = _mm_mul_ps(b02, _mm_shuffle_ps(w, w, 0x00));
+			__m128 b03 = *bp0++;
+			*q3 = _mm_mul_ps(b03, _mm_shuffle_ps(w, w, 0x00));
+			__m128 b10 = *bp1++;
+			*q0 = _mm_add_ps(_mm_mul_ps(b10, _mm_shuffle_ps(w, w, 0x55)), *q0);
+			__m128 b11 = *bp1++;
+			*q1 = _mm_add_ps(_mm_mul_ps(b11, _mm_shuffle_ps(w, w, 0x55)), *q1);
+			__m128 b12 = *bp1++;
+			*q2 = _mm_add_ps(_mm_mul_ps(b12, _mm_shuffle_ps(w, w, 0x55)), *q2);
+			__m128 b13 = *bp1++;
+			*q3 = _mm_add_ps(_mm_mul_ps(b13, _mm_shuffle_ps(w, w, 0x55)), *q3);
+			__m128 b20 = *bp2++;
+			*q0 = _mm_add_ps(_mm_mul_ps(b20, _mm_shuffle_ps(w, w, 0xAA)), *q0);
+			__m128 b21 = *bp2++;
+			*q1 = _mm_add_ps(_mm_mul_ps(b21, _mm_shuffle_ps(w, w, 0xAA)), *q1);
+			__m128 b22 = *bp2++;
+			*q2 = _mm_add_ps(_mm_mul_ps(b22, _mm_shuffle_ps(w, w, 0xAA)), *q2);
+			__m128 b23 = *bp2++;
+			*q3 = _mm_add_ps(_mm_mul_ps(b23, _mm_shuffle_ps(w, w, 0xAA)), *q3);
+			__m128 b30 = *bp3++;
+			*q0 = _mm_add_ps(_mm_mul_ps(b30, _mm_shuffle_ps(w, w, 0xFF)), *q0);
+			__m128 b31 = *bp3++;
+			*q1 = _mm_add_ps(_mm_mul_ps(b31, _mm_shuffle_ps(w, w, 0xFF)), *q1);
+			__m128 b32 = *bp3++;
+			*q2 = _mm_add_ps(_mm_mul_ps(b32, _mm_shuffle_ps(w, w, 0xFF)), *q2);
+			__m128 b33 = *bp3++;
+			*q3 = _mm_add_ps(_mm_mul_ps(b33, _mm_shuffle_ps(w, w, 0xFF)), *q3);
+			__m128 v0 = _mm_load_ps(&vertices->position.x);
 			__m128 r0 = BlendRows4Inline(m0, m1, m2, m3, v0);
 			((float*)&r0)[3] = 1.0f;
 			_mm_storeu_ps(&dst->x, r0);
@@ -477,7 +517,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071C530
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets: the tangent is added to in place and its fourth lane is read right after the load, as in 0x1071CA40; 30.7 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets: the tangent is added to in place and its fourth lane is read right after the load, as in 0x1071CA40; 30.7 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 43.8 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -576,8 +616,6 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071CA40
-	// NONMATCHING: 99.4 %, the engine's instructions and frame; the two registers that hold the tangent and the normal's offset vector in the loop's head trade places (xmm2 / xmm3, three instructions). The tangent is added to in place and its fourth lane is read right after the load, which puts it and the result into one stack slot and the offsets into the engine's slot order
-#ifdef NONMATCHING
 	void SkinState::Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -604,12 +642,12 @@ namespace pure3d
 			tangents = gNoVertexOffsets;
 			tangentStride = 0;
 		}
-		math::Vector4 positionOffset;
-		positionOffset.w = 0.0f;
-		math::Vector4 normalOffset;
-		normalOffset.w = 0.0f;
-		math::Vector4 tangentOffset;
-		tangentOffset.w = 0.0f;
+		__m128 positionOffset;
+		((float*)&positionOffset)[3] = 0.0f;
+		__m128 normalOffset;
+		((float*)&normalOffset)[3] = 0.0f;
+		__m128 tangentOffset;
+		((float*)&tangentOffset)[3] = 0.0f;
 		math::Vector4* __restrict dst = out;
 		__m128 maxBounds;
 		((float*)&maxBounds)[0] = -1e12f;
@@ -627,21 +665,21 @@ namespace pure3d
 			__m128 v1 = _mm_load_ps(&vertices->normal.x);
 			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
 			float tangentW = ((float*)&v2)[3];
-			positionOffset.x = positions[0];
-			positionOffset.y = positions[1];
-			positionOffset.z = positions[2];
+			((float*)&positionOffset)[0] = positions[0];
+			((float*)&positionOffset)[1] = positions[1];
+			((float*)&positionOffset)[2] = positions[2];
 			positions += positionStride;
-			normalOffset.x = normals[0];
-			normalOffset.y = normals[1];
-			normalOffset.z = normals[2];
+			((float*)&normalOffset)[0] = normals[0];
+			((float*)&normalOffset)[1] = normals[1];
+			((float*)&normalOffset)[2] = normals[2];
 			normals += normalStride;
-			tangentOffset.x = tangents[0];
-			tangentOffset.y = tangents[1];
-			tangentOffset.z = tangents[2];
+			((float*)&tangentOffset)[0] = tangents[0];
+			((float*)&tangentOffset)[1] = tangents[1];
+			((float*)&tangentOffset)[2] = tangents[2];
 			tangents += tangentStride;
-			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
-			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
-			v2 = _mm_add_ps(v2, _mm_load_ps(&tangentOffset.x));
+			__m128 p0 = _mm_add_ps(v0, positionOffset);
+			__m128 p1 = _mm_add_ps(v1, normalOffset);
+			v2 = _mm_add_ps(v2, tangentOffset);
 			const __m128* p = (const __m128*)&matrices[vertices->bones[0]];
 			const __m128& m0 = *p++;
 			const __m128& m1 = *p++;
@@ -671,10 +709,9 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071CDC0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets, 34.5 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets, 34.5 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 35.2 % (one byte short), never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -828,7 +865,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071D440
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the position offset (one for all the vertices, read ahead of the loop), 40.7 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the position offset (one for all the vertices, read ahead of the loop), 40.7 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 66.4 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -942,7 +979,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071D960
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, 30.0 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, 30.0 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 34.0 % (six bytes short), never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1060,7 +1097,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071DFF0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, frame 0x74 against ours 0x64, 33.2 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, frame 0x74 against ours 0x64, 33.2 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 72.9 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1168,7 +1205,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071E5D0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, frame 0x64 against ours 0x54, 34.9 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position, frame 0x64 against ours 0x54, 34.9 %; with mixed per-bone spellings of the blend (rows as values, references or indexed, the blended rows written through pointers to `__m128` locals, the splats and the vertex loads moved) a search reaches 66.4 %, never the engine's spills
 #ifdef NONMATCHING
 	void SkinState::Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1770,8 +1807,18 @@ namespace pure3d
 		unknown294 = value;
 	}
 
+	// Points a stream of the destination at its first vertex (the start, the current position and the end). The
+	// engine's stores go through the stream's address: the loads of the next stream stay behind them.
+	__forceinline void BeginStream(SkinStream* stream, int base, int count)
+	{
+		int start = stream->offset + base;
+		stream->end = stream->stride * count + start;
+		stream->start = start;
+		stream->current = start;
+	}
+
 	// FUNCTION: ENGINE 0x10720CF0
-	// EQUIVALENT: the engine's instructions in its registers and frame, 91.3 %; the order of the loads and the multiply in the three stream set-ups, of the flag test in front of the third one and of one store and the load of the format word in the queueing branch differs
+	// EQUIVALENT: the engine's instructions in its registers and frame, 97.5 %; the test of gSkinAsync comes after the third stream's stores (the engine: before them) and the load of the format word in the queueing branch after the store of hasTangents (the engine: before it). The first two streams are set up through their address (BeginStream), which keeps the loads of the next stream behind the stores as in the engine
 	void SkinState::Unknown10720CF0()
 	{
 		if (unknown2AE)
@@ -1806,14 +1853,8 @@ namespace pure3d
 			"Bad Skin src ptr");
 		ShaderParameters skinParameters;
 		skin->GetParameters(&skinParameters);
-		int start0 = streams[0].offset + destLock.unknown108;
-		streams[0].end = streams[0].stride * destLock.unknown0 + start0;
-		streams[0].start = start0;
-		streams[0].current = start0;
-		int start1 = streams[1].offset + destLock.unknown108;
-		streams[1].end = streams[1].stride * destLock.unknown0 + start1;
-		streams[1].start = start1;
-		streams[1].current = start1;
+		BeginStream(&streams[0], destLock.unknown108, destLock.unknown0);
+		BeginStream(&streams[1], destLock.unknown108, destLock.unknown0);
 		int start2 = streams[2].offset + destLock.unknown108;
 		streams[2].start = start2;
 		streams[2].current = start2;

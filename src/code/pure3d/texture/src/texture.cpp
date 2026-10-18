@@ -475,26 +475,30 @@ namespace pure3d
 		}
 	}
 
+	// Clears a lock description before the texture fills it in (the zero stores go through a pointer: written on the
+	// local itself, the compiler orders two commutative operands of UploadLevel the other way round)
+	__forceinline void ClearLock(TextureLock* lock)
+	{
+		lock->bits = 0;
+		lock->slice = 0;
+		lock->width = 0;
+		lock->height = 0;
+		lock->format = 0;
+		lock->pitch = 0;
+		lock->size = 0;
+		lock->unknown1C = 0;
+		lock->offset = 0;
+	}
+
 	// FUNCTION: ENGINE 0x1072ADB0
-	// EQUIVALENT: the same reads, locks and stream reads in the same order, registers and schedule as the engine's
-	// (98.1 %); only the operand order of the destination's sum (`lea esi, [eax + edx]`) and of the pitch times the
-	// first row (`mov ecx, pitch; imul ecx, y`) is the other way round, and no source order, declaration order,
-	// field type or loop form of the skip changed that. The row bytes are computed before the x offset (that keeps the
-	// rect in esi and the bits per pixel in ebx); the block adjustments follow in the order that gives the engine's
-	// interleaving. The dword-wide test of the rect's x is the constant-first comparison.
+	// The row bytes are computed before the x offset (that keeps the rect in esi and the bits per pixel in ebx); the
+	// block adjustments follow in the order that gives the engine's interleaving. The dword-wide test of the rect's x
+	// is the constant-first comparison.
 	// Reads one level (or the part of it `rect` names) of a slice of the texture from the stream
 	static bool UploadLevel(content::ChunkStream* stream, Texture* texture, const UploadRect* rect, int level, int slice)
 	{
 		TextureLock lock;
-		lock.bits = 0;
-		lock.slice = 0;
-		lock.width = 0;
-		lock.height = 0;
-		lock.format = 0;
-		lock.pitch = 0;
-		lock.size = 0;
-		lock.unknown1C = 0;
-		lock.offset = 0;
+		ClearLock(&lock);
 		if (!texture->info->Lock(&lock, 2, level, slice))
 		{
 			return false;
@@ -565,15 +569,7 @@ namespace pure3d
 	static void SaveLevel(int level, int slice, OutputStream* stream, Texture* texture)
 	{
 		TextureLock lock;
-		lock.bits = 0;
-		lock.slice = 0;
-		lock.width = 0;
-		lock.height = 0;
-		lock.format = 0;
-		lock.pitch = 0;
-		lock.size = 0;
-		lock.unknown1C = 0;
-		lock.offset = 0;
+		ClearLock(&lock);
 		if (texture->info->Lock(&lock, 1, level, slice))
 		{
 			unsigned int width = lock.width;
@@ -706,6 +702,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1072B230
 	// EQUIVALENT: the same loops and calls in the same order; the engine passes the texture in edi, ours on the
 	// stack (7.4 %)
+	// With two nested loops whose outer counter is used in the inner one this compiler gives no parameter a register.
 	// Reads the slices of every level of a volume texture
 	static void UploadVolumeLevels(content::ChunkStream* stream, bool dropTop, Texture* texture, const TextureDescription* description)
 	{
