@@ -43,8 +43,14 @@ def load(coffPath, symbol, writer, codeBase, dataBase, unitMode=False, fallback=
 	cursors = {"code": codeBase, "data": dataBase}
 	bases = {}
 
+	def writableData(section):
+		return coff.sections[section - 1]["name"].startswith((".data", ".bss"))
+
 	def resolve(target, section, value):
-		if target in symbols and not (unitMode and target in defined):
+		# in unit mode our own functions and read-only tables (vftables) shadow the engine's; a writable data object
+		# symbols.txt maps (a function-local static) stays at the engine's address, as the relink makes the image's
+		# references reach one copy, and both runs then read and write the same state
+		if target in symbols and not (unitMode and target in defined and not writableData(defined[target][1])):
 			loaded.engineRefs[target] = symbols[target]
 			return symbols[target]
 		if section > 0:

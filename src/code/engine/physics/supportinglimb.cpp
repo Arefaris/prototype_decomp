@@ -124,13 +124,14 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F3250
-	// EQUIVALENT: the engine returns through the argument's stack slot; ours spills the result to a new slot
+	// EQUIVALENT: the engine returns through the argument's stack slot; ours spills the result to a new slot. The first
+	// test is `!(first >= velocity)`, as the engine branches on it (an unordered velocity enters the search)
 	float SupportingLimbDefinition::SmoothingVelocityMap::Evaluate(float characterVelocity) const
 	{
 		const Entry* entry = map.Begin();
 		float lastVelocity = entry->characterVelocity;
 		float smoothing = entry->smoothingVelocity;
-		if (lastVelocity < characterVelocity)
+		if (!(lastVelocity >= characterVelocity))
 		{
 			for (entry++; entry != map.End(); entry++)
 			{
@@ -164,7 +165,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F33B0
-	// EQUIVALENT: the engine reloads the cast direction after storing the axis; ours keeps its components on the stack
+	// EQUIVALENT: the engine reloads the cast direction after storing the axis; ours keeps its components on the stack.
+	// The comparisons are written as the engine branches on them: an unordered pair takes the same side
 	void SupportingLimb::UpdateBasis()
 	{
 		// The axis along the smallest component of the cast direction, then two perpendiculars from it
@@ -174,8 +176,8 @@ namespace engine
 			size[0] = fabsf(castDirection.x);
 			size[1] = fabsf(castDirection.y);
 			size[2] = fabsf(castDirection.z);
-			smallest = size[1] <= size[0] ? 1 : 0;
-			if (size[2] <= size[smallest])
+			smallest = size[1] > size[0] ? 0 : 1;
+			if (!(size[2] > size[smallest]))
 			{
 				smallest = 2;
 			}

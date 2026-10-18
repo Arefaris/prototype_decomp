@@ -180,6 +180,17 @@ def annotated(statuses=("equivalent",)):
 	return result
 
 
+_replaced = None
+
+
+def replacedFunctions():
+	"""Addresses of the functions the build compiles (match and equivalent): the hybrid DLL runs ours in their place."""
+	global _replaced
+	if _replaced is None:
+		_replaced = {address for address, status, unit in annotated(("match", "equivalent"))}
+	return _replaced
+
+
 def locate(address):
 	"""The unit, annotation status and compiled object of the function annotated at `address`."""
 	for unit in units():

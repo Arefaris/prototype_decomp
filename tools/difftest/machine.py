@@ -164,6 +164,7 @@ class Machine:
 		self.functionStarts = functionStarts or set()
 		self.watch = list(watch)  # [(start, end)] ranges whose instructions are recorded
 		self.image = project.image()
+		self.iatPages = None
 		self.layout = Layout(state)
 		self.executable = [(self.image.base, self.image.end), (self.layout.code, self.layout.data), (self.layout.ret, self.layout.ret + PAGE)]
 		self.exports = externals.Exports(self.readSnapshot)
@@ -238,13 +239,32 @@ class Machine:
 			return self.state.live(page)
 		return None
 
+	def imageCode(self, page):
+		"""The original's bytes for a page that holds no run-time state: code and constants (read-only sections) hold at
+		run time what the file holds (the DLL loads at its base, so nothing is relocated), except the import address
+		table the loader fills, whose pages are never taken from the file."""
+		if self.iatPages is None:
+			slots = list(self.image.imports().values())
+			self.iatPages = {a & ~(PAGE - 1) for a in range(min(slots) & ~(PAGE - 1), max(slots) + 4, PAGE)} if slots else set()
+		if page in self.iatPages:
+			return None
+		for name, start, end, writable, executable in self.image.sections:
+			if not writable and start <= page and page + PAGE <= (end + PAGE - 1) & ~(PAGE - 1):
+				return self.image.read(page, PAGE)
+		return None
+
 	def pageBytes(self, page):
 		"""A page's bytes with the overlay applied, or None. Any page read from the snapshot or the live
 		process is recorded in `touched` so a live capture can save exactly the pages its runs used."""
 		data = self.pageData(page)
 		if data is None:
-			return None
-		self.touched.add(page)
+			# a code page no run of the capture touched is the DLL's own: the original's .text holds the same bytes at
+			# run time (it loads at its base, so nothing is relocated), and its pages need not be in the snapshot
+			data = self.imageCode(page)
+			if data is None:
+				return None
+		else:
+			self.touched.add(page)
 		patches = self.overlayPages.get(page)
 		if patches:
 			data = bytearray(data)
@@ -534,7 +554,7 @@ class Machine:
 			words = struct.unpack("<9I", frame) if frame is not None and len(frame) == 36 else (0,) * 9
 			call = {"address": address, "name": self.calleeName(address), "esp": esp, "ret": words[0],
 				"args": words[1:], "ecx": uc.reg_read(UC_X86_REG_ECX), "edx": uc.reg_read(UC_X86_REG_EDX),
-				"eax": uc.reg_read(UC_X86_REG_EAX), "external": False}
+				"eax": uc.reg_read(UC_X86_REG_EAX), "external": False, "writes": len(self.trace.writes)}
 			self.frameArguments(call)
 			self.trace.calls.append(call)
 		if PROFILE:
@@ -647,7 +667,7 @@ class Machine:
 			self.trace.stubbed.append(name)
 		call = {"address": target, "name": name, "esp": esp, "ret": returnAddress, "args": words[1:1 + count],
 			"ecx": uc.reg_read(UC_X86_REG_ECX), "edx": uc.reg_read(UC_X86_REG_EDX), "eax": uc.reg_read(UC_X86_REG_EAX),
-			"external": True, "cleanup": cleanup, "returned": value, "performed": performed}
+			"external": True, "cleanup": cleanup, "returned": value, "performed": performed, "writes": len(self.trace.writes)}
 		self.frameArguments(call)
 		self.trace.calls.append(call)
 		uc.reg_write(UC_X86_REG_EAX, value)

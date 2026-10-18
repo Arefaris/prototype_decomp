@@ -154,7 +154,9 @@ namespace choreo
 
 	// FUNCTION: ENGINE 0x10953160
 	// EQUIVALENT: the same vector operations in the same order; scheduling and register allocation differ. The
-	// rotations of this buffer are laid over the ones at destination, up to the buffer's end
+	// rotations of this buffer are laid over the ones at destination, up to the buffer's end. The engine's copy leaves its
+	// two stack arguments to the caller (plain ret); ours pops them (ret 8). Its only callers are the two sites in
+	// SampleChannels::Blend, which ours replaces as well, so the hybrid DLL calls ours consistently
 	void RotationBuffer::BlendInto(__m128 t, __m128* destination, const __m128* end)
 	{
 		__m128 one = gOne;

@@ -72,6 +72,7 @@ class FunctionTest:
 		self.pageStore = pageStore or store.PageStore()
 		self.lines = []
 		self.noted = False
+		self.callersReplaced = False
 		self.touched = {}  # state path -> set of snapshot pages the runs on it read or wrote
 
 	def say(self, text=""):
@@ -96,15 +97,23 @@ class FunctionTest:
 		oursInputs = cfg.registerInputs(oursCode, 0)
 		self.say("convention: engine ret %s, ours ret %s; register inputs engine %s, ours %s; %s per the name"
 			% (sorted(self.rets), sorted(oursRets), sorted(engineInputs) or "-", sorted(oursInputs) or "-", project.callingConvention(self.symbol)))
+		sites, words = cfg.directCallSites(self.image, self.address)
 		if oursRets and self.rets and oursRets != self.rets:
-			findings.append(compare.Finding("FAIL", "convention", "stack cleanup differs: engine ret %s, ours ret %s" % (sorted(self.rets), sorted(oursRets))))
+			# a function only ever called from functions the build compiles too is called by ours with its own
+			# cleanup (the hybrid DLL replaces the callers as well): the difference matters only for a caller that stays
+			replaced = project.replacedFunctions()
+			if sites and not words and all(self.containingFunction(site) in replaced for site, viaThunk in sites):
+				self.callersReplaced = True
+				findings.append(compare.Finding("NOTE", "convention", "stack cleanup differs (engine ret %s, ours ret %s); every caller is compiled from our sources too, so the hybrid DLL calls ours consistently"
+					% (sorted(self.rets), sorted(oursRets))))
+			else:
+				findings.append(compare.Finding("FAIL", "convention", "stack cleanup differs: engine ret %s, ours ret %s" % (sorted(self.rets), sorted(oursRets))))
 		extra = oursInputs - engineInputs - {"ebp"}
 		if extra:
 			findings.append(compare.Finding("FAIL", "convention", "ours reads %s before writing them; the engine's function does not take them" % sorted(extra)))
 		missing = engineInputs - oursInputs - {"ebp"}
 		if missing:
 			findings.append(compare.Finding("WARN", "convention", "the engine's function takes %s; ours never reads them" % sorted(missing)))
-		sites, words = cfg.directCallSites(self.image, self.address)
 		pushes = {}
 		regsSet = {}
 		cleanups = {}
@@ -171,7 +180,10 @@ class FunctionTest:
 			oursTimeout = min(oursTimeout, max(0.001, deadline - time.time()))
 		oursTrace = emulator.run(loaded.entry, self.argBytes, self.budget, oursTimeout, watch=[oursRange])
 		context = compare.Context(emulator, emulator, self.returnKind, self.argBytes, engineRange, oursRange)
+		context.callersReplaced = self.callersReplaced
 		context.placedVtables = {a: n for n, a in loaded.placed.items() if n.startswith("??_7")}
+		context.dataSections = [(base, base + size) for base, size, name in loaded.sections.values() if not name.startswith(".text")]
+		context.dataSymbols = sorted(a for n, a in loaded.placed.items() if context.layout.data <= a < context.layout.ret)
 		findings = compare.compareTraces(engineTrace, oursTrace, context)
 		result = Result(label, findings, engineTrace, oursTrace, context)
 		result.loaded = loaded
@@ -216,9 +228,12 @@ class FunctionTest:
 			realResults.append(result)
 			self.report(result, verbose, time.time() - t0)
 		errors = [r for r in realResults if r.error]
-		if errors:
+		if errors and len(errors) == len(realResults):
 			self.say("verdict: INCONCLUSIVE (%s)" % errors[0].error)
 			return "INCONCLUSIVE"
+		# a state ours cannot be placed on (an import the state lacks) is left out; the others decide
+		states = [path for r, path in zip(realResults, states) if not r.error]
+		realResults = [r for r in realResults if not r.error]
 		realHit = self.blocksHit([r.engine for r in realResults])
 		self.say("coverage on real states: %d/%d engine blocks" % (len(realHit), len(self.blocks)))
 		variantResults = []
