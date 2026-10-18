@@ -5033,7 +5033,7 @@ _luaL_error = 0x10639480 ; function size:0x31 | luaL_error (Lua 5.1)
 ?Create@ShadowRenderManager@pure3d@@SAXH@Z = 0x10716830 ; function size:0x7A | pure3d::ShadowRenderManager::Create: the shadow map heap and the manager over it (name guess)
 ?CreateGameHeaps@proto@@YAXXZ = 0x104E1ED0 ; function size:0x51E | proto::CreateGameHeaps: the heaps the game allocates from (name and file name guesses)
 ?UpdateLevel@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA700 ; function size:0xB1 | proto::LODRenderBehaviour::UpdateLevel: the level the fade position asks for (name guess)
-?AddDent@DeformShaderBehaviour@proto@@QAE_NABVVector@math@@MMM@Z = 0x102D4350 ; function size:0x6B | proto::DeformShaderBehaviour::AddDent: stores one more dent (name guess)
+?AddDent@DeformShaderModifier@DeformShaderBehaviour@proto@@QAE_NABVVector@math@@MMM@Z = 0x102D4350 ; function size:0x6B | proto::DeformShaderBehaviour::DeformShaderModifier::AddDent: stores one more dent (name guess)
 ?Push@DentBuffer@proto@@QAE_NABUDent@2@@Z = 0x102D41C0 ; function size:0x5E | proto::DentBuffer::Push: appends a dent when the four slots are free (name guess)
 ?ChangeDrawableLevels@LODRenderBehaviour@proto@@QAEXIPBULODLevel@2@0@Z = 0x102DA3A0 ; function size:0x143 | proto::LODRenderBehaviour::ChangeDrawableLevels (name guess)
 ?AddTriggerPackages@engine@@YAXPAV?$ArrayDynamic@PAVStreamPackage@engine@@U?$AllocatorCoreStatic@$0M@$0BA@@container@@@container@@PAVStreamTrigger@1@ABVTagSet@1@HH@Z = 0x1082DB20 ; function size:0xB8 | engine::AddTriggerPackages: the packages of a trigger and its neighbours (name guess)
@@ -6371,3 +6371,7 @@ __RTDynamicCast = 0x10A88356 ; function size:0x6 | the CRT's dynamic_cast helper
 ?gRampTexture@pure3d@@3PAVdxTexture@1@A = 0x11276D5C ; data size:0x4 | pure3d: a texture the dx9 back end keeps for materials without one (name guess)
 ?GetVertexUsage@pure3d@@YA?AUVertexUsage@1@ABV?$Name@UCaseInsensitiveKey32@core@@@core@@@Z = 0x10625BF0 ; function size:0x223 | pure3d::GetVertexUsage: the Direct3D usage a vertex semantic name stands for (name guess; static)
 ?CreateDefaultTextures@pure3d@@YAXPAUIDirect3DDevice9@@@Z = 0x1061D3A0 ; function size:0x5ED | pure3d::CreateDefaultTextures: makes the textures materials without one fall back on (name guess)
+??4DentBuffer@proto@@QAEAAV01@ABV01@@Z = 0x102D43F0 ; function size:0x71 | proto::DentBuffer::operator=: replaces the dents with another buffer's (name guess)
+??0DeformShaderModifier@DeformShaderBehaviour@proto@@QAE@XZ = 0x102D4810 ; function size:0x12 | proto::DeformShaderBehaviour::DeformShaderModifier constructor: installs the vtable and empties the dents
+?GetDrawable@DeformShaderBehaviour@proto@@QAE?AVDrawable@render@engine@@XZ = 0x102D3FA0 ; function size:0xB2 | proto::DeformShaderBehaviour::GetDrawable: asks the object for its drawable with a GetHighLODMessage (name guess)
+?Update@DeformShaderBehaviour@proto@@UAEXMG@Z = 0x102D4920 ; function size:0x25A | proto::DeformShaderBehaviour vftable slot 4: fades the dents in
