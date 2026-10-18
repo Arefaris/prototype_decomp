@@ -530,6 +530,8 @@ ring of 0x20000 values behind a free and a ready semaphore, lock-free read / wri
 | 0x10817F40 / 0x108180C0 | AllocAsyncQueueSlot (both queues) | EQUIVALENT (59.7%) | index pointer and slot in other registers |
 | 0x108186B0 / 0x10818720 | TakeAsyncQueueValue (both queues) | EQUIVALENT (30.8% / 31.9%) | other registers; the loop top is not padded |
 | 0x10817F90 / 0x10818110 | CommitAsyncQueueSlots (both queues) | EQUIVALENT (31.0% / 31.3%) | the 64-bit commit state: head in the low bits, a bitmap of the later committed slots above; other registers and spill slots |
+| 0x10819040 | InitRenderGlobals | EQUIVALENT (99.1%) | the store of the new event allocator and the load of its function table are swapped |
+| 0x10819240 / 0x108191A0 / 0x108191F0 | ShutdownRenderGlobals / the tables' scalar deleting destructors | match | |
 | 0x10818B30 | SlotArray<ControllerSlot> constructor | EQUIVALENT (98.9%) | the branch for an empty range goes to the second of two identical epilogue copies, the original's to the first |
 | 0x10818E20 | HandleTable<DrawableData> constructor | EQUIVALENT (81.7%) | the block clearing the first array after a failed allocation sits behind a jump after the construct call (the original puts it after the second array's success branch); one operand order of an address |
 | 0x108182C0 / 0x108183E0 | HandleTable<DrawableData / ControllerSlot>::Alloc | EQUIVALENT (93.5% / 93.7%) | the free list pointer and the compare exchange's scratch registers are swapped |

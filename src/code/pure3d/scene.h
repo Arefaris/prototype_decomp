@@ -11,9 +11,29 @@ namespace pure3d
 {
 	class Drawable;
 
+	// What a scene is made from (0x54 bytes; the constructor 0x10711B90 sets the defaults, 0x80, 0x20, 0x400, 0x100 ...)
+	struct SceneSettings
+	{
+		SceneSettings();
+
+		int unknown0;
+		int unknown4;
+		// How many drawables the scene holds
+		int drawableCount;
+		int unknownC;
+		float unknown10;
+		unsigned char unknown14[0x30];
+		int unknown44;
+		unsigned char unknown48[0xC];
+	};
+
 	class Scene
 	{
 	public:
+		// 0x10714760 (another unit) / 0x107143A0: the destructor is not virtual
+		explicit Scene(const SceneSettings& settings);
+		~Scene();
+
 		// 0x10712410 / 0x10712540
 		virtual void Add(Drawable* drawable, int unknown);
 		virtual void Remove(Drawable* drawable);
@@ -38,7 +58,7 @@ namespace pure3d
 		void* unknownE0;
 		unsigned char unknownE4[0x38];
 		// The batches of the parts a shadow pass draws (room for as many as a pass finds)
-		const void* batches[1];
+		const void* batches[0x15B9];
 	};
 }
 

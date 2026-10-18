@@ -4,7 +4,9 @@
 #include <new>
 #include "code/core/criticalsection.h"
 #include "code/core/debug.h"
+#include "code/core/heap.h"
 #include "code/core/refptr.h"
+#include "code/pure3d/scene.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/async/renderevent.h"
 #include "code/engine/render/async/private/deferreddeletion.h"
@@ -294,15 +296,9 @@ namespace engine
 		typedef HandleTable<DrawableData> DrawableTable;
 		typedef HandleTable<ControllerSlot> ControllerTable;
 
-		// The memory the render events are made in (two virtuals used: slot 3 allocates, slot 4 frees)
-		class RenderEventAllocator
+		// The memory the render events are made in (a heap allocator)
+		class RenderEventAllocator : public core::IMemoryAllocator
 		{
-		public:
-			virtual void Slot0();
-			virtual void Slot1();
-			virtual void Slot2();
-			virtual void* Alloc(unsigned int size);
-			virtual void Free(void* block);
 		};
 
 		// A queue the game thread pushes into and the render thread pops from: a ring of 1 << Bits values behind two
@@ -610,7 +606,16 @@ namespace engine
 		// The render thread: whether it runs, and the way the frame is run (2: the game thread waits for the render thread)
 		extern bool gRenderThreadRunning;
 		extern int gRenderMode;
-		class RenderObject;
+		// The object the render thread draws the list with (0x40 bytes; another unit)
+		class RenderObject
+		{
+		public:
+			// 0x108BD150 / 0x108BCBE0
+			explicit RenderObject(RenderList* list);
+			~RenderObject();
+
+			unsigned char unknown0[0x40];
+		};
 		extern RenderObject* gRenderObject;
 
 		// FUNCTION: ENGINE 0x10817A10
@@ -797,6 +802,58 @@ namespace engine
 		template bool TryPushAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent* const& value);
 		// FUNCTION: ENGINE 0x10818C90
 		template bool TryPopAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent** value);
+
+		// What the render globals are made from (the settings of the renderer, at 0x113159B8; only what this unit reads)
+		struct RenderConfig
+		{
+			unsigned char unknown0[0x64];
+			unsigned int drawableCount;
+			int unknown68;
+			unsigned char unknown6C[4];
+			unsigned int controllerCount;
+			unsigned char unknown74[0xC];
+			// The bytes of the heap the render events are made in
+			unsigned int eventHeapSize;
+			unsigned char unknown84[0x20];
+			float unknownA4;
+		};
+
+		// FUNCTION: ENGINE 0x10819040
+		// EQUIVALENT: same operations in the same order; the store of the new allocator and the load of its function table are swapped (99.1%)
+		void InitRenderGlobals(const RenderConfig* config)
+		{
+			int heap = core::SetCurrentHeap(0x76);
+			gDrawableTable = new DrawableTable(config->drawableCount);
+			gControllerTable = new ControllerTable(config->controllerCount);
+			gDeferredDeletionManager = new DeferredDeletionManager;
+			pure3d::SceneSettings settings;
+			settings.drawableCount = config->drawableCount;
+			settings.unknownC = config->unknown68;
+			settings.unknown10 = config->unknownA4;
+			settings.unknown44 = config->unknown68;
+			gRenderList = new RenderList(settings);
+			gRenderObject = new RenderObject(gRenderList);
+			InitAsyncQueue(&gRenderEventQueue, 0);
+			InitAsyncQueue(&gRenderEventQueueSecondary, 0);
+			core::IMemoryAllocator* allocator = core::NewHeapAllocator(config->eventHeapSize, 0x76, "Render Event Queue", 0x10, false, true);
+			gRenderEventAllocator = (RenderEventAllocator*)allocator;
+			allocator->AddRef();
+			gRenderEventAllocator->SetSafetyMode(2);
+			core::SetCurrentHeap(heap);
+		}
+
+		// FUNCTION: ENGINE 0x10819240
+		void ShutdownRenderGlobals()
+		{
+			delete gDeferredDeletionManager;
+			delete gControllerTable;
+			delete gDrawableTable;
+			delete gRenderObject;
+			delete gRenderList;
+			gRenderEventAllocator->Release();
+			ShutdownAsyncQueue(&gRenderEventQueue);
+			ShutdownAsyncQueue(&gRenderEventQueueSecondary);
+		}
 
 		// The members of the arrays and tables the original keeps out of line
 		// FUNCTION: ENGINE 0x10817EB0
