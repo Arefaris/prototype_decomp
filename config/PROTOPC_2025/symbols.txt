@@ -6402,6 +6402,7 @@ __RTDynamicCast = 0x10A88356 ; function size:0x6 | the CRT's dynamic_cast helper
 ?Reset@PointerHashTable@ravenphysics@@QAEXXZ = 0x10658AE0 ; function size:0x7A | ravenphysics::PointerHashTable::Reset (name guess)
 ??0ObjectRegistry@ravenphysics@@QAE@XZ = 0x10658CC0 ; function size:0x37 | ravenphysics::ObjectRegistry constructor (name guess)
 ?Reset@ObjectRegistry@ravenphysics@@QAEXXZ = 0x10658C70 ; function size:0x47 | ravenphysics::ObjectRegistry::Reset (name guess)
+??0Context@ravenphysics@@QAE@XZ = 0x10658D00 ; function size:0x1B8 | ravenphysics::Context::Context (name guess)
 ?Destroy@Context@ravenphysics@@QAEXXZ = 0x10659D50 ; function size:0x188 | ravenphysics::Context::Destroy (name guess)
 ?Collide@Context@ravenphysics@@QAEXXZ = 0x10659F70 ; function size:0xFF | ravenphysics::Context::Collide (name guess)
 ?CollectBodies@Context@ravenphysics@@QAEXPBUHandlePairRun@2@PBUBodyPairRun@2@PAUPointerRun@2@2@Z = 0x106586E0 ; function size:0x1BE | ravenphysics::Context::CollectBodies (name guess)

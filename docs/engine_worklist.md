@@ -2564,10 +2564,12 @@ by trying every order).
 context.cpp: `NarrowPhaseBatcher` (0x10658F90) and `MidPhaseBatcher` (0x10659030) are the constructors the detector's
 `Run` (0x106596F0) calls inline: six `Batch` structures, then pointer words. `Context::CollectBodies` (0x106586E0,
 `ret 0x10`: a method that never uses `this`) sorts the bodies of a batch into the static and the movable list; the
-engine's list choice is `(mode & 3) == 0 ? static : movable`. Not done: 0x10657D00 (its argument has a flag byte at +0xC
-that `BroadPhaseObject` does not have: the argument type is not `PhysicsObject`), 0x106588B0, 0x10658D00 (the `Context`
-constructor: 85 stores of zero; the header's arrays inside the batches and the bool at +0xD8 would have to become
-words), 0x10659070, 0x106596F0, 0x106599C0, 0x10659D50, 0x10659F70 (the walks and the detection, each 250 - 800 bytes
+engine's list choice is `(mode & 3) == 0 ? static : movable`. Also done: `CollisionDetector::Run` (0x106596F0, the two
+batcher constructors inlined, the 0x30-byte scratch class is `ScratchAllocator`), `Context::Destroy` (0x10659D50) and the
+`Context` constructor (0x10658D00: 85 stores of zero through one zero register; the `SlotPool` constructor has to be
+`inline` so that it folds into it, and the header's batch arrays are named words). `Context::Collide` (0x10659F70) stays
+NONMATCHING (95.3 %). Not done: 0x10657D00 (its argument has a flag byte at +0xC that `BroadPhaseObject` does not have:
+the argument type is not `PhysicsObject`), 0x106588B0, 0x10659070, 0x106599C0 (the island walks, each 250 - 800 bytes
 of inlined containers).
 
 ## The start-up, stream, LOD and deform units (2026-10-16, ds-9): 8 match, 0 NONMATCHING, the rest not started

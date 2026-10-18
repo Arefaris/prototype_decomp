@@ -1441,13 +1441,17 @@ namespace ravenphysics
 
 		unsigned char* records;          // 0x00 (0x30-byte entries)
 		unsigned char* recordsEnd;       // 0x04
-		unsigned char unknown8[8];       // 0x08
+		int unknown8;                    // 0x08
+		int unknownC;                    // 0x0C
 		unsigned char* slots;            // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;         // 0x14
-		unsigned char unknown18[0xC];    // 0x18
+		int unknown18;                   // 0x18
+		int unknown1C;                   // 0x1C
+		int unknown20;                   // 0x20
 		unsigned char* recordsSecond;    // 0x24 (the second run of 0x30-byte entries; name guess)
 		unsigned char* recordsSecondEnd; // 0x28
-		unsigned char unknown2C[0x34 - 0x2C];
+		int unknown2C;                   // 0x2C
+		int unknown30;                   // 0x30
 	};
 
 	class ConstraintBatch
@@ -1460,13 +1464,17 @@ namespace ravenphysics
 
 		unsigned char* records;          // 0x00 (0xA8-byte entries)
 		unsigned char* recordsEnd;       // 0x04
-		unsigned char unknown8[8];       // 0x08
+		int unknown8;                    // 0x08
+		int unknownC;                    // 0x0C
 		unsigned char* slots;            // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;         // 0x14
-		unsigned char unknown18[0xC];    // 0x18
+		int unknown18;                   // 0x18
+		int unknown1C;                   // 0x1C
+		int unknown20;                   // 0x20
 		unsigned char* recordsSecond;    // 0x24 (the second run, 0x34-byte entries; name guess)
 		unsigned char* recordsSecondEnd; // 0x28
-		unsigned char unknown2C[0x34 - 0x2C];
+		int unknown2C;                   // 0x2C
+		int unknown30;                   // 0x30
 	};
 
 	class QueryBatch
@@ -1479,13 +1487,18 @@ namespace ravenphysics
 
 		unsigned char* records;     // 0x00 (0x2C-byte entries)
 		unsigned char* recordsEnd;  // 0x04
-		unsigned char unknown8[8];  // 0x08
+		int unknown8;               // 0x08
+		int unknownC;               // 0x0C
 		unsigned char* slots;       // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;    // 0x14
-		unsigned char unknown18[8]; // 0x18
+		int unknown18;              // 0x18
+		int unknown1C;              // 0x1C
 		void** unknown20;           // 0x20 (a run of pointers; name guess)
 		void** unknown24;           // 0x24
-		unsigned char unknown28[0x38 - 0x28];
+		int unknown28;              // 0x28
+		int unknown2C;              // 0x2C
+		int unknown30;              // 0x30
+		int unknown34;              // 0x34
 	};
 
 	class Context
@@ -1506,6 +1519,8 @@ namespace ravenphysics
 		// Hands a sleeping object on to the world (0x106564C0; name guess)
 		void Unknown106564C0(PhysicsObject* object);
 
+		// Everything from the registry on starts at zero except the world, the tracker and a few words (0x10658D00)
+		Context();
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)
 		void ClearObjects();
@@ -1603,20 +1618,26 @@ namespace ravenphysics
 		int unknownCC;   // 0xCC
 		int unknownD0;   // 0xD0
 		int unknownD4;   // 0xD4
-		bool unknownD8;  // 0xD8
-		unsigned char unknownD9[0xDC - 0xD9];
+		union
+		{
+			bool unknownD8;  // 0xD8
+			int unknownD8Word;
+		};
 		int unknownDC;   // 0xDC
-		unsigned char unknownE0[0xEC - 0xE0];
+		int unknownE0;   // 0xE0
+		int unknownE4;   // 0xE4
+		int unknownE8;   // 0xE8
 		int unknownEC;   // 0xEC
 		int unknownF0;   // 0xF0
 		int unknownF4;   // 0xF4
 		int unknownF8;   // 0xF8
 		int unknownFC;   // 0xFC
 		int unknown100;  // 0x100
-		unsigned char unknown104[0x108 - 0x104];
+		int unknown104;  // 0x104
 		CollisionDetector* detector; // 0x108
 		SlotPool recordPool;         // 0x10C (the profiler pool the record's SlotPool methods use)
 		StatLog statLog;             // 0x118
+		int unknown124[19];          // 0x124
 	};
 
 	// The physics context (0x1128356C)

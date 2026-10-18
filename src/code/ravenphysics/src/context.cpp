@@ -452,7 +452,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106570D0
-	SlotPool::SlotPool()
+	inline SlotPool::SlotPool()
 	{
 		mSlots = 0;
 		mCapacity = 0;
@@ -2010,6 +2010,96 @@ namespace ravenphysics
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x681, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		hits->end = hits->begin;
 		mWorld->QueryBodyShapeHits(object, hits, unknownC4, a);
+	}
+
+	// FUNCTION: ENGINE 0x10658D00
+	Context::Context()
+	{
+		registry = 0;
+		unknown10 = 0;
+		staticObjects.end = 0;
+		movableObjects.begin = 0;
+		collisionBatch.records = 0;
+		collisionBatch.recordsEnd = 0;
+		collisionBatch.slots = 0;
+		collisionBatch.slotsEnd = 0;
+		collisionBatch.unknown18 = 0;
+		collisionBatch.unknown1C = 0;
+		collisionBatch.unknown20 = 0;
+		collisionBatch.recordsSecond = 0;
+		collisionBatch.recordsSecondEnd = 0;
+		collisionBatch.unknown2C = 0;
+		collisionBatch.unknown30 = 0;
+		constraintBatch.records = 0;
+		constraintBatch.recordsEnd = 0;
+		constraintBatch.unknown8 = 0;
+		constraintBatch.unknownC = 0;
+		constraintBatch.slots = 0;
+		constraintBatch.slotsEnd = 0;
+		constraintBatch.unknown18 = 0;
+		constraintBatch.unknown1C = 0;
+		constraintBatch.unknown20 = 0;
+		constraintBatch.recordsSecond = 0;
+		constraintBatch.recordsSecondEnd = 0;
+		constraintBatch.unknown2C = 0;
+		constraintBatch.unknown30 = 0;
+		queryBatch.records = 0;
+		queryBatch.recordsEnd = 0;
+		queryBatch.unknown8 = 0;
+		queryBatch.unknownC = 0;
+		queryBatch.slots = 0;
+		queryBatch.slotsEnd = 0;
+		queryBatch.unknown18 = 0;
+		queryBatch.unknown1C = 0;
+		queryBatch.unknown20 = 0;
+		queryBatch.unknown24 = 0;
+		queryBatch.unknown28 = 0;
+		queryBatch.unknown2C = 0;
+		queryBatch.unknown30 = 0;
+		queryBatch.unknown34 = 0;
+		unknownC4 = 0;
+		unknownC8 = 0;
+		unknownCC = 0;
+		unknownD0 = 0;
+		unknownD4 = 0;
+		unknownD8Word = 0;
+		unknownDC = 0;
+		unknownE0 = 0;
+		unknownE4 = 0;
+		unknownE8 = 0;
+		unknownEC = 0;
+		unknownF0 = 0;
+		unknownF4 = 0;
+		unknownF8 = 0;
+		unknownFC = 0;
+		unknown100 = 0;
+		unknown104 = 0;
+		detector = 0;
+		recordPool.mSlots = 0;
+		recordPool.mCapacity = 0;
+		recordPool.mCounter = 0;
+		statLog.entries = 0;
+		statLog.capacity = 0;
+		statLog.count = 0;
+		unknown124[0] = 0;
+		unknown124[1] = 0;
+		unknown124[2] = 0;
+		unknown124[3] = 0;
+		unknown124[4] = 0;
+		unknown124[5] = 0;
+		unknown124[6] = 0;
+		unknown124[7] = 0;
+		unknown124[8] = 0;
+		unknown124[9] = 0;
+		unknown124[10] = 0;
+		unknown124[11] = 0;
+		unknown124[12] = 0;
+		unknown124[13] = 0;
+		unknown124[14] = 0;
+		unknown124[15] = 0;
+		unknown124[16] = 0;
+		unknown124[17] = 0;
+		unknown124[18] = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10658F90
