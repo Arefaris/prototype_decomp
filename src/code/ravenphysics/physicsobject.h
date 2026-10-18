@@ -8,6 +8,12 @@
 #include "code/math/vector.h"
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
 
+namespace math
+{
+	class Matrix;
+	class OBB;
+}
+
 namespace ravenphysics
 {
 	class CollisionObject;
@@ -93,6 +99,9 @@ namespace ravenphysics
 		void SetCollisionMode(unsigned short mode);
 		// 0x10678250: sets what the object is tested against (the three words go to +0x28)
 		void SetFilter(const IntersectionFilter* filter);
+		// 0x106780A0: gives the object's first volume the box (placed by the matrix), copies the volume's bounds into
+		// the object and its detector box and sets the collision mode to 2 (name guess)
+		void SetBox(const math::OBB& box, const math::Matrix& transform);
 
 		CollisionObject** objects;
 		int unknown58;

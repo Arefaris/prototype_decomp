@@ -3,6 +3,7 @@
 // members, the update 0x1044F060, the message dispatch 0x1044F710 and the state machine) is not.
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 
+#include "code/engine/controller/inputsystem.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/choreo/deltatransform.h"
 #include "code/core/refptr.h"
@@ -12,6 +13,8 @@
 #include "code/ravenphysics/physicsobject.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
+#include "code/math/obb.h"
+#include "code/math/quaternion.h"
 #include <float.h>
 #include <math.h>
 #include <new>
@@ -39,6 +42,9 @@ namespace proto
 	};
 
 	extern NavMesh* gNavMesh;
+
+	// The handle of the player's game object (0x1126E40C)
+	extern engine::GameObjectHandle gPlayerHandle;
 
 	// The area a path node lies in, or null when the node names none
 	static NavArea* GetArea(PathNode* node)
@@ -139,6 +145,18 @@ namespace proto
 		// 0x10445C20: the part by its text
 		int FindPart(const char* name);
 	};
+
+	// FUNCTION: ENGINE 0x10445A40
+	float VehicleBehaviourAmbient::Unknown10445A40(float squaredSpeed)
+	{
+		return squaredSpeed / (unknownF8 + unknownF8);
+	}
+
+	// FUNCTION: ENGINE 0x10445A60
+	float VehicleBehaviourAmbient::Unknown10445A60(float speedValue)
+	{
+		return Unknown10445A40(speedValue * speedValue);
+	}
 
 	// FUNCTION: ENGINE 0x10445C20
 	int PartLookup::FindPart(const char* name)
@@ -629,6 +647,184 @@ namespace proto
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x104468F0
+	void VehicleBehaviourAmbient::UpdateSpeed(float dt)
+	{
+		float acceleration = unknownF4 * dt;
+		float velocity = speed;
+		float slowdown = 1.0f - fabs(speed) / vehicleProperties->maxSpeed;
+		float factor = (0.5f < slowdown) ? slowdown : 0.5f;
+		float driveStep = factor * acceleration;
+		float difference = targetSpeed - velocity;
+		float step = (difference <= 0.0f && 0.0f < velocity) ? unknownF8 * dt : driveStep;
+		float direction;
+		if (difference < 0.0f)
+		{
+			direction = -1.0f;
+		}
+		else
+		{
+			direction = 0.0f;
+			if (difference > 0.0f)
+			{
+				direction = 1.0f;
+			}
+		}
+		float magnitude = fabs(difference);
+		speed = ((magnitude < step) ? magnitude : step) * direction + velocity;
+		if (speed < 0.00001f && unknown170)
+		{
+			speed = 1.9f;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10447280
+	// NONMATCHING: the same box (offsets and half extents of the two modes, the identity axes) and the same stores in
+	// the same order, but the engine keeps the zero in xmm3, loads the one in each branch and has a larger frame (0x58
+	// against 0x40), 12 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown10447280(float unused)
+	{
+		float height = extents.y;
+		float centreX = 0.0f;
+		float centreY = height;
+		float centreZ = 0.0f;
+		float halfX;
+		float halfY;
+		float halfZ;
+		if (mode == 0)
+		{
+			halfX = extents.x;
+			halfZ = fabs(speed) + extents.z;
+			centreX = halfX - halfX;
+			centreY = height - height;
+			centreZ = (extents.z - halfZ) + 1.0f;
+			halfY = height;
+		}
+		else
+		{
+			halfX = extents.x;
+			halfY = height * 0.7f;
+			centreY = height + 0.25f;
+			halfZ = extents.z + 1.0f;
+		}
+		math::OBB box;
+		box.centre.Set(centreX, centreY, centreZ);
+		box.extents.Set(halfX, halfY, halfZ);
+		box.axis[0].Set(1.0f, 0.0f, 0.0f);
+		box.axis[1].Set(0.0f, 1.0f, 0.0f);
+		box.axis[2].Set(0.0f, 0.0f, 1.0f);
+		ravenphysics::PhysicsObject* object = physicsHandle.GetObjectUnchecked();
+		object->SetBox(box, owner->transform->value);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1044D020
+	void VehicleBehaviourAmbient::UpdateDrive(float dt)
+	{
+		engine::GetPhysicsObjectMessage query;
+		owner->PostMessage(&query);
+		if (query.handle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = query.handle.GetObject();
+			UpdateSpeed(dt);
+			Unknown1044A580(dt, object);
+			Unknown1044ABD0(dt);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10445960
+	float VehicleBehaviourAmbient::Unknown10445960()
+	{
+		float rate = speed / (unknownD0 * 1.5f);
+		return rate * turningAngle;
+	}
+
+	// FUNCTION: ENGINE 0x104470A0
+	void VehicleBehaviourAmbient::Unknown104470A0(math::Vector* forward, const math::Vector* axis, float dt)
+	{
+		math::Quaternion rotation;
+		math::Vector reversed;
+		if (mode != 2)
+		{
+			if (!(fabs(turningAngle) <= 0.00001f))
+			{
+				rotation.FromAxisAngle(Unknown10445960() * dt, *axis);
+				rotation.Transform(*forward, *forward);
+			}
+			math::Vector negated(-forward->x, -forward->y, -forward->z);
+			unknown110.x = negated.x;
+			unknown110.y = negated.y;
+			unknown110.z = negated.z;
+			return;
+		}
+		if (!(fabs(turningAngle) <= 0.00001f))
+		{
+			rotation.FromAxisAngle(Unknown10445960() * dt, *axis);
+			rotation.Transform(*forward, *forward);
+		}
+		reversed.x = -forward->x;
+		reversed.y = -forward->y;
+		reversed.z = -forward->z;
+		float reversedHeading = choreo::Heading(reversed);
+		float currentHeading = choreo::Heading(unknown110);
+		float difference = choreo::AngleDifference(currentHeading, reversedHeading);
+		rotation.FromAxisAngle(difference * unknown17C * dt, *axis);
+		rotation.Transform(unknown110, unknown110);
+		math::Vector facing(forward->x * -1.0f, forward->y * -1.0f, forward->z * -1.0f);
+		desiredFacing.x = facing.x;
+		desiredFacing.y = facing.y;
+		desiredFacing.z = facing.z;
+	}
+
+	// The handle of the player's game object when there is a player, an empty handle otherwise
+	inline engine::GameObjectHandle GetPlayerHandle()
+	{
+		return (engine::controller::InputSystem::Get()->GetPlayerCount() <= 0) ? engine::GameObjectHandle() : gPlayerHandle;
+	}
+
+	// FUNCTION: ENGINE 0x104485E0
+	// EQUIVALENT: the same calls, tests and float operations in the same order; the handle of the player is picked by
+	// a pointer to either the constructed empty handle or the global (the engine copies the global into the temporary)
+	// and the loads of the two positions are scheduled differently, 66 %
+	bool VehicleBehaviourAmbient::Unknown104485E0()
+	{
+		if (unknownA4 == 2)
+		{
+			engine::GameObjectHandle player = GetPlayerHandle();
+			engine::GameObject* playerObject = player.Get();
+			if (playerObject != 0)
+			{
+				math::Matrix& own = owner->transform->value;
+				math::Vector position(own.m[3][0], own.m[3][1], own.m[3][2]);
+				math::Matrix& other = playerObject->transform->value;
+				float dx = other.m[3][0] - position.x;
+				float dy = other.m[3][1] - position.y;
+				float dz = other.m[3][2] - position.z;
+				if (dz * dz + dy * dy + dx * dx < 16.0f)
+				{
+					return false;
+				}
+			}
+			engine::GetPhysicsObjectMessage query;
+			owner->PostMessage(&query);
+			if (query.handle.IsValid())
+			{
+				ravenphysics::PhysicsObject* object = query.handle.GetObject();
+				if (object != 0 && (object->collisionMode & 3) == 1)
+				{
+					Unknown10445790();
+					return true;
+				}
+			}
+		}
+		else if (unknownA4 == 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x10446A70
 	// NONMATCHING: the asserts and the arithmetic come out in the engine's order (the first block, the frame size and
 	// every report block are identical), but the engine keeps the signed arc on the x87 stack through the
@@ -704,6 +900,57 @@ namespace proto
 				}
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1044AE90
+	// EQUIVALENT: the same calls, tests, float operations and stores in the same order; the engine keeps the second
+	// path vector in the lowest of the three slots and the vector of the first leg in the middle one where ours swaps
+	// them, and our zero store for the stopped case shares the epilogue of the early return, 84 %
+	void VehicleBehaviourAmbient::UpdateTargetSpeed()
+	{
+		unknownF8 = vehicleProperties->brakingForce;
+		float reach = Unknown10445A60(speed) * 0.5f;
+		bool ahead = IsVehicleAhead(reach * reach + unknown19C);
+		if (unknownA8 > 0.0f || unknown13C > 0.0f)
+		{
+			if (!ahead)
+			{
+				targetSpeed = 0.0f;
+				return;
+			}
+		}
+		else if (!ahead)
+		{
+			float maxSpeed = vehicleProperties->maxSpeed;
+			targetSpeed = maxSpeed;
+			if (unknown170)
+			{
+				targetSpeed = maxSpeed * 0.5f;
+				return;
+			}
+			unsigned int count = path88.Count();
+			if (count > 2)
+			{
+				PathNode* node = path88.At(0);
+				math::Vector first(node->position.x, node->position.y, node->position.z);
+				node = path88.At(1);
+				math::Vector second(node->position.x, node->position.y, node->position.z);
+				node = path88.At(2);
+				math::Vector third(node->position.x, node->position.y, node->position.z);
+				math::Vector toSecond(second.x - first.x, second.y - first.y, second.z - first.z);
+				math::Vector toThird(third.x - second.x, third.y - second.y, third.z - second.z);
+				toThird.Normalize();
+				toSecond.Normalize();
+				double alignment = toThird.z * toSecond.z + toThird.y * toSecond.y + toThird.x * toSecond.x;
+				if (alignment < 0.6)
+				{
+					targetSpeed = vehicleProperties->maxSpeed * 0.5f;
+				}
+			}
+			return;
+		}
+		unknownF8 = vehicleProperties->brakingForce * 4.0f;
+		targetSpeed = 0.0f;
 	}
 
 	// FUNCTION: ENGINE 0x1044B110

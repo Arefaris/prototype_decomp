@@ -315,6 +315,28 @@ namespace proto
 		void ApplyMode();
 		// 0x10448240: stops the car's physics
 		void StopSimulation();
+		// 0x104468F0: moves the speed towards the target speed, by the acceleration or the braking
+		void UpdateSpeed(float dt);
+		// 0x1044D020: the drive of the car for a frame: its speed, its movement and the wheels (the physics object is
+		// asked for first; nothing happens without one)
+		void UpdateDrive(float dt);
+		// 0x1044A580 (moves the car by its speed along its facing) / 0x1044ABD0 (turns the wheels)
+		void Unknown1044A580(float dt, ravenphysics::PhysicsObject* object);
+		void Unknown1044ABD0(float dt);
+		// 0x10445960: the yaw rate the speed and the steering angle give (the speed over one and a half times the
+		// length at +0xd0, times the angle)
+		float Unknown10445960();
+		// 0x104470A0: turns the forward direction (and the vector at +0x110) about the axis by the yaw rate over dt
+		void Unknown104470A0(math::Vector* forward, const math::Vector* axis, float dt);
+		// 0x10445A40: the distance the brakes need to stop a car whose squared speed is given
+		float Unknown10445A40(float squaredSpeed);
+		// 0x104485E0: whether the parked car may be set going (answers true when it is allowed to, or after it started
+		// the first step; false while the player stands within four metres)
+		bool Unknown104485E0();
+		// 0x10445790 (not reconstructed)
+		void Unknown10445790();
+		// 0x1044AE90: chooses the speed the car aims at and its braking force
+		void UpdateTargetSpeed();
 		// 0x10446A70: works the desired facing out into the steering angle
 		void UpdateTurning();
 		// 0x10446A30: the wheel angle a turn of that size asks for
@@ -367,7 +389,7 @@ namespace proto
 		// 0x10442200 / 0x10442B20 / 0x10445A60 / 0x10442BF0 / 0x104435B0 (path measurements, names unknown)
 		bool Unknown10442200();
 		int Unknown10442B20(int count);
-		float Unknown10445A60(float speed);
+		float Unknown10445A60(float speedValue);
 		float Unknown10442BF0(int node, int count);
 		float Unknown104435B0(int count);
 
@@ -390,14 +412,16 @@ namespace proto
 		float unknownF0;          // +0xf0, +0xf4, +0xf8: the car's speed, acceleration and braking (0x1044CEA0)
 		float unknownF4;
 		float unknownF8;
-		unsigned char unknownFC[0x100 - 0xfc];
+		float targetSpeed;        // +0xfc
 		bool simulated;            // +0x100
 		unsigned char unknown101[0x104 - 0x101];
 		math::Vector desiredFacing;   // +0x104
-		unsigned char unknown110[0x11c - 0x110];
+		math::Vector unknown110;   // +0x110
 		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
 		float turningAngle;        // +0x120: the steering angle (0x10446A70)
-		unsigned char unknown124[0x148 - 0x124];
+		unsigned char unknown124[0x13c - 0x124];
+		float unknown13C;          // +0x13c
+		unsigned char unknown140[0x148 - 0x140];
 		int wheelPart1;            // +0x148, +0x14c, +0x158, +0x15c, +0x168, +0x16c: the drawable's parts "w1" .. "w6"
 		int wheelPart2;
 		unsigned char unknown150[0x158 - 0x150];
@@ -415,6 +439,7 @@ namespace proto
 		int mode;                  // +0x188
 		unsigned char unknown18C[0x198 - 0x18c];
 		float unknown198;          // +0x198: the distance to the next path node less one (0x104482B0)
+		float unknown19C;          // +0x19c
 	};
 }
 
