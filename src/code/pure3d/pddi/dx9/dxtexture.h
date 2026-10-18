@@ -139,6 +139,8 @@ namespace pure3d
 		bool Create(const TextureDescription* description, const dxTexture* image);
 		// 0x1061C600: locks one level (one face of a cube texture, one slice of a volume texture) and describes it
 		bool Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice);
+		// 0x1061C830: gives the locked level back (name guess)
+		void Unlock();
 		// 0x1061CA00: copies the surface this texture was made from into its first level again (a texture whose
 		// format the device does not take directly goes through a stretched copy, with a linear filter when asked)
 		void Unknown1061CA00(bool stretched);

@@ -1261,20 +1261,39 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
-## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), started: 4 match, 3 NONMATCHING, 2 not done
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), 16 match, 5 EQUIVALENT
 
 The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
-a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d::TextureLoader` and the file parsers
+a guess from it). One unit holds `pure3d::Texture`, the DDS helpers, `pure3d::TextureLoader` and the file parsers
 `pure3d::TextureParser` / `pure3d::DDSParser`; the visibility server's unit ends exactly at 0x10729AE0.
+
+The unit was compiled with `/arch:SSE2` (`// CFLAGS: /arch:SSE2` on the first line of `texture.cpp`, see
+docs/toolchain.md): under `/arch:SSE` the calling conventions the compiler gives the file-local helpers differ from the
+engine's. The helpers are `static`; the order the parameters are declared in decides which of them travel in
+registers.
 
 | Address | Function | Status |
 |---|---|---|
-| 0x10729AE0 / 0x1072A0E0 | pure3d::Texture constructor / destructor | match |
-| 0x1072B420 | DDSParser::IsSupportedFormat (vftable slot 1) | match (the switch keeps its 0x20-byte jump table after the code) |
-| 0x1072B470 | DDSParser::Load (slot 2) | NONMATCHING |
-| 0x1072B6D0 | DDSParser::Parse (slot 3) | NONMATCHING |
+| 0x10729AE0 / 0x1072A0E0 / 0x10729B00 | Texture constructor / destructor / Create | match |
 | 0x1072A470 | TextureLoader::LoadObject (slot 7) | match |
-| 0x1072ADB0 / 0x1072AF80 | the upload of one texture's levels | not done |
+| 0x1072A530 / 0x1072A540 / 0x1072A850 | IsBlockFormat, GetFormat, FillPixelFormat (static) | match |
+| 0x1072AB40 / 0x1072ACA0 / 0x1072AD80 | ReadHeader, WriteHeader, RoundToBlock (static) | match |
+| 0x1072AF20 / 0x1072AF80 / 0x1072B110 | SkipLevel, SaveLevel, SaveLevels (static) | match |
+| 0x1072B1F0 / 0x1072B300 / 0x1072B360 | SaveCubeLevels, SaveVolumeLevels, SaveTexture | match |
+| 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
+| 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
+| 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (46.6 %) |
+| 0x1072B050 | UploadLevels (static) | EQUIVALENT (35 %) |
+| 0x1072B150 | UploadCubeLevels (static) | EQUIVALENT (97.5 %, one push scheduled earlier) |
+| 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
+| 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
+
+The EQUIVALENT functions differ only in register homes and scheduling: UploadLevel keeps the rect in ebx where the
+engine uses esi, tests `rect->x & 3` through a byte test, multiplies in the other operand order and orders two
+additions differently; UploadVolumeLevels passes the texture on the stack where the engine passes it in edi (no
+order of the parameters, local copy or loop shape made the compiler hand it over in a register, as it does for the rect
+of UploadLevels); Load keeps the stream in a stack slot where the engine keeps it in ebx. SkipLevel reads the format
+through a volatile access because the engine reloads it after the call.
 
 `TextureLoader::LoadObject` (0x1072A470) matches once the loader bases exist: it is slot 7 of `content::SimpleChunkHandler`
 (8 slots, RTTI), which is what the loader vftables 0x10E5C1D8 and the others hold. The bases are reconstructed in
@@ -1282,34 +1301,10 @@ a guess from it). One unit holds `pure3d::Texture`, the upload helpers, `pure3d:
 `content::SimpleChunkHandler` (slot 5 `CreateObject` 0x1060B780, slot 6 the chunk flags at +8 0x105FFA40, slot 7 the
 pure `LoadObject`). The reader the handler hands on is `content::ChunkReader` (0x288 bytes, stream at +0x284;
 0x1060BB60 constructor, 0x1060B8E0 opens a chunk, 0x1060B8A0 asks whether one is left). `TextureLoader`'s signature is
-`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` — the object output is an
+`LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader, int flags)` - the object output is an
 `IRefCount**` because a texture is a `pure3d::Entity`, not a `LoadObject`. Its workhorse 0x1072A1E0 takes
 `(ChunkReader*, bool flag, int unknown)` and returns the `Texture*`. The class declares its destructor first and does
 not define it, so the vftable stays with the engine's copy of the unit.
-
-NONMATCHING:
-
-- 0x1072B470 DDSParser::Load, 0x1072B6D0 DDSParser::Parse, 0x1072ADB0 and 0x1072AF80: every one of them calls a helper
-  of the unit that takes two or more of its arguments in registers the engine's whole-unit compilation picked, and a
-  `static` function of ours does not get the same ones. The third session (2026-10-16) measured it: with
-  `static bool IsDepthFormat(int format)` written as the three-case `switch` below, 0x1072A530 comes out **100 %**
-  (single `int` argument: eax on both sides), but the natural `static void RoundToFour(int format, unsigned* width,
-  unsigned* height)` against 0x1072AD80 is **2.7 %** - ours takes `(eax = format, ecx = width, edx = height)` where the
-  engine takes `(eax = format, edx = height, width on the stack)`, the same split for every permutation of the
-  parameter order. 0x1072AB40 wants its stream in eax, its 0x35-byte descriptor in **esi** (a callee-saved register,
-  which the non-LTCG register allocator never uses for a parameter) and the flag's address on the stack. Since the
-  call sites of 0x1072AD80 (0x1072ADB0, 0x1072AF80, 0x1072AF20, 0x1072B050) and of 0x1072AB40 (0x1072B470) each have
-  to set those registers themselves, no source produces them; the bodies under `#ifdef NONMATCHING` in `texture.cpp`
-  record the reconstruction, and the helpers are left out (a file-local helper no compiled function calls is not
-  emitted, so it could not be compared either).
-- 0x1072A530 `IsDepthFormat` itself is *not* counted: it would match 100 % (see above) but its only callers are the
-  functions in this list, so the compiler drops it.
-
-Not done:
-
-- 0x1072A470 TextureLoader::LoadObject: `TextureLoader`'s vftable has 8 slots, so the class needs its
-  `content::SimpleChunkHandler` and `content::ObjectLoader` bases, and neither unit is reconstructed. Its arguments
-  are the inventory to search, an out texture, an out name and the flag the finder takes (the callee is 0x1072A1E0).
 
 Renames this unit made: `pure3d::TextureUploader` (a guess of the render units) is `pure3d::DDSParser` — the
 constructor 0x1072B3D0 installs 0x10E5C2C8, which rtti.tsv names `.?AVDDSParser@pure3d@@`. engine/render/async/
@@ -1319,8 +1314,8 @@ Matching notes:
 
 - `pure3d::Texture`'s own vftable exists although the class declares no new virtual: it overrides the destructor
   (`virtual ~Texture();`), and an empty body still emits the `mov [ecx], ??_7Texture` store the engine's has.
-- `pure3d::TextureInfo` (what `Texture` keeps at +0x10) is reference-counted: the destructor releases it through the
-  out-of-line `core::SafeRelease<TextureInfo>` the unit keeps at 0x1061CA90 (`if (p) { p->Release(); p = 0; }`).
+- `Texture` keeps its `pure3d::dxTexture` (the back end's texture) at +0x10 and releases it through `ReleaseRef` in the
+  destructor; `Texture::Create` (0x10729B00) makes it from a `TextureDescription` and an optional source texture.
 - An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
   two-entry jump table; the 8 table bytes after the code are part of the compared function.
 
@@ -3046,11 +3041,14 @@ Not done (each is a large function of a unit whose other members are still missi
   scale, lockable, format, multiSample, surface slot} for a render target (0x1C) and {width, height, float scale,
   format, multiSample, surface slot} for a depth/stencil surface (0x18). 0x1061B140 (the multisample mode of a
   sample count) is declared there too, as `pure3d::GetMultiSampleType`.
-- `dxtexture.cpp`: the texture from an image 0x1061D3A0 (not written yet). The creations branch on the texture type
+- `dxdefaulttextures.cpp`: the default textures 0x1061D3A0 (NONMATCHING). The creations branch on the texture type
   at +8 (1 a 2D texture, 2 a cube texture, 3 a volume texture, through the device's +0x5C / +0x64 / +0x60), 0x1061C600
   locks a level of each kind, and 0x1061C490 lays its levels out. 0x1061CA00 is done (see above).
-- `dxvertexbuffer.cpp` 0x10626350 (dxVertexBuffer::Create, 873 bytes), `dxvertexdeclaration.cpp` 0x1062B170 (the
-  declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
+- `dxvertexdeclaration.cpp` 0x1062B170 (the declaration's own dump) and 0x1062B5C0 (the declaration table's lookup).
+  `dxVertexBuffer::Create` (0x10626350) and its name-to-usage helper 0x10625BF0 (a file-local `static` that takes the
+  name in esi) match. The helper is a chain of `else if` tests with one `return result;` after it - separate `return`
+  blocks or `||` chains give another block layout. `Create` needs the byte-wide fields of `ShaderParameter` to be
+  *signed* (`int unknown8 : 8`, so the kind index is read with `movsx`) and the locals declared offset, length, stride.
 - the context / device-reset functions 0x10616BB0, 0x106182C0, 0x1061FB40, 0x10620A20, 0x10620B00, 0x10621060 and
   0x10623250: they belong to the big `engine::Display` / `dxContext` class at 0x10616xxx - 0x10623xxx (members up to
   +0x82C, `+0x3C` the constant table, `+0x664` and `+0x690` further state), whose layout is not recovered yet.
@@ -3104,12 +3102,9 @@ the expression's offsets and the wide record's second position, with one or four
 
 Still NONMATCHING or not started, one line each:
 
-- 0x1072B470 / 0x1072B6D0 / 0x1072ADB0 / 0x1072AF80 (DDS loader): the whole-unit compiled helpers take their
-  arguments in eax / esi / a stack word. The pixel-format decoder 0x1072A540 is reproduced as a file-local
-  function that takes the description in eax (it matches 100 % apart from the jump table relocation), but a
-  file-local function nothing calls is not emitted, so it cannot carry an annotation until 0x1072B600 exists.
-- 0x10626350 (`dxVertexBuffer::Create`): calls the name to usage helper 0x10625BF0, which takes its name in esi and
-  answers in eax / edx.
+- 0x1061D3A0 (`CreateDefaultTextures`, dxdefaulttextures.cpp): NONMATCHING at 36 %. The fills compile to the engine's
+  `rep stosd` once the width and pitch are copied into locals before the loop; the register allocation (the zero
+  register, the pitch kept in a register) and the order of the description's stores still differ.
 - 0x104E3840, 0x1041FA40 (start-up tables), 0x1061D3A0 (the default textures), 0x102D4920 / 0x102D4C50 (the deform
   behaviour: they build stack messages whose vftables the unit would have to emit) and the loaders 0x10B9C3E0,
   0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts, inline string

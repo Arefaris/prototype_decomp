@@ -109,6 +109,9 @@ def main():
 		obj = f"build/{version}/obj/{unit['name']}.obj"
 		objects.append(obj)
 		lines.append(f"build {obj}: cc {unit['source']}")
+		flags = build.cflagsFor(ROOT / unit["source"])
+		if flags != build.CFLAGS:
+			lines.append(f"  cflags = {' '.join(flags)}")
 		if unit["functions"]:
 			targets.append(f"build/{version}/target/{unit['name']}.obj")
 	symbols = f"config/{version}/symbols.txt"

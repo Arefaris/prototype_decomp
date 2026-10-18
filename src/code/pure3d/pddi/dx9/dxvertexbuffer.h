@@ -12,7 +12,8 @@
 namespace pure3d
 {
 	// The description a vertex buffer is created from: the shader parameters the gpu skin was made with (0x10626350
-	// reads +0, +4, +0x18 and the elements from +0x18, +0x110 and +0x114)
+	// reads +0 (how many vertices), +4 (how many elements), +8 (the usage flags: bit 0 write-only, bit 1 dynamic), the
+	// elements from +0x10, +0x110 (whether the data's size is given) and +0x114 (the size of the data))
 	struct VertexBufferDescription : ShaderParameters
 	{
 	};
@@ -28,15 +29,17 @@ namespace pure3d
 		int GetUnknown14();
 
 		bool unknown8;
-		int unknownC;
-		int unknown10;
+		// The Direct3D vertex buffer
+		IDirect3DVertexBuffer9* unknownC;
+		// The description's usage flags (bit 0 write-only, bit 1 dynamic)
+		unsigned int unknown10;
 		dxVertexDeclaration declaration;
 		int unknown128;
 		int unknown12C;
 		// 1 while the buffer is the default pool's, 0 when the device owns it (set from the descriptor's pool)
 		int unknown130;
-		// The bytes the declaration's elements were laid out with (a new[] block)
-		int unknown134;
+		// The elements the device's declaration is made from (a new[] block, the end marker included)
+		D3DVERTEXELEMENT9* unknown134;
 		int unknown138;
 	};
 }

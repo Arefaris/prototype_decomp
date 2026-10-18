@@ -21,7 +21,7 @@ namespace pure3d
 
 		core::Name<core::CaseInsensitiveKey32> name;
 		int value;
-		unsigned int unknown8 : 8;
+		int unknown8 : 8;
 		unsigned int unknown9 : 8;
 		unsigned int unknownA : 3;
 		unsigned int unknownA3 : 4;

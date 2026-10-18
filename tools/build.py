@@ -21,7 +21,22 @@ import relink  # noqa: E402
 
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
 CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
+# A source whose unit the engine compiled with other options says so in a comment among its first lines:
+# "// CFLAGS: /arch:SSE2". An option replaces the default of the same name (the part before the colon).
+SOURCE_FLAGS = re.compile(r"^//\s*CFLAGS:\s*(.+?)\s*$", re.MULTILINE)
 ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(?:\s*//\s*(NONMATCHING|EQUIVALENT))?")
+
+
+def cflagsFor(source):
+	"""CFLAGS of one source file: the defaults, with the options its "// CFLAGS:" comment names substituted."""
+	text = pathlib.Path(source).read_text(encoding="utf-8")[:2000]
+	flags = list(CFLAGS)
+	for match in SOURCE_FLAGS.finditer(text):
+		for option in match.group(1).split():
+			stem = option.split(":")[0]
+			flags = [f for f in flags if f.split(":")[0] != stem]
+			flags.append(option)
+	return flags
 
 
 def annotations(text):
@@ -43,7 +58,7 @@ def compileAll(version):
 		relative = source.relative_to(ROOT / "src")
 		obj = objDir / relative.with_suffix(".obj")
 		obj.parent.mkdir(parents=True, exist_ok=True)
-		code = subprocess.call([sys.executable, str(ROOT / "tools" / "toolchain" / "cl8.py"), "cl"] + CFLAGS +
+		code = subprocess.call([sys.executable, str(ROOT / "tools" / "toolchain" / "cl8.py"), "cl"] + cflagsFor(source) +
 			[f"/Fo{obj}", str(source)], stdout=subprocess.DEVNULL)
 		if code != 0:
 			sys.exit(f"compile failed: {relative}")

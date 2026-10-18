@@ -9,6 +9,8 @@ namespace math
 	const float EPSILON_FLOAT = 9.9999994e-11f;
 	// Tolerance of Vector::IsZero and Vector::Perpendicular (1e-5f at 0x10E67C30); name guessed
 	const float EPSILON_SMALL = 1e-5f;
+	// pi (0x40490FDB)
+	const float PI = 3.14159274f;
 	// pi / 2 (0x3FC90FDB)
 	const float HALF_PI = 1.57079637f;
 }

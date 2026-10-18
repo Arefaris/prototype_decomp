@@ -17,6 +17,9 @@ namespace pure3d
 		// 0x10625AC0
 		dxVertexDeclaration();
 
+		// 0x10611B50: the bytes element `index` takes in a vertex (its component count times the size of its kind)
+		int GetElementSize(unsigned int index);
+
 		int unknown0;
 		int unknown4;
 		ShaderParameter elements[16];
@@ -49,6 +52,13 @@ namespace pure3d
 		int current;
 	};
 	extern dxVertexDeclarationManager* gVertexDeclarationManager;
+
+	// 0x110BB79C: the index of the Direct3D type group of each kind of element (name guess)
+	extern int gVertexKindGroups[];
+	// 0x110BB7E4 / 0x110BB874: the Direct3D types (D3DDECLTYPE) of an element by its group and component count, for
+	// an element and for a normalised one (names are guesses)
+	extern int gVertexTypes[];
+	extern int gVertexTypesNormalised[];
 
 	// 0x1062B5C0: the number of the device declaration that has the elements (the list ends with an element of type
 	// 0x11), made when the device has none yet (name guess)
