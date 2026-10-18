@@ -1261,7 +1261,7 @@ Matching notes:
 - Member-wise copies of a struct with a bit-field and a Name member (ShaderParameters) are the compiler's implicit
   operator= of the element; the outer copy is written out (16-element loop) so it can carry the annotation.
 
-## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), 16 match, 5 EQUIVALENT
+## pure3d/texture (texture/src, unit 0x10729AE0 - 0x1072B7F0), 18 match, 3 EQUIVALENT
 
 The texture module (`code/pure3d/texture/src/`; docs/original_tree.md has `bmp.cpp` there, this unit's file name is
 a guess from it). One unit holds `pure3d::Texture`, the DDS helpers, `pure3d::TextureLoader` and the file parsers
@@ -1279,12 +1279,11 @@ registers.
 | 0x1072A530 / 0x1072A540 / 0x1072A850 | IsBlockFormat, GetFormat, FillPixelFormat (static) | match |
 | 0x1072AB40 / 0x1072ACA0 / 0x1072AD80 | ReadHeader, WriteHeader, RoundToBlock (static) | match |
 | 0x1072AF20 / 0x1072AF80 / 0x1072B110 | SkipLevel, SaveLevel, SaveLevels (static) | match |
+| 0x1072B050 / 0x1072B150 | UploadLevels, UploadCubeLevels (static) | match (once `UploadLevel` takes its parameters as stream, texture, rect, level, slice) |
 | 0x1072B1F0 / 0x1072B300 / 0x1072B360 | SaveCubeLevels, SaveVolumeLevels, SaveTexture | match |
 | 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
 | 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
 | 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (46.6 %) |
-| 0x1072B050 | UploadLevels (static) | EQUIVALENT (35 %) |
-| 0x1072B150 | UploadCubeLevels (static) | EQUIVALENT (97.5 %, one push scheduled earlier) |
 | 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
 | 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
 

@@ -480,7 +480,7 @@ namespace pure3d
 	// rect, the dword-wide test of its x, the order of the two operands of one multiplication and the scheduling of
 	// the additions differ (46.6 %)
 	// Reads one level (or the part of it `rect` names) of a slice of the texture from the stream
-	static bool UploadLevel(int level, int slice, content::ChunkStream* stream, Texture* texture, const UploadRect* rect)
+	static bool UploadLevel(content::ChunkStream* stream, Texture* texture, const UploadRect* rect, int level, int slice)
 	{
 		TextureLock lock;
 		lock.bits = 0;
@@ -593,8 +593,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072B050
-	// EQUIVALENT: the same loop, calls and halving of the rect in the same order; scheduling of the argument loads
-	// and the loop alignment differ (35 %)
 	// Reads the levels of a 2D texture; every level of the part is half the size of the one before
 	static void UploadLevels(content::ChunkStream* stream, Texture* texture, const TextureDescription* description, bool dropTop, UploadRect* rect)
 	{
@@ -610,7 +608,7 @@ namespace pure3d
 				}
 				else
 				{
-					done = UploadLevel(level - 1, 0, stream, texture, rect);
+					done = UploadLevel(stream, texture, rect, level - 1, 0);
 				}
 				if (rect != 0)
 				{
@@ -630,7 +628,7 @@ namespace pure3d
 			unsigned int count = description->levels;
 			for (unsigned int level = 0; level < count; ++level)
 			{
-				bool done = UploadLevel(level, 0, stream, texture, rect);
+				bool done = UploadLevel(stream, texture, rect, level, 0);
 				if (rect != 0)
 				{
 					rect->height >>= 1;
@@ -657,8 +655,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072B150
-	// EQUIVALENT: the same loops and calls in the same order; one push is scheduled before the address calculation
-	// (97.5 %)
 	// Reads the levels of the six faces of a cube texture
 	static void UploadCubeLevels(content::ChunkStream* stream, Texture* texture, const TextureDescription* description, bool dropTop)
 	{
@@ -675,7 +671,7 @@ namespace pure3d
 					}
 					else
 					{
-						UploadLevel(level - 1, face, stream, texture, 0);
+						UploadLevel(stream, texture, 0, level - 1, face);
 					}
 				}
 			}
@@ -686,7 +682,7 @@ namespace pure3d
 		{
 			for (unsigned int level = 0; level < count; ++level)
 			{
-				UploadLevel(level, face, stream, texture, 0);
+				UploadLevel(stream, texture, 0, level, face);
 			}
 		}
 	}
@@ -724,7 +720,7 @@ namespace pure3d
 					}
 					else
 					{
-						UploadLevel(level - 1, slice, stream, texture, 0);
+						UploadLevel(stream, texture, 0, level - 1, slice);
 					}
 				}
 			}
@@ -735,7 +731,7 @@ namespace pure3d
 			unsigned int slices = texture->info->levelData[level].count;
 			for (unsigned int slice = 0; slice < slices; ++slice)
 			{
-				UploadLevel(level, slice, stream, texture, 0);
+				UploadLevel(stream, texture, 0, level, slice);
 			}
 		}
 	}
@@ -923,7 +919,7 @@ namespace pure3d
 		{
 			return 0;
 		}
-		UploadLevel(level, slice, stream, target, 0);
+		UploadLevel(stream, target, 0, level, slice);
 		return target;
 	}
 
