@@ -1965,7 +1965,8 @@ What the code shows about the library:
   ClipEdges, BuildClipLists and the 0x106D... group; the functions that match have an ordinary prologue.
 - The library has two stack allocators: `StackAllocator` instances over a caller buffer (0x10686040 ...) and one
   global scratch stack with its state in globals (0x1127D408 on, `!sLock` asserts, `ScratchStack::Alloc` 0x10666FE0
-  whose `this` is a dummy empty object, `ScratchStackFrame` for the mark / release).
+  whose `this` is a dummy empty object (NONMATCHING: on captured states ours answers 0 where the engine hands out
+  the block), `ScratchStackFrame` for the mark / release).
 - The narrow-phase job (`NarrowPhaseJob`, 0x134 bytes) is a snapshot of the batcher's queues: six batch pointers, the
   batch pool, a spin lock, the batch slots (0x60 bytes each behind a counter), a copy of each type's `AsyncTask` and
   the profiling log; `Submit` queues a batch with `core::SubmitAsyncTasks`. `PairDetails` is `__declspec(align(16))`

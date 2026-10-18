@@ -118,6 +118,10 @@ def registerInputs(code, address, limit=400):
 		# path that needs them) is not an argument either, as long as the register was not written before
 		if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved 				and insn.operands[0].reg not in written:
 			continue
+		# `mov edi, edi` is the compiler's two-byte padding nop, not a read
+		if insn.mnemonic == "mov" and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG \
+				and insn.operands[1].type == X86_OP_REG and insn.operands[0].reg == insn.operands[1].reg:
+			continue
 		read, write = insn.regs_access()
 		if insn.mnemonic == "call":
 			# the callee's result and scratch registers: eax / ecx / edx are written by the call

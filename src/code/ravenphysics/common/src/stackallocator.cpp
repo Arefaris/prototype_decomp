@@ -50,8 +50,9 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10666FE0
-	// EQUIVALENT: the same arithmetic on the same values; the engine reads the current position after the alignment
-	// and loads the size late, ours the other way round (85.4 %)
+	// NONMATCHING: 85.4 %; on captured states the engine hands out the block and raises the static at 0x1127D41C,
+	// ours answers 0 (the statics' roles or the comparison differ; not resolved)
+#ifdef NONMATCHING
 	void* ScratchStack::Alloc(unsigned int size, int align)
 	{
 		OLD_ASSERT_TEXT_AT(STACKALLOCATOR_FILE, 81, !sLock, "!sLock");
@@ -71,6 +72,7 @@ namespace ravenphysics
 		}
 		return block;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10667090
 	bool ScratchStack::IsReady(int unused)
