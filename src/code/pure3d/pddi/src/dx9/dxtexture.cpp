@@ -4,6 +4,7 @@
 
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 
+#include "code/content/loadmanager.h"
 #include "code/core/thread.h"
 #include "code/engine/display.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
@@ -161,7 +162,7 @@ namespace pure3d
 			{
 				gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, this->description.width, this->description.height,
 					this->description.levels, usage, d3dFormat, pool, &texture, 0);
-				if (texture == 0 && gRenderDevice->IsCurrentThread())
+				if (texture == 0 && content::gLoadManager->IsCurrentThread())
 				{
 					while (texture == 0)
 					{
@@ -227,7 +228,7 @@ namespace pure3d
 		case 1:
 			gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, this->description.width, this->description.height,
 				this->description.levels, 0, d3dFormat, D3DPOOL_MANAGED, &texture, 0);
-			if (texture == 0 && gRenderDevice->IsCurrentThread())
+			if (texture == 0 && content::gLoadManager->IsCurrentThread())
 			{
 				while (texture == 0)
 				{

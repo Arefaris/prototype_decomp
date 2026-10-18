@@ -1,5 +1,6 @@
 // pure3d::dxIndexBuffer, the Direct3D 9 index buffer of the pddi layer (unit around 0x106266D0 - 0x10626920; the
 // file name is guessed, no assert path survives).
+#include "code/content/loadmanager.h"
 #include "code/core/thread.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
 
@@ -59,7 +60,7 @@ namespace pure3d
 			gD3DDevice->lpVtbl->CreateIndexBuffer(gD3DDevice, state.unknown4, usage, format, D3DPOOL_MANAGED,
 				&buffer, 0);
 		}
-		if (buffer == 0 && unknown18 == 1 && gRenderDevice->IsCurrentThread())
+		if (buffer == 0 && unknown18 == 1 && content::gLoadManager->IsCurrentThread())
 		{
 			while (buffer == 0)
 			{

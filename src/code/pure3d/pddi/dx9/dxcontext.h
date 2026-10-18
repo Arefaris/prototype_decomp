@@ -163,8 +163,6 @@ namespace pure3d
 		void Unknown1061F620(unsigned int width, unsigned int height);
 		// 0x1061F950: the viewport's rectangle (name guess)
 		void Unknown1061F950(float x, float y, float width, float height);
-		// 0x10606D30: whether the calling thread is the one this object was made on (it reads nothing of the object)
-		bool IsCurrentThread();
 
 		unsigned char unknown5F4[0x664 - 0x5F4];
 		// 0x664: the shader a draw without one goes through
@@ -201,8 +199,6 @@ namespace pure3d
 	// 0x11276D2C: the device the back end was built on (0x106202F0 installs it); the textures it made keep their
 	// bytes of texture memory in its `textureMemory`
 	extern dxContext* gContext;
-	// 0x11276A64: the device a failing texture creation is retried for (name guess)
-	extern dxContext* gRenderDevice;
 }
 
 #endif

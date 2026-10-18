@@ -9,22 +9,10 @@
 
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/chunkhandler.h"
+#include "code/content/loadmanager.h"
 #include "code/pure3d/drawable.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/primitive.h"
-
-namespace content
-{
-	// The loaders the chunk ids are registered under (the global at 0x11276A64; the class name is a guess)
-	class LoadManager
-	{
-	public:
-		// 0x10607BD0: the loader registered for the chunk id
-		ObjectLoader* GetLoader(unsigned int chunkId);
-	};
-
-	extern LoadManager* gLoadManager;
-}
 
 namespace pure3d
 {
