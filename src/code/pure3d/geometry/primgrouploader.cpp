@@ -31,9 +31,6 @@ namespace pure3d
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10B8BD30
-	// EQUIVALENT: scheduling: the engine issues the `or edx, -1` of the two -1 members after the base constructor's
-	// two stores, this compiler before them (86 %)
-	// A reference to any one member moves it one store later (89.5 %); nothing found moves it behind the count.
 	PrimGroupLoader::PrimGroupLoader()
 	{
 		shader = 0;

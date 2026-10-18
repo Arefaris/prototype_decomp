@@ -476,9 +476,12 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072ADB0
-	// EQUIVALENT: the same reads, locks and stream reads in the same order (84.7 %); the engine keeps the rect in esi
-	// and the bits per pixel in ebx where this compiler swaps them, which also turns the operands of the destination's
-	// sum and of one multiplication around. The dword-wide test of the rect's x is the constant-first comparison.
+	// EQUIVALENT: the same reads, locks and stream reads in the same order, registers and schedule as the engine's
+	// (98.1 %); only the operand order of the destination's sum (`lea esi, [eax + edx]`) and of the pitch times the
+	// first row (`mov ecx, pitch; imul ecx, y`) is the other way round, and no source order, declaration order,
+	// field type or loop form of the skip changed that. The row bytes are computed before the x offset (that keeps the
+	// rect in esi and the bits per pixel in ebx); the block adjustments follow in the order that gives the engine's
+	// interleaving. The dword-wide test of the rect's x is the constant-first comparison.
 	// Reads one level (or the part of it `rect` names) of a slice of the texture from the stream
 	static bool UploadLevel(content::ChunkStream* stream, Texture* texture, const UploadRect* rect, int level, int slice)
 	{
@@ -513,16 +516,16 @@ namespace pure3d
 			width = rect->width;
 			height = rect->height;
 			RoundToBlock(&width, &height, lock.format);
+			rowBytes = bits * width / 8;
 			xBytes = rect->x * bits / 8;
 			y = rect->y;
-			rowBytes = bits * width / 8;
 		}
 		if (IsBlockFormat(lock.format))
 		{
-			height >>= 2;
 			rowBytes *= 4;
-			xBytes *= 4;
 			y >>= 2;
+			height >>= 2;
+			xBytes *= 4;
 		}
 		char* destination = (char*)lock.offset + xBytes;
 		unsigned int count = rowBytes / lock.unknown1C;

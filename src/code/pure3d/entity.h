@@ -8,16 +8,21 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 
+// The compiler barrier (the full <intrin.h> would also change the register conventions of the unit-local functions)
+extern "C" void _ReadWriteBarrier();
+#pragma intrinsic(_ReadWriteBarrier)
+
 namespace pure3d
 {
 	class RefCounted : public core::IRefCount
 	{
 	public:
-		// The engine's constructor stores the class's vftable and the count (volatile: the count is changed with
-		// interlocked operations), which keeps the store of the vftable in the derived constructors
+		// The inlined count initialisation also ends the scheduling region there: the derived constructors load their
+		// constants (the second shared register) only after the count store, as the engine's do
 		RefCounted()
 		{
 			mRefCount = 0;
+			_ReadWriteBarrier();
 		}
 		// 0x106E2930 / 0x106E2910
 		static void* operator new(unsigned int size);

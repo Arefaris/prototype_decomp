@@ -23,10 +23,29 @@ namespace pure3d
 		return value;
 	}
 
+	// The inlined Allocate of the entries
+	inline bool Loaded1066F430Entries::Allocate(unsigned int count)
+	{
+		if (count != 0)
+		{
+			begin = (Loaded1066F430Entry*)operator new[](count * sizeof(Loaded1066F430Entry));
+			if (begin != 0)
+			{
+				capacity = begin + count;
+				end = begin;
+				return true;
+			}
+		}
+		else
+		{
+			begin = 0;
+		}
+		end = 0;
+		capacity = 0;
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x1067F4D0
-	// EQUIVALENT: stack slot order (46.5 %): the frame has the engine's size and slots, but the engine gives the entry
-	// count the lowest of the three words below the name, then the object, then the dropped words, where this compiler
-	// puts the object first; every read, call and store is the same
 	void Loader1067F4D0::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
@@ -49,60 +68,46 @@ namespace pure3d
 			loaded->SetName(loadedName);
 		}
 		Loaded1066F430Tables* tables = loaded->tables;
-		if (count != 0)
-		{
-			loaded->begin = (Loaded1066F430Entry*)operator new[](count * sizeof(Loaded1066F430Entry));
-			if (loaded->begin != 0)
-			{
-				loaded->capacity = loaded->begin + count;
-			}
-			else
-			{
-				loaded->capacity = 0;
-			}
-		}
-		else
-		{
-			loaded->begin = 0;
-			loaded->capacity = 0;
-		}
-		loaded->end = loaded->begin;
+		loaded->entries.Allocate(count);
 		while (reader->HasChunk())
 		{
 			reader->BeginChunk();
-			unsigned int id = reader->GetChunkId();
-			if (id == 0x7020001)
+			switch (reader->GetChunkId())
 			{
-				ReadUnsigned(reader);
-				tables->unknown4 = new unsigned short[count];
-				reader->Read(tables->unknown4, count, 2, 1);
-				tables->count = (unsigned short)ReadUnsigned(reader);
-				tables->unknown8 = new unsigned short[tables->count];
-				reader->Read(tables->unknown8, tables->count, 2, 1);
-				ReadUnsigned(reader);
-				unsigned int size = ReadUnsigned(reader);
-				if (size == 0)
+			case 0x7020001:
 				{
-					tables->unknownC = 0;
-				}
-				else
-				{
-					tables->unknownC = new unsigned char[size];
-					reader->Read(tables->unknownC, size, 1, 1);
-				}
-				while (reader->HasChunk())
-				{
-					reader->BeginChunk();
-					if (reader->GetChunkId() == 0x7020002)
+					ReadUnsigned(reader);
+					tables->unknown4 = new unsigned short[count];
+					reader->Read(tables->unknown4, count, 2, 1);
+					tables->count = (unsigned short)ReadUnsigned(reader);
+					tables->unknown8 = new unsigned short[tables->count];
+					reader->Read(tables->unknown8, tables->count, 2, 1);
+					ReadUnsigned(reader);
+					unsigned int size = ReadUnsigned(reader);
+					if (size == 0)
 					{
-						Unknown1067CF80(reader, inventory, tables);
+						tables->unknownC = 0;
 					}
-					reader->EndChunk();
+					else
+					{
+						tables->unknownC = new unsigned char[size];
+						reader->Read(tables->unknownC, size, 1, 1);
+					}
+					while (reader->HasChunk())
+					{
+						reader->BeginChunk();
+						if (reader->GetChunkId() == 0x7020002)
+						{
+							Unknown1067CF80(reader, inventory, tables);
+						}
+						reader->EndChunk();
+					}
 				}
-			}
-			else if (id == 0x7021100 || id == 0x7021101)
-			{
+				break;
+			case 0x7021100:
+			case 0x7021101:
 				Unknown1067EB90(loaded, reader, inventory);
+				break;
 			}
 			reader->EndChunk();
 		}
