@@ -3241,6 +3241,3 @@ Still NONMATCHING or not started, one line each:
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
   game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to
   NONMATCHING, whole definitions under the ifdef.
-- tools/difftest also notes that sequencer.cpp defines `fight::gActiveActions` / `gPeakActiveActions` itself without
-  a symbols.txt mapping, so our fight code counts in private copies, not the engine's (to map when their addresses
-  are known).
