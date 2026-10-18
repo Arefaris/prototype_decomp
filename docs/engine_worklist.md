@@ -2922,6 +2922,8 @@ What is left of 0x1071B9A0 is its frame: the engine spills **both** `this` and `
 Making the loads inline made it *worse* positionally (13 %) than the locals were (18 %) even though the loop body
 is now right, because the frame is 16 bytes shorter and everything after shifts.
 
+(Superseded by "Skinning paths and bone-row blenders, matching session" below: seven of these paths match since.)
+
 **The 19 skinning paths that are left (0x1071B610, 0x1071BBD0, 0x1071BEE0, 0x1071C0C0, 0x1071C390, 0x1071C530,
 0x1071CA40, 0x1071CDC0, 0x1071D1B0, 0x1071D440, 0x1071D770, 0x1071D960, 0x1071DD60, 0x1071DFF0, 0x1071E390,
 0x1071E5D0, 0x1071E8F0 and 0x10720CF0) are not reconstructed.** They are 500 - 1100 byte SSE loops of exactly the
@@ -2942,7 +2944,7 @@ NONMATCHING:
   argument pushes of its PrimDrawDesc, the count as the constant 3 there and in ebp in the other path, 29 bytes we
   do not emit); declaring the source before the groups and the count, the one thing the engine's instruction order
   suggests, keeps the shape and only moves the percentage down to 16.7 %. 21.6 %
-- 0x1071B9A0 SkinState::Unknown1071B9A0: register allocation (the engine spills `this` and `matrices`, we keep
+- (matches since, see the matching session below) 0x1071B9A0 SkinState::Unknown1071B9A0: register allocation (the engine spills `this` and `matrices`, we keep
   `matrices` in a register and fold it into the addressing modes), 13 %, best 18 % with the rows in locals
 - 0x1071B310 / 0x1071B490 BlendBoneRows / BlendBoneRowsWide: register allocation, 21 %. The body is the engine's
   block for block (one lane of the weights widened per phase, the four rows of one bone multiplied by it, the first
@@ -2952,6 +2954,76 @@ NONMATCHING:
   reproduced from the source. Both take the same shape: `(const <vertex>*, const math::Matrix*, const
   math::Vector4* weights, math::Vector4* row0..row3)`, the vertex's four `unsigned short` bone indices at +0x40
   (SkinVertex) resp. +0x50 (SkinVertex2, one more row of four floats, 0x60 bytes).
+
+### Skinning paths and bone-row blenders, matching session (2026-10-18)
+
+Match (100 %, byte for byte): 0x1071B9A0, 0x1071BEE0, 0x1071C390 (one bone each; three, two and one vectors),
+0x1071D770 (one bone, the position with the expression's offset), 0x1071DD60, 0x1071E390, 0x1071E8F0 (one bone with the
+vertex record's second position; the skinned delta is the last output). What the engine's bytes ask for, and what the
+earlier sessions took for an allocator wall:
+
+- The box accumulators are **two `__m128` locals filled lane by lane through float casts**
+  (`((float*)&maxBounds)[0] = -1e12f; ...`, then `maxBounds = _mm_max_ps(maxBounds, r0)` and the six lane reads at the
+  end). With `math::Vector4` locals the compiler gives the blended result its own stack slot; with these the result
+  shares the slot of the accumulator that lives in a register in the loop, which is the 0x34 / 0x74 byte frames of the
+  engine.
+- The matrix rows the three blends use are **references to the bone's memory**: `const __m128& m0 = *p++;` ... (four of
+  them). The loads then stay where they are used and the pointer walks the rows (the `mov edx, eax; movaps xmm4,
+  [edx]` copies of the engine's loop are the post-incremented addresses). Value locals (`__m128 m0 = *p++`) and the
+  `_mm_load_ps(bone.m[0])` form all come out different, and every spelling that only reorders operands or statements is
+  canonicalised by the compiler to the same code.
+- The output pointer is a **local copy** of `out` (`dst`), which moves the load of the argument to where the engine has
+  it; for the paths that add the expression's offsets it is `__restrict` as well, because the offsets those paths read
+  every pass do not change and the engine's loop hoists them (0x1071D770 reads three floats before the loop).
+- The offset paths use the other loop shape, **a guard on the unsigned count followed by `do { } while (--i)`** with
+  `unsigned int i = count;` inside the guard (`if ((unsigned int)count > 0)`: `jbe`), which changes the allocator's
+  choice of registers for `this` and the output pointer; the plain paths match with `for (unsigned int i = count; i > 0;
+  i--)`. The offset locals are `math::Vector4` with only `w` set before the loop (the zeros of `x`, `y`, `z` are dead
+  stores the engine does not have).
+- In the wide paths the delta's input (`offset + position`) is computed right after the vertex rows are loaded and before
+  the matrix rows; swapping that order costs the match.
+
+Not matched: 0x1071D1B0 (96 %; everything including the loop is the engine's, only the order of three instructions of the
+loop pre-header differs: the copy of the count, the scalings of the two strides and the load of the max accumulator),
+0x1071CA40 (24 %: the offset locals and the scalar spills are laid out differently, the frame has the engine's size) and
+the nine four-bone paths (0x1071B610, 0x1071BBD0, 0x1071C0C0, 0x1071C530, 0x1071CDC0, 0x1071D440, 0x1071D960,
+0x1071DFF0, 0x1071E5D0). Findings for the four-bone blend, for whoever continues:
+
+- The engine's blend is bone after bone through four pointers that walk the rows (`*p0++` chains: base add, then
+  `add reg, 0x10` between the loads), the sums are `((a*x + b*y) + c*z) + d*w` per row, and the loads stay next to their
+  uses (the translation row of the first bone is even delayed until the second bone's rows are done). Our compiler
+  hoists all sixteen row loads of such a chain to the top of the loop and spills them (frames 0x84 - 0x134 against the
+  engine's 0x44); this is the same for `__m128` values, for `_mm_load_ps` of a float pointer and for named locals. With
+  displacement addressing (`_mm_load_ps(k.m[r])`) the frame is right (0x44) but the compiler turns the sum row-major
+  and no pointer chain is left; with references the row addresses are kept in registers and spilled (`mov [esp+x],
+  ecx`).
+- The nearest form is the engine's `BlendBoneRows` body inlined with the four rows as `__m128` locals written through
+  pointers (`BlendBoneRowsInline` in skin.cpp): the instruction multiset (counts of every opcode) is the engine's apart
+  from two spills, the frame and the order of the loads are right, 42 % of the bytes match for 0x1071C0C0.
+- 0x1071B310 / 0x1071B490 `BlendBoneRows` / `BlendBoneRowsWide` have no caller anywhere in the image (they are unused
+  out-of-line copies of the code the four-bone paths carry inline). The engine re-reads the weights in every phase, a
+  store through a row pointer may change them, and the source now does the same; what does not come out is the first
+  phase (the engine loads the first row before the weights and keeps the loads apart from the multiplies) and where the
+  `add reg, 0x10` increments of the bone pointers land. A search over the spelling of the row loads (value, reference,
+  `_mm_load_ps` of the pointer, separate increment statements, in any mix per row) reaches 68 % of the bytes with the
+  engine's size, but only with spellings no author would have written side by side, so the committed body keeps the
+  uniform 45 % form.
+
+0x10720CF0, the job dispatcher, is not reconstructed (not done). Its shape: the byte at +0x2AE selects whether anything
+runs; the pose index at +0x2C0 is advanced (`++index; if (index > 0) index = 0`) after virtual slot 9; the pose's vertex
+buffer is locked into a `dxVertexDeclaration`-sized description (`PrimBuffer::Unknown10625FA0` fills a
+`ShaderParameters` first, 0x10625F00 locks), two asserts check the destination stride and the source pointer, the three
+offset triples at +0x2E8 / +0x300 / +0x318 (base, base, base + stride * count, with the strides at +0x2F8 / +0x310 /
++0x328) are set from the lock's base, and then either the job is queued (the global byte at 0x11137804: the record at
++0x330 gets the lock's data, the expression's three offset pointers and the two flag bytes at +0x2FC / +0x314, and the
+entry at +0x33C is pushed on `gPendingSkins`) or the path is called directly. The direct branch is the tree the old notes
+describe: flag +0x2FC clear: positions only, +0x74 (the expression) null and bit 0x20000000 of the lock description's format word clear
+-> 0x1071C0C0 / 0x1071C390 (the byte at +0x298 of the primitive `GetPrimitive` returns selects four bones when clear, one bone when set), wide ->
+0x1071E5D0 / 0x1071E8F0, expression set -> 0x1071D440 / 0x1071D770; flag +0x314 clear (two vectors): 0x1071BBD0 /
+0x1071BEE0, wide 0x1071DFF0 / 0x1071E390, expression 0x1071CDC0 / 0x1071D1B0; otherwise three vectors: 0x1071B610 /
+0x1071B9A0, wide 0x1071D960 / 0x1071DD60, expression 0x1071C530 / 0x1071CA40. Missing before it can be written:
+the types behind 0x10625F00 (the lock), 0x107202B0 (a Skin method taking the second `ShaderParameters`), 0x106E2A30 (a
+method of the pose at +0x70) and the job record at +0x330.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
