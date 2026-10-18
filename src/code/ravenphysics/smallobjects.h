@@ -23,8 +23,7 @@ namespace ravenphysics
 
 	// Builds the physics object of a collision volume, takes a reference to it and hands back its id (0x10656030;
 	// the creation behind it is 0x10661140, another unit)
-	void CreateObjectHandle(unsigned int* id, CollisionVolume* volume, int flag, float size);
-	PhysicsObject* CreatePhysicsObject(CollisionVolume* volume, int flag, float size);
+	void CreateObjectHandle(unsigned int* id, CollisionVolume* volume, bool flag, float size);
 
 	// An interlocked counter (0x106560D0 / 0x106560E0)
 	struct AtomicCounter

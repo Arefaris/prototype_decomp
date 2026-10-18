@@ -19,7 +19,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10656030
 	// EQUIVALENT: the engine loads the output pointer into eax after the call, ours into edx (everything else is
 	// the same), 95.8 %
-	void CreateObjectHandle(unsigned int* id, CollisionVolume* volume, int flag, float size)
+	void CreateObjectHandle(unsigned int* id, CollisionVolume* volume, bool flag, float size)
 	{
 		PhysicsObject* object = CreatePhysicsObject(volume, flag, size);
 		object->AddRef();

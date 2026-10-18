@@ -11,6 +11,7 @@
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
 #include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/common/hashtable.h"
+#include "code/ravenphysics/intersectionproperties.h"
 
 namespace ravenphysics
 {
@@ -40,6 +41,11 @@ namespace ravenphysics
 		PhysicsObjectEntry* entries; // 0x0C
 		unsigned char unknown10[0x14 - 0x10];
 		unsigned short capacity;     // 0x14
+
+		// The table's code is the collision objects' table's (same layout, 0x10653250 / 0x106532B0); the handle is
+		// the body's id word (0x1065FD20)
+		void Add(PhysicsObject* object, int* id);
+		void Remove(int* id);
 	};
 
 	// The physics handle table (0x1127CAC0)
@@ -55,23 +61,6 @@ namespace ravenphysics
 
 		unsigned short index;    // 0x00
 		unsigned short unknown2; // 0x02
-	};
-
-	// What a query collides with (0x10653860 constructs it from the physics library's defaults; meanings unknown)
-	struct IntersectionProperties
-	{
-		IntersectionProperties();
-		IntersectionProperties(int a, int b)
-		{
-			unknown0 = a;
-			unknown4 = b;
-		}
-
-		// Whether two sets of properties name the same thing (0x10653610)
-		bool operator==(const IntersectionProperties& other) const;
-
-		int unknown0;
-		int unknown4;
 	};
 
 	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC, capacity 0x1127CAC8): the name
