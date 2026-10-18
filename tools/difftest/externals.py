@@ -402,6 +402,130 @@ CRT = {
 }
 
 
+# Direct3D 9 COM methods whose out-parameters the engine reads back, by (vtable slot, dwords pushed with `this`). The
+# interfaces are not told apart (a call site only shows the slot); the pairs below do not collide among the
+# IDirect3DDevice9 / Texture / CubeTexture / Surface / VertexBuffer / IndexBuffer / Query methods, except slot 12 with
+# two dwords (Surface::GetDesc, Device::ShowCursor), which the pointer check settles. Slot 6 with two dwords is both
+# Resource::FreePrivateData and Query::Issue and has no out-parameter. Each entry: (name, [(argument index after
+# `this`, kind)]) where kind is "object" (a fake interface pointer), "buffer" (a scratch data pointer), "locked" (a
+# D3DLOCKED_RECT: pitch, bits) or a byte count to zero.
+COM_METHODS = {
+	(3, 2): ("Resource::GetDevice", [(0, "object")]),
+	(8, 3): ("Device::GetDisplayMode", [(1, 16)]),
+	(13, 3): ("Device::CreateAdditionalSwapChain", [(1, "object")]),
+	(14, 3): ("Device::GetSwapChain", [(1, "object")]),
+	(18, 5): ("Device::GetBackBuffer", [(3, "object")]),
+	(23, 9): ("Device::CreateTexture", [(6, "object")]),
+	(24, 10): ("Device::CreateVolumeTexture", [(7, "object")]),
+	(25, 8): ("Device::CreateCubeTexture", [(5, "object")]),
+	(26, 7): ("Device::CreateVertexBuffer", [(4, "object")]),
+	(27, 7): ("Device::CreateIndexBuffer", [(4, "object")]),
+	(28, 9): ("Device::CreateRenderTarget", [(6, "object")]),
+	(29, 9): ("Device::CreateDepthStencilSurface", [(6, "object")]),
+	(36, 7): ("Device::CreateOffscreenPlainSurface", [(4, "object")]),
+	(38, 3): ("Device::GetRenderTarget", [(1, "object")]),
+	(40, 2): ("Device::GetDepthStencilSurface", [(0, "object")]),
+	(45, 3): ("Device::GetTransform", [(1, 64)]),
+	(48, 2): ("Device::GetViewport", [(0, 24)]),
+	(58, 3): ("Device::GetRenderState", [(1, 4)]),
+	(59, 3): ("Device::CreateStateBlock", [(1, "object")]),
+	(61, 2): ("Device::EndStateBlock", [(0, "object")]),
+	(64, 3): ("Device::GetTexture", [(1, "object")]),
+	(66, 4): ("Device::GetTextureStageState", [(2, 4)]),
+	(68, 4): ("Device::GetSamplerState", [(2, 4)]),
+	(76, 2): ("Device::GetScissorRect", [(0, 16)]),
+	(86, 3): ("Device::CreateVertexDeclaration", [(1, "object")]),
+	(88, 2): ("Device::GetVertexDeclaration", [(0, "object")]),
+	(91, 3): ("Device::CreateVertexShader", [(1, "object")]),
+	(93, 2): ("Device::GetVertexShader", [(0, "object")]),
+	(101, 5): ("Device::GetStreamSource", [(1, "object"), (2, 4), (3, 4)]),
+	(105, 2): ("Device::GetIndices", [(0, "object")]),
+	(106, 3): ("Device::CreatePixelShader", [(1, "object")]),
+	(108, 2): ("Device::GetPixelShader", [(0, "object")]),
+	(118, 3): ("Device::CreateQuery", [(1, "object")]),
+	(7, 4): ("Query::GetData", [(0, "size1")]),
+	(11, 5): ("VertexBuffer/IndexBuffer::Lock", [(2, "buffer")]),
+	(12, 2): ("Surface::GetDesc", [(0, 32)]),
+	(13, 2): ("VertexBuffer/IndexBuffer::GetDesc", [(0, 24)]),
+	(13, 4): ("Surface::LockRect", [(0, "locked")]),
+	(17, 3): ("Texture::GetLevelDesc", [(1, 32)]),
+	(18, 3): ("Texture::GetSurfaceLevel", [(1, "object")]),
+	(18, 4): ("CubeTexture::GetCubeMapSurface", [(2, "object")]),
+	(19, 5): ("Texture::LockRect", [(1, "locked")]),
+	(19, 6): ("CubeTexture::LockRect", [(2, "locked")]),
+}
+COM_PITCH = 0x100
+COM_LOCK = 0x10000
+
+
+class ComRegion:
+	"""Fake Direct3D objects for the stubs to hand out: interface pointers whose vtable entries lead to a page that
+	may not execute (so every method call on them comes back here as an external call, its slot read off the target)
+	and scratch memory for locked buffers. Lives in the layout's free range after the scratch page; the hand-out
+	counters restart with every run, so both runs get the same addresses."""
+
+	def __init__(self, start, end):
+		self.methods = start  # one page: method k is at methods + 4k
+		self.vtable = start + 0x1000  # one page: 1024 entries
+		self.objects = start + 0x2000  # one page: 256 objects of 16 bytes
+		self.buffers = start + 0x3000
+		self.end = end
+		self.reset()
+
+	def map(self, uc, mapped, prot):
+		uc.mem_map(self.methods, self.end - self.methods, prot)
+		mapped.update(range(self.methods, self.end, 0x1000))
+		uc.mem_write(self.vtable, b"".join(struct.pack("<I", self.methods + 4 * k) for k in range(1024)))
+		uc.mem_write(self.objects, struct.pack("<I", self.vtable) * 1024)
+
+	def reset(self):
+		self.nextObject = 0
+		self.nextBuffer = self.buffers
+
+	def isMethod(self, address):
+		return self.methods <= address < self.methods + 0x1000
+
+	def slotOf(self, address):
+		return (address - self.methods) // 4
+
+	def newObject(self):
+		address = self.objects + 16 * (self.nextObject % 256)
+		self.nextObject += 1
+		return address
+
+	def newBuffer(self, size):
+		size = (max(size, 16) + 15) & ~15
+		if self.nextBuffer + size > self.end:
+			self.nextBuffer = self.buffers
+		address = self.nextBuffer
+		self.nextBuffer += min(size, self.end - self.buffers)
+		return address
+
+
+def comAnswer(machine, method, args):
+	"""Performs a Direct3D method's out-parameters (fake objects, scratch buffers, zeroed structures) and answers
+	S_OK. Pointers that do not lead to mapped memory above the first 64 KiB are left alone. `args` starts with `this`."""
+	region = machine.com
+	args = args[1:]
+	for index, kind in method[1]:
+		pointer = args[index] if index < len(args) else 0
+		if pointer < 0x10000 or machine.read(pointer, 4) is None:
+			continue
+		if kind == "object":
+			machine.writeTraced(pointer, struct.pack("<I", region.newObject()))
+		elif kind == "buffer":
+			machine.writeTraced(pointer, struct.pack("<I", region.newBuffer(args[1] if args[1] else COM_LOCK)))
+		elif kind == "locked":
+			machine.writeTraced(pointer, struct.pack("<iI", COM_PITCH, region.newBuffer(COM_LOCK)))
+		elif kind == "size1":
+			size = args[index + 1] if index + 1 < len(args) else 0
+			if 0 < size <= 0x1000:
+				machine.writeTraced(pointer, bytes(size))
+		else:
+			machine.writeTraced(pointer, bytes(kind))
+	return 0
+
+
 class Policy:
 	"""Answers for external calls. `variant` selects an alternative answer set for runs that probe other paths."""
 
@@ -424,6 +548,13 @@ class Policy:
 			return 4 * pushes
 		found = cfg.stackCleanup(readMemory, target)
 		return 0 if found is None else found
+
+	def answerCom(self, method, machine, args):
+		"""(eax, performed) for a Direct3D method: performed with fake out-parameters and S_OK; the other variants
+		answer as for any stub, without out-parameters."""
+		if self.variant == 0:
+			return comAnswer(machine, method, args), True
+		return (0x80004005 if self.variant == 1 else 1), False
 
 	def answer(self, name, machine, args):
 		"""(eax, performed): a CRT function is performed; anything else is a stub with the variant's value."""

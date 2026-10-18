@@ -117,8 +117,14 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    fail when every caller of the function is compiled from our sources too (the hybrid DLL replaces them as well). The
    emulator performs `QueryPerformanceCounter` / `Frequency` (a counter that depends only on the call index),
    `type_info::before`, `__RTDynamicCast` (from the object's RTTI), the `_CI` x87 math intrinsics, and takes code and
-   constants a state does not hold from the original image. Still `INCONCLUSIVE`: Direct3D COM calls (the stubs do not
-   fill their out-parameters) and states whose run now reaches heap pages the capture never saved (capture again).
+   constants a state does not hold from the original image. Direct3D methods are told apart by their vtable slot (read
+   off the call site, also through `mov reg, [vtable + slot*4]; call reg`) and the dwords pushed with `this`
+   (`externals.COM_METHODS`): their out-parameters get fake interfaces (whose own methods come back as external
+   calls), lock buffers or zeroed structures, the same in both runs. Still `INCONCLUSIVE`: states whose run now reaches
+   heap pages the capture never saved (capture again).
+   To capture what runs while the game starts (the loaders, the device's resources), start the capture first and launch
+   the game meanwhile (`difftest.py all --capture 3 --seconds 600 &` then `gamectl.py launch 1`): the entries are armed
+   as soon as the engine DLL is mapped.
 
 4. **Timing and trimming** (`python tools/difftest/bench.py`): the same replay without writing reports, with per-function
    and total times and the verdict compared against `local/difftest/reports/*.txt` (snapshotted to

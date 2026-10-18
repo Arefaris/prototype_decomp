@@ -353,7 +353,7 @@ class FunctionTest:
 				self.say("    NOTE statics: our object defines %s itself; symbols.txt does not map them, so ours (and the hybrid DLL) use their own copies, not the engine's" % ", ".join(statics[:6]))
 		if verbose:
 			for c in e.calls[:20]:
-				self.say("    engine call %s ecx=0x%08X %s" % (c["name"], c["ecx"], " ".join("0x%08X" % a for a in c["args"][:4])))
+				self.say("    engine call %s ecx=0x%08X %s" % (c["name"] + " @0x%08X" % c["ret"], c["ecx"], " ".join("0x%08X" % a for a in c["args"][:4])))
 
 	def verdict(self, conventionFindings, realResults, synthetic, realHit, variantHit):
 		if any(f.severity == "FAIL" for f in conventionFindings):

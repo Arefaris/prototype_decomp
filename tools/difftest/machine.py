@@ -198,6 +198,10 @@ class Machine:
 			uc.mem_map(address, PAGE, UC_PROT_ALL)
 			self.mapped.add(address)
 		uc.mem_write(self.layout.ret, b"\x90" * 16)
+		# fake Direct3D objects and lock buffers the COM stubs hand out (not executable: their methods come back as
+		# external calls)
+		self.com = externals.ComRegion(self.layout.scratch + PAGE, self.layout.end)
+		self.com.map(uc, self.mapped, UC_PROT_READ | UC_PROT_WRITE)
 		self.setupSegments(state.header.get("fsBase", 0))
 		self.setOverlay(overlay)
 		uc.hook_add(UC_HOOK_MEM_UNMAPPED, self.onUnmapped)
@@ -653,16 +657,37 @@ class Machine:
 		pushes = None
 		callerCleans = False
 		returnAddress = words[0]
+		callerRead = callerStart = None
 		if self.image.contains(returnAddress):
-			pushes = cfg.callerPushes(self.image.read, returnAddress, project.containingFunction(returnAddress))
-			callerCleans = cfg.callerCleanup(self.image.read, returnAddress) > 0
+			callerRead, callerStart = self.image.read, project.containingFunction(returnAddress)
 		elif self.ours and self.layout.code <= returnAddress < self.layout.data:
-			pushes = cfg.callerPushes(self.read, returnAddress, max((a for a in self.ours if a <= returnAddress), default=None))
-			callerCleans = cfg.callerCleanup(self.read, returnAddress) > 0
-		cleanup = self.policy.cleanup(name, target, self.readSnapshot, pushes, callerCleans)
+			callerRead, callerStart = self.read, max((a for a in self.ours if a <= returnAddress), default=None)
+		if callerRead is not None:
+			pushes = cfg.callerPushes(callerRead, returnAddress, callerStart)
+			callerCleans = cfg.callerCleanup(callerRead, returnAddress) > 0
+		method = None
+		if pushes and not callerCleans:
+			if self.com.isMethod(target):
+				slot = self.com.slotOf(target)
+				name = "d3d9 object!%d" % slot
+			elif module and module["name"].lower() == "d3d9.dll":
+				slot = cfg.callSlot(callerRead, returnAddress, callerStart)
+			else:
+				slot = None
+			if slot is not None:
+				method = externals.COM_METHODS.get((slot, pushes))
+				if method is not None:
+					name = "%s (%s)" % (name, method[0])
+		if self.com.isMethod(target) and pushes:
+			cleanup = 4 * pushes  # COM methods are stdcall
+		else:
+			cleanup = self.policy.cleanup(name, target, self.readSnapshot, pushes, callerCleans)
 		count = min(8, cleanup // 4) if cleanup else (pushes if pushes else 4)
 		self.trace.externals += 1
-		value, performed = self.policy.answer(name, self, words[1:9])
+		if method is not None:
+			value, performed = self.policy.answerCom(method, self, words[1:9])
+		else:
+			value, performed = self.policy.answer(name, self, words[1:9])
 		if not performed:
 			self.trace.stubbed.append(name)
 		call = {"address": target, "name": name, "esp": esp, "ret": returnAddress, "args": words[1:1 + count],
@@ -688,6 +713,7 @@ class Machine:
 		regs = self.state.regs
 		self.loadRegisters(regs)
 		self.trace = Trace()
+		self.com.reset()
 		self.entryEsp = regs["esp"]
 		self.stackLow = self.entryEsp - STACK_GROWTH
 		self.privateLimit = self.entryEsp + 4 + max(argBytes, 32)

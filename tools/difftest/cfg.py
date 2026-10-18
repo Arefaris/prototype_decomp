@@ -218,6 +218,40 @@ def callerPushes(readCode, returnAddress, functionStart, limit=0x1000):
 			pushes += insn.operands[1].imm // 4
 		elif insn.mnemonic in ("add", "pop") and insn.operands and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg == X86_REG_ESP:
 			pushes = 0
+		elif insn.mnemonic == "pop":
+			# `push ecx` reserves a local and an early return pops it again (pop ecx; ret): it is not an argument
+			pushes = max(0, pushes - 1)
+	return None
+
+
+def callSlot(readCode, returnAddress, functionStart, limit=0x1000):
+	"""The vtable slot of the indirect call that returns to `returnAddress`: `call [reg + disp]`, or `call reg` after
+	the last `mov reg, [base + disp]` before it (VC8 often loads the method first). None for anything else."""
+	if functionStart is None or not (0 < returnAddress - functionStart <= limit):
+		return None
+	code = readCode(functionStart, returnAddress - functionStart)
+	if code is None:
+		return None
+	loads = {}  # register -> disp of the last `mov reg, [base + disp]` that wrote it, or None
+	for insn in md.disasm(code, functionStart):
+		ops = insn.operands
+		if insn.address + insn.size == returnAddress:
+			if insn.mnemonic != "call" or not ops:
+				return None
+			if ops[0].type == X86_OP_MEM and ops[0].mem.base and not ops[0].mem.index:
+				return ops[0].mem.disp // 4 if ops[0].mem.disp >= 0 else None
+			if ops[0].type == X86_OP_REG:
+				disp = loads.get(ops[0].reg)
+				return None if disp is None else disp // 4
+			return None
+		if insn.mnemonic == "mov" and len(ops) == 2 and ops[0].type == X86_OP_REG and ops[1].type == X86_OP_MEM \
+				and ops[1].mem.base and not ops[1].mem.index and ops[1].mem.base not in (X86_REG_ESP, X86_REG_EBP) \
+				and ops[1].mem.disp >= 0:
+			loads[ops[0].reg] = ops[1].mem.disp
+			continue
+		_, written = insn.regs_access()
+		for reg in written:
+			loads[reg] = None
 	return None
 
 

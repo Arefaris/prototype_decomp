@@ -439,22 +439,6 @@ def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=T
 	("keys w:2.5,:2", "teleport 1000 20 -500") run one after another once the entries are armed, to drive the game
 	onto the paths wanted."""
 	deadline = time.time() + seconds
-	# the game may still be starting (to capture its start-up, launch it and run this at once): wait for the
-	# process, then for the engine DLL to be mapped
-	while True:
-		try:
-			pid, gameDir = gamePid()
-			break
-		except SystemExit:
-			if time.time() > deadline:
-				raise
-			time.sleep(0.2)
-	pageStore = store.PageStore()
-	process = Process(pid)
-	while process.read(addresses[0], JUMP) is None:
-		if time.time() > deadline or not process.alive():
-			raise SystemExit("the engine DLL is not mapped in the game")
-		time.sleep(0.05)
 	parkable = []
 	for address in addresses:
 		issue = parkingIssues(address)
@@ -463,15 +447,33 @@ def capture(addresses, wanted=3, seconds=30.0, spacing=1.0, play=None, verbose=T
 		else:
 			parkable.append(address)
 	if not parkable:
-		pageStore.close()
 		raise SystemExit("none of the requested functions can be parked")
-	if fresh:
-		clearStates(parkable)
+	pageStore = store.PageStore()
+	# the tests (our objects, the engine's blocks) before the game: the start-up runs the loaders within seconds
+	# of the DLL being mapped, and every entry has to be armed by then
 	tests = {}
 	if not full:
 		from difftest.difftest import FunctionTest
 		for address in parkable:
 			tests[address] = FunctionTest(address, obj, symbol, unit, budget, timeout, pageStore)
+	# the game may still be starting (to capture its start-up, run this first and launch the game meanwhile): wait
+	# for the process, then for the engine DLL to be mapped
+	while True:
+		try:
+			pid, gameDir = gamePid()
+			break
+		except SystemExit:
+			if time.time() > deadline:
+				raise
+			time.sleep(0.05)
+	process = Process(pid)
+	while process.read(parkable[0], JUMP) is None:
+		if time.time() > deadline or not process.alive():
+			pageStore.close()
+			raise SystemExit("the engine DLL is not mapped in the game")
+		time.sleep(0.01)
+	if fresh:
+		clearStates(parkable)
 	breakpoints = Breakpoints(process, parkable)
 	hits = {a: 0 for a in parkable}
 	armAt = {a: 0.0 for a in parkable}
