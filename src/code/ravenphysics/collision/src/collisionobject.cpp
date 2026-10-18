@@ -71,9 +71,6 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10654790
-	// NONMATCHING: the detector test, 89.6 %: the engine keeps the loaded pointer in a register and tests that
-	// (`mov ecx, [owner + 0x34]; test ecx, ecx`), ours compares the member against zero
-#ifdef NONMATCHING
 	CollisionShape* CollisionObject::SetShape(CollisionShape* newShape)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 498, !gLock.IsLocked(), "!gLock.IsLocked()", "");
@@ -93,11 +90,10 @@ namespace ravenphysics
 		BroadPhaseDetector* detector = owner->detector;
 		if (detector != 0)
 		{
-			owner->UpdateCollisionObject(this);
+			detector->UpdateCollisionObject(this);
 		}
 		return oldShape;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10654820
 	void CollisionObject::SetCapsuleVolume(int index, const math::Capsule& capsule)
@@ -321,7 +317,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10655460
-	math::Vector* CollisionObject::GetUnknown58()
+	math::SymmetricMatrix* CollisionObject::GetUnknown58()
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 881, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		return &shape->unknown58;
@@ -351,6 +347,55 @@ namespace ravenphysics
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 766, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		shape->MoveTo(position, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10654E50
+	void CollisionObject::Translate(math::Vector offset)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 774, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->Translate(offset, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10654ED0
+	void CollisionObject::GetVelocityAt(math::Vector point, math::Vector* velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 782, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->GetPointVelocity(point, velocity);
+	}
+
+	// FUNCTION: ENGINE 0x10654F50
+	void CollisionObject::AddVelocity(math::Vector velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 790, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->AddVelocity(velocity, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10654FD0
+	void CollisionObject::AddImpulse(math::Vector impulse, math::Vector point)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 798, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->AddImpulse(impulse, point, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10655070
+	void CollisionObject::AddAngularVelocity(math::Vector velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 806, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->AddAngularVelocity(velocity, 1);
+	}
+
+	// FUNCTION: ENGINE 0x106550F0
+	void CollisionObject::MoveFromTo(math::Vector from, math::Vector to)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 814, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->MoveTo(from, to, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10655190
+	void CollisionObject::MoveToCenter(math::Vector from)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 822, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->MoveTo(from, shape->center, 1);
 	}
 
 	// FUNCTION: ENGINE 0x106553E0
@@ -387,6 +432,25 @@ namespace ravenphysics
 		return shape->flag2;
 	}
 
+	// FUNCTION: ENGINE 0x10655600
+	void CollisionObject::SetWorld(void* world)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 922, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetFlag2((int)world);
+		BroadPhaseDetector* detector = owner->detector;
+		if (detector != 0)
+		{
+			detector->UpdateCollisionObject(this);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10655670
+	void CollisionObject::SetSize(int a, int b, float size)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 935, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		shape->SetSize(a, b, size);
+	}
+
 	// FUNCTION: ENGINE 0x106556E0
 	void CollisionObject::SetFlag1(bool value)
 	{
@@ -406,6 +470,53 @@ namespace ravenphysics
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 976, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		return &shape->unknown34;
 	}
+
+	// FUNCTION: ENGINE 0x106557A0
+	// NONMATCHING: as GetRelativeVelocity, with the previous vectors
+#ifdef NONMATCHING
+	void CollisionObject::GetPreviousRelativeVelocity(const math::Vector* point, math::Vector* velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 984, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		float px = point->x;
+		float py = point->y;
+		float pz = point->z;
+		CollisionShape* body = shape;
+		float cy = body->unknown34.z * px - body->unknown34.x * pz;
+		float cz = body->unknown34.x * py - body->unknown34.y * px;
+		float cx = body->unknown34.y * pz - body->unknown34.z * py;
+		velocity->y = cy;
+		velocity->z = cz;
+		velocity->x = cx;
+		velocity->x = cx + body->unknown28.x;
+		velocity->y = body->unknown28.y + cy;
+		velocity->z = body->unknown28.z + cz;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10655880
+	// NONMATCHING: the shape's velocity at a point, the cross product of the angular velocity with the point added
+	// to the linear velocity, inlined from the shape's accessor. Every instruction and the store order are the
+	// engine's, but it computes x behind z (ours before the stores of y) and adds the linear x to the register of
+	// the cross product, 67.8 %
+#ifdef NONMATCHING
+	void CollisionObject::GetRelativeVelocity(const math::Vector* point, math::Vector* velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 992, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		float px = point->x;
+		float py = point->y;
+		float pz = point->z;
+		CollisionShape* body = shape;
+		float cy = body->unknown1C.z * px - body->unknown1C.x * pz;
+		float cz = body->unknown1C.x * py - body->unknown1C.y * px;
+		float cx = body->unknown1C.y * pz - body->unknown1C.z * py;
+		velocity->y = cy;
+		velocity->z = cz;
+		velocity->x = cx;
+		velocity->x = cx + body->unknown10.x;
+		velocity->y = body->unknown10.y + cy;
+		velocity->z = body->unknown10.z + cz;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10655960
 	void CollisionObject::SetFlag4(bool value)
@@ -453,6 +564,24 @@ namespace ravenphysics
 		{
 			shape->Print();
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10655AA0
+	int MeshGeometry::Count() const
+	{
+		return end - begin;
+	}
+
+	// FUNCTION: ENGINE 0x10655AB0
+	void CollisionObjectTable::Register(void* object, CollisionHandle* handle)
+	{
+		Add(object, handle);
+	}
+
+	// FUNCTION: ENGINE 0x10655AC0
+	unsigned short MinSlots(unsigned short a, unsigned short b)
+	{
+		return a < b ? a : b;
 	}
 
 	// FUNCTION: ENGINE 0x10655AE0
@@ -588,6 +717,18 @@ namespace ravenphysics
 		}
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x10655B30
+	void* CollisionVolume4::DestroyAndFree(unsigned int flags)
+	{
+		materials.~CollisionVolume3();
+		MarkDestroyed();
+		if (flags & 1)
+		{
+			operator delete(this);
+		}
+		return this;
+	}
 
 	// FUNCTION: ENGINE 0x10655BE0
 	CollisionObject* CollisionObject::Clone(bool unused)

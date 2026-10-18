@@ -36,13 +36,16 @@ namespace ravenphysics
 		unsigned char unknown24[0x34 - 0x24];
 		BroadPhaseDetector* detector;
 		unsigned short detectorIndex;
+		// 0x106561E0
+		unsigned short GetDetectorIndex() const;
 		unsigned char unknown3A[2];
 		// How the body's collision objects collide (0x1065F6D0 sets the low two bits; 0x3C)
 		unsigned short collisionMode;
 		// 0x3E: the broad phase's state bits (the engine tests them as a byte)
 		unsigned char collisionFlags;
 		unsigned char unknown3F;
-		unsigned char unknown40[0x54 - 0x40];
+		unsigned char unknown40[0x50 - 0x40];
+		unsigned int unknown50;
 
 		// The broad phase's state in collisionFlags: bit 0 - the object is asleep, bit 3 - the object is left out
 		// of the queries and of the solver (name guess)
@@ -67,6 +70,13 @@ namespace ravenphysics
 		void SetState(unsigned char mask, bool set);
 	};
 
+	// What a body is linked to (name and layout are guesses)
+	struct PhysicsLink
+	{
+		unsigned char unknown0[0xC];
+		int member;
+	};
+
 	// ravenphysics::PhysicsObject (RTTI): a body made of collision objects
 	class PhysicsObject : public BroadPhaseObject
 	{
@@ -80,12 +90,18 @@ namespace ravenphysics
 		void RefreshBounds(bool unused);
 		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
 		void SetCollisionMode(unsigned short mode);
-		// Marks one of the body's collision objects as needing an update in the detector (0x10683510, another unit)
-		void UpdateCollisionObject(CollisionObject* object);
 
 		CollisionObject** objects;
 		int unknown58;
 		unsigned short objectCount;
+		unsigned char unknown5E[2];
+		PhysicsLink* link;     // 0x60
+
+		// Whether the body takes part in the self collisions (0x10656320)
+		bool IsLinked() const
+		{
+			return link != 0 && link->member != 0 && !(unknown50 & 1);
+		}
 	};
 }
 

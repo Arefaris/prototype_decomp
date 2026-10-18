@@ -452,7 +452,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x106570D0
-	SlotPool::SlotPool()
+	inline SlotPool::SlotPool()
 	{
 		mSlots = 0;
 		mCapacity = 0;
@@ -1041,7 +1041,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10658030
-	bool PointerRun::PushBack(void* const& value)
+	inline bool PointerRun::PushBack(void* const& value)
 	{
 		if (mEnd < mCapacity)
 		{
@@ -1056,7 +1056,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10658060
-	void** PointerRun::Find(void* const& value)
+	inline void** PointerRun::Find(void* const& value)
 	{
 		void** item = mBegin;
 		while (item != mEnd && *item != value)
@@ -1475,6 +1475,95 @@ namespace ravenphysics
 			{
 				object->RefreshBounds(0);
 			}
+		}
+	}
+
+	// Two collision objects, named by the handles the table gave them (name and layout are guesses)
+	struct HandlePair
+	{
+		unsigned char unknown0[0x18];
+		CollisionHandle first;         // 0x18
+		CollisionHandle second;        // 0x1C
+	};
+
+	// The pairs of a batch: the run of pointers to them (name guess)
+	struct HandlePairRun
+	{
+		HandlePair** begin;
+		HandlePair** end;
+	};
+
+	// Two bodies and what the narrow phase knows about them (0x70 bytes; name and layout are guesses)
+	struct BodyPairRecord
+	{
+		unsigned char unknown0[0x10];
+		PhysicsObject* first;          // 0x10
+		PhysicsObject* second;         // 0x14
+		unsigned char unknown18[0x70 - 0x18];
+	};
+
+	// The records of a batch and how many there are (name guess)
+	struct BodyPairRun
+	{
+		BodyPairRecord* records;
+		unsigned int count;
+	};
+
+	// The handle that names nothing (0x110BE234)
+	extern const CollisionHandle gInvalidCollisionHandle;
+
+	// Adds a body to the list unless it is in it already or the list is full
+	inline void AddBody(PointerRun* list, PhysicsObject* body)
+	{
+		if (list->Find(body) == list->mEnd)
+		{
+			list->PushBack(body);
+		}
+	}
+
+	// Whether the slot the handle names still carries the handle's serial
+	inline bool IsLiveHandle(unsigned int handle)
+	{
+		if ((unsigned short)handle >= gCollisionObjectTable->slotCount)
+		{
+			return false;
+		}
+		return gCollisionObjectTable->entries.begin[(unsigned short)handle].serial == (handle >> 16);
+	}
+
+	// The body of the collision object a handle names
+	inline PhysicsObject* GetHandleBody(unsigned int handle)
+	{
+		return ((CollisionObject*)gCollisionObjectTable->entries.begin[(unsigned short)handle].object)->owner;
+	}
+
+	// Sorts the bodies of a batch's pairs into the static and the movable list, each body once (0x106586E0; name
+	// guess)
+	// FUNCTION: ENGINE 0x106586E0
+	void Context::CollectBodies(const HandlePairRun* pairs, const BodyPairRun* records, PointerRun* staticBodies,
+		PointerRun* movableBodies)
+	{
+		for (unsigned int i = 0; i < (unsigned int)(pairs->end - pairs->begin); i++)
+		{
+			unsigned int handle = pairs->begin[i]->first.value;
+			if (IsLiveHandle(handle) && handle != gInvalidCollisionHandle.value)
+			{
+				PhysicsObject* body = GetHandleBody(handle);
+				AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			}
+			handle = pairs->begin[i]->second.value;
+			if (IsLiveHandle(handle) && handle != gInvalidCollisionHandle.value)
+			{
+				PhysicsObject* body = GetHandleBody(handle);
+				AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			}
+		}
+		for (unsigned int i = 0; i < records->count; i++)
+		{
+			PhysicsObject* body = records->records[i].first;
+			AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
+			body = records->records[i].second;
+			AddBody((body->collisionMode & 3) == 0 ? staticBodies : movableBodies, body);
 		}
 	}
 
@@ -1923,6 +2012,158 @@ namespace ravenphysics
 		mWorld->QueryBodyShapeHits(object, hits, unknownC4, a);
 	}
 
+	// FUNCTION: ENGINE 0x10658D00
+	Context::Context()
+	{
+		registry = 0;
+		unknown10 = 0;
+		staticObjects.end = 0;
+		movableObjects.begin = 0;
+		collisionBatch.records = 0;
+		collisionBatch.recordsEnd = 0;
+		collisionBatch.slots = 0;
+		collisionBatch.slotsEnd = 0;
+		collisionBatch.unknown18 = 0;
+		collisionBatch.unknown1C = 0;
+		collisionBatch.unknown20 = 0;
+		collisionBatch.recordsSecond = 0;
+		collisionBatch.recordsSecondEnd = 0;
+		collisionBatch.unknown2C = 0;
+		collisionBatch.unknown30 = 0;
+		constraintBatch.records = 0;
+		constraintBatch.recordsEnd = 0;
+		constraintBatch.unknown8 = 0;
+		constraintBatch.unknownC = 0;
+		constraintBatch.slots = 0;
+		constraintBatch.slotsEnd = 0;
+		constraintBatch.unknown18 = 0;
+		constraintBatch.unknown1C = 0;
+		constraintBatch.unknown20 = 0;
+		constraintBatch.recordsSecond = 0;
+		constraintBatch.recordsSecondEnd = 0;
+		constraintBatch.unknown2C = 0;
+		constraintBatch.unknown30 = 0;
+		queryBatch.records = 0;
+		queryBatch.recordsEnd = 0;
+		queryBatch.unknown8 = 0;
+		queryBatch.unknownC = 0;
+		queryBatch.slots = 0;
+		queryBatch.slotsEnd = 0;
+		queryBatch.unknown18 = 0;
+		queryBatch.unknown1C = 0;
+		queryBatch.unknown20 = 0;
+		queryBatch.unknown24 = 0;
+		queryBatch.unknown28 = 0;
+		queryBatch.unknown2C = 0;
+		queryBatch.unknown30 = 0;
+		queryBatch.unknown34 = 0;
+		unknownC4 = 0;
+		unknownC8 = 0;
+		unknownCC = 0;
+		unknownD0 = 0;
+		unknownD4 = 0;
+		unknownD8Word = 0;
+		unknownDC = 0;
+		unknownE0 = 0;
+		unknownE4 = 0;
+		unknownE8 = 0;
+		unknownEC = 0;
+		unknownF0 = 0;
+		unknownF4 = 0;
+		unknownF8 = 0;
+		unknownFC = 0;
+		unknown100 = 0;
+		unknown104 = 0;
+		detector = 0;
+		recordPool.mSlots = 0;
+		recordPool.mCapacity = 0;
+		recordPool.mCounter = 0;
+		statLog.entries = 0;
+		statLog.capacity = 0;
+		statLog.count = 0;
+		unknown124[0] = 0;
+		unknown124[1] = 0;
+		unknown124[2] = 0;
+		unknown124[3] = 0;
+		unknown124[4] = 0;
+		unknown124[5] = 0;
+		unknown124[6] = 0;
+		unknown124[7] = 0;
+		unknown124[8] = 0;
+		unknown124[9] = 0;
+		unknown124[10] = 0;
+		unknown124[11] = 0;
+		unknown124[12] = 0;
+		unknown124[13] = 0;
+		unknown124[14] = 0;
+		unknown124[15] = 0;
+		unknown124[16] = 0;
+		unknown124[17] = 0;
+		unknown124[18] = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10658F90
+	NarrowPhaseBatcher::NarrowPhaseBatcher()
+	{
+		batches[0].storage = 0;
+		batches[0].count = 0;
+		batches[0].capacity = 0;
+		batches[1].storage = 0;
+		batches[1].count = 0;
+		batches[1].capacity = 0;
+		batches[2].storage = 0;
+		batches[2].count = 0;
+		batches[2].capacity = 0;
+		batches[3].storage = 0;
+		batches[3].count = 0;
+		batches[3].capacity = 0;
+		batches[4].storage = 0;
+		batches[4].count = 0;
+		batches[4].capacity = 0;
+		batches[5].storage = 0;
+		batches[5].count = 0;
+		batches[5].capacity = 0;
+		unknown64 = 0;
+		unknown68 = 0;
+		unknown6C = 0;
+		unknown74 = 0;
+		unknown78 = 0;
+		unknown184 = 0;
+		unknown188 = 0;
+		unknown18C = 0;
+		unknown190 = 0;
+		unknown194 = 0;
+		unknown198 = 0;
+		unknown398 = 0;
+		unknown39C = 0;
+		unknown3A0 = 0;
+		unknown3A4 = 0;
+		unknown3A8 = 0;
+		unknown3AC = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10659030
+	inline MidPhaseBatcher::MidPhaseBatcher()
+	{
+		pairs.entries = 0;
+		pairs.count = 0;
+		pairs.capacity = 0;
+		pairs.buffer = 0;
+		pairs.offset = 0;
+		pairs.total = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		unknown24 = 0;
+		batchCount = 0;
+		batchTotal = 0;
+		unknown64 = 0;
+		unknown68 = 0;
+		unknown6C = 0;
+		log.entries = 0;
+		log.capacity = 0;
+		log.count = 0;
+	}
+
 	// FUNCTION: ENGINE 0x10659690
 	void CollisionDetector::End()
 	{
@@ -1931,6 +2172,158 @@ namespace ravenphysics
 		mCollisionDetectorInternal->~CollisionDetector();
 		mCollisionDetectorInternal = 0;
 		unknown28 = 0;
+	}
+
+	// The scratch allocator the detector keeps for the detection (0x30 bytes; name guess)
+	class DetectorScratch : public LocalScratchAllocator
+	{
+	public:
+		DetectorScratch(void* buffer, unsigned int size)
+		{
+			unknown18 = false;
+			owner = 0;
+			Init(buffer, size, false);
+		}
+
+		unsigned char unknown20[0x10];
+	};
+
+	// FUNCTION: ENGINE 0x106596F0
+	CollisionDetector* CollisionDetector::Run(Context* owner, void* work)
+	{
+		Open();
+		context = owner;
+		recordPool = &owner->recordPool;
+		data = work;
+		AlignedRecord32 record;
+		record.name = "Synchronize";
+		record.unknown8 = -1;
+		record.kind = 1;
+		record.unknown10 = true;
+		record.unknown11 = true;
+		record.start = (unsigned int)core::GetTicks();
+		if (!owner->unknownD8)
+		{
+			owner->RefreshObjectList(&owner->movableObjects);
+			owner->registry->Unknown10686870();
+		}
+		record.end = (unsigned int)core::GetTicks();
+		Record32* item = (Record32*)AcquireSlot32(recordPool);
+		if (item != 0)
+		{
+			*item = record;
+		}
+		ScratchStack stack;
+		void* buffer = stack.Alloc(0x10000, 0x10);
+		unknown14 = new (stack.Alloc(0x30, 0x10)) DetectorScratch(buffer, 0x10000);
+		event = stack.Alloc(0x10, 0x10);
+		core::EventInit(event, 0xFFFF);
+		narrowPhase = new (stack.Alloc(0x400, 0x10)) NarrowPhaseBatcher();
+		narrowPhase->Init(work, event, recordPool);
+		midPhase = new (stack.Alloc(0x80, 0x10)) MidPhaseBatcher();
+		midPhase->Init(narrowPhase, event, recordPool, work);
+		record.name = "Self collisions";
+		record.unknown8 = -1;
+		record.kind = 2;
+		record.unknown10 = true;
+		record.unknown11 = true;
+		record.start = (unsigned int)core::GetTicks();
+		midPhase->pairs.Begin();
+		for (unsigned int i = 0; i < owner->movableObjects.Count(); i++)
+		{
+			PhysicsObject* body = (PhysicsObject*)owner->movableObjects.Get(i);
+			if (!body->IsSkipped() && (body->collisionMode & 3) == 2 && body->IsLinked())
+			{
+				midPhase->pairs.Add((CollisionObject*)body, (CollisionObject*)body);
+			}
+		}
+		midPhase->pairs.Flush();
+		record.end = (unsigned int)core::GetTicks();
+		item = (Record32*)AcquireSlot32(recordPool);
+		if (item != 0)
+		{
+			*item = record;
+		}
+		gLock.locked = true;
+		owner->mWorld->Unknown28(work, owner->unknownC4, unknown14, recordPool, midPhase);
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x10659D50
+	void Context::Destroy()
+	{
+		ClearObjects();
+		((WorkPools*)&recordPool)->ReleaseAll();
+		if (mWorld != 0)
+		{
+			mWorld->Unknown00(1);
+		}
+		if (!unknownD8)
+		{
+			PlacementTracker* tracker = placement;
+			if (tracker != 0)
+			{
+				tracker->~PlacementTracker();
+				operator delete(tracker);
+			}
+			registry->Release();
+			operator delete(registry);
+			core::FreeAligned(unknown10);
+		}
+		unknownC4->Unknown106840A0();
+		BroadPhaseDetector* broadPhase = unknownC4;
+		if (broadPhase != 0)
+		{
+			broadPhase->~BroadPhaseDetector();
+			operator delete(broadPhase);
+		}
+		operator delete(detector);
+		((WorkPools*)&recordPool)->ReleaseAll();
+		queryBatch.unknown24 = queryBatch.unknown20;
+		if (queryBatch.unknown20 != 0)
+		{
+			operator delete[](queryBatch.unknown20);
+		}
+		queryBatch.slotsEnd = queryBatch.slots;
+		if (queryBatch.slots != 0)
+		{
+			operator delete[](queryBatch.slots);
+		}
+		queryBatch.recordsEnd = queryBatch.records;
+		if (queryBatch.records != 0)
+		{
+			operator delete[](queryBatch.records);
+		}
+		constraintBatch.recordsSecondEnd = constraintBatch.recordsSecond;
+		if (constraintBatch.recordsSecond != 0)
+		{
+			operator delete[](constraintBatch.recordsSecond);
+		}
+		constraintBatch.slotsEnd = constraintBatch.slots;
+		if (constraintBatch.slots != 0)
+		{
+			operator delete[](constraintBatch.slots);
+		}
+		constraintBatch.recordsEnd = constraintBatch.records;
+		if (constraintBatch.records != 0)
+		{
+			operator delete[](constraintBatch.records);
+		}
+		collisionBatch.recordsSecondEnd = collisionBatch.recordsSecond;
+		if (collisionBatch.recordsSecond != 0)
+		{
+			operator delete[](collisionBatch.recordsSecond);
+		}
+		collisionBatch.slotsEnd = collisionBatch.slots;
+		if (collisionBatch.slots != 0)
+		{
+			operator delete[](collisionBatch.slots);
+		}
+		collisionBatch.recordsEnd = collisionBatch.records;
+		if (collisionBatch.records != 0)
+		{
+			operator delete[](collisionBatch.records);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10659EE0
@@ -1942,6 +2335,43 @@ namespace ravenphysics
 		mCollisionDetectorInternal = this;
 		Run(context, data);
 	}
+
+	// FUNCTION: ENGINE 0x10659F70
+	// NONMATCHING: every instruction and the order are the engine's, but its frame keeps eight bytes between the
+	// record and the scratch allocator (the allocator at +0x48, ours at +0x40), 95.3 %
+#ifdef NONMATCHING
+	void Context::Collide()
+	{
+		DetectionData* data = (DetectionData*)detector->GetObject();
+		detector->End();
+		if (!unknownD8)
+		{
+			ScratchStackFrame frame;
+			ScratchStack stack;
+			void* buffer = stack.Alloc(0x10000, 0x10);
+			LocalScratchAllocator allocator;
+			allocator.unknown18 = false;
+			allocator.owner = 0;
+			allocator.Init(buffer, 0x10000, false);
+			AlignedRecord32 record;
+			record.name = "Collide Awoken Islands";
+			record.unknown8 = -1;
+			record.kind = 6;
+			record.unknown10 = true;
+			record.unknown11 = true;
+			record.start = (unsigned int)core::GetTicks();
+			RunIslands(data, &allocator);
+			record.end = (unsigned int)core::GetTicks();
+			recordPool.Add(record);
+		}
+		StatEntry entry;
+		entry.first = data->first;
+		entry.second = data->second;
+		entry.unknown8 = 0;
+		entry.name = "Collisions";
+		statLog.Add(entry);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10659F40
 	void Context::BeginCollision(void* data)

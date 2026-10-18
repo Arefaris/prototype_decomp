@@ -19,7 +19,7 @@ namespace choreo
 	struct DriverInfo
 	{
 		unsigned char unknown0[0xC];
-		pure3d::Pose* mPose;         // 0x0C
+		pure3d::Skeleton* mSkeleton; // 0x0C
 	};
 
 	// The drivers are not updated through their vftable but through a table indexed by the driver's type.
@@ -30,6 +30,8 @@ namespace choreo
 	public:
 		// 0x1094A4E0: a driver of the given type, not yet taking part in the blend
 		Driver(int type);
+		// 0x1094A530
+		Driver(const Driver& other);
 		// slot 0: binds the driver to the pose it drives (nothing in the base, 0x109496E0)
 		virtual void Bind(const DriverInfo& info);
 		// slot 1: releases what the driver was bound to (nothing in the base, 0x109496F0)
@@ -40,6 +42,10 @@ namespace choreo
 		// 0x1094A5B0
 		virtual ~Driver();
 
+		// 0x1094A430 / 0x1094A460 / 0x1094A4C0: bit 0, bit 2 and bit 5 of the flags (names guessed)
+		void Unknown1094A430(bool enabled);
+		void Unknown1094A460(bool enabled);
+		void Unknown1094A4C0(bool enabled);
 		// 0x1094A440 / 0x1094A4A0: whether the driver takes part in the blend / moves the root (names guessed)
 		void Unknown1094A440(bool enabled);
 		void Unknown1094A4A0(bool enabled);
@@ -52,6 +58,9 @@ namespace choreo
 		unsigned char mFlags;                      // 0x18
 		unsigned char unknown19[3];
 	};
+
+	// 0x1094A610: a phase wrapped around into [0, 1) (name guess)
+	float WrapPhase(float phase);
 
 	// The update function of each driver type
 	typedef void (*DriverUpdateFunction)(Driver* driver, float dt);

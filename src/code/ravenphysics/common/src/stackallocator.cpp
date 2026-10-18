@@ -31,6 +31,11 @@ namespace ravenphysics
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106860E0
+	StackAllocator::~StackAllocator()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x106860F0
 	void* StackAllocator::Mark()
 	{

@@ -12,18 +12,6 @@ namespace ravenphysics
 	class PhysicsObject;
 	struct PairDetails;
 
-	// The batcher the narrow phase's pairs are queued in and worked off from (assert path
-	// code/ravenphysics/batch/src/narrowphasebatcher.cpp; the class name is the unit's, the layout is not recovered
-	// yet and the context unit only holds a pointer to it)
-	class NarrowPhaseBatcher
-	{
-	public:
-		// Waits for every queued batch and reports what was left over (0x106911D0; name guess)
-		void Complete();
-
-		unsigned char unknown0[0x400];
-	};
-
 	// The pairs of one collision-type queue, filled until the capacity is reached
 	struct Batch
 	{
@@ -31,6 +19,44 @@ namespace ravenphysics
 		int count;
 		int capacity;
 		int type;
+	};
+
+	// The batcher the narrow phase's pairs are queued in and worked off from (assert path
+	// code/ravenphysics/batch/src/narrowphasebatcher.cpp; the class name is the unit's, the layout is only partly
+	// recovered: the batches the pairs are queued in come first, the words after them start at zero)
+	class NarrowPhaseBatcher
+	{
+	public:
+		// Every pointer and counter starts at zero (0x10658F90)
+		NarrowPhaseBatcher();
+		// Waits for every queued batch and reports what was left over (0x106911D0; name guess)
+		void Complete();
+		// Takes the work to batch, the event and the profiler pool (0x10690D20; name guess)
+		void Init(void* work, void* gate, void* recordPool);
+
+		Batch batches[6];                       // 0x00
+		unsigned char unknown60[4];
+		int unknown64;
+		int unknown68;
+		int unknown6C;
+		unsigned char unknown70[4];
+		int unknown74;
+		int unknown78;
+		unsigned char unknown7C[0x184 - 0x7C];
+		int unknown184;
+		int unknown188;
+		int unknown18C;
+		int unknown190;
+		int unknown194;
+		int unknown198;
+		unsigned char unknown19C[0x398 - 0x19C];
+		int unknown398;
+		int unknown39C;
+		int unknown3A0;
+		int unknown3A4;
+		int unknown3A8;
+		int unknown3AC;
+		unsigned char unknown3B0[0x400 - 0x3B0];
 	};
 
 	// What the batches are cut from: a block of 64-byte pair records and how many are taken

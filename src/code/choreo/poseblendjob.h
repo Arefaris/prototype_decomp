@@ -25,7 +25,6 @@ namespace choreo
 		pure3d::FrameTime mTo;        // 0x14
 		bool mForward;                // 0x1C
 		unsigned char unknown1D[3];
-		void* mArrays;                // 0x20
 	};
 
 	// One driver's blend node: the sample it shows and the root motion it adds to the pose (0x70 bytes)

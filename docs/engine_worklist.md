@@ -1161,43 +1161,43 @@ NONMATCHING:
 Not done (1): `ValidateDeltaInput(const math::Matrix&)` (0x1094DA40) is compiled and called by the matching matrix
 setters but carries no annotation (the engine unrolls its sixteen comparisons where ours keeps the loop).
 
-## choreo, the unit before deltatransform.cpp (0x1094C810 - 0x1094D720): 3 functions match, 0 NONMATCHING, 50 not done
+## choreo/src/partitiondriver.cpp (0x1094C790 - 0x1094D6F0): 50 functions match, 0 NONMATCHING, 0 not done
 
-Source in `choreo/src/partitiondriver.cpp` (file name guessed; `choreo::AnimationBlendDriver`'s destructor 0x1094D290
-destroys fifteen 0x2C-byte clip entries from +0x3C, so the unit is the one that builds and drives the drivers that
-partition the pose). Matched: `PartitionDriver::~PartitionDriver` 0x1094D430 (releases the pose through its vftable),
-`CoversRoot` 0x1094D4B0 and `Unknown1094D4C0` 0x1094D4C0 (whether the clip is at rest against the pose).
+The unit before deltatransform.cpp (file name guessed): `choreo::AnimationBlendDriver : PartitionDriver` (RTTI
+0x111EC030, vftable 0x10E8BB64, driver type 1) and the partition half of `choreo::PartitionDriver` (RTTI 0x111EBF84,
+vftable 0x10E8BC84). Classes in `choreo/blenddriver.h` and `choreo/rootdriver.h`.
 
-The unit is the one that builds and drives `choreo::PartitionDriver` and `choreo::AnimationBlendDriver` (RTTI
-0x111EBF84 / 0x111EC030): the driver of one step of an animation, a 15-slot table of 0x2C-byte entries at +0x3C, the
-clip lengths and rates (0x1094C850, 0x1094CEA0, 0x1094CEF0), the partition bit-set indexing and the blends. Nothing
-is written up yet. What the rootdriver unit has since recovered (the classes are laid out in
-`src/code/choreo/{rootdriver,puppet}.h` now):
+- `PartitionDriver` (0x38 bytes): the object at +0x28 is a `pure3d::Skeleton` (not a Pose: its +8 is the joint count
+  and its virtuals 0 / 1 are AddRef / Release), `mPartition +0x2C` is the skeleton's named group of joints
+  (`pure3d::SkeletonPartition`, 0x18 bytes, name at +8, joint mask at +0x10; the skeleton keeps the count at +0x58 and
+  the array at +0x5C, `Skeleton::FindPartition` 0x106DDC80), `mJointMask +0x30` its mask (a bit per joint). The ranges
+  `mFirstJoint` / `mLastJoint` are the first and last set bit (0x1094D570); `SetPartition` ends with a virtual call
+  of `CoversRoot` whose result is dropped.
+- `AnimationBlendDriver` (0x2E4 bytes): `mActiveCount +0x38`, fifteen `BlendEntry` (0x2C bytes: `AnimationBinding` +0,
+  start frame +0x1C, end frame +0x20 (negative counts back from the last frame, default -1), rate +0x24, weight +0x28)
+  from +0x3C, `mLooping +0x2D0`, +0x2D1, `mScale +0x2D4`, `mPreviousPhase +0x2D8`, `mPhase +0x2DC`, `mPhaseStep +0x2E0`.
+  The entries are blended by weight (a running mean, `(x - mean) * share + mean`) into one phase running from 0 to 1.
+- `PoseBlendSample` is 0x20 bytes: the joint arrays that `PoseBlendNode::Set` takes start right after the samples,
+  not in a member.
 
-- `choreo::PartitionDriver` (0x38 bytes) = `Driver` (0x1C: vptr, an 8-byte core::Name at +4, +0xC, an int at +0x10,
-  the type at +0x14, the flags byte at +0x18) plus `mFirstJoint +0x20`, `mLastJoint +0x24`, `mPose +0x28`,
-  `mJoint +0x2C`, `mJointMask +0x30`, `+0x34`. Its vftable is 0x10E8BC84, six slots: 0x1094D690 the bind override,
-  0x109496F0 inherited, 0x1094B100 / 0x1094B110 the two joint getters, `??_G` 0x1094D550 and 0x1094D4B0
-  `CoversRoot` (`mFirstJoint == 0`); the destructor is 0x1094D430 (releases the object at +0x28 through its
-  vftable slot 1, then `~Driver`), not 0x1094D550.
-- 0x1094D690 takes a `DriverInfo` (`{ unknown0[0xC], void* mPose +0xC }`), assigns it with 0x1094D4F0
-  (`AssignRefCounted`), looks the joint up by name through 0x1094D630 -> `0x106DDC80(Pose*, const core::Name&)`
-  (returns the 0x18-byte joint whose `core::Name` is at +8) and stores it with 0x1094D570 (the joint at +0x2C, its
-  mask at +0x30, then a scan of the mask for the first and last joint of the range). 0x1094D4C0 returns whether the
-  clip is at rest against the pose: `!(binding.mSource && mPose && binding.mClip.Unknown10952390(mJointMask))`.
-- `choreo::AnimationBlendDriver`'s vftable is 0x10E8BB64: slot 0 0x1094CB50, slot 1 0x1094CB20, slots 2/3 inherited,
-  `??_G` 0x1094D3C0, slot 5 inherited. Its own members start after the 0x38 bytes of PartitionDriver.
-- The clip class (`choreo::AnimationClip`, 0x18 bytes: a channel pointer +0, the duration in frames +4, the rate +8,
-  +0xC, a flags byte +0x10, the animation bound to it +0x14; methods 0x10952290 destroy, 0x109522A0 set,
-  0x10952310 IsSet, 0x10952320 duration, 0x10952330 rate, 0x10952380 bit 1 of the flags, 0x10952390 whether the
-  animation drives any joint of a mask, 0x10952480 the animation) and the two blend nodes of the job
-  (`choreo::PoseBlendNode`, 0x70 bytes, and `choreo::PoseBlendSample`, 0x20 bytes, declared in poseblendjob.h) are
-  already in the choreo headers.
+Matching notes:
 
-**The blocker to know about:** this unit's file-local helpers are called with their argument in a register the
-compiler of the original chose per function (`eax`, `ecx`, `esi`), which is the behaviour of link-time code generation
-(/GL), not of plain /O2: our build puts them all in `ecx`. Everything that calls such a helper is off by that one
-`mov`. If a later session finds a way to reproduce it, the twenty setters come with it.
+- The file-local register convention blocker recorded earlier does not exist: every helper of this unit takes its
+  arguments on the stack or in `ecx`. The `RefAssign` pair at 0x1094D1C0 / 0x1094D4F0 are `core::RefAssign` for
+  `pure3d::Animation` and `pure3d::Skeleton` (instantiated by the compiler, not annotated).
+- A `bool` function returning `return !(a && b);` is compiled with `xor eax, eax` / `mov eax, 1`, `if (...) return false;
+  return true;` with `xor al, al` (BlendEntry::IsIdle).
+- The engine's clamp ladders are ternaries: `float s = x >= 0 ? x : 0; if (s - last >= 0) s = last;` keeps the
+  intermediate in a register, a plain `if (x < 0) x = 0;` stores it in the stack slot (GetLength / GetFrame; the
+  wrapped end frame is a separate local).
+- A reciprocal guarded by an epsilon is `if (EPS >= fabsf(x)) r = 0; else r = 1 / x;` (zero branch first, `fcomip` against
+  the constant) or the ternary `!(EPS >= fabsf(x)) ? a / x : 0`; `fabsf(x) > EPS` compiles to `fxch` + `fcomip` instead.
+- A float result assigned in each arm of an if / else chain and returned (`float result; ...; return result;`) is
+  spilled to a stack slot and reloaded (`fstp` / `fld`) like the engine's GetFrame.
+- `UpdateFinished`: `finished = mPhase >= 1.0f` in the `mScale >= 0` arm and `0.0f >= mPhase` in the other share one
+  flag test; any `playing` variable breaks that.
+- `SetAnimation`: `movesRoot = movesRoot || clip.Unknown10952380();` (not `if (...) movesRoot = true`) keeps the engine's
+  register split of `this`.
 
 ## pure3d render module (src/drawable.cpp, src/scene.cpp, visibility/src/server.cpp and neighbours)
 
@@ -2505,6 +2505,65 @@ Still not done in this range:
   is not started; 0x106599C0 and 0x10659D50 build the detector and its islands (0x10659F70 registers "Collide Awoken
   Islands" with the profiler). 0x10658610 waits on a `core::EventWait` and adds a "Waiting on gate" record to the
   pool at `this + 0x18`, so the gate and the job classes have to be placed first.
+
+## ravenphysics: the handle table, the registry and the unit before context.cpp (sn-units)
+
+Handle table and containers (`collision/src/minimalcollisioninfo.cpp`): `CollisionObjectTable` is created
+(0x10653530) and destroyed (0x106534B0) by free functions that inline the containers it is made of, so
+`CollisionSlotStack` (a stack of 16-bit slot indexes), `CollisionHandleEntries` and `CollisionHandleSerials` define
+their `Create` / `Free` / constructors `inline` in the .cpp above the callers: an inline function is only emitted when
+something compiled references it, so the standalone copies the image keeps (`IsEmpty`, `Clear`, `Pop`, `Top`, the
+two-word constructors) stay non-inline and are emitted unreferenced, while the ones a matched caller inlines (`Push`
+in `Remove`, the constructors, `Create`, `Free`) are `inline` and referenced. `Remove` matches once the liveness test
+is an inline helper written `if (index >= count) return false; return serial == handle.serial;` (an `&&` with the
+equality last compiles to a branch, the early return to the engine's `sete` / `test`). `Add` stays NONMATCHING (81 %):
+the pop is `begin[size - 1]` and then `size--` here, the bumped serial is read once into a register, and the engine
+widens it only for the slot's word. 0x10653310 (the free-list fill) and 0x10653F50 (the default registration) are
+not in functions.tsv; their symbols carry the size read from the image.
+
+Registry of intersection properties: `IntersectionPropertiesEntry` is a name and the properties; the default
+registration (0x10653F50) builds `IntersectionProperties(-1, -1)` with the two-int constructor, which is why it needs no
+call to the default constructor. The global at 0x1127CAD0 is the `ColliderTypeNames` load object (its names are the
+run at +8), not the `IntersectionPropertiesLoader`; `ClearIntersectionPropertiesLoader` releases it. `delete[]` of the
+entry array emits the vector deleting destructor (0x10653AC0, matched, unannotated). EQUIVALENT: the two lookups by
+name (the engine loads the array pointer behind the count test) and `RegisterIntersectionProperties` (register
+allocation).
+
+Not done in 0x10653640 - 0x10654140: the reflection of `IntersectionPropertiesLoader` and `ColliderTypeNames` (class
+infos, name / array meta types, `GetMembers`), the loader class itself (constructor 0x10654020, destructor 0x10654080,
+its slots 0x10653E70 / 0x106536C0 / 0x106538A0, 0x106538B0; its names are two arrays whose instantiations
+differ from `ArrayDynamicNew<Name>` by something not recovered: the two member arrays have separate array meta type
+instances) and the six `return this` copies 0x106540F0 - 0x10654140 / 0x106540E0 / 0x106560F0 (`xchg` with the value in
+eax: a file-local register convention).
+
+`CollisionObject` wrappers: the shape's velocity helpers (`Translate`, `GetVelocityAt`, `AddVelocity`, `AddImpulse`,
+`AddAngularVelocity`, `MoveFromTo`, `MoveToCenter`) are asserted forwards; `SetShape` and `SetWorld` call
+`BroadPhaseDetector::UpdateCollisionObject` (0x10683510, formerly declared on `PhysicsObject`: its `this` is the
+detector at +0x34), which also fixed `SetShape` (now a match). The cross product of the angular velocity with a point
+(0x10654260, 0x106542F0, 0x10655880, 0x106557A0) stays NONMATCHING (40 - 68 %): the engine stores the product
+straight into the result in y, z, x order and adds the linear velocity from registers.
+`CollisionShape::SetVectors` (0x106541C0) treats +0x58 as a `math::SymmetricMatrix` (copied, inverted in place). The
+scalar deleting destructors of the volume classes (0x10654430 / 0x10654450 / 0x10654470 / 0x10655B30) are plain
+methods named `DestroyAndFree`: these classes have no vftable (the volume's type byte is at +0).
+
+The unit before context.cpp (0x10656020 - 0x106564C0, `src/smallobjects.cpp`): stand-ins named after what the
+functions do. `ScratchAllocator : StackAllocator` (0x10656340 / 0x10656570, the base's empty destructor is 0x106860E0
+and `StackAllocator` has an empty default constructor now), `ProfileTimer`, `AtomicCounter`, `ContextLimits` (the
+default constructor stays NONMATCHING, 66 %: the engine stores the third 0x800 behind the float stores),
+`CreateObjectHandle` (EQUIVALENT: the output pointer is loaded into eax, ours edx) and small accessors of
+`BroadPhaseDetector::ObjectTable`. `ProfileTimer::Start` needed the statement order tag, count, slot, kind, ticks (found
+by trying every order).
+
+context.cpp: `NarrowPhaseBatcher` (0x10658F90) and `MidPhaseBatcher` (0x10659030) are the constructors the detector's
+`Run` (0x106596F0) calls inline: six `Batch` structures, then pointer words. `Context::CollectBodies` (0x106586E0,
+`ret 0x10`: a method that never uses `this`) sorts the bodies of a batch into the static and the movable list; the
+engine's list choice is `(mode & 3) == 0 ? static : movable`. Also done: `CollisionDetector::Run` (0x106596F0, the two
+batcher constructors inlined, the 0x30-byte scratch class is `ScratchAllocator`), `Context::Destroy` (0x10659D50) and the
+`Context` constructor (0x10658D00: 85 stores of zero through one zero register; the `SlotPool` constructor has to be
+`inline` so that it folds into it, and the header's batch arrays are named words). `Context::Collide` (0x10659F70) stays
+NONMATCHING (95.3 %). Not done: 0x10657D00 (its argument has a flag byte at +0xC that `BroadPhaseObject` does not have:
+the argument type is not `PhysicsObject`), 0x106588B0, 0x10659070, 0x106599C0 (the island walks, each 250 - 800 bytes
+of inlined containers).
 
 ## The start-up, stream, LOD and deform units (2026-10-16, ds-9): 8 match, 0 NONMATCHING, the rest not started
 

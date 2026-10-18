@@ -6,6 +6,7 @@
 
 #include "code/content/loadinventory.h"
 #include "code/core/memory/imemoryallocator.h"
+#include "code/core/name.h"
 #include "code/pure3d/posedata.h"
 
 namespace pure3d
@@ -53,6 +54,8 @@ namespace pure3d
 		void Finish();
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
+		// 0x106DDC80: the partition of that name (null when there is none; the empty names get a static empty one)
+		Partition* FindPartition(const core::Name<core::CaseSensitiveKey>& name);
 
 		SkeletonData mData;
 		unsigned char unknown50[4];

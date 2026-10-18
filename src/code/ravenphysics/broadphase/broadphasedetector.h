@@ -2,11 +2,13 @@
 #ifndef RAVENPHYSICS_BROADPHASE_BROADPHASEDETECTOR_H
 #define RAVENPHYSICS_BROADPHASE_BROADPHASEDETECTOR_H
 
+#include "code/core/heap.h"
 #include "code/math/vector.h"
 
 namespace ravenphysics
 {
 	class PhysicsObject;
+	class CollisionObject;
 
 	// The grid the broad phase quantises positions into: 16-bit coordinates per axis
 	class BroadPhaseGrid
@@ -51,6 +53,15 @@ namespace ravenphysics
 		// context unit's code reads)
 		struct ObjectTable
 		{
+			// The counts and the records the detector keeps (0x10656170 - 0x106561D0)
+			unsigned short GetMovableCount() const;
+			unsigned short GetStaticCount() const;
+			unsigned short GetUnknown8() const;
+			unsigned int GetUnknown6() const;
+			unsigned int GetUnknown4() const;
+			unsigned int GetUnknownA() const;
+			void*** GetObjects();
+
 			unsigned short movableCount; // 0x00
 			unsigned short staticCount;  // 0x02
 			unsigned short unknown4;     // 0x04 (the four counters the context's statistics read)
@@ -75,15 +86,45 @@ namespace ravenphysics
 		void Remove(PhysicsObject* object);
 		// The same out of the tables the detection walks, leaving the object's slots free (0x106846F0; name guess)
 		void RemoveSecond(PhysicsObject* object);
+		// Gives the tables back (0x106840A0; name guess)
+		void Unknown106840A0();
+		// Frees the three blocks the detector keeps
+		~BroadPhaseDetector()
+		{
+			if (unknown24 != 0)
+			{
+				core::FreeAligned(unknown24);
+			}
+			if (boxes != 0)
+			{
+				core::FreeAligned(boxes);
+			}
+			if (Table().objects != 0)
+			{
+				core::FreeAligned(Table().objects);
+			}
+		}
+		// Tells the detector that a collision object of one of its bodies changed (0x10683510, another unit; name
+		// guess)
+		void UpdateCollisionObject(CollisionObject* object);
 
 		unsigned char unknown0[0x18];
 		BroadPhaseBox* boxes;            // 0x18
-		unsigned char unknown1C[0x34 - 0x1C];
+		unsigned char unknown1C[0x24 - 0x1C];
+		void* unknown24;                 // 0x24
+		unsigned char unknown28[0x34 - 0x28];
 		DetectorHead unknown34;          // 0x34 (the head of the second table; name guess)
 		unsigned char unknown54[0x6C - 0x54];
+		// The address of the second table's head, of the area behind it, of the area at 0x10C and of the first
+		// table's head (0x10656150, 0x10656160, 0x10656130, 0x10656140)
+		DetectorHead* GetUnknown34();
+		unsigned char* GetUnknown54();
+		unsigned char* GetUnknown10C();
+		DetectorHead* GetUnknown150();
 		void** unknown6C;                // 0x6C (the same table's records and count)
 		int unknown70;                   // 0x70
-		unsigned char unknown74[0x124 - 0x74];
+		unsigned char unknown74[0x10C - 0x74];
+		unsigned char unknown10C[0x124 - 0x10C];
 		void** unknown124;               // 0x124 (the first table's records and count)
 		int unknown128;                  // 0x128
 		unsigned char unknown12C[0x150 - 0x12C];

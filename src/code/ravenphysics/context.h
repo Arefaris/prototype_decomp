@@ -5,6 +5,7 @@
 #define RAVENPHYSICS_CONTEXT_H
 
 #include "code/content/loadinventory.h"
+#include "code/core/name.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/batch/midphasebatcher.h"
 #include "code/ravenphysics/broadphase/broadphasedetector.h"
@@ -18,6 +19,10 @@ namespace ravenphysics
 	class ObjectTable;
 	class NarrowPhaseBatcher;
 	class Context;
+	struct RegistryRef;
+	struct HandlePairRun;
+	struct BodyPairRun;
+	struct PointerRun;
 
 	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
 	struct PhysicsObjectEntry
@@ -56,6 +61,11 @@ namespace ravenphysics
 	struct IntersectionProperties
 	{
 		IntersectionProperties();
+		IntersectionProperties(int a, int b)
+		{
+			unknown0 = a;
+			unknown4 = b;
+		}
 
 		// Whether two sets of properties name the same thing (0x10653610)
 		bool operator==(const IntersectionProperties& other) const;
@@ -64,21 +74,28 @@ namespace ravenphysics
 		int unknown4;
 	};
 
-	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC): two words of unknown meaning
-	// and then the properties the entry stands for (0x10 bytes)
+	// One entry of the registry of known properties (0x1127CAC4, count 0x1127CACC, capacity 0x1127CAC8): the name
+	// they are registered under and the properties the entry stands for (0x10 bytes)
 	struct IntersectionPropertiesEntry
 	{
+		// An empty name and the default properties (0x10653AA0)
+		IntersectionPropertiesEntry();
+		// The entry for these properties under that name (0x10653830)
+		IntersectionPropertiesEntry(const core::Name<core::CaseSensitiveKey>& entryName,
+			const IntersectionProperties& entryProperties);
+		// Empty (0x106538F0)
+		~IntersectionPropertiesEntry();
 		// The properties the entry stands for (0x10653630)
 		IntersectionProperties* GetProperties();
 
-		int unknown0;
-		int unknown4;
-		IntersectionProperties properties;
+		core::Name<core::CaseSensitiveKey> name;   // 0x00
+		IntersectionProperties properties;         // 0x08
 	};
 
 	// The registry of known properties (names guessed)
 	extern IntersectionPropertiesEntry* gIntersectionProperties;
 	extern unsigned int gIntersectionPropertyCount;
+	extern unsigned int gIntersectionPropertyCapacity;
 
 	// How many entries the registry holds (0x10653720)
 	unsigned int GetIntersectionPropertyCount();
@@ -96,8 +113,32 @@ namespace ravenphysics
 		int unknown40;
 	};
 
-	// The loader the registry takes its default properties from (0x1127CAD0; name guess)
-	extern IntersectionPropertiesLoader* gIntersectionPropertiesLoader;
+	// ravenphysics::ColliderTypeNames (RTTI; a load object that names the collider types): the names are a run at +8
+	class ColliderTypeNames : public content::LoadObject
+	{
+	public:
+		core::Name<core::CaseSensitiveKey>* names;     // 0x08
+		core::Name<core::CaseSensitiveKey>* namesEnd;  // 0x0C
+	};
+
+	// The names of the collider types the properties refer to (0x1127CAD0; name guess)
+	extern ColliderTypeNames* gColliderTypeNames;
+
+	// The entry registered under that name, or null (0x10653900)
+	IntersectionPropertiesEntry* FindIntersectionPropertyByName(const core::Name<core::CaseSensitiveKey>& name);
+	// Its index, or 0xFFFF (0x10653950)
+	unsigned short FindIntersectionPropertyIndex(const core::Name<core::CaseSensitiveKey>& name);
+	// The index of a collider type name (0x106539A0) and the name of an index (0x106539F0)
+	bool FindColliderTypeIndex(const core::Name<core::CaseSensitiveKey>& name, unsigned int* index);
+	bool GetColliderTypeName(unsigned int index, core::Name<core::CaseSensitiveKey>* name);
+	// Registers the properties under the name, replacing the ones already there; the entry's index (0x10653B50)
+	unsigned int RegisterIntersectionProperties(const core::Name<core::CaseSensitiveKey>& name,
+		const IntersectionProperties& properties);
+	// Drops the registry (0x10653B00) and builds it with room for count entries and the default one (0x10653FA0,
+	// 0x10653F50)
+	void ClearIntersectionPropertyRegistry();
+	void CreateIntersectionPropertyRegistry(unsigned int count);
+	void RegisterDefaultIntersectionProperties();
 
 	// The properties plus one more word, copied as a whole into a query
 	struct IntersectionFilter
@@ -149,6 +190,17 @@ namespace ravenphysics
 	// One of the context's object lists: an array of object pointers (name guess)
 	struct ObjectList
 	{
+		// How many objects the list holds
+		unsigned int Count() const
+		{
+			return end - begin;
+		}
+		// The object with that index
+		void* Get(unsigned int index) const
+		{
+			return begin[index];
+		}
+
 		void** begin;
 		void** end;
 	};
@@ -163,8 +215,17 @@ namespace ravenphysics
 		ObjectRegistry();
 		// Back to the empty state: the three runs are filled with 0xFF and the table reset (0x10658C70)
 		void Reset();
+		// Gives the runs and the table back (0x10686410; name guess)
+		void Release();
 		// 0x10686980
 		void Remove(PhysicsObject* object);
+		// Empties the registry's tables once the detection starts (0x10686870; name guess)
+		void Unknown10686870();
+		// Files an object under a slot (0x10686790) and takes a slot out again (0x106867F0; names are guesses)
+		void Unknown10686790(unsigned int key, unsigned short slot);
+		void Unknown106867F0(unsigned short slot);
+		// The second takes the slot from a reference (0x106563B0)
+		void RemoveRef(const RegistryRef* reference);
 
 		unsigned short* next;        // 0x00
 		int nextCount;               // 0x04
@@ -191,6 +252,10 @@ namespace ravenphysics
 		void Track(ObjectList* objects);
 		// 0x10687CA0
 		void Untrack(ObjectList* objects);
+		// Gives the tracker's tables back (0x10688950, its destructor)
+		~PlacementTracker();
+		// The deleting form of the destructor (0x106564A0)
+		void* DestroyAndFree(unsigned int flags);
 		// The simulation step: moves and solves the objects of every list against the body (0x10689EE0; name guess)
 		void Advance(WorldBody* body, void* data, void* a, float dt, void* worldData, void* registry, void* b);
 
@@ -230,7 +295,8 @@ namespace ravenphysics
 	class World
 	{
 	public:
-		virtual void Unknown00();
+		// The destructor's slot: destroys the world and, with bit 0 set, frees it
+		virtual void Unknown00(int flags);
 		virtual void Unknown04();
 		virtual void Unknown08();
 		virtual void Unknown0C();
@@ -238,11 +304,11 @@ namespace ravenphysics
 		virtual bool Overlaps(void* object, void* world);
 		// 0x14
 		virtual bool Contains(void* object, void* world);
-		virtual void Unknown18();
+		virtual void Unknown18(PhysicsObject* object);
 		virtual void Unknown1C();
 		virtual void Unknown20();
 		virtual void Unknown24();
-		virtual void Unknown28();
+		virtual void Unknown28(void* work, void* detector, void* scratch, void* recordPool, void* midPhase);
 		virtual void Unknown2C();
 		// 0x30
 		virtual void QueryShape(void* a, void* b, void* c, void* world, void* d);
@@ -1375,13 +1441,17 @@ namespace ravenphysics
 
 		unsigned char* records;          // 0x00 (0x30-byte entries)
 		unsigned char* recordsEnd;       // 0x04
-		unsigned char unknown8[8];       // 0x08
+		int unknown8;                    // 0x08
+		int unknownC;                    // 0x0C
 		unsigned char* slots;            // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;         // 0x14
-		unsigned char unknown18[0xC];    // 0x18
+		int unknown18;                   // 0x18
+		int unknown1C;                   // 0x1C
+		int unknown20;                   // 0x20
 		unsigned char* recordsSecond;    // 0x24 (the second run of 0x30-byte entries; name guess)
 		unsigned char* recordsSecondEnd; // 0x28
-		unsigned char unknown2C[0x34 - 0x2C];
+		int unknown2C;                   // 0x2C
+		int unknown30;                   // 0x30
 	};
 
 	class ConstraintBatch
@@ -1394,13 +1464,17 @@ namespace ravenphysics
 
 		unsigned char* records;          // 0x00 (0xA8-byte entries)
 		unsigned char* recordsEnd;       // 0x04
-		unsigned char unknown8[8];       // 0x08
+		int unknown8;                    // 0x08
+		int unknownC;                    // 0x0C
 		unsigned char* slots;            // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;         // 0x14
-		unsigned char unknown18[0xC];    // 0x18
+		int unknown18;                   // 0x18
+		int unknown1C;                   // 0x1C
+		int unknown20;                   // 0x20
 		unsigned char* recordsSecond;    // 0x24 (the second run, 0x34-byte entries; name guess)
 		unsigned char* recordsSecondEnd; // 0x28
-		unsigned char unknown2C[0x34 - 0x2C];
+		int unknown2C;                   // 0x2C
+		int unknown30;                   // 0x30
 	};
 
 	class QueryBatch
@@ -1413,13 +1487,18 @@ namespace ravenphysics
 
 		unsigned char* records;     // 0x00 (0x2C-byte entries)
 		unsigned char* recordsEnd;  // 0x04
-		unsigned char unknown8[8];  // 0x08
+		int unknown8;               // 0x08
+		int unknownC;               // 0x0C
 		unsigned char* slots;       // 0x10 (0xC-byte entries)
 		unsigned char* slotsEnd;    // 0x14
-		unsigned char unknown18[8]; // 0x18
+		int unknown18;              // 0x18
+		int unknown1C;              // 0x1C
 		void** unknown20;           // 0x20 (a run of pointers; name guess)
 		void** unknown24;           // 0x24
-		unsigned char unknown28[0x38 - 0x28];
+		int unknown28;              // 0x28
+		int unknown2C;              // 0x2C
+		int unknown30;              // 0x30
+		int unknown34;              // 0x34
 	};
 
 	class Context
@@ -1431,10 +1510,23 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+		// Sorts the bodies of a batch's pairs into the static and the movable list, each body once; the context is not
+		// used (0x106586E0; name guess)
+		void CollectBodies(const HandlePairRun* pairs, const BodyPairRun* records, PointerRun* staticBodies,
+			PointerRun* movableBodies);
+		// The area at 0x10C (0x106562E0; name guess)
+		SlotPool* GetRecordPool();
+		// Hands a sleeping object on to the world (0x106564C0; name guess)
+		void Unknown106564C0(PhysicsObject* object);
 
+		// Everything from the registry on starts at zero except the world, the tracker and a few words (0x10658D00)
+		Context();
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)
 		void ClearObjects();
+		// Takes the context apart: the world, the tracker, the registry, the detectors and the batches' blocks
+		// (0x10659D50; name guess)
+		void Destroy();
 
 		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
 		// names are guesses)
@@ -1526,20 +1618,26 @@ namespace ravenphysics
 		int unknownCC;   // 0xCC
 		int unknownD0;   // 0xD0
 		int unknownD4;   // 0xD4
-		bool unknownD8;  // 0xD8
-		unsigned char unknownD9[0xDC - 0xD9];
+		union
+		{
+			bool unknownD8;  // 0xD8
+			int unknownD8Word;
+		};
 		int unknownDC;   // 0xDC
-		unsigned char unknownE0[0xEC - 0xE0];
+		int unknownE0;   // 0xE0
+		int unknownE4;   // 0xE4
+		int unknownE8;   // 0xE8
 		int unknownEC;   // 0xEC
 		int unknownF0;   // 0xF0
 		int unknownF4;   // 0xF4
 		int unknownF8;   // 0xF8
 		int unknownFC;   // 0xFC
 		int unknown100;  // 0x100
-		unsigned char unknown104[0x108 - 0x104];
+		int unknown104;  // 0x104
 		CollisionDetector* detector; // 0x108
 		SlotPool recordPool;         // 0x10C (the profiler pool the record's SlotPool methods use)
 		StatLog statLog;             // 0x118
+		int unknown124[19];          // 0x124
 	};
 
 	// The physics context (0x1128356C)
