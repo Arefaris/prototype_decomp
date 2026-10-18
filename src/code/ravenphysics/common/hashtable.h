@@ -47,6 +47,8 @@ namespace ravenphysics
 		unsigned short FindFrom(unsigned short slot, unsigned int key) const;
 		// The same from the slot after the one given (0x107E6C00)
 		unsigned short FindAfter(unsigned short slot, unsigned int key) const;
+		// The bucket a key belongs to: the key mixed with itself, modulo the bucket count (0x107E4990)
+		unsigned int GetBucket(unsigned int key) const;
 		// Adds key when it is not in the table yet and gives it the next slot (0x107E6C40)
 		void Insert(unsigned int key);
 

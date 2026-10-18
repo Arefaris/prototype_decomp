@@ -4,6 +4,7 @@
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/ravenphysics/common/hashtable.h"
+#include "code/ravenphysics/physicsobject.h"
 #include "code/core/debug.h"
 #include "code/core/file/file.h"
 #include "code/core/file/filesystem.h"
@@ -13,6 +14,12 @@ namespace ravenphysics
 	// The keys the manager's table holds are the objects' ids, so a key's slot is its index in the table. The chain
 	// of a bucket runs from buckets[bucket] through next[] and ends at 0xFFFF; every slot is taken once, so
 	// Insert of a key the table already holds gives it a second slot.
+
+	// FUNCTION: ENGINE 0x107E4990
+	unsigned int KeyTable::GetBucket(unsigned int key) const
+	{
+		return ((key + 3) * key) % bucketCount;
+	}
 
 	// FUNCTION: ENGINE 0x107E7120
 	void KeyTable::Create(unsigned int entries, ScratchStack* stack)
@@ -333,6 +340,86 @@ namespace engine
 		}
 	}
 #endif
+
+	ravenphysics::PhysicsContextCallBack* gPreStepCallbacks;    // 0x11283574
+	ravenphysics::PhysicsContextCallBack* gPostStepCallbacks;   // 0x11283578
+
+	// FUNCTION: ENGINE 0x107E3DB0
+	void PushCallback(ravenphysics::PhysicsContextCallBack** head, ravenphysics::PhysicsContextCallBack* callback)
+	{
+		callback->SetNext(*head);
+		*head = callback;
+	}
+
+	// FUNCTION: ENGINE 0x107E3DF0
+	void EraseCallback(ravenphysics::PhysicsContextCallBack** head, ravenphysics::PhysicsContextCallBack* callback)
+	{
+		ravenphysics::PhysicsContextCallBack* previous = 0;
+		for (ravenphysics::PhysicsContextCallBack* item = *head; item != 0; item = item->mNext)
+		{
+			if (item == callback)
+			{
+				if (previous == 0)
+				{
+					*head = item->mNext;
+					item->SetNext(0);
+				}
+				else
+				{
+					previous->SetNext(item->mNext);
+					item->SetNext(0);
+				}
+				return;
+			}
+			previous = item;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107E4D90
+	void AddPreStepCallback(ravenphysics::PhysicsContextCallBack* callback)
+	{
+		PushCallback(&gPreStepCallbacks, callback);
+	}
+
+	// FUNCTION: ENGINE 0x107E4DB0
+	void RemovePreStepCallback(ravenphysics::PhysicsContextCallBack* callback)
+	{
+		EraseCallback(&gPreStepCallbacks, callback);
+	}
+
+	// FUNCTION: ENGINE 0x107E4DD0
+	void AddPostStepCallback(ravenphysics::PhysicsContextCallBack* callback)
+	{
+		PushCallback(&gPostStepCallbacks, callback);
+	}
+
+	// FUNCTION: ENGINE 0x107E4DF0
+	void RemovePostStepCallback(ravenphysics::PhysicsContextCallBack* callback)
+	{
+		EraseCallback(&gPostStepCallbacks, callback);
+	}
+
+	// FUNCTION: ENGINE 0x107E3D00
+	void ResetPlacement()
+	{
+		ravenphysics::gContext->ResetPlacement();
+	}
+
+	// FUNCTION: ENGINE 0x107E3D10
+	void SetPlacementPosition(const math::Vector& position)
+	{
+		ravenphysics::gContext->SetPlacementPosition(position);
+	}
+
+	// FUNCTION: ENGINE 0x107E4E10
+	void SetCollisionModeInBox(void* first, void* second, HitIndexArray* hits)
+	{
+		ravenphysics::gContext->QuerySphere(first, second, hits, (void*)2);
+		for (unsigned int i = 0; i < (unsigned int)(hits->end - hits->begin); i++)
+		{
+			((ravenphysics::PhysicsObject*)hits->begin[i])->SetCollisionMode(2);
+		}
+	}
 
 	// FUNCTION: ENGINE 0x107E4090
 	void pm_SetSolverIterations(int a, int b)

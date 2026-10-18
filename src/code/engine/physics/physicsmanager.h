@@ -4,6 +4,7 @@
 #define ENGINE_PHYSICS_PHYSICSMANAGER_H
 
 #include "code/engine/message.h"
+#include "code/ravenphysics/callback.h"
 #include "code/ravenphysics/context.h"
 
 namespace engine
@@ -80,6 +81,23 @@ namespace engine
 		~CollisionBufferLock();
 		CollisionArray& Get();
 	};
+
+	// The context's placement marker, set and cleared on behalf of other units (0x107E3D00 / 0x107E3D10; names guessed)
+	void ResetPlacement();
+	void SetPlacementPosition(const math::Vector& position);
+
+	// Puts every object a query finds in the box to collision mode 2 (0x107E4E10; name guessed)
+	void SetCollisionModeInBox(void* first, void* second, HitIndexArray* hits);
+
+	// The callbacks the manager runs around the context's update are kept in two lists (heads 0x11283574 and
+	// 0x11283578; names guessed): the callback is put at the front, or taken out of the list again
+	extern ravenphysics::PhysicsContextCallBack* gPreStepCallbacks;
+	extern ravenphysics::PhysicsContextCallBack* gPostStepCallbacks;
+	// 0x107E4D90 / 0x107E4DB0 and 0x107E4DD0 / 0x107E4DF0
+	void AddPreStepCallback(ravenphysics::PhysicsContextCallBack* callback);
+	void RemovePreStepCallback(ravenphysics::PhysicsContextCallBack* callback);
+	void AddPostStepCallback(ravenphysics::PhysicsContextCallBack* callback);
+	void RemovePostStepCallback(ravenphysics::PhysicsContextCallBack* callback);
 
 	// The flag a running physics update sets (0x107E3C80 / 0x107E3C90 / 0x107E3CA0; names guessed)
 	void SetPhysicsUpdating();
