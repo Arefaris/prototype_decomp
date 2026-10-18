@@ -2531,9 +2531,12 @@ New units, all with guessed file names (none of them has an assert path):
 - `code/engine/system/streammanager.cpp` (0x1082BEC0 - 0x1082E9xx): `engine::StreamManager` itself stays declared in
   `streampackage.h`; this unit holds the collection pass.
 - `code/proto/render/deformshaderbehaviour.cpp` (0x102D31B0 - 0x102D50F1): `proto::DeformShaderBehaviour` (vftable
-  0x10DEA3CC) keeps the last four dents in a 0x84-byte ring at +4: the buffer runs from the ring's own address and
-  its `end` pointer sits at +0x80. A dent is 0x20 bytes - a `math::Vector`, then five floats of which +0x10 and
-  +0x1C are zero.
+  0x10DEA3CC, base `engine::Behaviour`) keeps the last four dents in a `DentBuffer` (4 dents of 0x20 bytes, then the
+  `end` pointer: 0x84 bytes) at +0x10, a bias at +0x94, the live dent count at +0x98, a "changed" byte at +0x9C and a
+  "bias message sent" byte at +0x9D. The `DeformShaderModifier` (vtable 0x10DEA3C0, 0x8C bytes, allocated through the
+  render event allocator 0x10817A50) carries its own `DentBuffer` at +4 and the bias at +0x88: `AddDent` (0x102D4350)
+  is the modifier's. A dent is a `math::Vector`, then five floats - two (target, value) pairs and the time the fade
+  has left: {+0x0C target, +0x10 value, +0x14 time, +0x18 target, +0x1C value}.
 - `code/engine/system/enginememory.cpp` gained the heap kind name.
 
 Matching notes:
@@ -2649,12 +2652,37 @@ engine's own table entry for it.
 
 Not started (the reason each is blocked, not just "unknown"):
 
-- `0x104E3840` (2354 bytes, the stream slot groups): mechanical but needs the signatures of ~35 callees
-  (`0x1082D550` `CreateSlotGroup` with its 3-word configuration, `core::Name` construction from a literal,
-  `0x10894830` / `0x10894850`, the script manager calls, `CreateFrontend`), and the configuration of each group is a
-  3-word local (size, two alignment words) whose last field is only sometimes written.
-- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760): the manager's layout and
-  its ~30 callees are not recovered.
+- `0x104E3840` (2354 bytes, `proto::GameEngine` vftable slot 9, the game's start-up) matches: `protomain.cpp`, with the
+  seven template instances the unit keeps (the script wrappers of the two natives and `Register<float>`). Its callees
+  are named from their own code: 0x104E1440 opens the front end's data file, 0x102E52A0 / 0x10487D10 / 0x105814D0 /
+  0x10561A30 / 0x104B55E0 / 0x104BDB70 / 0x104A29E0 make the singletons `ProtoRenderManager`, `SaveGameManager`,
+  `UnlockablesManager`, `WebOfIntrigueManager`, `GameFEManager`, `MissionObjectivesManager` and the online manager
+  (0x320 bytes; the class is named only by the constructor it jumps to), 0x104E6790 / 0x104DE970 / 0x104E7710 are the
+  constructors of `InGameState`, `FrontEndState` and `GamePauseState` (the game keeps them at +4 / +8 / +0xC and the
+  simulation driver, `engine::SimulationDriver` 0x10897AC0, at +0x10), 0x10836B40 enters a state in the table of
+  states under its number (3 the front end, 2 the game), 0x10836AB0 makes the driver the one the main loop runs,
+  0x1082D550 `CreateSlotGroup(name, slotCount, &{size, flag, alignment}, shared, unknown, heap factory, unknown)`
+  builds each of the 28 stream slot groups, the Lua natives `util_GetRandomFloat` / `util_GetWorldOrientation` are
+  registered between `SetOwner(this)` and `ClearOwner()`, and 0x104E2BC0 / 0x104DDBB0 load the front end packages and
+  set the language (`SetLanguage(name, 0)`, the name from `core::GetLanguageName(language)`).
+  Matching notes: the 28 `SlotGroupConfig` locals are declared in the order of the calls (that fixes the 0x15C-byte
+  frame's offsets); the engine fills them before the first call, and which constants stay in registers there (and so
+  the order of the stores) follows the order the source assigns them in - the pair of equal sizes that is finished
+  first gets edx. The assignments in `protomain.cpp` are in the order that matches (the call order, with the location
+  groups' props and the 7-slot group moved); the last three configs are assigned just before their calls.
+  A named group is a block-scope `core::Name<CaseSensitiveKey> name("...", 1)` followed by the call, which puts the
+  name constructor in front of the pushes. The report file's flag is `Autotester && !IsDebugLinkClosed()` written as
+  one `if`/`else` (the `&&` form compiles to the engine's branches, `autotest = !closed` to `sete`). `SetLanguage`'s
+  name needs the language as a local (`int language = LanguageGet();`): nested in the call, the second argument is pushed first.
+- `0x1041FA40` (2043, `proto::AmbientManager`'s constructor; the singleton is 0x11267760): not written. The object
+  is 0x618 bytes; its constructor takes a configuration of 0x28+ words (copied to +0x44) and sets up
+  `container::ArrayDynamic`-style arrays (begin, end, capacity, heap id at +0xC: +0x10, +0x20, +0x30 with the
+  out-of-line `Reserve` instances 0x1040B2A0 / 0x1040B330 / 0x1040B3C0 / 0x1040B450 / 0x1040B4E0 / 0x1040B570 /
+  0x1040B690 / 0x1040B720 / 0x1040B840 for the element sizes 8, 4 ...), 0x12C / 0x1E0 / 0x78 / 0xF0 byte pools made
+  with `core::HeapAllocAligned`, a dozen `math::Vector` members started from `math::kZeroVector`, `core::Name`s
+  (+0x518 and the six from +0x568), the parked car cloud manager (+0x550, 0x104 bytes, constructor 0x104EF830), the
+  Lua closures registered by 0x1041F210 and the three `CreateBlockHeap` pools ("PedGameObjectPool" 0xA3,
+  "VehGameObjectPool" 0xAA, "VehiclePhysicsObjectPool" 0xAB).
 - `0x1083EC50` (484, the stream slots): it builds a `%s StreamSlot` string, allocates `count * 0x10 + 4` bytes for an
   array of 0x10-byte slots (the element's first word is a per-slot allocator), creates the slots' `CreateTwoWayHeap`
   (0x107DEB60) and dynamic-casts the result; it needs `container::String`, 0x1083EC30, 0x1083E880, 0x1082D630 and
@@ -2676,13 +2704,18 @@ Not started (the reason each is blocked, not just "unknown"):
   `"%s StreamSlot"` and `"%s StreamSlot[%d]"`. It needs 0x1083EC30 (the factory interface's vtable getter),
   0x1083E6A0 (the slot's placement constructor the vector-constructor iterator at 0x10005100 calls), 0x1083E880,
   0x1082D630 and 0x1082E3F0 named and declared first.
-- `0x102D4920` (602, `DeformShaderBehaviour`'s vftable slot 4) and `0x102D4C50` (1097,
-  `DeformShaderModifier::apply`): not read yet. Both need the behaviour's vftable emitted with its slots mapped, so
-  they carry the same block as the LOD slots below.
-- The `DeformShaderBehaviour` vftable is 0x10DEA3CC with 8 slots and `DeformShaderModifier` 0x10DEA3C0 (base
-  `engine::render::DrawableModifier`); the behaviour's members are +0 vftable, +4 the `DentBuffer` (its `end` at
-  +0x84), +0x94 a float, +0x98 the dent count, +0x9C a dirty byte and +0x9D a "bias sent" byte. The dent ring the
-  update walks is at the behaviour's +0x1C, in 0x20-byte records, not the `DentBuffer` at +4.
+- `0x102D4920` (602, `DeformShaderBehaviour::Update`, vftable slot 4) matches. The class declares `Slot0` first and
+  never defines it, so the vftable stays with the engine's copy; the bias message (`SetLODBiasMessage`, vftable
+  0x10DEA384, a `ProtoRenderMsg` of type 0x3D with id 2) is built inline, so the unit emits that one-slot vftable. The
+  stack message's final destructor store is the base `Message` vftable, which the inline destructors leave. The two
+  clamps are `math::Min` written as two assignments (a store, then `Min` of the value and the target), and the bias is
+  copied as raw bits (`unsigned int`), where a `float` member is copied through the x87 unit.
+- `0x102D4C50` (1097, `DeformShaderModifier::Apply`, the modifier's only virtual): not written. It runs on the render
+  thread for a `DrawableImpl`: five function-local `core::Name<CaseInsensitiveKey32>` statics ("damage_pt1" ..
+  "damage_pt4", "crush_params", guard bits at 0x1125E020), for every part (0x12C bytes each, from +0x54 of the
+  drawable) a `pure3d::PartRef` (0x106DF4B0), lookups of the binding parameters through the part's shader
+  (`BindingParameters::SetVector4` 0x106140C0), a `PartBindingSource::CreateBinding` (0x10706550) with its inlined
+  search of the part's source, and at the end it destroys itself (0x102D4830, `FreeRenderEvent`).
 - `0x102DA540` (350, `LODRenderBehaviour`'s per-frame update): the engine leaves a dead `add ecx, 4` in it (the
   game object's address advanced past its handle and then dropped), which no plain `/O2` build of the recovered
   body reproduces.
@@ -3105,10 +3138,9 @@ Still NONMATCHING or not started, one line each:
 - 0x1061D3A0 (`CreateDefaultTextures`, dxdefaulttextures.cpp): NONMATCHING at 36 %. The fills compile to the engine's
   `rep stosd` once the width and pitch are copied into locals before the loop; the register allocation (the zero
   register, the pitch kept in a register) and the order of the description's stores still differ.
-- 0x104E3840, 0x1041FA40 (start-up tables), 0x1061D3A0 (the default textures), 0x102D4920 / 0x102D4C50 (the deform
-  behaviour: they build stack messages whose vftables the unit would have to emit) and the loaders 0x10B9C3E0,
-  0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts, inline string
-  comparisons and bit-field states): not started.
+- 0x1041FA40 (`proto::AmbientManager`'s constructor), 0x102D4C50 (`DeformShaderModifier::Apply`) and the loaders
+  0x10B9C3E0, 0x10B90CA0, 0x10B91410, 0x106DE090, 0x10706960, 0x10B96280, 0x10B95780 (large, built on RTTI casts,
+  inline string comparisons and bit-field states): not started.
 - skin.cpp's eighteen skinning paths (0x1071B610 - 0x1071E8F0) and the two bone-row blenders (0x1071B310, 0x1071B490)
   were EQUIVALENT on the sn-list branch (12 - 26 %, checked only in an emulator with random inputs) and crashed the
   game at start-up (a read of 0xFFFFFFFF in 0x1071B610 called from the skinning task 0x1071EAF0): back to

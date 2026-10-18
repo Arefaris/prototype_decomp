@@ -70,6 +70,8 @@ namespace engine
 		// heap they share; the first argument is never read
 		virtual void Create(int unused, bool immediate);
 
+		// 0x1083EA30: the slot of that number
+		StreamSlot* GetSlot(unsigned int index);
 		// 0x1083EC30: the function that makes the heap of a slot: the group's own, else the manager's, else the default
 		SlotHeapFactory GetSlotHeapFactory() const;
 		// 0x1083E880: the size of the heap of a slot and the two flags it is made with (out[0], out[1] and out[2])
