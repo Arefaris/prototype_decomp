@@ -1,6 +1,11 @@
 // pure3d::Context (code/pure3d/src/context.cpp, path from the asserts; unit 0x1070E7xx - 0x10710930). Names are
 // guesses.
+#include "code/container/string.h"
+#include "code/content/chunkhandler.h"
 #include "code/content/loadinventory.h"
+#include "code/content/memorystream.h"
+#include "code/core/heap.h"
+#include "code/core/strings.h"
 #include "code/core/debug.h"
 #include "code/engine/display.h"
 #include "code/pure3d/context.h"
@@ -8,6 +13,7 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
 #include "code/pure3d/lighting.h"
+#include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
@@ -24,6 +30,51 @@ extern "C"
 		unsigned int wParam, long lParam);
 	extern int (__stdcall* _imp__GetClientRect)(void* window, void* rect);
 	extern int (__stdcall* _imp__GetWindowRect)(void* window, void* rect);
+}
+
+// The loaders the debug font's file needs (pure3d::TextureLoader for the chunk 0x19000, 0x14 bytes, and
+// pure3d::TextureFontLoader for the chunk 0x22000, 0x10 bytes), the load under way and the file the font is loaded out of
+namespace content
+{
+	// A load under way
+	class LoadJob : public core::IRefCount
+	{
+	public:
+		// 0x106089E0: 3 once the load is done
+		int GetStatus();
+		// 0x106089D0: the inventory the load put its objects in
+		LoadInventory* GetInventory();
+	};
+
+	// 0x106075F0: lets the loads under way go on
+	void UpdateLoads();
+}
+
+namespace pure3d
+{
+	class TextureLoader : public content::SimpleChunkHandler
+	{
+	public:
+		// 0x1072A120
+		TextureLoader();
+		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			content::LoadInventory* inventory);
+
+		// The object that makes the textures (0x10 bytes)
+		void* maker;
+	};
+
+	class TextureFontLoader : public content::SimpleChunkHandler
+	{
+	public:
+		// 0x10753B30
+		TextureFontLoader();
+		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			content::LoadInventory* inventory);
+	};
+
+	// The 0x21F0 bytes of the P3D file the debug font is loaded out of (0x10E58E38)
+	extern const unsigned char gDebugFontData[0x21F0];
 }
 
 namespace pure3d
@@ -425,6 +476,86 @@ namespace pure3d
 		if (font != 0)
 		{
 			DrawDebugText(text, (float)x, font->Unknown5() + y - font->Unknown6(), colour);
+		}
+	}
+
+	// What a load of the debug font's file is asked with: a name over the 256 characters of a string, the stream
+	// the file is read from and a few words (0x120 bytes; the engine's constructor is expanded in place)
+	struct FontLoadRequest
+	{
+		FontLoadRequest() : stream(0), unknown108(0), heap(0), unknown110(0), flags(0x400), unknown118(false),
+			unknown119(false), unknown11A(0xFFFF), unknown11C(0)
+		{
+		}
+
+		container::StringC<256> name;
+		content::MemoryStream* stream;
+		int unknown108;
+		int heap;
+		int unknown110;
+		int flags;
+		bool unknown118;
+		bool unknown119;
+		unsigned short unknown11A;
+		int unknown11C;
+	};
+
+	// FUNCTION: ENGINE 0x1070FC90
+	void Context::LoadDebugFont()
+	{
+		if (font != 0)
+		{
+			font->Release();
+			font = 0;
+		}
+		TextureLoader* textureLoader = 0;
+		if (content::gLoadManager->GetLoader(0x19000) == 0)
+		{
+			textureLoader = new (1) TextureLoader;
+			content::gLoadManager->AddLoader(textureLoader, 0x19000);
+		}
+		TextureFontLoader* fontLoader = 0;
+		if (content::gLoadManager->GetLoader(0x22000) == 0)
+		{
+			fontLoader = new (1) TextureFontLoader;
+			content::gLoadManager->AddLoader(fontLoader, 0x22000);
+		}
+		content::MemoryStream* stream = new (1) content::MemoryStream(gDebugFontData, 0x21F0);
+		stream->AddRef();
+		FontLoadRequest request;
+		int length = core::StrLen("dummy.p3d") + 1;
+		if (length > 0x100)
+		{
+			length = 0x100;
+		}
+		core::StrNCpy(request.name.buffer, "dummy.p3d", (unsigned int)length);
+		request.stream = stream;
+		request.unknown118 = false;
+		request.heap = core::GetCurrentHeap();
+		content::LoadJob* job;
+		content::gLoadManager->Load(&request.name, &job, true);
+		if (job != 0)
+		{
+			while (job->GetStatus() != 3)
+			{
+				content::UpdateLoads();
+			}
+			content::LoadInventory* inventory = job->GetInventory();
+			font = inventory->Find<TextureFont>("pure3d_debug_font");
+			if (font != 0)
+			{
+				font->AddRef();
+			}
+			job->Release();
+		}
+		stream->Release();
+		if (textureLoader != 0)
+		{
+			content::gLoadManager->RemoveLoader(0x19000);
+		}
+		if (fontLoader != 0)
+		{
+			content::gLoadManager->RemoveLoader(0x22000);
 		}
 	}
 

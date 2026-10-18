@@ -527,7 +527,7 @@ ring of 0x20000 values behind a free and a ready semaphore, lock-free read / wri
 | 0x108185F0 / 0x10818650 / 0x10818620 / 0x10818680 / 0x10818C00 / 0x10818C30 / 0x10818C60 / 0x10818C90 | Reserve / Commit / TryPush / TryPop (both queues) | match | the second queue (0x11304C90) is a ring of 0x2000 values: `AsyncQueue<T, Bits>` with 17 and 13 bits |
 | 0x10818D30 / 0x10818DE0 | PushRenderEventSecondary / ExecuteSecondaryRenderEvents | match | |
 | 0x10817F40 / 0x108180C0 / 0x108186B0 / 0x10818720 | AllocAsyncQueueSlot / TakeAsyncQueueValue (both queues) | match | the next index is a named local (`long next = ...;`) before `expected = index;` |
-| 0x10817F90 / 0x10818110 | CommitAsyncQueueSlots (both queues) | EQUIVALENT (31.0% / 31.3%) | the 64-bit commit state: head in the low bits, a bitmap of the later committed slots above; other registers and spill slots |
+| 0x10817F90 / 0x10818110 | CommitAsyncQueueSlots (both queues) | EQUIVALENT (51.0%) | the 64-bit commit state: head in the low bits, a bitmap of the later committed slots above; other registers and spill slots |
 | 0x10819040 | InitRenderGlobals | EQUIVALENT (99.1%) | the store of the new event allocator and the load of its function table are swapped |
 | 0x10819240 / 0x108191A0 / 0x108191F0 | ShutdownRenderGlobals / the tables' scalar deleting destructors | match | |
 | 0x10818B30 | SlotArray<ControllerSlot> constructor | EQUIVALENT (98.9%) | the branch for an empty range goes to the second of two identical epilogue copies, the original's to the first |
@@ -972,7 +972,7 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 85 functions match, 2 EQUIVALENT, LoadDebugFont (0x1070FC90) not done
+## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 86 functions match, 2 EQUIVALENT
 
 `pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
 (0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
@@ -994,7 +994,7 @@ parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread 
 | 0x107108A0 Shutdown | match | `delete context;` (the null check and the delete are one statement) |
 | 0x107103E0 Context constructor | EQUIVALENT (64.2%) | same calls in the same order; the quad index loop keeps a zero-extended copy of its counter and the pool's empty-on-failure block sits elsewhere |
 | 0x1070F380 DrawDebugText | EQUIVALENT (93.1%) | the loads of the font and of 0.5 are scheduled differently around the two stores of it |
-| 0x1070FC90 LoadDebugFont | not done | loads the font out of the image's embedded p3d through the content system (needs its classes named) |
+| 0x1070FC90 LoadDebugFont | match | registers the texture and font loaders when missing, loads the embedded P3D (0x10E58E38, 0x21F0 bytes) from a memory stream and takes "pure3d_debug_font" out of its inventory; the request is a `StringC<256>` followed by its words |
 | 0x1070F5C0 / 0x1070F600 / 0x1070F650 AllocRenderParams / FreeRenderParams / UpdateRenderParams | match | the pool is a `ContextArray<FrameEntry>` (signed `Size()`), the loops index it with an unsigned counter |
 
 The constructor and the destructor are written (the destructor matches; the constructor is EQUIVALENT). The subsystems

@@ -25,6 +25,8 @@ namespace content
 
 		// 0x105FE690 / 0x105FE720: the class's allocation forwards to operator new[] / delete[]
 		static void* operator new(unsigned int size);
+		// 0x105FE6C0: from the heap the second argument names
+		static void* operator new(unsigned int size, int heap);
 		static void operator delete(void* block);
 
 		// The vftable (RTTI: 5 slots; slot 2 is the deleting destructor)

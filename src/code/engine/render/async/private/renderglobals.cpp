@@ -396,7 +396,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10817F90
-		// EQUIVALENT: same operations in the same order; the head, the bitmap and the counters sit in other registers, the comparand of the compare exchange in other stack slots (31.0%)
+		// EQUIVALENT: same operations in the same order; the head, the bitmap and the counters sit in other registers, the comparand of the compare exchange in other stack slots (51.0%)
 		// Marks the slot as written; the number of slots that became readable. The state holds the oldest uncommitted
 		// slot in its low Bits and one bit per later slot (set once committed) above
 		template<class T, int Bits> unsigned int CommitAsyncQueueSlots(int* commits, long slot)
