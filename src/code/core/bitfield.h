@@ -11,6 +11,11 @@ namespace core
 	{
 	public:
 		BitField();
+		// Inline (no kept copy): a temporary passed by value is constructed in the argument's place
+		BitField(const BitField& other)
+		{
+			mBits = other.mBits;
+		}
 		void ClearAll();
 		void Set(T bit);
 		void Clear(T bit);

@@ -12,6 +12,7 @@
 
 namespace proto
 {
+	class NavMesh;
 	class ParkedCarCloudManager;
 	class VehicleBehaviourAmbient;
 
@@ -194,7 +195,7 @@ namespace proto
 		unsigned int unknown200;
 		unsigned int unknown204;
 		unsigned int unknown208;
-		int unknown20C;
+		NavMesh* unknown20C;
 		container::ArrayDynamicHeap<AmbientElement4A> unknown210;
 		container::ArrayDynamicHeap<AmbientElement4B> unknown220;
 		container::ArrayDynamicHeap<AmbientElement20> unknown230;

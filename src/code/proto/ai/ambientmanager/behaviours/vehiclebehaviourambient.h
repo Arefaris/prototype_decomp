@@ -28,6 +28,7 @@ namespace engine
 
 namespace proto
 {
+	class NavArea;
 	// The tuning record a vehicle refers to (RTTI: proto::VehicleProperties, a reflected load object): the members the
 	// script data sets, in the units the data uses. The maximum speed is kept in metres per second and read and
 	// written in kilometres per hour.
@@ -175,7 +176,7 @@ namespace proto
 
 		// The node at +0x68 links the ambient manager's list of vehicle behaviours
 		unsigned char unknown6C[0x74 - 0x6c];
-		void* unknown74;      // +0x74, the record of the lane the car follows (0x10446700 reads its plane)
+		NavArea* unknown74;   // +0x74, the record of the area the car stands in (0x10446700 reads its plane)
 		math::Vector extents; // +0x78: half the size of the car (0x10445D20 derives the corners from it)
 
 		// +0x84, set to 1 when the car is halted (0x1044BF10)
@@ -207,6 +208,37 @@ namespace proto
 		}
 
 		math::Vector vector;
+	};
+
+	// The query for the state of an ambient actor (RTTI: proto::GetStateMessage; id 0xF, the answer comes back at +0xC)
+	struct GetStateMessage : public AmbientMessage
+	{
+		GetStateMessage() : AmbientMessage(0xf)
+		{
+			state = -1;
+		}
+
+		int state;
+	};
+
+	// The query for the motion state of a character (RTTI: proto::GetMotionStateMsg, a character motion message of
+	// type 0x21, id 0xB; its constructor is another unit's, 0x10119AB0). The answer comes back at +0xC.
+	struct GetMotionStateMsg : public engine::IntrusiveMessage
+	{
+		GetMotionStateMsg();
+
+		int state;
+		core::Name<core::CaseSensitiveKey> name;
+	};
+
+	// What an ambient actor's attribute points to (name guess); 0x104335E0 answers its state
+	class StateOwner
+	{
+	public:
+		int GetState();
+
+		unsigned char unknown0[0x64];
+		int state;
 	};
 
 	// The description an ambient car is spawned from: its name and the record of its list
@@ -266,6 +298,16 @@ namespace proto
 	{
 		unsigned char unknownC[0x28 - 0xc];
 		int surface;
+	};
+
+	// One pair of wheels of the car (0x10 bytes): how far they have turned about their axle and about the vertical,
+	// and the parts of the drawable that show them
+	struct Wheel
+	{
+		float spin;
+		float steer;
+		unsigned int part1;
+		unsigned int part2;
 	};
 
 	class VehicleBehaviourAmbient : public VehicleBehaviour
@@ -328,6 +370,10 @@ namespace proto
 		float Unknown10445960();
 		// 0x104470A0: turns the forward direction (and the vector at +0x110) about the axis by the yaw rate over dt
 		void Unknown104470A0(math::Vector* forward, const math::Vector* axis, float dt);
+		// 0x10449680: sets the car down on the ground: the position and the up direction (the pointers are changed)
+		void Unknown10449680(math::Vector* position, math::Vector* up);
+		// 0x10445980: moves every collision object of the physics object to the position (this is not read)
+		void MovePhysicsObject(ravenphysics::PhysicsObject* object, math::Vector position);
 		// 0x10445A40: the distance the brakes need to stop a car whose squared speed is given
 		float Unknown10445A40(float squaredSpeed);
 		// 0x104485E0: whether the parked car may be set going (answers true when it is allowed to, or after it started
@@ -335,6 +381,21 @@ namespace proto
 		bool Unknown104485E0();
 		// 0x10445790 (not reconstructed)
 		void Unknown10445790();
+		// 0x1044B2A0: whether the car does not hold back for the actor (false when the actor is in the state 4 or 6, or is
+		// not the player and stands in a place that does not allow it; true otherwise)
+		bool Unknown1044B2A0(engine::GameObject* other, float value);
+		// 0x1044C040: the per frame tick: finds the area the car stands in (and lets the car go when there is none),
+		// moves the car from the list of its old area to the new one's and advances the tree's sequencer
+		void Unknown1044C040(float dt);
+		// 0x1044D730: the car drives along its path without physics: it looks for the node it has passed, picks its speed
+		// by the light, the cars ahead and its acceleration, and moves
+		void Unknown1044D730(float dt);
+		// 0x10443290 (the car has passed that many nodes) / 0x10442D60 (keeps the path filled) / 0x10445A90 (the light the
+		// car waits at) / 0x1044B480 (moves the car along its path)
+		void Unknown10443290(int passed);
+		void Unknown10442D60();
+		bool Unknown10445A90(float dt);
+		void Unknown1044B480(float dt, int node);
 		// 0x1044AE90: chooses the speed the car aims at and its braking force
 		void UpdateTargetSpeed();
 		// 0x10446A70: works the desired facing out into the steering angle
@@ -419,23 +480,20 @@ namespace proto
 		math::Vector unknown110;   // +0x110
 		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
 		float turningAngle;        // +0x120: the steering angle (0x10446A70)
-		unsigned char unknown124[0x13c - 0x124];
+		unsigned char unknown124[0x138 - 0x124];
+		bool unknown138;           // +0x138
+		unsigned char unknown139[0x13c - 0x139];
 		float unknown13C;          // +0x13c
-		unsigned char unknown140[0x148 - 0x140];
-		int wheelPart1;            // +0x148, +0x14c, +0x158, +0x15c, +0x168, +0x16c: the drawable's parts "w1" .. "w6"
-		int wheelPart2;
-		unsigned char unknown150[0x158 - 0x150];
-		int wheelPart3;
-		int wheelPart4;
-		unsigned char unknown160[0x168 - 0x160];
-		int wheelPart5;
-		int wheelPart6;
+		// The three wheel pairs (front, middle, rear): the angles the wheels are turned by and the drawable's parts
+		// "w1" .. "w6" they move (0x1044ABD0)
+		Wheel wheels[3];           // +0x140
 		bool unknown170;           // +0x170: set while the car changes lanes
 		unsigned char unknown171[0x174 - 0x171];
 		int unknown174;            // +0x174: a random number below three picked when the car is set up
 		unsigned char unknown178[0x17c - 0x178];
 		float unknown17C;          // +0x17c
-		unsigned char unknown180[0x188 - 0x180];
+		float unknown180;          // +0x180
+		unsigned char unknown184[0x188 - 0x184];
 		int mode;                  // +0x188
 		unsigned char unknown18C[0x198 - 0x18c];
 		float unknown198;          // +0x198: the distance to the next path node less one (0x104482B0)

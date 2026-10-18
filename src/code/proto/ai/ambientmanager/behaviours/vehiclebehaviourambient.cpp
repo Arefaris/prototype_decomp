@@ -6,15 +6,19 @@
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/choreo/deltatransform.h"
+#include "code/core/bitfield.h"
+#include "code/core/heap.h"
 #include "code/core/refptr.h"
 #include "code/core/report.h"
 #include "code/engine/physics/physicsmessages.h"
 #include "code/math/random.h"
+#include "code/ravenphysics/collision/collisionobject.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
 #include "code/math/obb.h"
 #include "code/math/quaternion.h"
+#include "code/pure3d/pose.h"
 #include <float.h>
 #include <math.h>
 #include <new>
@@ -27,7 +31,19 @@ namespace proto
 	class NavArea
 	{
 	public:
-		unsigned char unknown0[0x28];
+		// 0x105680A0 / 0x105680D0: puts the car in / takes it out of the area's list of cars
+		void AddVehicle(VehicleBehaviour* vehicle);
+		void RemoveVehicle(VehicleBehaviour* vehicle);
+
+		// 0x10567FE0: whether the area's state at +0x20 lets cars through (not 0, 4, 5, 6 or 7)
+		bool Unknown10567FE0();
+
+		unsigned char unknown0[0x10];
+		// The plane the area lies in: the normal and the offset (0x1044B480)
+		math::Vector normal;
+		float offset;
+		int state;
+		unsigned char unknown24[0x28 - 0x24];
 		container::ListBase::Node* vehicles;
 		unsigned char unknown2C[0x38 - 0x2c];
 		short vehicleCount;
@@ -37,14 +53,22 @@ namespace proto
 	class NavMesh
 	{
 	public:
+		// 0x1056D2C0: finds the area a position lies in (within the margins below and above it), answering whether it
+		// found one
+		bool Find(const math::Vector* position, float below, float above, NavArea** result, math::Vector* closest,
+			core::BitField<unsigned short> filter);
+
 		unsigned char unknown0[0x38];
 		NavArea* areas;
 	};
 
 	extern NavMesh* gNavMesh;
 
-	// The handle of the player's game object (0x1126E40C)
-	extern engine::GameObjectHandle gPlayerHandle;
+	// The attribute of an ambient actor that holds its state owner (the name at 0x11256298)
+	extern content::ObjectName gStateAttributeName;
+
+	// The handles of the players' game objects (0x1126E40C)
+	extern engine::GameObjectHandle gPlayerHandles[];
 
 	// The area a path node lies in, or null when the node names none
 	static NavArea* GetArea(PathNode* node)
@@ -146,6 +170,16 @@ namespace proto
 		int FindPart(const char* name);
 	};
 
+	// FUNCTION: ENGINE 0x10445980
+	void VehicleBehaviourAmbient::MovePhysicsObject(ravenphysics::PhysicsObject* object, math::Vector position)
+	{
+		unsigned int count = object->objectCount;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			object->objects[i]->MoveTo(position);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10445A40
 	float VehicleBehaviourAmbient::Unknown10445A40(float squaredSpeed)
 	{
@@ -178,6 +212,23 @@ namespace proto
 
 		int index;
 	};
+
+	// The message that makes the drawable pick its level of detail again (RTTI: proto::ForceLODUpdateMessage; type 0x3D,
+	// id 0xA)
+	struct ForceLODUpdateMessage : public engine::IntrusiveMessage
+	{
+		ForceLODUpdateMessage() : engine::IntrusiveMessage(0x3d, 0xa)
+		{
+		}
+		virtual ~ForceLODUpdateMessage()
+		{
+		}
+	};
+
+	// -1, 0 or 1 by the sign of the number (0x1006FBA0; the engine calls its own copy of it)
+	extern float Sign(float value);
+	// The smaller of two numbers (0x10071300)
+	extern float Min(float a, float b);
 
 	// The probe distance the car's placement test is given (0x1108CB14, all ones)
 	static int sPlacementProbe = -1;
@@ -462,7 +513,7 @@ namespace proto
 #ifdef NONMATCHING
 	void VehicleBehaviourAmbient::UpdateLaneChange()
 	{
-		if (*(int*)((char*)unknown74 + 0x20) == 1)
+		if (unknown74->state == 1)
 		{
 			PathNode* first = path88.At(0);
 			unsigned short index = *(unsigned short*)((char*)first->areaLink + 2);
@@ -478,6 +529,76 @@ namespace proto
 			}
 		}
 		unknown170 = Unknown1044C340(4.5f);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1044D730
+	// NONMATCHING: the passed-node search, the speed rules (stop at the light, brake for a car ahead, accelerate to 7)
+	// and the move are the engine's; the engine keeps the car in esi, holds the three position components on the x87
+	// stack through the search loop and reloads the stored distance for the loop test where ours keeps it in the x87
+	// unit, 40 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044D730(float dt)
+	{
+		if (unknown198 < 0.0f)
+		{
+			int count = path88.Count();
+			if (count != 0)
+			{
+				math::Matrix& matrix = owner->transform->value;
+				math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				int passed = 1;
+				int node = 2;
+				do
+				{
+					if (count - 1 <= passed)
+					{
+						break;
+					}
+					PathNode* next = path88.At(node);
+					passed++;
+					node++;
+					float dx = position.x - next->position.x;
+					float dy = position.y - next->position.y;
+					float dz = position.z - next->position.z;
+					unknown198 = sqrt(dz * dz + dy * dy + dx * dx) - 1.0f;
+				}
+				while (unknown198 < 0.0f);
+				Unknown10443290(passed);
+			}
+		}
+		Unknown10442D60();
+		if (path88.Count() < 3)
+		{
+			return;
+		}
+		if (Unknown10445A90(dt))
+		{
+			speed = 0.0f;
+		}
+		else if (IsVehicleAhead(unknown19C))
+		{
+			float slowed = speed - vehicleProperties->brakingForce * dt * 2.0f;
+			speed = slowed;
+			if (5.0f > slowed)
+			{
+				speed = 0.0f;
+			}
+		}
+		else
+		{
+			float faster = vehicleProperties->accelerationForce * dt + speed;
+			speed = faster;
+			if (7.0f <= faster)
+			{
+				faster = 7.0f;
+			}
+			speed = faster;
+		}
+		if (speed > 0.00001f)
+		{
+			Unknown1044B480(dt, 1);
+		}
 	}
 #endif
 
@@ -777,10 +898,12 @@ namespace proto
 		desiredFacing.z = facing.z;
 	}
 
-	// The handle of the player's game object when there is a player, an empty handle otherwise
-	inline engine::GameObjectHandle GetPlayerHandle()
+	// The game object of a player, null when there is none (0x10099560 keeps a copy)
+	inline engine::GameObject* GetPlayer(int index)
 	{
-		return (engine::controller::InputSystem::Get()->GetPlayerCount() <= 0) ? engine::GameObjectHandle() : gPlayerHandle;
+		engine::GameObjectHandle handle = (index >= 0 && index < engine::controller::InputSystem::Get()->GetPlayerCount())
+			? gPlayerHandles[index] : engine::GameObjectHandle();
+		return handle.Get();
 	}
 
 	// FUNCTION: ENGINE 0x104485E0
@@ -791,8 +914,7 @@ namespace proto
 	{
 		if (unknownA4 == 2)
 		{
-			engine::GameObjectHandle player = GetPlayerHandle();
-			engine::GameObject* playerObject = player.Get();
+			engine::GameObject* playerObject = GetPlayer(0);
 			if (playerObject != 0)
 			{
 				math::Matrix& own = owner->transform->value;
@@ -824,6 +946,144 @@ namespace proto
 		}
 		return false;
 	}
+
+	// FUNCTION: ENGINE 0x1044C040
+	// EQUIVALENT: the same calls with the same arguments in the same order, the same tests and stores; the engine
+	// keeps the branch, the slot's address and the parameters in ebx, edi and ebp where ours uses edi, ebp and ebx,
+	// and forms the address of the virtual slot before it loads it, 85 %
+	void VehicleBehaviourAmbient::Unknown1044C040(float dt)
+	{
+		NavArea* area = 0;
+		math::Matrix& matrix = owner->transform->value;
+		math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+		NavMesh* mesh = gAmbientManager->unknown20C;
+		math::Vector closest;
+		if (!mesh->Find(&position, 4.0f, 4.0f, &area, &closest, core::BitField<unsigned short>()))
+		{
+			ReleasePhysics();
+		}
+		if (area != unknown74)
+		{
+			unknown74->RemoveVehicle(this);
+			unknown74 = area;
+			area->AddVehicle(this);
+		}
+		core::HeapScope scope(0x75);
+		if (branch != 0)
+		{
+			if (!sequencer.Unknown105A45A0(true))
+			{
+				engine::GameObjectParams* currentParams = GetParams();
+				fight::Branch* current = branch;
+				fight::Branch* action = current->Slot10(GetSequencer(), currentParams, 0, 0);
+				if (action != 0)
+				{
+					action->Slot11(&sequencer, currentParams, 0);
+				}
+			}
+		}
+		sequencer.Advance(1, dt);
+		sequencer.Update(0);
+		sequencer.Unknown105A4910(true);
+	}
+
+	// FUNCTION: ENGINE 0x1044B480
+	// NONMATCHING: the projection onto the area's plane, the unit direction to the path node, the step along it and
+	// the rebuilt orientation and position of the car are the engine's arithmetic; the engine loads the matrix and
+	// plane components in a different order, keeps three of them on the stack and uses a larger frame (0x48), 24 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044B480(float dt, int node)
+	{
+		math::Matrix& matrix = owner->transform->value;
+		NavArea* area = unknown74;
+		float height = area->normal.x * matrix.m[3][0] + area->normal.y * matrix.m[3][1] + area->normal.z * matrix.m[3][2] + area->offset;
+		int first = path88.arrayEnd - path88.begin;
+		float flatY = matrix.m[3][1] - area->normal.y * height;
+		float flatZ = matrix.m[3][2] - area->normal.z * height;
+		float flatX = matrix.m[3][0] - area->normal.x * height;
+		PathNode* target = path88.At(node);
+		math::Vector toTarget(flatX - target->position.x, flatY - target->position.y, flatZ - target->position.z);
+		float distance = toTarget.Normalize();
+		unknown198 = distance - 1.0f;
+		if (0.0f <= distance - 1.0f)
+		{
+			math::Vector normal(unknown74->normal.x, unknown74->normal.y, unknown74->normal.z);
+			math::Vector right(toTarget.z * normal.y - toTarget.y * normal.z, toTarget.x * normal.z - toTarget.z * normal.x,
+				toTarget.y * normal.x - toTarget.x * normal.y);
+			right.NormalizeFast();
+			float step = -0.0f - speed * dt;
+			unknown198 = unknown198 + step;
+			float newY = (toTarget.y * step + flatY) - 0.15f;
+			math::Matrix& result = owner->transform->Get();
+			result.m[0][0] = right.x;
+			result.m[0][1] = right.y;
+			result.m[0][2] = right.z;
+			result.m[0][3] = 0.0f;
+			result.m[1][0] = normal.x;
+			result.m[1][1] = normal.y;
+			result.m[1][2] = normal.z;
+			result.m[1][3] = 0.0f;
+			result.m[2][0] = right.y * normal.z - right.z * normal.y;
+			result.m[2][1] = right.z * normal.x - right.x * normal.z;
+			result.m[2][2] = right.x * normal.y - right.y * normal.x;
+			result.m[2][3] = 0.0f;
+			result.m[3][0] = toTarget.x * step + flatX;
+			result.m[3][1] = newY;
+			result.m[3][2] = toTarget.z * step + flatZ;
+			result.m[3][3] = 1.0f;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1044B2A0
+	// NONMATCHING: the same tests, messages, calls and results in the same order, but the engine reuses the dead slot
+	// of the float parameter for the attribute pointer and the area and so has a frame of 0x34 bytes where ours needs
+	// 0x40, 56 %
+#ifdef NONMATCHING
+	bool VehicleBehaviourAmbient::Unknown1044B2A0(engine::GameObject* other, float value)
+	{
+		if (!unknown170 && value > unknown180 && speed > 0.5f && !unknown138)
+		{
+			GetStateMessage query;
+			other->SendMessage(&query);
+			if (query.state != 0)
+			{
+				engine::AttributePtr<StateOwner*> attribute = other->GetAttributePtr<StateOwner*>(gStateAttributeName);
+				StateOwner** slot = attribute.value;
+				if (slot != 0 && *slot != 0)
+				{
+					int state = (*slot)->GetState();
+					if (state != 4 && state != 6)
+					{
+						return true;
+					}
+					return false;
+				}
+				if (other == GetPlayer(0))
+				{
+					GetMotionStateMsg motion;
+					other->SendMessage(&motion);
+					if (motion.state == 0)
+					{
+						return true;
+					}
+					return motion.state == 1;
+				}
+				math::Matrix& matrix = other->transform->value;
+				math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				NavArea* area = 0;
+				math::Vector closest;
+				NavMesh* mesh = gAmbientManager->unknown20C;
+				if (!mesh->Find(&position, 4.0f, 4.0f, &area, &closest, core::BitField<unsigned short>()))
+				{
+					return true;
+				}
+				return !area->Unknown10567FE0();
+			}
+		}
+		return true;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10446A70
 	// NONMATCHING: the asserts and the arithmetic come out in the engine's order (the first block, the frame size and
@@ -871,10 +1131,124 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1044ABD0
+	// NONMATCHING: the loop over the three wheel pairs, the steering follow-up of the first pair and the rotations are
+	// the engine's operation for operation, but the engine keeps the car in ebp and the wheel record in esi, forms the
+	// record address once per pass, leaves the two flag updates of the pose as separate read-modify-write instructions
+	// and has a frame of 0x6c bytes where ours needs 0x68, 41 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044ABD0(float dt)
+	{
+		if (!(fabs(speed) <= 0.01f))
+		{
+			GetRenderLODIndex query;
+			owner->SendMessage(&query);
+			if (query.index == 0)
+			{
+				engine::BaseAttribute* attribute = owner->FindAttribute(gDrawableAttributeName);
+				if (attribute != 0)
+				{
+					pure3d::Pose** slot = &static_cast<engine::Attribute<pure3d::Pose*>*>(attribute)->value;
+					if (slot != 0)
+					{
+						pure3d::Pose* pose = *slot;
+						float travelled = dt * speed;
+						float spinStep = travelled / vehicleProperties->wheelRadius;
+						math::Vector verticalAxis(0.0f, 1.0f, 0.0f);
+						math::Vector axleAxis(1.0f, 0.0f, 0.0f);
+						for (int i = 0; i < 3; i++)
+						{
+							Wheel& wheel = wheels[i];
+							if (wheel.part1 > 0 && wheel.part1 != 0xffff && wheel.part2 > 0 && wheel.part2 != 0xffff)
+							{
+								wheel.spin = wheel.spin - spinStep;
+								if (i == 0)
+								{
+									float previous = wheels[0].steer;
+									float difference = turningAngle - previous;
+									float direction = Sign(difference);
+									wheels[0].steer = Min(dt * 3.14f, direction * difference) * direction + previous;
+								}
+								math::Quaternion steerRotation;
+								math::Quaternion spinRotation;
+								math::Quaternion rotation;
+								steerRotation.FromAxisAngle(wheel.steer, verticalAxis);
+								spinRotation.FromAxisAngle(wheel.spin, axleAxis);
+								math::Multiply(rotation, steerRotation, spinRotation);
+								pose->SetJointRotation(wheel.part1, &rotation);
+								pose->SetJointRotation(wheel.part2, &rotation);
+							}
+						}
+						pose->mData.mFlags |= 3;
+						pose->mData.mFlags &= 0xfb;
+						pose->Update();
+					}
+				}
+			}
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1044A580
+	// NONMATCHING: the arithmetic and the order of the calls follow the engine; the engine reads the three matrix rows
+	// into registers before it stores them and keeps the local vectors in other stack slots, 55 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044A580(float dt, ravenphysics::PhysicsObject* object)
+	{
+		float currentSpeed = speed;
+		math::Vector velocity(unknown110.x * currentSpeed, unknown110.y * currentSpeed, unknown110.z * currentSpeed);
+		math::Vector step(velocity.x * dt, velocity.y * dt, velocity.z * dt);
+		if (!(fabs(sqrt(step.x * step.x + step.y * step.y + step.z * step.z)) <= 0.00001f))
+		{
+			math::Matrix& matrix = owner->transform->value;
+			math::Vector up(matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]);
+			math::Vector forward(matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]);
+			math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+			Unknown104470A0(&forward, &up, dt);
+			MovePhysicsObject(object, velocity);
+			position.x = step.x + position.x;
+			position.y = step.y + position.y;
+			position.z = step.z + position.z;
+			math::Vector newUp(up.x, up.y, up.z);
+			Unknown10449680(&position, &newUp);
+			float blend = dt * 5.0f;
+			newUp.x = (newUp.x - up.x) * blend + up.x;
+			newUp.y = (newUp.y - up.y) * blend + up.y;
+			newUp.z = (newUp.z - up.z) * blend + up.z;
+			newUp.Normalize();
+			math::Vector right;
+			right.Cross(newUp, forward);
+			right.NormalizeFast();
+			math::Vector newForward;
+			newForward.Cross(right, newUp);
+			math::Matrix result;
+			result.m[0][0] = right.x;
+			result.m[0][1] = right.y;
+			result.m[0][2] = right.z;
+			result.m[0][3] = 0.0f;
+			result.m[1][0] = newUp.x;
+			result.m[1][1] = newUp.y;
+			result.m[1][2] = newUp.z;
+			result.m[1][3] = 0.0f;
+			result.m[2][0] = newForward.x;
+			result.m[2][1] = newForward.y;
+			result.m[2][2] = newForward.z;
+			result.m[2][3] = 0.0f;
+			result.m[3][0] = position.x;
+			result.m[3][1] = position.y;
+			result.m[3][2] = position.z;
+			result.m[3][3] = 1.0f;
+			owner->transform->Get() = result;
+			ForceLODUpdateMessage message;
+			owner->SendMessage(&message);
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1044AAB0
 	void VehicleBehaviourAmbient::FindWheelParts()
 	{
-		if (wheelPart1 == 0xffff)
+		if (wheels[0].part1 == 0xffff)
 		{
 			GetRenderLODIndex query;
 			owner->SendMessage(&query);
@@ -889,12 +1263,12 @@ namespace proto
 						PartLookup* drawable = *slot;
 						if (drawable != 0)
 						{
-							wheelPart1 = drawable->FindPart("w1");
-							wheelPart2 = drawable->FindPart("w2");
-							wheelPart3 = drawable->FindPart("w3");
-							wheelPart4 = drawable->FindPart("w4");
-							wheelPart5 = drawable->FindPart("w5");
-							wheelPart6 = drawable->FindPart("w6");
+							wheels[0].part1 = drawable->FindPart("w1");
+							wheels[0].part2 = drawable->FindPart("w2");
+							wheels[1].part1 = drawable->FindPart("w3");
+							wheels[1].part2 = drawable->FindPart("w4");
+							wheels[2].part1 = drawable->FindPart("w5");
+							wheels[2].part2 = drawable->FindPart("w6");
 						}
 					}
 				}
