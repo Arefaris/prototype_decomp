@@ -68,6 +68,7 @@ namespace engine
 				}
 			}
 		}
+		// FUNCTION: ENGINE 0x10818530
 		template<> void ConstructRange<DrawableData>(DrawableData* first, DrawableData* last)
 		{
 			for (; first != last; ++first)
@@ -333,6 +334,7 @@ namespace engine
 		void FlushRenderEvents();
 
 		// Element constructors
+		// FUNCTION: ENGINE 0x10817B70
 		ControllerSlot::ControllerSlot()
 		{
 			unknown0 = 0;
@@ -340,6 +342,7 @@ namespace engine
 			active = true;
 		}
 
+		// FUNCTION: ENGINE 0x10817B90
 		ControllerSlot::ControllerSlot(const ControllerSlot& other)
 		{
 			unknown0 = other.unknown0;
@@ -954,3 +957,7 @@ namespace engine
 		template ControllerSlot* HandleTable<ControllerSlot>::GetByIndex(unsigned int index) const;
 	}
 }
+
+// The release of a drawable the free of a drawable slot makes
+// FUNCTION: ENGINE 0x10817E70
+template void core::SafeRelease<pure3d::Drawable>(pure3d::Drawable*& object);

@@ -499,18 +499,21 @@ within 1e-5 of zero, calls slot 8 with the time step on every object of an intru
 (`setne` / `test` / `ja`) and keeps the join of each null-checked node-to-object adjustment before testing the object
 (no jump threading); `Abs` as `x >= 0 ? x : -x` gives the original's `-0.0 - x`.
 
-## render/async/private/renderglobals.cpp (0x10817A10 - about 0x10819400): the tables and controller API match, the queue instances are open
+## render/async/private/renderglobals.cpp (0x10817A10 - 0x1081933B): every function reconstructed, 5 EQUIVALENT
 
 The drawable table (0x1130CCC4) and the controller table (0x1130CCC8) are `HandleTable<T>` instances: slots, a lock-free
 free list of index nodes (+0xC), nodes (+0x10), serials (+0x1C) and a count (+0x28); the serial counter is a static of
 each instance (0x111C2E84 / 0x111C2E88, 1 .. 0xFFFE). The arrays are `SlotArray<T>` (begin, end, empty allocator). Other
 globals: the render event allocator (0x1130CCDC, slots 3 / 4), the deferred deletion list and the render event queues.
 Each queue is a template instance (two queues, 0x11284C60 and 0x11304C90, with identical copies of every helper): a
-ring of 0x20000 values behind a free and a ready semaphore, lock-free read / write indices and a commit structure at
-+0x10 (0x10817F90, not reconstructed) that releases the slots that became readable. Both queues' instances are mapped. Notes:
+ring of 1 << Bits values behind a free and a ready semaphore, lock-free read / write indices and a commit structure at
++0x10 (0x10817F90: a 64-bit word with the oldest uncommitted slot in the low Bits and a bitmap of the later committed
+slots above) that releases the slots that became readable. The second queue is a ring of 0x2000 values. Notes:
 - The two "FATAL: Async render event queue overflowed..." asserts are OLD_ASSERT_AT with the original line numbers
   (0xA9, 0xBE).
 - ExecuteRenderEvents is `while (TryPop(&queue, &event) && event != 0) event->Execute();`.
+- The queue helpers are templates over `AsyncQueue<T, Bits>` (17 and 13 bits); a named `long next` read before `expected = index`
+  gives the engine's registers in the index and the allocation loops.
 - The thirteen one-byte functions between 0x10817B30 and 0x108185E0 are the construct / destroy helpers of the plain
   types (`ConstructRange` / `DestroyRange` / `DestroyAt`); the original keeps an out-of-line copy of each instance.
 - Inlining: the element-constructing array constructor of the controller slots stays a call in the table
@@ -521,7 +524,6 @@ ring of 0x20000 values behind a free and a ready semaphore, lock-free read / wri
 | Address | Name | Status | Notes |
 |---|---|---|---|
 | 0x10817A50 / 0x10817AD0 / 0x10817B10 / 0x10817B40 | AllocRenderEvent / FreeRenderEvent / GetRenderList / DeferDelete | match | |
-| 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
 | 0x10817D90 / 0x10817DE0 / 0x10817E30 / 0x10817E50 | queue init / shutdown (both queues) | match | the initial slot count sets the commit head and the write index; the semaphores start at ring size - n and n |
 | 0x108185F0 / 0x10818650 / 0x10818620 / 0x10818680 / 0x10818C00 / 0x10818C30 / 0x10818C60 / 0x10818C90 | Reserve / Commit / TryPush / TryPop (both queues) | match | the second queue (0x11304C90) is a ring of 0x2000 values: `AsyncQueue<T, Bits>` with 17 and 13 bits |
