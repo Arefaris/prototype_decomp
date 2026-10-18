@@ -290,18 +290,27 @@ namespace pure3d
 		return true;
 	}
 
+	// Whether the usage allows the lock and the level and slice exist (the engine's checks before its body)
+	inline bool CanLock(const dxTexture* texture, unsigned int flags, unsigned int level, unsigned int slice)
+	{
+		if (((flags & 1) != 0 && (~texture->description.usage & 1) != 0) ||
+			((flags & 2) != 0 && (texture->description.usage & 2) != 0))
+		{
+			return false;
+		}
+		return level < (unsigned int)texture->description.levels &&
+			slice < (unsigned int)texture->levelData[level].count;
+	}
+
 	// FUNCTION: ENGINE 0x1061C600
-	// EQUIVALENT: register allocation, 8 %: the engine keeps `level` in edx and reloads it from the argument slot
-	// after every call where this compiler caches it in ebx and shrinks the prologue around it, which shifts the
-	// whole body. Both bodies make the same device calls with the same arguments and leave the same description.
-	// The engine returns false from two separate blocks (early returns) and leaves the two surface pointers
-	// uninitialised; both together bring it to 14.6 % with `level` still cached (81 % when the shifted lines are
-	// aligned). The engine never gives `level` or `slice` a callee-saved register: both stay in edx / ecx for the
-	// checks and are read again from the argument slots after the calls, which lets it push ebx / ebp only after the
-	// checks. A pointer or reference to the system-memory copy, local copies and the order of the arms did not change
-	// that.
-	// The usage test as an early return of its own gives the engine's prologue up to the level check (17.9 %), but
-	// `level` still takes ebx.
+	// EQUIVALENT: register allocation, 9.7 %: the engine keeps `level` in edx and reads it again from the argument
+	// slot after the calls, this compiler gives it ebx, which moves the push of ebx in front of the checks and shifts
+	// the whole body. Both bodies make the same device calls with the same arguments and leave the same description.
+	// The checks as an inline returning a bool (CanLock) give the engine's blocks: the early return for a locked
+	// texture, one shared `return false` for the failed checks and the body behind them; the surface pointers are
+	// left uninitialised and the system-memory copy is reached through a pointer, as in the engine. A copy of
+	// `level` after the checks, the plain arm first, the bookkeeping stores moved up and the members written
+	// directly do not take ebx away from `level`.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)
@@ -309,86 +318,87 @@ namespace pure3d
 			return false;
 		}
 		unsigned int readOnly = flags & 1;
-		if (!((readOnly != 0 && (~description.usage & 1) != 0) || ((flags & 2) != 0 && (description.usage & 2) != 0)) &&
-			level < (unsigned int)description.levels && slice < (unsigned int)levelData[level].count)
+		if (!CanLock(this, flags, level, slice))
 		{
-			TextureLevelData* levelData_ = &levelData[level].data[slice];
-			switch (description.type)
-			{
-			case 3:
-				{
-					TextureBox box;
-					box.left = 0;
-					box.top = 0;
-					box.bottom = levelData_->height;
-					box.right = levelData_->width;
-					box.front = slice;
-					box.back = slice + 1;
-					volumeTexture->lpVtbl->LockBox(volumeTexture, level, &lockBox, &box, readOnly << 4);
-				}
-				break;
-			case 2:
-				cubeTexture->lpVtbl->LockRect(cubeTexture, gCubeFaces[slice], level, &lockRect, 0, readOnly << 4);
-				break;
-			case 1:
-				if ((description.usage & 2) != 0)
-				{
-					if (defaultTexture == 0)
-					{
-						gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, description.width, description.height,
-							description.levels, 0, d3dFormat, D3DPOOL_SYSTEMMEM, &defaultTexture, 0);
-					}
-					IDirect3DSurface9* defaultSurface = 0;
-					IDirect3DSurface9* textureSurface = 0;
-					defaultTexture->lpVtbl->GetSurfaceLevel(defaultTexture, 0, &defaultSurface);
-					texture->lpVtbl->GetSurfaceLevel(texture, 0, &textureSurface);
-					gD3DDevice->lpVtbl->GetRenderTargetData(gD3DDevice, textureSurface, defaultSurface);
-					textureSurface->lpVtbl->Release(textureSurface);
-					defaultSurface->lpVtbl->Release(defaultSurface);
-					defaultTexture->lpVtbl->LockRect(defaultTexture, level, &lockRect, 0, readOnly << 4);
-				}
-				else
-				{
-					texture->lpVtbl->LockRect(texture, level, &lockRect, 0, readOnly << 4);
-				}
-				break;
-			}
-			lock->slice = slice;
-			lock->width = levelData_->width;
-			lock->height = levelData_->height;
-			lock->format = description.format;
-			lock->size = levelData_->size;
-			lock->unknown1C = 1;
-			if (description.type == 3)
-			{
-				if ((description.flags & 2) != 0)
-				{
-					lock->pitch = lockBox.RowPitch;
-					lock->offset = (int)lockBox.pBits;
-				}
-				else
-				{
-					lock->pitch = -lockBox.RowPitch;
-					lock->offset = (levelData_->height - 1) * lockBox.RowPitch + (int)lockBox.pBits;
-				}
-			}
-			else if ((description.flags & 2) != 0)
-			{
-				lock->pitch = lockRect.Pitch;
-				lock->offset = (int)lockRect.pBits;
-			}
-			else if (description.type == 1)
-			{
-				lock->pitch = -lockRect.Pitch;
-				lock->offset = (levelData_->height - 1) * lockRect.Pitch + (int)lockRect.pBits;
-			}
-			lockLevel = level;
-			lockSlice = slice;
-			locked = true;
-			return true;
+			return false;
 		}
-		return false;
+		TextureLevelData* levelData_ = &levelData[level].data[slice];
+		switch (description.type)
+		{
+		case 3:
+			{
+				TextureBox box;
+				box.left = 0;
+				box.top = 0;
+				box.bottom = levelData_->height;
+				box.right = levelData_->width;
+				box.front = slice;
+				box.back = slice + 1;
+				volumeTexture->lpVtbl->LockBox(volumeTexture, level, &lockBox, &box, readOnly << 4);
+			}
+			break;
+		case 2:
+			cubeTexture->lpVtbl->LockRect(cubeTexture, gCubeFaces[slice], level, &lockRect, 0, readOnly << 4);
+			break;
+		case 1:
+			if ((description.usage & 2) != 0)
+			{
+				IDirect3DTexture9** system = &defaultTexture;
+				if (*system == 0)
+				{
+					gD3DDevice->lpVtbl->CreateTexture(gD3DDevice, description.width, description.height,
+						description.levels, 0, d3dFormat, D3DPOOL_SYSTEMMEM, system, 0);
+				}
+				IDirect3DSurface9* defaultSurface;
+				IDirect3DSurface9* textureSurface;
+				(*system)->lpVtbl->GetSurfaceLevel(*system, 0, &defaultSurface);
+				texture->lpVtbl->GetSurfaceLevel(texture, 0, &textureSurface);
+				gD3DDevice->lpVtbl->GetRenderTargetData(gD3DDevice, textureSurface, defaultSurface);
+				textureSurface->lpVtbl->Release(textureSurface);
+				defaultSurface->lpVtbl->Release(defaultSurface);
+				(*system)->lpVtbl->LockRect(*system, level, &lockRect, 0, readOnly << 4);
+			}
+			else
+			{
+				texture->lpVtbl->LockRect(texture, level, &lockRect, 0, readOnly << 4);
+			}
+			break;
+		}
+		lock->slice = slice;
+		lock->width = levelData_->width;
+		lock->height = levelData_->height;
+		lock->format = description.format;
+		lock->size = levelData_->size;
+		lock->unknown1C = 1;
+		if (description.type == 3)
+		{
+			if ((description.flags & 2) != 0)
+			{
+				lock->pitch = lockBox.RowPitch;
+				lock->offset = (int)lockBox.pBits;
+			}
+			else
+			{
+				lock->pitch = -lockBox.RowPitch;
+				lock->offset = (levelData_->height - 1) * lockBox.RowPitch + (int)lockBox.pBits;
+			}
+		}
+		else if ((description.flags & 2) != 0)
+		{
+			lock->pitch = lockRect.Pitch;
+			lock->offset = (int)lockRect.pBits;
+		}
+		else if (description.type == 1)
+		{
+			lock->pitch = -lockRect.Pitch;
+			lock->offset = (levelData_->height - 1) * lockRect.Pitch + (int)lockRect.pBits;
+		}
+		lockLevel = level;
+		lockSlice = slice;
+		locked = true;
+		return true;
 	}
+
 
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth

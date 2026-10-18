@@ -3544,6 +3544,11 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   computes `t = x / 255` in SSE before the switch (one stack temporary the two cosine cases read) and each case has its
   own clamp tree (`v < 0` first, then `v > 0xFF` on both paths; the cosine cases cross-jump into the first two cases'
   trees), where the source has one clamp after the switch.
+- (op-map2) 0x1061C600 `dxTexture::Lock` stays EQUIVALENT, 9.7 % (was 8): the usage, level and slice checks written as an
+  inline returning a bool (`CanLock`) give the engine's blocks (the locked texture's early return, one shared
+  `return false` for the failed checks, the body behind them), with the surfaces uninitialised and the system-memory
+  copy reached through a pointer. `level` still takes ebx (the engine: edx, read again after the calls), which keeps
+  the push of ebx in front of the checks. difftest SAME (11 states).
 - (op-map2) 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING, now 75 % (was 36 %, same size as the engine's): the fills
   write through a `__restrict` row pointer and read `lock.width` / `lock.pitch` in their loops (that gives the engine's
   zero in edi and one in ebx), every description sets levels, depth and format again before its texture is made, the
