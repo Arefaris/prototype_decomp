@@ -263,8 +263,8 @@ namespace proto
 	int sPlacementProbe = -1;
 
 	// The chances a lane change is tried with, by the car's random number below three (0x10E04E70 and 0x10E04E7C)
-	float sSecondChances[3] = {4.5f, 5.0f, 5.5f};
-	float sFirstChances[3] = {6.0f, 6.0f, 6.0f};
+	extern const float sSecondChances[3] = {4.5f, 5.0f, 5.5f};
+	extern const float sFirstChances[3] = {6.0f, 6.0f, 6.0f};
 
 	// FUNCTION: ENGINE 0x10443550
 	PathNode* VehicleBehaviour::GetPathNode(int index)
