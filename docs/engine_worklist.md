@@ -3238,6 +3238,19 @@ method of the pose at +0x70) and the job record at +0x330.
 - (mp-skin) 0x1071D1B0 **matches**: the offset paths' loop is `for (unsigned int i = 0; i < (unsigned int)count; i++)`
   (the induction variable is replaced by a down counter, which is created after the loop-invariant stride scalings, in
   the engine's order), not the guard plus `do { } while (--i)` the earlier sessions wrote.
+- (mp-skin) 0x10720CF0 `SkinState::Unknown10720CF0` (the job dispatcher) is written and compiled in as EQUIVALENT (265
+  instructions, same size, frame and registers as the engine's; 91.3 % of the bytes, 96 % of the instructions): what is
+  left is scheduling only (the loads and the multiply of the three stream set-ups come out in another order, the flag
+  test in front of the third one and the store / load pair of the queueing branch too; no statement order, local or
+  expression form moved them). The types it needed: the buffers at +0x2B0 are `PrimBuffer*` (`dxVertexBuffer`:
+  `Lock` 0x10625F00 takes a `dxVertexDeclaration` that receives the declaration, the locked block in `unknown108` and the
+  flags; `Unknown10625FA0` takes the `ShaderParameters` it fills), 0x107202B0 is `Skin::GetParameters(ShaderParameters*)`
+  (a copy of the skin's own parameters; the word at +0xC of the copy is the format, bit 29 = wide vertex record),
+  0x106E2A30 `LockableRefCounted::Lock()`, the three streams at +0x2E4 (`SkinStream`, 0x18 bytes: enabled, offset, start,
+  current, end, stride), the job record at +0x330 (`SkinJobData`), the pending flag at +0x32C and the byte at +0x298 of
+  the skin (one bone each when set). `gSkinAsync` (0x11137804, true) and `gSkinQueuedCount` (0x1128180C) are skin.cpp's
+  globals. The counters use `_InterlockedIncrement` / `_InterlockedDecrement` (the exchange-add form puts the operands
+  in the other registers).
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 

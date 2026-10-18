@@ -8,6 +8,7 @@
 #include "code/core/refptr.h"
 #include "code/core/thread.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
 
@@ -45,6 +46,12 @@ namespace pure3d
 	void* gPendingSkins = 0;
 	// GLOBAL: ENGINE 0x11281828
 	int gSkinJobCount = 0;
+
+	// Whether the skinning jobs run on a worker thread, and how many have been queued
+	// GLOBAL: ENGINE 0x11137804
+	bool gSkinAsync = true;
+	// GLOBAL: ENGINE 0x1128180C
+	int gSkinQueuedCount = 0;
 
 	// Pushes a node on a list head, retrying while another thread changes it; the node's first word is its next
 	// FUNCTION: ENGINE 0x1071B010
@@ -1627,11 +1634,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071F000
-	void Skin::FillBufferDesc(int value)
+	void Skin::FillBufferDesc(ShaderParameters* parameters)
 	{
 		if (buffer != 0)
 		{
-			buffer->Unknown10625FA0(value);
+			buffer->Unknown10625FA0(parameters);
 		}
 	}
 
@@ -1774,6 +1781,187 @@ namespace pure3d
 	void Skin::SetUnknown10(int value)
 	{
 		unknown294 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10720CF0
+	// EQUIVALENT: the engine's instructions in its registers and frame, 91.3 %; the order of the loads and the multiply in the three stream set-ups, of the flag test in front of the third one and of one store and the load of the format word in the queueing branch differs
+	void SkinState::Unknown10720CF0()
+	{
+		if (unknown2AE)
+		{
+			return;
+		}
+		Unknown9();
+		mPoseIndex++;
+		if (mPoseIndex > 0)
+		{
+			mPoseIndex = 0;
+		}
+		Skin* skin = (Skin*)GetPrimitive();
+		ShaderParameters bufferParameters;
+		mBuffers[mPoseIndex]->Unknown10625FA0(&bufferParameters);
+		dxVertexDeclaration destLock;
+		destLock.unknown110 = 0;
+		mBuffers[mPoseIndex]->Lock(&destLock, 0);
+		if (destLock.unknown108 == 0)
+		{
+			mBuffers[mPoseIndex]->Unlock();
+			return;
+		}
+		_InterlockedIncrement((long volatile*)&gSkinJobCount);
+		int count = destLock.unknown0;
+		OLD_ASSERT_AT(SKIN_FILE, 0x87B, ((destLock.elements[0].unknown9 & 0x0F) == 0),
+			"(((unsigned)destLock.componentDesc[0].stride) & 0x0F) == 0", "Bad Skin dest stride");
+		void* sourceData;
+		int sourceCount;
+		skin->GetDrawData(&sourceData, &sourceCount);
+		OLD_ASSERT_AT(SKIN_FILE, 0x880, (((unsigned)sourceData & 0x0F) == 0), "(((unsigned)sourceData) & 0x0F) == 0",
+			"Bad Skin src ptr");
+		ShaderParameters skinParameters;
+		skin->GetParameters(&skinParameters);
+		int start0 = streams[0].offset + destLock.unknown108;
+		streams[0].end = streams[0].stride * destLock.unknown0 + start0;
+		streams[0].start = start0;
+		streams[0].current = start0;
+		int start1 = streams[1].offset + destLock.unknown108;
+		streams[1].end = streams[1].stride * destLock.unknown0 + start1;
+		streams[1].start = start1;
+		streams[1].current = start1;
+		int start2 = streams[2].offset + destLock.unknown108;
+		streams[2].start = start2;
+		streams[2].current = start2;
+		streams[2].end = streams[2].stride * destLock.unknown0 + start2;
+		bool hasNormals = streams[1].enabled;
+		bool hasTangents = streams[2].enabled;
+		if (gSkinAsync)
+		{
+			jobPending = true;
+			unknown10 = 2;
+			pose->Lock();
+			core::EventReset(&unknown14, 1);
+			jobData->source = sourceData;
+			jobData->destination = destLock.unknown108;
+			jobData->count = count;
+			if (expression != 0)
+			{
+				jobData->positionOffsets = expression->positionOffsets;
+				jobData->normalOffsets = expression->normalOffsets;
+				jobData->tangentOffsets = expression->tangentOffsets;
+			}
+			jobData->hasNormals = streams[1].enabled;
+			jobData->hasTangents = streams[2].enabled;
+			jobData->wide = ((unsigned int)skinParameters.unknownC >> 29) & 1;
+			PushListHead(&gPendingSkins, (void**)&entry);
+			gSkinQueuedCount++;
+			return;
+		}
+		math::Vector4* out = (math::Vector4*)destLock.unknown108;
+		const SkinVertex* vertices = (const SkinVertex*)sourceData;
+		const SkinVertex2* wideVertices = (const SkinVertex2*)sourceData;
+		if (hasNormals)
+		{
+			if (hasTangents)
+			{
+				if (expression != 0)
+				{
+					if (skin->unknown298)
+					{
+						Unknown1071CA40(out, vertices, destLock.unknown0);
+					}
+					else
+					{
+						Unknown1071C530(out, vertices, destLock.unknown0);
+					}
+				}
+				else if (skinParameters.unknownC & 0x20000000)
+				{
+					if (skin->unknown298)
+					{
+						Unknown1071DD60(out, wideVertices, destLock.unknown0);
+					}
+					else
+					{
+						Unknown1071D960(out, wideVertices, destLock.unknown0);
+					}
+				}
+				else if (skin->unknown298)
+				{
+					Unknown1071B9A0(out, vertices, destLock.unknown0);
+				}
+				else
+				{
+					Unknown1071B610(out, vertices, destLock.unknown0);
+				}
+			}
+			else
+			{
+				if (expression != 0)
+				{
+					if (skin->unknown298)
+					{
+						Unknown1071D1B0(out, vertices, destLock.unknown0);
+					}
+					else
+					{
+						Unknown1071CDC0(out, vertices, destLock.unknown0);
+					}
+				}
+				else if (skinParameters.unknownC & 0x20000000)
+				{
+					if (skin->unknown298)
+					{
+						Unknown1071E390(out, wideVertices, destLock.unknown0);
+					}
+					else
+					{
+						Unknown1071DFF0(out, wideVertices, destLock.unknown0);
+					}
+				}
+				else if (skin->unknown298)
+				{
+					Unknown1071BEE0(out, vertices, destLock.unknown0);
+				}
+				else
+				{
+					Unknown1071BBD0(out, vertices, destLock.unknown0);
+				}
+			}
+		}
+		else
+		{
+			if (expression != 0)
+			{
+				if (skin->unknown298)
+				{
+					Unknown1071D770(out, vertices, destLock.unknown0);
+				}
+				else
+				{
+					Unknown1071D440(out, vertices, destLock.unknown0);
+				}
+			}
+			else if (skinParameters.unknownC & 0x20000000)
+			{
+				if (skin->unknown298)
+				{
+					Unknown1071E8F0(out, wideVertices, destLock.unknown0);
+				}
+				else
+				{
+					Unknown1071E5D0(out, wideVertices, destLock.unknown0);
+				}
+			}
+			else if (skin->unknown298)
+			{
+				Unknown1071C390(out, vertices, destLock.unknown0);
+			}
+			else
+			{
+				Unknown1071C0C0(out, vertices, destLock.unknown0);
+			}
+		}
+		mBuffers[mPoseIndex]->Unlock();
+		_InterlockedDecrement((long volatile*)&gSkinJobCount);
 	}
 
 	// FUNCTION: ENGINE 0x10721160

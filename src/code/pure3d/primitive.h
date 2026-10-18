@@ -572,6 +572,37 @@ namespace pure3d
 		Skin* skin;
 	};
 
+	// One stream of vertices a skin state's job writes (0x18 bytes): whether the stream is there, where it starts in
+	// the locked block, the pointers the job walks it with and the stride of its vertices (names are guesses)
+	struct SkinStream
+	{
+		bool enabled;
+		unsigned char unknown1[3];
+		int offset;
+		int start;
+		int current;
+		int end;
+		int stride;
+	};
+
+	// What a skin state hands its job when the job runs on a worker thread (the record at +0x330 of the state; names
+	// are guesses)
+	struct SkinJobData
+	{
+		void* source;
+		int destination;
+		int unknown8;
+		int count;
+		int unknown10;
+		const float* positionOffsets;
+		const float* normalOffsets;
+		const float* tangentOffsets;
+		bool hasNormals;
+		bool hasTangents;
+		unsigned char unknown22[6];
+		bool wide;
+	};
+
 	// One vertex of a skinned mesh as the skinning paths read it: four rows of four floats (the position, the normal,
 	// the tangent and a fourth the paths do not use) and the four bones that move it. 0x50 bytes, and the assert of
 	// the paths checks that the block they come in is 16-byte aligned.
@@ -674,7 +705,8 @@ namespace pure3d
 		// 0x10721160: the frame's update (the controllers advance when the device's frame changed) and the skinning
 		// job of this frame
 		virtual void Update(float dt);
-		// 0x10720CF0: the skinning job itself (skin.cpp, not reconstructed)
+		// 0x10720CF0: the skinning job itself: locks the buffer, works out where each stream goes and either queues the
+		// job for the worker or skins on the spot
 		void Unknown10720CF0();
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
@@ -682,7 +714,8 @@ namespace pure3d
 		// same code but its core::RefAssign copy lives in another unit, so its member's type is not known yet)
 		void SetController2(FrameController* value);
 
-		unsigned char unknown10[0x60];
+		int unknown10;
+		unsigned char unknown14[0x5C];
 		// 0x70: the pose the state renders from (its skinning matrices at +0x38 are the bone matrices the
 		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
 		Pose* pose;
@@ -692,15 +725,30 @@ namespace pure3d
 		bool unknown298;
 		unsigned char unknown299[0x13];
 		bool unknown2AC;
-		unsigned char unknown2AD[3];
-		Pose* mPoses[2];
+		unsigned char unknown2AD;
+		// 0x2AE: set while nothing is to be skinned
+		bool unknown2AE;
+		unsigned char unknown2AF;
+		// The vertex buffers the skinned vertices go into (the engine's callers take them for poses and groups; the
+		// job locks the one mPoseIndex names)
+		union
+		{
+			Pose* mPoses[2];
+			PrimBuffer* mBuffers[2];
+		};
 		int mBlendIndex;
 		int mFrame;
 		int mPoseIndex;
 		math::AABB bounds;
 		FrameController* controller1;
 		FrameController* controller2;
-		unsigned char unknown2E4[0x58];
+		// The positions, normals and tangents the job writes
+		SkinStream streams[3];
+		// 0x32C: set while a job holds the locked buffer
+		bool jobPending;
+		unsigned char unknown32D[3];
+		SkinJobData* jobData;
+		unsigned char unknown334[8];
 		SkinJobEntry entry;
 		unsigned char unknown344[0xC];
 	};
@@ -729,8 +777,10 @@ namespace pure3d
 		unsigned int GetUnknown1C();
 		// 0x1071EFE0: unlocks the vertex buffer when there is one
 		void UnlockBuffer();
-		// 0x1071F000: fills the buffer's descriptor
-		void FillBufferDesc(int value);
+		// 0x1071F000: fills the parameters with the descriptor of the buffer
+		void FillBufferDesc(ShaderParameters* parameters);
+		// 0x107202B0: copies the skin's own shader parameters
+		void GetParameters(ShaderParameters* parameters);
 		// 0x1071F020: the vertex data the engine draws from and its size (0x50 when the data comes from +0x140)
 		void GetDrawData(void** data, int* size);
 
@@ -752,6 +802,8 @@ namespace pure3d
 		math::AABB bounds;
 		math::Vector4 centre;
 		int unknown294;
+		// 0x298: set when each vertex has one bone, clear when it has four
+		bool unknown298;
 	};
 
 	struct VertexBufferDescription;

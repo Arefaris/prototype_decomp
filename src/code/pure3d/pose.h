@@ -70,6 +70,8 @@ namespace pure3d
 		// 0x106E2A70 / 0x106E2A80
 		virtual void AddRef();
 		virtual void Release();
+		// 0x106E2A30: takes a reference and a lock (the skinning job holds its pose this way while it runs)
+		void Lock();
 
 		int mLock;
 		int mRefCount;
