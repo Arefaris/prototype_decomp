@@ -36,8 +36,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x106182C0
-	// EQUIVALENT: scheduling (97.7 %): the engine loads the capabilities' DevCaps2 before the texture size and stores its
-	// bit after the two sizes; every call and every value is the same
+	// EQUIVALENT: scheduling (97.5 %): the engine stores the largest texture height after the compare of the window
+	// mode, this compiler before it (one instruction apart); every call and every value is the same
 	bool Display::Unknown106182C0(void* unknown)
 	{
 		if (unknown != 0)
@@ -48,10 +48,12 @@ namespace engine
 		memset(&presentParameters, 0, sizeof(presentParameters));
 		D3DCAPS9 caps;
 		d3d->lpVtbl->GetDeviceCaps(d3d, 0, 1, &caps);
-		unknown78F = (caps.StretchRectFilterCaps >> 9) & 1;
+		// Stored through a reference: the store then stays ahead of the loads of the other capabilities
+		bool& stretchFilter = unknown78F;
+		stretchFilter = (caps.StretchRectFilterCaps >> 9) & 1;
+		unknown790 = (caps.DevCaps2 >> 4) & 1;
 		maxTextureWidth = caps.MaxTextureWidth;
 		maxTextureHeight = caps.MaxTextureHeight;
-		unknown790 = (caps.DevCaps2 >> 4) & 1;
 		bool fullScreen = unknown20 != 1;
 		D3DDISPLAYMODE mode;
 		d3d->lpVtbl->GetAdapterDisplayMode(d3d, 0, &mode);
