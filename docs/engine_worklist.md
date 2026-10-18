@@ -3275,8 +3275,12 @@ method of the pose at +0x70) and the job record at +0x330.
   products gives the engine's register for the first row (xmm5) and the first twelve instructions of the loop, but then
   the frame is a slot too big. The engine's schedule loads the first bone's three rows and the second bone's first row
   before the first splat, multiplies the third row first, spills it, and computes the translation row's first product
-  after the second bone's last row; the standalone BlendBoneRows (0x1071B310) shows the copy-of-the-splat form for its
-  first three rows and the in-place splat for the first, which no spelling gave together.
+  after the second bone's last row. The standalone BlendBoneRows (0x1071B310) makes its first splat in place and
+  multiplies the first three rows as `copy of the splat * row` and the fourth as `row * splat`; the spellings reach one
+  or the other, never both (88 % of its instructions is the best).
+- (mp-skin) 0x1071D440's position offset has no stride (one offset for all the vertices: the engine reads the three
+  floats once, ahead of the loop, like its one-bone sibling 0x1071D770); the earlier source gave it the stride of the
+  paths with several offsets. Its pre-loop part is the engine's now (71 instructions identical), the blend is not.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
