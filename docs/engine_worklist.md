@@ -3677,3 +3677,56 @@ and the deformation message); 0x10449680 sets the car on the ground (the height 
 physics world, 3062 bytes); 0x1044C340 executes a lane change (the neighbour lanes from 0x10448FC0, the path nodes
 rebuilt around the new lane, 2322 bytes); 0x1044DB60 is the
 collision handler (the contact, the damage routine, the horn and the state change to mode 3).
+
+## mp-game session (2026-10-18): matching with the engine's own containers
+
+What solved the two functions below: the engine's inline code works on the container classes (`ArrayDynamicHeap<T>` and
+the dent buffer, an `ArrayFixed`-shaped array), through `IsEmpty()`, `Size()` and `operator[]`; the earlier sources used
+the same members as raw pointers and compiled to the same instructions with other registers. The register choices of
+VS2005 depend on the inline functions' parameters (an inlined member keeps its `this`), so the container methods and the
+access path (through the array object or through the owner) are part of the source.
+
+- 0x102DC5F0 `LODRenderBehaviour::Slot1` **matches**. `ready` (+0x40) and `levels` (+0x50) are
+  `container::ArrayDynamicHeap<LODReady>` / `<LODLevel>` (begin, end, capacity and the heap word; the old header had them
+  as pointer pairs with unknown words between). The tests are `!ready.IsEmpty() && !levels.IsEmpty()`, the first ready
+  record is `ready[0]`, the loops run to `ready.Size()` / `levels.Size()`, and `distanceLevel = 0` comes after the half
+  diagonal (so the zero shares eax with the loop counter). `UpdateFade`, `UpdateLevel` and `Update` keep matching.
+- 0x102D4C50 `DeformShaderModifier::Apply` **matches**: the emptiness test and the loop bound go through `dents.IsEmpty()`
+  / `dents.Size()` and the elements are read as `dents.dents[i]`; the old source reached all three through a local
+  `DentBuffer* buffer = &dents;`, which the compiler folded into the modifier's base register and CSE'd the end pointer.
+- 0x1041FA40 `AmbientManager::AmbientManager` stays EQUIVALENT but at **98.0 %** (was 28.9 %): the fixed pools
+  (+0x270, +0x540, +0x5DC, +0x5EC) now carry a `container::AllocatorCoreAligned<16>` as their fourth word and allocate
+  with `allocator.Alloc(count * sizeof(T))`; the heap then reaches the call as a member read (`mov eax, esi`) and the
+  whole body's register choices fall into the engine's. What is left is the scheduler's place for the `push 1` of the
+  empty name (`Name("", 1)`): the engine pushes it between the stores of members +0x604 and +0x608, we right after
+  `or esi, -1`. Moving members into the body, the name block, the name as a temporary: no effect.
+- 0x1082E100 `UpdateStreamTransition` stays EQUIVALENT, **84.9 %** byte-wise (was 21.1 %): the two lists are
+  `container::ArrayDynamic` locals made with `Create(16)` after their declaration (the declaration order and the way
+  they are made decide which of them lies lower in the frame), the counts are `Size()` and every size test is `> 0` /
+  `<= 0` (VS2005 keeps the flags of the shift for those; `!= 0` and `== 0` become `test reg, -4`), the unload loop
+  removes a package with a Find that caches the end and a shift that reuses it (a Find followed by an Erase that reads
+  the end again reloads it), and the group of the first package is searched in `*current` and then `*target`. Left:
+  the engine holds the dropped count in esi and the package in edi (ours the other way round, in the whole loop),
+  the known array's begin in edx and its first package in eax, and copies the end of the list into edx / esi after the
+  search (ours reuses one register or reloads); one alignment byte.
+- 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
+  computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
+  0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the
+  engine's operand order (min.x + max.x, but max.y + min.y and max.z + min.z); the same call written on the trigger's
+  box from outside, a hand-written `(min.x + max.x) * 0.5f` per axis, or a free function taking the box, loads the
+  higher offset first in all three. The method is `StreamTriggerBox::GetCentre` (streamtrigger.h, a `math::AABB`
+  with the member); it is not in `math::AABB` itself because any new name in that class moves the stack slots of
+  `pure3d::Context::LoadDebugFont` (0x1070FC90) and that function drops from 100 % to 98.7 %.
+- 0x102DDD30 `MidgroundManager::CellLoaded` **matches**. Three facts, found one after the other: (1) the engine copies
+  the record with loads of all three members before the stores into the array (`mov ecx / mov edx / movss xmm0`, then
+  three stores); VS2005 only reorders those loads above the stores when the destination pointer is a **local
+  `__restrict` pointer in the same function** (a pointer loaded from a member, a parameter of an inline function, a
+  restrict member or parameter, `/Oa` and `/Ow` all keep the load-store pairs), so the body of `PushBack` is written
+  out with `MidgroundCellRecord* __restrict item = records.end++`; (2) the compiler-made copy then needs the record's
+  copy constructor inline in a body that already has calls, which only `__forceinline` gets (the member-wise copy is
+  written as an initialiser list, the order name, drawable, unknownC, unknown10); (3) the record has to live in a block
+  of its own after the two calls (`if (drawable != 0) { calls; { record ... } }`), because a local declared after
+  calls in the same block gets its own 0x18 frame bytes instead of the iterator's, and the frame is 0x38 instead of
+  0x20. The record's eight-byte alignment is a trailing `unsigned __int64 align8[0]` (it adds no bytes and does not
+  realign the stack; the earlier `int padding14` made the copies move it).
+

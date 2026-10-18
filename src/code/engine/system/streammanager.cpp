@@ -10,9 +10,6 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x1082DB20
-	// EQUIVALENT: operand order of the x sum: the engine loads min.x and adds max.x, this compiler loads max.x and adds
-	// min.x (98.9 %)
-	// Helpers, references, Set and every operand and statement order give the same canonical order.
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -23,10 +20,7 @@ namespace engine
 			if (package != 0)
 			{
 				math::Vector centre;
-				centre.x = trigger->boundingBox.max.x + trigger->boundingBox.min.x;
-				centre.y = trigger->boundingBox.max.y + trigger->boundingBox.min.y;
-				centre.z = trigger->boundingBox.max.z + trigger->boundingBox.min.z;
-				centre.Scale(0.5f);
+				trigger->boundingBox.GetCentre(&centre);
 				package->unknown4C.x = centre.x;
 				package->unknown4C.y = centre.y;
 				package->unknown4C.z = centre.z;
@@ -49,72 +43,48 @@ namespace engine
 		}
 	}
 
-	// A list of up to 16 packages, in a block of the aligned heap (empty when there is none); the transition builds two
-	// of them. They are plain data and the helpers are forced inline: the engine's copy of the transition has the
-	// container's code inline in every place.
-	struct PackageSet
+	// The first place in list that holds value, or its end
+	template<class A> inline typename A::Element* FindElement(A* list, typename A::Element value)
 	{
-		StreamPackage** begin;
-		StreamPackage** end;
-		StreamPackage** capacity;
-		// The engine's two sets lie 16 bytes apart in its frame; this word is never written
-		int unknownC;
-	};
-
-	__forceinline void Create(PackageSet* set)
-	{
-		set->begin = (StreamPackage**)core::HeapAllocAligned(12, 0x40, 16);
-		if (set->begin != 0)
-		{
-			set->end = set->begin;
-			set->capacity = set->begin + 16;
-		}
-		else
-		{
-			set->end = 0;
-			set->capacity = 0;
-		}
-	}
-
-	__forceinline void Append(StreamPackageArray* list, StreamPackage* value)
-	{
-		if (list->end < list->capacity)
-		{
-			StreamPackage** position = list->end;
-			list->end = position + 1;
-			if (position != 0)
-			{
-				*position = value;
-			}
-		}
-	}
-
-	__forceinline void Append(PackageSet* set, StreamPackage* value)
-	{
-		if (set->end < set->capacity)
-		{
-			StreamPackage** position = set->end;
-			set->end = position + 1;
-			if (position != 0)
-			{
-				*position = value;
-			}
-		}
-	}
-
-	// Takes the first of value out of a list (nothing when it is not there)
-	__forceinline void RemovePackage(StreamPackageArray* list, StreamPackage* value)
-	{
-		StreamPackage** position = list->begin;
+		typename A::Element* position = list->begin;
 		while (position != list->end && *position != value)
 		{
 			position++;
 		}
-		StreamPackage** next = position + 1;
-		StreamPackage** end = list->end;
+		return position;
+	}
+
+	// Takes the element at position out of list (the ones behind it move down)
+	template<class A> inline void EraseElement(A* list, typename A::Element* position)
+	{
+		typename A::Element* next = position + 1;
+		typename A::Element* end = list->end;
 		if (next != end)
 		{
-			StreamPackage** to = position;
+			typename A::Element* to = position;
+			while (next != end)
+			{
+				*to = *next;
+				to++;
+				next++;
+			}
+		}
+		list->end--;
+	}
+
+	// Takes the first place in list that holds value out of it (the end is read once, before the search)
+	template<class A> inline void RemoveElement(A* list, typename A::Element value)
+	{
+		typename A::Element* position = list->begin;
+		typename A::Element* end = list->end;
+		while (position != end && *position != value)
+		{
+			position++;
+		}
+		typename A::Element* next = position + 1;
+		if (next != end)
+		{
+			typename A::Element* to = position;
 			while (next != end)
 			{
 				*to = *next;
@@ -126,67 +96,63 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1082E100
-	// EQUIVALENT: register allocation (21.1 %): the engine keeps the target's count in ebp, the current's in esi and
-	// the current array in ebx and re-reads the target from its argument, this compiler holds both arrays in
-	// registers (one more spill, a frame of 0x24 for the engine's 0x20); every comparison, call and store is the same
+	// EQUIVALENT: register allocation (84.9 %): the engine puts the dropped count in esi and the package in edi, this
+	// compiler the other way round, which swaps them in the whole unload loop (and the known array's begin and first
+	// package in edx / eax); the engine also copies the end of the list it searched into another register where this
+	// compiler uses the same one or reloads it
+	// The two arrays are made with Create(16) after their declaration; the sizes are compared with > 0 and <= 0
+	// (the engine's tests keep the shift's flags). The unload loop reads the list's end once, before its search
+	// (RemoveElement); the one after the unload goes through Find and Erase.
 	void UpdateStreamTransition(StreamPackageArray** target, StreamPackageArray** current, bool* active,
 		bool restricted)
 	{
-		PackageSet added;
-		PackageSet dropped;
-		Create(&added);
-		Create(&dropped);
-		unsigned int targetCount = (*target)->end - (*target)->begin;
-		unsigned int currentCount = (*current)->end - (*current)->begin;
+		StreamPackageArray added;
+		StreamPackageArray dropped;
+		added.Create(16);
+		dropped.Create(16);
+		unsigned int targetCount = (*target)->Size();
+		unsigned int currentCount = (*current)->Size();
 		for (unsigned int i = 0; i < currentCount; i++)
 		{
-			StreamPackage* package = (*current)->begin[i];
-			StreamPackage** found = (*target)->begin;
-			while (found != (*target)->end && *found != package)
+			StreamPackage* package = (**current)[i];
+			if (FindElement(*target, package) == (*target)->end)
 			{
-				found++;
-			}
-			if (found == (*target)->end)
-			{
-				Append(&dropped, package);
+				dropped.PushBack(package);
 			}
 		}
 		for (unsigned int i = 0; i < targetCount; i++)
 		{
-			StreamPackage* package = (*target)->begin[i];
-			StreamPackage** found = (*current)->begin;
-			while (found != (*current)->end && *found != package)
+			StreamPackage* package = (**target)[i];
+			if (FindElement(*current, package) == (*current)->end)
 			{
-				found++;
-			}
-			if (found == (*current)->end)
-			{
-				Append(&added, package);
+				added.PushBack(package);
 			}
 		}
 		StreamSlotGroup* group = 0;
-		StreamPackageArray* known = *current;
-		if (known->end != known->begin || (known = *target)->end != known->begin)
+		if ((*current)->Size() > 0)
 		{
-			group = StreamManager::FindSlotGroup(known->begin[0]->slotGroup);
+			group = StreamManager::FindSlotGroup((**current)[0]->slotGroup);
 		}
-		unsigned int droppedCount = dropped.end - dropped.begin;
+		else if ((*target)->Size() > 0)
+		{
+			group = StreamManager::FindSlotGroup((**target)[0]->slotGroup);
+		}
+		unsigned int droppedCount = dropped.Size();
 		for (unsigned int i = 0; i < droppedCount; i++)
 		{
-			StreamPackage* package = dropped.begin[i];
+			StreamPackage* package = dropped[i];
 			if (package->IsUnloaded() || package->IsUnloading())
 			{
-				RemovePackage(*current, package);
+				RemoveElement(*current, package);
 			}
 		}
 		if (group != 0)
 		{
-			unsigned int addedCount = added.end - added.begin;
 			if (restricted)
 			{
-				if (addedCount == 0 || *active)
+				if (added.Size() <= 0 || *active)
 				{
-					if (added.begin == added.end && *active)
+					if (added.IsEmpty() && *active)
 					{
 						gStreamManager->transitionPriority = 0xFFFF;
 						*active = false;
@@ -199,29 +165,21 @@ namespace engine
 				}
 			}
 			unsigned int loading = group->Unknown1083E950();
-			if (addedCount == 0 || loading == 0)
+			if (added.Size() <= 0 || loading <= 0)
 			{
-				if (droppedCount != 0 && loading == 0 && !group->Unknown1083E990() && !group->Unknown1083E9E0())
+				if (droppedCount > 0 && loading == 0 && !group->Unknown1083E990() && !group->Unknown1083E9E0())
 				{
-					StreamPackage* package = dropped.begin[droppedCount - 1];
+					StreamPackage* package = dropped[droppedCount - 1];
 					package->Unload(0, false);
-					RemovePackage(*current, package);
+					EraseElement(*current, FindElement(*current, package));
 				}
 			}
 			else
 			{
-				StreamPackage* package = added.begin[0];
+				StreamPackage* package = added[0];
 				package->Load(0, 0xFFFF, gNoSlotGroup, false);
-				Append(*current, package);
+				(*current)->PushBack(package);
 			}
-		}
-		if (dropped.begin != 0)
-		{
-			core::HeapFreeAligned(12, dropped.begin);
-		}
-		if (added.begin != 0)
-		{
-			core::HeapFreeAligned(12, added.begin);
 		}
 	}
 }

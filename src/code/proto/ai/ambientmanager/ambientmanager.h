@@ -82,13 +82,13 @@ namespace proto
 		int heap;
 	};
 
-	// A fixed block of count elements from a heap (begin, end, capacity and the heap after them), made once
+	// A fixed block of count elements from a heap (begin, end, capacity and the heap after them), made once; the
+	// allocator is the same object the dynamic arrays carry, so the heap arrives in the call as its member
 	template<class T> struct AmbientPool
 	{
-		AmbientPool(unsigned int count, int newHeap)
+		AmbientPool(unsigned int count, int newHeap) : allocator(newHeap)
 		{
-			heap = newHeap;
-			begin = (T*)core::HeapAllocAligned(heap, count * sizeof(T), 16);
+			begin = (T*)allocator.Alloc(count * sizeof(T));
 			if (begin != 0)
 			{
 				end = begin;
@@ -104,7 +104,7 @@ namespace proto
 		T* begin;
 		T* end;
 		T* capacity;
-		int heap;
+		container::AllocatorCoreAligned<16> allocator;
 	};
 
 	// A flag and a point (0x10 bytes; names are guesses)

@@ -43,6 +43,20 @@ namespace engine
 	StreamTrigger* FindStreamTrigger(const core::Name<core::CaseSensitiveKey>& name);
 	StreamPackage* FindStreamPackage(const core::Name<core::CaseSensitiveKey>& name);
 
+	// The box of a trigger. Its centre is an inline member (the engine's callers all compute it the same way): the
+	// corners added by Vector::Add and halved, which gives the three sums the operand order the engine has (min.x
+	// first, max.y and max.z first) when it is the box the member works on (name guess; math::AABB itself stays as it
+	// is, because a new member there moves the stack slots of unrelated functions)
+	class StreamTriggerBox : public math::AABB
+	{
+	public:
+		void GetCentre(math::Vector* centre) const
+		{
+			centre->Add(min, max);
+			centre->Scale(0.5f);
+		}
+	};
+
 	class StreamTrigger : public content::MetaLoadObject
 	{
 	public:
@@ -90,7 +104,7 @@ namespace engine
 		container::ArrayDynamic<StreamPackage*, Allocator>* packageList;
 		container::ArrayDynamic<StreamTriggerHull, Allocator> hulls;
 		TagSet tags;
-		math::AABB boundingBox;
+		StreamTriggerBox boundingBox;
 	};
 }
 
