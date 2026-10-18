@@ -18,6 +18,7 @@ namespace ravenphysics
 	class ObjectTable;
 	class NarrowPhaseBatcher;
 	class Context;
+	struct RegistryRef;
 
 	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
 	struct PhysicsObjectEntry
@@ -165,6 +166,11 @@ namespace ravenphysics
 		void Reset();
 		// 0x10686980
 		void Remove(PhysicsObject* object);
+		// Files an object under a slot (0x10686790) and takes a slot out again (0x106867F0; names are guesses)
+		void Unknown10686790(unsigned int key, unsigned short slot);
+		void Unknown106867F0(unsigned short slot);
+		// The second takes the slot from a reference (0x106563B0)
+		void RemoveRef(const RegistryRef* reference);
 
 		unsigned short* next;        // 0x00
 		int nextCount;               // 0x04
@@ -238,7 +244,7 @@ namespace ravenphysics
 		virtual bool Overlaps(void* object, void* world);
 		// 0x14
 		virtual bool Contains(void* object, void* world);
-		virtual void Unknown18();
+		virtual void Unknown18(PhysicsObject* object);
 		virtual void Unknown1C();
 		virtual void Unknown20();
 		virtual void Unknown24();
@@ -1431,6 +1437,10 @@ namespace ravenphysics
 
 		// The solver's iteration counts (0x10656E70; name guess)
 		void SetSolverIterations(int a, int b);
+		// The area at 0x10C (0x106562E0; name guess)
+		SlotPool* GetRecordPool();
+		// Hands a sleeping object on to the world (0x106564C0; name guess)
+		void Unknown106564C0(PhysicsObject* object);
 
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)

@@ -233,6 +233,8 @@ namespace ravenphysics
 		void Add(void* object, CollisionHandle* handle);
 		// The same under another name (0x10655AB0)
 		void Register(void* object, CollisionHandle* handle);
+		// The object a handle names (0x10656090)
+		void* GetObject(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
 		void Remove(CollisionHandle* handle);
 	};
@@ -477,6 +479,10 @@ namespace ravenphysics
 		void AddVelocity(math::Vector velocity);
 		void AddImpulse(math::Vector impulse, math::Vector point);
 		void AddAngularVelocity(math::Vector velocity);
+		// The velocity of a point given relative to the shape's centre, from the current vectors and from the
+		// previous ones (0x10655880, 0x106557A0)
+		void GetRelativeVelocity(const math::Vector* point, math::Vector* velocity);
+		void GetPreviousRelativeVelocity(const math::Vector* point, math::Vector* velocity);
 
 		// The shape's flags (0x106552D0, 0x10655330, 0x106555F0, 0x106556E0, 0x10655740, 0x10655960)
 		void SetFlag3(bool value);

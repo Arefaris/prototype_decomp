@@ -36,6 +36,8 @@ namespace ravenphysics
 		unsigned char unknown24[0x34 - 0x24];
 		BroadPhaseDetector* detector;
 		unsigned short detectorIndex;
+		// 0x106561E0
+		unsigned short GetDetectorIndex() const;
 		unsigned char unknown3A[2];
 		// How the body's collision objects collide (0x1065F6D0 sets the low two bits; 0x3C)
 		unsigned short collisionMode;

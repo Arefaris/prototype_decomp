@@ -471,6 +471,53 @@ namespace ravenphysics
 		return &shape->unknown34;
 	}
 
+	// FUNCTION: ENGINE 0x106557A0
+	// NONMATCHING: as GetRelativeVelocity, with the previous vectors
+#ifdef NONMATCHING
+	void CollisionObject::GetPreviousRelativeVelocity(const math::Vector* point, math::Vector* velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 984, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		float px = point->x;
+		float py = point->y;
+		float pz = point->z;
+		CollisionShape* body = shape;
+		float cy = body->unknown34.z * px - body->unknown34.x * pz;
+		float cz = body->unknown34.x * py - body->unknown34.y * px;
+		float cx = body->unknown34.y * pz - body->unknown34.z * py;
+		velocity->y = cy;
+		velocity->z = cz;
+		velocity->x = cx;
+		velocity->x = cx + body->unknown28.x;
+		velocity->y = body->unknown28.y + cy;
+		velocity->z = body->unknown28.z + cz;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10655880
+	// NONMATCHING: the shape's velocity at a point, the cross product of the angular velocity with the point added
+	// to the linear velocity, inlined from the shape's accessor. Every instruction and the store order are the
+	// engine's, but it computes x behind z (ours before the stores of y) and adds the linear x to the register of
+	// the cross product, 67.8 %
+#ifdef NONMATCHING
+	void CollisionObject::GetRelativeVelocity(const math::Vector* point, math::Vector* velocity)
+	{
+		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 992, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		float px = point->x;
+		float py = point->y;
+		float pz = point->z;
+		CollisionShape* body = shape;
+		float cy = body->unknown1C.z * px - body->unknown1C.x * pz;
+		float cz = body->unknown1C.x * py - body->unknown1C.y * px;
+		float cx = body->unknown1C.y * pz - body->unknown1C.z * py;
+		velocity->y = cy;
+		velocity->z = cz;
+		velocity->x = cx;
+		velocity->x = cx + body->unknown10.x;
+		velocity->y = body->unknown10.y + cy;
+		velocity->z = body->unknown10.z + cz;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10655960
 	void CollisionObject::SetFlag4(bool value)
 	{
