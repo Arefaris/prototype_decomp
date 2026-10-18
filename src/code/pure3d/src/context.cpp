@@ -501,8 +501,8 @@ namespace pure3d
 	};
 
 	// FUNCTION: ENGINE 0x1070FC90
-	// EQUIVALENT: 98.7 %, the same instructions; two locals trade stack slots. It matches with fewer declarations in
-	// the included headers (core/asynctask.h, pddi/dx9/dxcontext.h): the compiler's slot order follows its symbol table
+	// Its two loaders' locals trade stack slots when the included headers declare other names (VS2005's slot order
+	// follows its symbol table): recheck it after header changes
 	void Context::LoadDebugFont()
 	{
 		if (font != 0)

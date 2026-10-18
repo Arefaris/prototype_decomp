@@ -14,6 +14,8 @@ namespace pure3d
 	class PrimGroupList;
 	class dxVertexBuffer;
 	class dxIndexBuffer;
+	class dxVertexDeclaration;
+	class ShaderParameters;
 
 	// A copy of the device's render states, taken by Save and put back by Restore (or by the destructor unless it
 	// was dismissed). Bits of `groups`: 1 render state, 2 view state, 4 z state, 8 stencil state.
@@ -82,8 +84,11 @@ namespace pure3d
 	public:
 		// 0x106258D0
 		void Unlock();
-		// 0x10625FA0: fills the descriptor of the buffer (its name and its flags)
-		void Unknown10625FA0(int value);
+		// 0x10625F00: locks the vertices; the description receives the buffer's own declaration, the locked block
+		// (in its word at +0x108) and the flags the lock was asked with
+		void Lock(dxVertexDeclaration* description, int flags);
+		// 0x10625FA0: fills the shader parameters with the descriptor of the buffer (its name and its flags)
+		void Unknown10625FA0(ShaderParameters* parameters);
 	};
 
 	struct PrimBufferOwner : core::IRefCount

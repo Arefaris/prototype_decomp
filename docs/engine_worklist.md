@@ -1014,7 +1014,7 @@ parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread 
 | 0x107108A0 Shutdown | match | `delete context;` (the null check and the delete are one statement) |
 | 0x107103E0 Context constructor | EQUIVALENT (64.2%) | same calls in the same order; the quad index loop keeps a zero-extended copy of its counter and the pool's empty-on-failure block sits elsewhere |
 | 0x1070F380 DrawDebugText | EQUIVALENT (93.1%) | the loads of the font and of 0.5 are scheduled differently around the two stores of it |
-| 0x1070FC90 LoadDebugFont | EQUIVALENT (98.7 %; two locals trade stack slots once unrelated declarations were added to core/asynctask.h and pddi/dx9/dxcontext.h: VC8's slot order depends on the unit's symbol table) | registers the texture and font loaders when missing, loads the embedded P3D (0x10E58E38, 0x21F0 bytes) from a memory stream and takes "pure3d_debug_font" out of its inventory; the request is a `StringC<256>` followed by its words |
+| 0x1070FC90 LoadDebugFont | match (fragile: two locals trade stack slots when the included headers declare other names; VC8's slot order depends on the unit's symbol table) | registers the texture and font loaders when missing, loads the embedded P3D (0x10E58E38, 0x21F0 bytes) from a memory stream and takes "pure3d_debug_font" out of its inventory; the request is a `StringC<256>` followed by its words |
 | 0x1070F5C0 / 0x1070F600 / 0x1070F650 AllocRenderParams / FreeRenderParams / UpdateRenderParams | match | the pool is a `ContextArray<FrameEntry>` (signed `Size()`), the loops index it with an unsigned counter |
 
 The constructor and the destructor are written (the destructor matches; the constructor is EQUIVALENT). The subsystems
@@ -3282,6 +3282,52 @@ method of the pose at +0x70) and the job record at +0x330.
   copy of the count ahead of the two stride scalings in the pre-header (the engine scales the normal stride, then the
   position stride, then copies the count). The nine four-bone paths and 0x1071CA40 not reworked (see above);
   0x10720CF0 not reconstructed (its callees' types: 0x106F2DE0, 0x10625F00, 0x1071F020, 0x107202B0, 0x106E2A30).
+- (mp-skin) 0x1071D1B0 **matches**: the offset paths' loop is `for (unsigned int i = 0; i < (unsigned int)count; i++)`
+  (the induction variable is replaced by a down counter, which is created after the loop-invariant stride scalings, in
+  the engine's order), not the guard plus `do { } while (--i)` the earlier sessions wrote.
+- (mp-skin) 0x10720CF0 `SkinState::Unknown10720CF0` (the job dispatcher) is written and compiled in as EQUIVALENT (265
+  instructions, same size, frame and registers as the engine's; 91.3 % of the bytes, 96 % of the instructions): what is
+  left is scheduling only (the loads and the multiply of the three stream set-ups come out in another order, the flag
+  test in front of the third one and the store / load pair of the queueing branch too; no statement order, local or
+  expression form moved them). The types it needed: the buffers at +0x2B0 are `PrimBuffer*` (`dxVertexBuffer`:
+  `Lock` 0x10625F00 takes a `dxVertexDeclaration` that receives the declaration, the locked block in `unknown108` and the
+  flags; `Unknown10625FA0` takes the `ShaderParameters` it fills), 0x107202B0 is `Skin::GetParameters(ShaderParameters*)`
+  (a copy of the skin's own parameters; the word at +0xC of the copy is the format, bit 29 = wide vertex record),
+  0x106E2A30 `LockableRefCounted::Lock()`, the three streams at +0x2E4 (`SkinStream`, 0x18 bytes: enabled, offset, start,
+  current, end, stride), the job record at +0x330 (`SkinJobData`), the pending flag at +0x32C and the byte at +0x298 of
+  the skin (one bone each when set). `gSkinAsync` (0x11137804, true) and `gSkinQueuedCount` (0x1128180C) are skin.cpp's
+  globals. The counters use `_InterlockedIncrement` / `_InterlockedDecrement` (the exchange-add form puts the operands
+  in the other registers).
+- (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
+  differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
+  loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
+  its fourth lane read at once (`float tangentW = ((float*)&v2)[3];`), is added to in place and then blended into its
+  own result variable: the engine's v2 / r2 share one slot, the offsets get its slot order, and the lane is saved
+  before the vector is overwritten. Statement order, operand order, `.m128_f32`, locals of other types, dead locals
+  and padding declarations do not move the last register pair. The same tangent form is written into 0x1071C530.
+- (mp-skin) The slot order of equal-weight locals (the engine's stack table is sorted by reference count; ties come out
+  in an order the source's statement order, declaration order and names do not change) and the register a vector
+  gets can depend on declarations in the headers a unit includes: a new type name in primitive.h flipped two locals of
+  Context::LoadDebugFont (0x1070FC90) until the SkinState buffers stayed a cast instead of a union member. After any
+  change to primitive.h / primstream.h / pose.h compare the progress count (`ninja report progress`), objcmp does not
+  see every function the objdiff count does.
+- (mp-skin) The four-bone paths (0x1071B610, 0x1071BBD0, 0x1071C0C0, 0x1071C530, 0x1071CDC0, 0x1071D440, 0x1071D960,
+  0x1071DFF0, 0x1071E5D0) still do not match: 17 - 43 %. Their loops now are the engine's (for-up counter; the pre-header
+  and the guard come out byte for byte in 0x1071C0C0 up to the first bone's loads). Measured on 0x1071C0C0 with
+  tools/permute-style searches over the source's spelling (statement order of the 16 row products, value / reference /
+  inline loads, one or four weight loads, splats ahead of the products, the translation row last or merged, rows as
+  `__m128` locals, a `math::Matrix`, `math::Vector4`s, pointers or SSA values): every form reaches 60 - 72 % of the
+  instructions; pure SSA forms (no store through a row pointer) make the compiler hoist all sixteen row loads and spill
+  (frame 0x134, 909 bytes), the memory forms keep the loads at their products; computing all four splats before the
+  products gives the engine's register for the first row (xmm5) and the first twelve instructions of the loop, but then
+  the frame is a slot too big. The engine's schedule loads the first bone's three rows and the second bone's first row
+  before the first splat, multiplies the third row first, spills it, and computes the translation row's first product
+  after the second bone's last row. The standalone BlendBoneRows (0x1071B310) makes its first splat in place and
+  multiplies the first three rows as `copy of the splat * row` and the fourth as `row * splat`; the spellings reach one
+  or the other, never both (88 % of its instructions is the best).
+- (mp-skin) 0x1071D440's position offset has no stride (one offset for all the vertices: the engine reads the three
+  floats once, ahead of the loop, like its one-bone sibling 0x1071D770); the earlier source gave it the stride of the
+  paths with several offsets. Its pre-loop part is the engine's now (71 instructions identical), the blend is not.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
