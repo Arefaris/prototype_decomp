@@ -1343,7 +1343,7 @@ registers.
 | 0x1072B1F0 / 0x1072B300 / 0x1072B360 | SaveCubeLevels, SaveVolumeLevels, SaveTexture | match |
 | 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
 | 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
-| 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (46.6 %) |
+| 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (98.1 %) |
 | 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
 | 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
 
@@ -1381,6 +1381,12 @@ Matching notes:
 - (op-finish) 0x1072ADB0 `UploadLevel` stays EQUIVALENT (84.7 %, was 46.6): the engine's `test dword ptr [rect + 8], 3`
   is the constant-first comparison `0 != (rect->x & 3)` (only two such tests exist in the image; `x & 3` in any other
   spelling gives `test byte ptr`). The rect in esi and the bits per pixel in ebx are swapped in ours. difftest SAME.
+- (mp-load) 0x1072ADB0 `UploadLevel` stays EQUIVALENT, now 98.1 % (was 84.7): the row bytes are computed before the x offset
+  in the rect block (`rowBytes`, `xBytes`, `y`), which gives the engine's rect in esi / bits in ebx, and the four block
+  adjustments in the order row bytes, y, height, x give its interleaving. What is left is the operand order of two
+  commutative operations, `lea esi, [eax + edx]` (offset + x bytes) and `mov ecx, pitch; imul ecx, y` (pitch times the
+  skipped rows): no source order, declaration order, field type, loop form of the skip (it is strength-reduced to
+  the product) or declaration position of the locals changes either. difftest SAME.
 - (op-finish) 0x1072B470 `DDSParser::Load` stays EQUIVALENT (13.8 %): it needs `UploadVolumeLevels` (0x1072B230) to
   take the texture in edi like the engine's (stack order stream, description, dropTop: the signature `(stream,
   description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
@@ -1479,14 +1485,17 @@ the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28. Its methods, all reconst
 allocated by the constructor and set through 0x10B90B60). `PolySkinLoader::LoadObject` calls
 `[this+0x18]->SetIndex([this+0x14])` and `[this+0x18]->MakePrimitive(&part, reader, inventory, true, flag)`.
 
-NONMATCHING:
+Constructor:
 
-- 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader`: the engine's copy keeps the vftable store of the base constructor it
-  inlines (`mov [eax], 0x10DA05B0`, RefCounted's) between the count store and the class's own
-  (`mov [eax], 0x10EAF644`) — 57 bytes. Our compiler drops that store from every derived constructor; the same shape
-  compiled in this unit (three levels, the base constructor in the class body, out of line, `__forceinline`, with an
-  initialiser list, with a user destructor) always comes out 6 bytes shorter, 27.5 %. `pure3d::Entity`'s constructor
-  (0x1072D4B0) has the same pair of stores, so this is a property of the engine's build, not of the source.
+- 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` matches (mp-load): the engine's copy keeps the vftable store of the base
+  constructor it inlines (`mov [eax], 0x10DA05B0`, RefCounted's) between the count store and the class's own
+  (`mov [eax], 0x10EAF644`) and loads the second shared constant register (`or edx, -1` for the two -1 members) only
+  after the count store. `pure3d::RefCounted`'s constructor (entity.h) ends with `_ReadWriteBarrier()` after
+  `mRefCount = 0`: the barrier keeps the stores of the base vftable and of the count and ends the scheduling region
+  there, so the derived constructors' constants come after the count store. A call to an inline function or to a member
+  object's constructor that does the count store has the same effect, but adds a declaration to the unit and moved the
+  stack slots of 0x1070FC90 (`Context::LoadDebugFont`); the barrier changed no other function of the 43 units that
+  include entity.h.
 
 The chunk loaders of this range (the geometry, polygon skin, composite drawable, skeleton and the three shader loaders)
 are reconstructed, one source file per unit under src/code/pure3d/loaders/:
@@ -1534,12 +1543,14 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   `engine::ReleaseEffectRef` (0x10805910) stands for another unit's `core::SafeRelease`. That naming decision is left
   to the next session; the call is the only thing missing.
 
-- (op-finish) 0x1067F4D0 `Loader1067F4D0::LoadObject` stays EQUIVALENT (46.5 %, was 27.9): the name text in a block
-  (`unsigned int length = byte;`), the dropped words read through an inline `ReadUnsigned` (its temporaries share the
-  engine's slots), the object's name constructed in a block: the frame is now the engine's 0x11C; only the order of
-  three dword slots differs (engine: count, object, dropped word; ours: object, dropped word, count). difftest SAME.
-- (op-finish) 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` stays EQUIVALENT (86 %): the `or edx, -1` comes one store
-  early; a reference to any member moves it one store later (89.5 %), nothing found moves it two.
+- (mp-load) 0x1067F4D0 `Loader1067F4D0::LoadObject` matches: the chunk dispatch is a `switch` (cases 0x7020001 and
+  0x7021100 / 0x7021101), not an if / else-if chain: with the chain this compiler gave the entries' size temporary the
+  register of the loaded object and split the object around the allocation, with the switch the object stays in ebp
+  and the size is spilled as in the engine, and the frame slots come out in the engine's order. The entries are
+  `Loaded1066F430Entries` (begin, end, capacity, the allocator's word) with the inline `Allocate` of
+  `ArrayDynamicHeap` (begin = 0 only for an empty request; the failure path stores end and capacity 0; the success path
+  returns), called as `loaded->entries.Allocate(count)`.
+- (op-finish) 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` (now matches, see above).
 - (op-finish) 0x10B91410, 0x106DE090, 0x10B95780 (EQUIVALENT) and 0x10706960 (NONMATCHING) not reworked.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)

@@ -24,6 +24,20 @@ namespace pure3d
 		unsigned char* unknownC;
 	};
 
+	// The growable array of entries (begin, end, end of the storage, then the allocator's word; a container::ArrayDynamic
+	// of operator new[] storage)
+	struct Loaded1066F430Entries
+	{
+		// Replaces the storage with room for count entries (empty); false, with an empty array, when count is 0 or
+		// the allocation fails
+		bool Allocate(unsigned int count);
+
+		Loaded1066F430Entry* begin;
+		Loaded1066F430Entry* end;
+		Loaded1066F430Entry* capacity;
+		unsigned char allocator[4];
+	};
+
 	// The object the loader makes (0x30 bytes, constructor 0x1066F430)
 	class Loaded1066F430 : public content::MetaLoadObject
 	{
@@ -32,11 +46,8 @@ namespace pure3d
 		Loaded1066F430();
 
 		unsigned char unknown8[0xC];
-		// +0x14 / +0x18 / +0x1C: the entries (begin, end, end of the storage)
-		Loaded1066F430Entry* begin;
-		Loaded1066F430Entry* end;
-		Loaded1066F430Entry* capacity;
-		unsigned char unknown20[4];
+		// +0x14: the entries
+		Loaded1066F430Entries entries;
 		// +0x24: the tables, made by the constructor
 		Loaded1066F430Tables* tables;
 		unsigned char unknown28[8];
