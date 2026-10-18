@@ -47,6 +47,9 @@ class Result:
 		return "OK"
 
 
+# wall-clock budget for the sentinel variants of one function (each variant may run up to --timeout)
+VARIANT_SECONDS = 60.0
+
 class FunctionTest:
 	def __init__(self, address, objPath=None, symbol=None, unitMode=False, budget=5000000, timeout=20.0, pageStore=None):
 		self.address = address
@@ -221,7 +224,8 @@ class FunctionTest:
 		variantResults = []
 		variantHit = set(realHit)
 		if doVariants and realResults:
-			variantResults = self.runVariants(realResults, states, variantHit, verbose, maxVariants)
+			variantResults = self.runVariants(realResults, states, variantHit, verbose, maxVariants,
+				time.time() + VARIANT_SECONDS)
 		fuzzResults = []
 		if fuzz and realResults and not any(r.worst() == "FAIL" for r in variantResults):
 			fuzzResults = self.runFuzz(realResults, states, variantHit, verbose, fuzz)
@@ -270,6 +274,11 @@ class FunctionTest:
 					continue
 				newBlocks = self.blocksHit([variant.engine]) - variantHit
 				variantHit |= newBlocks
+				# the report needs a variant's findings and coverage, not its memory logs (up to ACCESS_LIMIT
+				# entries per run, kept for every variant of the function otherwise)
+				for trace in (variant.engine, variant.ours):
+					if trace is not None:
+						trace.reads, trace.readOrder, trace.writes, trace.calls = set(), [], [], []
 				if variant.worst() == "FAIL" or newBlocks or verbose:
 					self.say("variant %s: %s%s" % (variant.label, variant.worst(), " (+%d new engine blocks)" % len(newBlocks) if newBlocks else ""))
 					for f in variant.findings:

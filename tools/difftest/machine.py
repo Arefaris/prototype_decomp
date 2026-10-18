@@ -46,6 +46,9 @@ FP = [UC_X86_REG_FP0, UC_X86_REG_FP1, UC_X86_REG_FP2, UC_X86_REG_FP3, UC_X86_REG
 PROFILE = False
 # instructions per emu_start: the run checks its deadline between chunks
 CHUNK = 100000
+# memory accesses between two deadline checks in the hooks, and the most a run may make
+ACCESS_CHECK = 4096
+ACCESS_LIMIT = 500000
 # jmp dword ptr [address]: the engine's stub for an imported function
 IMPORT_THUNK = bytes([0xFF, 0x25])
 
@@ -165,6 +168,8 @@ class Machine:
 		self.executable = [(self.image.base, self.image.end), (self.layout.code, self.layout.data), (self.layout.ret, self.layout.ret + PAGE)]
 		self.exports = externals.Exports(self.readSnapshot)
 		self.trace = Trace()
+		self.runDeadline = float("inf")
+		self.accesses = 0
 		self.alignCache = {}
 		self.blockCache = {}  # block address -> (instruction count, [instruction addresses])
 		self.mapped = set()
@@ -418,8 +423,18 @@ class Machine:
 
 	# --- hooks ----------------------------------------------------------------------------------------------------
 
+	def accessLimit(self, uc):
+		"""Every ACCESS_CHECK memory accesses: stop the run when its deadline has passed or it made too many accesses.
+		One rep movs / stos over a huge count (a sentinel variant's length) is a single instruction to Unicorn, so
+		neither the instruction chunks nor the deadline between them would ever see it end."""
+		self.accesses += 1
+		if self.accesses % ACCESS_CHECK == 0 and (self.accesses >= ACCESS_LIMIT or time.time() >= self.runDeadline):
+			self.trace.timedOut = True
+			uc.emu_stop()
+
 	def onRead(self, uc, access, address, size, value, data):
 		t0 = time.perf_counter() if PROFILE else 0.0
+		self.accessLimit(uc)
 		if size == 8 and address & 15:
 			self.checkAlignment(uc, address)
 		if self.stackLow <= address < self.entryEsp + 4:
@@ -437,6 +452,7 @@ class Machine:
 
 	def onWrite(self, uc, access, address, size, value, data):
 		t0 = time.perf_counter() if PROFILE else 0.0
+		self.accessLimit(uc)
 		if size == 8 and address & 15:
 			self.checkAlignment(uc, address)
 		self.dirty.add(address & ~(PAGE - 1))
@@ -663,11 +679,13 @@ class Machine:
 		self.lastBlock = None
 		pc = entry
 		deadline = time.time() + timeout
+		self.runDeadline = deadline
+		self.accesses = 0
 		while True:
 			# hard limits across the segments between external calls: instructions, wall clock, externals
 			# (a loop spinning on a stub's answer would otherwise never end)
 			remaining = budget - self.trace.instructions
-			if remaining <= 0 or time.time() >= deadline or self.trace.externals > 20000:
+			if self.trace.timedOut or remaining <= 0 or time.time() >= deadline or self.trace.externals > 20000:
 				self.trace.timedOut = True
 				break
 			self.invalid = None
@@ -702,6 +720,9 @@ class Machine:
 				break
 			if eip == self.layout.ret:
 				self.lastBlock = None
+				break
+			if self.trace.timedOut:  # stopped by the memory-access limit
+				self.adjustPartialBlock(eip, False)
 				break
 			if self.trace.instructions < budget and remaining > CHUNK:
 				# stopped at a chunk boundary: go on from here after the deadline check at the top

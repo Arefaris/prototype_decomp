@@ -83,8 +83,22 @@ def cString(machine, address, limit=0x10000):
 	return bytes(out)
 
 
+# the most bytes a CRT memory function is performed for; beyond it (a sentinel variant's count of -1 or 0x7FFFFFFF)
+# the run stops as over its budget instead of filling gigabytes byte by byte in Python
+CRT_LIMIT = 16 << 20
+
+
+def tooLarge(machine, n):
+	if n > CRT_LIMIT:
+		machine.trace.timedOut = True
+		return True
+	return False
+
+
 def crtMemcpy(machine, args):
 	dst, src, n = args[0], args[1], args[2]
+	if tooLarge(machine, n):
+		return dst
 	data = machine.readTraced(src, n) if n else b""
 	if data is None:
 		return None
@@ -94,11 +108,15 @@ def crtMemcpy(machine, args):
 
 def crtMemset(machine, args):
 	dst, value, n = args[0], args[1], args[2]
+	if tooLarge(machine, n):
+		return dst
 	machine.writeTraced(dst, bytes([value & 0xFF]) * n)
 	return dst
 
 
 def crtMemcmp(machine, args):
+	if tooLarge(machine, args[2]):
+		return 0
 	a = machine.readTraced(args[0], args[2])
 	b = machine.readTraced(args[1], args[2])
 	if a is None or b is None:
