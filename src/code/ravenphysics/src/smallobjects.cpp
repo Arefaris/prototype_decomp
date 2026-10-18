@@ -35,7 +35,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106560A0
 	PhysicsObject* ObjectHandle::GetObject() const
 	{
-		return gObjectTable->entries[index].object;
+		return (PhysicsObject*)gCollisionObjectTable->entries.begin[index].object;
 	}
 
 	// FUNCTION: ENGINE 0x106560D0

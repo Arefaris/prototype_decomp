@@ -171,6 +171,9 @@ namespace ravenphysics
 		JointSet* joints;                 // 0x10
 	};
 
+	// A function that does nothing (0x1065FCE0; name guess)
+	void DoNothing();
+
 	// A bit of a bit set (0x1065FB20) and the number of pairs of n objects (0x1065FB50)
 	void SetBit(unsigned char* bits, unsigned int index, bool value);
 	unsigned int CountPairs(int n);
@@ -291,12 +294,6 @@ namespace ravenphysics
 			return link != 0 && link->pairMask != 0 && !(unknown50 & 1);
 		}
 	};
-
-	// Gives the slot of the id back (the code of 0x106532B0)
-	inline void PhysicsObjectTable::Remove(int* id)
-	{
-		reinterpret_cast<CollisionObjectTable*>(this)->Remove(reinterpret_cast<CollisionHandle*>(id));
-	}
 
 	// The physics object of a collision volume (0x10661140)
 	PhysicsObject* CreatePhysicsObject(CollisionVolume* volume, bool flag, float size);

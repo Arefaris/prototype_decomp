@@ -251,6 +251,14 @@ namespace ravenphysics
 		void* GetObject(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
 		void Remove(CollisionHandle* handle);
+		// The same for a body's id word
+		void Remove(int* id)
+		{
+			Remove(reinterpret_cast<CollisionHandle*>(id));
+		}
+		// The physics objects share the table; this is the entry the bodies use to take a slot (0x1065FD20, a
+		// forward to Add; name guess)
+		void AddPhysicsObject(PhysicsObject* object, int* id);
 	};
 
 	// A collision object around one volume, or around an array of them (0x10655F60 / 0x10655FC0)
@@ -403,7 +411,7 @@ namespace ravenphysics
 		unsigned int unknown34;
 	};
 
-	// The physics object handle table (0x1127CAC0)
+	// The handle table of the collision objects and of the physics objects (0x1127CAC0)
 	extern CollisionObjectTable* gCollisionObjectTable;
 
 	class CollisionObject

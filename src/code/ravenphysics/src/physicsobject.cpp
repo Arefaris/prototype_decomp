@@ -29,6 +29,11 @@ namespace ravenphysics
 		refCount++;
 	}
 
+	// FUNCTION: ENGINE 0x1065FCE0
+	void DoNothing()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1065FCF0
 	BroadPhaseBox* BoxArray::At(int index)
 	{
@@ -48,9 +53,9 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x1065FD20
-	void PhysicsObjectTable::Add(PhysicsObject* object, int* id)
+	void CollisionObjectTable::AddPhysicsObject(PhysicsObject* object, int* id)
 	{
-		reinterpret_cast<CollisionObjectTable*>(this)->Add(object, reinterpret_cast<CollisionHandle*>(id));
+		Add(object, reinterpret_cast<CollisionHandle*>(id));
 	}
 
 	// FUNCTION: ENGINE 0x1065FB20
@@ -186,14 +191,14 @@ namespace ravenphysics
 	PhysicsObject::PhysicsObject()
 	{
 		NOT_LOCKED(184);
-		gObjectTable->Add(this, &id);
+		gCollisionObjectTable->AddPhysicsObject(this, &id);
 	}
 
 	// FUNCTION: ENGINE 0x10661420
 	PhysicsObject::~PhysicsObject()
 	{
 		NOT_LOCKED(191);
-		gObjectTable->Remove(&id);
+		gCollisionObjectTable->Remove(&id);
 		if (joints != 0)
 		{
 			for (unsigned int i = 0; i != jointCount; i++)

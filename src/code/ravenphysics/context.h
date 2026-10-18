@@ -25,32 +25,6 @@ namespace ravenphysics
 	struct BodyPairRun;
 	struct PointerRun;
 
-	// One entry of the physics handle table: the object and the generation its handle carries (name guess)
-	struct PhysicsObjectEntry
-	{
-		PhysicsObject* object; // 0x00
-		int generation;        // 0x04
-	};
-
-	// The table the physics handles index into (0x1127CAC0): the entries and how many of them there are (the name
-	// and the layout are guesses; this unit only reads it)
-	class PhysicsObjectTable
-	{
-	public:
-		unsigned char unknown0[0xC];
-		PhysicsObjectEntry* entries; // 0x0C
-		unsigned char unknown10[0x14 - 0x10];
-		unsigned short capacity;     // 0x14
-
-		// The table's code is the collision objects' table's (same layout, 0x10653250 / 0x106532B0); the handle is
-		// the body's id word (0x1065FD20)
-		void Add(PhysicsObject* object, int* id);
-		void Remove(int* id);
-	};
-
-	// The physics handle table (0x1127CAC0)
-	extern PhysicsObjectTable* gObjectTable;
-
 	// An object the library refers to by its index in its object table (name guess)
 	struct ObjectHandle
 	{
