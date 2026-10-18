@@ -6,6 +6,7 @@
 
 #include "code/pure3d/entity.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/visibility.h"
 
 namespace pure3d
 {
@@ -18,6 +19,8 @@ namespace pure3d
 		explicit Shader(const char* shaderName);
 		// 0x107062D0: takes the draw parameters and sets the flags that follow from them
 		void SetParameters(const PrimStreamParameters& newParameters);
+		// 0x102F39D0: the value of a float input of the device's shader
+		void SetFloat(const core::Name<core::CaseInsensitiveKey32>& inputName, float value);
 
 		dxShader* shader;
 		PrimStreamParameters parameters;
@@ -25,7 +28,9 @@ namespace pure3d
 		// The word at +0x24 whose low four bits the loaders set (0x10B953B0)
 		unsigned int unknown24Bits : 4;
 		unsigned int unknown24Rest : 28;
-		unsigned char unknown28[8];
+		// The flags at +0x28 (0x102E8920 is its constructor, 0x102E8B80 sets a flag)
+		PartAnimationFlags flags;
+		unsigned char unknown2C[4];
 	};
 }
 

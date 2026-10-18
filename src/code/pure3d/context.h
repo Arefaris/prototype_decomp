@@ -18,6 +18,7 @@ namespace content
 
 namespace pure3d
 {
+	class Drawable;
 	class PrimStream;
 	class View;
 
@@ -32,9 +33,8 @@ namespace pure3d
 		// 0x1070ED90: the object a loaded drawable is handed out as (the drawable itself here; the engine's helper
 		// wraps it)
 		virtual core::IRefCount* Wrap(core::IRefCount* drawable);
-		// 0x1070FC60: the drawable of that name in the inventory (the cast the lookup is made with is typed, the
-		// answer is dropped)
-		virtual void Unknown1(content::LoadInventory* inventory, const content::ObjectName& name);
+		// 0x1070FC60: the drawable of that name in the inventory
+		virtual Drawable* FindDrawable(content::LoadInventory* inventory, const content::ObjectName& name);
 	};
 
 	class RenderParams;

@@ -254,12 +254,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1070FC60
-	// The drawable the name holds in the inventory: the lookup is made with a caster of the drawable type and the
-	// answer is dropped (the pass registers the drawable with it)
-	void WrappedDrawableHelper::Unknown1(content::LoadInventory* inventory, const content::ObjectName& name)
+	// The drawable the name holds in the inventory (the lookup is made with a caster of the drawable type)
+	Drawable* WrappedDrawableHelper::FindDrawable(content::LoadInventory* inventory, const content::ObjectName& name)
 	{
 		content::LoadInventory::DynamicCaster<Drawable> caster;
-		inventory->FindObject(&caster, name, true);
+		return (Drawable*)inventory->FindObject(&caster, name, true);
 	}
 
 	// FUNCTION: ENGINE 0x1070EE00

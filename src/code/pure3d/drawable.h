@@ -25,6 +25,14 @@ namespace pure3d
 {
 	class Drawable;
 
+	// A segment of a drawable: a named group of consecutive parts
+	struct DrawableSegment
+	{
+		core::Name<core::CaseSensitiveKey> name;
+		unsigned int firstPart;
+		unsigned int partCount;
+	};
+
 	// 0x106DF480: the frame number drawables mark their updates with
 	unsigned int GetCurrentFrame();
 
@@ -246,11 +254,23 @@ namespace pure3d
 		void Unknown106E0490();
 		// 0x106E0540: copies the matrix to +0x14 when it differs and marks the transform dirty
 		void SetTransform(const math::Matrix& transform);
+		// 0x106E0580: the skeleton at +0x64 (reference counted)
+		void SetSkeleton(Skeleton* newSkeleton);
 		// 0x106E05A0 / 0x106E06A0 (reference-counted pointers at +0x68 / +0x78)
 		void SetPose(Pose* object);
 		void SetUnknown78(FrameController* controller);
 		// 0x106E0680: marks the pose dirty
 		void MarkPoseDirty();
+		// 0x106DF6C0: flag 0x100 bit 3
+		void SetFlag100Bit3(bool value);
+		// 0x106E0760: the controller at +0x7C (reference counted; it is told about the drawable)
+		void SetUnknown7C(FrameController* controller);
+		// 0x106E06E0: the source the parts' expressions follow (the mixer at +0x84, reference counted)
+		void SetExpressionSource(Entity* source);
+		// 0x106E0810: the joint of a part
+		void SetPartJoint(unsigned int part, unsigned short joint);
+		// 0x106E1F10: takes a copy of the segments (the array at +0xA4)
+		void SetSegments(const container::ArrayDynamic<DrawableSegment, container::AllocatorNew>& newSegments);
 		// 0x106E0910: the float at +0xB4 and its index at +0xB8
 		void SetUnknownFloat(int index, float value);
 		// 0x106E09A0

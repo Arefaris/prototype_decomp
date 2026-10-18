@@ -59,6 +59,8 @@ namespace pure3d
 		void SetVector3(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector& value);
 		void SetVector4(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
 		void SetMatrix(const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		// 0x10614130: the same code as SetVector4 (the colour of an input)
+		void SetColour(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
 	};
 
 	// RTTI: pure3d::dxShaderTemplate (bases pddiBaseShaderTemplate, pddiObject, core::IRefCount; the object is

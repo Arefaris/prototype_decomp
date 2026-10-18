@@ -71,6 +71,22 @@ namespace pure3d
 		int allocator;
 	};
 
+	// The arrays of segments and joints the composite loader fills (the same layout)
+	struct SegmentArray : public container::ArrayDynamic<DrawableSegment, container::AllocatorNew>
+	{
+		int allocator;
+	};
+
+	struct JointArray : public container::ArrayDynamic<unsigned short, container::AllocatorNew>
+	{
+		int allocator;
+	};
+
+	// RTTI: pure3d::CompDrawVisibilityAnimationController (a frame controller, the bases as the others')
+	class CompDrawVisibilityAnimationController : public FrameController
+	{
+	};
+
 	// Puts a copy of the part behind the last one when there is room for it
 	inline bool PushBack(PartArray& array, const DrawablePart& part)
 	{
