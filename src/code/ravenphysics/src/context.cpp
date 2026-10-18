@@ -2151,17 +2151,17 @@ namespace ravenphysics
 		pairs.buffer = 0;
 		pairs.offset = 0;
 		pairs.total = 0;
-		unknown18 = 0;
-		unknown1C = 0;
-		unknown24 = 0;
-		batchCount = 0;
-		batchTotal = 0;
-		unknown64 = 0;
-		unknown68 = 0;
-		unknown6C = 0;
-		log.entries = 0;
-		log.capacity = 0;
-		log.count = 0;
+		allocators.items = 0;
+		allocators.count = 0;
+		tasks.items = 0;
+		tasks.count = 0;
+		tasks.capacity = 0;
+		pools.slots = 0;
+		pools.capacity = 0;
+		pools.counter = 0;
+		pools.log.entries = 0;
+		pools.log.capacity = 0;
+		pools.log.count = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10659690
@@ -2221,7 +2221,7 @@ namespace ravenphysics
 		narrowPhase = new (stack.Alloc(0x400, 0x10)) NarrowPhaseBatcher();
 		narrowPhase->Init(work, event, recordPool);
 		midPhase = new (stack.Alloc(0x80, 0x10)) MidPhaseBatcher();
-		midPhase->Init(narrowPhase, event, recordPool, work);
+		midPhase->Init(narrowPhase, event, reinterpret_cast<const ProfilerPools*>(recordPool), work);
 		record.name = "Self collisions";
 		record.unknown8 = -1;
 		record.kind = 2;

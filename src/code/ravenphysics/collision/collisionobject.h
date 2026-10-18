@@ -48,6 +48,8 @@ namespace ravenphysics
 		// Recomputes the volume's world bounds from the object's transform; a switch over the type byte that runs
 		// the volume's own per-type update (0x10665690, another unit)
 		void UpdateBounds(CollisionObject* object);
+		// The name of the volume's type (0x10664740, another unit; name guess)
+		const char* GetTypeName();
 		// Raises the volume against a query, answering whether it hit and writing the point and the distance
 		// (0x10663FE0, another unit)
 		bool CastVolume(const void* query, math::Vector* point, float* distance);

@@ -137,6 +137,8 @@ namespace ravenphysics
 		{
 		}
 
+		// Zeroes the profiling members (0x10691A90, the engine's standalone copy of the constructor; name guess)
+		NarrowPhaseJob* ResetProfile();
 		// Takes the batcher's pointers and values; pairIndex is the running index of the pairs added (0x106901E0)
 		void Init(NarrowPhaseBatcher* batcher, int pairIndex);
 		// Submits every non-empty batch and starts a new one (0x10690CC0)

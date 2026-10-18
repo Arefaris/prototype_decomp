@@ -74,8 +74,26 @@ namespace ravenphysics
 	class ScratchStack
 	{
 	public:
+		// The room left for a block aligned to align (0x10666F00; name guess)
+		unsigned int GetFree(int align);
+		// Takes size bytes from the heap for the stack, filled with 0xCC when fill is set (0x10666F30)
+		static void Create(unsigned int size, int heap, bool fill);
+		// Gives the buffer back (0x10666F90)
+		static void Free();
 		// size bytes aligned to align, or null when the buffer is exhausted (0x10666FE0)
 		void* Alloc(unsigned int size, int align);
+		// Always true (0x10667090; the argument is not used; name guess)
+		bool IsReady(int unused);
+		// Opens a level and returns the current position (0x106670A0)
+		static void* Mark();
+		// Gives everything back down to mark and closes the level (0x10667100)
+		static void Release(void* mark);
+		// The number of open levels (0x10667190)
+		static int GetDepth();
+		// Makes the rest of the buffer the stack allocator's and locks the scratch stack (0x106671D0; name guess)
+		void HandOver(StackAllocator* allocator);
+		// Locks the scratch stack: nothing may be taken from it until Unlock (0x10667200; name guess)
+		void Lock();
 		// Takes the library's scratch stack lock off again, asserting it was set (0x10667250; name guess)
 		void Unlock();
 		// count objects of T, the byte size rounded up to the alignment
@@ -84,6 +102,15 @@ namespace ravenphysics
 		// One object of T, aligned to 16 (the copies the engine emits take an argument they do not use)
 		template<class T>
 		T* AllocOne(int unused);
+
+		static char* sBegin;               // 0x1127D408
+		static unsigned int sHighWater;    // 0x1127D40C
+		static int sDepth;                 // 0x1127D410
+		static bool sFill;                 // 0x1127D414
+		static bool sLock;                 // 0x1127D415
+		static char* sEnd;                 // 0x1127D418
+		static char* sCurrent;             // 0x1127D41C
+		static int sUnknown;               // 0x1127D420
 	};
 
 	// Defined outside the class, so the compiler keeps it out of line like the engine does
@@ -108,7 +135,7 @@ namespace ravenphysics
 		ScratchStackFrame();
 		~ScratchStackFrame();
 		// Opens the level again over an existing frame (0x106671A0, the constructor's body)
-		void Open();
+		ScratchStackFrame* Open();
 
 		void* mark;
 		int depth;

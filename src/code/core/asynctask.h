@@ -76,6 +76,24 @@ namespace core
 		AsyncTaskNode* lastChild;
 		AsyncTaskNode* next;
 
+		// What Flatten hands back: the first task and how many were written
+		struct Flattened
+		{
+			AsyncTask* tasks;
+			int count;
+		};
+
+		// Zeroes the node (0x10B7F3A0, the body of the engine's constructor; name guess)
+		void Clear();
+		// Does nothing (0x10B7F3D0, the engine's destructor)
+		void Destroy();
+		// Gives the node a registered function (looked up by its id), its data, callback and event; false when
+		// the id is not registered (0x10B7F3E0; name guess)
+		bool Set(int functionId, void* newData, AsyncTaskCallback* newCallback, void* newEvent);
+		// Writes the node's tasks (the node, then its children) into the buffer, size bytes of it, and says where
+		// they are (0x10B7F570; name guess)
+		Flattened* Flatten(Flattened* result, AsyncTask* buffer, unsigned int size, AsyncTaskGroup* group,
+			unsigned int flag, int kind);
 		// Flattens the tree into a stack buffer of 32 tasks and submits it
 		void Submit(int unused);
 		void ClearChildren();
@@ -196,6 +214,10 @@ namespace core
 	int GetAsyncTaskProcessor();
 	int GetAsyncTaskWorkerIndex();
 	bool IsAsyncTaskTimingDone(AsyncTaskTiming* timing);
+	// Registers a function under a name and hands back its id (0x10B80220), and takes it out again (0x10B80140);
+	// names are guesses
+	int RegisterAsyncTaskFunction(const char* name, void (*function)(void* data, AsyncTaskCallback* callback), int* id);
+	void UnregisterAsyncTaskFunction(int id);
 }
 
 #endif
