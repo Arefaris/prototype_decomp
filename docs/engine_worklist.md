@@ -507,8 +507,7 @@ each instance (0x111C2E84 / 0x111C2E88, 1 .. 0xFFFE). The arrays are `SlotArray<
 globals: the render event allocator (0x1130CCDC, slots 3 / 4), the deferred deletion list and the render event queues.
 Each queue is a template instance (two queues, 0x11284C60 and 0x11304C90, with identical copies of every helper): a
 ring of 0x20000 values behind a free and a ready semaphore, lock-free read / write indices and a commit structure at
-+0x10 (0x10817F90, not reconstructed) that releases the slots that became readable. Only the first queue's instances
-are mapped. Notes:
++0x10 (0x10817F90, not reconstructed) that releases the slots that became readable. Both queues' instances are mapped. Notes:
 - The two "FATAL: Async render event queue overflowed..." asserts are OLD_ASSERT_AT with the original line numbers
   (0xA9, 0xBE).
 - ExecuteRenderEvents is `while (TryPop(&queue, &event) && event != 0) event->Execute();`.
@@ -525,6 +524,12 @@ are mapped. Notes:
 | 0x10817F40 | AllocAsyncQueueSlot<RenderEvent*> | EQUIVALENT | same loop, other registers for the index pointer and the slot |
 | 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
+| 0x10817D90 / 0x10817DE0 / 0x10817E30 / 0x10817E50 | queue init / shutdown (both queues) | match | the initial slot count sets the commit head and the write index; the semaphores start at ring size - n and n |
+| 0x108185F0 / 0x10818650 / 0x10818620 / 0x10818680 / 0x10818C00 / 0x10818C30 / 0x10818C60 / 0x10818C90 | Reserve / Commit / TryPush / TryPop (both queues) | match | the second queue (0x11304C90) is a ring of 0x2000 values: `AsyncQueue<T, Bits>` with 17 and 13 bits |
+| 0x10818D30 / 0x10818DE0 | PushRenderEventSecondary / ExecuteSecondaryRenderEvents | match | |
+| 0x10817F40 / 0x108180C0 | AllocAsyncQueueSlot (both queues) | EQUIVALENT (59.7%) | index pointer and slot in other registers |
+| 0x108186B0 / 0x10818720 | TakeAsyncQueueValue (both queues) | EQUIVALENT (30.8% / 31.9%) | other registers; the loop top is not padded |
+| 0x10817F90 / 0x10818110 | CommitAsyncQueueSlots (both queues) | EQUIVALENT (31.0% / 31.3%) | the 64-bit commit state: head in the low bits, a bitmap of the later committed slots above; other registers and spill slots |
 | 0x10818B30 | SlotArray<ControllerSlot> constructor | EQUIVALENT (98.9%) | the branch for an empty range goes to the second of two identical epilogue copies, the original's to the first |
 | 0x10818E20 | HandleTable<DrawableData> constructor | EQUIVALENT (81.7%) | the block clearing the first array after a failed allocation sits behind a jump after the construct call (the original puts it after the second array's success branch); one operand order of an address |
 | 0x108182C0 / 0x108183E0 | HandleTable<DrawableData / ControllerSlot>::Alloc | EQUIVALENT (93.5% / 93.7%) | the free list pointer and the compare exchange's scratch registers are swapped |

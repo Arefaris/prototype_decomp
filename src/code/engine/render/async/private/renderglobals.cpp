@@ -15,8 +15,9 @@ extern "C"
 	long _InterlockedAnd(long volatile*, long);
 	long _InterlockedCompareExchange(long volatile*, long, long);
 	long _InterlockedExchange(long volatile*, long);
+	__int64 _InterlockedCompareExchange64(__int64 volatile*, __int64, __int64);
 }
-#pragma intrinsic(_InterlockedAnd, _InterlockedCompareExchange, _InterlockedExchange)
+#pragma intrinsic(_InterlockedAnd, _InterlockedCompareExchange, _InterlockedExchange, _InterlockedCompareExchange64)
 
 #define RENDERGLOBALS_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\renderglobals.cpp"
 
@@ -304,10 +305,11 @@ namespace engine
 			virtual void Free(void* block);
 		};
 
-		// A queue the game thread pushes into and the render thread pops from: a ring of 0x20000 values behind two
+		// A queue the game thread pushes into and the render thread pops from: a ring of 1 << Bits values behind two
 		// semaphores (free slots, ready values); a pushed slot becomes readable once every slot before it has been
-		// committed (the commit bookkeeping at +0x10 is not reconstructed)
-		template<class T> struct AsyncQueue
+		// committed (the commit state at +0x10 holds the oldest uncommitted slot in its low Bits and a bitmap of the
+		// slots committed after it above)
+		template<class T, int Bits> struct AsyncQueue
 		{
 			int unknown0[2];
 			long readIndex;
@@ -318,7 +320,7 @@ namespace engine
 			void* freeSemaphore;
 			void* readySemaphore;
 			int unknown28[2];
-			T values[0x20000];
+			T values[1 << Bits];
 		};
 
 		// The unit's globals stay the image's
@@ -327,7 +329,8 @@ namespace engine
 		extern ControllerTable* gControllerTable;
 		extern DeferredDeletionManager* gDeferredDeletionManager;
 		extern RenderEventAllocator* gRenderEventAllocator;
-		extern AsyncQueue<RenderEvent*> gRenderEventQueue;
+		extern AsyncQueue<RenderEvent*, 17> gRenderEventQueue;
+		extern AsyncQueue<RenderEvent*, 13> gRenderEventQueueSecondary;
 
 		// Runs the queued render events now (another unit, 0x10861550)
 		void FlushRenderEvents();
@@ -380,8 +383,8 @@ namespace engine
 
 		// FUNCTION: ENGINE 0x10817F40
 		// EQUIVALENT: same loop; the original keeps the index pointer in esi and the slot in edi (ours edx / esi)
-		// The next write slot (the ring index wraps at 0x20000)
-		template<class T> long AllocAsyncQueueSlot(AsyncQueue<T>* queue)
+		// The next write slot (the ring index wraps at the ring size)
+		template<class T, int Bits> long AllocAsyncQueueSlot(AsyncQueue<T, Bits>* queue)
 		{
 			long slot = 0;
 			long index = _InterlockedAnd(&queue->writeIndex, -1);
@@ -390,16 +393,67 @@ namespace engine
 			{
 				slot = index;
 				expected = index;
-				index = _InterlockedCompareExchange(&queue->writeIndex, (index + 1) & 0x1FFFF, expected);
+				index = _InterlockedCompareExchange(&queue->writeIndex, (index + 1) & ((1 << Bits) - 1), expected);
 			}
 			return slot;
 		}
 
-		// 0x10817F90: marks the slot as written; the number of slots that became readable
-		template<class T> unsigned int CommitAsyncQueueSlots(int* commits, long slot);
+		// FUNCTION: ENGINE 0x10817F90
+		// EQUIVALENT: same operations in the same order; the head, the bitmap and the counters sit in other registers, the comparand of the compare exchange in other stack slots (31.0%)
+		// Marks the slot as written; the number of slots that became readable. The state holds the oldest uncommitted
+		// slot in its low Bits and one bit per later slot (set once committed) above
+		template<class T, int Bits> unsigned int CommitAsyncQueueSlots(int* commits, long slot)
+		{
+			const unsigned int headMask = (1 << Bits) - 1;
+			const unsigned int bitCount = 64 - Bits;
+			unsigned int count = 0;
+			unsigned int offset = 0;
+			do
+			{
+				unsigned __int64 seen = _InterlockedCompareExchange64((__int64 volatile*)commits, 0, 0);
+				unsigned __int64 expected = ~seen;
+				while (expected != seen)
+				{
+					expected = seen;
+					unsigned int head = (unsigned int)seen & headMask;
+					unsigned __int64 later = seen >> Bits;
+					if (head == (unsigned int)slot)
+					{
+						count = 1;
+						unsigned __int64 rest = later;
+						unsigned int bit = (unsigned int)rest & 1;
+						rest >>= 1;
+						for (unsigned int shifted = 0; shifted < bitCount; shifted++)
+						{
+							if (bit == 0)
+							{
+								break;
+							}
+							bit = (unsigned int)rest & 1;
+							rest >>= 1;
+							count++;
+						}
+						later = rest;
+						head = (head + count) & headMask;
+						offset = 0;
+					}
+					else
+					{
+						count = 0;
+						offset = (((unsigned int)slot - head) & headMask) - 1;
+						if (offset < bitCount)
+						{
+							later |= (unsigned __int64)1 << offset;
+						}
+					}
+					seen = _InterlockedCompareExchange64((__int64 volatile*)commits, (later << Bits) | head, expected);
+				}
+			} while (offset >= bitCount);
+			return count;
+		}
 
 		// 0x108186B0: takes the value at the read index and gives its slot back
-		template<class T> void TakeAsyncQueueValue(AsyncQueue<T>* queue, T* value);
+		template<class T, int Bits> void TakeAsyncQueueValue(AsyncQueue<T, Bits>* queue, T* value);
 
 		// FUNCTION: ENGINE 0x10818260
 		bool IsValidDrawable(const Drawable& drawable)
@@ -409,7 +463,7 @@ namespace engine
 
 		// FUNCTION: ENGINE 0x108185F0
 		// A free slot, or -1 when the queue is full
-		template<class T> long ReserveAsyncQueueSlot(AsyncQueue<T>* queue)
+		template<class T, int Bits> long ReserveAsyncQueueSlot(AsyncQueue<T, Bits>* queue)
 		{
 			if (core::SemaphoreWaitTimeout(&queue->freeSemaphore, 0))
 			{
@@ -419,13 +473,54 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10818620
-		template<class T> void CommitAsyncQueueSlot(AsyncQueue<T>* queue, long slot)
+		template<class T, int Bits> void CommitAsyncQueueSlot(AsyncQueue<T, Bits>* queue, long slot)
 		{
-			unsigned int ready = CommitAsyncQueueSlots<T>(queue->commits, slot);
+			unsigned int ready = CommitAsyncQueueSlots<T, Bits>(queue->commits, slot);
 			if (ready > 0)
 			{
 				core::SemaphoreRelease(&queue->readySemaphore, ready);
 			}
+		}
+
+		// FUNCTION: ENGINE 0x108186B0
+		// EQUIVALENT: same operations in the same order; the queue, the pointer to the read index and the slot sit in other registers and the loop top is not padded (30.8%)
+		// Takes the value at the read index and gives its slot back
+		template<class T, int Bits> void TakeAsyncQueueValue(AsyncQueue<T, Bits>* queue, T* value)
+		{
+			long slot = 0;
+			long index = _InterlockedAnd(&queue->readIndex, -1);
+			long expected = ~index;
+			while (expected != index)
+			{
+				slot = index;
+				expected = index;
+				index = _InterlockedCompareExchange(&queue->readIndex, (index + 1) & ((1 << Bits) - 1), expected);
+			}
+			*value = queue->values[slot];
+			core::SemaphoreRelease(&queue->freeSemaphore, 1);
+		}
+
+		// FUNCTION: ENGINE 0x10817D90
+		// An empty queue (initial slots already written) with its two semaphores
+		template<class T, int Bits> void InitAsyncQueue(AsyncQueue<T, Bits>* queue, int initial)
+		{
+			queue->unknown0[0] = 0;
+			queue->unknown0[1] = 0;
+			queue->readIndex = 0;
+			queue->unknownC = 0;
+			queue->commits[1] = 0;
+			queue->unknown1C = 0;
+			queue->commits[0] = initial;
+			queue->writeIndex = initial;
+			core::SemaphoreCreate(&queue->freeSemaphore, (1 << Bits) - initial);
+			core::SemaphoreCreate(&queue->readySemaphore, initial);
+		}
+
+		// FUNCTION: ENGINE 0x10817E30
+		template<class T, int Bits> void ShutdownAsyncQueue(AsyncQueue<T, Bits>* queue)
+		{
+			core::SemaphoreDestroy(&queue->freeSemaphore);
+			core::SemaphoreDestroy(&queue->readySemaphore);
 		}
 
 		// FUNCTION: ENGINE 0x10818920
@@ -435,7 +530,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10818C00
-		template<class T> bool TryPushAsyncQueue(AsyncQueue<T>* queue, const T& value)
+		template<class T, int Bits> bool TryPushAsyncQueue(AsyncQueue<T, Bits>* queue, const T& value)
 		{
 			long slot = ReserveAsyncQueueSlot(queue);
 			if (slot == -1)
@@ -448,7 +543,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10818C60
-		template<class T> bool TryPopAsyncQueue(AsyncQueue<T>* queue, T* value)
+		template<class T, int Bits> bool TryPopAsyncQueue(AsyncQueue<T, Bits>* queue, T* value)
 		{
 			if (core::SemaphoreWaitTimeout(&queue->readySemaphore, 0))
 			{
@@ -480,6 +575,33 @@ namespace engine
 		{
 			RenderEvent* event;
 			while (TryPopAsyncQueue(&gRenderEventQueue, &event) && event != 0)
+			{
+				event->Execute();
+			}
+		}
+
+		// FUNCTION: ENGINE 0x10818D30
+		void PushRenderEventSecondary(RenderEvent* event)
+		{
+			if (TryPushAsyncQueue(&gRenderEventQueueSecondary, event))
+			{
+				return;
+			}
+			FlushRenderEvents();
+			if (TryPushAsyncQueue(&gRenderEventQueueSecondary, event))
+			{
+				return;
+			}
+			OLD_ASSERT_AT(RENDERGLOBALS_FILE, 0xCC, false, "false", "");
+			FreeRenderEvent(event);
+		}
+
+		// FUNCTION: ENGINE 0x10818DE0
+		// The render thread: runs the events of the second queue
+		void ExecuteSecondaryRenderEvents()
+		{
+			RenderEvent* event;
+			while (TryPopAsyncQueue(&gRenderEventQueueSecondary, &event) && event != 0)
 			{
 				event->Execute();
 			}
@@ -650,6 +772,31 @@ namespace engine
 				}
 			}
 		}
+
+		// The queues' instances of the queue functions
+		template void InitAsyncQueue<RenderEvent*, 17>(AsyncQueue<RenderEvent*, 17>* queue, int initial);
+		template void ShutdownAsyncQueue<RenderEvent*, 17>(AsyncQueue<RenderEvent*, 17>* queue);
+		// FUNCTION: ENGINE 0x10817DE0
+		template void InitAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, int initial);
+		// FUNCTION: ENGINE 0x10817E50
+		template void ShutdownAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue);
+		// FUNCTION: ENGINE 0x108180C0
+		// EQUIVALENT: same loop; the original keeps the index pointer in esi and the slot in edi (ours edx / esi)
+		template long AllocAsyncQueueSlot<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue);
+		// FUNCTION: ENGINE 0x10818110
+		// EQUIVALENT: same operations in the same order; the head, the bitmap and the counters sit in other registers, the comparand of the compare exchange in other stack slots
+		template unsigned int CommitAsyncQueueSlots<RenderEvent*, 13>(int* commits, long slot);
+		// FUNCTION: ENGINE 0x10818650
+		template long ReserveAsyncQueueSlot<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue);
+		// FUNCTION: ENGINE 0x10818680
+		template void CommitAsyncQueueSlot<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, long slot);
+		// FUNCTION: ENGINE 0x10818720
+		// EQUIVALENT: same operations in the same order; the queue, the pointer to the read index and the slot sit in other registers and the loop top is not padded
+		template void TakeAsyncQueueValue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent** value);
+		// FUNCTION: ENGINE 0x10818C30
+		template bool TryPushAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent* const& value);
+		// FUNCTION: ENGINE 0x10818C90
+		template bool TryPopAsyncQueue<RenderEvent*, 13>(AsyncQueue<RenderEvent*, 13>* queue, RenderEvent** value);
 
 		// The members of the arrays and tables the original keeps out of line
 		// FUNCTION: ENGINE 0x10817EB0
