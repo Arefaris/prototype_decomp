@@ -97,6 +97,20 @@ namespace pure3d
 		virtual bool Unknown7();
 	};
 
+	// The slot of a constant in the device's constant table (the name is a guess)
+	struct ConstantSlot
+	{
+		// 0x10611E10: no slot (-1)
+		ConstantSlot();
+
+		bool IsValid() const
+		{
+			return index != -1;
+		}
+
+		int index;
+	};
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
@@ -204,6 +218,8 @@ namespace pure3d
 			// 0x1061A470: binds a texture to the constant at *slot (a texture constant keeps its sampler state word
 			// at values[*slot + 1])
 			void SetTexture(int* slot, pddiSurface* surface);
+			// 0x1061A540: the slot of the constant of that kind and name (-1 in the slot when there is none)
+			ConstantSlot* Find(ConstantSlot* slot, int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
 			int unknown0;
 			int unknown4;

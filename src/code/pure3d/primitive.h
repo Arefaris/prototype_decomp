@@ -55,6 +55,21 @@ namespace pure3d
 		TextureInfo* info;
 	};
 
+	// The settings of a sampler input as the chunk packs them: a word and the bit fields (the unit 0x106139F0 reads)
+	struct SamplerSetting
+	{
+		unsigned int unknown0;
+		unsigned int h : 4;
+		unsigned int g : 2;
+		unsigned int f : 2;
+		unsigned int e : 2;
+		unsigned int d : 4;
+		unsigned int c : 4;
+		unsigned int b : 4;
+		unsigned int a : 5;
+		unsigned int rest : 5;
+	};
+
 	// The description of a shader's inputs (8 bytes, copied and destroyed out of line: 0x10612A70 / 0x10613840)
 	class pddiShaderInputInitData
 	{
@@ -63,6 +78,19 @@ namespace pure3d
 		pddiShaderInputInitData();
 		pddiShaderInputInitData(const pddiShaderInputInitData& other);
 		~pddiShaderInputInitData();
+
+		// The value of the input of that kind and name (0x106138A0 - 0x10613990; the input keeps the default when
+		// 0x10613870 is called instead)
+		void SetBool(int kind, const core::Name<core::CaseInsensitiveKey32>& name, bool value);
+		void SetFloat(int kind, const core::Name<core::CaseInsensitiveKey32>& name, float value);
+		void SetVector2(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void SetVector3(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void SetVector4(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void SetMatrix(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		// 0x106139F0: a sampler
+		void SetSampler(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const SamplerSetting* value);
+		// 0x10613870: the default value
+		void SetDefault(int kind, const core::Name<core::CaseInsensitiveKey32>& name);
 
 		void* unknown0;
 		int unknown4;

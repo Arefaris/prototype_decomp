@@ -5,6 +5,8 @@
 #ifndef PURE3D_LOADERS_DRAWABLELOADERS_H
 #define PURE3D_LOADERS_DRAWABLELOADERS_H
 
+#include <new>
+
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/chunkhandler.h"
 #include "code/pure3d/drawable.h"
@@ -74,7 +76,11 @@ namespace pure3d
 	{
 		if (array.end < array.capacity)
 		{
-			container::ConstructCopyAt(array.end++, part);
+			DrawablePart* item = array.end++;
+			if (item != 0)
+			{
+				new (item) DrawablePart(part);
+			}
 			return true;
 		}
 		return false;
