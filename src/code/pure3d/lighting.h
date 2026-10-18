@@ -3,6 +3,9 @@
 #ifndef PURE3D_LIGHTING_H
 #define PURE3D_LIGHTING_H
 
+#include "code/core/name.h"
+#include "code/pure3d/entity.h"
+
 namespace pure3d
 {
 	class Light;
@@ -113,10 +116,11 @@ namespace pure3d
 	extern int gLightingInputsConstant;
 
 	// The views and cameras a render pass uses (RTTI name pure3d::RenderParams; one virtual function)
-	class RenderParams
+	class RenderParams : public Entity
 	{
 	public:
-		virtual ~RenderParams();
+		// 0x10751A00 (another unit): the context makes one per frame it can build (0x330 bytes)
+		RenderParams();
 
 		// 0x1074F3B0 / 0x1074F3C0: the view state (0x7C bytes each, from +0x78) and the camera data (0x140 bytes
 		// each, at the pointer at +0x320) of a view
@@ -127,18 +131,24 @@ namespace pure3d
 		// 0x1074F290 (another unit): lays the frame's window over the views of the render parameters
 		void Unknown1074F290();
 
-		unsigned char unknown4[0x10];
+		int unknown10;
 		int unknown14;
 		unsigned char unknown18[0x60];
 		struct ViewState
 		{
-			unsigned char data[0x7C];
+			unsigned char unknown0[0x10];
+			// The name of the render context the view is drawn with, and the size of the picture
+			core::Name<core::CaseSensitiveKey> contextName;
+			int width;
+			int height;
+			unsigned char unknown20[0x5C];
 		} views[5];
 		unsigned char unknown2E4[0x3C];
 		struct CameraData
 		{
 			unsigned char data[0x140];
 		}* cameras;
+		unsigned char unknown324[0xC];
 	};
 }
 

@@ -3,8 +3,14 @@
 #ifndef CONTENT_LOADMANAGER_H
 #define CONTENT_LOADMANAGER_H
 
+namespace container
+{
+	class String;
+}
+
 namespace content
 {
+	class LoadJob;
 	class ObjectLoader;
 
 	class LoadManager
@@ -12,6 +18,12 @@ namespace content
 	public:
 		// 0x10607BD0: the loader registered for the chunk id
 		ObjectLoader* GetLoader(unsigned int chunkId);
+		// 0x10608370 / 0x10608910: registers a loader for the chunk id / takes the loaders of that id out again
+		void AddLoader(ObjectLoader* loader, unsigned int chunkId);
+		void RemoveLoader(unsigned int chunkId);
+		// 0x10607660: starts loading what the request (a name, a stream and a few words) names; waits for it when
+		// the last argument is set
+		void Load(const container::String* request, LoadJob** job, bool wait);
 		// 0x10606D30: whether the calling thread is the loading thread (it reads nothing of the object)
 		bool IsCurrentThread();
 	};

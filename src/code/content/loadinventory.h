@@ -25,6 +25,8 @@ namespace content
 
 		// 0x105FE690 / 0x105FE720: the class's allocation forwards to operator new[] / delete[]
 		static void* operator new(unsigned int size);
+		// 0x105FE6C0: from the heap the second argument names
+		static void* operator new(unsigned int size, int heap);
 		static void operator delete(void* block);
 
 		// The vftable (RTTI: 5 slots; slot 2 is the deleting destructor)
@@ -190,7 +192,7 @@ namespace content
 		template<class T> T* Find(const ObjectName& name)
 		{
 			DynamicCaster<T> caster;
-			return static_cast<T*>(FindObject(&caster, name, true));
+			return (T*)FindObject(&caster, name, true);
 		}
 		template<class T> T* Get(const ObjectName& name)
 		{
@@ -202,7 +204,7 @@ namespace content
 		template<class T> T* Find(const char* name)
 		{
 			DynamicCaster<T> caster;
-			return static_cast<T*>(FindObject(&caster, ObjectName(name, 1), true));
+			return (T*)FindObject(&caster, ObjectName(name, 1), true);
 		}
 
 		// 0x106032F0 / 0x10603560: adds an object under a name / takes it out again

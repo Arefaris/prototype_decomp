@@ -66,6 +66,16 @@ namespace pure3d
 		int stencilZPass;
 	};
 
+	// A copy of the device's view matrix, put back by the destructor (0x106F3480 / 0x106F33F0)
+	class ViewMatrixBackup
+	{
+	public:
+		ViewMatrixBackup();
+		~ViewMatrixBackup();
+
+		math::Matrix matrix;
+	};
+
 	// The vertex buffer a PrimStream fills (+0x8 its owner object, +0x14 the device buffer)
 	class PrimBuffer
 	{
@@ -164,7 +174,10 @@ namespace pure3d
 	class PrimStream
 	{
 	public:
-		virtual void Unknown0();
+		// 0x106F37E0
+		PrimStream();
+		// Slot 0: the deleting destructor
+		virtual ~PrimStream();
 
 		// 0x106F4100: Open, then the shader name and the parameters when given
 		bool Begin(Shader* shader, int type, int format, int count, const core::Name<core::CaseInsensitiveKey32>& name,

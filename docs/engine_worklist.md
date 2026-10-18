@@ -499,24 +499,42 @@ within 1e-5 of zero, calls slot 8 with the time step on every object of an intru
 (`setne` / `test` / `ja`) and keeps the join of each null-checked node-to-object adjustment before testing the object
 (no jump threading); `Abs` as `x >= 0 ? x : -x` gives the original's `-0.0 - x`.
 
-## render/async/private/renderglobals.cpp (0x10817A10 - about 0x10818F00): 13 functions, 10 match, 3 EQUIVALENT
+## render/async/private/renderglobals.cpp (0x10817A10 - 0x1081933B): every function reconstructed, 5 EQUIVALENT
 
-The drawable table (0x1130CCC4: slots, serials, count), the render event allocator (0x1130CCDC, slots 3 / 4), the
-deferred deletion list and the render event queues. Each queue is a template instance (two queues, 0x11284C60 and
-0x11304C90, with identical copies of every helper): a ring of 0x20000 values behind a free and a ready semaphore,
-lock-free read / write indices and a commit structure at +0x10 (0x10817F90, not reconstructed) that releases the
-slots that became readable. Only the first queue's instances are mapped. Notes:
+The drawable table (0x1130CCC4) and the controller table (0x1130CCC8) are `HandleTable<T>` instances: slots, a lock-free
+free list of index nodes (+0xC), nodes (+0x10), serials (+0x1C) and a count (+0x28); the serial counter is a static of
+each instance (0x111C2E84 / 0x111C2E88, 1 .. 0xFFFE). The arrays are `SlotArray<T>` (begin, end, empty allocator). Other
+globals: the render event allocator (0x1130CCDC, slots 3 / 4), the deferred deletion list and the render event queues.
+Each queue is a template instance (two queues, 0x11284C60 and 0x11304C90, with identical copies of every helper): a
+ring of 1 << Bits values behind a free and a ready semaphore, lock-free read / write indices and a commit structure at
++0x10 (0x10817F90: a 64-bit word with the oldest uncommitted slot in the low Bits and a bitmap of the later committed
+slots above) that releases the slots that became readable. The second queue is a ring of 0x2000 values. Notes:
 - The two "FATAL: Async render event queue overflowed..." asserts are OLD_ASSERT_AT with the original line numbers
   (0xA9, 0xBE).
 - ExecuteRenderEvents is `while (TryPop(&queue, &event) && event != 0) event->Execute();`.
+- The queue helpers are templates over `AsyncQueue<T, Bits>` (17 and 13 bits); a named `long next` read before `expected = index`
+  gives the engine's registers in the index and the allocation loops.
+- The thirteen one-byte functions between 0x10817B30 and 0x108185E0 are the construct / destroy helpers of the plain
+  types (`ConstructRange` / `DestroyRange` / `DestroyAt`); the original keeps an out-of-line copy of each instance.
+- Inlining: the element-constructing array constructor of the controller slots stays a call in the table
+  constructor (declared `noinline` as an explicit specialisation); the others are `__forceinline` in the
+  generic template. `ConstructRange<DrawableData>` is likewise an out-of-line specialisation.
+- HandleParts index: the engine loads the handle as a word and masks it, which needs a signed `int value` member.
 
 | Address | Name | Status | Notes |
 |---|---|---|---|
 | 0x10817A50 / 0x10817AD0 / 0x10817B10 / 0x10817B40 | AllocRenderEvent / FreeRenderEvent / GetRenderList / DeferDelete | match | |
-| 0x10817F40 | AllocAsyncQueueSlot<RenderEvent*> | EQUIVALENT | same loop, other registers for the index pointer and the slot |
-| 0x10818260 / 0x10818920 | IsValidDrawable / GetDrawableData | EQUIVALENT | the original loads the whole handle and masks the index; every form tried (masks, bitfields, accessors, volatile) loads it as a word |
-| 0x108185F0 / 0x10818620 / 0x10818C00 / 0x10818C60 | Reserve / Commit / TryPush / TryPop<RenderEvent*> | match | template functions with the queue as first argument |
 | 0x10818CC0 / 0x10818DA0 | PushRenderEvent / ExecuteRenderEvents | match | |
+| 0x10817D90 / 0x10817DE0 / 0x10817E30 / 0x10817E50 | queue init / shutdown (both queues) | match | the initial slot count sets the commit head and the write index; the semaphores start at ring size - n and n |
+| 0x108185F0 / 0x10818650 / 0x10818620 / 0x10818680 / 0x10818C00 / 0x10818C30 / 0x10818C60 / 0x10818C90 | Reserve / Commit / TryPush / TryPop (both queues) | match | the second queue (0x11304C90) is a ring of 0x2000 values: `AsyncQueue<T, Bits>` with 17 and 13 bits |
+| 0x10818D30 / 0x10818DE0 | PushRenderEventSecondary / ExecuteSecondaryRenderEvents | match | |
+| 0x10817F40 / 0x108180C0 / 0x108186B0 / 0x10818720 | AllocAsyncQueueSlot / TakeAsyncQueueValue (both queues) | match | the next index is a named local (`long next = ...;`) before `expected = index;` |
+| 0x10817F90 / 0x10818110 | CommitAsyncQueueSlots (both queues) | EQUIVALENT (51.0%) | the 64-bit commit state: head in the low bits, a bitmap of the later committed slots above; other registers and spill slots |
+| 0x10819040 | InitRenderGlobals | EQUIVALENT (99.1%) | the store of the new event allocator and the load of its function table are swapped |
+| 0x10819240 / 0x108191A0 / 0x108191F0 | ShutdownRenderGlobals / the tables' scalar deleting destructors | match | |
+| 0x10818B30 | SlotArray<ControllerSlot> constructor | EQUIVALENT (98.9%) | the branch for an empty range goes to the second of two identical epilogue copies, the original's to the first |
+| 0x10818E20 | HandleTable<DrawableData> constructor | EQUIVALENT (81.7%) | the block clearing the first array after a failed allocation sits behind a jump after the construct call (the original puts it after the second array's success branch); one operand order of an address |
+| 0x108182C0 / 0x108183E0 | HandleTable<DrawableData / ControllerSlot>::Alloc | match | the node's next pointer is a named local read before `expected = node;` |
 
 
 ## engine/physics/physicsmanager.cpp (0x107E2440 - 0x107E7A00), started
@@ -974,7 +992,7 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 22 functions match, 4 nonmatching, the rest not done
+## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 86 functions match, 2 EQUIVALENT
 
 `pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
 (0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
@@ -993,17 +1011,22 @@ parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread 
 
 | Function | Status | Why |
 |---|---|---|
-| 0x107108A0 Shutdown | NONMATCHING | the engine keeps the context in esi across `~Context()` and passes the assert's condition register as the report's last argument; ours reloads the global and pushes the constant, 86 % |
-| 0x1070F5C0 AllocRenderParams | NONMATCHING | the engine walks the pool with a running pointer and a signed count; ours indexes it, 6 % |
-| 0x1070F600 FreeRenderParams | NONMATCHING | as AllocRenderParams, 6 % |
-| 0x1070F650 UpdateRenderParams | NONMATCHING | the engine keeps the pool's begin in a register, ours reloads it, 10 % |
+| 0x107108A0 Shutdown | match | `delete context;` (the null check and the delete are one statement) |
+| 0x107103E0 Context constructor | EQUIVALENT (64.2%) | same calls in the same order; the quad index loop keeps a zero-extended copy of its counter and the pool's empty-on-failure block sits elsewhere |
+| 0x1070F380 DrawDebugText | EQUIVALENT (93.1%) | the loads of the font and of 0.5 are scheduled differently around the two stores of it |
+| 0x1070FC90 LoadDebugFont | EQUIVALENT (98.7 %; two locals trade stack slots once unrelated declarations were added to core/asynctask.h and pddi/dx9/dxcontext.h: VC8's slot order depends on the unit's symbol table) | registers the texture and font loaders when missing, loads the embedded P3D (0x10E58E38, 0x21F0 bytes) from a memory stream and takes "pure3d_debug_font" out of its inventory; the request is a `StringC<256>` followed by its words |
+| 0x1070F5C0 / 0x1070F600 / 0x1070F650 AllocRenderParams / FreeRenderParams / UpdateRenderParams | match | the pool is a `ContextArray<FrameEntry>` (signed `Size()`), the loops index it with an unsigned counter |
 
-Not done: the constructor 0x107103E0 (673 bytes) and the destructor 0x107106A0 (336 bytes) - both need the frame's
-many subsystems named first (they call 0x106dde80, 0x1061bbc0 / 0x1061b4c0 / 0x1061b530 / 0x1061b660 (the display),
-0x1073e1d0, 0x107063a0, 0x1073e2c0, 0x1073e2e0, 0x1071f7d0, 0x10716830, 0x1073b790, 0x10754560, 0x10755120,
-0x1074d770, 0x1073e260, 0x107265e0 and the `pure3d::RefCounted` objects 0x10751a00 makes). The functions of the
-wrapped drawable helper's neighbours (0x10710110 = a `+0x10` this-adjusting thunk to 0x106E2AA0) and the render
-parameters' pools are the same story.
+The constructor and the destructor are written (the destructor matches; the constructor is EQUIVALENT). The subsystems
+they start and stop are declared as `Unknown<address>` in `context.h`; the context's object of the display
+(`gPddiDx`, 0x1127F358), the settings struct (`ContextSettings`, with its constructor 0x10710120) and the render
+target parameters (`TargetParams`, 0x1074E5A0 / 0x1074E590) are named from their use. Findings:
+- `Context::Context` keeps the pool of `RenderParams` (an `Entity`: 0x330 bytes, made with `RefCounted::operator new`)
+  in a `ContextArray<FrameEntry>`; `FillCopies` (the fill with a constant value) must be `inline` for the constructor
+  to expand it with zero stores while the out-of-line `Allocate(count, value)` calls it.
+- The scoped locals of an inlined helper share their stack slots (`FindConstant` in `Unknown1070F850`); locals of
+  one scope do not.
+- The assert macro's last argument is the constant 0; the engine passes the register that is known to hold 0.
 
 ### The fourth session (2026-10-15, ds-7): the helper's slot 1 and what the rest of the unit is
 
@@ -1065,6 +1088,25 @@ with a `// FUNCTION:` annotation while they live in `container/map.h` and `conta
 only scans `src/**/*.cpp`), so matching them means giving this unit its own copy of the two containers - with the
 one-argument allocator and the `return b < a;` comparator - and then writing the `Context` members on top of it.
 0x1070ED20 / 0x1070ED30 (empty, one byte of `ret`) are the only trivial ones left in the neighbouring unit.
+
+### The container instances (sn-render)
+
+The tree and the pool are written in `code/pure3d/context.h` as `ContextTree<Key, Value>` (the shape of `container::Map`)
+and `ContextArray<T>` (begin / end over `operator new[]`; `operator delete[]` called directly) and their members are
+claimed with explicit instantiations at the end of `context.cpp`. Findings:
+- The tree's key (0x10 bytes) is a 64-bit name (`ContextName`: its constructor / `GetHash` are the engine's
+  `core::Name<CaseSensitiveKey>` copies 0x1007EE00 / 0x1007EE20, mapped, not defined here, so the compiler cannot
+  see which registers they keep), a `const char*` and the owns-the-text flag. The 64-bit word makes the key 8-byte
+  aligned: nodes are 0x28 bytes and the `Pair` a function keeps on its stack is 0x18 (a `__declspec(align)` would
+  realign the stack; a natural `unsigned __int64` member does not).
+- `Compare` is `if (a < b) return -1; if (b < a) return 1; return 0;` (the engine's `neg / sbb / neg` is how `if (x)
+  return 1; return 0;` compiles).
+- The scalar deleting destructors 0x1070F820 / 0x1070FC30 appear when the destructors of `ContextKey` / `MapNode` are
+  explicitly instantiated; 0x1070EDB0 / 0x1070EDD0 / 0x10710880 are written as `DeleteThis(flags)` members.
+- `RunContext` (0x1070FFA0): the two stores of the picture size come after the virtual call's table load only when
+  they go through a pointer and two named floats.
+- `ContextSettings` has a constructor (0x10710120): 10000, a constant of the image (0x10E5DA34), true, 2, then the
+  two sub-objects' constructors, -1, 8 drawables.
 
 Findings carried over from the third session:
 
