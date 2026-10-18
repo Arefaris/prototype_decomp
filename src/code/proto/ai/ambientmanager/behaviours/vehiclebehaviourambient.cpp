@@ -4,9 +4,12 @@
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 
 #include "code/engine/gameobject/gameobject.h"
+#include "code/core/refptr.h"
 #include "code/engine/physics/physicsmessages.h"
+#include "code/ravenphysics/physicsobject.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
+#include <math.h>
 #include <new>
 
 namespace proto
@@ -61,7 +64,7 @@ namespace proto
 #ifdef NONMATCHING
 	bool VehicleBehaviour::IsVehicleAhead(float maxDistanceSquared)
 	{
-		container::ListBase::Node* node = node68.next;
+		container::ListBase::Node* node = next;
 		int count = path88.Count();
 		for (int i = 0; i < count; i++)
 		{
@@ -113,6 +116,12 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x10443550
+	PathNode* VehicleBehaviour::GetPathNode(int index)
+	{
+		return path88.At(index);
+	}
+
 	// FUNCTION: ENGINE 0x104474D0
 	bool PathRing::PushFront(const PathNode& node)
 	{
@@ -136,6 +145,10 @@ namespace proto
 		}
 		return false;
 	}
+
+	// The copy of the ring buffer's inline At that the compiler keeps out of line (the copy of Count, 0x10440A90, only
+	// appears once a compiled function calls it)
+	// FUNCTION: ENGINE 0x10440BC0
 
 	// The meta types and accessors the two member lists build; the compiler keeps these out of line
 	// (GetClassMetaType<VehicleBehaviour>, MemberOffset of the properties reference, the properties' caster and member
@@ -267,6 +280,19 @@ namespace proto
 		}
 	}
 
+	// FUNCTION: ENGINE 0x1044DA10
+	VehicleBehaviourAmbient::~VehicleBehaviourAmbient()
+	{
+		gAmbientManager->ReleaseName(name, unknownE8);
+		gAmbientManager->RemoveVehicle(this);
+		SetSimulated(false);
+		if (physicsHandle.IsValid())
+		{
+			physicsHandle.DestroyObject();
+		}
+		core::SafeRelease(vehicleProperties);
+	}
+
 	// FUNCTION: ENGINE 0x1044DB40
 	void VehicleBehaviourAmbient::OnReset()
 	{
@@ -303,4 +329,144 @@ namespace proto
 		ApplyPhysicsState(true);
 		SetSimulated(false);
 	}
+
+	// FUNCTION: ENGINE 0x10448250
+	// EQUIVALENT: the same calls with the same arguments in the same order; the engine's callee tests and
+	// state setters are compiled earlier in the unit and keep ecx, ours reloads it (three `mov ecx, esi`), 43.8 %
+	bool VehicleBehaviourAmbient::TryHalt()
+	{
+		if (unknown74 != 0)
+		{
+			if (Unknown10446890() && Unknown10443F30() && Unknown10446700())
+			{
+				SetSimulated(true);
+				ApplyPhysicsState(false);
+				return true;
+			}
+			unknown9C = true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1044B1F0
+	void VehicleBehaviourAmbient::ApplyMode()
+	{
+		ravenphysics::PhysicsObject* object = physicsHandle.GetObjectUnchecked();
+		if (mode != 0)
+		{
+			if ((unsigned int)(mode - 1) <= 1)
+			{
+				ravenphysics::IntersectionFilter filter;
+				filter.properties.unknown0 = 2;
+				filter.properties.unknown4 = 1;
+				object->SetFilter(&filter);
+			}
+		}
+		else
+		{
+			ravenphysics::IntersectionFilter filter;
+			filter.properties.unknown0 = 0x8000;
+			filter.properties.unknown4 = 0x2000;
+			object->SetFilter(&filter);
+		}
+		Unknown10447280(0.0f);
+	}
+
+	// FUNCTION: ENGINE 0x10448FC0
+	bool VehicleBehaviourAmbient::FindNeighbourLanes(int* lower, int* upper)
+	{
+		PathNode::AreaLink* area = path88.At(0)->areaLink;
+		int lane = path88.At(0)->link->lane;
+		*lower = -1;
+		*upper = 6;
+		int count = area->lanesEnd - area->lanes;
+		for (int i = 0; i < count; i++)
+		{
+			int number = area->lanes[i].number;
+			if (number < lane && number > *lower)
+			{
+				*lower = number;
+			}
+			if (number > lane && number < *upper)
+			{
+				*upper = number;
+			}
+		}
+		if (*upper == 6)
+		{
+			*upper = -1;
+		}
+		if (*lower < 0 && *upper < 0)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1044BE00
+	void VehicleBehaviourAmbient::ReleasePhysics()
+	{
+		engine::GetPhysicsObjectMessage query;
+		owner->PostMessage(&query);
+		if (query.handle.IsValid())
+		{
+			engine::SetPhysicsObjectKeyframedMessage keyframed(false);
+			owner->SendMessage(&keyframed);
+			engine::SetKeyframedPhysicsUpdateEnabledMessage updates(false);
+			owner->SendMessage(&updates);
+		}
+		StopSimulation();
+		ApplyPhysicsState(true);
+		halted = false;
+	}
+
+	// FUNCTION: ENGINE 0x1044BF10
+	void VehicleBehaviourAmbient::HaltPhysics()
+	{
+		bool ready;
+		if (unknownA4 != 0)
+		{
+			ready = TryHalt();
+		}
+		else
+		{
+			ready = UpdateNodeDistance();
+		}
+		if (ready)
+		{
+			engine::GetPhysicsObjectMessage query;
+			owner->PostMessage(&query);
+			if (query.handle.IsValid())
+			{
+				engine::SetPhysicsObjectKeyframedMessage keyframed(true);
+				owner->SendMessage(&keyframed);
+				engine::SetKeyframedPhysicsUpdateEnabledMessage updates(true);
+				owner->SendMessage(&updates);
+				ApplyPhysicsState(false);
+			}
+			halted = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104482B0
+	// NONMATCHING: the three differences are computed with SSE and spilled before the x87 sum of squares in the
+	// engine; ours subtracts in the x87 unit, 60 %
+#ifdef NONMATCHING
+	bool VehicleBehaviourAmbient::UpdateNodeDistance()
+	{
+		unsigned int count = path88.Count();
+		if (count > 1)
+		{
+			PathNode* node = path88.At(1);
+			math::Matrix& matrix = owner->transform->value;
+			float dz = matrix.m[3][2] - node->position.z;
+			float dx = matrix.m[3][0] - node->position.x;
+			float dy = matrix.m[3][1] - node->position.y;
+			unknown198 = sqrt(dz * dz + dx * dx + dy * dy) - 1.0f;
+			return true;
+		}
+		unknown198 = -1.0f;
+		return true;
+	}
+#endif
 }

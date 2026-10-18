@@ -50,8 +50,7 @@ namespace engine
 	{
 		GetPhysicsObjectMessage() : NonintrusiveMessage(3, 0xb)
 		{
-			handle.index = 0xffff;
-			handle.unknown2 = 0xffff;
+			handle.value = 0xffffffff;
 		}
 		virtual ~GetPhysicsObjectMessage()
 		{

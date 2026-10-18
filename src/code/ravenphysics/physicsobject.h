@@ -11,6 +11,7 @@
 namespace ravenphysics
 {
 	class CollisionObject;
+	struct IntersectionFilter;
 
 	// The library's lock: set while a simulation step runs, when the objects must not be touched (0x1127D3D8)
 	class PhysicsLock
@@ -90,6 +91,8 @@ namespace ravenphysics
 		void RefreshBounds(bool unused);
 		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
 		void SetCollisionMode(unsigned short mode);
+		// 0x10678250: sets what the object is tested against (the three words go to +0x28)
+		void SetFilter(const IntersectionFilter* filter);
 
 		CollisionObject** objects;
 		int unknown58;

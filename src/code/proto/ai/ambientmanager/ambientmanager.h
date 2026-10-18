@@ -169,6 +169,10 @@ namespace proto
 		explicit AmbientManager(const AmbientConfig* newConfig);
 		// 0x10411FF0: adds the car to the list its record points at (this is not read)
 		void AddVehicle(VehicleBehaviourAmbient* vehicle);
+		// 0x104120F0: takes the car out of the manager's list
+		void RemoveVehicle(VehicleBehaviourAmbient* vehicle);
+		// 0x1040A110: lets go of the name a car was registered under (the flag is the car's)
+		void ReleaseName(const core::Name<core::CaseSensitiveKey>& name, bool flag);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
 

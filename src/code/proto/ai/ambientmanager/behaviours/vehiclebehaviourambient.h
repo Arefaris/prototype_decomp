@@ -13,6 +13,7 @@
 #include "code/core/name.h"
 #include "code/engine/fight/behaviours/fighttreebehaviour.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/context.h"
 
 namespace math
 {
@@ -52,14 +53,28 @@ namespace proto
 	public:
 		math::Vector position;
 		int unknownC;
+		// One lane of a road segment (4 bytes; only the first byte, the lane number, is read)
+		struct Lane
+		{
+			signed char number;
+			unsigned char unknown1[3];
+		};
 		struct AreaLink
 		{
 			unsigned char unknown0[4];
 			unsigned short area;
+			unsigned char unknown6[0xc - 6];
+			// +0xC: the lanes of the segment
+			Lane* lanes;
+			Lane* lanesEnd;
 		};
 		struct Link
 		{
-			unsigned short key;
+			union
+			{
+				unsigned short key;
+				signed char lane;
+			};
 		};
 		AreaLink* areaLink;
 		Link* link;
@@ -74,12 +89,50 @@ namespace proto
 	class PathRing
 	{
 	public:
-		// 0x10440A90 (another unit's copy)
-		int Count() const;
-		// 0x10443550: the index-th node of the sequence, walking around the wrap
-		PathNode* At(int index);
+		// 0x10440A90 (the compiler keeps a copy out of line)
+		int Count() const
+		{
+			if (begin <= end)
+			{
+				return end - begin;
+			}
+			return (end - array) + (arrayEnd - begin);
+		}
+		// 0x10440BC0: the index-th node of the sequence, walking around the wrap
+		PathNode* At(int index)
+		{
+			int first = arrayEnd - begin;
+			if (index < first)
+			{
+				return begin + index;
+			}
+			return array + (index - first);
+		}
+		// The node put in last
+		PathNode* Back()
+		{
+			if (end == array)
+			{
+				return arrayEnd - 1;
+			}
+			if (end > arrayEnd)
+			{
+				return begin - 1;
+			}
+			return end - 1;
+		}
 		// 0x104474D0: puts a node in front of the sequence; false when the block is used up
 		bool PushFront(const PathNode& node);
+		// Empties the ring and frees its block
+		~PathRing()
+		{
+			begin = array;
+			end = array;
+			if (array != 0)
+			{
+				delete[] array;
+			}
+		}
 
 		PathNode* begin;    // +0: the read cursor
 		PathNode* end;      // +4: the write cursor
@@ -87,9 +140,14 @@ namespace proto
 		PathNode* arrayEnd; // +0xc: the end of the block
 	};
 
-	class VehicleBehaviour : public engine::FightTreeBehaviour
+	class VehicleBehaviour : public engine::FightTreeBehaviour, public container::ListBase::Node
 	{
 	public:
+		// The vehicle layer's overrides (vftable 0x10E04A9C: slots 1, 3 and 6 are 0x10442400, 0x10442140, 0x10442150)
+		virtual void Slot1();
+		virtual void OnActiveChanged(bool active);
+		virtual void OnMessage(engine::Message* message);
+
 		// 0x10442100 / 0x10442880 (the vehicle layer's reflection, another part of the unit)
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -106,13 +164,14 @@ namespace proto
 		// 0x104438C0: true when one of the vehicles on this car's path is within maxDistanceSquared of it (the
 		// "car ahead" test of the ambient traffic; the name is a guess)
 		bool IsVehicleAhead(float maxDistanceSquared);
+		// 0x10443550: the index-th node of the car's path
+		PathNode* GetPathNode(int index);
 
-		unsigned char unknown64[4];
-		// The ambient manager's list of vehicle behaviours (container::ListBase::Node in the original)
-		container::ListBase::Node node68;
-		unsigned char unknown6C[0x78 - 0x6c];
-		void* unknown78;      // +0x78, the object 0x104421B0 answers
-		unsigned char unknown7C[0x84 - 0x7c];
+		// The node at +0x68 links the ambient manager's list of vehicle behaviours
+		unsigned char unknown6C[0x74 - 0x6c];
+		void* unknown74;      // +0x74, the record of the lane the car follows (0x10446700 reads its plane)
+		math::Vector extents; // +0x78: half the size of the car (0x10445D20 derives the corners from it)
+
 		// +0x84, set to 1 when the car is halted (0x1044BF10)
 		bool halted;
 		unsigned char unknown85[0x88 - 0x85];
@@ -175,6 +234,17 @@ namespace proto
 	class VehicleBehaviourAmbient : public VehicleBehaviour
 	{
 	public:
+		// 0x1044DA10; the vftable of the class is 0x10E05340 (slots 1, 3, 4, 6, 7, 8, 9, 10 are the class's own)
+		virtual ~VehicleBehaviourAmbient();
+		// 0x10445340 / 0x104454E0 / 0x1044F060 / 0x1044F710 / 0x104455B0 / 0x1044BBC0 / 0x104455C0
+		virtual void Slot1();
+		virtual void OnActiveChanged(bool active);
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnMessage(engine::Message* message);
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual bool IsBlocking();
+
 		static content::ClassInfo* GetClassInfo();
 		// 0x1044BAE0
 		static content::MemberList* GetMembers();
@@ -220,7 +290,12 @@ namespace proto
 		bool Unknown10446700();
 		// 0x10448250: halts the car when the tests allow it
 		bool TryHalt();
-		// 0x1044BE00 is called by several of the above
+		// 0x104482B0: the distance to the next node of the path
+		bool UpdateNodeDistance();
+		// 0x10448FC0: the numbers of the lanes next to the one the car is in (-1 for none); false when it has no neighbour
+		bool FindNeighbourLanes(int* lower, int* upper);
+		// 0x10447280 (the argument is not read) / 0x1044CEA0
+		void Unknown10447280(float unused);
 		void Unknown1044CEA0();
 
 		float unknownA8;
@@ -231,7 +306,7 @@ namespace proto
 		math::Vector wheelRear;    // +0xc4
 		float unknownD0;
 		float speed;               // +0xd4
-		bool unknownD8;
+		bool unknownD8;   // +0xd8, passed with the name when it is released
 		bool unknownD9;
 		unsigned char unknownDA[0xe0 - 0xda];
 		core::Name<core::CaseSensitiveKey> name;   // +0xe0
@@ -243,8 +318,12 @@ namespace proto
 		bool simulated;            // +0x100
 		unsigned char unknown101[0x104 - 0x101];
 		math::Vector desiredFacing;   // +0x104
-		unsigned char unknown110[0x188 - 0x110];
+		unsigned char unknown110[0x11c - 0x110];
+		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
+		unsigned char unknown120[0x188 - 0x120];
 		int mode;                  // +0x188
+		unsigned char unknown18C[0x198 - 0x18c];
+		float unknown198;          // +0x198: the distance to the next path node less one (0x104482B0)
 	};
 }
 
