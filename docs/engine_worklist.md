@@ -629,6 +629,15 @@ Not done (owners or layouts not recovered yet; the reasons are what blocks them,
 - Not reachable at all: 0x107E58A0 / 0x107E58F0, five-byte `jmp` thunks of 0x107E4550 / 0x107E45D0 (the original's
   incremental link table leaves a copy at each call site); our linker emits no such thunk, so they cannot be matched.
 
+Added later (sn-anim): the two global singly linked lists of `ravenphysics::PhysicsContextCallBack` (new header
+`code/ravenphysics/callback.h`: an abstract class with one pure virtual and `next` at +4) with `PushCallback` /
+`EraseCallback` (0x107E3DB0 / 0x107E3DF0, non-static: the engine passes their arguments on the stack) and the four
+Add/Remove Pre/PostStepCallback entry points (0x107E4D90 - 0x107E4DF0), `KeyTable::GetBucket` (0x107E4990),
+`ResetPlacement` / `SetPlacementPosition` / `SetCollisionModeInBox` (0x107E3D00 / 0x107E3D10 / 0x107E4E10). The rest
+of the range stays as listed above: the 0x107E3F90 - 0x107E4010 collision log (owner object unknown), the dead
+`ArrayDynamicNew` members, the pad-input cluster and the routines with register conventions whose owners are not
+recoverable.
+
 Shared headers touched: `code/ravenphysics/context.h` (the query buffer lock, `Context::SetSolverIterations`, the
 `ObjectList` members at 0x14 / 0x1C and `Context::unknown0`) and `code/container/arraydynamicnew.h` (`End`).
 
@@ -920,6 +929,15 @@ Three units, none of them named by an assert except the first:
 | 0x10958120 | PoseBlendBuffers::Fill | match |
 | 0x10958210 / 0x10958D50 / 0x10959150 | HasLastNodes / ApplyRootNodes / UpdatePuppets | match |
 | 0x10958DA0 | RunPoseBlendJob (the task body of a batch of puppets) | match |
+| 0x10957690 / 0x10957710 / 0x10958640 / 0x109586E0 | the job's file-local report and delta-validation helpers (`static`, register arguments) | match |
+| 0x109577A0 - 0x10957850, 0x109582E0 / 0x10958360 / 0x10958400 | PoseBlendSample: Set, the three root getters, BlendValue / BlendJoints / BlendMatrices | match |
+| 0x10957870 - 0x10957A20 | PoseBlendNode setters (SetWeights, SetRootParts, SetNone, Set, SetJoint, SetPose, the mode and root rotation / translation setters, SetEmpty) | match |
+| 0x10957F60 - 0x10958090 | PoseBlendRootTask / PoseBlendLimbTask setters and Apply, the two task ranges' Apply | match |
+| 0x109581F0 / 0x10958200 / 0x10958220 | PoseBlendBuffers::HasRootNodes / HasRootTasks / the root range loop | match |
+| 0x10958490 / 0x109585F0 | PoseBlendBuffers::Count (carves the blocks), PoseJointMask::Assign | match |
+| 0x10958250 | PoseBlendBuffers limb range loop | NONMATCHING: defining it (with Count and the other loops) lets the compiler prove RunPoseBlendJob's buffers do not escape, so its last call becomes a tail call and RunPoseBlendJob drops to 92.9 %; the body is written under `#ifdef NONMATCHING` |
+| 0x10958770 | PoseBlendSample::BlendRoot (root motion into the root matrix and the first scale) | EQUIVALENT (94 %: scale block multiplies and registers) |
+| 0x10957A40 / 0x10957B20 / 0x10957E10 | PoseBlendNode::BlendRootJoint / BlendJoints / BlendPose | EQUIVALENT (98.6 % / 43.7 % / 72 %: register allocation and element pointers) |
 | 0x10952150 - 0x109521A0 | SampleChannels::GetRotation / GetTranslation / GetUnknown10 / GetScale / GetUnknown14 / GetUnknown1C | match |
 | 0x10953A90 / 0x10953160 | SlerpRotation / RotationBuffer::BlendInto (four-wide spherical interpolation of rotations) | EQUIVALENT (SSE intrinsics, other schedule) |
 | 0x10953E40 | SampleChannels::Blend (channels sampled over joints first to last with a weight) | EQUIVALENT (stack slots; the engine's size) |

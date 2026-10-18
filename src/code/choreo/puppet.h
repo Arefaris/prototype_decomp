@@ -94,6 +94,8 @@ namespace choreo
 		void Update(float dt);
 		// 0x10949040: puts the drivers in priority order when they changed
 		void SortDrivers();
+		// 0x10947660: counts the blend nodes, samples and tasks the puppet's drivers need
+		void CountNodes(PuppetCounts* counts);
 		// 0x10948770: writes the pose blend nodes of the puppet where the cursors stand
 		void BuildNodes(PuppetCounts* counts, PoseBlendCursors* cursors);
 		// 0x10946D00: turns the root translation and rotation of the update into the root delta matrix
