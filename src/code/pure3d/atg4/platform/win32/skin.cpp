@@ -828,7 +828,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071D440
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets, 21.5 %
+	// NONMATCHING: the four-bone blend (see 0x1071B610) with the position offset (one for all the vertices, read ahead of the loop), 40.7 %
 #ifdef NONMATCHING
 	void SkinState::Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
@@ -840,11 +840,9 @@ namespace pure3d
 		OLD_ASSERT_AT(SKIN_FILE, 0x5E9, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
 		const float* positions = expression->positionOffsets;
-		int positionStride = 3;
 		if (positions == 0)
 		{
 			positions = gNoVertexOffsets;
-			positionStride = 0;
 		}
 		math::Vector4 positionOffset;
 		positionOffset.w = 0.0f;
@@ -865,7 +863,6 @@ namespace pure3d
 			positionOffset.x = positions[0];
 			positionOffset.y = positions[1];
 			positionOffset.z = positions[2];
-			positions += positionStride;
 			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
 			__m128 m0, m1, m2, m3;
 			BlendBoneRowsInline(vertices, matrices, &vertices->weights, (math::Vector4*)&m0, (math::Vector4*)&m1, (math::Vector4*)&m2, (math::Vector4*)&m3);
