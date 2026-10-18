@@ -128,6 +128,16 @@ namespace proto
 		float value;
 	};
 
+	// A word that starts at -1 through its own constructor (an index or a handle; the engine's constructor stores it
+	// where a member object's inline constructor does, between the plain members around it)
+	struct AmbientIndex
+	{
+		AmbientIndex() : value(-1)
+		{
+		}
+		int value;
+	};
+
 	// Objects of 0x8C bytes the manager holds two of (0x104279C0 makes one)
 	struct AmbientBlock
 	{
@@ -269,7 +279,7 @@ namespace proto
 		bool unknown601;
 		bool unknown602;
 		bool unknown603;
-		int unknown604;
+		AmbientIndex unknown604;
 		int unknown608;
 		int unknown60C;
 		int unknown610;

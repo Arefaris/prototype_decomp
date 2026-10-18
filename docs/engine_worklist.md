@@ -1343,7 +1343,7 @@ registers.
 | 0x1072B1F0 / 0x1072B300 / 0x1072B360 | SaveCubeLevels, SaveVolumeLevels, SaveTexture | match |
 | 0x1072B420 | DDSParser::IsSupportedFormat (slot 1) | match |
 | 0x1072B600 / 0x1072B6D0 | MakeTexture (static), DDSParser::Parse (slot 3) | match |
-| 0x1072ADB0 | UploadLevel (static) | EQUIVALENT (98.1 %) |
+| 0x1072ADB0 | UploadLevel (static) | match |
 | 0x1072B230 | UploadVolumeLevels (static) | EQUIVALENT (7.4 %) |
 | 0x1072B470 | DDSParser::Load (slot 2) | EQUIVALENT (13.8 %; same block layout as the engine's) |
 
@@ -1387,6 +1387,10 @@ Matching notes:
   commutative operations, `lea esi, [eax + edx]` (offset + x bytes) and `mov ecx, pitch; imul ecx, y` (pitch times the
   skipped rows): no source order, declaration order, field type, loop form of the skip (it is strength-reduced to
   the product) or declaration position of the locals changes either. difftest SAME.
+- (op-map1) 0x1072ADB0 `UploadLevel` **matches**: the lock description is cleared through a pointer (an inline
+  `ClearLock(&lock)`, the same nine stores); written on the local itself the compiler turns the operands of the
+  destination's sum and of the skipped rows' product around. A constructor in `TextureLock` gives the same match but
+  moves two stack slots of `Context::LoadDebugFont` (0x1070FC90; any inline function body in dxtexture.h does).
 - (op-finish) 0x1072B470 `DDSParser::Load` stays EQUIVALENT (13.8 %): it needs `UploadVolumeLevels` (0x1072B230) to
   take the texture in edi like the engine's (stack order stream, description, dropTop: the signature `(stream,
   description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
@@ -3305,6 +3309,9 @@ method of the pose at +0x70) and the job record at +0x330.
   own result variable: the engine's v2 / r2 share one slot, the offsets get its slot order, and the lane is saved
   before the vector is overwritten. Statement order, operand order, `.m128_f32`, locals of other types, dead locals
   and padding declarations do not move the last register pair. The same tangent form is written into 0x1071C530.
+- (op-map1) 0x1071CA40 **matches**: the three offset vectors are `__m128` locals filled lane by lane through float
+  casts (like the box accumulators) and added as values (`_mm_add_ps(v2, tangentOffset)`); as `math::Vector4` locals
+  read back with `_mm_load_ps(&offset.x)` the tangent and the normal's offset trade xmm2 / xmm3.
 - (mp-skin) The slot order of equal-weight locals (the engine's stack table is sorted by reference count; ties come out
   in an order the source's statement order, declaration order and names do not change) and the register a vector
   gets can depend on declarations in the headers a unit includes: a new type name in primitive.h flipped two locals of
@@ -3714,6 +3721,9 @@ access path (through the array object or through the owner) are part of the sour
   whole body's register choices fall into the engine's. What is left is the scheduler's place for the `push 1` of the
   empty name (`Name("", 1)`): the engine pushes it between the stores of members +0x604 and +0x608, we right after
   `or esi, -1`. Moving members into the body, the name block, the name as a temporary: no effect.
+- (op-map1) 0x1041FA40 `AmbientManager::AmbientManager` **matches**: the member at +0x604 is an object whose own inline
+  constructor sets it to -1 (`AmbientIndex`, a guess); the member object's constructor puts the push of the empty name's
+  flag right after its store, as in the engine. Wrapping any other run of the last members does not.
 - 0x1082E100 `UpdateStreamTransition` stays EQUIVALENT, **84.9 %** byte-wise (was 21.1 %): the two lists are
   `container::ArrayDynamic` locals made with `Create(16)` after their declaration (the declaration order and the way
   they are made decide which of them lies lower in the frame), the counts are `Size()` and every size test is `> 0` /

@@ -28,12 +28,10 @@ namespace proto
 	// FUNCTION: ENGINE 0x1040B840
 
 	// FUNCTION: ENGINE 0x1041FA40
-	// EQUIVALENT: the same members started the same way in the same order, the same calls (the nine array
-	// allocations, the pools, the cloud manager, the script natives and the three block heaps); the one difference
-	// (98.0 %) is where the scheduler puts the push of the empty name's second argument: the engine pushes it between
-	// the stores of the last members, this compiler right after the first of them
 	// The pools take their heap from an AllocatorCoreAligned member, which is what makes the engine's `mov eax, esi`
-	// before the push of the heap and the register choices of the whole body come out the same.
+	// before the push of the heap and the register choices of the whole body come out the same; the member at +0x604
+	// is an object with its own constructor (that puts the push of the empty name's flag between its store and the
+	// next member's).
 	AmbientManager::AmbientManager(const AmbientConfig* newConfig) :
 		unknown10(newConfig->physicsCount, container::AllocatorCoreAligned<16>(0xA8)),
 		unknown40(false),
@@ -90,7 +88,6 @@ namespace proto
 		unknown601(false),
 		unknown602(false),
 		unknown603(false),
-		unknown604(-1),
 		unknown608(0),
 		unknown60C(-1),
 		unknown610(-1),

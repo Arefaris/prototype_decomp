@@ -576,8 +576,6 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071CA40
-	// NONMATCHING: 99.4 %, the engine's instructions and frame; the two registers that hold the tangent and the normal's offset vector in the loop's head trade places (xmm2 / xmm3, three instructions). The tangent is added to in place and its fourth lane is read right after the load, which puts it and the result into one stack slot and the offsets into the engine's slot order
-#ifdef NONMATCHING
 	void SkinState::Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
@@ -604,12 +602,12 @@ namespace pure3d
 			tangents = gNoVertexOffsets;
 			tangentStride = 0;
 		}
-		math::Vector4 positionOffset;
-		positionOffset.w = 0.0f;
-		math::Vector4 normalOffset;
-		normalOffset.w = 0.0f;
-		math::Vector4 tangentOffset;
-		tangentOffset.w = 0.0f;
+		__m128 positionOffset;
+		((float*)&positionOffset)[3] = 0.0f;
+		__m128 normalOffset;
+		((float*)&normalOffset)[3] = 0.0f;
+		__m128 tangentOffset;
+		((float*)&tangentOffset)[3] = 0.0f;
 		math::Vector4* __restrict dst = out;
 		__m128 maxBounds;
 		((float*)&maxBounds)[0] = -1e12f;
@@ -627,21 +625,21 @@ namespace pure3d
 			__m128 v1 = _mm_load_ps(&vertices->normal.x);
 			__m128 v2 = _mm_load_ps(&vertices->tangent.x);
 			float tangentW = ((float*)&v2)[3];
-			positionOffset.x = positions[0];
-			positionOffset.y = positions[1];
-			positionOffset.z = positions[2];
+			((float*)&positionOffset)[0] = positions[0];
+			((float*)&positionOffset)[1] = positions[1];
+			((float*)&positionOffset)[2] = positions[2];
 			positions += positionStride;
-			normalOffset.x = normals[0];
-			normalOffset.y = normals[1];
-			normalOffset.z = normals[2];
+			((float*)&normalOffset)[0] = normals[0];
+			((float*)&normalOffset)[1] = normals[1];
+			((float*)&normalOffset)[2] = normals[2];
 			normals += normalStride;
-			tangentOffset.x = tangents[0];
-			tangentOffset.y = tangents[1];
-			tangentOffset.z = tangents[2];
+			((float*)&tangentOffset)[0] = tangents[0];
+			((float*)&tangentOffset)[1] = tangents[1];
+			((float*)&tangentOffset)[2] = tangents[2];
 			tangents += tangentStride;
-			__m128 p0 = _mm_add_ps(v0, _mm_load_ps(&positionOffset.x));
-			__m128 p1 = _mm_add_ps(v1, _mm_load_ps(&normalOffset.x));
-			v2 = _mm_add_ps(v2, _mm_load_ps(&tangentOffset.x));
+			__m128 p0 = _mm_add_ps(v0, positionOffset);
+			__m128 p1 = _mm_add_ps(v1, normalOffset);
+			v2 = _mm_add_ps(v2, tangentOffset);
 			const __m128* p = (const __m128*)&matrices[vertices->bones[0]];
 			const __m128& m0 = *p++;
 			const __m128& m1 = *p++;
@@ -671,7 +669,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071CDC0
 	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets, 34.5 %
