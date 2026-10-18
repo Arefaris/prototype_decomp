@@ -3544,6 +3544,13 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   computes `t = x / 255` in SSE before the switch (one stack temporary the two cosine cases read) and each case has its
   own clamp tree (`v < 0` first, then `v > 0xFF` on both paths; the cosine cases cross-jump into the first two cases'
   trees), where the source has one clamp after the switch.
+- (op-map2) 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING, now 75 % (was 36 %, same size as the engine's): the fills
+  write through a `__restrict` row pointer and read `lock.width` / `lock.pitch` in their loops (that gives the engine's
+  zero in edi and one in ebx), every description sets levels, depth and format again before its texture is made, the
+  ramp computes `t` before the switch and each case packs its own pixel through an inline helper, the first ramp packs
+  with multiplications and the cosine ramps are `float ramp = (cos(t * f) + 1.0f) * 0.5f;` then `ramp * 255.5f` (one
+  expression folds the two constants). Left: the clamp tree (the engine: `v < 0` first, then `v > 0xFF` on both paths,
+  no cmov); every spelling tried folds the negative path, uses cmov / setcc or tests `> 0xFF` first.
 
 ## Merge notes (2026-10-16)
 

@@ -27,7 +27,7 @@ Functions  █░░░░░░░░░░░░░░░░░░░░░░
   ravenphysics   506 functions matched, 26,725 bytes
 ```
 
-Updated 2026-10-18 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
+Updated 2026-10-19 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
 <!-- progress:end -->
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
