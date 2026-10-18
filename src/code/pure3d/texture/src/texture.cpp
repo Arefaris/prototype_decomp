@@ -31,9 +31,9 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x1072A470
 	void TextureLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
-		content::ChunkReader* reader, int flags)
+		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
-		Texture* texture = FindTexture(reader, engine::render::gTextureLoadFlag, flags);
+		Texture* texture = FindTexture(reader, engine::render::gTextureLoadFlag, (int)inventory);
 		if (texture != 0)
 		{
 			texture->AddRef();

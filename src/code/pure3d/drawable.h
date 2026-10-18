@@ -85,11 +85,20 @@ namespace pure3d
 	class DrawablePart
 	{
 	public:
+		// 0x106DF020: an empty part that takes references to the primitive and its state
+		DrawablePart(Primitive* newPrimitive, PrimitiveState* newState);
+		// 0x106DF110
+		DrawablePart(const DrawablePart& other);
+		// 0x106DF340: releases the primitive, the state and the shader
+		~DrawablePart();
+
 		// 0x102D3D30: the binding, else the state's or primitive's binding source (another unit's out-of-line
 		// copy)
 		PartBindingSource* GetBindingSource();
 		// 0x106DE950: the binding at +0x98 (reference counted)
 		void SetBinding(PartBinding* binding);
+		// 0x106DEEF0: the state at +0x94 (reference counted); render bit 9 is set
+		void SetState(PrimitiveState* newState);
 		// 0x106E13C0: the world matrix, marked as not the identity
 		math::Matrix* GetWorldMatrix();
 		// 0x10761750: draws the part with the shader of that name (the batch or the primitive, by render bit 9)
@@ -201,6 +210,11 @@ namespace pure3d
 			float unknown20;
 			float unknown24;
 		};
+
+		// 0x106E1F40: a drawable of the parts in the array (their state is taken over); the name is the text of its
+		// entity
+		Drawable(const char* name, container::ArrayDynamic<DrawablePart, container::AllocatorNew>& newParts,
+			bool unknown);
 
 		// 0x106E2890: a new drawable made from this one (0x108 bytes, constructor 0x106E21B0)
 		Drawable* CreateInstance(const CreateOptions& options);

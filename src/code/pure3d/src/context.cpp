@@ -248,9 +248,9 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1070ED90
-	int WrappedDrawableHelper::GetUnknown0(int value)
+	core::IRefCount* WrappedDrawableHelper::Wrap(core::IRefCount* drawable)
 	{
-		return value;
+		return drawable;
 	}
 
 	// FUNCTION: ENGINE 0x1070FC60

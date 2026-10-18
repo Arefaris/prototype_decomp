@@ -4,6 +4,7 @@
 #ifndef PURE3D_POSE_H
 #define PURE3D_POSE_H
 
+#include "code/content/loadinventory.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/pure3d/posedata.h"
 
@@ -11,13 +12,13 @@ namespace pure3d
 {
 	class Pose;
 
-	class Skeleton
+	// (RTTI: bases content::LoadObject, core::IRefCount; 5 vftable slots)
+	class Skeleton : public content::LoadObject
 	{
 	public:
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
 
-		unsigned char unknown0[8];
 		SkeletonData mData;
 	};
 

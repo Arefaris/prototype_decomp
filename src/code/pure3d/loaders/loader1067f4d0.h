@@ -46,7 +46,7 @@ namespace pure3d
 	{
 	public:
 		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
-			int flags);
+			content::LoadInventory* inventory);
 	};
 }
 

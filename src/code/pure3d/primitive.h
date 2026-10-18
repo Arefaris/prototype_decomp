@@ -84,6 +84,8 @@ namespace pure3d
 	};
 
 	class ExpressionState;
+	class VertexAnimKeyFrameList;
+	struct VertexBufferDescription;
 
 	class VertexOffsetExpressionMixer : public Entity
 	{
@@ -169,13 +171,45 @@ namespace pure3d
 		unsigned char unknown164[4];
 	};
 
+	class MeshState;
+
+	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
+	// FrameController): the controller that follows a vertex region. Its slots 24 - 28 are its own.
 	class VertexRegionAnimController : public FrameController
 	{
 	public:
+		virtual void Unknown24();
+		virtual void Unknown25();
+		// 0x10730460: a new controller of the same kind (0xE0 bytes)
+		virtual VertexRegionAnimController* Clone();
+		virtual void Unknown27();
+		virtual void Unknown28();
+
 		// 0x1072F8C0
 		void SetRegion(VertexDeformRegion* region);
 		// 0x1072ED10: the region's transform (+0x98, kept inverted)
 		void SetTransform(const math::Matrix& transform);
+		// 0x1072F130: takes a reference to the key frames at +0x84
+		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
+		// 0x1072EC30: makes the controller follow the state's mesh
+		void SetMeshState(MeshState* state);
+	};
+
+	// RTTI: pure3d::VertexAnimController (29 slots, the same bases)
+	class VertexAnimController : public FrameController
+	{
+	public:
+		virtual void Unknown24();
+		virtual void Unknown25();
+		// 0x1073E470: a new controller of the same kind (0x58 bytes)
+		virtual VertexAnimController* Clone();
+		virtual void Unknown27();
+		virtual void Unknown28();
+
+		// 0x1073E490: takes a reference to the key frames at +0x40
+		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
+		// 0x1073E390: makes the controller follow the state's mesh
+		void SetMeshState(MeshState* state);
 	};
 
 	// What a primitive fills the device's draw data with: the object at DrawablePart::batch (+0xA0). The engine's
@@ -344,6 +378,12 @@ namespace pure3d
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		// Slots 11 - 14 are the mesh's own: the first two set a flag byte (+0x174 / +0x175) and refresh the mesh
+		// (0x10708010 / 0x10708030)
+		virtual void SetFlag174(bool value);
+		virtual void SetFlag175(bool value);
+		virtual void Unknown13();
+		virtual void Unknown14();
 
 		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
 		// groups live in
@@ -480,6 +520,12 @@ namespace pure3d
 	class MeshState : public PrimitiveState
 	{
 	public:
+		// 0x10707970 (0x3C bytes): a state of the mesh; the description makes the two vertex buffers it keeps, the
+		// last argument is held at +0x2C
+		MeshState(Mesh* mesh, const VertexBufferDescription* vertices, core::IRefCount* unknown);
+		// 0x10707AA0 / 0x10707AC0: take a reference to the controller at +0x24 / +0x28
+		void SetController2(FrameController* value);
+		void SetController3(FrameController* value);
 		// 0x10707660, 0x10707670, 0x10707680
 		FrameController* GetController1();
 		FrameController* GetController2();
@@ -490,6 +536,8 @@ namespace pure3d
 		int unknown20;
 		FrameController* controller2;
 		FrameController* controller3;
+		// The reference at +0x2C, the two vertex buffers at +0x30 / +0x34 and a word
+		unsigned char unknown2C[0x10];
 	};
 
 	class Skin;
@@ -606,6 +654,8 @@ namespace pure3d
 		virtual void Update(float dt);
 		// 0x10720CF0: the skinning job itself (skin.cpp, not reconstructed)
 		void Unknown10720CF0();
+		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
+		void SetExpressionState(VertexAnimKeyFrameList* list);
 		// 0x1071F880: takes a reference to the state's controller at +0x2E0 (the +0x2DC one, 0x1071F860, is the
 		// same code but its core::RefAssign copy lives in another unit, so its member's type is not known yet)
 		void SetController2(FrameController* value);
