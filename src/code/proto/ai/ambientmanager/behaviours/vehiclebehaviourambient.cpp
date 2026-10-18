@@ -265,6 +265,8 @@ namespace proto
 	// The chances a lane change is tried with, by the car's random number below three (0x10E04E70 and 0x10E04E7C)
 	extern const float sSecondChances[3] = {4.5f, 5.0f, 5.5f};
 	extern const float sFirstChances[3] = {6.0f, 6.0f, 6.0f};
+	// The fastest the kinematic model drives (0x10E04E88)
+	extern const float sMaxPathSpeed = 7.0f;
 
 	// FUNCTION: ENGINE 0x10443550
 	PathNode* VehicleBehaviour::GetPathNode(int index)
@@ -668,11 +670,10 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x1044D730
-	// NONMATCHING: the passed-node search, the speed rules (stop at the light, brake for a car ahead, accelerate to 7)
-	// and the move are the engine's; the engine keeps the car in esi, holds the three position components on the x87
-	// stack through the search loop and reloads the stored distance for the loop test where ours keeps it in the x87
-	// unit, 40 %
-#ifdef NONMATCHING
+	// EQUIVALENT: the same search for the node passed, the same stopping, braking and acceleration rules and the same
+	// move; the engine keeps one and the three position components on the x87 stack through the search loop and tests
+	// the stored distance with an SSE compare where ours compares the x87 value before it is stored (the value is
+	// the double result of sqrt minus one, never within the single's range of zero, so both tests agree), 92 %
 	void VehicleBehaviourAmbient::Unknown1044D730(float dt)
 	{
 		if (unknown198 < 0.0f)
@@ -686,7 +687,7 @@ namespace proto
 				int node = 2;
 				do
 				{
-					if (count - 1 <= passed)
+					if (passed >= count - 1)
 					{
 						break;
 					}
@@ -703,7 +704,18 @@ namespace proto
 			}
 		}
 		Unknown10442D60();
-		if (path88.Count() < 3)
+		PathNode* ringBegin = path88.begin;
+		PathNode* ringEnd = path88.end;
+		unsigned int size;
+		if (ringBegin <= ringEnd)
+		{
+			size = ringEnd - ringBegin;
+		}
+		else
+		{
+			size = (ringEnd - path88.array) + (path88.arrayEnd - ringBegin);
+		}
+		if (size <= 2)
 		{
 			return;
 		}
@@ -711,7 +723,13 @@ namespace proto
 		{
 			speed = 0.0f;
 		}
-		else if (IsVehicleAhead(unknown19C))
+		else if (!IsVehicleAhead(unknown19C))
+		{
+			float faster = vehicleProperties->accelerationForce * dt + speed;
+			speed = faster;
+			speed = (sMaxPathSpeed > faster) ? faster : sMaxPathSpeed;
+		}
+		else
 		{
 			float slowed = speed - vehicleProperties->brakingForce * dt * 2.0f;
 			speed = slowed;
@@ -720,22 +738,11 @@ namespace proto
 				speed = 0.0f;
 			}
 		}
-		else
-		{
-			float faster = vehicleProperties->accelerationForce * dt + speed;
-			speed = faster;
-			if (7.0f <= faster)
-			{
-				faster = 7.0f;
-			}
-			speed = faster;
-		}
 		if (speed > 0.00001f)
 		{
 			Unknown1044B480(dt, 1);
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1044E200
 	bool VehicleBehaviourAmbient::Unknown1044E200(float dt)

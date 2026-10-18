@@ -7069,3 +7069,5 @@ _sLuaString = 0x11274FC8 ; data size:0x80 | eventscripting.cpp: the buffer GetLu
 ?Unknown10445A10@VehicleBehaviourAmbient@proto@@QAE_NXZ = 0x10445A10 ; function size:0x27 | VehicleBehaviourAmbient::Unknown10445A10 (name guess)
 ?sSecondChances@proto@@3QBMB = 0x10E04E70 ; data size:0xC | proto::sSecondChances: the chances a lane change is tried with after the blocker was seen for two seconds, by the car's random number (name guess)
 ?sFirstChances@proto@@3QBMB = 0x10E04E7C ; data size:0xC | proto::sFirstChances: the chances a lane change is tried with while the car is held up, by the car's random number (name guess)
+?Unknown10445A90@VehicleBehaviourAmbient@proto@@QAE_NM@Z = 0x10445A90 ; function size:0xD2 | proto::VehicleBehaviourAmbient::Unknown10445A90 (name guess)
+?sMaxPathSpeed@proto@@3MB = 0x10E04E88 ; data size:0x4 | proto::sMaxPathSpeed: the fastest the path model drives (name guess)

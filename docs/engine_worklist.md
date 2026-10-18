@@ -3337,10 +3337,10 @@ lead to the original functions). What the unit shows:
   constructor before the argument pushes and the address is loaded with a lea afterwards.
 - `Slot2` is called by fe_PauseGame with the id of the first active player (`InputSystem::active.head->id`).
 
-## proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.cpp (0x10446A70 - 0x1044E960): 41 match, 8 EQUIVALENT, 8 NONMATCHING, 6 not started
+## proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.cpp (0x10446A70 - 0x1044E960): 41 match, 9 EQUIVALENT, 7 NONMATCHING, 6 not started
 
 proto::VehicleBehaviourAmbient (RTTI; VehicleBehaviour : FightTreeBehaviour, container::ListBase::Node at +0x68; vftable
-0x10E05340), the ambient traffic car. Of the 63 functions of the range 41 match, 8 are EQUIVALENT (see below), 8 are
+0x10E05340), the ambient traffic car. Of the 63 functions of the range 41 match, 9 are EQUIVALENT (see below), 7 are
 NONMATCHING and 6 are not started; the unit also holds 19 neighbours outside the range (the path ring, the speed
 update 0x104468F0, the plane tests 0x10446700 / 0x10446890, the stopping distance 0x10445A40 / 0x10445A60, the yaw
 rate 0x10445960 ...), which are reconstructed so their callers keep ecx and edx across the call.
@@ -3387,17 +3387,23 @@ What the unit showed about the compiler (each of these decided a function):
 
 EQUIVALENT (compiled into the DLL in place of the engine's code; none of them has captured states yet, so the
 difftest has not run): 0x104473E0 (98 %, push of edi one instruction later), 0x10448440 (54 %, the car lives in a
-stack slot), 0x104485E0 (66 %, the handle of the player is selected by pointer), 0x1044AE90 (84 %, stack slots of
-the path vectors), 0x1044B110 (90 %, order of two stores), 0x1044C040 (85 %, registers of the branch and the slot
-address), 0x1044CEA0 (59 %, esi / edi in the generator steps), 0x1044D0F0 (70 %, registers) and the neighbours
-0x10446700 (87 %) and 0x10445A10 (58 %, the negation of the inline test).
+stack slot), 0x104485E0 (66 %, the handle of the player is selected by pointer), 0x1044AE90 (87 %, stack slots of
+the path vectors; the sum of the products is added z, y, x in both), 0x1044B110 (90 %, order of two stores),
+0x1044C040 (85 %, registers of the branch and the slot address), 0x1044CEA0 (59 %, esi / edi in the generator
+steps), 0x1044D0F0 (70 %, registers), 0x1044D730 (92 %, the engine keeps 1.0 on the x87 stack and compares the
+stored distance with an SSE compare where ours compares the x87 value; the value is never within the single's
+range of zero) and the neighbours 0x10446700 (87 %) and 0x10445A10 (58 %, the negation of the inline test).
+With /fp:fast the compiler adds a sum of products in the opposite order to the source's: a dot product written
+x, y, z comes out z, y, x (0x1044AE90); check that order in the listing before an EQUIVALENT is accepted.
 
 NONMATCHING (inside `#ifdef NONMATCHING`): 0x10447280 (12 %, the engine's frame is 0x18 bytes larger and keeps the zero
 in xmm3), 0x10447D20 (52 %, the stack copies of the start point), 0x1044A580 (55 %, the three matrix rows are read
-into registers first), 0x1044ABD0 (41 %, ebp / esi allocation and two separate read-modify-write flag updates),
-0x1044B2A0 (56 %, the engine reuses the dead float parameter's slot), 0x1044B480 (24 %), 0x1044D730 (43 %, the
-engine inlines the ring's size the second time) and 0x1044D200 (46 %, the audio message's destructor is declared out
-of line in audiomessage.h; the engine has none and shares the tail that sends the message).
+into registers first), 0x1044ABD0 (41 %, ebp / esi allocation and two separate read-modify-write flag updates; the
+engine reaches the spin angle as `this + (i + 0x14) * 16` and the part indices as `this + i * 16 + 0x148`),
+0x1044B2A0 (56 %, the engine reuses the dead float parameter's slot), 0x1044B480 (24 %) and 0x1044D200 (46 %, the
+audio message's destructor is declared out of line in audiomessage.h; the engine has none and shares the tail that
+sends the message). The ring size that 0x1044D730 needs is written out by hand (`begin <= end ? end - begin :
+(end - array) + (arrayEnd - begin)`); calling `PathRing::Count` there keeps it out of line.
 
 Not started (all are large; what is known): 0x10447740 sets the physics up (the LOD message, the object's bounds
 into a box with the identity matrix, the collision object of 0x84 bytes, the handle, the filter 0x8000 / 0x2000, the
