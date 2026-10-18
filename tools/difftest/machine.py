@@ -44,6 +44,10 @@ FP = [UC_X86_REG_FP0, UC_X86_REG_FP1, UC_X86_REG_FP2, UC_X86_REG_FP3, UC_X86_REG
 
 # instruction counts, hook counts and wall time per hook, when profiling is on (bench.py --profile)
 PROFILE = False
+# instructions per emu_start: the run checks its deadline between chunks
+CHUNK = 100000
+# jmp dword ptr [address]: the engine's stub for an imported function
+IMPORT_THUNK = bytes([0xFF, 0x25])
 
 _rdtscImage = None
 
@@ -506,7 +510,9 @@ class Machine:
 				if start <= insnAddress < end:
 					self.trace.executed.add(insnAddress)
 					break
-		if address != self.entryAddress and (address in self.functionStarts or (self.ours is not None and address in self.ours)):
+		# an import thunk (jmp dword ptr [import]) is not logged: the external call it leads to is
+		if address != self.entryAddress and (address in self.functionStarts or (self.ours is not None and address in self.ours)) \
+				and self.read(address, 2) != IMPORT_THUNK:
 			esp = uc.reg_read(UC_X86_REG_ESP)
 			frame = self.read(esp, 36)
 			words = struct.unpack("<9I", frame) if frame is not None and len(frame) == 36 else (0,) * 9
@@ -673,7 +679,9 @@ class Machine:
 				# given (Windows timer resolution), which dominates functions that call out often. The
 				# instruction `count` bounds a single segment; the deadline at the top of the loop bounds
 				# the wall clock across segments.
-				uc.emu_start(pc, self.layout.ret, count=remaining)
+				# the count is also cut into chunks, so the deadline is checked every CHUNK instructions even in a
+				# function that never calls out (a variant spinning in a loop kept the game frozen for minutes)
+				uc.emu_start(pc, self.layout.ret, count=min(remaining, CHUNK))
 			except UcError as e:
 				if PROFILE:
 					self.stats["emu"] += time.perf_counter() - t0
@@ -695,6 +703,12 @@ class Machine:
 			if eip == self.layout.ret:
 				self.lastBlock = None
 				break
+			if self.trace.instructions < budget and remaining > CHUNK:
+				# stopped at a chunk boundary: go on from here after the deadline check at the top
+				self.adjustPartialBlock(eip, False)
+				self.lastBlock = None
+				pc = eip
+				continue
 			self.trace.timedOut = True
 			self.adjustPartialBlock(eip, False)
 			break

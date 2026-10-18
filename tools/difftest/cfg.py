@@ -91,12 +91,21 @@ def registerInputs(code, address, limit=400):
 					and insn.operands[0].reg in (X86_REG_EBP, X86_REG_ESP) and insn.operands[1].type != X86_OP_MEM:
 				continue
 			prologue = False
+		# a save of a callee-saved register later in the function (the compiler often pushes esi / edi only on the
+		# path that needs them) is not an argument either, as long as the register was not written before
+		if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved 				and insn.operands[0].reg not in written:
+			continue
 		read, write = insn.regs_access()
 		# an operand's memory base / index registers count as reads too (capstone lists them in regs_access)
 		for reg in read:
 			full = FULL.get(reg)
 			if full is not None and full not in written:
 				inputs.add(NAMES[full])
+		# or reg, -1 defines the register too (all ones)
+		if insn.mnemonic == "or" and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG 				and insn.operands[1].type == X86_OP_IMM and insn.operands[1].imm & 0xFFFFFFFF == 0xFFFFFFFF:
+			full = FULL.get(insn.operands[0].reg)
+			if full is not None and full not in written:
+				inputs.discard(NAMES[full])
 		# xor reg, reg and sub reg, reg define the register without reading it
 		if insn.mnemonic in ("xor", "sub", "pxor") and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG \
 				and insn.operands[1].type == X86_OP_REG and insn.operands[0].reg == insn.operands[1].reg:

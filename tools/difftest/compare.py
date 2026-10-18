@@ -146,7 +146,8 @@ def compareTraces(engine, ours, context):
 	if o["esp"] != e["esp"]:
 		add(Finding("FAIL", "stack", "esp after return: engine 0x%08X, ours 0x%08X (entry 0x%08X): different stack cleanup" % (e["esp"], o["esp"], context.entryEsp)))
 	kind = context.returnKind
-	if kind in ("int", "int64", None) and o["eax"] != e["eax"]:
+	mask = {"byte": 0xFF, "word": 0xFFFF}.get(kind, 0xFFFFFFFF)
+	if kind in ("int", "int64", "byte", "word", None) and o["eax"] & mask != e["eax"] & mask:
 		add(Finding("FAIL", "return", "eax: engine 0x%08X, ours 0x%08X" % (e["eax"], o["eax"])))
 	if kind == "int64" and o["edx"] != e["edx"]:
 		add(Finding("FAIL", "return", "edx: engine 0x%08X, ours 0x%08X" % (e["edx"], o["edx"])))
@@ -261,8 +262,11 @@ def normalizedArguments(call, machine, count, regs, context):
 	the two builds differ, so such addresses legitimately differ; their contents are compared apart) and
 	pointers to constants replaced by the constants themselves."""
 	values = []
+	masks = project.stackSlotMasks(call["name"][5:] if call["name"].startswith("ours:") else call["name"]) or []
 	for key in [r for r in ("ecx", "edx", "eax") if r in regs] + list(range(count)):
 		value = call[key] if isinstance(key, str) else (call["args"][key] if key < len(call["args"]) else 0)
+		if not isinstance(key, str) and key < len(masks):
+			value &= masks[key]
 		if machine.isPrivate(value):
 			values.append("STK")
 			continue
@@ -277,7 +281,12 @@ def compareCalls(engine, ours, context, add):
 	for i, (ec, oc) in enumerate(zip(eCalls, oCalls)):
 		count = context.calleeArgCount(ec)
 		regs = context.registerArguments(ec)
-		sameName = ec["name"] == oc["name"] or (ec["address"] == oc["address"])
+		# a call to our own copy of the same function (the hybrid DLL links ours to it) is the same callee; our
+		# copy keeps its own register convention, so only its stack arguments are compared
+		ownCopy = oc["name"] == "ours:" + ec["name"]
+		if ownCopy:
+			regs = set()
+		sameName = ec["name"] == oc["name"] or ownCopy or (ec["address"] == oc["address"])
 		if not sameName:
 			if oc["name"].startswith("ours:") and not ec["name"].startswith("?"):
 				add(Finding("WARN", "calls", "call %d: engine calls %s, ours its own copy %s (an unnamed local helper; add it to symbols.txt to pair them)" % (i, ec["name"], oc["name"])))

@@ -196,10 +196,12 @@ def returnKind(mangled):
 	(eax, pointers and bools included); None when the name is not a decorated C++ name."""
 	if not mangled or not mangled.startswith("?"):
 		return None
-	m = re.search(r"@@([A-Z$])([ABCD]?)([AEGI])(.+)$", mangled)
+	# the function code: Y/Z (global) and S/K/C (static member) are followed by the convention alone, a non-static
+	# member by its this-qualifier (A, B, ...) and then the convention; the return type comes next
+	m = re.search(r"@@([YZSKC])([AEGI])(.+)$", mangled) or re.search(r"@@([A-Z$])([ABCD])([AEGI])(.+)$", mangled)
 	if not m:
 		return None
-	rest = m.group(4)
+	rest = m.group(m.lastindex)
 	code = rest[:2] if rest.startswith("_") else rest[:1]
 	if code == "@":  # constructors return this in eax, destructors nothing
 		return "void" if mangled.startswith("??1") else "int"
@@ -209,17 +211,67 @@ def returnKind(mangled):
 		return "float"
 	if code in ("_J", "_K"):
 		return "int64"
+	if code in ("_N", "C", "D", "E"):
+		return "byte"  # bool and the chars come back in al; the rest of eax is whatever was there
+	if code in ("F", "G"):
+		return "word"
 	return "int"
+
+
+_slotMasks = {}
+
+
+def stackSlotMasks(mangled):
+	"""For each stack dword of a function's arguments, the mask of the bytes that carry the value (a bool or
+	char argument uses one byte of its dword, a short two; the rest is whatever the caller had in the register it
+	pushed), from the declaration dbghelp undecorates the name to; None when the name cannot be read."""
+	if mangled in _slotMasks:
+		return _slotMasks[mangled]
+	masks = None
+	if mangled and mangled.startswith("?"):
+		import ctypes
+		buffer = ctypes.create_string_buffer(2048)
+		if ctypes.windll.dbghelp.UnDecorateSymbolName(mangled.encode("latin-1"), buffer, len(buffer), 0):
+			text = buffer.value.decode("latin-1")
+			inside = text[text.rfind("(") + 1:text.rfind(")")] if "(" in text else ""
+			depth, parts, current = 0, [], ""
+			for ch in inside:
+				depth += ch == "<"
+				depth -= ch == ">"
+				if ch == "," and depth == 0:
+					parts.append(current.strip())
+					current = ""
+				else:
+					current += ch
+			if current.strip():
+				parts.append(current.strip())
+			masks = []
+			for part in parts:
+				if part in ("void", "...") or "*" in part or "&" in part:
+					if part != "void":
+						masks.append(0xFFFFFFFF)
+					continue
+				words = part.replace("const", "").replace("volatile", "").split()
+				if "double" in words or "__int64" in words:
+					masks += [0xFFFFFFFF, 0xFFFFFFFF]
+				elif "char" in words or "bool" in words:
+					masks.append(0xFF)
+				elif "short" in words or "wchar_t" in words:
+					masks.append(0xFFFF)
+				else:
+					masks.append(0xFFFFFFFF)
+	_slotMasks[mangled] = masks
+	return masks
 
 
 def callingConvention(mangled):
 	"""'thiscall', 'cdecl', 'stdcall', 'fastcall' or None from a decorated name."""
 	if not mangled or not mangled.startswith("?"):
 		return None
-	m = re.search(r"@@([A-Z$])([ABCD]?)([AEGI])", mangled)
+	m = re.search(r"@@([YZSKC])([AEGI])", mangled) or re.search(r"@@([A-Z$])([ABCD])([AEGI])", mangled)
 	if not m:
 		return None
-	return {"A": "cdecl", "E": "thiscall", "G": "stdcall", "I": "fastcall"}[m.group(3)]
+	return {"A": "cdecl", "E": "thiscall", "G": "stdcall", "I": "fastcall"}[m.group(m.lastindex)]
 
 
 def stateDirectory(address):
