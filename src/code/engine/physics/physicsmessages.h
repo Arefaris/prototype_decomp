@@ -86,6 +86,20 @@ namespace engine
 
 		bool enabled;
 	};
+
+	// Switches the physics simulation of the object on or off (id 0x11)
+	struct PhysicsSetEnabledMessage : public IntrusiveMessage
+	{
+		explicit PhysicsSetEnabledMessage(bool newEnabled) : IntrusiveMessage(3, 0x11)
+		{
+			enabled = newEnabled;
+		}
+		virtual ~PhysicsSetEnabledMessage()
+		{
+		}
+
+		bool enabled;
+	};
 }
 
 #endif

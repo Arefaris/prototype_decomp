@@ -8,6 +8,7 @@
 #include "code/core/refptr.h"
 #include "code/core/report.h"
 #include "code/engine/physics/physicsmessages.h"
+#include "code/math/random.h"
 #include "code/ravenphysics/physicsobject.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/math/matrix.h"
@@ -25,7 +26,9 @@ namespace proto
 	public:
 		unsigned char unknown0[0x28];
 		container::ListBase::Node* vehicles;
-		unsigned char unknown2C[0x40 - 0x2c];
+		unsigned char unknown2C[0x38 - 0x2c];
+		short vehicleCount;
+		unsigned char unknown3A[0x40 - 0x3a];
 	};
 
 	class NavMesh
@@ -126,6 +129,40 @@ namespace proto
 
 	// The widest angle a wheel is turned to (0x1108CB20, fifty degrees)
 	static float sMaxWheelAngle = 0.87266463f;
+
+	// The attribute of a game object that holds its drawable (the name at 0x112834C8) and the part lookup of the
+	// drawable (0x106DD6D0, which forwards to a member at +0x10)
+	extern content::ObjectName gDrawableAttributeName;
+	struct PartLookup
+	{
+		int FindPart(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x10445C20: the part by its text
+		int FindPart(const char* name);
+	};
+
+	// FUNCTION: ENGINE 0x10445C20
+	int PartLookup::FindPart(const char* name)
+	{
+		return FindPart(core::Name<core::CaseSensitiveKey>(name, 1));
+	}
+
+	// The query for the level of detail the car is drawn at (RTTI: proto::GetRenderLODIndex; type 0x3D, id 9; the
+	// answer, zero when the car has a drawable of its own, comes back in the message)
+	struct GetRenderLODIndex : public engine::IntrusiveMessage
+	{
+		GetRenderLODIndex() : engine::IntrusiveMessage(0x3d, 9)
+		{
+			index = 0;
+		}
+		virtual ~GetRenderLODIndex()
+		{
+		}
+
+		int index;
+	};
+
+	// The probe distance the car's placement test is given (0x1108CB14, all ones)
+	static int sPlacementProbe = -1;
 
 	// FUNCTION: ENGINE 0x10443550
 	PathNode* VehicleBehaviour::GetPathNode(int index)
@@ -247,6 +284,56 @@ namespace proto
 		return TransformPoint(wheelRear);
 	}
 
+	// FUNCTION: ENGINE 0x1044BBC0
+	void VehicleBehaviourAmbient::Slot9(int state)
+	{
+		if (unknownA4 == state)
+		{
+			return;
+		}
+		if (state == 0)
+		{
+			if (!halted)
+			{
+				engine::GetPhysicsObjectMessage query;
+				owner->PostMessage(&query);
+				if (query.handle.IsValid())
+				{
+					if ((query.handle.GetObject()->collisionMode & 3) != 1)
+					{
+						return;
+					}
+				}
+			}
+			StopSimulation();
+			UpdateNodeDistance();
+			engine::PhysicsSetEnabledMessage message(false);
+			owner->SendMessage(&message);
+		}
+		else
+		{
+			if (state == 2)
+			{
+				math::Matrix& matrix = owner->transform->value;
+				math::Vector row(matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]);
+				math::Vector forward = -row;
+				math::Matrix& placement = owner->transform->value;
+				math::Vector position(placement.m[3][0], placement.m[3][1], placement.m[3][2]);
+				char probe[0x3c];
+				Unknown104416E0(&position, &forward, &extents, probe);
+				if (!Unknown10441B30(owner, probe, &sPlacementProbe))
+				{
+					unknown9D = true;
+					return;
+				}
+				Unknown10446810();
+				engine::PhysicsSetEnabledMessage message(true);
+				owner->SendMessage(&message);
+			}
+		}
+		unknownA4 = state;
+	}
+
 	// FUNCTION: ENGINE 0x1044C1C0
 	void VehicleBehaviourAmbient::SetParked(bool parked)
 	{
@@ -290,6 +377,91 @@ namespace proto
 			sequencer.Reset();
 		}
 	}
+
+	// FUNCTION: ENGINE 0x1044CEA0
+	// NONMATCHING: the same two random draws, spreads and stores in the same order, but the engine's float schedule
+	// and the registers of the inlined generator steps differ (it keeps the first conversion before the draw and the
+	// generator pointer in esi), 40 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::Unknown1044CEA0()
+	{
+		unknown17C = 0.4f;
+		float speedRandom = math::gRandom->NextFloat01();
+		float speedSpread = ((float)unknown174 + 1.0f) * 5.0f;
+		unknownF0 = speedRandom * speedSpread + vehicleProperties->maxSpeed;
+		float accelerationRandom = math::gRandom->NextFloat01();
+		float accelerationSpread = (float)unknown174 * 0.5f;
+		unknownF4 = accelerationRandom * accelerationSpread + vehicleProperties->accelerationForce;
+		unknownF8 = vehicleProperties->brakingForce;
+		unknownA8 = 0.0f;
+		SetParked(false);
+	}
+#endif
+
+	// The registry that maps a name of a car to the target the cars aim at (the global at 0x11267730)
+	class TargetRegistry
+	{
+	public:
+		// 0x104085B0
+		unsigned int* Find(unsigned int* result, const void* key);
+	};
+	extern TargetRegistry* gTargetRegistry;
+	// The name of the cars that are parked for good (0x112691D0)
+	extern core::Name<core::CaseSensitiveKey> gParkedCarName;
+
+	// FUNCTION: ENGINE 0x1044C220
+	void VehicleBehaviourAmbient::OnCollision(CollisionMessage* message)
+	{
+		if (mode != 1 && !(name == gParkedCarName))
+		{
+			switch (message->surface)
+			{
+			case 1:
+			case 2:
+			case 4:
+			case 6:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 0x13:
+				if (!(math::gRandom->Range(0.0f, 1.0f) < 0.6f))
+				{
+					SetParked(true);
+					unsigned int target;
+					SetTargetMessage notice(*gTargetRegistry->Find(&target, (char*)message + 0xc));
+					owner->SendMessage(&notice);
+				}
+				break;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1044D0F0
+	// NONMATCHING: the tests and the two chances are the engine's, but the engine reads the lane's record through
+	// register conventions of its unit and compares the answer with zero on the x87 stack, 40 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::UpdateLaneChange()
+	{
+		if (*(int*)((char*)unknown74 + 0x20) == 1)
+		{
+			PathNode* first = path88.At(0);
+			unsigned short index = *(unsigned short*)((char*)first->areaLink + 2);
+			engine::GameObjectHandle handle;
+			if (index != 0xffff)
+			{
+				handle = ((engine::GameObjectHandle*)gNavMesh->areas)[index];
+			}
+			if (Unknown10431520(&handle, Unknown10567F60(first->link)) != 0.0f)
+			{
+				unknown170 = Unknown1044C340(1.0f);
+				return;
+			}
+		}
+		unknown170 = Unknown1044C340(4.5f);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1044DA10
 	VehicleBehaviourAmbient::~VehicleBehaviourAmbient()
@@ -503,6 +675,37 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1044AAB0
+	void VehicleBehaviourAmbient::FindWheelParts()
+	{
+		if (wheelPart1 == 0xffff)
+		{
+			GetRenderLODIndex query;
+			owner->SendMessage(&query);
+			if (query.index == 0)
+			{
+				engine::BaseAttribute* attribute = owner->FindAttribute(gDrawableAttributeName);
+				if (attribute != 0)
+				{
+					PartLookup** slot = &static_cast<engine::Attribute<PartLookup*>*>(attribute)->value;
+					if (slot != 0)
+					{
+						PartLookup* drawable = *slot;
+						if (drawable != 0)
+						{
+							wheelPart1 = drawable->FindPart("w1");
+							wheelPart2 = drawable->FindPart("w2");
+							wheelPart3 = drawable->FindPart("w3");
+							wheelPart4 = drawable->FindPart("w4");
+							wheelPart5 = drawable->FindPart("w5");
+							wheelPart6 = drawable->FindPart("w6");
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1044B110
 	// EQUIVALENT: the same calls and float operations in the same order; the engine computes both coordinates of the
 	// facing before it stores the first one, ours stores x before it works z out, 76 %
@@ -542,6 +745,37 @@ namespace proto
 		}
 		Unknown10447280(0.0f);
 	}
+
+	// FUNCTION: ENGINE 0x10448440
+	// NONMATCHING: the same walk of the path and the same stop test, but the engine keeps this in ebx, the ring in esi
+	// and its start in ebp where ours uses ecx and ebp, 41 %
+#ifdef NONMATCHING
+	void VehicleBehaviourAmbient::CheckBlockedStop()
+	{
+		if (halted && mode != 1)
+		{
+			int count = path88.Count();
+			for (int i = 0; i < count; i++)
+			{
+				NavArea* area = GetArea(path88.At(i));
+				if (area->vehicleCount < 1)
+				{
+					math::Matrix& matrix = owner->transform->value;
+					math::Vector row(matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]);
+					math::Vector forward = -row;
+					math::Matrix& placement = owner->transform->value;
+					math::Vector position(placement.m[3][0], placement.m[3][1], placement.m[3][2]);
+					Unknown10443BD0(&position, &forward);
+					if (path88.begin == path88.end)
+					{
+						unknown9C = true;
+					}
+					return;
+				}
+			}
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10448FC0
 	bool VehicleBehaviourAmbient::FindNeighbourLanes(int* lower, int* upper)

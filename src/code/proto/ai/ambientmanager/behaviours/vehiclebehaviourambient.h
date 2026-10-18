@@ -12,12 +12,18 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/fight/behaviours/fighttreebehaviour.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
 namespace math
 {
 	class Matrix;
+}
+
+namespace engine
+{
+	class GameObject;
 }
 
 namespace proto
@@ -155,8 +161,8 @@ namespace proto
 		// Slots 8 - 10 are the vehicle layer's own (0x10442160, 0x10443870, 0x104421A0 in VehicleBehaviour); the
 		// ambient car overrides them with 0x104455B0, 0x1044BBC0 and 0x104455C0. Only slot 10 is called here. Its
 		// answer is a "this vehicle blocks the query" test (name guessed).
-		virtual void Slot8();
-		virtual void Slot9();
+		virtual bool Slot8();
+		virtual void Slot9(int state);
 		virtual bool IsBlocking();
 
 		// 0x104421F0: the byte at +0x84, set to 1 by the halt path (0x1044BF10)
@@ -231,6 +237,37 @@ namespace proto
 		bool enabled;
 	};
 
+	// The messages that name a target (RTTI: proto::TargetMessage, proto::SetTargetMessage; type 0x20, id 2; the
+	// target at +0xC)
+	class TargetMessage : public engine::IntrusiveMessage
+	{
+	public:
+		TargetMessage(short newId) : engine::IntrusiveMessage(0x20, newId)
+		{
+		}
+	};
+
+	class SetTargetMessage : public TargetMessage
+	{
+	public:
+		explicit SetTargetMessage(unsigned int newTarget) : TargetMessage(2)
+		{
+			target = newTarget;
+		}
+		virtual ~SetTargetMessage()
+		{
+		}
+
+		unsigned int target;
+	};
+
+	// What a collision message tells (type 0x25, id 2): the object hit, and the kind of surface at +0x28
+	struct CollisionMessage : public engine::IntrusiveMessage
+	{
+		unsigned char unknownC[0x28 - 0xc];
+		int surface;
+	};
+
 	class VehicleBehaviourAmbient : public VehicleBehaviour
 	{
 	public:
@@ -241,8 +278,8 @@ namespace proto
 		virtual void OnActiveChanged(bool active);
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
-		virtual void Slot8();
-		virtual void Slot9();
+		virtual bool Slot8();
+		virtual void Slot9(int state);
 		virtual bool IsBlocking();
 
 		static content::ClassInfo* GetClassInfo();
@@ -264,6 +301,14 @@ namespace proto
 		// 0x1044DB40 (type 2): the car stands still again
 		void OnReset();
 
+		// 0x1044C220: a collision: the car may park and tell its target about it
+		void OnCollision(CollisionMessage* message);
+		// 0x1044D0F0: decides whether the car changes lanes
+		void UpdateLaneChange();
+		// 0x1044C340 (the lane change attempt; the argument is a chance), 0x10567F60 / 0x10431520
+		bool Unknown1044C340(float chance);
+		float Unknown10431520(engine::GameObjectHandle* handle, int lanes);
+		int Unknown10567F60(PathNode::Link* link);
 		// 0x1044C1C0: sets the mode to parked or driving and applies it
 		void SetParked(bool parked);
 		// 0x1044B1F0: applies the mode (the intersection test mask of the physics object)
@@ -294,11 +339,22 @@ namespace proto
 		bool TryHalt();
 		// 0x104482B0: the distance to the next node of the path
 		bool UpdateNodeDistance();
+		// 0x10448440: when the car is halted and an area of its path is empty of cars, moves it on
+		void CheckBlockedStop();
+		// 0x10443BD0 (the position, the forward direction)
+		void Unknown10443BD0(math::Vector* position, math::Vector* forward);
 		// 0x10448FC0: the numbers of the lanes next to the one the car is in (-1 for none); false when it has no neighbour
 		bool FindNeighbourLanes(int* lower, int* upper);
 		// 0x10447280 (the argument is not read) / 0x1044CEA0
 		void Unknown10447280(float unused);
 		void Unknown1044CEA0();
+		// 0x104416E0 / 0x10441B30 / 0x10446810 (the placement test of a car: the matrix a car at the position would
+		// have, whether it fits there, and the settling that follows)
+		static void Unknown104416E0(math::Vector* position, math::Vector* forward, math::Vector* extents, void* result);
+		static bool Unknown10441B30(engine::GameObject* owner, void* probe, int* probeResult);
+		void Unknown10446810();
+		// 0x1044AAB0: finds the drawable's wheel parts once
+		void FindWheelParts();
 		// 0x1044B110: points the desired facing at the place five metres further along the path
 		void AimAhead(int unused, const math::Vector* from, int* progress);
 		// 0x10442900 / 0x10447D20 (path walks: the first measures from a position along the path, the second finds the
@@ -331,14 +387,31 @@ namespace proto
 		unsigned char unknownE9[0xec - 0xe9];
 		// +0xec: the tuning record ("vehicleProperties", reached by reference)
 		VehicleProperties* vehicleProperties;
-		unsigned char unknownF0[0x100 - 0xf0];
+		float unknownF0;          // +0xf0, +0xf4, +0xf8: the car's speed, acceleration and braking (0x1044CEA0)
+		float unknownF4;
+		float unknownF8;
+		unsigned char unknownFC[0x100 - 0xfc];
 		bool simulated;            // +0x100
 		unsigned char unknown101[0x104 - 0x101];
 		math::Vector desiredFacing;   // +0x104
 		unsigned char unknown110[0x11c - 0x110];
 		ravenphysics::ObjectHandle physicsHandle;   // +0x11c
 		float turningAngle;        // +0x120: the steering angle (0x10446A70)
-		unsigned char unknown124[0x188 - 0x124];
+		unsigned char unknown124[0x148 - 0x124];
+		int wheelPart1;            // +0x148, +0x14c, +0x158, +0x15c, +0x168, +0x16c: the drawable's parts "w1" .. "w6"
+		int wheelPart2;
+		unsigned char unknown150[0x158 - 0x150];
+		int wheelPart3;
+		int wheelPart4;
+		unsigned char unknown160[0x168 - 0x160];
+		int wheelPart5;
+		int wheelPart6;
+		bool unknown170;           // +0x170: set while the car changes lanes
+		unsigned char unknown171[0x174 - 0x171];
+		int unknown174;            // +0x174: a random number below three picked when the car is set up
+		unsigned char unknown178[0x17c - 0x178];
+		float unknown17C;          // +0x17c
+		unsigned char unknown180[0x188 - 0x180];
 		int mode;                  // +0x188
 		unsigned char unknown18C[0x198 - 0x18c];
 		float unknown198;          // +0x198: the distance to the next path node less one (0x104482B0)
