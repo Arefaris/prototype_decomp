@@ -5,6 +5,7 @@
 #ifndef PURE3D_POSEDATA_H
 #define PURE3D_POSEDATA_H
 
+#include "code/core/name.h"
 #include "code/math/matrix.h"
 #include "code/math/quaternion.h"
 #include "code/math/vector4.h"
@@ -14,8 +15,16 @@ namespace pure3d
 	// The joints an animation drives: bit n of the words after the first is set for joint n
 	struct JointMask
 	{
-		unsigned int unknown0;
+		unsigned int jointCount;
 		unsigned int words[1];
+	};
+
+	// A group of up to three joints of a skeleton (0x20 bytes): the joints are the bits a file sets in a mask
+	struct SkeletonLimb
+	{
+		core::Name<core::CaseSensitiveKey> name;
+		unsigned int joints[3];
+		unsigned char unknown14[0xC];
 	};
 
 	// The skeleton's part that the poses read: the Skeleton's own members from +8. The rest pose of every joint is
@@ -23,14 +32,19 @@ namespace pure3d
 	struct SkeletonData
 	{
 		unsigned int mJointCount;
-		unsigned char unknown4[4];
+		// How many limbs (groups of up to three joints) the skeleton has
+		unsigned int mLimbCount;
 		math::Quaternion* mRotations;
 		math::Vector4* mTranslations;
 		math::Vector4* mUnknown10;
 		math::Vector4* mScales;
 		math::Vector4* mUnknown18;
 		math::Vector4* mUnknown1C;
-		unsigned char unknown20[0x10];
+		unsigned char unknown20[8];
+		// The limbs (mLimbCount of them)
+		SkeletonLimb* mLimbs;
+		// The joints' matrices in the file (relative to their parents)
+		math::Matrix* mFileMatrices;
 		// The bind pose's joint matrices
 		math::Matrix* mJoints;
 		// The inverses of the bind pose matrices
@@ -41,6 +55,8 @@ namespace pure3d
 		int* mUnknown3C;
 		// Per joint: nonzero when the scale of the parent is divided out
 		signed char* mUnknown40;
+		// The name of every joint
+		core::Name<core::CaseSensitiveKey>* mNames;
 	};
 
 	// The per-joint transforms of a pose: the rotation, translation, scale and three further kinds of three-component

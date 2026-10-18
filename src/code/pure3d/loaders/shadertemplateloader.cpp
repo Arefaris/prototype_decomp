@@ -16,9 +16,9 @@ namespace pure3d
 	extern int gShaderInputKinds[6];
 
 	// FUNCTION: ENGINE 0x10B95780
-	// NONMATCHING: the frame differs in the order of the four name buffers and the scalars (39 %, the control flow
-	// and the calls are the engine's)
-#ifdef NONMATCHING
+	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (39 %); the engine lays the
+	// frame out in 16 bytes more (the name buffers and the matrix keep separate slots) and keeps other scalars in
+	// registers
 	void ShaderTemplateLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
@@ -90,7 +90,7 @@ namespace pure3d
 							found = true;
 							char value;
 							reader->Read(&value, 1, 1, 1);
-							inputs.SetBool(kind, inputKey, value != 0);
+							inputs.SetBool(kind, inputName, value != 0);
 							break;
 						}
 						case 0x11010:
@@ -98,7 +98,7 @@ namespace pure3d
 							found = true;
 							float value;
 							reader->Read(&value, 1, 4, 1);
-							inputs.SetFloat(kind, inputKey, value);
+							inputs.SetFloat(kind, inputName, value);
 							break;
 						}
 						case 0x11011:
@@ -106,7 +106,7 @@ namespace pure3d
 							found = true;
 							float value[2];
 							reader->Read(value, 2, 4, 1);
-							inputs.SetVector2(kind, inputKey, value);
+							inputs.SetVector2(kind, inputName, value);
 							break;
 						}
 						case 0x11012:
@@ -114,7 +114,7 @@ namespace pure3d
 							found = true;
 							float value[3];
 							reader->Read(value, 3, 4, 1);
-							inputs.SetVector3(kind, inputKey, value);
+							inputs.SetVector3(kind, inputName, value);
 							break;
 						}
 						case 0x11013:
@@ -122,7 +122,7 @@ namespace pure3d
 							found = true;
 							float value[4];
 							reader->Read(value, 4, 4, 1);
-							inputs.SetVector4(kind, inputKey, value);
+							inputs.SetVector4(kind, inputName, value);
 							break;
 						}
 						case 0x11014:
@@ -130,7 +130,7 @@ namespace pure3d
 							found = true;
 							float value[16];
 							reader->Read(value, 16, 4, 1);
-							inputs.SetMatrix(kind, inputKey, value);
+							inputs.SetMatrix(kind, inputName, value);
 							break;
 						}
 						case 0x1100F:
@@ -202,7 +202,7 @@ namespace pure3d
 							sampler.g = first;
 							sampler.h = h;
 							sampler.unknown0 = 0;
-							inputs.SetSampler(kind, inputKey, &sampler);
+							inputs.SetSampler(kind, inputName, &sampler);
 							break;
 						}
 						}
@@ -210,10 +210,10 @@ namespace pure3d
 					}
 					if (!found)
 					{
-						inputs.SetDefault(kind, inputKey);
+						inputs.SetDefault(kind, inputName);
 					}
 				}
-							break;
+				break;
 			}
 			case 0x1100A:
 			{
@@ -272,7 +272,7 @@ namespace pure3d
 					}
 				}
 				shaderTemplate->AddPass(passName, vertexProgram, pixelProgram, &state, 0);
-							break;
+				break;
 			}
 			}
 			reader->EndChunk();
@@ -281,5 +281,4 @@ namespace pure3d
 		*object = 0;
 		*name = content::ObjectName((const char*)0, 1);
 	}
-#endif
 }

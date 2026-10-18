@@ -12,14 +12,53 @@ namespace pure3d
 {
 	class Pose;
 
-	// (RTTI: bases content::LoadObject, core::IRefCount; 5 vftable slots)
+	class Skeleton;
+
+	// The names a skeleton keeps for debugging when the engine is told to (0x18 bytes, name guessed)
+	struct SkeletonDebugInfo
+	{
+		// 0x106DD980
+		explicit SkeletonDebugInfo(Skeleton* owner);
+
+		Skeleton* skeleton;
+		char* name;
+		char** jointNames;
+		unsigned int partitionCount;
+		char** partitionNames;
+		char** limbNames;
+	};
+
+	// (RTTI: bases content::LoadObject, core::IRefCount; 5 vftable slots; 0x60 bytes)
 	class Skeleton : public content::LoadObject
 	{
 	public:
+		// RTTI pure3d::Skeleton::Partition (1 vftable slot, 0x18 bytes): a named set of joints
+		class Partition
+		{
+		public:
+			virtual ~Partition();
+
+			unsigned char unknown4[4];
+			core::Name<core::CaseSensitiveKey> name;
+			JointMask* joints;
+			unsigned char unknown14[4];
+		};
+
+		// 0x106DDF20: a skeleton of that many joints, partitions and limbs (the arrays are allocated, the partitions'
+		// joint masks cleared)
+		Skeleton(unsigned int jointCount, unsigned int partitionCount, unsigned int limbCount);
+		virtual ~Skeleton();
+
+		// 0x106DDAA0: builds the bind pose from what a file gave
+		void Finish();
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
 
 		SkeletonData mData;
+		unsigned char unknown50[4];
+		SkeletonDebugInfo* debugInfo;
+		unsigned int partitionCount;
+		Partition* partitions;
 	};
 
 	class LockableRefCounted : public core::IRefCount

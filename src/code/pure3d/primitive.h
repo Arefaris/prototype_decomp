@@ -79,18 +79,18 @@ namespace pure3d
 		pddiShaderInputInitData(const pddiShaderInputInitData& other);
 		~pddiShaderInputInitData();
 
-		// The value of the input of that kind and name (0x106138A0 - 0x10613990; the input keeps the default when
+		// The value of the input of that kind and name (the name is made into a core::Name inside) (0x106138A0 - 0x10613990; the input keeps the default when
 		// 0x10613870 is called instead)
-		void SetBool(int kind, const core::Name<core::CaseInsensitiveKey32>& name, bool value);
-		void SetFloat(int kind, const core::Name<core::CaseInsensitiveKey32>& name, float value);
-		void SetVector2(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
-		void SetVector3(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
-		void SetVector4(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
-		void SetMatrix(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void SetBool(int kind, const char* name, bool value);
+		void SetFloat(int kind, const char* name, float value);
+		void SetVector2(int kind, const char* name, const float* value);
+		void SetVector3(int kind, const char* name, const float* value);
+		void SetVector4(int kind, const char* name, const float* value);
+		void SetMatrix(int kind, const char* name, const float* value);
 		// 0x106139F0: a sampler
-		void SetSampler(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const SamplerSetting* value);
+		void SetSampler(int kind, const char* name, const SamplerSetting* value);
 		// 0x10613870: the default value
-		void SetDefault(int kind, const core::Name<core::CaseInsensitiveKey32>& name);
+		void SetDefault(int kind, const char* name);
 
 		void* unknown0;
 		int unknown4;

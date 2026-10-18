@@ -36,6 +36,9 @@ namespace content
 		unsigned int GetChunkId();
 		// 0x1060BA90: closes the chunk
 		void EndChunk();
+		// 0x105FF620: reads a length byte and that many characters into the buffer and terminates it; answers the
+		// buffer
+		char* ReadString(char* buffer);
 		// Reads from the stream the chunks come from
 		__forceinline void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown)
 		{
