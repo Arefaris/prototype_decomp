@@ -3584,3 +3584,20 @@ and the deformation message); 0x10449680 sets the car on the ground (the height 
 physics world, 3062 bytes); 0x1044C340 executes a lane change (the neighbour lanes from 0x10448FC0, the path nodes
 rebuilt around the new lane, 2322 bytes); 0x1044DB60 is the
 collision handler (the contact, the damage routine, the horn and the state change to mode 3).
+
+## mp-game session (2026-10-18): matching with the engine's own containers
+
+What solved the two functions below: the engine's inline code works on the container classes (`ArrayDynamicHeap<T>` and
+the dent buffer, an `ArrayFixed`-shaped array), through `IsEmpty()`, `Size()` and `operator[]`; the earlier sources used
+the same members as raw pointers and compiled to the same instructions with other registers. The register choices of
+VS2005 depend on the inline functions' parameters (an inlined member keeps its `this`), so the container methods and the
+access path (through the array object or through the owner) are part of the source.
+
+- 0x102DC5F0 `LODRenderBehaviour::Slot1` **matches**. `ready` (+0x40) and `levels` (+0x50) are
+  `container::ArrayDynamicHeap<LODReady>` / `<LODLevel>` (begin, end, capacity and the heap word; the old header had them
+  as pointer pairs with unknown words between). The tests are `!ready.IsEmpty() && !levels.IsEmpty()`, the first ready
+  record is `ready[0]`, the loops run to `ready.Size()` / `levels.Size()`, and `distanceLevel = 0` comes after the half
+  diagonal (so the zero shares eax with the loop counter). `UpdateFade`, `UpdateLevel` and `Update` keep matching.
+- 0x102D4C50 `DeformShaderModifier::Apply` **matches**: the emptiness test and the loop bound go through `dents.IsEmpty()`
+  / `dents.Size()` and the elements are read as `dents.dents[i]`; the old source reached all three through a local
+  `DentBuffer* buffer = &dents;`, which the compiler folded into the modifier's base register and CSE'd the end pointer.

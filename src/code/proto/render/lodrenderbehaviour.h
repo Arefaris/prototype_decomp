@@ -5,6 +5,7 @@
 #ifndef PROTO_RENDER_LODRENDERBEHAVIOUR_H
 #define PROTO_RENDER_LODRENDERBEHAVIOUR_H
 
+#include "code/container/arraydynamic.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/math/aabb.h"
@@ -152,15 +153,10 @@ namespace proto
 		unsigned int distanceLevel;
 		// +0x3C: the smallest number of levels that is ever handed over
 		unsigned int minimumLevels;
-		// +0x40 / +0x44: the drawables that are ready (equal: none)
-		LODReady* readyBegin;
-		LODReady* readyEnd;
-		unsigned char unknown48[8];
-		// +0x50 / +0x54: the level table (8-byte records), +0x58 the end of its storage
-		LODLevel* levelsBegin;
-		LODLevel* levelsEnd;
-		LODLevel* levelsCapacity;
-		unsigned char unknown5C[4];
+		// +0x40: the drawables that are ready (begin, end, capacity and the heap; empty: none)
+		container::ArrayDynamicHeap<LODReady> ready;
+		// +0x50: the level table (8-byte records; the engine's inline code tests it for emptiness and walks it by index)
+		container::ArrayDynamicHeap<LODLevel> levels;
 		// +0x60: the level drawn now (-1: none yet)
 		unsigned int level;
 		// +0x64: how far the fade between two levels has run (0 - 1)

@@ -145,12 +145,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102D4C50
-	// EQUIVALENT: the same lookups, bindings and shader parameter writes in the same order; the engine keeps the
-	// binding in ebp and the buffer in ebx, computes the buffer's emptiness and size separately and spills the
-	// object and the part number the other way round (83 % of the instructions). Writes the dents into the shader
-	// parameters of every part that has the inputs for them, then deletes itself
-	// The engine tests the buffer with IsEmpty() and re-reads Size() in the loop condition; written so it is 58.9 %, the
-	// binding and the buffer then swap ebp / ebx.
 	void DeformShaderBehaviour::DeformShaderModifier::Apply(engine::render::DrawableImpl* drawable)
 	{
 		core::HeapScope scope(0xA8);
@@ -191,13 +185,12 @@ namespace proto
 							pure3d::PartRef setRef(drawable, part);
 							setRef.SetBinding(binding);
 						}
-						DentBuffer* buffer = &dents;
-						if (buffer->Size() != 0)
+						if (!dents.IsEmpty())
 						{
 							float values[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-							for (unsigned int i = 0; i < buffer->Size(); i++)
+							for (unsigned int i = 0; i < dents.Size(); i++)
 							{
-								const Dent& dent = buffer->dents[i];
+								const Dent& dent = dents.dents[i];
 								binding->shader->SetVector4(*damage[i],
 									math::Vector4(dent.position.x, dent.position.y, dent.position.z, dent.unknown10));
 								values[i] = dent.unknown1C;

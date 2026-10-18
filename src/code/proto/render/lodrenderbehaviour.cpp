@@ -23,7 +23,7 @@ namespace proto
 		// Reset through a reference: the store then stays ahead of the load and compare of the ready range
 		float& reset = fade;
 		reset = 1.0f;
-		if (readyBegin == readyEnd)
+		if (ready.IsEmpty())
 		{
 			return;
 		}
@@ -55,9 +55,9 @@ namespace proto
 	void LODRenderBehaviour::UpdateLevel()
 	{
 		unsigned int wanted = 0;
-		if ((flags & 1) != 0 && readyBegin != readyEnd)
+		if ((flags & 1) != 0 && !ready.IsEmpty())
 		{
-			unsigned int size = levelsEnd - levelsBegin;
+			unsigned int size = levels.Size();
 			float t = math::Clamp(fade, 0.0f, 1.0f);
 			wanted = (unsigned int)((1.0f - t) * (float)(unsigned int)(size - 1));
 		}
@@ -66,17 +66,10 @@ namespace proto
 		{
 			level = wanted;
 			unsigned int last = wanted >= minimumLevels ? wanted : minimumLevels;
-			ChangeDrawableLevels(previous, levelsBegin + wanted, levelsBegin + last);
+			ChangeDrawableLevels(previous, levels.begin + wanted, levels.begin + last);
 		}
 	}
 
-	// The first update: the entry of the shader palette is picked and every level gets its drawable bound
-	// FUNCTION: ENGINE 0x102DC5F0
-	// EQUIVALENT: scheduling (79.4 %): the half extents of the first ready drawable are subtracted, halved, squared and
-	// summed in the engine's order (z, y, x); this compiler only stores the distance level earlier and picks other
-	// registers
-	// Storing the distance level after the half diagonal gives the engine's store (its zero shared with the loop), but the
-	// ready / level tests and the joint loop then still use other registers (60 %).
 	inline float HalfDiagonal(const math::AABB& box)
 	{
 		math::Vector half;
@@ -87,6 +80,8 @@ namespace proto
 		return LengthOf(half);
 	}
 
+	// The first update: the entry of the shader palette is picked and every level gets its drawable bound
+	// FUNCTION: ENGINE 0x102DC5F0
 	void LODRenderBehaviour::Slot1()
 	{
 		ShaderPaletteData* entry = 0;
@@ -99,13 +94,13 @@ namespace proto
 		}
 		if ((flags & 8) == 0)
 		{
-			for (unsigned int i = 0; i < (unsigned int)(readyEnd - readyBegin); i++)
+			for (unsigned int i = 0; i < ready.Size(); i++)
 			{
-				AddLevel(readyBegin + i);
+				AddLevel(ready.begin + i);
 			}
-			for (unsigned int i = 0; i < (unsigned int)(levelsEnd - levelsBegin); i++)
+			for (unsigned int i = 0; i < levels.Size(); i++)
 			{
-				LODLevel* item = levelsBegin + i;
+				LODLevel* item = levels.begin + i;
 				if (entry != 0)
 				{
 					pure3d::pddiShaderInputInitData inputs;
@@ -119,11 +114,11 @@ namespace proto
 						pure3d::Animation::CYCLE_MODE_2);
 				}
 			}
-			if (readyBegin != readyEnd && levelsBegin != levelsEnd)
+			if (!ready.IsEmpty() && !levels.IsEmpty())
 			{
-				const math::AABB* box = readyBegin->source->GetBounds();
-				distanceLevel = 0;
+				const math::AABB* box = ready[0].source->GetBounds();
 				float length = HalfDiagonal(*box);
+				distanceLevel = 0;
 				for (int i = 0; i < 3; i++)
 				{
 					if (length < gLODDistances[i])
@@ -134,13 +129,13 @@ namespace proto
 				}
 			}
 		}
-		int count = levelsEnd - levelsBegin;
+		int count = levels.Size();
 		if (count != 0)
 		{
 			unsigned int joints = 0;
 			for (int i = 0; i < count; i++)
 			{
-				pure3d::Skeleton* skeleton = levelsBegin[i].drawable.GetSkeleton();
+				pure3d::Skeleton* skeleton = levels[i].drawable.GetSkeleton();
 				if (skeleton != 0 && skeleton->mData.mJointCount > joints)
 				{
 					joints = skeleton->mData.mJointCount;
