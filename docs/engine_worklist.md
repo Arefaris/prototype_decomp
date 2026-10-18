@@ -1446,8 +1446,9 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
 - EQUIVALENT (the same calls, arguments, branches and memory accesses in the same order; they differ in registers,
   the order of the frame's variables and the scheduling of the reader's stream loads, and are replayed against the
   engine's function with random chunk streams and stubbed callees): 0x10B91410 `CompositeDrawableLoader::LoadObject`
-  (42 %), 0x106DE090 `SkeletonLoader::LoadObject` (15 %), 0x10706960 `ShaderLoader::LoadObject` (42 %), 0x10B95780
-  `ShaderTemplateLoader::LoadObject` (39 %). What keeps them from matching: the engine keeps the inventory in ebp and a
+  (42 %), 0x106DE090 `SkeletonLoader::LoadObject` (15 %), 0x10B95780 `ShaderTemplateLoader::LoadObject` (39 %).
+  0x10706960 `ShaderLoader::LoadObject` (42 %) is NONMATCHING: on real states its draw parameters' bit word ends with
+  other bytes than the engine's (difftest). What keeps them from matching: the engine keeps the inventory in ebp and a
   zero in ebx through the chunk loop (this compiler picks other registers), `ShaderLoader` keeps the draw parameters'
   bit word in esi and writes it through after each change, `SkeletonLoader` saves edi only inside its block and caches
   the joint's kind in cx, `CompositeDrawableLoader` releases the controller loader inside each branch and keeps the heap

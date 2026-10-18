@@ -12,9 +12,9 @@
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10706960
-	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (42 %); the engine keeps
-	// the draw parameters' bit word in a register through the chunk loop and writes it back after each change, this
-	// compiler reads and writes it in memory, and the frame is 4 bytes larger
+	// NONMATCHING: 42 %; difftest on real states: the draw parameters' bit word ends with other bytes than the
+	// engine's (the engine keeps it in a register through the chunk loop and writes it back after each change)
+#ifdef NONMATCHING
 	void ShaderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)
 	{
@@ -206,4 +206,5 @@ namespace pure3d
 		*object = shader;
 		*name = content::ObjectName(shaderName, 1);
 	}
+#endif
 }

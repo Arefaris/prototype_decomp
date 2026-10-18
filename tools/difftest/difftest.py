@@ -184,6 +184,7 @@ class FunctionTest:
 		context.placedVtables = {a: n for n, a in loaded.placed.items() if n.startswith("??_7")}
 		context.dataSections = [(base, base + size) for base, size, name in loaded.sections.values() if not name.startswith(".text")]
 		context.dataSymbols = sorted(a for n, a in loaded.placed.items() if context.layout.data <= a < context.layout.ret)
+		context.stringLiterals = {a for n, a in loaded.placed.items() if n.startswith("??_C@")}
 		findings = compare.compareTraces(engineTrace, oursTrace, context)
 		result = Result(label, findings, engineTrace, oursTrace, context)
 		result.loaded = loaded

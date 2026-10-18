@@ -315,6 +315,17 @@ def sameStaticObject(engineValue, oursValue, context):
 	return engineBytes is not None and engineBytes == context.ours.read(oursValue, size)
 
 
+def sameStringLiteral(engineValue, oursValue, context):
+	"""A string literal of ours against the engine's: the same text up to the terminator (constantAt compares 16
+	bytes when the first is 0, for float tables, but an empty literal is followed by unrelated constants)."""
+	if oursValue not in getattr(context, "stringLiterals", ()) or not (context.image.contains(engineValue)
+			and context.image.readOnly(engineValue)):
+		return False
+	engineText = context.engine.read(engineValue, 256)
+	oursText = context.ours.read(oursValue, 256)
+	return engineText is not None and oursText is not None and engineText.split(b"\0", 1)[0] == oursText.split(b"\0", 1)[0]
+
+
 def sameArguments(ec, oc, count, regs, context):
 	engineValues = normalizedArguments(ec, context.engine, count, regs, context)
 	oursValues = normalizedArguments(oc, context.ours, count, regs, context)
@@ -323,7 +334,8 @@ def sameArguments(ec, oc, count, regs, context):
 	if len(engineValues) != len(oursValues):
 		return False
 	engineRaw, oursRaw = rawArguments(ec, count, regs), rawArguments(oc, count, regs)
-	return all(e == o or sameStaticObject(er, orw, context) for e, o, er, orw in zip(engineValues, oursValues, engineRaw, oursRaw))
+	return all(e == o or sameStaticObject(er, orw, context) or sameStringLiteral(er, orw, context)
+		for e, o, er, orw in zip(engineValues, oursValues, engineRaw, oursRaw))
 
 
 _pureLeaves = {}
