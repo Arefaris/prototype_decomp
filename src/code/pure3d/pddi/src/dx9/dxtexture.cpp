@@ -294,6 +294,8 @@ namespace pure3d
 	// EQUIVALENT: register allocation, 8 %: the engine keeps `level` in edx and reloads it from the argument slot
 	// after every call where this compiler caches it in ebx and shrinks the prologue around it, which shifts the
 	// whole body. Both bodies make the same device calls with the same arguments and leave the same description.
+	// The engine returns false from two separate blocks (early returns) and leaves the two surface pointers
+	// uninitialised; both together bring it to 14.6 % with `level` still cached.
 	bool dxTexture::Lock(TextureLock* lock, unsigned int flags, unsigned int level, unsigned int slice)
 	{
 		if (locked)

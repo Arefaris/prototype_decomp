@@ -1378,6 +1378,14 @@ Matching notes:
 - An empty 4-argument switch over a 24-value range (5 - 0x1C) comes out as the engine's byte index table feeding a
   two-entry jump table; the 8 table bytes after the code are part of the compared function.
 
+- (op-finish) 0x1072ADB0 `UploadLevel` stays EQUIVALENT (84.7 %, was 46.6): the engine's `test dword ptr [rect + 8], 3`
+  is the constant-first comparison `0 != (rect->x & 3)` (only two such tests exist in the image; `x & 3` in any other
+  spelling gives `test byte ptr`). The rect in esi and the bits per pixel in ebx are swapped in ours. difftest SAME.
+- (op-finish) 0x1072B470 `DDSParser::Load` stays EQUIVALENT (13.8 %): it needs `UploadVolumeLevels` (0x1072B230) to
+  take the texture in edi like the engine's (stack order stream, description, dropTop: the signature `(stream,
+  description, dropTop, texture)` brings 0x1072B230's body to the engine's apart from ebx / edi), but this compiler
+  never chooses a register parameter for it (no permutation of the four parameters does); `UploadLevels` (0x1072B050)
+  does get its rect in edi. With that the stream would sit in ebx as in the engine.
 
 ## pure3d primitives: Mesh (src/mesh.cpp, 0x10707280 - 0x10707330), started
 
@@ -1525,6 +1533,14 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   the shared name is not a match; it needs a second, unit-local name for the copy the way
   `engine::ReleaseEffectRef` (0x10805910) stands for another unit's `core::SafeRelease`. That naming decision is left
   to the next session; the call is the only thing missing.
+
+- (op-finish) 0x1067F4D0 `Loader1067F4D0::LoadObject` stays EQUIVALENT (46.5 %, was 27.9): the name text in a block
+  (`unsigned int length = byte;`), the dropped words read through an inline `ReadUnsigned` (its temporaries share the
+  engine's slots), the object's name constructed in a block: the frame is now the engine's 0x11C; only the order of
+  three dword slots differs (engine: count, object, dropped word; ours: object, dropped word, count). difftest SAME.
+- (op-finish) 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` stays EQUIVALENT (86 %): the `or edx, -1` comes one store
+  early; a reference to any member moves it one store later (89.5 %), nothing found moves it two.
+- (op-finish) 0x10B91410, 0x106DE090, 0x10B95780 (EQUIVALENT) and 0x10706960 (NONMATCHING) not reworked.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 
@@ -2913,6 +2929,42 @@ layout grew to its real 0x34 bytes, plus the constructor, `Create` and `gShadowM
 the members above and `LODRange` / `gLODRanges` / `gLODDistanceScale` / `LODDetailScale` / `gLODDetailScale`, four
 of whose symbols are in symbols.txt but referenced by nothing yet).
 
+Matching session (op-finish, 2026-10-18):
+
+- 0x10899830 `StreamDriverBehaviour::Update` **matches**: the position with `position.Set(m.m[3][0], m.m[3][1],
+  m.m[3][2])` (loads before stores), the two searches as `for (i = n; i != 0;) { i--; trigger = begin[i]; ... }`, and
+  `if (found != 0) AddTriggerPackages(...); else wanted->end = wanted->begin;` (the call block at the end).
+- 0x102DA540 `LODRenderBehaviour::UpdateFade` **matches**: the fade is reset through a reference (`float& reset = fade;
+  reset = 1.0f;`), which keeps the store ahead of the load and compare of the ready range (the same trick matched
+  0x10620A20 / 0x10620B00).
+- 0x102DC5F0 `Slot1` stays EQUIVALENT (79.4 %): `distanceLevel = 0` after the half diagonal gives the engine's store
+  (its zero shared with the loop), but the readiness tests and the joint loop still pick other registers (60 % with
+  it).
+- 0x102DE130 `MidgroundManager::Load` stays EQUIVALENT (98.8 %). It matches 100 % when `core::Name` holds its hash as
+  `union { struct { unsigned int hash, index; }; unsigned __int64 value64; }` (8-byte aligned): the name's slot then
+  sits where the engine's does. That change alone breaks 92 functions in six units (choreo drivers.cpp,
+  partitiondriver.cpp, rootdriver.cpp, engine/camera/director.cpp, render/async/private/parameterinterpolator.cpp,
+  pure3d/src/renderparams.cpp: classes with a Name at a 4-mod-8 offset); compiling those six units with
+  `// CFLAGS: /Zp4` restores every one of them (4884 of 4891 as before) and Load matches. Not committed: a core
+  header and the packing of six units are the main session's call, and classes shared between packings would
+  differ between units.
+- 0x102DDD30 `CellLoaded` stays EQUIVALENT (97.5 %): a reference to the drawable member in the record's copy
+  constructor gets ecx right (99.0 %), the 1 still goes to eax for the engine's edx; the union Name above does not
+  change it.
+- 0x1082DB20 `AddTriggerPackages` stays EQUIVALENT (98.9 %): the x sum's operand order (min first) resists every
+  spelling (helpers, references, Set, the eight operand orders, statement orders).
+- 0x1082E100 `UpdateStreamTransition` stays EQUIVALENT (21.1 %): the two package sets are 16 bytes and contiguous in
+  the engine's frame (`set->begin = HeapAllocAligned(...)` written through the set, a fourth word): ours now are
+  too; the arrays and counts are still in other registers. difftest SAME.
+- 0x102D4C50 `DeformShaderModifier::Apply` stays EQUIVALENT (69.9 %): the engine tests the dent buffer with
+  `IsEmpty()` and re-reads `Size()` in the loop condition (58.9 % with that: the binding and the buffer then swap
+  ebp / ebx).
+- 0x1041FA40 `AmbientManager::AmbientManager` stays EQUIVALENT (28.9 %, 37 of 396 instruction lines differ, was 95):
+  the six points are written through `AmbientPoint& point = ...;` blocks (the config values copied by fld / fstp next
+  to their stores, not hoisted), the empty name is a named block local, and the flag at +0x4DC with the point at
+  +0x4E0 is one sub-object whose constructor stores the point first (`AmbientTarget`). Left: the engine copies the
+  pools' heap into eax / ecx before pushing it.
+
 ## pure3d/atg4/platform/win32/skin.cpp (0x1071B000 - 0x10721200), started
 
 The unit's assert path names it (`..\..\..\code\pure3d\atg4\platform\win32\skin.cpp`, lines 0x298 - 0x880, about 2200
@@ -3181,6 +3233,14 @@ describe: flag +0x2FC clear: positions only, +0x74 (the expression) null and bit
 the types behind 0x10625F00 (the lock), 0x107202B0 (a Skin method taking the second `ShaderParameters`), 0x106E2A30 (a
 method of the pose at +0x70) and the job record at +0x330.
 
+- (op-finish) 0x1072E3E0 `GpuSkin::GpuSkin` **matches**: the centre is set with `centre.Set(0.0f, 0.0f, 0.0f)` (the
+  inline's three stores keep the parameters' push behind them).
+- (op-finish) 0x1071D1B0 stays NONMATCHING (96.5 %): declaring the counter outside the guard, its type, the loop's
+  decrement form, the order of the stride declarations, of the two offset tests and of the loop's loads all leave the
+  copy of the count ahead of the two stride scalings in the pre-header (the engine scales the normal stride, then the
+  position stride, then copies the count). The nine four-bone paths and 0x1071CA40 not reworked (see above);
+  0x10720CF0 not reconstructed (its callees' types: 0x106F2DE0, 0x10625F00, 0x1071F020, 0x107202B0, 0x106E2A30).
+
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
 The units are named by the two assert paths the range keeps (`dxdefaultpoolmanager.cpp` in 0x106238B0 and
@@ -3301,6 +3361,33 @@ constructor is NONMATCHING, so nothing checked it against the engine's slot.
   multiplies of every pass, and keeps the output pointer and the vertex pointer in swapped registers (18 %). Every
   other path of the run 0x1071B9A0 - 0x1071E8F0 has the same shape, so this has to be settled once for all of them;
   a shared source or a front-end difference, not a missing piece.
+
+Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
+
+- 0x106266D0 `dxIndexBuffer::dxIndexBuffer` **matches**: the state block is cleared with `memset(&state, 0, sizeof(state))`
+  (the zero in eax after the state's constructor), not member by member.
+- 0x10620A20 / 0x10620B00 **match**: the declaration switch is an inline helper (`SelectVertexDeclaration(int)`, the
+  number by value, so it is not re-read after the store to `current`) with the device in a local
+  (`IDirect3DDevice9* device = gD3DDevice;`), and the batched primitive count is added through a reference
+  (`float& primitives = batchedPrimitives;`), which keeps its store ahead of the load of the tracker.
+- 0x1061FB40 `DrawPrimitive` **matches**: the index buffer in a local (`dxIndexBuffer* indices = desc->indices;`), the
+  indexed branch first in all three tests (`if (desc->indices != 0)`), the index count as `if (desc->count != 0)
+  indexCount = desc->count; else indexCount = ...GetUnknown1C();`, the techniques in a local before `Get`, and the
+  device in a local in both draw branches (the plain one loads it before the switch).
+- 0x10623250 `Unknown2` stays EQUIVALENT (28.7 %): the same shape as DrawPrimitive; the engine keeps the technique in
+  ebp and the index buffer in a stack slot, this compiler the other way round. Its primitive count was converted as
+  unsigned where the engine converts it as a signed int (`cvtsi2ss`): fixed, it differed for -1.
+- 0x106182C0 stays EQUIVALENT (97.5 %): the capabilities' stores in the order 78F (through a reference), 790, width,
+  height; only the height store sits one instruction early. Permutations of the present parameters (permute.py, 2500
+  compilations) gave the order now in the source.
+- 0x1062B5C0 stays EQUIVALENT (96.6 %): every store order, references, a constructor or `Set` for the new entry and the
+  `+= users` form leave `users = 1` behind the element count.
+- 0x1061C600 `dxTexture::Lock` stays EQUIVALENT (8 %): the engine has two `return false` blocks (early returns) and does
+  not clear the two surface pointers; both bring it to 14.6 % only, `level` stays cached in ebx (engine: re-read).
+- 0x10623FB0 `RestoreDefaultPool` stays EQUIVALENT (27.4 %): the engine does not tail-merge the two
+  `ReportAllocationFailure` calls of each texture / target branch (each branch recomputes `&textures[i]` with other
+  registers); a device local in a branch makes it worse.
+- 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (36 %, 1400 of 1517 bytes); not reworked.
 
 ## Merge notes (2026-10-16)
 

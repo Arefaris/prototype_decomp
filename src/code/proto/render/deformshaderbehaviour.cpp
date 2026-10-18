@@ -149,6 +149,8 @@ namespace proto
 	// binding in ebp and the buffer in ebx, computes the buffer's emptiness and size separately and spills the
 	// object and the part number the other way round (83 % of the instructions). Writes the dents into the shader
 	// parameters of every part that has the inputs for them, then deletes itself
+	// The engine tests the buffer with IsEmpty() and re-reads Size() in the loop condition; written so it is 58.9 %, the
+	// binding and the buffer then swap ebp / ebx.
 	void DeformShaderBehaviour::DeformShaderModifier::Apply(engine::render::DrawableImpl* drawable)
 	{
 		core::HeapScope scope(0xA8);

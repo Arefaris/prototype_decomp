@@ -12,6 +12,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x1082DB20
 	// EQUIVALENT: operand order of the x sum: the engine loads min.x and adds max.x, this compiler loads max.x and adds
 	// min.x (98.9 %)
+	// Helpers, references, Set and every operand and statement order give the same canonical order.
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{

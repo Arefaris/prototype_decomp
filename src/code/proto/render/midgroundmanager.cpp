@@ -31,6 +31,8 @@ namespace proto
 	// FUNCTION: ENGINE 0x102DDD30
 	// EQUIVALENT: register allocation: the record's copy loads the drawable and the 1 through eax / ecx where the
 	// engine uses ecx / edx (97.5 %)
+	// A reference to the drawable member in the copy constructor gets the drawable into ecx (99.0 %); the 1 still
+	// goes to eax.
 	void MidgroundManager::CellLoaded(MidgroundCell* cell)
 	{
 		engine::render::Drawable* drawable;
@@ -70,6 +72,8 @@ namespace proto
 	// FUNCTION: ENGINE 0x102DE130
 	// EQUIVALENT: stack slot layout: the name of the package and the temporary drawable share a slot that sits 4 bytes
 	// higher than the engine's, every instruction is the engine's (98.8 %)
+	// The slot is the engine's when core::Name is eight-byte aligned (its hash a 64-bit word): with that the function
+	// is byte for byte the engine's.
 	void MidgroundManager::Load()
 	{
 		const char* levelName = FindLevelName(engine::gGameDatabase->GetString(gLevelNameKey, 0, 0));
