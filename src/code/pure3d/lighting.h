@@ -3,6 +3,8 @@
 #ifndef PURE3D_LIGHTING_H
 #define PURE3D_LIGHTING_H
 
+#include "code/core/name.h"
+
 namespace pure3d
 {
 	class Light;
@@ -132,7 +134,12 @@ namespace pure3d
 		unsigned char unknown18[0x60];
 		struct ViewState
 		{
-			unsigned char data[0x7C];
+			unsigned char unknown0[0x10];
+			// The name of the render context the view is drawn with, and the size of the picture
+			core::Name<core::CaseSensitiveKey> contextName;
+			int width;
+			int height;
+			unsigned char unknown20[0x5C];
 		} views[5];
 		unsigned char unknown2E4[0x3C];
 		struct CameraData

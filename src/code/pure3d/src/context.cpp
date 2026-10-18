@@ -5,6 +5,7 @@
 #include "code/engine/display.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/drawable.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
@@ -16,6 +17,8 @@ extern "C"
 	extern long (__stdcall* _imp__SetWindowLongA)(void* window, int index, long value);
 	extern long (__stdcall* _imp__CallWindowProcA)(long procedure, void* window, unsigned int message,
 		unsigned int wParam, long lParam);
+	extern int (__stdcall* _imp__GetClientRect)(void* window, void* rect);
+	extern int (__stdcall* _imp__GetWindowRect)(void* window, void* rect);
 }
 
 namespace pure3d
@@ -37,14 +40,39 @@ namespace pure3d
 		return _imp__CallWindowProcA((long)Context::sPreviousWindowProc, window, message, wParam, lParam);
 	}
 
+	// FUNCTION: ENGINE 0x1070F730
+	ContextKey::ContextKey(const ContextKey& other) : name(other.name.hash)
+	{
+		text = "";
+		ownsText = false;
+		if (other.ownsText)
+		{
+			SetText(other.text);
+			return;
+		}
+		text = other.text;
+		ownsText = false;
+	}
+
 	// FUNCTION: ENGINE 0x107107F0
 	void Context::Startup(const ContextSettings& settings)
 	{
 		OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\pure3d\\src\\context.cpp", 0x5C, context == 0, "pure3d::context == 0");
 		context = new Context(settings);
-		sWindow = settings.window;
+		sWindow = settings.display.window;
 		sPreviousWindowProc = (void*)_imp__GetWindowLongA(sWindow, -4);
-		_imp__SetWindowLongA(settings.window, -4, (long)ContextWindowProc);
+		_imp__SetWindowLongA(settings.display.window, -4, (long)ContextWindowProc);
+	}
+
+	// FUNCTION: ENGINE 0x10710880
+	void* Context::DeleteThis(unsigned int flags)
+	{
+		this->~Context();
+		if (flags & 1)
+		{
+			operator delete(this);
+		}
+		return this;
 	}
 
 	// FUNCTION: ENGINE 0x107108A0
@@ -65,6 +93,126 @@ namespace pure3d
 #endif
 
 
+	// FUNCTION: ENGINE 0x10710120
+	ContextSettings::ContextSettings() : unknown0(10000), unknown4(gDefaultSettingsUnknown4), unknown8(true), displayMode(2)
+	{
+		unknown154 = false;
+		unknown158 = 0;
+		unknown15C = 0;
+		unknown160 = 0;
+		unknown164 = 0;
+		unknown150 = -1;
+		drawableCount = 8;
+	}
+
+	// FUNCTION: ENGINE 0x1070F1F0
+	int Context::GetWindowClientRect(void* rect)
+	{
+		return _imp__GetClientRect(sWindow, rect);
+	}
+
+	// FUNCTION: ENGINE 0x1070F210
+	int Context::GetWindowScreenRect(void* rect)
+	{
+		return _imp__GetWindowRect(sWindow, rect);
+	}
+
+	// FUNCTION: ENGINE 0x1070FF50
+	RenderContext* Context::FindContext(const unsigned __int64& hash)
+	{
+		for (MapNode* node = (MapNode*)First(); node != 0; node = (MapNode*)Next(node))
+		{
+			if (node->pair.key.name.GetHash() == hash)
+			{
+				return node->pair.value;
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1070FFA0
+	void Context::RunContext(const RenderParams* params)
+	{
+		RenderContext* renderContext = FindContext(params->views[0].contextName.GetHash());
+		bool state = pddi->IsUnknown14Set();
+		if (!state)
+		{
+			pddi->Unknown27();
+		}
+		renderContext->Unknown1();
+		renderContext->Run(params);
+		renderContext->Unknown2();
+		if (!state)
+		{
+			pddi->Unknown28();
+		}
+		unknown5C = true;
+		float* size = unknown54;
+		float width = (float)params->views[0].width;
+		float height = (float)params->views[0].height;
+		size[0] = width;
+		size[1] = height;
+		renderContext->Unknown6();
+	}
+
+	// FUNCTION: ENGINE 0x10710190
+	void Context::RemoveContext(const ContextKey& key)
+	{
+		Iterator position = Find(key);
+		if (position.node != 0)
+		{
+			RenderContext* renderContext = position->value;
+			renderContext->Unknown2();
+			delete renderContext;
+			Erase(position);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107101F0
+	bool Context::SetCurrentContext(const unsigned __int64& hash)
+	{
+		RenderContext* renderContext = FindContext(hash);
+		if (renderContext != 0 && passes != renderContext)
+		{
+			if (passes != 0)
+			{
+				passes->Unknown2();
+			}
+			passes = renderContext;
+			renderContext->Unknown1();
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10710340
+	void Context::AddContext(RenderContext* context)
+	{
+		if (Find(context->key).node == 0)
+		{
+			(*this)[context->key] = context;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10710370
+	bool Context::SetCurrentContext(const ContextKey& key)
+	{
+		if (Find(key).node == 0)
+		{
+			return false;
+		}
+		if (passes != (*this)[key])
+		{
+			if (passes != 0)
+			{
+				passes->Unknown2();
+			}
+			passes = (*this)[key];
+			passes->Unknown1();
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x1070FEF0
 	void Context::AdvanceFrame()
 	{
@@ -84,6 +232,28 @@ namespace pure3d
 	void Context::ClearEntries()
 	{
 		container::TreeBase::Clear(DeleteContextEntry, this);
+	}
+
+	// FUNCTION: ENGINE 0x1070EDB0
+	void* RenderPassChain::DeleteThis(unsigned int flags)
+	{
+		this->~RenderPassChain();
+		if (flags & 1)
+		{
+			operator delete(this);
+		}
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x1070EDD0
+	void* dxContext::DeleteThis(unsigned int flags)
+	{
+		this->~dxContext();
+		if (flags & 1)
+		{
+			operator delete(this);
+		}
+		return this;
 	}
 
 	// FUNCTION: ENGINE 0x1070EDF0
@@ -121,70 +291,40 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1070F5C0
-	// NONMATCHING: the engine keeps the free entry's address in edx and the count signed (sar); ours walks with
-	// an index and the entry accessor, 6 %
-#ifdef NONMATCHING
 	RenderParams* Context::AllocRenderParams()
 	{
-		unsigned int count = RenderParamsCount();
-		unsigned int index = 0;
-		if (count == 0)
+		for (unsigned int i = 0; i < frames.Size(); i++)
 		{
-			return 0;
-		}
-		FrameEntry* entry = RenderParamsEntry(0);
-		while (entry->inUse)
-		{
-			index++;
-			entry++;
-			if (index >= RenderParamsCount())
+			if (!frames[i].inUse)
 			{
-				return 0;
+				frames[i].inUse = true;
+				return frames[i].params;
 			}
 		}
-		RenderParamsEntry(index)->inUse = true;
-		return RenderParamsEntry(index)->params;
+		return 0;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1070F600
-	// NONMATCHING: as AllocRenderParams (the engine keeps the running entry pointer in edx and the count signed),
-	// 6 %
-#ifdef NONMATCHING
 	void Context::FreeRenderParams(RenderParams* params)
 	{
-		unsigned int count = RenderParamsCount();
-		if (count == 0)
+		for (unsigned int i = 0; i < frames.Size(); i++)
 		{
-			return;
-		}
-		unsigned int index = 0;
-		FrameEntry* entry = RenderParamsEntry(0);
-		do
-		{
-			if (entry->params == params)
+			if (frames[i].params == params)
 			{
-				RenderParamsEntry(index)->inUse = false;
+				frames[i].inUse = false;
 				return;
 			}
-			index++;
-			entry++;
 		}
-		while (index < RenderParamsCount());
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1070F650
-	// NONMATCHING: the engine keeps the pool's begin in a register and the count signed, ours reloads them, 10 %
-#ifdef NONMATCHING
 	void Context::UpdateRenderParams()
 	{
-		for (unsigned int i = 0; i < RenderParamsCount(); i++)
+		for (unsigned int i = 0; i < frames.Size(); i++)
 		{
-			RenderParamsEntry(i)->params->Unknown1074F290();
+			frames[i].params->Unknown1074F290();
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1070EE50
 	void Context::RunPasses(const RenderParams* params)
@@ -312,4 +452,92 @@ namespace pure3d
 	{
 		return this;
 	}
+
+	// The members of the tree and the pool the original keeps out of line
+	typedef ContextTree<ContextKey, RenderContext*> EntryTree;
+	// FUNCTION: ENGINE 0x1070F680
+	template EntryTree::ContextTree(int unused);
+	// FUNCTION: ENGINE 0x1070FBA0
+	template EntryTree::Pair::Pair(const Pair& other);
+	// FUNCTION: ENGINE 0x1070FB40
+	template EntryTree::Pair::Pair(const ContextKey& newKey, RenderContext* const& newValue);
+	// FUNCTION: ENGINE 0x1070F6D0
+	template EntryTree::Pair::~Pair();
+	// FUNCTION: ENGINE 0x107100E0
+	template EntryTree::MapNode::MapNode(const Pair& newPair);
+	// FUNCTION: ENGINE 0x1070F840
+	template EntryTree::MapNode::~MapNode();
+	// FUNCTION: ENGINE 0x1070F6E0
+	template EntryTree::Iterator::Iterator(MapNode* newNode, EntryTree* newMap);
+	// FUNCTION: ENGINE 0x1070F690
+	template EntryTree::Pair* EntryTree::Iterator::operator->() const;
+	// FUNCTION: ENGINE 0x1070F2B0
+	template EntryTree::Pair& EntryTree::Iterator::operator*() const;
+	// FUNCTION: ENGINE 0x1070F2C0
+	template EntryTree::Iterator& EntryTree::Iterator::operator++();
+	// FUNCTION: ENGINE 0x1070F6A0
+	template EntryTree::Iterator EntryTree::Iterator::operator++(int);
+	// FUNCTION: ENGINE 0x1070F270
+	template bool EntryTree::Iterator::operator==(const Iterator& other) const;
+	// FUNCTION: ENGINE 0x1070F290
+	template bool EntryTree::Iterator::operator!=(const Iterator& other) const;
+	// FUNCTION: ENGINE 0x1070FAB0
+	template int EntryTree::CompareKey(const void* key, const container::TreeBase::Node* node);
+	// FUNCTION: ENGINE 0x1070FB60
+	template int EntryTree::CompareNodes(const container::TreeBase::Node* a, const container::TreeBase::Node* b);
+	// FUNCTION: ENGINE 0x1070FA60
+	template EntryTree::Iterator EntryTree::Begin();
+	// FUNCTION: ENGINE 0x1070FA80
+	template EntryTree::Iterator EntryTree::End();
+	// FUNCTION: ENGINE 0x10710090
+	template EntryTree::Iterator EntryTree::Find(const ContextKey& key);
+	// FUNCTION: ENGINE 0x10710230
+	template EntryTree::Iterator EntryTree::Insert(const Pair& pair);
+	// FUNCTION: ENGINE 0x10710040
+	template EntryTree::Iterator EntryTree::Erase(Iterator position);
+	// FUNCTION: ENGINE 0x107102D0
+	template RenderContext*& EntryTree::operator[](const ContextKey& key);
+
+	// FUNCTION: ENGINE 0x1070F230
+	template ContextArray<FrameEntry>::ContextArray(int unused);
+	// FUNCTION: ENGINE 0x1070F330
+	template ContextArray<FrameEntry>::ContextArray(FrameEntry* first, FrameEntry* last);
+	// FUNCTION: ENGINE 0x1070FAA0
+	template ContextArray<FrameEntry>::~ContextArray();
+	// FUNCTION: ENGINE 0x1070F250
+	template int ContextArray<FrameEntry>::Size() const;
+	// FUNCTION: ENGINE 0x1070F260
+	template FrameEntry& ContextArray<FrameEntry>::operator[](int index);
+	// FUNCTION: ENGINE 0x1070F2E0
+	template bool ContextArray<FrameEntry>::Allocate(unsigned int count);
+	// FUNCTION: ENGINE 0x1070FAE0
+	template bool ContextArray<FrameEntry>::Allocate(unsigned int count, const FrameEntry& value);
+	// FUNCTION: ENGINE 0x107100C0
+	template bool ContextArray<FrameEntry>::AllocateEmpty(unsigned int count);
+	// FUNCTION: ENGINE 0x1070F790
+	template FrameEntry* container::ConstructFill<FrameEntry>(FrameEntry* dest, unsigned int count, const FrameEntry& value);
+	// FUNCTION: ENGINE 0x1070F360
+	template void container::ConstructCopyAt<FrameEntry>(FrameEntry* p, const FrameEntry& value);
+	// FUNCTION: ENGINE 0x1070F700
+	template int EntryTree::Compare(const ContextKey& a, const ContextKey& b);
+	// FUNCTION: ENGINE 0x1070F780
+	template void container::Destroy<FrameEntry>(FrameEntry* first, FrameEntry* last);
+	// FUNCTION: ENGINE 0x1070F350
+	template void container::Destroy<FrameEntry>(FrameEntry* p);
+	// FUNCTION: ENGINE 0x1070FC20
+	template void container::Destroy<ContextKey>(ContextKey* p);
+	// FUNCTION: ENGINE 0x10710110
+	template void container::Destroy<EntryTree::MapNode>(EntryTree::MapNode* p);
 }
+
+// The members of the lookups of the debug font and of drawables
+// FUNCTION: ENGINE 0x1070F7C0
+// FUNCTION: ENGINE 0x1070F7D0
+template class content::LoadInventory::DynamicCaster<pure3d::Drawable>;
+// FUNCTION: ENGINE 0x1070F7F0
+// FUNCTION: ENGINE 0x1070F800
+template class content::LoadInventory::DynamicCaster<pure3d::TextureFont>;
+// FUNCTION: ENGINE 0x1070FBC0
+template pure3d::Drawable* content::LoadInventory::Find<pure3d::Drawable>(const content::ObjectName& name);
+// FUNCTION: ENGINE 0x1070FBE0
+template pure3d::TextureFont* content::LoadInventory::Find<pure3d::TextureFont>(const char* name);

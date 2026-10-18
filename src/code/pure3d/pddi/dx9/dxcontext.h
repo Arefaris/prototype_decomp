@@ -131,6 +131,9 @@ namespace pure3d
 	class dxContext : public pddiBaseContext
 	{
 	public:
+		// 0x1061BEC0 (another unit): the destructor; 0x1070EDD0: its scalar deleting form (made in the context unit)
+		~dxContext();
+		void* DeleteThis(unsigned int flags);
 		// 0x1061B530 / 0x1061B540: the words the factories above use
 		int GetUnknown8();
 		IDirect3DDevice9* GetUnknownC();

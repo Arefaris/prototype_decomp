@@ -190,7 +190,7 @@ namespace content
 		template<class T> T* Find(const ObjectName& name)
 		{
 			DynamicCaster<T> caster;
-			return static_cast<T*>(FindObject(&caster, name, true));
+			return (T*)FindObject(&caster, name, true);
 		}
 		template<class T> T* Get(const ObjectName& name)
 		{
@@ -202,7 +202,7 @@ namespace content
 		template<class T> T* Find(const char* name)
 		{
 			DynamicCaster<T> caster;
-			return static_cast<T*>(FindObject(&caster, ObjectName(name, 1), true));
+			return (T*)FindObject(&caster, ObjectName(name, 1), true);
 		}
 
 		// 0x106032F0 / 0x10603560: adds an object under a name / takes it out again

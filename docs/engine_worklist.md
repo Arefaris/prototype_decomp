@@ -972,7 +972,7 @@ Matching notes:
 - PoseData's flags: bit 0 local matrices out of date, bit 1 joint and skinning matrices out of date, bit 2 the
   further transform arrays (pivot, shear, a second offset) are in use. `mSpaces == 3` means all matrices exist.
 
-## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 22 functions match, 4 nonmatching, the rest not done
+## pure3d/src/context.cpp (0x1070ED50 - 0x10710930): 78 functions match, the large ones and the constructor / destructor not done
 
 `pure3d::Context` (no RTTI: the class has no virtual functions) is the render context at `pure3d::context`
 (0x1127F350, 0x7C bytes): a frame's times, the view, the passes' context and the wrapped drawable helper. `Startup`
@@ -992,9 +992,7 @@ parameters (8-byte entries: a flag and the parameters at +4), +0x78 four unread 
 | Function | Status | Why |
 |---|---|---|
 | 0x107108A0 Shutdown | NONMATCHING | the engine keeps the context in esi across `~Context()` and passes the assert's condition register as the report's last argument; ours reloads the global and pushes the constant, 86 % |
-| 0x1070F5C0 AllocRenderParams | NONMATCHING | the engine walks the pool with a running pointer and a signed count; ours indexes it, 6 % |
-| 0x1070F600 FreeRenderParams | NONMATCHING | as AllocRenderParams, 6 % |
-| 0x1070F650 UpdateRenderParams | NONMATCHING | the engine keeps the pool's begin in a register, ours reloads it, 10 % |
+| 0x1070F5C0 / 0x1070F600 / 0x1070F650 AllocRenderParams / FreeRenderParams / UpdateRenderParams | match | the pool is a `ContextArray<FrameEntry>` (signed `Size()`), the loops index it with an unsigned counter |
 
 Not done: the constructor 0x107103E0 (673 bytes) and the destructor 0x107106A0 (336 bytes) - both need the frame's
 many subsystems named first (they call 0x106dde80, 0x1061bbc0 / 0x1061b4c0 / 0x1061b530 / 0x1061b660 (the display),
@@ -1063,6 +1061,25 @@ with a `// FUNCTION:` annotation while they live in `container/map.h` and `conta
 only scans `src/**/*.cpp`), so matching them means giving this unit its own copy of the two containers - with the
 one-argument allocator and the `return b < a;` comparator - and then writing the `Context` members on top of it.
 0x1070ED20 / 0x1070ED30 (empty, one byte of `ret`) are the only trivial ones left in the neighbouring unit.
+
+### The container instances (sn-render)
+
+The tree and the pool are written in `code/pure3d/context.h` as `ContextTree<Key, Value>` (the shape of `container::Map`)
+and `ContextArray<T>` (begin / end over `operator new[]`; `operator delete[]` called directly) and their members are
+claimed with explicit instantiations at the end of `context.cpp`. Findings:
+- The tree's key (0x10 bytes) is a 64-bit name (`ContextName`: its constructor / `GetHash` are the engine's
+  `core::Name<CaseSensitiveKey>` copies 0x1007EE00 / 0x1007EE20, mapped, not defined here, so the compiler cannot
+  see which registers they keep), a `const char*` and the owns-the-text flag. The 64-bit word makes the key 8-byte
+  aligned: nodes are 0x28 bytes and the `Pair` a function keeps on its stack is 0x18 (a `__declspec(align)` would
+  realign the stack; a natural `unsigned __int64` member does not).
+- `Compare` is `if (a < b) return -1; if (b < a) return 1; return 0;` (the engine's `neg / sbb / neg` is how `if (x)
+  return 1; return 0;` compiles).
+- The scalar deleting destructors 0x1070F820 / 0x1070FC30 appear when the destructors of `ContextKey` / `MapNode` are
+  explicitly instantiated; 0x1070EDB0 / 0x1070EDD0 / 0x10710880 are written as `DeleteThis(flags)` members.
+- `RunContext` (0x1070FFA0): the two stores of the picture size come after the virtual call's table load only when
+  they go through a pointer and two named floats.
+- `ContextSettings` has a constructor (0x10710120): 10000, a constant of the image (0x10E5DA34), true, 2, then the
+  two sub-objects' constructors, -1, 8 drawables.
 
 Findings carried over from the third session:
 
