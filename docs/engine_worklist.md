@@ -3236,7 +3236,7 @@ method of the pose at +0x70) and the job record at +0x330.
   position stride, then copies the count). The nine four-bone paths and 0x1071CA40 not reworked (see above);
   0x10720CF0 not reconstructed (its callees' types: 0x106F2DE0, 0x10625F00, 0x1071F020, 0x107202B0, 0x106E2A30).
 
-## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
+## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 22 functions match
 
 The units are named by the two assert paths the range keeps (`dxdefaultpoolmanager.cpp` in 0x106238B0 and
 `dxvertexdeclaration.cpp` in 0x1062B170 / 0x1062B710); the others are guessed from their contents. Done so far:
@@ -3383,6 +3383,20 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   `[eax+esi]`, one byte); the same single change at the index buffer's or a render target's output pointer does it too, so
   the choice is arbitrary.
 - 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (36 %, 1400 of 1517 bytes); not reworked.
+- Second pass over the six (2026-10-18; objdiff's percentages are given where objcmp's position-by-position ones are
+  far lower): 0x10623FB0 matches (above, 100 % over its real 1553 bytes; `functions.tsv` and `symbols.txt` had 1536, the
+  shared epilogue after the last call belongs to it). 0x106182C0 stays EQUIVALENT (97.5 %, objdiff 98.7 %) after about
+  1700 more compilations (every order of the capability stores and of the window-mode test, references, locals, flag
+  types, the display-mode local's place): only the height store moves. 0x1062B5C0 stays EQUIVALENT (96.6 %, objdiff
+  98.8 %) after about 600 (orders, copies in locals, an inline initialiser, the three spellings of the count's increment):
+  `users = 1` stays behind the element count. 0x10623250 stays EQUIVALENT (28.7 %, objdiff 89.4 %): a local for the
+  technique table, a conditional for the vertex count and the device taken in each draw branch give the technique ebp as
+  in the engine (64.5 %) but lose the engine's order of the first two calls and the device table's single load, so the
+  source keeps the plain form. 0x1061C600 stays EQUIVALENT (8 %, objdiff 81 %): the engine keeps `level` and `slice` in
+  edx / ecx and reads them again after the calls, so ebx and ebp are pushed only after the checks; nothing tried
+  (references to the system-memory copy, local copies, other arm orders) changes the choice. 0x1061D3A0 stays
+  NONMATCHING (36 %): the engine keeps the zero in edi and the one in ebx for the whole function and sets them again
+  after every fill, with different registers for each fill's width and pitch.
 
 ## Merge notes (2026-10-16)
 

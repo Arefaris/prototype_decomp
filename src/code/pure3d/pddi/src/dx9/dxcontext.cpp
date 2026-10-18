@@ -239,9 +239,13 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10623250
-	// EQUIVALENT: register allocation (28.7 %): the source is shaped like DrawPrimitive's (0x1061FB40), but the engine
-	// keeps the technique in ebp and the index buffer in a stack slot, this compiler the other way round; every call
-	// and every value is the same
+	// EQUIVALENT: register allocation (28.7 %, 89.4 % when the shifted lines are aligned): the source is shaped like
+	// DrawPrimitive's (0x1061FB40), but the engine keeps the technique in ebp and the index buffer in a stack slot,
+	// this compiler the other way round; every call and every value is the same.
+	// A local for the shader's technique table, a conditional for the vertex count and the device taken inside each
+	// draw branch together give the technique ebp (64.5 %), but then the engine's order of the first two calls
+	// (the name pushed before the table is asked for) and the device's table loaded once before the branch are lost;
+	// that variant is not used.
 	void dxContext::Unknown2(const core::Name<core::CaseInsensitiveKey32>* shaderName, const void* descPointer,
 		const void* parameters)
 	{

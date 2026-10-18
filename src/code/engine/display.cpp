@@ -37,7 +37,11 @@ namespace engine
 
 	// FUNCTION: ENGINE 0x106182C0
 	// EQUIVALENT: scheduling (97.5 %): the engine stores the largest texture height after the compare of the window
-	// mode, this compiler before it (one instruction apart); every call and every value is the same
+	// mode, this compiler before it (one instruction apart); every call and every value is the same.
+	// About 1700 compilations did not move it: every order of the capability stores and of the window-mode test (with
+	// and without the reference for the first store), references or locals for the stores and the capability words,
+	// the type of the window-mode flag and the place of the display-mode local (97.7 % at best, with another
+	// instruction displaced).
 	bool Display::Unknown106182C0(void* unknown)
 	{
 		if (unknown != 0)
