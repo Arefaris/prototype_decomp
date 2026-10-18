@@ -1551,7 +1551,15 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   `ArrayDynamicHeap` (begin = 0 only for an empty request; the failure path stores end and capacity 0; the success path
   returns), called as `loaded->entries.Allocate(count)`.
 - (op-finish) 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` (now matches, see above).
-- (op-finish) 0x10B91410, 0x106DE090, 0x10B95780 (EQUIVALENT) and 0x10706960 (NONMATCHING) not reworked.
+- (mp-load) 0x106DE090 `SkeletonLoader::LoadObject` stays EQUIVALENT, now 79.9 % (was 15.1): the scalar values the engine
+  keeps in registers or reloads once (the version, the three counts, the joint's kind and enabled word) are not
+  address-taken locals in the engine but results of inline reads (`ReadWord`, a two-byte `ReadShort`: the value sits
+  in the inline function's temporary and the local is a plain variable); with them the reader lands in ebp and the
+  skeleton in esi as in the engine, the frame is its 0x2B0 bytes and the debug info pointer is declared after the
+  skeleton's `AddRef`. What is left is the rotation of the volatile registers the temporaries take, which starts to
+  differ at the joint name's length (`movzx eax` in the engine, `ecx` here), the position of the name's terminator
+  store and of the `mov ecx, [reader + 0x284]` load relative to the pushes. difftest SAME.
+- (op-finish) 0x10B91410, 0x10B95780 (EQUIVALENT) and 0x10706960 (NONMATCHING) not reworked.
 
 ## fight/sequencer (src/code/engine/fight/, unit 0x105A2440 - 0x105A7BF0)
 

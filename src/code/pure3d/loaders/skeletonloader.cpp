@@ -11,11 +11,18 @@
 
 namespace pure3d
 {
+	// Reads a two-byte value
+	inline unsigned short ReadShort(content::ChunkReader* reader)
+	{
+		unsigned short value;
+		reader->Read(&value, 1, 2, 1);
+		return value;
+	}
+
 	// FUNCTION: ENGINE 0x106DE090
-	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order (15 %); the engine keeps
-	// the reader in ebp and the skeleton in esi and caches the kind of the joint in a register where this compiler
-	// reloads it, saves edi only inside the block, schedules the loads of the reader's stream differently and lays the
-	// frame out in 4 bytes more
+	// EQUIVALENT: the same calls, arguments, branches and memory accesses in the same order; registers and frame
+	// follow the engine's (reader in ebp, skeleton in esi), what differs is the scheduling of some loads and
+	// temporaries (79.9 %)
 	void SkeletonLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)
 	{
@@ -27,26 +34,21 @@ namespace pure3d
 			reader->Read(skeletonName, length, 1, 1);
 			skeletonName[length] = 0;
 		}
-		unsigned int version;
-		reader->Read(&version, 1, 4, 1);
-		unsigned int jointCount;
-		reader->Read(&jointCount, 1, 4, 1);
-		unsigned int partitionCount;
-		reader->Read(&partitionCount, 1, 4, 1);
-		unsigned int limbCount;
-		reader->Read(&limbCount, 1, 4, 1);
-		unsigned int joints = jointCount;
-		SkeletonDebugInfo* debugInfo = 0;
+		unsigned int version = ReadWord(reader);
+		unsigned int jointCount = ReadWord(reader);
+		unsigned int partitionCount = ReadWord(reader);
+		unsigned int limbCount = ReadWord(reader);
 		if (jointCount >= 1)
 		{
-			Skeleton* skeleton = new Skeleton(joints, partitionCount, limbCount);
+			Skeleton* skeleton = new Skeleton(jointCount, partitionCount, limbCount);
 			skeleton->AddRef();
+			SkeletonDebugInfo* debugInfo = 0;
 			JointMask* mask;
 			{
 				core::HeapScope scope(1);
-				unsigned int wordCount = (joints + 31) >> 5;
+				unsigned int wordCount = (jointCount + 31) >> 5;
 				mask = (JointMask*)new unsigned int[wordCount + 1];
-				mask->jointCount = joints;
+				mask->jointCount = jointCount;
 				for (unsigned int i = 0; i < wordCount; i++)
 				{
 					mask->words[i] = 0;
@@ -56,7 +58,7 @@ namespace pure3d
 			{
 				debugInfo = new SkeletonDebugInfo(skeleton);
 				debugInfo->name = core::StrCpy(new char[strlen(skeletonName) + 1], skeletonName);
-				debugInfo->jointNames = new char*[joints];
+				debugInfo->jointNames = new char*[jointCount];
 				if (partitionCount > 0)
 				{
 					debugInfo->partitionCount = partitionCount;
@@ -98,10 +100,8 @@ namespace pure3d
 						reader->Read(&third, 3, 4, 1);
 						math::Vector fourth;
 						reader->Read(&fourth, 3, 4, 1);
-						unsigned short kind;
-						reader->Read(&kind, 1, 2, 1);
-						int enabled;
-						reader->Read(&enabled, 1, 4, 1);
+						unsigned short kind = ReadShort(reader);
+						int enabled = ReadWord(reader);
 						bool flag;
 						if (enabled == 0 || kind != 1)
 						{
