@@ -3668,6 +3668,12 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
 - (op-map4) 0x106182C0 stays EQUIVALENT (97.5 %): a `volatile` window mode (the compare of a volatile member would
   pin the stores after it) gives a separate `mov edx, [esi + 0x20]; cmp edx, edi` (29.7 %), so the engine's compare is
   of a plain member; not reworked further.
+- (op-map4) 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (75.3 %); its unit is confirmed separate from
+  dxtexture.cpp: compiled behind `dxTexture::Lock` the compiler drops the zero stores into the lock record that Lock
+  never reads (1408 bytes, 394 of 436 instructions), the engine keeps all nine. `AssignTextureSlot` (0x1061CBB0)
+  **matches** in dxtexture.cpp (AddRef the new, Release the old, store). 0x10623250 `Unknown2` stays EQUIVALENT
+  (28.7 %): its unit's `Unknown106229B0` (0x106229B0, the skinning matrices transposed into the vertex shader
+  constants from 0x69) compiled before it changes nothing in it. 0x1061C600 `Lock` not reworked (9.7 %).
 - Not reproduced at the merge and marked NONMATCHING: 0x1082DB20 `AddTriggerPackages` (36 %), 0x102D41C0
   `DentBuffer::Push` (26 %, branch layout), 0x102DA540 `LODRenderBehaviour::UpdateFade` (30 %), 0x102DDD30 /
   0x102DDE30 `MidgroundManager::CellLoaded` / `CellUnloaded` (63 % / 62 %).

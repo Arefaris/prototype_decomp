@@ -1,5 +1,7 @@
 // The textures the Direct3D 9 back end keeps for materials without one (unit after dxtexture.cpp, around
-// 0x1061D3A0; the file name is a guess).
+// 0x1061D3A0; the file name is a guess). It is a unit of its own: compiled behind dxTexture::Lock in dxtexture.cpp,
+// the compiler drops the zero stores into the lock record that Lock never reads (bits, slice, format, size, the
+// word at +0x1C) and the function shrinks to 1408 bytes; the engine keeps all nine, so its compiler did not see Lock.
 #include <math.h>
 #include <new>
 
@@ -17,7 +19,7 @@ namespace pure3d
 	dxTexture* gFlatNormalTexture = 0;
 	dxTexture* gRampTexture = 0;
 
-	// 0x1061CBB0: holds a new texture in one of the slots above (another copy of AssignRef; name guess)
+	// 0x1061CBB0: holds a new texture in one of the slots above (dxtexture.cpp)
 	void AssignTextureSlot(dxTexture** slot, dxTexture* value);
 
 	// Locks the first level of a texture and writes one colour into all of it (the engine repeats the block)
