@@ -2,6 +2,7 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/core/heap.h"
 #include "code/math/mathutils.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/proto/render/deformshaderbehaviour.h"
 
 namespace pure3d
@@ -195,18 +196,18 @@ namespace proto
 							for (unsigned int i = 0; i < buffer->Size(); i++)
 							{
 								const Dent& dent = buffer->dents[i];
-								binding->parameters->SetVector4(*damage[i],
+								binding->shader->SetVector4(*damage[i],
 									math::Vector4(dent.position.x, dent.position.y, dent.position.z, dent.unknown10));
 								values[i] = dent.unknown1C;
 							}
-							binding->parameters->SetVector4(crush, *(math::Vector4*)values);
+							binding->shader->SetVector4(crush, *(math::Vector4*)values);
 						}
 						else
 						{
-							binding->parameters->SetVector4(crush, math::Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+							binding->shader->SetVector4(crush, math::Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 							for (unsigned int i = 0; i < 4; i++)
 							{
-								binding->parameters->SetVector4(*damage[i], math::Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+								binding->shader->SetVector4(*damage[i], math::Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 							}
 						}
 					}

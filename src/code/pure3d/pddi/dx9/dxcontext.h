@@ -48,8 +48,8 @@ namespace pure3d
 		virtual void Unknown5();
 		virtual void Draw(int technique, pddiBaseContext::Constants* constants, const void* parameters);
 
-		// The values of the shader's inputs by name (pddiShaderCommon's setters; the same code as
-		// BindingParameters' in the engine): 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
+		// The values of the shader's inputs by name (pddiShaderCommon's setters; a part's binding sets its parameters
+		// through them): 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
 		// 0x106140C0, 0x10614140
 		void SetBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value);
 		void SetTexture(const core::Name<core::CaseInsensitiveKey32>& name, dxTexture* texture);

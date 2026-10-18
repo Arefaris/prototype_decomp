@@ -36,15 +36,7 @@ namespace pure3d
 	// 0x106DF480: the frame number drawables mark their updates with
 	unsigned int GetCurrentFrame();
 
-	// The shader parameters of a part's binding (0x106140C0, 0x10614050, 0x10613F90, 0x10613EC0)
-	class BindingParameters
-	{
-	public:
-		void SetVector4(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
-		void SetVector(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector& value);
-		void SetFloat(const core::Name<core::CaseInsensitiveKey32>& name, float value);
-		void SetBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value);
-	};
+	class dxShader;
 
 	// A part's binding (a 0x30-byte object made by 0x10706550): its shader parameters and, at +0x28, the flags
 	// the part's render state follows
@@ -52,7 +44,8 @@ namespace pure3d
 	{
 	public:
 		unsigned char unknown0[0x10];
-		BindingParameters* parameters;
+		// the shader the part is drawn with; its inputs take the part's parameters
+		dxShader* shader;
 		unsigned char unknown14[0x14];
 		core::BitField<unsigned int> flags;
 	};

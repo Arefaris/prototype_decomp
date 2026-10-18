@@ -17,6 +17,7 @@
 #include "code/core/file/filesystem.h"
 #include "code/engine/system/enginememory.h"
 #include "code/pure3d/texture/texture.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 
 #define DRAWABLE_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\drawable.cpp"
@@ -1381,7 +1382,7 @@ namespace engine
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
-						binding->parameters->SetVector4(name, value);
+						binding->shader->SetVector4(name, value);
 					}
 				}
 			}
@@ -1403,7 +1404,7 @@ namespace engine
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
-						binding->parameters->SetVector(name, value);
+						binding->shader->SetVector3(name, value);
 					}
 				}
 			}
@@ -1431,7 +1432,7 @@ namespace engine
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
-						binding->parameters->SetFloat(name, value);
+						binding->shader->SetFloat(name, value);
 					}
 				}
 			}
@@ -1453,7 +1454,7 @@ namespace engine
 					if (binding)
 					{
 						core::Name<core::CaseInsensitiveKey32> name(key);
-						binding->parameters->SetBool(name, value);
+						binding->shader->SetBool(name, value);
 					}
 				}
 			}

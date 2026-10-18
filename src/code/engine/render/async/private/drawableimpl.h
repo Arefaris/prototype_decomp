@@ -23,7 +23,6 @@ namespace engine
 		typedef pure3d::PartRef PartRef;
 		typedef pure3d::PartBinding PartBinding;
 		typedef pure3d::PartBindingSource PartBindingSource;
-		typedef pure3d::BindingParameters BindingParameters;
 		typedef pure3d::PartAnimationFlags PartAnimationFlags;
 		typedef pure3d::PartAnimationState PartAnimationState;
 
