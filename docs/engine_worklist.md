@@ -3581,6 +3581,12 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   with multiplications and the cosine ramps are `float ramp = (cos(t * f) + 1.0f) * 0.5f;` then `ramp * 255.5f` (one
   expression folds the two constants). Left: the clamp tree (the engine: `v < 0` first, then `v > 0xFF` on both paths,
   no cmov); every spelling tried folds the negative path, uses cmov / setcc or tests `> 0xFF` first.
+- (op-map3) 0x1062B5C0 `FindVertexDeclaration` **matches**: a `_ReadWriteBarrier()` between the new entry's stores and
+  the device call. The stores then form a scheduling region of their own and come out in the source order (the user
+  count's `mov esi, 1` first, then the element count); with the device call in the same region the scheduler hoists
+  the element count's store above the constant. Barriers elsewhere (before or between the stores) reload the manager
+  (70 %); a volatile read of the count, a volatile device pointer, an empty `__asm` block and a device local do not end
+  the region the same way.
 
 ## Merge notes (2026-10-16)
 
