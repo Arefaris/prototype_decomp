@@ -3251,6 +3251,32 @@ method of the pose at +0x70) and the job record at +0x330.
   the skin (one bone each when set). `gSkinAsync` (0x11137804, true) and `gSkinQueuedCount` (0x1128180C) are skin.cpp's
   globals. The counters use `_InterlockedIncrement` / `_InterlockedDecrement` (the exchange-add form puts the operands
   in the other registers).
+- (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
+  differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
+  loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
+  its fourth lane read at once (`float tangentW = ((float*)&v2)[3];`), is added to in place and then blended into its
+  own result variable: the engine's v2 / r2 share one slot, the offsets get its slot order, and the lane is saved
+  before the vector is overwritten. Statement order, operand order, `.m128_f32`, locals of other types, dead locals
+  and padding declarations do not move the last register pair. The same tangent form is written into 0x1071C530.
+- (mp-skin) The slot order of equal-weight locals (the engine's stack table is sorted by reference count; ties come out
+  in an order the source's statement order, declaration order and names do not change) and the register a vector
+  gets can depend on declarations in the headers a unit includes: a new type name in primitive.h flipped two locals of
+  Context::LoadDebugFont (0x1070FC90) until the SkinState buffers stayed a cast instead of a union member. After any
+  change to primitive.h / primstream.h / pose.h compare the progress count (`ninja report progress`), objcmp does not
+  see every function the objdiff count does.
+- (mp-skin) The four-bone paths (0x1071B610, 0x1071BBD0, 0x1071C0C0, 0x1071C530, 0x1071CDC0, 0x1071D440, 0x1071D960,
+  0x1071DFF0, 0x1071E5D0) still do not match: 17 - 43 %. Their loops now are the engine's (for-up counter; the pre-header
+  and the guard come out byte for byte in 0x1071C0C0 up to the first bone's loads). Measured on 0x1071C0C0 with
+  tools/permute-style searches over the source's spelling (statement order of the 16 row products, value / reference /
+  inline loads, one or four weight loads, splats ahead of the products, the translation row last or merged, rows as
+  `__m128` locals, a `math::Matrix`, `math::Vector4`s, pointers or SSA values): every form reaches 60 - 72 % of the
+  instructions; pure SSA forms (no store through a row pointer) make the compiler hoist all sixteen row loads and spill
+  (frame 0x134, 909 bytes), the memory forms keep the loads at their products; computing all four splats before the
+  products gives the engine's register for the first row (xmm5) and the first twelve instructions of the loop, but then
+  the frame is a slot too big. The engine's schedule loads the first bone's three rows and the second bone's first row
+  before the first splat, multiplies the third row first, spills it, and computes the translation row's first product
+  after the second bone's last row; the standalone BlendBoneRows (0x1071B310) shows the copy-of-the-splat form for its
+  first three rows and the in-place splat for the first, which no spelling gave together.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 21 functions match
 
