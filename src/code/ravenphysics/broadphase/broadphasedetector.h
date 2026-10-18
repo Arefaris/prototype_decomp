@@ -87,7 +87,10 @@ namespace ravenphysics
 	// context's getters) and the run of records it walks (name guesses)
 	struct DetectorHead
 	{
-		unsigned char unknown0[0x20];
+		unsigned short* next;       // 0x00 (the index of the record that follows each record, 0xFFFF at the end)
+		unsigned char unknown4[4];
+		unsigned short* first;      // 0x08 (the index of the first record)
+		unsigned char unknown0C[0x14];
 	};
 
 	struct DetectorTable

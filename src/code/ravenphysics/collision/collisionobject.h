@@ -270,6 +270,15 @@ namespace ravenphysics
 	CollisionObject* CreateCollisionObject(CollisionVolume** volumes, unsigned int count, bool makeShape, float size,
 		int a, int b);
 
+	// A pair of collision objects that touch, as the detector's tables list them (0x20 bytes; the handles of the two
+	// objects at 0x18 and 0x1C)
+	struct ContactPair
+	{
+		unsigned char unknown0[0x18];
+		CollisionHandle handleA;  // 0x18
+		CollisionHandle handleB;  // 0x1C
+	};
+
 	// The smaller of two slot counts (0x10655AC0)
 	unsigned short MinSlots(unsigned short a, unsigned short b);
 

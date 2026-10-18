@@ -3244,3 +3244,23 @@ Still NONMATCHING or not started, one line each:
 - tools/difftest also notes that sequencer.cpp defines `fight::gActiveActions` / `gPeakActiveActions` itself without
   a symbols.txt mapping, so our fight code counts in private copies, not the engine's (to map when their addresses
   are known).
+
+## ravenphysics: physicsobject.cpp, midphasebatcher.cpp, buildcollisioninfolist.cpp, stackallocator.cpp, gjk.cpp, rest of context.cpp (sn-raven2)
+
+- physicsobject.cpp (0x1065F8C0 - 0x10661420): 55 functions, 53 match, 2 EQUIVALENT (`SetBit` 0x1065FB20 and
+  `GetPairIndex` 0x1065FC30: register allocation only).
+- midphasebatcher.cpp (0x10691690 - 0x10691C30): all match except `Init` 0x10691920 and `QueueBatch` 0x10691AC0
+  (EQUIVALENT: instruction scheduling only).
+- buildcollisioninfolist.cpp (0x106B2970 - 0x106B2BF0): all match except `InfoRecordArray::Create` 0x106B2A90
+  (EQUIVALENT: `jbe` after `test` for `je`) and `MergeRecords` 0x106B2AE0 (NONMATCHING, 10 %: the engine checks the
+  counts only behind the copies and leaves through two exits that each run the remaining tails).
+- stackallocator.cpp (0x10666F90 - 0x10667250): all match except `ScratchStack::Alloc` 0x10666FE0 (EQUIVALENT:
+  operand order of the alignment arithmetic, 85.4 %).
+- gjk.cpp: the small functions (0x10672850 - 0x10673750) are done; `CapsuleSupport` 0x10672750 is EQUIVALENT (operand
+  order of the dot products), `BoxSupport` is NONMATCHING. The large GJK routines (the solver 0x10673750 on, the
+  hull support functions, `GjkDistance` 0x10677180) are declared only.
+- context.cpp: the ten `EmptyMembers` functions match, `GetIslandTable` 0x10657F20 / `GetAwakeTable` 0x10657FA0 are
+  EQUIVALENT, `IsBodyConnected` 0x106588B0 is NONMATCHING (41.8 %: the engine pushes ebx / ebp / edi only behind the
+  early returns and reloads the handle table inside the loop). Not done: 0x10657D00, 0x10659070 and 0x106599C0.
+- `ravenphysics::gCollisionObjectTable` (0x1127CAC0) is the one name and class of the handle table; the former
+  `PhysicsObjectTable` / `gObjectTable` are gone.

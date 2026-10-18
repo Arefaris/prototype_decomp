@@ -31,11 +31,119 @@ namespace ravenphysics
 
 	// The engine keeps two identical out-of-line copies of the object lookup; this unit's own code calls the one
 	// inside its own object, so it is reconstructed here as well.
-	// FUNCTION: ENGINE 0x1065F500
-	PhysicsObject* ObjectHandle::GetObjectSecond() const
+		// FUNCTION: ENGINE 0x10658360
+	void EmptyMembers::TwentyFirst()
 	{
-		return (PhysicsObject*)gCollisionObjectTable->entries.begin[index].object;
 	}
+
+	// FUNCTION: ENGINE 0x10658370
+	void EmptyMembers::TwentySecond()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10658380
+	void EmptyMembers::TwentyThird()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10658390
+	void EmptyMembers::TwentyFourth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583A0
+	void EmptyMembers::TwentyFifth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583B0
+	void EmptyMembers::TwentySixth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583C0
+	void EmptyMembers::TwentySeventh()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583D0
+	void EmptyMembers::TwentyEighth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583E0
+	void EmptyMembers::TwentyNinth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106583F0
+	void EmptyMembers::Thirtieth()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x106588B0
+	// NONMATCHING: the engine saves ebx/ebp/edi only behind the early returns and keeps the body in esi with the
+	// handle table reloaded inside the loop; ours takes the frame up front, 41.8 %
+#ifdef NONMATCHING
+	// Whether the handle still names its slot in the handle table (the engine inlines the check wherever it asks)
+	__forceinline bool IsHandleLive(const CollisionHandle* handle)
+	{
+		if (handle->index >= gCollisionObjectTable->slotCount)
+		{
+			return false;
+		}
+		return gCollisionObjectTable->entries.begin[handle->index].serial == handle->serial;
+	}
+
+	bool Context::IsBodyConnected(ObjectHandle handle)
+	{
+		OLD_ASSERT_AT(CONTEXT_FILE, 0x81a, !gLock.IsLocked(), "!gLock.IsLocked()", "");
+		if (!IsHandleLive((const CollisionHandle*)&handle))
+		{
+			return false;
+		}
+		PhysicsObject* body = handle.GetObject();
+		if ((body->collisionMode & 3) != 0)
+		{
+			if (body->GetActiveCount() == 0)
+			{
+				return false;
+			}
+			if (body->GetActiveCount() > 1)
+			{
+				for (unsigned int i = 0; i != body->objectCount; i++)
+				{
+					CollisionObject* object = body->objects[i];
+					int objectHandle = object->handle.value;
+					if ((object->state & 0x80000000) != 0 && object->shape != 0 && !object->shape->flag2)
+					{
+						bool touched = false;
+						DetectorTable island;
+						DetectorTable* walk = GetIslandTable(&island);
+						for (unsigned short index = *walk->head.first; index != 0xFFFF; index = walk->head.next[index])
+						{
+							ContactPair* pair = (ContactPair*)walk->records[index];
+							if (pair == 0)
+							{
+								break;
+							}
+							if (IsHandleLive(&pair->handleA) && pair->handleA.value == objectHandle
+								|| IsHandleLive(&pair->handleB) && pair->handleB.value == objectHandle)
+							{
+								touched = true;
+							}
+						}
+						if (!touched)
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10657A50
 	void Context::WakeObject(ObjectHandle handle)
@@ -2381,35 +2489,33 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10657F20
-	// NONMATCHING: register allocation, 86.6 %: the engine keeps the detector in edx and the output pointer in eax,
-	// ours picks the other way round (and stores the lower half of the copy's two words one instruction later); the
-	// instructions and their order are otherwise identical. A named local for either, a named local for the output,
-	// a struct assignment instead of the memcpy and taking the output by pointer instead of by address all compile
-	// to the same pair.
-#ifdef NONMATCHING
-	void Context::GetIslandTable(DetectorTable* out)
+	// EQUIVALENT: the engine loads the record count into ecx and the records into edx, ours the other way round; the
+	// output pointer is returned like the engine does (96.6 %)
+	DetectorTable* Context::GetIslandTable(DetectorTable* out)
 	{
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x86b, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		BroadPhaseDetector* detector = unknownC4;
 		out->head = detector->unknown150;
-		out->records = detector->unknown124;
-		out->count = detector->unknown128;
+		void** records = detector->unknown124;
+		int count = detector->unknown128;
+		out->records = records;
+		out->count = count;
+		return out;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10657FA0
-	// NONMATCHING: register allocation, 88.2 %: the same swap of the detector and the output pointer as 0x10657F20,
-	// the code being the same shape with the other table's offsets
-#ifdef NONMATCHING
-	void Context::GetAwakeTable(DetectorTable* out)
+	// EQUIVALENT: as GetIslandTable, with the other table's offsets (96.4 %)
+	DetectorTable* Context::GetAwakeTable(DetectorTable* out)
 	{
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x871, !gLock.IsLocked(), "!gLock.IsLocked()", "");
 		BroadPhaseDetector* detector = unknownC4;
 		out->head = detector->unknown34;
-		out->records = detector->unknown6C;
-		out->count = detector->unknown70;
+		void** records = detector->unknown6C;
+		int count = detector->unknown70;
+		out->records = records;
+		out->count = count;
+		return out;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10657D70
 	// NONMATCHING: register allocation and scheduling, 42.4 %: the offsets and the arithmetic are the engine's, but

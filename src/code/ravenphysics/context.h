@@ -883,6 +883,16 @@ namespace ravenphysics
 		void Eighteenth();
 		void Nineteenth();
 		void Twentieth();
+		void TwentyFirst();
+		void TwentySecond();
+		void TwentyThird();
+		void TwentyFourth();
+		void TwentyFifth();
+		void TwentySixth();
+		void TwentySeventh();
+		void TwentyEighth();
+		void TwentyNinth();
+		void Thirtieth();
 	};
 
 	// A short and two words (name guess)
@@ -1493,14 +1503,17 @@ namespace ravenphysics
 
 		// The heads and records of the two tables the detection's island walk runs over (0x10657F20 / 0x10657FA0;
 		// names are guesses)
-		void GetIslandTable(DetectorTable* out);
-		void GetAwakeTable(DetectorTable* out);
+		DetectorTable* GetIslandTable(DetectorTable* out);
+		DetectorTable* GetAwakeTable(DetectorTable* out);
 		// The counters the statistics display shows: the object counts, the batches' fill and the detector's own
 		// (0x10657D70; name guess)
 		void GetStatistics(int* out);
 
 		// Starts the detection over data: the detector opens its gate and the caller checks it did (0x10659F40)
 		void BeginCollision(void* data);
+		// Whether every active collision object of the body is touched by a pair of the island table, true for a body
+		// that does not move or has a single object (0x106588B0; name guess)
+		bool IsBodyConnected(ObjectHandle handle);
 		// The detection's islands, over the objects the object list holds, out of the scratch buffer (0x106599C0;
 		// name guess)
 		void RunIslands(DetectionData* data, StackAllocator* allocator);
