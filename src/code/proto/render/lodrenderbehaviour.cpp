@@ -18,11 +18,11 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102DA540
-	// EQUIVALENT: scheduling: the engine issues the store of the fade of 1.0 before the load and compare of the ready
-	// range, this compiler after them (97.1 %)
 	void LODRenderBehaviour::UpdateFade()
 	{
-		fade = 1.0f;
+		// Reset through a reference: the store then stays ahead of the load and compare of the ready range
+		float& reset = fade;
+		reset = 1.0f;
 		if (readyBegin == readyEnd)
 		{
 			return;
@@ -75,6 +75,8 @@ namespace proto
 	// EQUIVALENT: scheduling (79.4 %): the half extents of the first ready drawable are subtracted, halved, squared and
 	// summed in the engine's order (z, y, x); this compiler only stores the distance level earlier and picks other
 	// registers
+	// Storing the distance level after the half diagonal gives the engine's store (its zero shared with the loop), but the
+	// ready / level tests and the joint loop then still use other registers (60 %).
 	inline float HalfDiagonal(const math::AABB& box)
 	{
 		math::Vector half;

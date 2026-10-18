@@ -476,9 +476,9 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1072ADB0
-	// EQUIVALENT: the same reads, locks and stream reads in the same order; the engine's register home for the
-	// rect, the dword-wide test of its x, the order of the two operands of one multiplication and the scheduling of
-	// the additions differ (46.6 %)
+	// EQUIVALENT: the same reads, locks and stream reads in the same order (84.7 %); the engine keeps the rect in esi
+	// and the bits per pixel in ebx where this compiler swaps them, which also turns the operands of the destination's
+	// sum and of one multiplication around. The dword-wide test of the rect's x is the constant-first comparison.
 	// Reads one level (or the part of it `rect` names) of a slice of the texture from the stream
 	static bool UploadLevel(content::ChunkStream* stream, Texture* texture, const UploadRect* rect, int level, int slice)
 	{
@@ -505,7 +505,7 @@ namespace pure3d
 		unsigned int y = 0;
 		if (rect != 0)
 		{
-			if (IsBlockFormat(lock.format) && (rect->x & 3) != 0)
+			if (IsBlockFormat(lock.format) && 0 != (rect->x & 3))
 			{
 				texture->info->Unlock();
 				return false;

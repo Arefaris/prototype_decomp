@@ -219,6 +219,8 @@ namespace pure3d
 	// the particle and shadow managers at the end); the engine reloads the manager into ecx later than this compiler
 	// does and interleaves the pushes with the address computations differently, which shifts every block behind it.
 	// The frame and the conversions themselves (fnstcw / fldcw / fistp) do match.
+	// The engine also keeps a ReportAllocationFailure call in each of the two creation branches (each recomputing the
+	// record's address) where this compiler merges them.
 	void RestoreDefaultPool()
 	{
 		if (gDefaultPoolManager->released)

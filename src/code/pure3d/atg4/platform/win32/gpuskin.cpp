@@ -18,15 +18,11 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1072E2D0
 
 	// FUNCTION: ENGINE 0x1072E3E0
-	// EQUIVALENT: scheduling: the engine pushes the argument of the parameters' assignment and sets up ecx after the four
-	// stores before it, this compiler before them (86.9 %)
 	GpuSkin::GpuSkin(const VertexBufferDescription* vertices, const IndexBufferDescription* indices, unsigned int kind)
 		: Primitive(0x4000), unknown1C(kind)
 	{
 		unknown140 = 0;
-		centre.x = 0.0f;
-		centre.y = 0.0f;
-		centre.z = 0.0f;
+		centre.Set(0.0f, 0.0f, 0.0f);
 		unknown16C = -1;
 		parameters = *vertices;
 		unknown138 = 0;

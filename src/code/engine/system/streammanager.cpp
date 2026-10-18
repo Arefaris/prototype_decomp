@@ -12,6 +12,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x1082DB20
 	// EQUIVALENT: operand order of the x sum: the engine loads min.x and adds max.x, this compiler loads max.x and adds
 	// min.x (98.9 %)
+	// Helpers, references, Set and every operand and statement order give the same canonical order.
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)
 	{
@@ -56,16 +57,17 @@ namespace engine
 		StreamPackage** begin;
 		StreamPackage** end;
 		StreamPackage** capacity;
+		// The engine's two sets lie 16 bytes apart in its frame; this word is never written
+		int unknownC;
 	};
 
 	__forceinline void Create(PackageSet* set)
 	{
-		StreamPackage** block = (StreamPackage**)core::HeapAllocAligned(12, 0x40, 16);
-		set->begin = block;
-		if (block != 0)
+		set->begin = (StreamPackage**)core::HeapAllocAligned(12, 0x40, 16);
+		if (set->begin != 0)
 		{
-			set->end = block;
-			set->capacity = block + 16;
+			set->end = set->begin;
+			set->capacity = set->begin + 16;
 		}
 		else
 		{
@@ -124,8 +126,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1082E100
-	// EQUIVALENT: register allocation (21.2 %): the engine keeps the target's count in ebp and the current's in esi,
-	// this compiler the other way round; every comparison, call and store is the same
+	// EQUIVALENT: register allocation (21.1 %): the engine keeps the target's count in ebp, the current's in esi and
+	// the current array in ebx and re-reads the target from its argument, this compiler holds both arrays in
+	// registers (one more spill, a frame of 0x24 for the engine's 0x20); every comparison, call and store is the same
 	void UpdateStreamTransition(StreamPackageArray** target, StreamPackageArray** current, bool* active,
 		bool restricted)
 	{

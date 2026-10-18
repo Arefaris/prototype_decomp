@@ -15,27 +15,39 @@ namespace pure3d
 	// 0x1067EB90: reads the entries chunk into the object (name unknown)
 	void Unknown1067EB90(Loaded1066F430* loaded, content::ChunkReader* reader, content::LoadInventory* inventory);
 
+	// One word of the stream (the loaders read and drop several of them)
+	inline unsigned int ReadUnsigned(content::ChunkReader* reader)
+	{
+		unsigned int value;
+		reader->Read(&value, 1, 4, 1);
+		return value;
+	}
+
 	// FUNCTION: ENGINE 0x1067F4D0
-	// EQUIVALENT: register allocation and scheduling (27.9 %): the engine keeps the object in a stack slot and the
-	// entry count in ebx, this compiler the other way round; every read, call and store is the same
+	// EQUIVALENT: stack slot order (46.5 %): the frame has the engine's size and slots, but the engine gives the entry
+	// count the lowest of the three words below the name, then the object, then the dropped words, where this compiler
+	// puts the object first; every read, call and store is the same
 	void Loader1067F4D0::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
 	{
 		core::CriticalSectionEnter(gLoaderLock);
-		unsigned char length;
-		reader->Read(&length, 1, 1, 1);
 		char text[0x100];
-		reader->Read(text, length, 1, 1);
-		text[length] = 0;
-		unsigned int skipped;
-		reader->Read(&skipped, 1, 4, 1);
-		unsigned int count;
-		reader->Read(&count, 1, 4, 1);
-		reader->Read(&skipped, 1, 4, 1);
+		{
+			unsigned char byte;
+			reader->Read(&byte, 1, 1, 1);
+			unsigned int length = byte;
+			reader->Read(text, length, 1, 1);
+			text[length] = 0;
+		}
+		ReadUnsigned(reader);
+		unsigned int count = ReadUnsigned(reader);
+		ReadUnsigned(reader);
 		Loaded1066F430* loaded = new Loaded1066F430();
 		loaded->AddRef();
-		content::ObjectName loadedName(text, 1);
-		loaded->SetName(loadedName);
+		{
+			content::ObjectName loadedName(text, 1);
+			loaded->SetName(loadedName);
+		}
 		Loaded1066F430Tables* tables = loaded->tables;
 		if (count != 0)
 		{
@@ -61,17 +73,14 @@ namespace pure3d
 			unsigned int id = reader->GetChunkId();
 			if (id == 0x7020001)
 			{
-				reader->Read(&skipped, 1, 4, 1);
+				ReadUnsigned(reader);
 				tables->unknown4 = new unsigned short[count];
 				reader->Read(tables->unknown4, count, 2, 1);
-				unsigned int number;
-				reader->Read(&number, 1, 4, 1);
-				tables->count = (unsigned short)number;
+				tables->count = (unsigned short)ReadUnsigned(reader);
 				tables->unknown8 = new unsigned short[tables->count];
 				reader->Read(tables->unknown8, tables->count, 2, 1);
-				reader->Read(&skipped, 1, 4, 1);
-				unsigned int size;
-				reader->Read(&size, 1, 4, 1);
+				ReadUnsigned(reader);
+				unsigned int size = ReadUnsigned(reader);
 				if (size == 0)
 				{
 					tables->unknownC = 0;

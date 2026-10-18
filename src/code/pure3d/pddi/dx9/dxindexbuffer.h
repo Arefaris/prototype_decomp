@@ -27,16 +27,6 @@ namespace pure3d
 	{
 	public:
 		dxIndexBufferState();
-		void Clear()
-		{
-			unknown0 = 0;
-			unknown4 = 0;
-			unknown8 = 0;
-			unknownC = 0;
-			unknown10 = 0;
-			unknown14 = 0;
-		}
-
 		int unknown0;
 		int unknown4;
 		int unknown8;

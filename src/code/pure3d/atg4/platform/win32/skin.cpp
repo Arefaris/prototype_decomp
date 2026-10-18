@@ -752,7 +752,7 @@ namespace pure3d
 #endif
 
 	// FUNCTION: ENGINE 0x1071D1B0
-	// NONMATCHING: the loop count's copy and the loop-invariant stride scalings come out in a different order in the loop pre-header (the rest is byte for byte), 96 %
+	// NONMATCHING: the loop count's copy and the loop-invariant stride scalings come out in a different order in the loop pre-header (the rest is byte for byte), 96.5 %; the counter's place, type and decrement, the order of the strides, of the two offset tests and of the loop's loads do not move it
 #ifdef NONMATCHING
 	void SkinState::Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{

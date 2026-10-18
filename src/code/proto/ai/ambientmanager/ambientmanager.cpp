@@ -29,8 +29,9 @@ namespace proto
 
 	// FUNCTION: ENGINE 0x1041FA40
 	// EQUIVALENT: the same members started the same way in the same order, the same calls (the nine array
-	// allocations, the pools, the cloud manager, the script natives and the three block heaps); the engine
-	// schedules the stores of the six points between the loads of the vectors (83 % of the instructions)
+	// allocations, the pools, the cloud manager, the script natives and the three block heaps); what is left are
+	// register choices: the engine copies the pools' heap into eax / ecx before pushing it, picks other registers
+	// for the empty name and the cloud's sums and pushes one argument later (28.9 %, 37 of 396 instruction lines)
 	AmbientManager::AmbientManager(const AmbientConfig* newConfig) :
 		unknown10(newConfig->physicsCount, container::AllocatorCoreAligned<16>(0xA8)),
 		unknown40(false),
@@ -57,8 +58,6 @@ namespace proto
 		unknown2A0(0),
 		unknown2A4(0),
 		unknown2A8(false),
-		unknown4DC(false),
-		unknown4E0(0.0f, 0.0f, 0.0f),
 		unknown4EC(math::kZeroVector),
 		unknown4F8(1.0f),
 		unknown4FC(1.0f),
@@ -96,7 +95,10 @@ namespace proto
 		unknown614(false)
 	{
 		gAmbientManager = this;
-		unknown518 = core::Name<core::CaseSensitiveKey>("", 1);
+		{
+			core::Name<core::CaseSensitiveKey> name("", 1);
+			unknown518 = name;
+		}
 		CloudConfig cloud;
 		cloud.unknown4 = newConfig->unknown2C;
 		cloud.unknown8 = newConfig->vehicleBase + newConfig->unknown14 - 0x14;
@@ -112,30 +114,48 @@ namespace proto
 		RegisterScript();
 		unknown50C = -1;
 		unknown510 = -1;
-		unknown48C.position.x = math::kZeroVector.x;
-		unknown48C.position.y = math::kZeroVector.y;
-		unknown48C.position.z = math::kZeroVector.z;
-		unknown48C.value = config.unknown84;
-		unknown49C.position.x = math::kZeroVector.x;
-		unknown49C.position.y = math::kZeroVector.y;
-		unknown49C.position.z = math::kZeroVector.z;
-		unknown49C.value = config.unknown90;
-		unknown4AC.position.x = math::kZeroVector.x;
-		unknown4AC.position.y = math::kZeroVector.y;
-		unknown4AC.position.z = math::kZeroVector.z;
-		unknown4AC.value = config.unknown8C;
-		unknown42C.position.x = math::kZeroVector.x;
-		unknown42C.position.y = math::kZeroVector.y;
-		unknown42C.position.z = math::kZeroVector.z;
-		unknown42C.value = config.unknown94;
-		unknown43C.position.x = math::kZeroVector.x;
-		unknown43C.position.y = math::kZeroVector.y;
-		unknown43C.position.z = math::kZeroVector.z;
-		unknown43C.value = config.unknown94 - 10.0f;
-		unknown47C.position.x = math::kZeroVector.x;
-		unknown47C.position.y = math::kZeroVector.y;
-		unknown47C.position.z = math::kZeroVector.z;
-		unknown47C.value = config.unknown88 + config.unknown84;
+		{
+			AmbientPoint& point = unknown48C;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown84;
+		}
+		{
+			AmbientPoint& point = unknown49C;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown90;
+		}
+		{
+			AmbientPoint& point = unknown4AC;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown8C;
+		}
+		{
+			AmbientPoint& point = unknown42C;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown94;
+		}
+		{
+			AmbientPoint& point = unknown43C;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown94 - 10.0f;
+		}
+		{
+			AmbientPoint& point = unknown47C;
+			point.position.x = math::kZeroVector.x;
+			point.position.y = math::kZeroVector.y;
+			point.position.z = math::kZeroVector.z;
+			point.value = config.unknown88 + config.unknown84;
+		}
 		engine::CreateBlockHeap(0xA3, newConfig->pedestrianCount, 0x360, 0, 0x10, "PedGameObjectPool", 0, 2, 0);
 		engine::CreateBlockHeap(0xAA, newConfig->vehicleBase + 8 + newConfig->unknown14, 0x8000, 0, 0x10,
 			"VehGameObjectPool", 0, 2, 0);

@@ -61,10 +61,19 @@ namespace pure3d
 	// The vertex declaration a draw needs: its number goes to `declaration` (0x1062B7B0; name guess)
 	void Unknown1062B7B0(int format, int* declaration, int* unknown);
 
+	// Sets the vertex declaration the device draws with when it is not the current one (name guess)
+	inline void SelectVertexDeclaration(int declaration)
+	{
+		if (gVertexDeclarationManager->current != declaration)
+		{
+			gVertexDeclarationManager->current = declaration;
+			IDirect3DDevice9* device = gD3DDevice;
+			device->lpVtbl->SetVertexDeclaration(device,
+				gVertexDeclarationManager->entries.begin[declaration].declaration);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10620A20
-	// EQUIVALENT: scheduling and register allocation (27.3 %): the engine pushes the shader name before the call that
-	// hands out the techniques, keeps the vertex declaration's number in the slot of the shader argument and saves
-	// ebp around the device call; every call and every value is the same
 	dxDrawTracker* dxContext::Unknown10620A20(dxShader* shader, int a, int b, int count,
 		const core::Name<core::CaseInsensitiveKey32>* name, const void* parameters)
 	{
@@ -76,21 +85,17 @@ namespace pure3d
 		int declaration;
 		int unknown;
 		Unknown1062B7B0(b, &declaration, &unknown);
-		if (gVertexDeclarationManager->current != declaration)
-		{
-			gVertexDeclarationManager->current = declaration;
-			gD3DDevice->lpVtbl->SetVertexDeclaration(gD3DDevice,
-				gVertexDeclarationManager->entries.begin[declaration].declaration);
-		}
+		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, parameters);
 		batchDraws += 1.0f;
-		batchedPrimitives += (float)count;
+		// Added through a reference: the store then stays ahead of the load of the tracker
+		float& primitives = batchedPrimitives;
+		primitives += (float)count;
 		tracker->Unknown1062A8F0(a, b, count);
 		return tracker;
 	}
 
 	// FUNCTION: ENGINE 0x10620B00
-	// EQUIVALENT: scheduling and register allocation, the same as 0x10620A20 (26.1 %)
 	dxDrawTracker* dxContext::Unknown10620B00(dxShader* shader, int a, int b, int count, int unused)
 	{
 		if (shader == 0)
@@ -101,15 +106,12 @@ namespace pure3d
 		int declaration;
 		int unknown;
 		Unknown1062B7B0(b, &declaration, &unknown);
-		if (gVertexDeclarationManager->current != declaration)
-		{
-			gVertexDeclarationManager->current = declaration;
-			gD3DDevice->lpVtbl->SetVertexDeclaration(gD3DDevice,
-				gVertexDeclarationManager->entries.begin[declaration].declaration);
-		}
+		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, 0);
 		batchDraws += 1.0f;
-		batchedPrimitives += (float)count;
+		// Added through a reference: the store then stays ahead of the load of the tracker
+		float& primitives = batchedPrimitives;
+		primitives += (float)count;
 		tracker->Unknown1062A8F0(a, b, count);
 		return tracker;
 	}
@@ -135,8 +137,6 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061FB40
-	// EQUIVALENT: scheduling and register allocation (22.0 %): the engine reads the indexed draw's counts in another order
-	// and keeps the state in different registers; every call and every value is the same
 	void dxContext::DrawPrimitive(const core::Name<core::CaseInsensitiveKey32>* shaderName, const void* descPointer,
 		const void* parameters)
 	{
@@ -159,17 +159,30 @@ namespace pure3d
 		}
 		gDrawing = true;
 		Unknown10626030(desc);
-		if (desc->indices != 0 && desc->indices != gCurrentIndices)
+		dxIndexBuffer* indices = desc->indices;
+		if (indices != 0 && indices != gCurrentIndices)
 		{
-			gD3DDevice->lpVtbl->SetIndices(gD3DDevice, desc->indices->buffer);
-			gCurrentIndices = desc->indices;
+			gD3DDevice->lpVtbl->SetIndices(gD3DDevice, indices->buffer);
+			gCurrentIndices = indices;
 		}
 		shader->Draw(technique, constants, parameters);
 		gDrawing = false;
 		int d3dType = gD3DPrimitiveTypes[desc->primitiveType];
 		int indexCount = 0;
 		int vertices;
-		if (desc->indices == 0)
+		if (desc->indices != 0)
+		{
+			vertices = desc->vertices->GetUnknown14() - desc->baseVertex;
+			if (desc->count != 0)
+			{
+				indexCount = desc->count;
+			}
+			else
+			{
+				indexCount = desc->indices->GetUnknown1C();
+			}
+		}
+		else
 		{
 			vertices = desc->count;
 			if (vertices == 0)
@@ -177,18 +190,17 @@ namespace pure3d
 				vertices = desc->vertices->GetUnknown14();
 			}
 		}
+		dxTechniques* techniques = shader->GetTechniques();
+		techniques->Get(technique);
+		if (desc->indices != 0)
+		{
+			IDirect3DDevice9* device = gD3DDevice;
+			device->lpVtbl->DrawIndexedPrimitive(device, d3dType, desc->baseVertex, 0, vertices,
+				desc->startIndex, PrimitiveCount(desc->primitiveType, 0, indexCount));
+		}
 		else
 		{
-			vertices = desc->vertices->GetUnknown14() - desc->baseVertex;
-			indexCount = desc->count;
-			if (indexCount == 0)
-			{
-				indexCount = desc->indices->GetUnknown1C();
-			}
-		}
-		shader->GetTechniques()->Get(technique);
-		if (desc->indices == 0)
-		{
+			IDirect3DDevice9* device = gD3DDevice;
 			int primitives;
 			switch (desc->primitiveType)
 			{
@@ -210,29 +222,26 @@ namespace pure3d
 			default:
 				primitives = -1;
 			}
-			gD3DDevice->lpVtbl->DrawPrimitive(gD3DDevice, d3dType, 0, primitives);
-		}
-		else
-		{
-			gD3DDevice->lpVtbl->DrawIndexedPrimitive(gD3DDevice, d3dType, desc->baseVertex, 0, vertices,
-				desc->startIndex, PrimitiveCount(desc->primitiveType, 0, indexCount));
+			device->lpVtbl->DrawPrimitive(device, d3dType, 0, primitives);
 		}
 		int primitives = PrimitiveCount(desc->primitiveType, vertices, indexCount);
-		if (desc->indices == 0)
-		{
-			drawnPrimitives += (float)(unsigned int)primitives;
-			drawnVertices += (float)(unsigned int)vertices;
-		}
-		else
+		if (desc->indices != 0)
 		{
 			drawnIndexedPrimitives += (float)(unsigned int)primitives;
 			drawnIndexedVertices += (float)(unsigned int)vertices;
+		}
+		else
+		{
+			drawnPrimitives += (float)(unsigned int)primitives;
+			drawnVertices += (float)(unsigned int)vertices;
 		}
 		drawCalls += 1.0f;
 	}
 
 	// FUNCTION: ENGINE 0x10623250
-	// EQUIVALENT: scheduling and register allocation (32.4 %), the same as 0x1061FB40
+	// EQUIVALENT: register allocation (28.7 %): the source is shaped like DrawPrimitive's (0x1061FB40), but the engine
+	// keeps the technique in ebp and the index buffer in a stack slot, this compiler the other way round; every call
+	// and every value is the same
 	void dxContext::Unknown2(const core::Name<core::CaseInsensitiveKey32>* shaderName, const void* descPointer,
 		const void* parameters)
 	{
@@ -251,10 +260,11 @@ namespace pure3d
 		}
 		gDrawing = true;
 		Unknown10626030(desc);
-		if (desc->indices != 0 && desc->indices != gCurrentIndices)
+		dxIndexBuffer* indices = desc->indices;
+		if (indices != 0 && indices != gCurrentIndices)
 		{
-			gD3DDevice->lpVtbl->SetIndices(gD3DDevice, desc->indices->buffer);
-			gCurrentIndices = desc->indices;
+			gD3DDevice->lpVtbl->SetIndices(gD3DDevice, indices->buffer);
+			gCurrentIndices = indices;
 		}
 		shader->Draw(technique, constants, parameters);
 		gDrawing = false;
@@ -266,7 +276,8 @@ namespace pure3d
 			vertices = desc->vertices->GetUnknown14();
 		}
 		unsigned int indexCount = 0;
-		shader->GetTechniques()->Get(technique);
+		dxTechniques* techniques = shader->GetTechniques();
+		techniques->Get(technique);
 		if (desc->indices != 0)
 		{
 			indexCount = desc->count;
@@ -276,24 +287,25 @@ namespace pure3d
 			}
 		}
 		int primitives = PrimitiveCount(desc->primitiveType, vertices, indexCount);
-		if (desc->indices == 0)
+		IDirect3DDevice9* device = gD3DDevice;
+		if (desc->indices != 0)
 		{
-			gD3DDevice->lpVtbl->DrawPrimitive(gD3DDevice, d3dType, desc->baseVertex, primitives);
+			device->lpVtbl->DrawIndexedPrimitive(device, d3dType, desc->baseVertex, 0, vertices, desc->startIndex,
+				primitives);
 		}
 		else
 		{
-			gD3DDevice->lpVtbl->DrawIndexedPrimitive(gD3DDevice, d3dType, desc->baseVertex, 0, vertices,
-				desc->startIndex, primitives);
+			device->lpVtbl->DrawPrimitive(device, d3dType, desc->baseVertex, primitives);
 		}
-		if (desc->indices == 0)
+		if (desc->indices != 0)
 		{
-			drawnPrimitives += (float)(unsigned int)primitives;
-			drawnVertices += (float)vertices;
-		}
-		else
-		{
-			drawnIndexedPrimitives += (float)(unsigned int)primitives;
+			drawnIndexedPrimitives += (float)primitives;
 			drawnIndexedVertices += (float)vertices;
+		}
+		else
+		{
+			drawnPrimitives += (float)primitives;
+			drawnVertices += (float)vertices;
 		}
 		drawCalls += 1.0f;
 	}
