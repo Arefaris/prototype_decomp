@@ -36,8 +36,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x106182C0
-	// EQUIVALENT: scheduling: the engine orders the stores of the parameters and the loads of the capabilities differently
-	// (44.8 %), every call and every value is the same
+	// EQUIVALENT: scheduling (97.7 %): the engine loads the capabilities' DevCaps2 before the texture size and stores its
+	// bit after the two sizes; every call and every value is the same
 	bool Display::Unknown106182C0(void* unknown)
 	{
 		if (unknown != 0)
@@ -49,10 +49,10 @@ namespace engine
 		D3DCAPS9 caps;
 		d3d->lpVtbl->GetDeviceCaps(d3d, 0, 1, &caps);
 		unknown78F = (caps.StretchRectFilterCaps >> 9) & 1;
+		maxTextureWidth = caps.MaxTextureWidth;
+		maxTextureHeight = caps.MaxTextureHeight;
 		unknown790 = (caps.DevCaps2 >> 4) & 1;
 		bool fullScreen = unknown20 != 1;
-		maxTextureHeight = caps.MaxTextureHeight;
-		maxTextureWidth = caps.MaxTextureWidth;
 		D3DDISPLAYMODE mode;
 		d3d->lpVtbl->GetAdapterDisplayMode(d3d, 0, &mode);
 		unsigned int refreshRate;
@@ -60,17 +60,17 @@ namespace engine
 		{
 			Unknown106180B0(&width, &unknown8, &refreshRate, mode.Format);
 		}
-		presentParameters.BackBufferWidth = width;
-		presentParameters.BackBufferHeight = unknown8;
-		presentParameters.BackBufferFormat = mode.Format;
+		presentParameters.hDeviceWindow = (void*)unknown0;
+		presentParameters.Windowed = !fullScreen;
 		presentParameters.BackBufferCount = 1;
 		presentParameters.MultiSampleType = 0;
 		presentParameters.SwapEffect = 1;
-		presentParameters.hDeviceWindow = (void*)unknown0;
-		presentParameters.Windowed = !fullScreen;
+		presentParameters.BackBufferWidth = width;
+		presentParameters.BackBufferHeight = unknown8;
+		presentParameters.BackBufferFormat = mode.Format;
 		presentParameters.EnableAutoDepthStencil = 1;
-		presentParameters.AutoDepthStencilFormat = 0x4B;
 		presentParameters.FullScreen_RefreshRateInHz = fullScreen ? refreshRate : 0;
+		presentParameters.AutoDepthStencilFormat = 0x4B;
 		presentParameters.PresentationInterval = unknown2C != 0 ? 1 : 0x80000000;
 		if (device != 0)
 		{

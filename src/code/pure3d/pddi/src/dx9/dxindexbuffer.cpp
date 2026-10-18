@@ -1,5 +1,7 @@
 // pure3d::dxIndexBuffer, the Direct3D 9 index buffer of the pddi layer (unit around 0x106266D0 - 0x10626920; the
 // file name is guessed, no assert path survives).
+#include <string.h>
+
 #include "code/content/loadmanager.h"
 #include "code/core/thread.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
@@ -16,12 +18,11 @@ namespace pure3d
 	};
 
 	// FUNCTION: ENGINE 0x106266D0
-	// EQUIVALENT: register allocation: the engine clears the state block with a zero it materialises in eax after the
-	// state's constructor call, this compiler reuses the zero the initialiser list left in ebx (64.9 %)
 	dxIndexBuffer::dxIndexBuffer() : unknown8(0), buffer(0), unknown10(0), unknown14(0), unknown18(1)
 	{
 		unknown34 = -1;
-		state.Clear();
+		// The block is cleared as a whole, not member by member
+		memset(&state, 0, sizeof(state));
 	}
 
 	// FUNCTION: ENGINE 0x10626770

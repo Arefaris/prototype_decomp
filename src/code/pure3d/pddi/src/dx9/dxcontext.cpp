@@ -61,10 +61,21 @@ namespace pure3d
 	// The vertex declaration a draw needs: its number goes to `declaration` (0x1062B7B0; name guess)
 	void Unknown1062B7B0(int format, int* declaration, int* unknown);
 
+	// Sets the vertex declaration the device draws with when it is not the current one (name guess)
+	inline void SelectVertexDeclaration(int declaration)
+	{
+		if (gVertexDeclarationManager->current != declaration)
+		{
+			gVertexDeclarationManager->current = declaration;
+			IDirect3DDevice9* device = gD3DDevice;
+			device->lpVtbl->SetVertexDeclaration(device,
+				gVertexDeclarationManager->entries.begin[declaration].declaration);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10620A20
-	// EQUIVALENT: scheduling and register allocation (27.3 %): the engine pushes the shader name before the call that
-	// hands out the techniques, keeps the vertex declaration's number in the slot of the shader argument and saves
-	// ebp around the device call; every call and every value is the same
+	// EQUIVALENT: scheduling (95.0 %): the engine stores the batched primitive count before it loads the tracker for the
+	// last call, this compiler after; every call and every value is the same
 	dxDrawTracker* dxContext::Unknown10620A20(dxShader* shader, int a, int b, int count,
 		const core::Name<core::CaseInsensitiveKey32>* name, const void* parameters)
 	{
@@ -76,12 +87,7 @@ namespace pure3d
 		int declaration;
 		int unknown;
 		Unknown1062B7B0(b, &declaration, &unknown);
-		if (gVertexDeclarationManager->current != declaration)
-		{
-			gVertexDeclarationManager->current = declaration;
-			gD3DDevice->lpVtbl->SetVertexDeclaration(gD3DDevice,
-				gVertexDeclarationManager->entries.begin[declaration].declaration);
-		}
+		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, parameters);
 		batchDraws += 1.0f;
 		batchedPrimitives += (float)count;
@@ -90,7 +96,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10620B00
-	// EQUIVALENT: scheduling and register allocation, the same as 0x10620A20 (26.1 %)
+	// EQUIVALENT: scheduling, the same store as 0x10620A20 (95.0 %)
 	dxDrawTracker* dxContext::Unknown10620B00(dxShader* shader, int a, int b, int count, int unused)
 	{
 		if (shader == 0)
@@ -101,12 +107,7 @@ namespace pure3d
 		int declaration;
 		int unknown;
 		Unknown1062B7B0(b, &declaration, &unknown);
-		if (gVertexDeclarationManager->current != declaration)
-		{
-			gVertexDeclarationManager->current = declaration;
-			gD3DDevice->lpVtbl->SetVertexDeclaration(gD3DDevice,
-				gVertexDeclarationManager->entries.begin[declaration].declaration);
-		}
+		SelectVertexDeclaration(declaration);
 		shader->Draw(technique, constants, 0);
 		batchDraws += 1.0f;
 		batchedPrimitives += (float)count;
