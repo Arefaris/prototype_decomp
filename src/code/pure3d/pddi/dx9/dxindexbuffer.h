@@ -51,12 +51,18 @@ namespace pure3d
 	public:
 		// 0x106266D0
 		dxIndexBuffer();
+		// 0x10626720: lets go of the device buffer (to the pool when it is the default pool's)
+		virtual ~dxIndexBuffer();
 		// 0x10626770
 		void Create(const IndexBufferDescription* description);
 		// 0x10626950 / 0x10626860: lock the buffer (the pointer to the indices comes back in the state's fifth word)
 		// and let go of it again
 		void Lock(dxIndexBufferState* lockState);
 		void Unlock();
+		// 0x106268D0: the description the buffer was created from
+		void GetDescription(IndexBufferDescription* description);
+		// 0x10626910: the format of the indices (an index into the Direct3D format codes)
+		int GetFormatIndex();
 		// 0x10626920: the first word of the state (the draws take it for how many indices there are)
 		int GetUnknown1C();
 

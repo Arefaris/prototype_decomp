@@ -77,6 +77,12 @@ namespace pure3d
 	class dxDefaultPoolManager
 	{
 	public:
+		// 0x10625310: keeps the device and makes room for the arrays (64 textures, 50000 vertex buffers, 50000 index
+		// buffers, 64 render targets and 8 depth stencil surfaces)
+		dxDefaultPoolManager(IDirect3DDevice9* newDevice);
+		// 0x10625420: releases the pool, then the entries and the arrays
+		~dxDefaultPoolManager();
+
 		container::ArrayDynamicNew<DefaultPoolTexture*> textures;              // +0x00
 		int unknownC;                                                          // +0x0C
 		container::ArrayDynamicNew<DefaultPoolVertexBuffer*> vertexBuffers;    // +0x10
@@ -112,6 +118,14 @@ namespace pure3d
 		IDirect3DSurface9** surface, float scale);
 	// 0x10624D10: takes the texture that was made into a handle back out of the pool
 	void FreePooledTexture(IDirect3DTexture9** texture);
+	// 0x10625660: releases the pool and deletes the manager (name guess)
+	void ShutdownDefaultPool();
+	// 0x10624DF0 / 0x10624EC0 / 0x10624F90 / 0x10625060: take the resource that was made into a handle back out of the
+	// pool
+	void FreePooledVertexBuffer(IDirect3DVertexBuffer9** buffer);
+	void FreePooledIndexBuffer(IDirect3DIndexBuffer9** buffer);
+	void FreePooledRenderTarget(IDirect3DSurface9** surface);
+	void FreePooledDepthStencil(IDirect3DSurface9** surface);
 	// 0x10623DB0: releases every resource of the pool before the device is reset
 	void ReleaseDefaultPool();
 	// 0x10623FB0: makes every resource the pool recorded again after the device came back (engine::Display's reset

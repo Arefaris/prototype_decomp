@@ -48,6 +48,41 @@ enum
 	D3DTEXF_ANISOTROPIC = 3
 };
 
+// The render states and values the context passes on to the device
+enum
+{
+	D3DRS_ZENABLE = 7,
+	D3DRS_FILLMODE = 8,
+	D3DRS_ZWRITEENABLE = 14,
+	D3DRS_CULLMODE = 22,
+	D3DRS_ZFUNC = 23,
+	D3DRS_STENCILENABLE = 52,
+	D3DRS_STENCILFAIL = 53,
+	D3DRS_STENCILZFAIL = 54,
+	D3DRS_STENCILPASS = 55,
+	D3DRS_STENCILFUNC = 56,
+	D3DRS_STENCILREF = 57,
+	D3DRS_STENCILMASK = 58,
+	D3DRS_STENCILWRITEMASK = 59,
+	D3DRS_MULTISAMPLEANTIALIAS = 161,
+	D3DRS_COLORWRITEENABLE = 168,
+	D3DRS_SCISSORTESTENABLE = 174,
+	D3DRS_SLOPESCALEDEPTHBIAS = 175,
+	D3DRS_TWOSIDEDSTENCILMODE = 185,
+	D3DRS_CCW_STENCILFAIL = 186,
+	D3DRS_CCW_STENCILZFAIL = 187,
+	D3DRS_CCW_STENCILPASS = 188,
+	D3DRS_CCW_STENCILFUNC = 189,
+	D3DRS_DEPTHBIAS = 195
+};
+
+enum
+{
+	D3DCULL_NONE = 1,
+	D3DCULL_CW = 2,
+	D3DCULL_CCW = 3
+};
+
 // 0x10: the lock is only read
 #define D3DLOCK_READONLY 0x10
 // 0x2000: the buffer's old contents are dropped (what the pool locks a recreated vertex buffer with)
@@ -109,7 +144,7 @@ struct IDirect3DVertexBuffer9Vtbl
 {
 	void* queryInterface;
 	void* addRef;
-	void* release;
+	ULONG (__stdcall* Release)(IDirect3DVertexBuffer9* buffer);
 	void* getDevice;
 	void* setPrivateData;
 	void* getPrivateData;
@@ -128,13 +163,21 @@ struct IDirect3DVertexBuffer9Vtbl
 struct IDirect3DVertexBuffer9
 {
 	IDirect3DVertexBuffer9Vtbl* lpVtbl;
+
+	// Releases the interface (through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DVertexBuffer9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 struct IDirect3DIndexBuffer9Vtbl
 {
 	void* queryInterface;
 	void* addRef;
-	void* release;
+	ULONG (__stdcall* Release)(IDirect3DIndexBuffer9* buffer);
 	void* getDevice;
 	void* setPrivateData;
 	void* getPrivateData;
@@ -152,7 +195,15 @@ struct IDirect3DIndexBuffer9Vtbl
 struct IDirect3DIndexBuffer9
 {
 	IDirect3DIndexBuffer9Vtbl* lpVtbl;
+
+	// Releases the interface (through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3DIndexBuffer9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 // 0x08 Release, and the surface interface's own slots above it
 struct IDirect3DSurface9Vtbl
@@ -382,8 +433,8 @@ extern "C" IDirect3D9* __stdcall Direct3DCreate9(UINT sdkVersion);
 struct IDirect3DDevice9Vtbl
 {
 	void* queryInterface;
-	void* addRef;
-	void* release;
+	ULONG (__stdcall* AddRef)(IDirect3DDevice9* device);
+	ULONG (__stdcall* Release)(IDirect3DDevice9* device);
 	HRESULT (__stdcall* TestCooperativeLevel)(IDirect3DDevice9* device);
 	// 0x10
 	UINT (__stdcall* GetAvailableTextureMem)(IDirect3DDevice9* device);
@@ -445,8 +496,12 @@ struct IDirect3DDevice9Vtbl
 		const void* sourceRect, IDirect3DSurface9* destSurface, const void* destRect, D3DTEXTUREFILTERTYPE filter);
 	// 0x8C ColorFill
 	void* colorFill;
-	// 0x90 - 0x140: the offscreen surface, the render targets, the scene, the transforms and the states
-	void* unknown94[45];
+	// 0x90 - 0xE0: the offscreen surface, the render targets, the scene, the transforms and the clip state
+	void* unknown90[21];
+	// 0xE4 SetRenderState
+	HRESULT (__stdcall* SetRenderState)(IDirect3DDevice9* device, unsigned int state, unsigned int value);
+	// 0xE8 - 0x140: the texture stage and sampler states, the textures and the vertex processing
+	void* unknownE8[23];
 	// 0x144 DrawPrimitive
 	HRESULT (__stdcall* DrawPrimitive)(IDirect3DDevice9* device, unsigned int primitiveType, UINT startVertex,
 		UINT primitiveCount);

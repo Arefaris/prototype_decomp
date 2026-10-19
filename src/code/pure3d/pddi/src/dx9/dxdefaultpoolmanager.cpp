@@ -81,6 +81,92 @@ namespace pure3d
 		}
 	}
 
+	// Room for count elements: the array comes back empty when the allocation fails (the order of the stores is the
+	// constructor's, not Create's)
+	template<class T> static inline void AllocateArray(container::ArrayDynamicNew<T>& array, unsigned int count)
+	{
+		array.begin = (T*)operator new[](count * sizeof(T));
+		if (array.begin != 0)
+		{
+			array.end = array.begin;
+			array.capacity = array.begin + count;
+		}
+		else
+		{
+			array.end = 0;
+			array.capacity = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10625310
+	dxDefaultPoolManager::dxDefaultPoolManager(IDirect3DDevice9* newDevice)
+	{
+		device = newDevice;
+		device->lpVtbl->AddRef(device);
+		released = false;
+		AllocateArray(textures, 0x40);
+		AllocateArray(vertexBuffers, 50000);
+		AllocateArray(indexBuffers, 50000);
+		AllocateArray(renderTargets, 0x40);
+		AllocateArray(depthStencils, 8);
+	}
+
+	// Deletes every entry of an array and the array itself
+	template<class T> static __forceinline void DeleteEntries(container::ArrayDynamicNew<T*>& array)
+	{
+		for (unsigned int i = 0; i < array.Size(); i++)
+		{
+			if (array[i] != 0)
+			{
+				delete array[i];
+				array[i] = 0;
+			}
+		}
+		array.Free();
+	}
+
+	// FUNCTION: ENGINE 0x10625420
+	dxDefaultPoolManager::~dxDefaultPoolManager()
+	{
+		ReleaseDefaultPool();
+		DeleteEntries(indexBuffers);
+		DeleteEntries(vertexBuffers);
+		DeleteEntries(textures);
+		DeleteEntries(renderTargets);
+		DeleteEntries(depthStencils);
+		device->lpVtbl->Release(device);
+	}
+
+	// FUNCTION: ENGINE 0x10625640 is the compiler's scalar deleting destructor of the manager (ShutdownDefaultPool's
+	// delete makes it)
+
+	// FUNCTION: ENGINE 0x10625660
+	void ShutdownDefaultPool()
+	{
+		if (gDefaultPoolManager != 0)
+		{
+			ReleaseDefaultPool();
+			delete gDefaultPoolManager;
+			gDefaultPoolManager = 0;
+		}
+		core::CriticalSectionDelete(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x106256A0
+	void Unknown106256A0(IDirect3DDevice9* device)
+	{
+		core::CriticalSectionInit(gDefaultPoolLock);
+		if (gDefaultPoolManager == 0)
+		{
+			gDefaultPoolManager = new dxDefaultPoolManager(device);
+		}
+		else
+		{
+			ShutdownDefaultPool();
+			gDefaultPoolManager = new dxDefaultPoolManager(device);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10624990
 	bool PoolAllocateTexture(int width, int height, int levels, int usage, unsigned int format,
 		IDirect3DTexture9** texture, IDirect3DSurface9** surface, float scale)
@@ -211,6 +297,159 @@ namespace pure3d
 			index++;
 		}
 		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x10624DF0
+	void FreePooledVertexBuffer(IDirect3DVertexBuffer9** buffer)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		unsigned int index = 0;
+		while (index < gDefaultPoolManager->vertexBuffers.Size())
+		{
+			if (gDefaultPoolManager->vertexBuffers[index]->buffer == buffer)
+			{
+				if (*gDefaultPoolManager->vertexBuffers[index]->buffer != 0)
+				{
+					(*gDefaultPoolManager->vertexBuffers[index]->buffer)->Release();
+				}
+				delete gDefaultPoolManager->vertexBuffers[index];
+				gDefaultPoolManager->vertexBuffers[index] = 0;
+				gDefaultPoolManager->vertexBuffers.Remove(&gDefaultPoolManager->vertexBuffers[index]);
+				break;
+			}
+			index++;
+		}
+		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x10624EC0
+	void FreePooledIndexBuffer(IDirect3DIndexBuffer9** buffer)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		unsigned int index = 0;
+		while (index < gDefaultPoolManager->indexBuffers.Size())
+		{
+			if (gDefaultPoolManager->indexBuffers[index]->buffer == buffer)
+			{
+				if (*gDefaultPoolManager->indexBuffers[index]->buffer != 0)
+				{
+					(*gDefaultPoolManager->indexBuffers[index]->buffer)->Release();
+				}
+				delete gDefaultPoolManager->indexBuffers[index];
+				gDefaultPoolManager->indexBuffers[index] = 0;
+				gDefaultPoolManager->indexBuffers.Remove(&gDefaultPoolManager->indexBuffers[index]);
+				break;
+			}
+			index++;
+		}
+		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x10624F90
+	void FreePooledRenderTarget(IDirect3DSurface9** surface)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		unsigned int index = 0;
+		while (index < gDefaultPoolManager->renderTargets.Size())
+		{
+			if (gDefaultPoolManager->renderTargets[index]->surface == surface)
+			{
+				if (*gDefaultPoolManager->renderTargets[index]->surface != 0)
+				{
+					(*gDefaultPoolManager->renderTargets[index]->surface)->Release();
+				}
+				delete gDefaultPoolManager->renderTargets[index];
+				gDefaultPoolManager->renderTargets[index] = 0;
+				gDefaultPoolManager->renderTargets.Remove(&gDefaultPoolManager->renderTargets[index]);
+				break;
+			}
+			index++;
+		}
+		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x10625060
+	void FreePooledDepthStencil(IDirect3DSurface9** surface)
+	{
+		core::CriticalSectionEnter(gDefaultPoolLock);
+		unsigned int index = 0;
+		while (index < gDefaultPoolManager->depthStencils.Size())
+		{
+			if (gDefaultPoolManager->depthStencils[index]->surface == surface)
+			{
+				if (*gDefaultPoolManager->depthStencils[index]->surface != 0)
+				{
+					(*gDefaultPoolManager->depthStencils[index]->surface)->Release();
+				}
+				delete gDefaultPoolManager->depthStencils[index];
+				gDefaultPoolManager->depthStencils[index] = 0;
+				gDefaultPoolManager->depthStencils.Remove(&gDefaultPoolManager->depthStencils[index]);
+				break;
+			}
+			index++;
+		}
+		core::CriticalSectionLeave(gDefaultPoolLock);
+	}
+
+	// FUNCTION: ENGINE 0x10623DB0
+	void ReleaseDefaultPool()
+	{
+		if (!gDefaultPoolManager->released)
+		{
+			core::CriticalSectionEnter(gDefaultPoolLock);
+			if (GetParticleManager() != 0)
+			{
+				GetParticleManager()->Unknown106EDA30();
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->textures.Size(); i++)
+			{
+				if (gDefaultPoolManager->textures[i]->surface != 0)
+				{
+					(*gDefaultPoolManager->textures[i]->surface)->Release();
+				}
+				if (gDefaultPoolManager->textures[i]->texture != 0)
+				{
+					(*gDefaultPoolManager->textures[i]->texture)->Release();
+				}
+				*gDefaultPoolManager->textures[i]->texture = 0;
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->vertexBuffers.Size(); i++)
+			{
+				if (*gDefaultPoolManager->vertexBuffers[i]->buffer != 0)
+				{
+					ULONG references;
+					do
+					{
+						references = (*gDefaultPoolManager->vertexBuffers[i]->buffer)->Release();
+					}
+					while (references > 0);
+				}
+				*gDefaultPoolManager->vertexBuffers[i]->buffer = 0;
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->indexBuffers.Size(); i++)
+			{
+				if (*gDefaultPoolManager->indexBuffers[i]->buffer != 0)
+				{
+					(*gDefaultPoolManager->indexBuffers[i]->buffer)->Release();
+				}
+				*gDefaultPoolManager->indexBuffers[i]->buffer = 0;
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->renderTargets.Size(); i++)
+			{
+				if (*gDefaultPoolManager->renderTargets[i]->surface != 0)
+				{
+					(*gDefaultPoolManager->renderTargets[i]->surface)->Release();
+				}
+				*gDefaultPoolManager->renderTargets[i]->surface = 0;
+			}
+			for (unsigned int i = 0; i < gDefaultPoolManager->depthStencils.Size(); i++)
+			{
+				(*gDefaultPoolManager->depthStencils[i]->surface)->Release();
+				*gDefaultPoolManager->depthStencils[i]->surface = 0;
+			}
+			gDefaultPoolManager->released = true;
+			core::CriticalSectionLeave(gDefaultPoolLock);
+		}
 	}
 
 	// The texture made again gets its first level's surface back
@@ -353,4 +592,70 @@ namespace pure3d
 			gDefaultPoolManager->released = false;
 		}
 	}
+}
+
+namespace container
+{
+	// The arrays' members the unit keeps (one copy per array): the default constructor, destructor, Size, the element
+	// access, PushBack, Remove, Free, Clear, Create and Allocate, and the ConstructAt of the elements
+	// FUNCTION: ENGINE 0x106239F0
+	// FUNCTION: ENGINE 0x10623A00
+	// FUNCTION: ENGINE 0x10623A10
+	// FUNCTION: ENGINE 0x10623A20
+	// FUNCTION: ENGINE 0x10623A30
+	// FUNCTION: ENGINE 0x10623A40
+	// FUNCTION: ENGINE 0x10623A50
+	// FUNCTION: ENGINE 0x10623A60
+	// FUNCTION: ENGINE 0x10623A70
+	// FUNCTION: ENGINE 0x10623A80
+	// FUNCTION: ENGINE 0x10623A90
+	// FUNCTION: ENGINE 0x10623B00
+	// FUNCTION: ENGINE 0x10623B70
+	// FUNCTION: ENGINE 0x10623BE0
+	// FUNCTION: ENGINE 0x10623C50
+	// FUNCTION: ENGINE 0x10623CC0
+	// FUNCTION: ENGINE 0x10623CF0
+	// FUNCTION: ENGINE 0x10623D20
+	// FUNCTION: ENGINE 0x10623D50
+	// FUNCTION: ENGINE 0x10623D80
+	// FUNCTION: ENGINE 0x106245D0
+	// FUNCTION: ENGINE 0x106245E0
+	// FUNCTION: ENGINE 0x10624630
+	// FUNCTION: ENGINE 0x10624660
+	// FUNCTION: ENGINE 0x10624680
+	// FUNCTION: ENGINE 0x10624690
+	// FUNCTION: ENGINE 0x106246E0
+	// FUNCTION: ENGINE 0x10624710
+	// FUNCTION: ENGINE 0x10624730
+	// FUNCTION: ENGINE 0x10624740
+	// FUNCTION: ENGINE 0x10624790
+	// FUNCTION: ENGINE 0x106247C0
+	// FUNCTION: ENGINE 0x106247E0
+	// FUNCTION: ENGINE 0x106247F0
+	// FUNCTION: ENGINE 0x10624840
+	// FUNCTION: ENGINE 0x10624870
+	// FUNCTION: ENGINE 0x10624890
+	// FUNCTION: ENGINE 0x106248A0
+	// FUNCTION: ENGINE 0x106248F0
+	// FUNCTION: ENGINE 0x10624920
+	// FUNCTION: ENGINE 0x10625130
+	// FUNCTION: ENGINE 0x10625160
+	// FUNCTION: ENGINE 0x10625190
+	// FUNCTION: ENGINE 0x106251C0
+	// FUNCTION: ENGINE 0x106251F0
+	// FUNCTION: ENGINE 0x10625220
+	// FUNCTION: ENGINE 0x10625230
+	// FUNCTION: ENGINE 0x10625240
+	// FUNCTION: ENGINE 0x10625250
+	// FUNCTION: ENGINE 0x10625260
+	// FUNCTION: ENGINE 0x10625270
+	// FUNCTION: ENGINE 0x10625290
+	// FUNCTION: ENGINE 0x106252B0
+	// FUNCTION: ENGINE 0x106252D0
+	// FUNCTION: ENGINE 0x106252F0
+	template class ArrayDynamicNew<pure3d::DefaultPoolTexture*>;
+	template class ArrayDynamicNew<pure3d::DefaultPoolVertexBuffer*>;
+	template class ArrayDynamicNew<pure3d::DefaultPoolIndexBuffer*>;
+	template class ArrayDynamicNew<pure3d::DefaultPoolRenderTarget*>;
+	template class ArrayDynamicNew<pure3d::DefaultPoolDepthStencil*>;
 }
