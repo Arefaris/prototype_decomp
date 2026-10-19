@@ -157,6 +157,12 @@ namespace fight
 	class Condition : public Item
 	{
 	public:
+		// 0x105A99E0 (another unit): the op, the next link cleared
+		explicit Condition(int newOp);
+		// 0x105A9A00 (another unit): the destructor of the derived conditions' chain
+		virtual ~Condition();
+		// vftable slot 5 (0x105A9910, another unit): the condition's own
+		virtual void Slot5(int a, int b, int c);
 		// vftable slot 9
 		virtual bool Evaluate(int a, int b, int c, int d) = 0;
 

@@ -15,6 +15,7 @@
 namespace fight
 {
 	class TrackFactory;
+	class ConditionFactory;
 
 	// The engine's names are case sensitive
 	typedef core::Name<core::CaseSensitiveKey> Name;
@@ -557,6 +558,8 @@ namespace fight
 	public:
 		// 0x105A5D10
 		void AddFactory(TrackFactory* factory);
+		// 0x105A5CD0
+		void AddFactory(ConditionFactory* factory);
 	};
 
 	template<class T> class TrackFactoryTemplate : public TrackFactory
@@ -595,6 +598,72 @@ namespace fight
 
 	// Out of line like the engine's copies (a template member defined outside its class is not inlined)
 	template<class T> TrackFactoryCasterTemplate<T>::TrackFactoryCasterTemplate()
+	{
+	}
+
+	// The factory of one condition class (RTTI: fight::ConditionFactory, 2 vftable slots, 0x18 bytes), built like the
+	// track factory
+	class ConditionFactory
+	{
+	public:
+		ConditionFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
+
+		// vftable slot 0 (0x105A9720, inherited from every factory)
+		virtual void Slot0();
+		// vftable slot 1: makes a condition of this factory's class
+		virtual void* CreateCondition() = 0;
+
+		unsigned int unknown4;
+		Name name;
+		int unknown10;
+		void (*clearProperties)();
+	};
+
+	// What the game casts a condition factory to (RTTI: fight::ConditionFactoryCaster, 2 vftable slots)
+	class ConditionFactoryCaster
+	{
+	public:
+		virtual bool IsType(ConditionFactory* factory) = 0;
+		virtual ConditionFactory* CreateFactory(const char* name) = 0;
+	};
+
+	// 0x105A97E0 (another unit)
+	ConditionFactory* FindConditionFactory(const char* name, ConditionFactoryCaster* caster);
+
+	template<class T> class ConditionFactoryTemplate : public ConditionFactory
+	{
+	public:
+		ConditionFactoryTemplate(const char* name)
+			: ConditionFactory(name, T::RegisterProperties, T::ClearProperties)
+		{
+		}
+
+		// vftable slot 1
+		virtual void* CreateCondition()
+		{
+			return new T();
+		}
+	};
+
+	template<class T> class ConditionFactoryCasterTemplate : public ConditionFactoryCaster
+	{
+	public:
+		ConditionFactoryCasterTemplate();
+
+		// vftable slot 0
+		virtual bool IsType(ConditionFactory* factory)
+		{
+			return dynamic_cast<ConditionFactoryTemplate<T>*>(factory) != 0;
+		}
+
+		// vftable slot 1
+		virtual ConditionFactory* CreateFactory(const char* name)
+		{
+			return new ConditionFactoryTemplate<T>(name);
+		}
+	};
+
+	template<class T> ConditionFactoryCasterTemplate<T>::ConditionFactoryCasterTemplate()
 	{
 	}
 }
