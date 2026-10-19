@@ -76,6 +76,27 @@ extern "C"
 		LUA_GCSETSTEPMUL = 7
 	};
 
+	// Event codes of the hooks and their masks
+	enum
+	{
+		LUA_HOOKCALL = 0,
+		LUA_HOOKRET = 1,
+		LUA_HOOKLINE = 2,
+		LUA_HOOKCOUNT = 3,
+		LUA_HOOKTAILRET = 4
+	};
+
+	enum
+	{
+		LUA_MASKCALL = 1,
+		LUA_MASKRET = 2,
+		LUA_MASKLINE = 4,
+		LUA_MASKCOUNT = 8
+	};
+
+	// mark for precompiled code (`<esc>Lua')
+#define LUA_SIGNATURE "\033Lua"
+
 	struct lua_Debug
 	{
 		int event;

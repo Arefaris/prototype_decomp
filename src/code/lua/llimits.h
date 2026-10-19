@@ -35,6 +35,7 @@ typedef double l_uacNumber;
 typedef lu_int32 Instruction;
 
 #define MAXUPVAL 255
+#define MAXSTACK 250
 #define MINSTRTABSIZE 32
 #define LUAI_MAXCCALLS 200
 #define LUAI_MAXCSTACK 2048
