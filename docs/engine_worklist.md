@@ -1506,6 +1506,13 @@ the pairs +0x18 / +0x1C (both -1), +0x20, +0x24, +0x28. Its methods, all reconst
 allocated by the constructor and set through 0x10B90B60). `PolySkinLoader::LoadObject` calls
 `[this+0x18]->SetIndex([this+0x14])` and `[this+0x18]->MakePrimitive(&part, reader, inventory, true, flag)`.
 
+- (op-add1) **0x10B8F1C0 `ReadGroup` matches**: the shader is looked up through an inline `FindShader(inventory,
+  name)` that declares the `DynamicCaster<Shader>` and calls `FindObject(&caster, ObjectName(name, 1), true)` (its
+  caster then shares the frame slot of the words read later, and the inventory's vtable stays in ebp); the result
+  goes into the member first and then into a local (`shader = FindShader(...); Shader* found = shader; if (found == 0)
+  { found = new Shader("error"); shader = found; } found->AddRef();`). Written straight through the member the
+  compiler reloads it for the AddRef; with the local first it keeps the inventory in ebp and spills its vtable.
+
 Constructor:
 
 - 0x10B8BD30 `PrimGroupLoader::PrimGroupLoader` matches (mp-load): the engine's copy keeps the vftable store of the base
