@@ -58,6 +58,18 @@ namespace pure3d
 		return buffer;
 	}
 
+	// FUNCTION: ENGINE 0x1061BBC0
+	dxContext* Unknown1061BBC0()
+	{
+		Unknown10627FB0();
+		if (gDevice == 0)
+		{
+			gDevice = new dxDevice(Direct3DCreate9(D3D_SDK_VERSION));
+		}
+		// The callers keep the driver object as a dxContext (see dxDevice)
+		return (dxContext*)gDevice;
+	}
+
 	// The vertex declaration a draw needs: its number goes to `declaration` (0x1062B7B0; name guess)
 	void Unknown1062B7B0(int format, int* declaration, int* unknown);
 

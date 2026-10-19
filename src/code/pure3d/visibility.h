@@ -5,22 +5,16 @@
 #ifndef PURE3D_VISIBILITY_H
 #define PURE3D_VISIBILITY_H
 
+#include "code/core/bitfield.h"
 #include "code/math/aabb.h"
 #include "code/math/sphere.h"
 #include "code/math/vector.h"
 
 namespace pure3d
 {
-	// What a part's visibility state is read into and written from (0x2C bytes; names guessed)
-	class PartAnimationFlags
-	{
-	public:
-		// 0x102E8920, 0x102E8B80 (another unit's out-of-line copies)
-		PartAnimationFlags();
-		void Set(int a, bool b);
-
-		int unknown0;
-	};
+	// The flags of a part's visibility state and of a shader: a core::BitField<unsigned int> (the engine's copies of its
+	// constructor, Set and Test are 0x102E8920, 0x102E8B80 and 0x106DEA40)
+	typedef core::BitField<unsigned int> PartAnimationFlags;
 
 	struct PartAnimationState
 	{

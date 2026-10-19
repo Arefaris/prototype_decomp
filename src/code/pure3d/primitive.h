@@ -87,22 +87,30 @@ namespace pure3d
 		int unknown4;
 	};
 
-	// A mesh expression (a morph): the offsets its skin state adds to the vertices, three floats a vertex each,
-	// null when the expression has none of a kind. The rest of the class lives in the expression unit.
-	class Expression
+	// RTTI: pure3d::VertexOffsetList (base RefCounted, 3 slots, vftable 0x10E5DE74; 0x38 bytes): the offsets a
+	// mesh's or a skin's state adds to the vertices (the expressions are mixed into it), three floats a vertex each,
+	// null when the list has none of a kind. The rest of the class lives in its own unit.
+	class VertexOffsetList : public RefCounted
 	{
 	public:
+		// 0x1073F590: room for the offsets of count vertices, of the kinds the flags name (bits 4 - 6)
+		VertexOffsetList(int count, unsigned int flags);
 		// 0x1073F220
 		void Prepare();
 
-		unsigned char unknown0[0x10];
+		int unknown8;
+		int count;
 		const float* positionOffsets;
 		const float* normalOffsets;
 		unsigned char unknown18[4];
 		const float* tangentOffsets;
+		unsigned char unknown20[0x18];
 	};
 
 	class ExpressionState;
+	class dxVertexDeclaration;
+	class dxIndexBufferState;
+	struct IndexBufferDescription;
 	class VertexAnimKeyFrameList;
 	struct VertexBufferDescription;
 
@@ -112,9 +120,9 @@ namespace pure3d
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
 		// 0x10731700: prepares the expression and mixes the state into it
-		void Apply(Expression* expression, ExpressionState* state);
+		void Apply(VertexOffsetList* expression, ExpressionState* state);
 		// 0x10731630
-		void Mix(Expression* expression, ExpressionState* state);
+		void Mix(VertexOffsetList* expression, ExpressionState* state);
 
 		void* unknown10;
 	};
@@ -229,6 +237,12 @@ namespace pure3d
 		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
 		// 0x1073E390: makes the controller follow the state's mesh
 		void SetMeshState(MeshState* state);
+	};
+
+	// RTTI: pure3d::ShaderAnimationController (27 slots, bases SimpleFrameController, AnimationFrameController,
+	// FrameController): the controller that animates a mesh's shader (only its type is used here)
+	class ShaderAnimationController : public FrameController
+	{
 	};
 
 	// What a primitive fills the device's draw data with: the object at DrawablePart::batch (+0xA0). The engine's
@@ -393,6 +407,10 @@ namespace pure3d
 	class Mesh : public Primitive
 	{
 	public:
+		// 0x10707E90 (0x17C bytes): a mesh of the vertex streams of the first description; the second one is the
+		// streams its states keep (none for a mesh without a state), the last argument the prim group's word at +0xC
+		Mesh(const ShaderParameters* parameters, const ShaderParameters* stateParameters,
+			const IndexBufferDescription* indices, int unknown);
 		virtual ~Mesh();
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
@@ -401,17 +419,31 @@ namespace pure3d
 		// (0x10708010 / 0x10708030)
 		virtual void SetFlag174(bool value);
 		virtual void SetFlag175(bool value);
-		virtual void Unknown13();
-		virtual void Unknown14();
+		// Slots 13 and 14: the bounds the mesh chunk gives (the loader reads them into a box and a sphere)
+		virtual void SetBoundingBox(const math::AABB& box);
+		virtual void SetBoundingSphere(const math::Sphere& sphere);
 
 		// 0x10707460: the word at +0x148 (its bit 29 is read by the deform shader's modifier)
 		unsigned int GetUnknown148() const;
+		// 0x107074A0 / 0x107074C0: let go of the locked vertices and indices; 0x107074D0: whether the word at +0x140
+		// is set; 0x107074B0: does nothing (names guessed)
+		void UnlockVertices();
+		void UnlockIndices();
+		// 0x10707470 / 0x10707490: lock the vertices and the indices; 0x107078E0: describes the streams the mesh's
+		// states keep into a lock (names guessed)
+		void LockVertices(dxVertexDeclaration* lock);
+		void LockIndices(dxIndexBufferState* lock);
+		void DescribeStateVertices(dxVertexDeclaration* lock);
+		bool HasUnknown140();
+		void Unknown107074B0();
 
 		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
 		// groups live in
 		unsigned int unknown1C;
 		PrimGroupList* unknown20;
 		PrimGroupList* unknown24;
+		// The rest of the 0x17C bytes (the word at +0x140, the format word at +0x148, the flags at +0x174 / +0x175)
+		unsigned char unknown28[0x17C - 0x28];
 	};
 
 	// Particle system parameter names (globals of the particle module at 0x1127F0B8 - 0x1127F338; set up from
@@ -544,8 +576,9 @@ namespace pure3d
 	public:
 		// 0x10707970 (0x3C bytes): a state of the mesh; the description makes the two vertex buffers it keeps, the
 		// last argument is held at +0x2C
-		MeshState(Mesh* mesh, const VertexBufferDescription* vertices, core::IRefCount* unknown);
-		// 0x10707AA0 / 0x10707AC0: take a reference to the controller at +0x24 / +0x28
+		MeshState(Mesh* mesh, const ShaderParameters* vertices, core::IRefCount* unknown);
+		// 0x10707A60 / 0x10707AA0 / 0x10707AC0: take a reference to the controller at +0x1C / +0x24 / +0x28
+		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
 		void SetController3(FrameController* value);
 		// 0x10707660, 0x10707670, 0x10707680
@@ -564,6 +597,32 @@ namespace pure3d
 
 	class Skin;
 	class SkinState;
+
+	// RTTI: pure3d::MatrixPaletteList (base RefCounted, 3 slots, vftable 0x10EAF654; 0x14 bytes): the bone of every
+	// palette entry of a skin (the prim group loader's unit has its constructor 0x10B8DFA0 and destructor 0x10B8DFC0)
+	class MatrixPaletteList : public RefCounted
+	{
+	public:
+		// The indices (a new[] block; 0x10610020 makes room for count of them, set to 0)
+		struct Indices
+		{
+			void Resize(unsigned int count);
+
+			unsigned int* begin;
+			unsigned int* end;
+			int unknown8;
+		};
+
+		MatrixPaletteList();
+
+		Indices indices;
+	};
+
+	// 0x106E9820: the colour with its red and blue bytes swapped (name guess)
+	unsigned int SwapColour(unsigned int colour);
+
+	// 0x11209CB4: a flag the skin states are made with (name guess)
+	extern bool gSkinStateFlag;
 
 	// One entry of the queue a skin state is put on while its skinning job runs (0x10720CF0 pushes it, 0x1071F780
 	// drains it); its first word is the list link, the second the state whose job is submitted
@@ -635,6 +694,11 @@ namespace pure3d
 	class SkinState : public PrimitiveState
 	{
 	public:
+		// 0x10720810 (0x350 bytes): a state of the skin over the streams of the first two descriptions, the streams
+		// it keeps itself (none for a skin the group does not animate) and the group's offset list; the flag is the
+		// global 0x11209CB4 (argument names guessed)
+		SkinState(Skin* skin, const ShaderParameters* stateStreams, const ShaderParameters* parameters,
+			const ShaderParameters* stateParameters, VertexOffsetList* offsets, bool flag);
 		// The callback the state's skinning task reports its result to (skin.cpp)
 		class AsyncTaskAdaptor : public core::AsyncTaskCallback
 		{
@@ -661,7 +725,7 @@ namespace pure3d
 		// 0x1071B1B0: the pointer at +0x70 (the pose the state renders from)
 		void* GetUnknown70();
 		// 0x1071B200, 0x1071B210: the expression and its state at +0x74 / +0x78
-		Expression* GetExpression();
+		VertexOffsetList* GetExpression();
 		ExpressionState* GetExpressionState();
 		// 0x1071B220, 0x1071B230
 		FrameController* GetController1();
@@ -713,8 +777,10 @@ namespace pure3d
 		void SubmitTask();
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
-		// 0x1071F880: takes a reference to the state's controller at +0x2E0 (the +0x2DC one, 0x1071F860, is the
-		// same code but its core::RefAssign copy lives in another unit, so its member's type is not known yet)
+		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0 (only the second is
+		// reconstructed: the first one's core::RefAssign copy lives in another unit, so its member's type is not
+		// known yet)
+		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
 
 		int unknown10;
@@ -726,7 +792,7 @@ namespace pure3d
 		// 0x70: the pose the state renders from (its skinning matrices at +0x38 are the bone matrices the
 		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
 		Pose* pose;
-		Expression* expression;
+		VertexOffsetList* expression;
 		ExpressionState* expressionState;
 		unsigned char unknown7C[0x21C];
 		bool unknown298;
@@ -765,7 +831,7 @@ namespace pure3d
 		// Slots 3 - 7 and 9 - 12 (skin.cpp)
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
-		virtual void Unknown4(int value);
+		virtual void Unknown4(Shader* shader);
 		virtual void GetBoundingBox(math::AABB* box);
 		virtual void GetCentre(math::Vector* centre);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
@@ -776,8 +842,24 @@ namespace pure3d
 
 		// 0x1071EFB0: the word at +0x1C (the kind of primitive the batch carries)
 		unsigned int GetUnknown1C();
+		// 0x1071FF00 (0x29C bytes): a skin of the streams of the first description (the second and the third are
+		// the mesh's and the state's when the group animates some; argument names guessed)
+		Skin(const ShaderParameters* parameters, const ShaderParameters* meshParameters,
+			const ShaderParameters* stateParameters, const IndexBufferDescription* indices, int unknown);
 		// 0x1071EFE0: unlocks the vertex buffer when there is one
 		void UnlockBuffer();
+		// 0x1071EFC0: does nothing (name unknown)
+		void Unknown1071EFC0();
+		// 0x1071EFD0 / 0x1071EFF0: lock and unlock the indices (the object at +0x148)
+		void LockIndices(dxIndexBufferState* lock);
+		void UnlockIndices();
+		// 0x1071FAF0: describes the skin's own vertex data (+0x138) as a lock; 0x1071FA00: locks the vertex buffer
+		// (an empty lock without one); 0x1071FA50: describes the block at +0x264 (names guessed)
+		void DescribeSource(dxVertexDeclaration* lock);
+		void LockBuffer(dxVertexDeclaration* lock);
+		void DescribeUnknown264(dxVertexDeclaration* lock);
+		// 0x107202C0: builds the skin's vertex data out of what the loader read and the bone palette
+		void Finish(MatrixPaletteList* palettes);
 		// 0x1071F000: fills the parameters with the descriptor of the buffer
 		void FillBufferDesc(ShaderParameters* parameters);
 		// 0x107202B0: copies the skin's own shader parameters
@@ -807,6 +889,8 @@ namespace pure3d
 	struct VertexBufferDescription;
 	struct IndexBufferDescription;
 
+	class GpuSkin;
+
 	class GpuSkinState : public PrimitiveState
 	{
 	public:
@@ -815,9 +899,18 @@ namespace pure3d
 		void Unknown10B87050(float value);
 		// 0x1072DEC0: the object at +0x1C (a buffer; the draw reads its word at +0x38)
 		int* GetBuffer();
+		// 0x1072DDA0 (0x40 bytes): a state of the gpu skin
+		GpuSkinState(GpuSkin* skin);
+		// 0x1072DE90: the box at +0x24; 0x1072E1E0: takes a reference to the controller at +0x3C (the prim group
+		// loader hands it the shader animation of the group; names guessed)
+		void SetBoundingBox(const math::AABB& box);
+		void SetShaderController(FrameController* controller);
 
 		unsigned char unknown10[0xC];
 		int* buffer;
+		int unknown20;
+		math::AABB bounds;
+		FrameController* shaderController;
 	};
 
 	// The instanced skin the device skins: a primitive whose parts are drawn from a skin state's pose by a vertex
@@ -840,6 +933,14 @@ namespace pure3d
 		virtual void SetUnknown10(int value);
 		virtual void SetBoundingBox(const math::AABB& box);
 		virtual void SetCentre(const math::Vector4& centre);
+
+		// 0x1072E380 / 0x1072E070: lock the vertex buffer (an empty lock without one) and the indices; 0x1072E080 /
+		// 0x1072E090 let go of them; 0x1072E290 takes a reference to the bone palette at +0x140 (names guessed)
+		void LockBuffer(dxVertexDeclaration* lock);
+		void LockIndices(dxIndexBufferState* lock);
+		void UnlockBuffer();
+		void UnlockIndices();
+		void SetPalette(MatrixPaletteList* palettes);
 
 		// The kind of primitive the batch carries
 		unsigned int unknown1C;

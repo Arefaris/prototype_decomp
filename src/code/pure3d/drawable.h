@@ -98,6 +98,8 @@ namespace pure3d
 		PartBindingSource* GetBindingSource();
 		// 0x106DE950: the binding at +0x98 (reference counted)
 		void SetBinding(PartBinding* binding);
+		// 0x106DEEC0: the primitive at +0x90 (reference counted); render bit 9 is set (name guess)
+		void SetPrimitive(Primitive* newPrimitive);
 		// 0x106DEEF0: the state at +0x94 (reference counted); render bit 9 is set
 		void SetState(PrimitiveState* newState);
 		// 0x106E13C0: the world matrix, marked as not the identity

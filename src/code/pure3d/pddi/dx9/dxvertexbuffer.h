@@ -16,6 +16,9 @@ namespace pure3d
 	// elements from +0x10, +0x110 (whether the data's size is given) and +0x114 (the size of the data))
 	struct VertexBufferDescription : ShaderParameters
 	{
+		// 0x106122B0: the streams of a vertex format (the format word of a prim group) for count vertices (the last
+		// two arguments are the prim group's; names guessed)
+		VertexBufferDescription(int count, unsigned int format, int unknown, bool unknown2);
 	};
 
 	class dxVertexBuffer : public pddiObject

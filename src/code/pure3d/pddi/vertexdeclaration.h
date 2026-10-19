@@ -16,9 +16,13 @@ namespace pure3d
 	public:
 		// 0x10625AC0
 		dxVertexDeclaration();
+		// 0x10625B20: the counts, the data words and the elements of another declaration
+		dxVertexDeclaration& operator=(const dxVertexDeclaration& other);
 
 		// 0x10611B50: the bytes element `index` takes in a vertex (its component count times the size of its kind)
 		int GetElementSize(unsigned int index);
+		// 0x10612030: the index of the element of that name, -1 when there is none (name guess)
+		int FindElement(const core::Name<core::CaseInsensitiveKey32>& name);
 
 		int unknown0;
 		int unknown4;

@@ -1,4 +1,4 @@
-// pure3d::dxIndexBuffer, the Direct3D 9 index buffer of the pddi layer (unit around 0x106266D0 - 0x10626920; the
+// pure3d::dxIndexBuffer, the Direct3D 9 index buffer of the pddi layer (unit around 0x106266D0 - 0x106269E0; the
 // file name is guessed, no assert path survives).
 #include <string.h>
 
@@ -72,9 +72,59 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10626860
+	void dxIndexBuffer::Unlock()
+	{
+		if (buffer != 0)
+		{
+			buffer->lpVtbl->Unlock(buffer);
+		}
+		state.unknown10 = 0;
+		unknown8 = false;
+		if (unknown14)
+		{
+			// The buffer was taken off the device for the lock: it goes back when no other one has been set since
+			if (gCurrentIndices == 0)
+			{
+				gD3DDevice->lpVtbl->SetIndices(gD3DDevice, buffer);
+				gCurrentIndices = this;
+			}
+			unknown14 = false;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10626920
 	int dxIndexBuffer::GetUnknown1C()
 	{
 		return state.unknown0;
+	}
+
+	// FUNCTION: ENGINE 0x10626950
+	void dxIndexBuffer::Lock(dxIndexBufferState* lockState)
+	{
+		// The lock's pointer is the first local (declared later it would share the argument's slot)
+		void* data = 0;
+		int length = state.unknown8 * lockState->unknown0;
+		if (gCurrentIndices == this)
+		{
+			Unknown106268F0();
+			unknown14 = true;
+		}
+		unsigned int flags = 0;
+		if ((unknown10 & 2) != 0 && (unknown10 & 1) != 0)
+		{
+			flags = D3DLOCK_DISCARD;
+		}
+		if (buffer != 0)
+		{
+			buffer->lpVtbl->Lock(buffer, 0, length, &data, flags);
+			state.unknown10 = (int)data;
+		}
+		else
+		{
+			state.unknown10 = 0;
+		}
+		unknown8 = true;
+		*lockState = state;
 	}
 }

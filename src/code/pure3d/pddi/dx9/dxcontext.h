@@ -208,6 +208,27 @@ namespace pure3d
 	// 0x11276D2C: the device the back end was built on (0x106202F0 installs it); the textures it made keep their
 	// bytes of texture memory in its `textureMemory`
 	extern dxContext* gContext;
+
+	// The driver object the context starts the back end through (0x10 bytes, no virtual functions; name guess). Its
+	// Initialize (0x1061B4C0) makes the display it keeps at +8 and the 0x698-byte device context at +0xC; the methods
+	// the rest of the tree calls on it are still declared on dxContext (Initialize, GetUnknown8, GetUnknownC and the
+	// factories), which is why 0x1061BBC0 hands it out as one.
+	class dxDevice
+	{
+	public:
+		// 0x1061BA70: keeps the Direct3D object, makes the tree at +4 and records itself in 0x11276D30
+		dxDevice(IDirect3D9* direct3D);
+
+		IDirect3D9* direct3D;    // +0
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+	};
+
+	// 0x11276D40: the one driver object (0x1061BBC0 makes it)
+	extern dxDevice* gDevice;
+	// 0x10627FB0: counts the starts of the back end (the word at 0x11276F28; name unknown)
+	void Unknown10627FB0();
 }
 
 #endif
