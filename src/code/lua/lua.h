@@ -123,6 +123,7 @@ extern "C"
 	void lua_rawset(lua_State* L, int idx);
 	void lua_rawseti(lua_State* L, int idx, int n);
 	int lua_setmetatable(lua_State* L, int objindex);
+	int lua_setfenv(lua_State* L, int idx);
 
 	void lua_call(lua_State* L, int nargs, int nresults);
 	int lua_pcall(lua_State* L, int nargs, int nresults, int errfunc);
