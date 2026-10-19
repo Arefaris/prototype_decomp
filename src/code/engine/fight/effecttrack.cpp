@@ -3,6 +3,8 @@
 
 namespace engine
 {
+	GameObject* __fastcall GameObjectHandleGet(const GameObjectHandle* handle);
+
 	// ---- the game's hook ---------------------------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x108056E0
@@ -100,16 +102,12 @@ namespace engine
 	// ---- the actions that carry the effect ---------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x108075F0
-	// NONMATCHING: the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it
-	// past the argument setup of the trailing call (92.6 %; the two statements and the member-init list both give it)
-#ifdef NONMATCHING
-	EffectAction::EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode)
-		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(mode), unknown38(-1), unknown3c(0),
-		  unknown40(object), unknown44(0), unknown48(0xffff), unknown4c(false)
+	EffectAction::EffectAction(EffectTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget, core::IRefCount* effect, int mode)
+		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(mode), unknown3c(0), target(newTarget),
+		  unknown44(0), unknown48(0xffff), unknown4c(false)
 	{
 		AssignEffectRef(unknown44, effect);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10807550
 	AbortEffectAction::AbortEffectAction(AbortEffectTrack* newTrack, fight::Track* listener)
@@ -119,14 +117,10 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10807700
-	// NONMATCHING: the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the
-	// parameter store right after its load and sinks the -1 into the epilogue (90.8 %)
-#ifdef NONMATCHING
-	MotionTrailAction::MotionTrailAction(EffectTrack* newTrack, fight::Track* listener, int value)
-		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(-1), unknown38(value)
+	MotionTrailAction::MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget)
+		: fight::Action(0xE00), link(newTrack), watch(listener), target(newTarget)
 	{
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10805B10
 	AbortEffectAction::~AbortEffectAction()
@@ -134,717 +128,820 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10805B40
-	// NONMATCHING: the +0x3C reference is released through another unit's copy of the release helper (0x104FF200),
-	// ours calls ReleaseEffectRef for both members (same bytes, wrong call target)
-#ifdef NONMATCHING
 	EffectAction::~EffectAction()
 	{
 		ReleaseEffectRef(unknown44);
-		ReleaseEffectRef(unknown3c);
+		ReleaseSharedRef(unknown3c);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10805CF0
 	MotionTrailAction::~MotionTrailAction()
 	{
 	}
 
-	// ---- the effect --------------------------------------------------------------------------------------------
+	// ---- the slots of the actions ------------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x108075C0
+	bool AbortEffectAction::Slot5(int arg, float value)
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		AbortEffectTrack* track = link.object;
+		manager->AbortSlot(&track->slot, track->allowFade, track->fadeTime);
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x108076B0
+	bool EffectAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (gEffectSuspendCount == 0)
+		{
+			unknown4c = true;
+			return true;
+		}
+		return BeginEffect(link, target, &effectHandle, &watch, unknown34, &unknown3c, unknown44, this);
+	}
+
+	// FUNCTION: ENGINE 0x10805CA0
+	void EffectAction::Slot6()
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		if (manager != 0 && link.object != 0 && link.object->abortWhenInterrupted)
+		{
+			manager->StopEffect(effectHandle.value, link.object->fadeTime);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10805BD0
+	// EQUIVALENT: the same instructions; the address of the attach joint pushed for FindPart is computed in edx where the
+	// engine uses eax (98.6 %)
+	bool EffectAction::Slot7(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (unknown4c)
+		{
+			if (gEffectSuspendCount > 0)
+			{
+				unknown4c = false;
+				return Slot5(0, value);
+			}
+			return true;
+		}
+		bool keep = link.object->abortWhenInterrupted;
+		if (link.object->attachSpace == 2 && link.object->abortBelowJointScale > 0.0f)
+		{
+			GameObject* object = GameObjectHandleGet(&target);
+			if (object != 0)
+			{
+				AttributePtr<proto::PartLookup*> attribute = object->GetAttributePtr<proto::PartLookup*>(proto::gDrawableAttributeName);
+				if (attribute.value != 0)
+				{
+					proto::PartLookup* lookup = *attribute.value;
+					if (lookup != 0)
+					{
+						if (unknown48 == 0xffff)
+						{
+							unknown48 = lookup->FindPart(link.object->attachJoint);
+						}
+						if (unknown48 != 0xffff)
+						{
+							if (link.object->abortBelowJointScale > lookup->parts[unknown48].scale)
+							{
+								keep = false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return keep;
+	}
+
+	// FUNCTION: ENGINE 0x10805FF0
+	void MotionTrailAction::Slot6()
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		if (manager != 0 && link.object != 0 && link.object->abortWhenInterrupted)
+		{
+			manager->ReleaseDrawable(&drawable);
+		}
+	}
+
+	// ---- the tracks' action makers -----------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x10807860
+	fight::Action* AbortEffectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new AbortEffectAction(this, listener);
+	}
+
+	// FUNCTION: ENGINE 0x108078A0
+	fight::Action* MotionTrailTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new MotionTrailAction(this, listener, handle);
+	}
+
+	// ---- the tracks' accessors (the engine reads the track classes through them) --------------------------------
 
 	// FUNCTION: ENGINE 0x10805550
-	math::Vector Effect::GetVector98() const
+	math::Vector MotionTrailTrack::GetShrinkOffset() const
 	{
-		return vectors50[6];
+		return shrinkOffset;
 	}
 
 	// FUNCTION: ENGINE 0x10805580
-	int Effect::GetC8() const
+	int MotionTrailTrack::GetNumJoints() const
 	{
-		return unknownc8;
+		return numJoints;
 	}
 
 	// FUNCTION: ENGINE 0x10805590
-	unsigned char* Effect::GetHandle10()
+	fight::Name* MotionTrailTrack::GetJoint1()
 	{
-		return unknown10;
+		return &joint1;
 	}
 
 	// FUNCTION: ENGINE 0x108055A0
-	math::Vector Effect::GetVector50() const
+	math::Vector MotionTrailTrack::GetJointOffset1() const
 	{
-		return vectors50[0];
+		return jointOffset1;
 	}
 
 	// FUNCTION: ENGINE 0x108055C0
-	unsigned char* Effect::GetHandle18()
+	fight::Name* MotionTrailTrack::GetJoint2()
 	{
-		return unknown18;
+		return &joint2;
 	}
 
 	// FUNCTION: ENGINE 0x108055D0
-	math::Vector Effect::GetVector5c() const
+	math::Vector MotionTrailTrack::GetJointOffset2() const
 	{
-		return vectors50[1];
+		return jointOffset2;
 	}
 
 	// FUNCTION: ENGINE 0x108055F0
-	unsigned char* Effect::GetHandle20()
+	fight::Name* MotionTrailTrack::GetJoint3()
 	{
-		return unknown20;
+		return &joint3;
 	}
 
 	// FUNCTION: ENGINE 0x10805600
-	math::Vector Effect::GetVector68() const
+	math::Vector MotionTrailTrack::GetJointOffset3() const
 	{
-		return vectors50[2];
+		return jointOffset3;
 	}
 
 	// FUNCTION: ENGINE 0x10805620
-	unsigned char* Effect::GetHandle28()
+	fight::Name* MotionTrailTrack::GetJoint4()
 	{
-		return unknown28;
+		return &joint4;
 	}
 
 	// FUNCTION: ENGINE 0x10805630
-	math::Vector Effect::GetVector74() const
+	math::Vector MotionTrailTrack::GetJointOffset4() const
 	{
-		return vectors50[3];
+		return jointOffset4;
 	}
 
 	// FUNCTION: ENGINE 0x10805650
-	unsigned char* Effect::GetHandle30()
+	fight::Name* MotionTrailTrack::GetJoint5()
 	{
-		return unknown30;
+		return &joint5;
 	}
 
 	// FUNCTION: ENGINE 0x10805660
-	math::Vector Effect::GetVector80() const
+	math::Vector MotionTrailTrack::GetJointOffset5() const
 	{
-		return vectors50[4];
+		return jointOffset5;
 	}
 
 	// FUNCTION: ENGINE 0x10805690
-	unsigned char* Effect::GetHandle38()
+	fight::Name* MotionTrailTrack::GetJoint6()
 	{
-		return unknown38;
+		return &joint6;
 	}
 
 	// FUNCTION: ENGINE 0x108056A0
-	math::Vector Effect::GetVector8c() const
+	math::Vector MotionTrailTrack::GetJointOffset6() const
 	{
-		return vectors50[5];
+		return jointOffset6;
 	}
 
 	// FUNCTION: ENGINE 0x108056D0
-	bool Effect::GetD0() const
+	bool MotionTrailTrack::GetAbortWhenInterrupted() const
 	{
-		return unknownd0;
+		return abortWhenInterrupted;
 	}
 
 	// FUNCTION: ENGINE 0x10805530
-	bool Effect::GetD1() const
+	bool MotionTrailTrack::GetDragged() const
 	{
-		return unknownd1;
+		return dragged;
 	}
 
 	// FUNCTION: ENGINE 0x10805540
-	unsigned char* Effect::GetHandle48()
+	fight::Name* MotionTrailTrack::GetShrinkJoint()
 	{
-		return unknown48;
+		return &shrinkJoint;
 	}
-
-	// ---- the track --------------------------------------------------------------------------------------------
-
-	// FUNCTION: ENGINE 0x10804EE0
-	// NONMATCHING: the engine loads the member into ecx and the out pointer into eax, ours the other way round
-#ifdef NONMATCHING
-	void EffectTrack::GetUnknown14(int& value) const
-	{
-		value = unknown14;
-	}
-#endif
 
 	// FUNCTION: ENGINE 0x10804EF0
-	int* EffectTrack::GetUnknown10()
+	fight::Name* AbortEffectTrack::GetSlot()
 	{
-		return &unknown10;
+		return &slot;
 	}
 
 	// FUNCTION: ENGINE 0x10804F00
-	bool EffectTrack::GetUnknown24() const
+	bool AbortEffectTrack::GetAllowFade() const
 	{
-		return unknown24;
+		return allowFade;
 	}
 
 	// FUNCTION: ENGINE 0x10804F10
-	float EffectTrack::GetUnknown18x() const
+	float AbortEffectTrack::GetFadeTime() const
 	{
-		return unknown18.x;
+		return fadeTime;
 	}
 
 	// FUNCTION: ENGINE 0x10804F20
-	float EffectTrack::GetUnknown190() const
+	float EffectTrack::GetTimeEnd() const
 	{
-		return unknown190;
+		return timeEnd;
 	}
 
 	// FUNCTION: ENGINE 0x10804F30
-	unsigned char* EffectTrack::GetUnknown30()
+	fight::Name* EffectTrack::GetEffectName()
 	{
-		return unknown30;
+		return &effectName;
 	}
 
 	// FUNCTION: ENGINE 0x10804F40
-	unsigned char* EffectTrack::GetUnknown40()
+	fight::Name* EffectTrack::GetParentObjectName()
 	{
-		return unknown40;
+		return &parentObjectName;
 	}
 
 	// FUNCTION: ENGINE 0x10804F50
-	int EffectTrack::GetUnknown1a4() const
+	int EffectTrack::GetEmitSpace() const
 	{
-		return unknown1a4;
+		return emitSpace;
 	}
 
 	// FUNCTION: ENGINE 0x10804F60
-	unsigned char* EffectTrack::GetUnknown38()
+	fight::Name* EffectTrack::GetEmitJoint()
 	{
-		return unknown38;
+		return &emitJoint;
 	}
 
 	// FUNCTION: ENGINE 0x10804F70
-	math::Vector EffectTrack::GetUnknown6c() const
+	math::Vector EffectTrack::GetOffset() const
 	{
-		return unknown6c;
+		return offset;
 	}
 
 	// FUNCTION: ENGINE 0x10804F90
-	math::Vector EffectTrack::GetUnknown78() const
+	math::Vector EffectTrack::GetOrientation() const
 	{
-		return unknown78;
+		return orientation;
 	}
 
 	// FUNCTION: ENGINE 0x10804FB0
-	int EffectTrack::GetUnknown194() const
+	int EffectTrack::GetAttachSpace() const
 	{
-		return unknown194;
+		return attachSpace;
 	}
 
 	// FUNCTION: ENGINE 0x10804FC0
-	math::Vector* EffectTrack::GetUnknown18()
+	fight::Name* EffectTrack::GetAttachJoint()
 	{
-		return &unknown18;
+		return &attachJoint;
 	}
 
 	// FUNCTION: ENGINE 0x10804FD0
-	bool EffectTrack::GetUnknown1a8() const
+	bool EffectTrack::GetAbortWhenInterrupted() const
 	{
-		return unknown1a8;
+		return abortWhenInterrupted;
 	}
 
 	// FUNCTION: ENGINE 0x10804FE0
-	unsigned char* EffectTrack::GetUnknown48()
+	fight::Name* EffectTrack::GetSlot()
 	{
-		return unknown48;
+		return &slot;
 	}
 
 	// FUNCTION: ENGINE 0x10804FF0
-	float EffectTrack::GetUnknown88() const
+	float EffectTrack::GetAbortBelowJointScale() const
 	{
-		return unknown88;
+		return abortBelowJointScale;
 	}
 
 	// FUNCTION: ENGINE 0x10805000
-	float EffectTrack::GetUnknown110() const
+	float EffectTrack::GetFadeTime() const
 	{
-		return unknown110;
+		return fadeTime;
 	}
 
 	// FUNCTION: ENGINE 0x10805010
-	int EffectTrack::GetUnknown1a0() const
+	int EffectTrack::GetEffectStore() const
 	{
-		return unknown1a0;
+		return effectStore;
 	}
 
 	// FUNCTION: ENGINE 0x10805020
-	float EffectTrack::GetUnknown188() const
+	float EffectTrack::GetScale() const
 	{
-		return unknown188;
+		return scale;
 	}
 
 	// FUNCTION: ENGINE 0x10805030
-	bool EffectTrack::GetUnknown1aa() const
+	bool EffectTrack::GetCollides() const
 	{
-		return unknown1aa;
+		return collides;
 	}
 
 	// FUNCTION: ENGINE 0x10805040
-	float EffectTrack::GetUnknown184() const
+	float EffectTrack::GetRestitution() const
 	{
-		return unknown184;
+		return restitution;
 	}
 
 	// FUNCTION: ENGINE 0x10805050
-	float EffectTrack::GetUnknown114() const
+	float EffectTrack::GetFriction() const
 	{
-		return unknown114;
+		return friction;
 	}
 
 	// FUNCTION: ENGINE 0x10805060
-	float EffectTrack::GetUnknown180() const
+	float EffectTrack::GetRenderOffset() const
 	{
-		return unknown180;
+		return renderOffset;
 	}
 
 	// FUNCTION: ENGINE 0x10805070
-	bool EffectTrack::GetUnknown1ad() const
+	bool EffectTrack::GetUsePropScaling() const
 	{
-		return unknown1ad;
+		return usePropScaling;
 	}
 
 	// FUNCTION: ENGINE 0x10805080
-	float* EffectTrack::GetUnknown20()
+	fight::Name* EffectTrack::GetCloneName()
 	{
-		return &unknown18.z;
+		return &cloneName;
 	}
 
 	// FUNCTION: ENGINE 0x10805090
-	bool EffectTrack::GetUnknown1a9() const
+	bool EffectTrack::GetBiases() const
 	{
-		return unknown1a9;
+		return biases;
 	}
 
 	// FUNCTION: ENGINE 0x108050A0
-	float EffectTrack::GetUnknownc0() const
+	float EffectTrack::GetBiasesEmissionRate() const
 	{
-		return unknownc0;
+		return biasesEmissionRate;
 	}
 
 	// FUNCTION: ENGINE 0x108050B0
-	float EffectTrack::GetUnknownc4() const
+	float EffectTrack::GetBiasesEmissionRateAreaScale() const
 	{
-		return unknownc4;
+		return biasesEmissionRateAreaScale;
 	}
 
 	// FUNCTION: ENGINE 0x108050C0
-	int EffectTrack::GetUnknown198() const
+	int EffectTrack::GetBiasesEmissionRateScaleFunction() const
 	{
-		return unknown198;
+		return biasesEmissionRateScaleFunction;
 	}
 
 	// FUNCTION: ENGINE 0x108050D0
-	float EffectTrack::GetUnknowne4() const
+	float EffectTrack::GetBiasesLifeSpan() const
 	{
-		return unknowne4;
+		return biasesLifeSpan;
 	}
 
 	// FUNCTION: ENGINE 0x108050E0
-	float EffectTrack::GetUnknowne8() const
+	float EffectTrack::GetBiasesLifeSpanVariance() const
 	{
-		return unknowne8;
+		return biasesLifeSpanVariance;
 	}
 
 	// FUNCTION: ENGINE 0x108050F0
-	float EffectTrack::GetUnknownf8() const
+	float EffectTrack::GetBiasesSpeed() const
 	{
-		return unknownf8;
+		return biasesSpeed;
 	}
 
 	// FUNCTION: ENGINE 0x10805100
-	float EffectTrack::GetUnknownfc() const
+	float EffectTrack::GetBiasesSpeedVariance() const
 	{
-		return unknownfc;
+		return biasesSpeedVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805110
-	float EffectTrack::GetUnknownec() const
+	float EffectTrack::GetBiasesSize1D() const
 	{
-		return unknownec;
+		return biasesSize1D;
 	}
 
 	// FUNCTION: ENGINE 0x10805120
-	float EffectTrack::GetUnknownf4() const
+	float EffectTrack::GetBiasesSize1DVariance() const
 	{
-		return unknownf4;
+		return biasesSize1DVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805130
-	float EffectTrack::GetUnknownf0() const
+	float EffectTrack::GetBiasesSize1DAreaScale() const
 	{
-		return unknownf0;
+		return biasesSize1DAreaScale;
 	}
 
 	// FUNCTION: ENGINE 0x10805140
-	int EffectTrack::GetUnknown19c() const
+	int EffectTrack::GetBiasesSize1DScaleFunction() const
 	{
-		return unknown19c;
+		return biasesSize1DScaleFunction;
 	}
 
 	// FUNCTION: ENGINE 0x10805150
-	float EffectTrack::GetUnknown100() const
+	float EffectTrack::GetBiasesSpin1D() const
 	{
-		return unknown100;
+		return biasesSpin1D;
 	}
 
 	// FUNCTION: ENGINE 0x10805160
-	float EffectTrack::GetUnknown104() const
+	float EffectTrack::GetBiasesSpin1DVariance() const
 	{
-		return unknown104;
+		return biasesSpin1DVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805170
-	float EffectTrack::GetUnknown108() const
+	float EffectTrack::GetBiasesWeight() const
 	{
-		return unknown108;
+		return biasesWeight;
 	}
 
 	// FUNCTION: ENGINE 0x10805180
-	float EffectTrack::GetUnknown10c() const
+	float EffectTrack::GetBiasesWeightVariance() const
 	{
-		return unknown10c;
+		return biasesWeightVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805190
-	float EffectTrack::GetUnknown98() const
+	float EffectTrack::GetBiasesAngle() const
 	{
-		return unknown98;
+		return biasesAngle;
 	}
 
 	// FUNCTION: ENGINE 0x108051A0
-	float EffectTrack::GetUnknown9c() const
+	float EffectTrack::GetBiasesAngleVariance() const
 	{
-		return unknown9c;
+		return biasesAngleVariance;
 	}
 
 	// FUNCTION: ENGINE 0x108051B0
-	float EffectTrack::GetUnknowne0() const
+	float EffectTrack::GetBiasesGravity() const
 	{
-		return unknowne0;
+		return biasesGravity;
 	}
 
 	// FUNCTION: ENGINE 0x108051C0
-	float EffectTrack::GetUnknownbc() const
+	float EffectTrack::GetBiasesDrag() const
 	{
-		return unknownbc;
+		return biasesDrag;
 	}
 
 	// FUNCTION: ENGINE 0x108051D0
-	float EffectTrack::GetUnknownb4() const
+	float EffectTrack::GetBiasesColourRed() const
 	{
-		return unknownb4;
+		return biasesColourRed;
 	}
 
 	// FUNCTION: ENGINE 0x108051E0
-	float EffectTrack::GetUnknowna4() const
+	float EffectTrack::GetBiasesColourGreen() const
 	{
-		return unknowna4;
+		return biasesColourGreen;
 	}
 
 	// FUNCTION: ENGINE 0x108051F0
-	float EffectTrack::GetUnknowna0() const
+	float EffectTrack::GetBiasesColourBlue() const
 	{
-		return unknowna0;
+		return biasesColourBlue;
 	}
 
 	// FUNCTION: ENGINE 0x10805200
-	float EffectTrack::GetUnknown8c() const
+	float EffectTrack::GetBiasesAlpha() const
 	{
-		return unknown8c;
+		return biasesAlpha;
 	}
 
 	// FUNCTION: ENGINE 0x10805210
-	float EffectTrack::GetUnknownb0() const
+	float EffectTrack::GetBiasesColourOverLifeRed() const
 	{
-		return unknownb0;
+		return biasesColourOverLifeRed;
 	}
 
 	// FUNCTION: ENGINE 0x10805220
-	float EffectTrack::GetUnknownac() const
+	float EffectTrack::GetBiasesColourOverLifeGreen() const
 	{
-		return unknownac;
+		return biasesColourOverLifeGreen;
 	}
 
 	// FUNCTION: ENGINE 0x10805230
-	float EffectTrack::GetUnknowna8() const
+	float EffectTrack::GetBiasesColourOverLifeBlue() const
 	{
-		return unknowna8;
+		return biasesColourOverLifeBlue;
 	}
 
 	// FUNCTION: ENGINE 0x10805240
-	float EffectTrack::GetUnknown90() const
+	float EffectTrack::GetBiasesAlphaOverLife() const
 	{
-		return unknown90;
+		return biasesAlphaOverLife;
 	}
 
 	// FUNCTION: ENGINE 0x10805250
-	float EffectTrack::GetUnknownb8() const
+	float EffectTrack::GetBiasesColourVariance() const
 	{
-		return unknownb8;
+		return biasesColourVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805260
-	float EffectTrack::GetUnknown94() const
+	float EffectTrack::GetBiasesAlphaVariance() const
 	{
-		return unknown94;
+		return biasesAlphaVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805270
-	float EffectTrack::GetUnknownd4() const
+	float EffectTrack::GetBiasesGeneratorRadius() const
 	{
-		return unknownd4;
+		return biasesGeneratorRadius;
 	}
 
 	// FUNCTION: ENGINE 0x10805280
-	float EffectTrack::GetUnknownd0() const
+	float EffectTrack::GetBiasesGeneratorRadial() const
 	{
-		return unknownd0;
+		return biasesGeneratorRadial;
 	}
 
 	// FUNCTION: ENGINE 0x10805290
-	float EffectTrack::GetUnknowncc() const
+	float EffectTrack::GetBiasesGeneratorHorizSpread() const
 	{
-		return unknowncc;
+		return biasesGeneratorHorizSpread;
 	}
 
 	// FUNCTION: ENGINE 0x108052A0
-	float EffectTrack::GetUnknownd8() const
+	float EffectTrack::GetBiasesGeneratorVertSpread() const
 	{
-		return unknownd8;
+		return biasesGeneratorVertSpread;
 	}
 
 	// FUNCTION: ENGINE 0x108052B0
-	float EffectTrack::GetUnknowndc() const
+	float EffectTrack::GetBiasesGeneratorWidth() const
 	{
-		return unknowndc;
+		return biasesGeneratorWidth;
 	}
 
 	// FUNCTION: ENGINE 0x108052C0
-	float EffectTrack::GetUnknownc8() const
+	float EffectTrack::GetBiasesGeneratorHeight() const
 	{
-		return unknownc8;
+		return biasesGeneratorHeight;
 	}
 
-	// ---- the second run of accessors, over the motion trail track's own copies of the members -------------------
-
 	// FUNCTION: ENGINE 0x108052D0
-	math::Vector MotionTrailTrack::GetUnknown60() const
+	math::Vector EffectTrack::GetBiasesMeshGeneratorScale() const
 	{
-		return unknown60;
+		return biasesMeshGeneratorScale;
 	}
 
 	// FUNCTION: ENGINE 0x108052F0
-	bool MotionTrailTrack::GetUnknown1ac() const
+	bool EffectTrack::GetOverrides() const
 	{
-		return unknown1ac;
+		return overrides;
 	}
 
 	// FUNCTION: ENGINE 0x10805300
-	float MotionTrailTrack::GetUnknown13c() const
+	float EffectTrack::GetOverridesEmissionRate() const
 	{
-		return unknown13c;
+		return overridesEmissionRate;
 	}
 
 	// FUNCTION: ENGINE 0x10805310
-	float MotionTrailTrack::GetUnknown140() const
+	float EffectTrack::GetOverridesEmissionRatePerMeter() const
 	{
-		return unknown140;
+		return overridesEmissionRatePerMeter;
 	}
 
 	// FUNCTION: ENGINE 0x10805320
-	float MotionTrailTrack::GetUnknown158() const
+	float EffectTrack::GetOverridesMaxParticles() const
 	{
-		return unknown158;
+		return overridesMaxParticles;
 	}
 
 	// FUNCTION: ENGINE 0x10805330
-	float MotionTrailTrack::GetUnknown15c() const
+	float EffectTrack::GetOverridesParticleAllocation() const
 	{
-		return unknown15c;
+		return overridesParticleAllocation;
 	}
 
 	// FUNCTION: ENGINE 0x10805340
-	float MotionTrailTrack::GetUnknown150() const
+	float EffectTrack::GetOverridesLifeSpan() const
 	{
-		return unknown150;
+		return overridesLifeSpan;
 	}
 
 	// FUNCTION: ENGINE 0x10805350
-	float MotionTrailTrack::GetUnknown154() const
+	float EffectTrack::GetOverridesLifeSpanVariance() const
 	{
-		return unknown154;
+		return overridesLifeSpanVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805360
-	float MotionTrailTrack::GetUnknown168() const
+	float EffectTrack::GetOverridesSpeed() const
 	{
-		return unknown168;
+		return overridesSpeed;
 	}
 
 	// FUNCTION: ENGINE 0x10805370
-	float MotionTrailTrack::GetUnknown16c() const
+	float EffectTrack::GetOverridesSpeedVariance() const
 	{
-		return unknown16c;
+		return overridesSpeedVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805380
-	float MotionTrailTrack::GetUnknown160() const
+	float EffectTrack::GetOverridesSize1D() const
 	{
-		return unknown160;
+		return overridesSize1D;
 	}
 
 	// FUNCTION: ENGINE 0x10805390
-	float MotionTrailTrack::GetUnknown164() const
+	float EffectTrack::GetOverridesSize1DVariance() const
 	{
-		return unknown164;
+		return overridesSize1DVariance;
 	}
 
 	// FUNCTION: ENGINE 0x108053A0
-	float MotionTrailTrack::GetUnknown170() const
+	float EffectTrack::GetOverridesSpin1D() const
 	{
-		return unknown170;
+		return overridesSpin1D;
 	}
 
 	// FUNCTION: ENGINE 0x108053B0
-	float MotionTrailTrack::GetUnknown174() const
+	float EffectTrack::GetOverridesSpin1DVariance() const
 	{
-		return unknown174;
+		return overridesSpin1DVariance;
 	}
 
 	// FUNCTION: ENGINE 0x108053C0
-	float MotionTrailTrack::GetUnknown178() const
+	float EffectTrack::GetOverridesWeight() const
 	{
-		return unknown178;
+		return overridesWeight;
 	}
 
 	// FUNCTION: ENGINE 0x108053D0
-	float MotionTrailTrack::GetUnknown17c() const
+	float EffectTrack::GetOverridesWeightVariance() const
 	{
-		return unknown17c;
+		return overridesWeightVariance;
 	}
 
 	// FUNCTION: ENGINE 0x108053E0
-	float MotionTrailTrack::GetUnknown120() const
+	float EffectTrack::GetOverridesAngle() const
 	{
-		return unknown120;
+		return overridesAngle;
 	}
 
 	// FUNCTION: ENGINE 0x108053F0
-	float MotionTrailTrack::GetUnknown124() const
+	float EffectTrack::GetOverridesAngleVariance() const
 	{
-		return unknown124;
+		return overridesAngleVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805400
-	float MotionTrailTrack::GetUnknown14c() const
+	float EffectTrack::GetOverridesGravity() const
 	{
-		return unknown14c;
+		return overridesGravity;
 	}
 
 	// FUNCTION: ENGINE 0x10805410
-	float MotionTrailTrack::GetUnknown138() const
+	float EffectTrack::GetOverridesDrag() const
 	{
-		return unknown138;
+		return overridesDrag;
 	}
 
 	// FUNCTION: ENGINE 0x10805420
-	float MotionTrailTrack::GetUnknown130() const
+	float EffectTrack::GetOverridesColourRed() const
 	{
-		return unknown130;
+		return overridesColourRed;
 	}
 
 	// FUNCTION: ENGINE 0x10805430
-	float MotionTrailTrack::GetUnknown12c() const
+	float EffectTrack::GetOverridesColourGreen() const
 	{
-		return unknown12c;
+		return overridesColourGreen;
 	}
 
 	// FUNCTION: ENGINE 0x10805440
-	float MotionTrailTrack::GetUnknown128() const
+	float EffectTrack::GetOverridesColourBlue() const
 	{
-		return unknown128;
+		return overridesColourBlue;
 	}
 
 	// FUNCTION: ENGINE 0x10805450
-	float MotionTrailTrack::GetUnknown118() const
+	float EffectTrack::GetOverridesAlpha() const
 	{
-		return unknown118;
+		return overridesAlpha;
 	}
 
 	// FUNCTION: ENGINE 0x10805460
-	float MotionTrailTrack::GetUnknown134() const
+	float EffectTrack::GetOverridesColourVariance() const
 	{
-		return unknown134;
+		return overridesColourVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805470
-	float MotionTrailTrack::GetUnknown11c() const
+	float EffectTrack::GetOverridesAlphaVariance() const
 	{
-		return unknown11c;
+		return overridesAlphaVariance;
 	}
 
 	// FUNCTION: ENGINE 0x10805480
-	float MotionTrailTrack::GetUnknown148() const
+	float EffectTrack::GetOverridesGeneratorWidth() const
 	{
-		return unknown148;
+		return overridesGeneratorWidth;
 	}
 
 	// FUNCTION: ENGINE 0x10805490
-	float MotionTrailTrack::GetUnknown144() const
+	float EffectTrack::GetOverridesGeneratorHeight() const
 	{
-		return unknown144;
+		return overridesGeneratorHeight;
 	}
 
 	// FUNCTION: ENGINE 0x108054A0
-	float* MotionTrailTrack::GetUnknown84()
+	fight::TrackGroup* EffectTrack::GetLodsGroup()
 	{
-		return &unknown84;
+		return &lods;
 	}
 
 	// FUNCTION: ENGINE 0x108054B0
-	unsigned char* MotionTrailTrack::GetUnknown40()
+	fight::Name* MotionTrailTrack::GetShader()
 	{
-		return unknown40;
+		return &shader;
 	}
 
 	// FUNCTION: ENGINE 0x108054C0
-	float MotionTrailTrack::GetUnknownb4() const
+	float MotionTrailTrack::GetGenerateTime() const
 	{
-		return unknownb4;
+		return generateTime;
 	}
 
 	// FUNCTION: ENGINE 0x108054D0
-	float MotionTrailTrack::GetUnknowna4() const
+	float MotionTrailTrack::GetFadeInTime() const
 	{
-		return unknowna4;
+		return fadeInTime;
 	}
 
 	// FUNCTION: ENGINE 0x108054E0
-	float MotionTrailTrack::GetUnknownac() const
+	float MotionTrailTrack::GetFadeOutTime() const
 	{
-		return unknownac;
+		return fadeOutTime;
 	}
 
 	// FUNCTION: ENGINE 0x108054F0
-	float MotionTrailTrack::GetUnknownbc() const
+	float MotionTrailTrack::GetTextureTime() const
 	{
-		return unknownbc;
+		return textureTime;
 	}
 
 	// FUNCTION: ENGINE 0x10805500
-	float MotionTrailTrack::GetUnknownb0() const
+	float MotionTrailTrack::GetFadeTime() const
 	{
-		return unknownb0;
+		return fadeTime;
 	}
 
 	// FUNCTION: ENGINE 0x10805510
-	float MotionTrailTrack::GetUnknowna8() const
+	float MotionTrailTrack::GetFadeInTrailTime() const
 	{
-		return unknowna8;
+		return fadeInTrailTime;
 	}
 
 	// FUNCTION: ENGINE 0x10805520
-	float MotionTrailTrack::GetUnknownb8() const
+	float MotionTrailTrack::GetShrinkTime() const
 	{
-		return unknownb8;
+		return shrinkTime;
 	}
+
+	// FUNCTION: ENGINE 0x10804EE0
+	// NONMATCHING: the engine loads the member into ecx and the out pointer into eax, ours the other way round (75 %;
+	// a local, a pointer and the plain assignment all give ours)
+#ifdef NONMATCHING
+	void AbortEffectTrack::GetSlotIndex(int& value) const
+	{
+		value = slot.index;
+	}
+#endif
 }

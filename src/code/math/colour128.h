@@ -13,6 +13,10 @@ namespace math
 		Colour128()
 		{
 		}
+		Colour128(float newR, float newG, float newB, float newA)
+			: r(newR), g(newG), b(newB), a(newA)
+		{
+		}
 		// The channels of a packed colour as floats (a byte over 255)
 		explicit Colour128(const pddiColour& colour)
 		{
