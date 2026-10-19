@@ -40,13 +40,21 @@ namespace engine
 	public:
 		// 0x1083E6A0: no heap yet, no package
 		StreamSlot();
-		// Declared only for its effect on the arrays of slots (they carry the element count in front)
+		// 0x1083E6C0: destroys the heap the slot owns (the arrays of slots carry the element count in front)
 		~StreamSlot();
-		bool Attach(StreamPackage* package);
+		bool Attach(StreamPackage* newPackage);
 		void Detach();
+		// 0x1083E6F0: the state of the package in the slot, 9 (loaded) when it is empty (names guessed)
+		int GetState() const;
+		// 0x1083E710: true when the slot's heap holds nothing
+		bool IsHeapEmpty() const;
+		// 0x1083E740 / 0x1083E750 / 0x1083E7D0
+		StreamPackage* GetPackage() const;
+		StreamPackage* GetPackage2() const;
+		bool GetUnknownD() const;
 
 		int heap;
-		int unknown4;
+		StreamPackage* package;
 		// The slot's number in its group
 		int index;
 		bool unknownC;
@@ -55,10 +63,11 @@ namespace engine
 		unsigned char unknownF;
 	};
 
-	struct StreamSlotGroup;
+	class StreamSlotGroup;
 
 	// Makes the heap of a slot of group (the slot's handle, the group, the heap's name); the engine's default is 0x1083EB80
 	typedef core::IMemoryAllocator* (*SlotHeapFactory)(int handle, StreamSlotGroup* group, const char* name);
+	typedef void (*SlotHeapDestroyer)(int handle);
 
 	// A group of package slots (RTTI engine::StreamSlotGroup, vftable 0x10E6F838, 0x70 bytes, base
 	// content::MetaLoadObject; the manager's 0x1082D550 builds them); its packages get at least its priority. The
@@ -71,7 +80,7 @@ namespace engine
 		unsigned int alignment;
 	};
 
-	struct StreamSlotGroup : public content::MetaLoadObject
+	class StreamSlotGroup : public content::MetaLoadObject
 	{
 	public:
 		// 0x1083EAD0: the group of slotCount slots under name; the manager's 0x1082D550 makes one and registers it
@@ -80,6 +89,33 @@ namespace engine
 		// vftable slot 7 (0x1083EC50): makes the group's slots and, for a group of several that is not shared, the
 		// heap they share; the first argument is never read
 		virtual void Create(int unused, bool immediate);
+		// vftable slot 4 (0x1083EE40): leaves the manager and gives the slots and their heap back; false while a
+		// package still holds a slot
+		virtual bool IsReady();
+		// vftable slot 6 (0x1083EAC0)
+		virtual void SetName(const content::ObjectName& newName);
+		// 0x1083EB70: the vftable stores of the base classes only
+		~StreamSlotGroup();
+
+		// 0x1083F5E0 / 0x1083EA40: a group without slots (the second takes the name)
+		StreamSlotGroup();
+		explicit StreamSlotGroup(const core::Name<core::CaseSensitiveKey>& newName);
+		// 0x1083F680: replaces the slots by count new ones (the heaps are made for them again)
+		void Reconfigure(unsigned int count, const SlotHeapConfig* newConfig);
+		// 0x1083E860: the slot heap's size, flag and alignment
+		void SetSlotHeapConfig(const SlotHeapConfig* newConfig);
+		// 0x1083E8B0: the same as GetSlotHeapConfig with the size of all the slots when they share a heap
+		int* GetGroupHeapConfig(int* out) const;
+		// 0x1083E7E0 / 0x1083F310: the class's name and the reflected members
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+		// 0x1083E8F0: the slot a new package goes into (a loaded one that is free, else one in state 8)
+		StreamSlot* FindFreeSlot() const;
+		// 0x1083E7C0
+		void SetSlotCount(unsigned int count);
+		// 0x1083E840: the function that destroys the heap of a slot: the group's own, else the manager's, else the
+		// default (0x1083E820)
+		SlotHeapDestroyer GetSlotHeapDestroyer() const;
 
 		// 0x1083EA30: the slot of that number
 		StreamSlot* GetSlot(unsigned int index);
@@ -101,16 +137,26 @@ namespace engine
 		bool unknown1C;
 		unsigned char unknown1D[3];
 		unsigned int slotCount;                    // +0x20
-		// The size of the heap of a slot is built from these three
-		int unknown24;
-		int unknown28;
-		int unknown2C;
-		unsigned char unknown30[0x54 - 0x30];
+		// The size of the heap of a slot is built from the first three (bytes, kilobytes, megabytes), the other
+		// platforms' sizes are reflected members that are not used
+		unsigned int slotWin32Bytes;
+		unsigned int slotWin32KiloBytes;
+		unsigned int slotWin32MegaBytes;
+		unsigned int slotXenonBytes;
+		unsigned int slotXenonKiloBytes;
+		unsigned int slotXenonMegaBytes;
+		unsigned int slotPS3CPUBytes;
+		unsigned int slotPS3CPUKiloBytes;
+		unsigned int slotPS3CPUMegaBytes;
+		unsigned int slotPS3GPUBytes;
+		unsigned int slotPS3GPUKiloBytes;
+		unsigned int slotPS3GPUMegaBytes;
 		int unknown54;
 		unsigned char unknown58[4];
 		// A group's own function that makes the heaps of its slots (null: the manager's, else the default)
 		SlotHeapFactory factory;                   // +0x5C
-		int unknown60;
+		// ... and the one that destroys them (+0x60)
+		SlotHeapDestroyer destroyer;
 		unsigned short priority;                   // +0x64
 		// A shared group's slots all use the heap of the first
 		bool shared;                               // +0x66
@@ -123,6 +169,10 @@ namespace engine
 	// manager under its name's hash
 	int AllocateSlotHandle();
 	void RegisterSlotGroup(StreamSlotGroup* group);
+	// 0x1082EA10 / 0x1082D670 (the stream manager's unit, names guessed): takes the group out of the manager;
+	// puts a slot heap handle back
+	void UnregisterSlotGroup(StreamSlotGroup* group);
+	void FreeSlotHandle(int handle);
 
 	// The stream manager (RTTI: engine::StreamManager, base StreamClient; the singleton is 0x1130D350). Only the
 	// statics the packages call are declared (0x1082BEC0 - 0x1082E990)
@@ -152,7 +202,11 @@ namespace engine
 
 		unsigned char unknown4[0x4c - 4];
 		Settings settings;
-		unsigned char unknown74[0x11C - 0x74];
+		unsigned char unknown74[0x88 - 0x74];
+		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
+		SlotHeapFactory slotHeapFactory;
+		SlotHeapDestroyer slotHeapDestroyer;
+		unsigned char unknown90[0x11C - 0x90];
 		// The priority loads are made at while a group's packages are changing (0xFFFF: none; 0x1082E100 sets it)
 		unsigned int transitionPriority;
 	};
