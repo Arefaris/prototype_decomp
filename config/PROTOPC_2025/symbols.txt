@@ -9220,3 +9220,4 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 
 ?Remove@?$LinkList@VAbortEffectTrack@engine@@@core@@QAEXPAU?$Link@VAbortEffectTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::AbortEffectTrack>::Remove (the engine's shared copy)
 ?Remove@?$LinkList@VMotionTrailTrack@engine@@@core@@QAEXPAU?$Link@VMotionTrailTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::MotionTrailTrack>::Remove (the engine's shared copy)
+?GetSlotIndex@AbortEffectTrack@engine@@QBEXAAH@Z = 0x10804EE0 ; function size:0xC | engine::AbortEffectTrack::GetSlotIndex: the high word of the slot name (name guess)
