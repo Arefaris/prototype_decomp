@@ -51,7 +51,7 @@ typedef lu_int32 Instruction;
 #define LUAI_MAXCALLS 20000
 #define LUAI_MAXVARS 200
 #define LUAI_MAXUPVALUES 60
-#define LUAL_BUFFERSIZE 1024
+#define LUAL_BUFFERSIZE 512
 #define LUA_IDSIZE 200
 #define LUAI_GCPAUSE 200
 #define LUAI_GCMUL 200
