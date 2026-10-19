@@ -230,12 +230,22 @@ namespace fight
 		// vftable slot 6
 		virtual bool Slot6(int a, int b, void* object);
 		// vftable slot 7
-		virtual bool Set(void* object, int value) = 0;
+		virtual bool Set(void* object, bool value) = 0;
 		// vftable slot 8
-		virtual int GetMembers() const = 0;
+		virtual const int* GetMembers() const = 0;
 	};
 
-	// The track group's slots 2 - 5 are its own as well; the setter takes no value
+	// A list of the tracks a track owns (RTTI unknown; one word, 0x105A7F10 clears it, 0x105A8140 empties it)
+	class TrackGroup
+	{
+	public:
+		TrackGroup();
+		~TrackGroup();
+
+		void* unknown0;
+	};
+
+	// The track group's slots 2 - 5 are its own as well; the "setter" hands out the group
 	class PropertyTypeTrackGroup : public Property
 	{
 	public:
@@ -250,7 +260,7 @@ namespace fight
 		// vftable slot 6
 		virtual bool Slot6(int a, int b, void* object);
 		// vftable slot 7
-		virtual bool Set(void* object) = 0;
+		virtual TrackGroup* Set(void* object) = 0;
 	};
 
 	// A name picked from a list (RTTI: base fight::PropertyTypeStringList, 9 vftable slots: slot 7 of the list is the
@@ -389,9 +399,9 @@ namespace fight
 	template<class T> class PropertyGroup : public PropertyTypeGroup
 	{
 	public:
-		typedef bool (T::*Setter)(int);
+		typedef bool (T::*Setter)(bool);
 
-		PropertyGroup(const char* name, Setter setter, int members)
+		PropertyGroup(const char* name, Setter setter, const int* members)
 			: PropertyTypeGroup(name), m_setter(setter), m_members(members)
 		{
 		}
@@ -403,7 +413,7 @@ namespace fight
 		}
 
 		// vftable slot 7
-		virtual bool Set(void* object, int value)
+		virtual bool Set(void* object, bool value)
 		{
 			if (m_setter == 0)
 			{
@@ -413,19 +423,19 @@ namespace fight
 		}
 
 		// vftable slot 8
-		virtual int GetMembers() const
+		virtual const int* GetMembers() const
 		{
 			return m_members;
 		}
 
 		Setter m_setter;
-		int m_members;
+		const int* m_members;
 	};
 
 	template<class T> class PropertyTrackGroup : public PropertyTypeTrackGroup
 	{
 	public:
-		typedef bool (T::*Setter)();
+		typedef TrackGroup* (T::*Setter)();
 
 		PropertyTrackGroup(const char* name, Setter setter)
 			: PropertyTypeTrackGroup(name), m_setter(setter)
@@ -433,7 +443,7 @@ namespace fight
 		}
 
 		// vftable slot 7
-		virtual bool Set(void* object)
+		virtual TrackGroup* Set(void* object)
 		{
 			return (static_cast<T*>(object)->*m_setter)();
 		}
