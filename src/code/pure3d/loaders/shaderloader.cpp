@@ -8,16 +8,82 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
+#include "code/pure3d/shaderconstants.h"
 
 namespace pure3d
 {
+	// The shader's methods share the unit with its loader (0x107062D0 - 0x10707260): with SetParameters compiled here
+	// the compiler knows it only reads through its reference, so the loader keeps the draw parameters in registers
+	// across the other calls, as the engine's loader does.
+	// FUNCTION: ENGINE 0x107062D0
+	// NONMATCHING: 95.9 % with dxTechniques::IsEnabled declared (the two virtual GetTechniques calls take the vftable
+	// in eax and the slot in edx, the engine the other way round; a local for the technique table, for the enabled
+	// flag or for the device shader at the top, a nested call expression and a reference to the device shader keep
+	// eax for the vftable); not compiled because declaring IsEnabled (0x10618560) as a fifth member function of
+	// dxTechniques moves two locals of Context::LoadDebugFont out of their slots. Compiled in this unit, it lets the
+	// loader below keep the draw parameters in registers (see there).
+#ifdef NONMATCHING
+	void Shader::SetParameters(const PrimStreamParameters& newParameters)
+	{
+		bool zFillChanged = (newParameters.flag0 ^ parameters.flag0) != 0;
+		parameters = newParameters;
+		if (parameters.blendMode == 1 && parameters.blendFactor == 0)
+		{
+			flags.Set(2, false);
+		}
+		else
+		{
+			flags.Set(2, true);
+		}
+		flags.Set(4, parameters.flag1);
+		if (parameters.flag0)
+		{
+			flags.Set(4, false);
+		}
+		if (zFillChanged)
+		{
+			dxShader* device = shader;
+			int technique = device->GetTechniques()->Find(&gShaderZFill);
+			if (!device->GetTechniques()->IsEnabled(technique))
+			{
+				flags.Set(3, true);
+			}
+			else
+			{
+				flags.Set(3, false);
+			}
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107065C0
+	bool ShaderLoader::HasName(unsigned int code, const char* type)
+	{
+		if (names.Find(code).node != 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x107065F0
+	const char** ShaderLoader::InputNames::At(const unsigned int* code)
+	{
+		MapNode* node = Find(*code).node;
+		if (node == 0)
+		{
+			node = Insert(Pair(*code, 0)).node;
+		}
+		return &node->pair.value;
+	}
+
 	// FUNCTION: ENGINE 0x10706960
-	// NONMATCHING: 42 %; the engine keeps the draw parameters' bit word in a register through the chunk loop (loaded
-	// at the loop head, kept across the Read calls, written back after each change), so its compiler did not treat
-	// the parameters as exposed to those calls although SetParameters gets their own slot; a copy, a by-value
-	// wrapper, a restrict pointer, const plus const_cast and noalias on Read do not reproduce that. The difftest
-	// difference on real states is in bytes both leave uninitialised (the bit word's top byte, the flag byte's
-	// bits 3-7 and the three bytes after it).
+	// NONMATCHING: 51.6 % of the bytes, 493 of the engine's 617 instructions in its order, when Shader::SetParameters
+	// above is compiled in this unit (41.8 % and 435 without it): the engine keeps the draw parameters' bit word in
+	// a register through the chunk loop because its compiler knows SetParameters, the only callee that takes their
+	// address, does not keep it. Left then are one more frame slot (0x4E4 against 0x4E0) and the placement of the
+	// 0x11003 case's SetFloat path. The difftest difference on real states is in bytes both leave uninitialised (the
+	// bit word's top byte, the flag byte's bits 3-7 and the three bytes after it).
 #ifdef NONMATCHING
 	void ShaderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)

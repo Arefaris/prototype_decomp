@@ -401,6 +401,22 @@ namespace pure3d
 	}
 
 
+	// Holds a new texture in one of the default texture slots (another copy of AssignRef, called by the default
+	// textures' unit; name guess)
+	// FUNCTION: ENGINE 0x1061CBB0
+	void AssignTextureSlot(dxTexture** slot, dxTexture* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+
 	// FUNCTION: ENGINE 0x1061C360
 	// The formats a texture may be created with (the two four-character ones are "DF16" and "DF24", the depth
 	// formats; the single bytes are the back end's own format codes). It is an int (the engine's code sets the whole

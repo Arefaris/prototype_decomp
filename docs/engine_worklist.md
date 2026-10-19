@@ -1621,6 +1621,33 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   for the joint names (61 %), a barrier after any statement (80.6 % after the terminator, not kept) and the orders of
   the joint chunk's first seven statements leave the register rotation. 0x10B91410 (42.9 % with a barrier at best) and
   0x10B95780 (43.2 %) not improved by barriers; 0x10706960 not reworked.
+- (op-map4) 0x10706960 `ShaderLoader::LoadObject` stays NONMATCHING but goes from 41.8 % to 51.6 % of the bytes
+  (493 of the engine's 617 instructions in its order, from 435) once `Shader::SetParameters` (0x107062D0) is compiled
+  in the same unit: VS2005 looks at a callee it has already compiled in the unit and, when that callee only reads
+  through the pointer or reference it is given, the caller's local does not count as exposed to the *other* calls,
+  so the loader keeps the draw parameters' bit word in esi across the chunk stream's Read calls as the engine does
+  (the callee being external, or a copy, restrict, const_cast and noalias spellings, never gave that). The same
+  trick did not help 0x10720CF0 (its callee hands the pointer on to an external operator=). `SetParameters` is
+  written (95.9 %: its two virtual GetTechniques calls take the vftable in eax and the slot in edx, the engine the
+  reverse) but stays NONMATCHING: it needs `dxTechniques::IsEnabled` (0x10618560) declared, and a fifth member
+  function of that class moves two locals of `Context::LoadDebugFont` (0x1070FC90) out of their slots (any member,
+  whatever its name, type or place; removing one of the four restores them; the locals' names, types and declaration
+  order in LoadDebugFont do not). `ShaderLoader::HasName` (0x107065C0) and `InputNames::At` (0x107065F0) **match**: the name table is a
+  `container::Map<unsigned int, const char*>` over the global array new / delete (0x10706420 is its Insert, 0x10706070
+  / 0x107060A0 its comparators, 0x107060C0 its deleter), `HasName` is `if (Find(code).node != 0) return true; return
+  false;` (the `!= 0` as a plain bool gives `neg / sbb / neg`), `At` is Find, then Insert(Pair(code, 0)) when there is
+  no node, and the address of the node's value. The loader's HasName / At being in the unit changed nothing more;
+  left are one frame slot (0x4E4 against 0x4E0, the low region's slots are laid out differently) and the position of
+  the 0x11003 case's SetFloat path.
+- (op-map4) 0x106DE090 stays EQUIVALENT (79.9 %, 538 of 628 instructions): compiling its unit's own callees (the
+  Skeleton constructor 0x106DDF20, Finish 0x106DDAA0 and the SkeletonDebugInfo constructor) next to it changes
+  nothing in it, so the register rotation is not the callee knowledge that moved the shader loader.
+  `SkeletonDebugInfo::SkeletonDebugInfo` (0x106DD980) **matches** (six stores). The Skeleton constructor is written
+  (15 %: the partitions' vector constructor and the joint masks' loop) but not kept.
+- (op-map4) 0x10B91410 and 0x10B95780 stay EQUIVALENT (42.4 % / 39.4 %), not reworked: neither calls a function of
+  its own unit (the callee-knowledge finding of the shader loader does not apply), and the template loader's 16
+  missing frame bytes are not its local objects (the engine's constructors write 4 bytes of a `ConstantSlot` and 8 of
+  a `pddiShaderInputInitData`, as declared).
 - Findings (mp-load): (1) a unit-local function takes a parameter in a register only under conditions that depend on
   what it calls: with `UploadLevel` defined in the unit (unit-local, two register parameters, as in the engine)
   `UploadVolumeLevels` keeps its texture on the stack, with `UploadLevel` only declared it takes the texture in a
@@ -3360,6 +3387,35 @@ method of the pose at +0x70) and the job record at +0x330.
   the unit or another, noalias, a reference) and however the record is declared (restrict member or local, volatile);
   a local for the format between the two flag stores puts the load first but rotates the registers (73 %); barriers
   after every statement and all orders of the queueing stores leave 99.1 %. The four-bone paths not reworked.
+- (op-map4) 0x10720CF0 stays EQUIVALENT (99.1 %). The load that is out of place is the one a load-before-store
+  dependence pins: in a harness that mirrors the queueing branch this compiler never lifts a load of an address-taken
+  local above a byte store through a pointer it read from memory, whether the record's pointer or its members are
+  `volatile`, whether the local was passed by pointer, reference, as a by-value return or only to its constructor,
+  and whether the format is a bit-field; with the format read into a local (or an inline helper's argument) before
+  the flags' stores the load comes first but both flag copies turn into `movzx` (73 %), unless all three flags are
+  one inline call's arguments (the byte copies stay, 75 %, the loads all ahead of the stores). `Skin::GetParameters`
+  (0x107202B0) **matches** and is defined in the unit now; it is `*parameters = this->parameters` with the skin's
+  `ShaderParameters` at +0x20 (0x118 bytes, up to the draw data at +0x138): the `core::AsyncTaskJob` and the pose
+  that were listed there belong to the `SkinState` (+0x20 and +0x70; the task's callback is the RTTI's
+  `SkinState::AsyncTaskAdaptor` and carries the state at +4), so `SubmitTask` (0x1071EAE0) is a `SkinState` method
+  and the job entry's second word points at the state.
+- (op-map4) The nine four-bone paths stay NONMATCHING but their shared blend (`BlendBoneRowsInline`) now follows the
+  engine's loop shape, measured by the instructions each loop shares with the engine's in its order (a diff of the
+  instruction lists; objcmp's byte percentages fall when the loop grows by a few copies): 1509 of the nine loops'
+  2088 instructions, from 1284. What moved them: the vertex's vectors loaded before the blend (the engine keeps the
+  position in xmm1 and spills accumulators instead), the first bone's three rotation rows read before its products
+  and its translation row only after the second bone's rotation rows (the translation accumulator starts as
+  `b13 * w1 + b03 * w0`), the first bone's products in the order 2, 0, 1 (the third row's product is the one the
+  engine spills), the weights read from the vertex again at each bone (one load comes out, the splats stay at their
+  bones), the rows of the second to fourth bone as named values read just before their products (the second bone's
+  first one after the first bone's products). 0x1071C0C0 has the second and third bone's blends instruction for
+  instruction (158 of 190; the position-first form of its old 63 % body had 125). Left in all of them: which
+  products are computed into the row's register and which into a copy of the splat (the engine: the first and last
+  bone in place, the middle two through a buffer register), and the last bone's loads straight into the result
+  registers; operand orders, `__m128*` rows in the template (much worse: 83 of 190), in-place `row = row * s`
+  spellings, a product variable and `w` loaded once do not change that. The standalone blenders 0x1071B310 /
+  0x1071B490 are 60 % (from 45 %): the first bone's first three rows through one variable (the engine keeps them in
+  one register and multiplies into a copy of the splat), the rest read inside the products.
 - (mp-skin) 0x1071CA40 stays NONMATCHING at 99.4 % (the engine's instructions, frame and stack slots; three instructions
   differ because the tangent's and the normal's offset vector trade xmm2 / xmm3 in the loop's head). What made it: the
   loop `for (unsigned int i = 0; i < (unsigned int)count; i++)`, and the tangent as ONE variable that is loaded, has
@@ -3613,6 +3669,15 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
 
 ## Merge notes (2026-10-16)
 
+- (op-map4) 0x106182C0 stays EQUIVALENT (97.5 %): a `volatile` window mode (the compare of a volatile member would
+  pin the stores after it) gives a separate `mov edx, [esi + 0x20]; cmp edx, edi` (29.7 %), so the engine's compare is
+  of a plain member; not reworked further.
+- (op-map4) 0x1061D3A0 `CreateDefaultTextures` stays NONMATCHING (75.3 %); its unit is confirmed separate from
+  dxtexture.cpp: compiled behind `dxTexture::Lock` the compiler drops the zero stores into the lock record that Lock
+  never reads (1408 bytes, 394 of 436 instructions), the engine keeps all nine. `AssignTextureSlot` (0x1061CBB0)
+  **matches** in dxtexture.cpp (AddRef the new, Release the old, store). 0x10623250 `Unknown2` stays EQUIVALENT
+  (28.7 %): its unit's `Unknown106229B0` (0x106229B0, the skinning matrices transposed into the vertex shader
+  constants from 0x69) compiled before it changes nothing in it. 0x1061C600 `Lock` not reworked (9.7 %).
 - Not reproduced at the merge and marked NONMATCHING: 0x1082DB20 `AddTriggerPackages` (36 %), 0x102D41C0
   `DentBuffer::Push` (26 %, branch layout), 0x102DA540 `LODRenderBehaviour::UpdateFade` (30 %), 0x102DDD30 /
   0x102DDE30 `MidgroundManager::CellLoaded` / `CellUnloaded` (63 % / 62 %).
@@ -3861,6 +3926,10 @@ access path (through the array object or through the owner) are part of the sour
   Find + Erase, the counter declared outside the loop and the orders of the lists' set-up statements change nothing;
   the group pointer declared ahead of the two loops gives the Find + Erase form its shared zero but one more frame
   slot (77 %).
+- (op-map4) 0x1082E100 stays EQUIVALENT (94.5 %): with Find + Erase in the unload loop the list taken into a local
+  first (`list = *current`) gives the engine's size (753 bytes) but drops the copy of the end, one counter shared by
+  the three loops, the group set in an else branch, a while form and the dropped count computed before the group
+  search do not bring the shared zero back; its two forms still each give one half.
 - 0x1082DB20 `AddTriggerPackages` **matches**: the centre of the trigger's box is an inline member of the box (the engine
   computes it the same way in five places: this function, `CollectPackages` 0x1082D0B0 and the functions at 0x108EB920 /
   0x108EBC80), `centre->Add(min, max); centre->Scale(0.5f)`. Inside the member the three sums come out with the
