@@ -6,15 +6,33 @@
 
 #include <stddef.h>
 
+#ifdef __cplusplus
 extern "C"
 {
+#endif
 	struct lua_State;
 	struct lua_Debug;
+	typedef struct lua_State lua_State;
+	typedef struct lua_Debug lua_Debug;
 
 	typedef float lua_Number;
 	typedef int lua_Integer;
 	typedef int (*lua_CFunction)(lua_State* L);
 	typedef void* (*lua_Alloc)(void* ud, void* ptr, size_t osize, size_t nsize);
+	typedef const char* (*lua_Reader)(lua_State* L, void* ud, size_t* sz);
+	typedef int (*lua_Writer)(lua_State* L, const void* p, size_t sz, void* ud);
+	typedef void (*lua_Hook)(lua_State* L, lua_Debug* ar);
+
+	// minimum Lua stack available to a C function
+	enum
+	{
+		LUA_MINSTACK = 20
+	};
+
+	enum
+	{
+		LUA_MULTRET = -1
+	};
 
 	enum
 	{
@@ -53,7 +71,9 @@ extern "C"
 		LUA_GCCOLLECT = 2,
 		LUA_GCCOUNT = 3,
 		LUA_GCCOUNTB = 4,
-		LUA_GCSTEP = 5
+		LUA_GCSTEP = 5,
+		LUA_GCSETPAUSE = 6,
+		LUA_GCSETSTEPMUL = 7
 	};
 
 	struct lua_Debug
@@ -146,6 +166,8 @@ extern "C"
 	int luaL_ref(lua_State* L, int t);
 	void luaL_unref(lua_State* L, int t, int ref);
 	int luaL_loadbuffer(lua_State* L, const char* buff, size_t sz, const char* name);
+#ifdef __cplusplus
 }
+#endif
 
 #endif
