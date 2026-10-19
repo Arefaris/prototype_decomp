@@ -300,6 +300,159 @@ namespace engine
 			PushRenderEvent(new (AllocRenderEvent(sizeof(RenderEvent8<A1, A2, A3, A4, A5, A6, A7, A8>)))
 				RenderEvent8<A1, A2, A3, A4, A5, A6, A7, A8>(function, a1, a2, a3, a4, a5, a6, a7, a8));
 		}
+
+		// The events that call a member function of an object (RTTI ObjRenderEventN<Object, ...>): the object and the
+		// function pointer come first, then the arguments, the first of which is laid out like a name needs (the
+		// events with a name argument have it at +0x10)
+		template<class Obj, class A1> class ObjRenderEvent1 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1);
+
+			ObjRenderEvent1(Obj* object, Function function, A1 a1) : mObject(object), mFunction(function), mA1(a1)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			typename EventMember<A1>::Type mA1;
+		};
+
+		template<class Obj, class A1, class A2> class ObjRenderEvent2 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1, A2);
+
+			ObjRenderEvent2(Obj* object, Function function, A1 a1, A2 a2) :
+				mObject(object), mFunction(function), mA1(a1), mA2(a2)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1, mA2);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			typename EventMember<A1>::Type mA1;
+			A2 mA2;
+		};
+
+		template<class Obj, class A1, class A2, class A3, class A4> class ObjRenderEvent4 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1, A2, A3, A4);
+
+			ObjRenderEvent4(Obj* object, Function function, A1 a1, A2 a2, A3 a3, A4 a4) :
+				mObject(object), mFunction(function), mA1(a1), mA2(a2), mA3(a3), mA4(a4)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1, mA2, mA3, mA4);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			A1 mA1;
+			A2 mA2;
+			A3 mA3;
+			A4 mA4;
+		};
+
+		template<class Obj, class A1, class A2, class A3, class A4, class A5> class ObjRenderEvent5 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1, A2, A3, A4, A5);
+
+			ObjRenderEvent5(Obj* object, Function function, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) :
+				mObject(object), mFunction(function), mA1(a1), mA2(a2), mA3(a3), mA4(a4), mA5(a5)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1, mA2, mA3, mA4, mA5);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			A1 mA1;
+			A2 mA2;
+			A3 mA3;
+			A4 mA4;
+			A5 mA5;
+		};
+
+		template<class Obj, class A1, class A2, class A3, class A4, class A5, class A6, class A7> class ObjRenderEvent7 :
+			public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1, A2, A3, A4, A5, A6, A7);
+
+			ObjRenderEvent7(Obj* object, Function function, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) :
+				mObject(object), mFunction(function), mA1(a1), mA2(a2), mA3(a3), mA4(a4), mA5(a5), mA6(a6), mA7(a7)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1, mA2, mA3, mA4, mA5, mA6, mA7);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			A1 mA1;
+			A2 mA2;
+			A3 mA3;
+			A4 mA4;
+			A5 mA5;
+			A6 mA6;
+			A7 mA7;
+		};
+
+		// Queues a call of a member function of object on the render thread
+		template<class Obj, class A1> void QueueObjRenderEvent(Obj* object, void (Obj::*function)(A1), A1 a1)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent1<Obj, A1>))) ObjRenderEvent1<Obj, A1>(object,
+				function, a1));
+		}
+
+		template<class Obj, class A1, class A2> void QueueObjRenderEvent(Obj* object, void (Obj::*function)(A1, A2),
+			A1 a1, A2 a2)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent2<Obj, A1, A2>))) ObjRenderEvent2<Obj, A1, A2>(
+				object, function, a1, a2));
+		}
+
+		template<class Obj, class A1, class A2, class A3, class A4> void QueueObjRenderEvent(Obj* object,
+			void (Obj::*function)(A1, A2, A3, A4), A1 a1, A2 a2, A3 a3, A4 a4)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent4<Obj, A1, A2, A3, A4>)))
+				ObjRenderEvent4<Obj, A1, A2, A3, A4>(object, function, a1, a2, a3, a4));
+		}
+
+		template<class Obj, class A1, class A2, class A3, class A4, class A5> void QueueObjRenderEvent(Obj* object,
+			void (Obj::*function)(A1, A2, A3, A4, A5), A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent5<Obj, A1, A2, A3, A4, A5>)))
+				ObjRenderEvent5<Obj, A1, A2, A3, A4, A5>(object, function, a1, a2, a3, a4, a5));
+		}
+
+		template<class Obj, class A1, class A2, class A3, class A4, class A5, class A6, class A7> void
+			QueueObjRenderEvent(Obj* object, void (Obj::*function)(A1, A2, A3, A4, A5, A6, A7), A1 a1, A2 a2, A3 a3,
+			A4 a4, A5 a5, A6 a6, A7 a7)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent7<Obj, A1, A2, A3, A4, A5, A6, A7>)))
+				ObjRenderEvent7<Obj, A1, A2, A3, A4, A5, A6, A7>(object, function, a1, a2, a3, a4, a5, a6, a7));
+		}
 	}
 }
 
