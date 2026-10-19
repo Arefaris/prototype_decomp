@@ -7520,3 +7520,5 @@ _sLuaString = 0x11274FC8 ; data size:0x80 | eventscripting.cpp: the buffer GetLu
 ?gDevice@pure3d@@3PAVdxDevice@1@A = 0x11276D40 ; data size:0x4 | pure3d::gDevice: the back end's driver object (name guess)
 ?Unknown10627FB0@pure3d@@YAXXZ = 0x10627FB0 ; function size:0x8 | pure3d: counts the starts of the back end (name guess)
 _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import thunk)
+??_7?$DynamicCaster@VShader@pure3d@@@LoadInventory@content@@6B@ = 0x10D9C620 ; data size:0x4 | content::LoadInventory::DynamicCaster<pure3d::Shader> vftable (name guess)
+?Cast@?$DynamicCaster@VShader@pure3d@@@LoadInventory@content@@UAEPAUIRefCount@core@@PAU45@@Z = 0x1009D2A0 ; function size:0x1E | content::LoadInventory::DynamicCaster<Shader>::Cast
