@@ -7,7 +7,10 @@
 #define ENGINE_FIGHT_TRACKFACTORY_H
 
 #include "code/core/name.h"
+#include "code/core/strings.h"
 #include "code/engine/fight/sequencer.h"
+#include "code/math/colour128.h"
+#include "code/math/vector.h"
 
 namespace fight
 {
@@ -169,6 +172,344 @@ namespace fight
 		}
 
 		Setter m_setter;
+	};
+
+	// The other kinds of property the tracks and conditions register: an int, a vector, a colour, a group of
+	// properties, a group of tracks, a name picked from a list and a value picked from a table of entries. The base
+	// classes are another unit's (8 vftable slots, the setter at slot 7, except where said); the derived templates
+	// below hold the setter at +0x10 like the three above.
+	class PropertyTypeInt : public Property
+	{
+	public:
+		PropertyTypeInt(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object, int value) = 0;
+	};
+
+	class PropertyTypeVector : public Property
+	{
+	public:
+		PropertyTypeVector(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object, const math::Vector& value) = 0;
+	};
+
+	class PropertyTypeColour : public Property
+	{
+	public:
+		PropertyTypeColour(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object, const math::Colour128& value) = 0;
+	};
+
+	// A group of properties (9 vftable slots): slot 7 sets the group's own value, slot 8 hands out the word the
+	// group was built with
+	class PropertyTypeGroup : public Property
+	{
+	public:
+		PropertyTypeGroup(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object, int value) = 0;
+		// vftable slot 8
+		virtual int GetMembers() const = 0;
+	};
+
+	// The track group's slots 2 - 5 are its own as well; the setter takes no value
+	class PropertyTypeTrackGroup : public Property
+	{
+	public:
+		PropertyTypeTrackGroup(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		virtual void Slot2(int arg);
+		virtual void Slot3(int arg);
+		virtual void Slot4(int a, int b, int c, int d);
+		virtual void Slot5(int a, int b);
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object) = 0;
+	};
+
+	// A name picked from a list (RTTI: base fight::PropertyTypeStringList, 9 vftable slots: slot 7 of the list is the
+	// text setter, slot 8 sets the name)
+	class PropertyTypeStringList : public Property
+	{
+	public:
+		virtual int GetType() const;
+		virtual bool Slot6(int a, int b, void* object);
+		virtual bool SetText(void* object, const char* text);
+	};
+
+	class PropertyTypeNameList : public PropertyTypeStringList
+	{
+	public:
+		PropertyTypeNameList(const char* name);
+
+		virtual bool Slot6(int a, int b, void* object);
+		virtual bool SetText(void* object, const char* text);
+		// vftable slot 8
+		virtual bool Set(void* object, const Name& value) = 0;
+	};
+
+	// One entry of an enum's table (8 bytes: its text and its value; layout unrecovered)
+	struct EnumEntry
+	{
+		int unknown0;
+		int unknown4;
+	};
+
+	// A value picked from a table of entries (10 vftable slots)
+	class PropertyTypeEnum : public Property
+	{
+	public:
+		PropertyTypeEnum(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7: the entry at an index (a dummy entry for a bad index)
+		virtual const EnumEntry* GetEntry(int a, int index) = 0;
+		// vftable slot 8
+		virtual int GetCount(int a) const = 0;
+		// vftable slot 9
+		virtual bool Set(void* object, int value) = 0;
+	};
+
+	template<class T> class PropertyIntConstRange : public PropertyTypeInt
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+
+		PropertyIntConstRange(const char* name, Setter setter)
+			: PropertyTypeInt(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyVector : public PropertyTypeVector
+	{
+	public:
+		typedef bool (T::*Setter)(const math::Vector&);
+
+		PropertyVector(const char* name, Setter setter)
+			: PropertyTypeVector(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, const math::Vector& value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyColour : public PropertyTypeColour
+	{
+	public:
+		typedef bool (T::*Setter)(const math::Colour128&);
+
+		PropertyColour(const char* name, Setter setter)
+			: PropertyTypeColour(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, const math::Colour128& value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyGroup : public PropertyTypeGroup
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+
+		PropertyGroup(const char* name, Setter setter, int members)
+			: PropertyTypeGroup(name), m_setter(setter), m_members(members)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		// vftable slot 8
+		virtual int GetMembers() const
+		{
+			return m_members;
+		}
+
+		Setter m_setter;
+		int m_members;
+	};
+
+	template<class T> class PropertyTrackGroup : public PropertyTypeTrackGroup
+	{
+	public:
+		typedef bool (T::*Setter)();
+
+		PropertyTrackGroup(const char* name, Setter setter)
+			: PropertyTypeTrackGroup(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object)
+		{
+			return (static_cast<T*>(object)->*m_setter)();
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyNameList : public PropertyTypeNameList
+	{
+	public:
+		typedef bool (T::*Setter)(const Name&);
+
+		PropertyNameList(const char* name, Setter setter)
+			: PropertyTypeNameList(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 8
+		virtual bool Set(void* object, const Name& value)
+		{
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyEnumConstList : public PropertyTypeEnum
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+
+		PropertyEnumConstList(const char* name, const EnumEntry* table, int count, Setter setter)
+			: PropertyTypeEnum(name), m_setter(setter), m_table(table), m_count(count)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual const EnumEntry* GetEntry(int a, int index)
+		{
+			if (index >= 0 && index < m_count)
+			{
+				return &m_table[index];
+			}
+			return reinterpret_cast<const EnumEntry*>(core::GetStringHeapCounter1());
+		}
+
+		// vftable slot 8
+		virtual int GetCount(int a) const
+		{
+			return m_count;
+		}
+
+		// vftable slot 9
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+		const EnumEntry* m_table;
+		int m_count;
 	};
 
 	// The list of a track class's properties, built once from a null-terminated array of them (0x105A8420)
