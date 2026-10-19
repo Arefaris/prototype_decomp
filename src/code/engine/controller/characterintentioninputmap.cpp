@@ -430,8 +430,7 @@ template engine::CharacterIntentionInputMap::AxisPairToButtonMapEntry& content::
 template engine::CharacterIntentionInputMap::PlayerSpaceTranslationMapEntry& content::ArrayDynamicHelper<
 	engine::CharacterIntentionInputMap::PlayerSpaceTranslationMapArray>::Default();
 
-// Kept copies: the explicitly instantiated members of the entry arrays and their reflection helpers, the entries
-// copies, the reflection meta type getters and the default elements
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10821AA0
 // FUNCTION: ENGINE 0x10821AB0
 // FUNCTION: ENGINE 0x10821AC0
