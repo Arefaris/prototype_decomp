@@ -5,6 +5,8 @@
 #include "code/lua/lobject.h"
 #include "code/lua/lzio.h"
 
+LUAI_EXTERN_C_BEGIN
+
 // load one chunk; from lundump.c
 Proto* luaU_undump(lua_State* L, ZIO* Z, Mbuffer* buff, const char* name);
 
@@ -27,5 +29,7 @@ void luaU_print(const Proto* f, int full);
 
 // size of header of binary files
 #define LUAC_HEADERSIZE 12
+
+LUAI_EXTERN_C_END
 
 #endif

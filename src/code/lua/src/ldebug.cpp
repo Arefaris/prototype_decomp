@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 ldebug.c (Debug Interface; unit 0x1062FAB0 - 0x10630A7F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 ldebug.c (Debug Interface; unit 0x1062FAB0 - 0x10630A7F). The library is compiled as C++ with C linkage.
 #include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
@@ -16,6 +16,9 @@
 #include "code/lua/ltable.h"
 #include "code/lua/ltm.h"
 #include "code/lua/lvm.h"
+
+extern "C"
+{
 
 static const char* getfuncname(lua_State* L, CallInfo* ci, const char** name);
 
@@ -832,4 +835,5 @@ int luaG_ordererror(lua_State* L, const TValue* p1, const TValue* p2)
 		luaG_runerror(L, "attempt to compare %s with %s", t1, t2);
 	}
 	return 0;
+}
 }

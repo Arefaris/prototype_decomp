@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 ldo.c (Stack and Call structure of Lua; unit 0x1062DA30 - 0x1062E77F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 ldo.c (Stack and Call structure of Lua; unit 0x1062DA30 - 0x1062E77F). The library is compiled as C++ with C linkage.
 #include <setjmp.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +19,9 @@
 #include "code/lua/lundump.h"
 #include "code/lua/lvm.h"
 #include "code/lua/lzio.h"
+
+extern "C"
+{
 
 // Error-recovery functions
 
@@ -637,4 +640,5 @@ int luaD_protectedparser(lua_State* L, ZIO* z, const char* name)
 	status = luaD_pcall(L, f_parser, &p, savestack(L, L->top), L->errfunc);
 	luaZ_freebuffer(L, &p.buff);
 	return status;
+}
 }

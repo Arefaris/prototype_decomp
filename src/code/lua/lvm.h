@@ -6,6 +6,8 @@
 #include "code/lua/lobject.h"
 #include "code/lua/ltm.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define tostring(L, o) ((ttype(o) == LUA_TSTRING) || (luaV_tostring(L, o)))
 
 #define tonumber(o, n) (ttype(o) == LUA_TNUMBER || \
@@ -23,5 +25,7 @@ void luaV_settable(lua_State* L, const TValue* t, TValue* key, StkId val);
 void luaV_execute(lua_State* L, int nexeccalls);
 void luaV_concat(lua_State* L, int total, int last);
 int luaV_equalval(lua_State* L, const TValue* t1, const TValue* t2);
+
+LUAI_EXTERN_C_END
 
 #endif

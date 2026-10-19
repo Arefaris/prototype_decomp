@@ -4,6 +4,8 @@
 
 #include "code/lua/lstate.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define pcRel(pc, p) (cast(int, (pc) - (p)->code) - 1)
 
 #define getline(f, pc) (((f)->lineinfo) ? (f)->lineinfo[pc] : 0)
@@ -17,5 +19,7 @@ int luaG_ordererror(lua_State* L, const TValue* p1, const TValue* p2);
 void luaG_runerror(lua_State* L, const char* fmt, ...);
 void luaG_errormsg(lua_State* L);
 int luaG_checkcode(const Proto* pt);
+
+LUAI_EXTERN_C_END
 
 #endif

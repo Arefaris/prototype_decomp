@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 lzio.c (a generic input stream interface; unit 0x10633940 - 0x10633A9F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 lzio.c (a generic input stream interface; unit 0x10633940 - 0x10633A9F). The library is compiled as C++ with C linkage.
 #include <string.h>
 
 #include "code/lua/lua.h"
@@ -7,6 +7,9 @@
 #include "code/lua/lmem.h"
 #include "code/lua/lstate.h"
 #include "code/lua/lzio.h"
+
+extern "C"
+{
 
 // FUNCTION: ENGINE 0x10633940
 int luaZ_fill(ZIO* z)
@@ -87,4 +90,5 @@ char* luaZ_openspace(lua_State* L, Mbuffer* buff, size_t n)
 		luaZ_resizebuffer(L, buff, n);
 	}
 	return buff->buffer;
+}
 }

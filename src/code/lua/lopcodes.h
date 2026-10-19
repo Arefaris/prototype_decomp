@@ -4,6 +4,8 @@
 
 #include "code/lua/llimits.h"
 
+LUAI_EXTERN_C_BEGIN
+
 // We assume that instructions are unsigned numbers. All instructions have an opcode in the first 6 bits.
 // Instructions can have the following fields:
 //   A : 8 bits
@@ -195,5 +197,7 @@ extern const lu_byte luaP_opmodes[NUM_OPCODES];
 
 // number of list items to accumulate before a SETLIST instruction
 #define LFIELDS_PER_FLUSH 50
+
+LUAI_EXTERN_C_END
 
 #endif

@@ -5,6 +5,8 @@
 #include "code/lua/lua.h"
 #include "code/lua/lmem.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define EOZ (-1) // end of stream
 
 typedef struct Zio ZIO;
@@ -51,5 +53,7 @@ struct Zio
 };
 
 int luaZ_fill(ZIO* z);
+
+LUAI_EXTERN_C_END
 
 #endif

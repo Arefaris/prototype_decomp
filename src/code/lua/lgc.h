@@ -4,6 +4,8 @@
 
 #include "code/lua/lobject.h"
 
+LUAI_EXTERN_C_BEGIN
+
 // Possible states of the Garbage Collector
 #define GCSpause 0
 #define GCSpropagate 1
@@ -84,5 +86,7 @@ void luaC_link(lua_State* L, GCObject* o, lu_byte tt);
 void luaC_linkupval(lua_State* L, UpVal* uv);
 void luaC_barrierf(lua_State* L, GCObject* o, GCObject* v);
 void luaC_barrierback(lua_State* L, Table* t);
+
+LUAI_EXTERN_C_END
 
 #endif

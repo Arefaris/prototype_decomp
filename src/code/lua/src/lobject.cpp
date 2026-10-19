@@ -1,4 +1,4 @@
-// CFLAGS: /TC !/arch
+// CFLAGS: !/arch
 // Lua 5.1.1 lobject.c (Some generic functions over Lua objects; unit 0x1062D460 - 0x1062DA2F). The library is
 // compiled as C.
 #include <ctype.h>
@@ -14,6 +14,9 @@
 #include "code/lua/lstate.h"
 #include "code/lua/lstring.h"
 #include "code/lua/lvm.h"
+
+extern "C"
+{
 
 const TValue luaO_nilobject_ = { { NULL }, LUA_TNIL };
 
@@ -274,4 +277,5 @@ void luaO_chunkid(char* out, const char* source, size_t bufflen)
 			strcat(out, "\"]");
 		}
 	}
+}
 }

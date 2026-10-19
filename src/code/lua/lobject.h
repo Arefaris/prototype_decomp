@@ -6,6 +6,8 @@
 
 #include "code/lua/llimits.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define LAST_TAG LUA_TTHREAD
 #define NUM_TAGS (LAST_TAG + 1)
 
@@ -286,5 +288,7 @@ int luaO_str2d(const char* s, lua_Number* result);
 const char* luaO_pushvfstring(lua_State* L, const char* fmt, va_list argp);
 const char* luaO_pushfstring(lua_State* L, const char* fmt, ...);
 void luaO_chunkid(char* out, const char* source, size_t len);
+
+LUAI_EXTERN_C_END
 
 #endif

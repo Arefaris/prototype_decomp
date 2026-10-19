@@ -1,6 +1,6 @@
-// CFLAGS: /TC !/arch
+// CFLAGS: !/arch
 // Lua 5.1.1 lfunc.c (Auxiliary functions to manipulate prototypes and closures; unit 0x10633580 - 0x1063393F). The
-// library is compiled as C.
+// library is compiled as C++ with C linkage.
 #include <stddef.h>
 
 #include "code/lua/lua.h"
@@ -9,6 +9,9 @@
 #include "code/lua/lmem.h"
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
+
+extern "C"
+{
 
 // FUNCTION: ENGINE 0x10633580
 Closure* luaF_newCclosure(lua_State* L, int nelems, Table* e)
@@ -189,4 +192,5 @@ const char* luaF_getlocalname(const Proto* f, int local_number, int pc)
 		}
 	}
 	return NULL; // not found
+}
 }

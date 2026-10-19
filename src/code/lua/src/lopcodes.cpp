@@ -1,7 +1,10 @@
-// CFLAGS: /TC !/arch
+// CFLAGS: !/arch
 // Lua 5.1.1 lopcodes.c (Opcodes for the Lua virtual machine): the opcode properties table at 0x10E46754. The unit has
 // no function.
 #include "code/lua/lopcodes.h"
+
+extern "C"
+{
 
 #define opmode(t, a, b, c, m) (((t) << 7) | ((a) << 6) | ((b) << 4) | ((c) << 2) | (m))
 
@@ -46,3 +49,4 @@ const lu_byte luaP_opmodes[NUM_OPCODES] = {
 	, opmode(0, 1, OpArgU, OpArgN, iABx) // OP_CLOSURE
 	, opmode(0, 1, OpArgU, OpArgN, iABC) // OP_VARARG
 };
+}

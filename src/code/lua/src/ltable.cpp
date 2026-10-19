@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 ltable.c (Lua tables (hash); unit 0x106325E0 - 0x1063327F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 ltable.c (Lua tables (hash); unit 0x106325E0 - 0x1063327F). The library is compiled as C++ with C linkage.
 //
 // Implementation of tables (aka arrays, objects, or hash tables). Tables keep its elements in two parts: an array
 // part and a hash part. Non-negative integer keys are all candidates to be kept in the array part. The actual size
@@ -18,6 +18,9 @@
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
 #include "code/lua/ltable.h"
+
+extern "C"
+{
 
 // max size of array part is 2^MAXBITS
 #define MAXBITS 26
@@ -694,4 +697,5 @@ int luaH_getn(Table* t)
 	{
 		return unbound_search(t, j);
 	}
+}
 }

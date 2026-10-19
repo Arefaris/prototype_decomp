@@ -6,6 +6,8 @@
 #include "code/lua/lstate.h"
 #include "code/lua/lzio.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define luaD_checkstack(L, n) \
 	if ((char*)L->stack_last - (char*)L->top <= (n) * (int)sizeof(TValue)) \
 		luaD_growstack(L, n); \
@@ -41,5 +43,7 @@ void luaD_throw(lua_State* L, int errcode);
 int luaD_rawrunprotected(lua_State* L, Pfunc f, void* ud);
 
 void luaD_seterrorobj(lua_State* L, int errcode, StkId oldtop);
+
+LUAI_EXTERN_C_END
 
 #endif

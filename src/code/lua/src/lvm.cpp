@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 lvm.c (Lua virtual machine; unit 0x10630B70 - 0x106325DF). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 lvm.c (Lua virtual machine; unit 0x10630B70 - 0x106325DF). The library is compiled as C++ with C linkage.
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +17,9 @@
 #include "code/lua/ltable.h"
 #include "code/lua/ltm.h"
 #include "code/lua/lvm.h"
+
+extern "C"
+{
 
 // limit for table tag-method chains (to avoid loops)
 #define MAXTAGLOOP 100
@@ -1012,4 +1015,5 @@ reentry: // entry point
 		}
 		}
 	}
+}
 }

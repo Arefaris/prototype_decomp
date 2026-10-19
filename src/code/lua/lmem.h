@@ -6,6 +6,8 @@
 
 #include "code/lua/llimits.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define MEMERRMSG "not enough memory"
 
 #define luaM_reallocv(L, b, on, n, e) \
@@ -31,5 +33,7 @@
 void* luaM_realloc_(lua_State* L, void* block, size_t oldsize, size_t size);
 void* luaM_toobig(lua_State* L);
 void* luaM_growaux_(lua_State* L, void* block, int* size, size_t size_elem, int limit, const char* errormsg);
+
+LUAI_EXTERN_C_END
 
 #endif

@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 lmem.c (Interface to Memory Manager; unit 0x10633DE0 - 0x10633ED0). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 lmem.c (Interface to Memory Manager; unit 0x10633DE0 - 0x10633ED0). The library is compiled as C++ with C linkage.
 #include <stddef.h>
 
 #include "code/lua/lua.h"
@@ -8,6 +8,9 @@
 #include "code/lua/lmem.h"
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
+
+extern "C"
+{
 
 // About the realloc function:
 // void* frealloc (void *ud, void *ptr, size_t osize, size_t nsize);
@@ -72,4 +75,5 @@ void* luaM_realloc_(lua_State* L, void* block, size_t osize, size_t nsize)
 	lua_assert((nsize == 0) == (block == NULL));
 	g->totalbytes = (g->totalbytes - osize) + nsize;
 	return block;
+}
 }

@@ -4,6 +4,8 @@
 
 #include "code/lua/lobject.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define gnode(t, i) (&(t)->node[i])
 #define gkey(n) (&(n)->i_key.nk)
 #define gval(n) (&(n)->i_val)
@@ -22,5 +24,7 @@ void luaH_resizearray(lua_State* L, Table* t, int nasize);
 void luaH_free(lua_State* L, Table* t);
 int luaH_next(lua_State* L, Table* t, StkId key);
 int luaH_getn(Table* t);
+
+LUAI_EXTERN_C_END
 
 #endif

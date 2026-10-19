@@ -6,6 +6,8 @@
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define sizestring(s) (sizeof(union TString) + ((s)->len + 1) * sizeof(char))
 
 #define sizeudata(u) (sizeof(union Udata) + (u)->len)
@@ -18,5 +20,7 @@
 void luaS_resize(lua_State* L, int newsize);
 Udata* luaS_newudata(lua_State* L, size_t s, Table* e);
 TString* luaS_newlstr(lua_State* L, const char* str, size_t l);
+
+LUAI_EXTERN_C_END
 
 #endif

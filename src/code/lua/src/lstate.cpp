@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 lstate.c (Global State; unit 0x1062E780 - 0x1062EB5F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 lstate.c (Global State; unit 0x1062E780 - 0x1062EB5F). The library is compiled as C++ with C linkage.
 #include <stddef.h>
 
 #include "code/lua/lua.h"
@@ -13,6 +13,9 @@
 #include "code/lua/lstring.h"
 #include "code/lua/ltable.h"
 #include "code/lua/ltm.h"
+
+extern "C"
+{
 
 #define state_size(x) (sizeof(x) + LUAI_EXTRASPACE)
 #define fromstate(l) (cast(lu_byte*, (l)) - LUAI_EXTRASPACE)
@@ -215,4 +218,5 @@ void lua_close(lua_State* L)
 	lua_assert(G(L)->tmudata == NULL);
 	luai_userstateclose(L);
 	close_state(L);
+}
 }

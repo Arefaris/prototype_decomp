@@ -4,6 +4,8 @@
 
 #include "code/lua/lobject.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define sizeCclosure(n) (cast(int, sizeof(CClosure)) + cast(int, sizeof(TValue) * ((n) - 1)))
 
 #define sizeLclosure(n) (cast(int, sizeof(LClosure)) + cast(int, sizeof(TValue*) * ((n) - 1)))
@@ -18,5 +20,7 @@ void luaF_freeproto(lua_State* L, Proto* f);
 void luaF_freeclosure(lua_State* L, Closure* c);
 void luaF_freeupval(lua_State* L, UpVal* uv);
 const char* luaF_getlocalname(const Proto* func, int local_number, int pc);
+
+LUAI_EXTERN_C_END
 
 #endif

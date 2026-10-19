@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 lgc.c (Garbage Collector; unit 0x1062EB60 - 0x1062FAAF). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 lgc.c (Garbage Collector; unit 0x1062EB60 - 0x1062FAAF). The library is compiled as C++ with C linkage.
 #include <string.h>
 
 #include "code/lua/lua.h"
@@ -13,6 +13,9 @@
 #include "code/lua/lstring.h"
 #include "code/lua/ltable.h"
 #include "code/lua/ltm.h"
+
+extern "C"
+{
 
 #define GCSTEPSIZE 1024u
 #define GCSWEEPMAX 40
@@ -907,4 +910,5 @@ void luaC_linkupval(lua_State* L, UpVal* uv)
 			lua_assert(g->gcstate != GCSfinalize && g->gcstate != GCSpause);
 		}
 	}
+}
 }

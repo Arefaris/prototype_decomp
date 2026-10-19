@@ -1,6 +1,6 @@
-// CFLAGS: /TC !/arch
+// CFLAGS: !/arch
 // Lua 5.1.1 lstring.c (String table (keeps all strings handled by Lua); unit 0x10633280 - 0x1063357F). The library
-// is compiled as C.
+// is compiled as C++ with C linkage.
 #include <string.h>
 
 #include "code/lua/lua.h"
@@ -8,6 +8,9 @@
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
 #include "code/lua/lstring.h"
+
+extern "C"
+{
 
 // FUNCTION: ENGINE 0x10633280
 void luaS_resize(lua_State* L, int newsize)
@@ -123,4 +126,5 @@ Udata* luaS_newudata(lua_State* L, size_t s, Table* e)
 	u->uv.next = G(L)->mainthread->next;
 	G(L)->mainthread->next = obj2gco(u);
 	return u;
+}
 }

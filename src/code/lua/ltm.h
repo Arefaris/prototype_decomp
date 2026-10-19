@@ -4,6 +4,8 @@
 
 #include "code/lua/lobject.h"
 
+LUAI_EXTERN_C_BEGIN
+
 // WARNING: if you change the order of this enumeration, grep "ORDER TM"
 typedef enum
 {
@@ -37,5 +39,7 @@ extern const char* const luaT_typenames[];
 const TValue* luaT_gettm(Table* events, TMS event, TString* ename);
 const TValue* luaT_gettmbyobj(lua_State* L, const TValue* o, TMS event);
 void luaT_init(lua_State* L);
+
+LUAI_EXTERN_C_END
 
 #endif

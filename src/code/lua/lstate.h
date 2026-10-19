@@ -7,6 +7,8 @@
 #include "code/lua/ltm.h"
 #include "code/lua/lzio.h"
 
+LUAI_EXTERN_C_BEGIN
+
 struct lua_longjmp;
 
 // table of globals
@@ -137,5 +139,7 @@ union GCObject
 
 lua_State* luaE_newthread(lua_State* L);
 void luaE_freethread(lua_State* L, lua_State* L1);
+
+LUAI_EXTERN_C_END
 
 #endif

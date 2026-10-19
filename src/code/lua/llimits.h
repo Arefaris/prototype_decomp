@@ -10,6 +10,14 @@
 
 #include "code/lua/lua.h"
 
+#ifdef __cplusplus
+#define LUAI_EXTERN_C_BEGIN extern "C" {
+#define LUAI_EXTERN_C_END }
+#else
+#define LUAI_EXTERN_C_BEGIN
+#define LUAI_EXTERN_C_END
+#endif
+
 typedef unsigned int lu_int32;
 typedef size_t lu_mem;
 typedef ptrdiff_t l_mem;

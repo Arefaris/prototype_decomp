@@ -1,11 +1,14 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 ldump.c (save precompiled Lua chunks; unit 0x10633AA0 - 0x10633DDF). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 ldump.c (save precompiled Lua chunks; unit 0x10633AA0 - 0x10633DDF). The library is compiled as C++ with C linkage.
 #include <stddef.h>
 
 #include "code/lua/lua.h"
 #include "code/lua/lobject.h"
 #include "code/lua/lstate.h"
 #include "code/lua/lundump.h"
+
+extern "C"
+{
 
 #define DumpMem(b, n, size, D) DumpBlock(b, (n) * (size), D)
 #define DumpVar(x, D) DumpMem(&x, 1, sizeof(x), D)
@@ -171,4 +174,5 @@ int luaU_dump(lua_State* L, const Proto* f, lua_Writer w, void* data, int strip)
 	DumpHeader(&D);
 	DumpFunction(f, NULL, &D);
 	return D.status;
+}
 }

@@ -1,5 +1,5 @@
-// CFLAGS: /TC !/arch
-// Lua 5.1.1 ltm.c (Tag methods; unit 0x10630A80 - 0x10630B6F). The library is compiled as C.
+// CFLAGS: !/arch
+// Lua 5.1.1 ltm.c (Tag methods; unit 0x10630A80 - 0x10630B6F). The library is compiled as C++ with C linkage.
 #include <string.h>
 
 #include "code/lua/lua.h"
@@ -8,6 +8,9 @@
 #include "code/lua/lstring.h"
 #include "code/lua/ltable.h"
 #include "code/lua/ltm.h"
+
+extern "C"
+{
 
 const char* const luaT_typenames[] = {
 	"nil", "boolean", "userdata", "number",
@@ -69,4 +72,5 @@ const TValue* luaT_gettmbyobj(lua_State* L, const TValue* o, TMS event)
 		break;
 	}
 	return (mt ? luaH_getstr(mt, G(L)->tmname[event]) : luaO_nilobject);
+}
 }

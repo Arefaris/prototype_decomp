@@ -5,6 +5,8 @@
 #include "code/lua/lobject.h"
 #include "code/lua/lzio.h"
 
+LUAI_EXTERN_C_BEGIN
+
 #define FIRST_RESERVED 257
 
 // maximum length of a reserved word
@@ -64,5 +66,7 @@ void luaX_lookahead(LexState* ls);
 void luaX_lexerror(LexState* ls, const char* msg, int token);
 void luaX_syntaxerror(LexState* ls, const char* s);
 const char* luaX_token2str(LexState* ls, int token);
+
+LUAI_EXTERN_C_END
 
 #endif

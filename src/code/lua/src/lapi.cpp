@@ -1,6 +1,6 @@
-// CFLAGS: /TC !/arch
+// CFLAGS: !/arch
 // Lua 5.1.1 lapi.c (Auxiliary functions from Lua API; unit 0x1062BFD0 - 0x1062D45B). The engine links the library; the
-// library is compiled as C.
+// library is compiled as C++ with C linkage.
 #include <string.h>
 
 #include "code/lua/lua.h"
@@ -17,6 +17,9 @@
 #include "code/lua/ltm.h"
 #include "code/lua/lundump.h"
 #include "code/lua/lvm.h"
+
+extern "C"
+{
 
 #define api_checknelems(L, n) api_check(L, (n) <= (L->top - L->base))
 
@@ -1258,4 +1261,5 @@ const char* lua_setupvalue(lua_State* L, int funcindex, int n)
 	}
 	lua_unlock(L);
 	return name;
+}
 }
