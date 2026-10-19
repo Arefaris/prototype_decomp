@@ -13,6 +13,20 @@
 
 namespace pure3d
 {
+	class DrawablePart;
+	class Mesh;
+	class MeshState;
+	class GpuSkin;
+	class GpuSkinState;
+	class Skin;
+	class SkinState;
+	class VertexOffsetList;
+	class dxVertexDeclaration;
+	class dxIndexBufferState;
+	class ShaderParameters;
+	struct IndexBufferDescription;
+	struct VertexBufferDescription;
+
 	class PrimGroupLoader : public RefCounted
 	{
 	public:
@@ -30,6 +44,23 @@ namespace pure3d
 		void BuildGpuSkin(void* object, content::ChunkReader* reader, content::LoadInventory* inventory);
 		void BuildSkin(void* object, content::ChunkReader* reader, content::LoadInventory* inventory);
 		void BuildMesh(void* object, content::ChunkReader* reader, content::LoadInventory* inventory);
+		// 0x10B8C060: reads a stream layout chunk (0x10014) into the parameters (name guess)
+		void ReadStreams(ShaderParameters* parameters, content::ChunkReader* reader);
+		// 0x10B8C270: makes the mesh into the part (and the state that keeps the streams the group animates, when it
+		// has any) and locks its buffers (name guess)
+		void CreateMesh(DrawablePart* part, Mesh** mesh, MeshState** state, VertexBufferDescription* description,
+			ShaderParameters* stateParameters, ShaderParameters* meshParameters, IndexBufferDescription* indices,
+			dxVertexDeclaration* stateLock, dxVertexDeclaration* lock, dxIndexBufferState* indexLock);
+		// 0x10B8C820: makes the skin into the part with its state and fills the locks the skin chunks are read into:
+		// the skin's own vertex data (the bone streams), its buffer and the block at +0x264 (name guess)
+		void CreateSkin(DrawablePart* part, Skin** skin, SkinState** state, VertexOffsetList* offsets,
+			VertexBufferDescription* sourceStreams, VertexBufferDescription* bufferStreams,
+			VertexBufferDescription* stateStreams, IndexBufferDescription* indices, dxVertexDeclaration* sourceLock,
+			dxVertexDeclaration* bufferLock, dxVertexDeclaration* unknownLock, dxIndexBufferState* indexLock);
+		// 0x10B8BD90: makes the gpu skin into the part with its state and locks its buffers (name guess)
+		void CreateGpuSkin(DrawablePart* part, GpuSkin** skin, GpuSkinState** state,
+			VertexBufferDescription* description, IndexBufferDescription* indices, dxVertexDeclaration* lock,
+			dxIndexBufferState* indexLock);
 		// 0x10B90A70: makes the object of the group the reader sits on (the gpu skin for a skin group when gpu, the
 		// skin for a skin group, the mesh otherwise) and releases the shader it was read with
 		void MakePrimitive(void* object, content::ChunkReader* reader, content::LoadInventory* inventory, bool skin,

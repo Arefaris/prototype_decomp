@@ -29,7 +29,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071EFC0
-	void Unknown1071EFC0()
+	void Skin::Unknown1071EFC0()
 	{
 	}
 
@@ -1443,7 +1443,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B200
-	Expression* SkinState::GetExpression()
+	VertexOffsetList* SkinState::GetExpression()
 	{
 		return expression;
 	}

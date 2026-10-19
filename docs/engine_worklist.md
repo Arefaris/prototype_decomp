@@ -1512,6 +1512,29 @@ allocated by the constructor and set through 0x10B90B60). `PolySkinLoader::LoadO
   goes into the member first and then into a local (`shader = FindShader(...); Shader* found = shader; if (found == 0)
   { found = new Shader("error"); shader = found; } found->AddRef();`). Written straight through the member the
   compiler reloads it for the AddRef; with the local first it keeps the inventory in ebp and spills its vtable.
+- (op-add1) **The three builders and their makers match**: 0x10B8C270 `CreateMesh`, 0x10B8C820 `CreateSkin`, 0x10B8BD90
+  `CreateGpuSkin`, 0x10B8DFF0 `BuildMesh`, 0x10B8F400 `BuildSkin`, 0x10B8FFE0 `BuildGpuSkin`. Their real sizes include the
+  switch tables (0x11CA, 0xBDE, 0xA86; functions.tsv had cut `BuildMesh` at 0x2DE and listed its case bodies as 17
+  functions). The 0x38-byte object the makers give the states is `VertexOffsetList` (RTTI; primitive.h called it
+  `Expression`). What it took, for the next loaders of this kind:
+  - **VS2005 compiles a unit bottom-up and uses what it learnt about the callees it compiled**: with the makers defined in
+    the unit the compiler knows they keep neither `&mesh` nor `&state`, so it caches both in registers after later
+    calls as the engine does (declared only, it reloads them); with the `VertexStream` constructor and set-up defined in
+    the header it knows the streams do not escape, so the loops walk `stream.current` and `stream.stride` in registers.
+    The order of the definitions in the source does not matter.
+  - The loops are `for (unsigned int i = 0; i < count; i++) { reader->Read(stream.current, ...); stream.Next(); }` on
+    the stream's own cursor (a local pointer gives other load orders and, in `BuildMesh`, a switch index in eax).
+  - **Frame slots of locals of 16 bytes or less follow their uses per byte** (most used per byte nearest esp); larger
+    locals in disjoint scopes share a slot (all the streams, the three name buffers). One wrong size reshuffles the
+    whole frame: the controller list is 12 bytes (`begin`, `end` and a third word the reader never sets), and `Half4`
+    is 8-byte aligned (`__declspec(align(8))`, which also gives `BuildMesh` the engine's `and esp, -8` frame).
+  - `CreateSkin` writes its three branches out in full (each up to `SetState`); a shared tail or a goto gives other
+    registers. `BuildSkin` computes the three stream masks into locals (state, buffer, source) before the descriptions.
+  - The half-float repack is `math::Vector vector = value.ToVector(); math::Vector copy = vector; Half4 packed;
+    packed.Set(copy);` in a `__forceinline` helper taking `Half3` by value (with a member-wise copy constructor); the
+    controller test is `Size() > 0` with an unsigned `Size()` (`!= 0` folds to a mask test).
+  - Ties of equal uses per byte depend on the unit's symbol numbering: header declarations shift them in other units
+    (0x1070FC90 `LoadDebugFont` moved and came back while these headers changed); re-check every includer.
 
 Constructor:
 

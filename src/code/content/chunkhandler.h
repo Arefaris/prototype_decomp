@@ -9,6 +9,11 @@
 
 #include "code/content/loadinventory.h"
 
+namespace math
+{
+	class Vector;
+}
+
 namespace content
 {
 	// The stream a chunk handler reads through (0x288 bytes; 0x1060BB60 is the constructor, 0x1060B8E0 opens the
@@ -41,6 +46,12 @@ namespace content
 		// 0x105FF620: reads a length byte and that many characters into the buffer and terminates it; answers the
 		// buffer
 		char* ReadString(char* buffer);
+		// 0x105FF5E0, 0x105FF670, 0x1067C440, 0x1067C420: a four-byte value, count items of size bytes, three floats and
+		// a float (names guessed)
+		unsigned int ReadUnsigned();
+		void ReadData(void* destination, unsigned int count, unsigned int size);
+		void ReadVector(math::Vector* vector);
+		float ReadFloat();
 		// Reads from the stream the chunks come from
 		__forceinline void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown)
 		{

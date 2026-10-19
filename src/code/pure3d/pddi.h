@@ -11,6 +11,11 @@
 #include "code/math/matrix.h"
 #include "code/pure3d/pddi/dx9/d3d9.h"
 
+namespace content
+{
+	class ChunkReader;
+}
+
 namespace pure3d
 {
 	class pddiEmptyClass
@@ -82,16 +87,20 @@ namespace pure3d
 		int unknown10;
 	};
 
+	class dxVertexDeclaration;
+	class dxIndexBufferState;
+
 	// What the device's slot 24 hands out for a set of flags (a query on the device; the name and the slots are
-	// guesses, only slot 7 is used)
+	// guesses, only slots 3, 4 and 7 are used). For 0x102 slots 3 and 4 read a vertex and an index chunk of a mesh
+	// into the locked buffers (the count is the chunk's).
 	class pddiQuery
 	{
 	public:
 		virtual void Unknown0();
 		virtual void Unknown1();
 		virtual void Unknown2();
-		virtual void Unknown3();
-		virtual void Unknown4();
+		virtual void ReadVertices(content::ChunkReader* reader, dxVertexDeclaration* lock, unsigned int count);
+		virtual void ReadIndices(content::ChunkReader* reader, dxIndexBufferState* lock, unsigned int count);
 		virtual void Unknown5();
 		virtual void Unknown6();
 		virtual bool Unknown7();
