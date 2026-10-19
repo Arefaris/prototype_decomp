@@ -67,6 +67,18 @@ namespace pure3d
 	// 0x1062B5C0: the number of the device declaration that has the elements (the list ends with an element of type
 	// 0x11), made when the device has none yet (name guess)
 	int FindVertexDeclaration(const D3DVERTEXELEMENT9* elements);
+
+	// Sets the vertex declaration the device draws with when it is not the current one (name guess; 0x10620270)
+	inline void SelectVertexDeclaration(int declaration)
+	{
+		if (gVertexDeclarationManager->current != declaration)
+		{
+			gVertexDeclarationManager->current = declaration;
+			IDirect3DDevice9* device = gD3DDevice;
+			device->lpVtbl->SetVertexDeclaration(device,
+				gVertexDeclarationManager->entries.begin[declaration].declaration);
+		}
+	}
 }
 
 #endif

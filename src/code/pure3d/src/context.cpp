@@ -501,8 +501,8 @@ namespace pure3d
 	};
 
 	// FUNCTION: ENGINE 0x1070FC90
-	// Its two loaders' locals trade stack slots when the included headers declare other names (VS2005's slot order
-	// follows its symbol table): recheck it after header changes
+	// EQUIVALENT: 98.7 %, the same instructions; its two loaders' locals trade stack slots. VS2005's slot order follows
+	// the unit's symbol table, so it matches or not depending on the declarations in the included headers
 	void Context::LoadDebugFont()
 	{
 		if (font != 0)

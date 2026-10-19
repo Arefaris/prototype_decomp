@@ -88,8 +88,13 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 			# A string literal: compare the whole literal (its COMDAT section), terminator included
 			value, section = defined[name]
 			sec = coff.sections[section - 1]
-			width = sec["size"] - value
-			expected = int.from_bytes(coff.data[sec["raw"] + value:sec["raw"] + value + width], "little")
+			# An inlined copy reads the literal from an offset (the operand's own addend); compare what remains
+			ours, _ = coff.function(symbol)
+			skip = struct.unpack_from("<I", ours, offset)[0]
+			if skip >= sec["size"] - value:
+				skip = 0
+			width = sec["size"] - value - skip
+			expected = int.from_bytes(coff.data[sec["raw"] + value + skip:sec["raw"] + value + skip + width], "little")
 			if width == 1 and expected == 0:
 				continue  # "": a developer message of the original's that the repository leaves out
 		elif name in defined and not coff.sections[defined[name][1] - 1]["name"].startswith(".text"):

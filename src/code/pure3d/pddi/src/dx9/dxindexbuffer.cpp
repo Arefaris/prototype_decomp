@@ -7,6 +7,8 @@
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
 
 #include "code/pure3d/pddi/dx9/dxcontext.h"
+#include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
+#include "code/pure3d/primitive.h"
 
 namespace pure3d
 {
@@ -23,6 +25,39 @@ namespace pure3d
 		unknown34 = -1;
 		// The block is cleared as a whole, not member by member
 		memset(&state, 0, sizeof(state));
+	}
+
+	// FUNCTION: ENGINE 0x10626930 is the compiler's scalar deleting destructor of this class (slot 2)
+
+	// FUNCTION: ENGINE 0x10626720
+	dxIndexBuffer::~dxIndexBuffer()
+	{
+		if (buffer != 0)
+		{
+			if (unknown18 == 1)
+			{
+				buffer->Release();
+			}
+			else
+			{
+				FreePooledIndexBuffer(&buffer);
+			}
+		}
+		buffer = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106268D0
+	void dxIndexBuffer::GetDescription(IndexBufferDescription* description)
+	{
+		description->count = state.unknown0;
+		description->indexSize = state.unknownC;
+		description->usage = unknown10;
+	}
+
+	// FUNCTION: ENGINE 0x10626910
+	int dxIndexBuffer::GetFormatIndex()
+	{
+		return gIndexFormatIndices[state.unknownC];
 	}
 
 	// FUNCTION: ENGINE 0x10626770
@@ -126,5 +161,17 @@ namespace pure3d
 		}
 		unknown8 = true;
 		*lockState = state;
+	}
+
+	// FUNCTION: ENGINE 0x106268B0
+	void PrimGroupList::PrepareBatch(PrimBatch* batch)
+	{
+		dxIndexBuffer* indices = (dxIndexBuffer*)this;
+		dxDrawBatch* drawBatch = (dxDrawBatch*)batch;
+		drawBatch->indices = indices;
+		if (drawBatch->indexCount == 0)
+		{
+			drawBatch->indexCount = indices->state.unknown0;
+		}
 	}
 }

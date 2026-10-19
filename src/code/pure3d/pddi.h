@@ -158,10 +158,12 @@ namespace pure3d
 		virtual void Unknown19();
 		virtual void Unknown20();
 		virtual void Unknown21();
-		virtual void Unknown22();
-		virtual void Unknown23();
+		// Slot 22 / 23: the projection from a field of view (the angle is multiplied by the radians to degrees factor)
+		// or from the planes of the view volume; both set the projection matrix
+		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
+		virtual void SetOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ);
 		virtual pddiQuery* Unknown24(int flags);
-		virtual void Unknown25();
+		virtual bool Unknown25(int flags);
 		virtual void Unknown26();
 		virtual void Unknown27();
 		virtual void Unknown28();
@@ -190,9 +192,9 @@ namespace pure3d
 		virtual void Unknown48();
 		virtual void Unknown49();
 		virtual void Unknown50();
-		virtual void Unknown51();
-		virtual void Unknown52();
-		virtual void Unknown53();
+		virtual void Unknown51(bool enable);
+		virtual void Unknown52(int compare);
+		virtual void Unknown53(int fail, int zFail, int zPass);
 		virtual void Unknown54();
 		virtual void Unknown55();
 		virtual void Unknown56();
@@ -212,6 +214,8 @@ namespace pure3d
 		const math::Matrix* GetUnknown10614870();
 		// 0x10614C20: the word at +0x14 is not 0 (the meaning is unknown)
 		bool IsUnknown14Set();
+		// 0x106147E0: sets the projection matrix
+		void SetProjectionMatrix(const math::Matrix* matrix);
 		// 0x10615770: sets the world matrix (nothing when it is the one already set)
 		void SetWorldMatrix(const math::Matrix* matrix);
 		// 0x10615390: sets the view matrix (nothing when it is the one already set)

@@ -7,12 +7,12 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/pddi/dx9/dxvertexbuffer.h"
 
 namespace pure3d
 {
 	class Shader;
 	class PrimGroupList;
-	class dxVertexBuffer;
 	class dxIndexBuffer;
 	class dxVertexDeclaration;
 	class ShaderParameters;
@@ -79,16 +79,8 @@ namespace pure3d
 	};
 
 	// The vertex buffer a PrimStream fills (+0x8 its owner object, +0x14 the device buffer)
-	class PrimBuffer
+	class PrimBuffer : public dxVertexBuffer
 	{
-	public:
-		// 0x106258D0
-		void Unlock();
-		// 0x10625F00: locks the vertices; the description receives the buffer's own declaration, the locked block
-		// (in its word at +0x108) and the flags the lock was asked with
-		void Lock(dxVertexDeclaration* description, int flags);
-		// 0x10625FA0: fills the shader parameters with the descriptor of the buffer (its name and its flags)
-		void Unknown10625FA0(ShaderParameters* parameters);
 	};
 
 	struct PrimBufferOwner : core::IRefCount
@@ -120,10 +112,10 @@ namespace pure3d
 		void* format;
 		// The world matrix the primitive is drawn with (null when the device keeps the one it has)
 		const math::Matrix* world;
-		unsigned char unknown8[4];
+		// How many of the streams are used
+		unsigned int streamCount;
 		// The vertices the part draws from
-		dxVertexBuffer* vertices;
-		unsigned char unknown10[0x1C];
+		dxVertexBuffer* streams[8];
 		// The indices it draws them with (null for a plain draw)
 		dxIndexBuffer* indices;
 		// How many vertices (a plain draw) or indices (an indexed one) are drawn; 0 draws everything there is

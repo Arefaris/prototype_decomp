@@ -1,0 +1,318 @@
+// CFLAGS: !/arch
+// Lua 5.1.1 lundump.c (load precompiled Lua chunks; unit 0x106363D0 - 0x10636B8F). The library is compiled as C++ with C linkage.
+#include <string.h>
+
+#include "code/lua/lua.h"
+#include "code/lua/ldebug.h"
+#include "code/lua/ldo.h"
+#include "code/lua/lfunc.h"
+#include "code/lua/lmem.h"
+#include "code/lua/lobject.h"
+#include "code/lua/lstring.h"
+#include "code/lua/lundump.h"
+#include "code/lua/lzio.h"
+
+extern "C"
+{
+
+typedef struct
+{
+	lua_State* L;
+	ZIO* Z;
+	Mbuffer* b;
+	const char* name;
+	int swap;
+} LoadState;
+
+#define IF(c, s) if (c) error(S, s)
+
+// FUNCTION: ENGINE 0x106363D0
+static void error(LoadState* S, const char* why)
+{
+	luaO_pushfstring(S->L, "%s: %s in precompiled chunk", S->name, why);
+	luaD_throw(S->L, LUA_ERRSYNTAX);
+}
+
+#define LoadVar(S, x) LoadMem(S, &x, 1, sizeof(x))
+#define LoadByte(S) (lu_byte)LoadChar(S)
+#define LoadVector(S, b, n, size) LoadMem(S, b, n, size)
+
+// FUNCTION: ENGINE 0x106363F0
+static void LoadBlock(LoadState* S, void* b, size_t size)
+{
+	size_t r = luaZ_read(S->Z, b, size);
+	IF(r != 0, "unexpected end");
+}
+
+// FUNCTION: ENGINE 0x10636420
+static void LoadMem(LoadState* S, void* b, int n, size_t size)
+{
+	LoadBlock(S, b, n * size);
+	if (S->swap)
+	{
+		char* p = (char*)b;
+		char c;
+		switch (size)
+		{
+		case 1:
+			break;
+		case 2:
+			while (n--)
+			{
+				c = p[0];
+				p[0] = p[1];
+				p[1] = c;
+				p += 2;
+			}
+			break;
+		case 4:
+			while (n--)
+			{
+				c = p[0];
+				p[0] = p[3];
+				p[3] = c;
+				c = p[1];
+				p[1] = p[2];
+				p[2] = c;
+				p += 4;
+			}
+			break;
+		case 8:
+			while (n--)
+			{
+				c = p[0];
+				p[0] = p[7];
+				p[7] = c;
+				c = p[1];
+				p[1] = p[6];
+				p[6] = c;
+				c = p[2];
+				p[2] = p[5];
+				p[5] = c;
+				c = p[3];
+				p[3] = p[4];
+				p[4] = c;
+				p += 8;
+			}
+			break;
+		default:
+			IF(1, "bad size");
+			break;
+		}
+	}
+}
+
+// FUNCTION: ENGINE 0x10636520
+static int LoadChar(LoadState* S)
+{
+	char x;
+	LoadVar(S, x);
+	return x;
+}
+
+// FUNCTION: ENGINE 0x10636540
+static int LoadInt(LoadState* S)
+{
+	int x;
+	LoadVar(S, x);
+	IF(x < 0, "bad integer");
+	return x;
+}
+
+// FUNCTION: ENGINE 0x10636580
+static lua_Number LoadNumber(LoadState* S)
+{
+	lua_Number x;
+	LoadVar(S, x);
+	return x;
+}
+
+// FUNCTION: ENGINE 0x106365A0
+static TString* LoadString(LoadState* S)
+{
+	size_t size;
+	LoadVar(S, size);
+	if (size == 0)
+	{
+		return NULL;
+	}
+	else
+	{
+		char* s = luaZ_openspace(S->L, S->b, size);
+		LoadBlock(S, s, size);
+		return luaS_newlstr(S->L, s, size - 1); // remove trailing '\0'
+	}
+}
+
+// FUNCTION: ENGINE 0x10636600
+static void LoadCode(LoadState* S, Proto* f)
+{
+	int n = LoadInt(S);
+	f->code = luaM_newvector(S->L, n, Instruction);
+	f->sizecode = n;
+	LoadVector(S, f->code, n, sizeof(Instruction));
+}
+
+static Proto* LoadFunction(LoadState* S, TString* p);
+
+// FUNCTION: ENGINE 0x10636660
+static void LoadConstants(LoadState* S, Proto* f)
+{
+	int i;
+	int n;
+	n = LoadInt(S);
+	f->k = luaM_newvector(S->L, n, TValue);
+	f->sizek = n;
+	for (i = 0; i < n; i++)
+	{
+		setnilvalue(&f->k[i]);
+	}
+	for (i = 0; i < n; i++)
+	{
+		TValue* o = &f->k[i];
+		int t = LoadChar(S);
+		switch (t)
+		{
+		case LUA_TNIL:
+			setnilvalue(o);
+			break;
+		case LUA_TBOOLEAN:
+			setbvalue(o, LoadChar(S));
+			break;
+		case LUA_TNUMBER:
+			setnvalue(o, LoadNumber(S));
+			break;
+		case LUA_TSTRING:
+			setsvalue2n(S->L, o, LoadString(S));
+			break;
+		default:
+			error(S, "bad constant");
+			break;
+		}
+	}
+	n = LoadInt(S);
+	f->p = luaM_newvector(S->L, n, Proto*);
+	f->sizep = n;
+	for (i = 0; i < n; i++)
+	{
+		f->p[i] = NULL;
+	}
+	for (i = 0; i < n; i++)
+	{
+		f->p[i] = LoadFunction(S, f->source);
+	}
+}
+
+// FUNCTION: ENGINE 0x106367D0
+static void LoadDebug(LoadState* S, Proto* f)
+{
+	int i;
+	int n;
+	n = LoadInt(S);
+	f->lineinfo = luaM_newvector(S->L, n, int);
+	f->sizelineinfo = n;
+	LoadVector(S, f->lineinfo, n, sizeof(int));
+	n = LoadInt(S);
+	f->locvars = luaM_newvector(S->L, n, LocVar);
+	f->sizelocvars = n;
+	for (i = 0; i < n; i++)
+	{
+		f->locvars[i].varname = NULL;
+	}
+	for (i = 0; i < n; i++)
+	{
+		f->locvars[i].varname = LoadString(S);
+		f->locvars[i].startpc = LoadInt(S);
+		f->locvars[i].endpc = LoadInt(S);
+	}
+	n = LoadInt(S);
+	f->upvalues = luaM_newvector(S->L, n, TString*);
+	f->sizeupvalues = n;
+	for (i = 0; i < n; i++)
+	{
+		f->upvalues[i] = NULL;
+	}
+	for (i = 0; i < n; i++)
+	{
+		f->upvalues[i] = LoadString(S);
+	}
+}
+
+// FUNCTION: ENGINE 0x10636930
+static Proto* LoadFunction(LoadState* S, TString* p)
+{
+	Proto* f = luaF_newproto(S->L);
+	setptvalue2s(S->L, S->L->top, f);
+	incr_top(S->L);
+	f->source = LoadString(S);
+	if (f->source == NULL)
+	{
+		f->source = p;
+	}
+	f->linedefined = LoadInt(S);
+	f->lastlinedefined = LoadInt(S);
+	f->nups = LoadByte(S);
+	f->numparams = LoadByte(S);
+	f->is_vararg = LoadByte(S);
+	f->maxstacksize = LoadByte(S);
+	LoadCode(S, f);
+	LoadConstants(S, f);
+	LoadDebug(S, f);
+	IF(!luaG_checkcode(f), "bad code");
+	S->L->top--;
+	return f;
+}
+
+// make header
+// FUNCTION: ENGINE 0x10636A00
+void luaU_header(char* h)
+{
+	int x = 1;
+	memcpy(h, LUA_SIGNATURE, sizeof(LUA_SIGNATURE) - 1);
+	h += sizeof(LUA_SIGNATURE) - 1;
+	*h++ = (char)LUAC_VERSION;
+	*h++ = (char)LUAC_FORMAT;
+	*h++ = (char)*(char*)&x; // endianness
+	*h++ = (char)sizeof(int);
+	*h++ = (char)sizeof(size_t);
+	*h++ = (char)sizeof(Instruction);
+	*h++ = (char)sizeof(lua_Number);
+	*h++ = (char)(((lua_Number)0.5) == 0); // is lua_Number integral?
+}
+
+// FUNCTION: ENGINE 0x10636A40
+static void LoadHeader(LoadState* S)
+{
+	char h[LUAC_HEADERSIZE];
+	char s[LUAC_HEADERSIZE];
+	luaU_header(h);
+	LoadBlock(S, s, LUAC_HEADERSIZE);
+	S->swap = (s[6] != h[6]);
+	s[6] = h[6]; // Load swap check
+	IF(memcmp(h, s, LUAC_HEADERSIZE) != 0, "bad header");
+}
+
+// load precompiled chunk
+// FUNCTION: ENGINE 0x10636B20
+Proto* luaU_undump(lua_State* L, ZIO* Z, Mbuffer* buff, const char* name)
+{
+	LoadState S;
+	if (*name == '@' || *name == '=')
+	{
+		S.name = name + 1;
+	}
+	else if (*name == LUA_SIGNATURE[0])
+	{
+		S.name = "binary string";
+	}
+	else
+	{
+		S.name = name;
+	}
+	S.L = L;
+	S.Z = Z;
+	S.b = buff;
+	LoadHeader(&S);
+	return LoadFunction(&S, luaS_newliteral(L, "=?"));
+}
+}

@@ -22,7 +22,8 @@ import relink  # noqa: E402
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
 CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
 # A source whose unit the engine compiled with other options says so in a comment among its first lines:
-# "// CFLAGS: /arch:SSE2". An option replaces the default of the same name (the part before the colon).
+# "// CFLAGS: /arch:SSE2". An option replaces the default of the same name (the part before the colon); "!/arch"
+# removes it.
 SOURCE_FLAGS = re.compile(r"^//\s*CFLAGS:\s*(.+?)\s*$", re.MULTILINE)
 ANNOTATION = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)[^\n]*\n(?:\s*//\s*(NONMATCHING|EQUIVALENT))?")
 
@@ -33,6 +34,10 @@ def cflagsFor(source):
 	flags = list(CFLAGS)
 	for match in SOURCE_FLAGS.finditer(text):
 		for option in match.group(1).split():
+			if option.startswith("!"):
+				# "!/arch" drops the option of that name (the unit was compiled without it)
+				flags = [f for f in flags if f.split(":")[0] != option[1:]]
+				continue
 			stem = option.split(":")[0]
 			flags = [f for f in flags if f.split(":")[0] != stem]
 			flags.append(option)

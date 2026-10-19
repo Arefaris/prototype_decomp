@@ -21,6 +21,24 @@ namespace pure3d
 		unknown110 = 0;
 	}
 
+	// FUNCTION: ENGINE 0x10625B20
+	// NONMATCHING: the engine steps the element copy through three induction pointers (best 9.9 %); the copy is the same
+#ifdef NONMATCHING
+	dxVertexDeclaration& dxVertexDeclaration::operator=(const dxVertexDeclaration& other)
+	{
+		unknown0 = other.unknown0;
+		unknown4 = other.unknown4;
+		unknown108 = other.unknown108;
+		unknown10C = other.unknown10C;
+		unknown110 = other.unknown110;
+		for (int i = 0; i < unknown4; i++)
+		{
+			elements[i] = other.elements[i];
+		}
+		return *this;
+	}
+#endif
+
 	// The two report-once flags of DumpStats (0x110BC41E, 0x110BC41D; names are guesses)
 	static bool sDumpHeaderEnabled = true;
 	static bool sDumpCountEnabled = true;

@@ -73,17 +73,7 @@ namespace pure3d
 	// The vertex declaration a draw needs: its number goes to `declaration` (0x1062B7B0; name guess)
 	void Unknown1062B7B0(int format, int* declaration, int* unknown);
 
-	// Sets the vertex declaration the device draws with when it is not the current one (name guess)
-	inline void SelectVertexDeclaration(int declaration)
-	{
-		if (gVertexDeclarationManager->current != declaration)
-		{
-			gVertexDeclarationManager->current = declaration;
-			IDirect3DDevice9* device = gD3DDevice;
-			device->lpVtbl->SetVertexDeclaration(device,
-				gVertexDeclarationManager->entries.begin[declaration].declaration);
-		}
-	}
+	// FUNCTION: ENGINE 0x10620270 is SelectVertexDeclaration (vertexdeclaration.h), which the compiler keeps a copy of
 
 	// FUNCTION: ENGINE 0x10620A20
 	dxDrawTracker* dxContext::Unknown10620A20(dxShader* shader, int a, int b, int count,
@@ -184,7 +174,7 @@ namespace pure3d
 		int vertices;
 		if (desc->indices != 0)
 		{
-			vertices = desc->vertices->GetUnknown14() - desc->baseVertex;
+			vertices = desc->streams[0]->GetUnknown14() - desc->baseVertex;
 			if (desc->count != 0)
 			{
 				indexCount = desc->count;
@@ -199,7 +189,7 @@ namespace pure3d
 			vertices = desc->count;
 			if (vertices == 0)
 			{
-				vertices = desc->vertices->GetUnknown14();
+				vertices = desc->streams[0]->GetUnknown14();
 			}
 		}
 		dxTechniques* techniques = shader->GetTechniques();
@@ -294,7 +284,7 @@ namespace pure3d
 		unsigned int vertices = desc->count;
 		if (vertices == 0)
 		{
-			vertices = desc->vertices->GetUnknown14();
+			vertices = desc->streams[0]->GetUnknown14();
 		}
 		unsigned int indexCount = 0;
 		dxTechniques* techniques = shader->GetTechniques();
@@ -392,7 +382,7 @@ namespace pure3d
 			transform.Multiply(transform, *GetUnknown10614870());
 			gD3DDevice->lpVtbl->SetVertexShaderConstantF(gD3DDevice, 0, &transform.m[0][0], 4);
 			int d3dType = gD3DPrimitiveTypes[batch->primitiveType];
-			int vertices = batch->vertices->GetUnknown14();
+			int vertices = batch->streams[0]->GetUnknown14();
 			int indexCount = batch->indexCount != 0 ? batch->indexCount : batch->indices->GetUnknown1C();
 			int primitives;
 			switch (batch->primitiveType)
@@ -426,4 +416,220 @@ namespace pure3d
 		Unknown10625A80();
 		Unknown106268F0();
 	}
+
+	// Passes a render state on to the device when it differs from the one the device is in
+	__forceinline void SetRenderStateOn(IDirect3DDevice9* device, dxRenderStateCache* cache, int state, int value)
+	{
+		if (value != cache->renderStates[state])
+		{
+			cache->renderStates[state] = value;
+			device->lpVtbl->SetRenderState(device, state, value);
+		}
+	}
+#define SetRenderState(state, value) SetRenderStateOn(gD3DDevice, gRenderStateCache, state, value)
+
+	// FUNCTION: ENGINE 0x10620BE0
+	void dxContext::SetPerspective(float nearZ, float farZ, float fov, float aspect)
+	{
+		math::Matrix projection;
+		projection.PerspectiveFovLH(fov * 57.295776f, aspect, nearZ, farZ);
+		SetProjectionMatrix(&projection);
+	}
+
+	// FUNCTION: ENGINE 0x10620C30
+	void dxContext::SetOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ)
+	{
+		math::Matrix projection;
+		projection.OrthoOffCenterLH(left, right, bottom, top, nearZ, farZ);
+		SetProjectionMatrix(&projection);
+	}
+
+	// FUNCTION: ENGINE 0x10620110
+	pddiQuery* dxContext::Unknown24(int flags)
+	{
+		switch (flags)
+		{
+		case 0x102:
+			return queryUnknown660;
+		case 0x400001:
+			return queryUnknown65C;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10620140
+	bool dxContext::Unknown25(int flags)
+	{
+		bool result = flags == 0x400001;
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10621440
+	void dxContext::SetCullMode(int mode)
+	{
+		pddiBaseContext::SetCullMode(mode);
+		if (mode == 0)
+		{
+			SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		}
+		else
+		{
+			SetRenderState(D3DRS_CULLMODE, mode == 1 ? D3DCULL_CCW : D3DCULL_CW);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10621520
+	void dxContext::EnableZBuffer(bool enable)
+	{
+		pddiBaseContext::EnableZBuffer(enable);
+		SetRenderState(D3DRS_ZENABLE, enable);
+	}
+
+	// FUNCTION: ENGINE 0x10621560
+	void dxContext::SetZCompare(int compare)
+	{
+		pddiBaseContext::SetZCompare(compare);
+		SetRenderState(D3DRS_ZFUNC, gD3DZCompares[compare]);
+	}
+
+	// FUNCTION: ENGINE 0x106215A0
+	void dxContext::EnableZWrite(bool enable)
+	{
+		pddiBaseContext::EnableZWrite(enable);
+		SetRenderState(D3DRS_ZWRITEENABLE, enable);
+	}
+
+	// FUNCTION: ENGINE 0x106215E0
+	void dxContext::EnableStencilBuffer(bool enable)
+	{
+		pddiBaseContext::EnableStencilBuffer(enable);
+		SetRenderState(D3DRS_STENCILENABLE, enable ? 1 : 0);
+	}
+
+	// FUNCTION: ENGINE 0x10621620
+	void dxContext::SetStencilCompare(int compare)
+	{
+		pddiBaseContext::SetStencilCompare(compare);
+		SetRenderState(D3DRS_STENCILFUNC, gD3DStencilCompares[compare]);
+	}
+
+	// FUNCTION: ENGINE 0x10621660
+	void dxContext::SetStencilRef(int ref)
+	{
+		pddiBaseContext::SetStencilRef(ref);
+		SetRenderState(D3DRS_STENCILREF, ref);
+	}
+
+	// FUNCTION: ENGINE 0x106216A0
+	void dxContext::SetStencilMask(int mask)
+	{
+		pddiBaseContext::SetStencilMask(mask);
+		SetRenderState(D3DRS_STENCILMASK, mask);
+	}
+
+	// FUNCTION: ENGINE 0x106216E0
+	void dxContext::SetStencilWriteMask(int mask)
+	{
+		pddiBaseContext::SetStencilWriteMask(mask);
+		SetRenderState(D3DRS_STENCILWRITEMASK, mask);
+	}
+
+	// FUNCTION: ENGINE 0x10621720
+	void dxContext::SetStencilOp(int fail, int zFail, int zPass)
+	{
+		pddiBaseContext::SetStencilOp(fail, zFail, zPass);
+		SetRenderState(D3DRS_STENCILFAIL, gD3DStencilOps[fail]);
+		SetRenderState(D3DRS_STENCILZFAIL, gD3DStencilOps[zFail]);
+		SetRenderState(D3DRS_STENCILPASS, gD3DStencilOps[zPass]);
+	}
+
+	// FUNCTION: ENGINE 0x106217E0
+	void dxContext::Unknown51(bool enable)
+	{
+		pddiBaseContext::Unknown51(enable);
+		SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, enable ? 1 : 0);
+	}
+
+	// FUNCTION: ENGINE 0x10621830
+	void dxContext::Unknown52(int compare)
+	{
+		pddiBaseContext::Unknown52(compare);
+		SetRenderState(D3DRS_CCW_STENCILFUNC, gD3DStencilCompares[compare]);
+	}
+
+	// FUNCTION: ENGINE 0x10621880
+	void dxContext::Unknown53(int fail, int zFail, int zPass)
+	{
+		pddiBaseContext::Unknown53(fail, zFail, zPass);
+		SetRenderState(D3DRS_CCW_STENCILFAIL, gD3DStencilOps[fail]);
+		SetRenderState(D3DRS_CCW_STENCILZFAIL, gD3DStencilOps[zFail]);
+		SetRenderState(D3DRS_CCW_STENCILPASS, gD3DStencilOps[zPass]);
+	}
+
+	// FUNCTION: ENGINE 0x10621B50
+	void dxContext::SetFillMode(int mode)
+	{
+		pddiBaseContext::SetFillMode(mode);
+		SetRenderState(D3DRS_FILLMODE, gD3DFillModes[mode]);
+	}
+
+	// FUNCTION: ENGINE 0x106219C0
+	void dxContext::EnableAlphaTest(bool enable)
+	{
+		pddiBaseContext::EnableAlphaTest(enable);
+		SetRenderState(D3DRS_SCISSORTESTENABLE, enable);
+	}
+
+	// FUNCTION: ENGINE 0x10621940
+	void dxContext::SetColourWrite(bool red, bool green, bool blue, bool alpha)
+	{
+		pddiBaseContext::SetColourWrite(red, green, blue, alpha);
+		unsigned int mask = 0;
+		if (red)
+		{
+			mask = 1;
+		}
+		if (green)
+		{
+			mask |= 2;
+		}
+		if (blue)
+		{
+			mask |= 4;
+		}
+		if (alpha)
+		{
+			mask |= 8;
+		}
+		colourWriteMask = mask;
+		SetRenderState(D3DRS_COLORWRITEENABLE, mask);
+	}
+
+	// FUNCTION: ENGINE 0x10621A00
+	void dxContext::SetFogRange(float nearZ, float farZ)
+	{
+		depthBiasSlope = nearZ;
+		depthBias = farZ;
+		SetRenderState(D3DRS_SLOPESCALEDEPTHBIAS, *(int*)&nearZ);
+		SetRenderState(D3DRS_DEPTHBIAS, *(int*)&farZ);
+	}
+
+	// FUNCTION: ENGINE 0x10621A80
+	// NONMATCHING: the engine loads the device before either branch and uses that load for the first state of both, this
+	// compiler loads it after the first comparison (best 68.0 %); the code is the same
+#ifdef NONMATCHING
+	void dxContext::EnableFog(bool enable)
+	{
+		if (!enable)
+		{
+			SetRenderState(D3DRS_SLOPESCALEDEPTHBIAS, 0);
+			SetRenderState(D3DRS_DEPTHBIAS, 0);
+		}
+		else
+		{
+			SetRenderStateOn(gD3DDevice, gRenderStateCache, D3DRS_SLOPESCALEDEPTHBIAS, gDepthBiasSlopeOn);
+			SetRenderState(D3DRS_DEPTHBIAS, gDepthBiasOn);
+		}
+	}
+#endif
 }

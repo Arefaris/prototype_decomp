@@ -10,12 +10,12 @@
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
+#include "code/pure3d/pddi/dx9/dxprogram.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 #include "code/pure3d/pddi/dx9/dxvertexbuffer.h"
 
 namespace pure3d
 {
-	class dxProgram;
 	class pddiShaderInputInitData;
 	struct DisplaySettings;
 
@@ -80,46 +80,50 @@ namespace pure3d
 		void Finish(pddiBaseContext* context, pddiShaderInputInitData* inputs);
 	};
 
-	// A vertex or pixel shader program of a technique (name guess; the kind decides which of the two it is)
-	class dxProgram
+	// The Direct3D render states the device is in (the object at 0x11276D70; name guess): the states the context sets
+	// are only passed on when the word differs from the one kept here
+	struct dxRenderStateCache
 	{
-	public:
-		int unknown0;
-		// 0 for a pixel program
-		int kind;
-		unsigned char unknown8[0x1C];
-		void* pixelShader;
-		void* vertexShader;
-	};
-
-	// What the context remembers of the programs it has set (the object at 0x11276DEC; name guess)
-	struct dxProgramCache
-	{
-		dxProgram* vertex;
-		dxProgram* pixel;
-		dxProgram* saved;
-		int unknownC;
-		bool frozen;
-		bool restricted;
-		unsigned char unknown12[2];
-		int vertexSets;
-		int pixelSets;
+		// The sampler states: four vertex samplers, then the pixel samplers, 0x50 states each
+		int samplerStates[20][0x50];
+		int renderStates[256];
+		unsigned char unknown1D00[0x240];
+		// The pixel shader constants the device was given (a register each) and the pass of the cache each was
+		// written in: a register is only trusted while its pass is the current one
+		float pixelConstants[256][4];
+		int pixelConstantPasses[256];
+		int pixelPass;
+		// The range of registers written since the last flush
+		unsigned int pixelDirtyFirst;
+		unsigned int pixelDirtyLast;
+		float vertexConstants[256][4];
+		int vertexConstantPasses[256];
+		int vertexPass;
+		unsigned int vertexDirtyFirst;
+		unsigned int vertexDirtyLast;
+		// How many constant writes were left out because the register held the value, and how many were made
+		int constantsSkipped;
+		int constantsWritten;
 	};
 
 	// A batch of the list DrawBatches draws (name guess; only what the draw reads is named)
 	struct dxDrawBatch
 	{
-		int unknown0;
-		dxVertexBuffer* vertices;
-		unsigned char unknown8[0x1C];
+		// How many of the streams are used
+		unsigned int streamCount;
+		dxVertexBuffer* streams[8];
 		dxIndexBuffer* indices;
-		unsigned char unknown28[4];
+		unsigned int unknown28;
 		math::Matrix world;
-		unsigned char unknown6C[4];
+		dxShader* shader;
 		unsigned short primitiveType;
-		unsigned char unknown72[6];
+		unsigned char unknown72[2];
+		int baseVertex;
 		int startIndex;
 		int indexCount;
+		unsigned int unknown80;
+		// Set when the batch's streams are not the ones its declaration was made for
+		bool rebuildDeclaration;
 	};
 
 	// What the context tells about every draw (0x11276DEC is another of these; name guess)
@@ -173,19 +177,82 @@ namespace pure3d
 		// 0x1061F950: the viewport's rectangle (name guess)
 		void Unknown1061F950(float x, float y, float width, float height);
 
-		unsigned char unknown5F4[0x664 - 0x5F4];
+		// Slots 22 and 23 (0x10620BE0, 0x10620C30)
+		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
+		virtual void SetOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ);
+		// Slot 24 (0x10620110): the object that answers for a set of flags (0x102 and 0x400001; null for any other)
+		virtual pddiQuery* Unknown24(int flags);
+		// Slot 25 (0x10620140): whether the flags are the one the device answers for (0x400001)
+		virtual bool Unknown25(int flags);
+		// The render states: each calls the base class's and passes the Direct3D value on when it differs from the
+		// one the device is in (0x10621440 - 0x10621B50)
+		virtual void SetCullMode(int mode);
+		virtual void SetColourWrite(bool red, bool green, bool blue, bool alpha);
+		virtual void EnableZBuffer(bool enable);
+		virtual void SetZCompare(int compare);
+		virtual void EnableZWrite(bool enable);
+		virtual void EnableStencilBuffer(bool enable);
+		virtual void SetStencilCompare(int compare);
+		virtual void SetStencilRef(int ref);
+		virtual void SetStencilMask(int mask);
+		virtual void SetStencilWriteMask(int mask);
+		virtual void SetStencilOp(int fail, int zFail, int zPass);
+		// The slots 51 - 53 are the same for the counter-clockwise faces (0x106217E0, 0x10621830, 0x10621880)
+		virtual void Unknown51(bool enable);
+		virtual void Unknown52(int compare);
+		virtual void Unknown53(int fail, int zFail, int zPass);
+		virtual void SetFillMode(int mode);
+		// Slot 60 sets the scissor test state (0x106219C0)
+		virtual void EnableAlphaTest(bool enable);
+		// Slots 62 and 63 set the slope scaled depth bias and the depth bias (0x10621A80, 0x10621A00)
+		virtual void EnableFog(bool enable);
+		virtual void SetFogRange(float nearZ, float farZ);
+
+		unsigned char unknown5F4[0x65C - 0x5F4];
+		// 0x65C / 0x660: what slot 24 hands out for the flags 0x400001 and 0x102
+		pddiQuery* queryUnknown65C;
+		pddiQuery* queryUnknown660;
 		// 0x664: the shader a draw without one goes through
 		dxShader* defaultShader;
-		unsigned char unknown668[0x690 - 0x668];
+		unsigned char unknown668[0x67C - 0x668];
+		// 0x67C: the colour write mask (red 1, green 2, blue 4, alpha 8)
+		unsigned int colourWriteMask;
+		unsigned char unknown680[4];
+		// 0x684 / 0x688: the two words of the depth bias
+		float depthBiasSlope;
+		float depthBias;
+		unsigned char unknown68C[4];
 		dxDrawTracker* tracker;
 	};
 
-	// 0x11276DEC
-	extern dxProgramCache* gProgramCache;
+	// 0x11276D70
+	extern dxRenderStateCache* gRenderStateCache;
+	// 0x11276D4C / 0x11276D50 / 0x11276D54 / 0x11276D58 / 0x11276D5C (dxdefaulttextures.cpp)
+	extern dxTexture* gWhiteTexture;
+	extern dxTexture* gBlackTexture;
+	extern dxTexture* gTransparentTexture;
+	extern dxTexture* gFlatNormalTexture;
+	extern dxTexture* gRampTexture;
+	// The Direct3D values of the pddi ones: the stencil operations (0x110BB6C4), the comparisons of the stencil
+	// (0x110BB6DC) and of the z buffer (0x110BB6FC) and the fill modes (0x110BB71C); names are guesses
+	extern int gD3DStencilOps[6];
+	extern int gD3DStencilCompares[8];
+	extern int gD3DZCompares[8];
+	extern int gD3DFillModes[3];
+	// 0x110BB750 / 0x110BB74C: the slope scaled depth bias and the depth bias EnableFog(true) sets
+	extern int gDepthBiasSlopeOn;
+	extern int gDepthBiasOn;
 	// 0x106283E0 / 0x10628400: the Z fill technique's two programs (name guess)
-	// 0x10625A80 / 0x106268F0: resets the context keeps around a batch of draws (names unknown)
+	// 0x10625A80 / 0x106268F0: the resets the context keeps around a batch of draws (names unknown): they let go of
+	// the streams and of the index buffer the device has set
 	void Unknown10625A80();
 	void Unknown106268F0();
+	// 0x11276DA8: the vertex buffer set on each stream of the device (name guess) and 0x11276DC8 how many streams
+	// are set
+	extern dxVertexBuffer* gBoundStreams[8];
+	extern unsigned int gBoundStreamCount;
+	// 0x10625930: the number of the device declaration for the elements of count streams (name guess)
+	int BuildVertexDeclaration(dxVertexBuffer* const* streams, unsigned int count);
 	// 0x10626180: binds what a batch draws from (name guess)
 	void Unknown10626180(const dxDrawBatch* batch);
 

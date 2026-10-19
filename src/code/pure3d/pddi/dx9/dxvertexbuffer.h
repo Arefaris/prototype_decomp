@@ -26,6 +26,16 @@ namespace pure3d
 	public:
 		// 0x106262D0
 		dxVertexBuffer();
+		// 0x10625E30: lets go of the device buffer (to the pool when it is the default pool's) and the elements
+		virtual ~dxVertexBuffer();
+		// 0x106258D0
+		void Unlock();
+		// 0x10625F00: locks the vertices; the description receives the buffer's own declaration, the locked block
+		// (in its word at +0x108) and the flags the lock was asked with
+		void Lock(dxVertexDeclaration* description, int count);
+		// 0x10625FA0: fills the shader parameters with the descriptor of the buffer (its counts, its flags and its
+		// elements)
+		void Unknown10625FA0(ShaderParameters* parameters);
 		// 0x10626350
 		void Create(const VertexBufferDescription* description);
 		// 0x10625900: the first word of the declaration (the draws take it for how many vertices there are)
