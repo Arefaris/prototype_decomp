@@ -9363,3 +9363,5 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 
 
 ??$GetAttributePtr@PAUPartLookup@proto@@@GameObject@engine@@QAE?AU?$AttributePtr@PAUPartLookup@proto@@@1@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x1005F1B0 ; function size:0x2C | engine::GameObject::GetAttributePtr<proto::PartLookup*> (another unit)
+?ReleaseSharedRef@engine@@YAXAAPAUIRefCount@core@@@Z = 0x104FF200 ; function size:0x1A | engine::ReleaseSharedRef (another unit)
+

@@ -30,6 +30,8 @@ namespace engine
 	// 0x108058E0 / 0x10805910
 	void AssignEffectRef(core::IRefCount*& pointer, core::IRefCount* object);
 	void ReleaseEffectRef(core::IRefCount*& object);
+	// 0x104FF200 (another unit's copy of the same helper, which the effect action's destructor calls for its second reference)
+	void ReleaseSharedRef(core::IRefCount*& object);
 
 	// RTTI: engine::AbortEffectTrack (16 vftable slots, 0x28 bytes)
 	class AbortEffectTrack : public fight::Track

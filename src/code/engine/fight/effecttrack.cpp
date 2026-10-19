@@ -128,15 +128,11 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10805B40
-	// NONMATCHING: the +0x3C reference is released through another unit's copy of the release helper (0x104FF200),
-	// ours calls ReleaseEffectRef for both members (same bytes, wrong call target)
-#ifdef NONMATCHING
 	EffectAction::~EffectAction()
 	{
 		ReleaseEffectRef(unknown44);
-		ReleaseEffectRef(unknown3c);
+		ReleaseSharedRef(unknown3c);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10805CF0
 	MotionTrailAction::~MotionTrailAction()
@@ -940,7 +936,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10804EE0
-	// NONMATCHING: the engine loads the member into ecx and the out pointer into eax, ours the other way round
+	// NONMATCHING: the engine loads the member into ecx and the out pointer into eax, ours the other way round (75 %;
+	// a local, a pointer and the plain assignment all give ours)
 #ifdef NONMATCHING
 	void AbortEffectTrack::GetSlotIndex(int& value) const
 	{
