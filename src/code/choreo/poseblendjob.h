@@ -134,6 +134,14 @@ namespace choreo
 	// How many blend nodes of each kind a puppet has (4 words per puppet)
 	struct PuppetCounts
 	{
+		// 0x10946CB0 - 0x10946CF0: the first count, whether the first / the third / the fourth is not zero, the next
+		// puppet's counts
+		unsigned int GetFirst() const;
+		int HasFirst() const;
+		int HasThird() const;
+		int HasFourth() const;
+		PuppetCounts* GetNext();
+
 		unsigned int count[4];
 	};
 

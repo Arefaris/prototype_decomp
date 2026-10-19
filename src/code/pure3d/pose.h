@@ -54,6 +54,8 @@ namespace pure3d
 		void Finish();
 		// 0x106DDA70: a new pose of the skeleton
 		Pose* CreatePose(int kind);
+		// 0x106DDAB0: the matrix of a joint of the rest pose (identity with its rotation and translation)
+		void GetRestMatrix(unsigned int joint, math::Matrix* out);
 		// 0x106DDC80: the partition of that name (null when there is none; the empty names get a static empty one)
 		Partition* FindPartition(const core::Name<core::CaseSensitiveKey>& name);
 
