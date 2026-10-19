@@ -8911,3 +8911,5 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$TrackFactoryTemplate@VEffectLODSwitchTrack@engine@@@fight@@QAE@PBD@Z = 0x10813520 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectLODSwitchTrack>::TrackFactoryTemplate<engine::EffectLODSwitchTrack>
 ??0?$TrackFactoryTemplate@VEffectLODBiasTrack@engine@@@fight@@QAE@PBD@Z = 0x10814F60 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectLODBiasTrack>::TrackFactoryTemplate<engine::EffectLODBiasTrack>
 
+??0TrackGroup@fight@@QAE@XZ = 0x105A7F10 ; function size:0x9 | fight::TrackGroup::TrackGroup (another unit)
+??1TrackGroup@fight@@QAE@XZ = 0x105A8140 ; function size:0x5 | fight::TrackGroup::~TrackGroup (another unit; a jump to 0x105A7FD0)
