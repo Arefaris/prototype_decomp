@@ -292,9 +292,9 @@ namespace fight
 		// vftable slot 6
 		virtual bool Slot6(int a, int b, void* object);
 		// vftable slot 7: the entry at an index (a dummy entry for a bad index)
-		virtual const EnumEntry* GetEntry(int a, int index) = 0;
+		virtual const EnumEntry* GetEntry(void* object, int index) = 0;
 		// vftable slot 8
-		virtual int GetCount(int a) const = 0;
+		virtual int GetCount(void* object) const = 0;
 		// vftable slot 9
 		virtual bool Set(void* object, int value) = 0;
 	};
@@ -466,6 +466,53 @@ namespace fight
 		Setter m_setter;
 	};
 
+	// A value picked from an enum the track class describes itself: the entry and the count come from two members of
+	// the track (stored as pointers beside the setter)
+	template<class T> class PropertyEnum : public PropertyTypeEnum
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+		typedef const EnumEntry* (T::*EntryGetter)(int);
+		typedef int (T::*CountGetter)();
+
+		PropertyEnum(const char* name, EntryGetter entry, CountGetter count, Setter setter)
+			: PropertyTypeEnum(name), m_setter(setter), m_entry(entry), m_count(count)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual const EnumEntry* GetEntry(void* object, int index)
+		{
+			return (static_cast<T*>(object)->*m_entry)(index);
+		}
+
+		// vftable slot 8
+		virtual int GetCount(void* object) const
+		{
+			return (static_cast<T*>(object)->*m_count)();
+		}
+
+		// vftable slot 9
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+		EntryGetter m_entry;
+		CountGetter m_count;
+	};
+
 	template<class T> class PropertyEnumConstList : public PropertyTypeEnum
 	{
 	public:
@@ -483,7 +530,7 @@ namespace fight
 		}
 
 		// vftable slot 7
-		virtual const EnumEntry* GetEntry(int a, int index)
+		virtual const EnumEntry* GetEntry(void* object, int index)
 		{
 			if (index >= 0 && index < m_count)
 			{
@@ -493,7 +540,7 @@ namespace fight
 		}
 
 		// vftable slot 8
-		virtual int GetCount(int a) const
+		virtual int GetCount(void* object) const
 		{
 			return m_count;
 		}
