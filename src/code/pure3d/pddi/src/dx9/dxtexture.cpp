@@ -400,6 +400,34 @@ namespace pure3d
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1061C830
+	void dxTexture::Unlock()
+	{
+		if (locked)
+		{
+			switch (description.type)
+			{
+			case 3:
+				volumeTexture->lpVtbl->UnlockBox(volumeTexture, lockLevel);
+				break;
+			case 2:
+				cubeTexture->lpVtbl->UnlockRect(cubeTexture, gCubeFaces[lockSlice], lockLevel);
+				break;
+			case 1:
+				// A device-pool texture was locked through its system-memory copy
+				if ((description.usage & 2) != 0)
+				{
+					defaultTexture->lpVtbl->UnlockRect(defaultTexture, lockLevel);
+				}
+				else
+				{
+					texture->lpVtbl->UnlockRect(texture, lockLevel);
+				}
+				break;
+			}
+			locked = false;
+		}
+	}
 
 	// Holds a new texture in one of the default texture slots (another copy of AssignRef, called by the default
 	// textures' unit; name guess)

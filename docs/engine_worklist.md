@@ -3689,6 +3689,14 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   if-conversion of the first test (the second test copied into both paths, the zero sunk into its leaf); this compiler
   makes the first test a `cmovs` from the unit's zero register (edi) whenever one exists, and other result types,
   explicit nesting (setcc), `else if` forms and /Os, /O1, /Oy- keep a cmov or setcc.
+- (op-add1) 0x1061BBC0 `Unknown1061BBC0`, 0x1061C830 `dxTexture::Unlock`, 0x10626860 / 0x10626950
+  `dxIndexBuffer::Unlock` / `Lock` **match**. 0x1061BBC0 makes the one `dxDevice` (0x10 bytes, no RTTI, constructor
+  0x1061BA70, global 0x11276D40) over `Direct3DCreate9(D3D_SDK_VERSION)` (import thunk 0x10A89FD0) after counting the
+  start (0x10627FB0); the 0x10-byte object is what `gPddiDx` holds and what the tree declares the methods of as
+  `dxContext` (Initialize 0x1061B4C0 makes the display at +8 and the 0x698-byte device context at +0xC), so the function
+  hands it out as a `dxContext*`. `dxIndexBuffer::Lock`: the lock's `void* data = 0;` must be the **first** statement;
+  declared after the length the compiler puts it into the dead argument slot of `lockState` (no `push ecx` frame).
+  `dxTexture::Unlock` is the switch over the type in Lock's case order (3, 2, 1).
 
 ## Merge notes (2026-10-16)
 

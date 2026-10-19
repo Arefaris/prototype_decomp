@@ -372,6 +372,12 @@ struct IDirect3D9
 	IDirect3D9Vtbl* lpVtbl;
 };
 
+// The version the back end asks Direct3DCreate9 for (d3d9.h's D3D_SDK_VERSION)
+#define D3D_SDK_VERSION 32
+
+// d3d9.dll's entry point, called through the import thunk at 0x10A89FD0
+extern "C" IDirect3D9* __stdcall Direct3DCreate9(UINT sdkVersion);
+
 // The slots the dx9 back end uses, in d3d9.h's order (the index is the offset divided by four)
 struct IDirect3DDevice9Vtbl
 {
