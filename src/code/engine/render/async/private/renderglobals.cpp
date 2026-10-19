@@ -9,6 +9,7 @@
 #include "code/pure3d/scene.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/async/renderevent.h"
+#include "code/engine/render/async/private/controller.h"
 #include "code/engine/render/async/private/deferreddeletion.h"
 #include "code/engine/render/async/private/drawableimpl.h"
 
@@ -41,18 +42,6 @@ namespace engine
 		// An empty allocator (the arrays keep one)
 		struct NewAllocator
 		{
-		};
-
-		// A slot of the controller table: the object a controller handle stands for, its controller and whether the
-		// controller runs
-		struct ControllerSlot
-		{
-			ControllerSlot();
-			ControllerSlot(const ControllerSlot& other);
-
-			void* unknown0;
-			pure3d::FrameController* controller;
-			bool active;
 		};
 
 		template<class T> struct HandleNode;
@@ -670,17 +659,6 @@ namespace engine
 		{
 			return true;
 		}
-
-		// A handle the controller table gave out
-		class ControllerHandle
-		{
-		public:
-			ControllerHandle() : mHandle(-1)
-			{
-			}
-
-			int mHandle;
-		};
 
 		// FUNCTION: ENGINE 0x10818290
 		bool IsValidController(const ControllerHandle& handle)
