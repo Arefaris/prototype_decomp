@@ -64,7 +64,7 @@ namespace choreo
 	}
 
 	// FUNCTION: ENGINE 0x1094F040
-	void RootDriver::FillPose(PoseBlendNode* node, float unused)
+	void RootDriver::FillPose(PoseBlendNode* node, PoseBlendSample* sample)
 	{
 		node->SetNone(true, true);
 		if (mMask & 1)
@@ -178,9 +178,9 @@ namespace choreo
 	}
 
 	// FUNCTION: ENGINE 0x1094F2F0
-	void AnimationDriver::UpdateRest()
+	bool AnimationDriver::UpdateRest()
 	{
-		Unknown1094D4C0(mBinding);
+		return Unknown1094D4C0(mBinding);
 	}
 
 	// FUNCTION: ENGINE 0x1094F300

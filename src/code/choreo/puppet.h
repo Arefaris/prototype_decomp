@@ -67,8 +67,8 @@ namespace choreo
 		bool GetFlag4() const;
 		bool GetFlag5() const;
 
-		unsigned char unknown4[4];                 // 0x04
-		core::Name<core::CaseSensitiveKey> mName;  // 0x08
+		// The name is 8-byte aligned in the engine (the class sizes are multiples of 8)
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> mName;  // 0x08
 		int mRefCount;                             // 0x10
 		int mType;                                 // 0x14
 		// Flag 1: the driver takes part in the blend, flag 4: it moves the root, flag 5: the owner stopped it

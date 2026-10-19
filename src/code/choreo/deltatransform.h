@@ -31,6 +31,8 @@ namespace choreo
 	public:
 		// 0x10946590
 		Transform();
+		// 0x10946BE0: the matrix is copied as four rows, the rest one member after the other
+		Transform(const Transform& other);
 		// 0x109462F0: the identity matrix, no rotation, unit scales
 		void Reset();
 		// 0x10946330: replaces the matrix and makes it the current form

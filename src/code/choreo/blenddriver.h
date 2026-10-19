@@ -101,7 +101,6 @@ namespace choreo
 		BlendEntry mEntries[MAX_ENTRIES];  // 0x3C
 		bool mLooping;                 // 0x2D0
 		bool mUnknown2D1;              // 0x2D1
-		unsigned char unknown2D2[2];
 		float mScale;                  // 0x2D4
 		float mPreviousPhase;          // 0x2D8
 		float mPhase;                  // 0x2DC
