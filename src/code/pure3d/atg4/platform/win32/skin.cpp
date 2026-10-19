@@ -256,8 +256,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B610
-	// NONMATCHING: the four-bone blend (BlendBoneRowsInline): 137 of the engine's 227 loop instructions in its order, 29.3 % of the bytes (ours is 22 instructions longer: the copies of the splats and the last bone's rows through a buffer register); the engine keeps the blended rows in memory slots it reuses, this compiler keeps more of them in registers; the loop's counter, guard and pre-header are the engine's
-#ifdef NONMATCHING
+	// EQUIVALENT: 29.3 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. difftest SAME on 10 captured states (10 of 14 engine blocks: the assert's report and two bytes of jump padding stay unreached)
 	void SkinState::Unknown1071B610(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -309,11 +308,9 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071BBD0
-	// NONMATCHING: the four-bone blend (see 0x1071B610): 148 of 204 instructions, 35.3 % of the bytes; the engine's first bone multiplies all its rows in place and the position and normal loads come out between the second and third bone
-#ifdef NONMATCHING
+	// EQUIVALENT: 35.3 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. difftest SAME on 13 states borrowed from 0x1071B610 and 0x1071C530 (the same arguments read as this path's vertex format; the engine's run completes on all; 10 of 14 engine blocks, the assert's report and the jump padding unreached)
 	void SkinState::Unknown1071BBD0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -360,7 +357,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071BEE0
 	void SkinState::Unknown1071BEE0(math::Vector4* out, const SkinVertex* vertices, int count)
@@ -410,8 +406,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071C0C0
-	// NONMATCHING: the four-bone blend (see 0x1071B610): 158 of 190 instructions (the second and third bone's blends are the engine's instruction for instruction, the position is in xmm1 and the spills land in the engine's slot), 40.5 % of the bytes; left: the first bone's rows are multiplied in place by the engine (ours copies the splat, with the row registers swapped), the last bone's rows are loaded straight into the result registers (ours through a buffer register) and the position blend's first two products come out in the other order. The plain bone-by-bone form with the position loaded after the blend was 63.2 % of the bytes but only 125 instructions
-#ifdef NONMATCHING
+	// EQUIVALENT: 40.5 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. difftest SAME on 13 states borrowed from 0x1071B610 and 0x1071C530 (10 of 14 engine blocks, the assert's report and the jump padding unreached)
 	void SkinState::Unknown1071C0C0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -453,7 +448,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071C390
 	void SkinState::Unknown1071C390(math::Vector4* out, const SkinVertex* vertices, int count)
@@ -498,8 +492,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071C530
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets: the tangent is added to in place and its fourth lane is read right after the load, as in 0x1071CA40; 174 of 305 instructions, 29.4 % of the bytes (this path alone prefers the third bone's rows read inside the products, 202 instructions)
-#ifdef NONMATCHING
+	// EQUIVALENT: 29.4 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. The tangent is added to in place and its fourth lane read right after the load, as in 0x1071CA40. difftest SAME on 3 captured states (13 of 19 engine blocks on them, 16 with the variants: the assert's report and the jump padding stay unreached)
 	void SkinState::Unknown1071C530(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -594,7 +587,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071CA40
 	void SkinState::Unknown1071CA40(math::Vector4* out, const SkinVertex* vertices, int count)
@@ -692,8 +684,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071CDC0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the offsets: 186 of 252 instructions, 33.2 % of the bytes
-#ifdef NONMATCHING
+	// EQUIVALENT: 33.2 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. difftest SAME on 3 states borrowed from 0x1071C530 (the same arguments read as this path's vertex format; the engine's run completes on them; 11 of 15 engine blocks, the assert's report and the jump padding unreached); the 10 states of 0x1071B610 have no expression and are inconclusive on this path
 	void SkinState::Unknown1071CDC0(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -768,7 +759,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071D1B0
 	void SkinState::Unknown1071D1B0(math::Vector4* out, const SkinVertex* vertices, int count)
@@ -846,8 +836,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071D440
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the position offset (one for all the vertices, read ahead of the loop): 151 of 208 instructions, 37.5 % of the bytes (the pre-loop part is the engine's)
-#ifdef NONMATCHING
+	// EQUIVALENT: 37.5 %; the four-bone blend (BlendBoneRowsInline) differs in registers and spills only: the engine keeps the blended rows in frame slots it reuses and multiplies its first and last bone in place, this compiler keeps more rows in registers and copies the splats; the loads, products and sums are the engine's in its association order, as are the loop's counter and guard, the stores and the box. The position offset is one for all the vertices, read ahead of the loop; the pre-loop part is the engine's. difftest SAME on 3 states borrowed from 0x1071C530 (11 of 14 engine blocks, the assert's report and the jump padding unreached); the 10 states of 0x1071B610 have no expression and are inconclusive on this path
 	void SkinState::Unknown1071D440(math::Vector4* out, const SkinVertex* vertices, int count)
 	{
 		if (pddi->Unknown24(0x400001)->Unknown7())
@@ -900,7 +889,6 @@ namespace pure3d
 		bounds.max.y = ((float*)&maxBounds)[1];
 		bounds.max.z = ((float*)&maxBounds)[2];
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1071D770
 	void SkinState::Unknown1071D770(math::Vector4* out, const SkinVertex* vertices, int count)
@@ -960,7 +948,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071D960
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position: 202 of 257 instructions, 31.3 % of the bytes (the loads of the last bone as named values made the difference here, 110 before)
+	// NONMATCHING: the four-bone blend (see the EQUIVALENT paths above) with the second position: 202 of 257 instructions, 31.3 % of the bytes (the loads of the last bone as named values made the difference here, 110 before); no state of this path has been captured, and the states of the narrow paths cannot be borrowed: read as the wide record, their bone indices come from other fields and the engine's own run leaves the saved pages
 #ifdef NONMATCHING
 	void SkinState::Unknown1071D960(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1078,7 +1066,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071DFF0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position: 188 of 237 instructions, 29.5 % of the bytes
+	// NONMATCHING: the four-bone blend (see the EQUIVALENT paths above) with the second position: 188 of 237 instructions, 29.5 % of the bytes; no state of this path has been captured, and the states of the narrow paths cannot be borrowed: read as the wide record, their bone indices come from other fields and the engine's own run leaves the saved pages
 #ifdef NONMATCHING
 	void SkinState::Unknown1071DFF0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{
@@ -1186,7 +1174,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071E5D0
-	// NONMATCHING: the four-bone blend (see 0x1071B610) with the second position: 165 of 208 instructions, 34.5 % of the bytes
+	// NONMATCHING: the four-bone blend (see the EQUIVALENT paths above) with the second position: 165 of 208 instructions, 34.5 % of the bytes; no state of this path has been captured, and the states of the narrow paths cannot be borrowed: read as the wide record, their bone indices come from other fields and the engine's own run leaves the saved pages
 #ifdef NONMATCHING
 	void SkinState::Unknown1071E5D0(math::Vector4* out, const SkinVertex2* vertices, int count)
 	{

@@ -55,24 +55,26 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061D3A0
-	// NONMATCHING: 75 % (was 36 %), the same size; the clamp of the ramps comes out as another tree. The engine tests
-	// `value < 0` first and then `value > 0xFF` on both paths (each leaf sets the value once; the cosine cases
-	// cross-jump into the first two cases' trees), this compiler folds the negative path or turns the first test into
-	// a cmov (two ifs on the value, ternaries, Min / Max in both orders, nested tests). What made the rest: the fills
-	// write through a `__restrict` row and read the width and pitch of the lock in the loops (the engine's zero in edi
-	// and one in ebx, set again after every fill), every description sets its levels, depth and format again, the ramp
-	// computes `t` before the switch, each case packs its own pixel (an inline per case, which the cosine cases share
-	// with the first two), the first ramp's pixel is built with multiplications (shifts of one value become the
-	// nested form the clamped cases use) and the cosine ramps are a float `(cos + 1) * 0.5f` times `255.5f` in two
-	// statements (in one expression the two constants fold into 127.75).
+	// EQUIVALENT: 75.3 %, the same size and the same calls, stores, fills and float operations (the ramps' x87
+	// sequences are the engine's instruction for instruction); only the clamp of the ramps comes out as another tree.
+	// The engine tests `value < 0` first and then `value > 0xFF` on both paths (each leaf sets the value once; the
+	// cosine cases cross-jump into the first two cases' trees), this compiler folds the negative path or turns the
+	// first test into a cmov (two ifs on the value, ternaries, Min / Max in both orders, nested tests). What made the
+	// rest: the fills write through a `__restrict` row and read the width and pitch of the lock in the loops (the
+	// engine's zero in edi and one in ebx, set again after every fill), every description sets its levels, depth and
+	// format again, the ramp computes `t` before the switch, each case packs its own pixel (an inline per case, which
+	// the cosine cases share with the first two), the first ramp's pixel is built with multiplications (shifts of one
+	// value become the nested form the clamped cases use) and the cosine ramps are a float `(cos + 1) * 0.5f` times
+	// `255.5f` in two statements (in one expression the two constants fold into 127.75).
 	// The engine's tree is what `int clamped = value; if (value < 0) clamped = 0; if (value > 0xFF) clamped = 0xFF;`
 	// means when the first test is not if-converted: the second test is copied into both paths of the first (the
 	// value's register compared again on the negative path) and the zero sinks into its leaf. This compiler turns
 	// the first test into `cmovs` from the function's zero register (edi) whenever that register exists (in a unit
 	// without one it branches, but does not copy the second test); the result as unsigned char / short / long, the
 	// tests nested explicitly (setcc on the negative side), `else if` forms, /Os, /O1 and /Oy- keep the cmov or
-	// setcc. 75.3 % as it is.
-#ifdef NONMATCHING
+	// setcc. The ramp frequencies and their guard word are mapped in symbols.txt (the engine's statics), so ours and
+	// the engine share them. difftest SAME on the captured start-up state (70 of 78 engine blocks, 73 with the
+	// variants: unreached are the allocation failures and the clamps' upper leaves).
 	void CreateDefaultTextures(IDirect3DDevice9* device)
 	{
 		TextureLock lock;
@@ -168,5 +170,4 @@ namespace pure3d
 		}
 		gRampTexture->Unlock();
 	}
-#endif
 }

@@ -78,13 +78,19 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10706960
-	// NONMATCHING: 51.6 % of the bytes, 493 of the engine's 617 instructions in its order, when Shader::SetParameters
-	// above is compiled in this unit (41.8 % and 435 without it): the engine keeps the draw parameters' bit word in
-	// a register through the chunk loop because its compiler knows SetParameters, the only callee that takes their
-	// address, does not keep it. Left then are one more frame slot (0x4E4 against 0x4E0) and the placement of the
-	// 0x11003 case's SetFloat path. The difftest difference on real states is in bytes both leave uninitialised (the
-	// bit word's top byte, the flag byte's bits 3-7 and the three bytes after it).
-#ifdef NONMATCHING
+	// EQUIVALENT: 41.8 % of the bytes, 435 of the engine's 617 instructions in its order; the same reads, calls (with
+	// the same arguments), branches and stores. The engine keeps the draw parameters' bit word in a register through
+	// the chunk loop because its compiler knows Shader::SetParameters, the only callee that takes their address, does
+	// not keep it (compiled in this unit it would give 51.6 %, but it needs dxTechniques::IsEnabled declared, see
+	// above); this compiler loads the word in every branch; one more frame slot (0x4E4 against 0x4E0) and the
+	// placement of the 0x11003 case's SetFloat path. difftest on the two captured states: every call, argument,
+	// return and store is the engine's except five bytes of the shader's parameters (the bit word's top byte, bits
+	// 3 - 7 of the flag byte and the three bytes after it): both functions copy them from their own uninitialised
+	// stack (`PrimStreamParameters()` sets bits 0 - 23 of the word and the three flags, the rest stays as the frame
+	// had it; the engine's Shader constructor and Init leave the same bits as the heap and the technique's record
+	// had them), and nothing reads them: the device's state applier 0x10629E80 masks bits 0 - 23 of the word and
+	// bits 0 and 2 of the flag byte, SetParameters reads bits 0 - 9 and flag bits 0 - 1, the passes and the tracer
+	// the same fields.
 	void ShaderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
 		content::LoadInventory* inventory)
 	{
@@ -276,5 +282,4 @@ namespace pure3d
 		*object = shader;
 		*name = content::ObjectName(shaderName, 1);
 	}
-#endif
 }

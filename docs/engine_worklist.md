@@ -1639,6 +1639,17 @@ are reconstructed, one source file per unit under src/code/pure3d/loaders/:
   no node, and the address of the node's value. The loader's HasName / At being in the unit changed nothing more;
   left are one frame slot (0x4E4 against 0x4E0, the low region's slots are laid out differently) and the position of
   the 0x11003 case's SetFloat path.
+- (op-eq1) 0x10706960 `ShaderLoader::LoadObject` is EQUIVALENT now (41.8 %; SetParameters stays out of the unit, so the
+  engine's copy is called and no dxTechniques member is needed). difftest on its two captured states agrees on every
+  call, argument, return and store except five bytes of the shader's parameters: the bit word's top byte, bits 3 - 7
+  of the flag byte and the three bytes after it, which both functions copy from their own uninitialised stack
+  (`PrimStreamParameters()` sets bits 0 - 23 and the three flags; the engine's Shader constructor and Init leave the
+  same bits as the heap and the technique's record had them) and which nothing reads: the device's state applier
+  0x10629E80 (reached from dxShader::Draw 0x1062A770 through 0x1062A340) masks bits 0 - 23 of the word and bits 0
+  and 2 of the flag byte, SetParameters reads bits 0 - 9 and flag bits 0 - 1, the passes and the tracer the same
+  fields; a false positive of the byte comparison, not a behaviour difference. The map's `CompareKey` (0x10706070),
+  `CompareNodes` (0x107060A0) and `Insert` (0x10706420) instantiations are mapped in symbols.txt now (ours are
+  byte-identical), so difftest compares the comparator argument of `TreeBase::Find` by symbol.
 - (op-map4) 0x106DE090 stays EQUIVALENT (79.9 %, 538 of 628 instructions): compiling its unit's own callees (the
   Skeleton constructor 0x106DDF20, Finish 0x106DDAA0 and the SkeletonDebugInfo constructor) next to it changes
   nothing in it, so the register rotation is not the callee knowledge that moved the shader loader.
@@ -3460,6 +3471,18 @@ method of the pose at +0x70) and the job record at +0x330.
 - (mp-skin) 0x1071D440's position offset has no stride (one offset for all the vertices: the engine reads the three
   floats once, ahead of the loop, like its one-bone sibling 0x1071D770); the earlier source gave it the stride of the
   paths with several offsets. Its pre-loop part is the engine's now (71 instructions identical), the blend is not.
+- (op-eq1) Six of the nine four-bone paths are EQUIVALENT now (compiled into the hybrid DLL), proven by difftest on
+  states from the game: 0x1071B610 (29.3 %, SAME on 10 captured states), 0x1071C530 (29.4 %, SAME on 3 captured
+  states), and with states borrowed from those two (the paths take the same arguments and read the same vertex
+  record; the engine's own run completes on them) 0x1071BBD0 (35.3 %, 13 states), 0x1071C0C0 (40.5 %, 13),
+  0x1071CDC0 (33.2 %, the 3 of 0x1071C530; the 10 of 0x1071B610 have no expression) and 0x1071D440 (37.5 %, the
+  same 3). The source is the mp-skin / op-map4 one; what differs from the engine is the register and spill allocation
+  of the blend only, the operations and their association order are the engine's. Unreached on every path: the
+  assert's report (the matrices are aligned in every state) and two bytes of jump padding. The three wide paths
+  0x1071D960 / 0x1071DFF0 / 0x1071E5D0 stay NONMATCHING for lack of states: the narrow states cannot be borrowed
+  (read as the 0x60-byte record the bone indices come from other fields, and the engine's run leaves the saved
+  pages), and the paths never ran in the captures. The misalignment canary (local/scratch/emu/skin_b6c1c8c.obj)
+  still reports DIFFERENT.
 
 ## pure3d/pddi/src/dx9 (the Direct3D 9 back end, 0x1061B530 - 0x1062B800): started, 22 functions match
 
@@ -3678,6 +3701,12 @@ Matching session (op-finish, 2026-10-18), what the engine's bytes asked for:
   **matches** in dxtexture.cpp (AddRef the new, Release the old, store). 0x10623250 `Unknown2` stays EQUIVALENT
   (28.7 %): its unit's `Unknown106229B0` (0x106229B0, the skinning matrices transposed into the vertex shader
   constants from 0x69) compiled before it changes nothing in it. 0x1061C600 `Lock` not reworked (9.7 %).
+- (op-eq1) 0x1061D3A0 `CreateDefaultTextures` is EQUIVALENT now (75.3 %, the op-map2 source): the same calls, stores,
+  fills and x87 sequences, only the clamp tree differs. The ramp frequencies (0x11276D60 / 0x11276D64 / 0x11276D68)
+  and their guard word (0x11276D6C) are function-local statics of the engine and are mapped in symbols.txt with their
+  decorated names, so ours and the engine's share them (before the mapping difftest reported the engine's statics
+  written and ours not). difftest SAME on the start-up state (70 of 78 engine blocks, 73 with the variants; unreached
+  are the allocation failures and the clamps' upper leaves).
 - Not reproduced at the merge and marked NONMATCHING: 0x1082DB20 `AddTriggerPackages` (36 %), 0x102D41C0
   `DentBuffer::Push` (26 %, branch layout), 0x102DA540 `LODRenderBehaviour::UpdateFade` (30 %), 0x102DDD30 /
   0x102DDE30 `MidgroundManager::CellLoaded` / `CellUnloaded` (63 % / 62 %).
