@@ -191,3 +191,9 @@ namespace engine
 		}
 	}
 }
+
+namespace container
+{
+	template class ArrayDynamic<engine::StreamPackage*, AllocatorCoreStatic<12, 16> >;
+	template class ArrayDynamic<engine::StreamTrigger*, AllocatorCoreStatic<12, 16> >;
+}

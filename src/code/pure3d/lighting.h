@@ -41,12 +41,25 @@ namespace pure3d
 	// 0x1060F840: the indices of the set bits of the 128-bit groups of masks, in order
 	unsigned int BuildLightIndices(unsigned int* out, unsigned int* masks, unsigned int count);
 
+	// The named groups the scene's lights are filed in (the scene keeps it at +0xDC; the unit is 0x10757A00 -
+	// 0x10758300, the names are guesses)
+	class LightGroupTable
+	{
+	public:
+		// 0x10758020 / 0x10758090: files the light under a group name / takes it out; false when there is no such
+		// group
+		bool Unknown10758020(const core::Name<core::CaseSensitiveKey>* name, Light* light);
+		bool Unknown10758090(const core::Name<core::CaseSensitiveKey>* name, Light* light);
+	};
+
 	// The lights of a lighting scene, selected by region
 	class LightingScene
 	{
 	public:
 		// 0x10756AA0: the lights the query selects for a region (the shared bit set), in its order
 		void GetLights(LightArray* lights, const unsigned int* region);
+		// 0x10756350: whether the light is in the scene's list
+		bool Contains(Light* light);
 
 		unsigned char unknown0[0x30];
 		Light** lights;
@@ -130,6 +143,18 @@ namespace pure3d
 		int GetUnknown14();
 		// 0x1074F290 (another unit): lays the frame's window over the views of the render parameters
 		void Unknown1074F290();
+		// The camera data are the light's shadow cascades: 0x1074ECE0 / 0x1074ED10 / 0x1074ED30 / 0x1074EE00 /
+		// 0x1074EE50 / 0x1074F0C0 / 0x1074F110 / 0x1074F130 / 0x1074F4B0 (names unknown, the render thread's light
+		// API calls them)
+		void Unknown1074ECE0(float value);
+		void Unknown1074ED10(float value);
+		void Unknown1074ED30(int value);
+		int Unknown1074EE00();
+		float Unknown1074EE50();
+		void Unknown1074F0C0(float value);
+		void Unknown1074F110(unsigned int index, float value);
+		float Unknown1074F130(unsigned int index);
+		void Unknown1074F4B0(unsigned int count);
 
 		int unknown10;
 		int unknown14;
@@ -148,7 +173,8 @@ namespace pure3d
 		{
 			unsigned char data[0x140];
 		}* cameras;
-		unsigned char unknown324[0xC];
+		CameraData* camerasEnd;
+		unsigned char unknown328[8];
 	};
 }
 

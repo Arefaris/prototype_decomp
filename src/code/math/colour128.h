@@ -17,6 +17,14 @@ namespace math
 			: r(newR), g(newG), b(newB), a(newA)
 		{
 		}
+		// User-defined like Vector's: the engine copies the channels one by one
+		Colour128(const Colour128& other)
+		{
+			r = other.r;
+			g = other.g;
+			b = other.b;
+			a = other.a;
+		}
 		// The channels of a packed colour as floats (a byte over 255)
 		explicit Colour128(const pddiColour& colour)
 		{

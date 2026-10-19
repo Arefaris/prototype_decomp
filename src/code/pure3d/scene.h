@@ -10,6 +10,9 @@
 namespace pure3d
 {
 	class Drawable;
+	class Light;
+	class LightGroupTable;
+	class LightingScene;
 
 	// What a scene is made from (0x54 bytes; the constructor 0x10711B90 sets the defaults, 0x80, 0x20, 0x400, 0x100 ...)
 	struct SceneSettings
@@ -46,6 +49,12 @@ namespace pure3d
 		// 0x10711400: UpdateParts and UpdateBounds for every step-th drawable from first that was marked this frame
 		// or is cyclic (the body of the "AsyncDrawableUpdate" tasks)
 		void UpdateDrawables(unsigned int first, float dt, unsigned int step);
+		// 0x10710AC0 / 0x10710AE0: the lighting scene's add and remove of a light (a jump each)
+		void AddLight(Light* light);
+		void RemoveLight(Light* light);
+		// 0x10710B10 (the same address as GetUnknownE0) / 0x10710B00
+		LightingScene* GetLightingScene();
+		LightGroupTable* GetLightGroupTable();
 		// 0x10710B10 / 0x10710B40
 		void* GetUnknownE0();
 		void* GetUnknownD8();

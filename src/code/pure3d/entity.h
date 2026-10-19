@@ -46,6 +46,8 @@ namespace pure3d
 		// 0x1072D4B0 / 0x1072D4E0
 		Entity();
 		virtual ~Entity();
+		// 0x1072D4F0: assigns the name
+		void SetName(const core::Name<core::CaseSensitiveKey>& name);
 		// 0x1072D520: the name of the given text
 		void SetNameText(const char* text);
 		// 0x1072D500: copies the name of another entity (nothing for a null one)
