@@ -10,12 +10,12 @@
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
+#include "code/pure3d/pddi/dx9/dxprogram.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 #include "code/pure3d/pddi/dx9/dxvertexbuffer.h"
 
 namespace pure3d
 {
-	class dxProgram;
 	class pddiShaderInputInitData;
 	struct DisplaySettings;
 
@@ -80,38 +80,30 @@ namespace pure3d
 		void Finish(pddiBaseContext* context, pddiShaderInputInitData* inputs);
 	};
 
-	// A vertex or pixel shader program of a technique (name guess; the kind decides which of the two it is)
-	class dxProgram
-	{
-	public:
-		int unknown0;
-		// 0 for a pixel program
-		int kind;
-		unsigned char unknown8[0x1C];
-		void* pixelShader;
-		void* vertexShader;
-	};
-
 	// The Direct3D render states the device is in (the object at 0x11276D70; name guess): the states the context sets
 	// are only passed on when the word differs from the one kept here
 	struct dxRenderStateCache
 	{
-		unsigned char unknown0[0x1900];
+		// The sampler states: four vertex samplers, then the pixel samplers, 0x50 states each
+		int samplerStates[20][0x50];
 		int renderStates[256];
-	};
-
-	// What the context remembers of the programs it has set (the object at 0x11276DEC; name guess)
-	struct dxProgramCache
-	{
-		dxProgram* vertex;
-		dxProgram* pixel;
-		dxProgram* saved;
-		int unknownC;
-		bool frozen;
-		bool restricted;
-		unsigned char unknown12[2];
-		int vertexSets;
-		int pixelSets;
+		unsigned char unknown1D00[0x240];
+		// The pixel shader constants the device was given (a register each) and the pass of the cache each was
+		// written in: a register is only trusted while its pass is the current one
+		float pixelConstants[256][4];
+		int pixelConstantPasses[256];
+		int pixelPass;
+		// The range of registers written since the last flush
+		unsigned int pixelDirtyFirst;
+		unsigned int pixelDirtyLast;
+		float vertexConstants[256][4];
+		int vertexConstantPasses[256];
+		int vertexPass;
+		unsigned int vertexDirtyFirst;
+		unsigned int vertexDirtyLast;
+		// How many constant writes were left out because the register held the value, and how many were made
+		int constantsSkipped;
+		int constantsWritten;
 	};
 
 	// A batch of the list DrawBatches draws (name guess; only what the draw reads is named)
@@ -235,6 +227,12 @@ namespace pure3d
 
 	// 0x11276D70
 	extern dxRenderStateCache* gRenderStateCache;
+	// 0x11276D4C / 0x11276D50 / 0x11276D54 / 0x11276D58 / 0x11276D5C (dxdefaulttextures.cpp)
+	extern dxTexture* gWhiteTexture;
+	extern dxTexture* gBlackTexture;
+	extern dxTexture* gTransparentTexture;
+	extern dxTexture* gFlatNormalTexture;
+	extern dxTexture* gRampTexture;
 	// The Direct3D values of the pddi ones: the stencil operations (0x110BB6C4), the comparisons of the stencil
 	// (0x110BB6DC) and of the z buffer (0x110BB6FC) and the fill modes (0x110BB71C); names are guesses
 	extern int gD3DStencilOps[6];
@@ -244,8 +242,6 @@ namespace pure3d
 	// 0x110BB750 / 0x110BB74C: the slope scaled depth bias and the depth bias EnableFog(true) sets
 	extern int gDepthBiasSlopeOn;
 	extern int gDepthBiasOn;
-	// 0x11276DEC
-	extern dxProgramCache* gProgramCache;
 	// 0x106283E0 / 0x10628400: the Z fill technique's two programs (name guess)
 	// 0x10625A80 / 0x106268F0: the resets the context keeps around a batch of draws (names unknown): they let go of
 	// the streams and of the index buffer the device has set

@@ -145,6 +145,33 @@ namespace pure3d
 		// format the device does not take directly goes through a stretched copy, with a linear filter when asked)
 		void Unknown1061CA00(bool stretched);
 
+		// 0x10628010 / 0x10628030 / 0x10628050: the Direct3D texture of each kind the device draws with (the one of
+		// the texture this was copied from, when it was)
+		IDirect3DTexture9* GetDeviceTexture()
+		{
+			if (unknown8C != 0)
+			{
+				return unknown8C->texture;
+			}
+			return texture;
+		}
+		IDirect3DCubeTexture9* GetDeviceCubeTexture()
+		{
+			if (unknown8C != 0)
+			{
+				return unknown8C->cubeTexture;
+			}
+			return cubeTexture;
+		}
+		IDirect3DVolumeTexture9* GetDeviceVolumeTexture()
+		{
+			if (unknown8C != 0)
+			{
+				return unknown8C->volumeTexture;
+			}
+			return volumeTexture;
+		}
+
 		// What the texture was asked for, copied in by 0x1061C8F0
 		TextureDescription description;   // +8
 		// The pool manager's record of the surface the device made for it (0x1061EF70, 0x20 bytes)

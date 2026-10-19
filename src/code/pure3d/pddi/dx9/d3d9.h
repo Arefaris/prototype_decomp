@@ -430,6 +430,29 @@ struct IDirect3D9
 extern "C" IDirect3D9* __stdcall Direct3DCreate9(UINT sdkVersion);
 
 // The slots the dx9 back end uses, in d3d9.h's order (the index is the offset divided by four)
+// The part every Direct3D interface starts with: only Release is used (on the vertex and pixel shaders)
+struct IDirect3DShader9;
+
+struct IDirect3DShader9Vtbl
+{
+	void* queryInterface;
+	void* addRef;
+	ULONG (__stdcall* Release)(IDirect3DShader9* shader);
+};
+
+struct IDirect3DShader9
+{
+	IDirect3DShader9Vtbl* lpVtbl;
+
+	// Releases the interface (through the interface's own vtable slot)
+	ULONG Release();
+};
+
+inline ULONG IDirect3DShader9::Release()
+{
+	return lpVtbl->Release(this);
+}
+
 struct IDirect3DDevice9Vtbl
 {
 	void* queryInterface;
@@ -500,8 +523,17 @@ struct IDirect3DDevice9Vtbl
 	void* unknown90[21];
 	// 0xE4 SetRenderState
 	HRESULT (__stdcall* SetRenderState)(IDirect3DDevice9* device, unsigned int state, unsigned int value);
-	// 0xE8 - 0x140: the texture stage and sampler states, the textures and the vertex processing
-	void* unknownE8[23];
+	// 0xE8 - 0x100: the render states and the transforms
+	void* unknownE8[7];
+	// 0x104 SetTexture
+	HRESULT (__stdcall* SetTexture)(IDirect3DDevice9* device, unsigned int sampler, void* texture);
+	// 0x108 - 0x110: the texture stage states
+	void* unknown108[3];
+	// 0x114 SetSamplerState
+	HRESULT (__stdcall* SetSamplerState)(IDirect3DDevice9* device, unsigned int sampler, unsigned int type,
+		unsigned int value);
+	// 0x118 - 0x140: the sampler states, the rects, the vertex processing and the patches
+	void* unknown118[11];
 	// 0x144 DrawPrimitive
 	HRESULT (__stdcall* DrawPrimitive)(IDirect3DDevice9* device, unsigned int primitiveType, UINT startVertex,
 		UINT primitiveCount);
@@ -515,8 +547,10 @@ struct IDirect3DDevice9Vtbl
 		IDirect3DVertexDeclaration9** declaration);
 	// 0x15C SetVertexDeclaration
 	HRESULT (__stdcall* SetVertexDeclaration)(IDirect3DDevice9* device, void* declaration);
-	// 0x160 - 0x19C: the vertex shaders and their constants and the stream sources
-	void* unknown160[4];
+	// 0x160 - 0x168: the vertex declaration and the fixed vertex format
+	void* unknown160[3];
+	// 0x16C CreateVertexShader
+	HRESULT (__stdcall* CreateVertexShader)(IDirect3DDevice9* device, const void* function, void** shader);
 	// 0x170 SetVertexShader
 	HRESULT (__stdcall* SetVertexShader)(IDirect3DDevice9* device, void* shader);
 	void* unknown174;
@@ -530,9 +564,15 @@ struct IDirect3DDevice9Vtbl
 	void* unknown194[3];
 	// 0x1A0 SetIndices
 	HRESULT (__stdcall* SetIndices)(IDirect3DDevice9* device, IDirect3DIndexBuffer9* indexBuffer);
-	void* unknown1A4[2];
+	void* unknown1A4;
+	// 0x1A8 CreatePixelShader
+	HRESULT (__stdcall* CreatePixelShader)(IDirect3DDevice9* device, const void* function, void** shader);
 	// 0x1AC SetPixelShader
 	HRESULT (__stdcall* SetPixelShader)(IDirect3DDevice9* device, void* shader);
+	void* unknown1B0;
+	// 0x1B4 SetPixelShaderConstantF
+	HRESULT (__stdcall* SetPixelShaderConstantF)(IDirect3DDevice9* device, UINT startRegister,
+		const float* constantData, UINT vector4fCount);
 };
 
 struct IDirect3DDevice9
