@@ -5,6 +5,7 @@
 
 #include <limits.h>
 #include <stddef.h>
+#include <float.h>
 #include <math.h>
 
 #include "code/lua/lua.h"
@@ -65,18 +66,19 @@ typedef lu_int32 Instruction;
 #define luai_numsub(a, b) ((a) - (b))
 #define luai_nummul(a, b) ((a) * (b))
 #define luai_numdiv(a, b) ((a) / (b))
-#define luai_nummod(a, b) ((a) - floor((a) / (b)) * (b))
+#define luai_nummod(a, b) ((a) - (float)floor((a) / (b)) * (b))
 #define luai_numpow(a, b) (pow(a, b))
 #define luai_numunm(a) (-(a))
 #define luai_numeq(a, b) ((a) == (b))
 #define luai_numlt(a, b) ((a) < (b))
 #define luai_numle(a, b) ((a) <= (b))
-#define luai_numisnan(a) (!luai_numeq((a), (a)))
+#define luai_numisnan(a) _isnan(a)
 
 #define lua_number2int(i, d) ((i) = (int)(d))
 #define lua_number2integer(i, d) ((i) = (lua_Integer)(d))
 #define lua_str2number(s, p) strtod((s), (p))
-#define LUA_NUMBER_FMT "%.14g"
+#define LUA_NUMBER_FMT "%.7g"
+#define LUAI_MAXNUMBER2STR 16
 #define lua_number2str(s, n) sprintf((s), LUA_NUMBER_FMT, (n))
 
 #endif
