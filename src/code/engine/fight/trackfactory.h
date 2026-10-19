@@ -175,6 +175,50 @@ namespace fight
 		Setter m_setter;
 	};
 
+	// A script text member (RTTI: fight::PropertyTypeScript, 8 vftable slots): the setter at slot 7 takes the text and
+	// its length
+	class PropertyTypeScript : public Property
+	{
+	public:
+		PropertyTypeScript(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual bool Set(void* object, const char* text, int length) = 0;
+	};
+
+	template<class T> class PropertyScript : public PropertyTypeScript
+	{
+	public:
+		typedef bool (T::*Setter)(const char*, int);
+
+		PropertyScript(const char* name, Setter setter)
+			: PropertyTypeScript(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, const char* text, int length)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(text, length);
+		}
+
+		Setter m_setter;
+	};
+
 	// The other kinds of property the tracks and conditions register: an int, a vector, a colour, a group of
 	// properties, a group of tracks, a name picked from a list and a value picked from a table of entries. The base
 	// classes are another unit's (8 vftable slots, the setter at slot 7, except where said); the derived templates

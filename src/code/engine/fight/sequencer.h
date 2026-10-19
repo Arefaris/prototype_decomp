@@ -145,7 +145,7 @@ namespace fight
 		virtual void Slot2(int arg);
 		virtual void Slot3(int arg);
 		virtual void Slot4(int arg);
-		virtual void Slot5(int a, int b, int c);
+		virtual bool Slot5(int a, int b, int c);
 		virtual void Slot6(int a, int b);
 		// vftable slot 7: the object is destroyed (the compiler's scalar deleting destructor sits here)
 		virtual ~Item();
@@ -162,7 +162,7 @@ namespace fight
 		// 0x105A9A00 (another unit): the destructor of the derived conditions' chain
 		virtual ~Condition();
 		// vftable slot 5 (0x105A9910, another unit): the condition's own
-		virtual void Slot5(int a, int b, int c);
+		virtual bool Slot5(int a, int b, int c);
 		// vftable slot 9
 		virtual bool Evaluate(int a, int b, int c, int d) = 0;
 
@@ -194,6 +194,8 @@ namespace fight
 		// vftable slot 15
 		virtual Action* CreateAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner) = 0;
 
+		// 0x105A3590 (another unit): writes the path of the node the track hangs on (the listener is a branch) into a buffer
+		bool GetPath(char* buffer, int size, int flag);
 		// 0x105A3A40 (another function of this unit): enters the listener list (under the load listeners' lock)
 		void Register(void* entry);
 		// 0x105A3A90 (another function of this unit): leaves the listener list

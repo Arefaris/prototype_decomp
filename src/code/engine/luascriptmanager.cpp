@@ -8,6 +8,7 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/engine/message.h"
+#include "code/engine/luaenvironmentmessage.h"
 #include "code/math/vector.h"
 #include "code/core/report.h"
 #include "code/core/thread.h"
@@ -2757,20 +2758,6 @@ namespace engine
 
 	// The channel of the Lua environment query (0x11284A58)
 	extern MessageListeners gLuaEnvironmentListeners;
-
-	// Asks for an object's Lua environment: the answer is the reference of the environment table
-	struct GetLuaEnvironmentMessage : NonintrusiveMessage
-	{
-		GetLuaEnvironmentMessage() : NonintrusiveMessage(0xd, 9)
-		{
-			reference = 0;
-		}
-		virtual ~GetLuaEnvironmentMessage()
-		{
-		}
-
-		int reference;
-	};
 
 	// FUNCTION: ENGINE 0x10803A60
 	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
