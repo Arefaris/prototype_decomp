@@ -4,14 +4,6 @@
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/audio/audiotracks.h"
 
-namespace fight
-{
-	// FUNCTION: ENGINE 0x108079C0
-	template<class T> TrackFactoryCasterTemplate<T>::TrackFactoryCasterTemplate()
-	{
-	}
-}
-
 namespace engine
 {
 	// The properties of the playback track, built by RegisterProperties and freed by ClearProperties
@@ -87,10 +79,8 @@ namespace engine
 	// ---- the property list ---------------------------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x10807B50
-	// NONMATCHING: the engine's prologue saves esi before the guard test (sub esp, cmp, push esi, jne), ours schedules
-	// the push after the branch, which shifts the jump displacements; every instruction and operand is otherwise the
-	// engine's, including the array's 0x3fc memset and the four property constructions (98.1 %)
-#ifdef NONMATCHING
+	// EQUIVALENT: the engine saves esi in the entry block, before the guard's branch (cmp, push esi, jne); ours sinks
+	// the push behind the branch and leaves the early exit without the pop; every other instruction is the engine's (98.1 %)
 	void PlaybackTrack::RegisterProperties()
 	{
 		if (gPlaybackTrackProperties != 0)
@@ -111,7 +101,6 @@ namespace engine
 			fight::RegisterPropertyList(properties, &gPlaybackTrackProperties);
 		}
 	}
-#endif
 
 	// ---- the factory ---------------------------------------------------------------------------------------------
 

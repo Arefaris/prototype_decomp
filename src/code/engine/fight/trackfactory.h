@@ -18,7 +18,7 @@ namespace fight
 
 	// A reflected property of a fight node's class (RTTI: fight::Property, 7 vftable slots, 0x10 bytes): the
 	// property's name and, in the derived classes, the accessor that reads or writes the member it stands for.
-	class Property
+	class __declspec(align(8)) Property
 	{
 	public:
 		Property(const char* name);
@@ -236,7 +236,7 @@ namespace fight
 	template<class T> class TrackFactoryCasterTemplate : public TrackFactoryCaster
 	{
 	public:
-		// 0x108079C0 (out of line, in the .cpp of the fight track unit): sets the vftable
+		// 0x108079C0 (out of line): sets the vftable
 		TrackFactoryCasterTemplate();
 
 		// vftable slot 0
@@ -251,6 +251,11 @@ namespace fight
 			return new TrackFactoryTemplate<T>(name);
 		}
 	};
+
+	// Out of line like the engine's copies (a template member defined outside its class is not inlined)
+	template<class T> TrackFactoryCasterTemplate<T>::TrackFactoryCasterTemplate()
+	{
+	}
 }
 
 namespace engine
@@ -301,6 +306,12 @@ namespace engine
 
 	// The per-class list accessors the properties and the factory use
 	fight::Property* GetPlaybackTrackProperty(int index);
+}
+
+namespace fight
+{
+	// The playback track's caster has its own annotated copy in the .cpp (0x108079C0)
+	template<> TrackFactoryCasterTemplate<engine::PlaybackTrack>::TrackFactoryCasterTemplate();
 }
 
 #endif
