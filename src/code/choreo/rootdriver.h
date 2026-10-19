@@ -54,6 +54,8 @@ namespace choreo
 	{
 		// 0x10952490: no animation and an empty clip
 		AnimationBinding();
+		// 0x10955530: another binding's clip and animation
+		AnimationBinding(const AnimationBinding& other);
 		// 0x10955560: releases the animation and the clip
 		~AnimationBinding();
 
@@ -97,11 +99,10 @@ namespace choreo
 		// 0x1094F020: steps the delta transform by dt
 		void Update(float dt);
 		// 0x1094F040: hands the deltas of the step to the pose of the puppet
-		void FillPose(PoseBlendNode* node, float unused);
+		void FillPose(PoseBlendNode* node, PoseBlendSample* sample);
 		// 0x1094F0A0: blends the deltas of the step into a matrix
 		void BlendIntoMatrix(math::Matrix& matrix, const void* a, const void* b, float weight);
 
-		unsigned char unknown1C[4];
 		// 3 (both) until a track narrows it
 		unsigned int mMask;            // 0x20
 		DeltaTransform mDelta;         // 0x24
@@ -139,7 +140,6 @@ namespace choreo
 		// 0x1094D630: the same for the partition with that name (the empty name means none)
 		void SetPartitionByName(const core::Name<core::CaseSensitiveKey>& name);
 
-		unsigned char unknown1C[4];    // 0x1C
 		// The first and the last joint of the pose the driver drives
 		unsigned int mFirstJoint;      // 0x20
 		unsigned int mLastJoint;       // 0x24
@@ -173,7 +173,9 @@ namespace choreo
 		// 0x1094F2E0: whether the driver plays a clip
 		bool IsSet() const;
 		// 0x1094F2F0: whether the clip is at rest against the pose
-		void UpdateRest();
+		bool UpdateRest();
+		// 0x1094FA70: steps the clip by dt
+		void Update(float dt);
 		// 0x1094F240: plays the animation
 		void SetAnimation(pure3d::Animation* animation);
 		// 0x1094F300 / 0x1094F350: the first and the last frame of the range the driver shows
@@ -204,7 +206,6 @@ namespace choreo
 		AnimationBinding mBinding;     // 0x38
 		bool mUnknown54;               // 0x54
 		bool mUnknown55;               // 0x55
-		unsigned char unknown56[2];
 		float mUnknown58;              // 0x58
 		float mStartFrame;             // 0x5C
 		float mEndFrame;               // 0x60
@@ -216,6 +217,8 @@ namespace choreo
 		float mUnknownE4;              // 0xE4
 		float mUnknownE8;              // 0xE8
 		float mUnknownEC;              // 0xEC
+		bool mUnknownF0;               // 0xF0
+		float mUnknownF4;              // 0xF4
 	};
 }
 

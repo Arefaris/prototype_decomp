@@ -31,10 +31,22 @@ namespace choreo
 	public:
 		// 0x10946590
 		Transform();
+		// 0x109465A0: a matrix, no rotation of its own, unit scales
+		explicit Transform(const math::Matrix& matrix);
+		// 0x109465F0: a rotation with a position and scales
+		Transform(const math::Quaternion& rotation, const math::Vector& position, const math::Vector& scale);
+		// 0x10946650: no rotation, a position and scales
+		Transform(const math::Vector& position, const math::Vector& scale);
+		// 0x10946BE0 (copy constructor) and 0x109462A0 (assignment): the compiler's own; the matrix is copied as four
+		// rows, the rest one member after the other
+		// 0x109466B0: replaces the matrix
+		Transform& operator=(const math::Matrix& matrix);
 		// 0x109462F0: the identity matrix, no rotation, unit scales
 		void Reset();
 		// 0x10946330: replaces the matrix and makes it the current form
 		void SetMatrix(const math::Matrix& matrix);
+		// 0x10946350: replaces the upper three rows of the matrix (the translation stays)
+		void SetRotationMatrix(const math::Matrix& matrix);
 		// 0x109466D0: makes the matrix current (out of the quaternion and the scales) and returns it
 		const math::Matrix& ToMatrix();
 		// 0x10946780: makes the quaternion and the scales current (out of the matrix)
@@ -43,20 +55,36 @@ namespace choreo
 		const math::Quaternion& GetQuaternion();
 		// 0x109468D0
 		void SetQuaternion(const math::Quaternion& quaternion);
+		// 0x10946A10 / 0x10946A20: the scales of the three axes
+		const math::Vector& GetScale();
+		void SetScale(const math::Vector& scale);
+		// 0x10946280: the translation of the matrix
+		math::Vector GetTranslation() const;
+		// 0x109463C0: the direction the transform faces
+		math::Vector GetForward() const;
+		// 0x10946900: the heading of the direction the transform faces
+		float GetHeading() const;
+		// 0x109469F0: the way up as the transform sees it
+		math::Vector GetUp() const;
 		// 0x10946920: the rotation of the angle around Y
 		void SetRotationY(float angle);
 		// 0x10946950: the rotation that turns the facing direction into the reference one
 		void SetRotation(const math::Vector& direction);
 		// 0x10946470: rotates a vector by the current form
 		void Rotate(const math::Vector& vector, math::Vector& out) const;
-		// 0x10946B70: this = this * matrix
+		// 0x10946B90: moves a point by the current form
+		void TransformPoint(const math::Vector& point, math::Vector& out);
+		// 0x10946A50: moves this transform the fraction t of the way to the other
+		void Blend(Transform& other, float t);
+		// 0x10946B40 / 0x10946B70: this = this * other
+		void Multiply(Transform& other);
 		void Multiply(const math::Matrix& matrix);
+		// 0x109464A0: whether none of the numbers is not-a-number
+		bool IsValid() const;
 
 		math::Matrix mMatrix;         // 0x00
 		math::Quaternion mQuaternion; // 0x40
-		float mScaleX;                // 0x50
-		float mScaleY;                // 0x54
-		float mScaleZ;                // 0x58
+		math::Vector mScale;          // 0x50
 		// Which of the two forms of the rotation is current: 1 the quaternion, 0 and 2 the matrix
 		int mMode;                    // 0x5C
 	};

@@ -1,6 +1,7 @@
 // The pose blend job (code/choreo/src/poseblendjob.cpp, path from the asserts; the unit runs from about 0x10957600 to
 // 0x10959200). Names are guesses.
 #include "code/choreo/poseblendjob.h"
+#include "code/choreo/drivers.h"
 #include "code/choreo/puppet.h"
 #include "code/choreo/samplechannels.h"
 #include "code/core/criticalsection.h"

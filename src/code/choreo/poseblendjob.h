@@ -134,6 +134,14 @@ namespace choreo
 	// How many blend nodes of each kind a puppet has (4 words per puppet)
 	struct PuppetCounts
 	{
+		// 0x10946CB0 - 0x10946CF0: the first count, whether the first / the third / the fourth is not zero, the next
+		// puppet's counts
+		unsigned int GetFirst() const;
+		int HasFirst() const;
+		int HasThird() const;
+		int HasFourth() const;
+		PuppetCounts* GetNext();
+
 		unsigned int count[4];
 	};
 
@@ -158,26 +166,7 @@ namespace choreo
 	// The drivers' own part of the blend that is not a node: they are applied to the pose by tasks. Both kinds of task
 	// are 0x10 bytes; the tasks of a puppet are listed in a range, which carries the pose and the puppet to apply
 	// them with
-	class StrafeAdjustRootDriver
-	{
-	public:
-		// 0x109571C0: moves the root of the pose with the puppet's root delta by the two weights
-		void Unknown109571C0(Puppet* puppet, pure3d::PoseData* pose, float first, float second);
-	};
-
-	class IKDriver
-	{
-	public:
-		// 0x1094A2D0: places the limb of the pose
-		void Unknown1094A2D0(Puppet* puppet, pure3d::PoseData* pose, float first, float second);
-	};
-
-	class JointLockDriver
-	{
-	public:
-		// 0x10955E70: holds the joint of the pose
-		void Unknown10955E70(Puppet* puppet, pure3d::PoseData* pose, float first, float second);
-	};
+	// (the drivers' classes are in choreo/drivers.h)
 
 	// A root adjustment to apply
 	class PoseBlendRootTask
