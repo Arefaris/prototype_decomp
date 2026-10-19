@@ -20,7 +20,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x108A86B0, RegisterProperties 0x108A8A50: the property list, built once and freed again
 		static void RegisterProperties();
@@ -38,7 +38,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087AA00, RegisterProperties 0x1087C6B0
 		static void RegisterProperties();
@@ -56,7 +56,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087AA40, RegisterProperties 0x1087C990
 		static void RegisterProperties();
@@ -74,7 +74,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087AA60, RegisterProperties 0x1087CAA0
 		static void RegisterProperties();
@@ -92,7 +92,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087AB10, RegisterProperties 0x1087CC10
 		static void RegisterProperties();
@@ -110,7 +110,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087AB70, RegisterProperties 0x1087D040
 		static void RegisterProperties();
@@ -128,7 +128,7 @@ namespace engine
 		virtual fight::Property* GetProperty(int index);
 		virtual float GetTimeBegin() const;
 		virtual float Slot10() const;
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// ClearProperties 0x1087ABD0, RegisterProperties 0x1087D120
 		static void RegisterProperties();

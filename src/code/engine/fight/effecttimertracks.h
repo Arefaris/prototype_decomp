@@ -1,4 +1,4 @@
-// The fight tracks that clear decals, set effect timers and drive shader animations (unit 0x10810E00 - 0x10812300).
+// The fight tracks and conditions that clear decals, time effects and drive shader animations (unit 0x10810E00 - 0x10812300).
 #ifndef ENGINE_FIGHT_EFFECTTIMERTRACKS_H
 #define ENGINE_FIGHT_EFFECTTIMERTRACKS_H
 
@@ -21,7 +21,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108AC8E0)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetTimeBegin(float value);
@@ -39,6 +39,39 @@ namespace engine
 	fight::TrackFactory* CreateDeleteAllDecalsTrackFactory(const char* name);
 	void RegisterDeleteAllDecalsTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+	// RTTI: engine::CheckEffectTimerCondition (10 vftable slots, 0x20 bytes)
+	class CheckEffectTimerCondition : public fight::Condition
+	{
+	public:
+		// 0x108110F0
+		CheckEffectTimerCondition();
+		virtual ~CheckEffectTimerCondition();
+
+		// vftable slot 0
+		virtual fight::Property* GetProperty(int index);
+		// vftable slot 9 (0x108AC940)
+		virtual bool Evaluate(int a, int b, int c, int d);
+
+		// The members the properties write
+		bool SetTimerName(const fight::Name& value);
+		bool SetCompare(int value);
+		bool SetTimeElapsed(float value);
+
+		// The property list, built once and freed again
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		int unknownc;
+		fight::Name timerName;  // +0x10
+		float timeElapsed;  // +0x18
+		int compare;  // +0x1C
+	};
+
+	extern fight::Property** gCheckEffectTimerConditionProperties;
+	// 0x10811270
+	// 0x10811290
+	fight::ConditionFactory* CreateCheckEffectTimerConditionFactory(const char* name);
+
 	// RTTI: engine::SetEffectTimerTrack (16 vftable slots, 0x20 bytes)
 	class SetEffectTimerTrack : public fight::Track
 	{
@@ -54,7 +87,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108ACBA0)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetName(const fight::Name& value);
@@ -66,7 +99,7 @@ namespace engine
 
 		fight::Name name;  // +0x10
 		float time;  // +0x18
-		unsigned char unknown1c[4];  // TODO tail
+		int unknown1c;
 	};
 
 	extern fight::Property** gSetEffectTimerTrackProperties;
@@ -92,7 +125,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108AD070)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);

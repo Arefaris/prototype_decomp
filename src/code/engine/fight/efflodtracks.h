@@ -21,7 +21,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108B9850)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetLodStartDistance(float value);
@@ -54,7 +54,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108B9BA0)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetLodStartDistance(float value);
@@ -91,7 +91,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108BA500)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 		// vftable slot 16 (0x10813E40)
 		// vftable slot 16 (0x10813E40): whether the override bit of a property is set
 		virtual bool Slot16(int index);

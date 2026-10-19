@@ -749,7 +749,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (another unit)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// 0x108078E0 / 0x108078F0 / 0x10807920 / 0x10807940: the members the properties write
 		bool SetTimeBegin(float value);

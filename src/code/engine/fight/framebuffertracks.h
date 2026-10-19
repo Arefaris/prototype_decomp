@@ -23,7 +23,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC130)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -67,7 +67,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC1F0)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -110,7 +110,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC190)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -158,7 +158,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC1C0)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -210,7 +210,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC160)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -272,7 +272,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC220)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);
@@ -312,7 +312,7 @@ namespace engine
 			// vftable slot 10
 			virtual float Slot10() const;
 			// vftable slot 15 (0x108BC100)
-			virtual void Slot15();
+			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 			// The members the properties write
 			bool SetTimeBegin(float value);

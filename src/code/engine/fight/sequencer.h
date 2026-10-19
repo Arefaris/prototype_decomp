@@ -192,7 +192,7 @@ namespace fight
 		// vftable slot 14 (0x105AA0F0, another unit)
 		virtual void Slot14(int a, int b);
 		// vftable slot 15
-		virtual void Slot15() = 0;
+		virtual Action* CreateAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner) = 0;
 
 		// 0x105A3A40 (another function of this unit): enters the listener list (under the load listeners' lock)
 		void Register(void* entry);

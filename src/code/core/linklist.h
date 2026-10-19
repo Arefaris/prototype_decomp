@@ -40,6 +40,25 @@ namespace core
 				list.head = this;
 			}
 		}
+		// The copy lists itself on the same object (0x10805B90 is the engine's copy of this)
+		Link(const Link<T>& other)
+		{
+			T* newObject = other.object;
+			object = newObject;
+			next = 0;
+			prev = 0;
+			if (newObject != 0)
+			{
+				LinkList<T>& list = reinterpret_cast<LinkList<T>&>(newObject->watchList);
+				next = list.head;
+				if (list.head != 0)
+				{
+					list.head->prev = this;
+				}
+				prev = 0;
+				list.head = this;
+			}
+		}
 		~Link()
 		{
 			if (object != 0)

@@ -122,8 +122,8 @@ namespace engine
 	// NONMATCHING: the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the
 	// parameter store right after its load and sinks the -1 into the epilogue (90.8 %)
 #ifdef NONMATCHING
-	MotionTrailAction::MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, int value)
-		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(-1), unknown38(value)
+	MotionTrailAction::MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget)
+		: fight::Action(0xE00), link(newTrack), watch(listener), target(newTarget)
 	{
 	}
 #endif
@@ -147,6 +147,68 @@ namespace engine
 	// FUNCTION: ENGINE 0x10805CF0
 	MotionTrailAction::~MotionTrailAction()
 	{
+	}
+
+	// ---- the slots of the actions ------------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x108075C0
+	bool AbortEffectAction::Slot5(int arg, float value)
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		AbortEffectTrack* track = link.object;
+		manager->AbortSlot(&track->slot, track->allowFade, track->fadeTime);
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x108076B0
+	bool EffectAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (gEffectSuspendCount == 0)
+		{
+			unknown4c = true;
+			return true;
+		}
+		return BeginEffect(link, unknown40, &unknown38, &watch, unknown34, &unknown3c, unknown44, this);
+	}
+
+	// FUNCTION: ENGINE 0x10805CA0
+	void EffectAction::Slot6()
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		if (manager != 0 && link.object != 0 && link.object->abortWhenInterrupted)
+		{
+			manager->StopEffect(unknown38, link.object->fadeTime);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10805FF0
+	void MotionTrailAction::Slot6()
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		if (manager != 0 && link.object != 0 && link.object->abortWhenInterrupted)
+		{
+			manager->ReleaseDrawable(&drawable);
+		}
+	}
+
+	// ---- the tracks' action makers -----------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x10807860
+	fight::Action* AbortEffectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new AbortEffectAction(this, listener);
+	}
+
+	// FUNCTION: ENGINE 0x108078A0
+	fight::Action* MotionTrailTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new MotionTrailAction(this, listener, handle);
 	}
 
 	// ---- the tracks' accessors (the engine reads the track classes through them) --------------------------------

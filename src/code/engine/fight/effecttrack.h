@@ -9,6 +9,9 @@
 #include "code/core/linklist.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/fight/trackfactory.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/render/async/drawable.h"
+#include "code/engine/render/effectmanager.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
 
@@ -42,7 +45,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x10807860)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetSlot(const fight::Name& value);
@@ -93,7 +96,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x10807790)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 		// vftable slot 16 (0x1080CCD0)
 		// vftable slot 16 (0x1080CCD0): whether the override bit of a property is set
 		virtual bool Slot16(int index);
@@ -486,7 +489,7 @@ namespace engine
 		// vftable slot 10
 		virtual float Slot10() const;
 		// vftable slot 15 (0x108078A0)
-		virtual void Slot15();
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
 		// The members the properties write
 		bool SetTimeBegin(float value);
@@ -657,6 +660,11 @@ namespace engine
 		EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode);
 		virtual ~EffectAction();
 
+		// vftable slot 5 (0x108076B0): starts the effect (at once, or when the effects are no longer suspended)
+		virtual bool Slot5(int arg, float value);
+		// vftable slot 6 (0x10805CA0): the action was stopped; an interruptible effect fades out
+		virtual void Slot6();
+
 		core::Link<EffectTrack> link;
 		TrackWatch watch;
 		int unknown34;
@@ -667,6 +675,14 @@ namespace engine
 		int unknown48;
 		bool unknown4c;
 	};
+
+	// 0x107FC7A0 (another unit): the handle of the game object an owner pointer stands for
+	GameObjectHandle GetObjectHandle(core::IRefCount* object);
+
+	// 0x108060F0 (another unit's code in this unit's range, not reconstructed): starts the effect of an action. The
+	// link is passed by value (a copy of the action's node, made by the link's copy constructor).
+	bool BeginEffect(core::Link<EffectTrack> link, int object, int* effect, TrackWatch* watch, int mode,
+		core::IRefCount** unknown3c, core::IRefCount* unknown44, EffectAction* action);
 
 	// The action that stops an effect again (RTTI: engine::AbortEffectAction, 9 vtable slots, size 0x28)
 	class AbortEffectAction : public fight::Action
@@ -685,7 +701,7 @@ namespace engine
 	class MotionTrailAction : public fight::Action
 	{
 	public:
-		MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, int value);
+		MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget);
 		virtual ~MotionTrailAction();
 
 		// vftable slot 5 (0x10805D30) and slot 6 (0x10805FF0) (names guessed)
@@ -694,8 +710,10 @@ namespace engine
 
 		core::Link<MotionTrailTrack> link;
 		TrackWatch watch;
-		int unknown34;
-		int unknown38;
+		// The trail's drawable (the handle starts as -1)
+		render::Drawable drawable;
+		// The object the trail follows
+		GameObjectHandle target;
 	};
 }
 
