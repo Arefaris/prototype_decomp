@@ -9,6 +9,7 @@
 #include "code/core/linklist.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/fight/trackfactory.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/effectmanager.h"
@@ -653,24 +654,63 @@ namespace engine
 		TrackWatch* prev;
 	};
 
+}
+
+namespace proto
+{
+	// The lookup of the parts of a drawable (RTTI unknown): the drawable attribute of a game object holds a pointer to
+	// one; its part table is at +0x28 and its entries are 16 bytes, the first word of which is a scale
+	struct PartLookup
+	{
+		struct Part
+		{
+			float scale;
+			int unknown4[3];
+		};
+
+		// 0x106DD6D0 (forwards to a member at +0x10)
+		int FindPart(const core::Name<core::CaseSensitiveKey>& name);
+
+		unsigned char unknown0[0x28];
+		Part* parts;
+	};
+
+	// The name of the attribute that holds a game object's part lookup (0x112834C8)
+	extern content::ObjectName gDrawableAttributeName;
+}
+
+namespace engine
+{
+	// The handle of a started effect (starts as -1)
+	struct EffectHandle
+	{
+		EffectHandle() : value(0xffffffff)
+		{
+		}
+
+		unsigned int value;
+	};
+
 	// The action that plays a particle effect (RTTI: engine::EffectAction, 9 vtable slots, size 0x50)
 	class EffectAction : public fight::Action
 	{
 	public:
-		EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode);
+		EffectAction(EffectTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget, core::IRefCount* effect, int mode);
 		virtual ~EffectAction();
 
 		// vftable slot 5 (0x108076B0): starts the effect (at once, or when the effects are no longer suspended)
 		virtual bool Slot5(int arg, float value);
 		// vftable slot 6 (0x10805CA0): the action was stopped; an interruptible effect fades out
 		virtual void Slot6();
+		// vftable slot 7 (0x10805BD0): updates; false ends the action
+		virtual bool Slot7(int arg, float value);
 
 		core::Link<EffectTrack> link;
 		TrackWatch watch;
 		int unknown34;
-		int unknown38;
+		EffectHandle effectHandle;
 		core::IRefCount* unknown3c;
-		int unknown40;
+		GameObjectHandle target;
 		core::IRefCount* unknown44;
 		int unknown48;
 		bool unknown4c;
@@ -681,7 +721,7 @@ namespace engine
 
 	// 0x108060F0 (another unit's code in this unit's range, not reconstructed): starts the effect of an action. The
 	// link is passed by value (a copy of the action's node, made by the link's copy constructor).
-	bool BeginEffect(core::Link<EffectTrack> link, int object, int* effect, TrackWatch* watch, int mode,
+	bool BeginEffect(core::Link<EffectTrack> link, GameObjectHandle target, EffectHandle* effect, TrackWatch* watch, int mode,
 		core::IRefCount** unknown3c, core::IRefCount* unknown44, EffectAction* action);
 
 	// The action that stops an effect again (RTTI: engine::AbortEffectAction, 9 vtable slots, size 0x28)

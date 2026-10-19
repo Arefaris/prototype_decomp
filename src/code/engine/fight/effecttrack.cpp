@@ -3,6 +3,8 @@
 
 namespace engine
 {
+	GameObject* __fastcall GameObjectHandleGet(const GameObjectHandle* handle);
+
 	// ---- the game's hook ---------------------------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x108056E0
@@ -100,16 +102,12 @@ namespace engine
 	// ---- the actions that carry the effect ---------------------------------------------------------------------
 
 	// FUNCTION: ENGINE 0x108075F0
-	// NONMATCHING: the engine stores the -1 into the member at +0x38 between the other member stores, ours sinks it
-	// past the argument setup of the trailing call (92.6 %; the two statements and the member-init list both give it)
-#ifdef NONMATCHING
-	EffectAction::EffectAction(EffectTrack* newTrack, fight::Track* listener, int object, core::IRefCount* effect, int mode)
-		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(mode), unknown38(-1), unknown3c(0),
-		  unknown40(object), unknown44(0), unknown48(0xffff), unknown4c(false)
+	EffectAction::EffectAction(EffectTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget, core::IRefCount* effect, int mode)
+		: fight::Action(0xE00), link(newTrack), watch(listener), unknown34(mode), unknown3c(0), target(newTarget),
+		  unknown44(0), unknown48(0xffff), unknown4c(false)
 	{
 		AssignEffectRef(unknown44, effect);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10807550
 	AbortEffectAction::AbortEffectAction(AbortEffectTrack* newTrack, fight::Track* listener)
@@ -119,14 +117,10 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10807700
-	// NONMATCHING: the engine stores the -1 into the member at +0x34 before the parameter store, ours puts the
-	// parameter store right after its load and sinks the -1 into the epilogue (90.8 %)
-#ifdef NONMATCHING
 	MotionTrailAction::MotionTrailAction(MotionTrailTrack* newTrack, fight::Track* listener, GameObjectHandle newTarget)
 		: fight::Action(0xE00), link(newTrack), watch(listener), target(newTarget)
 	{
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10805B10
 	AbortEffectAction::~AbortEffectAction()
@@ -172,7 +166,7 @@ namespace engine
 			unknown4c = true;
 			return true;
 		}
-		return BeginEffect(link, unknown40, &unknown38, &watch, unknown34, &unknown3c, unknown44, this);
+		return BeginEffect(link, target, &effectHandle, &watch, unknown34, &unknown3c, unknown44, this);
 	}
 
 	// FUNCTION: ENGINE 0x10805CA0
@@ -181,8 +175,56 @@ namespace engine
 		render::EffectManager* manager = render::GetEffectManager();
 		if (manager != 0 && link.object != 0 && link.object->abortWhenInterrupted)
 		{
-			manager->StopEffect(unknown38, link.object->fadeTime);
+			manager->StopEffect(effectHandle.value, link.object->fadeTime);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10805BD0
+	// EQUIVALENT: the same instructions; the address of the attach joint pushed for FindPart is computed in edx where the
+	// engine uses eax (98.6 %)
+	bool EffectAction::Slot7(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (unknown4c)
+		{
+			if (gEffectSuspendCount > 0)
+			{
+				unknown4c = false;
+				return Slot5(0, value);
+			}
+			return true;
+		}
+		bool keep = link.object->abortWhenInterrupted;
+		if (link.object->attachSpace == 2 && link.object->abortBelowJointScale > 0.0f)
+		{
+			GameObject* object = GameObjectHandleGet(&target);
+			if (object != 0)
+			{
+				AttributePtr<proto::PartLookup*> attribute = object->GetAttributePtr<proto::PartLookup*>(proto::gDrawableAttributeName);
+				if (attribute.value != 0)
+				{
+					proto::PartLookup* lookup = *attribute.value;
+					if (lookup != 0)
+					{
+						if (unknown48 == 0xffff)
+						{
+							unknown48 = lookup->FindPart(link.object->attachJoint);
+						}
+						if (unknown48 != 0xffff)
+						{
+							if (link.object->abortBelowJointScale > lookup->parts[unknown48].scale)
+							{
+								keep = false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return keep;
 	}
 
 	// FUNCTION: ENGINE 0x10805FF0
