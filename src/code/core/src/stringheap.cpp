@@ -11,9 +11,9 @@ namespace core
 	// GLOBAL: ENGINE 0x11278FC0
 	static int sStringHeap;
 	// GLOBAL: ENGINE 0x11278FC4
-	static int sStringHeapCounter2;
+	int sStringHeapCounter2;
 	// GLOBAL: ENGINE 0x11278FC8
-	static int sStringHeapCounter1;
+	int sStringHeapCounter1;
 
 	// FUNCTION: ENGINE 0x1063B730
 	const char* GetDefaultString()

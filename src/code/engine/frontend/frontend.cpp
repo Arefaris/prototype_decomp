@@ -11,33 +11,33 @@
 namespace engine
 {
 	// GLOBAL: ENGINE 0x111CEF38
-	static bool sUpdateEnabled = true;
+	bool sUpdateEnabled = true;
 	// GLOBAL: ENGINE 0x111CEF3C
-	static float sScreenWidth = 1280.0f;
+	float sScreenWidth = 1280.0f;
 	// GLOBAL: ENGINE 0x111CEF40
-	static float sScreenHeight = 720.0f;
+	float sScreenHeight = 720.0f;
 	// GLOBAL: ENGINE 0x111CEF44
-	static float sCursorScale = -1.0f;
+	float sCursorScale = -1.0f;
 	// GLOBAL: ENGINE 0x111CEF48
-	static float sCursorFade = 0.28f;
+	float sCursorFade = 0.28f;
 	// GLOBAL: ENGINE 0x11315C60
 	int sFrontendHeap = 0;
 	// GLOBAL: ENGINE 0x11315C65
-	static bool sScreenCentreSet = false;
+	bool sScreenCentreSet = false;
 	// GLOBAL: ENGINE 0x11315C66
 	static bool sHideHUD = false;
 	// GLOBAL: ENGINE 0x11315C68
 	void* sFrontend = 0;
 	// GLOBAL: ENGINE 0x11315C6C
-	static int sScreenCentreX = 0;
+	int sScreenCentreX = 0;
 	// GLOBAL: ENGINE 0x11315C70
-	static int sScreenCentreY = 0;
+	int sScreenCentreY = 0;
 	// GLOBAL: ENGINE 0x11315C78
-	static core::Name<core::CaseSensitiveKey> sLanguageName;
+	core::Name<core::CaseSensitiveKey> sLanguageName;
 	// GLOBAL: ENGINE 0x11315C5C
-	static int sUnknown5C = 0;
+	int sUnknown5C = 0;
 	// GLOBAL: ENGINE 0x11315C64
-	static bool sUnknown64 = false;
+	bool sUnknown64 = false;
 
 	// FUNCTION: ENGINE 0x108642C0
 	void** FrontendObject::GetUnknown5C()
@@ -172,7 +172,7 @@ namespace engine
 	}
 
 	// GLOBAL: ENGINE 0x11315C58
-	static bool sScreenFlags[4];
+	bool sScreenFlags[4];
 
 	// GLOBAL: ENGINE 0x10E73254
 	const float kScreenClampMin = -120.0f;

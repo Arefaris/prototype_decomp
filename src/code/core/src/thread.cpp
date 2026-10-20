@@ -76,7 +76,7 @@ namespace core
 	extern int gThreadPriorities[];
 
 	// GLOBAL: ENGINE 0x1127A470
-	static unsigned long sThreadTls;
+	unsigned long sThreadTls;
 	// GLOBAL: ENGINE 0x1127A8A0
 	Thread gMainThread;
 	// GLOBAL: ENGINE 0x1127A954

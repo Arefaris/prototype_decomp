@@ -39,6 +39,46 @@ def objects(version):
 	return sorted((ROOT / "build" / version / "obj").rglob("*.obj"))
 
 
+def splitStatics(image, base, pe):
+	"""[(where, declaration, engine functions)] for each `// GLOBAL: ENGINE 0x...` above a `static` variable that a
+	function we do not compile (not annotated, or NONMATCHING) also references: a static has internal linkage, so the
+	relink cannot map it, and our code and the engine's then keep two copies of the state."""
+	import bisect
+	import struct
+	starts, compiled = [], set()
+	for line in (ROOT / "config" / "PROTOPC_2025" / "functions.tsv").read_text(encoding="utf-8").splitlines()[1:]:
+		parts = line.split("\t")
+		if parts and parts[0].startswith("0x"):
+			starts.append(int(parts[0], 16))
+	starts.sort()
+	statics = []
+	for source in (ROOT / "src").rglob("*.c*"):
+		lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
+		for i, line in enumerate(lines):
+			match = re.search(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+			if match and not any("NONMATCHING" in x for x in lines[i + 1:i + 4] if x.strip().startswith("//")):
+				compiled.add(int(match.group(1), 16))
+			match = re.search(r"//\s*GLOBAL:\s*ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+			if match and i + 1 < len(lines) and lines[i + 1].strip().startswith("static ") \
+					and "(" not in lines[i + 1].split("=")[0]:
+				statics.append((int(match.group(1), 16), f"{source.relative_to(ROOT)}:{i + 2}", lines[i + 1].strip()))
+	text = next(s for s in pe.sections if s.Name.rstrip(b"\0") == b".text")
+	code = bytes(image[text.VirtualAddress:text.VirtualAddress + text.Misc_VirtualSize])
+	result = []
+	for address, where, decl in statics:
+		needle = struct.pack("<I", address)
+		users = set()
+		j = code.find(needle)
+		while j != -1:
+			k = bisect.bisect_right(starts, base + text.VirtualAddress + j) - 1
+			if k >= 0 and starts[k] not in compiled:
+				users.add(starts[k])
+			j = code.find(needle, j + 1)
+		if users:
+			result.append((where, decl, sorted(users)))
+	return result
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("objects", nargs="*")
@@ -87,6 +127,12 @@ def main():
 					k = differing[0]
 					print(f"  initial value: {where}: ours {ours[k:k + 8].hex()} vs the original's {theirs[k:k + 8].hex()}"
 						f" at +0x{k:X} ({len(differing)} bytes differ)")
+	split = splitStatics(image, base, pe)
+	for where, decl, users in split:
+		problems += 1
+		print(f"  split static: {where}: `{decl}` is file-local, so ours is a private copy, while engine code we do not"
+			f" replace uses the engine's ({', '.join('0x%08X' % u for u in users[:4])}); drop `static` and map its"
+			" decorated name in symbols.txt")
 	print(f"{checked} data objects checked, {problems} problems")
 	sys.exit(1 if problems else 0)
 
