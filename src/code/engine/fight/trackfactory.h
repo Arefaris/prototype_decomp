@@ -308,6 +308,40 @@ namespace fight
 		virtual TrackGroup* Set(void* object) = 0;
 	};
 
+	// A named reference to a branch of the fight tree, the way a track holds the branch it hands its result to (0x24
+	// bytes; the constructor takes the kind of node the branch is, and both are another unit's)
+	class BranchHolder
+	{
+	public:
+		// 0x105A7600
+		explicit BranchHolder(const char* kind);
+		// 0x105A7720
+		~BranchHolder();
+
+		int unknown0[9];
+	};
+
+	// The branch member of a track (RTTI: fight::PropertyTypeBranch, 8 vftable slots): like the track group, slots 2,
+	// 3, 5 and 6 are its own; the "setter" hands out the holder
+	class PropertyTypeBranch : public Property
+	{
+	public:
+		PropertyTypeBranch(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		virtual void Slot2(int arg);
+		virtual void Slot3(int arg);
+		virtual void Slot5(int a, int b);
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual BranchHolder* Set(void* object) = 0;
+	};
+
+	// Replaces a text member by a copy of a new text (0x105AA1F0, another unit): the old text is freed
+	char* ReplaceString(char* old, const char* text);
+
 	// A name picked from a list (RTTI: base fight::PropertyTypeStringList, 9 vftable slots: slot 7 of the list is the
 	// text setter, slot 8 sets the name)
 	class PropertyTypeStringList : public Property
@@ -475,6 +509,54 @@ namespace fight
 
 		Setter m_setter;
 		const int* m_members;
+	};
+
+	template<class T> class PropertyBranch : public PropertyTypeBranch
+	{
+	public:
+		typedef BranchHolder* (T::*Setter)();
+
+		PropertyBranch(const char* name, Setter setter)
+			: PropertyTypeBranch(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 7
+		virtual BranchHolder* Set(void* object)
+		{
+			return (static_cast<T*>(object)->*m_setter)();
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyString : public PropertyTypeString
+	{
+	public:
+		typedef bool (T::*Setter)(const char*);
+
+		PropertyString(const char* name, Setter setter)
+			: PropertyTypeString(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, const char* text)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(text);
+		}
+
+		Setter m_setter;
 	};
 
 	template<class T> class PropertyTrackGroup : public PropertyTypeTrackGroup
