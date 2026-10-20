@@ -8,6 +8,7 @@
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
 #include "code/engine/fight/effecttrack.h"
+#include "code/engine/render/drawablearchetype.h"
 #include "code/core/heap.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
@@ -313,7 +314,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081B5D0
 		// EQUIVALENT: the same differences, the same sum of squares ((x * x + y * y) + z * z; the first two terms swap) and the
 		// same calls; the engine schedules the loads and the first products differently (87.0 %)
-		void EffectManager::SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, int unused)
+		void EffectManager::SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, float unused)
 		{
 			EffectInstance* instance = FindInstance(effect, 0);
 			if (instance != 0)
@@ -502,7 +503,7 @@ namespace engine
 				ring->tail = ring->begin;
 				ring = iterator.Next();
 			}
-			unknownFC = 0;
+			startedThisFrame = 0;
 		}
 
 		// FUNCTION: ENGINE 0x10819520
@@ -952,6 +953,155 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x1081A560
+		bool AttachedRing::PushBack(const AttachedDrawable* item)
+		{
+			if (tail < end)
+			{
+				if (tail != 0)
+				{
+					*tail = *item;
+				}
+				tail++;
+				if (tail == end)
+				{
+					tail = begin;
+				}
+				if (head == tail)
+				{
+					tail += end - begin;
+				}
+				return true;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081CBB0
+		// EQUIVALENT: the same view test, limit test, ring lookup, shader search, drop of the oldest drawable, message to the
+		// owner and creation; the engine keeps the key in the dead setup slot, builds the ring record before the creation call
+		// and tests the owner's handle twice (37.5 %)
+		Drawable EffectManager::CreateAttached(const AttachedEffectSetup* setup)
+		{
+			if (setup->needsView)
+			{
+				camera::Camera* camera = GetActiveCamera();
+				if (camera != 0 && !camera->IsPointInside(&setup->position))
+				{
+					return Drawable();
+				}
+			}
+			if (startedThisFrame > startLimit)
+			{
+				return Drawable();
+			}
+			core::HeapScope scope(attachedHeap);
+			unsigned int key = setup->key;
+			AttachedRing* ring;
+			{
+				HashLookup lookup(&attachedTable);
+				ring = (AttachedRing*)lookup.Find(&key);
+			}
+			pure3d::Shader* shader = 0;
+			if (inventory != 0)
+			{
+				shader = inventory->Find<pure3d::Shader>(setup->shader);
+			}
+			if (shader == 0)
+			{
+				if (secondInventory != 0)
+				{
+					shader = secondInventory->Find<pure3d::Shader>(setup->shader);
+				}
+				if (shader == 0)
+				{
+					shader = defaultShader;
+				}
+			}
+			if (!(ring->tail < ring->end))
+			{
+				AttachedDrawable oldest = *ring->head;
+				ring->tail = ring->head;
+				ring->head++;
+				if (ring->head == ring->end)
+				{
+					ring->head = ring->begin;
+				}
+				Drawable::Destroy(&oldest.drawable, 0);
+			}
+			Drawable ownerDrawable;
+			GameObject* object = setup->owner.Get();
+			if (object != 0)
+			{
+				GetCurrentDrawable message;
+				object->SendMessage(&message);
+				ownerDrawable = message.drawable;
+			}
+			Drawable created = CreateAttachedDrawable(shader, setup->unknown8, &setup->position, &setup->unknown18,
+				setup->unknown24, setup->unknown30, ownerDrawable, setup->unknown34, setup->unknown38);
+			AttachedDrawable attached;
+			attached.drawable = created;
+			attached.owner = setup->owner;
+			ring->PushBack(&attached);
+			startedThisFrame++;
+			return created;
+		}
+
+		// FUNCTION: ENGINE 0x1081CE70
+		// EQUIVALENT: the same lookup, creation, instance setup, insert and span call; the engine takes the address of the name
+		// temporary again for the assignment where ours uses the constructor's answer (58.0 %)
+		Drawable EffectManager::CreateSpanEffect(SourceDrawable* source, const math::Vector* from, const math::Vector* to,
+			float unused, unsigned int key)
+		{
+			unsigned int listKey = key;
+			EffectInstanceList* list = GetList(&listKey);
+			Drawable result;
+			if (list->HasRoom())
+			{
+				EffectInstance instance;
+				result = Drawable::CreateInstance(source, true, false);
+				instance.drawable = result;
+				instance.fadingOut = false;
+				instance.unknown68 = 0xffff;
+				instance.name = EffectName(0, 1);
+				if (list->end < list->capacity)
+				{
+					EffectInstance* slot = list->end++;
+					if (slot != 0)
+					{
+						new (slot) EffectInstance(instance);
+					}
+				}
+				SetEffectSpan(result.mHandle, from, to, unused);
+			}
+			return result;
+		}
+
+		// FUNCTION: ENGINE 0x1081D470
+		Drawable EffectManager::CreateSpanEffectNamed(const EffectName* archetype, const math::Vector* from,
+			const math::Vector* to, float unused, unsigned int key)
+		{
+			if (!IsFeatureEnabled(0x20000))
+			{
+				return Drawable();
+			}
+			Drawable result;
+			DrawableArchetype* found = 0;
+			if (inventory != 0)
+			{
+				found = inventory->Find<DrawableArchetype>(*archetype);
+			}
+			if (found == 0 && secondInventory != 0)
+			{
+				found = secondInventory->Find<DrawableArchetype>(*archetype);
+			}
+			if (found != 0)
+			{
+				core::HeapScope scope(heap);
+				result = CreateSpanEffect((SourceDrawable*)found, from, to, unused, key);
+			}
+			return result;
+		}
+
 		// FUNCTION: ENGINE 0x1081D540
 		// EQUIVALENT: the same walks, tests, calls and stores; the engine keeps the loop's offset and counter in other stack
 		// slots and the store cursor in a register over the loops (52.2 %)
@@ -1039,7 +1189,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081E5A0
 		void EffectManager::Update(int unused1, int unused2, float timeStep)
 		{
-			unknownFC = 0;
+			startedThisFrame = 0;
 			time += timeStep;
 			unknown28 = IsFeatureEnabled(0x40000) == false;
 			pure3d::GetParticleManager()->SetUnknown19C(4.0f);
@@ -1268,7 +1418,7 @@ namespace engine
 				list->end = list->begin;
 				list = lists.Next();
 			}
-			unknownFC = 0;
+			startedThisFrame = 0;
 			storesEnd = storesBegin;
 			if (resetCallback != 0)
 			{

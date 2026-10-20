@@ -239,7 +239,7 @@ namespace engine
 			Drawable storeDrawable;  // +0x54
 			unsigned char unknown58[8];
 			EffectName name;  // +0x60
-			unsigned char unknown68[4];
+			int unknown68;
 			// 1000 for a spanned effect
 			float unknown6C;
 			float fadeTime;  // +0x70
@@ -407,6 +407,24 @@ namespace engine
 			EffectName slot;  // +0x08
 		};
 
+		// What an attached drawable (one that follows a game object) is made from (0x44 bytes): the name of its shader, the
+		// values it is made with, the game object and the key of the ring it goes in
+		struct AttachedEffectSetup
+		{
+			EffectName shader;  // +0x00
+			int unknown8;
+			math::Vector position;  // +0x0C
+			math::Vector unknown18;
+			float unknown24[2];
+			GameObjectHandle owner;  // +0x2C
+			float unknown30;
+			float unknown34;
+			float unknown38;
+			unsigned int key;  // +0x3C
+			// Only started when the camera can see its position
+			bool needsView;  // +0x40
+		};
+
 		// A drawable that follows a game object (8 bytes)
 		struct AttachedDrawable
 		{
@@ -422,6 +440,8 @@ namespace engine
 		{
 			// 0x10819670
 			unsigned int Size() const;
+			// 0x1081A560: puts a drawable at the end; false when the block is used up
+			bool PushBack(const AttachedDrawable* item);
 			AttachedDrawable& At(unsigned int index)
 			{
 				int firstPart = end - head;
@@ -488,6 +508,12 @@ namespace engine
 			void AddInstance(unsigned int drawable, const EffectSetup* setup);
 			// 0x1081E2F0: the same in the manager's heap
 			void AddInstanceInHeap(unsigned int drawable, const EffectSetup* setup);
+			// 0x1081CE70: makes an effect that is stretched between two points and adds it (when its list has room)
+			Drawable CreateSpanEffect(SourceDrawable* source, const math::Vector* from, const math::Vector* to, float unused,
+				unsigned int key);
+			// 0x1081D470: the same for the drawable archetype of a name
+			Drawable CreateSpanEffectNamed(const EffectName* archetype, const math::Vector* from, const math::Vector* to,
+				float unused, unsigned int key);
 			// 0x1081E390: makes the drawable of an effect from a source drawable and adds the effect
 			Drawable CreateEffect(SourceDrawable* source, const EffectSetup* setup);
 			// 0x1081DAF0: makes the drawable of an effect as an instance of the shared drawable of its store
@@ -540,7 +566,11 @@ namespace engine
 			void SetEffectTransform(unsigned int effect, const math::Matrix& transform);
 			void SetEffectPosition(unsigned int effect, const math::Vector& position);
 			// 0x1081B5D0: stretches the effect between two points (z of its transform runs from the first to the second)
-			void SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, int unused);
+			void SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, float unused);
+
+			// 0x1081CBB0: starts a drawable that follows a game object (nothing when the camera cannot see it or too many
+			// were started this frame)
+			Drawable CreateAttached(const AttachedEffectSetup* setup);
 
 			// 0x1081A000: forgets a light that is about to go away in the lights that follow it
 			void ClearLightReferences(Light light);
@@ -553,7 +583,8 @@ namespace engine
 			float time;  // +0xC
 			// The heap the manager allocates its records from
 			int heap;  // +0x10
-			int unknown14;
+			// The heap the attached drawables are made in
+			int attachedHeap;  // +0x14
 			// A function the manager calls (with its argument) when it is reset
 			void (*resetCallback)(int);  // +0x18
 			int resetCallbackArgument;  // +0x1C
@@ -589,8 +620,9 @@ namespace engine
 			EffectLight* lightsEnd;  // +0xEC
 			EffectLight* lightsCapacity;  // +0xF0
 			int unknownF4;
-			int unknownF8;
-			unsigned int unknownFC;
+			// How many attached drawables may be started in a frame, and how many have been
+			unsigned int startLimit;  // +0xF8
+			unsigned int startedThisFrame;  // +0xFC
 		};
 
 		// 0x108BE4A0 (the motion trail unit): makes the drawable of a trail (the drawable it follows, the times, the shader,
@@ -600,6 +632,12 @@ namespace engine
 			pure3d::Shader* shader, const int* joints, const math::Vector* offsets, int numJoints, int shrinkJoint,
 			math::Vector shrinkOffset, float shrinkTime, float fadeTime, float fadeInTrailTime, float textureTime,
 			bool dragged);
+
+		// 0x1084A770 (another unit): makes the drawable of an attached effect (the shader, the values of the setup and the
+		// drawable of the object it follows)
+		Drawable CreateAttachedDrawable(pure3d::Shader* shader, int unknown8, const math::Vector* position,
+			const math::Vector* unknown18, const float* unknown24, float unknown30, Drawable owner, float unknown34,
+			float unknown38);
 
 		// 0x108193A0: the global manager
 		EffectManager* GetEffectManager();

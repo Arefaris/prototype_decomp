@@ -44,6 +44,8 @@ namespace engine
 
 			// 0x106DCD70: whether a sphere (point and radius) is inside the view (the point goes through the matrix at +0x50)
 			bool IsPointVisible(const math::Vector* point, float radius);
+			// 0x106DD380: whether a point is inside the view (the point goes through the matrix at +0x50)
+			bool IsPointInside(const math::Vector* point);
 
 			int unknown4;
 			// Index of the player this camera belongs to (the Director keeps two cameras per player)
