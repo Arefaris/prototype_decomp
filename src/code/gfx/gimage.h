@@ -6,6 +6,24 @@
 #include "code/gfx/gcolor.h"
 #include "code/gfx/grefcount.h"
 
+// The colours of a palette: a pointer, the number of them and a capacity word whose two high bits are flags (12 bytes)
+class GColorArray
+{
+public:
+	GColorArray()
+	{
+		mData = 0;
+		mSize = 0;
+		mCapacity = 0;
+	}
+	// 0x10062BB0 (another unit)
+	~GColorArray();
+
+	GColor* mData;
+	unsigned int mSize;
+	unsigned int mCapacity;
+};
+
 // The pixel formats (names guessed): 1 four bytes, 2 three bytes, 8 and 9 one byte, 10 - 12 compressed, 100 palette
 class GImageBase
 {
@@ -31,6 +49,8 @@ public:
 	unsigned char* GetScanline(unsigned int y) const;
 	unsigned int GetPitch() const;
 	bool IsDataCompressed() const;
+	// 0x10959B80: a hash of the size, the mip maps and the pixels
+	unsigned int GetHash() const;
 	// 0x10959880 / 0x10959970: a pixel from a color / a gray value
 	void SetPixel(unsigned int x, unsigned int y, unsigned int color);
 	void SetPixelGray(unsigned int x, unsigned int y, unsigned char gray);
@@ -46,9 +66,7 @@ public:
 	unsigned char* mData;          // 0x10
 	unsigned int mDataSize;        // 0x14
 	unsigned int mMipMapCount;     // 0x18
-	GColor* mPalette;              // 0x1C
-	unsigned int mPaletteSize;     // 0x20
-	unsigned int mPaletteCapacity; // 0x24
+	GColorArray mPalette;          // 0x1C
 };
 
 // An image in memory (RTTI: GImage : GRefCountBase<GImage>, GImageBase at +0x10; vftable 0x10D95398, 0x38 bytes)
@@ -60,6 +78,8 @@ public:
 	GImage(ImageFormat format, unsigned long width, unsigned long height);
 	// 0x1095AE10 (exported)
 	virtual ~GImage();
+	// 0x1095AE40: a new image, or null when it could not be made
+	static GImage* __stdcall CreateImage(ImageFormat format, unsigned long width, unsigned long height);
 	// 0x1095AC30: gives the pixels back and clears the image
 	void ReleaseData();
 };

@@ -11,6 +11,40 @@ static inline unsigned int GMaxValue(unsigned int a, unsigned int b)
 	return b;
 }
 
+// The hash of bytes, from the last to the first, which the engine expands in the hash of the image and keeps a copy of
+__forceinline unsigned int GHashBytes(const void* data, unsigned int size, unsigned int seed)
+{
+	const unsigned char* bytes = (const unsigned char*)data;
+	unsigned int hash = seed;
+	if (size > 0)
+	{
+		do
+		{
+			size--;
+			hash = bytes[size] ^ (hash * 33);
+		}
+		while (size > 0);
+	}
+	return hash;
+}
+
+// FUNCTION: ENGINE 0x10959B50 ; GHashBytes
+unsigned int (*gKeepHashBytes)(const void*, unsigned int, unsigned int) = &GHashBytes;
+
+// FUNCTION: ENGINE 0x10959B80
+unsigned int GImageBase::GetHash() const
+{
+	if (mData == 0 || mDataSize == 0)
+	{
+		return 0;
+	}
+	unsigned int hash = 5381;
+	hash = GHashBytes(&mWidth, 4, hash);
+	hash = GHashBytes(&mHeight, 4, hash);
+	hash = GHashBytes(&mMipMapCount, 4, hash);
+	return GHashBytes(mData, mDataSize, hash);
+}
+
 // The functions of GColor, which the engine has on their own (the unit has no other use of them)
 // FUNCTION: ENGINE 0x10959600
 void GColor::SetAlpha(unsigned char alpha)
@@ -231,17 +265,17 @@ void GImageBase::Clear()
 	mData = 0;
 	mDataSize = 0;
 	mMipMapCount = 1;
-	unsigned int capacity = mPaletteCapacity;
+	unsigned int capacity = mPalette.mCapacity;
 	unsigned int flags = capacity >> 0x1E;
-	mPaletteSize = 0;
+	mPalette.mSize = 0;
 	if (flags == 0 || ((((flags >> 1) & 1) == 0 || (capacity & 0x3FFFFFFF) == 0) && (flags & 1) == 0))
 	{
-		mPaletteCapacity = capacity & 0xC0000000;
-		if (mPalette)
+		mPalette.mCapacity = capacity & 0xC0000000;
+		if (mPalette.mData)
 		{
-			GMemory::Free(mPalette);
+			GMemory::Free(mPalette.mData);
 		}
-		mPalette = 0;
+		mPalette.mData = 0;
 	}
 }
 #endif
@@ -254,4 +288,57 @@ void GImage::ReleaseData()
 		GMemory::Free(mData);
 	}
 	Clear();
+}
+
+// FUNCTION: ENGINE 0x1095AD40
+GImage::GImage()
+{
+	mFormat = Image_None;
+	mPitch = 0;
+	mHeight = 0;
+	mWidth = 0;
+	mData = 0;
+	mDataSize = 0;
+	mMipMapCount = 1;
+}
+
+// FUNCTION: ENGINE 0x1095AD80
+GImage::GImage(ImageFormat format, unsigned long width, unsigned long height)
+{
+	mPitch = GetPitch(format, width);
+	mDataSize = GetImageSize(format, width, height);
+	mData = (unsigned char*)GMemory::Alloc(mDataSize);
+	if (mData)
+	{
+		mFormat = format;
+		mWidth = width;
+		mHeight = height;
+		memset(mData, 0, mDataSize);
+	}
+	else
+	{
+		Clear();
+	}
+	mMipMapCount = 1;
+}
+
+// FUNCTION: ENGINE 0x1095AE10
+GImage::~GImage()
+{
+	if (mData)
+	{
+		GMemory::Free(mData);
+	}
+}
+
+// FUNCTION: ENGINE 0x1095AE40
+GImage* __stdcall GImage::CreateImage(ImageFormat format, unsigned long width, unsigned long height)
+{
+	GImage* image = new GImage(format, width, height);
+	if (image->mData == 0 || width == 0 || height == 0)
+	{
+		image->Release();
+		return 0;
+	}
+	return image;
 }
