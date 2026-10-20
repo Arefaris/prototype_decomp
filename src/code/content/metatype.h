@@ -312,6 +312,9 @@ namespace content
 		bool flag9;
 	};
 
+	// 0x10604360
+	const char* GetMatrixTypeName();
+
 	// The meta type of a math::Matrix member (0x10604370; the two flags are unknown)
 	class MatrixMetaType : public MetaType
 	{
@@ -329,6 +332,18 @@ namespace content
 		virtual void Slot9();
 		virtual void Slot10();
 		virtual void Slot11();
+
+		// The slots as the engine's code takes them (see ColourMetaType). A value is a math::Matrix (the 16
+		// floats) unless flag9 is set: then it is a rotation, a position and, with flag8, a scale, in binary
+		// form three, four and three floats
+		// 0x106044A0 (slot 7)
+		void Destroy(void* object);
+		// 0x10604520 (slot 9): always 1
+		int Unknown9(int a, int b);
+		// 0x10604530 (slot 10)
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x10604550 (slot 11)
+		void WriteBinaryShort(WriteContext* context, const void* object);
 
 		bool flag8;
 		bool flag9;
