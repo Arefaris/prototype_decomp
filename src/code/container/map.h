@@ -18,7 +18,8 @@ namespace container
 			Node* left;
 			Node* right;
 			Node* parent;
-			bool red;
+			// A byte the balancing compares with 1 (red) and sets to 0 / 1
+			unsigned char red;
 		};
 
 		// Orders a key (first argument) / a node against a node
@@ -28,15 +29,28 @@ namespace container
 		typedef bool (*Deleter)(Node* node, void* context);
 
 		TreeBase();
+		// 0x10610990: the empty tree (the engine's constructor answers nothing, so it is this
+		__declspec(noinline) void Reset();
 		bool IsEmpty() const;
 		Node* Find(KeyCompare compare, const void* key) const;
 		// The node a new node with key goes below, or null when key is in the tree
 		Node* FindParent(KeyCompare compare, const void* key) const;
 		void Insert(Node* node, NodeCompare compare, Node* parent);
 		void Remove(Node* node);
-		Node* First() const;
-		Node* Next(Node* node) const;
+		__declspec(noinline) Node* First() const;
+		__declspec(noinline) Node* Next(Node* node) const;
 		void Clear(Deleter deleter, void* context);
+		// 0x10610A50: the same, and found tells whether the key is in the tree (then the answer is its node)
+		Node* FindParent(KeyCompare compare, const void* key, bool* found) const;
+		// 0x10610D20: calls visit for every node in order until it answers false (then false)
+		typedef bool (*Visitor)(Node* node, void* context);
+		bool ForEach(Visitor visit, void* context) const;
+		// 0x10610DE0: puts the node in unless one that compares equal is there already (then null)
+		Node* InsertUnique(Node* node, NodeCompare compare);
+		// The rotations of the balancing (0x10610680 / 0x106106D0) and the rebalancing after a removal (0x10610730)
+		void RotateLeft(Node* node);
+		void RotateRight(Node* node);
+		void RemoveFixup(Node* node);
 
 		Node* root;
 		Node nil;
