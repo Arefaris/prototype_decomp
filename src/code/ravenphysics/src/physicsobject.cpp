@@ -234,7 +234,7 @@ namespace ravenphysics
 			{
 				for (unsigned int j = 0; j < object->volumeCount; j++)
 				{
-					const math::Vector* bounds = &object->volumes[j]->boundsMin;
+					const math::Vector* bounds = &object->volumes[j]->bounds.min;
 					if (!(this->bounds.boundsMax.x >= bounds[1].x && bounds[0].x >= this->bounds.boundsMin.x
 						&& this->bounds.boundsMax.y >= bounds[1].y
 						&& bounds[0].y >= this->bounds.boundsMin.y && this->bounds.boundsMax.z >= bounds[1].z
@@ -797,7 +797,7 @@ namespace ravenphysics
 					CollisionVolume** volumePointer = object->volumes;
 					do
 					{
-						const float* bounds = &(*volumePointer)->boundsMin.x;
+						const float* bounds = &(*volumePointer)->bounds.min.x;
 						if (!(bounds[0] > minX))
 						{
 							minX = bounds[0];

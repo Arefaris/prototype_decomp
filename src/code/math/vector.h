@@ -100,6 +100,9 @@ namespace math
 		void Rotate(const Vector& v, const Matrix& m);
 	};
 
+	// Whether two vectors differ by more than EPSILON_SMALL in some component (0x102D5B00; name guessed)
+	bool VectorsDiffer(const Vector& a, const Vector& b);
+
 	// |a - b|^2 (kept out of line at 0x100A2ED0 in large callers; name guessed)
 	inline float DistanceSquared(const Vector& a, const Vector& b)
 	{

@@ -7,6 +7,7 @@
 
 namespace math
 {
+	class AABB;
 	class Matrix;
 
 	class OBB
@@ -23,6 +24,8 @@ namespace math
 		void Transform(const Matrix& m);
 		// The same from src into this box
 		void Transform(const Matrix& m, const OBB& src);
+		// The box around the corners (0x107D4450)
+		void GetAABB(AABB& out) const;
 		// True when p is inside the box (|(p - centre) . axis[i]| <= extents[i] for all three axes)
 		bool Contains(const Vector& p) const;
 		// Unit direction from the nearest point of the box surface to p and the distance to it (negative inside,

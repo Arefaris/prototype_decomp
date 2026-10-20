@@ -383,7 +383,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10654180
 	bool CollisionVolume6::HasSlotGeometry() const
 	{
-		return unknown110->unknown4 != 0;
+		return grid.slot->unknown4 != 0;
 	}
 
 	// FUNCTION: ENGINE 0x106541A0

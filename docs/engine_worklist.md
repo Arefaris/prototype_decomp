@@ -4175,3 +4175,55 @@ lower-bound function the unit has of its own (a plain function template, not `st
   jump thunk 0x10834750 and the first copy of `std::sort<Name*>` (0x10834FC0, no caller).
 - The copy of the array's `ShiftUp` the insert calls is another unit's (0x102EB9A0); it is declared as a specialisation
   without a body so the call stays external.
+
+## ravenphysics 0x10660000 - 0x10680000: start-up, the collision volumes and their neighbours (sn-k)
+
+- `src/code/ravenphysics/src/physics.cpp` (0x10661950 - 0x10661BB0): the scratch stack's counters, `InitSettings`, `Init`,
+  `Shutdown` and `GetStatistics`. The library's start-up calls a dozen functions of other units, declared as
+  `Unknown<address>` in the file. All match.
+- `src/code/engine/motionvelocity.cpp` (0x10661CB0 - 0x106628D0): the velocity helpers of the motion tracking filters
+  (`ComputeLinearVelocity`, `ComputeAngularVelocity`, `ComputeVelocities` and a copy of the rotation delta helper).
+  EQUIVALENT: the flag registers (88 % / 86 %) and the shrink-wrap of `ComputeVelocities` (72 %).
+- `src/code/ravenphysics/collision/src/collisionvolume.cpp` (0x10663E30 -): the volume head and the capsule (type 0), box
+  (1), sphere (2) and plane (5) volumes. The type byte is 0 capsule, 1 box, 2 sphere, 3 convex hull, 4 cylinder,
+  5 plane, 6 mesh (`GetTypeName`'s table); the per-type methods of the former `CollisionVolume::SetCapsule` /
+  `SetSphere` / `SetVolume2` / `SetVolume4` moved to `CollisionCapsule` / `CollisionOBB` / `CollisionPlane` /
+  `CollisionSphere` (the old names set the wrong type: 0x10665060 sets a box, 0x10665510 a sphere), and
+  `CollisionObject::SetSphereVolume` / `SetVolume2` / `SetVolume4` became `SetOBBVolume` / `SetPlaneVolume` /
+  `SetSphereVolume`. `CollisionVolume::bounds` is a `math::AABB` now (was two vectors). `CollisionVolume::SetQuery` and
+  `CollisionObject::SetVolumeQuery` scale the volumes by a vector (the argument is not a query).
+  - EQUIVALENT: `SetCapsule` 0x10664BA0, `SetSphere` 0x10665510 (the engine addresses the fields from this + 4),
+    `Scale` of the sphere 0x10664530 and of the box 0x106642E0, `GetLocalOBB` 0x10664220 (loads in registers).
+  - NONMATCHING: `CollisionCapsule::UpdateWorld` 0x10664C10 (15 %: the engine builds the extents in a stack vector and
+    takes the absolute values one at a time on the x87 unit).
+  - The volume dispatchers (`GetTypeName`, `Print`, `UpdateBounds`, the scale `SetQuery`, `Clone`, `CastVolume`, the
+    filter setters), the mesh volume (type 6: `CollisionVolume6` with its `BroadPhaseGrid` at +0x30, 0xF0 bytes, and
+    the `MeshSlot` the copies share), the cylinder's copy constructor and the unit's `std` instances for
+    `unsigned short` (the sort chain of a list of face numbers) match. The case labels of a switch decide the table's
+    size (`SetQuery` has an empty `Scale` for the hull and the mesh), and their order the order of the code.
+    `PrintMesh` (0x10665DA0, an empty function) sits in `collisionmesh.cpp` so that the compiler does not see its
+    body (the engine keeps the call).
+  - EQUIVALENT: the grid constructor 0x106662C0 (scheduling, 85.8 %), `CollisionVolume6::UpdateWorld` 0x10665E20 and
+    `MultiplyWorld` 0x10666000 (the engine reuses two stack slots for the row copies, 89.5 %).
+  - Not done here: `CollisionCapsule::Scale` 0x10664EB0 and `CollisionOBB::UpdateWorld` 0x10665120 (long SSE
+    sequences, declared only), the cylinder's and the hull's other methods (0x1068....).
+- `src/code/ravenphysics/constraints/` (new; 0x106615E0 - 0x1066AF80): the `Constraint` base (`constraint.h`, constructor
+  0x1065E3E0, destructor 0x1065CD80) and its first two families, `ConstraintInsideOfSphere` (pointA 0x24, pointB 0x30,
+  sphereRadius 0x3C) and `ConstraintInsideOfCone` (axisA 0x24, axisALocal 0x30, axisB 0x3C, sine 0x48, cosine 0x4C, flag
+  0x58): constructors, the accessors, `Rotate`, `GetMembers` and the reflection templates. Vector members that are reached
+  through a getter and a setter use the new `src/code/content/vectormetatype.h` (`VectorMetaTypeGetSet`,
+  `VectorMemberGetSetter<C>`); the base `VectorMetaType` slots 0 - 11 are mapped in symbols.txt. A derived destructor is
+  left implicit (the engine's is a bare `jmp` to the base destructor); the engine's addresses sit on the stacked
+  annotations of the kept copies.
+  - EQUIVALENT: `Constraint::Constraint(int)` 0x1065E3E0 (register choice), `ConstraintInsideOfSphere::ScaleBy`
+    0x106616E0 (scheduling).
+  - Not done: the other constraint classes (hinge 0x1066B0A0, springs, slider, perpendicular axes, fixed distance).
+- `src/code/ravenphysics/constraints/src/hinge.cpp` (0x1065B9A0 - 0x1065C2B0 and 0x1066B0A0 - 0x1066B570):
+  `ConstraintBallInSocket` (pointA 0x24, pointALocal 0x30, pointB 0x3C, flag 0x60), `ConstraintAlign2Axes` (axisA 0x24,
+  axisALocal 0x30, axisB 0x3C, perpendicular 0x48, cross 0x54) and `ConstraintHinge`, which holds one of each at +0x24
+  and +0x88 and adds vftable slots 8 and 9 (`SetFirstObject` / `SetSecondObject`). All match except
+  `ConstraintBallInSocket::ScaleBy` 0x1065BB90 (EQUIVALENT, 15.8 %: the engine multiplies a freshly loaded stored
+  component by the held scale component). `content::GetClassMetaType<Constraint>` is mapped to the engine's copy
+  (0x1065BC40). The rest of the constraint classes (angular spring and velocity with their shared properties, slider,
+  spring along axis, perpendicular axes, fixed distance, ...) and the base class functions 0x1065E430 - 0x1065EEE0
+  (constructor between two objects, copy constructor, `SetObject`) are not done.
