@@ -22,6 +22,21 @@ namespace engine
 		float GetAspectRatio();
 		// 0x10616130
 		int GetWidth();
+		// 0x10616140: 32 (the depth of the colour); 0x10616150: the int at +0x20 (1 when windowed)
+		int GetUnknown10616140();
+		int GetUnknown20();
+		// 0x10616160 / 0x10616170: the Direct3D object and the device it made
+		IDirect3D9* GetDirect3D();
+		IDirect3DDevice9* GetDevice();
+		// 0x10616180: the byte at +0x78C; 0x106161A0 answers 0
+		bool GetUnknown78C();
+		int Unknown106161A0();
+		// 0x10616720 / 0x10616730 / 0x10616750 / 0x10616760: the counter at +0x7FC, the float at +0x800, the float at
+		// +0x804 over the one at +0x808, the texture of the back buffer
+		int* GetUnknown7FC();
+		float GetUnknown800();
+		float GetUnknown804Ratio();
+		pure3d::dxTexture* GetBackBufferTexture();
 		// 0x10616120: the int at +8
 		int GetUnknown8();
 		// 0x106162D0: puts the display's state back (called around the render device's frame calls)
@@ -74,7 +89,8 @@ namespace engine
 		IDirect3DSurface9* depthStencil;
 		// 0x748: the parameters the device is made and reset with
 		D3DPRESENT_PARAMETERS presentParameters;
-		unsigned char unknown780[0x78D - 0x780];
+		float gamma[3];
+		bool unknown78C;
 		// 0x78D / 0x78E: set once the reset is through (names unknown)
 		bool unknown78D;
 		bool unknown78E;

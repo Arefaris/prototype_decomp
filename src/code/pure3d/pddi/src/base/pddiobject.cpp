@@ -44,6 +44,12 @@ namespace pure3d
 		index = -1;
 	}
 
+	// FUNCTION: ENGINE 0x10611E50
+	ConstantSlot::ConstantSlot(const ConstantName* constant)
+	{
+		index = (unsigned short)constant->index;
+	}
+
 	// FUNCTION: ENGINE 0x10611E20
 	ConstantSlot::ConstantSlot(int kind, const core::Name<core::CaseInsensitiveKey32>* name)
 	{

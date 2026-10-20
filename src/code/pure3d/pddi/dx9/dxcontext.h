@@ -46,21 +46,57 @@ namespace pure3d
 		dxProgram* Unknown10628400();
 	};
 
-	// The shader a draw goes through: the draw's own or the context's (RTTI unknown; slots 4 and 6 are the ones
-	// the context uses, the others are placeholders)
-	class dxShader
+	// What a shader is made from (RTTI pddiBaseShaderTemplate; 0x2F0 bytes): the name the shaders find it by, the
+	// defaults of the inputs and the passes (dxShaderTemplate adds them)
+	class pddiBaseShaderTemplate : public pddiObject
 	{
 	public:
-		virtual void Unknown0();
-		virtual void Unknown1();
-		virtual void Unknown2();
-		virtual void Unknown3();
-		virtual dxTechniques* GetTechniques();
-		virtual void Unknown5();
-		virtual void Draw(int technique, pddiBaseContext::Constants* constants, const void* parameters);
+		// Slot 4 (0x1061A2F0): adds a pass of the template (the names of the pass, its vertex program and its pixel
+		// program and its draw state; the last argument is 0 where the template loader calls it); the base class does
+		// not keep it
+		virtual void AddPass(const char* name, const char* vertexProgram, const char* pixelProgram,
+			const PrimStreamParameters* state, int unknown);
 
-		// The values of the shader's inputs by name (pddiShaderCommon's setters; a part's binding sets its parameters
-		// through them): 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
+		// 0x10618580: copies the defaults of the inputs into the constants of a new shader
+		void InitConstants(pddiBaseContext::Constants* constants);
+
+		unsigned char unknown8[0x2E4 - 8];
+		bool unknown2E4;
+		unsigned char unknown2E5[3];
+		core::Name<core::CaseInsensitiveKey32> templateName;
+		pddiBaseContext::Constants* defaults;
+	};
+
+	// The inputs every shader keeps (RTTI pddiShaderCommon; 8 slots): the template, the constants, the checksum of
+	// the constants (made when asked for) and the stamp of the last change. The setters and getters take the
+	// inputs by name; a part's binding sets its parameters through them.
+	class pddiShaderCommon : public pddiObject
+	{
+	public:
+		// 0x10613C00
+		pddiShaderCommon(pddiBaseShaderTemplate* newTemplate);
+		// 0x106145A0 (0x10614620 is its scalar deleting form)
+		virtual ~pddiShaderCommon();
+		// Slots 4 - 7: the techniques (pure), 0x10613CF0 takes the constants of another shader, the draw (pure) and
+		// 0x10613C70 clears the two blocks it is given
+		virtual dxTechniques* GetTechniques() = 0;
+		virtual void CopyConstants(pddiShaderCommon* other);
+		virtual void Draw(int technique, pddiBaseContext::Constants* constants, const void* parameters) = 0;
+		virtual void Unknown7(int unused, int* first, int* second);
+
+		// 0x10613CB0: makes the checksum of the constants; 0x10614560 answers it
+		void UpdateHash();
+		unsigned int GetHash();
+		// 0x10613CE0: the name of the template
+		const core::Name<core::CaseInsensitiveKey32>* GetTemplateName();
+		// 0x106145D0: whether both are made from the same template with the same constants
+		int IsSameAs(pddiShaderCommon* other);
+		// 0x10613BE0: whether the shader is the one the device drew with last
+		bool IsCurrent();
+
+		// 0x10613D10: whether the shader has an input of that kind and name
+		bool HasInput(const core::Name<core::CaseInsensitiveKey32>& name, const int& kind);
+		// The values of the shader's inputs by name: 0x10613EC0, 0x10613F30, 0x10613F90, 0x10613FF0, 0x10614050,
 		// 0x106140C0, 0x10614140
 		void SetBool(const core::Name<core::CaseInsensitiveKey32>& name, bool value);
 		void SetTexture(const core::Name<core::CaseInsensitiveKey32>& name, dxTexture* texture);
@@ -71,6 +107,44 @@ namespace pure3d
 		void SetMatrix(const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
 		// 0x10614130: the same code as SetVector4 (the colour of an input)
 		void SetColour(const core::Name<core::CaseInsensitiveKey32>& name, const math::Vector4& value);
+		// 0x10613D50 / 0x10613DE0 / 0x10613E60: the sampler of a texture input: the filter and the address modes,
+		// the address modes, the filters
+		void SetSampler(const core::Name<core::CaseInsensitiveKey32>& name, bool linear, int addressU, int addressV,
+			int unused);
+		void SetSamplerAddress(const core::Name<core::CaseInsensitiveKey32>& name, int addressU, int addressV,
+			int addressW);
+		void SetSamplerFilters(const core::Name<core::CaseInsensitiveKey32>& name, int minFilter, int magFilter,
+			int mipFilter, unsigned int anisotropy);
+		// 0x10614230 - 0x10614370: the values of the inputs (a default when there is no such input)
+		bool GetBool(const core::Name<core::CaseInsensitiveKey32>& name);
+		float GetFloat(const core::Name<core::CaseInsensitiveKey32>& name);
+		const float* GetVector2(const core::Name<core::CaseInsensitiveKey32>& name);
+		const float* GetVector3(const core::Name<core::CaseInsensitiveKey32>& name);
+		const float* GetVector4(const core::Name<core::CaseInsensitiveKey32>& name);
+		const float* GetMatrix(const core::Name<core::CaseInsensitiveKey32>& name);
+		pddiSurface* GetTexture(const core::Name<core::CaseInsensitiveKey32>& name);
+		// 0x106143B0 / 0x10614470 / 0x106144F0: the sampler of a texture input
+		void GetSampler(const core::Name<core::CaseInsensitiveKey32>& name, bool* linear, int* addressU, int* addressV,
+			int* unknown);
+		void GetSamplerAddress(const core::Name<core::CaseInsensitiveKey32>& name, int* addressU, int* addressV,
+			int* addressW);
+		void GetSamplerFilters(const core::Name<core::CaseInsensitiveKey32>& name, int* minFilter, int* magFilter,
+			int* mipFilter, unsigned int* anisotropy);
+
+		pddiBaseShaderTemplate* shaderTemplate;
+		pddiBaseContext::Constants* constants;
+		unsigned int hash;
+		bool hashDirty;
+		unsigned int stamp;
+	};
+
+	// The shader a draw goes through: the draw's own or the context's (RTTI dxShader; its slots 4 and 6 are the
+	// ones the context uses)
+	class dxShader : public pddiShaderCommon
+	{
+	public:
+		virtual dxTechniques* GetTechniques();
+		virtual void Draw(int technique, pddiBaseContext::Constants* constants, const void* parameters);
 	};
 
 	// RTTI: pure3d::dxShaderTemplate (bases pddiBaseShaderTemplate, pddiObject, core::IRefCount; the object is
@@ -85,11 +159,10 @@ namespace pure3d
 		bool flag;
 	};
 
-	class dxShaderTemplate : public pddiObject
+	class dxShaderTemplate : public pddiBaseShaderTemplate
 	{
 	public:
-		// Slot 4: adds a pass of the template (the names of the pass, its vertex program and its pixel program and
-		// its draw state; the last argument is 0 where the template loader calls it)
+		// Slot 4: adds a pass of the template
 		virtual void AddPass(const char* name, const char* vertexProgram, const char* pixelProgram,
 			const PrimStreamParameters* state, int unknown);
 
@@ -100,12 +173,6 @@ namespace pure3d
 		// 0x10619F70: finishes the template once the loader has read every input (the context and the defaults of
 		// the inputs)
 		void Finish(pddiBaseContext* context, pddiShaderInputInitData* inputs);
-
-		unsigned char unknown8[0x2E4 - 8];
-		bool unknown2E4;
-		unsigned char unknown2E5[3];
-		core::Name<core::CaseInsensitiveKey32> templateName;
-		void* unknown2EC;
 	};
 
 	// The Direct3D render states the device is in (the object at 0x11276D70; name guess): the states the context sets

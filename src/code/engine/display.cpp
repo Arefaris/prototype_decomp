@@ -66,6 +66,72 @@ namespace engine
 		return unknown8;
 	}
 
+	// FUNCTION: ENGINE 0x10616140
+	int Display::GetUnknown10616140()
+	{
+		return 0x20;
+	}
+
+	// FUNCTION: ENGINE 0x10616150
+	int Display::GetUnknown20()
+	{
+		return unknown20;
+	}
+
+	// FUNCTION: ENGINE 0x10616160
+	IDirect3D9* Display::GetDirect3D()
+	{
+		return d3d;
+	}
+
+	// FUNCTION: ENGINE 0x10616170
+	IDirect3DDevice9* Display::GetDevice()
+	{
+		return device;
+	}
+
+	// FUNCTION: ENGINE 0x10616180
+	bool Display::GetUnknown78C()
+	{
+		return unknown78C;
+	}
+
+	// FUNCTION: ENGINE 0x106161A0
+	int Display::Unknown106161A0()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10616720
+	int* Display::GetUnknown7FC()
+	{
+		return &unknown7FC;
+	}
+
+	// FUNCTION: ENGINE 0x10616730
+	float Display::GetUnknown800()
+	{
+		return unknown800;
+	}
+
+	// FUNCTION: ENGINE 0x10616740
+	float Display::GetAspectRatio()
+	{
+		return unknown80C / unknown810;
+	}
+
+	// FUNCTION: ENGINE 0x10616750
+	float Display::GetUnknown804Ratio()
+	{
+		return unknown804 / unknown808;
+	}
+
+	// FUNCTION: ENGINE 0x10616760
+	pure3d::dxTexture* Display::GetBackBufferTexture()
+	{
+		return backBufferTexture;
+	}
+
 	// FUNCTION: ENGINE 0x10616130
 	int Display::GetWidth()
 	{

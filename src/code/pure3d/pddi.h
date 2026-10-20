@@ -66,13 +66,13 @@ namespace pure3d
 		pddiSize* size;
 	};
 
-	class pddiSurface
+	class pddiSurface : public pddiObject
 	{
 	public:
 		// 0x1061C480
 		int GetHandle();
 
-		unsigned char unknown0[0x40];
+		unsigned char unknown8[0x40 - 8];
 		int handle;
 		pddiSurfaceInfo* info;
 	};
@@ -106,11 +106,23 @@ namespace pure3d
 		virtual bool Unknown7();
 	};
 
+	// The name of a constant, where it is and what it is (8 bytes)
+	struct ConstantName
+	{
+		core::Name<core::CaseInsensitiveKey32> name;
+		unsigned int index : 16;
+		// 0 texture, 1 float, 2 - 4 the vectors, 5 matrix, 6 flag
+		int kind : 4;
+		unsigned int unknown : 12;
+	};
+
 	// The slot of a constant in the device's constant table (the name is a guess)
 	struct ConstantSlot
 	{
 		// 0x10611E10: no slot (-1)
 		ConstantSlot();
+		// 0x10611E50: the slot of a named constant
+		ConstantSlot(const ConstantName* constant);
 		// 0x10611E20 (another unit): the slot of the constant of that kind and name
 		ConstantSlot(int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
@@ -340,6 +352,75 @@ namespace pure3d
 		ConstantVector3 eyePosition;
 	};
 
+	// The names the constants of a table are found by (0xC bytes)
+	struct ConstantNames
+	{
+		// 0x1061A4F0: the entry of that name, null when there is none
+		ConstantName* Find(const core::Name<core::CaseInsensitiveKey32>* name);
+
+		ConstantName* begin;
+		ConstantName* end;
+		int unknown8;
+	};
+
+	// The sampler word of a texture constant (the word after the texture; the fields' meanings are guesses)
+	struct SamplerBits
+	{
+		int unknown : 4;
+		int addressU : 2;
+		int addressV : 2;
+		int addressW : 2;
+		int minFilter : 4;
+		int magFilter : 4;
+		int mipFilter : 4;
+		unsigned int anisotropy : 5;
+	};
+
+	// A texture constant: the texture, then its sampler word
+	struct SamplerEntry
+	{
+		pddiSurface* texture;
+		SamplerBits bits;
+	};
+
+	// Reads the fields of a sampler word (the constants' getters and the shaders' use these)
+	__forceinline void ReadSamplerAddress(const SamplerEntry* entry, int* u, int* v, int* w)
+	{
+		if (u != 0)
+		{
+			*u = entry->bits.addressU;
+		}
+		if (v != 0)
+		{
+			*v = entry->bits.addressV;
+		}
+		if (w != 0)
+		{
+			*w = entry->bits.addressW;
+		}
+	}
+
+	__forceinline void ReadSamplerFilters(const SamplerEntry* entry, int* minFilter, int* magFilter, int* mipFilter,
+		unsigned int* anisotropy)
+	{
+		if (minFilter != 0)
+		{
+			*minFilter = entry->bits.minFilter;
+		}
+		if (magFilter != 0)
+		{
+			*magFilter = entry->bits.magFilter;
+		}
+		if (mipFilter != 0)
+		{
+			*mipFilter = entry->bits.mipFilter;
+		}
+		if (anisotropy != 0)
+		{
+			*anisotropy = entry->bits.anisotropy;
+		}
+	}
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
@@ -502,18 +583,59 @@ namespace pure3d
 		void SetViewUnknown14(float a, float b, float c, float d);
 		void SetViewUnknown24(float a, float b, float c, float d, float e, float f);
 
-		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed)
-		struct Constants
+		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed). The
+		// object is a pddiObject of the engine (RTTI pddiShaderInputs); 0x1061A3E0 makes it
+		class Constants : public pddiObject
 		{
+		public:
+			// 0x1061A3E0
+			Constants();
+			// 0x1061ABB0 (its scalar deleting form is 0x1061AC60): lets go of the textures the constants hold and of
+			// the arrays it owns
+			virtual ~Constants();
+
 			// 0x1061A470: binds a texture to the constant at *slot (a texture constant keeps its sampler state word
 			// at values[*slot + 1])
 			void SetTexture(int* slot, pddiSurface* surface);
 			// 0x1061A540: the slot of the constant of that kind and name (-1 in the slot when there is none)
 			ConstantSlot* Find(ConstantSlot* slot, int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
-			int unknown0;
-			int unknown4;
+			// 0x1061A5E0: takes the values of the constants another table has under the same names
+			void CopyValuesFrom(Constants* other);
+			// 0x1061A410: copies the table (the values and the names) into another one
+			void CopyTo(Constants* destination);
+			// 0x10613A20 / 0x10613A30: the values and how many there are
+			float* GetValues();
+			unsigned int GetCount();
+			// 0x10613A40 / 0x10613A70: the flag constants share the first word of the values
+			void SetFlag(const ConstantSlot& slot, bool on);
+			bool GetFlag(const ConstantSlot& slot);
+			// 0x10613A90: the value of a float constant; 0x10613AA0 - 0x10613AD0: where the vectors and the matrix of a
+			// constant start (the same for every size); 0x10613AE0: the texture of a texture constant
+			float GetFloat(const ConstantSlot& slot);
+			float* GetFloat2(const ConstantSlot& slot);
+			float* GetFloat3(const ConstantSlot& slot);
+			float* GetFloat4(const ConstantSlot& slot);
+			float* GetMatrix(const ConstantSlot& slot);
+			pddiSurface* GetTexture(const ConstantSlot& slot);
+			// 0x102D5390 (another unit): sets the filters of a texture constant's sampler
+			void SetSamplerFilters(ConstantSlot* slot, int minFilter, int magFilter, int mipFilter,
+				unsigned int anisotropy);
+			// 0x10613AF0: the address modes of a texture constant's sampler; 0x10613B40: its filters and the
+			// anisotropy; 0x10613BA0: the word's first field (name guesses)
+			void GetSamplerAddress(const ConstantSlot& slot, int* u, int* v, int* w);
+			void GetSamplerFilters(const ConstantSlot& slot, int* minFilter, int* magFilter, int* mipFilter,
+				unsigned int* anisotropy);
+			int GetSamplerUnknown(const ConstantSlot& slot);
+
 			float* values;
+			// How many values (floats) there are
+			unsigned int count;
+			// The names the constants are found by (0x1061A4F0 searches them)
+			ConstantNames* names;
+			// Set when the arrays are the object's own
+			bool ownsValues;
+			bool ownsNames;
 		};
 
 		// A group of the constant table: the bit of constantsDirty a write marks (1 textures, 2 floats, 4 float
