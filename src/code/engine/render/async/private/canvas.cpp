@@ -82,3 +82,12 @@ namespace engine
 		template class ObjRenderEvent1<Canvas, bool>;
 	}
 }
+
+// Kept copies (function template instances of this unit):
+// FUNCTION: ENGINE 0x10828470
+// FUNCTION: ENGINE 0x108284F0
+// FUNCTION: ENGINE 0x10828550
+// FUNCTION: ENGINE 0x108285C0
+// FUNCTION: ENGINE 0x10828620
+// FUNCTION: ENGINE 0x108286E0
+// FUNCTION: ENGINE 0x10828750

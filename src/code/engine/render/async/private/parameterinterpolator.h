@@ -13,22 +13,37 @@ namespace engine
 	namespace render
 	{
 		// The base of the interpolators: the pool reaches them through the vtable and their name only
-		// (RTTI: engine::render::ParameterInterpolatorTypeless, two virtual slots)
+		// (RTTI: engine::render::ParameterInterpolatorTypeless, two virtual slots: the destructor and Update)
 		class ParameterInterpolatorTypeless
 		{
 		public:
-			virtual ~ParameterInterpolatorTypeless() = 0;
+			// 0x10826E00 (a copy nothing calls; the derived constructors inline it): id is the render parameters the
+			// interpolator writes to (a pointer), type the easing curve (0: smooth step, 1: sine, 2: cosine)
+			ParameterInterpolatorTypeless(int id, const core::Name<core::CaseSensitiveKey>& name, float duration,
+				int type) : mType(type), mDuration(duration), mTimeLeft(duration), mName(name), mId(id)
+			{
+			}
+			// 0x10826DD0: sets the base's vftable
+			virtual ~ParameterInterpolatorTypeless()
+			{
+			}
 			// Called on every live interpolator with the time to interpolate to; false means the interpolator is
 			// done and its slot goes back to the pool
 			virtual bool Update(float time) = 0;
 
 			// 0x108C0420: what the pool's Release compares with the name it is given
 			core::Name<core::CaseSensitiveKey> GetName() const;
+			// 0x10827980: the easing curve at t (0 - 1)
+			float Ease(float t) const;
 
-			unsigned int unknown4[5];                  // +0x04
+			unsigned int unknown4;                     // +0x04
+			int mType;                                 // +0x08
+			float mDuration;                           // +0x0C
+			float mTimeLeft;                           // +0x10
+			unsigned int unknown14;                    // +0x14
 			core::Name<core::CaseSensitiveKey> mName;  // +0x18
 			int mId;                                   // +0x20
-			unsigned int unknown24[7];                 // +0x24
+			unsigned int unknown24;                    // +0x24
 		};
 
 		// The fixed pool of interpolators: one block holding the interpolators, their used flags and the free list
