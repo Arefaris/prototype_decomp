@@ -143,8 +143,14 @@ namespace engine
 		{
 			EffectInstance();
 			EffectInstance(const EffectInstance& other);
+			// 0x10820620
+			EffectInstance& operator=(const EffectInstance& other);
 			~EffectInstance();
 
+			// 0x10820830 (another unit): advances the effect; true when it has finished and goes away
+			bool Advance(float timeStep, const math::Vector* cameraPosition);
+			// 0x1081EAC0: destroys the drawable and marks the effect as fading out for good
+			void Kill();
 			// 0x1081EEF0: starts fading the effect out over the time at +0x70 (unless it already does)
 			void StartFade();
 
@@ -158,10 +164,15 @@ namespace engine
 			// 1000 for a spanned effect
 			float unknown6C;
 			float fadeTime;  // +0x70
-			unsigned char unknown74[0x9C - 0x74];
-			// bit 0: the transform changed, bit 1: fading out
+			// The time the effect has left (the largest float once it is killed)
+			float timeLeft;  // +0x74
+			unsigned char unknown78[0x9C - 0x78];
+			// bit 0: the transform changed, bit 1: fading out, bit 5: counted as a user of the store it names, bit 6: made
+			// from a store (the effect keeps the store alive)
 			unsigned char flags;  // +0x9C
-			unsigned char unknown9D[0xA8 - 0x9D];
+			unsigned char unknown9D[3];
+			// The name of the store the effect belongs to
+			EffectName storeName;  // +0xA0
 		};
 
 		// The effects playing under one name: a vector of instances (begin, end, end of storage)
@@ -179,30 +190,61 @@ namespace engine
 		};
 
 		// An open-addressing table of 32-bit keys with pointers as values (0x28 bytes): the slots hold a null for an empty
-		// place and the address of the table's last member for a removed one
-		template<class Value> struct HashTable
+		// place and the address of the table's last member for a removed one. The engine's copy works on untyped
+		// pointers (one copy of every function serves the tables of all the manager's record types).
+		struct HashTable
 		{
+			// 0x1081D170: a table of that many slots (rounded up to a power of two), the load in percent it grows at
+			// and the number of removed places it tolerates
+			HashTable(unsigned int newSlotCount, unsigned int newMaxLoad, unsigned int newMaxRemoved);
+			// 0x1081C6C0: moves everything into a table of that many slots
+			void Rehash(unsigned int newSlotCount);
+			// 0x1081C620: puts a value under a key (the key must not be in the table)
+			void Insert(const unsigned int* newKey, void* value);
+
 			unsigned int slotCount;  // +0x00
 			unsigned int count;  // +0x04
 			unsigned int removed;  // +0x08
-			bool unknownC;
-			unsigned int unknown10;
+			bool compactWhenRemoved;  // +0x0C
+			unsigned int maxRemoved;  // +0x10
 			unsigned int maxLoad;  // +0x14
 			int heap;  // +0x18
-			Value** slots;  // +0x1C
+			void** slots;  // +0x1C
 			unsigned int* keys;  // +0x20
 			unsigned char removedMarker[4];  // +0x24
 		};
 
+		// A probe through a table for a key (20 bytes): the table, the key, the slot it started at, the slot it is at and the
+		// step between slots
+		struct HashLookup
+		{
+			explicit HashLookup(HashTable* newTable)
+				: table(newTable), key(0), start(0), slot(0), step(0)
+			{
+			}
+			// 0x1081A890: the value of the key, null when the table has none
+			void* Find(const unsigned int* newKey);
+			// 0x1081A910: the first place that is empty, removed or holds the key
+			void* FindForInsert(const unsigned int* newKey);
+			// 0x10819C30: the next place of the probe
+			void* Next();
+
+			HashTable* table;
+			unsigned int key;
+			unsigned int start;
+			unsigned int slot;
+			unsigned int step;
+		};
+
 		// Where a loop over a table stands (the table and the slot it is at)
-		template<class Value> struct HashIterator
+		struct HashIteratorBase
 		{
 			// Steps to the next used slot and answers its value, null at the end
-			Value* Next()
+			void* Next()
 			{
-				HashTable<Value>* source = table;
+				HashTable* source = table;
 				unsigned int slot = index;
-				Value* value;
+				void* value;
 				do
 				{
 					slot++;
@@ -212,15 +254,29 @@ namespace engine
 					}
 					value = source->slots[slot];
 				}
-				while (value == 0 || (void*)value == (void*)source->removedMarker);
+				while (value == 0 || value == (void*)source->removedMarker);
 				index = slot;
-				return slot >= source->slotCount ? 0 : source->slots[slot];
+				void* result = slot >= source->slotCount ? 0 : source->slots[slot];
+				return result;
 			}
 			// The same step as a call (the engine's copy at 0x10819A40)
-			Value* NextCalled();
+			void* NextCalled();
 
-			HashTable<Value>* table;
+			HashTable* table;
 			unsigned int index;
+		};
+
+		// The loop over the records of a table
+		template<class Value> struct HashIterator : HashIteratorBase
+		{
+			Value* Next()
+			{
+				return (Value*)HashIteratorBase::Next();
+			}
+			Value* NextCalled()
+			{
+				return (Value*)HashIteratorBase::NextCalled();
+			}
 		};
 
 		// An effect drawable kept ready by name: how many uses it has and when it was last used (0x20 bytes)
@@ -233,6 +289,14 @@ namespace engine
 			float lastUsed;  // +0x14
 			bool active;  // +0x18
 			int unknown1C;
+		};
+
+		// An effect started on a named slot (16 bytes)
+		struct SlotEffect
+		{
+			Drawable drawable;  // +0x00
+			int unknown4;
+			EffectName slot;  // +0x08
 		};
 
 		// A drawable that follows a game object (8 bytes)
@@ -272,6 +336,8 @@ namespace engine
 		public:
 			// 0x10819560: releases a drawable the manager made
 			void ReleaseDrawable(Drawable* drawable);
+			// 0x10819520: releases an attached drawable (given by value)
+			void ReleaseAttachedDrawable(AttachedDrawable attached);
 			// 0x1081B730: fades out the effect of a handle over a time and stops it
 			void StopEffect(int effect, float fadeTime);
 			// 0x1081BA90: starts a motion trail on a drawable between the joints of its part lookup; the trail comes back
@@ -283,6 +349,13 @@ namespace engine
 				float fadeInTrailTime, float textureTime, bool dragged);
 			// 0x1081E260: stops the effects started on a slot, fading them out when allowed
 			void AbortSlot(const EffectName* slot, bool allowFade, float fadeTime);
+			// 0x1081E320: ends every playing effect of a name, at once or by fading it out over a time
+			void StopEffectsNamed(const EffectName& name, bool immediately, float fadeTime);
+			// 0x1081D540: advances every playing effect and takes the finished ones out of their lists; the effects made
+			// from a store that has not been used for a minute start fading
+			void UpdateInstances(float timeStep);
+			// 0x1081E1C0: ends the effects of a list whose position the camera cannot see (within the radius)
+			void RemoveInvisible(EffectInstanceList* list, float radius);
 
 			// 0x1081ABA0: whether a light at a transform is not worth making (it is out of the camera's view or farther
 			// from it than the distance whose square is given; the object is not used)
@@ -294,6 +367,28 @@ namespace engine
 			// 0x1081A2A0: switches the particle systems of the stores on while they have users and off again when they
 			// have not had one for a while
 			void UpdateStores(float timeStep);
+
+			// 0x1081CDE0: takes the store of a name out of the vector (the last one moves into its place)
+			bool ReleaseStore(EffectName name);
+			// 0x1081D790: ends an effect of a list: its store loses a user (or goes), the drawable is killed and the last
+			// effect of the list takes its place
+			void RemoveInstance(EffectInstance* instance, EffectInstanceList* list);
+
+			// 0x1081D850: ends the effect of a list that has run longest, one that was made from a store only when it
+			// has no other; false when the list has none to end
+			bool RemoveOldest(EffectInstanceList* list);
+			// 0x1081DA10: ends the effect of the store that was used least recently
+			void RemoveOldestStore();
+
+			// 0x10819410: whether a feature of the manager is switched on (always)
+			bool IsFeatureEnabled(int features);
+			// 0x1081E5A0: the frame update (the two leading arguments are unused)
+			void Update(int unused1, int unused2, float timeStep);
+			// 0x1081E460: counts up the timers of the manager's name table and drops the ones that ran out
+			void UpdateTimers(float timeStep);
+
+			// 0x1081C8D0: destroys every light, drawable and effect the manager holds
+			void Reset();
 
 			// 0x1081B9B0: lets go of every attached drawable
 			void ReleaseAttached();
@@ -336,15 +431,31 @@ namespace engine
 			float time;  // +0xC
 			// The heap the manager allocates its records from
 			int heap;  // +0x10
-			unsigned char unknown14[0x40];
+			int unknown14;
+			// A function the manager calls (with its argument) when it is reset
+			void (*resetCallback)(int);  // +0x18
+			int resetCallbackArgument;  // +0x1C
+			// A function the manager calls with the handle and the setup of an effect it has started
+			void (*startCallback)(unsigned int, void*);  // +0x20
+			int unknown24;
+			bool unknown28;
+			unsigned char unknown29[3];
+			// The lists of playing effects by the key of their kind
+			HashTable instanceTable;  // +0x2C
 			// Where the loops over the effects of every name stand
 			HashIterator<EffectInstanceList> instanceLists;  // +0x54
 			// The drawables of effects that are waiting for their end
 			DrawableRing waiting;  // +0x5C
-			unsigned char unknown6C[0x2C];
+			int unknown6C;
+			// The rings of attached drawables by the key of their owner
+			HashTable attachedTable;  // +0x70
 			// Where the loops over the rings of attached drawables stand
 			HashIterator<AttachedRing> attachedRings;  // +0x98
-			unsigned char unknownA0[0x34];
+			unsigned char unknownA0[0x28];
+			// The effects started on slots: a vector of records (begin, end, end of storage)
+			SlotEffect* slotsBegin;  // +0xC8
+			SlotEffect* slotsEnd;  // +0xCC
+			SlotEffect* slotsCapacity;  // +0xD0
 			// The stores of ready effects (a vector: begin, end, end of storage) and the one the loops are at
 			EffectStore* storesBegin;  // +0xD4
 			EffectStore* storesEnd;  // +0xD8

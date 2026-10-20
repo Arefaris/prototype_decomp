@@ -1,9 +1,13 @@
 // The effect manager (see effectmanager.h).
 #include "code/engine/render/effectmanager.h"
+#include <float.h>
 #include <math.h>
 #include <new>
+#include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
+#include "code/pure3d/primitive.h"
 #include "code/engine/fight/effecttrack.h"
+#include "code/core/heap.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
 #include "code/math/noise.h"
@@ -250,9 +254,6 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x1081B3F0
-		// EQUIVALENT: the same walk over the table and its lists with the same tests and calls; the compiler threads the
-		// jump of the empty end of the inlined step to the exit and merges the three exits, the engine goes through a
-		// result register first (see the percentage)
 		EffectInstance* EffectManager::FindInstance(unsigned int drawable, EffectInstanceList** list)
 		{
 			HashIterator<EffectInstanceList>& iterator = instanceLists;
@@ -277,7 +278,6 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x1081B4E0
-		// EQUIVALENT: as FindInstance, which it follows with the name of the instance as the test
 		EffectInstance* EffectManager::FindInstanceByName(const EffectName& name, EffectInstanceList** list)
 		{
 			HashIterator<EffectInstanceList>& iterator = instanceLists;
@@ -478,18 +478,13 @@ namespace engine
 
 		// FUNCTION: ENGINE 0x1081B9B0
 		// EQUIVALENT: the same walk, the same destroys and stores; the engine keeps the manager in a stack slot over the
-		// loop and stores the empty ring pointer it ends with, ours keeps it in a register (64.2 %)
+		// loop and stores the empty ring pointer it ends with, ours keeps it in a register (78.5 %)
 		void EffectManager::ReleaseAttached()
 		{
 			HashIterator<AttachedRing>& iterator = attachedRings;
 			iterator.index = 0xffffffff;
 			AttachedRing* ring = iterator.NextCalled();
-			if (ring == 0)
-			{
-				unknownFC = 0;
-				return;
-			}
-			do
+			while (ring != 0)
 			{
 				for (unsigned int i = 0; i < ring->Size(); i++)
 				{
@@ -499,8 +494,605 @@ namespace engine
 				ring->tail = ring->begin;
 				ring = iterator.Next();
 			}
-			while (ring != 0);
 			unknownFC = 0;
+		}
+
+		// FUNCTION: ENGINE 0x10819520
+		void EffectManager::ReleaseAttachedDrawable(AttachedDrawable attached)
+		{
+			Drawable::Destroy(&attached.drawable, 0);
+		}
+
+		// FUNCTION: ENGINE 0x1081EAC0
+		void EffectInstance::Kill()
+		{
+			Drawable::Destroy(&drawable, 4);
+			flags |= 2;
+			timeLeft = FLT_MAX;
+		}
+
+		// FUNCTION: ENGINE 0x10819A40
+		void* HashIteratorBase::NextCalled()
+		{
+			HashTable* source = table;
+			unsigned int slot = index;
+			void* value;
+			do
+			{
+				slot++;
+				if (slot >= source->slotCount)
+				{
+					break;
+				}
+				value = source->slots[slot];
+			}
+			while (value == 0 || value == (void*)source->removedMarker);
+			index = slot;
+			void* result = slot >= source->slotCount ? 0 : source->slots[slot];
+			return result;
+		}
+
+		// FUNCTION: ENGINE 0x1081A890
+		void* HashLookup::Find(const unsigned int* newKey)
+		{
+			key = *newKey;
+			HashTable* source = table;
+			unsigned __int64 wide = *newKey;
+			unsigned int mask = source->slotCount - 1;
+			unsigned int current = (unsigned int)wide & mask;
+			unsigned int increment = ((unsigned int)(wide >> 9) & 0xfe) | 1;
+			start = current;
+			step = increment;
+			void* value;
+			while (value = source->slots[current], (value != 0 && source->keys[current] != key) || value == (void*)source->removedMarker)
+			{
+				current = (current + increment) & (source->slotCount - 1);
+				if (current == start)
+				{
+					slot = current;
+					return 0;
+				}
+			}
+			slot = current;
+			return source->slots[current];
+		}
+
+		// FUNCTION: ENGINE 0x1081A910
+		// EQUIVALENT: the same probe, tests and stores; the engine reads the table's slot array again for the loop test, ours
+		// keeps the pointer it loaded before (71.1 %)
+		void* HashLookup::FindForInsert(const unsigned int* newKey)
+		{
+			key = *newKey;
+			HashTable* source = table;
+			unsigned __int64 wide = *newKey;
+			unsigned int mask = source->slotCount - 1;
+			unsigned int current = (unsigned int)wide & mask;
+			unsigned int increment = ((unsigned int)(wide >> 9) & 0xfe) | 1;
+			start = current;
+			step = increment;
+			void** values = source->slots;
+			if (values[current] != 0)
+			{
+				do
+				{
+					if (source->keys[current] == key || values[current] == (void*)source->removedMarker)
+					{
+						break;
+					}
+					current = (current + increment) & (source->slotCount - 1);
+					if (current == start)
+					{
+						slot = current;
+						return 0;
+					}
+				}
+				while (source->slots[current] != 0);
+			}
+			slot = current;
+			return source->slots[current];
+		}
+
+		// FUNCTION: ENGINE 0x10819C30
+		// EQUIVALENT: the same probe; the engine keeps the table's mask in edi and the slot array in ebx, ours spills the mask
+		// and reloads the slot value into another register (16.8 %)
+		void* HashLookup::Next()
+		{
+			HashTable* source = table;
+			unsigned int mask = source->slotCount - 1;
+			unsigned int current = (slot + step) & mask;
+			while (source->slots[current] != 0 && source->keys[current] != key && source->slots[current] != (void*)source->removedMarker)
+			{
+				if (current == start)
+				{
+					slot = current;
+					return 0;
+				}
+				current = (current + step) & (source->slotCount - 1);
+			}
+			slot = current;
+			return source->slots[current];
+		}
+
+		// FUNCTION: ENGINE 0x1081C620
+		// EQUIVALENT: the same lookup, stores and growth test; the engine reaches the slot address with one lea and keeps
+		// the key pointer in ebx, ours adds the index twice (51.7 %)
+		void HashTable::Insert(const unsigned int* newKey, void* value)
+		{
+			HashLookup lookup(this);
+			void* found = lookup.FindForInsert(newKey);
+			while (found != 0 && found != (void*)lookup.table->removedMarker)
+			{
+				found = lookup.Next();
+			}
+			unsigned int slot = lookup.slot;
+			void** place = &slots[slot];
+			if (*place == (void*)removedMarker)
+			{
+				removed--;
+			}
+			*place = value;
+			keys[slot] = *newKey;
+			count++;
+			if (count * 100 / slotCount > maxLoad)
+			{
+				Rehash(slotCount * 2);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081C6C0
+		void HashTable::Rehash(unsigned int newSlotCount)
+		{
+			core::HeapScope scope(heap);
+			unsigned int oldCount = slotCount;
+			void** oldSlots = slots;
+			unsigned int* oldKeys = keys;
+			slotCount = newSlotCount;
+			slots = new void*[slotCount];
+			keys = new unsigned int[slotCount];
+			removed = 0;
+			count = 0;
+			for (unsigned int i = 0; i < slotCount; i++)
+			{
+				slots[i] = 0;
+				keys[i] = 0;
+			}
+			if (oldSlots != 0)
+			{
+				for (unsigned int i = 0; i < oldCount; i++)
+				{
+					if (oldSlots[i] != 0 && oldSlots[i] != (void*)removedMarker)
+					{
+						Insert(&oldKeys[i], oldSlots[i]);
+					}
+				}
+				delete[] oldSlots;
+				delete[] oldKeys;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081D170
+		// EQUIVALENT: the same stores and rounding; the engine materialises the power-of-two test as a byte first (51.5 %)
+		HashTable::HashTable(unsigned int newSlotCount, unsigned int newMaxLoad, unsigned int newMaxRemoved)
+		{
+			maxRemoved = newMaxRemoved;
+			slotCount = newSlotCount;
+			count = 0;
+			removed = 0;
+			compactWhenRemoved = false;
+			maxLoad = newMaxLoad;
+			slots = 0;
+			keys = 0;
+			*(unsigned int*)removedMarker = 0;
+			if (newSlotCount > 0)
+			{
+				bool isPowerOfTwo = (newSlotCount & (newSlotCount - 1)) == 0;
+				if (isPowerOfTwo == false)
+				{
+					newSlotCount = 1 << (math::Log2(newSlotCount) + 1);
+				}
+				slotCount = newSlotCount;
+			}
+			heap = core::GetCurrentHeap();
+			Rehash(slotCount);
+		}
+
+		// FUNCTION: ENGINE 0x1081CDE0
+		// EQUIVALENT: the same walk, comparison and field copies in the same order; the engine keeps the cursor in edi and
+		// stores it before the end test, and schedules the drawable copy after the name's address (47.4 %)
+		bool EffectManager::ReleaseStore(EffectName name)
+		{
+			storeCursor = storesBegin;
+			if (storesBegin != storesEnd)
+			{
+				do
+				{
+					EffectStore* store = storeCursor;
+					if (name == store->name)
+					{
+						storesEnd--;
+						EffectStore* last = storesEnd;
+						if (store < last)
+						{
+							store->drawable = last->drawable;
+							store->name = last->name;
+							store->users = last->users;
+							store->lastUsed = last->lastUsed;
+							store->active = last->active;
+						}
+						return true;
+					}
+					storeCursor = store + 1;
+				}
+				while (storeCursor != storesEnd);
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081D790
+		// EQUIVALENT: the same walk, calls and stores; the engine keeps the store cursor in edi and stores it before the end
+		// test, ours computes the next address first (57.7 %)
+		void EffectManager::RemoveInstance(EffectInstance* instance, EffectInstanceList* list)
+		{
+			if ((instance->flags & 0x20) != 0)
+			{
+				storeCursor = storesBegin;
+				if (storesBegin != storesEnd)
+				{
+					do
+					{
+						EffectStore* store = storeCursor;
+						EffectName key(instance->storeName);
+						if (key == store->name)
+						{
+							store->users--;
+							break;
+						}
+						storeCursor = store + 1;
+					}
+					while (storeCursor != storesEnd);
+				}
+			}
+			else if ((instance->flags & 0x40) != 0)
+			{
+				ReleaseStore(EffectName(instance->storeName));
+			}
+			instance->Kill();
+			list->end--;
+			if (instance < list->end)
+			{
+				*instance = *list->end;
+			}
+			list->end->~EffectInstance();
+		}
+
+		// FUNCTION: ENGINE 0x1081D850
+		// EQUIVALENT: the same loop (unrolled by four) with the same tests, stores and calls; the engine walks one pointer
+		// over the unrolled body and keeps the two indices in registers, ours keeps two pointers and spills the stored
+		// index (22.4 %)
+		bool EffectManager::RemoveOldest(EffectInstanceList* list)
+		{
+			float oldestPlain = 0.0f;
+			unsigned int plainIndex = 0xffffffff;
+			unsigned int storedIndex = 0;
+			float oldestStored = 0.0f;
+			unsigned int count = list->Size();
+			for (unsigned int i = 0; i < count; i++)
+			{
+				float timeLeft = list->begin[i].timeLeft;
+				EffectInstance* instance = &list->begin[i];
+				if ((instance->flags & 0x40) != 0)
+				{
+					if (timeLeft > oldestStored)
+					{
+						storedIndex = i;
+						oldestStored = timeLeft;
+					}
+				}
+				else if (timeLeft > oldestPlain)
+				{
+					plainIndex = i;
+					oldestPlain = timeLeft;
+				}
+			}
+			if (plainIndex == 0xffffffff)
+			{
+				EffectInstance* instance = &list->begin[storedIndex];
+				if (instance->drawable.IsValid())
+				{
+					RemoveInstance(instance, list);
+					return true;
+				}
+			}
+			else
+			{
+				EffectInstance* instance = &list->begin[plainIndex];
+				if (instance->drawable.IsValid())
+				{
+					RemoveInstance(instance, list);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081DA10
+		// EQUIVALENT: the same two scans, tests and calls; the engine reads the end of the vector again in every loop test
+		// and keeps the counts in registers, ours reads it once (13.6 %)
+		void EffectManager::RemoveOldestStore()
+		{
+			float oldest = time;
+			unsigned int index = 0;
+			int ties = 0;
+			unsigned int i = 0;
+			if (storesEnd - storesBegin != 0)
+			{
+				EffectStore* first = storesBegin;
+				do
+				{
+					float lastUsed = first[i].lastUsed;
+					if (lastUsed < oldest)
+					{
+						ties = 0;
+						index = i;
+						oldest = lastUsed;
+					}
+					else if (lastUsed == oldest)
+					{
+						ties++;
+					}
+					i++;
+				}
+				while (i < (unsigned int)(storesEnd - first));
+				if (ties != 0)
+				{
+					i = 0;
+					if (storesEnd - first != 0)
+					{
+						do
+						{
+							if (first[i].lastUsed == oldest && first[i].users != 0xffffffff)
+							{
+								index = i;
+							}
+							i++;
+						}
+						while (i < (unsigned int)(storesEnd - first));
+					}
+				}
+			}
+			EffectInstanceList* list;
+			EffectInstance* instance = FindInstance(storesBegin[index].drawable.mHandle, &list);
+			if (instance != 0)
+			{
+				RemoveInstance(instance, list);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081D540
+		// EQUIVALENT: the same walks, tests, calls and stores; the engine keeps the loop's offset and counter in other stack
+		// slots and the store cursor in a register over the loops (52.2 %)
+		void EffectManager::UpdateInstances(float timeStep)
+		{
+			camera::Camera* camera = GetActiveCamera();
+			if (camera == 0)
+			{
+				return;
+			}
+			math::Vector cameraPosition;
+			cameraPosition.Set(camera->position.x, camera->position.y, camera->position.z);
+			HashIterator<EffectInstanceList>& iterator = instanceLists;
+			iterator.index = 0xffffffff;
+			EffectInstanceList* list = iterator.NextCalled();
+			while (list != 0)
+			{
+				for (unsigned int i = 0; i < list->Size(); i++)
+				{
+					EffectInstance* instance = &list->begin[i];
+					if ((instance->flags & 0x40) != 0)
+					{
+						storeCursor = storesBegin;
+						if (storesBegin != storesEnd)
+						{
+							do
+							{
+								EffectName key(instance->storeName);
+								if (key == storeCursor->name)
+								{
+									if (time - storeCursor->lastUsed > 60.0f)
+									{
+										instance->StartFade();
+									}
+								}
+								storeCursor++;
+							}
+							while (storeCursor != storesEnd);
+						}
+					}
+					if (instance->Advance(timeStep, &cameraPosition))
+					{
+						if ((instance->flags & 0x20) != 0)
+						{
+							storeCursor = storesBegin;
+							if (storesBegin != storesEnd)
+							{
+								do
+								{
+									EffectStore* store = storeCursor;
+									EffectName key(instance->storeName);
+									if (key == store->name)
+									{
+										store->users--;
+										break;
+									}
+									storeCursor = store + 1;
+								}
+								while (storeCursor != storesEnd);
+							}
+						}
+						else if ((instance->flags & 0x40) != 0)
+						{
+							ReleaseStore(EffectName(instance->storeName));
+						}
+						list->end--;
+						if (instance < list->end)
+						{
+							*instance = *list->end;
+						}
+						list->end->~EffectInstance();
+						i--;
+					}
+				}
+				list = iterator.Next();
+			}
+		}
+
+		// FUNCTION: ENGINE 0x10819410
+		bool EffectManager::IsFeatureEnabled(int features)
+		{
+			return true;
+		}
+
+		// FUNCTION: ENGINE 0x1081E5A0
+		void EffectManager::Update(int unused1, int unused2, float timeStep)
+		{
+			unknownFC = 0;
+			time += timeStep;
+			unknown28 = IsFeatureEnabled(0x40000) == false;
+			pure3d::GetParticleManager()->SetUnknown19C(4.0f);
+			camera::Director* director = camera::Director::Get();
+			if (director != 0)
+			{
+				camera::Cinematographer* controller = director->GetCameraController(0, 0);
+				if (controller != 0)
+				{
+					pure3d::GetParticleManager()->SetUnknown19C(*(float*)&controller->unknown28);
+				}
+			}
+			unsigned int key = 6;
+			HashLookup lookup(&instanceTable);
+			RemoveInvisible((EffectInstanceList*)lookup.Find(&key), 1.0f);
+			UpdateInstances(timeStep);
+			ReleaseFinishedWaiting(timeStep);
+			UpdateAttachedTransforms(timeStep);
+			UpdateLights(timeStep);
+			UpdateStores(timeStep);
+			UpdateTimers(timeStep);
+		}
+
+		// FUNCTION: ENGINE 0x1081E1C0
+		void EffectManager::RemoveInvisible(EffectInstanceList* list, float radius)
+		{
+			camera::Camera* camera = GetActiveCamera();
+			if (camera != 0)
+			{
+				for (unsigned int i = 0; i < list->Size(); i++)
+				{
+					EffectInstance* instance = &list->begin[i];
+					if (!camera->IsPointVisible(&instance->position, radius))
+					{
+						RemoveInstance(instance, list);
+					}
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081E260
+		void EffectManager::AbortSlot(const EffectName* slot, bool allowFade, float fadeTime)
+		{
+			for (SlotEffect* effect = slotsBegin; effect != slotsEnd; effect++)
+			{
+				if (effect->drawable.IsValid() && effect->slot == *slot)
+				{
+					EffectInstanceList* list;
+					EffectInstance* instance = FindInstance(effect->drawable.mHandle, &list);
+					if (instance != 0)
+					{
+						if (allowFade)
+						{
+							StopEffect(effect->drawable.mHandle, fadeTime);
+						}
+						else
+						{
+							RemoveInstance(instance, list);
+						}
+					}
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081E320
+		void EffectManager::StopEffectsNamed(const EffectName& name, bool immediately, float fadeTime)
+		{
+			EffectInstanceList* list = 0;
+			EffectInstance* instance = FindInstanceByName(name, &list);
+			while (instance != 0)
+			{
+				if (immediately)
+				{
+					RemoveInstance(instance, list);
+				}
+				else
+				{
+					instance->fadeTime = fadeTime;
+					instance->StartFade();
+				}
+				instance = FindInstanceByName(name, &list);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081C8D0
+		// EQUIVALENT: the same loops, destroys and stores; the engine also loads the waiting ring's tail into a spare stack slot
+		// that nothing reads (76.8 % with a volatile local that does the same, 39.3 % as written: two bytes shift the rest)
+		void EffectManager::Reset()
+		{
+			for (unsigned int i = 0; i < (unsigned int)(lightsEnd - lightsBegin); i++)
+			{
+				Light::Destroy(&lightsBegin[i].light);
+			}
+			lightsEnd = lightsBegin;
+			for (unsigned int i = 0; i < waiting.Size(); i++)
+			{
+				ReleaseDrawable(&waiting.At(i).drawable);
+			}
+			waiting.head = waiting.begin;
+			waiting.tail = waiting.begin;
+			HashIterator<AttachedRing>& rings = attachedRings;
+			rings.index = 0xffffffff;
+			AttachedRing* ring = rings.Next();
+			while (ring != 0)
+			{
+				for (unsigned int i = 0; i < ring->Size(); i++)
+				{
+					ReleaseAttachedDrawable(ring->At(i));
+				}
+				ring->head = ring->begin;
+				ring->tail = ring->begin;
+				ring = rings.Next();
+			}
+			HashIterator<EffectInstanceList>& lists = instanceLists;
+			lists.index = 0xffffffff;
+			EffectInstanceList* list = lists.Next();
+			while (list != 0)
+			{
+				for (unsigned int i = 0; i < list->Size(); i++)
+				{
+					list->begin[i].Kill();
+				}
+				EffectInstance* end = list->end;
+				for (EffectInstance* instance = list->begin; instance != end; instance++)
+				{
+					instance->~EffectInstance();
+				}
+				list->end = list->begin;
+				list = lists.Next();
+			}
+			unknownFC = 0;
+			storesEnd = storesBegin;
+			if (resetCallback != 0)
+			{
+				resetCallback(resetCallbackArgument);
+			}
+			unknown28 = false;
 		}
 
 		// FUNCTION: ENGINE 0x1081BCE0
