@@ -332,6 +332,21 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x1061CD20
+	bool dxTexture::SetSurface(dxSurface* newSurface)
+	{
+		AssignRef(&surface, newSurface);
+		if (surface != 0)
+		{
+			description.levels = 1;
+			description.width = newSurface->width;
+			description.height = newSurface->height;
+			description.depth = 1;
+			BuildLevels(&description);
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x1061CD70
 	bool dxTexture::Create(const TextureDescription* description)
 	{

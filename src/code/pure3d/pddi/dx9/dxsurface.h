@@ -24,7 +24,7 @@ namespace pure3d
 		int unknown10;          // +0x10
 		int unknown14;          // +0x14
 		int unknown18;          // +0x18
-		bool unknown1C;         // +0x1C
+		int unknown1C;          // +0x1C
 	};
 
 	class dxSurface : public pddiObject

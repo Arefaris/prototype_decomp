@@ -7,10 +7,154 @@
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x10615FA0
+	// EQUIVALENT: the engine keeps the constant 1 in a register for the test of the window mode and the flag it sets, this compiler uses immediates, 12.2 %
+	void Display::OnSize(void* window, unsigned int message, unsigned int wParam, long lParam)
+	{
+		if (message == 5 && unknown20 == 1)
+		{
+			unsigned int newWidth = lParam & 0xFFFF;
+			unsigned int newHeight = (unsigned int)lParam >> 16;
+			presentParameters.BackBufferWidth = newWidth;
+			presentParameters.BackBufferHeight = newHeight;
+			if (newWidth > 0)
+			{
+				unknown78E = true;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10615FE0
+	void Display::Unknown10615FE0()
+	{
+		device->lpVtbl->GetBackBuffer(device, 0, 0, 0, &backBuffer);
+		device->lpVtbl->GetDepthStencilSurface(device, &depthStencil);
+		pure3d::dxSurface* surface = new pure3d::dxSurface();
+		surface->SetSurface(depthStencil);
+		backBufferTexture->SetSurface(surface);
+	}
+
+	// FUNCTION: ENGINE 0x10616050
+	void Display::Unknown10616050()
+	{
+		device->lpVtbl->SetRenderTarget(device, 0, backBuffer);
+		device->lpVtbl->SetRenderTarget(device, 1, 0);
+		device->lpVtbl->SetRenderTarget(device, 2, 0);
+		device->lpVtbl->SetRenderTarget(device, 3, 0);
+		device->lpVtbl->SetDepthStencilSurface(device, depthStencil);
+	}
+
+	// FUNCTION: ENGINE 0x106160D0
+	void Display::Unknown106160D0()
+	{
+		if (backBuffer != 0)
+		{
+			backBuffer->Release();
+			backBuffer = 0;
+		}
+		if (depthStencil != 0)
+		{
+			depthStencil->Release();
+			depthStencil = 0;
+		}
+		backBufferTexture->SetSurface(0);
+	}
+
+	// FUNCTION: ENGINE 0x10616120
+	int Display::GetUnknown8()
+	{
+		return unknown8;
+	}
+
 	// FUNCTION: ENGINE 0x10616130
 	int Display::GetWidth()
 	{
 		return width;
+	}
+
+	// FUNCTION: ENGINE 0x10616190
+	int Display::GetUnknown28()
+	{
+		return unknown28;
+	}
+
+	// FUNCTION: ENGINE 0x106162D0
+	void Display::Unknown106162D0()
+	{
+		if (!unknown78E)
+		{
+			if (unknown78D)
+			{
+				unknown78D = false;
+				return;
+			}
+			device->lpVtbl->Present(device, 0, 0, 0, 0);
+			if (!unknown2D)
+			{
+				pure3d::gContext->Unknown68();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10616660
+	void Display::Unknown10616660()
+	{
+		unknown7FC += 1;
+		float one = 1.0f;
+		unknown800 = one;
+		unknown804 = one;
+		if (unknown791 == 0)
+		{
+			unknown808 = (float)GetUnknown8() / (float)GetWidth();
+		}
+		else
+		{
+			unknown808 = (float)pure3d::gContext->targetHeight / (float)pure3d::gContext->targetWidth;
+		}
+		float ratio = unknown808;
+		unknown80C = one;
+		unknown810 = ratio;
+		unknown814 = one;
+		unknown818 = ratio;
+		unknown81C = one;
+		unknown820 = ratio;
+	}
+
+	// FUNCTION: ENGINE 0x10616AD0
+	void Unknown10616AD0(IDirect3DDevice9* device)
+	{
+		for (unsigned int sampler = 0; sampler < 4; sampler++)
+		{
+			for (unsigned int state = 0; state < 0x50; state++)
+			{
+				int value = pure3d::gRenderStateCache->samplerStates[sampler][state];
+				if (value != -1)
+				{
+					device->lpVtbl->SetSamplerState(device, sampler + 0x101, state, value);
+				}
+			}
+		}
+		for (unsigned int sampler = 0; sampler < 16; sampler++)
+		{
+			for (unsigned int state = 0; state < 0x50; state++)
+			{
+				int value = pure3d::gRenderStateCache->samplerStates[sampler + 4][state];
+				if (value != -1)
+				{
+					device->lpVtbl->SetSamplerState(device, sampler, state, value);
+				}
+			}
+		}
+		for (unsigned int state = 0; state < 400; state++)
+		{
+			int value = pure3d::gRenderStateCache->renderStates[state];
+			if (value != -1)
+			{
+				device->lpVtbl->SetRenderState(device, state, value);
+			}
+		}
+		pure3d::gRenderStateCache->vertexPass += 1;
+		pure3d::gRenderStateCache->pixelPass += 1;
 	}
 
 	// FUNCTION: ENGINE 0x10616BB0

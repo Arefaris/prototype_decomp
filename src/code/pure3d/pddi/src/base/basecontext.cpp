@@ -88,7 +88,7 @@ namespace pure3d
 	// EQUIVALENT: the output pointer sits in edx, 86.7%
 	void pddiBaseContext::GetViewUnknown4(int* value)
 	{
-		pddiViewStateData* state = viewState;
+		pddiViewState* state = viewState;
 		int current = state->unknown4;
 		*value = current;
 	}
@@ -133,7 +133,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10614D10
 	void pddiBaseContext::GetViewUnknown14(float* a, float* b, float* c, float* d)
 	{
-		pddiViewStateData* state = viewState;
+		pddiViewState* state = viewState;
 		*a = state->unknown14[0];
 		*b = state->unknown14[1];
 		*c = state->unknown14[2];
@@ -143,7 +143,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10614D40
 	void pddiBaseContext::GetViewUnknown24(float* a, float* b, float* c, float* d)
 	{
-		pddiViewStateData* state = viewState;
+		pddiViewState* state = viewState;
 		*a = state->unknown24[0];
 		*b = state->unknown24[1];
 		*c = state->unknown24[2];
@@ -153,7 +153,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10614D70
 	void pddiBaseContext::GetViewUnknown34(float* a, float* b)
 	{
-		pddiViewStateData* state = viewState;
+		pddiViewState* state = viewState;
 		*a = state->unknown24[4];
 		*b = state->unknown24[5];
 	}
@@ -234,7 +234,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10614EA0
 	void pddiBaseContext::GetZBias(float* bias, float* slope)
 	{
-		pddiZStateData* state = zState;
+		pddiZState* state = zState;
 		*bias = state->zBias;
 		*slope = state->zSlope;
 	}
@@ -408,7 +408,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10615130
 	void pddiBaseContext::GetFogRange(float* nearZ, float* farZ)
 	{
-		pddiRenderStateData* state = renderState;
+		pddiRenderState* state = renderState;
 		*nearZ = state->fogNear;
 		*farZ = state->fogFar;
 	}
@@ -503,5 +503,475 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10615E60
 	void pddiBaseContext::Unknown57(int a)
 	{
+	}
+
+	// The engine's out-of-line copies of the inline members of ConstantMatrix and ConstantVector3 (pddi.h)
+	// FUNCTION: ENGINE 0x10614650 is ConstantMatrix::Multiply
+	// FUNCTION: ENGINE 0x10614690 is ConstantMatrix::Assign
+	// FUNCTION: ENGINE 0x106146D0 is ShaderMatrices::SetProjection
+	// FUNCTION: ENGINE 0x1061DA00 is ConstantMatrix::Bind
+	// FUNCTION: ENGINE 0x1061DA20 is ConstantVector3::ConstantVector3
+	// FUNCTION: ENGINE 0x1061DA60 is ConstantVector3::Assign
+	// FUNCTION: ENGINE 0x1061DE20 is ConstantMatrix::ConstantMatrix
+
+	// FUNCTION: ENGINE 0x1061DAA0
+	void ShaderMatrices::MakeViewProjection()
+	{
+		viewProjection.Multiply(view, projection);
+		dirty &= ~0x1;
+	}
+
+	// FUNCTION: ENGINE 0x10614760
+	void ShaderMatrices::MakeWorldViewProjection()
+	{
+		worldViewProjection.Multiply(worldView, projection);
+		dirty &= ~0x2;
+	}
+
+	// FUNCTION: ENGINE 0x1061DE40
+	void ShaderMatrices::MakeProjectionInverse()
+	{
+		math::Matrix inverse = projection;
+		inverse.Invert();
+		projectionInverse.Assign(inverse);
+		dirty &= ~0x10;
+	}
+
+	// FUNCTION: ENGINE 0x1061DF70
+	void ShaderMatrices::MakeWorldViewInverse()
+	{
+		math::Matrix inverse;
+		inverse = worldView;
+		inverse.Invert();
+		worldViewInverse.Assign(inverse);
+		dirty &= ~0x20;
+	}
+
+	// FUNCTION: ENGINE 0x1061DFD0
+	// EQUIVALENT: the engine writes the product's copy with the loads of the device's constants after the flag update, this compiler before it (one instruction apart), 87.1 %
+	void ShaderMatrices::MakeWorldViewProjectionInverse()
+	{
+		math::Matrix inverse;
+		inverse.Multiply(worldView, projection);
+		inverse.Invert();
+		worldViewProjectionInverse.Assign(inverse);
+		dirty &= ~0x80;
+	}
+
+	// FUNCTION: ENGINE 0x1061E040
+	void ShaderMatrices::MakeProjectionTranspose()
+	{
+		math::Matrix transpose = projection;
+		transpose.Transpose();
+		projectionTranspose.Assign(transpose);
+		dirty &= ~0x400;
+	}
+
+	// FUNCTION: ENGINE 0x1061E170
+	void ShaderMatrices::MakeWorldViewTranspose()
+	{
+		math::Matrix transpose = worldView;
+		transpose.Transpose();
+		worldViewTranspose.Assign(transpose);
+		dirty &= ~0x800;
+	}
+
+	// FUNCTION: ENGINE 0x1061E2A0
+	// EQUIVALENT: as the inverse of the product: the loads of the device's constants are scheduled one instruction earlier, 87.1 %
+	void ShaderMatrices::MakeWorldViewProjectionTranspose()
+	{
+		math::Matrix transpose;
+		transpose.Multiply(worldView, projection);
+		transpose.Transpose();
+		worldViewProjectionTranspose.Assign(transpose);
+		dirty &= ~0x2000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E310
+	void ShaderMatrices::MakeWorldInverseTranspose()
+	{
+		math::Matrix result;
+		result = world;
+		result.Invert();
+		result.Transpose();
+		worldInverseTranspose.Assign(result);
+		dirty &= ~0x4000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E380
+	void ShaderMatrices::MakeProjectionInverseTranspose()
+	{
+		math::Matrix result;
+		result = projection;
+		result.Invert();
+		result.Transpose();
+		projectionInverseTranspose.Assign(result);
+		dirty &= ~0x10000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E3F0
+	void ShaderMatrices::MakeWorldViewInverseTranspose()
+	{
+		math::Matrix result;
+		result = worldView;
+		result.Invert();
+		result.Transpose();
+		worldViewInverseTranspose.Assign(result);
+		dirty &= ~0x20000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E460
+	void ShaderMatrices::MakeWorldViewProjectionInverseTranspose()
+	{
+		math::Matrix product = worldView;
+		product.Multiply(worldView, projection);
+		product.Invert();
+		math::Matrix result;
+		result.Transpose(product);
+		worldViewProjectionInverseTranspose.Assign(result);
+		dirty &= ~0x80000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E590
+	// EQUIVALENT: the load of the second component of the vector is scheduled before the address of the copy, 93.9 %
+	void ShaderMatrices::MakeEyePosition()
+	{
+		math::Matrix inverse;
+		inverse = worldView;
+		inverse.Orthonormalize();
+		inverse.InvertOrthonormal();
+		eyePosition.Assign(&inverse.m[3][0]);
+		dirty &= ~0x100000;
+	}
+
+	// FUNCTION: ENGINE 0x1061E810
+	// EQUIVALENT: register allocation (the engine keeps this in edi and the pending bits in esi, this compiler esi and ebx), 33.0 %
+	void ShaderMatrices::Update(unsigned int mask)
+	{
+		if (dirty != 0)
+		{
+			unsigned int pending = mask & dirty;
+			if ((pending & 0x1) != 0)
+			{
+				MakeViewProjection();
+			}
+			if ((pending & 0x2) != 0)
+			{
+				MakeWorldViewProjection();
+			}
+			if ((pending & 0x10) != 0)
+			{
+				MakeProjectionInverse();
+			}
+			if ((pending & 0x20) != 0)
+			{
+				MakeWorldViewInverse();
+			}
+			if ((pending & 0x80) != 0)
+			{
+				MakeWorldViewProjectionInverse();
+			}
+			if ((pending & 0x400) != 0)
+			{
+				MakeProjectionTranspose();
+			}
+			if ((pending & 0x800) != 0)
+			{
+				MakeWorldViewTranspose();
+			}
+			if ((pending & 0x2000) != 0)
+			{
+				MakeWorldViewProjectionTranspose();
+			}
+			if ((pending & 0x4000) != 0)
+			{
+				MakeWorldInverseTranspose();
+			}
+			if ((pending & 0x10000) != 0)
+			{
+				MakeProjectionInverseTranspose();
+			}
+			if ((pending & 0x20000) != 0)
+			{
+				MakeWorldViewInverseTranspose();
+			}
+			if ((pending & 0x80000) != 0)
+			{
+				MakeWorldViewProjectionInverseTranspose();
+			}
+			if ((pending & 0x100000) != 0)
+			{
+				MakeEyePosition();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061E670
+	ShaderMatrices::ShaderMatrices() : dirty(0), context(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615270
+	void ShaderMatrices::SetView(const math::Matrix* matrix)
+	{
+		view.Assign(*matrix);
+		math::Matrix product;
+		product.Multiply(world, view);
+		worldView.Assign(product);
+		dirty |= 0x1A28A3;
+	}
+
+	// FUNCTION: ENGINE 0x10615300
+	void ShaderMatrices::SetWorld(const math::Matrix* matrix)
+	{
+		world.Assign(*matrix);
+		math::Matrix product;
+		product.Multiply(world, view);
+		worldView.Assign(product);
+		dirty |= 0x1A68A2;
+	}
+
+	// Finds the constant a matrix is kept under (the name is made twice, as the engine's code does)
+#define BIND_MATRIX(matrix, text) 	{ 		core::Name<core::CaseInsensitiveKey32> text_(text, 0); 		core::Name<core::CaseInsensitiveKey32> name(text_); 		matrix.Bind(newContext, &name); 	}
+
+	// FUNCTION: ENGINE 0x1061E8F0
+	void ShaderMatrices::Bind(pddiBaseContext* newContext)
+	{
+		context = newContext;
+		BIND_MATRIX(world, "p3dWorldMatrix");
+		BIND_MATRIX(view, "p3dViewMatrix");
+		BIND_MATRIX(projection, "p3dProjectionMatrix");
+		BIND_MATRIX(worldView, "p3dWorldViewMatrix");
+		BIND_MATRIX(viewProjection, "p3dViewProjectionMatrix");
+		BIND_MATRIX(projectionInverse, "p3dProjectionMatrixInverse");
+		BIND_MATRIX(worldViewProjection, "p3dWorldViewProjectionMatrix");
+		BIND_MATRIX(worldViewInverse, "p3dWorldViewMatrixInverse");
+		BIND_MATRIX(worldViewProjectionInverse, "p3dWorldViewProjectionMatrixInverse");
+		BIND_MATRIX(projectionTranspose, "p3dProjectionMatrixTranspose");
+		BIND_MATRIX(worldViewTranspose, "p3dWorldViewMatrixTranspose");
+		BIND_MATRIX(worldViewProjectionTranspose, "p3dWorldViewProjectionMatrixTranspose");
+		BIND_MATRIX(worldInverseTranspose, "p3dWorldMatrixInverseTranspose");
+		BIND_MATRIX(projectionInverseTranspose, "p3dProjectionMatrixInverseTranspose");
+		BIND_MATRIX(worldViewInverseTranspose, "p3dWorldViewMatrixInverseTranspose");
+		BIND_MATRIX(worldViewProjectionInverseTranspose, "p3dWorldViewProjectionMatrixInverseTranspose");
+		{
+			core::Name<core::CaseInsensitiveKey32> text("p3dEyePositionObjectSpace", 0);
+			core::Name<core::CaseInsensitiveKey32> name(text);
+			eyePosition.context = newContext;
+			newContext->constants->Find(&eyePosition.slot, 3, &name);
+		}
+		SetWorld(&world);
+		SetView(&view);
+		projection.Assign(projection);
+		dirty = 0x1B6CB3;
+		Update(0x1B6CB3);
+	}
+
+	// FUNCTION: ENGINE 0x106147E0
+	void pddiBaseContext::SetProjectionMatrix(const math::Matrix* matrix)
+	{
+		ConstantMatrix* projection = &matrices.projection;
+		if (matrix != projection && !(*matrix == *projection))
+		{
+			matrices.SetProjection(matrix);
+			constantsDirty |= CONSTANT_MATRIX;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10614840
+	const math::Matrix* pddiBaseContext::GetUnknown10614840()
+	{
+		return &matrices.view;
+	}
+
+	// FUNCTION: ENGINE 0x10614850
+	const math::Matrix* pddiBaseContext::GetUnknown10614850()
+	{
+		return &matrices.world;
+	}
+
+	// FUNCTION: ENGINE 0x10614860
+	const math::Matrix* pddiBaseContext::GetUnknown10614860()
+	{
+		return &matrices.worldViewProjection;
+	}
+
+	// FUNCTION: ENGINE 0x10614870
+	const math::Matrix* pddiBaseContext::GetUnknown10614870()
+	{
+		return &matrices.projection;
+	}
+
+	// FUNCTION: ENGINE 0x10614880
+	void pddiBaseContext::UpdateMatrices(unsigned int mask)
+	{
+		matrices.Update(mask);
+	}
+
+	// FUNCTION: ENGINE 0x10614890
+	void pddiBaseContext::Unknown10614890()
+	{
+		matrices.worldViewProjection.Multiply(matrices.worldView, matrices.projection);
+		matrices.dirty &= ~0x2;
+	}
+
+	// FUNCTION: ENGINE 0x10615390
+	void pddiBaseContext::SetViewMatrix(const math::Matrix* matrix)
+	{
+		ConstantMatrix* view = &matrices.view;
+		if (matrix != view && !(*matrix == *view))
+		{
+			matrices.SetView(matrix);
+			constantsDirty |= CONSTANT_MATRIX;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10615770
+	void pddiBaseContext::SetWorldMatrix(const math::Matrix* matrix)
+	{
+		ConstantMatrix* world = &matrices.world;
+		if (matrix != world && !(*world == *matrix))
+		{
+			matrices.SetWorld(matrix);
+			constantsDirty |= CONSTANT_MATRIX;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10614910
+	void pddiBaseContext::Unknown10614910()
+	{
+		float zero = 0.0f;
+		drawnPrimitives = zero;
+		drawnVertices = zero;
+		drawnIndexedPrimitives = zero;
+		drawnIndexedVertices = zero;
+		drawCalls = zero;
+		primitivesPerDraw = zero;
+		unknown84 = zero;
+		batchedPrimitives = zero;
+		batchDraws = zero;
+		unknown90 = zero;
+		unknown94[0] = zero;
+		unknown94[1] = zero;
+		unknown94[2] = zero;
+		unknown94[3] = zero;
+		unknown94[4] = zero;
+		unknown94[5] = zero;
+		unknown94[6] = zero;
+		unknown94[7] = zero;
+		unknown94[8] = zero;
+		unknown94[9] = zero;
+		unknownFC[0] = zero;
+		unknownFC[1] = zero;
+		unknownFC[2] = zero;
+		unknown110[0] = zero;
+		unknown110[1] = zero;
+		unknown110[2] = zero;
+		unknown110[3] = zero;
+		unknown110[4] = zero;
+		unknown110[5] = zero;
+		unknown110[6] = zero;
+		unknown110[7] = zero;
+		unknown110[8] = zero;
+		unknown110[9] = zero;
+	}
+
+	// FUNCTION: ENGINE 0x10614A10
+	// EQUIVALENT: xmm register allocation of the two divisions and the store of the first average is scheduled after the second test, 67.6 %
+	void pddiBaseContext::Unknown10614A10()
+	{
+		float draws = drawCalls;
+		float average = draws > 0.0f ? (drawnIndexedPrimitives + drawnPrimitives) / draws : 0.0f;
+		primitivesPerDraw = average;
+		float batches = batchDraws;
+		if (batches > 0.0f)
+		{
+			unknown90 = unknown84 / batches;
+		}
+		else
+		{
+			unknown90 = 0.0f;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106148E0
+	void pddiBaseContext::ApplyStates()
+	{
+		viewState->Apply(this);
+		renderState->Apply(this);
+		zState->Apply(this);
+		stencilState->Apply(this);
+	}
+
+	// FUNCTION: ENGINE 0x106156F0
+	pddiRenderState::pddiRenderState()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615700
+	pddiZState::pddiZState()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615710
+	pddiStencilState::pddiStencilState()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061DBA0
+	void pddiRenderState::Apply(pddiBaseContext* context)
+	{
+		context->SetCullMode(cullMode);
+		context->SetColourWrite(colourWrite[0], colourWrite[1], colourWrite[2], colourWrite[3]);
+		context->SetFillMode(fillMode);
+		context->EnableAlphaTest(alphaTest);
+		context->SetBlendMode(blend[0], blend[1], blend[2], blend[3]);
+		context->EnableFog(fog);
+		context->SetFogRange(fogNear, fogFar);
+		context->SetAlphaRef(alphaRef);
+		context->SetRenderUnknown38(unknown38);
+	}
+
+	// FUNCTION: ENGINE 0x1061DC70
+	void pddiViewState::Apply(pddiBaseContext* context)
+	{
+		context->SetViewUnknown4(unknown4);
+		context->SetViewUnknown8(unknown8);
+		context->SetViewUnknownC(unknownC);
+		context->SetViewUnknown10(unknown10);
+		context->SetViewUnknown14(unknown14[0], unknown14[1], unknown14[2], unknown14[3]);
+		context->SetViewUnknown24(unknown24[0], unknown24[1], unknown24[2], unknown24[3], unknown24[4], unknown24[5]);
+	}
+
+	// FUNCTION: ENGINE 0x1061DD10
+	void pddiZState::Apply(pddiBaseContext* context)
+	{
+		context->EnableZBuffer(zBuffer);
+		context->SetZCompare(zCompare);
+		context->EnableZWrite(zWrite);
+		context->SetZBias(zBias, zSlope);
+	}
+
+	// FUNCTION: ENGINE 0x1061DD70
+	void pddiStencilState::Apply(pddiBaseContext* context)
+	{
+		context->EnableStencilBuffer(enabled);
+		context->SetStencilCompare(compare);
+		context->SetStencilRef(ref);
+		context->SetStencilMask(mask);
+		context->SetStencilWriteMask(writeMask);
+		context->SetStencilOp(fail, zFail, zPass);
+		context->Unknown51(unknown24);
+		context->Unknown52(compare);
+		context->Unknown53(unknown2C, unknown30, unknown34);
+	}
+
+	// FUNCTION: ENGINE 0x106150B0
+	void pddiBaseContext::GetBlendMode(int* a, int* b, int* c, int* d)
+	{
+		*a = renderState->blend[0];
+		*b = renderState->blend[1];
+		*c = renderState->blend[2];
+		*d = renderState->blend[3];
 	}
 }

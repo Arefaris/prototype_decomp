@@ -13,6 +13,33 @@ extern "C" void _ReadWriteBarrier();
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10611B50
+	int dxVertexDeclaration::GetElementSize(unsigned int index)
+	{
+		// The kind and the component count are the first bytes of the element's last word
+		const unsigned char* element = (const unsigned char*)this + (index + 1) * 16;
+		signed char kind = (signed char)element[0];
+		if (kind == 8)
+		{
+			return 4;
+		}
+		return (element[2] & 7) * gVertexKindSizes[kind];
+	}
+
+	// FUNCTION: ENGINE 0x10612030
+	int dxVertexDeclaration::FindElement(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		int count = unknown4;
+		for (int i = 0; i < count; i++)
+		{
+			if (elements[i].name == name)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	// FUNCTION: ENGINE 0x10625AC0
 	dxVertexDeclaration::dxVertexDeclaration() : unknown0(0), unknown4(0)
 	{

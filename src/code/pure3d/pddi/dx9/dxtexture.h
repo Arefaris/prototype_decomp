@@ -135,6 +135,9 @@ namespace pure3d
 		virtual ~dxTexture();
 		// 0x1061C8F0: checks the description, resolves its format and copies it into the object
 		bool SetDescription(const TextureDescription* description);
+		// 0x1061CD20: makes the surface the texture's (null: none) and lays one level out over its size; the answer
+		// is always true
+		bool SetSurface(dxSurface* newSurface);
 		// 0x1061C490: lays the levels' row and slice sizes out and totals the bytes of the texture
 		void BuildLevels(const TextureDescription* description);
 		// 0x1061CD70

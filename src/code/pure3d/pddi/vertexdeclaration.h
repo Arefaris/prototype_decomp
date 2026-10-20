@@ -57,6 +57,8 @@ namespace pure3d
 	};
 	extern dxVertexDeclarationManager* gVertexDeclarationManager;
 
+	// 0x110BB2EC: the bytes one component of each kind of element takes (name guess)
+	extern int gVertexKindSizes[9];
 	// 0x110BB79C: the index of the Direct3D type group of each kind of element (name guess)
 	extern int gVertexKindGroups[];
 	// 0x110BB7E4 / 0x110BB874: the Direct3D types (D3DDECLTYPE) of an element by its group and component count, for

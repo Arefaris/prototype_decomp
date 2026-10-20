@@ -557,8 +557,12 @@ struct IDirect3DDevice9Vtbl
 	void* getSwapChain;
 	void* getNumberOfSwapChains;
 	HRESULT (__stdcall* Reset)(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* parameters);
-	void* present;
-	void* getBackBuffer;
+	// 0x44 Present
+	HRESULT (__stdcall* Present)(IDirect3DDevice9* device, const void* sourceRect, const void* destRect, void* window,
+		const void* dirtyRegion);
+	// 0x48 GetBackBuffer
+	HRESULT (__stdcall* GetBackBuffer)(IDirect3DDevice9* device, UINT swapChain, UINT backBuffer, DWORD type,
+		IDirect3DSurface9** surface);
 	// 0x4C
 	void* getRasterStatus;
 	void* setDialogBoxMode;
@@ -608,7 +612,8 @@ struct IDirect3DDevice9Vtbl
 	void* unknown98;
 	// 0x9C SetDepthStencilSurface
 	HRESULT (__stdcall* SetDepthStencilSurface)(IDirect3DDevice9* device, IDirect3DSurface9* surface);
-	void* unknownA0;
+	// 0xA0 GetDepthStencilSurface
+	HRESULT (__stdcall* GetDepthStencilSurface)(IDirect3DDevice9* device, IDirect3DSurface9** surface);
 	// 0xA4 BeginScene, 0xA8 EndScene
 	HRESULT (__stdcall* BeginScene)(IDirect3DDevice9* device);
 	HRESULT (__stdcall* EndScene)(IDirect3DDevice9* device);

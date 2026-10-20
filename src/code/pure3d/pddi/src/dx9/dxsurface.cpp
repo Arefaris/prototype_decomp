@@ -9,6 +9,19 @@ namespace pure3d
 	// 0x1061C360
 	int IsTextureFormatSupported(unsigned int format);
 
+	// FUNCTION: ENGINE 0x1061BF80
+	dxSurfaceLevel::dxSurfaceLevel()
+	{
+		format = 0;
+		width = -1;
+		height = -1;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		multiSampleType = 0;
+		unknown1C = 1;
+	}
+
 	// FUNCTION: ENGINE 0x1061EF70
 	dxSurface::dxSurface() : surface(0), format(0), multiSampleType(0), width(0), height(0)
 	{

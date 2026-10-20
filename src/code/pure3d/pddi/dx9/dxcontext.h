@@ -114,8 +114,7 @@ namespace pure3d
 	{
 		// The sampler states: four vertex samplers, then the pixel samplers, 0x50 states each
 		int samplerStates[20][0x50];
-		int renderStates[256];
-		unsigned char unknown1D00[0x240];
+		int renderStates[400];
 		// The pixel shader constants the device was given (a register each) and the pass of the cache each was
 		// written in: a register is only trusted while its pass is the current one
 		float pixelConstants[256][4];
