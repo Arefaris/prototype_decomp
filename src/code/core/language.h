@@ -19,6 +19,13 @@ namespace core
 	void InitLanguage();
 	void ShutdownLanguage();
 	void SetLanguage(int language);
+	// The unit at 0x10643EF0: the language the system is set to ('?' when it cannot tell), the name of a code, and the
+	// forwarders of SetLanguage / the current language (0x10644210 / 0x10644220)
+	int GetSystemLanguage();
+	const char* GetLanguageName(int language);
+	void LanguageSet(int language);
+	int LanguageGet();
+
 	void AddLanguageListener(ILanguageListener* listener);
 	void RemoveLanguageListener(ILanguageListener* listener);
 }

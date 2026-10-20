@@ -65,7 +65,7 @@ namespace engine
 		// 0x10885E10 (another unit): finds the object and sets its byte at +0x9C, answering the old value
 		bool SetUnknown9C(bool value) const;
 		// The message router's registrations of the object on a channel (0x11318090; Query's meaning unknown)
-		void RouterAdd(const MessageListeners& listeners) const;
+		bool RouterAdd(const MessageListeners& listeners) const;
 		void RouterRemove(const MessageListeners& listeners) const;
 		void RouterQuery(const MessageListeners& listeners) const;
 		// The master table flags of the entry

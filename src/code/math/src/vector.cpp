@@ -41,7 +41,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x107CE7A0
-	int Vector::IsZero() const
+	bool Vector::IsZero() const
 	{
 		return fabsf(x) < EPSILON_SMALL && fabsf(y) < EPSILON_SMALL && fabsf(z) < EPSILON_SMALL;
 	}

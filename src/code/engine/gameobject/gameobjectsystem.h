@@ -119,20 +119,18 @@ namespace engine
 		return GameObjectIterator(entries.Begin());
 	}
 
-	// A handle in its saved form: index in the high half, serial in the low half
-	struct SerializedHandle
+	// A handle in its saved form: index in the high half, serial in the low half. It is the type the scripts pass
+	// as a game object (RTTI type descriptor engine::LuaGOH); the script functions that take one by value leave the
+	// slot of the argument alone, which a class derived from it would not
+	struct LuaGOH
 	{
-		SerializedHandle()
+		LuaGOH()
 		{
 		}
 
 		unsigned int value;
 	};
-
-	// A game object handle as a script passes it (RTTI type descriptor engine::LuaGOH)
-	struct LuaGOH : SerializedHandle
-	{
-	};
+	typedef LuaGOH SerializedHandle;
 
 	// The game object system's state
 	extern bool gGameObjectSystemShutdown;

@@ -5,6 +5,7 @@
 #define ENGINE_GAMEOBJECT_GAMEOBJECT_H
 
 #include "code/container/arraydynamic.h"
+#include "code/core/name.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
@@ -41,6 +42,14 @@ namespace engine
 		T value;
 	};
 
+	// A name is laid out at a multiple of 8 (the word after the vftable is left empty)
+	template<> class Attribute<core::Name<core::CaseSensitiveKey> > : public BaseAttribute
+	{
+	public:
+		int unknown4;
+		core::Name<core::CaseSensitiveKey> value;
+	};
+
 	// The construction helpers (gameobject.cpp): the heap a game object is being created in and the object being
 	// constructed, kept in thread-local slots (names guessed)
 	int GetConstructionHeap();
@@ -52,11 +61,23 @@ namespace engine
 	// AttributeUpdatedMessage when the writer goes away (names guessed)
 	template<class T> struct AttributeWriter
 	{
+		// No attribute: the empty name, no object, no value
+		AttributeWriter() : name((const char*)0, 1)
+		{
+			object = 0;
+			value = 0;
+		}
+		AttributeWriter(const content::ObjectName& newName, GameObject* newObject, T* newValue) : name(newName)
+		{
+			object = newObject;
+			value = newValue;
+		}
 		~AttributeWriter()
 		{
 			if (value != 0)
 			{
 				Notify();
+				value = 0;
 			}
 		}
 		// Out of line (AttributeWriter<core::Name>: 0x107E1CD0)
@@ -167,6 +188,9 @@ namespace engine
 		// 0x1006AD60)
 		template<class T> AttributeWriter<T> GetAttributeWriter(const content::ObjectName& name);
 		template<class T> AttributePtr<T> GetAttributePtr(const content::ObjectName& name);
+		// Sets the attribute of that name to value, making it when the object has none (out of line in other units:
+		// int 0x102DC220, float 0x105927C0, math::Vector 0x10592640)
+		template<class T> void SetAttribute(const content::ObjectName& name, const T& value, bool unknown);
 		// The value of a named attribute of type T, null when there is none
 		template<class T> T* GetAttributeValue(const content::ObjectName& name)
 		{

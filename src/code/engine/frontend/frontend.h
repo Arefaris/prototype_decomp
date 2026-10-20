@@ -78,6 +78,17 @@ namespace engine
 	void fe_ToggleHideHUDOption();
 	// 0x10864AE0: back to the language the system asks for ('?')
 	void ResetLanguage();
+	// The languages the game supports (0x113176C8 holds the table; entries of 32 bytes, each starting with the name)
+	class LanguageTable
+	{
+	public:
+		// 0x108928C0 / 0x108928D0 (kept copies of the unit that owns the table)
+		unsigned int GetCount();
+		const char* GetName(unsigned int index);
+	};
+	// 0x10892690
+	LanguageTable* GetLanguageTable();
+
 	// 0x10864A20 (another function of this unit): selects the language of the frontend
 	void SetLanguage(int language);
 	// 0x108649F0 / 0x10864A00: the language the frontend is set to now

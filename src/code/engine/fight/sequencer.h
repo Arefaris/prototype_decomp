@@ -201,7 +201,8 @@ namespace fight
 		// 0x105A3A90 (another function of this unit): leaves the listener list
 		void Unregister(void* entry);
 
-		unsigned int unknown4;
+		// The next track of the list that owns this one
+		Track* next;
 		// The head of the list of the nodes that watch this track (0x105AA160 clears all three words)
 		core::LinkList<Track> watchList;
 		unsigned int unknownC;
