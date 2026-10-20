@@ -339,6 +339,24 @@ namespace fight
 		virtual BranchHolder* Set(void* object) = 0;
 	};
 
+	// The condition list member of a track (RTTI: fight::PropertyTypeConditionGroup, 8 vftable slots): the same shape
+	// as the branch property, and the "setter" hands out the list
+	class PropertyTypeConditionGroup : public Property
+	{
+	public:
+		PropertyTypeConditionGroup(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		virtual void Slot2(int arg);
+		virtual void Slot3(int arg);
+		virtual void Slot5(int a, int b);
+		// vftable slot 6
+		virtual bool Slot6(int a, int b, void* object);
+		// vftable slot 7
+		virtual ConditionList* Set(void* object) = 0;
+	};
+
 	// Replaces a text member by a copy of a new text (0x105AA1F0, another unit): the old text is freed
 	char* ReplaceString(char* old, const char* text);
 
@@ -523,6 +541,25 @@ namespace fight
 
 		// vftable slot 7
 		virtual BranchHolder* Set(void* object)
+		{
+			return (static_cast<T*>(object)->*m_setter)();
+		}
+
+		Setter m_setter;
+	};
+
+	template<class T> class PropertyConditionGroup : public PropertyTypeConditionGroup
+	{
+	public:
+		typedef ConditionList* (T::*Setter)();
+
+		PropertyConditionGroup(const char* name, Setter setter)
+			: PropertyTypeConditionGroup(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 7
+		virtual ConditionList* Set(void* object)
 		{
 			return (static_cast<T*>(object)->*m_setter)();
 		}
