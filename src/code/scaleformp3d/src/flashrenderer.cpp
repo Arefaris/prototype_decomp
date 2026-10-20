@@ -247,6 +247,19 @@ namespace scaleformp3d
 	}
 
 	FlashRenderer* gFlashRenderer;
+	int gFlashDrawCounts[7];
+
+	// FUNCTION: ENGINE 0x1095CEF0
+	void FlashRenderer::EndDisplay()
+	{
+		gFlashDrawCounts[0] = 0;
+		gFlashDrawCounts[1] = 0;
+		gFlashDrawCounts[2] = 0;
+		gFlashDrawCounts[3] = 0;
+		gFlashDrawCounts[4] = 0;
+		gFlashDrawCounts[5] = 0;
+		gFlashDrawCounts[6] = 0;
+	}
 
 	// FUNCTION: ENGINE 0x1095CFD0
 	// EQUIVALENT: the same loads, conversions and stores in the same order; the engine loads the green, alpha and blue bytes

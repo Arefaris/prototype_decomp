@@ -21,6 +21,8 @@ namespace scaleformp3d
 
 	// 0x1095CFD0: the colour the draws are made in, as four floats in the renderer in use
 	void SetDrawColour(const GColor* colour);
+	// 0x1131FD4C: what the renderer counted while it drew (seven numbers; the last two count the rings of buffers)
+	extern int gFlashDrawCounts[7];
 	// 0x1131FD68: the renderer in use
 	class FlashRenderer;
 	extern FlashRenderer* gFlashRenderer;
