@@ -85,6 +85,10 @@ namespace pure3d
 		}
 	}
 
+	// 0x1061C020: the Direct3D format a pddi format is made in, and whether the device takes it (the third argument
+	// asks for the format of a texture drawn into)
+	bool ResolveTextureFormat(unsigned int* d3dFormat, unsigned int format, bool renderTarget);
+
 	// Whether the format is one of the block-compressed ones (0x1061C340)
 	bool IsCompressedFormat(unsigned int format);
 	// Copies `rows` rows of `rowBytes` bytes from one locked level to another (0x1061C8B0); a compressed level

@@ -28,6 +28,7 @@ namespace pure3d
 	class View;
 	class dxIndexBuffer;
 	class dxContext;
+	class dxDevice;
 
 	// The hook the engine's renderer installs on a pure3d drawable (engine::render::EngineWrappedDrawableHelper
 	// derives from it); the context keeps one at +0x64 and hands it out through GetWrappedDrawableHelper. Vftable
@@ -600,7 +601,7 @@ namespace pure3d
 	// The subsystems the context starts (the constructor) and stops (the destructor), named after their addresses
 	void Unknown106DDB60();
 	void Unknown106DDE80();
-	dxContext* Unknown1061BBC0();
+	dxDevice* Unknown1061BBC0();
 	void Unknown1073E1D0();
 	void Unknown107063A0();
 	void Unknown1073E2C0();
@@ -625,7 +626,7 @@ namespace pure3d
 	void Unknown10704B60();
 	void Unknown1073E1F0();
 	// 0x1127F358: the Direct3D 9 context the display is made on
-	extern dxContext* gPddiDx;
+	extern dxDevice* gPddiDx;
 	// 0x106F36C0 (another unit): counts a frame the display drew
 	void Unknown106F36C0();
 

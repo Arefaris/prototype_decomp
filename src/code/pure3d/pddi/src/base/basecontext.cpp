@@ -436,4 +436,72 @@ namespace pure3d
 	{
 		return clocks[index];
 	}
+
+	// FUNCTION: ENGINE 0x10615DA0
+	void pddiBaseContext::Unknown8(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615DB0
+	void pddiBaseContext::Unknown9()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615DC0
+	IDirect3DQuery9* pddiBaseContext::Unknown10()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10615DD0
+	void pddiBaseContext::Unknown11(IDirect3DQuery9* query)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615DE0
+	bool pddiBaseContext::Unknown12(IDirect3DQuery9* query)
+	{
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10615DF0
+	IDirect3DQuery9* pddiBaseContext::Unknown18()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10615E00
+	void pddiBaseContext::Unknown19(IDirect3DQuery9* query)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E10
+	void pddiBaseContext::Unknown20(IDirect3DQuery9* query)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E20
+	void pddiBaseContext::Unknown21(IDirect3DQuery9* query)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E30
+	void pddiBaseContext::Unknown54(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E40
+	void pddiBaseContext::Unknown55(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E50
+	void pddiBaseContext::Unknown56(int a, int b)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10615E60
+	void pddiBaseContext::Unknown57(int a)
+	{
+	}
 }

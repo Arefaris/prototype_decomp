@@ -594,9 +594,9 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1070EDD0
-	void* dxContext::DeleteThis(unsigned int flags)
+	void* dxDevice::DeleteThis(unsigned int flags)
 	{
-		this->~dxContext();
+		this->~dxDevice();
 		if (flags & 1)
 		{
 			operator delete(this);

@@ -15,7 +15,7 @@
 namespace pure3d
 {
 	// 0x1127F358: the Direct3D 9 view of the pddi device (name guess)
-	extern dxContext* gPddiDx;
+	extern dxDevice* gPddiDx;
 
 	// A DDS file's pixel format block (32 bytes)
 	struct DDSPixelFormat

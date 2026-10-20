@@ -1,6 +1,7 @@
 // pure3d::dxTexture, the Direct3D 9 texture of the pddi layer (unit around 0x1061C400 - 0x1061F200; the file name is
 // guessed, no assert path survives).
 #include <new>
+#include <string.h>
 
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 
@@ -21,11 +22,249 @@ namespace pure3d
 
 	int IsTextureFormatSupported(unsigned int format);
 
+	// 0x10E33E68: the bits one pixel of each format takes (for the block-compressed formats: of the block, divided by
+	// the pixels in it; name guess)
+	extern int gTextureFormatBits[40];
+
+	// The description checks of SetDescription
+	inline bool IsPowerOfTwo(unsigned int value)
+	{
+		if (value == 0)
+		{
+			return false;
+		}
+		return (value & (value - 1)) == 0;
+	}
+	inline bool HasFlag(const TextureDescription* description, unsigned int flag)
+	{
+		return (description->flags & flag) != 0;
+	}
+
+	// FUNCTION: ENGINE 0x1061C340
+	bool IsCompressedFormat(unsigned int format)
+	{
+		switch ((int)format)
+		{
+		case 0x20:
+		case 0x21:
+		case 0x22:
+			return true;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x1061C400
 	dxTexture::dxTexture(IDirect3DDevice9* device)
 		: surface(0), levelData(0), texture(0), defaultTexture(0), volumeTexture(0), cubeTexture(0), d3dFormat(0),
 			lockLevel(-1), lockSlice(-1), locked(0), memory(0), unknown84(0), unknown88(0), unknown8C(0)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1061C490
+	void dxTexture::BuildLevels(const TextureDescription* description)
+	{
+		if (levelData == 0)
+		{
+			levelData = new TextureLevel[this->description.levels];
+		}
+		unsigned int width = this->description.width;
+		unsigned int height = this->description.height;
+		unsigned int depth = this->description.depth;
+		memory = 0;
+		for (unsigned int level = 0; level < (unsigned int)this->description.levels; level++)
+		{
+			TextureLevel* entry = levelData + level;
+			entry->count = depth;
+			entry->data = new TextureLevelData[depth];
+			int pitch;
+			int size;
+			if ((this->description.flags & 2) != 0)
+			{
+				unsigned int blockWidth = width;
+				if ((width & 3) != 0)
+				{
+					blockWidth = (width & ~3) + 4;
+				}
+				pitch = gTextureFormatBits[this->description.format] * blockWidth >> 3;
+				unsigned int blockHeight = height;
+				if ((height & 3) != 0)
+				{
+					blockHeight = (height & ~3) + 4;
+				}
+				size = blockHeight * pitch;
+			}
+			else
+			{
+				pitch = gTextureFormatBits[this->description.format] * width >> 3;
+				size = pitch * height;
+			}
+			for (unsigned int slice = 0; slice < depth; slice++)
+			{
+				TextureLevelData* data = entry->data + slice;
+				data->width = width;
+				data->height = height;
+				data->pitch = pitch;
+				data->size = size;
+				memory += size;
+			}
+			if (width > 1)
+			{
+				width >>= 1;
+			}
+			else
+			{
+				width = 1;
+			}
+			if (height > 1)
+			{
+				height >>= 1;
+			}
+			else
+			{
+				height = 1;
+			}
+			if (this->description.type == 3 && depth > 1)
+			{
+				depth >>= 1;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061C8B0
+	void CopyLevelRows(void* dest, const void* source, int rowBytes, int rows, bool compressed)
+	{
+		unsigned int count = rows;
+		if (compressed)
+		{
+			count >>= 2;
+		}
+		for (unsigned int row = 0; row < count; row++)
+		{
+			memcpy(dest, source, rowBytes);
+			source = (const char*)source + rowBytes;
+			dest = (char*)dest + rowBytes;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061C8F0
+	bool dxTexture::SetDescription(const TextureDescription* description)
+	{
+		TextureDescription* source = (TextureDescription*)description;
+		source->flags &= 0x30;
+		unsigned int width = source->width;
+		unsigned int flags = source->flags;
+		if (!IsPowerOfTwo(width) || !IsPowerOfTwo(source->height))
+		{
+			flags |= 4;
+			source->flags = flags;
+		}
+		unsigned int height = source->height;
+		if (width != height)
+		{
+			source->flags |= 8;
+		}
+		unsigned int levels = source->levels;
+		if (levels > 1)
+		{
+			source->flags |= 1;
+		}
+		unsigned int format = source->format;
+		if (format == 0x20 || format == 0x21 || format == 0x22)
+		{
+			source->flags |= 2;
+		}
+		if (width < 1 || height < 1 || levels < 1 || (unsigned int)source->depth < 1)
+		{
+			return false;
+		}
+		switch (source->type)
+		{
+		case 1:
+			if ((unsigned int)source->depth > 1)
+			{
+				return false;
+			}
+			break;
+		case 2:
+			if (source->depth != 6)
+			{
+				return false;
+			}
+			if ((source->flags & 8) != 0)
+			{
+				return false;
+			}
+			if ((source->flags & 4) != 0)
+			{
+				return false;
+			}
+			break;
+		case 3:
+			if ((source->flags & 8) != 0)
+			{
+				return false;
+			}
+			if ((source->flags & 4) != 0)
+			{
+				return false;
+			}
+			if ((source->flags & 2) != 0)
+			{
+				return false;
+			}
+			break;
+		default:
+			return false;
+		}
+		if ((source->usage & 1) != 0 && source->type == 3)
+		{
+			return false;
+		}
+		if (!ResolveTextureFormat(&d3dFormat, format, (source->usage & 2) > 0))
+		{
+			return false;
+		}
+		this->description = *source;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1061CA90
+	template void ReleaseRef<dxTexture>(dxTexture** ref);
+	// FUNCTION: ENGINE 0x1061CAB0
+	template void ReleaseRef<dxSurface>(dxSurface** ref);
+	// FUNCTION: ENGINE 0x1061CAD0
+	template void ReleaseRef<IDirect3DVolumeTexture9>(IDirect3DVolumeTexture9** ref);
+	// FUNCTION: ENGINE 0x1061CAF0
+	template void ReleaseRef<IDirect3DCubeTexture9>(IDirect3DCubeTexture9** ref);
+	// FUNCTION: ENGINE 0x1061CB10
+	template void ReleaseRef<IDirect3DTexture9>(IDirect3DTexture9** ref);
+
+	// FUNCTION: ENGINE 0x1061CB50
+	void AssignRef(dxSurface** slot, dxSurface* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+
+	// FUNCTION: ENGINE 0x1061CB80
+	void AssignRef(dxTexture** slot, dxTexture* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
 	}
 
 	// FUNCTION: ENGINE 0x1061CA00

@@ -28,7 +28,10 @@ namespace container
 		// Called for every node by Clear (with the context Clear was given); true when the node may go
 		typedef bool (*Deleter)(Node* node, void* context);
 
-		TreeBase();
+		TreeBase()
+		{
+			Reset();
+		}
 		// 0x10610990: the empty tree (the engine's constructor answers nothing, so it is this
 		__declspec(noinline) void Reset();
 		bool IsEmpty() const;
@@ -172,6 +175,16 @@ namespace container
 			MapNode* node = new (Allocator::Alloc(sizeof(MapNode))) MapNode(pair);
 			TreeBase::Insert(node, CompareNodes, parent);
 			return Iterator(node, this);
+		}
+		// The value of a key; the pair is made when there is none (0x1061BC50 is the engine's copy for a pointer)
+		Value& operator[](const Key& key)
+		{
+			MapNode* node = (MapNode*)TreeBase::Find(CompareKey, &key);
+			if (node == 0)
+			{
+				node = Insert(Pair(key, Value())).node;
+			}
+			return node->pair.value;
 		}
 		Iterator Erase(Iterator position)
 		{

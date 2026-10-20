@@ -1,27 +1,30 @@
 // pure3d::dxContext, the Direct3D 9 device of the pddi layer: only the buffer and texture factories the neighbouring
 // dx9 units call (unit around 0x1061B550; the file name is guessed, no assert path survives).
 #include "code/pure3d/pddi/dx9/dxcontext.h"
+#include "code/core/hash.h"
+#include "code/core/strings.h"
+#include "code/engine/display.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/shaderconstants.h"
 
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x1061B530
-	int dxContext::GetUnknown8()
+	int dxDevice::GetUnknown8()
 	{
-		return unknown8;
+		return (int)display;
 	}
 
 	// FUNCTION: ENGINE 0x1061B540
-	IDirect3DDevice9* dxContext::GetUnknownC()
+	IDirect3DDevice9* dxDevice::GetUnknownC()
 	{
-		return unknownC;
+		return (IDirect3DDevice9*)context;
 	}
 
 	// FUNCTION: ENGINE 0x1061B550
-	dxTexture* dxContext::NewTexture(const TextureDescription* description)
+	dxTexture* dxDevice::NewTexture(const TextureDescription* description)
 	{
-		dxTexture* texture = new dxTexture(unknownC);
+		dxTexture* texture = new dxTexture((IDirect3DDevice9*)context);
 		if (!texture->Create(description))
 		{
 			delete texture;
@@ -31,9 +34,9 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061B5A0
-	dxTexture* dxContext::NewTexture(const TextureDescription* description, const dxTexture* image)
+	dxTexture* dxDevice::NewTexture(const TextureDescription* description, const dxTexture* image)
 	{
-		dxTexture* texture = new dxTexture(unknownC);
+		dxTexture* texture = new dxTexture((IDirect3DDevice9*)context);
 		if (!texture->Create(description, image))
 		{
 			delete texture;
@@ -43,7 +46,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061B600
-	dxVertexBuffer* dxContext::NewVertexBuffer(const VertexBufferDescription* description)
+	dxVertexBuffer* dxDevice::NewVertexBuffer(const VertexBufferDescription* description)
 	{
 		dxVertexBuffer* buffer = new dxVertexBuffer();
 		buffer->Create(description);
@@ -51,23 +54,116 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061B660
-	dxIndexBuffer* dxContext::NewIndexBuffer(const IndexBufferDescription* description)
+	dxIndexBuffer* dxDevice::NewIndexBuffer(const IndexBufferDescription* description)
 	{
 		dxIndexBuffer* buffer = new dxIndexBuffer();
 		buffer->Create(description);
 		return buffer;
 	}
 
+	// 0x11276D30: the driver object the last dxDevice constructor recorded (name guess)
+	dxDevice* gCurrentDevice;
+	// 0x11276D44: set once a shader template has been made again under a name the device already had (name guess)
+	extern bool gShaderTemplateReplaced;
+
+	// FUNCTION: ENGINE 0x1061B480
+	void dxDevice::GetVersion(void* version)
+	{
+		int* words = (int*)version;
+		words[3] = 0xE;
+		words[0] = 0x13;
+		words[1] = 1;
+		words[2] = 0x29A;
+		core::StrCpy((char*)(words + 4), "DX9 Release");
+	}
+
+	// FUNCTION: ENGINE 0x1061B4C0
+	void dxDevice::Initialize(const DisplaySettings* settings)
+	{
+		display = new engine::Display(direct3D);
+		display->Unknown106182C0((void*)settings);
+		context = new dxContext();
+		pddi = context;
+		context->Unknown106202F0(this, display);
+	}
+
+	// FUNCTION: ENGINE 0x1061BA70
+	dxDevice::dxDevice(IDirect3D9* direct3D) : direct3D(direct3D), display(0), context(0)
+	{
+		gCurrentDevice = this;
+		shaderTemplates = new ShaderTemplateMap();
+		ResetShaderStamp();
+	}
+
+	// FUNCTION: ENGINE 0x1061BEC0
+	dxDevice::~dxDevice()
+	{
+		gDevice = 0;
+		delete context;
+		engine::Display* oldDisplay = display;
+		context = 0;
+		delete oldDisplay;
+		display = 0;
+		for (ShaderTemplateMap::Iterator it = shaderTemplates->Begin(); it.node != 0; ++it)
+		{
+			it->value->Release();
+		}
+		shaderTemplates->Clear();
+		delete shaderTemplates;
+		shaderTemplates = 0;
+		direct3D->Release();
+	}
+
+	// FUNCTION: ENGINE 0x1061BC00
+	bool dxDevice::Unknown1061BC00(const char* name)
+	{
+		unsigned int hash = core::Hash32NoCase(name, 0);
+		ShaderTemplateMap::Iterator it = shaderTemplates->Find(hash);
+		if (it.node != 0)
+		{
+			return it->value->unknown2E4;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1061BCD0
+	// EQUIVALENT: register allocation (the engine keeps this in ebp, the name in esi, the map pointer in edi), 44.2 %
+	dxShaderTemplate* dxDevice::NewShaderTemplate(const char* name, unsigned int unknown, unsigned int unknown2)
+	{
+		unsigned int hash = core::Hash32NoCase(name, 0);
+		if (!gShaderTemplateReplaced)
+		{
+			if (shaderTemplates->Find(hash).node != 0)
+			{
+				gShaderTemplateReplaced = true;
+			}
+		}
+		dxShaderTemplate* shaderTemplate = new dxShaderTemplate(name, unknown, unknown2);
+		shaderTemplate->AddRef();
+		shaderTemplate->Unknown1061B9B0(ShaderBuildOptions(false), gContext);
+		if (shaderTemplates->Find(hash).node != 0)
+		{
+			(*shaderTemplates)[hash]->Release();
+		}
+		ShaderTemplateMap::Iterator found = shaderTemplates->Find(hash);
+		if (found.node != 0)
+		{
+			found->value = shaderTemplate;
+			return shaderTemplate;
+		}
+		(*shaderTemplates)[hash] = shaderTemplate;
+		return shaderTemplate;
+	}
+
 	// FUNCTION: ENGINE 0x1061BBC0
-	dxContext* Unknown1061BBC0()
+	dxDevice* Unknown1061BBC0()
 	{
 		Unknown10627FB0();
 		if (gDevice == 0)
 		{
 			gDevice = new dxDevice(Direct3DCreate9(D3D_SDK_VERSION));
 		}
-		// The callers keep the driver object as a dxContext (see dxDevice)
-		return (dxContext*)gDevice;
+		return gDevice;
 	}
 
 	// The vertex declaration a draw needs: its number goes to `declaration` (0x1062B7B0; name guess)
@@ -632,4 +728,347 @@ namespace pure3d
 		}
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x1061F5C0
+	void dxContext::Unknown28()
+	{
+		IDirect3DDevice9* device = gD3DDevice;
+		endingFrame = true;
+		pddiBaseContext::Unknown28();
+		device->lpVtbl->EndScene(device);
+		Unknown10625A80();
+		Unknown106268F0();
+		ResetShaderStamp();
+		Unknown1062AE40();
+		endingFrame = false;
+	}
+
+	// FUNCTION: ENGINE 0x1061F600
+	void dxContext::Unknown1061F600()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061F610
+	void dxContext::Unknown1061F610()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061F620
+	void dxContext::Unknown1061F620(unsigned int width, unsigned int height)
+	{
+		if (!unknown680)
+		{
+			targetWidth = width;
+			targetHeight = height;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F650
+	void dxContext::Unknown9()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061F660
+	IDirect3DQuery9* dxContext::Unknown18()
+	{
+		IDirect3DQuery9* query = 0;
+		gD3DDevice->lpVtbl->CreateQuery(gD3DDevice, D3DQUERYTYPE_EVENT, &query);
+		return query;
+	}
+
+	// FUNCTION: ENGINE 0x1061F690
+	void dxContext::Unknown19(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			query->Release();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F6B0
+	void dxContext::Unknown20(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			query->lpVtbl->Issue(query, D3DISSUE_END);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F6D0
+	void dxContext::Unknown21(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			if (query->lpVtbl->GetData(query, 0, 0, 0) == 1)
+			{
+				while (query->lpVtbl->GetData(query, 0, 0, D3DGETDATA_FLUSH) == 1)
+				{
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F710
+	IDirect3DQuery9* dxContext::Unknown10()
+	{
+		IDirect3DQuery9* query = 0;
+		gD3DDevice->lpVtbl->CreateQuery(gD3DDevice, D3DQUERYTYPE_EVENT, &query);
+		if (query != 0)
+		{
+			query->lpVtbl->Issue(query, D3DISSUE_END);
+		}
+		return query;
+	}
+
+	// FUNCTION: ENGINE 0x1061F750
+	void dxContext::Unknown11(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			if (query->lpVtbl->GetData(query, 0, 0, 0) == 1)
+			{
+				while (query->lpVtbl->GetData(query, 0, 0, D3DGETDATA_FLUSH) == 1)
+				{
+				}
+			}
+			query->Release();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F790
+	bool dxContext::Unknown12(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			HRESULT result = query->lpVtbl->GetData(query, 0, 0, 0);
+			if (result == 1)
+			{
+				return (bool)result;
+			}
+			query->Release();
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1061F7C0
+	IDirect3DQuery9* dxContext::Unknown13(int flag)
+	{
+		IDirect3DQuery9* query = 0;
+		if (flag != 0)
+		{
+			return 0;
+		}
+		gD3DDevice->lpVtbl->CreateQuery(gD3DDevice, D3DQUERYTYPE_OCCLUSION, &query);
+		return query;
+	}
+
+	// FUNCTION: ENGINE 0x1061F800
+	void dxContext::Unknown14(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			query->Release();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F820
+	void dxContext::Unknown15(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			query->lpVtbl->Issue(query, D3DISSUE_BEGIN);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F840
+	void dxContext::Unknown16(IDirect3DQuery9* query)
+	{
+		if (query != 0)
+		{
+			query->lpVtbl->Issue(query, D3DISSUE_END);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F860
+	unsigned int dxContext::Unknown17(IDirect3DQuery9* query)
+	{
+		unsigned int pixels = 0;
+		if (query != 0)
+		{
+			if (query->lpVtbl->GetData(query, &pixels, 4, 0) == 1)
+			{
+				while (query->lpVtbl->GetData(query, &pixels, 4, D3DGETDATA_FLUSH) == 1)
+				{
+				}
+			}
+		}
+		return pixels;
+	}
+
+	// FUNCTION: ENGINE 0x1061F8B0
+	// EQUIVALENT: register allocation: the engine loads the colour into a register before the rectangle is copied and keeps three registers over the call, 33.1 %
+	void dxContext::Unknown1061F8B0(unsigned int flags, unsigned int colour, const int* rect, float z,
+		unsigned int stencil)
+	{
+		unsigned int d3dFlags = 0;
+		if (flags & 1)
+		{
+			d3dFlags = 1;
+		}
+		if (flags & 2)
+		{
+			d3dFlags |= 2;
+		}
+		if (flags & 4)
+		{
+			d3dFlags |= 4;
+		}
+		D3DRECT d3dRect;
+		if (rect != 0)
+		{
+			d3dRect.x1 = rect[0];
+			d3dRect.x2 = rect[2];
+			d3dRect.y1 = rect[1];
+			d3dRect.y2 = rect[3];
+		}
+		IDirect3DDevice9* device = gD3DDevice;
+		device->lpVtbl->Clear(device, rect != 0, rect != 0 ? &d3dRect : 0, d3dFlags, colour, z, stencil);
+	}
+
+	// FUNCTION: ENGINE 0x1061F940
+	void dxContext::Unknown1061F940(int unused)
+	{
+		tracker->Unknown1062AA00();
+	}
+
+	// FUNCTION: ENGINE 0x1061F950
+	void dxContext::Unknown1061F950(float x, float y, float width, float height)
+	{
+		gD3DDevice->lpVtbl->GetViewport(gD3DDevice, &viewport);
+		viewport.MinZ = 0.0f;
+		viewport.MaxZ = 1.0f;
+		viewport.X = (DWORD)x;
+		viewport.Y = (DWORD)y;
+		viewport.Width = (DWORD)width;
+		viewport.Height = (DWORD)height;
+		gD3DDevice->lpVtbl->SetViewport(gD3DDevice, &viewport);
+	}
+
+	// FUNCTION: ENGINE 0x1061FA50
+	void dxContext::Unknown1061FA50()
+	{
+		gD3DDevice->lpVtbl->SetViewport(gD3DDevice, &viewport);
+	}
+
+	// FUNCTION: ENGINE 0x1061FA70
+	void dxContext::Unknown48()
+	{
+		unknown694 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x1061FA80
+	void dxContext::Unknown68()
+	{
+		if (unknown694 != 0)
+		{
+			unknown694 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061FAA0
+	void dxContext::Unknown1061FAA0(IDirect3DDevice9* device, int type, unsigned int vertices, int primitives,
+		const PrimDrawDesc* desc)
+	{
+		if (desc->indices != 0)
+		{
+			device->lpVtbl->DrawIndexedPrimitive(device, type, desc->baseVertex, 0, vertices, desc->startIndex,
+				primitives);
+		}
+		else
+		{
+			device->lpVtbl->DrawPrimitive(device, type, desc->baseVertex, primitives);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061FAF0
+	void dxContext::Unknown1061FAF0(IDirect3DDevice9* device, int type, unsigned int vertices, int primitives,
+		const dxDrawBatch* batch)
+	{
+		if (batch->indices != 0)
+		{
+			device->lpVtbl->DrawIndexedPrimitive(device, type, batch->baseVertex, 0, vertices, batch->startIndex,
+				primitives);
+		}
+		else
+		{
+			device->lpVtbl->DrawPrimitive(device, type, batch->baseVertex, primitives);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061FDB0
+	void dxContext::Unknown3(int a, int b, int c)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FDC0
+	void dxContext::SetZBias(float bias, float slope)
+	{
+		pddiBaseContext::SetZBias(bias, slope);
+		viewport.MinZ = bias;
+		viewport.MaxZ = slope;
+		gD3DDevice->lpVtbl->SetViewport(gD3DDevice, &viewport);
+	}
+
+	// FUNCTION: ENGINE 0x1061FE20
+	void dxContext::Unknown54(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FE30
+	void dxContext::Unknown55(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FE40
+	void dxContext::Unknown56(int a, int b)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FE50
+	void dxContext::SetRenderUnknown38(bool value)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FE60
+	void dxContext::Unknown57(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1061FE70
+	void dxContext::SetAlphaRef(float ref)
+	{
+		pddiBaseContext::SetAlphaRef(ref);
+	}
+}
+
+namespace container
+{
+	// The engine's copies of the shader template map's members (the typedef is container::Map<unsigned int,
+	// dxShaderTemplate*, ShaderTemplateAllocator>)
+	// FUNCTION: ENGINE 0x1061B860
+	template int pure3d::ShaderTemplateMap::CompareKey(const void* key, const TreeBase::Node* node);
+	// FUNCTION: ENGINE 0x1061B880
+	template bool pure3d::ShaderTemplateMap::DeleteNode(TreeBase::Node* node, void* context);
+	// FUNCTION: ENGINE 0x1061B8B0
+	template int pure3d::ShaderTemplateMap::CompareNodes(const TreeBase::Node* a, const TreeBase::Node* b);
+	// FUNCTION: ENGINE 0x1061BAD0
+	template pure3d::ShaderTemplateMap::Iterator pure3d::ShaderTemplateMap::Begin();
+	// FUNCTION: ENGINE 0x1061BB10
+	template void pure3d::ShaderTemplateMap::Clear();
+	// FUNCTION: ENGINE 0x1061BB20
+	template pure3d::ShaderTemplateMap::Iterator pure3d::ShaderTemplateMap::Find(const unsigned int& key);
+	// FUNCTION: ENGINE 0x1061BB50
+	template pure3d::ShaderTemplateMap::Iterator pure3d::ShaderTemplateMap::Insert(const pure3d::ShaderTemplateMap::Pair& pair);
+	// FUNCTION: ENGINE 0x1061BC50
+	template pure3d::dxShaderTemplate*& pure3d::ShaderTemplateMap::operator[](const unsigned int& key);
 }

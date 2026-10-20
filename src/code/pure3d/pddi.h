@@ -208,7 +208,7 @@ namespace pure3d
 		// descriptor is the one DrawPrimitive takes)
 		virtual void Unknown2(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
 			const void* parameters);
-		virtual void Unknown3();
+		virtual void Unknown3(int a, int b, int c);
 		// Draws a part's batch (the 0x2C bytes at +0xA0 of a drawable part) with a shader and its parameters
 		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
 			const void* parameters);
@@ -216,20 +216,25 @@ namespace pure3d
 		virtual void DrawBatches(const void* const* batches, int count);
 		virtual void SetRenderTargets(const pddiRenderTargets* targets);
 		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e);
-		virtual void Unknown8();
+		virtual void Unknown8(int a);
 		virtual void Unknown9();
-		virtual void Unknown10();
-		virtual void Unknown11();
-		virtual void Unknown12();
-		virtual void Unknown13();
-		virtual void Unknown14();
-		virtual void Unknown15();
-		virtual void Unknown16();
-		virtual void Unknown17();
-		virtual void Unknown18();
-		virtual void Unknown19();
-		virtual void Unknown20();
-		virtual void Unknown21();
+		// Slots 10 - 21: the device's queries. 10 makes an event query and ends it; 11 waits for one and lets go of
+		// it; 12 tells (true) while one is still under way and lets go of it when it is not; 13 makes an occlusion
+		// query (0 for the flag it is given); 14 lets go of one; 15 / 16 begin / end it; 17 waits for it and answers
+		// the pixels it counted; 18 makes an event query; 19 lets go of one; 20 ends it; 21 waits for it. The base
+		// class does none of it.
+		virtual IDirect3DQuery9* Unknown10();
+		virtual void Unknown11(IDirect3DQuery9* query);
+		virtual bool Unknown12(IDirect3DQuery9* query);
+		virtual IDirect3DQuery9* Unknown13(int flag);
+		virtual void Unknown14(IDirect3DQuery9* query);
+		virtual void Unknown15(IDirect3DQuery9* query);
+		virtual void Unknown16(IDirect3DQuery9* query);
+		virtual unsigned int Unknown17(IDirect3DQuery9* query);
+		virtual IDirect3DQuery9* Unknown18();
+		virtual void Unknown19(IDirect3DQuery9* query);
+		virtual void Unknown20(IDirect3DQuery9* query);
+		virtual void Unknown21(IDirect3DQuery9* query);
 		// Slot 22 / 23: the projection from a field of view (the angle is multiplied by the radians to degrees factor)
 		// or from the planes of the view volume; both set the projection matrix
 		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
@@ -271,10 +276,10 @@ namespace pure3d
 		virtual void Unknown51(bool enable);
 		virtual void Unknown52(int compare);
 		virtual void Unknown53(int fail, int zFail, int zPass);
-		virtual void Unknown54();
-		virtual void Unknown55();
-		virtual void Unknown56();
-		virtual void Unknown57();
+		virtual void Unknown54(int a);
+		virtual void Unknown55(int a);
+		virtual void Unknown56(int a, int b);
+		virtual void Unknown57(int a);
 		virtual void SetRenderUnknown38(bool value);
 		// Render state
 		virtual void SetFillMode(int mode);
@@ -284,7 +289,7 @@ namespace pure3d
 		virtual void SetFogRange(float nearZ, float farZ);
 		virtual void SetAlphaRef(float ref);
 		virtual void Unknown65();
-		virtual void Unknown66();
+		virtual ~pddiBaseContext();
 		virtual void Unknown67();
 		virtual void Unknown68();
 

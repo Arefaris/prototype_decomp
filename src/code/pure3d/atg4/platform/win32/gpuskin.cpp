@@ -9,7 +9,7 @@
 namespace pure3d
 {
 	// 0x1127F358: the Direct3D 9 view of the pddi device the gpu skin takes its buffers from (name guess)
-	extern dxContext* gPddiDx;
+	extern dxDevice* gPddiDx;
 	// 0x1127F1B8, 0x1127F1DC: the names of the shader parameters that set the primitive's bits 6 and 7 (name guesses)
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1B8;
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1DC;

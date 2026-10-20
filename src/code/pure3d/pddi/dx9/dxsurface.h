@@ -32,6 +32,8 @@ namespace pure3d
 	public:
 		// 0x1061EF70
 		dxSurface();
+		// 0x1061EFA0: lets go of the surface when it was made by the pool (its scalar deleting form is 0x1061F120)
+		virtual ~dxSurface();
 		// 0x1061F0C0: keeps the surface and takes format, sample count and size from its description
 		void SetSurface(IDirect3DSurface9* surface);
 		// 0x1061F000: takes the size, the format and the sample count of the level and makes the surface for it

@@ -10,6 +10,10 @@ namespace engine
 	class Display
 	{
 	public:
+		// 0x10617A30: the display over a Direct3D object (a 0x834-byte object)
+		Display(IDirect3D9* direct3D);
+		// 0x10617BF0: lets go of the device and the pool
+		~Display();
 		float GetAspectRatio();
 		// 0x10616130
 		int GetWidth();
@@ -72,6 +76,7 @@ namespace engine
 		unsigned int maxTextureHeight;
 		unsigned char unknown79C[0x828 - 0x79C];
 		int unknown828;
+		unsigned char unknown82C[0x834 - 0x82C];
 	};
 	// 0x10616AD0: a step of the reset that takes the device (name unknown)
 	void Unknown10616AD0(IDirect3DDevice9* device);
