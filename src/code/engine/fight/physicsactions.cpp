@@ -113,4 +113,127 @@ namespace engine
 
 	}
 
+
+	// FUNCTION: ENGINE 0x108AAFB0
+	CollisionEnableBaseAction::CollisionEnableBaseAction(GameObjectHandle newTarget)
+		: fight::Action(0x600), target(newTarget), unknown20(0), unknown24(false)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AAFE0
+	CollisionEnableBaseAction::~CollisionEnableBaseAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108ABD70
+	CollisionEnableByNameAction::CollisionEnableByNameAction(CollisionEnableByNameTrack* newTrack, GameObjectHandle newTarget)
+		: CollisionEnableBaseAction(newTarget), link(newTrack)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AB770
+	CollisionEnableByNameAction::~CollisionEnableByNameAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108ABE50
+	int CollisionEnableByNameAction::GetActionOnBegin()
+	{
+		if (link.object != 0)
+		{
+			return link.object->actionOnBegin;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108ABE60
+	int CollisionEnableByNameAction::GetActionOnEnd()
+	{
+		if (link.object != 0)
+		{
+			return link.object->actionOnEnd;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108ABE70
+	CollisionEnableOnJointAction::CollisionEnableOnJointAction(CollisionEnableOnJointTrack* newTrack, GameObjectHandle newTarget)
+		: CollisionEnableBaseAction(newTarget), link(newTrack)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AB7B0
+	CollisionEnableOnJointAction::~CollisionEnableOnJointAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108ABF80
+	int CollisionEnableOnJointAction::GetActionOnBegin()
+	{
+		if (link.object != 0)
+		{
+			return link.object->actionOnBegin;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108ABF90
+	int CollisionEnableOnJointAction::GetActionOnEnd()
+	{
+		if (link.object != 0)
+		{
+			return link.object->actionOnEnd;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108AC600
+	CollisionEnableFromRootJointAction::CollisionEnableFromRootJointAction(CollisionEnableFromRootJointTrack* newTrack, GameObjectHandle newTarget)
+		: fight::Action(0x600), link(newTrack), target(newTarget), unknown2c(-1)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AC660
+	CollisionEnableFromRootJointAction::~CollisionEnableFromRootJointAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AAFF0
+	PhysicsKeyframedEnableAction::PhysicsKeyframedEnableAction(GameObjectHandle newTarget)
+		: fight::Action(0x600), target(newTarget)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AB010
+	PhysicsKeyframedEnableAction::~PhysicsKeyframedEnableAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108AC5C0
+	fight::Action* CollisionEnableOnJointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new CollisionEnableOnJointAction(this, handle);
+	}
+
+	// FUNCTION: ENGINE 0x108AC580
+	fight::Action* CollisionEnableByNameTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new CollisionEnableByNameAction(this, handle);
+	}
+
+	// FUNCTION: ENGINE 0x108AC720
+	fight::Action* CollisionEnableFromRootJointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new CollisionEnableFromRootJointAction(this, handle);
+	}
+
+	// FUNCTION: ENGINE 0x108AB1F0
+	fight::Action* PhysicsKeyframedEnableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle = GetObjectHandle(owner);
+		return new PhysicsKeyframedEnableAction(handle);
+	}
 }

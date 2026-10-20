@@ -114,6 +114,128 @@ namespace engine
 
 	}
 
+	// What a collision switch needs of an object it acts on (declared for the lookups the actions make; another unit's)
+	// RTTI: engine::CollisionEnableBaseAction (12 vftable slots, size 0x28): the common part of the actions that switch
+	// collision objects of a physics object on and off
+	class CollisionEnableBaseAction : public fight::Action
+	{
+	public:
+		// 0x108AAFB0
+		explicit CollisionEnableBaseAction(GameObjectHandle newTarget);
+		// 0x108AAFE0
+		virtual ~CollisionEnableBaseAction();
+
+		// vftable slot 5 (0x108AB5E0) and slot 6 (0x108AB6C0)
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
+		// vftable slot 9: the index of the collision object the track names on a physics object, or -1
+		virtual int FindObject(const void* object) = 0;
+		// vftable slot 10 / 11: what the track does when it begins / ends
+		virtual int GetActionOnBegin() = 0;
+		virtual int GetActionOnEnd() = 0;
+
+		GameObjectHandle target;  // +0x1C
+		int unknown20;
+		bool unknown24;
+	};
+
+	// RTTI: engine::CollisionEnableByNameAction (12 vftable slots, size 0x34)
+	class CollisionEnableByNameAction : public CollisionEnableBaseAction
+	{
+	public:
+		// 0x108ABD70
+		CollisionEnableByNameAction(CollisionEnableByNameTrack* newTrack, GameObjectHandle newTarget);
+		// 0x108AB770
+		virtual ~CollisionEnableByNameAction();
+
+		// vftable slot 9 (0x108ABDE0), 10 (0x108ABE50) and 11 (0x108ABE60)
+		virtual int FindObject(const void* object);
+		virtual int GetActionOnBegin();
+		virtual int GetActionOnEnd();
+
+		core::Link<CollisionEnableByNameTrack> link;  // +0x28
+	};
+
+	// RTTI: engine::CollisionEnableOnJointAction (12 vftable slots, size 0x34)
+	class CollisionEnableOnJointAction : public CollisionEnableBaseAction
+	{
+	public:
+		// 0x108ABE70
+		CollisionEnableOnJointAction(CollisionEnableOnJointTrack* newTrack, GameObjectHandle newTarget);
+		// 0x108AB7B0
+		virtual ~CollisionEnableOnJointAction();
+
+		// vftable slot 9 (0x108ABEE0), 10 (0x108ABF80) and 11 (0x108ABF90)
+		virtual int FindObject(const void* object);
+		virtual int GetActionOnBegin();
+		virtual int GetActionOnEnd();
+
+		core::Link<CollisionEnableOnJointTrack> link;  // +0x28
+	};
+
+	// The collision switches an action remembers to undo (an index and the state it had)
+	struct CollisionSwitch
+	{
+		int index;
+		bool enabled;
+	};
+
+	// The array that holds them (begin, end and capacity; this unit's own copy of the engine's container)
+	struct CollisionSwitchList
+	{
+		CollisionSwitchList() : begin(0), end(0), capacity(0)
+		{
+		}
+		~CollisionSwitchList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				delete[] begin;
+			}
+		}
+
+		CollisionSwitch* begin;
+		CollisionSwitch* end;
+		CollisionSwitch* capacity;
+	};
+
+	// RTTI: engine::CollisionEnableFromRootJointAction (9 vftable slots, size 0x40)
+	class CollisionEnableFromRootJointAction : public fight::Action
+	{
+	public:
+		// 0x108AC600
+		CollisionEnableFromRootJointAction(CollisionEnableFromRootJointTrack* newTrack, GameObjectHandle newTarget);
+		// 0x108AC660
+		virtual ~CollisionEnableFromRootJointAction();
+
+		// vftable slot 5 (0x108ABFA0) and slot 6 (0x108AC140)
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
+
+		core::Link<CollisionEnableFromRootJointTrack> link;  // +0x1C
+		GameObjectHandle target;  // +0x28
+		int unknown2c;
+		CollisionSwitchList switches;  // +0x30
+		int unknown3c;
+	};
+
+	// RTTI: engine::PhysicsKeyframedEnableAction (9 vftable slots, size 0x20)
+	class PhysicsKeyframedEnableAction : public fight::Action
+	{
+	public:
+		// 0x108AAFF0
+		explicit PhysicsKeyframedEnableAction(GameObjectHandle newTarget);
+		// 0x108AB010
+		virtual ~PhysicsKeyframedEnableAction();
+
+		// vftable slot 5 (0x108AB830) and slot 6 (0x108AB8A0)
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
+
+		GameObjectHandle target;  // +0x1C
+	};
+
 }
 
 #endif

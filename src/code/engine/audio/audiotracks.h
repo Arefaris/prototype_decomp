@@ -6,29 +6,12 @@
 #ifndef ENGINE_AUDIO_AUDIOTRACKS_H
 #define ENGINE_AUDIO_AUDIOTRACKS_H
 
+#include "code/engine/fight/dialoguetrack.h"
 #include "code/engine/fight/trackfactory.h"
 
 namespace engine
 {
 	// The slots every audio track overrides: 0 the property list, 7 the destructor, 9 and 10 the times, 15
-	class DialogueTrack : public fight::Track
-	{
-	public:
-		// 0x108A86C0
-		DialogueTrack();
-		virtual ~DialogueTrack();
-		virtual fight::Property* GetProperty(int index);
-		virtual float GetTimeBegin() const;
-		virtual float Slot10() const;
-		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
-
-		// ClearProperties 0x108A86B0, RegisterProperties 0x108A8A50: the property list, built once and freed again
-		static void RegisterProperties();
-		static void ClearProperties();
-
-		int unknown10[9];
-	};
-
 	class SoundTrack : public fight::Track
 	{
 	public:
