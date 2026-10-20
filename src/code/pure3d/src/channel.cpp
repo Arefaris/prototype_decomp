@@ -8,6 +8,20 @@
 
 namespace pure3d
 {
+	// The element copies of the channels' copy constructors (inline in the engine, x87 component moves)
+	inline void CopyVector(math::Vector* to, const math::Vector* from)
+	{
+		to->x = from->x;
+		to->y = from->y;
+		to->z = from->z;
+	}
+
+	inline void CopyFloat2(Float2* to, const Float2* from)
+	{
+		to->x = from->x;
+		to->y = from->y;
+	}
+
 	// FUNCTION: ENGINE 0x10736110
 	Channel::Channel() : mode(-1), unknown8(0), name(0, 1)
 	{
@@ -532,11 +546,6 @@ namespace pure3d
 		*out = &values[index0];
 	}
 
-	// FUNCTION: ENGINE 0x10738420
-	VectorChannel::VectorChannel()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x107368A0
 	VectorChannel::VectorChannel(unsigned int newCount, AnimationMemoryBlock* newBlock) :
 		SimpleChannel(newCount, newBlock)
@@ -817,11 +826,6 @@ namespace pure3d
 		}
 	}
 
-	// FUNCTION: ENGINE 0x10738460
-	RotationChannel::RotationChannel()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x10736C90
 	RotationChannel::RotationChannel(unsigned int newCount, AnimationMemoryBlock* newBlock) :
 		SimpleChannel(newCount, newBlock)
@@ -895,5 +899,288 @@ namespace pure3d
 	void QuaternionChannel::GetDelta(float previousTime, float time, math::Quaternion* out)
 	{
 		mKeys.GetDelta(FrameTime(previousTime), FrameTime(time), out);
+	}
+
+	// FUNCTION: ENGINE 0x10736010
+	template<> void ChannelKeys<math::CompressedQuaternion8>::Set(unsigned int newMode, unsigned int newCount,
+		const short* newFrames, const math::CompressedQuaternion8* newValues)
+	{
+		RotationKeysBase::Set(newMode, newCount, newFrames);
+		values = newValues;
+	}
+
+	// FUNCTION: ENGINE 0x10736040
+	template<> void ChannelKeys<math::CompressedQuaternion6>::Set(unsigned int newMode, unsigned int newCount,
+		const short* newFrames, const math::CompressedQuaternion6* newValues)
+	{
+		RotationKeysBase::Set(newMode, newCount, newFrames);
+		values = newValues;
+	}
+
+	// FUNCTION: ENGINE 0x10736070
+	template<> void ChannelKeys<math::CompressedQuaternion4>::Set(unsigned int newMode, unsigned int newCount,
+		const short* newFrames, const math::CompressedQuaternion4* newValues)
+	{
+		RotationKeysBase::Set(newMode, newCount, newFrames);
+		values = newValues;
+	}
+
+	// FUNCTION: ENGINE 0x107360A0
+	template<> void ChannelKeys<math::CompressedQuaternion3>::Set(unsigned int newMode, unsigned int newCount,
+		const short* newFrames, const math::CompressedQuaternion3* newValues)
+	{
+		RotationKeysBase::Set(newMode, newCount, newFrames);
+		values = newValues;
+	}
+
+	template<class T> CompressedQuaternionChannel<T>::CompressedQuaternionChannel(unsigned int newCount,
+		AnimationMemoryBlock* newBlock) : RotationChannel(newCount, newBlock)
+	{
+		values = 0;
+		if (count > 0)
+		{
+			if (block == 0)
+			{
+				values = new T[count];
+			}
+			else
+			{
+				values = (T*)block->Allocate(count * sizeof(T), 3);
+			}
+			T* newValues = values;
+			ChannelKeys<T> keys;
+			keys.RotationKeysBase::Set(mode, count, frames);
+			keys.values = newValues;
+			mKeys.Set(keys);
+		}
+	}
+
+	template<class T> CompressedQuaternionChannel<T>::~CompressedQuaternionChannel()
+	{
+		CompressedQuaternionChannel<T>::Clear();
+	}
+
+	template<class T> void CompressedQuaternionChannel<T>::Clear()
+	{
+		if (block == 0)
+		{
+			delete[] values;
+		}
+		values = 0;
+		SimpleChannel::Clear();
+	}
+
+	template<class T> void CompressedQuaternionChannel<T>::Relocate(int base)
+	{
+		if (offset != -1)
+		{
+			SimpleChannel::Relocate(base);
+			T* newValues = (T*)((base + count * 2 + 3 + offset) & ~3);
+			values = newValues;
+			ChannelKeys<T> keys;
+			keys.RotationKeysBase::Set(mode, count, frames);
+			keys.values = newValues;
+			mKeys.Set(keys);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10737D60
+	template CompressedQuaternionChannel<math::CompressedQuaternion8>::CompressedQuaternionChannel(unsigned int,
+		AnimationMemoryBlock*);
+	// FUNCTION: ENGINE 0x10737EB0
+	template CompressedQuaternionChannel<math::CompressedQuaternion8>::~CompressedQuaternionChannel();
+	// FUNCTION: ENGINE 0x10737E80
+	template void CompressedQuaternionChannel<math::CompressedQuaternion8>::Clear();
+	// FUNCTION: ENGINE 0x10737E10
+	template void CompressedQuaternionChannel<math::CompressedQuaternion8>::Relocate(int);
+
+	// FUNCTION: ENGINE 0x10737ED0
+	template CompressedQuaternionChannel<math::CompressedQuaternion6>::CompressedQuaternionChannel(unsigned int,
+		AnimationMemoryBlock*);
+	// FUNCTION: ENGINE 0x10738020
+	template CompressedQuaternionChannel<math::CompressedQuaternion6>::~CompressedQuaternionChannel();
+	// FUNCTION: ENGINE 0x10737FF0
+	template void CompressedQuaternionChannel<math::CompressedQuaternion6>::Clear();
+	// FUNCTION: ENGINE 0x10737F80
+	template void CompressedQuaternionChannel<math::CompressedQuaternion6>::Relocate(int);
+
+	// FUNCTION: ENGINE 0x10738040
+	template CompressedQuaternionChannel<math::CompressedQuaternion4>::CompressedQuaternionChannel(unsigned int,
+		AnimationMemoryBlock*);
+	// FUNCTION: ENGINE 0x10738190
+	template CompressedQuaternionChannel<math::CompressedQuaternion4>::~CompressedQuaternionChannel();
+	// FUNCTION: ENGINE 0x10738160
+	template void CompressedQuaternionChannel<math::CompressedQuaternion4>::Clear();
+	// FUNCTION: ENGINE 0x107380F0
+	template void CompressedQuaternionChannel<math::CompressedQuaternion4>::Relocate(int);
+
+	// FUNCTION: ENGINE 0x107381B0
+	template CompressedQuaternionChannel<math::CompressedQuaternion3>::CompressedQuaternionChannel(unsigned int,
+		AnimationMemoryBlock*);
+	// FUNCTION: ENGINE 0x10738300
+	template CompressedQuaternionChannel<math::CompressedQuaternion3>::~CompressedQuaternionChannel();
+	// FUNCTION: ENGINE 0x107382D0
+	template void CompressedQuaternionChannel<math::CompressedQuaternion3>::Clear();
+	// FUNCTION: ENGINE 0x10738260
+	template void CompressedQuaternionChannel<math::CompressedQuaternion3>::Relocate(int);
+
+	// FUNCTION: ENGINE 0x10738500
+	Float1Channel::Float1Channel(const Float1Channel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new float[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10738CE0
+	BoolChannel::BoolChannel(const BoolChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new unsigned int[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107385F0
+	Vector1DOFChannel::Vector1DOFChannel(const Vector1DOFChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		constant.x = other.constant.x;
+		constant.y = other.constant.y;
+		constant.z = other.constant.z;
+		axis = other.axis;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new float[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+		DOFKeys<float> keys;
+		keys.Set(mode, count, frames, axis, constant, values);
+		mKeys.Set(keys);
+	}
+
+	// FUNCTION: ENGINE 0x10738720
+	Vector2DOFChannel::Vector2DOFChannel(const Vector2DOFChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		constant.x = other.constant.x;
+		constant.y = other.constant.y;
+		constant.z = other.constant.z;
+		axis = other.axis;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new Float2[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			CopyFloat2(&values[i], &other.values[i]);
+		}
+		DOFKeys<Float2> keys;
+		keys.Set(mode, count, frames, axis, constant, values);
+		mKeys.Set(keys);
+	}
+
+	// FUNCTION: ENGINE 0x10738870
+	CompressedVector2DOFChannel::CompressedVector2DOFChannel(const CompressedVector2DOFChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		constant.x = other.constant.x;
+		constant.y = other.constant.y;
+		constant.z = other.constant.z;
+		axis = other.axis;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new Short2[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10738960
+	Vector3DOFChannel::Vector3DOFChannel(const Vector3DOFChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new math::Vector[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			CopyVector(&values[i], &other.values[i]);
+		}
+		ChannelKeys<math::Vector> keys;
+		keys.Set(mode, count, frames, values);
+		mKeys.Set(keys);
+	}
+
+	// FUNCTION: ENGINE 0x10738A80
+	CompressedVector3DOFChannel::CompressedVector3DOFChannel(const CompressedVector3DOFChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new Short3[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10738B60
+	QuaternionChannel::QuaternionChannel(const QuaternionChannel& other)
+	{
+		mode = other.mode;
+		unknown8 = other.unknown8;
+		name = other.name;
+		block = 0;
+		count = other.count;
+		frames = new short[count];
+		values = new math::Quaternion[count];
+		for (unsigned int i = 0; i < count; i++)
+		{
+			frames[i] = other.frames[i];
+			values[i] = other.values[i];
+		}
+		ChannelKeys<math::Quaternion> keys;
+		keys.Set(mode, count, frames, values);
+		mKeys.Set(keys);
 	}
 }

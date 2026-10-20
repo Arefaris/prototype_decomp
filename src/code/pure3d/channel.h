@@ -58,13 +58,53 @@ namespace pure3d
 	{
 		typedef T Type;
 	};
+	template<> struct KeyValue<math::CompressedQuaternion8>
+	{
+		typedef math::Quaternion Type;
+	};
 	template<> struct KeyValue<math::CompressedQuaternion6>
 	{
 		typedef math::Quaternion Type;
 	};
-	template<> struct KeyValue<math::CompressedQuaternion8>
+	template<> struct KeyValue<math::CompressedQuaternion4>
 	{
 		typedef math::Quaternion Type;
+	};
+	template<> struct KeyValue<math::CompressedQuaternion3>
+	{
+		typedef math::Quaternion Type;
+	};
+
+	// The keys of rotations have a base of their own: the rotation unit holds its own copy of the setter (0x106E3240)
+	class RotationKeysBase : public ChannelKeysBase
+	{
+	public:
+		void Set(unsigned int mode, unsigned int count, const short* frames);
+	};
+
+	template<class T> struct KeysBase
+	{
+		typedef ChannelKeysBase Type;
+	};
+	template<> struct KeysBase<math::Quaternion>
+	{
+		typedef RotationKeysBase Type;
+	};
+	template<> struct KeysBase<math::CompressedQuaternion8>
+	{
+		typedef RotationKeysBase Type;
+	};
+	template<> struct KeysBase<math::CompressedQuaternion6>
+	{
+		typedef RotationKeysBase Type;
+	};
+	template<> struct KeysBase<math::CompressedQuaternion4>
+	{
+		typedef RotationKeysBase Type;
+	};
+	template<> struct KeysBase<math::CompressedQuaternion3>
+	{
+		typedef RotationKeysBase Type;
 	};
 
 	// Two floats and two or three shorts a key (plain structs: the channels allocate their values without constructors)
@@ -89,7 +129,7 @@ namespace pure3d
 
 	// Typed keys (0x106E30A0, 0x106E30C0 and 0x106E30E0 are three instances of Set; 0x106E41C0 is the float
 	// instance of Evaluate, 0x106E6350 and 0x106E69B0 those of the two compressed quaternions)
-	template<class T> class ChannelKeys : public ChannelKeysBase
+	template<class T> class ChannelKeys : public KeysBase<T>::Type
 	{
 	public:
 		void Set(unsigned int mode, unsigned int count, const short* frames, const T* values);
@@ -122,8 +162,12 @@ namespace pure3d
 	public:
 		// 0x106E3340: no keys
 		RotationKeys();
-		// 0x106E3350: uncompressed quaternions
+		// 0x106E3350: uncompressed quaternions, 0x106E3380, 0x106E33B0, 0x106E33E0 and 0x106E3410: the compressed forms
 		void Set(ChannelKeys<math::Quaternion> newKeys);
+		void Set(ChannelKeys<math::CompressedQuaternion8> newKeys);
+		void Set(ChannelKeys<math::CompressedQuaternion6> newKeys);
+		void Set(ChannelKeys<math::CompressedQuaternion4> newKeys);
+		void Set(ChannelKeys<math::CompressedQuaternion3> newKeys);
 		// 0x106E6D70
 		void Evaluate(FrameTime time, math::Quaternion* out);
 		// 0x106E6FC0: the rotation that takes the value at the first time to the one at the second
@@ -230,6 +274,8 @@ namespace pure3d
 	public:
 		// 0x10736780
 		Float1Channel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738500: a copy on the heap
+		Float1Channel(const Float1Channel& other);
 		// 0x107367F0; the scalar deleting destructor is 0x107384E0
 		virtual ~Float1Channel();
 		// 0x107361D0
@@ -273,6 +319,8 @@ namespace pure3d
 	public:
 		// 0x10736F00
 		BoolChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738CE0: a copy on the heap
+		BoolChannel(const BoolChannel& other);
 		// 0x10736F80; the scalar deleting destructor is 0x10738CC0
 		virtual ~BoolChannel();
 		// 0x107363D0
@@ -351,8 +399,10 @@ namespace pure3d
 	class VectorChannel : public SimpleChannel
 	{
 	public:
-		// 0x10738420: an empty channel
-		VectorChannel();
+		// An empty channel (inline; the engine keeps a copy at 0x10738420)
+		VectorChannel()
+		{
+		}
 		// 0x107368A0
 		VectorChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
 		// 0x107368D0; the scalar deleting destructor is 0x10738440
@@ -371,6 +421,8 @@ namespace pure3d
 	public:
 		// 0x107368F0
 		Vector1DOFChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x107385F0: a copy on the heap
+		Vector1DOFChannel(const Vector1DOFChannel& other);
 		// 0x107369B0; the scalar deleting destructor is 0x107385D0
 		virtual ~Vector1DOFChannel();
 		// 0x10736230
@@ -388,6 +440,8 @@ namespace pure3d
 	public:
 		// 0x107369D0
 		Vector2DOFChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738720: a copy on the heap
+		Vector2DOFChannel(const Vector2DOFChannel& other);
 		// 0x10736A90; the scalar deleting destructor is 0x10738700
 		virtual ~Vector2DOFChannel();
 		// 0x10736260
@@ -405,6 +459,8 @@ namespace pure3d
 	public:
 		// 0x10736AB0
 		CompressedVector2DOFChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738870: a copy on the heap
+		CompressedVector2DOFChannel(const CompressedVector2DOFChannel& other);
 		// 0x10736B30; the scalar deleting destructor is 0x10738850
 		virtual ~CompressedVector2DOFChannel();
 		// 0x10736290
@@ -422,6 +478,8 @@ namespace pure3d
 	public:
 		// 0x10736B50
 		Vector3DOFChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738960: a copy on the heap
+		Vector3DOFChannel(const Vector3DOFChannel& other);
 		// 0x10736BE0; the scalar deleting destructor is 0x10738940
 		virtual ~Vector3DOFChannel();
 		// 0x107362C0
@@ -437,6 +495,8 @@ namespace pure3d
 	public:
 		// 0x10736C00
 		CompressedVector3DOFChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738A80: a copy on the heap
+		CompressedVector3DOFChannel(const CompressedVector3DOFChannel& other);
 		// 0x10736C70; the scalar deleting destructor is 0x10738A60
 		virtual ~CompressedVector3DOFChannel();
 		// 0x107362F0
@@ -451,8 +511,10 @@ namespace pure3d
 	class RotationChannel : public SimpleChannel
 	{
 	public:
-		// 0x10738460: an empty channel
-		RotationChannel();
+		// An empty channel (inline; the engine keeps a copy at 0x10738460)
+		RotationChannel()
+		{
+		}
 		// 0x10736C90
 		RotationChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
 		// 0x10736CC0; the scalar deleting destructor is 0x10738480
@@ -468,6 +530,8 @@ namespace pure3d
 	public:
 		// 0x10736CE0
 		QuaternionChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		// 0x10738B60: a copy on the heap
+		QuaternionChannel(const QuaternionChannel& other);
 		// 0x10736D80; the scalar deleting destructor is 0x10738B40
 		virtual ~QuaternionChannel();
 		// 0x10736320
@@ -479,6 +543,19 @@ namespace pure3d
 		void GetDelta(float previousTime, float time, math::Quaternion* out);
 
 		math::Quaternion* values;
+	};
+
+	// pure3d::CompressedQuaternionChannel<T> (RTTI: the four key types CompressedQuaternion8, 6, 4 and 3, whose numbers
+	// are the sizes of a key in bytes): a rotation channel whose keys are stored compressed
+	template<class T> class CompressedQuaternionChannel : public RotationChannel
+	{
+	public:
+		CompressedQuaternionChannel(unsigned int newCount, AnimationMemoryBlock* newBlock);
+		virtual ~CompressedQuaternionChannel();
+		virtual void Clear();
+		virtual void Relocate(int base);
+
+		T* values;
 	};
 
 	// The channels that animate one joint, in the order of the pose's arrays; a channel is null when the animation

@@ -11,7 +11,7 @@ namespace math
 {
 	// The scale factors sit in the data section (initialised there, not constants of the code)
 	float CompressedQuaternion6::sScale = 1.0f / 32767.0f;
-	float CompressedQuaternion8::sScale = 1.0f / 127.0f;
+	float CompressedQuaternion3::sScale = 1.0f / 127.0f;
 
 	// FUNCTION: ENGINE 0x106E3E10
 	inline Quaternion CompressedQuaternion6::ToQuaternion() const
@@ -29,7 +29,7 @@ namespace math
 	}
 
 	// FUNCTION: ENGINE 0x106E3F50
-	inline Quaternion CompressedQuaternion8::ToQuaternion() const
+	inline Quaternion CompressedQuaternion3::ToQuaternion() const
 	{
 		float qx = x * sScale;
 		float qy = y * sScale;
@@ -220,7 +220,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x106E69B0
-	template<> void ChannelKeys<math::CompressedQuaternion8>::Evaluate(FrameTime time, math::Quaternion* out)
+	template<> void ChannelKeys<math::CompressedQuaternion3>::Evaluate(FrameTime time, math::Quaternion* out)
 	{
 		FrameTime time0;
 		FrameTime time1;
@@ -234,8 +234,8 @@ namespace pure3d
 		if (found && mode != 0)
 		{
 			float alpha = time.time - time0.time;
-			math::CompressedQuaternion8 a;
-			math::CompressedQuaternion8 b;
+			math::CompressedQuaternion3 a;
+			math::CompressedQuaternion3 b;
 			GetKeys(values, index0, index1, &a, &b);
 			if (alpha == 0.0f)
 			{
@@ -246,7 +246,7 @@ namespace pure3d
 			out->Slerp(a.ToQuaternion(), b.ToQuaternion(), t);
 			return;
 		}
-		math::CompressedQuaternion8 key;
+		math::CompressedQuaternion3 key;
 		GetKey(values, index0, &key);
 		*out = key.ToQuaternion();
 	}
@@ -271,9 +271,9 @@ template void pure3d::GetKeys<math::CompressedQuaternion6>(const math::Compresse
 	int index1, math::CompressedQuaternion6* out0, math::CompressedQuaternion6* out1);
 
 // FUNCTION: ENGINE 0x106E3D60
-template void pure3d::GetKey<math::CompressedQuaternion8>(const math::CompressedQuaternion8* values, int index,
-	math::CompressedQuaternion8* out);
+template void pure3d::GetKey<math::CompressedQuaternion3>(const math::CompressedQuaternion3* values, int index,
+	math::CompressedQuaternion3* out);
 
 // FUNCTION: ENGINE 0x106E3D80
-template void pure3d::GetKeys<math::CompressedQuaternion8>(const math::CompressedQuaternion8* values, int index0,
-	int index1, math::CompressedQuaternion8* out0, math::CompressedQuaternion8* out1);
+template void pure3d::GetKeys<math::CompressedQuaternion3>(const math::CompressedQuaternion3* values, int index0,
+	int index1, math::CompressedQuaternion3* out0, math::CompressedQuaternion3* out1);
