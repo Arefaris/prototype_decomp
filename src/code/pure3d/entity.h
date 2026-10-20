@@ -24,6 +24,9 @@ namespace pure3d
 			mRefCount = 0;
 			_ReadWriteBarrier();
 		}
+		// 0x106E2900: the engine's out-of-line destructor of the base (derived destructors defined in a unit call it, as
+		// Entity's does at 0x1072D4E0)
+		virtual ~RefCounted();
 		// 0x106E2930 / 0x106E2910
 		static void* operator new(unsigned int size);
 		static void operator delete(void* block);

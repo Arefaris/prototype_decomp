@@ -4,6 +4,7 @@
 #ifndef PURE3D_CHANNEL_H
 #define PURE3D_CHANNEL_H
 
+#include "code/content/chunkhandler.h"
 #include "code/core/name.h"
 #include "code/math/compressedquaternion.h"
 #include "code/math/quaternion.h"
@@ -172,6 +173,8 @@ namespace pure3d
 		void Evaluate(FrameTime time, math::Quaternion* out);
 		// 0x106E6FC0: the rotation that takes the value at the first time to the one at the second
 		void GetDelta(FrameTime from, FrameTime to, math::Quaternion* out);
+		// 0x10734E40: the same for two times given as numbers
+		void GetDelta(float previousTime, float time, math::Quaternion* out);
 
 		int type;
 		ChannelKeys<math::Quaternion> keys;
@@ -556,6 +559,112 @@ namespace pure3d
 		virtual void Relocate(int base);
 
 		T* values;
+	};
+
+	// A colour as the colour channels keep it: four bytes (the bit fields make the engine's code insert each into the word)
+	struct Colour
+	{
+		unsigned int b : 8;
+		unsigned int g : 8;
+		unsigned int r : 8;
+		unsigned int a : 8;
+	};
+
+	// 0x10735790: blends two colours byte by byte (name guess)
+	void BlendColour(Colour* out, const Colour* from, const Colour* to, float t);
+	// 0x10735CD0, 0x10735D20, 0x10735D70, 0x10735E60, 0x10735F20, 0x10735FA0: the value between those of two channels at
+	// a time (the delta version for the floats); t is how far from the first to the second (names guessed)
+	int BlendInt(IntChannel* from, IntChannel* to, float t, float time);
+	float BlendFloat(Float1Channel* from, Float1Channel* to, float t, float time);
+	float BlendFloatDelta(Float1Channel* from, Float1Channel* to, float t, float previousTime, float time);
+	math::Vector* BlendVector(math::Vector* out, VectorChannel* from, VectorChannel* to, float t, float time);
+	math::Quaternion* BlendQuaternion(math::Quaternion* out, RotationChannel* from, RotationChannel* to, float t, float time);
+	unsigned int* BlendColourValue(unsigned int* out, ColourChannel* from, ColourChannel* to, float t, float time);
+
+	// pure3d::ChannelHandler (RTTI: base RefCounted, 6 slots): reads the channels of the chunk ids it supports out of
+	// a chunk file (names guessed)
+	class ChannelHandler : public RefCounted
+	{
+	public:
+		ChannelHandler()
+		{
+		}
+		virtual ~ChannelHandler()
+		{
+		}
+		// Whether the handler loads the channels of that chunk id
+		virtual bool IsSupported(unsigned int chunkId) = 0;
+		// Reads the channel the reader sits in; a channel is made from the block's memory (or from the heap without
+		// one), the inventory is where the entities of an entity channel come from
+		virtual Channel* Load(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block) = 0;
+		// How many bytes a channel of a kind and of count keys takes in the block: the object and its arrays
+		virtual void GetSize(unsigned int* objectSize, unsigned int* dataSize, unsigned int chunkId,
+			unsigned short count) = 0;
+	};
+
+	// The handler of the channel kinds above (RTTI: DefaultChannelHandler, 6 slots, 8 bytes)
+	class DefaultChannelHandler : public ChannelHandler
+	{
+	public:
+		DefaultChannelHandler()
+		{
+		}
+		// 0x107359B0
+		virtual bool IsSupported(unsigned int chunkId);
+		// 0x107397A0: picks the loader of the chunk's kind
+		virtual Channel* Load(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		// 0x10735A00
+		virtual void GetSize(unsigned int* objectSize, unsigned int* dataSize, unsigned int chunkId,
+			unsigned short count);
+
+		// 0x10736430: the chunks inside a channel's chunk (the mode, the name, the key count and the offset)
+		void ReadChunks(SimpleChannel* channel, content::ChunkReader* reader);
+		// 0x10737030, 0x10737110, 0x107371F0, 0x10737C10, 0x10737AE0, 0x107379B0, 0x107395B0
+		IntChannel* LoadInt(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		Float1Channel* LoadFloat1(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		Float2Channel* LoadFloat2(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		ColourChannel* LoadColour(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		BoolChannel* LoadBool(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		StringChannel* LoadString(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		EntityChannel* LoadEntity(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		// 0x107372D0: the vector channels (chunk ids 0x121102 - 0x121104, 0x121118, 0x121119); 0x10738DB0: the
+		// rotation channels (0x121105, 0x121111 - 0x121114)
+		Channel* LoadVector(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+		Channel* LoadRotation(content::ChunkReader* reader, content::LoadInventory* inventory,
+			AnimationMemoryBlock* block);
+	};
+
+	// pure3d::ChannelLoader (RTTI: base RefCounted, 3 slots; 0x84 bytes): the handlers a chunk file's channels are
+	// read with, newest first; the first thing it makes is the default handler
+	class ChannelLoader : public RefCounted
+	{
+	public:
+		// 0x10739730
+		ChannelLoader();
+		// 0x107365D0; the scalar deleting destructor is 0x10737CF0
+		virtual ~ChannelLoader();
+
+		// 0x10735BB0: puts a handler in front of the others
+		void AddHandler(ChannelHandler* handler);
+		// 0x10735BF0: the first handler that loads a chunk id
+		ChannelHandler* FindHandler(unsigned int chunkId);
+		// 0x10735C40
+		bool HasHandler(unsigned int chunkId);
+		// 0x10735C80: loads the channel the reader sits in with the handler of its chunk id
+		Channel* Load(content::ChunkReader* reader, content::LoadInventory* inventory, AnimationMemoryBlock* block);
+
+		int count;
+		ChannelHandler* handlers[32];
 	};
 
 	// The channels that animate one joint, in the order of the pose's arrays; a channel is null when the animation

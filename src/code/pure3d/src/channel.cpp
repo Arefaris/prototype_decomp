@@ -22,6 +22,28 @@ namespace pure3d
 		to->y = from->y;
 	}
 
+	// The reads of the loaders below (inline in the engine: each one has a temporary of its own)
+	inline unsigned int ReadWord(content::ChunkReader* reader)
+	{
+		unsigned int value;
+		reader->Read(&value, 1, 4, 1);
+		return value;
+	}
+
+	inline unsigned short ReadShort(content::ChunkReader* reader)
+	{
+		unsigned short value;
+		reader->Read(&value, 1, 2, 1);
+		return value;
+	}
+
+	inline unsigned char ReadByte(content::ChunkReader* reader)
+	{
+		unsigned char value;
+		reader->Read(&value, 1, 1, 1);
+		return value;
+	}
+
 	// FUNCTION: ENGINE 0x10736110
 	Channel::Channel() : mode(-1), unknown8(0), name(0, 1)
 	{
@@ -1183,4 +1205,588 @@ namespace pure3d
 		keys.Set(mode, count, frames, values);
 		mKeys.Set(keys);
 	}
+
+	// FUNCTION: ENGINE 0x10734E40
+	void RotationKeys::GetDelta(float previousTime, float time, math::Quaternion* out)
+	{
+		GetDelta(FrameTime(previousTime), FrameTime(time), out);
+	}
+
+	// FUNCTION: ENGINE 0x10735790
+	// NONMATCHING: the engine converts each lerped byte with the inline fnstcw / fistp sequence on x87 values and inserts
+	// it into the word with xor / and; any cast spelling here gives the call to _ftol2 or other code (best 13 %)
+#ifdef NONMATCHING
+	void BlendColour(Colour* out, const Colour* from, const Colour* to, float t)
+	{
+		out->r = (unsigned int)(((float)to->r - (float)from->r) * t + (float)from->r);
+		out->g = (unsigned int)(((float)to->g - (float)from->g) * t + (float)from->g);
+		out->b = (unsigned int)(((float)to->b - (float)from->b) * t + (float)from->b);
+		out->a = (unsigned int)(((float)to->a - (float)from->a) * t + (float)from->a);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107358F0
+	void ColourChannel::GetValue(float time, unsigned int* out)
+	{
+		unsigned int index0;
+		unsigned int index1;
+		if (FindKeys(time, &index0, &index1) && mode != 0)
+		{
+			float offset = time - (float)frames[index0];
+			if (offset == 0.0f)
+			{
+				*out = values[index0];
+				return;
+			}
+			BlendColour((Colour*)out, (Colour*)&values[index0], (Colour*)&values[index1],
+				offset / (float)(frames[index1] - frames[index0]));
+			return;
+		}
+		*out = values[index0];
+	}
+
+	// FUNCTION: ENGINE 0x10735CD0
+	int BlendInt(IntChannel* from, IntChannel* to, float t, float time)
+	{
+		int a;
+		int b;
+		from->GetValue(time, &a);
+		to->GetValue(time, &b);
+		return (int)((float)(b - a) * t) + a;
+	}
+
+	// FUNCTION: ENGINE 0x10735D20
+	float BlendFloat(Float1Channel* from, Float1Channel* to, float t, float time)
+	{
+		float a;
+		float b;
+		from->GetValue(time, &a);
+		to->GetValue(time, &b);
+		return (b - a) * t + a;
+	}
+
+	// FUNCTION: ENGINE 0x10735D70
+	float BlendFloatDelta(Float1Channel* from, Float1Channel* to, float t, float previousTime, float time)
+	{
+		float a;
+		float b;
+		from->GetDelta(previousTime, time, &a, -1.0f, false);
+		to->GetDelta(previousTime, time, &b, -1.0f, false);
+		return (b - a) * t + a;
+	}
+
+	// FUNCTION: ENGINE 0x10735E60
+	math::Vector* BlendVector(math::Vector* out, VectorChannel* from, VectorChannel* to, float t, float time)
+	{
+		math::Vector b;
+		from->mKeys.Evaluate(FrameTime(time), out);
+		to->mKeys.Evaluate(FrameTime(time), &b);
+		out->x = (b.x - out->x) * t + out->x;
+		out->y = (b.y - out->y) * t + out->y;
+		out->z = (b.z - out->z) * t + out->z;
+		return out;
+	}
+
+	// FUNCTION: ENGINE 0x10735F20
+	math::Quaternion* BlendQuaternion(math::Quaternion* out, RotationChannel* from, RotationChannel* to, float t,
+		float time)
+	{
+		math::Quaternion b;
+		from->mKeys.Evaluate(FrameTime(time), out);
+		to->mKeys.Evaluate(FrameTime(time), &b);
+		out->Slerp(*out, b, t);
+		return out;
+	}
+
+	// FUNCTION: ENGINE 0x10735FA0
+	unsigned int* BlendColourValue(unsigned int* out, ColourChannel* from, ColourChannel* to, float t, float time)
+	{
+		unsigned int a = 0;
+		unsigned int b = 0;
+		*out = 0;
+		from->GetValue(time, &a);
+		to->GetValue(time, &b);
+		BlendColour((Colour*)out, (Colour*)&a, (Colour*)&b, t);
+		return out;
+	}
+
+	// FUNCTION: ENGINE 0x10736430
+	void DefaultChannelHandler::ReadChunks(SimpleChannel* channel, content::ChunkReader* reader)
+	{
+		while (reader->HasChunk())
+		{
+			switch (reader->BeginChunk())
+			{
+			case 0x121110:
+				ReadWord(reader);
+				channel->mode = ReadWord(reader);
+				break;
+			case 0x121116:
+			{
+				char text[256];
+				ReadWord(reader);
+				unsigned int length = ReadByte(reader);
+				reader->Read(text, length, 1, 1);
+				text[length] = 0;
+				core::Name<core::CaseInsensitiveKey32> newName(text, 1);
+				channel->name = newName;
+				break;
+			}
+			case 0x121120:
+				ReadWord(reader);
+				channel->count = ReadWord(reader);
+				channel->offset = ReadWord(reader);
+				break;
+			}
+			reader->EndChunk();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10737030
+	IntChannel* DefaultChannelHandler::LoadInt(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		IntChannel* channel;
+		if (block == 0)
+		{
+			channel = new IntChannel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) IntChannel(count, block);
+		}
+		channel->unknown8 = version;
+		if (count > 0)
+		{
+			reader->Read(channel->frames, count, 2, 1);
+			reader->Read(channel->values, count, 4, 1);
+		}
+		ReadChunks(channel, reader);
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x10737110
+	Float1Channel* DefaultChannelHandler::LoadFloat1(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		Float1Channel* channel;
+		if (block == 0)
+		{
+			channel = new Float1Channel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) Float1Channel(count, block);
+		}
+		channel->unknown8 = version;
+		if (count > 0)
+		{
+			reader->Read(channel->frames, count, 2, 1);
+			reader->Read(channel->values, count, 4, 1);
+		}
+		ReadChunks(channel, reader);
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x107371F0
+	Float2Channel* DefaultChannelHandler::LoadFloat2(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		Float2Channel* channel;
+		if (block == 0)
+		{
+			channel = new Float2Channel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) Float2Channel(count, block);
+		}
+		channel->unknown8 = version;
+		if (count > 0)
+		{
+			reader->Read(channel->frames, count, 2, 1);
+			reader->Read(channel->values, count * 2, 4, 1);
+		}
+		ReadChunks(channel, reader);
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x10737C10
+	ColourChannel* DefaultChannelHandler::LoadColour(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		ColourChannel* channel;
+		if (block == 0)
+		{
+			channel = new ColourChannel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) ColourChannel(count, block);
+		}
+		channel->unknown8 = version;
+		if (count > 0)
+		{
+			reader->Read(channel->frames, count, 2, 1);
+			reader->Read(channel->values, count, 4, 1);
+		}
+		ReadChunks(channel, reader);
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x10737AE0
+	// EQUIVALENT: the engine copies the key count into the loop counter after clearing the word index; ours before (98.6 %)
+	BoolChannel* DefaultChannelHandler::LoadBool(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		bool value = (short)ReadShort(reader) == 1;
+		unsigned int count = ReadWord(reader);
+		BoolChannel* channel;
+		if (block == 0)
+		{
+			channel = new BoolChannel(count + 1, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) BoolChannel(count + 1, block);
+		}
+		channel->unknown8 = version;
+		reader->Read(channel->frames + 1, count, 2, 1);
+		unsigned int keys = count + 1;
+		channel->frames[0] = -1;
+		unsigned int bit = 0;
+		if (keys > 0)
+		{
+			unsigned int left = keys;
+			unsigned int word = 0;
+			do
+			{
+				if (value == true)
+				{
+					channel->values[word] |= 1 << bit;
+				}
+				bit++;
+				if (bit == 32)
+				{
+					bit = 0;
+					word++;
+				}
+				value = !value;
+				left--;
+			}
+			while (left != 0);
+		}
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x107379B0
+	// EQUIVALENT: the engine stores the name's terminator after setting up the call's arguments; ours before them (94.8 %)
+	StringChannel* DefaultChannelHandler::LoadString(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		char text[256];
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		StringChannel* channel;
+		if (block == 0)
+		{
+			channel = new StringChannel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) StringChannel(count, block);
+		}
+		channel->unknown8 = version;
+		reader->Read(channel->frames, count, 2, 1);
+		for (unsigned int i = 0; i < count; i++)
+		{
+			unsigned int length = ReadByte(reader);
+			reader->Read(text, length, 1, 1);
+			text[length] = 0;
+			channel->values[i].SetText(text);
+		}
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x107395B0
+	EntityChannel* DefaultChannelHandler::LoadEntity(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		char text[256];
+		ReadWord(reader);
+		int version = ReadWord(reader);
+		unsigned int count = ReadWord(reader);
+		EntityChannel* channel;
+		if (block == 0)
+		{
+			channel = new EntityChannel(count, 0);
+		}
+		else
+		{
+			channel = new (block->Allocate(0x24, 7)) EntityChannel(count, block);
+		}
+		channel->unknown8 = version;
+		reader->Read(channel->frames, count, 2, 1);
+		for (unsigned int i = 0; i < count; i++)
+		{
+			unsigned int length = ReadByte(reader);
+			reader->Read(text, length, 1, 1);
+			text[length] = 0;
+			channel->values[i] = inventory->Find<Entity>(text);
+			if (channel->values[i] != 0)
+			{
+				channel->values[i]->AddRef();
+			}
+		}
+		ReadChunks(channel, reader);
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x10739730
+	// EQUIVALENT: the engine hoists the memset size push above the reference count stores of the base (84.6 %)
+	ChannelLoader::ChannelLoader()
+	{
+		count = 0;
+		memset(handlers, 0, sizeof(handlers));
+		AddHandler(new DefaultChannelHandler);
+	}
+
+	// FUNCTION: ENGINE 0x107365D0
+	ChannelLoader::~ChannelLoader()
+	{
+		for (int i = 0; i < count; i++)
+		{
+			core::SafeRelease(handlers[i]);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10735BB0
+	void ChannelLoader::AddHandler(ChannelHandler* handler)
+	{
+		if (handler != 0)
+		{
+			memmove(&handlers[1], &handlers[0], count * 4);
+			handlers[0] = handler;
+			handler->AddRef();
+			count++;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10735BF0
+	ChannelHandler* ChannelLoader::FindHandler(unsigned int chunkId)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			if (handlers[i]->IsSupported(chunkId) == true)
+			{
+				return handlers[i];
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10735C40
+	bool ChannelLoader::HasHandler(unsigned int chunkId)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			if (handlers[i]->IsSupported(chunkId) == true)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10735C80
+	Channel* ChannelLoader::Load(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			if (handlers[i]->IsSupported(reader->GetChunkId()) == true)
+			{
+				return handlers[i]->Load(reader, inventory, block);
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x107359B0
+	bool DefaultChannelHandler::IsSupported(unsigned int chunkId)
+	{
+		switch (chunkId)
+		{
+		case 0x121100:
+		case 0x121101:
+		case 0x121102:
+		case 0x121103:
+		case 0x121104:
+		case 0x121105:
+		case 0x121106:
+		case 0x121107:
+		case 0x121108:
+		case 0x121109:
+		case 0x12110E:
+		case 0x121111:
+		case 0x121112:
+		case 0x121113:
+		case 0x121114:
+		case 0x121118:
+		case 0x121119:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107397A0
+	// EQUIVALENT: the engine keeps the reader in ebx, the handler in edi and the result in esi; ours edi, esi, ebx (38 %)
+	Channel* DefaultChannelHandler::Load(content::ChunkReader* reader, content::LoadInventory* inventory,
+		AnimationMemoryBlock* block)
+	{
+		Channel* channel = 0;
+		switch (reader->GetChunkId())
+		{
+		case 0x121100:
+			channel = LoadFloat1(reader, inventory, block);
+			return channel;
+		case 0x121101:
+			channel = LoadFloat2(reader, inventory, block);
+			return channel;
+		case 0x121102:
+		case 0x121103:
+		case 0x121104:
+		case 0x121118:
+		case 0x121119:
+			channel = LoadVector(reader, inventory, block);
+			return channel;
+		case 0x121105:
+		case 0x121111:
+		case 0x121112:
+		case 0x121113:
+		case 0x121114:
+			channel = LoadRotation(reader, inventory, block);
+			return channel;
+		case 0x121106:
+			channel = LoadString(reader, inventory, block);
+			return channel;
+		case 0x121107:
+			channel = LoadEntity(reader, inventory, block);
+			return channel;
+		case 0x121108:
+			channel = LoadBool(reader, inventory, block);
+			return channel;
+		case 0x121109:
+			channel = LoadColour(reader, inventory, block);
+			break;
+		case 0x12110E:
+			channel = LoadInt(reader, inventory, block);
+			return channel;
+		}
+		return channel;
+	}
+
+	// FUNCTION: ENGINE 0x10735A00
+	// NONMATCHING: the engine's switch is a plain jump table with tail-merged case bodies; ours gets a byte index table and
+	// other bodies (best 25 %)
+#ifdef NONMATCHING
+	void DefaultChannelHandler::GetSize(unsigned int* objectSize, unsigned int* dataSize, unsigned int chunkId,
+		unsigned short count)
+	{
+		unsigned int frames = 0;
+		unsigned int values = 0;
+		*objectSize = 0;
+		switch (chunkId)
+		{
+		case 0x121100:
+		case 0x121107:
+		case 0x121109:
+		case 0x12110E:
+			*objectSize = 0x24;
+			frames = count * 2;
+			values = count * 4;
+			break;
+		case 0x121101:
+		case 0x121106:
+			*objectSize = 0x24;
+			frames = count * 2;
+			values = count * 8;
+			break;
+		case 0x121102:
+		case 0x121118:
+			*objectSize = 0x58;
+			frames = count * 2;
+			values = count * 4;
+			break;
+		case 0x121103:
+			*objectSize = 0x58;
+			frames = count * 2;
+			values = count * 8;
+			break;
+		case 0x121104:
+			*objectSize = 0x48;
+			frames = count * 2;
+			values = count * 12;
+			break;
+		case 0x121105:
+			*objectSize = 0x38;
+			frames = count * 2;
+			values = count * 16;
+			break;
+		case 0x121108:
+			*objectSize = 0x24;
+			frames = count * 2;
+			values = (((int)count - 1) >> 5) * 4 + 4;
+			break;
+		case 0x121111:
+			*objectSize = 0x38;
+			frames = count * 2;
+			values = count * 8;
+			break;
+		case 0x121112:
+			*objectSize = 0x38;
+			frames = count * 2;
+			values = count * 6;
+			break;
+		case 0x121113:
+			*objectSize = 0x38;
+			frames = count * 2;
+			values = count * 4;
+			break;
+		case 0x121114:
+			*objectSize = 0x38;
+			frames = count * 2;
+			values = count * 3;
+			break;
+		case 0x121119:
+			*objectSize = 0x48;
+			frames = count * 2;
+			values = count * 6;
+			break;
+		}
+		*objectSize = (*objectSize + 7) & ~7;
+		*dataSize = ((values + 3) & ~3) + ((frames + 3) & ~3);
+	}
+#endif
 }
+
+// The lookup of an entity by name (the filter the entity channel loader hands the inventory)
+// FUNCTION: ENGINE 0x10736610
+// FUNCTION: ENGINE 0x10736620
+template class content::LoadInventory::DynamicCaster<pure3d::Entity>;
