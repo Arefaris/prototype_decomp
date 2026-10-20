@@ -10,6 +10,8 @@ public:
 	GMatrix2D();
 	// 0x1095DDD0: a copy of another matrix
 	GMatrix2D(const GMatrix2D& other);
+	// 0x1095F550: copies another matrix and answers this one
+	GMatrix2D& operator=(const GMatrix2D& other);
 	// 0x1095DE00: the scales, the shears and the translation
 	GMatrix2D(float sx, float shx, float shy, float sy, float tx, float ty);
 	// 0x1095DE50: the matrix of a rotation by angle (radians)

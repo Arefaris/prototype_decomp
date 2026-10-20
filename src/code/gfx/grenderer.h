@@ -14,6 +14,12 @@ struct GCxform
 	float M[4][2];
 };
 
+// What a renderer counts while it draws (16 bytes)
+struct GRenderStats
+{
+	unsigned int mValues[4];
+};
+
 // What the player names a part of what it draws by (a name and nothing else is known)
 struct GRendererMarker
 {
@@ -70,7 +76,7 @@ public:
 	virtual void BeginSubmitMask(int mode) = 0;
 	virtual void EndSubmitMask() = 0;
 	virtual void DisableMask() = 0;
-	virtual unsigned int GetRenderStats(void* stats, bool reset) = 0;
+	virtual void GetRenderStats(GRenderStats* stats, bool reset) = 0;
 	virtual void Unknown7C() = 0;
 	// slots 32 and 33 (0x1095DF40 / 0x1095DF50)
 	virtual bool Unknown80(int argument);

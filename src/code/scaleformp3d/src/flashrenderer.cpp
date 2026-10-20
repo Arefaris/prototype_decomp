@@ -160,6 +160,155 @@ namespace scaleformp3d
 		mLineStyle.Disable();
 	}
 
+	// FUNCTION: ENGINE 0x1095CF80
+	void FlashRenderer::SetTextureMode(int wrap, bool smooth)
+	{
+		if (mWrapS != wrap || mSmooth != smooth)
+		{
+			mWrapS = wrap;
+			mSmooth = smooth;
+			mConstantsChanged = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1095DA10
+	// EQUIVALENT: the same loads, multiplies and stores; the engine keeps the scale in the register that held the first value
+	// and loads the other adds into four registers in another order (85 %)
+	void FlashRenderer::SetColourTransform(const GCxform* cxform)
+	{
+		float r = cxform->M[0][0];
+		float g = cxform->M[1][0];
+		float b = cxform->M[2][0];
+		float a = cxform->M[3][0];
+		mColourMultiply[0] = r;
+		mColourMultiply[1] = g;
+		mColourMultiply[2] = b;
+		mColourMultiply[3] = a;
+		float scale = 1.0f / 255.0f;
+		float ar = cxform->M[0][1];
+		float ag = cxform->M[1][1];
+		float ab = cxform->M[2][1];
+		float aa = cxform->M[3][1];
+		mColourAdd[0] = ar * scale;
+		mColourAdd[1] = ag * scale;
+		mColourAdd[2] = ab * scale;
+		mColourAdd[3] = aa * scale;
+		mConstantsChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1095DA90
+	void FlashRenderer::SetConstant20(const float* values)
+	{
+		float x = values[0];
+		float y = values[1];
+		float w = values[2];
+		mConstant20[0] = x;
+		mConstant20[1] = y;
+		mConstant20[2] = 0.0f;
+		mConstant20[3] = w;
+		mConstantsChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1095DAC0
+	void FlashRenderer::SetConstant30(const float* values)
+	{
+		float x = values[0];
+		float y = values[1];
+		float w = values[2];
+		mConstant30[0] = x;
+		mConstant30[1] = y;
+		mConstant30[2] = 0.0f;
+		mConstant30[3] = w;
+		mConstantsChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1095DAF0
+	void FlashRenderer::SetTextureFlag(bool flag)
+	{
+		mTextureFlag = flag;
+		mConstantsChanged = true;
+		SelectColourOrder();
+	}
+
+	// FUNCTION: ENGINE 0x1095D880
+	void FlashRenderer::GetRenderStats(GRenderStats* stats, bool reset)
+	{
+		if (stats != 0)
+		{
+			*stats = mStats;
+		}
+		if (reset)
+		{
+			mStats.mValues[0] = 0;
+			mStats.mValues[1] = 0;
+			mStats.mValues[2] = 0;
+			mStats.mValues[3] = 0;
+		}
+	}
+
+	FlashRenderer* gFlashRenderer;
+
+	// FUNCTION: ENGINE 0x1095CFD0
+	// EQUIVALENT: the same loads, conversions and stores in the same order; the engine loads the green, alpha and blue bytes
+	// first into other registers (65.2 %)
+	void SetDrawColour(const GColor* colour)
+	{
+		unsigned char green = colour->mGreen;
+		unsigned char alpha = colour->mAlpha;
+		unsigned char blue = colour->mBlue;
+		unsigned char red = colour->mRed;
+		float* values = gFlashRenderer->mColour;
+		values[0] = (float)red;
+		values[1] = (float)green;
+		values[2] = (float)blue;
+		values[3] = (float)alpha;
+		gFlashRenderer->mConstantsChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1095D5C0
+	int GetVertexSize(int format)
+	{
+		switch (format)
+		{
+		case 1:
+			return 4;
+		case 2:
+		case 3:
+			return 8;
+		case 4:
+			return 12;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1095D600
+	const short* ReadPosition(float* out, const short* in)
+	{
+		out[0] = (float)in[0];
+		out[1] = (float)in[1];
+		out[2] = 0.0f;
+		return in + 2;
+	}
+
+	// FUNCTION: ENGINE 0x1095D030
+	unsigned int FlashRenderer::SelectVertexLayout()
+	{
+		switch (mVertexFormat)
+		{
+		case 1:
+		case 2:
+			mUnknown3220 = false;
+			break;
+		case 3:
+			mUnknown3220 = true;
+			break;
+		case 4:
+			mUnknown3220 = true;
+			return 0x6020;
+		}
+		return 0x2020;
+	}
+
 	// The members of the stack of blend modes that the engine keeps as functions of their own
 	// FUNCTION: ENGINE 0x1095DC00 ; container::ArrayFixed<int,64>::Size
 	int (container::ArrayFixed<int, 64>::*gKeepBlendModesSize)() const = &container::ArrayFixed<int, 64>::Size;
@@ -186,4 +335,18 @@ namespace scaleformp3d
 	// FUNCTION: ENGINE 0x1095DC50 ; container::ArrayDynamicNew<classpure3d::dxVertexBuffer*>::operator[]
 	pure3d::dxVertexBuffer*& (container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::*gKeepVertexRingAt)(int) =
 		&container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::operator[];
+
+	// FUNCTION: ENGINE 0x1095E7D0 ; container::ArrayFixed<int,64>::PushBack
+	bool (container::ArrayFixed<int, 64>::*gKeepBlendModesPushBack)(const int&) = &container::ArrayFixed<int, 64>::PushBack;
+
+	// FUNCTION: ENGINE 0x1095E8B0 ; container::ArrayFixed<int,64>::Reset
+	void (container::ArrayFixed<int, 64>::*gKeepBlendModesReset)() = &container::ArrayFixed<int, 64>::Reset;
+
+	// FUNCTION: ENGINE 0x1095E880 ; container::ArrayDynamicNew<classpure3d::dxVertexBuffer*>::PushBack
+	bool (container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::*gKeepVertexRingPushBack)(pure3d::dxVertexBuffer* const&) =
+		&container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::PushBack;
+
+	// FUNCTION: ENGINE 0x1095EDB0 ; container::ArrayDynamicNew<classpure3d::dxVertexBuffer*>::Clear
+	void (container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::*gKeepVertexRingClear)() =
+		&container::ArrayDynamicNew<pure3d::dxVertexBuffer*>::Clear;
 }

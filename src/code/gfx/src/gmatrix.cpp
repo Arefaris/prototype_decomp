@@ -72,3 +72,15 @@ void GMatrix2D::MakeRotation(GMatrix2D* matrix, float angle)
 	matrix->M[1][0] = sine;
 	matrix->M[1][1] = cosine;
 }
+
+// FUNCTION: ENGINE 0x1095F550
+GMatrix2D& GMatrix2D::operator=(const GMatrix2D& other)
+{
+	M[0][0] = other.M[0][0];
+	M[0][1] = other.M[0][1];
+	M[0][2] = other.M[0][2];
+	M[1][0] = other.M[1][0];
+	M[1][1] = other.M[1][1];
+	M[1][2] = other.M[1][2];
+	return *this;
+}

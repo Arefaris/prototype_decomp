@@ -19,6 +19,16 @@ namespace scaleformp3d
 		unsigned char unknown0[0x94];
 	};
 
+	// 0x1095CFD0: the colour the draws are made in, as four floats in the renderer in use
+	void SetDrawColour(const GColor* colour);
+	// 0x1131FD68: the renderer in use
+	class FlashRenderer;
+	extern FlashRenderer* gFlashRenderer;
+	// 0x1095D5C0: the bytes a vertex of the format takes in the stream
+	int GetVertexSize(int format);
+	// 0x1095D600: reads the position of a vertex of two 16 bit coordinates; answers where the next field starts
+	const short* ReadPosition(float* out, const short* in);
+
 	class FlashRenderer : public GRenderer
 	{
 	public:
@@ -51,9 +61,20 @@ namespace scaleformp3d
 		virtual void BeginSubmitMask(int mode);
 		virtual void EndSubmitMask();
 		virtual void DisableMask();
-		virtual unsigned int GetRenderStats(void* stats, bool reset);
+		virtual void GetRenderStats(GRenderStats* stats, bool reset);
 		virtual void Unknown7C();
 
+		// 0x1095D030: the flags of the vertex layout the format asks for (and whether the caps flag is on for it)
+		unsigned int SelectVertexLayout();
+		// 0x1095CF80: the wrap mode of the texture and whether it is smoothed
+		void SetTextureMode(int wrap, bool smooth);
+		// 0x1095DA10: the colour transform as the multiplies and the adds (the adds scaled to 0 - 1)
+		void SetColourTransform(const GCxform* cxform);
+		// 0x1095DA90 / 0x1095DAC0: two values and a third (the middle of the vector is zero)
+		void SetConstant20(const float* values);
+		void SetConstant30(const float* values);
+		// 0x1095DAF0: the second flag of the texture state, and the colour order that goes with it
+		void SetTextureFlag(bool flag);
 		// 0x1095D1C0: the order of the colours the vertex format asks for
 		void SelectColourOrder();
 		// 0x1095D8D0: which shader the draws use
@@ -64,10 +85,17 @@ namespace scaleformp3d
 		unsigned char unknown10[0x20 - 0x10];
 		float mConstant20[4];                  // 0x20
 		float mConstant30[4];                  // 0x30
-		unsigned char unknown40[0x50 - 0x40];
+		float mColour[4];                      // 0x40
 		float mColourMultiply[4];              // 0x50
 		float mColourAdd[4];                   // 0x60
-		unsigned char unknown70[0x80 - 0x70];
+		void* mTexture;                        // 0x70
+		int mWrapS : 2;                        // 0x74
+		int mWrapT : 2;
+		int unknown74Bits : 28;
+		bool mSmooth : 1;                      // 0x78
+		bool mTextureFlag : 1;
+		unsigned char unknown78Bits : 6;
+		unsigned char unknown79[7];
 		bool mConstantsChanged;                // 0x80
 		unsigned char unknown81[0x3158 - 0x81];
 		int mShaderIndex;                      // 0x3158
@@ -89,7 +117,9 @@ namespace scaleformp3d
 		container::ArrayFixed<int, 64> mBlendModes; // 0x3298
 		FlashStyleState mFillStyle;            // 0x339C
 		FlashStyleState mLineStyle;            // 0x3430
-		unsigned char unknown34C4[0x34DD - 0x34C4];
+		unsigned char unknown34C4[0x34C8 - 0x34C4];
+		GRenderStats mStats;                   // 0x34C8
+		unsigned char unknown34D8[0x34DD - 0x34D8];
 		bool mVerticesCurrent;                 // 0x34DD
 		bool mIndicesCurrent;                  // 0x34DE
 		unsigned char unknown34DF[0x3554 - 0x34DF];
