@@ -41,6 +41,89 @@ namespace crypto
 		return 0;
 	}
 
+	// The destructors of the bases, which the engine expands in the destructors of the kinds and keeps a copy of
+	// FUNCTION: ENGINE 0x1093FE10 ; crypto::Cipher::~Cipher
+	// FUNCTION: ENGINE 0x10940600 ; crypto::Hash::~Hash
+	// FUNCTION: ENGINE 0x109406F0 ; crypto::Mac::~Mac
+#pragma inline_depth(0)
+	void KeepBaseDestructors(Cipher* cipher, Hash* hash, Mac* mac)
+	{
+		cipher->Cipher::~Cipher();
+		hash->Hash::~Hash();
+		mac->Mac::~Mac();
+	}
+#pragma inline_depth()
+
+	// The constructors of the bases, which the engine expands in the constructors of the kinds and keeps a copy of
+	// FUNCTION: ENGINE 0x1093FDE0 ; crypto::Cipher::Cipher
+	// FUNCTION: ENGINE 0x109405E0 ; crypto::Hash::Hash
+	// FUNCTION: ENGINE 0x109406C0 ; crypto::Mac::Mac
+#pragma inline_depth(0)
+	void KeepBaseConstructors(const CipherKey& key)
+	{
+		struct KeepCipher : Cipher
+		{
+			KeepCipher(const CipherKey& other) : Cipher(2, other) {}
+			virtual void Encrypt(const void*, int, void*, int*) {}
+			virtual void Decrypt(const void*, int, void*, int*) {}
+		};
+		struct KeepHash : Hash
+		{
+			KeepHash() : Hash(1) {}
+			virtual void Compute(const void*, int, HashValue*) {}
+		};
+		struct KeepMac : Mac
+		{
+			KeepMac(const CipherKey& other) : Mac(1, other) {}
+			virtual void Compute(const void*, int, HashValue*) {}
+		};
+		KeepCipher cipher(key);
+		KeepHash hash;
+		KeepMac mac(key);
+	}
+#pragma inline_depth()
+
+	// FUNCTION: ENGINE 0x1093FE20
+	BlockTEACipher::BlockTEACipher(const CipherKey& key) : Cipher(0, key)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1093FE60
+	BlockTEACipher::~BlockTEACipher()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10940440
+	BlowfishCipher::BlowfishCipher(const CipherKey& key) : Cipher(1, key)
+	{
+		mState.SetKey(&key, 16);
+	}
+
+	// FUNCTION: ENGINE 0x10940490
+	BlowfishCipher::~BlowfishCipher()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10940610
+	MD5Hash::MD5Hash() : Hash(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10940620
+	MD5Hash::~MD5Hash()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10940700
+	MD5HMac::MD5HMac(const CipherKey& key) : Mac(0, key)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10940740
+	MD5HMac::~MD5HMac()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10940380
 	void BlockTEACipher::Encrypt(const void* in, int size, void* out, int* outSize)
 	{

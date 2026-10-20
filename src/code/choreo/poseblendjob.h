@@ -155,12 +155,17 @@ namespace choreo
 	};
 
 	// A blend node of a puppet's root (0x30 bytes)
-	struct BlendRootNode
+	struct __declspec(align(16)) BlendRootNode
 	{
 		// 0x10958CD0
 		void Apply();
 
-		unsigned char unknown0[0x30];
+		PoseBlendNode* mBegin;             // 0x00
+		PoseBlendNode* mEnd;               // 0x04
+		pure3d::PoseLayout mLayout;        // 0x08
+		pure3d::SkeletonLimbInfo mLimbInfo;// 0x18
+		Puppet* mPuppet;                   // 0x20
+		unsigned char unknown24[0xC];
 	};
 
 	// The drivers' own part of the blend that is not a node: they are applied to the pose by tasks. Both kinds of task
@@ -273,6 +278,8 @@ namespace choreo
 
 	// 0x10959150: Puppet::Update of each puppet of the batch
 	void UpdatePuppets(float dt, Puppet** begin, Puppet** end);
+	// 0x109591E0: Update, Evaluate, UpdatePose and ReleaseRemoved of each puppet of the batch in turn
+	void UpdatePuppetsSerial(float dt, Puppet** begin, Puppet** end);
 	// 0x10959180 / 0x109591B0
 	void Unknown10959180(Puppet** begin, Puppet** end);
 	void Unknown109591B0(Puppet** begin, Puppet** end);

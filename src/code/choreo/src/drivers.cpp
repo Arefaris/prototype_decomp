@@ -66,7 +66,7 @@ namespace choreo
 	// FUNCTION: ENGINE 0x10956380
 	int GetSteerSampleCount(Driver* driver)
 	{
-		return static_cast<LocomotionSteerDriver*>(driver)->mUnknown2AC;
+		return static_cast<LocomotionSteerDriver*>(driver)->mSampleCount;
 	}
 
 	// FUNCTION: ENGINE 0x10956390
@@ -367,4 +367,22 @@ namespace choreo
 	{
 		task->SetDriver(this);
 	}
+
+	// The copy constructors the compiler makes for the drivers (used by the copies above), which the engine has on their
+	// own: IKDriver, JointDriver, RestPoseDriver, StrafeAdjustRootDriver, DeltaTransform, BlendEntry, the locomotion
+	// drivers' base, AnimationDriver, AnimationBlendDriver, JointLockDriver, the steer and strafe drivers, RootDriver
+	// FUNCTION: ENGINE 0x10956690
+	// FUNCTION: ENGINE 0x109566F0
+	// FUNCTION: ENGINE 0x10956730
+	// FUNCTION: ENGINE 0x10956750
+	// FUNCTION: ENGINE 0x109567D0
+	// FUNCTION: ENGINE 0x10956820
+	// FUNCTION: ENGINE 0x10956850 ; choreo::LocomotionDriver::LocomotionDriver
+	// FUNCTION: ENGINE 0x10956980
+	// FUNCTION: ENGINE 0x10956A70
+	// FUNCTION: ENGINE 0x10956AF0
+	// EQUIVALENT: the engine copies the matrix as four rows through a helper; ours copies its sixteen floats one by one (28.6 %)
+	// FUNCTION: ENGINE 0x10956B50
+	// FUNCTION: ENGINE 0x10956C80
+	// FUNCTION: ENGINE 0x10956DA0
 }

@@ -36,13 +36,9 @@ namespace crypto
 	{
 	public:
 		// 0x10940610
-		__declspec(noinline) MD5Hash() : Hash(0)
-		{
-		}
+		MD5Hash();
 		// 0x10940620 / 0x109406A0
-		virtual ~MD5Hash()
-		{
-		}
+		virtual ~MD5Hash();
 		// 0x10940630
 		virtual void Compute(const void* data, int length, HashValue* out);
 	};
@@ -72,13 +68,9 @@ namespace crypto
 	{
 	public:
 		// 0x10940700
-		__declspec(noinline) explicit MD5HMac(const CipherKey& key) : Mac(0, key)
-		{
-		}
+		explicit MD5HMac(const CipherKey& key);
 		// 0x10940740 / 0x10940790
-		virtual ~MD5HMac()
-		{
-		}
+		virtual ~MD5HMac();
 		// 0x10940750
 		virtual void Compute(const void* data, int length, HashValue* out);
 	};

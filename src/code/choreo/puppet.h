@@ -8,6 +8,7 @@
 #include "code/core/name.h"
 #include "code/core/refptr.h"
 #include "code/math/matrix.h"
+#include "code/choreo/poseblendjob.h"
 #include "code/pure3d/pose.h"
 #include "code/pure3d/posedata.h"
 
@@ -15,6 +16,10 @@ namespace choreo
 {
 	struct PuppetCounts;
 	struct PoseBlendCursors;
+	struct BlendRootNode;
+	class PoseBlendSample;
+	struct PoseBlendRootRange;
+	struct PoseBlendLimbRange;
 
 	// What a driver is told about what it drives (the pose its channels belong to)
 	struct DriverInfo
@@ -159,6 +164,91 @@ namespace choreo
 		float mFade;
 	};
 
+	// How the weight of the drivers is shared among those that take part in one kind of blending: a driver takes
+	// part when the flag says so, and the drivers that do share the weight in proportion to their own (16 bytes)
+	struct DriverWeightShare
+	{
+		typedef bool (Driver::*FlagFunction)() const;
+
+		// 0x10947810: the share of the first driver
+		DriverWeightShare(FlagFunction flag, const DriverEntry& entry, float scale)
+		{
+			mFlag = flag;
+			mWeight = 0.0f;
+			mTotal = 0.0f;
+			mScale = 0.0f;
+			float weight = entry.mFade * entry.mWeight;
+			bool takesPart = (entry.mDriver->*flag)();
+			mTotal = takesPart ? weight : 0.0f;
+			mWeight = takesPart ? scale : 0.0f;
+			mScale = scale;
+		}
+		// The same for a driver and the weight of its entry already worked out
+		DriverWeightShare(FlagFunction flag, Driver* driver, float weight, float scale)
+		{
+			mFlag = flag;
+			mWeight = 0.0f;
+			mTotal = 0.0f;
+			mScale = 0.0f;
+			bool takesPart = (driver->*flag)();
+			mTotal = takesPart ? weight : 0.0f;
+			mWeight = takesPart ? scale : 0.0f;
+			mScale = scale;
+		}
+		void Add(Driver* driver, float weight)
+		{
+			bool takesPart = (driver->*mFlag)();
+			float shared = takesPart ? weight : 0.0f;
+			float total = shared + mTotal;
+			mTotal = total;
+			mWeight = (takesPart && total > 0.0f) ? mScale / total * weight : 0.0f;
+		}
+		// 0x10947890: takes the next driver into account
+		void Add(const DriverEntry& entry)
+		{
+			float weight = entry.mFade * entry.mWeight;
+			bool takesPart = (entry.mDriver->*mFlag)();
+			float shared = takesPart ? weight : 0.0f;
+			float total = shared + mTotal;
+			mTotal = total;
+			mWeight = (takesPart && total > 0.0f) ? mScale / total * weight : 0.0f;
+		}
+		// 0x10947900
+		float GetWeight() const
+		{
+			return mWeight;
+		}
+
+		FlagFunction mFlag;        // 0x00
+		float mWeight;             // 0x04
+		float mTotal;              // 0x08
+		float mScale;              // 0x0C
+	};
+
+	// Where a puppet writes its blend nodes and tasks in the shared buffers (16 bytes)
+	struct PoseBlendWriter
+	{
+		// 0x10947700
+		__forceinline explicit PoseBlendWriter(const PoseBlendCursors* cursors)
+		{
+			mRoot = (BlendRootNode*)cursors->cursor[0];
+			mSamples = (PoseBlendSample*)cursors->cursor[4];
+			mRootRange = (PoseBlendRootRange*)cursors->cursor[1];
+			mLimbRange = (PoseBlendLimbRange*)cursors->cursor[2];
+		}
+		// 0x10947720 / 0x10947790 / 0x109477D0: a node, a root task or a limb task for a driver
+		void WriteNode(Driver* driver, float first, float second, float third, float fourth);
+		void WriteRootTask(Driver* driver, float first, float second);
+		void WriteLimbTask(Driver* driver, float first, float second);
+		// 0x10947DF0: whichever the driver's type makes
+		void Write(Driver* driver, float first, float second, float third, float fourth);
+
+		BlendRootNode* mRoot;              // 0x00
+		PoseBlendSample* mSamples;         // 0x04
+		PoseBlendRootRange* mRootRange;    // 0x08
+		PoseBlendLimbRange* mLimbRange;    // 0x0C
+	};
+
 	// The matrices of the limbs of a skeleton that a puppet blends (0x118 bytes): up to four, each with a weight
 	class LimbPoses
 	{
@@ -200,6 +290,7 @@ namespace choreo
 		PuppetState();
 		// 0x10946D50
 		PuppetState& operator=(const PuppetState& other);
+		// 0x10946D30 (the engine expands it in the destructor of the puppet and keeps a copy of it)
 		~PuppetState()
 		{
 		}
@@ -239,6 +330,8 @@ namespace choreo
 		void SetPose(pure3d::Pose* pose);
 		// 0x10946DA0: the skeleton of the pose
 		pure3d::Skeleton* GetSkeleton();
+		// 0x10946DB0: the same on a puppet that is not to be changed
+		pure3d::Skeleton* GetSkeleton() const;
 		// 0x10947A50: whether the puppet can take the driver at all
 		bool CanHold(Driver* driver);
 		// 0x10947A30 / 0x10947A40: the word the owner keeps
@@ -299,10 +392,19 @@ namespace choreo
 		void SortDrivers();
 		// 0x10947660: counts the blend nodes, samples and tasks the puppet's drivers need
 		void CountNodes(PuppetCounts* counts);
+		// 0x10947E80: writes the drivers first to last of a priority group, sharing the weight
+		void WriteGroup(unsigned int first, unsigned int last, float weight, PoseBlendWriter* writer);
+		// 0x109484A0: writes all the drivers, group by group of equal priority
+		void WriteAll(PoseBlendWriter* writer);
+		// 0x10948CB0: blends the drivers into the pose now, on the scratch stack, and turns the root motion into the
+		// delta matrix
+		void Evaluate();
 		// 0x10948770: writes the pose blend nodes of the puppet where the cursors stand
 		void BuildNodes(PuppetCounts* counts, PoseBlendCursors* cursors);
 		// 0x10946D00: turns the root translation and rotation of the update into the root delta matrix
 		void BuildRootDelta();
+		// 0x10947BF0: builds the root delta (name guess)
+		void Unknown10947BF0();
 		// 0x10947910: updates the pose's matrices
 		void UpdatePose();
 		// 0x10947920: releases the drivers that were dropped

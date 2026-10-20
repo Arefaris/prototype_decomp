@@ -22,6 +22,9 @@ namespace choreo
 	// 0x10945A90: the angle from one heading to another, wrapped into [-pi, pi) (name guessed)
 	float AngleDifference(float from, float to);
 
+	// 0x10945AD0: turns a vector about the vertical axis (name guessed)
+	void RotateY(float angle, math::Vector& vector);
+
 	// 0x1008C890: wraps a frame around [minimum, maximum) (the unit of the frame times; name guessed)
 	float WrapFrame(float minimum, float maximum, float frame);
 
@@ -98,6 +101,12 @@ namespace choreo
 		void Reset();
 		// 0x1094D8F0: the translation of the delta's matrix
 		math::Vector GetPosition() const;
+		// 0x1094D8C0 / 0x1094D8D0: the linear and the angular delta
+		const math::Vector& GetVelocity() const;
+		const math::Vector& GetAngularVelocity() const;
+		// 0x1094D8E0 / 0x1094D910: the transform's own quaternion, and its reset
+		const math::Quaternion& GetTransformQuaternion();
+		void ResetTransform();
 
 		// The linear delta of the step, in world space
 		void SetVelocity(const math::Vector& velocity);

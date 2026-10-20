@@ -6,6 +6,7 @@
 
 #include "code/choreo/deltatransform.h"
 #include "code/choreo/puppet.h"
+#include "code/choreo/samplechannels.h"
 #include "code/pure3d/animation.h"
 #include "code/pure3d/pose.h"
 
@@ -17,10 +18,17 @@ namespace choreo
 	{
 		// 0x109521E0: an empty clip with its channel block
 		AnimationClip();
+		// 0x10952220: a copy with a block of channels of its own
+		AnimationClip(const AnimationClip& other);
 		// 0x10952290
 		~AnimationClip();
-		// 0x109522A0: binds the clip to an animation (nothing is copied while reset is clear)
-		void Set(pure3d::Animation* animation, void* pose, bool reset);
+		// 0x109522A0: binds the clip to an animation over a skeleton (the clip takes the animation's length and rate
+		// only when reset is set)
+		void Set(pure3d::Animation* animation, pure3d::Skeleton* skeleton, bool reset);
+		// 0x10952340: the rate of the clip in frames per second
+		void SetFrameRate(float rate);
+		// 0x10952370: bit 0 of the clip's flags
+		bool Unknown10952370() const;
 		// 0x10952310: whether the clip is bound to an animation
 		bool IsSet() const;
 		// 0x10952320 / 0x10952330: the length of the clip in frames and its rate in frames per second
@@ -31,22 +39,29 @@ namespace choreo
 		void Unknown10952360(float value);
 		// 0x10952380: bit 1 of the clip's flags
 		bool Unknown10952380() const;
-		// 0x10952390: whether the animation drives any joint of the mask
-		bool Unknown10952390(const void* mask) const;
+		// 0x10952390: whether the channels have the root of every limb that has a joint in the mask (every limb
+		// without a mask)
+		bool HasChannelsFor(const pure3d::JointMask* mask) const;
 		// 0x10952480: the animation the clip shows
-		void Unknown10952480(void* out) const;
-		// 0x10955260 / 0x109552C0 / 0x10955360: samples the clip over the two frames (in another unit, declared here)
-		void Unknown10955260(float from, float to, bool forward, int mode);
-		void Unknown109552C0(float from, float to, bool forward, int mode);
-		void Unknown10955360(float frame, float weight, void* owner);
+		void Unknown10952480(PoseBlendSample* sample) const;
+		// 0x10955260 / 0x109552C0 / 0x10955320 / 0x10955360: what the clip's channels give for the root over the two
+		// frames, for the root's scale, and for the translation of a joint (they sit in another unit than the rest)
+		int GetRootRotation(float to, float from, bool forward, math::Quaternion* out);
+		bool GetRootTranslation(float to, float from, bool forward, math::Vector* out);
+		bool GetRootScale(float time, math::Vector* out);
+		void GetTranslationAt(float time, math::Vector* out, int joint);
+		// 0x109554C0: lays the channels at time over a two-component value by weight
+		void BlendValue(float time, float* value, float weight);
 
-		void* mUnknown0;                // 0x00
+		SampleChannels* mChannels;      // 0x00
 		float mDuration;                // 0x04
 		float mFrameRate;               // 0x08
 		float mUnknownC;                // 0x0C
-		unsigned char mFlags;           // 0x10
+		bool mFlag0 : 1;                // 0x10
+		bool mFlag1 : 1;
+		unsigned char unknown10Bits : 6;
 		unsigned char unknown11[3];
-		pure3d::Animation* mAnimation;  // 0x14
+		const pure3d::SkeletonData* mSkeletonData;  // 0x14
 	};
 
 	// The animation a driver plays and the clip of it that it shows (the pair at the animation driver's +0x38)
@@ -154,6 +169,8 @@ namespace choreo
 	class AnimationDriver : public PartitionDriver
 	{
 	public:
+		// 0x1094F860: a driver over the skeleton that plays the animation, its whole range at its own rate
+		AnimationDriver(pure3d::Skeleton* skeleton, pure3d::Animation* animation);
 		// slot 0 (0x1094F290): binds the clip to an animation
 		virtual void Bind(const DriverInfo& info);
 		// slot 1 (0x1094F2D0): releases the animation
@@ -170,6 +187,12 @@ namespace choreo
 		// 0x1094F1E0 / 0x1094F1F0
 		bool GetUnknown66() const;
 		bool GetUnknown67() const;
+		// 0x1094F810: whether the owner stops the driver (the range is played out and the driver neither loops nor
+		// follows the root)
+		void UpdateFinished();
+		// 0x1094F970: the range of frames to show and how fast to play it: from the duration it should take (when above
+		// zero) and the direction of the rate, or the rate itself; the end counts back from the last frame when negative
+		void SetRange(float duration, float rate, float start, float end);
 		// 0x1094F2E0: whether the driver plays a clip
 		bool IsSet() const;
 		// 0x1094F2F0: whether the clip is at rest against the pose
@@ -197,9 +220,9 @@ namespace choreo
 		// 0x1094F610: the range to show, clamped
 		void SetUnknownE4(float frame);
 		// 0x1094F630 / 0x1094F670 / 0x1094F6B0: the clip's frame samplers
-		void Unknown1094F630(float a, float b, float frame, int mode);
-		void Unknown1094F670(float a, float b, float frame, int mode);
-		void Unknown1094F6B0(float a, float b, void* c);
+		int GetRootRotation(float to, float from, float frame, math::Quaternion* out);
+		bool GetRootTranslation(float to, float from, float frame, math::Vector* out);
+		void GetTranslationAt(float time, math::Vector* out, int joint);
 		// 0x1094F6D0: hands the clip to the pose blend node and to the sample of the node
 		void Unknown1094F6D0(PoseBlendNode* node, PoseBlendSample* sample);
 

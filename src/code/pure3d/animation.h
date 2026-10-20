@@ -7,6 +7,14 @@
 
 namespace pure3d
 {
+	// A group of channels of an animation, found by a name (the members are in another unit)
+	class AnimationGroup
+	{
+	public:
+		// 0x106E7910: the channel of the group by its type and the type of its values
+		void* FindChannel(unsigned int type, unsigned int format);
+	};
+
 	// pure3d::AnimationMemoryBlock (RTTI name; base pure3d::RefCounted): the memory an animation's data sits in
 	class AnimationMemoryBlock : public RefCounted
 	{
@@ -43,9 +51,17 @@ namespace pure3d
 		void Unknown106E7B50();
 		// 0x106E9310: keeps the data of mode in the manager's memory (name guess)
 		void Unknown106E9310(int mode);
+		// 0x106E8590 / 0x106E79E0: the group of the animation for a name, and the group of the whole animation
+		AnimationGroup* FindGroup(const core::Name<core::CaseSensitiveKey>* name);
+		AnimationGroup* FindOverallGroup(int mode);
 
 		float numFrames;
-		unsigned char unknown14[0x28];
+		float mFrameRate;
+		bool mFlag0 : 1;
+		unsigned char unknown18Bits : 7;
+		unsigned char unknown19[7];
+		float mUnknown20;
+		unsigned char unknown24[0x18];
 		AnimationMemoryBlock* mBlock;
 	};
 

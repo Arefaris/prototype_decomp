@@ -2,11 +2,111 @@
 #include "code/choreo/puppet.h"
 #include "code/choreo/poseblendjob.h"
 #include "code/core/heap.h"
+#include "code/pure3d/posedata.h"
+#include "code/ravenphysics/common/stackallocator.h"
 #include <algorithm>
 #include <string.h>
 
+// The sort of the drivers is the toolchain's <algorithm> for DriverEntry*; the unit keeps every instance of it as a COMDAT
+// function of its own, and the compiler reproduces each one
+// FUNCTION: ENGINE 0x10947AA0
+template choreo::DriverEntry* std::_Checked_base<choreo::DriverEntry*>(choreo::DriverEntry*&, std::_Unchanged_checked_iterator_base_type_tag);
+
+// FUNCTION: ENGINE 0x10947AB0
+template std::pair<choreo::DriverEntry*, choreo::DriverEntry*>::pair(choreo::DriverEntry* const&, choreo::DriverEntry* const&);
+
+// FUNCTION: ENGINE 0x10947AD0
+template int* std::_Dist_type<choreo::DriverEntry*>(choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10947AE0
+template choreo::DriverEntry* std::_Val_type<choreo::DriverEntry*>(choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10947AF0
+template void std::swap<choreo::DriverEntry>(choreo::DriverEntry&, choreo::DriverEntry&);
+
+// FUNCTION: ENGINE 0x10947B30
+template void std::_Push_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, int, int, choreo::DriverEntry);
+
+// FUNCTION: ENGINE 0x10947BA0
+template std::random_access_iterator_tag std::_Iter_random<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry* const&, choreo::DriverEntry* const&);
+
+// FUNCTION: ENGINE 0x10947BB0
+template std::_Nonscalar_ptr_iterator_tag std::_Ptr_cat<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*&, choreo::DriverEntry*&);
+
+// FUNCTION: ENGINE 0x10947BC0
+template choreo::DriverEntry* std::_Copy_backward_opt<choreo::DriverEntry*, choreo::DriverEntry*, std::forward_iterator_tag>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, std::forward_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x109481A0
+template choreo::DriverEntry* std::_Checked_base<choreo::DriverEntry*>(choreo::DriverEntry*&);
+
+// FUNCTION: ENGINE 0x109481B0
+template void std::iter_swap<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109481F0
+template void std::_Med3<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109482A0
+template void std::_Adjust_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, int, int, choreo::DriverEntry);
+
+// FUNCTION: ENGINE 0x10948360
+template choreo::DriverEntry* std::_Copy_backward_opt<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, std::random_access_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x109483B0
+template void std::_Pop_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry, int*);
+
+// FUNCTION: ENGINE 0x109485C0
+template void std::_Median<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948660
+template void std::_Make_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, int*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109486D0
+template choreo::DriverEntry* stdext::unchecked_copy_backward<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948700
+template void std::_Pop_heap_0<choreo::DriverEntry*, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948870
+template std::pair<choreo::DriverEntry*, choreo::DriverEntry*> std::_Unguarded_partition<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948B40
+template void std::make_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948B80
+template void std::_Insertion_sort1<choreo::DriverEntry*, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948C70
+template void std::pop_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948DE0
+template void std::_Insertion_sort<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948E00
+template void std::_Sort_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948EA0
+template void std::sort_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948EB0
+template void std::_Sort<choreo::DriverEntry*, int>(choreo::DriverEntry*, choreo::DriverEntry*, int);
+
+// FUNCTION: ENGINE 0x10949010
+template void std::sort<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// The pose is assigned as its reference counted base
+// FUNCTION: ENGINE 0x10947A70 ; core::RefAssign<classpure3d::LockableRefCounted>
+template void core::RefAssign<pure3d::LockableRefCounted>(pure3d::LockableRefCounted*&, pure3d::LockableRefCounted*);
+
 namespace choreo
 {
+	// FUNCTION: ENGINE 0x10946D30 ; choreo::PuppetState::~PuppetState
+#pragma inline_depth(0)
+	void KeepPuppetStateDestructor(PuppetState* state)
+	{
+		state->~PuppetState();
+	}
+#pragma inline_depth()
+
 	// FUNCTION: ENGINE 0x10946C30
 	int Puppet::IsEmpty() const
 	{
@@ -112,6 +212,12 @@ namespace choreo
 
 	// FUNCTION: ENGINE 0x10946DA0
 	pure3d::Skeleton* Puppet::GetSkeleton()
+	{
+		return mPoseObject->mSkeleton;
+	}
+
+	// FUNCTION: ENGINE 0x10946DB0
+	pure3d::Skeleton* Puppet::GetSkeleton() const
 	{
 		return mPoseObject->mSkeleton;
 	}
@@ -598,6 +704,100 @@ namespace choreo
 		counts->count[3] = limbs;
 	}
 
+	// The constructor of the writer, which the engine also has on its own
+	// FUNCTION: ENGINE 0x10947700 ; choreo::PoseBlendWriter::PoseBlendWriter
+#pragma inline_depth(0)
+	PoseBlendWriter* KeepWriterConstructor(const PoseBlendCursors* cursors)
+	{
+		return new PoseBlendWriter(cursors);
+	}
+#pragma inline_depth()
+
+	// FUNCTION: ENGINE 0x10947720
+	void PoseBlendWriter::WriteNode(Driver* driver, float first, float second, float third, float fourth)
+	{
+		mRoot->mEnd->SetEmpty();
+		mRoot->mEnd->SetWeights(first, second, third, fourth);
+		FillNode(driver, mRoot->mEnd, mSamples);
+		mSamples += GetSampleCount(driver);
+		mRoot->mEnd += 1;
+	}
+
+	// FUNCTION: ENGINE 0x10947790
+	void PoseBlendWriter::WriteRootTask(Driver* driver, float first, float second)
+	{
+		mRootRange->mEnd->SetWeights(first, second);
+		FillRootTask(driver, mRootRange->mEnd);
+		mRootRange->mEnd += 1;
+	}
+
+	// FUNCTION: ENGINE 0x109477D0
+	void PoseBlendWriter::WriteLimbTask(Driver* driver, float first, float second)
+	{
+		mLimbRange->mEnd->SetWeights(first, second);
+		FillLimbTask(driver, mLimbRange->mEnd);
+		mLimbRange->mEnd += 1;
+	}
+
+	// The functions of DriverWeightShare, which the engine also has on their own
+	// FUNCTION: ENGINE 0x10947890 ; choreo::DriverWeightShare::Add
+	// FUNCTION: ENGINE 0x10947900 ; choreo::DriverWeightShare::GetWeight
+	void (DriverWeightShare::*gKeepWeightShare[])(const DriverEntry&) = {&DriverWeightShare::Add};
+	float (DriverWeightShare::*gKeepWeightShare2[])() const = {&DriverWeightShare::GetWeight};
+
+	// FUNCTION: ENGINE 0x10947810 ; choreo::DriverWeightShare::DriverWeightShare
+#pragma inline_depth(0)
+	float KeepWeightShareConstructor(const DriverEntry& entry)
+	{
+		DriverWeightShare share(&Driver::GetFlag0, entry, 1.0f);
+		return share.mWeight;
+	}
+#pragma inline_depth()
+
+	// FUNCTION: ENGINE 0x10947DF0
+	void PoseBlendWriter::Write(Driver* driver, float first, float second, float third, float fourth)
+	{
+		switch (GetNodeKind(driver->mType))
+		{
+		case 0:
+			WriteNode(driver, first, second, third, fourth);
+			break;
+		case 1:
+			WriteRootTask(driver, first, second);
+			break;
+		case 2:
+			WriteLimbTask(driver, first, second);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10947E80
+	// NONMATCHING: the engine's inlined shares keep their fields in other stack slots and share the entry's weight (12.3 %)
+#ifdef NONMATCHING
+	void Puppet::WriteGroup(unsigned int first, unsigned int last, float weight, PoseBlendWriter* writer)
+	{
+		const DriverEntry* entry = &mEntries[first];
+		float entryWeight = entry->mFade * entry->mWeight;
+		Driver* driver = entry->mDriver;
+		DriverWeightShare translation(&Driver::GetFlag0, driver, entryWeight, weight);
+		DriverWeightShare rotation(&Driver::GetFlag1, driver, entryWeight, weight);
+		DriverWeightShare scale(&Driver::GetFlag3, driver, entryWeight, weight);
+		DriverWeightShare other(&Driver::GetFlag2, driver, entryWeight, weight);
+		writer->Write(driver, translation.mWeight, rotation.mWeight, scale.mWeight, other.mWeight);
+		for (unsigned int i = first + 1; i < last; i++)
+		{
+			entry++;
+			driver = entry->mDriver;
+			entryWeight = entry->mFade * entry->mWeight;
+			translation.Add(driver, entryWeight);
+			rotation.Add(driver, entryWeight);
+			scale.Add(driver, entryWeight);
+			other.Add(driver, entryWeight);
+			writer->Write(driver, translation.mWeight, rotation.mWeight, scale.mWeight, other.mWeight);
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10947910
 	void Puppet::UpdatePose()
 	{
@@ -677,6 +877,12 @@ namespace choreo
 		return AcceptDriver(driver, this, true);
 	}
 
+	// FUNCTION: ENGINE 0x10947BF0
+	void Puppet::Unknown10947BF0()
+	{
+		BuildRootDelta();
+	}
+
 	// FUNCTION: ENGINE 0x10947C00
 	// EQUIVALENT: the same operations in the same order; the engine loads the this pointer into ecx for the final call after the byte store, ours before (84.6 %)
 	PuppetState::PuppetState() : mUnknown40(false), mLimbs()
@@ -746,12 +952,55 @@ namespace choreo
 				mLimbs.Reset(pose->mSkeleton);
 			}
 		}
-		core::RefAssign(mPoseObject, pose);
+		core::RefAssign((pure3d::LockableRefCounted*&)mPoseObject, (pure3d::LockableRefCounted*)pose);
 		if (pose != 0)
 		{
 			mPose = &pose->mData;
 		}
 	}
+
+	// FUNCTION: ENGINE 0x109484A0
+	// NONMATCHING: the engine keeps the running weight in xmm0 across the loop and passes it through a temporary; ours
+	// spills it (30 %)
+#ifdef NONMATCHING
+	void Puppet::WriteAll(PoseBlendWriter* writer)
+	{
+		int firstPriority = mEntries[0].mPriority;
+		float weight = mEntries[0].mFade * mEntries[0].mWeight;
+		unsigned int first = 0;
+		bool movesRoot = mEntries[0].mDriver->mFlag4;
+		int priority = firstPriority;
+		for (unsigned int i = 1; i < mDriverCount; i++)
+		{
+			if (movesRoot || mEntries[i].mDriver->mFlag4)
+			{
+				movesRoot = true;
+			}
+			int entryPriority = mEntries[i].mPriority;
+			if (entryPriority != priority)
+			{
+				if (priority == firstPriority)
+				{
+					weight = 1.0f;
+				}
+				WriteGroup(first, i, weight, writer);
+				first = i;
+				priority = entryPriority;
+				weight = mEntries[i].mFade * mEntries[i].mWeight;
+			}
+			else if (weight < mEntries[i].mFade * mEntries[i].mWeight)
+			{
+				weight = mEntries[i].mFade * mEntries[i].mWeight;
+			}
+		}
+		if (priority == firstPriority)
+		{
+			weight = 1.0f;
+		}
+		WriteGroup(first, mDriverCount, weight, writer);
+		mPose->mFlags ^= ((movesRoot << 2) ^ mPose->mFlags) & 4;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10948400
 	Puppet::Puppet(pure3d::Pose* pose) : mRefCount(0), mUserData(0), mPoseObject(0), mPose(0), mTimeScale(1.0f),
@@ -773,6 +1022,104 @@ namespace choreo
 
 	// The engine calls the sort of the entries and does not expand it here
 #pragma inline_depth(0)
+	// FUNCTION: ENGINE 0x10948770
+	void Puppet::BuildNodes(PuppetCounts* counts, PoseBlendCursors* cursors)
+	{
+		if (mDriverCount != 0 && mPose != 0)
+		{
+			bool any = false;
+			if (0 < counts->count[0])
+			{
+				((BlendRootNode*)cursors->cursor[0])->mBegin = (PoseBlendNode*)cursors->cursor[3];
+				((BlendRootNode*)cursors->cursor[0])->mEnd = (PoseBlendNode*)cursors->cursor[3];
+				mPose->GetLayout(&((BlendRootNode*)cursors->cursor[0])->mLayout);
+				mPose->mSkeleton->GetLimbInfo(&((BlendRootNode*)cursors->cursor[0])->mLimbInfo);
+				((BlendRootNode*)cursors->cursor[0])->mPuppet = this;
+				any = true;
+			}
+			if (0 < counts->count[2])
+			{
+				((PoseBlendRootRange*)cursors->cursor[1])->mBegin = (PoseBlendRootTask*)cursors->cursor[5];
+				((PoseBlendRootRange*)cursors->cursor[1])->mEnd = (PoseBlendRootTask*)cursors->cursor[5];
+				((PoseBlendRootRange*)cursors->cursor[1])->mPose = mPose;
+				((PoseBlendRootRange*)cursors->cursor[1])->mPuppet = this;
+				any = true;
+			}
+			if (0 < counts->count[3])
+			{
+				((PoseBlendLimbRange*)cursors->cursor[2])->mBegin = (PoseBlendLimbTask*)cursors->cursor[6];
+				((PoseBlendLimbRange*)cursors->cursor[2])->mEnd = (PoseBlendLimbTask*)cursors->cursor[6];
+				((PoseBlendLimbRange*)cursors->cursor[2])->mPose = mPose;
+				((PoseBlendLimbRange*)cursors->cursor[2])->mPuppet = this;
+			}
+			else if (!any)
+			{
+				return;
+			}
+			PoseBlendWriter writer(cursors);
+			WriteAll(&writer);
+			mPose->mFlags |= 3;
+		}
+	}
+
+	// The root node the evaluation builds on its stack (the engine reserves more than the node itself)
+	struct __declspec(align(16)) RootNodeStorage : public BlendRootNode
+	{
+		unsigned char unknown30[0x10];
+	};
+
+	// FUNCTION: ENGINE 0x10948CB0
+	// NONMATCHING: same operations; the engine's frame is 0x10 bytes larger with other offsets (89.7 %)
+#ifdef NONMATCHING
+	void Puppet::Evaluate()
+	{
+		if (mDriverCount != 0 && mPose != 0)
+		{
+			{
+				ravenphysics::ScratchStackFrame frame;
+				ravenphysics::ScratchStack stack;
+				PuppetCounts counts;
+				CountNodes(&counts);
+				PoseBlendCursors cursors;
+				RootNodeStorage root;
+				PoseBlendRootRange rootRange;
+				PoseBlendLimbRange limbRange;
+				if (0 < counts.count[0])
+				{
+					cursors.cursor[0] = (unsigned char*)&root;
+					cursors.cursor[3] = (unsigned char*)stack.Alloc(counts.count[0] * 0x70, 0x10);
+					cursors.cursor[4] = (unsigned char*)stack.Alloc(counts.count[1] << 5, 0x10);
+				}
+				if (0 < counts.count[2])
+				{
+					cursors.cursor[1] = (unsigned char*)&rootRange;
+					cursors.cursor[5] = (unsigned char*)stack.Alloc(counts.count[2] << 4, 0x10);
+				}
+				if (0 < counts.count[3])
+				{
+					cursors.cursor[2] = (unsigned char*)&limbRange;
+					cursors.cursor[6] = (unsigned char*)stack.Alloc(counts.count[3] << 4, 0x10);
+				}
+				BuildNodes(&counts, &cursors);
+				if (cursors.cursor[3])
+				{
+					root.Apply();
+				}
+				if (cursors.cursor[5])
+				{
+					rootRange.Apply();
+				}
+				if (cursors.cursor[6])
+				{
+					UpdatePose();
+					limbRange.Apply();
+				}
+			}
+			BuildRootDelta();
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10949040
 	void Puppet::SortDrivers()
 	{

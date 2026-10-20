@@ -9,6 +9,26 @@
 
 namespace choreo
 {
+	// The unit keeps its own copies of the reference assignment (the other units share one per type)
+	template<class T> void RefAssign(T*& pointer, T* object)
+	{
+		if (object != 0)
+		{
+			object->AddRef();
+		}
+		if (pointer != 0)
+		{
+			pointer->Release();
+		}
+		pointer = object;
+	}
+
+	// FUNCTION: ENGINE 0x1094D1C0 ; choreo::RefAssign<classpure3d::Animation>
+	template void RefAssign<pure3d::Animation>(pure3d::Animation*&, pure3d::Animation*);
+
+	// FUNCTION: ENGINE 0x1094D4F0 ; choreo::RefAssign<classpure3d::Skeleton>
+	template void RefAssign<pure3d::Skeleton>(pure3d::Skeleton*&, pure3d::Skeleton*);
+
 	// The smallest length and rate the blend still divides by (the constant at 0x10E8BA6C)
 	static const float BLENDDRIVER_EPSILON = 1e-5f;
 
@@ -462,7 +482,7 @@ namespace choreo
 		{
 			mEntries[index].mBinding.mSource->Unknown106E7B50();
 		}
-		core::RefAssign(mEntries[index].mBinding.mSource, animation);
+		choreo::RefAssign(mEntries[index].mBinding.mSource, animation);
 		if (animation != 0)
 		{
 			animation->Unknown106E9310(1);
@@ -550,7 +570,7 @@ namespace choreo
 	{
 		if (binding.mSource != 0 && mSkeleton != 0)
 		{
-			if (!binding.mClip.Unknown10952390(mJointMask))
+			if (!binding.mClip.HasChannelsFor(mJointMask))
 			{
 				return false;
 			}
@@ -621,7 +641,7 @@ namespace choreo
 	void PartitionDriver::Bind(const DriverInfo& info)
 	{
 		core::Name<core::CaseSensitiveKey> name = mPartition != 0 ? mPartition->name : core::Name<core::CaseSensitiveKey>(0, 1);
-		core::RefAssign(mSkeleton, info.mSkeleton);
+		choreo::RefAssign(mSkeleton, info.mSkeleton);
 		SetPartitionByName(name);
 	}
 }

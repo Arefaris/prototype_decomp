@@ -6,12 +6,28 @@
 #include "code/pure3d/channel.h"
 #include "code/pure3d/posedata.h"
 
+namespace pure3d
+{
+	class Animation;
+	class Skeleton;
+}
+
 namespace choreo
 {
 	class SampleChannels
 	{
 	public:
 		static const unsigned int MAX_JOINTS = 96;
+
+		// 0x10951F30: finds the channels of the animation for the joints and limbs of the skeleton; hasChannels says
+		// whether it found any beyond the root's
+		void Bind(pure3d::Animation* animation, pure3d::Skeleton* skeleton, bool* hasChannels);
+		// 0x10952120: whether the root has both channels for a part
+		bool HasRootChannels(int part) const;
+		// 0x109521B0 / 0x109521C0 / 0x109521D0
+		pure3d::QuaternionChannel* GetRootRotation(int part) const;
+		pure3d::VectorChannel* GetRootTranslation(int part) const;
+		pure3d::VectorChannel* GetUnknown920() const;
 
 		// 0x10952150 - 0x109521A0: the channel of a joint, by kind
 		pure3d::QuaternionChannel* GetRotation(int joint);
@@ -34,6 +50,8 @@ namespace choreo
 		int GetRootRotation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Quaternion* out);
 		bool GetRootTranslation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Vector* out);
 		bool GetRootScale(pure3d::FrameTime time, math::Vector* out);
+		// 0x10953130: the translation of a joint at time, when it has a channel
+		void GetTranslationAt(pure3d::FrameTime time, math::Vector* out, int joint);
 
 		// 0x10954E00 / 0x10954C20: lay the channels at time over a two-component value / over the local matrices of a
 		// pose (only the joints of the mask when there is one) by weight
@@ -47,6 +65,11 @@ namespace choreo
 		pure3d::VectorChannel* mScales[MAX_JOINTS];
 		pure3d::VectorChannel* mUnknown14[MAX_JOINTS];
 		pure3d::VectorChannel* mUnknown1C[MAX_JOINTS];
+		// 0x900 - 0x91C: the root's rotation and translation channels of the animation, per skeleton part
+		pure3d::QuaternionChannel* mRootRotations[4];
+		pure3d::VectorChannel* mRootTranslations[4];
+		pure3d::VectorChannel* mUnknown920;
+		unsigned char unknown924[0xC];
 	};
 }
 

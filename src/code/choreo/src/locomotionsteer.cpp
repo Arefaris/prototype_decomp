@@ -1,0 +1,230 @@
+// choreo::LocomotionSteerDriver (driver type 5; the unit 0x1094FB00 - 0x10951F00, file name guessed from the class): the
+// locomotion that blends its clips by how the character steers. Names are guesses.
+#include "code/choreo/drivers.h"
+#include "code/choreo/poseblendjob.h"
+#include <algorithm>
+
+// The sort of the samples is the toolchain's <algorithm> for SteerSample*; the unit keeps every instance of it as a COMDAT
+// function of its own, and the compiler reproduces each one
+// FUNCTION: ENGINE 0x1094FF70
+template choreo::SteerSample* std::_Checked_base<choreo::SteerSample*>(choreo::SteerSample*&, std::_Unchanged_checked_iterator_base_type_tag);
+
+// FUNCTION: ENGINE 0x1094FF80
+template std::pair<choreo::SteerSample*, choreo::SteerSample*>::pair(choreo::SteerSample* const&, choreo::SteerSample* const&);
+
+// FUNCTION: ENGINE 0x1094FFA0
+template int* std::_Dist_type<choreo::SteerSample*>(choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x1094FFB0
+template choreo::SteerSample* std::_Val_type<choreo::SteerSample*>(choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x1094FFC0
+template void std::swap<choreo::SteerSample>(choreo::SteerSample&, choreo::SteerSample&);
+
+// FUNCTION: ENGINE 0x1094FFF0
+template void std::_Push_heap<choreo::SteerSample*, int, choreo::SteerSample>(choreo::SteerSample*, int, int, choreo::SteerSample);
+
+// FUNCTION: ENGINE 0x10950070
+template std::random_access_iterator_tag std::_Iter_random<choreo::SteerSample*, choreo::SteerSample*>(choreo::SteerSample* const&, choreo::SteerSample* const&);
+
+// FUNCTION: ENGINE 0x10950080
+template std::_Nonscalar_ptr_iterator_tag std::_Ptr_cat<choreo::SteerSample*, choreo::SteerSample*>(choreo::SteerSample*&, choreo::SteerSample*&);
+
+// FUNCTION: ENGINE 0x10950090
+template choreo::SteerSample* std::_Copy_backward_opt<choreo::SteerSample*, choreo::SteerSample*, std::forward_iterator_tag>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*, std::forward_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x10950300
+template choreo::SteerSample* std::_Checked_base<choreo::SteerSample*>(choreo::SteerSample*&);
+
+// FUNCTION: ENGINE 0x10950310
+template void std::iter_swap<choreo::SteerSample*, choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950340
+template void std::_Med3<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x109503E0
+template void std::_Adjust_heap<choreo::SteerSample*, int, choreo::SteerSample>(choreo::SteerSample*, int, int, choreo::SteerSample);
+
+// FUNCTION: ENGINE 0x10950490
+template choreo::SteerSample* std::_Copy_backward_opt<choreo::SteerSample*, choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*, std::random_access_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x109504F0
+template void std::_Pop_heap<choreo::SteerSample*, int, choreo::SteerSample>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample, int*);
+
+// FUNCTION: ENGINE 0x109506B0
+template void std::_Median<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950760
+template void std::_Make_heap<choreo::SteerSample*, int, choreo::SteerSample>(choreo::SteerSample*, choreo::SteerSample*, int*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x109507D0
+template choreo::SteerSample* stdext::unchecked_copy_backward<choreo::SteerSample*, choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950800
+template void std::_Pop_heap_0<choreo::SteerSample*, choreo::SteerSample>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950860
+template std::pair<choreo::SteerSample*, choreo::SteerSample*> std::_Unguarded_partition<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950CE0
+template void std::make_heap<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950D20
+template void std::_Insertion_sort1<choreo::SteerSample*, choreo::SteerSample>(choreo::SteerSample*, choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950DD0
+template void std::pop_heap<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950E10
+template void std::_Insertion_sort<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950E30
+template void std::_Sort_heap<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950EC0
+template void std::sort_heap<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+// FUNCTION: ENGINE 0x10950ED0
+template void std::_Sort<choreo::SteerSample*, int>(choreo::SteerSample*, choreo::SteerSample*, int);
+
+// FUNCTION: ENGINE 0x10951030
+template void std::sort<choreo::SteerSample*>(choreo::SteerSample*, choreo::SteerSample*);
+
+namespace choreo
+{
+	// 0x109516E0: the rate of a clip of the locomotion from a table of speeds (unit of the locomotion driver)
+	float GetClipRate(const void* speeds, pure3d::Animation* animation);
+
+	// The order of the samples, as a function of its own
+	// FUNCTION: ENGINE 0x1094FB50 ; choreo::SteerSample::operator<
+	bool (SteerSample::*gKeepSteerSampleLess)(const SteerSample&) const = &SteerSample::operator<;
+
+	// FUNCTION: ENGINE 0x1094FB20
+	unsigned int LocomotionSteerDriver::GetUnknown48() const
+	{
+		return mUnknown48;
+	}
+
+	// FUNCTION: ENGINE 0x1094FB30
+	unsigned int LocomotionSteerDriver::GetUnknown48Plus1() const
+	{
+		return mUnknown48 + 1;
+	}
+
+	// FUNCTION: ENGINE 0x1094FB40
+	unsigned int LocomotionSteerDriver::GetSampleCount() const
+	{
+		return mSampleCount;
+	}
+
+	// FUNCTION: ENGINE 0x1094FB70
+	LocomotionSteerDriver* GetSteerDriver(Driver* driver)
+	{
+		return driver->mType == 5 ? static_cast<LocomotionSteerDriver*>(driver) : 0;
+	}
+
+	// FUNCTION: ENGINE 0x1094FB90
+	LocomotionSteerDriver* Unknown1094FB90(Driver* driver)
+	{
+		return driver->mType == 5 ? static_cast<LocomotionSteerDriver*>(driver) : 0;
+	}
+
+	// FUNCTION: ENGINE 0x1094FBB0
+	void LocomotionSteerDriver::Unbind()
+	{
+		for (unsigned int i = 0; i < mBindingCount; i++)
+		{
+			if (mBindings[i].mSource)
+			{
+				mBindings[i].mSource->Unknown106E7B50();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1094FBE0
+	void LocomotionSteerDriver::SetClipRates(const void* speeds)
+	{
+		for (unsigned int i = 0; i < mBindingCount; i++)
+		{
+			mBindings[i].mClip.Unknown10952360(GetClipRate(speeds, mBindings[i].mSource));
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1094FC20
+	void LocomotionSteerDriver::Bind(const DriverInfo& info)
+	{
+		PartitionDriver::Bind(info);
+		bool any = false;
+		for (unsigned int i = 0; i < mBindingCount; i++)
+		{
+			if (mBindings[i].mSource)
+			{
+				mBindings[i].mClip.Set(mBindings[i].mSource, mSkeleton, false);
+				if (any || mBindings[i].mClip.Unknown10952380())
+				{
+					any = true;
+				}
+			}
+		}
+		Unknown1094A4A0(any);
+	}
+
+	// FUNCTION: ENGINE 0x1094FCB0
+	bool LocomotionSteerDriver::AllAtRest() const
+	{
+		bool all = true;
+		for (unsigned int i = 0; i < mBindingCount; i++)
+		{
+			if (mBindings[i].mSource)
+			{
+				if (Unknown1094D4C0(mBindings[i]) && all)
+				{
+					all = true;
+				}
+				else
+				{
+					all = false;
+				}
+			}
+		}
+		return all;
+	}
+
+	// FUNCTION: ENGINE 0x1094FCF0
+	float LocomotionSteerDriver::GetUnknown1A4(int index) const
+	{
+		return mUnknown1A4[index];
+	}
+
+	// FUNCTION: ENGINE 0x1094FD00
+	// EQUIVALENT: the same operations; the count and the pointer into the samples swap registers, and the blend is
+	// computed in other xmm registers
+	void LocomotionSteerDriver::AddSample(unsigned int binding, float weight, float value)
+	{
+		if (weight <= 0.0f || binding >= mBindingCount)
+		{
+			return;
+		}
+		unsigned int count = mSampleCount;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (mSamples[i].mBinding == binding)
+			{
+				float total = mSamples[i].mWeight + weight;
+				float blend = weight / total;
+				mSamples[i].mWeight = total;
+				mSamples[i].mValue = (1.0f - blend) * mSamples[i].mValue + blend * value;
+				return;
+			}
+		}
+		mSamples[count].mBinding = binding;
+		mSamples[mSampleCount].mWeight = weight;
+		mSamples[mSampleCount].mValue = value;
+		mSampleCount++;
+	}
+
+	// FUNCTION: ENGINE 0x109500C0
+	LocomotionSteerDriver::~LocomotionSteerDriver()
+	{
+	}
+}

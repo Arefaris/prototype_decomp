@@ -1,6 +1,7 @@
 // The pose blend job (code/choreo/src/poseblendjob.cpp, path from the asserts; the unit runs from about 0x10957600 to
 // 0x10959200). Names are guesses.
 #include "code/choreo/poseblendjob.h"
+#include "code/choreo/puppetmanager.h"
 #include "code/choreo/drivers.h"
 #include "code/choreo/puppet.h"
 #include "code/choreo/samplechannels.h"
@@ -781,5 +782,53 @@ namespace choreo
 		core::CriticalSectionEnter(job->mResultLock);
 		Unknown109591B0(begin, end);
 		core::CriticalSectionLeave(job->mResultLock);
+	}
+
+	// FUNCTION: ENGINE 0x10958E70
+	void StopPuppetJobs()
+	{
+		core::EventDestroy(gPuppetEvent);
+		core::DestroyAsyncTaskGroup(&gPuppetTaskGroup);
+		core::CriticalSectionDelete(gPuppetBufferLock);
+		core::CriticalSectionDelete(gPuppetResultLock);
+	}
+
+	// FUNCTION: ENGINE 0x10958EA0
+	unsigned int GetPuppetJobCount()
+	{
+		unsigned int workers = 0;
+		core::GetAsyncTaskInfo(&workers, 0);
+		return MAX_PUPPET_JOBS;
+	}
+
+	// FUNCTION: ENGINE 0x10958EC0
+	void StartPuppetJobs(const PuppetManagerSettings* settings)
+	{
+		gPuppetBatchSize = settings->mBatchSize;
+		core::RegisterAsyncTaskFunction("choreoPuppetUpdate",
+			(void (*)(void*, core::AsyncTaskCallback*))RunPoseBlendJob, &gPuppetTaskFunction);
+		core::CriticalSectionInit(gPuppetBufferLock);
+		core::CriticalSectionInit(gPuppetResultLock);
+		core::InitAsyncTaskGroup(&gPuppetTaskGroup);
+		core::EventInit(gPuppetEvent, 0);
+		unsigned int count = GetPuppetJobCount();
+		for (unsigned int i = 0; i < count; i++)
+		{
+			gPuppetJobs[i].unknown0 = i;
+			gPuppetTaskNodes[i].Set(gPuppetTaskFunction, &gPuppetJobs[i], 0, gPuppetEvent);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x109591E0
+	void UpdatePuppetsSerial(float dt, Puppet** begin, Puppet** end)
+	{
+		for (Puppet** it = begin; it < end; it++)
+		{
+			Puppet* puppet = *it;
+			puppet->Update(dt);
+			puppet->Evaluate();
+			puppet->UpdatePose();
+			puppet->ReleaseRemoved();
+		}
 	}
 }
