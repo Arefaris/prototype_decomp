@@ -4018,3 +4018,15 @@ access path (through the array object or through the owner) are part of the sour
   0x20. The record's eight-byte alignment is a trailing `unsigned __int64 align8[0]` (it adds no bytes and does not
   realign the stack; the earlier `int padding14` made the copies move it).
 
+## Open: callee-saved push in the entry block before an early exit (2026-10-20)
+
+In 583 engine functions (almost all `RegisterProperties`-style: `sub esp, 0x400; cmp [guard], 0; push esi; jne exit`)
+the engine saves the callee-saved register in the entry block and the early exit jumps to the full epilogue
+(`pop esi; add esp, N; ret`); in 44 others it sinks the push behind the branch as VS2005 SP1 does for us. Ours always
+sinks it (`jne` to `add esp, N; ret`, the push after the branch) unless a value live at entry (`this`, a register
+argument) must be moved into the callee-saved register before the branch (`push edi; mov edi, ecx; jne`).
+Tried without effect on 0x10807B50 (all 98.1 %): early return, positive `if` around the body, `do { break; } while`,
+`goto`, the pointer or the array declared before the guard, the guard through a pointer, an inline guard, the body in
+an inline helper, a template static member; flags /Ob0 /Ob2 /Ot /Os /O1 /Ox /Oy- /GS /Gs0 /GF /Gd /arch:SSE2
+/fp:precise /EHsc /Zi /Oi /Oi- /GR- /MT, /Gy off; /GL with /LTCG; `#pragma optimize` g / t / y / s. The other functions
+of the same units match, so it is not another compiler for those units. Still open.
