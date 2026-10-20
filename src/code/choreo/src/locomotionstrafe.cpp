@@ -3,7 +3,94 @@
 #include "code/choreo/drivers.h"
 #include "code/choreo/poseblendjob.h"
 #include "code/math/mathutils.h"
+#include <algorithm>
 #include <math.h>
+
+// The sort of the samples is the toolchain's <algorithm> for StrafeSample*; the unit keeps every instance of it as a COMDAT
+// function of its own, and the compiler reproduces each one
+// FUNCTION: ENGINE 0x1094AED0
+template choreo::StrafeSample* std::_Checked_base<choreo::StrafeSample*>(choreo::StrafeSample*&, std::_Unchanged_checked_iterator_base_type_tag);
+
+// FUNCTION: ENGINE 0x1094AEE0
+template std::pair<choreo::StrafeSample*, choreo::StrafeSample*>::pair(choreo::StrafeSample* const&, choreo::StrafeSample* const&);
+
+// FUNCTION: ENGINE 0x1094AF00
+template int* std::_Dist_type<choreo::StrafeSample*>(choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094AF10
+template choreo::StrafeSample* std::_Val_type<choreo::StrafeSample*>(choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094AF20
+template void std::swap<choreo::StrafeSample>(choreo::StrafeSample&, choreo::StrafeSample&);
+
+// FUNCTION: ENGINE 0x1094AF50
+template void std::_Push_heap<choreo::StrafeSample*, int, choreo::StrafeSample>(choreo::StrafeSample*, int, int, choreo::StrafeSample);
+
+// FUNCTION: ENGINE 0x1094AFD0
+template std::random_access_iterator_tag std::_Iter_random<choreo::StrafeSample*, choreo::StrafeSample*>(choreo::StrafeSample* const&, choreo::StrafeSample* const&);
+
+// FUNCTION: ENGINE 0x1094AFE0
+template std::_Nonscalar_ptr_iterator_tag std::_Ptr_cat<choreo::StrafeSample*, choreo::StrafeSample*>(choreo::StrafeSample*&, choreo::StrafeSample*&);
+
+// FUNCTION: ENGINE 0x1094AFF0
+template choreo::StrafeSample* std::_Copy_backward_opt<choreo::StrafeSample*, choreo::StrafeSample*, std::forward_iterator_tag>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*, std::forward_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x1094B4C0
+template choreo::StrafeSample* std::_Checked_base<choreo::StrafeSample*>(choreo::StrafeSample*&);
+
+// FUNCTION: ENGINE 0x1094B4D0
+template void std::iter_swap<choreo::StrafeSample*, choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094B500
+template void std::_Med3<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094B5A0
+template void std::_Adjust_heap<choreo::StrafeSample*, int, choreo::StrafeSample>(choreo::StrafeSample*, int, int, choreo::StrafeSample);
+
+// FUNCTION: ENGINE 0x1094B650
+template choreo::StrafeSample* std::_Copy_backward_opt<choreo::StrafeSample*, choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*, std::random_access_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x1094B6B0
+template void std::_Pop_heap<choreo::StrafeSample*, int, choreo::StrafeSample>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample, int*);
+
+// FUNCTION: ENGINE 0x1094B940
+template void std::_Median<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094B9F0
+template void std::_Make_heap<choreo::StrafeSample*, int, choreo::StrafeSample>(choreo::StrafeSample*, choreo::StrafeSample*, int*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094BA60
+template choreo::StrafeSample* stdext::unchecked_copy_backward<choreo::StrafeSample*, choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094BA90
+template void std::_Pop_heap_0<choreo::StrafeSample*, choreo::StrafeSample>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094BAF0
+template std::pair<choreo::StrafeSample*, choreo::StrafeSample*> std::_Unguarded_partition<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094BF70
+template void std::make_heap<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094BFB0
+template void std::_Insertion_sort1<choreo::StrafeSample*, choreo::StrafeSample>(choreo::StrafeSample*, choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094C060
+template void std::pop_heap<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094C0A0
+template void std::_Insertion_sort<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094C0C0
+template void std::_Sort_heap<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094C150
+template void std::sort_heap<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
+
+// FUNCTION: ENGINE 0x1094C160
+template void std::_Sort<choreo::StrafeSample*, int>(choreo::StrafeSample*, choreo::StrafeSample*, int);
+
+// FUNCTION: ENGINE 0x1094C2C0
+template void std::sort<choreo::StrafeSample*>(choreo::StrafeSample*, choreo::StrafeSample*);
 
 namespace choreo
 {

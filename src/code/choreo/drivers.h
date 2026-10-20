@@ -235,7 +235,27 @@ namespace choreo
 	// One clip taking part in the current blend (12 bytes)
 	struct StrafeSample
 	{
+		// The heavier clips first
+		bool operator<(const StrafeSample& other) const
+		{
+			return mWeight > other.mWeight;
+		}
+
 		unsigned int mCell;
+		float mWeight;
+		float mValue;
+	};
+
+	// One clip taking part in the current blend of the steer driver (12 bytes)
+	struct SteerSample
+	{
+		// The heavier clips first
+		bool operator<(const SteerSample& other) const
+		{
+			return mWeight > other.mWeight;
+		}
+
+		unsigned int mBinding;
 		float mWeight;
 		float mValue;
 	};
@@ -365,7 +385,7 @@ namespace choreo
 		float mUnknown22C;           // 0x22C
 		DeltaTransform mDelta;       // 0x230
 		unsigned int mSampleCount;   // 0x2AC
-		StrafeSample mSamples[MAX_SAMPLES]; // 0x2B0
+		SteerSample mSamples[MAX_SAMPLES]; // 0x2B0
 	};
 
 	// 0x1094FB70 / 0x1094FB90: the driver as a steer driver, when it is one (type 5)

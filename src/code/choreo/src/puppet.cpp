@@ -7,6 +7,92 @@
 #include <algorithm>
 #include <string.h>
 
+// The sort of the drivers is the toolchain's <algorithm> for DriverEntry*; the unit keeps every instance of it as a COMDAT
+// function of its own, and the compiler reproduces each one
+// FUNCTION: ENGINE 0x10947AA0
+template choreo::DriverEntry* std::_Checked_base<choreo::DriverEntry*>(choreo::DriverEntry*&, std::_Unchanged_checked_iterator_base_type_tag);
+
+// FUNCTION: ENGINE 0x10947AB0
+template std::pair<choreo::DriverEntry*, choreo::DriverEntry*>::pair(choreo::DriverEntry* const&, choreo::DriverEntry* const&);
+
+// FUNCTION: ENGINE 0x10947AD0
+template int* std::_Dist_type<choreo::DriverEntry*>(choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10947AE0
+template choreo::DriverEntry* std::_Val_type<choreo::DriverEntry*>(choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10947AF0
+template void std::swap<choreo::DriverEntry>(choreo::DriverEntry&, choreo::DriverEntry&);
+
+// FUNCTION: ENGINE 0x10947B30
+template void std::_Push_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, int, int, choreo::DriverEntry);
+
+// FUNCTION: ENGINE 0x10947BA0
+template std::random_access_iterator_tag std::_Iter_random<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry* const&, choreo::DriverEntry* const&);
+
+// FUNCTION: ENGINE 0x10947BB0
+template std::_Nonscalar_ptr_iterator_tag std::_Ptr_cat<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*&, choreo::DriverEntry*&);
+
+// FUNCTION: ENGINE 0x10947BC0
+template choreo::DriverEntry* std::_Copy_backward_opt<choreo::DriverEntry*, choreo::DriverEntry*, std::forward_iterator_tag>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, std::forward_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x109481A0
+template choreo::DriverEntry* std::_Checked_base<choreo::DriverEntry*>(choreo::DriverEntry*&);
+
+// FUNCTION: ENGINE 0x109481B0
+template void std::iter_swap<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109481F0
+template void std::_Med3<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109482A0
+template void std::_Adjust_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, int, int, choreo::DriverEntry);
+
+// FUNCTION: ENGINE 0x10948360
+template choreo::DriverEntry* std::_Copy_backward_opt<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, std::random_access_iterator_tag, std::_Nonscalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x109483B0
+template void std::_Pop_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry, int*);
+
+// FUNCTION: ENGINE 0x109485C0
+template void std::_Median<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948660
+template void std::_Make_heap<choreo::DriverEntry*, int, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, int*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x109486D0
+template choreo::DriverEntry* stdext::unchecked_copy_backward<choreo::DriverEntry*, choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948700
+template void std::_Pop_heap_0<choreo::DriverEntry*, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948870
+template std::pair<choreo::DriverEntry*, choreo::DriverEntry*> std::_Unguarded_partition<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948B40
+template void std::make_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948B80
+template void std::_Insertion_sort1<choreo::DriverEntry*, choreo::DriverEntry>(choreo::DriverEntry*, choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948C70
+template void std::pop_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948DE0
+template void std::_Insertion_sort<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948E00
+template void std::_Sort_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948EA0
+template void std::sort_heap<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
+// FUNCTION: ENGINE 0x10948EB0
+template void std::_Sort<choreo::DriverEntry*, int>(choreo::DriverEntry*, choreo::DriverEntry*, int);
+
+// FUNCTION: ENGINE 0x10949010
+template void std::sort<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
+
 namespace choreo
 {
 	// FUNCTION: ENGINE 0x10946C30
