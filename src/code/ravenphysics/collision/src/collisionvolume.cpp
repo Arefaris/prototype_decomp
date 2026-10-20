@@ -2,7 +2,11 @@
 // 0x10666800). The unit has no assert path of its own; the file name is a guess.
 #include "code/math/worldbounds.h"
 #include "code/math/mathutils.h"
+#include "code/core/heap.h"
 #include "code/ravenphysics/collision/collisionobject.h"
+#include <algorithm>
+#include <new>
+#include <string.h>
 #include <math.h>
 
 namespace ravenphysics
@@ -289,6 +293,16 @@ namespace ravenphysics
 		UpdateBox();
 	}
 
+	// FUNCTION: ENGINE 0x10665600
+	CollisionOBB::CollisionOBB(const CollisionOBB& other) :
+		CollisionVolume(other),
+		localCentre(other.localCentre),
+		localAxis0(other.localAxis0),
+		localAxis1(other.localAxis1),
+		obb(other.obb)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10665720
 	CollisionOBB::CollisionOBB(const math::OBB& newBox) :
 		CollisionVolume(1)
@@ -430,7 +444,7 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10664A10
-	void CollisionHull::UpdateWorld(CollisionObject* object)
+	void CollisionVolume3::UpdateWorld(CollisionObject* object)
 	{
 		matrix = object->transform;
 		inverse = matrix;
@@ -439,3 +453,748 @@ namespace ravenphysics
 		bounds.SetTransformed(matrix, localBox);
 	}
 }
+
+namespace ravenphysics
+{
+	// The counter the grids' serial numbers are made from (0x1127D404)
+	extern unsigned int gGridSerial;
+
+	// FUNCTION: ENGINE 0x10662F50
+	void BroadPhaseGrid::Quantize(unsigned short* cell, const math::Vector& point)
+	{
+		for (int i = 3; i--; )
+		{
+			float v = ((&point.x)[i] - (&bounds.min.x)[i]) * (&scale.x)[i];
+			if (!(v >= 0.0f))
+			{
+				v = 0.0f;
+			}
+			if (v - 65535.0f >= 0.0f)
+			{
+				v = 65535.0f;
+			}
+			cell[i] = (unsigned short)(int)v;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10662E50
+	unsigned int GridFace::GetMaterial() const
+	{
+		return (flags >> 9) & 0x3f;
+	}
+
+	// FUNCTION: ENGINE 0x10662E60
+	void BroadPhaseGrid::GetTriangle(unsigned short face, math::Vector* corners)
+	{
+		const GridFace* record = faces + face;
+		Copy(corners[0], vertices[record->vertex[0]]);
+		Copy(corners[1], vertices[record->vertex[1]]);
+		Copy(corners[2], vertices[record->vertex[2]]);
+	}
+
+	// FUNCTION: ENGINE 0x10662ED0
+	void BroadPhaseGrid::GetTriangleAndFace(unsigned short face, GridFace* faceOut, math::Vector* corners)
+	{
+		*faceOut = faces[face];
+		Copy(corners[0], vertices[faceOut->vertex[0]]);
+		Copy(corners[1], vertices[faceOut->vertex[1]]);
+		Copy(corners[2], vertices[faceOut->vertex[2]]);
+	}
+
+	// FUNCTION: ENGINE 0x10662FB0
+	void BroadPhaseGrid::ToGridUnits(math::Vector* out, const math::Vector* point)
+	{
+		for (int i = 3; i--; )
+		{
+			(&out->x)[i] = ((&point->x)[i] - (&bounds.min.x)[i]) * (&scale.x)[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106636F0
+	MeshMaterial* BroadPhaseGrid::GetMaterialOf(unsigned short face)
+	{
+		return materialsBegin + ((faces[face].flags >> 9) & 0x3f);
+	}
+
+	// FUNCTION: ENGINE 0x10665BE0
+	MeshSlot::MeshSlot() :
+		refCount(0),
+		unknown4(0),
+		unknown8(0),
+		unknownC(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10665BF0
+	MeshSlot::~MeshSlot()
+	{
+		if (unknown4 != 0)
+		{
+			delete[] unknown4;
+		}
+		if (unknown8 != 0)
+		{
+			delete unknown8;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665C20
+	void MeshSlot::AddRef()
+	{
+		refCount++;
+	}
+
+	// FUNCTION: ENGINE 0x10666290
+	void MeshSlot::Release()
+	{
+		refCount--;
+		if (refCount < 1)
+		{
+			refCount = 0xbaad;
+			delete this;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665C50
+	BroadPhaseGrid& BroadPhaseGrid::Assign(const BroadPhaseGrid& other)
+	{
+		volume = other.volume;
+		matrix = other.matrix;
+		inverse = other.inverse;
+		serial = other.serial;
+		transformed = other.transformed;
+		unknown8C = other.unknown8C;
+		unknown90 = other.unknown90;
+		unknown92 = other.unknown92;
+		tree = other.tree;
+		faces = other.faces;
+		vertices = other.vertices;
+		bounds.max.x = other.bounds.max.x;
+		bounds.max.y = other.bounds.max.y;
+		bounds.max.z = other.bounds.max.z;
+		bounds.min.x = other.bounds.min.x;
+		bounds.min.y = other.bounds.min.y;
+		bounds.min.z = other.bounds.min.z;
+		scale.x = other.scale.x;
+		scale.y = other.scale.y;
+		scale.z = other.scale.z;
+		unknownC4 = other.unknownC4;
+		unknownC8 = other.unknownC8;
+		materialsBegin = other.materialsBegin;
+		materialsEnd = other.materialsEnd;
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x106662C0
+	// EQUIVALENT: the same stores and calls in the same order; the engine loads the first matrix's address after the first two stores and pushes the size of the slot after the box, ours ahead of them, 85.8 %
+	BroadPhaseGrid::BroadPhaseGrid()
+	{
+		materialsBegin = 0;
+		materialsEnd = 0;
+		volume = 0;
+		matrix.Identity();
+		inverse.Identity();
+		transformed = false;
+		gGridSerial += 0x3d70000;
+		serial = gGridSerial;
+		unknown8C = 0;
+		unknown90 = 0;
+		unknown92 = 0;
+		tree = 0;
+		faces = 0;
+		vertices = 0;
+		bounds.Reset();
+		scale.z = 0.0f;
+		scale.y = 0.0f;
+		scale.x = 0.0f;
+		unknownC4 = 0.0f;
+		unknownC8 = false;
+		slot = new MeshSlot;
+		slot->AddRef();
+		unknownE4 = 0;
+		unknownE8 = 0;
+		unknownEC = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106663D0
+	BroadPhaseGrid::BroadPhaseGrid(const BroadPhaseGrid& other)
+	{
+		materialsBegin = 0;
+		materialsEnd = 0;
+		Assign(other);
+		gGridSerial += 0x3d70000;
+		serial = gGridSerial;
+		slot = other.slot;
+		slot->AddRef();
+		unknownE4 = 0;
+		unknownE8 = 0;
+		unknownEC = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10666430
+	void BroadPhaseGrid::Destroy()
+	{
+		unsigned int owners = slot->refCount;
+		slot->Release();
+		slot = 0;
+		if (owners == 1)
+		{
+			if (vertices != 0)
+			{
+				core::FreeAligned(vertices);
+			}
+			if (tree != 0)
+			{
+				core::FreeAligned(tree);
+			}
+			if (faces != 0)
+			{
+				core::FreeAligned(faces);
+			}
+			if (materialsBegin != 0)
+			{
+				delete[] materialsBegin;
+			}
+		}
+		if (unknownE4 != 0)
+		{
+			delete[] unknownE4;
+		}
+		if (unknownEC != 0)
+		{
+			delete[] unknownEC;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665B20
+	void CollisionVolume6::UpdateBox()
+	{
+		if (grid.transformed)
+		{
+			bounds.SetTransformed(grid.matrix, grid.bounds);
+		}
+		else
+		{
+			bounds.max.x = grid.bounds.max.x;
+			bounds.max.y = grid.bounds.max.y;
+			bounds.max.z = grid.bounds.max.z;
+			bounds.min.x = grid.bounds.min.x;
+			bounds.min.y = grid.bounds.min.y;
+			bounds.min.z = grid.bounds.min.z;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665BD0
+	void CollisionVolume6::SetUnknown120(int value)
+	{
+		unknown120 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10665DF0
+	void CollisionObjectTable::AddMesh(CollisionVolume6* mesh, CollisionHandle* newHandle)
+	{
+		Add(mesh, newHandle);
+	}
+
+	// FUNCTION: ENGINE 0x106661E0
+	void CollisionVolume6::SetMeshFilter(const CollisionFilter* filter)
+	{
+		for (MeshMaterial* material = grid.materialsBegin; material != grid.materialsEnd; material++)
+		{
+			material->filter = filter->unknown0;
+			material->filter2 = filter->unknown4;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10666210
+	void CollisionVolume6::SetMeshFilterBits(unsigned int mask, bool set)
+	{
+		for (MeshMaterial* material = grid.materialsBegin; material != grid.materialsEnd; material++)
+		{
+			if (set)
+			{
+				material->filter |= mask;
+			}
+			else
+			{
+				material->filter &= ~mask;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10666250
+	void CollisionVolume6::SetMeshFilterBits2(unsigned int mask, bool set)
+	{
+		for (MeshMaterial* material = grid.materialsBegin; material != grid.materialsEnd; material++)
+		{
+			if (set)
+			{
+				material->filter2 |= mask;
+			}
+			else
+			{
+				material->filter2 &= ~mask;
+			}
+		}
+	}
+
+	// Whether the rows of a matrix are those of the identity matrix, by the first three components (inlined by the
+	// engine in both updates of a mesh)
+	__forceinline bool RowsDiffer(const math::Matrix* matrix)
+	{
+		const math::Matrix& identity = math::Matrix::IDENTITY;
+		bool differs = math::VectorsDiffer(math::Vector(matrix->m[0][0], matrix->m[0][1], matrix->m[0][2]),
+			math::Vector(identity.m[0][0], identity.m[0][1], identity.m[0][2]));
+		if (!differs)
+		{
+			differs = math::VectorsDiffer(math::Vector(matrix->m[1][0], matrix->m[1][1], matrix->m[1][2]),
+				math::Vector(identity.m[1][0], identity.m[1][1], identity.m[1][2]));
+		}
+		if (!differs)
+		{
+			differs = math::VectorsDiffer(math::Vector(matrix->m[2][0], matrix->m[2][1], matrix->m[2][2]),
+				math::Vector(identity.m[2][0], identity.m[2][1], identity.m[2][2]));
+		}
+		if (!differs)
+		{
+			differs = math::VectorsDiffer(math::Vector(matrix->m[3][0], matrix->m[3][1], matrix->m[3][2]),
+				math::Vector(identity.m[3][0], identity.m[3][1], identity.m[3][2]));
+		}
+		return differs;
+	}
+
+	// FUNCTION: ENGINE 0x10665E20
+	// EQUIVALENT: the engine copies the rows into two reused 12-byte stack slots, ours takes new slots for every copy (frame 0x60 against 0x18); everything else is the same, 89.5 %
+	void CollisionVolume6::UpdateWorld(CollisionObject* object)
+	{
+		grid.matrix = object->transform;
+		grid.inverse = grid.matrix;
+		grid.inverse.InvertOrthonormal();
+		grid.transformed = RowsDiffer(&object->transform);
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10666000
+	// EQUIVALENT: the engine copies the rows into two reused 12-byte stack slots, ours takes new slots for every copy (frame 0x60 against 0x18); everything else is the same, 89.5 %
+	void CollisionVolume6::MultiplyWorld(const math::Matrix& matrix)
+	{
+		grid.matrix.Multiply(grid.matrix, matrix);
+		grid.inverse = grid.matrix;
+		grid.inverse.InvertOrthonormal();
+		grid.transformed = RowsDiffer(&matrix);
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10664B20
+	CollisionVolume4::CollisionVolume4(const CollisionVolume4& other) :
+		CollisionVolume(other),
+		unknown24(other.unknown24),
+		unknown28(other.unknown28),
+		unknown2C(other.unknown2C),
+		unknown30(other.unknown30),
+		unknown34(other.unknown34),
+		unknown38(other.unknown38),
+		unknown3C(other.unknown3C),
+		unknown40(other.unknown40),
+		unknown44(other.unknown44),
+		unknown48(other.unknown48),
+		unknown4C(other.unknown4C),
+		unknown50(other.unknown50),
+		unknown54(other.unknown54),
+		unknown58(other.unknown58),
+		materials(other.materials)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10664740
+	const char* CollisionVolume::GetTypeName()
+	{
+		switch (type)
+		{
+		case 0:
+			return "Type_Capsule";
+		case 1:
+			return "Type_OBB";
+		case 2:
+			return "Type_Sphere";
+		case 3:
+			return "Type_ConvexHull";
+		case 4:
+			return "Type_Cylinder";
+		case 6:
+			return "Type_Mesh";
+		case 5:
+			return "Type_Plane";
+		}
+		return "Unknown volume type";
+	}
+
+	// FUNCTION: ENGINE 0x10664660
+	void CollisionVolume::Print()
+	{
+		PrintAABB(bounds);
+		switch (type)
+		{
+		case 0:
+			static_cast<CollisionCapsule*>(this)->Print();
+			break;
+		case 1:
+			static_cast<CollisionOBB*>(this)->Print();
+			break;
+		case 2:
+			static_cast<CollisionSphere*>(this)->Print();
+			break;
+		case 3:
+			static_cast<CollisionVolume6*>(this)->DumpHull();
+			break;
+		case 6:
+			static_cast<CollisionVolume6*>(this)->PrintMesh();
+			break;
+		case 5:
+			static_cast<CollisionPlane*>(this)->Print();
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665690
+	void CollisionVolume::UpdateBounds(CollisionObject* object)
+	{
+		switch (type)
+		{
+		case 0:
+			static_cast<CollisionCapsule*>(this)->UpdateWorld(object);
+			break;
+		case 1:
+			static_cast<CollisionOBB*>(this)->UpdateWorld(object);
+			break;
+		case 2:
+			static_cast<CollisionSphere*>(this)->UpdateWorld(object);
+			break;
+		case 3:
+			static_cast<CollisionVolume3*>(this)->UpdateWorld(object);
+			break;
+		case 4:
+			UpdateBounds4(object);
+			break;
+		case 6:
+			static_cast<CollisionVolume6*>(this)->UpdateWorld(object);
+			break;
+		case 5:
+			static_cast<CollisionPlane*>(this)->UpdateWorld(object);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665A90
+	void CollisionVolume::SetQuery(const void* query)
+	{
+		const math::Vector* scale = static_cast<const math::Vector*>(query);
+		switch (type)
+		{
+		case 0:
+			static_cast<CollisionCapsule*>(this)->Scale(scale);
+			break;
+		case 1:
+			static_cast<CollisionOBB*>(this)->Scale(scale);
+			break;
+		case 2:
+			static_cast<CollisionSphere*>(this)->Scale(scale);
+			break;
+		case 3:
+			static_cast<CollisionVolume3*>(this)->Scale(scale);
+			break;
+		case 4:
+			ScaleCylinder(scale);
+			break;
+		case 5:
+			static_cast<CollisionPlane*>(this)->Scale(scale);
+			break;
+		case 6:
+			static_cast<CollisionVolume6*>(this)->Scale(scale);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10665990
+	CollisionVolume* CollisionVolume::Clone()
+	{
+		switch (type)
+		{
+		case 0:
+			return new CollisionCapsule(*static_cast<CollisionCapsule*>(this));
+		case 1:
+			return new CollisionOBB(*static_cast<CollisionOBB*>(this));
+		case 2:
+			return new CollisionSphere(*static_cast<CollisionSphere*>(this));
+		case 3:
+			return new CollisionVolume3(*static_cast<CollisionVolume3*>(this));
+		case 4:
+			return new CollisionVolume4(*static_cast<CollisionVolume4*>(this));
+		case 5:
+			return new CollisionPlane(*static_cast<CollisionPlane*>(this));
+		case 6:
+			return new CollisionVolume6(*static_cast<CollisionVolume6*>(this));
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10664120
+	void CollisionVolume::SetFilter(const CollisionFilter* newFilter)
+	{
+		filter.unknown0 = newFilter->unknown0;
+		filter.unknown4 = newFilter->unknown4;
+		if (type == 6)
+		{
+			static_cast<CollisionVolume6*>(this)->SetMeshFilter(newFilter);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10664140
+	void CollisionVolume::SetFilterBits(unsigned int mask, bool set)
+	{
+		if (set)
+		{
+			filter.unknown0 |= mask;
+		}
+		else
+		{
+			filter.unknown0 &= ~mask;
+		}
+		if (type == 6)
+		{
+			static_cast<CollisionVolume6*>(this)->SetMeshFilterBits(mask, set);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10664170
+	void CollisionVolume::SetFilterBits2(unsigned int mask, bool set)
+	{
+		if (set)
+		{
+			filter.unknown4 |= mask;
+		}
+		else
+		{
+			filter.unknown4 &= ~mask;
+		}
+		if (type == 6)
+		{
+			static_cast<CollisionVolume6*>(this)->SetMeshFilterBits2(mask, set);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10663FE0
+	bool CollisionVolume::CastVolume(const void* query, math::Vector* point, float* distance)
+	{
+		const math::Vector* from = static_cast<const math::Vector*>(query);
+		switch (type)
+		{
+		case 0:
+			static_cast<CollisionCapsule*>(this)->capsule.GetDirection(*from, *point, *distance);
+			{
+				math::Vector negated(-point->x, -point->y, -point->z);
+				point->x = negated.x;
+				point->y = negated.y;
+				point->z = negated.z;
+			}
+			return true;
+		case 1:
+			static_cast<CollisionOBB*>(this)->obb.GetDirection(*from, *point, *distance);
+			{
+				math::Vector negated(-point->x, -point->y, -point->z);
+				point->x = negated.x;
+				point->y = negated.y;
+				point->z = negated.z;
+			}
+			return true;
+		case 2:
+			static_cast<CollisionSphere*>(this)->sphere.GetDirection(*from, *point, *distance);
+			{
+				math::Vector negated(-point->x, -point->y, -point->z);
+				point->x = negated.x;
+				point->y = negated.y;
+				point->z = negated.z;
+			}
+			return true;
+		case 4:
+			static_cast<CollisionVolume4*>(this)->materials.GetDirection(query, point, distance);
+			return true;
+		case 3:
+			static_cast<CollisionVolume3*>(this)->GetDirection(query, point, distance);
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106664D0
+	CollisionVolume6::CollisionVolume6() :
+		CollisionVolume(6),
+		unknown120(0)
+	{
+		grid.volume = this;
+		gCollisionObjectTable->AddMesh(this, &handle);
+	}
+
+	// FUNCTION: ENGINE 0x10666510
+	CollisionVolume6::CollisionVolume6(const CollisionVolume6& other) :
+		CollisionVolume(other),
+		grid(other.grid),
+		unknown120(other.unknown120)
+	{
+		grid.volume = this;
+		if (unknown120 != 0)
+		{
+			grid.unknownE4 = new unsigned short[grid.unknown92];
+			memcpy(grid.unknownE4, other.grid.unknownE4, grid.unknown92 * 2);
+			grid.unknownE8 = other.grid.unknownE8;
+			grid.unknownEC = new MeshRecord[grid.unknownE8];
+			memcpy(grid.unknownEC, other.grid.unknownEC, grid.unknownE8 * sizeof(MeshRecord));
+		}
+		gCollisionObjectTable->AddMesh(this, &handle);
+	}
+
+	// FUNCTION: ENGINE 0x106665F0
+	CollisionVolume6::CollisionVolume6(const BroadPhaseGrid& newGrid) :
+		CollisionVolume(6),
+		grid(newGrid),
+		unknown120(0)
+	{
+		grid.volume = this;
+		gCollisionObjectTable->AddMesh(this, &handle);
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10666640
+	CollisionVolume6::~CollisionVolume6()
+	{
+		gCollisionObjectTable->Remove(&handle);
+		unknown120 = 0;
+		grid.Destroy();
+	}
+}
+
+namespace ravenphysics
+{
+	// A list of 16-bit numbers (name and layout are guesses)
+	struct NumberList
+	{
+		// Sorts the numbers and drops the repeated ones (0x10666E80)
+		void SortUnique();
+
+		unsigned char unknown0[8];
+		unsigned short* begin;     // 0x08
+		unsigned short* end;       // 0x0C
+	};
+
+	// Sorts a range of 16-bit numbers (0x10666E60; name guess)
+	void SortNumbers(unsigned short* first, unsigned short* last);
+
+	// FUNCTION: ENGINE 0x10666E60
+	void SortNumbers(unsigned short* first, unsigned short* last)
+	{
+		std::sort(first, last);
+	}
+
+	// FUNCTION: ENGINE 0x10666E80
+	void NumberList::SortUnique()
+	{
+		if (begin != end)
+		{
+			SortNumbers(begin, end);
+			unsigned short count = (unsigned short)(end - begin);
+			unsigned short last = begin[0];
+			unsigned short kept = 1;
+			for (unsigned short i = 1; i < count; i++)
+			{
+				if (last != begin[i])
+				{
+					last = begin[i];
+					begin[kept] = last;
+					kept++;
+				}
+			}
+			end = begin + kept;
+		}
+	}
+}
+
+// The unit's instances of the toolchain's <algorithm> for unsigned short (it sorts and de-duplicates lists of
+// face numbers); the compiler reproduces every one of them
+// FUNCTION: ENGINE 0x106666D0
+template unsigned short* std::_Checked_base<unsigned short*>(unsigned short*&, std::_Unchanged_checked_iterator_base_type_tag);
+
+// FUNCTION: ENGINE 0x106666E0
+template struct std::pair<unsigned short*, unsigned short*>;
+
+// FUNCTION: ENGINE 0x10666700
+template int* std::_Dist_type<unsigned short*>(unsigned short*);
+
+// FUNCTION: ENGINE 0x10666710
+template unsigned short* std::_Val_type<unsigned short*>(unsigned short*);
+
+// FUNCTION: ENGINE 0x10666720
+template void std::swap<unsigned short>(unsigned short&, unsigned short&);
+
+// FUNCTION: ENGINE 0x10666740
+template void std::_Push_heap<unsigned short*, int, unsigned short>(unsigned short*, int, int, unsigned short);
+
+// FUNCTION: ENGINE 0x106667A0
+template std::random_access_iterator_tag std::_Iter_random<unsigned short*, unsigned short*>(unsigned short* const&, unsigned short* const&);
+
+// FUNCTION: ENGINE 0x106667B0
+template std::_Scalar_ptr_iterator_tag std::_Ptr_cat<unsigned short*, unsigned short*>(unsigned short*&, unsigned short*&);
+
+// FUNCTION: ENGINE 0x106667C0
+template unsigned short* std::_Copy_backward_opt<unsigned short*, unsigned short*, std::random_access_iterator_tag>(unsigned short*, unsigned short*, unsigned short*, std::random_access_iterator_tag, std::_Scalar_ptr_iterator_tag, std::_Range_checked_iterator_tag);
+
+// FUNCTION: ENGINE 0x10666830
+template unsigned short* std::_Checked_base<unsigned short*>(unsigned short*&);
+
+// FUNCTION: ENGINE 0x10666840
+template void std::iter_swap<unsigned short*, unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666860
+template void std::_Med3<unsigned short*>(unsigned short*, unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x106668B0
+template void std::_Adjust_heap<unsigned short*, int, unsigned short>(unsigned short*, int, int, unsigned short);
+
+// FUNCTION: ENGINE 0x10666920
+template unsigned short* stdext::unchecked_copy_backward<unsigned short*, unsigned short*>(unsigned short*, unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666950
+template void std::_Pop_heap<unsigned short*, int, unsigned short>(unsigned short*, unsigned short*, unsigned short*, unsigned short, int*);
+
+// FUNCTION: ENGINE 0x10666980
+template void std::_Median<unsigned short*>(unsigned short*, unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666A10
+template void std::_Make_heap<unsigned short*, int, unsigned short>(unsigned short*, unsigned short*, int*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666A50
+template void std::_Insertion_sort1<unsigned short*, unsigned short>(unsigned short*, unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666AF0
+template void std::_Pop_heap_0<unsigned short*, unsigned short>(unsigned short*, unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666B20
+template std::pair<unsigned short*, unsigned short*> std::_Unguarded_partition<unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666CB0
+template void std::_Insertion_sort<unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666CD0
+template void std::pop_heap<unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666D10
+template void std::_Sort_heap<unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666D60
+template void std::sort_heap<unsigned short*>(unsigned short*, unsigned short*);
+
+// FUNCTION: ENGINE 0x10666D70
+template void std::_Sort<unsigned short*, int>(unsigned short*, unsigned short*, int);
+
+// FUNCTION: ENGINE 0x10666E40
+template void std::sort<unsigned short*>(unsigned short*, unsigned short*);
+

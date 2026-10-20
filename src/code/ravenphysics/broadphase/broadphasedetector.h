@@ -4,25 +4,13 @@
 
 #include "code/core/heap.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/broadphase/broadphasegrid.h"
 #include "code/ravenphysics/intersectionproperties.h"
 
 namespace ravenphysics
 {
 	class PhysicsObject;
 	class CollisionObject;
-
-	// The grid the broad phase quantises positions into: 16-bit coordinates per axis
-	class BroadPhaseGrid
-	{
-	public:
-		// The grid cell of a point, each coordinate clamped to 0 .. 65535 (0x10662F50)
-		void Quantize(unsigned short* cell, const math::Vector& point);
-
-		unsigned char unknown0[0xa0];
-		math::Vector origin;
-		math::Vector unknownAC;
-		math::Vector scale;
-	};
 
 	// A box in the detector's bounds array (24 bytes)
 	struct BroadPhaseBox

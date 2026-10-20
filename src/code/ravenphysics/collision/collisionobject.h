@@ -13,6 +13,7 @@
 #include "code/math/sphere.h"
 #include "code/math/symmetricmatrix.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/broadphase/broadphasegrid.h"
 #include "code/ravenphysics/context.h"
 
 namespace ravenphysics
@@ -71,8 +72,10 @@ namespace ravenphysics
 		// names are guesses)
 		void SetVolume6(const void* description);
 		void UpdateBounds4(CollisionObject* object);
-		// Hands the query setup to the volume (0x10665A90, another unit)
+		// Scales the volume by a vector (0x10665A90; a switch over the type; the argument is a const math::Vector*)
 		void SetQuery(const void* query);
+		// The cylinder's own scale (0x10680C50, another unit; name guess)
+		void ScaleCylinder(const math::Vector* scale);
 		// Writes the bounds and the type-specific part out (0x10664660, another unit)
 		void Print();
 		// Frees the volume's own array of faces and marks it destroyed (0x10681C40, another unit)
@@ -195,16 +198,19 @@ namespace ravenphysics
 		math::Plane plane;            // 0x4C
 	};
 
-	// A convex hull (type 3, 0xD8 bytes): the transform of its object, its inverse and a point, with the box of
-	// the hull; its other methods are in another unit
-	struct CollisionHull : CollisionVolume
+	// A volume of type 3, and the face list a type 4 volume keeps at +0x60 (class and member names are guesses)
+	class CollisionVolume3 : public CollisionVolume
 	{
+	public:
 		// A copy (0x1067FFE0, another unit)
-		CollisionHull(const CollisionHull& other);
-
+		CollisionVolume3(const CollisionVolume3& other);
 		// Takes the object's transform, its inverse, the point and the box through it (0x10664A10)
 		void UpdateWorld(CollisionObject* object);
-		// Direction from the nearest point of the hull to the point, and the distance (0x106802A0, another unit)
+		// A hull is not scaled
+		void Scale(const math::Vector* scale)
+		{
+		}
+		// Direction from the nearest point of the volume to the point, and the distance (0x106802A0, another unit)
 		void GetDirection(const void* point, math::Vector* direction, float* distance);
 
 		unsigned char unknown24[4];
@@ -213,13 +219,6 @@ namespace ravenphysics
 		math::Vector world;           // 0xA8
 		math::AABB localBox;          // 0xB4
 		math::Vector local;           // 0xCC
-	};
-
-	// A volume of type 3, and the face list a type 4 volume keeps at +0x60 (class and member names are guesses)
-	class CollisionVolume3 : public CollisionVolume
-	{
-	public:
-		unsigned char unknown24[0x60 - 0x24];
 
 		// Gives every face of the volume a material (0x10654150, another unit)
 		void SetMaterial(unsigned char material);
@@ -232,33 +231,29 @@ namespace ravenphysics
 	// A volume of type 4: the volume plus its face list (0x10654670 gives every face a material)
 	struct CollisionVolume4 : CollisionVolume
 	{
-		unsigned char unknown24[0x60 - 0x24];
+		// A copy (0x10664B20)
+		CollisionVolume4(const CollisionVolume4& other);
+
+		float unknown24;
+		float unknown28;
+		float unknown2C;
+		float unknown30;
+		float unknown34;
+		float unknown38;
+		float unknown3C;
+		float unknown40;
+		float unknown44;
+		float unknown48;
+		float unknown4C;
+		float unknown50;
+		float unknown54;
+		float unknown58;
+		unsigned int unknown5C;
 		CollisionVolume3 materials;    // 0x60
+		unsigned char unknown138[8];
 		// Destroys the face list and marks the volume destroyed (0x10654490)
 		~CollisionVolume4();
 		// The destructor and, when bit 0 of the flags is set, the delete behind it (0x10655B30)
-		void* DestroyAndFree(unsigned int flags);
-	};
-
-	// One slot the geometry of a mesh volume refers to (its own unit names it)
-	struct MeshSlot
-	{
-		unsigned int unknown0;
-		unsigned int unknown4;
-	};
-
-	// A volume of type 6 (0x10666640; 0x130 bytes)
-	struct CollisionVolume6 : CollisionVolume
-	{
-		unsigned char unknown24[0x110 - 0x24];
-		MeshSlot* unknown110;      // 0x110
-		unsigned char unknown114[0x130 - 0x114];
-		~CollisionVolume6();
-		// Whether the first slot of the mesh carries geometry (0x10654180)
-		bool HasSlotGeometry() const;
-		// Prints the hull; there is nothing to print (0x106805C0, another unit; name guess)
-		void DumpHull();
-		// The destructor and, when bit 0 of the flags is set, the delete behind it (0x10654430)
 		void* DestroyAndFree(unsigned int flags);
 	};
 
@@ -392,6 +387,53 @@ namespace ravenphysics
 		// The physics objects share the table; this is the entry the bodies use to take a slot (0x1065FD20, a
 		// forward to Add; name guess)
 		void AddPhysicsObject(PhysicsObject* object, int* id);
+		// The same for a mesh (0x10665DF0, a forward to Add; name guess)
+		void AddMesh(CollisionVolume6* mesh, CollisionHandle* handle);
+	};
+
+	// A mesh (type 6, 0x130 bytes): its grid of triangles and a handle in the physics handle table
+	struct CollisionVolume6 : CollisionVolume
+	{
+		// An empty mesh registered in the handle table (0x106664D0)
+		CollisionVolume6();
+		// A copy that shares the slot of the other and has copies of its two lists (0x10666510)
+		CollisionVolume6(const CollisionVolume6& other);
+		// A mesh around a copy of a grid (0x106665F0)
+		CollisionVolume6(const BroadPhaseGrid& newGrid);
+		// Takes the handle out of the table and lets go of the grid (0x10666640)
+		~CollisionVolume6();
+		// Whether the slot of the mesh carries geometry (0x10654180)
+		bool HasSlotGeometry() const;
+		// Prints the hull; there is nothing to print (0x106805C0, another unit; name guess)
+		void DumpHull();
+		// The destructor and, when bit 0 of the flags is set, the delete behind it (0x10654430)
+		void* DestroyAndFree(unsigned int flags);
+
+		// Sets the filter words of every material of the grid (0x106661E0); the bits of the first / second word
+		// (0x10666210 / 0x10666250)
+		void SetMeshFilter(const CollisionFilter* filter);
+		void SetMeshFilterBits(unsigned int mask, bool set);
+		void SetMeshFilterBits2(unsigned int mask, bool set);
+		// The bounds from the grid's box, moved by the grid's matrix when it has one (0x10665B20)
+		void UpdateBox();
+		// Takes the object's transform as the grid's matrix, inverts it and sets the bounds (0x10665E20); the
+		// second version multiplies the grid's matrix by it (0x10666000)
+		void UpdateWorld(CollisionObject* object);
+		void MultiplyWorld(const math::Matrix& matrix);
+		// Prints nothing (0x10665DA0)
+		void PrintMesh();
+		// A mesh is not scaled
+		void Scale(const math::Vector* scale)
+		{
+		}
+		// Sets the word at 0x120 (0x10665BD0)
+		void SetUnknown120(int value);
+
+		unsigned char unknown24[0x30 - 0x24];
+		BroadPhaseGrid grid;            // 0x30
+		int unknown120;                 // 0x120
+		CollisionHandle handle;         // 0x124
+		unsigned char unknown128[8];
 	};
 
 	// A collision object around one volume, or around an array of them (0x10655F60 / 0x10655FC0)

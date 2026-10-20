@@ -751,7 +751,7 @@ namespace ravenphysics
 			{
 				copy->volumes[i] = volumes[i]->Clone();
 				if (volumes[i]->Clone()->type == 6
-					&& ((CollisionVolume6*)copy->volumes[i])->unknown110->unknown4 != 0)
+					&& ((CollisionVolume6*)copy->volumes[i])->grid.slot->unknown4 != 0)
 				{
 					copy->mesh->AddVolume(copy->volumes[i]);
 				}

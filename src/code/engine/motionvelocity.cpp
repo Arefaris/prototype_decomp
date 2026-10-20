@@ -7,14 +7,10 @@
 namespace engine
 {
 	// Whether two vectors differ by at most the tolerance in every component (name guessed)
-	inline int IsEqual(const math::Vector& a, const math::Vector& b, float tolerance)
+	inline bool IsEqual(const math::Vector* a, const math::Vector* b, float tolerance)
 	{
-		if (!math::IsEqual(a.x, b.x, tolerance) || !math::IsEqual(a.y, b.y, tolerance) ||
-			!math::IsEqual(a.z, b.z, tolerance))
-		{
-			return 0;
-		}
-		return 1;
+		return math::IsEqual(a->x, b->x, tolerance) && math::IsEqual(a->y, b->y, tolerance) &&
+			math::IsEqual(a->z, b->z, tolerance);
 	}
 
 	// The rotation from one transform to another as an axis and an angle up to pi (a copy of the filters' own helper)
@@ -32,11 +28,11 @@ namespace engine
 		to.Transform(point, end);
 		end.Sub(end, start);
 		end.Scale(invDt);
-		int same = IsEqual(velocity, end, 0.001f);
+		bool same = IsEqual(&velocity, &end, 0.001f);
 		velocity.x = end.x;
 		velocity.y = end.y;
 		velocity.z = end.z;
-		return same == 0;
+		return !same;
 	}
 
 	// FUNCTION: ENGINE 0x10661D80
@@ -68,11 +64,11 @@ namespace engine
 		ComputeRotationDelta(from, to, axis, angle);
 		angle *= invDt;
 		math::Vector target(axis.x * angle, axis.y * angle, axis.z * angle);
-		int same = IsEqual(velocity, target, 0.01f);
+		bool same = IsEqual(&velocity, &target, 0.01f);
 		velocity.x = target.x;
 		velocity.y = target.y;
 		velocity.z = target.z;
-		return same == 0;
+		return !same;
 	}
 
 	// FUNCTION: ENGINE 0x106628D0

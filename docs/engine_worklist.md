@@ -4196,3 +4196,14 @@ lower-bound function the unit has of its own (a plain function template, not `st
     `Scale` of the sphere 0x10664530 and of the box 0x106642E0, `GetLocalOBB` 0x10664220 (loads in registers).
   - NONMATCHING: `CollisionCapsule::UpdateWorld` 0x10664C10 (15 %: the engine builds the extents in a stack vector and
     takes the absolute values one at a time on the x87 unit).
+  - The volume dispatchers (`GetTypeName`, `Print`, `UpdateBounds`, the scale `SetQuery`, `Clone`, `CastVolume`, the
+    filter setters), the mesh volume (type 6: `CollisionVolume6` with its `BroadPhaseGrid` at +0x30, 0xF0 bytes, and
+    the `MeshSlot` the copies share), the cylinder's copy constructor and the unit's `std` instances for
+    `unsigned short` (the sort chain of a list of face numbers) match. The case labels of a switch decide the table's
+    size (`SetQuery` has an empty `Scale` for the hull and the mesh), and their order the order of the code.
+    `PrintMesh` (0x10665DA0, an empty function) sits in `collisionmesh.cpp` so that the compiler does not see its
+    body (the engine keeps the call).
+  - EQUIVALENT: the grid constructor 0x106662C0 (scheduling, 85.8 %), `CollisionVolume6::UpdateWorld` 0x10665E20 and
+    `MultiplyWorld` 0x10666000 (the engine reuses two stack slots for the row copies, 89.5 %).
+  - Not done here: `CollisionCapsule::Scale` 0x10664EB0 and `CollisionOBB::UpdateWorld` 0x10665120 (long SSE
+    sequences, declared only), the cylinder's and the hull's other methods (0x1068....).
