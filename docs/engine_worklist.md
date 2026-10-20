@@ -4207,3 +4207,14 @@ lower-bound function the unit has of its own (a plain function template, not `st
     `MultiplyWorld` 0x10666000 (the engine reuses two stack slots for the row copies, 89.5 %).
   - Not done here: `CollisionCapsule::Scale` 0x10664EB0 and `CollisionOBB::UpdateWorld` 0x10665120 (long SSE
     sequences, declared only), the cylinder's and the hull's other methods (0x1068....).
+- `src/code/ravenphysics/constraints/` (new; 0x106615E0 - 0x1066AF80): the `Constraint` base (`constraint.h`, constructor
+  0x1065E3E0, destructor 0x1065CD80) and its first two families, `ConstraintInsideOfSphere` (pointA 0x24, pointB 0x30,
+  sphereRadius 0x3C) and `ConstraintInsideOfCone` (axisA 0x24, axisALocal 0x30, axisB 0x3C, sine 0x48, cosine 0x4C, flag
+  0x58): constructors, the accessors, `Rotate`, `GetMembers` and the reflection templates. Vector members that are reached
+  through a getter and a setter use the new `src/code/content/vectormetatype.h` (`VectorMetaTypeGetSet`,
+  `VectorMemberGetSetter<C>`); the base `VectorMetaType` slots 0 - 11 are mapped in symbols.txt. A derived destructor is
+  left implicit (the engine's is a bare `jmp` to the base destructor); the engine's addresses sit on the stacked
+  annotations of the kept copies.
+  - EQUIVALENT: `Constraint::Constraint(int)` 0x1065E3E0 (register choice), `ConstraintInsideOfSphere::ScaleBy`
+    0x106616E0 (scheduling).
+  - Not done: the other constraint classes (hinge 0x1066B0A0, springs, slider, perpendicular axes, fixed distance).

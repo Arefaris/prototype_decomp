@@ -266,6 +266,9 @@ namespace ravenphysics
 			value = 0xffffffff;
 		}
 
+		// Whether the table still holds the object the handle names (0x1065ADF0, out of line)
+		bool IsValid() const;
+
 		union
 		{
 			unsigned int value;
