@@ -211,6 +211,10 @@ namespace fight
 	class ConditionList
 	{
 	public:
+		// 0x105A7A60 (another unit): the list starts empty
+		ConditionList();
+		// 0x105A7B20 (another unit): frees the conditions
+		~ConditionList();
 		// 0x105A7BF0
 		bool Evaluate(int a, int b, int c, int d);
 
