@@ -66,13 +66,13 @@ namespace pure3d
 		pddiSize* size;
 	};
 
-	class pddiSurface
+	class pddiSurface : public pddiObject
 	{
 	public:
 		// 0x1061C480
 		int GetHandle();
 
-		unsigned char unknown0[0x40];
+		unsigned char unknown8[0x40 - 8];
 		int handle;
 		pddiSurfaceInfo* info;
 	};
@@ -106,11 +106,23 @@ namespace pure3d
 		virtual bool Unknown7();
 	};
 
+	// The name of a constant, where it is and what it is (8 bytes)
+	struct ConstantName
+	{
+		core::Name<core::CaseInsensitiveKey32> name;
+		unsigned int index : 16;
+		// 0 texture, 1 float, 2 - 4 the vectors, 5 matrix, 6 flag
+		int kind : 4;
+		unsigned int unknown : 12;
+	};
+
 	// The slot of a constant in the device's constant table (the name is a guess)
 	struct ConstantSlot
 	{
 		// 0x10611E10: no slot (-1)
 		ConstantSlot();
+		// 0x10611E50: the slot of a named constant
+		ConstantSlot(const ConstantName* constant);
 		// 0x10611E20 (another unit): the slot of the constant of that kind and name
 		ConstantSlot(int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
@@ -121,6 +133,293 @@ namespace pure3d
 
 		int index;
 	};
+
+	class pddiBaseContext;
+
+	// The base of the states the device keeps on stacks (RTTI pddiState; one pure slot, which puts the state on the
+	// device)
+	class pddiState
+	{
+	public:
+		virtual void Apply(pddiBaseContext* context) = 0;
+	};
+
+	// The states the device keeps on stacks (RTTI pddiViewState, pddiRenderState, pddiZState, pddiStencilState; their
+	// sizes are 0x3C, 0x3C, 0x18 and 0x38). Only the words the device's accessors use are named, after what they
+	// set (guesses)
+	class pddiViewState : public pddiState
+	{
+	public:
+		// 0x1061DC70
+		virtual void Apply(pddiBaseContext* context);
+
+		int unknown4;
+		float unknown8;
+		int unknownC;
+		int unknown10;
+		float unknown14[4];
+		float unknown24[6];
+	};
+
+	class pddiRenderState : public pddiState
+	{
+	public:
+		// 0x106156F0
+		pddiRenderState();
+		// 0x1061DBA0
+		virtual void Apply(pddiBaseContext* context);
+
+		int cullMode;
+		int fillMode;
+		int unknownC;
+		bool colourWrite[4];
+		bool alphaTest;
+		unsigned char unknown15[3];
+		int blend[4];
+		bool fog;
+		unsigned char unknown29[3];
+		float fogNear;
+		float fogFar;
+		float alphaRef;
+		bool unknown38;
+	};
+
+	class pddiZState : public pddiState
+	{
+	public:
+		// 0x10615700
+		pddiZState();
+		// 0x1061DD10
+		virtual void Apply(pddiBaseContext* context);
+
+		bool zBuffer;
+		unsigned char unknown5[3];
+		int zCompare;
+		bool zWrite;
+		unsigned char unknownD[3];
+		float zBias;
+		float zSlope;
+	};
+
+	class pddiStencilState : public pddiState
+	{
+	public:
+		// 0x10615710
+		pddiStencilState();
+		// 0x1061DD70
+		virtual void Apply(pddiBaseContext* context);
+
+		bool enabled;
+		unsigned char unknown5[3];
+		int compare;
+		int ref;
+		int mask;
+		int writeMask;
+		int fail;
+		int zFail;
+		int zPass;
+		bool unknown24;
+		unsigned char unknown25[3];
+		int unknown28;
+		int unknown2C;
+		int unknown30;
+		int unknown34;
+	};
+
+	// A 64-bit time that keeps the 4-byte alignment of the class around it
+#pragma pack(push, 4)
+	struct Time64
+	{
+		unsigned __int64 value;
+	};
+#pragma pack(pop)
+
+	// A matrix of the device that has a copy in its shader constants: setting it marks the matrix constants of the
+	// device as changed and writes the copy (0x48 bytes). The constants it is kept under are named by 0x1061E8F0.
+	struct ConstantMatrix : public math::Matrix
+	{
+		// 0x1061DE20 (the engine has a copy of it out of line)
+		ConstantMatrix()
+		{
+			Identity();
+		}
+		// 0x1061DA00 (the engine has a copy of it out of line): keeps the device and finds the constant of that name
+		void Bind(pddiBaseContext* newContext, const core::Name<core::CaseInsensitiveKey32>* name);
+		// Sets the matrix and its copy
+		void Assign(const math::Matrix& other);
+		// this = a * b, and the copy
+		void Multiply(const math::Matrix& a, const math::Matrix& b);
+		// Writes the matrix to its copy
+		void Publish();
+
+		ConstantSlot slot;
+		pddiBaseContext* context;
+	};
+
+	// A vector of the device that has a copy in its shader constants (0x14 bytes)
+	struct ConstantVector3
+	{
+		// 0x1061DA20 (the engine has a copy of it out of line)
+		ConstantVector3()
+		{
+			x = 0.0f;
+			y = 0.0f;
+			z = 0.0f;
+		}
+		// 0x1061DA60: sets the vector and its copy
+		void Assign(const float* value);
+
+		float x;
+		float y;
+		float z;
+		ConstantSlot slot;
+		pddiBaseContext* context;
+	};
+
+	// The matrices of the device the shaders ask for by name (p3dWorldMatrix and its products, inverses and
+	// transposes; the object lives at +0x154 of the device and 0x1061E670 makes it). Setting the view, the world or the
+	// projection marks the products in `dirty`; the device makes them when a draw wants them (names are the shader
+	// constants' own).
+	struct ShaderMatrices
+	{
+		// 0x1061E670
+		ShaderMatrices();
+		// 0x1061E8F0: finds the constants of every matrix on the device
+		void Bind(pddiBaseContext* newContext);
+		// 0x1061E810: makes the products the mask names that are out of date
+		void Update(unsigned int mask);
+		// The products (each clears its bit of `dirty`): 0x1061DAA0, 0x10614760, 0x1061DE40, 0x1061DF70, 0x1061DFD0,
+		// 0x1061E040, 0x1061E170, 0x1061E2A0, 0x1061E310, 0x1061E380, 0x1061E3F0, 0x1061E460, 0x1061E590
+		void MakeViewProjection();
+		void MakeWorldViewProjection();
+		void MakeProjectionInverse();
+		void MakeWorldViewInverse();
+		void MakeWorldViewProjectionInverse();
+		void MakeProjectionTranspose();
+		void MakeWorldViewTranspose();
+		void MakeWorldViewProjectionTranspose();
+		void MakeWorldInverseTranspose();
+		void MakeProjectionInverseTranspose();
+		void MakeWorldViewInverseTranspose();
+		void MakeWorldViewProjectionInverseTranspose();
+		void MakeEyePosition();
+		// 0x10615270 / 0x10615300 / 0x106146D0 (the engine has a copy of the last one out of line): the view, world and
+		// projection matrix change
+		void SetView(const math::Matrix* matrix);
+		void SetWorld(const math::Matrix* matrix);
+		void SetProjection(const math::Matrix* matrix);
+
+		// 0x10614710 / 0x10614720 / 0x10614730 / 0x10614750 / 0x10614740
+		const math::Matrix* GetView()
+		{
+			return &view;
+		}
+		const math::Matrix* GetWorld()
+		{
+			return &world;
+		}
+		const math::Matrix* GetProjection()
+		{
+			return &projection;
+		}
+		const math::Matrix* GetWorldView()
+		{
+			return &worldView;
+		}
+		const math::Matrix* GetWorldViewProjection()
+		{
+			return &worldViewProjection;
+		}
+
+		unsigned int dirty;
+		pddiBaseContext* context;
+		ConstantMatrix view;
+		ConstantMatrix world;
+		ConstantMatrix projection;
+		ConstantMatrix worldView;
+		ConstantMatrix viewProjection;
+		ConstantMatrix projectionInverse;
+		ConstantMatrix worldViewProjection;
+		ConstantMatrix worldViewInverse;
+		ConstantMatrix worldViewProjectionInverse;
+		ConstantMatrix projectionTranspose;
+		ConstantMatrix worldViewTranspose;
+		ConstantMatrix worldViewProjectionTranspose;
+		ConstantMatrix worldInverseTranspose;
+		ConstantMatrix projectionInverseTranspose;
+		ConstantMatrix worldViewInverseTranspose;
+		ConstantMatrix worldViewProjectionInverseTranspose;
+		ConstantVector3 eyePosition;
+	};
+
+	// The names the constants of a table are found by (0xC bytes)
+	struct ConstantNames
+	{
+		// 0x1061A4F0: the entry of that name, null when there is none
+		ConstantName* Find(const core::Name<core::CaseInsensitiveKey32>* name);
+
+		ConstantName* begin;
+		ConstantName* end;
+		int unknown8;
+	};
+
+	// The sampler word of a texture constant (the word after the texture; the fields' meanings are guesses)
+	struct SamplerBits
+	{
+		int unknown : 4;
+		int addressU : 2;
+		int addressV : 2;
+		int addressW : 2;
+		int minFilter : 4;
+		int magFilter : 4;
+		int mipFilter : 4;
+		unsigned int anisotropy : 5;
+	};
+
+	// A texture constant: the texture, then its sampler word
+	struct SamplerEntry
+	{
+		pddiSurface* texture;
+		SamplerBits bits;
+	};
+
+	// Reads the fields of a sampler word (the constants' getters and the shaders' use these)
+	__forceinline void ReadSamplerAddress(const SamplerEntry* entry, int* u, int* v, int* w)
+	{
+		if (u != 0)
+		{
+			*u = entry->bits.addressU;
+		}
+		if (v != 0)
+		{
+			*v = entry->bits.addressV;
+		}
+		if (w != 0)
+		{
+			*w = entry->bits.addressW;
+		}
+	}
+
+	__forceinline void ReadSamplerFilters(const SamplerEntry* entry, int* minFilter, int* magFilter, int* mipFilter,
+		unsigned int* anisotropy)
+	{
+		if (minFilter != 0)
+		{
+			*minFilter = entry->bits.minFilter;
+		}
+		if (magFilter != 0)
+		{
+			*magFilter = entry->bits.magFilter;
+		}
+		if (mipFilter != 0)
+		{
+			*mipFilter = entry->bits.mipFilter;
+		}
+		if (anisotropy != 0)
+		{
+			*anisotropy = entry->bits.anisotropy;
+		}
+	}
 
 	class pddiBaseContext : public pddiEmptyClass
 	{
@@ -136,7 +435,7 @@ namespace pure3d
 		// descriptor is the one DrawPrimitive takes)
 		virtual void Unknown2(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
 			const void* parameters);
-		virtual void Unknown3();
+		virtual void Unknown3(int a, int b, int c);
 		// Draws a part's batch (the 0x2C bytes at +0xA0 of a drawable part) with a shader and its parameters
 		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
 			const void* parameters);
@@ -144,20 +443,25 @@ namespace pure3d
 		virtual void DrawBatches(const void* const* batches, int count);
 		virtual void SetRenderTargets(const pddiRenderTargets* targets);
 		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e);
-		virtual void Unknown8();
+		virtual void Unknown8(int a);
 		virtual void Unknown9();
-		virtual void Unknown10();
-		virtual void Unknown11();
-		virtual void Unknown12();
-		virtual void Unknown13();
-		virtual void Unknown14();
-		virtual void Unknown15();
-		virtual void Unknown16();
-		virtual void Unknown17();
-		virtual void Unknown18();
-		virtual void Unknown19();
-		virtual void Unknown20();
-		virtual void Unknown21();
+		// Slots 10 - 21: the device's queries. 10 makes an event query and ends it; 11 waits for one and lets go of
+		// it; 12 tells (true) while one is still under way and lets go of it when it is not; 13 makes an occlusion
+		// query (0 for the flag it is given); 14 lets go of one; 15 / 16 begin / end it; 17 waits for it and answers
+		// the pixels it counted; 18 makes an event query; 19 lets go of one; 20 ends it; 21 waits for it. The base
+		// class does none of it.
+		virtual IDirect3DQuery9* Unknown10();
+		virtual void Unknown11(IDirect3DQuery9* query);
+		virtual bool Unknown12(IDirect3DQuery9* query);
+		virtual IDirect3DQuery9* Unknown13(int flag);
+		virtual void Unknown14(IDirect3DQuery9* query);
+		virtual void Unknown15(IDirect3DQuery9* query);
+		virtual void Unknown16(IDirect3DQuery9* query);
+		virtual unsigned int Unknown17(IDirect3DQuery9* query);
+		virtual IDirect3DQuery9* Unknown18();
+		virtual void Unknown19(IDirect3DQuery9* query);
+		virtual void Unknown20(IDirect3DQuery9* query);
+		virtual void Unknown21(IDirect3DQuery9* query);
 		// Slot 22 / 23: the projection from a field of view (the angle is multiplied by the radians to degrees factor)
 		// or from the planes of the view volume; both set the projection matrix
 		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
@@ -165,15 +469,18 @@ namespace pure3d
 		virtual pddiQuery* Unknown24(int flags);
 		virtual bool Unknown25(int flags);
 		virtual void Unknown26();
+		// Slot 27 / 28 (0x10614B90 / 0x10614C00; the frame start and end): a frame starts (counted; asserts the device was initialised) / ends
 		virtual void Unknown27();
 		virtual void Unknown28();
-		virtual void Unknown29();
-		virtual void Unknown30();
-		virtual void Unknown31();
-		virtual void Unknown32();
-		virtual void Unknown33();
-		virtual void Unknown34();
-		virtual void Unknown35();
+		// Slots 29 - 35: the timings at +0x600 - +0x620 (microseconds). 31 reads the clock into +0x608; 32 reads
+		// it into +0x610 and takes the time between and what slot 29 answers off, into +0x620
+		virtual unsigned __int64 GetTimeUnknown600();
+		virtual void SetTimeUnknown600(unsigned __int64 time);
+		virtual void ReadTimeUnknown608();
+		virtual void ReadTimeUnknown610();
+		virtual void SetTimeUnknown618(unsigned __int64 time);
+		virtual unsigned __int64 GetTimeUnknown618();
+		virtual unsigned __int64 GetTimeUnknown620();
 		// Render state
 		virtual void SetCullMode(int mode);
 		virtual void SetColourWrite(bool red, bool green, bool blue, bool alpha);
@@ -190,16 +497,17 @@ namespace pure3d
 		virtual void SetStencilWriteMask(int mask);
 		virtual void SetStencilOp(int fail, int zFail, int zPass);
 		virtual void Unknown48();
-		virtual void Unknown49();
-		virtual void Unknown50();
+		// Slots 49 / 50: the word at +0xC of the render state, set / read
+		virtual void SetRenderUnknownC(int value);
+		virtual int GetRenderUnknownC();
 		virtual void Unknown51(bool enable);
 		virtual void Unknown52(int compare);
 		virtual void Unknown53(int fail, int zFail, int zPass);
-		virtual void Unknown54();
-		virtual void Unknown55();
-		virtual void Unknown56();
-		virtual void Unknown57();
-		virtual void Unknown58();
+		virtual void Unknown54(int a);
+		virtual void Unknown55(int a);
+		virtual void Unknown56(int a, int b);
+		virtual void Unknown57(int a);
+		virtual void SetRenderUnknown38(bool value);
 		// Render state
 		virtual void SetFillMode(int mode);
 		virtual void EnableAlphaTest(bool enable);
@@ -207,11 +515,57 @@ namespace pure3d
 		virtual void EnableFog(bool enable);
 		virtual void SetFogRange(float nearZ, float farZ);
 		virtual void SetAlphaRef(float ref);
+		virtual void Unknown65();
+		virtual ~pddiBaseContext();
+		virtual void Unknown67();
+		virtual void Unknown68();
+
+		// The state getters (names follow the setters; 0x10614C40 - 0x10615170)
+		void GetViewUnknown4(int* value);
+		float GetViewUnknown8();
+		int GetViewUnknownC();
+		int GetViewUnknown10();
+		void GetViewUnknown14(float* a, float* b, float* c, float* d);
+		void GetViewUnknown24(float* a, float* b, float* c, float* d);
+		void GetViewUnknown34(float* a, float* b);
+		int GetCullMode();
+		void GetColourWrite(bool* red, bool* green, bool* blue, bool* alpha);
+		bool IsZBufferEnabled();
+		int GetZCompare();
+		bool IsZWriteEnabled();
+		void GetZBias(float* bias, float* slope);
+		bool IsStencilBufferEnabled();
+		int GetStencilCompare();
+		int GetStencilRef();
+		int GetStencilMask();
+		int GetStencilWriteMask();
+		void GetStencilOp(int* fail, int* zFail, int* zPass);
+		int GetFillMode();
+		bool IsAlphaTestEnabled();
+		bool IsFogEnabled();
+		void GetFogRange(float* nearZ, float* farZ);
+		float GetAlphaRef();
+		// 0x106150B0: the four words of the blend mode (name guess; SetBlendMode's own)
+		void GetBlendMode(int* a, int* b, int* c, int* d);
+		// 0x10615190: the same clock as GetFrameCount, as a float
+		float GetFrameTimeUnknown(int index);
 
 		// 0x10614840: the matrix at +0x15C (the current view matrix)
 		const math::Matrix* GetUnknown10614840();
 		// 0x10614870: the matrix at +0x1EC (the projection matrix)
 		const math::Matrix* GetUnknown10614870();
+		// 0x10614850 / 0x10614860: the world matrix (+0x1A4) and the world view projection matrix (+0x30C)
+		const math::Matrix* GetUnknown10614850();
+		const math::Matrix* GetUnknown10614860();
+		// 0x10614880: makes the matrices the mask names that are out of date
+		void UpdateMatrices(unsigned int mask);
+		// 0x10614890: makes the world view projection matrix (the products are made here too, not only by 0x10614760)
+		void Unknown10614890();
+		// 0x106148E0: puts the four states on the device
+		void ApplyStates();
+		// 0x10614910: clears the numbers the frame adds up (name unknown); 0x10614A10 works out the averages of them
+		void Unknown10614910();
+		void Unknown10614A10();
 		// 0x10614C20: the word at +0x14 is not 0 (the meaning is unknown)
 		bool IsUnknown14Set();
 		// 0x106147E0: sets the projection matrix
@@ -223,26 +577,65 @@ namespace pure3d
 
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);
-		// 0x10614C40: the value SetViewUnknown4 set
-		void GetViewUnknown4(int* value);
 		void SetViewUnknown8(float value);
 		void SetViewUnknownC(int value);
 		void SetViewUnknown10(int value);
 		void SetViewUnknown14(float a, float b, float c, float d);
 		void SetViewUnknown24(float a, float b, float c, float d, float e, float f);
 
-		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed)
-		struct Constants
+		// The shader constants (floats, set by index; bit 4 of constantsDirty marks the pixel constants changed). The
+		// object is a pddiObject of the engine (RTTI pddiShaderInputs); 0x1061A3E0 makes it
+		class Constants : public pddiObject
 		{
+		public:
+			// 0x1061A3E0
+			Constants();
+			// 0x1061ABB0 (its scalar deleting form is 0x1061AC60): lets go of the textures the constants hold and of
+			// the arrays it owns
+			virtual ~Constants();
+
 			// 0x1061A470: binds a texture to the constant at *slot (a texture constant keeps its sampler state word
 			// at values[*slot + 1])
 			void SetTexture(int* slot, pddiSurface* surface);
 			// 0x1061A540: the slot of the constant of that kind and name (-1 in the slot when there is none)
 			ConstantSlot* Find(ConstantSlot* slot, int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
-			int unknown0;
-			int unknown4;
+			// 0x1061A5E0: takes the values of the constants another table has under the same names
+			void CopyValuesFrom(Constants* other);
+			// 0x1061A410: copies the table (the values and the names) into another one
+			void CopyTo(Constants* destination);
+			// 0x10613A20 / 0x10613A30: the values and how many there are
+			float* GetValues();
+			unsigned int GetCount();
+			// 0x10613A40 / 0x10613A70: the flag constants share the first word of the values
+			void SetFlag(const ConstantSlot& slot, bool on);
+			bool GetFlag(const ConstantSlot& slot);
+			// 0x10613A90: the value of a float constant; 0x10613AA0 - 0x10613AD0: where the vectors and the matrix of a
+			// constant start (the same for every size); 0x10613AE0: the texture of a texture constant
+			float GetFloat(const ConstantSlot& slot);
+			float* GetFloat2(const ConstantSlot& slot);
+			float* GetFloat3(const ConstantSlot& slot);
+			float* GetFloat4(const ConstantSlot& slot);
+			float* GetMatrix(const ConstantSlot& slot);
+			pddiSurface* GetTexture(const ConstantSlot& slot);
+			// 0x102D5390 (another unit): sets the filters of a texture constant's sampler
+			void SetSamplerFilters(ConstantSlot* slot, int minFilter, int magFilter, int mipFilter,
+				unsigned int anisotropy);
+			// 0x10613AF0: the address modes of a texture constant's sampler; 0x10613B40: its filters and the
+			// anisotropy; 0x10613BA0: the word's first field (name guesses)
+			void GetSamplerAddress(const ConstantSlot& slot, int* u, int* v, int* w);
+			void GetSamplerFilters(const ConstantSlot& slot, int* minFilter, int* magFilter, int* mipFilter,
+				unsigned int* anisotropy);
+			int GetSamplerUnknown(const ConstantSlot& slot);
+
 			float* values;
+			// How many values (floats) there are
+			unsigned int count;
+			// The names the constants are found by (0x1061A4F0 searches them)
+			ConstantNames* names;
+			// Set when the arrays are the object's own
+			bool ownsValues;
+			bool ownsNames;
 		};
 
 		// A group of the constant table: the bit of constantsDirty a write marks (1 textures, 2 floats, 4 float
@@ -290,11 +683,24 @@ namespace pure3d
 		int unknown8;
 		// 0x1061B550 and 0x1061B5A0 hand this to a new dxTexture
 		IDirect3DDevice9* unknownC;
-		int unknown10;
-		int unknown14;
-		unsigned char unknown18[0x24];
+		// 0x10: the number of frames begun; 0x14: set while one is under way
+		unsigned int frameNumber;
+		unsigned int frameActive;
+		unsigned char unknown18[4];
+		// The stacks of the four states and the state each is on (the top)
+		void* viewStack;
+		void* renderStack;
+		void* zStack;
+		void* stencilStack;
+		pddiViewState* viewState;
+		pddiRenderState* renderState;
+		pddiZState* zState;
+		pddiStencilState* stencilState;
 		Constants* constants;
-		unsigned char unknown40[0x24];
+		unsigned char unknown40[0x1C];
+		// 0x5C: the clocks of the device as floats (GetFrameCount answers them as whole numbers; BeginFrame sets the
+		// first to the frame number)
+		float clocks[2];
 		// 0x64 - 0x74: what the draw calls added up to this frame (floats): the primitives and the vertices of
 		// the plain draws, then of the indexed ones, then how many draws there were (names are guesses)
 		float drawnPrimitives;
@@ -302,20 +708,89 @@ namespace pure3d
 		float drawnIndexedPrimitives;
 		float drawnIndexedVertices;
 		float drawCalls;
-		unsigned char unknown78[0x10];
+		// 0x78: the primitives per draw of the frame
+		float primitivesPerDraw;
+		unsigned char unknown7C[8];
+		float unknown84;
 		// 0x88 / 0x8C: what the batch draws added up to (the primitives, then how many draws there were)
 		float batchedPrimitives;
 		float batchDraws;
-		unsigned char unknown90[0x138 - 0x90];
+		// 0x90: 0x84 over the draws
+		float unknown90;
+		float unknown94[10];
+		unsigned char unknownBC[0xFC - 0xBC];
+		float unknownFC[3];
+		unsigned char unknown108[8];
+		float unknown110[10];
 		// The bytes of texture memory the textures made on this device hold (0x1061CD70 adds a new texture's size
 		// to it, 0x1061CBE0 takes it away again)
 		float textureMemory;
 		unsigned char unknown13C[0x10];
 		unsigned int constantsDirty;
-		unsigned char unknown150[0x4A0];
+		unsigned char unknown150[4];
+		// 0x154: the matrices the shaders ask for
+		ShaderMatrices matrices;
 		// Bit 0: a pass draws, bit 2: lit parts, bit 3: shadow parts (set around the passes' draw loops)
 		unsigned int drawFlags;
+		// 0x5F4: set by Init (BeginFrame asserts it)
+		bool initialized;
+		unsigned char unknown5F5[0x600 - 0x5F5];
+		// 0x600 - 0x628: eight words of timings, in microseconds as 64-bit values (names are guesses)
+		Time64 timeUnknown600;
+		Time64 timeUnknown608;
+		Time64 timeUnknown610;
+		Time64 timeUnknown618;
+		Time64 timeUnknown620;
+		unsigned char unknown628[0x634 - 0x628];
 	};
+
+	inline void ConstantMatrix::Assign(const math::Matrix& other)
+	{
+		math::Matrix::operator=(other);
+		pddiBaseContext* device = context;
+		device->constantsDirty |= pddiBaseContext::CONSTANT_MATRIX;
+		math::Matrix* copy = (math::Matrix*)&device->constants->values[slot.index];
+		*copy = other;
+	}
+
+	inline void ConstantMatrix::Bind(pddiBaseContext* newContext, const core::Name<core::CaseInsensitiveKey32>* name)
+	{
+		context = newContext;
+		newContext->constants->Find(&slot, 5, name);
+	}
+
+	inline void ConstantMatrix::Multiply(const math::Matrix& a, const math::Matrix& b)
+	{
+		math::Matrix::Multiply(a, b);
+		Publish();
+	}
+
+	inline void ConstantMatrix::Publish()
+	{
+		pddiBaseContext* device = context;
+		device->constantsDirty |= pddiBaseContext::CONSTANT_MATRIX;
+		math::Matrix* copy = (math::Matrix*)&device->constants->values[slot.index];
+		*copy = *this;
+	}
+
+	__forceinline void ShaderMatrices::SetProjection(const math::Matrix* matrix)
+	{
+		projection.Assign(*matrix);
+		dirty |= 0x92493;
+	}
+
+	inline void ConstantVector3::Assign(const float* value)
+	{
+		x = value[0];
+		y = value[1];
+		z = value[2];
+		pddiBaseContext* device = context;
+		device->constantsDirty |= pddiBaseContext::CONSTANT_FLOAT3;
+		float* copy = &device->constants->values[slot.index];
+		copy[0] = x;
+		copy[1] = y;
+		copy[2] = z;
+	}
 
 	// The surfaces of the display (the object at 0x112818C0; names are guesses)
 	class pddiDisplay

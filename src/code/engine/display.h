@@ -5,14 +5,38 @@
 
 #include "code/pure3d/pddi/dx9/d3d9.h"
 
+namespace pure3d
+{
+	class dxTexture;
+}
+
 namespace engine
 {
 	class Display
 	{
 	public:
+		// 0x10617A30: the display over a Direct3D object (a 0x834-byte object)
+		Display(IDirect3D9* direct3D);
+		// 0x10617BF0: lets go of the device and the pool
+		~Display();
 		float GetAspectRatio();
 		// 0x10616130
 		int GetWidth();
+		// 0x10616140: 32 (the depth of the colour); 0x10616150: the int at +0x20 (1 when windowed)
+		int GetUnknown10616140();
+		int GetUnknown20();
+		// 0x10616160 / 0x10616170: the Direct3D object and the device it made
+		IDirect3D9* GetDirect3D();
+		IDirect3DDevice9* GetDevice();
+		// 0x10616180: the byte at +0x78C; 0x106161A0 answers 0
+		bool GetUnknown78C();
+		int Unknown106161A0();
+		// 0x10616720 / 0x10616730 / 0x10616750 / 0x10616760: the counter at +0x7FC, the float at +0x800, the float at
+		// +0x804 over the one at +0x808, the texture of the back buffer
+		int* GetUnknown7FC();
+		float GetUnknown800();
+		float GetUnknown804Ratio();
+		pure3d::dxTexture* GetBackBufferTexture();
 		// 0x10616120: the int at +8
 		int GetUnknown8();
 		// 0x106162D0: puts the display's state back (called around the render device's frame calls)
@@ -23,6 +47,8 @@ namespace engine
 		int GetUnknown28();
 		// 0x10616BB0: resets the device with the display's parameters and makes the pool's resources again
 		void Unknown10616BB0();
+		// 0x10616050: sets the back buffer and the depth buffer as the device's targets (name unknown)
+		void Unknown10616050();
 		// 0x106182C0: makes the device (or resets the one there is) from the display's settings; the answer is
 		// whether there is a device afterwards. The argument, when there is one, is handed to 0x106174D0 first.
 		bool Unknown106182C0(void* unknown);
@@ -46,19 +72,25 @@ namespace engine
 		unsigned char unknown14[0x20 - 0x14];
 		// 0x20: 1 when the display is windowed
 		int unknown20;
-		unsigned char unknown24[0x2C - 0x24];
+		unsigned char unknown24[4];
+		int unknown28;
 		// 0x2C: whether the device waits for the vertical blank
 		bool unknown2C;
-		unsigned char unknown2D[0x134 - 0x2D];
+		bool unknown2D;
+		unsigned char unknown2E[0x134 - 0x2E];
 		int unknown134;
 		// 0x138: the Direct3D object, 0x13C: the device it made
 		IDirect3D9* d3d;
 		IDirect3DDevice9* device;
 		// 0x140: the gamma ramp the device had
-		unsigned char gammaRamp[0x748 - 0x140];
+		unsigned char gammaRamp[0x740 - 0x140];
+		// 0x740 / 0x744: the back buffer and the depth buffer the device made
+		IDirect3DSurface9* backBuffer;
+		IDirect3DSurface9* depthStencil;
 		// 0x748: the parameters the device is made and reset with
 		D3DPRESENT_PARAMETERS presentParameters;
-		unsigned char unknown780[0x78D - 0x780];
+		float gamma[3];
+		bool unknown78C;
 		// 0x78D / 0x78E: set once the reset is through (names unknown)
 		bool unknown78D;
 		bool unknown78E;
@@ -66,12 +98,29 @@ namespace engine
 		bool unknown78F;
 		// 0x790: a device capability bit (DevCaps2, bit 4)
 		bool unknown790;
-		unsigned char unknown791[3];
+		bool unknown791;
+		unsigned char unknown792[2];
 		// 0x794 / 0x798: the largest texture the device takes
 		unsigned int maxTextureWidth;
 		unsigned int maxTextureHeight;
-		unsigned char unknown79C[0x828 - 0x79C];
+		unsigned char unknown79C[0x7FC - 0x79C];
+		// 0x7FC: counts the mode changes; 0x800 - 0x820: the ratios of the screen's shape (0x808 is the height over
+		// the width, the rest are ones and that ratio again)
+		int unknown7FC;
+		float unknown800;
+		float unknown804;
+		float unknown808;
+		float unknown80C;
+		float unknown810;
+		float unknown814;
+		float unknown818;
+		float unknown81C;
+		float unknown820;
+		unsigned char unknown824[4];
 		int unknown828;
+		// 0x82C: the texture that stands for the back buffer
+		pure3d::dxTexture* backBufferTexture;
+		unsigned char unknown830[4];
 	};
 	// 0x10616AD0: a step of the reset that takes the device (name unknown)
 	void Unknown10616AD0(IDirect3DDevice9* device);

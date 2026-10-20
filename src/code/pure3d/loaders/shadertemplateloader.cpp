@@ -11,7 +11,7 @@
 namespace pure3d
 {
 	// 0x1127F358
-	extern dxContext* gPddiDx;
+	extern dxDevice* gPddiDx;
 	// 0x1120A1D4: the kind of input each number of the file stands for
 	extern int gShaderInputKinds[6];
 

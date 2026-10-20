@@ -14,6 +14,8 @@ namespace math
 	public:
 		// 0x111BBA24
 		static const pddiColour WHITE;
+		// 0x111BBA28 (another unit, name guessed): opaque black
+		static const pddiColour BLACK;
 
 		pddiColour()
 		{

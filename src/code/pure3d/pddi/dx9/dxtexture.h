@@ -85,6 +85,10 @@ namespace pure3d
 		}
 	}
 
+	// 0x1061C020: the Direct3D format a pddi format is made in, and whether the device takes it (the third argument
+	// asks for the format of a texture drawn into)
+	bool ResolveTextureFormat(unsigned int* d3dFormat, unsigned int format, bool renderTarget);
+
 	// Whether the format is one of the block-compressed ones (0x1061C340)
 	bool IsCompressedFormat(unsigned int format);
 	// Copies `rows` rows of `rowBytes` bytes from one locked level to another (0x1061C8B0); a compressed level
@@ -131,6 +135,9 @@ namespace pure3d
 		virtual ~dxTexture();
 		// 0x1061C8F0: checks the description, resolves its format and copies it into the object
 		bool SetDescription(const TextureDescription* description);
+		// 0x1061CD20: makes the surface the texture's (null: none) and lays one level out over its size; the answer
+		// is always true
+		bool SetSurface(dxSurface* newSurface);
 		// 0x1061C490: lays the levels' row and slice sizes out and totals the bytes of the texture
 		void BuildLevels(const TextureDescription* description);
 		// 0x1061CD70

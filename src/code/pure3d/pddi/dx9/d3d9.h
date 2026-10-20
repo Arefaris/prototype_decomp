@@ -109,6 +109,7 @@ struct IDirect3DCubeTexture9;
 struct IDirect3DVertexBuffer9;
 struct IDirect3DIndexBuffer9;
 struct IDirect3DSurface9;
+struct IDirect3DQuery9;
 
 // One element of a vertex declaration (D3DVERTEXELEMENT9, 8 bytes)
 struct D3DVERTEXELEMENT9
@@ -205,6 +206,19 @@ inline ULONG IDirect3DIndexBuffer9::Release()
 	return lpVtbl->Release(this);
 }
 
+// What a surface is made of (D3DSURFACE_DESC, 32 bytes)
+struct D3DSURFACE_DESC
+{
+	unsigned int Format;
+	unsigned int Type;
+	DWORD Usage;
+	unsigned int Pool;
+	unsigned int MultiSampleType;
+	DWORD MultiSampleQuality;
+	UINT Width;
+	UINT Height;
+};
+
 // 0x08 Release, and the surface interface's own slots above it
 struct IDirect3DSurface9Vtbl
 {
@@ -219,12 +233,13 @@ struct IDirect3DSurface9Vtbl
 	void* getPriority;
 	void* preLoad;
 	void* getType;
-	void* getDesc;
 	void* getContainer;
-	void* getDC;
-	void* releaseDC;
+	// 0x30 GetDesc
+	HRESULT (__stdcall* GetDesc)(IDirect3DSurface9* surface, D3DSURFACE_DESC* description);
 	void* lockRect;
 	void* unlockRect;
+	void* getDC;
+	void* releaseDC;
 };
 
 struct IDirect3DSurface9
@@ -406,7 +421,11 @@ struct IDirect3D9;
 // The slots of the Direct3D object the display uses (indices as in d3d9.h)
 struct IDirect3D9Vtbl
 {
-	void* unknown0[8];
+	void* queryInterface;
+	void* addRef;
+	// 0x08 Release
+	ULONG (__stdcall* Release)(IDirect3D9* d3d);
+	void* unknownC[5];
 	// 0x20 GetAdapterDisplayMode
 	HRESULT (__stdcall* GetAdapterDisplayMode)(IDirect3D9* d3d, UINT adapter, D3DDISPLAYMODE* mode);
 	void* unknown24[5];
@@ -421,7 +440,15 @@ struct IDirect3D9Vtbl
 struct IDirect3D9
 {
 	IDirect3D9Vtbl* lpVtbl;
+
+	// Releases the interface (through the interface's own vtable slot)
+	ULONG Release();
 };
+
+inline ULONG IDirect3D9::Release()
+{
+	return lpVtbl->Release(this);
+}
 
 // The version the back end asks Direct3DCreate9 for (d3d9.h's D3D_SDK_VERSION)
 #define D3D_SDK_VERSION 32
@@ -453,6 +480,61 @@ inline ULONG IDirect3DShader9::Release()
 	return lpVtbl->Release(this);
 }
 
+// D3DVIEWPORT9 (24 bytes) and D3DRECT (16 bytes)
+struct D3DVIEWPORT9
+{
+	DWORD X;
+	DWORD Y;
+	DWORD Width;
+	DWORD Height;
+	float MinZ;
+	float MaxZ;
+};
+
+struct D3DRECT
+{
+	int x1;
+	int y1;
+	int x2;
+	int y2;
+};
+
+// The query types and the flags of Issue / GetData the engine uses
+enum
+{
+	D3DQUERYTYPE_EVENT = 8,
+	D3DQUERYTYPE_OCCLUSION = 9,
+	D3DISSUE_END = 1,
+	D3DISSUE_BEGIN = 2,
+	D3DGETDATA_FLUSH = 1
+};
+
+// 0x18 Issue, 0x1C GetData (index 6 / 7)
+struct IDirect3DQuery9Vtbl
+{
+	void* queryInterface;
+	void* addRef;
+	ULONG (__stdcall* Release)(IDirect3DQuery9* query);
+	void* getDevice;
+	void* getType;
+	void* getDataSize;
+	HRESULT (__stdcall* Issue)(IDirect3DQuery9* query, DWORD flags);
+	HRESULT (__stdcall* GetData)(IDirect3DQuery9* query, void* data, DWORD size, DWORD flags);
+};
+
+struct IDirect3DQuery9
+{
+	IDirect3DQuery9Vtbl* lpVtbl;
+
+	// Releases the interface (through the interface's own vtable slot)
+	ULONG Release();
+};
+
+inline ULONG IDirect3DQuery9::Release()
+{
+	return lpVtbl->Release(this);
+}
+
 struct IDirect3DDevice9Vtbl
 {
 	void* queryInterface;
@@ -475,8 +557,12 @@ struct IDirect3DDevice9Vtbl
 	void* getSwapChain;
 	void* getNumberOfSwapChains;
 	HRESULT (__stdcall* Reset)(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* parameters);
-	void* present;
-	void* getBackBuffer;
+	// 0x44 Present
+	HRESULT (__stdcall* Present)(IDirect3DDevice9* device, const void* sourceRect, const void* destRect, void* window,
+		const void* dirtyRegion);
+	// 0x48 GetBackBuffer
+	HRESULT (__stdcall* GetBackBuffer)(IDirect3DDevice9* device, UINT swapChain, UINT backBuffer, DWORD type,
+		IDirect3DSurface9** surface);
 	// 0x4C
 	void* getRasterStatus;
 	void* setDialogBoxMode;
@@ -519,8 +605,28 @@ struct IDirect3DDevice9Vtbl
 		const void* sourceRect, IDirect3DSurface9* destSurface, const void* destRect, D3DTEXTUREFILTERTYPE filter);
 	// 0x8C ColorFill
 	void* colorFill;
-	// 0x90 - 0xE0: the offscreen surface, the render targets, the scene, the transforms and the clip state
-	void* unknown90[21];
+	// 0x90: the offscreen surface
+	void* unknown90;
+	// 0x94 SetRenderTarget
+	HRESULT (__stdcall* SetRenderTarget)(IDirect3DDevice9* device, DWORD index, IDirect3DSurface9* surface);
+	void* unknown98;
+	// 0x9C SetDepthStencilSurface
+	HRESULT (__stdcall* SetDepthStencilSurface)(IDirect3DDevice9* device, IDirect3DSurface9* surface);
+	// 0xA0 GetDepthStencilSurface
+	HRESULT (__stdcall* GetDepthStencilSurface)(IDirect3DDevice9* device, IDirect3DSurface9** surface);
+	// 0xA4 BeginScene, 0xA8 EndScene
+	HRESULT (__stdcall* BeginScene)(IDirect3DDevice9* device);
+	HRESULT (__stdcall* EndScene)(IDirect3DDevice9* device);
+	// 0xAC Clear
+	HRESULT (__stdcall* Clear)(IDirect3DDevice9* device, DWORD count, const D3DRECT* rects, DWORD flags,
+		DWORD colour, float z, DWORD stencil);
+	// 0xB0 - 0xB8: the transforms
+	void* unknownB0[3];
+	// 0xBC SetViewport, 0xC0 GetViewport
+	HRESULT (__stdcall* SetViewport)(IDirect3DDevice9* device, const D3DVIEWPORT9* viewport);
+	HRESULT (__stdcall* GetViewport)(IDirect3DDevice9* device, D3DVIEWPORT9* viewport);
+	// 0xC4 - 0xE0: the material, the lights and the clip planes
+	void* unknownC4[8];
 	// 0xE4 SetRenderState
 	HRESULT (__stdcall* SetRenderState)(IDirect3DDevice9* device, unsigned int state, unsigned int value);
 	// 0xE8 - 0x100: the render states and the transforms
@@ -532,8 +638,12 @@ struct IDirect3DDevice9Vtbl
 	// 0x114 SetSamplerState
 	HRESULT (__stdcall* SetSamplerState)(IDirect3DDevice9* device, unsigned int sampler, unsigned int type,
 		unsigned int value);
-	// 0x118 - 0x140: the sampler states, the rects, the vertex processing and the patches
-	void* unknown118[11];
+	// 0x118 - 0x128: the sampler states and the clip status
+	void* unknown118[5];
+	// 0x12C SetScissorRect
+	HRESULT (__stdcall* SetScissorRect)(IDirect3DDevice9* device, const D3DRECT* rect);
+	// 0x130 - 0x140: the scissor rect, the vertex processing and the patches
+	void* unknown130[5];
 	// 0x144 DrawPrimitive
 	HRESULT (__stdcall* DrawPrimitive)(IDirect3DDevice9* device, unsigned int primitiveType, UINT startVertex,
 		UINT primitiveCount);
@@ -573,6 +683,10 @@ struct IDirect3DDevice9Vtbl
 	// 0x1B4 SetPixelShaderConstantF
 	HRESULT (__stdcall* SetPixelShaderConstantF)(IDirect3DDevice9* device, UINT startRegister,
 		const float* constantData, UINT vector4fCount);
+	// 0x1B8 - 0x1D4
+	void* unknown1B8[8];
+	// 0x1D8 CreateQuery
+	HRESULT (__stdcall* CreateQuery)(IDirect3DDevice9* device, DWORD type, IDirect3DQuery9** query);
 };
 
 struct IDirect3DDevice9

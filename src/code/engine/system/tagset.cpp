@@ -271,7 +271,7 @@ namespace engine
 			int next = source.Find(';', 0, 1);
 			while (next > -1)
 			{
-				token.Assign(source, start, next - start);
+				token.Mid(source, start, next - start);
 				if (token.Equals(container::StringLiteral("*"), true))
 				{
 					all = true;
@@ -280,7 +280,7 @@ namespace engine
 				start = next + 1;
 				next = source.Find(';', start, 1);
 			}
-			token.Assign(source, start, 0x7FFFFFFF);
+			token.Mid(source, start, 0x7FFFFFFF);
 			if (token.Equals(container::StringLiteral("*"), true))
 			{
 				all = true;
