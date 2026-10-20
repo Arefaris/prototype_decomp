@@ -486,7 +486,9 @@ namespace content
 		}
 	};
 
-	// The meta type of a container::ArrayCDynamic member of capacity elements (0x10600280)
+	// The meta type of a container::ArrayCDynamic member of capacity elements (0x10600280). A value is either one of
+	// the arrays the meta system made itself (a heap array of element pointers: begin, end, end of storage) or
+	// an array of the engine's, which the helper walks
 	class ArrayCDynamicMetaType : public MetaType
 	{
 	public:
@@ -504,10 +506,46 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		int capacity;
+		// The slots as the engine's code takes them (see ColourMetaType), and the item access they share (names guessed)
+		// 0x10600D70 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x10600D00 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x10600950 (slot 2) / 0x10600880 (slot 3): only the items the element type matches, counted first
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		// 0x106002B0 (slot 4)
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x10600AD0 (slot 6) / 0x10600BF0 (slot 7) / 0x10600C50 (slot 8)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		// 0x10600650 (slot 9): 1 and what the element type counts for each matching item
+		int CountItems(void* object, int a);
+		// 0x10600710 (slot 10): enters the number of matching items and then each of them
+		void Describe(MemberEntry** cursor, void* object, int a);
+		// 0x10600530 (slot 11): writes the value (the item count) as it stands
+		void WriteBinaryShort(WriteContext* context, void* object);
+
+		// 0x10600520
+		MetaType* GetElementType();
+		// 0x10600590 / 0x106005D0: the item at index, through the helper unless the array is the meta system's
+		void* GetItemConst(void* array, int index);
+		void* GetItem(void* array, int index);
+		// 0x10600610
+		unsigned int GetCount(void* array);
+		// 0x10600A80 / 0x10600B90: takes the item at index out (deleting it) / makes a new one there
+		void EraseItem(void* array, int index);
+		void InsertItem(void* array, int index);
+
 		MetaType* element;
+		int capacity;
 		ArrayCDynamicHelperBase* helper;
 	};
+
+	// 0x10600270
+	const char* GetArrayCDynamicTypeName();
 
 	// One value of a reflected enumeration
 	struct EnumValue

@@ -66,8 +66,12 @@ namespace content
 	public:
 		// Slot 0 (0x105FC1F0): reads the next token (a quoted string when quoted is set) into buffer
 		virtual bool ReadToken(char* buffer, unsigned int size, bool quoted);
-		// 0x105FC140: the line the reader is on
+		// 0x105FC140 / 0x105FC150: the line the reader is on
 		int GetLine();
+		void SetLine(int newLine);
+		// 0x105FC180 / 0x105FC190: the position in the byte stream under the reader
+		unsigned int GetPosition();
+		void SetPosition(unsigned int position);
 		// 0x105FC1B0: puts a message in the reader's error text (printf style)
 		void Error(const char* format, ...);
 		// 0x105FC720: reads a float
