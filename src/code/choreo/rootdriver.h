@@ -22,8 +22,9 @@ namespace choreo
 		AnimationClip(const AnimationClip& other);
 		// 0x10952290
 		~AnimationClip();
-		// 0x109522A0: binds the clip to an animation (nothing is copied while reset is clear)
-		void Set(pure3d::Animation* animation, void* pose, bool reset);
+		// 0x109522A0: binds the clip to an animation over a skeleton (the clip takes the animation's length and rate
+		// only when reset is set)
+		void Set(pure3d::Animation* animation, pure3d::Skeleton* skeleton, bool reset);
 		// 0x10952340: the rate of the clip in frames per second
 		void SetFrameRate(float rate);
 		// 0x10952370: bit 0 of the clip's flags
@@ -38,8 +39,9 @@ namespace choreo
 		void Unknown10952360(float value);
 		// 0x10952380: bit 1 of the clip's flags
 		bool Unknown10952380() const;
-		// 0x10952390: whether the animation drives any joint of the mask
-		bool Unknown10952390(const void* mask) const;
+		// 0x10952390: whether the channels have the root of every limb that has a joint in the mask (every limb
+		// without a mask)
+		bool HasChannelsFor(const pure3d::JointMask* mask) const;
 		// 0x10952480: the animation the clip shows
 		void Unknown10952480(PoseBlendSample* sample) const;
 		// 0x10955260 / 0x109552C0 / 0x10955320 / 0x10955360: what the clip's channels give for the root over the two
@@ -59,7 +61,7 @@ namespace choreo
 		bool mFlag1 : 1;
 		unsigned char unknown10Bits : 6;
 		unsigned char unknown11[3];
-		pure3d::Animation* mAnimation;  // 0x14
+		const pure3d::SkeletonData* mSkeletonData;  // 0x14
 	};
 
 	// The animation a driver plays and the clip of it that it shows (the pair at the animation driver's +0x38)

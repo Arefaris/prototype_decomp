@@ -6,6 +6,12 @@
 #include "code/pure3d/channel.h"
 #include "code/pure3d/posedata.h"
 
+namespace pure3d
+{
+	class Animation;
+	class Skeleton;
+}
+
 namespace choreo
 {
 	class SampleChannels
@@ -13,6 +19,9 @@ namespace choreo
 	public:
 		static const unsigned int MAX_JOINTS = 96;
 
+		// 0x10951F30: finds the channels of the animation for the joints and limbs of the skeleton; hasChannels says
+		// whether it found any beyond the root's
+		void Bind(pure3d::Animation* animation, pure3d::Skeleton* skeleton, bool* hasChannels);
 		// 0x10952120: whether the root has both channels for a part
 		bool HasRootChannels(int part) const;
 		// 0x109521B0 / 0x109521C0 / 0x109521D0

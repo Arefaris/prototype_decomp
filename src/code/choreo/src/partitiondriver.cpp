@@ -570,7 +570,7 @@ namespace choreo
 	{
 		if (binding.mSource != 0 && mSkeleton != 0)
 		{
-			if (!binding.mClip.Unknown10952390(mJointMask))
+			if (!binding.mClip.HasChannelsFor(mJointMask))
 			{
 				return false;
 			}
