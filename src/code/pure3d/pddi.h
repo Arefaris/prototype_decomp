@@ -223,6 +223,8 @@ namespace pure3d
 
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);
+		// 0x10614C40: the value SetViewUnknown4 set
+		void GetViewUnknown4(int* value);
 		void SetViewUnknown8(float value);
 		void SetViewUnknownC(int value);
 		void SetViewUnknown10(int value);
