@@ -792,28 +792,6 @@ namespace pure3d
 		copy[2] = z;
 	}
 
-	// The surfaces of the display (the object at 0x112818C0; names are guesses)
-	class pddiDisplay
-	{
-	public:
-		// 0x1073B850: the size of the display (0, 0: the engine's display's); false when the surfaces cannot be made
-		bool SetSize(unsigned int width, unsigned int height);
-		// 0x1073B450: puts the display's state back (the word at +0x3C into +0x40)
-		void Unknown1073B450();
-		// 0x1073AA10 (another unit, 342 bytes; 0x1070F1E0 jumps to it)
-		void Unknown1073AA10();
-
-		unsigned char unknown0[0x20];
-		pddiSurface* colour;
-		pddiSurface* depth;
-		unsigned char unknown28[0x28];
-		unsigned int width;
-		unsigned int height;
-	};
-
-	// 0x112818C0
-	extern pddiDisplay* gDisplay;
-
 	// The fog range the passes set (0x111B9514, 0x11282BC8)
 	extern float gFogRangeNear;
 	extern float gFogRangeFar;

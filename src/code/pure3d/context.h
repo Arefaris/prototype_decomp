@@ -613,7 +613,6 @@ namespace pure3d
 	void Unknown1073E2C0();
 	void Unknown1073E2E0();
 	void Unknown1071F7D0();
-	void Unknown1073B790(int value);
 	void Unknown10755120(const ContextRenderSettings* settings);
 	void Unknown1074D770(Context* context);
 	void Unknown1073E260(Context* context);

@@ -41,6 +41,8 @@ namespace pure3d
 		// 0x10729B00: makes the device texture the description asks for (a copy of the other texture's image when
 		// one is given) and keeps a reference to it; false when the device cannot make it (name guess)
 		bool Create(const TextureDescription* description, const Texture* source);
+		// 0x1072A100: holds another device texture, letting go of the one held (name guess)
+		void SetInfo(dxTexture* newInfo);
 
 		dxTexture* info;
 		unsigned int unknown14;

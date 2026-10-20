@@ -97,6 +97,12 @@ namespace pure3d
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1072A100
+	void Texture::SetInfo(dxTexture* newInfo)
+	{
+		AssignRef(&info, newInfo);
+	}
+
 	// FUNCTION: ENGINE 0x1072A470
 	void TextureLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
