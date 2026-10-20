@@ -208,7 +208,7 @@ namespace pure3d
 		virtual void EnableFog(bool enable);
 		virtual void SetFogRange(float nearZ, float farZ);
 
-		unsigned char unknown5F4[0x65C - 0x5F4];
+		unsigned char unknown634[0x65C - 0x634];
 		// 0x65C / 0x660: what slot 24 hands out for the flags 0x400001 and 0x102
 		pddiQuery* queryUnknown65C;
 		pddiQuery* queryUnknown660;

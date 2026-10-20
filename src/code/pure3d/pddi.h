@@ -122,6 +122,78 @@ namespace pure3d
 		int index;
 	};
 
+	// The states the device keeps on stacks (RTTI pddiViewState, pddiRenderState, pddiZState, pddiStencilState; their
+	// sizes are 0x3C, 0x3C, 0x18 and 0x38). Only the words the device's accessors use are named, after what they
+	// set (guesses)
+	struct pddiViewStateData
+	{
+		unsigned char unknown0[4];
+		int unknown4;
+		float unknown8;
+		int unknownC;
+		int unknown10;
+		float unknown14[4];
+		float unknown24[6];
+	};
+
+	struct pddiRenderStateData
+	{
+		unsigned char unknown0[4];
+		int cullMode;
+		int fillMode;
+		int unknownC;
+		bool colourWrite[4];
+		bool alphaTest;
+		unsigned char unknown15[3];
+		int blend[4];
+		bool fog;
+		unsigned char unknown29[3];
+		float fogNear;
+		float fogFar;
+		float alphaRef;
+		bool unknown38;
+	};
+
+	struct pddiZStateData
+	{
+		unsigned char unknown0[4];
+		bool zBuffer;
+		unsigned char unknown5[3];
+		int zCompare;
+		bool zWrite;
+		unsigned char unknownD[3];
+		float zBias;
+		float zSlope;
+	};
+
+	struct pddiStencilStateData
+	{
+		unsigned char unknown0[4];
+		bool enabled;
+		unsigned char unknown5[3];
+		int compare;
+		int ref;
+		int mask;
+		int writeMask;
+		int fail;
+		int zFail;
+		int zPass;
+		bool unknown24;
+		unsigned char unknown25[3];
+		int unknown28;
+		int unknown2C;
+		int unknown30;
+		int unknown34;
+	};
+
+	// A 64-bit time that keeps the 4-byte alignment of the class around it
+#pragma pack(push, 4)
+	struct Time64
+	{
+		unsigned __int64 value;
+	};
+#pragma pack(pop)
+
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
@@ -165,15 +237,18 @@ namespace pure3d
 		virtual pddiQuery* Unknown24(int flags);
 		virtual bool Unknown25(int flags);
 		virtual void Unknown26();
+		// Slot 27 / 28 (0x10614B90 / 0x10614C00; the frame start and end): a frame starts (counted; asserts the device was initialised) / ends
 		virtual void Unknown27();
 		virtual void Unknown28();
-		virtual void Unknown29();
-		virtual void Unknown30();
-		virtual void Unknown31();
-		virtual void Unknown32();
-		virtual void Unknown33();
-		virtual void Unknown34();
-		virtual void Unknown35();
+		// Slots 29 - 35: the timings at +0x600 - +0x620 (microseconds). 31 reads the clock into +0x608; 32 reads
+		// it into +0x610 and takes the time between and what slot 29 answers off, into +0x620
+		virtual unsigned __int64 GetTimeUnknown600();
+		virtual void SetTimeUnknown600(unsigned __int64 time);
+		virtual void ReadTimeUnknown608();
+		virtual void ReadTimeUnknown610();
+		virtual void SetTimeUnknown618(unsigned __int64 time);
+		virtual unsigned __int64 GetTimeUnknown618();
+		virtual unsigned __int64 GetTimeUnknown620();
 		// Render state
 		virtual void SetCullMode(int mode);
 		virtual void SetColourWrite(bool red, bool green, bool blue, bool alpha);
@@ -190,8 +265,9 @@ namespace pure3d
 		virtual void SetStencilWriteMask(int mask);
 		virtual void SetStencilOp(int fail, int zFail, int zPass);
 		virtual void Unknown48();
-		virtual void Unknown49();
-		virtual void Unknown50();
+		// Slots 49 / 50: the word at +0xC of the render state, set / read
+		virtual void SetRenderUnknownC(int value);
+		virtual int GetRenderUnknownC();
 		virtual void Unknown51(bool enable);
 		virtual void Unknown52(int compare);
 		virtual void Unknown53(int fail, int zFail, int zPass);
@@ -199,7 +275,7 @@ namespace pure3d
 		virtual void Unknown55();
 		virtual void Unknown56();
 		virtual void Unknown57();
-		virtual void Unknown58();
+		virtual void SetRenderUnknown38(bool value);
 		// Render state
 		virtual void SetFillMode(int mode);
 		virtual void EnableAlphaTest(bool enable);
@@ -207,6 +283,38 @@ namespace pure3d
 		virtual void EnableFog(bool enable);
 		virtual void SetFogRange(float nearZ, float farZ);
 		virtual void SetAlphaRef(float ref);
+		virtual void Unknown65();
+		virtual void Unknown66();
+		virtual void Unknown67();
+		virtual void Unknown68();
+
+		// The state getters (names follow the setters; 0x10614C40 - 0x10615170)
+		void GetViewUnknown4(int* value);
+		float GetViewUnknown8();
+		int GetViewUnknownC();
+		int GetViewUnknown10();
+		void GetViewUnknown14(float* a, float* b, float* c, float* d);
+		void GetViewUnknown24(float* a, float* b, float* c, float* d);
+		void GetViewUnknown34(float* a, float* b);
+		int GetCullMode();
+		void GetColourWrite(bool* red, bool* green, bool* blue, bool* alpha);
+		bool IsZBufferEnabled();
+		int GetZCompare();
+		bool IsZWriteEnabled();
+		void GetZBias(float* bias, float* slope);
+		bool IsStencilBufferEnabled();
+		int GetStencilCompare();
+		int GetStencilRef();
+		int GetStencilMask();
+		int GetStencilWriteMask();
+		void GetStencilOp(int* fail, int* zFail, int* zPass);
+		int GetFillMode();
+		bool IsAlphaTestEnabled();
+		bool IsFogEnabled();
+		void GetFogRange(float* nearZ, float* farZ);
+		float GetAlphaRef();
+		// 0x10615190: the same clock as GetFrameCount, as a float
+		float GetFrameTimeUnknown(int index);
 
 		// 0x10614840: the matrix at +0x15C (the current view matrix)
 		const math::Matrix* GetUnknown10614840();
@@ -288,11 +396,24 @@ namespace pure3d
 		int unknown8;
 		// 0x1061B550 and 0x1061B5A0 hand this to a new dxTexture
 		IDirect3DDevice9* unknownC;
-		int unknown10;
-		int unknown14;
-		unsigned char unknown18[0x24];
+		// 0x10: the number of frames begun; 0x14: set while one is under way
+		unsigned int frameNumber;
+		unsigned int frameActive;
+		unsigned char unknown18[4];
+		// The stacks of the four states and the state each is on (the top)
+		void* viewStack;
+		void* renderStack;
+		void* zStack;
+		void* stencilStack;
+		pddiViewStateData* viewState;
+		pddiRenderStateData* renderState;
+		pddiZStateData* zState;
+		pddiStencilStateData* stencilState;
 		Constants* constants;
-		unsigned char unknown40[0x24];
+		unsigned char unknown40[0x1C];
+		// 0x5C: the clocks of the device as floats (GetFrameCount answers them as whole numbers; BeginFrame sets the
+		// first to the frame number)
+		float clocks[2];
 		// 0x64 - 0x74: what the draw calls added up to this frame (floats): the primitives and the vertices of
 		// the plain draws, then of the indexed ones, then how many draws there were (names are guesses)
 		float drawnPrimitives;
@@ -313,6 +434,16 @@ namespace pure3d
 		unsigned char unknown150[0x4A0];
 		// Bit 0: a pass draws, bit 2: lit parts, bit 3: shadow parts (set around the passes' draw loops)
 		unsigned int drawFlags;
+		// 0x5F4: set by Init (BeginFrame asserts it)
+		bool initialized;
+		unsigned char unknown5F5[0x600 - 0x5F5];
+		// 0x600 - 0x628: eight words of timings, in microseconds as 64-bit values (names are guesses)
+		Time64 timeUnknown600;
+		Time64 timeUnknown608;
+		Time64 timeUnknown610;
+		Time64 timeUnknown618;
+		Time64 timeUnknown620;
+		unsigned char unknown628[0x634 - 0x628];
 	};
 
 	// The surfaces of the display (the object at 0x112818C0; names are guesses)
