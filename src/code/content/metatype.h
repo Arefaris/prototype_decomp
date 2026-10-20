@@ -41,6 +41,20 @@ namespace content
 		// two values and reports the difference as text, 5 asks whether the value has the flags (the base
 		// answers by the type's own), 6 makes a value, 7 deletes it, 8 copies it, 9 counts the items the value
 		// takes in a table, 10 enters the value in a table of them and 11 writes it in binary through that table
+		// The types of the slots, for calls that must read the vftable before the arguments are worked out (the
+		// compiler does that for a real virtual call): fetch the address with SlotAddress first, call it after
+		typedef bool (__thiscall *ReadTextFunction)(MetaType*, TextReadStream*, void*, int, int);
+		typedef void (__thiscall *ReadBinaryFunction)(MetaType*, ReadContext*, void*, int, int);
+		typedef void (__thiscall *WriteTextFunction)(MetaType*, TextWriter*, const void*, int);
+		typedef void (__thiscall *WriteBinaryFunction)(MetaType*, WriteContext*, const void*, int);
+		typedef bool (__thiscall *MatchesFunction)(MetaType*, unsigned int, void*);
+		typedef void (__thiscall *CopyFunction)(MetaType*, void*, const void*, int);
+		typedef int (__thiscall *CountFunction)(MetaType*, void*, int);
+		typedef void (__thiscall *DescribeFunction)(MetaType*, MemberEntry**, void*, int);
+		void** SlotAddress(int slot)
+		{
+			return *(void***)this + slot;
+		}
 		bool InvokeReadText(TextReadStream* reader, void* object, int a, int b)
 		{
 			typedef bool (__thiscall *Function)(MetaType*, TextReadStream*, void*, int, int);

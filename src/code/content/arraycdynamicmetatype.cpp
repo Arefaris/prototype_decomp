@@ -53,14 +53,13 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x10600280
-	// EQUIVALENT: the stores of the members come in another order, 87%
 	ArrayCDynamicMetaType::ArrayCDynamicMetaType(int newCapacity, MetaType* newElement,
 		ArrayCDynamicHelperBase* newHelper, const char* code)
 		: MetaType(code)
 	{
-		helper = newHelper;
 		element = newElement;
 		capacity = newCapacity;
+		helper = newHelper;
 	}
 
 	// FUNCTION: ENGINE 0x10600520
@@ -392,12 +391,12 @@ namespace content
 		}
 		for (unsigned int i = 0; i < sourceCount; i++)
 		{
-			element->InvokeCopy(GetItemConst(destination, i), GetItem((void*)source, i), a);
+			void** slot = element->SlotAddress(8);
+			((MetaType::CopyFunction)*slot)(element, GetItemConst(destination, i), GetItem((void*)source, i), a);
 		}
 	}
 
 	// FUNCTION: ENGINE 0x10600D00
-	// EQUIVALENT: the element type's vftable is read after the items are fetched, 45%
 	void ArrayCDynamicMetaType::ReadBinary(ReadContext* context, void* object, int a, int b)
 	{
 		unsigned int count;
@@ -405,7 +404,8 @@ namespace content
 		for (unsigned int i = 0; i < count; i++)
 		{
 			InsertItem(object, i);
-			element->InvokeReadBinary(context, GetItemConst(object, i), a, b);
+			void** slot = element->SlotAddress(1);
+			((MetaType::ReadBinaryFunction)*slot)(element, context, GetItemConst(object, i), a, b);
 		}
 	}
 
@@ -446,7 +446,8 @@ namespace content
 			do
 			{
 				InsertItem(object, index);
-				if (!element->InvokeReadText(reader, GetItemConst(object, index), a, b))
+				void** slot = element->SlotAddress(0);
+				if (!((MetaType::ReadTextFunction)*slot)(element, reader, GetItemConst(object, index), a, b))
 				{
 					return false;
 				}
