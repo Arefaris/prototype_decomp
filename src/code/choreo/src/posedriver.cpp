@@ -39,7 +39,7 @@ namespace choreo
 	// FUNCTION: ENGINE 0x10951920
 	void PoseDriver::SetPose(pure3d::Pose* pose)
 	{
-		core::RefAssign(mPose, pose);
+		core::RefAssign((pure3d::LockableRefCounted*&)mPose, (pure3d::LockableRefCounted*)pose);
 	}
 
 	// FUNCTION: ENGINE 0x10951940

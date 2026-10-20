@@ -39,15 +39,10 @@ namespace crypto
 	class BlockTEACipher : public Cipher
 	{
 	public:
-		// 0x1093FE20
-		// (the engine's factory calls the constructors)
-		__declspec(noinline) explicit BlockTEACipher(const CipherKey& key) : Cipher(0, key)
-		{
-		}
+		// 0x1093FE20 (the engine's factory calls the constructors)
+		explicit BlockTEACipher(const CipherKey& key);
 		// 0x1093FE60
-		virtual ~BlockTEACipher()
-		{
-		}
+		virtual ~BlockTEACipher();
 		// 0x10940380 / 0x109403E0
 		virtual void Encrypt(const void* in, int size, void* out, int* outSize);
 		virtual void Decrypt(const void* in, int size, void* out, int* outSize);
@@ -97,14 +92,9 @@ namespace crypto
 	{
 	public:
 		// 0x10940440
-		__declspec(noinline) explicit BlowfishCipher(const CipherKey& key) : Cipher(1, key)
-		{
-			mState.SetKey(&key, 16);
-		}
+		explicit BlowfishCipher(const CipherKey& key);
 		// 0x10940490 / 0x109405B0
-		virtual ~BlowfishCipher()
-		{
-		}
+		virtual ~BlowfishCipher();
 		// 0x109404B0 / 0x10940550
 		virtual void Encrypt(const void* in, int size, void* out, int* outSize);
 		virtual void Decrypt(const void* in, int size, void* out, int* outSize);

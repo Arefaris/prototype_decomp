@@ -4,6 +4,7 @@
 #include "code/choreo/rootdriver.h"
 #include "code/choreo/poseblendjob.h"
 #include "code/core/heap.h"
+#include "code/core/refptr.h"
 
 namespace choreo
 {
@@ -155,5 +156,68 @@ namespace choreo
 	// FUNCTION: ENGINE 0x10952490
 	AnimationBinding::AnimationBinding() : mSource(0)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10955530
+	AnimationBinding::AnimationBinding(const AnimationBinding& other) : mSource(0), mClip(other.mClip)
+	{
+		core::RefAssign(mSource, other.mSource);
+	}
+
+	// FUNCTION: ENGINE 0x10955560
+	AnimationBinding::~AnimationBinding()
+	{
+		core::SafeRelease(mSource);
+	}
+
+	// FUNCTION: ENGINE 0x10955260
+	int AnimationClip::GetRootRotation(float to, float from, bool forward, math::Quaternion* out)
+	{
+		return mChannels->GetRootRotation(pure3d::FrameTime(to), pure3d::FrameTime(from), forward, out);
+	}
+
+	// FUNCTION: ENGINE 0x109552C0
+	bool AnimationClip::GetRootTranslation(float to, float from, bool forward, math::Vector* out)
+	{
+		return mChannels->GetRootTranslation(pure3d::FrameTime(to), pure3d::FrameTime(from), forward, out);
+	}
+
+	// FUNCTION: ENGINE 0x10955320
+	bool AnimationClip::GetRootScale(float time, math::Vector* out)
+	{
+		return mChannels->GetRootScale(pure3d::FrameTime(time), out);
+	}
+
+	// FUNCTION: ENGINE 0x10955360
+	void AnimationClip::GetTranslationAt(float time, math::Vector* out, int joint)
+	{
+		mChannels->GetTranslationAt(pure3d::FrameTime(time), out, joint);
+	}
+
+	// FUNCTION: ENGINE 0x10953130
+	void SampleChannels::GetTranslationAt(pure3d::FrameTime time, math::Vector* out, int joint)
+	{
+		if (mTranslations[joint] != 0)
+		{
+			GetTranslation(joint)->mKeys.Evaluate(time, out);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x109530F0
+	bool SampleChannels::GetRootScale(pure3d::FrameTime time, math::Vector* out)
+	{
+		bool found = false;
+		if (mScales[0] != 0)
+		{
+			found = true;
+			GetScale(0)->mKeys.Evaluate(time, out);
+		}
+		return found;
+	}
+
+	// FUNCTION: ENGINE 0x109554C0
+	void AnimationClip::BlendValue(float time, float* value, float weight)
+	{
+		mChannels->BlendValue(pure3d::FrameTime(time), value, weight);
 	}
 }

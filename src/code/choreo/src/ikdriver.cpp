@@ -16,6 +16,14 @@ namespace choreo
 		Unknown1094A430(true);
 	}
 
+	// FUNCTION: ENGINE 0x10949700 ; choreo::IKDriver::~IKDriver
+#pragma inline_depth(0)
+	void KeepIKDriverDestructor(IKDriver* driver)
+	{
+		driver->IKDriver::~IKDriver();
+	}
+#pragma inline_depth()
+
 	// FUNCTION: ENGINE 0x109496E0
 	void Driver::Bind(const DriverInfo& info)
 	{

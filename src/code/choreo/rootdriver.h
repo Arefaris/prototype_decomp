@@ -42,10 +42,14 @@ namespace choreo
 		bool Unknown10952390(const void* mask) const;
 		// 0x10952480: the animation the clip shows
 		void Unknown10952480(PoseBlendSample* sample) const;
-		// 0x10955260 / 0x109552C0 / 0x10955360: samples the clip over the two frames (in another unit, declared here)
-		void Unknown10955260(float from, float to, bool forward, int mode);
-		void Unknown109552C0(float from, float to, bool forward, int mode);
-		void Unknown10955360(float frame, float weight, void* owner);
+		// 0x10955260 / 0x109552C0 / 0x10955320 / 0x10955360: what the clip's channels give for the root over the two
+		// frames, for the root's scale, and for the translation of a joint (they sit in another unit than the rest)
+		int GetRootRotation(float to, float from, bool forward, math::Quaternion* out);
+		bool GetRootTranslation(float to, float from, bool forward, math::Vector* out);
+		bool GetRootScale(float time, math::Vector* out);
+		void GetTranslationAt(float time, math::Vector* out, int joint);
+		// 0x109554C0: lays the channels at time over a two-component value by weight
+		void BlendValue(float time, float* value, float weight);
 
 		SampleChannels* mChannels;      // 0x00
 		float mDuration;                // 0x04
@@ -214,9 +218,9 @@ namespace choreo
 		// 0x1094F610: the range to show, clamped
 		void SetUnknownE4(float frame);
 		// 0x1094F630 / 0x1094F670 / 0x1094F6B0: the clip's frame samplers
-		void Unknown1094F630(float a, float b, float frame, int mode);
-		void Unknown1094F670(float a, float b, float frame, int mode);
-		void Unknown1094F6B0(float a, float b, void* c);
+		int GetRootRotation(float to, float from, float frame, math::Quaternion* out);
+		bool GetRootTranslation(float to, float from, float frame, math::Vector* out);
+		void GetTranslationAt(float time, math::Vector* out, int joint);
 		// 0x1094F6D0: hands the clip to the pose blend node and to the sample of the node
 		void Unknown1094F6D0(PoseBlendNode* node, PoseBlendSample* sample);
 

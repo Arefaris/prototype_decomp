@@ -93,8 +93,20 @@ template void std::_Sort<choreo::DriverEntry*, int>(choreo::DriverEntry*, choreo
 // FUNCTION: ENGINE 0x10949010
 template void std::sort<choreo::DriverEntry*>(choreo::DriverEntry*, choreo::DriverEntry*);
 
+// The pose is assigned as its reference counted base
+// FUNCTION: ENGINE 0x10947A70 ; core::RefAssign<classpure3d::LockableRefCounted>
+template void core::RefAssign<pure3d::LockableRefCounted>(pure3d::LockableRefCounted*&, pure3d::LockableRefCounted*);
+
 namespace choreo
 {
+	// FUNCTION: ENGINE 0x10946D30 ; choreo::PuppetState::~PuppetState
+#pragma inline_depth(0)
+	void KeepPuppetStateDestructor(PuppetState* state)
+	{
+		state->~PuppetState();
+	}
+#pragma inline_depth()
+
 	// FUNCTION: ENGINE 0x10946C30
 	int Puppet::IsEmpty() const
 	{
@@ -200,6 +212,12 @@ namespace choreo
 
 	// FUNCTION: ENGINE 0x10946DA0
 	pure3d::Skeleton* Puppet::GetSkeleton()
+	{
+		return mPoseObject->mSkeleton;
+	}
+
+	// FUNCTION: ENGINE 0x10946DB0
+	pure3d::Skeleton* Puppet::GetSkeleton() const
 	{
 		return mPoseObject->mSkeleton;
 	}
@@ -859,6 +877,12 @@ namespace choreo
 		return AcceptDriver(driver, this, true);
 	}
 
+	// FUNCTION: ENGINE 0x10947BF0
+	void Puppet::Unknown10947BF0()
+	{
+		BuildRootDelta();
+	}
+
 	// FUNCTION: ENGINE 0x10947C00
 	// EQUIVALENT: the same operations in the same order; the engine loads the this pointer into ecx for the final call after the byte store, ours before (84.6 %)
 	PuppetState::PuppetState() : mUnknown40(false), mLimbs()
@@ -928,7 +952,7 @@ namespace choreo
 				mLimbs.Reset(pose->mSkeleton);
 			}
 		}
-		core::RefAssign(mPoseObject, pose);
+		core::RefAssign((pure3d::LockableRefCounted*&)mPoseObject, (pure3d::LockableRefCounted*)pose);
 		if (pose != 0)
 		{
 			mPose = &pose->mData;

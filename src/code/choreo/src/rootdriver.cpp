@@ -354,26 +354,22 @@ namespace choreo
 	}
 
 	// FUNCTION: ENGINE 0x1094F630
-	void AnimationDriver::Unknown1094F630(float a, float b, float frame, int mode)
+	int AnimationDriver::GetRootRotation(float to, float from, float frame, math::Quaternion* out)
 	{
-		mBinding.mClip.Unknown10955260(a, b, frame >= 0.0f, mode);
+		return mBinding.mClip.GetRootRotation(to, from, frame >= 0.0f, out);
 	}
 
 	// FUNCTION: ENGINE 0x1094F670
-	void AnimationDriver::Unknown1094F670(float a, float b, float frame, int mode)
+	bool AnimationDriver::GetRootTranslation(float to, float from, float frame, math::Vector* out)
 	{
-		mBinding.mClip.Unknown109552C0(a, b, frame >= 0.0f, mode);
+		return mBinding.mClip.GetRootTranslation(to, from, frame >= 0.0f, out);
 	}
 
 	// FUNCTION: ENGINE 0x1094F6B0
-	// NONMATCHING: the engine loads both frames before the call and pushes their slots one at a time, ours the second
-	// frame first into an argument area of its own; 35 %
-#ifdef NONMATCHING
-	void AnimationDriver::Unknown1094F6B0(float a, float b, void* c)
+	void AnimationDriver::GetTranslationAt(float time, math::Vector* out, int joint)
 	{
-		mBinding.mClip.Unknown10955360(a, b, c);
+		mBinding.mClip.GetTranslationAt(time, out, joint);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1094F6D0
 	void AnimationDriver::Unknown1094F6D0(PoseBlendNode* node, PoseBlendSample* sample)

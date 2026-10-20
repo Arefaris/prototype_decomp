@@ -290,6 +290,7 @@ namespace choreo
 		PuppetState();
 		// 0x10946D50
 		PuppetState& operator=(const PuppetState& other);
+		// 0x10946D30 (the engine expands it in the destructor of the puppet and keeps a copy of it)
 		~PuppetState()
 		{
 		}
@@ -329,6 +330,8 @@ namespace choreo
 		void SetPose(pure3d::Pose* pose);
 		// 0x10946DA0: the skeleton of the pose
 		pure3d::Skeleton* GetSkeleton();
+		// 0x10946DB0: the same on a puppet that is not to be changed
+		pure3d::Skeleton* GetSkeleton() const;
 		// 0x10947A50: whether the puppet can take the driver at all
 		bool CanHold(Driver* driver);
 		// 0x10947A30 / 0x10947A40: the word the owner keeps
@@ -400,6 +403,8 @@ namespace choreo
 		void BuildNodes(PuppetCounts* counts, PoseBlendCursors* cursors);
 		// 0x10946D00: turns the root translation and rotation of the update into the root delta matrix
 		void BuildRootDelta();
+		// 0x10947BF0: builds the root delta (name guess)
+		void Unknown10947BF0();
 		// 0x10947910: updates the pose's matrices
 		void UpdatePose();
 		// 0x10947920: releases the drivers that were dropped

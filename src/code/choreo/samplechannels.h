@@ -41,6 +41,8 @@ namespace choreo
 		int GetRootRotation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Quaternion* out);
 		bool GetRootTranslation(pure3d::FrameTime to, pure3d::FrameTime from, bool forward, math::Vector* out);
 		bool GetRootScale(pure3d::FrameTime time, math::Vector* out);
+		// 0x10953130: the translation of a joint at time, when it has a channel
+		void GetTranslationAt(pure3d::FrameTime time, math::Vector* out, int joint);
 
 		// 0x10954E00 / 0x10954C20: lay the channels at time over a two-component value / over the local matrices of a
 		// pose (only the joints of the mask when there is one) by weight

@@ -100,11 +100,15 @@ namespace choreo
 	// 0x109516E0: the rate of a clip of the locomotion from a table of speeds (unit of the locomotion driver)
 	float GetClipRate(const void* speeds, pure3d::Animation* animation);
 
-	// 0x1094A8C0: the difference of two headings
-	static float HeadingDifference(float from, float to)
+	// FUNCTION: ENGINE 0x1094A8C0
+	float HeadingDifference(float from, float to)
 	{
 		return AngleDifference(from, to);
 	}
+
+	// The order of the samples, as a function of its own
+	// FUNCTION: ENGINE 0x1094A6C0 ; choreo::StrafeSample::operator<
+	bool (StrafeSample::*gKeepStrafeSampleLess)(const StrafeSample&) const = &StrafeSample::operator<;
 
 	// FUNCTION: ENGINE 0x1094A690
 	pure3d::Skeleton* LocomotionStrafeDriver::GetSkeletonCopy() const

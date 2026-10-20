@@ -95,6 +95,10 @@ namespace choreo
 	// 0x109516E0: the rate of a clip of the locomotion from a table of speeds (unit of the locomotion driver)
 	float GetClipRate(const void* speeds, pure3d::Animation* animation);
 
+	// The order of the samples, as a function of its own
+	// FUNCTION: ENGINE 0x1094FB50 ; choreo::SteerSample::operator<
+	bool (SteerSample::*gKeepSteerSampleLess)(const SteerSample&) const = &SteerSample::operator<;
+
 	// FUNCTION: ENGINE 0x1094FB20
 	unsigned int LocomotionSteerDriver::GetUnknown48() const
 	{
