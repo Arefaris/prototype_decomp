@@ -16,6 +16,11 @@
 #include "code/engine/system/tagset.h"
 #include "code/math/vector.h"
 
+namespace fight
+{
+	class TrackRegistry;
+}
+
 namespace engine
 {
 	class StreamPackage;
@@ -230,6 +235,11 @@ namespace engine
 	public:
 		void Begin(int unknown);
 		void End(int unknown);
+		// 0x105A4F40: puts a fight context at the end of the list (the head at +0, the next link at +0x10 of a context)
+		void AddContext(fight::TrackRegistry* context);
+		// 0x105A4B00 / 0x105A4B50: the number of contexts / the context at index (null when out of range)
+		int GetCount();
+		fight::TrackRegistry* GetContext(int index);
 	};
 
 	extern LoadListeners* gLoadListeners;

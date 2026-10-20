@@ -4039,3 +4039,57 @@ of the same units match, so it is not another compiler for those units. Still op
 slot 66, constructor 0x1061F410). Moving the two names to dxDevice breaks ~Context (89.8 %), so the object behind
 gPddiDx and the classes the tree calls dxContext / dxDevice have to be sorted out together, with the dxContext
 constructor and its 69-slot vftable.
+
+## fight system, supporting surface, effect actions, the effect manager and the effect LOD records (0x10800000 - 0x10820000, sn-e)
+
+Sources: `engine/fight/fightsystem.cpp` (start-up, shutdown and the context initialisers), `supportingsurface.cpp`
+(the SupportingSurface / SupportingLimb conditions), `effecttrack.cpp` (`EffectTrack::CreateAction`, the motion trail
+action's start), `engine/render/effectmanager.cpp` (the global effect manager at 0x1130CCE0: lights, the hash tables of
+playing effects and attached drawables, stores, starting and updating effects, motion trails) and
+`engine/render/effectlod.cpp` (RTTI engine::EffectLOD and its three kinds, base NonCopyable).
+
+NONMATCHING (bodies under `#ifdef NONMATCHING`):
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x10809DA0 | SupportingSurfaceVelocityAngleCondition::Evaluate | 36.0 % | arithmetic right; scheduling and the constant folding of the angle test differ (1.0f / 0.5f stay memory operands in the engine) |
+| 0x1080A170 | SupportingSurfaceDistanceCondition::Evaluate | 64.7 % | the engine adds the dot products z, y, x (position z with normal z first); `Vector::Dot`, explicit z-y-x sums and a permutation search over the nine reorderable spots all stay at 55 - 65 %, the loads are scheduled differently |
+| 0x1080A290 | SupportingSurfaceTimeToImpactCondition::Evaluate | 41.9 % | the engine builds the two velocity vectors on the stack before it reads the surface and schedules the dot products later |
+| 0x1081C260 | EffectManager::UpdateAttachedTransforms | 25.7 % | the same walk and calls; the engine hoists the load of the master table out of the loop and reloads it after the queued call, ours loads it inside the validity checks of every ring entry |
+| 0x1081BCE0 | EffectManager::UpdateLights | 24.8 % | the same calls and branches; (1) the matrix copy is a four-times loop (`fld / fstp` x4, the destination reached as source plus a constant) in the engine, ours unrolls it however the loop is written; (2) the colour blend is scheduled as three passes over four channels (loads first, then the subtractions, multiplications and additions); (3) the decay range multiplies 0.5 into the wave before the amplitude; (4) the destroy test keeps `expired \| lost \| inactive` as values |
+
+`AbortEffectTrack::GetSlotIndex` 0x10804EE0 and `EffectSpawnTransform::BuildMatrix` 0x10805750 (effecttrack.cpp, earlier work in this range) stay NONMATCHING;
+`EffectLODSwitch::GetEffect` 0x1081EAA0 has the same register swap as `GetSlotIndex` (an out pointer written from a member).
+
+EQUIVALENT (compiled into the hybrid DLL, not counted; the percentage is the best one reached):
+
+- fight: the eight SupportingSurface `RegisterProperties` (the shrink-wrapped esi push), `DrawRandom` 0x10811ED0 (19 %),
+  `StartFightSystem` 0x10812610 (97 %), `MotionTrailAction::Slot5` 0x10805D30 (16.7 %).
+- effect manager lights and lookups: `ClearLightReferences` 0x1081A000 (82.4 %), `SetEffectSpan` 0x1081B5D0 (87 %),
+  `SetEffectPosition` 0x1081B970 (82.3 %), `ReleaseAttached` 0x1081B9B0 (78.5 %), `CreateMotionTrail` 0x1081BA90 (34.5 %;
+  the engine reuses dead parameter slots for its locals).
+- hash tables: `HashLookup::FindForInsert` 0x1081A910 (71.1 %), `HashLookup::Next` 0x10819C30 (16.8 %),
+  `HashTable::Insert` 0x1081C620 (51.7 %), `HashTable` constructor 0x1081D170 (51.5 %).
+- effects: `Reset` 0x1081C8D0 (39.3 %; the engine reads the waiting ring's tail into a spare slot nothing uses),
+  `ReleaseStore` 0x1081CDE0 (47.4 %), `RemoveInstance` 0x1081D790 (57.7 %), `RemoveOldest` 0x1081D850 (22.4 %),
+  `RemoveOldestStore` 0x1081DA10 (13.6 %), `UpdateInstances` 0x1081D540 (52.2 %), `CreateAttached` 0x1081CBB0 (37.5 %),
+  `CreateSpanEffect` 0x1081CE70 (58 %), `CreateEffectFromStore` 0x1081DAF0 (19.1 %), `AddInstance` 0x1081DC30 (38.4 %),
+  `CreateEffect` 0x1081E390 (43.9 %), `StartEffect` 0x1081E6B0 (42 %), `EffectInstance::SetEmitting` 0x1081EB10 (24.8 %),
+  `EffectInstance::StartFade` 0x1081EEF0 (38.7 %), `EffectLODBias::Blend` 0x1081F070 (87.3 %).
+
+Lessons: (1) a 64-bit shift of a zero-extended 32-bit key (`unsigned __int64 wide = *key; (unsigned int)(wide >> 9)`)
+keeps the `shrd` the engine has, where `(unsigned __int64)*key >> 9` is narrowed; (2) `Value* result = cond ? 0 : x; return
+result;` as the last line of an inlined step keeps the join of the two paths the engine has; (3) a named local
+`EffectName key(...)` instead of a temporary removes the temporary's destructor flag; (4) the 4-byte dead load and spare
+frame slot in `Reset` come from an inline expansion that cannot be written down plainly (a `volatile` local gives 77 %).
+(5) The engine's `HashLookup` and the later `InstanceOptions` share one stack slot (frame 0x28 instead of 0x3c in
+`CreateEffect`); the compiler does that when the options object lives in an inner block and the lookup is a temporary or
+the local of an inlined helper (`EffectManager::GetList`).
+
+Not started: `BeginEffect` 0x108060F0 (5153 bytes), the effect manager's constructor 0x1081DE50 and destructor
+0x1081D1E0 (inline container construction from a configuration record), the named-timer table functions 0x1081D080 /
+0x1081DCF0 / 0x1081E460 (they use another unit's name table), 0x1081C360 (a callback that calls a method at 0x10821420
+of the playing effect, in the next unit), the effect instance's own functions from 0x10820000 on (sn-f's range) and the
+small container template instances between 0x10819520 and 0x10819FD0 and in 0x1081A200 - 0x1081C3FF (vector, ring and
+allocator members of the manager's record types; the classes are the engine's own and unnamed). `math::Noise::Evaluate`
+is mapped at 0x101043F0 (called through the jump at 0x100037F1); the math worklist reconstructs it.

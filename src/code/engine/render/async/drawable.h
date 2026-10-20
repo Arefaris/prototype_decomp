@@ -62,6 +62,8 @@ namespace engine
 			// which shares the source's render object instead of making an instance)
 			struct InstanceOptions
 			{
+				// 0x102EAB70 (another unit): b1 set, the instance of nothing, white, 1 and two -1
+				InstanceOptions();
 				InstanceOptions(const InstanceOptions& other);
 
 				bool b0;
@@ -155,6 +157,8 @@ namespace engine
 			static Drawable Allocate(SourceDrawable* source);
 			// Queues the destruction and clears the handle
 			static void Destroy(Drawable* drawable);
+			// The engine's callers also push a second word (0 or 4); the function ignores it (the same code, 0x107ED750)
+			static void Destroy(Drawable* drawable, int mode);
 			// A second drawable that takes over the first one's state
 			Drawable Clone() const;
 

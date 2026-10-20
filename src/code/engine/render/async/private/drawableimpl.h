@@ -108,6 +108,9 @@ namespace engine
 		// 34 floats; the copy constructor is an inline member the original left out of line (0x107E85E0)
 		struct EffectBiases
 		{
+			EffectBiases()
+			{
+			}
 			EffectBiases(const EffectBiases& other)
 			{
 				values[0] = other.values[0];

@@ -494,6 +494,8 @@ namespace pure3d
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
 		unsigned int GetMaxParts();
+		// 0x106EDBC0: stores the float at +0x19C
+		void SetUnknown19C(float value);
 		// 0x106EDC90 / 0x106EDCA0
 		bool HasUnknown1A0();
 		unsigned __int64 GetUnknown1B0();

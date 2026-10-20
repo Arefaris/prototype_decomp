@@ -1,5 +1,6 @@
 // The effect track of the fight tree and the accessors of the effect it plays (see effecttrack.h).
 #include "code/engine/fight/effecttrack.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
 {
@@ -223,6 +224,69 @@ namespace engine
 		return keep;
 	}
 
+	// FUNCTION: ENGINE 0x10805D30
+	// EQUIVALENT: the same calls, copies and argument block in the same order; the engine keeps the part lookup in ebx and
+	// the count of the name loop in ebp (ours the other way round), tests the track pointer through eax, reads the
+	// handle's table entry before its serial and loads the floats of the argument block in another order (16.7 %)
+	bool MotionTrailAction::Slot5(int arg, float value)
+	{
+		MotionTrailTrack* track = link.object;
+		if (track != 0)
+		{
+		GameObject* object = 0;
+		if (target.index != 0xffff)
+		{
+			GameObjectEntry* entry = &GetGameObjectEntries()[target.index];
+			if (entry->serial == target.serial)
+			{
+				object = entry->object;
+			}
+		}
+		proto::PartLookup* lookup = 0;
+		Attribute<proto::PartLookup*>* partsAttribute = (Attribute<proto::PartLookup*>*)object->FindAttribute(proto::gDrawableAttributeName);
+		if (partsAttribute != 0)
+		{
+			proto::PartLookup** parts = &partsAttribute->value;
+			if (parts != 0)
+			{
+				lookup = *parts;
+			}
+		}
+		Attribute<render::Drawable>* drawableAttribute = (Attribute<render::Drawable>*)object->FindAttribute(proto::gDrawableHandleAttributeName);
+		render::Drawable* drawablePointer = drawableAttribute != 0 ? &drawableAttribute->value : 0;
+		render::Drawable current;
+		if (drawablePointer != 0)
+		{
+			current = *drawablePointer;
+		}
+		core::Name<core::CaseSensitiveKey> joints[6];
+		math::Vector offsets[6];
+		track = link.object;
+		joints[0] = track->joint1;
+		offsets[0].Set(track->jointOffset1.x, track->jointOffset1.y, track->jointOffset1.z);
+		joints[1] = track->joint2;
+		offsets[1].Set(track->jointOffset2.x, track->jointOffset2.y, track->jointOffset2.z);
+		joints[2] = track->joint3;
+		offsets[2].Set(track->jointOffset3.x, track->jointOffset3.y, track->jointOffset3.z);
+		joints[3] = track->joint4;
+		offsets[3].Set(track->jointOffset4.x, track->jointOffset4.y, track->jointOffset4.z);
+		joints[4] = track->joint5;
+		offsets[4].Set(track->jointOffset5.x, track->jointOffset5.y, track->jointOffset5.z);
+		joints[5] = track->joint6;
+		offsets[5].Set(track->jointOffset6.x, track->jointOffset6.y, track->jointOffset6.z);
+		if (current.IsValid())
+		{
+			render::EffectManager* manager = render::GetEffectManager();
+			MotionTrailTrack* trail = link.object;
+			drawable = manager->CreateMotionTrail(current, lookup, trail->generateTime, trail->fadeInTime, trail->fadeOutTime,
+				&trail->shader, joints, offsets, trail->numJoints, &trail->shrinkJoint, trail->shrinkOffset, trail->shrinkTime,
+				trail->fadeTime, trail->fadeInTrailTime, trail->textureTime, trail->dragged);
+		}
+		return link.object->abortWhenInterrupted;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x10805FF0
 	void MotionTrailAction::Slot6()
 	{
@@ -234,6 +298,45 @@ namespace engine
 	}
 
 	// ---- the tracks' action makers -----------------------------------------------------------------------------
+
+	// What a track runs for: an IRefCount-derived object whose kind says where the game object handle is kept (a kind
+	// in 0x10000 - 0x2FFFF carries it at +0xC, one in 0x30000 - 0x3FFFF at +0x14; the engine's class is not named)
+	struct TrackOwner : core::IRefCount
+	{
+		int unknown4;
+		unsigned int kind;  // +0x8
+		GameObjectHandle handle;  // +0xC
+		int unknown10;
+		GameObjectHandle secondHandle;  // +0x14
+	};
+
+	// FUNCTION: ENGINE 0x10807790
+	fight::Action* EffectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		GameObjectHandle handle;
+		TrackOwner* trackOwner = (TrackOwner*)owner;
+		if (trackOwner != 0)
+		{
+			if (trackOwner->kind - 0x10000 <= 0x1ffff)
+			{
+				handle = trackOwner->handle;
+			}
+			else if (trackOwner->kind - 0x30000 <= 0xffff)
+			{
+				handle = trackOwner->secondHandle;
+			}
+		}
+		if (!parentObjectName.IsEmpty())
+		{
+			GameObjectHandle parent = FindGameObject(parentObjectName, *(const content::ObjectName*)"");
+			if (!parent.IsValid())
+			{
+				return 0;
+			}
+			handle = parent;
+		}
+		return new EffectAction(this, listener, handle, owner, (int)effect);
+	}
 
 	// FUNCTION: ENGINE 0x10807860
 	fight::Action* AbortEffectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

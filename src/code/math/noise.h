@@ -42,6 +42,9 @@ namespace math
 		// Pseudo-random value in [-1, 1] at an integer lattice point, hashed with seed (perlin.cpp)
 		float Lattice(int x, int y, int z) const;
 
+		// 0x101043F0: the multi-octave value at a point (math worklist; reached through a jump at 0x100037F1)
+		float Evaluate(float x, float y, float z) const;
+
 		// Cosine interpolation from a (t = 0) to b (t = 1) (perlin.cpp; no caller found, Sample inlines its own weights)
 		float Interpolate(float a, float b, float t) const;
 
