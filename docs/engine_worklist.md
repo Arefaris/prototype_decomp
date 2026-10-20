@@ -4076,10 +4076,27 @@ the `std::sort` instances for the two entry types (`_Push_heap`, `_Median`, `_Ad
 - EQUIVALENT (same calls and stores in the same order, other registers and spills): `_Med3`, `_Unguarded_partition`,
   `_Insertion_sort1`, `_Pop_heap_0`, `_Sort_heap` for both entry types.
 - NONMATCHING: both `Add` (95 % of the instructions: the engine clears the first word of the temporary name before its
-  constructor runs) and both `Sort` members (the engine calls `std::sort`, this inlines it).
+  constructor runs).
+- `std::sort` has to be called out of line, as the engine does: `void (*sorter)(Entry*, Entry*) = std::sort<Entry*>;
+  sorter(first, last);` (a plain call is expanded; the same form is used in the tag set). The engine keeps two copies
+  of the function per type, the first without a caller (0x10832250, 0x10832270); only the second (0x10832290,
+  0x108322B0) is reproduced.
 - The entry types have to be 16 bytes without `__declspec(align(8))` on the name (an aligned member makes a by-value
   parameter of the algorithms illegal and changes which helpers the compiler inlines): a trailing `int padding` and
   member-wise copy functions that leave it out give the engine's code. The order of the explicit instantiations
   decides which helpers are inlined into the next one; the `Sort` members have to come before them.
-- The engine keeps four copies of `std::sort<Entry*>` (two per entry type, the first two without a user); ours has one
-  per type.
+
+## system/tagset.cpp (0x108340A0 - 0x10835190): the tag set
+
+Done: `TagSet` (a sorted array of names and the "all" flag): the constructor, `Clear`, `Find`, `Contains`, `Intersects`,
+`Includes`, `Add` with its sorted insert, `Remove`, `Sort`, `ToString` (with its function-local text, 0x1130DC68) and
+`FromString`, and the `std` sort instances for `core::Name<CaseSensitiveKey>*` (`_Med3`, `_Push_heap`, `_Median`,
+`_Adjust_heap`, `_Pop_heap`, `_Make_heap`, `_Unguarded_partition`, `_Insertion_sort`, `_Sort_heap`, `_Sort`) plus the
+lower-bound function the unit has of its own (a plain function template, not `std::lower_bound`).
+
+- EQUIVALENT: `Intersects`, `Includes`, `Add`, `Remove` (register roles and the order of the first loads) and the sorted
+  insert 0x10834D70 (register choices and the layout of the search loop).
+- Not done: 0x108340A0 (a forwarder that compares a string with a literal, no user in the unit), 0x108340D0, the
+  jump thunk 0x10834750 and the first copy of `std::sort<Name*>` (0x10834FC0, no caller).
+- The copy of the array's `ShiftUp` the insert calls is another unit's (0x102EB9A0); it is declared as a specialisation
+  without a body so the call stays external.

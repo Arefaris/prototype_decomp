@@ -32,6 +32,15 @@ namespace container
 		int Append(const String& other);
 		// 0x1060EEE0: how often c occurs
 		int Count(char c);
+		// 0x1060EF20: the place of the first c from start on, a negative number when there is none (the third
+		// argument is 1 in its users)
+		int Find(char c, int start, int unknown);
+		// 0x1060EC60: becomes the part of other that starts at start and has length characters
+		void Assign(const String& other, int start, int length);
+		// 0x1060EA40: the strings have the same characters (the second argument says to ignore the case)
+		bool Equals(const String& other, bool ignoreCase);
+		// 0x1060F3A0: appends text (as much as fits)
+		void Append(const char* text);
 		// 0x1060F080: calls function with every part of the string between separators (and context)
 		void ForEachToken(char separator, void (*function)(const char* token, void* context), void* context);
 	};

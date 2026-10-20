@@ -165,22 +165,20 @@ namespace engine
 		template void RegisterMessageKind<ScenarioStreamPackageUnloadedMessage>(int, const char*);
 
 		// FUNCTION: ENGINE 0x108322D0
-		// NONMATCHING: the engine calls std::sort where this inlines it into the call of _Sort (35 percent)
-#ifdef NONMATCHING
 		void ScenarioMessageLister::Sort()
 		{
-			std::sort(entries.Begin(), entries.End());
+			// std::sort is called out of line, as the engine does
+			void (*sorter)(MessageEntry*, MessageEntry*) = std::sort<MessageEntry*>;
+			sorter(entries.Begin(), entries.End());
 		}
-#endif
 
 		// FUNCTION: ENGINE 0x108322F0
-		// NONMATCHING: the engine calls std::sort where this inlines it into the call of _Sort (35 percent)
-#ifdef NONMATCHING
 		void AffiliateLister::Sort()
 		{
-			std::sort(entries.Begin(), entries.End());
+			// std::sort is called out of line, as the engine does
+			void (*sorter)(AffiliateEntry*, AffiliateEntry*) = std::sort<AffiliateEntry*>;
+			sorter(entries.Begin(), entries.End());
 		}
-#endif
 
 		// FUNCTION: ENGINE 0x10831E90
 		void ScenarioMessageLister::Reset()
@@ -338,3 +336,5 @@ template void std::sort<engine::scenario::AffiliateEntry*>(engine::scenario::Aff
 // FUNCTION: ENGINE 0x108320A0
 // FUNCTION: ENGINE 0x108320B0
 // FUNCTION: ENGINE 0x10832180
+// FUNCTION: ENGINE 0x10832290
+// FUNCTION: ENGINE 0x108322B0

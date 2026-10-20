@@ -2,6 +2,7 @@
 // the one of a comparison function on the names (0x108343F0). Names are guesses.
 #include <algorithm>
 
+#include "code/container/string.h"
 #include "code/engine/system/tagset.h"
 
 // The engine's copy of the shift lives in another unit (0x102EB9A0)
@@ -9,6 +10,10 @@ namespace container
 {
 	template<> void ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorCoreStatic<12, 16> >::ShiftUp(
 		core::Name<core::CaseSensitiveKey>* position, int count);
+
+	// The members FromString and the copies of the sets use, as copies of their own
+	template bool ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorCoreStatic<12, 16> >::Create(
+		unsigned int count);
 }
 
 namespace engine
@@ -236,14 +241,63 @@ namespace engine
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x10834690
+	const char* TagSet::ToString()
+	{
+		static container::StringC<512> text;
+		text.Clear();
+		unsigned int count = tags.end - tags.begin;
+		if (count != 0)
+		{
+			text.Append(tags.begin->GetText());
+		}
+		for (unsigned int i = 1; i < count; i++)
+		{
+			text.Append(";");
+			text.Append(tags.begin[i].GetText());
+		}
+		return text.buffer;
+	}
+
+	// FUNCTION: ENGINE 0x10835010
+	void TagSet::FromString(const char* text)
+	{
+		container::StringLiteral source(text);
+		if (!source.IsEmpty())
+		{
+			container::StringC<256> token;
+			tags.Create(source.Count(';') + 1);
+			int start = 0;
+			int next = source.Find(';', 0, 1);
+			while (next > -1)
+			{
+				token.Assign(source, start, next - start);
+				if (token.Equals(container::StringLiteral("*"), true))
+				{
+					all = true;
+				}
+				tags.PushBack(TagName(token.buffer, 1));
+				start = next + 1;
+				next = source.Find(';', start, 1);
+			}
+			token.Assign(source, start, 0x7FFFFFFF);
+			if (token.Equals(container::StringLiteral("*"), true))
+			{
+				all = true;
+			}
+			tags.PushBack(TagName(token.buffer, 1));
+			void (*sorter)(TagName*, TagName*) = std::sort<TagName*>;
+			sorter(tags.begin, tags.end);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10835000
-	// NONMATCHING: the engine calls std::sort where this inlines it into the call of _Sort (62 percent)
-#ifdef NONMATCHING
 	void TagSet::Sort()
 	{
-		std::sort(tags.begin, tags.end);
+		// std::sort is called out of line, as the engine does
+		void (*sorter)(TagName*, TagName*) = std::sort<TagName*>;
+		sorter(tags.begin, tags.end);
 	}
-#endif
 }
 
 // The sort of the tags is the toolchain's <algorithm> for the names; the unit keeps the instances it needs as COMDAT
@@ -261,6 +315,7 @@ template void std::_Sort<TagNameType*, int>(TagNameType*, TagNameType*, int);
 template void std::sort<TagNameType*>(TagNameType*, TagNameType*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108340E0
 // FUNCTION: ENGINE 0x10834140
 // FUNCTION: ENGINE 0x10834150
 // FUNCTION: ENGINE 0x10834170
@@ -287,4 +342,5 @@ template void std::sort<TagNameType*>(TagNameType*, TagNameType*);
 // FUNCTION: ENGINE 0x10834E10
 // FUNCTION: ENGINE 0x10834EE0
 // FUNCTION: ENGINE 0x10834EF0
-// FUNCTION: ENGINE 0x10834FC0
+// FUNCTION: ENGINE 0x10834FE0
+// FUNCTION: ENGINE 0x10D8A1C0
