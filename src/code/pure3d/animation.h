@@ -50,7 +50,7 @@ namespace pure3d
 		unsigned char unknown18Bits : 7;
 		unsigned char unknown19[7];
 		float mUnknown20;
-		unsigned char unknown24[0x14];
+		unsigned char unknown24[0x18];
 		AnimationMemoryBlock* mBlock;
 	};
 

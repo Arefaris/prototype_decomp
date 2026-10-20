@@ -27,10 +27,20 @@ namespace pure3d
 		unsigned char unknown14[0xC];
 	};
 
+	// What a skeleton tells a blend about its limbs (8 bytes; 0x1072D620 fills it)
+	struct SkeletonLimbInfo
+	{
+		unsigned int mLimbCount;
+		unsigned int mUnknown;
+	};
+
 	// The skeleton's part that the poses read: the Skeleton's own members from +8. The rest pose of every joint is
 	// kept in arrays like the pose's own (16 bytes per joint), the same kinds in a different order
 	struct SkeletonData
 	{
+		// 0x1072D620: the limb count and the word at +0x48 (the skeleton's own data after this part)
+		void GetLimbInfo(SkeletonLimbInfo* out) const;
+
 		unsigned int mJointCount;
 		// How many limbs (groups of up to three joints) the skeleton has
 		unsigned int mLimbCount;
