@@ -8,6 +8,12 @@ class GMatrix2D
 public:
 	// 0x1095CAF0
 	GMatrix2D();
+	// 0x1095DDD0: a copy of another matrix
+	GMatrix2D(const GMatrix2D& other);
+	// 0x1095DE00: the scales, the shears and the translation
+	GMatrix2D(float sx, float shx, float shy, float sy, float tx, float ty);
+	// 0x1095DE50: the matrix of a rotation by angle (radians)
+	static void MakeRotation(GMatrix2D* matrix, float angle);
 	// 0x1095CB00: copies another matrix
 	void SetMatrix(const GMatrix2D& other);
 	// 0x1095CB30: the scales, the shears and the translation
