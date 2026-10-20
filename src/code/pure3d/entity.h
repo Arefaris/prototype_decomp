@@ -24,6 +24,16 @@ namespace pure3d
 			mRefCount = 0;
 			_ReadWriteBarrier();
 		}
+		// The constructor of a class that derives from RefCounted directly: the engine schedules its constants across
+		// the count initialisation
+		enum NoBarrier
+		{
+			NO_BARRIER
+		};
+		explicit RefCounted(NoBarrier)
+		{
+			mRefCount = 0;
+		}
 		// 0x106E2900: the engine's out-of-line destructor of the base (derived destructors defined in a unit call it, as
 		// Entity's does at 0x1072D4E0)
 		virtual ~RefCounted();
