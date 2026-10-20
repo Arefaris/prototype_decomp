@@ -14882,3 +14882,23 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 
 
 ?SetTimer@EffectManager@render@engine@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@M@Z = 0x1081DCF0 ; function size:0xD0 | engine::render::EffectManager::SetTimer: sets a named timer (another unit; name guess)
+??_7SetPhysicsObjectKeyframedMessage@engine@@6B@ = 0x10DFE75C ; data size:0x4 | engine::SetPhysicsObjectKeyframedMessage vftable
+??_GSetPhysicsObjectKeyframedMessage@engine@@UAEPAXI@Z = 0x103E7140 ; function size:0x1F | engine::SetPhysicsObjectKeyframedMessage::scalar deleting destructor vftable slot 0
+??_R0?AUSetPhysicsObjectKeyframedMessage@engine@@@8 = 0x110870B8 ; data size:0x8 | engine::SetPhysicsObjectKeyframedMessage RTTI type descriptor
+??_7PhysicsGetEnabledMessage@engine@@6B@ = 0x10E79E58 ; data size:0x4 | engine::PhysicsGetEnabledMessage vftable
+??_GPhysicsGetEnabledMessage@engine@@UAEPAXI@Z = 0x108AB140 ; function size:0x1F | engine::PhysicsGetEnabledMessage::scalar deleting destructor vftable slot 0
+??_R0?AUPhysicsGetEnabledMessage@engine@@@8 = 0x111D6560 ; data size:0x8 | engine::PhysicsGetEnabledMessage RTTI type descriptor
+??_7PhysicsSetSleepingAllowedMessage@engine@@6B@ = 0x10E79E60 ; data size:0x4 | engine::PhysicsSetSleepingAllowedMessage vftable
+??_GPhysicsSetSleepingAllowedMessage@engine@@UAEPAXI@Z = 0x108AB1B0 ; function size:0x1F | engine::PhysicsSetSleepingAllowedMessage::scalar deleting destructor vftable slot 0
+??_R0?AUPhysicsSetSleepingAllowedMessage@engine@@@8 = 0x111D6590 ; data size:0x8 | engine::PhysicsSetSleepingAllowedMessage RTTI type descriptor
+??_7PhysicsSetEnabledMessage@engine@@6B@ = 0x10D94E68 ; data size:0x4 | engine::PhysicsSetEnabledMessage vftable
+??_GPhysicsSetEnabledMessage@engine@@UAEPAXI@Z = 0x10061000 ; function size:0x1F | engine::PhysicsSetEnabledMessage::scalar deleting destructor vftable slot 0
+??_R0?AUPhysicsSetEnabledMessage@engine@@@8 = 0x10FEB5E0 ; data size:0x8 | engine::PhysicsSetEnabledMessage RTTI type descriptor
+??0PhysicsGetEnabledMessage@engine@@QAE@XZ = 0x108AAE70 ; function size:0x1F | engine::PhysicsGetEnabledMessage::PhysicsGetEnabledMessage
+??0PhysicsSetSleepingAllowedMessage@engine@@QAE@_N0@Z = 0x108AAEA0 ; function size:0x2C | engine::PhysicsSetSleepingAllowedMessage::PhysicsSetSleepingAllowedMessage
+??_7SetKeyframedPhysicsUpdateEnabledMessage@engine@@6B@ = 0x10DFE750 ; data size:0x4 | engine::SetKeyframedPhysicsUpdateEnabledMessage vftable
+??_GSetKeyframedPhysicsUpdateEnabledMessage@engine@@UAEPAXI@Z = 0x103E7110 ; function size:0x1F | engine::SetKeyframedPhysicsUpdateEnabledMessage::scalar deleting destructor vftable slot 0
+??_R0?AUSetKeyframedPhysicsUpdateEnabledMessage@engine@@@8 = 0x1108706C ; data size:0x8 | engine::SetKeyframedPhysicsUpdateEnabledMessage RTTI type descriptor
+??_7PhysicsWakeUpMessage@engine@@6B@ = 0x10D94E74 ; data size:0x4 | engine::PhysicsWakeUpMessage vftable
+??_GPhysicsWakeUpMessage@engine@@UAEPAXI@Z = 0x10061030 ; function size:0x1F | engine::PhysicsWakeUpMessage::scalar deleting destructor vftable slot 0
+??_R0?AUPhysicsWakeUpMessage@engine@@@8 = 0x10FEB618 ; data size:0x8 | engine::PhysicsWakeUpMessage RTTI type descriptor

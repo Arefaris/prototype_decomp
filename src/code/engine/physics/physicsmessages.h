@@ -102,6 +102,36 @@ namespace engine
 		bool flag;
 	};
 
+	// Asks whether the physics simulation of the object is on (id 0x10); the answer comes back in the message
+	struct PhysicsGetEnabledMessage : public NonintrusiveMessage
+	{
+		PhysicsGetEnabledMessage() : NonintrusiveMessage(3, 0x10)
+		{
+			enabled = false;
+		}
+		virtual ~PhysicsGetEnabledMessage()
+		{
+		}
+
+		bool enabled;
+	};
+
+	// Lets the physics object fall asleep or not (id 0x15); the second flag is the track's own
+	struct PhysicsSetSleepingAllowedMessage : public IntrusiveMessage
+	{
+		PhysicsSetSleepingAllowedMessage(bool newAllowed, bool newKeepAwake) : IntrusiveMessage(3, 0x15)
+		{
+			allowed = newAllowed;
+			keepAwake = newKeepAwake;
+		}
+		virtual ~PhysicsSetSleepingAllowedMessage()
+		{
+		}
+
+		bool allowed;
+		bool keepAwake;
+	};
+
 	// Switches the physics simulation of the object on or off (id 0x11)
 	struct PhysicsSetEnabledMessage : public IntrusiveMessage
 	{

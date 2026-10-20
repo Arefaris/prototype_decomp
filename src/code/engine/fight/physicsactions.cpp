@@ -1,5 +1,6 @@
 // The actions of the physics and collision tracks and the decal and effect timer tracks (unit 0x108AAFB0 - 0x108AD070, no assert path; file name guessed). The tracks are in physicstracks.cpp and effecttimertracks.cpp.
 #include "code/engine/fight/physicsactions.h"
+#include "code/engine/physics/physicsmessages.h"
 
 namespace engine
 {
@@ -202,6 +203,137 @@ namespace engine
 		return 0;
 	}
 
+	// FUNCTION: ENGINE 0x108ABC00
+	bool PhysicsEnableAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		PhysicsGetEnabledMessage query;
+		object->PostMessage(&query);
+		unknown2c = query.enabled;
+		switch (link.object->actionOnBegin)
+		{
+		case 1:
+		{
+			PhysicsSetEnabledMessage message(true);
+			object->SendMessage(&message);
+			break;
+		}
+		case 2:
+		{
+			PhysicsSetEnabledMessage message(false);
+			object->SendMessage(&message);
+			break;
+		}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108ABCE0
+	void PhysicsEnableAction::Slot6()
+	{
+		if (link.object == 0)
+		{
+			return;
+		}
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return;
+		}
+		switch (link.object->actionOnEnd)
+		{
+		case 1:
+		{
+			PhysicsSetEnabledMessage message(unknown2c);
+			object->SendMessage(&message);
+			break;
+		}
+		case 2:
+		{
+			PhysicsSetEnabledMessage message(true);
+			object->SendMessage(&message);
+			break;
+		}
+		case 3:
+		{
+			PhysicsSetEnabledMessage message(false);
+			object->SendMessage(&message);
+			break;
+		}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108AC290
+	// EQUIVALENT: the engine saves esi after the first test (the early exit has no pop), ours before it (shrink-wrap); every
+	// other instruction is the engine's
+	bool PhysicsSetKeyframedAction::Slot5(int arg, float value)
+	{
+		if (link.object != 0)
+		{
+			GameObject* object = target.Get();
+			if (object != 0)
+			{
+				if (link.object->keyframed)
+				{
+					SetPhysicsObjectKeyframedMessage keyframed(true);
+					object->SendMessage(&keyframed);
+					SetKeyframedPhysicsUpdateEnabledMessage updates(true);
+					object->SendMessage(&updates);
+					return false;
+				}
+				else
+				{
+					SetPhysicsObjectKeyframedMessage keyframed(false);
+					object->SendMessage(&keyframed);
+					PhysicsWakeUpMessage wakeUp(false);
+					object->SendMessage(&wakeUp);
+				}
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x108AC430
+	bool PhysicsDisallowSleepingAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		PhysicsSetSleepingAllowedMessage message(false, link.object->keepPhysicsObjectAwake);
+		object->SendMessage(&message);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108AC4B0
+	void PhysicsDisallowSleepingAction::Slot6()
+	{
+		if (link.object == 0)
+		{
+			return;
+		}
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return;
+		}
+		PhysicsSetSleepingAllowedMessage message(true, link.object->keepPhysicsObjectAwake);
+		object->SendMessage(&message);
+	}
+
 	// FUNCTION: ENGINE 0x108AC600
 	CollisionEnableFromRootJointAction::CollisionEnableFromRootJointAction(CollisionEnableFromRootJointTrack* newTrack, GameObjectHandle newTarget)
 		: fight::Action(0x600), link(newTrack), target(newTarget), unknown2c(-1)
@@ -217,6 +349,30 @@ namespace engine
 	PhysicsKeyframedEnableAction::PhysicsKeyframedEnableAction(GameObjectHandle newTarget)
 		: fight::Action(0x600), target(newTarget)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x108AB830
+	bool PhysicsKeyframedEnableAction::Slot5(int arg, float value)
+	{
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		SetPhysicsObjectKeyframedMessage message(true);
+		object->SendMessage(&message);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108AB8A0
+	void PhysicsKeyframedEnableAction::Slot6()
+	{
+		GameObject* object = target.Get();
+		if (object != 0)
+		{
+			SetPhysicsObjectKeyframedMessage message(false);
+			object->SendMessage(&message);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x108AB010
