@@ -4218,3 +4218,12 @@ lower-bound function the unit has of its own (a plain function template, not `st
   - EQUIVALENT: `Constraint::Constraint(int)` 0x1065E3E0 (register choice), `ConstraintInsideOfSphere::ScaleBy`
     0x106616E0 (scheduling).
   - Not done: the other constraint classes (hinge 0x1066B0A0, springs, slider, perpendicular axes, fixed distance).
+- `src/code/ravenphysics/constraints/src/hinge.cpp` (0x1065B9A0 - 0x1065C2B0 and 0x1066B0A0 - 0x1066B570):
+  `ConstraintBallInSocket` (pointA 0x24, pointALocal 0x30, pointB 0x3C, flag 0x60), `ConstraintAlign2Axes` (axisA 0x24,
+  axisALocal 0x30, axisB 0x3C, perpendicular 0x48, cross 0x54) and `ConstraintHinge`, which holds one of each at +0x24
+  and +0x88 and adds vftable slots 8 and 9 (`SetFirstObject` / `SetSecondObject`). All match except
+  `ConstraintBallInSocket::ScaleBy` 0x1065BB90 (EQUIVALENT, 15.8 %: the engine multiplies a freshly loaded stored
+  component by the held scale component). `content::GetClassMetaType<Constraint>` is mapped to the engine's copy
+  (0x1065BC40). The rest of the constraint classes (angular spring and velocity with their shared properties, slider,
+  spring along axis, perpendicular axes, fixed distance, ...) and the base class functions 0x1065E430 - 0x1065EEE0
+  (constructor between two objects, copy constructor, `SetObject`) are not done.
