@@ -118,7 +118,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108193D0
-		camera::Camera* GetActiveCamera()
+		camera::Camera* EffectManager::GetActiveCamera()
 		{
 			camera::Director* director = camera::Director::Get();
 			if (director == 0)
@@ -974,6 +974,30 @@ namespace engine
 				return true;
 			}
 			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081C360
+		void EffectManager::AddLOD(const unsigned int* effect, EffectLOD* lod)
+		{
+			EffectInstance* instance = FindInstance(*effect, 0);
+			if (instance != 0)
+			{
+				instance->AddLOD(lod);
+				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lodsEnd - instance->lodsBegin) > 1)
+				{
+					camera::Camera* camera = GetActiveCamera();
+					if (camera != 0)
+					{
+						math::Vector position;
+						position.Set(camera->position.x, camera->position.y, camera->position.z);
+						instance->UpdateLOD(0.0f, &position);
+					}
+				}
+			}
+			else
+			{
+				lod->Release();
+			}
 		}
 
 		// FUNCTION: ENGINE 0x1081CBB0

@@ -225,6 +225,11 @@ namespace engine
 
 			// 0x10820830 (another unit): advances the effect; true when it has finished and goes away
 			bool Advance(float timeStep, const math::Vector* cameraPosition);
+			// 0x10821420 (another unit): takes over a level-of-detail record (answers false and lets go of it when the effect
+			// has no room for it)
+			bool AddLOD(EffectLOD* lod);
+			// 0x10820150 (another unit): switches the effect's records by the distance of a point
+			void UpdateLOD(float unused, const math::Vector* from);
 			// 0x1081EAC0: destroys the drawable and marks the effect as fading out for good
 			void Kill();
 			// 0x1081EEF0: starts fading the effect out over the time at +0x70 (unless it already does)
@@ -496,6 +501,9 @@ namespace engine
 			// 0x1081D540: advances every playing effect and takes the finished ones out of their lists; the effects made
 			// from a store that has not been used for a minute start fading
 			void UpdateInstances(float timeStep);
+			// 0x1081C360: hands a level-of-detail record to the effect of a drawable (the record is let go of when the effect is
+			// gone)
+			void AddLOD(const unsigned int* effect, EffectLOD* lod);
 			// 0x1081E1C0: ends the effects of a list whose position the camera cannot see (within the radius)
 			void RemoveInvisible(EffectInstanceList* list, float radius);
 
@@ -542,6 +550,8 @@ namespace engine
 			// 0x1081DA10: ends the effect of the store that was used least recently
 			void RemoveOldestStore();
 
+			// 0x108193D0: the camera of the first player that is active, null without a camera director
+			camera::Camera* GetActiveCamera();
 			// 0x10819410: whether a feature of the manager is switched on (always)
 			bool IsFeatureEnabled(int features);
 			// 0x1081E5A0: the frame update (the two leading arguments are unused)
@@ -658,8 +668,6 @@ namespace engine
 
 		// 0x108193A0: the global manager
 		EffectManager* GetEffectManager();
-		// 0x108193D0: the camera of the first player that is active, null without a camera director
-		camera::Camera* GetActiveCamera();
 	}
 }
 
