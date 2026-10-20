@@ -118,7 +118,7 @@ public:
 		R value = function();
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -168,7 +168,7 @@ public:
 		R value = function(a1);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -218,12 +218,14 @@ public:
 	// Reads the arguments in order, calls the function and stores the result, if any
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
 		R value = function(a1, a2);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -248,8 +250,10 @@ public:
 	}
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
 		function(a1, a2);
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -275,13 +279,16 @@ public:
 	}
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
 		R value = function(a1, a2, a3);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -307,9 +314,12 @@ public:
 	}
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
 		function(a1, a2, a3);
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -336,14 +346,18 @@ public:
 	}
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
-		A4 a4 = *(const A4*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
 		R value = function(a1, a2, a3, a4);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -370,10 +384,14 @@ public:
 	}
 	static void Call(void* object, const engine::FunctionArgument* arguments, void* result, Pointer function)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
-		A4 a4 = *(const A4*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
 		function(a1, a2, a3, a4);
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -400,7 +418,7 @@ public:
 		R value = (object->*method)();
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -452,7 +470,7 @@ public:
 		R value = (object->*method)(a1);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -503,12 +521,13 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
 		A2 a2 = *(const A2*)arguments;
 		R value = (object->*method)(a1, a2);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -534,7 +553,8 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
 		A2 a2 = *(const A2*)arguments;
 		(object->*method)(a1, a2);
 	}
@@ -562,13 +582,15 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
 		A3 a3 = *(const A3*)arguments;
 		R value = (object->*method)(a1, a2, a3);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -595,8 +617,10 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
 		A3 a3 = *(const A3*)arguments;
 		(object->*method)(a1, a2, a3);
 	}
@@ -625,14 +649,17 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
 		A4 a4 = *(const A4*)arguments;
 		R value = (object->*method)(a1, a2, a3, a4);
 		if (result != 0)
 		{
-			*(R*)result = value;
+			engine::ScriptArguments::Store((R*)result, value);
 		}
 	}
 	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
@@ -660,9 +687,12 @@ public:
 	// Reads the arguments in order, calls the method on object and stores the result, if any
 	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
 	{
-		A1 a1 = *(const A1*)arguments++;
-		A2 a2 = *(const A2*)arguments++;
-		A3 a3 = *(const A3*)arguments++;
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
 		A4 a4 = *(const A4*)arguments;
 		(object->*method)(a1, a2, a3, a4);
 	}

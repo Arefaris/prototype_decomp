@@ -5,6 +5,7 @@
 #define ENGINE_GAMEOBJECT_GAMEOBJECT_H
 
 #include "code/container/arraydynamic.h"
+#include "code/core/name.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
@@ -39,6 +40,14 @@ namespace engine
 		virtual T& Get();
 
 		T value;
+	};
+
+	// A name is laid out at a multiple of 8 (the word after the vftable is left empty)
+	template<> class Attribute<core::Name<core::CaseSensitiveKey> > : public BaseAttribute
+	{
+	public:
+		int unknown4;
+		core::Name<core::CaseSensitiveKey> value;
 	};
 
 	// The construction helpers (gameobject.cpp): the heap a game object is being created in and the object being

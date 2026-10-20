@@ -167,6 +167,7 @@ namespace engine
 		bool fadeIn;  // +0x30
 		float fadeTime;  // +0x34
 		bool uninstallOnExit;  // +0x38
+		int unknown3C;
 	};
 
 	extern fight::Property** gMixerTrackProperties;
@@ -283,6 +284,7 @@ namespace engine
 		int unknown1C;
 		fight::Name preset;  // +0x20
 		float gain;  // +0x28
+		int unknown2C;
 	};
 
 	extern fight::Property** gReverbTrackProperties;
@@ -322,6 +324,7 @@ namespace engine
 		fight::Name ambience;  // +0x30
 		fight::Name mix;  // +0x38
 		int boundaryAction;  // +0x40
+		int unknown44;
 	};
 
 	extern fight::Property** gSoundZoneTrackProperties;

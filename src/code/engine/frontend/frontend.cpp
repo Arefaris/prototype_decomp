@@ -2,6 +2,8 @@
 // unit write (fe_SetUpdateEnable is registered from 0x10864AF0). No assert path names the file, so the directory and
 // file name are guesses; the class names are unknown and the accessors are free functions until the binary names
 // them.
+#include "code/core/language.h"
+#include "code/core/strings.h"
 #include "code/engine/frontend/frontend.h"
 
 #include "code/engine/luascriptmanager.h"
@@ -243,5 +245,45 @@ namespace engine
 	core::Name<core::CaseSensitiveKey> GetLanguageName()
 	{
 		return sLanguageName;
+	}
+
+	// FUNCTION: ENGINE 0x10864A20
+	void SetLanguage(int language)
+	{
+		if (language == '?')
+		{
+			language = core::GetSystemLanguage();
+			if (language == '?')
+			{
+				language = 'E';
+			}
+		}
+		const char* name = core::GetLanguageName(language);
+		if (HasCommandLineOption("ForceLanguageSupport"))
+		{
+			core::LanguageSet(language);
+		}
+		else
+		{
+			bool supported = false;
+			for (unsigned int index = 0; index < GetLanguageTable()->GetCount(); ++index)
+			{
+				if (core::StrCmp(name, GetLanguageTable()->GetName(index)) == 0)
+				{
+					supported = true;
+					break;
+				}
+			}
+			if (supported)
+			{
+				core::LanguageSet(language);
+			}
+			else
+			{
+				core::LanguageSet('E');
+			}
+		}
+		core::Name<core::CaseSensitiveKey> languageName(core::GetLanguageName(core::LanguageGet()), 1);
+		SetLanguageName(languageName);
 	}
 }
