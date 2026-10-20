@@ -6,6 +6,8 @@
 #ifndef CONTENT_METATYPE_H
 #define CONTENT_METATYPE_H
 
+#include "code/content/metastream.h"
+
 namespace content
 {
 	class MetaType
@@ -32,6 +34,75 @@ namespace content
 		virtual void Slot11() = 0;
 
 		int key;
+
+		// The slots with the arguments the engine's code gives them (the virtual functions above are declared
+		// without; these call the slot by its place in the vftable). The slots, with the meaning of what is
+		// known: 0 / 1 read a value from its text / binary form, 2 / 3 write it, 4 compares the binary forms of
+		// two values and reports the difference as text, 5 asks whether the value has the flags (the base
+		// answers by the type's own), 6 makes a value, 7 deletes it, 8 copies it, 9 counts the items the value
+		// takes in a table, 10 enters the value in a table of them and 11 writes it in binary through that table
+		bool InvokeReadText(TextReadStream* reader, void* object, int a, int b)
+		{
+			typedef bool (__thiscall *Function)(MetaType*, TextReadStream*, void*, int, int);
+			return ((Function)(*(void***)this)[0])(this, reader, object, a, b);
+		}
+		void InvokeReadBinary(ReadContext* context, void* object, int a, int b)
+		{
+			typedef void (__thiscall *Function)(MetaType*, ReadContext*, void*, int, int);
+			((Function)(*(void***)this)[1])(this, context, object, a, b);
+		}
+		void InvokeWriteText(TextWriter* writer, const void* object, int a)
+		{
+			typedef void (__thiscall *Function)(MetaType*, TextWriter*, const void*, int);
+			((Function)(*(void***)this)[2])(this, writer, object, a);
+		}
+		void InvokeWriteBinary(WriteContext* context, const void* object, int a)
+		{
+			typedef void (__thiscall *Function)(MetaType*, WriteContext*, const void*, int);
+			((Function)(*(void***)this)[3])(this, context, object, a);
+		}
+		bool InvokeCompare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log)
+		{
+			typedef bool (__thiscall *Function)(MetaType*, ReadContext*, const char*, ReadContext*, const char*, int,
+				TextWriter*);
+			return ((Function)(*(void***)this)[4])(this, first, firstName, second, secondName, unused, log);
+		}
+		bool InvokeMatches(unsigned int flags, void* object)
+		{
+			typedef bool (__thiscall *Function)(MetaType*, unsigned int, void*);
+			return ((Function)(*(void***)this)[5])(this, flags, object);
+		}
+		void* InvokeCreate()
+		{
+			typedef void* (__thiscall *Function)(MetaType*);
+			return ((Function)(*(void***)this)[6])(this);
+		}
+		void InvokeDestroy(void* object)
+		{
+			typedef void (__thiscall *Function)(MetaType*, void*);
+			((Function)(*(void***)this)[7])(this, object);
+		}
+		void InvokeCopy(void* destination, const void* source, int a)
+		{
+			typedef void (__thiscall *Function)(MetaType*, void*, const void*, int);
+			((Function)(*(void***)this)[8])(this, destination, source, a);
+		}
+		int InvokeCount(void* object, int a)
+		{
+			typedef int (__thiscall *Function)(MetaType*, void*, int);
+			return ((Function)(*(void***)this)[9])(this, object, a);
+		}
+		void InvokeDescribe(MemberEntry** cursor, void* object, int a)
+		{
+			typedef void (__thiscall *Function)(MetaType*, MemberEntry**, void*, int);
+			((Function)(*(void***)this)[10])(this, cursor, object, a);
+		}
+		void InvokeWriteBinaryShort(WriteContext* context, const void* object)
+		{
+			typedef void (__thiscall *Function)(MetaType*, WriteContext*, const void*);
+			((Function)(*(void***)this)[11])(this, context, object);
+		}
 	};
 
 	template<class T> class PrimitiveMetaType : public MetaType
@@ -158,13 +229,30 @@ namespace content
 		return offset;
 	}
 
-	// A meta type with a name and a member list (another unit, 0x105FA750 / 0x105FA790; 0x2C bytes)
+	// A meta type with a name and a version: the base of the reflected classes' meta types (RTTI NamedMetaType), kept
+	// in a list of all of them, newest first (head 0x1127694C); names other than the class's are guesses
 	class NamedMetaType : public MetaType
 	{
 	public:
-		explicit NamedMetaType(const char* code) : MetaType(code)
-		{
-		}
+		// 0x10600130: makes the type known by name and version
+		NamedMetaType(const char* newName, unsigned short newVersion, const char* code);
+
+		// 0x10600170: the newest type, also stored at iterator
+		static NamedMetaType* GetFirst(NamedMetaType** iterator);
+		// 0x10600190: steps the iterator to the next older type
+		static void Next(NamedMetaType** iterator);
+		// 0x106001A0: the type that many places down the list (the last one when the list is shorter)
+		static NamedMetaType* GetByIndex(unsigned short index);
+		// 0x106001D0: the type of that name and version, null for none
+		static NamedMetaType* Find(const char* name, unsigned short version);
+		// 0x10600230 / 0x10600240 / 0x10600250: the name, the version and the place in the list
+		const char* GetName();
+		unsigned short GetVersion();
+		int GetIndex();
+
+		NamedMetaType* next;
+		unsigned short version;
+		const char* name;
 	};
 
 	class ClassMetaType : public NamedMetaType
@@ -185,7 +273,7 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		int unknown8[(0x2c - 8) / 4];
+		int unknown14[(0x2c - 0x14) / 4];
 	};
 
 	// The meta type of a core::Name member (0x105FCC70; the two flags are unknown)

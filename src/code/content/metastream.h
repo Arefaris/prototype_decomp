@@ -20,10 +20,11 @@ namespace content
 
 	class MetaType;
 
-	// What a meta type puts in the table it describes itself in (slot 10 of the meta types)
+	// What a meta type puts in the table it lists the values of an object in (slot 10 of the meta types): the value
+	// and its meta type, which writes it again through slot 11
 	struct MemberEntry
 	{
-		int key;
+		void* object;
 		MetaType* type;
 	};
 

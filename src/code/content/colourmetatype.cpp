@@ -120,10 +120,10 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x10601720
-	void ColourMetaType::Describe(MemberEntry** cursor, int key, int unused)
+	void ColourMetaType::Describe(MemberEntry** cursor, void* object, int unused)
 	{
 		(*cursor)->type = this;
-		(*cursor)->key = key;
+		(*cursor)->object = object;
 		*cursor += 1;
 	}
 

@@ -51,8 +51,8 @@ namespace content
 		void Copy(void* destination, const void* source, int a);
 		// 0x10601710 (slot 9): always 1
 		int Unknown9(int a, int b);
-		// 0x10601720 (slot 10): puts this meta type and the key at the cursor and steps it on
-		void Describe(MemberEntry** cursor, int key, int unused);
+		// 0x10601720 (slot 10): puts the value and this meta type at the cursor and steps it on
+		void Describe(MemberEntry** cursor, void* object, int unused);
 
 		// 0x106017C0: all four channels one
 		math::Colour128* Construct(math::Colour128* colour);

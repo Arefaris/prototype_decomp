@@ -159,10 +159,10 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x106013E0
-	void StringMetaType::Describe(MemberEntry** cursor, int key, int unused)
+	void StringMetaType::Describe(MemberEntry** cursor, void* object, int unused)
 	{
 		(*cursor)->type = this;
-		(*cursor)->key = key;
+		(*cursor)->object = object;
 		*cursor += 1;
 	}
 

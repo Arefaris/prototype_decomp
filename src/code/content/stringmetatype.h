@@ -54,7 +54,7 @@ namespace content
 		// 0x106013D0 (slot 9): always 1
 		int Unknown9(int a, int b);
 		// 0x106013E0 (slot 10)
-		void Describe(MemberEntry** cursor, int key, int unused);
+		void Describe(MemberEntry** cursor, void* object, int unused);
 
 		int capacity;
 	};
