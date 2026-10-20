@@ -29,6 +29,22 @@ namespace engine
 		sequencer.End();
 	}
 
+	// FUNCTION: ENGINE 0x108B95D0
+	void EffectLODDisableAction::Slot6()
+	{
+		sequencer.Reset();
+	}
+
+	// FUNCTION: ENGINE 0x108B98C0
+	void EffectLODSwitchAction::Slot6()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108B9FA0
+	void EffectLODBiasAction::Slot6()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x108B9A10
 	EffectLODSwitchAction::EffectLODSwitchAction(EffectLODSwitchTrack* newTrack, core::IRefCount* owner)
 		: fight::Action(0xE00), link(newTrack), unknown28(0), unknown2c(0)

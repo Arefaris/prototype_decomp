@@ -14825,3 +14825,60 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0EffectLODBiasAction@engine@@QAE@PAVEffectLODBiasTrack@1@PAUIRefCount@core@@@Z = 0x108BA0B0 ; function size:0x7C | engine::EffectLODBiasAction::EffectLODBiasAction
 ??1EffectLODBiasAction@engine@@UAE@XZ = 0x108BA030 ; function size:0x30 | engine::EffectLODBiasAction::~EffectLODBiasAction
 
+
+
+
+?gLoadingState@engine@@3PAVLoading@streampackagestates@1@A = 0x11318098 ; data size:0x4 | engine: the stream package state that is loading now (name guess)
+?gStreamCounter@engine@@3IA = 0x1130EFDC ; data size:0x4 | engine: the counter the eviction delay of a stream package is measured in (name guess)
+??_7StreamPackageState@engine@@6B@ = 0x10E78C44 ; data size:0xC | engine::StreamPackageState vftable
+??_R0?AVStreamPackageState@engine@@@8 = 0x111D4DD0 ; data size:0x8 | engine::StreamPackageState RTTI type descriptor
+??_7Unloaded@streampackagestates@engine@@6B@ = 0x10E78DEC ; data size:0xC | engine::streampackagestates::Unloaded vftable
+?Enter@Unloaded@streampackagestates@engine@@UAEXXZ = 0x108A6D40 ; function size:0x4A | engine::streampackagestates::Unloaded::Enter vftable slot 0 (name guess)
+?Exit@Unloaded@streampackagestates@engine@@UAE_NH@Z = 0x108A6D20 ; function size:0x5 | engine::streampackagestates::Unloaded::Exit vftable slot 1 (name guess)
+?Update@Unloaded@streampackagestates@engine@@UAEHXZ = 0x108A6D30 ; function size:0x6 | engine::streampackagestates::Unloaded::Update vftable slot 2 (name guess)
+??_R0?AVUnloaded@streampackagestates@engine@@@8 = 0x111D4FF4 ; data size:0x8 | engine::streampackagestates::Unloaded RTTI type descriptor
+??_7WaitForPrerequisites@streampackagestates@engine@@6B@ = 0x10E78DB0 ; data size:0xC | engine::streampackagestates::WaitForPrerequisites vftable
+?Enter@WaitForPrerequisites@streampackagestates@engine@@UAEXXZ = 0x108A6C50 ; function size:0x4E | engine::streampackagestates::WaitForPrerequisites::Enter vftable slot 0 (another unit)
+?Exit@WaitForPrerequisites@streampackagestates@engine@@UAE_NH@Z = 0x108A6C40 ; function size:0x5 | engine::streampackagestates::WaitForPrerequisites::Exit vftable slot 1 (name guess)
+?Update@WaitForPrerequisites@streampackagestates@engine@@UAEHXZ = 0x108A6CA0 ; function size:0x5A | engine::streampackagestates::WaitForPrerequisites::Update vftable slot 2 (another unit)
+??_R0?AVWaitForPrerequisites@streampackagestates@engine@@@8 = 0x111D4FAC ; data size:0x8 | engine::streampackagestates::WaitForPrerequisites RTTI type descriptor
+??_7CancelLoading@streampackagestates@engine@@6B@ = 0x10E78D7C ; data size:0xC | engine::streampackagestates::CancelLoading vftable
+?Enter@CancelLoading@streampackagestates@engine@@UAEXXZ = 0x108A6B50 ; function size:0x30 | engine::streampackagestates::CancelLoading::Enter vftable slot 0 (another unit)
+?Exit@CancelLoading@streampackagestates@engine@@UAE_NH@Z = 0x108A6B40 ; function size:0x6 | engine::streampackagestates::CancelLoading::Exit vftable slot 1 (name guess)
+?Update@CancelLoading@streampackagestates@engine@@UAEHXZ = 0x108A6B80 ; function size:0x92 | engine::streampackagestates::CancelLoading::Update vftable slot 2 (another unit)
+??_R0?AVCancelLoading@streampackagestates@engine@@@8 = 0x111D4F6C ; data size:0x8 | engine::streampackagestates::CancelLoading RTTI type descriptor
+??_7ClientLoading@streampackagestates@engine@@6B@ = 0x10E78D48 ; data size:0xC | engine::streampackagestates::ClientLoading vftable
+?Enter@ClientLoading@streampackagestates@engine@@UAEXXZ = 0x108A6AC0 ; function size:0x5 | engine::streampackagestates::ClientLoading::Enter vftable slot 0 (name guess)
+?Exit@ClientLoading@streampackagestates@engine@@UAE_NH@Z = 0x108A6AD0 ; function size:0x6 | engine::streampackagestates::ClientLoading::Exit vftable slot 1 (name guess)
+?Update@ClientLoading@streampackagestates@engine@@UAEHXZ = 0x108A6AE0 ; function size:0x21 | engine::streampackagestates::ClientLoading::Update vftable slot 2 (name guess)
+??_R0?AVClientLoading@streampackagestates@engine@@@8 = 0x111D4F2C ; data size:0x8 | engine::streampackagestates::ClientLoading RTTI type descriptor
+??_7Loaded@streampackagestates@engine@@6B@ = 0x10E78D1C ; data size:0xC | engine::streampackagestates::Loaded vftable
+?Enter@Loaded@streampackagestates@engine@@UAEXXZ = 0x108A6900 ; function size:0x192 | engine::streampackagestates::Loaded::Enter vftable slot 0 (another unit)
+?Exit@Loaded@streampackagestates@engine@@UAE_NH@Z = 0x108A6780 ; function size:0xB9 | engine::streampackagestates::Loaded::Exit vftable slot 1 (another unit)
+?Update@Loaded@streampackagestates@engine@@UAEHXZ = 0x108A6600 ; function size:0x6 | engine::streampackagestates::Loaded::Update vftable slot 2 (name guess)
+??_R0?AVLoaded@streampackagestates@engine@@@8 = 0x111D4EF4 ; data size:0x8 | engine::streampackagestates::Loaded RTTI type descriptor
+??_7WaitForUnloads@streampackagestates@engine@@6B@ = 0x10E78CE8 ; data size:0xC | engine::streampackagestates::WaitForUnloads vftable
+?Enter@WaitForUnloads@streampackagestates@engine@@UAEXXZ = 0x108A65A0 ; function size:0x1 | engine::streampackagestates::WaitForUnloads::Enter vftable slot 0 (name guess)
+?Exit@WaitForUnloads@streampackagestates@engine@@UAE_NH@Z = 0x108A65B0 ; function size:0x5 | engine::streampackagestates::WaitForUnloads::Exit vftable slot 1 (name guess)
+?Update@WaitForUnloads@streampackagestates@engine@@UAEHXZ = 0x108A65C0 ; function size:0x6 | engine::streampackagestates::WaitForUnloads::Update vftable slot 2 (name guess)
+??_R0?AVWaitForUnloads@streampackagestates@engine@@@8 = 0x111D4EB4 ; data size:0x8 | engine::streampackagestates::WaitForUnloads RTTI type descriptor
+??_7ClientUnloading@streampackagestates@engine@@6B@ = 0x10E78CB0 ; data size:0xC | engine::streampackagestates::ClientUnloading vftable
+?Enter@ClientUnloading@streampackagestates@engine@@UAEXXZ = 0x108A6530 ; function size:0x5 | engine::streampackagestates::ClientUnloading::Enter vftable slot 0 (name guess)
+?Exit@ClientUnloading@streampackagestates@engine@@UAE_NH@Z = 0x108A6540 ; function size:0x6 | engine::streampackagestates::ClientUnloading::Exit vftable slot 1 (name guess)
+?Update@ClientUnloading@streampackagestates@engine@@UAEHXZ = 0x108A6550 ; function size:0x21 | engine::streampackagestates::ClientUnloading::Update vftable slot 2 (name guess)
+??_R0?AVClientUnloading@streampackagestates@engine@@@8 = 0x111D4E70 ; data size:0x8 | engine::streampackagestates::ClientUnloading RTTI type descriptor
+??_7Evictable@streampackagestates@engine@@6B@ = 0x10E78C80 ; data size:0xC | engine::streampackagestates::Evictable vftable
+?Enter@Evictable@streampackagestates@engine@@UAEXXZ = 0x108A6470 ; function size:0x10 | engine::streampackagestates::Evictable::Enter vftable slot 0 (name guess)
+?Exit@Evictable@streampackagestates@engine@@UAE_NH@Z = 0x108A6480 ; function size:0x6 | engine::streampackagestates::Evictable::Exit vftable slot 1 (name guess)
+?Update@Evictable@streampackagestates@engine@@UAEHXZ = 0x108A6490 ; function size:0x7B | engine::streampackagestates::Evictable::Update vftable slot 2 (another unit)
+??_R0?AVEvictable@streampackagestates@engine@@@8 = 0x111D4E34 ; data size:0x8 | engine::streampackagestates::Evictable RTTI type descriptor
+??_7Loading@streampackagestates@engine@@6B@ = 0x10E78C54 ; data size:0xC | engine::streampackagestates::Loading vftable
+?Enter@Loading@streampackagestates@engine@@UAEXXZ = 0x108A60F0 ; function size:0x20 | engine::streampackagestates::Loading::Enter vftable slot 0 (name guess)
+?Exit@Loading@streampackagestates@engine@@UAE_NH@Z = 0x108A6110 ; function size:0x29 | engine::streampackagestates::Loading::Exit vftable slot 1 (name guess)
+?Update@Loading@streampackagestates@engine@@UAEHXZ = 0x108A6140 ; function size:0x2EB | engine::streampackagestates::Loading::Update vftable slot 2 (another unit)
+??_R0?AVLoading@streampackagestates@engine@@@8 = 0x111D4DF8 ; data size:0x8 | engine::streampackagestates::Loading RTTI type descriptor
+
+?gPrerequisiteSlotGroup@engine@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x11318118 ; data size:0x8 | engine: the slot group the prerequisites of a stream package are asked to load in (name guess)
+
+
+?SetTimer@EffectManager@render@engine@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@M@Z = 0x1081DCF0 ; function size:0xD0 | engine::render::EffectManager::SetTimer: sets a named timer (another unit; name guess)

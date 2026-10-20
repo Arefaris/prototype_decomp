@@ -57,6 +57,13 @@ namespace engine
 		return new PhysicsSetKeyframedAction(this, handle);
 	}
 
+	// FUNCTION: ENGINE 0x108AC780
+	bool DeleteAllDecalsAction::Slot5(int arg, float value)
+	{
+		render::GetEffectManager()->ReleaseAttached();
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x108AC870
 	DeleteAllDecalsAction::DeleteAllDecalsAction(DeleteAllDecalsTrack* newTrack, core::IRefCount* owner)
 		: fight::Action(0xE00), link(newTrack)
@@ -72,6 +79,14 @@ namespace engine
 	fight::Action* DeleteAllDecalsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 	{
 		return new DeleteAllDecalsAction(this, owner);
+	}
+
+	// FUNCTION: ENGINE 0x108ACB70
+	bool SetEffectTimerAction::Slot5(int arg, float value)
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		manager->SetTimer(link.object->name, link.object->time);
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x108ACB00

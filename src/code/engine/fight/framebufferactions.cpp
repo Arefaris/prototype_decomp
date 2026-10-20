@@ -47,6 +47,12 @@ namespace engine
 
 	namespace framebufferfx
 	{
+		// FUNCTION: ENGINE 0x108BBE10
+		bool ScatterAction::Slot5(int arg, float value)
+		{
+			return false;
+		}
+
 		// FUNCTION: ENGINE 0x108BBDA0
 		ScatterAction::ScatterAction(ScatterTrack* newTrack)
 			: fight::Action(0x200), link(newTrack)
@@ -110,6 +116,12 @@ namespace engine
 
 	namespace framebufferfx
 	{
+		// FUNCTION: ENGINE 0x108BAE40
+		bool FadeAction::Slot7(int arg, float value)
+		{
+			return true;
+		}
+
 		// FUNCTION: ENGINE 0x108BBF60
 		FadeAction::FadeAction(FadeTrack* newTrack)
 			: fight::Action(0xA00), link(newTrack)

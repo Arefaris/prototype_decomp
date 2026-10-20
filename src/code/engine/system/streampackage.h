@@ -264,6 +264,12 @@ namespace engine
 
 		const char* name;
 		StreamPackageInstance* instance;
+
+	protected:
+		// The states inline it (the engine keeps a copy at 0x108A6010 nothing calls)
+		StreamPackageState(const char* newName, StreamPackageInstance* newInstance) : name(newName), instance(newInstance)
+		{
+		}
 	};
 
 	namespace streampackagestates
@@ -294,7 +300,7 @@ namespace engine
 			virtual bool Exit(int next);
 			virtual int Update();
 
-			int unknownC;
+			bool unknownC;
 		};
 
 		class Loading : public StreamPackageState
@@ -307,7 +313,11 @@ namespace engine
 			// 0x108A60A0: true when this is the state that is loading now
 			bool IsActive() const;
 
-			int unknownC[5];
+			int total;  // +0xC
+			int unknown10;
+			int unknown14;
+			int unknown18;
+			bool unknown1C;
 		};
 
 		class ClientLoading : public StreamPackageState
@@ -318,7 +328,7 @@ namespace engine
 			virtual bool Exit(int next);
 			virtual int Update();
 
-			int unknownC;
+			unsigned char unknownC;
 		};
 
 		class Loaded : public StreamPackageState
@@ -347,7 +357,7 @@ namespace engine
 			virtual bool Exit(int next);
 			virtual int Update();
 
-			int unknownC;
+			bool unknownC;
 		};
 
 		class Evictable : public StreamPackageState
@@ -358,7 +368,8 @@ namespace engine
 			virtual bool Exit(int next);
 			virtual int Update();
 
-			int unknownC[2];
+			unsigned int deadline;  // +0xC
+			bool unknown10;
 		};
 	}
 

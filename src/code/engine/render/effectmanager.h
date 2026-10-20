@@ -564,6 +564,8 @@ namespace engine
 
 			// 0x1081B9B0: lets go of every attached drawable
 			void ReleaseAttached();
+			// 0x1081DCF0: sets a named timer to a time
+			void SetTimer(const EffectName& name, float time);
 			// 0x1081C260: moves the attached drawables to their game objects
 			void UpdateAttachedTransforms(float timeStep);
 
