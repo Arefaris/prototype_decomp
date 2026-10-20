@@ -83,8 +83,8 @@ namespace math
 
 		// Reports the components through core::Report, as floats and as raw bits (debug output)
 		void Print() const;
-		// Nonzero when every component is within EPSILON_SMALL of zero
-		int IsZero() const;
+		// True when every component is within EPSILON_SMALL of zero
+		bool IsZero() const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X
 		void Perpendicular(const Vector& v);
 		// Sets this vector to a cross b; when that is (nearly) zero, to a vector perpendicular to a, returning true

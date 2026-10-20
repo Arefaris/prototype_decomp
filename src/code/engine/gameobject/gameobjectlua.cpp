@@ -3,17 +3,21 @@
 // This part is the script functions' own instantiations of engine::Function1..4 (RTTI names Function2<void, LuaGOH,
 // Name> and so on): each of them has its constructor, its Call and its Invoke here.
 #include "code/core/name.h"
+#include "code/core/strings.h"
+#include "code/core/thread.h"
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/scenariomessage.h"
 #include "code/engine/system/streampackage.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/lua/lua.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
+#include "code/math/worldbounds.h"
 
 // FUNCTION: ENGINE 0x10868760
 // FUNCTION: ENGINE 0x108687C0
@@ -163,6 +167,10 @@ namespace engine
 	// 0x108024C0 / 0x108034C0 (luascriptmanager.cpp): the name a script passed, the game object it passed
 	void LuaGetNameArgument(lua_State* L, int index, core::Name<core::CaseSensitiveKey>* name);
 	GameObject* LuaToGameObject(lua_State* L, int index);
+	// 0x10853890 (another unit): the service pump, and 0x10853B30: the object log call, which does nothing
+	class ServicePump;
+	ServicePump* GetServicePump();
+	void LogGameObject(GameObject* gameObject, const char* text);
 
 	// The access to a named attribute of type T (the units that write attributes keep their own copies: int, float
 	// and bool here)
@@ -189,6 +197,8 @@ namespace engine
 	template AttributeWriter<bool> GameObject::GetAttributeWriter<bool>(const content::ObjectName&);
 	// The writer of a vector comes from another unit (0x10257690)
 	template<> AttributeWriter<math::Vector> GameObject::GetAttributeWriter<math::Vector>(const content::ObjectName&);
+	// and the one of a name too (0x10081FE0)
+	template<> AttributeWriter<ScriptName> GameObject::GetAttributeWriter<ScriptName>(const content::ObjectName&);
 
 	// FUNCTION: ENGINE 0x10869CD0
 	void go_DeleteAttr(LuaGOH object, ScriptName name)
@@ -833,6 +843,370 @@ namespace engine
 			return 1;
 		}
 		lua_pushnil(L);
+		return 1;
+	}
+
+	// The engine's go_AddTag, go_RemoveTag and go_HasTag call the router functions declared as RouterRemove,
+	// RouterQuery and RouterAdd
+	// FUNCTION: ENGINE 0x1086AEA0
+	bool go_HasTag(LuaGOH object, ScriptName tag)
+	{
+		GameObjectHandle handle = DeserializeHandle(object);
+		if (!handle.IsValid())
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return false;
+		}
+		return handle.RouterAdd(*static_cast<const MessageListeners*>(&tag));
+	}
+
+	// FUNCTION: ENGINE 0x1086AF00
+	void gamelink_ObjectLog(LuaGOH object, const char* text)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			GetServicePump();
+			LogGameObject(gameObject, text);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1086B0F0
+	// EQUIVALENT: the engine loads the serial with a movzx where ours moves it into dx, and its message address goes
+	// through edx where ours uses eax, 97.4 %
+	ScriptName go_GetActiveSupportingLimbName(LuaGOH object)
+	{
+		ScriptName result;
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			SupportingLimbGetActiveMessage message;
+			gameObject->SendMessage(&message);
+			if (message.limb != 0 && *message.limb != 0)
+			{
+				result = (*message.limb)->name;
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x1086B190
+	bool go_OnSupportingSurface(LuaGOH object)
+	{
+		bool result = false;
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			CharacterQueryCollisionStateMessage message;
+			gameObject->SendMessage(&message);
+			if (message.state != 0)
+			{
+				result = *message.state;
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10867C80
+	int go_SetSimThreadPriorityNormal(lua_State* L)
+	{
+		core::SetThreadPriority((core::Thread*)core::GetThreadData(), 2);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10867CA0
+	int go_SetSimThreadPriorityHigh(lua_State* L)
+	{
+		core::SetThreadPriority((core::Thread*)core::GetThreadData(), 4);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10868250
+	LuaGOH go_FindGOHByUID(ScriptName uid)
+	{
+		GameObjectHandle handle = FindGameObject(uid, *(const ScriptName*)"");
+		return SerializeHandle(handle);
+	}
+
+	// FUNCTION: ENGINE 0x10869F10
+	ScriptName go_GetState(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			ScriptName second("", 1);
+			ScriptName first("", 1);
+			GetPlaybackStateMessage message(first, second);
+			gameObject->PostMessage(&message);
+			return message.state;
+		}
+		return ScriptName();
+	}
+
+	// FUNCTION: ENGINE 0x1086AF50
+	void go_PrintFightDiagnostics(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			FightPrintDiagnosticsMessage message;
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086BD30
+	// EQUIVALENT: the engine's frame is four bytes larger and it passes the temporary name of the fallback by the
+	// constructor's result where ours takes its address again, 81.4 %
+	void go_SetUIDAttr(LuaGOH object, ScriptName name, const char* value)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject == 0)
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		AttributeWriter<ScriptName> writer = gameObject->GetAttributeWriter<ScriptName>(name);
+		if (writer.value != 0)
+		{
+			ScriptName newValue(value, 1);
+			*writer.value = newValue;
+		}
+		else
+		{
+			const ScriptName& newValue = ScriptName(value, 1);
+			gameObject->SetAttribute(name, newValue, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10869E70
+	// EQUIVALENT: the handle is kept in ecx and the entry address in eax where ours swaps them (cmp cx / cmp ax change
+	// the encoding length), 53.8 %
+	int go_FindTransientGOHByName(lua_State* L)
+	{
+		ScriptName name;
+		LuaGetNameArgument(L, 1, &name);
+		GameObjectHandle handle = SearchGameObject(name, gGameObjectsName);
+		if (handle.IsValid())
+		{
+			LuaGOH saved = SerializeHandle(handle);
+			lua_pushlightuserdata(L, (void*)saved.value);
+			return 1;
+		}
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1086A8A0
+	// EQUIVALENT: the engine pushes the address of the up vector before it computes the facing vector's last two
+	// components, and it takes eax where ours takes ecx for the matrix address, 76 %
+	void go_Teleport(LuaGOH object, math::Vector position, math::Vector direction)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			math::Matrix matrix;
+			matrix.Identity();
+			matrix.SetTranslation(position);
+			if (direction.IsZero())
+			{
+				SetScriptError(GetScriptManager(), "Must have non-zero direction vector.");
+				gameObject->SetTransform(matrix);
+				return;
+			}
+			math::Vector up(0.0f, 1.0f, 0.0f);
+			matrix.SetBasis(math::Vector(math::WORLD_MIN - direction.x, math::WORLD_MIN - direction.y,
+				math::WORLD_MIN - direction.z), up);
+			gameObject->SetTransform(matrix);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// 0x107EF1D0 (gameobjectsystem.cpp): the list of the channel
+	MessageListenerRef GetListeners(MessageListeners* listeners);
+	// 0x11276940: the name of the prop whose logic tree is asked (name guessed)
+	extern ScriptName gUnknownName11276940;
+	// The channel the scenario messages of the scripts go to (0x11315F68)
+	extern MessageListeners gScenarioListeners;
+	// The text of the script that makes a handle persistable (0x111CF2A4)
+	extern const char* gLuaGOHPersistScript;
+
+	// FUNCTION: ENGINE 0x10867CD0
+	void CreateLuaGOHMetatable()
+	{
+		lua_State* L = GetScriptManager()->state;
+		lua_pushlightuserdata(L, 0);
+		lua_createtable(L, 0, 0);
+		lua_pushvalue(L, -1);
+		lua_setmetatable(L, -3);
+		lua_pushlstring(L, "__index", 7);
+		lua_getfield(L, LUA_GLOBALSINDEX, "go_GetGenericAttr");
+		lua_rawset(L, -3);
+		lua_pushlstring(L, "__newindex", 10);
+		lua_getfield(L, LUA_GLOBALSINDEX, "go_SetGenericAttr");
+		lua_rawset(L, -3);
+		lua_pushlstring(L, "__metatable", 11);
+		lua_pushlstring(L, "metatable access protected -- talk to a programmer", 50);
+		lua_rawset(L, -3);
+		luaL_loadbuffer(L, gLuaGOHPersistScript, core::StrLen(gLuaGOHPersistScript), "=LuaGOHPersistScript");
+		lua_pcall(L, 0, LUA_MULTRET, 0);
+		lua_pushlstring(L, "__persist", 9);
+		lua_insert(L, -2);
+		lua_rawset(L, -3);
+		lua_settop(L, -3);
+	}
+
+	// FUNCTION: ENGINE 0x10868050
+	// EQUIVALENT: shrink-wrap (the engine saves ebp in the entry block, ours after the early exit) and the handle
+	// argument is built in a pushed slot there where ours pushes the loaded value, 47.3 %
+	int scenario_PostEventString(lua_State* L)
+	{
+		GameObjectHandle handles[4];
+		unsigned int count = lua_gettop(L) - 1;
+		if ((int)count > 4)
+		{
+			count = 4;
+		}
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (lua_type(L, 2 + i) != LUA_TLIGHTUSERDATA)
+			{
+				luaL_argerror(L, 2 + i, "expected GameObjectHandle");
+			}
+			LuaGOH object;
+			object.value = (unsigned int)lua_touserdata(L, 2 + i);
+			handles[i] = DeserializeHandle(object);
+		}
+		ScriptName name;
+		LuaGetNameArgument(L, 1, &name);
+		StringMessage message(name);
+		for (int i = 0; i < 4; i++)
+		{
+			message.handles[i] = handles[i];
+		}
+		SendMessage(&message, &gScenarioListeners);
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10868410
+	// EQUIVALENT: the engine's frame is eight bytes smaller: the temporary of the comparison shares the slot of one of
+	// the names the message was made from, 95.3 %
+	int go_QueryState(lua_State* L)
+	{
+		const char* prefix = 0;
+		const char* state;
+		GameObject* gameObject = LuaToGameObject(L, 1);
+		if (lua_gettop(L) == 3)
+		{
+			prefix = luaL_checklstring(L, 2, 0);
+			state = luaL_checklstring(L, 3, 0);
+		}
+		else if (lua_gettop(L) == 2)
+		{
+			state = luaL_checklstring(L, 2, 0);
+		}
+		else
+		{
+			luaL_error(L, "wrong number of arguments");
+			lua_pushboolean(L, 0);
+			return 1;
+		}
+		if (gameObject != 0)
+		{
+			ScriptName second(state, 1);
+			ScriptName first(prefix, 1);
+			GetPlaybackStateMessage message(first, second);
+			gameObject->PostMessage(&message);
+			lua_pushboolean(L, message.state == ScriptName(state, 1));
+			return 1;
+		}
+		luaL_error(L, "Invalid GameObjectHandle");
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10868280
+	// EQUIVALENT: the engine keeps the object in a stack slot (ours in a register, so its frame is four bytes
+	// larger) and removes the arguments of the error call before the next call where ours removes both at once, 74.7 %
+	int go_SetState(lua_State* L)
+	{
+		bool toggle = false;
+		const char* prefix = 0;
+		const char* state;
+		GameObject* gameObject = LuaToGameObject(L, 1);
+		if (lua_gettop(L) == 4)
+		{
+			prefix = luaL_checklstring(L, 2, 0);
+			state = luaL_checklstring(L, 3, 0);
+			toggle = lua_toboolean(L, 4) != 0;
+		}
+		else if (lua_gettop(L) == 3)
+		{
+			prefix = luaL_checklstring(L, 2, 0);
+			state = luaL_checklstring(L, 3, 0);
+		}
+		else if (lua_gettop(L) == 2)
+		{
+			state = luaL_checklstring(L, 2, 0);
+		}
+		else
+		{
+			luaL_error(L, "wrong number of arguments");
+			lua_pushboolean(L, 0);
+			return 1;
+		}
+		if (gameObject != 0)
+		{
+			SetPropLogicStateMessage message(ScriptName(prefix, 1), state, !toggle, false, 0.0f);
+			gameObject->SendMessage(&message);
+			if (!message.succeeded)
+			{
+				if (prefix != 0)
+				{
+					luaL_error(L, "Set State failed, prop '%s' has no logic tree state named '%s/%s'",
+						gUnknownName11276940.GetText(), prefix, state);
+					lua_pushboolean(L, 0);
+					return 1;
+				}
+				luaL_error(L, "Set State failed, prop '%s' has no logic tree state named '%s'",
+					gUnknownName11276940.GetText(), state);
+				lua_pushboolean(L, 0);
+				return 1;
+			}
+			lua_pushboolean(L, 1);
+			return 1;
+		}
+		luaL_error(L, "Invalid GameObjectHandle");
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1086B9A0
+	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
+	// keeps the iterator in memory, 29.7 %
+	int go_GetAllTagged(lua_State* L)
+	{
+		ScriptName tag;
+		LuaGetNameArgument(L, 1, &tag);
+		MessageListeners* listeners = static_cast<MessageListeners*>(&tag);
+		int count = CountListeners(listeners);
+		lua_createtable(L, count, 0);
+		if (count > 0)
+		{
+			int index = 1;
+			MessageListenerRef ref = GetListeners(listeners);
+			MessageListenerList* list = ref.list;
+			for (HandleIterator it = list != 0 ? list->Begin() : HandleIterator();
+				it != (list != 0 ? list->End() : HandleIterator()); ++it)
+			{
+				LuaGOH saved = SerializeHandle(*it.handle);
+				lua_pushlightuserdata(L, (void*)saved.value);
+				lua_rawseti(L, -2, index);
+				index++;
+			}
+		}
 		return 1;
 	}
 }

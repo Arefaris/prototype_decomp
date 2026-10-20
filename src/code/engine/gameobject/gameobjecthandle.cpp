@@ -28,9 +28,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107EE380
-	void GameObjectHandle::RouterAdd(const MessageListeners& listeners) const
+	bool GameObjectHandle::RouterAdd(const MessageListeners& listeners) const
 	{
-		gMessageRouter->Add(*this, listeners);
+		return gMessageRouter->Add(*this, listeners);
 	}
 
 	// FUNCTION: ENGINE 0x107EE3A0
