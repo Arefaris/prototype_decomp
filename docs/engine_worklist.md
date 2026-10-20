@@ -4093,3 +4093,85 @@ of the playing effect, in the next unit), the effect instance's own functions fr
 small container template instances between 0x10819520 and 0x10819FD0 and in 0x1081A200 - 0x1081C3FF (vector, ring and
 allocator members of the manager's record types; the classes are the engine's own and unnamed). `math::Noise::Evaluate`
 is mapped at 0x101043F0 (called through the jump at 0x100037F1); the math worklist reconstructs it.
+
+## render/async/private/shaderparameter.cpp (0x10826970 - 0x10829D70, partly): the shader parameter calls, events and interpolators
+
+Done: the `SetParameter` / `InterpolateParameter` / `SetParameterEnabled` calls of the game thread, the
+`StructRenderEvent<ParameterReference<T>>` instances (constructor, `Execute`, the `Begin` template), the `Apply*` /
+`Start*` functions of the render thread, the interpolator constructors and `Update` for the six types, and the seven
+`QueueObjRenderEvent` instances of the canvas unit.
+
+- `Ease` (0x10827980) is EQUIVALENT (86.8 %): the clamp block is laid out differently; `LerpVector<Vector>` (0x10827EC0),
+  `LerpVector<Vector4>` (0x10827F30) and `Update` of the vector interpolators (0x10828C70, 0x10828D60) are EQUIVALENT
+  (instruction scheduling of the vector copies).
+- `BlendColours` (0x10827FD0) is NONMATCHING (19 %): the engine keeps its temporary colours in dead argument slots.
+- Not started: the Display subsystem (the `HandleTable<DisplayData>`, `DisplayInfo`, the 619-byte display create at
+  0x10829750, 0x10829DE0, 0x10829ED0, 0x10828120, 0x10828230 and the `RenderEvent1/2<Display>` instances), the unused
+  `RenderContext::SetParameter<T>` instances at 0x10826970 - 0x10826CE0, the `ParameterReference` constructors and
+  destructors, the scalar deleting destructors, the one-byte `ret` copies and the naked atomic helpers 0x10826780 /
+  0x10826790.
+
+## system/gamestate.cpp (0x108366C0 - 0x108391C0): the game state machine
+
+Done: the simulation driver (`ISimulationDriver`), the game state table with its states, requests, tasks and request
+names, the request list and the per-frame functions of the machine. The vector template of the table is local to the
+unit (`StateVector<T>`).
+
+- EQUIVALENT: `SetSimulationDriver`, `AddStateFlags`, `RemoveStateFlags`, `GetRequestName`, `GetGameStateStatus`,
+  `IsGameStateOnTop`, `HasPendingStateChange`, `IsStateMachineBusy`, `FreeGameState`, `AddRealTimeTask`,
+  `AddSimulationTask`, `RunStateFiber`, `CancelStateRequest`, `RequestGameStateByIndex`, `GameStateRequest::OnFinished`
+  (registers and the order of the loads of small functions).
+- NONMATCHING: `StartNextRequest` (63 %), `RemoveGameStateFromStack` (34 %), `GotoGameState` (25 %),
+  `RequestGameStateInternal` (33 %): the engine's loops over the request list and the stack differ in shape.
+- Not started: 0x10837D00 (1299 bytes), 0x10838BA0 (781 bytes) and 0x10838ED0 (541 bytes).
+
+## fmv/fmvplayer.cpp (0x1082EC10 - 0x1082FA00): the full-motion video player
+
+Done: the request queue (a doubly linked list whose linking functions live at 0x1060E6C0 - 0x1060E900 and are shared
+with other lists), the state functions, the Lua calls `fmv_Skip` / `fmv_Stop` / `fmv_IsPlaying` / `fmv_IsLoaded`, the
+channel map and the list template's inline members. The decoder (0x1059F000 - 0x105A1000) is only called.
+
+- `UpdateMovies` (0x1082F300) and `UpdateMovieState` (0x1082F7A0) are EQUIVALENT: the engine keeps the decoder pointer in
+  `ecx` through the creation of the decoder, loads the `this` of some calls after their arguments and pops the first
+  list node through `eax`. `goto` in the source of `UpdateMovieState` stops the compiler from sharing the constants 3
+  and 9 in registers; the chain of `else if` gives the engine's code.
+- Not done: the default constructor of a request (0x1082EC40, 82 bytes; no user in the unit), the iterator / allocator
+  helpers 0x1082F170 (a forwarder to `LuaScriptManager::RemoveFunction`), 0x1082F5A0, 0x1082F5B0, 0x1082F670, and the
+  empty functions / jump thunks 0x1082F000, 0x1082F010, 0x1082F180.
+- Findings: a name that is passed on has to be a named local (`Name name(text, 1); Foo(name);`) where the engine takes
+  its address again; a temporary reuses the constructor's returned `this`.
+
+## scenario/scenariolisters.cpp (0x1082FAD0 - 0x10832330): the editor's lists of scenario messages and handle names
+
+Done: `ScenarioMessageLister` and `AffiliateLister` (RTTI names, `fight::ListObject` with three pure slots), their
+fixed arrays, the eleven `RegisterMessageKind<Message>` instances, the `GetHandleInfo` statics of the message classes,
+the `std::sort` instances for the two entry types (`_Push_heap`, `_Median`, `_Adjust_heap`, `_Pop_heap`, `_Make_heap`,
+`_Insertion_sort`, `_Sort`, the `copy_backward` family) and `SortListers` / `ResetListers`.
+
+- EQUIVALENT (same calls and stores in the same order, other registers and spills): `_Med3`, `_Unguarded_partition`,
+  `_Insertion_sort1`, `_Pop_heap_0`, `_Sort_heap` for both entry types.
+- NONMATCHING: both `Add` (95 % of the instructions: the engine clears the first word of the temporary name before its
+  constructor runs).
+- `std::sort` has to be called out of line, as the engine does: `void (*sorter)(Entry*, Entry*) = std::sort<Entry*>;
+  sorter(first, last);` (a plain call is expanded; the same form is used in the tag set). The engine keeps two copies
+  of the function per type, the first without a caller (0x10832250, 0x10832270); only the second (0x10832290,
+  0x108322B0) is reproduced.
+- The entry types have to be 16 bytes without `__declspec(align(8))` on the name (an aligned member makes a by-value
+  parameter of the algorithms illegal and changes which helpers the compiler inlines): a trailing `int padding` and
+  member-wise copy functions that leave it out give the engine's code. The order of the explicit instantiations
+  decides which helpers are inlined into the next one; the `Sort` members have to come before them.
+
+## system/tagset.cpp (0x108340A0 - 0x10835190): the tag set
+
+Done: `TagSet` (a sorted array of names and the "all" flag): the constructor, `Clear`, `Find`, `Contains`, `Intersects`,
+`Includes`, `Add` with its sorted insert, `Remove`, `Sort`, `ToString` (with its function-local text, 0x1130DC68) and
+`FromString`, and the `std` sort instances for `core::Name<CaseSensitiveKey>*` (`_Med3`, `_Push_heap`, `_Median`,
+`_Adjust_heap`, `_Pop_heap`, `_Make_heap`, `_Unguarded_partition`, `_Insertion_sort`, `_Sort_heap`, `_Sort`) plus the
+lower-bound function the unit has of its own (a plain function template, not `std::lower_bound`).
+
+- EQUIVALENT: `Intersects`, `Includes`, `Add`, `Remove` (register roles and the order of the first loads) and the sorted
+  insert 0x10834D70 (register choices and the layout of the search loop).
+- Not done: 0x108340A0 (a forwarder that compares a string with a literal, no user in the unit), 0x108340D0, the
+  jump thunk 0x10834750 and the first copy of `std::sort<Name*>` (0x10834FC0, no caller).
+- The copy of the array's `ShiftUp` the insert calls is another unit's (0x102EB9A0); it is declared as a specialisation
+  without a body so the call stays external.

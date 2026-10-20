@@ -44,6 +44,15 @@ namespace container
 		{
 			return end;
 		}
+		// The place of one more element, null when the array is full (the element is not constructed)
+		T* AllocateBack()
+		{
+			if (Size() != N)
+			{
+				return end++;
+			}
+			return 0;
+		}
 		bool IsEmpty() const
 		{
 			return Data() == end;

@@ -39,6 +39,9 @@ namespace engine
 		static const content::ClassInfo* GetClassInfo();
 		static const content::MemberList* GetMembers();
 
+		// 0x108C0CD0: shows the subtitles that belong to the time (the seconds into the movie) in the text objects
+		void Unknown108C0CD0(float time);
+
 		// The element array the reflected "subtitles" member is
 		typedef container::ArrayDynamic<SubTitleEnty, container::AllocatorNew> SubTitleArray;
 

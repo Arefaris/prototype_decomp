@@ -405,6 +405,12 @@ namespace pure3d
 		virtual void Unknown6();
 		// 0x1074D880
 		void Run(const RenderParams* params);
+		// 0x1074DB10 (another unit): the render parameters of the child context of that name, null when there is
+		// none
+		RenderParams* Unknown1074DB10(const core::Name<core::CaseSensitiveKey>* name);
+		// Sets the parameter of the child context to the value (the render events' unit, 0x10826970 - 0x10826CE0)
+		template<class T> bool SetParameter(const core::Name<core::CaseSensitiveKey>* context,
+			const core::Name<core::CaseSensitiveKey>* parameter, const T* value);
 
 		ContextKey key;
 	};

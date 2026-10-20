@@ -5,6 +5,7 @@
 #ifndef ENGINE_AUDIO_AUDIOMANAGER_H
 #define ENGINE_AUDIO_AUDIOMANAGER_H
 
+#include "code/core/name.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
@@ -44,6 +45,11 @@ namespace engine
 	public:
 		// 0x10878010
 		void Update(UpdateContext context);
+		// 0x10877E60 / 0x10877850: the volume a setting has (the first by two names, the second by one; 1 when
+		// it has none)
+		float Unknown10877E60(const core::Name<core::CaseSensitiveKey>* first,
+			const core::Name<core::CaseSensitiveKey>* second);
+		float Unknown10877850(const core::Name<core::CaseSensitiveKey>* name);
 	};
 	extern AudioEmitterSystem* gAudioEmitterSystem;
 
