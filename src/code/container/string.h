@@ -26,6 +26,8 @@ namespace container
 		void Format(const char* format, ...);
 		// 0x1060E960: empties the string
 		void Clear();
+		// 0x1060F130: the string has no characters
+		bool IsEmpty() const;
 		// 0x1060EDE0: appends other (as much as fits); the result's meaning is unknown
 		int Append(const String& other);
 		// 0x1060EEE0: how often c occurs

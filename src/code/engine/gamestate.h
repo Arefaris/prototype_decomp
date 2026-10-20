@@ -5,16 +5,28 @@
 #ifndef ENGINE_GAMESTATE_H
 #define ENGINE_GAMESTATE_H
 
+#include "code/core/thread.h"
+
 namespace engine
 {
 	class GameState
 	{
 	public:
+		// 0x108366D0 (the unit of the game state table, gamestate.cpp): the id and the size of the fiber's stack
+		GameState(int newId, int newStackSize);
 		// The state is entered / left (vftable slots 0 and 1)
 		virtual void Enter() = 0;
 		virtual void Leave() = 0;
+		// 0x10837990: runs the state's fiber until it yields; true when it finished
+		bool Run(int mode);
+		// 0x10837CE0 / 0x10837CF0: Run(1) enters the state, Run(2) leaves it
+		bool RunEnter();
+		bool RunLeave();
 
-		unsigned char unknown4[0x54 - 4];
+		int id;                // +4
+		int running;           // +8: the mode the fiber was started in, 0 when it is not running
+		core::Fiber fiber;     // +0xC
+		int stackSize;         // +0x50
 	};
 
 	class PauseState : public GameState
