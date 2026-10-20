@@ -674,7 +674,10 @@ namespace proto
 		int FindPart(const core::Name<core::CaseSensitiveKey>& name);
 
 		unsigned char unknown0[0x28];
-		Part* parts;
+		Part* parts;  // +0x28
+		unsigned char unknown2C[8];
+		// The transform of every part (0x40 bytes each)
+		math::Matrix* matrices;  // +0x34
 	};
 
 	// The name of the attribute that holds a game object's part lookup (0x112834C8)

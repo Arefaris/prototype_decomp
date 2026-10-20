@@ -25,6 +25,14 @@ namespace engine
 			{
 			}
 
+			// A handle that names no light (records that keep a light's handle start out with this)
+			struct NoLight
+			{
+			};
+			explicit Light(const NoLight&)
+			{
+			}
+
 			// 0x1082B370 / 0x1082B3A0: a new light of the type; a copy of the pure3d::Light (all its settings are
 			// queued one by one)
 			static Light Create(pure3d::Light::LightType type);

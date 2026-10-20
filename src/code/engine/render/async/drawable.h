@@ -155,6 +155,8 @@ namespace engine
 			static Drawable Allocate(SourceDrawable* source);
 			// Queues the destruction and clears the handle
 			static void Destroy(Drawable* drawable);
+			// The engine's callers also push a second word (0 or 4); the function ignores it (the same code, 0x107ED750)
+			static void Destroy(Drawable* drawable, int mode);
 			// A second drawable that takes over the first one's state
 			Drawable Clone() const;
 
