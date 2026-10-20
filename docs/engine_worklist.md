@@ -4034,10 +4034,11 @@ NONMATCHING (bodies under `#ifdef NONMATCHING`):
 | 0x10809DA0 | SupportingSurfaceVelocityAngleCondition::Evaluate | 36.0 % | arithmetic right; scheduling and the constant folding of the angle test differ (1.0f / 0.5f stay memory operands in the engine) |
 | 0x1080A170 | SupportingSurfaceDistanceCondition::Evaluate | 64.7 % | the engine adds the dot products z, y, x (position z with normal z first); `Vector::Dot`, explicit z-y-x sums and a permutation search over the nine reorderable spots all stay at 55 - 65 %, the loads are scheduled differently |
 | 0x1080A290 | SupportingSurfaceTimeToImpactCondition::Evaluate | 41.9 % | the engine builds the two velocity vectors on the stack before it reads the surface and schedules the dot products later |
-| 0x10805750 | EffectSpawnTransform::BuildMatrix | 23.6 % | head: the engine keeps 1.0f in xmm3 from the first instruction and loads z, x, y of the direction; the tail from the comparison on is the engine's |
-| 0x10804EE0 | AbortEffectTrack::GetSlotIndex | 75 % | the member goes into ecx and the out pointer into eax in the engine, the other way round in ours (a local, a pointer and the plain assignment all give ours; EffectLODSwitch::GetEffect 0x1081EAA0 has the same difference) |
 | 0x1081C260 | EffectManager::UpdateAttachedTransforms | 25.7 % | the same walk and calls; the engine hoists the load of the master table out of the loop and reloads it after the queued call, ours loads it inside the validity checks of every ring entry |
 | 0x1081BCE0 | EffectManager::UpdateLights | 24.8 % | the same calls and branches; (1) the matrix copy is a four-times loop (`fld / fstp` x4, the destination reached as source plus a constant) in the engine, ours unrolls it however the loop is written; (2) the colour blend is scheduled as three passes over four channels (loads first, then the subtractions, multiplications and additions); (3) the decay range multiplies 0.5 into the wave before the amplitude; (4) the destroy test keeps `expired \| lost \| inactive` as values |
+
+`AbortEffectTrack::GetSlotIndex` 0x10804EE0 and `EffectSpawnTransform::BuildMatrix` 0x10805750 (effecttrack.cpp, earlier work in this range) stay NONMATCHING;
+`EffectLODSwitch::GetEffect` 0x1081EAA0 has the same register swap as `GetSlotIndex` (an out pointer written from a member).
 
 EQUIVALENT (compiled into the hybrid DLL, not counted; the percentage is the best one reached):
 
