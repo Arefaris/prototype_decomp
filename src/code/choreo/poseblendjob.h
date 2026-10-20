@@ -278,6 +278,8 @@ namespace choreo
 
 	// 0x10959150: Puppet::Update of each puppet of the batch
 	void UpdatePuppets(float dt, Puppet** begin, Puppet** end);
+	// 0x109591E0: Update, Evaluate, UpdatePose and ReleaseRemoved of each puppet of the batch in turn
+	void UpdatePuppetsSerial(float dt, Puppet** begin, Puppet** end);
 	// 0x10959180 / 0x109591B0
 	void Unknown10959180(Puppet** begin, Puppet** end);
 	void Unknown109591B0(Puppet** begin, Puppet** end);

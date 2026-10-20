@@ -57,6 +57,11 @@ public:
 class GDelegatedFile : public GFile
 {
 public:
+	// the file comes later
+	GDelegatedFile()
+	{
+		mFile = 0;
+	}
 	// 0x1095BF20
 	GDelegatedFile(GFile* file);
 	virtual ~GDelegatedFile();

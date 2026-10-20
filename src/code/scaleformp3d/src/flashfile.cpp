@@ -5,6 +5,36 @@
 
 namespace scaleformp3d
 {
+	// FUNCTION: ENGINE 0x1095C0A0
+	FlashFileHandler::FlashFileHandler()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1095C0D0
+	// NONMATCHING: the engine stores no vftable in the destructors of the chain, ours stores the one of the file
+	// that delegates and the one of the counted base (50 %)
+#ifdef NONMATCHING
+	FlashFileHandler::~FlashFileHandler()
+	{
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1095C0F0
+	bool FlashFileHandler::Close()
+	{
+		if (IsValid())
+		{
+			mFile->Close();
+			if (mFile)
+			{
+				mFile->Release();
+			}
+			mFile = 0;
+			return true;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x1095BA10
 	const char* FlashFile::GetFilePath()
 	{

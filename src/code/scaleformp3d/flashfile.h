@@ -8,6 +8,18 @@
 
 namespace scaleformp3d
 {
+	// scaleformp3d::FlashFileHandler (RTTI name; derives from GDelegatedFile, vftable 0x10E8D47C): the file the player
+	// reads through, which closes the file it passes everything on to when it is closed itself
+	class FlashFileHandler : public GDelegatedFile
+	{
+	public:
+		// 0x1095C0A0
+		FlashFileHandler();
+		// 0x1095C0D0 (the deleting destructor is 0x1095C590)
+		virtual ~FlashFileHandler();
+		virtual bool Close();
+	};
+
 	class FlashFile : public GFile
 	{
 	public:
