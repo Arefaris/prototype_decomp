@@ -92,6 +92,15 @@ namespace ravenphysics
 		static int GetDepth();
 		// Makes the rest of the buffer the stack allocator's and locks the scratch stack (0x106671D0; name guess)
 		void HandOver(StackAllocator* allocator);
+		// The bytes the stack held at its fullest since the last restart (0x10661950; name guess)
+		static unsigned int GetHighWater();
+		// The most it ever held (0x10661960; name guess)
+		static unsigned int GetPeak();
+		// Folds the high water mark into the peak and starts the mark again at the current position (0x10661970;
+		// name guess)
+		static void RestartHighWater();
+		// The size of the buffer (0x106619A0; name guess)
+		static unsigned int GetSize();
 		// Locks the scratch stack: nothing may be taken from it until Unlock (0x10667200; name guess)
 		void Lock();
 		// Takes the library's scratch stack lock off again, asserting it was set (0x10667250; name guess)

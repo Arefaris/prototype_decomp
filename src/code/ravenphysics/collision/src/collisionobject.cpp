@@ -99,36 +99,36 @@ namespace ravenphysics
 	void CollisionObject::SetCapsuleVolume(int index, const math::Capsule& capsule)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 556, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		CollisionVolume* volume = volumes[index];
+		CollisionCapsule* volume = static_cast<CollisionCapsule*>(volumes[index]);
 		volume->SetCapsule(capsule);
-		volume->UpdateCapsuleBounds(this);
+		volume->UpdateWorld(this);
 	}
 
 	// FUNCTION: ENGINE 0x10654890
-	void CollisionObject::SetSphereVolume(int index, const math::Sphere& sphere)
+	void CollisionObject::SetOBBVolume(int index, const math::OBB& box)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 557, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		CollisionVolume* volume = volumes[index];
-		volume->SetSphere(sphere);
-		volume->UpdateSphereBounds(this);
+		CollisionOBB* volume = static_cast<CollisionOBB*>(volumes[index]);
+		volume->SetOBB(box);
+		volume->UpdateWorld(this);
 	}
 
 	// FUNCTION: ENGINE 0x10654900
-	void CollisionObject::SetVolume2(int index, const void* description)
+	void CollisionObject::SetPlaneVolume(int index, const void* description)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 558, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		CollisionVolume* volume = volumes[index];
-		volume->SetVolume2(description);
-		volume->UpdateBounds6(this);
+		CollisionPlane* volume = static_cast<CollisionPlane*>(volumes[index]);
+		volume->SetPlane(description);
+		volume->UpdateWorld(this);
 	}
 
 	// FUNCTION: ENGINE 0x10654970
-	void CollisionObject::SetVolume4(int index, const void* description)
+	void CollisionObject::SetSphereVolume(int index, const math::Sphere& sphere)
 	{
 		OLD_ASSERT_AT(COLLISIONOBJECT_FILE, 559, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		CollisionVolume* volume = volumes[index];
-		volume->SetVolume4(description);
-		volume->UpdateBounds2(this);
+		CollisionSphere* volume = static_cast<CollisionSphere*>(volumes[index]);
+		volume->SetSphere(sphere);
+		volume->UpdateWorld(this);
 	}
 
 	// FUNCTION: ENGINE 0x106549E0
@@ -539,7 +539,7 @@ namespace ravenphysics
 		for (unsigned int i = 0; i < volumeCount; i++)
 		{
 			CollisionVolume* current = volumes[i];
-			CollisionFilter* filter = &current->filter;
+			IntersectionProperties* filter = &current->filter;
 			accumulated.unknown0 |= filter->unknown0;
 			accumulated.unknown4 |= filter->unknown4;
 		}
@@ -639,29 +639,29 @@ namespace ravenphysics
 			do
 			{
 				CollisionVolume* current = *volume;
-				if (current->boundsMin.x <= minX)
+				if (current->bounds.min.x <= minX)
 				{
-					minX = current->boundsMin.x;
+					minX = current->bounds.min.x;
 				}
-				if (current->boundsMin.y <= minY)
+				if (current->bounds.min.y <= minY)
 				{
-					minY = current->boundsMin.y;
+					minY = current->bounds.min.y;
 				}
-				if (current->boundsMin.z <= minZ)
+				if (current->bounds.min.z <= minZ)
 				{
-					minZ = current->boundsMin.z;
+					minZ = current->bounds.min.z;
 				}
-				if (current->boundsMax.x > maxX)
+				if (current->bounds.max.x > maxX)
 				{
-					maxX = current->boundsMax.x;
+					maxX = current->bounds.max.x;
 				}
-				if (current->boundsMax.y > maxY)
+				if (current->bounds.max.y > maxY)
 				{
-					maxY = current->boundsMax.y;
+					maxY = current->bounds.max.y;
 				}
-				if (current->boundsMax.z > maxZ)
+				if (current->bounds.max.z > maxZ)
 				{
-					maxZ = current->boundsMax.z;
+					maxZ = current->bounds.max.z;
 				}
 				volume++;
 			}

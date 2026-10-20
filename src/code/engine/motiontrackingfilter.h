@@ -19,6 +19,11 @@ namespace engine
 	// than 0.01 (0x10662810, another unit; name guessed)
 	bool ComputeAngularVelocity(const math::Matrix& from, const math::Matrix& to, float invDt, math::Vector& velocity);
 
+	// Both velocities of a point moving from one transform to another in a step of dt, each when its pointer is not
+	// null; true when either changed (0x106628D0, another unit; name guessed)
+	bool ComputeVelocities(const math::Matrix& from, const math::Matrix& to, const math::Vector& point, float dt,
+		math::Vector* linearVelocity, math::Vector* angularVelocity);
+
 	// A tracked transform with its velocities and accelerations (0x74 bytes)
 	struct MotionState
 	{

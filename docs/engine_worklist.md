@@ -4175,3 +4175,24 @@ lower-bound function the unit has of its own (a plain function template, not `st
   jump thunk 0x10834750 and the first copy of `std::sort<Name*>` (0x10834FC0, no caller).
 - The copy of the array's `ShiftUp` the insert calls is another unit's (0x102EB9A0); it is declared as a specialisation
   without a body so the call stays external.
+
+## ravenphysics 0x10660000 - 0x10680000: start-up, the collision volumes and their neighbours (sn-k)
+
+- `src/code/ravenphysics/src/physics.cpp` (0x10661950 - 0x10661BB0): the scratch stack's counters, `InitSettings`, `Init`,
+  `Shutdown` and `GetStatistics`. The library's start-up calls a dozen functions of other units, declared as
+  `Unknown<address>` in the file. All match.
+- `src/code/engine/motionvelocity.cpp` (0x10661CB0 - 0x106628D0): the velocity helpers of the motion tracking filters
+  (`ComputeLinearVelocity`, `ComputeAngularVelocity`, `ComputeVelocities` and a copy of the rotation delta helper).
+  EQUIVALENT: the flag registers (88 % / 86 %) and the shrink-wrap of `ComputeVelocities` (72 %).
+- `src/code/ravenphysics/collision/src/collisionvolume.cpp` (0x10663E30 -): the volume head and the capsule (type 0), box
+  (1), sphere (2) and plane (5) volumes. The type byte is 0 capsule, 1 box, 2 sphere, 3 convex hull, 4 cylinder,
+  5 plane, 6 mesh (`GetTypeName`'s table); the per-type methods of the former `CollisionVolume::SetCapsule` /
+  `SetSphere` / `SetVolume2` / `SetVolume4` moved to `CollisionCapsule` / `CollisionOBB` / `CollisionPlane` /
+  `CollisionSphere` (the old names set the wrong type: 0x10665060 sets a box, 0x10665510 a sphere), and
+  `CollisionObject::SetSphereVolume` / `SetVolume2` / `SetVolume4` became `SetOBBVolume` / `SetPlaneVolume` /
+  `SetSphereVolume`. `CollisionVolume::bounds` is a `math::AABB` now (was two vectors). `CollisionVolume::SetQuery` and
+  `CollisionObject::SetVolumeQuery` scale the volumes by a vector (the argument is not a query).
+  - EQUIVALENT: `SetCapsule` 0x10664BA0, `SetSphere` 0x10665510 (the engine addresses the fields from this + 4),
+    `Scale` of the sphere 0x10664530 and of the box 0x106642E0, `GetLocalOBB` 0x10664220 (loads in registers).
+  - NONMATCHING: `CollisionCapsule::UpdateWorld` 0x10664C10 (15 %: the engine builds the extents in a stack vector and
+    takes the absolute values one at a time on the x87 unit).

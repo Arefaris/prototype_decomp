@@ -29,6 +29,9 @@ namespace math
 		void GetAABB(AABB& out) const;
 		// True when p lies strictly within the radius of the axis segment (name guess)
 		bool Contains(const Vector& p) const;
+		// Unit direction from the nearest point of the surface to p and the signed distance to it (0x107DC620; name
+		// guessed after Sphere's)
+		void GetDirection(const Vector& p, Vector& direction, float& distance) const;
 	};
 
 	// A capped cylinder: centre, unit axis direction, half length along the axis and radius (layout from the
