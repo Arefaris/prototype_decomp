@@ -4,6 +4,9 @@
 #include <new>
 #include "code/engine/camera/director.h"
 #include "code/engine/fight/effecttrack.h"
+#include "code/math/colour128.h"
+#include "code/math/mathutils.h"
+#include "code/math/noise.h"
 
 namespace engine
 {
@@ -499,6 +502,112 @@ namespace engine
 			while (ring != 0);
 			unknownFC = 0;
 		}
+
+		// FUNCTION: ENGINE 0x1081BCE0
+		// NONMATCHING: the same calls and branches in the same order; the matrix copy is a four-times loop in the engine
+		// (ours unrolls it, 24.8 %), the colour blend is scheduled as three passes over the four channels, the decay range
+		// multiplies 0.5 into the wave before the amplitude, and the destroy test is kept as values (best 24.8 %)
+#ifdef NONMATCHING
+		void EffectManager::UpdateLights(float timeStep)
+		{
+			for (unsigned int i = 0; i < (unsigned int)(lightsEnd - lightsBegin); i++)
+			{
+				EffectLight* light = &lightsBegin[i];
+				if (!light->light.IsValid())
+				{
+					continue;
+				}
+				float age = light->age - timeStep;
+				light->age = age;
+				bool expired = age <= 0.0f;
+				expired |= light->attached && light->target.Get() == 0;
+				bool inactive = light->attached && light->target.Get() != 0 && !light->target.Get()->behaviours.IsActive();
+				if (inactive || expired)
+				{
+					Light::Destroy(&light->light);
+					lightsEnd--;
+					if (&lightsBegin[i] < lightsEnd)
+					{
+						lightsBegin[i] = *lightsEnd;
+					}
+					i--;
+				}
+				else if (age < light->holdTime + light->fallTime + light->riseTime)
+				{
+					math::Matrix transform;
+					float strength;
+					if (age < light->holdTime + light->fallTime)
+					{
+						strength = math::Clamp(age / light->fallTime, 0.0f, 1.0f);
+					}
+					else
+					{
+						strength = 1.0f - math::Clamp((age - (light->holdTime + light->fallTime)) / light->riseTime, 0.0f, 1.0f);
+					}
+					if (light->flickerAmount != 0.0f)
+					{
+						math::Noise noise;
+						noise.SetSeed(0xdead);
+						noise.SetOctaves(4);
+						noise.SetFrequency(light->unknown4C, 1.0f, 1.0f);
+						noise.SetPersistence(0.25f);
+						float time = light->age;
+						float noiseValue = noise.Evaluate(time, 1.0f, 1.0f) * light->unknown50;
+						strength = (noiseValue + (sinf(light->unknown3C * time * 6.2831855f) + 1.0f) * 0.5f * light->flickerAmount) * strength;
+					}
+					if (light->unknown48 != 0.0f)
+					{
+						math::Noise noise;
+						noise.SetSeed(0xf00d);
+						noise.SetOctaves(4);
+						noise.SetFrequency(light->unknown54, 1.0f, 1.0f);
+						noise.SetPersistence(0.25f);
+						float time = light->age;
+						float noiseValue = noise.Evaluate(time, 1.0f, 1.0f) * light->unknown58;
+						float range = noiseValue + (sinf(light->unknown44 * time * 6.2831855f) + 1.0f) * 0.5f * light->unknown48 + light->unknown24;
+						light->light.SetDecayRanges(range * 0.5f, range);
+					}
+					float blend = light->age / (light->fallTime + light->riseTime + light->holdTime);
+					math::Vector4 mixed((light->colour.x - light->secondColour.x) * blend + light->secondColour.x,
+						(light->colour.y - light->secondColour.y) * blend + light->secondColour.y,
+						(light->colour.z - light->secondColour.z) * blend + light->secondColour.z,
+						(light->colour.w - light->secondColour.w) * blend + light->secondColour.w);
+					light->light.SetActive(true);
+					math::Colour128 colour(mixed.x * strength, mixed.y * strength, mixed.z * strength, mixed.w * strength);
+					light->light.SetColour(colour);
+					GameObject* owner = light->target.Get();
+					for (int row = 0; row < 4; row++)
+					{
+						for (int column = 0; column < 4; column++)
+						{
+							transform.m[row][column] = light->offset.m[row][column];
+						}
+					}
+					if (light->joint != 0xffff)
+					{
+						Attribute<proto::PartLookup*>* attribute = (Attribute<proto::PartLookup*>*)owner->FindAttribute(proto::gDrawableAttributeName);
+						if (attribute != 0)
+						{
+							proto::PartLookup** parts = &attribute->value;
+							if (parts != 0 && *parts != 0)
+							{
+								transform.Multiply(transform, (*parts)->matrices[light->joint]);
+							}
+						}
+					}
+					if (light->attached)
+					{
+						transform.Multiply(transform, owner->transform->value);
+					}
+					light->light.SetTransform(transform);
+				}
+				else
+				{
+					light->light.SetActive(false);
+				}
+			}
+		}
+#endif
 
 		// FUNCTION: ENGINE 0x1081C260
 		// NONMATCHING: the same walk and calls; the engine loads the master table once before the loop and again after

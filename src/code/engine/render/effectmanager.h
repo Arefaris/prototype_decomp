@@ -300,6 +300,10 @@ namespace engine
 			// 0x1081C260: moves the attached drawables to their game objects
 			void UpdateAttachedTransforms(float timeStep);
 
+			// 0x1081BCE0: ages the lights, fades and flickers them and moves them to their objects; a light whose time
+			// is up or whose object is gone is destroyed
+			void UpdateLights(float timeStep);
+
 			// 0x1081AF90: lets go of the waiting drawables that are finished or whose owner is gone
 			void ReleaseFinishedWaiting(float timeStep);
 

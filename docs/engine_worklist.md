@@ -4018,3 +4018,34 @@ access path (through the array object or through the owner) are part of the sour
   0x20. The record's eight-byte alignment is a trailing `unsigned __int64 align8[0]` (it adds no bytes and does not
   realign the stack; the earlier `int padding14` made the copies move it).
 
+
+## fight system, supporting surface, effect actions and the effect manager (0x10800000 - 0x10820000, sn-e)
+
+Sources: `engine/fight/fightsystem.cpp` (start-up, shutdown and the context initialisers), `supportingsurface.cpp`
+(the SupportingSurface / SupportingLimb conditions), `effecttrack.cpp` (`EffectTrack::CreateAction`, the motion trail
+action's start) and `engine/render/effectmanager.cpp` (the global effect manager at 0x1130CCE0; lights, instance
+lookups, the calls on a playing effect, attached drawables).
+
+NONMATCHING (bodies under `#ifdef NONMATCHING`):
+
+| Address | Function | Best | Note |
+| --- | --- | --- | --- |
+| 0x10809DA0 | SupportingSurfaceVelocityAngleCondition::Evaluate | 36.0 % | arithmetic right; scheduling and the constant folding of the angle test differ (1.0f / 0.5f stay memory operands in the engine) |
+| 0x1080A170 | SupportingSurfaceDistanceCondition::Evaluate | 64.7 % | the two dot products associate the other way round (x, y, z for the engine's z, y, x); loads scheduled differently; `local/scratch/sn-e/ps_dist.log`: a permutation search over the nine reorderable spots stayed at 65 % |
+| 0x1080A290 | SupportingSurfaceTimeToImpactCondition::Evaluate | 41.9 % | the engine builds the two velocity vectors on the stack before it reads the surface and schedules the dot products later |
+| 0x10805750 | EffectSpawnTransform::BuildMatrix | 23.6 % | head: the engine keeps 1.0f in xmm3 from the first instruction and loads z, x, y of the direction; the tail from the comparison on is the engine's |
+| 0x10804EE0 | AbortEffectTrack::GetSlotIndex | 75 % | the member goes into ecx and the out pointer into eax in the engine, the other way round in ours (a local, a pointer and the plain assignment all give ours) |
+| 0x1081C260 | EffectManager::UpdateAttachedTransforms | 23.8 % | the same walk and calls; the engine loads the master table once before the loop and again after the queued call, ours inside the checks of every ring entry |
+| 0x1081BCE0 | EffectManager::UpdateLights | 24.8 % | the same calls and branches; (1) the matrix copy is a four-times loop (`fld / fstp` x4, the destination reached as source plus a constant) in the engine, ours unrolls it however the loop is written; (2) the colour blend is scheduled as three passes over four channels (loads first, then the subtractions, multiplications and additions); (3) the decay range multiplies 0.5 into the wave before the amplitude; (4) the destroy test keeps `expired | lost | inactive` as values |
+
+EQUIVALENT (compiled into the hybrid DLL, not counted): the eight SupportingSurface `RegisterProperties` (the
+shrink-wrapped esi push), `DrawRandom` 0x10811ED0, `StartFightSystem` 0x10812610, `MotionTrailAction::Slot5`
+0x10805D30, and in the effect manager `ClearLightReferences` 0x1081A000, `FindInstance` 0x1081B3F0,
+`FindInstanceByName` 0x1081B4E0, `SetEffectSpan` 0x1081B5D0, `SetEffectPosition` 0x1081B970 and `ReleaseAttached`
+0x1081B9B0 (reasons in the comments above each).
+
+Not started: `BeginEffect` 0x108060F0 (5153 bytes), 0x1081F070 (3649 bytes), the effect manager's constructor and
+hash table internals (0x1081C620 insert, 0x1081C6C0 rehash, 0x1081C7B0 constructor), the manager's reset 0x1081C8D0,
+the effect start 0x1081CBB0 and the small container template instances between 0x10819520 and 0x10819FD0 (their
+classes are other units' templates; only the ones the manager's code calls are mapped). `math::Noise::Evaluate` is
+mapped at 0x101043F0 (the unit calls it through the jump at 0x100037F1); the math worklist reconstructs it.
