@@ -4030,3 +4030,12 @@ Tried without effect on 0x10807B50 (all 98.1 %): early return, positive `if` aro
 an inline helper, a template static member; flags /Ob0 /Ob2 /Ot /Os /O1 /Ox /Oy- /GS /Gs0 /GF /Gd /arch:SSE2
 /fp:precise /EHsc /Zi /Oi /Oi- /GR- /MT, /Gy off; /GL with /LTCG; `#pragma optimize` g / t / y / s. The other functions
 of the same units match, so it is not another compiler for those units. Still open.
+
+## Open: which class is dxContext (2026-10-20)
+
+`pure3d::Context::~Context` (0x107106A0) deletes the object at 0x1127F358 (`gPddiDx`, declared `dxContext*`) through
+0x1070EDD0, whose destructor is 0x1061BEC0; sn-d took 0x1061BEC0 / 0x1070EDD0 for the driver object `dxDevice` (made by
+0x1061BBC0, kept at 0x11276D40) and named the real dxContext destructor 0x10622A50 (deleting form 0x10623650, vftable
+slot 66, constructor 0x1061F410). Moving the two names to dxDevice breaks ~Context (89.8 %), so the object behind
+gPddiDx and the classes the tree calls dxContext / dxDevice have to be sorted out together, with the dxContext
+constructor and its 69-slot vftable.
