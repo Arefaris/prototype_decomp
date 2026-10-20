@@ -12,6 +12,12 @@ public:
 	void SetBlue(unsigned char blue);
 	// 0x10959640
 	GColor& operator=(const GColor& other);
+	// 0x1095CAA0: the four channels at once; 0x1095CAB0 - 0x1095CAE0: one channel each
+	void SetRaw(unsigned int raw);
+	unsigned char GetAlpha() const;
+	unsigned char GetRed() const;
+	unsigned char GetGreen() const;
+	unsigned char GetBlue() const;
 	// 0x10959650 / 0x10959670
 	void SetRGB(unsigned char red, unsigned char green, unsigned char blue);
 	void SetRGBA(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha);

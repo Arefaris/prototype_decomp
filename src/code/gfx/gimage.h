@@ -23,6 +23,10 @@ public:
 		Image_P8 = 100
 	};
 
+	// 0x1095ABD0: no image and no palette (the palette's memory is given back unless it belongs to someone else)
+	void Clear();
+	// 0x1095A610: the bytes of a pixel of the image's format
+	unsigned int GetBytesPerPixel() const;
 	// 0x10959690 / 0x109596A0 / 0x109596B0
 	unsigned char* GetScanline(unsigned int y) const;
 	unsigned int GetPitch() const;
@@ -45,6 +49,19 @@ public:
 	GColor* mPalette;              // 0x1C
 	unsigned int mPaletteSize;     // 0x20
 	unsigned int mPaletteCapacity; // 0x24
+};
+
+// An image in memory (RTTI: GImage : GRefCountBase<GImage>, GImageBase at +0x10; vftable 0x10D95398, 0x38 bytes)
+class GImage : public GRefCountBase<GImage>, public GImageBase
+{
+public:
+	// 0x1095AD40 / 0x1095AD80 (exported)
+	GImage();
+	GImage(ImageFormat format, unsigned long width, unsigned long height);
+	// 0x1095AE10 (exported)
+	virtual ~GImage();
+	// 0x1095AC30: gives the pixels back and clears the image
+	void ReleaseData();
 };
 
 #endif

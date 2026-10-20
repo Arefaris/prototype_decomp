@@ -29,7 +29,7 @@ void GKeepWeakProxyConstructor()
 #pragma inline_depth()
 
 GRefCountImpl gRefCountNone = {GRefCountNoneAddRef, GRefCountNoneRelease};
-GRefCountImpl gRefCountOwners = {GRefCountOwnersAddRef, (void (__fastcall*)(GRefCountBaseImpl*))GRefCountOwnersRelease};
+GRefCountImpl gRefCountOwners = {GRefCountOwnersAddRef, (void (__fastcall*)(GRefCountBaseImpl*, int))GRefCountOwnersRelease};
 
 // FUNCTION: ENGINE 0x10959290
 void __fastcall GRefCountNoneAddRef(GRefCountBaseImpl* object)
@@ -37,7 +37,7 @@ void __fastcall GRefCountNoneAddRef(GRefCountBaseImpl* object)
 }
 
 // FUNCTION: ENGINE 0x109592A0
-void __fastcall GRefCountNoneRelease(GRefCountBaseImpl* object)
+void __fastcall GRefCountNoneRelease(GRefCountBaseImpl* object, int unknown)
 {
 }
 
@@ -49,7 +49,7 @@ void __fastcall GRefCountOwnersAddRef(GRefCountBaseImpl* object)
 
 // FUNCTION: ENGINE 0x109592C0
 // EQUIVALENT: the virtual call of the deleting destructor loads the table pointer into the other one of eax and edx (100 % otherwise)
-int __fastcall GRefCountOwnersRelease(GRefCountBaseImpl* object)
+int __fastcall GRefCountOwnersRelease(GRefCountBaseImpl* object, int unknown)
 {
 	int count = --object->mRefCount;
 	if (count != 0)

@@ -12,7 +12,7 @@ class GRefCountImpl
 {
 public:
 	void (__fastcall* mAddRef)(GRefCountBaseImpl* object);
-	void (__fastcall* mRelease)(GRefCountBaseImpl* object);
+	void (__fastcall* mRelease)(GRefCountBaseImpl* object, int unknown);
 };
 
 // 0x111ECB90: the count is not kept (an object owned elsewhere), 0x111ECB98: the object counts its owners
@@ -21,9 +21,9 @@ extern GRefCountImpl gRefCountOwners;
 
 // 0x10959290 / 0x109592A0 / 0x109592B0 / 0x109592C0: the functions of the two tables
 void __fastcall GRefCountNoneAddRef(GRefCountBaseImpl* object);
-void __fastcall GRefCountNoneRelease(GRefCountBaseImpl* object);
+void __fastcall GRefCountNoneRelease(GRefCountBaseImpl* object, int unknown);
 void __fastcall GRefCountOwnersAddRef(GRefCountBaseImpl* object);
-int __fastcall GRefCountOwnersRelease(GRefCountBaseImpl* object);
+int __fastcall GRefCountOwnersRelease(GRefCountBaseImpl* object, int unknown);
 
 // 0x10959230 / 0x10959240: the operator new and operator delete of the base below
 void* GNewOverrideBaseNew(unsigned int size);
@@ -93,7 +93,7 @@ public:
 	}
 	void Release()
 	{
-		mImpl->mRelease(this);
+		mImpl->mRelease(this, 0);
 	}
 
 	// A block of an object made by new is marked, so that the constructor knows the object is not on the stack
@@ -121,6 +121,71 @@ public:
 template<class C>
 class GRefCountBase : public GRefCountBaseImpl
 {
+public:
+	GRefCountBase()
+	{
+	}
+};
+
+// A pointer to a counted object (names guessed; the engine has an instance of each function per class)
+template<class T>
+class GPtr
+{
+public:
+	// 0x1095BD50: takes the object (one more owner of it)
+	GPtr(T* object)
+	{
+		if (object)
+		{
+			object->AddRef();
+		}
+		mObject = object;
+	}
+	// 0x1095BD70: takes another object, gives the one it had back
+	GPtr& operator=(T* object)
+	{
+		if (object)
+		{
+			object->AddRef();
+		}
+		if (mObject)
+		{
+			mObject->Release();
+		}
+		mObject = object;
+		return *this;
+	}
+	// 0x1095BDA0: gives the object back and takes another that is already counted
+	GPtr& SetCounted(T* object)
+	{
+		if (mObject)
+		{
+			mObject->Release();
+		}
+		mObject = object;
+		return *this;
+	}
+	// 0x1095A560 / 0x1095A590: gives the object back
+	void ReleaseObject()
+	{
+		if (mObject)
+		{
+			mObject->Release();
+		}
+	}
+	// 0x1095A580: the object without counting it
+	GPtr& SetRaw(T* object)
+	{
+		mObject = object;
+		return *this;
+	}
+	// 0x1095A5B0 / 0x1095A5C0 / 0x1095BDD0 / 0x1095BDE0
+	T* GetPtr() const
+	{
+		return mObject;
+	}
+
+	T* mObject;
 };
 
 #endif

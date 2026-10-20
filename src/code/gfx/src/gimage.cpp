@@ -1,5 +1,6 @@
 // GImage of the Scaleform GFx library inside the engine DLL (the unit starting at 0x10959600; file name guessed).
 #include "code/gfx/gimage.h"
+#include <string.h>
 
 static inline unsigned int GMaxValue(unsigned int a, unsigned int b)
 {
@@ -179,4 +180,78 @@ unsigned int GImageBase::GetImageSize(int format, unsigned int width, unsigned i
 		return blocksWide * blocksHigh * 0x10;
 	}
 	return GetPitch(format, width) * height;
+}
+
+// FUNCTION: ENGINE 0x1095CAA0
+void GColor::SetRaw(unsigned int raw)
+{
+	mRaw = raw;
+}
+
+// FUNCTION: ENGINE 0x1095CAB0
+unsigned char GColor::GetAlpha() const
+{
+	return mAlpha;
+}
+
+// FUNCTION: ENGINE 0x1095CAC0
+unsigned char GColor::GetRed() const
+{
+	return mRed;
+}
+
+// FUNCTION: ENGINE 0x1095CAD0
+unsigned char GColor::GetGreen() const
+{
+	return mGreen;
+}
+
+// FUNCTION: ENGINE 0x1095CAE0
+unsigned char GColor::GetBlue() const
+{
+	return mBlue;
+}
+
+// FUNCTION: ENGINE 0x1095A610
+unsigned int GImageBase::GetBytesPerPixel() const
+{
+	return GetBytesPerPixel(mFormat);
+}
+
+// FUNCTION: ENGINE 0x1095ABD0
+// NONMATCHING: the engine reads the palette's capacity after the stores of the image's fields and tests its flag bits through a
+// shifted copy (13.8 %)
+#ifdef NONMATCHING
+void GImageBase::Clear()
+{
+	mFormat = Image_None;
+	mPitch = 0;
+	mHeight = 0;
+	mWidth = 0;
+	mData = 0;
+	mDataSize = 0;
+	mMipMapCount = 1;
+	unsigned int capacity = mPaletteCapacity;
+	unsigned int flags = capacity >> 0x1E;
+	mPaletteSize = 0;
+	if (flags == 0 || ((((flags >> 1) & 1) == 0 || (capacity & 0x3FFFFFFF) == 0) && (flags & 1) == 0))
+	{
+		mPaletteCapacity = capacity & 0xC0000000;
+		if (mPalette)
+		{
+			GMemory::Free(mPalette);
+		}
+		mPalette = 0;
+	}
+}
+#endif
+
+// FUNCTION: ENGINE 0x1095AC30
+void GImage::ReleaseData()
+{
+	if (mData)
+	{
+		GMemory::Free(mData);
+	}
+	Clear();
 }
