@@ -679,6 +679,8 @@ namespace proto
 
 	// The name of the attribute that holds a game object's part lookup (0x112834C8)
 	extern content::ObjectName gDrawableAttributeName;
+	// The name of the attribute that holds a game object's drawable handle (0x112834D0)
+	extern content::ObjectName gDrawableHandleAttributeName;
 }
 
 namespace engine
