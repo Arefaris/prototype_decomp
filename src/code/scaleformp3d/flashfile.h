@@ -15,16 +15,20 @@ namespace scaleformp3d
 	public:
 		// 0x1095C0A0
 		FlashFileHandler();
+		// 0x1095C890: opens the file of path
+		FlashFileHandler(const char* path, int flags, int flags2);
 		// 0x1095C0D0 (the deleting destructor is 0x1095C590)
 		virtual ~FlashFileHandler();
 		virtual bool Close();
+		// 0x1095C920: opens the file of path in place of the one it had; whether it could
+		bool Open(const char* path, int flags, int flags2);
 	};
 
 	class FlashFile : public GFile
 	{
 	public:
 		// 0x1095C5C0: opens the file (from the cache, or from the file system) and reads it into memory
-		FlashFile(const char* path, int flags);
+		FlashFile(const char* path, int flags, int flags2);
 		// 0x1095C990 (the deleting destructor is 0x1095C9C0)
 		virtual ~FlashFile();
 		virtual const char* GetFilePath();
