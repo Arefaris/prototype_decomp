@@ -15,14 +15,14 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5.036 %
-Functions  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5.593 %  (7840 / 140179)
+Code       ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5.038 %
+Functions  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░   5.594 %  (7841 / 140179)
   choreo      385 functions matched, 19,888 bytes
   container    40 functions matched, 3,592 bytes
   content      85 functions matched, 4,769 bytes
   core       1384 functions matched, 78,413 bytes
   crypto       54 functions matched, 20,710 bytes
-  engine     3899 functions matched, 190,058 bytes
+  engine     3900 functions matched, 190,222 bytes
   lua         410 functions matched, 36,353 bytes
   math        206 functions matched, 25,626 bytes
   proto       179 functions matched, 26,712 bytes

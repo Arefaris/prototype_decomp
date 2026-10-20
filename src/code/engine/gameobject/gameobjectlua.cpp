@@ -11,6 +11,7 @@
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/engine/system/streampackage.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/lua/lua.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
 
@@ -157,6 +158,11 @@ namespace engine
 
 	// The name of the motion context (0x111C17D0)
 	extern const char* gMotionContextName;
+	// The name of the game objects' inventory (0x11283700)
+	extern content::ObjectName gGameObjectsName;
+	// 0x108024C0 / 0x108034C0 (luascriptmanager.cpp): the name a script passed, the game object it passed
+	void LuaGetNameArgument(lua_State* L, int index, core::Name<core::CaseSensitiveKey>* name);
+	GameObject* LuaToGameObject(lua_State* L, int index);
 
 	// The access to a named attribute of type T (the units that write attributes keep their own copies: int, float
 	// and bool here)
@@ -793,5 +799,40 @@ namespace engine
 		SetScriptError(GetScriptManager(), path != 0 ? "IsPlayingMotionBranchByPath: Invalid GameObjectHandle" :
 			"IsPlayingMotionBranchByPath: Invalid path");
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10869800
+	int go_IsValid(lua_State* L)
+	{
+		if (lua_type(L, 1) != LUA_TNIL)
+		{
+			if (lua_type(L, 1) == LUA_TLIGHTUSERDATA)
+			{
+				LuaGOH object;
+				object.value = (unsigned int)lua_touserdata(L, 1);
+				GameObject* gameObject = DeserializeHandle(object).Get();
+				lua_pushboolean(L, gameObject != 0);
+				return 1;
+			}
+		}
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10869DA0
+	// EQUIVALENT: the block that serves a found object is laid out before the one that pushes nil, the engine's after it, 81.2 %
+	int go_FindGOHByName(lua_State* L)
+	{
+		ScriptName name;
+		LuaGetNameArgument(L, 1, &name);
+		GameObjectHandle handle = SearchGameObject(name, gGameObjectsName);
+		if (handle.IsValid() || (handle = FindGameObject(name, *(const ScriptName*)""), handle.IsValid()))
+		{
+			LuaGOH saved = SerializeHandle(handle);
+			lua_pushlightuserdata(L, (void*)saved.value);
+			return 1;
+		}
+		lua_pushnil(L);
+		return 1;
 	}
 }
