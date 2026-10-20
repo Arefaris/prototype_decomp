@@ -11535,3 +11535,4 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?IsPointInside@Camera@camera@engine@@QAE_NPBVVector@math@@@Z = 0x106DD380 ; function size:0x2B | name guess
 ??_7?$DynamicCaster@VDrawableArchetype@render@engine@@@LoadInventory@content@@6B@ = 0x10D97DC4 ; data size:0x4 | content::LoadInventory::DynamicCaster<engine::render::DrawableArchetype> vftable (name guess)
 ?Cast@?$DynamicCaster@VDrawableArchetype@render@engine@@@LoadInventory@content@@UAEPAUIRefCount@core@@PAU45@@Z = 0x10080C90 ; function size:0x1E | content::LoadInventory::DynamicCaster<DrawableArchetype>::Cast
+?StartEffect@EffectManager@render@engine@@QAE?AVDrawable@23@PBV?$Name@UCaseSensitiveKey@core@@@core@@PAUEffectSetup@23@@Z = 0x1081E6B0 ; function size:0x348 | name guess

@@ -87,7 +87,8 @@ namespace engine
 		struct EffectSetup : public EffectPlacement
 		{
 			float unknown50;
-			int unknown54;
+			// What the drawable's bias is set to
+			float biasUnknown;  // +0x54
 			unsigned int key;  // +0x58
 			float unknown5C;
 			float unknown60;
@@ -101,6 +102,10 @@ namespace engine
 			EffectName storeName;  // +0x78
 			// The colour of the drawable
 			math::Vector4 colour;  // +0x80
+			// The name of the slot the effect is kept on, empty (a name made from nothing) for none
+			EffectName slotName;  // +0x90
+			// The drawable of the store the effect was made from (set by StartEffect)
+			unsigned int storeDrawable;  // +0x98
 		};
 
 		// What a light is made from (0x1081B040; 0xA8 bytes): where it goes, its light and colours, the times and the
@@ -390,6 +395,15 @@ namespace engine
 		// An effect drawable kept ready by name: how many uses it has and when it was last used (0x20 bytes)
 		struct EffectStore
 		{
+			EffectStore()
+			{
+			}
+			// Copies the fields the engine copies (not the two unknown words)
+			EffectStore(const EffectStore& other)
+				: drawable(other.drawable), name(other.name), users(other.users), lastUsed(other.lastUsed), active(other.active)
+			{
+			}
+
 			Drawable drawable;  // +0x00
 			int unknown4;
 			EffectName name;  // +0x08
@@ -514,6 +528,9 @@ namespace engine
 			// 0x1081D470: the same for the drawable archetype of a name
 			Drawable CreateSpanEffectNamed(const EffectName* archetype, const math::Vector* from, const math::Vector* to,
 				float unused, unsigned int key);
+			// 0x1081E6B0: starts the effect of a drawable archetype by its name, from a shared drawable when the setup says so;
+			// an effect started on a slot ends the one that was on it
+			Drawable StartEffect(const EffectName* archetype, EffectSetup* setup);
 			// 0x1081E390: makes the drawable of an effect from a source drawable and adds the effect
 			Drawable CreateEffect(SourceDrawable* source, const EffectSetup* setup);
 			// 0x1081DAF0: makes the drawable of an effect as an instance of the shared drawable of its store

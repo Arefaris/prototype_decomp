@@ -1311,6 +1311,120 @@ namespace engine
 			return result;
 		}
 
+		// FUNCTION: ENGINE 0x1081E6B0
+		// EQUIVALENT: the same feature test, archetype search, store search and creation, bookkeeping of the slot records and
+		// callbacks in the same order; the engine skips the empty drawable the new store entry starts with, reaches its lookup
+		// one word lower in the frame and keeps the store cursor in edi (42.0 %)
+		Drawable EffectManager::StartEffect(const EffectName* archetype, EffectSetup* setup)
+		{
+			if (!IsFeatureEnabled(0x20000))
+			{
+				EffectInstanceList* full = GetList(&setup->key);
+				if (full != 0 && !full->HasRoom())
+				{
+					RemoveOldest(full);
+				}
+				return Drawable();
+			}
+			Drawable result;
+			DrawableArchetype* found = 0;
+			if (inventory != 0)
+			{
+				found = inventory->Find<DrawableArchetype>(*archetype);
+			}
+			if (found == 0 && secondInventory != 0)
+			{
+				found = secondInventory->Find<DrawableArchetype>(*archetype);
+			}
+			if (found != 0)
+			{
+				core::HeapScope scope(heap);
+				if (setup->useStore)
+				{
+					storeCursor = storesBegin;
+					if (storesBegin != storesEnd)
+					{
+						do
+						{
+							EffectStore* store = storeCursor;
+							if (store->name == setup->storeName)
+							{
+								result = CreateEffectFromStore((SourceDrawable*)found, store->drawable, setup);
+								store->users++;
+								store->lastUsed = time;
+								goto created;
+							}
+							storeCursor = store + 1;
+						}
+						while (storeCursor != storesEnd);
+					}
+					{
+						Drawable base = CreateEffect((SourceDrawable*)found, setup);
+						base.SetBiasUnknown(setup->biasUnknown);
+						if (storesEnd == storesCapacity)
+						{
+							RemoveOldestStore();
+						}
+						EffectStore entry;
+						entry.drawable = base;
+						entry.name = setup->storeName;
+						entry.users = 1;
+						entry.lastUsed = time;
+						entry.active = true;
+						if (storesEnd < storesCapacity)
+						{
+							EffectStore* slot = storesEnd++;
+							if (slot != 0)
+							{
+								new (slot) EffectStore(entry);
+							}
+						}
+						result = CreateEffectFromStore((SourceDrawable*)found, base, setup);
+						setup->storeDrawable = base.mHandle;
+					}
+				}
+				else
+				{
+					result = CreateEffect((SourceDrawable*)found, setup);
+					result.SetBiasUnknown(setup->biasUnknown);
+				}
+			created:
+				if (startCallback != 0)
+				{
+					startCallback(result.mHandle, setup);
+				}
+			}
+			EffectName none(0, 1);
+			if (setup->slotName != none)
+			{
+				for (SlotEffect* record = slotsBegin; record != slotsEnd; record++)
+				{
+					if (record->drawable.IsValid() && record->slot == setup->slotName)
+					{
+						EffectInstanceList* list;
+						EffectInstance* instance = FindInstance(record->drawable.mHandle, &list);
+						if (instance != 0)
+						{
+							RemoveInstance(instance, list);
+						}
+						record->slot = setup->slotName;
+						record->drawable = result;
+						return result;
+					}
+				}
+				for (SlotEffect* record = slotsBegin; record != slotsEnd; record++)
+				{
+					if (!record->drawable.IsValid())
+					{
+						record->slot = setup->slotName;
+						record->drawable = result;
+						break;
+					}
+				}
+			}
+			return result;
+		}
+
 		// FUNCTION: ENGINE 0x1081E1C0
 		void EffectManager::RemoveInvisible(EffectInstanceList* list, float radius)
 		{
