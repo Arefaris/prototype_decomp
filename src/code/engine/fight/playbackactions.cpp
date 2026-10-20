@@ -1,5 +1,7 @@
 // The actions of the playback and scenario string tracks (unit 0x108A83A0 - 0x108A9100, no assert path; file name guessed). The tracks are in trackfactory.cpp and scenariotracks.cpp.
 #include "code/engine/fight/playbackactions.h"
+#include "code/engine/camera/director.h"
+#include "code/engine/scenariomessage.h"
 
 namespace engine
 {
@@ -21,6 +23,31 @@ namespace engine
 	{
 		GameObjectHandle handle = GetObjectHandle(owner);
 		return new PlaybackAction(this, owner, handle);
+	}
+
+	// 0x1130D43C: set while the game runs its tutorial (0x1082FDD0 reads it; name guess)
+	bool IsTutorialActive();
+
+	// 0x11318188: the listeners the scenario string events are sent to (name guess)
+	extern MessageListeners gScenarioStringListeners;
+
+	// FUNCTION: ENGINE 0x108A9040
+	bool ScenarioStringAction::Slot5(int arg, float value)
+	{
+		if (link.object != 0)
+		{
+			if (link.object->tutorialOnly && !IsTutorialActive())
+			{
+				return false;
+			}
+			StringMessage message(link.object->string);
+			if (target.IsValid())
+			{
+				message.SetHandle(0, target);
+			}
+			SendMessage(&message, &gScenarioStringListeners);
+		}
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x108A8FC0

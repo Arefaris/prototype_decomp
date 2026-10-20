@@ -25,6 +25,8 @@ namespace engine
 	public:
 		// 0x10855460
 		static AudioMixer* Get();
+		// 0x108583F0: stops the dialogue line of that number (name guess)
+		void StopDialogue(int id);
 		// 0x1085AB40
 		void Update(UpdateContext context);
 	};

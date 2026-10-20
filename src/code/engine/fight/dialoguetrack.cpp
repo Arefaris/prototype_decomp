@@ -1,5 +1,6 @@
 // The fight track that plays dialogue lines (RTTI: engine::DialogueTrack) and its action (unit 0x108A85A0 - 0x108A8E50; no assert path, file name guessed). The factory makers are in trackfactory.cpp.
 #include "code/engine/fight/dialoguetrack.h"
+#include "code/engine/audio/audiomanager.h"
 #include "code/engine/fight/effecttrack.h"
 #include <new>
 
@@ -171,6 +172,12 @@ namespace engine
 	// FUNCTION: ENGINE 0x108A8880
 	DialogueAction::~DialogueAction()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x108A87C0
+	void DialogueAction::Slot6()
+	{
+		AudioMixer::Get()->StopDialogue(unknown30);
 	}
 
 	// FUNCTION: ENGINE 0x108A8E40

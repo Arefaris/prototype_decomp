@@ -14902,3 +14902,9 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??_7PhysicsWakeUpMessage@engine@@6B@ = 0x10D94E74 ; data size:0x4 | engine::PhysicsWakeUpMessage vftable
 ??_GPhysicsWakeUpMessage@engine@@UAEPAXI@Z = 0x10061030 ; function size:0x1F | engine::PhysicsWakeUpMessage::scalar deleting destructor vftable slot 0
 ??_R0?AUPhysicsWakeUpMessage@engine@@@8 = 0x10FEB618 ; data size:0x8 | engine::PhysicsWakeUpMessage RTTI type descriptor
+?IsTutorialActive@engine@@YA_NXZ = 0x1082FDD0 ; function size:0x6 | engine::IsTutorialActive: the flag at 0x1130D43C (another unit; name guess)
+?gScenarioStringListeners@engine@@3VMessageListeners@1@A = 0x11318188 ; data size:0x8 | engine: the listeners the scenario string events are sent to (name guess)
+
+?StopDialogue@AudioMixer@engine@@QAEXH@Z = 0x108583F0 ; function size:0x7F | engine::AudioMixer::StopDialogue (another unit; name guess)
+
+
