@@ -44,7 +44,9 @@ namespace pure3d
 	class TextureParser
 	{
 	public:
-		virtual ~TextureParser() = 0;
+		virtual ~TextureParser()
+		{
+		}
 		// True when the parser can turn the texture's pixel format into one it writes
 		virtual bool IsSupportedFormat(unsigned int format) = 0;
 		// Reads the image of a stream into the texture (the parser's own, or a new one made like `source`); the
@@ -74,6 +76,44 @@ namespace pure3d
 		Texture* texture;
 		unsigned int width;
 		unsigned int height;
+	};
+
+	// The PNG reader (RTTI: pure3d::PNGParser, 4 bytes): reads and writes the files through the zlib of the image
+	class PNGParser : public TextureParser
+	{
+	public:
+		// 0x1073D250
+		PNGParser()
+		{
+		}
+		// 0x1073D100; the scalar deleting destructor is 0x1073D260
+		virtual ~PNGParser();
+		// 0x1073D110
+		virtual bool IsSupportedFormat(unsigned int format);
+		// 0x1073D130
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source);
+		// 0x1073D150
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice);
+	};
+
+	// The Targa reader (RTTI: pure3d::TGAParser, 4 bytes): uncompressed 24 and 32 bit true colour images
+	class TGAParser : public TextureParser
+	{
+	public:
+		// 0x1073D950
+		TGAParser()
+		{
+		}
+		// 0x1073D8A0; the scalar deleting destructor is 0x1073D960
+		virtual ~TGAParser();
+		// 0x1073D8B0: format 2
+		virtual bool IsSupportedFormat(unsigned int format);
+		// 0x1073D8D0
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source);
+		// 0x1073D8F0
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice);
 	};
 
 	// The stream the texture writers put a DDS file into (a file or a memory block; the slots before Write are not

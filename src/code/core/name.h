@@ -50,6 +50,8 @@ namespace core
 		const unsigned __int64& GetHash() const;
 		// 0x1007EE30 (another unit's copy): recompute the hash from text
 		void SetText(const char* text);
+		// 0x1006A170 (another unit): stores the 64-bit hash (name guess)
+		void SetHash(unsigned __int64 newHash);
 	};
 
 	// Out of line (templates defined outside the class are not inlined): copies like 0x1007EE00 / 0x1007EE20 exist
@@ -86,6 +88,8 @@ namespace core
 		bool operator==(const Name& other) const;
 		// 0x102E8910 (another unit's copy)
 		Name& operator=(const Name& other);
+		// 0x105FCED0 (another unit): the 32-bit hash of text, ignoring case
+		void SetText(const char* text);
 		// 0x1007EE80 (another unit's copy): the key of the name, which is the name itself
 		const CaseInsensitiveKey32& GetKey() const;
 

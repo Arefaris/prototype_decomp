@@ -13,6 +13,7 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
 #include "code/pure3d/lighting.h"
+#include "code/pure3d/pass/rendertargetmanager.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
@@ -180,7 +181,7 @@ namespace pure3d
 			*indices++ = v;
 		}
 		indexBuffer->Unlock();
-		Unknown1073B790(settings.unknown4);
+		RenderTargetManager::Create(settings.unknown4);
 		ContextRenderSettings renderSettings;
 		renderSettings.unknown0 = settings.unknown0;
 		renderSettings.unknown4 = settings.unknown150;
@@ -279,7 +280,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1070F1E0
 	void Unknown1070F1E0()
 	{
-		gDisplay->Unknown1073AA10();
+		RenderTargetManager::sSingleton->CreateTargets();
 	}
 
 	// FUNCTION: ENGINE 0x1070F1F0
@@ -571,9 +572,9 @@ namespace pure3d
 		pddi->SetWorldMatrix(&math::Matrix::IDENTITY);
 		if (inFrame == 0)
 		{
-			gDisplay->SetSize(0, 0);
+			RenderTargetManager::sSingleton->SetSize(0, 0);
 		}
-		gDisplay->Unknown1073B450();
+		RenderTargetManager::sSingleton->Unknown1073B450();
 	}
 
 	// FUNCTION: ENGINE 0x107103D0
@@ -751,7 +752,7 @@ namespace pure3d
 				pddi->Unknown28();
 				engine::gDisplay->Unknown106162D0();
 			}
-			gDisplay->SetSize(width, height);
+			RenderTargetManager::sSingleton->SetSize(width, height);
 			passes->Unknown2();
 			passes->Unknown1();
 			engine::gDisplay->Unknown106162D0();
@@ -774,7 +775,7 @@ namespace pure3d
 				pddi->Unknown28();
 				engine::gDisplay->Unknown106162D0();
 			}
-			gDisplay->SetSize(0, 0);
+			RenderTargetManager::sSingleton->SetSize(0, 0);
 			passes->Unknown2();
 			passes->Unknown1();
 			engine::gDisplay->Unknown106162D0();

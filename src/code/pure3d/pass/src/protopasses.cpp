@@ -10,6 +10,7 @@
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/light.h"
 #include "code/pure3d/lightselection.h"
+#include "code/pure3d/pass/rendertargetmanager.h"
 #include "code/pure3d/protopass.h"
 #include "code/pure3d/scene.h"
 #include "code/pure3d/shaderconstants.h"
@@ -82,8 +83,8 @@ namespace pure3d
 	// EQUIVALENT: register allocation and the frame (the engine keeps the part in a stack slot in the first loop); every call, store and float operation is the engine's
 	void ProtoDecalPass::Render(PassContext* context)
 	{
-		pddiSurface* colour = gDisplay->colour;
-		pddiSurface* depth = gDisplay->depth;
+		pddiSurface* colour = (pddiSurface*)RenderTargetManager::sSingleton->colour;
+		pddiSurface* depth = (pddiSurface*)RenderTargetManager::sSingleton->currentDepth;
 		pddiRenderTargets targets = {0, 0, 0, 0, 0};
 		targets.colour = decalTarget->surface->GetHandle();
 		targets.depth = depth->GetHandle();

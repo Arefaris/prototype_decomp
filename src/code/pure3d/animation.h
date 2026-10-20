@@ -19,6 +19,10 @@ namespace pure3d
 	class AnimationMemoryBlock : public RefCounted
 	{
 	public:
+		// 0x106E78C0: size bytes from one of the two pools (the one of the 7 mask for objects, the other for
+		// arrays), aligned by the mask; null for no bytes (name guess)
+		void* Allocate(unsigned int size, unsigned int alignmentMask);
+
 		unsigned char unknown8[8];
 		// The animation data, a pointer into the block (zero while it is not loaded)
 		void* mData;

@@ -97,6 +97,12 @@ namespace pure3d
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1072A100
+	void Texture::SetInfo(dxTexture* newInfo)
+	{
+		AssignRef(&info, newInfo);
+	}
+
 	// FUNCTION: ENGINE 0x1072A470
 	void TextureLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
 		content::ChunkReader* reader, content::LoadInventory* inventory)
@@ -808,6 +814,22 @@ namespace pure3d
 			return true;
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1072B3D0
+	DDSParser::DDSParser(Texture* newTexture, unsigned int newWidth, unsigned int newHeight)
+		: texture(newTexture), width(newWidth), height(newHeight)
+	{
+		texture->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x1072B400
+	DDSParser::~DDSParser()
+	{
+		if (texture != 0)
+		{
+			texture->Release();
+		}
 	}
 
 	// FUNCTION: ENGINE 0x1072B420
