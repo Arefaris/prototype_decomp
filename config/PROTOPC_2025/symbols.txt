@@ -11516,3 +11516,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?IsEmitting@EffectInstance@render@engine@@QBE_NXZ = 0x1081EAB0 ; function size:0xC | name guess
 ?SetEmitting@EffectInstance@render@engine@@QAEX_NM@Z = 0x1081EB10 ; function size:0xE5 | name guess
 ?SetStoreDrawable@EffectInstance@render@engine@@QAEXPBVDrawable@23@@Z = 0x1081EC00 ; function size:0x26 | name guess
+?Blend@EffectLODBias@engine@@QAEXPBV12@M@Z = 0x1081F070 ; function size:0xE41 | name guess
+?CompareEffectLODs@engine@@YA_NPBQAVEffectLOD@1@0@Z = 0x1081EAF0 ; function size:0x20 | name guess
+?CreateTrail@render@engine@@YA?AVDrawable@12@V312@MMMPAVShader@pure3d@@PBHPBVVector@math@@HHV67@MMMM_N@Z = 0x108BE4A0 ; function size:0x205 | another unit (motion trail), name guess

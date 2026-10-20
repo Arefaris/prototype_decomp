@@ -73,6 +73,9 @@ namespace engine
 		float endDistance;  // +0x14
 	};
 
+	// 0x1081EAF0: whether the first record starts nearer than the second (the order the effect keeps them in)
+	bool CompareEffectLODs(EffectLOD* const* first, EffectLOD* const* second);
+
 	// RTTI: engine::EffectLODBias: sets biases and overrides on the effect's particle systems (0x1A0 bytes)
 	class EffectLODBias : public EffectLOD
 	{
@@ -82,6 +85,8 @@ namespace engine
 		// 0x1081EC90 / 0x1081EFF0
 		virtual ~EffectLODBias();
 
+		// 0x1081F070: sets the effect's biases and overrides to a mix of this record's and another's (amount 0 is this one)
+		void Blend(const EffectLODBias* other, float amount);
 		// 0x1081F010: hands the biases and the overrides that are set to the effect's drawable
 		void Apply();
 

@@ -7,6 +7,7 @@
 #ifndef ENGINE_RENDER_EFFECTMANAGER_H
 #define ENGINE_RENDER_EFFECTMANAGER_H
 
+#include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/engine/render/effectlod.h"
 #include "code/engine/camera/camera.h"
@@ -20,6 +21,11 @@
 namespace proto
 {
 	struct PartLookup;
+}
+
+namespace pure3d
+{
+	class Shader;
 }
 
 namespace engine
@@ -131,6 +137,47 @@ namespace engine
 					return head[index];
 				}
 				return begin[index - firstPart];
+			}
+			// Whether every place of the block is taken
+			bool IsFull() const
+			{
+				return (int)Size() == end - begin;
+			}
+			// Takes the first link out of the ring and answers its drawable
+			Drawable PopFront()
+			{
+				Drawable first = head->drawable;
+				if (!(tail < end))
+				{
+					tail = head;
+				}
+				head++;
+				if (head == end)
+				{
+					head = begin;
+				}
+				return first;
+			}
+			// Puts a link at the end (nothing when the block is used up)
+			void PushBack(Drawable drawable, Drawable owner)
+			{
+				if (tail < end)
+				{
+					if (tail != 0)
+					{
+						tail->drawable = drawable;
+						tail->owner = owner;
+					}
+					tail++;
+					if (tail == end)
+					{
+						tail = begin;
+					}
+					if (head == tail)
+					{
+						tail += end - begin;
+					}
+				}
 			}
 
 			DrawableLink* head;
@@ -459,7 +506,10 @@ namespace engine
 			// 0x1081A000: forgets a light that is about to go away in the lights that follow it
 			void ClearLightReferences(Light light);
 
-			unsigned char unknown0[0xC];
+			// The inventories the manager finds shaders in, and the shader it falls back on
+			content::LoadInventory* inventory;  // +0x00
+			content::LoadInventory* secondInventory;  // +0x04
+			pure3d::Shader* defaultShader;  // +0x08
 			// The time the manager has run for
 			float time;  // +0xC
 			// The heap the manager allocates its records from
@@ -503,6 +553,14 @@ namespace engine
 			int unknownF8;
 			unsigned int unknownFC;
 		};
+
+		// 0x108BE4A0 (the motion trail unit): makes the drawable of a trail (the drawable it follows, the times, the shader,
+		// the joint indices of the part lookup, their offsets and their number, the index of the shrink joint and
+		// its offset, and the shrink, fade, texture times and the dragging flag)
+		Drawable CreateTrail(Drawable drawable, float generateTime, float fadeInTime, float fadeOutTime,
+			pure3d::Shader* shader, const int* joints, const math::Vector* offsets, int numJoints, int shrinkJoint,
+			math::Vector shrinkOffset, float shrinkTime, float fadeTime, float fadeInTrailTime, float textureTime,
+			bool dragged);
 
 		// 0x108193A0: the global manager
 		EffectManager* GetEffectManager();

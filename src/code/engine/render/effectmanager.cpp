@@ -6,6 +6,7 @@
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/shader.h"
 #include "code/engine/fight/effecttrack.h"
 #include "code/core/heap.h"
 #include "code/math/colour128.h"
@@ -1169,6 +1170,68 @@ namespace engine
 				resetCallback(resetCallbackArgument);
 			}
 			unknown28 = false;
+		}
+
+		// FUNCTION: ENGINE 0x1081BA90
+		// EQUIVALENT: the same checks, lookups, ring handling and calls in the same order; the engine reuses the dead parameter
+		// slots for the shader, the shrink joint's index and the drawable it drops, ours has its own locals and keeps the part
+		// lookup in a register (34.5 %)
+		Drawable EffectManager::CreateMotionTrail(Drawable drawable, proto::PartLookup* lookup, float generateTime, float fadeInTime,
+			float fadeOutTime, const EffectName* shader, const EffectName* joints, const math::Vector* offsets,
+			int numJoints, const EffectName* shrinkJoint, math::Vector shrinkOffset, float shrinkTime, float fadeTime,
+			float fadeInTrailTime, float textureTime, bool dragged)
+		{
+			if (!IsFeatureEnabled(0x20000))
+			{
+				return Drawable();
+			}
+			core::HeapScope scope(heap);
+			pure3d::Shader* shaderObject = 0;
+			if (inventory != 0)
+			{
+				shaderObject = inventory->Find<pure3d::Shader>(*shader);
+			}
+			if (shaderObject == 0)
+			{
+				if (secondInventory != 0)
+				{
+					shaderObject = secondInventory->Find<pure3d::Shader>(*shader);
+				}
+				if (shaderObject == 0)
+				{
+					shaderObject = defaultShader;
+				}
+			}
+			int shrinkIndex;
+			if (lookup != 0)
+			{
+				shrinkIndex = lookup->FindPart(*shrinkJoint);
+			}
+			else
+			{
+				shrinkIndex = 0xffff;
+			}
+			int jointIndices[6];
+			for (int i = 0; i < numJoints; i++)
+			{
+				if (lookup != 0)
+				{
+					jointIndices[i] = lookup->FindPart(joints[i]);
+				}
+				else
+				{
+					jointIndices[i] = 0xffff;
+				}
+			}
+			if (waiting.IsFull())
+			{
+				Drawable oldest = waiting.PopFront();
+				Drawable::Destroy(&oldest, 0);
+			}
+			Drawable trail = CreateTrail(drawable, generateTime, fadeInTime, fadeOutTime, shaderObject, jointIndices, offsets,
+				numJoints, shrinkIndex, shrinkOffset, shrinkTime, fadeTime, fadeInTrailTime, textureTime, dragged);
+			waiting.PushBack(trail, drawable);
+			return trail;
 		}
 
 		// FUNCTION: ENGINE 0x1081BCE0
