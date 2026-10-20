@@ -20,6 +20,13 @@ namespace engine
 		// The global manager (0x1130CCE0)
 		extern EffectManager* gEffectManager;
 
+		// The list of playing effects of a key (the engine expands this in many places)
+		inline EffectInstanceList* EffectManager::GetList(const unsigned int* key)
+		{
+			HashLookup lookup(&instanceTable);
+			return (EffectInstanceList*)lookup.Find(key);
+		}
+
 		// FUNCTION: ENGINE 0x108193A0
 		EffectManager* GetEffectManager()
 		{
@@ -1054,6 +1061,104 @@ namespace engine
 			UpdateLights(timeStep);
 			UpdateStores(timeStep);
 			UpdateTimers(timeStep);
+		}
+
+		// FUNCTION: ENGINE 0x1081DAF0
+		// EQUIVALENT: the same lookup, room test, options, creation, store hand-over, list insert and callback; the engine
+		// keeps the manager in a stack slot, stores the empty answer first and materialises the room test as a byte (19.1 %)
+		Drawable EffectManager::CreateEffectFromStore(SourceDrawable* source, Drawable store, const EffectSetup* setup)
+		{
+			EffectInstanceList* list = GetList(&setup->key);
+			Drawable result;
+			if (list->end == list->capacity && !RemoveOldest(list))
+			{
+				return result;
+			}
+			{
+				Drawable::InstanceOptions options;
+				options.instanceOf = store.mHandle;
+				options.colour.x = setup->colour.x;
+				options.colour.y = setup->colour.y;
+				options.colour.z = setup->colour.z;
+				options.colour.w = setup->colour.w;
+				options.b3 = true;
+				options.b4 = true;
+				options.b1 = false;
+				result = Drawable::CreateInstance(source, options, true);
+			}
+			EffectInstance instance(result.mHandle, setup);
+			instance.SetStoreDrawable(&store);
+			if (list->end < list->capacity)
+			{
+				EffectInstance* slot = list->end++;
+				if (slot != 0)
+				{
+					new (slot) EffectInstance(instance);
+				}
+			}
+			if (startCallback != 0)
+			{
+				startCallback(result.mHandle, (void*)setup);
+			}
+			return result;
+		}
+
+		// FUNCTION: ENGINE 0x1081DC30
+		// EQUIVALENT: the same lookup, room test, instance construction, flag copy and insert; the engine materialises the
+		// room test as a byte and keeps the setup in ebp (38.4 %)
+		void EffectManager::AddInstance(unsigned int drawable, const EffectSetup* setup)
+		{
+			EffectInstanceList* list = GetList(&setup->key);
+			if (list->end == list->capacity && !RemoveOldest(list))
+			{
+				return;
+			}
+			EffectInstance instance(drawable, setup);
+			instance.fromStore = setup->useStore;
+			if (list->end < list->capacity)
+			{
+				EffectInstance* slot = list->end++;
+				if (slot != 0)
+				{
+					new (slot) EffectInstance(instance);
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081E2F0
+		void EffectManager::AddInstanceInHeap(unsigned int drawable, const EffectSetup* setup)
+		{
+			core::HeapScope scope(heap);
+			AddInstance(drawable, setup);
+		}
+
+		// FUNCTION: ENGINE 0x1081E390
+		// EQUIVALENT: the same lookup, room test, options and creation; the engine materialises the room test as a byte
+		// (43.9 %)
+		Drawable EffectManager::CreateEffect(SourceDrawable* source, const EffectSetup* setup)
+		{
+			HashLookup lookup(&instanceTable);
+			EffectInstanceList* list = (EffectInstanceList*)lookup.Find(&setup->key);
+			Drawable result;
+			if (list->end == list->capacity && !RemoveOldest(list))
+			{
+				return result;
+			}
+			{
+				Drawable::InstanceOptions options;
+				options.unknown1C = setup->optionsA;
+				options.unknown20 = setup->optionsB;
+				options.unknown24 = setup->optionsC;
+				options.b3 = true;
+				if (setup->useStore)
+				{
+					options.b4 = false;
+					options.b5 = true;
+				}
+				result = Drawable::CreateInstance(source, options, true);
+			}
+			AddInstance(result.mHandle, setup);
+			return result;
 		}
 
 		// FUNCTION: ENGINE 0x1081E1C0

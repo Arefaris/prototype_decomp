@@ -62,6 +62,8 @@ namespace engine
 			// which shares the source's render object instead of making an instance)
 			struct InstanceOptions
 			{
+				// 0x102EAB70 (another unit): b1 set, the instance of nothing, white, 1 and two -1
+				InstanceOptions();
 				InstanceOptions(const InstanceOptions& other);
 
 				bool b0;

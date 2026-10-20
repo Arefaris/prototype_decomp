@@ -82,6 +82,27 @@ namespace engine
 			int unknown4C;
 		};
 
+		// What a drawable effect is made from (the part the manager reads; the engine's records are larger): the placement,
+		// the key of the list it goes in, the values the drawable is made with and the name of the shared drawable
+		struct EffectSetup : public EffectPlacement
+		{
+			float unknown50;
+			int unknown54;
+			unsigned int key;  // +0x58
+			float unknown5C;
+			float unknown60;
+			// The three values the drawable's options take (what they mean is unknown)
+			float optionsA;  // +0x64
+			float optionsB;  // +0x68
+			float optionsC;  // +0x6C
+			// The effect is made from a drawable it shares with others
+			bool useStore;  // +0x70
+			unsigned char unknown71[7];
+			EffectName storeName;  // +0x78
+			// The colour of the drawable
+			math::Vector4 colour;  // +0x80
+		};
+
 		// What a light is made from (0x1081B040; 0xA8 bytes): where it goes, its light and colours, the times and the
 		// values the flicker uses
 		struct EffectLightSetup : public EffectPlacement
@@ -189,7 +210,9 @@ namespace engine
 		// A playing effect (0xA8 bytes; its constructors and destructor are another unit's 0x10820CF0 - 0x108213D0)
 		struct EffectInstance
 		{
+			// 0x10820CF0 / 0x10820EB0 (from a drawable and the setup it is made from) / 0x10821230 (another unit)
 			EffectInstance();
+			EffectInstance(unsigned int newDrawable, const EffectSetup* setup);
 			EffectInstance(const EffectInstance& other);
 			// 0x10820620
 			EffectInstance& operator=(const EffectInstance& other);
@@ -261,6 +284,11 @@ namespace engine
 			unsigned int Size() const
 			{
 				return end - begin;
+			}
+			// Whether another effect fits without growing
+			bool HasRoom() const
+			{
+				return end != capacity;
 			}
 
 			EffectInstance* begin;
@@ -453,6 +481,17 @@ namespace engine
 			// 0x1081D790: ends an effect of a list: its store loses a user (or goes), the drawable is killed and the last
 			// effect of the list takes its place
 			void RemoveInstance(EffectInstance* instance, EffectInstanceList* list);
+
+			// The list of playing effects of a key (an inline member; the engine's copy of Find is the lookup's)
+			EffectInstanceList* GetList(const unsigned int* key);
+			// 0x1081DC30: puts a new effect with a drawable in the list of its key (making room first)
+			void AddInstance(unsigned int drawable, const EffectSetup* setup);
+			// 0x1081E2F0: the same in the manager's heap
+			void AddInstanceInHeap(unsigned int drawable, const EffectSetup* setup);
+			// 0x1081E390: makes the drawable of an effect from a source drawable and adds the effect
+			Drawable CreateEffect(SourceDrawable* source, const EffectSetup* setup);
+			// 0x1081DAF0: makes the drawable of an effect as an instance of the shared drawable of its store
+			Drawable CreateEffectFromStore(SourceDrawable* source, Drawable store, const EffectSetup* setup);
 
 			// 0x1081D850: ends the effect of a list that has run longest, one that was made from a store only when it
 			// has no other; false when the list has none to end
