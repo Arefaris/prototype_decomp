@@ -13,6 +13,13 @@ namespace choreo
 	public:
 		static const unsigned int MAX_JOINTS = 96;
 
+		// 0x10952120: whether the root has both channels for a part
+		bool HasRootChannels(int part) const;
+		// 0x109521B0 / 0x109521C0 / 0x109521D0
+		pure3d::QuaternionChannel* GetRootRotation(int part) const;
+		pure3d::VectorChannel* GetRootTranslation(int part) const;
+		pure3d::VectorChannel* GetUnknown920() const;
+
 		// 0x10952150 - 0x109521A0: the channel of a joint, by kind
 		pure3d::QuaternionChannel* GetRotation(int joint);
 		pure3d::VectorChannel* GetTranslation(int joint);
@@ -47,6 +54,11 @@ namespace choreo
 		pure3d::VectorChannel* mScales[MAX_JOINTS];
 		pure3d::VectorChannel* mUnknown14[MAX_JOINTS];
 		pure3d::VectorChannel* mUnknown1C[MAX_JOINTS];
+		// 0x900 - 0x91C: the root's rotation and translation channels of the animation, per skeleton part
+		pure3d::QuaternionChannel* mRootRotations[4];
+		pure3d::VectorChannel* mRootTranslations[4];
+		pure3d::VectorChannel* mUnknown920;
+		unsigned char unknown924[0xC];
 	};
 }
 

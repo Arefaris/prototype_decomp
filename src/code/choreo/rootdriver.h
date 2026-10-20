@@ -6,6 +6,7 @@
 
 #include "code/choreo/deltatransform.h"
 #include "code/choreo/puppet.h"
+#include "code/choreo/samplechannels.h"
 #include "code/pure3d/animation.h"
 #include "code/pure3d/pose.h"
 
@@ -17,10 +18,16 @@ namespace choreo
 	{
 		// 0x109521E0: an empty clip with its channel block
 		AnimationClip();
+		// 0x10952220: a copy with a block of channels of its own
+		AnimationClip(const AnimationClip& other);
 		// 0x10952290
 		~AnimationClip();
 		// 0x109522A0: binds the clip to an animation (nothing is copied while reset is clear)
 		void Set(pure3d::Animation* animation, void* pose, bool reset);
+		// 0x10952340: the rate of the clip in frames per second
+		void SetFrameRate(float rate);
+		// 0x10952370: bit 0 of the clip's flags
+		bool Unknown10952370() const;
 		// 0x10952310: whether the clip is bound to an animation
 		bool IsSet() const;
 		// 0x10952320 / 0x10952330: the length of the clip in frames and its rate in frames per second
@@ -34,17 +41,19 @@ namespace choreo
 		// 0x10952390: whether the animation drives any joint of the mask
 		bool Unknown10952390(const void* mask) const;
 		// 0x10952480: the animation the clip shows
-		void Unknown10952480(void* out) const;
+		void Unknown10952480(PoseBlendSample* sample) const;
 		// 0x10955260 / 0x109552C0 / 0x10955360: samples the clip over the two frames (in another unit, declared here)
 		void Unknown10955260(float from, float to, bool forward, int mode);
 		void Unknown109552C0(float from, float to, bool forward, int mode);
 		void Unknown10955360(float frame, float weight, void* owner);
 
-		void* mUnknown0;                // 0x00
+		SampleChannels* mChannels;      // 0x00
 		float mDuration;                // 0x04
 		float mFrameRate;               // 0x08
 		float mUnknownC;                // 0x0C
-		unsigned char mFlags;           // 0x10
+		bool mFlag0 : 1;                // 0x10
+		bool mFlag1 : 1;
+		unsigned char unknown10Bits : 6;
 		unsigned char unknown11[3];
 		pure3d::Animation* mAnimation;  // 0x14
 	};

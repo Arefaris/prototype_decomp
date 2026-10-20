@@ -45,7 +45,12 @@ namespace pure3d
 		void Unknown106E9310(int mode);
 
 		float numFrames;
-		unsigned char unknown14[0x28];
+		float mFrameRate;
+		bool mFlag0 : 1;
+		unsigned char unknown18Bits : 7;
+		unsigned char unknown19[7];
+		float mUnknown20;
+		unsigned char unknown24[0x14];
 		AnimationMemoryBlock* mBlock;
 	};
 

@@ -66,7 +66,7 @@ namespace choreo
 	// FUNCTION: ENGINE 0x10956380
 	int GetSteerSampleCount(Driver* driver)
 	{
-		return static_cast<LocomotionSteerDriver*>(driver)->mUnknown2AC;
+		return static_cast<LocomotionSteerDriver*>(driver)->mSampleCount;
 	}
 
 	// FUNCTION: ENGINE 0x10956390
