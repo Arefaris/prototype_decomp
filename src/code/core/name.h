@@ -39,6 +39,8 @@ namespace core
 		bool operator==(const Name& other) const;
 		// 0x10061F40 (another unit)
 		bool operator!=(const Name& other) const;
+		// 0x1047BE40 (another unit): orders by the 64-bit hash
+		bool operator<(const Name& other) const;
 		// 0x1027F1A0 (another unit): the text, null when the name has none
 		const char* GetText() const;
 		// 0x10061ED0 / 0x10061EF0 (another unit)

@@ -15,14 +15,11 @@
 
 namespace engine
 {
-	// The handles a message class carries: their number, then per-handle tables (20 bytes, meaning unknown)
+	// The handles a message class carries: their number, then the names of the handles in the editor (20 bytes)
 	struct ScenarioHandleInfo
 	{
 		unsigned int count;
-		const void* unknown4;
-		const void* unknown8;
-		int unknownC;
-		int unknown10;
+		const char* names[4];
 	};
 
 	class ScenarioMessage : public IntrusiveMessage
@@ -72,6 +69,14 @@ namespace engine
 		{
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
+
+		// 0x1082FAD0
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static ScenarioHandleInfo sHandleInfo;
 	};
 
 	struct StringMessage : ScenarioMessage
@@ -82,6 +87,11 @@ namespace engine
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(LuaScriptManager* context);
+
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> string;
@@ -108,6 +118,11 @@ namespace engine
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(LuaScriptManager* context);
 
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> extraString;
 	};
@@ -125,6 +140,11 @@ namespace engine
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(LuaScriptManager* context);
 
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> extraString;
 	};
@@ -140,6 +160,11 @@ namespace engine
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(LuaScriptManager* context);
 
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
 		static ScenarioHandleInfo sHandleInfo;
 	};
 
@@ -153,6 +178,11 @@ namespace engine
 		}
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(LuaScriptManager* context);
+
+		static ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
 
 		static ScenarioHandleInfo sHandleInfo;
 		core::Name<core::CaseSensitiveKey> newState;
@@ -168,6 +198,11 @@ namespace engine
 		} \
 		virtual ScenarioMessage* Clone(void* memory, int unused); \
 		virtual void WriteFields(LuaScriptManager* context); \
+\
+		static ScenarioHandleInfo GetHandleInfo() \
+		{ \
+			return sHandleInfo; \
+		} \
 \
 		static ScenarioHandleInfo sHandleInfo; \
 		core::Name<core::CaseSensitiveKey> name; \
