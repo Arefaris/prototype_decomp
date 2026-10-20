@@ -32,6 +32,50 @@ namespace container
 		int Count(char c);
 		// 0x1060F080: calls function with every part of the string between separators (and context)
 		void ForEachToken(char separator, void (*function)(const char* token, void* context), void* context);
+
+		// The members below are in container/string.cpp (names guessed; a negative index counts from the end)
+		// 0x1060EA60: the characters before the terminator
+		unsigned int Length() const;
+		// 0x1060F130 / 0x1060F140: no characters / no room for another
+		bool IsEmpty() const;
+		int IsFull() const;
+		// 0x1060E990 / 0x1060EEB0: -1, 0 or 1 (an empty string sorts first)
+		int Compare(const String& other, bool caseSensitive) const;
+		int Compare(const char* other, bool caseSensitive) const;
+		// 0x1060EA40 / 0x1060EA10
+		bool Equals(const String& other, bool caseSensitive) const;
+		bool Equals(const char* other, bool caseSensitive) const;
+		// 0x1060F210 / 0x1060F490, 0x1060F3D0 / 0x1060F4C0
+		bool StartsWith(const String& other, bool caseSensitive) const;
+		bool StartsWith(const char* other, bool caseSensitive) const;
+		bool EndsWith(const String& other, bool caseSensitive) const;
+		bool EndsWith(const char* other, bool caseSensitive) const;
+		// 0x1060EE70: the character at index, 0 when there is none
+		char At(int index) const;
+		// 0x1060EA80 / 0x1060F180: puts other in front, cutting what does not fit; answers how many characters
+		unsigned int Prepend(const String& other);
+		unsigned int Prepend(const char* other);
+		// 0x1060F3A0
+		int Append(const char* other);
+		// 0x1060EF20 / 0x1060EFA0 / 0x1060F460: the index of the first match from start, -1 for none
+		int Find(char c, int start, bool caseSensitive) const;
+		int Find(const String& other, int start, bool caseSensitive) const;
+		int Find(const char* other, int start, bool caseSensitive) const;
+		// 0x1060EB20 / 0x1060EBA0 / 0x1060F1B0: the last match at or before start
+		int FindLast(char c, int start, bool caseSensitive) const;
+		int FindLast(const String& other, int start, bool caseSensitive) const;
+		int FindLast(const char* other, int start, bool caseSensitive) const;
+		// 0x1060EC60 / 0x1060F1E0: copies length characters of source from start into this string (a negative
+		// length goes backwards)
+		unsigned int Mid(const String& source, int start, int length);
+		unsigned int Mid(const char* source, int start, int length);
+		// 0x1060EDA0 / 0x1060EDC0
+		void ToUpper();
+		void ToLower();
+		// 0x1060F2A0: how many parts the separator cuts the string into
+		unsigned int CountTokens(char separator) const;
+		// 0x1060F300: cuts the string at every separator (writing terminators) and stores the start of each part
+		unsigned int Split(char separator, char** parts, unsigned int maxParts);
 	};
 
 	// A string over a constant buffer (RTTI: container::StringLiteral; its vftable lives in another unit)
