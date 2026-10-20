@@ -278,6 +278,9 @@ def buildImageObject(pe, slots, exports, symbols, replaced, path, dataSizes=None
 	section, offset = place(entry)
 	writer.define("_DllEntry@12", section, offset, function=True)
 	for symbol, va in exports:
+		if symbol in replaced:
+			# an exported function of the engine that one of our objects defines: the object provides the export
+			continue
 		section, offset = place(va)
 		writer.define(symbol, section, offset, function=section is text)
 	exported = {symbol for symbol, _ in exports}
