@@ -868,6 +868,82 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x1081EAB0
+		bool EffectInstance::IsEmitting() const
+		{
+			return emitState != 0;
+		}
+
+		// FUNCTION: ENGINE 0x1081EB10
+		// EQUIVALENT: the same state tests, stores and calls; the engine joins the two early exits of the state test at one
+		// return, ours returns at each (24.8 %)
+		void EffectInstance::SetEmitting(bool emitting, float fadeTime)
+		{
+			bool done;
+			if (emitting)
+			{
+				done = emitState == 2 || emitState == 3;
+			}
+			else
+			{
+				done = emitState == 0 || emitState == 1;
+			}
+			if (!done)
+			{
+				emitTime = fadeTime;
+				emitLeft = fadeTime - emitLeft;
+				if (fadeTime == 0.0f)
+				{
+					emitState = emitting ? 2 : 0;
+					drawable.SetParticleUnknown4B8(emitting);
+					drawable.SetParticleFade(emitting ? 1.0f : 0.0f);
+					emitLeft = 0.0f;
+					emitTime = 0.0f;
+				}
+				else if (emitting)
+				{
+					emitState = 3;
+					drawable.SetParticleUnknown4B8(true);
+				}
+				else
+				{
+					emitState = 1;
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081EC00
+		void EffectInstance::SetStoreDrawable(const Drawable* store)
+		{
+			storeDrawable = *store;
+			usesStore = store->IsValid();
+		}
+
+		// FUNCTION: ENGINE 0x1081EEF0
+		// EQUIVALENT: the same tests, calls and scan of the records; the engine keeps the constant 2 of the flag test in ebx and
+		// loads the effect handle before the stack argument is reserved (38.7 %)
+		void EffectInstance::StartFade()
+		{
+			if ((flags & 2) == 0)
+			{
+				if (drawable.IsValid())
+				{
+					drawable.ResetParticles();
+				}
+				unknown6C = fadeTime;
+				flags |= 2;
+				EffectManager* manager = GetEffectManager();
+				for (int i = 0; i < lodCount; i++)
+				{
+					if (lodsBegin[i]->kind == EFFECT_LOD_SWITCH)
+					{
+						manager->StopEffect(((EffectLODSwitch*)lodsBegin[i])->effect, 0.0f);
+						break;
+					}
+				}
+			}
+		}
+
 		// FUNCTION: ENGINE 0x1081D540
 		// EQUIVALENT: the same walks, tests, calls and stores; the engine keeps the loop's offset and counter in other stack
 		// slots and the store cursor in a register over the loops (52.2 %)

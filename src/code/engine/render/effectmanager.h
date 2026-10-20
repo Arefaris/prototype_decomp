@@ -8,6 +8,7 @@
 #define ENGINE_RENDER_EFFECTMANAGER_H
 
 #include "code/core/name.h"
+#include "code/engine/render/effectlod.h"
 #include "code/engine/camera/camera.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/render/async/drawable.h"
@@ -153,12 +154,20 @@ namespace engine
 			void Kill();
 			// 0x1081EEF0: starts fading the effect out over the time at +0x70 (unless it already does)
 			void StartFade();
+			// 0x1081EAB0: whether the particles are not off
+			bool IsEmitting() const;
+			// 0x1081EB10: switches the particles on or off, at once or over a time
+			void SetEmitting(bool emitting, float fadeTime);
+			// 0x1081EC00: the drawable of the store the effect is made from; the effect counts as its user when it exists
+			void SetStoreDrawable(const Drawable* store);
 
 			int unknown0;
 			math::Matrix transform;  // +0x04
 			math::Vector position;  // +0x44
 			Drawable drawable;  // +0x50
-			unsigned char unknown54[0xC];
+			// The drawable of the store the effect came from
+			Drawable storeDrawable;  // +0x54
+			unsigned char unknown58[8];
 			EffectName name;  // +0x60
 			unsigned char unknown68[4];
 			// 1000 for a spanned effect
@@ -166,10 +175,34 @@ namespace engine
 			float fadeTime;  // +0x70
 			// The time the effect has left (the largest float once it is killed)
 			float timeLeft;  // +0x74
-			unsigned char unknown78[0x9C - 0x78];
+			// The level-of-detail records of the effect (a vector of pointers, begin / end / end of storage, and the count)
+			EffectLOD** lodsBegin;  // +0x78
+			EffectLOD** lodsEnd;  // +0x7C
+			EffectLOD** lodsCapacity;  // +0x80
+			int unknown84;
+			int lodCount;  // +0x88
+			int unknown8C;
+			// How the particles stand: 0 off, 1 about to go off, 2 on, 3 about to come on (see SetEmitting)
+			int emitState;  // +0x90
+			float emitTime;  // +0x94
+			float emitLeft;  // +0x98
 			// bit 0: the transform changed, bit 1: fading out, bit 5: counted as a user of the store it names, bit 6: made
 			// from a store (the effect keeps the store alive)
-			unsigned char flags;  // +0x9C
+			union
+			{
+				unsigned char flags;  // +0x9C
+				struct
+				{
+					unsigned char transformChanged : 1;
+					unsigned char fadingOut : 1;
+					unsigned char unknownBit2 : 1;
+					unsigned char unknownBit3 : 1;
+					unsigned char unknownBit4 : 1;
+					unsigned char usesStore : 1;
+					unsigned char fromStore : 1;
+					unsigned char unknownBit7 : 1;
+				};
+			};
 			unsigned char unknown9D[3];
 			// The name of the store the effect belongs to
 			EffectName storeName;  // +0xA0
