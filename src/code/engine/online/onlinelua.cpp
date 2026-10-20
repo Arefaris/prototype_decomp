@@ -2,21 +2,13 @@
 // guesses): which player controls a character, registered for the scripts as online_DeterminePlayerIndex.
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/message.h"
 #include "code/engine/luascriptmanager.h"
 
 namespace engine
 {
-	// engine::CharacterQueryMessage (RTTI): the questions a character's behaviours answer (message type 0x10)
-	struct CharacterQueryMessage : public IntrusiveMessage
-	{
-	public:
-		explicit CharacterQueryMessage(short newId) : IntrusiveMessage(0x10, newId)
-		{
-		}
-	};
-
 	// engine::CharacterQueryPlayerControlStateMessage (RTTI): the answer points at the controlling player's index
 	struct CharacterQueryPlayerControlStateMessage : public CharacterQueryMessage
 	{

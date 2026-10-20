@@ -17,6 +17,7 @@ namespace fight
 {
 	class TrackFactory;
 	class ConditionFactory;
+	class Branch;
 
 	// The engine's names are case sensitive
 	typedef core::Name<core::CaseSensitiveKey> Name;
@@ -672,8 +673,17 @@ namespace fight
 		// 0x105A5260: resolves the branch references of the context's nodes
 		void ResolveBranchRefs();
 
+		// The branches of the context (0x105A3690 finds one by its path)
+		class BranchTable
+		{
+		public:
+			Branch* FindByPath(const char* path);
+		};
+
 		Name name;  // +0x8
-		unsigned char unknown10[0xC8];
+		unsigned char unknown10[0x7C];
+		BranchTable* branches;  // +0x8C
+		unsigned char unknown90[0x48];
 	};
 
 	template<class T> class TrackFactoryTemplate : public TrackFactory

@@ -61,11 +61,23 @@ namespace engine
 	// AttributeUpdatedMessage when the writer goes away (names guessed)
 	template<class T> struct AttributeWriter
 	{
+		// No attribute: the empty name, no object, no value
+		AttributeWriter() : name((const char*)0, 1)
+		{
+			object = 0;
+			value = 0;
+		}
+		AttributeWriter(const content::ObjectName& newName, GameObject* newObject, T* newValue) : name(newName)
+		{
+			object = newObject;
+			value = newValue;
+		}
 		~AttributeWriter()
 		{
 			if (value != 0)
 			{
 				Notify();
+				value = 0;
 			}
 		}
 		// Out of line (AttributeWriter<core::Name>: 0x107E1CD0)
@@ -176,6 +188,9 @@ namespace engine
 		// 0x1006AD60)
 		template<class T> AttributeWriter<T> GetAttributeWriter(const content::ObjectName& name);
 		template<class T> AttributePtr<T> GetAttributePtr(const content::ObjectName& name);
+		// Sets the attribute of that name to value, making it when the object has none (out of line in other units:
+		// int 0x102DC220, float 0x105927C0, math::Vector 0x10592640)
+		template<class T> void SetAttribute(const content::ObjectName& name, const T& value, bool unknown);
 		// The value of a named attribute of type T, null when there is none
 		template<class T> T* GetAttributeValue(const content::ObjectName& name)
 		{

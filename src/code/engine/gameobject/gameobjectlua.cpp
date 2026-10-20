@@ -5,9 +5,13 @@
 #include "code/core/name.h"
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/system/streampackage.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/math/matrix.h"
 #include "code/math/vector.h"
 
 // FUNCTION: ENGINE 0x10868760
@@ -150,6 +154,35 @@ namespace math
 namespace engine
 {
 	typedef core::Name<core::CaseSensitiveKey> ScriptName;
+
+	// The name of the motion context (0x111C17D0)
+	extern const char* gMotionContextName;
+
+	// The access to a named attribute of type T (the units that write attributes keep their own copies: int, float
+	// and bool here)
+	template<class T> AttributeWriter<T> GameObject::GetAttributeWriter(const content::ObjectName& name)
+	{
+		BaseAttribute* attribute = FindAttribute(name);
+		if (attribute != 0)
+		{
+			T* value = &static_cast<Attribute<T>*>(attribute)->Get();
+			return AttributeWriter<T>(name, this, value);
+		}
+		return AttributeWriter<T>();
+	}
+
+	// The destructors of the three writers (they notify the object when a value was written) are the compiler's
+	// FUNCTION: ENGINE 0x1086B210
+	// FUNCTION: ENGINE 0x1086B230
+	// FUNCTION: ENGINE 0x1086B250
+	// FUNCTION: ENGINE 0x1086B270
+	template AttributeWriter<int> GameObject::GetAttributeWriter<int>(const content::ObjectName&);
+	// FUNCTION: ENGINE 0x1086B2D0
+	template AttributeWriter<float> GameObject::GetAttributeWriter<float>(const content::ObjectName&);
+	// FUNCTION: ENGINE 0x1086B330
+	template AttributeWriter<bool> GameObject::GetAttributeWriter<bool>(const content::ObjectName&);
+	// The writer of a vector comes from another unit (0x10257690)
+	template<> AttributeWriter<math::Vector> GameObject::GetAttributeWriter<math::Vector>(const content::ObjectName&);
 
 	// FUNCTION: ENGINE 0x10869CD0
 	void go_DeleteAttr(LuaGOH object, ScriptName name)
@@ -414,5 +447,351 @@ namespace engine
 			return;
 		}
 		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086A570
+	math::Vector go_GetPosition(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			const math::Matrix& transform = gameObject->transform->value;
+			return math::Vector(transform.m[3][0], transform.m[3][1], transform.m[3][2]);
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+		return math::Vector(3.402823466e+38f, 3.402823466e+38f, 3.402823466e+38f);
+	}
+
+	// FUNCTION: ENGINE 0x1086A600
+	math::Vector go_GetOrientation(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			const math::Matrix& transform = gameObject->transform->value;
+			return -math::Vector(transform.m[2][0], transform.m[2][1], transform.m[2][2]);
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+		return math::Vector(3.402823466e+38f, 3.402823466e+38f, 3.402823466e+38f);
+	}
+
+	// FUNCTION: ENGINE 0x1086A6B0
+	math::Vector go_GetPositionByName(ScriptName name)
+	{
+		GameObject* gameObject = FindGameObject(name, *(const ScriptName*)"").Get();
+		if (gameObject != 0)
+		{
+			const math::Matrix& transform = gameObject->transform->value;
+			return math::Vector(transform.m[3][0], transform.m[3][1], transform.m[3][2]);
+		}
+		SetScriptError(GetScriptManager(), "Could not find GameObject '%s'", name.GetText());
+		return math::Vector(3.402823466e+38f, 3.402823466e+38f, 3.402823466e+38f);
+	}
+
+	// FUNCTION: ENGINE 0x1086A750
+	math::Vector go_GetOrientationByName(ScriptName name)
+	{
+		GameObject* gameObject = FindGameObject(name, *(const ScriptName*)"").Get();
+		if (gameObject != 0)
+		{
+			const math::Matrix& transform = gameObject->transform->value;
+			return -math::Vector(transform.m[2][0], transform.m[2][1], transform.m[2][2]);
+		}
+		SetScriptError(GetScriptManager(), "Could not find GameObject '%s'", name.GetText());
+		return math::Vector(3.402823466e+38f, 3.402823466e+38f, 3.402823466e+38f);
+	}
+
+	// FUNCTION: ENGINE 0x10869D30
+	void go_Reset(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			ResetMessage message;
+			gameObject->SendMessage(&message);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10869FF0
+	ScriptName go_GetUIDAttr(LuaGOH object, ScriptName name)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject == 0)
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return ScriptName((const char*)0, 1);
+		}
+		BaseAttribute* attribute = gameObject->FindAttribute(name);
+		if (attribute != 0)
+		{
+			ScriptName* value = &static_cast<Attribute<ScriptName>*>(attribute)->value;
+			if (value != 0)
+			{
+				return *value;
+			}
+		}
+		return ScriptName();
+	}
+
+	// FUNCTION: ENGINE 0x1086A810
+	void go_SetBroadcastStateChanges(LuaGOH object, bool broadcast)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			SetBroadcastStateChangesMessage message(broadcast);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086AB60
+	void phys_EnablePhysics(LuaGOH object, bool enabled)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			PhysicsSetEnabledMessage message(enabled);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086ABF0
+	void phys_WakeUpObject(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			PhysicsWakeUpMessage message;
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086AC80
+	void phys_SetLinearVelocity(LuaGOH object, math::Vector velocity, int mode)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			PhysicsSetLinearVelocityMessage message(velocity, mode);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086AD30
+	void phys_SetAngularVelocity(LuaGOH object, math::Vector velocity, int mode)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			PhysicsSetAngularVelocityMessage message(velocity, mode);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086AFE0
+	void go_LockCharacterIntention(LuaGOH object, bool locked)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			CharacterIntentionLockMessage message(locked);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// FUNCTION: ENGINE 0x1086B070
+	void go_ClearCharacterIntention(LuaGOH object)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject != 0)
+		{
+			CharacterIntentionClearMessage message;
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+	}
+
+	// The engine's go_AddTag and go_RemoveTag call the router functions declared as RouterRemove and RouterQuery
+	// (0x107EE3E0 / 0x107EE400): the declarations' names are the other way round
+	// FUNCTION: ENGINE 0x1086ADE0
+	void go_AddTag(LuaGOH object, ScriptName tag)
+	{
+		GameObjectHandle handle = DeserializeHandle(object);
+		if (!handle.IsValid())
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		handle.RouterRemove(*static_cast<const MessageListeners*>(&tag));
+	}
+
+	// FUNCTION: ENGINE 0x1086AE40
+	void go_RemoveTag(LuaGOH object, ScriptName tag)
+	{
+		GameObjectHandle handle = DeserializeHandle(object);
+		if (!handle.IsValid())
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		handle.RouterQuery(*static_cast<const MessageListeners*>(&tag));
+	}
+
+	// FUNCTION: ENGINE 0x1086BB00
+	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
+	void go_SetIntAttr(LuaGOH object, ScriptName name, int value)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject == 0)
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		AttributeWriter<int> writer = gameObject->GetAttributeWriter<int>(name);
+		if (writer.value != 0)
+		{
+			*writer.value = value;
+		}
+		else
+		{
+			gameObject->SetAttribute(name, value, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1086BBA0
+	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
+	void go_SetFloatAttr(LuaGOH object, ScriptName name, float value)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject == 0)
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		AttributeWriter<float> writer = gameObject->GetAttributeWriter<float>(name);
+		if (writer.value != 0)
+		{
+			*writer.value = value;
+		}
+		else
+		{
+			gameObject->SetAttribute(name, value, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1086BDF0
+	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
+	void go_SetVectorAttr(LuaGOH object, ScriptName name, math::Vector value)
+	{
+		GameObject* gameObject = DeserializeHandle(object).Get();
+		if (gameObject == 0)
+		{
+			SetScriptError(GetScriptManager(), "Invalid GameObjectHandle");
+			return;
+		}
+		AttributeWriter<math::Vector> writer = gameObject->GetAttributeWriter<math::Vector>(name);
+		if (writer.value != 0)
+		{
+			math::Vector* target = writer.value;
+			target->x = value.x;
+			target->y = value.y;
+			target->z = value.z;
+		}
+		else
+		{
+			gameObject->SetAttribute(name, value, false);
+		}
+	}
+
+	// The messages the unit keeps constructors, destructors and deleting destructors of (the compiler's, out of line)
+	// FUNCTION: ENGINE 0x10867B80
+	// FUNCTION: ENGINE 0x10867BB0
+	// FUNCTION: ENGINE 0x10867FC0
+	// FUNCTION: ENGINE 0x10867BC0
+	// FUNCTION: ENGINE 0x10867BF0
+	// FUNCTION: ENGINE 0x10867FE0
+	// FUNCTION: ENGINE 0x10867C00
+	// FUNCTION: ENGINE 0x10867C20
+	// FUNCTION: ENGINE 0x10868000
+	// FUNCTION: ENGINE 0x10867C30
+	// FUNCTION: ENGINE 0x10867C60
+	// FUNCTION: ENGINE 0x10868020
+
+	// FUNCTION: ENGINE 0x10868540
+	void PlayMotionBranch(GameObject* gameObject, const char* path, int mode, bool flag)
+	{
+		if (gameObject == 0)
+		{
+			return;
+		}
+		LoadListeners* listeners = gLoadListeners;
+		fight::TrackRegistry* context = listeners->FindContext(ScriptName(gMotionContextName, 1));
+		fight::TrackRegistry::BranchTable* table = context->branches;
+		fight::Branch* branch = table->FindByPath(path);
+		if (branch != 0)
+		{
+			PlayBranchMessage message(branch, mode, flag);
+			gameObject->SendMessage(&message);
+			return;
+		}
+		SetScriptError(GetScriptManager(), "PlayMotionBranchByPath: Could not find branch '%s'", path);
+	}
+
+	// FUNCTION: ENGINE 0x1086A9C0
+	void go_PlayMotionBranchByPath(LuaGOH object, const char* path, int mode, bool flag)
+	{
+		if (path != 0)
+		{
+			GameObject* gameObject = DeserializeHandle(object).Get();
+			if (gameObject != 0)
+			{
+				PlayMotionBranch(gameObject, path, mode, flag);
+				return;
+			}
+			SetScriptError(GetScriptManager(), "PlayMotionBranchByPath: Invalid GameObjectHandle");
+			return;
+		}
+		SetScriptError(GetScriptManager(), "PlayMotionBranchByPath: Invalid path");
+	}
+
+	// FUNCTION: ENGINE 0x1086AA50
+	// EQUIVALENT: the shared tail selects the message into a register where the engine pushes each one directly, 93.7 %
+	bool go_IsPlayingBranchByPath(LuaGOH object, const char* path, bool exact)
+	{
+		if (path != 0)
+		{
+			GameObject* gameObject = DeserializeHandle(object).Get();
+			if (gameObject != 0)
+			{
+				LoadListeners* listeners = gLoadListeners;
+				fight::TrackRegistry* context = listeners->FindContext(ScriptName(gMotionContextName, 1));
+				fight::TrackRegistry::BranchTable* table = context->branches;
+				fight::Branch* branch = table->FindByPath(path);
+				if (branch != 0)
+				{
+					IsPlayingBranchMessage message(branch, exact);
+					gameObject->PostMessage(&message);
+					return message.playing;
+				}
+				SetScriptError(GetScriptManager(), "IsPlayingMotionBranchByPath: Could not find branch '%s'", path);
+				return false;
+			}
+		}
+		SetScriptError(GetScriptManager(), path != 0 ? "IsPlayingMotionBranchByPath: Invalid GameObjectHandle" :
+			"IsPlayingMotionBranchByPath: Invalid path");
+		return false;
 	}
 }
