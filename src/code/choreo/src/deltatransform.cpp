@@ -142,6 +142,40 @@ namespace choreo
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1094D8C0
+	const math::Vector& DeltaTransform::GetVelocity() const
+	{
+		return mVelocity;
+	}
+
+	// FUNCTION: ENGINE 0x1094D8D0
+	const math::Vector& DeltaTransform::GetAngularVelocity() const
+	{
+		return mAngularVelocity;
+	}
+
+	// FUNCTION: ENGINE 0x1094D8E0
+	const math::Quaternion& DeltaTransform::GetTransformQuaternion()
+	{
+		return Transform::GetQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x1094D8F0
+	math::Vector DeltaTransform::GetPosition() const
+	{
+		math::Vector position;
+		position.x = mMatrix.m[3][0];
+		position.y = mMatrix.m[3][1];
+		position.z = mMatrix.m[3][2];
+		return position;
+	}
+
+	// FUNCTION: ENGINE 0x1094D910
+	void DeltaTransform::ResetTransform()
+	{
+		Transform::Reset();
+	}
+
 	// FUNCTION: ENGINE 0x1094D880
 	DeltaTransform::DeltaTransform()
 	{

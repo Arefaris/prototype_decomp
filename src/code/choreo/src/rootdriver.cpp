@@ -9,6 +9,9 @@ namespace choreo
 	// The smallest frame rate and rate the driver still plays at (the constant at 0x10E8C1FC)
 	static const float ANIMATIONDRIVER_EPSILON = 1e-5f;
 
+	// 0x10D94F78 (symbols.txt): zero in the data
+	extern const float gZero;
+
 	// FUNCTION: ENGINE 0x1094EF30
 	RootDriver::RootDriver() : Driver(9), mMask(3)
 	{
@@ -184,17 +187,17 @@ namespace choreo
 	}
 
 	// FUNCTION: ENGINE 0x1094F300
-	// NONMATCHING: the engine encodes the two float comparisons with the operands the other way round (comiss of the
-	// constant and then of the frame against the limit, against ours of the frame first); 90 %
+	// NONMATCHING: the engine lays the two stores out the other way round (a branch on frame <= limit to the store of
+	// the frame, the store of the limit or the lower bound after it); the comparisons are the same, 94 %
 #ifdef NONMATCHING
 	void AnimationDriver::SetStartFrame(float frame)
 	{
 		float limit = mBinding.mClip.GetDuration() - 1.0f;
 		float value = 0.0f;
-		if (value <= frame)
+		if (!(0.0f > frame))
 		{
 			value = limit;
-			if (frame <= limit)
+			if (!(frame > limit))
 			{
 				value = frame;
 			}
@@ -421,5 +424,115 @@ namespace choreo
 		{
 			blendNode->SetNone(rotation, translation);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1094F810
+	// NONMATCHING: the engine keeps the flag in memory and tests the comparison flags of both ranges in one tail (61.6 %)
+#ifdef NONMATCHING
+	void AnimationDriver::UpdateFinished()
+	{
+		bool finished = false;
+		if (!mUnknown54 && !mUnknown55)
+		{
+			bool playing;
+			if (!(mUnknown58 >= gZero))
+			{
+				playing = mStartFrame < mUnknownE4;
+			}
+			else
+			{
+				playing = mUnknownE4 < mEndFrame;
+			}
+			finished = true;
+			if (playing)
+			{
+				finished = false;
+			}
+		}
+		Unknown1094A4C0(finished);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1094F860
+	AnimationDriver::AnimationDriver(pure3d::Skeleton* skeleton, pure3d::Animation* animation)
+		: PartitionDriver(skeleton, 0), mUnknown54(false), mUnknown55(false), mUnknown58(1.0f), mStartFrame(0.0f),
+		mUnknown64(true), mUnknown65(true), mUnknown66(false), mUnknown67(false)
+	{
+		mUnknownE4 = 0.0f;
+		mUnknownE8 = 0.0f;
+		mUnknownEC = -1.0f;
+		mUnknownF0 = false;
+		mUnknownF4 = -1.0f;
+		SetAnimation(animation);
+		Unknown1094A430(true);
+		Unknown1094A440(true);
+		Unknown1094A460(true);
+		Unknown1094A480(true);
+		mEndFrame = mBinding.mClip.GetDuration() - 1.0f;
+		gAnimationDriverCount++;
+		if (gAnimationDriverCount > gAnimationDriverPeak)
+		{
+			gAnimationDriverPeak = gAnimationDriverCount;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1094F970
+	void AnimationDriver::SetRange(float duration, float rate, float start, float end)
+	{
+		SetStartFrame(start);
+		if (end < 0.0f)
+		{
+			SetEndFrame(mBinding.mClip.GetDuration() + end);
+		}
+		else
+		{
+			SetEndFrame(end);
+		}
+		if (duration > ANIMATIONDRIVER_EPSILON && !mUnknown54)
+		{
+			mUnknown58 = 1.0f;
+			float direction;
+			if (rate < 0.0f)
+			{
+				direction = -1.0f;
+			}
+			else if (rate > 0.0f)
+			{
+				direction = 1.0f;
+			}
+			else
+			{
+				direction = 0.0f;
+			}
+			mUnknown58 = direction / duration * GetRangeTime();
+		}
+		else
+		{
+			mUnknown58 = rate;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1094FA70
+	void AnimationDriver::Update(float dt)
+	{
+		if (mUnknownF0)
+		{
+			if (!(mUnknownF4 >= 0.0f))
+			{
+				return;
+			}
+			mUnknownF4 = mUnknownF4 - dt;
+			if (!(mUnknownF4 <= 0.0f))
+			{
+				return;
+			}
+			mUnknownF0 = false;
+			mUnknownF4 = -1.0f;
+		}
+		mUnknownE8 = GetFrameAdvance(dt);
+		mDelta.Update(dt);
+		mUnknownEC = mUnknownE4;
+		mUnknownE4 = ClampFrame(mUnknownE8 + mUnknownE4);
+		UpdateFinished();
 	}
 }

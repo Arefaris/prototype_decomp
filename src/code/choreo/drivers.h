@@ -93,8 +93,6 @@ namespace choreo
 	public:
 		// 0x10955DF0
 		JointLockDriver();
-		// 0x10956AF0 (its matrix is copied row by row by the engine)
-		JointLockDriver(const JointLockDriver& other);
 		// 0x10955CC0
 		virtual ~JointLockDriver();
 		// slots 2 and 3 (0x10955D70 / 0x10955D80): the driver drives no joint of the partition
@@ -253,8 +251,6 @@ namespace choreo
 		// 0x1094B780
 		LocomotionStrafeDriver(pure3d::Skeleton* skeleton, unsigned int columns, unsigned int rows, void* animations,
 			void* rates, void* speeds);
-		// 0x10956C80
-		LocomotionStrafeDriver(const LocomotionStrafeDriver& other);
 		// slot 0 (0x1094A790) / slot 1 (0x1094A720) / slot 4 (0x1094B0D0) / slot 6 (0x1094A750)
 		virtual void Bind(const DriverInfo& info);
 		virtual void Unbind();
@@ -336,8 +332,6 @@ namespace choreo
 		static const unsigned int MAX_BINDINGS = 12;
 		static const unsigned int MAX_SAMPLES = 6;
 
-		// 0x10956B50
-		LocomotionSteerDriver(const LocomotionSteerDriver& other);
 		// slot 0 (0x1094FC20) / slot 1 (0x1094FBB0) / slot 4 (0x10950690) / slot 6 (0x1094FBE0)
 		virtual void Bind(const DriverInfo& info);
 		virtual void Unbind();
@@ -364,7 +358,12 @@ namespace choreo
 		unsigned int mUnknown4C;     // 0x4C
 		unsigned int mBindingCount;  // 0x50
 		AnimationBinding mBindings[MAX_BINDINGS]; // 0x54
-		float mUnknown1A4[(0x2AC - 0x1A4) / 4]; // 0x1A4
+		float mUnknown1A4[4];        // 0x1A4
+		float mUnknown1B4[28];       // 0x1B4
+		float mUnknown224;           // 0x224
+		float mUnknown228;           // 0x228
+		float mUnknown22C;           // 0x22C
+		DeltaTransform mDelta;       // 0x230
 		unsigned int mSampleCount;   // 0x2AC
 		StrafeSample mSamples[MAX_SAMPLES]; // 0x2B0
 	};

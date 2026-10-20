@@ -163,6 +163,8 @@ namespace choreo
 	class AnimationDriver : public PartitionDriver
 	{
 	public:
+		// 0x1094F860: a driver over the skeleton that plays the animation, its whole range at its own rate
+		AnimationDriver(pure3d::Skeleton* skeleton, pure3d::Animation* animation);
 		// slot 0 (0x1094F290): binds the clip to an animation
 		virtual void Bind(const DriverInfo& info);
 		// slot 1 (0x1094F2D0): releases the animation
@@ -179,6 +181,12 @@ namespace choreo
 		// 0x1094F1E0 / 0x1094F1F0
 		bool GetUnknown66() const;
 		bool GetUnknown67() const;
+		// 0x1094F810: whether the owner stops the driver (the range is played out and the driver neither loops nor
+		// follows the root)
+		void UpdateFinished();
+		// 0x1094F970: the range of frames to show and how fast to play it: from the duration it should take (when above
+		// zero) and the direction of the rate, or the rate itself; the end counts back from the last frame when negative
+		void SetRange(float duration, float rate, float start, float end);
 		// 0x1094F2E0: whether the driver plays a clip
 		bool IsSet() const;
 		// 0x1094F2F0: whether the clip is at rest against the pose

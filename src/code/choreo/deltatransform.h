@@ -101,6 +101,12 @@ namespace choreo
 		void Reset();
 		// 0x1094D8F0: the translation of the delta's matrix
 		math::Vector GetPosition() const;
+		// 0x1094D8C0 / 0x1094D8D0: the linear and the angular delta
+		const math::Vector& GetVelocity() const;
+		const math::Vector& GetAngularVelocity() const;
+		// 0x1094D8E0 / 0x1094D910: the transform's own quaternion, and its reset
+		const math::Quaternion& GetTransformQuaternion();
+		void ResetTransform();
 
 		// The linear delta of the step, in world space
 		void SetVelocity(const math::Vector& velocity);
