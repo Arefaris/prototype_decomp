@@ -810,6 +810,22 @@ namespace pure3d
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x1072B3D0
+	DDSParser::DDSParser(Texture* newTexture, unsigned int newWidth, unsigned int newHeight)
+		: texture(newTexture), width(newWidth), height(newHeight)
+	{
+		texture->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x1072B400
+	DDSParser::~DDSParser()
+	{
+		if (texture != 0)
+		{
+			texture->Release();
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1072B420
 	bool DDSParser::IsSupportedFormat(unsigned int format)
 	{

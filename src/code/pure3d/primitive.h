@@ -165,6 +165,10 @@ namespace pure3d
 		virtual void Reset();
 		virtual void SetAnimation(Animation* animation, float a, float b);
 		virtual void* GetParameters();
+		// Slots 24 - 26 (the vertex controllers below declare them again); 26 makes a new controller of the same kind
+		virtual void Unknown24();
+		virtual void Unknown25();
+		virtual FrameController* Clone();
 
 		// 0x1072E610
 		void SetBindingSource(void* source);
@@ -243,6 +247,8 @@ namespace pure3d
 	// FrameController): the controller that animates a mesh's shader (only its type is used here)
 	class ShaderAnimationController : public FrameController
 	{
+	public:
+		virtual ShaderAnimationController* Clone();
 	};
 
 	// What a primitive fills the device's draw data with: the object at DrawablePart::batch (+0xA0). The engine's
@@ -352,6 +358,10 @@ namespace pure3d
 	class PrimitiveState : public RefCounted
 	{
 	public:
+		// 0x106F2E20: a state of the primitive; 0x106F2E70: a copy of a state (the primitive and the binding source are
+		// shared); 0x106F2ED0: the destructor
+		explicit PrimitiveState(Primitive* newPrimitive);
+		PrimitiveState(const PrimitiveState& other);
 		virtual ~PrimitiveState();
 		// SkinState's override makes another state of the same kind (skin.cpp)
 		virtual PrimitiveState* Unknown3();
@@ -892,6 +902,8 @@ namespace pure3d
 
 	struct VertexBufferDescription;
 	struct IndexBufferDescription;
+	class dxVertexBuffer;
+	class dxIndexBuffer;
 
 	class GpuSkin;
 
@@ -903,18 +915,31 @@ namespace pure3d
 		void Unknown10B87050(float value);
 		// 0x1072DEC0: the object at +0x1C (a buffer; the draw reads its word at +0x38)
 		int* GetBuffer();
-		// 0x1072DDA0 (0x40 bytes): a state of the gpu skin
+		// 0x1072DDA0 (0x40 bytes): a state of the gpu skin; 0x1072E100: a copy of a state; 0x1072E190: the destructor
 		GpuSkinState(GpuSkin* skin);
-		// 0x1072DE90: the box at +0x24; 0x1072E1E0: takes a reference to the controller at +0x3C (the prim group
-		// loader hands it the shader animation of the group; names guessed)
+		GpuSkinState(const GpuSkinState& other);
+		virtual ~GpuSkinState();
+		// Slots 3 - 8: 0x1072E1C0 makes a copy, 0x1072DDE0 advances the shader animation once per frame of the
+		// device, 0x1072DE20 and 0x1072DE40 pass its reset and its question on, 0x1072DE60 gives the box at +0x24,
+		// 0x1072DEE0 sets the source the animation binds to
+		virtual PrimitiveState* Unknown3();
+		virtual void Update(float dt);
+		virtual void Unknown5();
+		virtual bool Unknown6();
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void Unknown8(void* source);
+		// 0x1072DE90: the box at +0x24; 0x1072E1E0: takes a reference to the shader animation at +0x3C (the prim
+		// group loader hands it the one of the group; names guessed); 0x1072DED0: hands it out
 		void SetBoundingBox(const math::AABB& box);
-		void SetShaderController(FrameController* controller);
+		void SetShaderController(ShaderAnimationController* controller);
+		ShaderAnimationController* GetShaderController();
 
 		unsigned char unknown10[0xC];
-		int* buffer;
+		core::IRefCount* buffer;
+		// The frame of the device the animation was last advanced in
 		int unknown20;
 		math::AABB bounds;
-		FrameController* shaderController;
+		ShaderAnimationController* shaderController;
 	};
 
 	// The instanced skin the device skins: a primitive whose parts are drawn from a skin state's pose by a vertex
@@ -945,19 +970,25 @@ namespace pure3d
 		void UnlockBuffer();
 		void UnlockIndices();
 		void SetPalette(MatrixPaletteList* palettes);
+		// 0x1072DF00: the description of the index buffer (name guess)
+		void GetIndexDescription(IndexBufferDescription* description);
 
 		// The kind of primitive the batch carries
 		unsigned int unknown1C;
 		// The shader parameters the device is set up with
 		ShaderParameters parameters;
-		// 0x138: the device buffer the skin is drawn from, 0x13C its stream and 0x140 its index data (the draw
-		// descriptor takes the word at +8 of it)
-		void* unknown138;
-		unsigned int unknown13C;
-		unsigned int unknown140;
+		// 0x138: the vertex buffer the skin is drawn from, 0x13C its index buffer and 0x140 the bone palette (the draw
+		// descriptor takes the address 8 bytes into it)
+		dxVertexBuffer* unknown138;
+		dxIndexBuffer* unknown13C;
+		MatrixPaletteList* unknown140;
 		math::AABB bounds;
 		math::Vector4 centre;
 		int unknown16C;
+
+	private:
+		// 0x1072E2F0: takes the primitive's flags from the shader's (called by Unknown4; name guess)
+		void SetFlagsFromShader();
 	};
 
 	// The per-instance state of a particle system. The setters and parameter forwarders are inline (0x107E8060 -

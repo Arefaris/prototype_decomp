@@ -50,6 +50,8 @@ namespace core
 		const unsigned __int64& GetHash() const;
 		// 0x1007EE30 (another unit's copy): recompute the hash from text
 		void SetText(const char* text);
+		// 0x1006A170 (another unit): stores the 64-bit hash (name guess)
+		void SetHash(unsigned __int64 newHash);
 	};
 
 	// Out of line (templates defined outside the class are not inlined): copies like 0x1007EE00 / 0x1007EE20 exist
