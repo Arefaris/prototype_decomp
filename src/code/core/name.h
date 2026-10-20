@@ -86,6 +86,8 @@ namespace core
 		bool operator==(const Name& other) const;
 		// 0x102E8910 (another unit's copy)
 		Name& operator=(const Name& other);
+		// 0x105FCED0 (another unit): the 32-bit hash of text, ignoring case
+		void SetText(const char* text);
 		// 0x1007EE80 (another unit's copy): the key of the name, which is the name itself
 		const CaseInsensitiveKey32& GetKey() const;
 

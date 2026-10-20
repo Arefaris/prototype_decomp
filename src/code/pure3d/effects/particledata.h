@@ -81,15 +81,6 @@ namespace pure3d
 		Entry entries[64];
 	};
 
-	class BoolChannel
-	{
-	public:
-		virtual void Unknown0();
-
-		// 0x107356D0: the value at frame
-		void GetValue(float frame, bool* out);
-	};
-
 	// The wrappers a state keeps its animated parameters in (RTTI pure3d::RefCountedBoolChannel and the like)
 	class RefCountedBoolChannel : public RefCounted
 	{
