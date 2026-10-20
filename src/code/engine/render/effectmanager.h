@@ -155,6 +155,7 @@ namespace engine
 			unsigned char unknown54[0xC];
 			EffectName name;  // +0x60
 			unsigned char unknown68[4];
+			// 1000 for a spanned effect
 			float unknown6C;
 			float fadeTime;  // +0x70
 			unsigned char unknown74[0x9C - 0x74];
@@ -234,6 +235,38 @@ namespace engine
 			int unknown1C;
 		};
 
+		// A drawable that follows a game object (8 bytes)
+		struct AttachedDrawable
+		{
+			// 0x10819500
+			AttachedDrawable();
+
+			Drawable drawable;  // +0x00
+			GameObjectHandle owner;  // +0x04
+		};
+
+		// A ring of attached drawables (0x14 bytes); its size is the engine's out-of-line copy
+		struct AttachedRing
+		{
+			// 0x10819670
+			unsigned int Size() const;
+			AttachedDrawable& At(unsigned int index)
+			{
+				int firstPart = end - head;
+				if ((int)index < firstPart)
+				{
+					return head[index];
+				}
+				return begin[index - firstPart];
+			}
+
+			AttachedDrawable* head;
+			AttachedDrawable* tail;
+			AttachedDrawable* begin;
+			AttachedDrawable* end;
+			int unknown10;
+		};
+
 		class EffectManager
 		{
 		public:
@@ -262,6 +295,11 @@ namespace engine
 			// have not had one for a while
 			void UpdateStores(float timeStep);
 
+			// 0x1081B9B0: lets go of every attached drawable
+			void ReleaseAttached();
+			// 0x1081C260: moves the attached drawables to their game objects
+			void UpdateAttachedTransforms(float timeStep);
+
 			// 0x1081AF90: lets go of the waiting drawables that are finished or whose owner is gone
 			void ReleaseFinishedWaiting(float timeStep);
 
@@ -283,6 +321,8 @@ namespace engine
 			void SetParticleUnknown49C(unsigned int effect, float value);
 			void SetEffectTransform(unsigned int effect, const math::Matrix& transform);
 			void SetEffectPosition(unsigned int effect, const math::Vector& position);
+			// 0x1081B5D0: stretches the effect between two points (z of its transform runs from the first to the second)
+			void SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, int unused);
 
 			// 0x1081A000: forgets a light that is about to go away in the lights that follow it
 			void ClearLightReferences(Light light);
@@ -298,7 +338,8 @@ namespace engine
 			// The drawables of effects that are waiting for their end
 			DrawableRing waiting;  // +0x5C
 			unsigned char unknown6C[0x2C];
-			unsigned char unknown98[8];
+			// Where the loops over the rings of attached drawables stand
+			HashIterator<AttachedRing> attachedRings;  // +0x98
 			unsigned char unknownA0[0x34];
 			// The stores of ready effects (a vector: begin, end, end of storage) and the one the loops are at
 			EffectStore* storesBegin;  // +0xD4
@@ -310,6 +351,9 @@ namespace engine
 			EffectLight* lightsBegin;  // +0xE8
 			EffectLight* lightsEnd;  // +0xEC
 			EffectLight* lightsCapacity;  // +0xF0
+			int unknownF4;
+			int unknownF8;
+			unsigned int unknownFC;
 		};
 
 		// 0x108193A0: the global manager

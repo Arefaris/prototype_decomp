@@ -1,5 +1,6 @@
 // The effect manager (see effectmanager.h).
 #include "code/engine/render/effectmanager.h"
+#include <math.h>
 #include <new>
 #include "code/engine/camera/director.h"
 #include "code/engine/fight/effecttrack.h"
@@ -298,6 +299,33 @@ namespace engine
 			return 0;
 		}
 
+		// FUNCTION: ENGINE 0x1081B5D0
+		// EQUIVALENT: the same differences, the same sum of squares ((x * x + y * y) + z * z; the first two terms swap) and the
+		// same calls; the engine schedules the loads and the first products differently (87.0 %)
+		void EffectManager::SetEffectSpan(unsigned int effect, const math::Vector* from, const math::Vector* to, int unused)
+		{
+			EffectInstance* instance = FindInstance(effect, 0);
+			if (instance != 0)
+			{
+				math::Vector direction;
+				direction.Sub(*to, *from);
+				float lengthSquared = (direction.x * direction.x + direction.y * direction.y) + direction.z * direction.z;
+				direction.NormalizeFast();
+				math::Matrix basis;
+				basis.Identity();
+				math::Vector up(0.0f, 1.0f, 0.0f);
+				basis.SetBasis(direction, up);
+				basis.SetTranslation(*from);
+				math::Matrix scale;
+				scale.Identity();
+				scale.Scale(1.0f, 1.0f, sqrtf(lengthSquared));
+				scale.Multiply(scale, basis);
+				instance->transform = scale;
+				instance->flags |= 1;
+				instance->unknown6C = 1000.0f;
+			}
+		}
+
 		// FUNCTION: ENGINE 0x1081B700
 		bool EffectManager::SetEffectName(unsigned int effect, const EffectName& name)
 		{
@@ -439,6 +467,63 @@ namespace engine
 				instance->flags |= 1;
 			}
 		}
+
+		// FUNCTION: ENGINE 0x10819500
+		AttachedDrawable::AttachedDrawable()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x1081B9B0
+		// EQUIVALENT: the same walk, the same destroys and stores; the engine keeps the manager in a stack slot over the
+		// loop and stores the empty ring pointer it ends with, ours keeps it in a register (64.2 %)
+		void EffectManager::ReleaseAttached()
+		{
+			HashIterator<AttachedRing>& iterator = attachedRings;
+			iterator.index = 0xffffffff;
+			AttachedRing* ring = iterator.NextCalled();
+			if (ring == 0)
+			{
+				unknownFC = 0;
+				return;
+			}
+			do
+			{
+				for (unsigned int i = 0; i < ring->Size(); i++)
+				{
+					Drawable::Destroy(&ring->At(i).drawable, 0);
+				}
+				ring->head = ring->begin;
+				ring->tail = ring->begin;
+				ring = iterator.Next();
+			}
+			while (ring != 0);
+			unknownFC = 0;
+		}
+
+		// FUNCTION: ENGINE 0x1081C260
+		// NONMATCHING: the same walk and calls; the engine loads the master table once before the loop and again after
+		// the queued call, ours inside the checks of every ring entry, 23.8 %
+#ifdef NONMATCHING
+		void EffectManager::UpdateAttachedTransforms(float timeStep)
+		{
+			HashIterator<AttachedRing>& iterator = attachedRings;
+			iterator.index = 0xffffffff;
+			AttachedRing* ring = iterator.NextCalled();
+			while (ring != 0)
+			{
+				for (unsigned int i = 0; i < ring->Size(); i++)
+				{
+					AttachedDrawable& attached = ring->At(i);
+					if (attached.owner.IsValid())
+					{
+						GameObject* object = attached.owner.Get();
+						attached.drawable.SetTransformQueued(object->transform->value);
+					}
+				}
+				ring = iterator.Next();
+			}
+		}
+#endif
 
 		// FUNCTION: ENGINE 0x1081B040
 		EffectLightSetup::EffectLightSetup()
