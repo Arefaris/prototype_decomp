@@ -6,6 +6,7 @@
 #ifndef ENGINE_FIGHT_TRACKFACTORY_H
 #define ENGINE_FIGHT_TRACKFACTORY_H
 
+#include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/core/strings.h"
 #include "code/engine/fight/sequencer.h"
@@ -652,15 +653,27 @@ namespace fight
 	// new one made through the caster
 	TrackFactory* FindTrackFactory(const char* name, TrackFactoryCaster* caster);
 
-	// The list of track factories the fight system knows (another unit's class; only the one member this unit calls
-	// is laid out here)
-	class TrackRegistry
+	// The factories one fight context knows (RTTI: fight::Context, 0xD8 bytes, a load object; the class name here is a
+	// guess from its use; another unit's class, only what the fight system's set-up calls is declared)
+	class TrackRegistry : public content::LoadObject
 	{
 	public:
+		// 0x105A5DB0
+		TrackRegistry();
 		// 0x105A5D10
 		void AddFactory(TrackFactory* factory);
 		// 0x105A5CD0
 		void AddFactory(ConditionFactory* factory);
+		// 0x105A5160: the name the context is known by
+		void SetName(const Name& newName);
+		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
+		void Prepare();
+		void Complete();
+		// 0x105A5260: resolves the branch references of the context's nodes
+		void ResolveBranchRefs();
+
+		Name name;  // +0x8
+		unsigned char unknown10[0xC8];
 	};
 
 	template<class T> class TrackFactoryTemplate : public TrackFactory
