@@ -1,0 +1,290 @@
+// The tag set (see the header). The tags are kept in order of their names' hashes; the order of the insertions is
+// the one of a comparison function on the names (0x108343F0). Names are guesses.
+#include <algorithm>
+
+#include "code/engine/system/tagset.h"
+
+// The engine's copy of the shift lives in another unit (0x102EB9A0)
+namespace container
+{
+	template<> void ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorCoreStatic<12, 16> >::ShiftUp(
+		core::Name<core::CaseSensitiveKey>* position, int count);
+}
+
+namespace engine
+{
+	typedef core::Name<core::CaseSensitiveKey> TagName;
+
+	// 0x10421910 (another unit): the order of two names' hashes, negative when the first is the smaller
+	int CompareNames(const TagName& first, const TagName& second);
+
+	// FUNCTION: ENGINE 0x108340F0
+	// The first place in [first, last) that is not before value
+	template<class It, class T> It LowerBound(It first, It last, const T& value)
+	{
+		int count = last - first;
+		while (count > 0)
+		{
+			int half = count / 2;
+			It middle = first + half;
+			if (*middle < value)
+			{
+				first = middle + 1;
+				count = count - half - 1;
+			}
+			else
+			{
+				count = half;
+			}
+		}
+		return first;
+	}
+
+	// FUNCTION: ENGINE 0x108343F0
+	static bool NameLess(const TagName& first, const TagName& second)
+	{
+		return CompareNames(first, second) < 0;
+	}
+
+	// FUNCTION: ENGINE 0x10834D60
+	TagSet::TagSet() : all(false)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10834960
+	void TagSet::Clear()
+	{
+		tags.end = tags.begin;
+	}
+
+	// FUNCTION: ENGINE 0x10834760
+	inline const TagName* TagSet::Find(const TagName& name) const
+	{
+		TagName* end = tags.end;
+		TagName* found = LowerBound(tags.begin, end, name);
+		if (found != end)
+		{
+			if (!(name < *found))
+			{
+				return found;
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10834910
+	bool TagSet::Contains(const TagName& name) const
+	{
+		if (all)
+		{
+			return true;
+		}
+		return Find(name) != 0;
+	}
+
+	// FUNCTION: ENGINE 0x108342A0
+	// EQUIVALENT: register choices and the order of the first loads (same comparisons in the same order)
+	bool TagSet::Intersects(const TagSet& other) const
+	{
+		if (all || other.all)
+		{
+			return true;
+		}
+		const TagName* mine = tags.begin;
+		unsigned int count = tags.end - tags.begin;
+		const TagName* theirs = other.tags.begin;
+		unsigned int otherCount = other.tags.end - other.tags.begin;
+		unsigned int i = 0;
+		unsigned int j = 0;
+		while (i < count)
+		{
+			if (j >= otherCount)
+			{
+				break;
+			}
+			if (*mine < *theirs)
+			{
+				i++;
+				mine++;
+			}
+			else if (*theirs < *mine)
+			{
+				j++;
+				theirs++;
+			}
+			else
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10834340
+	// EQUIVALENT: register choices and the order of the first loads (same comparisons in the same order)
+	bool TagSet::Includes(const TagSet& other) const
+	{
+		if (all || other.all)
+		{
+			return true;
+		}
+		const TagName* mine = tags.begin;
+		unsigned int count = tags.end - tags.begin;
+		const TagName* theirs = other.tags.begin;
+		unsigned int otherCount = other.tags.end - other.tags.begin;
+		unsigned int i = 0;
+		unsigned int j = 0;
+		while (i < count)
+		{
+			if (j >= otherCount)
+			{
+				break;
+			}
+			if (*mine < *theirs)
+			{
+				i++;
+				mine++;
+			}
+			else if (*mine == *theirs)
+			{
+				i++;
+				j++;
+				mine++;
+				theirs++;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		return j == otherCount;
+	}
+
+	// FUNCTION: ENGINE 0x10834D70
+	// EQUIVALENT: register choices and the layout of the search loop (same calls and stores in the same order)
+	TagName* TagSet::InsertSorted(const TagName& name, bool (*less)(const TagName&, const TagName&))
+	{
+		TagName* last = tags.end;
+		TagName* first = tags.begin;
+		TagName* middle = first + ((last - first) >> 1);
+		TagName* position = middle;
+		if (middle != 0)
+		{
+			do
+			{
+				position = middle;
+				if (last <= middle)
+				{
+					break;
+				}
+				TagName* newLast = middle;
+				if (less(*middle, name))
+				{
+					first = middle + 1;
+					newLast = last;
+				}
+				middle = first + ((newLast - first) >> 1);
+				last = newLast;
+			} while (middle != position);
+		}
+		TagName* result = tags.end;
+		if (tags.end + 1 <= tags.capacity)
+		{
+			tags.ShiftUp(position, 1);
+			container::ConstructCopyAt(position, name);
+			result = position;
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10834E80
+	// EQUIVALENT: register roles of the pointer and the counter, the zero is made by mov instead of xor
+	bool TagSet::Add(const TagName& name)
+	{
+		TagName* item = tags.begin;
+		unsigned int count = tags.end - item;
+		for (unsigned int i = 0; i < count; i++, item++)
+		{
+			if (*item == name)
+			{
+				return false;
+			}
+		}
+		InsertSorted(name, NameLess);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10834970
+	// EQUIVALENT: register choices and the shape of the address computations (same calls and stores in the same order)
+	bool TagSet::Remove(const TagName& name)
+	{
+		TagName* end = tags.end;
+		TagName* item = tags.begin;
+		for (unsigned int i = 0; i < (unsigned int)(end - tags.begin); i++, item++)
+		{
+			if (*item == name)
+			{
+				TagName* next = tags.begin + i;
+				for (next = next + 1; next != end; next++)
+				{
+					*(next - 1) = *next;
+				}
+				tags.end--;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10835000
+	// NONMATCHING: the engine calls std::sort where this inlines it into the call of _Sort (62 percent)
+#ifdef NONMATCHING
+	void TagSet::Sort()
+	{
+		std::sort(tags.begin, tags.end);
+	}
+#endif
+}
+
+// The sort of the tags is the toolchain's <algorithm> for the names; the unit keeps the instances it needs as COMDAT
+// functions of its own
+typedef core::Name<core::CaseSensitiveKey> TagNameType;
+template void std::_Med3<TagNameType*>(TagNameType*, TagNameType*, TagNameType*);
+template void std::_Push_heap<TagNameType*, int, TagNameType>(TagNameType*, int, int, TagNameType);
+template void std::_Median<TagNameType*>(TagNameType*, TagNameType*, TagNameType*);
+template void std::_Adjust_heap<TagNameType*, int, TagNameType>(TagNameType*, int, int, TagNameType);
+template void std::_Make_heap<TagNameType*, int, TagNameType>(TagNameType*, TagNameType*, int*, TagNameType*);
+template std::pair<TagNameType*, TagNameType*> std::_Unguarded_partition<TagNameType*>(TagNameType*, TagNameType*);
+template void std::_Insertion_sort1<TagNameType*, TagNameType>(TagNameType*, TagNameType*, TagNameType*);
+template void std::_Sort_heap<TagNameType*>(TagNameType*, TagNameType*);
+template void std::_Sort<TagNameType*, int>(TagNameType*, TagNameType*, int);
+template void std::sort<TagNameType*>(TagNameType*, TagNameType*);
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10834140
+// FUNCTION: ENGINE 0x10834150
+// FUNCTION: ENGINE 0x10834170
+// FUNCTION: ENGINE 0x10834180
+// FUNCTION: ENGINE 0x10834190
+// FUNCTION: ENGINE 0x108341D0
+// FUNCTION: ENGINE 0x10834240
+// FUNCTION: ENGINE 0x10834250
+// FUNCTION: ENGINE 0x10834260
+// FUNCTION: ENGINE 0x108344A0
+// FUNCTION: ENGINE 0x108344B0
+// FUNCTION: ENGINE 0x108344F0
+// FUNCTION: ENGINE 0x10834590
+// FUNCTION: ENGINE 0x10834610
+// FUNCTION: ENGINE 0x10834740
+// FUNCTION: ENGINE 0x108347A0
+// FUNCTION: ENGINE 0x10834830
+// FUNCTION: ENGINE 0x10834880
+// FUNCTION: ENGINE 0x108348C0
+// FUNCTION: ENGINE 0x108349E0
+// FUNCTION: ENGINE 0x10834C40
+// FUNCTION: ENGINE 0x10834C70
+// FUNCTION: ENGINE 0x10834DF0
+// FUNCTION: ENGINE 0x10834E10
+// FUNCTION: ENGINE 0x10834EE0
+// FUNCTION: ENGINE 0x10834EF0
+// FUNCTION: ENGINE 0x10834FC0
