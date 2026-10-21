@@ -78,8 +78,8 @@ namespace fight
 		virtual Sequencer* GetChild();
 		// vftable slot 4 (0x105A2460): accepts, the actions that care override it
 		virtual bool Slot4(int arg, float value);
-		// vftable slot 5 (per action class): begins on the track, false ends the action at once
-		virtual bool Slot5(int arg, float value) = 0;
+		// vftable slot 5 (0x105A2470; most action classes have their own): begins on the track, false ends the action at once
+		virtual bool Slot5(int arg, float value);
 		// vftable slot 6 (0x105A2480): the action was stopped; only actions without their own copy keep this one
 		virtual void Slot6();
 		// vftable slot 7 (0x105A2490): updates; only actions without their own copy keep this one
