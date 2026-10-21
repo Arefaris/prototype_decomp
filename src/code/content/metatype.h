@@ -747,6 +747,16 @@ namespace content
 		static PrimitiveMetaTypeGetSet<T> sType(&sGetSetter, code);
 		return &sType;
 	}
+
+	// The same for a class that reflects several members of one type through getters and setters: one instance per
+	// member (Id tells them apart; the reconstruction uses the source line), so each gets its own copy
+	template<class C, class T, int Id> MetaType* GetMemberMetaType(T (C::*getter)() const, void (C::*setter)(T),
+		const char* code)
+	{
+		static PrimitiveMemberGetSetter<C, T> sGetSetter(getter, setter);
+		static PrimitiveMetaTypeGetSet<T> sType(&sGetSetter, code);
+		return &sType;
+	}
 }
 
 #endif
