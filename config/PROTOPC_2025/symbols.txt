@@ -19077,3 +19077,4 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??8Address16@network@engine@@QBE_NABU012@@Z = 0x1093FBC0 ; function size:0x9E | engine::network::Address16::operator== (sixteen bytes compared; name guess)
 ??9Address16@network@engine@@QBE_NABU012@@Z = 0x1093FC70 ; function size:0x9E | engine::network::Address16::operator!= (sixteen bytes compared; name guess)
 ?GetOption@network@engine@@YAHHHHPAI0@Z = 0x1093EDD0 ; function size:0x191 | int GetOption(int handle, int level, int option, unsigned int* value, unsigned i
+?SetOption@network@engine@@YAHHHHPBII@Z = 0x1093EF70 ; function size:0x189 | int SetOption(int handle, int level, int option, const unsigned int* value, unsi

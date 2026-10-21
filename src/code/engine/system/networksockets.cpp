@@ -990,7 +990,7 @@ namespace engine
 		};
 
 		// FUNCTION: ENGINE 0x1093EB30
-		// NONMATCHING: block layout (41 %): the engine places the return of 0 for an empty or request-less poll right behind the first loop and the wait after it, ours keeps the wait inline and the return behind it; the loops, the set updates and the result handling are the engine's
+		// NONMATCHING: shrink-wrap and register allocation (40 %): the engine pushes all four registers in the entry block and keeps the zero for the sets' counts in esi and edi, ours pushes after the empty-poll test and uses other registers; the loops, the set updates, the wait and the result handling are the engine's
 #ifdef NONMATCHING
 		int Poll(PollEntry* entries, unsigned int count, unsigned int timeout)
 		{
@@ -1036,73 +1036,240 @@ namespace engine
 					}
 					FD_SET(socketEntry->handle, &errorSet);
 				}
-				if (readCount != 0 || writeCount != 0)
+				if (readCount == 0 && writeCount == 0)
 				{
-					goto wait;
+					return 0;
 				}
+				timeval limit;
+				const timeval* limitPointer;
+				if (timeout == 0xFFFFFFFF)
+				{
+					limitPointer = 0;
+				}
+				else
+				{
+					limit.tv_sec = timeout / 1000;
+					limit.tv_usec = (timeout % 1000) * 1000;
+					limitPointer = &limit;
+				}
+				unsigned int most = writeCount;
+				if (readCount > most)
+				{
+					most = readCount;
+				}
+				if (select(most + 1, &readSet, &writeSet, &errorSet, limitPointer) == -1)
+				{
+					return LastError();
+				}
+				int ready = 0;
+				entry = entries;
+				for (unsigned int remaining = count; remaining != 0; remaining--, entry++)
+				{
+					bool changed = false;
+					unsigned short result = entry->result;
+					if ((char)result < 0)
+					{
+						continue;
+					}
+					SocketEntry* socketEntry = GetEntry(entry->handle);
+					if (socketEntry == 0 || socketEntry->open == 0)
+					{
+						entry->result = result | 0x80;
+						continue;
+					}
+					if ((entry->events & 1) != 0 && __WSAFDIsSet(socketEntry->handle, &readSet) != 0)
+					{
+						entry->result |= 1;
+						changed = true;
+					}
+					if ((entry->events & 2) != 0 && __WSAFDIsSet(socketEntry->handle, &writeSet) != 0)
+					{
+						entry->result |= 2;
+						changed = true;
+					}
+					if (__WSAFDIsSet(socketEntry->handle, &errorSet) != 0)
+					{
+						entry->result |= 4;
+						ready++;
+					}
+					else if (changed)
+					{
+						ready++;
+					}
+				}
+				return ready;
 			}
 			return 0;
-		wait:
-			timeval limit;
-			const timeval* limitPointer;
-			if (timeout == 0xFFFFFFFF)
-			{
-				limitPointer = 0;
-			}
-			else
-			{
-				limit.tv_sec = timeout / 1000;
-				limit.tv_usec = (timeout % 1000) * 1000;
-				limitPointer = &limit;
-			}
-			unsigned int most = writeCount;
-			if (readCount > most)
-			{
-				most = readCount;
-			}
-			if (select(most + 1, &readSet, &writeSet, &errorSet, limitPointer) == -1)
-			{
-				return LastError();
-			}
-			int ready = 0;
-			entry = entries;
-			for (unsigned int remaining = count; remaining != 0; remaining--, entry++)
-			{
-				bool changed = false;
-				unsigned short result = entry->result;
-				if ((char)result < 0)
-				{
-					continue;
-				}
-				SocketEntry* socketEntry = GetEntry(entry->handle);
-				if (socketEntry == 0 || socketEntry->open == 0)
-				{
-					entry->result = result | 0x80;
-					continue;
-				}
-				if ((entry->events & 1) != 0 && __WSAFDIsSet(socketEntry->handle, &readSet) != 0)
-				{
-					entry->result |= 1;
-					changed = true;
-				}
-				if ((entry->events & 2) != 0 && __WSAFDIsSet(socketEntry->handle, &writeSet) != 0)
-				{
-					entry->result |= 2;
-					changed = true;
-				}
-				if (__WSAFDIsSet(socketEntry->handle, &errorSet) != 0)
-				{
-					entry->result |= 4;
-					ready++;
-				}
-				else if (changed)
-				{
-					ready++;
-				}
-			}
-			return ready;
 		}
 #endif
+
+		// FUNCTION: ENGINE 0x1093EDD0
+		int GetOption(int handle, int level, int option, unsigned int* value, unsigned int* size)
+		{
+			SocketEntry* entry = GetEntry(handle);
+			if (entry == 0 || entry->open == 0)
+			{
+				return -1;
+			}
+			if (level == 0xFFFF)
+			{
+				switch (option)
+				{
+				case 4:
+					if (getsockopt(entry->handle, 0xFFFF, 4, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x20:
+					if (getsockopt(entry->handle, 0xFFFF, 0x20, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x80:
+					{
+						if (*size != 8)
+						{
+							goto invalid;
+						}
+						unsigned short linger[2];
+						int length = 4;
+						if (getsockopt(entry->handle, 0xFFFF, 0x80, (char*)linger, &length) == -1)
+						{
+							return LastError();
+						}
+						value[0] = linger[0];
+						value[1] = linger[1];
+						*size = 4;
+						return 0;
+					}
+				case 0x1001:
+					if (getsockopt(entry->handle, 0xFFFF, 0x1001, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x1002:
+					if (getsockopt(entry->handle, 0xFFFF, 0x1002, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x1009:
+					if (*size < 4)
+					{
+						goto invalid;
+					}
+					*value = entry->unknown4 != 0;
+					*size = 4;
+					return 0;
+				case 0x100A:
+					if (getsockopt(entry->handle, 0xFFFF, 0x2003, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				}
+			}
+			else if (level == 6)
+			{
+				switch (option)
+				{
+				case 1:
+					if (getsockopt(entry->handle, 6, 1, (char*)value, (int*)size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				}
+			}
+		invalid:
+			return -2;
+		}
+
+		// FUNCTION: ENGINE 0x1093EF70
+		int SetOption(int handle, int level, int option, const unsigned int* value, unsigned int size)
+		{
+			SocketEntry* entry = GetEntry(handle);
+			if (entry == 0 || entry->open == 0)
+			{
+				return -1;
+			}
+			if (level == 0xFFFF)
+			{
+				switch (option)
+				{
+				case 4:
+					if (setsockopt(entry->handle, 0xFFFF, 4, (const char*)value, size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x20:
+					if (setsockopt(entry->handle, 0xFFFF, 0x20, (const char*)value, size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x80:
+					{
+						if (size != 8)
+						{
+							return -2;
+						}
+						unsigned short linger[2];
+						linger[0] = (unsigned short)value[0];
+						linger[1] = (unsigned short)value[1];
+						if (setsockopt(entry->handle, 0xFFFF, 0x80, (const char*)linger, 4) == -1)
+						{
+							return LastError();
+						}
+						return 0;
+					}
+				case 0x1001:
+					if (setsockopt(entry->handle, 0xFFFF, 0x1001, (const char*)value, size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x1002:
+					if (setsockopt(entry->handle, 0xFFFF, 0x1002, (const char*)value, size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				case 0x1009:
+					{
+						if (size < 4)
+						{
+							goto invalid;
+						}
+						unsigned long enable = *value != 0;
+						if (ioctlsocket(entry->handle, 0x8004667E, &enable) == -1)
+						{
+							return LastError();
+						}
+						entry->unknown4 = 1;
+						return 0;
+					}
+				}
+			}
+			else if (level == 6)
+			{
+				switch (option)
+				{
+				case 1:
+					if (setsockopt(entry->handle, 6, 1, (const char*)value, size) == -1)
+					{
+						return LastError();
+					}
+					return 0;
+				}
+			}
+		invalid:
+			return -2;
+		}
 
 		// A sixteen byte address (the length the layer's addresses have); compared byte by byte
 		struct Address16
