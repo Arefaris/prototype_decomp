@@ -1,13 +1,125 @@
-// The fight conditions on the locomotion input and on a turn (unit 0x108F66C0 - 0x108F7220; no assert path, file name guessed).
+// The fight conditions on the character input, the locomotion input and on a turn (unit 0x108F6660 - 0x108F7220; no assert path, file name guessed).
 #include "code/engine/fight/inputconditions.h"
 
 namespace engine
 {
+	extern fight::EnumEntry gCharacterInputConditionButtonStateTable[];
 	extern const int gCompareOperatorCount;
 	extern fight::EnumEntry gCompareOperatorTable[];
 	extern fight::EnumEntry gLocoInputConditionInputTypeTable[];
 	extern fight::EnumEntry gTurnInputConditionPreviousDirectionTable[];
 	extern fight::EnumEntry gTurnInputConditionRangeTypeTable[];
+
+	fight::Property** gCharacterInputConditionProperties;  // 0x1131B290
+
+	// FUNCTION: ENGINE 0x108F6660
+	bool CharacterInputCondition::SetButton(int newValue)
+	{
+		button = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F6670
+	bool CharacterInputCondition::SetButtonState(int newValue)
+	{
+		buttonState = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F6680
+	bool CharacterInputCondition::SetCompareTime(int newValue)
+	{
+		compareTime = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F6690
+	bool CharacterInputCondition::SetTime(float newValue)
+	{
+		time = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F66A0
+	bool CharacterInputCondition::SetCompareValue(int newValue)
+	{
+		compareValue = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F66B0
+	bool CharacterInputCondition::SetValue(float newValue)
+	{
+		value = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F6770
+	fight::Property* CharacterInputCondition::GetProperty(int index)
+	{
+		return gCharacterInputConditionProperties[index];
+	}
+
+	// FUNCTION: ENGINE 0x108F6780
+	void CharacterInputCondition::ClearProperties()
+	{
+		fight::FreePropertyList(&gCharacterInputConditionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x108F6790
+	CharacterInputCondition::CharacterInputCondition() : fight::Condition(0), time(0.0f), value(0.0f), button(0), buttonState(1), compareTime(4), compareValue(4)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108F67D0
+	CharacterInputCondition::~CharacterInputCondition()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108F6D10
+	fight::ConditionFactory* CreateCharacterInputConditionFactory(const char* name)
+	{
+		fight::ConditionFactoryCasterTemplate<CharacterInputCondition> caster;
+		return fight::FindConditionFactory(name, &caster);
+	}
+
+	// FUNCTION: ENGINE 0x108F6D70
+	// EQUIVALENT: the engine saves the registers it uses in the entry block, before the guard's branch; ours sinks the pushes behind the branch and leaves the early exit without the pops; every other instruction is the engine's
+	void CharacterInputCondition::RegisterProperties()
+	{
+		if (gCharacterInputConditionProperties == 0)
+		{
+			fight::Property* properties[256] = { 0 };
+			fight::Property* property = 0;
+			property = new fight::PropertyEnum<CharacterInputCondition>("button", &CharacterInputCondition::GetButtonEntry, &CharacterInputCondition::GetButtonCount, &CharacterInputCondition::SetButton);
+			properties[0] = property;
+			property = new fight::PropertyEnumConstList<CharacterInputCondition>("buttonState", gCharacterInputConditionButtonStateTable, 0, &CharacterInputCondition::SetButtonState);
+			properties[1] = property;
+			property = new fight::PropertyEnumConstList<CharacterInputCondition>("compareTime", gCompareOperatorTable, gCompareOperatorCount, &CharacterInputCondition::SetCompareTime);
+			properties[2] = property;
+			property = new fight::PropertyFloatConstRange<CharacterInputCondition>("time", &CharacterInputCondition::SetTime);
+			properties[3] = property;
+			property = new fight::PropertyEnumConstList<CharacterInputCondition>("compareValue", gCompareOperatorTable, gCompareOperatorCount, &CharacterInputCondition::SetCompareValue);
+			properties[4] = property;
+			property = new fight::PropertyFloatConstRange<CharacterInputCondition>("value", &CharacterInputCondition::SetValue);
+			properties[5] = property;
+			fight::RegisterPropertyList(properties, &gCharacterInputConditionProperties);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108F71C0
+	void RegisterCharacterInputConditionFactory(fight::TrackRegistry* registry, const char* name)
+	{
+		fight::ConditionFactoryCasterTemplate<CharacterInputCondition> caster;
+		registry->AddFactory(fight::FindConditionFactory(name, &caster));
+	}
+
+	template class fight::PropertyEnum<CharacterInputCondition>;
+	template class fight::PropertyEnumConstList<CharacterInputCondition>;
+	template class fight::PropertyFloatConstRange<CharacterInputCondition>;
+	template class fight::ConditionFactoryTemplate<CharacterInputCondition>;
+	template class fight::ConditionFactoryCasterTemplate<CharacterInputCondition>;
+
 
 	fight::Property** gLocoInputConditionProperties;  // 0x1131B294
 

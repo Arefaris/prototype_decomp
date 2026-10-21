@@ -318,6 +318,52 @@ namespace engine
 	fight::TrackFactory* CreatePowerRagdollByPoseTrackFactory(const char* name);
 	void RegisterPowerRagdollByPoseTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+	// RTTI: engine::EnableRagdollTrack (16 vftable slots, 0x28 bytes)
+	class EnableRagdollTrack : public fight::Track
+	{
+	public:
+		// 0x108F7BF0
+		EnableRagdollTrack();
+		virtual ~EnableRagdollTrack();
+
+		// vftable slot 0
+		virtual fight::Property* GetProperty(int index);
+		// vftable slot 9
+		virtual float GetTimeBegin() const;
+		// vftable slot 10
+		virtual float Slot10() const;
+		// vftable slot 15 (0x1092FC00)
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+		// The members the properties write
+		bool SetTimeBegin(float value);
+		bool SetDisableSupportingLimb(bool value);
+		bool SetInheritJointVelocities(bool value);
+		bool SetUseNormalPhysicsObjectAsRagdoll(bool value);
+		bool SetPhysicsTransitionDuration(float value);
+		bool SetRootJoint(const fight::Name& value);
+		bool SetIncludeRootJoint(bool value);
+
+		// The property list, built once and freed again
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		fight::Name rootJoint;  // +0x10
+		float physicsTransitionDuration;  // +0x18
+		float timeBegin;  // +0x1C
+		bool disableSupportingLimb;  // +0x20
+		bool includeRootJoint;  // +0x21
+		bool inheritJointVelocities;  // +0x22
+		bool useNormalPhysicsObjectAsRagdoll;  // +0x23
+		int unknown24;
+	};
+
+	extern fight::Property** gEnableRagdollTrackProperties;
+	// 0x108F85F0
+	// 0x108F8CA0
+	fight::TrackFactory* CreateEnableRagdollTrackFactory(const char* name);
+	void RegisterEnableRagdollTrackFactory(fight::TrackRegistry* registry, const char* name);
+
 	// RTTI: engine::PowerRagdollByAnimationTrack (16 vftable slots, 0x40 bytes)
 	class PowerRagdollByAnimationTrack : public fight::Track
 	{

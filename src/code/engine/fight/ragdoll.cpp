@@ -774,6 +774,139 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<PowerRagdollByPoseTrack>;
 
 
+	fight::Property** gEnableRagdollTrackProperties;  // 0x1131B2F0
+
+	// FUNCTION: ENGINE 0x108F74E0
+	bool EnableRagdollTrack::SetTimeBegin(float newValue)
+	{
+		timeBegin = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F74F0
+	bool EnableRagdollTrack::SetDisableSupportingLimb(bool newValue)
+	{
+		disableSupportingLimb = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F7500
+	bool EnableRagdollTrack::SetInheritJointVelocities(bool newValue)
+	{
+		inheritJointVelocities = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F7510
+	bool EnableRagdollTrack::SetUseNormalPhysicsObjectAsRagdoll(bool newValue)
+	{
+		useNormalPhysicsObjectAsRagdoll = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F7520
+	bool EnableRagdollTrack::SetPhysicsTransitionDuration(float newValue)
+	{
+		physicsTransitionDuration = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F7530
+	bool EnableRagdollTrack::SetIncludeRootJoint(bool newValue)
+	{
+		includeRootJoint = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F78D0
+	fight::Property* EnableRagdollTrack::GetProperty(int index)
+	{
+		return gEnableRagdollTrackProperties[index];
+	}
+
+	// FUNCTION: ENGINE 0x108F78E0
+	void EnableRagdollTrack::ClearProperties()
+	{
+		fight::FreePropertyList(&gEnableRagdollTrackProperties);
+	}
+
+	// FUNCTION: ENGINE 0x108F7A00
+	bool EnableRagdollTrack::SetRootJoint(const fight::Name& newValue)
+	{
+		rootJoint = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F7BF0
+	EnableRagdollTrack::EnableRagdollTrack() : physicsTransitionDuration(0.0f), timeBegin(0.0f), disableSupportingLimb(true), includeRootJoint(true), inheritJointVelocities(true), useNormalPhysicsObjectAsRagdoll(false)
+	{
+		unknownC = 1;
+	}
+
+	// FUNCTION: ENGINE 0x108F7C30
+	float EnableRagdollTrack::GetTimeBegin() const
+	{
+		return timeBegin;
+	}
+
+	// FUNCTION: ENGINE 0x108F7C40
+	float EnableRagdollTrack::Slot10() const
+	{
+		return 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x108F7C50
+	EnableRagdollTrack::~EnableRagdollTrack()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108F85F0
+	fight::TrackFactory* CreateEnableRagdollTrackFactory(const char* name)
+	{
+		fight::TrackFactoryCasterTemplate<EnableRagdollTrack> caster;
+		return fight::FindTrackFactory(name, &caster);
+	}
+
+	// FUNCTION: ENGINE 0x108F8CA0
+	void RegisterEnableRagdollTrackFactory(fight::TrackRegistry* registry, const char* name)
+	{
+		fight::TrackFactoryCasterTemplate<EnableRagdollTrack> caster;
+		registry->AddFactory(fight::FindTrackFactory(name, &caster));
+	}
+
+	// FUNCTION: ENGINE 0x108F9230
+	// EQUIVALENT: the engine saves the registers it uses in the entry block, before the guard's branch; ours sinks the pushes behind the branch and leaves the early exit without the pops; every other instruction is the engine's
+	void EnableRagdollTrack::RegisterProperties()
+	{
+		if (gEnableRagdollTrackProperties == 0)
+		{
+			fight::Property* properties[256] = { 0 };
+			fight::Property* property = 0;
+			property = new fight::PropertyFloatConstRange<EnableRagdollTrack>("timeBegin", &EnableRagdollTrack::SetTimeBegin);
+			properties[0] = property;
+			property = new fight::PropertyBool<EnableRagdollTrack>("disableSupportingLimb", &EnableRagdollTrack::SetDisableSupportingLimb);
+			properties[1] = property;
+			property = new fight::PropertyBool<EnableRagdollTrack>("inheritJointVelocities", &EnableRagdollTrack::SetInheritJointVelocities);
+			properties[2] = property;
+			property = new fight::PropertyBool<EnableRagdollTrack>("useNormalPhysicsObjectAsRagdoll", &EnableRagdollTrack::SetUseNormalPhysicsObjectAsRagdoll);
+			properties[3] = property;
+			property = new fight::PropertyFloatConstRange<EnableRagdollTrack>("physicsTransitionDuration", &EnableRagdollTrack::SetPhysicsTransitionDuration);
+			properties[4] = property;
+			property = new fight::PropertyNameList<EnableRagdollTrack>("rootJoint", &EnableRagdollTrack::SetRootJoint);
+			properties[5] = property;
+			property = new fight::PropertyBool<EnableRagdollTrack>("includeRootJoint", &EnableRagdollTrack::SetIncludeRootJoint);
+			properties[6] = property;
+			fight::RegisterPropertyList(properties, &gEnableRagdollTrackProperties);
+		}
+	}
+
+	template class fight::PropertyBool<EnableRagdollTrack>;
+	template class fight::PropertyFloatConstRange<EnableRagdollTrack>;
+	template class fight::PropertyNameList<EnableRagdollTrack>;
+	template class fight::TrackFactoryTemplate<EnableRagdollTrack>;
+	template class fight::TrackFactoryCasterTemplate<EnableRagdollTrack>;
+
+
 	fight::Property** gPowerRagdollByAnimationTrackProperties;  // 0x1131B2F8
 
 	// FUNCTION: ENGINE 0x108F7570
