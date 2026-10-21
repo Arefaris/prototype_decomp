@@ -1,8 +1,15 @@
 // The fight conditions and tracks of the ragdoll (unit 0x108F7400 - 0x108F93D0; no assert path, file name guessed).
 #include "code/engine/fight/ragdoll.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/physics/ragdollmessages.h"
+#include "code/ravenphysics/collision/collisionobject.h"
+#include "code/ravenphysics/context.h"
 
 namespace engine
 {
+	extern content::ObjectName gRagdollPhysicsObjectAttributeName;
+	GameObjectHandle GetObjectHandle(core::IRefCount* object);
 	extern fight::EnumEntry gPowerRagdollByAnimationTrackCyclicTable[];
 
 	fight::Property** gRagdollEnabledConditionProperties;  // 0x1131B2D0
@@ -29,6 +36,19 @@ namespace engine
 	// FUNCTION: ENGINE 0x108F7600
 	RagdollEnabledCondition::RagdollEnabledCondition() : fight::Condition(0), enabled(true)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1092E6F0
+	bool RagdollEnabledCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObject* object = GetObjectHandle((core::IRefCount*)c).Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		RagdollGetEnabledMessage message;
+		object->PostMessage(&message);
+		return message.enabled == enabled;
 	}
 
 	// FUNCTION: ENGINE 0x108F7620
@@ -100,6 +120,29 @@ namespace engine
 	// FUNCTION: ENGINE 0x108F7650
 	RagdollPossibleCondition::RagdollPossibleCondition() : fight::Condition(0), possible(true), ragdollAlreadyCreated(true)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1092E780
+	// EQUIVALENT: register allocation; the engine reads the handle's two words through the attribute's pointer and returns the comparison in the register it was made in, ours copies the handle and moves the result through edx; the operations, branches and data accesses are the engine's
+	bool RagdollPossibleCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObject* object = GetObjectHandle((core::IRefCount*)c).Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		BaseAttribute* attribute = object->FindAttribute(gRagdollPhysicsObjectAttributeName);
+		ravenphysics::ObjectHandle* value = attribute != 0 ? &((Attribute<ravenphysics::ObjectHandle>*)attribute)->value : 0;
+		bool exists = value != 0;
+		if (ragdollAlreadyCreated)
+		{
+			if (exists)
+			{
+				ravenphysics::ObjectHandle physicsHandle = *value;
+				exists = physicsHandle.IsValid();
+			}
+		}
+		return exists == possible;
 	}
 
 	// FUNCTION: ENGINE 0x108F7670
@@ -1056,5 +1099,135 @@ namespace engine
 	template class fight::TrackFactoryTemplate<PowerRagdollByAnimationTrack>;
 	template class fight::TrackFactoryCasterTemplate<PowerRagdollByAnimationTrack>;
 
+	// FUNCTION: ENGINE 0x1092DED0
+	bool RagdollPossibleCondition::GetPossible() const
+	{
+		return possible;
+	}
 
+	// FUNCTION: ENGINE 0x1092DEE0
+	bool RagdollPossibleCondition::GetRagdollAlreadyCreated() const
+	{
+		return ragdollAlreadyCreated;
+	}
+
+	// FUNCTION: ENGINE 0x1092DEF0
+	bool RagdollEnabledCondition::GetEnabled() const
+	{
+		return enabled;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF00
+	bool RagdollSetKeyframeUpdatedTrack::GetKeyframeUpdated() const
+	{
+		return keyframeUpdated;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF10
+	const fight::Name* PowerRagdollByPoseTrack::GetConstraintPropertiesName() const
+	{
+		return &constraintPropertiesName;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF20
+	const fight::Name* PowerRagdollByPoseTrack::GetPoseAnimName() const
+	{
+		return &poseAnimName;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF30
+	float PowerRagdollByPoseTrack::GetAnimFrame() const
+	{
+		return animFrame;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF40
+	const fight::Name* PowerRagdollByPuppetTrack::GetConstraintPropertiesName() const
+	{
+		return &constraintPropertiesName;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF50
+	bool EnableRagdollTrack::GetDisableSupportingLimb() const
+	{
+		return disableSupportingLimb;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF60
+	bool EnableRagdollTrack::GetInheritJointVelocities() const
+	{
+		return inheritJointVelocities;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF70
+	bool EnableRagdollTrack::GetUseNormalPhysicsObjectAsRagdoll() const
+	{
+		return useNormalPhysicsObjectAsRagdoll;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF80
+	float EnableRagdollTrack::GetPhysicsTransitionDuration() const
+	{
+		return physicsTransitionDuration;
+	}
+
+	// FUNCTION: ENGINE 0x1092DF90
+	const fight::Name* EnableRagdollTrack::GetRootJoint() const
+	{
+		return &rootJoint;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFA0
+	bool EnableRagdollTrack::GetIncludeRootJoint() const
+	{
+		return includeRootJoint;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFB0
+	float DisableRagdollTrack::GetPhysicsBlendTime() const
+	{
+		return physicsBlendTime;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFC0
+	const fight::Name* PowerRagdollByAnimationTrack::GetAnimation() const
+	{
+		return &animation;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFD0
+	float PowerRagdollByAnimationTrack::GetSpeed() const
+	{
+		return speed;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFE0
+	float PowerRagdollByAnimationTrack::GetInitFrame() const
+	{
+		return initFrame;
+	}
+
+	// FUNCTION: ENGINE 0x1092DFF0
+	float PowerRagdollByAnimationTrack::GetStartFrame() const
+	{
+		return startFrame;
+	}
+
+	// FUNCTION: ENGINE 0x1092E000
+	float PowerRagdollByAnimationTrack::GetEndFrame() const
+	{
+		return endFrame;
+	}
+
+	// FUNCTION: ENGINE 0x1092E010
+	int PowerRagdollByAnimationTrack::GetCyclic() const
+	{
+		return cyclic;
+	}
+
+	// FUNCTION: ENGINE 0x1092E020
+	const fight::Name* PowerRagdollByAnimationTrack::GetConstraintPropertiesName() const
+	{
+		return &constraintPropertiesName;
+	}
 }
