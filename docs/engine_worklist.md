@@ -4318,12 +4318,11 @@ lower-bound function the unit has of its own (a plain function template, not `st
 - `src/code/engine/splinepath.cpp` (0x10910550 - 0x10911500): `engine::SplinePathCV` (a virtual-destructor point of 0x24 bytes:
   `key` = time at +4 and position at +8, tension, continuity, bias, forceSpeedMatch), `engine::SplinePath` (an
   `engine::IPath`, the points as `ArrayDynamic<SplinePathCV*, AllocatorNew>` at +8, the matrix at +0x18, the
-  `math::Spline` built from the points at +0x58) and the path interface's class info. 48 functions match. EQUIVALENT:
+  `math::Spline` built from the points at +0x58) and the path interface's class info. 51 functions match. EQUIVALENT:
   `CreatePoints` 0x10910EB0 (xmm register allocation, 66.8 %) and the destructor 0x10911410 (the independent spline
-  pointer load sits before the array reset, 89.7 %). Not done: the array helper's `Erase` / `Insert` slots and the array's
-  `Reserve` (0x10911030 / 0x10911480 / 0x10911070: the engine's pointer-array instance has other loops than the struct
-  array of arraydynamicallocatornew.h), the small kept copies of empty functions and `PushBack` (0x109106B0 ...,
-  0x10910A10). `Erase` of a pointer array goes through `CopyRange` (an explicit member specialisation in the header).
+  pointer load sits before the array reset, 89.7 %). The point array's helper `Insert` / `Erase` are explicit member
+  specialisations in splinepath.cpp (the pointer array's loops differ from the struct array's), and `Reserve` in
+  arraydynamicallocatornew.h now declares its loop variable inside the else branch (shared header; the fmv matches stay 100 %).
 - `src/code/engine/surfacedefinition.cpp` (0x10911500 - 0x10911880): `SurfaceDefinition` (global namespace; a game object
   handle at +8, a name at +0x10 and the three `StringC<260>` members physicsObjectReference +0x18, soundEffectName +0x120,
   decalName +0x228). The string members' offsets come from `StringBufferOffset(&base->member) + offsetof`, where the

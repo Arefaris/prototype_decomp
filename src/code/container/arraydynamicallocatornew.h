@@ -128,7 +128,6 @@ namespace container
 			{
 				int keep = count < size ? count : size;
 				T* storage = (T*)operator new[](count * sizeof(T));
-				int i = 0;
 				if (storage == 0)
 				{
 					keep = 0;
@@ -136,7 +135,7 @@ namespace container
 				}
 				else
 				{
-					for (; i < keep; i++)
+					for (int i = 0; i < keep; i++)
 					{
 						ConstructCopyAt(storage + i, begin[i]);
 					}

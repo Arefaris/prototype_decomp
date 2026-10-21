@@ -269,7 +269,38 @@ namespace content
 			a->Reserve(a->Size() + 1);
 		}
 		T* position = a->begin + index;
-		a->Insert(position, Default());
+		T* from = a->end;
+		if (from + 1 <= a->capacity)
+		{
+			T* to = from + 1;
+			a->end = to;
+			while (from != position)
+			{
+				from--;
+				to--;
+				if (to != 0)
+				{
+					*to = *from;
+				}
+			}
+			if (position != 0)
+			{
+				*position = Default();
+			}
+		}
+	}
+
+	void ArrayDynamicHelper<engine::SplinePath::PointArray>::Erase(void* array, int index, int unused)
+	{
+		A* a = (A*)array;
+		T* position = a->begin + index;
+		T* last = a->end;
+		T* destination = position;
+		for (T* source = position + 1; source != last; source++, destination++)
+		{
+			*destination = *source;
+		}
+		a->end--;
 	}
 
 	void ArrayDynamicHelper<engine::SplinePath::PointArray>::Expand(void* array, unsigned int count)
@@ -290,6 +321,7 @@ namespace container
 {
 	template class ArrayDynamic<engine::SplinePathCV*, AllocatorNew>;
 }
+
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -325,6 +357,9 @@ namespace container
 // FUNCTION: ENGINE 0x10910D00
 // FUNCTION: ENGINE 0x10910FD0
 // FUNCTION: ENGINE 0x10910FE0
+// FUNCTION: ENGINE 0x10911030
+// FUNCTION: ENGINE 0x10911070
 // FUNCTION: ENGINE 0x10911180
 // FUNCTION: ENGINE 0x109111D0
+// FUNCTION: ENGINE 0x10911480
 // FUNCTION: ENGINE 0x109114E0

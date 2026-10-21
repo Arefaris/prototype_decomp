@@ -139,11 +139,7 @@ namespace content
 			return &(*(A*)array)[index];
 		}
 		virtual void Insert(void* array, int index, int unused);
-		virtual void Erase(void* array, int index, int unused)
-		{
-			A* a = (A*)array;
-			a->Erase(a->begin + index);
-		}
+		virtual void Erase(void* array, int index, int unused);
 		virtual int Capacity(void* array)
 		{
 			return ((A*)array)->Capacity();
