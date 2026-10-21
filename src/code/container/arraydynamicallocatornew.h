@@ -222,6 +222,33 @@ namespace container
 				Destroy(from);
 			}
 		}
+		// Removes [first, last) by moving the elements behind it down (they are not destroyed)
+		void Erase(T* first, T* last)
+		{
+			end = AssignRange(last, end, first);
+		}
+		// Grows by copies of value or shrinks to count elements
+		void Resize(unsigned int count, const T& value)
+		{
+			if (begin == 0)
+			{
+				Create(count);
+			}
+			unsigned int size = Size();
+			if (size < count)
+			{
+				Insert(end, count - size, value);
+			}
+			else if (count < size)
+			{
+				Erase(begin + count, end);
+			}
+		}
+		void Resize(unsigned int count)
+		{
+			T blank;
+			Resize(count, blank);
+		}
 		// Makes room for count elements, keeping the ones that fit
 		void Reserve(int count)
 		{

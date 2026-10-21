@@ -460,17 +460,6 @@ namespace engine
 {
 namespace driving
 {
-	// WheelCollectionData: constructor 0x10907B60, reflection 0x10907020 / 0x109075A0
-	class WheelCollectionData : public content::MetaLoadObject
-	{
-	public:
-		WheelCollectionData();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x18];
-	};
-
 	// CarIntentionBehaviour: constructor 0x1091CEA0, reflection 0x1091CD30 / 0x1091CF50
 	class CarIntentionBehaviour : public engine::Behaviour
 	{

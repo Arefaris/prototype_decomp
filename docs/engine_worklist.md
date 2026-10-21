@@ -4410,3 +4410,12 @@ lower-bound function the unit has of its own (a plain function template, not `st
   YZX / ZXY Euler rotations declared in matrix.h (0x107CEF70 / 0x107CF0A0, names guessed), and in
   arraydynamicallocatornew.h the helper for pointer arrays (`ArrayDynamicHelper<ArrayDynamic<P*, AllocatorNew> >`,
   which replaces the spline path's own) and the `CopyRange` mode of `ArrayEraseInline`.
+- `src/code/engine/driving/wheelcollectiondata.cpp` (0x10907020 - 0x10907DC0): `engine::driving::WheelCollectionData` (the
+  physics object factory it takes the body from at +8, the skeleton at +0xC and the array of `WheelData` at +0x10;
+  0x20 bytes). A `WheelData` (0x68 bytes) is a `StringC<64>` name member at +0 followed by two words and seven floats
+  (its reflection and default constructor are in the 0x109375xx unit). 39 functions match, including the array
+  instances of the wheels (the string member is why the array destroys an element with a store of the string base's
+  vftable). Not done: the four-wheel default setup (0x10907C40, a declared member the load notification calls), the
+  arrays' `AssignRange` / `Resize` (the engine allocates its registers differently) and the helper's default element
+  accessor. `StringC<N>` got the engine's assignment (the bounded copy), and `ArrayDynamic<T, AllocatorNew>` the
+  `Resize` and range `Erase`; `ravenphysics/physicsobjectfactory.h` holds the size-only class.

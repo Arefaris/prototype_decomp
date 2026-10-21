@@ -6,6 +6,7 @@
 #include "code/engine/world/locationrendersettings.h"
 #include "code/engine/actorspawner.h"
 #include "code/engine/driving/physicsattributes.h"
+#include "code/engine/driving/wheelcollectiondata.h"
 #include "code/engine/splinepath.h"
 #include "code/engine/surfacedefinition.h"
 #include "code/engine/camera/cameraloader.h"
