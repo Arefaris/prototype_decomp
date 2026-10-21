@@ -102,7 +102,6 @@ namespace engine
 		void CreatePoints(int count, const math::Vector* step);
 
 		PointArray points;  // +8
-		int unknown14;
 		math::Matrix transform;  // +0x18
 		math::Spline* spline;  // +0x58
 		int unknown5C;

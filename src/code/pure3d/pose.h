@@ -58,6 +58,8 @@ namespace pure3d
 		void GetRestMatrix(unsigned int joint, math::Matrix* out);
 		// 0x106DDC80: the partition of that name (null when there is none; the empty names get a static empty one)
 		Partition* FindPartition(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x106DDA60: the index of the joint of that name (looked up in the joint data)
+		int FindJoint(const core::Name<core::CaseSensitiveKey>& name) const;
 
 		SkeletonData mData;
 		unsigned char unknown50[4];

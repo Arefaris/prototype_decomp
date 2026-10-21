@@ -4370,9 +4370,28 @@ lower-bound function the unit has of its own (a plain function template, not `st
   degrees through accessors)). Slot 2 of the pin and powered joints creates the constraints through ravenphysics
   creators (0x1065B6E0 / 0x1065B8A0 / 0x1065B760, names guessed; they return a handle through a hidden pointer, which
   is why the local `handle` pointer is needed to reach the engine's stack use). EQUIVALENT: `EvaluateForceCurve`
-  (the engine keeps the previous point in esi, 21.9 %) and the powered joint's destructor (vftable store order,
-  80.6 %). NONMATCHING: the wind's slot 5 (x87 stack use of the last random number, 58.0 %). Not done: the pin joint's
+  (the engine keeps the previous point in esi, 21.9 %). NONMATCHING: the wind's slot 5 (x87 stack use of the last random number, 58.0 %). Not done: the pin joint's
   slot 4 (0x109164A0) and the powered joint's slots 3 and 4 (0x10916B10, 0x10916F20), which drive constraint
   setters of the physics library that are not reconstructed. The three drivers' shared fixes: the sizes of
   `ActorCrowdSpawner` (0xD0) and `CarPhysicsAttributes` (0x218) now carry the tail words the engine's factories
   allocate.
+- `src/code/engine/trackedmotiontoexpressionmap.cpp` (0x10911880 - 0x10914850): `engine::TrackedMotionToExpressionMap` (a
+  skeleton at +8 and an expression group at +0xC, both released through `core::SafeRelease`, and the array of
+  `JointData` at +0x10; 0x20 bytes) with its three reflected structs: `PropertyMappingKeyValuePair` (key, value),
+  `PropertyMapping` (0x30 bytes: the feature extractor it owns at +0, the expression's name at +8 and index at +0x10,
+  weight, `BlendType` enum (Add / Min / Max / Override) at +0x18, the curve array at +0x1C, debugDisable at +0x2C)
+  and `JointData` (0x78 bytes: the joint's name, an offset transform whose translation the reflection reads through
+  an accessor pair, the motion filter it owns at +0x60, the mappings at +0x64, debugDisable at +0x74). 141 functions
+  match, among them all the reflection, constructors, destructors and the template instances of the three element
+  arrays. Not done: the per-frame update (0x10911FA0 / 0x10912AE0), the arrays' `Reserve` / `ShiftUp` /
+  `ConstructFill` / `AssignRange` instances of `PropertyMapping` and `JointData` and the helper `Insert` / `Erase`
+  slots (the engine expands the elements' copy construction and assignment inside the array functions, ours calls
+  them), and two NONMATCHING functions: `PropertyMapping::IsCurveSorted` 0x10911E30 (15.8 %) and `EvaluateCurve`
+  0x10911E60 (the interpolation is computed on the x87 stack by ours, 2.1 %). Shared headers: `ArrayDynamic<T,
+  AllocatorNew>` (code/container/arraydynamicallocatornew.h) now has the engine template's destructor, copy
+  constructor, assignment and element destruction in Clear / Free / Erase / ShiftUp / Reserve, an `allocator`
+  member (the arrays are 16 bytes, which made the manual padding words of the fmv subtitle manager, the spline path,
+  the powered joint and the actor crowd spawner unnecessary; their destructors lost their hand-written array
+  frees, which made the powered joint's destructor match) and `ArrayEraseInline<T>` (the inline element loop or
+  the call of `AssignRange`). `pure3d::Skeleton::FindJoint` (0x106DDA60) is declared in pose.h, and
+  `pure3d::ExpressionGroup` is in pure3d/expressiongroup.h.

@@ -8,11 +8,22 @@
 #define CONTAINER_ARRAYDYNAMICALLOCATORNEW_H
 
 #include "code/container/arraycdynamic.h"
+#include "code/container/arraydynamicstatic.h"
 #include "code/container/arraydynamic.h"
 #include "code/content/metatype.h"
 
 namespace container
 {
+	// Whether Erase moves the elements down with a loop of its own (the engine's compiler inlines the assignment
+	// of small elements; for the others it keeps the call of AssignRange). A class of the second kind specialises it
+	template<class T> struct ArrayEraseInline
+	{
+		enum
+		{
+			value = 1
+		};
+	};
+
 	template<class T> class ArrayDynamic<T, AllocatorNew>
 	{
 	public:
@@ -23,6 +34,74 @@ namespace container
 			begin = 0;
 			end = 0;
 			capacity = 0;
+		}
+		// Another array's elements, in room for as many as it has room for
+		ArrayDynamic(const ArrayDynamic& other)
+		{
+			unsigned int count = other.Capacity();
+			if (count != 0)
+			{
+				begin = (T*)operator new[](count * sizeof(T));
+				if (begin != 0)
+				{
+					end = begin;
+					capacity = begin + count;
+					end = UninitializedCopyN(other.begin, other.Size(), begin);
+					return;
+				}
+			}
+			else
+			{
+				begin = 0;
+			}
+			end = 0;
+			capacity = 0;
+		}
+		ArrayDynamic& operator=(const ArrayDynamic& other)
+		{
+			if (begin == 0)
+			{
+				if (Create(other.Capacity()))
+				{
+					end = ConstructCopiesN(other.begin, other.Size(), begin);
+				}
+			}
+			else
+			{
+				unsigned int count = other.Size();
+				unsigned int size = Size();
+				if (count <= size)
+				{
+					end = AssignRange(other.begin, other.end, begin);
+				}
+				else if (count <= Capacity())
+				{
+					AssignRange(other.begin, other.begin + size, begin);
+					end = ConstructCopiesN(other.begin + size, count - size, end);
+				}
+				else
+				{
+					end = begin;
+				}
+			}
+			return *this;
+		}
+		~ArrayDynamic()
+		{
+			Destroy(begin, end);
+			end = begin;
+			if (begin != 0)
+			{
+				operator delete[](begin);
+			}
+		}
+		T* Begin()
+		{
+			return begin;
+		}
+		T* End()
+		{
+			return end;
 		}
 		unsigned int Size() const
 		{
@@ -84,12 +163,14 @@ namespace container
 		// Drops the elements (the storage stays)
 		void Clear()
 		{
+			Destroy(begin, end);
 			end = begin;
 		}
 		void Free()
 		{
 			if (begin != 0)
 			{
+				Destroy(begin, end);
 				operator delete[](begin);
 			}
 			capacity = 0;
@@ -99,12 +180,20 @@ namespace container
 		// Moves the elements behind position down over it and answers position
 		T* Erase(T* position)
 		{
-			T* last = end;
-			for (T* next = position + 1; next != last; next++)
+			if (ArrayEraseInline<T>::value)
 			{
-				next[-1] = *next;
+				T* last = end;
+				for (T* next = position + 1; next != last; next++)
+				{
+					next[-1] = *next;
+				}
+			}
+			else
+			{
+				AssignRange(position + 1, end, position);
 			}
 			end--;
+			Destroy(end);
 			return position;
 		}
 		// Moves [position, end) up by count elements (copy-constructing them backwards)
@@ -118,6 +207,7 @@ namespace container
 				from--;
 				to--;
 				ConstructCopyAt(to, *from);
+				Destroy(from);
 			}
 		}
 		// Makes room for count elements, keeping the ones that fit
@@ -142,6 +232,7 @@ namespace container
 				}
 				if (begin != 0)
 				{
+					Destroy(begin, end);
 					operator delete[](begin);
 				}
 				end = storage + keep;
@@ -180,6 +271,7 @@ namespace container
 		T* begin;
 		T* end;
 		T* capacity;
+		AllocatorNew allocator;
 	};
 }
 

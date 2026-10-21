@@ -267,11 +267,6 @@ namespace engine
 				item->DeferUpdate(false);
 			}
 		}
-		handles.end = handles.begin;
-		if (handles.begin != 0)
-		{
-			delete[] handles.begin;
-		}
 	}
 }
 

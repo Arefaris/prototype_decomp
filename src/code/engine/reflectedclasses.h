@@ -121,17 +121,6 @@ namespace engine
 		unsigned char unknown8[0x10];
 	};
 
-	// TrackedMotionToExpressionMap: constructor 0x109146F0, reflection 0x10911970 / 0x109138D0
-	class TrackedMotionToExpressionMap : public content::MetaLoadObject
-	{
-	public:
-		TrackedMotionToExpressionMap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x18];
-	};
-
 	// NISExclusionVolume: constructor 0x108DB770, reflection 0x1088B8A0 / 0x1088C180
 	struct NISExclusionVolume : public content::MetaLoadObject
 	{

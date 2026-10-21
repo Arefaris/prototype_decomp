@@ -305,14 +305,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10917930
-	// EQUIVALENT: the engine stores the vftable before it reads the array's begin, ours after the test, 80.6 %
 	SecondaryPhysicsPoweredJoint::~SecondaryPhysicsPoweredJoint()
 	{
-		forceCurve.end = forceCurve.begin;
-		if (forceCurve.begin != 0)
-		{
-			delete[] forceCurve.begin;
-		}
 	}
 }
 

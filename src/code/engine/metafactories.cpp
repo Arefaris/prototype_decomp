@@ -16,6 +16,7 @@
 #include "code/engine/remotecamera.h"
 #include "code/engine/secondaryphysicsjoints.h"
 #include "code/engine/scenariomessage.h"
+#include "code/engine/trackedmotiontoexpressionmap.h"
 
 namespace content
 {

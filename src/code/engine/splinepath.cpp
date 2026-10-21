@@ -251,11 +251,6 @@ namespace engine
 		{
 			delete spline;
 		}
-		points.end = points.begin;
-		if (points.begin != 0)
-		{
-			delete[] points.begin;
-		}
 	}
 }
 

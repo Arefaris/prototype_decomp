@@ -152,7 +152,6 @@ namespace engine
 			bool* e);
 
 		ForceCurveArray forceCurve;  // +4
-		float unknown10;
 		float dampingConstant;  // +0x14
 		float maxAngularVelocity;  // +0x18 (radians)
 	};
