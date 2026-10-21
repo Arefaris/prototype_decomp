@@ -3,6 +3,8 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/firstpersoncontrolbehaviour.h"
+#include "code/engine/knockbehaviour.h"
 #include "code/engine/world/locationrendersettings.h"
 #include "code/engine/actorspawner.h"
 #include "code/engine/driving/physicsattributes.h"

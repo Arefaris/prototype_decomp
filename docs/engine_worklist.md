@@ -4430,3 +4430,14 @@ lower-bound function the unit has of its own (a plain function template, not `st
   (reflected as `autoResequence`), listens for the sequencer to be ready and resets the sequencer on one message. 15
   functions match. `UpdateListening` is NONMATCHING (41.2 %, the engine keeps the sequencer test's result in a stack slot
   across the branch); `Sequencer::Unknown105A4270` is declared for the update.
+- `src/code/engine/firstpersoncontrolbehaviour.cpp` (0x1091DF60 - 0x1091EC70): `engine::FirstPersonControlBehaviour`
+  (0x34 bytes): the behaviour that lets the player look around from the eyes of its owner, with the reflected `invert`,
+  `horizSensitivity`, `vertSensitivity`, `vertDeadZone` and `speed`. 12 functions match: the reflection, the
+  constructor (it makes the owner's "EYEPOINT" matrix attribute, `GameObject::SetAttributeAndGet<math::Matrix>`, an
+  out-of-line template instance in another unit, and the name global `gEyePointName`), the slot 1 that starts the
+  camera transition for the controlling player. Not done: the update (slot 4, 0x1091E360, 2158 bytes, mapped to the
+  engine's) and the character override message it sends (0x1091E1B0).
+- `src/code/engine/knockbehaviour.cpp` (0x1091EC70 - 0x1091F380): `engine::KnockBehaviour` (0x24 bytes): pushes the
+  objects in front of its owner away (reflected `strength`, `rangeDistance`, `rangeCosHalfAngle`,
+  `minimumRepeatPeriod` and `damage`). 12 functions match (the reflection, the constructor, the empty slot 1); the
+  update (slot 4, 0x1091EDA0, walks the world's object list) is mapped to the engine's.

@@ -143,28 +143,6 @@ namespace engine
 		unsigned char unknownC[0xF4];
 	};
 
-	// FirstPersonControlBehaviour: constructor 0x1091EBD0, reflection 0x1091DF60 / 0x1091E210
-	class FirstPersonControlBehaviour : public engine::Behaviour
-	{
-	public:
-		FirstPersonControlBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x28];
-	};
-
-	// KnockBehaviour: constructor 0x1091ECB0, reflection 0x1091EC70 / 0x1091F230
-	class KnockBehaviour : public engine::Behaviour
-	{
-	public:
-		KnockBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x18];
-	};
-
 	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0
 	class NISPlayerBehaviour : public engine::Behaviour
 	{
