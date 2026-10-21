@@ -4301,8 +4301,8 @@ lower-bound function the unit has of its own (a plain function template, not `st
 
 ## 0x10920000 - 0x10940000 (fight actions and conditions, behaviours, driving attributes, socket layer)
 
-Of the 1492 functions of the range 184 were matched before this pass; the pass adds about 400 (counting the template
-instances the new units keep). The new sources:
+Of the 1492 functions of the range 11 (the crypto module) were matched before this pass; afterwards 276 are (the
+pass also maps the template instances the new units keep). The new sources:
 
 - `src/code/engine/fight/` physicsblend, onlineconditions, inputconditions, ragdoll, supportinglimb / supportingstick,
   characterik, rootcontrol (accessors and `Evaluate` of the tracks and conditions) and the new action files
