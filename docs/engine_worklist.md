@@ -959,14 +959,16 @@ the class (rtti.tsv) names the `Invoke`, and the `Call` next to it belongs to th
 - Not done: the functions themselves (0x108D1140 - 0x108D1720, 0x108D22C0), the constructor 0x108D2E90 and the
   allocation helpers (0x108D1310 - 0x108D1390, 0x108D2290, 0x108D35B0).
 
-## engine/metafactories.cpp (0x108D6E20 - 0x108DE180): 216 functions match (class factories and their registrations)
+## engine/metafactories.cpp (0x108D6E20 - 0x108DE180): 332 functions match (class factories and their registrations)
 
 The content library loads a reflected class through a `content::MetaObjectFactory<T, 1>` (LoadObject-derived
 classes: slot 2 makes the object, `new T` through `LoadObject::operator new`) or a `content::MetaInstanceCreatorImpl<T,
 1>` (plain classes: `new T`), registered from a function-local static of a per-class registration function (the
 engine's start-up tables 0x108DE660 / 0x108DF1F0 / 0x108DFE50 expand those registrations in place). The unit holds, per
 class, `content::GetClassMetaType<T>()` (76 bytes), the factory's constructor (37), `Create` (24/27) and the
-registration (70): `code/content/metafactory.h`. 54 classes are done (39 factories and 15 creators).
+registration (70): `code/content/metafactory.h`. 83 classes are done (39 factories, 15 creators and 29 behaviour
+creators: `engine::MetaBehaviourCreatorImpl<T>`, whose slot 1 makes the behaviour with `new T(owner)` and whose slot 0 is
+the library's generic creation, 0x10841FB0).
 - The classes belong to other units: `engine/reflectedclasses.h` stands in for the ones not reconstructed yet (their
   size, constructor and the two reflection functions; replace an entry by the real class when its unit is done).
   `FmvSubtitleManager` is 0x18 bytes (one word past the array that the constructor never touches).

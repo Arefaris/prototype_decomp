@@ -6,6 +6,7 @@
 #define ENGINE_REFLECTEDCLASSES_H
 
 #include "code/content/loadinventory.h"
+#include "code/engine/gameobject/behaviour.h"
 
 	// SurfaceDefinition: constructor 0x109117B0, reflection 0x10911500 / 0x10911670
 	class SurfaceDefinition : public content::MetaLoadObject
@@ -252,6 +253,237 @@ namespace engine
 		unsigned char unknown0[0x1C];
 	};
 
+	// AdvertisementBehaviour: constructor 0x10919D70, reflection 0x10917A30 / 0x109197C0
+	class AdvertisementBehaviour : public engine::Behaviour
+	{
+	public:
+		AdvertisementBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x1C];
+	};
+
+	// CharacterIntentionBehaviour: constructor 0x1091CBC0, reflection 0x1091C500 / 0x1091CA80
+	class CharacterIntentionBehaviour : public engine::Behaviour
+	{
+	public:
+		CharacterIntentionBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x7C];
+	};
+
+	// CharacterSolverBehaviour: constructor 0x1090AFF0, reflection 0x10907ED0 / 0x1090AA30
+	class CharacterSolverBehaviour : public engine::Behaviour
+	{
+	public:
+		CharacterSolverBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0xF4];
+	};
+
+	// FirstPersonControlBehaviour: constructor 0x1091EBD0, reflection 0x1091DF60 / 0x1091E210
+	class FirstPersonControlBehaviour : public engine::Behaviour
+	{
+	public:
+		FirstPersonControlBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x28];
+	};
+
+	// KnockBehaviour: constructor 0x1091ECB0, reflection 0x1091EC70 / 0x1091F230
+	class KnockBehaviour : public engine::Behaviour
+	{
+	public:
+		KnockBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x18];
+	};
+
+	// MotionTreeBehaviour: constructor 0x1091F480, reflection 0x1091F380 / 0x1091F750
+	class MotionTreeBehaviour : public engine::Behaviour
+	{
+	public:
+		MotionTreeBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x64];
+	};
+
+	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0
+	class NISPlayerBehaviour : public engine::Behaviour
+	{
+	public:
+		NISPlayerBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x74];
+	};
+
+	// PatrolPathBehaviour: constructor 0x10867600, reflection 0x10864CB0 / 0x10866C40
+	class PatrolPathBehaviour : public engine::Behaviour
+	{
+	public:
+		PatrolPathBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x5C];
+	};
+
+	// PlaybackTreeBehaviour: constructor 0x1089AC70, reflection 0x1089AA30 / 0x1089AE60
+	class PlaybackTreeBehaviour : public engine::Behaviour
+	{
+	public:
+		PlaybackTreeBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x7C];
+	};
+
+	// PoseAnimationBehaviour: constructor 0x10921260, reflection 0x109208B0 / 0x10920AF0
+	class PoseAnimationBehaviour : public engine::Behaviour
+	{
+	public:
+		PoseAnimationBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x10];
+	};
+
+	// PropLogicTreeBehaviour: constructor 0x109214F0, reflection 0x10921440 / 0x109215C0
+	class PropLogicTreeBehaviour : public engine::Behaviour
+	{
+	public:
+		PropLogicTreeBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x5C];
+	};
+
+	// PhysicsBehaviour: constructor 0x10924520, reflection 0x10921A10 / 0x109239B0
+	class PhysicsBehaviour : public engine::Behaviour
+	{
+	public:
+		PhysicsBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x5C];
+	};
+
+	// PropBehaviour: constructor 0x108414B0, reflection 0x10841060 / 0x10841200
+	class PropBehaviour : public engine::Behaviour
+	{
+	public:
+		PropBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x0];
+	};
+
+	// RagdollBehaviour: constructor 0x10927BA0, reflection 0x10925050 / 0x10927330
+	class RagdollBehaviour : public engine::Behaviour
+	{
+	public:
+		RagdollBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x88];
+	};
+
+	// RagdollLODBehaviour: constructor 0x10926350, reflection 0x10925090 / 0x109274D0
+	class RagdollLODBehaviour : public engine::Behaviour
+	{
+	public:
+		RagdollLODBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x14];
+	};
+
+	// RenderBehaviour: constructor 0x108636B0, reflection 0x10862350 / 0x10862F60
+	class RenderBehaviour : public engine::Behaviour
+	{
+	public:
+		RenderBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x34];
+	};
+
+	// SecondaryPhysicsBehaviour: constructor 0x10929460, reflection 0x10927F60 / 0x10928F80
+	class SecondaryPhysicsBehaviour : public engine::Behaviour
+	{
+	public:
+		SecondaryPhysicsBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x34];
+	};
+
+	// SplineBehaviour: constructor 0x10867760, reflection 0x10864D40 / 0x10866D20
+	class SplineBehaviour : public engine::Behaviour
+	{
+	public:
+		SplineBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x64];
+	};
+
+	// TagBehaviour: constructor 0x10929EE0, reflection 0x109296D0 / 0x10929BB0
+	class TagBehaviour : public engine::Behaviour
+	{
+	public:
+		TagBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x10];
+	};
+
+	// TouchBehaviour: constructor 0x1092A030, reflection 0x10929FF0 / 0x1092A370
+	class TouchBehaviour : public engine::Behaviour
+	{
+	public:
+		TouchBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x4];
+	};
+
+	// TrackedMotionToExpressionBehaviour: constructor 0x1092AF30, reflection 0x1092A440 / 0x1092AA40
+	class TrackedMotionToExpressionBehaviour : public engine::Behaviour
+	{
+	public:
+		TrackedMotionToExpressionBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x30];
+	};
+
 }
 
 namespace engine
@@ -267,6 +499,28 @@ namespace animation
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x14];
+	};
+
+	// JawFlapBehaviour: constructor 0x1091A290, reflection 0x10919F50 / 0x1091AEB0
+	class JawFlapBehaviour : public engine::Behaviour
+	{
+	public:
+		JawFlapBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x3C];
+	};
+
+	// PuppetBehaviour: constructor 0x1091C400, reflection 0x1091B180 / 0x1091BF20
+	class PuppetBehaviour : public engine::Behaviour
+	{
+	public:
+		PuppetBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x34];
 	};
 
 }
@@ -320,6 +574,28 @@ namespace camera
 		unsigned char unknown0[0x188];
 	};
 
+	// CameraBehaviour: constructor 0x108508D0, reflection 0x108504A0 / 0x10850820
+	class CameraBehaviour : public engine::Behaviour
+	{
+	public:
+		CameraBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x4];
+	};
+
+	// CinematographerBehaviour: constructor 0x10850430, reflection 0x1084FFF0 / 0x10850360
+	class CinematographerBehaviour : public engine::Behaviour
+	{
+	public:
+		CinematographerBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x8];
+	};
+
 }
 }
 
@@ -369,6 +645,50 @@ namespace driving
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x18];
+	};
+
+	// CarIntentionBehaviour: constructor 0x1091CEA0, reflection 0x1091CD30 / 0x1091CF50
+	class CarIntentionBehaviour : public engine::Behaviour
+	{
+	public:
+		CarIntentionBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x14];
+	};
+
+	// CarPhysicsBehaviour: constructor 0x1091D920, reflection 0x1091D020 / 0x1091D7B0
+	class CarPhysicsBehaviour : public engine::Behaviour
+	{
+	public:
+		CarPhysicsBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x108];
+	};
+
+	// HelicopterIntentionBehaviour: constructor 0x1091DAC0, reflection 0x1091D980 / 0x1091DB70
+	class HelicopterIntentionBehaviour : public engine::Behaviour
+	{
+	public:
+		HelicopterIntentionBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0x14];
+	};
+
+	// HelicopterPhysicsBehaviour: constructor 0x1091DC40, reflection 0x1091DC00 / 0x1091DEA0
+	class HelicopterPhysicsBehaviour : public engine::Behaviour
+	{
+	public:
+		HelicopterPhysicsBehaviour(engine::GameObject* owner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[0xF8];
 	};
 
 }

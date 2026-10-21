@@ -103,4 +103,45 @@ namespace content
 	}
 }
 
+namespace engine
+{
+	class Behaviour;
+	class GameObject;
+
+	// RTTI: engine::MetaBehaviourCreator (an instance creator that makes the behaviour for the game object being
+	// constructed; slot 0 is the content library's generic Create, slot 1 the class's own)
+	class MetaBehaviourCreator : public content::MetaInstanceCreator
+	{
+	public:
+		// 0x10841F80
+		MetaBehaviourCreator(const char* newName, unsigned short newFlag, content::ClassMetaType* newType);
+
+		// 0x10841FB0
+		virtual void* Create();
+		virtual Behaviour* CreateBehaviour(GameObject* owner) = 0;
+	};
+
+	template<class T> class MetaBehaviourCreatorImpl : public MetaBehaviourCreator
+	{
+	public:
+		MetaBehaviourCreatorImpl(const char* newName, unsigned short newFlag, content::ClassMetaType* newType)
+			: MetaBehaviourCreator(newName, newFlag, newType)
+		{
+		}
+
+		virtual Behaviour* CreateBehaviour(GameObject* owner)
+		{
+			return new T(owner);
+		}
+	};
+
+	// The registration of T's creator: made once, on the first call
+	template<class T> void RegisterMetaBehaviourCreator()
+	{
+		content::ClassMetaType* type = content::GetClassMetaType<T>();
+		static MetaBehaviourCreatorImpl<T> sCreator(type->GetName(), 1, type);
+		content::RegisterInstanceCreator(&sCreator);
+	}
+}
+
 #endif

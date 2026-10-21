@@ -172,6 +172,97 @@ namespace content
 	template class MetaInstanceCreatorImpl<engine::trigger::SphereVolume, 1>;
 	template ClassMetaType* GetClassMetaType<engine::trigger::SphereVolume>();
 	template void RegisterMetaInstanceCreator<engine::trigger::SphereVolume>();
+	template ClassMetaType* GetClassMetaType<engine::AdvertisementBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::animation::JawFlapBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::animation::PuppetBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::camera::CameraBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::camera::CinematographerBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::CharacterIntentionBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::CharacterSolverBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::driving::CarIntentionBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::driving::CarPhysicsBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::driving::HelicopterIntentionBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::driving::HelicopterPhysicsBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::FirstPersonControlBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::KnockBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::MotionTreeBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::NISPlayerBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PatrolPathBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PlaybackTreeBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PoseAnimationBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PropLogicTreeBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PhysicsBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::PropBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::RagdollBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::RagdollLODBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::RenderBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::SecondaryPhysicsBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::SplineBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::TagBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::TouchBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::TrackedMotionToExpressionBehaviour>();
+}
+
+namespace engine
+{
+	template class MetaBehaviourCreatorImpl<engine::AdvertisementBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::AdvertisementBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::animation::JawFlapBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::animation::JawFlapBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::animation::PuppetBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::animation::PuppetBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::camera::CameraBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::camera::CameraBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::camera::CinematographerBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::camera::CinematographerBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::CharacterIntentionBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::CharacterIntentionBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::CharacterSolverBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::CharacterSolverBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::driving::CarIntentionBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::driving::CarIntentionBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::driving::CarPhysicsBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::driving::CarPhysicsBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::driving::HelicopterIntentionBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::driving::HelicopterIntentionBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::driving::HelicopterPhysicsBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::driving::HelicopterPhysicsBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::FirstPersonControlBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::FirstPersonControlBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::KnockBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::KnockBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::MotionTreeBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::MotionTreeBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::NISPlayerBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::NISPlayerBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PatrolPathBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PatrolPathBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PlaybackTreeBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PlaybackTreeBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PoseAnimationBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PoseAnimationBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PropLogicTreeBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PropLogicTreeBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PhysicsBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PhysicsBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::PropBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::PropBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::RagdollBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::RagdollBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::RagdollLODBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::RagdollLODBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::RenderBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::RenderBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::SecondaryPhysicsBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::SecondaryPhysicsBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::SplineBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::SplineBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::TagBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::TagBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::TouchBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::TouchBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::TrackedMotionToExpressionBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::TrackedMotionToExpressionBehaviour>();
 }
 
 // The class meta types, factories, creators and registrations, in address order:
@@ -334,6 +425,93 @@ namespace content
 // FUNCTION: ENGINE 0x108DA000 @ GetClassMetaType<trigger::SphereVolume>
 // FUNCTION: ENGINE 0x108DA050 @ MetaInstanceCreatorImpl<trigger::SphereVolume,1>::MetaInstanceCreatorImpl
 // FUNCTION: ENGINE 0x108DA080 @ MetaInstanceCreatorImpl<trigger::SphereVolume,1>::Create
+// FUNCTION: ENGINE 0x108DA200 @ GetClassMetaType<AdvertisementBehaviour>
+// FUNCTION: ENGINE 0x108DA250 @ MetaBehaviourCreatorImpl<AdvertisementBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA280 @ MetaBehaviourCreatorImpl<AdvertisementBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA2F0 @ GetClassMetaType<animation::JawFlapBehaviour>
+// FUNCTION: ENGINE 0x108DA340 @ MetaBehaviourCreatorImpl<animation::JawFlapBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA370 @ MetaBehaviourCreatorImpl<animation::JawFlapBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA390 @ GetClassMetaType<animation::PuppetBehaviour>
+// FUNCTION: ENGINE 0x108DA3E0 @ MetaBehaviourCreatorImpl<animation::PuppetBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA410 @ MetaBehaviourCreatorImpl<animation::PuppetBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA480 @ GetClassMetaType<camera::CameraBehaviour>
+// FUNCTION: ENGINE 0x108DA4D0 @ MetaBehaviourCreatorImpl<camera::CameraBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA500 @ MetaBehaviourCreatorImpl<camera::CameraBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA520 @ GetClassMetaType<camera::CinematographerBehaviour>
+// FUNCTION: ENGINE 0x108DA570 @ MetaBehaviourCreatorImpl<camera::CinematographerBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA5A0 @ MetaBehaviourCreatorImpl<camera::CinematographerBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA5C0 @ GetClassMetaType<CharacterIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DA610 @ MetaBehaviourCreatorImpl<CharacterIntentionBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA640 @ MetaBehaviourCreatorImpl<CharacterIntentionBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA660 @ GetClassMetaType<CharacterSolverBehaviour>
+// FUNCTION: ENGINE 0x108DA6B0 @ MetaBehaviourCreatorImpl<CharacterSolverBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA6E0 @ MetaBehaviourCreatorImpl<CharacterSolverBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA700 @ GetClassMetaType<driving::CarIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DA750 @ MetaBehaviourCreatorImpl<driving::CarIntentionBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA780 @ MetaBehaviourCreatorImpl<driving::CarIntentionBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA7A0 @ GetClassMetaType<driving::CarPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DA7F0 @ MetaBehaviourCreatorImpl<driving::CarPhysicsBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA820 @ MetaBehaviourCreatorImpl<driving::CarPhysicsBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA840 @ GetClassMetaType<driving::HelicopterIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DA890 @ MetaBehaviourCreatorImpl<driving::HelicopterIntentionBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA8C0 @ MetaBehaviourCreatorImpl<driving::HelicopterIntentionBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA8E0 @ GetClassMetaType<driving::HelicopterPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DA930 @ MetaBehaviourCreatorImpl<driving::HelicopterPhysicsBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA960 @ MetaBehaviourCreatorImpl<driving::HelicopterPhysicsBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA980 @ GetClassMetaType<FirstPersonControlBehaviour>
+// FUNCTION: ENGINE 0x108DA9D0 @ MetaBehaviourCreatorImpl<FirstPersonControlBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAA00 @ MetaBehaviourCreatorImpl<FirstPersonControlBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAA70 @ GetClassMetaType<KnockBehaviour>
+// FUNCTION: ENGINE 0x108DAAC0 @ MetaBehaviourCreatorImpl<KnockBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAAF0 @ MetaBehaviourCreatorImpl<KnockBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DABC0 @ GetClassMetaType<MotionTreeBehaviour>
+// FUNCTION: ENGINE 0x108DAC10 @ MetaBehaviourCreatorImpl<MotionTreeBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAC40 @ MetaBehaviourCreatorImpl<MotionTreeBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAC60 @ GetClassMetaType<NISPlayerBehaviour>
+// FUNCTION: ENGINE 0x108DACB0 @ MetaBehaviourCreatorImpl<NISPlayerBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DACE0 @ MetaBehaviourCreatorImpl<NISPlayerBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAD00 @ GetClassMetaType<PatrolPathBehaviour>
+// FUNCTION: ENGINE 0x108DAD50 @ MetaBehaviourCreatorImpl<PatrolPathBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAD80 @ MetaBehaviourCreatorImpl<PatrolPathBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DADA0 @ GetClassMetaType<PlaybackTreeBehaviour>
+// FUNCTION: ENGINE 0x108DADF0 @ MetaBehaviourCreatorImpl<PlaybackTreeBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAE20 @ MetaBehaviourCreatorImpl<PlaybackTreeBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAE40 @ GetClassMetaType<PoseAnimationBehaviour>
+// FUNCTION: ENGINE 0x108DAE90 @ MetaBehaviourCreatorImpl<PoseAnimationBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAEC0 @ MetaBehaviourCreatorImpl<PoseAnimationBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAEE0 @ GetClassMetaType<PropLogicTreeBehaviour>
+// FUNCTION: ENGINE 0x108DAF30 @ MetaBehaviourCreatorImpl<PropLogicTreeBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAF60 @ MetaBehaviourCreatorImpl<PropLogicTreeBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAF80 @ GetClassMetaType<PhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DAFD0 @ MetaBehaviourCreatorImpl<PhysicsBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB000 @ MetaBehaviourCreatorImpl<PhysicsBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB020 @ GetClassMetaType<PropBehaviour>
+// FUNCTION: ENGINE 0x108DB070 @ MetaBehaviourCreatorImpl<PropBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB0A0 @ MetaBehaviourCreatorImpl<PropBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB0C0 @ GetClassMetaType<RagdollBehaviour>
+// FUNCTION: ENGINE 0x108DB110 @ MetaBehaviourCreatorImpl<RagdollBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB140 @ MetaBehaviourCreatorImpl<RagdollBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB160 @ GetClassMetaType<RagdollLODBehaviour>
+// FUNCTION: ENGINE 0x108DB1B0 @ MetaBehaviourCreatorImpl<RagdollLODBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB1E0 @ MetaBehaviourCreatorImpl<RagdollLODBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB200 @ GetClassMetaType<RenderBehaviour>
+// FUNCTION: ENGINE 0x108DB250 @ MetaBehaviourCreatorImpl<RenderBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB280 @ MetaBehaviourCreatorImpl<RenderBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB2A0 @ GetClassMetaType<SecondaryPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DB2F0 @ MetaBehaviourCreatorImpl<SecondaryPhysicsBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB320 @ MetaBehaviourCreatorImpl<SecondaryPhysicsBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB340 @ GetClassMetaType<SplineBehaviour>
+// FUNCTION: ENGINE 0x108DB390 @ MetaBehaviourCreatorImpl<SplineBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB3C0 @ MetaBehaviourCreatorImpl<SplineBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB3E0 @ GetClassMetaType<TagBehaviour>
+// FUNCTION: ENGINE 0x108DB430 @ MetaBehaviourCreatorImpl<TagBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB460 @ MetaBehaviourCreatorImpl<TagBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB480 @ GetClassMetaType<TouchBehaviour>
+// FUNCTION: ENGINE 0x108DB4D0 @ MetaBehaviourCreatorImpl<TouchBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB500 @ MetaBehaviourCreatorImpl<TouchBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB520 @ GetClassMetaType<TrackedMotionToExpressionBehaviour>
+// FUNCTION: ENGINE 0x108DB570 @ MetaBehaviourCreatorImpl<TrackedMotionToExpressionBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB5A0 @ MetaBehaviourCreatorImpl<TrackedMotionToExpressionBehaviour>::CreateBehaviour
 // FUNCTION: ENGINE 0x108DB930 @ RegisterMetaObjectFactory<animation::AttachmentPhysicsProperties>
 // FUNCTION: ENGINE 0x108DB980 @ RegisterMetaObjectFactory<ActorSpawner>
 // FUNCTION: ENGINE 0x108DB9D0 @ RegisterMetaObjectFactory<ActorCrowdSpawner>
@@ -388,6 +566,35 @@ namespace content
 // FUNCTION: ENGINE 0x108DD4B0 @ RegisterMetaInstanceCreator<SpringBasedLinearMotionFilter>
 // FUNCTION: ENGINE 0x108DD500 @ RegisterMetaInstanceCreator<trigger::OBBVolume>
 // FUNCTION: ENGINE 0x108DD550 @ RegisterMetaInstanceCreator<trigger::SphereVolume>
+// FUNCTION: ENGINE 0x108DD6E0 @ RegisterMetaBehaviourCreator<AdvertisementBehaviour>
+// FUNCTION: ENGINE 0x108DD780 @ RegisterMetaBehaviourCreator<animation::JawFlapBehaviour>
+// FUNCTION: ENGINE 0x108DD7D0 @ RegisterMetaBehaviourCreator<animation::PuppetBehaviour>
+// FUNCTION: ENGINE 0x108DD870 @ RegisterMetaBehaviourCreator<camera::CameraBehaviour>
+// FUNCTION: ENGINE 0x108DD8C0 @ RegisterMetaBehaviourCreator<camera::CinematographerBehaviour>
+// FUNCTION: ENGINE 0x108DD910 @ RegisterMetaBehaviourCreator<CharacterIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DD960 @ RegisterMetaBehaviourCreator<CharacterSolverBehaviour>
+// FUNCTION: ENGINE 0x108DD9B0 @ RegisterMetaBehaviourCreator<driving::CarIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DDA00 @ RegisterMetaBehaviourCreator<driving::CarPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DDA50 @ RegisterMetaBehaviourCreator<driving::HelicopterIntentionBehaviour>
+// FUNCTION: ENGINE 0x108DDAA0 @ RegisterMetaBehaviourCreator<driving::HelicopterPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DDAF0 @ RegisterMetaBehaviourCreator<FirstPersonControlBehaviour>
+// FUNCTION: ENGINE 0x108DDB90 @ RegisterMetaBehaviourCreator<KnockBehaviour>
+// FUNCTION: ENGINE 0x108DDC30 @ RegisterMetaBehaviourCreator<MotionTreeBehaviour>
+// FUNCTION: ENGINE 0x108DDC80 @ RegisterMetaBehaviourCreator<NISPlayerBehaviour>
+// FUNCTION: ENGINE 0x108DDCD0 @ RegisterMetaBehaviourCreator<PatrolPathBehaviour>
+// FUNCTION: ENGINE 0x108DDD20 @ RegisterMetaBehaviourCreator<PlaybackTreeBehaviour>
+// FUNCTION: ENGINE 0x108DDD70 @ RegisterMetaBehaviourCreator<PoseAnimationBehaviour>
+// FUNCTION: ENGINE 0x108DDDC0 @ RegisterMetaBehaviourCreator<PropLogicTreeBehaviour>
+// FUNCTION: ENGINE 0x108DDE10 @ RegisterMetaBehaviourCreator<PhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DDE60 @ RegisterMetaBehaviourCreator<PropBehaviour>
+// FUNCTION: ENGINE 0x108DDEB0 @ RegisterMetaBehaviourCreator<RagdollBehaviour>
+// FUNCTION: ENGINE 0x108DDF00 @ RegisterMetaBehaviourCreator<RagdollLODBehaviour>
+// FUNCTION: ENGINE 0x108DDF50 @ RegisterMetaBehaviourCreator<RenderBehaviour>
+// FUNCTION: ENGINE 0x108DDFA0 @ RegisterMetaBehaviourCreator<SecondaryPhysicsBehaviour>
+// FUNCTION: ENGINE 0x108DDFF0 @ RegisterMetaBehaviourCreator<SplineBehaviour>
+// FUNCTION: ENGINE 0x108DE040 @ RegisterMetaBehaviourCreator<TagBehaviour>
+// FUNCTION: ENGINE 0x108DE090 @ RegisterMetaBehaviourCreator<TouchBehaviour>
+// FUNCTION: ENGINE 0x108DE0E0 @ RegisterMetaBehaviourCreator<TrackedMotionToExpressionBehaviour>
 // FUNCTION: ENGINE 0x108DE1D0 @ MetaObjectFactory<NISExclusionVolume,1>::Create
 // FUNCTION: ENGINE 0x108DE1F0 @ MetaInstanceCreatorImpl<EnterTriggerMessage,1>::Create
 // FUNCTION: ENGINE 0x108DE220 @ MetaInstanceCreatorImpl<ExitTriggerMessage,1>::Create
