@@ -917,6 +917,35 @@ destructor: the unit's manager destructor expands it inline, but giving `ArrayDy
 changes every other user of that header (shader palette, geometry and polyskin loaders), so the kept copy stays
 unreconstructed.
 
+## engine/scenario/scenarioconditions.cpp (0x108C14A0 - 0x108C2770): 80 functions match, 0 nonmatching, 13 equivalent
+
+The fight conditions of the scenario system (no assert path; file and member names are guesses, the class names come
+from the RTTI and the property names from the reflection strings). The unit holds three whole classes
+(`ScenarioGameObjectCondition`, `ScenarioScriptAttributeCondition`, `HasTagCondition`: constructor, destructor,
+setters, property list, factories) and the `Evaluate` of five more whose constructors and properties are in the
+unit at 0x108FF340 - 0x10900260 (`ScenarioMessageCondition`, `ScenarioStringCondition`, `ScenarioPropStateCondition`,
+`ScenarioGameObjectAttributeCondition`, `ScenarioGameObjectTouchesTriggerCondition`), plus the getters of the last
+two. `RegisterScenarioConditionFactories` (0x108C2570) registers all eight under their script names.
+- The fourth argument of `Evaluate` is not used: the node the condition is asked about is the *third* (`c`), a
+  `ScriptOwner` (`code/engine/scenario/scriptowner.h`, shared with luatracks.cpp, whose `ScriptOwnerPart` is the
+  `ScenarioMessage` inside it: `GetPart` is `this + 0x10`, the message id is the word at +8). A kind of 1..0xFFFF means
+  the node has its own message.
+- `fight::PropertyEnumListObject<T>` (setter and a `fight::ListObject*`, 0x18 bytes) was added to trackfactory.h; the
+  handle slots of the three classes are picked from `gAffiliateLister`.
+- The enum of `ScenarioScriptAttributeCondition::SetType` is the table at 0x11316678 (11 entries, count at 0x10E74294)
+  of another unit; the value member is an 8-byte typed value (`AttributeValue`, 0x108718B0 / 0x10872050 /
+  0x108724B0 / 0x10872060 / 0x10871AF0, another unit); its `ToString` answers a pointer into one static buffer, so the
+  engine's comparison of two such values (`ScenarioScriptAttributeCondition::Evaluate`) compares equal whenever both
+  attributes exist.
+- The three `ClearProperties` (0x108C1620 / 0x108C1690 / 0x108C16B0) had no row in functions.tsv; rows were added.
+- An early `if (!ok) return false;` where `ok` is a local bool laid the false returns out like the engine's; the engine
+  expands the game object table test of the handle a message carries (as `IsValid` does) but calls the out-of-line
+  `IsValid` (0x1006B210) for the cached handle of `ScenarioGameObjectCondition`; ours either inlines both or calls
+  both, which is why that function is EQUIVALENT with the other seven `Evaluate`s (they also differ in the engine's
+  `add eax, -1` for `kind - 1`, which no expression of ours produced).
+- Not done: 0x108C1570 / 0x108C1590 (`GetHandle(0)` / `GetHandle(1)` wrappers of an unknown class), the property
+  setters and getters of the other five classes (the other unit).
+
 ## pure3d animation and the choreo pose blending
 
 Three units, none of them named by an assert except the first:

@@ -9,6 +9,7 @@
 #include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/core/strings.h"
+#include "code/engine/fight/listobject.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/math/colour128.h"
 #include "code/math/vector.h"
@@ -733,6 +734,50 @@ namespace fight
 		Setter m_setter;
 		const EnumEntry* m_table;
 		int m_count;
+	};
+
+	// A value picked from the names a ListObject (the editor's list) holds: the list is the property's second
+	// member, beside the setter (the classes are 0x18 bytes)
+	template<class T> class PropertyEnumListObject : public PropertyTypeEnum
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+
+		PropertyEnumListObject(const char* name, ListObject* list, Setter setter)
+			: PropertyTypeEnum(name), m_setter(setter), m_list(list)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual const EnumEntry* GetEntry(void* object, int index)
+		{
+			return reinterpret_cast<const EnumEntry*>(m_list->GetName(index));
+		}
+
+		// vftable slot 8
+		virtual int GetCount(void* object) const
+		{
+			return m_list->GetCount();
+		}
+
+		// vftable slot 9
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+		ListObject* m_list;
 	};
 
 	// The list of a track class's properties, built once from a null-terminated array of them (0x105A8420)
