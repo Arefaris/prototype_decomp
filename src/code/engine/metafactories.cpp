@@ -3,7 +3,9 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/actorspawner.h"
 #include "code/engine/splinepath.h"
+#include "code/engine/surfacedefinition.h"
 #include "code/engine/camera/cameraloader.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
 #include "code/engine/gameobject/gameobject.h"

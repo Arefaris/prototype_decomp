@@ -4315,3 +4315,24 @@ lower-bound function the unit has of its own (a plain function template, not `st
   `engine::camera::CinematographerType`). `Camera` gained its two reflection statics (0x1084D830 / 0x1084DCC0, another
   unit). The constructor is EQUIVALENT (the lea of the first name member sits behind the reference count store in
   the engine). Not done: the load notification (vftable slot 3, 0x109069A0).
+- `src/code/engine/splinepath.cpp` (0x10910550 - 0x10911500): `engine::SplinePathCV` (a virtual-destructor point of 0x24 bytes:
+  `key` = time at +4 and position at +8, tension, continuity, bias, forceSpeedMatch), `engine::SplinePath` (an
+  `engine::IPath`, the points as `ArrayDynamic<SplinePathCV*, AllocatorNew>` at +8, the matrix at +0x18, the
+  `math::Spline` built from the points at +0x58) and the path interface's class info. 48 functions match. EQUIVALENT:
+  `CreatePoints` 0x10910EB0 (xmm register allocation, 66.8 %) and the destructor 0x10911410 (the independent spline
+  pointer load sits before the array reset, 89.7 %). Not done: the array helper's `Erase` / `Insert` slots and the array's
+  `Reserve` (0x10911030 / 0x10911480 / 0x10911070: the engine's pointer-array instance has other loops than the struct
+  array of arraydynamicallocatornew.h), the small kept copies of empty functions and `PushBack` (0x109106B0 ...,
+  0x10910A10). `Erase` of a pointer array goes through `CopyRange` (an explicit member specialisation in the header).
+- `src/code/engine/surfacedefinition.cpp` (0x10911500 - 0x10911880): `SurfaceDefinition` (global namespace; a game object
+  handle at +8, a name at +0x10 and the three `StringC<260>` members physicsObjectReference +0x18, soundEffectName +0x120,
+  decalName +0x228). The string members' offsets come from `StringBufferOffset(&base->member) + offsetof`, where the
+  engine passes the address of the member in an object at 0x11276934 (`gStringMemberBase`; the result does not depend
+  on it, but the call's argument is part of the code). The constructor is EQUIVALENT (the lea of the handle member is
+  behind the reference count store in the engine, as in the camera loader, 92.2 %).
+- `src/code/engine/actorspawner.cpp` (0x10905BC0 - 0x109067F0): `engine::ActorSpawner` (objectName +0x50, playerIndex
+  +0x58, the spawned object's handle +0x5C; a word at +0x4C nobody writes) and `engine::ActorCrowdSpawner` (baseName
+  `StringC<32>` at +0x4C, baseTransform +0x70, numAlongX / numAlongZ +0xB0 / +0xB4, grid spacings +0xB8 / +0xBC, the
+  handles of the spawned objects +0xC0). `GameObjectSpawner` is 0x4C bytes, so the actor's 8-byte-aligned name starts
+  at +0x50. EQUIVALENT: `SpawnGrid` 0x10906450 (stack slots of the loop counters, 96.6 %). NONMATCHING:
+  `ActorCrowdSpawner::IsReady` 0x109063C0 (the engine repeats the whole handle lookup for the object, 35 %).

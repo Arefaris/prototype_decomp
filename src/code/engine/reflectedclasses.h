@@ -8,42 +8,9 @@
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 
-	// SurfaceDefinition: constructor 0x109117B0, reflection 0x10911500 / 0x10911670
-	class SurfaceDefinition : public content::MetaLoadObject
-	{
-	public:
-		SurfaceDefinition();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x328];
-	};
-
 
 namespace engine
 {
-	// ActorSpawner: constructor 0x10905DE0, reflection 0x10905BC0 / 0x10905FE0
-	class ActorSpawner : public content::MetaLoadObject
-	{
-	public:
-		ActorSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x58];
-	};
-
-	// ActorCrowdSpawner: constructor 0x109066D0, reflection 0x10905C00 / 0x109060B0
-	class ActorCrowdSpawner : public content::MetaLoadObject
-	{
-	public:
-		ActorCrowdSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0xC8];
-	};
-
 	// CharacterIntentionInputMap: constructor 0x108253C0, reflection 0x10821940 / 0x10824380
 	class CharacterIntentionInputMap : public content::MetaLoadObject
 	{
