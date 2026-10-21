@@ -4366,3 +4366,145 @@ tracks whose actions sit beside the ones above, the car and vehicle physics attr
 `WheelData` (needs a string meta type), the audio emitter / zone behaviours (0x1093B7E0 - 0x1093CE00), the socket
 layer's `GetLocalNetworkInfo` 0x1093F920 and the small `0x1093FD20` helper, and the controller input log manager
 (0x109337A0 - 0x10933E00).
+## 0x108FF310 - 0x10920000 (sn-o): the scenario condition properties, the reflected content classes
+
+- `src/code/engine/scenario/scenarioeventconditions.cpp` (0x108FF310 - 0x10900260, the tail of the previous range's
+  last unit): the constructors, destructors, property setters, property lists and factories of
+  `ScenarioMessageCondition`, `ScenarioGameObjectAttributeCondition`, `ScenarioGameObjectTouchesTriggerCondition`,
+  `ScenarioPropStateCondition` and `ScenarioStringCondition` (their evaluations are in scenarioconditions.cpp), plus the
+  property and factory template instances. 95 functions match, the five `RegisterProperties` are EQUIVALENT (the
+  open shrink-wrap question; the touch-trigger one also stores its table count before the vftable). The properties
+  settled the names of the touch condition's two names: "gameObjectName" is the word at +0x10 (`object`) and
+  "triggerName" the one at +0x18 (`trigger`); the getters 0x108C15E0 / 0x108C15F0 and the evaluation in
+  scenarioconditions.cpp were renamed to follow. The object is 0x28 bytes (a word at +0x24 nobody writes).
+- `src/code/engine/camera/cameraloader.cpp` (0x109067F0 - 0x10906B20): `engine::camera::CameraLoader` (camera object at
+  +8, avatarName +0x10, cinematographerName +0x18, spawnActive +0x20, type +0x24 of the enumeration
+  `engine::camera::CinematographerType`). `Camera` gained its two reflection statics (0x1084D830 / 0x1084DCC0, another
+  unit). The constructor is EQUIVALENT (the lea of the first name member sits behind the reference count store in
+  the engine). Not done: the load notification (vftable slot 3, 0x109069A0).
+- `src/code/engine/splinepath.cpp` (0x10910550 - 0x10911500): `engine::SplinePathCV` (a virtual-destructor point of 0x24 bytes:
+  `key` = time at +4 and position at +8, tension, continuity, bias, forceSpeedMatch), `engine::SplinePath` (an
+  `engine::IPath`, the points as `ArrayDynamic<SplinePathCV*, AllocatorNew>` at +8, the matrix at +0x18, the
+  `math::Spline` built from the points at +0x58) and the path interface's class info. 51 functions match. EQUIVALENT:
+  `CreatePoints` 0x10910EB0 (xmm register allocation, 66.8 %) and the destructor 0x10911410 (the independent spline
+  pointer load sits before the array reset, 89.7 %). The point array's helper `Insert` / `Erase` are explicit member
+  specialisations in splinepath.cpp (the pointer array's loops differ from the struct array's), and `Reserve` in
+  arraydynamicallocatornew.h now declares its loop variable inside the else branch (shared header; the fmv matches stay 100 %).
+- `src/code/engine/surfacedefinition.cpp` (0x10911500 - 0x10911880): `SurfaceDefinition` (global namespace; a game object
+  handle at +8, a name at +0x10 and the three `StringC<260>` members physicsObjectReference +0x18, soundEffectName +0x120,
+  decalName +0x228). The string members' offsets come from `StringBufferOffset(&base->member) + offsetof`, where the
+  engine passes the address of the member in an object at 0x11276934 (`gStringMemberBase`; the result does not depend
+  on it, but the call's argument is part of the code). The constructor is EQUIVALENT (the lea of the handle member is
+  behind the reference count store in the engine, as in the camera loader, 92.2 %).
+- `src/code/engine/actorspawner.cpp` (0x10905BC0 - 0x109067F0): `engine::ActorSpawner` (objectName +0x50, playerIndex
+  +0x58, the spawned object's handle +0x5C; a word at +0x4C nobody writes) and `engine::ActorCrowdSpawner` (baseName
+  `StringC<32>` at +0x4C, baseTransform +0x70, numAlongX / numAlongZ +0xB0 / +0xB4, grid spacings +0xB8 / +0xBC, the
+  handles of the spawned objects +0xC0). `GameObjectSpawner` is 0x4C bytes, so the actor's 8-byte-aligned name starts
+  at +0x50. EQUIVALENT: `SpawnGrid` 0x10906450 (stack slots of the loop counters, 96.6 %). NONMATCHING:
+  `ActorCrowdSpawner::IsReady` 0x109063C0 (the engine repeats the whole handle lookup for the object, 35 %).
+- `src/code/engine/driving/` (0x10905A00 - 0x10905BC0, 0x10906C40 - 0x10907020): `VehiclePhysicsAttributes` (the 0x1C-byte
+  `VehicleMassAttributes` at +8), `CarPhysicsAttributes` (suspension +8, control +0x48, two groups the reflection does
+  not show at +0x84 / +0xEC, 0x210 bytes) and `HelicopterPhysicsAttributes` (control at +8); the groups are structs of
+  another unit (0x10934120 - 0x10937200) of which only the size, constructor and reflection are declared, mapped to
+  the engine's addresses. `gVehicleVector` (0x1131B4B4, set by 0x10905A50) is the vector the driving system shares. The
+  three constructors are EQUIVALENT: the engine's lea of the first member sits behind the volatile reference count
+  store of `LoadObject` where ours hoists it above it (the same difference as in the camera loader and
+  `SurfaceDefinition`; it recurs in every reflected class that derives straight from `MetaLoadObject`). Not done:
+  `WheelCollectionData` (0x10907020 - 0x10907C40: its element array of `WheelData` needs destructors in the array
+  header), the character solver (0x10907E90 - 0x1090C110, one unit with `CharacterSolverBehaviour`).
+- `src/code/engine/world/locationrendersettings.cpp` (0x10914850 - 0x10914AB0): `engine::world::LocationRenderSettings` (the first
+  one made is the current one, `sCurrent` 0x1131C67C): 10 functions match, the constructor is EQUIVALENT (store order,
+  73.7 %). The inline accessors are defined in the source file so that their kept copies count.
+- `src/code/engine/motionfeatureextractor.cpp` (0x10914AB0 - 0x10915450): the motion feature extractors (a pure base,
+  the projected extractors with their `rootSpaceProjectionAxis` and the six leaf classes whose `Extract` reads the
+  displacement, speed or acceleration along or around the axis). `LinearDisplacementExtractor::Extract` is EQUIVALENT (the
+  last product's operand order, 95.9 %). The two class meta types of the base (0x10911DD0) and of the projected
+  extractor (0x109151C0) are template instances of other units' neighbourhood. The leaf classes' deleting destructors
+  are in the factories' unit (0x108D8BF0, 0x108DE390 ...).
+- `src/code/engine/namedinventorycreator.cpp` / `remotecamera.cpp` (0x1090D720 - 0x1090DA00, 0x1090DA00 - 0x1090DDD0):
+  `engine::NamedInventoryCreator` (the inventory's name at +8, its initial size at +0x10 (rounded up to a power of two
+  when it is loaded) and the inventory it created at +0x14, held through `core::RefAssign` / `core::SafeRelease`) and
+  `engine::RemoteCamera` (position, target and up vectors at +8 / +0x14 / +0x20, FOV, near and far plane, an active
+  flag; 0x3C bytes). Both constructors are EQUIVALENT (store order of the reference count and the first member, 81.2 %
+  and 71.6 %). Not done in this stretch: `GameObjectTemplateBuilder` (0x1090C110 - 0x1090D700, its metaobject template
+  arrays and the 678-byte load function).
+- `src/code/engine/secondaryphysicsjoints.cpp` (0x10915FD0 - 0x109179F0): the secondary physics joint drivers. The
+  interface `SecondaryPhysicsJointDriver` (six vftable slots; its class info, member list and default slots are
+  0x10937750 - 0x10937810, another unit) owns `GetHandleCount` constraint handles of the properties' handle array;
+  `SecondaryPhysicsAmbientWind` (windForceScale +4, constantDirection +0x10), `SecondaryPhysicsPinJoint`
+  (constraintPointOffset +4) and `SecondaryPhysicsPoweredJoint` (the force curve array of `ForceCurvePoint` (angle in
+  radians, maxOrientationForce) at +4, dampingConstant +0x14, maxAngularVelocity +0x18 (radians, reflected in
+  degrees through accessors)). Slot 2 of the pin and powered joints creates the constraints through ravenphysics
+  creators (0x1065B6E0 / 0x1065B8A0 / 0x1065B760, names guessed; they return a handle through a hidden pointer, which
+  is why the local `handle` pointer is needed to reach the engine's stack use). EQUIVALENT: `EvaluateForceCurve`
+  (the engine keeps the previous point in esi, 21.9 %). NONMATCHING: the wind's slot 5 (x87 stack use of the last random number, 58.0 %). Not done: the pin joint's
+  slot 4 (0x109164A0) and the powered joint's slots 3 and 4 (0x10916B10, 0x10916F20), which drive constraint
+  setters of the physics library that are not reconstructed. The three drivers' shared fixes: the sizes of
+  `ActorCrowdSpawner` (0xD0) and `CarPhysicsAttributes` (0x218) now carry the tail words the engine's factories
+  allocate.
+- `src/code/engine/trackedmotiontoexpressionmap.cpp` (0x10911880 - 0x10914850): `engine::TrackedMotionToExpressionMap` (a
+  skeleton at +8 and an expression group at +0xC, both released through `core::SafeRelease`, and the array of
+  `JointData` at +0x10; 0x20 bytes) with its three reflected structs: `PropertyMappingKeyValuePair` (key, value),
+  `PropertyMapping` (0x30 bytes: the feature extractor it owns at +0, the expression's name at +8 and index at +0x10,
+  weight, `BlendType` enum (Add / Min / Max / Override) at +0x18, the curve array at +0x1C, debugDisable at +0x2C)
+  and `JointData` (0x78 bytes: the joint's name, an offset transform whose translation the reflection reads through
+  an accessor pair, the motion filter it owns at +0x60, the mappings at +0x64, debugDisable at +0x74). 141 functions
+  match, among them all the reflection, constructors, destructors and the template instances of the three element
+  arrays. Not done: the per-frame update (0x10911FA0 / 0x10912AE0), the arrays' `Reserve` / `ShiftUp` /
+  `ConstructFill` / `AssignRange` instances of `PropertyMapping` and `JointData` and the helper `Insert` / `Erase`
+  slots (the engine expands the elements' copy construction and assignment inside the array functions, ours calls
+  them), and two NONMATCHING functions: `PropertyMapping::IsCurveSorted` 0x10911E30 (15.8 %) and `EvaluateCurve`
+  0x10911E60 (the interpolation is computed on the x87 stack by ours, 2.1 %). Shared headers: `ArrayDynamic<T,
+  AllocatorNew>` (code/container/arraydynamicallocatornew.h) now has the engine template's destructor, copy
+  constructor, assignment and element destruction in Clear / Free / Erase / ShiftUp / Reserve, an `allocator`
+  member (the arrays are 16 bytes, which made the manual padding words of the fmv subtitle manager, the spline path,
+  the powered joint and the actor crowd spawner unnecessary; their destructors lost their hand-written array
+  frees, which made the powered joint's destructor match) and `ArrayEraseInline<T>` (the inline element loop or
+  the call of `AssignRange`). `pure3d::Skeleton::FindJoint` (0x106DDA60) is declared in pose.h, and
+  `pure3d::ExpressionGroup` is in pure3d/expressiongroup.h.
+- `src/code/engine/secondaryphysicsproperties.cpp` (0x1090DDD0 - 0x10910550): `engine::SecondaryPhysicsProperties` (the
+  physics data object a constructor makes at +8, the array of `JointData` at +0xC; 0x1C bytes). `JointData` (0xA0
+  bytes) is a joint's collision volume: name, array of drivers (deleted with the joint), a reference to the mass
+  properties, gravity flag, volume type (Sphere / Capsule / Cylinder / OBB), radius, centre offset, half length, the
+  rotation type (XYZ / YZX / ZXY), the orientation matrix at +0x3C that the reflected angles in degrees (+0x7C) rebuild
+  through their setters, and the debug display data. 112 functions match (the reflection, constructors, destructors,
+  the small accessors and the template instances of the driver and joint arrays); the constructor is EQUIVALENT (the
+  engine pushes edi after the first stores, 95.7 %). Not done: the physics-object construction (0x1090E540, 0x1090E600,
+  0x1090E820, 0x1090F200, 0x1090F420, 0x1090F470, which call into the physics library) and the joints' copy
+  constructor, assignment and `Reserve` (0x1090F8C0, 0x1090FCE0, 0x109101D0; the engine's copy of the orientation
+  matrix goes through a vector-copy helper). Shared: `content/enummetatype.h` (EnumMetaTypeGetSet and the global
+  EnumMemberGetSetter), `ravenphysics/massproperties.h` (the size-only class moved out of reflectedclasses.h), the
+  YZX / ZXY Euler rotations declared in matrix.h (0x107CEF70 / 0x107CF0A0, names guessed), and in
+  arraydynamicallocatornew.h the helper for pointer arrays (`ArrayDynamicHelper<ArrayDynamic<P*, AllocatorNew> >`,
+  which replaces the spline path's own) and the `CopyRange` mode of `ArrayEraseInline`.
+- `src/code/engine/driving/wheelcollectiondata.cpp` (0x10907020 - 0x10907DC0): `engine::driving::WheelCollectionData` (the
+  physics object factory it takes the body from at +8, the skeleton at +0xC and the array of `WheelData` at +0x10;
+  0x20 bytes). A `WheelData` (0x68 bytes) is a `StringC<64>` name member at +0 followed by two words and seven floats
+  (its reflection and default constructor are in the 0x109375xx unit). 39 functions match, including the array
+  instances of the wheels (the string member is why the array destroys an element with a store of the string base's
+  vftable). Not done: the four-wheel default setup (0x10907C40, a declared member the load notification calls), the
+  arrays' `AssignRange` / `Resize` (the engine allocates its registers differently) and the helper's default element
+  accessor. `StringC<N>` got the engine's assignment (the bounded copy), and `ArrayDynamic<T, AllocatorNew>` the
+  `Resize` and range `Erase`; `ravenphysics/physicsobjectfactory.h` holds the size-only class.
+- `src/code/engine/charactersolverproperties.cpp` (0x10908490 - 0x109086A0): `engine::CharacterSolverProperties`, a content
+  library object (`MetaLoadObject`) with seven reflected floats and flags that tune the character solver (maximum linear
+  acceleration, maximum steering angular force, maximum push velocity, whether platforming is on, the effective character
+  mass on a platform, the minimum mass ratio for platforming and the maximum velocity gained from a platform). 10
+  functions match; the constructor is EQUIVALENT (the engine loads each default right before its store, ours loads them
+  up front, 42.7 %).
+- `src/code/engine/fight/behaviours/motiontreebehaviour.cpp` (0x1091F380 - 0x1091F890): `engine::MotionTreeBehaviour`, the
+  fight tree behaviour that runs a motion tree: it keeps the pending message flags and the auto-resequence setting
+  (reflected as `autoResequence`), listens for the sequencer to be ready and resets the sequencer on one message. 15
+  functions match. `UpdateListening` is NONMATCHING (41.2 %, the engine keeps the sequencer test's result in a stack slot
+  across the branch); `Sequencer::Unknown105A4270` is declared for the update.
+- `src/code/engine/firstpersoncontrolbehaviour.cpp` (0x1091DF60 - 0x1091EC70): `engine::FirstPersonControlBehaviour`
+  (0x34 bytes): the behaviour that lets the player look around from the eyes of its owner, with the reflected `invert`,
+  `horizSensitivity`, `vertSensitivity`, `vertDeadZone` and `speed`. 12 functions match: the reflection, the
+  constructor (it makes the owner's "EYEPOINT" matrix attribute, `GameObject::SetAttributeAndGet<math::Matrix>`, an
+  out-of-line template instance in another unit, and the name global `gEyePointName`), the slot 1 that starts the
+  camera transition for the controlling player. Not done: the update (slot 4, 0x1091E360, 2158 bytes, mapped to the
+  engine's) and the character override message it sends (0x1091E1B0).
+- `src/code/engine/knockbehaviour.cpp` (0x1091EC70 - 0x1091F380): `engine::KnockBehaviour` (0x24 bytes): pushes the
+  objects in front of its owner away (reflected `strength`, `rangeDistance`, `rangeCosHalfAngle`,
+  `minimumRepeatPeriod` and `damage`). 12 functions match (the reflection, the constructor, the empty slot 1); the
+  update (slot 4, 0x1091EDA0, walks the world's object list) is mapped to the engine's.

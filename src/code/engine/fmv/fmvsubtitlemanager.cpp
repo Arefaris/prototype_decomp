@@ -113,12 +113,6 @@ namespace engine
 	FmvSubtitleManager::~FmvSubtitleManager()
 	{
 		Reset();
-		// The array's destructor, which the engine's compiler expanded here (its own copy, 0x108C1280, is not called)
-		subtitles.Clear();
-		if (subtitles.begin != 0)
-		{
-			operator delete[](subtitles.begin);
-		}
 	}
 
 	// The name of the movie a path names: what lies between the last separator and the extension (empty for a path

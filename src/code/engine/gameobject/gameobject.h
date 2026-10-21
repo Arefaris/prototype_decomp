@@ -193,6 +193,8 @@ namespace engine
 		// Sets the attribute of that name to value, making it when the object has none (out of line in other units:
 		// int 0x102DC220, float 0x105927C0, math::Vector 0x10592640)
 		template<class T> void SetAttribute(const content::ObjectName& name, const T& value, bool unknown);
+		// The same, answering the attribute (out of line in other units: math::Matrix 0x1028CE40; name guessed)
+		template<class T> Attribute<T>* SetAttributeAndGet(const content::ObjectName& name, const T& value, bool unknown);
 		// The value of a named attribute of type T, null when there is none
 		template<class T> T* GetAttributeValue(const content::ObjectName& name)
 		{

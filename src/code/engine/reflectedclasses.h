@@ -8,42 +8,9 @@
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 
-	// SurfaceDefinition: constructor 0x109117B0, reflection 0x10911500 / 0x10911670
-	class SurfaceDefinition : public content::MetaLoadObject
-	{
-	public:
-		SurfaceDefinition();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x328];
-	};
-
 
 namespace engine
 {
-	// ActorSpawner: constructor 0x10905DE0, reflection 0x10905BC0 / 0x10905FE0
-	class ActorSpawner : public content::MetaLoadObject
-	{
-	public:
-		ActorSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x58];
-	};
-
-	// ActorCrowdSpawner: constructor 0x109066D0, reflection 0x10905C00 / 0x109060B0
-	class ActorCrowdSpawner : public content::MetaLoadObject
-	{
-	public:
-		ActorCrowdSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0xC8];
-	};
-
 	// CharacterIntentionInputMap: constructor 0x108253C0, reflection 0x10821940 / 0x10824380
 	class CharacterIntentionInputMap : public content::MetaLoadObject
 	{
@@ -53,17 +20,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x68];
-	};
-
-	// CharacterSolverProperties: constructor 0x109084D0, reflection 0x10907E90 / 0x109097A0
-	struct CharacterSolverProperties : public content::MetaLoadObject
-	{
-	public:
-		CharacterSolverProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x1C];
 	};
 
 	// GameObjectTemplateBuilder: constructor 0x1090CE10, reflection 0x1090C110 / 0x1090CC30
@@ -77,39 +33,6 @@ namespace engine
 		unsigned char unknown8[0x30];
 	};
 
-	// NamedInventoryCreator: constructor 0x1090D9B0, reflection 0x1090D720 / 0x1090D900
-	class NamedInventoryCreator : public content::MetaLoadObject
-	{
-	public:
-		NamedInventoryCreator();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x10];
-	};
-
-	// RemoteCamera: constructor 0x1090DD30, reflection 0x1090DA00 / 0x1090DBD0
-	class RemoteCamera : public content::MetaLoadObject
-	{
-	public:
-		RemoteCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x34];
-	};
-
-	// SecondaryPhysicsProperties: constructor 0x109103D0, reflection 0x1090DF10 / 0x1090FDD0
-	class SecondaryPhysicsProperties : public content::MetaLoadObject
-	{
-	public:
-		SecondaryPhysicsProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x14];
-	};
-
 	// SkuInfo: constructor 0x10892E60, reflection 0x10892630 / 0x10892CE0
 	class SkuInfo : public content::MetaLoadObject
 	{
@@ -119,17 +42,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x38];
-	};
-
-	// SplinePath: constructor 0x10911310, reflection 0x10910600 / 0x10911250
-	class SplinePath : public content::MetaLoadObject
-	{
-	public:
-		SplinePath();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x5C];
 	};
 
 	// StreamPackage: constructor 0x107FBDC0, reflection 0x107FAD80 / 0x107FBAC0
@@ -187,17 +99,6 @@ namespace engine
 		unsigned char unknown8[0x10];
 	};
 
-	// TrackedMotionToExpressionMap: constructor 0x109146F0, reflection 0x10911970 / 0x109138D0
-	class TrackedMotionToExpressionMap : public content::MetaLoadObject
-	{
-	public:
-		TrackedMotionToExpressionMap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x18];
-	};
-
 	// NISExclusionVolume: constructor 0x108DB770, reflection 0x1088B8A0 / 0x1088C180
 	struct NISExclusionVolume : public content::MetaLoadObject
 	{
@@ -207,50 +108,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x3C];
-	};
-
-	// SplinePathCV: constructor 0x10910640, reflection 0x10910550 / 0x10910D30
-	class SplinePathCV
-	{
-	public:
-		SplinePathCV();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x24];
-	};
-
-	// SecondaryPhysicsAmbientWind: constructor 0x109161C0, reflection 0x10915FD0 / 0x10916290
-	class SecondaryPhysicsAmbientWind
-	{
-	public:
-		SecondaryPhysicsAmbientWind();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x14];
-	};
-
-	// SecondaryPhysicsPinJoint: constructor 0x10916400, reflection 0x10916360 / 0x109166E0
-	class SecondaryPhysicsPinJoint
-	{
-	public:
-		SecondaryPhysicsPinJoint();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x10];
-	};
-
-	// SecondaryPhysicsPoweredJoint: constructor 0x10917900, reflection 0x109167D0 / 0x10917770
-	class SecondaryPhysicsPoweredJoint
-	{
-	public:
-		SecondaryPhysicsPoweredJoint();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x1C];
 	};
 
 	// AdvertisementBehaviour: constructor 0x10919D70, reflection 0x10917A30 / 0x109197C0
@@ -284,39 +141,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// FirstPersonControlBehaviour: constructor 0x1091EBD0, reflection 0x1091DF60 / 0x1091E210
-	class FirstPersonControlBehaviour : public engine::Behaviour
-	{
-	public:
-		FirstPersonControlBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x28];
-	};
-
-	// KnockBehaviour: constructor 0x1091ECB0, reflection 0x1091EC70 / 0x1091F230
-	class KnockBehaviour : public engine::Behaviour
-	{
-	public:
-		KnockBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x18];
-	};
-
-	// MotionTreeBehaviour: constructor 0x1091F480, reflection 0x1091F380 / 0x1091F750
-	class MotionTreeBehaviour : public engine::Behaviour
-	{
-	public:
-		MotionTreeBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x64];
 	};
 
 	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0
@@ -519,17 +343,6 @@ namespace engine
 {
 namespace camera
 {
-	// CameraLoader: constructor 0x10906940, reflection 0x109067F0 / 0x10906B20
-	class CameraLoader : public content::MetaLoadObject
-	{
-	public:
-		CameraLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x20];
-	};
-
 	// FPSCamera: constructor 0x10915490, reflection 0x10915450 / 0x10915540
 	class FPSCamera
 	{
@@ -592,50 +405,6 @@ namespace engine
 {
 namespace driving
 {
-	// CarPhysicsAttributes: constructor 0x10906E20, reflection 0x10906C40 / 0x10906D80
-	class CarPhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		CarPhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x210];
-	};
-
-	// HelicopterPhysicsAttributes: constructor 0x10906FC0, reflection 0x10906E90 / 0x10906F40
-	class HelicopterPhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		HelicopterPhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x64];
-	};
-
-	// VehiclePhysicsAttributes: constructor 0x10905B60, reflection 0x10905A00 / 0x10905AE0
-	class VehiclePhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		VehiclePhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x1C];
-	};
-
-	// WheelCollectionData: constructor 0x10907B60, reflection 0x10907020 / 0x109075A0
-	class WheelCollectionData : public content::MetaLoadObject
-	{
-	public:
-		WheelCollectionData();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x18];
-	};
-
 	// CarIntentionBehaviour: constructor 0x1091CEA0, reflection 0x1091CD30 / 0x1091CF50
 	class CarIntentionBehaviour : public engine::Behaviour
 	{
@@ -727,17 +496,6 @@ namespace world
 		unsigned char unknown8[0x3C];
 	};
 
-	// LocationRenderSettings: constructor 0x10914A70, reflection 0x10914850 / 0x109149C0
-	class LocationRenderSettings : public content::MetaLoadObject
-	{
-	public:
-		LocationRenderSettings();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
-	};
-
 }
 }
 
@@ -818,17 +576,6 @@ namespace ravenphysics
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x40];
-	};
-
-	// MassProperties: constructor 0x10670E90, reflection 0x10670C40 / 0x10671030
-	class MassProperties : public content::MetaLoadObject
-	{
-	public:
-		MassProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x38];
 	};
 
 	// MaterialLoader: constructor 0x1066A890, reflection 0x1066A2A0 / 0x1066A740

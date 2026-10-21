@@ -126,6 +126,11 @@ namespace container
 		{
 			core::StrNCpy(buffer, other.buffer, core::StrNLen(other.buffer, N) + 1);
 		}
+		StringC& operator=(const StringC& other)
+		{
+			core::StrNCpy(buffer, other.buffer, core::StrNLen(other.buffer, N) + 1);
+			return *this;
+		}
 		virtual char* Data()
 		{
 			return buffer;
