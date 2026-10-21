@@ -946,6 +946,19 @@ two. `RegisterScenarioConditionFactories` (0x108C2570) registers all eight under
 - Not done: 0x108C1570 / 0x108C1590 (`GetHandle(0)` / `GetHandle(1)` wrappers of an unknown class), the property
   setters and getters of the other five classes (the other unit).
 
+## engine/audio/audioscriptmanager.cpp (0x108D1140 - 0x108D35E0): 87 functions match (the script method wrappers)
+
+engine::AudioScriptManager (RTTI name of the wrappers; the class has no data): the scripts' access to the audio
+system, registered as the snd_* functions of the script context by its constructor (0x108D2E90). The unit instantiates
+`Method0..4/7/8` and `Closure0..4/7/8` (engine/function.h; Method7/8 and their closures were added, with the matching
+`LuaScriptManager::RegisterMethod` overloads) for the signatures of the functions (all `void` except
+`snd_GetListenerOffset`), the `RegisterMethod` templates and the kept copies of the wrappers' `Call` members. The
+wrapper members are mapped by the class they belong to: where two classes have bodies identical to the byte
+(`Method3<..., const char*, const char*, LuaGOH>` / `<..., const char*, unsigned int, unsigned int>`), the vftable of
+the class (rtti.tsv) names the `Invoke`, and the `Call` next to it belongs to the same class.
+- Not done: the functions themselves (0x108D1140 - 0x108D1720, 0x108D22C0), the constructor 0x108D2E90 and the
+  allocation helpers (0x108D1310 - 0x108D1390, 0x108D2290, 0x108D35B0).
+
 ## pure3d animation and the choreo pose blending
 
 Three units, none of them named by an assert except the first:

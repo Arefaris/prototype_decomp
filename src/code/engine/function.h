@@ -704,6 +704,192 @@ public:
 	Pointer method;
 };
 
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7> class Method7 : public engine::Function
+{
+public:
+	typedef R (C::*Pointer)(A1, A2, A3, A4, A5, A6, A7);
+
+	Method7(const char* name, Pointer newMethod) : engine::Function(name, 7)
+	{
+		method = newMethod;
+		resultType = GetTypeCode(typeid(R), engine::FunctionTypeSize<R>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+		argumentTypes[1] = GetTypeCode(typeid(A2), engine::FunctionTypeSize<A2>::value);
+		argumentTypes[2] = GetTypeCode(typeid(A3), engine::FunctionTypeSize<A3>::value);
+		argumentTypes[3] = GetTypeCode(typeid(A4), engine::FunctionTypeSize<A4>::value);
+		argumentTypes[4] = GetTypeCode(typeid(A5), engine::FunctionTypeSize<A5>::value);
+		argumentTypes[5] = GetTypeCode(typeid(A6), engine::FunctionTypeSize<A6>::value);
+		argumentTypes[6] = GetTypeCode(typeid(A7), engine::FunctionTypeSize<A7>::value);
+	}
+	// Reads the arguments in order, calls the method on object and stores the result, if any
+	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
+	{
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
+		A5 a5 = *(const A5*)arguments;
+		arguments += (sizeof(A5) + 3) / 4;
+		A6 a6 = *(const A6*)arguments;
+		arguments += (sizeof(A6) + 3) / 4;
+		A7 a7 = *(const A7*)arguments;
+		R value = (object->*method)(a1, a2, a3, a4, a5, a6, a7);
+		if (result != 0)
+		{
+			engine::ScriptArguments::Store((R*)result, value);
+		}
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call((C*)object, arguments, result, method);
+	}
+
+	Pointer method;
+};
+
+template<class C, class A1, class A2, class A3, class A4, class A5, class A6, class A7> class Method7<C, void, A1, A2, A3, A4, A5, A6, A7> : public engine::Function
+{
+public:
+	typedef void (C::*Pointer)(A1, A2, A3, A4, A5, A6, A7);
+
+	Method7(const char* name, Pointer newMethod) : engine::Function(name, 7)
+	{
+		method = newMethod;
+		resultType = GetTypeCode(typeid(void), engine::FunctionTypeSize<void>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+		argumentTypes[1] = GetTypeCode(typeid(A2), engine::FunctionTypeSize<A2>::value);
+		argumentTypes[2] = GetTypeCode(typeid(A3), engine::FunctionTypeSize<A3>::value);
+		argumentTypes[3] = GetTypeCode(typeid(A4), engine::FunctionTypeSize<A4>::value);
+		argumentTypes[4] = GetTypeCode(typeid(A5), engine::FunctionTypeSize<A5>::value);
+		argumentTypes[5] = GetTypeCode(typeid(A6), engine::FunctionTypeSize<A6>::value);
+		argumentTypes[6] = GetTypeCode(typeid(A7), engine::FunctionTypeSize<A7>::value);
+	}
+	// Reads the arguments in order and calls the method on object
+	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
+	{
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
+		A5 a5 = *(const A5*)arguments;
+		arguments += (sizeof(A5) + 3) / 4;
+		A6 a6 = *(const A6*)arguments;
+		arguments += (sizeof(A6) + 3) / 4;
+		A7 a7 = *(const A7*)arguments;
+		(object->*method)(a1, a2, a3, a4, a5, a6, a7);
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call((C*)object, arguments, result, method);
+	}
+
+	Pointer method;
+};
+
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> class Method8 : public engine::Function
+{
+public:
+	typedef R (C::*Pointer)(A1, A2, A3, A4, A5, A6, A7, A8);
+
+	Method8(const char* name, Pointer newMethod) : engine::Function(name, 8)
+	{
+		method = newMethod;
+		resultType = GetTypeCode(typeid(R), engine::FunctionTypeSize<R>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+		argumentTypes[1] = GetTypeCode(typeid(A2), engine::FunctionTypeSize<A2>::value);
+		argumentTypes[2] = GetTypeCode(typeid(A3), engine::FunctionTypeSize<A3>::value);
+		argumentTypes[3] = GetTypeCode(typeid(A4), engine::FunctionTypeSize<A4>::value);
+		argumentTypes[4] = GetTypeCode(typeid(A5), engine::FunctionTypeSize<A5>::value);
+		argumentTypes[5] = GetTypeCode(typeid(A6), engine::FunctionTypeSize<A6>::value);
+		argumentTypes[6] = GetTypeCode(typeid(A7), engine::FunctionTypeSize<A7>::value);
+		argumentTypes[7] = GetTypeCode(typeid(A8), engine::FunctionTypeSize<A8>::value);
+	}
+	// Reads the arguments in order, calls the method on object and stores the result, if any
+	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
+	{
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
+		A5 a5 = *(const A5*)arguments;
+		arguments += (sizeof(A5) + 3) / 4;
+		A6 a6 = *(const A6*)arguments;
+		arguments += (sizeof(A6) + 3) / 4;
+		A7 a7 = *(const A7*)arguments;
+		arguments += (sizeof(A7) + 3) / 4;
+		A8 a8 = *(const A8*)arguments;
+		R value = (object->*method)(a1, a2, a3, a4, a5, a6, a7, a8);
+		if (result != 0)
+		{
+			engine::ScriptArguments::Store((R*)result, value);
+		}
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call((C*)object, arguments, result, method);
+	}
+
+	Pointer method;
+};
+
+template<class C, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> class Method8<C, void, A1, A2, A3, A4, A5, A6, A7, A8> : public engine::Function
+{
+public:
+	typedef void (C::*Pointer)(A1, A2, A3, A4, A5, A6, A7, A8);
+
+	Method8(const char* name, Pointer newMethod) : engine::Function(name, 8)
+	{
+		method = newMethod;
+		resultType = GetTypeCode(typeid(void), engine::FunctionTypeSize<void>::value);
+		argumentTypes[0] = GetTypeCode(typeid(A1), engine::FunctionTypeSize<A1>::value);
+		argumentTypes[1] = GetTypeCode(typeid(A2), engine::FunctionTypeSize<A2>::value);
+		argumentTypes[2] = GetTypeCode(typeid(A3), engine::FunctionTypeSize<A3>::value);
+		argumentTypes[3] = GetTypeCode(typeid(A4), engine::FunctionTypeSize<A4>::value);
+		argumentTypes[4] = GetTypeCode(typeid(A5), engine::FunctionTypeSize<A5>::value);
+		argumentTypes[5] = GetTypeCode(typeid(A6), engine::FunctionTypeSize<A6>::value);
+		argumentTypes[6] = GetTypeCode(typeid(A7), engine::FunctionTypeSize<A7>::value);
+		argumentTypes[7] = GetTypeCode(typeid(A8), engine::FunctionTypeSize<A8>::value);
+	}
+	// Reads the arguments in order and calls the method on object
+	static void Call(C* object, const engine::FunctionArgument* arguments, void* result, Pointer method)
+	{
+		A1 a1 = *(const A1*)arguments;
+		arguments += (sizeof(A1) + 3) / 4;
+		A2 a2 = *(const A2*)arguments;
+		arguments += (sizeof(A2) + 3) / 4;
+		A3 a3 = *(const A3*)arguments;
+		arguments += (sizeof(A3) + 3) / 4;
+		A4 a4 = *(const A4*)arguments;
+		arguments += (sizeof(A4) + 3) / 4;
+		A5 a5 = *(const A5*)arguments;
+		arguments += (sizeof(A5) + 3) / 4;
+		A6 a6 = *(const A6*)arguments;
+		arguments += (sizeof(A6) + 3) / 4;
+		A7 a7 = *(const A7*)arguments;
+		arguments += (sizeof(A7) + 3) / 4;
+		A8 a8 = *(const A8*)arguments;
+		(object->*method)(a1, a2, a3, a4, a5, a6, a7, a8);
+	}
+	virtual void Invoke(void* object, const engine::FunctionArgument* arguments, void* result)
+	{
+		Call((C*)object, arguments, result, method);
+	}
+
+	Pointer method;
+};
+
 // The object a closure calls its method on. A method pointer of a class without a single inheritance chain is wider
 // than one word; the closures of those carry one more word after the object.
 template<class C, int PointerSize> struct ClosureTarget
@@ -807,6 +993,38 @@ public:
 	ClosureTarget<C, sizeof(typename Method4<C, R, A1, A2, A3, A4>::Pointer)> target;
 };
 
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7> class Closure7 : public Method7<C, R, A1, A2, A3, A4, A5, A6, A7>
+{
+public:
+	Closure7(const char* name, C* newObject, typename Method7<C, R, A1, A2, A3, A4, A5, A6, A7>::Pointer newMethod)
+		: Method7<C, R, A1, A2, A3, A4, A5, A6, A7>(name, newMethod)
+	{
+		target.object = newObject;
+	}
+	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
+	{
+		Method7<C, R, A1, A2, A3, A4, A5, A6, A7>::Invoke(target.object, arguments, result);
+	}
+
+	ClosureTarget<C, sizeof(typename Method7<C, R, A1, A2, A3, A4, A5, A6, A7>::Pointer)> target;
+};
+
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> class Closure8 : public Method8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>
+{
+public:
+	Closure8(const char* name, C* newObject, typename Method8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>::Pointer newMethod)
+		: Method8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>(name, newMethod)
+	{
+		target.object = newObject;
+	}
+	virtual void Invoke(void* unused, const engine::FunctionArgument* arguments, void* result)
+	{
+		Method8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>::Invoke(target.object, arguments, result);
+	}
+
+	ClosureTarget<C, sizeof(typename Method8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>::Pointer)> target;
+};
+
 template<class R> inline void engine::LuaScriptManager::Register(const char* name, R (*function)())
 {
 	AddFunction(name, new Function0<R>(name, function));
@@ -857,6 +1075,18 @@ template<class C, class R, class A1, class A2, class A3, class A4> inline void e
 	const char* name, C* object, R (C::*method)(A1, A2, A3, A4))
 {
 	AddFunction(name, new Closure4<C, R, A1, A2, A3, A4>(name, object, method));
+}
+
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7> inline void engine::LuaScriptManager::RegisterMethod(
+	const char* name, C* object, R (C::*method)(A1, A2, A3, A4, A5, A6, A7))
+{
+	AddFunction(name, new Closure7<C, R, A1, A2, A3, A4, A5, A6, A7>(name, object, method));
+}
+
+template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> inline void engine::LuaScriptManager::RegisterMethod(
+	const char* name, C* object, R (C::*method)(A1, A2, A3, A4, A5, A6, A7, A8))
+{
+	AddFunction(name, new Closure8<C, R, A1, A2, A3, A4, A5, A6, A7, A8>(name, object, method));
 }
 
 #endif

@@ -278,6 +278,10 @@ namespace engine
 			R (C::*method)(A1, A2, A3));
 		template<class C, class R, class A1, class A2, class A3, class A4> void RegisterMethod(const char* name,
 			C* object, R (C::*method)(A1, A2, A3, A4));
+		template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7> void RegisterMethod(const char* name, C* object,
+			R (C::*method)(A1, A2, A3, A4, A5, A6, A7));
+		template<class C, class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> void RegisterMethod(const char* name, C* object,
+			R (C::*method)(A1, A2, A3, A4, A5, A6, A7, A8));
 		// 0x10802DB0 / 0x10802E00: registers a C function (with an upvalue)
 		void RegisterCFunction(const char* name, int (*function)(lua_State*));
 		void RegisterCFunction(const char* name, int (*function)(lua_State*, void*), void* upvalue);
