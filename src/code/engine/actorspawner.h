@@ -76,6 +76,8 @@ namespace engine
 		float gridSpacingX;  // +0xB8
 		float gridSpacingZ;  // +0xBC
 		HandleArray handles;  // +0xC0
+		// The word behind the array (the arrays of this kind are followed by one; never touched here)
+		int unknownCC;  // +0xCC
 	};
 }
 

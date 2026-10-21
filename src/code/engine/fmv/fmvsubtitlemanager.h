@@ -54,6 +54,8 @@ namespace engine
 		typedef container::ArrayDynamic<SubTitleEnty, container::AllocatorNew> SubTitleArray;
 
 		SubTitleArray subtitles;
+		// Not touched by the constructor (the object is 0x18 bytes)
+		int unknown14;
 	};
 }
 

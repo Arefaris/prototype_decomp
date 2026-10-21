@@ -68,6 +68,8 @@ namespace engine
 			ravenphysics::PhysicsObjectFactory* physicsObject;  // +8
 			pure3d::Skeleton* skeleton;  // +0xC
 			WheelArray wheels;  // +0x10
+			// The word behind the array (the arrays of this kind are followed by one; never touched here)
+			int unknown1C;  // +0x1C
 		};
 	}
 }

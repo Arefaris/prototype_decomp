@@ -310,7 +310,6 @@ namespace container
 		T* begin;
 		T* end;
 		T* capacity;
-		AllocatorNew allocator;
 	};
 }
 

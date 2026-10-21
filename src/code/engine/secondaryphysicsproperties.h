@@ -112,6 +112,8 @@ namespace engine
 
 			__declspec(align(8)) core::Name<core::CaseSensitiveKey> jointName;  // +0
 			DriverArray jointDrivers;  // +8
+			// The word behind the array (the arrays of this kind are followed by one; never touched here)
+			int unknown14;  // +0x14
 			ravenphysics::MassProperties* massProperties;  // +0x18
 			bool gravityEnabled;  // +0x1C
 			VolumeType volumeType;  // +0x20
@@ -141,6 +143,8 @@ namespace engine
 
 		pure3d::Loaded1066F430* physicsData;  // +8
 		JointArray joints;  // +0xC
+		// The word behind the array (the arrays of this kind are followed by one; never touched here)
+		int unknown18;  // +0x18
 	};
 }
 

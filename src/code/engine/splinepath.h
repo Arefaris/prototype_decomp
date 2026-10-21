@@ -89,6 +89,8 @@ namespace engine
 		void CreatePoints(int count, const math::Vector* step);
 
 		PointArray points;  // +8
+		// The word behind the array (the arrays of this kind are followed by one; never touched here)
+		int unknown14;  // +0x14
 		math::Matrix transform;  // +0x18
 		math::Spline* spline;  // +0x58
 		int unknown5C;

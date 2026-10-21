@@ -242,20 +242,5 @@ namespace pure3d
 		(*object)->AddRef();
 		drawable->Release();
 		*name = content::ObjectName(text, 1);
-		if (joints.begin != 0)
-		{
-			operator delete[](joints.begin);
-		}
-		container::Destroy(parts.begin, parts.end);
-		parts.end = parts.begin;
-		if (parts.begin != 0)
-		{
-			operator delete[](parts.begin);
-		}
-		segments.end = segments.begin;
-		if (segments.begin != 0)
-		{
-			operator delete[](segments.begin);
-		}
 	}
 }

@@ -152,6 +152,8 @@ namespace engine
 			bool* e);
 
 		ForceCurveArray forceCurve;  // +4
+		// The word behind the array (the arrays of this kind are followed by one; never touched here)
+		int unknown10;  // +0x10
 		float dampingConstant;  // +0x14
 		float maxAngularVelocity;  // +0x18 (radians)
 	};

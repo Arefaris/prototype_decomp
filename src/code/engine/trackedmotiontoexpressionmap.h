@@ -94,6 +94,8 @@ namespace engine
 			float weight;  // +0x14
 			BlendType blendType;  // +0x18
 			CurveArray mappingCurve;  // +0x1C
+			// The word behind the array (the arrays of this kind are followed by one; never touched here)
+			int unknown28;  // +0x28
 			bool debugDisable;  // +0x2C
 		};
 
@@ -161,6 +163,8 @@ namespace engine
 			mutable math::Vector offsetTranslation;  // +0x54
 			MotionTrackingFilter* motionFilter;  // +0x60
 			PropertyArray trackedProperties;  // +0x64
+			// The word behind the array (the arrays of this kind are followed by one; never touched here)
+			int unknown70;  // +0x70
 			bool debugDisable;  // +0x74
 		};
 
@@ -182,6 +186,8 @@ namespace engine
 		pure3d::Skeleton* skeleton;  // +8
 		pure3d::ExpressionGroup* expressionGroup;  // +0xC
 		JointArray jointData;  // +0x10
+		// The word behind the array (the arrays of this kind are followed by one; never touched here)
+		int unknown1C;  // +0x1C
 	};
 }
 

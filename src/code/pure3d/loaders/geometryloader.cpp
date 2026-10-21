@@ -174,11 +174,5 @@ namespace pure3d
 		(*object)->AddRef();
 		drawable->Release();
 		*name = content::ObjectName(text, 1);
-		container::Destroy(parts.begin, parts.end);
-		parts.end = parts.begin;
-		if (parts.begin != 0)
-		{
-			operator delete[](parts.begin);
-		}
 	}
 }
