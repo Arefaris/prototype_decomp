@@ -184,6 +184,9 @@ namespace choreo
 		void UpdateActive();
 		// 0x10957060: the joint
 		void SetJoint(unsigned int joint);
+		// 0x10957070 / 0x109570F0: the two directions (normalised before they are kept; a direction without length is ignored)
+		void SetDirection(const math::Vector& direction);
+		void SetOriginalDirection(const math::Vector& direction);
 		// 0x10957170: turns the angle on by the speed
 		void Update(float dt);
 		// 0x109571B0: the task that applies the driver to the root

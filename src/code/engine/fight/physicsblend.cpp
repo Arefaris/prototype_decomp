@@ -1,9 +1,14 @@
 // The fight condition on a game object's physics and the tracks that blend the physics of a pose or of a joint (unit
 // 0x108F4F40 - 0x108F5A00; no assert path, file name guessed).
 #include "code/engine/fight/physicsblend.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/ravenphysics/physicsobject.h"
 
 namespace engine
 {
+	extern content::ObjectName gPhysicsObjectAttributeName;
+	GameObjectHandle GetObjectHandle(core::IRefCount* object);
 	// The enum tables of the condition's properties (0x1131B270: three entries, 0x1131B250: four)
 	extern fight::EnumEntry gHasPhysicsInContextTable[];
 	extern fight::EnumEntry gHasPhysicsCollisionObjectsTable[];
@@ -51,6 +56,56 @@ namespace engine
 	// FUNCTION: ENGINE 0x108F4FC0
 	HasPhysicsCondition::~HasPhysicsCondition()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1092D040
+	bool HasPhysicsCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		BaseAttribute* attribute = object->FindAttribute(gPhysicsObjectAttributeName);
+		if (attribute == 0)
+		{
+			return false;
+		}
+		ravenphysics::ObjectHandle* value = &((Attribute<ravenphysics::ObjectHandle>*)attribute)->value;
+		if (value == 0)
+		{
+			return false;
+		}
+		ravenphysics::ObjectHandle physicsHandle = *value;
+		if (!physicsHandle.IsValid())
+		{
+			return false;
+		}
+		ravenphysics::PhysicsObject* physics = physicsHandle.GetObject();
+		int context = inContext;
+		bool wantsAsleep = context == 0;
+		if (context != 2 && physics->IsAsleep() != wantsAsleep)
+		{
+			return false;
+		}
+		int collisionObjects = enabledCollisionObjects;
+		if (collisionObjects != 3)
+		{
+			int active = physics->GetActiveCount();
+			if (collisionObjects == 2)
+			{
+				if (active == 0)
+				{
+					return false;
+				}
+			}
+			else if (active != (collisionObjects == 0 ? physics->objectCount : 0))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// FUNCTION: ENGINE 0x108F5110
@@ -155,6 +210,12 @@ namespace engine
 		unknownC = 1;
 	}
 
+	// FUNCTION: ENGINE 0x1092D120
+	float PhysicsPoseBlendFactorTrack::GetTargetBlendFactor() const
+	{
+		return targetBlendFactor;
+	}
+
 	// FUNCTION: ENGINE 0x108F53A0
 	float PhysicsPoseBlendFactorTrack::GetTimeBegin() const
 	{
@@ -189,6 +250,18 @@ namespace engine
 	{
 		jointName = newValue;
 		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1092D130
+	float PhysicsJointBlendFactorTrack::GetTargetBlendFactor() const
+	{
+		return targetBlendFactor;
+	}
+
+	// FUNCTION: ENGINE 0x1092D140
+	const fight::Name* PhysicsJointBlendFactorTrack::GetJointName() const
+	{
+		return &jointName;
 	}
 
 	// FUNCTION: ENGINE 0x108F5430

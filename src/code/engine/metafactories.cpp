@@ -3,6 +3,7 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/fight/behaviours/proplogictreebehaviour.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/motiontrackingfilter.h"

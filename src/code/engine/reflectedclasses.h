@@ -363,17 +363,6 @@ namespace engine
 		unsigned char unknownC[0x10];
 	};
 
-	// PropLogicTreeBehaviour: constructor 0x109214F0, reflection 0x10921440 / 0x109215C0
-	class PropLogicTreeBehaviour : public engine::Behaviour
-	{
-	public:
-		PropLogicTreeBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x5C];
-	};
-
 	// PhysicsBehaviour: constructor 0x10924520, reflection 0x10921A10 / 0x109239B0
 	class PhysicsBehaviour : public engine::Behaviour
 	{

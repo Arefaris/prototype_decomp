@@ -22,6 +22,10 @@ namespace engine
 		// The members the properties write
 		bool SetEnabled(bool value);
 
+		// The members the engine reads through accessors
+		// 0x1092DEF0
+		bool GetEnabled() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -51,6 +55,12 @@ namespace engine
 		// The members the properties write
 		bool SetRagdollAlreadyCreated(bool value);
 		bool SetPossible(bool value);
+
+		// The members the engine reads through accessors
+		// 0x1092DED0
+		bool GetPossible() const;
+		// 0x1092DEE0
+		bool GetRagdollAlreadyCreated() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -87,6 +97,10 @@ namespace engine
 		bool SetTimeBegin(float value);
 		bool SetTimeEnd(float value);
 		bool SetKeyframeUpdated(bool value);
+
+		// The members the engine reads through accessors
+		// 0x1092DF00
+		bool GetKeyframeUpdated() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -228,6 +242,10 @@ namespace engine
 		bool SetTimeEnd(float value);
 		bool SetPhysicsBlendTime(float value);
 
+		// The members the engine reads through accessors
+		// 0x1092DFB0
+		float GetPhysicsBlendTime() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -263,6 +281,10 @@ namespace engine
 		// The members the properties write
 		bool SetTimeBegin(float value);
 		bool SetConstraintPropertiesName(const fight::Name& value);
+
+		// The members the engine reads through accessors
+		// 0x1092DF40
+		const fight::Name* GetConstraintPropertiesName() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -301,6 +323,14 @@ namespace engine
 		bool SetPoseAnimName(const fight::Name& value);
 		bool SetAnimFrame(float value);
 		bool SetConstraintPropertiesName(const fight::Name& value);
+
+		// The members the engine reads through accessors
+		// 0x1092DF10
+		const fight::Name* GetConstraintPropertiesName() const;
+		// 0x1092DF20
+		const fight::Name* GetPoseAnimName() const;
+		// 0x1092DF30
+		float GetAnimFrame() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -343,6 +373,20 @@ namespace engine
 		bool SetPhysicsTransitionDuration(float value);
 		bool SetRootJoint(const fight::Name& value);
 		bool SetIncludeRootJoint(bool value);
+
+		// The members the engine reads through accessors
+		// 0x1092DF50
+		bool GetDisableSupportingLimb() const;
+		// 0x1092DF60
+		bool GetInheritJointVelocities() const;
+		// 0x1092DF70
+		bool GetUseNormalPhysicsObjectAsRagdoll() const;
+		// 0x1092DF80
+		float GetPhysicsTransitionDuration() const;
+		// 0x1092DF90
+		const fight::Name* GetRootJoint() const;
+		// 0x1092DFA0
+		bool GetIncludeRootJoint() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -391,6 +435,22 @@ namespace engine
 		bool SetEndFrame(float value);
 		bool SetCyclic(int value);
 		bool SetConstraintPropertiesName(const fight::Name& value);
+
+		// The members the engine reads through accessors
+		// 0x1092DFC0
+		const fight::Name* GetAnimation() const;
+		// 0x1092DFD0
+		float GetSpeed() const;
+		// 0x1092DFE0
+		float GetInitFrame() const;
+		// 0x1092DFF0
+		float GetStartFrame() const;
+		// 0x1092E000
+		float GetEndFrame() const;
+		// 0x1092E010
+		int GetCyclic() const;
+		// 0x1092E020
+		const fight::Name* GetConstraintPropertiesName() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

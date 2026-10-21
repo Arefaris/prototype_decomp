@@ -62,6 +62,9 @@ namespace engine
 		bool SetTimeEnd(float value);
 		bool SetTargetBlendFactor(float value);
 
+		// 0x1092D120
+		float GetTargetBlendFactor() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -99,6 +102,10 @@ namespace engine
 		bool SetTimeEnd(float value);
 		bool SetTargetBlendFactor(float value);
 		bool SetJointName(const fight::Name& value);
+
+		// 0x1092D130 / 0x1092D140
+		float GetTargetBlendFactor() const;
+		const fight::Name* GetJointName() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

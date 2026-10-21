@@ -1,10 +1,22 @@
 // The fight conditions on the online session: the player's index and the number of players (unit 0x108B0840 and
 // 0x108EEFF0 - 0x108EF780; no assert path, file name guessed).
 #include "code/engine/fight/onlineconditions.h"
+#include "code/engine/controller/inputsystem.h"
 #include "code/engine/fight/fightsystem.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
+
+namespace fight
+{
+	// 0x10111310 (another unit): compares two integers with one of the compare operators (lhs op rhs)
+	bool CompareInts(int op, const int* lhs, const int* rhs);
+}
 
 namespace engine
 {
+	int GetControllingPlayer(GameObject* object);
+	GameObjectHandle GetObjectHandle(core::IRefCount* object);
+
 	extern fight::EnumEntry gCompareOperatorTable[];
 	extern const int gCompareOperatorCount;
 
@@ -42,6 +54,17 @@ namespace engine
 	void OnlinePlayerIndexCondition::ClearProperties()
 	{
 		fight::FreePropertyList(&gOnlinePlayerIndexConditionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1092CF50
+	// EQUIVALENT: stack slots; the engine keeps the player in the slot of the first local and reuses the handle's argument slot for the index, ours uses two more locals; every other instruction is the engine's
+	bool OnlinePlayerIndexCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		int player = GetControllingPlayer(object);
+		int expected = index;
+		return fight::CompareInts(compare, &player, &expected);
 	}
 
 	// FUNCTION: ENGINE 0x108EF030
@@ -114,6 +137,14 @@ namespace engine
 	void OnlineNumPlayersCondition::ClearProperties()
 	{
 		fight::FreePropertyList(&gOnlineNumPlayersConditionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1092CFE0
+	bool OnlineNumPlayersCondition::Evaluate(int a, int b, int c, int d)
+	{
+		int players = controller::InputSystem::Get()->slotCount;
+		int expected = count;
+		return fight::CompareInts(compare, &players, &expected);
 	}
 
 	// FUNCTION: ENGINE 0x108EF390

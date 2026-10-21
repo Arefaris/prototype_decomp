@@ -4298,3 +4298,71 @@ lower-bound function the unit has of its own (a plain function template, not `st
   (0x1065BC40). The rest of the constraint classes (angular spring and velocity with their shared properties, slider,
   spring along axis, perpendicular axes, fixed distance, ...) and the base class functions 0x1065E430 - 0x1065EEE0
   (constructor between two objects, copy constructor, `SetObject`) are not done.
+
+## 0x10920000 - 0x10940000 (fight actions and conditions, behaviours, driving attributes, socket layer)
+
+Of the 1492 functions of the range 11 (the crypto module) were matched before this pass; afterwards 276 are (the
+pass also maps the template instances the new units keep). The new sources:
+
+- `src/code/engine/fight/` physicsblend, onlineconditions, inputconditions, ragdoll, supportinglimb / supportingstick,
+  characterik, rootcontrol (accessors and `Evaluate` of the tracks and conditions) and the new action files
+  physicsblendactions, ragdollactions, supportinglimbactions, characterikactions, rootcontrolactions
+  (`fight::Action` ctor / dtor / `Slot5` / `Slot6` / `Slot7` and the tracks' `CreateAction`), with the messages in
+  `physics/ragdollmessages.h`, `physics/supportinglimbmessages.h`, `physics/physicsmessages.h` and the driver-reference
+  templates in `fight/driverrefs.h`.
+- `src/code/engine/fight/behaviours/proplogictreebehaviour.*` (all 7 functions of the unit match except
+  `OnMessage` 0x10921800 and the 475-byte method 0x10921620, not done).
+- `src/code/engine/driving/`: vehicleattributes (VehicleMassAttributes), boundedgraphs (the four bounded graph
+  attribute classes and the graph helpers), carattributes (CarSuspensionAttributes, CarControlAttributes,
+  HelicopterControlAttributes), graphknots (`GraphKnots::SetKnot`), vehicleintentionbehaviour. Members reached through
+  a getter and a setter use `content::GetMemberMetaType<C, T, Id>`, the new overload with an Id (one instance per
+  member, as the primitive meta types).
+- `src/code/engine/system/networksockets.cpp`: the Winsock layer (handles, bind / connect / send / receive,
+  asynchronous host lookup, options, startup / cleanup). The unit was compiled without `/arch` (`// CFLAGS: !/arch`:
+  with it the compiler turns a two-way maximum into a `cmov`). The toolchain has no SDK headers, so the Winsock and
+  Win32 calls are declared in the file; the engine imports them by name and link.exe looks for the decorated stdcall
+  name, so each declaration has an `/alternatename` pragma to the plain `__imp__name`.
+
+Compiler facts found on the way:
+
+- `if (!(x > lo)) x = lo;` is the clamp the engine uses for a minimum (it does not become a conditional move and keeps
+  the compare direction); `x <= lo` or a ternary does not.
+- The register-passing "custom" calling convention appears for a file-local `static` helper called only from its own
+  unit (the socket layer's handle lookup, error mapping, address converters all match as statics). An inline helper
+  defined in a header is only kept out of line when the engine kept it.
+- Unused `static` functions are not emitted at all; a kept copy of a header function needs a call the compiler does
+  not inline (`/Ob1`: only functions defined in the class body or marked `inline` are inlined).
+- A caller reloads `ecx` after a call of a function in another unit (or one that calls one) and not after a leaf
+  function of its own unit; `GraphKnots::SetKnot` therefore lives in its own file.
+- `extern const float` objects (the pooled constants 0.5, 0.3, 30.0, ... `gHalf` / `gPointThree` / `gThirty`) are loaded
+  from memory at every use; a literal is loaded once and kept on the x87 stack across calls.
+- A `switch` whose cases all end in the same call is compiled with the call duplicated per case when the source has
+  one call per case (socket options); a shared `goto` for the failure return gives the engine's single exit.
+
+EQUIVALENT (no difftest states exist for any address of the range):
+- shrink-wrap push placement: 0x1092D4B0, 0x1092D610, 0x1092EB30, 0x109302D0, 0x1092EFD0 (also register choice).
+- register allocation / stack slots: 0x1092CF50, 0x1092D830, 0x1092D960, 0x1092E780, 0x109304D0, 0x10934910 (the gap
+  constant in xmm2 against xmm1).
+- scheduling / instruction selection: 0x1092F1E0, 0x1092FB00, 0x1092FB90, 0x10935470 (the first setter's argument is
+  loaded before the two curve stores), 0x1093E9B0, 0x1093F100, 0x1093F1A0, 0x1093F710 (the order of two address loads).
+
+NONMATCHING (bodies under `#ifdef NONMATCHING`):
+- `0x1093D2D0` / `0x1093D330` / `0x1093D3D0` / `0x1093D440` (the graph helpers `NormalizeBounded`,
+  `NormalizeBoundedSigned`, `MoveTowardsBound`, `InterpolateGraph`; 15 - 38 %): the engine takes `fabs` on the x87
+  stack, stores the result back into the argument and then does the arithmetic in SSE, ours stays on the x87 stack.
+  `InterpolateGraph` also calls the math module's clamp through its jump (`ClampFloat`, mapped to 0x10069040).
+- `0x10931C30` (`ReadStrafeInput`, 54 %) and `0x109332B0` (`StrafeAdjustRootAction::Slot7`, 69 %): the helper takes
+  the object in ecx and the result pointer on the stack.
+- `0x1093EB30` (`Poll`, 40 %): the engine pushes all four registers at the entry and puts the return of 0 right behind
+  the first loop; the loops and the set updates are the engine's.
+
+Not done in the range: the NIS player behaviour (0x109201C0 - 0x10920900, calls into the NIS system of 0x1091F...),
+PoseAnimation, Physics (0x10921A10 - 0x10924A70), Ragdoll and RagdollLOD (0x10925050 - 0x10927D20),
+SecondaryPhysics (0x10927F60 - 0x10929570 and the joint driver 0x10937750), Tag, Touch, TrackedMotionToExpression
+(0x10929670 - 0x1092B520; they need the trigger volumes, the pose expression library and the container classes of
+other ranges), `TurnInputCondition::Evaluate` 0x1092DAA0, the remaining fight `Slot5` / `Slot7` of the
+tracks whose actions sit beside the ones above, the car and vehicle physics attribute classes and behaviours
+(0x10935CF0 - 0x10936B40 are inline methods of the car physics attributes, whose class sits outside the range),
+`WheelData` (needs a string meta type), the audio emitter / zone behaviours (0x1093B7E0 - 0x1093CE00), the socket
+layer's `GetLocalNetworkInfo` 0x1093F920 and the small `0x1093FD20` helper, and the controller input log manager
+(0x109337A0 - 0x10933E00).

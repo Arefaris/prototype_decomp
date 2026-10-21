@@ -5,6 +5,7 @@
 #ifndef ENGINE_PHYSICS_PHYSICSMESSAGES_H
 #define ENGINE_PHYSICS_PHYSICSMESSAGES_H
 
+#include "code/core/name.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
@@ -217,6 +218,41 @@ namespace engine
 
 		int unknownC;
 		math::Vector velocity;
+	};
+
+	// Blends the object's physics towards its pose (id 0x16): the factor to reach and the time it takes
+	struct SetPhysicsToPoseBlendFactorMessage : public IntrusiveMessage
+	{
+		SetPhysicsToPoseBlendFactorMessage(float newFactor, float newDuration) : IntrusiveMessage(3, 0x16)
+		{
+			factor = newFactor;
+			duration = newDuration;
+		}
+		virtual ~SetPhysicsToPoseBlendFactorMessage()
+		{
+		}
+
+		float factor;  // +0xC
+		float duration;  // +0x10
+	};
+
+	// Blends the physics of one joint (id 0x17): the factor to reach, the time it takes and the joint's name
+	struct SetPhysicsToJointBlendFactorMessage : public IntrusiveMessage
+	{
+		SetPhysicsToJointBlendFactorMessage(float newFactor, float newDuration, const core::Name<core::CaseSensitiveKey>* newJoint)
+			: IntrusiveMessage(3, 0x17)
+		{
+			factor = newFactor;
+			duration = newDuration;
+			joint = newJoint;
+		}
+		virtual ~SetPhysicsToJointBlendFactorMessage()
+		{
+		}
+
+		float factor;  // +0xC
+		float duration;  // +0x10
+		const core::Name<core::CaseSensitiveKey>* joint;  // +0x14
 	};
 }
 

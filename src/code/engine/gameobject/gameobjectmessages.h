@@ -175,6 +175,47 @@ namespace engine
 		}
 	};
 
+	// One button of a character's intention (name and members are guesses): its state (0 - 3), the value and for how
+	// long it has been in that state
+	struct CharacterIntentionButton
+	{
+		int state;
+		float value;
+		float time;
+	};
+
+	// One axis of a character's intention
+	struct CharacterIntentionAxis
+	{
+		float x;
+		float y;
+	};
+
+	// What a character's intention query answers with (the layout beyond the two tables is unknown)
+	class CharacterIntention
+	{
+	public:
+		// 0x107E3090 / 0x107E30B0 (another unit): the entries of the button and of the axis table
+		CharacterIntentionButton* GetButton(int index);
+		CharacterIntentionAxis* GetAxis(int index);
+
+		unsigned char unknown0[0x10];
+		CharacterIntentionButton* buttons;  // +0x10
+		unsigned char unknown14[8];
+		CharacterIntentionAxis* axes;  // +0x1C
+	};
+
+	// Asks for the character's intention (answered through a pointer in the message)
+	struct CharacterQueryIntentionMessage : public CharacterQueryMessage
+	{
+		CharacterQueryIntentionMessage() : CharacterQueryMessage(0)
+		{
+			intention = 0;
+		}
+
+		CharacterIntention* intention;
+	};
+
 	// Plays a branch of the fight tree (type 0xb); the members are guesses
 	struct PlayBranchMessage : public IntrusiveMessage
 	{

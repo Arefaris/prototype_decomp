@@ -31,6 +31,16 @@ namespace engine
 		bool SetResetLimbSmoothing(bool value);
 		bool SetRestoreOnEnd(bool value);
 
+		// The members the engine reads through accessors
+		// 0x1092FE10
+		bool GetStickToSupportingSurface() const;
+		// 0x1092FE20
+		bool GetResetOrientationDelta() const;
+		// 0x1092FE30
+		bool GetResetLimbSmoothing() const;
+		// 0x1092FE40
+		bool GetRestoreOnEnd() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
