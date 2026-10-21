@@ -5,7 +5,10 @@
 // helper are the ones this unit instantiates.
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/container/arraydynamicstatic.h"
+#include "code/container/string.h"
+#include "code/core/debug.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
+#include "code/engine/fmv/subtitleoptions.h"
 #include "code/engine/system/streampackage.h"
 
 namespace container
@@ -52,6 +55,130 @@ namespace engine
 		sList.count = 3;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x108C1020
+	const content::MemberList* FmvSubtitleManager::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[1] = {
+			{ content::GetArrayDynamicMetaType<FmvSubtitleManager, SubTitleArray>(
+				content::GetClassMetaType<SubTitleEnty>(), "p"),
+				content::MemberOffset(&((FmvSubtitleManager*)0)->subtitles, 8), "subtitleList" },
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x108C0CD0
+	void FmvSubtitleManager::Update(float time)
+	{
+		for (unsigned int i = 0; i < subtitles.Size(); i++)
+		{
+			SubTitleEnty* subtitle = &subtitles[i];
+			if (time >= subtitle->startTime && time < subtitle->endTime && subtitle->unknown108 == 0)
+			{
+				subtitle->unknown108 = gSubtitleOptions->Show(subtitle, gSubtitleFirstName, gSubtitleSecondName, 0);
+			}
+			else if (time >= subtitle->endTime && subtitle->unknown108 != 0)
+			{
+				gSubtitleOptions->Hide(subtitle->unknown108);
+				subtitle->unknown108 = 0;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108C10B0
+	void FmvSubtitleManager::Reset()
+	{
+		for (unsigned int i = 0; i < subtitles.Size(); i++)
+		{
+			SubTitleEnty* subtitle = &subtitles[i];
+			if (subtitle->unknown108 != 0)
+			{
+				gSubtitleOptions->Hide(subtitle->unknown108);
+				subtitle->unknown108 = 0;
+			}
+		}
+		subtitles.Clear();
+	}
+
+	// FUNCTION: ENGINE 0x108C1340
+	FmvSubtitleManager::FmvSubtitleManager()
+	{
+		subtitles.Create(10);
+	}
+
+	// FUNCTION: ENGINE 0x108C1390
+	FmvSubtitleManager::~FmvSubtitleManager()
+	{
+		Reset();
+		// The array's destructor, which the engine's compiler expanded here (its own copy, 0x108C1280, is not called)
+		subtitles.Clear();
+		if (subtitles.begin != 0)
+		{
+			operator delete[](subtitles.begin);
+		}
+	}
+
+	// The name of the movie a path names: what lies between the last separator and the extension (empty for a path
+	// without one of the two movie extensions)
+	// FUNCTION: ENGINE 0x108C0BB0
+	static container::StringC<256> GetMovieName(const char* path)
+	{
+		container::StringC<256> text(path);
+		int end = text.Find(".bik", 0, true);
+		if (end == -1)
+		{
+			end = text.Find(".rmv", 0, true);
+			if (end == -1)
+			{
+				return container::StringC<256>();
+			}
+		}
+		int slash = text.FindLast("/", -1);
+		int backslash = text.FindLast("\\", -1);
+		int last = slash > backslash ? slash : backslash;
+		container::StringC<256> name;
+		name.Mid(text, last + 1, end - last - 1);
+		return name;
+	}
+
+	// FUNCTION: ENGINE 0x108C1130
+	FmvSubtitleManager* Unknown108C1130(const char* path, StreamPackage* package)
+	{
+		container::StringC<256> name = GetMovieName(path);
+		if (!name.IsEmpty())
+		{
+			OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\engine\\fmv\\fmvsubtitlemanager.cpp", 0x7A, package != 0, "pkg");
+			if (package != 0)
+			{
+				content::LoadInventory* inventory = package->GetInventory();
+				OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\engine\\fmv\\fmvsubtitlemanager.cpp", 0x7E, inventory != 0, "inventory");
+				if (inventory != 0)
+				{
+					FmvSubtitleManager* manager = inventory->Find<FmvSubtitleManager>(name.buffer);
+					if (manager != 0)
+					{
+						manager->AddRef();
+					}
+					return manager;
+				}
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108C1210
+	StreamPackage* Unknown108C1210(const char* path)
+	{
+		container::StringC<256> name = GetMovieName(path);
+		if (name.IsEmpty())
+		{
+			return 0;
+		}
+		return content::gRootInventory->Find<StreamPackage>(name.buffer);
+	}
 }
 
 namespace content
@@ -94,11 +221,30 @@ namespace container
 
 namespace content
 {
-	// the default element the reflection inserts (Insert is the engine's copy, which calls this one)
-	ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::T& ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::Default()
+	// FUNCTION: ENGINE 0x108C13C0
+	void ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::Insert(void* array, int index, int unused)
 	{
-		static T sDefault;
-		return sDefault;
+		A* a = (A*)array;
+		if (a->Size() >= a->Capacity())
+		{
+			a->Reserve(a->Size() + 1);
+		}
+		T* position = a->begin + index;
+		a->Insert(position, Default());
+	}
+
+	// FUNCTION: ENGINE 0x108C12A0
+	void ArrayDynamicHelper<engine::FmvSubtitleManager::SubTitleArray>::Expand(void* array, unsigned int count)
+	{
+		A* a = (A*)array;
+		if (a->Capacity() == 0)
+		{
+			a->Allocate(count);
+		}
+		else if (count + a->Size() > a->Capacity())
+		{
+			a->Reserve(count + a->Size());
+		}
 	}
 }
 
@@ -138,3 +284,6 @@ namespace content
 // FUNCTION: ENGINE 0x108C0E60 content::LoadInventory::Find<FmvSubtitleManager>
 // FUNCTION: ENGINE 0x108C0EA0 content::LoadInventory::Find<StreamPackage>
 // FUNCTION: ENGINE 0x108C0EE0 the array helper's Erase
+// FUNCTION: ENGINE 0x108C04E0 container::String::FindLast (two arguments)
+// FUNCTION: ENGINE 0x108C0590 container::StringC<256> copy constructor
+// FUNCTION: ENGINE 0x108C1300 Insert (one copy)

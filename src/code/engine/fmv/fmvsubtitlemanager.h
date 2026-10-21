@@ -11,6 +11,7 @@
 
 namespace engine
 {
+	class StreamPackage;
 	class FmvSubtitleManager : public content::MetaLoadObject
 	{
 	public:
@@ -39,14 +40,33 @@ namespace engine
 		static const content::ClassInfo* GetClassInfo();
 		static const content::MemberList* GetMembers();
 
+		// 0x108C1340 / 0x108C1390 (the deleting destructor is 0x108C1480): the array starts with room for ten subtitles
+		FmvSubtitleManager();
+		virtual ~FmvSubtitleManager();
+
 		// 0x108C0CD0: shows the subtitles that belong to the time (the seconds into the movie) in the text objects
-		void Unknown108C0CD0(float time);
+		// and takes down the ones whose time has passed
+		void Update(float time);
+		// 0x108C10B0: takes down every subtitle's text object and empties the array (name guess)
+		void Reset();
 
 		// The element array the reflected "subtitles" member is
 		typedef container::ArrayDynamic<SubTitleEnty, container::AllocatorNew> SubTitleArray;
 
 		SubTitleArray subtitles;
+		// Not touched by the constructor (the object is 0x18 bytes)
+		int unknown14;
 	};
+}
+
+namespace engine
+{
+	// 0x108C1210: the stream package a movie's subtitles are kept in, the one named like the movie's file (null when
+	// the path names no movie); name unknown
+	StreamPackage* Unknown108C1210(const char* path);
+	// 0x108C1130: the subtitle manager of that movie in the package's inventory, referenced for the caller (null
+	// when the path names no movie or the package has none); name unknown
+	FmvSubtitleManager* Unknown108C1130(const char* path, StreamPackage* package);
 }
 
 namespace content
@@ -62,7 +82,11 @@ namespace content
 		typedef engine::FmvSubtitleManager::SubTitleArray A;
 		typedef A::Element T;
 
-		static T& Default();
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
 
 		virtual int Size(void* array)
 		{
@@ -76,7 +100,7 @@ namespace content
 		{
 			return &(*(A*)array)[index];
 		}
-		// the engine's copy (0x108C13C0); ours did not match
+		// the engine's copy (0x108C13C0)
 		virtual void Insert(void* array, int index, int unused);
 		virtual void Erase(void* array, int index, int unused)
 		{
@@ -87,18 +111,8 @@ namespace content
 		{
 			return ((A*)array)->Capacity();
 		}
-		virtual void Expand(void* array, unsigned int count)
-		{
-			A* a = (A*)array;
-			if (a->Capacity() == 0)
-			{
-				a->Allocate(count);
-			}
-			else if (count + a->Size() > a->Capacity())
-			{
-				a->Reserve(count + a->Size());
-			}
-		}
+		// the engine's copy (0x108C12A0)
+		virtual void Expand(void* array, unsigned int count);
 	};
 }
 

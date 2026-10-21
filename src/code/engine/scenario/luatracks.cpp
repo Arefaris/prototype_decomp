@@ -5,6 +5,7 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/luaenvironmentmessage.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/engine/scenario/scriptowner.h"
 #include "code/engine/system/enginememory.h"
 #include "code/lua/lua.h"
 #include <stdlib.h>
@@ -26,30 +27,6 @@ namespace engine
 		fight::Property** gLuaTrackProperties;
 		fight::Property** gLuaConditionProperties;
 	}
-
-	// What a script runs for (the engine's class is not named; IRefCount-derived, the kind says which sort of object
-	// it is: a kind below 0x10000 is a node with its own id and handle, a kind in 0x10000 - 0x2FFFF carries the
-	// handle of a game object)
-	struct ScriptOwnerPart
-	{
-		virtual void Slot0();
-		virtual void Slot1();
-		virtual void Slot2();
-	};
-
-	struct ScriptOwner : core::IRefCount
-	{
-		// 0x1082EB60 / 0x1082EBB0 / 0x1082EBA0 (another unit)
-		ScriptOwnerPart* GetPart();
-		static int GetCurrentId();
-		static void SetCurrentId(int id);
-
-		int unknown4;
-		unsigned int kind;  // +0x8
-		int id;  // +0xC
-		unsigned char unknown10[0x80];
-		GameObjectHandle handle;  // +0x90
-	};
 
 	// ---- the script hook -----------------------------------------------------------------------------------------
 
@@ -99,7 +76,7 @@ namespace engine
 				{
 					args->manager->ClearEvent();
 					ScriptOwner::SetCurrentId(owner->id);
-					owner->GetPart()->Slot2();
+					owner->GetPart()->WriteEvent();
 				}
 				handle = owner->handle;
 			}

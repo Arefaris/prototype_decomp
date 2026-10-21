@@ -861,7 +861,7 @@ replay/CRC reporting (`ReplayMode`, `recordCRC`, `DesyncHunt` are looked up by n
   (`return this->unknown20`), are still unplaced; the desync dump 0x108BFD30 (1382 bytes) is the class they most
   likely belong to.
 
-## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C0FE0): 38 functions match, 0 nonmatching
+## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C1480): 51 functions match, 0 nonmatching
 
 engine::FmvSubtitleManager (the name is the string its own reflection carries): the subtitles of a full-motion video.
 The unit is the one after parameterinterpolator.cpp in `.text` and the file name comes from
@@ -894,26 +894,97 @@ member is the element array `subtitles`.
   (`FindObject`) with recursive = true. The template was added to `code/content/loadinventory.h` and both
   instantiations are explicit.
 
-Not done (11 functions):
+The tail of the unit (0x108C1020 - 0x108C1480) is the manager itself, reconstructed in the same file:
+- `GetMembers` (0x108C1020, one member `subtitleList`, the array meta type of `GetClassMetaType<SubTitleEnty>()` with
+  the code "p"), `Update(float)` (0x108C0CD0: shows a subtitle through `SubtitleOptions::Show` when
+  start <= time < end, takes it down through `Hide` once the end has passed), `Reset` (0x108C10B0: hides every text
+  object, then empties the array), the constructor (0x108C1340: `subtitles.Create(10)`), the destructor (0x108C1390:
+  Reset, then the array's destructor expanded inline) and the deleting destructor (0x108C1480).
+- 0x108C0BB0 is the unit's file-local helper (`static GetMovieName(path)`: the text between the last separator and
+  `.bik` / `.rmv`, as a `StringC<256>` returned in edi); 0x108C1130 / 0x108C1210 call it and look the manager (resp.
+  the stream package) up by that name. The asserts of 0x108C1130 name `pkg` (line 0x7A) and `inventory` (0x7E).
+- `ArrayDynamicHelper::Default` must be an inline static of the class body (the engine inlines it into `Insert`,
+  0x108C13C0, and keeps an out-of-line copy, 0x108C08A0).
+- `container::StringC<N>` got the two constructors the unit uses (from text, copy) and `container::String::FindLast`
+  its two-argument form (0x108C04E0, an inline function whose out-of-line copy the unit keeps).
+- `SubtitleOptions` (the object at 0x11316A58) moved from fmvplayer.cpp to `code/engine/fmv/subtitleoptions.h`;
+  0x11316A70 / 0x11316A78 are two names `Show` takes.
 
-- 0x108C04E0 (20 bytes): `StringSomething(a, b, 0)`, a forwarder into 0x1060F1B0, which builds a
-  `container::StringLiteral` (vftable 0x10E0D5FC) on the stack and calls 0x1060EBA0.
-- 0x108C0590 `container::StringC<256>::StringC(const StringC&)` (52 bytes): the copy constructor, a kept copy.
-  `container::StringC` in `code/container/string.h` has no copy constructor yet.
-- 0x108C05D0 (4 bytes): `container::StringC<256>::Data()` — emitted only if the class's vftable is, which needs a
-  use of StringC<256> in this unit (0x108C0BB0 has it).
-- 0x108C0650 (3 bytes, `mov eax, ecx`), 0x108C0660 / 0x108C06C0 / 0x108C07D0 (1 byte, `ret`): four functions of
-  classes the unit does not otherwise show.
-- 0x108C0730 (23 bytes): a second copy of the array's `Size()`, identical to 0x108C0630; the two cannot be told
-  apart without knowing the second owner.
-- 0x108C0880 (3 bytes, `mov eax, [ecx]`): a `begin` accessor of an unknown class.
-- 0x108C0BB0 (287 bytes): the unit's string helper — it builds a StringC<256> from a name, searches it with
-  0x1060F460 for two separators, and copies the part between them out.
-- 0x108C0CD0 (210 bytes) `FmvSubtitleManager::Update(float)`: understood (the loop walks the elements,
-  creates the text object through 0x10877110 when start <= time < end and destroys it through 0x10876B70 when the
-  interval has passed, both on the object the global at 0x11316A58 points at, with the two 8-byte globals at
-  0x11316A70 / 0x11316A78 as parameters) but not written: the text object's class and those three globals belong
-  to another unit and their initial values are unknown.
+Not done in the unit (7 functions): 0x108C05D0 (`StringC<256>::Data`, 4 bytes), 0x108C0650 (`mov eax, ecx`),
+0x108C0660 / 0x108C06C0 / 0x108C07D0 (1-byte `ret`), 0x108C0730 (a second copy of the array's `Size()`),
+0x108C0880 (`mov eax, [ecx]`): kept copies of classes the unit does not otherwise show; and 0x108C1280, the array's
+destructor: the unit's manager destructor expands it inline, but giving `ArrayDynamic<T, AllocatorNew>` a destructor
+changes every other user of that header (shader palette, geometry and polyskin loaders), so the kept copy stays
+unreconstructed.
+
+## engine/scenario/scenarioconditions.cpp (0x108C14A0 - 0x108C2770): 80 functions match, 0 nonmatching, 13 equivalent
+
+The fight conditions of the scenario system (no assert path; file and member names are guesses, the class names come
+from the RTTI and the property names from the reflection strings). The unit holds three whole classes
+(`ScenarioGameObjectCondition`, `ScenarioScriptAttributeCondition`, `HasTagCondition`: constructor, destructor,
+setters, property list, factories) and the `Evaluate` of five more whose constructors and properties are in the
+unit at 0x108FF340 - 0x10900260 (`ScenarioMessageCondition`, `ScenarioStringCondition`, `ScenarioPropStateCondition`,
+`ScenarioGameObjectAttributeCondition`, `ScenarioGameObjectTouchesTriggerCondition`), plus the getters of the last
+two. `RegisterScenarioConditionFactories` (0x108C2570) registers all eight under their script names.
+- The fourth argument of `Evaluate` is not used: the node the condition is asked about is the *third* (`c`), a
+  `ScriptOwner` (`code/engine/scenario/scriptowner.h`, shared with luatracks.cpp, whose `ScriptOwnerPart` is the
+  `ScenarioMessage` inside it: `GetPart` is `this + 0x10`, the message id is the word at +8). A kind of 1..0xFFFF means
+  the node has its own message.
+- `fight::PropertyEnumListObject<T>` (setter and a `fight::ListObject*`, 0x18 bytes) was added to trackfactory.h; the
+  handle slots of the three classes are picked from `gAffiliateLister`.
+- The enum of `ScenarioScriptAttributeCondition::SetType` is the table at 0x11316678 (11 entries, count at 0x10E74294)
+  of another unit; the value member is an 8-byte typed value (`AttributeValue`, 0x108718B0 / 0x10872050 /
+  0x108724B0 / 0x10872060 / 0x10871AF0, another unit); its `ToString` answers a pointer into one static buffer, so the
+  engine's comparison of two such values (`ScenarioScriptAttributeCondition::Evaluate`) compares equal whenever both
+  attributes exist.
+- The three `ClearProperties` (0x108C1620 / 0x108C1690 / 0x108C16B0) had no row in functions.tsv; rows were added.
+- An early `if (!ok) return false;` where `ok` is a local bool laid the false returns out like the engine's; the engine
+  expands the game object table test of the handle a message carries (as `IsValid` does) but calls the out-of-line
+  `IsValid` (0x1006B210) for the cached handle of `ScenarioGameObjectCondition`; ours either inlines both or calls
+  both, which is why that function is EQUIVALENT with the other seven `Evaluate`s (they also differ in the engine's
+  `add eax, -1` for `kind - 1`, which no expression of ours produced).
+- Not done: 0x108C1570 / 0x108C1590 (`GetHandle(0)` / `GetHandle(1)` wrappers of an unknown class), the property
+  setters and getters of the other five classes (the other unit).
+
+## engine/audio/audioscriptmanager.cpp (0x108D1140 - 0x108D35E0): 87 functions match (the script method wrappers)
+
+engine::AudioScriptManager (RTTI name of the wrappers; the class has no data): the scripts' access to the audio
+system, registered as the snd_* functions of the script context by its constructor (0x108D2E90). The unit instantiates
+`Method0..4/7/8` and `Closure0..4/7/8` (engine/function.h; Method7/8 and their closures were added, with the matching
+`LuaScriptManager::RegisterMethod` overloads) for the signatures of the functions (all `void` except
+`snd_GetListenerOffset`), the `RegisterMethod` templates and the kept copies of the wrappers' `Call` members. The
+wrapper members are mapped by the class they belong to: where two classes have bodies identical to the byte
+(`Method3<..., const char*, const char*, LuaGOH>` / `<..., const char*, unsigned int, unsigned int>`), the vftable of
+the class (rtti.tsv) names the `Invoke`, and the `Call` next to it belongs to the same class.
+- Not done: the functions themselves (0x108D1140 - 0x108D1720, 0x108D22C0), the constructor 0x108D2E90 and the
+  allocation helpers (0x108D1310 - 0x108D1390, 0x108D2290, 0x108D35B0).
+
+## engine/metafactories.cpp (0x108D6E20 - 0x108DE180): 332 functions match (class factories and their registrations)
+
+The content library loads a reflected class through a `content::MetaObjectFactory<T, 1>` (LoadObject-derived
+classes: slot 2 makes the object, `new T` through `LoadObject::operator new`) or a `content::MetaInstanceCreatorImpl<T,
+1>` (plain classes: `new T`), registered from a function-local static of a per-class registration function (the
+engine's start-up tables 0x108DE660 / 0x108DF1F0 / 0x108DFE50 expand those registrations in place). The unit holds, per
+class, `content::GetClassMetaType<T>()` (76 bytes), the factory's constructor (37), `Create` (24/27) and the
+registration (70): `code/content/metafactory.h`. 83 classes are done (39 factories, 15 creators and 29 behaviour
+creators: `engine::MetaBehaviourCreatorImpl<T>`, whose slot 1 makes the behaviour with `new T(owner)` and whose slot 0 is
+the library's generic creation, 0x10841FB0).
+- The classes belong to other units: `engine/reflectedclasses.h` stands in for the ones not reconstructed yet (their
+  size, constructor and the two reflection functions; replace an entry by the real class when its unit is done).
+  `FmvSubtitleManager` is 0x18 bytes (one word past the array that the constructor never touches).
+- Not done: the classes whose `Create` or reflection lies in another unit (the Attribute / ConstAttribute / extractor
+  creators, 0x108D8B60 - 0x108D9130 and 0x108DA0A0 on; the camera, cinematographer, game object and prop classes with
+  their own allocation), the nested classes of the content manager, the creators whose constructor is inline (messages,
+  math::AABB / OBB / Plane / Sphere) and the three start-up tables.
+
+## engine/online/onlinescripting.cpp (0x108C2B80 - 0x108C66A0): 35 functions match (script method wrappers)
+
+The `Method` / `Closure` wrappers and `RegisterMethod` instances of three online classes whose units are not
+reconstructed (engine::Replay, engine::ConsoleManager, engine::OLSStorage). The classes with several bases have
+method pointers of two words (the closures carry a 0x28-byte function): `#pragma pointers_to_members` asks for that
+on the forward declarations; ConsoleManager (one word) is instantiated before the pragma. Where two classes have
+identical bodies (the `Method0<..., void>` constructors and `Call`s of Replay and OLSStorage) the vftable of the class
+(rtti.tsv) names the `Invoke`, and the constructor's vftable immediate tells the constructors apart.
 
 ## pure3d animation and the choreo pose blending
 

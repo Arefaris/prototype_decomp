@@ -10,6 +10,7 @@
 #include "code/engine/audio/audiomanager.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
+#include "code/engine/fmv/subtitleoptions.h"
 #include "code/engine/frontend/frontend.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/render/async/canvas.h"
@@ -234,23 +235,11 @@ namespace engine
 	void Unknown108A0830(int a, int b);
 	void Unknown108A0890();
 	void Unknown1085F920(bool value);
-	StreamPackage* Unknown108C1210(const char* path);
-	FmvSubtitleManager* Unknown108C1130(const char* path, StreamPackage* package);
 	int Unknown10A9B0B0();
 	void Unknown104B18C0();
 	void Unknown104B1880();
 	void Unknown108831C0();
 
-	// The object at 0x11316A58 (another unit)
-	class SubtitleOptions
-	{
-	public:
-		void Unknown10876EF0(bool value);
-
-		unsigned char unknown0[0x1E];
-		bool unknown1E;
-	};
-	extern SubtitleOptions* gSubtitleOptions;
 
 	// The names of the audio settings the volume is made of, and the channel the end message goes to (all made by
 	// their units' initialisers)
@@ -750,7 +739,7 @@ namespace engine
 				UpdateMovieVolume();
 				if (request->subtitles != 0)
 				{
-					request->subtitles->Unknown108C0CD0(gMovieTime);
+					request->subtitles->Update(gMovieTime);
 				}
 			}
 			if (request->state == 6)

@@ -65,6 +65,11 @@ namespace container
 		int FindLast(char c, int start, bool caseSensitive) const;
 		int FindLast(const String& other, int start, bool caseSensitive) const;
 		int FindLast(const char* other, int start, bool caseSensitive) const;
+		// 0x108C04E0 (kept copy in the subtitle manager's unit): case insensitive
+		int FindLast(const char* other, int start) const
+		{
+			return FindLast(other, start, false);
+		}
 		// 0x1060EC60 / 0x1060F1E0: copies length characters of source from start into this string (a negative
 		// length goes backwards)
 		unsigned int Mid(const String& source, int start, int length);
@@ -99,6 +104,27 @@ namespace container
 		StringC()
 		{
 			buffer[0] = 0;
+		}
+		// Copies text, cut to N characters including the terminator
+		explicit StringC(const char* text)
+		{
+			if (text != 0)
+			{
+				int length = (int)core::StrLen(text) + 1;
+				if (length > N)
+				{
+					length = N;
+				}
+				core::StrNCpy(buffer, text, (unsigned int)length);
+			}
+			else
+			{
+				buffer[0] = 0;
+			}
+		}
+		StringC(const StringC& other)
+		{
+			core::StrNCpy(buffer, other.buffer, core::StrNLen(other.buffer, N) + 1);
 		}
 		virtual char* Data()
 		{
