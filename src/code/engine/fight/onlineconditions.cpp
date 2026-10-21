@@ -126,6 +126,13 @@ namespace engine
 	{
 	}
 
+	// FUNCTION: ENGINE 0x108EF510
+	fight::ConditionFactory* CreateOnlineNumPlayersConditionFactory(const char* name)
+	{
+		fight::ConditionFactoryCasterTemplate<OnlineNumPlayersCondition> caster;
+		return fight::FindConditionFactory(name, &caster);
+	}
+
 	// FUNCTION: ENGINE 0x108EF530
 	// EQUIVALENT: the engine saves esi and edi in the entry block, before the guard's branch; ours sinks the pushes
 	// behind the branch and leaves the early exit without the pops; every other instruction is the engine's

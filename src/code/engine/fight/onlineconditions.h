@@ -64,7 +64,9 @@ namespace engine
 	};
 
 	extern fight::Property** gOnlineNumPlayersConditionProperties;
+	// 0x108EF510
 	// 0x108EF5F0
+	fight::ConditionFactory* CreateOnlineNumPlayersConditionFactory(const char* name);
 	void RegisterOnlineNumPlayersConditionFactory(fight::TrackRegistry* registry, const char* name);
 }
 
