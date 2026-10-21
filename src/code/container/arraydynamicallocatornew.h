@@ -163,15 +163,19 @@ namespace container
 			}
 			return result;
 		}
-		// The same for one copy of value; answers position
+		// The same for one copy of value; answers position, or the old end when it does not fit
 		T* Insert(T* position, const T& value)
 		{
 			if (end + 1 <= capacity)
 			{
 				ShiftUp(position, 1);
-				ConstructCopyAt(position, value);
+				if (position != 0)
+				{
+					new (position) T(value);
+				}
+				return position;
 			}
-			return position;
+			return end;
 		}
 
 		T* begin;

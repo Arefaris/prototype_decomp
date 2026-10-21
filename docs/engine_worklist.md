@@ -861,7 +861,7 @@ replay/CRC reporting (`ReplayMode`, `recordCRC`, `DesyncHunt` are looked up by n
   (`return this->unknown20`), are still unplaced; the desync dump 0x108BFD30 (1382 bytes) is the class they most
   likely belong to.
 
-## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C0FE0): 38 functions match, 0 nonmatching
+## engine/fmv/fmvsubtitlemanager.cpp (0x108C04E0 - 0x108C1480): 51 functions match, 0 nonmatching
 
 engine::FmvSubtitleManager (the name is the string its own reflection carries): the subtitles of a full-motion video.
 The unit is the one after parameterinterpolator.cpp in `.text` and the file name comes from
@@ -894,26 +894,28 @@ member is the element array `subtitles`.
   (`FindObject`) with recursive = true. The template was added to `code/content/loadinventory.h` and both
   instantiations are explicit.
 
-Not done (11 functions):
+The tail of the unit (0x108C1020 - 0x108C1480) is the manager itself, reconstructed in the same file:
+- `GetMembers` (0x108C1020, one member `subtitleList`, the array meta type of `GetClassMetaType<SubTitleEnty>()` with
+  the code "p"), `Update(float)` (0x108C0CD0: shows a subtitle through `SubtitleOptions::Show` when
+  start <= time < end, takes it down through `Hide` once the end has passed), `Reset` (0x108C10B0: hides every text
+  object, then empties the array), the constructor (0x108C1340: `subtitles.Create(10)`), the destructor (0x108C1390:
+  Reset, then the array's destructor expanded inline) and the deleting destructor (0x108C1480).
+- 0x108C0BB0 is the unit's file-local helper (`static GetMovieName(path)`: the text between the last separator and
+  `.bik` / `.rmv`, as a `StringC<256>` returned in edi); 0x108C1130 / 0x108C1210 call it and look the manager (resp.
+  the stream package) up by that name. The asserts of 0x108C1130 name `pkg` (line 0x7A) and `inventory` (0x7E).
+- `ArrayDynamicHelper::Default` must be an inline static of the class body (the engine inlines it into `Insert`,
+  0x108C13C0, and keeps an out-of-line copy, 0x108C08A0).
+- `container::StringC<N>` got the two constructors the unit uses (from text, copy) and `container::String::FindLast`
+  its two-argument form (0x108C04E0, an inline function whose out-of-line copy the unit keeps).
+- `SubtitleOptions` (the object at 0x11316A58) moved from fmvplayer.cpp to `code/engine/fmv/subtitleoptions.h`;
+  0x11316A70 / 0x11316A78 are two names `Show` takes.
 
-- 0x108C04E0 (20 bytes): `StringSomething(a, b, 0)`, a forwarder into 0x1060F1B0, which builds a
-  `container::StringLiteral` (vftable 0x10E0D5FC) on the stack and calls 0x1060EBA0.
-- 0x108C0590 `container::StringC<256>::StringC(const StringC&)` (52 bytes): the copy constructor, a kept copy.
-  `container::StringC` in `code/container/string.h` has no copy constructor yet.
-- 0x108C05D0 (4 bytes): `container::StringC<256>::Data()` — emitted only if the class's vftable is, which needs a
-  use of StringC<256> in this unit (0x108C0BB0 has it).
-- 0x108C0650 (3 bytes, `mov eax, ecx`), 0x108C0660 / 0x108C06C0 / 0x108C07D0 (1 byte, `ret`): four functions of
-  classes the unit does not otherwise show.
-- 0x108C0730 (23 bytes): a second copy of the array's `Size()`, identical to 0x108C0630; the two cannot be told
-  apart without knowing the second owner.
-- 0x108C0880 (3 bytes, `mov eax, [ecx]`): a `begin` accessor of an unknown class.
-- 0x108C0BB0 (287 bytes): the unit's string helper — it builds a StringC<256> from a name, searches it with
-  0x1060F460 for two separators, and copies the part between them out.
-- 0x108C0CD0 (210 bytes) `FmvSubtitleManager::Update(float)`: understood (the loop walks the elements,
-  creates the text object through 0x10877110 when start <= time < end and destroys it through 0x10876B70 when the
-  interval has passed, both on the object the global at 0x11316A58 points at, with the two 8-byte globals at
-  0x11316A70 / 0x11316A78 as parameters) but not written: the text object's class and those three globals belong
-  to another unit and their initial values are unknown.
+Not done in the unit (7 functions): 0x108C05D0 (`StringC<256>::Data`, 4 bytes), 0x108C0650 (`mov eax, ecx`),
+0x108C0660 / 0x108C06C0 / 0x108C07D0 (1-byte `ret`), 0x108C0730 (a second copy of the array's `Size()`),
+0x108C0880 (`mov eax, [ecx]`): kept copies of classes the unit does not otherwise show; and 0x108C1280, the array's
+destructor: the unit's manager destructor expands it inline, but giving `ArrayDynamic<T, AllocatorNew>` a destructor
+changes every other user of that header (shader palette, geometry and polyskin loaders), so the kept copy stays
+unreconstructed.
 
 ## pure3d animation and the choreo pose blending
 
