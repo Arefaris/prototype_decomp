@@ -44,28 +44,6 @@ namespace engine
 		unsigned char unknown8[0x30];
 	};
 
-	// NamedInventoryCreator: constructor 0x1090D9B0, reflection 0x1090D720 / 0x1090D900
-	class NamedInventoryCreator : public content::MetaLoadObject
-	{
-	public:
-		NamedInventoryCreator();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x10];
-	};
-
-	// RemoteCamera: constructor 0x1090DD30, reflection 0x1090DA00 / 0x1090DBD0
-	class RemoteCamera : public content::MetaLoadObject
-	{
-	public:
-		RemoteCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x34];
-	};
-
 	// SecondaryPhysicsProperties: constructor 0x109103D0, reflection 0x1090DF10 / 0x1090FDD0
 	class SecondaryPhysicsProperties : public content::MetaLoadObject
 	{
@@ -163,39 +141,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x3C];
-	};
-
-	// SecondaryPhysicsAmbientWind: constructor 0x109161C0, reflection 0x10915FD0 / 0x10916290
-	class SecondaryPhysicsAmbientWind
-	{
-	public:
-		SecondaryPhysicsAmbientWind();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x14];
-	};
-
-	// SecondaryPhysicsPinJoint: constructor 0x10916400, reflection 0x10916360 / 0x109166E0
-	class SecondaryPhysicsPinJoint
-	{
-	public:
-		SecondaryPhysicsPinJoint();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x10];
-	};
-
-	// SecondaryPhysicsPoweredJoint: constructor 0x10917900, reflection 0x109167D0 / 0x10917770
-	class SecondaryPhysicsPoweredJoint
-	{
-	public:
-		SecondaryPhysicsPoweredJoint();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x1C];
 	};
 
 	// AdvertisementBehaviour: constructor 0x10919D70, reflection 0x10917A30 / 0x109197C0

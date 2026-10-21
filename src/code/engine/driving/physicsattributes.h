@@ -112,6 +112,7 @@ namespace engine
 			CarControlAttributes control;  // +0x48
 			CarAttributesGroup3 group3;  // +0x84
 			CarAttributesGroup4 group4;  // +0xEC
+			unsigned char unknown210[8];  // the object is 0x218 bytes (nothing reads or writes them)
 		};
 
 		// 0x10936CC0 (constructor), 0x10936C80 / 0x109371B0 (reflection): 0x64 bytes

@@ -4354,3 +4354,25 @@ lower-bound function the unit has of its own (a plain function template, not `st
   last product's operand order, 95.9 %). The two class meta types of the base (0x10911DD0) and of the projected
   extractor (0x109151C0) are template instances of other units' neighbourhood. The leaf classes' deleting destructors
   are in the factories' unit (0x108D8BF0, 0x108DE390 ...).
+- `src/code/engine/namedinventorycreator.cpp` / `remotecamera.cpp` (0x1090D720 - 0x1090DA00, 0x1090DA00 - 0x1090DDD0):
+  `engine::NamedInventoryCreator` (the inventory's name at +8, its initial size at +0x10 (rounded up to a power of two
+  when it is loaded) and the inventory it created at +0x14, held through `core::RefAssign` / `core::SafeRelease`) and
+  `engine::RemoteCamera` (position, target and up vectors at +8 / +0x14 / +0x20, FOV, near and far plane, an active
+  flag; 0x3C bytes). Both constructors are EQUIVALENT (store order of the reference count and the first member, 81.2 %
+  and 71.6 %). Not done in this stretch: `GameObjectTemplateBuilder` (0x1090C110 - 0x1090D700, its metaobject template
+  arrays and the 678-byte load function).
+- `src/code/engine/secondaryphysicsjoints.cpp` (0x10915FD0 - 0x109179F0): the secondary physics joint drivers. The
+  interface `SecondaryPhysicsJointDriver` (six vftable slots; its class info, member list and default slots are
+  0x10937750 - 0x10937810, another unit) owns `GetHandleCount` constraint handles of the properties' handle array;
+  `SecondaryPhysicsAmbientWind` (windForceScale +4, constantDirection +0x10), `SecondaryPhysicsPinJoint`
+  (constraintPointOffset +4) and `SecondaryPhysicsPoweredJoint` (the force curve array of `ForceCurvePoint` (angle in
+  radians, maxOrientationForce) at +4, dampingConstant +0x14, maxAngularVelocity +0x18 (radians, reflected in
+  degrees through accessors)). Slot 2 of the pin and powered joints creates the constraints through ravenphysics
+  creators (0x1065B6E0 / 0x1065B8A0 / 0x1065B760, names guessed; they return a handle through a hidden pointer, which
+  is why the local `handle` pointer is needed to reach the engine's stack use). EQUIVALENT: `EvaluateForceCurve`
+  (the engine keeps the previous point in esi, 21.9 %) and the powered joint's destructor (vftable store order,
+  80.6 %). NONMATCHING: the wind's slot 5 (x87 stack use of the last random number, 58.0 %). Not done: the pin joint's
+  slot 4 (0x109164A0) and the powered joint's slots 3 and 4 (0x10916B10, 0x10916F20), which drive constraint
+  setters of the physics library that are not reconstructed. The three drivers' shared fixes: the sizes of
+  `ActorCrowdSpawner` (0xD0) and `CarPhysicsAttributes` (0x218) now carry the tail words the engine's factories
+  allocate.

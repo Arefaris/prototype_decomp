@@ -76,6 +76,7 @@ namespace engine
 		float gridSpacingX;  // +0xB8
 		float gridSpacingZ;  // +0xBC
 		HandleArray handles;  // +0xC0
+		int unknownCC;  // the object is 0xD0 bytes (nothing reads or writes the word)
 	};
 }
 

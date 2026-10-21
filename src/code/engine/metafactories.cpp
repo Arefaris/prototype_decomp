@@ -12,6 +12,9 @@
 #include "code/engine/fmv/fmvsubtitlemanager.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/motiontrackingfilter.h"
+#include "code/engine/namedinventorycreator.h"
+#include "code/engine/remotecamera.h"
+#include "code/engine/secondaryphysicsjoints.h"
 #include "code/engine/scenariomessage.h"
 
 namespace content
