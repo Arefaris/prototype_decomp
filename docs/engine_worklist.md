@@ -4395,3 +4395,18 @@ lower-bound function the unit has of its own (a plain function template, not `st
   frees, which made the powered joint's destructor match) and `ArrayEraseInline<T>` (the inline element loop or
   the call of `AssignRange`). `pure3d::Skeleton::FindJoint` (0x106DDA60) is declared in pose.h, and
   `pure3d::ExpressionGroup` is in pure3d/expressiongroup.h.
+- `src/code/engine/secondaryphysicsproperties.cpp` (0x1090DDD0 - 0x10910550): `engine::SecondaryPhysicsProperties` (the
+  physics data object a constructor makes at +8, the array of `JointData` at +0xC; 0x1C bytes). `JointData` (0xA0
+  bytes) is a joint's collision volume: name, array of drivers (deleted with the joint), a reference to the mass
+  properties, gravity flag, volume type (Sphere / Capsule / Cylinder / OBB), radius, centre offset, half length, the
+  rotation type (XYZ / YZX / ZXY), the orientation matrix at +0x3C that the reflected angles in degrees (+0x7C) rebuild
+  through their setters, and the debug display data. 112 functions match (the reflection, constructors, destructors,
+  the small accessors and the template instances of the driver and joint arrays); the constructor is EQUIVALENT (the
+  engine pushes edi after the first stores, 95.7 %). Not done: the physics-object construction (0x1090E540, 0x1090E600,
+  0x1090E820, 0x1090F200, 0x1090F420, 0x1090F470, which call into the physics library) and the joints' copy
+  constructor, assignment and `Reserve` (0x1090F8C0, 0x1090FCE0, 0x109101D0; the engine's copy of the orientation
+  matrix goes through a vector-copy helper). Shared: `content/enummetatype.h` (EnumMetaTypeGetSet and the global
+  EnumMemberGetSetter), `ravenphysics/massproperties.h` (the size-only class moved out of reflectedclasses.h), the
+  YZX / ZXY Euler rotations declared in matrix.h (0x107CEF70 / 0x107CF0A0, names guessed), and in
+  arraydynamicallocatornew.h the helper for pointer arrays (`ArrayDynamicHelper<ArrayDynamic<P*, AllocatorNew> >`,
+  which replaces the spline path's own) and the `CopyRange` mode of `ArrayEraseInline`.

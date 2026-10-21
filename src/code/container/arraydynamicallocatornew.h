@@ -14,13 +14,21 @@
 
 namespace container
 {
-	// Whether Erase moves the elements down with a loop of its own (the engine's compiler inlines the assignment
-	// of small elements; for the others it keeps the call of AssignRange). A class of the second kind specialises it
+	// How Erase moves the elements down: 1 with a loop of its own (the engine's compiler inlines the assignment of
+	// small elements), 0 with a call of AssignRange (larger elements; a class of this kind specialises it), 2 with
+	// CopyRange (pointers, whose loop keeps the distance between its two pointers in a register)
 	template<class T> struct ArrayEraseInline
 	{
 		enum
 		{
 			value = 1
+		};
+	};
+	template<class T> struct ArrayEraseInline<T*>
+	{
+		enum
+		{
+			value = 2
 		};
 	};
 
@@ -180,13 +188,17 @@ namespace container
 		// Moves the elements behind position down over it and answers position
 		T* Erase(T* position)
 		{
-			if (ArrayEraseInline<T>::value)
+			if (ArrayEraseInline<T>::value == 1)
 			{
 				T* last = end;
 				for (T* next = position + 1; next != last; next++)
 				{
 					next[-1] = *next;
 				}
+			}
+			else if (ArrayEraseInline<T>::value == 2)
+			{
+				CopyRange(position + 1, end, position);
 			}
 			else
 			{
@@ -272,6 +284,95 @@ namespace container
 		T* end;
 		T* capacity;
 		AllocatorNew allocator;
+	};
+}
+
+namespace content
+{
+	// The element access of an array of pointers for its meta type: the engine's copy has the insertion and the
+	// removal expanded with loops of their own, and keeps the default element (a null pointer) in a static of the
+	// helper (Default)
+	template<class P> class ArrayDynamicHelper<container::ArrayDynamic<P*, container::AllocatorNew> >
+		: public ArrayDynamicHelperBase
+	{
+	public:
+		typedef container::ArrayDynamic<P*, container::AllocatorNew> A;
+		typedef P* T;
+
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
+
+		virtual int Size(void* array)
+		{
+			return ((A*)array)->Size();
+		}
+		virtual void* Get(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+		virtual void Insert(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			if (a->Size() >= a->Capacity())
+			{
+				a->Reserve(a->Size() + 1);
+			}
+			T* position = a->begin + index;
+			T* from = a->end;
+			if (from + 1 <= a->capacity)
+			{
+				T* to = from + 1;
+				a->end = to;
+				while (from != position)
+				{
+					from--;
+					to--;
+					if (to != 0)
+					{
+						*to = *from;
+					}
+				}
+				if (position != 0)
+				{
+					*position = Default();
+				}
+			}
+		}
+		virtual void Erase(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			T* position = a->begin + index;
+			T* last = a->end;
+			T* destination = position;
+			for (T* source = position + 1; source != last; source++, destination++)
+			{
+				*destination = *source;
+			}
+			a->end--;
+		}
+		virtual int Capacity(void* array)
+		{
+			return ((A*)array)->Capacity();
+		}
+		virtual void Expand(void* array, unsigned int count)
+		{
+			A* a = (A*)array;
+			if (a->Capacity() == 0)
+			{
+				a->Allocate(count);
+			}
+			else if (count + a->Size() > a->Capacity())
+			{
+				a->Reserve(count + a->Size());
+			}
+		}
 	};
 }
 

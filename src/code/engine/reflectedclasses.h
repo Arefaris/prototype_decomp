@@ -44,17 +44,6 @@ namespace engine
 		unsigned char unknown8[0x30];
 	};
 
-	// SecondaryPhysicsProperties: constructor 0x109103D0, reflection 0x1090DF10 / 0x1090FDD0
-	class SecondaryPhysicsProperties : public content::MetaLoadObject
-	{
-	public:
-		SecondaryPhysicsProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x14];
-	};
-
 	// SkuInfo: constructor 0x10892E60, reflection 0x10892630 / 0x10892CE0
 	class SkuInfo : public content::MetaLoadObject
 	{
@@ -653,17 +642,6 @@ namespace ravenphysics
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x40];
-	};
-
-	// MassProperties: constructor 0x10670E90, reflection 0x10670C40 / 0x10671030
-	class MassProperties : public content::MetaLoadObject
-	{
-	public:
-		MassProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x38];
 	};
 
 	// MaterialLoader: constructor 0x1066A890, reflection 0x1066A2A0 / 0x1066A740

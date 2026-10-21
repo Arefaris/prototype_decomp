@@ -20,19 +20,6 @@ namespace engine
 	class SplinePathCV;
 }
 
-namespace container
-{
-	// The engine moves the elements of an array of pointers down through CopyRange (the loop keeps the distance
-	// between its two pointers in a register); the class template's own loop is for the other element types
-	template<> inline engine::SplinePathCV** ArrayDynamic<engine::SplinePathCV*, AllocatorNew>::Erase(
-		engine::SplinePathCV** position)
-	{
-		CopyRange(position + 1, end, position);
-		end--;
-		return position;
-	}
-}
-
 namespace engine
 {
 	// RTTI: engine::IPath (7 vftable slots, base content::MetaLoadObject): what the path behaviours follow. Its
@@ -106,44 +93,6 @@ namespace engine
 		math::Spline* spline;  // +0x58
 		int unknown5C;
 		bool unknown60;  // the object is 0x64 bytes
-	};
-}
-
-namespace content
-{
-	// The element access of the path's point array for its meta type; its own copy because the default element the
-	// reflection inserts is kept in a static of the helper (Default)
-	template<> class ArrayDynamicHelper<engine::SplinePath::PointArray> : public ArrayDynamicHelperBase
-	{
-	public:
-		typedef engine::SplinePath::PointArray A;
-		typedef A::Element T;
-
-		static T& Default()
-		{
-			static T sDefault;
-			return sDefault;
-		}
-
-		virtual int Size(void* array)
-		{
-			return ((A*)array)->Size();
-		}
-		virtual void* Get(void* array, int index)
-		{
-			return &(*(A*)array)[index];
-		}
-		virtual void* GetConst(void* array, int index)
-		{
-			return &(*(A*)array)[index];
-		}
-		virtual void Insert(void* array, int index, int unused);
-		virtual void Erase(void* array, int index, int unused);
-		virtual int Capacity(void* array)
-		{
-			return ((A*)array)->Capacity();
-		}
-		virtual void Expand(void* array, unsigned int count);
 	};
 }
 

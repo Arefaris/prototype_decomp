@@ -125,6 +125,9 @@ namespace math
 		void RotationAxisAngle(const Vector& axis, float angle);
 		// Rotation from the Euler angles about X, Y and Z in radians, three angles (0x107CEE50; name guessed)
 		void RotationEulerXYZ(float x, float y, float z);
+		// 0x107CEF70 / 0x107CF0A0: the same rotations composed in the other orders (name guesses)
+		void RotationEulerYZX(float x, float y, float z);
+		void RotationEulerZXY(float x, float y, float z);
 		// Rotation matrix about a unit axis from the angle's cosine and sine; the axis is normalised if it is not
 		void FromAxisCosSin(const Vector& axis, float c, float s);
 		// True when the sum of squares of all 16 elements is below tolerance squared

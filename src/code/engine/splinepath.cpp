@@ -254,64 +254,6 @@ namespace engine
 	}
 }
 
-namespace content
-{
-	void ArrayDynamicHelper<engine::SplinePath::PointArray>::Insert(void* array, int index, int unused)
-	{
-		A* a = (A*)array;
-		if (a->Size() >= a->Capacity())
-		{
-			a->Reserve(a->Size() + 1);
-		}
-		T* position = a->begin + index;
-		T* from = a->end;
-		if (from + 1 <= a->capacity)
-		{
-			T* to = from + 1;
-			a->end = to;
-			while (from != position)
-			{
-				from--;
-				to--;
-				if (to != 0)
-				{
-					*to = *from;
-				}
-			}
-			if (position != 0)
-			{
-				*position = Default();
-			}
-		}
-	}
-
-	void ArrayDynamicHelper<engine::SplinePath::PointArray>::Erase(void* array, int index, int unused)
-	{
-		A* a = (A*)array;
-		T* position = a->begin + index;
-		T* last = a->end;
-		T* destination = position;
-		for (T* source = position + 1; source != last; source++, destination++)
-		{
-			*destination = *source;
-		}
-		a->end--;
-	}
-
-	void ArrayDynamicHelper<engine::SplinePath::PointArray>::Expand(void* array, unsigned int count)
-	{
-		A* a = (A*)array;
-		if (a->Capacity() == 0)
-		{
-			a->Allocate(count);
-		}
-		else if (count + a->Size() > a->Capacity())
-		{
-			a->Reserve(count + a->Size());
-		}
-	}
-}
-
 namespace container
 {
 	template class ArrayDynamic<engine::SplinePathCV*, AllocatorNew>;
