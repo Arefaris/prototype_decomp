@@ -254,6 +254,8 @@ namespace fight
 		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old. The engine types it
 		// as the branch kind (its Register / Unregister are fight::Branch's); 0x10863B00 compares it with a branch
 		void SetTrack(Branch* track);
+		// 0x1007EE30: gives the sequencer the name of its fight context (the first two words are a core::Name)
+		void SetContextName(const char* text);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
 
