@@ -9,8 +9,9 @@
 
 namespace core
 {
-	struct AllocatorBase_Name
+	class AllocatorBase_Name
 	{
+	public:
 		// 0x10646E00: SetName("unknown")
 		AllocatorBase_Name();
 		// 0x10646D10: empty
@@ -23,8 +24,9 @@ namespace core
 		char name[32];
 	};
 
-	struct AllocatorBase_Safety
+	class AllocatorBase_Safety
 	{
+	public:
 		// 0x10646D50: flag 0, mode 1
 		AllocatorBase_Safety();
 		// 0x10646D70: deletes the critical section when the mode is 2
@@ -44,7 +46,7 @@ namespace core
 		int mode;
 	};
 
-	struct AllocatorBase : AllocatorBase_Name, AllocatorBase_Safety
+	class AllocatorBase : public AllocatorBase_Name, public AllocatorBase_Safety
 	{
 	};
 

@@ -122,8 +122,11 @@ namespace engine
 	// A handle in its saved form: index in the high half, serial in the low half. It is the type the scripts pass
 	// as a game object (RTTI type descriptor engine::LuaGOH); the script functions that take one by value leave the
 	// slot of the argument alone, which a class derived from it would not
-	struct LuaGOH
+	// A class in the engine's RTTI (.?AVLuaGOH@engine@@): the script wrappers pass typeid(LuaGOH) to
+	// Function::GetTypeCode, which compares type_info addresses
+	class LuaGOH
 	{
+	public:
 		LuaGOH()
 		{
 		}

@@ -9,7 +9,11 @@ our copy must start out exactly like the original's and be as large as symbols.t
 - symbols.txt must give the size (`; data size:0xN`), else references inside the object are not redirected;
 - our object's extent in its section (up to the next symbol) must not be smaller than that size.
 Objects with a dynamic initializer (a constructor) start as zeros here; their constructors run at start-up, so a
-difference is reported as a note when the original's bytes are not all zero either. Exit status 1 on any problem.
+difference is reported as a note when the original's bytes are not all zero either. Also reported: a `static` engine
+global that engine code we do not replace uses (split statics), and an RTTI type descriptor our objects define that
+symbols.txt does not map although the original has one (our copy is a second type_info, which code comparing
+type_info addresses does not recognise) or that the original only has with the other of struct/class. Exit status 1
+on any problem.
 """
 
 import argparse
@@ -79,6 +83,48 @@ def splitStatics(image, base, pe):
 	return result
 
 
+def typeDescriptors(image, base, data):
+	"""{decorated type name: address} of the original's RTTI type descriptors (a type_info vftable pointer, a spare
+	word, then the name `.?AV...` / `.?AU...`), found through the type_info vftable of a mapped descriptor."""
+	import struct
+	known = next((a for n, (a, s) in data.items() if n.startswith("??_R0?AV")), None)
+	if known is None:
+		return {}
+	vftable = struct.pack("<I", struct.unpack_from("<I", image, known - base)[0])
+	result = {}
+	j = image.find(vftable)
+	while j != -1:
+		if image[j + 8:j + 11] in (b".?A", b".PB", b".PA"):
+			end = image.find(b"\0", j + 8)
+			result[image[j + 9:end].decode("latin-1")] = base + j
+		j = image.find(vftable, j + 4)
+	return result
+
+
+def unmappedTypeDescriptors(objectPaths, data, image, base):
+	"""[(name, problem)] for each RTTI type descriptor our objects define that symbols.txt does not map: our copy is
+	a second type_info, so code that compares type_info addresses (the script wrappers' Function::GetTypeCode) does
+	not recognise the type. A name the original only has with the other of struct/class means the declaration uses
+	the wrong keyword."""
+	engine = typeDescriptors(bytes(image), base, data)
+	ours = set()
+	for path in objectPaths:
+		for name, value, section, storage in objcmp.Coff(path).symbols:
+			if name.startswith("??_R0") and section > 0 and name not in data:
+				ours.add(name)
+	result = []
+	for name in sorted(ours):
+		typeName = name[5:-2]
+		if typeName in engine:
+			result.append((name, f"the original's is at 0x{engine[typeName]:08X}; map it in symbols.txt"))
+		elif typeName[:3] in ("?AU", "?AV"):
+			other = typeName[:2] + ("V" if typeName[2] == "U" else "U") + typeName[3:]
+			if other in engine:
+				keyword = "class" if other[2] == "V" else "struct"
+				result.append((name, f"the original's type is a {keyword} (0x{engine[other]:08X}); declare it {keyword}"))
+	return result
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("objects", nargs="*")
@@ -127,6 +173,10 @@ def main():
 					k = differing[0]
 					print(f"  initial value: {where}: ours {ours[k:k + 8].hex()} vs the original's {theirs[k:k + 8].hex()}"
 						f" at +0x{k:X} ({len(differing)} bytes differ)")
+	for name, problem in unmappedTypeDescriptors([pathlib.Path(o) for o in args.objects] or objects(args.version), data,
+			image, base):
+		problems += 1
+		print(f"  type descriptor: {name}: {problem}")
 	split = splitStatics(image, base, pe)
 	for where, decl, users in split:
 		problems += 1

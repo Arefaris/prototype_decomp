@@ -22,9 +22,8 @@ namespace engine
 		const char* names[4];
 	};
 
-	class ScenarioMessage : public IntrusiveMessage
+	struct ScenarioMessage : public IntrusiveMessage
 	{
-	public:
 		enum
 		{
 			HANDLE_COUNT = 4

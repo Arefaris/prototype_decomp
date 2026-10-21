@@ -11,8 +11,9 @@ namespace container
 	class SListBase
 	{
 	public:
-		struct Node
+		class Node
 		{
+		public:
 			Node* next;
 		};
 
@@ -40,7 +41,7 @@ namespace container
 	template<class T> class SListLite : public SListBase
 	{
 	public:
-		struct Node : public SListBase::Node
+		class Node : public SListBase::Node
 		{
 		};
 

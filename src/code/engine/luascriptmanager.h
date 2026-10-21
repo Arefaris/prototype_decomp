@@ -19,7 +19,7 @@ struct lua_State;
 
 namespace engine
 {
-	struct LuaGOH;
+	class LuaGOH;
 	typedef LuaGOH SerializedHandle;
 	class Function;
 	class LuaScriptManager;
