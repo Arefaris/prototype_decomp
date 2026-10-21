@@ -319,6 +319,8 @@ namespace fight
 		explicit BranchHolder(const char* kind);
 		// 0x105A7720
 		~BranchHolder();
+		// 0x105A7960: the branch the holder names, looked up the first time (name guessed)
+		Branch* GetBranch();
 
 		int unknown0[9];
 	};

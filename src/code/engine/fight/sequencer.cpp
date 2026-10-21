@@ -46,6 +46,14 @@ namespace fight
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x105A2470
+	bool Action::Slot5(int arg, float value)
+	{
+		(void)arg;
+		(void)value;
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x105A2480
 	void Action::Slot6()
 	{

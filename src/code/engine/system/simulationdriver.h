@@ -64,6 +64,9 @@ namespace engine
 		bool unknown6C;
 		bool variablesRegistered;        // +0x6D
 	};
+
+	// 0x10836AD0: the simulation driver in force
+	ISimulationDriver* GetSimulationDriver();
 }
 
 #endif

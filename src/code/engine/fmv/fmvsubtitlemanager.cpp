@@ -8,7 +8,7 @@
 #include "code/container/string.h"
 #include "code/core/debug.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
-#include "code/engine/fmv/subtitleoptions.h"
+#include "code/engine/subtitleoptions.h"
 #include "code/engine/system/streampackage.h"
 
 namespace container
@@ -78,11 +78,11 @@ namespace engine
 			SubTitleEnty* subtitle = &subtitles[i];
 			if (time >= subtitle->startTime && time < subtitle->endTime && subtitle->unknown108 == 0)
 			{
-				subtitle->unknown108 = gSubtitleOptions->Show(subtitle, gSubtitleFirstName, gSubtitleSecondName, 0);
+				subtitle->unknown108 = gSubtitleOptions->Show(subtitle->subtitleId, gSubtitleFirstName, gSubtitleSecondName, false);
 			}
 			else if (time >= subtitle->endTime && subtitle->unknown108 != 0)
 			{
-				gSubtitleOptions->Hide(subtitle->unknown108);
+				gSubtitleOptions->Stop(subtitle->unknown108);
 				subtitle->unknown108 = 0;
 			}
 		}
@@ -96,7 +96,7 @@ namespace engine
 			SubTitleEnty* subtitle = &subtitles[i];
 			if (subtitle->unknown108 != 0)
 			{
-				gSubtitleOptions->Hide(subtitle->unknown108);
+				gSubtitleOptions->Stop(subtitle->unknown108);
 				subtitle->unknown108 = 0;
 			}
 		}

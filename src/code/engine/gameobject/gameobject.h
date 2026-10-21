@@ -184,6 +184,8 @@ namespace engine
 		void SetRequestBit(unsigned char bit, bool on);
 		void SetBehavioursEnabled(bool enabled);
 		BaseAttribute* FindAttribute(const content::ObjectName& name);
+		// 0x108ED410 (another unit): writes a matrix attribute the object has and tells the object (name guessed)
+		void SetMatrixAttribute(const content::ObjectName& name, const math::Matrix& value);
 		// The access to a named attribute of type T (out of line in other units: for core::Name 0x10081FE0 and
 		// 0x1006AD60)
 		template<class T> AttributeWriter<T> GetAttributeWriter(const content::ObjectName& name);

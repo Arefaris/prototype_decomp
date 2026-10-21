@@ -37,6 +37,11 @@ CL8 = ROOT / "tools" / "toolchain" / "cl8.py"
 
 
 def runTool(tool, args, cwd):
+	# A command line is limited to 32767 characters: a long argument list goes through a response file
+	if sum(len(a) + 1 for a in args) > 16000:
+		response = pathlib.Path(cwd) / f"{tool}.rsp"
+		response.write_text("\n".join('"' + a + '"' for a in args), encoding="ascii")
+		args = [f"@{response.name}"]
 	code = subprocess.call([sys.executable, str(CL8), tool] + args, cwd=cwd)
 	if code != 0:
 		sys.exit(f"{tool} failed ({code})")
