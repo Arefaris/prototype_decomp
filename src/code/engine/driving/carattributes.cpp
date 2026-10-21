@@ -246,5 +246,156 @@ namespace engine
 			sList.count = 12;
 			return &sList;
 		}
+
+#define ENGINE_DRIVING_FLOAT(Class, index, member) 	{ content::GetMemberPrimitiveMetaType<Class, float, index>("p"), 		content::MemberOffset(&((Class*)0)->member, (int)&((Class*)0)->member), #member }
+#define ENGINE_DRIVING_OBJECT(Class, Type, member) 	{ content::GetClassMetaType<Type>(), 		content::MemberOffset(&((Class*)0)->member, (int)&((Class*)0)->member), #member }
+
+		// FUNCTION: ENGINE 0x109355B0
+		content::ClassInfo* CarControlAttributes::GetClassInfo()
+		{
+			static content::ClassInfo sInfo;
+			sInfo.version = 1;
+			sInfo.name = "engine::driving::CarControlAttributes";
+			sInfo.code = "p";
+			return &sInfo;
+		}
+
+		// FUNCTION: ENGINE 0x109355F0
+		CarControlAttributes::CarControlAttributes()
+			: forwardForceScale(1.0f), forwardPitchTorqueScale(1.0f), reverseForceScale(1.0f),
+			reversePitchTorqueScale(1.0f), lateralSteeringForceScale(1.0f), steeringRollTorqueScale(1.0f),
+			steeringYawTorqueScale(1.0f), forwardThrottleIncreaseRate(1.0f), forwardThrottleDecreaseRate(10.0f),
+			steeringFactorIncreaseRate(1.0f), steeringFactorDecreaseRate(10.0f)
+		{
+		}
+
+		// FUNCTION: ENGINE 0x10935A70
+		content::MemberList* CarControlAttributes::GetMembers()
+		{
+			static content::MemberList sList;
+			static content::MemberInfo sMembers[] =
+			{
+				ENGINE_DRIVING_OBJECT(CarControlAttributes, BoundedSpeedGraphAttributes, forwardSpeed),
+				ENGINE_DRIVING_OBJECT(CarControlAttributes, BoundedSymmetricSpeedGraphAttributes, sidewaysSpeed),
+				ENGINE_DRIVING_OBJECT(CarControlAttributes, BoundedSymmetricAngleGraphAttributes, yawSpeed),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 0, forwardForceScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 1, forwardPitchTorqueScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 2, reverseForceScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 3, reversePitchTorqueScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 4, lateralSteeringForceScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 5, steeringRollTorqueScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 6, steeringYawTorqueScale),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 7, forwardThrottleIncreaseRate),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 8, forwardThrottleDecreaseRate),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 9, steeringFactorIncreaseRate),
+				ENGINE_DRIVING_FLOAT(CarControlAttributes, 10, steeringFactorDecreaseRate)
+			};
+			sList.members = sMembers;
+			sList.count = 14;
+			return &sList;
+		}
+
+		// FUNCTION: ENGINE 0x10936C80
+		content::ClassInfo* HelicopterControlAttributes::GetClassInfo()
+		{
+			static content::ClassInfo sInfo;
+			sInfo.version = 1;
+			sInfo.name = "engine::driving::HelicopterControlAttributes";
+			sInfo.code = "pn";
+			return &sInfo;
+		}
+
+		// FUNCTION: ENGINE 0x10936CC0
+		HelicopterControlAttributes::HelicopterControlAttributes()
+			: upwardForceScale(1.0f), forwardForceScale(1.0f), forwardPitchTorqueScale(1.0f), reverseForceScale(1.0f),
+			reversePitchTorqueScale(1.0f), lateralSteeringForceScale(1.0f), steeringRollTorqueScale(1.0f),
+			steeringYawTorqueScale(1.0f), upwardThrottleIncreaseRate(1.0f), upwardThrottleDecreaseRate(1.0f),
+			forwardThrottleIncreaseRate(1.0f), forwardThrottleDecreaseRate(10.0f), steeringFactorIncreaseRate(1.0f),
+			steeringFactorDecreaseRate(10.0f), gravity(10.0f)
+		{
+		}
+
+		// FUNCTION: ENGINE 0x10936D70
+		BoundedSpeedGraphAttributes& HelicopterControlAttributes::GetUpwardSpeed()
+		{
+			return upwardSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936D80
+		BoundedSpeedGraphAttributes& HelicopterControlAttributes::GetForwardSpeed()
+		{
+			return forwardSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936D90
+		BoundedSymmetricSpeedGraphAttributes& HelicopterControlAttributes::GetSidewaysSpeed()
+		{
+			return sidewaysSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936DA0
+		BoundedSymmetricAngleGraphAttributes& HelicopterControlAttributes::GetPitchSpeed()
+		{
+			return pitchSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936DB0
+		BoundedSymmetricAngleGraphAttributes& HelicopterControlAttributes::GetYawSpeed()
+		{
+			return yawSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936DC0
+		BoundedSymmetricAngleGraphAttributes& HelicopterControlAttributes::GetRollSpeed()
+		{
+			return rollSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x10936DD0
+		BoundedSymmetricAngleGraphAttributes& HelicopterControlAttributes::GetPitchAngle()
+		{
+			return pitchAngle;
+		}
+
+		// FUNCTION: ENGINE 0x10936DE0
+		BoundedSymmetricAngleGraphAttributes& HelicopterControlAttributes::GetRollAngle()
+		{
+			return rollAngle;
+		}
+
+		// FUNCTION: ENGINE 0x109371B0
+		content::MemberList* HelicopterControlAttributes::GetMembers()
+		{
+			static content::MemberList sList;
+			static content::MemberInfo sMembers[] =
+			{
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSpeedGraphAttributes, upwardSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSpeedGraphAttributes, forwardSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricSpeedGraphAttributes, sidewaysSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricAngleGraphAttributes, pitchSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricAngleGraphAttributes, yawSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricAngleGraphAttributes, rollSpeed),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricAngleGraphAttributes, pitchAngle),
+				ENGINE_DRIVING_OBJECT(HelicopterControlAttributes, BoundedSymmetricAngleGraphAttributes, rollAngle),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 0, upwardForceScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 1, forwardForceScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 2, forwardPitchTorqueScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 3, reverseForceScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 4, reversePitchTorqueScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 5, lateralSteeringForceScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 6, steeringRollTorqueScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 7, steeringYawTorqueScale),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 8, upwardThrottleIncreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 9, upwardThrottleDecreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 10, forwardThrottleIncreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 11, forwardThrottleDecreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 12, steeringFactorIncreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 13, steeringFactorDecreaseRate),
+				ENGINE_DRIVING_FLOAT(HelicopterControlAttributes, 14, gravity)
+			};
+			sList.members = sMembers;
+			sList.count = 23;
+			return &sList;
+		}
 	}
 }

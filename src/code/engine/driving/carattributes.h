@@ -152,6 +152,80 @@ namespace engine
 			float pitchScale;  // +0x38
 			float rollScale;  // +0x3C
 		};
+
+		// How hard a car's controls push it (struct; 0x3C bytes): the force and torque scales of the throttle and the
+		// steering, how quickly both build up and fade, and how fast the car may go in each direction
+		struct CarControlAttributes
+		{
+			// 0x109355F0
+			CarControlAttributes();
+
+			// 0x109355B0 / 0x10935A70
+			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
+
+			float forwardForceScale;  // +0x0
+			float forwardPitchTorqueScale;  // +0x4
+			float reverseForceScale;  // +0x8
+			float reversePitchTorqueScale;  // +0xC
+			float lateralSteeringForceScale;  // +0x10
+			float steeringRollTorqueScale;  // +0x14
+			float steeringYawTorqueScale;  // +0x18
+			float forwardThrottleIncreaseRate;  // +0x1C
+			float forwardThrottleDecreaseRate;  // +0x20
+			float steeringFactorIncreaseRate;  // +0x24
+			float steeringFactorDecreaseRate;  // +0x28
+			BoundedSpeedGraphAttributes forwardSpeed;  // +0x2C
+			BoundedSymmetricSpeedGraphAttributes sidewaysSpeed;  // +0x34
+			BoundedSymmetricAngleGraphAttributes yawSpeed;  // +0x38
+		};
+
+		// How hard a helicopter's controls push it (struct; 0x64 bytes): the car's control scales with an upward
+		// axis, and the speeds and angles it may reach
+		struct HelicopterControlAttributes
+		{
+			// 0x10936CC0
+			HelicopterControlAttributes();
+
+			// 0x10936C80 / 0x109371B0
+			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
+
+			// 0x10936D70, 0x10936D80, 0x10936D90, 0x10936DA0, 0x10936DB0, 0x10936DC0, 0x10936DD0, 0x10936DE0 (kept
+			// copies of the accessors)
+			BoundedSpeedGraphAttributes& GetUpwardSpeed();
+			BoundedSpeedGraphAttributes& GetForwardSpeed();
+			BoundedSymmetricSpeedGraphAttributes& GetSidewaysSpeed();
+			BoundedSymmetricAngleGraphAttributes& GetPitchSpeed();
+			BoundedSymmetricAngleGraphAttributes& GetYawSpeed();
+			BoundedSymmetricAngleGraphAttributes& GetRollSpeed();
+			BoundedSymmetricAngleGraphAttributes& GetPitchAngle();
+			BoundedSymmetricAngleGraphAttributes& GetRollAngle();
+
+			float upwardForceScale;  // +0x0
+			float forwardForceScale;  // +0x4
+			float forwardPitchTorqueScale;  // +0x8
+			float reverseForceScale;  // +0xC
+			float reversePitchTorqueScale;  // +0x10
+			float lateralSteeringForceScale;  // +0x14
+			float steeringRollTorqueScale;  // +0x18
+			float steeringYawTorqueScale;  // +0x1C
+			float upwardThrottleIncreaseRate;  // +0x20
+			float upwardThrottleDecreaseRate;  // +0x24
+			float forwardThrottleIncreaseRate;  // +0x28
+			float forwardThrottleDecreaseRate;  // +0x2C
+			float steeringFactorIncreaseRate;  // +0x30
+			float steeringFactorDecreaseRate;  // +0x34
+			float gravity;  // +0x38
+			BoundedSpeedGraphAttributes upwardSpeed;  // +0x3C
+			BoundedSpeedGraphAttributes forwardSpeed;  // +0x44
+			BoundedSymmetricSpeedGraphAttributes sidewaysSpeed;  // +0x4C
+			BoundedSymmetricAngleGraphAttributes pitchSpeed;  // +0x50
+			BoundedSymmetricAngleGraphAttributes yawSpeed;  // +0x54
+			BoundedSymmetricAngleGraphAttributes rollSpeed;  // +0x58
+			BoundedSymmetricAngleGraphAttributes pitchAngle;  // +0x5C
+			BoundedSymmetricAngleGraphAttributes rollAngle;  // +0x60
+		};
 	}
 }
 
