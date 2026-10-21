@@ -125,5 +125,27 @@ namespace engine
 	template class fight::TrackFactoryTemplate<SupportingSurfaceStickTrack>;
 	template class fight::TrackFactoryCasterTemplate<SupportingSurfaceStickTrack>;
 
+	// FUNCTION: ENGINE 0x1092FE10
+	bool SupportingSurfaceStickTrack::GetStickToSupportingSurface() const
+	{
+		return stickToSupportingSurface;
+	}
 
+	// FUNCTION: ENGINE 0x1092FE20
+	bool SupportingSurfaceStickTrack::GetResetOrientationDelta() const
+	{
+		return resetOrientationDelta;
+	}
+
+	// FUNCTION: ENGINE 0x1092FE30
+	bool SupportingSurfaceStickTrack::GetResetLimbSmoothing() const
+	{
+		return resetLimbSmoothing;
+	}
+
+	// FUNCTION: ENGINE 0x1092FE40
+	bool SupportingSurfaceStickTrack::GetRestoreOnEnd() const
+	{
+		return restoreOnEnd;
+	}
 }

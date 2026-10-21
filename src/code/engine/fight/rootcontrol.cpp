@@ -689,5 +689,225 @@ namespace engine
 	template class fight::TrackFactoryTemplate<ChoreoTestsTrack>;
 	template class fight::TrackFactoryCasterTemplate<ChoreoTestsTrack>;
 
+	// FUNCTION: ENGINE 0x109319D0
+	const fight::Name* StrafeAdjustRootTrack::GetAdjustJoint() const
+	{
+		return &adjustJoint;
+	}
 
+	// FUNCTION: ENGINE 0x109319E0
+	math::Vector StrafeAdjustRootTrack::GetOriginalDirection() const
+	{
+		return originalDirection;
+	}
+
+	// FUNCTION: ENGINE 0x10931A00
+	float StrafeAdjustRootTrack::GetAngleAdjustRate() const
+	{
+		return angleAdjustRate;
+	}
+
+	// FUNCTION: ENGINE 0x10931A10
+	int StrafeAdjustRootTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10931A20
+	float StrafeAdjustRootTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931A30
+	float StrafeAdjustRootTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931A40
+	bool ControlRootTrack::GetMovementEnabled() const
+	{
+		return movementEnabled;
+	}
+
+	// FUNCTION: ENGINE 0x10931A50
+	float ControlRootTrack::GetMaxSpeed() const
+	{
+		return maxSpeed;
+	}
+
+	// FUNCTION: ENGINE 0x10931A60
+	float ControlRootTrack::GetGravity() const
+	{
+		return gravity;
+	}
+
+	// FUNCTION: ENGINE 0x10931A70
+	bool ControlRootTrack::GetSteeringEnabled() const
+	{
+		return steeringEnabled;
+	}
+
+	// FUNCTION: ENGINE 0x10931A80
+	float ControlRootTrack::GetMaxTurnSpeed() const
+	{
+		return maxTurnSpeed;
+	}
+
+	// FUNCTION: ENGINE 0x10931A90
+	int ControlRootTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10931AA0
+	float ControlRootTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931AB0
+	float ControlRootTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931AC0
+	float CharacterSteerTrack::GetAcceleration() const
+	{
+		return acceleration;
+	}
+
+	// FUNCTION: ENGINE 0x10931AD0
+	float CharacterSteerTrack::GetTurningVelocity() const
+	{
+		return turningVelocity;
+	}
+
+	// FUNCTION: ENGINE 0x10931AE0
+	float CharacterSteerTrack::GetVelocityWalk() const
+	{
+		return velocityWalk;
+	}
+
+	// FUNCTION: ENGINE 0x10931AF0
+	float CharacterSteerTrack::GetVelocityRun() const
+	{
+		return velocityRun;
+	}
+
+	// FUNCTION: ENGINE 0x10931B00
+	float CharacterSteerTrack::GetGravity() const
+	{
+		return gravity;
+	}
+
+	// FUNCTION: ENGINE 0x10931B10
+	float CharacterSteerTrack::GetPhase() const
+	{
+		return phase;
+	}
+
+	// FUNCTION: ENGINE 0x10931B20
+	const fight::Name* CharacterSteerTrack::GetLocomotion() const
+	{
+		return &locomotion;
+	}
+
+	// FUNCTION: ENGINE 0x10931B30
+	const fight::Name* CharacterSteerTrack::GetAnimIdle() const
+	{
+		return &animIdle;
+	}
+
+	// FUNCTION: ENGINE 0x10931B40
+	const fight::Name* CharacterSteerTrack::GetAnimWalk() const
+	{
+		return &animWalk;
+	}
+
+	// FUNCTION: ENGINE 0x10931B50
+	const fight::Name* CharacterSteerTrack::GetAnimRun() const
+	{
+		return &animRun;
+	}
+
+	// FUNCTION: ENGINE 0x10931B60
+	const fight::Name* CharacterSteerTrack::GetPartition() const
+	{
+		return &partition;
+	}
+
+	// FUNCTION: ENGINE 0x10931B70
+	int CharacterSteerTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10931B80
+	float CharacterSteerTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931B90
+	float CharacterSteerTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931BA0
+	bool CharacterSteerTrack::GetDisableRootMotion() const
+	{
+		return disableRootMotion;
+	}
+
+	// FUNCTION: ENGINE 0x10931BB0
+	bool ChoreoTestsTrack::GetTestRandomSteer() const
+	{
+		return testRandomSteer;
+	}
+
+	// FUNCTION: ENGINE 0x10931BC0
+	bool ChoreoTestsTrack::GetTestPoseDriver() const
+	{
+		return testPoseDriver;
+	}
+
+	// FUNCTION: ENGINE 0x10931BD0
+	bool ChoreoTestsTrack::GetTestRestPoseDriver() const
+	{
+		return testRestPoseDriver;
+	}
+
+	// FUNCTION: ENGINE 0x10931BE0
+	bool ChoreoTestsTrack::GetTestDriverCopy() const
+	{
+		return testDriverCopy;
+	}
+
+	// FUNCTION: ENGINE 0x10931BF0
+	const fight::Name* ChoreoTestsTrack::GetTestDriverCopySource() const
+	{
+		return &testDriverCopySource;
+	}
+
+	// FUNCTION: ENGINE 0x10931C00
+	int ChoreoTestsTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10931C10
+	float ChoreoTestsTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931C20
+	float ChoreoTestsTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
 }

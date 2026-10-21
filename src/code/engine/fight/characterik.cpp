@@ -393,5 +393,87 @@ namespace engine
 	template class fight::TrackFactoryTemplate<CharacterJumpTrack>;
 	template class fight::TrackFactoryCasterTemplate<CharacterJumpTrack>;
 
+	// FUNCTION: ENGINE 0x109308E0
+	const fight::Name* CharacterIKTrack::GetRootJoint() const
+	{
+		return &rootJoint;
+	}
 
+	// FUNCTION: ENGINE 0x109308F0
+	const fight::Name* CharacterIKTrack::GetMidJoint() const
+	{
+		return &midJoint;
+	}
+
+	// FUNCTION: ENGINE 0x10930900
+	const fight::Name* CharacterIKTrack::GetEndJoint() const
+	{
+		return &endJoint;
+	}
+
+	// FUNCTION: ENGINE 0x10930910
+	int CharacterIKTrack::GetTargetType() const
+	{
+		return targetType;
+	}
+
+	// FUNCTION: ENGINE 0x10930920
+	int CharacterIKTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10930930
+	float CharacterIKTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10930940
+	float CharacterIKTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
+
+	// FUNCTION: ENGINE 0x10930950
+	int CharacterEnableLimbIKTrack::GetActionOnBegin() const
+	{
+		return actionOnBegin;
+	}
+
+	// FUNCTION: ENGINE 0x10930960
+	int CharacterEnableLimbIKTrack::GetActionOnEnd() const
+	{
+		return actionOnEnd;
+	}
+
+	// FUNCTION: ENGINE 0x10931430
+	float CharacterJumpTrack::GetJumpHeight() const
+	{
+		return jumpHeight;
+	}
+
+	// FUNCTION: ENGINE 0x10931440
+	float CharacterJumpTrack::GetGravity() const
+	{
+		return gravity;
+	}
+
+	// FUNCTION: ENGINE 0x10931450
+	int CharacterJumpTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10931460
+	float CharacterJumpTrack::GetBlendInTime() const
+	{
+		return blendInTime;
+	}
+
+	// FUNCTION: ENGINE 0x10931470
+	float CharacterJumpTrack::GetBlendOutTime() const
+	{
+		return blendOutTime;
+	}
 }

@@ -206,5 +206,27 @@ namespace engine
 	template class fight::TrackFactoryTemplate<SupportingLimbExtraLengthTrack>;
 	template class fight::TrackFactoryCasterTemplate<SupportingLimbExtraLengthTrack>;
 
+	// FUNCTION: ENGINE 0x1092FDC0
+	const fight::Name* SupportingLimbTrack::GetSupportingLimb() const
+	{
+		return &supportingLimb;
+	}
 
+	// FUNCTION: ENGINE 0x1092FDD0
+	math::Vector SupportingLimbTrack::GetDirection() const
+	{
+		return direction;
+	}
+
+	// FUNCTION: ENGINE 0x1092FDF0
+	const fight::Name* SupportingLimbExtraLengthTrack::GetSupportingLimb() const
+	{
+		return &supportingLimb;
+	}
+
+	// FUNCTION: ENGINE 0x1092FE00
+	float SupportingLimbExtraLengthTrack::GetExtraLength() const
+	{
+		return extraLength;
+	}
 }

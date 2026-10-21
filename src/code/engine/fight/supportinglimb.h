@@ -28,6 +28,12 @@ namespace engine
 		bool SetSupportingLimb(const fight::Name& value);
 		bool SetDirection(const math::Vector& value);
 
+		// The members the engine reads through accessors
+		// 0x1092FDC0
+		const fight::Name* GetSupportingLimb() const;
+		// 0x1092FDD0
+		math::Vector GetDirection() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -65,6 +71,12 @@ namespace engine
 		bool SetTimeEnd(float value);
 		bool SetSupportingLimb(const fight::Name& value);
 		bool SetExtraLength(float value);
+
+		// The members the engine reads through accessors
+		// 0x1092FDF0
+		const fight::Name* GetSupportingLimb() const;
+		// 0x1092FE00
+		float GetExtraLength() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

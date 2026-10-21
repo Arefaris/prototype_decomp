@@ -29,6 +29,12 @@ namespace engine
 		bool SetActionOnBegin(int value);
 		bool SetActionOnEnd(int value);
 
+		// The members the engine reads through accessors
+		// 0x10930950
+		int GetActionOnBegin() const;
+		// 0x10930960
+		int GetActionOnEnd() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -72,6 +78,22 @@ namespace engine
 		bool SetPriority(int value);
 		bool SetBlendInTime(float value);
 		bool SetBlendOutTime(float value);
+
+		// The members the engine reads through accessors
+		// 0x109308E0
+		const fight::Name* GetRootJoint() const;
+		// 0x109308F0
+		const fight::Name* GetMidJoint() const;
+		// 0x10930900
+		const fight::Name* GetEndJoint() const;
+		// 0x10930910
+		int GetTargetType() const;
+		// 0x10930920
+		int GetPriority() const;
+		// 0x10930930
+		float GetBlendInTime() const;
+		// 0x10930940
+		float GetBlendOutTime() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -119,6 +141,18 @@ namespace engine
 		bool SetPriority(int value);
 		bool SetBlendInTime(float value);
 		bool SetBlendOutTime(float value);
+
+		// The members the engine reads through accessors
+		// 0x10931430
+		float GetJumpHeight() const;
+		// 0x10931440
+		float GetGravity() const;
+		// 0x10931450
+		int GetPriority() const;
+		// 0x10931460
+		float GetBlendInTime() const;
+		// 0x10931470
+		float GetBlendOutTime() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

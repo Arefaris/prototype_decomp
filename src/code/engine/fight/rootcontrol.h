@@ -35,6 +35,24 @@ namespace engine
 		bool SetBlendInTime(float value);
 		bool SetBlendOutTime(float value);
 
+		// The members the engine reads through accessors
+		// 0x10931A40
+		bool GetMovementEnabled() const;
+		// 0x10931A50
+		float GetMaxSpeed() const;
+		// 0x10931A60
+		float GetGravity() const;
+		// 0x10931A70
+		bool GetSteeringEnabled() const;
+		// 0x10931A80
+		float GetMaxTurnSpeed() const;
+		// 0x10931A90
+		int GetPriority() const;
+		// 0x10931AA0
+		float GetBlendInTime() const;
+		// 0x10931AB0
+		float GetBlendOutTime() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -83,6 +101,20 @@ namespace engine
 		bool SetPriority(int value);
 		bool SetBlendInTime(float value);
 		bool SetBlendOutTime(float value);
+
+		// The members the engine reads through accessors
+		// 0x109319D0
+		const fight::Name* GetAdjustJoint() const;
+		// 0x109319E0
+		math::Vector GetOriginalDirection() const;
+		// 0x10931A00
+		float GetAngleAdjustRate() const;
+		// 0x10931A10
+		int GetPriority() const;
+		// 0x10931A20
+		float GetBlendInTime() const;
+		// 0x10931A30
+		float GetBlendOutTime() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -141,6 +173,38 @@ namespace engine
 		bool SetBlendOutTime(float value);
 		bool SetDisableRootMotion(bool value);
 
+		// The members the engine reads through accessors
+		// 0x10931AC0
+		float GetAcceleration() const;
+		// 0x10931AD0
+		float GetTurningVelocity() const;
+		// 0x10931AE0
+		float GetVelocityWalk() const;
+		// 0x10931AF0
+		float GetVelocityRun() const;
+		// 0x10931B00
+		float GetGravity() const;
+		// 0x10931B10
+		float GetPhase() const;
+		// 0x10931B20
+		const fight::Name* GetLocomotion() const;
+		// 0x10931B30
+		const fight::Name* GetAnimIdle() const;
+		// 0x10931B40
+		const fight::Name* GetAnimWalk() const;
+		// 0x10931B50
+		const fight::Name* GetAnimRun() const;
+		// 0x10931B60
+		const fight::Name* GetPartition() const;
+		// 0x10931B70
+		int GetPriority() const;
+		// 0x10931B80
+		float GetBlendInTime() const;
+		// 0x10931B90
+		float GetBlendOutTime() const;
+		// 0x10931BA0
+		bool GetDisableRootMotion() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -198,6 +262,24 @@ namespace engine
 		bool SetPriority(int value);
 		bool SetBlendInTime(float value);
 		bool SetBlendOutTime(float value);
+
+		// The members the engine reads through accessors
+		// 0x10931BB0
+		bool GetTestRandomSteer() const;
+		// 0x10931BC0
+		bool GetTestPoseDriver() const;
+		// 0x10931BD0
+		bool GetTestRestPoseDriver() const;
+		// 0x10931BE0
+		bool GetTestDriverCopy() const;
+		// 0x10931BF0
+		const fight::Name* GetTestDriverCopySource() const;
+		// 0x10931C00
+		int GetPriority() const;
+		// 0x10931C10
+		float GetBlendInTime() const;
+		// 0x10931C20
+		float GetBlendOutTime() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
