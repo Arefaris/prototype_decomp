@@ -4336,3 +4336,22 @@ lower-bound function the unit has of its own (a plain function template, not `st
   handles of the spawned objects +0xC0). `GameObjectSpawner` is 0x4C bytes, so the actor's 8-byte-aligned name starts
   at +0x50. EQUIVALENT: `SpawnGrid` 0x10906450 (stack slots of the loop counters, 96.6 %). NONMATCHING:
   `ActorCrowdSpawner::IsReady` 0x109063C0 (the engine repeats the whole handle lookup for the object, 35 %).
+- `src/code/engine/driving/` (0x10905A00 - 0x10905BC0, 0x10906C40 - 0x10907020): `VehiclePhysicsAttributes` (the 0x1C-byte
+  `VehicleMassAttributes` at +8), `CarPhysicsAttributes` (suspension +8, control +0x48, two groups the reflection does
+  not show at +0x84 / +0xEC, 0x210 bytes) and `HelicopterPhysicsAttributes` (control at +8); the groups are structs of
+  another unit (0x10934120 - 0x10937200) of which only the size, constructor and reflection are declared, mapped to
+  the engine's addresses. `gVehicleVector` (0x1131B4B4, set by 0x10905A50) is the vector the driving system shares. The
+  three constructors are EQUIVALENT: the engine's lea of the first member sits behind the volatile reference count
+  store of `LoadObject` where ours hoists it above it (the same difference as in the camera loader and
+  `SurfaceDefinition`; it recurs in every reflected class that derives straight from `MetaLoadObject`). Not done:
+  `WheelCollectionData` (0x10907020 - 0x10907C40: its element array of `WheelData` needs destructors in the array
+  header), the character solver (0x10907E90 - 0x1090C110, one unit with `CharacterSolverBehaviour`).
+- `src/code/engine/world/locationrendersettings.cpp` (0x10914850 - 0x10914AB0): `engine::world::LocationRenderSettings` (the first
+  one made is the current one, `sCurrent` 0x1131C67C): 10 functions match, the constructor is EQUIVALENT (store order,
+  73.7 %). The inline accessors are defined in the source file so that their kept copies count.
+- `src/code/engine/motionfeatureextractor.cpp` (0x10914AB0 - 0x10915450): the motion feature extractors (a pure base,
+  the projected extractors with their `rootSpaceProjectionAxis` and the six leaf classes whose `Extract` reads the
+  displacement, speed or acceleration along or around the axis). `LinearDisplacementExtractor::Extract` is EQUIVALENT (the
+  last product's operand order, 95.9 %). The two class meta types of the base (0x10911DD0) and of the projected
+  extractor (0x109151C0) are template instances of other units' neighbourhood. The leaf classes' deleting destructors
+  are in the factories' unit (0x108D8BF0, 0x108DE390 ...).

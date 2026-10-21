@@ -537,39 +537,6 @@ namespace engine
 {
 namespace driving
 {
-	// CarPhysicsAttributes: constructor 0x10906E20, reflection 0x10906C40 / 0x10906D80
-	class CarPhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		CarPhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x210];
-	};
-
-	// HelicopterPhysicsAttributes: constructor 0x10906FC0, reflection 0x10906E90 / 0x10906F40
-	class HelicopterPhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		HelicopterPhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x64];
-	};
-
-	// VehiclePhysicsAttributes: constructor 0x10905B60, reflection 0x10905A00 / 0x10905AE0
-	class VehiclePhysicsAttributes : public content::MetaLoadObject
-	{
-	public:
-		VehiclePhysicsAttributes();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x1C];
-	};
-
 	// WheelCollectionData: constructor 0x10907B60, reflection 0x10907020 / 0x109075A0
 	class WheelCollectionData : public content::MetaLoadObject
 	{
@@ -670,17 +637,6 @@ namespace world
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x3C];
-	};
-
-	// LocationRenderSettings: constructor 0x10914A70, reflection 0x10914850 / 0x109149C0
-	class LocationRenderSettings : public content::MetaLoadObject
-	{
-	public:
-		LocationRenderSettings();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
 	};
 
 }
