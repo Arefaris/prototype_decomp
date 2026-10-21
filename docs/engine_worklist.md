@@ -4419,3 +4419,14 @@ lower-bound function the unit has of its own (a plain function template, not `st
   arrays' `AssignRange` / `Resize` (the engine allocates its registers differently) and the helper's default element
   accessor. `StringC<N>` got the engine's assignment (the bounded copy), and `ArrayDynamic<T, AllocatorNew>` the
   `Resize` and range `Erase`; `ravenphysics/physicsobjectfactory.h` holds the size-only class.
+- `src/code/engine/charactersolverproperties.cpp` (0x10908490 - 0x109086A0): `engine::CharacterSolverProperties`, a content
+  library object (`MetaLoadObject`) with seven reflected floats and flags that tune the character solver (maximum linear
+  acceleration, maximum steering angular force, maximum push velocity, whether platforming is on, the effective character
+  mass on a platform, the minimum mass ratio for platforming and the maximum velocity gained from a platform). 10
+  functions match; the constructor is EQUIVALENT (the engine loads each default right before its store, ours loads them
+  up front, 42.7 %).
+- `src/code/engine/fight/behaviours/motiontreebehaviour.cpp` (0x1091F380 - 0x1091F890): `engine::MotionTreeBehaviour`, the
+  fight tree behaviour that runs a motion tree: it keeps the pending message flags and the auto-resequence setting
+  (reflected as `autoResequence`), listens for the sequencer to be ready and resets the sequencer on one message. 15
+  functions match. `UpdateListening` is NONMATCHING (41.2 %, the engine keeps the sequencer test's result in a stack slot
+  across the branch); `Sequencer::Unknown105A4270` is declared for the update.

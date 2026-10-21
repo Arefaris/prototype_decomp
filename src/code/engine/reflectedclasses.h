@@ -22,17 +22,6 @@ namespace engine
 		unsigned char unknown8[0x68];
 	};
 
-	// CharacterSolverProperties: constructor 0x109084D0, reflection 0x10907E90 / 0x109097A0
-	struct CharacterSolverProperties : public content::MetaLoadObject
-	{
-	public:
-		CharacterSolverProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x1C];
-	};
-
 	// GameObjectTemplateBuilder: constructor 0x1090CE10, reflection 0x1090C110 / 0x1090CC30
 	class GameObjectTemplateBuilder : public content::MetaLoadObject
 	{
@@ -174,17 +163,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0x18];
-	};
-
-	// MotionTreeBehaviour: constructor 0x1091F480, reflection 0x1091F380 / 0x1091F750
-	class MotionTreeBehaviour : public engine::Behaviour
-	{
-	public:
-		MotionTreeBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x64];
 	};
 
 	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0

@@ -16,6 +16,11 @@ namespace content
 	struct MemberList;
 }
 
+namespace engine
+{
+	class GameObjectParams;
+}
+
 namespace fight
 {
 	class Sequencer;
@@ -243,6 +248,8 @@ namespace fight
 		void Advance(int arg, float dt);
 		// 0x105A45A0: whether the sequencer has actions (with the flag also when a track is pending; name unknown)
 		bool Unknown105A45A0(bool flag);
+		// 0x105A4270: hands the sequencer the flags the behaviour collected and the parameters (name unknown)
+		void Unknown105A4270(unsigned int flags, engine::GameObjectParams* params);
 		// 0x105A4910: walks the actions and their children (name unknown)
 		void Unknown105A4910(bool flag);
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
