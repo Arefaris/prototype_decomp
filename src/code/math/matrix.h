@@ -123,6 +123,8 @@ namespace math
 		void OuterProduct(const Vector& a, const Vector& b);
 		// Rotation matrix about a unit axis by angle radians (identity rotation when |angle| <= EPSILON_SMALL)
 		void RotationAxisAngle(const Vector& axis, float angle);
+		// Rotation from the Euler angles about X, Y and Z in radians, three angles (0x107CEE50; name guessed)
+		void RotationEulerXYZ(float x, float y, float z);
 		// Rotation matrix about a unit axis from the angle's cosine and sine; the axis is normalised if it is not
 		void FromAxisCosSin(const Vector& axis, float c, float s);
 		// True when the sum of squares of all 16 elements is below tolerance squared

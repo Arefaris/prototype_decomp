@@ -6,6 +6,7 @@
 #define ENGINE_PHYSICS_PHYSICSMESSAGES_H
 
 #include "code/engine/message.h"
+#include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
 namespace engine
@@ -144,6 +145,78 @@ namespace engine
 		}
 
 		bool enabled;
+	};
+
+	// Asks for the object's linear velocity (id 6); the velocity comes back in the message
+	struct PhysicsGetLinearVelocityMessage : public NonintrusiveMessage
+	{
+		PhysicsGetLinearVelocityMessage() : NonintrusiveMessage(3, 6)
+		{
+			unknownC = -1;
+			velocity.x = 0.0f;
+			velocity.y = 0.0f;
+			velocity.z = 0.0f;
+		}
+		virtual ~PhysicsGetLinearVelocityMessage()
+		{
+		}
+
+		int unknownC;
+		math::Vector velocity;
+	};
+
+	// Sets the object's linear velocity (id 5)
+	struct PhysicsSetLinearVelocityMessage : public IntrusiveMessage
+	{
+		PhysicsSetLinearVelocityMessage(float newX, float newY, float newZ) : IntrusiveMessage(3, 5)
+		{
+			unknownC = -1;
+			velocity.x = newX;
+			velocity.y = newY;
+			velocity.z = newZ;
+		}
+		virtual ~PhysicsSetLinearVelocityMessage()
+		{
+		}
+
+		int unknownC;
+		math::Vector velocity;
+	};
+
+	// Asks for the object's angular velocity (id 8)
+	struct PhysicsGetAngularVelocityMessage : public NonintrusiveMessage
+	{
+		PhysicsGetAngularVelocityMessage() : NonintrusiveMessage(3, 8)
+		{
+			unknownC = -1;
+			velocity.x = 0.0f;
+			velocity.y = 0.0f;
+			velocity.z = 0.0f;
+		}
+		virtual ~PhysicsGetAngularVelocityMessage()
+		{
+		}
+
+		int unknownC;
+		math::Vector velocity;
+	};
+
+	// Sets the object's angular velocity (id 7)
+	struct PhysicsSetAngularVelocityMessage : public IntrusiveMessage
+	{
+		PhysicsSetAngularVelocityMessage(float newX, float newY, float newZ) : IntrusiveMessage(3, 7)
+		{
+			unknownC = -1;
+			velocity.x = newX;
+			velocity.y = newY;
+			velocity.z = newZ;
+		}
+		virtual ~PhysicsSetAngularVelocityMessage()
+		{
+		}
+
+		int unknownC;
+		math::Vector velocity;
 	};
 }
 
