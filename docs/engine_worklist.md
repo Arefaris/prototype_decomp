@@ -959,14 +959,14 @@ the class (rtti.tsv) names the `Invoke`, and the `Call` next to it belongs to th
 - Not done: the functions themselves (0x108D1140 - 0x108D1720, 0x108D22C0), the constructor 0x108D2E90 and the
   allocation helpers (0x108D1310 - 0x108D1390, 0x108D2290, 0x108D35B0).
 
-## engine/metafactories.cpp (0x108D6E20 - 0x108DE180): 204 functions match (class factories and their registrations)
+## engine/metafactories.cpp (0x108D6E20 - 0x108DE180): 216 functions match (class factories and their registrations)
 
 The content library loads a reflected class through a `content::MetaObjectFactory<T, 1>` (LoadObject-derived
 classes: slot 2 makes the object, `new T` through `LoadObject::operator new`) or a `content::MetaInstanceCreatorImpl<T,
 1>` (plain classes: `new T`), registered from a function-local static of a per-class registration function (the
 engine's start-up tables 0x108DE660 / 0x108DF1F0 / 0x108DFE50 expand those registrations in place). The unit holds, per
 class, `content::GetClassMetaType<T>()` (76 bytes), the factory's constructor (37), `Create` (24/27) and the
-registration (70): `code/content/metafactory.h`. 51 classes are done (38 factories and 13 creators).
+registration (70): `code/content/metafactory.h`. 54 classes are done (39 factories and 15 creators).
 - The classes belong to other units: `engine/reflectedclasses.h` stands in for the ones not reconstructed yet (their
   size, constructor and the two reflection functions; replace an entry by the real class when its unit is done).
   `FmvSubtitleManager` is 0x18 bytes (one word past the array that the constructor never touches).
@@ -974,6 +974,15 @@ registration (70): `code/content/metafactory.h`. 51 classes are done (38 factori
   creators, 0x108D8B60 - 0x108D9130 and 0x108DA0A0 on; the camera, cinematographer, game object and prop classes with
   their own allocation), the nested classes of the content manager, the creators whose constructor is inline (messages,
   math::AABB / OBB / Plane / Sphere) and the three start-up tables.
+
+## engine/online/onlinescripting.cpp (0x108C2B80 - 0x108C66A0): 35 functions match (script method wrappers)
+
+The `Method` / `Closure` wrappers and `RegisterMethod` instances of three online classes whose units are not
+reconstructed (engine::Replay, engine::ConsoleManager, engine::OLSStorage). The classes with several bases have
+method pointers of two words (the closures carry a 0x28-byte function): `#pragma pointers_to_members` asks for that
+on the forward declarations; ConsoleManager (one word) is instantiated before the pragma. Where two classes have
+identical bodies (the `Method0<..., void>` constructors and `Call`s of Replay and OLSStorage) the vftable of the class
+(rtti.tsv) names the `Invoke`, and the constructor's vftable immediate tells the constructors apart.
 
 ## pure3d animation and the choreo pose blending
 

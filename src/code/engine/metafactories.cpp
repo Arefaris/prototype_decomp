@@ -4,7 +4,9 @@
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/motiontrackingfilter.h"
+#include "code/engine/scenariomessage.h"
 
 namespace content
 {
@@ -38,6 +40,9 @@ namespace content
 	template class MetaObjectFactory<engine::CharacterSolverProperties, 1>;
 	template ClassMetaType* GetClassMetaType<engine::CharacterSolverProperties>();
 	template void RegisterMetaObjectFactory<engine::CharacterSolverProperties>();
+	template class MetaObjectFactory<engine::GameObject, 1>;
+	template ClassMetaType* GetClassMetaType<engine::GameObject>();
+	template void RegisterMetaObjectFactory<engine::GameObject>();
 	template class MetaObjectFactory<engine::GameObjectTemplateBuilder, 1>;
 	template ClassMetaType* GetClassMetaType<engine::GameObjectTemplateBuilder>();
 	template void RegisterMetaObjectFactory<engine::GameObjectTemplateBuilder>();
@@ -140,6 +145,12 @@ namespace content
 	template class MetaInstanceCreatorImpl<engine::SplinePathCV, 1>;
 	template ClassMetaType* GetClassMetaType<engine::SplinePathCV>();
 	template void RegisterMetaInstanceCreator<engine::SplinePathCV>();
+	template class MetaInstanceCreatorImpl<engine::EnterTriggerMessage, 1>;
+	template ClassMetaType* GetClassMetaType<engine::EnterTriggerMessage>();
+	template void RegisterMetaInstanceCreator<engine::EnterTriggerMessage>();
+	template class MetaInstanceCreatorImpl<engine::ExitTriggerMessage, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ExitTriggerMessage>();
+	template void RegisterMetaInstanceCreator<engine::ExitTriggerMessage>();
 	template class MetaInstanceCreatorImpl<engine::SecondaryPhysicsAmbientWind, 1>;
 	template ClassMetaType* GetClassMetaType<engine::SecondaryPhysicsAmbientWind>();
 	template void RegisterMetaInstanceCreator<engine::SecondaryPhysicsAmbientWind>();
@@ -194,6 +205,9 @@ namespace content
 // FUNCTION: ENGINE 0x108D73C0 @ GetClassMetaType<CharacterSolverProperties>
 // FUNCTION: ENGINE 0x108D7410 @ MetaObjectFactory<CharacterSolverProperties,1>::MetaObjectFactory
 // FUNCTION: ENGINE 0x108D7440 @ MetaObjectFactory<CharacterSolverProperties,1>::Create
+// FUNCTION: ENGINE 0x108D7690 @ GetClassMetaType<GameObject>
+// FUNCTION: ENGINE 0x108D76E0 @ MetaObjectFactory<GameObject,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D7710 @ MetaObjectFactory<GameObject,1>::Create
 // FUNCTION: ENGINE 0x108D7730 @ GetClassMetaType<GameObjectTemplateBuilder>
 // FUNCTION: ENGINE 0x108D7780 @ MetaObjectFactory<GameObjectTemplateBuilder,1>::MetaObjectFactory
 // FUNCTION: ENGINE 0x108D77B0 @ MetaObjectFactory<GameObjectTemplateBuilder,1>::Create
@@ -295,6 +309,10 @@ namespace content
 // FUNCTION: ENGINE 0x108D96A0 @ GetClassMetaType<SplinePathCV>
 // FUNCTION: ENGINE 0x108D96F0 @ MetaInstanceCreatorImpl<SplinePathCV,1>::MetaInstanceCreatorImpl
 // FUNCTION: ENGINE 0x108D9720 @ MetaInstanceCreatorImpl<SplinePathCV,1>::Create
+// FUNCTION: ENGINE 0x108D9820 @ GetClassMetaType<EnterTriggerMessage>
+// FUNCTION: ENGINE 0x108D9870 @ MetaInstanceCreatorImpl<EnterTriggerMessage,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D98A0 @ GetClassMetaType<ExitTriggerMessage>
+// FUNCTION: ENGINE 0x108D98F0 @ MetaInstanceCreatorImpl<ExitTriggerMessage,1>::MetaInstanceCreatorImpl
 // FUNCTION: ENGINE 0x108D9C40 @ GetClassMetaType<SecondaryPhysicsAmbientWind>
 // FUNCTION: ENGINE 0x108D9C90 @ MetaInstanceCreatorImpl<SecondaryPhysicsAmbientWind,1>::MetaInstanceCreatorImpl
 // FUNCTION: ENGINE 0x108D9CC0 @ MetaInstanceCreatorImpl<SecondaryPhysicsAmbientWind,1>::Create
@@ -326,6 +344,7 @@ namespace content
 // FUNCTION: ENGINE 0x108DBB60 @ RegisterMetaObjectFactory<driving::VehiclePhysicsAttributes>
 // FUNCTION: ENGINE 0x108DBBB0 @ RegisterMetaObjectFactory<driving::WheelCollectionData>
 // FUNCTION: ENGINE 0x108DBC00 @ RegisterMetaObjectFactory<CharacterSolverProperties>
+// FUNCTION: ENGINE 0x108DBD40 @ RegisterMetaObjectFactory<GameObject>
 // FUNCTION: ENGINE 0x108DBD90 @ RegisterMetaObjectFactory<GameObjectTemplateBuilder>
 // FUNCTION: ENGINE 0x108DBDE0 @ RegisterMetaObjectFactory<NamedInventoryCreator>
 // FUNCTION: ENGINE 0x108DBED0 @ RegisterMetaObjectFactory<ravenphysics::ConstraintAngularSpringSharedProperties>
@@ -360,6 +379,8 @@ namespace content
 // FUNCTION: ENGINE 0x108DCE20 @ RegisterMetaInstanceCreator<DampedAngularMotionTrackingFilter>
 // FUNCTION: ENGINE 0x108DCE70 @ RegisterMetaInstanceCreator<DampedLinearMotionTrackingFilter>
 // FUNCTION: ENGINE 0x108DCFB0 @ RegisterMetaInstanceCreator<SplinePathCV>
+// FUNCTION: ENGINE 0x108DD050 @ RegisterMetaInstanceCreator<EnterTriggerMessage>
+// FUNCTION: ENGINE 0x108DD0A0 @ RegisterMetaInstanceCreator<ExitTriggerMessage>
 // FUNCTION: ENGINE 0x108DD370 @ RegisterMetaInstanceCreator<SecondaryPhysicsAmbientWind>
 // FUNCTION: ENGINE 0x108DD3C0 @ RegisterMetaInstanceCreator<SecondaryPhysicsPinJoint>
 // FUNCTION: ENGINE 0x108DD410 @ RegisterMetaInstanceCreator<SecondaryPhysicsPoweredJoint>
@@ -368,3 +389,5 @@ namespace content
 // FUNCTION: ENGINE 0x108DD500 @ RegisterMetaInstanceCreator<trigger::OBBVolume>
 // FUNCTION: ENGINE 0x108DD550 @ RegisterMetaInstanceCreator<trigger::SphereVolume>
 // FUNCTION: ENGINE 0x108DE1D0 @ MetaObjectFactory<NISExclusionVolume,1>::Create
+// FUNCTION: ENGINE 0x108DE1F0 @ MetaInstanceCreatorImpl<EnterTriggerMessage,1>::Create
+// FUNCTION: ENGINE 0x108DE220 @ MetaInstanceCreatorImpl<ExitTriggerMessage,1>::Create
