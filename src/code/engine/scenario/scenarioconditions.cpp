@@ -114,15 +114,15 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108C15E0
-		const fight::Name& ScenarioGameObjectTouchesTriggerCondition::GetObject() const
-		{
-			return object;
-		}
-
-		// FUNCTION: ENGINE 0x108C15F0
 		const fight::Name& ScenarioGameObjectTouchesTriggerCondition::GetTrigger() const
 		{
 			return trigger;
+		}
+
+		// FUNCTION: ENGINE 0x108C15F0
+		const fight::Name& ScenarioGameObjectTouchesTriggerCondition::GetObject() const
+		{
+			return object;
 		}
 
 		// FUNCTION: ENGINE 0x108C1600
@@ -480,9 +480,9 @@ namespace engine
 					GameObjectHandle first = part->GetHandle(0);
 					if (IsHandleValid(second) && IsHandleValid(first))
 					{
-						if (SameHandle(FindGameObject(trigger, *(const content::ObjectName*)""), second))
+						if (SameHandle(FindGameObject(object, *(const content::ObjectName*)""), second))
 						{
-							if (SameHandle(FindGameObject(object, *(const content::ObjectName*)""), first))
+							if (SameHandle(FindGameObject(trigger, *(const content::ObjectName*)""), first))
 							{
 								return true;
 							}

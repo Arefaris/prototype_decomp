@@ -4298,3 +4298,20 @@ lower-bound function the unit has of its own (a plain function template, not `st
   (0x1065BC40). The rest of the constraint classes (angular spring and velocity with their shared properties, slider,
   spring along axis, perpendicular axes, fixed distance, ...) and the base class functions 0x1065E430 - 0x1065EEE0
   (constructor between two objects, copy constructor, `SetObject`) are not done.
+
+## 0x108FF310 - 0x10920000 (sn-o): the scenario condition properties, the reflected content classes
+
+- `src/code/engine/scenario/scenarioeventconditions.cpp` (0x108FF310 - 0x10900260, the tail of the previous range's
+  last unit): the constructors, destructors, property setters, property lists and factories of
+  `ScenarioMessageCondition`, `ScenarioGameObjectAttributeCondition`, `ScenarioGameObjectTouchesTriggerCondition`,
+  `ScenarioPropStateCondition` and `ScenarioStringCondition` (their evaluations are in scenarioconditions.cpp), plus the
+  property and factory template instances. 95 functions match, the five `RegisterProperties` are EQUIVALENT (the
+  open shrink-wrap question; the touch-trigger one also stores its table count before the vftable). The properties
+  settled the names of the touch condition's two names: "gameObjectName" is the word at +0x10 (`object`) and
+  "triggerName" the one at +0x18 (`trigger`); the getters 0x108C15E0 / 0x108C15F0 and the evaluation in
+  scenarioconditions.cpp were renamed to follow. The object is 0x28 bytes (a word at +0x24 nobody writes).
+- `src/code/engine/camera/cameraloader.cpp` (0x109067F0 - 0x10906B20): `engine::camera::CameraLoader` (camera object at
+  +8, avatarName +0x10, cinematographerName +0x18, spawnActive +0x20, type +0x24 of the enumeration
+  `engine::camera::CinematographerType`). `Camera` gained its two reflection statics (0x1084D830 / 0x1084DCC0, another
+  unit). The constructor is EQUIVALENT (the lea of the first name member sits behind the reference count store in
+  the engine). Not done: the load notification (vftable slot 3, 0x109069A0).

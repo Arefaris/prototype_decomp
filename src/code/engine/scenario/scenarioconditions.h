@@ -128,10 +128,17 @@ namespace engine
 			ScenarioMessageCondition();
 			virtual ~ScenarioMessageCondition();
 
-			// vftable slot 0 (0x108FF4E0)
+			// vftable slot 0 (0x108FF3A0)
 			virtual fight::Property* GetProperty(int index);
 			// vftable slot 9
 			virtual bool Evaluate(int a, int b, int c, int d);
+
+			// The member the property writes (0x108FF330)
+			bool SetEvent(int newValue);
+
+			// The property list, built once and freed again (0x108FFD20 / 0x108FF3B0)
+			static void RegisterProperties();
+			static void ClearProperties();
 
 			int event;  // +0xC: the index in the lister of the message kinds
 		};
@@ -147,10 +154,17 @@ namespace engine
 			virtual fight::Property* GetProperty(int index);
 			virtual bool Evaluate(int a, int b, int c, int d);
 
-			// The getters the evaluation unit holds (the setters are in the other unit)
+			// The getters the evaluation unit holds (0x108C15B0 ...) and the setters the properties write
 			int GetSlot() const;
 			const char* GetKey() const;
 			const fight::Name& GetValue() const;
+			bool SetSlot(int newValue);
+			bool SetKey(const char* text);
+			bool SetValue(const fight::Name& newValue);
+
+			// The property list, built once and freed again (0x108FFB40 / 0x108FF350)
+			static void RegisterProperties();
+			static void ClearProperties();
 
 			int unknownc;
 			fight::Name value;  // +0x10
@@ -172,11 +186,19 @@ namespace engine
 			const fight::Name& GetObject() const;
 			const fight::Name& GetTrigger() const;
 			int GetType() const;
+			bool SetType(int newValue);
+			bool SetTrigger(const fight::Name& newValue);
+			bool SetObject(const fight::Name& newValue);
+
+			// The property list, built once and freed again (0x108FFC30 / 0x108FF390)
+			static void RegisterProperties();
+			static void ClearProperties();
 
 			int unknownc;
-			fight::Name trigger;  // +0x10: the object of the message's second handle
-			fight::Name object;  // +0x18: the object of its first handle
+			fight::Name object;  // +0x10: the object of the message's second handle ("gameObjectName")
+			fight::Name trigger;  // +0x18: the object of its first handle ("triggerName")
 			int type;  // +0x20
+			int unknown24;  // never written: the object is 0x28 bytes
 		};
 
 		// RTTI: engine::scenario::ScenarioPropStateCondition (10 vftable slots, 0x18 bytes): the new state of an
@@ -189,6 +211,12 @@ namespace engine
 
 			virtual fight::Property* GetProperty(int index);
 			virtual bool Evaluate(int a, int b, int c, int d);
+
+			bool SetState(const fight::Name& newValue);
+
+			// The property list, built once and freed again (0x108FFDA0 / 0x108FF400)
+			static void RegisterProperties();
+			static void ClearProperties();
 
 			int unknownc;
 			fight::Name state;  // +0x10
@@ -205,9 +233,22 @@ namespace engine
 			virtual fight::Property* GetProperty(int index);
 			virtual bool Evaluate(int a, int b, int c, int d);
 
+			bool SetString(const fight::Name& newValue);
+
+			// The property list, built once and freed again (0x108FFE20 / 0x108FF420)
+			static void RegisterProperties();
+			static void ClearProperties();
+
 			int unknownc;
 			fight::Name string;  // +0x10
 		};
+
+		// The property lists of the other five classes (0x1131B328 - 0x1131B338)
+		extern fight::Property** gScenarioGameObjectAttributeConditionProperties;
+		extern fight::Property** gScenarioGameObjectTouchesTriggerConditionProperties;
+		extern fight::Property** gScenarioMessageConditionProperties;
+		extern fight::Property** gScenarioPropStateConditionProperties;
+		extern fight::Property** gScenarioStringConditionProperties;
 
 		// The property lists of the three classes (0x113187A8 / 0x113187AC / 0x113187B0)
 		extern fight::Property** gScenarioGameObjectConditionProperties;
@@ -223,7 +264,14 @@ namespace engine
 		void RegisterScenarioScriptAttributeConditionFactory(fight::TrackRegistry* registry, const char* name);
 		void RegisterHasTagConditionFactory(fight::TrackRegistry* registry, const char* name);
 
-		// The factories of the other five classes (0x108FFEA0 - 0x108FFF60, another unit)
+		// 0x108FFAA0 - 0x108FFB20: the factory of each of the other five classes
+		fight::ConditionFactory* CreateScenarioGameObjectAttributeConditionFactory(const char* name);
+		fight::ConditionFactory* CreateScenarioGameObjectTouchesTriggerConditionFactory(const char* name);
+		fight::ConditionFactory* CreateScenarioMessageConditionFactory(const char* name);
+		fight::ConditionFactory* CreateScenarioPropStateConditionFactory(const char* name);
+		fight::ConditionFactory* CreateScenarioStringConditionFactory(const char* name);
+
+		// The registrations of the other five classes (0x108FFEA0 - 0x108FFF60)
 		void RegisterScenarioMessageConditionFactory(fight::TrackRegistry* registry, const char* name);
 		void RegisterScenarioGameObjectAttributeConditionFactory(fight::TrackRegistry* registry, const char* name);
 		void RegisterScenarioStringConditionFactory(fight::TrackRegistry* registry, const char* name);

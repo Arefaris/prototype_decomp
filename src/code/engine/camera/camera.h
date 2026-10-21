@@ -10,6 +10,12 @@ namespace math
 	class Matrix;
 }
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace engine
 {
 	namespace camera
@@ -41,6 +47,10 @@ namespace engine
 			}
 			// vftable slot 1
 			virtual void Update(float delta, float time, int flags) = 0;
+
+			// 0x1084D830 / 0x1084DCC0 (another unit): the class's reflection
+			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
 
 			// 0x106DCD70: whether a sphere (point and radius) is inside the view (the point goes through the matrix at +0x50)
 			bool IsPointVisible(const math::Vector* point, float radius);

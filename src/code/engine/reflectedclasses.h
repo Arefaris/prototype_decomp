@@ -530,17 +530,6 @@ namespace engine
 {
 namespace camera
 {
-	// CameraLoader: constructor 0x10906940, reflection 0x109067F0 / 0x10906B20
-	class CameraLoader : public content::MetaLoadObject
-	{
-	public:
-		CameraLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x20];
-	};
-
 	// FPSCamera: constructor 0x10915490, reflection 0x10915450 / 0x10915540
 	class FPSCamera
 	{
