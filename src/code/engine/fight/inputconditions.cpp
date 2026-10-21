@@ -1,8 +1,34 @@
 // The fight conditions on the character input, the locomotion input and on a turn (unit 0x108F6660 - 0x108F7220; no assert path, file name guessed).
+#include "code/engine/controller/characterintentioninputmap.h"
 #include "code/engine/fight/inputconditions.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+
+namespace fight
+{
+	// 0x1009E120 (another unit): compares two floats with one of the compare operators (lhs op rhs)
+	bool CompareFloats(int op, const float* lhs, const float* rhs);
+}
 
 namespace engine
 {
+	GameObjectHandle GetObjectHandle(core::IRefCount* object);
+
+	// The two axes of the locomotion input (0x1085B820 / 0x1085B830, another unit): indices into the intention's axis table
+	int GetLocoAxisA();
+	int GetLocoAxisB();
+
+	// The 2D value a locomotion axis is read into: starts at zero (the engine's kept copy of math::Vector2's default
+	// constructor is 0x107E2B50)
+	struct AxisValue
+	{
+		AxisValue();
+
+		float x;
+		float y;
+	};
+
 	extern fight::EnumEntry gCharacterInputConditionButtonStateTable[];
 	extern const int gCompareOperatorCount;
 	extern fight::EnumEntry gCompareOperatorTable[];
@@ -64,6 +90,58 @@ namespace engine
 	void CharacterInputCondition::ClearProperties()
 	{
 		fight::FreePropertyList(&gCharacterInputConditionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1092D810
+	const fight::EnumEntry* CharacterInputCondition::GetButtonEntry(int index)
+	{
+		return (const fight::EnumEntry*)CharacterIntentionInputMap::GetButtonNames() + index;
+	}
+
+	// FUNCTION: ENGINE 0x1092D820
+	int CharacterInputCondition::GetButtonCount()
+	{
+		return CharacterIntentionInputMap::GetButtonCount();
+	}
+
+	// FUNCTION: ENGINE 0x1092D830
+	// EQUIVALENT: block layout; the engine does not thread the state test (w == 2 and the second pair) and keeps one shared exit for
+	// every failure after the first comparison, ours returns false at once where the test cannot hold; every call is the engine's
+	bool CharacterInputCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		int wantedButton = button;
+		CharacterQueryIntentionMessage message;
+		object->SendMessage(&message);
+		if (message.intention == 0)
+		{
+			return false;
+		}
+		CharacterIntentionButton* entry = message.intention->GetButton(wantedButton);
+		float held = entry->time;
+		int wantedState = buttonState;
+		int state = entry->state;
+		if (state != wantedState)
+		{
+			if (!((wantedState == 2 && state == 1) || (wantedState == 0 && state == 3)))
+			{
+				return false;
+			}
+			held = 0.0f;
+		}
+		float limit = time;
+		if (!fight::CompareFloats(compareTime, &held, &limit))
+		{
+			return false;
+		}
+		float current = entry->value;
+		float wantedValue = value;
+		return fight::CompareFloats(compareValue, &current, &wantedValue) != 0;
 	}
 
 	// FUNCTION: ENGINE 0x108F6790
@@ -168,6 +246,46 @@ namespace engine
 	void LocoInputCondition::ClearProperties()
 	{
 		fight::FreePropertyList(&gLocoInputConditionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1092D960
+	// EQUIVALENT: register allocation; the engine keeps this in ebx and the second axis index on the stack, ours the other way round; every call and memory access is the engine's
+	bool LocoInputCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		int axisA = GetLocoAxisA();
+		int axisB = GetLocoAxisB();
+		CharacterQueryIntentionMessage message;
+		object->SendMessage(&message);
+		CharacterIntention* intention = message.intention;
+		if (intention == 0)
+		{
+			return false;
+		}
+		AxisValue axis;
+		switch (inputType)
+		{
+		case 0:
+			axis = *(AxisValue*)intention->GetAxis(axisA);
+			break;
+		case 1:
+			axis = *(AxisValue*)intention->GetAxis(axisB);
+			break;
+		}
+		float held = axis.y;
+		float limit = time;
+		if (!fight::CompareFloats(compareTime, &held, &limit))
+		{
+			return false;
+		}
+		float current = axis.x;
+		float wantedValue = value;
+		return fight::CompareFloats(compareValue, &current, &wantedValue) != 0;
 	}
 
 	// FUNCTION: ENGINE 0x108F6800

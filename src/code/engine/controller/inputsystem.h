@@ -122,7 +122,8 @@ namespace engine
 			class Updater* GetUpdater();
 
 			Slot* slots;
-			int unknown8;
+			// The number of slots (the fight conditions on the online session read it as the number of players)
+			int slotCount;
 			int unknownC;
 		};
 
