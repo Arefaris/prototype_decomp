@@ -14,6 +14,7 @@
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/render/async/canvas.h"
 #include "code/engine/scenariomessage.h"
+#include "code/engine/subtitleoptions.h"
 #include "code/engine/system/streampackage.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/pddi.h"
@@ -241,16 +242,6 @@ namespace engine
 	void Unknown104B1880();
 	void Unknown108831C0();
 
-	// The object at 0x11316A58 (another unit)
-	class SubtitleOptions
-	{
-	public:
-		void Unknown10876EF0(bool value);
-
-		unsigned char unknown0[0x1E];
-		bool unknown1E;
-	};
-	extern SubtitleOptions* gSubtitleOptions;
 
 	// The names of the audio settings the volume is made of, and the channel the end message goes to (all made by
 	// their units' initialisers)
