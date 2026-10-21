@@ -121,17 +121,6 @@ namespace engine
 		unsigned char unknown8[0x38];
 	};
 
-	// SplinePath: constructor 0x10911310, reflection 0x10910600 / 0x10911250
-	class SplinePath : public content::MetaLoadObject
-	{
-	public:
-		SplinePath();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x5C];
-	};
-
 	// StreamPackage: constructor 0x107FBDC0, reflection 0x107FAD80 / 0x107FBAC0
 	class StreamPackage : public content::MetaLoadObject
 	{
@@ -207,17 +196,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x3C];
-	};
-
-	// SplinePathCV: constructor 0x10910640, reflection 0x10910550 / 0x10910D30
-	class SplinePathCV
-	{
-	public:
-		SplinePathCV();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x24];
 	};
 
 	// SecondaryPhysicsAmbientWind: constructor 0x109161C0, reflection 0x10915FD0 / 0x10916290
