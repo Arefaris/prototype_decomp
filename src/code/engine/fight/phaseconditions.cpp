@@ -1,5 +1,9 @@
 // The fight conditions on a keyboard key and on a puppet's animation phase (unit 0x108B8E50 - 0x108B94F0; no assert path, file name guessed).
 #include "code/engine/fight/phaseconditions.h"
+#include "code/choreo/puppet.h"
+#include "code/engine/database/gamedatabase.h"
+#include "code/engine/fight/effecttrack.h"
+#include <math.h>
 
 namespace engine
 {
@@ -23,7 +27,16 @@ namespace engine
 	{
 	}
 
-	// TODO Evaluate at 0x108FCE80: sub esp, 8; push esi; mov esi, dword ptr [0x11283cb4]; test esi, esi; je 0x108fceb7; push 0; push 0; push 0; push 0x10df274c; lea ecx, [esp + 0x14]; call 0x1002355b; push eax; mov ecx, esi; call 0x107
+	// FUNCTION: ENGINE 0x108FCE80
+	bool PCKeyboardCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameDatabase* database = gGameDatabase;
+		if (database != 0)
+		{
+			return database->GetInt(fight::Name("SettingsDefaultController", 0), 0, 0) < 2;
+		}
+		return false;
+	}
 
 	// FUNCTION: ENGINE 0x108B8EE0
 	PCKeyboardCondition::~PCKeyboardCondition()
@@ -59,6 +72,8 @@ namespace engine
 
 	template class fight::ConditionFactoryTemplate<PCKeyboardCondition>;
 	template class fight::ConditionFactoryCasterTemplate<PCKeyboardCondition>;
+
+	extern content::ObjectName gPuppetAttributeName;
 
 	namespace animation
 	{
@@ -127,7 +142,81 @@ namespace engine
 		{
 		}
 
-		// TODO Evaluate at 0x108FCFF0: mov eax, dword ptr [esp + 0xc]; push edi; mov edi, ecx; push eax; lea ecx, [esp + 0x14]; push ecx; call 0x107fc7a0; movzx ecx, word ptr [eax]; add esp, 8; cmp cx, 0xffff; je 0x108fd02b; movzx edx, cx;
+		// FUNCTION: ENGINE 0x108FCF60
+		// Whether a phase is inside the range of the condition (a range given backwards is read the other way round)
+		static bool IsPhaseInRange(float minPhase, float maxPhase, int type, float phase)
+		{
+			float lower = minPhase;
+			float higher = maxPhase;
+			if (minPhase > maxPhase)
+			{
+				lower = maxPhase;
+				higher = minPhase;
+			}
+			bool inside;
+			if (fabs(lower - higher) <= 0.00001f)
+			{
+				inside = true;
+			}
+			else if (phase >= lower && phase <= higher)
+			{
+				inside = true;
+			}
+			else
+			{
+				inside = false;
+			}
+			bool result = false;
+			switch (type)
+			{
+			case 1:
+				if (maxPhase >= minPhase)
+				{
+					inside = !inside;
+				}
+				result = inside;
+				break;
+			case 0:
+				if (!(maxPhase >= minPhase))
+				{
+					inside = !inside;
+				}
+				result = inside;
+				break;
+			}
+			return result;
+		}
+
+		// FUNCTION: ENGINE 0x108FCFF0
+		// EQUIVALENT: the engine saves esi only behind the attribute lookup (ours in the entry block) and loads the
+		// phase of the puppet after the two range bounds; the operations, calls and memory accesses are the engine's
+		bool PuppetPhaseCondition::Evaluate(int a, int b, int c, int d)
+		{
+			GameObject* object = GetObjectHandle((core::IRefCount*)c).Get();
+			if (object != 0)
+			{
+				BaseAttribute* attribute = object->FindAttribute(gPuppetAttributeName);
+				if (attribute != 0)
+				{
+					choreo::Puppet** value = &((Attribute<choreo::Puppet*>*)attribute)->value;
+					if (value != 0)
+					{
+						choreo::Puppet* puppet = *value;
+						if (puppet != 0)
+						{
+							if (IsPhaseInRange(minPositionPhase, maxPositionPhase, positionConditionType, puppet->mUnknown160))
+							{
+								if (IsPhaseInRange(minVelocityPhase, maxVelocityPhase, velocityConditionType, puppet->mUnknown164))
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+			return false;
+		}
 
 		// FUNCTION: ENGINE 0x108B9100
 		PuppetPhaseCondition::~PuppetPhaseCondition()
