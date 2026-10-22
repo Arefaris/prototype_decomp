@@ -21,7 +21,7 @@ namespace container
 	// FUNCTION: ENGINE 0x107DE720
 	// FUNCTION: ENGINE 0x107DE770
 	// FUNCTION: ENGINE 0x107DE790
-	template class ArrayDynamic<engine::camera::Camera*, AllocatorNew>;
+	template class ArrayDynamic<engine::camera::Cinematographer*, AllocatorNew>;
 	// FUNCTION: ENGINE 0x107DDBC0
 	// FUNCTION: ENGINE 0x107DDBD0
 	// FUNCTION: ENGINE 0x107DDBE0
@@ -29,17 +29,17 @@ namespace container
 	// FUNCTION: ENGINE 0x107DE7C0
 	// FUNCTION: ENGINE 0x107DE810
 	// FUNCTION: ENGINE 0x107DE830
-	template class ArrayDynamic<engine::camera::Cinematographer*, AllocatorNew>;
+	template class ArrayDynamic<engine::camera::Camera*, AllocatorNew>;
 }
 
 namespace engine
 {
 	namespace camera
 	{
-		// Cinematographer::GetName is inline in the header; its kept copy is 0x107DDCB0
+		// Camera::GetName is inline in the header; its kept copy is 0x107DDCB0
 		// FUNCTION: ENGINE 0x107DDCB0
 		// FUNCTION: ENGINE 0x107DD9D0
-		int Cinematographer::IsRunningFlags(unsigned int flags)
+		int Camera::IsRunningFlags(unsigned int flags)
 		{
 			return ~(flags >> 1) & 1;
 		}
@@ -75,7 +75,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDA50
-		void Cinematographer::OnKindEventIfRunning(float param)
+		void Camera::OnKindEventIfRunning(float param)
 		{
 			if (IsRunning())
 			{
@@ -90,49 +90,49 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDA80
-		void Cinematographer::SetSlot(int value)
+		void Camera::SetSlot(int value)
 		{
 			slot = value;
 		}
 
 		// FUNCTION: ENGINE 0x107DDA90
-		int Cinematographer::GetSlot() const
+		int Camera::GetSlot() const
 		{
 			return slot;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAA0
-		void Cinematographer::SetId(int value)
+		void Camera::SetId(int value)
 		{
 			id = value;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAB0
-		int Cinematographer::GetId() const
+		int Camera::GetId() const
 		{
 			return id;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAC0
-		int Camera::GetPlayerIndex() const
+		int Cinematographer::GetType() const
 		{
-			return playerIndex;
+			return type;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAD0
-		bool Camera::IsActive() const
+		bool Cinematographer::IsActive() const
 		{
 			return active;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAE0
-		void Camera::SetUnknown7AD(bool value)
+		void Cinematographer::SetUnknown7AD(bool value)
 		{
 			unknown7AD = value;
 		}
 
 		// FUNCTION: ENGINE 0x107DDAF0
-		math::Matrix* Camera::GetTargetMatrix() const
+		math::Matrix* Cinematographer::GetTargetMatrix() const
 		{
 			return target->MatrixAt90();
 		}
@@ -238,7 +238,7 @@ namespace engine
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
+				Camera* controller = controllers.begin[i];
 				if (controller != 0)
 				{
 					controller->Reset();
@@ -247,7 +247,7 @@ namespace engine
 			int count = cameras.Size();
 			for (int i = 0; i < count; i++)
 			{
-				Camera* camera = cameras.begin[i];
+				Cinematographer* camera = cameras.begin[i];
 				if (camera != 0)
 				{
 					camera->Reset();
@@ -267,7 +267,7 @@ namespace engine
 			TimeInfo info = frame->info;
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
+				Camera* controller = controllers.begin[i];
 				if (controller != 0 && controller->enabled && controller->GetType() != 2)
 				{
 					controller->Update(delta, info.time, flags);
@@ -275,7 +275,7 @@ namespace engine
 			}
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
+				Camera* controller = controllers.begin[i];
 				if (controller != 0 && controller->enabled && controller->GetType() == 2)
 				{
 					controller->Update(delta, info.time, flags);
@@ -285,7 +285,7 @@ namespace engine
 			bool cut = false;
 			for (int i = 0; i < count; i++)
 			{
-				Camera* camera = cameras.begin[i];
+				Cinematographer* camera = cameras.begin[i];
 				if (camera != 0 && camera->active)
 				{
 					camera->Update(delta, info.time, flags);
@@ -308,7 +308,7 @@ namespace engine
 			int count = cameras.Size();
 			for (int i = 0; i < count; i++)
 			{
-				Camera* camera = cameras.begin[i];
+				Cinematographer* camera = cameras.begin[i];
 				if (camera != 0 && camera->active)
 				{
 					camera->Update(0.0f, 0.0f, 0x200);
@@ -317,7 +317,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDF30
-		void Director::AddController(Cinematographer* controller)
+		void Director::AddController(Camera* controller)
 		{
 			int count = controllers.Size();
 			int index = -1;
@@ -339,7 +339,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDF80
-		void Director::RemoveController(Cinematographer* controller)
+		void Director::RemoveController(Camera* controller)
 		{
 			int index = controller->slot;
 			controllers.begin[index] = 0;
@@ -357,8 +357,8 @@ namespace engine
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
-				if (controller != 0 && controller->owner == owner && controller->GetType() == type)
+				Camera* controller = controllers.begin[i];
+				if (controller != 0 && controller->playerIndex == owner && controller->GetType() == type)
 				{
 					return true;
 				}
@@ -367,13 +367,13 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE010
-		bool Director::HasCamera(int playerIndex, int kind) const
+		bool Director::HasCamera(int type, int playerIndex) const
 		{
 			int count = cameras.Size();
 			for (int i = 0; i < count; i++)
 			{
-				Camera* camera = cameras.begin[i];
-				if (camera != 0 && camera->kind == kind && camera->playerIndex == playerIndex)
+				Cinematographer* camera = cameras.begin[i];
+				if (camera != 0 && camera->playerIndex == playerIndex && camera->type == type)
 				{
 					return true;
 				}
@@ -382,20 +382,20 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE060
-		void Director::SetCamera(Camera* camera)
+		void Director::SetCamera(Cinematographer* camera)
 		{
-			cameras.begin[camera->playerIndex + camera->kind * 2] = camera;
+			cameras.begin[camera->type + camera->playerIndex * 2] = camera;
 		}
 
 		// FUNCTION: ENGINE 0x107DE080
-		void Director::ClearCamera(Camera* camera)
+		void Director::ClearCamera(Cinematographer* camera)
 		{
-			cameras.begin[camera->playerIndex + camera->kind * 2] = 0;
-			playerCamera[camera->playerIndex] = -1;
+			cameras.begin[camera->type + camera->playerIndex * 2] = 0;
+			playerCamera[camera->type] = -1;
 		}
 
 		// FUNCTION: ENGINE 0x107DE0B0
-		Camera* Director::GetCamera(int playerIndex, unsigned int kind) const
+		Cinematographer* Director::GetCamera(int playerIndex, unsigned int kind) const
 		{
 			if (playerIndex >= 0 && playerIndex < sPlayerCount && kind <= 1)
 			{
@@ -409,10 +409,10 @@ namespace engine
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
-				if (controller != 0 && controller->owner == owner && controller->GetType() == type)
+				Camera* controller = controllers.begin[i];
+				if (controller != 0 && controller->playerIndex == owner && controller->GetType() == type)
 				{
-					Camera* camera = GetCamera(owner, kind);
+					Cinematographer* camera = GetCamera(owner, kind);
 					if (camera != 0)
 					{
 						camera->StartTransition((int)controller, time);
@@ -426,16 +426,16 @@ namespace engine
 		// EQUIVALENT: byte-identical except a 2-byte nop our compiler puts before the loop head (the engine's is unpadded)
 		void Director::StartTransition(const core::Name<core::CaseSensitiveKey>& name, float time, unsigned int kind, int owner)
 		{
-			Cinematographer* found = 0;
+			Camera* found = 0;
 			int last = maxControllerIndex;
 			int i = 0;
 			if (i <= last)
 			{
-				Cinematographer** slot = controllers.begin;
+				Camera** slot = controllers.begin;
 				do
 				{
-					Cinematographer* controller = *slot;
-					if (controller != 0 && controller->owner == owner && controller->GetName() == name)
+					Camera* controller = *slot;
+					if (controller != 0 && controller->playerIndex == owner && controller->GetName() == name)
 					{
 						found = controller;
 						break;
@@ -451,7 +451,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DE210
 		void Director::SetCameraUnknown7A5(int playerIndex, bool value)
 		{
-			Camera* camera = GetCamera(playerIndex, 0);
+			Cinematographer* camera = GetCamera(playerIndex, 0);
 			if (camera != 0)
 			{
 				camera->SetUnknown7A5(value);
@@ -461,7 +461,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DE230
 		void Director::SetCameraUnknown7AD(int playerIndex, bool value)
 		{
-			Camera* camera = GetCamera(playerIndex, 0);
+			Cinematographer* camera = GetCamera(playerIndex, 0);
 			if (camera != 0)
 			{
 				camera->unknown7AD = value;
@@ -469,12 +469,12 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE250
-		Cinematographer* Director::FindController(int type, int owner) const
+		Camera* Director::FindController(int type, int owner) const
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
-				if (controller != 0 && controller->owner == owner && controller->GetType() == type)
+				Camera* controller = controllers.begin[i];
+				if (controller != 0 && controller->playerIndex == owner && controller->GetType() == type)
 				{
 					return controller;
 				}
@@ -483,16 +483,16 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE2A0
-		Cinematographer* Director::FindController(core::Name<core::CaseSensitiveKey> name) const
+		Camera* Director::FindController(core::Name<core::CaseSensitiveKey> name) const
 		{
 			int last = maxControllerIndex;
 			int i = 0;
 			if (i <= last)
 			{
-				Cinematographer** slot = controllers.begin;
+				Camera** slot = controllers.begin;
 				do
 				{
-					Cinematographer* controller = *slot;
+					Camera* controller = *slot;
 					if (controller != 0 && controller->GetName() == name)
 					{
 						return controller;
@@ -510,8 +510,8 @@ namespace engine
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
-				if (controller != 0 && controller->owner == owner)
+				Camera* controller = controllers.begin[i];
+				if (controller != 0 && controller->playerIndex == owner)
 				{
 					controller->OnEvent(param);
 				}
@@ -523,7 +523,7 @@ namespace engine
 		{
 			for (int i = 0; i <= maxControllerIndex; i++)
 			{
-				Cinematographer* controller = controllers.begin[i];
+				Camera* controller = controllers.begin[i];
 				if (controller != 0 && controller->kind == kind && controller->IsRunning())
 				{
 					controller->OnKindEvent(param);
@@ -544,13 +544,13 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE410
-		Cinematographer* Director::GetController(int slot, int id) const
+		Camera* Director::GetController(int slot, int id) const
 		{
 			if (slot == -1)
 			{
 				return 0;
 			}
-			Cinematographer* controller = controllers.begin[slot];
+			Camera* controller = controllers.begin[slot];
 			if (controller == 0 || controller->id != id)
 			{
 				return 0;
@@ -564,7 +564,7 @@ namespace engine
 			int i;
 			for (i = (unsigned int)cameras.Size() / 2 - 1; i >= 0; i--)
 			{
-				Camera* camera = GetCamera(i, kind);
+				Cinematographer* camera = GetCamera(i, kind);
 				if (camera != 0 && camera->active && camera->enabled)
 				{
 					camera->Activate(false);
@@ -581,7 +581,7 @@ namespace engine
 			int count = (unsigned int)cameras.Size() >> 1;
 			for (++*index; *index < count; ++*index)
 			{
-				Camera* camera = GetCamera(*index, kind);
+				Cinematographer* camera = GetCamera(*index, kind);
 				if (camera != 0 && camera->active && camera->enabled)
 				{
 					if (playerCamera[kind] < 0)
@@ -596,7 +596,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE530
-		void Director::OnCameraDisabled(Camera* camera)
+		void Director::OnCameraDisabled(Cinematographer* camera)
 		{
 			for (unsigned int i = 0; i < (unsigned int)cameras.Size(); i++)
 			{
@@ -611,16 +611,16 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DE660
-		Cinematographer* Director::GetCameraController(int playerIndex, unsigned int kind) const
+		Camera* Director::GetCameraController(int playerIndex, unsigned int kind) const
 		{
-			Camera* camera = GetCamera(playerIndex, kind);
+			Cinematographer* camera = GetCamera(playerIndex, kind);
 			return Get()->GetController(camera->controller);
 		}
 
 		// FUNCTION: ENGINE 0x107DE690
 		CameraTarget* Director::GetCameraTarget(int playerIndex, unsigned int kind) const
 		{
-			Camera* camera = GetCamera(playerIndex, kind);
+			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
 				return camera->target;
@@ -631,7 +631,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DE6B0
 		const math::Matrix* Director::GetCameraMatrix(int playerIndex, unsigned int kind) const
 		{
-			Camera* camera = GetCamera(playerIndex, kind);
+			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
 				return camera->target->MatrixAt90();
@@ -642,7 +642,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DE6E0
 		int Director::GetCameraUnknown40(int playerIndex, unsigned int kind) const
 		{
-			Camera* camera = GetCamera(playerIndex, kind);
+			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
 				return camera->unknown40;
@@ -653,7 +653,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DE700
 		int Director::GetCameraUnknown44(int playerIndex, unsigned int kind) const
 		{
-			Camera* camera = GetCamera(playerIndex, kind);
+			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
 				return camera->unknown44;

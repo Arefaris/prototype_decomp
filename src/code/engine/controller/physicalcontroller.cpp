@@ -542,11 +542,11 @@ namespace engine
 				{
 					matrix = (const math::Matrix*)(target + 0x90);
 				}
-				camera::Camera* camera = director->GetCamera(slot, 0);
-				if (camera != 0)
+				camera::Cinematographer* cinematographer = director->GetCamera(slot, 0);
+				if (cinematographer != 0)
 				{
-					camera::Cinematographer* driver = camera::Director::Get()->GetController(camera->controller);
-					position = driver != 0 ? (const math::Vector*)&driver->unknown30 : &math::kZeroVector;
+					camera::Camera* driver = camera::Director::Get()->GetController(cinematographer->controller);
+					position = driver != 0 ? &driver->position : &math::kZeroVector;
 				}
 			}
 			player->viewMatrix = *matrix;
