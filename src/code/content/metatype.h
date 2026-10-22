@@ -663,6 +663,15 @@ namespace content
 		return &sType;
 	}
 
+	// The same in a second unit that reflects an object of that class: the engine kept a copy in each of them (at
+	// different addresses), and the name tells them apart in symbols.txt
+	template<class T> ObjectMetaType* GetObjectMetaTypeCopy(const char* code)
+	{
+		static MetaInstanceHelper<T, 1> sHelper;
+		static ObjectMetaType sType(GetClassMetaType<T>(), &sHelper, code);
+		return &sType;
+	}
+
 	// Owner only keeps the instantiations of different classes apart
 	template<class Owner, class A> ArrayDynamicMetaType* GetArrayDynamicMetaType(MetaType* element, const char* code)
 	{

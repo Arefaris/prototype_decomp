@@ -83,6 +83,9 @@ namespace engine
 			math::Matrix* GetTargetMatrix() const;
 			// 0x1084E260: back to the default state (another unit)
 			void Reset();
+			// 0x1084E8D0: makes the pure3d cameras, the two camera classes it switches between and starts it (name
+			// guessed)
+			void Start();
 			// 0x1084DF40 (another unit)
 			void StartTransition(int target, float time);
 			// 0x1084DF70 (another unit): sets the byte at 0x7a5 when the pointer at 0x5c is set

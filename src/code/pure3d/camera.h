@@ -62,6 +62,11 @@ namespace pure3d
 		{
 			return (math::Matrix*)(unknown90);
 		}
+		// The 16 floats of the matrix at 0x90 (rows of four)
+		const float* GetWorldFloats() const
+		{
+			return (const float*)unknown90;
+		}
 	};
 }
 
