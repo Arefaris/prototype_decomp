@@ -21046,3 +21046,13 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??0Params@fight@@QAE@H@Z = 0x105AA820 ; function size:0x1B | public: __thiscall fight::Params::Params(int) (another unit; name guess)
 ?AddRef@Params@fight@@UAEXXZ = 0x105A73E0 ; function size:0x5 | public: virtual void __thiscall fight::Params::AddRef(void) (another unit; name guess)
 ?Release@Params@fight@@UAEXXZ = 0x105A73F0 ; function size:0x20 | public: virtual void __thiscall fight::Params::Release(void) (another unit; name guess)
+?FormatInteger@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883560 ; function size:0x25 | void __cdecl engine::FormatInteger(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?FormatFloat2@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883590 ; function size:0x25 | void __cdecl engine::FormatFloat2(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?FormatFloat5@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x108835C0 ; function size:0x25 | void __cdecl engine::FormatFloat5(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?FormatMoney@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x108835F0 ; function size:0x25 | void __cdecl engine::FormatMoney(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?FormatMoneyCents@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883620 ; function size:0x25 | void __cdecl engine::FormatMoneyCents(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?FormatTimeOfDay@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883650 ; function size:0x79 | void __cdecl engine::FormatTimeOfDay(struct engine::FEMovie::Value const *,char *,int) (name guess)
+?GetMouseButtonName@engine@@YAPBDI@Z = 0x108836F0 ; function size:0x30 | char const * __cdecl engine::GetMouseButtonName(unsigned int) (name guess)
+?GetValueText@engine@@YA_NPBUValue@FEMovie@1@PADI@Z = 0x108838C0 ; function size:0x56 | bool __cdecl engine::GetValueText(struct engine::FEMovie::Value const *,char *,unsigned int) (name guess)
+
+
