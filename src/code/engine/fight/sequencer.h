@@ -82,7 +82,7 @@ namespace fight
 		// vftable slot 3 (0x105A2430): the child sequencer this action owns (or 0; the engine has no action with one)
 		virtual Sequencer* GetChild();
 		// vftable slot 4 (0x105A2460): accepts, the actions that care override it
-		virtual bool Slot4(int arg, float value);
+		virtual bool Slot4(int mask, core::IRefCount* owner);
 		// vftable slot 5 (0x105A2470; most action classes have their own): begins on the track, false ends the action at once
 		virtual bool Slot5(int arg, float value);
 		// vftable slot 6 (0x105A2480): the action was stopped; only actions without their own copy keep this one

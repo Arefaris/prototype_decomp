@@ -39,10 +39,10 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A2460
-	bool Action::Slot4(int arg, float value)
+	bool Action::Slot4(int mask, core::IRefCount* owner)
 	{
-		(void)arg;
-		(void)value;
+		(void)mask;
+		(void)owner;
 		return true;
 	}
 

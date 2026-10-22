@@ -64,6 +64,43 @@ namespace fight
 	int GetOpportunityCallbackArgument();
 	void SetOpportunityCallback(OpportunityCallback function, int argument);
 
+	// The fight's random source: 0x105A7470 draws from the generator at 0x111BBD5C points to; 0x105A74F0 installs another
+	// source (SetRandomCallback) and 0x105A74D0 / 0x105A74E0 read it back
+	typedef float (*RandomCallback)(core::IRefCount* owner, int argument);
+	RandomCallback GetRandomCallback();
+	int GetRandomCallbackArgument();
+	// 0x105A7440: whether two numbers are within a tolerance of each other
+	bool IsNearlyEqual(const float* a, const float* b);
+
+	// RTTI: fight::OnEventAction (9 vftable slots, 0x58 bytes)
+	class OnEventAction : public Action
+	{
+	public:
+		// 0x105A7030
+		OnEventAction(Track* listener, OnEventTrack* newTrack, Sequencer* newEffect, core::IRefCount* newOwner);
+		virtual ~OnEventAction();
+
+		// vftable slot 4 (0x105A7180), 5 (0x105A6EF0), 6 (0x105A7360) and 7 (0x105A7260)
+		virtual bool Slot4(int mask, core::IRefCount* ownerArg);
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
+		virtual bool Slot7(int arg, float value);
+
+		// 0x105A6DD0 / 0x105A6DF0 (nothing calls them)
+		void SetFlag80(bool value);
+		void SetFlag200(bool value);
+
+		engine::TrackWatch watch;  // +0x1C
+		core::Link<OnEventTrack> link;  // +0x28
+		Sequencer* effect;  // +0x34
+		float duration;  // +0x38
+		float hook;  // +0x3C
+		float elapsed;  // +0x40
+		BranchWatch started;  // +0x44
+		core::IRefCount* owner;  // +0x50
+		bool fired;  // +0x54
+	};
+
 	// RTTI: fight::SpawnAction (9 vftable slots, 0x80 bytes): runs the track's branch in a sequencer of its own
 	class SpawnAction : public Action
 	{

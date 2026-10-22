@@ -1,5 +1,6 @@
 // The actions of the fight core's own tracks (see coreactions.h).
 #include "code/engine/fight/coreactions.h"
+#include "code/math/random.h"
 #include "code/math/mathutils.h"
 #include <math.h>
 #include <stdarg.h>
@@ -10,8 +11,16 @@ namespace core
 	int VSNPrintfResult(char* buffer, int size, const char* format, const char* arguments);
 }
 
+namespace math
+{
+	class Random;
+}
+
 namespace fight
 {
+	// the generator the fight's default random source draws from (0x111BBD5C points at it)
+	extern math::Random* gFightRandom;
+
 	// GLOBAL: ENGINE 0x112762B0
 	PrintCallback gPrintCallback;
 	// GLOBAL: ENGINE 0x112762B4
@@ -51,6 +60,220 @@ namespace fight
 		}
 		return gPrintCallback(owner, channel, text, gPrintCallbackArgument);
 	}
+
+	// ---- the random source, fight::OnEventAction -----------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x105A6DD0
+	void OnEventAction::SetFlag80(bool value)
+	{
+		SetFlag(0x80, value);
+	}
+
+	// FUNCTION: ENGINE 0x105A6DF0
+	void OnEventAction::SetFlag200(bool value)
+	{
+		SetFlag(0x200, value);
+	}
+
+	// FUNCTION: ENGINE 0x105A6EF0
+	bool OnEventAction::Slot5(int arg, float value)
+	{
+		SetFlag(0x800 << (arg - 1), true);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A6F80
+	OnEventAction::~OnEventAction()
+	{
+		core::SafeReleaseRef(owner);
+	}
+
+	// FUNCTION: ENGINE 0x105A7030
+	// EQUIVALENT: register allocation (the engine keeps the link's address in ebp across the calls, ours the address of the owner; 14.8 %)
+	OnEventAction::OnEventAction(Track* listener, OnEventTrack* newTrack, Sequencer* newEffect, core::IRefCount* newOwner)
+		: Action(0x80), watch(listener), link(newTrack), effect(newEffect), duration(0.0f), hook(0.0f), elapsed(0.0f), started(0),
+		owner(0), fired(false)
+	{
+		float begin = newTrack->GetTimeBegin();
+		duration = newTrack->timeEnd - begin;
+		float newHook = newTrack->timeHook;
+		hook = newHook - begin;
+		if (hook < 0.0f && 0.0f <= newHook)
+		{
+			hook = 0.0f;
+		}
+		SetFlag(0x200, hook > 0.0f || duration > 0.0f || newTrack->initialTest);
+		SetFlag(0x400, hook < 0.0f);
+		engine::AssignRefCounted(&owner, newOwner);
+	}
+
+	// FUNCTION: ENGINE 0x105A7180
+	// EQUIVALENT: shrink-wrap (the engine saves ebp ahead of the first tests and ebx / edi behind them, ours saves all three on entry)
+	bool OnEventAction::Slot4(int mask, core::IRefCount* ownerArg)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (started.branch != 0 || (link.object->eventMask & mask) == 0)
+		{
+			return true;
+		}
+		fired = true;
+		Branch* branch = link.object->branch.GetBranch();
+		if (branch == 0)
+		{
+			return true;
+		}
+		ConditionList* conditions = &link.object->conditions;
+		if (conditions != 0)
+		{
+			int listener = (int)watch.track;
+			if (!conditions->Evaluate(listener, (int)effect, (int)ownerArg, 0))
+			{
+				return true;
+			}
+		}
+		Branch* result = branch->Slot10(effect, ownerArg, 0, 0);
+		if (result == 0 || result == effect->track)
+		{
+			return true;
+		}
+		started.Assign(result);
+		engine::AssignRefCounted(&owner, ownerArg);
+		if (0.0f <= hook && hook <= elapsed)
+		{
+			result->Slot11(effect, ownerArg, link.object->priority);
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A7260
+	// EQUIVALENT: the engine tests the branch pointer again on the path that leaves the hook test (85.2 %)
+	bool OnEventAction::Slot7(int arg, float value)
+	{
+		OnEventTrack* track = link.object;
+		if (track == 0)
+		{
+			return false;
+		}
+		if (!fired && track->initialTest)
+		{
+			Slot4(-1, owner);
+			bool active;
+			if (hook > 0.0f || duration > 0.0f)
+			{
+				active = true;
+			}
+			else
+			{
+				active = false;
+			}
+			SetFlag(0x800 << arg, active);
+		}
+		elapsed = elapsed + value;
+		if (started.branch != 0 || (duration >= 0.0f && elapsed > duration))
+		{
+			SetFlag(0x80, false);
+		}
+		Branch* branch = started.branch;
+		if (branch != 0)
+		{
+			if (hook >= 0.0f && hook <= elapsed)
+			{
+				branch->Slot11(effect, owner, link.object->priority);
+				return false;
+			}
+		}
+		return branch != 0 || duration < 0.0f || duration >= elapsed;
+	}
+
+	// FUNCTION: ENGINE 0x105A7360
+	void OnEventAction::Slot6()
+	{
+		OnEventTrack* track = link.object;
+		if (track != 0)
+		{
+			Branch* branch = started.branch;
+			if (branch != 0 && hook < 0.0f)
+			{
+				branch->Slot11(effect, owner, track->priority);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A7390
+	Action* OnEventTrack::CreateAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return new OnEventAction(listener, this, (Sequencer*)effect, owner);
+	}
+
+	// FUNCTION: ENGINE 0x105A7440
+	bool IsNearlyEqual(const float* a, const float* b)
+	{
+		return fabsf(*a - *b) <= 0.00001f;
+	}
+
+	// FUNCTION: ENGINE 0x105A7470
+	// EQUIVALENT: register allocation (the engine keeps the address of the second state in a register and saves esi; 19 %)
+	float DefaultRandom()
+	{
+		return gFightRandom->NextFloat01();
+	}
+
+	// GLOBAL: ENGINE 0x110B4298
+	RandomCallback gRandomCallback = (RandomCallback)DefaultRandom;
+	// GLOBAL: ENGINE 0x11276200
+	int gRandomCallbackArgument;
+
+	// FUNCTION: ENGINE 0x105A74D0
+	RandomCallback GetRandomCallback()
+	{
+		return gRandomCallback;
+	}
+
+	// FUNCTION: ENGINE 0x105A74E0
+	int GetRandomCallbackArgument()
+	{
+		return gRandomCallbackArgument;
+	}
+
+	// FUNCTION: ENGINE 0x105A74F0
+	void SetRandomCallback(float (*function)(), int argument)
+	{
+		gRandomCallback = (RandomCallback)function;
+		gRandomCallbackArgument = argument;
+	}
+
+	// FUNCTION: ENGINE 0x105A7510
+	float GetRandomValue(core::IRefCount* owner)
+	{
+		if (gRandomCallback == 0)
+		{
+			return 0.0f;
+		}
+		return gRandomCallback(owner, gRandomCallbackArgument);
+	}
+
+	// FUNCTION: ENGINE 0x105A7540
+	bool RandomCondition::Evaluate(int a, int b, int c, int d)
+	{
+		float* total = (float*)d;
+		if (total != 0)
+		{
+			*total = weight + *total;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A7560
+	bool MaybeCondition::Evaluate(int a, int b, int c, int d)
+	{
+		return GetRandomValue((core::IRefCount*)c) * 100.0f < percent;
+	}
+
+	template struct core::Link<OnEventTrack>;
 
 	// ---- fight::SpawnAction --------------------------------------------------------------------------------------
 
@@ -779,6 +1002,8 @@ namespace fight
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x105A6F10
+// FUNCTION: ENGINE 0x105A6F30
 // FUNCTION: ENGINE 0x105B1A00
 // FUNCTION: ENGINE 0x105B1A20
 // FUNCTION: ENGINE 0x105B1A60
