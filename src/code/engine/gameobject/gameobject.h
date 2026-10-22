@@ -28,7 +28,9 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		virtual ~BaseAttribute();
+		virtual ~BaseAttribute()
+		{
+		}
 	};
 
 	template<class T> class Attribute : public BaseAttribute
@@ -195,6 +197,8 @@ namespace engine
 		template<class T> void SetAttribute(const content::ObjectName& name, const T& value, bool unknown);
 		// The same, answering the attribute (out of line in other units: math::Matrix 0x1028CE40; name guessed)
 		template<class T> Attribute<T>* SetAttributeAndGet(const content::ObjectName& name, const T& value, bool unknown);
+		// The same without overwriting an existing attribute's value (out of line in the PropBehaviour's unit: 0x10841490)
+		template<class T> Attribute<T>* SetAttributeAndGet(const content::ObjectName& name, const T& value);
 		// The value of a named attribute of type T, null when there is none
 		template<class T> T* GetAttributeValue(const content::ObjectName& name)
 		{
