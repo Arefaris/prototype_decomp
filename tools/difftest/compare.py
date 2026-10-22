@@ -188,6 +188,29 @@ def compareTraces(engine, ours, context):
 	return findings
 
 
+def sameCode(engineAddress, oursAddress, context):
+	"""Whether the engine's function at `engineAddress` (a function start without relocations in its code) and ours
+	at `oursAddress` have the same bytes."""
+	if not context.image.contains(engineAddress) or engineAddress not in project.functionSizes():
+		return False
+	engineCode = context.image.read(engineAddress, 0x40)
+	if engineCode is None:
+		return False
+	# a straight-line function up to its first ret (the analysis may have run several small setters into one
+	# entry); a branch or a call would need its target compared too
+	size = None
+	for insn in cfg.disassemble(engineCode, engineAddress):
+		if insn.mnemonic in ("ret", "retn"):
+			size = insn.address + insn.size - engineAddress
+			break
+		if insn.mnemonic.startswith(("j", "call", "loop")):
+			return False
+	if size is None:
+		return False
+	oursCode = context.ours.read(oursAddress, size)
+	return oursCode is not None and engineCode[:size] == oursCode
+
+
 def compareWrites(engine, ours, context, add):
 	eFinal = engine.finalBytes()
 	oFinal = ours.finalBytes()
@@ -211,6 +234,10 @@ def compareWrites(engine, ours, context, add):
 			if ourValue in vtables and context.image.contains(engineValue) and context.image.readOnly(engineValue):
 				installed.update(range(base, base + 4))
 			elif ourValue in ownFunctions and context.image.contains(engineValue) and project.symbolAt(engineValue) == ownFunctions[ourValue]:
+				functionPointers.update(range(base, base + 4))
+			elif ourValue in ownFunctions and sameCode(engineValue, ourValue, context):
+				# our own copy of an engine function symbols.txt does not name (a setter whose address a property
+				# keeps): the same bytes, so the same function
 				functionPointers.update(range(base, base + 4))
 		if functionPointers:
 			add(Finding("NOTE", "memory", "pointers to functions ours placed itself stored where the engine stores its own (the hybrid DLL links them to one)"))

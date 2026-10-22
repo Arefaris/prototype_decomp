@@ -86,30 +86,35 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A910
 	bool SoundTrack::SetMinDistance(float value)
 	{
 		minDistance = value;
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A920
 	bool SoundTrack::SetMaxDistance(float value)
 	{
 		maxDistance = value;
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A930
 	bool SoundTrack::SetMinPitch(float value)
 	{
 		minPitch = value;
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A940
 	bool SoundTrack::SetMaxPitch(float value)
 	{
 		maxPitch = value;
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A950
 	bool SoundTrack::SetCyclicPhase(float value)
 	{
 		cyclicPhase = value;
@@ -123,6 +128,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A980
 	bool SoundTrack::SetFrequency(float value)
 	{
 		frequency = value;
@@ -266,9 +272,10 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A740
 	bool SoundBoolValueTrack::SetValue(bool value)
 	{
-		value = value;
+		this->value = value;
 		return true;
 	}
 
@@ -334,6 +341,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A8D0
 	bool MixerTrack::SetFadeTime(float value)
 	{
 		fadeTime = value;
@@ -354,6 +362,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A8E0
 	bool MixerTrack::SetFadeIn(bool value)
 	{
 		fadeIn = value;
@@ -459,6 +468,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A760
 	bool MusicTrack::SetPriority(int value)
 	{
 		priority = value;
@@ -698,6 +708,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A8A0
 	bool ReverbTrack::SetGain(float value)
 	{
 		gain = value;
@@ -787,6 +798,7 @@ namespace engine
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x1087A8B0
 	bool SoundZoneTrack::SetBoundaryAction(int value)
 	{
 		boundaryAction = value;

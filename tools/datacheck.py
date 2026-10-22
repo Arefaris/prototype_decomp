@@ -13,8 +13,8 @@ difference is reported as a note when the original's bytes are not all zero eith
 global that engine code we do not replace uses (split statics), and an RTTI type descriptor our objects define that
 symbols.txt does not map although the original has one (our copy is a second type_info, which code comparing
 type_info addresses does not recognise) or that the original only has with the other of struct/class, and a global our
-objects define that symbols.txt does not map at all (a second copy of the engine's state). Exit status 1 on any
-problem.
+objects define that symbols.txt does not map at all (a second copy of the engine's state), and a function whose
+address our code stores (a property's setter) that symbols.txt does not map. Exit status 1 on any problem.
 """
 
 import argparse
@@ -151,6 +151,37 @@ def unmappedGlobals(objectPaths, version):
 	return result
 
 
+def unmappedFunctionPointers(objectPaths, version):
+	"""[(name, object)] for each function our objects define, take the address of (a member function pointer a
+	property keeps, a reflection getter) and symbols.txt does not map: the engine stores its own function there and
+	ours a private copy that nothing checks against it (a setter that dropped its value went unnoticed this way).
+	Left out: our own vftables (vtcheck compares the engine's), the destructors of function-local statics and our
+	`Keep...` instantiation anchors."""
+	import bisect
+	named = set()
+	for line in (ROOT / "config" / version / "symbols.txt").read_text(encoding="utf-8").splitlines():
+		match = re.match(r"\s*(\S+)\s*=", line)
+		if match:
+			named.add(match.group(1))
+	result = set()
+	for path in objectPaths:
+		coff = objcmp.Coff(path)
+		functions = {n for n, v, s, st in coff.symbols if s > 0 and st == 2 and coff.sections[s - 1]["name"].startswith(".text")}
+		for index, sec in enumerate(coff.sections):
+			# where each symbol of this section starts, to tell a vftable's slots from other references
+			starts = sorted((v, n) for n, v, s, st in coff.symbols if s == index + 1)
+			keys = [v for v, n in starts]
+			for offset, symbol, kind in sec["relocs"]:
+				name = coff.byIndex.get(symbol)
+				if kind != 0x06 or name not in functions or name in named or name.startswith("??__F") or "Keep" in name:
+					continue
+				k = bisect.bisect_right(keys, offset) - 1
+				if k >= 0 and starts[k][1].startswith("??_7"):
+					continue
+				result.add((name, path.name))
+	return sorted(result)
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("objects", nargs="*")
@@ -207,6 +238,10 @@ def main():
 		problems += 1
 		print(f"  unmapped global: {name} ({where}): our object defines it but symbols.txt does not map it, so the"
 			" engine's code keeps its own copy; map it to the engine's address")
+	for name, where in unmappedFunctionPointers([pathlib.Path(o) for o in args.objects] or objects(args.version), args.version):
+		problems += 1
+		print(f"  unmapped function pointer: {name} ({where}): our code stores this function's address but symbols.txt"
+			" does not map it to the engine's; annotate it or map it (after comparing it with the engine's)")
 	split = splitStatics(image, base, pe)
 	for where, decl, users in split:
 		problems += 1

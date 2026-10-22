@@ -30,6 +30,7 @@ namespace engine
 	};
 
 	extern fight::EnumEntry gCharacterInputConditionButtonStateTable[];
+	extern const int gCharacterInputConditionButtonStateCount;
 	extern const int gCompareOperatorCount;
 	extern fight::EnumEntry gCompareOperatorTable[];
 	extern fight::EnumEntry gLocoInputConditionInputTypeTable[];
@@ -171,7 +172,7 @@ namespace engine
 			fight::Property* property = 0;
 			property = new fight::PropertyEnum<CharacterInputCondition>("button", &CharacterInputCondition::GetButtonEntry, &CharacterInputCondition::GetButtonCount, &CharacterInputCondition::SetButton);
 			properties[0] = property;
-			property = new fight::PropertyEnumConstList<CharacterInputCondition>("buttonState", gCharacterInputConditionButtonStateTable, 0, &CharacterInputCondition::SetButtonState);
+			property = new fight::PropertyEnumConstList<CharacterInputCondition>("buttonState", gCharacterInputConditionButtonStateTable, gCharacterInputConditionButtonStateCount, &CharacterInputCondition::SetButtonState);
 			properties[1] = property;
 			property = new fight::PropertyEnumConstList<CharacterInputCondition>("compareTime", gCompareOperatorTable, gCompareOperatorCount, &CharacterInputCondition::SetCompareTime);
 			properties[2] = property;
@@ -319,7 +320,7 @@ namespace engine
 			properties[1] = property;
 			property = new fight::PropertyFloatConstRange<LocoInputCondition>("time", &LocoInputCondition::SetTime);
 			properties[2] = property;
-			property = new fight::PropertyEnumConstList<LocoInputCondition>("compareValue", gCompareOperatorTable, 0, &LocoInputCondition::SetCompareValue);
+			property = new fight::PropertyEnumConstList<LocoInputCondition>("compareValue", gCompareOperatorTable, gCompareOperatorCount, &LocoInputCondition::SetCompareValue);
 			properties[3] = property;
 			property = new fight::PropertyFloatConstRange<LocoInputCondition>("value", &LocoInputCondition::SetValue);
 			properties[4] = property;

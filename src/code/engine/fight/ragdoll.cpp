@@ -11,6 +11,7 @@ namespace engine
 	extern content::ObjectName gRagdollPhysicsObjectAttributeName;
 	GameObjectHandle GetObjectHandle(core::IRefCount* object);
 	extern fight::EnumEntry gPowerRagdollByAnimationTrackCyclicTable[];
+	extern const int gPowerRagdollByAnimationTrackCyclicCount;
 
 	fight::Property** gRagdollEnabledConditionProperties;  // 0x1131B2D0
 
@@ -1085,7 +1086,7 @@ namespace engine
 			properties[5] = property;
 			property = new fight::PropertyFloatConstRange<PowerRagdollByAnimationTrack>("endFrame", &PowerRagdollByAnimationTrack::SetEndFrame);
 			properties[6] = property;
-			property = new fight::PropertyEnumConstList<PowerRagdollByAnimationTrack>("cyclic", gPowerRagdollByAnimationTrackCyclicTable, 0, &PowerRagdollByAnimationTrack::SetCyclic);
+			property = new fight::PropertyEnumConstList<PowerRagdollByAnimationTrack>("cyclic", gPowerRagdollByAnimationTrackCyclicTable, gPowerRagdollByAnimationTrackCyclicCount, &PowerRagdollByAnimationTrack::SetCyclic);
 			properties[7] = property;
 			property = new fight::PropertyName<PowerRagdollByAnimationTrack>("constraintPropertiesName", &PowerRagdollByAnimationTrack::SetConstraintPropertiesName);
 			properties[8] = property;

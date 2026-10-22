@@ -6,6 +6,9 @@ namespace engine
 	extern fight::EnumEntry gCharacterEnableLimbIKTrackActionOnBeginTable[];
 	extern fight::EnumEntry gCharacterEnableLimbIKTrackActionOnEndTable[];
 	extern fight::EnumEntry gCharacterIKTrackTargetTypeTable[];
+	extern const int gCharacterEnableLimbIKTrackActionOnBeginCount;
+	extern const int gCharacterEnableLimbIKTrackActionOnEndCount;
+	extern const int gCharacterIKTrackTargetTypeCount;
 
 	fight::Property** gCharacterEnableLimbIKTrackProperties;  // 0x1131B30C
 
@@ -91,9 +94,9 @@ namespace engine
 			properties[0] = property;
 			property = new fight::PropertyFloatConstRange<CharacterEnableLimbIKTrack>("timeEnd", &CharacterEnableLimbIKTrack::SetTimeEnd);
 			properties[1] = property;
-			property = new fight::PropertyEnumConstList<CharacterEnableLimbIKTrack>("actionOnBegin", gCharacterEnableLimbIKTrackActionOnBeginTable, 0, &CharacterEnableLimbIKTrack::SetActionOnBegin);
+			property = new fight::PropertyEnumConstList<CharacterEnableLimbIKTrack>("actionOnBegin", gCharacterEnableLimbIKTrackActionOnBeginTable, gCharacterEnableLimbIKTrackActionOnBeginCount, &CharacterEnableLimbIKTrack::SetActionOnBegin);
 			properties[2] = property;
-			property = new fight::PropertyEnumConstList<CharacterEnableLimbIKTrack>("actionOnEnd", gCharacterEnableLimbIKTrackActionOnEndTable, 0, &CharacterEnableLimbIKTrack::SetActionOnEnd);
+			property = new fight::PropertyEnumConstList<CharacterEnableLimbIKTrack>("actionOnEnd", gCharacterEnableLimbIKTrackActionOnEndTable, gCharacterEnableLimbIKTrackActionOnEndCount, &CharacterEnableLimbIKTrack::SetActionOnEnd);
 			properties[3] = property;
 			fight::RegisterPropertyList(properties, &gCharacterEnableLimbIKTrackProperties);
 		}
@@ -243,7 +246,7 @@ namespace engine
 			properties[3] = property;
 			property = new fight::PropertyName<CharacterIKTrack>("endJoint", &CharacterIKTrack::SetEndJoint);
 			properties[4] = property;
-			property = new fight::PropertyEnumConstList<CharacterIKTrack>("targetType", gCharacterIKTrackTargetTypeTable, 0, &CharacterIKTrack::SetTargetType);
+			property = new fight::PropertyEnumConstList<CharacterIKTrack>("targetType", gCharacterIKTrackTargetTypeTable, gCharacterIKTrackTargetTypeCount, &CharacterIKTrack::SetTargetType);
 			properties[5] = property;
 			property = new fight::PropertyIntConstRange<CharacterIKTrack>("priority", &CharacterIKTrack::SetPriority);
 			properties[6] = property;
