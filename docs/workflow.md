@@ -55,7 +55,7 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    - `// NONMATCHING: <why>` with the whole definition (signature to closing brace) inside `#ifdef NONMATCHING`:
      not compiled, the original stays. An empty body left outside the `#ifdef` would still be compiled and replace
      the engine's function, so relink refuses it.
-6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/datacheck.py`, `python tools/namecheck.py`, `python tools/re/testcopy.py`, then
+6. **Run** it: `ninja dll` (relink + verify), `python tools/vtcheck.py`, `python tools/datacheck.py`, `python tools/namecheck.py`, `python tools/keptcheck.py` (every unannotated function the relink puts in place of the engine's is compared with the engine's code there: a template instance mapped by name to the wrong address, or a definition of ours that differs under the engine's name, replaces engine code for every caller), `python tools/re/testcopy.py`, then
    `OP_ORIGINAL_DIR='D:\PrototypeRecomp' python tools/re/gamectl.py launch` and exercise the feature. vtcheck compares
    the vftables our constructors install with the original's: a constructor matches byte for byte even when our
    vftable misses an override (its address is a relocation), and only the game notices. Every slot's function must

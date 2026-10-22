@@ -324,6 +324,14 @@ def normalizedArguments(call, machine, count, regs, context):
 			continue
 		own = (getattr(machine, "ours", None) or {}).get(value)
 		name = own or (project.symbolAt(value) if context.image.contains(value) and value in project.functionSizes() else None)
+		# a function by the engine address it ends up at (an incremental-link thunk followed): our copy of a mapped
+		# function and the engine's thunk to it are the same function
+		target = project.symbols().get(own) if own else (value if context.image.contains(value) else None)
+		if target is not None and context.image.contains(target):
+			followed = context.image.followThunks(target)
+			if followed in project.functionSizes() or name is not None:
+				values.append(("FUNCTION", followed))
+				continue
 		if name is not None:
 			values.append(("FUNCTION", name))
 			continue

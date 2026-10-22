@@ -110,7 +110,12 @@ class FunctionTest:
 				findings.append(compare.Finding("FAIL", "convention", "stack cleanup differs: engine ret %s, ours ret %s" % (sorted(self.rets), sorted(oursRets))))
 		extra = oursInputs - engineInputs - {"ebp"}
 		if extra:
-			findings.append(compare.Finding("FAIL", "convention", "ours reads %s before writing them; the engine's function does not take them" % sorted(extra)))
+			replaced = project.replacedFunctions()
+			if sites and not words and all(self.containingFunction(site) in replaced for site, viaThunk in sites):
+				# a file-local function the compiler gave its own register convention: every caller is ours too
+				findings.append(compare.Finding("NOTE", "convention", "ours reads %s before writing them, the engine's function does not; every caller is compiled from our sources too, so the hybrid DLL passes them consistently" % sorted(extra)))
+			else:
+				findings.append(compare.Finding("FAIL", "convention", "ours reads %s before writing them; the engine's function does not take them" % sorted(extra)))
 		# volatile registers the engine's function leaves intact and a caller that stays engine code reads after the
 		# call: VS2005 knows what a function of its own unit touches (0x10445A10 crashed the game through ecx)
 		kept = {"ecx", "edx"} - cfg.writtenRegisters(self.code, self.address)
@@ -196,6 +201,7 @@ class FunctionTest:
 		oursTimeout = self.timeout
 		if deadline is not None:
 			oursTimeout = min(oursTimeout, max(0.001, deadline - time.time()))
+		emulator.testedAddress = self.address
 		oursTrace = emulator.run(loaded.entry, self.argBytes, self.budget, oursTimeout, watch=[oursRange])
 		context = compare.Context(emulator, emulator, self.returnKind, self.argBytes, engineRange, oursRange)
 		context.callersReplaced = self.callersReplaced

@@ -1,0 +1,32 @@
+# Kept copies (functions our objects define that symbols.txt maps without an annotation) that tools/keptcheck.py
+# found to differ from the engine's code at their address, each read and found to do the same: one name per line,
+# then the reason. keptcheck fails on any differing kept copy not listed here.
+??_GGImage@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+?Test@?$BitField@E@engine@@QBE_NH@Z ; the same bit test with the operands in other registers
+?Erase@?$ArrayDynamicHelper@V?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Reserve@?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@QAEXH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??_GChannelHandler@pure3d@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GDefaultChannelHandler@pure3d@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??$AssignRange@UWheelData@driving@engine@@@container@@YAPAUWheelData@driving@engine@@PBU123@0PAU123@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Reserve@?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@QAEXH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??4JointData@SecondaryPhysicsProperties@engine@@QAEAAU012@ABU012@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??0JointData@SecondaryPhysicsProperties@engine@@QAE@ABU012@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Reserve@?$ArrayDynamic@UJointData@SecondaryPhysicsProperties@engine@@UAllocatorNew@container@@@container@@QAEXH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Erase@?$ArrayDynamicHelper@V?$ArrayDynamic@UPropertyMappingKeyValuePair@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Insert@?$ArrayDynamicHelper@V?$ArrayDynamic@UPropertyMappingKeyValuePair@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Reserve@?$ArrayDynamic@UPropertyMapping@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@QAEXH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??$AssignRange@UJointData@TrackedMotionToExpressionMap@engine@@@container@@YAPAUJointData@TrackedMotionToExpressionMap@engine@@PBU123@0PAU123@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??0JointData@TrackedMotionToExpressionMap@engine@@QAE@ABU012@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?Insert@?$ArrayDynamicHelper@V?$ArrayDynamic@UPropertyMapping@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??$ConstructFill@UJointData@TrackedMotionToExpressionMap@engine@@@container@@YAPAUJointData@TrackedMotionToExpressionMap@engine@@PAU123@IABU123@@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+?ShiftUp@?$ArrayDynamic@UJointData@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@QAEXPAUJointData@TrackedMotionToExpressionMap@engine@@H@Z ; template instance compiled differently (loop shape, element copies), the same element moves
+??_GBlockTEACipher@crypto@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GBlowfishCipher@crypto@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GMD5Hash@crypto@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GMD5HMac@crypto@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??0Transform@choreo@@QAE@ABV01@@Z ; ours copies the matrix float by float, the engine with the vector copy helper
+??_GGRefCountBaseImpl@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GGDebugAllocator@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GGDelegatedFile@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GFlashFileHandler@scaleformp3d@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??_GGRenderer@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it

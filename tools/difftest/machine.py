@@ -177,6 +177,7 @@ class Machine:
 		self.invalid = None
 		self.entryEsp = 0
 		self.pendingReturns = {}
+		self.testedAddress = None
 		self.stackLow = 0
 		self.privateLimit = 0
 		self.ours = None
@@ -556,7 +557,9 @@ class Machine:
 					self.trace.executed.add(insnAddress)
 					break
 		# an import thunk (jmp dword ptr [import]) is not logged: the external call it leads to is
-		if address != self.entryAddress and (address in self.functionStarts or (self.ours is not None and address in self.ours)) \
+		# a recursive call (also ours calling the engine's copy of the tested function through a vftable, which the
+		# engine's run does not log either) is part of the function's own work
+		if address != self.entryAddress and address != self.testedAddress and (address in self.functionStarts or (self.ours is not None and address in self.ours)) \
 				and self.read(address, 2) != IMPORT_THUNK:
 			esp = uc.reg_read(UC_X86_REG_ESP)
 			frame = self.read(esp, 36)
