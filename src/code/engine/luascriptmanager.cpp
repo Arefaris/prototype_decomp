@@ -1363,7 +1363,7 @@ namespace engine
 	// 0x108A6DA0 (another unit): reads the file and line out of a chunk name ("=L<file>:<line>"); names guessed
 	bool ParseChunkName(const char* name, unsigned int* first, unsigned int* second);
 	// 0x105A84D0 (another unit): shows a script error (names guessed)
-	void ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
+	int ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
 		int line);
 	// 0x10840BE0 (another unit): the core::Name of the UID userdata at index
 	const core::Name<core::CaseSensitiveKey>* LuaToName(lua_State* L, int index);

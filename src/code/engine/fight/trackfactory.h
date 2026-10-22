@@ -9,6 +9,7 @@
 #include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/core/strings.h"
+#include "code/engine/fight/branch.h"
 #include "code/engine/fight/listobject.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/math/colour128.h"
@@ -18,7 +19,10 @@ namespace fight
 {
 	class TrackFactory;
 	class ConditionFactory;
+	class BranchFactory;
 	class Branch;
+	class TrackRegistry;
+	class Reader;
 
 	// The engine's names are case sensitive
 	typedef core::Name<core::CaseSensitiveKey> Name;
@@ -28,18 +32,26 @@ namespace fight
 	class __declspec(align(8)) Property
 	{
 	public:
+		// 0x105A9C30 (the engine keeps a copy) / 0x105A9C60
+		Property();
 		Property(const char* name);
 
 		// vftable slot 0: the kind of value the property carries (every type class returns its own id)
 		virtual int GetType() const = 0;
 		// vftable slot 1: nothing is attached to the property
 		virtual bool IsNull() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot4(int a, int b, int c, int d);
 		virtual void Slot5(int a, int b);
-		// vftable slot 6: reads the value off an object and hands it to the property's own setter below
-		virtual bool Slot6(int a, int b, void* object) = 0;
+		// vftable slot 6: reads the value off a reader and hands it to the property's own setter below
+		virtual bool Slot6(int object, int context, void* reader) = 0;
+
+		// 0x105A9C50: replaces the name (not expanded in the constructor)
+		__declspec(noinline) void SetName(const Name& newName)
+		{
+			name = newName;
+		}
 
 		// The word between the vftable and the name (the engine's own constructor leaves it alone)
 		unsigned int unknown4;
@@ -55,7 +67,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: writes a value into the member the property stands for
 		virtual bool Set(void* object, float value) = 0;
 	};
@@ -68,7 +80,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, bool value) = 0;
 	};
@@ -81,9 +93,59 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: the value came in as text
 		virtual bool Set(void* object, const char* text) = 0;
+	};
+
+	// A list of properties of a count of items (RTTI: fight::PropertyTypePropertyList, 10 vftable slots; its slot 0
+	// answers 0x11): reads the count and then each item as a property of its own. The classes that use it are in
+	// other units
+	class PropertyTypePropertyList : public Property
+	{
+	public:
+		// vftable slot 6 (0x105A94C0)
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slots 7 - 9: the count of items / the property of an item / sets the count
+		virtual int GetCount(int object) = 0;
+		virtual Property* GetItem(int object, int index) = 0;
+		virtual void SetCount(int object, int count) = 0;
+	};
+
+	// A property read as a trigger (RTTI: fight::PropertyTypeRuntime, 13 vftable slots): two flags, a number or the name of
+	// a value in a list, and a text. The members it stands for are reached through slots 7 - 12
+	class PropertyTypeRuntime : public Property
+	{
+	public:
+		// 0x105A8C80
+		PropertyTypeRuntime(const char* name);
+
+		// vftable slot 0 (0x105A8CA0)
+		virtual int GetType() const;
+		// vftable slot 6 (0x105A8CB0)
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slots 7 - 12: the name of a value / how many there are / the two flags / the value picked / the text
+		virtual const char* GetEntryName(int object, int index) = 0;
+		virtual int GetEntryCount(int object) = 0;
+		virtual bool SetFirst(int object, bool value) = 0;
+		virtual bool SetSecond(int object, bool value) = 0;
+		virtual bool SetNumber(int object, int number) = 0;
+		virtual bool SetText(int object, const char* text) = 0;
+	};
+
+	// A name of 32 bits (RTTI: fight::PropertyTypeName32, 9 vftable slots): the text is turned into the name and handed
+	// to slot 8 (0x105A8F50 / 0x105A8F70 / 0x105A8FA0)
+	class PropertyTypeName32 : public PropertyTypeString
+	{
+	public:
+		PropertyTypeName32(const char* name);
+
+		// vftable slot 6
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slot 7
+		virtual bool Set(void* object, const char* text);
+		// vftable slot 8
+		virtual bool Set(void* object, const core::Name<core::CaseInsensitiveKey32>& value) = 0;
 	};
 
 	class PropertyTypeName : public PropertyTypeString
@@ -92,12 +154,19 @@ namespace fight
 		PropertyTypeName(const char* name);
 
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: turns the text into a name and hands it to slot 8
 		virtual bool Set(void* object, const char* text);
 		// vftable slot 8
 		virtual bool Set(void* object, const Name& value) = 0;
 	};
+
+	// The object a property is handed is the Param part of the class it belongs to (a branch has it behind its other
+	// bases); the setters are the class's own
+	template<class T> inline T* ObjectOf(void* object)
+	{
+		return static_cast<T*>(static_cast<Param*>(object));
+	}
 
 	// The property of a float member with an optional range, and of a bool or a name member: the setter is the
 	// track's own member function, stored as a member pointer in the property (the classes are 0x18 bytes)
@@ -153,7 +222,7 @@ namespace fight
 			{
 				return false;
 			}
-			return (static_cast<T*>(object)->*m_setter)(value);
+			return (ObjectOf<T>(object)->*m_setter)(value);
 		}
 
 		Setter m_setter;
@@ -188,7 +257,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const char* text, int length) = 0;
 	};
@@ -234,7 +303,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, int value) = 0;
 	};
@@ -247,7 +316,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const math::Vector& value) = 0;
 	};
@@ -260,7 +329,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const math::Colour128& value) = 0;
 	};
@@ -275,7 +344,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, bool value) = 0;
 		// vftable slot 8
@@ -286,11 +355,39 @@ namespace fight
 	class TrackGroup
 	{
 	public:
+		// 0x105A7F10
 		TrackGroup();
+		// 0x105A8140 (a jump to the function below)
 		~TrackGroup();
+		// 0x105A7FD0: frees the tracks
+		void Clear();
+		// 0x105A80A0: creates the actions of every track of the group into a sequencer (name guess)
+		bool Unknown105A80A0(int a, int b, int c, Sequencer* sequencer);
 
-		void* unknown0;
+		// 0x105A7F20 / 0x105A7F40 / 0x105A7F70 / 0x105A7FA0: the number of tracks, the track at an index (twice), the index
+		int GetCount() const;
+		Track* GetAt(int index);
+		const Track* GetAtConst(int index) const;
+		int IndexOf(const Track* item) const;
+		// 0x105A8010 / 0x105A8040 / 0x105A8070: hands an argument to the slots 2, 3 and 4 of every track
+		void ForEachSlot2(int arg);
+		void ForEachSlot3(int arg);
+		void ForEachSlot4(int arg);
+		// 0x105A80F0: hands the tracks of another group, one by one, to the slot 14 of these (name guess)
+		void ForEachSlot14(TrackGroup* other, int arg);
+		// 0x105A82C0: reads the tracks of a node of the reader (the context is the registry of tracks they are made by)
+		bool Load(const Name& key, int context, Reader* reader);
+		// 0x105A81B0: reads the tracks below the reader's current node and inserts them at an index (-1 for the end)
+		bool LoadChildren(Branch* owner, Reader* reader, int index);
+		// 0x105A8150 / 0x105A8330: appends a track / inserts it at an index; answer its index (-1 for none)
+		int Add(Track* item);
+		int Insert(int index, Track* item);
+
+		Track* head;
 	};
+
+	// 0x105A8130: makes a track the first one of a group (the group's own address is the first argument)
+	void SetHead(TrackGroup* group, Track* item);
 
 	// The track group's slots 2 - 5 are its own as well; the "setter" hands out the group
 	class PropertyTypeTrackGroup : public Property
@@ -300,29 +397,80 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot4(int a, int b, int c, int d);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual TrackGroup* Set(void* object) = 0;
 	};
 
+	// A node of the fight tree held as a member (RTTI: fight::PropertyTypeItem, 8 vftable slots): its slots 2, 3, 5
+	// and 6 pass the call on to the item the "setter" hands out
+	class PropertyTypeItem : public Property
+	{
+	public:
+		PropertyTypeItem(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
+		virtual void Slot5(int object, int other);
+		// vftable slot 6
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slot 7
+		virtual Item* Set(void* object) = 0;
+	};
+
 	// A named reference to a branch of the fight tree, the way a track holds the branch it hands its result to (0x24
-	// bytes; the constructor takes the kind of node the branch is, and both are another unit's)
+	// bytes; the constructor takes the kind of node the branch is): the branch once it is resolved, the path or the
+	// index it is found by, and the context (the registry of tracks) the path is looked up in
 	class BranchHolder
 	{
 	public:
 		// 0x105A7600
-		explicit BranchHolder(const char* kind);
+		explicit BranchHolder(const char* newKind);
+		// 0x105A7920
+		BranchHolder(const BranchHolder& other);
 		// 0x105A7720
 		~BranchHolder();
-		// 0x105A7960: the branch the holder names, looked up the first time (name guessed)
-		Branch* GetBranch();
+		// 0x105A7760
+		BranchHolder& operator=(const BranchHolder& other);
 
-		int unknown0[9];
+		// 0x105A7590: replaces the path
+		void SetPath(const char* text);
+		// 0x105A75F0: the branch the path or the index is looked up from (name guess)
+		void SetBase(Branch* newBase);
+		// 0x105A7630: watches another branch (the first argument is not read)
+		void Assign(Branch* unused, Branch* newBranch);
+		// 0x105A7660: replaces the path and forgets the branch
+		bool SetPathAndClear(const char* text);
+		// 0x105A77C0: whether there is a path or an index but no branch yet
+		bool IsUnresolved() const;
+		// 0x105A77E0: finds the branch the path or the index names, from a branch (name guess)
+		bool Resolve(Branch* base);
+		// 0x105A78E0 / 0x105A7900: lets go of the branch / of the branch and the context
+		bool Clear(Branch* unused);
+		void Reset();
+		// 0x105A7960: the branch the holder names, looked up the first time
+		Branch* GetBranch();
+		// 0x105A7690: reads the path, and the index when the reader has a value, from a reader; the context is the
+		// branch the holder is looked up from
+		bool Load(const Name& key, int context, Reader* reader);
+		// 0x105A7980 / 0x105A79C0: copies the path into a buffer (false when there is none)
+		bool CopyPath(char* buffer, unsigned int size);
+		bool CopyPath(int unused, char* buffer, unsigned int size);
+
+		BranchWatch target;  // +0
+		char* path;  // +0xC
+		int index;  // +0x10
+		Branch* base;  // +0x14
+		const char* kind;  // +0x18
+		TrackRegistry* context;  // +0x1C
+		BranchHolder* nextHolder;  // +0x20: the next holder of the context's list
 	};
 
 	// The branch member of a track (RTTI: fight::PropertyTypeBranch, 8 vftable slots): like the track group, slots 2,
@@ -334,11 +482,11 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual BranchHolder* Set(void* object) = 0;
 	};
@@ -352,11 +500,11 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual ConditionList* Set(void* object) = 0;
 	};
@@ -369,9 +517,11 @@ namespace fight
 	class PropertyTypeStringList : public Property
 	{
 	public:
+		PropertyTypeStringList(const char* name);
+
 		virtual int GetType() const;
-		virtual bool Slot6(int a, int b, void* object);
-		virtual bool SetText(void* object, const char* text);
+		virtual bool Slot6(int object, int context, void* reader);
+		virtual bool SetText(void* object, const char* text) = 0;
 	};
 
 	class PropertyTypeNameList : public PropertyTypeStringList
@@ -379,7 +529,7 @@ namespace fight
 	public:
 		PropertyTypeNameList(const char* name);
 
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		virtual bool SetText(void* object, const char* text);
 		// vftable slot 8
 		virtual bool Set(void* object, const Name& value) = 0;
@@ -388,8 +538,7 @@ namespace fight
 	// One entry of an enum's table (8 bytes: its text and its value; layout unrecovered)
 	struct EnumEntry
 	{
-		int unknown0;
-		int unknown4;
+		Name name;
 	};
 
 	// A value picked from a table of entries (10 vftable slots)
@@ -401,7 +550,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: the entry at an index (a dummy entry for a bad index)
 		virtual const EnumEntry* GetEntry(void* object, int index) = 0;
 		// vftable slot 8
@@ -546,7 +695,7 @@ namespace fight
 		// vftable slot 7
 		virtual BranchHolder* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -565,7 +714,7 @@ namespace fight
 		// vftable slot 7
 		virtual ConditionList* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -613,7 +762,7 @@ namespace fight
 		// vftable slot 7
 		virtual TrackGroup* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -792,16 +941,23 @@ namespace fight
 	class TrackFactory
 	{
 	public:
+		// 0x105A9E40 / 0x105A9E80
 		TrackFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
+		~TrackFactory();
 
-		// vftable slot 0 (0x105A9CF0, inherited from every factory)
-		virtual void Slot0();
+		// vftable slot 0 (0x105A9CF0, inherited from every factory): makes a track (a jump to slot 1)
+		virtual void* Make();
 		// vftable slot 1: makes a track of this factory's class
 		virtual void* CreateTrack() = 0;
 
+		// 0x105A9F30 / 0x105AA0B0: the factory is shared through a reference count (AddRef answers the old count; the
+		// last Release deletes the factory)
+		long AddRef();
+		void Release();
+
 		unsigned int unknown4;
 		Name name;
-		int unknown10;
+		long refCount;  // +0x10
 		void (*clearProperties)();
 	};
 
@@ -816,13 +972,83 @@ namespace fight
 		virtual TrackFactory* CreateFactory(const char* name) = 0;
 	};
 
-	// 0x105A9E90 (another unit): the factory of a track class, the one the list of load listeners holds already or a
+	// 0x105A9E90: the factory of a track class, the one the list of load listeners holds already or a
 	// new one made through the caster
 	TrackFactory* FindTrackFactory(const char* name, TrackFactoryCaster* caster);
 
+	// The factory of one kind of branch (RTTI: fight::BranchFactory, 6 vftable slots, base fight::Entity)
+	class BranchFactory : public Entity
+	{
+	public:
+		// 0x105A2690 / 0x105A26B0 (0x105A26C0 is the deleting destructor)
+		BranchFactory();
+		virtual ~BranchFactory();
+
+		// vftable slot 5: makes a branch
+		virtual Branch* CreateBranch() = 0;
+	};
+
+	// What the game casts a branch factory to before asking it for a branch (RTTI: fight::BranchFactoryCaster, 2
+	// vftable slots; the object is its vftable alone)
+	class BranchFactoryCaster
+	{
+	public:
+		// vftable slot 0: whether a factory is of the class this caster knows
+		virtual bool IsType(BranchFactory* factory) = 0;
+		// vftable slot 1: makes the factory of that class
+		virtual BranchFactory* CreateFactory(const char* name) = 0;
+	};
+
+	// 0x105A31F0: the factory of a branch class, the one the list of load listeners holds already or a new one made
+	// through the caster
+	BranchFactory* FindBranchFactory(const char* name, BranchFactoryCaster* caster);
+
+	// The factory of one branch class (RTTI: fight::BranchFactoryTemplate<T>, 6 vftable slots)
+	template<class T> class BranchFactoryTemplate : public BranchFactory
+	{
+	public:
+		BranchFactoryTemplate(const char* name)
+		{
+			SetName(Name(name, 1));
+			T::RegisterProperties();
+		}
+		virtual ~BranchFactoryTemplate()
+		{
+			T::ClearProperties();
+		}
+
+		// vftable slot 5
+		virtual Branch* CreateBranch()
+		{
+			return new T();
+		}
+	};
+
+	// RTTI: fight::BranchFactoryCasterTemplate<fight::BranchFactoryTemplate<T> >
+	template<class F> class BranchFactoryCasterTemplate : public BranchFactoryCaster
+	{
+	public:
+		BranchFactoryCasterTemplate()
+		{
+		}
+
+		// vftable slot 0
+		virtual bool IsType(BranchFactory* factory)
+		{
+			return dynamic_cast<F*>(factory) != 0;
+		}
+
+		// vftable slot 1
+		virtual BranchFactory* CreateFactory(const char* name)
+		{
+			return new F(name);
+		}
+	};
+
+
 	// The factories one fight context knows (RTTI: fight::Context, 0xD8 bytes, a load object; the class name here is a
 	// guess from its use; another unit's class, only what the fight system's set-up calls is declared)
-	class TrackRegistry : public content::LoadObject
+	class TrackRegistry : public Entity
 	{
 	public:
 		// 0x105A5DB0
@@ -831,25 +1057,57 @@ namespace fight
 		void AddFactory(TrackFactory* factory);
 		// 0x105A5CD0
 		void AddFactory(ConditionFactory* factory);
-		// 0x105A5160: the name the context is known by
-		void SetName(const Name& newName);
+		// 0x105A5C90
+		void AddFactory(BranchFactory* factory);
 		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
 		void Prepare();
 		void Complete();
+		// 0x105A5330 / 0x105A5350: a holder takes the context in / lets go of it (names guessed)
+		void AddHolder(BranchHolder* holder);
+		void RemoveHolder(BranchHolder* holder);
 		// 0x105A5260: resolves the branch references of the context's nodes
 		void ResolveBranchRefs();
+		// 0x105A51E0 / 0x105A5520 / 0x105A5460: a loader takes the context in (exclusive: takes the lock for good) /
+		// lets go of it / gives the lock back (names guessed)
+		void BeginLoading(bool exclusive);
+		void EndLoading(bool exclusive);
+		void Unlock(bool exclusive);
+		// 0x105A5240: marks the context as changed
+		void MarkChanged();
+		// 0x105A2630 / 0x105A2640 / 0x105A2650: the next context / the same / the root of the tree
+		TrackRegistry* GetNext() const;
+		TrackRegistry* GetNextOfList() const;
+		Branch* GetRootBranch() const;
+		// 0x105A5500: makes another context the next one
+		void SetNext(TrackRegistry* following);
 
-		// The branches of the context (0x105A3690 finds one by its path)
-		class BranchTable
+		// A node of the list the context keeps of what waits to be loaded (the next one at +0x34; names guessed)
+		struct PendingItem
 		{
-		public:
-			Branch* FindByPath(const char* path);
+			unsigned char unknown0[0x34];
+			PendingItem* next;
 		};
+		// 0x105A52A0 / 0x105A52E0: puts an item at the end of the pending list / takes it out (under the second lock)
+		void AddPending(PendingItem* item);
+		void RemovePending(PendingItem* item, int unused);
 
-		Name name;  // +0x8
-		unsigned char unknown10[0x7C];
-		BranchTable* branches;  // +0x8C
-		unsigned char unknown90[0x48];
+		// 0x105A59D0 / 0x105A5990 / 0x105A5950: the track / condition / branch factory of a name (null when there is none)
+		TrackFactory* FindTrackFactory(const Name& key);
+		ConditionFactory* FindConditionFactory(const Name& key);
+		BranchFactory* FindBranchFactory(const Name& key);
+
+		TrackRegistry* next;  // +0x10: the next context of the load listeners' list
+		unsigned char unknown14[0x78];
+		// The root branch of the context's tree
+		Branch* branches;  // +0x8C
+		unsigned char lockA[0x18];  // +0x90
+		unsigned char lockB[0x18];  // +0xA8
+		int lockCount;  // +0xC0
+		unsigned int sharedCount;  // +0xC4
+		int exclusiveCount;  // +0xC8
+		PendingItem* pending;  // +0xCC
+		BranchHolder* holders;  // +0xD0: the holders that name a branch of the context (linked through their words)
+		bool changed;  // +0xD4
 	};
 
 	template<class T> class TrackFactoryTemplate : public TrackFactory
@@ -896,16 +1154,22 @@ namespace fight
 	class ConditionFactory
 	{
 	public:
+		// 0x105A9790 / 0x105A97D0
 		ConditionFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
+		~ConditionFactory();
 
-		// vftable slot 0 (0x105A9720, inherited from every factory)
-		virtual void Slot0();
+		// vftable slot 0 (0x105A9720, inherited from every factory): makes a condition (a jump to slot 1)
+		virtual void* Make();
 		// vftable slot 1: makes a condition of this factory's class
 		virtual void* CreateCondition() = 0;
 
+		// 0x105A9880 / 0x105A99A0: shared through a reference count like the track factory
+		long AddRef();
+		void Release();
+
 		unsigned int unknown4;
 		Name name;
-		int unknown10;
+		long refCount;  // +0x10
 		void (*clearProperties)();
 	};
 
@@ -917,7 +1181,7 @@ namespace fight
 		virtual ConditionFactory* CreateFactory(const char* name) = 0;
 	};
 
-	// 0x105A97E0 (another unit)
+	// 0x105A97E0
 	ConditionFactory* FindConditionFactory(const char* name, ConditionFactoryCaster* caster);
 
 	template<class T> class ConditionFactoryTemplate : public ConditionFactory

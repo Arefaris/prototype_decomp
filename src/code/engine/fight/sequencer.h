@@ -7,6 +7,7 @@
 #define ENGINE_FIGHT_SEQUENCER_H
 
 #include "code/core/linklist.h"
+#include "code/core/name.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/refptr.h"
 
@@ -28,14 +29,15 @@ namespace fight
 	class Track;
 	class Condition;
 	class Branch;
+	class Reader;
 
 	// A reference-counted fight node (RTTI: fight::RefCounted, base core::IRefCount; 3 vftable slots)
 	class RefCounted : public core::IRefCount
 	{
 	public:
-		virtual ~RefCounted()
-		{
-		}
+		// 0x105A7410 / 0x105A73D0 (the deleting destructor is 0x105A7420)
+		RefCounted();
+		virtual ~RefCounted();
 		// 0x105A73E0
 		virtual void AddRef();
 		// 0x105A73F0: below two references the count is parked at 0x8000000 and the object deletes itself
@@ -82,7 +84,7 @@ namespace fight
 		// vftable slot 3 (0x105A2430): the child sequencer this action owns (or 0; the engine has no action with one)
 		virtual Sequencer* GetChild();
 		// vftable slot 4 (0x105A2460): accepts, the actions that care override it
-		virtual bool Slot4(int arg, float value);
+		virtual bool Slot4(int mask, core::IRefCount* owner);
 		// vftable slot 5 (0x105A2470; most action classes have their own): begins on the track, false ends the action at once
 		virtual bool Slot5(int arg, float value);
 		// vftable slot 6 (0x105A2480): the action was stopped; only actions without their own copy keep this one
@@ -90,12 +92,27 @@ namespace fight
 		// vftable slot 7 (0x105A2490): updates; only actions without their own copy keep this one
 		virtual bool Slot7(int arg, float value);
 		// vftable slot 8 (0x105A24A0): copies the action's flags and three times into another action (name guessed)
-		virtual void Slot8(Action* other, int arg, float value);
+		virtual Action* Slot8(Action* other, core::IRefCount* effect, core::IRefCount* owner);
 
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
+		// 0x105A2560: makes another action the next one (the old one is let go)
+		void SetNext(Action* value);
 		// 0x105A2580 (another function of this unit): ends the action and its children's
-		void End(int reason);
+		void End(bool reason);
+
+		// 0x105A23C0 / 0x105A3DF0 / 0x105A3E00: the next action / the two lowest flag bits / sets or clears the flag of
+		// bit 2
+		Action* GetNext() const;
+		unsigned int GetRunState() const;
+		void SetFlag4(bool value);
+		// 0x105A3E10 / 0x105A3E20 / 0x105A3E30 / 0x105A3E40: the three times and the setter of the last
+		float GetTimeBegin() const;
+		float GetTime14() const;
+		float GetTimeEnd() const;
+		void SetTimeEnd(float value);
+		// 0x105A3E50: makes a copy through slot 8 without a target (the copy of the flags and times is then left out)
+		Action* Clone(core::IRefCount* effect, core::IRefCount* owner);
 
 		// The engine tests these bits through accessors returning bool: the value is materialised (a shift and a bit
 		// test) where a direct bit-field test would be a mask test
@@ -119,6 +136,18 @@ namespace fight
 		{
 			return flags.bits.notifies;
 		}
+		bool HasFlag5() const
+		{
+			return flags.bits.unknown5;
+		}
+		bool HasFlag6() const
+		{
+			return flags.bits.unknown6;
+		}
+		bool HasFlag7() const
+		{
+			return flags.bits.unknown7;
+		}
 
 		Action* next;
 		ActionFlags flags;
@@ -139,6 +168,17 @@ namespace fight
 		virtual Property* GetProperty(int index) = 0;
 		// vftable slot 1 (0x10034324, another unit)
 		virtual Property* Slot1(int index);
+
+		// Hand every property of this part (slot 0) the part and an owner through their slot 2 / 3 (names guessed;
+		// expanded in the branch's functions)
+		void VisitProperties2(int owner);
+		void VisitProperties3(int owner);
+		// Hand every property of the nodes below (slot 1) this part, an owner and a reader through their slot 6
+		void VisitProperties6(int owner, void* reader);
+
+		// 0x105AA2B0: hands every property of this part and the one of another part of the same kind and name to the
+		// property's slot 4 together with an argument (name guess)
+		void MergeProperties(Param* other, int arg);
 	};
 
 	// RTTI: fight::Item (9 vftable slots, base fight::Param); no data of its own. Slots 2, 3 and 4 walk the
@@ -150,11 +190,13 @@ namespace fight
 		virtual void Slot2(int arg);
 		virtual void Slot3(int arg);
 		virtual void Slot4(int arg);
-		virtual bool Slot5(int a, int b, int c);
+		// vftable slot 5 (0x105A9B80): reads a node stored under a key from a reader (the key, the context, the reader)
+		virtual bool Slot5(int key, int context, int reader);
 		virtual void Slot6(int a, int b);
 		// vftable slot 7: the object is destroyed (the compiler's scalar deleting destructor sits here)
 		virtual ~Item();
-		virtual void Slot8(int a, int b);
+		// vftable slot 8 (0x105A9B10): reads the values of the nodes below from a reader (the context, the reader)
+		virtual bool Slot8(int context, void* reader);
 	};
 
 	// A condition predicate of the fight tree (RTTI: fight::Condition, 10 vftable slots). The base is the node of a
@@ -166,10 +208,13 @@ namespace fight
 		explicit Condition(int newOp);
 		// 0x105A9A00 (another unit): the destructor of the derived conditions' chain
 		virtual ~Condition();
-		// vftable slot 5 (0x105A9910, another unit): the condition's own
-		virtual bool Slot5(int a, int b, int c);
+		// vftable slot 5 (0x105A9910): the condition's own
+		virtual bool Slot5(int key, int context, int reader);
 		// vftable slot 9
 		virtual bool Evaluate(int a, int b, int c, int d) = 0;
+
+		// 0x105A98E0: deletes the condition that follows and makes another the next one
+		void SetNext(Condition* newNext);
 
 		Condition* next;
 		int op;
@@ -184,6 +229,8 @@ namespace fight
 		// the destructor slot (7): clears the watch list, then the base's
 		virtual ~Track();
 
+		// vftable slot 5 (0x105A9F90): the track's own: skips what is disabled and keeps the slave word
+		virtual bool Slot5(int key, int context, int reader);
 		// vftable slot 9: the time the track begins at
 		virtual float GetTimeBegin() const = 0;
 		// vftable slot 10: the time it ends at
@@ -205,6 +252,13 @@ namespace fight
 		void Register(void* entry);
 		// 0x105A3A90 (another function of this unit): leaves the listener list
 		void Unregister(void* entry);
+		// 0x105A9F60: deletes the track that follows and makes another the next one
+		void SetNext(Track* newNext);
+		// 0x105A9D00: makes the track's action (a jump to slot 15)
+		Action* MakeAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+		// 0x105A9D10: makes the action, gives it the track's times and flags and schedules it on a sequencer (the one
+		// the effect stands for when none is given); answers whether it was scheduled
+		bool Start(Track* listener, core::IRefCount* effect, core::IRefCount* owner, Sequencer* sequencer);
 
 		// The next track of the list that owns this one
 		Track* next;
@@ -217,18 +271,41 @@ namespace fight
 	class ConditionList
 	{
 	public:
-		// 0x105A7A60 (another unit): the list starts empty
+		// 0x105A7A60: the list starts empty
 		ConditionList();
-		// 0x105A7B20 (another unit): frees the conditions
+		// 0x105A7C90 (a jump to the function below)
 		~ConditionList();
+		// 0x105A7B20: frees the conditions
+		void Clear();
 		// 0x105A7BF0
 		bool Evaluate(int a, int b, int c, int d);
+
+		// 0x105A7A70: the number of conditions
+		int GetCount() const;
+		// 0x105A7A90 / 0x105A7AC0: the condition at an index (null past the end)
+		Condition* GetAt(int index);
+		const Condition* GetAtConst(int index) const;
+		// 0x105A7AF0: the index of a condition (-1 when it is not in the list)
+		int IndexOf(const Condition* item) const;
+		// 0x105A7B60 / 0x105A7B90 / 0x105A7BC0: hands an argument to the slots 2, 3 and 4 of every condition
+		void ForEachSlot2(int arg);
+		void ForEachSlot3(int arg);
+		void ForEachSlot4(int arg);
+		// 0x105A7E10: reads the conditions of a node of the reader the list is stored as (the context is the registry
+		// of conditions they are made by); false when there is none
+		bool Load(const core::Name<core::CaseSensitiveKey>& key, int context, Reader* reader);
+		// 0x105A7D00: reads the conditions below the reader's current node and inserts them at an index (-1 for the
+		// end); the owner is the branch whose context makes them
+		bool LoadChildren(Branch* owner, Reader* reader, int index);
+		// 0x105A7CA0 / 0x105A7E80: appends a condition / inserts it at an index; answer its index (-1 for none)
+		int Add(Condition* item);
+		int Insert(int index, Condition* item);
 
 		Condition* head;
 	};
 
 	// The sequencer itself (name guessed): schedules and advances its actions
-	class Sequencer
+	class __declspec(align(8)) Sequencer
 	{
 	public:
 		// 0x105A3E80 / 0x105A43F0 (the sequencer's own unit): the reflection data
@@ -250,14 +327,21 @@ namespace fight
 		bool Unknown105A45A0(bool flag);
 		// 0x105A4270: hands the sequencer the flags the behaviour collected and the parameters (name unknown)
 		void Unknown105A4270(unsigned int flags, engine::GameObjectParams* params);
+		// 0x105A44D0: makes the track the sequencer's pending one (registered under it), with an argument, the owner it
+		// is run for and a priority; refused when a pending track is there and the priority is not lower (name guess)
+		bool SetPending(Branch* track, int arg, core::IRefCount* owner, int priority);
+		// 0x105A45D0: copies the sequencer's state into another one (name guess)
+		void CopyTo(Sequencer* other, core::IRefCount* effect, core::IRefCount* owner);
 		// 0x105A4910: walks the actions and their children (name unknown)
-		void Unknown105A4910(bool flag);
+		bool Unknown105A4910(bool flag);
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
 		void Reset();
 		// 0x105A4120: releases the two scheduled members
 		void Clear();
 		// 0x105A3EC0: ends every action of the pending list (name guess)
 		void EndPending();
+		// 0x105A43C0: whether a track of this priority could be made the pending one
+		int CanSetPending(int priority) const;
 		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old. The engine types it
 		// as the branch kind (its Register / Unregister are fight::Branch's); 0x10863B00 compares it with a branch
 		void SetTrack(Branch* track);
@@ -265,9 +349,14 @@ namespace fight
 		void SetContextName(const char* text);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
+		// 0x105A23D0 / 0x105A3E70: the head of the action list / of the scheduled list
+		Action* GetActions() const;
+		Action* GetScheduled() const;
+		// 0x105A40A0: puts an action that runs a branch on a sequencer of its own at the end of the scheduled list
+		bool QueueBranch(Branch* branch, void* owner);
 
-		int unknown0;
-		int unknown4;
+		// The name of the fight context the sequencer runs in (0x1007EE30 sets it)
+		core::Name<core::CaseSensitiveKey> contextName;
 		Branch* track;
 		int unknownC;
 		int unknown10;
@@ -285,13 +374,21 @@ namespace fight
 		Action* actions2;
 	};
 
+	// 0x105A7C80: makes a condition the first one of a list (the list's own address is the first argument)
+	void SetHead(ConditionList* list, Condition* item);
+
 	// 0x105A24D0 / 0x105A3FA0 (other functions of this unit): release a member and clear it
 	void ReleaseActionList(Action*& action);
 	void ReleaseAction(Action*& action);
+	// 0x105A24F0: takes a reference to an action and lets go of the one the slot held
+	void AssignAction(Action*& slot, Action* value);
 
 	// The running-action counters the sequencer updates (names guessed)
 	extern int gActiveActions;
 	extern int gPeakActiveActions;
+	// How many actions exist and the most there have been (the constructor and the destructor of an action count)
+	extern int gActionCount;
+	extern int gActionPeak;
 }
 
 #endif

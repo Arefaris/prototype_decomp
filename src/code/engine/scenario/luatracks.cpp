@@ -14,7 +14,7 @@
 namespace engine
 {
 	// 0x105A84D0 (another unit): shows a script error (names guessed)
-	void ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
+	int ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
 		int line);
 
 	// The hook the scripting calls around a node's script and its data (0x111BF298 / 0x11284B58)
@@ -222,10 +222,10 @@ namespace engine
 		// FUNCTION: ENGINE 0x108089A0
 		bool LuaTrack::Slot5(int a, int b, int c)
 		{
-			bool result = fight::Item::Slot5(a, b, c);
+			bool result = fight::Track::Slot5(a, b, c);
 			if (result && b != 0)
 			{
-				((ItemParent*)b)->ListChild(this);
+				((fight::Branch*)b)->ListChild(this);
 			}
 			return result;
 		}
@@ -466,7 +466,7 @@ namespace engine
 			bool result = fight::Condition::Slot5(a, b, c);
 			if (result && b != 0)
 			{
-				((ItemParent*)b)->ListChild(this);
+				((fight::Branch*)b)->ListChild(this);
 			}
 			return result;
 		}

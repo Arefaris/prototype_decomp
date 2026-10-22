@@ -49,13 +49,6 @@ namespace engine
 	{
 		class LuaTrack;
 
-		// The node a slot-5 call hands in: asks the branch it belongs to to list the new node (0x105A30A0, another unit)
-		class ItemParent
-		{
-		public:
-			void ListChild(fight::Item* child);
-		};
-
 		// RTTI: engine::scenario::LuaTrack (16 vftable slots, 0x24 bytes)
 		class LuaTrack : public fight::Track
 		{

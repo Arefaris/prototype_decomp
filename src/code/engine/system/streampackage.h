@@ -243,18 +243,40 @@ namespace engine
 	class LoadListeners
 	{
 	public:
-		void Begin(int unknown);
-		void End(int unknown);
+		// The first context of the list (the others follow through the contexts' own links)
+		fight::TrackRegistry* first;
+		// The critical section the watchers of the branches are changed under
+		unsigned char lock[0x18];
+
+		// 0x105A4AA0 / 0x105A4F00 (the deleting destructor is 0x105A4F20)
+		LoadListeners();
+		~LoadListeners();
+
+		void Begin(bool exclusive);
+		void End(bool exclusive);
+		// 0x105A2660 / 0x105A2670 / 0x105A2680: the first context / takes the lock / gives it back
+		fight::TrackRegistry* GetFirst() const;
+		void Lock();
+		void Unlock();
 		// 0x105A4F40: puts a fight context at the end of the list (the head at +0, the next link at +0x10 of a context)
 		void AddContext(fight::TrackRegistry* context);
 		// 0x105A4B00 / 0x105A4B50: the number of contexts / the context at index (null when out of range)
 		int GetCount();
 		fight::TrackRegistry* GetContext(int index);
+		// 0x105A4B20: the same as GetContext, from a constant list
+		fight::TrackRegistry* GetContextConst(int index) const;
+		// 0x105A4B80: the index of a context (-1 when it is none of them)
+		int IndexOfContext(fight::TrackRegistry* context);
+		// 0x100915F0: the context known by a kind of node's name (null when there is none; name guess)
+		fight::TrackRegistry* FindContextByName(const char* name);
 		// 0x105A4F90: the context known by name (null when there is none)
 		fight::TrackRegistry* FindContext(const core::Name<core::CaseSensitiveKey>& name);
 	};
 
 	extern LoadListeners* gLoadListeners;
+	// 0x105A4AC0 / 0x105A50B0: makes the one list of load listeners / destroys it
+	LoadListeners* CreateLoadListeners();
+	void DestroyLoadListeners();
 
 	// The name of packages without a slot group ("Undefined_SlotGroup", 0x11283CC0)
 	extern content::ObjectName gUndefinedSlotGroup;

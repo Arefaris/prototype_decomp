@@ -90,6 +90,8 @@ namespace core
 		Name& operator=(const Name& other);
 		// 0x105FCED0 (another unit): the 32-bit hash of text, ignoring case
 		void SetText(const char* text);
+		// 0x105AC8B0 (a copy in the fight readers' unit): replaces the hash
+		void SetHash(unsigned int newHash);
 		// 0x1007EE80 (another unit's copy): the key of the name, which is the name itself
 		const CaseInsensitiveKey32& GetKey() const;
 

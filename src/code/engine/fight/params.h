@@ -13,12 +13,8 @@ namespace fight
 	public:
 		// 0x105AA820 (the fight params' unit)
 		explicit Params(int value);
-		// 0x105AA840 (the fight params' unit)
+		// 0x105AA840 (0x105AA850 is the deleting destructor)
 		virtual ~Params();
-		// The reference count, as in fight::RefCounted's own unit
-		virtual void AddRef();
-		virtual void Release();
-
 		int value;
 	};
 }

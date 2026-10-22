@@ -4580,3 +4580,5 @@ own functions and `OLSProfileStorage` (0x10889C50 - 0x1088B6D4), `MonkeyControll
 advertisement client (0x10894840 - 0x10895540, third-party code), the audio player's physics tail (0x10880010 -
 0x10880650), `StreamDriverBehaviour::OnMessage` (0x10899370), `LightBehaviour`'s constructor, update and controller,
 and the list template instances at 0x10880800 - 0x10880A70.
+- `src/code/engine/fight/branch.cpp` (0x105A2B10): `fight::Branch::MoveChild` is NONMATCHING (the registers of the child, the
+  parent and the list walk are allocated in another order).
