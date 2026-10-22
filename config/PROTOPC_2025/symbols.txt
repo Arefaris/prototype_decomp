@@ -21034,3 +21034,12 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??0StreamClient@engine@@QAE@PBD@Z = 0x1089B640 ; function size:0x2F | public: __thiscall engine::StreamClient::StreamClient(char const *) (name guess)
 ??_GStreamClient@engine@@UAEPAXI@Z = 0x1089B6B0 ; function size:0x1E | public: virtual void * __thiscall engine::StreamClient::`scalar deleting destructor'(unsigned int) (name guess)
 
+??_R0?AVEffectParams@engine@@@8 = 0x111D45A0 ; data size:0x8 | class engine::EffectParams RTTI Type Descriptor RTTI type descriptor
+??_R0?AVParams@fight@@@8 = 0x10FF207C ; data size:0x8 | class fight::Params RTTI Type Descriptor RTTI type descriptor
+??_7EffectParams@engine@@6B@ = 0x10E780B4 ; data size:0xC | engine::EffectParams::vftable
+??_EEffectParams@engine@@UAEPAXI@Z = 0x1089B600 ; function size:0x1E | public: virtual void * __thiscall engine::EffectParams::`vector deleting destructor'(unsigned int) vftable slot 2
+??0EffectParams@engine@@QAE@H@Z = 0x1089B580 ; function size:0x49 | public: __thiscall engine::EffectParams::EffectParams(int) (name guess)
+??1EffectParams@engine@@UAE@XZ = 0x1089B5D0 ; function size:0x2D | public: virtual __thiscall engine::EffectParams::~EffectParams(void) (name guess)
+??_GEffectParams@engine@@UAEPAXI@Z = 0x1089B600 ; function size:0x1E | public: virtual void * __thiscall engine::EffectParams::`scalar deleting destructor'(unsigned int) (name guess)
+
+??1Params@fight@@UAE@XZ = 0x105AA840 ; function size:0xB | public: virtual __thiscall fight::Params::~Params(void) (another unit; name guess)
