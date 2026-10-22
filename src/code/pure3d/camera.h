@@ -6,13 +6,27 @@
 #define PURE3D_CAMERA_H
 
 #include "code/math/matrix.h"
+#include "code/pure3d/entity.h"
 #include "code/math/vector.h"
 
 namespace pure3d
 {
-	class Camera
+	class Camera : public Entity
 	{
 	public:
+		// 0x106DD480 (another unit): a camera without a view volume; the destructor is not reconstructed
+		Camera();
+		virtual ~Camera();
+		// 0x106DD190: the vertical field of view in radians; 0x106DCA20 / 0x106DCA30: the clipping planes; 0x106DD2B0:
+		// the aspect ratio (and whether it is fixed); 0x106DCE40: the camera's matrix at 0x90 (names guessed)
+		void SetFov(float radians);
+		void SetNearPlane(float distance);
+		void SetFarPlane(float distance);
+		void SetAspect(float aspect, int fixed);
+		void SetMatrix(const math::Matrix& newMatrix);
+		// 0x106E2920: a thunk that calls the virtual Release through the vftable (the engine's code reaches it through
+		// a pointer; name guessed)
+		void ReleaseThunk();
 		// 0x106DCC20: true when the sphere of radius around point lies in the view volume (a frustum, or an
 		// axis-aligned box when unknown10 is set)
 		bool Contains(const math::Vector& point, float radius) const;
@@ -21,9 +35,11 @@ namespace pure3d
 		bool IsPointVisible(const math::Vector* point, float radius);
 		bool IsPointInside(const math::Vector* point);
 
-		unsigned char unknown0[0x10];
 		bool unknown10;
-		unsigned char unknown11[0xf];
+		unsigned char unknown11[3];
+		float fov;
+		float unknown18;
+		float unknown1C;
 		float minZ;
 		float maxZ;
 		float halfX;

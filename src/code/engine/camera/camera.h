@@ -46,7 +46,11 @@ namespace engine
 			virtual void Unregister();
 			// vftable slot 3 (empty here)
 			virtual void Update(float delta, float time, int flags);
-			virtual bool Slot4() = 0;
+			// vftable slot 4 (0x1032A380 in the engine, which keeps its inline copy in another unit)
+			virtual bool Slot4()
+			{
+				return false;
+			}
 			// vftable slot 5 (6 here)
 			virtual int GetType();
 			// vftable slot 6 (0x1084D920): the player of the camera
@@ -64,6 +68,15 @@ namespace engine
 			// 0x1084D830 / 0x1084DCC0: the class's reflection
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
+
+			// The reflected accessors: the field of view in degrees (0x1084D7A0 / 0x1084D7B0) and the clipping planes
+			// (0x1084D7D0 / 0x1084D7E0 and 0x1084D800 / 0x1084D810)
+			float GetFov() const;
+			void SetFov(float degrees);
+			float GetNearPlane() const;
+			void SetNearPlane(float distance);
+			float GetFarPlane() const;
+			void SetFarPlane(float distance);
 
 			int unknown4;
 			core::Name<core::CaseSensitiveKey> name;
