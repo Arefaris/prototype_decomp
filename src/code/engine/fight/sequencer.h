@@ -171,6 +171,9 @@ namespace fight
 		// vftable slot 9
 		virtual bool Evaluate(int a, int b, int c, int d) = 0;
 
+		// 0x105A98E0: deletes the condition that follows and makes another the next one
+		void SetNext(Condition* newNext);
+
 		Condition* next;
 		int op;
 	};
@@ -205,6 +208,8 @@ namespace fight
 		void Register(void* entry);
 		// 0x105A3A90 (another function of this unit): leaves the listener list
 		void Unregister(void* entry);
+		// 0x105A9F60: deletes the track that follows and makes another the next one
+		void SetNext(Track* newNext);
 
 		// The next track of the list that owns this one
 		Track* next;
@@ -223,6 +228,21 @@ namespace fight
 		~ConditionList();
 		// 0x105A7BF0
 		bool Evaluate(int a, int b, int c, int d);
+
+		// 0x105A7A70: the number of conditions
+		int GetCount() const;
+		// 0x105A7A90 / 0x105A7AC0: the condition at an index (null past the end)
+		Condition* GetAt(int index);
+		const Condition* GetAtConst(int index) const;
+		// 0x105A7AF0: the index of a condition (-1 when it is not in the list)
+		int IndexOf(const Condition* item) const;
+		// 0x105A7B60 / 0x105A7B90 / 0x105A7BC0: hands an argument to the slots 2, 3 and 4 of every condition
+		void ForEachSlot2(int arg);
+		void ForEachSlot3(int arg);
+		void ForEachSlot4(int arg);
+		// 0x105A7CA0 / 0x105A7E80: appends a condition / inserts it at an index; answer its index (-1 for none)
+		int Add(Condition* item);
+		int Insert(int index, Condition* item);
 
 		Condition* head;
 	};
@@ -289,6 +309,9 @@ namespace fight
 		Action* actions;
 		Action* actions2;
 	};
+
+	// 0x105A7C80: makes a condition the first one of a list (the list's own address is the first argument)
+	void SetHead(ConditionList* list, Condition* item);
 
 	// 0x105A24D0 / 0x105A3FA0 (other functions of this unit): release a member and clear it
 	void ReleaseActionList(Action*& action);

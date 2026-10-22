@@ -9,6 +9,7 @@
 #include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/core/strings.h"
+#include "code/engine/fight/branch.h"
 #include "code/engine/fight/listobject.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/math/colour128.h"
@@ -19,6 +20,7 @@ namespace fight
 	class TrackFactory;
 	class ConditionFactory;
 	class Branch;
+	class TrackRegistry;
 
 	// The engine's names are case sensitive
 	typedef core::Name<core::CaseSensitiveKey> Name;
@@ -291,8 +293,26 @@ namespace fight
 		// 0x105A80A0: creates the actions of every track of the group into a sequencer (name guess)
 		bool Unknown105A80A0(int a, int b, int c, Sequencer* sequencer);
 
-		void* unknown0;
+		// 0x105A7F20 / 0x105A7F40 / 0x105A7F70 / 0x105A7FA0: the number of tracks, the track at an index (twice), the index
+		int GetCount() const;
+		Track* GetAt(int index);
+		const Track* GetAtConst(int index) const;
+		int IndexOf(const Track* item) const;
+		// 0x105A8010 / 0x105A8040 / 0x105A8070: hands an argument to the slots 2, 3 and 4 of every track
+		void ForEachSlot2(int arg);
+		void ForEachSlot3(int arg);
+		void ForEachSlot4(int arg);
+		// 0x105A80F0: hands the tracks of another group, one by one, to the slot 14 of these (name guess)
+		void ForEachSlot14(TrackGroup* other, int arg);
+		// 0x105A8150 / 0x105A8330: appends a track / inserts it at an index; answer its index (-1 for none)
+		int Add(Track* item);
+		int Insert(int index, Track* item);
+
+		Track* head;
 	};
+
+	// 0x105A8130: makes a track the first one of a group (the group's own address is the first argument)
+	void SetHead(TrackGroup* group, Track* item);
 
 	// The track group's slots 2 - 5 are its own as well; the "setter" hands out the group
 	class PropertyTypeTrackGroup : public Property
@@ -313,18 +333,48 @@ namespace fight
 	};
 
 	// A named reference to a branch of the fight tree, the way a track holds the branch it hands its result to (0x24
-	// bytes; the constructor takes the kind of node the branch is, and both are another unit's)
+	// bytes; the constructor takes the kind of node the branch is): the branch once it is resolved, the path or the
+	// index it is found by, and the context (the registry of tracks) the path is looked up in
 	class BranchHolder
 	{
 	public:
 		// 0x105A7600
-		explicit BranchHolder(const char* kind);
+		explicit BranchHolder(const char* newKind);
+		// 0x105A7920
+		BranchHolder(const BranchHolder& other);
 		// 0x105A7720
 		~BranchHolder();
-		// 0x105A7960: the branch the holder names, looked up the first time (name guessed)
-		Branch* GetBranch();
+		// 0x105A7760
+		BranchHolder& operator=(const BranchHolder& other);
 
-		int unknown0[9];
+		// 0x105A7590: replaces the path
+		void SetPath(const char* text);
+		// 0x105A75F0: the branch the path or the index is looked up from (name guess)
+		void SetBase(Branch* newBase);
+		// 0x105A7630: watches another branch (the first argument is not read)
+		void Assign(Branch* unused, Branch* newBranch);
+		// 0x105A7660: replaces the path and forgets the branch
+		bool SetPathAndClear(const char* text);
+		// 0x105A77C0: whether there is a path or an index but no branch yet
+		bool IsUnresolved() const;
+		// 0x105A77E0: finds the branch the path or the index names, from a branch (name guess)
+		bool Resolve(Branch* base);
+		// 0x105A78E0 / 0x105A7900: lets go of the branch / of the branch and the context
+		bool Clear(Branch* unused);
+		void Reset();
+		// 0x105A7960: the branch the holder names, looked up the first time
+		Branch* GetBranch();
+		// 0x105A7980 / 0x105A79C0: copies the path into a buffer (false when there is none)
+		bool CopyPath(char* buffer, unsigned int size);
+		bool CopyPath(int unused, char* buffer, unsigned int size);
+
+		BranchWatch target;  // +0
+		char* path;  // +0xC
+		int index;  // +0x10
+		Branch* base;  // +0x14
+		const char* kind;  // +0x18
+		TrackRegistry* context;  // +0x1C
+		int unknown20;
 	};
 
 	// The branch member of a track (RTTI: fight::PropertyTypeBranch, 8 vftable slots): like the track group, slots 2,
@@ -838,6 +888,9 @@ namespace fight
 		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
 		void Prepare();
 		void Complete();
+		// 0x105A5330 / 0x105A5350: a holder takes the context in / lets go of it (names guessed)
+		void AddHolder(BranchHolder* holder);
+		void RemoveHolder(BranchHolder* holder);
 		// 0x105A5260: resolves the branch references of the context's nodes
 		void ResolveBranchRefs();
 

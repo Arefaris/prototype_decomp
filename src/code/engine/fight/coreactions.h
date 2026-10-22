@@ -13,37 +13,6 @@
 
 namespace fight
 {
-	// The node an action registers on a branch it watches (the same 12-byte node as engine::TrackWatch; the branch keeps
-	// the list at +8)
-	class BranchWatch
-	{
-	public:
-		BranchWatch(Branch* newBranch)
-		{
-			branch = newBranch;
-			next = 0;
-			prev = 0;
-			if (newBranch != 0)
-			{
-				newBranch->Register(this);
-			}
-		}
-		~BranchWatch()
-		{
-			if (branch != 0)
-			{
-				branch->Unregister(this);
-			}
-		}
-
-		// 0x1007E9C0 (the engine's shared copy): watches another branch
-		void Assign(Branch* newBranch);
-
-		Branch* branch;
-		BranchWatch* next;
-		BranchWatch* prev;
-	};
-
 	// The message sink the 'print' tracks and conditions write to: a channel and a text; the game installs the callback
 	// (0x105B2150, set with SetPlatformCallback) and the sink answers -1 without one
 	typedef int (*PrintCallback)(int owner, const char* channel, const char* text, int argument);

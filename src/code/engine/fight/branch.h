@@ -53,6 +53,14 @@ namespace fight
 		void Register(void* entry);
 		void Unregister(void* entry);
 
+		// 0x105A3590: writes the path of the node into a buffer (the same code as Track::GetPath)
+		bool GetPath(char* buffer, int size, int flag);
+		// 0x105A3740: the branch below this one that a path names (names guessed for these three)
+		Branch* FindByPath(const char* path);
+		// 0x105A2760 / 0x105A2840: the first branch of the tree this one is in / the next one in the tree
+		Branch* GetFirstOfTree();
+		Branch* GetNextOfTree();
+
 		// The reference count of the load object the branch derives from
 		int unknown4;
 		// 0x10863FB0 compares it with the running track's name
@@ -61,6 +69,37 @@ namespace fight
 		int unknown14;
 		// 0x10863B00 walks the chain through it
 		Branch* unknown18;
+	};
+
+	// The node something registers on a branch it watches (the same 12-byte node as engine::TrackWatch; the branch
+	// keeps the list of such nodes)
+	class BranchWatch
+	{
+	public:
+		BranchWatch(Branch* newBranch)
+		{
+			branch = newBranch;
+			next = 0;
+			prev = 0;
+			if (newBranch != 0)
+			{
+				newBranch->Register(this);
+			}
+		}
+		~BranchWatch()
+		{
+			if (branch != 0)
+			{
+				branch->Unregister(this);
+			}
+		}
+
+		// 0x1007E9C0 (the engine's shared copy): watches another branch
+		void Assign(Branch* newBranch);
+
+		Branch* branch;
+		BranchWatch* next;
+		BranchWatch* prev;
 	};
 }
 

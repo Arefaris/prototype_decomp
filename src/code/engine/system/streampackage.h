@@ -240,6 +240,8 @@ namespace engine
 		// 0x105A4B00 / 0x105A4B50: the number of contexts / the context at index (null when out of range)
 		int GetCount();
 		fight::TrackRegistry* GetContext(int index);
+		// 0x100915F0: the context known by a kind of node's name (null when there is none; name guess)
+		fight::TrackRegistry* FindContextByName(const char* name);
 		// 0x105A4F90: the context known by name (null when there is none)
 		fight::TrackRegistry* FindContext(const core::Name<core::CaseSensitiveKey>& name);
 	};
