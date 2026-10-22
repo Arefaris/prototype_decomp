@@ -489,10 +489,147 @@ namespace fight
 			}
 		}
 	}
+
+	// FUNCTION: ENGINE 0x105A4270
+	void Sequencer::Unknown105A4270(unsigned int flags, engine::GameObjectParams* params)
+	{
+		for (Action* action = actions; action != 0; action = action->next)
+		{
+			if (action->IsStarted() && !action->IsFinished())
+			{
+				if (action->HasFlag7())
+				{
+					if (!action->Slot4((int)flags, (core::IRefCount*)params))
+					{
+						action->End(1);
+					}
+				}
+				if (!action->IsFinished() && action->HasChild())
+				{
+					Sequencer* child = action->GetChild();
+					if (child != 0)
+					{
+						child->Unknown105A4270(flags, params);
+					}
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A4910
+	// EQUIVALENT: instruction selection (the engine clears the result through al, ours stores a constant); 94.7 %
+	bool Sequencer::Unknown105A4910(bool flag)
+	{
+		Action* previous = 0;
+		bool result = false;
+		Action* action = actions;
+		if (action != 0)
+		{
+			do
+			{
+				if (action->IsStarted())
+				{
+					if (!action->IsFinished() && action->HasChild())
+					{
+						Sequencer* child = action->GetChild();
+						if (child != 0)
+						{
+							bool wait = action->HasFlag5();
+							bool childResult = child->Unknown105A4910(!wait);
+							if (wait)
+							{
+								if (childResult)
+								{
+									action->flags.all = action->flags.all & 0xfffffffc;
+								}
+								else
+								{
+									action->flags.all = (action->flags.all & 0xfffffffd) | 1;
+								}
+							}
+							if (action->HasFlag6())
+							{
+								if (!child->Unknown105A45A0(true))
+								{
+									action->End(1);
+								}
+							}
+						}
+					}
+					if (action->IsFinished())
+					{
+						if (action->Notifies())
+						{
+							action->Slot6();
+						}
+						gActiveActions = gActiveActions - 1;
+					}
+					else if (action->unknown14 >= 0.0f)
+					{
+						float remaining = action->unknown14 - action->timeEnd;
+						if (0.0f > remaining)
+						{
+							if (action->Notifies())
+							{
+								action->Slot6();
+							}
+							gActiveActions = gActiveActions - 1;
+							action->End(1);
+						}
+						else
+						{
+							action->unknown14 = remaining;
+						}
+					}
+				}
+				if (action->IsFinished())
+				{
+					if (actions2 == action)
+					{
+						AssignAction(actions2, previous);
+					}
+					action = action->next;
+					if (previous == 0)
+					{
+						AssignAction(actions, action);
+					}
+					else
+					{
+						previous->SetNext(action);
+					}
+				}
+				else
+				{
+					if ((action->flags.all & 3) == 0)
+					{
+						result = true;
+					}
+					previous = action;
+					action = action->next;
+				}
+			}
+			while (action != 0);
+			if (result)
+			{
+				return result;
+			}
+		}
+		if (flag)
+		{
+			if (track != 0 || actions != 0)
+			{
+				Stop();
+			}
+		}
+		return result;
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x105A2520
 // FUNCTION: ENGINE 0x105A3FC0
 // FUNCTION: ENGINE 0x105A3FD0
+// FUNCTION: ENGINE 0x105A3FE0
+// FUNCTION: ENGINE 0x105A3FF0
+// FUNCTION: ENGINE 0x105A4000
 // FUNCTION: ENGINE 0x105A4010

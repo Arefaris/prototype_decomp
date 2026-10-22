@@ -123,6 +123,18 @@ namespace fight
 		{
 			return flags.bits.notifies;
 		}
+		bool HasFlag5() const
+		{
+			return flags.bits.unknown5;
+		}
+		bool HasFlag6() const
+		{
+			return flags.bits.unknown6;
+		}
+		bool HasFlag7() const
+		{
+			return flags.bits.unknown7;
+		}
 
 		Action* next;
 		ActionFlags flags;
@@ -298,7 +310,7 @@ namespace fight
 		// 0x105A45D0: copies the sequencer's state into another one (name guess)
 		void CopyTo(Sequencer* other, core::IRefCount* effect, core::IRefCount* owner);
 		// 0x105A4910: walks the actions and their children (name unknown)
-		void Unknown105A4910(bool flag);
+		bool Unknown105A4910(bool flag);
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
 		void Reset();
 		// 0x105A4120: releases the two scheduled members
