@@ -13,15 +13,15 @@ namespace core
 	class ControllerSystem : public IControllerSystem, public RefCount
 	{
 	public:
-		ControllerSystem(IControllerListener* listener, int heap, unsigned int options);
+		ControllerSystem(IControllerConnectionChangeCallback* listener, int heap, unsigned int options);
 		virtual ~ControllerSystem();
 		virtual void AddRef();
 		virtual void Release();
 		virtual unsigned int GetControllerCount();
 		virtual IController* GetController(unsigned int index);
 		virtual IController* FindController(const char* location);
-		virtual void SetListener(IControllerListener* listener);
-		virtual void ClearListener(IControllerListener* listener);
+		virtual void SetListener(IControllerConnectionChangeCallback* listener);
+		virtual void ClearListener(IControllerConnectionChangeCallback* listener);
 		virtual void SetEnabled(bool enabled);
 
 		// Reads both systems and counts their connected controllers again
@@ -37,7 +37,7 @@ namespace core
 	void ShutdownControllers();
 	void UpdateControllers();
 	// options: InitDirectInput's
-	void InitControllers(IControllerListener* listener, int heap, unsigned int options);
+	void InitControllers(IControllerConnectionChangeCallback* listener, int heap, unsigned int options);
 }
 
 #endif

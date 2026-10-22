@@ -168,6 +168,8 @@ namespace engine
 			virtual void CollectActive(container::SListBase* players, float time);
 			// 0x108A0A20: motor 0 / 1 of the controller
 			void SetVibration(unsigned int id, int motor, float a, float b, float c, float d);
+			// 0x108A0990: sets the controller object of the slot (and its flags, when the manager has a callback)
+			void SetController(unsigned int id, class PhysicalController* controller);
 
 			// 0x38 bytes in all (InputSystem allocates it); the rest is unknown
 			unsigned char unknown8[0x38 - 8];

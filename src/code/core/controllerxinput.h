@@ -210,18 +210,18 @@ namespace core
 		virtual unsigned int GetControllerCount();
 		virtual IController* GetController(unsigned int index);
 		virtual IController* FindController(const char* location);
-		virtual void SetListener(IControllerListener* newListener);
-		virtual void ClearListener(IControllerListener* oldListener);
+		virtual void SetListener(IControllerConnectionChangeCallback* newListener);
+		virtual void ClearListener(IControllerConnectionChangeCallback* oldListener);
 		virtual void SetEnabled(bool newEnabled);
 
 		bool IsActive();
 		void NotifyListener(IController* controller);
 		unsigned int GetTime();
 		void DestroyControllers();
-		void Init(IControllerListener* newListener, int heap);
+		void Init(IControllerConnectionChangeCallback* newListener, int heap);
 		void Update();
 
-		IControllerListener* listener;
+		IControllerConnectionChangeCallback* listener;
 		ControllerXInput controllers[4];
 		unsigned int time;
 		unsigned int firstJoystick;
@@ -231,7 +231,7 @@ namespace core
 	};
 
 	IControllerSystem* GetXInputSystem();
-	void InitXInput(IControllerListener* listener, int heap, unsigned int firstJoystick);
+	void InitXInput(IControllerConnectionChangeCallback* listener, int heap, unsigned int firstJoystick);
 	void UpdateXInput();
 	void ShutdownXInput();
 }

@@ -127,7 +127,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10641520
-	void ControllerSystemDirectInput::SetListener(IControllerListener* newListener)
+	void ControllerSystemDirectInput::SetListener(IControllerConnectionChangeCallback* newListener)
 	{
 		if (listener == 0)
 		{
@@ -136,7 +136,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10641530
-	void ControllerSystemDirectInput::ClearListener(IControllerListener* oldListener)
+	void ControllerSystemDirectInput::ClearListener(IControllerConnectionChangeCallback* oldListener)
 	{
 		if (listener == oldListener)
 		{
@@ -1364,7 +1364,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x106436A0
-	ControllerSystemDirectInput::ControllerSystemDirectInput(IControllerListener* newListener, int heap)
+	ControllerSystemDirectInput::ControllerSystemDirectInput(IControllerConnectionChangeCallback* newListener, int heap)
 		: RefCount(1), listener(0), controllers(0), controllerCount(0), joystickCount(0), unknown24(0),
 		previousProc(0), focused(true), enabled(true)
 	{
@@ -1404,7 +1404,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x106437F0
-	void InitDirectInput(IControllerListener* listener, int heap, unsigned int options)
+	void InitDirectInput(IControllerConnectionChangeCallback* listener, int heap, unsigned int options)
 	{
 		for (int i = 0; i < 256; i++)
 		{

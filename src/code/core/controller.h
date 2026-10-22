@@ -12,7 +12,7 @@ namespace core
 	struct IController;
 
 	// Told when a controller is connected or disconnected
-	struct IControllerListener
+	struct IControllerConnectionChangeCallback
 	{
 		virtual void OnControllerChanged(IController* controller) = 0;
 	};
@@ -89,8 +89,8 @@ namespace core
 		virtual IController* GetController(unsigned int index) = 0;
 		virtual IController* FindController(const char* location) = 0;
 		// One listener at a time: SetListener does nothing while another is set
-		virtual void SetListener(IControllerListener* listener) = 0;
-		virtual void ClearListener(IControllerListener* listener) = 0;
+		virtual void SetListener(IControllerConnectionChangeCallback* listener) = 0;
+		virtual void ClearListener(IControllerConnectionChangeCallback* listener) = 0;
 		// While disabled (or while the window has no focus) the controllers are not read
 		virtual void SetEnabled(bool enabled) = 0;
 	};
