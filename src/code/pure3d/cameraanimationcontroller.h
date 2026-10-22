@@ -45,6 +45,10 @@ namespace pure3d
 		virtual void Slot21();
 		// vftable slot 22 (0x107780E0)
 		virtual void SetAnimation(Animation* animation, float first, float last);
+		virtual void Slot23();
+		virtual void Slot24();
+		// vftable slot 25 (0x107782C0): stops the playback (name guessed)
+		virtual void Stop();
 
 		// 0x107B5170: the camera the animation drives
 		void SetCamera(Camera* camera);
