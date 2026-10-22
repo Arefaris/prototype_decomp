@@ -271,7 +271,7 @@ namespace engine
 	bool LuaIsVector(lua_State* L, int index);
 	bool LuaIsUid(lua_State* L, int index);
 	// 0x10840770 / 0x10841040 (another unit): push a math::Vector / a core::Name as their userdata
-	void LuaPushVector(lua_State* L, const math::Vector& value);
+	int LuaPushVector(lua_State* L, const math::Vector& value);
 	void LuaPushName(lua_State* L, const core::Name<core::CaseSensitiveKey>& name);
 	// 0x108407A0 (another unit): the math::Vector of the userdata at index
 	const math::Vector* LuaToVector(lua_State* L, int index);
