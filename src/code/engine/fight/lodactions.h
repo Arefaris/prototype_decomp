@@ -32,7 +32,6 @@ namespace engine
 		core::Link<EffectLODDisableTrack> link;  // +0x28
 		core::IRefCount* unknown34;
 		fight::Sequencer sequencer;  // +0x38
-		int unknown7c;
 	};
 
 	// RTTI: engine::EffectLODSwitchAction (9 vftable slots, size 0x30)

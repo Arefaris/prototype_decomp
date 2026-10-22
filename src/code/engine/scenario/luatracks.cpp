@@ -225,7 +225,7 @@ namespace engine
 			bool result = fight::Track::Slot5(a, b, c);
 			if (result && b != 0)
 			{
-				((ItemParent*)b)->ListChild(this);
+				((fight::Branch*)b)->ListChild(this);
 			}
 			return result;
 		}
@@ -466,7 +466,7 @@ namespace engine
 			bool result = fight::Condition::Slot5(a, b, c);
 			if (result && b != 0)
 			{
-				((ItemParent*)b)->ListChild(this);
+				((fight::Branch*)b)->ListChild(this);
 			}
 			return result;
 		}

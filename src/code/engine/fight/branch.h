@@ -43,7 +43,7 @@ namespace fight
 	};
 
 	// RTTI: fight::Entity (5 vftable slots, base content::LoadObject): a load object with a name
-	class Entity : public content::LoadObject
+	class __declspec(align(8)) Entity : public content::LoadObject
 	{
 	public:
 		// 0x105A5120
@@ -78,7 +78,7 @@ namespace fight
 		virtual void Slot8();
 		virtual void Slot9();
 		// 0x10863FB0: runs the branch on a sequencer with parameters, answering the track it started (or null)
-		virtual Branch* Slot10(Sequencer* sequencer, void* params, int a, int b);
+		virtual Branch* Slot10(Sequencer* sequencer, void* params, int a, bool b);
 		// 0x10863FB0: starts that track, answering whether it began
 		virtual bool Slot11(Sequencer* sequencer, void* params, int a);
 		// 0x105A4780 (the sequencer's unit) starts a pending track through it
@@ -109,6 +109,8 @@ namespace fight
 		void Unregister(void* entry);
 		// 0x105A3AC0: replaces the head of the list of watchers
 		void SetWatchers(BranchWatch* head);
+		// 0x105A30A0: has the chunk root tell an item when the chunk is loaded (the item hears of this branch)
+		void ListChild(Item* child);
 
 		// 0x105A3690: the branch of the tree below this root that a path from the root names
 		Branch* FindInTree(const char* path);

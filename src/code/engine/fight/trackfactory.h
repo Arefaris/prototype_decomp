@@ -124,6 +124,13 @@ namespace fight
 		virtual bool Set(void* object, const Name& value) = 0;
 	};
 
+	// The object a property is handed is the Param part of the class it belongs to (a branch has it behind its other
+	// bases); the setters are the class's own
+	template<class T> inline T* ObjectOf(void* object)
+	{
+		return static_cast<T*>(static_cast<Param*>(object));
+	}
+
 	// The property of a float member with an optional range, and of a bool or a name member: the setter is the
 	// track's own member function, stored as a member pointer in the property (the classes are 0x18 bytes)
 	template<class T> class PropertyFloatConstRange : public PropertyTypeFloat
@@ -178,7 +185,7 @@ namespace fight
 			{
 				return false;
 			}
-			return (static_cast<T*>(object)->*m_setter)(value);
+			return (ObjectOf<T>(object)->*m_setter)(value);
 		}
 
 		Setter m_setter;
@@ -311,8 +318,12 @@ namespace fight
 	class TrackGroup
 	{
 	public:
+		// 0x105A7F10
 		TrackGroup();
+		// 0x105A8140 (a jump to the function below)
 		~TrackGroup();
+		// 0x105A7FD0: frees the tracks
+		void Clear();
 		// 0x105A80A0: creates the actions of every track of the group into a sequencer (name guess)
 		bool Unknown105A80A0(int a, int b, int c, Sequencer* sequencer);
 
@@ -645,7 +656,7 @@ namespace fight
 		// vftable slot 7
 		virtual BranchHolder* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -664,7 +675,7 @@ namespace fight
 		// vftable slot 7
 		virtual ConditionList* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -712,7 +723,7 @@ namespace fight
 		// vftable slot 7
 		virtual TrackGroup* Set(void* object)
 		{
-			return (static_cast<T*>(object)->*m_setter)();
+			return (ObjectOf<T>(object)->*m_setter)();
 		}
 
 		Setter m_setter;
@@ -925,9 +936,71 @@ namespace fight
 	class BranchFactory : public Entity
 	{
 	public:
+		// 0x105A2690 / 0x105A26B0 (0x105A26C0 is the deleting destructor)
+		BranchFactory();
+		virtual ~BranchFactory();
+
 		// vftable slot 5: makes a branch
 		virtual Branch* CreateBranch() = 0;
 	};
+
+	// What the game casts a branch factory to before asking it for a branch (RTTI: fight::BranchFactoryCaster, 2
+	// vftable slots; the object is its vftable alone)
+	class BranchFactoryCaster
+	{
+	public:
+		// vftable slot 0: whether a factory is of the class this caster knows
+		virtual bool IsType(BranchFactory* factory) = 0;
+		// vftable slot 1: makes the factory of that class
+		virtual BranchFactory* CreateFactory(const char* name) = 0;
+	};
+
+	// 0x105A31F0: the factory of a branch class, the one the list of load listeners holds already or a new one made
+	// through the caster
+	BranchFactory* FindBranchFactory(const char* name, BranchFactoryCaster* caster);
+
+	// The factory of one branch class (RTTI: fight::BranchFactoryTemplate<T>, 6 vftable slots)
+	template<class T> class BranchFactoryTemplate : public BranchFactory
+	{
+	public:
+		BranchFactoryTemplate(const char* name)
+		{
+			SetName(Name(name, 1));
+			T::RegisterProperties();
+		}
+		virtual ~BranchFactoryTemplate()
+		{
+			T::ClearProperties();
+		}
+
+		// vftable slot 5
+		virtual Branch* CreateBranch()
+		{
+			return new T();
+		}
+	};
+
+	// RTTI: fight::BranchFactoryCasterTemplate<fight::BranchFactoryTemplate<T> >
+	template<class F> class BranchFactoryCasterTemplate : public BranchFactoryCaster
+	{
+	public:
+		BranchFactoryCasterTemplate()
+		{
+		}
+
+		// vftable slot 0
+		virtual bool IsType(BranchFactory* factory)
+		{
+			return dynamic_cast<F*>(factory) != 0;
+		}
+
+		// vftable slot 1
+		virtual BranchFactory* CreateFactory(const char* name)
+		{
+			return new F(name);
+		}
+	};
+
 
 	// The factories one fight context knows (RTTI: fight::Context, 0xD8 bytes, a load object; the class name here is a
 	// guess from its use; another unit's class, only what the fight system's set-up calls is declared)
@@ -940,6 +1013,8 @@ namespace fight
 		void AddFactory(TrackFactory* factory);
 		// 0x105A5CD0
 		void AddFactory(ConditionFactory* factory);
+		// 0x105A5C90
+		void AddFactory(BranchFactory* factory);
 		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
 		void Prepare();
 		void Complete();

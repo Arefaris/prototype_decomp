@@ -286,6 +286,27 @@ namespace fight
 		return created;
 	}
 
+	// FUNCTION: ENGINE 0x105A31F0
+	BranchFactory* FindBranchFactory(const char* name, BranchFactoryCaster* caster)
+	{
+		int heap = core::SetCurrentHeap(GetHeapId(0));
+		if (engine::gLoadListeners != 0)
+		{
+			for (TrackRegistry* registry = engine::gLoadListeners->first; registry != 0; registry = registry->next)
+			{
+				BranchFactory* found = registry->FindBranchFactory(Name(name, 1));
+				if (caster->IsType(found))
+				{
+					core::SetCurrentHeap(heap);
+					return found;
+				}
+			}
+		}
+		BranchFactory* created = caster->CreateFactory(name);
+		core::SetCurrentHeap(heap);
+		return created;
+	}
+
 	// FUNCTION: ENGINE 0x105A97E0
 	ConditionFactory* FindConditionFactory(const char* name, ConditionFactoryCaster* caster)
 	{

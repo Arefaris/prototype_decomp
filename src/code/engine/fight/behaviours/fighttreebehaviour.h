@@ -72,8 +72,7 @@ namespace engine
 		int unknown14;
 		// The actions the tree advances
 		fight::Sequencer sequencer;
-		// Padding up to the parameters: the sequencer ends at +0x5C, they sit at +0x60
-		int unknown5C;
+		// (the sequencer is padded to 0x48 bytes, so the parameters sit at +0x60)
 		// What the tree runs on
 		GameObjectParams* params;
 		// The class ends at +0x68 (the derived behaviours put their first base's next member there)

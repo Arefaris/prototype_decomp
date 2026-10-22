@@ -843,7 +843,7 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A3510
-	Branch* Branch::Slot10(Sequencer* sequencer, void* params, int a, int b)
+	Branch* Branch::Slot10(Sequencer* sequencer, void* params, int a, bool b)
 	{
 		return PickChild(sequencer, params);
 	}
@@ -1035,7 +1035,7 @@ namespace fight
 			do
 			{
 				float weight = 0.0f;
-				Branch* chosen = child->Slot10(sequencer, params, (int)&weight, 1);
+				Branch* chosen = child->Slot10(sequencer, params, (int)&weight, true);
 				if (chosen != 0)
 				{
 					if (weight > 0.0f)
@@ -1062,7 +1062,7 @@ namespace fight
 				do
 				{
 					float weight = 0.0f;
-					Branch* chosen = child->Slot10(sequencer, params, (int)&weight, 1);
+					Branch* chosen = child->Slot10(sequencer, params, (int)&weight, true);
 					if (chosen != 0 && weight > 0.0f)
 					{
 						sum = weight + sum;
@@ -1091,7 +1091,7 @@ namespace fight
 				{
 					return 0;
 				}
-				Branch* chosen = node->Slot10(sequencer, params, 0, 1);
+				Branch* chosen = node->Slot10(sequencer, params, 0, true);
 				if (chosen != 0)
 				{
 					return chosen;

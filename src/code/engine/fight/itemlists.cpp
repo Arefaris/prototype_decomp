@@ -4,6 +4,58 @@
 
 namespace fight
 {
+	// FUNCTION: ENGINE 0x105A7A60
+	ConditionList::ConditionList()
+		: head(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A7C90
+	ConditionList::~ConditionList()
+	{
+		Clear();
+	}
+
+	// FUNCTION: ENGINE 0x105A7B20
+	void ConditionList::Clear()
+	{
+		Condition* item = head;
+		while (item != 0)
+		{
+			Condition* current = item;
+			item = current->next;
+			current->next = 0;
+			delete current;
+		}
+		head = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105A7F10
+	TrackGroup::TrackGroup()
+		: head(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A8140
+	TrackGroup::~TrackGroup()
+	{
+		Clear();
+	}
+
+	// FUNCTION: ENGINE 0x105A7FD0
+	void TrackGroup::Clear()
+	{
+		Track* item = head;
+		while (item != 0)
+		{
+			Track* current = item;
+			item = current->next;
+			current->next = 0;
+			delete current;
+		}
+		head = 0;
+	}
+
 	// FUNCTION: ENGINE 0x105A7A70
 	int ConditionList::GetCount() const
 	{

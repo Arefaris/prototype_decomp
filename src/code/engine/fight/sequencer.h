@@ -253,10 +253,12 @@ namespace fight
 	class ConditionList
 	{
 	public:
-		// 0x105A7A60 (another unit): the list starts empty
+		// 0x105A7A60: the list starts empty
 		ConditionList();
-		// 0x105A7B20 (another unit): frees the conditions
+		// 0x105A7C90 (a jump to the function below)
 		~ConditionList();
+		// 0x105A7B20: frees the conditions
+		void Clear();
 		// 0x105A7BF0
 		bool Evaluate(int a, int b, int c, int d);
 
@@ -282,7 +284,7 @@ namespace fight
 	};
 
 	// The sequencer itself (name guessed): schedules and advances its actions
-	class Sequencer
+	class __declspec(align(8)) Sequencer
 	{
 	public:
 		// 0x105A3E80 / 0x105A43F0 (the sequencer's own unit): the reflection data
@@ -326,6 +328,8 @@ namespace fight
 		void SetContextName(const char* text);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
+		// 0x105A40A0: puts an action that runs a branch on a sequencer of its own at the end of the scheduled list
+		bool QueueBranch(Branch* branch, void* owner);
 
 		// The name of the fight context the sequencer runs in (0x1007EE30 sets it)
 		core::Name<core::CaseSensitiveKey> contextName;

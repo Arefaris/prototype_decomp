@@ -1,6 +1,9 @@
 // The fight sequencer: the list of actions a node runs, advanced against its clock. See sequencer.h for the model.
 // Names are guesses (no assert path names this unit).
+#include "code/core/heap.h"
 #include "code/engine/fight/branch.h"
+#include "code/engine/fight/chunk.h"
+#include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/sequencer.h"
 
 namespace engine

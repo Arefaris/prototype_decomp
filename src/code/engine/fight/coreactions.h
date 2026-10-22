@@ -87,7 +87,6 @@ namespace fight
 		core::Link<SpawnTrack> link;  // +0x28
 		core::IRefCount* owner;  // +0x34
 		Sequencer sequencer;  // +0x38
-		int unknown7C;
 	};
 
 	// RTTI: fight::WaitAction (9 vftable slots, 0x30 bytes): ends after a time drawn between the track's two limits
@@ -142,7 +141,6 @@ namespace fight
 		core::IRefCount* owner;  // +0x38
 		int unknown3C;
 		Sequencer sequencer;  // +0x40
-		int unknown84;
 	};
 
 	// RTTI: fight::StopAction (9 vftable slots, 0x3C bytes): ends what its parent sequencer has pending
@@ -233,7 +231,6 @@ namespace fight
 		core::IRefCount* owner;  // +0x38
 		int unknown3C;
 		Sequencer sequencer;  // +0x40
-		int unknown84;
 	};
 }
 
