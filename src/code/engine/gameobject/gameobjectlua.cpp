@@ -755,8 +755,8 @@ namespace engine
 		}
 		LoadListeners* listeners = gLoadListeners;
 		fight::TrackRegistry* context = listeners->FindContext(ScriptName(gMotionContextName, 1));
-		fight::TrackRegistry::BranchTable* table = context->branches;
-		fight::Branch* branch = table->FindByPath(path);
+		fight::Branch* table = context->branches;
+		fight::Branch* branch = table->FindInTree(path);
 		if (branch != 0)
 		{
 			PlayBranchMessage message(branch, mode, flag);
@@ -794,8 +794,8 @@ namespace engine
 			{
 				LoadListeners* listeners = gLoadListeners;
 				fight::TrackRegistry* context = listeners->FindContext(ScriptName(gMotionContextName, 1));
-				fight::TrackRegistry::BranchTable* table = context->branches;
-				fight::Branch* branch = table->FindByPath(path);
+				fight::Branch* table = context->branches;
+				fight::Branch* branch = table->FindInTree(path);
 				if (branch != 0)
 				{
 					IsPlayingBranchMessage message(branch, exact);

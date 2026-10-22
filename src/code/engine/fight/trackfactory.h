@@ -19,6 +19,7 @@ namespace fight
 {
 	class TrackFactory;
 	class ConditionFactory;
+	class BranchFactory;
 	class Branch;
 	class TrackRegistry;
 	class Reader;
@@ -920,9 +921,17 @@ namespace fight
 	// new one made through the caster
 	TrackFactory* FindTrackFactory(const char* name, TrackFactoryCaster* caster);
 
+	// The factory of one kind of branch (RTTI: fight::BranchFactory, 6 vftable slots, base fight::Entity)
+	class BranchFactory : public Entity
+	{
+	public:
+		// vftable slot 5: makes a branch
+		virtual Branch* CreateBranch() = 0;
+	};
+
 	// The factories one fight context knows (RTTI: fight::Context, 0xD8 bytes, a load object; the class name here is a
 	// guess from its use; another unit's class, only what the fight system's set-up calls is declared)
-	class TrackRegistry : public content::LoadObject
+	class TrackRegistry : public Entity
 	{
 	public:
 		// 0x105A5DB0
@@ -931,8 +940,6 @@ namespace fight
 		void AddFactory(TrackFactory* factory);
 		// 0x105A5CD0
 		void AddFactory(ConditionFactory* factory);
-		// 0x105A5160: the name the context is known by
-		void SetName(const Name& newName);
 		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
 		void Prepare();
 		void Complete();
@@ -942,21 +949,15 @@ namespace fight
 		// 0x105A5260: resolves the branch references of the context's nodes
 		void ResolveBranchRefs();
 
-		// The branches of the context (0x105A3690 finds one by its path)
-		class BranchTable
-		{
-		public:
-			Branch* FindByPath(const char* path);
-		};
-
-		// 0x105A59D0 / 0x105A5990: the track / condition factory of a name (null when there is none)
+		// 0x105A59D0 / 0x105A5990 / 0x105A5950: the track / condition / branch factory of a name (null when there is none)
 		TrackFactory* FindTrackFactory(const Name& key);
 		ConditionFactory* FindConditionFactory(const Name& key);
+		BranchFactory* FindBranchFactory(const Name& key);
 
-		Name name;  // +0x8
 		TrackRegistry* next;  // +0x10: the next context of the load listeners' list
 		unsigned char unknown14[0x78];
-		BranchTable* branches;  // +0x8C
+		// The root branch of the context's tree
+		Branch* branches;  // +0x8C
 		unsigned char unknown90[0x48];
 	};
 

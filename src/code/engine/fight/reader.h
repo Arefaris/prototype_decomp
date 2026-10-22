@@ -4,19 +4,17 @@
 #define ENGINE_FIGHT_READER_H
 
 #include "code/core/name.h"
+#include "code/engine/fight/branch.h"
 #include "code/math/colour128.h"
 #include "code/math/vector.h"
 
 namespace fight
 {
-	class Reader
+	class Reader : public RefCounted
 	{
 	public:
 		typedef core::Name<core::CaseSensitiveKey> Name;
 
-		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
-		virtual void Slot2() = 0;
 		// vftable slot 3: whether a value follows
 		virtual bool HasValue() = 0;
 		virtual void Slot4() = 0;
@@ -43,11 +41,16 @@ namespace fight
 		virtual bool HasChild() = 0;
 		virtual const Name* GetChildName() = 0;
 		virtual void Slot19() = 0;
-		virtual void EnterChild(const Name& key) = 0;
+		virtual int EnterChild(const Name& key) = 0;
 		virtual void ExitChild() = 0;
 		// vftable slot 22 and 23: where the reader is, for the messages
 		virtual const char* GetFileName() = 0;
 		virtual int GetLine(void* arguments) = 0;
+
+		// 0x105AA990: reads a name and hands it to an entity
+		bool ReadName(const Name& key, Entity* target);
+		// 0x105AA8A0: leaves the child the reader is at, answering its name (name guess)
+		int SkipChild();
 	};
 
 	// 0x105AA8D0: shows a message with the file and the line the reader is at (formats like printf)

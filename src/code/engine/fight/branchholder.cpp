@@ -155,8 +155,7 @@ namespace fight
 					context = found;
 					found->AddHolder(this);
 				}
-				TrackRegistry::BranchTable* table = context->branches;
-				Assign(start, table->FindByPath(path));
+				Assign(start, context->branches->FindInTree(path));
 			}
 		}
 		else if (index >= 0)

@@ -453,7 +453,7 @@ namespace fight
 		Branch* target = branch.GetBranch();
 		if (recurse)
 		{
-			for (Branch* node = current; node != 0; node = node->unknown18)
+			for (Branch* node = current; node != 0; node = node->parent)
 			{
 				if (node == target)
 				{

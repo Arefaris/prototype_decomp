@@ -235,6 +235,8 @@ namespace engine
 	public:
 		// The first context of the list (the others follow through the contexts' own links)
 		fight::TrackRegistry* first;
+		// The critical section the watchers of the branches are changed under
+		unsigned char lock[0x18];
 
 		void Begin(int unknown);
 		void End(int unknown);

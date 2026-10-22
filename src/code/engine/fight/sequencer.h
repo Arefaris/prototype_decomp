@@ -141,6 +141,17 @@ namespace fight
 		virtual Property* GetProperty(int index) = 0;
 		// vftable slot 1 (0x10034324, another unit)
 		virtual Property* Slot1(int index);
+
+		// Hand every property of this part (slot 0) the part and an owner through their slot 2 / 3 (names guessed;
+		// expanded in the branch's functions)
+		void VisitProperties2(int owner);
+		void VisitProperties3(int owner);
+		// Hand every property of the nodes below (slot 1) this part, an owner and a reader through their slot 6
+		void VisitProperties6(int owner, void* reader);
+
+		// 0x105AA2B0: hands every property of this part and the one of another part of the same kind and name to the
+		// property's slot 4 together with an argument (name guess)
+		void MergeProperties(Param* other, int arg);
 	};
 
 	// RTTI: fight::Item (9 vftable slots, base fight::Param); no data of its own. Slots 2, 3 and 4 walk the
@@ -159,10 +170,6 @@ namespace fight
 		virtual ~Item();
 		// vftable slot 8 (0x105A9B10): reads the values of the nodes below from a reader (the context, the reader)
 		virtual bool Slot8(int context, void* reader);
-
-		// 0x105AA2B0: hands every property of this node and the one of another node of the same kind and name to
-		// the property's slot 4 together with an argument (name guess)
-		void MergeProperties(Item* other, int arg);
 	};
 
 	// A condition predicate of the fight tree (RTTI: fight::Condition, 10 vftable slots). The base is the node of a

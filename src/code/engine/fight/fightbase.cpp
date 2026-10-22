@@ -383,7 +383,7 @@ namespace core
 namespace fight
 {
 	// FUNCTION: ENGINE 0x105AA2B0
-	void Item::MergeProperties(Item* other, int arg)
+	void Param::MergeProperties(Param* other, int arg)
 	{
 		int index = 0;
 		Property* property;
