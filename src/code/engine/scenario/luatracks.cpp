@@ -222,7 +222,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108089A0
 		bool LuaTrack::Slot5(int a, int b, int c)
 		{
-			bool result = fight::Item::Slot5(a, b, c);
+			bool result = fight::Track::Slot5(a, b, c);
 			if (result && b != 0)
 			{
 				((ItemParent*)b)->ListChild(this);

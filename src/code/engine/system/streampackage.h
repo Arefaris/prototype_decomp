@@ -233,6 +233,9 @@ namespace engine
 	class LoadListeners
 	{
 	public:
+		// The first context of the list (the others follow through the contexts' own links)
+		fight::TrackRegistry* first;
+
 		void Begin(int unknown);
 		void End(int unknown);
 		// 0x105A4F40: puts a fight context at the end of the list (the head at +0, the next link at +0x10 of a context)

@@ -152,11 +152,13 @@ namespace fight
 		virtual void Slot2(int arg);
 		virtual void Slot3(int arg);
 		virtual void Slot4(int arg);
-		virtual bool Slot5(int a, int b, int c);
+		// vftable slot 5 (0x105A9B80): reads a node stored under a key from a reader (the key, the context, the reader)
+		virtual bool Slot5(int key, int context, int reader);
 		virtual void Slot6(int a, int b);
 		// vftable slot 7: the object is destroyed (the compiler's scalar deleting destructor sits here)
 		virtual ~Item();
-		virtual void Slot8(int a, int b);
+		// vftable slot 8 (0x105A9B10): reads the values of the nodes below from a reader (the context, the reader)
+		virtual bool Slot8(int context, void* reader);
 	};
 
 	// A condition predicate of the fight tree (RTTI: fight::Condition, 10 vftable slots). The base is the node of a
@@ -168,8 +170,8 @@ namespace fight
 		explicit Condition(int newOp);
 		// 0x105A9A00 (another unit): the destructor of the derived conditions' chain
 		virtual ~Condition();
-		// vftable slot 5 (0x105A9910, another unit): the condition's own
-		virtual bool Slot5(int a, int b, int c);
+		// vftable slot 5 (0x105A9910): the condition's own
+		virtual bool Slot5(int key, int context, int reader);
 		// vftable slot 9
 		virtual bool Evaluate(int a, int b, int c, int d) = 0;
 
@@ -189,6 +191,8 @@ namespace fight
 		// the destructor slot (7): clears the watch list, then the base's
 		virtual ~Track();
 
+		// vftable slot 5 (0x105A9F90): the track's own: skips what is disabled and keeps the slave word
+		virtual bool Slot5(int key, int context, int reader);
 		// vftable slot 9: the time the track begins at
 		virtual float GetTimeBegin() const = 0;
 		// vftable slot 10: the time it ends at

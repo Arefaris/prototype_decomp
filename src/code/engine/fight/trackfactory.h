@@ -890,7 +890,9 @@ namespace fight
 	class TrackFactory
 	{
 	public:
+		// 0x105A9E40 / 0x105A9E80
 		TrackFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
+		~TrackFactory();
 
 		// vftable slot 0 (0x105A9CF0, inherited from every factory)
 		virtual void Slot0();
@@ -914,7 +916,7 @@ namespace fight
 		virtual TrackFactory* CreateFactory(const char* name) = 0;
 	};
 
-	// 0x105A9E90 (another unit): the factory of a track class, the one the list of load listeners holds already or a
+	// 0x105A9E90: the factory of a track class, the one the list of load listeners holds already or a
 	// new one made through the caster
 	TrackFactory* FindTrackFactory(const char* name, TrackFactoryCaster* caster);
 
@@ -947,8 +949,13 @@ namespace fight
 			Branch* FindByPath(const char* path);
 		};
 
+		// 0x105A59D0 / 0x105A5990: the track / condition factory of a name (null when there is none)
+		TrackFactory* FindTrackFactory(const Name& key);
+		ConditionFactory* FindConditionFactory(const Name& key);
+
 		Name name;  // +0x8
-		unsigned char unknown10[0x7C];
+		TrackRegistry* next;  // +0x10: the next context of the load listeners' list
+		unsigned char unknown14[0x78];
 		BranchTable* branches;  // +0x8C
 		unsigned char unknown90[0x48];
 	};
@@ -997,7 +1004,9 @@ namespace fight
 	class ConditionFactory
 	{
 	public:
+		// 0x105A9790 / 0x105A97D0
 		ConditionFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
+		~ConditionFactory();
 
 		// vftable slot 0 (0x105A9720, inherited from every factory)
 		virtual void Slot0();
@@ -1018,7 +1027,7 @@ namespace fight
 		virtual ConditionFactory* CreateFactory(const char* name) = 0;
 	};
 
-	// 0x105A97E0 (another unit)
+	// 0x105A97E0
 	ConditionFactory* FindConditionFactory(const char* name, ConditionFactoryCaster* caster);
 
 	template<class T> class ConditionFactoryTemplate : public ConditionFactory

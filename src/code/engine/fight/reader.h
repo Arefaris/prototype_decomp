@@ -40,7 +40,7 @@ namespace fight
 		virtual bool GetStringLength(const Name& key, int* length) = 0;
 		// vftable slot 17 - 21: the children of the node being read
 		virtual bool HasChild() = 0;
-		virtual const Name* GetChildName(const Name& key) = 0;
+		virtual const Name* GetChildName() = 0;
 		virtual void Slot19() = 0;
 		virtual void EnterChild(const Name& key) = 0;
 		virtual void ExitChild() = 0;
