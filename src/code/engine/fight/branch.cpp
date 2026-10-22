@@ -1341,7 +1341,7 @@ namespace fight
 		reader->ReadString(gBranchPathKey, path, 1024);
 		int offset = 0;
 		reader->ReadInt(gBranchOffsetKey, &offset);
-		if (!reader->HasValue())
+		if (!reader->UsesNumbers())
 		{
 			bool flag = false;
 			reader->ReadBool(gBranchFlagKey, &flag);

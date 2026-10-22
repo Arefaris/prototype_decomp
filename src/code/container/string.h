@@ -131,6 +131,24 @@ namespace container
 			core::StrNCpy(buffer, other.buffer, core::StrNLen(other.buffer, N) + 1);
 			return *this;
 		}
+		// Copies text, cut to N characters including the terminator (a null text empties the string)
+		StringC& operator=(const char* text)
+		{
+			if (text != 0)
+			{
+				int length = (int)core::StrLen(text) + 1;
+				if (length > N)
+				{
+					length = N;
+				}
+				core::StrNCpy(buffer, text, (unsigned int)length);
+			}
+			else
+			{
+				buffer[0] = 0;
+			}
+			return *this;
+		}
 		virtual char* Data()
 		{
 			return buffer;

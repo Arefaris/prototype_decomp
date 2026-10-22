@@ -147,7 +147,7 @@ namespace fight
 			return false;
 		}
 		reader->EnterChild(*child);
-		if (!reader->HasValue())
+		if (!reader->UsesNumbers())
 		{
 			bool flag = false;
 			reader->ReadBool(gConditionFlagName, &flag);
@@ -200,7 +200,7 @@ namespace fight
 			return false;
 		}
 		reader->EnterChild(*child);
-		if (!reader->HasValue())
+		if (!reader->UsesNumbers())
 		{
 			bool disabled = false;
 			reader->ReadBool(Name(gTrackDisabledText, 1), &disabled);

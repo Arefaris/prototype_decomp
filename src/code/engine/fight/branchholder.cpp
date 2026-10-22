@@ -74,7 +74,7 @@ namespace fight
 		char text[1024] = { 0 };
 		reader->ReadString(key, text, 1024);
 		SetPathAndClear(text);
-		if (reader->HasValue())
+		if (reader->UsesNumbers())
 		{
 			index = -1;
 			reader->ReadInt(key, &index);
