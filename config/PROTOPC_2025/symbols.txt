@@ -21125,3 +21125,12 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?gStopDriveThread@engine@@3JC = 0x11316D9C ; data size:0x4 | long volatile engine::gStopDriveThread (name guess)
 ?gDriveFault@engine@@3JC = 0x11316DA0 ; data size:0x4 | long volatile engine::gDriveFault (name guess)
 
+?GetLocalizedText@engine@@YAPBDPBD@Z = 0x10873F30 ; function size:0x26 | char const * __cdecl engine::GetLocalizedText(char const *) (name guess)
+?FormatMessage@engine@@YAXPBUValue@FEMovie@1@HPAU231@PADHPBD@Z = 0x108833E0 ; function size:0x170 | void __cdecl engine::FormatMessage(struct engine::FEMovie::Value const *,int,struct engine::FEMovie::Value *,char *,int,char const *) (name guess)
+?FormatDateShort@engine@@YAXPBUValue@FEMovie@1@PADHPBD@Z = 0x108836D0 ; function size:0x1 | void __cdecl engine::FormatDateShort(struct engine::FEMovie::Value const *,char *,int,char const *) (name guess)
+?FormatDateLong@engine@@YAXPBUValue@FEMovie@1@PADHPBD@Z = 0x108836E0 ; function size:0x1 | void __cdecl engine::FormatDateLong(struct engine::FEMovie::Value const *,char *,int,char const *) (name guess)
+?FormatBracketed@engine@@YAXPADPBD@Z = 0x10883790 ; function size:0x89 | void __cdecl engine::FormatBracketed(char *,char const *) (name guess)
+__imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name guess)
+?gValueFormats@engine@@3PAUValueFormat@1@A = 0x111D2D50 ; data size:0x110 | struct engine::ValueFormat * engine::gValueFormats (another unit; name guess)
+?TranslateValue@engine@@YA_NPBUValue@FEMovie@1@HPAU231@PADH@Z = 0x10883920 ; function size:0xB3 | bool __cdecl engine::TranslateValue(struct engine::FEMovie::Value const *,int,struct engine::FEMovie::Value *,char *,int) (name guess)
+?FormatString@engine@@YAXPBUValue@FEMovie@1@PADHPBD@Z = 0x108839E0 ; function size:0xAE | void __cdecl engine::FormatString(struct engine::FEMovie::Value const *,char *,int,char const *) (name guess)

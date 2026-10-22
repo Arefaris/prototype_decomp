@@ -25,6 +25,8 @@ namespace engine
 			{
 				const char* string;
 				double number;
+				// The payload as two words (copied as such)
+				unsigned __int64 bits;
 			};
 		};
 
