@@ -90,7 +90,7 @@ namespace fight
 		// vftable slot 7 (0x105A2490): updates; only actions without their own copy keep this one
 		virtual bool Slot7(int arg, float value);
 		// vftable slot 8 (0x105A24A0): copies the action's flags and three times into another action (name guessed)
-		virtual void Slot8(Action* other, int arg, float value);
+		virtual Action* Slot8(Action* other, core::IRefCount* effect, core::IRefCount* owner);
 
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
@@ -250,6 +250,11 @@ namespace fight
 		bool Unknown105A45A0(bool flag);
 		// 0x105A4270: hands the sequencer the flags the behaviour collected and the parameters (name unknown)
 		void Unknown105A4270(unsigned int flags, engine::GameObjectParams* params);
+		// 0x105A44D0: makes the track the sequencer's pending one (registered under it), with an argument, the owner it
+		// is run for and a priority; refused when a pending track is there and the priority is not lower (name guess)
+		bool SetPending(Branch* track, int arg, core::IRefCount* owner, int priority);
+		// 0x105A45D0: copies the sequencer's state into another one (name guess)
+		void CopyTo(Sequencer* other, core::IRefCount* effect, core::IRefCount* owner);
 		// 0x105A4910: walks the actions and their children (name unknown)
 		void Unknown105A4910(bool flag);
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset

@@ -351,6 +351,9 @@ namespace fight
 
 		bool SetCompare(int value);
 		bool SetMode(int value);
+		// 0x105B2760 / 0x105B2770 (the editor's getters)
+		int GetCompare() const;
+		int GetMode() const;
 
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -463,6 +466,12 @@ namespace fight
 
 	extern Property** gSequenceTrackProperties;
 
+	// 0x105B27A0 / 0x105B27D0 / 0x105B2800 / 0x105B2830: whether a condition or a track is a comment and its text (the editor)
+	bool IsCommentCondition(Condition* condition);
+	const char* GetCommentConditionText(Condition* condition);
+	bool IsCommentTrack(Track* track);
+	const char* GetCommentTrackText(Track* track);
+
 	// The factory makers, each followed by the registration into a registry
 	ConditionFactory* CreateRandomConditionFactory(const char* name);
 	ConditionFactory* CreateMaybeConditionFactory(const char* name);
@@ -494,6 +503,74 @@ namespace fight
 	void RegisterCommentTrackFactory(TrackRegistry* registry, const char* name);
 	void RegisterStopTrackFactory(TrackRegistry* registry, const char* name);
 	void RegisterSequenceTrackFactory(TrackRegistry* registry, const char* name);
+
+	// RTTI: fight::OpportunityTrack (16 vftable slots, 0x48 bytes)
+	class OpportunityTrack : public Track
+	{
+	public:
+		// 0x105B1170
+		OpportunityTrack();
+		virtual ~OpportunityTrack();
+
+		virtual Property* GetProperty(int index);
+		virtual float GetTimeBegin() const;
+		virtual float Slot10() const;
+		virtual Action* CreateAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+		bool SetTimeBegin(float value);
+		bool SetTimeEnd(float value);
+		bool SetTimeHook(float value);
+		BranchHolder* GetBranch();
+		bool SetPriority(int value);
+		ConditionList* GetConditions();
+
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		BranchHolder branch;  // +0x10
+		ConditionList conditions;  // +0x34
+		float timeBegin;  // +0x38
+		float timeEnd;  // +0x3C
+		float timeHook;  // +0x40
+		int priority;  // +0x44
+	};
+
+	extern Property** gOpportunityTrackProperties;
+
+	// RTTI: fight::ExecuteTrack (16 vftable slots, 0x40 bytes)
+	class ExecuteTrack : public Track
+	{
+	public:
+		// 0x105B1620
+		ExecuteTrack();
+		virtual ~ExecuteTrack();
+
+		virtual Property* GetProperty(int index);
+		virtual float GetTimeBegin() const;
+		virtual float Slot10() const;
+		virtual Action* CreateAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+		bool SetTimeBegin(float value);
+		bool SetTimeEnd(float value);
+		BranchHolder* GetBranch();
+		ConditionList* GetConditions();
+
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		BranchHolder branch;  // +0x10
+		ConditionList conditions;  // +0x34
+		float timeBegin;  // +0x38
+		float timeEnd;  // +0x3C
+	};
+
+	extern Property** gExecuteTrackProperties;
+
+	// 0x105B1370 / 0x105B1500 and 0x105B17C0 / 0x105B18F0
+	TrackFactory* CreateOpportunityTrackFactory(const char* name);
+	void RegisterOpportunityTrackFactory(TrackRegistry* registry, const char* name);
+	TrackFactory* CreateExecuteTrackFactory(const char* name);
+	void RegisterExecuteTrackFactory(TrackRegistry* registry, const char* name);
 }
 
 #endif

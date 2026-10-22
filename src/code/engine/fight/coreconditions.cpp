@@ -1377,9 +1377,239 @@ namespace fight
 		TrackFactoryCasterTemplate<SequenceTrack> caster;
 		registry->AddFactory(FindTrackFactory(name, &caster));
 	}
+
+	// GLOBAL: ENGINE 0x112762A8
+	Property** gOpportunityTrackProperties;
+	// GLOBAL: ENGINE 0x112762AC
+	Property** gExecuteTrackProperties;
+
+	// ---- fight::OpportunityTrack, ExecuteTrack -------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x105B10F0
+	bool OpportunityTrack::SetTimeBegin(float newValue)
+	{
+		timeBegin = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B1100
+	bool OpportunityTrack::SetTimeEnd(float newValue)
+	{
+		timeEnd = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B1110
+	bool OpportunityTrack::SetTimeHook(float newValue)
+	{
+		timeHook = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B1120
+	BranchHolder* OpportunityTrack::GetBranch()
+	{
+		return &branch;
+	}
+
+	// FUNCTION: ENGINE 0x105B1130
+	bool OpportunityTrack::SetPriority(int newValue)
+	{
+		priority = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B1140
+	ConditionList* OpportunityTrack::GetConditions()
+	{
+		return &conditions;
+	}
+
+	// FUNCTION: ENGINE 0x105B1150
+	Property* OpportunityTrack::GetProperty(int index)
+	{
+		return gOpportunityTrackProperties[index];
+	}
+
+	// FUNCTION: ENGINE 0x105B1160
+	void OpportunityTrack::ClearProperties()
+	{
+		FreePropertyList(&gOpportunityTrackProperties);
+	}
+
+	// FUNCTION: ENGINE 0x105B1170
+	OpportunityTrack::OpportunityTrack() : branch(0), timeBegin(0.0f), timeEnd(-1.0f), timeHook(0.0f), priority(0)
+	{
+		unknownC = 1;
+	}
+
+	// FUNCTION: ENGINE 0x105B11C0
+	float OpportunityTrack::GetTimeBegin() const
+	{
+		return timeBegin;
+	}
+
+	// FUNCTION: ENGINE 0x105B11D0
+	float OpportunityTrack::Slot10() const
+	{
+		return -1.0f;
+	}
+
+	// FUNCTION: ENGINE 0x105B11E0
+	OpportunityTrack::~OpportunityTrack()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105B1370
+	TrackFactory* CreateOpportunityTrackFactory(const char* name)
+	{
+		TrackFactoryCasterTemplate<OpportunityTrack> caster;
+		return FindTrackFactory(name, &caster);
+	}
+
+	// FUNCTION: ENGINE 0x105B1390
+	// EQUIVALENT: shrink-wrap
+	void OpportunityTrack::RegisterProperties()
+	{
+		if (gOpportunityTrackProperties == 0)
+		{
+			Property* properties[256] = { 0 };
+			Property* property = 0;
+			property = new PropertyFloatConstRange<OpportunityTrack>("timeBegin", &OpportunityTrack::SetTimeBegin);
+			properties[0] = property;
+			property = new PropertyFloatConstRange<OpportunityTrack>("timeEnd", &OpportunityTrack::SetTimeEnd);
+			properties[1] = property;
+			property = new PropertyFloatConstRange<OpportunityTrack>("timeHook", &OpportunityTrack::SetTimeHook);
+			properties[2] = property;
+			property = new PropertyBranch<OpportunityTrack>("branch", &OpportunityTrack::GetBranch);
+			properties[3] = property;
+			property = new PropertyIntConstRange<OpportunityTrack>("priority", &OpportunityTrack::SetPriority);
+			properties[4] = property;
+			property = new PropertyConditionGroup<OpportunityTrack>("conditions", &OpportunityTrack::GetConditions);
+			properties[5] = property;
+			RegisterPropertyList(properties, &gOpportunityTrackProperties);
+		}
+	}
+
+	template class PropertyFloatConstRange<OpportunityTrack>;
+	template class PropertyBranch<OpportunityTrack>;
+	template class PropertyIntConstRange<OpportunityTrack>;
+	template class PropertyConditionGroup<OpportunityTrack>;
+	template class TrackFactoryTemplate<OpportunityTrack>;
+	template class TrackFactoryCasterTemplate<OpportunityTrack>;
+
+	// FUNCTION: ENGINE 0x105B1500
+	void RegisterOpportunityTrackFactory(TrackRegistry* registry, const char* name)
+	{
+		TrackFactoryCasterTemplate<OpportunityTrack> caster;
+		registry->AddFactory(FindTrackFactory(name, &caster));
+	}
+
+	// FUNCTION: ENGINE 0x105B15C0
+	bool ExecuteTrack::SetTimeBegin(float newValue)
+	{
+		timeBegin = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B15D0
+	bool ExecuteTrack::SetTimeEnd(float newValue)
+	{
+		timeEnd = newValue;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B15E0
+	BranchHolder* ExecuteTrack::GetBranch()
+	{
+		return &branch;
+	}
+
+	// FUNCTION: ENGINE 0x105B15F0
+	ConditionList* ExecuteTrack::GetConditions()
+	{
+		return &conditions;
+	}
+
+	// FUNCTION: ENGINE 0x105B1600
+	Property* ExecuteTrack::GetProperty(int index)
+	{
+		return gExecuteTrackProperties[index];
+	}
+
+	// FUNCTION: ENGINE 0x105B1610
+	void ExecuteTrack::ClearProperties()
+	{
+		FreePropertyList(&gExecuteTrackProperties);
+	}
+
+	// FUNCTION: ENGINE 0x105B1620
+	ExecuteTrack::ExecuteTrack() : branch(0), timeBegin(0.0f), timeEnd(-1.0f)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105B1660
+	float ExecuteTrack::GetTimeBegin() const
+	{
+		return timeBegin;
+	}
+
+	// FUNCTION: ENGINE 0x105B1670
+	float ExecuteTrack::Slot10() const
+	{
+		return timeEnd - timeBegin;
+	}
+
+	// FUNCTION: ENGINE 0x105B1680
+	ExecuteTrack::~ExecuteTrack()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105B17C0
+	TrackFactory* CreateExecuteTrackFactory(const char* name)
+	{
+		TrackFactoryCasterTemplate<ExecuteTrack> caster;
+		return FindTrackFactory(name, &caster);
+	}
+
+	// FUNCTION: ENGINE 0x105B17E0
+	// EQUIVALENT: shrink-wrap
+	void ExecuteTrack::RegisterProperties()
+	{
+		if (gExecuteTrackProperties == 0)
+		{
+			Property* properties[256] = { 0 };
+			Property* property = 0;
+			property = new PropertyFloatConstRange<ExecuteTrack>("timeBegin", &ExecuteTrack::SetTimeBegin);
+			properties[0] = property;
+			property = new PropertyFloatConstRange<ExecuteTrack>("timeEnd", &ExecuteTrack::SetTimeEnd);
+			properties[1] = property;
+			property = new PropertyBranch<ExecuteTrack>("branch", &ExecuteTrack::GetBranch);
+			properties[2] = property;
+			property = new PropertyConditionGroup<ExecuteTrack>("conditions", &ExecuteTrack::GetConditions);
+			properties[3] = property;
+			RegisterPropertyList(properties, &gExecuteTrackProperties);
+		}
+	}
+
+	template class PropertyFloatConstRange<ExecuteTrack>;
+	template class PropertyBranch<ExecuteTrack>;
+	template class PropertyConditionGroup<ExecuteTrack>;
+	template class TrackFactoryTemplate<ExecuteTrack>;
+	template class TrackFactoryCasterTemplate<ExecuteTrack>;
+
+	// FUNCTION: ENGINE 0x105B18F0
+	void RegisterExecuteTrackFactory(TrackRegistry* registry, const char* name)
+	{
+		TrackFactoryCasterTemplate<ExecuteTrack> caster;
+		registry->AddFactory(FindTrackFactory(name, &caster));
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x105ADCE0
+// FUNCTION: ENGINE 0x105ADD00
+// FUNCTION: ENGINE 0x105ADD20
 // FUNCTION: ENGINE 0x105ADD40
 // FUNCTION: ENGINE 0x105ADD50
 // FUNCTION: ENGINE 0x105ADD80
@@ -1416,6 +1646,8 @@ namespace fight
 // FUNCTION: ENGINE 0x105AE450
 // FUNCTION: ENGINE 0x105AE490
 // FUNCTION: ENGINE 0x105AE4D0
+// FUNCTION: ENGINE 0x105AE5D0
+// FUNCTION: ENGINE 0x105AE5F0
 // FUNCTION: ENGINE 0x105AE610
 // FUNCTION: ENGINE 0x105AE620
 // FUNCTION: ENGINE 0x105AE650
@@ -1432,6 +1664,8 @@ namespace fight
 // FUNCTION: ENGINE 0x105AE950
 // FUNCTION: ENGINE 0x105AE970
 // FUNCTION: ENGINE 0x105AE9B0
+// FUNCTION: ENGINE 0x105AEBA0
+// FUNCTION: ENGINE 0x105AEBC0
 // FUNCTION: ENGINE 0x105AEBE0
 // FUNCTION: ENGINE 0x105AEBF0
 // FUNCTION: ENGINE 0x105AEC20
@@ -1451,6 +1685,7 @@ namespace fight
 // FUNCTION: ENGINE 0x105AF000
 // FUNCTION: ENGINE 0x105AF020
 // FUNCTION: ENGINE 0x105AF060
+// FUNCTION: ENGINE 0x105AF160
 // FUNCTION: ENGINE 0x105AF180
 // FUNCTION: ENGINE 0x105AF190
 // FUNCTION: ENGINE 0x105AF1C0
@@ -1459,6 +1694,9 @@ namespace fight
 // FUNCTION: ENGINE 0x105AF3D0
 // FUNCTION: ENGINE 0x105AF400
 // FUNCTION: ENGINE 0x105AF420
+// FUNCTION: ENGINE 0x105AF690
+// FUNCTION: ENGINE 0x105AF6B0
+// FUNCTION: ENGINE 0x105AF6D0
 // FUNCTION: ENGINE 0x105AF780
 // FUNCTION: ENGINE 0x105AF790
 // FUNCTION: ENGINE 0x105AF7C0
@@ -1473,6 +1711,7 @@ namespace fight
 // FUNCTION: ENGINE 0x105AF930
 // FUNCTION: ENGINE 0x105AF960
 // FUNCTION: ENGINE 0x105AF970
+// FUNCTION: ENGINE 0x105AF9A0
 // FUNCTION: ENGINE 0x105AF9C0
 // FUNCTION: ENGINE 0x105AF9E0
 // FUNCTION: ENGINE 0x105AF9F0
@@ -1490,11 +1729,13 @@ namespace fight
 // FUNCTION: ENGINE 0x105AFE70
 // FUNCTION: ENGINE 0x105AFEA0
 // FUNCTION: ENGINE 0x105AFEC0
+// FUNCTION: ENGINE 0x105AFFA0
 // FUNCTION: ENGINE 0x105AFFC0
 // FUNCTION: ENGINE 0x105AFFD0
 // FUNCTION: ENGINE 0x105B0000
 // FUNCTION: ENGINE 0x105B0030
 // FUNCTION: ENGINE 0x105B0050
+// FUNCTION: ENGINE 0x105B0160
 // FUNCTION: ENGINE 0x105B0180
 // FUNCTION: ENGINE 0x105B0190
 // FUNCTION: ENGINE 0x105B01C0
@@ -1505,6 +1746,8 @@ namespace fight
 // FUNCTION: ENGINE 0x105B0370
 // FUNCTION: ENGINE 0x105B03A0
 // FUNCTION: ENGINE 0x105B03C0
+// FUNCTION: ENGINE 0x105B0520
+// FUNCTION: ENGINE 0x105B0540
 // FUNCTION: ENGINE 0x105B0560
 // FUNCTION: ENGINE 0x105B0570
 // FUNCTION: ENGINE 0x105B05A0
@@ -1521,6 +1764,7 @@ namespace fight
 // FUNCTION: ENGINE 0x105B08A0
 // FUNCTION: ENGINE 0x105B08C0
 // FUNCTION: ENGINE 0x105B0900
+// FUNCTION: ENGINE 0x105B0A10
 // FUNCTION: ENGINE 0x105B0A30
 // FUNCTION: ENGINE 0x105B0A40
 // FUNCTION: ENGINE 0x105B0A70
@@ -1531,6 +1775,7 @@ namespace fight
 // FUNCTION: ENGINE 0x105B0C20
 // FUNCTION: ENGINE 0x105B0C50
 // FUNCTION: ENGINE 0x105B0C70
+// FUNCTION: ENGINE 0x105B0DA0
 // FUNCTION: ENGINE 0x105B0DC0
 // FUNCTION: ENGINE 0x105B0DD0
 // FUNCTION: ENGINE 0x105B0E00
@@ -1546,3 +1791,32 @@ namespace fight
 // FUNCTION: ENGINE 0x105B1060
 // FUNCTION: ENGINE 0x105B1090
 // FUNCTION: ENGINE 0x105B10B0
+// FUNCTION: ENGINE 0x105B1210
+// FUNCTION: ENGINE 0x105B1230
+// FUNCTION: ENGINE 0x105B1240
+// FUNCTION: ENGINE 0x105B1270
+// FUNCTION: ENGINE 0x105B1290
+// FUNCTION: ENGINE 0x105B12B0
+// FUNCTION: ENGINE 0x105B12C0
+// FUNCTION: ENGINE 0x105B12E0
+// FUNCTION: ENGINE 0x105B12F0
+// FUNCTION: ENGINE 0x105B1310
+// FUNCTION: ENGINE 0x105B1330
+// FUNCTION: ENGINE 0x105B1340
+// FUNCTION: ENGINE 0x105B1360
+// FUNCTION: ENGINE 0x105B1530
+// FUNCTION: ENGINE 0x105B1560
+// FUNCTION: ENGINE 0x105B1580
+// FUNCTION: ENGINE 0x105B16B0
+// FUNCTION: ENGINE 0x105B16D0
+// FUNCTION: ENGINE 0x105B16E0
+// FUNCTION: ENGINE 0x105B1710
+// FUNCTION: ENGINE 0x105B1730
+// FUNCTION: ENGINE 0x105B1750
+// FUNCTION: ENGINE 0x105B1760
+// FUNCTION: ENGINE 0x105B1780
+// FUNCTION: ENGINE 0x105B1790
+// FUNCTION: ENGINE 0x105B17B0
+// FUNCTION: ENGINE 0x105B1920
+// FUNCTION: ENGINE 0x105B1950
+// FUNCTION: ENGINE 0x105B1970

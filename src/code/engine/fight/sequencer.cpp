@@ -68,10 +68,10 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A24A0
-	void Action::Slot8(Action* other, int arg, float value)
+	Action* Action::Slot8(Action* other, core::IRefCount* effect, core::IRefCount* owner)
 	{
-		(void)arg;
-		(void)value;
+		(void)effect;
+		(void)owner;
 		if (other != 0)
 		{
 			other->flags = flags;
@@ -79,6 +79,7 @@ namespace fight
 			other->unknown14 = unknown14;
 			other->timeEnd = timeEnd;
 		}
+		return other;
 	}
 
 	// FUNCTION: ENGINE 0x105A4120

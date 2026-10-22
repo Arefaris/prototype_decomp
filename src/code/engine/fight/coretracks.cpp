@@ -207,7 +207,6 @@ namespace fight
 	}
 }
 
-
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x105A67D0
 // FUNCTION: ENGINE 0x105A67E0
@@ -221,6 +220,7 @@ namespace fight
 // FUNCTION: ENGINE 0x105A6A20
 // FUNCTION: ENGINE 0x105A6A50
 // FUNCTION: ENGINE 0x105A6A70
+// FUNCTION: ENGINE 0x105A6B60
 // FUNCTION: ENGINE 0x105A6B80
 // FUNCTION: ENGINE 0x105A6B90
 // FUNCTION: ENGINE 0x105A6BC0

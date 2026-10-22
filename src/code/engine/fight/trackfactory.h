@@ -288,6 +288,8 @@ namespace fight
 	public:
 		TrackGroup();
 		~TrackGroup();
+		// 0x105A80A0: creates the actions of every track of the group into a sequencer (name guess)
+		bool Unknown105A80A0(int a, int b, int c, Sequencer* sequencer);
 
 		void* unknown0;
 	};
