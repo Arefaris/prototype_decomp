@@ -1,4 +1,5 @@
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/database/gamedbhelper.h"
 #include "code/core/hash.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
@@ -22,33 +23,6 @@ namespace engine
 
 		const wchar_t* text;
 		unsigned int capacity;
-	};
-
-	// The platform side of the database (another unit, RTTI engine::GameDBHelper; names guessed)
-	class GameDBHelper
-	{
-	public:
-		struct Config
-		{
-			// 0x10894450
-			Config();
-
-			int unknown0;
-		};
-
-		// 0x108944D0: becomes the current helper
-		explicit GameDBHelper(const Config& config);
-		// 0x10894460
-		static GameDBHelper* Get();
-
-		virtual void Slot0();
-		virtual ~GameDBHelper();
-		virtual void Slot2();
-		virtual void Start();
-		virtual void Stop();
-
-		int unknown4;
-		int unknown8;
 	};
 
 	// 0x10848E70 (another unit): whether the command line has the option

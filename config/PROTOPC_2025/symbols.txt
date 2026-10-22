@@ -21056,3 +21056,18 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?GetValueText@engine@@YA_NPBUValue@FEMovie@1@PADI@Z = 0x108838C0 ; function size:0x56 | bool __cdecl engine::GetValueText(struct engine::FEMovie::Value const *,char *,unsigned int) (name guess)
 
 
+??_R0?AVGameDBHelper@engine@@@8 = 0x110A0BB0 ; data size:0x8 | class engine::GameDBHelper RTTI Type Descriptor RTTI type descriptor
+??_7GameDBHelper@engine@@6B@ = 0x10E77274 ; data size:0x1C | engine::GameDBHelper::vftable
+?OnMessage@GameDBHelper@engine@@UAEXPAUOLSMessage@2@@Z = 0x108944A0 ; function size:0x23 | public: virtual void __thiscall engine::GameDBHelper::OnMessage(struct engine::OLSMessage *) vftable slot 0
+??_GGameDBHelper@engine@@UAEPAXI@Z = 0x108944F0 ; function size:0x1E | public: virtual void * __thiscall engine::GameDBHelper::`scalar deleting destructor'(unsigned int) vftable slot 1
+?Slot2@GameDBHelper@engine@@UAE_NXZ = 0x10894490 ; function size:0x3 | public: virtual bool __thiscall engine::GameDBHelper::Slot2(void) vftable slot 2
+?Start@GameDBHelper@engine@@UAEXXZ = 0x10894510 ; function size:0x18F | public: virtual void __thiscall engine::GameDBHelper::Start(void) vftable slot 3
+?Stop@GameDBHelper@engine@@UAEXXZ = 0x108946A0 ; function size:0x12F | public: virtual void __thiscall engine::GameDBHelper::Stop(void) vftable slot 4
+?Enable@GameDBHelper@engine@@UAE_NXZ = 0x108947D0 ; function size:0x29 | public: virtual bool __thiscall engine::GameDBHelper::Enable(void) vftable slot 5
+?Disable@GameDBHelper@engine@@UAEXXZ = 0x10894800 ; function size:0x2D | public: virtual void __thiscall engine::GameDBHelper::Disable(void) vftable slot 6
+??1GameDBHelper@engine@@UAE@XZ = 0x10894470 ; function size:0x11 | public: virtual __thiscall engine::GameDBHelper::~GameDBHelper(void) (name guess)
+
+
+
+?current@GameDBHelper@engine@@2PAV12@A = 0x113177E0 ; data size:0x4 | public: static class engine::GameDBHelper * engine::GameDBHelper::current (name guess)
+
