@@ -182,6 +182,8 @@ namespace om
 	template MetaEnum<music::FollowAction::Type>::MetaEnum(const ClassName&);
 	// FUNCTION: ENGINE 0x105D74C0
 	template const type_info* MetaEnum<music::FollowAction::Type>::GetType();
+	// FUNCTION: ENGINE 0x105D74D0
+	template MetaEnum<music::FollowAction::Type>::~MetaEnum();
 	// FUNCTION: ENGINE 0x105D74E0
 	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
 	template void MetaEnum<music::FollowAction::Type>::WriteBinary(BinaryStream*, const void*);

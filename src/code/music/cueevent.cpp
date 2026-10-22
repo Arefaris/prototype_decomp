@@ -127,8 +127,6 @@ namespace music
 	template CueEventDerived<CueEventSetCurrentCuePlayer>::~CueEventDerived();
 	// FUNCTION: ENGINE 0x105D2D30
 	template void CueEventDerived<CueEventSetCurrentCuePlayer>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105D2D90
-	template const char* CueEventDerived<CueEventSetCurrentCuePlayer>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D2E90
 	template const char* CueEventDerived<CueEventSetCurrentCell>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D3E40

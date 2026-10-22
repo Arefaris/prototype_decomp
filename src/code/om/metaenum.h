@@ -42,6 +42,9 @@ namespace om
 			MetaEnumBase(newName, &typeid(E))
 		{
 		}
+		virtual ~MetaEnum()
+		{
+		}
 		virtual bool ReadText(const TextValue* text, void* value);
 		virtual void WriteText(TextValue* text, const void* value);
 		virtual bool ReadBinary(BinaryStream* stream, void* value);
