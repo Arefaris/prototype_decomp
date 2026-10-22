@@ -35,9 +35,9 @@ namespace fight
 	class RefCounted : public core::IRefCount
 	{
 	public:
-		virtual ~RefCounted()
-		{
-		}
+		// 0x105A7410 / 0x105A73D0 (the deleting destructor is 0x105A7420)
+		RefCounted();
+		virtual ~RefCounted();
 		// 0x105A73E0
 		virtual void AddRef();
 		// 0x105A73F0: below two references the count is parked at 0x8000000 and the object deletes itself

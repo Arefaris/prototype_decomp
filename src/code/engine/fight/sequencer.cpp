@@ -16,6 +16,17 @@ namespace fight
 
 	// ---- the reference count -----------------------------------------------------------------------------------
 
+	// FUNCTION: ENGINE 0x105A7410
+	RefCounted::RefCounted()
+		: count(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A73D0
+	RefCounted::~RefCounted()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x105A73E0
 	void RefCounted::AddRef()
 	{

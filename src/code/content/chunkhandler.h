@@ -26,6 +26,9 @@ namespace content
 		void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
 		// 0x1060B2C0: steps over `bytes` bytes of the stream without reading them (name guess)
 		void Skip(unsigned int bytes);
+		// 0x1060A530 / 0x1060A520: the position in the stream and its size (names guessed)
+		unsigned int GetPosition();
+		unsigned int GetSize();
 	};
 
 	class ChunkReader
