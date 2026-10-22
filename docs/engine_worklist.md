@@ -4538,7 +4538,7 @@ About 740 of the range's 1557 functions are reconstructed (including the kept co
   inline constructor overload (`Callback(bool)`) because the engine inlines the constructor here. `DialogState`'s
   `Unknown10883D50` takes (controller, flag), `Unknown10883D70` answers a bool. `OLS` got named members +0x7C (`session`,
   one virtual slot used), +0x80 (`userTable`, entries of 0x40 bytes), +0x88 / +0x8C (`localUsers`).
-- `engine/frontend/valueformat.cpp` (0x10883360 - 0x10883A90): the text forms the front end's messages ask for
+- `engine/frontend/valueformat.cpp` (0x108833E0 - 0x10883A90): the text forms the front end's messages ask for
   (`FormatInteger`, `FormatFloat2` / `5`, `FormatMoney`, `FormatMoneyCents`, `FormatTimeOfDay`, `GetMouseButtonName`,
   `GetValueText`, `FormatMessage` with the `%n:NAME` places and the table `gValueFormats` at 0x111D2D50, `TranslateValue`,
   `FormatString`, `FormatBracketed`). EQUIVALENT: `FormatTimeOfDay` 72.7 % (the engine puts the chain for the hours after
@@ -4548,7 +4548,7 @@ About 740 of the range's 1557 functions are reconstructed (including the kept co
   EQUIVALENT: `GetController` 88.9 %, `OnCall` 82.3 %.
 - `engine/online/`: `ConsoleManager::Callback` (0x10882BC0 and its five empty slots), the user / game / profile storage message
   constructors, `OLSProfile` (declared), the script method wrappers.
-- `engine/nis/` (0x1088C000 - 0x1088F000): the NIS player, its scene structs, reflection, array meta type helpers
+- `engine/nis/`: the NIS player, its scene structs, reflection, array meta type helpers
   (`GetArrayCMetaType`, `GetMemberColourMetaType`) and the Lua natives (`PlayNIS` EQUIVALENT 67 %, the dead vftable store).
 - `engine/system/skuinfo.cpp`, `engine/system/simulationdriver.cpp` (the driver class made of what `gamestate.cpp` kept
   as stubs), `engine/effectparams.cpp` (`EffectParams` constructor EQUIVALENT 63 %), `engine/lightbehaviour.cpp` (the
