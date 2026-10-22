@@ -151,7 +151,7 @@ namespace engine
 
 	// FUNCTION: ENGINE 0x108481C0
 	// EQUIVALENT: register allocation only (the health is loaded into xmm0 and its copy goes to xmm1; ours the other way round), 98.8 %
-	void HealthBehaviour::ApplyDamage(DamageMessage* message)
+	void HealthBehaviour::ApplyDamage(ApplyDamageMessage* message)
 	{
 		if (undamageable > 0)
 		{
@@ -225,7 +225,7 @@ namespace engine
 			switch ((unsigned short)message->id)
 			{
 			case 0xb:
-				ApplyDamage((DamageMessage*)message);
+				ApplyDamage((ApplyDamageMessage*)message);
 				break;
 			case 0:
 				SetHealthFromMessage((SetHealthMessage*)message);
