@@ -106,6 +106,13 @@ namespace engine
 	void SetControllerWatchCallback(bool (*callback)());
 	// 0x10882930
 	bool IsControllerWatchActive();
+
+	// The thread that watches the default drive for faults and tells the game which of them it has to show: 0x10883370
+	// starts it, 0x10882DE0 stops it; 0x10882E20 sets the flag it keeps, 0x108831C0 reads it
+	void StartDriveErrorThread();
+	void StopDriveErrorThread();
+	long SetDriveFault(int fault);
+	bool HasDriveFault();
 }
 
 #endif

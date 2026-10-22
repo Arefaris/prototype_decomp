@@ -1,5 +1,8 @@
 #include "code/engine/system/exceptionmanager.h"
+#include "code/core/criticalsection.h"
+#include "code/core/file/filesystem.h"
 #include "code/core/interlocked.h"
+#include "code/core/thread.h"
 #include "code/engine/system/engineflags.h"
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/gamestatetable.h"
@@ -38,11 +41,22 @@ namespace engine
 	bool (*gControllerWatchCallback)();
 	// Written by other units
 	extern volatile long gMediaChanged;
+	// The thread that watches the drive's faults, its semaphore (the thread sleeps on it) and its flags (0x11316CB0,
+	// 0x11316CB8, 0x11316D9C, 0x11316DA0; names guessed)
+	void* gDriveSemaphore;
+	core::Thread gDriveThread;
+	volatile long gStopDriveThread;
+	volatile long gDriveFault;
 
 	// The flags the drive thread and the media watch keep are read with an interlocked and
 	inline bool ReadFlag(volatile long* flag)
 	{
 		return _InterlockedAnd(flag, -1) != 0;
+	}
+
+	inline long ReadValue(volatile long* value)
+	{
+		return _InterlockedAnd(value, -1);
 	}
 
 	// FUNCTION: ENGINE 0x10882770
@@ -427,6 +441,79 @@ namespace engine
 		{
 			gExceptionManager->Update(frameTime);
 		}
+	}
+	// FUNCTION: ENGINE 0x10882DE0
+	void StopDriveErrorThread()
+	{
+		_InterlockedExchange(&gStopDriveThread, 1);
+		core::SemaphoreRelease(&gDriveSemaphore, 1);
+		core::WaitThread(&gDriveThread);
+		core::DestroyThread(&gDriveThread);
+		core::SemaphoreDestroy(&gDriveSemaphore);
+	}
+
+	// FUNCTION: ENGINE 0x10882E20
+	// Sets the fault flag and answers the one it had
+	long SetDriveFault(int fault)
+	{
+		return _InterlockedExchange(&gDriveFault, fault != 0);
+	}
+
+	// FUNCTION: ENGINE 0x108831C0
+	bool HasDriveFault()
+	{
+		long value = ReadValue(&gDriveFault);
+		return value != 0;
+	}
+
+	// FUNCTION: ENGINE 0x108831E0
+	// EQUIVALENT: the engine loads the drive's vftable into eax and the function into edx for every virtual call, ours
+	// the other way round, 90.4 %
+	// The thread: while the drive has a fault, it tells the game whether the fault needs the player (the drive
+	// open, the media, ...), and clears it when it does not
+	int DriveErrorThread(void* argument)
+	{
+		core::IDrive* drive = (core::IDrive*)argument;
+		core::SemaphoreWait(&gDriveSemaphore);
+		while (!ReadFlag(&gStopDriveThread))
+		{
+			int error = drive->GetError();
+			if (error == 1)
+			{
+				drive->ClearFault(0);
+			}
+			else
+			{
+				SetDriveFault(error);
+				int type;
+				int detail;
+				if (drive->Configure(&type, &detail) &&
+					(type == 5 || type == 3 || type == 0xF || type == 0x10 || type == 0x14))
+				{
+					drive->ClearFault(0);
+				}
+				else
+				{
+					drive->ClearFault(1);
+				}
+			}
+			core::SemaphoreWait(&gDriveSemaphore);
+		}
+		drive->Resume(&gDriveSemaphore);
+		drive->Release();
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10883370
+	void StartDriveErrorThread()
+	{
+		char device[0x1C];
+		core::FileSystemGetDefaultDevice(device);
+		core::IDrive* drive = 0;
+		core::FileSystemOpenDrive(&drive, device, 1, 0);
+		drive->Suspend(&gDriveSemaphore);
+		core::SemaphoreCreate(&gDriveSemaphore, 0);
+		core::CreateThread(&gDriveThread, DriveErrorThread, drive, 5, 0x1400, 0, "engine::DriveErrorThread");
 	}
 }
 
