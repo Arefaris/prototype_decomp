@@ -14,6 +14,32 @@ namespace engine
 #define ENGINE_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+		// FUNCTION: ENGINE 0x1084D870
+		ControllerRef::ControllerRef()
+		{
+			slot = -1;
+			id = 0;
+		}
+
+		// FUNCTION: ENGINE 0x1084D880
+		ControllerRef::ControllerRef(const Camera* camera)
+		{
+			slot = camera->slot;
+			id = camera->id;
+		}
+
+		// FUNCTION: ENGINE 0x1084D8A0
+		ControllerRef::~ControllerRef()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x1084D8B0
+		void ControllerRef::Set(const Camera* camera)
+		{
+			slot = camera->slot;
+			id = camera->id;
+		}
+
 		// FUNCTION: ENGINE 0x1084D9E0
 		Camera::Camera()
 			: playerIndex(0), camera(0), kind(0), flags(0), unknown28(0.0f), enabled(false), position(math::kZeroVector),

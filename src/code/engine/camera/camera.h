@@ -25,10 +25,20 @@ namespace engine
 {
 	namespace camera
 	{
-		// Slot and id of a registered Camera
+		class Camera;
+
+		// Slot and id of a registered Camera. The members are out of line (0x1084D870, 0x1084D880, 0x1084D8A0 and
+		// 0x1084D8B0 in the cinematographer's unit), so every user calls them.
 		class ControllerRef
 		{
 		public:
+			// No camera: slot -1, id 0
+			ControllerRef();
+			// The slot and id of the camera
+			explicit ControllerRef(const Camera* camera);
+			~ControllerRef();
+			void Set(const Camera* camera);
+
 			int slot;
 			int id;
 		};

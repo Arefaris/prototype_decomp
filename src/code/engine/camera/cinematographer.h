@@ -1,19 +1,15 @@
 // engine::camera::Cinematographer (RTTI name, reflection name "engine::camera::Cinematographer"): the director of one
-// view. The Director keeps two per player (index playerIndex * 2 + type); a Cinematographer is driven by a Camera (the
-// reference at 0x48) and follows a pure3d camera, and the game's cameras are switched through it. Only the members the
-// Director touches are known; everything else is padding until the unit is reconstructed. Member and method names
-// are guesses.
+// view, 0x7B0 bytes. The Director keeps two per player (index playerIndex * 2 + type). A Cinematographer owns the
+// pure3d cameras of its view and two Cameras (a blend camera and an animated one), is driven by the Camera whose slot
+// and id it holds, and switches or blends between them. Member and method names are guesses.
 #ifndef ENGINE_CAMERA_CINEMATOGRAPHER_H
 #define ENGINE_CAMERA_CINEMATOGRAPHER_H
 
 #include "code/core/name.h"
 #include "code/engine/camera/camera.h"
+#include "code/engine/render/viewhandle.h"
+#include "code/math/matrix.h"
 #include "code/math/vector.h"
-
-namespace math
-{
-	class Matrix;
-}
 
 namespace content
 {
@@ -25,6 +21,10 @@ namespace engine
 {
 	namespace camera
 	{
+		class BlendCamera;
+		class AnimatedCamera;
+		class DramaticCamera;
+
 		// Whatever a view follows: only its matrix at 0x90 is known (it is a pure3d camera)
 		class CameraTarget
 		{
@@ -36,14 +36,33 @@ namespace engine
 			}
 		};
 
+		// The 0x6F0 byte state the Cinematographer keeps at 0x64 (constructor 0x108D4A80, destructor 0x108D4730,
+		// another unit; name guessed)
+		class CameraHistory
+		{
+		public:
+			CameraHistory();
+			~CameraHistory();
+			// 0x108D4760
+			void Clear();
+			// 0x108D4FC0: the offset of the history at time, written to matrix; false when it holds nothing (name and
+			// parameters guessed)
+			bool Evaluate(float time, bool all, math::Matrix* matrix);
+
+			unsigned char unknown0[0x6e8];
+			int unknown6E8;
+			int unknown6EC;
+		};
+
 		class Cinematographer
 		{
 		public:
-			virtual ~Cinematographer()
-			{
-			}
-			// vftable slot 1
-			virtual void Update(float delta, float time, int flags) = 0;
+			// 0x1084E150
+			Cinematographer();
+			// vftable slot 0 (0x1084E8B0 deletes); the destructor body is 0x1084E220
+			virtual ~Cinematographer();
+			// vftable slot 1 (0x1084EC10): flags 1 starts the frame, 0x80 ends it, 0x200 runs the cuts
+			virtual void Update(float delta, float time, int flags);
 
 			// 0x1084DE70 / 0x1084E7E0: the class's reflection
 			static content::ClassInfo* GetClassInfo();
@@ -53,25 +72,43 @@ namespace engine
 			// The kind of the view (the reflected enumeration CinematographerType: the second index of the Director's
 			// table)
 			int type;
+			int unknownC;
 			core::Name<core::CaseSensitiveKey> name;
-			int unknown14;
 			// The player the Cinematographer belongs to (the Director keeps two per player)
 			int playerIndex;
 			// Set by Activate; the Director only hands out the ones that are active and enabled
 			bool enabled;
-			unsigned char unknown1D;
+			bool unknown1D;
 			// Set when its update cut; the Director broadcasts a CameraCutMessage
 			bool cut;
-			unsigned char unknown1F[0x3c - 0x1f];
+			bool dirty;
+			bool unknown20;
+			bool unknown21;
+			HandleBase handle;
+			// The display the view is on (-1: none)
+			ViewHandle unknown28;
+			float unknown2C;
+			int mode;
+			int state;
+			pure3d::Camera* camera38;
 			// The pure3d camera the view follows; its matrix sits at 0x90
 			CameraTarget* target;
-			int unknown40;
-			int unknown44;
+			pure3d::Camera* unknown40;
+			pure3d::Camera* unknown44;
 			// Slot and id of the Camera driving this one (Director::GetController)
 			ControllerRef controller;
-			unsigned char unknown50[0x7a5 - 0x50];
+			ControllerRef previous;
+			BlendCamera* blend;
+			DramaticCamera* defaultCamera;
+			AnimatedCamera* animated;
+			CameraHistory history;
+			bool unknown754;
+			math::Matrix offset;
+			ControllerRef pending;
+			float pendingTime;
+			bool unknown7A4;
 			bool unknown7A5;
-			unsigned char unknown7A6[0x7ac - 0x7a6];
+			int unknown7A8;
 			bool active;
 			bool unknown7AD;
 
@@ -83,9 +120,30 @@ namespace engine
 			math::Matrix* GetTargetMatrix() const;
 			// 0x1084E260: back to the default state (another unit)
 			void Reset();
-			// 0x1084E8D0: makes the pure3d cameras, the two camera classes it switches between and starts it (name
-			// guessed)
+			// 0x1084DF10: takes the player unless the Director has a view of that kind for it
+			void SetPlayerIndex(int value);
+			// 0x1084DF90: enables / disables the default camera (and picks the state)
+			void SetDefaultCameraEnabled(bool value);
+			// 0x1084E050: tells the cameras the zoom changed
+			void NotifyZoom();
+			// 0x1084DEB0: lets go of the pure3d cameras and the two cameras and leaves the Director
+			void Shutdown();
+			// 0x1084E4A0: the camera that drives the view from now on (the previous one is disabled)
+			void SetController(Camera* newController);
+			// 0x1084E660: the mode (0: the Camera of the controller drives, 1: the animated camera does)
+			void SetMode(bool value);
+			// 0x1084E6D0: the display the view is on; the zoom follows its aspect ratio
+			void SetDisplay(int display);
+			// 0x1084E8D0: activates the view when it is the one of a local player and makes the animated and blend
+			// cameras and the pure3d cameras (name guessed)
 			void Start();
+			// 0x1084E340: chooses the pure3d camera of the view from the blend, the animated or the controlling camera;
+			// returns what that camera reports (its cut)
+			bool UpdateView();
+			// 0x1084E530: the blend to or from the animated camera (name guessed)
+			void StartBlend(bool value, float time);
+			// 0x1084EA20: carries out a pending transition and the requested mode changes
+			void UpdatePending();
 			// 0x1084DF40 (another unit)
 			void StartTransition(int target, float time);
 			// 0x1084DF70 (another unit): sets the byte at 0x7a5 when the pointer at 0x5c is set

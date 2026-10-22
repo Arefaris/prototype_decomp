@@ -24,6 +24,8 @@ namespace pure3d
 		void SetFarPlane(float distance);
 		void SetAspect(float aspect, int fixed);
 		void SetMatrix(const math::Matrix& newMatrix);
+		// 0x106DC850: takes over the settings, the planes and the matrix of another camera (name guessed)
+		void CopyFrom(const Camera* other);
 		// 0x106E2920: a thunk that calls the virtual Release through the vftable (the engine's code reaches it through
 		// a pointer; name guessed)
 		void ReleaseThunk();

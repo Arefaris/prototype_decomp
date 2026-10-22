@@ -645,7 +645,7 @@ namespace engine
 			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
-				return camera->unknown40;
+				return (int)camera->unknown40;
 			}
 			return 0;
 		}
@@ -656,7 +656,7 @@ namespace engine
 			Cinematographer* camera = GetCamera(playerIndex, kind);
 			if (camera != 0)
 			{
-				return camera->unknown44;
+				return (int)camera->unknown44;
 			}
 			return 0;
 		}
