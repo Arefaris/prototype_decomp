@@ -54,11 +54,6 @@ namespace om
 	{
 	}
 
-	// FUNCTION: ENGINE 0x105C1050
-	FileSystem::~FileSystem()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x105C1080
 	bool FileSystem::Rename(const String& source, const String& destination)
 	{

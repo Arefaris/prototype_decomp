@@ -24,7 +24,9 @@ namespace om
 		// Slot 1: not recovered
 		virtual void Slot1() = 0;
 		// Slot 2 (0x105C1050 is the body, the deleting destructor 0x105C1060)
-		virtual ~FileSystem();
+		virtual ~FileSystem()
+		{
+		}
 		// Slot 3: not recovered
 		virtual void Slot3() = 0;
 	};
