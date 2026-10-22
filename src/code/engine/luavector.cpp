@@ -1,11 +1,18 @@
-// The Lua binding of math::Vector (this unit 0x1083F820 - 0x10840BE0; no assert path, file name is a guess): a vector is a
-// userdata of three floats with the metatable registered under "Vector" in the registry, and the metatable's functions
-// (arithmetic, indexing, length, tostring, dot and cross product, lerp ...) are the Lua C functions of this unit.
+// The Lua binding of math::Vector and core::Name (this unit 0x1083F820 - 0x10841060; no assert path, file name is a
+// guess): a vector is a userdata of three floats with the metatable registered under "Vector" in the registry, and the
+// metatable's functions (arithmetic, indexing, length, tostring, dot and cross product, lerp ...) are the Lua C
+// functions of this unit. A name is a userdata of the metatable "UID" (UID(text), CreateUID(text), UIDFromHash(hash,
+// text); the methods DebugGetString and Equals and the metamethods __gc, __tostring and __eq).
 #include "code/engine/luascriptmanager.h"
 #include "code/lua/lauxlib.h"
 #include "code/lua/lua.h"
 #include "code/math/vector.h"
 #include <math.h>
+#include "code/core/hash.h"
+#include "code/core/name.h"
+#include "code/core/strings.h"
+#include <new>
+#include <string.h>
 
 namespace engine
 {
@@ -764,5 +771,194 @@ namespace engine
 	void LuaOpenVector(lua_State* L)
 	{
 		OpenVectorLibrary(L);
+	}
+
+	typedef core::Name<core::CaseSensitiveKey> UidName;
+
+	// The Lua source that makes a UID persist: a function that gives a function building it again from its hash and text
+	// (0x10E6FCA8; the global holds the pointer, 0x111C6CA4)
+	const char* gLuaNamePersistScript = "return function( hashVal, string )\n    return function()\n        return UIDFromHash( hashVal, string )\n    end\nend\n";
+
+	// FUNCTION: ENGINE 0x10840BE0
+	const UidName* LuaToName(lua_State* L, int index)
+	{
+		return (const UidName*)luaL_checkudata(L, index, "UID");
+	}
+
+	// FUNCTION: ENGINE 0x10840C00
+	bool LuaIsUid(lua_State* L, int index)
+	{
+		return LuaToTypedUserdata(L, index, "UID") != 0;
+	}
+
+	// FUNCTION: ENGINE 0x10840C20
+	// A new empty name userdata with the metatable of the registry's "UID"
+	static UidName* NewUid(lua_State* L)
+	{
+		UidName* name = (UidName*)lua_newuserdata(L, sizeof(UidName));
+		if (name != 0)
+		{
+			new (name) UidName;
+		}
+		lua_pushlstring(L, "UID", 3);
+		lua_rawget(L, LUA_REGISTRYINDEX);
+		lua_setmetatable(L, -2);
+		return name;
+	}
+
+	// FUNCTION: ENGINE 0x10840C60
+	static int LuaUidNew(lua_State* L)
+	{
+		UidName* name = NewUid(L);
+		const char* text = luaL_optlstring(L, 1, "", 0);
+		if (name != 0)
+		{
+			new (name) UidName(text, 1);
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840CA0
+	static int LuaUidClear(lua_State* L)
+	{
+		UidName* name = (UidName*)lua_touserdata(L, 1);
+		name->SetText(0);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840CC0
+	static int LuaUidDebugGetString(lua_State* L)
+	{
+		const UidName* name = (const UidName*)luaL_checkudata(L, 1, "UID");
+		lua_pushstring(L, name->GetText());
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840CF0
+	static int LuaUidToString(lua_State* L)
+	{
+		const UidName* name = (const UidName*)luaL_checkudata(L, 1, "UID");
+		char hash[0x20];
+		unsigned __int64 value = name->GetHash();
+		core::SNPrintf(hash, 0x20, "0x%08X%08X", (unsigned int)(value >> 32), (unsigned int)value);
+		lua_pushfstring(L, "<UID:%s,%s>", name->GetText(), hash);
+		return 1;
+	}
+	// FUNCTION: ENGINE 0x10840D60
+	// EQUIVALENT: the engine sets the bool with mov eax, 1 / xor eax, eax where ours uses al, 99.0 %
+	static int LuaUidEquals(lua_State* L)
+	{
+		const UidName* name = (const UidName*)luaL_checkudata(L, 1, "UID");
+		unsigned __int64 hash = name->GetHash();
+		unsigned __int64 other;
+		int type = lua_type(L, 2);
+		if (type == LUA_TSTRING)
+		{
+			const char* text = lua_tolstring(L, 2, 0);
+			other = core::Hash64(text, 0);
+		}
+		else if (type == LUA_TUSERDATA && LuaIsUid(L, 2))
+		{
+			other = ((const UidName*)lua_touserdata(L, 2))->GetHash();
+		}
+		else
+		{
+			lua_pushboolean(L, 0);
+			return 1;
+		}
+		bool equal = hash == other;
+		lua_pushboolean(L, equal != 0);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840E40
+	static int LuaUidEq(lua_State* L)
+	{
+		const UidName* first = (const UidName*)lua_touserdata(L, 1);
+		const UidName* second = (const UidName*)lua_touserdata(L, 2);
+		lua_pushboolean(L, second->operator==(*first));
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840E80
+	static int LuaUidFromHash(lua_State* L)
+	{
+		luaL_checktype(L, 1, LUA_TSTRING);
+		luaL_checktype(L, 2, LUA_TSTRING);
+		size_t length;
+		const char* bytes = luaL_checklstring(L, 1, &length);
+		if (length != 8)
+		{
+			luaL_error(L, "hash value '%s' is invalid", bytes);
+		}
+		unsigned __int64 hash = *(const unsigned __int64*)bytes;
+		UidName* name = NewUid(L);
+		if (name != 0)
+		{
+			new (name) UidName(lua_tolstring(L, 2, 0), 1);
+		}
+		name->SetHash(hash);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10840F00
+	// The function __persist of a name returns: calls the persist script's function with the name's hash (8 bytes) and
+	// text
+	static int LuaUidPersist(lua_State* L)
+	{
+		const UidName* name = LuaToName(L, 1);
+		lua_pushvalue(L, LUA_GLOBALSINDEX - 1);
+		unsigned __int64 hash = name->GetHash();
+		lua_pushlstring(L, (const char*)&hash, 8);
+		lua_pushstring(L, name->GetText());
+		lua_call(L, 2, 1);
+		return 1;
+	}
+
+	static const luaL_Reg sUidFunctions[] =
+	{
+		{ "UID", LuaUidNew },
+		{ "CreateUID", LuaUidNew },
+		{ "UIDFromHash", LuaUidFromHash },
+		{ 0, 0 }
+	};
+
+	static const luaL_Reg sUidMethods[] =
+	{
+		{ "DebugGetString", LuaUidDebugGetString },
+		{ "Equals", LuaUidEquals },
+		{ "__gc", LuaUidClear },
+		{ "__tostring", LuaUidToString },
+		{ "__eq", LuaUidEq },
+		{ 0, 0 }
+	};
+
+	// FUNCTION: ENGINE 0x10840F70
+	int LuaOpenUid(lua_State* L)
+	{
+		lua_pushvalue(L, LUA_GLOBALSINDEX);
+		luaI_openlib(L, 0, sUidFunctions, 0);
+		lua_settop(L, -2);
+		luaL_newmetatable(L, "UID");
+		lua_pushlstring(L, "__index", 7);
+		lua_pushvalue(L, -2);
+		lua_rawset(L, -3);
+		luaI_openlib(L, 0, sUidMethods, 0);
+		luaL_loadbuffer(L, gLuaNamePersistScript, core::StrLen(gLuaNamePersistScript), "=LuaNamePersistScript");
+		lua_pcall(L, 0, LUA_MULTRET, 0);
+		lua_pushcclosure(L, LuaUidPersist, 1);
+		lua_pushlstring(L, "__persist", 9);
+		lua_insert(L, -2);
+		lua_rawset(L, -3);
+		lua_settop(L, -2);
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10841040
+	int LuaPushName(lua_State* L, const UidName& name)
+	{
+		UidName* pushed = NewUid(L);
+		*pushed = name;
+		return 1;
 	}
 }

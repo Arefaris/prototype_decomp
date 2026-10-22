@@ -272,7 +272,7 @@ namespace engine
 	bool LuaIsUid(lua_State* L, int index);
 	// 0x10840770 / 0x10841040 (another unit): push a math::Vector / a core::Name as their userdata
 	int LuaPushVector(lua_State* L, const math::Vector& value);
-	void LuaPushName(lua_State* L, const core::Name<core::CaseSensitiveKey>& name);
+	int LuaPushName(lua_State* L, const core::Name<core::CaseSensitiveKey>& name);
 	// 0x108407A0 (another unit): the math::Vector of the userdata at index
 	const math::Vector* LuaToVector(lua_State* L, int index);
 
@@ -1376,7 +1376,7 @@ namespace engine
 	// 0x108407F0 / 0x10840F70 / 0x108A6FA0 (other units): register the Vector and UID userdata types and a third
 	// library in a state
 	void LuaOpenVector(lua_State* L);
-	void LuaOpenUid(lua_State* L);
+	int LuaOpenUid(lua_State* L);
 	void LuaOpenGame(lua_State* L);
 	// 0x10098F50 (another unit): stores value in slot, taking a reference on it and releasing the old one
 	void AssignRefCounted(core::IRefCount** slot, core::IRefCount* value);
