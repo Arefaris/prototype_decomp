@@ -3,7 +3,7 @@
 #include "code/engine/camera/blendcamera.h"
 #include "code/engine/camera/cameraloader.h"
 #include "code/engine/camera/director.h"
-#include "code/engine/camera/dramaticcamera.h"
+#include "code/engine/camera/debugcamera.h"
 #include "code/engine/controller/inputsystem.h"
 #include "code/math/matrix.h"
 #include "code/pure3d/camera.h"

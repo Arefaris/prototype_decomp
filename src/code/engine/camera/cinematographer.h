@@ -23,7 +23,7 @@ namespace engine
 	{
 		class BlendCamera;
 		class AnimatedCamera;
-		class DramaticCamera;
+		class DebugCamera;
 
 		// Whatever a view follows: only its matrix at 0x90 is known (it is a pure3d camera)
 		class CameraTarget
@@ -99,7 +99,7 @@ namespace engine
 			ControllerRef controller;
 			ControllerRef previous;
 			BlendCamera* blend;
-			DramaticCamera* defaultCamera;
+			DebugCamera* defaultCamera;
 			AnimatedCamera* animated;
 			CameraHistory history;
 			bool unknown754;
