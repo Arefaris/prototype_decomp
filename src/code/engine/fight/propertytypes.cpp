@@ -5,9 +5,11 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/reader.h"
+#include "code/engine/fight/readers.h"
 #include "code/engine/fight/trackfactory.h"
 #include <ctype.h>
 #include <new>
+#include <string.h>
 
 namespace engine
 {
@@ -69,6 +71,125 @@ namespace fight
 {
 	// GLOBAL: ENGINE 0x110B42BC
 	int gFightHeaps[3] = { 0, 1, 0 };
+
+	// FUNCTION: ENGINE 0x105A94C0
+	// EQUIVALENT: the engine keeps the item index and the entry counter in the other two stack words and starts the
+	// counter after the compare; 93.2 %
+	bool PropertyTypePropertyList::Slot6(int object, int context, void* reader)
+	{
+		Reader* source = (Reader*)reader;
+		int count = 0;
+		source->ReadInt(name, &count);
+		SetCount(object, count);
+		ScriptReader* script = dynamic_cast<ScriptReader*>(source);
+		if (script != 0)
+		{
+			int entry = script->FindEntry(name, 1);
+			if (entry >= 0)
+			{
+				int next = entry + 1;
+				for (int i = 0; i < count; i++)
+				{
+					Property* item = GetItem(object, i);
+					if (next >= script->count)
+					{
+						break;
+					}
+					const Name* itemName = script->GetEntryName(next);
+					if (itemName != 0)
+					{
+						item->SetName(*itemName);
+					}
+					item->Slot6(object, context, reader);
+					next = next + 1;
+				}
+			}
+		}
+		else
+		{
+			for (int i = 0; i < count; i++)
+			{
+				Property* item = GetItem(object, i);
+				__declspec(align(8)) Name itemName;
+				source->ReadName(Name("dummy", 1), &itemName);
+				item->SetName(itemName);
+				item->Slot6(object, context, reader);
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A8C80
+	PropertyTypeRuntime::PropertyTypeRuntime(const char* newName)
+		: Property(newName)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A8CA0
+	int PropertyTypeRuntime::GetType() const
+	{
+		return 0x10;
+	}
+
+	// FUNCTION: ENGINE 0x105A8CB0
+	// EQUIVALENT: the same calls and tests in another block order (the engine puts the join of the number, empty text and
+	// text search paths before the search and the setter of the text last); 60.2 %
+	bool PropertyTypeRuntime::Slot6(int object, int context, void* reader)
+	{
+		Reader* source = (Reader*)reader;
+		char text[0x400] = { 0 };
+		Reader::Trigger trigger;
+		if (!source->ReadTrigger(name, &trigger, text, 0x400))
+		{
+			return false;
+		}
+		if (!SetFirst(object, trigger.first))
+		{
+			return false;
+		}
+		if (!SetSecond(object, trigger.second))
+		{
+			return false;
+		}
+		bool result = true;
+		if (trigger.number >= 0)
+		{
+			if (trigger.number >= GetEntryCount(object))
+			{
+				ReportReadError(source, "%d is not a valid enumerated value.", trigger.number);
+				return false;
+			}
+			result = SetNumber(object, trigger.number);
+		}
+		else if (text[0] != 0)
+		{
+			int count = GetEntryCount(object);
+			int i = 0;
+			if (count > 0)
+			{
+				do
+				{
+					if (strcmp(text, GetEntryName(object, i)) == 0)
+					{
+						result = SetNumber(object, i);
+						break;
+					}
+					i = i + 1;
+				}
+				while (i < count);
+			}
+			if (i >= count)
+			{
+				ReportReadError(source, "\"%s\" is not a valid enumerated value.", text);
+				return false;
+			}
+		}
+		if (!result)
+		{
+			return false;
+		}
+		return SetText(object, trigger.text.buffer);
+	}
 
 	// FUNCTION: ENGINE 0x105A83B0
 	int GetHeapId(int index)
@@ -709,3 +830,5 @@ namespace fight
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x105A8BC0
+// FUNCTION: ENGINE 0x105A8BD0
+// FUNCTION: ENGINE 0x105A9C50

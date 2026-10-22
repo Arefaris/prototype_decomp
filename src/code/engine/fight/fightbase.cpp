@@ -235,9 +235,9 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A9CF0
-	void TrackFactory::Slot0()
+	void* TrackFactory::Make()
 	{
-		CreateTrack();
+		return CreateTrack();
 	}
 
 	// FUNCTION: ENGINE 0x105A9790
@@ -260,9 +260,9 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A9720
-	void ConditionFactory::Slot0()
+	void* ConditionFactory::Make()
 	{
-		CreateCondition();
+		return CreateCondition();
 	}
 
 	// FUNCTION: ENGINE 0x105A9E90

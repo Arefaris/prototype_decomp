@@ -27,6 +27,12 @@ namespace fight
 		// text
 		struct Trigger
 		{
+			// 0x105A8BD0 (the engine keeps a copy)
+			Trigger()
+				: first(false), second(true), number(-1)
+			{
+			}
+
 			bool first;  // +0
 			bool second;  // +1
 			int number;  // +4

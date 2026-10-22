@@ -5529,7 +5529,7 @@ _luaL_error = 0x10639480 ; function size:0x31 | luaL_error (Lua 5.1)
 ?RegisterPropertyList@fight@@YAXPAPAVProperty@1@PAPAPAV21@@Z = 0x105A8420 ; function size:0x60 | fight::RegisterPropertyList: copies a property array into the heap (another unit)
 ?FreePropertyList@fight@@YAXPAPAPAVProperty@1@@Z = 0x105A9650 ; function size:0x4C | fight::FreePropertyList (another unit)
 ??0TrackFactory@fight@@QAE@PBDP6AXXZ1@Z = 0x105A9E40 ; function size:0x36 | fight::TrackFactory::TrackFactory(name, register, clear) (another unit)
-?Slot0@TrackFactory@fight@@UAEXXZ = 0x105A9CF0 ; function size:0x2 | fight::TrackFactory vftable slot 0 (another unit)
+?Make@TrackFactory@fight@@UAEPAXXZ = 0x105A9CF0 ; function size:0x7 | fight::TrackFactory vftable slot 0: makes a track (a jump to slot 1)
 ?FindTrackFactory@fight@@YAPAVTrackFactory@1@PBDPAVTrackFactoryCaster@1@@Z = 0x105A9E90 ; function size:0x96 | fight::FindTrackFactory (another unit)
 ?AddFactory@TrackRegistry@fight@@QAEXPAVTrackFactory@2@@Z = 0x105A5D10 ; function size:0x3F | fight::TrackRegistry::AddFactory (another unit)
 ; The fight nodes a track inherits from (another unit's classes: only their vftable slots are named here)
@@ -8009,7 +8009,7 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 
 ; ---- the condition factories and the condition base (fight::Condition, another unit) ------------------------------
 ??0ConditionFactory@fight@@QAE@PBDP6AXXZ1@Z = 0x105A9790 ; function size:0x36 | fight::ConditionFactory::ConditionFactory(name, register, clear) (another unit)
-?Slot0@ConditionFactory@fight@@UAEXXZ = 0x105A9720 ; function size:0x7 | fight::ConditionFactory vftable slot 0 (another unit)
+?Make@ConditionFactory@fight@@UAEPAXXZ = 0x105A9720 ; function size:0x7 | fight::ConditionFactory vftable slot 0: makes a condition (a jump to slot 1)
 ?FindConditionFactory@fight@@YAPAVConditionFactory@1@PBDPAVConditionFactoryCaster@1@@Z = 0x105A97E0 ; function size:0x96 | fight::FindConditionFactory (another unit)
 ??0Condition@fight@@QAE@H@Z = 0x105A99E0 ; function size:0x19 | fight::Condition::Condition(op) (another unit)
 ??1Condition@fight@@UAE@XZ = 0x105A9A00 ; function size:0x18 | fight::Condition::~Condition (another unit)
@@ -21668,3 +21668,15 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?GetNextOfList@TrackRegistry@fight@@QBEPAV12@XZ = 0x105A2640 ; function size:0x4 | fight::TrackRegistry::GetNextOfList()const (name guess)
 ?ReadName@Reader@fight@@QAE_NPBDPAVEntity@2@@Z = 0x105A31A0 ; function size:0x2A | fight::Reader::ReadName(char const *,fight::Entity *) (name guess)
 
+
+?LoadChildren@ConditionList@fight@@QAE_NPAVBranch@2@PAVReader@2@H@Z = 0x105A7D00 ; function size:0xFE | fight::ConditionList::LoadChildren(fight::Branch *,fight::Reader *,int)
+?LoadChildren@TrackGroup@fight@@QAE_NPAVBranch@2@PAVReader@2@H@Z = 0x105A81B0 ; function size:0xFE | fight::TrackGroup::LoadChildren(fight::Branch *,fight::Reader *,int)
+
+?MergeProperties@Param@fight@@QAEXPAV12@H@Z = 0x105AA2B0 ; function size:0x9A | fight::Param::MergeProperties(fight::Param *,int)
+??_R0?AVPropertyTypeRuntime@fight@@@8 = 0x110B42D0 ; data size:0x8 | Descriptor RTTI type descriptor
+??_7PropertyTypeRuntime@fight@@6B@ = 0x10E2C94C ; data size:0x34 | fight::PropertyTypeRuntime::vftable
+?GetType@PropertyTypeRuntime@fight@@UBEHXZ = 0x105A8CA0 ; function size:0x6 | fight::PropertyTypeRuntime::GetType()const vftable slot 0
+?Slot6@PropertyTypeRuntime@fight@@UAE_NHHPAX@Z = 0x105A8CB0 ; function size:0x1B6 | fight::PropertyTypeRuntime::Slot6(int,int,void *) vftable slot 6
+??0Trigger@Reader@fight@@QAE@XZ = 0x105A8BD0 ; function size:0x1C | fight::Reader::Trigger::Trigger() (name guess)
+??0PropertyTypeRuntime@fight@@QAE@PBD@Z = 0x105A8C80 ; function size:0x19 | fight::PropertyTypeRuntime::PropertyTypeRuntime(char const *) (name guess)
+?Slot6@PropertyTypePropertyList@fight@@UAE_NHHPAX@Z = 0x105A94C0 ; function size:0x18C | fight::PropertyTypePropertyList::Slot6(int,int,void *) (name guess)

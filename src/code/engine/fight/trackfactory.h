@@ -96,6 +96,41 @@ namespace fight
 		virtual bool Set(void* object, const char* text) = 0;
 	};
 
+	// A list of properties of a count of items (RTTI: fight::PropertyTypePropertyList, 10 vftable slots; its slot 0
+	// answers 0x11): reads the count and then each item as a property of its own. The classes that use it are in
+	// other units
+	class PropertyTypePropertyList : public Property
+	{
+	public:
+		// vftable slot 6 (0x105A94C0)
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slots 7 - 9: the count of items / the property of an item / sets the count
+		virtual int GetCount(int object) = 0;
+		virtual Property* GetItem(int object, int index) = 0;
+		virtual void SetCount(int object, int count) = 0;
+	};
+
+	// A property read as a trigger (RTTI: fight::PropertyTypeRuntime, 13 vftable slots): two flags, a number or the name of
+	// a value in a list, and a text. The members it stands for are reached through slots 7 - 12
+	class PropertyTypeRuntime : public Property
+	{
+	public:
+		// 0x105A8C80
+		PropertyTypeRuntime(const char* name);
+
+		// vftable slot 0 (0x105A8CA0)
+		virtual int GetType() const;
+		// vftable slot 6 (0x105A8CB0)
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slots 7 - 12: the name of a value / how many there are / the two flags / the value picked / the text
+		virtual const char* GetEntryName(int object, int index) = 0;
+		virtual int GetEntryCount(int object) = 0;
+		virtual bool SetFirst(int object, bool value) = 0;
+		virtual bool SetSecond(int object, bool value) = 0;
+		virtual bool SetNumber(int object, int number) = 0;
+		virtual bool SetText(int object, const char* text) = 0;
+	};
+
 	// A name of 32 bits (RTTI: fight::PropertyTypeName32, 9 vftable slots): the text is turned into the name and handed
 	// to slot 8 (0x105A8F50 / 0x105A8F70 / 0x105A8FA0)
 	class PropertyTypeName32 : public PropertyTypeString
@@ -340,6 +375,8 @@ namespace fight
 		void ForEachSlot14(TrackGroup* other, int arg);
 		// 0x105A82C0: reads the tracks of a node of the reader (the context is the registry of tracks they are made by)
 		bool Load(const Name& key, int context, Reader* reader);
+		// 0x105A81B0: reads the tracks below the reader's current node and inserts them at an index (-1 for the end)
+		bool LoadChildren(Branch* owner, Reader* reader, int index);
 		// 0x105A8150 / 0x105A8330: appends a track / inserts it at an index; answer its index (-1 for none)
 		int Add(Track* item);
 		int Insert(int index, Track* item);
@@ -906,8 +943,8 @@ namespace fight
 		TrackFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
 		~TrackFactory();
 
-		// vftable slot 0 (0x105A9CF0, inherited from every factory)
-		virtual void Slot0();
+		// vftable slot 0 (0x105A9CF0, inherited from every factory): makes a track (a jump to slot 1)
+		virtual void* Make();
 		// vftable slot 1: makes a track of this factory's class
 		virtual void* CreateTrack() = 0;
 
@@ -1114,8 +1151,8 @@ namespace fight
 		ConditionFactory(const char* name, void (*registerProperties)(), void (*clearProperties)());
 		~ConditionFactory();
 
-		// vftable slot 0 (0x105A9720, inherited from every factory)
-		virtual void Slot0();
+		// vftable slot 0 (0x105A9720, inherited from every factory): makes a condition (a jump to slot 1)
+		virtual void* Make();
 		// vftable slot 1: makes a condition of this factory's class
 		virtual void* CreateCondition() = 0;
 

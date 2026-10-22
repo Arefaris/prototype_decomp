@@ -1,5 +1,6 @@
 // The lists of conditions and tracks a fight node owns (ConditionList, TrackGroup) and the next links of their items;
 // part of the unit 0x105A2440 - 0x105B3680.
+#include "code/engine/fight/reader.h"
 #include "code/engine/fight/trackfactory.h"
 
 namespace fight
@@ -54,6 +55,148 @@ namespace fight
 			delete current;
 		}
 		head = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105A7D00
+	bool ConditionList::LoadChildren(Branch* owner, Reader* reader, int index)
+	{
+		Condition* previous = 0;
+		int position = 0;
+		Condition* node = head;
+		for (; node != 0; node = node->next)
+		{
+			if (index < 0 || position > index || position == index)
+			{
+				break;
+			}
+			previous = node;
+			position = position + 1;
+		}
+		TrackRegistry* registry = 0;
+		if (owner != 0)
+		{
+			registry = owner->Slot6();
+		}
+		while (reader->HasChild())
+		{
+			const Reader::Name* name = reader->GetChildName();
+			ConditionFactory* factory = 0;
+			if (registry != 0)
+			{
+				factory = registry->FindConditionFactory(*name);
+			}
+			if (factory == 0)
+			{
+				ReportReadError(reader, "");
+				reader->SkipChild();
+			}
+			else
+			{
+				Condition* item = (Condition*)factory->Make();
+				if (item->Slot5((int)name, (int)owner, (int)reader))
+				{
+					item->SetNext(node);
+					if (previous != 0)
+					{
+						previous->SetNext(item);
+					}
+					else
+					{
+						SetHead(this, item);
+					}
+					previous = item;
+				}
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A7E10
+	bool ConditionList::Load(const core::Name<core::CaseSensitiveKey>& key, int context, Reader* reader)
+	{
+		if (!reader->HasChild())
+		{
+			return false;
+		}
+		if (*reader->GetChildName() != key)
+		{
+			return false;
+		}
+		reader->EnterChild(key);
+		LoadChildren((Branch*)context, reader, -1);
+		reader->ExitChild();
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A81B0
+	bool TrackGroup::LoadChildren(Branch* owner, Reader* reader, int index)
+	{
+		Track* previous = 0;
+		int position = 0;
+		Track* node = head;
+		for (; node != 0; node = node->next)
+		{
+			if (index < 0 || position > index || position == index)
+			{
+				break;
+			}
+			previous = node;
+			position = position + 1;
+		}
+		TrackRegistry* registry = 0;
+		if (owner != 0)
+		{
+			registry = owner->Slot6();
+		}
+		while (reader->HasChild())
+		{
+			const Reader::Name* name = reader->GetChildName();
+			TrackFactory* factory = 0;
+			if (registry != 0)
+			{
+				factory = registry->FindTrackFactory(*name);
+			}
+			if (factory == 0)
+			{
+				ReportReadError(reader, "");
+				reader->SkipChild();
+			}
+			else
+			{
+				Track* item = (Track*)factory->Make();
+				if (item->Slot5((int)name, (int)owner, (int)reader))
+				{
+					item->SetNext(node);
+					if (previous != 0)
+					{
+						previous->SetNext(item);
+					}
+					else
+					{
+						SetHead(this, item);
+					}
+					previous = item;
+				}
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A82C0
+	bool TrackGroup::Load(const core::Name<core::CaseSensitiveKey>& key, int context, Reader* reader)
+	{
+		if (!reader->HasChild())
+		{
+			return false;
+		}
+		if (*reader->GetChildName() != key)
+		{
+			return false;
+		}
+		reader->EnterChild(key);
+		LoadChildren((Branch*)context, reader, -1);
+		reader->ExitChild();
+		return true;
 	}
 
 	// FUNCTION: ENGINE 0x105A7A70

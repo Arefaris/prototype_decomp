@@ -289,6 +289,9 @@ namespace fight
 		// 0x105A7E10: reads the conditions of a node of the reader the list is stored as (the context is the registry
 		// of conditions they are made by); false when there is none
 		bool Load(const core::Name<core::CaseSensitiveKey>& key, int context, Reader* reader);
+		// 0x105A7D00: reads the conditions below the reader's current node and inserts them at an index (-1 for the
+		// end); the owner is the branch whose context makes them
+		bool LoadChildren(Branch* owner, Reader* reader, int index);
 		// 0x105A7CA0 / 0x105A7E80: appends a condition / inserts it at an index; answer its index (-1 for none)
 		int Add(Condition* item);
 		int Insert(int index, Condition* item);
