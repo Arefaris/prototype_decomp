@@ -7,6 +7,8 @@
 #define ENGINE_CONTROLLER_INPUTSYSTEM_H
 
 #include "code/container/slist.h"
+#include "code/math/matrix.h"
+#include "code/math/vector.h"
 
 namespace engine
 {
@@ -36,6 +38,11 @@ namespace engine
 			// 0x108A1290 / 0x108A17E0 (another unit)
 			void Clear();
 			void Update();
+			// 0x10845B50: a float of the axes (component 0 or 1 of the axis' pair); 0x10845B70 / 0x10845B80: the view
+			// (out of line in the physical controller's unit; names guessed)
+			void SetAxisFloat(int axis, float value, int component);
+			void SetViewMatrix(const math::Matrix& matrix);
+			void SetViewPosition(const math::Vector& position);
 			PlayerInfo* GetNext() const
 			{
 				return (PlayerInfo*)next;
@@ -88,7 +95,20 @@ namespace engine
 
 			unsigned int id;
 			unsigned int flags;
-			unsigned char unknownC[0x2b8 - 0xc];
+			// The player's view: the matrix and the position of its camera (0x108474E0; names guessed)
+			math::Matrix viewMatrix;
+			float viewPosition[3];
+			// What the physical controller reads: the values of the buttons, and per axis a pair of floats whose
+			// second is the value (0x10846B00 / 0x108472A0; names guessed)
+			float buttons[42];
+			unsigned char unknown100[0x1a8 - 0x100];
+			struct AxisState
+			{
+				float unknown;
+				float value;
+			};
+			AxisState axes[17];
+			unsigned char unknown230[0x2b8 - 0x230];
 			int context;
 			int slot;
 			PlayerInput* input;

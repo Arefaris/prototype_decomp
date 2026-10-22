@@ -95,6 +95,8 @@ namespace math
 		void Print() const;
 		// True when every component is within EPSILON_SMALL of zero
 		bool IsZero() const;
+		// True when every component differs from other's by at most tolerance (0x1084D000, the camera math's unit; name guessed)
+		bool IsNear(const Vector& other, float tolerance) const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X
 		void Perpendicular(const Vector& v);
 		// Sets this vector to a cross b; when that is (nearly) zero, to a vector perpendicular to a, returning true
@@ -109,6 +111,9 @@ namespace math
 		void Rotate(const Matrix& m);
 		void Rotate(const Vector& v, const Matrix& m);
 	};
+
+	// 0x11283234: the zero vector
+	extern const Vector kZeroVector;
 
 	// Whether two vectors differ by more than EPSILON_SMALL in some component (0x102D5B00; name guessed)
 	bool VectorsDiffer(const Vector& a, const Vector& b);
