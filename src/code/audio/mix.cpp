@@ -4,6 +4,7 @@
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
 #include "code/om/delegate.h"
+#include "code/om/metaclass.h"
 
 #pragma warning(disable: 4661)
 
@@ -24,6 +25,26 @@ namespace om
 	template MetaMethod0Base<bool>* MetaProperty<bool>::GetGetter();
 	// FUNCTION: ENGINE 0x105CBFF0
 	template MetaMethod0Base<const Name<CaseSensitive64BitKey>&>::~MetaMethod0Base();
+	// FUNCTION: ENGINE 0x105CC2D0
+	template MetaClass<audio::MixStrip>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105CC300
+	template const type_info* MetaClass<audio::MixStrip>::GetType();
+	// FUNCTION: ENGINE 0x105CC330
+	template MetaClass<audio::MixStrip>::~MetaClass();
+	// FUNCTION: ENGINE 0x105CC340
+	template void MetaClass<audio::MixStrip>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CC360
+	template MetaClass<audio::Mix>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105CC390
+	template const type_info* MetaClass<audio::Mix>::GetType();
+	// FUNCTION: ENGINE 0x105CC3C0
+	template MetaClass<audio::Mix>::~MetaClass();
+	// FUNCTION: ENGINE 0x105CC3D0
+	template void MetaClass<audio::Mix>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CC450
+	template const char* MetaClass<audio::MixStrip>::AllocationTag();
+	// FUNCTION: ENGINE 0x105CC480
+	template const char* MetaClass<audio::Mix>::AllocationTag();
 	// FUNCTION: ENGINE 0x105CC490
 	template MetaProperty<unsigned int>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, unsigned int>*, MetaMethod0Base<unsigned int>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CC4D0
@@ -124,6 +145,18 @@ namespace om
 	template const char* DelegateMetaProperty<float>::AllocationTag();
 	// FUNCTION: ENGINE 0x105CCB40
 	template const char* DelegateMetaProperty<bool>::AllocationTag();
+	// FUNCTION: ENGINE 0x105CCCC0
+	template int MetaClass<audio::Mix>::Slot5();
+	// FUNCTION: ENGINE 0x105CCCD0
+	template void MetaClass<audio::Mix>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105CCD00
+	template int MetaClass<audio::MixStrip>::Slot5();
+	// FUNCTION: ENGINE 0x105CCD10
+	template void MetaClass<audio::MixStrip>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105CCD40
+	template void* MetaClass<audio::MixStrip>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105CCDD0
+	template void* MetaClass<audio::Mix>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105CCE60
 	template void* MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105CCE80
@@ -273,6 +306,10 @@ namespace om
 	template MetaTypeBase* DelegateProperty<bool>::GetMetaType();
 	// FUNCTION: ENGINE 0x105CDF00
 	template DelegateProperty<bool>::~DelegateProperty();
+	// FUNCTION: ENGINE 0x105CE0D0
+	template void MetaClass<audio::MixStrip>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105CE310
+	template void MetaClass<audio::Mix>::Create(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105CE430
 	template MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>* MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>::Create(MetaClassBase*, const ClassName&, void (audio::Mix::*)(unsigned int));
 	// FUNCTION: ENGINE 0x105CE470

@@ -4,6 +4,9 @@
 #ifndef OM_METATYPE_H
 #define OM_METATYPE_H
 
+#include "code/om/name.h"
+#include "code/om/refcount.h"
+#include "code/om/tree.h"
 #include <typeinfo>
 
 namespace om
@@ -24,14 +27,27 @@ namespace om
 		StreamBuffer* buffer;
 	};
 
-	class MetaTypeBase
+	// The description of a reflected type (RTTI: om::MetaTypeBase), found by name and by type_info through two
+	// registries of the library. Slots 1 to 4 read and write a value as text and in binary form, 5 and 6 are not
+	// recovered.
+	class MetaTypeBase : public RefCount<ThreadSafeRefCount>
 	{
 	public:
+		// 0x105B7320
+		MetaTypeBase(const ClassName& newName, const type_info* newType);
+		// Slot 0: the deleting destructor is 0x105B72F0
 		virtual ~MetaTypeBase();
 		virtual bool ReadText(const TextValue* text, void* value) = 0;
 		virtual void WriteText(TextValue* text, const void* value) = 0;
 		virtual bool ReadBinary(BinaryStream* stream, void* value) = 0;
 		virtual void WriteBinary(BinaryStream* stream, const void* value) = 0;
+		virtual int Slot5() = 0;
+		virtual void Slot6(void* unknown) = 0;
+
+		TreeNode nodeByName;  // 8
+		TreeNode nodeByType;  // 0x18
+		ClassName name;  // 0x28
+		const type_info* type;  // 0x30
 	};
 
 	// 0x105B6FF0: the description registered for the type, null when there is none

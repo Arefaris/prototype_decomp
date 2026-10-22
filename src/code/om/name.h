@@ -19,6 +19,8 @@ namespace om
 
 		unsigned __int64 key;
 	};
+
+	typedef Name<CaseSensitive64BitKey> ClassName;
 }
 
 #endif

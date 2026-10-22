@@ -7,20 +7,11 @@
 
 #include "code/om/allocation.h"
 #include "code/om/name.h"
+#include "code/om/tree.h"
 
 namespace om
 {
 	class MetaClassBase;
-	typedef Name<CaseSensitive64BitKey> ClassName;
-
-	// A node of the red-black trees the meta classes keep their members in
-	struct TreeNode
-	{
-		TreeNode* left;
-		TreeNode* right;
-		TreeNode* parent;
-		int color;
-	};
 
 	class MetaMethodBase
 	{

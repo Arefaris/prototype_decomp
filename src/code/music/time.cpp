@@ -2,6 +2,7 @@
 // FollowAction and Fade and their om reflection (template instances of the om library).
 #include "code/music/time.h"
 #include "code/om/delegate.h"
+#include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
 
@@ -146,6 +147,8 @@ namespace music
 namespace om
 {
 
+	// FUNCTION: ENGINE 0x10462480
+	template const char* Garbage<music::Time>::AllocationTag();
 	// FUNCTION: ENGINE 0x104629C0
 	template void* Garbage<music::Time>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10479410
@@ -162,6 +165,46 @@ namespace om
 	template MetaMethod0Base<const music::FollowAction::Type&>* MetaProperty<const music::FollowAction::Type&>::GetGetter();
 	// FUNCTION: ENGINE 0x105CCF00
 	template MetaMethod0Base<const unsigned int&>::~MetaMethod0Base();
+	// FUNCTION: ENGINE 0x105D73E0
+	template MetaClass<music::Time>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D7410
+	template const type_info* MetaClass<music::Time>::GetType();
+	// FUNCTION: ENGINE 0x105D7420
+	template MetaClass<music::TimeSignature>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D7450
+	template const type_info* MetaClass<music::TimeSignature>::GetType();
+	// FUNCTION: ENGINE 0x105D7460
+	template MetaClass<music::FollowAction>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D7490
+	template const type_info* MetaClass<music::FollowAction>::GetType();
+	// FUNCTION: ENGINE 0x105D7520
+	template MetaClass<music::Fade>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D7550
+	template const type_info* MetaClass<music::Fade>::GetType();
+	// FUNCTION: ENGINE 0x105D7600
+	template MetaClass<music::Time>::~MetaClass();
+	// FUNCTION: ENGINE 0x105D7610
+	template MetaClass<music::TimeSignature>::~MetaClass();
+	// FUNCTION: ENGINE 0x105D7620
+	template MetaClass<music::FollowAction>::~MetaClass();
+	// FUNCTION: ENGINE 0x105D7630
+	template MetaClass<music::Fade>::~MetaClass();
+	// FUNCTION: ENGINE 0x105D7640
+	template void MetaClass<music::Time>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105D7660
+	template void MetaClass<music::TimeSignature>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105D7680
+	template void MetaClass<music::FollowAction>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105D76A0
+	template void MetaClass<music::Fade>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105D7710
+	template const char* MetaClass<music::Time>::AllocationTag();
+	// FUNCTION: ENGINE 0x105D7720
+	template const char* MetaClass<music::TimeSignature>::AllocationTag();
+	// FUNCTION: ENGINE 0x105D7730
+	template const char* MetaClass<music::FollowAction>::AllocationTag();
+	// FUNCTION: ENGINE 0x105D7750
+	template const char* MetaClass<music::Fade>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7760
 	template MetaProperty<const unsigned int&>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, const unsigned int&>*, MetaMethod0Base<const unsigned int&>*, unsigned int);
 	// FUNCTION: ENGINE 0x105D77A0
@@ -187,9 +230,9 @@ namespace om
 	// FUNCTION: ENGINE 0x105D78B0
 	template MetaProperty<const unsigned int&>::~MetaProperty();
 	// FUNCTION: ENGINE 0x105D78C0
-	template MetaProperty<const music::FollowAction::Type&>::~MetaProperty();
-	// FUNCTION: ENGINE 0x105D78D0
 	template MetaProperty<const music::Time&>::~MetaProperty();
+	// FUNCTION: ENGINE 0x105D78D0
+	template MetaProperty<const music::FollowAction::Type&>::~MetaProperty();
 	// FUNCTION: ENGINE 0x105D78E0
 	template MetaMethod1Base<void, const unsigned int&>::MetaMethod1Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105D7900
@@ -201,13 +244,13 @@ namespace om
 	// FUNCTION: ENGINE 0x105D7960
 	template MetaMethod0Base<const music::FollowAction::Type&>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105D7980
-	template void MetaProperty<const music::FollowAction::Type&>::operator delete(void*);
+	template void MetaProperty<const music::Time&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105D79A0
 	template MetaMethod1Base<void, const music::Time&>::MetaMethod1Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105D79C0
 	template MetaMethod0Base<const music::Time&>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105D79E0
-	template void MetaProperty<const music::Time&>::operator delete(void*);
+	template void MetaProperty<const music::FollowAction::Type&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105D7AE0
 	template const char* MetaMethod1<music::Time, music::Time, void, unsigned int>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7AF0
@@ -256,6 +299,30 @@ namespace om
 	template bool ReadText<music::Time>(const TextValue*, music::Time*);
 	// FUNCTION: ENGINE 0x105D7DD0
 	template void WriteText<music::Time>(TextValue*, const music::Time&);
+	// FUNCTION: ENGINE 0x105D7E20
+	template int MetaClass<music::Time>::Slot5();
+	// FUNCTION: ENGINE 0x105D7E30
+	template void MetaClass<music::Time>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105D7E60
+	template int MetaClass<music::TimeSignature>::Slot5();
+	// FUNCTION: ENGINE 0x105D7E70
+	template void MetaClass<music::TimeSignature>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105D7EA0
+	template int MetaClass<music::FollowAction>::Slot5();
+	// FUNCTION: ENGINE 0x105D7EB0
+	template void MetaClass<music::FollowAction>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105D7F30
+	template int MetaClass<music::Fade>::Slot5();
+	// FUNCTION: ENGINE 0x105D7F40
+	template void MetaClass<music::Fade>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105D7F80
+	template void* MetaClass<music::Time>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105D7FA0
+	template void* MetaClass<music::TimeSignature>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105D7FC0
+	template void* MetaClass<music::FollowAction>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105D8000
+	template void* MetaClass<music::Fade>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D80E0
 	template void* MetaMethod1<music::Time, music::Time, void, unsigned int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D8100
@@ -414,6 +481,14 @@ namespace om
 	template MetaTypeBase* DelegateProperty<music::Time>::GetMetaType();
 	// FUNCTION: ENGINE 0x105D9040
 	template DelegateProperty<music::Time>::~DelegateProperty();
+	// FUNCTION: ENGINE 0x105D9210
+	template void MetaClass<music::Time>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D92D0
+	template void MetaClass<music::TimeSignature>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D9390
+	template void MetaClass<music::FollowAction>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D94F0
+	template void MetaClass<music::Fade>::Create(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105D95B0
 	template MetaMethod1<music::Time, music::Time, void, unsigned int>* MetaMethod1<music::Time, music::Time, void, unsigned int>::Create(MetaClassBase*, const ClassName&, void (music::Time::*)(unsigned int));
 	// FUNCTION: ENGINE 0x105D95F0
@@ -498,5 +573,4 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<const music::FollowAction::Type&>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105DBA10
 	template DelegatePropertyBase* MetaProperty<const music::Time&>::CreateDelegate(void*);
-	template const char* Garbage<music::Time>::AllocationTag();
 }

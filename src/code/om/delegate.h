@@ -1,4 +1,4 @@
-// The delegates and garbage holders of the om library (RTTI: om::RefCount<Policy>, DelegatePropertyBase,
+// The delegates and garbage holders of the om library (RTTI: om::DelegatePropertyBase,
 // DelegateProperty<V>, DelegateMetaPropertyBase, DelegateMetaProperty<T>, GarbageBase and Garbage<V>). A delegate
 // property binds a reflected property to one object, so that the value can be read and written without naming the
 // object again; V is the value type of the property and T the type its accessors pass (V, or a const reference to V).
@@ -6,33 +6,10 @@
 #define OM_DELEGATE_H
 
 #include "code/om/metaproperty.h"
+#include "code/om/refcount.h"
 
 namespace om
 {
-	struct SingleThreadedRefCount
-	{
-	};
-
-	struct ThreadSafeRefCount
-	{
-	};
-
-	// A reference counted object: the vftable only holds the destructor (the engine's deleting destructor of the
-	// single threaded one is 0x10030EA9)
-	template<class Policy> class RefCount
-	{
-	public:
-		RefCount() :
-			count(0)
-		{
-		}
-		virtual ~RefCount()
-		{
-		}
-
-		int count;
-	};
-
 	class DelegatePropertyBase : public RefCount<SingleThreadedRefCount>
 	{
 	public:
