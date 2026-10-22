@@ -143,6 +143,11 @@ class Image:
 		section = self.section(address)
 		return section is not None and not section[3]
 
+	def findBytes(self, needle):
+		"""The address of the first occurrence of `needle` in the image, or None."""
+		at = self.data.find(needle)
+		return self.base + at if at >= 0 else None
+
 	def followThunks(self, address):
 		for _ in range(4):
 			if not self.contains(address) or self.data[address - self.base] != 0xE9:

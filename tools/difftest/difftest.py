@@ -174,7 +174,12 @@ class FunctionTest:
 				if viaSlot:
 					return slot
 				data = emulator.readSnapshot(slot, 4)
-				return struct.unpack("<I", data)[0] if data is not None else None
+				if data is not None:
+					return struct.unpack("<I", data)[0]
+				# a live capture that never touched the import table: the engine's own stub (jmp dword ptr [slot])
+				# stands for the function, as in the engine's vftables
+				stub = self.image.findBytes(b"\xff\x25" + struct.pack("<I", slot))
+				return stub
 
 			try:
 				loaded = loader.load(self.obj, self.symbol, emulator.write, emulator.layout.code, emulator.layout.data, self.unitMode, importFallback)
