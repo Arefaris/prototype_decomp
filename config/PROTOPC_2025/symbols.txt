@@ -21023,3 +21023,14 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??_GOLSGameMessage@engine@@UAEPAXI@Z = 0x10888190 ; function size:0x1F | public: virtual void * __thiscall engine::OLSGameMessage::`scalar deleting destructor'(unsigned int) (name guess)
 ??_GOLSProfileStorageMessage@engine@@UAEPAXI@Z = 0x1088AF20 ; function size:0x1F | public: virtual void * __thiscall engine::OLSProfileStorageMessage::`scalar deleting destructor'(unsigned int) (name guess)
 
+??_R0?AVStreamClient@engine@@@8 = 0x110A8A1C ; data size:0x8 | class engine::StreamClient RTTI Type Descriptor RTTI type descriptor
+??_7StreamClient@engine@@6B@ = 0x10E780D4 ; data size:0x10 | engine::StreamClient::vftable
+??_EStreamClient@engine@@UAEPAXI@Z = 0x1089B6B0 ; function size:0x1E | public: virtual void * __thiscall engine::StreamClient::`vector deleting destructor'(unsigned int) vftable slot 0
+?Slot3@StreamClient@engine@@UAEXXZ = 0x1051F1D0 ; function size:0x1 | public: virtual void __thiscall engine::StreamClient::Slot3(void) vftable slot 3
+?SetTags@StreamClient@engine@@QAEXPBD@Z = 0x1089B620 ; function size:0x8 | public: void __thiscall engine::StreamClient::SetTags(char const *) (name guess)
+?ClearTags@StreamClient@engine@@QAEXXZ = 0x1089B630 ; function size:0x8 | public: void __thiscall engine::StreamClient::ClearTags(void) (name guess)
+??1StreamClient@engine@@UAE@XZ = 0x1089B670 ; function size:0x1C | public: virtual __thiscall engine::StreamClient::~StreamClient(void) (name guess)
+??0StreamClient@engine@@QAE@XZ = 0x1089B690 ; function size:0x1D | public: __thiscall engine::StreamClient::StreamClient(void) (name guess)
+??0StreamClient@engine@@QAE@PBD@Z = 0x1089B640 ; function size:0x2F | public: __thiscall engine::StreamClient::StreamClient(char const *) (name guess)
+??_GStreamClient@engine@@UAEPAXI@Z = 0x1089B6B0 ; function size:0x1E | public: virtual void * __thiscall engine::StreamClient::`scalar deleting destructor'(unsigned int) (name guess)
+
