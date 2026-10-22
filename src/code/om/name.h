@@ -16,6 +16,10 @@ namespace om
 			key(0)
 		{
 		}
+		explicit Name(unsigned __int64 newKey) :
+			key(newKey)
+		{
+		}
 
 		unsigned __int64 key;
 	};

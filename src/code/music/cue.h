@@ -3,12 +3,20 @@
 #ifndef MUSIC_CUE_H
 #define MUSIC_CUE_H
 
+#include "code/om/entity.h"
+
 namespace music
 {
-	class Cue
+	// A cue: an entity that plays cells (0x68 bytes)
+	class Cue : public om::Entity
 	{
 	public:
+		// 0x105DD500
+		explicit Cue(const om::ClassName& newName);
 		virtual ~Cue();
+		OM_ENTITY_ALLOCATION(Cue);
+
+		char unknown10[0x58];
 	};
 
 	class Cell

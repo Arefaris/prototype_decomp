@@ -3,6 +3,7 @@
 #ifndef AUDIO_MIX_H
 #define AUDIO_MIX_H
 
+#include "code/om/entity.h"
 #include "code/om/name.h"
 
 namespace audio
@@ -20,13 +21,19 @@ namespace audio
 		bool GetMute() const;
 	};
 
-	class Mix
+	// An entity of the mixer: a set of strips (0x48 bytes)
+	class Mix : public om::Entity
 	{
 	public:
+		// 0x105CCB70
+		explicit Mix(const om::ClassName& newName);
 		virtual ~Mix();
+		OM_ENTITY_ALLOCATION(Mix);
 
 		void SetSelected(unsigned int index);
 		unsigned int GetSelected() const;
+
+		char unknown10[0x38];
 	};
 }
 
