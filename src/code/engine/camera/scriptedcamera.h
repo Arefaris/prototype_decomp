@@ -112,6 +112,10 @@ namespace engine
 			void UpdateTracks(float newTime, bool update);
 			// 0x10851230: gives a track the spline (a copy; it must have four keys with rising times in w)
 			bool SetSpline(SplineTrack* track, math::Spline& source);
+			// 0x10851500 / 0x10851530: the position / look-at track is given the spline and set to be used (bits 0x10 /
+			// 0x20 of the pending word)
+			bool SetPositionSpline(math::Spline& source);
+			bool SetLookAtSpline(math::Spline& source);
 			// 0x10850A60: plays the animation from first to last (a negative value: the start / the end of the
 			// animation) at frame, looping as loopMode says (0: as the animation does, 2: looping)
 			bool SetPlayback(float first, float last, float frame, bool newUnknown55, bool newUnknown56, int loopMode);

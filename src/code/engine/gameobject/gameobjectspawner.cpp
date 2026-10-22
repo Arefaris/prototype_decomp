@@ -100,8 +100,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x107F25C0
-	// EQUIVALENT: stack slots: the engine shares one slot between the heap statistic, the attribute lookup and the
-	// handle and puts the attribute writer at +8; ours keeps the statistic apart (everything else is identical)
+	// EQUIVALENT: stack slots: the engine shares one slot between the attribute lookup and the handle, ours keeps
+	// them apart (a frame 4 bytes larger, every stack offset moved by it; everything else is identical), 93.9 %
 	GameObject* GameObjectSpawner::Create(content::MetaObjectTemplate* tmpl, const content::ObjectName& name, int heap,
 		content::LoadInventory* inventory, content::LoadInventory* target, bool flag)
 	{

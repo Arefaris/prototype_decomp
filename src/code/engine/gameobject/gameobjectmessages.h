@@ -316,6 +316,17 @@ namespace engine
 	{
 		SetPropLogicStateMessage(core::Name<core::CaseSensitiveKey> newPrefix, const char* newState, bool newFlag,
 			bool newOther, float newTime);
+		// A state of the prop's tree by its prefix and name (inline: the prop spawner sends one per initial state)
+		SetPropLogicStateMessage(core::Name<core::CaseSensitiveKey> newPrefix, core::Name<core::CaseSensitiveKey> newName)
+			: IntrusiveMessage(0xb, 5), prefix(newPrefix), stateName(newName)
+		{
+			state = 0;
+			flag = false;
+			other = true;
+			time = 0.0f;
+			unknown2C = 0;
+			succeeded = false;
+		}
 
 		int unknownC;
 		core::Name<core::CaseSensitiveKey> prefix;

@@ -180,7 +180,7 @@ namespace engine
 		if (attribute != 0)
 		{
 			T* value = &static_cast<Attribute<T>*>(attribute)->Get();
-			return AttributeWriter<T>(name, this, value);
+			return AttributeWriter<T>(value, name, this);
 		}
 		return AttributeWriter<T>();
 	}
@@ -667,7 +667,6 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1086BB00
-	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
 	void go_SetIntAttr(LuaGOH object, ScriptName name, int value)
 	{
 		GameObject* gameObject = DeserializeHandle(object).Get();
@@ -688,7 +687,6 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1086BBA0
-	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
 	void go_SetFloatAttr(LuaGOH object, ScriptName name, float value)
 	{
 		GameObject* gameObject = DeserializeHandle(object).Get();
@@ -709,7 +707,6 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1086BDF0
-	// EQUIVALENT: the engine's frame is four bytes larger: its temporary for the handle does not share the slot of the writer
 	void go_SetVectorAttr(LuaGOH object, ScriptName name, math::Vector value)
 	{
 		GameObject* gameObject = DeserializeHandle(object).Get();
@@ -957,8 +954,8 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1086BD30
-	// EQUIVALENT: the engine's frame is four bytes larger and it passes the temporary name of the fallback by the
-	// constructor's result where ours takes its address again, 81.4 %
+	// EQUIVALENT: the engine passes the temporary name of the fallback by the constructor's result where ours takes
+	// its address again, 84.0 %
 	void go_SetUIDAttr(LuaGOH object, ScriptName name, const char* value)
 	{
 		GameObject* gameObject = DeserializeHandle(object).Get();

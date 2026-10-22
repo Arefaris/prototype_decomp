@@ -10,6 +10,8 @@
 
 namespace content
 {
+	class LoadInventory;
+
 	class StringMetaType : public MetaType
 	{
 	public:
@@ -101,6 +103,60 @@ namespace content
 
 		StringMetaTypeGetSetter* getSetter;
 	};
+
+	// The getter / setter pair of a string whose setter is also handed a resolver (RTTI names
+	// StringMetaTypeGetSetterWithResolver and StringMetaTypeGetSetWithResolver; the third argument is the inventory
+	// the string's objects are looked up in; names guessed)
+	struct StringMetaTypeGetSetterWithResolver
+	{
+	public:
+		StringMetaTypeGetSetterWithResolver()
+		{
+		}
+		virtual const char* Get(void* object) = 0;
+		virtual void Set(void* object, const char* value, int resolver) = 0;
+	};
+
+	class StringMetaTypeGetSetWithResolver : public StringMetaType
+	{
+	public:
+		StringMetaTypeGetSetWithResolver(StringMetaTypeGetSetterWithResolver* newGetSetter, int newCapacity,
+			const char* code)
+			: StringMetaType(newCapacity, code)
+		{
+			getSetter = newGetSetter;
+		}
+
+		// 0x102C4E40 / 0x102C4E80 / 0x102C4ED0 (the engine keeps these in one unit)
+		virtual const char* Get(const void* object)
+		{
+			if (IsDirect(object))
+			{
+				return StringMetaType::Get(object);
+			}
+			return getSetter->Get((void*)object);
+		}
+		virtual void Set(void* object, const char* value)
+		{
+			if (IsDirect(object))
+			{
+				StringMetaType::Set(object, value);
+				return;
+			}
+			getSetter->Set(object, value, 0);
+		}
+		virtual void SetResolved(void* object, const char* value, int resolver)
+		{
+			if (IsDirect(object))
+			{
+				StringMetaType::Set(object, value);
+				return;
+			}
+			getSetter->Set(object, value, resolver);
+		}
+
+		StringMetaTypeGetSetterWithResolver* getSetter;
+	};
 }
 
 // A string member reached through a getter and a setter of class C (RTTI: global namespace)
@@ -129,6 +185,32 @@ public:
 	Setter setter;
 };
 
+// The same with a setter that takes the resolver as its second argument (RTTI: global namespace)
+template<class C> class StringMemberGetSetterWithResolver : public content::StringMetaTypeGetSetterWithResolver
+{
+public:
+	typedef const char* (C::*Getter)();
+	typedef void (C::*Setter)(const char*, content::LoadInventory*);
+
+	StringMemberGetSetterWithResolver(Getter newGetter, Setter newSetter)
+	{
+		getter = newGetter;
+		setter = newSetter;
+	}
+
+	virtual const char* Get(void* object)
+	{
+		return (((C*)object)->*getter)();
+	}
+	virtual void Set(void* object, const char* value, int resolver)
+	{
+		(((C*)object)->*setter)(value, (content::LoadInventory*)resolver);
+	}
+
+	Getter getter;
+	Setter setter;
+};
+
 namespace content
 {
 	// One instance per member (Id tells them apart), as for the primitive members
@@ -137,6 +219,14 @@ namespace content
 	{
 		static StringMemberGetSetter<C> sGetSetter(getter, setter);
 		static StringMetaTypeGetSet sType(&sGetSetter, 0x400, code);
+		return &sType;
+	}
+
+	template<class C, int Id> StringMetaTypeGetSetWithResolver* GetStringMemberWithResolverMetaType(
+		const char* (C::*getter)(), void (C::*setter)(const char*, LoadInventory*), const char* code)
+	{
+		static StringMemberGetSetterWithResolver<C> sGetSetter(getter, setter);
+		static StringMetaTypeGetSetWithResolver sType(&sGetSetter, 0x400, code);
 		return &sType;
 	}
 }

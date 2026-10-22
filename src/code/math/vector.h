@@ -97,6 +97,8 @@ namespace math
 		bool IsZero() const;
 		// True when every component differs from other's by at most tolerance (0x1084D000, the camera math's unit; name guessed)
 		bool IsNear(const Vector& other, float tolerance) const;
+		// The engine's second out-of-line copy of IsNear (0x10070B70), the one the camera path sampling calls
+		bool IsNearOther(const Vector& other, float tolerance) const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X
 		void Perpendicular(const Vector& v);
 		// Sets this vector to a cross b; when that is (nearly) zero, to a vector perpendicular to a, returning true

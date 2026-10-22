@@ -291,6 +291,28 @@ namespace engine
 			sList.baseCaster = &sCaster;
 			return &sList;
 		}
+		// FUNCTION: ENGINE 0x10851500
+		bool ScriptedCamera::SetPositionSpline(math::Spline& source)
+		{
+			if (SetSpline(&position, source))
+			{
+				pending |= 0x10;
+				return true;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x10851530
+		bool ScriptedCamera::SetLookAtSpline(math::Spline& source)
+		{
+			if (SetSpline(&lookAt, source))
+			{
+				pending |= 0x20;
+				return true;
+			}
+			return false;
+		}
+
 		// FUNCTION: ENGINE 0x10851230
 		bool ScriptedCamera::SetSpline(SplineTrack* track, math::Spline& source)
 		{

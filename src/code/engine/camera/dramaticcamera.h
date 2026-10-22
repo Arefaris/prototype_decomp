@@ -64,6 +64,10 @@ namespace engine
 			// queued or when no animation fits
 			bool Play(HandleBase object, const math::Vector* offset, bool newUnknownD2, float delay, float duration,
 				float tail, float limit);
+			// 0x1084F240: samples the position channel of a queued animation along its frames, leaving out the points
+			// that lie where the previous one did or close to it (the last one is always kept); answers how many
+			// points it wrote to out (at most maxCount), or -1 when there is no channel (name guessed)
+			int SamplePath(const DramaticAnimation* queued, math::Vector* out, int maxCount);
 			// 0x1084F420: the index of the queued animation that fits a start (matrix) and a point (name and parameters
 			// guessed), or -1; sets the flags at 0xD1 and 0xD2
 			int FindAnimation(const math::Matrix* start, float limit, const math::Vector* point, bool* checked);

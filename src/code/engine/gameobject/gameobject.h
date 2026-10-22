@@ -69,7 +69,7 @@ namespace engine
 			object = 0;
 			value = 0;
 		}
-		AttributeWriter(const content::ObjectName& newName, GameObject* newObject, T* newValue) : name(newName)
+		AttributeWriter(T* newValue, const content::ObjectName& newName, GameObject* newObject) : name(newName)
 		{
 			object = newObject;
 			value = newValue;
@@ -89,6 +89,7 @@ namespace engine
 		GameObject* object;
 		int unknownC;
 		T* value;
+		int unknown14;
 	};
 
 	// An attribute's value, null when the object has no such attribute (returned in memory: it has a constructor)

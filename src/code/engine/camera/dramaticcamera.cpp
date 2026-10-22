@@ -2,6 +2,7 @@
 #include "code/core/refptr.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/pure3d/animation.h"
+#include "code/pure3d/channel.h"
 #include "code/ravenphysics/context.h"
 #include <math.h>
 
@@ -220,6 +221,61 @@ namespace engine
 			entry->unknown10 = newUnknown10;
 			entry->unknown11 = newUnknown11;
 			return true;
+		}
+
+		// FUNCTION: ENGINE 0x1084F240
+		// EQUIVALENT: the engine keeps the queued animation in ebx and the output buffer in edi where ours takes edi and
+		// ebx (so the pushes and the loop's address registers differ); same reads, writes, calls and order otherwise, 68.7 %
+		int DramaticCamera::SamplePath(const DramaticAnimation* queued, math::Vector* out, int maxCount)
+		{
+			if (controller == 0)
+			{
+				return -1;
+			}
+			controller->SetAnimation(queued->animation, 0.0f, 0.0f);
+			int available = (int)(fabsf(queued->end - queued->start) / 15.0f + 0.5f) + 1;
+			int count = maxCount;
+			if (count >= available)
+			{
+				count = available;
+			}
+			int written = 0;
+			math::Vector current(0.0f, 0.0f, 0.0f);
+			math::Vector previous(0.0f, 0.0f, 0.0f);
+			pure3d::AnimationGroup* group = queued->animation->GetGroup(0);
+			if (group == 0)
+			{
+				return -1;
+			}
+			pure3d::VectorChannel* channel = (pure3d::VectorChannel*)group->FindChannel(0x4E415254, 0x54434556);
+			if (channel == 0)
+			{
+				return -1;
+			}
+			for (int i = 0; i < count; i++)
+			{
+				float time = queued->start + (queued->end - queued->start) * ((float)i / (float)(count - 1));
+				channel->mKeys.Evaluate(pure3d::FrameTime(time), &current);
+				if (i != 0)
+				{
+					if (!math::VectorsDiffer(current, previous))
+					{
+						continue;
+					}
+					if (i != count - 1 && current.IsNearOther(previous, 0.1f))
+					{
+						continue;
+					}
+				}
+				out[written].x = current.x;
+				out[written].y = current.y;
+				out[written].z = current.z;
+				previous.x = current.x;
+				previous.y = current.y;
+				previous.z = current.z;
+				written++;
+			}
+			return written;
 		}
 
 		// FUNCTION: ENGINE 0x1084EE20
