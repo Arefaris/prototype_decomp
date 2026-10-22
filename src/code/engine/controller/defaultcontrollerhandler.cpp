@@ -253,8 +253,8 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10896340
-		// EQUIVALENT: the engine saves edi after loading this and schedules the pushes of the mutex call's arguments
-		// between the vftable stores, 90 %
+		// EQUIVALENT: the engine saves edi after loading this, schedules the pushes of the mutex call's arguments
+		// between the vftable stores and leaves out the dead store of the input callback base's vftable, 90 %
 		DefaultControllerHandler::DefaultControllerHandler(int newPlayerCount)
 		{
 			controller = 0xFFFFFFFF;

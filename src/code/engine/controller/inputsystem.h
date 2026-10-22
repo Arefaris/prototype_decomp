@@ -245,7 +245,7 @@ namespace engine
 			};
 
 			// The listeners told about player changes (RTTI: InputSystem::InputCallback, a list node after the vftable)
-			class __declspec(novtable) InputCallback : public container::SListLite<InputCallback>::Node
+			class InputCallback : public container::SListLite<InputCallback>::Node
 			{
 			public:
 				// The defaults do nothing (0x107F6B40 - 0x107F6B60, kept in the database unit)
