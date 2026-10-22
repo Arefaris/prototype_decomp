@@ -58,6 +58,8 @@ namespace fight
 		void SetName(const core::Name<core::CaseSensitiveKey>& newName);
 		// 0x105A3160: the hash of the name
 		unsigned __int64 GetNameHash() const;
+		// 0x105AA1E0: the name
+		const core::Name<core::CaseSensitiveKey>& GetName() const;
 
 		core::Name<core::CaseSensitiveKey> name;  // +8
 	};

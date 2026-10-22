@@ -246,6 +246,21 @@ namespace fight
 
 	// ---- The properties' constructors ----------------------------------------------------------------------------
 
+	// FUNCTION: ENGINE 0x105A9BF0
+	void Property::Slot2(int object, int other)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A9C00
+	void Property::Slot3(int object, int other)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105A9C30
+	Property::Property()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x105A9C60
 	Property::Property(const char* newName)
 	{

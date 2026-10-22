@@ -32,6 +32,8 @@ namespace fight
 	class __declspec(align(8)) Property
 	{
 	public:
+		// 0x105A9C30 (the engine keeps a copy) / 0x105A9C60
+		Property();
 		Property(const char* name);
 
 		// vftable slot 0: the kind of value the property carries (every type class returns its own id)
@@ -948,9 +950,14 @@ namespace fight
 		// vftable slot 1: makes a track of this factory's class
 		virtual void* CreateTrack() = 0;
 
+		// 0x105A9F30 / 0x105AA0B0: the factory is shared through a reference count (AddRef answers the old count; the
+		// last Release deletes the factory)
+		long AddRef();
+		void Release();
+
 		unsigned int unknown4;
 		Name name;
-		int unknown10;
+		long refCount;  // +0x10
 		void (*clearProperties)();
 	};
 
@@ -1156,9 +1163,13 @@ namespace fight
 		// vftable slot 1: makes a condition of this factory's class
 		virtual void* CreateCondition() = 0;
 
+		// 0x105A9880 / 0x105A99A0: shared through a reference count like the track factory
+		long AddRef();
+		void Release();
+
 		unsigned int unknown4;
 		Name name;
-		int unknown10;
+		long refCount;  // +0x10
 		void (*clearProperties)();
 	};
 

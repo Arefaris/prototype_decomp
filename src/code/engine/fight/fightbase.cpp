@@ -5,6 +5,7 @@
 #include "code/engine/fight/reader.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/system/streampackage.h"
+#include <intrin.h>
 #include <new>
 #include <string.h>
 
@@ -185,6 +186,29 @@ namespace fight
 		}
 	}
 
+	// FUNCTION: ENGINE 0x105A9D00
+	Action* Track::MakeAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return CreateAction(listener, effect, owner);
+	}
+
+	// FUNCTION: ENGINE 0x105A9D10
+	// EQUIVALENT: the engine merges the flag bits with a memory xor and picks the sequencer with a conditional move, ours
+	// loads the flags first and branches; 67.6 %
+	bool Track::Start(Track* listener, core::IRefCount* effect, core::IRefCount* owner, Sequencer* sequencer)
+	{
+		Action* action = MakeAction(listener, effect, owner);
+		if (action == 0)
+		{
+			return false;
+		}
+		action->timeBegin += GetTimeBegin();
+		action->unknown14 += Slot10();
+		action->flags.all ^= (unknownC ^ action->flags.all) & 3;
+		Sequencer* target = sequencer != 0 ? sequencer : (Sequencer*)effect;
+		return target->Schedule(action);
+	}
+
 	// FUNCTION: ENGINE 0x105A9F90
 	// EQUIVALENT: register allocation (the engine keeps the track in edi, the child name in ebx and saves ebp for the flag read) and the address of the reader's slot, which ours forms ahead of the name's construction; 44.7 %
 	bool Track::Slot5(int key, int context, int source)
@@ -217,7 +241,7 @@ namespace fight
 
 	// FUNCTION: ENGINE 0x105A9E40
 	TrackFactory::TrackFactory(const char* newName, void (*registerProperties)(), void (*newClearProperties)())
-		: name(newName, 1), unknown10(0), clearProperties(newClearProperties)
+		: name(newName, 1), refCount(0), clearProperties(newClearProperties)
 	{
 		if (registerProperties != 0)
 		{
@@ -234,6 +258,44 @@ namespace fight
 		}
 	}
 
+	// FUNCTION: ENGINE 0x105A9F30
+	long TrackFactory::AddRef()
+	{
+		long* count = &refCount;
+		return _InterlockedExchangeAdd(count, 1);
+	}
+
+	// FUNCTION: ENGINE 0x105AA0B0
+	// EQUIVALENT: the engine adds -1 into edx and decrements the answer explicitly, and keeps a spare stack word; ours
+	// uses ecx; 22.4 %
+	void TrackFactory::Release()
+	{
+		if (_InterlockedExchangeAdd(&refCount, -1) - 1 == 0)
+		{
+			_InterlockedExchange(&refCount, 0x8000000);
+			delete this;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A9880
+	long ConditionFactory::AddRef()
+	{
+		long* count = &refCount;
+		return _InterlockedExchangeAdd(count, 1);
+	}
+
+	// FUNCTION: ENGINE 0x105A99A0
+	// EQUIVALENT: the engine adds -1 into edx and decrements the answer explicitly, and keeps a spare stack word; ours
+	// uses ecx; 22.4 %
+	void ConditionFactory::Release()
+	{
+		if (_InterlockedExchangeAdd(&refCount, -1) - 1 == 0)
+		{
+			_InterlockedExchange(&refCount, 0x8000000);
+			delete this;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x105A9CF0
 	void* TrackFactory::Make()
 	{
@@ -242,7 +304,7 @@ namespace fight
 
 	// FUNCTION: ENGINE 0x105A9790
 	ConditionFactory::ConditionFactory(const char* newName, void (*registerProperties)(), void (*newClearProperties)())
-		: name(newName, 1), unknown10(0), clearProperties(newClearProperties)
+		: name(newName, 1), refCount(0), clearProperties(newClearProperties)
 	{
 		if (registerProperties != 0)
 		{

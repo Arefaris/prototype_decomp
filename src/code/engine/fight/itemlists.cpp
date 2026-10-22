@@ -366,6 +366,23 @@ namespace fight
 		next = newNext;
 	}
 
+	// FUNCTION: ENGINE 0x105A80A0
+	// EQUIVALENT: the engine keeps the flag that the first track set and tests it after every call, ours sees that it
+	// is always set and leaves it out; 9.4 %
+	bool TrackGroup::Unknown105A80A0(int a, int b, int c, Sequencer* sequencer)
+	{
+		bool result = true;
+		for (Track* track = head; track != 0; track = track->next)
+		{
+			bool started = track->Start((Track*)a, (core::IRefCount*)b, (core::IRefCount*)c, sequencer);
+			if (result || started)
+			{
+				result = true;
+			}
+		}
+		return result;
+	}
+
 	// FUNCTION: ENGINE 0x105A7F20
 	int TrackGroup::GetCount() const
 	{

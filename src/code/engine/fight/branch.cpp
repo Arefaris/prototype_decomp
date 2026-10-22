@@ -572,6 +572,12 @@ namespace fight
 		head = node;
 	}
 
+	// FUNCTION: ENGINE 0x105AA1E0
+	const core::Name<core::CaseSensitiveKey>& Entity::GetName() const
+	{
+		return name;
+	}
+
 	// FUNCTION: ENGINE 0x105A3160
 	unsigned __int64 Entity::GetNameHash() const
 	{

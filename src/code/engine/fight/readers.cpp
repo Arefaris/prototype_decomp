@@ -91,6 +91,18 @@ namespace fight
 		return ReadName(Name(keyText, 1), target);
 	}
 
+	// FUNCTION: ENGINE 0x105A9DE0
+	bool Reader::ReadBool(const char* keyText, bool* value)
+	{
+		return ReadBool(Name(keyText, 1), value);
+	}
+
+	// FUNCTION: ENGINE 0x105A9E10
+	bool Reader::ReadInt(const char* keyText, int* value)
+	{
+		return ReadInt(Name(keyText, 1), value);
+	}
+
 	// FUNCTION: ENGINE 0x105AA990
 	bool Reader::ReadName(const Name& key, Entity* target)
 	{

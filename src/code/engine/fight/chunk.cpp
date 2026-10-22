@@ -246,6 +246,13 @@ namespace fight
 		dependents = 0;
 	}
 
+	// FUNCTION: ENGINE 0x105AAAB0
+	int Chunk::NextIndex()
+	{
+		indexCounter = indexCounter + 1;
+		return indexCounter;
+	}
+
 	// FUNCTION: ENGINE 0x105AAAC0
 	void Chunk::AddNotification(Branch* branch, Item* item)
 	{

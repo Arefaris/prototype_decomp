@@ -78,6 +78,9 @@ namespace fight
 		bool ReadName(const Name& key, Entity* target);
 		// 0x105A31A0: the same for a key given as text
 		bool ReadName(const char* keyText, Entity* target);
+		// 0x105A9DE0 / 0x105A9E10: a bool / an integer under a key given as text
+		bool ReadBool(const char* keyText, bool* value);
+		bool ReadInt(const char* keyText, int* value);
 		// 0x105AA8A0: leaves the child the reader is at, answering its name (name guess)
 		const Name* SkipChild();
 	};

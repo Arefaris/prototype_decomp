@@ -254,6 +254,11 @@ namespace fight
 		void Unregister(void* entry);
 		// 0x105A9F60: deletes the track that follows and makes another the next one
 		void SetNext(Track* newNext);
+		// 0x105A9D00: makes the track's action (a jump to slot 15)
+		Action* MakeAction(Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+		// 0x105A9D10: makes the action, gives it the track's times and flags and schedules it on a sequencer (the one
+		// the effect stands for when none is given); answers whether it was scheduled
+		bool Start(Track* listener, core::IRefCount* effect, core::IRefCount* owner, Sequencer* sequencer);
 
 		// The next track of the list that owns this one
 		Track* next;
