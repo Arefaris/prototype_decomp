@@ -119,8 +119,15 @@ nothing about behaviour at 20 % byte similarity. `tools/difftest/difftest.py` re
    pointer to a function ours placed itself against the engine's address compares by symbol; calls of the engine to
    small value-computing leaf functions, or to helpers that store nothing outside the frame before the next call (a
    copy into a temporary), which ours did inline, are skipped; a stack cleanup that differs from the engine's does not
-   fail when every caller of the function is compiled from our sources too (the hybrid DLL replaces them as well). The
-   emulator performs `QueryPerformanceCounter` / `Frequency` (a counter that depends only on the call index),
+   fail when every caller of the function is compiled from our sources too (the hybrid DLL replaces them as well); a
+   pointer argument into the function's frame or into its own incoming argument slots (the engine reuses an argument's
+   slot for a temporary where ours takes a local) compares by the 64 bytes it points at; a call on either side to a
+   small leaf without calls that stores nothing outside the frame (a trivial constructor of a temporary) is dropped
+   from both call lists; a variant in which ours is stopped by the shared clock before it ran as many instructions
+   as the engine is `INCONCLUSIVE`, not a budget failure. The register inputs of the static convention check follow
+   every branch from the entry (a virtual function that uses `this` only after an early return still takes ecx), and
+   a callee's `ret N` is looked for only up to the padding after it (a function that ends in a tail call through a
+   register has none). The emulator performs `QueryPerformanceCounter` / `Frequency` (a counter that depends only on the call index),
    `type_info::before`, `__RTDynamicCast` (from the object's RTTI), the `_CI` x87 math intrinsics, and takes code and
    constants a state does not hold from the original image. Direct3D methods are told apart by their vtable slot (read
    off the call site, also through `mov reg, [vtable + slot*4]; call reg`) and the dwords pushed with `this`

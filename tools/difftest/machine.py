@@ -585,12 +585,17 @@ class Machine:
 	def isPrivate(self, value):
 		return self.stackLow <= value < self.entryEsp + 4
 
+	def isTemporary(self, value):
+		"""A pointer into the function's frame or into its incoming argument slots: the engine reuses an argument's
+		slot for a temporary where ours may take a local (or the other way), so such addresses differ legitimately."""
+		return self.stackLow <= value < self.privateLimit
+
 	def frameArguments(self, call):
 		"""Arguments that point into the function's own frame (temporaries) differ in address between the two
 		builds; what they point at is recorded (64 bytes) so the comparison can look at the contents instead."""
 		frame = {}
 		for key, value in [("ecx", call["ecx"]), ("edx", call["edx"])] + list(enumerate(call["args"])):
-			if self.isPrivate(value):
+			if self.isTemporary(value):
 				data = self.read(value, 64)
 				if data is not None:
 					frame[key] = data

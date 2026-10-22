@@ -92,60 +92,104 @@ def isPureLeaf(code, address):
 	return True
 
 
+def isStoreLeaf(code, address):
+	"""True for a small function without calls or jumps out of it that may store (a trivial constructor: `mov word
+	[eax], 0xFFFF`). Whether its stores stay in the caller's frame is decided by the run, not here."""
+	insns = disassemble(code, address)
+	if not insns or insns[-1].address + insns[-1].size != address + len(code):
+		return False
+	end = address + len(code)
+	for insn in insns:
+		if insn.mnemonic.startswith(("call", "rep", "int", "sys", "cmpxchg", "xchg", "lock")) or insn.mnemonic in ("hlt", "ud2"):
+			return False
+		target = jumpTarget(insn)
+		if target is not None and not address <= target < end:
+			return False
+	return True
+
+
 def hasInstruction(code, address, mnemonics):
 	return [insn.address for insn in disassemble(code, address) if insn.mnemonic in mnemonics]
 
 
-def registerInputs(code, address, limit=400):
-	"""Registers a function reads before it writes them, along a linear sweep of its first instructions
-	(stopped at the first return): its register arguments, approximately. Returns a set of names."""
-	written = set()
-	inputs = set()
-	prologue = True
+def registerInputs(code, address, limit=4000):
+	"""Registers a function reads before it writes them on some path from its entry (both ways of every branch
+	inside the function are followed; a return or a jump out of it ends a path): its register arguments,
+	approximately. A read in a block after the first return counts too (a virtual function that tests an argument
+	first and only uses `this` on the path past the early return). Returns a set of names."""
+	insns = disassemble(code, address)
+	at = {insn.address: i for i, insn in enumerate(insns)}
 	saved = {X86_REG_EBX, X86_REG_ESI, X86_REG_EDI, X86_REG_EBP}
-	for insn in disassemble(code, address)[:limit]:
-		if insn.mnemonic in ("ret", "retn"):
-			break
-		if prologue:
-			# the prologue's saves (push ebx / esi / edi / ebp) read the registers without taking them as arguments
-			if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved:
-				continue
-			if insn.mnemonic in ("mov", "sub", "and") and insn.operands and insn.operands[0].type == X86_OP_REG \
-					and insn.operands[0].reg in (X86_REG_EBP, X86_REG_ESP) and insn.operands[1].type != X86_OP_MEM:
-				continue
-			prologue = False
-		# a save of a callee-saved register later in the function (the compiler often pushes esi / edi only on the
-		# path that needs them) is not an argument either, as long as the register was not written before
-		if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved 				and insn.operands[0].reg not in written:
+	inputs = set()
+	seen = set()
+	pending = [(address, frozenset(), True)]
+	steps = 0
+	while pending and steps < limit:
+		pc, written, prologue = pending.pop()
+		if (pc, written, prologue) in seen or pc not in at:
 			continue
-		# `mov edi, edi` is the compiler's two-byte padding nop, not a read
-		if insn.mnemonic == "mov" and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG \
-				and insn.operands[1].type == X86_OP_REG and insn.operands[0].reg == insn.operands[1].reg:
-			continue
-		read, write = insn.regs_access()
-		if insn.mnemonic == "call":
-			# the callee's result and scratch registers: eax / ecx / edx are written by the call
-			write = list(write) + [X86_REG_EAX, X86_REG_ECX, X86_REG_EDX]
-		# an operand's memory base / index registers count as reads too (capstone lists them in regs_access)
-		for reg in read:
-			full = FULL.get(reg)
-			if full is not None and full not in written:
-				inputs.add(NAMES[full])
-		# or reg, -1 defines the register too (all ones)
-		if insn.mnemonic == "or" and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG 				and insn.operands[1].type == X86_OP_IMM and insn.operands[1].imm & 0xFFFFFFFF == 0xFFFFFFFF:
-			full = FULL.get(insn.operands[0].reg)
-			if full is not None and full not in written:
-				inputs.discard(NAMES[full])
-		# xor reg, reg and sub reg, reg define the register without reading it
-		if insn.mnemonic in ("xor", "sub", "pxor") and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG \
-				and insn.operands[1].type == X86_OP_REG and insn.operands[0].reg == insn.operands[1].reg:
-			full = FULL.get(insn.operands[0].reg)
-			if full is not None:
-				inputs.discard(NAMES[full])
-		for reg in write:
-			full = FULL.get(reg)
-			if full is not None:
-				written.add(full)
+		seen.add((pc, written, prologue))
+		written = set(written)
+		for insn in insns[at[pc]:]:
+			steps += 1
+			if insn.mnemonic in ENDS:
+				break
+			skip = False
+			if prologue:
+				# the prologue's saves (push ebx / esi / edi / ebp) read the registers without taking them as arguments
+				if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved:
+					skip = True
+				elif insn.mnemonic in ("mov", "sub", "and") and insn.operands and insn.operands[0].type == X86_OP_REG \
+						and insn.operands[0].reg in (X86_REG_EBP, X86_REG_ESP) and insn.operands[1].type != X86_OP_MEM:
+					skip = True
+				else:
+					prologue = False
+			# a save of a callee-saved register later in the function (the compiler often pushes esi / edi only on the
+			# path that needs them) is not an argument either, as long as the register was not written before
+			if insn.mnemonic == "push" and insn.operands[0].type == X86_OP_REG and insn.operands[0].reg in saved \
+					and insn.operands[0].reg not in written:
+				skip = True
+			# `mov edi, edi` is the compiler's two-byte padding nop, not a read
+			if insn.mnemonic == "mov" and len(insn.operands) == 2 and insn.operands[0].type == X86_OP_REG \
+					and insn.operands[1].type == X86_OP_REG and insn.operands[0].reg == insn.operands[1].reg:
+				skip = True
+			# so is `lea ebx, [ebx]` (the alignment padding in front of a loop)
+			if insn.mnemonic == "lea" and len(insn.operands) == 2 and insn.operands[1].type == X86_OP_MEM \
+					and insn.operands[1].mem.base == insn.operands[0].reg and insn.operands[1].mem.index == 0 \
+					and insn.operands[1].mem.disp == 0:
+				skip = True
+			if not skip:
+				read, write = insn.regs_access()
+				if insn.mnemonic == "call":
+					# the callee's result and scratch registers: eax / ecx / edx are written by the call
+					write = list(write) + [X86_REG_EAX, X86_REG_ECX, X86_REG_EDX]
+				defines = insn.mnemonic in ("xor", "sub", "pxor") and len(insn.operands) == 2 \
+					and insn.operands[0].type == X86_OP_REG and insn.operands[1].type == X86_OP_REG \
+					and insn.operands[0].reg == insn.operands[1].reg
+				# or reg, -1 defines the register too (all ones)
+				defines = defines or (insn.mnemonic == "or" and len(insn.operands) == 2 \
+					and insn.operands[0].type == X86_OP_REG and insn.operands[1].type == X86_OP_IMM \
+					and insn.operands[1].imm & 0xFFFFFFFF == 0xFFFFFFFF)
+				# an operand's memory base / index registers count as reads too (capstone lists them in regs_access);
+				# xor reg, reg and sub reg, reg define the register without reading it
+				for reg in read:
+					full = FULL.get(reg)
+					if full is not None and full not in written \
+							and not (defines and full == FULL.get(insn.operands[0].reg)):
+						inputs.add(NAMES[full])
+				for reg in write:
+					full = FULL.get(reg)
+					if full is not None:
+						written.add(full)
+			target = jumpTarget(insn)
+			if target is not None:
+				if insn.mnemonic != "jmp":
+					pending.append((target, frozenset(written), prologue))
+					continue
+				pending.append((target, frozenset(written), prologue))
+				break
+			if insn.mnemonic == "jmp":
+				break  # an indirect jump (a jump table or a tail call): its targets are not followed
 	return inputs
 
 
@@ -168,6 +212,10 @@ def stackCleanup(readCode, address, limit=0x2000):
 	for insn in md.disasm(code, address):
 		if insn.mnemonic in ("ret", "retn"):
 			return int(insn.op_str, 16) if insn.op_str else 0
+		# the padding after the function's end (it ended in a tail call through a register or a vtable slot): no
+		# `ret` of this function lies further on, the next function's would be taken
+		if insn.mnemonic in ("int3", "hlt", "ud2"):
+			return None
 		if insn.mnemonic == "jmp" and insn.operands and insn.operands[0].type == X86_OP_IMM:
 			target = insn.operands[0].imm
 			if not (address <= target < address + limit):

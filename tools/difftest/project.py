@@ -51,9 +51,16 @@ def functionSizes():
 			parts = line.split("\t")
 			if len(parts) >= 2 and parts[0].startswith("0x"):
 				_functions[int(parts[0], 16)] = int(parts[1])
-		for match in re.finditer(r"^\S+ = (0x[0-9A-Fa-f]+) ; function size:(0x[0-9A-Fa-f]+)",
-				(ROOT / "config" / VERSION / "symbols.txt").read_text(encoding="utf-8"), re.MULTILINE):
+		text = (ROOT / "config" / VERSION / "symbols.txt").read_text(encoding="utf-8")
+		named = sorted(int(m.group(1), 16) for m in re.finditer(r"^\S+ = (0x[0-9A-Fa-f]+) ; function", text, re.MULTILINE))
+		import bisect
+		for match in re.finditer(r"^\S+ = (0x[0-9A-Fa-f]+) ; function size:(0x[0-9A-Fa-f]+)", text, re.MULTILINE):
 			address, size = int(match.group(1), 16), int(match.group(2), 16)
+			# never past the start of another function symbols.txt names (a size taken from our compile can be
+			# larger than the engine's function)
+			i = bisect.bisect_right(named, address)
+			if i < len(named):
+				size = min(size, named[i] - address)
 			if address in _functions and size > _functions[address]:
 				_functions[address] = size
 	return _functions

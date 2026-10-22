@@ -145,6 +145,11 @@ def compareTraces(engine, ours, context):
 			add(Finding("INCONCLUSIVE", "emulation", "ours %s" % describeFault(ours.fault)))
 		else:
 			add(Finding("FAIL", "fault", "engine returned; ours %s" % describeFault(ours.fault)))
+	if ours.timedOut and ours.instructions < 2 * engine.instructions + 10000:
+		# stopped by the wall clock (the variants of one function share one deadline, so ours gets what the engine's
+		# run left over) before it had run as long as the engine did: nothing shows that it would not return
+		add(Finding("INCONCLUSIVE", "emulation", "ours stopped by the clock after %d instructions; the engine returned after %d" % (ours.instructions, engine.instructions)))
+		return findings
 	if ours.timedOut:
 		add(Finding("FAIL", "budget", "the engine returned after %d instructions; ours runs past the budget (%d)" % (engine.instructions, ours.instructions)))
 	if ours.fault or ours.timedOut:
@@ -287,7 +292,7 @@ def normalizedArguments(call, machine, count, regs, context):
 		value = call[key] if isinstance(key, str) else (call["args"][key] if key < len(call["args"]) else 0)
 		if not isinstance(key, str) and key < len(masks):
 			value &= masks[key]
-		if machine.isPrivate(value):
+		if machine.isTemporary(value):
 			values.append("STK")
 			continue
 		own = (getattr(machine, "ours", None) or {}).get(value)
@@ -350,6 +355,18 @@ def pureLeaf(context, address):
 	return _pureLeaves[address]
 
 
+_storeLeaves = {}
+
+
+def storeLeaf(context, address):
+	"""Whether the engine's function at `address` is a small leaf that may store (cfg.isStoreLeaf); cached."""
+	if address not in _storeLeaves:
+		extent = project.functionExtent(address) if address in project.functionSizes() else 0
+		code = context.image.read(address, extent) if 0 < extent <= 0x40 else None
+		_storeLeaves[address] = code is not None and cfg.isStoreLeaf(code, address)
+	return _storeLeaves[address]
+
+
 def compareCalls(engine, ours, context, add):
 	eCalls = engine.calls
 	# calls of ours to its own copies of helpers the engine does not call at all (it inlined them: a constructor,
@@ -381,8 +398,22 @@ def compareCalls(engine, ours, context, add):
 		after = eCalls[i + 1]["writes"] if i + 1 < len(eCalls) else len(engine.writes)
 		return pureLeaf(context, c["address"]) or after == c["writes"]
 
-	eCalls = [c for i, c in enumerate(eCalls) if not inlined(i, c)]
-	oCalls = ours.calls
+	# a call on either side to a small leaf that stores nothing outside the frame (a trivial constructor of a
+	# temporary) is dropped from both: one build calls it where the other built the object inline, and as ours may
+	# call the same constructor elsewhere it is not "a function ours never calls"; the object's contents show in
+	# the arguments of the calls that follow
+	def frameLeaf(calls, i, c, run):
+		if c.get("external"):
+			return False
+		# our own copy of an engine function (a template instance our object defines): judged by the engine's
+		address = project.symbols().get(c["name"][5:]) if c["name"].startswith("ours:") else c["address"]
+		if address is None:
+			return False
+		after = calls[i + 1]["writes"] if i + 1 < len(calls) else len(run.writes)
+		return after == c["writes"] and storeLeaf(context, address)
+
+	eCalls = [c for i, c in enumerate(eCalls) if not inlined(i, c) and not frameLeaf(eCalls, i, c, engine)]
+	oCalls = [c for i, c in enumerate(ours.calls) if not frameLeaf(ours.calls, i, c, ours)]
 	frameNoted = False
 	i = j = 0
 	while i < len(eCalls) and j < len(oCalls):

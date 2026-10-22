@@ -127,7 +127,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1061BCD0
-	// EQUIVALENT: register allocation (the engine keeps this in ebp, the name in esi, the map pointer in edi), 44.2 %
+	// EQUIVALENT: register allocation (the engine keeps this in ebp, the name in esi, the map pointer in edi), 40.9 %
 	dxShaderTemplate* dxDevice::NewShaderTemplate(const char* name, unsigned int unknown, unsigned int unknown2)
 	{
 		unsigned int hash = core::Hash32NoCase(name, 0);
@@ -151,7 +151,7 @@ namespace pure3d
 			found->value = shaderTemplate;
 			return shaderTemplate;
 		}
-		(*shaderTemplates)[hash] = shaderTemplate;
+		shaderTemplates->Insert(ShaderTemplateMap::Pair(hash, 0))->value = shaderTemplate;
 		return shaderTemplate;
 	}
 

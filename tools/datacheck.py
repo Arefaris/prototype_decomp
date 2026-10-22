@@ -12,8 +12,9 @@ Objects with a dynamic initializer (a constructor) start as zeros here; their co
 difference is reported as a note when the original's bytes are not all zero either. Also reported: a `static` engine
 global that engine code we do not replace uses (split statics), and an RTTI type descriptor our objects define that
 symbols.txt does not map although the original has one (our copy is a second type_info, which code comparing
-type_info addresses does not recognise) or that the original only has with the other of struct/class. Exit status 1
-on any problem.
+type_info addresses does not recognise) or that the original only has with the other of struct/class, and a global our
+objects define that symbols.txt does not map at all (a second copy of the engine's state). Exit status 1 on any
+problem.
 """
 
 import argparse
@@ -125,6 +126,31 @@ def unmappedTypeDescriptors(objectPaths, data, image, base):
 	return result
 
 
+def unmappedGlobals(objectPaths, version):
+	"""[(name, object)] for each external data symbol our objects define in .data / .bss that symbols.txt does not
+	name at all: the engine's code we do not replace keeps using its own object, ours is a second copy of the state
+	(a property list our RegisterProperties fills while the engine's stays empty). Left out: COMDAT data (template
+	statics, which every user unit carries) and our own `gKeep...` instantiation anchors."""
+	import struct
+	named = set()
+	for line in (ROOT / "config" / version / "symbols.txt").read_text(encoding="utf-8").splitlines():
+		match = re.match(r"\s*(\S+)\s*=", line)
+		if match:
+			named.add(match.group(1))
+	result = []
+	for path in objectPaths:
+		coff = objcmp.Coff(path)
+		optSize = struct.unpack_from("<H", coff.data, 16)[0]
+		for name, value, section, storage in coff.symbols:
+			if section <= 0 or storage != 2 or name in named or name.startswith(("??_", "__", "?gKeep")):
+				continue
+			sec = coff.sections[section - 1]
+			flags = struct.unpack_from("<I", coff.data, 20 + optSize + 40 * (section - 1) + 36)[0]
+			if sec["name"].startswith((".data", ".bss")) and not flags & 0x1000:
+				result.append((name, path.name))
+	return result
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("objects", nargs="*")
@@ -177,6 +203,10 @@ def main():
 			image, base):
 		problems += 1
 		print(f"  type descriptor: {name}: {problem}")
+	for name, where in unmappedGlobals([pathlib.Path(o) for o in args.objects] or objects(args.version), args.version):
+		problems += 1
+		print(f"  unmapped global: {name} ({where}): our object defines it but symbols.txt does not map it, so the"
+			" engine's code keeps its own copy; map it to the engine's address")
 	split = splitStatics(image, base, pe)
 	for where, decl, users in split:
 		problems += 1
