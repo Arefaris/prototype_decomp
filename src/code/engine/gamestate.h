@@ -45,6 +45,12 @@ namespace engine
 		virtual void Slot4();
 		virtual void Slot5(bool enable);
 
+		// 0x10882490: the script function fe_SetCurrentMode, "INGAME" or "STARTUP" (slot 3 or slot 4)
+		void SetCurrentMode(const char* mode);
+		// 0x108822D0 / 0x108822E0: the first pause state made is the current one
+		static PauseState* GetCurrent();
+		static void SetCurrent(PauseState* state);
+
 		int unknown54;
 		int unknown58;
 		int unknown5C;

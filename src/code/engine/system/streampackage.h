@@ -32,10 +32,20 @@ namespace engine
 	class StreamClient
 	{
 	public:
+		// 0x1089B690 (the engine kept this copy; the tags come from 0x1089B640's text); 0x1089B670 is the destructor
+		StreamClient();
+		explicit StreamClient(const char* tagText);
 		virtual ~StreamClient();
 		virtual bool Load(StreamPackageInstance* instance) = 0;
 		virtual bool Unload(StreamPackageInstance* instance) = 0;
 		virtual void Slot3();
+
+		// 0x1089B620 / 0x1089B630: the tags of the packages the client wants
+		void SetTags(const char* text);
+		void ClearTags();
+		TagSet tags;  // +4
+		bool unknown18;
+		bool unknown19;
 	};
 
 	// A slot a loaded package occupies in a heap (0x10 bytes; 0x1083E6A0 is the constructor, 0x1083E6A0 - 0x1083E7A0
@@ -205,7 +215,7 @@ namespace engine
 		static StreamSlotGroup* FindSlotGroup(const content::ObjectName& name);
 		static void Unregister(StreamPackage* package);
 
-		unsigned char unknown4[0x4c - 4];
+		unsigned char unknown1C[0x4c - 0x1C];
 		Settings settings;
 		unsigned char unknown74[0x88 - 0x74];
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)

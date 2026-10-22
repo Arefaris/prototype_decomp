@@ -20,6 +20,8 @@ namespace engine
 
 	class ConsoleManager
 	{
+	public:
+		class Callback;
 	};
 
 	class ConsoleManagerPeer : public ConsoleManager

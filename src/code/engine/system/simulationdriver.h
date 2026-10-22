@@ -42,7 +42,7 @@ namespace engine
 		virtual void Slot1() = 0;
 		virtual void Slot2() = 0;
 		virtual void Slot3() = 0;
-		virtual void Slot4() = 0;
+		virtual bool Slot4() = 0;
 		virtual void Slot5() = 0;
 		// 0x108368B0 / 0x108368E0 / 0x10836970 / 0x10836990
 		virtual void Slot6();
@@ -63,6 +63,50 @@ namespace engine
 		core::Time time7;                // +0x60
 		bool unknown6C;
 		bool variablesRegistered;        // +0x6D
+	};
+
+	// The driver the game runs (RTTI: engine::SimulationDriver, 0x90 bytes): steps the simulation at a fixed rate (30 steps a
+	// second at the start), or once per frame while the rate is 0. Unit 0x10897AC0 - 0x10897E60 (names other than the
+	// RTTI ones are guesses).
+	class SimulationDriver : public ISimulationDriver
+	{
+	public:
+		// 0x10897AC0
+		SimulationDriver();
+		// 0x10897B00 (deleting destructor 0x10897E40)
+		virtual ~SimulationDriver();
+
+		// vftable slot 1 (0x10897B10): adds the time since the last call to time6 and sets time5 to it
+		virtual void Slot1();
+		// vftable slot 2 (0x10897B60): does nothing
+		virtual void Slot2();
+		// vftable slot 3 (0x10897B70): counts the steps due since the last call
+		virtual void Slot3();
+		// vftable slot 4 (0x10897D00): takes one due step off the count and adds the step time to time1
+		virtual bool Slot4();
+		// vftable slot 5 (0x10897D30)
+		virtual void Slot5();
+		// vftable slot 6 (0x10897C80), slot 7 (0x10897CD0), slot 9 (0x10897D80); slot 8 is the base's
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot9();
+
+		// 0x10897D60: sets the rate and starts over
+		void SetUnknown70(int value);
+		// 0x10897DB0 / 0x10897DC0 / 0x10897DD0 / 0x10897DE0
+		bool Unknown10897DB0();
+		void Unknown10897DC0(bool value);
+		void Unknown10897DD0(int value);
+		void Unknown10897DE0(int rate);
+
+		unsigned int rate;  // +0x70: steps a second, 0 for one per frame
+		unsigned int pendingSteps;  // +0x74
+		unsigned __int64 lastStepTime;  // +0x78
+		unsigned __int64 lastTime;  // +0x80
+		bool running;  // +0x88
+		unsigned char unknown89;
+		bool resuming;  // +0x8A
+		bool resumePending;  // +0x8B
 	};
 
 	// 0x10836AD0: the simulation driver in force

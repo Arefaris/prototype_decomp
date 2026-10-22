@@ -1,39 +1,16 @@
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/database/gamedbhelper.h"
 #include "code/core/hash.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/engine/online/ols.h"
 #include "code/engine/system/enginememory.h"
 #include <string.h>
 
 namespace engine
 {
-	// The online services (another unit; names guessed): the signed-in users by controller id
-	class OLSUser
-	{
-	public:
-		int unknown0[3];
-		unsigned int controller;
-	};
-
-	class OLSUserList
-	{
-	public:
-		// 0x10888EC0
-		OLSUser* Find(unsigned int id);
-	};
-
-	class OLS
-	{
-	public:
-		// 0x108441E0
-		static OLS* Get();
-
-		int unknown0[0x78 / 4];
-		OLSUserList* users;
-	};
-
 	// A wide string either borrowed or copied into an owned buffer (another unit, 0x108A5560 - 0x108A5640; names
 	// guessed)
 	class WideStringBuffer
@@ -46,33 +23,6 @@ namespace engine
 
 		const wchar_t* text;
 		unsigned int capacity;
-	};
-
-	// The platform side of the database (another unit, RTTI engine::GameDBHelper; names guessed)
-	class GameDBHelper
-	{
-	public:
-		struct Config
-		{
-			// 0x10894450
-			Config();
-
-			int unknown0;
-		};
-
-		// 0x108944D0: becomes the current helper
-		explicit GameDBHelper(const Config& config);
-		// 0x10894460
-		static GameDBHelper* Get();
-
-		virtual void Slot0();
-		virtual ~GameDBHelper();
-		virtual void Slot2();
-		virtual void Start();
-		virtual void Stop();
-
-		int unknown4;
-		int unknown8;
 	};
 
 	// 0x10848E70 (another unit): whether the command line has the option
@@ -105,8 +55,8 @@ namespace engine
 			if (controller::InputSystem::IsLocal(controller::InputSystem::Get()->slots[id].id))
 			{
 				player = 0;
-				OLSUserList* users = OLS::Get()->users;
-				if (users->Find(id) == 0)
+				OLSProfile* users = OLS::Get()->profile;
+				if (users->GetUser(id) == 0)
 				{
 					return -1;
 				}
@@ -114,13 +64,13 @@ namespace engine
 		}
 		else
 		{
-			OLSUserList* users = OLS::Get()->users;
-			if (users->Find(id) == 0)
+			OLSProfile* users = OLS::Get()->profile;
+			if (users->GetUser(id) == 0)
 			{
 				return 0;
 			}
-			users = OLS::Get()->users;
-			OLSUser* user = users->Find(id);
+			users = OLS::Get()->profile;
+			OLSUser* user = users->GetUser(id);
 			return controller::InputSystem::Get()->FindSlot(user->controller);
 		}
 		return player;

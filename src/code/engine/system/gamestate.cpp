@@ -168,17 +168,6 @@ namespace engine
 	void Unknown10821560();
 	void Unknown10821540();
 
-	// The simulation driver the game runs (RTTI: engine::SimulationDriver); its members are in another unit
-	class SimulationDriver : public ISimulationDriver
-	{
-	public:
-		void Unknown10897DC0(bool value);
-		bool Unknown10897DB0();
-		void Unknown10897DE0(int value);
-		void Unknown10897D60(int value);
-		void Unknown10897DD0(int value);
-	};
-
 	extern GameStateEntry* gGameStates;                           // 0x1130DFC8
 	extern GameStateName* gRequestNames;                          // 0x1130DFD0
 	extern int gCurrentRequestName;                               // 0x1130DFD4
@@ -670,7 +659,7 @@ namespace engine
 		SimulationDriver* driver = dynamic_cast<SimulationDriver*>(GetSimulationDriver());
 		if (driver != 0)
 		{
-			driver->Unknown10897D60(value);
+			driver->SetUnknown70(value);
 		}
 	}
 

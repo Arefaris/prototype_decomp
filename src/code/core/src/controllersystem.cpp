@@ -71,14 +71,14 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10643990
-	void ControllerSystem::SetListener(IControllerListener* listener)
+	void ControllerSystem::SetListener(IControllerConnectionChangeCallback* listener)
 	{
 		GetDirectInputSystem()->SetListener(listener);
 		GetXInputSystem()->SetListener(listener);
 	}
 
 	// FUNCTION: ENGINE 0x106439C0
-	void ControllerSystem::ClearListener(IControllerListener* listener)
+	void ControllerSystem::ClearListener(IControllerConnectionChangeCallback* listener)
 	{
 		GetXInputSystem()->ClearListener(listener);
 		GetDirectInputSystem()->ClearListener(listener);
@@ -125,7 +125,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10643B10
-	ControllerSystem::ControllerSystem(IControllerListener* listener, int heap, unsigned int options)
+	ControllerSystem::ControllerSystem(IControllerConnectionChangeCallback* listener, int heap, unsigned int options)
 		: RefCount(1), joystickCount(0), directInputCount(0), xinputCount(0)
 	{
 		CoreName();
@@ -137,7 +137,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10643BC0
-	void InitControllers(IControllerListener* listener, int heap, unsigned int options)
+	void InitControllers(IControllerConnectionChangeCallback* listener, int heap, unsigned int options)
 	{
 		sControllerSystem = new (heap) ControllerSystem(listener, heap, options);
 	}

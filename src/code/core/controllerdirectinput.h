@@ -142,15 +142,15 @@ namespace core
 	class ControllerSystemDirectInput : public IControllerSystem, public RefCount
 	{
 	public:
-		ControllerSystemDirectInput(IControllerListener* listener, int heap);
+		ControllerSystemDirectInput(IControllerConnectionChangeCallback* listener, int heap);
 		virtual ~ControllerSystemDirectInput();
 		virtual void AddRef();
 		virtual void Release();
 		virtual unsigned int GetControllerCount();
 		virtual IController* GetController(unsigned int index);
 		virtual IController* FindController(const char* location);
-		virtual void SetListener(IControllerListener* listener);
-		virtual void ClearListener(IControllerListener* listener);
+		virtual void SetListener(IControllerConnectionChangeCallback* listener);
+		virtual void ClearListener(IControllerConnectionChangeCallback* listener);
 		virtual void SetEnabled(bool enabled);
 		virtual void Update();
 
@@ -158,7 +158,7 @@ namespace core
 		void NotifyListener(IController* controller);
 		unsigned int GetJoystickCount();
 
-		IControllerListener* listener;
+		IControllerConnectionChangeCallback* listener;
 		RefPtr<IDirectInput8A> directInput;
 		ControllerDirectInput* controllers;
 		unsigned int controllerCount;
@@ -182,7 +182,7 @@ namespace core
 	ControllerSystemDirectInput* GetDirectInputSystem();
 	void UpdateDirectInput();
 	void ShutdownDirectInput();
-	void InitDirectInput(IControllerListener* listener, int heap, unsigned int options);
+	void InitDirectInput(IControllerConnectionChangeCallback* listener, int heap, unsigned int options);
 	// 0x1063CED0: the performance counter in milliseconds (not reconstructed)
 	unsigned int GetMilliseconds();
 }

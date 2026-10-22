@@ -27,6 +27,10 @@ namespace engine
 
 	// 0x1082D0B0: appends the packages of triggers and of their neighbours, up to budget hops deep
 	void CollectPackages(StreamCollect* collect, StreamTriggerArray* triggers, int depth);
+	// 0x1082DD30: puts the triggers that share a tag with tags into the array (all of them when it is empty)
+	void CollectTriggers(StreamTriggerArray* triggers, const TagSet& tags);
+	// 0x1082D1F0: hands the packages of one array on to the other (names guessed)
+	void Unknown1082D1F0(StreamPackageArray** from, StreamPackageArray** to);
 	// 0x1082E100: brings the packages `current` holds into line with `target`: drops the ones target has not and
 	// loads the first new one when its slot group takes it, or unloads the last dropped one when nothing is loading;
 	// `active` records that the group's load priority is set (restricted: it may be set). Name guess.

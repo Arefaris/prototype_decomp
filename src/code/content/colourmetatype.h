@@ -64,6 +64,13 @@ namespace content
 
 	// 0x10601450
 	const char* GetColourTypeName();
+
+	// The meta type of a colour member of class C: one instance per member (Id tells them apart)
+	template<class C, int Id> ColourMetaType* GetMemberColourMetaType(const char* code)
+	{
+		static ColourMetaType sType(code);
+		return &sType;
+	}
 }
 
 #endif

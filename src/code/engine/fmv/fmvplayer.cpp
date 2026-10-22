@@ -238,7 +238,8 @@ namespace engine
 	int Unknown10A9B0B0();
 	void Unknown104B18C0();
 	void Unknown104B1880();
-	void Unknown108831C0();
+	// 0x108831C0 (the exception unit): whether the drive has a fault; the callback list takes it as a plain function
+	bool HasDriveFault();
 
 
 	// The names of the audio settings the volume is made of, and the channel the end message goes to (all made by
@@ -694,7 +695,7 @@ namespace engine
 	{
 		gSkipMovies = HasCommandLineOption("SkipMovies");
 		Unknown108A0830(11, 0);
-		Unknown1059F020(0x7D, Unknown108831C0);
+		Unknown1059F020(0x7D, (void (*)())HasDriveFault);
 		GetScriptManager()->Register("fmv_Skip", SkipMovie);
 		GetScriptManager()->Register("fmv_Stop", StopMovie);
 		GetScriptManager()->Register("fmv_IsPlaying", IsMoviePlaying);

@@ -68,6 +68,30 @@ namespace content
 
 	// 0x106061E0
 	const char* GetArrayCTypeName();
+
+	// The element access of a container::ArrayC<T, N> (RTTI content::ArrayCHelper<A>)
+	template<class A> class ArrayCHelper : public ArrayCHelperBase
+	{
+	public:
+		virtual void* Get(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return &(*(A*)array)[index];
+		}
+	};
+
+	// The meta type of a container::ArrayC member of count elements. Owner only keeps the instantiations of different
+	// classes apart; the engine's call passes the element size as the second argument, which is not used
+	template<class Owner, class A> ArrayCMetaType* GetArrayCMetaType(int count, int unused, MetaType* element,
+		const char* code)
+	{
+		static ArrayCHelper<A> sHelper;
+		static ArrayCMetaType sType(count, element, &sHelper, code);
+		return &sType;
+	}
 }
 
 #endif

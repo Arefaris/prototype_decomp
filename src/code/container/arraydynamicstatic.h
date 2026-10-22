@@ -28,7 +28,7 @@ namespace container
 	// Assigns [first, last) to dest; answers the end of the copies
 	template<class T> T* AssignRange(const T* first, const T* last, T* dest)
 	{
-		for (; first != last; first++, dest++)
+		for (; first != last; dest++, first++)
 		{
 			*dest = *first;
 		}

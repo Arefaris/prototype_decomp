@@ -11,6 +11,7 @@
 #include "code/core/name.h"
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/dbobserver.h"
+#include "code/engine/frontend/femovie.h"
 
 namespace engine
 {
@@ -189,31 +190,6 @@ namespace engine
 		int unknown4[7];
 		DataCallback* callback;
 		int unknown24[16];
-	};
-
-	// The front end's Flash movies (another unit); a callback answers a call from ActionScript
-	class FEMovie
-	{
-	public:
-		struct Value
-		{
-			int type;
-			int unknown4;
-			union
-			{
-				const char* string;
-				double number;
-			};
-		};
-
-		struct Callback
-		{
-			virtual void OnCall(void* movie, const Value* arguments, unsigned int count, Value* result) = 0;
-		};
-
-		// 0x10872860 / 0x108728D0 (another unit): binds / unbinds the ActionScript function name
-		static void AddCallback(const char* name, Callback* callback, int unknown);
-		static void RemoveCallback(const char* name);
 	};
 
 	// Told about storage operations (GameDatabase forwards the storage callbacks to it; interface name unknown)

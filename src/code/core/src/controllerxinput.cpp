@@ -101,7 +101,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x106488D0
-	void ControllerSystemXInput::SetListener(IControllerListener* newListener)
+	void ControllerSystemXInput::SetListener(IControllerConnectionChangeCallback* newListener)
 	{
 		if (listener == 0)
 		{
@@ -110,7 +110,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x106488E0
-	void ControllerSystemXInput::ClearListener(IControllerListener* oldListener)
+	void ControllerSystemXInput::ClearListener(IControllerConnectionChangeCallback* oldListener)
 	{
 		if (listener == oldListener)
 		{
@@ -822,7 +822,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10649D10
-	void ControllerSystemXInput::Init(IControllerListener* newListener, int heap)
+	void ControllerSystemXInput::Init(IControllerConnectionChangeCallback* newListener, int heap)
 	{
 		time = GetTime();
 		if (newListener != 0)
@@ -906,7 +906,7 @@ namespace core
 	}
 
 	// FUNCTION: ENGINE 0x10649F00
-	void InitXInput(IControllerListener* listener, int heap, unsigned int firstJoystick)
+	void InitXInput(IControllerConnectionChangeCallback* listener, int heap, unsigned int firstJoystick)
 	{
 		sXInputSystem = new (heap) ControllerSystemXInput(firstJoystick);
 		sXInputSystem->Init(listener, heap);
