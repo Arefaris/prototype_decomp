@@ -24,7 +24,8 @@ namespace fight
 		// vftable slot 6 and 7
 		virtual bool ReadColour(const Name& key, math::Colour128* value) = 0;
 		virtual bool ReadVector(const Name& key, math::Vector* value) = 0;
-		virtual void Slot8() = 0;
+		// vftable slot 8: a value written as a list of flag names or as a number (the name, the number, the text and its size)
+		virtual bool ReadFlags(const Name& key, int* number, char* text, int size) = 0;
 		// vftable slot 9: a value of an enumeration, as a number or as the name of an entry
 		virtual bool ReadEnum(const Name& key, int* value, Name* text) = 0;
 		// vftable slot 10: a name of 32 bits

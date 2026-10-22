@@ -351,6 +351,75 @@ namespace engine
 	}
 }
 
+namespace core
+{
+	// FUNCTION: ENGINE 0x105AA070
+	template<class T> void LinkList<T>::Retarget(T* unused, T* newObject)
+	{
+		Link<T>* node = head;
+		if (node != 0)
+		{
+			do
+			{
+				Link<T>* following = node->next;
+				node->object = newObject;
+				if (newObject == 0)
+				{
+					node->prev = 0;
+					node->next = 0;
+				}
+				node = following;
+			}
+			while (node != 0);
+		}
+		if (newObject != 0)
+		{
+			newObject->watchList.head = head;
+		}
+		head = 0;
+	}
+}
+
+namespace fight
+{
+	// FUNCTION: ENGINE 0x105AA2B0
+	void Item::MergeProperties(Item* other, int arg)
+	{
+		int index = 0;
+		Property* property;
+		do
+		{
+			property = GetProperty(index);
+			Property* otherProperty = other != 0 ? other->GetProperty(index) : 0;
+			if (property != 0)
+			{
+				if (otherProperty != 0)
+				{
+					if (otherProperty->GetType() != property->GetType() || otherProperty->name != property->name)
+					{
+						otherProperty = 0;
+					}
+				}
+				property->Slot4((int)this, (int)otherProperty, (int)other, arg);
+				if (otherProperty == 0)
+				{
+					other = 0;
+				}
+			}
+			index = index + 1;
+		}
+		while (property != 0);
+	}
+
+	// FUNCTION: ENGINE 0x105AA0F0
+	void Track::Slot14(int a, int b)
+	{
+		MergeProperties((Item*)a, b);
+		Track* other = dynamic_cast<Track*>((Item*)a);
+		watchList.Retarget(this, other);
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x105A98B0
 // FUNCTION: ENGINE 0x105A98C0

@@ -159,6 +159,10 @@ namespace fight
 		virtual ~Item();
 		// vftable slot 8 (0x105A9B10): reads the values of the nodes below from a reader (the context, the reader)
 		virtual bool Slot8(int context, void* reader);
+
+		// 0x105AA2B0: hands every property of this node and the one of another node of the same kind and name to
+		// the property's slot 4 together with an argument (name guess)
+		void MergeProperties(Item* other, int arg);
 	};
 
 	// A condition predicate of the fight tree (RTTI: fight::Condition, 10 vftable slots). The base is the node of a

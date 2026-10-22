@@ -15,6 +15,9 @@ namespace core
 	public:
 		// 0x10095300: unlinks a node and clears it
 		void Remove(Link<T>* node);
+		// 0x105AA070 (the fight tracks' copy): points every node at another object and hands the list over to it; the
+		// first argument is not read
+		void Retarget(T* unused, T* newObject);
 
 		Link<T>* head;
 	};

@@ -6,6 +6,7 @@
 #include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/reader.h"
 #include "code/engine/fight/trackfactory.h"
+#include <ctype.h>
 #include <new>
 
 namespace engine
@@ -637,6 +638,72 @@ namespace fight
 	int PropertyTypeItem::GetType() const
 	{
 		return 13;
+	}
+
+	// FUNCTION: ENGINE 0x105A92D0
+	bool PropertyTypeBitfield::Slot6(int object, int context, void* source)
+	{
+		Reader* reader = (Reader*)source;
+		int number = 0;
+		char text[1024] = { 0 };
+		if (reader->ReadFlags(name, &number, text, 1024))
+		{
+			if (text[0] != 0)
+			{
+				int bits = 0;
+				char token[1024] = { 0 };
+				const char* position = text;
+				do
+				{
+					while (*position != 0 && (isspace(*position) || *position == ','))
+					{
+						position = position + 1;
+					}
+					int length = 0;
+					while (*position != 0 && *position != ',')
+					{
+						token[length] = *position;
+						position = position + 1;
+						length = length + 1;
+					}
+					token[length] = 0;
+					if (length > 0)
+					{
+						Name key(token, 1);
+						int index = 0;
+						const EnumEntry* entry = GetEntry((void*)object, index);
+						bool found = false;
+						while (true)
+						{
+							Name terminator(0, 1);
+							if (entry->name == terminator)
+							{
+								break;
+							}
+							if (key == entry->name)
+							{
+								found = true;
+								break;
+							}
+							index = index + 1;
+							entry = GetEntry((void*)object, index);
+						}
+						if (found)
+						{
+							bits = bits | (1 << index);
+						}
+						else
+						{
+							ReportReadError(reader, "\"%s\" is not a valid bitfield token.", token);
+						}
+					}
+				}
+				while (*position != 0);
+				return Set((void*)object, bits);
+			}
+			return Set((void*)object, number);
+		}
+		return false;
 	}
 }
 
