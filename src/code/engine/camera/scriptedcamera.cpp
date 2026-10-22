@@ -760,7 +760,7 @@ namespace engine
 			{
 				math::Vector eye(0.0f, 10.0f, 0.0f);
 				camera->SetView(&eye, math::Vector(0.0f, 0.0f, 1.0f), math::Vector(0.0f, 1.0f, 0.0f));
-				unknown28 = 1.0f;
+				focusDistance = 1.0f;
 				return;
 			}
 			unsigned short eventFlags = (unsigned short)flags;
@@ -801,11 +801,11 @@ namespace engine
 						{
 							distance = 1000.0f;
 						}
-						unknown28 = distance;
+						focusDistance = distance;
 					}
 					else
 					{
-						unknown28 = 1.0f;
+						focusDistance = 1.0f;
 					}
 					unknown4E = false;
 					return;
@@ -886,7 +886,7 @@ namespace engine
 						distance = 2.0f;
 					}
 				}
-				unknown28 = distance;
+				focusDistance = distance;
 			}
 			math::Matrix final(target);
 			if (mode == 3)

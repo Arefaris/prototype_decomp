@@ -296,7 +296,7 @@ namespace ravenphysics
 		// 0x38: the segment query the context's CastRay runs, the hits appended to hits (name guess)
 		virtual bool QueryRay(const void* query, void* hits, void* world, unsigned int flags);
 		// 0x3C
-		virtual void QueryPair(void* a, void* b, void* world, unsigned int flags);
+		virtual bool QueryPair(void* a, void* b, void* world, unsigned int flags);
 		// 0x40
 		virtual void QueryBody(PhysicsBody* object, void* world, unsigned int flag);
 		// 0x44: the same shape query as QueryBodyShape, but against a body and with the hit buffer emptied first
@@ -1542,7 +1542,7 @@ namespace ravenphysics
 		// The world's line-of-sight test: what lies between the object and its target (0x106566C0; name guess)
 		void QueryObject(PhysicsBody* object);
 		// The sweep-and-prune detector's ray against the object (0x10656730; name guess)
-		void QuerySweepObject(PhysicsBody* object, void* ray);
+		bool QuerySweepObject(PhysicsBody* object, void* ray);
 		// The object's ray cast (0x106567A0; name guess)
 		void QueryObjectRay(PhysicsBody* object, void* ray);
 		// The object's shape cast (0x10656810; name guess)

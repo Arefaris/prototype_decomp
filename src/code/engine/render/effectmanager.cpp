@@ -1223,7 +1223,7 @@ namespace engine
 				camera::Camera* controller = director->GetCameraController(0, 0);
 				if (controller != 0)
 				{
-					pure3d::GetParticleManager()->SetUnknown19C(controller->unknown28);
+					pure3d::GetParticleManager()->SetUnknown19C(controller->focusDistance);
 				}
 			}
 			unsigned int key = 6;

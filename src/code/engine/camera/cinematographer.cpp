@@ -367,7 +367,7 @@ namespace engine
 			{
 				if (mode == 0 && value && Director::Get()->GetController(controller) != 0)
 				{
-					blend->Begin(controller.slot, controller.id, ControllerRef(animated), false, 3, time);
+					blend->Begin(controller, ControllerRef(animated), false, 3, time);
 				}
 				else if (mode == 1 && !value && Director::Get()->GetController(controller) != 0)
 				{
@@ -398,7 +398,7 @@ namespace engine
 					float magnitude = fabsf(time);
 					if (next != current || !reverse)
 					{
-						blend->Begin(controller.slot, controller.id, pending.slot, pending.id, reverse, 3, magnitude);
+						blend->Begin(controller, pending, reverse, 3, magnitude);
 						if (reverse)
 						{
 							previous.slot = controller.slot;

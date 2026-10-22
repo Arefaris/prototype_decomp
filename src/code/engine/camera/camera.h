@@ -96,7 +96,8 @@ namespace engine
 			int kind;
 			HandleBase unknown20;
 			unsigned int flags;
-			float unknown28;
+			// How far in front of the camera the point it looks at is (set by the cameras, read when blending)
+			float focusDistance;
 			bool enabled;
 			math::Vector position;
 			// Index in the Director's camera table and the serial number given when registered

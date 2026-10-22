@@ -42,7 +42,7 @@ namespace engine
 
 		// FUNCTION: ENGINE 0x1084D9E0
 		Camera::Camera()
-			: playerIndex(0), camera(0), kind(0), flags(0), unknown28(0.0f), enabled(false), position(math::kZeroVector),
+			: playerIndex(0), camera(0), kind(0), flags(0), focusDistance(0.0f), enabled(false), position(math::kZeroVector),
 			slot(-1), id(0)
 		{
 			pure3d::Camera* created = new pure3d::Camera();
