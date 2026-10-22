@@ -64,6 +64,8 @@ namespace content
 	class TextReadStream
 	{
 	public:
+		// 0x105FC0F0: reads from stream; name is copied (up to 0x100 characters) for the error messages (null for none)
+		TextReadStream(ByteStream* newStream, bool newFlag, const char* newName);
 		// Slot 0 (0x105FC1F0): reads the next token (a quoted string when quoted is set) into buffer
 		virtual bool ReadToken(char* buffer, unsigned int size, bool quoted);
 		// 0x105FC140 / 0x105FC150: the line the reader is on
@@ -79,6 +81,27 @@ namespace content
 
 		ByteStream* stream;
 		int line;
+		bool flag;  // +0xC (names of the members from here on guessed)
+		unsigned char unknownD;
+		unsigned char unknownE[0x20d - 0xe];
+		char name[0x100];
+	};
+
+	// content::MemoryReadStream (RTTI, 4 slots, base content::IReadStream; another unit, constructor 0x1060E670): a
+	// byte stream over a block of memory
+	class MemoryReadStream : public ByteStream
+	{
+	public:
+		MemoryReadStream(const void* data, unsigned int size);
+
+		virtual void Transfer(void* buffer, unsigned int size);
+		virtual unsigned int GetPosition();
+		virtual void SetPosition(unsigned int position);
+		virtual unsigned int GetSize();
+
+		const void* data;
+		unsigned int size;
+		unsigned int position;
 	};
 
 	// 0x105FC7F0 (constructor): writes text to a byte stream
