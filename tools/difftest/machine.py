@@ -176,6 +176,7 @@ class Machine:
 		self.mapped = set()
 		self.invalid = None
 		self.entryEsp = 0
+		self.pendingReturns = {}
 		self.stackLow = 0
 		self.privateLimit = 0
 		self.ours = None
@@ -545,6 +546,10 @@ class Machine:
 			self.blockCache[address] = info
 		self.lastBlock = info
 		self.trace.instructions += info[0]
+		# back at a logged call's return address: what the callee itself wrote is what was written meanwhile
+		returning = self.pendingReturns.pop(address, None)
+		if returning is not None:
+			returning["writesEnd"] = len(self.trace.writes)
 		for insnAddress in info[1]:
 			for start, end in self.watch:
 				if start <= insnAddress < end:
@@ -561,6 +566,7 @@ class Machine:
 				"eax": uc.reg_read(UC_X86_REG_EAX), "external": False, "writes": len(self.trace.writes)}
 			self.frameArguments(call)
 			self.trace.calls.append(call)
+			self.pendingReturns[words[0]] = call
 		if PROFILE:
 			self.stats["block"] += time.perf_counter() - t0
 			self.stats["blocks"] += 1
@@ -718,6 +724,7 @@ class Machine:
 		regs = self.state.regs
 		self.loadRegisters(regs)
 		self.trace = Trace()
+		self.pendingReturns = {}
 		self.com.reset()
 		self.entryEsp = regs["esp"]
 		self.stackLow = self.entryEsp - STACK_GROWTH

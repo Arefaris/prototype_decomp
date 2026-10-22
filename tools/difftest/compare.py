@@ -436,8 +436,8 @@ def compareCalls(engine, ours, context, add):
 		address = project.symbols().get(c["name"][5:]) if c["name"].startswith("ours:") else c["address"]
 		if address is None:
 			return False
-		after = calls[i + 1]["writes"] if i + 1 < len(calls) else len(run.writes)
-		return after == c["writes"] and storeLeaf(context, address)
+		# the callee's own writes (up to its return), not the caller's that follow before the next call
+		return c.get("writesEnd") == c["writes"] and storeLeaf(context, address)
 
 	eCalls = [c for i, c in enumerate(eCalls) if not inlined(i, c) and not frameLeaf(eCalls, i, c, engine)]
 	oCalls = [c for i, c in enumerate(ours.calls) if not frameLeaf(ours.calls, i, c, ours)]
