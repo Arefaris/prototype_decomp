@@ -1,21 +1,8 @@
-// The script method wrappers of engine::PauseState and engine::FEInputHandler (the frontend's input handler): the
-// units that register methods of these classes with the script context instantiate engine::Function's Method and
-// Closure templates for them. The classes themselves are other files'; the input handler has several bases, so its
-// method pointers are two words, which the declarations below ask for.
+// The script method wrappers of engine::FEInputHandler (the frontend's input handler): the
+// units that register methods of this class with the script context instantiate engine::Function's Method and
+// Closure templates for it. The class itself is another file's; it has several bases, so its method pointers are
+// two words, which the declarations below ask for.
 #include "code/engine/function.h"
-
-namespace engine
-{
-	// One base: method pointers of one word
-	class PauseState
-	{
-	};
-}
-
-template class Method1<engine::PauseState, void, const char*>;
-template class Closure1<engine::PauseState, void, const char*>;
-template void engine::LuaScriptManager::RegisterMethod<engine::PauseState, void, const char*>(const char*,
-	engine::PauseState*, void (engine::PauseState::*)(const char*));
 
 #pragma pointers_to_members(full_generality, multiple_inheritance)
 
@@ -66,9 +53,3 @@ template void engine::LuaScriptManager::RegisterMethod<engine::FEInputHandler, v
 // FUNCTION: ENGINE 0x10881EA0
 // FUNCTION: ENGINE 0x10881EF0
 // FUNCTION: ENGINE 0x10881F70
-// FUNCTION: ENGINE 0x108824E0
-// FUNCTION: ENGINE 0x10882530
-// FUNCTION: ENGINE 0x10882540
-// FUNCTION: ENGINE 0x10882560
-// FUNCTION: ENGINE 0x108825B0
-// FUNCTION: ENGINE 0x108825D0

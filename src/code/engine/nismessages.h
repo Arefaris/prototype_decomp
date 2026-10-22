@@ -50,6 +50,32 @@ namespace engine
 		int unknownC;
 		core::Name<core::CaseSensitiveKey> name;  // +0x10
 	};
+
+	// A message to the non-interactive sequence player (type 0x17): the Lua natives nis_Load (id 0), nis_Play (id 1),
+	// nis_Stop (id 5) and nis_Unload (id 8) send them to the sequence they name. The constructors are inline.
+	struct NISMessage : public IntrusiveMessage
+	{
+		NISMessage(short newId, const core::Name<core::CaseSensitiveKey>& newName) : IntrusiveMessage(0x17, newId),
+			name(newName)
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> name;  // +0x10
+	};
+
+	// Starts the sequence (id 1); the start time is zero and the flag clear when a native sends it
+	struct NISPlayMessage : public NISMessage
+	{
+		explicit NISPlayMessage(const core::Name<core::CaseSensitiveKey>& newName) : NISMessage(1, newName)
+		{
+			time = 0.0f;
+			unknown1C = false;
+		}
+
+		float time;  // +0x18
+		bool unknown1C;
+	};
 }
 
 #endif
