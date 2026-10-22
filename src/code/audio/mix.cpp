@@ -51,7 +51,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CC610
 	template MetaMethod0Base<bool>::~MetaMethod0Base();
 	// FUNCTION: ENGINE 0x105CC620
-	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::~MetaMethod0Const();
+	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, float>::~MetaMethod0Const();
 	// FUNCTION: ENGINE 0x105CC630
 	template MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>::~MetaMethod1Base();
 	// FUNCTION: ENGINE 0x105CC640
@@ -77,21 +77,21 @@ namespace om
 	// FUNCTION: ENGINE 0x105CC710
 	template MetaMethod0Base<unsigned int>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105CC730
-	template void MetaProperty<unsigned int>::operator delete(void*);
+	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CC750
 	template MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>::MetaMethod1Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105CC770
 	template MetaMethod0Base<const Name<CaseSensitive64BitKey>&>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105CC790
-	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::operator delete(void*);
+	template void MetaProperty<float>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CC7B0
 	template MetaMethod0Base<float>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105CC7D0
-	template void MetaProperty<float>::operator delete(void*);
+	template void MetaProperty<bool>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CC7F0
 	template MetaMethod0Base<bool>::MetaMethod0Base(MetaClassBase*, const ClassName&);
 	// FUNCTION: ENGINE 0x105CC810
-	template void MetaProperty<bool>::operator delete(void*);
+	template void MetaProperty<unsigned int>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CC950
 	template const char* MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>::AllocationTag();
 	// FUNCTION: ENGINE 0x105CC960
@@ -207,7 +207,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CD5E0
 	template bool MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::Call(void*);
 	// FUNCTION: ENGINE 0x105CD5F0
-	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, float>::~MetaMethod0Const();
+	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::~MetaMethod0Const();
 	// FUNCTION: ENGINE 0x105CD600
 	template void MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CD620

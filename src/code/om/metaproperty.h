@@ -83,7 +83,45 @@ namespace om
 	bool ReadBinary(BinaryStream* stream, ClassName* value);
 	void WriteBinary(BinaryStream* stream, const ClassName& value);
 
-	// Names are registered with one more flag than the other types
+	// The forms of the types that have a description of their own: through the cached description of the type
+	template<class T> inline bool ReadText(const TextValue* text, T* value)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<T>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(T));
+		}
+		return cache->ReadText(text, value);
+	}
+	template<class T> inline void WriteText(TextValue* text, const T& value)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<T>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(T));
+		}
+		cache->WriteText(text, &value);
+	}
+	template<class T> inline bool ReadBinary(BinaryStream* stream, T* value)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<T>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(T));
+		}
+		return cache->ReadBinary(stream, value);
+	}
+	template<class T> inline void WriteBinary(BinaryStream* stream, const T& value)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<T>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(T));
+		}
+		cache->WriteBinary(stream, &value);
+	}
+
+	// Properties that pass a const reference are registered with one more flag
 	template<class T> struct PropertyExtraFlags
 	{
 		enum
@@ -91,7 +129,7 @@ namespace om
 			Value = 0
 		};
 	};
-	template<> struct PropertyExtraFlags<const ClassName&>
+	template<class T> struct PropertyExtraFlags<const T&>
 	{
 		enum
 		{
