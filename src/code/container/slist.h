@@ -19,6 +19,10 @@ namespace container
 
 		SListBase();
 		void PushBack(Node* node);
+		// 0x10610480 (another unit; names guessed): unlinks the first node and answers it
+		Node* PopFront();
+		// 0x106104B0: unlinks the node after previous (the first one when previous is null) and answers it
+		Node* RemoveAfter(Node* previous);
 		void Remove(Node* node);
 		bool Contains(const Node* node) const
 		{
