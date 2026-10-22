@@ -3,6 +3,12 @@
 #include "code/engine/fight/branch.h"
 #include "code/engine/fight/sequencer.h"
 
+namespace engine
+{
+	// 0x10098F50: stores a reference counted pointer
+	void AssignRefCounted(core::IRefCount** slot, core::IRefCount* value);
+}
+
 namespace fight
 {
 	int gActiveActions;
@@ -247,4 +253,246 @@ namespace fight
 		}
 		return result;
 	}
+
+	// ---- The actions' reference lists -----------------------------------------------------------------------------
+
+	// FUNCTION: ENGINE 0x105A24D0
+	void ReleaseActionList(Action*& action)
+	{
+		if (action != 0)
+		{
+			action->Release();
+			action = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A3FA0
+	void ReleaseAction(Action*& action)
+	{
+		if (action != 0)
+		{
+			action->Release();
+			action = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A24F0
+	void AssignAction(Action*& slot, Action* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (slot != 0)
+		{
+			slot->Release();
+		}
+		slot = value;
+	}
+
+	// FUNCTION: ENGINE 0x105A2560
+	void Action::SetNext(Action* value)
+	{
+		AssignAction(next, value);
+	}
+
+	// ---- The sequencer --------------------------------------------------------------------------------------------
+
+	// Makes a track node watch another track: the old one lets go, the new one takes the node in
+	static __forceinline void AssignTrack(Branch*& slot, Branch* value)
+	{
+		if (value != slot)
+		{
+			if (slot != 0)
+			{
+				slot->Unregister(&slot);
+			}
+			slot = value;
+			if (value != 0)
+			{
+				value->Register(&slot);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A4020
+	// EQUIVALENT: scheduling (the engine stores the time scale after the first six words, ours before them); 66.2 %
+	Sequencer::Sequencer()
+	{
+		track = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		pendingTrack = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		timeScale = 1.0f;
+		unknown20 = 0;
+		unknown24 = 0;
+		unknown28 = 0;
+		scheduled = 0;
+		unknown30 = 0;
+		actions = 0;
+		actions2 = 0;
+		clock = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x105A4070
+	void Sequencer::SetTrack(Branch* newTrack)
+	{
+		AssignTrack(track, newTrack);
+	}
+
+	// FUNCTION: ENGINE 0x105A41B0
+	void Sequencer::Reset()
+	{
+		Stop();
+		Clear();
+		unknown28 = 0;
+		core::SafeReleaseRef(unknown24);
+		unknown20 = 0;
+		Branch** watch = &pendingTrack;
+		if (*watch != 0)
+		{
+			(*watch)->Unregister(watch);
+			*watch = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A44A0
+	void Sequencer::End()
+	{
+		Reset();
+		if (pendingTrack != 0)
+		{
+			pendingTrack->Unregister(&pendingTrack);
+		}
+		if (track != 0)
+		{
+			track->Unregister(&track);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A4200
+	bool Sequencer::Schedule(Action* action)
+	{
+		if (action == 0)
+		{
+			return false;
+		}
+		action->timeBegin = clock + action->timeBegin;
+		Action** tail = &actions2;
+		if (*tail == 0)
+		{
+			AssignAction(actions, action);
+		}
+		else
+		{
+			(*tail)->SetNext(action);
+		}
+		AssignAction(*tail, action);
+		for (Action* link = action->next; link != 0; link = link->next)
+		{
+			AssignAction(*tail, link);
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A3EC0
+	void Sequencer::EndPending()
+	{
+		for (Action* action = actions; action != 0; action = action->next)
+		{
+			action->End(1);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105A43C0
+	int Sequencer::CanSetPending(int priority) const
+	{
+		if (pendingTrack != 0 && priority >= unknown28)
+		{
+			return 0;
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x105A44D0
+	bool Sequencer::SetPending(Branch* newTrack, int arg, core::IRefCount* owner, int priority)
+	{
+		if (newTrack == 0)
+		{
+			return false;
+		}
+		if (pendingTrack != 0 && priority >= unknown28)
+		{
+			return false;
+		}
+		AssignTrack(pendingTrack, newTrack);
+		unknown20 = arg;
+		engine::AssignRefCounted(&unknown24, owner);
+		unknown28 = priority;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A45A0
+	bool Sequencer::Unknown105A45A0(bool flag)
+	{
+		if (pendingTrack != 0)
+		{
+			return true;
+		}
+		if (flag && scheduled != 0)
+		{
+			return true;
+		}
+		if (actions != 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105A45D0
+	// EQUIVALENT: register allocation (the engine keeps the other sequencer in edi and the track slot in esi, ours the other way round) and the scheduling of two loads; 30.5 %
+	void Sequencer::CopyTo(Sequencer* other, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		other->Reset();
+		AssignTrack(other->track, track);
+		other->unknown20 = 0;
+		core::SafeReleaseRef(other->unknown24);
+		AssignTrack(other->pendingTrack, pendingTrack);
+		if (pendingTrack != 0)
+		{
+			engine::AssignRefCounted(&other->unknown24, owner);
+			other->unknown28 = unknown28;
+			if (other->pendingTrack != 0)
+			{
+				other->pendingTrack->Unregister(&other->pendingTrack);
+				other->pendingTrack = 0;
+			}
+		}
+		other->timeScale = timeScale;
+		other->clock = clock;
+		for (Action* action = actions; action != 0; action = action->next)
+		{
+			if (!action->IsFinished())
+			{
+				if (effect == 0)
+				{
+					effect = (core::IRefCount*)other;
+				}
+				Action* copy = action->Slot8(0, effect, owner);
+				if (copy != 0)
+				{
+					other->Schedule(copy);
+				}
+			}
+		}
+	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x105A2520
+// FUNCTION: ENGINE 0x105A3FC0
+// FUNCTION: ENGINE 0x105A3FD0
+// FUNCTION: ENGINE 0x105A4010

@@ -96,6 +96,8 @@ namespace fight
 
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
+		// 0x105A2560: makes another action the next one (the old one is let go)
+		void SetNext(Action* value);
 		// 0x105A2580 (another function of this unit): ends the action and its children's
 		void End(int reason);
 
@@ -303,6 +305,8 @@ namespace fight
 		void Clear();
 		// 0x105A3EC0: ends every action of the pending list (name guess)
 		void EndPending();
+		// 0x105A43C0: whether a track of this priority could be made the pending one
+		int CanSetPending(int priority) const;
 		// 0x105A4070 (another function of this unit): registers the new track, unregisters the old. The engine types it
 		// as the branch kind (its Register / Unregister are fight::Branch's); 0x10863B00 compares it with a branch
 		void SetTrack(Branch* track);
@@ -311,8 +315,8 @@ namespace fight
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
 
-		int unknown0;
-		int unknown4;
+		// The name of the fight context the sequencer runs in (0x1007EE30 sets it)
+		core::Name<core::CaseSensitiveKey> contextName;
 		Branch* track;
 		int unknownC;
 		int unknown10;
@@ -336,6 +340,8 @@ namespace fight
 	// 0x105A24D0 / 0x105A3FA0 (other functions of this unit): release a member and clear it
 	void ReleaseActionList(Action*& action);
 	void ReleaseAction(Action*& action);
+	// 0x105A24F0: takes a reference to an action and lets go of the one the slot held
+	void AssignAction(Action*& slot, Action* value);
 
 	// The running-action counters the sequencer updates (names guessed)
 	extern int gActiveActions;

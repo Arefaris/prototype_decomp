@@ -36,7 +36,7 @@ namespace fight
 
 	// FUNCTION: ENGINE 0x105A7600
 	BranchHolder::BranchHolder(const char* newKind)
-		: target(0), path(0), index(-1), base(0), kind(newKind), context(0), unknown20(0)
+		: target(0), path(0), index(-1), base(0), kind(newKind), context(0), nextHolder(0)
 	{
 	}
 
@@ -195,12 +195,12 @@ namespace fight
 	{
 		Clear(0);
 		context = 0;
-		unknown20 = 0;
+		nextHolder = 0;
 	}
 
 	// FUNCTION: ENGINE 0x105A7920
 	BranchHolder::BranchHolder(const BranchHolder& other)
-		: target(0), path(0), base(0), kind(0), context(0), unknown20(0)
+		: target(0), path(0), base(0), kind(0), context(0), nextHolder(0)
 	{
 		index = -1;
 		*this = other;

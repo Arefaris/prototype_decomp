@@ -420,7 +420,7 @@ namespace fight
 		Branch* base;  // +0x14
 		const char* kind;  // +0x18
 		TrackRegistry* context;  // +0x1C
-		int unknown20;
+		BranchHolder* nextHolder;  // +0x20: the next holder of the context's list
 	};
 
 	// The branch member of a track (RTTI: fight::PropertyTypeBranch, 8 vftable slots): like the track group, slots 2,
@@ -948,6 +948,25 @@ namespace fight
 		void RemoveHolder(BranchHolder* holder);
 		// 0x105A5260: resolves the branch references of the context's nodes
 		void ResolveBranchRefs();
+		// 0x105A51E0 / 0x105A5520 / 0x105A5460: a loader takes the context in (exclusive: takes the lock for good) /
+		// lets go of it / gives the lock back (names guessed)
+		void BeginLoading(bool exclusive);
+		void EndLoading(bool exclusive);
+		void Unlock(bool exclusive);
+		// 0x105A5240: marks the context as changed
+		void MarkChanged();
+		// 0x105A5500: makes another context the next one
+		void SetNext(TrackRegistry* following);
+
+		// A node of the list the context keeps of what waits to be loaded (the next one at +0x34; names guessed)
+		struct PendingItem
+		{
+			unsigned char unknown0[0x34];
+			PendingItem* next;
+		};
+		// 0x105A52A0 / 0x105A52E0: puts an item at the end of the pending list / takes it out (under the second lock)
+		void AddPending(PendingItem* item);
+		void RemovePending(PendingItem* item, int unused);
 
 		// 0x105A59D0 / 0x105A5990 / 0x105A5950: the track / condition / branch factory of a name (null when there is none)
 		TrackFactory* FindTrackFactory(const Name& key);
@@ -958,7 +977,14 @@ namespace fight
 		unsigned char unknown14[0x78];
 		// The root branch of the context's tree
 		Branch* branches;  // +0x8C
-		unsigned char unknown90[0x48];
+		unsigned char lockA[0x18];  // +0x90
+		unsigned char lockB[0x18];  // +0xA8
+		int lockCount;  // +0xC0
+		unsigned int sharedCount;  // +0xC4
+		int exclusiveCount;  // +0xC8
+		PendingItem* pending;  // +0xCC
+		BranchHolder* holders;  // +0xD0: the holders that name a branch of the context (linked through their words)
+		bool changed;  // +0xD4
 	};
 
 	template<class T> class TrackFactoryTemplate : public TrackFactory
