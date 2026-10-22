@@ -4508,3 +4508,75 @@ layer's `GetLocalNetworkInfo` 0x1093F920 and the small `0x1093FD20` helper, and 
   objects in front of its owner away (reflected `strength`, `rangeDistance`, `rangeCosHalfAngle`,
   `minimumRepeatPeriod` and `damage`). 12 functions match (the reflection, the constructor, the empty slot 1); the
   update (slot 4, 0x1091EDA0, walks the world's object list) is mapped to the engine's.
+
+## 0x10880000 - 0x108A0000 (sn-t): the online layer's users, the front end input, the exception manager
+
+About 740 of the range's 1557 functions are reconstructed (including the kept copies); the rest is listed under
+"Not started". Units, in address order (all file names are guesses, there is no assert path in the range):
+
+- `engine/controller/physicalcontrollermapmanager.cpp` (0x10880AA0 - 0x108810F0, 0x10882140 - 0x108822C0): the
+  controller maps (`ControllerMap`, `ButtonMapping`, `AxisMapping`, the eleven-row `gControllerKinds` table at
+  0x111D17B0) and `PhysicalControllerMapManager`. `OnConnected` is EQUIVALENT (95.8 %, the slot is extended before the
+  controller is loaded in the engine). `core::IControllerListener` is now `core::IControllerConnectionChangeCallback`, the name
+  the RTTI gives it.
+- `engine/frontend/feinputhandler.cpp` (0x108810F0 - 0x10882140): `FEInputHandler`, `UpdateFEInput`, the dead zone and
+  cursor handling. `engine::controller::Keyboard` (was `Updater`) with its callback list, `SlotManager::GetKeyboard` is a
+  static. EQUIVALENT: `OnKey` 21.7 % (frame slot of the two characters), the destructor 54.5 %, `UpdateFEInput` 99.1 %.
+- `engine/gamestate.h`, `engine/pausestate.cpp` (0x108822F0 - 0x10882700): `PauseState`. NONMATCHING: `Enter`
+  0x10882320 (47 %), `Leave` 0x10882380 (88 %); the engine compares the context member in memory and loads it again for
+  the call.
+- `engine/system/exceptionmanager.cpp` (0x108826C0 - 0x10883550): `ExceptionManager` (three bases: OLS callback, input
+  callback, console manager callback; each virtual is compiled with the sub-object `this` of its base, the offsets in the
+  bodies are relative to it), its four `ExceptionFEPopUpDialogState`s (lobby, peer, controller, media), the handler
+  list (`AddHandler` / `RemoveHandler` / `Notify`, four slots at 0x11316D6C), the pause watch flags (0x11316D80 /
+  0x11316D81 and the callback at 0x11316D84), `CreateExceptionManager` and the drive error thread (`StartDriveErrorThread`,
+  `DriveErrorThread`, `StopDriveErrorThread`, the fault flag 0x11316DA0). EQUIVALENT: `Slot3` 37.8 % and `OnMessage`
+  33.8 % (the engine makes the dialog call's minus one in a register and jumps from the failed first message test to
+  the second), `Slot6` of the dialog 45.3 % (loop alignment, ecx load), the constructor 97.5 % (the `or eax, -1` sits
+  after the base vftable stores), `Update` 66.8 % (the engine keeps -1 in edi for compares, stores and the interlocked
+  masks), `DriveErrorThread` 90.4 % (eax / edx swapped for every virtual call). `ConsoleManager::Callback` got an
+  inline constructor overload (`Callback(bool)`) because the engine inlines the constructor here. `DialogState`'s
+  `Unknown10883D50` takes (controller, flag), `Unknown10883D70` answers a bool. `OLS` got named members +0x7C (`session`,
+  one virtual slot used), +0x80 (`userTable`, entries of 0x40 bytes), +0x88 / +0x8C (`localUsers`).
+- `engine/frontend/valueformat.cpp` (0x10883360 - 0x10883A90): the text forms the front end's messages ask for
+  (`FormatInteger`, `FormatFloat2` / `5`, `FormatMoney`, `FormatMoneyCents`, `FormatTimeOfDay`, `GetMouseButtonName`,
+  `GetValueText`, `FormatMessage` with the `%n:NAME` places and the table `gValueFormats` at 0x111D2D50, `TranslateValue`,
+  `FormatString`, `FormatBracketed`). EQUIVALENT: `FormatTimeOfDay` 72.7 % (the engine puts the chain for the hours after
+  noon behind the return), `GetValueText` 83.7 % (value and type swap registers). Not done: `BUTTON` form 0x10883A90
+  (526 bytes, controller button names), 0x10883720 / 0x10883820.
+- `engine/frontend/dialogstate.cpp` (0x10883CB0 - 0x10883FE0) and `femovie.h`: `DialogState`, `FEPopUpDialogState`.
+  EQUIVALENT: `GetController` 88.9 %, `OnCall` 82.3 %.
+- `engine/online/`: `ConsoleManager::Callback` (0x10882BC0 and its five empty slots), the user / game / profile storage message
+  constructors, `OLSProfile` (declared), the script method wrappers.
+- `engine/nis/` (0x1088C000 - 0x1088F000): the NIS player, its scene structs, reflection, array meta type helpers
+  (`GetArrayCMetaType`, `GetMemberColourMetaType`) and the Lua natives (`PlayNIS` EQUIVALENT 67 %, the dead vftable store).
+- `engine/system/skuinfo.cpp`, `engine/system/simulationdriver.cpp` (the driver class made of what `gamestate.cpp` kept
+  as stubs), `engine/effectparams.cpp` (`EffectParams` constructor EQUIVALENT 63 %), `engine/lightbehaviour.cpp` (the
+  reflection of the light behaviour, 52 members, and the light messages), `engine/system/streamdriverbehaviour.cpp`
+  (reflection, construction, trigger and package lists, the package sort; `Unknown10899770` EQUIVALENT 95.2 %),
+  `engine/system/streamclient.cpp`.
+- `engine/controller/defaultcontrollerhandler.cpp` (0x10895BD0 - 0x10896440): `DefaultControllerHandler`. EQUIVALENT: the
+  constructor 90.5 % (the dead base vftable store), `UnlockAllControllers` 80.3 %, `Slot3` 77.6 %, `Slot4` 75 %,
+  `SetController` 55.1 %, `Slot7` 72.2 %, `Slot8` 59.4 % (all: the engine makes the minus one with `or` and
+  pushes the locked controller before the physical manager).
+- `engine/database/gamedbhelper.cpp` (0x10894450 - 0x10894830): `GameDBHelper` (an OLS callback that makes the account
+  and settings subjects of the database when it starts and releases them when it stops). All 11 match.
+
+Lessons: (1) `long value = ReadValue(p); return value != 0;` is the shape of the engine's inline interlocked read when the
+result is a bool; the one-line `return (read) != 0;` compiles to a `neg / sbb` pair. (2) `while (!cond) body` with the
+condition made of calls is inverted by the compiler into test, body, test; a `for (;;)` with a `break` keeps the
+engine's jump back to the top. (3) The engine's text formatter reads like a loop with a `continue` for the percent
+sign; writing the branches as `if (c != '%') { ... } else { ... }` with the `index <= 9` test first gives the same
+block order. (4) Copying a union's 8 payload bytes as `unsigned __int64` gives the two `mov`s the engine has, the
+`double` copy goes through the FPU. (5) `or reg, -1` as the source of a stored or pushed minus one appears in the engine
+wherever the compiler's constant hoisting saw several uses; ours folds single uses back into immediates (open question,
+see the EQUIVALENTs above).
+
+Not started: the filesystem enumeration and cement library glue (0x10883FE0 - 0x10884E61, 72 functions of containers and
+lookups that belong to the 0x108E6000 range), the Flash handle table (0x108854E0 - 0x10885CDA), `OLSUser` (0x10886A70 -
+0x108879EA, a 0x38-byte entry container plus the platform proto class), `OLSGame` (0x10887D60 - 0x1088831E), `OLSProfile`'s
+own functions and `OLSProfileStorage` (0x10889C50 - 0x1088B6D4), `MonkeyControllerManager`, `DebugCamera`,
+`PlaybackTreeBehaviour`, `OnlineGameDBHelper` (0x108939A0 - 0x10894450, a class of three bases and a reply queue), the
+advertisement client (0x10894840 - 0x10895540, third-party code), the audio player's physics tail (0x10880010 -
+0x10880650), `StreamDriverBehaviour::OnMessage` (0x10899370), `LightBehaviour`'s constructor, update and controller,
+and the list template instances at 0x10880800 - 0x10880A70.
