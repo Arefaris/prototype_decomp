@@ -244,6 +244,10 @@ namespace engine
 
 		void Begin(bool exclusive);
 		void End(bool exclusive);
+		// 0x105A2660 / 0x105A2670 / 0x105A2680: the first context / takes the lock / gives it back
+		fight::TrackRegistry* GetFirst() const;
+		void Lock();
+		void Unlock();
 		// 0x105A4F40: puts a fight context at the end of the list (the head at +0, the next link at +0x10 of a context)
 		void AddContext(fight::TrackRegistry* context);
 		// 0x105A4B00 / 0x105A4B50: the number of contexts / the context at index (null when out of range)

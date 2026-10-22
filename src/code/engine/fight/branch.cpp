@@ -554,6 +554,43 @@ namespace fight
 
 	// ---- Watchers ---------------------------------------------------------------------------------------------------
 
+	// FUNCTION: ENGINE 0x105A30D0
+	void WatcherList::Add(BranchWatch* node)
+	{
+		node->next = head;
+		if (head != 0)
+		{
+			head->prev = node;
+		}
+		node->prev = 0;
+		head = node;
+	}
+
+	// FUNCTION: ENGINE 0x105A3150
+	void WatcherList::SetHead(BranchWatch* node)
+	{
+		head = node;
+	}
+
+	// FUNCTION: ENGINE 0x105A3160
+	unsigned __int64 Entity::GetNameHash() const
+	{
+		return name.GetHash();
+	}
+
+	// FUNCTION: ENGINE 0x105A26E0
+	bool Branch::IsBelow(const Branch* other) const
+	{
+		for (const Branch* node = parent; node != 0; node = node->parent)
+		{
+			if (node == other)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x105A30F0
 	void WatcherList::Remove(BranchWatch* node)
 	{

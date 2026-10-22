@@ -16,6 +16,10 @@ namespace fight
 {
 	int gActiveActions;
 	int gPeakActiveActions;
+	// GLOBAL: ENGINE 0x11275EC8
+	int gActionCount;
+	// GLOBAL: ENGINE 0x11275ECC
+	int gActionPeak;
 
 	// ---- the reference count -----------------------------------------------------------------------------------
 
@@ -121,7 +125,7 @@ namespace fight
 					action->Slot6();
 				}
 				gActiveActions = gActiveActions - 1;
-				action->End(1);
+				action->End(true);
 			}
 		}
 		ReleaseActionList(actions2);
@@ -143,7 +147,7 @@ namespace fight
 					{
 						if (!action->Slot7(arg, action->timeEnd))
 						{
-							action->End(1);
+							action->End(true);
 						}
 					}
 					if (!action->IsFinished())
@@ -202,7 +206,7 @@ namespace fight
 					}
 					if (action->UsesTime() && !action->Slot5(arg, elapsed))
 					{
-						action->End(1);
+						action->End(true);
 					}
 				}
 				else
@@ -288,6 +292,18 @@ namespace fight
 			action->Release();
 			action = 0;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x105A23D0
+	Action* Sequencer::GetActions() const
+	{
+		return actions;
+	}
+
+	// FUNCTION: ENGINE 0x105A3E70
+	Action* Sequencer::GetScheduled() const
+	{
+		return scheduled;
 	}
 
 	// FUNCTION: ENGINE 0x105A24F0
@@ -416,7 +432,7 @@ namespace fight
 	{
 		for (Action* action = actions; action != 0; action = action->next)
 		{
-			action->End(1);
+			action->End(true);
 		}
 	}
 
@@ -515,7 +531,7 @@ namespace fight
 				{
 					if (!action->Slot4((int)flags, (core::IRefCount*)params))
 					{
-						action->End(1);
+						action->End(true);
 					}
 				}
 				if (!action->IsFinished() && action->HasChild())
@@ -565,7 +581,7 @@ namespace fight
 							{
 								if (!child->Unknown105A45A0(true))
 								{
-									action->End(1);
+									action->End(true);
 								}
 							}
 						}
@@ -588,7 +604,7 @@ namespace fight
 								action->Slot6();
 							}
 							gActiveActions = gActiveActions - 1;
-							action->End(1);
+							action->End(true);
 						}
 						else
 						{

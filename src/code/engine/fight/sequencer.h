@@ -99,7 +99,20 @@ namespace fight
 		// 0x105A2560: makes another action the next one (the old one is let go)
 		void SetNext(Action* value);
 		// 0x105A2580 (another function of this unit): ends the action and its children's
-		void End(int reason);
+		void End(bool reason);
+
+		// 0x105A23C0 / 0x105A3DF0 / 0x105A3E00: the next action / the two lowest flag bits / sets or clears the flag of
+		// bit 2
+		Action* GetNext() const;
+		unsigned int GetRunState() const;
+		void SetFlag4(bool value);
+		// 0x105A3E10 / 0x105A3E20 / 0x105A3E30 / 0x105A3E40: the three times and the setter of the last
+		float GetTimeBegin() const;
+		float GetTime14() const;
+		float GetTimeEnd() const;
+		void SetTimeEnd(float value);
+		// 0x105A3E50: makes a copy through slot 8 without a target (the copy of the flags and times is then left out)
+		Action* Clone(core::IRefCount* effect, core::IRefCount* owner);
 
 		// The engine tests these bits through accessors returning bool: the value is materialised (a shift and a bit
 		// test) where a direct bit-field test would be a mask test
@@ -328,6 +341,9 @@ namespace fight
 		void SetContextName(const char* text);
 		// 0x105A4200 (another function of this unit): schedules the action chain at the clock
 		bool Schedule(Action* action);
+		// 0x105A23D0 / 0x105A3E70: the head of the action list / of the scheduled list
+		Action* GetActions() const;
+		Action* GetScheduled() const;
 		// 0x105A40A0: puts an action that runs a branch on a sequencer of its own at the end of the scheduled list
 		bool QueueBranch(Branch* branch, void* owner);
 
@@ -362,6 +378,9 @@ namespace fight
 	// The running-action counters the sequencer updates (names guessed)
 	extern int gActiveActions;
 	extern int gPeakActiveActions;
+	// How many actions exist and the most there have been (the constructor and the destructor of an action count)
+	extern int gActionCount;
+	extern int gActionPeak;
 }
 
 #endif

@@ -43,6 +43,24 @@ namespace fight
 		AssignRegistry(next, following);
 	}
 
+	// FUNCTION: ENGINE 0x105A2630
+	TrackRegistry* TrackRegistry::GetNext() const
+	{
+		return next;
+	}
+
+	// FUNCTION: ENGINE 0x105A2640
+	TrackRegistry* TrackRegistry::GetNextOfList() const
+	{
+		return next;
+	}
+
+	// FUNCTION: ENGINE 0x105A2650
+	Branch* TrackRegistry::GetRootBranch() const
+	{
+		return branches;
+	}
+
 	// FUNCTION: ENGINE 0x105A5330
 	void TrackRegistry::AddHolder(BranchHolder* holder)
 	{
@@ -216,6 +234,24 @@ namespace engine
 	{
 		delete gLoadListeners;
 		gLoadListeners = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105A2660
+	fight::TrackRegistry* LoadListeners::GetFirst() const
+	{
+		return first;
+	}
+
+	// FUNCTION: ENGINE 0x105A2670
+	void LoadListeners::Lock()
+	{
+		core::CriticalSectionEnter(lock);
+	}
+
+	// FUNCTION: ENGINE 0x105A2680
+	void LoadListeners::Unlock()
+	{
+		core::CriticalSectionLeave(lock);
 	}
 
 	// FUNCTION: ENGINE 0x105A4B00

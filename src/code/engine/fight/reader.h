@@ -70,6 +70,8 @@ namespace fight
 
 		// 0x105AA990: reads a name and hands it to an entity
 		bool ReadName(const Name& key, Entity* target);
+		// 0x105A31A0: the same for a key given as text
+		bool ReadName(const char* keyText, Entity* target);
 		// 0x105AA8A0: leaves the child the reader is at, answering its name (name guess)
 		const Name* SkipChild();
 	};

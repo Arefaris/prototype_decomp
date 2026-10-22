@@ -33,6 +33,9 @@ namespace fight
 	// The head of the list of the nodes that watch a branch (the nodes link through their own words)
 	struct WatcherList
 	{
+		// 0x105A30D0 / 0x105A3150: puts a node at the head of the list / replaces the head
+		void Add(BranchWatch* node);
+		void SetHead(BranchWatch* node);
 		// 0x105A30F0: takes a node out of the list and clears it
 		void Remove(BranchWatch* node);
 		// 0x105A3AF0: points every node at another branch and hands the list over to it; the first argument is not
@@ -53,6 +56,8 @@ namespace fight
 
 		// 0x105A5160: replaces the name
 		void SetName(const core::Name<core::CaseSensitiveKey>& newName);
+		// 0x105A3160: the hash of the name
+		unsigned __int64 GetNameHash() const;
 
 		core::Name<core::CaseSensitiveKey> name;  // +8
 	};
@@ -152,6 +157,8 @@ namespace fight
 		int IndexOfChild(const Branch* child);
 		// 0x105A2940: whether this branch is above another
 		bool IsAncestorOf(const Branch* other);
+		// 0x105A26E0: whether another branch is above this one
+		bool IsBelow(const Branch* other) const;
 		// 0x105A29A0 / 0x105A2A00: adds a child at an index (-1 for the end), answering the index (-1 for none)
 		int AddChild(int index, Branch* child);
 		int AddChild(Branch* child);

@@ -1030,6 +1030,10 @@ namespace fight
 		void Unlock(bool exclusive);
 		// 0x105A5240: marks the context as changed
 		void MarkChanged();
+		// 0x105A2630 / 0x105A2640 / 0x105A2650: the next context / the same / the root of the tree
+		TrackRegistry* GetNext() const;
+		TrackRegistry* GetNextOfList() const;
+		Branch* GetRootBranch() const;
 		// 0x105A5500: makes another context the next one
 		void SetNext(TrackRegistry* following);
 
