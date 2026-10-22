@@ -64,6 +64,50 @@ namespace engine
 		unsigned int id;
 	};
 
+	// The online session at OLS +0x7C (of its 24 slots only the one the exception manager asks is declared)
+	class OLSSession
+	{
+	public:
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Slot5();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual void Slot9();
+		virtual void Slot10();
+		virtual void Slot11();
+		virtual void Slot12();
+		virtual void Slot13();
+		virtual void Slot14();
+		virtual void Slot15();
+		virtual void Slot16();
+		// vftable slot 17: whether the session is up
+		virtual bool IsConnected();
+	};
+
+	// The user table at OLS +0x80: the entries are 0x40 bytes each
+	class OLSUserTable
+	{
+	public:
+		unsigned char unknown0[0x18];
+		int count;
+		unsigned char* items;  // +0x1C
+		unsigned char unknown20[4];
+		int current;  // +0x24
+	};
+
+	// A user that plays on this machine (another unit)
+	class OLSLocalUser
+	{
+	public:
+		// 0x108882C0: leaves the online session; false when there was none
+		bool Unknown108882C0();
+	};
+
 	class OLS
 	{
 	public:
@@ -76,6 +120,12 @@ namespace engine
 
 		// 0x108441E0
 		static OLS* Get();
+
+		// The local user that is selected: null when there are none
+		OLSLocalUser* GetLocalUser()
+		{
+			return localUsers != 0 ? localUsers[selectedLocalUser] : 0;
+		}
 
 		void AddCallback(Callback* callback)
 		{
@@ -93,7 +143,12 @@ namespace engine
 			OLSCurrentUser* currentUser;
 			OLSProfile* profile;
 		};
-		unsigned char unknown7C[0xac - 0x7c];
+		OLSSession* session;  // +0x7C
+		OLSUserTable* userTable;  // +0x80
+		unsigned char unknown84[4];
+		int selectedLocalUser;  // +0x88
+		OLSLocalUser** localUsers;  // +0x8C
+		unsigned char unknown90[0xac - 0x90];
 		container::SListLite<Callback> callbacks;
 	};
 }

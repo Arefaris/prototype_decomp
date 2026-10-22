@@ -361,6 +361,10 @@ namespace engine
 			{
 				callbacks.PushBack(callback);
 			}
+			void RemoveCallback(InputCallback* callback)
+			{
+				callbacks.Remove(callback);
+			}
 			static bool IsLocal(unsigned int id)
 			{
 				return (id & 0xffffff00) == 0xfe00;

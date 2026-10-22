@@ -12,9 +12,9 @@ namespace engine
 		// 0x108E3E10
 		~DialogStateImpl();
 		// 0x108E3E50, 0x108E4390, 0x108E3F60, 0x108E3F70, 0x108E3FA0 (the icon), 0x108E3FC0, 0x108E3FD0, 0x108E4230
-		void Unknown108E3E50();
+		void Unknown108E3E50(int controller, bool flag);
 		void Unknown108E4390();
-		void Unknown108E3F60();
+		bool Unknown108E3F60();
 		bool Unknown108E3F70();
 		void SetIcon(int icon, bool visible);
 		void Unknown108E3FC0();
@@ -33,9 +33,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10883D50
-	void DialogState::Unknown10883D50()
+	void DialogState::Unknown10883D50(int controller, bool flag)
 	{
-		impl->Unknown108E3E50();
+		impl->Unknown108E3E50(controller, flag);
 	}
 
 	// FUNCTION: ENGINE 0x10883D60
@@ -45,9 +45,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10883D70
-	void DialogState::Unknown10883D70()
+	bool DialogState::Unknown10883D70()
 	{
-		impl->Unknown108E3F60();
+		return impl->Unknown108E3F60();
 	}
 
 	// FUNCTION: ENGINE 0x10883D80

@@ -55,9 +55,9 @@ namespace engine
 		}
 
 		// 0x10883D50, 0x10883D60, 0x10883D70: forwarded to the implementation object (names unknown)
-		void Unknown10883D50();
+		void Unknown10883D50(int controller, bool flag);
 		void Unknown10883D60();
-		void Unknown10883D70();
+		bool Unknown10883D70();
 		// 0x10883D80
 		bool Unknown10883D80();
 		// 0x10883D90: the icon of the dialog and whether it is shown

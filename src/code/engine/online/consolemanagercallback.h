@@ -16,6 +16,11 @@ namespace engine
 	public:
 		// 0x10882BC0
 		Callback();
+		// The same, as the engine inlined it into the exception manager's constructor
+		explicit Callback(bool inlined)
+		{
+			unknownC = 0;
+		}
 
 		// 0x10882BD0, 0x10882BE0, 0x10882BF0, 0x10882C00: do nothing
 		virtual void Slot0(int a, int b);
