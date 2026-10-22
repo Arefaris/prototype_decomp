@@ -14,8 +14,46 @@ namespace engine
 	// An online event (RTTI: engine::OLSMessage; the user it concerns at +0x14)
 	struct OLSMessage : public IntrusiveMessage
 	{
-		unsigned char unknownC[8];
+		OLSMessage(int newType, short newId) : IntrusiveMessage(newType, newId)
+		{
+			unknownC = 0;
+		}
+		virtual ~OLSMessage()
+		{
+		}
+
+		int unknownC;
+		int unknown10;
 		unsigned int user;
+	};
+
+	// The messages of the online services' parts (RTTI names; the part's message type is the constructor's first
+	// argument to the base)
+	struct OLSUserMessage : public OLSMessage
+	{
+		// 0x10886A30 (the engine kept this copy)
+		explicit OLSUserMessage(short newId);
+		virtual ~OLSUserMessage()
+		{
+		}
+	};
+
+	struct OLSGameMessage : public OLSMessage
+	{
+		// 0x10887D20
+		explicit OLSGameMessage(short newId);
+		virtual ~OLSGameMessage()
+		{
+		}
+	};
+
+	struct OLSProfileStorageMessage : public OLSMessage
+	{
+		// 0x1088ACA0
+		explicit OLSProfileStorageMessage(short newId);
+		virtual ~OLSProfileStorageMessage()
+		{
+		}
 	};
 
 	// The user the services currently serve (+0x14: its id)
