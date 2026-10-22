@@ -33,7 +33,7 @@ namespace engine
 				Begin(fromRef.slot, fromRef.id, toRef.slot, toRef.id, reverse, kind, time);
 			}
 
-			unsigned char unknown44[0x90 - 0x44];
+			unsigned char unknown48[0x90 - 0x48];
 			ControllerRef from;  // +0x90
 			ControllerRef to;  // +0x98
 			float unknownA0;

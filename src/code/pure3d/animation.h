@@ -61,8 +61,7 @@ namespace pure3d
 
 		float numFrames;
 		float mFrameRate;
-		bool mFlag0 : 1;
-		unsigned char unknown18Bits : 7;
+		bool mFlag0;
 		unsigned char unknown19[7];
 		float mUnknown20;
 		unsigned char unknown24[0x18];

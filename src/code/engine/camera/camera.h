@@ -102,6 +102,8 @@ namespace engine
 			// Index in the Director's camera table and the serial number given when registered
 			int slot;
 			int id;
+			// Not touched by the Camera itself; the derived classes' members start at 0x48
+			int unknown44;
 
 			core::Name<core::CaseSensitiveKey> GetName() const
 			{

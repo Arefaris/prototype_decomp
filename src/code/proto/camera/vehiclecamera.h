@@ -12,7 +12,7 @@ namespace proto
 	class GameCamera : public engine::camera::Camera
 	{
 	public:
-		unsigned char unknown44[0xcc - 0x44];
+		unsigned char unknown48[0xcc - 0x48];
 		// Read by VehicleCamera's vftable slot 4 (0x10354B60); meaning unknown, name is a guess
 		bool unknownCC;
 	};

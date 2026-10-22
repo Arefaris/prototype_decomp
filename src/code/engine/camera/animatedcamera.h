@@ -15,7 +15,7 @@ namespace engine
 			// 0x108D53A0 (0xA0 bytes)
 			AnimatedCamera();
 
-			unsigned char unknown44[0xa0 - 0x44];
+			unsigned char unknown48[0xa0 - 0x48];
 		};
 	}
 }

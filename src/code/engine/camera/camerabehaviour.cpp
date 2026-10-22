@@ -149,6 +149,16 @@ namespace engine
 			out[15] = in[15];
 		}
 
+		// FUNCTION: ENGINE 0x10850770
+		content::MemberList* CameraBehaviour::GetMembersV2()
+		{
+			static content::MemberList sList;
+			sList.baseType = content::GetClassMetaType<Behaviour>();
+			static content::BaseClassCasterImpl<Behaviour, CameraBehaviour> sCaster;
+			sList.baseCaster = &sCaster;
+			return &sList;
+		}
+
 		// FUNCTION: ENGINE 0x10850820
 		content::MemberList* CameraBehaviour::GetMembers()
 		{

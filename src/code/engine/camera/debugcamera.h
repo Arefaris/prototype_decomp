@@ -16,7 +16,7 @@ namespace engine
 			// 0x10897780: reads the input of the camera's player
 			void ReadInput();
 
-			unsigned char unknown44[0x94 - 0x44];
+			unsigned char unknown48[0x94 - 0x48];
 			int unknown94;
 		};
 	}

@@ -41,6 +41,8 @@ namespace engine
 			// 0x108504E0: the earlier version of the class (version 2, code "p")
 			static content::ClassInfo* GetClassInfoV2();
 			static content::MemberList* GetMembers();
+			// 0x10850770: the earlier version's members (none besides the base class)
+			static content::MemberList* GetMembersV2();
 
 			// vftable slot 1 (0x10850540): registers the camera with the Director and activates the owner
 			virtual void Slot1();
