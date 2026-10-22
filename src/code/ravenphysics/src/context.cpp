@@ -254,10 +254,10 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10656730
-	void Context::QuerySweepObject(PhysicsBody* object, void* ray)
+	bool Context::QuerySweepObject(PhysicsBody* object, void* ray)
 	{
 		OLD_ASSERT_AT(CONTEXT_FILE, 0x604, !gLock.IsLocked(), "!gLock.IsLocked()", "");
-		mWorld->QueryPair(object, ray, unknownC4, object->filter & 3);
+		return mWorld->QueryPair(object, ray, unknownC4, object->filter & 3);
 	}
 
 	// FUNCTION: ENGINE 0x106567A0

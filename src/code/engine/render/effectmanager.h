@@ -10,7 +10,7 @@
 #include "code/content/loadinventory.h"
 #include "code/core/name.h"
 #include "code/engine/render/effectlod.h"
-#include "code/engine/camera/camera.h"
+#include "code/pure3d/camera.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/async/light.h"
@@ -551,7 +551,7 @@ namespace engine
 			void RemoveOldestStore();
 
 			// 0x108193D0: the camera of the first player that is active, null without a camera director
-			camera::Camera* GetActiveCamera();
+			pure3d::Camera* GetActiveCamera();
 			// 0x10819410: whether a feature of the manager is switched on (always)
 			bool IsFeatureEnabled(int features);
 			// 0x1081E5A0: the frame update (the two leading arguments are unused)

@@ -649,6 +649,13 @@ namespace content
 		return &sType;
 	}
 
+	// The same in a second unit that reflects a Name of that class (the engine kept a copy in each of them)
+	template<class C> NameMetaType* GetNameMetaTypeCopy(bool unknown8, bool unknown9, const char* code)
+	{
+		static NameMetaType sType(unknown8, unknown9, code);
+		return &sType;
+	}
+
 	// The meta type of a math::Matrix member of class C
 	template<class C> MatrixMetaType* GetMatrixMetaType(bool unknown8, bool unknown9, const char* code)
 	{
@@ -657,6 +664,15 @@ namespace content
 	}
 
 	template<class T> ObjectMetaType* GetObjectMetaType(const char* code)
+	{
+		static MetaInstanceHelper<T, 1> sHelper;
+		static ObjectMetaType sType(GetClassMetaType<T>(), &sHelper, code);
+		return &sType;
+	}
+
+	// The same in a second unit that reflects an object of that class: the engine kept a copy in each of them (at
+	// different addresses), and the name tells them apart in symbols.txt
+	template<class T> ObjectMetaType* GetObjectMetaTypeCopy(const char* code)
 	{
 		static MetaInstanceHelper<T, 1> sHelper;
 		static ObjectMetaType sType(GetClassMetaType<T>(), &sHelper, code);

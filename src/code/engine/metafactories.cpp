@@ -6,6 +6,7 @@
 #include "code/engine/fight/behaviours/proplogictreebehaviour.h"
 #include "code/engine/firstpersoncontrolbehaviour.h"
 #include "code/engine/knockbehaviour.h"
+#include "code/engine/propbehaviour.h"
 #include "code/engine/world/locationrendersettings.h"
 #include "code/engine/actorspawner.h"
 #include "code/engine/driving/physicsattributes.h"

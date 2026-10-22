@@ -3,6 +3,7 @@
 #include "code/core/controllersystem.h"
 #include "code/core/name.h"
 #include "code/engine/controller/inputsystem.h"
+#include "code/engine/controller/physicalcontroller.h"
 #include "code/engine/database/gamedatabase.h"
 #include <string.h>
 
@@ -10,32 +11,6 @@ namespace engine
 {
 	namespace controller
 	{
-		// The controller object of one player slot (0x10846E50, another unit; the members are named by what the manager
-		// asks of them)
-		class PhysicalController
-		{
-		public:
-			PhysicalController(int a, int b, int c, int d);
-			// 0x10847010: the controller of the system the slot reads (null for none); holds a reference
-			void SetController(core::IController* newController);
-			// 0x10846490: the buttons and axes of the controller
-			void SetMap(ControllerMap* map);
-			// 0x10845C80: zeroes the outputs
-			void ClearOutputs();
-			// vftable slot 2
-			virtual void Slot0();
-			virtual void Slot1();
-			virtual void Slot2(int value);
-			virtual void Slot3();
-			virtual void Slot4();
-			virtual void Slot5();
-			virtual ~PhysicalController();
-
-			unsigned char unknown4[0x38 - 4];
-			core::IController* controller;
-			unsigned char unknown3C[0x54 - 0x3C];
-		};
-
 		// FUNCTION: ENGINE 0x10880AB0
 		void PhysicalControllerMapManager::Start(PhysicalControllerManager* newManager)
 		{
@@ -101,7 +76,7 @@ namespace engine
 		{
 			if (controllers[slot] != 0)
 			{
-				controllers[slot]->SetMap(map);
+				controllers[slot]->Bind(map->AsMapping());
 			}
 		}
 
@@ -112,13 +87,14 @@ namespace engine
 			return controller->controller != 0 ? controller : 0;
 		}
 
+		// The word's low byte is the controller's flag (SetRumbleEnabled takes a bool)
 		// FUNCTION: ENGINE 0x10880C50
 		void PhysicalControllerMapManager::CallController(unsigned char slot, int value)
 		{
 			if (controllers[slot] != 0)
 			{
 				PhysicalController* controller = controllers[slot];
-				controller->Slot2(value);
+				controller->SetRumbleEnabled(*(const bool*)&value);
 			}
 		}
 
@@ -190,7 +166,7 @@ namespace engine
 				{
 					controllers[slot]->SetController(0);
 					controllers[slot]->SetController(changed);
-					controllers[slot]->SetMap(maps[i]);
+					controllers[slot]->Bind(maps[i]->AsMapping());
 					if (i == 4 || i == 5)
 					{
 						GameDatabase* checkDatabase = gGameDatabase;
@@ -214,7 +190,7 @@ namespace engine
 			{
 				return;
 			}
-			controllers[slot]->ClearOutputs();
+			controllers[slot]->StopRumble();
 			changed->GetName();
 			changed->GetLocation();
 			bool gamepad = false;

@@ -57,12 +57,13 @@ namespace pure3d
 		void Unknown106E9310(int mode);
 		// 0x106E8590 / 0x106E79E0: the group of the animation for a name, and the group of the whole animation
 		AnimationGroup* FindGroup(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x106E79D0: the group at an index
+		AnimationGroup* GetGroup(int index);
 		AnimationGroup* FindOverallGroup(int mode);
 
 		float numFrames;
 		float mFrameRate;
-		bool mFlag0 : 1;
-		unsigned char unknown18Bits : 7;
+		bool mFlag0;
 		unsigned char unknown19[7];
 		float mUnknown20;
 		unsigned char unknown24[0x18];

@@ -18,7 +18,8 @@ namespace engine
 		// come with its unit, 0x1084DE40)
 		enum CinematographerType
 		{
-			CINEMATOGRAPHER_DEFAULT_VIEW = 0
+			CINEMATOGRAPHER_DEFAULT_VIEW = 0,
+			CINEMATOGRAPHER_SECOND_VIEW = 1
 		};
 	}
 }

@@ -5,6 +5,12 @@
 
 #include "code/math/vector.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace math
 {
 	class AABB;
@@ -13,6 +19,10 @@ namespace math
 	class Plane
 	{
 	public:
+		// The reflection of the type (another unit, 0x108475E0 / 0x10847D30)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		Vector normal;
 		float d;
 

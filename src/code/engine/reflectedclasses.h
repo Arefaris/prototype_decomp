@@ -198,17 +198,6 @@ namespace engine
 		unsigned char unknownC[0x5C];
 	};
 
-	// PropBehaviour: constructor 0x108414B0, reflection 0x10841060 / 0x10841200
-	class PropBehaviour : public engine::Behaviour
-	{
-	public:
-		PropBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x0];
-	};
-
 	// RagdollBehaviour: constructor 0x10927BA0, reflection 0x10925050 / 0x10927330
 	class RagdollBehaviour : public engine::Behaviour
 	{

@@ -3,6 +3,12 @@
 #ifndef MATH_VECTOR_H
 #define MATH_VECTOR_H
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace math
 {
 	class Matrix;
@@ -10,6 +16,10 @@ namespace math
 	class Vector
 	{
 	public:
+		// The reflection of the type (another unit, 0x108475A0 / 0x10847C60)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		float x;
 		float y;
 		float z;
@@ -85,6 +95,10 @@ namespace math
 		void Print() const;
 		// True when every component is within EPSILON_SMALL of zero
 		bool IsZero() const;
+		// True when every component differs from other's by at most tolerance (0x1084D000, the camera math's unit; name guessed)
+		bool IsNear(const Vector& other, float tolerance) const;
+		// The engine's second out-of-line copy of IsNear (0x10070B70), the one the camera path sampling calls
+		bool IsNearOther(const Vector& other, float tolerance) const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X
 		void Perpendicular(const Vector& v);
 		// Sets this vector to a cross b; when that is (nearly) zero, to a vector perpendicular to a, returning true
@@ -99,6 +113,9 @@ namespace math
 		void Rotate(const Matrix& m);
 		void Rotate(const Vector& v, const Matrix& m);
 	};
+
+	// 0x11283234: the zero vector
+	extern const Vector kZeroVector;
 
 	// Whether two vectors differ by more than EPSILON_SMALL in some component (0x102D5B00; name guessed)
 	bool VectorsDiffer(const Vector& a, const Vector& b);

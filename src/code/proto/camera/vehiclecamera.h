@@ -11,6 +11,10 @@ namespace proto
 	// The engine's game cameras (RTTI name; AirCamera, AirGunnerCamera, ChaseCamera and VehicleCamera derive from it)
 	class GameCamera : public engine::camera::Camera
 	{
+	public:
+		unsigned char unknown48[0xcc - 0x48];
+		// Read by VehicleCamera's vftable slot 4 (0x10354B60); meaning unknown, name is a guess
+		bool unknownCC;
 	};
 
 	class VehicleCamera : public GameCamera

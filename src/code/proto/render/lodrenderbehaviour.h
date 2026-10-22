@@ -12,17 +12,10 @@
 #include "code/math/vector.h"
 #include "code/proto/shaders/shaderpalette.h"
 
-namespace engine
-{
-	namespace camera
-	{
-		class Camera;
-	}
-}
-
 namespace pure3d
 {
 	class Animation;
+	class Camera;
 	class Pose;
 
 	// 0x10708DB0 (another unit): memory for the joint data of a skeleton of that many joints; size gets the bytes
@@ -72,7 +65,7 @@ namespace proto
 	{
 	public:
 		// 0x1032C430: the scale the camera asks for, 1 when it has none
-		float GetScale(const engine::camera::Camera* camera) const;
+		float GetScale(const pure3d::Camera* camera) const;
 	};
 
 	extern LODDetailScale* gLODDetailScale;

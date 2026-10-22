@@ -8,6 +8,7 @@
 
 #include "code/container/map.h"
 #include "code/container/slist.h"
+#include "code/container/arraydynamicstatic.h"
 #include "code/core/name.h"
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/dbobserver.h"
@@ -25,6 +26,8 @@ namespace engine
 	public:
 		DBSubjectInfo(bool flag, int a, int b);
 		DBSubjectInfo(const DBSubjectInfo& other);
+		// 0x10842F30
+		DBSubjectInfo& operator=(const DBSubjectInfo& other);
 
 		bool flag;
 		int a;
@@ -47,9 +50,59 @@ namespace engine
 		};
 	};
 
-	// One database value (another unit, 0x10843330 - 0x10843F50, with base class functions at 0x10893240 -
-	// 0x10893BE0)
-	class DBSubject
+	// A change of one value of a subject, kept until the observers have been told (names guessed; 0x10 bytes, the
+	// last word is never written). The text constructors copy the characters (the wide ones as bytes) into memory of
+	// their own, which the destructor frees.
+	class DBChange
+	{
+	public:
+		// 0x10842F50
+		DBChange(unsigned char newPlayer, int value, unsigned char newIndex);
+		// 0x10842F70
+		DBChange(unsigned char newPlayer, float value, unsigned char newIndex);
+		// 0x10842FA0
+		DBChange(unsigned char newPlayer, const char* text, unsigned char newIndex, int length);
+		// 0x10842FE0
+		DBChange(unsigned char newPlayer, const wchar_t* text, unsigned char newIndex, int length);
+		// 0x10843020
+		~DBChange();
+
+		// A DBSubject::Type
+		int type;
+		unsigned char player;
+		unsigned char index;
+		union
+		{
+			int intValue;
+			float floatValue;
+			char* text;
+			wchar_t* wideText;
+		};
+		int unknownC;
+	};
+
+	// What an observer asked for when it was added: the observer and the two numbers AddObserver is given (names
+	// guessed)
+	struct DBObserverEntry
+	{
+		DBObserver* observer;
+		int a;
+		int b;
+	};
+
+	// The head of DBSubject (another unit, 0x10893240): its id and a word set to -1 (names guessed)
+	class DBSubjectBase
+	{
+	public:
+		// 0x10893240
+		DBSubjectBase();
+
+		int unknown0;
+		int id;
+	};
+
+	// One database value (this unit 0x10842F10 - 0x10844090, base class functions at 0x10893240 - 0x10893BE0)
+	class DBSubject : public DBSubjectBase
 	{
 	public:
 		enum Type
@@ -59,22 +112,32 @@ namespace engine
 			TYPE_STRING,
 			TYPE_WIDE_STRING
 		};
+		typedef container::AllocatorCoreStatic<0x80, 16> Allocator;
+		typedef container::SList<DBChange*, Allocator> ChangeList;
+		typedef container::SList<DBObserverEntry, Allocator> ObserverList;
 
 		DBSubject();
 		~DBSubject();
-		// Set the subject up under name (its category, two per-category settings, the initial value and the editing
-		// information); key receives the name's hash
+		// Set the subject up under name (its category, the number of players, its scope, the initial value and the
+		// editing information); key receives the name's hash
 		unsigned __int64* InitInt(unsigned __int64* key, const core::Name<core::CaseSensitiveKey>& name, int category,
-			int a, int b, int value, const DBSubjectInfo& info);
+			int players, int scope, int value, const DBSubjectInfo& info);
 		unsigned __int64* InitFloat(unsigned __int64* key, const core::Name<core::CaseSensitiveKey>& name, int category,
-			int a, int b, float value, const DBSubjectInfo& info);
+			int players, int scope, float value, const DBSubjectInfo& info);
 		unsigned __int64* InitString(unsigned __int64* key, const core::Name<core::CaseSensitiveKey>& name,
-			int category, int a, int b, const char* value, int length, const DBSubjectInfo& info);
+			int category, int players, int scope, const char* value, int length, const DBSubjectInfo& info);
+		// The same with the text copied as bytes (length counts bytes)
+		unsigned __int64* InitWideString(unsigned __int64* key, const core::Name<core::CaseSensitiveKey>& name,
+			int category, int players, int scope, const wchar_t* value, int length, const DBSubjectInfo& info);
 
 		int GetInt(unsigned int player, unsigned int index);
 		float GetFloat(unsigned int player, unsigned int index);
 		const char* GetString(unsigned int player, unsigned int index);
 		const wchar_t* GetWideString(unsigned int player, unsigned int index);
+		int GetDefaultInt();
+		float GetDefaultFloat();
+		const char* GetDefaultString();
+		const wchar_t* GetDefaultWideString();
 		void SetInt(unsigned int player, int value, unsigned int index);
 		void SetFloat(unsigned int player, float value, unsigned int index);
 		void SetString(unsigned int player, const char* value, unsigned int index);
@@ -99,20 +162,38 @@ namespace engine
 			return linked;
 		}
 
-		int unknown0;
-		int id;
+		// 0x108433C0: stores the name and answers its hash in key
+		unsigned __int64* SetName(unsigned __int64* key, const core::Name<core::CaseSensitiveKey>& newName);
+		// 0x10843700 (names guessed)
+		unsigned int GetObserverCount();
+		// 0x10843AE0: copies the values of player from source (the same type)
+		void CopyValues(DBSubject* source, unsigned int player);
+		// 0x10843CC0: tells the observers of every change kept (those added with b equal to mode), then forgets them
+		// when mode is 0
+		void SendChanges(int mode);
+		// 0x10843DA0: tells every observer about the subject
+		void NotifyObservers();
+		// 0x108437E0
+		void AddChange(DBChange* change);
+
 		core::Name<core::CaseSensitiveKey> name;
 		int scope;
 		DBSubject* linked;
-		void* observers;
-		void* unknown1C;
-		bool unknown20;
+		ChangeList* changes;
+		ObserverList* observers;
+		unsigned char players;
 		unsigned char count;
 		int type;
 		int stride;
-		int unknown2C;
-		int unknown30;
-		bool unknown34;
+		union
+		{
+			int defaultInt;
+			float defaultFloat;
+			const char* defaultString;
+			const wchar_t* defaultWideString;
+		};
+		void* values;
+		bool locked;
 		int category;
 		bool persistent;
 	};

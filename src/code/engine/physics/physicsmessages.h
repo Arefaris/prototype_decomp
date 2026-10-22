@@ -7,6 +7,7 @@
 
 #include "code/core/name.h"
 #include "code/engine/message.h"
+#include "code/engine/physics/getphysicsobjectmessage.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
@@ -45,20 +46,6 @@ namespace engine
 		}
 
 		int properties;
-	};
-
-	// Asks for the object's physics object (id 0xB); the handle comes back in the message
-	struct GetPhysicsObjectMessage : public NonintrusiveMessage
-	{
-		GetPhysicsObjectMessage() : NonintrusiveMessage(3, 0xb)
-		{
-			handle.value = 0xffffffff;
-		}
-		virtual ~GetPhysicsObjectMessage()
-		{
-		}
-
-		ravenphysics::ObjectHandle handle;
 	};
 
 	// Switches the physics object between simulated and keyframed (id 0x1A)

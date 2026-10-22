@@ -19,12 +19,7 @@ namespace core
 	int SNPrintfCount(char* buffer, int size, const char* format, ...);
 	char* StrNCat(char* destination, const char* source, int size);
 
-	// The 32-bit name's hash from a text and from a number; this unit keeps a copy of each
-	inline __declspec(noinline) void Name<CaseInsensitiveKey32>::SetText(const char* text)
-	{
-		hash = Hash32(text, 0);
-	}
-
+	// The 32-bit name's hash from a number; this unit keeps a copy of it
 	inline __declspec(noinline) void Name<CaseInsensitiveKey32>::SetHash(unsigned int newHash)
 	{
 		hash = newHash;
@@ -33,6 +28,19 @@ namespace core
 
 namespace fight
 {
+	// The fight unit's own form of the 32-bit name's SetText (0x105AB760): it hashes the text with its case kept
+	// (core::Hash32), where the shared one (0x105FCED0) ignores the case; the readers use this one
+	struct Name32Text : public core::Name<core::CaseInsensitiveKey32>
+	{
+		void SetText(const char* text);
+	};
+
+	// FUNCTION: ENGINE 0x105AB760
+	inline __declspec(noinline) void Name32Text::SetText(const char* text)
+	{
+		hash = core::Hash32(text, 0);
+	}
+
 	// The flags of a compiled script's header
 	extern const int gBinaryNumbers;
 	extern const int gBinarySwapped;
@@ -616,7 +624,6 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105ABDF0
-	// EQUIVALENT: the engine calls its own kept copy of the 32-bit name's SetText (0x105AB760), the symbol of ours is the other unit's copy; 99.2 %
 	bool ScriptReader::GetName32(int index, core::Name<core::CaseInsensitiveKey32>* value)
 	{
 		int length = 0;
@@ -631,7 +638,7 @@ namespace fight
 		{
 			return false;
 		}
-		value->SetText(text);
+		static_cast<Name32Text*>(value)->SetText(text);
 		core::Free(text);
 		return result;
 	}
@@ -1093,7 +1100,6 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105ACCF0
-	// EQUIVALENT: the engine calls its own kept copy of the 32-bit name's SetText (0x105AB760), the symbol of ours is the other unit's copy; 99.5 %
 	bool BinReader::ReadName32(const Name& key, core::Name<core::CaseInsensitiveKey32>* value)
 	{
 		int length;
@@ -1112,12 +1118,12 @@ namespace fight
 			char* text = (char*)core::HeapAlloc(GetHeapId(1), padded + 1);
 			result = ReadBytes(text, padded);
 			text[pendingLength] = 0;
-			value->SetText(text);
+			static_cast<Name32Text*>(value)->SetText(text);
 			core::Free(text);
 		}
 		else
 		{
-			value->SetText(0);
+			static_cast<Name32Text*>(value)->SetText(0);
 		}
 		pendingLength = -1;
 		return result;

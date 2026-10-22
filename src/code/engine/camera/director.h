@@ -5,6 +5,7 @@
 #define ENGINE_CAMERA_DIRECTOR_H
 
 #include "code/container/arraydynamic.h"
+#include "code/engine/camera/camera.h"
 #include "code/core/name.h"
 #include "code/engine/database/gamedatabase.h"
 #include "code/engine/display.h"
@@ -46,10 +47,10 @@ namespace engine
 
 	namespace camera
 	{
-		class Camera;
+		class Cinematographer;
 		class CameraTarget;
 		class ControllerRef;
-		class Cinematographer;
+		class Camera;
 
 		// Listener lists the Director's reset message goes to (0x11315318, 0x11315290; another unit)
 		extern MessageListeners sResetListeners;
@@ -84,8 +85,8 @@ namespace engine
 			// The two DBObserver slots: empty in the Director (0x107DDB50, 0x107DDB60; parameter meaning unknown)
 			virtual void OnDBSlot0(int a, int b);
 			virtual void OnDBSlot1(int a, int b);
-			container::ArrayDynamic<Camera*, container::AllocatorNew> cameras;
-			container::ArrayDynamic<Cinematographer*, container::AllocatorNew> controllers;
+			container::ArrayDynamic<Cinematographer*, container::AllocatorNew> cameras;
+			container::ArrayDynamic<Camera*, container::AllocatorNew> controllers;
 			int maxControllerIndex;
 			int playerCamera[2];
 			int nextControllerId;
@@ -100,13 +101,13 @@ namespace engine
 			// Index of a player's camera slot in the cameras array (0x107DD9E0; name guessed)
 			int GetCameraIndex(int playerIndex, int kind) const;
 			// Puts the controller in the first free slot and gives it the next id
-			void AddController(Cinematographer* controller);
-			void RemoveController(Cinematographer* controller);
+			void AddController(Camera* controller);
+			void RemoveController(Camera* controller);
 			bool HasController(int type, int owner) const;
-			bool HasCamera(int playerIndex, int kind) const;
-			void SetCamera(Camera* camera);
-			void ClearCamera(Camera* camera);
-			Camera* GetCamera(int playerIndex, unsigned int kind) const;
+			bool HasCamera(int type, int playerIndex) const;
+			void SetCamera(Cinematographer* camera);
+			void ClearCamera(Cinematographer* camera);
+			Cinematographer* GetCamera(int playerIndex, unsigned int kind) const;
 			// Resets every controller and camera and sends a CameraResetMessage
 			void Reset();
 			// Updates the controllers (type 2 last), then the active cameras; broadcasts a CameraCutMessage when a camera cut
@@ -120,8 +121,8 @@ namespace engine
 			void StartTransition(const core::Name<core::CaseSensitiveKey>& name, float time, unsigned int kind, int owner);
 			void SetCameraUnknown7A5(int playerIndex, bool value);
 			void SetCameraUnknown7AD(int playerIndex, bool value);
-			Cinematographer* FindController(int type, int owner) const;
-			Cinematographer* FindController(core::Name<core::CaseSensitiveKey> name) const;
+			Camera* FindController(int type, int owner) const;
+			Camera* FindController(core::Name<core::CaseSensitiveKey> name) const;
 			// OnEvent(param) on every controller of owner / OnKindEvent(param) on every controller of kind without flag 2
 			void NotifyControllers(int param, int owner);
 			void NotifyControllersOfKind(int kind, float param);
@@ -129,8 +130,8 @@ namespace engine
 			void NotifyController(int param, int type, int owner);
 			void NotifyController(int param, core::Name<core::CaseSensitiveKey> name, int unused);
 			// The controller in slot with that id, 0 when the slot is empty or reused
-			Cinematographer* GetController(int slot, int id) const;
-			Cinematographer* GetController(const ControllerRef& ref) const
+			Camera* GetController(int slot, int id) const;
+			Camera* GetController(const ControllerRef& ref) const
 			{
 				return GetController(ref.slot, ref.id);
 			}
@@ -140,8 +141,8 @@ namespace engine
 			// one found becomes playerCamera[kind] when that was unset
 			bool NextActiveCamera(int* index, int kind);
 			// Recomputes playerCamera for the kind of a camera that was disabled
-			void OnCameraDisabled(Camera* camera);
-			Cinematographer* GetCameraController(int playerIndex, unsigned int kind) const;
+			void OnCameraDisabled(Cinematographer* camera);
+			Camera* GetCameraController(int playerIndex, unsigned int kind) const;
 			CameraTarget* GetCameraTarget(int playerIndex, unsigned int kind) const;
 			// The target's matrix, or the identity without a camera
 			const math::Matrix* GetCameraMatrix(int playerIndex, unsigned int kind) const;

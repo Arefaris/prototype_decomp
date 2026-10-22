@@ -7,13 +7,13 @@
 #ifndef ENGINE_CONTROLLER_PHYSICALCONTROLLERMAPMANAGER_H
 #define ENGINE_CONTROLLER_PHYSICALCONTROLLERMAPMANAGER_H
 
+#include "code/engine/controller/physicalcontroller.h"
 #include "code/core/controller.h"
 
 namespace engine
 {
 	namespace controller
 	{
-		class PhysicalController;
 		class PhysicalControllerManager;
 
 		// One button of a controller (0x14 bytes)
@@ -49,6 +49,11 @@ namespace engine
 			void SetButton(int index, const ButtonMapping* button);
 			void SetAxis(int index, const AxisMapping* axis);
 			void ClearAxis(int index);
+			// The map as the physical controller binds it (PhysicalController::Mapping has this layout)
+			const PhysicalController::Mapping* AsMapping() const
+			{
+				return reinterpret_cast<const PhysicalController::Mapping*>(this);
+			}
 
 			unsigned int buttonCount;
 			ButtonMapping* buttons;

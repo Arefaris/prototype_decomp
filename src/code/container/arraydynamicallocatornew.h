@@ -174,6 +174,20 @@ namespace container
 			Destroy(begin, end);
 			end = begin;
 		}
+		// Appends a copy of value when there is room (false when the array is full)
+		bool PushBack(const T& value)
+		{
+			if (end < capacity)
+			{
+				T* item = end++;
+				if (item != 0)
+				{
+					new (item) T(value);
+				}
+				return true;
+			}
+			return false;
+		}
 		void Free()
 		{
 			if (begin != 0)

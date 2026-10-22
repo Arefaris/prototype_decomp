@@ -115,6 +115,8 @@ namespace engine
 		float targetBlendFactor;  // +0x18
 		float timeBegin;  // +0x1C
 		float timeEnd;  // +0x20
+		// Not touched by the constructor (the factory allocates 0x28 bytes)
+		int unknown24;
 	};
 
 	extern fight::Property** gPhysicsJointBlendFactorTrackProperties;

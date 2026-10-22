@@ -3,7 +3,7 @@
 #include <float.h>
 #include <math.h>
 #include <new>
-#include "code/engine/camera/cinematographer.h"
+#include "code/engine/camera/camera.h"
 #include "code/engine/camera/director.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
@@ -118,7 +118,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108193D0
-		camera::Camera* EffectManager::GetActiveCamera()
+		pure3d::Camera* EffectManager::GetActiveCamera()
 		{
 			camera::Director* director = camera::Director::Get();
 			if (director == 0)
@@ -133,13 +133,13 @@ namespace engine
 					return 0;
 				}
 			}
-			return (camera::Camera*)director->GetCameraUnknown40(index, 0);
+			return (pure3d::Camera*)director->GetCameraUnknown40(index, 0);
 		}
 
 		// FUNCTION: ENGINE 0x1081ABA0
 		bool EffectManager::IsOutOfRange(const EffectLightSetup* setup, float radius, float maxDistanceSquared)
 		{
-			camera::Camera* camera = GetActiveCamera();
+			pure3d::Camera* camera = GetActiveCamera();
 			if (camera != 0)
 			{
 				math::Matrix matrix(setup->transform);
@@ -985,7 +985,7 @@ namespace engine
 				instance->AddLOD(lod);
 				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lodsEnd - instance->lodsBegin) > 1)
 				{
-					camera::Camera* camera = GetActiveCamera();
+					pure3d::Camera* camera = GetActiveCamera();
 					if (camera != 0)
 					{
 						math::Vector position;
@@ -1008,7 +1008,7 @@ namespace engine
 		{
 			if (setup->needsView)
 			{
-				camera::Camera* camera = GetActiveCamera();
+				pure3d::Camera* camera = GetActiveCamera();
 				if (camera != 0 && !camera->IsPointInside(&setup->position))
 				{
 					return Drawable();
@@ -1131,7 +1131,7 @@ namespace engine
 		// slots and the store cursor in a register over the loops (52.2 %)
 		void EffectManager::UpdateInstances(float timeStep)
 		{
-			camera::Camera* camera = GetActiveCamera();
+			pure3d::Camera* camera = GetActiveCamera();
 			if (camera == 0)
 			{
 				return;
@@ -1220,10 +1220,10 @@ namespace engine
 			camera::Director* director = camera::Director::Get();
 			if (director != 0)
 			{
-				camera::Cinematographer* controller = director->GetCameraController(0, 0);
+				camera::Camera* controller = director->GetCameraController(0, 0);
 				if (controller != 0)
 				{
-					pure3d::GetParticleManager()->SetUnknown19C(*(float*)&controller->unknown28);
+					pure3d::GetParticleManager()->SetUnknown19C(controller->focusDistance);
 				}
 			}
 			unsigned int key = 6;
@@ -1452,7 +1452,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081E1C0
 		void EffectManager::RemoveInvisible(EffectInstanceList* list, float radius)
 		{
-			camera::Camera* camera = GetActiveCamera();
+			pure3d::Camera* camera = GetActiveCamera();
 			if (camera != 0)
 			{
 				for (unsigned int i = 0; i < list->Size(); i++)

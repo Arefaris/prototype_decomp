@@ -1,8 +1,8 @@
 // proto::LODRenderBehaviour: see the header. The file name and the member names are guesses.
 #include <math.h>
 
-#include "code/engine/camera/camera.h"
 #include "code/engine/camera/director.h"
+#include "code/pure3d/camera.h"
 #include "code/core/heap.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/random.h"
@@ -27,9 +27,9 @@ namespace proto
 		{
 			return;
 		}
-		// The Director hands out the word at the camera's +0x40, which is itself a camera (name guess)
-		engine::camera::Camera* camera =
-			(engine::camera::Camera*)engine::camera::Director::Get()->GetCameraUnknown40(0, 0);
+		// The Director hands out the word at the cinematographer's +0x40, which is a pure3d camera (name guess)
+		pure3d::Camera* camera =
+			(pure3d::Camera*)engine::camera::Director::Get()->GetCameraUnknown40(0, 0);
 		if (camera == 0)
 		{
 			return;

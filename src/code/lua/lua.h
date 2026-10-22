@@ -152,6 +152,7 @@ extern "C"
 	void lua_pushcclosure(lua_State* L, lua_CFunction fn, int n);
 	void lua_pushboolean(lua_State* L, int b);
 	void lua_pushlightuserdata(lua_State* L, void* p);
+	void* lua_newuserdata(lua_State* L, size_t size);
 
 	void lua_gettable(lua_State* L, int idx);
 	void lua_getfield(lua_State* L, int idx, const char* k);

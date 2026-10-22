@@ -60,6 +60,26 @@ namespace engine
 
 namespace fight
 {
+	// The fight unit's own form of the 32-bit name's constructor from a text (0x105A8B90): it hashes the text with its
+	// case kept (core::Hash32), where the shared one (0x1008CC20) ignores the case
+	struct Name32Value
+	{
+		Name32Value(const char* text, int unknown);
+		// the same single word as the 32-bit name
+		operator const core::Name<core::CaseInsensitiveKey32>&() const
+		{
+			return *reinterpret_cast<const core::Name<core::CaseInsensitiveKey32>*>(this);
+		}
+
+		unsigned int hash;
+	};
+
+	// FUNCTION: ENGINE 0x105A8B90
+	inline __declspec(noinline) Name32Value::Name32Value(const char* text, int unknown)
+	{
+		hash = core::Hash32(text, 0);
+	}
+
 	// GLOBAL: ENGINE 0x110B42BC
 	int gFightHeaps[3] = { 0, 1, 0 };
 
@@ -526,14 +546,9 @@ namespace fight
 	}
 
 	// FUNCTION: ENGINE 0x105A8F70
-	// EQUIVALENT: the engine builds the name with a constructor of this unit (0x105A8B90) that hashes the text with
-	// its case kept (core::Hash32); the shared 32-bit name constructor (0x1008CC20) ignores case, so ours hashes
-	// first and builds the name from the key
 	bool PropertyTypeName32::Set(void* object, const char* text)
 	{
-		core::CaseInsensitiveKey32 key;
-		key.hash = core::Hash32(text, 0);
-		core::Name<core::CaseInsensitiveKey32> value(key);
+		Name32Value value(text, 1);
 		return Set(object, value);
 	}
 
