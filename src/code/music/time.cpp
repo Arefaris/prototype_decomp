@@ -3,6 +3,7 @@
 #include "code/music/time.h"
 #include "code/om/delegate.h"
 #include "code/om/metaclass.h"
+#include "code/om/metaenum.h"
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
 
@@ -177,6 +178,15 @@ namespace om
 	template MetaClass<music::FollowAction>::MetaClass(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105D7490
 	template const type_info* MetaClass<music::FollowAction>::GetType();
+	// FUNCTION: ENGINE 0x105D74A0
+	template MetaEnum<music::FollowAction::Type>::MetaEnum(const ClassName&);
+	// FUNCTION: ENGINE 0x105D74C0
+	template const type_info* MetaEnum<music::FollowAction::Type>::GetType();
+	// FUNCTION: ENGINE 0x105D74E0
+	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
+	template void MetaEnum<music::FollowAction::Type>::WriteBinary(BinaryStream*, const void*);
+	// FUNCTION: ENGINE 0x105D7500
+	template void MetaEnum<music::FollowAction::Type>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105D7520
 	template MetaClass<music::Fade>::MetaClass(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105D7550
@@ -203,6 +213,8 @@ namespace om
 	template const char* MetaClass<music::TimeSignature>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7730
 	template const char* MetaClass<music::FollowAction>::AllocationTag();
+	// FUNCTION: ENGINE 0x105D7740
+	template const char* MetaEnum<music::FollowAction::Type>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7750
 	template const char* MetaClass<music::Fade>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7760
@@ -311,6 +323,12 @@ namespace om
 	template int MetaClass<music::FollowAction>::Slot5();
 	// FUNCTION: ENGINE 0x105D7EB0
 	template void MetaClass<music::FollowAction>::Slot6(void*);
+	// FUNCTION: ENGINE 0x105D7ED0
+	template bool MetaEnum<music::FollowAction::Type>::ReadBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x105D7EF0
+	template int MetaEnum<music::FollowAction::Type>::Slot5();
+	// FUNCTION: ENGINE 0x105D7F00
+	template void MetaEnum<music::FollowAction::Type>::Slot6(void*);
 	// FUNCTION: ENGINE 0x105D7F30
 	template int MetaClass<music::Fade>::Slot5();
 	// FUNCTION: ENGINE 0x105D7F40
@@ -321,6 +339,8 @@ namespace om
 	template void* MetaClass<music::TimeSignature>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D7FC0
 	template void* MetaClass<music::FollowAction>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105D7FE0
+	template void* MetaEnum<music::FollowAction::Type>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D8000
 	template void* MetaClass<music::Fade>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D80E0
@@ -487,6 +507,8 @@ namespace om
 	template void MetaClass<music::TimeSignature>::Create(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105D9390
 	template void MetaClass<music::FollowAction>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105D94E0
+	template void MetaEnum<music::FollowAction::Type>::WriteText(TextValue*, const void*);
 	// FUNCTION: ENGINE 0x105D94F0
 	template void MetaClass<music::Fade>::Create(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105D95B0
@@ -567,6 +589,8 @@ namespace om
 	template music::Time DelegateMetaProperty<const music::Time&>::Get();
 	// FUNCTION: ENGINE 0x105DA180
 	template void DelegateMetaProperty<const music::Time&>::Set(music::Time);
+	// FUNCTION: ENGINE 0x105DB630
+	template bool MetaEnum<music::FollowAction::Type>::ReadText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105DB970
 	template DelegatePropertyBase* MetaProperty<const unsigned int&>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105DB9C0
