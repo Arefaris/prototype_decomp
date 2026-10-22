@@ -2,6 +2,7 @@
 #include "code/core/refptr.h"
 #include "code/engine/camera/camera.h"
 #include "code/content/loadinventory.h"
+#include "code/math/vector4.h"
 #include "code/math/worldbounds.h"
 #include "code/engine/camera/cameramath.h"
 #include "code/engine/fight/effecttrack.h"
@@ -221,12 +222,13 @@ namespace engine
 		// EQUIVALENT: the engine loads the result constant before the third float store, ours after it, 76.1 %
 		bool ScriptedCamera::SetWindow(float a, float b, float c, float d)
 		{
+			bool result = true;
 			window.values[0] = a;
 			window.values[1] = b;
 			window.values[2] = c;
-			window.enabled = true;
+			window.enabled = result;
 			window.values[3] = d;
-			return true;
+			return result;
 		}
 
 		// FUNCTION: ENGINE 0x10851360
@@ -368,10 +370,8 @@ namespace engine
 			return true;
 		}
 		// FUNCTION: ENGINE 0x108515F0
-		// EQUIVALENT: the engine keeps the clamped parameter t in memory and adds the segment with fild / fadd, ours in
-		// a register with cvtsi2ss / addss; it copies the object's position with three SSE loads before the stores (ours
-		// mixes x87), and computes the four negated components of the first row from the first component on, ours from
-		// the second; same operations in the same order otherwise
+		// EQUIVALENT: in the spline branch the engine keeps the clamped parameter t in memory and adds the segment with
+		// fild / fadd, ours in a register with cvtsi2ss / addss; the rest is identical
 		void SplineTrack::Evaluate(float time, bool update, math::Matrix* matrix)
 		{
 			if (spline != 0)
@@ -414,7 +414,13 @@ namespace engine
 			}
 			math::Matrix& transform = gameObject->transform->value;
 			math::Vector* result = &position;
-			result->Set(transform.m[3][0], transform.m[3][1], transform.m[3][2]);
+			math::Vector current;
+			current.x = transform.m[3][0];
+			current.y = transform.m[3][1];
+			current.z = transform.m[3][2];
+			result->x = current.x;
+			result->y = current.y;
+			result->z = current.z;
 			math::Matrix* partMatrix = 0;
 			if (part != 0xFFFF)
 			{
@@ -477,26 +483,28 @@ namespace engine
 				const float* in = &transform.m[0][0];
 				float* out = &matrix->m[0][0];
 				float zero = math::WORLD_MIN;
-				float a0 = zero - in[0];
-				float a1 = zero - in[1];
-				float a2 = zero - in[2];
-				float a3 = zero - in[3];
-				out[0] = a0;
-				out[1] = a1;
-				out[2] = a2;
-				out[3] = a3;
+				math::Vector4 first;
+				first.x = zero - in[0];
+				first.y = zero - in[1];
+				first.z = zero - in[2];
+				first.w = zero - in[3];
+				out[0] = first.x;
+				out[1] = first.y;
+				out[2] = first.z;
+				out[3] = first.w;
 				out[4] = in[4];
 				out[5] = in[5];
 				out[6] = in[6];
 				out[7] = in[7];
-				float c0 = zero - in[8];
-				float c1 = zero - in[9];
-				float c2 = zero - in[10];
-				float c3 = zero - in[11];
-				out[8] = c0;
-				out[9] = c1;
-				out[10] = c2;
-				out[11] = c3;
+				math::Vector4 third;
+				third.x = zero - in[8];
+				third.y = zero - in[9];
+				third.z = zero - in[10];
+				third.w = zero - in[11];
+				out[8] = third.x;
+				out[9] = third.y;
+				out[10] = third.z;
+				out[11] = third.w;
 				out[12] = in[12];
 				out[13] = in[13];
 				out[14] = in[14];
@@ -611,18 +619,23 @@ namespace engine
 			return true;
 		}
 		// FUNCTION: ENGINE 0x10851B20
-		// EQUIVALENT: the engine loads the rows of the view and the constant 3 first and multiplies in other registers
-		// (the look-at point of the second branch), ours loads and multiplies per component, 31.6 %
+		// EQUIVALENT: the look-at point of the first branch: the engine loads the rows of the view and the constant in
+		// another order and uses other xmm registers for the same products and sums
 		void ScriptedCamera::UpdateTracks(float newTime, bool update)
 		{
 			if (unknownDC)
 			{
-				position.Evaluate(newTime, update, &view);
-				view.SetTranslation(position.position);
+				math::Matrix* current = &view;
+				position.Evaluate(newTime, update, current);
+				current->SetTranslation(position.position);
 				math::Vector origin;
-				view.GetTranslation(origin);
-				math::Vector forward(view.m[2][0], view.m[2][1], view.m[2][2]);
-				forward.Scale(3.0f);
+				origin.x = current->m[3][0];
+				origin.y = current->m[3][1];
+				origin.z = current->m[3][2];
+				math::Vector forward;
+				forward.x = current->m[2][0] * 3.0f;
+				forward.y = current->m[2][1] * 3.0f;
+				forward.z = current->m[2][2] * 3.0f;
 				lookAt.position.Add(origin, forward);
 				return;
 			}

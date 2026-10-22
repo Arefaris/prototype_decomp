@@ -3,6 +3,7 @@
 #include "code/engine/camera/director.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/math/vector4.h"
 #include "code/math/worldbounds.h"
 #include "code/pure3d/camera.h"
 
@@ -100,32 +101,33 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108501E0
-		// EQUIVALENT: the engine computes the four negated components of the first row in order and keeps the constant in a register for the third row; ours schedules the x component last and loads the constant again; 73.5 %
 		void CinematographerBehaviour::Update(float dt, unsigned short mask)
 		{
-			const float* in = ((pure3d::Camera*)cinematographer->unknown44)->GetWorldFloats();
+			const float* in = cinematographer->unknown44->GetWorldFloats();
 			float* out = (float*)&owner->transform->Get();
 			float zero = math::WORLD_MIN;
-			float a0 = zero - in[0];
-			float a1 = zero - in[1];
-			float a2 = zero - in[2];
-			float a3 = zero - in[3];
-			out[0] = a0;
-			out[1] = a1;
-			out[2] = a2;
-			out[3] = a3;
+			math::Vector4 first;
+			first.x = zero - in[0];
+			first.y = zero - in[1];
+			first.z = zero - in[2];
+			first.w = zero - in[3];
+			out[0] = first.x;
+			out[1] = first.y;
+			out[2] = first.z;
+			out[3] = first.w;
 			out[4] = in[4];
 			out[5] = in[5];
 			out[6] = in[6];
 			out[7] = in[7];
-			float c0 = zero - in[8];
-			float c1 = zero - in[9];
-			float c2 = zero - in[10];
-			float c3 = zero - in[11];
-			out[8] = c0;
-			out[9] = c1;
-			out[10] = c2;
-			out[11] = c3;
+			math::Vector4 third;
+			third.x = zero - in[8];
+			third.y = zero - in[9];
+			third.z = zero - in[10];
+			third.w = zero - in[11];
+			out[8] = third.x;
+			out[9] = third.y;
+			out[10] = third.z;
+			out[11] = third.w;
 			out[12] = in[12];
 			out[13] = in[13];
 			out[14] = in[14];
