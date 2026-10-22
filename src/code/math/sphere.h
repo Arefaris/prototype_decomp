@@ -4,6 +4,12 @@
 
 #include "code/math/vector.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace math
 {
 	class AABB;
@@ -11,6 +17,10 @@ namespace math
 	class Sphere
 	{
 	public:
+		// The reflection of the type (another unit, 0x10847660 / 0x10847DD0)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		Vector centre;
 		float radius;
 

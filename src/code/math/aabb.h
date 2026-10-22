@@ -19,7 +19,7 @@ namespace math
 	class AABB
 	{
 	public:
-		// The reflection of the type (another unit, 0x10847620 / 0x10847970)
+		// The reflection of the type (0x10847620 / 0x10847970)
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 

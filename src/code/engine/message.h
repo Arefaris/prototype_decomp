@@ -59,6 +59,10 @@ namespace engine
 		NonintrusiveMessage(int newType, short newId) : Message(newType, newId)
 		{
 		}
+
+		// 0x10847750 / 0x10847790 (another unit): the reflection data
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 		virtual ~NonintrusiveMessage()
 		{
 		}
