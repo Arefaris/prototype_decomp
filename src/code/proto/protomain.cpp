@@ -6,6 +6,7 @@
 #include "code/core/name.h"
 #include "code/core/report.h"
 #include "code/core/strings.h"
+#include "code/engine/controller/defaultcontrollerhandler.h"
 #include "code/engine/frontend/frontend.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
@@ -62,14 +63,6 @@ namespace engine
 	extern const unsigned char gDefaultZones[];
 	extern ZoneEntry gZone2Entries[];
 
-	class DefaultControllerHandler
-	{
-	public:
-		// 0x10896340
-		explicit DefaultControllerHandler(int unknown);
-		unsigned char unknown0[0x1C];
-	};
-
 	// 0x10897AC0: the simulation driver (RTTI engine::SimulationDriver, 0x90 bytes)
 	class SimulationDriver
 	{
@@ -97,7 +90,7 @@ namespace proto
 	// 0x110A0F24: the front end's data file was found
 	extern bool gUVDataFound;
 	// 0x1126EE28
-	extern engine::DefaultControllerHandler* gControllerHandler;
+	extern engine::controller::DefaultControllerHandler* gControllerHandler;
 	// 0x1126EE1C
 	extern void* gFrontend;
 
@@ -263,7 +256,7 @@ namespace proto
 		CreateWebOfIntrigueManager();
 		CreateGameFEManager();
 		CreateMissionObjectivesManager();
-		gControllerHandler = new engine::DefaultControllerHandler(2);
+		gControllerHandler = new engine::controller::DefaultControllerHandler(2);
 		simulationDriver = new engine::SimulationDriver();
 		engine::SetSimulationDriver(simulationDriver);
 		inGameState = new InGameState();

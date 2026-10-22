@@ -7,6 +7,7 @@
 
 #include "code/container/slist.h"
 #include "code/engine/message.h"
+#include "code/engine/online/olsprofile.h"
 
 namespace engine
 {
@@ -48,7 +49,12 @@ namespace engine
 		}
 
 		unsigned char unknown0[0x78];
-		OLSCurrentUser* currentUser;
+		// The profile manager (+0x78); the older name and view of it is currentUser, whose id is its current profile
+		union
+		{
+			OLSCurrentUser* currentUser;
+			OLSProfile* profile;
+		};
 		unsigned char unknown7C[0xac - 0x7c];
 		container::SListLite<Callback> callbacks;
 	};

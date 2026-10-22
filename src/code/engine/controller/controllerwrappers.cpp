@@ -20,9 +20,6 @@ template class Closure0<engine::controller::DefaultControllerHandler, void>;
 template class Closure1<engine::controller::DefaultControllerHandler, void, unsigned int>;
 template void engine::LuaScriptManager::RegisterMethod<engine::controller::DefaultControllerHandler, void>(
 	const char*, engine::controller::DefaultControllerHandler*, void (engine::controller::DefaultControllerHandler::*)());
-template void engine::LuaScriptManager::RegisterMethod<engine::controller::DefaultControllerHandler, void,
-	unsigned int>(const char*, engine::controller::DefaultControllerHandler*,
-	void (engine::controller::DefaultControllerHandler::*)(unsigned int));
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10895FB0
