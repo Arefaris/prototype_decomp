@@ -14,7 +14,7 @@
 namespace engine
 {
 	// 0x105A84D0 (another unit): shows a script error (names guessed)
-	void ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
+	int ShowScriptError(int kind, const char* text, const char* title, unsigned int first, unsigned int second,
 		int line);
 
 	// The hook the scripting calls around a node's script and its data (0x111BF298 / 0x11284B58)

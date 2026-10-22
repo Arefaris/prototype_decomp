@@ -17,7 +17,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6 (0x105A92D0)
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: the entry of a bit
 		virtual const EnumEntry* GetEntry(void* object, int index) = 0;
 		// vftable slot 8

@@ -7,6 +7,7 @@
 #define ENGINE_FIGHT_SEQUENCER_H
 
 #include "code/core/linklist.h"
+#include "code/core/name.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/refptr.h"
 
@@ -28,6 +29,7 @@ namespace fight
 	class Track;
 	class Condition;
 	class Branch;
+	class Reader;
 
 	// A reference-counted fight node (RTTI: fight::RefCounted, base core::IRefCount; 3 vftable slots)
 	class RefCounted : public core::IRefCount
@@ -240,6 +242,9 @@ namespace fight
 		void ForEachSlot2(int arg);
 		void ForEachSlot3(int arg);
 		void ForEachSlot4(int arg);
+		// 0x105A7E10: reads the conditions of a node of the reader the list is stored as (the context is the registry
+		// of conditions they are made by); false when there is none
+		bool Load(const core::Name<core::CaseSensitiveKey>& key, int context, Reader* reader);
 		// 0x105A7CA0 / 0x105A7E80: appends a condition / inserts it at an index; answer its index (-1 for none)
 		int Add(Condition* item);
 		int Insert(int index, Condition* item);

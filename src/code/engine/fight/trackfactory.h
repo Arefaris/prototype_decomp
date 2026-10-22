@@ -21,6 +21,7 @@ namespace fight
 	class ConditionFactory;
 	class Branch;
 	class TrackRegistry;
+	class Reader;
 
 	// The engine's names are case sensitive
 	typedef core::Name<core::CaseSensitiveKey> Name;
@@ -36,12 +37,18 @@ namespace fight
 		virtual int GetType() const = 0;
 		// vftable slot 1: nothing is attached to the property
 		virtual bool IsNull() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot4(int a, int b, int c, int d);
 		virtual void Slot5(int a, int b);
-		// vftable slot 6: reads the value off an object and hands it to the property's own setter below
-		virtual bool Slot6(int a, int b, void* object) = 0;
+		// vftable slot 6: reads the value off a reader and hands it to the property's own setter below
+		virtual bool Slot6(int object, int context, void* reader) = 0;
+
+		// 0x105A9C50: replaces the name (not expanded in the constructor)
+		__declspec(noinline) void SetName(const Name& newName)
+		{
+			name = newName;
+		}
 
 		// The word between the vftable and the name (the engine's own constructor leaves it alone)
 		unsigned int unknown4;
@@ -57,7 +64,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: writes a value into the member the property stands for
 		virtual bool Set(void* object, float value) = 0;
 	};
@@ -70,7 +77,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, bool value) = 0;
 	};
@@ -83,9 +90,24 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: the value came in as text
 		virtual bool Set(void* object, const char* text) = 0;
+	};
+
+	// A name of 32 bits (RTTI: fight::PropertyTypeName32, 9 vftable slots): the text is turned into the name and handed
+	// to slot 8 (0x105A8F50 / 0x105A8F70 / 0x105A8FA0)
+	class PropertyTypeName32 : public PropertyTypeString
+	{
+	public:
+		PropertyTypeName32(const char* name);
+
+		// vftable slot 6
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slot 7
+		virtual bool Set(void* object, const char* text);
+		// vftable slot 8
+		virtual bool Set(void* object, const core::Name<core::CaseInsensitiveKey32>& value) = 0;
 	};
 
 	class PropertyTypeName : public PropertyTypeString
@@ -94,7 +116,7 @@ namespace fight
 		PropertyTypeName(const char* name);
 
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: turns the text into a name and hands it to slot 8
 		virtual bool Set(void* object, const char* text);
 		// vftable slot 8
@@ -190,7 +212,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const char* text, int length) = 0;
 	};
@@ -236,7 +258,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, int value) = 0;
 	};
@@ -249,7 +271,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const math::Vector& value) = 0;
 	};
@@ -262,7 +284,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, const math::Colour128& value) = 0;
 	};
@@ -277,7 +299,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual bool Set(void* object, bool value) = 0;
 		// vftable slot 8
@@ -304,6 +326,8 @@ namespace fight
 		void ForEachSlot4(int arg);
 		// 0x105A80F0: hands the tracks of another group, one by one, to the slot 14 of these (name guess)
 		void ForEachSlot14(TrackGroup* other, int arg);
+		// 0x105A82C0: reads the tracks of a node of the reader (the context is the registry of tracks they are made by)
+		bool Load(const Name& key, int context, Reader* reader);
 		// 0x105A8150 / 0x105A8330: appends a track / inserts it at an index; answer its index (-1 for none)
 		int Add(Track* item);
 		int Insert(int index, Track* item);
@@ -322,14 +346,32 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot4(int a, int b, int c, int d);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual TrackGroup* Set(void* object) = 0;
+	};
+
+	// A node of the fight tree held as a member (RTTI: fight::PropertyTypeItem, 8 vftable slots): its slots 2, 3, 5
+	// and 6 pass the call on to the item the "setter" hands out
+	class PropertyTypeItem : public Property
+	{
+	public:
+		PropertyTypeItem(const char* name);
+
+		// vftable slot 0
+		virtual int GetType() const;
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
+		virtual void Slot5(int object, int other);
+		// vftable slot 6
+		virtual bool Slot6(int object, int context, void* reader);
+		// vftable slot 7
+		virtual Item* Set(void* object) = 0;
 	};
 
 	// A named reference to a branch of the fight tree, the way a track holds the branch it hands its result to (0x24
@@ -364,6 +406,9 @@ namespace fight
 		void Reset();
 		// 0x105A7960: the branch the holder names, looked up the first time
 		Branch* GetBranch();
+		// 0x105A7690: reads the path, and the index when the reader has a value, from a reader; the context is the
+		// branch the holder is looked up from
+		bool Load(const Name& key, int context, Reader* reader);
 		// 0x105A7980 / 0x105A79C0: copies the path into a buffer (false when there is none)
 		bool CopyPath(char* buffer, unsigned int size);
 		bool CopyPath(int unused, char* buffer, unsigned int size);
@@ -386,11 +431,11 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual BranchHolder* Set(void* object) = 0;
 	};
@@ -404,11 +449,11 @@ namespace fight
 
 		// vftable slot 0
 		virtual int GetType() const;
-		virtual void Slot2(int arg);
-		virtual void Slot3(int arg);
+		virtual void Slot2(int object, int other);
+		virtual void Slot3(int object, int other);
 		virtual void Slot5(int a, int b);
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7
 		virtual ConditionList* Set(void* object) = 0;
 	};
@@ -421,9 +466,11 @@ namespace fight
 	class PropertyTypeStringList : public Property
 	{
 	public:
+		PropertyTypeStringList(const char* name);
+
 		virtual int GetType() const;
-		virtual bool Slot6(int a, int b, void* object);
-		virtual bool SetText(void* object, const char* text);
+		virtual bool Slot6(int object, int context, void* reader);
+		virtual bool SetText(void* object, const char* text) = 0;
 	};
 
 	class PropertyTypeNameList : public PropertyTypeStringList
@@ -431,7 +478,7 @@ namespace fight
 	public:
 		PropertyTypeNameList(const char* name);
 
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		virtual bool SetText(void* object, const char* text);
 		// vftable slot 8
 		virtual bool Set(void* object, const Name& value) = 0;
@@ -440,8 +487,7 @@ namespace fight
 	// One entry of an enum's table (8 bytes: its text and its value; layout unrecovered)
 	struct EnumEntry
 	{
-		int unknown0;
-		int unknown4;
+		Name name;
 	};
 
 	// A value picked from a table of entries (10 vftable slots)
@@ -453,7 +499,7 @@ namespace fight
 		// vftable slot 0
 		virtual int GetType() const;
 		// vftable slot 6
-		virtual bool Slot6(int a, int b, void* object);
+		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slot 7: the entry at an index (a dummy entry for a bad index)
 		virtual const EnumEntry* GetEntry(void* object, int index) = 0;
 		// vftable slot 8

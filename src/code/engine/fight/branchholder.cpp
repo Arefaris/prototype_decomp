@@ -1,5 +1,6 @@
 // The reference a fight node holds to a branch of the tree (see trackfactory.h; part of the unit 0x105A2440 - 0x105B3680).
 #include "code/core/strings.h"
+#include "code/engine/fight/reader.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/system/streampackage.h"
 #include <new>
@@ -64,6 +65,21 @@ namespace fight
 			SetPath(text);
 			Assign(0, 0);
 		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105A7690
+	bool BranchHolder::Load(const Name& key, int context, Reader* reader)
+	{
+		char text[1024] = { 0 };
+		reader->ReadString(key, text, 1024);
+		SetPathAndClear(text);
+		if (reader->HasValue())
+		{
+			index = -1;
+			reader->ReadInt(key, &index);
+		}
+		SetBase((Branch*)context);
 		return true;
 	}
 
