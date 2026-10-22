@@ -8,6 +8,7 @@
 
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/system/enginememory.h"
+#include "code/engine/system/skuinfo.h"
 #include "code/math/mathutils.h"
 
 namespace engine
@@ -266,9 +267,9 @@ namespace engine
 		else
 		{
 			bool supported = false;
-			for (unsigned int index = 0; index < GetLanguageTable()->GetCount(); ++index)
+			for (unsigned int index = 0; index < SkuInfo::GetCurrent()->GetLanguageCount(); ++index)
 			{
-				if (core::StrCmp(name, GetLanguageTable()->GetName(index)) == 0)
+				if (core::StrCmp(name, SkuInfo::GetCurrent()->GetLanguage(index)->language) == 0)
 				{
 					supported = true;
 					break;
