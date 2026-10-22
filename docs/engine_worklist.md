@@ -4508,3 +4508,5 @@ layer's `GetLocalNetworkInfo` 0x1093F920 and the small `0x1093FD20` helper, and 
   objects in front of its owner away (reflected `strength`, `rangeDistance`, `rangeCosHalfAngle`,
   `minimumRepeatPeriod` and `damage`). 12 functions match (the reflection, the constructor, the empty slot 1); the
   update (slot 4, 0x1091EDA0, walks the world's object list) is mapped to the engine's.
+- `src/code/engine/fight/branch.cpp` (0x105A2B10): `fight::Branch::MoveChild` is NONMATCHING (the registers of the child, the
+  parent and the list walk are allocated in another order).
