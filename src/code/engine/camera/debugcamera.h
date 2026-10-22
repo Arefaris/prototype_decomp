@@ -15,6 +15,8 @@ namespace engine
 		public:
 			// 0x10897780: reads the input of the camera's player
 			void ReadInput();
+			// 0x1084DE30: the value at 0x94 (3: the camera follows no object)
+			int GetUnknown94() const;
 
 			unsigned char unknown48[0x94 - 0x48];
 			int unknown94;

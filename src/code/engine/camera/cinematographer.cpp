@@ -57,6 +57,67 @@ namespace engine
 #define ENGINE_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+		// FUNCTION: ENGINE 0x1084DDF0
+		int Cinematographer::GetTypeValue() const
+		{
+			return type;
+		}
+
+		// FUNCTION: ENGINE 0x1084DE00
+		void ControllerRef::Clear()
+		{
+			slot = -1;
+			id = -1;
+		}
+
+		// FUNCTION: ENGINE 0x1084DE10
+		bool ControllerRef::IsDifferent(ControllerRef other) const
+		{
+			return id != other.id;
+		}
+
+		// FUNCTION: ENGINE 0x1084DE30
+		int DebugCamera::GetUnknown94() const
+		{
+			return unknown94;
+		}
+
+		// FUNCTION: ENGINE 0x1084FFE0
+		void Cinematographer::SetHandle(HandleBase newHandle)
+		{
+			handle = newHandle;
+		}
+
+		// FUNCTION: ENGINE 0x1084DFC0
+		void Cinematographer::AddHistoryA(float a, float b, float c, const math::Vector* vector, int index)
+		{
+			history.AddA(a, b, c, vector, index);
+		}
+
+		// FUNCTION: ENGINE 0x1084DFF0
+		void Cinematographer::AddHistoryB(float a, float b, float c, float d, const math::Vector* vector, int index)
+		{
+			history.AddB(a, b, c, d, vector, index);
+		}
+
+		// FUNCTION: ENGINE 0x1084E030
+		void Cinematographer::SetHistoryParameter(float value)
+		{
+			history.SetParameter(value);
+		}
+
+		// FUNCTION: ENGINE 0x1084E120
+		int ReturnSecond(int unused, int value)
+		{
+			return value;
+		}
+
+		// FUNCTION: ENGINE 0x1084E130
+		bool ControllerRef::IsValid() const
+		{
+			return Director::Get()->GetController(*this) != 0;
+		}
+
 		// FUNCTION: ENGINE 0x1084E150
 		Cinematographer::Cinematographer()
 			: type(0), playerIndex(0), enabled(false), unknown1D(false), cut(false), dirty(false), unknown20(false),

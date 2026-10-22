@@ -38,6 +38,12 @@ namespace engine
 			explicit ControllerRef(const Camera* camera);
 			~ControllerRef();
 			void Set(const Camera* camera);
+			// 0x1084DE00: no camera at all (slot and id -1)
+			void Clear();
+			// 0x1084DE10: whether the id differs from another reference's (the other one is passed by value)
+			bool IsDifferent(ControllerRef other) const;
+			// 0x1084E130: the Director still has the camera
+			bool IsValid() const;
 
 			int slot;
 			int id;
