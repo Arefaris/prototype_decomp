@@ -20991,3 +20991,13 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?gStreamListeners@engine@@3VMessageListeners@1@A = 0x1130D3A0 ; data size:0x4 | class engine::MessageListeners engine::gStreamListeners (another unit; name guess)
 ?RefreshTriggers@StreamDriverBehaviour@engine@@QAEXXZ = 0x10899030 ; function size:0xDC | public: void __thiscall engine::StreamDriverBehaviour::RefreshTriggers(void) (name guess)
 
+??_R0?AVCallback@ConsoleManager@engine@@@8 = 0x111D2CA0 ; data size:0x8 | class engine::ConsoleManager::Callback RTTI Type Descriptor RTTI type descriptor
+??_R0?AVNode@?$SListLite@VCallback@ConsoleManager@engine@@@container@@@8 = 0x111D2CD0 ; data size:0x8 | class container::SListLite<class engine::ConsoleManager::Callback>::Node RTTI Type Descriptor RTTI type descriptor
+??_7Callback@ConsoleManager@engine@@6B@ = 0x10E761C0 ; data size:0x18 | engine::ConsoleManager::Callback::vftable
+?Slot0@Callback@ConsoleManager@engine@@UAEXHH@Z = 0x10882BD0 ; function size:0x3 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot0(int,int) vftable slot 0
+?Slot1@Callback@ConsoleManager@engine@@UAEXHH@Z = 0x10882BE0 ; function size:0x3 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot1(int,int) vftable slot 1
+?Slot2@Callback@ConsoleManager@engine@@UAEXH@Z = 0x10882BF0 ; function size:0x3 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot2(int) vftable slot 2
+?Slot3@Callback@ConsoleManager@engine@@UAEXHH@Z = 0x10882C00 ; function size:0x3 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot3(int,int) vftable slot 3
+?Slot4@Callback@ConsoleManager@engine@@UAEXXZ = 0x108C4900 ; function size:0x10 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot4(void) vftable slot 4
+?Slot5@Callback@ConsoleManager@engine@@UAEXH@Z = 0x10882C10 ; function size:0x3 | public: virtual void __thiscall engine::ConsoleManager::Callback::Slot5(int) vftable slot 5
+??0Callback@ConsoleManager@engine@@QAE@XZ = 0x10882BC0 ; function size:0x10 | public: __thiscall engine::ConsoleManager::Callback::Callback(void) (name guess)
