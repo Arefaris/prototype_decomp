@@ -11,37 +11,55 @@ namespace om
 {
 
 	// FUNCTION: ENGINE 0x1032BB10
-	template PropertySetter<const Name<CaseSensitive64BitKey>&>* MetaProperty<const Name<CaseSensitive64BitKey>&>::GetSetter();
+	template MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>* MetaProperty<const Name<CaseSensitive64BitKey>&>::GetSetter();
 	// FUNCTION: ENGINE 0x103B2000
-	template PropertySetter<float>* MetaProperty<float>::GetSetter();
+	template MetaMethod1Base<void, float>* MetaProperty<float>::GetSetter();
 	// FUNCTION: ENGINE 0x104030C0
-	template PropertySetter<bool>* MetaProperty<bool>::GetSetter();
+	template MetaMethod1Base<void, bool>* MetaProperty<bool>::GetSetter();
 	// FUNCTION: ENGINE 0x10428CA0
-	template PropertyGetter<const Name<CaseSensitive64BitKey>&>* MetaProperty<const Name<CaseSensitive64BitKey>&>::GetGetter();
+	template MetaMethod0Base<const Name<CaseSensitive64BitKey>&>* MetaProperty<const Name<CaseSensitive64BitKey>&>::GetGetter();
 	// FUNCTION: ENGINE 0x104589A0
-	template PropertyGetter<float>* MetaProperty<float>::GetGetter();
+	template MetaMethod0Base<float>* MetaProperty<float>::GetGetter();
 	// FUNCTION: ENGINE 0x10470240
-	template PropertyGetter<bool>* MetaProperty<bool>::GetGetter();
+	template MetaMethod0Base<bool>* MetaProperty<bool>::GetGetter();
+	// FUNCTION: ENGINE 0x105CBFF0
+	template MetaMethod0Base<const Name<CaseSensitive64BitKey>&>::~MetaMethod0Base();
 	// FUNCTION: ENGINE 0x105CC490
-	template MetaProperty<unsigned int>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, PropertySetter<unsigned int>*, PropertyGetter<unsigned int>*, unsigned int);
+	template MetaProperty<unsigned int>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, unsigned int>*, MetaMethod0Base<unsigned int>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CC4D0
-	template PropertySetter<unsigned int>* MetaProperty<unsigned int>::GetSetter();
+	template MetaMethod1Base<void, unsigned int>* MetaProperty<unsigned int>::GetSetter();
 	// FUNCTION: ENGINE 0x105CC4E0
-	template PropertyGetter<unsigned int>* MetaProperty<unsigned int>::GetGetter();
+	template MetaMethod0Base<unsigned int>* MetaProperty<unsigned int>::GetGetter();
 	// FUNCTION: ENGINE 0x105CC4F0
 	template const type_info* MetaProperty<unsigned int>::GetValueType();
 	// FUNCTION: ENGINE 0x105CC500
-	template MetaProperty<const Name<CaseSensitive64BitKey>&>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, PropertySetter<const Name<CaseSensitive64BitKey>&>*, PropertyGetter<const Name<CaseSensitive64BitKey>&>*, unsigned int);
+	template MetaProperty<const Name<CaseSensitive64BitKey>&>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>*, MetaMethod0Base<const Name<CaseSensitive64BitKey>&>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CC540
 	template const type_info* MetaProperty<const Name<CaseSensitive64BitKey>&>::GetValueType();
 	// FUNCTION: ENGINE 0x105CC550
-	template MetaProperty<float>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, PropertySetter<float>*, PropertyGetter<float>*, unsigned int);
+	template MetaProperty<float>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, float>*, MetaMethod0Base<float>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CC590
 	template const type_info* MetaProperty<float>::GetValueType();
 	// FUNCTION: ENGINE 0x105CC5A0
-	template MetaProperty<bool>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, PropertySetter<bool>*, PropertyGetter<bool>*, unsigned int);
+	template MetaProperty<bool>::MetaProperty(MetaTypeBase*, MetaClassBase*, const ClassName&, MetaMethod1Base<void, bool>*, MetaMethod0Base<bool>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CC5E0
 	template const type_info* MetaProperty<bool>::GetValueType();
+	// FUNCTION: ENGINE 0x105CC5F0
+	template MetaMethod0Base<unsigned int>::~MetaMethod0Base();
+	// FUNCTION: ENGINE 0x105CC600
+	template MetaMethod0Base<float>::~MetaMethod0Base();
+	// FUNCTION: ENGINE 0x105CC610
+	template MetaMethod0Base<bool>::~MetaMethod0Base();
+	// FUNCTION: ENGINE 0x105CC620
+	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::~MetaMethod0Const();
+	// FUNCTION: ENGINE 0x105CC630
+	template MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>::~MetaMethod1Base();
+	// FUNCTION: ENGINE 0x105CC640
+	template MetaMethod1Base<void, unsigned int>::~MetaMethod1Base();
+	// FUNCTION: ENGINE 0x105CC650
+	template MetaMethod1Base<void, float>::~MetaMethod1Base();
+	// FUNCTION: ENGINE 0x105CC660
+	template MetaMethod1Base<void, bool>::~MetaMethod1Base();
 	// FUNCTION: ENGINE 0x105CC670
 	template MetaProperty<const Name<CaseSensitive64BitKey>&>::~MetaProperty();
 	// FUNCTION: ENGINE 0x105CC680
@@ -50,6 +68,30 @@ namespace om
 	template MetaProperty<bool>::~MetaProperty();
 	// FUNCTION: ENGINE 0x105CC6A0
 	template MetaProperty<unsigned int>::~MetaProperty();
+	// FUNCTION: ENGINE 0x105CC6B0
+	template MetaMethod1Base<void, unsigned int>::MetaMethod1Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC6D0
+	template MetaMethod1Base<void, float>::MetaMethod1Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC6F0
+	template MetaMethod1Base<void, bool>::MetaMethod1Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC710
+	template MetaMethod0Base<unsigned int>::MetaMethod0Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC730
+	template void MetaProperty<unsigned int>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CC750
+	template MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>::MetaMethod1Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC770
+	template MetaMethod0Base<const Name<CaseSensitive64BitKey>&>::MetaMethod0Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC790
+	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CC7B0
+	template MetaMethod0Base<float>::MetaMethod0Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC7D0
+	template void MetaProperty<float>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CC7F0
+	template MetaMethod0Base<bool>::MetaMethod0Base(MetaClassBase*, const ClassName&);
+	// FUNCTION: ENGINE 0x105CC810
+	template void MetaProperty<bool>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CC950
 	template const char* MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>::AllocationTag();
 	// FUNCTION: ENGINE 0x105CC960
@@ -236,23 +278,25 @@ namespace om
 	// FUNCTION: ENGINE 0x105CE470
 	template MetaMethod0Const<audio::Mix, audio::Mix, unsigned int>* MetaMethod0Const<audio::Mix, audio::Mix, unsigned int>::Create(MetaClassBase*, const ClassName&, unsigned int (audio::Mix::*)() const);
 	// FUNCTION: ENGINE 0x105CE4B0
-	template void MetaProperty<unsigned int>::Create(MetaClassBase*, const ClassName&, PropertySetter<unsigned int>*, PropertyGetter<unsigned int>*, unsigned int);
+	template void MetaProperty<unsigned int>::Create(MetaClassBase*, const ClassName&, MetaMethod1Base<void, unsigned int>*, MetaMethod0Base<unsigned int>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CE500
 	template MetaMethod1<audio::MixStrip, audio::MixStrip, void, const Name<CaseSensitive64BitKey>&>* MetaMethod1<audio::MixStrip, audio::MixStrip, void, const Name<CaseSensitive64BitKey>&>::Create(MetaClassBase*, const ClassName&, void (audio::MixStrip::*)(const Name<CaseSensitive64BitKey>&));
 	// FUNCTION: ENGINE 0x105CE540
 	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, const Name<CaseSensitive64BitKey>&>* MetaMethod0Const<audio::MixStrip, audio::MixStrip, const Name<CaseSensitive64BitKey>&>::Create(MetaClassBase*, const ClassName&, const Name<CaseSensitive64BitKey>& (audio::MixStrip::*)() const);
+	// FUNCTION: ENGINE 0x105CE580
+	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::Create(MetaClassBase*, const ClassName&, MetaMethod1Base<void, const Name<CaseSensitive64BitKey>&>*, MetaMethod0Base<const Name<CaseSensitive64BitKey>&>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CE5E0
 	template MetaMethod1<audio::MixStrip, audio::MixStrip, void, float>* MetaMethod1<audio::MixStrip, audio::MixStrip, void, float>::Create(MetaClassBase*, const ClassName&, void (audio::MixStrip::*)(float));
 	// FUNCTION: ENGINE 0x105CE620
 	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, float>* MetaMethod0Const<audio::MixStrip, audio::MixStrip, float>::Create(MetaClassBase*, const ClassName&, float (audio::MixStrip::*)() const);
 	// FUNCTION: ENGINE 0x105CE660
-	template void MetaProperty<float>::Create(MetaClassBase*, const ClassName&, PropertySetter<float>*, PropertyGetter<float>*, unsigned int);
+	template void MetaProperty<float>::Create(MetaClassBase*, const ClassName&, MetaMethod1Base<void, float>*, MetaMethod0Base<float>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CE6B0
 	template MetaMethod1<audio::MixStrip, audio::MixStrip, void, bool>* MetaMethod1<audio::MixStrip, audio::MixStrip, void, bool>::Create(MetaClassBase*, const ClassName&, void (audio::MixStrip::*)(bool));
 	// FUNCTION: ENGINE 0x105CE6F0
 	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>* MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::Create(MetaClassBase*, const ClassName&, bool (audio::MixStrip::*)() const);
 	// FUNCTION: ENGINE 0x105CE730
-	template void MetaProperty<bool>::Create(MetaClassBase*, const ClassName&, PropertySetter<bool>*, PropertyGetter<bool>*, unsigned int);
+	template void MetaProperty<bool>::Create(MetaClassBase*, const ClassName&, MetaMethod1Base<void, bool>*, MetaMethod0Base<bool>*, unsigned int);
 	// FUNCTION: ENGINE 0x105CE9E0
 	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::GetText(TextValue*, void*);
 	// FUNCTION: ENGINE 0x105CEA60
@@ -263,6 +307,8 @@ namespace om
 	template void DelegateMetaProperty<unsigned int>::SetObject(void*);
 	// FUNCTION: ENGINE 0x105CEB10
 	template void DelegateMetaProperty<unsigned int>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CEB30
+	template DelegateMetaProperty<unsigned int>::~DelegateMetaProperty();
 	// FUNCTION: ENGINE 0x105CEB40
 	template unsigned int DelegateMetaProperty<unsigned int>::Get();
 	// FUNCTION: ENGINE 0x105CEB60
@@ -273,6 +319,8 @@ namespace om
 	template void DelegateMetaProperty<const Name<CaseSensitive64BitKey>&>::SetObject(void*);
 	// FUNCTION: ENGINE 0x105CEBC0
 	template void DelegateMetaProperty<const Name<CaseSensitive64BitKey>&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CEBE0
+	template DelegateMetaProperty<const Name<CaseSensitive64BitKey>&>::~DelegateMetaProperty();
 	// FUNCTION: ENGINE 0x105CEBF0
 	template Name<CaseSensitive64BitKey> DelegateMetaProperty<const Name<CaseSensitive64BitKey>&>::Get();
 	// FUNCTION: ENGINE 0x105CEC20
@@ -283,6 +331,8 @@ namespace om
 	template void DelegateMetaProperty<float>::SetObject(void*);
 	// FUNCTION: ENGINE 0x105CEC80
 	template void DelegateMetaProperty<float>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CECA0
+	template DelegateMetaProperty<float>::~DelegateMetaProperty();
 	// FUNCTION: ENGINE 0x105CECB0
 	template float DelegateMetaProperty<float>::Get();
 	// FUNCTION: ENGINE 0x105CECD0
@@ -293,6 +343,8 @@ namespace om
 	template void DelegateMetaProperty<bool>::SetObject(void*);
 	// FUNCTION: ENGINE 0x105CED30
 	template void DelegateMetaProperty<bool>::operator delete(void*);
+	// FUNCTION: ENGINE 0x105CED50
+	template DelegateMetaProperty<bool>::~DelegateMetaProperty();
 	// FUNCTION: ENGINE 0x105CED60
 	template bool DelegateMetaProperty<bool>::Get();
 	// FUNCTION: ENGINE 0x105CED80
@@ -310,14 +362,4 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<float>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105CF750
 	template DelegatePropertyBase* MetaProperty<bool>::CreateDelegate(void*);
-	template void MetaProperty<unsigned int>::operator delete(void*);
-	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::operator delete(void*);
-	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::Create(MetaClassBase*, const ClassName&, PropertySetter<const Name<CaseSensitive64BitKey>&>*, PropertyGetter<const Name<CaseSensitive64BitKey>&>*, unsigned int);
-	template void MetaProperty<float>::operator delete(void*);
-	template void MetaProperty<bool>::operator delete(void*);
-	template DelegateMetaProperty<unsigned int>::~DelegateMetaProperty();
-	template DelegateMetaProperty<float>::~DelegateMetaProperty();
-	template DelegateMetaProperty<bool>::~DelegateMetaProperty();
-	template DelegateMetaProperty<const Name<CaseSensitive64BitKey>&>::~DelegateMetaProperty();
-	template MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::~MetaMethod0Const();
 }

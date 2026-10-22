@@ -65,9 +65,6 @@ namespace om
 	class DelegateMetaPropertyBase
 	{
 	public:
-		DelegateMetaPropertyBase()
-		{
-		}
 		virtual void SetObject(void* newObject)
 		{
 		}
@@ -89,20 +86,17 @@ namespace om
 			object = newObject;
 			property = newProperty;
 		}
-		virtual ~DelegateMetaProperty()
-		{
-		}
 		virtual void SetObject(void* newObject)
 		{
 			object = newObject;
 		}
 		virtual Value Get()
 		{
-			return static_cast<MetaProperty<T>*>(property)->GetGetter()->Invoke(object);
+			return static_cast<MetaProperty<T>*>(property)->GetGetter()->Call(object);
 		}
 		virtual void Set(Value value)
 		{
-			static_cast<MetaProperty<T>*>(property)->GetSetter()->Invoke(object, value);
+			static_cast<MetaProperty<T>*>(property)->GetSetter()->Call(object, value);
 		}
 		OM_ALLOCATION(DelegateMetaProperty);
 	};

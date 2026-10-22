@@ -1,5 +1,5 @@
 // The property reflection of the om library (RTTI: om::MetaPropertyBase and the instances MetaProperty<T>): a
-// reflected value of a class that is read and written through a getter and a setter command. T is the type the
+// reflected value of a class that is read and written through a getter and a setter method. T is the type the
 // accessors pass: the value itself for numbers and booleans, a const reference for classes and enumerations.
 // Slots 2 and 3 convert the value from and to text, 4 and 5 read and write it in binary form, 6 makes the
 // delegate that binds the property to an object.
@@ -12,26 +12,6 @@
 
 namespace om
 {
-	// The accessors a property calls: the object and the value in, or the object in and the value out (slot 2)
-	class PropertyAccessor
-	{
-	public:
-		virtual ~PropertyAccessor();
-		virtual void Slot1() = 0;
-	};
-
-	template<class T> class PropertySetter : public PropertyAccessor
-	{
-	public:
-		virtual void Invoke(void* object, T value) = 0;
-	};
-
-	template<class T> class PropertyGetter : public PropertyAccessor
-	{
-	public:
-		virtual T Invoke(void* object) = 0;
-	};
-
 	// The value a parameter type stands for (the type itself, or what a const reference refers to)
 	template<class T> struct PropertyValue
 	{
@@ -48,8 +28,8 @@ namespace om
 	{
 	public:
 		// 0x105E43D0: keeps the arguments and enters the property in the tree of its class
-		MetaPropertyBase(MetaTypeBase* newValueType, MetaClassBase* newOwner, const ClassName& newName, PropertyAccessor* newSetter,
-			PropertyAccessor* newGetter, unsigned int newFlags);
+		MetaPropertyBase(MetaTypeBase* newValueType, MetaClassBase* newOwner, const ClassName& newName, MetaMethodBase* newSetter,
+			MetaMethodBase* newGetter, unsigned int newFlags);
 		virtual ~MetaPropertyBase()
 		{
 		}
@@ -63,8 +43,8 @@ namespace om
 
 		TreeNode node;  // 8
 		ClassName name;  // 0x18
-		PropertyAccessor* setter;  // 0x20
-		PropertyAccessor* getter;  // 0x24
+		MetaMethodBase* setter;  // 0x20: the method that writes the value
+		MetaMethodBase* getter;  // 0x24: the method that reads it
 		MetaTypeBase* valueType;  // 0x28
 		MetaClassBase* owner;  // 0x2C
 		unsigned int flags;  // 0x30
@@ -103,13 +83,29 @@ namespace om
 	bool ReadBinary(BinaryStream* stream, ClassName* value);
 	void WriteBinary(BinaryStream* stream, const ClassName& value);
 
+	// Names are registered with one more flag than the other types
+	template<class T> struct PropertyExtraFlags
+	{
+		enum
+		{
+			Value = 0
+		};
+	};
+	template<> struct PropertyExtraFlags<const ClassName&>
+	{
+		enum
+		{
+			Value = 4
+		};
+	};
+
 	template<class T> class MetaProperty : public MetaPropertyBase
 	{
 	public:
 		typedef typename PropertyValue<T>::Type Value;
 
-		MetaProperty(MetaTypeBase* newValueType, MetaClassBase* newOwner, const ClassName& newName, PropertySetter<T>* newSetter,
-			PropertyGetter<T>* newGetter, unsigned int newFlags) :
+		MetaProperty(MetaTypeBase* newValueType, MetaClassBase* newOwner, const ClassName& newName, MetaMethod1Base<void, T>* newSetter,
+			MetaMethod0Base<T>* newGetter, unsigned int newFlags) :
 			MetaPropertyBase(newValueType, newOwner, newName, newSetter, newGetter, newFlags)
 		{
 		}
@@ -126,19 +122,19 @@ namespace om
 		virtual void GetBinary(BinaryStream* stream, void* object);
 		virtual DelegatePropertyBase* CreateDelegate(void* object);
 
-		PropertySetter<T>* GetSetter()
+		MetaMethod1Base<void, T>* GetSetter()
 		{
-			return static_cast<PropertySetter<T>*>(setter);
+			return static_cast<MetaMethod1Base<void, T>*>(setter);
 		}
-		PropertyGetter<T>* GetGetter()
+		MetaMethod0Base<T>* GetGetter()
 		{
-			return static_cast<PropertyGetter<T>*>(getter);
+			return static_cast<MetaMethod0Base<T>*>(getter);
 		}
 		// The registration helper of the class's reflection
-		static void Create(MetaClassBase* owner, const ClassName& name, PropertySetter<T>* setter, PropertyGetter<T>* getter,
+		static void Create(MetaClassBase* owner, const ClassName& name, MetaMethod1Base<void, T>* setter, MetaMethod0Base<T>* getter,
 			unsigned int flags)
 		{
-			new MetaProperty(FindMetaType(typeid(Value)), owner, name, setter, getter, flags);
+			new MetaProperty(FindMetaType(typeid(Value)), owner, name, setter, getter, flags | PropertyExtraFlags<T>::Value);
 		}
 		OM_ALLOCATION(MetaProperty);
 	};
@@ -162,7 +158,7 @@ namespace om
 			ok = ReadText(text, &value);
 			if (ok)
 			{
-				GetSetter()->Invoke(object, value);
+				GetSetter()->Call(object, value);
 			}
 		}
 		else
@@ -171,7 +167,7 @@ namespace om
 			ok = type->ReadText(text, &value);
 			if (ok)
 			{
-				GetSetter()->Invoke(object, value);
+				GetSetter()->Call(object, value);
 			}
 		}
 		return ok;
@@ -187,11 +183,11 @@ namespace om
 		MetaTypeBase* type = cache;
 		if (type == 0)
 		{
-			WriteText(text, GetGetter()->Invoke(object));
+			WriteText(text, GetGetter()->Call(object));
 		}
 		else
 		{
-			Value value = GetGetter()->Invoke(object);
+			Value value = GetGetter()->Call(object);
 			type->WriteText(text, &value);
 		}
 	}
@@ -202,14 +198,14 @@ namespace om
 		bool ok = ReadBinary(stream, &value);
 		if (ok)
 		{
-			GetSetter()->Invoke(object, value);
+			GetSetter()->Call(object, value);
 		}
 		return ok;
 	}
 
 	template<class T> void MetaProperty<T>::GetBinary(BinaryStream* stream, void* object)
 	{
-		WriteBinary(stream, GetGetter()->Invoke(object));
+		WriteBinary(stream, GetGetter()->Call(object));
 	}
 }
 
