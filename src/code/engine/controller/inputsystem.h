@@ -86,9 +86,36 @@ namespace engine
 				return (flags & 4) || ((flags & 1) && !(flags & 8));
 			}
 
+			// The state of a control (a button or a stick) in the contexts the player is in, in the unit 0x108810F0: the
+			// bits of the control's two words (0x108810F0 is the out-of-line copy), or the low bit of the mask when the
+			// player is not in the context
+			bool IsControlSet(int control, unsigned int mask, unsigned int contextMask, int which) const
+			{
+				if ((context & contextMask) == 0)
+				{
+					return mask & 1;
+				}
+				return (buttons[control].bits[which] & mask) != 0;
+			}
+
+			// A stick's value and what goes with it
+			struct AnalogState
+			{
+				float value;
+				float unknown4;
+			};
+			struct ButtonBits
+			{
+				unsigned int bits[2];
+			};
+
 			unsigned int id;
 			unsigned int flags;
-			unsigned char unknownC[0x2b8 - 0xc];
+			unsigned char unknownC[0x100 - 0xc];
+			// +0x100: per control (0x2A of them): 0 for nothing, 1 for pressed, 2 for down, 3 for released
+			int controlStates[42];
+			AnalogState analog[17];  // +0x1A8
+			ButtonBits buttons[17];  // +0x230
 			int context;
 			int slot;
 			PlayerInput* input;
@@ -118,8 +145,8 @@ namespace engine
 			void ResetSlots();
 			// 0x108A1AF0
 			void ReleaseSlot(unsigned int id, int value);
-			// 0x108A1E50: an object updated with the frame time (type unknown)
-			class Updater* GetUpdater();
+			// 0x108A1E50: the keyboard (a jump to 0x108D6AA0, which answers the one instance)
+			static class Keyboard* GetKeyboard();
 
 			Slot* slots;
 			// The number of slots (the fight conditions on the online session read it as the number of players)
@@ -149,10 +176,45 @@ namespace engine
 			Callback* callback;
 		};
 
-		class Updater
+		// RTTI: engine::controller::Keyboard (base of KeyboardWin32): updated with the frame time by the InputSystem;
+		// keeps a list of callbacks and stays enabled while it has one
+		class Keyboard
 		{
 		public:
+			// RTTI: Keyboard::Callback (one pure virtual slot); a list node after the vftable
+			class Callback : public container::SListLite<Callback>::Node
+			{
+			public:
+				// A key event (parameter names guessed); the last one is unused by the front end's handler
+				virtual void OnKey(int code, int modifiers, int character, bool down, int unknown) = 0;
+			};
+
 			virtual void Update(float time) = 0;
+			virtual bool IsEnabled() = 0;
+			virtual void SetEnabled(bool enabled) = 0;
+
+			// Inline (kept copies at 0x108815D0 / 0x10881610 in the front end input unit)
+			void AddCallback(Callback* callback)
+			{
+				callbacks.PushBack(callback);
+				if (!IsEnabled())
+				{
+					SetEnabled(true);
+				}
+			}
+			void RemoveCallback(Callback* callback)
+			{
+				callbacks.Remove(callback);
+				int count = callbacks.count;
+				bool enabled = IsEnabled();
+				bool empty = count == 0;
+				if (enabled == empty)
+				{
+					SetEnabled(callbacks.count != 0);
+				}
+			}
+
+			container::SListLite<Callback> callbacks;
 		};
 
 		// RTTI: PhysicalControllerManager (another unit; constructor 0x108A0BB0, destructor 0x108A0970)

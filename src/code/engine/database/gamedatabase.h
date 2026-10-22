@@ -197,6 +197,12 @@ namespace engine
 	public:
 		struct Value
 		{
+			// 0x104B0890 (shared by the arrays of values)
+			Value()
+			{
+				type = 0;
+			}
+
 			int type;
 			int unknown4;
 			union

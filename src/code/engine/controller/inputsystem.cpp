@@ -303,7 +303,7 @@ namespace engine
 		// EQUIVALENT: register choice: the engine keeps the list address in edi
 		void InputSystem::UpdatePlayers(int a, int b, float time)
 		{
-			GetUpdater()->Update(time);
+			GetKeyboard()->Update(time);
 			manager->CollectActive(&active, time);
 			for (PlayerInfo* info = (PlayerInfo*)active.head; info != 0; info = info->GetNext())
 			{
