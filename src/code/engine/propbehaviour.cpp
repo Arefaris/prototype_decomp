@@ -161,3 +161,4 @@ namespace engine
 // FUNCTION: ENGINE 0x10841350
 
 template class engine::ConstAttribute<engine::PropSpawner*>;
+// FUNCTION: ENGINE 0x10841530

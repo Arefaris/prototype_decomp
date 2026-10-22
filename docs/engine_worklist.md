@@ -4508,3 +4508,86 @@ layer's `GetLocalNetworkInfo` 0x1093F920 and the small `0x1093FD20` helper, and 
   objects in front of its owner away (reflected `strength`, `rangeDistance`, `rangeCosHalfAngle`,
   `minimumRepeatPeriod` and `damage`). 12 functions match (the reflection, the constructor, the empty slot 1); the
   update (slot 4, 0x1091EDA0, walks the world's object list) is mapped to the engine's.
+
+## 0x10840000 - 0x10860000 (sn-s): the lua vectors, the triggers, the props, the cameras and the render scripts
+
+- `src/code/engine/luavector.cpp` (0x108400A0 - 0x10841040; the Lua binding of `math::Vector` and `core::Name`): 27 functions
+  match and 21 are EQUIVALENT (the metamethods and the argument checks compile with other registers). The lua.h calls
+  the binding needs are declared there.
+- `src/code/engine/propbehaviour.cpp` (0x10841060 - 0x10841550): `engine::PropBehaviour` (a plain `Behaviour`, 0xC bytes).
+  Its constructor makes the object's PropSpawner attribute (`GameObject::SetAttributeAndGet<PropSpawner*>`, the engine's
+  instance sits in this unit: it looks the attribute up, makes it in the static list while the object is being
+  constructed and in the dynamic one otherwise) and an empty "meta object template" name, and listens for the
+  physics filter message (type 6: switches intersection property 0x40 on) and the "has the prop moved from its
+  spawner" query (type 0x18, id 8: the spawner's position against the object's, `IsNear` with `EPSILON_SMALL`
+  expanded in place). `ConstAttribute<T>` / `Attribute<PropSpawner*>` (the value sits at +4, one vftable slot) and the
+  inline `BaseAttribute` destructor (gameobject.h) come from here. 19 functions match; not done: 0x10841120 and
+  0x108411B0 (tail calls of `GameObject::FindAttribute` whose classes are unknown).
+- `src/code/engine/metabehaviourcreator.cpp` (0x10841F80 - 0x10842010): the base of every behaviour creator (2 functions
+  match): the creation makes the behaviour for the object being constructed in its heap and registers it unless it is
+  a behaviour controller.
+- `src/code/engine/trigger/volume.cpp` (0x10841550 - 0x10841F80): `engine::trigger::Volume` (kind, interaction mask, the
+  physics object's handle and the owner), `SphereVolume` (0x24 bytes) and `OBBVolume` (0x50): the volume follows the
+  transform of its owner as an object of the physics library. 41 functions match (the whole unit, with the
+  reflection and the three scalar deleting destructors, which are the compiler's: a derived destructor without a
+  body of its own calls the base's directly, so none is declared). `ravenphysics::CreateObject` (0x1066AA80)
+  takes an `ObjectProperties` (the intersection properties and a zero word, which is the extra local of the
+  engine's frame).
+- `src/code/engine/propspawner.cpp` (0x10842010 - 0x10842F00): `engine::PropSpawner` (a `GameObjectSpawner` with the
+  handle of its object at +0x4C, a name, the scale vector and the shared `UnpackedInitialState` at +0x64) and
+  `UnpackedInitialState` (the `TreeState` array that a string "prefix:state,state" unpacks to; LoadObject with an
+  `ArrayDynamic<TreeState, AllocatorNew>` base, 0x20 bytes). 42 functions match, among them the class's reflection
+  (the scale vector and the "initialState" string whose setter is also given the inventory:
+  `StringMetaTypeGetSetWithResolver` and `StringMemberGetSetterWithResolver<C>` in content/stringmetatype.h), the creation
+  of the object and the many template instances; `UnpackedInitialState::UnpackedInitialState` is EQUIVALENT (the engine
+  writes an unused byte of its frame earlier, 92.7 %). Not done: `Apply` (0x108427E0, NONMATCHING 69.4 %, the engine
+  expands the scale writer's lookup in each branch and stores through the pointer it holds in a register), the
+  inventory lookups 0x10842660 / 0x108426C0 / 0x108429B0 (slot 6 of the inventory), the `AttributeWriter<Vector>`
+  destructor and the `DynamicCaster<PropSpawner>` instance. `engine::AttributeWriter<T>` is 0x18 bytes (a word after
+  the value pointer) and takes the value pointer first: that made three Lua attribute natives (`go_SetIntAttr`,
+  `go_SetFloatAttr`, `go_SetVectorAttr`) match that were EQUIVALENT with a frame four bytes larger.
+- `src/code/engine/database/dbsubject.cpp` (0x10842F10 - 0x10843F50): `DBSubject`, `DBChange` and `DBSubjectInfo`, the
+  database value with its observers and pending changes. 60 functions match, 3 EQUIVALENT; the second instances of
+  the list iterators and allocators (0x10843150 - 0x10843300, 0x10843780 - 0x10843870) are not done.
+- `src/code/engine/controller/physicalcontroller.cpp` (0x10845B50 - 0x108474E0): the physical controller and its rumble
+  effects: 24 functions match, 7 EQUIVALENT, `Bind` NONMATCHING. `ReadMouse` (0x10847150) is not done: it copies the
+  display's settings (0x10623670) and reads the sensitivity table at 0x111C73A4.
+- `src/code/engine/healthbehaviour.cpp` and `src/code/engine/hitreactionbehaviour.cpp` (0x10847xxx - 0x10848xxx): 31 and 11
+  functions match, 2 and 1 EQUIVALENT.
+- `src/code/engine/commandline.cpp` (the command line options, 7 functions match, 2 EQUIVALENT) and
+  `src/code/engine/render/renderscripts.cpp` (0x10849xxx; the renderer's script functions and their registration:
+  22 functions match). `engine::DrawableRegistry` (drawableregistry.h) is only declared as far as the scripts call it;
+  the rest of its unit (0x10849070 - 0x1084CBB0: the `RenderTask`, the effect controller, the decal creators, 3749
+  bytes for the deformable decals) is not done.
+- `src/code/engine/camera/` (0x1084CBB0 - 0x10853000): the camera system.
+  - `camera.cpp`: `engine::camera::Camera` (0x48 bytes: the base of every camera, with the name, the player, the pure3d
+    camera, the registration with the Director and the slot / id pair `ControllerRef`) and `ControllerRef`: 33 functions
+    match.
+  - `cinematographer.cpp`: `Cinematographer` (0x7B0 bytes: the director of one view; blends between the controlling
+    camera, the animated and the blend camera; its default camera is the `DebugCamera`), the state it keeps
+    (`CameraHistory`, 0x6F0 bytes) and the reflected `CinematographerType`: 35 functions match.
+  - `camerabehaviour.cpp` / `cinematographerbehaviour.cpp`: the behaviours that put a camera / a cinematographer into
+    an object: 18 + 18 functions match, with the mirrored copy of the pure3d camera's matrix into the owner's
+    transform (the engine copies the rows through `Vector4` temporaries that are all loaded before they are stored).
+  - `scriptedcamera.cpp`: the camera that plays splines or a pure3d animation (position, look-at and up tracks,
+    bound to a part of an object): 28 functions match, 8 EQUIVALENT; `Update` (0x10851CA0) is NONMATCHING (11.2 %: the
+    engine builds the mirrored view of its last case from rows copied by out-of-line `Vector4` and `Matrix` copy
+    constructors).
+  - `blendcamera.cpp`: the camera that blends between two snapshots: 12 functions match, 2 EQUIVALENT; `Update`
+    (0x108528A0, 2375 bytes) is not done.
+  - `dramaticcamera.cpp`: the camera that plays up to four queued animations and checks them against the world with
+    rays: 13 functions match, 2 EQUIVALENT (`Play`, and `SamplePath` 0x1084F240 which samples the position channel of
+    an animation at up to 32 points; the engine holds the animation in ebx and the buffer in edi, 68.7 %);
+    `FindAnimation` (0x1084F420) and `Update` (0x1084F9D0) are not done (a random pick over weights with an inlined
+    `math::Random`, and a long SSE function).
+  - `cameramath.cpp`: the easing and the vector helpers of the camera: 13 functions match, 5 EQUIVALENT, 1 NONMATCHING.
+  - `director.cpp`: the camera director's functions that belong to this range (70 functions, 3 EQUIVALENT).
+- `src/code/engine/reflectedmath.cpp`: the reflection of the math types (AABB, OBB, Plane, Sphere, Vector) and the
+  message base classes: 28 functions match.
+- `src/code/engine/playerintentions.cpp` (0x1085B810 - 0x1085BD10): the table of the eight players' intention maps and the
+  two locomotion axes: 5 functions match (the reference-counted assignment instance included).
+- Shared headers changed by this range: `GameObject` got the `SetAttributeAndGet` overload without the flag,
+  `AttributeWriter` its real size and constructor, `BaseAttribute` an inline destructor; `Camera` got the word at
+  +0x44 (the derived classes start at 0x48) and `focusDistance`; `pure3d::Animation::GetGroup`,
+  `math::Vector::IsNearOther` (the engine's second copy of `IsNear`), `container::ArrayDynamic<T, AllocatorNew>::PushBack`,
+  `SetPropLogicStateMessage`'s inline constructor and the resolver variants of the string meta types are new.

@@ -272,6 +272,11 @@ namespace engine
 	}
 }
 
+// The array's members the engine keeps out of line copies of (the constructor expands the others in place)
+template bool container::ArrayDynamic<engine::TreeState, container::AllocatorNew>::Create(unsigned int);
+template engine::TreeState& container::ArrayDynamic<engine::TreeState, container::AllocatorNew>::operator[](int);
+template void container::ArrayDynamic<engine::TreeState, container::AllocatorNew>::Free();
+
 // Kept copies (inline functions and template instances of this unit):
 // FUNCTION: ENGINE 0x10842090
 // FUNCTION: ENGINE 0x10842190
@@ -294,3 +299,10 @@ namespace engine
 // FUNCTION: ENGINE 0x10842600
 // FUNCTION: ENGINE 0x108429F0
 // FUNCTION: ENGINE 0x10842A30
+// FUNCTION: ENGINE 0x10842110
+// FUNCTION: ENGINE 0x10842160
+// FUNCTION: ENGINE 0x10842180
+// FUNCTION: ENGINE 0x10842360
+// FUNCTION: ENGINE 0x108422B0
+// FUNCTION: ENGINE 0x108429E0
+// FUNCTION: ENGINE 0x10842A00
