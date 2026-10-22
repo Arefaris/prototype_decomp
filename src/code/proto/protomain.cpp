@@ -11,6 +11,7 @@
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/system/enginememory.h"
+#include "code/engine/system/simulationdriver.h"
 #include "code/engine/system/streampackage.h"
 #include "code/math/random.h"
 #include "code/proto/protomain.h"
@@ -62,16 +63,6 @@ namespace engine
 	// 0x10E19AA8 (the unit's table of default zones) and 0x1126EE80 (the entries of "zone2")
 	extern const unsigned char gDefaultZones[];
 	extern ZoneEntry gZone2Entries[];
-
-	// 0x10897AC0: the simulation driver (RTTI engine::SimulationDriver, 0x90 bytes)
-	class SimulationDriver
-	{
-	public:
-		SimulationDriver();
-		// 0x10897D60: sets the field at +0x70 and tells the driver
-		void SetUnknown70(int value);
-		unsigned char unknown0[0x90];
-	};
 
 	class GameState;
 

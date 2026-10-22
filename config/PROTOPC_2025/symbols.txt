@@ -20801,3 +20801,17 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 
 ?SetIcon@DialogStateImpl@engine@@QAEXH_N@Z = 0x108E3FA0 ; function size:0x17 | public: void __thiscall engine::DialogStateImpl::SetIcon(int,bool) (another unit; name guess)
 
+??_7SimulationDriver@engine@@6B@ = 0x10E77B20 ; data size:0x28 | engine::SimulationDriver::vftable
+??_ESimulationDriver@engine@@UAEPAXI@Z = 0x10897E40 ; function size:0x1E | public: virtual void * __thiscall engine::SimulationDriver::`vector deleting destructor'(unsigned int) vftable slot 0
+?Slot1@SimulationDriver@engine@@UAEXXZ = 0x10897B10 ; function size:0x50 | public: virtual void __thiscall engine::SimulationDriver::Slot1(void) vftable slot 1
+?Slot2@SimulationDriver@engine@@UAEXXZ = 0x10897B60 ; function size:0x1 | public: virtual void __thiscall engine::SimulationDriver::Slot2(void) vftable slot 2
+?Slot3@SimulationDriver@engine@@UAEXXZ = 0x10897B70 ; function size:0x10E | public: virtual void __thiscall engine::SimulationDriver::Slot3(void) vftable slot 3
+?Slot4@SimulationDriver@engine@@UAE_NXZ = 0x10897D00 ; function size:0x25 | public: virtual bool __thiscall engine::SimulationDriver::Slot4(void) vftable slot 4
+?Slot5@SimulationDriver@engine@@UAEXXZ = 0x10897D30 ; function size:0x21 | public: virtual void __thiscall engine::SimulationDriver::Slot5(void) vftable slot 5
+?Slot6@SimulationDriver@engine@@UAEXXZ = 0x10897C80 ; function size:0x41 | public: virtual void __thiscall engine::SimulationDriver::Slot6(void) vftable slot 6
+?Slot7@SimulationDriver@engine@@UAEXXZ = 0x10897CD0 ; function size:0x2B | public: virtual void __thiscall engine::SimulationDriver::Slot7(void) vftable slot 7
+?Slot9@SimulationDriver@engine@@UAEXXZ = 0x10897D80 ; function size:0x2D | public: virtual void __thiscall engine::SimulationDriver::Slot9(void) vftable slot 9
+??1SimulationDriver@engine@@UAE@XZ = 0x10897B00 ; function size:0xB | public: virtual __thiscall engine::SimulationDriver::~SimulationDriver(void) (name guess)
+
+??_GSimulationDriver@engine@@UAEPAXI@Z = 0x10897E40 ; function size:0x1E | public: virtual void * __thiscall engine::SimulationDriver::`scalar deleting destructor'(unsigned int) (name guess)
+
