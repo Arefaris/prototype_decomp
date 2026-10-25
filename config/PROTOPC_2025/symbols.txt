@@ -25972,3 +25972,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??0DebugOutputFilter@engine@@QAE@XZ = 0x108D69E0 ; function size:0x2D | public: __thiscall engine::DebugOutputFilter::DebugOutputFilter(void) (name guess)
 ??_GDebugOutputFilter@engine@@UAEPAXI@Z = 0x108D6A10 ; function size:0x1E | public: virtual void * __thiscall engine::DebugOutputFilter::`scalar deleting destructor'(unsigned int) (name guess)
 ?CreateDebugOutputFilter@engine@@YAXXZ = 0x108D6A30 ; function size:0x49 | void __cdecl engine::CreateDebugOutputFilter(void) (name guess)
+?gDebugOutputFilter@engine@@3PAVDebugOutputFilter@1@A = 0x11318A24 ; data size:0x4 | engine::gDebugOutputFilter: the one debug output filter (name guess; manual)
