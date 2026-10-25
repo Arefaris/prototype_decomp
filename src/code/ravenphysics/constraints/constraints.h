@@ -177,6 +177,98 @@ namespace ravenphysics
 		ConstraintBallInSocket ball;  // 0x24
 		ConstraintAlign2Axes align;   // 0x88
 	};
+
+	// The numbers an angular spring constraint shares between the constraints that refer to the same properties
+	class ConstraintAngularSpringSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x1066B980)
+		ConstraintAngularSpringSharedProperties();
+
+		float springConstant;         // 0x08
+		float dampingConstant;        // 0x0C
+	};
+
+	// Turns the second object back to the first with a spring along the axes
+	class ConstraintAngularSpring : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x1066B720)
+		ConstraintAngularSpring();
+		// Between the objects two handles name (0x1066B770)
+		ConstraintAngularSpring(const CollisionHandle* first, const CollisionHandle* second);
+		// A copy (0x1066B7D0)
+		ConstraintAngularSpring(const ConstraintAngularSpring& other);
+		virtual ~ConstraintAngularSpring();
+		virtual unsigned short GetKind(int unused);
+
+		// The shared properties (0x1066B830 / 0x1066BA40); the setter also takes the spring and damping constants over
+		ConstraintAngularSpringSharedProperties* GetSharedProperties() const;
+		void SetSharedProperties(ConstraintAngularSpringSharedProperties* properties);
+		// The axes (0x1066B840 / 0x1066B870); the setters normalise
+		void SetAxisA(const math::Vector* axis);
+		void SetAxisB(const math::Vector* axis);
+		// The constants (0x1066B8A0 / 0x1066B8B0)
+		void SetSpringConstant(float value);
+		void SetDampingConstant(float value);
+
+		math::Vector axisA;           // 0x24
+		math::Vector axisB;           // 0x30
+		float springConstant;         // 0x3C
+		float dampingConstant;        // 0x40
+		ConstraintAngularSpringSharedProperties* sharedProperties;  // 0x44
+	};
+
+	// The numbers an angular velocity constraint shares
+	class ConstraintAngularVelocitySharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x1066C060)
+		ConstraintAngularVelocitySharedProperties();
+
+		float angularVelocity;        // 0x08
+		float maxForce;               // 0x0C
+	};
+
+	// Turns the second object against the first around an axis at a speed, with a limit on the force
+	class ConstraintAngularVelocity : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x1066BE30)
+		ConstraintAngularVelocity();
+		// Between the objects two handles name (0x1066BE80)
+		ConstraintAngularVelocity(const CollisionHandle* first, const CollisionHandle* second);
+		// A copy (0x1066BEE0)
+		ConstraintAngularVelocity(const ConstraintAngularVelocity& other);
+		virtual ~ConstraintAngularVelocity();
+		virtual unsigned short GetKind(int unused);
+
+		// The shared properties (0x1066BF30 / 0x1066C120); the setter also takes the velocity and force over
+		ConstraintAngularVelocitySharedProperties* GetSharedProperties() const;
+		void SetSharedProperties(ConstraintAngularVelocitySharedProperties* properties);
+		// The axis (0x1066BF40); the setter normalises
+		void SetAxis(const math::Vector* axis);
+		// The numbers (0x1066BFB0 / 0x1066BFC0)
+		void SetAngularVelocity(float value);
+		void SetMaxForce(float value);
+
+		math::Vector axis;            // 0x24
+		float angularVelocity;        // 0x30
+		float maxForce;               // 0x34
+		ConstraintAngularVelocitySharedProperties* sharedProperties;  // 0x38
+	};
 }
 
 #endif
