@@ -3,6 +3,7 @@
 #include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/context.h"
 #include "code/ravenphysics/physics.h"
+#include "code/ravenphysics/physicsobjectloader.h"
 
 namespace ravenphysics
 {
@@ -22,16 +23,6 @@ namespace ravenphysics
 	void Unknown106A6E20();
 	extern const CollisionHandle gInvalidCollisionHandle;
 
-	// A pointer triple of 16-byte elements the library keeps in globals (begin, end, end of storage)
-	struct StatArray
-	{
-		char (*begin)[16];
-		char (*end)[16];
-		char (*capacityEnd)[16];
-	};
-	extern StatArray gStatArrayA;   // 0x1127E468
-	extern StatArray gStatArrayB;   // 0x1127E458
-	extern StatArray gStatArrayC;   // 0x1127E448
 	extern int gMaterialCount;      // 0x1127D510
 	extern int gUnknown1127E42C;
 
@@ -128,11 +119,11 @@ namespace ravenphysics
 		}
 		ScratchStack::sHighWater = (unsigned int)ScratchStack::sCurrent;
 		statistics->scratchStackPeak = ScratchStack::sUnknown - (unsigned int)ScratchStack::sBegin;
-		statistics->arrayASize = gStatArrayA.end - gStatArrayA.begin;
-		statistics->arrayACapacity = gStatArrayA.capacityEnd - gStatArrayA.begin;
-		statistics->arrayBSize = gStatArrayB.end - gStatArrayB.begin;
-		statistics->arrayBCapacity = gStatArrayB.capacityEnd - gStatArrayB.begin;
-		statistics->arrayCSize = gStatArrayC.end - gStatArrayC.begin;
-		statistics->arrayCCapacity = gStatArrayC.capacityEnd - gStatArrayC.begin;
+		statistics->arrayASize = gStatArrayA.Size();
+		statistics->arrayACapacity = gStatArrayA.Capacity();
+		statistics->arrayBSize = gStatArrayB.Size();
+		statistics->arrayBCapacity = gStatArrayB.Capacity();
+		statistics->arrayCSize = gStatArrayC.Size();
+		statistics->arrayCCapacity = gStatArrayC.Capacity();
 	}
 }

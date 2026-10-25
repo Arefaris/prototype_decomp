@@ -229,7 +229,9 @@ namespace ravenphysics
 		math::Vector* vertices;        // 0x2C
 		unsigned char* edges;          // 0x30 (the vertex indexes of each edge, two bytes each)
 		math::Plane* faces;            // 0x34
-		unsigned char unknown38[0x44 - 0x38];
+		unsigned int unknown38;        // 0x38 (the size of the block at 0x44)
+		unsigned int unknown3C;        // 0x3C (the number of words at 0x48)
+		unsigned int unknown40;        // 0x40
 		void* unknown44;               // 0x44
 		void* unknown48;               // 0x48
 		void* unknown4C;               // 0x4C
