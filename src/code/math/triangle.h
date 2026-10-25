@@ -27,6 +27,9 @@ namespace math
 		float SmallestAngle() const;
 		// True when p's (x, z) lies inside or on the triangle's projection onto the XZ plane (counter-clockwise order)
 		bool ContainsXZ(const Vector& p) const;
+		// The unit normal of the plane through the corners, the cross product of a - b and a - c (the ravenphysics unit
+		// at 0x106672E0 has its own copy; name guess)
+		void GetNormal(Vector* normal) const;
 	};
 
 	// Area of the triangle a, b, c: half the length of (a - b) x (b - c) (name guess)

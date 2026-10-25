@@ -884,7 +884,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10665BD0
 	void CollisionVolume6::SetUnknown120(int value)
 	{
-		unknown120 = value;
+		mesh = (ConvexMesh*)value;
 	}
 
 	// FUNCTION: ENGINE 0x10665DF0
@@ -1226,7 +1226,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106664D0
 	CollisionVolume6::CollisionVolume6() :
 		CollisionVolume(6),
-		unknown120(0)
+		mesh(0)
 	{
 		grid.volume = this;
 		gCollisionObjectTable->AddMesh(this, &handle);
@@ -1236,10 +1236,10 @@ namespace ravenphysics
 	CollisionVolume6::CollisionVolume6(const CollisionVolume6& other) :
 		CollisionVolume(other),
 		grid(other.grid),
-		unknown120(other.unknown120)
+		mesh(other.mesh)
 	{
 		grid.volume = this;
-		if (unknown120 != 0)
+		if (mesh != 0)
 		{
 			grid.unknownE4 = new unsigned short[grid.unknown92];
 			memcpy(grid.unknownE4, other.grid.unknownE4, grid.unknown92 * 2);
@@ -1254,7 +1254,7 @@ namespace ravenphysics
 	CollisionVolume6::CollisionVolume6(const BroadPhaseGrid& newGrid) :
 		CollisionVolume(6),
 		grid(newGrid),
-		unknown120(0)
+		mesh(0)
 	{
 		grid.volume = this;
 		gCollisionObjectTable->AddMesh(this, &handle);
@@ -1265,7 +1265,7 @@ namespace ravenphysics
 	CollisionVolume6::~CollisionVolume6()
 	{
 		gCollisionObjectTable->Remove(&handle);
-		unknown120 = 0;
+		mesh = 0;
 		grid.Destroy();
 	}
 }

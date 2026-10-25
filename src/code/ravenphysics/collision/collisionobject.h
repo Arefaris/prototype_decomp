@@ -480,12 +480,31 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale)
 		{
 		}
-		// Sets the word at 0x120 (0x10665BD0)
+		// Sets the mesh the volume belongs to, given as a number (0x10665BD0)
 		void SetUnknown120(int value);
+
+		// The normal of a triangle of the grid in the mesh's space (0x106674B0) and in the world (0x10667560); the
+		// same for the triangle with a number (0x10667CA0 / 0x10667CC0)
+		void GetFaceNormal(const GridFace* face, math::Vector* normal);
+		void GetWorldFaceNormal(const GridFace* face, math::Vector* normal);
+		void GetFaceNormalAt(unsigned short index, math::Vector* normal);
+		void GetWorldFaceNormalAt(unsigned short index, math::Vector* normal);
+		// Whether the grid carries a matrix (0x10667450)
+		bool IsTransformed() const;
+		// The record of the grid with a number (0x10667460), the index of the record of a triangle (0x10667480) and
+		// the number of records (0x106674A0)
+		MeshRecord* GetRecord(unsigned short index);
+		unsigned short* GetRecordIndex(unsigned short index);
+		int GetRecordCount() const;
+		// The mesh the volume belongs to (0x10667610) and the handle (0x10667620)
+		ConvexMesh* GetMesh() const;
+		CollisionHandle* GetHandle();
+		// The record of the shared slot for a triangle (0x10667D80)
+		unsigned char* GetSlotData(unsigned short index);
 
 		unsigned char unknown24[0x30 - 0x24];
 		BroadPhaseGrid grid;            // 0x30
-		int unknown120;                 // 0x120
+		ConvexMesh* mesh;               // 0x120
 		CollisionHandle handle;         // 0x124
 		unsigned char unknown128[8];
 	};
@@ -643,7 +662,7 @@ namespace ravenphysics
 	// One geometry element of a mesh (8 bytes; its own unit names it)
 	struct MeshElement
 	{
-		unsigned int unknown0;
+		CollisionVolume* volume;
 		unsigned int unknown4;
 	};
 
@@ -669,6 +688,8 @@ namespace ravenphysics
 		void Reserve(int count);
 		// Appends one of the object's volumes (0x106855B0, another unit)
 		void AddVolume(CollisionVolume* volume);
+		// The volume appended at an index (0x10667C90)
+		CollisionVolume* GetVolume(int index);
 
 		unsigned char unknown8[0x28 - 8];
 		MeshGeometry geometry;    // 0x28

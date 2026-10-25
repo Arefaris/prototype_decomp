@@ -51,6 +51,8 @@ namespace math
 		// Reports the six elements through core::Report (debug output)
 		void Print() const;
 		void GetDiagonal(float& x, float& y, float& z) const;
+		// The determinant (the ravenphysics unit at 0x10668D90 has its own copy; name guess)
+		float Determinant() const;
 	};
 }
 
