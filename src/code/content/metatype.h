@@ -599,9 +599,45 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
+		// The slots as the engine's code takes them (see ArrayCDynamicMetaType, which this is the counterpart of)
+		// 0x105FE340 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FE2C0 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FDCB0 (slot 2) / 0x105FDBE0 (slot 3)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		// 0x105FD3F0 (slot 4)
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int flags, TextWriter* log);
+		// 0x105FDE20 (slot 6) / 0x105FE190 (slot 7) / 0x105FE1F0 (slot 8)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		// 0x105FD900 (slot 9) / 0x105FD9C0 (slot 10) / 0x105FD670 (slot 11)
+		int CountItems(void* object, int a);
+		void Describe(MemberEntry** cursor, void* object, int a);
+		void WriteBinaryShort(WriteContext* context, void* object);
+
+		// 0x105FD660
+		MetaType* GetElementType();
+		// 0x105FD840 / 0x105FD880 / 0x105FD8C0: the item at index and the number of items, through the helper unless
+		// the array is the meta system's
+		void* GetItemConst(void* array, int index);
+		void* GetItem(void* array, int index);
+		unsigned int GetCount(void* array);
+		// 0x105FDDD0 / 0x105FE130 / 0x105FDFB0: takes the item at index out (deleting it) / makes a new one there / makes
+		// room for count more
+		void EraseItem(void* array, int index);
+		void InsertItem(void* array, int index);
+		void Reserve(void* array, unsigned int count);
+
 		MetaType* element;
 		ArrayDynamicHelperBase* helper;
 	};
+
+	// 0x105FD3B0
+	const char* GetArrayDynamicTypeName();
 
 	// The element access of a container::ArrayCDynamic for its meta type
 	struct ArrayCDynamicHelperBase
