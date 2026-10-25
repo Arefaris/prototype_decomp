@@ -458,6 +458,16 @@ namespace world
 
 namespace ravenphysics
 {
+	// ColliderTypeNames: reflection 0x10653680 / 0x10653DE0 (the constructor is inline in the factory)
+	class ColliderTypeNames : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknown8[0x10];
+	};
+
 	// ConstraintAngularSpringSharedProperties: constructor 0x1066B980, reflection 0x1066B6E0 / 0x1066BB70
 	class ConstraintAngularSpringSharedProperties : public content::MetaLoadObject
 	{

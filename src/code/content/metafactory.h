@@ -57,7 +57,7 @@ namespace content
 	void RegisterObjectFactory(MetaObjectFactoryBase* factory);
 
 	// The registration of T's factory: made once, on the first call
-	template<class T> void RegisterMetaObjectFactory()
+	template<class T> inline void RegisterMetaObjectFactory()
 	{
 		ClassMetaType* type = GetClassMetaType<T>();
 		static MetaObjectFactory<T, 1> sFactory(type->GetName(), 1, type);
@@ -95,7 +95,7 @@ namespace content
 	// 0x105FFD60: adds the creator to the library's map under the hash of its name
 	void RegisterInstanceCreator(MetaInstanceCreator* creator);
 
-	template<class T> void RegisterMetaInstanceCreator()
+	template<class T> inline void RegisterMetaInstanceCreator()
 	{
 		ClassMetaType* type = GetClassMetaType<T>();
 		static MetaInstanceCreatorImpl<T, 1> sCreator(type->GetName(), 1, type);
@@ -136,7 +136,7 @@ namespace engine
 	};
 
 	// The registration of T's creator: made once, on the first call
-	template<class T> void RegisterMetaBehaviourCreator()
+	template<class T> inline void RegisterMetaBehaviourCreator()
 	{
 		content::ClassMetaType* type = content::GetClassMetaType<T>();
 		static MetaBehaviourCreatorImpl<T> sCreator(type->GetName(), 1, type);

@@ -309,6 +309,10 @@ namespace content
 	template class MetaObjectFactory<engine::PropSpawner, 1>;
 	template ClassMetaType* GetClassMetaType<engine::PropSpawner>();
 	template void RegisterMetaObjectFactory<engine::PropSpawner>();
+	template<> LoadObject* MetaObjectFactory<ravenphysics::ColliderTypeNames, 1>::Create();
+	template MetaObjectFactory<ravenphysics::ColliderTypeNames, 1>::MetaObjectFactory(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<ravenphysics::ColliderTypeNames>();
+	template void RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>();
 	template class MetaObjectFactory<ravenphysics::PhysicsObjectFactory, 1>;
 	template ClassMetaType* GetClassMetaType<ravenphysics::PhysicsObjectFactory>();
 	template void RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>();
@@ -870,11 +874,176 @@ namespace engine
 // FUNCTION: ENGINE 0x108DDBE0 @ RegisterMetaBehaviourCreator<LightBehaviour>
 // FUNCTION: ENGINE 0x108DE130 @ RegisterMetaBehaviourCreator<TriggerBehaviour>
 
+
+namespace engine
+{
+	// 0x1065EF60 (the pure3d unit): registers the creators of its classes
+	void RegisterPure3dMetaInstanceCreators();
+	// 0x1067C2B0 (another pure3d unit): the same for more classes
+	void RegisterPure3dMetaInstanceCreators2();
+
+	// 0x1092B170 / 0x1092B450 (another unit): the registrations of more factories and of more behaviours' creators
+	void RegisterMoreMetaObjectFactories();
+	void RegisterMoreMetaBehaviourCreators();
+
+	// The engine's start-up tables: the registrations of the classes' factories, in place
+	// FUNCTION: ENGINE 0x108DE660
+	void RegisterMetaObjectFactories()
+	{
+		content::RegisterMetaObjectFactory<engine::animation::AttachmentPhysicsProperties>();
+		content::RegisterMetaObjectFactory<engine::ActorSpawner>();
+		content::RegisterMetaObjectFactory<engine::ActorCrowdSpawner>();
+		content::RegisterMetaObjectFactory<engine::camera::CameraLoader>();
+		content::RegisterMetaObjectFactory<engine::CharacterIntentionInputMap>();
+		content::RegisterMetaObjectFactory<engine::driving::CarPhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::HelicopterPhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::VehiclePhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::WheelCollectionData>();
+		content::RegisterMetaObjectFactory<engine::CharacterSolverProperties>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentPackageDefinition>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentPackageKey>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentCementFileDefinition>();
+		content::RegisterMetaObjectFactory<engine::GameObject>();
+		content::RegisterMetaObjectFactory<engine::GameObjectTemplateBuilder>();
+		content::RegisterMetaObjectFactory<engine::NamedInventoryCreator>();
+		content::RegisterMetaObjectFactory<engine::PropSpawner>();
+		content::RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintAngularSpringSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintAngularVelocitySharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintListFactory>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintSpringAlongAxisSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::DeformableOrientationConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::DeformableSliderConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::IntersectionPropertiesLoader>();
+		content::RegisterMetaObjectFactory<ravenphysics::MassProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::MaterialLoader>();
+		content::RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>();
+		content::RegisterMetaObjectFactory<ravenphysics::PoweredConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::SimplePhysicsObjectFactory>();
+		content::RegisterMetaObjectFactory<engine::RemoteCamera>();
+		content::RegisterMetaObjectFactory<engine::SecondaryPhysicsProperties>();
+		content::RegisterMetaObjectFactory<engine::SkuInfo>();
+		content::RegisterMetaObjectFactory<engine::SplinePath>();
+		content::RegisterMetaObjectFactory<engine::StreamPackage>();
+		content::RegisterMetaObjectFactory<engine::StreamSlotGroup>();
+		content::RegisterMetaObjectFactory<engine::StreamTrigger>();
+		content::RegisterMetaObjectFactory<engine::SupportingLimbDefinition>();
+		content::RegisterMetaObjectFactory<engine::SupportingLimbDefinitionList>();
+		content::RegisterMetaObjectFactory<SurfaceDefinition>();
+		content::RegisterMetaObjectFactory<engine::TrackedMotionToExpressionMap>();
+		content::RegisterMetaObjectFactory<engine::world::Location>();
+		content::RegisterMetaObjectFactory<engine::world::LocationRenderSettings>();
+		content::RegisterMetaObjectFactory<engine::NIS>();
+		content::RegisterMetaObjectFactory<engine::NISExclusionVolume>();
+		content::RegisterMetaObjectFactory<engine::FmvSubtitleManager>();
+		RegisterMoreMetaObjectFactories();
+	}
+
+	// FUNCTION: ENGINE 0x108DF1F0
+	void RegisterMetaInstanceCreators()
+	{
+		content::RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>();
+		content::RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>();
+		content::RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<bool>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<bool>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<int>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<int>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<float>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<float>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<math::Matrix>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix>>();
+		content::RegisterMetaInstanceCreator<engine::camera::Camera>();
+		content::RegisterMetaInstanceCreator<engine::camera::Cinematographer>();
+		content::RegisterMetaInstanceCreator<engine::camera::FPSCamera>();
+		content::RegisterMetaInstanceCreator<engine::camera::OnFootCamera>();
+		content::RegisterMetaInstanceCreator<engine::camera::ScriptedCamera>();
+		content::RegisterMetaInstanceCreator<engine::ChangeLightColourMessage>();
+		content::RegisterMetaInstanceCreator<engine::DampedAngularMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::DampedLinearMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>();
+		content::RegisterMetaInstanceCreator<engine::PatrolPoint>();
+		content::RegisterMetaInstanceCreator<engine::SplineCV>();
+		content::RegisterMetaInstanceCreator<engine::SplinePathCV>();
+		content::RegisterMetaInstanceCreator<engine::EnableLightMessage>();
+		content::RegisterMetaInstanceCreator<engine::EnterTriggerMessage>();
+		content::RegisterMetaInstanceCreator<engine::ExitTriggerMessage>();
+		content::RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>();
+		content::RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>();
+		content::RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>();
+		content::RegisterMetaInstanceCreator<math::AABB>();
+		content::RegisterMetaInstanceCreator<math::OBB>();
+		content::RegisterMetaInstanceCreator<math::Plane>();
+		content::RegisterMetaInstanceCreator<math::Sphere>();
+		content::RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsAmbientWind>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsPinJoint>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsPoweredJoint>();
+		content::RegisterMetaInstanceCreator<engine::SpringBasedAngularMotionFilter>();
+		content::RegisterMetaInstanceCreator<engine::SpringBasedLinearMotionFilter>();
+		content::RegisterMetaInstanceCreator<engine::trigger::OBBVolume>();
+		content::RegisterMetaInstanceCreator<engine::trigger::SphereVolume>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<math::Vector>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue>>();
+		RegisterPure3dMetaInstanceCreators();
+		RegisterPure3dMetaInstanceCreators2();
+	}
+
+	// FUNCTION: ENGINE 0x108DFE50
+	void RegisterMetaBehaviourCreators()
+	{
+		engine::RegisterMetaBehaviourCreator<engine::AdvertisementBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::AttachableBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::JawFlapBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::PuppetBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::BehaviourController>();
+		engine::RegisterMetaBehaviourCreator<engine::camera::CameraBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::camera::CinematographerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::CharacterIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::CharacterSolverBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::CarIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::CarPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::HelicopterIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::HelicopterPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::FirstPersonControlBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::HealthBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::KnockBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::LightBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::MotionTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::NISPlayerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PatrolPathBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PlaybackTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PoseAnimationBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PropLogicTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PropBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RagdollBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RagdollLODBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RenderBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::SecondaryPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::SplineBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TagBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TouchBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TrackedMotionToExpressionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TriggerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::MovingTriggerBehaviour>();
+		RegisterMoreMetaBehaviourCreators();
+	}
+}
+
 // ---- annotations of the functions mapped in symbols.txt (generated) ----
 
 // FUNCTION: ENGINE 0x108D75A0 @ content::ClassMetaType * content::GetClassMetaType<engine::ContentManager::ContentCementFileDefinition>(void)
 // FUNCTION: ENGINE 0x108D75F0 @ content::MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition,1>::MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition,1>(char const *,u
 // FUNCTION: ENGINE 0x108D7670 @ math::Plane::Plane(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D78C0 @ content::ClassMetaType * content::GetClassMetaType<ravenphysics::ColliderTypeNames>(void)
+// FUNCTION: ENGINE 0x108D7910 @ content::MetaObjectFactory<ravenphysics::ColliderTypeNames,1>::MetaObjectFactory<ravenphysics::ColliderTypeNames,1>(char const *,unsigned short,content::ClassMetaType *)
 // FUNCTION: ENGINE 0x108D88E0 @ content::ClassMetaType * content::GetClassMetaType<engine::NIS>(void)
 // FUNCTION: ENGINE 0x108D8930 @ content::MetaObjectFactory<engine::NIS,1>::MetaObjectFactory<engine::NIS,1>(char const *,unsigned short,content::ClassMetaType *)
 // FUNCTION: ENGINE 0x108D8960 @ math::OBB::OBB(void) (name guess; identical copies)
@@ -934,6 +1103,7 @@ namespace engine
 // FUNCTION: ENGINE 0x108DB870 @ void * engine::EnableLightMessage::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108DB890 @ void * engine::ChangeLightColourMessage::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108DBCF0 @ void content::RegisterMetaObjectFactory<engine::ContentManager::ContentCementFileDefinition>(void)
+// FUNCTION: ENGINE 0x108DBE80 @ void content::RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>(void)
 // FUNCTION: ENGINE 0x108DC6A0 @ void content::RegisterMetaObjectFactory<engine::NIS>(void)
 // FUNCTION: ENGINE 0x108DC790 @ void content::RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>(void)
 // FUNCTION: ENGINE 0x108DC7E0 @ void content::RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>(void)
