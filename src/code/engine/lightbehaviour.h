@@ -62,6 +62,8 @@ namespace engine
 	class LightBehaviour : public Behaviour
 	{
 	public:
+		// 0x1089F9D0 (another unit; the second argument is passed as 1 by the creator, meaning unknown)
+		explicit LightBehaviour(GameObject* newOwner, bool unknownFlag = true);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 

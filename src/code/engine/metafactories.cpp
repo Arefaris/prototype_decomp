@@ -3,6 +3,16 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/reflectedclasses2.h"
+#include "code/engine/camera/camera.h"
+#include "code/engine/gameobject/genericscriptvalue.h"
+#include "code/engine/lightbehaviour.h"
+#include "code/engine/nis/nis.h"
+#include "code/engine/propspawner.h"
+#include "code/math/aabb.h"
+#include "code/math/obb.h"
+#include "code/math/plane.h"
+#include "code/math/sphere.h"
 #include "code/engine/fight/behaviours/proplogictreebehaviour.h"
 #include "code/engine/gameobject/behaviours/pathbehaviour.h"
 #include "code/engine/firstpersoncontrolbehaviour.h"
@@ -284,6 +294,66 @@ namespace engine
 	template class MetaBehaviourCreatorImpl<engine::TrackedMotionToExpressionBehaviour>;
 	template void RegisterMetaBehaviourCreator<engine::TrackedMotionToExpressionBehaviour>();
 }
+
+
+
+// BEGIN GENERATED INSTANTIATIONS
+namespace content
+{
+	template class MetaObjectFactory<engine::ContentManager::ContentPackageDefinition, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ContentManager::ContentPackageDefinition>();
+	template void RegisterMetaObjectFactory<engine::ContentManager::ContentPackageDefinition>();
+	template class MetaObjectFactory<engine::ContentManager::ContentPackageKey, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ContentManager::ContentPackageKey>();
+	template void RegisterMetaObjectFactory<engine::ContentManager::ContentPackageKey>();
+	template class MetaObjectFactory<engine::PropSpawner, 1>;
+	template ClassMetaType* GetClassMetaType<engine::PropSpawner>();
+	template void RegisterMetaObjectFactory<engine::PropSpawner>();
+	template class MetaObjectFactory<ravenphysics::PhysicsObjectFactory, 1>;
+	template ClassMetaType* GetClassMetaType<ravenphysics::PhysicsObjectFactory>();
+	template void RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>();
+	template class MetaInstanceCreatorImpl<engine::camera::Camera, 1>;
+	template ClassMetaType* GetClassMetaType<engine::camera::Camera>();
+	template void RegisterMetaInstanceCreator<engine::camera::Camera>();
+	template class MetaInstanceCreatorImpl<engine::camera::Cinematographer, 1>;
+	template ClassMetaType* GetClassMetaType<engine::camera::Cinematographer>();
+	template void RegisterMetaInstanceCreator<engine::camera::Cinematographer>();
+	template class MetaInstanceCreatorImpl<engine::PatrolPoint, 1>;
+	template ClassMetaType* GetClassMetaType<engine::PatrolPoint>();
+	template void RegisterMetaInstanceCreator<engine::PatrolPoint>();
+	template class MetaInstanceCreatorImpl<engine::SplineCV, 1>;
+	template ClassMetaType* GetClassMetaType<engine::SplineCV>();
+	template void RegisterMetaInstanceCreator<engine::SplineCV>();
+	template class MetaInstanceCreatorImpl<math::AABB, 1>;
+	template ClassMetaType* GetClassMetaType<math::AABB>();
+	template void RegisterMetaInstanceCreator<math::AABB>();
+	template class MetaInstanceCreatorImpl<math::OBB, 1>;
+	template ClassMetaType* GetClassMetaType<math::OBB>();
+	template void RegisterMetaInstanceCreator<math::OBB>();
+	template class MetaInstanceCreatorImpl<math::Plane, 1>;
+	template ClassMetaType* GetClassMetaType<math::Plane>();
+	template void RegisterMetaInstanceCreator<math::Plane>();
+	template ClassMetaType* GetClassMetaType<engine::animation::AttachableBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::BehaviourController>();
+	template ClassMetaType* GetClassMetaType<engine::HealthBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::LightBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::TriggerBehaviour>();
+}
+
+namespace engine
+{
+	template class MetaBehaviourCreatorImpl<engine::animation::AttachableBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::animation::AttachableBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::BehaviourController>;
+	template void RegisterMetaBehaviourCreator<engine::BehaviourController>();
+	template class MetaBehaviourCreatorImpl<engine::HealthBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::HealthBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::LightBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::LightBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::TriggerBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::TriggerBehaviour>();
+}
+// END GENERATED INSTANTIATIONS
 
 // The class meta types, factories, creators and registrations, in address order:
 // FUNCTION: ENGINE 0x108D6E20 @ GetClassMetaType<animation::AttachmentPhysicsProperties>
@@ -618,3 +688,57 @@ namespace engine
 // FUNCTION: ENGINE 0x108DE1D0 @ MetaObjectFactory<NISExclusionVolume,1>::Create
 // FUNCTION: ENGINE 0x108DE1F0 @ MetaInstanceCreatorImpl<EnterTriggerMessage,1>::Create
 // FUNCTION: ENGINE 0x108DE220 @ MetaInstanceCreatorImpl<ExitTriggerMessage,1>::Create
+// BEGIN GENERATED ANNOTATIONS
+// FUNCTION: ENGINE 0x108C69B0 @ GetClassMetaType<math::Plane>
+// FUNCTION: ENGINE 0x108D7460 @ GetClassMetaType<ContentManager::ContentPackageDefinition>
+// FUNCTION: ENGINE 0x108D74B0 @ MetaObjectFactory<ContentManager::ContentPackageDefinition,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D74E0 @ MetaObjectFactory<ContentManager::ContentPackageDefinition,1>::Create
+// FUNCTION: ENGINE 0x108D7500 @ GetClassMetaType<ContentManager::ContentPackageKey>
+// FUNCTION: ENGINE 0x108D7550 @ MetaObjectFactory<ContentManager::ContentPackageKey,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D7580 @ MetaObjectFactory<ContentManager::ContentPackageKey,1>::Create
+// FUNCTION: ENGINE 0x108D7870 @ MetaObjectFactory<PropSpawner,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D78A0 @ MetaObjectFactory<PropSpawner,1>::Create
+// FUNCTION: ENGINE 0x108D7EE0 @ GetClassMetaType<ravenphysics::PhysicsObjectFactory>
+// FUNCTION: ENGINE 0x108D7F30 @ MetaObjectFactory<ravenphysics::PhysicsObjectFactory,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D7F60 @ MetaObjectFactory<ravenphysics::PhysicsObjectFactory,1>::Create
+// FUNCTION: ENGINE 0x108D9130 @ MetaInstanceCreatorImpl<camera::Camera,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9160 @ MetaInstanceCreatorImpl<camera::Camera,1>::Create
+// FUNCTION: ENGINE 0x108D9180 @ MetaInstanceCreatorImpl<camera::Cinematographer,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D91B0 @ MetaInstanceCreatorImpl<camera::Cinematographer,1>::Create
+// FUNCTION: ENGINE 0x108D9600 @ MetaInstanceCreatorImpl<PatrolPoint,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9630 @ MetaInstanceCreatorImpl<PatrolPoint,1>::Create
+// FUNCTION: ENGINE 0x108D9650 @ MetaInstanceCreatorImpl<SplineCV,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9680 @ MetaInstanceCreatorImpl<SplineCV,1>::Create
+// FUNCTION: ENGINE 0x108D9AA0 @ MetaInstanceCreatorImpl<math::AABB,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9AD0 @ MetaInstanceCreatorImpl<math::AABB,1>::Create
+// FUNCTION: ENGINE 0x108D9AE0 @ MetaInstanceCreatorImpl<math::OBB,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9B10 @ MetaInstanceCreatorImpl<math::OBB,1>::Create
+// FUNCTION: ENGINE 0x108D9B20 @ MetaInstanceCreatorImpl<math::Plane,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9B50 @ MetaInstanceCreatorImpl<math::Plane,1>::Create
+// FUNCTION: ENGINE 0x108DA2A0 @ MetaBehaviourCreatorImpl<animation::AttachableBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA2D0 @ MetaBehaviourCreatorImpl<animation::AttachableBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA430 @ MetaBehaviourCreatorImpl<BehaviourController>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA460 @ MetaBehaviourCreatorImpl<BehaviourController>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAA20 @ MetaBehaviourCreatorImpl<HealthBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAA50 @ MetaBehaviourCreatorImpl<HealthBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAB10 @ GetClassMetaType<LightBehaviour>
+// FUNCTION: ENGINE 0x108DAB60 @ MetaBehaviourCreatorImpl<LightBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAB90 @ MetaBehaviourCreatorImpl<LightBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB5C0 @ MetaBehaviourCreatorImpl<TriggerBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB5F0 @ MetaBehaviourCreatorImpl<TriggerBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DBC50 @ RegisterMetaObjectFactory<ContentManager::ContentPackageDefinition>
+// FUNCTION: ENGINE 0x108DBCA0 @ RegisterMetaObjectFactory<ContentManager::ContentPackageKey>
+// FUNCTION: ENGINE 0x108DBE30 @ RegisterMetaObjectFactory<PropSpawner>
+// FUNCTION: ENGINE 0x108DC1A0 @ RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>
+// FUNCTION: ENGINE 0x108DCC40 @ RegisterMetaInstanceCreator<camera::Camera>
+// FUNCTION: ENGINE 0x108DCC90 @ RegisterMetaInstanceCreator<camera::Cinematographer>
+// FUNCTION: ENGINE 0x108DCF10 @ RegisterMetaInstanceCreator<PatrolPoint>
+// FUNCTION: ENGINE 0x108DCF60 @ RegisterMetaInstanceCreator<SplineCV>
+// FUNCTION: ENGINE 0x108DD1E0 @ RegisterMetaInstanceCreator<math::AABB>
+// FUNCTION: ENGINE 0x108DD230 @ RegisterMetaInstanceCreator<math::OBB>
+// FUNCTION: ENGINE 0x108DD280 @ RegisterMetaInstanceCreator<math::Plane>
+// FUNCTION: ENGINE 0x108DD730 @ RegisterMetaBehaviourCreator<animation::AttachableBehaviour>
+// FUNCTION: ENGINE 0x108DD820 @ RegisterMetaBehaviourCreator<BehaviourController>
+// FUNCTION: ENGINE 0x108DDB40 @ RegisterMetaBehaviourCreator<HealthBehaviour>
+// FUNCTION: ENGINE 0x108DDBE0 @ RegisterMetaBehaviourCreator<LightBehaviour>
+// FUNCTION: ENGINE 0x108DE130 @ RegisterMetaBehaviourCreator<TriggerBehaviour>
