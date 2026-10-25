@@ -84,6 +84,9 @@ namespace engine
 	template<> class Attribute<core::Name<core::CaseSensitiveKey> > : public ConstAttribute<core::Name<core::CaseSensitiveKey> >
 	{
 	public:
+		// The vftable's second slot (the engine's copy is in another unit)
+		virtual core::Name<core::CaseSensitiveKey>& Get();
+
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	};

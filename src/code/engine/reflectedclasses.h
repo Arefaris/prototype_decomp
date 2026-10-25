@@ -7,6 +7,7 @@
 
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/engine/render/renderbehaviour.h"
 
 
 namespace engine
@@ -207,17 +208,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0x14];
-	};
-
-	// RenderBehaviour: constructor 0x108636B0, reflection 0x10862350 / 0x10862F60
-	class RenderBehaviour : public engine::Behaviour
-	{
-	public:
-		RenderBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x34];
 	};
 
 	// SecondaryPhysicsBehaviour: constructor 0x10929460, reflection 0x10927F60 / 0x10928F80

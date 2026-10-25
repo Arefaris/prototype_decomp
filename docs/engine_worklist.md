@@ -4748,3 +4748,25 @@ instantiate, of `ArrayFixed<core::Name, 16>` and of the attribute writers.
   constructor than the instance symbol names.
 - Not done in the range: 0x10867900 - 0x10867B50 (the FMV request list), 0x10868150 (spawns an object from a template and
   sends it its initial state), 0x1086B940 / 0x1086B960 (find a template in the root inventory).
+
+### engine/render/renderbehaviour.cpp (0x10862350 - 0x10863850)
+
+`RenderBehaviour` (RTTI and reflection name "RenderBehaviour"): the behaviour that draws a game object. It makes a
+`render::Drawable` from an archetype (reflected as the named reference "drawableSource" and the package name
+"sourcePackage"), puts the object's transform, scaled, and the pose on it every update and forwards the drawable
+messages (types 7 - 10). The class used to be a stub in `reflectedclasses.h`. New shared pieces:
+`content/namedreference.h` (the named reference meta type family: three accessors, the getter answers the name), a
+`Drawable(unsigned int)` constructor, `Attribute<core::Name>::Get` declared. 38 functions match, 2 are EQUIVALENT
+(`OnMessage`: shrink-wrap and 8 bytes more frame for the temporaries of the cases, 55.8 %; the constructor: one `lea`
+sits before the stores of the three scales in the engine, 93.2 %).
+
+- The scale, its target and its factor are one struct whose constructor takes the 1.0 once (three separate member
+  initialisers load `driving::gOne` three times); the update compares and writes the member in place with an
+  `old` copy for the final compare, and `!(target > moved)` gives the engine's operand order.
+- A pose argument is `Pose::mData` through an explicit pointer (the engine's dead `add eax, 0x10` appears with it).
+- `Update` copies the scaling attribute pointer into a local inside the `if`; `SetPose` has no early return.
+- The case bodies of `OnMessage` come out in the order the switch lists them: 2, 0x1a, 1, 8, 7, 9, 10 and, inside the
+  type 7 switch, 7, 9, 10, 2, 3, 4, 5, 6, 8, 0xB (the other switches: 0, 1, 3, 2 / 4, 2, 3, 0, 1, 7, 8). The Drawable of
+  the type 7 / id 3 message is made through a constructor that stores -1 and then the handle (the dead store stays).
+- Not done in the range: 0x10860000 - 0x10862300 (the hardware profile, render queue and display setup),
+  0x10863850 - 0x10863900 (identical `ret`/getter stubs), 0x108622E0 - 0x10862340 (`PlayerControlInfo`).
