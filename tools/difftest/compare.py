@@ -231,6 +231,9 @@ def compareWrites(engine, ours, context, add):
 			ov = bytes(oFinal.get(base + k, 0) for k in range(4))
 			ourValue = struct.unpack("<I", ov)[0]
 			engineValue = struct.unpack("<I", ev)[0]
+			# the engine stores a function by its incremental-link thunk: compare the function behind it
+			if context.image.contains(engineValue):
+				engineValue = context.image.followThunks(engineValue)
 			if ourValue in vtables and context.image.contains(engineValue) and context.image.readOnly(engineValue):
 				installed.update(range(base, base + 4))
 			elif ourValue in ownFunctions and context.image.contains(engineValue) and project.symbolAt(engineValue) == ownFunctions[ourValue]:

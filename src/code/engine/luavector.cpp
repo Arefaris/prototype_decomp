@@ -660,12 +660,15 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10840B90
-	// EQUIVALENT: ReadVector takes the state in ebx, the engine's on the stack (call sequences and stack offsets differ), 69.0 %
+	// EQUIVALENT: ReadVector takes the state in ebx, the engine's on the stack (call sequences and stack offsets differ), 70.4 %
 	static int LuaMagnitude(lua_State* L)
 	{
 		math::Vector vector;
 		ReadVector(L, 1, &vector);
-		lua_pushnumber(L, sqrtf(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z));
+		float sum = vector.x * vector.x;
+		sum += vector.y * vector.y;
+		sum += vector.z * vector.z;
+		lua_pushnumber(L, sqrtf(sum));
 		return 1;
 	}
 
