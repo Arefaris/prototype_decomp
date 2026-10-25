@@ -30,6 +30,8 @@ namespace ravenphysics
 		Constraint(int newKind);
 		// The same between the objects the two handles name (0x1065EE40)
 		Constraint(const CollisionHandle* first, const CollisionHandle* second, int newKind);
+		// A copy of another constraint's handles and objects (0x1065EEE0)
+		Constraint(const Constraint& other);
 
 		// 0: 0 for the first handle, 1 for the second, -1 for another (0x1065ACB0)
 		virtual int GetSide(const CollisionHandle* handle);

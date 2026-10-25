@@ -18,9 +18,24 @@ namespace ravenphysics
 	{
 		// The index into the grid's material table (0x10662E50)
 		unsigned int GetMaterial() const;
+		// One of the three vertices (0x10662960)
+		unsigned short GetVertex(int index) const;
+		// The three flag bits (0x10667370 / 0x10667380 / 0x10667390)
+		unsigned int GetFlag0() const;
+		unsigned int GetFlag1() const;
+		unsigned int GetFlag2() const;
 
 		unsigned short vertex[3];
-		unsigned short flags;
+		union
+		{
+			unsigned short flags;
+			struct
+			{
+				unsigned char flag0 : 1;
+				unsigned char flag1 : 1;
+				unsigned char flag2 : 1;
+			};
+		};
 	};
 
 	// What the copies of a mesh volume share (0x10 bytes): a count of the owners and the blocks they free together
@@ -32,18 +47,24 @@ namespace ravenphysics
 		~MeshSlot();
 		// One more owner (0x10665C20)
 		void AddRef();
+		// Sets the size of a record (0x10662E40)
+		void SetRecordSize(unsigned int size);
 		// One owner less; the last one frees the slot (0x10666290)
 		void Release();
 
 		unsigned int refCount;     // 0x00
-		unsigned int* unknown4;    // 0x04 (an array)
-		unsigned int* unknown8;    // 0x08
+		unsigned short* unknown4;  // 0x04 (an array, three words per triangle)
+		unsigned char* unknown8;   // 0x08 (an array of records of unknownC bytes)
 		unsigned int unknownC;     // 0x0C
 	};
 
 	// A 14-byte record of the grid (meaning unknown)
 	struct MeshRecord
 	{
+		// The three numbers after the first (0x10667430) and the three after those (0x10667440)
+		unsigned short GetFace(int index) const;
+		unsigned short GetNeighbour(int index) const;
+
 		unsigned short unknown[7];
 	};
 
@@ -75,6 +96,8 @@ namespace ravenphysics
 		void GetTriangleAndFace(unsigned short face, GridFace* faceOut, math::Vector* corners);
 		// The material table entry of a triangle (0x106636F0)
 		MeshMaterial* GetMaterialOf(unsigned short face);
+		// The record of the shared slot for a triangle, none when the slot has no records (0x10667630)
+		unsigned char* GetSlotData(unsigned short index);
 
 		CollisionVolume6* volume;       // 0x00
 		math::Matrix matrix;            // 0x04

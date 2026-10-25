@@ -83,6 +83,24 @@ namespace ravenphysics
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10663EB0
+	void CollisionVolume::MarkDestroyed()
+	{
+		unknown3 = 0xAB;
+	}
+
+	// FUNCTION: ENGINE 0x10663EC0
+	void CollisionVolume::Retain()
+	{
+		unknown3 += 1;
+	}
+
+	// FUNCTION: ENGINE 0x10663ED0
+	void CollisionVolume::Release()
+	{
+		unknown3 -= 1;
+	}
+
 	// FUNCTION: ENGINE 0x106641A0
 	void CollisionCapsule::GetLocalCapsule(math::Capsule* out) const
 	{
@@ -140,6 +158,95 @@ namespace ravenphysics
 	void CollisionCapsule::Move(const math::Matrix& matrix)
 	{
 		capsule.Transform(matrix);
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10664EB0
+	// EQUIVALENT: the same operations in the same order; the engine keeps the helper axis in a stack vector and reads it back through a pointer, ours keeps it in registers, and the scaled products are scheduled differently, 29.0 %
+	void CollisionCapsule::Scale(const math::Vector* scale)
+	{
+		math::Capsule local;
+		GetLocalCapsule(&local);
+		float length = (float)sqrt((double)(local.direction.x * local.direction.x + local.direction.z * local.direction.z + local.direction.y * local.direction.y));
+		float limit = length * 0.9f;
+		math::Vector reference;
+		if (local.direction.x > math::WORLD_MIN - limit && limit > local.direction.x)
+		{
+			reference.x = 1.0f;
+			reference.y = 0.0f;
+			reference.z = 0.0f;
+		}
+		else
+		{
+			reference.x = 0.0f;
+			reference.y = 0.0f;
+			reference.z = 1.0f;
+		}
+		math::Vector across;
+		across.Cross(reference, local.direction);
+		across.x = scale->x * across.x;
+		across.y = scale->y * across.y;
+		across.z = scale->z * across.z;
+		float acrossLength = (float)sqrt((double)(across.z * across.z + across.y * across.y + across.x * across.x));
+		local.direction.x = scale->x * local.direction.x;
+		local.direction.y = scale->y * local.direction.y;
+		local.direction.z = scale->z * local.direction.z;
+		local.radius = acrossLength * local.radius;
+		float scaledLength = local.direction.Normalize();
+		local.centre.x = scale->x * local.centre.x;
+		local.centre.y = local.centre.y * scale->y;
+		local.centre.z = scale->z * local.centre.z;
+		local.halfLength = (local.halfLength / length) * scaledLength;
+		SetCapsule(local);
+	}
+
+	// FUNCTION: ENGINE 0x10665060
+	// EQUIVALENT: the same products and differences (the third axis is the second crossed with the first); the engine loads the six components in another order and keeps the sums in other registers, 85.2 %
+	void CollisionOBB::SetOBB(const math::OBB& newBox)
+	{
+		math::OBB* world = &obb;
+		*world = newBox;
+		float bx = world->axis[1].x;
+		float ax = world->axis[0].x;
+		float bz = world->axis[1].z;
+		float az = world->axis[0].z;
+		float ay = world->axis[0].y;
+		world->axis[2].y = ax * bz - bx * az;
+		float by = world->axis[1].y;
+		world->axis[2].z = ay * bx - by * ax;
+		world->axis[2].x = by * az - ay * bz;
+		Copy(localCentre, newBox.centre);
+		Copy(localAxis0, newBox.axis[0]);
+		Copy(localAxis1, newBox.axis[1]);
+		newBox.GetAABB(bounds);
+	}
+
+	// FUNCTION: ENGINE 0x10665470
+	// EQUIVALENT: the same calls and the same cross product; the engine reads the axes back through their pointers, ours addresses them from the box, and the products are scheduled differently, 42.9 %
+	void CollisionOBB::Move(const math::Matrix& matrix)
+	{
+		math::OBB* world = &obb;
+		matrix.Transform(world->centre, world->centre);
+		matrix.Rotate(world->axis[0], world->axis[0]);
+		matrix.Rotate(world->axis[1], world->axis[1]);
+		float ax = world->axis[0].x;
+		float bx = world->axis[1].x;
+		float az = world->axis[0].z;
+		float bz = world->axis[1].z;
+		float by = world->axis[1].y;
+		float ay = world->axis[0].y;
+		math::Vector* third = &world->axis[2];
+		third->x = ay * bz - by * az;
+		third->y = bx * az - ax * bz;
+		third->z = by * ax - ay * bx;
+		third->NormalizeFast();
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10665550
+	void CollisionSphere::Move(const math::Matrix& matrix)
+	{
+		matrix.Transform(sphere.centre, sphere.centre);
 		UpdateBox();
 	}
 
@@ -226,6 +333,46 @@ namespace ravenphysics
 		bounds.SetTransformed(matrix, localBox);
 	}
 
+	// FUNCTION: ENGINE 0x10663EE0
+	const math::Vector* CollisionVolume::GetPosition()
+	{
+		switch (type)
+		{
+		case 0:
+		case 4:
+			return &((CollisionCapsule*)this)->capsule.centre;
+		case 1:
+			return &((CollisionOBB*)this)->obb.centre;
+		case 2:
+			return &((CollisionSphere*)this)->sphere.centre;
+		case 3:
+			return &((CollisionVolume3*)this)->world;
+		default:
+			return &math::kZeroVector;
+		case 6:
+			return (const math::Vector*)&((CollisionVolume6*)this)->grid.matrix.m[3][0];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10663F30
+	const math::Vector* CollisionVolume::GetLocalPosition()
+	{
+		switch (type)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 4:
+			return &((CollisionCapsule*)this)->localCentre;
+		case 3:
+			return &((CollisionVolume3*)this)->world;
+		default:
+			return &math::kZeroVector;
+		case 6:
+			return (const math::Vector*)&((CollisionVolume6*)this)->grid.matrix.m[3][0];
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10663F70
 	CollisionPlane::CollisionPlane(const CollisionPlane& other) :
 		CollisionVolume(other),
@@ -273,6 +420,56 @@ namespace ravenphysics
 		out->axis[2].x = a.y * b.z - a.z * b.y;
 		Copy(out->extents, obb.extents);
 	}
+
+	// FUNCTION: ENGINE 0x106643E0
+	// EQUIVALENT: the same products and sums in the same order; the engine loads the centre and the radius ahead of the first product and keeps the sums in registers, 10.3 %
+	void CollisionSphere::UpdateWorld(CollisionObject* object)
+	{
+		float z = localCentre.z;
+		float y = localCentre.y;
+		float x = localCentre.x;
+		const math::Matrix& m = object->transform;
+		float worldX = m.m[1][0] * y + m.m[2][0] * z + x * m.m[0][0] + m.m[3][0];
+		float worldY = m.m[0][1] * x + m.m[1][1] * y + m.m[2][1] * z + m.m[3][1];
+		float radius = sphere.radius;
+		float worldZ = m.m[0][2] * x + m.m[1][2] * y + m.m[2][2] * z + m.m[3][2];
+		bounds.min.x = worldX - radius;
+		bounds.min.y = worldY - radius;
+		bounds.min.z = worldZ - radius;
+		bounds.max.x = worldX + radius;
+		bounds.max.y = worldY + radius;
+		bounds.max.z = worldZ + radius;
+		sphere.centre.x = worldX;
+		sphere.centre.y = worldY;
+		sphere.centre.z = worldZ;
+	}
+
+	// FUNCTION: ENGINE 0x106646E0
+	// NONMATCHING: the loop is addressed through the index register and the comparisons' operand order differs, best 15.4 %
+#ifdef NONMATCHING
+	bool CollisionVolume::AreBoundsFinite()
+	{
+		const float* values = (const float*)this;
+		for (int i = 0; i < 3; i++)
+		{
+			float low = values[i + 1];
+			float high = values[i + 4];
+			if (!(fabs(low) < 1e12f))
+			{
+				return false;
+			}
+			if (!(fabs(high) < 1e12f))
+			{
+				return false;
+			}
+			if (low > high)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x106644D0
 	void CollisionSphere::UpdateBox()
@@ -687,7 +884,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10665BD0
 	void CollisionVolume6::SetUnknown120(int value)
 	{
-		unknown120 = value;
+		mesh = (ConvexMesh*)value;
 	}
 
 	// FUNCTION: ENGINE 0x10665DF0
@@ -1029,7 +1226,7 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106664D0
 	CollisionVolume6::CollisionVolume6() :
 		CollisionVolume(6),
-		unknown120(0)
+		mesh(0)
 	{
 		grid.volume = this;
 		gCollisionObjectTable->AddMesh(this, &handle);
@@ -1039,10 +1236,10 @@ namespace ravenphysics
 	CollisionVolume6::CollisionVolume6(const CollisionVolume6& other) :
 		CollisionVolume(other),
 		grid(other.grid),
-		unknown120(other.unknown120)
+		mesh(other.mesh)
 	{
 		grid.volume = this;
-		if (unknown120 != 0)
+		if (mesh != 0)
 		{
 			grid.unknownE4 = new unsigned short[grid.unknown92];
 			memcpy(grid.unknownE4, other.grid.unknownE4, grid.unknown92 * 2);
@@ -1057,7 +1254,7 @@ namespace ravenphysics
 	CollisionVolume6::CollisionVolume6(const BroadPhaseGrid& newGrid) :
 		CollisionVolume(6),
 		grid(newGrid),
-		unknown120(0)
+		mesh(0)
 	{
 		grid.volume = this;
 		gCollisionObjectTable->AddMesh(this, &handle);
@@ -1068,7 +1265,7 @@ namespace ravenphysics
 	CollisionVolume6::~CollisionVolume6()
 	{
 		gCollisionObjectTable->Remove(&handle);
-		unknown120 = 0;
+		mesh = 0;
 		grid.Destroy();
 	}
 }
@@ -1198,3 +1395,9 @@ template void std::_Sort<unsigned short*, int>(unsigned short*, unsigned short*,
 // FUNCTION: ENGINE 0x10666E40
 template void std::sort<unsigned short*>(unsigned short*, unsigned short*);
 
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x10662E30
+// FUNCTION: ENGINE 0x10663C30
+// FUNCTION: ENGINE 0x10665C30

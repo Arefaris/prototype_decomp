@@ -90,6 +90,8 @@ namespace ravenphysics
 
 		// Sets or clears the low three bits of collisionMode (0x1065F540; name guess)
 		void SetState(unsigned char mask, bool set);
+		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
+		void SetCollisionMode(unsigned short mode);
 
 		// Takes the filter and tells the detector (name guess)
 		void SetMasks(const BroadPhaseMasks& newMasks)
@@ -282,17 +284,6 @@ namespace ravenphysics
 		// (0x106612C0). The parameter is one byte, not a word: the wake path calls it with the result of a
 		// comparison, which the engine passes on without widening (`sete al` then a bare `push eax`).
 		void RefreshBounds(bool unused);
-		// Sets the low two bits of collisionMode and tells the detector (0x1065F6D0, another unit)
-		void SetCollisionMode(unsigned short mode);
-		// 0x10678250: sets what the object is tested against (the three words go to +0x28)
-		void SetFilter(const IntersectionFilter* filter);
-		// 0x106780A0: gives the object's first volume the box (placed by the matrix), copies the volume's bounds into
-		// the object and its detector box and sets the collision mode to 2 (name guess)
-		void SetBox(const math::OBB& box, const math::Matrix& transform);
-		// 0x10678130: the same with a sphere (name guess)
-		void SetSphere(const math::Sphere& sphere, const math::Matrix& transform);
-		// 0x10677F90: the same for the volume it has (placed by the matrix; name guess)
-		void SetTransform(const math::Matrix& transform);
 
 		core::Name<core::CaseSensitiveKey> name;   // 0x40
 		int unknown48;
@@ -311,6 +302,49 @@ namespace ravenphysics
 			return link != 0 && link->pairMask != 0 && !(unknown50 & 1);
 		}
 	};
+
+	// ravenphysics::TriggerObject (RTTI): an object of the broad phase around one volume (or no volume, only the
+	// box), the kind the trigger volumes of the game are made of. Unit 0x10677BC0 - 0x10678390 (no assert path, so the
+	// file name is a guess).
+	class TriggerObject : public BroadPhaseObject
+	{
+	public:
+		// Registers the object in the handle table (0x10677BF0)
+		TriggerObject();
+		// Takes it out again and deletes the volume (0x10677C30; deleting destructor 0x10678380)
+		~TriggerObject();
+
+		// Slot 5 (0x10677C20)
+		virtual int GetUnknown48();
+		// Slot 6 (0x10677BC0)
+		virtual bool HasVolumeType(unsigned short type);
+
+		// Places the volume it has by the matrix and takes its bounds (0x10677F90)
+		void SetTransform(const math::Matrix& transform);
+		// Gives the volume the shape (placed by the matrix) and takes its bounds, the same for each kind of shape
+		// (0x10678010 capsule, 0x106780A0 box, 0x10678130 sphere, 0x106781C0 plane)
+		void SetCapsule(const math::Capsule& capsule, const math::Matrix& transform);
+		void SetBox(const math::OBB& box, const math::Matrix& transform);
+		void SetSphere(const math::Sphere& sphere, const math::Matrix& transform);
+		void SetPlane(const void* plane, const math::Matrix& transform);
+		// Sets what the object is tested against (the three words go to the masks, two to the volume; 0x10678250)
+		void SetFilter(const IntersectionFilter* filter);
+		// Sets or clears the bits of the first (0x106782A0) and the second (0x10678310) word of the masks
+		void SetFilterBits(unsigned int mask, bool set);
+		void SetFilterBits2(unsigned int mask, bool set);
+
+		CollisionVolume* volume;         // 0x40
+		int unknown44;
+	};
+
+	// A trigger object around a box, no volume (0x10677C70; name guess) and around a volume (0x10677D50)
+	TriggerObject* CreateTriggerFromBox(const BroadPhaseBox* box, const IntersectionFilter* filter);
+	TriggerObject* CreateTriggerFromVolume(CollisionVolume* volume, const IntersectionFilter* filter);
+
+	// A trigger object around a box or around a volume, kept alive by one reference, and the handle it is registered
+	// under written to the first argument (0x1066AA50 / 0x1066AA80; names guessed)
+	ObjectHandle* CreateObject(ObjectHandle* handle, const BroadPhaseBox* box, const IntersectionFilter* filter);
+	ObjectHandle* CreateObject(ObjectHandle* handle, CollisionVolume* volume, const IntersectionFilter* filter);
 
 	// The physics object of a collision volume (0x10661140)
 	PhysicsObject* CreatePhysicsObject(CollisionVolume* volume, bool flag, float size);

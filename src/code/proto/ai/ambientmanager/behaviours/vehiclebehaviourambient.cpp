@@ -800,7 +800,7 @@ namespace proto
 		if (simulated)
 		{
 			ravenphysics::PhysicsObject* object = physicsHandle.GetObjectUnchecked();
-			object->SetTransform(owner->transform->value);
+			((ravenphysics::TriggerObject*)object)->SetTransform(owner->transform->value);
 		}
 		if (mode == 0)
 		{
@@ -1595,7 +1595,7 @@ namespace proto
 				ravenphysics::IntersectionFilter filter;
 				filter.properties.unknown0 = 2;
 				filter.properties.unknown4 = 1;
-				object->SetFilter(&filter);
+				((ravenphysics::TriggerObject*)object)->SetFilter(&filter);
 			}
 		}
 		else
@@ -1603,7 +1603,7 @@ namespace proto
 			ravenphysics::IntersectionFilter filter;
 			filter.properties.unknown0 = 0x8000;
 			filter.properties.unknown4 = 0x2000;
-			object->SetFilter(&filter);
+			((ravenphysics::TriggerObject*)object)->SetFilter(&filter);
 		}
 		Unknown10447280(0.0f);
 	}

@@ -16,7 +16,8 @@ namespace container
 {
 	// How Erase moves the elements down: 1 with a loop of its own (the engine's compiler inlines the assignment of
 	// small elements), 0 with a call of AssignRange (larger elements; a class of this kind specialises it), 2 with
-	// CopyRange (pointers, whose loop keeps the distance between its two pointers in a register)
+	// CopyRange (pointers, whose loop keeps the distance between its two pointers in a register), 3 with that loop
+	// written out (small elements the engine moves like pointers)
 	template<class T> struct ArrayEraseInline
 	{
 		enum
@@ -29,6 +30,15 @@ namespace container
 		enum
 		{
 			value = 2
+		};
+	};
+
+	// Whether Reserve stores the begin pointer before the end pointer (the engine's copies differ in this)
+	template<class T> struct ArrayReserveBeginFirst
+	{
+		enum
+		{
+			value = 0
 		};
 	};
 
@@ -214,6 +224,16 @@ namespace container
 			{
 				CopyRange(position + 1, end, position);
 			}
+			else if (ArrayEraseInline<T>::value == 3)
+			{
+				// The loop of the pointer arrays' helper, in the array itself
+				T* last = end;
+				T* destination = position;
+				for (T* source = position + 1; source != last; source++, destination++)
+				{
+					*destination = *source;
+				}
+			}
 			else
 			{
 				AssignRange(position + 1, end, position);
@@ -288,9 +308,18 @@ namespace container
 					Destroy(begin, end);
 					operator delete[](begin);
 				}
-				end = storage + keep;
-				begin = storage;
-				capacity = storage + count;
+				if (ArrayReserveBeginFirst<T>::value == 1)
+				{
+					begin = storage;
+					end = storage + keep;
+					capacity = storage + count;
+				}
+				else
+				{
+					end = storage + keep;
+					begin = storage;
+					capacity = storage + count;
+				}
 			}
 		}
 		// Inserts count copies of value before position when they fit; answers position, or the old end when they

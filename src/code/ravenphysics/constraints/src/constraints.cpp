@@ -300,3 +300,8 @@ namespace ravenphysics
 // The getter / setter helpers of the cone's reflection, kept as out-of-line instances
 template class PrimitiveMemberGetSetter<ravenphysics::ConstraintInsideOfCone, float>;
 template class VectorMemberGetSetter<ravenphysics::ConstraintInsideOfCone>;
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x106617B0
+// FUNCTION: ENGINE 0x1066AD30

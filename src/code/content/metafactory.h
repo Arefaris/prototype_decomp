@@ -105,7 +105,7 @@ namespace content
 	// 0x105FFD60: adds the creator to the library's map under the hash of its name
 	void RegisterInstanceCreator(MetaInstanceCreator* creator);
 
-	template<class T> void RegisterMetaInstanceCreator()
+	template<class T> inline void RegisterMetaInstanceCreator()
 	{
 		ClassMetaType* type = GetClassMetaType<T>();
 		static MetaInstanceCreatorImpl<T, 1> sCreator(type->GetName(), 1, type);

@@ -11,6 +11,7 @@
 #include "code/math/plane.h"
 #include "code/math/matrix.h"
 #include "code/math/sphere.h"
+#include "code/math/triangle.h"
 #include "code/math/symmetricmatrix.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/broadphase/broadphasegrid.h"
@@ -21,7 +22,9 @@ namespace ravenphysics
 	class CollisionObject;
 	class CollisionShape;
 	class ConvexMesh;
+	struct ConvexHullData;
 	class PhysicsObject;
+	class TriggerObject;
 
 	// The query filters a volume asks for, accumulated by the object it belongs to (meanings unknown)
 	struct CollisionFilter
@@ -55,6 +58,12 @@ namespace ravenphysics
 		// Recomputes the volume's world bounds from the object's transform; a switch over the type byte that runs
 		// the volume's own per-type update (0x10665690, another unit)
 		void UpdateBounds(CollisionObject* object);
+		// The point the volume is placed at, by its type (0x10663EE0): the centre of the shape, the hull's point, the
+		// mesh's translation, the zero vector for the plane; and the local centre of the shape (0x10663F30)
+		const math::Vector* GetPosition();
+		const math::Vector* GetLocalPosition();
+		// Whether the bounds are finite, in the world's range and not inverted (0x106646E0; name guess)
+		bool AreBoundsFinite();
 		// The name of the volume's type (0x10664740, another unit; name guess)
 		const char* GetTypeName();
 		// Raises the volume against a query, answering whether it hit and writing the point and the distance
@@ -133,6 +142,9 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale);
 		// The local box (0x10664220)
 		void GetLocalOBB(math::OBB* out) const;
+		// Moves the world box by a matrix: the centre as a point, the axes as directions, the third axis is crossed anew
+		// and the bounds set (0x10665470; name guess)
+		void Move(const math::Matrix& matrix);
 		// The box around the world box (0x106642D0)
 		void UpdateBox();
 		// Prints the vectors (0x10664370)
@@ -160,6 +172,8 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale);
 		// The local sphere (0x106643C0)
 		void GetLocalSphere(math::Sphere* out) const;
+		// Moves the world sphere by a matrix and sets the bounds (0x10665550; name guess)
+		void Move(const math::Matrix& matrix);
 		// Sets the bounds to the world sphere's box (0x106644D0)
 		void UpdateBox();
 		// Prints the vectors (0x106645B0)
@@ -198,12 +212,45 @@ namespace ravenphysics
 		math::Plane plane;            // 0x4C
 	};
 
+	// The hull of a convex volume, shared by its copies (0x50 bytes; names are guesses)
+	struct ConvexHullData
+	{
+		// An empty hull (0x1067FA30), its end (0x1067FA60; deleting destructor 0x1067FAE0) and one more owner (0x1067FAD0)
+		ConvexHullData();
+		~ConvexHullData();
+		void AddRef();
+
+		math::AABB bounds;             // 0x00
+		math::Vector centre;           // 0x18
+		unsigned short refCount;       // 0x24
+		unsigned short vertexCount;    // 0x26
+		unsigned short edgeCount;      // 0x28
+		unsigned short faceCount;      // 0x2A
+		math::Vector* vertices;        // 0x2C
+		unsigned char* edges;          // 0x30 (the vertex indexes of each edge, two bytes each)
+		math::Plane* faces;            // 0x34
+		unsigned int unknown38;        // 0x38 (the size of the block at 0x44)
+		unsigned int unknown3C;        // 0x3C (the number of words at 0x48)
+		unsigned int unknown40;        // 0x40
+		void* unknown44;               // 0x44
+		void* unknown48;               // 0x48
+		void* unknown4C;               // 0x4C
+	};
+
 	// A volume of type 3, and the face list a type 4 volume keeps at +0x60 (class and member names are guesses)
 	class CollisionVolume3 : public CollisionVolume
 	{
 	public:
-		// A copy (0x1067FFE0, another unit)
+		// A volume around a hull (0x106800B0, another unit)
+		explicit CollisionVolume3(ConvexHullData* hull);
+		// A volume of no hull (0x1067FBF0)
+		CollisionVolume3();
+		// A hull of the three corners of a triangle (0x1067FCA0)
+		explicit CollisionVolume3(const math::Triangle& triangle);
+		// A copy (0x1067FFE0)
 		CollisionVolume3(const CollisionVolume3& other);
+		// Moves the volume by a matrix (0x1067FBA0; name guess)
+		void Move(const math::Matrix& transform);
 		// Takes the object's transform, its inverse, the point and the box through it (0x10664A10)
 		void UpdateWorld(CollisionObject* object);
 		// A hull is not scaled
@@ -213,7 +260,12 @@ namespace ravenphysics
 		// Direction from the nearest point of the volume to the point, and the distance (0x106802A0, another unit)
 		void GetDirection(const void* point, math::Vector* direction, float* distance);
 
-		unsigned char unknown24[4];
+		// The world position of the volume (0x10663DF0) and the box around the hull's box moved by the matrix
+		// (0x10663E00)
+		math::Vector* GetWorld();
+		void UpdateBounds();
+
+		ConvexHullData* hull;         // 0x24
 		math::Matrix matrix;          // 0x28
 		math::Matrix inverse;         // 0x68
 		math::Vector world;           // 0xA8
@@ -231,8 +283,12 @@ namespace ravenphysics
 	// A volume of type 4: the volume plus its face list (0x10654670 gives every face a material)
 	struct CollisionVolume4 : CollisionVolume
 	{
+		// A cylinder volume (0x10681EE0, another unit)
+		explicit CollisionVolume4(const math::Cylinder& cylinder);
 		// A copy (0x10664B20)
 		CollisionVolume4(const CollisionVolume4& other);
+		// The volume of the faces' materials (0x10663E20)
+		CollisionVolume3* GetMaterials();
 
 		float unknown24;
 		float unknown28;
@@ -380,6 +436,8 @@ namespace ravenphysics
 		}
 		// The object a handle names (0x10656090)
 		void* GetObject(const CollisionHandle* handle) const;
+		// The same without the check of the serial (0x1066AAB0; name guess)
+		void* GetObjectUnchecked(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
 		void Remove(CollisionHandle* handle);
 		// The same for a body's id word
@@ -392,6 +450,8 @@ namespace ravenphysics
 		void AddPhysicsObject(PhysicsObject* object, int* id);
 		// The same for a mesh (0x10665DF0, a forward to Add; name guess)
 		void AddMesh(CollisionVolume6* mesh, CollisionHandle* handle);
+		// The same for a trigger object (0x10677BE0, a forward to Add; name guess)
+		void AddTrigger(TriggerObject* object, int* id);
 	};
 
 	// A mesh (type 6, 0x130 bytes): its grid of triangles and a handle in the physics handle table
@@ -429,12 +489,34 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale)
 		{
 		}
-		// Sets the word at 0x120 (0x10665BD0)
+		// Sets the mesh the volume belongs to, given as a number (0x10665BD0)
 		void SetUnknown120(int value);
+
+		// The position of a vertex (0x10662970) and the three neighbours of a triangle (0x10662990)
+		math::Vector* GetVertex(unsigned short index);
+		unsigned short* GetNeighbours(unsigned short face);
+		// The normal of a triangle of the grid in the mesh's space (0x106674B0) and in the world (0x10667560); the
+		// same for the triangle with a number (0x10667CA0 / 0x10667CC0)
+		void GetFaceNormal(const GridFace* face, math::Vector* normal);
+		void GetWorldFaceNormal(const GridFace* face, math::Vector* normal);
+		void GetFaceNormalAt(unsigned short index, math::Vector* normal);
+		void GetWorldFaceNormalAt(unsigned short index, math::Vector* normal);
+		// Whether the grid carries a matrix (0x10667450)
+		bool IsTransformed() const;
+		// The record of the grid with a number (0x10667460), the index of the record of a triangle (0x10667480) and
+		// the number of records (0x106674A0)
+		MeshRecord* GetRecord(unsigned short index);
+		unsigned short* GetRecordIndex(unsigned short index);
+		int GetRecordCount() const;
+		// The mesh the volume belongs to (0x10667610) and the handle (0x10667620)
+		ConvexMesh* GetMesh() const;
+		CollisionHandle* GetHandle();
+		// The record of the shared slot for a triangle (0x10667D80)
+		unsigned char* GetSlotData(unsigned short index);
 
 		unsigned char unknown24[0x30 - 0x24];
 		BroadPhaseGrid grid;            // 0x30
-		int unknown120;                 // 0x120
+		ConvexMesh* mesh;               // 0x120
 		CollisionHandle handle;         // 0x124
 		unsigned char unknown128[8];
 	};
@@ -482,20 +564,23 @@ namespace ravenphysics
 		math::Vector unknown40;    // 0x40
 		math::Vector unknown4C;    // 0x4C
 		math::SymmetricMatrix unknown58;    // 0x58
-		float boundsMinX;          // 0x70
-		float boundsMinY;
-		float boundsMinZ;
-		float boundsMaxX;
-		float boundsMaxY;
-		float boundsMaxZ;
+		math::SymmetricMatrix unknown70;    // 0x70 (the matrix at 0x58 carried to the world)
 		float unknown88;           // 0x88
 		float unknown8C;           // 0x8C
 		math::Vector unknown90;    // 0x90
 		math::Vector center;       // 0x9C
-		// Recomputes the bounds and the centre from the object's transform (0x10669240, another unit)
+		// The shape of a volume placed at a position, with its inertia matrix and scale (0x10669860)
+		CollisionShape(const math::Vector* position, const math::SymmetricMatrix* inertia, float newScale,
+			CollisionObject* newObject);
+		// Places the centre by the object's transform and carries the inertia matrix to the world (0x10669240)
 		void Update(CollisionObject* object);
-		// Recomputes the bounds from the transform the shape already has (0x10669C90, another unit)
+		// Takes the object's mass properties anew (0x10669C90, another unit)
 		void Refresh();
+		// The velocities of the point a position names, like GetPointVelocity from the previous vectors (0x106693F0;
+		// name guess)
+		void GetPreviousPointVelocity(math::Vector point, math::Vector* velocity);
+		// Clears the velocities taken in and bit 0 of the flags (0x10669130; name guess)
+		void ClearAccumulated();
 		// Clears the two orientation vectors and the transform (0x10669C60, another unit)
 		void Clear();
 		// Sets the scale and remembers its inverse (0x106691B0, another unit)
@@ -507,20 +592,20 @@ namespace ravenphysics
 		// Writes a position into the shape's offset vector (0x10669620, another unit)
 		void SetPosition(math::Vector position);
 		// Moves the shape to a point and marks it by the flag (0x10669E60, another unit)
-		void MoveTo(math::Vector position, int flag);
+		void MoveTo(math::Vector position, bool wake);
 		// Moves the shape from one point to another (0x10669F60, another unit)
-		void MoveTo(math::Vector from, math::Vector to, int flag);
+		void MoveTo(math::Vector from, math::Vector to, bool wake);
 		// Moves the shape by an offset and wakes the owner when asked (0x10669EB0, another unit; names of this
 		// group are guesses)
-		void Translate(math::Vector offset, int wake);
+		void Translate(math::Vector offset, bool wake);
 		// The velocity of a point of the shape, written through the pointer (0x10669340, another unit)
 		void GetPointVelocity(math::Vector point, math::Vector* velocity);
 		// Adds to the shape's velocity (0x106694A0, another unit)
-		void AddVelocity(math::Vector velocity, int wake);
+		void AddVelocity(math::Vector velocity, bool wake);
 		// Adds an impulse applied at a point to the velocity and the angular velocity (0x106694F0, another unit)
-		void AddImpulse(math::Vector impulse, math::Vector point, int wake);
+		void AddImpulse(math::Vector impulse, math::Vector point, bool wake);
 		// Adds to the shape's angular velocity (0x106695D0, another unit)
-		void AddAngularVelocity(math::Vector velocity, int wake);
+		void AddAngularVelocity(math::Vector velocity, bool wake);
 		// Sets bit 2 of the shape's flags (0x10669660, another unit)
 		void SetFlag2(int value);
 		// Sets the shape's width and marks it (0x1066A0B0, another unit)
@@ -545,9 +630,15 @@ namespace ravenphysics
 		void GetRelativeVelocity(math::Vector point, math::Vector* velocity);
 		void GetPreviousRelativeVelocity(math::Vector point, math::Vector* velocity);
 		// Moves the shape from a point to its own centre (0x106543B0)
-		void MoveToCenter(math::Vector from, int flag);
-		// Recomputes what depends on the matrix at 0x58 (0x10669160, another unit; name guess)
+		void MoveToCenter(math::Vector from, bool wake);
+		// Carries the matrix at 0x58 to the world (0x10669160; name guess)
 		void Unknown10669160();
+		// Sets the velocity or the angular velocity, kept under the limits when flag 4 is set (0x10669D00 / 0x10669DB0;
+		// names guessed)
+		void SetVelocity(math::Vector velocity);
+		void SetAngularVelocity(math::Vector velocity);
+		// Adds a velocity scaled by the shape's scale when flag 1 is set (0x10669F00; name guess)
+		void AddScaledVelocity(math::Vector velocity);
 
 		// The shape's own flags, in the bits of the byte at 0 (0x10654380, 0x106543A0, 0x10654410; the shape's
 		// unit is elsewhere, these copies sit in this object file)
@@ -563,10 +654,27 @@ namespace ravenphysics
 		float radius;              // 0xDC
 	};
 
+	// Sets the limits the velocities of the shapes are kept under; negative ones count as zero (0x10669C10; name guess)
+	void SetSpeedLimits(float linear, float angular);
+
+	// Whether a symmetric matrix is positive definite, by its determinant and its principal minors (0x10669680; name
+	// guess)
+	bool IsPositiveDefinite(const math::SymmetricMatrix* matrix);
+
+	// The centre of mass and the inertia matrix of the object's volumes at a scale (0x106A8AC0, another unit; name
+	// guess)
+	void ComputeMassProperties(CollisionObject* object, float scale, math::Vector* centre,
+		math::SymmetricMatrix* inertia);
+
+	// A shape for a volume placed at its position (0x1066A1B0), and one for a box from a position and an inertia
+	// matrix that are computed when left out (0x1066A220)
+	CollisionShape* CreateVolumeShape(CollisionVolume* volume, float size, CollisionObject* object);
+	CollisionShape* CreateBoxShape(float size, int position, int inertia, CollisionObject* object);
+
 	// One geometry element of a mesh (8 bytes; its own unit names it)
 	struct MeshElement
 	{
-		unsigned int unknown0;
+		CollisionVolume* volume;
 		unsigned int unknown4;
 	};
 
@@ -592,6 +700,8 @@ namespace ravenphysics
 		void Reserve(int count);
 		// Appends one of the object's volumes (0x106855B0, another unit)
 		void AddVolume(CollisionVolume* volume);
+		// The volume appended at an index (0x10667C90)
+		CollisionVolume* GetVolume(int index);
 
 		unsigned char unknown8[0x28 - 8];
 		MeshGeometry geometry;    // 0x28
