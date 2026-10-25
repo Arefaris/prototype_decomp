@@ -4664,3 +4664,29 @@ and the list template instances at 0x10880800 - 0x10880A70.
   +0x44 (the derived classes start at 0x48) and `focusDistance`; `pure3d::Animation::GetGroup`,
   `math::Vector::IsNearOther` (the engine's second copy of `IsNear`), `container::ArrayDynamic<T, AllocatorNew>::PushBack`,
   `SetPropLogicStateMessage`'s inline constructor and the resolver variants of the string meta types are new.
+
+## sn-v: the range 0x10860000 - 0x10880000
+
+### engine/gameobject/behaviours/pathbehaviour.cpp and ipathbehaviour.cpp (0x10864C30 - 0x108678F0)
+
+The path behaviours (`IPathBehaviour`, `PatrolPoint`, `PatrolPathBehaviour`, `SplineCV`, `SplineBehaviour`) are real
+classes now (`pathbehaviour.h`); the size-only stubs of `reflectedclasses.h` are gone. 115 annotated functions: all
+match except 4 EQUIVALENT (register allocation: the two `GetPoint` and the two destructors) and 6 NONMATCHING (the
+two `CreatePoints`, the four `InsertBefore` / `InsertAfter`: the engine reaches the neighbours' vectors through
+references the compiler materialises and keeps the cursor in registers, best 20 - 47 %).
+
+- `IPathBehaviour`'s constructor, destructor and empty `Slot1` (0x108678C0 - 0x108678F0) are in their own file: the
+  implementations call `IPathBehaviour::Slot1` (`jmp` thunk 0x108653B0, `call` in 0x108660F0), and the compiler drops
+  the call to an empty function it can see.
+- The array of points is `container::ArrayDynamicNew<T*>`; its `Erase` is now `Copy(position + 1, end, position);
+  --end` (the engine caches `end` in the loop; shared header `arraydynamicnew.h`). The engine's `Insert` / `Reserve`
+  of those arrays and the helper's `Insert` / `Expand` / `Erase` (0x108665E0, 0x10866A60, 0x108664A0, ...) differ in
+  the inlining of `ConstructAt` and are not annotated.
+- A vector copied through `points[index]->position` needs the element reached twice (`if (points[index] != 0)` then
+  `points[index]->...`), and a `CopyVector(dest, source)` helper with reference parameters gives the `add reg, 4`
+  of the engine; `Size() > 0` (not `!= 0`) gives the engine's `sar` + `je`.
+- The path unit registers two script functions (`path_CreatePatrolPath`, `path_CreateSpline`, both empty); their owner
+  tokens are 0x11315C98 / 0x11315C9C.
+- Not annotated (identical `ret`-only or `mov eax, ecx` functions the object cannot tell apart): 0x10864DE0,
+  0x10864E40, 0x10864E50, 0x10865020, 0x10865030, 0x10865090, 0x108650A0, 0x108651E0, 0x108651F0, 0x10865250,
+  0x10865260; 0x10864E60 (finds an object by name and casts to `SplineBehaviour`) and 0x10864ED0 are not done.

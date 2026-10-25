@@ -126,10 +126,7 @@ namespace container
 		}
 		void Erase(T* position)
 		{
-			for (T* next = position + 1; next != end; next++)
-			{
-				next[-1] = *next;
-			}
+			Copy(position + 1, end, position);
 			end--;
 		}
 		// Takes the element a position points at out; the last element moves into its place

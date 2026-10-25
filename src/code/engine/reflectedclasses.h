@@ -154,17 +154,6 @@ namespace engine
 		unsigned char unknownC[0x74];
 	};
 
-	// PatrolPathBehaviour: constructor 0x10867600, reflection 0x10864CB0 / 0x10866C40
-	class PatrolPathBehaviour : public engine::Behaviour
-	{
-	public:
-		PatrolPathBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x5C];
-	};
-
 	// PlaybackTreeBehaviour: constructor 0x1089AC70, reflection 0x1089AA30 / 0x1089AE60
 	class PlaybackTreeBehaviour : public engine::Behaviour
 	{
@@ -240,17 +229,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0x34];
-	};
-
-	// SplineBehaviour: constructor 0x10867760, reflection 0x10864D40 / 0x10866D20
-	class SplineBehaviour : public engine::Behaviour
-	{
-	public:
-		SplineBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x64];
 	};
 
 	// TagBehaviour: constructor 0x10929EE0, reflection 0x109296D0 / 0x10929BB0
