@@ -1,4 +1,4 @@
-// The script method wrappers of the online classes (engine::Replay, engine::ConsoleManager, engine::OLSStorage): the
+// The script method wrappers of the online classes (engine::ConsoleManager, engine::OLSStorage): the
 // units that register methods of these classes with the script context instantiate engine::Function's Method and
 // Closure templates for them. The classes themselves are other units'; the classes with several bases have method
 // pointers of two words, which the declarations below ask for.
@@ -15,14 +15,8 @@ template void engine::LuaScriptManager::RegisterMethod<engine::ConsoleManager, b
 
 namespace engine
 {
-	class Replay;
 	class OLSStorage;
 }
-
-template class Method0<engine::Replay, void>;
-template class Closure0<engine::Replay, void>;
-template void engine::LuaScriptManager::RegisterMethod<engine::Replay, void>(const char*, engine::Replay*,
-	void (engine::Replay::*)());
 
 template class Method0<engine::OLSStorage, void>;
 template class Method1<engine::OLSStorage, void, int>;
@@ -40,14 +34,6 @@ template void engine::LuaScriptManager::RegisterMethod<engine::OLSStorage, const
 	engine::OLSStorage*, const char* (engine::OLSStorage::*)(int, int));
 template void engine::LuaScriptManager::RegisterMethod<engine::OLSStorage, bool, int>(const char*,
 	engine::OLSStorage*, bool (engine::OLSStorage::*)(int));
-
-// The wrappers and registrations this unit instantiates, in address order:
-// FUNCTION: ENGINE 0x108C2B80
-// FUNCTION: ENGINE 0x108C2BC0
-// FUNCTION: ENGINE 0x108C2BD0
-// FUNCTION: ENGINE 0x108C2C20
-// FUNCTION: ENGINE 0x108C2CA0
-// FUNCTION: ENGINE 0x108C2D20
 
 // The wrappers and registrations this unit instantiates, in address order:
 // FUNCTION: ENGINE 0x108C4880
@@ -85,3 +71,6 @@ template void engine::LuaScriptManager::RegisterMethod<engine::OLSStorage, bool,
 // FUNCTION: ENGINE 0x108C65A0
 // FUNCTION: ENGINE 0x108C65F0
 // FUNCTION: ENGINE 0x108C6650
+
+// ---- annotations of the functions mapped in symbols.txt (generated) ----
+
