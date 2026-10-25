@@ -8,6 +8,11 @@
 
 #include "code/content/metastream.h"
 
+namespace math
+{
+	class Vector;
+}
+
 namespace content
 {
 	class MetaType
@@ -19,6 +24,15 @@ namespace content
 
 		// 0x105FBE10: true when the object lies in the directly addressable range (meaning guessed)
 		static bool IsDirect(const void* object);
+
+		// 0x105FBB20: the type's flags, what the characters of its code stand for (names guessed)
+		unsigned int GetKey() const;
+		// 0x105FBB30: whether the type has any of the flags
+		bool HasKey(unsigned int mask) const;
+		// 0x105FBB40 (slot 5): asks the same of the type's own flags (the object is not used)
+		bool Matches(unsigned int flags, void* object);
+		// 0x105FBB50: the flags the characters of a code stand for (the constructor's; this is not used)
+		unsigned int ParseCode(const char* code);
 
 		virtual void Slot0() = 0;
 		virtual void Slot1() = 0;
@@ -190,6 +204,38 @@ namespace content
 	};
 
 	class MetaType;
+
+	// The memory the meta system makes its values in (metatype.cpp, names guessed): a heap and a two way heap of the
+	// sizes it is given, registered under the given indices; objects in their address ranges are the ones IsDirect
+	// accepts
+	// 0x105FBBF0: sets up the heaps (a size of 0 leaves the one out); the last argument is a flag of the meta system
+	void InitMetaHeaps(unsigned int heapSize, int heapIndex, unsigned int twoWaySize, int twoWayIndex, bool flag);
+	// 0x105FBD00: reports the objects still allocated and gives the heaps back
+	void ShutdownMetaHeaps();
+	// 0x105FBDF0: the heap the meta system makes its values in from now on
+	void SetMetaHeap(int heap);
+	// 0x105FBE00: resets one side of the two way heap
+	void ResetMetaTwoWayHeap();
+
+	// The values a meta type lists for an object (slot 10), kept as a table of them: built from the type's
+	// counts, written in binary through slot 11 (0x105FBE50 - 0x105FBF60, name guessed)
+	class MemberTable
+	{
+	public:
+		// 0x105FBE50
+		MemberTable();
+		// 0x105FBF60 (a jump to Free)
+		~MemberTable();
+		// 0x105FBE60: counts the items of the object (slot 9), makes the table in the heap and has the type fill it
+		void Build(MetaType* type, void* object, int a, int heap);
+		// 0x105FBEE0
+		void Free();
+		// 0x105FBF00: writes the items one after the other
+		void Write(WriteContext* context);
+
+		MemberEntry* entries;
+		unsigned short count;
+	};
 
 	// Tests whether an object of a base class is of the derived class (content::IBaseClassCaster)
 	struct IBaseClassCaster
@@ -627,6 +673,34 @@ namespace content
 		virtual void Slot9();
 		virtual void Slot10();
 		virtual void Slot11();
+
+		// The value behind an object (slots 12 and 13): the object itself here, the accessors of
+		// VectorMetaTypeGetSet in the reflection of a member reached through a getter and a setter
+		virtual const math::Vector* Get(const void* object);
+		virtual void Set(void* object, const math::Vector* value);
+
+		// The slots as the engine's code takes them (see ColourMetaType); a value is the three floats
+		// 0x105FB6E0 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FB610 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FB760 (slot 2) / 0x105FB670 (slot 3) / 0x105FBAB0 (slot 11)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryShort(WriteContext* context, const void* object);
+		// 0x105FB7C0 (slot 4): reads a vector from each side that has one, writes the common value as text when
+		// they are equal and else the values under their names
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x105FB9E0 (slot 6): a new zero vector in the meta system's heap
+		void* Create();
+		// 0x105FBA40 (slot 7) / 0x105FBA50 (slot 8) / 0x105FBA80 (slot 9: always 1) / 0x105FBA90 (slot 10)
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Unknown9(int a, int b);
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x105FB9C0: all three components zero
+		math::Vector* Construct(math::Vector* vector);
 	};
 
 	// The class meta type of T, built on first use from T::GetClassInfo and T::GetMembers
