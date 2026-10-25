@@ -24,30 +24,6 @@ namespace content
 		void** items;
 	};
 
-	// The vftable of a meta type with every slot a virtual function that takes its arguments: the engine's code calls the
-	// members' types this way (the compiler reads the vftable pointer, then the slot, then the arguments)
-	struct MetaTypeView
-	{
-		virtual bool ReadText(TextReadStream* reader, void* object, int a, int b);
-		virtual void ReadBinary(ReadContext* context, void* object, int a, int b);
-		virtual void WriteText(TextWriter* writer, const void* object, int a);
-		virtual void WriteBinary(WriteContext* context, const void* object, int a);
-		virtual bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
-			int flags, TextWriter* log);
-		virtual bool Matches(unsigned int flags, void* object);
-		virtual void* Create();
-		virtual void Destroy(void* object);
-		virtual void Copy(void* destination, const void* source, int a);
-		virtual int Count(void* object, int a);
-		virtual void Describe(MemberEntry** cursor, void* object, int a);
-		virtual void WriteBinaryShort(WriteContext* context, const void* object);
-	};
-
-	static inline MetaTypeView* View(MetaType* type)
-	{
-		return (MetaTypeView*)type;
-	}
-
 	// FUNCTION: ENGINE 0x105FA740
 	const char* GetClassTypeName()
 	{

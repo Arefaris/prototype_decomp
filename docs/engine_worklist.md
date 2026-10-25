@@ -4664,3 +4664,44 @@ and the list template instances at 0x10880800 - 0x10880A70.
   +0x44 (the derived classes start at 0x48) and `focusDistance`; `pure3d::Animation::GetGroup`,
   `math::Vector::IsNearOther` (the engine's second copy of `IsNear`), `container::ArrayDynamic<T, AllocatorNew>::PushBack`,
   `SetPropLogicStateMessage`'s inline constructor and the resolver variants of the string meta types are new.
+
+## 0x105E0000 - 0x10600000: the music cells and cue events, the audio renderer driver, the om stream and method classes, the content meta types (sn-u)
+
+Done (functions match unless noted):
+- `music/cell.cpp`, `music/cueevent.cpp`, `music/cellplayer.cpp`: `Cell` / `MGraphCell` (their binary reader and writers
+  included), the 17 cue events and their reflection (properties, methods, enumerations), the template instances of the
+  reflection library they use, and the typed `Invoke` slots of all their methods (`om/invoke.h`: `ReadArgument<V>`,
+  `GarbageList`, `StreamContext`). EQUIVALENT: `MetaProperty<unsigned __int64>::SetBinary` / `GetBinary` (0x105F12F0 /
+  0x105F1340, register allocation), `MetaProperty<const FollowAction&>::SetText` (0x105E21F0), `MGraphCell::ReadBinary`
+  (0x105E24A0, 97.6 %, the order of two loads at the end).
+- `audio/rendererdriver.cpp`: `RendererDriver` with its reflection. NONMATCHING: the constructor 0x105E65E0 (32.7 %, the
+  engine builds a temporary string and copies it).
+- `om/memorystream.cpp`, `om/bufferedstream.cpp`, `om/metamethod.cpp`: EQUIVALENT `BufferedStream` constructor / `Read`,
+  `MetaPropertyBase` constructor; NONMATCHING `TreeHead::InsertByName` for the property and method trees (0x105E4210 /
+  0x105E4430, about 15 %: the engine keeps the halves of the 64-bit key in registers across the loop).
+- `content/metatype.cpp` (the meta type base, its flag characters, `IsDirect` and the meta heaps), `content/metastream.cpp`
+  (`BinaryReader`, `BinaryWriter`, `TextReadStream`, `TextWriter`, the type names), `content/vectormetatype.cpp`,
+  `content/classmetatype.cpp` (the class meta type: members, base class, derived list, all twelve slots). EQUIVALENT:
+  `TextReadStream::ReadToken` (0x105FC1F0), `ClassMetaType::FindDerived` (0x105FA960, the engine does not turn the
+  recursion into a loop), `CompareMembers` (0x105FB010, base / index order of two addresses), `ReadText` (0x105FB230, stack
+  slots of three locals).
+
+What the matching taught:
+- A call of a meta type's slot through `MetaType::Invoke...` or a cast function does not give the engine's code, a cast of
+  the pointer itself to `MetaTypeView` (content/metatype.h) does: the compiler then reads the slot's address before it
+  works out the arguments and reads the object again afterwards.
+- `MetaType::Matches` is slot 5 and `MetaTypeBase::WriteBinary` answers a bool (the enumerations' `WriteBinary` returns the
+  result of `WriteInt`, which was why those instances looked like register allocation differences).
+- The small identical functions of the reflection (allocation tags, operator new / delete of the holders, `Garbage<V>`)
+  can only be told apart by who calls them: the callers in `ReadArgument<V>` fixed the addresses of the tags of `Fade`,
+  `FollowAction`, `MGraphCellPlayer`, `Garbage<Fade>`, `Garbage<FollowAction>`, `Garbage<float>`, `Garbage<State>`,
+  `Garbage<Bool32>`, `Garbage<unsigned int>` (symbols.txt and the annotations of `music/time.cpp` follow them).
+
+Open in this range (about 1000 functions, 250 of them only mapped):
+- `MGraphCellPlayer` / `CellPlayer` (0x105E29C0 - 0x105E3F00, about 35 functions with the 884 and 1297 byte ones), the
+  registration functions of the reflected classes (0x105F4130 - 0x105F6EE0: one pair per class, 72 + 467 / 843 bytes; they
+  build `om::Name`s from strings, the classes' `MetaClass`, methods and properties; the getter pointers they take are the
+  engine's folded copies), the ADPCM block decoder (0x105EB030 - 0x105EB5C0, written with branch-free selects), the
+  `Rpc*` classes (0x105F8800 - 0x105F9A90), `content::ArrayDynamicMetaType` and its helper (0x105FD3C0 - 0x105FE340, the
+  text reader 0x105FE340 is 785 bytes), `EnumMetaType`, `NameMetaType` (four name types selected by two flags),
+  `ReferenceMetaType*`, the chunk handlers and the P3D loaders (0x105FF000 - 0x10600000).

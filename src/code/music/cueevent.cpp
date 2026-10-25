@@ -1368,6 +1368,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF130
 	template void* MetaMethod0Const<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7A90
+	template void MetaMethod1<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F6F00
 	template void MetaMethod0Const<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF150

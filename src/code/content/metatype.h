@@ -313,6 +313,27 @@ namespace content
 		const char* name;
 	};
 
+	// The vftable of a meta type with every slot a virtual function that takes its arguments: the engine's code calls
+	// the types of members and elements this way (the compiler reads the vftable pointer, then the slot, then works out
+	// the arguments), which a cast to this reproduces where the Invoke... helpers of MetaType do not. Cast the pointer
+	// itself, ((MetaTypeView*)type)->Create(), not through a function.
+	struct MetaTypeView
+	{
+		virtual bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		virtual void ReadBinary(ReadContext* context, void* object, int a, int b);
+		virtual void WriteText(TextWriter* writer, const void* object, int a);
+		virtual void WriteBinary(WriteContext* context, const void* object, int a);
+		virtual bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int flags, TextWriter* log);
+		virtual bool Matches(unsigned int flags, void* object);
+		virtual void* Create();
+		virtual void Destroy(void* object);
+		virtual void Copy(void* destination, const void* source, int a);
+		virtual int Count(void* object, int a);
+		virtual void Describe(MemberEntry** cursor, void* object, int a);
+		virtual void WriteBinaryShort(WriteContext* context, const void* object);
+	};
+
 	// The meta type of a reflected class (RTTI content::ClassMetaType): its members (a type, an offset and a name each),
 	// its base class and the classes derived from it. A value is either an object of the class itself or one the meta
 	// system made (a MetaObject: the value of the base class and one value per member); IsDirect tells them apart.
