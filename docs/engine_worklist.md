@@ -4690,3 +4690,23 @@ references the compiler materialises and keeps the cursor in registers, best 20 
 - Not annotated (identical `ret`-only or `mov eax, ecx` functions the object cannot tell apart): 0x10864DE0,
   0x10864E40, 0x10864E50, 0x10865020, 0x10865030, 0x10865090, 0x108650A0, 0x108651E0, 0x108651F0, 0x10865250,
   0x10865260; 0x10864E60 (finds an object by name and casts to `SplineBehaviour`) and 0x10864ED0 are not done.
+
+### engine/gameobject/attributes.cpp (0x1086C900 - 0x1086DEC0) and genericscriptvalue.cpp (0x10871740 - 0x10872780)
+
+The typed attributes: `BaseAttribute` and, for int, float, bool, `math::Vector`, `math::Matrix`, `core::Name`, `pure3d::Pose*`
+and `GenericScriptValue`, the pair `ConstAttribute<T>` (holds the value, reflected as "Const...Attribute" with the member
+"value") and `Attribute<T>`. `ConstAttribute<T>` now lives in `gameobject.h` (it used to be in `propbehaviour.h`, and
+`Attribute<T>` derived from `BaseAttribute` directly); the layout did not change. 86 functions match.
+
+`GenericScriptValue` (RTTI and reflection name; the symbols file called it `scenario::AttributeValue`, which is now a
+typedef in `scenarioconditions.h`) is 8 bytes: a type word and the value. 46 functions, 45 match; `ToString`
+(0x10871AF0) is EQUIVALENT (the high word of the name's hash is pushed from edx where the engine uses eax, 99.5 %).
+
+- The engine destroys the old value with an explicit destructor call (`this->~GenericScriptValue()`; 0x108722A0 is a
+  jump to it) in every setter, not through the `Release(0)` it contains.
+- A switch whose cases are 1..10 compiles to `add eax, -1` + a table of ten; the engine's tables start at 0 (`cmp eax, 0xa`),
+  which a `case 0:` that has a statement of its own gives (an empty `case 0: break;` is dropped, `case 0:` and `default:` with
+  the same call both stay): `SetType`, `Assign`, `ToString` (`return` in the case).
+- A bool member is read as `movzx` + `setne` for `lua_pushboolean(L, boolValue != 0)`.
+- Not done in the range: 0x10871740 / 0x10871760 / 0x10871790 (an allocation of a 0x40-byte object through `om::Allocate`
+  and its release, the audio unit's), 0x10871850 (a `jmp` thunk to `operator delete[]`).
