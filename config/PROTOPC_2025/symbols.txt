@@ -25913,3 +25913,5 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??_R0?AVBufferedStream@om@@@8 = 0x110B6968 ; data size:0x8 | class om::BufferedStream `RTTI Type Descriptor'
 ?Min@om@@YAIABI0@Z = 0x105BC9B0 ; function size:0x13 | unsigned int __cdecl om::Min(unsigned int const &,unsigned int const &) (name guess)
 ?SetAllocationHeap@om@@YAXH@Z = 0x105B7550 ; function size:0x14 | void __cdecl om::SetAllocationHeap(int) (name guess)
+??$InsertByName@VMetaMethodBase@om@@@TreeHead@om@@QAE_NPAVMetaMethodBase@1@@Z = 0x105E4430 ; function size:0x1A7 | public: bool __thiscall om::TreeHead::InsertByName<class om::MetaMethodBase>(class om::MetaMethodBase *) (name guess)
+??$InsertByName@VMetaPropertyBase@om@@@TreeHead@om@@QAE_NPAVMetaPropertyBase@1@@Z = 0x105E4210 ; function size:0x1A7 | public: bool __thiscall om::TreeHead::InsertByName<class om::MetaPropertyBase>(class om::MetaPropertyBase *) (name guess)

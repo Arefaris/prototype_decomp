@@ -2,6 +2,8 @@
 #ifndef OM_TREE_H
 #define OM_TREE_H
 
+#include "code/om/name.h"
+
 namespace om
 {
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
@@ -46,6 +48,9 @@ namespace om
 		bool Contains(TreeNode* node);
 		// 0x105B61B0: takes the node out
 		void Erase(TreeNode* node);
+		// 0x105E4210 / 0x105E4430: enters an object that has its tree node at 8 and its name at 0x18; false when
+		// an object of that name is there already
+		template<class T> bool InsertByName(T* object);
 
 		TreeNode* root;
 		TreeNode nil;
