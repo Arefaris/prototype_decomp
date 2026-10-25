@@ -112,7 +112,7 @@ namespace music
 		return cache;
 	}
 
-	// FUNCTION: ENGINE 0x105E0490
+	// FUNCTION: ENGINE 0x105E2CE0
 	const char* MGraphCellPlayer::AllocationTag()
 	{
 		return "";
@@ -124,7 +124,7 @@ namespace music
 		return "";
 	}
 
-	// FUNCTION: ENGINE 0x105E04F0
+	// FUNCTION: ENGINE 0x105E0490
 	const char* Fade::AllocationTag()
 	{
 		return "";
