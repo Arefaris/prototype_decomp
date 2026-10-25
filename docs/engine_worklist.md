@@ -4795,3 +4795,28 @@ engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled
 - The `Function2<void,bool,bool>` members (constructor, `Call`, `Invoke`) are kept copies. The `Register<void,bool,bool>`
   instance of the script manager is left unmapped: the engine's copy calls another copy of the function wrapper's
   constructor.
+
+## sn-w: the range 0x108C0000 - 0x108E0000 (audio settings, replay, keyboard, metafactory tables, global files storage)
+
+Done (all 100 % unless listed): the audio global settings, material map, script manager and the player's audio
+options (`audiosettings.cpp`); the desync `Replay` with its script functions (`replay.cpp`, one EQUIVALENT: the
+pause call's -1 comes from a register); `DebugOutputFilter`; `KeyboardWin32` with the front end input handler
+(one EQUIVALENT); the three start-up tables of `metafactories.cpp` (the `Register` templates are `inline` so the
+tables expand them in place; tail calls at the ends) and the collider type names; `OLSStorage`
+(`olsstorage.cpp`, 0x108C5950 - 0x108C6700: the global files `settings.txt`, `legal.txt`, `news.txt`, `faq.txt`
+downloaded and uploaded in a queue, the line reader behind `ols_ReadGlobalFileLine`). `OLSStorage::ReadLine`
+(0x108C5D50) is EQUIVALENT: the engine saves all four registers in the entry block (ours behind the early exit)
+and allocates the entry/line registers differently; every operation, comparison and memory access is the same.
+
+Findings: a class with a user destructor and a class `operator delete` gets a scalar deleting destructor;
+a struct with a user copy constructor passed by value is built with `push ecx; mov eax, esp` (this is how
+`core::FilePath` was found); a file-static variable allows load hoisting where an `extern` does not; repeated
+`entries[index].field` addressing (not a cached pointer) fixes the address-mode order of `StartNext`/`GetData`;
+`OLSStorage::Finish` tests `message.unknown10` (not the argument) after copying it into the message.
+
+Not done (judged too heavy for the time): the network layer (`ConsoleManager`, `Channel`, `MultiTailQueue`, sync,
+about 270 functions, 0x108C2F60 - 0x108C5870 and 0x108C7210 - 0x108C8D20), the audio collision classes, the camera
+history and `AnimatedCamera` (0x108D4B80 - 0x108D5580), `world::Location`, the AGS/AMM registrations (blocked on the
+type of the `EntityType` flag, which is an `int`), `Dictionary::Insert` (0x108CFFD0, red-black insert register
+allocation). The `StreamTriggerHull` unit (0x108C6960 - 0x108C7040: reflection, `Contains`, the Plane array instances)
+is mapped in symbols.txt but not reconstructed; it is the same template set as `streamtrigger.cpp`.
