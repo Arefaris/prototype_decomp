@@ -3,6 +3,7 @@
 #ifndef MUSIC_CUE_H
 #define MUSIC_CUE_H
 
+#include "code/music/cell.h"
 #include "code/om/entity.h"
 
 namespace music
@@ -19,17 +20,6 @@ namespace music
 		char unknown10[0x58];
 	};
 
-	class Cell
-	{
-	public:
-		virtual ~Cell();
-	};
-
-	class MGraphCell : public Cell
-	{
-	public:
-		virtual ~MGraphCell();
-	};
 }
 
 #endif

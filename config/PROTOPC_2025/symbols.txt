@@ -7468,7 +7468,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ?UnlockIndices@GpuSkin@pure3d@@QAEXXZ = 0x1072E090 ; function size:0xB | pure3d::GpuSkin::UnlockIndices (name guess)
 ?SetPalette@GpuSkin@pure3d@@QAEXPAVMatrixPaletteList@2@@Z = 0x1072E290 ; function size:0x17 | pure3d::GpuSkin: takes a reference to the bone palette at +0x140 (name guess)
 ?CreateGpuSkin@PrimGroupLoader@pure3d@@QAEXPAVDrawablePart@2@PAPAVGpuSkin@2@PAPAVGpuSkinState@2@PAUVertexBufferDescription@2@PAUIndexBufferDescription@2@PAVdxVertexDeclaration@2@PAVdxIndexBufferState@2@@Z = 0x10B8BD90 ; function size:0xA0 | pure3d::PrimGroupLoader::CreateGpuSkin (name guess)
-
 ; ---- the audio fight tracks the track registry builds factories for (their units are elsewhere) --------------------
 ??0DialogueTrack@engine@@QAE@XZ = 0x108A86C0 ; function size:0x4A | engine::DialogueTrack::DialogueTrack (another unit)
 ?RegisterProperties@DialogueTrack@engine@@SAXXZ = 0x108A8A50 ; function size:0x231 | engine::DialogueTrack::RegisterProperties (another unit; name guess)
@@ -8006,7 +8005,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$PropertyName@VShaderAnimationTrack@animation@engine@@@fight@@QAE@PBDP8ShaderAnimationTrack@animation@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x10811AE0 ; function size:0x20 | fight::PropertyName<engine::animation::ShaderAnimationTrack>::PropertyName<engine::animation::ShaderAnimationTrack>
 ??0?$PropertyEnumConstList@VShaderAnimationTrack@animation@engine@@@fight@@QAE@PBDPBUEnumEntry@1@HP8ShaderAnimationTrack@animation@engine@@AE_NH@Z@Z = 0x10811A00 ; function size:0x2E | fight::PropertyEnumConstList<engine::animation::ShaderAnimationTrack>::PropertyEnumConstList<engine::animation::ShaderAnimationTrack>
 ??0?$TrackFactoryTemplate@VShaderAnimationTrack@animation@engine@@@fight@@QAE@PBD@Z = 0x10811D30 ; function size:0x23 | fight::TrackFactoryTemplate<engine::animation::ShaderAnimationTrack>::TrackFactoryTemplate<engine::animation::ShaderAnimationTrack>
-
 ; ---- the condition factories and the condition base (fight::Condition, another unit) ------------------------------
 ??0ConditionFactory@fight@@QAE@PBDP6AXXZ1@Z = 0x105A9790 ; function size:0x36 | fight::ConditionFactory::ConditionFactory(name, register, clear) (another unit)
 ?Make@ConditionFactory@fight@@UAEPAXXZ = 0x105A9720 ; function size:0x7 | fight::ConditionFactory vftable slot 0: makes a condition (a jump to slot 1)
@@ -8019,7 +8017,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??_R0?AVConditionFactory@fight@@@8 = 0x10FFE494 ; data size:0x8 | fight::ConditionFactory RTTI type descriptor
 ??_7ConditionFactoryCaster@fight@@6B@ = 0x10DAAEFC ; data size:0x8 | fight::ConditionFactoryCaster vftable
 ??_R0?AVConditionFactoryCaster@fight@@@8 = 0x10FFE3E0 ; data size:0x8 | fight::ConditionFactoryCaster RTTI type descriptor
-
 ?gHealthConditionProperties@engine@@3PAPAVProperty@fight@@A = 0x11284B64 ; data size:0x4 | engine::HealthCondition: the property list (name guess)
 ?gObjectTemplateConditionProperties@engine@@3PAPAVProperty@fight@@A = 0x11284B68 ; data size:0x4 | engine::ObjectTemplateCondition: the property list (name guess)
 ?gAttributeNameConditionProperties@engine@@3PAPAVProperty@fight@@A = 0x11284B6C ; data size:0x4 | engine::AttributeNameCondition: the property list (name guess)
@@ -8524,9 +8521,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$TrackFactoryTemplate@VScatterTrack@framebufferfx@engine@@@fight@@QAE@PBD@Z = 0x10817680 ; function size:0x23 | fight::TrackFactoryTemplate<engine::framebufferfx::ScatterTrack>::TrackFactoryTemplate<engine::framebufferfx::ScatterTrack>
 ??0?$TrackFactoryTemplate@VLetterboxTrack@framebufferfx@engine@@@fight@@QAE@PBD@Z = 0x108176D0 ; function size:0x23 | fight::TrackFactoryTemplate<engine::framebufferfx::LetterboxTrack>::TrackFactoryTemplate<engine::framebufferfx::LetterboxTrack>
 ??0?$TrackFactoryTemplate@VBloomTrack@framebufferfx@engine@@@fight@@QAE@PBD@Z = 0x10817720 ; function size:0x23 | fight::TrackFactoryTemplate<engine::framebufferfx::BloomTrack>::TrackFactoryTemplate<engine::framebufferfx::BloomTrack>
-
-
-
 ?gHealthTrackProperties@engine@@3PAPAVProperty@fight@@A = 0x11284C00 ; data size:0x4 | engine::HealthTrack: the property list (name guess)
 ?gHealthTrackApplyToTable@engine@@3PAUEnumEntry@fight@@A = 0x11284C08 ; data size:0x8 | engine data of another unit (name guess)
 ?gHealthTrackOperationTable@engine@@3PAUEnumEntry@fight@@A = 0x11284C20 ; data size:0x8 | engine data of another unit (name guess)
@@ -8768,7 +8762,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$TrackFactoryTemplate@VEffectLODDisableTrack@engine@@@fight@@QAE@PBD@Z = 0x108131C0 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectLODDisableTrack>::TrackFactoryTemplate<engine::EffectLODDisableTrack>
 ??0?$TrackFactoryTemplate@VEffectLODSwitchTrack@engine@@@fight@@QAE@PBD@Z = 0x10813520 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectLODSwitchTrack>::TrackFactoryTemplate<engine::EffectLODSwitchTrack>
 ??0?$TrackFactoryTemplate@VEffectLODBiasTrack@engine@@@fight@@QAE@PBD@Z = 0x10814F60 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectLODBiasTrack>::TrackFactoryTemplate<engine::EffectLODBiasTrack>
-
 ??0TrackGroup@fight@@QAE@XZ = 0x105A7F10 ; function size:0x9 | fight::TrackGroup::TrackGroup
 ??1TrackGroup@fight@@QAE@XZ = 0x105A8140 ; function size:0x5 | fight::TrackGroup::~TrackGroup (a jump to Clear)
 ?Clear@TrackGroup@fight@@QAEXXZ = 0x105A7FD0 ; function size:0x33 | fight::TrackGroup::Clear (name guess)
@@ -9185,10 +9178,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$PropertyName@VAbortEffectTrack@engine@@@fight@@QAE@PBDP8AbortEffectTrack@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x1080D550 ; function size:0x20 | fight::PropertyName<engine::AbortEffectTrack>::PropertyName<engine::AbortEffectTrack>
 ??0?$PropertyName@VEffectTrack@engine@@@fight@@QAE@PBDP8EffectTrack@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x1080D590 ; function size:0x20 | fight::PropertyName<engine::EffectTrack>::PropertyName<engine::EffectTrack>
 ??0?$PropertyName@VMotionTrailTrack@engine@@@fight@@QAE@PBDP8MotionTrailTrack@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x1080D620 ; function size:0x20 | fight::PropertyName<engine::MotionTrailTrack>::PropertyName<engine::MotionTrailTrack>
-
-
-
-
 ?Remove@?$LinkList@VAbortEffectTrack@engine@@@core@@QAEXPAU?$Link@VAbortEffectTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::AbortEffectTrack>::Remove (the engine's shared copy)
 ?Remove@?$LinkList@VMotionTrailTrack@engine@@@core@@QAEXPAU?$Link@VMotionTrailTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::MotionTrailTrack>::Remove (the engine's shared copy)
 ?GetSlotIndex@AbortEffectTrack@engine@@QBEXAAH@Z = 0x10804EE0 ; function size:0xC | engine::AbortEffectTrack::GetSlotIndex: the high word of the slot name (name guess)
@@ -9267,7 +9256,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$PropertyEnumConstList@VPlaybackStateCondition@engine@@@fight@@QAE@PBDPBUEnumEntry@1@HP8PlaybackStateCondition@engine@@AE_NH@Z@Z = 0x10812D20 ; function size:0x2E | fight::PropertyEnumConstList<engine::PlaybackStateCondition>::PropertyEnumConstList<engine::PlaybackStateCondition>
 ??0?$PropertyName@VPlaybackStateCondition@engine@@@fight@@QAE@PBDP8PlaybackStateCondition@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x10812E00 ; function size:0x20 | fight::PropertyName<engine::PlaybackStateCondition>::PropertyName<engine::PlaybackStateCondition>
 ??0?$ConditionFactoryTemplate@VPlaybackStateCondition@engine@@@fight@@QAE@PBD@Z = 0x10812F30 ; function size:0x23 | fight::ConditionFactoryTemplate<engine::PlaybackStateCondition>::ConditionFactoryTemplate<engine::PlaybackStateCondition>
-
 ??0ExitTrack@engine@@QAE@XZ = 0x108B6C60 ; function size:0x36 | engine::ExitTrack::ExitTrack (another unit)
 ?RegisterProperties@ExitTrack@engine@@SAXXZ = 0x108B6DC0 ; function size:0xDA | engine::ExitTrack::RegisterProperties (another unit; name guess)
 ?ClearProperties@ExitTrack@engine@@SAXXZ = 0x108B6C50 ; function size:0xC | engine::ExitTrack::ClearProperties (another unit; name guess)
@@ -9308,7 +9296,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??0?$ConditionFactoryTemplate@VMessageCondition@engine@@@fight@@QAE@PBD@Z = 0x108124B0 ; function size:0x23 | fight::ConditionFactoryTemplate<engine::MessageCondition>::ConditionFactoryTemplate<engine::MessageCondition>
 ??0?$ConditionFactoryTemplate@VPrintMessageCondition@engine@@@fight@@QAE@PBD@Z = 0x10812580 ; function size:0x23 | fight::ConditionFactoryTemplate<engine::PrintMessageCondition>::ConditionFactoryTemplate<engine::PrintMessageCondition>
 ?CreateAction@PlaybackTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108A8560 ; function size:0x3B | engine::PlaybackTrack::CreateAction vftable slot 15 (another unit)
-
 ?CreateAction@ScenarioStringTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108A90C0 ; function size:0x37 | engine::ScenarioStringTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@DeleteAllDecalsTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108AC8E0 ; function size:0x28 | engine::DeleteAllDecalsTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@SetEffectTimerTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108ACBA0 ; function size:0x28 | engine::SetEffectTimerTrack::CreateAction vftable slot 15 (another unit)
@@ -9320,7 +9307,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ?CreateAction@CollisionEnableOnJointTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108AC5C0 ; function size:0x37 | engine::CollisionEnableOnJointTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@CollisionEnableFromRootJointTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108AC720 ; function size:0x37 | engine::CollisionEnableFromRootJointTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@CollisionEnableByNameTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108AC580 ; function size:0x37 | engine::CollisionEnableByNameTrack::CreateAction vftable slot 15 (another unit)
-
 ?CreateAction@ToneMapTrack@framebufferfx@engine@@UAEPAVAction@fight@@PAVTrack@5@PAUIRefCount@core@@1@Z = 0x108BC130 ; function size:0x23 | engine::framebufferfx::ToneMapTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@FadeTrack@framebufferfx@engine@@UAEPAVAction@fight@@PAVTrack@5@PAUIRefCount@core@@1@Z = 0x108BC1F0 ; function size:0x23 | engine::framebufferfx::FadeTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@DepthOfFieldTrack@framebufferfx@engine@@UAEPAVAction@fight@@PAVTrack@5@PAUIRefCount@core@@1@Z = 0x108BC190 ; function size:0x23 | engine::framebufferfx::DepthOfFieldTrack::CreateAction vftable slot 15 (another unit)
@@ -9332,16 +9318,12 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ?CreateAction@EffectLODDisableTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108B9850 ; function size:0x30 | engine::EffectLODDisableTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@EffectLODSwitchTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108B9BA0 ; function size:0x28 | engine::EffectLODSwitchTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@EffectLODBiasTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108BA500 ; function size:0x28 | engine::EffectLODBiasTrack::CreateAction vftable slot 15 (another unit)
-
 ?CreateAction@AbortEffectTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x10807860 ; function size:0x37 | engine::AbortEffectTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@EffectTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x10807790 ; function size:0xC5 | engine::EffectTrack::CreateAction vftable slot 15 (another unit)
 ?CreateAction@MotionTrailTrack@engine@@UAEPAVAction@fight@@PAVTrack@4@PAUIRefCount@core@@1@Z = 0x108078A0 ; function size:0x3C | engine::MotionTrailTrack::CreateAction vftable slot 15 (another unit)
 ??0?$TrackFactoryTemplate@VAbortEffectTrack@engine@@@fight@@QAE@PBD@Z = 0x1080F070 ; function size:0x23 | fight::TrackFactoryTemplate<engine::AbortEffectTrack>::TrackFactoryTemplate<engine::AbortEffectTrack>
 ??0?$TrackFactoryTemplate@VEffectTrack@engine@@@fight@@QAE@PBD@Z = 0x1080F0C0 ; function size:0x23 | fight::TrackFactoryTemplate<engine::EffectTrack>::TrackFactoryTemplate<engine::EffectTrack>
 ??0?$TrackFactoryTemplate@VMotionTrailTrack@engine@@@fight@@QAE@PBD@Z = 0x1080F110 ; function size:0x23 | fight::TrackFactoryTemplate<engine::MotionTrailTrack>::TrackFactoryTemplate<engine::MotionTrailTrack>
-
-
-
 ; ---- the effect manager and the effect action slots ------------------------------------------------------------------
 ?gEffectManager@render@engine@@3PAVEffectManager@12@A = 0x1130CCE0 ; data size:0x4 | engine::render::gEffectManager: the global effect manager (name guess)
 ?AbortSlot@EffectManager@render@engine@@QAEXPBV?$Name@UCaseSensitiveKey@core@@@core@@_NM@Z = 0x1081E260 ; function size:0x82 | engine::render::EffectManager::AbortSlot (another unit)
@@ -9352,16 +9334,12 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ?Slot5@EffectAction@engine@@UAE_NHM@Z = 0x108076B0 ; function size:0x4E | engine::EffectAction::Slot5 (name guess)
 ?GetEffectManager@render@engine@@YAPAVEffectManager@12@XZ = 0x108193A0 ; function size:0x6 | engine::render::GetEffectManager (name guess)
 ?GetObjectHandle@engine@@YA?AVGameObjectHandle@1@PAUIRefCount@core@@@Z = 0x107FC7A0 ; function size:0x33 | engine::GetObjectHandle (another unit)
-
 ?BeginEffect@engine@@YA_NU?$Link@VEffectTrack@engine@@@core@@VGameObjectHandle@1@PAUEffectHandle@1@PAVTrackWatch@1@HPAPAUIRefCount@3@PAU73@PAVEffectAction@1@@Z = 0x108060F0 ; function size:0x1421 | engine::BeginEffect (another unit)
 ??_7EffectAction@engine@@6B@ = 0x10E6B264 ; data size:0x24 | engine::EffectAction vftable
 ??_R0?AVEffectAction@engine@@@8 = 0x111BEB18 ; data size:0x8 | engine::EffectAction RTTI type descriptor
 ?Slot7@EffectAction@engine@@UAE_NHM@Z = 0x10805BD0 ; function size:0xD0 | engine::EffectAction::Slot7 vftable slot 7 (name guess)
-
-
 ??$GetAttributePtr@PAUPartLookup@proto@@@GameObject@engine@@QAE?AU?$AttributePtr@PAUPartLookup@proto@@@1@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x1005F1B0 ; function size:0x2C | engine::GameObject::GetAttributePtr<proto::PartLookup*> (another unit)
 ?ReleaseSharedRef@engine@@YAXAAPAUIRefCount@core@@@Z = 0x104FF200 ; function size:0x1A | engine::ReleaseSharedRef (another unit)
-
 ?AddRef@Driver@choreo@@QAEXXZ = 0x1094A3F0 ; function size:0x5 | choreo::Driver::AddRef() (name guess)
 ?Release@Driver@choreo@@QAEXXZ = 0x1094A400 ; function size:0x14 | choreo::Driver::Release() (name guess)
 ?GetName@Driver@choreo@@QAEAAV?$Name@UCaseSensitiveKey@core@@@core@@XZ = 0x1094A420 ; function size:0x4 | choreo::Driver::GetName() (name guess)
@@ -9478,7 +9456,6 @@ _Direct3DCreate9@4 = 0x10A89FD0 ; function size:0x6 | Direct3DCreate9 (import th
 ??1LimbPoses@choreo@@QAE@XZ = 0x10949530 ; function size:0x8 | choreo::LimbPoses::~LimbPoses() (name guess)
 ??4LimbPoses@choreo@@QAEAAV01@ABV01@@Z = 0x10949540 ; function size:0xC3 | choreo::LimbPoses::operator=(class choreo::LimbPoses const &) (name guess)
 ?Reset@LimbPoses@choreo@@QAEXPAVSkeleton@pure3d@@@Z = 0x10949610 ; function size:0x5A | choreo::LimbPoses::Reset(class pure3d::Skeleton *) (name guess)
-
 ??_GPuppet@choreo@@QAEPAXI@Z = 0x10947D00 ; function size:0x1E | choreo::Puppet scalar deleting destructor (compiler generated)
 ?GetRestMatrix@Skeleton@pure3d@@QAEXIPAVMatrix@math@@@Z = 0x106DDAB0 ; function size:0x37 | pure3d::Skeleton::GetRestMatrix (another unit; name guess)
 ?Blend@LimbPoses@choreo@@QAEXABV12@M@Z = 0x10949350 ; function size:0xEA | choreo::LimbPoses::Blend(class choreo::LimbPoses const &,float) (name guess)
@@ -11005,7 +10982,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?gScriptHookData@engine@@3PAXA = 0x11284B58 ; data size:0x4 | engine::gScriptHookData (name guess)
 ?gLuaTrackProperties@scenario@engine@@3PAPAVProperty@fight@@A = 0x11284B5C ; data size:0x4 | engine::scenario::gLuaTrackProperties (name guess)
 ?gLuaConditionProperties@scenario@engine@@3PAPAVProperty@fight@@A = 0x11284B60 ; data size:0x4 | engine::scenario::gLuaConditionProperties (name guess)
-
 ?CompileExpression@scenario@engine@@YAHPBDPAVCondition@fight@@0HPAVTrack@4@@Z = 0x10809460 ; function size:0x18D | engine::scenario::CompileExpression, static, script in ecx and length in eax in the engine (name guess)
 ?Remove@?$LinkList@VLuaTrack@scenario@engine@@@core@@QAEXPAU?$Link@VLuaTrack@scenario@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::scenario::LuaTrack>::Remove (the engine's shared copy)
 ??0FightSystemParams@engine@@QAE@XZ = 0x10811DC0 ; function size:0x17 | engine::FightSystemParams constructor (name guess)
@@ -14267,11 +14243,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0?$TrackFactoryTemplate@VJointLockTrack@animation@engine@@@fight@@QAE@PBD@Z = 0x108B89B0 ; function size:0x23 | fight::TrackFactoryTemplate<engine::animation::JointLockTrack>::TrackFactoryTemplate<engine::animation::JointLockTrack>
 ??0?$TrackFactoryTemplate@VPuppetMoveTrack@animation@engine@@@fight@@QAE@PBD@Z = 0x108B86E0 ; function size:0x23 | fight::TrackFactoryTemplate<engine::animation::PuppetMoveTrack>::TrackFactoryTemplate<engine::animation::PuppetMoveTrack>
 ??0?$TrackFactoryTemplate@VUndamageableTrack@engine@@@fight@@QAE@PBD@Z = 0x108B8C90 ; function size:0x23 | fight::TrackFactoryTemplate<engine::UndamageableTrack>::TrackFactoryTemplate<engine::UndamageableTrack>
-
-
-
-
-
 ?SetTimeBegin@ExpressionAnimationTrack@animation@engine@@QAE_NM@Z = 0x108B7820 ; function size:0x10 | engine::animation::ExpressionAnimationTrack::SetTimeBegin (name guess)
 ?SetBlendInTime@PuppetMoveTrack@animation@engine@@QAE_NM@Z = 0x108B7F60 ; function size:0x10 | engine::animation::PuppetMoveTrack::SetBlendInTime (name guess)
 ?gLightTrackDecayMembers@engine@@3QBHB = 0x111D9978 ; data size:0x4 | engine data of another unit (name guess)
@@ -14474,7 +14445,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0?$PropertyName@VTeleportTrack@engine@@@fight@@QAE@PBDP8TeleportTrack@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x108B6000 ; function size:0x20 | fight::PropertyName<engine::TeleportTrack>::PropertyName<engine::TeleportTrack>
 ??0?$PropertyName@VSpawnObjectTrack@engine@@@fight@@QAE@PBDP8SpawnObjectTrack@engine@@AE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z@Z = 0x108B67E0 ; function size:0x20 | fight::PropertyName<engine::SpawnObjectTrack>::PropertyName<engine::SpawnObjectTrack>
 ??0?$TrackFactoryTemplate@VSpawnObjectTrack@engine@@@fight@@QAE@PBD@Z = 0x108B6B80 ; function size:0x23 | fight::TrackFactoryTemplate<engine::SpawnObjectTrack>::TrackFactoryTemplate<engine::SpawnObjectTrack>
-
 ??0BranchHolder@fight@@QAE@PBD@Z = 0x105A7600 ; function size:0x29 | fight::BranchHolder::BranchHolder(const char*) (another unit; name guess)
 ??1BranchHolder@fight@@QAE@XZ = 0x105A7720 ; function size:0x35 | fight::BranchHolder::~BranchHolder (another unit; name guess)
 ??0PropertyTypeBranch@fight@@QAE@PBD@Z = 0x105A9220 ; function size:0x19 | fight::PropertyTypeBranch::PropertyTypeBranch(const char*) (another unit)
@@ -14590,7 +14560,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0?$PropertyEnumConstList@VPuppetPhaseCondition@animation@engine@@@fight@@QAE@PBDPBUEnumEntry@1@HP8PuppetPhaseCondition@animation@engine@@AE_NH@Z@Z = 0x108B9170 ; function size:0x2E | fight::PropertyEnumConstList<engine::animation::PuppetPhaseCondition>::PropertyEnumConstList<engine::animation::PuppetPhaseCondition>
 ??0?$PropertyFloatConstRange@VPuppetPhaseCondition@animation@engine@@@fight@@QAE@PBDP8PuppetPhaseCondition@animation@engine@@AE_NM@Z@Z = 0x108B9200 ; function size:0x20 | fight::PropertyFloatConstRange<engine::animation::PuppetPhaseCondition>::PropertyFloatConstRange<engine::animation::PuppetPhaseCondition>
 ??0?$ConditionFactoryTemplate@VPuppetPhaseCondition@animation@engine@@@fight@@QAE@PBD@Z = 0x108B9430 ; function size:0x23 | fight::ConditionFactoryTemplate<engine::animation::PuppetPhaseCondition>::ConditionFactoryTemplate<engine::animation::PuppetPhaseCondition>
-
 ?SetMinVelocityPhase@PuppetPhaseCondition@animation@engine@@QAE_NM@Z = 0x108B9070 ; function size:0x10 | engine::animation::PuppetPhaseCondition::SetMinVelocityPhase (name guess)
 ?Slot11@PrintMessageCondition@engine@@UAE_NH@Z = 0x108B7110 ; function size:0x5 | engine::PrintMessageCondition::Slot11 vftable slot 11 (name guess)
 ??1ConditionList@fight@@QAE@XZ = 0x105A7C90 ; function size:0x5 | fight::ConditionList::~ConditionList: a jump to Clear (name guess)
@@ -14801,7 +14770,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0?$PropertyBool@VDialogueTrack@engine@@@fight@@QAE@PBDP8DialogueTrack@engine@@AE_N_N@Z@Z = 0x108A8A00 ; function size:0x20 | fight::PropertyBool<engine::DialogueTrack>::PropertyBool<engine::DialogueTrack>
 ?SetFrequency@DialogueTrack@engine@@QAE_NM@Z = 0x108A8600 ; function size:0x10 | engine::DialogueTrack::SetFrequency (name guess)
 ?SetInstanceFrequencySensitivity@DialogueTrack@engine@@QAE_NM@Z = 0x108A8620 ; function size:0x10 | engine::DialogueTrack::SetInstanceFrequencySensitivity (name guess)
-
 ?AssignSharedRef@engine@@YAXPAPAUIRefCount@core@@PAU23@@Z = 0x104FF220 ; function size:0x28 | engine::AssignSharedRef: the level-of-detail actions' copy of AssignRefCounted (another unit; name guess)
 ?Remove@?$LinkList@VEffectLODDisableTrack@engine@@@core@@QAEXPAU?$Link@VEffectLODDisableTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::EffectLODDisableTrack>::Remove (the engine's shared copy)
 ?Remove@?$LinkList@VEffectLODSwitchTrack@engine@@@core@@QAEXPAU?$Link@VEffectLODSwitchTrack@engine@@@2@@Z = 0x10095300 ; function size:0x51 | core::LinkList<engine::EffectLODSwitchTrack>::Remove (the engine's shared copy)
@@ -14827,10 +14795,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??1EffectLODSwitchAction@engine@@UAE@XZ = 0x108B9980 ; function size:0x39 | engine::EffectLODSwitchAction::~EffectLODSwitchAction
 ??0EffectLODBiasAction@engine@@QAE@PAVEffectLODBiasTrack@1@PAUIRefCount@core@@@Z = 0x108BA0B0 ; function size:0x7C | engine::EffectLODBiasAction::EffectLODBiasAction
 ??1EffectLODBiasAction@engine@@UAE@XZ = 0x108BA030 ; function size:0x30 | engine::EffectLODBiasAction::~EffectLODBiasAction
-
-
-
-
 ?gLoadingState@engine@@3PAVLoading@streampackagestates@1@A = 0x11318098 ; data size:0x4 | engine: the stream package state that is loading now (name guess)
 ?gStreamCounter@engine@@3IA = 0x1130EFDC ; data size:0x4 | engine: the counter the eviction delay of a stream package is measured in (name guess)
 ??_7StreamPackageState@engine@@6B@ = 0x10E78C44 ; data size:0xC | engine::StreamPackageState vftable
@@ -14880,10 +14844,7 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?Exit@Loading@streampackagestates@engine@@UAE_NH@Z = 0x108A6110 ; function size:0x29 | engine::streampackagestates::Loading::Exit vftable slot 1 (name guess)
 ?Update@Loading@streampackagestates@engine@@UAEHXZ = 0x108A6140 ; function size:0x2EB | engine::streampackagestates::Loading::Update vftable slot 2 (another unit)
 ??_R0?AVLoading@streampackagestates@engine@@@8 = 0x111D4DF8 ; data size:0x8 | engine::streampackagestates::Loading RTTI type descriptor
-
 ?gPrerequisiteSlotGroup@engine@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x11318118 ; data size:0x8 | engine: the slot group the prerequisites of a stream package are asked to load in (name guess)
-
-
 ?SetTimer@EffectManager@render@engine@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@M@Z = 0x1081DCF0 ; function size:0xD0 | engine::render::EffectManager::SetTimer: sets a named timer (another unit; name guess)
 ??_7SetPhysicsObjectKeyframedMessage@engine@@6B@ = 0x10DFE75C ; data size:0x4 | engine::SetPhysicsObjectKeyframedMessage vftable
 ??_GSetPhysicsObjectKeyframedMessage@engine@@UAEPAXI@Z = 0x103E7140 ; function size:0x1F | engine::SetPhysicsObjectKeyframedMessage::scalar deleting destructor vftable slot 0
@@ -14907,10 +14868,7 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??_R0?AUPhysicsWakeUpMessage@engine@@@8 = 0x10FEB618 ; data size:0x8 | engine::PhysicsWakeUpMessage RTTI type descriptor
 ?IsTutorialActive@engine@@YA_NXZ = 0x1082FDD0 ; function size:0x6 | engine::IsTutorialActive: the flag at 0x1130D43C (another unit; name guess)
 ?gScenarioStringListeners@engine@@3VMessageListeners@1@A = 0x11318188 ; data size:0x8 | engine: the listeners the scenario string events are sent to (name guess)
-
 ?StopDialogue@AudioMixer@engine@@QAEXH@Z = 0x108583F0 ; function size:0x7F | engine::AudioMixer::StopDialogue (another unit; name guess)
-
-
 ??0InitSettings@ravenphysics@@QAE@XZ = 0x106619B0 ; function size:0x3D | ravenphysics::InitSettings constructor (name guess)
 ?Shutdown@ravenphysics@@YAXXZ = 0x10661A40 ; function size:0x33 | ravenphysics::Shutdown (name guess)
 ?Init@ravenphysics@@YAXPBUInitSettings@1@@Z = 0x10661B10 ; function size:0x9A | ravenphysics::Init (name guess)
@@ -15060,7 +15018,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?IsValid@CollisionHandle@ravenphysics@@QBE_NXZ = 0x1065ADF0 ; function size:0x24 | ravenphysics::CollisionHandle::IsValid (name guess)
 ?IsDerived@?$BaseClassCasterImpl@VConstraint@ravenphysics@@VConstraintInsideOfSphere@2@@content@@UAE_NPAX@Z = 0x106617C0 ; function size:0x24 | ravenphysics::? (name guess)
 ??$GetMemberPrimitiveMetaType@VConstraintInsideOfSphere@ravenphysics@@M$01@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x10661810 ; function size:0x32 | ravenphysics::? (name guess)
-
 ??$GetMemberVectorMetaType@VConstraintInsideOfSphere@ravenphysics@@$0A@@content@@YAPAVVectorMetaType@0@PBD@Z = 0x10661750 ; function size:0x28 | template instance of the unit
 ??$GetMemberVectorMetaType@VConstraintInsideOfSphere@ravenphysics@@$00@content@@YAPAVVectorMetaType@0@PBD@Z = 0x10661780 ; function size:0x28 | template instance of the unit
 ?Get@VectorMetaTypeGetSet@content@@UAEPBVVector@math@@PBX@Z = 0x102F38C0 ; function size:0x30 | content::VectorMetaTypeGetSet::Get (name guess)
@@ -19285,7 +19242,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetClassMetaType@VCamera@camera@engine@@@content@@YAPAVClassMetaType@0@XZ = 0x1032A560 ; function size:0x4C | class content::ClassMetaType * __cdecl content::GetClassMetaType<class engine::camera::Camera>(void) (the engine's shared copy)
 ??$MemberOffset@PAVCamera@camera@engine@@@content@@YAHPAPAVCamera@camera@engine@@H@Z = 0x108505E0 ; function size:0x5 | int __cdecl content::MemberOffset<class engine::camera::Camera *>(class engine::camera::Camera * *,int) (the engine's shared copy)
 ??$GetEnumMetaType@W4CinematographerType@camera@engine@@@content@@YAPAVEnumMetaType@0@XZ = 0x1084E080 ; function size:0x5C | class content::EnumMetaType * __cdecl content::GetEnumMetaType<enum engine::camera::CinematographerType>(void) (the engine's shared copy)
-
 ??$GetNameMetaType@VCinematographer@camera@engine@@@content@@YAPAVNameMetaType@0@_N0PBD@Z = 0x10906880 ; function size:0x32 | class content::NameMetaType * __cdecl content::GetNameMetaType<class engine::camera::Cinematographer>(bool,bool,char const *) (name guess)
 ?GetAvatarName@CameraLoader@camera@engine@@QBE?AV?$Name@UCaseSensitiveKey@core@@@core@@XZ = 0x109068C0 ; function size:0x16 | public: class core::Name<struct core::CaseSensitiveKey> __thiscall engine::camera::CameraLoader::GetAvatarName(void)const  (name guess)
 ?Slot3@CameraLoader@camera@engine@@UAEXH@Z = 0x109069A0 ; function size:0x127 | public: virtual void __thiscall engine::camera::CameraLoader::Slot3(int) vftable slot 3
@@ -19369,7 +19325,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetMemberStringMetaType@$01$0BAE@@content@@YAPAVStringMetaType@0@PAV?$StringC@$0BAE@@container@@PBD@Z = 0x10911620 ; function size:0x2D | class content::StringMetaType * __cdecl content::GetMemberStringMetaType<2,260>(class container::StringC<260> *,char const *) (name guess)
 ??$StringBufferOffset@V?$StringC@$0BAE@@container@@@content@@YAHPAV?$StringC@$0BAE@@container@@@Z = 0x10911660 ; function size:0x6 | int __cdecl content::StringBufferOffset<class container::StringC<260> >(class container::StringC<260> *) (name guess)
 ??1SurfaceDefinition@@UAE@XZ = 0x10911800 ; function size:0x54 | public: virtual __thiscall SurfaceDefinition::~SurfaceDefinition(void) (the engine's shared copy)
-
 ?gStringMemberBase@content@@3PAEA = 0x11276934 ; data size:0x4 | unsigned char * content::gStringMemberBase (another unit; name guess)
 ??_R0?AU?$BaseClassCasterImpl@VGameObjectSpawner@engine@@VActorCrowdSpawner@2@@content@@@8 = 0x111E6DE8 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::GameObjectSpawner,class engine::ActorCrowdSpawner> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AU?$BaseClassCasterImpl@VGameObjectSpawner@engine@@VActorSpawner@2@@content@@@8 = 0x111E6D90 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::GameObjectSpawner,class engine::ActorSpawner> RTTI Type Descriptor RTTI type descriptor
@@ -19423,7 +19378,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??1ActorCrowdSpawner@engine@@UAE@XZ = 0x10906740 ; function size:0x7F | public: virtual __thiscall engine::ActorCrowdSpawner::~ActorCrowdSpawner(void) (name guess)
 ??0?$StringC@$0CG@@container@@QAE@XZ = 0x10905CC0 ; function size:0xD | public: __thiscall container::StringC<38>::StringC<38>(void) (name guess)
 ??$StringBufferOffset@V?$StringC@$0CA@@container@@@content@@YAHPAV?$StringC@$0CA@@container@@@Z = 0x10905ED0 ; function size:0x6 | int __cdecl content::StringBufferOffset<class container::StringC<32> >(class container::StringC<32> *) (name guess)
-
 ?Get@POIManager@engine@@SAAAV12@H@Z = 0x100B7690 ; function size:0x57 | public: static class engine::POIManager & __cdecl engine::POIManager::Get(int) (the engine's shared copy)
 ??_ELoadObject@content@@UAEPAXI@Z = 0x10076680 ; function size:0x1F | public: virtual void * __thiscall content::LoadObject::`vector deleting destructor'(unsigned int) vftable slot 2
 ??_EMetaLoadObject@content@@UAEPAXI@Z = 0x10076840 ; function size:0x1F | public: virtual void * __thiscall content::MetaLoadObject::`vector deleting destructor'(unsigned int) vftable slot 2
@@ -19532,7 +19486,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetClassMetaType@VProjectedMotionFeatureExtractor@engine@@@content@@YAPAVClassMetaType@0@XZ = 0x109151C0 ; function size:0x4C | class content::ClassMetaType * __cdecl content::GetClassMetaType<class engine::ProjectedMotionFeatureExtractor>(void) (the engine's shared copy)
 ?Extract@LinearDisplacementExtractor@engine@@UAEMABUMotionState@2@ABVMatrix@math@@0@Z = 0x10914CF0 ; function size:0x7A | public: virtual float __thiscall engine::LinearDisplacementExtractor::Extract(struct engine::MotionState const &,class math::Matrix const &,struct engine::MotionState const &) (name guess)
 ?Extract@AngularDisplacementExtractor@engine@@UAEMABUMotionState@2@ABVMatrix@math@@0@Z = 0x10914DF0 ; function size:0x5A | public: virtual float __thiscall engine::AngularDisplacementExtractor::Extract(struct engine::MotionState const &,class math::Matrix const &,struct engine::MotionState const &) (name guess)
-
 ??_R0?AVNamedInventoryCreator@engine@@@8 = 0x111E7308 ; data size:0x8 | class engine::NamedInventoryCreator RTTI Type Descriptor RTTI type descriptor
 ??_7NamedInventoryCreator@engine@@6B@ = 0x10E8622C ; data size:0x1C | engine::NamedInventoryCreator::vftable
 ??_ENamedInventoryCreator@engine@@UAEPAXI@Z = 0x1090D9E0 ; function size:0x1E | public: virtual void * __thiscall engine::NamedInventoryCreator::`vector deleting destructor'(unsigned int) vftable slot 2
@@ -19543,7 +19496,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetNameMetaType@VNamedInventoryCreator@engine@@@content@@YAPAVNameMetaType@0@_N0PBD@Z = 0x1090D760 ; function size:0x32 | class content::NameMetaType * __cdecl content::GetNameMetaType<class engine::NamedInventoryCreator>(bool,bool,char const *) (name guess)
 ??1NamedInventoryCreator@engine@@UAE@XZ = 0x1090D7F0 ; function size:0x1D | public: virtual __thiscall engine::NamedInventoryCreator::~NamedInventoryCreator(void) (name guess)
 ??$GetMemberPrimitiveMetaType@VNamedInventoryCreator@engine@@I$0A@@content@@YAPAV?$PrimitiveMetaType@I@0@PBD@Z = 0x1090D8C0 ; function size:0x32 | class content::PrimitiveMetaType<unsigned int> * __cdecl content::GetMemberPrimitiveMetaType<class engine::NamedInventoryCreator,unsigned int,0>(char const *) (name guess)
-
 ??_R0?AVRemoteCamera@engine@@@8 = 0x111E733C ; data size:0x8 | class engine::RemoteCamera RTTI Type Descriptor RTTI type descriptor
 ??_7RemoteCamera@engine@@6B@ = 0x10E862BC ; data size:0x1C | engine::RemoteCamera::vftable
 ??_ERemoteCamera@engine@@UAEPAXI@Z = 0x1090DDB0 ; function size:0x1F | public: virtual void * __thiscall engine::RemoteCamera::`vector deleting destructor'(unsigned int) vftable slot 2
@@ -19555,7 +19507,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetMemberPrimitiveMetaType@VRemoteCamera@engine@@M$0A@@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1090DAD0 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::RemoteCamera,float,0>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@VRemoteCamera@engine@@M$00@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1090DB10 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::RemoteCamera,float,1>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@VRemoteCamera@engine@@M$01@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1090DB50 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::RemoteCamera,float,2>(char const *) (name guess)
-
 ??_R0?AU?$BaseClassCasterImpl@VSecondaryPhysicsJointDriver@engine@@VSecondaryPhysicsAmbientWind@2@@content@@@8 = 0x111E81A8 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::SecondaryPhysicsJointDriver,class engine::SecondaryPhysicsAmbientWind> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AU?$BaseClassCasterImpl@VSecondaryPhysicsJointDriver@engine@@VSecondaryPhysicsPinJoint@2@@content@@@8 = 0x111E8340 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::SecondaryPhysicsJointDriver,class engine::SecondaryPhysicsPinJoint> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AU?$BaseClassCasterImpl@VSecondaryPhysicsJointDriver@engine@@VSecondaryPhysicsPoweredJoint@2@@content@@@8 = 0x111E8430 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::SecondaryPhysicsJointDriver,class engine::SecondaryPhysicsPoweredJoint> RTTI Type Descriptor RTTI type descriptor
@@ -19648,7 +19599,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetClassMetaType@UForceCurvePoint@SecondaryPhysicsPoweredJoint@engine@@@content@@YAPAVClassMetaType@0@XZ = 0x109175E0 ; function size:0x4C | class content::ClassMetaType * __cdecl content::GetClassMetaType<struct engine::SecondaryPhysicsPoweredJoint::ForceCurvePoint>(void) (name guess)
 ?EvaluateForceCurve@SecondaryPhysicsPoweredJoint@engine@@QBEMM@Z = 0x10916B90 ; function size:0xA1 | public: float __thiscall engine::SecondaryPhysicsPoweredJoint::EvaluateForceCurve(float)const  (name guess)
 ??1SecondaryPhysicsPoweredJoint@engine@@UAE@XZ = 0x10917930 ; function size:0x24 | public: virtual __thiscall engine::SecondaryPhysicsPoweredJoint::~SecondaryPhysicsPoweredJoint(void) (name guess)
-
 ?CreateBallInSocketConstraint@ravenphysics@@YA?AUCollisionHandle@1@XZ = 0x1065B6E0 ; function size:0x1C | struct ravenphysics::CollisionHandle __cdecl ravenphysics::CreateBallInSocketConstraint(void) (name guess)
 ?CreateMotorConstraint@ravenphysics@@YA?AUCollisionHandle@1@XZ = 0x1065B8A0 ; function size:0x1C | struct ravenphysics::CollisionHandle __cdecl ravenphysics::CreateMotorConstraint(void) (name guess)
 ?CreateLimitConstraint@ravenphysics@@YA?AUCollisionHandle@1@XZ = 0x1065B760 ; function size:0x1C | struct ravenphysics::CollisionHandle __cdecl ravenphysics::CreateLimitConstraint(void) (name guess)
@@ -19817,21 +19767,16 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?IsCurveSorted@PropertyMapping@TrackedMotionToExpressionMap@engine@@QBE_NXZ = 0x10911E30 ; function size:0x2B | public: bool __thiscall engine::TrackedMotionToExpressionMap::PropertyMapping::IsCurveSorted(void)const  (name guess)
 ?EvaluateCurve@PropertyMapping@TrackedMotionToExpressionMap@engine@@QBEMM@Z = 0x10911E60 ; function size:0x7E | public: float __thiscall engine::TrackedMotionToExpressionMap::PropertyMapping::EvaluateCurve(float)const  (name guess)
 ??0PropertyMapping@TrackedMotionToExpressionMap@engine@@QAE@XZ = 0x109135F0 ; function size:0x38 | public: __thiscall engine::TrackedMotionToExpressionMap::PropertyMapping::PropertyMapping(void) (name guess)
-
 ?Erase@?$ArrayDynamic@UPropertyMapping@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@QAEPAUPropertyMapping@TrackedMotionToExpressionMap@engine@@PAU345@@Z = 0x10913AB0 ; function size:0x2C | public: struct engine::TrackedMotionToExpressionMap::PropertyMapping * __thiscall container::ArrayDynamic<struct engine::TrackedMotionToExpressionMap::PropertyMapping,struct container::AllocatorNew>::Erase(struct engine::TrackedMotionToExpressionMap::PropertyMapping *) (name guess)
 ?Erase@?$ArrayDynamic@UJointData@TrackedMotionToExpressionMap@engine@@UAllocatorNew@container@@@container@@QAEPAUJointData@TrackedMotionToExpressionMap@engine@@PAU345@@Z = 0x10914390 ; function size:0x2C | public: struct engine::TrackedMotionToExpressionMap::JointData * __thiscall container::ArrayDynamic<struct engine::TrackedMotionToExpressionMap::JointData,struct container::AllocatorNew>::Erase(struct engine::TrackedMotionToExpressionMap::JointData *) (name guess)
 ??$AssignRange@UPropertyMapping@TrackedMotionToExpressionMap@engine@@@container@@YAPAUPropertyMapping@TrackedMotionToExpressionMap@engine@@PBU123@0PAU123@@Z = 0x10913410 ; function size:0x5E | struct engine::TrackedMotionToExpressionMap::PropertyMapping * __cdecl container::AssignRange<struct engine::TrackedMotionToExpressionMap::PropertyMapping>(struct engine::TrackedMotionToExpressionMap::PropertyMapping const *,struct engine::TrackedMotionToExpressionMap::PropertyMapping const *,struct engine::TrackedMotionToExpressionMap::PropertyMapping *) (the engine's shared copy)
 ??$AssignRange@UJointData@TrackedMotionToExpressionMap@engine@@@container@@YAPAUJointData@TrackedMotionToExpressionMap@engine@@PBU123@0PAU123@@Z = 0x10914020 ; function size:0xE5 | struct engine::TrackedMotionToExpressionMap::JointData * __cdecl container::AssignRange<struct engine::TrackedMotionToExpressionMap::JointData>(struct engine::TrackedMotionToExpressionMap::JointData const *,struct engine::TrackedMotionToExpressionMap::JointData const *,struct engine::TrackedMotionToExpressionMap::JointData *) (the engine's shared copy)
-
-
-
 ?FindJoint@Skeleton@pure3d@@QBEHABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x106DDA60 ; function size:0x8 | public: int __thiscall pure3d::Skeleton::FindJoint(class core::Name<struct core::CaseSensitiveKey> const &)const  (another unit; name guess)
 ??4PropertyMapping@TrackedMotionToExpressionMap@engine@@QAEAAU012@ABU012@@Z = 0x109131A0 ; function size:0x43 | public: struct engine::TrackedMotionToExpressionMap::PropertyMapping & __thiscall engine::TrackedMotionToExpressionMap::PropertyMapping::operator=(struct engine::TrackedMotionToExpressionMap::PropertyMapping const &) (name guess)
 ??0PropertyMapping@TrackedMotionToExpressionMap@engine@@QAE@ABU012@@Z = 0x10913470 ; function size:0x43 | public: __thiscall engine::TrackedMotionToExpressionMap::PropertyMapping::PropertyMapping(struct engine::TrackedMotionToExpressionMap::PropertyMapping const &) (name guess)
 ??$UninitializedCopyN@UPropertyMapping@TrackedMotionToExpressionMap@engine@@@container@@YAPAUPropertyMapping@TrackedMotionToExpressionMap@engine@@PBU123@IPAU123@@Z = 0x109137F0 ; function size:0x64 | struct engine::TrackedMotionToExpressionMap::PropertyMapping * __cdecl container::UninitializedCopyN<struct engine::TrackedMotionToExpressionMap::PropertyMapping>(struct engine::TrackedMotionToExpressionMap::PropertyMapping const *,unsigned int,struct engine::TrackedMotionToExpressionMap::PropertyMapping *) (name guess)
 ??$ConstructCopiesN@UPropertyMapping@TrackedMotionToExpressionMap@engine@@@container@@YAPAUPropertyMapping@TrackedMotionToExpressionMap@engine@@PBU123@IPAU123@@Z = 0x10913860 ; function size:0x64 | struct engine::TrackedMotionToExpressionMap::PropertyMapping * __cdecl container::ConstructCopiesN<struct engine::TrackedMotionToExpressionMap::PropertyMapping>(struct engine::TrackedMotionToExpressionMap::PropertyMapping const *,unsigned int,struct engine::TrackedMotionToExpressionMap::PropertyMapping *) (name guess)
 ??0Offset@JointData@TrackedMotionToExpressionMap@engine@@QAE@XZ = 0x107F6990 ; function size:0x1B | public: __thiscall engine::TrackedMotionToExpressionMap::JointData::Offset::Offset(void) (another unit; name guess)
-
 ??_R0?AUEnumMetaTypeGetSetter@content@@@8 = 0x110A2BD0 ; data size:0x8 | struct content::EnumMetaTypeGetSetter RTTI Type Descriptor RTTI type descriptor
 ??_R0?AV?$ArrayDynamicHelper@V?$ArrayDynamic@PAVSecondaryPhysicsJointDriver@engine@@UAllocatorNew@container@@@container@@@content@@@8 = 0x111E7470 ; data size:0x8 | class content::ArrayDynamicHelper<class container::ArrayDynamic<class engine::SecondaryPhysicsJointDriver *,struct container::AllocatorNew> > RTTI Type Descriptor RTTI type descriptor
 ??_R0?AV?$DynamicCaster@VMassProperties@ravenphysics@@@LoadInventory@content@@@8 = 0x11079380 ; data size:0x8 | class content::LoadInventory::DynamicCaster<class ravenphysics::MassProperties> RTTI Type Descriptor RTTI type descriptor
@@ -19978,8 +19923,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$SafeRelease@VLoaded1066F430@pure3d@@@core@@YAXAAPAVLoaded1066F430@pure3d@@@Z = 0x10433E00 ; function size:0x1A | void __cdecl core::SafeRelease<class pure3d::Loaded1066F430>(class pure3d::Loaded1066F430 * &) (the engine's shared copy)
 ?FindJoint@JointData@SecondaryPhysicsProperties@engine@@QBEHPBVSkeleton@pure3d@@@Z = 0x1090DF50 ; function size:0x1B | public: int __thiscall engine::SecondaryPhysicsProperties::JointData::FindJoint(class pure3d::Skeleton const *)const  (name guess)
 ?HasDrivers@JointData@SecondaryPhysicsProperties@engine@@QBE_NXZ = 0x1090E480 ; function size:0x20 | public: bool __thiscall engine::SecondaryPhysicsProperties::JointData::HasDrivers(void)const  (name guess)
-
-
 ?RotationEulerZXY@Matrix@math@@QAEXMMM@Z = 0x107CF0A0 ; function size:0x12B | public: void __thiscall math::Matrix::RotationEulerZXY(float,float,float) (another unit; name guess)
 ?RotationEulerYZX@Matrix@math@@QAEXMMM@Z = 0x107CEF70 ; function size:0x124 | public: void __thiscall math::Matrix::RotationEulerYZX(float,float,float) (another unit; name guess)
 ??_R0?AV?$ArrayDynamicHelper@V?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@@content@@@8 = 0x111E6FB0 ; data size:0x8 | class content::ArrayDynamicHelper<class container::ArrayDynamic<struct engine::driving::WheelData,struct container::AllocatorNew> > RTTI Type Descriptor RTTI type descriptor
@@ -20031,7 +19974,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$MemberOffset@V?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@@content@@YAHPAV?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@H@Z = 0x10907160 ; function size:0x5 | int __cdecl content::MemberOffset<class container::ArrayDynamic<struct engine::driving::WheelData,struct container::AllocatorNew> >(class container::ArrayDynamic<struct engine::driving::WheelData,struct container::AllocatorNew> *,int) (the engine's shared copy)
 ??1WheelCollectionData@driving@engine@@UAE@XZ = 0x10907B90 ; function size:0x52 | public: virtual __thiscall engine::driving::WheelCollectionData::~WheelCollectionData(void) (name guess)
 ?ResizeWheels@WheelCollectionData@driving@engine@@QAEXI@Z = 0x10907BF0 ; function size:0x23 | public: void __thiscall engine::driving::WheelCollectionData::ResizeWheels(unsigned int) (name guess)
-
 ??4WheelData@driving@engine@@QAEAAU012@ABU012@@Z = 0x10907260 ; function size:0x63 | public: struct engine::driving::WheelData & __thiscall engine::driving::WheelData::operator=(struct engine::driving::WheelData const &) (name guess)
 ??$DestroyElement@UWheelData@driving@engine@@@container@@YAXPAUWheelData@driving@engine@@@Z = 0x10907530 ; function size:0xB | void __cdecl container::DestroyElement<struct engine::driving::WheelData>(struct engine::driving::WheelData *) (name guess)
 ?Erase@?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@QAEPAUWheelData@driving@engine@@PAU345@@Z = 0x10907540 ; function size:0x2D | public: struct engine::driving::WheelData * __thiscall container::ArrayDynamic<struct engine::driving::WheelData,struct container::AllocatorNew>::Erase(struct engine::driving::WheelData *) (name guess)
@@ -20041,7 +19983,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$AssignRange@UWheelData@driving@engine@@@container@@YAPAUWheelData@driving@engine@@PBU123@0PAU123@@Z = 0x10907480 ; function size:0x86 | struct engine::driving::WheelData * __cdecl container::AssignRange<struct engine::driving::WheelData>(struct engine::driving::WheelData const *,struct engine::driving::WheelData const *,struct engine::driving::WheelData *) (the engine's shared copy)
 ??$SafeRelease@VPhysicsObjectFactory@ravenphysics@@@core@@YAXAAPAVPhysicsObjectFactory@ravenphysics@@@Z = 0x10433E00 ; function size:0x1A | void __cdecl core::SafeRelease<class ravenphysics::PhysicsObjectFactory>(class ravenphysics::PhysicsObjectFactory * &) (the engine's shared copy)
 ?GetWheels@WheelCollectionData@driving@engine@@QAEPAV?$ArrayDynamic@UWheelData@driving@engine@@UAllocatorNew@container@@@container@@XZ = 0x10907060 ; function size:0x4 | public: class container::ArrayDynamic<struct engine::driving::WheelData,struct container::AllocatorNew> * __thiscall engine::driving::WheelCollectionData::GetWheels(void) (name guess)
-
 ??_R0?AUCharacterSolverProperties@engine@@@8 = 0x111E70F0 ; data size:0x8 | struct engine::CharacterSolverProperties RTTI Type Descriptor RTTI type descriptor
 ??_7CharacterSolverProperties@engine@@6B@ = 0x10E85FF8 ; data size:0x1C | engine::CharacterSolverProperties::vftable
 ??_ECharacterSolverProperties@engine@@UAEPAXI@Z = 0x10908590 ; function size:0x1F | public: virtual void * __thiscall engine::CharacterSolverProperties::`vector deleting destructor'(unsigned int) vftable slot 2
@@ -20053,7 +19994,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetMemberPrimitiveMetaType@UCharacterSolverProperties@engine@@M$03@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x10909550 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<struct engine::CharacterSolverProperties,float,4>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@UCharacterSolverProperties@engine@@M$04@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x10909590 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<struct engine::CharacterSolverProperties,float,5>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@UCharacterSolverProperties@engine@@_N$0A@@content@@YAPAV?$PrimitiveMetaType@_N@0@PBD@Z = 0x109094D0 ; function size:0x32 | class content::PrimitiveMetaType<bool> * __cdecl content::GetMemberPrimitiveMetaType<struct engine::CharacterSolverProperties,bool,0>(char const *) (name guess)
-
 ?Unknown105A4270@Sequencer@fight@@QAEXIPAVGameObjectParams@engine@@@Z = 0x105A4270 ; function size:0x7F | public: void __thiscall fight::Sequencer::Unknown105A4270(unsigned int,class engine::GameObjectParams *) (name guess)
 ??_R0?AU?$BaseClassCasterImpl@VFightTreeBehaviour@engine@@VMotionTreeBehaviour@2@@content@@@8 = 0x111E9630 ; data size:0x8 | struct content::BaseClassCasterImpl<class engine::FightTreeBehaviour,class engine::MotionTreeBehaviour> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AV?$PrimitiveMemberGetSetter@VMotionTreeBehaviour@engine@@_N@@@8 = 0x111E9690 ; data size:0x8 | class PrimitiveMemberGetSetter<class engine::MotionTreeBehaviour,bool> RTTI Type Descriptor RTTI type descriptor
@@ -20092,9 +20032,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??$GetMemberPrimitiveMetaType@VKnockBehaviour@engine@@M$01@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1091F170 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::KnockBehaviour,float,2>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@VKnockBehaviour@engine@@M$02@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1091F1B0 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::KnockBehaviour,float,3>(char const *) (name guess)
 ??$GetMemberPrimitiveMetaType@VKnockBehaviour@engine@@M$03@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x1091F1F0 ; function size:0x32 | class content::PrimitiveMetaType<float> * __cdecl content::GetMemberPrimitiveMetaType<class engine::KnockBehaviour,float,4>(char const *) (name guess)
-
-
-
 ?Slot1@KnockBehaviour@engine@@UAEXXZ = 0x1091ED20 ; function size:0x1 | public: virtual void __thiscall engine::KnockBehaviour::Slot1(void) vftable slot 1
 ?Update@FirstPersonControlBehaviour@engine@@UAEXMG@Z = 0x1091E360 ; function size:0x86E | public: virtual void __thiscall engine::FirstPersonControlBehaviour::Update(float,unsigned short) (name guess)
 ?gEyePointName@engine@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x1131C888 ; data size:0x8 | engine::gEyePointName: the name "EYEPOINT" (name guess)
@@ -20709,13 +20646,11 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ?LockController@DefaultControllerHandler@controller@engine@@QAEXI@Z = 0x10895BF0 ; function size:0x2C | public: void __thiscall engine::controller::DefaultControllerHandler::LockController(unsigned int) (name guess)
 ?UnlockAllControllers@DefaultControllerHandler@controller@engine@@QAEXXZ = 0x10895C20 ; function size:0x98 | public: void __thiscall engine::controller::DefaultControllerHandler::UnlockAllControllers(void) (name guess)
 ??1DefaultControllerHandler@controller@engine@@QAE@XZ = 0x10895BD0 ; function size:0x1B | public: __thiscall engine::controller::DefaultControllerHandler::~DefaultControllerHandler(void) (name guess)
-
 ?gDefaultController@controller@engine@@3IA = 0x111D3FD4 ; data size:0x4 | unsigned int engine::controller::gDefaultController (another unit; name guess)
 ?gControllerLocked@controller@engine@@3_NA = 0x11317840 ; data size:0x4 | bool engine::controller::gControllerLocked (another unit; name guess)
 ?SetPauseFlagA@engine@@YAX_N@Z = 0x10882900 ; function size:0xA | void __cdecl engine::SetPauseFlagA(bool) (name guess)
 ?SetPauseFlagB@engine@@YAX_N@Z = 0x10882910 ; function size:0xA | void __cdecl engine::SetPauseFlagB(bool) (name guess)
 ?Unknown108A0B40@PhysicalControllerManagerView@controller@engine@@QAEXHI@Z = 0x108A0B40 ; function size:0x11 | public: void __thiscall engine::controller::PhysicalControllerManagerView::Unknown108A0B40(int,unsigned int) (name guess; another unit)
-
 ??_R0?AUIControllerConnectionChangeCallback@core@@@8 = 0x111D1374 ; data size:0x8 | struct core::IControllerConnectionChangeCallback RTTI Type Descriptor RTTI type descriptor
 ??_R0?AVPhysicalControllerMapManager@controller@engine@@@8 = 0x111D13AC ; data size:0x8 | class engine::controller::PhysicalControllerMapManager RTTI Type Descriptor RTTI type descriptor
 ??_7IControllerConnectionChangeCallback@core@@6B@ = 0x10E75C20 ; data size:0x4 | core::IControllerConnectionChangeCallback::vftable
@@ -20739,7 +20674,6 @@ _luaL_newstate = 0x10639DE0 ; function size:0x28 | luaL_newstate (Lua 5.1)
 ??0PhysicalControllerMapManager@controller@engine@@QAE@HHHHHH@Z = 0x10880C80 ; function size:0xD7 | public: __thiscall engine::controller::PhysicalControllerMapManager::PhysicalControllerMapManager(int,int,int,int,int,int) (name guess)
 ??1PhysicalControllerMapManager@controller@engine@@UAE@XZ = 0x10880D60 ; function size:0x74 | public: virtual __thiscall engine::controller::PhysicalControllerMapManager::~PhysicalControllerMapManager(void) (name guess)
 ??_GPhysicalControllerMapManager@controller@engine@@UAEPAXI@Z = 0x108810D0 ; function size:0x1E | public: virtual void * __thiscall engine::controller::PhysicalControllerMapManager::`scalar deleting destructor'(unsigned int) (name guess)
-
 __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name guess)
 ??0PhysicalController@controller@engine@@QAE@HHHH@Z = 0x10846E50 ; function size:0xF5 | public: __thiscall engine::controller::PhysicalController::PhysicalController(int,int,int,int) (another unit; name guess)
 ?gControllerKinds@controller@engine@@3PAUControllerKind@12@A = 0x111D17B0 ; data size:0x134 | struct engine::controller::ControllerKind * engine::controller::gControllerKinds (another unit; name guess)
@@ -20784,13 +20718,11 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??1FEInputHandler@engine@@QAE@XZ = 0x10881BF0 ; function size:0x30 | public: __thiscall engine::FEInputHandler::~FEInputHandler(void) (the engine's shared copy)
 ?SetKeyboardListening@engine@@YAX_N@Z = 0x10881660 ; function size:0x78 | void __cdecl engine::SetKeyboardListening(bool) (name guess)
 ?OnKey@FEInputHandler@engine@@UAEXHHH_NH@Z = 0x108812D0 ; function size:0x6B | public: virtual void __thiscall engine::FEInputHandler::OnKey(int,int,int,bool,int) (name guess)
-
 ?UpdateFEInput@engine@@YAXXZ = 0x108816F0 ; function size:0x28C | void __cdecl engine::UpdateFEInput(void) (name guess)
 ?IsControlSet@PlayerInfo@controller@engine@@QBE_NHIIH@Z = 0x108810F0 ; function size:0x35 | public: bool __thiscall engine::controller::PlayerInfo::IsControlSet(int,unsigned int,unsigned int,int)const  (name guess)
 ??_GFEInputHandler@engine@@QAEPAXI@Z = 0x10881E30 ; function size:0x1E | public: void * __thiscall engine::FEInputHandler::`scalar deleting destructor'(unsigned int) (name guess)
 ?SetCursor@FrontendScreen@engine@@QAEXHH@Z = 0x108864C0 ; function size:0x1D | public: void __thiscall engine::FrontendScreen::SetCursor(int,int) (another unit; name guess)
 ?RemoveCallback@Keyboard@controller@engine@@QAEXPAVCallback@123@@Z = 0x10881610 ; function size:0x47 | public: void __thiscall engine::controller::Keyboard::RemoveCallback(class engine::controller::Keyboard::Callback *) (the engine's shared copy)
-
 ??_R0?AVDialogState@engine@@@8 = 0x111D2C7C ; data size:0x8 | class engine::DialogState RTTI Type Descriptor RTTI type descriptor
 ??_R0?AVFEPopUpDialogState@engine@@@8 = 0x111D2C54 ; data size:0x8 | class engine::FEPopUpDialogState RTTI Type Descriptor RTTI type descriptor
 ??_7DialogState@engine@@6B@ = 0x10E7657C ; data size:0x20 | engine::DialogState::vftable
@@ -20832,10 +20764,7 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??0FEPopUpDialogState@engine@@QAE@PBD0PAPBDHHHH0@Z = 0x10883E30 ; function size:0x4D | public: __thiscall engine::FEPopUpDialogState::FEPopUpDialogState(char const *,char const *,char const * *,int,int,int,int,char const *) (name guess)
 ??_GDialogState@engine@@UAEPAXI@Z = 0x10883E10 ; function size:0x1E | public: virtual void * __thiscall engine::DialogState::`scalar deleting destructor'(unsigned int) (name guess)
 ??_GFEPopUpDialogState@engine@@UAEPAXI@Z = 0x10883FC0 ; function size:0x1E | public: virtual void * __thiscall engine::FEPopUpDialogState::`scalar deleting destructor'(unsigned int) (name guess)
-
-
 ?SetIcon@DialogStateImpl@engine@@QAEXH_N@Z = 0x108E3FA0 ; function size:0x17 | public: void __thiscall engine::DialogStateImpl::SetIcon(int,bool) (another unit; name guess)
-
 ??_7SimulationDriver@engine@@6B@ = 0x10E77B20 ; data size:0x28 | engine::SimulationDriver::vftable
 ??_ESimulationDriver@engine@@UAEPAXI@Z = 0x10897E40 ; function size:0x1E | public: virtual void * __thiscall engine::SimulationDriver::`vector deleting destructor'(unsigned int) vftable slot 0
 ?Slot1@SimulationDriver@engine@@UAEXXZ = 0x10897B10 ; function size:0x50 | public: virtual void __thiscall engine::SimulationDriver::Slot1(void) vftable slot 1
@@ -20847,9 +20776,7 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?Slot7@SimulationDriver@engine@@UAEXXZ = 0x10897CD0 ; function size:0x2B | public: virtual void __thiscall engine::SimulationDriver::Slot7(void) vftable slot 7
 ?Slot9@SimulationDriver@engine@@UAEXXZ = 0x10897D80 ; function size:0x2D | public: virtual void __thiscall engine::SimulationDriver::Slot9(void) vftable slot 9
 ??1SimulationDriver@engine@@UAE@XZ = 0x10897B00 ; function size:0xB | public: virtual __thiscall engine::SimulationDriver::~SimulationDriver(void) (name guess)
-
 ??_GSimulationDriver@engine@@UAEPAXI@Z = 0x10897E40 ; function size:0x1E | public: virtual void * __thiscall engine::SimulationDriver::`scalar deleting destructor'(unsigned int) (name guess)
-
 ??0?$pair@PAPAVStreamPackage@engine@@PAPAV12@@std@@QAE@ABQAPAVStreamPackage@engine@@0@Z = 0x108984D0 ; function size:0x16 | public: __thiscall std::pair<class engine::StreamPackage * *,class engine::StreamPackage * *>::pair<class engine::StreamPackage * *,class engine::StreamPackage * *>(class engine::StreamPackage * * const &,class engine::StreamPackage * * const &) (name guess)
 ??$_Iter_cat@PAPAVStreamPackage@engine@@@std@@YA?AUrandom_access_iterator_tag@0@ABQAPAVStreamPackage@engine@@@Z = 0x10898530 ; function size:0x5 | struct std::random_access_iterator_tag __cdecl std::_Iter_cat<class engine::StreamPackage * *>(class engine::StreamPackage * * const &) (name guess)
 ??$_Rotate@PAPAVStreamPackage@engine@@HPAV12@@std@@YAXPAPAVStreamPackage@engine@@00PAH0@Z = 0x108985A0 ; function size:0x97 | void __cdecl std::_Rotate<class engine::StreamPackage * *,int,class engine::StreamPackage *>(class engine::StreamPackage * *,class engine::StreamPackage * *,class engine::StreamPackage * *,int *,class engine::StreamPackage * *) (name guess)
@@ -20966,7 +20893,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?Reserve@?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@QAEXH@Z = 0x102ECE30 ; function size:0x9C | public: void __thiscall container::ArrayDynamic<class core::Name<struct core::CaseSensitiveKey>,struct container::AllocatorNew>::Reserve(int) (the engine's shared copy)
 ??__FsDefault@?4??Insert@?$ArrayDynamicHelper@V?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z@YAXXZ = 0x1002056D ; data size:0x4 | void __cdecl `public: virtual void __thiscall content::ArrayDynamicHelper<class container::ArrayDynamic<class core::Name<struct core::CaseSensitiveKey>,struct container::AllocatorNew> >::Insert(void *,int,int)'::`5'::`dynamic atexit destructor for 'sDefault''(void) (another unit; name guess)
 ?ShiftUp@?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@QAEXPAV?$Name@UCaseSensitiveKey@core@@@core@@H@Z = 0x102EB9A0 ; function size:0x3A | public: void __thiscall container::ArrayDynamic<class core::Name<struct core::CaseSensitiveKey>,struct container::AllocatorNew>::ShiftUp(class core::Name<struct core::CaseSensitiveKey> *,int) (the engine's shared copy)
-
 ??_R0?AU?$BaseClassCasterImpl@UIntrusiveMessage@engine@@UChangeLightColourMessage@2@@content@@@8 = 0x111D4820 ; data size:0x8 | struct content::BaseClassCasterImpl<struct engine::IntrusiveMessage,struct engine::ChangeLightColourMessage> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AU?$BaseClassCasterImpl@UIntrusiveMessage@engine@@UEnableLightMessage@2@@content@@@8 = 0x111D4798 ; data size:0x8 | struct content::BaseClassCasterImpl<struct engine::IntrusiveMessage,struct engine::EnableLightMessage> RTTI Type Descriptor RTTI type descriptor
 ??_R0?AUChangeLightColourMessage@engine@@@8 = 0x111D4884 ; data size:0x8 | struct engine::ChangeLightColourMessage RTTI Type Descriptor RTTI type descriptor
@@ -21025,7 +20951,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?CollectTriggers@engine@@YAXPAV?$ArrayDynamic@PAVStreamTrigger@engine@@U?$AllocatorCoreStatic@$0M@$0BA@@container@@@container@@ABVTagSet@1@@Z = 0x1082DD30 ; function size:0xA6 | void __cdecl engine::CollectTriggers(class container::ArrayDynamic<class engine::StreamTrigger *,struct container::AllocatorCoreStatic<12,16> > *,class engine::TagSet const &) (another unit; name guess)
 ?gStreamListeners@engine@@3VMessageListeners@1@A = 0x1130D3A0 ; data size:0x4 | class engine::MessageListeners engine::gStreamListeners (another unit; name guess)
 ?RefreshTriggers@StreamDriverBehaviour@engine@@QAEXXZ = 0x10899030 ; function size:0xDC | public: void __thiscall engine::StreamDriverBehaviour::RefreshTriggers(void) (name guess)
-
 ??_R0?AVCallback@ConsoleManager@engine@@@8 = 0x111D2CA0 ; data size:0x8 | class engine::ConsoleManager::Callback RTTI Type Descriptor RTTI type descriptor
 ??_R0?AVNode@?$SListLite@VCallback@ConsoleManager@engine@@@container@@@8 = 0x111D2CD0 ; data size:0x8 | class container::SListLite<class engine::ConsoleManager::Callback>::Node RTTI Type Descriptor RTTI type descriptor
 ??_7Callback@ConsoleManager@engine@@6B@ = 0x10E761C0 ; data size:0x18 | engine::ConsoleManager::Callback::vftable
@@ -21057,7 +20982,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??_GOLSUserMessage@engine@@UAEPAXI@Z = 0x10887320 ; function size:0x1F | public: virtual void * __thiscall engine::OLSUserMessage::`scalar deleting destructor'(unsigned int) (name guess)
 ??_GOLSGameMessage@engine@@UAEPAXI@Z = 0x10888190 ; function size:0x1F | public: virtual void * __thiscall engine::OLSGameMessage::`scalar deleting destructor'(unsigned int) (name guess)
 ??_GOLSProfileStorageMessage@engine@@UAEPAXI@Z = 0x1088AF20 ; function size:0x1F | public: virtual void * __thiscall engine::OLSProfileStorageMessage::`scalar deleting destructor'(unsigned int) (name guess)
-
 ??_R0?AVStreamClient@engine@@@8 = 0x110A8A1C ; data size:0x8 | class engine::StreamClient RTTI Type Descriptor RTTI type descriptor
 ??_7StreamClient@engine@@6B@ = 0x10E780D4 ; data size:0x10 | engine::StreamClient::vftable
 ??_EStreamClient@engine@@UAEPAXI@Z = 0x1089B6B0 ; function size:0x1E | public: virtual void * __thiscall engine::StreamClient::`vector deleting destructor'(unsigned int) vftable slot 0
@@ -21068,7 +20992,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??0StreamClient@engine@@QAE@XZ = 0x1089B690 ; function size:0x1D | public: __thiscall engine::StreamClient::StreamClient(void) (name guess)
 ??0StreamClient@engine@@QAE@PBD@Z = 0x1089B640 ; function size:0x2F | public: __thiscall engine::StreamClient::StreamClient(char const *) (name guess)
 ??_GStreamClient@engine@@UAEPAXI@Z = 0x1089B6B0 ; function size:0x1E | public: virtual void * __thiscall engine::StreamClient::`scalar deleting destructor'(unsigned int) (name guess)
-
 ??_R0?AVEffectParams@engine@@@8 = 0x111D45A0 ; data size:0x8 | class engine::EffectParams RTTI Type Descriptor RTTI type descriptor
 ??_R0?AVParams@fight@@@8 = 0x10FF207C ; data size:0x8 | class fight::Params RTTI Type Descriptor RTTI type descriptor
 ??_7EffectParams@engine@@6B@ = 0x10E780B4 ; data size:0xC | engine::EffectParams::vftable
@@ -21076,7 +20999,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??0EffectParams@engine@@QAE@H@Z = 0x1089B580 ; function size:0x49 | public: __thiscall engine::EffectParams::EffectParams(int) (name guess)
 ??1EffectParams@engine@@UAE@XZ = 0x1089B5D0 ; function size:0x2D | public: virtual __thiscall engine::EffectParams::~EffectParams(void) (name guess)
 ??_GEffectParams@engine@@UAEPAXI@Z = 0x1089B600 ; function size:0x1E | public: virtual void * __thiscall engine::EffectParams::`scalar deleting destructor'(unsigned int) (name guess)
-
 ??1Params@fight@@UAE@XZ = 0x105AA840 ; function size:0xB | public: virtual __thiscall fight::Params::~Params(void) (another unit; name guess)
 ??0Params@fight@@QAE@H@Z = 0x105AA820 ; function size:0x1B | public: __thiscall fight::Params::Params(int) (another unit; name guess)
 ?FormatInteger@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883560 ; function size:0x25 | void __cdecl engine::FormatInteger(struct engine::FEMovie::Value const *,char *,int) (name guess)
@@ -21087,8 +21009,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?FormatTimeOfDay@engine@@YAXPBUValue@FEMovie@1@PADH@Z = 0x10883650 ; function size:0x79 | void __cdecl engine::FormatTimeOfDay(struct engine::FEMovie::Value const *,char *,int) (name guess)
 ?GetMouseButtonName@engine@@YAPBDI@Z = 0x108836F0 ; function size:0x30 | char const * __cdecl engine::GetMouseButtonName(unsigned int) (name guess)
 ?GetValueText@engine@@YA_NPBUValue@FEMovie@1@PADI@Z = 0x108838C0 ; function size:0x56 | bool __cdecl engine::GetValueText(struct engine::FEMovie::Value const *,char *,unsigned int) (name guess)
-
-
 ??_R0?AVGameDBHelper@engine@@@8 = 0x110A0BB0 ; data size:0x8 | class engine::GameDBHelper RTTI Type Descriptor RTTI type descriptor
 ??_7GameDBHelper@engine@@6B@ = 0x10E77274 ; data size:0x1C | engine::GameDBHelper::vftable
 ?OnMessage@GameDBHelper@engine@@UAEXPAUOLSMessage@2@@Z = 0x108944A0 ; function size:0x23 | public: virtual void __thiscall engine::GameDBHelper::OnMessage(struct engine::OLSMessage *) vftable slot 0
@@ -21099,11 +21019,7 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?Enable@GameDBHelper@engine@@UAE_NXZ = 0x108947D0 ; function size:0x29 | public: virtual bool __thiscall engine::GameDBHelper::Enable(void) vftable slot 5
 ?Disable@GameDBHelper@engine@@UAEXXZ = 0x10894800 ; function size:0x2D | public: virtual void __thiscall engine::GameDBHelper::Disable(void) vftable slot 6
 ??1GameDBHelper@engine@@UAE@XZ = 0x10894470 ; function size:0x11 | public: virtual __thiscall engine::GameDBHelper::~GameDBHelper(void) (name guess)
-
-
-
 ?current@GameDBHelper@engine@@2PAV12@A = 0x113177E0 ; data size:0x4 | public: static class engine::GameDBHelper * engine::GameDBHelper::current (name guess)
-
 ??_R0?AVExceptionFEPopUpDialogState@ExceptionManager@engine@@@8 = 0x111D2C10 ; data size:0x8 | class engine::ExceptionManager::ExceptionFEPopUpDialogState RTTI Type Descriptor RTTI type descriptor
 ??_R0?AVExceptionManager@engine@@@8 = 0x111D2D1C ; data size:0x8 | class engine::ExceptionManager RTTI Type Descriptor RTTI type descriptor
 ??_7ExceptionFEPopUpDialogState@ExceptionManager@engine@@6B@ = 0x10E76184 ; data size:0x20 | engine::ExceptionManager::ExceptionFEPopUpDialogState::vftable
@@ -21136,7 +21052,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ??1ExceptionManager@engine@@QAE@XZ = 0x10882C20 ; function size:0xCD | public: __thiscall engine::ExceptionManager::~ExceptionManager(void) (the engine's shared copy)
 ?Update@ExceptionManager@engine@@QAEXVTime@core@@@Z = 0x10883040 ; function size:0x180 | public: void __thiscall engine::ExceptionManager::Update(class core::Time) (name guess)
 ?UpdateExceptionManager@engine@@YAXVTime@core@@@Z = 0x10883340 ; function size:0x29 | void __cdecl engine::UpdateExceptionManager(class core::Time) (name guess)
-
 ?gOnlineManager@engine@@3PAUOnlineManagerView@1@A = 0x11318530 ; data size:0x4 | struct engine::OnlineManagerView * engine::gOnlineManager (another unit; name guess)
 ?HasEngineFlags@engine@@YA_NI@Z = 0x10833E00 ; function size:0x16 | bool __cdecl engine::HasEngineFlags(unsigned int) (name guess)
 ?SetEngineFlags@engine@@YAXI@Z = 0x10833E20 ; function size:0xB | void __cdecl engine::SetEngineFlags(unsigned int) (name guess)
@@ -21158,7 +21073,6 @@ __imp__strncmp = 0x11331EA0 ; data size:0x4 | __imp__strncmp (another unit; name
 ?gDriveThread@engine@@3UThread@core@@A = 0x11316CB8 ; data size:0xB4 | struct core::Thread engine::gDriveThread (name guess)
 ?gStopDriveThread@engine@@3JC = 0x11316D9C ; data size:0x4 | long volatile engine::gStopDriveThread (name guess)
 ?gDriveFault@engine@@3JC = 0x11316DA0 ; data size:0x4 | long volatile engine::gDriveFault (name guess)
-
 ?GetLocalizedText@engine@@YAPBDPBD@Z = 0x10873F30 ; function size:0x26 | char const * __cdecl engine::GetLocalizedText(char const *) (name guess)
 ?FormatMessage@engine@@YAXPBUValue@FEMovie@1@HPAU231@PADHPBD@Z = 0x108833E0 ; function size:0x170 | void __cdecl engine::FormatMessage(struct engine::FEMovie::Value const *,int,struct engine::FEMovie::Value *,char *,int,char const *) (name guess)
 ?FormatDateShort@engine@@YAXPBUValue@FEMovie@1@PADHPBD@Z = 0x108836D0 ; function size:0x1 | void __cdecl engine::FormatDateShort(struct engine::FEMovie::Value const *,char *,int,char const *) (name guess)
@@ -23114,9 +23028,6 @@ __imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name g
 ?GetMode@DebugCondition@fight@@QBEHXZ = 0x105B2770 ; function size:0x4 | fight::DebugCondition::GetMode()const (name guess)
 ?VSNPrintfResult@core@@YAHPADHPBD1@Z = 0x1063B960 ; function size:0x2B | core::VSNPrintfResult(char *,int,char const *,char const *)
 ?Assign@BranchWatch@fight@@QAEXPAVBranch@2@@Z = 0x1007E9C0 ; function size:0x2D | fight::BranchWatch::Assign(fight::Branch *)
-
-
-
 ?CopyTo@Sequencer@fight@@QAEXPAV12@PAUIRefCount@core@@1@Z = 0x105A45D0 ; function size:0xEB | fight::Sequencer::CopyTo(fight::Sequencer *,core::IRefCount *,core::IRefCount *)
 ?gOnEventTrackProperties@fight@@3PAPAVProperty@1@A = 0x11276134 ; data size:0x4 | fight::gOnEventTrackProperties
 ?gEventMaskTable@fight@@3PBUEnumEntry@1@B = 0x11276140 ; data size:0x4 | fight::gEventMaskTable
@@ -23211,7 +23122,6 @@ __imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name g
 ??0OnEventAction@fight@@QAE@PAVTrack@1@PAVOnEventTrack@1@PAVSequencer@1@PAUIRefCount@core@@@Z = 0x105A7030 ; function size:0x12E | fight::OnEventAction::OnEventAction(fight::Track *,fight::OnEventTrack *,fight::Sequencer *,core::IRefCount *)
 ?GetEventMaskEntry@OnEventTrack@fight@@QAEPBUEnumEntry@2@H@Z = 0x105A6EA0 ; function size:0x28 | fight::OnEventTrack::GetEventMaskEntry(int) (name guess)
 ?GetEventMaskCount@OnEventTrack@fight@@QAEHXZ = 0x105A6ED0 ; function size:0x6 | fight::OnEventTrack::GetEventMaskCount() (name guess)
-
 ?DefaultRandom@fight@@YAMXZ = 0x105A7470 ; function size:0x55 | fight::DefaultRandom: a random number from the generator at 0x111BBD5C (name guess)
 ??0?$PropertyBitfield@VOnEventTrack@fight@@@fight@@QAE@PBDP8OnEventTrack@1@AEPBUEnumEntry@1@H@ZP821@AEHXZP821@AE_NH@Z@Z = 0x105A6120 ; function size:0x2E | fight::PropertyBitfield<fight::OnEventTrack>::PropertyBitfield (name guess)
 ??_GOnEventTrack@fight@@UAEPAXI@Z = 0x105A6070 ; function size:0x1E | fight::OnEventTrack::scalar deleting destructor(unsigned int) vftable slot 7
@@ -23292,7 +23202,6 @@ __imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name g
 ??0PropertyTypeStringList@fight@@QAE@PBD@Z = 0x105A8FF0 ; function size:0x19 | fight::PropertyTypeStringList::PropertyTypeStringList(char const *) (name guess)
 ??0PropertyTypeName32@fight@@QAE@PBD@Z = 0x105A8F50 ; function size:0x19 | fight::PropertyTypeName32::PropertyTypeName32(char const *) (name guess)
 ?gScriptErrorCallback@engine@@3P6AHPBHH@ZA = 0x11276208 ; data size:0x4 | *,int)
-
 ?SetName@Property@fight@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x105A9C50 ; function size:0x8 | fight::Property::SetName(core::Name<core::CaseSensitiveKey> const &)
 ??_R0?AVPropertyTypeItem@fight@@@8 = 0x110B4348 ; data size:0x8 | class fight::PropertyTypeItem RTTI type descriptor
 ??_7PropertyTypeItem@fight@@6B@ = 0x10E2CBBC ; data size:0x20 | fight::PropertyTypeItem::vftable
@@ -23305,7 +23214,6 @@ __imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name g
 ?Load@BranchHolder@fight@@QAE_NABV?$Name@UCaseSensitiveKey@core@@@core@@HPAVReader@2@@Z = 0x105A7690 ; function size:0x90 | fight::BranchHolder::Load(core::Name<core::CaseSensitiveKey> const &,int,fight::Reader *)
 ?Load@ConditionList@fight@@QAE_NABV?$Name@UCaseSensitiveKey@core@@@core@@HPAVReader@2@@Z = 0x105A7E10 ; function size:0x66 | fight::ConditionList::Load(core::Name<core::CaseSensitiveKey> const &,int,fight::Reader *)
 ?Load@TrackGroup@fight@@QAE_NABV?$Name@UCaseSensitiveKey@core@@@core@@HPAVReader@2@@Z = 0x105A82C0 ; function size:0x66 | fight::TrackGroup::Load(core::Name<core::CaseSensitiveKey> const &,int,fight::Reader *)
-
 ?ReportReadError@fight@@YAXPAVReader@1@PBDZZ = 0x105AA8D0 ; function size:0x93 | fight::ReportReadError(fight::Reader *,char const *,...)
 ?gConditionFlagName@fight@@3V?$Name@UCaseSensitiveKey@core@@@core@@A = 0x112761C0 ; data size:0x8 | the name conditions read a flag by when their node has no value (name guess)
 ?gTrackDisabledText@fight@@3PBDB = 0x110B4284 ; data size:0x4 | the text tracks read the disabled flag by
@@ -23326,9 +23234,7 @@ __imp__strchr = 0x11331E70 ; data size:0x4 | __imp__strchr (another unit; name g
 ??_GItem@fight@@UAEPAXI@Z = 0x105A98C0 ; function size:0x1E | fight::Item::scalar deleting destructor(unsigned int) vftable slot 7
 ??_GCondition@fight@@UAEPAXI@Z = 0x105A9A20 ; function size:0x1E | fight::Condition::scalar deleting destructor(unsigned int) vftable slot 7
 ?Slot5@Item@fight@@UAE_NHHH@Z = 0x105A9B80 ; function size:0x68 | fight::Item::Slot5(int,int,int) vftable slot 5
-
 __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name guess)
-
 ?MergeProperties@Item@fight@@QAEXPAV12@H@Z = 0x105AA2B0 ; function size:0x9A | fight::Item::MergeProperties(fight::Item *,int)
 ?Retarget@?$LinkList@VTrack@fight@@@core@@QAEXPAVTrack@fight@@0@Z = 0x105AA070 ; function size:0x35 | core::LinkList<fight::Track>::Retarget(fight::Track *,fight::Track *)
 ??_R0?AVChunk@fight@@@8 = 0x110B3D0C ; data size:0x8 | class fight::Chunk RTTI type descriptor
@@ -23399,7 +23305,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?gPathSeparator@fight@@3PBDA = 0x110B4254 ; data size:0x4 | the separator of the parts of a branch path (name guess)
 ?gParentPathHash@fight@@3_KA = 0x11276190 ; data size:0x8 | the path part that stands for the parent (name guess)
 ?gSelfPathHash@fight@@3_KA = 0x11276148 ; data size:0x8 | the path part that stands for the branch itself (name guess)
-
 ?gPathSeparator@fight@@3PBDB = 0x110B4254 ; data size:0x4 | char const * const fight::gPathSeparator (another unit; name guess)
 ?GetPathLength@Branch@fight@@QAEHH@Z = 0x105A3530 ; function size:0x5A | fight::Branch::GetPathLength(int) (name guess)
 ?ParseNameHash@fight@@YA_KPBD@Z = 0x105A2ED0 ; function size:0x89 | fight::ParseNameHash (name guess; text in eax, result in edx:eax): the hash a name's text stands for, written as 0x and sixteen digits or hashed
@@ -23422,12 +23327,10 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?LoadChildren@Branch@fight@@QAE_NPAVChunk@2@PAVReader@2@H@Z = 0x105A2FC0 ; function size:0xE0 | fight::Branch::LoadChildren(fight::Chunk *,fight::Reader *,int) (name guess)
 ?FindBranchFactory@TrackRegistry@fight@@QAEPAVBranchFactory@2@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x105A5950 ; function size:0x38 | fight::TrackRegistry::FindBranchFactory(core::Name<core::CaseSensitiveKey> const &)
 ?SkipChild@Reader@fight@@QAEPBV?$Name@UCaseSensitiveKey@core@@@core@@XZ = 0x105AA8A0 ; function size:0x23 | fight::Reader::SkipChild()
-
 ?ReadHeader@Branch@fight@@QAE_NPAVChunk@2@PAVReader@2@H@Z = 0x105A3860 ; function size:0x1D8 | fight::Branch::ReadHeader(fight::Chunk *,fight::Reader *,int)
 ?ReadProperties@Branch@fight@@QAE_NPAVReader@2@@Z = 0x105A2F60 ; function size:0x59 | fight::Branch::ReadProperties(fight::Reader *)
 ?GetPreviousSiblingOrParent@Branch@fight@@QAEPAV12@XZ = 0x105A32E0 ; function size:0x68 | fight::Branch::GetPreviousSiblingOrParent() (name guess)
 ?GetPreviousOfTree@Branch@fight@@QAEPAV12@XZ = 0x105A3350 ; function size:0x6C | fight::Branch::GetPreviousOfTree() (name guess)
-
 ?NextIndex@Chunk@fight@@QAEHXZ = 0x105AAAB0 ; function size:0x8 | fight::Chunk::NextIndex (name guess)
 ?ReadName@Reader@fight@@QAE_NABV?$Name@UCaseSensitiveKey@core@@@core@@PAVEntity@2@@Z = 0x105AA990 ; function size:0x41 | fight::Reader::ReadName(key, entity) (name guess): reads a name and gives it to an entity
 ?IsStarted@Action@fight@@QBE_NXZ = 0x105A3FC0 ; function size:0xA | fight::Action::IsStarted()const (name guess)
@@ -23609,7 +23512,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??_GReader@fight@@UAEPAXI@Z = 0x105AA880 ; function size:0x1E | fight::Reader::scalar deleting destructor(unsigned int) vftable slot 2
 ??_GScriptReader@fight@@UAEPAXI@Z = 0x105AC2F0 ; function size:0x1E | fight::ScriptReader::scalar deleting destructor(unsigned int) vftable slot 2
 ??_GBinReader@fight@@UAEPAXI@Z = 0x105ACFB0 ; function size:0x1E | fight::BinReader::scalar deleting destructor(unsigned int) vftable slot 2
-
 ?FindEntry@ScriptReader@fight@@QAEHABV?$Name@UCaseSensitiveKey@core@@@core@@H@Z = 0x105ABEC0 ; function size:0x5B | fight::ScriptReader::FindEntry(core::Name<core::CaseSensitiveKey> const &,int)
 ?GetName32@ScriptReader@fight@@QAE_NHPAV?$Name@UCaseInsensitiveKey32@core@@@core@@@Z = 0x105ABDF0 ; function size:0x7A | fight::ScriptReader::GetName32(int,core::Name<core::CaseInsensitiveKey32> *)
 ?GetVector@ScriptReader@fight@@QAE_NHPAVVector@math@@@Z = 0x105AB610 ; function size:0x53 | fight::ScriptReader::GetVector(int,math::Vector *)
@@ -23816,11 +23718,8 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?GetNext@TrackRegistry@fight@@QBEPAV12@XZ = 0x105A2630 ; function size:0x4 | fight::TrackRegistry::GetNext()const (name guess)
 ?GetNextOfList@TrackRegistry@fight@@QBEPAV12@XZ = 0x105A2640 ; function size:0x4 | fight::TrackRegistry::GetNextOfList()const (name guess)
 ?ReadName@Reader@fight@@QAE_NPBDPAVEntity@2@@Z = 0x105A31A0 ; function size:0x2A | fight::Reader::ReadName(char const *,fight::Entity *) (name guess)
-
-
 ?LoadChildren@ConditionList@fight@@QAE_NPAVBranch@2@PAVReader@2@H@Z = 0x105A7D00 ; function size:0xFE | fight::ConditionList::LoadChildren(fight::Branch *,fight::Reader *,int)
 ?LoadChildren@TrackGroup@fight@@QAE_NPAVBranch@2@PAVReader@2@H@Z = 0x105A81B0 ; function size:0xFE | fight::TrackGroup::LoadChildren(fight::Branch *,fight::Reader *,int)
-
 ?MergeProperties@Param@fight@@QAEXPAV12@H@Z = 0x105AA2B0 ; function size:0x9A | fight::Param::MergeProperties(fight::Param *,int)
 ??_R0?AVPropertyTypeRuntime@fight@@@8 = 0x110B42D0 ; data size:0x8 | Descriptor RTTI type descriptor
 ??_7PropertyTypeRuntime@fight@@6B@ = 0x10E2C94C ; data size:0x34 | fight::PropertyTypeRuntime::vftable
@@ -24471,3 +24370,249 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?gLocoAxisB@engine@@3HA = 0x111C844C ; data | engine second axis of the locomotion intention (name guess)
 ?SetText@Name32Text@fight@@QAEXPBD@Z = 0x105AB760 ; function size:0x18 | fight::Name32Text::SetText: the fight unit's 32-bit name from a text, case kept (name guess)
 ??0Name32Value@fight@@QAE@PBDH@Z = 0x105A8B90 ; function size:0x1A | fight::Name32Value::Name32Value: the fight unit's 32-bit name from a text, case kept (name guess)
+?GetFollowAction@Cell@music@@QBEABVFollowAction@2@XZ = 0x105D2840 ; function size:0x4 | public: class music::FollowAction const & __thiscall music::Cell::GetFollowAction(void)const  (name guess)
+??0Fade@music@@QAE@XZ = 0x105DF990 ; function size:0x22 | public: __thiscall music::Fade::Fade(void) (name guess)
+?GetFadeIn@Cell@music@@QBEABVFade@2@XZ = 0x105DF9C0 ; function size:0x4 | public: class music::Fade const & __thiscall music::Cell::GetFadeIn(void)const  (name guess)
+?SetFadeIn@Cell@music@@QAEXABVFade@2@@Z = 0x105DF9D0 ; function size:0x15 | public: void __thiscall music::Cell::SetFadeIn(class music::Fade const &) (name guess)
+?GetFadeOut@Cell@music@@QBEABVFade@2@XZ = 0x105DF9F0 ; function size:0x4 | public: class music::Fade const & __thiscall music::Cell::GetFadeOut(void)const  (name guess)
+?SetFadeOut@Cell@music@@QAEXABVFade@2@@Z = 0x105DFA00 ; function size:0x15 | public: void __thiscall music::Cell::SetFadeOut(class music::Fade const &) (name guess)
+?SetFollowAction@Cell@music@@QAEXABVFollowAction@2@@Z = 0x105DFA20 ; function size:0xC | public: void __thiscall music::Cell::SetFollowAction(class music::FollowAction const &) (name guess)
+?GetPatchName@MGraphCell@music@@QBEABV?$Name@UCaseSensitive64BitKey@om@@@om@@XZ = 0x105DFA30 ; function size:0x4 | public: class om::Name<struct om::CaseSensitive64BitKey> const & __thiscall music::MGraphCell::GetPatchName(void)const  (name guess)
+?ReadText@Cell@music@@UAE_NPBVTextValue@om@@@Z = 0x105DFA50 ; function size:0x1D | public: virtual bool __thiscall music::Cell::ReadText(class om::TextValue const *) (name guess)
+?WriteText@Cell@music@@UAEXPAVTextValue@om@@@Z = 0x105DFA70 ; function size:0x1D | public: virtual void __thiscall music::Cell::WriteText(class om::TextValue *) (name guess)
+?ReadBinary@Cell@music@@UAE_NPAVBinaryStream@om@@@Z = 0x105DFA90 ; function size:0x1D | public: virtual bool __thiscall music::Cell::ReadBinary(class om::BinaryStream *) (name guess)
+?GetPlayerMetaType@Cell@music@@UAEPAVMetaTypeBase@om@@XZ = 0x105DFAB0 ; function size:0x3 | public: virtual class om::MetaTypeBase * __thiscall music::Cell::GetPlayerMetaType(void) (name guess)
+?Slot6@Cell@music@@UAEXPBX@Z = 0x105DFAC0 ; function size:0x3 | public: virtual void __thiscall music::Cell::Slot6(void const *) (name guess)
+?Slot5@Cell@music@@UAE_NH@Z = 0x105DFAD0 ; function size:0x5 | public: virtual bool __thiscall music::Cell::Slot5(int) (name guess)
+??0?$MetaClass@VCell@music@@@om@@QAE@ABV?$Name@UCaseSensitive64BitKey@om@@@1@PAVMetaClassBase@1@@Z = 0x105DFBE0 ; function size:0x25 | public: __thiscall om::MetaClass<class music::Cell>::MetaClass<class music::Cell>(class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaClassBase *) (name guess)
+?GetType@?$MetaClass@VCell@music@@@om@@UAEPBVtype_info@@XZ = 0x105DFC10 ; function size:0x6 | public: virtual class type_info const * __thiscall om::MetaClass<class music::Cell>::GetType(void) (name guess)
+??0?$MetaClass@VMGraphCell@music@@@om@@QAE@ABV?$Name@UCaseSensitive64BitKey@om@@@1@PAVMetaClassBase@1@@Z = 0x105DFC20 ; function size:0x25 | public: __thiscall om::MetaClass<class music::MGraphCell>::MetaClass<class music::MGraphCell>(class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaClassBase *) (name guess)
+??1Cell@music@@UAE@XZ = 0x105DFC50 ; function size:0x28 | public: virtual __thiscall music::Cell::~Cell(void) (name guess)
+??3Cell@music@@SAXPAX@Z = 0x105DFC80 ; function size:0x12 | public: static void __cdecl music::Cell::operator delete(void *) (name guess)
+??0Cell@music@@QAE@XZ = 0x105DFCA0 ; function size:0x59 | public: __thiscall music::Cell::Cell(void) (name guess)
+??_GCell@music@@UAEPAXI@Z = 0x105DFD00 ; function size:0x40 | public: virtual void * __thiscall music::Cell::`scalar deleting destructor'(unsigned int) (name guess)
+?GetType@?$MetaClass@VMGraphCell@music@@@om@@UAEPBVtype_info@@XZ = 0x105DFD60 ; function size:0x6 | public: virtual class type_info const * __thiscall om::MetaClass<class music::MGraphCell>::GetType(void) (name guess)
+?Slot6@?$MetaClass@VMGraphCell@music@@@om@@UAEXPAX@Z = 0x105DFD70 ; function size:0x19 | public: virtual void __thiscall om::MetaClass<class music::MGraphCell>::Slot6(void *) (name guess)
+??1?$MetaClass@VMGraphCell@music@@@om@@UAE@XZ = 0x105DFDB0 ; function size:0x5 | public: virtual __thiscall om::MetaClass<class music::MGraphCell>::~MetaClass<class music::MGraphCell>(void) (name guess)
+??1?$MetaClass@VCell@music@@@om@@UAE@XZ = 0x105DFDC0 ; function size:0x5 | public: virtual __thiscall om::MetaClass<class music::Cell>::~MetaClass<class music::Cell>(void) (name guess)
+??3?$MetaClass@VMGraphCell@music@@@om@@SAXPAX@Z = 0x105DFDD0 ; function size:0x15 | public: static void __cdecl om::MetaClass<class music::MGraphCell>::operator delete(void *) (name guess)
+??3?$MetaClass@VCell@music@@@om@@SAXPAX@Z = 0x105DFDF0 ; function size:0x15 | public: static void __cdecl om::MetaClass<class music::Cell>::operator delete(void *) (name guess)
+?AllocationTag@MGraphCell@music@@SAPBDXZ = 0x105DFE10 ; function size:0x6 | public: static char const * __cdecl music::MGraphCell::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaClass@VCell@music@@@om@@SAPBDXZ = 0x105DFE40 ; function size:0x6 | public: static char const * __cdecl om::MetaClass<class music::Cell>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaClass@VMGraphCell@music@@@om@@SAPBDXZ = 0x105DFE50 ; function size:0x6 | public: static char const * __cdecl om::MetaClass<class music::MGraphCell>::AllocationTag(void) (name guess)
+??0?$MetaProperty@ABVFade@music@@@om@@QAE@PAVMetaTypeBase@1@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@PAV?$MetaMethod1Base@XABVFade@music@@@1@PAV?$MetaMethod0Base@ABVFade@music@@@1@I@Z = 0x105DFE60 ; function size:0x34 | public: __thiscall om::MetaProperty<class music::Fade const &>::MetaProperty<class music::Fade const &>(class om::MetaTypeBase *,class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaMethod1Base<void,class music::Fade const &> *,class om::MetaMethod0Base<class music::Fade const &> *,unsigned int) (name guess)
+?GetValueType@?$MetaProperty@ABVFade@music@@@om@@UAEPBVtype_info@@XZ = 0x105DFEA0 ; function size:0x6 | public: virtual class type_info const * __thiscall om::MetaProperty<class music::Fade const &>::GetValueType(void) (name guess)
+??0?$MetaProperty@ABVFollowAction@music@@@om@@QAE@PAVMetaTypeBase@1@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@PAV?$MetaMethod1Base@XABVFollowAction@music@@@1@PAV?$MetaMethod0Base@ABVFollowAction@music@@@1@I@Z = 0x105DFEB0 ; function size:0x34 | public: __thiscall om::MetaProperty<class music::FollowAction const &>::MetaProperty<class music::FollowAction const &>(class om::MetaTypeBase *,class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaMethod1Base<void,class music::FollowAction const &> *,class om::MetaMethod0Base<class music::FollowAction const &> *,unsigned int) (name guess)
+?GetValueType@?$MetaProperty@ABVFollowAction@music@@@om@@UAEPBVtype_info@@XZ = 0x105DFEF0 ; function size:0x6 | public: virtual class type_info const * __thiscall om::MetaProperty<class music::FollowAction const &>::GetValueType(void) (name guess)
+??1?$MetaMethod1Base@XABVFade@music@@@om@@UAE@XZ = 0x105DFF00 ; function size:0x7 | public: virtual __thiscall om::MetaMethod1Base<void,class music::Fade const &>::~MetaMethod1Base<void,class music::Fade const &>(void) (name guess)
+??1?$MetaMethod0Base@ABVFade@music@@@om@@UAE@XZ = 0x105DFF10 ; function size:0x7 | public: virtual __thiscall om::MetaMethod0Base<class music::Fade const &>::~MetaMethod0Base<class music::Fade const &>(void) (name guess)
+??1?$MetaMethod1Base@XABVFollowAction@music@@@om@@UAE@XZ = 0x105DFF20 ; function size:0x7 | public: virtual __thiscall om::MetaMethod1Base<void,class music::FollowAction const &>::~MetaMethod1Base<void,class music::FollowAction const &>(void) (name guess)
+??1?$MetaMethod0Base@ABVFollowAction@music@@@om@@UAE@XZ = 0x105DFF30 ; function size:0x7 | public: virtual __thiscall om::MetaMethod0Base<class music::FollowAction const &>::~MetaMethod0Base<class music::FollowAction const &>(void) (name guess)
+??1?$MetaProperty@ABVFade@music@@@om@@UAE@XZ = 0x105DFF40 ; function size:0x7 | public: virtual __thiscall om::MetaProperty<class music::Fade const &>::~MetaProperty<class music::Fade const &>(void) (name guess)
+??1?$MetaProperty@ABVFollowAction@music@@@om@@UAE@XZ = 0x105DFF50 ; function size:0x7 | public: virtual __thiscall om::MetaProperty<class music::FollowAction const &>::~MetaProperty<class music::FollowAction const &>(void) (name guess)
+??0?$MetaMethod1Base@XABVFade@music@@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@@Z = 0x105DFF60 ; function size:0x20 | public: __thiscall om::MetaMethod1Base<void,class music::Fade const &>::MetaMethod1Base<void,class music::Fade const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &) (name guess)
+??0?$MetaMethod1Base@XABVFollowAction@music@@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@@Z = 0x105DFFC0 ; function size:0x20 | public: __thiscall om::MetaMethod1Base<void,class music::FollowAction const &>::MetaMethod1Base<void,class music::FollowAction const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &) (name guess)
+??_G?$MetaMethod1Base@XABVFade@music@@@om@@UAEPAXI@Z = 0x105E0020 ; function size:0x1F | public: virtual void * __thiscall om::MetaMethod1Base<void,class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod0Base@ABVFade@music@@@om@@UAEPAXI@Z = 0x105E0040 ; function size:0x1F | public: virtual void * __thiscall om::MetaMethod0Base<class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod1Base@XABVFollowAction@music@@@om@@UAEPAXI@Z = 0x105E0060 ; function size:0x1F | public: virtual void * __thiscall om::MetaMethod1Base<void,class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod0Base@ABVFollowAction@music@@@om@@UAEPAXI@Z = 0x105E0080 ; function size:0x1F | public: virtual void * __thiscall om::MetaMethod0Base<class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+?AllocationTag@?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@SAPBDXZ = 0x105E00B0 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@SAPBDXZ = 0x105E00C0 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaProperty@ABVFade@music@@@om@@SAPBDXZ = 0x105E00D0 ; function size:0x6 | public: static char const * __cdecl om::MetaProperty<class music::Fade const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@SAPBDXZ = 0x105E00E0 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@SAPBDXZ = 0x105E00F0 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaProperty@ABVFollowAction@music@@@om@@SAPBDXZ = 0x105E0100 ; function size:0x6 | public: static char const * __cdecl om::MetaProperty<class music::FollowAction const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPBDXZ = 0x105E0110 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPBDXZ = 0x105E0120 ; function size:0x6 | public: static char const * __cdecl om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$DelegateMetaProperty@ABVFade@music@@@om@@SAPBDXZ = 0x105E0170 ; function size:0x6 | public: static char const * __cdecl om::DelegateMetaProperty<class music::Fade const &>::AllocationTag(void) (name guess)
+?AllocationTag@?$DelegateMetaProperty@ABVFollowAction@music@@@om@@SAPBDXZ = 0x105E0180 ; function size:0x6 | public: static char const * __cdecl om::DelegateMetaProperty<class music::FollowAction const &>::AllocationTag(void) (name guess)
+??2MGraphCell@music@@SAPAXI@Z = 0x105E0190 ; function size:0x13 | public: static void * __cdecl music::MGraphCell::operator new(unsigned int) (name guess)
+??0MGraphCell@music@@QAE@XZ = 0x105E01B0 ; function size:0x1A | public: __thiscall music::MGraphCell::MGraphCell(void) (name guess)
+??3MGraphCell@music@@SAXPAX@Z = 0x105E01D0 ; function size:0x12 | public: static void __cdecl music::MGraphCell::operator delete(void *) (name guess)
+??1MGraphCell@music@@UAE@XZ = 0x105E01F0 ; function size:0x28 | public: virtual __thiscall music::MGraphCell::~MGraphCell(void) (name guess)
+?SetPatchName@MGraphCell@music@@QAEXABV?$Name@UCaseSensitive64BitKey@om@@@om@@@Z = 0x105E0220 ; function size:0x12 | public: void __thiscall music::MGraphCell::SetPatchName(class om::Name<struct om::CaseSensitive64BitKey> const &) (name guess)
+??_GMGraphCell@music@@UAEPAXI@Z = 0x105E0240 ; function size:0x40 | public: virtual void * __thiscall music::MGraphCell::`scalar deleting destructor'(unsigned int) (name guess)
+?ReadText@MGraphCell@music@@UAE_NPBVTextValue@om@@@Z = 0x105E0280 ; function size:0x5 | public: virtual bool __thiscall music::MGraphCell::ReadText(class om::TextValue const *) (name guess)
+?WriteText@MGraphCell@music@@UAEXPAVTextValue@om@@@Z = 0x105E0290 ; function size:0x5 | public: virtual void __thiscall music::MGraphCell::WriteText(class om::TextValue *) (name guess)
+?Slot6@MGraphCell@music@@UAEXPBX@Z = 0x105E02E0 ; function size:0x13 | public: virtual void __thiscall music::MGraphCell::Slot6(void const *) (name guess)
+?Slot5@?$MetaClass@VCell@music@@@om@@UAEHXZ = 0x105E0300 ; function size:0x3 | public: virtual int __thiscall om::MetaClass<class music::Cell>::Slot5(void) (name guess)
+?Slot6@?$MetaClass@VCell@music@@@om@@UAEXPAX@Z = 0x105E0310 ; function size:0x3 | public: virtual void __thiscall om::MetaClass<class music::Cell>::Slot6(void *) (name guess)
+?Slot5@?$MetaClass@VMGraphCell@music@@@om@@UAEHXZ = 0x105E0340 ; function size:0x3C | public: virtual int __thiscall om::MetaClass<class music::MGraphCell>::Slot5(void) (name guess)
+??2?$MetaClass@VCell@music@@@om@@SAPAXI@Z = 0x105E03A0 ; function size:0x16 | public: static void * __cdecl om::MetaClass<class music::Cell>::operator new(unsigned int) (name guess)
+??2?$MetaClass@VMGraphCell@music@@@om@@SAPAXI@Z = 0x105E03C0 ; function size:0x16 | public: static void * __cdecl om::MetaClass<class music::MGraphCell>::operator new(unsigned int) (name guess)
+??_G?$MetaClass@VCell@music@@@om@@UAEPAXI@Z = 0x105E03E0 ; function size:0x25 | public: virtual void * __thiscall om::MetaClass<class music::Cell>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaClass@VMGraphCell@music@@@om@@UAEPAXI@Z = 0x105E0410 ; function size:0x25 | public: virtual void * __thiscall om::MetaClass<class music::MGraphCell>::`scalar deleting destructor'(unsigned int) (name guess)
+??2?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@SAPAXI@Z = 0x105E0440 ; function size:0x13 | public: static void * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8Cell@music@@AEXABVFade@5@@Z@Z = 0x105E0460 ; function size:0x27 | public: __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::Cell::*)(class music::Fade const &)) (name guess)
+?AllocationTag@MGraphCellPlayer@music@@SAPBDXZ = 0x105E0490 ; function size:0x6 | public: static char const * __cdecl music::MGraphCellPlayer::AllocationTag(void) (name guess)
+?Call@?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@UAEXPAXABVFade@music@@@Z = 0x105E04A0 ; function size:0x13 | public: virtual void __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::Call(void *,class music::Fade const &) (name guess)
+??1?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@UAE@XZ = 0x105E04C0 ; function size:0x7 | public: virtual __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::~MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>(void) (name guess)
+??3?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@SAXPAX@Z = 0x105E04D0 ; function size:0x12 | public: static void __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::operator delete(void *) (name guess)
+?AllocationTag@Fade@music@@SAPBDXZ = 0x105E04F0 ; function size:0x6 | public: static char const * __cdecl music::Fade::AllocationTag(void) (name guess)
+??2?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@SAPAXI@Z = 0x105E0520 ; function size:0x13 | public: static void * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8Cell@music@@BEABVFade@5@XZ@Z = 0x105E0540 ; function size:0x27 | public: __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class music::Fade const & (__thiscall music::Cell::*)(void)const ) (name guess)
+?Call@?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@UAEABVFade@music@@PAX@Z = 0x105E0570 ; function size:0xE | public: virtual class music::Fade const & __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::Call(void *) (name guess)
+??1?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@UAE@XZ = 0x105E0580 ; function size:0x7 | public: virtual __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::~MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>(void) (name guess)
+??3?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@SAXPAX@Z = 0x105E0590 ; function size:0x12 | public: static void __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::operator delete(void *) (name guess)
+??2?$MetaProperty@ABVFade@music@@@om@@SAPAXI@Z = 0x105E05B0 ; function size:0x13 | public: static void * __cdecl om::MetaProperty<class music::Fade const &>::operator new(unsigned int) (name guess)
+??2?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@SAPAXI@Z = 0x105E05D0 ; function size:0x13 | public: static void * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8Cell@music@@AEXABVFollowAction@5@@Z@Z = 0x105E05F0 ; function size:0x27 | public: __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::Cell::*)(class music::FollowAction const &)) (name guess)
+?AllocationTag@FollowAction@music@@SAPBDXZ = 0x105E0620 ; function size:0x6 | public: static char const * __cdecl music::FollowAction::AllocationTag(void) (name guess)
+?Call@?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@UAEXPAXABVFollowAction@music@@@Z = 0x105E0630 ; function size:0x13 | public: virtual void __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::Call(void *,class music::FollowAction const &) (name guess)
+??1?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@UAE@XZ = 0x105E0650 ; function size:0x7 | public: virtual __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::~MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>(void) (name guess)
+??3?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@SAXPAX@Z = 0x105E0660 ; function size:0x12 | public: static void __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::operator delete(void *) (name guess)
+?AllocationTag@?$Garbage@VFade@music@@@om@@SAPBDXZ = 0x105E0680 ; function size:0x6 | public: static char const * __cdecl om::Garbage<class music::Fade>::AllocationTag(void) (name guess)
+??2?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@SAPAXI@Z = 0x105E06B0 ; function size:0x13 | public: static void * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8Cell@music@@BEABVFollowAction@5@XZ@Z = 0x105E06D0 ; function size:0x27 | public: __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class music::FollowAction const & (__thiscall music::Cell::*)(void)const ) (name guess)
+?Call@?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@UAEABVFollowAction@music@@PAX@Z = 0x105E0700 ; function size:0xE | public: virtual class music::FollowAction const & __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::Call(void *) (name guess)
+??1?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@UAE@XZ = 0x105E0710 ; function size:0x7 | public: virtual __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::~MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>(void) (name guess)
+??3?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@SAXPAX@Z = 0x105E0720 ; function size:0x12 | public: static void __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::operator delete(void *) (name guess)
+??2?$MetaProperty@ABVFollowAction@music@@@om@@SAPAXI@Z = 0x105E0740 ; function size:0x13 | public: static void * __cdecl om::MetaProperty<class music::FollowAction const &>::operator new(unsigned int) (name guess)
+??2?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPAXI@Z = 0x105E0760 ; function size:0x13 | public: static void * __cdecl om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8MGraphCell@music@@AEX1@Z@Z = 0x105E0780 ; function size:0x27 | public: __thiscall om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::MGraphCell::*)(class om::Name<struct om::CaseSensitive64BitKey> const &)) (name guess)
+?Call@?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEXPAXABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z = 0x105E07B0 ; function size:0x13 | public: virtual void __thiscall om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::Call(void *,class om::Name<struct om::CaseSensitive64BitKey> const &) (name guess)
+??1?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAE@XZ = 0x105E07D0 ; function size:0x7 | public: virtual __thiscall om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::~MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>(void) (name guess)
+??3?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAXPAX@Z = 0x105E07E0 ; function size:0x12 | public: static void __cdecl om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::operator delete(void *) (name guess)
+??2?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPAXI@Z = 0x105E0800 ; function size:0x13 | public: static void * __cdecl om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::operator new(unsigned int) (name guess)
+??0?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@QAE@PAVMetaClassBase@1@ABV?$Name@UCaseSensitive64BitKey@om@@@1@P8MGraphCell@music@@BEABV31@XZ@Z = 0x105E0820 ; function size:0x27 | public: __thiscall om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::Name<struct om::CaseSensitive64BitKey> const & (__thiscall music::MGraphCell::*)(void)const ) (name guess)
+?Call@?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEABV?$Name@UCaseSensitive64BitKey@om@@@2@PAX@Z = 0x105E0850 ; function size:0xE | public: virtual class om::Name<struct om::CaseSensitive64BitKey> const & __thiscall om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::Call(void *) (name guess)
+??1?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAE@XZ = 0x105E0860 ; function size:0x7 | public: virtual __thiscall om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::~MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>(void) (name guess)
+??3?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAXPAX@Z = 0x105E0870 ; function size:0x12 | public: static void __cdecl om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::operator delete(void *) (name guess)
+??_G?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@UAEPAXI@Z = 0x105E0890 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@UAEPAXI@Z = 0x105E08C0 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaProperty@ABVFade@music@@@om@@UAEPAXI@Z = 0x105E08F0 ; function size:0x23 | public: virtual void * __thiscall om::MetaProperty<class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@UAEPAXI@Z = 0x105E0920 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@UAEPAXI@Z = 0x105E0950 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaProperty@ABVFollowAction@music@@@om@@UAEPAXI@Z = 0x105E0980 ; function size:0x23 | public: virtual void * __thiscall om::MetaProperty<class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEPAXI@Z = 0x105E09B0 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEPAXI@Z = 0x105E09E0 ; function size:0x23 | public: virtual void * __thiscall om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::`scalar deleting destructor'(unsigned int) (name guess)
+?GetSetter@?$MetaProperty@ABVFade@music@@@om@@QAEPAV?$MetaMethod1Base@XABVFade@music@@@2@XZ = 0x105E0A10 ; function size:0x4 | public: class om::MetaMethod1Base<void,class music::Fade const &> * __thiscall om::MetaProperty<class music::Fade const &>::GetSetter(void) (name guess)
+?GetGetter@?$MetaProperty@ABVFade@music@@@om@@QAEPAV?$MetaMethod0Base@ABVFade@music@@@2@XZ = 0x105E0A20 ; function size:0x4 | public: class om::MetaMethod0Base<class music::Fade const &> * __thiscall om::MetaProperty<class music::Fade const &>::GetGetter(void) (name guess)
+?GetSetter@?$MetaProperty@ABVFollowAction@music@@@om@@QAEPAV?$MetaMethod1Base@XABVFollowAction@music@@@2@XZ = 0x105E0A30 ; function size:0x4 | public: class om::MetaMethod1Base<void,class music::FollowAction const &> * __thiscall om::MetaProperty<class music::FollowAction const &>::GetSetter(void) (name guess)
+?GetGetter@?$MetaProperty@ABVFollowAction@music@@@om@@QAEPAV?$MetaMethod0Base@ABVFollowAction@music@@@2@XZ = 0x105E0A40 ; function size:0x4 | public: class om::MetaMethod0Base<class music::FollowAction const &> * __thiscall om::MetaProperty<class music::FollowAction const &>::GetGetter(void) (name guess)
+??2?$DelegateMetaProperty@ABVFade@music@@@om@@SAPAXI@Z = 0x105E0A70 ; function size:0x13 | public: static void * __cdecl om::DelegateMetaProperty<class music::Fade const &>::operator new(unsigned int) (name guess)
+??2?$DelegateMetaProperty@ABVFollowAction@music@@@om@@SAPAXI@Z = 0x105E0A90 ; function size:0x13 | public: static void * __cdecl om::DelegateMetaProperty<class music::FollowAction const &>::operator new(unsigned int) (name guess)
+??2?$Garbage@VFollowAction@music@@@om@@SAPAXI@Z = 0x105E0AB0 ; function size:0x13 | public: static void * __cdecl om::Garbage<class music::FollowAction>::operator new(unsigned int) (name guess)
+??0?$Garbage@VFade@music@@@om@@QAE@PAVFade@music@@@Z = 0x105E0AD0 ; function size:0x12 | public: __thiscall om::Garbage<class music::Fade>::Garbage<class music::Fade>(class music::Fade *) (name guess)
+??3Fade@music@@SAXPAX@Z = 0x105E0AF0 ; function size:0x12 | public: static void __cdecl music::Fade::operator delete(void *) (name guess)
+??1?$Garbage@VFade@music@@@om@@UAE@XZ = 0x105E0B10 ; function size:0x21 | public: virtual __thiscall om::Garbage<class music::Fade>::~Garbage<class music::Fade>(void) (name guess)
+??3?$Garbage@VFade@music@@@om@@SAXPAX@Z = 0x105E0B40 ; function size:0x12 | public: static void __cdecl om::Garbage<class music::Fade>::operator delete(void *) (name guess)
+??2?$Garbage@VFade@music@@@om@@SAPAXI@Z = 0x105E0B60 ; function size:0x13 | public: static void * __cdecl om::Garbage<class music::Fade>::operator new(unsigned int) (name guess)
+??0?$Garbage@VFollowAction@music@@@om@@QAE@PAVFollowAction@music@@@Z = 0x105E0B80 ; function size:0x12 | public: __thiscall om::Garbage<class music::FollowAction>::Garbage<class music::FollowAction>(class music::FollowAction *) (name guess)
+??3FollowAction@music@@SAXPAX@Z = 0x105E0BA0 ; function size:0x12 | public: static void __cdecl music::FollowAction::operator delete(void *) (name guess)
+??1?$Garbage@VFollowAction@music@@@om@@UAE@XZ = 0x105E0BC0 ; function size:0x21 | public: virtual __thiscall om::Garbage<class music::FollowAction>::~Garbage<class music::FollowAction>(void) (name guess)
+??3?$Garbage@VFollowAction@music@@@om@@SAXPAX@Z = 0x105E0BF0 ; function size:0x12 | public: static void __cdecl om::Garbage<class music::FollowAction>::operator delete(void *) (name guess)
+??0?$DelegateProperty@VFade@music@@@om@@QAE@XZ = 0x105E0C10 ; function size:0x10 | public: __thiscall om::DelegateProperty<class music::Fade>::DelegateProperty<class music::Fade>(void) (name guess)
+?GetMetaType@?$DelegateProperty@VFade@music@@@om@@UAEPAVMetaTypeBase@2@XZ = 0x105E0C20 ; function size:0xE | public: virtual class om::MetaTypeBase * __thiscall om::DelegateProperty<class music::Fade>::GetMetaType(void) (name guess)
+??1?$DelegateProperty@VFade@music@@@om@@UAE@XZ = 0x105E0C30 ; function size:0x7 | public: virtual __thiscall om::DelegateProperty<class music::Fade>::~DelegateProperty<class music::Fade>(void) (name guess)
+??0?$DelegateProperty@VFollowAction@music@@@om@@QAE@XZ = 0x105E0C40 ; function size:0x10 | public: __thiscall om::DelegateProperty<class music::FollowAction>::DelegateProperty<class music::FollowAction>(void) (name guess)
+?GetMetaType@?$DelegateProperty@VFollowAction@music@@@om@@UAEPAVMetaTypeBase@2@XZ = 0x105E0C50 ; function size:0xE | public: virtual class om::MetaTypeBase * __thiscall om::DelegateProperty<class music::FollowAction>::GetMetaType(void) (name guess)
+??1?$DelegateProperty@VFollowAction@music@@@om@@UAE@XZ = 0x105E0C60 ; function size:0x7 | public: virtual __thiscall om::DelegateProperty<class music::FollowAction>::~DelegateProperty<class music::FollowAction>(void) (name guess)
+??_G?$Garbage@VFade@music@@@om@@UAEPAXI@Z = 0x105E0C70 ; function size:0x39 | public: virtual void * __thiscall om::Garbage<class music::Fade>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$Garbage@VFollowAction@music@@@om@@UAEPAXI@Z = 0x105E0CB0 ; function size:0x39 | public: virtual void * __thiscall om::Garbage<class music::FollowAction>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$DelegateProperty@VFade@music@@@om@@UAEPAXI@Z = 0x105E0CF0 ; function size:0x1F | public: virtual void * __thiscall om::DelegateProperty<class music::Fade>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$DelegateProperty@VFollowAction@music@@@om@@UAEPAXI@Z = 0x105E0D10 ; function size:0x1F | public: virtual void * __thiscall om::DelegateProperty<class music::FollowAction>::`scalar deleting destructor'(unsigned int) (name guess)
+??$ReadText@VFade@music@@@om@@YA_NPBVTextValue@0@PAVFade@music@@@Z = 0x105E0D30 ; function size:0x2F | bool __cdecl om::ReadText<class music::Fade>(class om::TextValue const *,class music::Fade *) (name guess)
+??$WriteText@VFade@music@@@om@@YAXPAVTextValue@0@ABVFade@music@@@Z = 0x105E0D60 ; function size:0x2F | void __cdecl om::WriteText<class music::Fade>(class om::TextValue *,class music::Fade const &) (name guess)
+?GetMetaType@Cell@music@@UAEPAVMetaTypeBase@om@@XZ = 0x105E0DD0 ; function size:0x1C | public: virtual class om::MetaTypeBase * __thiscall music::Cell::GetMetaType(void) (name guess)
+?GetMetaType@MGraphCell@music@@UAEPAVMetaTypeBase@om@@XZ = 0x105E0DF0 ; function size:0x1C | public: virtual class om::MetaTypeBase * __thiscall music::MGraphCell::GetMetaType(void) (name guess)
+?GetPlayerMetaType@MGraphCell@music@@UAEPAVMetaTypeBase@om@@XZ = 0x105E0E10 ; function size:0x1C | public: virtual class om::MetaTypeBase * __thiscall music::MGraphCell::GetPlayerMetaType(void) (name guess)
+?Create@?$MetaClass@VCell@music@@@om@@SAXABV?$Name@UCaseSensitive64BitKey@om@@@2@PAVMetaClassBase@2@@Z = 0x105E0E30 ; function size:0x65 | public: static void __cdecl om::MetaClass<class music::Cell>::Create(class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaClassBase *) (name guess)
+?Create@?$MetaClass@VMGraphCell@music@@@om@@SAXABV?$Name@UCaseSensitive64BitKey@om@@@2@PAVMetaClassBase@2@@Z = 0x105E0EF0 ; function size:0x65 | public: static void __cdecl om::MetaClass<class music::MGraphCell>::Create(class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaClassBase *) (name guess)
+?Create@?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8Cell@music@@AEXABVFade@6@@Z@Z = 0x105E0FB0 ; function size:0x3F | public: static class om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &> * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::Cell::*)(class music::Fade const &)) (name guess)
+?Create@?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8Cell@music@@BEABVFade@6@XZ@Z = 0x105E0FF0 ; function size:0x3F | public: static class om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &> * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class music::Fade const & (__thiscall music::Cell::*)(void)const ) (name guess)
+?Create@?$MetaProperty@ABVFade@music@@@om@@SAXPAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@PAV?$MetaMethod1Base@XABVFade@music@@@2@PAV?$MetaMethod0Base@ABVFade@music@@@2@I@Z = 0x105E1030 ; function size:0x52 | public: static void __cdecl om::MetaProperty<class music::Fade const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaMethod1Base<void,class music::Fade const &> *,class om::MetaMethod0Base<class music::Fade const &> *,unsigned int) (name guess)
+?Create@?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8Cell@music@@AEXABVFollowAction@6@@Z@Z = 0x105E1090 ; function size:0x3F | public: static class om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &> * __cdecl om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::Cell::*)(class music::FollowAction const &)) (name guess)
+?Create@?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8Cell@music@@BEABVFollowAction@6@XZ@Z = 0x105E10D0 ; function size:0x3F | public: static class om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &> * __cdecl om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class music::FollowAction const & (__thiscall music::Cell::*)(void)const ) (name guess)
+?Create@?$MetaProperty@ABVFollowAction@music@@@om@@SAXPAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@PAV?$MetaMethod1Base@XABVFollowAction@music@@@2@PAV?$MetaMethod0Base@ABVFollowAction@music@@@2@I@Z = 0x105E1110 ; function size:0x52 | public: static void __cdecl om::MetaProperty<class music::FollowAction const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::MetaMethod1Base<void,class music::FollowAction const &> *,class om::MetaMethod0Base<class music::FollowAction const &> *,unsigned int) (name guess)
+?Create@?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8MGraphCell@music@@AEX1@Z@Z = 0x105E1170 ; function size:0x3F | public: static class om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &> * __cdecl om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,void (__thiscall music::MGraphCell::*)(class om::Name<struct om::CaseSensitive64BitKey> const &)) (name guess)
+?Create@?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@SAPAV12@PAVMetaClassBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@P8MGraphCell@music@@BEABV42@XZ@Z = 0x105E11B0 ; function size:0x3F | public: static class om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &> * __cdecl om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::Create(class om::MetaClassBase *,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::Name<struct om::CaseSensitive64BitKey> const & (__thiscall music::MGraphCell::*)(void)const ) (name guess)
+??$ReadBinary@VFade@music@@@om@@YA_NPAVBinaryStream@0@PAVFade@music@@@Z = 0x105E1250 ; function size:0x2F | bool __cdecl om::ReadBinary<class music::Fade>(class om::BinaryStream *,class music::Fade *) (name guess)
+??$WriteBinary@VFade@music@@@om@@YAXPAVBinaryStream@0@ABVFade@music@@@Z = 0x105E1280 ; function size:0x2F | void __cdecl om::WriteBinary<class music::Fade>(class om::BinaryStream *,class music::Fade const &) (name guess)
+??0?$DelegateMetaProperty@ABVFade@music@@@om@@QAE@PAXPAV?$MetaProperty@ABVFade@music@@@1@@Z = 0x105E1350 ; function size:0x2E | public: __thiscall om::DelegateMetaProperty<class music::Fade const &>::DelegateMetaProperty<class music::Fade const &>(void *,class om::MetaProperty<class music::Fade const &> *) (name guess)
+?SetObject@?$DelegateMetaProperty@ABVFade@music@@@om@@UAEXPAX@Z = 0x105E1380 ; function size:0xA | public: virtual void __thiscall om::DelegateMetaProperty<class music::Fade const &>::SetObject(void *) (name guess)
+??3?$DelegateMetaProperty@ABVFade@music@@@om@@SAXPAX@Z = 0x105E1390 ; function size:0x12 | public: static void __cdecl om::DelegateMetaProperty<class music::Fade const &>::operator delete(void *) (name guess)
+??1?$DelegateMetaProperty@ABVFade@music@@@om@@UAE@XZ = 0x105E13B0 ; function size:0x7 | public: virtual __thiscall om::DelegateMetaProperty<class music::Fade const &>::~DelegateMetaProperty<class music::Fade const &>(void) (name guess)
+?Get@?$DelegateMetaProperty@ABVFade@music@@@om@@UAE?AVFade@music@@XZ = 0x105E13C0 ; function size:0x29 | public: virtual class music::Fade __thiscall om::DelegateMetaProperty<class music::Fade const &>::Get(void) (name guess)
+?Set@?$DelegateMetaProperty@ABVFade@music@@@om@@UAEXVFade@music@@@Z = 0x105E13F0 ; function size:0x1D | public: virtual void __thiscall om::DelegateMetaProperty<class music::Fade const &>::Set(class music::Fade) (name guess)
+??0?$DelegateMetaProperty@ABVFollowAction@music@@@om@@QAE@PAXPAV?$MetaProperty@ABVFollowAction@music@@@1@@Z = 0x105E1410 ; function size:0x2E | public: __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::DelegateMetaProperty<class music::FollowAction const &>(void *,class om::MetaProperty<class music::FollowAction const &> *) (name guess)
+?SetObject@?$DelegateMetaProperty@ABVFollowAction@music@@@om@@UAEXPAX@Z = 0x105E1440 ; function size:0xA | public: virtual void __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::SetObject(void *) (name guess)
+??3?$DelegateMetaProperty@ABVFollowAction@music@@@om@@SAXPAX@Z = 0x105E1450 ; function size:0x12 | public: static void __cdecl om::DelegateMetaProperty<class music::FollowAction const &>::operator delete(void *) (name guess)
+??1?$DelegateMetaProperty@ABVFollowAction@music@@@om@@UAE@XZ = 0x105E1470 ; function size:0x7 | public: virtual __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::~DelegateMetaProperty<class music::FollowAction const &>(void) (name guess)
+?Get@?$DelegateMetaProperty@ABVFollowAction@music@@@om@@UAE?AVFollowAction@music@@XZ = 0x105E1480 ; function size:0x1E | public: virtual class music::FollowAction __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::Get(void) (name guess)
+?Set@?$DelegateMetaProperty@ABVFollowAction@music@@@om@@UAEXVFollowAction@music@@@Z = 0x105E14A0 ; function size:0x1D | public: virtual void __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::Set(class music::FollowAction) (name guess)
+??_G?$DelegateMetaProperty@ABVFade@music@@@om@@UAEPAXI@Z = 0x105E14C0 ; function size:0x23 | public: virtual void * __thiscall om::DelegateMetaProperty<class music::Fade const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??_G?$DelegateMetaProperty@ABVFollowAction@music@@@om@@UAEPAXI@Z = 0x105E14F0 ; function size:0x23 | public: virtual void * __thiscall om::DelegateMetaProperty<class music::FollowAction const &>::`scalar deleting destructor'(unsigned int) (name guess)
+??$WriteBinary@VFollowAction@music@@@om@@YAXPAVBinaryStream@0@ABVFollowAction@music@@@Z = 0x105E1EA0 ; function size:0x2F | void __cdecl om::WriteBinary<class music::FollowAction>(class om::BinaryStream *,class music::FollowAction const &) (name guess)
+?SetText@?$MetaProperty@ABVFade@music@@@om@@UAE_NPBVTextValue@2@PAX@Z = 0x105E1F60 ; function size:0xC7 | public: virtual bool __thiscall om::MetaProperty<class music::Fade const &>::SetText(class om::TextValue const *,void *) (name guess)
+?GetText@?$MetaProperty@ABVFade@music@@@om@@UAEXPAVTextValue@2@PAX@Z = 0x105E2030 ; function size:0x98 | public: virtual void __thiscall om::MetaProperty<class music::Fade const &>::GetText(class om::TextValue *,void *) (name guess)
+?SetBinary@?$MetaProperty@ABVFade@music@@@om@@UAE_NPAVBinaryStream@2@PAX@Z = 0x105E20D0 ; function size:0x87 | public: virtual bool __thiscall om::MetaProperty<class music::Fade const &>::SetBinary(class om::BinaryStream *,void *) (name guess)
+?GetBinary@?$MetaProperty@ABVFade@music@@@om@@UAEXPAVBinaryStream@2@PAX@Z = 0x105E2160 ; function size:0x40 | public: virtual void __thiscall om::MetaProperty<class music::Fade const &>::GetBinary(class om::BinaryStream *,void *) (name guess)
+?CreateDelegate@?$MetaProperty@ABVFade@music@@@om@@UAEPAVDelegatePropertyBase@2@PAX@Z = 0x105E21A0 ; function size:0x48 | public: virtual class om::DelegatePropertyBase * __thiscall om::MetaProperty<class music::Fade const &>::CreateDelegate(void *) (name guess)
+?SetText@?$MetaProperty@ABVFollowAction@music@@@om@@UAE_NPBVTextValue@2@PAX@Z = 0x105E21F0 ; function size:0x79 | public: virtual bool __thiscall om::MetaProperty<class music::FollowAction const &>::SetText(class om::TextValue const *,void *) (name guess)
+?GetText@?$MetaProperty@ABVFollowAction@music@@@om@@UAEXPAVTextValue@2@PAX@Z = 0x105E2270 ; function size:0x83 | public: virtual void __thiscall om::MetaProperty<class music::FollowAction const &>::GetText(class om::TextValue *,void *) (name guess)
+?SetBinary@?$MetaProperty@ABVFollowAction@music@@@om@@UAE_NPAVBinaryStream@2@PAX@Z = 0x105E2300 ; function size:0x5D | public: virtual bool __thiscall om::MetaProperty<class music::FollowAction const &>::SetBinary(class om::BinaryStream *,void *) (name guess)
+?GetBinary@?$MetaProperty@ABVFollowAction@music@@@om@@UAEXPAVBinaryStream@2@PAX@Z = 0x105E2360 ; function size:0x40 | public: virtual void __thiscall om::MetaProperty<class music::FollowAction const &>::GetBinary(class om::BinaryStream *,void *) (name guess)
+?CreateDelegate@?$MetaProperty@ABVFollowAction@music@@@om@@UAEPAVDelegatePropertyBase@2@PAX@Z = 0x105E23A0 ; function size:0x48 | public: virtual class om::DelegatePropertyBase * __thiscall om::MetaProperty<class music::FollowAction const &>::CreateDelegate(void *) (name guess)
+??_7?$DelegateMetaProperty@ABVFade@music@@@om@@6B?$DelegateProperty@VFade@music@@@1@@ = 0x10E30A00 ; data size:0x10 | const om::DelegateMetaProperty<class music::Fade const &>::`vftable'{for `om::DelegateProperty<class music::Fade>'}
+??_7?$DelegateMetaProperty@ABVFade@music@@@om@@6BDelegateMetaPropertyBase@1@@ = 0x10E309F8 ; data size:0x4 | const om::DelegateMetaProperty<class music::Fade const &>::`vftable'{for `om::DelegateMetaPropertyBase'}
+??_7?$DelegateMetaProperty@ABVFollowAction@music@@@om@@6B?$DelegateProperty@VFollowAction@music@@@1@@ = 0x10E30A1C ; data size:0x10 | const om::DelegateMetaProperty<class music::FollowAction const &>::`vftable'{for `om::DelegateProperty<class music::FollowAction>'}
+??_7?$DelegateMetaProperty@ABVFollowAction@music@@@om@@6BDelegateMetaPropertyBase@1@@ = 0x10E30A14 ; data size:0x4 | const om::DelegateMetaProperty<class music::FollowAction const &>::`vftable'{for `om::DelegateMetaPropertyBase'}
+??_7?$DelegateProperty@VFade@music@@@om@@6B@ = 0x10E309D0 ; data size:0x10 | const om::DelegateProperty<class music::Fade>::`vftable'
+??_7?$DelegateProperty@VFollowAction@music@@@om@@6B@ = 0x10E309E4 ; data size:0x10 | const om::DelegateProperty<class music::FollowAction>::`vftable'
+??_7?$Garbage@VFade@music@@@om@@6B@ = 0x10E309C0 ; data size:0x4 | const om::Garbage<class music::Fade>::`vftable'
+??_7?$Garbage@VFollowAction@music@@@om@@6B@ = 0x10E309C8 ; data size:0x4 | const om::Garbage<class music::FollowAction>::`vftable'
+??_7?$MetaClass@VCell@music@@@om@@6B@ = 0x10E30840 ; data size:0x20 | const om::MetaClass<class music::Cell>::`vftable'
+??_7?$MetaClass@VMGraphCell@music@@@om@@6B@ = 0x10E30864 ; data size:0x20 | const om::MetaClass<class music::MGraphCell>::`vftable'
+??_7?$MetaMethod0Base@ABVFade@music@@@om@@6B@ = 0x10E30904 ; data size:0xC | const om::MetaMethod0Base<class music::Fade const &>::`vftable'
+??_7?$MetaMethod0Base@ABVFollowAction@music@@@om@@6B@ = 0x10E30924 ; data size:0xC | const om::MetaMethod0Base<class music::FollowAction const &>::`vftable'
+??_7?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@6B@ = 0x10E30970 ; data size:0xC | const om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::`vftable'
+??_7?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@6B@ = 0x10E30990 ; data size:0xC | const om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::`vftable'
+??_7?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@6B@ = 0x10E309B0 ; data size:0xC | const om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::`vftable'
+??_7?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@6B@ = 0x10E30960 ; data size:0xC | const om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::`vftable'
+??_7?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@6B@ = 0x10E30980 ; data size:0xC | const om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::`vftable'
+??_7?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@6B@ = 0x10E309A0 ; data size:0xC | const om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::`vftable'
+??_7?$MetaMethod1Base@XABVFade@music@@@om@@6B@ = 0x10E308F4 ; data size:0xC | const om::MetaMethod1Base<void,class music::Fade const &>::`vftable'
+??_7?$MetaMethod1Base@XABVFollowAction@music@@@om@@6B@ = 0x10E30914 ; data size:0xC | const om::MetaMethod1Base<void,class music::FollowAction const &>::`vftable'
+??_7?$MetaProperty@ABVFade@music@@@om@@6B@ = 0x10E308B4 ; data size:0x1C | const om::MetaProperty<class music::Fade const &>::`vftable'
+??_7?$MetaProperty@ABVFollowAction@music@@@om@@6B@ = 0x10E308D4 ; data size:0x1C | const om::MetaProperty<class music::FollowAction const &>::`vftable'
+??_7Cell@music@@6B@ = 0x10E30888 ; data size:0x28 | const music::Cell::`vftable'
+??_7MGraphCell@music@@6B@ = 0x10E30934 ; data size:0x28 | const music::MGraphCell::`vftable'
+??_R0?AV?$DelegateMetaProperty@ABVFade@music@@@om@@@8 = 0x110B8578 ; data size:0x8 | class om::DelegateMetaProperty<class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$DelegateMetaProperty@ABVFollowAction@music@@@om@@@8 = 0x110B85B0 ; data size:0x8 | class om::DelegateMetaProperty<class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AV?$DelegateProperty@VFade@music@@@om@@@8 = 0x110B8508 ; data size:0x8 | class om::DelegateProperty<class music::Fade> `RTTI Type Descriptor'
+??_R0?AV?$DelegateProperty@VFollowAction@music@@@om@@@8 = 0x110B853C ; data size:0x8 | class om::DelegateProperty<class music::FollowAction> `RTTI Type Descriptor'
+??_R0?AV?$Garbage@VFade@music@@@om@@@8 = 0x110B84A8 ; data size:0x8 | class om::Garbage<class music::Fade> `RTTI Type Descriptor'
+??_R0?AV?$Garbage@VFollowAction@music@@@om@@@8 = 0x110B84D4 ; data size:0x8 | class om::Garbage<class music::FollowAction> `RTTI Type Descriptor'
+??_R0?AV?$MetaClass@VCell@music@@@om@@@8 = 0x110B80DC ; data size:0x8 | class om::MetaClass<class music::Cell> `RTTI Type Descriptor'
+??_R0?AV?$MetaClass@VMGraphCell@music@@@om@@@8 = 0x110B8128 ; data size:0x8 | class om::MetaClass<class music::MGraphCell> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod0Base@ABVFade@music@@@om@@@8 = 0x110B81F8 ; data size:0x8 | class om::MetaMethod0Base<class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod0Base@ABVFollowAction@music@@@om@@@8 = 0x110B8268 ; data size:0x8 | class om::MetaMethod0Base<class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@@8 = 0x110B8308 ; data size:0x8 | class om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@@8 = 0x110B8390 ; data size:0x8 | class om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@@8 = 0x110B8440 ; data size:0x8 | class om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@@8 = 0x110B82CC ; data size:0x8 | class om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@@8 = 0x110B8348 ; data size:0x8 | class om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@@8 = 0x110B83D8 ; data size:0x8 | class om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod1Base@XABVFade@music@@@om@@@8 = 0x110B81C4 ; data size:0x8 | class om::MetaMethod1Base<void,class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaMethod1Base@XABVFollowAction@music@@@om@@@8 = 0x110B822C ; data size:0x8 | class om::MetaMethod1Base<void,class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaProperty@ABVFade@music@@@om@@@8 = 0x110B815C ; data size:0x8 | class om::MetaProperty<class music::Fade const &> `RTTI Type Descriptor'
+??_R0?AV?$MetaProperty@ABVFollowAction@music@@@om@@@8 = 0x110B818C ; data size:0x8 | class om::MetaProperty<class music::FollowAction const &> `RTTI Type Descriptor'
+??_R0?AVCell@music@@@8 = 0x110B8058 ; data size:0x8 | class music::Cell `RTTI Type Descriptor'
+??_R0?AVMGraphCell@music@@@8 = 0x110B8108 ; data size:0x8 | class music::MGraphCell `RTTI Type Descriptor'
+??_R0?AVMGraphCellPlayer@music@@@8 = 0x110B82A4 ; data size:0x8 | class music::MGraphCellPlayer `RTTI Type Descriptor'
+?type@?$MetaTypeCache@VCell@music@@@om@@2PAVMetaTypeBase@2@A = 0x112768BC ; data size:0x4 | public: static class om::MetaTypeBase * om::MetaTypeCache<class music::Cell>::type (name guess)
+?type@?$MetaTypeCache@VFade@music@@@om@@2PAVMetaTypeBase@2@A = 0x112768D0 ; data size:0x4 | public: static class om::MetaTypeBase * om::MetaTypeCache<class music::Fade>::type (name guess)
+?type@?$MetaTypeCache@VFollowAction@music@@@om@@2PAVMetaTypeBase@2@A = 0x112768C0 ; data size:0x4 | public: static class om::MetaTypeBase * om::MetaTypeCache<class music::FollowAction>::type (name guess)
+?type@?$MetaTypeCache@VMGraphCell@music@@@om@@2PAVMetaTypeBase@2@A = 0x112768C8 ; data size:0x4 | public: static class om::MetaTypeBase * om::MetaTypeCache<class music::MGraphCell>::type (name guess)
+?type@?$MetaTypeCache@VMGraphCellPlayer@music@@@om@@2PAVMetaTypeBase@2@A = 0x112768CC ; data size:0x4 | public: static class om::MetaTypeBase * om::MetaTypeCache<class music::MGraphCellPlayer>::type (name guess)
+?Clone@Cell@music@@UAEPAV12@XZ = 0x105DFAE0 ; function size:0xF3 | public: virtual class music::Cell * __thiscall music::Cell::Clone(void) (name guess)
+?Invoke@?$MetaMethod0Const@VCell@music@@V12@ABVFade@2@@om@@UAEXPAXIIII@Z = 0x105E26C0 ; function size:0xAF | public: virtual void __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::Fade const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?Invoke@?$MetaMethod0Const@VCell@music@@V12@ABVFollowAction@2@@om@@UAEXPAXIIII@Z = 0x105E2840 ; function size:0xAF | public: virtual void __thiscall om::MetaMethod0Const<class music::Cell,class music::Cell,class music::FollowAction const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?Invoke@?$MetaMethod0Const@VMGraphCell@music@@V12@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEXPAXIIII@Z = 0x105E1D40 ; function size:0x85 | public: virtual void __thiscall om::MetaMethod0Const<class music::MGraphCell,class music::MGraphCell,class om::Name<struct om::CaseSensitive64BitKey> const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?Invoke@?$MetaMethod1@VCell@music@@V12@XABVFade@2@@om@@UAEXPAXIIII@Z = 0x105E25F0 ; function size:0xCC | public: virtual void __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::Fade const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?Invoke@?$MetaMethod1@VCell@music@@V12@XABVFollowAction@2@@om@@UAEXPAXIIII@Z = 0x105E2770 ; function size:0xCC | public: virtual void __thiscall om::MetaMethod1<class music::Cell,class music::Cell,void,class music::FollowAction const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?Invoke@?$MetaMethod1@VMGraphCell@music@@V12@XABV?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@UAEXPAXIIII@Z = 0x105E28F0 ; function size:0xCC | public: virtual void __thiscall om::MetaMethod1<class music::MGraphCell,class music::MGraphCell,void,class om::Name<struct om::CaseSensitive64BitKey> const &>::Invoke(void *,unsigned int,unsigned int,unsigned int,unsigned int) (name guess)
+?ReadBinary@MGraphCell@music@@UAE_NPAVBinaryStream@om@@@Z = 0x105E24A0 ; function size:0x148 | public: virtual bool __thiscall music::MGraphCell::ReadBinary(class om::BinaryStream *) (name guess)
+?WriteBinary@Cell@music@@UAE_NPAVBinaryStream@om@@@Z = 0x105E0D90 ; function size:0x32 | public: virtual bool __thiscall music::Cell::WriteBinary(class om::BinaryStream *) (name guess)
+?WriteBinary@MGraphCell@music@@UAE_NPAVBinaryStream@om@@@Z = 0x105E23F0 ; function size:0xAE | public: virtual bool __thiscall music::MGraphCell::WriteBinary(class om::BinaryStream *) (name guess)
