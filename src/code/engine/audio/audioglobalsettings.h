@@ -17,7 +17,9 @@ namespace engine
 	public:
 		SoundGroup();
 		SoundGroup(const SoundGroup& other);
-		~SoundGroup();
+		~SoundGroup()
+		{
+		}
 
 		const om::String& GetName() const;
 		void SetName(const om::String& newName);
@@ -49,7 +51,7 @@ namespace engine
 		// 0x105BCDF0: keeps the factor within its limits
 		void SetDistanceFactor(float factor);
 	};
-	extern ReverbSettings gReverbSettings;
+	extern ReverbSettings* gReverbSettings;
 
 	// The settings entity (0x30 bytes)
 	class AudioGlobalSettings : public om::Entity

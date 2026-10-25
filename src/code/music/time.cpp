@@ -186,7 +186,7 @@ namespace om
 	template MetaEnum<music::FollowAction::Type>::~MetaEnum();
 	// FUNCTION: ENGINE 0x105D74E0
 	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
-	template void MetaEnum<music::FollowAction::Type>::WriteBinary(BinaryStream*, const void*);
+	template bool MetaEnum<music::FollowAction::Type>::WriteBinary(BinaryStream*, const void*);
 	// FUNCTION: ENGINE 0x105D7500
 	template void MetaEnum<music::FollowAction::Type>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105D7520
@@ -294,11 +294,11 @@ namespace om
 	// FUNCTION: ENGINE 0x105D7C50
 	template bool ReadBinary<music::FollowAction::Type>(BinaryStream*, music::FollowAction::Type*);
 	// FUNCTION: ENGINE 0x105D7C80
-	template void WriteBinary<music::FollowAction::Type>(BinaryStream*, const music::FollowAction::Type&);
+	template bool WriteBinary<music::FollowAction::Type>(BinaryStream*, const music::FollowAction::Type&);
 	// FUNCTION: ENGINE 0x105D7CB0
 	template bool ReadBinary<music::Time>(BinaryStream*, music::Time*);
 	// FUNCTION: ENGINE 0x105D7CE0
-	template void WriteBinary<music::Time>(BinaryStream*, const music::Time&);
+	template bool WriteBinary<music::Time>(BinaryStream*, const music::Time&);
 	// FUNCTION: ENGINE 0x105D7D10
 	template const char* DelegateMetaProperty<const unsigned int&>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D7D20
@@ -462,7 +462,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105D8CB0
 	template bool MetaProperty<const unsigned int&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D8CF0
-	template void MetaProperty<const unsigned int&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const unsigned int&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D8DE0
 	template void* DelegateMetaProperty<const unsigned int&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D8E00
@@ -546,7 +546,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105D9BE0
 	template bool MetaProperty<const music::FollowAction::Type&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D9C40
-	template void MetaProperty<const music::FollowAction::Type&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const music::FollowAction::Type&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D9C80
 	template bool MetaProperty<const music::Time&>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105D9D20
@@ -554,7 +554,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105D9DD0
 	template bool MetaProperty<const music::Time&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D9E40
-	template void MetaProperty<const music::Time&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const music::Time&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105D9F70
 	template DelegateMetaProperty<const unsigned int&>::DelegateMetaProperty(void*, MetaProperty<const unsigned int&>*);
 	// FUNCTION: ENGINE 0x105D9FA0

@@ -38,7 +38,7 @@ namespace om
 		virtual bool SetText(const TextValue* text, void* object) = 0;
 		virtual void GetText(TextValue* text, void* object) = 0;
 		virtual bool SetBinary(BinaryStream* stream, void* object) = 0;
-		virtual void GetBinary(BinaryStream* stream, void* object) = 0;
+		virtual bool GetBinary(BinaryStream* stream, void* object) = 0;
 		virtual DelegatePropertyBase* CreateDelegate(void* object) = 0;
 
 		TreeNode node;  // 8
@@ -54,11 +54,11 @@ namespace om
 	bool ReadText(const TextValue* text, unsigned int* value);
 	void WriteText(TextValue* text, unsigned int value);
 	bool ReadBinary(BinaryStream* stream, unsigned int* value);
-	void WriteBinary(BinaryStream* stream, unsigned int value);
+	bool WriteBinary(BinaryStream* stream, unsigned int value);
 	bool ReadText(const TextValue* text, float* value);
 	void WriteText(TextValue* text, float value);
 	bool ReadBinary(BinaryStream* stream, float* value);
-	void WriteBinary(BinaryStream* stream, float value);
+	bool WriteBinary(BinaryStream* stream, float value);
 	bool ReadText(const TextValue* text, bool* value);
 	void WriteText(TextValue* text, bool value);
 	// A boolean is a byte in the stream, read and written in place
@@ -69,10 +69,10 @@ namespace om
 		*value = byte != 0;
 		return ok;
 	}
-	inline void WriteBinary(BinaryStream* stream, bool value)
+	inline bool WriteBinary(BinaryStream* stream, bool value)
 	{
 		unsigned char byte = value;
-		stream->buffer->Write(&byte, 1);
+		return stream->buffer->Write(&byte, 1);
 	}
 
 	// Names are written as text by their own description only, never by a fallback
@@ -81,7 +81,7 @@ namespace om
 	{
 	}
 	bool ReadBinary(BinaryStream* stream, ClassName* value);
-	void WriteBinary(BinaryStream* stream, const ClassName& value);
+	bool WriteBinary(BinaryStream* stream, const ClassName& value);
 
 	// The forms of the types that have a description of their own: through the cached description of the type
 	template<class T> inline bool ReadText(const TextValue* text, T* value)
@@ -111,14 +111,14 @@ namespace om
 		}
 		return cache->ReadBinary(stream, value);
 	}
-	template<class T> inline void WriteBinary(BinaryStream* stream, const T& value)
+	template<class T> inline bool WriteBinary(BinaryStream* stream, const T& value)
 	{
 		MetaTypeBase*& cache = MetaTypeCache<T>::type;
 		if (cache == 0)
 		{
 			cache = FindMetaType(typeid(T));
 		}
-		cache->WriteBinary(stream, &value);
+		return cache->WriteBinary(stream, &value);
 	}
 
 	// Properties that pass a const reference are registered with one more flag
@@ -157,7 +157,7 @@ namespace om
 		virtual bool SetText(const TextValue* text, void* object);
 		virtual void GetText(TextValue* text, void* object);
 		virtual bool SetBinary(BinaryStream* stream, void* object);
-		virtual void GetBinary(BinaryStream* stream, void* object);
+		virtual bool GetBinary(BinaryStream* stream, void* object);
 		virtual DelegatePropertyBase* CreateDelegate(void* object);
 
 		MetaMethod1Base<void, T>* GetSetter()
@@ -184,11 +184,12 @@ namespace om
 
 	template<class T> bool MetaProperty<T>::SetText(const TextValue* text, void* object)
 	{
-		MetaTypeBase*& type = MetaTypeCache<Value>::type;
-		if (type == 0)
+		MetaTypeBase*& cache = MetaTypeCache<Value>::type;
+		if (cache == 0)
 		{
-			type = FindMetaType(typeid(Value));
+			cache = FindMetaType(typeid(Value));
 		}
+		MetaTypeBase* type = cache;
 		bool ok;
 		if (type == 0)
 		{
@@ -241,9 +242,9 @@ namespace om
 		return ok;
 	}
 
-	template<class T> void MetaProperty<T>::GetBinary(BinaryStream* stream, void* object)
+	template<class T> bool MetaProperty<T>::GetBinary(BinaryStream* stream, void* object)
 	{
-		WriteBinary(stream, GetGetter()->Call(object));
+		return WriteBinary(stream, GetGetter()->Call(object));
 	}
 }
 

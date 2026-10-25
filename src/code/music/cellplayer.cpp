@@ -13,7 +13,7 @@ namespace om
 	template MetaEnum<music::CellPlayer::State>::~MetaEnum();
 	// FUNCTION: ENGINE 0x105D2DB0
 	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
-	template void MetaEnum<music::CellPlayer::State>::WriteBinary(BinaryStream*, const void*);
+	template bool MetaEnum<music::CellPlayer::State>::WriteBinary(BinaryStream*, const void*);
 	// FUNCTION: ENGINE 0x105D2DD0
 	template void MetaEnum<music::CellPlayer::State>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105D2F00

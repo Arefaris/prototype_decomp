@@ -6,6 +6,7 @@
 #define OM_DYNAMICARRAY_H
 
 #include "code/om/allocation.h"
+#include "code/om/textvalue.h"
 #include <new>
 
 namespace om
@@ -50,6 +51,10 @@ namespace om
 		{
 			return data[index];
 		}
+		const T& operator[](Count index) const
+		{
+			return data[index];
+		}
 		// Makes room for one more element at the end and answers its place (the capacity grows by one)
 		T& Append()
 		{
@@ -67,7 +72,7 @@ namespace om
 			return data[newSize - 1];
 		}
 		// Takes every element out and gives the memory back
-		void Clear()
+		__declspec(noinline) void Clear()
 		{
 			DestroyElements(data, size);
 			ReleaseElements(data, capacity);
@@ -125,6 +130,73 @@ namespace om
 			}
 		}
 		OM_ALLOCATION(DynamicArray);
+
+		// The text and binary forms of the array (the engine has one set per instance: functions of the namespace,
+		// not templates). In text it is a node "Items" with a node "Item" for each element; in binary the number of
+		// elements and then the elements.
+		friend bool ReadText(const TextValue* text, DynamicArray* array)
+		{
+			array->Empty();
+			TextValue* node = text->FindChild("Items");
+			if (node != 0)
+			{
+				node = node->FindChild("Item");
+			}
+			while (node != 0 && node->text == String::Wrap("Item"))
+			{
+				T* element = new (&array->Append()) T();
+				ReadText(node, element);
+				node = node->parent->children.Next(node);
+			}
+			return true;
+		}
+		friend void WriteText(TextValue* text, const DynamicArray& array)
+		{
+			unsigned int count = array.size;
+			TextNode* items = new TextNode(text, String::Wrap("Items"));
+			for (unsigned int i = 0; i < count; i++)
+			{
+				WriteText(new TextNode(items, String::Wrap("Item")), array[i]);
+			}
+		}
+		friend bool ReadBinary(BinaryStream* stream, DynamicArray* array)
+		{
+			array->Clear();
+			unsigned int count;
+			bool ok = ReadBinary(stream, &count);
+			if (ok)
+			{
+				array->Reserve(count);
+				for (unsigned int i = 0; i < count; i++)
+				{
+					T* element = new (&array->Append()) T();
+					ok = ReadBinary(stream, element);
+					if (!ok)
+					{
+						break;
+					}
+				}
+			}
+			return ok;
+		}
+		friend bool WriteBinary(BinaryStream* stream, const DynamicArray& array)
+		{
+			unsigned int count = array.size;
+			bool ok = WriteBinary(stream, count);
+			if (ok)
+			{
+				unsigned int i = 0;
+				if (count > 0)
+				{
+					do
+					{
+						ok = WriteBinary(stream, array[i]);
+					}
+					while (ok && ++i < count);
+				}
+			}
+			return ok;
+		}
 
 		T* data;  // 0
 		Count size;  // 4

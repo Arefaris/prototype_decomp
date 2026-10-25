@@ -39,6 +39,24 @@ namespace om
 		ClassName name;  // 0x20
 	};
 
+	// The forms of the value (looked up by the value's type: the functions of the namespace, or the arrays' own)
+	template<class V> inline bool AttributeReadText(const TextValue* text, V* value)
+	{
+		return ReadText(text, value);
+	}
+	template<class V> inline void AttributeWriteText(TextValue* text, const V& value)
+	{
+		WriteText(text, value);
+	}
+	template<class V> inline bool AttributeReadBinary(BinaryStream* stream, V* value)
+	{
+		return ReadBinary(stream, value);
+	}
+	template<class V> inline bool AttributeWriteBinary(BinaryStream* stream, const V& value)
+	{
+		return WriteBinary(stream, value);
+	}
+
 	template<class V> class MetaAttrib : public MetaAttribBase
 	{
 	public:
@@ -48,22 +66,23 @@ namespace om
 		}
 		virtual bool ReadText(const TextValue* text, void* object)
 		{
-			return om::ReadText(text, reinterpret_cast<V*>(offset + static_cast<char*>(object)));
+			return AttributeReadText(text, reinterpret_cast<V*>(offset + static_cast<char*>(object)));
 		}
 		virtual void WriteText(TextValue* text, const void* object)
 		{
-			om::WriteText(text, *reinterpret_cast<const V*>(offset + static_cast<const char*>(object)));
+			AttributeWriteText(text, *reinterpret_cast<const V*>(offset + static_cast<const char*>(object)));
 		}
 		virtual bool ReadBinary(BinaryStream* stream, void* object)
 		{
-			return om::ReadBinary(stream, reinterpret_cast<V*>(offset + static_cast<char*>(object)));
+			return AttributeReadBinary(stream, reinterpret_cast<V*>(offset + static_cast<char*>(object)));
 		}
 		virtual bool WriteBinary(BinaryStream* stream, const void* object)
 		{
-			return om::WriteBinary(stream, *reinterpret_cast<const V*>(offset + static_cast<const char*>(object)));
+			return AttributeWriteBinary(stream, *reinterpret_cast<const V*>(offset + static_cast<const char*>(object)));
 		}
-		// The registration helper of the class's reflection: the attribute named by the text, at the offset
-		static MetaAttrib* Create(MetaClassBase* owner, const char* text, unsigned int newOffset);
+		// The registration helper of the class's reflection: the attribute named by the text, at the offset (the
+		// caller also passes the size of the member, which the helper does not use)
+		static MetaAttrib* Create(MetaClassBase* owner, const char* text, unsigned int newOffset, unsigned int size);
 		OM_ALLOCATION(MetaAttrib);
 	};
 
@@ -72,7 +91,7 @@ namespace om
 		return "";
 	}
 
-	template<class V> MetaAttrib<V>* MetaAttrib<V>::Create(MetaClassBase* owner, const char* text, unsigned int newOffset)
+	template<class V> MetaAttrib<V>* MetaAttrib<V>::Create(MetaClassBase* owner, const char* text, unsigned int newOffset, unsigned int size)
 	{
 		return new MetaAttrib(owner, ClassName(core::Hash64(String(text, true).GetText(), 0)), newOffset);
 	}
