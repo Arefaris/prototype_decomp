@@ -9,6 +9,8 @@
 
 namespace engine
 {
+	class Replay;
+
 	// The game state table's functions (gamestate.cpp)
 	void AddGameState(void* stateObject, int id, int priority, int flag, int mode, int parent);
 	void FreeGameState(int id);
@@ -16,8 +18,8 @@ namespace engine
 	void RequestGameState(int state, int mode, SyncCommands::SyncCallback* callback);
 	void RequestGameStateOverlay(int state, int mode, SyncCommands::SyncCallback* callback);
 
-	// 0x113187D0 (another unit): set while the input contexts of the menus are not managed here (name guess)
-	extern int gInputContextsDisabled;
+	// 0x113187D0 (the replay's unit): the one replay, none while the game is not in a replay session
+	extern Replay* gReplay;
 
 	// GLOBAL: ENGINE 0x11316CA0
 	PauseState* gCurrentPauseState = 0;
@@ -50,7 +52,7 @@ namespace engine
 #ifdef NONMATCHING
 	void PauseState::Enter()
 	{
-		if (gInputContextsDisabled == 0 && unknown68 != -1)
+		if (gReplay == 0 && unknown68 != -1)
 		{
 			controller::InputSystem::Get()->PushContext(unknown68, 2);
 		}
@@ -69,7 +71,7 @@ namespace engine
 #ifdef NONMATCHING
 	void PauseState::Leave()
 	{
-		if (gInputContextsDisabled == 0 && unknown68 != -1)
+		if (gReplay == 0 && unknown68 != -1)
 		{
 			controller::InputSystem::Get()->PopContext(unknown68);
 			unknown68 = -1;
@@ -97,7 +99,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x10882420
 	void PauseState::Slot2(int player)
 	{
-		if (gInputContextsDisabled == 0)
+		if (gReplay == 0)
 		{
 			unknown68 = player;
 		}

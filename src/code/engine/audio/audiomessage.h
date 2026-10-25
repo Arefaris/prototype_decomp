@@ -7,6 +7,7 @@
 #define ENGINE_AUDIO_AUDIOMESSAGE_H
 
 #include "code/core/name.h"
+#include "code/engine/audio/audiomanager.h"
 #include "code/engine/message.h"
 
 namespace engine
@@ -66,22 +67,6 @@ namespace engine
 		Data* data;
 	};
 
-	// The global audio settings (0x113164B0; another unit)
-	class AudioSystem
-	{
-	public:
-		// 0x1086E060
-		static AudioSystem* Get();
-
-		int GetUnknown28() const
-		{
-			return unknown28;
-		}
-
-		int unknown0[0x28 / 4];
-		int unknown28;
-	};
-
 	// A sound an emitter plays
 	class AudioSound
 	{
@@ -111,15 +96,22 @@ namespace engine
 	};
 
 	// The sounds of an emitter by name
-	class AudioSoundList
+	__declspec(align(8)) class AudioSoundList
 	{
 	public:
+		// 0x10870AF0: an empty list of the name
+		AudioSoundList(const AudioName& newName);
+		// 0x10871620: takes every sound out
+		~AudioSoundList();
 		// 0x1086F2D0
 		AudioSound* Find(const AudioName& name);
 		// 0x10870D40: a new sound of name (radius unknown, category the sound's)
 		AudioSound* Create(const AudioName& name, float radius, const AudioString& category);
 		// 0x10871500
 		void Remove(AudioSound* sound, bool unknown);
+
+		AudioName name;  // 0
+		char unknown8[0x1C];  // the tree of the sounds (+8) and the array of their slots (+0x1C)
 	};
 
 	class AudioEmitter
@@ -135,13 +127,17 @@ namespace engine
 		virtual void Slot7();
 		virtual void Update(float dt);
 
-		int unknown4[3];
-		AudioSoundList sounds;
+		// The sound list is 8-byte aligned, so the members start at +8 (the compiler pads behind the vftable)
+		int unknown8[2];
+		AudioSoundList sounds;  // 0x10
 	};
 
 	class AudioMessage : public IntrusiveMessage
 	{
 	public:
+		AudioMessage(int newType, short newId) : IntrusiveMessage(newType, newId)
+		{
+		}
 		virtual ~AudioMessage();
 
 		int unknownC;
@@ -150,6 +146,9 @@ namespace engine
 	class AudioEmitterMessage : public AudioMessage
 	{
 	public:
+		AudioEmitterMessage(int newType, short newId, const AudioName& newSound) : AudioMessage(newType, newId), sound(newSound)
+		{
+		}
 		virtual void Apply(AudioEmitter* emitter) = 0;
 
 		AudioName sound;
@@ -165,10 +164,21 @@ namespace engine
 			MODE_ONCE = 3
 		};
 
-		// 0x1008CEE0 (another unit): the sound and the event named, the volume, the distances and the pitches, the
-		// flag at +0x34 and the mode
+		// The sound and the event named, the volume, the distances and the pitches, the flag at +0x34 and the mode
+		// (the engine keeps an out-of-line copy at 0x1008CEE0)
 		AudioEmitterTriggerMessage(const AudioName& newSound, const AudioName& newEvent, float newVolume,
-			float newMinDistance, float newMaxDistance, float newMinPitch, float newMaxPitch, bool newFlag, int newMode);
+			float newMinDistance, float newMaxDistance, float newMinPitch, float newMaxPitch, bool newFlag, int newMode) :
+			AudioEmitterMessage(0x15, 0, newSound),
+			event(newEvent),
+			minDistance(newMinDistance),
+			maxDistance(newMaxDistance),
+			minPitch(newMinPitch),
+			maxPitch(newMaxPitch),
+			volume(newVolume),
+			unknown34(newFlag),
+			mode(newMode)
+		{
+		}
 		virtual void Apply(AudioEmitter* emitter);
 
 		AudioName event;

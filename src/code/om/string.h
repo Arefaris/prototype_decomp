@@ -11,6 +11,8 @@ namespace om
 	class String
 	{
 	public:
+		// 0x105B39F0: the empty string
+		String();
 		// 0x105B3D50: a string of the text (the flag asks for a copy)
 		String(const char* text, bool copy);
 		// 0x105B3E00: the first characters of a text
@@ -27,12 +29,20 @@ namespace om
 
 		// 0x105B4160
 		String& operator=(const String& other);
+		// 0x105B3B50: the same characters
+		bool operator==(const String& other) const;
 		// 0x105B41F0: a copy with the capital letters made small
 		String ToLower() const;
 		// 0x105B3CD0: the characters, made writable (a copy when they are shared)
 		char* GetWritableText();
 		// 0x105B38B0: tells the string how long its text now is
 		void SetLength(unsigned int newLength);
+
+		// A string of a text that stays where it is (the value is built in the caller's place)
+		static String Wrap(const char* text)
+		{
+			return String(text, false);
+		}
 
 		char* data;
 		unsigned short unknown4;

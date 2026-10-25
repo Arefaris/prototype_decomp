@@ -13,6 +13,12 @@
 #include "code/ravenphysics/common/hashtable.h"
 #include "code/ravenphysics/intersectionproperties.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace ravenphysics
 {
 	class WorldBody;
@@ -105,6 +111,10 @@ namespace ravenphysics
 	class ColliderTypeNames : public content::LoadObject
 	{
 	public:
+		// Reflection 0x10653680 / 0x10653DE0
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		core::Name<core::CaseSensitiveKey>* names;     // 0x08
 		core::Name<core::CaseSensitiveKey>* namesEnd;  // 0x0C
 	};

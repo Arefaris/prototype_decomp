@@ -20,7 +20,7 @@ namespace engine
 		~FEInputHandler();
 
 		// vftable slot 0 (0x108812D0): tells the movie about the key
-		virtual void OnKey(int code, int modifiers, int character, bool down, int unknown);
+		virtual void OnKey(controller::KeyEvent event);
 
 		// 0x108816E0 (fe_EnableOnInput)
 		void EnableOnInput(bool enable);

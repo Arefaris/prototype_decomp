@@ -197,6 +197,8 @@ namespace ravenphysics
 		int unknown20;                         // 0x20
 		PhysicsLink* link;                     // 0x24
 		PhysicsObjectFactory* sourcePhysicsObject;  // 0x28
+		// Not touched by the constructor (the factory allocates 0x30 bytes)
+		int unknown2C;
 	};
 }
 

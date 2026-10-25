@@ -252,7 +252,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CDA30
 	template bool MetaProperty<unsigned int>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDA70
-	template void MetaProperty<unsigned int>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<unsigned int>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDA90
 	template bool MetaProperty<float>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105CDB20
@@ -260,7 +260,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CDBA0
 	template bool MetaProperty<float>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDBE0
-	template void MetaProperty<float>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<float>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDC10
 	template bool MetaProperty<bool>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105CDCA0
@@ -271,7 +271,7 @@ namespace om
 	template bool MetaProperty<bool>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDD50
 	// EQUIVALENT: the same getter call and byte write; the engine loads the stream pointer before the compare (80 %)
-	template void MetaProperty<bool>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<bool>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CDD80
 	template void* DelegateMetaProperty<unsigned int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105CDDA0
@@ -337,7 +337,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CE9E0
 	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::GetText(TextValue*, void*);
 	// FUNCTION: ENGINE 0x105CEA60
-	template void MetaProperty<const Name<CaseSensitive64BitKey>&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const Name<CaseSensitive64BitKey>&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105CEAD0
 	template DelegateMetaProperty<unsigned int>::DelegateMetaProperty(void*, MetaProperty<unsigned int>*);
 	// FUNCTION: ENGINE 0x105CEB00

@@ -2,7 +2,7 @@
 // words of the command line and of an options file are kept one after the other in a buffer of their own, with a table
 // of the words; an option is "name" or "name=value". The two script functions opt_GetKey and opt_GetKeyValue ask
 // them.
-#include "code/core/file/filesystem.h"
+#include "code/core/file/filepath.h"
 #include "code/content/metastream.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
@@ -35,11 +35,10 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10848CF0
-	// EQUIVALENT: shrink-wrap (the engine saves esi and edi in the entry block, ours after the early exit), 34.8 %
 	bool LoadCommandLineFile(const char* path)
 	{
 		core::IFile* file;
-		core::FileSystemOpenFile(&file, path, false, 0, 1, 0, 1, 1, 0);
+		core::FileSystemOpenFile(&file, core::FilePath(path), false, 0, 1, 0, 1, 1, 0);
 		if (!file->IsOpen())
 		{
 			file->Release();
@@ -165,3 +164,6 @@ namespace engine
 		manager->ClearOwner();
 	}
 }
+
+// ---- annotations of the functions mapped in symbols.txt (generated) ----
+

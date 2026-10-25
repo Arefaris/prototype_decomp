@@ -430,7 +430,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E1250
 	template bool ReadBinary<music::Fade>(BinaryStream*, music::Fade*);
 	// FUNCTION: ENGINE 0x105E1280
-	template void WriteBinary<music::Fade>(BinaryStream*, const music::Fade&);
+	template bool WriteBinary<music::Fade>(BinaryStream*, const music::Fade&);
 	// FUNCTION: ENGINE 0x105E1350
 	template DelegateMetaProperty<const music::Fade&>::DelegateMetaProperty(void*, MetaProperty<const music::Fade&>*);
 	// FUNCTION: ENGINE 0x105E1380
@@ -456,7 +456,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E14A0
 	template void DelegateMetaProperty<const music::FollowAction&>::Set(music::FollowAction);
 	// FUNCTION: ENGINE 0x105E1EA0
-	template void WriteBinary<music::FollowAction>(BinaryStream*, const music::FollowAction&);
+	template bool WriteBinary<music::FollowAction>(BinaryStream*, const music::FollowAction&);
 	// FUNCTION: ENGINE 0x105E1F60
 	template bool MetaProperty<const music::Fade&>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105E2030
@@ -464,7 +464,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E20D0
 	template bool MetaProperty<const music::Fade&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E2160
-	template void MetaProperty<const music::Fade&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const music::Fade&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E21A0
 	template DelegatePropertyBase* MetaProperty<const music::Fade&>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E21F0
@@ -475,7 +475,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E2300
 	template bool MetaProperty<const music::FollowAction&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E2360
-	template void MetaProperty<const music::FollowAction&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const music::FollowAction&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E23A0
 	template DelegatePropertyBase* MetaProperty<const music::FollowAction&>::CreateDelegate(void*);
 }

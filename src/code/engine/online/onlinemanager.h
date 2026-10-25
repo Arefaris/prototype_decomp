@@ -10,6 +10,8 @@ namespace engine
 	// comes from (0 is heap 0x81, 2 is heap 0x82, 1 is the heap the global at 0x111E2060 holds) and the third is
 	// the class name, which the release build does not use.
 	void* AllocateManagerObject(unsigned int size, int heap, const char* name);
+	// 0x108EC840: gives such an object back
+	void FreeManagerObject(void* object);
 
 	class OnlineManager
 	{

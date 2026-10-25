@@ -673,3 +673,7 @@ namespace engine
 
 	}
 }
+
+// FUNCTION: ENGINE 0x108C1980 @ public: virtual void * __thiscall engine::scenario::ScenarioScriptAttributeCondition::`scalar deleting destructor'(unsigned int)
+// FUNCTION: ENGINE 0x108C19A0 @ public: virtual void * __thiscall engine::scenario::HasTagCondition::`scalar deleting destructor'(unsigned int)
+// FUNCTION: ENGINE 0x108C1A80 @ public: virtual void * __thiscall engine::scenario::ScenarioGameObjectCondition::`scalar deleting destructor'(unsigned int)

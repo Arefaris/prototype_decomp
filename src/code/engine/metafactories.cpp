@@ -3,6 +3,16 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/reflectedclasses2.h"
+#include "code/engine/camera/camera.h"
+#include "code/engine/gameobject/genericscriptvalue.h"
+#include "code/engine/lightbehaviour.h"
+#include "code/engine/nis/nis.h"
+#include "code/engine/propspawner.h"
+#include "code/math/aabb.h"
+#include "code/math/obb.h"
+#include "code/math/plane.h"
+#include "code/math/sphere.h"
 #include "code/engine/fight/behaviours/proplogictreebehaviour.h"
 #include "code/engine/gameobject/behaviours/pathbehaviour.h"
 #include "code/engine/firstpersoncontrolbehaviour.h"
@@ -283,6 +293,197 @@ namespace engine
 	template void RegisterMetaBehaviourCreator<engine::TouchBehaviour>();
 	template class MetaBehaviourCreatorImpl<engine::TrackedMotionToExpressionBehaviour>;
 	template void RegisterMetaBehaviourCreator<engine::TrackedMotionToExpressionBehaviour>();
+}
+
+
+
+// BEGIN GENERATED INSTANTIATIONS
+namespace content
+{
+	template class MetaObjectFactory<engine::ContentManager::ContentPackageDefinition, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ContentManager::ContentPackageDefinition>();
+	template void RegisterMetaObjectFactory<engine::ContentManager::ContentPackageDefinition>();
+	template class MetaObjectFactory<engine::ContentManager::ContentPackageKey, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ContentManager::ContentPackageKey>();
+	template void RegisterMetaObjectFactory<engine::ContentManager::ContentPackageKey>();
+	template class MetaObjectFactory<engine::PropSpawner, 1>;
+	template ClassMetaType* GetClassMetaType<engine::PropSpawner>();
+	template void RegisterMetaObjectFactory<engine::PropSpawner>();
+	template<> LoadObject* MetaObjectFactory<ravenphysics::ColliderTypeNames, 1>::Create();
+	template MetaObjectFactory<ravenphysics::ColliderTypeNames, 1>::MetaObjectFactory(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<ravenphysics::ColliderTypeNames>();
+	template void RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>();
+	template class MetaObjectFactory<ravenphysics::PhysicsObjectFactory, 1>;
+	template ClassMetaType* GetClassMetaType<ravenphysics::PhysicsObjectFactory>();
+	template void RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>();
+	template class MetaInstanceCreatorImpl<engine::camera::Camera, 1>;
+	template ClassMetaType* GetClassMetaType<engine::camera::Camera>();
+	template void RegisterMetaInstanceCreator<engine::camera::Camera>();
+	template class MetaInstanceCreatorImpl<engine::camera::Cinematographer, 1>;
+	template ClassMetaType* GetClassMetaType<engine::camera::Cinematographer>();
+	template void RegisterMetaInstanceCreator<engine::camera::Cinematographer>();
+	template class MetaInstanceCreatorImpl<engine::PatrolPoint, 1>;
+	template ClassMetaType* GetClassMetaType<engine::PatrolPoint>();
+	template void RegisterMetaInstanceCreator<engine::PatrolPoint>();
+	template class MetaInstanceCreatorImpl<engine::SplineCV, 1>;
+	template ClassMetaType* GetClassMetaType<engine::SplineCV>();
+	template void RegisterMetaInstanceCreator<engine::SplineCV>();
+	template class MetaInstanceCreatorImpl<math::AABB, 1>;
+	template ClassMetaType* GetClassMetaType<math::AABB>();
+	template void RegisterMetaInstanceCreator<math::AABB>();
+	template class MetaInstanceCreatorImpl<math::OBB, 1>;
+	template ClassMetaType* GetClassMetaType<math::OBB>();
+	template void RegisterMetaInstanceCreator<math::OBB>();
+	template class MetaInstanceCreatorImpl<math::Plane, 1>;
+	template ClassMetaType* GetClassMetaType<math::Plane>();
+	template void RegisterMetaInstanceCreator<math::Plane>();
+	template ClassMetaType* GetClassMetaType<engine::animation::AttachableBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::BehaviourController>();
+	template ClassMetaType* GetClassMetaType<engine::HealthBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::LightBehaviour>();
+	template ClassMetaType* GetClassMetaType<engine::TriggerBehaviour>();
+}
+
+namespace engine
+{
+	template class MetaBehaviourCreatorImpl<engine::animation::AttachableBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::animation::AttachableBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::BehaviourController>;
+	template void RegisterMetaBehaviourCreator<engine::BehaviourController>();
+	template class MetaBehaviourCreatorImpl<engine::HealthBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::HealthBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::LightBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::LightBehaviour>();
+	template class MetaBehaviourCreatorImpl<engine::TriggerBehaviour>;
+	template void RegisterMetaBehaviourCreator<engine::TriggerBehaviour>();
+}
+// END GENERATED INSTANTIATIONS
+
+// The classes whose objects another unit makes (their Create is the engine's: declared, not defined here)
+namespace content
+{
+	template<> LoadObject* MetaObjectFactory<engine::NIS, 1>::Create();
+	template MetaObjectFactory<engine::NIS, 1>::MetaObjectFactory(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::NIS>();
+	template void RegisterMetaObjectFactory<engine::NIS>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularAccelerationExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularDisplacementExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularSpeedExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularSpeedExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularSpeedExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<bool>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<bool>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<bool>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<bool>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<bool>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<bool>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<bool>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<bool>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<int>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<int>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<int>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<int>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<int>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<int>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<int>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<int>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<float>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<float>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<float>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<float>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<float>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<float>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<pure3d::Pose *>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<pure3d::Pose *>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<math::Matrix>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<math::Matrix>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<math::Matrix>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix>>();
+	template<> void* MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::GameObject::DynamicAttributeList>();
+	template void RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearAccelerationExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearDisplacementExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearSpeedExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearSpeedExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearSpeedExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::RigidMotionTrackingFilter>();
+	template void RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<math::Vector>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<math::Vector>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<math::Vector>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<math::Vector>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<math::Vector>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<engine::GenericScriptValue>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<engine::GenericScriptValue>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue>>();
+	template<> LoadObject* MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition, 1>::Create();
+	template MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition, 1>::MetaObjectFactory(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ContentManager::ContentCementFileDefinition>();
+	template void RegisterMetaObjectFactory<engine::ContentManager::ContentCementFileDefinition>();
+	template class MetaInstanceCreatorImpl<engine::ChangeLightColourMessage, 1>;
+	template ClassMetaType* GetClassMetaType<engine::ChangeLightColourMessage>();
+	template void RegisterMetaInstanceCreator<engine::ChangeLightColourMessage>();
+	template class MetaInstanceCreatorImpl<engine::EnableLightMessage, 1>;
+	template ClassMetaType* GetClassMetaType<engine::EnableLightMessage>();
+	template void RegisterMetaInstanceCreator<engine::EnableLightMessage>();
+	template<> void* MetaInstanceCreatorImpl<math::Sphere, 1>::Create();
+	template MetaInstanceCreatorImpl<math::Sphere, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<math::Sphere>();
+	template void RegisterMetaInstanceCreator<math::Sphere>();
+}
+
+namespace engine
+{
+	template<> Behaviour* MetaBehaviourCreatorImpl<engine::MovingTriggerBehaviour>::CreateBehaviour(GameObject* owner);
+	template MetaBehaviourCreatorImpl<engine::MovingTriggerBehaviour>::MetaBehaviourCreatorImpl(const char*, unsigned short, content::ClassMetaType*);
+	template content::ClassMetaType* content::GetClassMetaType<engine::MovingTriggerBehaviour>();
+	template void RegisterMetaBehaviourCreator<engine::MovingTriggerBehaviour>();
 }
 
 // The class meta types, factories, creators and registrations, in address order:
@@ -618,3 +819,317 @@ namespace engine
 // FUNCTION: ENGINE 0x108DE1D0 @ MetaObjectFactory<NISExclusionVolume,1>::Create
 // FUNCTION: ENGINE 0x108DE1F0 @ MetaInstanceCreatorImpl<EnterTriggerMessage,1>::Create
 // FUNCTION: ENGINE 0x108DE220 @ MetaInstanceCreatorImpl<ExitTriggerMessage,1>::Create
+// BEGIN GENERATED ANNOTATIONS
+// FUNCTION: ENGINE 0x108C69B0 @ GetClassMetaType<math::Plane>
+// FUNCTION: ENGINE 0x108D7460 @ GetClassMetaType<ContentManager::ContentPackageDefinition>
+// FUNCTION: ENGINE 0x108D74B0 @ MetaObjectFactory<ContentManager::ContentPackageDefinition,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D74E0 @ MetaObjectFactory<ContentManager::ContentPackageDefinition,1>::Create
+// FUNCTION: ENGINE 0x108D7500 @ GetClassMetaType<ContentManager::ContentPackageKey>
+// FUNCTION: ENGINE 0x108D7550 @ MetaObjectFactory<ContentManager::ContentPackageKey,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D7580 @ MetaObjectFactory<ContentManager::ContentPackageKey,1>::Create
+// FUNCTION: ENGINE 0x108D7870 @ MetaObjectFactory<PropSpawner,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D78A0 @ MetaObjectFactory<PropSpawner,1>::Create
+// FUNCTION: ENGINE 0x108D7EE0 @ GetClassMetaType<ravenphysics::PhysicsObjectFactory>
+// FUNCTION: ENGINE 0x108D7F30 @ MetaObjectFactory<ravenphysics::PhysicsObjectFactory,1>::MetaObjectFactory
+// FUNCTION: ENGINE 0x108D7F60 @ MetaObjectFactory<ravenphysics::PhysicsObjectFactory,1>::Create
+// FUNCTION: ENGINE 0x108D9130 @ MetaInstanceCreatorImpl<camera::Camera,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9160 @ MetaInstanceCreatorImpl<camera::Camera,1>::Create
+// FUNCTION: ENGINE 0x108D9180 @ MetaInstanceCreatorImpl<camera::Cinematographer,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D91B0 @ MetaInstanceCreatorImpl<camera::Cinematographer,1>::Create
+// FUNCTION: ENGINE 0x108D9600 @ MetaInstanceCreatorImpl<PatrolPoint,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9630 @ MetaInstanceCreatorImpl<PatrolPoint,1>::Create
+// FUNCTION: ENGINE 0x108D9650 @ MetaInstanceCreatorImpl<SplineCV,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9680 @ MetaInstanceCreatorImpl<SplineCV,1>::Create
+// FUNCTION: ENGINE 0x108D9AA0 @ MetaInstanceCreatorImpl<math::AABB,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9AD0 @ MetaInstanceCreatorImpl<math::AABB,1>::Create
+// FUNCTION: ENGINE 0x108D9AE0 @ MetaInstanceCreatorImpl<math::OBB,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9B10 @ MetaInstanceCreatorImpl<math::OBB,1>::Create
+// FUNCTION: ENGINE 0x108D9B20 @ MetaInstanceCreatorImpl<math::Plane,1>::MetaInstanceCreatorImpl
+// FUNCTION: ENGINE 0x108D9B50 @ MetaInstanceCreatorImpl<math::Plane,1>::Create
+// FUNCTION: ENGINE 0x108DA2A0 @ MetaBehaviourCreatorImpl<animation::AttachableBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA2D0 @ MetaBehaviourCreatorImpl<animation::AttachableBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DA430 @ MetaBehaviourCreatorImpl<BehaviourController>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DA460 @ MetaBehaviourCreatorImpl<BehaviourController>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAA20 @ MetaBehaviourCreatorImpl<HealthBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAA50 @ MetaBehaviourCreatorImpl<HealthBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DAB10 @ GetClassMetaType<LightBehaviour>
+// FUNCTION: ENGINE 0x108DAB60 @ MetaBehaviourCreatorImpl<LightBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DAB90 @ MetaBehaviourCreatorImpl<LightBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DB5C0 @ MetaBehaviourCreatorImpl<TriggerBehaviour>::MetaBehaviourCreatorImpl
+// FUNCTION: ENGINE 0x108DB5F0 @ MetaBehaviourCreatorImpl<TriggerBehaviour>::CreateBehaviour
+// FUNCTION: ENGINE 0x108DBC50 @ RegisterMetaObjectFactory<ContentManager::ContentPackageDefinition>
+// FUNCTION: ENGINE 0x108DBCA0 @ RegisterMetaObjectFactory<ContentManager::ContentPackageKey>
+// FUNCTION: ENGINE 0x108DBE30 @ RegisterMetaObjectFactory<PropSpawner>
+// FUNCTION: ENGINE 0x108DC1A0 @ RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>
+// FUNCTION: ENGINE 0x108DCC40 @ RegisterMetaInstanceCreator<camera::Camera>
+// FUNCTION: ENGINE 0x108DCC90 @ RegisterMetaInstanceCreator<camera::Cinematographer>
+// FUNCTION: ENGINE 0x108DCF10 @ RegisterMetaInstanceCreator<PatrolPoint>
+// FUNCTION: ENGINE 0x108DCF60 @ RegisterMetaInstanceCreator<SplineCV>
+// FUNCTION: ENGINE 0x108DD1E0 @ RegisterMetaInstanceCreator<math::AABB>
+// FUNCTION: ENGINE 0x108DD230 @ RegisterMetaInstanceCreator<math::OBB>
+// FUNCTION: ENGINE 0x108DD280 @ RegisterMetaInstanceCreator<math::Plane>
+// FUNCTION: ENGINE 0x108DD730 @ RegisterMetaBehaviourCreator<animation::AttachableBehaviour>
+// FUNCTION: ENGINE 0x108DD820 @ RegisterMetaBehaviourCreator<BehaviourController>
+// FUNCTION: ENGINE 0x108DDB40 @ RegisterMetaBehaviourCreator<HealthBehaviour>
+// FUNCTION: ENGINE 0x108DDBE0 @ RegisterMetaBehaviourCreator<LightBehaviour>
+// FUNCTION: ENGINE 0x108DE130 @ RegisterMetaBehaviourCreator<TriggerBehaviour>
+
+
+namespace engine
+{
+	// 0x1065EF60 (the pure3d unit): registers the creators of its classes
+	void RegisterPure3dMetaInstanceCreators();
+	// 0x1067C2B0 (another pure3d unit): the same for more classes
+	void RegisterPure3dMetaInstanceCreators2();
+
+	// 0x1092B170 / 0x1092B450 (another unit): the registrations of more factories and of more behaviours' creators
+	void RegisterMoreMetaObjectFactories();
+	void RegisterMoreMetaBehaviourCreators();
+
+	// The engine's start-up tables: the registrations of the classes' factories, in place
+	// FUNCTION: ENGINE 0x108DE660
+	void RegisterMetaObjectFactories()
+	{
+		content::RegisterMetaObjectFactory<engine::animation::AttachmentPhysicsProperties>();
+		content::RegisterMetaObjectFactory<engine::ActorSpawner>();
+		content::RegisterMetaObjectFactory<engine::ActorCrowdSpawner>();
+		content::RegisterMetaObjectFactory<engine::camera::CameraLoader>();
+		content::RegisterMetaObjectFactory<engine::CharacterIntentionInputMap>();
+		content::RegisterMetaObjectFactory<engine::driving::CarPhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::HelicopterPhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::VehiclePhysicsAttributes>();
+		content::RegisterMetaObjectFactory<engine::driving::WheelCollectionData>();
+		content::RegisterMetaObjectFactory<engine::CharacterSolverProperties>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentPackageDefinition>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentPackageKey>();
+		content::RegisterMetaObjectFactory<engine::ContentManager::ContentCementFileDefinition>();
+		content::RegisterMetaObjectFactory<engine::GameObject>();
+		content::RegisterMetaObjectFactory<engine::GameObjectTemplateBuilder>();
+		content::RegisterMetaObjectFactory<engine::NamedInventoryCreator>();
+		content::RegisterMetaObjectFactory<engine::PropSpawner>();
+		content::RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintAngularSpringSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintAngularVelocitySharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintListFactory>();
+		content::RegisterMetaObjectFactory<ravenphysics::ConstraintSpringAlongAxisSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::DeformableOrientationConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::DeformableSliderConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::IntersectionPropertiesLoader>();
+		content::RegisterMetaObjectFactory<ravenphysics::MassProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::MaterialLoader>();
+		content::RegisterMetaObjectFactory<ravenphysics::PhysicsObjectFactory>();
+		content::RegisterMetaObjectFactory<ravenphysics::PoweredConstraintSharedProperties>();
+		content::RegisterMetaObjectFactory<ravenphysics::SimplePhysicsObjectFactory>();
+		content::RegisterMetaObjectFactory<engine::RemoteCamera>();
+		content::RegisterMetaObjectFactory<engine::SecondaryPhysicsProperties>();
+		content::RegisterMetaObjectFactory<engine::SkuInfo>();
+		content::RegisterMetaObjectFactory<engine::SplinePath>();
+		content::RegisterMetaObjectFactory<engine::StreamPackage>();
+		content::RegisterMetaObjectFactory<engine::StreamSlotGroup>();
+		content::RegisterMetaObjectFactory<engine::StreamTrigger>();
+		content::RegisterMetaObjectFactory<engine::SupportingLimbDefinition>();
+		content::RegisterMetaObjectFactory<engine::SupportingLimbDefinitionList>();
+		content::RegisterMetaObjectFactory<SurfaceDefinition>();
+		content::RegisterMetaObjectFactory<engine::TrackedMotionToExpressionMap>();
+		content::RegisterMetaObjectFactory<engine::world::Location>();
+		content::RegisterMetaObjectFactory<engine::world::LocationRenderSettings>();
+		content::RegisterMetaObjectFactory<engine::NIS>();
+		content::RegisterMetaObjectFactory<engine::NISExclusionVolume>();
+		content::RegisterMetaObjectFactory<engine::FmvSubtitleManager>();
+		RegisterMoreMetaObjectFactories();
+	}
+
+	// FUNCTION: ENGINE 0x108DF1F0
+	void RegisterMetaInstanceCreators()
+	{
+		content::RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>();
+		content::RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>();
+		content::RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<bool>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<bool>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<int>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<int>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<float>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<float>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<math::Matrix>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix>>();
+		content::RegisterMetaInstanceCreator<engine::camera::Camera>();
+		content::RegisterMetaInstanceCreator<engine::camera::Cinematographer>();
+		content::RegisterMetaInstanceCreator<engine::camera::FPSCamera>();
+		content::RegisterMetaInstanceCreator<engine::camera::OnFootCamera>();
+		content::RegisterMetaInstanceCreator<engine::camera::ScriptedCamera>();
+		content::RegisterMetaInstanceCreator<engine::ChangeLightColourMessage>();
+		content::RegisterMetaInstanceCreator<engine::DampedAngularMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::DampedLinearMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>();
+		content::RegisterMetaInstanceCreator<engine::PatrolPoint>();
+		content::RegisterMetaInstanceCreator<engine::SplineCV>();
+		content::RegisterMetaInstanceCreator<engine::SplinePathCV>();
+		content::RegisterMetaInstanceCreator<engine::EnableLightMessage>();
+		content::RegisterMetaInstanceCreator<engine::EnterTriggerMessage>();
+		content::RegisterMetaInstanceCreator<engine::ExitTriggerMessage>();
+		content::RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>();
+		content::RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>();
+		content::RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>();
+		content::RegisterMetaInstanceCreator<math::AABB>();
+		content::RegisterMetaInstanceCreator<math::OBB>();
+		content::RegisterMetaInstanceCreator<math::Plane>();
+		content::RegisterMetaInstanceCreator<math::Sphere>();
+		content::RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsAmbientWind>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsPinJoint>();
+		content::RegisterMetaInstanceCreator<engine::SecondaryPhysicsPoweredJoint>();
+		content::RegisterMetaInstanceCreator<engine::SpringBasedAngularMotionFilter>();
+		content::RegisterMetaInstanceCreator<engine::SpringBasedLinearMotionFilter>();
+		content::RegisterMetaInstanceCreator<engine::trigger::OBBVolume>();
+		content::RegisterMetaInstanceCreator<engine::trigger::SphereVolume>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<math::Vector>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector>>();
+		content::RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue>>();
+		content::RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue>>();
+		RegisterPure3dMetaInstanceCreators();
+		RegisterPure3dMetaInstanceCreators2();
+	}
+
+	// FUNCTION: ENGINE 0x108DFE50
+	void RegisterMetaBehaviourCreators()
+	{
+		engine::RegisterMetaBehaviourCreator<engine::AdvertisementBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::AttachableBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::JawFlapBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::animation::PuppetBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::BehaviourController>();
+		engine::RegisterMetaBehaviourCreator<engine::camera::CameraBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::camera::CinematographerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::CharacterIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::CharacterSolverBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::CarIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::CarPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::HelicopterIntentionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::driving::HelicopterPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::FirstPersonControlBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::HealthBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::KnockBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::LightBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::MotionTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::NISPlayerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PatrolPathBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PlaybackTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PoseAnimationBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PropLogicTreeBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::PropBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RagdollBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RagdollLODBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::RenderBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::SecondaryPhysicsBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::SplineBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TagBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TouchBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TrackedMotionToExpressionBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::TriggerBehaviour>();
+		engine::RegisterMetaBehaviourCreator<engine::MovingTriggerBehaviour>();
+		RegisterMoreMetaBehaviourCreators();
+	}
+}
+
+// ---- annotations of the functions mapped in symbols.txt (generated) ----
+
+// FUNCTION: ENGINE 0x108D75A0 @ content::ClassMetaType * content::GetClassMetaType<engine::ContentManager::ContentCementFileDefinition>(void)
+// FUNCTION: ENGINE 0x108D75F0 @ content::MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition,1>::MetaObjectFactory<engine::ContentManager::ContentCementFileDefinition,1>(char const *,u
+// FUNCTION: ENGINE 0x108D7670 @ math::Plane::Plane(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D78C0 @ content::ClassMetaType * content::GetClassMetaType<ravenphysics::ColliderTypeNames>(void)
+// FUNCTION: ENGINE 0x108D7910 @ content::MetaObjectFactory<ravenphysics::ColliderTypeNames,1>::MetaObjectFactory<ravenphysics::ColliderTypeNames,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D88E0 @ content::ClassMetaType * content::GetClassMetaType<engine::NIS>(void)
+// FUNCTION: ENGINE 0x108D8930 @ content::MetaObjectFactory<engine::NIS,1>::MetaObjectFactory<engine::NIS,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8960 @ math::OBB::OBB(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D8980 @ math::Colour128::Colour128(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D8B60 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108D8BB0 @ content::MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor,1>::MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D8C10 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108D8C60 @ content::MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor,1>::MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D8C90 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108D8CE0 @ content::MetaInstanceCreatorImpl<engine::AngularSpeedExtractor,1>::MetaInstanceCreatorImpl<engine::AngularSpeedExtractor,1>(char const *,unsigned short,content::ClassMeta
+// FUNCTION: ENGINE 0x108D8D10 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<bool> >(void)
+// FUNCTION: ENGINE 0x108D8D60 @ content::MetaInstanceCreatorImpl<engine::Attribute<bool>,1>::MetaInstanceCreatorImpl<engine::Attribute<bool>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8D90 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<bool>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<bool>,1>(char const *,unsigned short,content::ClassMetaTy
+// FUNCTION: ENGINE 0x108D8DC0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<int> >(void)
+// FUNCTION: ENGINE 0x108D8E10 @ content::MetaInstanceCreatorImpl<engine::Attribute<int>,1>::MetaInstanceCreatorImpl<engine::Attribute<int>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8E40 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<int>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<int>,1>(char const *,unsigned short,content::ClassMetaType
+// FUNCTION: ENGINE 0x108D8E70 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<float> >(void)
+// FUNCTION: ENGINE 0x108D8EC0 @ content::MetaInstanceCreatorImpl<engine::Attribute<float>,1>::MetaInstanceCreatorImpl<engine::Attribute<float>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8EF0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<float>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<float>,1>(char const *,unsigned short,content::ClassMeta
+// FUNCTION: ENGINE 0x108D8F20 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108D8F70 @ content::MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >,1>::MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >
+// FUNCTION: ENGINE 0x108D8FA0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensi
+// FUNCTION: ENGINE 0x108D8FD0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108D9020 @ content::MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>,1>::MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>,1>(char const *,unsigned short,content::C
+// FUNCTION: ENGINE 0x108D9050 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>,1>(char const *,unsigned short,
+// FUNCTION: ENGINE 0x108D9080 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108D90D0 @ content::MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>,1>::MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>,1>(char const *,unsigned short,content::Class
+// FUNCTION: ENGINE 0x108D9100 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D93B0 @ content::ClassMetaType * content::GetClassMetaType<engine::ChangeLightColourMessage>(void)
+// FUNCTION: ENGINE 0x108D9400 @ content::MetaInstanceCreatorImpl<engine::ChangeLightColourMessage,1>::MetaInstanceCreatorImpl<engine::ChangeLightColourMessage,1>(char const *,unsigned short,content::Cla
+// FUNCTION: ENGINE 0x108D9430 @ engine::ChangeLightColourMessage::ChangeLightColourMessage(void)
+// FUNCTION: ENGINE 0x108D9450 @ engine::IntrusiveMessage::~IntrusiveMessage(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D9460 @ void * content::MetaInstanceCreatorImpl<engine::ChangeLightColourMessage,1>::Create(void)
+// FUNCTION: ENGINE 0x108D95D0 @ content::MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList,1>::MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList,1>(char const *,unsigned sh
+// FUNCTION: ENGINE 0x108D9740 @ content::ClassMetaType * content::GetClassMetaType<engine::EnableLightMessage>(void)
+// FUNCTION: ENGINE 0x108D9790 @ content::MetaInstanceCreatorImpl<engine::EnableLightMessage,1>::MetaInstanceCreatorImpl<engine::EnableLightMessage,1>(char const *,unsigned short,content::ClassMetaType *
+// FUNCTION: ENGINE 0x108D97C0 @ engine::EnableLightMessage::EnableLightMessage(void)
+// FUNCTION: ENGINE 0x108D97E0 @ engine::ScenarioMessage::~ScenarioMessage(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D97F0 @ void * content::MetaInstanceCreatorImpl<engine::EnableLightMessage,1>::Create(void)
+// FUNCTION: ENGINE 0x108D9920 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108D9970 @ content::MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor,1>::MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor,1>(char const *,unsigned short,conten
+// FUNCTION: ENGINE 0x108D99A0 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108D99F0 @ content::MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor,1>::MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor,1>(char const *,unsigned short,conten
+// FUNCTION: ENGINE 0x108D9A20 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108D9A70 @ content::MetaInstanceCreatorImpl<engine::LinearSpeedExtractor,1>::MetaInstanceCreatorImpl<engine::LinearSpeedExtractor,1>(char const *,unsigned short,content::ClassMetaTy
+// FUNCTION: ENGINE 0x108D9B60 @ content::MetaInstanceCreatorImpl<math::Sphere,1>::MetaInstanceCreatorImpl<math::Sphere,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D9BC0 @ content::ClassMetaType * content::GetClassMetaType<engine::RigidMotionTrackingFilter>(void)
+// FUNCTION: ENGINE 0x108D9C10 @ content::MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter,1>::MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter,1>(char const *,unsigned short,content::C
+// FUNCTION: ENGINE 0x108DA0A0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DA0F0 @ content::MetaInstanceCreatorImpl<engine::Attribute<math::Vector>,1>::MetaInstanceCreatorImpl<engine::Attribute<math::Vector>,1>(char const *,unsigned short,content::Class
+// FUNCTION: ENGINE 0x108DA120 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108DA150 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<engine::GenericScriptValue> >(void)
+// FUNCTION: ENGINE 0x108DA1A0 @ content::MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>,1>::MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>,1>(char const *,u
+// FUNCTION: ENGINE 0x108DA1D0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>,1>(char
+// FUNCTION: ENGINE 0x108DB610 @ content::ClassMetaType * content::GetClassMetaType<engine::MovingTriggerBehaviour>(void)
+// FUNCTION: ENGINE 0x108DB660 @ engine::MetaBehaviourCreatorImpl<engine::MovingTriggerBehaviour>::MetaBehaviourCreatorImpl<engine::MovingTriggerBehaviour>(char const *,unsigned short,content::ClassMetaT
+// FUNCTION: ENGINE 0x108DB870 @ void * engine::EnableLightMessage::`scalar deleting destructor'(unsigned int)
+// FUNCTION: ENGINE 0x108DB890 @ void * engine::ChangeLightColourMessage::`scalar deleting destructor'(unsigned int)
+// FUNCTION: ENGINE 0x108DBCF0 @ void content::RegisterMetaObjectFactory<engine::ContentManager::ContentCementFileDefinition>(void)
+// FUNCTION: ENGINE 0x108DBE80 @ void content::RegisterMetaObjectFactory<ravenphysics::ColliderTypeNames>(void)
+// FUNCTION: ENGINE 0x108DC6A0 @ void content::RegisterMetaObjectFactory<engine::NIS>(void)
+// FUNCTION: ENGINE 0x108DC790 @ void content::RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108DC7E0 @ void content::RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108DC830 @ void content::RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108DC880 @ void content::RegisterMetaInstanceCreator<engine::Attribute<bool> >(void)
+// FUNCTION: ENGINE 0x108DC8D0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<bool> >(void)
+// FUNCTION: ENGINE 0x108DC920 @ void content::RegisterMetaInstanceCreator<engine::Attribute<int> >(void)
+// FUNCTION: ENGINE 0x108DC970 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<int> >(void)
+// FUNCTION: ENGINE 0x108DC9C0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<float> >(void)
+// FUNCTION: ENGINE 0x108DCA10 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<float> >(void)
+// FUNCTION: ENGINE 0x108DCA60 @ void content::RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108DCAB0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108DCB00 @ void content::RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108DCB50 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108DCBA0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108DCBF0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108DCDD0 @ void content::RegisterMetaInstanceCreator<engine::ChangeLightColourMessage>(void)
+// FUNCTION: ENGINE 0x108DCEC0 @ void content::RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>(void)
+// FUNCTION: ENGINE 0x108DD000 @ void content::RegisterMetaInstanceCreator<engine::EnableLightMessage>(void)
+// FUNCTION: ENGINE 0x108DD0F0 @ void content::RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108DD140 @ void content::RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108DD190 @ void content::RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108DD2D0 @ void content::RegisterMetaInstanceCreator<math::Sphere>(void)
+// FUNCTION: ENGINE 0x108DD320 @ void content::RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>(void)
+// FUNCTION: ENGINE 0x108DD5A0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DD5F0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DD640 @ void content::RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue> >(void)
+// FUNCTION: ENGINE 0x108DD690 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue> >(void)
+// FUNCTION: ENGINE 0x108DE180 @ void engine::RegisterMetaBehaviourCreator<engine::MovingTriggerBehaviour>(void)

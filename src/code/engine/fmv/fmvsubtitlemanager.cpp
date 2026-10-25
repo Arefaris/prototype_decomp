@@ -281,3 +281,5 @@ namespace content
 // FUNCTION: ENGINE 0x108C04E0 container::String::FindLast (two arguments)
 // FUNCTION: ENGINE 0x108C0590 container::StringC<256> copy constructor
 // FUNCTION: ENGINE 0x108C1300 Insert (one copy)
+
+// FUNCTION: ENGINE 0x108C1480 @ public: virtual void * __thiscall engine::FmvSubtitleManager::`scalar deleting destructor'(unsigned int)

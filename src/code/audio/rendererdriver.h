@@ -21,7 +21,7 @@ namespace om
 	bool ReadText(const TextValue* text, FixedArray<unsigned int, 8>* value);
 	void WriteText(TextValue* text, const FixedArray<unsigned int, 8>& value);
 	bool ReadBinary(BinaryStream* stream, FixedArray<unsigned int, 8>* value);
-	void WriteBinary(BinaryStream* stream, const FixedArray<unsigned int, 8>& value);
+	bool WriteBinary(BinaryStream* stream, const FixedArray<unsigned int, 8>& value);
 }
 
 namespace audio

@@ -1276,11 +1276,11 @@ namespace om
 	// FUNCTION: ENGINE 0x105ED860
 	template bool ReadBinary<music::CellPlayer::State>(BinaryStream*, music::CellPlayer::State*);
 	// FUNCTION: ENGINE 0x105ED890
-	template void WriteBinary<music::CellPlayer::State>(BinaryStream*, const music::CellPlayer::State&);
+	template bool WriteBinary<music::CellPlayer::State>(BinaryStream*, const music::CellPlayer::State&);
 	// FUNCTION: ENGINE 0x105ED8C0
 	template bool ReadBinary<Bool32>(BinaryStream*, Bool32*);
 	// FUNCTION: ENGINE 0x105ED8F0
-	template void WriteBinary<Bool32>(BinaryStream*, const Bool32&);
+	template bool WriteBinary<Bool32>(BinaryStream*, const Bool32&);
 	// FUNCTION: ENGINE 0x105ED920
 	template const char* DelegateMetaProperty<const music::CellPlayer::State&>::AllocationTag();
 	// FUNCTION: ENGINE 0x105ED930
@@ -1735,7 +1735,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105F1160
 	template bool MetaProperty<const float&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F11A0
-	template void MetaProperty<const float&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const float&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F11D0
 	template bool MetaProperty<unsigned __int64>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105F1270
@@ -1745,7 +1745,7 @@ namespace om
 	template bool MetaProperty<unsigned __int64>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F1340
 	// EQUIVALENT: register allocation: the engine loads the buffer into ecx and the address of the value into edx, ours the other way round (70.0 %)
-	template void MetaProperty<unsigned __int64>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<unsigned __int64>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F1440
 	template void* DelegateMetaProperty<const music::CellPlayer::State&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105F1460
@@ -1961,7 +1961,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105F3A50
 	template bool MetaProperty<const music::CellPlayer::State&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F3AB0
-	template void MetaProperty<const music::CellPlayer::State&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const music::CellPlayer::State&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F3AF0
 	template bool MetaProperty<const Bool32&>::SetText(const TextValue*, void*);
 	// FUNCTION: ENGINE 0x105F3B80
@@ -1969,7 +1969,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105F3C10
 	template bool MetaProperty<const Bool32&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F3C70
-	template void MetaProperty<const Bool32&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const Bool32&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105F3DA0
 	template DelegateMetaProperty<const music::CellPlayer::State&>::DelegateMetaProperty(void*, MetaProperty<const music::CellPlayer::State&>*);
 	// FUNCTION: ENGINE 0x105F3DD0

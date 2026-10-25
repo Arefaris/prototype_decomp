@@ -6,6 +6,7 @@
 #define ENGINE_AUDIO_AUDIOMANAGER_H
 
 #include "code/core/name.h"
+#include "code/om/string.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
@@ -17,6 +18,21 @@ namespace engine
 		static AudioSystem* Get();
 		// 0x108712D0
 		void Update(UpdateContext context);
+		int GetUnknown28() const
+		{
+			return unknown28;
+		}
+		// 0x10871140: makes the sound group (its limits)
+		void AddSoundGroup(const om::String& name, unsigned int maxSounds, unsigned int maxSoundsPerInstance);
+		// 0x10871240: lets the group interrupt another
+		void AddInterrupt(const om::String& group, const om::String& other);
+		// 0x108712B0
+		void SetGroupEnabled(const om::String& group, bool enabled);
+		// 0x1086FC30
+		void DisableAllGroups();
+
+		int unknown0[0x28 / 4];
+		int unknown28;
 	};
 
 	// An audio subsystem with a frame update (another unit, singleton at 0x11315408)
@@ -29,6 +45,12 @@ namespace engine
 		void StopDialogue(int id);
 		// 0x1085AB40
 		void Update(UpdateContext context);
+		// 0x10859460: starts a dialogue line (names guessed): the two zeros, then three names, the object it comes
+		// from, the shortest and the longest wait in milliseconds, two numbers, a name and a subtitle text
+		void PlayDialogue(int unknown1, int unknown2, const core::Name<core::CaseSensitiveKey>& first,
+			const core::Name<core::CaseSensitiveKey>& second, const core::Name<core::CaseSensitiveKey>& third,
+			GameObjectHandle object, int minimum, int maximum, float fourth, float fifth,
+			const core::Name<core::CaseSensitiveKey>& sixth, const om::String& text);
 	};
 
 	// The audio clock (another unit, singleton at 0x113275F0): advances by the milliseconds since its last update
@@ -41,10 +63,26 @@ namespace engine
 		void Update();
 	};
 
+	// The music channel of a name (another unit; names guessed)
+	class MusicChannel
+	{
+	public:
+		// 0x1087E450
+		static MusicChannel* __stdcall Get(const core::Name<core::CaseSensitiveKey>& channel);
+		// 0x1087EFF0: plays the music of the group
+		void Play(const core::Name<core::CaseSensitiveKey>& music, const core::Name<core::CaseSensitiveKey>& group,
+			int priority, bool loop);
+		// 0x1087EC50
+		void Stop();
+	};
+
 	// The audio emitters' system (another unit; the global at 0x11316A90)
 	class AudioEmitterSystem
 	{
 	public:
+		// 0x10877B00: a mix event (names guessed): the two names, the flag, the numbers
+		void MixEvent(const core::Name<core::CaseSensitiveKey>& first, const core::Name<core::CaseSensitiveKey>& second,
+			bool flag, int unknown1, float value, float unknown2);
 		// 0x10878010
 		void Update(UpdateContext context);
 		// 0x10877E60 / 0x10877850: the volume a setting has (the first by two names, the second by one; 1 when
@@ -52,6 +90,9 @@ namespace engine
 		float Unknown10877E60(const core::Name<core::CaseSensitiveKey>* first,
 			const core::Name<core::CaseSensitiveKey>* second);
 		float Unknown10877850(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x10877E30: sets the volume of the second name's setting (the first is the mix's)
+		void Unknown10877E30(const core::Name<core::CaseSensitiveKey>* first,
+			const core::Name<core::CaseSensitiveKey>* second, float volume);
 	};
 	extern AudioEmitterSystem* gAudioEmitterSystem;
 
@@ -92,6 +133,9 @@ namespace engine
 	{
 	public:
 		static AudioManager* Get();
+		// 0x108459A0: plays the patch in the group (the two numbers are 0 for the scripts' calls; meaning unknown)
+		void PlayPatch(const core::Name<core::CaseSensitiveKey>& patch, const core::Name<core::CaseSensitiveKey>& group,
+			int unknown1, int unknown2);
 		// Runs the audio subsystems for a frame, and the registered objects when time passes
 		void Update(UpdateContext context);
 

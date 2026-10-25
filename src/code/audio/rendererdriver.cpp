@@ -379,7 +379,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E6150
 	template void* DelegateMetaProperty<audio::FoldDownType>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E6170
-	template void WriteBinary<audio::FoldDownType>(BinaryStream*, const audio::FoldDownType&);
+	template bool WriteBinary<audio::FoldDownType>(BinaryStream*, const audio::FoldDownType&);
 	// FUNCTION: ENGINE 0x105E6220
 	template void* Garbage<FixedArray<unsigned int, 8>>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E6240
@@ -451,7 +451,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E7E70
 	template bool MetaProperty<const FixedArray<unsigned int, 8>&>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E7EB0
-	template void MetaProperty<const FixedArray<unsigned int, 8>&>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<const FixedArray<unsigned int, 8>&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E7ED0
 	template DelegatePropertyBase* MetaProperty<const FixedArray<unsigned int, 8>&>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E7F20
@@ -461,7 +461,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E8040
 	template bool MetaProperty<audio::FoldDownType>::SetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E80A0
-	template void MetaProperty<audio::FoldDownType>::GetBinary(BinaryStream*, void*);
+	template bool MetaProperty<audio::FoldDownType>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E80F0
 	template DelegatePropertyBase* MetaProperty<audio::FoldDownType>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E8850

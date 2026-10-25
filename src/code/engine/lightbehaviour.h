@@ -44,6 +44,9 @@ namespace engine
 	// Switches a light on or off (RTTI and reflection names; no constructor of the unit is used here)
 	struct EnableLightMessage : public IntrusiveMessage
 	{
+		EnableLightMessage() : IntrusiveMessage(7, 0)
+		{
+		}
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
@@ -53,6 +56,9 @@ namespace engine
 	// Gives a light another colour
 	struct ChangeLightColourMessage : public IntrusiveMessage
 	{
+		ChangeLightColourMessage() : IntrusiveMessage(7, 1)
+		{
+		}
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
@@ -62,6 +68,8 @@ namespace engine
 	class LightBehaviour : public Behaviour
 	{
 	public:
+		// 0x1089F9D0 (another unit; the second argument is passed as 1 by the creator, meaning unknown)
+		explicit LightBehaviour(GameObject* newOwner, bool unknownFlag = true);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
