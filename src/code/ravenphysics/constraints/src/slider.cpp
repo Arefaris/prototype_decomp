@@ -40,13 +40,14 @@ namespace ravenphysics
 	{
 		float y = b->y;
 		float z = b->z;
-		a.x = a.x * b->x;
+		float x = b->x;
+		a.x = a.x * x;
 		a.y = a.y * y;
 		a.z = a.z * z;
 	}
 
 	// FUNCTION: ENGINE 0x1066F630
-	// EQUIVALENT: the same products; the engine loads the stored y and z into other registers than the scale's, 15.2 %
+	// EQUIVALENT: the same products; the engine multiplies the x of the second and third vector with the scale in the other operand order, 96.4 %
 	void ConstraintSlider::ScaleBy(const math::Vector* scale)
 	{
 		ScaleVector(pointA, scale);

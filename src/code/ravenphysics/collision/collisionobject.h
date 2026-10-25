@@ -57,6 +57,12 @@ namespace ravenphysics
 		// Recomputes the volume's world bounds from the object's transform; a switch over the type byte that runs
 		// the volume's own per-type update (0x10665690, another unit)
 		void UpdateBounds(CollisionObject* object);
+		// The point the volume is placed at, by its type (0x10663EE0): the centre of the shape, the hull's point, the
+		// mesh's translation, the zero vector for the plane; and the local centre of the shape (0x10663F30)
+		const math::Vector* GetPosition();
+		const math::Vector* GetLocalPosition();
+		// Whether the bounds are finite, in the world's range and not inverted (0x106646E0; name guess)
+		bool AreBoundsFinite();
 		// The name of the volume's type (0x10664740, another unit; name guess)
 		const char* GetTypeName();
 		// Raises the volume against a query, answering whether it hit and writing the point and the distance

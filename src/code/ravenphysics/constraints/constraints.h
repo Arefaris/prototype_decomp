@@ -351,6 +351,40 @@ namespace ravenphysics
 		float unknown48;              // 0x48
 		float unknown4C;              // 0x4C
 	};
+
+	// Keeps the distance between a point of each object along an axis
+	class ConstraintFixDistanceAlongAxis : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x106783E0)
+		ConstraintFixDistanceAlongAxis();
+		// Between the objects two handles name (0x10678440)
+		ConstraintFixDistanceAlongAxis(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The points (0x106784A0 / 0x106784C0) and the axis (0x106784E0; it is normalised and must not be of no length)
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetAxis(const math::Vector* newAxis);
+		// The distance and how the correction of it is limited (0x10678550 / 0x10678560 / 0x10678570)
+		void SetDistance(float value);
+		void SetDistanceCorrectionScale(float value);
+		void SetMaxDistanceCorrectionForce(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		math::Vector axis;            // 0x3C
+		float distance;               // 0x48
+		float distanceCorrectionScale;  // 0x4C
+		float maxDistanceCorrectionForce;  // 0x50
+		float unknown54;              // 0x54
+		float unknown58;              // 0x58
+		float unknown5C;              // 0x5C
+	};
 }
 
 #endif

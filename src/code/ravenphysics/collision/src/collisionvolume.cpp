@@ -226,6 +226,46 @@ namespace ravenphysics
 		bounds.SetTransformed(matrix, localBox);
 	}
 
+	// FUNCTION: ENGINE 0x10663EE0
+	const math::Vector* CollisionVolume::GetPosition()
+	{
+		switch (type)
+		{
+		case 0:
+		case 4:
+			return &((CollisionCapsule*)this)->capsule.centre;
+		case 1:
+			return &((CollisionOBB*)this)->obb.centre;
+		case 2:
+			return &((CollisionSphere*)this)->sphere.centre;
+		case 3:
+			return &((CollisionVolume3*)this)->world;
+		default:
+			return &math::kZeroVector;
+		case 6:
+			return (const math::Vector*)&((CollisionVolume6*)this)->grid.matrix.m[3][0];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10663F30
+	const math::Vector* CollisionVolume::GetLocalPosition()
+	{
+		switch (type)
+		{
+		case 0:
+		case 1:
+		case 2:
+		case 4:
+			return &((CollisionCapsule*)this)->localCentre;
+		case 3:
+			return &((CollisionVolume3*)this)->world;
+		default:
+			return &math::kZeroVector;
+		case 6:
+			return (const math::Vector*)&((CollisionVolume6*)this)->grid.matrix.m[3][0];
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10663F70
 	CollisionPlane::CollisionPlane(const CollisionPlane& other) :
 		CollisionVolume(other),
@@ -273,6 +313,56 @@ namespace ravenphysics
 		out->axis[2].x = a.y * b.z - a.z * b.y;
 		Copy(out->extents, obb.extents);
 	}
+
+	// FUNCTION: ENGINE 0x106643E0
+	// EQUIVALENT: the same products and sums in the same order; the engine loads the centre and the radius ahead of the first product and keeps the sums in registers, 10.3 %
+	void CollisionSphere::UpdateWorld(CollisionObject* object)
+	{
+		float z = localCentre.z;
+		float y = localCentre.y;
+		float x = localCentre.x;
+		const math::Matrix& m = object->transform;
+		float worldX = m.m[1][0] * y + m.m[2][0] * z + x * m.m[0][0] + m.m[3][0];
+		float worldY = m.m[0][1] * x + m.m[1][1] * y + m.m[2][1] * z + m.m[3][1];
+		float radius = sphere.radius;
+		float worldZ = m.m[0][2] * x + m.m[1][2] * y + m.m[2][2] * z + m.m[3][2];
+		bounds.min.x = worldX - radius;
+		bounds.min.y = worldY - radius;
+		bounds.min.z = worldZ - radius;
+		bounds.max.x = worldX + radius;
+		bounds.max.y = worldY + radius;
+		bounds.max.z = worldZ + radius;
+		sphere.centre.x = worldX;
+		sphere.centre.y = worldY;
+		sphere.centre.z = worldZ;
+	}
+
+	// FUNCTION: ENGINE 0x106646E0
+	// NONMATCHING: the loop is addressed through the index register and the comparisons' operand order differs, best 15.4 %
+#ifdef NONMATCHING
+	bool CollisionVolume::AreBoundsFinite()
+	{
+		const float* values = (const float*)this;
+		for (int i = 0; i < 3; i++)
+		{
+			float low = values[i + 1];
+			float high = values[i + 4];
+			if (!(fabs(low) < 1e12f))
+			{
+				return false;
+			}
+			if (!(fabs(high) < 1e12f))
+			{
+				return false;
+			}
+			if (low > high)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x106644D0
 	void CollisionSphere::UpdateBox()
