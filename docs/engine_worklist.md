@@ -4770,3 +4770,18 @@ sits before the stores of the three scales in the engine, 93.2 %).
   the type 7 / id 3 message is made through a constructor that stores -1 and then the handle (the dead store stays).
 - Not done in the range: 0x10860000 - 0x10862300 (the hardware profile, render queue and display setup),
   0x10863850 - 0x10863900 (identical `ret`/getter stubs), 0x108622E0 - 0x10862340 (`PlayerControlInfo`).
+
+### engine/frontend/fesubtitle.cpp (0x10876B60 - 0x10877140)
+
+`FESubtitle` (RTTI name, base `DBObserver`; the object at `gSubtitleOptions`, earlier called `SubtitleOptions`, which is
+now a typedef in `subtitleoptions.h`): the front end's subtitle list. 12 functions match, 2 are EQUIVALENT (`Update`:
+the engine keeps its two hide sequences apart where ours lets the compiler merge their tails, 40.9 %; `FindFormat`: a
+stack slot the engine reserves and nothing uses, 55.1 %). `Show` takes the duration as an unsigned integer (the
+engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled`.
+
+- The value handed to `AS_SubtitleShow` / `AS_SetSubtitles` is a local laid out like `FEMovie::Value` without its
+  constructor (an array of one calls the vector constructor in this unit).
+- The destructor and the constructor read `gGameDatabase` into a local first (the engine loads it before the name is
+  built).
+- Not done in the range: 0x10876B30 (clears the queue and resets the sequencers), 0x10876B60 is the line's constructor
+  (kept copy).

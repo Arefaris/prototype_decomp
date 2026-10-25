@@ -545,8 +545,8 @@ namespace engine
 				if (request->package->GetState() == 5)
 				{
 					request->subtitles = Unknown108C1130(request->path, request->package);
-					request->unknown10 = !gSubtitleOptions->unknown1E;
-					gSubtitleOptions->Unknown10876EF0(true);
+					request->unknown10 = !gSubtitleOptions->disabled;
+					gSubtitleOptions->SetEnabled(true);
 				}
 			}
 			else
