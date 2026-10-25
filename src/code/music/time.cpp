@@ -417,7 +417,7 @@ namespace om
 	template MetaMethod1<music::FollowAction, music::FollowAction, void, const music::FollowAction::Type&>::~MetaMethod1();
 	// FUNCTION: ENGINE 0x105D8670
 	template void MetaMethod1<music::FollowAction, music::FollowAction, void, const music::FollowAction::Type&>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105D8690
+	// FUNCTION: ENGINE 0x105D8480
 	template const char* Garbage<unsigned int>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D86A0
 	template void* MetaMethod0Const<music::FollowAction, music::FollowAction, const music::FollowAction::Type&>::operator new(size_t);
@@ -475,7 +475,7 @@ namespace om
 	template Garbage<unsigned int>::~Garbage();
 	// FUNCTION: ENGINE 0x105D8EA0
 	template void Garbage<unsigned int>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105D8EC0
+	// FUNCTION: ENGINE 0x105D8E40
 	template void* Garbage<unsigned int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D8EE0
 	template Garbage<music::FollowAction::Type>::Garbage(music::FollowAction::Type*);

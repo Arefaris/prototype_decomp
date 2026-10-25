@@ -4,6 +4,7 @@
 #include "code/om/delegate.h"
 #include "code/om/metaenum.h"
 #include "code/om/metamethod.h"
+#include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 
 #pragma warning(disable: 4661)
@@ -736,9 +737,9 @@ namespace om
 	template MetaMethod0Base<const music::CellPlayer::State&>* MetaProperty<const music::CellPlayer::State&>::GetGetter();
 	// FUNCTION: ENGINE 0x105D3080
 	template MetaMethod1Base<void, const float&>* MetaProperty<const float&>::GetSetter();
-	// FUNCTION: ENGINE 0x105D51B0
+	// FUNCTION: ENGINE 0x105EFA20
 	template const char* Garbage<music::CellPlayer::State>::AllocationTag();
-	// FUNCTION: ENGINE 0x105D51C0
+	// FUNCTION: ENGINE 0x105EFCB0
 	template const char* Garbage<float>::AllocationTag();
 }
 
@@ -758,7 +759,7 @@ namespace om
 	template MetaMethod1Base<void, const unsigned int&>::~MetaMethod1Base();
 	// FUNCTION: ENGINE 0x105D78E0
 	template MetaMethod1Base<void, const unsigned int&>::MetaMethod1Base(MetaClassBase*, const ClassName&);
-	// FUNCTION: ENGINE 0x105D8480
+	// FUNCTION: ENGINE 0x105F07F0
 	template const char* Garbage<Bool32>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D8B50
 	template MetaMethod1Base<void, unsigned __int64>* MetaProperty<unsigned __int64>::GetSetter();
@@ -770,8 +771,12 @@ namespace om
 	template MetaMethod0Base<unsigned __int64>* MetaProperty<unsigned __int64>::GetGetter();
 	// FUNCTION: ENGINE 0x105D8BA0
 	template MetaMethod0Base<const Bool32&>* MetaProperty<const Bool32&>::GetGetter();
-	// FUNCTION: ENGINE 0x105D8E40
+	// FUNCTION: ENGINE 0x105F15C0
 	template void* Garbage<Bool32>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F14C0
+	template void* Garbage<music::CellPlayer::State>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F1540
+	template void* Garbage<float>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105DFF00
 	template MetaMethod1Base<void, const music::Fade&>::~MetaMethod1Base();
 	// FUNCTION: ENGINE 0x105DFF10
@@ -822,7 +827,7 @@ namespace om
 	template MetaMethod1<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, void, const ClassName&>::~MetaMethod1();
 	// FUNCTION: ENGINE 0x105E5EF0
 	template void MetaMethod1<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, void, const ClassName&>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105E6280
+	// FUNCTION: ENGINE 0x105F1520
 	template void Garbage<music::CellPlayer::State>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105E62F0
 	template DelegateProperty<music::CellPlayer::State>::~DelegateProperty();
@@ -872,7 +877,7 @@ namespace music
 
 namespace om
 {
-	// FUNCTION: ENGINE 0x105EBF70
+	// FUNCTION: ENGINE 0x105F15A0
 	template void Garbage<float>::operator delete(void*);
 }
 
@@ -884,7 +889,7 @@ namespace music
 
 namespace om
 {
-	// FUNCTION: ENGINE 0x105EBFC0
+	// FUNCTION: ENGINE 0x105F1620
 	template void Garbage<Bool32>::operator delete(void*);
 }
 
@@ -904,7 +909,7 @@ namespace music
 	template void CueEventDerived<CueEventMoveCell>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EC0F0
 	template void CueEventDerived<CueEventMovePart>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105EC110
+	// FUNCTION: ENGINE 0x105E6280
 	template void CueEventDerived<CueEventCellPlayerState>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EC130
 	template void CueEventDerived<CueEventSetCellType>::operator delete(void*);
@@ -936,7 +941,7 @@ namespace music
 	template CueEventDerived<CueEventDestroyCuePlayer>::CueEventDerived();
 	// FUNCTION: ENGINE 0x105EC220
 	template CueEventDerived<CueEventCueState>::~CueEventDerived();
-	// FUNCTION: ENGINE 0x105EC250
+	// FUNCTION: ENGINE 0x105EBF70
 	template void CueEventDerived<CueEventSetBPM>::operator delete(void*);
 }
 
@@ -1018,7 +1023,7 @@ namespace music
 {
 	// FUNCTION: ENGINE 0x105EC850
 	template CueEventDerived<CueEventMoveCell>::CueEventDerived();
-	// FUNCTION: ENGINE 0x105EC890
+	// FUNCTION: ENGINE 0x105EBFC0
 	template void CueEventDerived<CueEventCueState>::operator delete(void*);
 }
 
@@ -1336,6 +1341,15 @@ namespace om
 	template void* MetaClass<music::CueEventSetFade>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105EEFD0
 	template void* MetaMethod1<music::CueEventSync, music::CueEventSync, void, unsigned __int64>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7590
+	template music::CellPlayer::State* ReadArgument<music::CellPlayer::State>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105F7610
+	template float* ReadArgument<float>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105F7670
+	template Bool32* ReadArgument<Bool32>(BinaryStream*, GarbageList*);
+
+	// FUNCTION: ENGINE 0x105F79E0
+	template void MetaMethod1<music::CueEventSync, music::CueEventSync, void, unsigned __int64>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EEFF0
 	template MetaMethod1<music::CueEventSync, music::CueEventSync, void, unsigned __int64>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSync::*)(unsigned __int64));
 	// FUNCTION: ENGINE 0x105EF020
@@ -1354,6 +1368,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF130
 	template void* MetaMethod0Const<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F6F00
+	template void MetaMethod0Const<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF150
 	template MetaMethod0Const<music::CueEventNewCuePlayer, music::CueEventNewCuePlayer, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventNewCuePlayer::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF180
@@ -1364,6 +1380,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF1C0
 	template void* MetaMethod1<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7B60
+	template void MetaMethod1<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF1E0
 	template MetaMethod1<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventDestroyCuePlayer::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EF210
@@ -1374,6 +1392,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetPartName, music::CueEventSetPartName, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF260
 	template void* MetaMethod0Const<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F6F90
+	template void MetaMethod0Const<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF280
 	template MetaMethod0Const<music::CueEventDestroyCuePlayer, music::CueEventDestroyCuePlayer, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventDestroyCuePlayer::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF2B0
@@ -1384,6 +1404,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetPartName, music::CueEventSetPartName, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF2F0
 	template void* MetaMethod1<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7C30
+	template void MetaMethod1<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF310
 	template MetaMethod1<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetCurrentCuePlayer::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EF340
@@ -1394,6 +1416,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetLayerName, music::CueEventSetLayerName, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF390
 	template void* MetaMethod0Const<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7020
+	template void MetaMethod0Const<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF3B0
 	template MetaMethod0Const<music::CueEventSetCurrentCuePlayer, music::CueEventSetCurrentCuePlayer, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventSetCurrentCuePlayer::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF3E0
@@ -1404,6 +1428,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetLayerName, music::CueEventSetLayerName, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF420
 	template void* MetaMethod1<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7D00
+	template void MetaMethod1<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF440
 	template MetaMethod1<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetCurrentCue::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EF470
@@ -1414,6 +1440,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, void, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF4C0
 	template void* MetaMethod0Const<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F70B0
+	template void MetaMethod0Const<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF4E0
 	template MetaMethod0Const<music::CueEventSetCurrentCue, music::CueEventSetCurrentCue, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventSetCurrentCue::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF510
@@ -1424,6 +1452,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF550
 	template void* MetaMethod1<music::CueEventSetPartName, music::CueEventSetPartName, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7DD0
+	template void MetaMethod1<music::CueEventSetPartName, music::CueEventSetPartName, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF570
 	template MetaMethod1<music::CueEventSetPartName, music::CueEventSetPartName, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetPartName::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EF5A0
@@ -1434,6 +1464,8 @@ namespace om
 	template void MetaMethod1<music::CueEventCellPlayerState, music::CueEventCellPlayerState, void, const music::CellPlayer::State&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF5F0
 	template void* MetaMethod0Const<music::CueEventSetPartName, music::CueEventSetPartName, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7140
+	template void MetaMethod0Const<music::CueEventSetPartName, music::CueEventSetPartName, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF610
 	template MetaMethod0Const<music::CueEventSetPartName, music::CueEventSetPartName, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventSetPartName::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF640
@@ -1444,6 +1476,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventCellPlayerState, music::CueEventCellPlayerState, const music::CellPlayer::State&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF680
 	template void* MetaMethod1<music::CueEventSetLayerName, music::CueEventSetLayerName, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7EA0
+	template void MetaMethod1<music::CueEventSetLayerName, music::CueEventSetLayerName, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF6A0
 	template MetaMethod1<music::CueEventSetLayerName, music::CueEventSetLayerName, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetLayerName::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EF6D0
@@ -1454,6 +1488,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetCellType, music::CueEventSetCellType, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF720
 	template void* MetaMethod0Const<music::CueEventSetLayerName, music::CueEventSetLayerName, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F71D0
+	template void MetaMethod0Const<music::CueEventSetLayerName, music::CueEventSetLayerName, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF740
 	template MetaMethod0Const<music::CueEventSetLayerName, music::CueEventSetLayerName, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventSetLayerName::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF770
@@ -1464,6 +1500,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetCellType, music::CueEventSetCellType, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF7B0
 	template void* MetaMethod1<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, void, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7F70
+	template void MetaMethod1<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, void, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF7D0
 	template MetaMethod1<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, void, const unsigned int&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetCurrentCell::*)(const unsigned int&));
 	// FUNCTION: ENGINE 0x105EF800
@@ -1474,6 +1512,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetBPM, music::CueEventSetBPM, void, const float&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF850
 	template void* MetaMethod0Const<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105EF8E0
+	template void MetaMethod0Const<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF870
 	template MetaMethod0Const<music::CueEventSetCurrentCell, music::CueEventSetCurrentCell, const unsigned int&>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned int const & (__thiscall music::CueEventSetCurrentCell::*)(void)const);
 	// FUNCTION: ENGINE 0x105EF8A0
@@ -1484,6 +1524,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetBPM, music::CueEventSetBPM, const float&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EF980
 	template void* MetaMethod1<music::CueEventCellPlayerState, music::CueEventCellPlayerState, void, const music::CellPlayer::State&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F8040
+	template void MetaMethod1<music::CueEventCellPlayerState, music::CueEventCellPlayerState, void, const music::CellPlayer::State&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EF9A0
 	template MetaMethod1<music::CueEventCellPlayerState, music::CueEventCellPlayerState, void, const music::CellPlayer::State&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventCellPlayerState::*)(const music::CellPlayer::State&));
 	// FUNCTION: ENGINE 0x105EF9D0
@@ -1494,6 +1536,8 @@ namespace om
 	template void MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const ClassName&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFA30
 	template void* MetaMethod0Const<music::CueEventCellPlayerState, music::CueEventCellPlayerState, const music::CellPlayer::State&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7260
+	template void MetaMethod0Const<music::CueEventCellPlayerState, music::CueEventCellPlayerState, const music::CellPlayer::State&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFA50
 	template MetaMethod0Const<music::CueEventCellPlayerState, music::CueEventCellPlayerState, const music::CellPlayer::State&>::MetaMethod0Const(MetaClassBase*, const ClassName&, music::CellPlayer::State const & (__thiscall music::CueEventCellPlayerState::*)(void)const);
 	// FUNCTION: ENGINE 0x105EFA80
@@ -1506,6 +1550,8 @@ namespace om
 	template void* MetaProperty<const music::CellPlayer::State&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105EFAE0
 	template void* MetaMethod1<music::CueEventSetCellType, music::CueEventSetCellType, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F8110
+	template void MetaMethod1<music::CueEventSetCellType, music::CueEventSetCellType, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFB00
 	template MetaMethod1<music::CueEventSetCellType, music::CueEventSetCellType, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetCellType::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EFB30
@@ -1516,6 +1562,8 @@ namespace om
 	template void MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFB80
 	template void* MetaMethod0Const<music::CueEventSetCellType, music::CueEventSetCellType, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7310
+	template void MetaMethod0Const<music::CueEventSetCellType, music::CueEventSetCellType, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFBA0
 	template MetaMethod0Const<music::CueEventSetCellType, music::CueEventSetCellType, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventSetCellType::*)(void)const);
 	// FUNCTION: ENGINE 0x105EFBD0
@@ -1526,6 +1574,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFC10
 	template void* MetaMethod1<music::CueEventSetBPM, music::CueEventSetBPM, void, const float&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F81E0
+	template void MetaMethod1<music::CueEventSetBPM, music::CueEventSetBPM, void, const float&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFC30
 	template MetaMethod1<music::CueEventSetBPM, music::CueEventSetBPM, void, const float&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetBPM::*)(const float&));
 	// FUNCTION: ENGINE 0x105EFC60
@@ -1536,6 +1586,8 @@ namespace om
 	template void MetaMethod1<music::CueEventMoveCell, music::CueEventMoveCell, void, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFCC0
 	template void* MetaMethod0Const<music::CueEventSetBPM, music::CueEventSetBPM, const float&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105EFD70
+	template void MetaMethod0Const<music::CueEventSetBPM, music::CueEventSetBPM, const float&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFCE0
 	template MetaMethod0Const<music::CueEventSetBPM, music::CueEventSetBPM, const float&>::MetaMethod0Const(MetaClassBase*, const ClassName&, float const & (__thiscall music::CueEventSetBPM::*)(void)const);
 	// FUNCTION: ENGINE 0x105EFD10
@@ -1548,6 +1600,8 @@ namespace om
 	template void* MetaProperty<const float&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105EFE30
 	template void* MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F82B0
+	template void MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFE50
 	template MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const ClassName&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventCommand::*)(const ClassName&));
 	// FUNCTION: ENGINE 0x105EFE80
@@ -1558,6 +1612,8 @@ namespace om
 	template void MetaMethod1<music::CueEventMovePart, music::CueEventMovePart, void, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFED0
 	template void* MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const ClassName&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F73A0
+	template void MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFEF0
 	template MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const ClassName&>::MetaMethod0Const(MetaClassBase*, const ClassName&, ClassName const & (__thiscall music::CueEventCommand::*)(void)const);
 	// FUNCTION: ENGINE 0x105EFF20
@@ -1568,6 +1624,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventMovePart, music::CueEventMovePart, const unsigned int&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105EFF60
 	template void* MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F8380
+	template void MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105EFF80
 	template MetaMethod1<music::CueEventCommand, music::CueEventCommand, void, const unsigned int&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventCommand::*)(const unsigned int&));
 	// FUNCTION: ENGINE 0x105EFFB0
@@ -1578,6 +1636,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSync, music::CueEventSync, unsigned __int64>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105F0000
 	template void* MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F0090
+	template void MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0020
 	template MetaMethod0Const<music::CueEventCommand, music::CueEventCommand, const unsigned int&>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned int const & (__thiscall music::CueEventCommand::*)(void)const);
 	// FUNCTION: ENGINE 0x105F0050
@@ -1586,6 +1646,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const music::Fade&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105F0130
 	template void* MetaMethod1<music::CueEventMoveCell, music::CueEventMoveCell, void, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F8450
+	template void MetaMethod1<music::CueEventMoveCell, music::CueEventMoveCell, void, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0150
 	template MetaMethod1<music::CueEventMoveCell, music::CueEventMoveCell, void, const unsigned int&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventMoveCell::*)(const unsigned int&));
 	// FUNCTION: ENGINE 0x105F0180
@@ -1594,6 +1656,8 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const music::Fade&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105F01D0
 	template void* MetaMethod0Const<music::CueEventMoveCell, music::CueEventMoveCell, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F0260
+	template void MetaMethod0Const<music::CueEventMoveCell, music::CueEventMoveCell, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F01F0
 	template MetaMethod0Const<music::CueEventMoveCell, music::CueEventMoveCell, const unsigned int&>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned int const & (__thiscall music::CueEventMoveCell::*)(void)const);
 	// FUNCTION: ENGINE 0x105F0220
@@ -1602,6 +1666,8 @@ namespace om
 	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const Bool32&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105F0300
 	template void* MetaMethod1<music::CueEventMovePart, music::CueEventMovePart, void, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F8520
+	template void MetaMethod1<music::CueEventMovePart, music::CueEventMovePart, void, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0320
 	template MetaMethod1<music::CueEventMovePart, music::CueEventMovePart, void, const unsigned int&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventMovePart::*)(const unsigned int&));
 	// FUNCTION: ENGINE 0x105F0350
@@ -1610,12 +1676,16 @@ namespace om
 	template void MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105F03A0
 	template void* MetaMethod0Const<music::CueEventMovePart, music::CueEventMovePart, const unsigned int&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F0430
+	template void MetaMethod0Const<music::CueEventMovePart, music::CueEventMovePart, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F03C0
 	template MetaMethod0Const<music::CueEventMovePart, music::CueEventMovePart, const unsigned int&>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned int const & (__thiscall music::CueEventMovePart::*)(void)const);
 	// FUNCTION: ENGINE 0x105F03F0
 	template const unsigned int& MetaMethod0Const<music::CueEventMovePart, music::CueEventMovePart, const unsigned int&>::Call(void*);
 	// FUNCTION: ENGINE 0x105F04D0
 	template void* MetaMethod0Const<music::CueEventSync, music::CueEventSync, unsigned __int64>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F0590
+	template void MetaMethod0Const<music::CueEventSync, music::CueEventSync, unsigned __int64>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F04F0
 	template MetaMethod0Const<music::CueEventSync, music::CueEventSync, unsigned __int64>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned __int64 (__thiscall music::CueEventSync::*)(void)const);
 	// FUNCTION: ENGINE 0x105F0520
@@ -1624,24 +1694,32 @@ namespace om
 	template void* MetaProperty<unsigned __int64>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105F0620
 	template void* MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const music::Fade&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F85F0
+	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const music::Fade&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0640
 	template MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const music::Fade&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetFade::*)(const music::Fade&));
 	// FUNCTION: ENGINE 0x105F0670
 	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const music::Fade&>::Call(void*, const music::Fade&);
 	// FUNCTION: ENGINE 0x105F06C0
 	template void* MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const music::Fade&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F7430
+	template void MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const music::Fade&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F06E0
 	template MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const music::Fade&>::MetaMethod0Const(MetaClassBase*, const ClassName&, music::Fade const & (__thiscall music::CueEventSetFade::*)(void)const);
 	// FUNCTION: ENGINE 0x105F0710
 	template const music::Fade& MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const music::Fade&>::Call(void*);
 	// FUNCTION: ENGINE 0x105F0750
 	template void* MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const Bool32&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F86C0
+	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const Bool32&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0770
 	template MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const Bool32&>::MetaMethod1(MetaClassBase*, const ClassName&, void (music::CueEventSetFade::*)(const Bool32&));
 	// FUNCTION: ENGINE 0x105F07A0
 	template void MetaMethod1<music::CueEventSetFade, music::CueEventSetFade, void, const Bool32&>::Call(void*, const Bool32&);
 	// FUNCTION: ENGINE 0x105F0800
 	template void* MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105F74E0
+	template void MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105F0820
 	template MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::MetaMethod0Const(MetaClassBase*, const ClassName&, Bool32 const & (__thiscall music::CueEventSetFade::*)(void)const);
 	// FUNCTION: ENGINE 0x105F0850

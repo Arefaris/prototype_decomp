@@ -5,6 +5,7 @@
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 #include "code/om/metamethod.h"
+#include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 
 #pragma warning(disable: 4661)
@@ -312,18 +313,27 @@ namespace om
 	template void* MetaEnum<audio::WAVEFORMAT>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E5AA0
 	template void* MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E7CC0
+	template FixedArray<unsigned int, 8>* ReadArgument<FixedArray<unsigned int, 8> >(BinaryStream*, GarbageList*);
+
+	// FUNCTION: ENGINE 0x105E8140
+	template void MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5AC0
 	template MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::MetaMethod1(MetaClassBase*, const ClassName&, void (audio::RendererDriver::*)(unsigned int));
 	// FUNCTION: ENGINE 0x105E5AF0
 	template void MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::Call(void*, unsigned int);
 	// FUNCTION: ENGINE 0x105E5B40
 	template void* MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, audio::FoldDownType>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E8490
+	template void MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, audio::FoldDownType>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5B60
 	template MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, audio::FoldDownType>::MetaMethod1(MetaClassBase*, const ClassName&, void (audio::RendererDriver::*)(audio::FoldDownType));
 	// FUNCTION: ENGINE 0x105E5B90
 	template void MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, audio::FoldDownType>::Call(void*, audio::FoldDownType);
 	// FUNCTION: ENGINE 0x105E5BE0
 	template void* MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, const FixedArray<unsigned int, 8>&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E8260
+	template void MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, const FixedArray<unsigned int, 8>&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5C00
 	template MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, const FixedArray<unsigned int, 8>&>::MetaMethod1(MetaClassBase*, const ClassName&, void (audio::RendererDriver::*)(const FixedArray<unsigned int, 8>&));
 	// FUNCTION: ENGINE 0x105E5C30
@@ -332,6 +342,8 @@ namespace om
 	template const char* Garbage<FixedArray<unsigned int, 8>>::AllocationTag();
 	// FUNCTION: ENGINE 0x105E5CA0
 	template void* MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, const FixedArray<unsigned int, 8>&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E8330
+	template void MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, const FixedArray<unsigned int, 8>&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5CC0
 	template MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, const FixedArray<unsigned int, 8>&>::MetaMethod0Const(MetaClassBase*, const ClassName&, FixedArray<unsigned int,8> const & (__thiscall audio::RendererDriver::*)(void)const);
 	// FUNCTION: ENGINE 0x105E5CF0
@@ -340,12 +352,16 @@ namespace om
 	template void* MetaProperty<const FixedArray<unsigned int, 8>&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E5D50
 	template void* MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, unsigned int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E5DE0
+	template void MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5D70
 	template MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, unsigned int>::MetaMethod0Const(MetaClassBase*, const ClassName&, unsigned int (__thiscall audio::RendererDriver::*)(void)const);
 	// FUNCTION: ENGINE 0x105E5DA0
 	template unsigned int MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, unsigned int>::Call(void*);
 	// FUNCTION: ENGINE 0x105E5E80
 	template void* MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, audio::FoldDownType>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E83D0
+	template void MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, audio::FoldDownType>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105E5EA0
 	template MetaMethod0Const<audio::RendererDriver, audio::RendererDriver, audio::FoldDownType>::MetaMethod0Const(MetaClassBase*, const ClassName&, audio::FoldDownType (__thiscall audio::RendererDriver::*)(void)const);
 	// FUNCTION: ENGINE 0x105E5ED0

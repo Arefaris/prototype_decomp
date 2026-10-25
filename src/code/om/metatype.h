@@ -6,25 +6,65 @@
 
 #include "code/om/name.h"
 #include "code/om/refcount.h"
+#include "code/om/stream.h"
 #include "code/om/tree.h"
 #include <typeinfo>
 
 namespace om
 {
 	class TextValue;
-	// The buffer a binary stream reads from and writes to (0x105B7BC0 and 0x105B7C00; names guessed)
+	// The buffer a binary stream reads from and writes to (0x105B7B50 constructor, 0x105B7BC0 and 0x105B7C00; names
+	// guessed): a stream and whether the bytes of each item are swapped
 	class StreamBuffer
 	{
 	public:
+		StreamBuffer(Stream* newStream, int nativeOrder);
 		bool Read(void* data, int size);
 		bool Write(const void* data, int size);
+
+		Stream* stream;
+		bool swap;
 	};
+
+	// What a binary stream knows about the objects it makes (four words, all the address 0x105BFF30 answers; names
+	// guessed)
+	struct StreamContext
+	{
+		StreamContext()
+		{
+		}
+		void Set(void* new0, void* new4, void* new8, void* newC)
+		{
+			unknown0 = new0;
+			unknown4 = new4;
+			unknown8 = new8;
+			unknownC = newC;
+		}
+
+		void* unknown0;
+		void* unknown4;
+		void* unknown8;
+		void* unknownC;
+	};
+
+	// 0x105BFF30: the address of 0x112767D4, what the context's words are made of
+	void* GetStreamContextObject();
 
 	// A stream of values in their binary form
 	class BinaryStream
 	{
 	public:
+		BinaryStream()
+		{
+		}
+		BinaryStream(StreamBuffer* newBuffer, StreamContext* newContext)
+		{
+			buffer = newBuffer;
+			context = newContext;
+		}
+
 		StreamBuffer* buffer;
+		StreamContext* context;
 	};
 
 	// The description of a reflected type (RTTI: om::MetaTypeBase), found by name and by type_info through two

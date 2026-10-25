@@ -2,6 +2,7 @@
 // music::MGraphCell made of template instances of the om library.
 #include "code/music/cell.h"
 #include "code/om/delegate.h"
+#include "code/om/invoke.h"
 #include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
@@ -225,6 +226,23 @@ namespace om
 	template void* MetaClass<music::Cell>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E03C0
 	template void* MetaClass<music::MGraphCell>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E1D40
+	template void MetaMethod0Const<music::MGraphCell, music::MGraphCell, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105E1ED0
+	template music::FollowAction* ReadArgument<music::FollowAction>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105E2770
+	template void MetaMethod1<music::Cell, music::Cell, void, const music::FollowAction&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105E2840
+	template void MetaMethod0Const<music::Cell, music::Cell, const music::FollowAction&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105E28F0
+	template void MetaMethod1<music::MGraphCell, music::MGraphCell, void, const ClassName&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105E1E00
+	template music::Fade* ReadArgument<music::Fade>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105E25F0
+	template void MetaMethod1<music::Cell, music::Cell, void, const music::Fade&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105E26C0
+	template void MetaMethod0Const<music::Cell, music::Cell, const music::Fade&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+
 	// FUNCTION: ENGINE 0x105E0440
 	template void* MetaMethod1<music::Cell, music::Cell, void, const music::Fade&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E0460
@@ -257,8 +275,10 @@ namespace om
 	template MetaMethod1<music::Cell, music::Cell, void, const music::FollowAction&>::~MetaMethod1();
 	// FUNCTION: ENGINE 0x105E0660
 	template void MetaMethod1<music::Cell, music::Cell, void, const music::FollowAction&>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105E0680
+	// FUNCTION: ENGINE 0x105E04F0
 	template const char* Garbage<music::Fade>::AllocationTag();
+	// FUNCTION: ENGINE 0x105E0680
+	template const char* Garbage<music::FollowAction>::AllocationTag();
 	// FUNCTION: ENGINE 0x105E06B0
 	template void* MetaMethod0Const<music::Cell, music::Cell, const music::FollowAction&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E06D0
@@ -303,7 +323,7 @@ namespace om
 	template void* DelegateMetaProperty<const music::Fade&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E0A90
 	template void* DelegateMetaProperty<const music::FollowAction&>::operator new(size_t);
-	// FUNCTION: ENGINE 0x105E0AB0
+	// FUNCTION: ENGINE 0x105E0B60
 	template void* Garbage<music::FollowAction>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E0AD0
 	template Garbage<music::Fade>::Garbage(music::Fade*);
@@ -311,7 +331,7 @@ namespace om
 	template Garbage<music::Fade>::~Garbage();
 	// FUNCTION: ENGINE 0x105E0B40
 	template void Garbage<music::Fade>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105E0B60
+	// FUNCTION: ENGINE 0x105E0AB0
 	template void* Garbage<music::Fade>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E0B80
 	template Garbage<music::FollowAction>::Garbage(music::FollowAction*);
