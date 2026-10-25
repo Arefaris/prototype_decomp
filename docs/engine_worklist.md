@@ -4697,11 +4697,28 @@ What the matching taught:
   `FollowAction`, `MGraphCellPlayer`, `Garbage<Fade>`, `Garbage<FollowAction>`, `Garbage<float>`, `Garbage<State>`,
   `Garbage<Bool32>`, `Garbage<unsigned int>` (symbols.txt and the annotations of `music/time.cpp` follow them).
 
-Open in this range (about 1000 functions, 250 of them only mapped):
+Later in this range:
+- `content/arraydynamicmetatype.cpp` (the array meta type, `ArrayOf<void*>` and the pointer list helper; EQUIVALENT:
+  `Compare`, `Insert`, `InsertCopies`, `InsertOne`; NONMATCHING `ReadText` 0x105FE340 at 72 %: the frame holds the saved line
+  and `this` the other way round and the error exits come out in another order), `content/enummetatype.cpp`,
+  `content/referencemetatype.cpp` (the reference meta types, the short string reads), `content/loadobject.cpp`,
+  `content/chunkreader.cpp`, `content/metafactory.cpp` (EQUIVALENT: the two map finds and the two registrations, scheduling
+  of the key's halves), `music/cell.cpp` (`RegisterMGraphCellMeta` matches; EQUIVALENT `RegisterCellMeta`).
+- The registration functions: each property is three `om::String` locals (get, set, property name) with the hash and the
+  cached class of the owner after each, then the two `MetaMethod*::Create` calls (out of line) and the inlined
+  `MetaProperty::Create`. The owner of each lookup is written either through `GetCachedClass<T>()` or as the explicit
+  `if (type == 0)` form: the engine's pattern for the Cell class is first lookup of a property helper, the other two
+  explicit (MGraphCell: explicit, helper, helper, explicit); the forms were found by trying them. Not solved: the engine
+  saves the callee-saved registers before the first hash call (and, in the 72 byte releases of a class's description, before
+  the `jne` of the cache test), ours after the first cache miss path, so every registration that has no use of such a
+  register before its first property (the CueEvent ones) and every release stays at 87 - 97 %.
+- Header-defined and compiler-generated functions (`??_G...`, inline constructors) cannot be annotated, so the 380 functions
+  under 20 bytes that are only mapped cannot be counted yet.
+
+Open in this range (about 950 functions, mostly tiny or compiler-generated):
 - `MGraphCellPlayer` / `CellPlayer` (0x105E29C0 - 0x105E3F00, about 35 functions with the 884 and 1297 byte ones), the
-  registration functions of the reflected classes (0x105F4130 - 0x105F6EE0: one pair per class, 72 + 467 / 843 bytes; they
-  build `om::Name`s from strings, the classes' `MetaClass`, methods and properties; the getter pointers they take are the
-  engine's folded copies), the ADPCM block decoder (0x105EB030 - 0x105EB5C0, written with branch-free selects), the
-  `Rpc*` classes (0x105F8800 - 0x105F9A90), `content::ArrayDynamicMetaType` and its helper (0x105FD3C0 - 0x105FE340, the
-  text reader 0x105FE340 is 785 bytes), `EnumMetaType`, `NameMetaType` (four name types selected by two flags),
-  `ReferenceMetaType*`, the chunk handlers and the P3D loaders (0x105FF000 - 0x10600000).
+  registration functions (0x105E38F0, 0x105E6ED0, 0x105F4130 - 0x105F6EE0) and the releases of the class descriptions (72
+  bytes each, a pair per class), the ADPCM block decoder (0x105EB030 - 0x105EB5C0), the `Rpc*` classes (0x105F8800 -
+  0x105F9A90), `NameMetaType` (four name types selected by two flags), the P3D loader's `LoadObject` slot 0x105FFDA0 (669
+  bytes: reads the loader's chunk into a memory stream and hands it to the factory), the map and loader destructors and
+  constructors around 0x105FF9A0 - 0x105FFB80.
