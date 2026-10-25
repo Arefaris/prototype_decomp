@@ -74,11 +74,17 @@ namespace music
 			TypeRandom
 		};
 
+		// Inlined by the users (a value that is read into)
+		FollowAction() :
+			type(TypeStop)
+		{
+		}
 		// 0x105D73D0
 		FollowAction(Type newType);
 		// 0x105D7320 / 0x105D2830
 		void SetType(const Type& newType);
 		const Type& GetType() const;
+		OM_ALLOCATION(FollowAction);
 
 		Type type;
 	};
@@ -93,6 +99,7 @@ namespace music
 		// 0x105D7380 / 0x105D7370
 		void SetLength(const Time& newLength);
 		const Time& GetLength() const;
+		OM_ALLOCATION(Fade);
 
 		Time start;
 		Time length;

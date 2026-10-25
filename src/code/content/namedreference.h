@@ -1,41 +1,11 @@
-// The meta types of a member that refers to an inventory object by name (RTTI: content::NamedReferenceMetaTypeGetSetter,
-// content::NamedReferenceMetaTypeGetSet and, in the global namespace, NamedReferenceMemberGetSetter<class C, class T>
-// derived from the first). The member is read and written through three accessors of its class: the object (which the
-// owner may not keep), the name it was found by and a setter that takes both. The meta type classes belong to the
-// content library's unit (the constructor is 0x105FF030); only what a class that reflects such a member needs is declared
-// here.
+// A member that refers to an inventory object by name, reflected through three accessors of its class: the object
+// (which the owner may not keep), the name it was found by and a setter that takes both (RTTI, global namespace:
+// NamedReferenceMemberGetSetter<class C, class T>, derived from content::NamedReferenceMetaTypeGetSetter, which
+// loadinventory.h declares with the meta type).
 #ifndef CONTENT_NAMEDREFERENCE_H
 #define CONTENT_NAMEDREFERENCE_H
 
 #include "code/content/loadinventory.h"
-
-namespace content
-{
-	// Reads and writes a named reference member through accessors (RTTI: 3 slots)
-	struct NamedReferenceMetaTypeGetSetter
-	{
-	public:
-		virtual const ObjectName* GetName(const void* object) = 0;
-		virtual LoadObject* Get(const void* object) = 0;
-		virtual void Set(void* object, LoadObject* value, const ObjectName& name) = 0;
-	};
-
-	// The meta type of a named reference reached through accessors (RTTI: 15 slots over ReferenceMetaType; the
-	// slots are the content library's)
-	class NamedReferenceMetaTypeGetSet : public ReferenceMetaType
-	{
-	public:
-		// 0x105FF030
-		NamedReferenceMetaTypeGetSet(LoadInventory::DynamicCasterBase* caster, NamedReferenceMetaTypeGetSetter* getSetter,
-			const char* code);
-
-		virtual void Slot12();
-		virtual void Slot13();
-		virtual void Slot14();
-
-		NamedReferenceMetaTypeGetSetter* getSetter;
-	};
-}
 
 // A named reference member of class C reached through accessors
 template<class C, class T> class NamedReferenceMemberGetSetter : public content::NamedReferenceMetaTypeGetSetter
@@ -56,13 +26,13 @@ public:
 	{
 		return (((const C*)object)->*nameGetter)();
 	}
-	virtual content::LoadObject* Get(const void* object)
+	virtual content::LoadObject* GetObject(const void* object)
 	{
 		return (((const C*)object)->*getter)();
 	}
-	virtual void Set(void* object, content::LoadObject* value, const content::ObjectName& name)
+	virtual void Set(void* object, content::LoadObject* value, const content::ObjectName* name)
 	{
-		(((C*)object)->*setter)((T*)value, name);
+		(((C*)object)->*setter)((T*)value, *name);
 	}
 
 	Getter getter;

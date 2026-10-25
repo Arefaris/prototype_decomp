@@ -19,17 +19,23 @@ namespace content
 {
 	struct ClassInfo;
 	struct MemberList;
+	class MetaObjectFactoryBase;
 
 	// content::MetaObjectTemplate (RTTI: 11 vftable slots; the class lives in another unit): what game objects are
 	// built from. Slot 9 builds one.
 	class MetaObjectTemplate : public MetaLoadObject
 	{
 	public:
-		virtual void Slot7();
-		virtual void Slot8();
+		// 0x10606B60 (another unit)
+		MetaObjectTemplate();
+
+		// The object the template is made of (slot 7: answers it; slot 8: takes it, a new value of the class)
+		virtual void* Slot7();
+		virtual void Slot8(void* object);
 		// The new object of name in heap, kept in inventory (flag: passed on from the spawner, meaning unknown)
 		virtual engine::GameObject* Create(int heap, LoadInventory* inventory, const ObjectName& name, bool flag);
-		virtual void Slot10();
+		// Slot 10: takes the factory that makes the objects the template stands for
+		virtual void Slot10(MetaObjectFactoryBase* factory);
 
 		int unknown8;
 		int unknownC;

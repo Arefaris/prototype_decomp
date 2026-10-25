@@ -19,7 +19,7 @@ namespace om
 		virtual bool ReadText(const TextValue* text, void* value);
 		virtual void WriteText(TextValue* text, const void* value);
 		virtual bool ReadBinary(BinaryStream* stream, void* value);
-		virtual void WriteBinary(BinaryStream* stream, const void* value);
+		virtual bool WriteBinary(BinaryStream* stream, const void* value);
 
 		TreeHead attributes;  // 0x38
 		TreeHead methods;  // 0x4C

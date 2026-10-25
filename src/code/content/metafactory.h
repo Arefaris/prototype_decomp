@@ -16,8 +16,16 @@ namespace content
 	class MetaLoader
 	{
 	public:
-		virtual void* Slot0(int a, int b, int c, int d, int e, int f) = 0;
-		virtual void* Slot1(int a, int b, int c, int d, int e) = 0;
+		// 0x105FF6A0
+		MetaLoader(const char* newName, unsigned short newFlag);
+
+		// Make an object of the class and read it from text (slot 0) or from binary (slot 1): in the heap, from the reader,
+		// looking its references up in the inventory, under the name; wrapped makes a MetaObjectTemplate that holds the
+		// object instead of the object itself. Answers null when the object cannot be made (slot 0 then also sets failed).
+		virtual void* Slot0(int heap, TextReadStream* reader, LoadInventory* inventory, const ObjectName* name,
+			bool wrapped, bool* failed) = 0;
+		virtual void* Slot1(int heap, ReadContext* context, LoadInventory* inventory, const ObjectName* name,
+			bool wrapped) = 0;
 
 		const char* name;  // +4
 		unsigned short flag;  // +8
@@ -31,8 +39,10 @@ namespace content
 		MetaObjectFactoryBase(const char* newName, unsigned short newFlag, ClassMetaType* newType);
 
 		// 0x105FF860 / 0x105FF740 (the loaders of the class's objects, other unit)
-		virtual void* Slot0(int a, int b, int c, int d, int e, int f);
-		virtual void* Slot1(int a, int b, int c, int d, int e);
+		virtual void* Slot0(int heap, TextReadStream* reader, LoadInventory* inventory, const ObjectName* name,
+			bool wrapped, bool* failed);
+		virtual void* Slot1(int heap, ReadContext* context, LoadInventory* inventory, const ObjectName* name,
+			bool wrapped);
 		// vftable slot 2: a new object of the class
 		virtual LoadObject* Create() = 0;
 

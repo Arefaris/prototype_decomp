@@ -4795,3 +4795,56 @@ engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled
 - The `Function2<void,bool,bool>` members (constructor, `Call`, `Invoke`) are kept copies. The `Register<void,bool,bool>`
   instance of the script manager is left unmapped: the engine's copy calls another copy of the function wrapper's
   constructor.
+## 0x105E0000 - 0x10600000: the music cells and cue events, the audio renderer driver, the om stream and method classes, the content meta types (sn-u)
+Done (functions match unless noted):
+- `music/cell.cpp`, `music/cueevent.cpp`, `music/cellplayer.cpp`: `Cell` / `MGraphCell` (their binary reader and writers
+  included), the 17 cue events and their reflection (properties, methods, enumerations), the template instances of the
+  reflection library they use, and the typed `Invoke` slots of all their methods (`om/invoke.h`: `ReadArgument<V>`,
+  `GarbageList`, `StreamContext`). EQUIVALENT: `MetaProperty<unsigned __int64>::SetBinary` / `GetBinary` (0x105F12F0 /
+  0x105F1340, register allocation), `MetaProperty<const FollowAction&>::SetText` (0x105E21F0), `MGraphCell::ReadBinary`
+  (0x105E24A0, 97.6 %, the order of two loads at the end).
+- `audio/rendererdriver.cpp`: `RendererDriver` with its reflection. NONMATCHING: the constructor 0x105E65E0 (32.7 %, the
+  engine builds a temporary string and copies it).
+- `om/memorystream.cpp`, `om/bufferedstream.cpp`, `om/metamethod.cpp`: EQUIVALENT `BufferedStream` constructor / `Read`,
+  `MetaPropertyBase` constructor; NONMATCHING `TreeHead::InsertByName` for the property and method trees (0x105E4210 /
+  0x105E4430, about 15 %: the engine keeps the halves of the 64-bit key in registers across the loop).
+- `content/metatype.cpp` (the meta type base, its flag characters, `IsDirect` and the meta heaps), `content/metastream.cpp`
+  (`BinaryReader`, `BinaryWriter`, `TextReadStream`, `TextWriter`, the type names), `content/vectormetatype.cpp`,
+  `content/classmetatype.cpp` (the class meta type: members, base class, derived list, all twelve slots). EQUIVALENT:
+  `TextReadStream::ReadToken` (0x105FC1F0), `ClassMetaType::FindDerived` (0x105FA960, the engine does not turn the
+  recursion into a loop), `CompareMembers` (0x105FB010, base / index order of two addresses), `ReadText` (0x105FB230, stack
+  slots of three locals).
+What the matching taught:
+- A call of a meta type's slot through `MetaType::Invoke...` or a cast function does not give the engine's code, a cast of
+  the pointer itself to `MetaTypeView` (content/metatype.h) does: the compiler then reads the slot's address before it
+  works out the arguments and reads the object again afterwards.
+- `MetaType::Matches` is slot 5 and `MetaTypeBase::WriteBinary` answers a bool (the enumerations' `WriteBinary` returns the
+  result of `WriteInt`, which was why those instances looked like register allocation differences).
+- The small identical functions of the reflection (allocation tags, operator new / delete of the holders, `Garbage<V>`)
+  can only be told apart by who calls them: the callers in `ReadArgument<V>` fixed the addresses of the tags of `Fade`,
+  `FollowAction`, `MGraphCellPlayer`, `Garbage<Fade>`, `Garbage<FollowAction>`, `Garbage<float>`, `Garbage<State>`,
+  `Garbage<Bool32>`, `Garbage<unsigned int>` (symbols.txt and the annotations of `music/time.cpp` follow them).
+Later in this range:
+- `content/arraydynamicmetatype.cpp` (the array meta type, `ArrayOf<void*>` and the pointer list helper; EQUIVALENT:
+  `Compare`, `Insert`, `InsertCopies`, `InsertOne`; NONMATCHING `ReadText` 0x105FE340 at 72 %: the frame holds the saved line
+  and `this` the other way round and the error exits come out in another order), `content/enummetatype.cpp`,
+  `content/referencemetatype.cpp` (the reference meta types, the short string reads), `content/loadobject.cpp`,
+  `content/chunkreader.cpp`, `content/metafactory.cpp` (EQUIVALENT: the two map finds and the two registrations, scheduling
+  of the key's halves), `music/cell.cpp` (`RegisterMGraphCellMeta` matches; EQUIVALENT `RegisterCellMeta`).
+- The registration functions: each property is three `om::String` locals (get, set, property name) with the hash and the
+  cached class of the owner after each, then the two `MetaMethod*::Create` calls (out of line) and the inlined
+  `MetaProperty::Create`. The owner of each lookup is written either through `GetCachedClass<T>()` or as the explicit
+  `if (type == 0)` form: the engine's pattern for the Cell class is first lookup of a property helper, the other two
+  explicit (MGraphCell: explicit, helper, helper, explicit); the forms were found by trying them. Not solved: the engine
+  saves the callee-saved registers before the first hash call (and, in the 72 byte releases of a class's description, before
+  the `jne` of the cache test), ours after the first cache miss path, so every registration that has no use of such a
+  register before its first property (the CueEvent ones) and every release stays at 87 - 97 %.
+- Header-defined and compiler-generated functions (`??_G...`, inline constructors) cannot be annotated, so the 380 functions
+  under 20 bytes that are only mapped cannot be counted yet.
+Open in this range (about 950 functions, mostly tiny or compiler-generated):
+- `MGraphCellPlayer` / `CellPlayer` (0x105E29C0 - 0x105E3F00, about 35 functions with the 884 and 1297 byte ones), the
+  registration functions (0x105E38F0, 0x105E6ED0, 0x105F4130 - 0x105F6EE0) and the releases of the class descriptions (72
+  bytes each, a pair per class), the ADPCM block decoder (0x105EB030 - 0x105EB5C0), the `Rpc*` classes (0x105F8800 -
+  0x105F9A90), `NameMetaType` (four name types selected by two flags), the P3D loader's `LoadObject` slot 0x105FFDA0 (669
+  bytes: reads the loader's chunk into a memory stream and hands it to the factory), the map and loader destructors and
+  constructors around 0x105FF9A0 - 0x105FFB80.

@@ -29,6 +29,10 @@ namespace content
 		// 0x1060A530 / 0x1060A520: the position in the stream and its size (names guessed)
 		unsigned int GetPosition();
 		unsigned int GetSize();
+		// 0x105FF580 / 0x105FF5A0 / 0x105FF5C0: a four-byte, a two-byte and a one-byte value (names guessed)
+		unsigned int ReadUInt();
+		unsigned short ReadUShort();
+		unsigned char ReadUChar();
 	};
 
 	class ChunkReader
@@ -52,6 +56,8 @@ namespace content
 		// 0x105FF5E0, 0x105FF670, 0x1067C440, 0x1067C420: a four-byte value, count items of size bytes, three floats and
 		// a float (names guessed)
 		unsigned int ReadUnsigned();
+		// 0x105FF600: a two-byte value (name guessed)
+		unsigned short ReadUShort();
 		void ReadData(void* destination, unsigned int count, unsigned int size);
 		void ReadVector(math::Vector* vector);
 		float ReadFloat();

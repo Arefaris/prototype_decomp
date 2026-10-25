@@ -88,14 +88,41 @@ namespace om
 		return new DelegateMetaProperty<T>(object, this);
 	}
 
-	class GarbageBase
+	// The link of a garbage holder in its list
+	struct GarbageLink
+	{
+		GarbageLink* next;
+	};
+
+	class GarbageBase : public GarbageLink
 	{
 	public:
 		virtual ~GarbageBase()
 		{
 		}
+	};
 
-		int unknown4;
+	// The holders a call made for its arguments, newest first; they are deleted together when the call is done (names
+	// guessed)
+	class GarbageList
+	{
+	public:
+		GarbageList()
+		{
+			head = 0;
+			tail = 0;
+		}
+		// 0x105CBDE0: enters a holder's link at the front
+		void Add(GarbageLink* link);
+		// 0x105CD920: the first holder
+		GarbageBase* GetFirst();
+		// 0x105CBE50: takes a link out
+		void Remove(GarbageLink* link);
+		// 0x105CF410: takes the holders out one by one and deletes them
+		void DeleteAll();
+
+		GarbageLink* head;
+		GarbageLink* tail;
 	};
 
 	// A heap copy of a value that is deleted with the holder

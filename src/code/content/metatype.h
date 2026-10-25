@@ -8,6 +8,11 @@
 
 #include "code/content/metastream.h"
 
+namespace math
+{
+	class Vector;
+}
+
 namespace content
 {
 	class MetaType
@@ -20,12 +25,19 @@ namespace content
 		// 0x105FBE10: true when the object lies in the directly addressable range (meaning guessed)
 		static bool IsDirect(const void* object);
 
+		// 0x105FBB20: the type's flags, what the characters of its code stand for (names guessed)
+		unsigned int GetKey() const;
+		// 0x105FBB30: whether the type has any of the flags
+		bool HasKey(unsigned int mask) const;
+		// 0x105FBB50: the flags the characters of a code stand for (the constructor's; this is not used)
+		unsigned int ParseCode(const char* code);
+
 		virtual void Slot0() = 0;
 		virtual void Slot1() = 0;
 		virtual void Slot2() = 0;
 		virtual void Slot3() = 0;
 		virtual void Slot4() = 0;
-		virtual void Slot5();
+		virtual bool Matches(unsigned int flags, void* object);
 		virtual void Slot6() = 0;
 		virtual void Slot7() = 0;
 		virtual void Slot8() = 0;
@@ -191,6 +203,38 @@ namespace content
 
 	class MetaType;
 
+	// The memory the meta system makes its values in (metatype.cpp, names guessed): a heap and a two way heap of the
+	// sizes it is given, registered under the given indices; objects in their address ranges are the ones IsDirect
+	// accepts
+	// 0x105FBBF0: sets up the heaps (a size of 0 leaves the one out); the last argument is a flag of the meta system
+	void InitMetaHeaps(unsigned int heapSize, int heapIndex, unsigned int twoWaySize, int twoWayIndex, bool flag);
+	// 0x105FBD00: reports the objects still allocated and gives the heaps back
+	void ShutdownMetaHeaps();
+	// 0x105FBDF0: the heap the meta system makes its values in from now on
+	void SetMetaHeap(int heap);
+	// 0x105FBE00: resets one side of the two way heap
+	void ResetMetaTwoWayHeap();
+
+	// The values a meta type lists for an object (slot 10), kept as a table of them: built from the type's
+	// counts, written in binary through slot 11 (0x105FBE50 - 0x105FBF60, name guessed)
+	class MemberTable
+	{
+	public:
+		// 0x105FBE50
+		MemberTable();
+		// 0x105FBF60 (a jump to Free)
+		~MemberTable();
+		// 0x105FBE60: counts the items of the object (slot 9), makes the table in the heap and has the type fill it
+		void Build(MetaType* type, void* object, int a, int heap);
+		// 0x105FBEE0
+		void Free();
+		// 0x105FBF00: writes the items one after the other
+		void Write(WriteContext* context);
+
+		MemberEntry* entries;
+		unsigned short count;
+	};
+
 	// Tests whether an object of a base class is of the derived class (content::IBaseClassCaster)
 	struct IBaseClassCaster
 	{
@@ -269,10 +313,36 @@ namespace content
 		const char* name;
 	};
 
+	// The vftable of a meta type with every slot a virtual function that takes its arguments: the engine's code calls
+	// the types of members and elements this way (the compiler reads the vftable pointer, then the slot, then works out
+	// the arguments), which a cast to this reproduces where the Invoke... helpers of MetaType do not. Cast the pointer
+	// itself, ((MetaTypeView*)type)->Create(), not through a function.
+	struct MetaTypeView
+	{
+		virtual bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		virtual void ReadBinary(ReadContext* context, void* object, int a, int b);
+		virtual void WriteText(TextWriter* writer, const void* object, int a);
+		virtual void WriteBinary(WriteContext* context, const void* object, int a);
+		virtual bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int flags, TextWriter* log);
+		virtual bool Matches(unsigned int flags, void* object);
+		virtual void* Create();
+		virtual void Destroy(void* object);
+		virtual void Copy(void* destination, const void* source, int a);
+		virtual int Count(void* object, int a);
+		virtual void Describe(MemberEntry** cursor, void* object, int a);
+		virtual void WriteBinaryShort(WriteContext* context, const void* object);
+	};
+
+	// The meta type of a reflected class (RTTI content::ClassMetaType): its members (a type, an offset and a name each),
+	// its base class and the classes derived from it. A value is either an object of the class itself or one the meta
+	// system made (a MetaObject: the value of the base class and one value per member); IsDirect tells them apart.
 	class ClassMetaType : public NamedMetaType
 	{
 	public:
+		// 0x105FA750
 		explicit ClassMetaType(const ClassInfo* info);
+		// 0x105FA790: takes the members and the base class, and enters the class in the base class's list of derived ones
 		void SetMembers(const MemberList* list);
 
 		virtual void Slot0();
@@ -280,6 +350,7 @@ namespace content
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual void Slot4();
+		virtual bool Matches(unsigned int flags, void* object);
 		virtual void Slot6();
 		virtual void Slot7();
 		virtual void Slot8();
@@ -287,8 +358,67 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		int unknown14[(0x2c - 0x14) / 4];
+		// The slots as the engine's code takes them (see ColourMetaType); the object a slot gets is a value of the class
+		// (an object of it or a MetaObject). Most of them go through a worker that calls itself on the base class.
+		// 0x105FB230 (slot 0): reads the members from "{ name value, ... }"
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FB1F0 (slot 1) and its worker 0x105FACE0
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		void ReadBinaryMembers(ReadContext* context, void* object, int a, int b);
+		// 0x105FB560 (slot 2) and its worker 0x105FAE10 (true when it wrote a member)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		bool WriteTextMembers(TextWriter* writer, const void* object, int a);
+		// 0x105FB200 (slot 3) and its worker 0x105FAD80
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryMembers(WriteContext* context, const void* object, int a);
+		// 0x105FB5D0 (slot 4) and its worker 0x105FB010
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName, int flags,
+			TextWriter* log);
+		bool CompareMembers(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int flags, TextWriter* log);
+		// 0x105FB000 (slot 5) and its worker 0x105FAFC0
+		bool MatchesClass(unsigned int flags, void* object);
+		// 0x105FAF00: whether a member that does not have the flags of first has those of second
+		bool HasMemberWith(unsigned int first, unsigned int second, const void* object);
+		// 0x105FA9B0 (slot 6) / 0x105FAA60 (slot 7) / 0x105FAAD0 (slot 8)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		// 0x105FB190 (slot 9) and its worker 0x105FAB70: what the members of the object count for
+		int CountItems(void* object, int a);
+		int CountMembers(const void* object, int a);
+		// 0x105FB1C0 (slot 10) and its worker 0x105FAC10
+		void Describe(MemberEntry** cursor, void* object, int a);
+		void DescribeMembers(MemberEntry** cursor, const void* object, int a);
+		// 0x105FACA0 (slot 11): not meant to be called
+		void WriteBinaryShort(WriteContext* context, const void* object);
+
+		// 0x105FA7C0: the members of the class and of its bases
+		unsigned int GetTotalCount();
+		// 0x105FA7E0 / 0x105FA930: the type and the name of a member by its index among all (the class's own first)
+		MetaType* GetMemberType(unsigned int index);
+		const char* GetMemberName(unsigned int index);
+		// 0x105FB110: the index of the member of that name
+		bool FindMember(const char* name, unsigned int* index);
+		// 0x105FA810 / 0x105FA870: the member of the object by its index among all
+		void* GetMember(void* object, unsigned int index);
+		void* GetMemberOf(void* object, unsigned int index);
+		// 0x105FA8F0 / 0x105FA910: the value of the base class
+		void* GetBaseObject(void* object);
+		const void* GetBaseObject(const void* object);
+		// 0x105FA960: the most derived class among the ones derived from this that the object belongs to
+		ClassMetaType* FindDerived(void* object);
+
+		MemberInfo* members;  // 0x14
+		unsigned int count;  // 0x18
+		ClassMetaType* baseType;  // 0x1C
+		ClassMetaType* firstDerived;  // 0x20
+		ClassMetaType* nextSibling;  // 0x24
+		IBaseClassCaster* baseCaster;  // 0x28
 	};
+
+	// 0x105FA740
+	const char* GetClassTypeName();
 
 	// The meta type of a core::Name member (0x105FCC70; the two flags are unknown)
 	class NameMetaType : public MetaType
@@ -469,9 +599,45 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
+		// The slots as the engine's code takes them (see ArrayCDynamicMetaType, which this is the counterpart of)
+		// 0x105FE340 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FE2C0 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FDCB0 (slot 2) / 0x105FDBE0 (slot 3)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		// 0x105FD3F0 (slot 4)
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int flags, TextWriter* log);
+		// 0x105FDE20 (slot 6) / 0x105FE190 (slot 7) / 0x105FE1F0 (slot 8)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		// 0x105FD900 (slot 9) / 0x105FD9C0 (slot 10) / 0x105FD670 (slot 11)
+		int CountItems(void* object, int a);
+		void Describe(MemberEntry** cursor, void* object, int a);
+		void WriteBinaryShort(WriteContext* context, void* object);
+
+		// 0x105FD660
+		MetaType* GetElementType();
+		// 0x105FD840 / 0x105FD880 / 0x105FD8C0: the item at index and the number of items, through the helper unless
+		// the array is the meta system's
+		void* GetItemConst(void* array, int index);
+		void* GetItem(void* array, int index);
+		unsigned int GetCount(void* array);
+		// 0x105FDDD0 / 0x105FE130 / 0x105FDFB0: takes the item at index out (deleting it) / makes a new one there / makes
+		// room for count more
+		void EraseItem(void* array, int index);
+		void InsertItem(void* array, int index);
+		void Reserve(void* array, unsigned int count);
+
 		MetaType* element;
 		ArrayDynamicHelperBase* helper;
 	};
+
+	// 0x105FD3B0
+	const char* GetArrayDynamicTypeName();
 
 	// The element access of a container::ArrayCDynamic for its meta type
 	struct ArrayCDynamicHelperBase
@@ -589,11 +755,14 @@ namespace content
 		static void Get(const char** name, const EnumValue** values, int* count, const char** code);
 	};
 
-	// The meta type of an enumeration (0x105FE7C0; the second argument is passed as 1, meaning unknown)
-	class EnumMetaType : public MetaType
+	// 0x105FE7B0
+	const char* GetEnumTypeName();
+
+	// The meta type of an enumeration (0x105FE7C0; the second argument is the version of the named type, passed as 1)
+	class EnumMetaType : public NamedMetaType
 	{
 	public:
-		EnumMetaType(const char* name, int unknown, const char* code, const EnumValue* values, int count);
+		EnumMetaType(const char* name, int version, const char* code, const EnumValue* newValues, int newCount);
 
 		virtual void Slot0();
 		virtual void Slot1();
@@ -607,8 +776,40 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		int unknown8[(0x1c - 8) / 4];
+		// The value behind an object (slots 12 and 13): the int itself here, the accessors of EnumMetaTypeGetSet in
+		// the reflection of a member reached through a getter and a setter
+		virtual int Get(const void* object);
+		virtual void Set(void* object, int value);
+
+		// The slots as the engine's code takes them (see VectorMetaType); a value is the int of the enumerator
+		// 0x105FE860 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FE800 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FE930 (slot 2) / 0x105FE830 (slot 3) / 0x105FEB80 (slot 11)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryShort(WriteContext* context, const void* object);
+		// 0x105FE980 (slot 4): reads a value from each side that has one, writes the common value as a number when
+		// they are equal and else the values under their names
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x105FEAC0 (slot 6): a new int in the meta system's heap
+		void* Create();
+		// 0x105FEB10 (slot 7) / 0x105FEB20 (slot 8) / 0x105FEB50 (slot 9: always 1) / 0x105FEB60 (slot 10)
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Unknown9(int a, int b);
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x105FEAB0: the value a new int starts with
+		int GetDefault();
+
+		const EnumValue* values;  // 0x14
+		unsigned int count;  // 0x18
 	};
+
+	// 0x105FB5E0
+	const char* GetVectorTypeName();
 
 	// The meta type of a math::Vector member (0x105FB5F0)
 	class VectorMetaType : public MetaType
@@ -627,6 +828,34 @@ namespace content
 		virtual void Slot9();
 		virtual void Slot10();
 		virtual void Slot11();
+
+		// The value behind an object (slots 12 and 13): the object itself here, the accessors of
+		// VectorMetaTypeGetSet in the reflection of a member reached through a getter and a setter
+		virtual const math::Vector* Get(const void* object);
+		virtual void Set(void* object, const math::Vector* value);
+
+		// The slots as the engine's code takes them (see ColourMetaType); a value is the three floats
+		// 0x105FB6E0 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FB610 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FB760 (slot 2) / 0x105FB670 (slot 3) / 0x105FBAB0 (slot 11)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryShort(WriteContext* context, const void* object);
+		// 0x105FB7C0 (slot 4): reads a vector from each side that has one, writes the common value as text when
+		// they are equal and else the values under their names
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x105FB9E0 (slot 6): a new zero vector in the meta system's heap
+		void* Create();
+		// 0x105FBA40 (slot 7) / 0x105FBA50 (slot 8) / 0x105FBA80 (slot 9: always 1) / 0x105FBA90 (slot 10)
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Unknown9(int a, int b);
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x105FB9C0: all three components zero
+		math::Vector* Construct(math::Vector* vector);
 	};
 
 	// The class meta type of T, built on first use from T::GetClassInfo and T::GetMembers
