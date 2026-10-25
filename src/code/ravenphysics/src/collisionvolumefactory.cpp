@@ -990,3 +990,9 @@ namespace ravenphysics
 template class VectorMemberGetSetter<ravenphysics::CollisionCapsuleFactory>;
 template class VectorMemberGetSetter<ravenphysics::CollisionCylinderFactory>;
 template class VectorMemberGetSetter<ravenphysics::CollisionOBBFactory>;
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x1067C460
+// FUNCTION: ENGINE 0x1067C610
+// FUNCTION: ENGINE 0x1067C680

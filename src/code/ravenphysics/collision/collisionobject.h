@@ -258,6 +258,11 @@ namespace ravenphysics
 		// Direction from the nearest point of the volume to the point, and the distance (0x106802A0, another unit)
 		void GetDirection(const void* point, math::Vector* direction, float* distance);
 
+		// The world position of the volume (0x10663DF0) and the box around the hull's box moved by the matrix
+		// (0x10663E00)
+		math::Vector* GetWorld();
+		void UpdateBounds();
+
 		ConvexHullData* hull;         // 0x24
 		math::Matrix matrix;          // 0x28
 		math::Matrix inverse;         // 0x68
@@ -280,6 +285,8 @@ namespace ravenphysics
 		explicit CollisionVolume4(const math::Cylinder& cylinder);
 		// A copy (0x10664B20)
 		CollisionVolume4(const CollisionVolume4& other);
+		// The volume of the faces' materials (0x10663E20)
+		CollisionVolume3* GetMaterials();
 
 		float unknown24;
 		float unknown28;
@@ -483,6 +490,9 @@ namespace ravenphysics
 		// Sets the mesh the volume belongs to, given as a number (0x10665BD0)
 		void SetUnknown120(int value);
 
+		// The position of a vertex (0x10662970) and the three neighbours of a triangle (0x10662990)
+		math::Vector* GetVertex(unsigned short index);
+		unsigned short* GetNeighbours(unsigned short face);
 		// The normal of a triangle of the grid in the mesh's space (0x106674B0) and in the world (0x10667560); the
 		// same for the triangle with a number (0x10667CA0 / 0x10667CC0)
 		void GetFaceNormal(const GridFace* face, math::Vector* normal);

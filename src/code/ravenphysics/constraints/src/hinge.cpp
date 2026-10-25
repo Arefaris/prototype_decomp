@@ -421,3 +421,7 @@ namespace ravenphysics
 template class VectorMemberGetSetter<ravenphysics::ConstraintBallInSocket>;
 template class VectorMemberGetSetter<ravenphysics::ConstraintAlign2Axes>;
 template class VectorMemberGetSetter<ravenphysics::ConstraintHinge>;
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x1066B2E0

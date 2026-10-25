@@ -18,6 +18,8 @@ namespace ravenphysics
 	{
 		// The index into the grid's material table (0x10662E50)
 		unsigned int GetMaterial() const;
+		// One of the three vertices (0x10662960)
+		unsigned short GetVertex(int index) const;
 		// The three flag bits (0x10667370 / 0x10667380 / 0x10667390)
 		unsigned int GetFlag0() const;
 		unsigned int GetFlag1() const;
@@ -45,6 +47,8 @@ namespace ravenphysics
 		~MeshSlot();
 		// One more owner (0x10665C20)
 		void AddRef();
+		// Sets the size of a record (0x10662E40)
+		void SetRecordSize(unsigned int size);
 		// One owner less; the last one frees the slot (0x10666290)
 		void Release();
 

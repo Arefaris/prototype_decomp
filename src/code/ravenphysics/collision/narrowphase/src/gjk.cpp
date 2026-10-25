@@ -498,3 +498,7 @@ namespace ravenphysics
 	}
 #endif
 }
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x106731C0

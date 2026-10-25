@@ -1395,3 +1395,9 @@ template void std::_Sort<unsigned short*, int>(unsigned short*, unsigned short*,
 // FUNCTION: ENGINE 0x10666E40
 template void std::sort<unsigned short*>(unsigned short*, unsigned short*);
 
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x10662E30
+// FUNCTION: ENGINE 0x10663C30
+// FUNCTION: ENGINE 0x10665C30
