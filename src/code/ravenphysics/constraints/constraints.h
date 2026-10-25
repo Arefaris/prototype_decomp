@@ -35,6 +35,7 @@ namespace ravenphysics
 		float sphereRadius;           // 0x3C
 		float unknown40;              // 0x40
 		float unknown44;              // 0x44
+		int unknown48;                // 0x48 (never touched)
 	};
 
 	// Keeps the second object's axis inside a cone around an axis of the first

@@ -22,12 +22,6 @@ namespace ravenphysics
 {
 	class IntersectionPropertiesLoader;
 
-	// The hull a convex hull factory stands for (only its bounds, at the start, are named)
-	struct ConvexHullData
-	{
-		math::AABB bounds;
-	};
-
 	// The pointer a convex hull factory keeps its hull in (4 bytes; 0x1067FB00 / 0x10680600, another unit)
 	struct ConvexHullHolder
 	{

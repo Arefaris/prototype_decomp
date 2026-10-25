@@ -33,6 +33,8 @@ namespace content
 		unsigned int ReadUInt();
 		unsigned short ReadUShort();
 		unsigned char ReadUChar();
+		// 0x1067C400: a four-byte float (name guessed)
+		float ReadFloat();
 	};
 
 	class ChunkReader

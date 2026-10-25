@@ -11,6 +11,7 @@
 #include "code/math/plane.h"
 #include "code/math/matrix.h"
 #include "code/math/sphere.h"
+#include "code/math/triangle.h"
 #include "code/math/symmetricmatrix.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/broadphase/broadphasegrid.h"
@@ -211,14 +212,43 @@ namespace ravenphysics
 		math::Plane plane;            // 0x4C
 	};
 
+	// The hull of a convex volume, shared by its copies (0x50 bytes; names are guesses)
+	struct ConvexHullData
+	{
+		// An empty hull (0x1067FA30), its end (0x1067FA60; deleting destructor 0x1067FAE0) and one more owner (0x1067FAD0)
+		ConvexHullData();
+		~ConvexHullData();
+		void AddRef();
+
+		math::AABB bounds;             // 0x00
+		math::Vector centre;           // 0x18
+		unsigned short refCount;       // 0x24
+		unsigned short vertexCount;    // 0x26
+		unsigned short edgeCount;      // 0x28
+		unsigned short faceCount;      // 0x2A
+		math::Vector* vertices;        // 0x2C
+		unsigned char* edges;          // 0x30 (the vertex indexes of each edge, two bytes each)
+		math::Plane* faces;            // 0x34
+		unsigned char unknown38[0x44 - 0x38];
+		void* unknown44;               // 0x44
+		void* unknown48;               // 0x48
+		void* unknown4C;               // 0x4C
+	};
+
 	// A volume of type 3, and the face list a type 4 volume keeps at +0x60 (class and member names are guesses)
 	class CollisionVolume3 : public CollisionVolume
 	{
 	public:
 		// A volume around a hull (0x106800B0, another unit)
 		explicit CollisionVolume3(ConvexHullData* hull);
-		// A copy (0x1067FFE0, another unit)
+		// A volume of no hull (0x1067FBF0)
+		CollisionVolume3();
+		// A hull of the three corners of a triangle (0x1067FCA0)
+		explicit CollisionVolume3(const math::Triangle& triangle);
+		// A copy (0x1067FFE0)
 		CollisionVolume3(const CollisionVolume3& other);
+		// Moves the volume by a matrix (0x1067FBA0; name guess)
+		void Move(const math::Matrix& transform);
 		// Takes the object's transform, its inverse, the point and the box through it (0x10664A10)
 		void UpdateWorld(CollisionObject* object);
 		// A hull is not scaled
@@ -228,7 +258,7 @@ namespace ravenphysics
 		// Direction from the nearest point of the volume to the point, and the distance (0x106802A0, another unit)
 		void GetDirection(const void* point, math::Vector* direction, float* distance);
 
-		unsigned char unknown24[4];
+		ConvexHullData* hull;         // 0x24
 		math::Matrix matrix;          // 0x28
 		math::Matrix inverse;         // 0x68
 		math::Vector world;           // 0xA8
