@@ -4,6 +4,7 @@
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
 #include "code/engine/fight/behaviours/proplogictreebehaviour.h"
+#include "code/engine/gameobject/behaviours/pathbehaviour.h"
 #include "code/engine/firstpersoncontrolbehaviour.h"
 #include "code/engine/knockbehaviour.h"
 #include "code/engine/propbehaviour.h"

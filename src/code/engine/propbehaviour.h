@@ -30,26 +30,6 @@ namespace engine
 		bool moved;  // +0xD: it is not where the spawner is
 	};
 
-	// RTTI engine::ConstAttribute<T> / engine::Attribute<T> for the attributes that hold a pointer: the value sits
-	// behind the vftable of the base (one slot, the deleting destructor)
-	template<class T> class ConstAttribute : public BaseAttribute
-	{
-	public:
-		// 0x108411C0 for PropSpawner*
-		explicit ConstAttribute(T newValue)
-		{
-			value = newValue;
-		}
-
-		// 0x10841130 for PropSpawner* (name guessed)
-		T* GetPointer()
-		{
-			return &value;
-		}
-
-		T value;
-	};
-
 	template<> class Attribute<PropSpawner*> : public ConstAttribute<PropSpawner*>
 	{
 	public:

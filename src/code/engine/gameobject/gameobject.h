@@ -33,7 +33,32 @@ namespace engine
 		}
 	};
 
-	template<class T> class Attribute : public BaseAttribute
+	// engine::ConstAttribute<T> (RTTI; one vftable slot, reflected as "Const...Attribute" with the member "value"):
+	// the part of an attribute that holds the value; Attribute<T> is the writable kind (the attribute unit,
+	// 0x1086C900 - 0x1086DEC0, reflects the types int, float, bool, Vector, Matrix, Name, Pose* and
+	// GenericScriptValue)
+	template<class T> class ConstAttribute : public BaseAttribute
+	{
+	public:
+		ConstAttribute()
+		{
+		}
+		explicit ConstAttribute(T newValue)
+		{
+			value = newValue;
+		}
+		T* GetPointer()
+		{
+			return &value;
+		}
+
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		T value;
+	};
+
+	template<class T> class Attribute : public ConstAttribute<T>
 	{
 	public:
 		// Out of line in the attribute's unit (Attribute<math::Matrix>: 0x1028AB90, starts at the identity)
@@ -41,15 +66,29 @@ namespace engine
 
 		virtual T& Get();
 
-		T value;
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 	};
 
 	// A name is laid out at a multiple of 8 (the word after the vftable is left empty)
-	template<> class Attribute<core::Name<core::CaseSensitiveKey> > : public BaseAttribute
+	template<> class ConstAttribute<core::Name<core::CaseSensitiveKey> > : public BaseAttribute
 	{
 	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		int unknown4;
 		core::Name<core::CaseSensitiveKey> value;
+	};
+
+	template<> class Attribute<core::Name<core::CaseSensitiveKey> > : public ConstAttribute<core::Name<core::CaseSensitiveKey> >
+	{
+	public:
+		// The vftable's second slot (the engine's copy is in another unit)
+		virtual core::Name<core::CaseSensitiveKey>& Get();
+
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 	};
 
 	// The construction helpers (gameobject.cpp): the heap a game object is being created in and the object being

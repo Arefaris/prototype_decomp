@@ -4664,3 +4664,134 @@ and the list template instances at 0x10880800 - 0x10880A70.
   +0x44 (the derived classes start at 0x48) and `focusDistance`; `pure3d::Animation::GetGroup`,
   `math::Vector::IsNearOther` (the engine's second copy of `IsNear`), `container::ArrayDynamic<T, AllocatorNew>::PushBack`,
   `SetPropLogicStateMessage`'s inline constructor and the resolver variants of the string meta types are new.
+
+## sn-v: the range 0x10860000 - 0x10880000
+
+### engine/gameobject/behaviours/pathbehaviour.cpp and ipathbehaviour.cpp (0x10864C30 - 0x108678F0)
+
+The path behaviours (`IPathBehaviour`, `PatrolPoint`, `PatrolPathBehaviour`, `SplineCV`, `SplineBehaviour`) are real
+classes now (`pathbehaviour.h`); the size-only stubs of `reflectedclasses.h` are gone. 115 annotated functions: all
+match except 4 EQUIVALENT (register allocation: the two `GetPoint` and the two destructors) and 6 NONMATCHING (the
+two `CreatePoints`, the four `InsertBefore` / `InsertAfter`: the engine reaches the neighbours' vectors through
+references the compiler materialises and keeps the cursor in registers, best 20 - 47 %).
+
+- `IPathBehaviour`'s constructor, destructor and empty `Slot1` (0x108678C0 - 0x108678F0) are in their own file: the
+  implementations call `IPathBehaviour::Slot1` (`jmp` thunk 0x108653B0, `call` in 0x108660F0), and the compiler drops
+  the call to an empty function it can see.
+- The array of points is `container::ArrayDynamicNew<T*>`; its `Erase` is now `Copy(position + 1, end, position);
+  --end` (the engine caches `end` in the loop; shared header `arraydynamicnew.h`). The engine's `Insert` / `Reserve`
+  of those arrays and the helper's `Insert` / `Expand` / `Erase` (0x108665E0, 0x10866A60, 0x108664A0, ...) differ in
+  the inlining of `ConstructAt` and are not annotated.
+- A vector copied through `points[index]->position` needs the element reached twice (`if (points[index] != 0)` then
+  `points[index]->...`), and a `CopyVector(dest, source)` helper with reference parameters gives the `add reg, 4`
+  of the engine; `Size() > 0` (not `!= 0`) gives the engine's `sar` + `je`.
+- The path unit registers two script functions (`path_CreatePatrolPath`, `path_CreateSpline`, both empty); their owner
+  tokens are 0x11315C98 / 0x11315C9C.
+- Not annotated (identical `ret`-only or `mov eax, ecx` functions the object cannot tell apart): 0x10864DE0,
+  0x10864E40, 0x10864E50, 0x10865020, 0x10865030, 0x10865090, 0x108650A0, 0x108651E0, 0x108651F0, 0x10865250,
+  0x10865260; 0x10864E60 (finds an object by name and casts to `SplineBehaviour`) and 0x10864ED0 are not done.
+
+### engine/gameobject/attributes.cpp (0x1086C900 - 0x1086DEC0) and genericscriptvalue.cpp (0x10871740 - 0x10872780)
+
+The typed attributes: `BaseAttribute` and, for int, float, bool, `math::Vector`, `math::Matrix`, `core::Name`, `pure3d::Pose*`
+and `GenericScriptValue`, the pair `ConstAttribute<T>` (holds the value, reflected as "Const...Attribute" with the member
+"value") and `Attribute<T>`. `ConstAttribute<T>` now lives in `gameobject.h` (it used to be in `propbehaviour.h`, and
+`Attribute<T>` derived from `BaseAttribute` directly); the layout did not change. 86 functions match.
+
+`GenericScriptValue` (RTTI and reflection name; the symbols file called it `scenario::AttributeValue`, which is now a
+typedef in `scenarioconditions.h`) is 8 bytes: a type word and the value. 46 functions, 45 match; `ToString`
+(0x10871AF0) is EQUIVALENT (the high word of the name's hash is pushed from edx where the engine uses eax, 99.5 %).
+
+- The engine destroys the old value with an explicit destructor call (`this->~GenericScriptValue()`; 0x108722A0 is a
+  jump to it) in every setter, not through the `Release(0)` it contains.
+- A switch whose cases are 1..10 compiles to `add eax, -1` + a table of ten; the engine's tables start at 0 (`cmp eax, 0xa`),
+  which a `case 0:` that has a statement of its own gives (an empty `case 0: break;` is dropped, `case 0:` and `default:` with
+  the same call both stay): `SetType`, `Assign`, `ToString` (`return` in the case).
+- A bool member is read as `movzx` + `setne` for `lua_pushboolean(L, boolValue != 0)`.
+- Not done in the range: 0x10871740 / 0x10871760 / 0x10871790 (an allocation of a 0x40-byte object through `om::Allocate`
+  and its release, the audio unit's), 0x10871850 (a `jmp` thunk to `operator delete[]`).
+
+### engine/scenario/scenariotreebehaviour.cpp (0x10875EB0 - 0x10876B60)
+
+`ScenarioTreeBehaviour` (RTTI name): the behaviour that runs the scenario's fight tree. It owns 75 sequencers (a
+`SequencerSlot` ends its sequencer when it goes), a queue of 0x80-byte scenario message slots and two `BranchWatch`
+members (the start branch and the root; `SetRoot` / `SetStartBranch` are the unit's copies of the watch assignment).
+36 functions match (kept template copies included), 2 are EQUIVALENT (`StartSequencer`: the store of the running flag sits right before the virtual call
+in the engine, 83.5 %; `Dispatch`: three registers swapped, 95.6 %).
+
+- The scalar flags before the queue are initialised before the queue is allocated and the ones behind it after, so
+  every member goes through the initialiser list in declaration order; `luaReference` is the only body assignment.
+- The id switch of `OnMessage` needs `(unsigned short)` (`movzx`), the outer switch has the 0x17 case first.
+- `used[]` is `unsigned char`: `SetAllUsed(int)` is then the loop the compiler turns into `memset`, with the address
+  loaded before the value.
+- `ClearQueue` ends with `queue.Clear()` (the inline function re-reads `begin`).
+- `ScriptOwner` derives from `fight::Params` (the constructor calls `Params(int)`, the vftable adds a clone slot).
+- Not done in the range: 0x10875E30 (starts the game's fiber), 0x10876B30 (clears the queue and resets the
+  sequencers), 0x10876B60.
+
+### engine/gameobject/gameobjectlua.cpp, the rest (0x10867C70 - 0x1086C900)
+
+`RegisterGameObjectCommands` (the whole list of `go_*`, `phys_*`, `scenario_*` and `gamelink_*` registrations; the engine's
+copies of `Register` for the one-argument forms and of the `Function` constructors of other units are called, which our
+compiler does without help), `UnregisterGameObjectCommands`, `go_GetDebugName` (returns nothing), `go_GetGenericAttr`,
+`go_SetGenericAttr` and `go_GetListWithAllTags`; the kept copies of the `Function1..3` wrappers the registrations
+instantiate, of `ArrayFixed<core::Name, 16>` and of the attribute writers.
+
+- The writer of a script value is expanded where it is used (an inline specialisation), the other writers have their
+  own copies (`go_SetGenericAttr` is 100 %).
+- `HandleIterator::SkipInvalid` is inline and compiled as `if (item != end) do { ... } while (item != end);` for the
+  engine's shared tail; `operator!=` takes its argument by value, which gives the engine's argument copy of the end
+  iterator in `go_GetAllTagged` (76.5 %) and `go_GetListWithAllTags` (63.5 %), both EQUIVALENT with a dead copy of the
+  array pointer in the engine's frame.
+- Register<R, LuaGOH, ...> instances our compiler makes but the engine calls from other units
+  (0x10288F90, 0x10289160, 0x102891C0, 0x10289220) are not mapped: their copies call a different copy of the
+  constructor than the instance symbol names.
+- Not done in the range: 0x10867900 - 0x10867B50 (the FMV request list), 0x10868150 (spawns an object from a template and
+  sends it its initial state), 0x1086B940 / 0x1086B960 (find a template in the root inventory).
+
+### engine/render/renderbehaviour.cpp (0x10862350 - 0x10863850)
+
+`RenderBehaviour` (RTTI and reflection name "RenderBehaviour"): the behaviour that draws a game object. It makes a
+`render::Drawable` from an archetype (reflected as the named reference "drawableSource" and the package name
+"sourcePackage"), puts the object's transform, scaled, and the pose on it every update and forwards the drawable
+messages (types 7 - 10). The class used to be a stub in `reflectedclasses.h`. New shared pieces:
+`content/namedreference.h` (the named reference meta type family: three accessors, the getter answers the name), a
+`Drawable(unsigned int)` constructor, `Attribute<core::Name>::Get` declared. 38 functions match, 2 are EQUIVALENT
+(`OnMessage`: shrink-wrap and 8 bytes more frame for the temporaries of the cases, 55.8 %; the constructor: one `lea`
+sits before the stores of the three scales in the engine, 93.2 %).
+
+- The scale, its target and its factor are one struct whose constructor takes the 1.0 once (three separate member
+  initialisers load `driving::gOne` three times); the update compares and writes the member in place with an
+  `old` copy for the final compare, and `!(target > moved)` gives the engine's operand order.
+- A pose argument is `Pose::mData` through an explicit pointer (the engine's dead `add eax, 0x10` appears with it).
+- `Update` copies the scaling attribute pointer into a local inside the `if`; `SetPose` has no early return.
+- The case bodies of `OnMessage` come out in the order the switch lists them: 2, 0x1a, 1, 8, 7, 9, 10 and, inside the
+  type 7 switch, 7, 9, 10, 2, 3, 4, 5, 6, 8, 0xB (the other switches: 0, 1, 3, 2 / 4, 2, 3, 0, 1, 7, 8). The Drawable of
+  the type 7 / id 3 message is made through a constructor that stores -1 and then the handle (the dead store stays).
+- Not done in the range: 0x10860000 - 0x10862300 (the hardware profile, render queue and display setup),
+  0x10863850 - 0x10863900 (identical `ret`/getter stubs), 0x108622E0 - 0x10862340 (`PlayerControlInfo`).
+
+### engine/frontend/fesubtitle.cpp (0x10876B60 - 0x10877140)
+
+`FESubtitle` (RTTI name, base `DBObserver`; the object at `gSubtitleOptions`, earlier called `SubtitleOptions`, which is
+now a typedef in `subtitleoptions.h`): the front end's subtitle list. 10 functions match, 2 are EQUIVALENT (`Update`:
+the engine keeps its two hide sequences apart where ours lets the compiler merge their tails, 40.9 %; `FindFormat`: a
+stack slot the engine reserves and nothing uses, 55.1 %). `Show` takes the duration as an unsigned integer (the
+engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled`.
+
+- The value handed to `AS_SubtitleShow` / `AS_SetSubtitles` is a local laid out like `FEMovie::Value` without its
+  constructor (an array of one calls the vector constructor in this unit).
+- The destructor and the constructor read `gGameDatabase` into a local first (the engine loads it before the name is
+  built).
+- Not done in the range: 0x10876B30 (clears the queue and resets the sequencers), 0x10876B60 is the line's constructor
+  (kept copy).
+
+### engine/frontend/frontend.cpp, more (0x10864600 - 0x10865520)
+
+- `StartFrontend` (0x10864AF0) and `fe_EnableCatchupBehaviour` (0x10864890, now answers the object's previous flag as a
+  `bool`) match. `UpdateFrontend` (0x10864600) is EQUIVALENT (36 %): the engine keeps the constant 1 in a register for the
+  guard and the flags, loads the slot byte with `movzx` and schedules the float work differently; shrinkcheck lists only
+  same-kind instruction-selection pairs.
+- The `Function2<void,bool,bool>` members (constructor, `Call`, `Invoke`) are kept copies. The `Register<void,bool,bool>`
+  instance of the script manager is left unmapped: the engine's copy calls another copy of the function wrapper's
+  constructor.

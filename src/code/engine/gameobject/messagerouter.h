@@ -48,9 +48,10 @@ namespace engine
 		{
 			return handle;
 		}
-		bool operator!=(const HandleIterator& other) const
+		bool operator!=(HandleIterator other)
 		{
-			return handle != other.handle;
+			HandleIterator self = *this;
+			return self.handle != other.handle;
 		}
 
 		GameObjectHandle* handle;

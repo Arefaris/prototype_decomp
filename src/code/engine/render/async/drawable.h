@@ -112,6 +112,11 @@ namespace engine
 			{
 			}
 			explicit Drawable(GameObject* object);
+			// A drawable of a handle a message carries
+			explicit Drawable(unsigned int handle) : mHandle(0xffffffff)
+			{
+				mHandle = handle;
+			}
 
 			// The render-thread object exists and is still the slot's (the table's check)
 			bool IsValid() const;

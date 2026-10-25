@@ -7,31 +7,15 @@
 #define ENGINE_SCENARIO_SCENARIOCONDITIONS_H
 
 #include "code/engine/fight/trackfactory.h"
+#include "code/engine/gameobject/genericscriptvalue.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 
 namespace engine
 {
 	namespace scenario
 	{
-		// The value of a scripted game object attribute (8 bytes, the engine's class is not named): a type and the
-		// value, set from text
-		class AttributeValue
-		{
-		public:
-			// 0x108718B0
-			AttributeValue();
-			// 0x10872050
-			~AttributeValue();
-			// 0x108724B0: converts the value to another type
-			void SetType(int newType);
-			// 0x10872060: parses text as the value of the current type
-			void SetFromString(const char* text);
-			// 0x10871AF0: the text of the value, in a buffer of the class
-			const char* ToString() const;
-
-			int type;
-			int value;
-		};
+		// The value of a scripted game object attribute (the engine calls the class GenericScriptValue)
+		typedef GenericScriptValue AttributeValue;
 
 		// RTTI: engine::scenario::ScenarioGameObjectCondition (10 vftable slots, 0x20 bytes): the game object the
 		// message names in its handle slot is the object the condition was given

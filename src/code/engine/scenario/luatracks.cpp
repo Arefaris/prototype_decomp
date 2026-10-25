@@ -69,7 +69,7 @@ namespace engine
 		ScriptOwner* owner = (ScriptOwner*)args->owner;
 		if (owner != 0)
 		{
-			if (owner->kind - 1 <= 0xfffe)
+			if ((unsigned int)owner->value - 1 <= 0xfffe)
 			{
 				int ownerId = owner->id;
 				if (!finish && opened && ScriptOwner::GetCurrentId() != ownerId)
@@ -80,7 +80,7 @@ namespace engine
 				}
 				handle = owner->handle;
 			}
-			else if (owner != 0 && owner->kind - 0x10000 <= 0x1ffff)
+			else if (owner != 0 && (unsigned int)owner->value - 0x10000 <= 0x1ffff)
 			{
 				handle = *(GameObjectHandle*)&owner->id;
 			}

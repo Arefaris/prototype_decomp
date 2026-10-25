@@ -21,6 +21,11 @@ namespace container
 			end = 0;
 			capacity = 0;
 		}
+		// Room for count elements (an empty array when count is 0 or the allocation fails)
+		explicit ArrayDynamicNew(unsigned int count)
+		{
+			Create(count);
+		}
 		~ArrayDynamicNew()
 		{
 			end = begin;
@@ -40,6 +45,10 @@ namespace container
 		bool IsFull() const
 		{
 			return end == capacity;
+		}
+		bool IsEmpty() const
+		{
+			return begin == end;
 		}
 		// Appends a copy of value when there is room
 		bool PushBack(const T& value)
@@ -126,10 +135,7 @@ namespace container
 		}
 		void Erase(T* position)
 		{
-			for (T* next = position + 1; next != end; next++)
-			{
-				next[-1] = *next;
-			}
+			Copy(position + 1, end, position);
 			end--;
 		}
 		// Takes the element a position points at out; the last element moves into its place

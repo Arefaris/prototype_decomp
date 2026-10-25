@@ -77,6 +77,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - `python tools/unitcheck.py --all` objcmps every annotated function of every source (seconds); after a shared
   header change this is the check that counts.
 - `python tools/keptcheck.py` compares the unannotated functions the relink puts in place of the engine's.
+- `python tools/callcheck.py` compares the convention our declarations give the engine functions we call with the
+  engine's `ret N` (a member declared as a free function shifts the stack after every call).
 - `python tools/shrinkcheck.py [--all]` lists the EQUIVALENT functions whose instructions are more than moved.
 - In the game: `python tools/gamebisect.py try [--exclude LIST]` relinks without some units, launches the test copy,
   teleports and fights; `units LIST` narrows a crash down to one unit, `wrap FILE [0x...]` leaves single functions to
