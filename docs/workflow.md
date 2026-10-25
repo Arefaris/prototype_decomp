@@ -70,6 +70,18 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    `docs/progress.md`, `docs/progress.svg` and the README's bar). Never anything from `orig/`, `build/`, `local/`
    ([LEGAL.md](../LEGAL.md)).
 
+## Merging and checking a branch
+
+- `python tools/mergesym.py` resolves the conflicts of config/<version>/symbols.txt and docs/engine_worklist.md
+  (both sides' lines) and lists addresses or names the merge gave twice.
+- `python tools/unitcheck.py --all` objcmps every annotated function of every source (seconds); after a shared
+  header change this is the check that counts.
+- `python tools/keptcheck.py` compares the unannotated functions the relink puts in place of the engine's.
+- `python tools/shrinkcheck.py [--all]` lists the EQUIVALENT functions whose instructions are more than moved.
+- In the game: `python tools/gamebisect.py try [--exclude LIST]` relinks without some units, launches the test copy,
+  teleports and fights; `units LIST` narrows a crash down to one unit, `wrap FILE [0x...]` leaves single functions to
+  the engine.
+
 ## Checking an EQUIVALENT function (tools/difftest)
 
 An EQUIVALENT function replaces the engine's code in the hybrid DLL, so it must behave exactly like it; objcmp says

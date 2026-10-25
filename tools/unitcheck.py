@@ -1,0 +1,135 @@
+"""objcmp every annotated function of the given sources against the original (the merge check).
+
+	python tools/unitcheck.py [--version PROTOPC_2025] [--all] [--quiet] [FILE.cpp ...]
+
+For each `// FUNCTION: ENGINE 0x...` that is neither EQUIVALENT nor NONMATCHING, the function is looked up in the
+object the build made from that source under every name symbols.txt gives the address, and compared like
+tools/objcmp.py does (relocations as wildcards, constants and call/data targets checked). Prints each function that
+is not 100.0 % (with objcmp's diff unless --quiet) and a summary line; exit status 1 when one does not match.
+--all checks every source under src/. A shared header change changes every unit that includes it: check them all.
+"""
+
+import argparse
+import difflib
+import pathlib
+import re
+import sys
+
+import pefile
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+import objcmp  # noqa: E402
+
+
+def annotations(source):
+	"""[(address, status)] of a source's annotated functions; status is "match", "equivalent" or "nonmatching"."""
+	lines = source.read_text(encoding="utf-8", errors="replace").splitlines()
+	result = []
+	for i, line in enumerate(lines):
+		match = re.search(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+		if not match:
+			continue
+		comments = []
+		for following in lines[i + 1:i + 4]:
+			if not following.strip().startswith("//") or "FUNCTION:" in following:
+				break
+			comments.append(following)
+		status = "match"
+		if any("NONMATCHING" in c for c in comments):
+			status = "nonmatching"
+		elif any("EQUIVALENT" in c for c in comments):
+			status = "equivalent"
+		result.append((int(match.group(1), 16), status))
+	return result
+
+
+def namesByAddress(version):
+	result = {}
+	for line in (ROOT / "config" / version / "symbols.txt").read_text(encoding="utf-8").splitlines():
+		match = re.match(r"\s*(\S+)\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*function", line)
+		if match:
+			result.setdefault(int(match.group(2), 16), []).append(match.group(1))
+	return result
+
+
+def compare(coff, name, address, image, base, known):
+	"""(ratio, problems, diff lines) of our function against the original at address."""
+	code, mask = coff.function(name)
+	original = image[address - base:address - base + len(code)]
+	same = sum(1 for k in range(len(code)) if mask[k] or code[k] == original[k])
+	ratio = same / len(code)
+	problems = []
+	if ratio == 1.0:
+		problems = objcmp.checkConstants(coff, name, original, image, base, known) \
+			+ objcmp.checkTargets(coff, name, original, address, image, base, known)
+		if problems:
+			ratio = (len(code) - 1) / len(code)
+	diff = []
+	if ratio < 1.0:
+		ours = [t for _, _, t in objcmp.disassemble(code, address)]
+		theirs = [t for _, _, t in objcmp.disassemble(bytes(original), address)]
+		diff = list(difflib.unified_diff(theirs, ours, "original", "ours", n=3, lineterm=""))
+	return ratio, len(code), problems, diff
+
+
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("files", nargs="*")
+	parser.add_argument("--version", default="PROTOPC_2025")
+	parser.add_argument("--all", action="store_true")
+	parser.add_argument("--quiet", action="store_true")
+	args = parser.parse_args()
+	sources = sorted((ROOT / "src").rglob("*.cpp")) if args.all else [pathlib.Path(f).resolve() for f in args.files]
+	names = namesByAddress(args.version)
+	known = objcmp.loadSymbols(args.version)
+	pe = pefile.PE(str(ROOT / "orig" / args.version / "prototypeenginef.dll"), fast_load=True)
+	image = pe.get_memory_mapped_image()
+	base = pe.OPTIONAL_HEADER.ImageBase
+	checked = 0
+	failed = 0
+	for source in sources:
+		relative = source.relative_to(ROOT / "src").with_suffix(".obj")
+		objectPath = ROOT / "build" / args.version / "obj" / relative
+		wanted = [(a, s) for a, s in annotations(source) if s == "match"]
+		if not wanted:
+			continue
+		if not objectPath.exists():
+			print(f"{source.relative_to(ROOT)}: no object {objectPath.relative_to(ROOT)} (build it first)")
+			failed += len(wanted)
+			continue
+		coff = objcmp.Coff(objectPath)
+		defined = {n for n, v, s, st in coff.symbols if s > 0 and coff.sections[s - 1]["name"].startswith(".text")}
+		for address, status in wanted:
+			checked += 1
+			candidates = [n for n in names.get(address, []) if n in defined]
+			if not candidates:
+				failed += 1
+				print(f"0x{address:08X} ({source.relative_to(ROOT)}): no symbol of this address in symbols.txt is"
+					" defined in the object")
+				continue
+			best = None
+			for name in candidates:
+				result = compare(coff, name, address, image, base, known)
+				if best is None or result[0] > best[1][0]:
+					best = (name, result)
+				if result[0] == 1.0:
+					break
+			name, (ratio, size, problems, diff) = best
+			if ratio == 1.0:
+				continue
+			failed += 1
+			print(f"{name} vs 0x{address:08X}: {size} bytes, {ratio:.1%} identical (relocations as wildcards)"
+				+ (f", {len(problems)} constant(s)/target(s) differ" if problems else "")
+				+ f"  [{source.relative_to(ROOT)}]")
+			for problem in problems:
+				print("  " + problem)
+			if not args.quiet:
+				for line in diff[:60]:
+					print("  " + line)
+	print(f"{checked} checked, {failed} not matching")
+	sys.exit(1 if failed else 0)
+
+
+if __name__ == "__main__":
+	main()
