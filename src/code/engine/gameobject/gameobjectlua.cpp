@@ -2,11 +2,13 @@
 // name here are guesses): the native function objects the scripts call (go_*) and the message classes they send.
 // This part is the script functions' own instantiations of engine::Function1..4 (RTTI names Function2<void, LuaGOH,
 // Name> and so on): each of them has its constructor, its Call and its Invoke here.
+#include "code/container/arrayfixed.h"
 #include "code/core/name.h"
 #include "code/core/strings.h"
 #include "code/core/thread.h"
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/genericscriptvalue.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
@@ -195,10 +197,51 @@ namespace engine
 	template AttributeWriter<float> GameObject::GetAttributeWriter<float>(const content::ObjectName&);
 	// FUNCTION: ENGINE 0x1086B330
 	template AttributeWriter<bool> GameObject::GetAttributeWriter<bool>(const content::ObjectName&);
+	// The writer of a script value is made here from the attribute lookup
+	template<> void GameObject::SetAttribute<GenericScriptValue>(const content::ObjectName& name,
+		const GenericScriptValue& value, bool unknown);
+	// and the one of a script value is expanded where it is used
+	template<> inline AttributeWriter<GenericScriptValue> GameObject::GetAttributeWriter<GenericScriptValue>(
+		const content::ObjectName& name)
+	{
+		BaseAttribute* attribute = FindAttribute(name);
+		if (attribute != 0)
+		{
+			GenericScriptValue* value = &static_cast<Attribute<GenericScriptValue>*>(attribute)->Get();
+			return AttributeWriter<GenericScriptValue>(value, name, this);
+		}
+		return AttributeWriter<GenericScriptValue>();
+	}
 	// The writer of a vector comes from another unit (0x10257690)
 	template<> AttributeWriter<math::Vector> GameObject::GetAttributeWriter<math::Vector>(const content::ObjectName&);
 	// and the one of a name too (0x10081FE0)
 	template<> AttributeWriter<ScriptName> GameObject::GetAttributeWriter<ScriptName>(const content::ObjectName&);
+
+	// 0x1020A2E0 (the kept copy the other units' calls reach): the iterator moves to the next handle whose object is
+	// still there
+	inline void HandleIterator::SkipInvalid()
+	{
+		GameObjectHandle* end = array->end;
+		GameObjectHandle* item = handle;
+		if (item != end)
+		{
+			do
+			{
+				unsigned short index = item->index;
+				if (index != 0xFFFF)
+				{
+					GameObjectEntry* entry = &GetGameObjectEntries()[index];
+					if (entry->serial == item->serial && entry->object != 0)
+					{
+						break;
+					}
+				}
+				item++;
+			}
+			while (item != end);
+		}
+		handle = item;
+	}
 
 	// FUNCTION: ENGINE 0x10869CD0
 	void go_DeleteAttr(LuaGOH object, ScriptName name)
@@ -1181,8 +1224,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1086B9A0
-	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
-	// keeps the iterator in memory, 29.7 %
+	// EQUIVALENT: the engine copies the end iterator into the argument slot of the comparison (a dead store of its
+	// array pointer that makes the frame eight bytes larger) and keeps the iterator's handle in a register that is
+	// stored back before each call to the iterator's skip, 76.5 %
 	int go_GetAllTagged(lua_State* L)
 	{
 		ScriptName tag;
@@ -1194,9 +1238,8 @@ namespace engine
 		{
 			int index = 1;
 			MessageListenerRef ref = GetListeners(listeners);
-			MessageListenerList* list = ref.list;
-			for (HandleIterator it = list != 0 ? list->Begin() : HandleIterator();
-				it != (list != 0 ? list->End() : HandleIterator()); ++it)
+			for (HandleIterator it = ref.list != 0 ? ref.list->Begin() : HandleIterator();
+				it != (ref.list != 0 ? ref.list->End() : HandleIterator()); ++it)
 			{
 				LuaGOH saved = SerializeHandle(*it.handle);
 				lua_pushlightuserdata(L, (void*)saved.value);
@@ -1206,4 +1249,239 @@ namespace engine
 		}
 		return 1;
 	}
+
+	// FUNCTION: ENGINE 0x10869B10
+	int go_GetGenericAttr(lua_State* L)
+	{
+		GameObject* gameObject = LuaToGameObject(L, 1);
+		ScriptName name;
+		LuaGetNameArgument(L, 2, &name);
+		BaseAttribute* attribute = gameObject->FindAttribute(name);
+		if (attribute != 0)
+		{
+			GenericScriptValue* value = &static_cast<Attribute<GenericScriptValue>*>(attribute)->value;
+			if (value != 0)
+			{
+				value->PushToLua(L);
+				return 1;
+			}
+		}
+		lua_pushnil(L);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1086BC50
+	int go_SetGenericAttr(lua_State* L)
+	{
+		GameObject* gameObject = LuaToGameObject(L, 1);
+		ScriptName name;
+		LuaGetNameArgument(L, 2, &name);
+		luaL_checkany(L, 3);
+		AttributeWriter<GenericScriptValue> writer = gameObject->GetAttributeWriter<GenericScriptValue>(name);
+		if (writer.value != 0)
+		{
+			writer.value->SetFromLua(L, 3);
+		}
+		else
+		{
+			GenericScriptValue value;
+			value.SetFromLua(L, 3);
+			gameObject->SetAttribute(name, value, false);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1086BEB0
+	// EQUIVALENT: the engine copies the end iterator into the argument slot of the comparison (a dead store of its
+	// array pointer that makes the frame eight bytes larger), 63.5 %
+	int go_GetListWithAllTags(lua_State* L)
+	{
+		container::ArrayFixed<ScriptName, 16> tags;
+		char buffer[256];
+		core::StrCpy(buffer, lua_tolstring(L, 1, 0));
+		for (char* token = core::StrTok(buffer, " "); token != 0; token = core::StrTok(0, " "))
+		{
+			tags.PushBack(ScriptName(token, 1));
+		}
+		MessageListeners* first = static_cast<MessageListeners*>(&tags[0]);
+		lua_createtable(L, CountListeners(first), 0);
+		int index = 1;
+		MessageListenerRef ref = GetListeners(first);
+		for (HandleIterator it = ref.list != 0 ? ref.list->Begin() : HandleIterator();
+			it != (ref.list != 0 ? ref.list->End() : HandleIterator()); ++it)
+		{
+			bool all = true;
+			for (unsigned int i = 1; i < (unsigned int)tags.Size(); i++)
+			{
+				if (!it.handle->RouterAdd(*static_cast<MessageListeners*>(&tags[i])))
+				{
+					all = false;
+					break;
+				}
+			}
+			if (all)
+			{
+				LuaGOH saved = SerializeHandle(*it.handle);
+				lua_pushlightuserdata(L, (void*)saved.value);
+				lua_rawseti(L, -2, index);
+				index++;
+			}
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10867C70
+	const char* go_GetDebugName(LuaGOH object)
+	{
+		return 0;
+	}
+
+	// 0x11315F50: the owner the game object functions are registered under (name guessed)
+	extern int gGameObjectScriptOwner;
+
+	// 0x1082FDC0 / 0x1082C910 (other units)
+	void scenario_SetTutorialMode(bool enabled);
+	void go_DumpPackageInfo();
+
+	// FUNCTION: ENGINE 0x10867DD0
+	void UnregisterGameObjectCommands()
+	{
+		LuaScriptManager* manager = GetScriptManager();
+		manager->Unregister(&gGameObjectScriptOwner);
+	}
+
+	// FUNCTION: ENGINE 0x1086C0F0
+	void RegisterGameObjectCommands()
+	{
+		LuaScriptManager* manager = GetScriptManager();
+		manager->SetOwner(&gGameObjectScriptOwner);
+		manager->Register("go_DeleteAttr", go_DeleteAttr);
+		manager->Register("go_Reset", go_Reset);
+		manager->Register("go_FindGOHByUID", go_FindGOHByUID);
+		manager->Register("go_GetAttrTypeDebug", go_GetAttrTypeDebug);
+		manager->Register("go_GetDebugName", go_GetDebugName);
+		manager->Register("go_GetDamageScale", go_GetDamageScale);
+		manager->Register("go_GetHealth", go_GetHealth);
+		manager->Register("go_GetGOHAttr", go_GetGOHAttr);
+		manager->Register("go_GetIntAttr", go_GetIntAttr);
+		manager->Register("go_GetFloatAttr", go_GetFloatAttr);
+		manager->Register("go_GetMaxHealth", go_GetMaxHealth);
+		manager->Register("go_GetOrientation", go_GetOrientation);
+		manager->Register("go_GetOrientationByName", go_GetOrientationByName);
+		manager->Register("go_GetPosition", go_GetPosition);
+		manager->Register("go_GetPositionByName", go_GetPositionByName);
+		manager->Register("go_GetState", go_GetState);
+		manager->Register("go_GetUIDAttr", go_GetUIDAttr);
+		manager->Register("go_HasAttr", go_HasAttr);
+		manager->Register("go_MatchUIDAttr", go_MatchUIDAttr);
+		manager->Register("go_PlayMotionBranchByPath", go_PlayMotionBranchByPath);
+		manager->Register("go_IsPlayingBranchByPath", go_IsPlayingBranchByPath);
+		manager->Register("go_SetBroadcastStateChanges", go_SetBroadcastStateChanges);
+		manager->Register("go_SetDamageable", go_SetDamageable);
+		manager->Register("go_SetDamageScale", go_SetDamageScale);
+		manager->Register("go_SetHealth", go_SetHealth);
+		manager->Register("go_SetIntAttr", go_SetIntAttr);
+		manager->Register("go_SetFloatAttr", go_SetFloatAttr);
+		manager->Register("go_SetMaxHealth", go_SetMaxHealth);
+		manager->Register("go_SetMinHealth", go_SetMinHealth);
+		manager->Register("go_SetUIDAttr", go_SetUIDAttr);
+		manager->Register("go_GetVectorAttr", go_GetVectorAttr);
+		manager->Register("go_SetVectorAttr", go_SetVectorAttr);
+		manager->Register("go_Teleport", go_Teleport);
+		manager->Register("phys_EnablePhysics", phys_EnablePhysics);
+		manager->Register("phys_WakeUpObject", phys_WakeUpObject);
+		manager->Register("phys_SetLinearVelocity", phys_SetLinearVelocity);
+		manager->Register("phys_SetAngularVelocity", phys_SetAngularVelocity);
+		manager->Register("scenario_SetTutorialMode", scenario_SetTutorialMode);
+		manager->Register("go_AddTag", go_AddTag);
+		manager->Register("go_RemoveTag", go_RemoveTag);
+		manager->Register("go_HasTag", go_HasTag);
+		manager->Register("gamelink_ObjectLog", gamelink_ObjectLog);
+		manager->Register("go_DumpPackageInfo", go_DumpPackageInfo);
+		manager->Register("go_GetActiveSupportingLimbName", go_GetActiveSupportingLimbName);
+		manager->Register("go_OnSupportingSurface", go_OnSupportingSurface);
+		manager->Register("go_PrintFightDiagnostics", go_PrintFightDiagnostics);
+		manager->Register("go_LockCharacterIntention", go_LockCharacterIntention);
+		manager->Register("go_ClearCharacterIntention", go_ClearCharacterIntention);
+		manager->RegisterCFunction("scenario_PostEventString", scenario_PostEventString);
+		manager->RegisterCFunction("go_FindGOHByName", go_FindGOHByName);
+		manager->RegisterCFunction("go_FindTransientGOHByName", go_FindTransientGOHByName);
+		manager->RegisterCFunction("go_IsValid", go_IsValid);
+		manager->RegisterCFunction("go_SetState", go_SetState);
+		manager->RegisterCFunction("go_QueryState", go_QueryState);
+		manager->RegisterCFunction("go_GetAllTagged", go_GetAllTagged);
+		manager->RegisterCFunction("go_GetListWithAllTags", go_GetListWithAllTags);
+		manager->RegisterCFunction("go_GetGenericAttr", go_GetGenericAttr);
+		manager->RegisterCFunction("go_SetGenericAttr", go_SetGenericAttr);
+		manager->RegisterCFunction("go_SetSimThreadPriorityNormal", go_SetSimThreadPriorityNormal);
+		manager->RegisterCFunction("go_SetSimThreadPriorityHigh", go_SetSimThreadPriorityHigh);
+		manager->ClearOwner();
+		CreateLuaGOHMetatable();
+	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10867970
+// FUNCTION: ENGINE 0x10867E70
+// FUNCTION: ENGINE 0x10867E80
+// FUNCTION: ENGINE 0x10867E90
+// FUNCTION: ENGINE 0x10867EA0
+// FUNCTION: ENGINE 0x10867EC0
+// FUNCTION: ENGINE 0x10867EE0
+// FUNCTION: ENGINE 0x10868600
+// FUNCTION: ENGINE 0x10868670
+// FUNCTION: ENGINE 0x10868690
+// FUNCTION: ENGINE 0x108686C0
+// FUNCTION: ENGINE 0x108686E0
+// FUNCTION: ENGINE 0x10868710
+// FUNCTION: ENGINE 0x10868730
+// FUNCTION: ENGINE 0x1086BAC0
+// FUNCTION: ENGINE 0x1086BAD0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102801D0
+// FUNCTION: ENGINE 0x10280230
+// FUNCTION: ENGINE 0x10280250
+// FUNCTION: ENGINE 0x10280280
+// FUNCTION: ENGINE 0x102802F0
+// FUNCTION: ENGINE 0x10280310
+// FUNCTION: ENGINE 0x10280BB0
+// FUNCTION: ENGINE 0x10280C10
+// FUNCTION: ENGINE 0x10280C60
+// FUNCTION: ENGINE 0x10280CB0
+// FUNCTION: ENGINE 0x10280D20
+// FUNCTION: ENGINE 0x10280D40
+// FUNCTION: ENGINE 0x10280D60
+// FUNCTION: ENGINE 0x10280DC0
+// FUNCTION: ENGINE 0x10280DD0
+// FUNCTION: ENGINE 0x10281520
+// FUNCTION: ENGINE 0x10281580
+// FUNCTION: ENGINE 0x102815B0
+// FUNCTION: ENGINE 0x102815F0
+// FUNCTION: ENGINE 0x10281670
+// FUNCTION: ENGINE 0x102816B0
+// FUNCTION: ENGINE 0x102816F0
+// FUNCTION: ENGINE 0x10281760
+// FUNCTION: ENGINE 0x10281780
+// FUNCTION: ENGINE 0x10281A10
+// FUNCTION: ENGINE 0x10281A90
+// FUNCTION: ENGINE 0x10281B00
+// FUNCTION: ENGINE 0x10493D70
+// FUNCTION: ENGINE 0x10493D90
+// FUNCTION: ENGINE 0x102826C0
+// FUNCTION: ENGINE 0x10282720
+// FUNCTION: ENGINE 0x10282740
+// FUNCTION: ENGINE 0x10282FE0
+// FUNCTION: ENGINE 0x10283040
+// FUNCTION: ENGINE 0x10283090
+// FUNCTION: ENGINE 0x10284010
+// FUNCTION: ENGINE 0x10284040
+// FUNCTION: ENGINE 0x10284070
+// FUNCTION: ENGINE 0x102840A0
+// FUNCTION: ENGINE 0x102840D0
+// FUNCTION: ENGINE 0x10288FF0
+// FUNCTION: ENGINE 0x10289080
+// FUNCTION: ENGINE 0x10289490
+// FUNCTION: ENGINE 0x10289580
+// FUNCTION: ENGINE 0x10289910
+// FUNCTION: ENGINE 0x1028A480

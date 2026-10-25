@@ -4728,3 +4728,23 @@ in the engine, 83.5 %; `Dispatch`: three registers swapped, 95.6 %).
 - `ScriptOwner` derives from `fight::Params` (the constructor calls `Params(int)`, the vftable adds a clone slot).
 - Not done in the range: 0x10875E30 (starts the game's fiber), 0x10876B30 (clears the queue and resets the
   sequencers), 0x10876B60.
+
+### engine/gameobject/gameobjectlua.cpp, the rest (0x10867C70 - 0x1086C900)
+
+`RegisterGameObjectCommands` (the whole list of `go_*`, `phys_*`, `scenario_*` and `gamelink_*` registrations; the engine's
+copies of `Register` for the one-argument forms and of the `Function` constructors of other units are called, which our
+compiler does without help), `UnregisterGameObjectCommands`, `go_GetDebugName` (returns nothing), `go_GetGenericAttr`,
+`go_SetGenericAttr` and `go_GetListWithAllTags`; the kept copies of the `Function1..3` wrappers the registrations
+instantiate, of `ArrayFixed<core::Name, 16>` and of the attribute writers.
+
+- The writer of a script value is expanded where it is used (an inline specialisation), the other writers have their
+  own copies (`go_SetGenericAttr` is 100 %).
+- `HandleIterator::SkipInvalid` is inline and compiled as `if (item != end) do { ... } while (item != end);` for the
+  engine's shared tail; `operator!=` takes its argument by value, which gives the engine's argument copy of the end
+  iterator in `go_GetAllTagged` (76.5 %) and `go_GetListWithAllTags` (63.5 %), both EQUIVALENT with a dead copy of the
+  array pointer in the engine's frame.
+- Register<R, LuaGOH, ...> instances our compiler makes but the engine calls from other units
+  (0x10288F90, 0x10289160, 0x102891C0, 0x10289220) are not mapped: their copies call a different copy of the
+  constructor than the instance symbol names.
+- Not done in the range: 0x10867900 - 0x10867B50 (the FMV request list), 0x10868150 (spawns an object from a template and
+  sends it its initial state), 0x1086B940 / 0x1086B960 (find a template in the root inventory).
