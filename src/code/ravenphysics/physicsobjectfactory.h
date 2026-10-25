@@ -218,6 +218,21 @@ namespace container
 			value = 0
 		};
 	};
+
+	template<> struct ArrayReserveBeginFirst<ravenphysics::PhysicsObjectFactory::VolumeDescription>
+	{
+		enum
+		{
+			value = 1
+		};
+	};
+	template<> struct ArrayReserveBeginFirst<ravenphysics::PhysicsObjectFactory::ObjectDescription>
+	{
+		enum
+		{
+			value = 1
+		};
+	};
 }
 
 #endif

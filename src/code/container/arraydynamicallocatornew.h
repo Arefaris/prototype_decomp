@@ -33,6 +33,15 @@ namespace container
 		};
 	};
 
+	// Whether Reserve stores the begin pointer before the end pointer (the engine's copies differ in this)
+	template<class T> struct ArrayReserveBeginFirst
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+
 	template<class T> class ArrayDynamic<T, AllocatorNew>
 	{
 	public:
@@ -299,9 +308,18 @@ namespace container
 					Destroy(begin, end);
 					operator delete[](begin);
 				}
-				end = storage + keep;
-				begin = storage;
-				capacity = storage + count;
+				if (ArrayReserveBeginFirst<T>::value == 1)
+				{
+					begin = storage;
+					end = storage + keep;
+					capacity = storage + count;
+				}
+				else
+				{
+					end = storage + keep;
+					begin = storage;
+					capacity = storage + count;
+				}
 			}
 		}
 		// Inserts count copies of value before position when they fit; answers position, or the old end when they
