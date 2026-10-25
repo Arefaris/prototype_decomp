@@ -11,6 +11,8 @@ namespace om
 	class String
 	{
 	public:
+		// 0x105B39F0: the empty string
+		String();
 		// 0x105B3D50: a string of the text (the flag asks for a copy)
 		String(const char* text, bool copy);
 		// 0x105B3E00: the first characters of a text
