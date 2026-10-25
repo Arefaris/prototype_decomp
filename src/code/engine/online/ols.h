@@ -120,6 +120,8 @@ namespace engine
 
 		// 0x108441E0
 		static OLS* Get();
+		// 0x108449A0: tells every callback about an event
+		void SendMessage(OLSMessage* message);
 
 		// The local user that is selected: null when there are none
 		OLSLocalUser* GetLocalUser()
