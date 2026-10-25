@@ -8,7 +8,7 @@
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
-
+#include "code/ravenphysics/material.h"
 
 namespace engine
 {
@@ -533,17 +533,6 @@ namespace ravenphysics
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x40];
-	};
-
-	// MaterialLoader: constructor 0x1066A890, reflection 0x1066A2A0 / 0x1066A740
-	class MaterialLoader : public content::MetaLoadObject
-	{
-	public:
-		MaterialLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x28];
 	};
 
 	// PoweredConstraintSharedProperties: constructor 0x10693B90, reflection 0x106939E0 / 0x10693D40
