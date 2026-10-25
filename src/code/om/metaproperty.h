@@ -93,7 +93,7 @@ namespace om
 	{
 	}
 	bool ReadBinary(BinaryStream* stream, ClassName* value);
-	void WriteBinary(BinaryStream* stream, const ClassName& value);
+	bool WriteBinary(BinaryStream* stream, const ClassName& value);
 
 	// The forms of the types that have a description of their own: through the cached description of the type
 	template<class T> inline bool ReadText(const TextValue* text, T* value)

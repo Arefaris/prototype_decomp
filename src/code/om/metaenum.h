@@ -33,7 +33,7 @@ namespace om
 
 	// The value of a stream as an int (0x105B7EB0 / 0x105B7ED0, names guessed)
 	bool ReadInt(BinaryStream* stream, int* value);
-	void WriteInt(BinaryStream* stream, int value);
+	bool WriteInt(BinaryStream* stream, int value);
 
 	template<class E> class MetaEnum : public MetaEnumBase
 	{
@@ -48,7 +48,7 @@ namespace om
 		virtual bool ReadText(const TextValue* text, void* value);
 		virtual void WriteText(TextValue* text, const void* value);
 		virtual bool ReadBinary(BinaryStream* stream, void* value);
-		virtual void WriteBinary(BinaryStream* stream, const void* value);
+		virtual bool WriteBinary(BinaryStream* stream, const void* value);
 		virtual int Slot5()
 		{
 			return 0;
@@ -93,10 +93,10 @@ namespace om
 		return ok;
 	}
 
-	template<class E> void MetaEnum<E>::WriteBinary(BinaryStream* stream, const void* value)
+	template<class E> bool MetaEnum<E>::WriteBinary(BinaryStream* stream, const void* value)
 	{
 		int number = *static_cast<const int*>(value);
-		WriteInt(stream, number);
+		return WriteInt(stream, number);
 	}
 }
 

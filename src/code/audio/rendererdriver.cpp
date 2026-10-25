@@ -230,8 +230,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E4FE0
 	template MetaEnum<audio::FoldDownType>::~MetaEnum();
 	// FUNCTION: ENGINE 0x105E4FF0
-	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
-	template void MetaEnum<audio::FoldDownType>::WriteBinary(BinaryStream*, const void*);
+	template bool MetaEnum<audio::FoldDownType>::WriteBinary(BinaryStream*, const void*);
 	// FUNCTION: ENGINE 0x105E5010
 	template void MetaEnum<audio::FoldDownType>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105E5030
@@ -245,8 +244,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105E50A0
 	template MetaEnum<audio::WAVEFORMAT>::~MetaEnum();
 	// FUNCTION: ENGINE 0x105E50B0
-	// EQUIVALENT: register allocation: the engine loads the value into eax and the stream into ecx, ours ecx and edx (82.6 %)
-	template void MetaEnum<audio::WAVEFORMAT>::WriteBinary(BinaryStream*, const void*);
+	template bool MetaEnum<audio::WAVEFORMAT>::WriteBinary(BinaryStream*, const void*);
 	// FUNCTION: ENGINE 0x105E50D0
 	template void MetaEnum<audio::WAVEFORMAT>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105E5200

@@ -72,6 +72,57 @@ namespace music
 		return GetMetaType()->ReadBinary(stream, this);
 	}
 
+	// FUNCTION: ENGINE 0x105E0D90
+	bool Cell::WriteBinary(om::BinaryStream* stream)
+	{
+		om::MetaTypeBase* type = om::MetaTypeCache<Cell>::type;
+		if (type == 0)
+		{
+			om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+			type = om::MetaTypeCache<Cell>::type;
+		}
+		return type->WriteBinary(stream, this);
+	}
+
+	// FUNCTION: ENGINE 0x105E24A0
+	// EQUIVALENT: scheduling: at the end the engine loads the name's second half after the pop of edi, ours before it (97.6 %)
+	bool MGraphCell::ReadBinary(om::BinaryStream* stream)
+	{
+		Fade newFadeIn;
+		Fade newFadeOut;
+		om::ClassName newPatchName;
+		FollowAction newFollowAction;
+		bool ok = om::ReadBinary(stream, &newFadeIn) && om::ReadBinary(stream, &newFadeOut)
+			&& om::ReadBinary(stream, &newFollowAction) && om::ReadBinary(stream, &newPatchName);
+		fadeIn = newFadeIn;
+		fadeOut = newFadeOut;
+		followAction = newFollowAction;
+		patchName = newPatchName;
+		return ok;
+	}
+
+	// The description of a type answers the write with whether it worked
+	template<class T> static __forceinline bool WriteChecked(om::BinaryStream* stream, const T& value)
+	{
+		om::MetaTypeBase*& cache = om::MetaTypeCache<T>::type;
+		if (cache == 0)
+		{
+			cache = om::FindMetaType(typeid(T));
+		}
+		return cache->WriteBinary(stream, &value);
+	}
+
+	// FUNCTION: ENGINE 0x105E23F0
+	bool MGraphCell::WriteBinary(om::BinaryStream* stream)
+	{
+		if (WriteChecked(stream, fadeIn) && WriteChecked(stream, fadeOut) && WriteChecked(stream, followAction)
+			&& om::WriteBinary(stream, patchName))
+		{
+			return true;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x105DFAD0
 	bool Cell::Slot5(int)
 	{

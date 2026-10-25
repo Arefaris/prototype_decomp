@@ -80,7 +80,7 @@ namespace om
 		virtual bool ReadText(const TextValue* text, void* value) = 0;
 		virtual void WriteText(TextValue* text, const void* value) = 0;
 		virtual bool ReadBinary(BinaryStream* stream, void* value) = 0;
-		virtual void WriteBinary(BinaryStream* stream, const void* value) = 0;
+		virtual bool WriteBinary(BinaryStream* stream, const void* value) = 0;
 		virtual int Slot5() = 0;
 		virtual void Slot6(void* unknown) = 0;
 
