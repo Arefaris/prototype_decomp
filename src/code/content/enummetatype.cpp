@@ -10,6 +10,12 @@ namespace content
 	// The heap the meta system makes its values in (0x11276928, name guessed)
 	extern int gMetaHeap;
 
+	// FUNCTION: ENGINE 0x105FE7B0
+	const char* GetEnumTypeName()
+	{
+		return "enum";
+	}
+
 	// FUNCTION: ENGINE 0x105FE7C0
 	EnumMetaType::EnumMetaType(const char* name, int version, const char* code, const EnumValue* newValues,
 		int newCount)

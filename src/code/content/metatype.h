@@ -755,6 +755,9 @@ namespace content
 		static void Get(const char** name, const EnumValue** values, int* count, const char** code);
 	};
 
+	// 0x105FE7B0
+	const char* GetEnumTypeName();
+
 	// The meta type of an enumeration (0x105FE7C0; the second argument is the version of the named type, passed as 1)
 	class EnumMetaType : public NamedMetaType
 	{

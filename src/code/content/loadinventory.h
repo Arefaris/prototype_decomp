@@ -227,7 +227,8 @@ namespace content
 	// The root inventory (0x11283818)
 	extern LoadInventory* gRootInventory;
 
-	// The meta type of a member that refers to an inventory object the caster accepts (0x105FEC50)
+	// The meta type of a member that refers to an inventory object the caster accepts (0x105FEC50). A value is the
+	// pointer to the object, counted; the member names are guesses.
 	class ReferenceMetaType : public MetaType
 	{
 	public:
@@ -244,6 +245,33 @@ namespace content
 		virtual void Slot9();
 		virtual void Slot10();
 		virtual void Slot11();
+
+		// The object behind a value (slot 12) and the value's new object (slot 13; the name only matters to the
+		// named kind, which keeps it as well)
+		virtual LoadObject* Get(const void* object);
+		virtual void Set(void* object, LoadObject* value, const ObjectName* name);
+
+		// The slots as the engine's code takes them (see VectorMetaType); a is the inventory the names are looked up in
+		// 0x105FF200 (slot 0) / 0x105FF100 (slot 1)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FF290 (slot 2) / 0x105FF180 (slot 3) / 0x105FEF00 (slot 11)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryShort(WriteContext* context, const void* object);
+		// 0x105FEC70 (slot 4): reads the name of each side that has one, writes the common name as text when they
+		// are equal and else the names under their names
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x105FEE50 (slot 6) / 0x105FF2D0 (slot 7) / 0x105FF310 (slot 8) / 0x105FEED0 (slot 9: always 1) / 0x105FEEE0
+		// (slot 10)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Unknown9(int a, int b);
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x105FEE10: the name of the object a value refers to; the engine reports that it cannot know it
+		const char* GetObjectName(const void* object);
 
 		LoadInventory::DynamicCasterBase* caster;
 	};
@@ -263,10 +291,61 @@ namespace content
 		ReferenceMetaTypeGetSet(LoadInventory::DynamicCasterBase* caster, ReferenceMetaTypeGetSetter* getSetter,
 			const char* code);
 
-		virtual void Slot12();
-		virtual void Slot13();
+		// 0x105FEFB0 / 0x105FEFE0: the member's own accessors when the value is not the meta system's
+		virtual LoadObject* Get(const void* object);
+		virtual void Set(void* object, LoadObject* value, const ObjectName* name);
 
 		ReferenceMetaTypeGetSetter* getSetter;
+	};
+
+	// A reference that keeps its name as well: a value of the meta system is the pointer and the name (RTTI: 3 slots)
+	struct NamedReferenceMetaTypeGetSetter
+	{
+	public:
+		virtual const ObjectName* GetName(const void* object) = 0;
+		virtual LoadObject* GetObject(const void* object) = 0;
+		virtual void Set(void* object, LoadObject* value, const ObjectName* name) = 0;
+	};
+
+	// The value of the meta system for a named reference (16 bytes, 8 aligned)
+	struct NamedReferenceValue
+	{
+		NamedReferenceValue()
+		{
+		}
+
+		LoadObject* object;
+		int unknown4;
+		ObjectName name;
+	};
+
+	// A named reference member reached through accessors (0x105FF030)
+	class NamedReferenceMetaTypeGetSet : public ReferenceMetaType
+	{
+	public:
+		NamedReferenceMetaTypeGetSet(LoadInventory::DynamicCasterBase* caster, NamedReferenceMetaTypeGetSetter* getSetter,
+			const char* code);
+
+		// Slots 2, 3, 6, 7 and 8 are the named kind's own: the text and binary writers write the name the value holds
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual void Slot6();
+		virtual void Slot7();
+		virtual void Slot8();
+		virtual LoadObject* Get(const void* object);
+		virtual void Set(void* object, LoadObject* value, const ObjectName* name);
+		// Slot 14
+		virtual const ObjectName* GetName(const void* object);
+
+		// 0x105FF460 (slot 2) / 0x105FF3D0 (slot 3)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		// 0x105FF4A0 (slot 6) / 0x105FF520 (slot 7) / 0x105FF060 (slot 8)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+
+		NamedReferenceMetaTypeGetSetter* getSetter;
 	};
 
 	// The meta type of a reference to a T member of class C
