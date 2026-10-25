@@ -23,6 +23,7 @@ namespace ravenphysics
 	class ConvexMesh;
 	struct ConvexHullData;
 	class PhysicsObject;
+	class TriggerObject;
 
 	// The query filters a volume asks for, accumulated by the object it belongs to (meanings unknown)
 	struct CollisionFilter
@@ -397,6 +398,8 @@ namespace ravenphysics
 		void AddPhysicsObject(PhysicsObject* object, int* id);
 		// The same for a mesh (0x10665DF0, a forward to Add; name guess)
 		void AddMesh(CollisionVolume6* mesh, CollisionHandle* handle);
+		// The same for a trigger object (0x10677BE0, a forward to Add; name guess)
+		void AddTrigger(TriggerObject* object, int* id);
 	};
 
 	// A mesh (type 6, 0x130 bytes): its grid of triangles and a handle in the physics handle table

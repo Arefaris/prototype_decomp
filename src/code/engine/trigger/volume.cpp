@@ -113,7 +113,7 @@ namespace engine
 		{
 			if (handle.IsValid())
 			{
-				handle.GetObjectUnchecked()->SetTransform(transform);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetTransform(transform);
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace engine
 					filter.properties.unknown0 = interactionMask & 0x7FFFFFFF;
 					filter.properties.unknown4 = 0x80000000;
 				}
-				handle.GetObjectUnchecked()->SetFilter(&filter);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetFilter(&filter);
 			}
 		}
 
@@ -207,7 +207,7 @@ namespace engine
 			{
 				math::Matrix transform;
 				GetOwnerTransform(&transform);
-				handle.GetObjectUnchecked()->SetSphere(sphere, transform);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetSphere(sphere, transform);
 			}
 			ApplyFilter();
 		}
@@ -223,7 +223,7 @@ namespace engine
 			{
 				math::Matrix transform;
 				GetOwnerTransform(&transform);
-				handle.GetObjectUnchecked()->SetSphere(newSphere, transform);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetSphere(newSphere, transform);
 			}
 		}
 
@@ -248,7 +248,7 @@ namespace engine
 			{
 				math::Matrix transform;
 				GetOwnerTransform(&transform);
-				handle.GetObjectUnchecked()->SetBox(box, transform);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetBox(box, transform);
 			}
 			ApplyFilter();
 		}
@@ -261,7 +261,7 @@ namespace engine
 			{
 				math::Matrix transform;
 				GetOwnerTransform(&transform);
-				handle.GetObjectUnchecked()->SetBox(newBox, transform);
+				((ravenphysics::TriggerObject*)handle.GetObjectUnchecked())->SetBox(newBox, transform);
 			}
 		}
 		// FUNCTION: ENGINE 0x10841D90
