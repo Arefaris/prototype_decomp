@@ -20,17 +20,33 @@
 
 namespace om
 {
+	class EntityTypeBase;
+
 	class Entity : public RefCount<ThreadSafeRefCount>
 	{
 	public:
 		// 0x105B5210
 		explicit Entity(const ClassName& newName);
+		// The entity's virtual slots after the destructor (names guessed): 0x105B5240 answers true, 0x105B5D00
+		// renames the entity in the registry, 0x105B49E0 and on read and write it through the reflection of its
+		// type, and the last (pure in the engine's Entity) answers the entity type of the class
+		virtual bool Slot1();
+		virtual bool Rename(const ClassName& newName);
+		virtual bool Slot3(void* argument);
+		virtual bool Slot4(void* argument);
+		virtual bool Slot5(void* argument);
+		virtual bool Slot6(void* argument);
+		virtual bool Slot7(void* argument);
+		virtual bool Slot8(void* argument);
+		virtual EntityTypeBase* GetEntityType();
 
 		ClassName name;  // 8
 	};
 
 	// 0x105B5B60: puts a new entity into the registry of the entities (name guessed)
 	void RegisterEntity(Entity* entity);
+	// 0x105B5690: the entity type registered for a class (name guessed)
+	EntityTypeBase* FindEntityType(const type_info& type);
 
 	// The description of an entity class (RTTI: om::EntityTypeBase); the registries are keyed by name and by type_info
 	class EntityTypeBase

@@ -28,7 +28,7 @@ namespace om
 		}
 		~DynamicArray()
 		{
-			DestroyElements();
+			DestroyElements(data, size);
 			ReleaseElements(data, capacity);
 		}
 		// 0x105BD670 (the string array's)
@@ -36,7 +36,7 @@ namespace om
 		{
 			if (this != &other)
 			{
-				DestroyElements();
+				DestroyElements(data, size);
 				ReleaseElements(data, capacity);
 				data = Allocate(other.size);
 				capacity = other.size;
@@ -58,7 +58,7 @@ namespace om
 			{
 				T* elements = Allocate(newSize);
 				CopyElements(elements, data, size);
-				DestroyElements();
+				DestroyElements(data, size);
 				ReleaseElements(data, capacity);
 				data = elements;
 				capacity = newSize;
@@ -69,7 +69,7 @@ namespace om
 		// Takes every element out and gives the memory back
 		void Clear()
 		{
-			DestroyElements();
+			DestroyElements(data, size);
 			ReleaseElements(data, capacity);
 			size = 0;
 			capacity = 0;
@@ -78,7 +78,7 @@ namespace om
 		// Takes every element out (the memory stays)
 		void Empty()
 		{
-			DestroyElements();
+			DestroyElements(data, size);
 			size = 0;
 		}
 		// Takes the memory for a number of elements (the array is empty)
@@ -96,12 +96,13 @@ namespace om
 		{
 			om::Release(elements, count * sizeof(T), 4);
 		}
-		void DestroyElements()
+		// Takes the elements out (this array's memory is not touched)
+		void DestroyElements(T* elements, Count count)
 		{
-			T* element = data;
-			if (size > 0)
+			T* element = elements;
+			if (count > 0)
 			{
-				unsigned int remaining = size;
+				unsigned int remaining = count;
 				do
 				{
 					element->~T();

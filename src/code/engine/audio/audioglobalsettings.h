@@ -34,10 +34,53 @@ namespace engine
 		om::String name;  // 0x10
 	};
 
+	// The audio system and its parts that the settings put into effect (other units, names guessed)
+	class AudioListener
+	{
+	public:
+		char unknown0[0x54];
+		float listenerOffset;  // 0x54
+	};
+	extern AudioListener* gAudioListener;
+
+	class ReverbSettings
+	{
+	public:
+		// 0x105BCDF0: keeps the factor within its limits
+		void SetDistanceFactor(float factor);
+	};
+	extern ReverbSettings gReverbSettings;
+
+	class AudioSystem
+	{
+	public:
+		static AudioSystem* Get();
+		// 0x10871140: makes the group
+		void AddSoundGroup(const om::String& name, unsigned int maxSounds, unsigned int maxSoundsPerInstance);
+		// 0x10871240: lets the group interrupt another
+		void AddInterrupt(const om::String& group, const om::String& other);
+	};
+
 	// The settings entity (0x30 bytes)
 	class AudioGlobalSettings : public om::Entity
 	{
 	public:
+		explicit AudioGlobalSettings(const om::ClassName& newName) :
+			Entity(newName),
+			listenerOffset(0.0f),
+			reverbDistanceFactor(0.0f),
+			soundGroups()
+		{
+		}
+		virtual ~AudioGlobalSettings();
+		// Slot 5 (0x108CC520): reads the settings, then puts them into effect
+		virtual bool Slot5(void* argument);
+		virtual om::EntityTypeBase* GetEntityType();
+		OM_ENTITY_ALLOCATION(AudioGlobalSettings);
+
+		// 0x108CAE10: gives the listener its offset and the reverb its factor, and tells the system about every
+		// sound group and its interruptions
+		void Apply();
 		const float& GetListenerOffset() const;
 		void SetListenerOffset(const float& newListenerOffset);
 		const float& GetReverbDistanceFactor() const;
