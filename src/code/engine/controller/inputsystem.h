@@ -6,6 +6,7 @@
 #ifndef ENGINE_CONTROLLER_INPUTSYSTEM_H
 #define ENGINE_CONTROLLER_INPUTSYSTEM_H
 
+#include "code/container/map.h"
 #include "code/container/slist.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
@@ -188,8 +189,23 @@ namespace engine
 			Callback* callback;
 		};
 
+		// A key event as the keyboard hands it to its callbacks (20 bytes, passed by value; names guessed)
+		struct KeyEvent
+		{
+			// 0: the key went down, 1: it repeats, 2: it went up
+			int state;
+			// The virtual key
+			int key;
+			// The modifier flags at that moment (1: alt, 2: control, 4: shift, 8 and 0x10: two more)
+			unsigned int modifiers;
+			// The character the key makes with those modifiers
+			unsigned char character;
+			// The scan code of the key on the layout of the thread
+			int scanCode;
+		};
+
 		// RTTI: engine::controller::Keyboard (base of KeyboardWin32): updated with the frame time by the InputSystem;
-		// keeps a list of callbacks and stays enabled while it has one
+		// keeps a list of callbacks and stays enabled while it has one (0x2C bytes)
 		class Keyboard
 		{
 		public:
@@ -197,13 +213,32 @@ namespace engine
 			class Callback : public container::SListLite<Callback>::Node
 			{
 			public:
-				// A key event (parameter names guessed); the last one is unused by the front end's handler
-				virtual void OnKey(int code, int modifiers, int character, bool down, int unknown) = 0;
+				virtual void OnKey(KeyEvent event) = 0;
 			};
 
-			virtual void Update(float time) = 0;
-			virtual bool IsEnabled() = 0;
-			virtual void SetEnabled(bool enabled) = 0;
+			// 0x108A2180 (another unit)
+			Keyboard();
+			// The key map is emptied (0x108A1FE0 frees each node)
+			~Keyboard()
+			{
+				keys.Clear(FreeKeyNode, &keys);
+			}
+			// 0x108A20C0: the character a key makes with the modifiers
+			unsigned char GetCharacter(int key, unsigned int modifiers);
+			// 0x108A1FE0
+			static bool FreeKeyNode(container::TreeBase::Node* node, void* context);
+
+			// Vftable slots 0 - 2 (0x108A2260, 0x108A1E60, 0x108A1E70): the base does nothing and is never enabled
+			virtual void Update(float time)
+			{
+			}
+			virtual bool IsEnabled()
+			{
+				return false;
+			}
+			virtual void SetEnabled(bool enabled)
+			{
+			}
 
 			// Inline (kept copies at 0x108815D0 / 0x10881610 in the front end input unit)
 			void AddCallback(Callback* callback)
@@ -227,6 +262,8 @@ namespace engine
 			}
 
 			container::SListLite<Callback> callbacks;
+			container::TreeBase keys;  // +0x10
+			int unknown28;
 		};
 
 		// RTTI: PhysicalControllerManager (another unit; constructor 0x108A0BB0, destructor 0x108A0970)

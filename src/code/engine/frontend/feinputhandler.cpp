@@ -202,7 +202,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x108812D0
 	// EQUIVALENT: the engine keeps the two bytes of the string in a frame slot of their own (0x44 bytes of frame), ours
 	// puts them into the stack slot of a parameter that is no longer used (0x40), 21.7 %
-	void FEInputHandler::OnKey(int code, int modifiers, int character, bool down, int unknown)
+	void FEInputHandler::OnKey(controller::KeyEvent event)
 	{
 		FrontendMovie* movie = (FrontendMovie*)GetFrontend();
 		if (movie != 0)
@@ -210,12 +210,12 @@ namespace engine
 			FEMovie::Value arguments[4];
 			char text[2];
 			arguments[0].type = 3;
-			arguments[0].number = modifiers;
+			arguments[0].number = event.key;
 			arguments[1].type = 3;
-			arguments[1].number = code;
+			arguments[1].number = event.state;
 			arguments[2].type = 3;
-			arguments[2].number = character;
-			text[0] = down;
+			arguments[2].number = event.modifiers;
+			text[0] = event.character;
 			text[1] = 0;
 			arguments[3].type = 4;
 			arguments[3].string = text;
