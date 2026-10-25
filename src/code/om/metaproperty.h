@@ -75,6 +75,18 @@ namespace om
 		stream->buffer->Write(&byte, 1);
 	}
 
+	// Sixty-four bit values: the text forms are the library's (0x105B84A0 / 0x105B8600), the binary form is eight bytes
+	bool ReadText(const TextValue* text, unsigned __int64* value);
+	void WriteText(TextValue* text, unsigned __int64 value);
+	__forceinline bool ReadBinary(BinaryStream* stream, unsigned __int64* value)
+	{
+		return stream->buffer->Read(value, 8);
+	}
+	__forceinline void WriteBinary(BinaryStream* stream, unsigned __int64 value)
+	{
+		stream->buffer->Write(&value, 8);
+	}
+
 	// Names are written as text by their own description only, never by a fallback
 	bool ReadText(const TextValue* text, ClassName* value);
 	inline void WriteText(TextValue* text, const ClassName& value)
