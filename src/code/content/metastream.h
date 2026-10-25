@@ -71,6 +71,8 @@ namespace content
 		// 0x105FCBD0: a string stored as its length (four bytes) and its characters, ended here; the second argument is not
 		// used (names guessed)
 		void ReadString(char* destination, int size);
+		// 0x105FEBB0: a string stored as its length (one byte) and its characters, ended here (name guessed)
+		void ReadShortString(char* destination, int size);
 
 		BinaryReader* reader;
 	};
@@ -79,6 +81,8 @@ namespace content
 	{
 		// 0x105FCC10: the length of the string and its characters
 		void WriteString(const char* text);
+		// 0x105FEBF0: the length of the string in one byte and its characters (name guessed)
+		void WriteShortString(const char* text);
 
 		BinaryWriter* writer;
 	};

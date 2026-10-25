@@ -13,6 +13,26 @@ namespace content
 	// The heap the meta system makes its values in (0x11276928, name guessed)
 	extern int gMetaHeap;
 
+	// FUNCTION: ENGINE 0x105FEBB0
+	void ReadContext::ReadShortString(char* destination, int size)
+	{
+		unsigned char length;
+		reader->Read(&length, 1, 1);
+		reader->Read(destination, length, 1);
+		destination[length] = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105FEBF0
+	void WriteContext::WriteShortString(const char* text)
+	{
+		unsigned char length = (unsigned char)strlen(text);
+		writer->Write(&length, 1, 1);
+		if (length != 0)
+		{
+			writer->Write(text, length, 1);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x105FEC40
 	const char* GetReferenceTypeName()
 	{
