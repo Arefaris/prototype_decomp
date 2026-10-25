@@ -4774,7 +4774,7 @@ sits before the stores of the three scales in the engine, 93.2 %).
 ### engine/frontend/fesubtitle.cpp (0x10876B60 - 0x10877140)
 
 `FESubtitle` (RTTI name, base `DBObserver`; the object at `gSubtitleOptions`, earlier called `SubtitleOptions`, which is
-now a typedef in `subtitleoptions.h`): the front end's subtitle list. 12 functions match, 2 are EQUIVALENT (`Update`:
+now a typedef in `subtitleoptions.h`): the front end's subtitle list. 10 functions match, 2 are EQUIVALENT (`Update`:
 the engine keeps its two hide sequences apart where ours lets the compiler merge their tails, 40.9 %; `FindFormat`: a
 stack slot the engine reserves and nothing uses, 55.1 %). `Show` takes the duration as an unsigned integer (the
 engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled`.
@@ -4785,3 +4785,13 @@ engine passes a whole word, 0 for the default), `Unknown10876EF0` is `SetEnabled
   built).
 - Not done in the range: 0x10876B30 (clears the queue and resets the sequencers), 0x10876B60 is the line's constructor
   (kept copy).
+
+### engine/frontend/frontend.cpp, more (0x10864600 - 0x10865520)
+
+- `StartFrontend` (0x10864AF0) and `fe_EnableCatchupBehaviour` (0x10864890, now answers the object's previous flag as a
+  `bool`) match. `UpdateFrontend` (0x10864600) is EQUIVALENT (36 %): the engine keeps the constant 1 in a register for the
+  guard and the flags, loads the slot byte with `movzx` and schedules the float work differently; shrinkcheck lists only
+  same-kind instruction-selection pairs.
+- The `Function2<void,bool,bool>` members (constructor, `Call`, `Invoke`) are kept copies. The `Register<void,bool,bool>`
+  instance of the script manager is left unmapped: the engine's copy calls another copy of the function wrapper's
+  constructor.

@@ -41,7 +41,7 @@ namespace engine
 	// 0x108643B0: one of the screen's floats, held between -120 and 120
 	void SetScreenClampedFloat(int index, int a, float value);
 	// 0x10864540: hands the flag on to the object the frontend follows (the Lua native fe_EnableCatchupBehaviour)
-	void fe_EnableCatchupBehaviour(bool enable);
+	bool fe_EnableCatchupBehaviour(bool enable);
 	// 0x108645A0: shuts the frontend down and forgets it
 	void ShutdownFrontend();
 
