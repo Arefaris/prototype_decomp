@@ -51,16 +51,6 @@ namespace engine
 	};
 	extern ReverbSettings gReverbSettings;
 
-	class AudioSystem
-	{
-	public:
-		static AudioSystem* Get();
-		// 0x10871140: makes the group
-		void AddSoundGroup(const om::String& name, unsigned int maxSounds, unsigned int maxSoundsPerInstance);
-		// 0x10871240: lets the group interrupt another
-		void AddInterrupt(const om::String& group, const om::String& other);
-	};
-
 	// The settings entity (0x30 bytes)
 	class AudioGlobalSettings : public om::Entity
 	{

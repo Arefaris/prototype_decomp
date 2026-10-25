@@ -7,6 +7,7 @@
 #define ENGINE_AUDIO_AUDIOMESSAGE_H
 
 #include "code/core/name.h"
+#include "code/engine/audio/audiomanager.h"
 #include "code/engine/message.h"
 
 namespace engine
@@ -64,22 +65,6 @@ namespace engine
 
 		int unknown0[2];
 		Data* data;
-	};
-
-	// The global audio settings (0x113164B0; another unit)
-	class AudioSystem
-	{
-	public:
-		// 0x1086E060
-		static AudioSystem* Get();
-
-		int GetUnknown28() const
-		{
-			return unknown28;
-		}
-
-		int unknown0[0x28 / 4];
-		int unknown28;
 	};
 
 	// A sound an emitter plays
@@ -142,6 +127,9 @@ namespace engine
 	class AudioMessage : public IntrusiveMessage
 	{
 	public:
+		AudioMessage(int newType, short newId) : IntrusiveMessage(newType, newId)
+		{
+		}
 		virtual ~AudioMessage();
 
 		int unknownC;
@@ -150,6 +138,9 @@ namespace engine
 	class AudioEmitterMessage : public AudioMessage
 	{
 	public:
+		AudioEmitterMessage(int newType, short newId, const AudioName& newSound) : AudioMessage(newType, newId), sound(newSound)
+		{
+		}
 		virtual void Apply(AudioEmitter* emitter) = 0;
 
 		AudioName sound;
@@ -165,10 +156,21 @@ namespace engine
 			MODE_ONCE = 3
 		};
 
-		// 0x1008CEE0 (another unit): the sound and the event named, the volume, the distances and the pitches, the
-		// flag at +0x34 and the mode
+		// The sound and the event named, the volume, the distances and the pitches, the flag at +0x34 and the mode
+		// (the engine keeps an out-of-line copy at 0x1008CEE0)
 		AudioEmitterTriggerMessage(const AudioName& newSound, const AudioName& newEvent, float newVolume,
-			float newMinDistance, float newMaxDistance, float newMinPitch, float newMaxPitch, bool newFlag, int newMode);
+			float newMinDistance, float newMaxDistance, float newMinPitch, float newMaxPitch, bool newFlag, int newMode) :
+			AudioEmitterMessage(0x15, 0, newSound),
+			event(newEvent),
+			minDistance(newMinDistance),
+			maxDistance(newMaxDistance),
+			minPitch(newMinPitch),
+			maxPitch(newMaxPitch),
+			volume(newVolume),
+			unknown34(newFlag),
+			mode(newMode)
+		{
+		}
 		virtual void Apply(AudioEmitter* emitter);
 
 		AudioName event;

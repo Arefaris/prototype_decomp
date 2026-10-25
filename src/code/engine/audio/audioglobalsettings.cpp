@@ -1,6 +1,7 @@
 // The audio library's global settings and sound groups (engine::AudioGlobalSettings, engine::SoundGroup; 0x108C8E00 -
 // 0x108CE800): the accessors the reflection binds as properties and the om library's template instances for them.
 #include "code/engine/audio/audioglobalsettings.h"
+#include "code/engine/audio/audiomanager.h"
 #include "code/om/delegate.h"
 #include "code/om/metaattrib.h"
 #include "code/om/metaclass.h"

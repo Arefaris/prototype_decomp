@@ -6,6 +6,7 @@
 #define ENGINE_AUDIO_AUDIOSCRIPTMANAGER_H
 
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/om/allocation.h"
 
 namespace engine
 {
@@ -14,6 +15,10 @@ namespace engine
 	public:
 		// 0x108D2E90: registers the functions
 		AudioScriptManager();
+		~AudioScriptManager()
+		{
+		}
+		OM_ALLOCATION(AudioScriptManager);
 
 		// snd_EnableDebugOutput / snd_EnableDebugRendering
 		void EnableDebugOutput(bool enable);
@@ -55,6 +60,10 @@ namespace engine
 
 	// The one instance (0x11318928)
 	extern AudioScriptManager* gAudioScriptManager;
+
+	// 0x108D35B0 / 0x108D2290: make it and take it down
+	void CreateAudioScriptManager();
+	void DestroyAudioScriptManager();
 }
 
 #endif
