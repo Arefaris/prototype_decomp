@@ -2,6 +2,7 @@
 // 0x108CE800): the accessors the reflection binds as properties and the om library's template instances for them.
 #include "code/engine/audio/audioglobalsettings.h"
 #include "code/engine/audio/audiomanager.h"
+#include "code/om/atgcontent.h"
 #include "code/om/delegate.h"
 #include "code/om/invoke.h"
 #include "code/om/metaattrib.h"
@@ -257,6 +258,8 @@ namespace om
 	template class DynamicArray<String, unsigned short>;
 	template class DynamicArray<engine::SoundGroup, unsigned short>;
 	template class EntityType<engine::AudioGlobalSettings>;
+	template class AtgContentEntity<engine::AudioGlobalSettings>;
+	template class AtgContentEntityLoader<engine::AudioGlobalSettings>;
 	template class MetaAttrib<DynamicArray<String, unsigned short> >;
 	template class MetaAttrib<DynamicArray<engine::SoundGroup, unsigned short> >;
 	template class MetaClass<engine::SoundGroup>;
@@ -429,6 +432,7 @@ namespace om
 // FUNCTION: ENGINE 0x108C9860 @ int om::MetaClass<engine::AudioGlobalSettings>::Slot5(void)
 // FUNCTION: ENGINE 0x108C9870 @ void om::MetaClass<engine::AudioGlobalSettings>::Slot6(void *)
 // FUNCTION: ENGINE 0x108C9880 @ void * om::Garbage<om::String>::operator new(unsigned int) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108C98A0 @ content::ObjectLoader2::~ObjectLoader2(void) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108C98B0 @ void * om::EntityType<engine::AudioGlobalSettings>::operator new(unsigned int)
 // FUNCTION: ENGINE 0x108C98D0 @ void * om::MetaClass<engine::SoundGroup>::operator new(unsigned int)
 // FUNCTION: ENGINE 0x108C98F0 @ void * om::MetaClass<engine::SoundGroup>::`scalar deleting destructor'(unsigned int)
@@ -439,6 +443,7 @@ namespace om
 // FUNCTION: ENGINE 0x108C99E0 @ void om::MetaMethod1<engine::SoundGroup,engine::SoundGroup,void,om::String const &>::Call(void *,om::String const &)
 // FUNCTION: ENGINE 0x108C9A00 @ om::MetaMethod1Base<void,om::DynamicArray<engine::SoundGroup,unsigned short> const &>::~MetaMethod1Base<void,om::DynamicArray<engine::SoundGroup,unsigned short> const &>(
 // FUNCTION: ENGINE 0x108C9A10 @ void om::MetaMethod1<engine::SoundGroup,engine::SoundGroup,void,unsigned int const &>::operator delete(void *) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108C9A30 @ char const * om::AtgContentEntityLoader<engine::AudioGlobalSettings>::AllocationTag(void) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108C9A40 @ void * om::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &>::operator new(unsigned int)
 // FUNCTION: ENGINE 0x108C9A60 @ om::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &>::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &>(om::MetaClassBa
 // FUNCTION: ENGINE 0x108C9A90 @ om::String const & om::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &>::Call(void *)
@@ -519,6 +524,7 @@ namespace om
 // FUNCTION: ENGINE 0x108CA650 @ void * om::DelegateMetaProperty<om::String const &>::operator new(unsigned int)
 // FUNCTION: ENGINE 0x108CA670 @ void * om::DelegateMetaProperty<om::DynamicArray<om::String,unsigned short> const &>::operator new(unsigned int)
 // FUNCTION: ENGINE 0x108CA690 @ void * om::DelegateMetaProperty<om::DynamicArray<engine::SoundGroup,unsigned short> const &>::operator new(unsigned int)
+// FUNCTION: ENGINE 0x108CA6B0 @ void * om::AtgContentEntityLoader<engine::AudioGlobalSettings>::operator new(unsigned int) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108CA6D0 @ om::Garbage<om::String>::Garbage<om::String>(om::String *)
 // FUNCTION: ENGINE 0x108CA6F0 @ om::Garbage<om::String>::~Garbage<om::String>(void)
 // FUNCTION: ENGINE 0x108CA720 @ void om::Garbage<om::String>::operator delete(void *) (name guess; identical copies)
@@ -548,7 +554,12 @@ namespace om
 // FUNCTION: ENGINE 0x108CADE0 @ engine::SoundGroup::SoundGroup(void)
 // FUNCTION: ENGINE 0x108CAE10 @ void engine::AudioGlobalSettings::Apply(void)
 // FUNCTION: ENGINE 0x108CAF00 @ void om::MetaClass<engine::SoundGroup>::Create(om::Name<om::CaseSensitive64BitKey> const &,om::MetaClassBase *)
+// FUNCTION: ENGINE 0x108CAFC0 @ om::AtgContentEntityLoader<engine::AudioGlobalSettings>::AtgContentEntityLoader<engine::AudioGlobalSettings>(void)
 // FUNCTION: ENGINE 0x108CAFF0 @ void om::Garbage<float>::operator delete(void *) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CB010 @ char const * om::AtgContentEntity<engine::AudioGlobalSettings>::AllocationTag(void)
+// FUNCTION: ENGINE 0x108CB020 @ om::AtgContentEntityLoaderBase::~AtgContentEntityLoaderBase(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CB030 @ void * om::AtgContentEntity<engine::AudioGlobalSettings>::operator new(unsigned int) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CB050 @ void * om::AtgContentEntityLoader<engine::AudioGlobalSettings>::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108CB080 @ void om::MetaClass<engine::AudioGlobalSettings>::Create(om::Name<om::CaseSensitive64BitKey> const &,om::MetaClassBase *)
 // FUNCTION: ENGINE 0x108CB0F0 @ om::MetaMethod1<engine::SoundGroup,engine::SoundGroup,void,om::String const &> * om::MetaMethod1<engine::SoundGroup,engine::SoundGroup,void,om::String const &>::Create(om
 // FUNCTION: ENGINE 0x108CB130 @ om::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &> * om::MetaMethod0Const<engine::SoundGroup,engine::SoundGroup,om::String const &>::Create(om
@@ -608,6 +619,7 @@ namespace om
 // FUNCTION: ENGINE 0x108CCC70 @ bool om::AttributeReadBinary<om::DynamicArray<om::String,unsigned short> >(om::BinaryStream *,om::DynamicArray<om::String,unsigned short> *)
 // FUNCTION: ENGINE 0x108CCEF0 @ void om::DynamicArray<engine::SoundGroup,unsigned short>::Empty(void)
 // FUNCTION: ENGINE 0x108CCF10 @ void om::EntityType<engine::AudioGlobalSettings>::Register(char const *,bool)
+// FUNCTION: ENGINE 0x108CCF40 @ om::AtgContentEntityBase::~AtgContentEntityBase(void) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108CCF80 @ om::DynamicArray<engine::SoundGroup,unsigned short>::~DynamicArray<engine::SoundGroup,unsigned short>(void)
 // FUNCTION: ENGINE 0x108CD3B0 @ om::DynamicArray<om::String,unsigned short> * om::ReadArgument<om::DynamicArray<om::String,unsigned short> >(om::BinaryStream *,om::GarbageList *)
 // FUNCTION: ENGINE 0x108CD430 @ om::DynamicArray<engine::SoundGroup,unsigned short>::DynamicArray<engine::SoundGroup,unsigned short>(om::DynamicArray<engine::SoundGroup,unsigned short> const &)
@@ -620,10 +632,14 @@ namespace om
 // FUNCTION: ENGINE 0x108CDE20 @ void om::EntityType<engine::AudioGlobalSettings>::CreateEntity(om::Entity * *,om::Name<om::CaseSensitive64BitKey> const &)
 // FUNCTION: ENGINE 0x108CDEA0 @ void om::EntityType<engine::AudioGlobalSettings>::CreateUnregisteredEntity(om::Entity * *,om::Name<om::CaseSensitive64BitKey> const &)
 // FUNCTION: ENGINE 0x108CDF10 @ void om::EntityType<engine::AudioGlobalSettings>::CreateUnregisteredEntity2(om::Entity * *,om::Name<om::CaseSensitive64BitKey> const &)
+// FUNCTION: ENGINE 0x108CDFA0 @ void om::AtgContentEntity<engine::AudioGlobalSettings>::operator delete(void *) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CDFC0 @ om::AtgContentEntity<engine::AudioGlobalSettings>::~AtgContentEntity<engine::AudioGlobalSettings>(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CE000 @ void * om::AtgContentEntity<engine::AudioGlobalSettings>::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108CE130 @ om::DynamicArray<engine::SoundGroup,unsigned short> om::DelegateMetaProperty<om::DynamicArray<engine::SoundGroup,unsigned short> const &>::Get(void)
 // FUNCTION: ENGINE 0x108CE240 @ bool om::AttributeWriteBinary<om::DynamicArray<engine::SoundGroup,unsigned short> >(om::BinaryStream *,om::DynamicArray<engine::SoundGroup,unsigned short> const &) (name 
 // FUNCTION: ENGINE 0x108CE250 @ bool om::AttributeReadBinary<om::DynamicArray<engine::SoundGroup,unsigned short> >(om::BinaryStream *,om::DynamicArray<engine::SoundGroup,unsigned short> *)
 // FUNCTION: ENGINE 0x108CE2F0 @ bool om::AttributeReadText<om::DynamicArray<engine::SoundGroup,unsigned short> >(om::TextValue const *,om::DynamicArray<engine::SoundGroup,unsigned short> *)
+// FUNCTION: ENGINE 0x108CE360 @ om::AtgContentEntityBase * om::AtgContentEntityLoader<engine::AudioGlobalSettings>::CreateContent(om::Entity *)
 // FUNCTION: ENGINE 0x108CE3A0 @ void om::WriteResult<om::DynamicArray<engine::SoundGroup,unsigned short> >(om::BinaryStream *,om::DynamicArray<engine::SoundGroup,unsigned short> const &)
 // FUNCTION: ENGINE 0x108CE3B0 @ om::DynamicArray<engine::SoundGroup,unsigned short> * om::ReadArgument<om::DynamicArray<engine::SoundGroup,unsigned short> >(om::BinaryStream *,om::GarbageList *)
 // FUNCTION: ENGINE 0x108CE5F0 @ bool om::MetaProperty<om::DynamicArray<engine::SoundGroup,unsigned short> const &>::GetBinary(om::BinaryStream *,void *)

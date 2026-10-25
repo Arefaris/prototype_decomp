@@ -1,6 +1,7 @@
 // The audio library's material map (engine::AudioMaterialMap; 0x108CEDE0 - 0x108D1110): the accessors the reflection
 // binds as the property "Map" and the om library's template instances for them.
 #include "code/engine/audio/audiomaterialmap.h"
+#include "code/om/atgcontent.h"
 #include "code/om/delegate.h"
 #include "code/om/invoke.h"
 #include "code/om/metaattrib.h"
@@ -16,10 +17,6 @@ namespace engine
 	AudioMaterialMap::AudioMaterialMap(const om::ClassName& newName) :
 		Entity(newName),
 		map()
-	{
-	}
-
-	AudioMaterialMap::~AudioMaterialMap()
 	{
 	}
 
@@ -58,6 +55,8 @@ namespace om
 	template<> MaterialDictionary* ReadArgument<MaterialDictionary>(BinaryStream* stream, GarbageList* list);
 
 	template class EntityType<engine::AudioMaterialMap>;
+	template class AtgContentEntity<engine::AudioMaterialMap>;
+	template class AtgContentEntityLoader<engine::AudioMaterialMap>;
 	template class MetaAttrib<MaterialDictionary>;
 	template class MetaClass<engine::AudioMaterialMap>;
 	template class MetaMethod1<engine::AudioMaterialMap, engine::AudioMaterialMap, void, const MaterialDictionary&>;
@@ -82,6 +81,8 @@ namespace om
 // FUNCTION: ENGINE 0x108D1020 @ public: virtual void __thiscall om::MetaMethod1<class engine::AudioMaterialMap,class engine::AudioMaterialMap,void,class om::Dictionary<class om::Name<struct om::CaseSens
 
 // FUNCTION: ENGINE 0x108CEE70 @ public: static char const * __cdecl om::Garbage<class om::Dictionary<class om::Name<struct om::CaseSensitive64BitKey>,class om::Name<struct om::CaseSensitive64BitKey>,str
+
+// FUNCTION: ENGINE 0x108D08B0 @ public: virtual class om::AtgContentEntityBase * __thiscall om::AtgContentEntityLoader<class engine::AudioMaterialMap>::CreateContent(class om::Entity *)
 // ---- annotations of the functions mapped in symbols.txt (generated) ----
 
 // FUNCTION: ENGINE 0x108CEDE0 @ type_info const * om::MetaClass<engine::AudioMaterialMap>::GetType(void)
@@ -113,6 +114,7 @@ namespace om
 // FUNCTION: ENGINE 0x108CF280 @ void om::MetaMethod1<engine::AudioMaterialMap,engine::AudioMaterialMap,void,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Com
 // FUNCTION: ENGINE 0x108CF2A0 @ om::MetaMethod1Base<void,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const
 // FUNCTION: ENGINE 0x108CF2B0 @ void om::MetaMethod1<engine::AudioMaterialMap,engine::AudioMaterialMap,void,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Com
+// FUNCTION: ENGINE 0x108CF2E0 @ char const * om::AtgContentEntityLoader<engine::AudioMaterialMap>::AllocationTag(void) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108CF2F0 @ void * om::MetaMethod0Const<engine::AudioMaterialMap,engine::AudioMaterialMap,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::C
 // FUNCTION: ENGINE 0x108CF310 @ om::MetaMethod0Const<engine::AudioMaterialMap,engine::AudioMaterialMap,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer
 // FUNCTION: ENGINE 0x108CF340 @ om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const & om::MetaMethod0Const<e
@@ -126,6 +128,7 @@ namespace om
 // FUNCTION: ENGINE 0x108CF480 @ om::MetaMethod1Base<void,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const
 // FUNCTION: ENGINE 0x108CF490 @ om::MetaMethod0Base<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &> *
 // FUNCTION: ENGINE 0x108CF550 @ void * om::DelegateMetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > 
+// FUNCTION: ENGINE 0x108CF570 @ void * om::AtgContentEntityLoader<engine::AudioMaterialMap>::operator new(unsigned int) (name guess; identical copies)
 // FUNCTION: ENGINE 0x108CF590 @ om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::Garbage<om::Dic
 // FUNCTION: ENGINE 0x108CF5B0 @ void om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > >::operator delete(void *)
 // FUNCTION: ENGINE 0x108CF5D0 @ void om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::operator d
@@ -133,6 +136,12 @@ namespace om
 // FUNCTION: ENGINE 0x108CF600 @ om::MetaTypeBase * om::DelegateProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64Bi
 // FUNCTION: ENGINE 0x108CF610 @ om::DelegateProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::~Deleg
 // FUNCTION: ENGINE 0x108CF620 @ void * om::DelegateProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >:
+// FUNCTION: ENGINE 0x108CF6C0 @ om::AtgContentEntityLoader<engine::AudioMaterialMap>::AtgContentEntityLoader<engine::AudioMaterialMap>(void)
+// FUNCTION: ENGINE 0x108CF700 @ void om::AtgContentEntity<engine::AudioMaterialMap>::operator delete(void *) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CF720 @ char const * om::AtgContentEntity<engine::AudioMaterialMap>::AllocationTag(void)
+// FUNCTION: ENGINE 0x108CF730 @ om::AtgContentEntityLoader<engine::AudioMaterialMap>::~AtgContentEntityLoader<engine::AudioMaterialMap>(void)
+// FUNCTION: ENGINE 0x108CF740 @ void * om::AtgContentEntity<engine::AudioMaterialMap>::operator new(unsigned int) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108CF760 @ void * om::AtgContentEntityLoader<engine::AudioMaterialMap>::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108CF790 @ void om::MetaClass<engine::AudioMaterialMap>::Create(om::Name<om::CaseSensitive64BitKey> const &,om::MetaClassBase *)
 // FUNCTION: ENGINE 0x108CF800 @ om::MetaMethod1<engine::AudioMaterialMap,engine::AudioMaterialMap,void,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer
 // FUNCTION: ENGINE 0x108CF840 @ om::MetaMethod0Const<engine::AudioMaterialMap,engine::AudioMaterialMap,om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer
@@ -158,9 +167,15 @@ namespace om
 // FUNCTION: ENGINE 0x108D0230 @ engine::AudioMaterialMap::AudioMaterialMap(om::Name<om::CaseSensitive64BitKey> const &)
 // FUNCTION: ENGINE 0x108D0260 @ void om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
 // FUNCTION: ENGINE 0x108D0280 @ om::EntityTypeBase * engine::AudioMaterialMap::GetEntityType(void)
+// FUNCTION: ENGINE 0x108D0290 @ engine::AudioMaterialMap::~AudioMaterialMap(void)
+// FUNCTION: ENGINE 0x108D03C0 @ om::AtgContentEntity<engine::AudioMaterialMap>::AtgContentEntity<engine::AudioMaterialMap>(om::Entity *)
+// FUNCTION: ENGINE 0x108D03E0 @ void om::AtgContentEntityLoader<engine::AudioMaterialMap>::operator delete(void *) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D0400 @ om::AtgContentEntity<engine::AudioMaterialMap>::~AtgContentEntity<engine::AudioMaterialMap>(void)
+// FUNCTION: ENGINE 0x108D0440 @ void * om::AtgContentEntity<engine::AudioMaterialMap>::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108D04A0 @ void om::WriteResult<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >(om::Bin
 // FUNCTION: ENGINE 0x108D0510 @ bool om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
 // FUNCTION: ENGINE 0x108D0640 @ om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::~Garbage<om::Di
 // FUNCTION: ENGINE 0x108D0680 @ void * om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::`scalar 
+// FUNCTION: ENGINE 0x108D0870 @ void * engine::AudioMaterialMap::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108D0BF0 @ bool om::AttributeReadText<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >(o
 // FUNCTION: ENGINE 0x108D0F80 @ bool om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>

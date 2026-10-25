@@ -27,6 +27,8 @@ namespace om
 	public:
 		// 0x105B5210
 		explicit Entity(const ClassName& newName);
+		// 0x105B56A0: takes the entity out of the registry
+		virtual ~Entity();
 		// The entity's virtual slots after the destructor (names guessed): 0x105B5240 answers true, 0x105B5D00
 		// renames the entity in the registry, 0x105B49E0 and on read and write it through the reflection of its
 		// type, and the last (pure in the engine's Entity) answers the entity type of the class

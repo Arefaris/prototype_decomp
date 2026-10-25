@@ -16,7 +16,6 @@ namespace engine
 	{
 	public:
 		explicit AudioMaterialMap(const om::ClassName& newName);
-		virtual ~AudioMaterialMap();
 		virtual om::EntityTypeBase* GetEntityType();
 		OM_ENTITY_ALLOCATION(AudioMaterialMap);
 

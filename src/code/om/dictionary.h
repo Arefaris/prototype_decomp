@@ -31,7 +31,7 @@ namespace om
 			Clear();
 		}
 		// 0x108CFE30: takes every node out
-		void Clear()
+		__declspec(noinline) void Clear()
 		{
 			TreeNode* first;
 			while ((first = tree.First()) != 0)
