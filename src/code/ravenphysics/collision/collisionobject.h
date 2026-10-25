@@ -397,6 +397,8 @@ namespace ravenphysics
 		}
 		// The object a handle names (0x10656090)
 		void* GetObject(const CollisionHandle* handle) const;
+		// The same without the check of the serial (0x1066AAB0; name guess)
+		void* GetObjectUnchecked(const CollisionHandle* handle) const;
 		// Gives the slot of the handle back when the serial still matches (0x106532B0)
 		void Remove(CollisionHandle* handle);
 		// The same for a body's id word

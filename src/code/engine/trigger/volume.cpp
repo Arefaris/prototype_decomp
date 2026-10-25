@@ -6,25 +6,6 @@
 #include "code/ravenphysics/context.h"
 #include "code/ravenphysics/physicsobject.h"
 
-namespace ravenphysics
-{
-	// What the physics library takes to make an object: the properties it collides with and one more word that is zero here
-	// (name guessed)
-	struct ObjectProperties
-	{
-		ObjectProperties()
-		{
-			unknown8 = 0;
-		}
-
-		IntersectionProperties properties;
-		int unknown8;
-	};
-
-	// 0x1066AA80 (another unit): makes the physics object of a volume with the properties; answers out (name guessed)
-	ObjectHandle* CreateObject(ObjectHandle* out, CollisionVolume* shape, const ObjectProperties* properties);
-}
-
 namespace engine
 {
 	namespace trigger
@@ -195,7 +176,7 @@ namespace engine
 		void SphereVolume::CreateObject()
 		{
 			ravenphysics::CollisionSphere* shape = new ravenphysics::CollisionSphere(sphere);
-			ravenphysics::ObjectProperties properties;
+			ravenphysics::IntersectionFilter properties;
 			ravenphysics::ObjectHandle created;
 			handle.value = ravenphysics::CreateObject(&created, shape, &properties)->value;
 		}
@@ -236,7 +217,7 @@ namespace engine
 		void OBBVolume::CreateObject()
 		{
 			ravenphysics::CollisionOBB* shape = new ravenphysics::CollisionOBB(box);
-			ravenphysics::ObjectProperties properties;
+			ravenphysics::IntersectionFilter properties;
 			ravenphysics::ObjectHandle created;
 			handle.value = ravenphysics::CreateObject(&created, shape, &properties)->value;
 		}

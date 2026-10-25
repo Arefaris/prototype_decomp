@@ -235,6 +235,36 @@ namespace ravenphysics
 		return object;
 	}
 
+	// FUNCTION: ENGINE 0x1066AA50
+	ObjectHandle* CreateObject(ObjectHandle* handle, const BroadPhaseBox* box, const IntersectionFilter* filter)
+	{
+		TriggerObject* object = CreateTriggerFromBox(box, filter);
+		object->AddRef();
+		handle->value = object->id;
+		return handle;
+	}
+
+	// FUNCTION: ENGINE 0x1066AA80
+	ObjectHandle* CreateObject(ObjectHandle* handle, CollisionVolume* volume, const IntersectionFilter* filter)
+	{
+		TriggerObject* object = CreateTriggerFromVolume(volume, filter);
+		object->AddRef();
+		handle->value = object->id;
+		return handle;
+	}
+
+	// FUNCTION: ENGINE 0x1066AAB0
+	void* CollisionObjectTable::GetObjectUnchecked(const CollisionHandle* handle) const
+	{
+		return entries.begin[handle->index].object;
+	}
+
+	// FUNCTION: ENGINE 0x1066AAC0
+	PhysicsObject* ObjectHandle::GetObjectUnchecked() const
+	{
+		return (PhysicsObject*)gCollisionObjectTable->entries.begin[index].object;
+	}
+
 	// Kept copies: the deleting destructor
 	// FUNCTION: ENGINE 0x10678380
 }

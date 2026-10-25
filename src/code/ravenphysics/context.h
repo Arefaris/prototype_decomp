@@ -84,14 +84,20 @@ namespace ravenphysics
 	IntersectionPropertiesEntry* FindIntersectionProperty(const IntersectionProperties& properties);
 
 	// ravenphysics::IntersectionPropertiesLoader (RTTI; a load object of the physics library)
-	class IntersectionPropertiesLoader : public content::LoadObject
+	class IntersectionPropertiesLoader : public content::MetaLoadObject
 	{
 	public:
+		// The constructor (0x10654020) and the reflection (0x10653640 / 0x10653CC0), another unit
+		IntersectionPropertiesLoader();
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		unsigned char unknown8[0x38 - 8];
 		unsigned short index;       // 0x38 (the properties' place in the registry)
 		unsigned char unknown3A[2];
 		int unknown3C;
 		int unknown40;
+		int unknown44;
 	};
 
 	// ravenphysics::ColliderTypeNames (RTTI; a load object that names the collider types): the names are a run at +8

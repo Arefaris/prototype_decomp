@@ -10,6 +10,9 @@
 #include "code/engine/render/renderbehaviour.h"
 #include "code/ravenphysics/constraints/sharedproperties.h"
 #include "code/ravenphysics/material.h"
+#include "code/ravenphysics/constraintlistfactory.h"
+#include "code/ravenphysics/context.h"
+#include "code/ravenphysics/physicsobjectfactory.h"
 
 namespace engine
 {
@@ -459,17 +462,6 @@ namespace world
 
 namespace ravenphysics
 {
-	// ConstraintListFactory: constructor 0x106A6CE0, reflection 0x106A56F0 / 0x106A6B70
-	class ConstraintListFactory : public content::MetaLoadObject
-	{
-	public:
-		ConstraintListFactory();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x10];
-	};
-
 	// DeformableOrientationConstraintSharedProperties: constructor 0x10692DF0, reflection 0x10692C50 / 0x10693060
 	class DeformableOrientationConstraintSharedProperties : public content::MetaLoadObject
 	{
@@ -492,17 +484,6 @@ namespace ravenphysics
 		unsigned char unknown8[0x10];
 	};
 
-	// IntersectionPropertiesLoader: constructor 0x10654020, reflection 0x10653640 / 0x10653CC0
-	class IntersectionPropertiesLoader : public content::MetaLoadObject
-	{
-	public:
-		IntersectionPropertiesLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x40];
-	};
-
 	// PoweredConstraintSharedProperties: constructor 0x10693B90, reflection 0x106939E0 / 0x10693D40
 	class PoweredConstraintSharedProperties : public content::MetaLoadObject
 	{
@@ -512,17 +493,6 @@ namespace ravenphysics
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x8];
-	};
-
-	// SimplePhysicsObjectFactory: constructor 0x1066DF60, reflection 0x1066C720 / 0x1066E7B0
-	class SimplePhysicsObjectFactory : public content::MetaLoadObject
-	{
-	public:
-		SimplePhysicsObjectFactory();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x18];
 	};
 
 }

@@ -341,6 +341,11 @@ namespace ravenphysics
 	TriggerObject* CreateTriggerFromBox(const BroadPhaseBox* box, const IntersectionFilter* filter);
 	TriggerObject* CreateTriggerFromVolume(CollisionVolume* volume, const IntersectionFilter* filter);
 
+	// A trigger object around a box or around a volume, kept alive by one reference, and the handle it is registered
+	// under written to the first argument (0x1066AA50 / 0x1066AA80; names guessed)
+	ObjectHandle* CreateObject(ObjectHandle* handle, const BroadPhaseBox* box, const IntersectionFilter* filter);
+	ObjectHandle* CreateObject(ObjectHandle* handle, CollisionVolume* volume, const IntersectionFilter* filter);
+
 	// The physics object of a collision volume (0x10661140)
 	PhysicsObject* CreatePhysicsObject(CollisionVolume* volume, bool flag, float size);
 }
