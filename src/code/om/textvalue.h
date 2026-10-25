@@ -93,7 +93,15 @@ namespace om
 	bool WriteBinary(BinaryStream* stream, unsigned int value);
 	inline bool WriteBinary(BinaryStream* stream, const String& value)
 	{
-		return WriteBinary(stream, (unsigned int)value.length) && stream->buffer->Write(value.GetText(), value.length + 1);
+		if (WriteBinary(stream, (unsigned int)value.length))
+		{
+			unsigned int length = value.length;
+			if (stream->buffer->Write(value.GetText(), length + 1))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

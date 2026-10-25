@@ -2,6 +2,7 @@
 // binds as the property "Map" and the om library's template instances for them.
 #include "code/engine/audio/audiomaterialmap.h"
 #include "code/om/delegate.h"
+#include "code/om/invoke.h"
 #include "code/om/metaattrib.h"
 #include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
@@ -53,6 +54,9 @@ namespace om
 	template<> void MetaProperty<const MaterialDictionary&>::GetText(TextValue* text, void* object);
 	template<> MaterialDictionary DelegateMetaProperty<const MaterialDictionary&>::Get();
 
+	// The engine's copy of this one calls a copy of the allocation tag that its own users do not
+	template<> MaterialDictionary* ReadArgument<MaterialDictionary>(BinaryStream* stream, GarbageList* list);
+
 	template class EntityType<engine::AudioMaterialMap>;
 	template class MetaAttrib<MaterialDictionary>;
 	template class MetaClass<engine::AudioMaterialMap>;
@@ -71,12 +75,18 @@ namespace om
 // FUNCTION: ENGINE 0x108D0530 @ om::MetaAttrib<om::Dictionary<...> >::WriteBinary
 // EQUIVALENT: register allocation and scheduling of the offset sum (41.7 %)
 
+// FUNCTION: ENGINE 0x108D02B0 @ public: virtual void __thiscall om::EntityType<class engine::AudioMaterialMap>::CreateEntity(class om::Entity * *,class om::Name<struct om::CaseSensitive64BitKey> const &
+// FUNCTION: ENGINE 0x108D0300 @ public: virtual void __thiscall om::EntityType<class engine::AudioMaterialMap>::CreateUnregisteredEntity(class om::Entity * *,class om::Name<struct om::CaseSensitive64Bit
+// FUNCTION: ENGINE 0x108D0360 @ public: virtual void __thiscall om::EntityType<class engine::AudioMaterialMap>::CreateUnregisteredEntity2(class om::Entity * *,class om::Name<struct om::CaseSensitive64Bi
+// FUNCTION: ENGINE 0x108D09D0 @ public: virtual void __thiscall om::MetaMethod0Const<class engine::AudioMaterialMap,class engine::AudioMaterialMap,class om::Dictionary<class om::Name<struct om::CaseSens
+// FUNCTION: ENGINE 0x108D1020 @ public: virtual void __thiscall om::MetaMethod1<class engine::AudioMaterialMap,class engine::AudioMaterialMap,void,class om::Dictionary<class om::Name<struct om::CaseSens
+
+// FUNCTION: ENGINE 0x108CEE70 @ public: static char const * __cdecl om::Garbage<class om::Dictionary<class om::Name<struct om::CaseSensitive64BitKey>,class om::Name<struct om::CaseSensitive64BitKey>,str
 // ---- annotations of the functions mapped in symbols.txt (generated) ----
 
 // FUNCTION: ENGINE 0x108CEDE0 @ type_info const * om::MetaClass<engine::AudioMaterialMap>::GetType(void)
 // FUNCTION: ENGINE 0x108CEE10 @ om::MetaClass<engine::AudioMaterialMap>::~MetaClass<engine::AudioMaterialMap>(void)
 // FUNCTION: ENGINE 0x108CEE20 @ void om::MetaClass<engine::AudioMaterialMap>::operator delete(void *)
-// FUNCTION: ENGINE 0x108CEE70 @ char const * om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::Al
 // FUNCTION: ENGINE 0x108CEE80 @ char const * om::EntityType<engine::AudioMaterialMap>::AllocationTag(void)
 // FUNCTION: ENGINE 0x108CEE90 @ char const * om::MetaClass<engine::AudioMaterialMap>::AllocationTag(void)
 // FUNCTION: ENGINE 0x108CEEA0 @ om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>::Met
@@ -139,14 +149,18 @@ namespace om
 // FUNCTION: ENGINE 0x108CFDA0 @ om::EntityType<engine::AudioMaterialMap>::~EntityType<engine::AudioMaterialMap>(void)
 // FUNCTION: ENGINE 0x108CFE00 @ void * om::EntityType<engine::AudioMaterialMap>::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108CFE70 @ om::DelegatePropertyBase * om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive
+// FUNCTION: ENGINE 0x108CFFC0 @ void om::AttributeWriteText<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >(
 // FUNCTION: ENGINE 0x108D0150 @ om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > >::~Dictionary<om::Name<om::Case
 // FUNCTION: ENGINE 0x108D0190 @ void om::DelegateMetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > 
 // FUNCTION: ENGINE 0x108D01C0 @ void om::MetaAttrib<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::WriteTe
+// FUNCTION: ENGINE 0x108D01E0 @ bool om::AttributeWriteBinary<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > 
 // FUNCTION: ENGINE 0x108D01F0 @ void * om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > >::`scalar deleting destr
 // FUNCTION: ENGINE 0x108D0230 @ engine::AudioMaterialMap::AudioMaterialMap(om::Name<om::CaseSensitive64BitKey> const &)
 // FUNCTION: ENGINE 0x108D0260 @ void om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
 // FUNCTION: ENGINE 0x108D0280 @ om::EntityTypeBase * engine::AudioMaterialMap::GetEntityType(void)
-// FUNCTION: ENGINE 0x108D0510 @ void om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
+// FUNCTION: ENGINE 0x108D04A0 @ void om::WriteResult<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >(om::Bin
+// FUNCTION: ENGINE 0x108D0510 @ bool om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
 // FUNCTION: ENGINE 0x108D0640 @ om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::~Garbage<om::Di
 // FUNCTION: ENGINE 0x108D0680 @ void * om::Garbage<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >::`scalar 
+// FUNCTION: ENGINE 0x108D0BF0 @ bool om::AttributeReadText<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > >(o
 // FUNCTION: ENGINE 0x108D0F80 @ bool om::MetaProperty<om::Dictionary<om::Name<om::CaseSensitive64BitKey>,om::Name<om::CaseSensitive64BitKey>,om::Comparer<om::Name<om::CaseSensitive64BitKey> > > const &>
