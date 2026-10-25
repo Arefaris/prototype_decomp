@@ -355,6 +355,111 @@ namespace engine
 }
 // END GENERATED INSTANTIATIONS
 
+// The classes whose objects another unit makes (their Create is the engine's: declared, not defined here)
+namespace content
+{
+	template<> LoadObject* MetaObjectFactory<engine::NIS, 1>::Create();
+	template MetaObjectFactory<engine::NIS, 1>::MetaObjectFactory(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::NIS>();
+	template void RegisterMetaObjectFactory<engine::NIS>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularAccelerationExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularDisplacementExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::AngularSpeedExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::AngularSpeedExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::AngularSpeedExtractor>();
+	template void RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<bool>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<bool>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<bool>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<bool>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<bool>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<bool>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<bool>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<bool>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<int>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<int>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<int>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<int>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<int>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<int>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<int>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<int>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<float>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<float>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<float>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<float>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<float>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<float>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> >>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<pure3d::Pose *>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<pure3d::Pose *>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<math::Matrix>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<math::Matrix>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<math::Matrix>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix>>();
+	template<> void* MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::GameObject::DynamicAttributeList>();
+	template void RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearAccelerationExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearDisplacementExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::LinearSpeedExtractor, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::LinearSpeedExtractor, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::LinearSpeedExtractor>();
+	template void RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>();
+	template<> void* MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::RigidMotionTrackingFilter>();
+	template void RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<math::Vector>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<math::Vector>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<math::Vector>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<math::Vector>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<math::Vector>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector>>();
+	template<> void* MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::Attribute<engine::GenericScriptValue>>();
+	template void RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue>>();
+	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>, 1>::Create();
+	template MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
+	template ClassMetaType* GetClassMetaType<engine::ConstAttribute<engine::GenericScriptValue>>();
+	template void RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue>>();
+}
+
 // The class meta types, factories, creators and registrations, in address order:
 // FUNCTION: ENGINE 0x108D6E20 @ GetClassMetaType<animation::AttachmentPhysicsProperties>
 // FUNCTION: ENGINE 0x108D6E70 @ MetaObjectFactory<animation::AttachmentPhysicsProperties,1>::MetaObjectFactory
@@ -742,3 +847,76 @@ namespace engine
 // FUNCTION: ENGINE 0x108DDB40 @ RegisterMetaBehaviourCreator<HealthBehaviour>
 // FUNCTION: ENGINE 0x108DDBE0 @ RegisterMetaBehaviourCreator<LightBehaviour>
 // FUNCTION: ENGINE 0x108DE130 @ RegisterMetaBehaviourCreator<TriggerBehaviour>
+
+// ---- annotations of the functions mapped in symbols.txt (generated) ----
+
+// FUNCTION: ENGINE 0x108D7670 @ math::Plane::Plane(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D88E0 @ content::ClassMetaType * content::GetClassMetaType<engine::NIS>(void)
+// FUNCTION: ENGINE 0x108D8930 @ content::MetaObjectFactory<engine::NIS,1>::MetaObjectFactory<engine::NIS,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8960 @ math::OBB::OBB(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D8B60 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108D8BB0 @ content::MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor,1>::MetaInstanceCreatorImpl<engine::AngularAccelerationExtractor,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D8C10 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108D8C60 @ content::MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor,1>::MetaInstanceCreatorImpl<engine::AngularDisplacementExtractor,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D8C90 @ content::ClassMetaType * content::GetClassMetaType<engine::AngularSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108D8CE0 @ content::MetaInstanceCreatorImpl<engine::AngularSpeedExtractor,1>::MetaInstanceCreatorImpl<engine::AngularSpeedExtractor,1>(char const *,unsigned short,content::ClassMeta
+// FUNCTION: ENGINE 0x108D8D10 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<bool> >(void)
+// FUNCTION: ENGINE 0x108D8D60 @ content::MetaInstanceCreatorImpl<engine::Attribute<bool>,1>::MetaInstanceCreatorImpl<engine::Attribute<bool>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8D90 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<bool>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<bool>,1>(char const *,unsigned short,content::ClassMetaTy
+// FUNCTION: ENGINE 0x108D8DC0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<int> >(void)
+// FUNCTION: ENGINE 0x108D8E10 @ content::MetaInstanceCreatorImpl<engine::Attribute<int>,1>::MetaInstanceCreatorImpl<engine::Attribute<int>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8E40 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<int>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<int>,1>(char const *,unsigned short,content::ClassMetaType
+// FUNCTION: ENGINE 0x108D8E70 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<float> >(void)
+// FUNCTION: ENGINE 0x108D8EC0 @ content::MetaInstanceCreatorImpl<engine::Attribute<float>,1>::MetaInstanceCreatorImpl<engine::Attribute<float>,1>(char const *,unsigned short,content::ClassMetaType *)
+// FUNCTION: ENGINE 0x108D8EF0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<float>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<float>,1>(char const *,unsigned short,content::ClassMeta
+// FUNCTION: ENGINE 0x108D8F20 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108D8F70 @ content::MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >,1>::MetaInstanceCreatorImpl<engine::Attribute<core::Name<core::CaseSensitiveKey> >
+// FUNCTION: ENGINE 0x108D8FA0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<core::Name<core::CaseSensi
+// FUNCTION: ENGINE 0x108D8FD0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108D9020 @ content::MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>,1>::MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose *>,1>(char const *,unsigned short,content::C
+// FUNCTION: ENGINE 0x108D9050 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose *>,1>(char const *,unsigned short,
+// FUNCTION: ENGINE 0x108D9080 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108D90D0 @ content::MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>,1>::MetaInstanceCreatorImpl<engine::Attribute<math::Matrix>,1>(char const *,unsigned short,content::Class
+// FUNCTION: ENGINE 0x108D9100 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Matrix>,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108D9450 @ engine::IntrusiveMessage::~IntrusiveMessage(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D95D0 @ content::MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList,1>::MetaInstanceCreatorImpl<engine::GameObject::DynamicAttributeList,1>(char const *,unsigned sh
+// FUNCTION: ENGINE 0x108D97E0 @ engine::ScenarioMessage::~ScenarioMessage(void) (name guess; identical copies)
+// FUNCTION: ENGINE 0x108D9920 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108D9970 @ content::MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor,1>::MetaInstanceCreatorImpl<engine::LinearAccelerationExtractor,1>(char const *,unsigned short,conten
+// FUNCTION: ENGINE 0x108D99A0 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108D99F0 @ content::MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor,1>::MetaInstanceCreatorImpl<engine::LinearDisplacementExtractor,1>(char const *,unsigned short,conten
+// FUNCTION: ENGINE 0x108D9A20 @ content::ClassMetaType * content::GetClassMetaType<engine::LinearSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108D9A70 @ content::MetaInstanceCreatorImpl<engine::LinearSpeedExtractor,1>::MetaInstanceCreatorImpl<engine::LinearSpeedExtractor,1>(char const *,unsigned short,content::ClassMetaTy
+// FUNCTION: ENGINE 0x108D9BC0 @ content::ClassMetaType * content::GetClassMetaType<engine::RigidMotionTrackingFilter>(void)
+// FUNCTION: ENGINE 0x108D9C10 @ content::MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter,1>::MetaInstanceCreatorImpl<engine::RigidMotionTrackingFilter,1>(char const *,unsigned short,content::C
+// FUNCTION: ENGINE 0x108DA0A0 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DA0F0 @ content::MetaInstanceCreatorImpl<engine::Attribute<math::Vector>,1>::MetaInstanceCreatorImpl<engine::Attribute<math::Vector>,1>(char const *,unsigned short,content::Class
+// FUNCTION: ENGINE 0x108DA120 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<math::Vector>,1>(char const *,unsigned short,cont
+// FUNCTION: ENGINE 0x108DA150 @ content::ClassMetaType * content::GetClassMetaType<engine::Attribute<engine::GenericScriptValue> >(void)
+// FUNCTION: ENGINE 0x108DA1A0 @ content::MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>,1>::MetaInstanceCreatorImpl<engine::Attribute<engine::GenericScriptValue>,1>(char const *,u
+// FUNCTION: ENGINE 0x108DA1D0 @ content::MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>,1>::MetaInstanceCreatorImpl<engine::ConstAttribute<engine::GenericScriptValue>,1>(char
+// FUNCTION: ENGINE 0x108DC6A0 @ void content::RegisterMetaObjectFactory<engine::NIS>(void)
+// FUNCTION: ENGINE 0x108DC790 @ void content::RegisterMetaInstanceCreator<engine::AngularAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108DC7E0 @ void content::RegisterMetaInstanceCreator<engine::AngularDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108DC830 @ void content::RegisterMetaInstanceCreator<engine::AngularSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108DC880 @ void content::RegisterMetaInstanceCreator<engine::Attribute<bool> >(void)
+// FUNCTION: ENGINE 0x108DC8D0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<bool> >(void)
+// FUNCTION: ENGINE 0x108DC920 @ void content::RegisterMetaInstanceCreator<engine::Attribute<int> >(void)
+// FUNCTION: ENGINE 0x108DC970 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<int> >(void)
+// FUNCTION: ENGINE 0x108DC9C0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<float> >(void)
+// FUNCTION: ENGINE 0x108DCA10 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<float> >(void)
+// FUNCTION: ENGINE 0x108DCA60 @ void content::RegisterMetaInstanceCreator<engine::Attribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108DCAB0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<core::Name<core::CaseSensitiveKey> > >(void)
+// FUNCTION: ENGINE 0x108DCB00 @ void content::RegisterMetaInstanceCreator<engine::Attribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108DCB50 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<pure3d::Pose *> >(void)
+// FUNCTION: ENGINE 0x108DCBA0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108DCBF0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Matrix> >(void)
+// FUNCTION: ENGINE 0x108DCEC0 @ void content::RegisterMetaInstanceCreator<engine::GameObject::DynamicAttributeList>(void)
+// FUNCTION: ENGINE 0x108DD0F0 @ void content::RegisterMetaInstanceCreator<engine::LinearAccelerationExtractor>(void)
+// FUNCTION: ENGINE 0x108DD140 @ void content::RegisterMetaInstanceCreator<engine::LinearDisplacementExtractor>(void)
+// FUNCTION: ENGINE 0x108DD190 @ void content::RegisterMetaInstanceCreator<engine::LinearSpeedExtractor>(void)
+// FUNCTION: ENGINE 0x108DD320 @ void content::RegisterMetaInstanceCreator<engine::RigidMotionTrackingFilter>(void)
+// FUNCTION: ENGINE 0x108DD5A0 @ void content::RegisterMetaInstanceCreator<engine::Attribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DD5F0 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<math::Vector> >(void)
+// FUNCTION: ENGINE 0x108DD640 @ void content::RegisterMetaInstanceCreator<engine::Attribute<engine::GenericScriptValue> >(void)
+// FUNCTION: ENGINE 0x108DD690 @ void content::RegisterMetaInstanceCreator<engine::ConstAttribute<engine::GenericScriptValue> >(void)
