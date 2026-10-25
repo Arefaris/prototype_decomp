@@ -203,4 +203,10 @@ namespace content
 		context->writer->Write(&value.y, 1, 4);
 		context->writer->Write(&value.z, 1, 4);
 	}
+
+	// FUNCTION: ENGINE 0x105FB5E0
+	const char* GetVectorTypeName()
+	{
+		return "vector";
+	}
 }
