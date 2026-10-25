@@ -26195,3 +26195,5 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??_7MetaLoader@content@@6B@ = 0x10E32DA0 ; data size:0x8 | content::MetaLoader::vftable
 ??_7MetaInstanceCreator@content@@6B@ = 0x10E32DAC ; data size:0x4 | content::MetaInstanceCreator::vftable
 ??_7MetaObjectFactoryBase@content@@6B@ = 0x10E32DB4 ; data size:0xC | content::MetaObjectFactoryBase::vftable
+?RegisterCellMeta@music@@YAXXZ = 0x105E1580 ; function size:0x4C5 | music::RegisterCellMeta: the reflection of music::Cell (name guess)
+?RegisterMGraphCellMeta@music@@YAXXZ = 0x105E1AA0 ; function size:0x1F0 | music::RegisterMGraphCellMeta: the reflection of music::MGraphCell (name guess)

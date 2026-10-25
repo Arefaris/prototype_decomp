@@ -74,11 +74,8 @@ namespace om
 		{
 			return (static_cast<C*>(object)->*function)(value);
 		}
-		// The registration helper of the class's reflection
-		static MetaMethod1* Create(MetaClassBase* owner, const ClassName& name, Function function)
-		{
-			return new MetaMethod1(owner, name, function);
-		}
+		// The registration helper of the class's reflection (out of line, so the users call it)
+		static MetaMethod1* Create(MetaClassBase* owner, const ClassName& name, Function function);
 		OM_ALLOCATION(MetaMethod1);
 
 		Function function;  // 0x20
@@ -87,6 +84,12 @@ namespace om
 	template<class C, class B, class R, class A> const char* MetaMethod1<C, B, R, A>::AllocationTag()
 	{
 		return "";
+	}
+
+	template<class C, class B, class R, class A> MetaMethod1<C, B, R, A>* MetaMethod1<C, B, R, A>::Create(
+		MetaClassBase* owner, const ClassName& name, Function function)
+	{
+		return new MetaMethod1(owner, name, function);
 	}
 
 	// A const member function of B without arguments
@@ -107,10 +110,7 @@ namespace om
 		{
 			return (static_cast<C*>(object)->*function)();
 		}
-		static MetaMethod0Const* Create(MetaClassBase* owner, const ClassName& name, Function function)
-		{
-			return new MetaMethod0Const(owner, name, function);
-		}
+		static MetaMethod0Const* Create(MetaClassBase* owner, const ClassName& name, Function function);
 		OM_ALLOCATION(MetaMethod0Const);
 
 		Function function;  // 0x20
@@ -119,6 +119,12 @@ namespace om
 	template<class C, class B, class R> const char* MetaMethod0Const<C, B, R>::AllocationTag()
 	{
 		return "";
+	}
+
+	template<class C, class B, class R> MetaMethod0Const<C, B, R>* MetaMethod0Const<C, B, R>::Create(
+		MetaClassBase* owner, const ClassName& name, Function function)
+	{
+		return new MetaMethod0Const(owner, name, function);
 	}
 }
 

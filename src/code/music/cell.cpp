@@ -6,6 +6,7 @@
 #include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
+#include "code/om/reflection.h"
 
 #pragma warning(disable: 4661)
 
@@ -477,4 +478,141 @@ namespace om
 	template void MetaProperty<const music::FollowAction&>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x105E23A0
 	template DelegatePropertyBase* MetaProperty<const music::FollowAction&>::CreateDelegate(void*);
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E1580
+	// EQUIVALENT: scheduling: the engine saves the callee-saved registers before the first hash call, ours after the first cache lookup (97.4 %)
+	void RegisterCellMeta()
+	{
+		{
+			om::String text("MusicCell", false);
+			om::MetaClass<Cell>::Create(om::MakeClassName(text), 0);
+		}
+		{
+			om::String getText("GetFadeIn", true);
+			om::ClassName getName = om::MakeClassName(getText);
+			om::MetaTypeBase* getOwner = om::MetaTypeCache<Cell>::type;
+			if (getOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				getOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String setText("SetFadeIn", true);
+			om::ClassName setName = om::MakeClassName(setText);
+			om::MetaTypeBase* setOwner = om::MetaTypeCache<Cell>::type;
+			if (setOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				setOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String propertyText("FadeIn", true);
+			om::ClassName propertyName = om::MakeClassName(propertyText);
+			om::MetaTypeBase* propertyOwner = om::MetaTypeCache<Cell>::type;
+			if (propertyOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				propertyOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::MetaMethod0Const<Cell, Cell, const Fade&>* getter = om::MetaMethod0Const<Cell, Cell, const Fade&>::Create((om::MetaClassBase*)getOwner, getName, &Cell::GetFadeIn);
+			om::MetaMethod1<Cell, Cell, void, const Fade&>* setter = om::MetaMethod1<Cell, Cell, void, const Fade&>::Create((om::MetaClassBase*)setOwner, setName, &Cell::SetFadeIn);
+			om::MetaProperty<const Fade&>::Create((om::MetaClassBase*)propertyOwner, propertyName, setter, getter, 3);
+		}
+		{
+			om::String getText("GetFadeOut", true);
+			om::ClassName getName = om::MakeClassName(getText);
+			om::MetaTypeBase* getOwner = om::MetaTypeCache<Cell>::type;
+			if (getOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				getOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String setText("SetFadeOut", true);
+			om::ClassName setName = om::MakeClassName(setText);
+			om::MetaTypeBase* setOwner = om::MetaTypeCache<Cell>::type;
+			if (setOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				setOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String propertyText("FadeOut", true);
+			om::ClassName propertyName = om::MakeClassName(propertyText);
+			om::MetaTypeBase* propertyOwner = om::MetaTypeCache<Cell>::type;
+			if (propertyOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				propertyOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::MetaMethod0Const<Cell, Cell, const Fade&>* getter = om::MetaMethod0Const<Cell, Cell, const Fade&>::Create((om::MetaClassBase*)getOwner, getName, &Cell::GetFadeOut);
+			om::MetaMethod1<Cell, Cell, void, const Fade&>* setter = om::MetaMethod1<Cell, Cell, void, const Fade&>::Create((om::MetaClassBase*)setOwner, setName, &Cell::SetFadeOut);
+			om::MetaProperty<const Fade&>::Create((om::MetaClassBase*)propertyOwner, propertyName, setter, getter, 3);
+		}
+		{
+			om::String getText("GetFollowAction", true);
+			om::ClassName getName = om::MakeClassName(getText);
+			om::MetaTypeBase* getOwner = om::MetaTypeCache<Cell>::type;
+			if (getOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				getOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String setText("SetFollowAction", true);
+			om::ClassName setName = om::MakeClassName(setText);
+			om::MetaTypeBase* setOwner = om::MetaTypeCache<Cell>::type;
+			if (setOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				setOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::String propertyText("FollowAction", true);
+			om::ClassName propertyName = om::MakeClassName(propertyText);
+			om::MetaTypeBase* propertyOwner = om::MetaTypeCache<Cell>::type;
+			if (propertyOwner == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				propertyOwner = om::MetaTypeCache<Cell>::type;
+			}
+			om::MetaMethod0Const<Cell, Cell, const FollowAction&>* getter = om::MetaMethod0Const<Cell, Cell, const FollowAction&>::Create((om::MetaClassBase*)getOwner, getName, &Cell::GetFollowAction);
+			om::MetaMethod1<Cell, Cell, void, const FollowAction&>* setter = om::MetaMethod1<Cell, Cell, void, const FollowAction&>::Create((om::MetaClassBase*)setOwner, setName, &Cell::SetFollowAction);
+			om::MetaProperty<const FollowAction&>::Create((om::MetaClassBase*)propertyOwner, propertyName, setter, getter, 3);
+		}
+	}
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E1AA0
+	void RegisterMGraphCellMeta()
+	{
+		{
+			om::MetaTypeBase* parent = om::MetaTypeCache<Cell>::type;
+			if (parent == 0)
+			{
+				om::MetaTypeCache<Cell>::type = om::FindMetaType(typeid(Cell));
+				parent = om::MetaTypeCache<Cell>::type;
+			}
+			om::String text("MusicMGraphCell", false);
+			om::MetaClass<MGraphCell>::Create(om::MakeClassName(text), (om::MetaClassBase*)parent);
+		}
+		{
+			om::String getText("GetPatchName", true);
+			om::ClassName getName = om::MakeClassName(getText);
+			om::MetaTypeBase* getOwner = om::GetCachedClass<MGraphCell>();
+			om::String setText("SetPatchName", true);
+			om::ClassName setName = om::MakeClassName(setText);
+			om::MetaTypeBase* setOwner = om::GetCachedClass<MGraphCell>();
+			om::String propertyText("PatchName", true);
+			om::ClassName propertyName = om::MakeClassName(propertyText);
+			om::MetaTypeBase* propertyOwner = om::MetaTypeCache<MGraphCell>::type;
+			if (propertyOwner == 0)
+			{
+				om::MetaTypeCache<MGraphCell>::type = om::FindMetaType(typeid(MGraphCell));
+				propertyOwner = om::MetaTypeCache<MGraphCell>::type;
+			}
+			om::MetaMethod0Const<MGraphCell, MGraphCell, const om::ClassName&>* getter = om::MetaMethod0Const<MGraphCell, MGraphCell, const om::ClassName&>::Create((om::MetaClassBase*)getOwner, getName, &MGraphCell::GetPatchName);
+			om::MetaMethod1<MGraphCell, MGraphCell, void, const om::ClassName&>* setter = om::MetaMethod1<MGraphCell, MGraphCell, void, const om::ClassName&>::Create((om::MetaClassBase*)setOwner, setName, &MGraphCell::SetPatchName);
+			om::MetaProperty<const om::ClassName&>::Create((om::MetaClassBase*)propertyOwner, propertyName, setter, getter, 3);
+		}
+	}
 }
