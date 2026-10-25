@@ -96,15 +96,22 @@ namespace engine
 	};
 
 	// The sounds of an emitter by name
-	class AudioSoundList
+	__declspec(align(8)) class AudioSoundList
 	{
 	public:
+		// 0x10870AF0: an empty list of the name
+		AudioSoundList(const AudioName& newName);
+		// 0x10871620: takes every sound out
+		~AudioSoundList();
 		// 0x1086F2D0
 		AudioSound* Find(const AudioName& name);
 		// 0x10870D40: a new sound of name (radius unknown, category the sound's)
 		AudioSound* Create(const AudioName& name, float radius, const AudioString& category);
 		// 0x10871500
 		void Remove(AudioSound* sound, bool unknown);
+
+		AudioName name;  // 0
+		char unknown8[0x1C];  // the tree of the sounds (+8) and the array of their slots (+0x1C)
 	};
 
 	class AudioEmitter

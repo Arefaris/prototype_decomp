@@ -90,6 +90,9 @@ namespace engine
 		float Unknown10877E60(const core::Name<core::CaseSensitiveKey>* first,
 			const core::Name<core::CaseSensitiveKey>* second);
 		float Unknown10877850(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x10877E30: sets the volume of the second name's setting (the first is the mix's)
+		void Unknown10877E30(const core::Name<core::CaseSensitiveKey>* first,
+			const core::Name<core::CaseSensitiveKey>* second, float volume);
 	};
 	extern AudioEmitterSystem* gAudioEmitterSystem;
 
