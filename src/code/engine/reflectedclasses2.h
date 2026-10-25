@@ -34,6 +34,14 @@ namespace engine
 
 			unsigned char unknown8[0x18];
 		};
+
+		// ContentCementFileDefinition: reflection 0x108E4560 / 0x108E5A70 (only its meta type is made here)
+		class ContentCementFileDefinition : public content::MetaLoadObject
+		{
+		public:
+			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
+		};
 	};
 
 	namespace animation
@@ -84,6 +92,14 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0x98];
+	};
+
+	// MovingTriggerBehaviour: reflection 0x1083AD90 / 0x1083B660 (only its meta type is made here)
+	class MovingTriggerBehaviour : public engine::Behaviour
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 	};
 }
 
