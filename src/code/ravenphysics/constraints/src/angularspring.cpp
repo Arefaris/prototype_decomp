@@ -4,15 +4,6 @@
 #include "code/core/refptr.h"
 #include "code/ravenphysics/constraints/constraints.h"
 
-namespace engine
-{
-	namespace driving
-	{
-		// A pooled constant of the engine (symbols.txt)
-		extern const float gOne;
-	}
-}
-
 namespace ravenphysics
 {
 	template struct content::BaseClassCasterImpl<Constraint, ConstraintAngularSpring>;
@@ -38,37 +29,25 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x1066B720
-	// EQUIVALENT: the same stores; the engine loads the pooled constant ahead of the vftable store, 92.3 %
 	ConstraintAngularSpring::ConstraintAngularSpring() :
-		Constraint(4)
+		Constraint(4),
+		axisA(0.0f, 1.0f, 0.0f),
+		axisB(0.0f, 1.0f, 0.0f),
+		springConstant(0.0f),
+		dampingConstant(0.0f),
+		sharedProperties(0)
 	{
-		float one = engine::driving::gOne;
-		axisA.x = 0.0f;
-		axisA.y = one;
-		axisA.z = 0.0f;
-		axisB.x = 0.0f;
-		axisB.y = one;
-		axisB.z = 0.0f;
-		springConstant = 0.0f;
-		dampingConstant = 0.0f;
-		sharedProperties = 0;
 	}
 
 	// FUNCTION: ENGINE 0x1066B770
-	// EQUIVALENT: the same stores; the engine loads the pooled constant ahead of the vftable store, 93.5 %
 	ConstraintAngularSpring::ConstraintAngularSpring(const CollisionHandle* first, const CollisionHandle* second) :
-		Constraint(first, second, 4)
+		Constraint(first, second, 4),
+		axisA(0.0f, 1.0f, 0.0f),
+		axisB(0.0f, 1.0f, 0.0f),
+		springConstant(0.0f),
+		dampingConstant(0.0f),
+		sharedProperties(0)
 	{
-		float one = engine::driving::gOne;
-		axisA.x = 0.0f;
-		axisA.y = one;
-		axisA.z = 0.0f;
-		axisB.x = 0.0f;
-		axisB.y = one;
-		axisB.z = 0.0f;
-		springConstant = 0.0f;
-		dampingConstant = 0.0f;
-		sharedProperties = 0;
 	}
 
 	// FUNCTION: ENGINE 0x1066B7D0

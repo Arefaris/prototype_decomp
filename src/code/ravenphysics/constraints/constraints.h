@@ -269,6 +269,141 @@ namespace ravenphysics
 		float maxForce;               // 0x34
 		ConstraintAngularVelocitySharedProperties* sharedProperties;  // 0x38
 	};
+
+	// Keeps a point of the second object on a line through a point of the first, with a limit on how far it may go
+	class ConstraintSlider : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x1066F810)
+		ConstraintSlider();
+		// Between the objects two handles name (0x1066F8F0)
+		ConstraintSlider(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void Rotate(const math::Matrix* matrix);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The point of the first object (0x1066F5D0 / 0x1066F790); the setter also sets the local point
+		const math::Vector* GetPointA() const;
+		void SetPointA(const math::Vector* point);
+		// The axis (0x1066F5C0 / 0x1066F720); the setter normalises and builds the two axes perpendicular to it
+		const math::Vector* GetAxisA() const;
+		void SetAxisA(const math::Vector* axis);
+		// The perpendicular axes from the axis (0x1066F6E0)
+		void UpdatePerpendicular();
+		// The point of the second object (0x1066F7C0) and the extent (0x1066F770)
+		void SetPointB(const math::Vector* point);
+		void SetExtent(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointALocal;     // 0x30 (the point before the matrix turns it into pointA)
+		math::Vector axisA;           // 0x3C
+		math::Vector axisALocal;      // 0x48 (the axis before the matrix turns it into axisA)
+		math::Vector perpendicular;   // 0x54
+		math::Vector cross;           // 0x60
+		float unknown6C;              // 0x6C
+		float unknown70;              // 0x70
+		float unknown74;              // 0x74
+		math::Vector pointB;          // 0x78
+		float extent;                 // 0x84
+	};
+
+	// The numbers a spring along an axis shares between the constraints that refer to the same properties
+	class ConstraintSpringAlongAxisSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		// What the spring and damping constants are scaled by (RTTI: ...::ScaleByMassType; the value names are the
+		// engine's own)
+		enum ScaleByMassType
+		{
+			SCALE_NONE = 0,
+			SCALE_OBJECT_A = 1,
+			SCALE_OBJECT_B = 2,
+			SCALE_GREATER = 3,
+			SCALE_TOTAL = 4
+		};
+
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x10670050)
+		ConstraintSpringAlongAxisSharedProperties();
+
+		float springConstant;         // 0x08
+		float dampingConstant;        // 0x0C
+		ScaleByMassType scaleByMassType;  // 0x10
+	};
+
+	// A spring between a point of each object that pulls them to a stable distance along the line between them
+	class ConstraintSpringAlongAxis : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x1066FD10)
+		ConstraintSpringAlongAxis();
+		// Between the objects two handles name (0x1066FD80)
+		ConstraintSpringAlongAxis(const CollisionHandle* first, const CollisionHandle* second);
+		// A copy (0x1066FDF0)
+		ConstraintSpringAlongAxis(const ConstraintSpringAlongAxis& other);
+		virtual ~ConstraintSpringAlongAxis();
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The shared properties (0x1066FE70 / 0x10670550); the setter also takes the constants over
+		ConstraintSpringAlongAxisSharedProperties* GetSharedProperties() const;
+		void SetSharedProperties(ConstraintSpringAlongAxisSharedProperties* properties);
+		// The constants of the properties, scaled by the masses of the objects the properties ask for (0x10670110)
+		void UpdateConstants();
+		// The points and the axis (0x1066FE90 / 0x1066FEE0 / 0x1066FC50 and 0x1066FEB0); the setter normalises
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		const math::Vector* GetAxisA() const;
+		void SetAxisA(const math::Vector* axis);
+		// The distance at which the spring is at rest (0x1066FF00) and the constants (0x1066FF10 / 0x1066FF20)
+		void SetStableDistance(float value);
+		void SetSpringConstant(float value);
+		void SetDampingConstant(float value);
+
+		ConstraintSpringAlongAxisSharedProperties* sharedProperties;  // 0x24
+		math::Vector pointA;          // 0x28
+		math::Vector axisA;           // 0x34
+		math::Vector pointB;          // 0x40
+		float stableDistance;         // 0x4C
+		float springConstant;         // 0x50
+		float dampingConstant;        // 0x54
+	};
+
+	// Keeps an axis of the second object at a right angle to an axis of the first
+	class ConstraintPerpendicular2Axes : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x106708B0)
+		ConstraintPerpendicular2Axes();
+		// Between the objects two handles name (0x106709A0)
+		ConstraintPerpendicular2Axes(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void Rotate(const math::Matrix* matrix);
+		virtual unsigned short GetKind(int unused);
+
+		// The axes (0x106707B0 / 0x10670820 and 0x106707C0 / 0x10670860); the setters normalise, the first also sets
+		// the local axis
+		const math::Vector* GetAxisA() const;
+		void SetAxisA(const math::Vector* axis);
+		const math::Vector* GetAxisB() const;
+		void SetAxisB(const math::Vector* axis);
+
+		math::Vector axisA;           // 0x24
+		math::Vector axisALocal;      // 0x30 (the axis before the matrix turns it into axisA)
+		math::Vector axisB;           // 0x3C
+		float unknown48;              // 0x48
+		float unknown4C;              // 0x4C
+	};
 }
 
 #endif

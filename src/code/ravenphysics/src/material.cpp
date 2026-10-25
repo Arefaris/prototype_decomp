@@ -2,22 +2,10 @@
 #include "code/ravenphysics/material.h"
 #include <new>
 
-namespace engine
-{
-	namespace driving
-	{
-		// A pooled constant of the engine (symbols.txt)
-		extern const float gOne;
-	}
-}
-
 namespace ravenphysics
 {
 	// Keeps the loader in the list of the loaders in progress (add) or takes it out (0x1067E0D0, another unit)
 	void Unknown1067E0D0(MaterialLoader* loader, bool add);
-
-	// The tangential restitution of a new material, a pooled constant of the engine (0x10D975A4; name guessed)
-	extern const float gDefaultTangentialRestitution;
 
 	// Where the engine's table sits (symbols.txt)
 	MaterialBase* gMaterials;
@@ -121,13 +109,11 @@ namespace ravenphysics
 	void MaterialBase::Init(const core::Name<core::CaseSensitiveKey>& newName)
 	{
 		name = newName;
-		float one = engine::driving::gOne;
-		float tangential = gDefaultTangentialRestitution;
-		staticFriction = one;
-		dynamicFriction = one;
-		frictionWeight = one;
+		staticFriction = 1.0f;
+		dynamicFriction = 1.0f;
+		frictionWeight = 1.0f;
 		restitution = 0.0f;
-		tangentialRestitution = tangential;
+		tangentialRestitution = -0.75f;
 		rollingFriction = 0.0f;
 	}
 

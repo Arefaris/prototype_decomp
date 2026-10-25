@@ -8,20 +8,8 @@
 
 #define ANGULARVELOCITY_FILE "..\\..\\..\\code\\ravenphysics\\constraints\\src\\angularvelocity.cpp"
 
-namespace engine
-{
-	namespace driving
-	{
-		// A pooled constant of the engine (symbols.txt)
-		extern const float gOne;
-	}
-}
-
 namespace ravenphysics
 {
-	// The maximum force of a new constraint, a pooled constant of the engine (0x10D977E4; name guessed)
-	extern const float gDefaultMaxForce;
-
 	template struct content::BaseClassCasterImpl<Constraint, ConstraintAngularVelocity>;
 
 	// FUNCTION: ENGINE 0x1066BDB0
@@ -45,23 +33,21 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x1066BE30
-	// EQUIVALENT: the same stores; the engine loads the pooled constant ahead of the vftable store and writes y last, 85.9 %
 	ConstraintAngularVelocity::ConstraintAngularVelocity() :
 		Constraint(5),
-		axis(0.0f, engine::driving::gOne, 0.0f),
+		axis(0.0f, 1.0f, 0.0f),
 		angularVelocity(0.0f),
-		maxForce(gDefaultMaxForce),
+		maxForce(1000.0f),
 		sharedProperties(0)
 	{
 	}
 
 	// FUNCTION: ENGINE 0x1066BE80
-	// EQUIVALENT: the same stores; the engine loads the pooled constant ahead of the vftable store and writes y last, 88.2 %
 	ConstraintAngularVelocity::ConstraintAngularVelocity(const CollisionHandle* first, const CollisionHandle* second) :
 		Constraint(first, second, 5),
-		axis(0.0f, engine::driving::gOne, 0.0f),
+		axis(0.0f, 1.0f, 0.0f),
 		angularVelocity(0.0f),
-		maxForce(gDefaultMaxForce),
+		maxForce(1000.0f),
 		sharedProperties(0)
 	{
 	}
@@ -119,11 +105,11 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x1066C060
-	// EQUIVALENT: the same stores; the engine loads the pooled constant before the class's vftable store, 74.4 %
-	ConstraintAngularVelocitySharedProperties::ConstraintAngularVelocitySharedProperties()
+	// EQUIVALENT: the same stores; the engine stores the reference count ahead of the first member, 62.8 %
+	ConstraintAngularVelocitySharedProperties::ConstraintAngularVelocitySharedProperties() :
+		angularVelocity(0.0f),
+		maxForce(1000.0f)
 	{
-		angularVelocity = 0.0f;
-		maxForce = gDefaultMaxForce;
 	}
 
 	// FUNCTION: ENGINE 0x1066C100
