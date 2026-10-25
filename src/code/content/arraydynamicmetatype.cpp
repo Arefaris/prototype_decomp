@@ -742,6 +742,132 @@ namespace content
 		}
 	}
 
+	// FUNCTION: ENGINE 0x105FE340
+	// NONMATCHING: the frame holds the saved line and the this pointer the other way round and the error exits are laid out in another order, best 72.2 %
+#ifdef NONMATCHING
+	bool ArrayDynamicMetaType::ReadText(TextReadStream* reader, void* object, int a, int b)
+	{
+		char delimiter[2];
+		if (reader->ReadToken(delimiter, 2, false))
+		{
+			int different = strcmp(delimiter, "{");
+			if (different == 0)
+			{
+				unsigned int count = 0;
+				int depth = 0;
+				unsigned int start = reader->GetPosition();
+				int line = reader->GetLine();
+				bool trailing = false;
+				char buffer[0x800];
+				while (reader->ReadToken(buffer, 0x800, false))
+				{
+					int closer = strcmp(buffer, "}");
+					if (closer == 0)
+					{
+						if (depth == 0)
+						{
+							if (trailing)
+							{
+								count--;
+							}
+							if (count == 0)
+							{
+								return true;
+							}
+							reader->SetLine(line);
+							reader->SetPosition(start);
+							Reserve(object, count);
+							for (unsigned int i = 0; i < count; i++)
+							{
+								InsertItem(object, i);
+								if (!((MetaTypeView*)element)->ReadText(reader, GetItemConst(object, i), a, b))
+								{
+									return false;
+								}
+								if (count - i > 1)
+								{
+									if (!reader->ReadToken(delimiter, 2, false))
+									{
+										goto missingMember;
+									}
+									int comma = strcmp(delimiter, ",");
+									if (comma != 0)
+									{
+										goto missingMember;
+									}
+								}
+							}
+							if (!reader->ReadToken(delimiter, 2, false))
+							{
+								goto missingEnd;
+							}
+							int comma = strcmp(delimiter, ",");
+							if (comma == 0 && !reader->ReadToken(delimiter, 2, false))
+							{
+								goto missingEnd;
+							}
+							int end = strcmp(delimiter, "}");
+							if (end == 0)
+							{
+								return true;
+							}
+						missingEnd:
+							reader->Error("Missing array delimiter near line %d", reader->GetLine());
+							return false;
+						missingMember:
+							reader->Error("Missing array member delimiter \",\" near line %d", reader->GetLine());
+							return false;
+						}
+						depth--;
+						if (depth == 0 && count == 0)
+						{
+							count = 1;
+						}
+						trailing = false;
+					}
+					else
+					{
+						int opener = strcmp(buffer, "{");
+						if (opener == 0)
+						{
+							depth++;
+							trailing = false;
+						}
+						else
+						{
+							int comma = strcmp(buffer, ",");
+							if (comma == 0)
+							{
+								if (depth == 0)
+								{
+									count++;
+									trailing = true;
+								}
+								else
+								{
+									trailing = false;
+								}
+							}
+							else
+							{
+								if (depth == 0 && count == 0)
+								{
+									count = 1;
+								}
+								trailing = false;
+							}
+						}
+					}
+				}
+				reader->Error("Missing closing array delimiter \"}\" for \"{\" near line %d", line);
+				return false;
+			}
+		}
+		reader->Error("Expecting array delimiter \"{\" at line %d", reader->GetLine());
+		return false;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105FD3F0
 	// EQUIVALENT: register allocation and block layout: the engine keeps the zero in ebp and the common count in edi, ours the other way round, and it lays the loop test blocks out one jump differently (93.6 %)
 	bool ArrayDynamicMetaType::Compare(ReadContext* first, const char* firstName, ReadContext* second,

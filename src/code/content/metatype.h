@@ -755,11 +755,11 @@ namespace content
 		static void Get(const char** name, const EnumValue** values, int* count, const char** code);
 	};
 
-	// The meta type of an enumeration (0x105FE7C0; the second argument is passed as 1, meaning unknown)
-	class EnumMetaType : public MetaType
+	// The meta type of an enumeration (0x105FE7C0; the second argument is the version of the named type, passed as 1)
+	class EnumMetaType : public NamedMetaType
 	{
 	public:
-		EnumMetaType(const char* name, int unknown, const char* code, const EnumValue* values, int count);
+		EnumMetaType(const char* name, int version, const char* code, const EnumValue* newValues, int newCount);
 
 		virtual void Slot0();
 		virtual void Slot1();
@@ -773,7 +773,36 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		int unknown8[(0x1c - 8) / 4];
+		// The value behind an object (slots 12 and 13): the int itself here, the accessors of EnumMetaTypeGetSet in
+		// the reflection of a member reached through a getter and a setter
+		virtual int Get(const void* object);
+		virtual void Set(void* object, int value);
+
+		// The slots as the engine's code takes them (see VectorMetaType); a value is the int of the enumerator
+		// 0x105FE860 (slot 0)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		// 0x105FE800 (slot 1)
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x105FE930 (slot 2) / 0x105FE830 (slot 3) / 0x105FEB80 (slot 11)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		void WriteBinaryShort(WriteContext* context, const void* object);
+		// 0x105FE980 (slot 4): reads a value from each side that has one, writes the common value as a number when
+		// they are equal and else the values under their names
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x105FEAC0 (slot 6): a new int in the meta system's heap
+		void* Create();
+		// 0x105FEB10 (slot 7) / 0x105FEB20 (slot 8) / 0x105FEB50 (slot 9: always 1) / 0x105FEB60 (slot 10)
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Unknown9(int a, int b);
+		void Describe(MemberEntry** cursor, void* object, int unused);
+		// 0x105FEAB0: the value a new int starts with
+		int GetDefault();
+
+		const EnumValue* values;  // 0x14
+		unsigned int count;  // 0x18
 	};
 
 	// 0x105FB5E0
