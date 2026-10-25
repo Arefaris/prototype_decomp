@@ -8,6 +8,7 @@
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/ravenphysics/constraints/sharedproperties.h"
 #include "code/ravenphysics/material.h"
 
 namespace engine
@@ -458,28 +459,6 @@ namespace world
 
 namespace ravenphysics
 {
-	// ConstraintAngularSpringSharedProperties: constructor 0x1066B980, reflection 0x1066B6E0 / 0x1066BB70
-	class ConstraintAngularSpringSharedProperties : public content::MetaLoadObject
-	{
-	public:
-		ConstraintAngularSpringSharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
-	};
-
-	// ConstraintAngularVelocitySharedProperties: constructor 0x1066C060, reflection 0x1066BDF0 / 0x1066C250
-	class ConstraintAngularVelocitySharedProperties : public content::MetaLoadObject
-	{
-	public:
-		ConstraintAngularVelocitySharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
-	};
-
 	// ConstraintListFactory: constructor 0x106A6CE0, reflection 0x106A56F0 / 0x106A6B70
 	class ConstraintListFactory : public content::MetaLoadObject
 	{
@@ -489,17 +468,6 @@ namespace ravenphysics
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x10];
-	};
-
-	// ConstraintSpringAlongAxisSharedProperties: constructor 0x10670050, reflection 0x1066FCD0 / 0x10670470
-	class ConstraintSpringAlongAxisSharedProperties : public content::MetaLoadObject
-	{
-	public:
-		ConstraintSpringAlongAxisSharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0xC];
 	};
 
 	// DeformableOrientationConstraintSharedProperties: constructor 0x10692DF0, reflection 0x10692C50 / 0x10693060

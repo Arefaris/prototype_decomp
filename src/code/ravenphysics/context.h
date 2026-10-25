@@ -87,7 +87,9 @@ namespace ravenphysics
 	class IntersectionPropertiesLoader : public content::LoadObject
 	{
 	public:
-		unsigned char unknown8[0x3c - 8];
+		unsigned char unknown8[0x38 - 8];
+		unsigned short index;       // 0x38 (the properties' place in the registry)
+		unsigned char unknown3A[2];
 		int unknown3C;
 		int unknown40;
 	};

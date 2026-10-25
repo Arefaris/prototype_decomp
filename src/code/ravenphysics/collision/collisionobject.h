@@ -21,6 +21,7 @@ namespace ravenphysics
 	class CollisionObject;
 	class CollisionShape;
 	class ConvexMesh;
+	struct ConvexHullData;
 	class PhysicsObject;
 
 	// The query filters a volume asks for, accumulated by the object it belongs to (meanings unknown)
@@ -202,6 +203,8 @@ namespace ravenphysics
 	class CollisionVolume3 : public CollisionVolume
 	{
 	public:
+		// A volume around a hull (0x106800B0, another unit)
+		explicit CollisionVolume3(ConvexHullData* hull);
 		// A copy (0x1067FFE0, another unit)
 		CollisionVolume3(const CollisionVolume3& other);
 		// Takes the object's transform, its inverse, the point and the box through it (0x10664A10)
@@ -231,6 +234,8 @@ namespace ravenphysics
 	// A volume of type 4: the volume plus its face list (0x10654670 gives every face a material)
 	struct CollisionVolume4 : CollisionVolume
 	{
+		// A cylinder volume (0x10681EE0, another unit)
+		explicit CollisionVolume4(const math::Cylinder& cylinder);
 		// A copy (0x10664B20)
 		CollisionVolume4(const CollisionVolume4& other);
 
