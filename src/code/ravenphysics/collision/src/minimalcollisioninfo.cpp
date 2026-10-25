@@ -445,9 +445,9 @@ namespace ravenphysics
 #endif
 
 	// FUNCTION: ENGINE 0x106543B0
-	void CollisionShape::MoveToCenter(math::Vector from, int flag)
+	void CollisionShape::MoveToCenter(math::Vector from, bool wake)
 	{
-		MoveTo(from, center, flag);
+		MoveTo(from, center, wake);
 	}
 
 	// FUNCTION: ENGINE 0x10654380

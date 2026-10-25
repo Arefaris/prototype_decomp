@@ -46,6 +46,8 @@ namespace math
 		void CopyTo(Matrix& out) const;
 		// Nonzero when every element is within EPSILON_SMALL of zero
 		int IsZero() const;
+		// out = this * v (0x107D96C0, another unit; name guess)
+		void Transform(const Vector& v, Vector& out) const;
 		// Reports the six elements through core::Report (debug output)
 		void Print() const;
 		void GetDiagonal(float& x, float& y, float& z) const;

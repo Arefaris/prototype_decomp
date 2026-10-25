@@ -141,6 +141,9 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale);
 		// The local box (0x10664220)
 		void GetLocalOBB(math::OBB* out) const;
+		// Moves the world box by a matrix: the centre as a point, the axes as directions, the third axis is crossed anew
+		// and the bounds set (0x10665470; name guess)
+		void Move(const math::Matrix& matrix);
 		// The box around the world box (0x106642D0)
 		void UpdateBox();
 		// Prints the vectors (0x10664370)
@@ -168,6 +171,8 @@ namespace ravenphysics
 		void Scale(const math::Vector* scale);
 		// The local sphere (0x106643C0)
 		void GetLocalSphere(math::Sphere* out) const;
+		// Moves the world sphere by a matrix and sets the bounds (0x10665550; name guess)
+		void Move(const math::Matrix& matrix);
 		// Sets the bounds to the world sphere's box (0x106644D0)
 		void UpdateBox();
 		// Prints the vectors (0x106645B0)
@@ -496,20 +501,23 @@ namespace ravenphysics
 		math::Vector unknown40;    // 0x40
 		math::Vector unknown4C;    // 0x4C
 		math::SymmetricMatrix unknown58;    // 0x58
-		float boundsMinX;          // 0x70
-		float boundsMinY;
-		float boundsMinZ;
-		float boundsMaxX;
-		float boundsMaxY;
-		float boundsMaxZ;
+		math::SymmetricMatrix unknown70;    // 0x70 (the matrix at 0x58 carried to the world)
 		float unknown88;           // 0x88
 		float unknown8C;           // 0x8C
 		math::Vector unknown90;    // 0x90
 		math::Vector center;       // 0x9C
-		// Recomputes the bounds and the centre from the object's transform (0x10669240, another unit)
+		// The shape of a volume placed at a position, with its inertia matrix and scale (0x10669860)
+		CollisionShape(const math::Vector* position, const math::SymmetricMatrix* inertia, float newScale,
+			CollisionObject* newObject);
+		// Places the centre by the object's transform and carries the inertia matrix to the world (0x10669240)
 		void Update(CollisionObject* object);
-		// Recomputes the bounds from the transform the shape already has (0x10669C90, another unit)
+		// Takes the object's mass properties anew (0x10669C90, another unit)
 		void Refresh();
+		// The velocities of the point a position names, like GetPointVelocity from the previous vectors (0x106693F0;
+		// name guess)
+		void GetPreviousPointVelocity(math::Vector point, math::Vector* velocity);
+		// Clears the velocities taken in and bit 0 of the flags (0x10669130; name guess)
+		void ClearAccumulated();
 		// Clears the two orientation vectors and the transform (0x10669C60, another unit)
 		void Clear();
 		// Sets the scale and remembers its inverse (0x106691B0, another unit)
@@ -521,20 +529,20 @@ namespace ravenphysics
 		// Writes a position into the shape's offset vector (0x10669620, another unit)
 		void SetPosition(math::Vector position);
 		// Moves the shape to a point and marks it by the flag (0x10669E60, another unit)
-		void MoveTo(math::Vector position, int flag);
+		void MoveTo(math::Vector position, bool wake);
 		// Moves the shape from one point to another (0x10669F60, another unit)
-		void MoveTo(math::Vector from, math::Vector to, int flag);
+		void MoveTo(math::Vector from, math::Vector to, bool wake);
 		// Moves the shape by an offset and wakes the owner when asked (0x10669EB0, another unit; names of this
 		// group are guesses)
-		void Translate(math::Vector offset, int wake);
+		void Translate(math::Vector offset, bool wake);
 		// The velocity of a point of the shape, written through the pointer (0x10669340, another unit)
 		void GetPointVelocity(math::Vector point, math::Vector* velocity);
 		// Adds to the shape's velocity (0x106694A0, another unit)
-		void AddVelocity(math::Vector velocity, int wake);
+		void AddVelocity(math::Vector velocity, bool wake);
 		// Adds an impulse applied at a point to the velocity and the angular velocity (0x106694F0, another unit)
-		void AddImpulse(math::Vector impulse, math::Vector point, int wake);
+		void AddImpulse(math::Vector impulse, math::Vector point, bool wake);
 		// Adds to the shape's angular velocity (0x106695D0, another unit)
-		void AddAngularVelocity(math::Vector velocity, int wake);
+		void AddAngularVelocity(math::Vector velocity, bool wake);
 		// Sets bit 2 of the shape's flags (0x10669660, another unit)
 		void SetFlag2(int value);
 		// Sets the shape's width and marks it (0x1066A0B0, another unit)
@@ -559,9 +567,15 @@ namespace ravenphysics
 		void GetRelativeVelocity(math::Vector point, math::Vector* velocity);
 		void GetPreviousRelativeVelocity(math::Vector point, math::Vector* velocity);
 		// Moves the shape from a point to its own centre (0x106543B0)
-		void MoveToCenter(math::Vector from, int flag);
-		// Recomputes what depends on the matrix at 0x58 (0x10669160, another unit; name guess)
+		void MoveToCenter(math::Vector from, bool wake);
+		// Carries the matrix at 0x58 to the world (0x10669160; name guess)
 		void Unknown10669160();
+		// Sets the velocity or the angular velocity, kept under the limits when flag 4 is set (0x10669D00 / 0x10669DB0;
+		// names guessed)
+		void SetVelocity(math::Vector velocity);
+		void SetAngularVelocity(math::Vector velocity);
+		// Adds a velocity scaled by the shape's scale when flag 1 is set (0x10669F00; name guess)
+		void AddScaledVelocity(math::Vector velocity);
 
 		// The shape's own flags, in the bits of the byte at 0 (0x10654380, 0x106543A0, 0x10654410; the shape's
 		// unit is elsewhere, these copies sit in this object file)
@@ -576,6 +590,23 @@ namespace ravenphysics
 		math::Vector unknownD0;    // 0xD0
 		float radius;              // 0xDC
 	};
+
+	// Sets the limits the velocities of the shapes are kept under; negative ones count as zero (0x10669C10; name guess)
+	void SetSpeedLimits(float linear, float angular);
+
+	// Whether a symmetric matrix is positive definite, by its determinant and its principal minors (0x10669680; name
+	// guess)
+	bool IsPositiveDefinite(const math::SymmetricMatrix* matrix);
+
+	// The centre of mass and the inertia matrix of the object's volumes at a scale (0x106A8AC0, another unit; name
+	// guess)
+	void ComputeMassProperties(CollisionObject* object, float scale, math::Vector* centre,
+		math::SymmetricMatrix* inertia);
+
+	// A shape for a volume placed at its position (0x1066A1B0), and one for a box from a position and an inertia
+	// matrix that are computed when left out (0x1066A220)
+	CollisionShape* CreateVolumeShape(CollisionVolume* volume, float size, CollisionObject* object);
+	CollisionShape* CreateBoxShape(float size, int position, int inertia, CollisionObject* object);
 
 	// One geometry element of a mesh (8 bytes; its own unit names it)
 	struct MeshElement

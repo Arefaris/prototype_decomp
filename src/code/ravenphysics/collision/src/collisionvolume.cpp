@@ -83,6 +83,24 @@ namespace ravenphysics
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10663EB0
+	void CollisionVolume::MarkDestroyed()
+	{
+		unknown3 = 0xAB;
+	}
+
+	// FUNCTION: ENGINE 0x10663EC0
+	void CollisionVolume::Retain()
+	{
+		unknown3 += 1;
+	}
+
+	// FUNCTION: ENGINE 0x10663ED0
+	void CollisionVolume::Release()
+	{
+		unknown3 -= 1;
+	}
+
 	// FUNCTION: ENGINE 0x106641A0
 	void CollisionCapsule::GetLocalCapsule(math::Capsule* out) const
 	{
@@ -140,6 +158,95 @@ namespace ravenphysics
 	void CollisionCapsule::Move(const math::Matrix& matrix)
 	{
 		capsule.Transform(matrix);
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10664EB0
+	// EQUIVALENT: the same operations in the same order; the engine keeps the helper axis in a stack vector and reads it back through a pointer, ours keeps it in registers, and the scaled products are scheduled differently, 29.0 %
+	void CollisionCapsule::Scale(const math::Vector* scale)
+	{
+		math::Capsule local;
+		GetLocalCapsule(&local);
+		float length = (float)sqrt((double)(local.direction.x * local.direction.x + local.direction.z * local.direction.z + local.direction.y * local.direction.y));
+		float limit = length * 0.9f;
+		math::Vector reference;
+		if (local.direction.x > math::WORLD_MIN - limit && limit > local.direction.x)
+		{
+			reference.x = 1.0f;
+			reference.y = 0.0f;
+			reference.z = 0.0f;
+		}
+		else
+		{
+			reference.x = 0.0f;
+			reference.y = 0.0f;
+			reference.z = 1.0f;
+		}
+		math::Vector across;
+		across.Cross(reference, local.direction);
+		across.x = scale->x * across.x;
+		across.y = scale->y * across.y;
+		across.z = scale->z * across.z;
+		float acrossLength = (float)sqrt((double)(across.z * across.z + across.y * across.y + across.x * across.x));
+		local.direction.x = scale->x * local.direction.x;
+		local.direction.y = scale->y * local.direction.y;
+		local.direction.z = scale->z * local.direction.z;
+		local.radius = acrossLength * local.radius;
+		float scaledLength = local.direction.Normalize();
+		local.centre.x = scale->x * local.centre.x;
+		local.centre.y = local.centre.y * scale->y;
+		local.centre.z = scale->z * local.centre.z;
+		local.halfLength = (local.halfLength / length) * scaledLength;
+		SetCapsule(local);
+	}
+
+	// FUNCTION: ENGINE 0x10665060
+	// EQUIVALENT: the same products and differences (the third axis is the second crossed with the first); the engine loads the six components in another order and keeps the sums in other registers, 85.2 %
+	void CollisionOBB::SetOBB(const math::OBB& newBox)
+	{
+		math::OBB* world = &obb;
+		*world = newBox;
+		float bx = world->axis[1].x;
+		float ax = world->axis[0].x;
+		float bz = world->axis[1].z;
+		float az = world->axis[0].z;
+		float ay = world->axis[0].y;
+		world->axis[2].y = ax * bz - bx * az;
+		float by = world->axis[1].y;
+		world->axis[2].z = ay * bx - by * ax;
+		world->axis[2].x = by * az - ay * bz;
+		Copy(localCentre, newBox.centre);
+		Copy(localAxis0, newBox.axis[0]);
+		Copy(localAxis1, newBox.axis[1]);
+		newBox.GetAABB(bounds);
+	}
+
+	// FUNCTION: ENGINE 0x10665470
+	// EQUIVALENT: the same calls and the same cross product; the engine reads the axes back through their pointers, ours addresses them from the box, and the products are scheduled differently, 42.9 %
+	void CollisionOBB::Move(const math::Matrix& matrix)
+	{
+		math::OBB* world = &obb;
+		matrix.Transform(world->centre, world->centre);
+		matrix.Rotate(world->axis[0], world->axis[0]);
+		matrix.Rotate(world->axis[1], world->axis[1]);
+		float ax = world->axis[0].x;
+		float bx = world->axis[1].x;
+		float az = world->axis[0].z;
+		float bz = world->axis[1].z;
+		float by = world->axis[1].y;
+		float ay = world->axis[0].y;
+		math::Vector* third = &world->axis[2];
+		third->x = ay * bz - by * az;
+		third->y = bx * az - ax * bz;
+		third->z = by * ax - ay * bx;
+		third->NormalizeFast();
+		UpdateBox();
+	}
+
+	// FUNCTION: ENGINE 0x10665550
+	void CollisionSphere::Move(const math::Matrix& matrix)
+	{
+		matrix.Transform(sphere.centre, sphere.centre);
 		UpdateBox();
 	}
 

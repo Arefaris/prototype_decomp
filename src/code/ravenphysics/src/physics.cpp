@@ -13,7 +13,7 @@ namespace ravenphysics
 	void Unknown1065E6D0();
 	void Unknown1066AA00(int count);
 	void Unknown106A7070();
-	void Unknown10669C10(float first, float second);
+	void SetSpeedLimits(float first, float second);
 	void Unknown106A6E10();
 	void Unknown106A7010();
 	void Unknown106A70E0();
@@ -105,7 +105,7 @@ namespace ravenphysics
 		Unknown106A7070();
 		gUnknown1127E42C = settings->unknown8;
 		ScratchStack::Create(settings->scratchStackSize, core::GetCurrentHeap(), false);
-		Unknown10669C10(settings->unknown14, settings->unknown18);
+		SetSpeedLimits(settings->unknown14, settings->unknown18);
 		gSettings = *settings;
 		Unknown106A6E10();
 		Unknown106A7010();
