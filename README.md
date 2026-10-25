@@ -16,7 +16,7 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 
 ```text
 Code       ███░░░░░░░░░░░░░░░░░░░░░░░░░░░   8.974 %
-Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  11.688 %  (16403 / 140344)
+Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  11.688 %  (16404 / 140344)
   audio       391 functions matched, 13,832 bytes
   choreo      611 functions matched, 34,028 bytes
   container    40 functions matched, 3,592 bytes
@@ -31,7 +31,7 @@ Functions  ████░░░░░░░░░░░░░░░░░░░
   om           92 functions matched, 4,516 bytes
   proto       179 functions matched, 26,712 bytes
   pure3d      904 functions matched, 73,244 bytes
-  ravenphysics  1369 functions matched, 71,382 bytes
+  ravenphysics  1370 functions matched, 71,414 bytes
   scaleformp3d    67 functions matched, 2,567 bytes
 ```
 

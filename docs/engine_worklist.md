@@ -4299,6 +4299,58 @@ lower-bound function the unit has of its own (a plain function template, not `st
   spring along axis, perpendicular axes, fixed distance, ...) and the base class functions 0x1065E430 - 0x1065EEE0
   (constructor between two objects, copy constructor, `SetObject`) are not done.
 
+## ravenphysics 0x10660000 - 0x10680000, second pass (sn-x): shapes, factories, triggers, hulls, mesh faces, the physics loader
+
+Every function of the pass is annotated; 658 match, 60 are EQUIVALENT (each with its reason and percentage above the
+function) and 8 NONMATCHING. New units and what is in them:
+- `collision/src/collisionshape.cpp` (0x10668EA0 - 0x1066A220): the `CollisionShape` (velocities, relative velocities,
+  impulses, inertia transform, flags, creation); `collision/src/collisionvolume.cpp`: the move, scale and box setters of
+  the capsule, box, sphere and hull volumes; `src/triggerobject.cpp`: `TriggerObject`, its volume setters, filter bits and
+  creators.
+- `src/physicsobjectfactory.cpp` (+ `physicsobjectfactory.h`, `constraintlistfactory.h`): `AbstractPhysicsObjectFactory`,
+  `SimplePhysicsObjectFactory`, `PhysicsObjectFactory` with its `VolumeDescription` / `ObjectDescription`, the reflection
+  of all of them, the `ArrayDynamic<..., AllocatorNew>` instances (the traits `ArrayEraseInline` and
+  `ArrayReserveBeginFirst` in `container/arraydynamicallocatornew.h` choose the engine's copy of Erase and Reserve per
+  element type) and the creation of the bodies. The unit's kept copies (compiler-made constructors, accessors of the
+  arrays, `MemberOffset`) are annotated at the end of the file.
+- `collision/src/convexhull.cpp`: `ConvexHullData` (the hull the volume type 3 and `CollisionConvexHullFactory` share),
+  `ConvexHullHolder`, `CollisionVolume3` (default, from a triangle, copy, `Move`); the triangle constructor 0x1067FCA0
+  stays NONMATCHING (66.5 %, scheduling of the corner differences and the association of the plane offset's sum).
+- `collision/src/meshfaceref.cpp` (+ `meshfaceref.h`): `MeshFaceRef`, a mesh handle and a triangle number: corners, the
+  world triangle with its one-entry cache (globals 0x110BEF84 / 0x110BEF8C / 0x1127D434), centres, flags, neighbours, the
+  XZ line test; plus `CollisionVolume6`'s grid lookups. `collision/src/collisioninfo.cpp`: the accessors of the
+  collision record (`CollisionInfo` has its own `ContactRecord` at 0x40 now; `GetFace` answers a `GridFace*`) and
+  `SymmetricMatrix::Determinant` / `Triangle::GetNormal` (the engine's copies in this unit).
+- `src/physicsobjectloader.cpp` (+ `physicsobjectloader.h`): the constraint creators, the chunk readers of the loader
+  (`ReadConvexHull` 0x1067D7C0 matches, `ReadMeshGrid` 0x1067E5B0 EQUIVALENT), the three lists of loaded objects
+  (`gStatArrayA / B / C` are `ArrayDynamic<LoaderEntry>` now: materials, intersection properties, mass properties) with
+  their finders and registrars, and the heap helpers of the mesh reader. The class of the loader is
+  `ravenphysics::PhysicsObjectLoader` (RTTI: vftable 0x10E4C0E4, slot 7 is 0x1067F4D0); `pure3d::Loader1067F4D0`,
+  `Loaded1066F430` (= `PhysicsObjectFactory`, its constructor is 0x1066F430) and `Loaded1066F430Tables` (= `PhysicsLink`)
+  in `pure3d/loaders/loader1067f4d0.*` and `engine/secondaryphysicsproperties.h` are the same things under guessed names.
+What the matching taught:
+- Compiler-made and header-defined functions can be counted: an annotation line may stand anywhere in the unit's file, and
+  the symbol is mapped in symbols.txt. `local/scratch`-style tools found them by comparing the unmapped COMDATs of our
+  objects with the engine's bytes, the relocation targets (vftables through the RTTI names) and the call sites of
+  functions that already match; the identical three-byte ones are told apart only by their order in the object.
+- A word read through an inline helper that returns it (`unsigned int ReadWord(reader)`) gives the engine's code for a
+  loader (the value stays in a register, the stack slot is shared); a named local that is read into does not.
+- A `switch` with three or four chunk ids gives the subtract chain or the compare tree of the engine; the order of the
+  case bodies is the order of the source.
+- `new T[n]` of a structure whose size is not a power of two carries the `mul / seto / neg / or` overflow check; the
+  engine's `new unsigned short[n]` for a `unsigned char*` member is a cast of the result.
+- The hidden result pointer of a function that returns a structure by value is on the stack in the engine's callees whose
+  registers it keeps (`TransformInertia`, 0x10669160, 0x10669240); ours puts it in eax (NONMATCHING).
+- A sum of three products that the engine adds in one association stays in the compiler's own association whatever the
+  order of the terms in the source (`CollisionVolume6::GetWorldFaceNormal`, `MeshFaceRef::GetWorldNormal`): NONMATCHING,
+  not EQUIVALENT.
+Not done in the range (about 360 functions, 55 KB): the big readers `ReadFaceProperties` 0x1067DB30 (declared, mapped, its
+frame is 8-aligned because of the 64-bit `Name` locals), the object description reader 0x1067EB90 (2335 bytes) and the
+constraint list reader 0x1067CF80, `GetFaceNormal`'s relatives 0x10668300 - 0x106688C0 (ray against box and triangle), the
+GJK solver 0x10673750 (14880 bytes), the query batch 0x10671230 - 0x10672740, the grid queries 0x10663000 - 0x10663CA0,
+`CollisionOBB::UpdateWorld` 0x10665120, the dead helpers 0x106647D0 - 0x10664890 (register-argument statics) and about
+200 tiny template members of `ArrayDynamic` / the scratch arrays whose element types are not named yet.
+
 ## 0x10920000 - 0x10940000 (fight actions and conditions, behaviours, driving attributes, socket layer)
 
 Of the 1492 functions of the range 11 (the crypto module) were matched before this pass; afterwards 276 are (the

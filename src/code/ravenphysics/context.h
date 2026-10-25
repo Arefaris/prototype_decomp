@@ -92,7 +92,8 @@ namespace ravenphysics
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknown8[0x38 - 8];
+		core::Name<core::CaseSensitiveKey> name;  // 0x08
+		unsigned char unknown10[0x38 - 0x10];
 		unsigned short index;       // 0x38 (the properties' place in the registry)
 		unsigned char unknown3A[2];
 		int unknown3C;

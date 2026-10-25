@@ -3,6 +3,7 @@
 // pure3d/loaders/loader1067f4d0.cpp.
 #include "code/content/chunkhandler.h"
 #include "code/content/loadinventory.h"
+#include "code/core/criticalsection.h"
 #include "code/core/heap.h"
 #include "code/core/refptr.h"
 #include "code/ravenphysics/constraints/constraints.h"
@@ -12,6 +13,12 @@
 #include "code/ravenphysics/material.h"
 #include "code/ravenphysics/physicsobjectloader.h"
 #include <new>
+
+namespace pure3d
+{
+	// 0x1127E430: the lock the loaders of this unit hold while they read
+	extern unsigned char gLoaderLock[24];
+}
 
 namespace ravenphysics
 {
@@ -172,6 +179,76 @@ namespace ravenphysics
 	template UShort3* AllocateItems<UShort3>(int);
 	// FUNCTION: ENGINE 0x1067C760
 	template unsigned short* AllocateItems<unsigned short>(int);
+
+	// Keeps a loader in a list under its name, or takes it out again (the removal fills the gap with the last entry)
+	template<class T>
+	__forceinline void UpdateLoaderList(LoaderList* list, T* loader, bool add)
+	{
+		if (add)
+		{
+			if (list->end != list->capacity)
+			{
+				core::CriticalSectionEnter(pure3d::gLoaderLock);
+				LoaderEntry entry;
+				entry.name = loader->name;
+				entry.object = loader;
+				if (list->end < list->capacity)
+				{
+					LoaderEntry* item = list->end;
+					list->end = item + 1;
+					if (item != 0)
+					{
+						new (item) LoaderEntry(entry);
+					}
+				}
+				core::CriticalSectionLeave(pure3d::gLoaderLock);
+			}
+		}
+		else
+		{
+			core::CriticalSectionEnter(pure3d::gLoaderLock);
+			LoaderEntry* last = list->end;
+			LoaderEntry* first = list->begin;
+			for (unsigned int i = 0; i < (unsigned int)(last - first); i++)
+			{
+				LoaderEntry* item = first + i;
+				if (item->name == loader->name)
+				{
+					last--;
+					list->end = last;
+					if (item < last)
+					{
+						item->name = last->name;
+						item->object = last->object;
+						last = list->end;
+						first = list->begin;
+					}
+				}
+			}
+			core::CriticalSectionLeave(pure3d::gLoaderLock);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1067E0D0
+	// EQUIVALENT: the same checks, lock, name copy and append, or search and removal by moving the last entry down, in the same order; the engine keeps different values in registers (the list in memory, the entry and the loader in edi, esi and ebx) and has a frame of its own, 39.1 %
+	void Unknown1067E0D0(MaterialLoader* loader, bool add)
+	{
+		UpdateLoaderList(&gStatArrayA, loader, add);
+	}
+
+	// FUNCTION: ENGINE 0x1067E200
+	// EQUIVALENT: the same checks, lock, name copy and append, or search and removal by moving the last entry down, in the same order; the engine keeps different values in registers (the list in memory, the entry and the loader in edi, esi and ebx) and has a frame of its own, 39.4 %
+	void Unknown1067E200(IntersectionPropertiesLoader* loader, bool add)
+	{
+		UpdateLoaderList(&gStatArrayB, loader, add);
+	}
+
+	// FUNCTION: ENGINE 0x1067E330
+	// EQUIVALENT: the same checks, lock, name copy and append, or search and removal by moving the last entry down, in the same order; the engine keeps different values in registers (the list in memory, the entry and the loader in edi, esi and ebx) and has a frame of its own, 39.1 %
+	void Unknown1067E330(MassProperties* loader, bool add)
+	{
+		UpdateLoaderList(&gStatArrayC, loader, add);
+	}
 
 	// One word of the stream
 	static inline unsigned int ReadWord(content::ChunkReader* reader)
@@ -436,3 +513,7 @@ namespace content
 		Read(vector, 3, 4, 1);
 	}
 }
+
+// Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
+// annotations stand without a definition)
+// FUNCTION: ENGINE 0x1067D400
