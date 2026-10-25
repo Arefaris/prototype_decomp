@@ -4710,3 +4710,21 @@ typedef in `scenarioconditions.h`) is 8 bytes: a type word and the value. 46 fun
 - A bool member is read as `movzx` + `setne` for `lua_pushboolean(L, boolValue != 0)`.
 - Not done in the range: 0x10871740 / 0x10871760 / 0x10871790 (an allocation of a 0x40-byte object through `om::Allocate`
   and its release, the audio unit's), 0x10871850 (a `jmp` thunk to `operator delete[]`).
+
+### engine/scenario/scenariotreebehaviour.cpp (0x10875EB0 - 0x10876B60)
+
+`ScenarioTreeBehaviour` (RTTI name): the behaviour that runs the scenario's fight tree. It owns 75 sequencers (a
+`SequencerSlot` ends its sequencer when it goes), a queue of 0x80-byte scenario message slots and two `BranchWatch`
+members (the start branch and the root; `SetRoot` / `SetStartBranch` are the unit's copies of the watch assignment).
+36 functions match (kept template copies included), 2 are EQUIVALENT (`StartSequencer`: the store of the running flag sits right before the virtual call
+in the engine, 83.5 %; `Dispatch`: three registers swapped, 95.6 %).
+
+- The scalar flags before the queue are initialised before the queue is allocated and the ones behind it after, so
+  every member goes through the initialiser list in declaration order; `luaReference` is the only body assignment.
+- The id switch of `OnMessage` needs `(unsigned short)` (`movzx`), the outer switch has the 0x17 case first.
+- `used[]` is `unsigned char`: `SetAllUsed(int)` is then the loop the compiler turns into `memset`, with the address
+  loaded before the value.
+- `ClearQueue` ends with `queue.Clear()` (the inline function re-reads `begin`).
+- `ScriptOwner` derives from `fight::Params` (the constructor calls `Params(int)`, the vftable adds a clone slot).
+- Not done in the range: 0x10875E30 (starts the game's fiber), 0x10876B30 (clears the queue and resets the
+  sequencers), 0x10876B60.

@@ -284,7 +284,7 @@ namespace engine
 		// Whether the script event is a node of its own
 		static inline bool IsNodeOwner(const ScriptOwner* owner)
 		{
-			return owner != 0 && owner->kind - 1 <= 0xFFFE;
+			return owner != 0 && (unsigned int)owner->value - 1 <= 0xFFFE;
 		}
 
 		// The test of the game object table that the engine expands where it asks the handle of a message
@@ -351,7 +351,7 @@ namespace engine
 		bool ScenarioGameObjectCondition::Evaluate(int a, int b, int c, int d)
 		{
 			ScriptOwner* owner = (ScriptOwner*)c;
-			if (owner == 0 || owner->kind - 1 > 0xFFFE)
+			if (owner == 0 || (unsigned int)owner->value - 1 > 0xFFFE)
 			{
 				return false;
 			}

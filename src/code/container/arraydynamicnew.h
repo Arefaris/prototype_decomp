@@ -21,6 +21,11 @@ namespace container
 			end = 0;
 			capacity = 0;
 		}
+		// Room for count elements (an empty array when count is 0 or the allocation fails)
+		explicit ArrayDynamicNew(unsigned int count)
+		{
+			Create(count);
+		}
 		~ArrayDynamicNew()
 		{
 			end = begin;
@@ -40,6 +45,10 @@ namespace container
 		bool IsFull() const
 		{
 			return end == capacity;
+		}
+		bool IsEmpty() const
+		{
+			return begin == end;
 		}
 		// Appends a copy of value when there is room
 		bool PushBack(const T& value)
