@@ -22,7 +22,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10709D70
 	void* ParticleSystemState::GetGeneratorUnknown10()
 	{
-		return inheritUnknown4BC ? parent->GetGeneratorUnknown10() : generator->unknown10;
+		return inheritUnknown4BC ? parent->GetGeneratorUnknown10() : &generator->unknown10;
 	}
 
 	// FUNCTION: ENGINE 0x10709CC0

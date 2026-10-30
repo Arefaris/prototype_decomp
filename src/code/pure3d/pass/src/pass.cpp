@@ -2,6 +2,7 @@
 // The destructor, Run and RunChildren are reconstructed here; the rest of the unit is declared in
 // code/pure3d/pass.h.
 #include "code/pure3d/pass.h"
+#include "code/pure3d/context.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/pass/rendertargetmanager.h"
 #include "code/pure3d/pddi.h"
@@ -24,6 +25,13 @@ namespace pure3d
 	void Pass::SetEntriesWord(unsigned int value)
 	{
 		entries.unknown0 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10754560
+	ContextRenderSettings::ContextRenderSettings()
+	{
+		unknown0 = 0;
+		unknown4 = -1;
 	}
 
 	// FUNCTION: ENGINE 0x10754590

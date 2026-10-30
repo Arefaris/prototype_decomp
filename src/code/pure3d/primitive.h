@@ -841,11 +841,18 @@ namespace pure3d
 		void SetParameter4(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 		void SetParameter5(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 
-		unsigned char unknown10[0xC0];
+		math::Matrix unknown10;
+		math::Matrix unknown50;
+		math::Matrix unknown90;
 		void* data;
 		ParticleAttributes attributes;
-		unsigned char unknown240[0x60];
+		unsigned char unknown240[0x40];
+		float unknown280;
+		unsigned char unknown284[0x1C];
 		math::Matrix transform;
+		unsigned char unknown2E0[0x14];
+		int unknown2F4;
+		int unknown2F8;
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
