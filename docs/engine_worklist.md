@@ -5203,3 +5203,45 @@ CollectibleLog (0x1058D0D0), FREventTimers, SmartHintLog, SmartHintShown, SmartH
   (0x10709DB0 - 0x1070B650, `ArrayDynamic` / iterator members), the pass factories 0x10719680 - 0x10719F80 (nineteen
   `new Pass(...)` wrappers whose constructors are unnamed), the shadow render manager (0x10715380 - 0x10716AD0), the
   allocator helpers 0x10714D70 - 0x10715180, the shader unit (0x10704B70, 0x107052A0, `Shader::Init` 0x10706100).
+## 0x10900000 - 0x10920000 (sn-af): behaviours' reflection, cameras, the physics attribute accessors
+- `src/code/engine/camera/fpscamera.*` / `onfootcamera.*` (0x10915450 - 0x10915FD0): `engine::camera::FPSCamera` (a `Camera` that
+  adds nothing: it looks out of the eyepoint of the object it is bound to) and `OnFootCamera` (elevation +0x60, distance
+  +0x64, lookAhead +0x68, lag +0x6C, reverseTargetHeading +0x70, targetName +0x78; the name member sits at an 8-byte aligned
+  offset). Reflection, constructors, `GetType` and the kept copies match (the stand-ins left reflectedclasses.h). The
+  constructor of `OnFootCamera` is EQUIVALENT (the engine stores the vftable behind the first float members). NONMATCHING: both
+  `Update`s (0x109155A0, 25.8 %; 0x10915BF0, 15.4 %): the engine looks the game object up twice (the validity test and the
+  fetch are two table walks, ours merges them into one) and copies the heading through a local. `Cinematographer::GetName`
+  is new (a copy of the name, as `Camera::GetName`).
+- `src/code/engine/animation/behaviours/jawflapbehaviour.*` (0x10919F50 - 0x1091B180): `engine::animation::JawFlapBehaviour`
+  (0x48 bytes: the joint driver, puppet and part lookup it holds as `core::RefPtr`s, the loudness the voice message
+  carries, the "Jaw" joint and the reflected thresholds, angles, priority, blend times and axis). 49 functions match: the
+  reflection with its eight member meta types (getter / setter pairs), the constructor (the order of the member stores
+  comes from tools/permute.py; the constants 0.1, 15.0 and -1.0 are literals the compiler pools), the destructor, `Slot1`,
+  `OnActiveChanged`, `OnMessage` (`switch` on the unsigned id), the helper `FindPuppet`, `ReleaseAll` and `Setup`. Not done:
+  `Update` 0x1091A720 and `FindJaw` 0x1091A600 (they call the unit's out-of-line smart pointer members 0x1091A100 / 0x1091A1F0).
+- `src/code/engine/characterintentionbehaviour.*` (0x1091C500 - 0x1091CD30) and `nisplayerbehaviour.*` (0x1091F890 - 0x10920900,
+  the first half): reflection, accessors, constructors, the three scenario messages the player sends and `OnLoaded`, and
+  the kept copies; the intention state (0x58 bytes at +0x10) and the rest of the NIS player (`Update`, `OnMessage`, `Slot0`,
+  `Slot1`, destructor, the track lookup: `TrackRegistry` has no members yet) are mapped, not reconstructed.
+- `src/code/engine/animation/behaviours/puppetbehaviour.*` (0x1091B1C0 - 0x1091C4F0): `engine::animation::PuppetBehaviour`
+  (bases `Behaviour` and `choreo::Puppet::ValidationFailedCallback` at +0xC, new in puppet.h): the reflection with its
+  three getter / setter members and the offset member, the accessors and the kept copies (16 functions). Not done: the
+  constructor, `Update` and the puppet makers (a `RefPtr<Puppet>` assignment the engine keeps out of line, 0x10476BB0).
+- `src/code/engine/driving/vehiclebehaviours.*` (0x1091CD30 - 0x1091E000): `CarIntentionBehaviour`,
+  `HelicopterIntentionBehaviour`, `CarPhysicsBehaviour`, `HelicopterPhysicsBehaviour` and the declaration of their base
+  `VehiclePhysicsBehaviour` (0xFC bytes; its reflection 0x10938420 / 0x10938AC0 is mapped, the unit is in the next range):
+  the class info, the member lists (the physics ones reference the attributes and the wheel data) and 21 kept copies. The
+  constructors, destructors, `OnMessage`, `ApplyInput` and the physics slots are mapped, not reconstructed (they need the
+  three-float input struct of 0x10937870 and the wheel state array of the car, which no name or RTTI gives).
+- `src/code/engine/driving/`: the accessors of `VehiclePhysicsAttributes`, `CarPhysicsAttributes` and
+  `HelicopterPhysicsAttributes` (0x10905A70, 0x10906C80 - 0x10906CB0, 0x10906ED0) are out of line now, so their kept copies count.
+- `engine::camera::CameraLoader::Slot3` 0x109069A0 is written (NONMATCHING, 48.5 %: the engine walks the cameras with a pointer
+  it keeps on the stack and the index in a register, the director spilled).
+- Shared tools: the relink takes its object list from a response file (550 objects overflowed the Windows command line).
+Not done in the range (what blocks each): the replay driver, the network layer and the world occluder events (0x10900260 -
+0x10905A00: stream and file classes of other ranges), `GameObjectTemplateBuilder` and its element arrays (0x1090C110 -
+0x1090D700), `CharacterSolverBehaviour` (0x10907E90 - 0x1090C110: the physics constraints and the supporting limbs),
+`AdvertisementBehaviour` (0x10917A30 - 0x10919F50: the mapping element with its vector array), `PuppetBehaviour`
+(0x1091B180 - 0x1091C500: a second base, the puppet handle and the attribute makers), `FirstPersonControlBehaviour::Update`
+and `KnockBehaviour::Update`, the vehicle behaviours (0x1091CD30 - 0x1091E000: the base `VehiclePhysicsBehaviour` and the
+input structs are in the next range).

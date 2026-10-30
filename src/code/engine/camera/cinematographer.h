@@ -120,6 +120,11 @@ namespace engine
 			bool active;
 			bool unknown7AD;
 
+			// The name, copied out
+			core::Name<core::CaseSensitiveKey> GetName() const
+			{
+				return name;
+			}
 			// 0x107DDAC0 (the type)
 			int GetType() const;
 			// 0x1084DDF0: the same, a copy of this unit's

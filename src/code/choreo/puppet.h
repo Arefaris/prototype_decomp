@@ -311,6 +311,13 @@ namespace choreo
 	public:
 		static const unsigned int MAX_DRIVERS = 16;
 
+		// The interface the owner of a puppet implements to be told that the puppet's output failed its validation
+		// (RTTI: choreo::Puppet::ValidationFailedCallback, one pure virtual function)
+		struct ValidationFailedCallback
+		{
+			virtual void OnValidationFailed() = 0;
+		};
+
 		// 0x10947980 - 0x10947A20: the puppet is allocated aligned to 16 bytes
 		static void* operator new(unsigned int size);
 		static void* operator new(unsigned int size, void* where);

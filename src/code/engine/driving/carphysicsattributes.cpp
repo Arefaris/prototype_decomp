@@ -14,6 +14,30 @@ namespace engine
 			return &sInfo;
 		}
 
+		// FUNCTION: ENGINE 0x10906C80
+		CarSuspensionAttributes* CarPhysicsAttributes::GetSuspension()
+		{
+			return &suspension;
+		}
+
+		// FUNCTION: ENGINE 0x10906C90
+		CarControlAttributes* CarPhysicsAttributes::GetControl()
+		{
+			return &control;
+		}
+
+		// FUNCTION: ENGINE 0x10906CA0
+		CarAttributesGroup3* CarPhysicsAttributes::GetGroup3()
+		{
+			return &group3;
+		}
+
+		// FUNCTION: ENGINE 0x10906CB0
+		CarAttributesGroup4* CarPhysicsAttributes::GetGroup4()
+		{
+			return &group4;
+		}
+
 		// FUNCTION: ENGINE 0x10906D80
 		content::MemberList* CarPhysicsAttributes::GetMembers()
 		{

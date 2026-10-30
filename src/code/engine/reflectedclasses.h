@@ -126,17 +126,6 @@ namespace engine
 		unsigned char unknownC[0x1C];
 	};
 
-	// CharacterIntentionBehaviour: constructor 0x1091CBC0, reflection 0x1091C500 / 0x1091CA80
-	class CharacterIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		CharacterIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x7C];
-	};
-
 	// CharacterSolverBehaviour: constructor 0x1090AFF0, reflection 0x10907ED0 / 0x1090AA30
 	class CharacterSolverBehaviour : public engine::Behaviour
 	{
@@ -146,17 +135,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0
-	class NISPlayerBehaviour : public engine::Behaviour
-	{
-	public:
-		NISPlayerBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x74];
 	};
 
 	// PlaybackTreeBehaviour: constructor 0x1089AC70, reflection 0x1089AA30 / 0x1089AE60
@@ -275,28 +253,6 @@ namespace animation
 		unsigned char unknown8[0x14];
 	};
 
-	// JawFlapBehaviour: constructor 0x1091A290, reflection 0x10919F50 / 0x1091AEB0
-	class JawFlapBehaviour : public engine::Behaviour
-	{
-	public:
-		JawFlapBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x3C];
-	};
-
-	// PuppetBehaviour: constructor 0x1091C400, reflection 0x1091B180 / 0x1091BF20
-	class PuppetBehaviour : public engine::Behaviour
-	{
-	public:
-		PuppetBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x34];
-	};
-
 }
 }
 
@@ -304,28 +260,6 @@ namespace engine
 {
 namespace camera
 {
-	// FPSCamera: constructor 0x10915490, reflection 0x10915450 / 0x10915540
-	class FPSCamera
-	{
-	public:
-		FPSCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x48];
-	};
-
-	// OnFootCamera: constructor 0x10915860, reflection 0x109157E0 / 0x10915A50
-	class OnFootCamera
-	{
-	public:
-		OnFootCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x80];
-	};
-
 	// ScriptedCamera: constructor 0x10851480, reflection 0x108509B0 / 0x10851420
 	class ScriptedCamera
 	{
@@ -366,50 +300,6 @@ namespace engine
 {
 namespace driving
 {
-	// CarIntentionBehaviour: constructor 0x1091CEA0, reflection 0x1091CD30 / 0x1091CF50
-	class CarIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		CarIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x14];
-	};
-
-	// CarPhysicsBehaviour: constructor 0x1091D920, reflection 0x1091D020 / 0x1091D7B0
-	class CarPhysicsBehaviour : public engine::Behaviour
-	{
-	public:
-		CarPhysicsBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x108];
-	};
-
-	// HelicopterIntentionBehaviour: constructor 0x1091DAC0, reflection 0x1091D980 / 0x1091DB70
-	class HelicopterIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		HelicopterIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x14];
-	};
-
-	// HelicopterPhysicsBehaviour: constructor 0x1091DC40, reflection 0x1091DC00 / 0x1091DEA0
-	class HelicopterPhysicsBehaviour : public engine::Behaviour
-	{
-	public:
-		HelicopterPhysicsBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0xF8];
-	};
-
 }
 }
 

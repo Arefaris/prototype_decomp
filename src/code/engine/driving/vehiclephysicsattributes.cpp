@@ -17,6 +17,12 @@ namespace engine
 			return &sInfo;
 		}
 
+		// FUNCTION: ENGINE 0x10905A70
+		VehicleMassAttributes* VehiclePhysicsAttributes::GetMassAttributes()
+		{
+			return &massAttributes;
+		}
+
 		// FUNCTION: ENGINE 0x10905A40
 		const math::Vector* GetVehicleVector()
 		{
