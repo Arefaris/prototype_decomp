@@ -5256,16 +5256,16 @@ neighbouring functions. In address order (the file names are guesses):
 | 0x10563630 - 0x10565930 | proto::IsWOITargetCondition and the tracks / actions WOIFMV, WOISendEvent, WOIShowTargetName, WOIPlayReaction | src/code/proto/webofintrigue/woifight.cpp | 140 match, 6 EQUIVALENT; the action slots 5 - 7 are mapped only |
 | 0x10565BD0 - 0x10567600 | proto::CityManager (0x440 bytes, the singleton 0x112730A0), proto::WorldGetDistrictMessage, the path / lane helpers around it | not started (script wrappers only) | |
 | 0x10567670 - 0x10567D10 | proto::MidgroundTextureManager | src/code/proto/render/midgroundtexturemanager.cpp | 10 match; `LoadTexture` 0x10567A40 not done |
-| 0x10567D90 - 0x1056EF20 | the reflection of the navigation mesh (proto::HackVector, Area, Edge, LaneData, AmbientNavMesh, PathNode::Link) and its array helpers | not started | |
+| 0x10567D90 - 0x1056EF20 | the reflection of the navigation mesh (proto::HackVector, Area, Edge, LaneData, AmbientNavMesh, PathNode::Link) and its array helpers | src/code/proto/navmeshreflection.cpp | 5 match (the class infos of HackVector / Area / LaneData / Edge and the enumeration Area::AreaType); the member lists and the array helpers not done (the element copies of Area / Edge / LaneData are not recovered) |
 | 0x1056EF20 - 0x1056F580 | proto::PropagandaManager | src/code/proto/propagandamanager.cpp | 10 match; `LoadTextures` 0x1056F2A0 not done |
 | 0x1056F5E0 - 0x105714E0 | proto::StreamManager (not engine::StreamManager) and the stream trigger lookups | not started (script wrappers only) | |
-| 0x10571BC0 - 0x10572530 | proto::DistrictBehaviour and the 0x20-byte proto::AmbientStreamPackage with their reflection | not started | |
+| 0x10571BC0 - 0x10572530 | proto::DistrictBehaviour and the 0x20-byte proto::AmbientStreamPackage with their reflection | src/code/proto/districtbehaviour.cpp | 1 match (the class info) |
 | 0x105726B0 - 0x10573300 | proto::ZoneBehaviour (radius, zone type, zone strength, render effects state) | src/code/proto/zonebehaviour.cpp | 15 match (reflection, strength accessors); the constructor, `Slot1`, `OnActiveChanged`, `Update`, `OnMessage`, `UpdateEffects` not done |
 | 0x10573330 - 0x10575FC0 | proto::NISManager and the NIS messages (`NISDoneScenarioMessage`, `NISGetStateMessage`, ...) | not started (script wrappers only) | |
 | 0x10576000 - 0x10577D10 | the NIS exclusion volume, `NISExcludeVolumeAction` | not started | |
 | 0x10577D10 - 0x10578740 | proto::NISExcludeVolumeTrack | src/code/proto/nis/nisexcludevolume.cpp | 42 match (`RegisterProperties` EQUIVALENT); `CreateAction` 0x10577520 mapped only |
 | 0x10577630 - 0x10578EA0 | proto::FMVTrack, proto::FMVAction | src/code/proto/fmv/fmvtrack.cpp | 42 match (`RegisterProperties` EQUIVALENT); the slots and `CreateAction` mapped only |
-| 0x10578EA0 - 0x1057F000 | proto::UnlockablesManager, UnlockTable, UnlockableInfo / UnlockablesList reflection (the enum `proto::Unlockable` has 484 values), the registration 0x1057CDF0 (14287 bytes) | not started (script wrappers only) | |
+| 0x10578EA0 - 0x1057F000 | proto::UnlockablesManager, UnlockTable, UnlockableInfo / UnlockablesList reflection (the enum `proto::Unlockable` has 484 values), the registration 0x1057CDF0 (14287 bytes) | src/code/proto/unlockables.cpp | 10 match (the five enumerations, the class infos of UnlockableInfo and UnlockablesList, three enumeration meta types); the rest (member lists, table, manager) not done |
 Findings:
 - **The Method / Closure wrappers of the managers** (src/code/proto/*wrappers.cpp, 324 functions): `template class MethodN<C, R, A...>`
   / `ClosureN<...>` / `LuaScriptManager::RegisterMethod<...>` for every instance the vftables list (RTTI `Method1<class proto::X,void,int>`
