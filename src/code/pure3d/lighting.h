@@ -60,6 +60,9 @@ namespace pure3d
 		void GetLights(LightArray* lights, const unsigned int* region);
 		// 0x10756350: whether the light is in the scene's list
 		bool Contains(Light* light);
+		// 0x10756890 / 0x10756500: takes a light into the scene / out of it (names guessed)
+		void AddLight(Light* light);
+		void RemoveLight(Light* light);
 
 		unsigned char unknown0[0x30];
 		Light** lights;

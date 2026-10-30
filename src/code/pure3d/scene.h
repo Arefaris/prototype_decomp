@@ -52,19 +52,23 @@ namespace pure3d
 		// 0x10710AC0 / 0x10710AE0: the lighting scene's add and remove of a light (a jump each)
 		void AddLight(Light* light);
 		void RemoveLight(Light* light);
-		// 0x10710B10 (the same address as GetUnknownE0) / 0x10710B00
+		// 0x10710B10 / 0x10710B00
 		LightingScene* GetLightingScene();
 		LightGroupTable* GetLightGroupTable();
-		// 0x10710B10 / 0x10710B40
-		void* GetUnknownE0();
+		// 0x10710B40
 		void* GetUnknownD8();
 
-		unsigned char unknown4[0x24];
+		unsigned char unknown4[4];
+		// Every drawable the scene holds (Add appends, Refresh looks here)
+		container::ArrayDynamicHeap<Drawable*> allDrawables;
+		unsigned char unknown18[0x10];
 		container::ArrayDynamic<Drawable*, container::AllocatorNew> drawables;
-		unsigned char unknown34[0xA4];
+		unsigned char unknown34[0x94];
+		// The drawables Refresh has put on the list to refresh (+0xC8)
+		container::ArrayDynamicHeap<Drawable*> refreshList;
 		void* unknownD8;
-		unsigned char unknownDC[4];
-		void* unknownE0;
+		LightGroupTable* lightGroupTable;
+		LightingScene* lightingScene;
 		unsigned char unknownE4[0x38];
 		// The batches of the parts a shadow pass draws (room for as many as a pass finds)
 		const void* batches[0x15B9];

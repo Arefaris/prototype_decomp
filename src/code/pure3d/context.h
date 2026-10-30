@@ -366,7 +366,8 @@ namespace pure3d
 		{
 			Unknown148();
 
-			unsigned char data[8];
+			int unknown0;
+			int unknown4;
 		};
 
 		// 0x10710120: 10000, the default, 2 (the second display mode), room for 8 drawables
@@ -422,6 +423,8 @@ namespace pure3d
 	public:
 		// 0x1070EC40 (another unit): widens a text into the buffer (as much as fits, ended); the length
 		int ToWide(const char* text, unsigned short* buffer, int capacity);
+		// 0x1070EC90: draws an 8-bit text (widened into a buffer of 0x200 characters first; name guess)
+		void DrawAnsi(const char* text, int unknown);
 
 		virtual void Unknown3();
 		virtual void Unknown4();

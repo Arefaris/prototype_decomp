@@ -591,6 +591,12 @@ namespace pure3d
 		// Makes the particles of the update data; unknownE4 of the state is the second argument
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 
+		// 0x10740460: the emitter transform, handed on to the generator
+		void SetTransform(const math::Matrix& newTransform);
+		// 0x10742720: forgets the particles it made (name guess)
+		void Unknown10742720();
+		// 0x10741080: whether the two counts at +0x2F4 / +0x2F8 differ (name guess)
+		bool Unknown10741080();
 		// 0x10740E50: the generator's current transform
 		void GetUnknown10740E50(math::Matrix* out);
 		// 0x107404B0
@@ -1105,6 +1111,16 @@ namespace pure3d
 		bool GetUnknown4BC();
 		// 0x10709D30: the emitter transform (handed on to the generator)
 		void SetTransform(const math::Matrix& transform);
+		// Slots 4 and 6: 0x10709C40 advances the controllers while the time step is not zero, 0x10709CF0 answers whether
+		// the update controller has finished and the generator has nothing left (names guessed)
+		virtual void Update(float dt);
+		virtual bool Unknown6();
+		// Slots 5 and 7: 0x1070D220 resets the generator and the controller, 0x1070D9A0 gives the box around the particles
+		// (the parent's when it is inherited)
+		virtual void Unknown5();
+		virtual void GetBoundingBox(math::AABB* box);
+		// 0x1070C340 (not reconstructed)
+		void Unknown1070C340();
 
 		void SetUnknown49C(float value)
 		{
@@ -1271,7 +1287,10 @@ namespace pure3d
 		math::Matrix transform;
 		unsigned char unknown474[0x1C];
 		bool unknown490;
-		unsigned char unknown491[0xB];
+		bool unknown491;
+		unsigned char unknown492[2];
+		float unknown494;
+		float unknown498;
 		float unknown49C;
 		float unknown4A0;
 		float unknown4A4;
