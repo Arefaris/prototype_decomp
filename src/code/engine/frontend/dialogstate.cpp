@@ -1,59 +1,37 @@
 #include "code/engine/frontend/dialogstate.h"
+#include "code/engine/frontend/privatedialogstate.h"
 #include "code/core/strings.h"
 
 namespace engine
 {
-	// The object that does the dialog's work (0xC0 bytes; another unit, names guessed)
-	class DialogStateImpl
-	{
-	public:
-		// 0x108E42D0
-		DialogStateImpl(DialogState* owner, int a, int b, const char* overlay, int c);
-		// 0x108E3E10
-		~DialogStateImpl();
-		// 0x108E3E50, 0x108E4390, 0x108E3F60, 0x108E3F70, 0x108E3FA0 (the icon), 0x108E3FC0, 0x108E3FD0, 0x108E4230
-		void Unknown108E3E50(int controller, bool flag);
-		void Unknown108E4390();
-		bool Unknown108E3F60();
-		bool Unknown108E3F70();
-		void SetIcon(int icon, bool visible);
-		void Unknown108E3FC0();
-		void Unknown108E3FD0();
-		void Unknown108E4230();
-
-		unsigned char unknown0[0xB8];
-		int controller;  // +0xB8
-		unsigned char unknownBC[4];
-	};
-
 	// FUNCTION: ENGINE 0x10883CB0
 	DialogState::DialogState(int a, int b, const char* overlay, int c)
 	{
-		impl = new DialogStateImpl(this, a, b, overlay, c);
+		impl = new PrivateDialogState(this, a, b, overlay, (const char*)c);
 	}
 
 	// FUNCTION: ENGINE 0x10883D50
-	void DialogState::Unknown10883D50(int controller, bool flag)
+	bool DialogState::Unknown10883D50(int controller, int flag)
 	{
-		impl->Unknown108E3E50(controller, flag);
+		return impl->Request(controller, flag);
 	}
 
 	// FUNCTION: ENGINE 0x10883D60
 	void DialogState::Unknown10883D60()
 	{
-		impl->Unknown108E4390();
+		impl->Close();
 	}
 
 	// FUNCTION: ENGINE 0x10883D70
 	bool DialogState::Unknown10883D70()
 	{
-		return impl->Unknown108E3F60();
+		return impl->IsActive();
 	}
 
 	// FUNCTION: ENGINE 0x10883D80
 	bool DialogState::Unknown10883D80()
 	{
-		return impl->Unknown108E3F70();
+		return impl->IsDone();
 	}
 
 	// FUNCTION: ENGINE 0x10883D90
