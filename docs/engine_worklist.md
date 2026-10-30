@@ -4928,8 +4928,8 @@ is mapped in symbols.txt but not reconstructed; it is the same template set as `
 
 ## 0x108E0000 - 0x10900000 (sn-z): fight actions, the friend interface, script wrappers, kept copies
 
-Of the 1256 functions without a symbol in the range 12 are reconstructed (annotated) and about 560 more are counted as
-kept template instances and inline copies of units that were already there.
+The pass adds 567 matching functions to the report: 20 reconstructed functions (7 more are EQUIVALENT, 1 is NONMATCHING)
+and about 550 kept template instances and inline copies, listed in the trailers of their units.
 
 - `src/code/engine/fight/cameraactions.cpp`: `CameraClipPlaneAction::Slot5` (EQUIVALENT, block layout: the engine's
   failure return of the camera search sits behind the success path) and `Slot6`; `CameraAnimationAction::Slot6` /
@@ -4960,9 +4960,11 @@ kept template instances and inline copies of units that were already there.
   of its source (`// FUNCTION: ENGINE 0x...` after the "Kept copies" comment), so that the report counts it. The
   property, track factory and condition factory constructors of the ragdoll, supporting limb, character IK, root
   control, physics blend and input condition units (about 120) were not mapped before; they are now. The
-  `core::Link<T>` constructors and destructors (55 and 16 bytes) are not mapped: the engine has two destructor copies
-  and sometimes two constructor copies per class and the copies are byte-identical, so a name cannot be paired with
-  an address.
+  `core::Link<T>` constructors and destructors (55 and 16 bytes) are byte-identical for every T, so a name cannot be
+  told from its address; the engine keeps them in front of the destructor of the action that owns the link (the
+  constructor 0x50 bytes before it, a destructor 0x10 and often another 0x70 bytes before it), and 30 of them are
+  paired that way. The classes whose destructors lie closer together than that, and the ones with a second constructor
+  copy, are not mapped.
 
 Not done, in the order of the range:
 - 0x108E0720 - 0x108E1260: the content manager's array helper instances and the NIS metaobject factories.
