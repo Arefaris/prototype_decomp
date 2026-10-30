@@ -258,4 +258,31 @@ namespace proto
 		}
 		return false;
 	}
+
+	// FUNCTION: ENGINE 0x10591A90
+	bool FREventTrigger::IsReady()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10590580
+	void FREventTrigger::Spawn()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10590590
+	void FREventTrigger::Release()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10591AE0
+	math::Vector FREventTrigger::GetPosition()
+	{
+		return PositionOfObject(handle);
+	}
+
+	// FUNCTION: ENGINE 0x10591AA0
+	FREventTrigger::~FREventTrigger()
+	{
+	}
 }

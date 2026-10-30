@@ -145,6 +145,20 @@ namespace proto
 		virtual math::Vector GetPosition();
 		virtual int GetKind();
 	};
+
+	// A trigger volume that is a physics object of the world (the engine's constructor looks the game object up by
+	// the name and asks it for the physics object; it is not part of this reconstruction)
+	struct FREventTrigger : public FREventTriggerBase
+	{
+		virtual ~FREventTrigger();
+		virtual bool IsReady();
+		virtual void Spawn();
+		virtual void Release();
+		virtual math::Vector GetPosition();
+		virtual bool IsPlayerInside();
+
+		unsigned int physicsObject;  // +0x18: the handle of the physics object of the volume, -1 without one
+	};
 }
 
 #endif
