@@ -1,6 +1,39 @@
 // The animation states of the particle generators (unit around 0x10740700 - 0x10742400, the generators' file; the file
 // name is a guess): each keeps copies of the float channels its generator's shape is animated with. Names are guesses.
+#include "code/core/refptr.h"
 #include "code/pure3d/primitive.h"
+
+// This unit's copies of the reference helpers for the generators' animation states and mesh data
+
+// FUNCTION: ENGINE 0x10740B60
+template void core::RefAssign<pure3d::ParticlePointGenerator::GeneratorAnimationState>(pure3d::ParticlePointGenerator::GeneratorAnimationState*& pointer, pure3d::ParticlePointGenerator::GeneratorAnimationState* object);
+
+// FUNCTION: ENGINE 0x10740B90
+template void core::SafeRelease<pure3d::ParticlePointGenerator::GeneratorAnimationState>(pure3d::ParticlePointGenerator::GeneratorAnimationState*& object);
+
+// FUNCTION: ENGINE 0x10740BB0
+template void core::RefAssign<pure3d::ParticlePlaneGenerator::GeneratorAnimationState>(pure3d::ParticlePlaneGenerator::GeneratorAnimationState*& pointer, pure3d::ParticlePlaneGenerator::GeneratorAnimationState* object);
+
+// FUNCTION: ENGINE 0x10740BE0
+template void core::SafeRelease<pure3d::ParticlePlaneGenerator::GeneratorAnimationState>(pure3d::ParticlePlaneGenerator::GeneratorAnimationState*& object);
+
+// FUNCTION: ENGINE 0x10740C00
+template void core::RefAssign<pure3d::ParticleSphereGenerator::GeneratorAnimationState>(pure3d::ParticleSphereGenerator::GeneratorAnimationState*& pointer, pure3d::ParticleSphereGenerator::GeneratorAnimationState* object);
+
+// FUNCTION: ENGINE 0x10740C30
+template void core::SafeRelease<pure3d::ParticleSphereGenerator::GeneratorAnimationState>(pure3d::ParticleSphereGenerator::GeneratorAnimationState*& object);
+
+// FUNCTION: ENGINE 0x10740C50
+template void core::RefAssign<pure3d::ParticleGridGenerator::GeneratorAnimationState>(pure3d::ParticleGridGenerator::GeneratorAnimationState*& pointer, pure3d::ParticleGridGenerator::GeneratorAnimationState* object);
+
+// FUNCTION: ENGINE 0x10740C80
+template void core::SafeRelease<pure3d::ParticleGridGenerator::GeneratorAnimationState>(pure3d::ParticleGridGenerator::GeneratorAnimationState*& object);
+
+// FUNCTION: ENGINE 0x10740CA0
+template void core::RefAssign<pure3d::ParticleMeshGenerator::MeshData>(pure3d::ParticleMeshGenerator::MeshData*& pointer, pure3d::ParticleMeshGenerator::MeshData* object);
+
+// FUNCTION: ENGINE 0x10740CD0
+template void core::SafeRelease<pure3d::ParticleMeshGenerator::MeshData>(pure3d::ParticleMeshGenerator::MeshData*& object);
 
 namespace pure3d
 {

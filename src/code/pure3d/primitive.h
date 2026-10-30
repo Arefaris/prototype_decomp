@@ -984,6 +984,21 @@ namespace pure3d
 	class ParticleMeshGenerator : public ParticleGenerator
 	{
 	public:
+		// The vertex data of the mesh the generator emits from (RTTI name pure3d::ParticleMeshGenerator::MeshData; 0x38
+		// bytes, made on first use)
+		class MeshData : public RefCounted
+		{
+		public:
+			void* unknown8;
+			void* unknownC;
+			unsigned char unknown10[4];
+			void* unknown14;
+			void* unknown18;
+			unsigned char unknown1C[4];
+			void* unknown20;
+			void* unknown24;
+		};
+
 		// Slot 6 (0x107425F0): only the base's animation
 		virtual void Unknown6(float time);
 	};
