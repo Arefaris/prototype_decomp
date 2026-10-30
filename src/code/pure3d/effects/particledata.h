@@ -5,6 +5,7 @@
 #ifndef PURE3D_EFFECTS_PARTICLEDATA_H
 #define PURE3D_EFFECTS_PARTICLEDATA_H
 
+#include "code/core/bitfield.h"
 #include "code/core/name.h"
 #include "code/math/vector.h"
 #include "code/pure3d/channel.h"
@@ -27,13 +28,27 @@ namespace pure3d
 	class ParticleArray
 	{
 	public:
+		// 0x10742680: empty arrays
+		ParticleArray();
+		// 0x107485C0: frees the block and forgets the arrays
+		void Free();
 		// 0x10748980: this = b * a + c element by element (the three arrays have the length of this one)
 		void MultiplyAdd(const ParticleArray& a, const ParticleArray& b, const ParticleArray& c);
 
-		int unknown0[8];
+		int unknown0;
+		int unknown4;
+		int unknown8;
+		int unknownC;
+		int unknown10;
+		int unknown14;
+		int unknown18;
+		int unknown1C;
 		float* begin;
 		float* end;
-		core::Name<core::CaseInsensitiveKey32> names[4];
+		core::BitField<unsigned int> bits0;
+		core::BitField<unsigned int> bits1;
+		core::BitField<unsigned int> bits2;
+		core::BitField<unsigned int> bits3;
 		void* block;
 	};
 

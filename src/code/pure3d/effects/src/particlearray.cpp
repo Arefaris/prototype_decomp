@@ -1,9 +1,38 @@
 // The float arrays of the particle generators (unit around 0x10740000 - 0x10748800; the file name is a guess, the
 // unit also holds the generators). Names are guesses.
+#include "code/core/heap.h"
 #include "code/pure3d/effects/particledata.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10742680
+	// EQUIVALENT: the same stores and the same four calls; the engine keeps zero in ebx and the address of the first flag
+	// word in edi across the calls, ours zero in edi and a fresh address per call (29.3 %)
+	ParticleArray::ParticleArray() : unknown0(0), unknown4(0), unknown8(0), unknownC(0), unknown10(0), unknown14(0),
+		unknown18(0), unknown1C(0), begin(0), end(0), block(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107485C0
+	void ParticleArray::Free()
+	{
+		if (block != 0)
+		{
+			core::FreeAligned(block);
+			block = 0;
+		}
+		unknown0 = 0;
+		unknown4 = 0;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		unknown1C = 0;
+		begin = 0;
+		end = 0;
+	}
+
 	// FUNCTION: ENGINE 0x10748980
 	void ParticleArray::MultiplyAdd(const ParticleArray& a, const ParticleArray& b, const ParticleArray& c)
 	{

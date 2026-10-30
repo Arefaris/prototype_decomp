@@ -31199,3 +31199,5 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??$SafeRelease@VGeneratorAnimationState@ParticleGridGenerator@pure3d@@@core@@YAXAAPAVGeneratorAnimationState@ParticleGridGenerator@pure3d@@@Z = 0x10740C80 ; function size:0x1A | core::SafeRelease<pure3d::ParticleGridGenerator::GeneratorAnimationState> (COMDAT copy in the generator unit)
 ??$RefAssign@VMeshData@ParticleMeshGenerator@pure3d@@@core@@YAXAAPAVMeshData@ParticleMeshGenerator@pure3d@@PAV123@@Z = 0x10740CA0 ; function size:0x28 | core::RefAssign<pure3d::ParticleMeshGenerator::MeshData> (COMDAT copy in the generator unit)
 ??$SafeRelease@VMeshData@ParticleMeshGenerator@pure3d@@@core@@YAXAAPAVMeshData@ParticleMeshGenerator@pure3d@@@Z = 0x10740CD0 ; function size:0x1A | core::SafeRelease<pure3d::ParticleMeshGenerator::MeshData> (COMDAT copy in the generator unit)
+??0ParticleArray@pure3d@@QAE@XZ = 0x10742680 ; function size:0x4F | pure3d::ParticleArray constructor (name guess)
+?Free@ParticleArray@pure3d@@QAEXXZ = 0x107485C0 ; function size:0x39 | pure3d::ParticleArray::Free (name guess)
