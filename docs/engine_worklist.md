@@ -5350,3 +5350,27 @@ Findings:
 Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520; 0x10567C50 and 0x1056F4E0 (the texture managers) are done, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
 reconstructed), the NIS and zone / district behaviours (HUD and message calls through unnamed functions of the front end), the navigation mesh
 reflection (the element copies of Area / Edge / LaneData are not recovered), the unlock table.
+
+## proto/om: the range 0x105A0000 - 0x105C0000 (sn-aj): units found, status
+The range holds the end of the movie player (0x1059F010 - 0x105A2300, Bink data, not started), the fight sequencer and its
+neighbours (done earlier, only compiler-generated leftovers remain: the `Link<T>` / property template instances of the
+Opportunity, Sequence, Spawn, Stop, Wait and Execute tracks at 0x105B1000 - 0x105B3400) and, from 0x105B3690, the om
+library (strings, entities, text and binary values, streams, trees, the audio effects) which is split into many small units.
+| Range | Unit | Source | Status |
+|---|---|---|---|
+| 0x105B3750 - 0x105B4720 | om::String (members, number constructors, `+`, `+=`, `Format`) and the data behind it | src/code/om/string.cpp, stringdata.h | 49 match, `GetWritableText` EQUIVALENT (register choice), `SpaceOutCapitals` NONMATCHING (45 %); 0x105B45D0 (needs the char class helpers 0x105BEC80 / 0x105BECA0) not done |
+| 0x105B3950, 0x105B3970 | the interlocked counters (inline assembler) | src/code/om/atomic.cpp | 2 match |
+| 0x105B49E0 - 0x105B5D6E | om::Entity, EntityTypeBase, the entity registry | src/code/om/entity.cpp | 8 match, 4 EQUIVALENT (scheduling); `ReadEntity` 0x105B4AD0 and the tree inserts 0x105B4D40 / 0x105B4F60 / 0x105B5880 not done |
+| 0x105B7A80 - 0x105B7C00 | TextNodeTree, StreamBuffer | src/code/om/valueio.cpp | 3 match, `StreamBuffer::Read` / `Write` NONMATCHING (96.6 / 93.9 %, register assignment of the static byte reverser) |
+Findings:
+- **The string's helpers are not inlined in the engine but know each other's registers**: the data-pointer accessors (`StringData`) are
+  out of line members defined in the cpp (no inlining at /Ob1) in the same unit as `String`; the interlocked counters are inline assembler
+  functions of a unit of their own (the callers then save `this` in esi). A class-body ctor is inlined into `Format` (return slot) but the
+  engine's copy is called by `GetDirectory`, so `String(const char*, unsigned)` is defined `inline` in string.cpp only.
+- **Inline assembler for the counters** (`mov eax, value / lock xadd [eax], ecx / inc ecx / mov result, ecx`) reproduces the stack temporary.
+- `if (cond) return true; return false;` gives the engine's direct `sete al` for the string comparisons.
+- `String(const char*, int mode)`: the second argument is a word (mode 0 literal, 1 borrowed, 2 owned), `EntityTypeBase` takes its flag as a word.
+- The entity's tree node (+0x10) is now a member of `om::Entity`; Mix, Cue, DynamicObjectEntity, AudioGlobalSettings and
+  AudioMaterialMap lost their `unknown10` placeholders. `GetEntityType` is mapped to `__purecall` (0x10A88350).
+- Not started: the primitive text / binary forms (0x105B7CF0 - 0x105B8680: bool, char, short, int, 64-bit), the stream and text-node classes
+  around 0x105B86B0 - 0x105B8D00, the audio effect and reverb helpers 0x105BB440 - 0x105BCDF0, the movie player.

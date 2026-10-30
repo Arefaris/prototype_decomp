@@ -32125,3 +32125,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?InsertEntityTypeByType@TreeHead@om@@QAE_NPAVEntityTypeBase@2@@Z = 0x105B4F60 ; function size:0x1B3 | om::TreeHead::InsertEntityTypeByType (name guess)
 ?FindEntityType@TreeHead@om@@QAEPAVEntityTypeBase@2@ABVtype_info@@@Z = 0x105B54A0 ; function size:0xA6 | om::TreeHead::FindEntityType (name guess)
 ?GetEntityType@Entity@om@@UAEPAVEntityTypeBase@2@XZ = 0x10A88350 ; function size:0x6 | om::Entity::GetEntityType: pure in the engine, the slot leads to __purecall (name guess)
+?ReverseBytes@om@@YAXHPAD@Z = 0x105B7B90 ; function size:0x24 | om::ReverseBytes: static, the data in ecx and the size in eax (name guess)
