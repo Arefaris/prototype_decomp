@@ -189,3 +189,6 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F24A0
 	// FUNCTION: ENGINE 0x107F24C0
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x10602210

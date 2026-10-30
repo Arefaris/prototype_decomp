@@ -1077,3 +1077,7 @@ namespace container
 // FUNCTION: ENGINE 0x108EB2C0
 // FUNCTION: ENGINE 0x108EB2D0
 // FUNCTION: ENGINE 0x108EB4B0
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x1061BC40
+// FUNCTION: ENGINE 0x1061BCA0

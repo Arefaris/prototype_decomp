@@ -826,3 +826,6 @@ namespace content
 		(*result)->AddRef();
 	}
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x1060AF50

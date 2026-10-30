@@ -80,3 +80,6 @@ namespace pure3d
 		multiSampleType = description.MultiSampleType;
 	}
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x1061F120

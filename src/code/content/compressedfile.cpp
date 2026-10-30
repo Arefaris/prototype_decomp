@@ -293,3 +293,6 @@ namespace content
 		Init(newInner, 0, level, newUnpacked, newStart, newSize, newHeap, newFactory);
 	}
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x1060E3C0

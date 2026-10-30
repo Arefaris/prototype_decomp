@@ -443,3 +443,6 @@ namespace pure3d
 		}
 	}
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x10614620
