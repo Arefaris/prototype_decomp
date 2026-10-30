@@ -74,6 +74,28 @@ namespace ravenphysics
 		unsigned short* counts;       // 0x18
 		int countCount;               // 0x1C
 	};
+
+	// A set of 32-bit keys with a slot each, filed in the buckets of a word table (the broad phase keeps several; the
+	// functions are the same code under different template instances, so the parameter names the engine function)
+	class SlotHashTable : public WordChainTable
+	{
+	public:
+		// Files a key under the next free slot and returns the slot (the code of PointerHashTable::Insert)
+		template <int Function>
+		unsigned short Insert(unsigned int key);
+		// Takes a slot out of its bucket and onto the free list again
+		template <int Function>
+		void RemoveSlot(unsigned int slot);
+		// The slot of a key, 0xFFFF when it is not in the table
+		template <int Function>
+		unsigned short Find(unsigned int key);
+
+		unsigned int* keys;           // 0x18
+		int keyCount;                 // 0x1C
+		unsigned short* freeSlots;    // 0x20
+		unsigned int freeCount;       // 0x24
+		unsigned int capacity;        // 0x28
+	};
 }
 
 #endif
