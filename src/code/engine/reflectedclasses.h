@@ -275,17 +275,6 @@ namespace animation
 		unsigned char unknown8[0x14];
 	};
 
-	// JawFlapBehaviour: constructor 0x1091A290, reflection 0x10919F50 / 0x1091AEB0
-	class JawFlapBehaviour : public engine::Behaviour
-	{
-	public:
-		JawFlapBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x3C];
-	};
-
 	// PuppetBehaviour: constructor 0x1091C400, reflection 0x1091B180 / 0x1091BF20
 	class PuppetBehaviour : public engine::Behaviour
 	{

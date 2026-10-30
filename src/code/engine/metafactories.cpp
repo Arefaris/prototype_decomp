@@ -24,6 +24,7 @@
 #include "code/engine/driving/wheelcollectiondata.h"
 #include "code/engine/splinepath.h"
 #include "code/engine/surfacedefinition.h"
+#include "code/engine/animation/behaviours/jawflapbehaviour.h"
 #include "code/engine/camera/cameraloader.h"
 #include "code/engine/camera/fpscamera.h"
 #include "code/engine/camera/onfootcamera.h"
