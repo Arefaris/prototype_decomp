@@ -4,6 +4,8 @@
 
 namespace pure3d
 {
+	unsigned int gLastLightGroup;
+
 	// FUNCTION: ENGINE 0x10756350
 	bool LightingScene::Contains(Light* light)
 	{
@@ -35,5 +37,50 @@ namespace pure3d
 		{
 			lights->begin[i] = this->lights[indicesBegin[i]];
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10757A10
+	bool LightGroupTable::Contains(Light* light)
+	{
+		return scene->Contains(light);
+	}
+
+	// FUNCTION: ENGINE 0x10757A80
+	int LightingScene::GetBoundedCount()
+	{
+		return bounded.Size();
+	}
+
+	// FUNCTION: ENGINE 0x10757A90
+	int LightingScene::GetUnboundedCount()
+	{
+		return unbounded.Size();
+	}
+
+	// FUNCTION: ENGINE 0x10757AA0
+	// EQUIVALENT: the same four loads and two subtractions; the engine reads the first list into eax, ours the second (83.3 %)
+	int LightGroupTable::GetLightCount()
+	{
+		return scene->bounded.Size() + scene->unbounded.Size();
+	}
+
+	// FUNCTION: ENGINE 0x10757AC0
+	Entity* LightGroupTable::FindGroup(const core::Name<core::CaseSensitiveKey>* name)
+	{
+		Entity* last = groups[gLastLightGroup];
+		if (last->mName == *name)
+		{
+			return last;
+		}
+		for (unsigned int i = 0; i < 0x20; i++)
+		{
+			if (groups[i]->mName == *name)
+			{
+				Entity* found = groups[i];
+				gLastLightGroup = i;
+				return found;
+			}
+		}
+		return 0;
 	}
 }
