@@ -30609,3 +30609,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?Reset@Client@visibility@pure3d@@QAEXXZ = 0x1071AC60 ; function size:0x7C | pure3d::visibility::Client::Reset (name guess)
 ?Register@Client@visibility@pure3d@@QAEX_N@Z = 0x1071ACE0 ; function size:0x67 | pure3d::visibility::Client::Register (name guess)
 ?gDefaultPartAnimationState@pure3d@@3UPartAnimationState@1@A = 0x112817DC ; data size:0x2C | pure3d::gDefaultPartAnimationState (name guess)
+?CopyFrom@PoseData@pure3d@@QAEXPAV12@@Z = 0x10709350 ; function size:0x266 | pure3d::PoseData::CopyFrom (name guess)
+?CopyMatchingFrom@PoseData@pure3d@@QAEXPAV12@@Z = 0x107095C0 ; function size:0x2D3 | pure3d::PoseData::CopyMatchingFrom (name guess)
+?Blend@PoseData@pure3d@@QAEXPAV12@M_N@Z = 0x107089B0 ; function size:0x2E3 | pure3d::PoseData::Blend (name guess)

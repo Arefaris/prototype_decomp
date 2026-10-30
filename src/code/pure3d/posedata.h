@@ -125,6 +125,13 @@ namespace pure3d
 		// 0x107098B0 / 0x107098D0: the joint matrix of a joint (the pose is brought up to date) and its position
 		void GetJointMatrix(int joint, math::Matrix* matrix);
 		void GetJointPosition(int joint, math::Vector* position);
+		// 0x107089B0: moves every joint (the root's too when the flag is set, as an offset) the fraction t of the way to
+		// the other pose (name guess)
+		void Blend(PoseData* other, float t, bool root);
+		// 0x10709350: the arrays and matrices both poses have, as many joints as both have (name guess)
+		void CopyFrom(PoseData* other);
+		// 0x107095C0: the same for the joints of another pose that have a joint of the same name here (name guess)
+		void CopyMatchingFrom(PoseData* other);
 		// 0x10708980: the joint and skinning matrices of another pose of the same skeleton
 		void CopyMatricesFrom(PoseData* other);
 		// 0x107082B0: lays the arrays out in a block of memory (name guess)

@@ -6,6 +6,15 @@
 #include "code/pure3d/posedata.h"
 #include "code/pure3d/posedatasimd.h"
 
+namespace engine
+{
+	namespace driving
+	{
+		// 0x10D946E0
+		extern const float gOne;
+	}
+}
+
 namespace pure3d
 {
 	// The file the unit's asserts carry (posedata.cpp)
@@ -57,6 +66,23 @@ namespace pure3d
 			destination->m[row][2] = source->m[row][2];
 			destination->m[row][3] = source->m[row][3];
 		}
+	}
+
+	// The first three components of the vector moved the fraction t of the way to the other one
+	static __forceinline void LerpVector3(math::Vector4* value, const math::Vector4* target, float t)
+	{
+		value->x = (target->x - value->x) * t + value->x;
+		value->y = (target->y - value->y) * t + value->y;
+		value->z = (target->z - value->z) * t + value->z;
+	}
+
+	// All four components of a vector
+	static __forceinline void CopyVector4(math::Vector4* destination, const math::Vector4* source)
+	{
+		destination->x = source->x;
+		destination->y = source->y;
+		destination->z = source->z;
+		destination->w = source->w;
 	}
 
 	// The first three components of a vector
@@ -427,6 +453,92 @@ namespace pure3d
 		Update();
 		math::Matrix* m = &mWorldMatrices[joint];
 		position->Set(m->m[3][0], m->m[3][1], m->m[3][2]);
+	}
+
+	// FUNCTION: ENGINE 0x10709350
+	void PoseData::CopyFrom(PoseData* other)
+	{
+		unsigned int count = mArrays.mJointCount < other->mArrays.mJointCount ? mArrays.mJointCount : other->mArrays.mJointCount;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (mSpaces & other->mSpaces & 1)
+			{
+				CopyVector4(&mArrays.mUnknown10[i], &other->mArrays.mUnknown10[i]);
+				CopyVector4(&mArrays.mScales[i], &other->mArrays.mScales[i]);
+				CopyVector4(&mArrays.mUnknown14[i], &other->mArrays.mUnknown14[i]);
+				CopyVector4(&mArrays.mUnknown1C[i], &other->mArrays.mUnknown1C[i]);
+				CopyMatrix(&mLocalMatrices[i], &other->mLocalMatrices[i]);
+				mArrays.mRotations[i] = other->mArrays.mRotations[i];
+				CopyVector4(&mArrays.mTranslations[i], &other->mArrays.mTranslations[i]);
+			}
+			if (mSpaces & other->mSpaces & 2)
+			{
+				CopyMatrix(&mWorldMatrices[i], &other->mWorldMatrices[i]);
+				CopyMatrix(&mSkinMatrices[i], &other->mSkinMatrices[i]);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107095C0
+	void PoseData::CopyMatchingFrom(PoseData* other)
+	{
+		for (unsigned int i = 0; i < other->mArrays.mJointCount; i++)
+		{
+			for (unsigned int j = 0; j < mArrays.mJointCount; j++)
+			{
+				if (mSkeleton->mNames[j] == other->mSkeleton->mNames[i])
+				{
+					if (other->mSpaces & mSpaces & 1)
+					{
+						CopyVector4(&mArrays.mUnknown10[j], &other->mArrays.mUnknown10[i]);
+						CopyVector4(&mArrays.mScales[j], &other->mArrays.mScales[i]);
+						CopyVector4(&mArrays.mUnknown14[j], &other->mArrays.mUnknown14[i]);
+						CopyVector4(&mArrays.mUnknown1C[j], &other->mArrays.mUnknown1C[i]);
+						CopyMatrix(&mLocalMatrices[j], &other->mLocalMatrices[i]);
+						mArrays.mRotations[j] = other->mArrays.mRotations[i];
+						CopyVector4(&mArrays.mTranslations[j], &other->mArrays.mTranslations[i]);
+					}
+					if (other->mSpaces & mSpaces & 2)
+					{
+						CopyMatrix(&mWorldMatrices[j], &other->mWorldMatrices[i]);
+						CopyMatrix(&mSkinMatrices[j], &other->mSkinMatrices[i]);
+					}
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107089B0
+	// EQUIVALENT: register allocation and scheduling (the engine counts the joints in ebp and keeps the byte offset in esi,
+	// loads the target before the value in two of the lerps; 17.6 %)
+	void PoseData::Blend(PoseData* other, float t, bool root)
+	{
+		unsigned int joint = 0;
+		if (root)
+		{
+			math::Quaternion rotation;
+			rotation.x = 0.0f;
+			rotation.y = 0.0f;
+			rotation.z = 0.0f;
+			rotation.w = engine::driving::gOne;
+			rotation.Slerp(rotation, other->mArrays.mRotations[0], t);
+			math::Multiply(rotation, rotation, mArrays.mRotations[0]);
+			mArrays.mRotations[0] = rotation;
+			mArrays.mTranslations[0].x = other->mArrays.mTranslations[0].x * t + mArrays.mTranslations[0].x;
+			mArrays.mTranslations[0].y = other->mArrays.mTranslations[0].y * t + mArrays.mTranslations[0].y;
+			mArrays.mTranslations[0].z = other->mArrays.mTranslations[0].z * t + mArrays.mTranslations[0].z;
+			joint = 1;
+		}
+		for (; joint < mSkeleton->mJointCount; joint++)
+		{
+			mArrays.mRotations[joint].Slerp(mArrays.mRotations[joint], other->mArrays.mRotations[joint], t);
+			LerpVector3(&mArrays.mTranslations[joint], &other->mArrays.mTranslations[joint], t);
+			LerpVector3(&mArrays.mUnknown10[joint], &other->mArrays.mUnknown10[joint], t);
+			LerpVector3(&mArrays.mScales[joint], &other->mArrays.mScales[joint], t);
+			LerpVector3(&mArrays.mUnknown14[joint], &other->mArrays.mUnknown14[joint], t);
+			LerpVector3(&mArrays.mUnknown1C[joint], &other->mArrays.mUnknown1C[joint], t);
+		}
+		mFlags |= 3;
 	}
 
 	// FUNCTION: ENGINE 0x10708980
