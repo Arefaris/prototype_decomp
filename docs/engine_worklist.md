@@ -5436,3 +5436,28 @@ Findings:
   AudioMaterialMap lost their `unknown10` placeholders. `GetEntityType` is mapped to `__purecall` (0x10A88350).
 - Not started: the primitive text / binary forms (0x105B7CF0 - 0x105B8680: bool, char, short, int, 64-bit), the stream and text-node classes
   around 0x105B86B0 - 0x105B8D00, the audio effect and reverb helpers 0x105BB440 - 0x105BCDF0, the movie player.
+
+## pure3d 0x10760000 - 0x10780000: frame controllers (sn-ak)
+
+- **Frame controllers** (anim/src/framecontroller.cpp, framecontroller.h; 0x10776F80 - 0x10778330): the hierarchy FrameController
+  (Entity + the byte at +0x10 "update on advance", 22 slots, 3 - 21 pure) < AnimationFrameController (relative speed +0x18,
+  slots 22 - 24 pure: `SetAnimation(Animation*, float, float)`, `GetAnimation`, `IsSupported`; 0x20 bytes) < SimpleFrameController
+  (cycle mode +0x20, cycle count +0x24, remaining +0x28, range +0x2C / +0x30, frame +0x34, direction flag +0x38, animation +0x3C; 0x40
+  bytes) and BlendFrameController (mode +0x20, count +0x24, entry count +0x28, up to five 0x2C-byte `BlendEntry` from +0x2C, flag
+  +0x108; slot 28 drops the oldest entry). Classes derived from them declare the slots 25 (a bool) and 26 (`Clone`) as their own
+  virtuals; callers that called `Clone` / `SetAnimation` through a `FrameController*` cast to the class that has the slot. The step
+  of a frame is `Animation::AdvanceFrame` (0x106E8770, a member with eight stack arguments).
+- Matching notes: a Blend slot that works on the last entry matches only as `int last = mCount - 1;` and `mEntries[last].field`
+  accesses (a pointer to the entry gives other address arithmetic); `mForward = mCycleMode != 3 && mCycleMode != 5;` as one
+  expression; a `bool` slot that returns a float comparison is `return a <= b;`; a clamp that tests `!(x >= 0.0f)` gives the
+  engine's `comiss x, 0; jae`; a float returned through a ternary or a local result variable gets the engine's `movss` / `fld`
+  spill; the constructor of the Blend controller initialises the three words in the initialiser list (before the entry array).
+- EQUIVALENT (register allocation, scheduling, block layout only): AnimationFrameController constructor (80.6 %), GetRemaining
+  (42.1 %), BlendFrameController::Advance (9.7 % by bytes, one instruction moves), BlendEntry::Reset (75.6 %),
+  BlendFrameController::SetAnimation (78.5 %), RemoveFirst (30.9 %). No difftest states exist for them.
+- Not done: the handlers (FrameControllerHandler, DefaultFrameControllerHandler 0x10777AF0 / 0x10778920, OldFrameControllerLoader
+  0x10779010), the chunk loaders 0x10778460 / 0x107785A0, the DynamicCasters; the Occluder constructors and loader (0x1077FB20 -
+  0x1077FF90: a default / box / copy constructor, `SetBox`, `Clone`, the loader reading chunk 0x10029) were drafted and dropped
+  unfinished; the pass units 0x10760000 - 0x10776000 (the `ParameterHandler<T>` tree instances of every pass need the engine's
+  parameter registry in 0x107A....; the pass constructors need `PassDesc` 0x10754A40, `Pass::Pass` 0x10754A70, and the
+  `PassEntries` set / add helpers 0x1060F810 / 0x1060FDB0 as members of `PassEntries`).

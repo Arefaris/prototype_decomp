@@ -18,6 +18,7 @@
 #include "code/math/vector4.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
+#include "code/pure3d/framecontroller.h"
 #include "code/pure3d/pose.h"
 #include "code/pure3d/shaderparameters.h"
 
@@ -229,80 +230,34 @@ namespace pure3d
 	{
 	};
 
-	// The virtual functions are named after what the engine's callers pass them; the slots without a known use
-	// are placeholders
-	class FrameController : public Entity
-	{
-	public:
-		// Slot 3: gives the controller the entity it drives (a drawable, a shader or a pose; the controller takes the
-		// kind it can use)
-		virtual void SetTarget(Entity* target);
-		// Advances the controller by dt
-		virtual void Advance(float dt, bool unknown);
-		virtual void Unknown5();
-		virtual void SetRelativeSpeed(float speed);
-		virtual void Unknown7();
-		virtual float Unknown8();
-		virtual float Unknown9();
-		virtual void SetFrame(float frame);
-		virtual float GetFrame();
-		virtual void SetFrameRange(float start, float end);
-		virtual void Unknown13();
-		virtual void SetCycleMode(Animation::CycleMode mode);
-		virtual void Unknown15();
-		virtual void SetNumCycles(unsigned int count);
-		virtual void Unknown17();
-		virtual void Unknown18();
-		virtual void Unknown19();
-		virtual bool Unknown20();
-		virtual void Reset();
-		virtual void SetAnimation(Animation* animation, float a, float b);
-		virtual void* GetParameters();
-		// Slots 24 - 26 (the controllers below declare them again): whether the controller can play the animation (the
-		// kind of animation it names is the controller's), the second question of the same sort, and a new controller
-		// of the same kind
-		virtual bool IsSupported(Animation* animation);
-		virtual bool Unknown25();
-		virtual FrameController* Clone();
-
-		// 0x1072E610
-		void SetBindingSource(void* source);
-
-		// The members every controller has: the current frame (+0x34) and the animation it plays (+0x3C)
-		unsigned char unknown10[0x1C];
-		// The frame range of the controller (+0x2C, +0x30) and the current frame
-		float mStartFrame;
-		float mEndFrame;
-		float mFrame;
-		unsigned char unknown38[4];
-		Animation* mAnimation;
-	};
-
-	// RTTI: pure3d::SimpleFrameController (bases AnimationFrameController, FrameController): the base of the
-	// controllers that animate one thing (a shader, a vertex region, a vertex animation). Only the type is used here.
-	class SimpleFrameController : public FrameController
-	{
-	};
-
 	struct JointChannels;
 	struct PoseAnimationInfo;
 
 	// Bases in the RTTI: BlendFrameController, AnimationFrameController
-	class PoseAnimationController : public FrameController
+	class PoseAnimationController : public BlendFrameController
 	{
 	public:
 		// 0x10732120 (0x168 bytes)
 		PoseAnimationController();
 
-		// Slot 24 (0x10732180): a pose animation
+		// Slots 3 (0x10734490), 4 (0x10733040), 10 (0x10733080), 22 (0x10732FD0), 24 (0x10732180: a pose animation), 26
+		// (0x10733270), 27 (0x107332D0), 29 (0x10732170) and the clone (0x10734460) are the controller's own
+		virtual void SetTarget(Entity* target);
+		virtual void Advance(float dt, bool update);
+		virtual void SetFrame(float frame);
+		virtual void SetAnimation(Animation* animation, float a, float b);
 		virtual bool IsSupported(Animation* animation);
+		virtual void Unknown26();
+		virtual void Unknown27();
+		virtual bool Unknown29();
+		virtual PoseAnimationController* Clone();
 
 		// 0x10732320: lays the animation's joint values over the pose with the given weight. The root joint gets
 		// the change of its channels since previousTime (the root motion), the other joints the values at time; the
 		// weight 1 replaces the pose's values, the weight 0 keeps them. previousTime becomes time.
 		void Apply(int unknown, float time, float weight, JointChannels* channels, float* previousTime);
 
-		unsigned char unknown40[0xD0];
+		unsigned char unknown10C[4];
 		Pose* mPose;
 		unsigned char unknown114[0x31];
 		bool mUseFrameTimes;
@@ -351,6 +306,8 @@ namespace pure3d
 
 		// Slot 3 (0x1072EC20: nothing), slots 24 (0x1072EBE0) and 25 (0x1072EBD0)
 		virtual void SetTarget(Entity* target);
+		// Slot 5 (0x10730490)
+		virtual void Unknown5();
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		// 0x10730460: a new controller of the same kind (0xE0 bytes)
@@ -392,6 +349,8 @@ namespace pure3d
 
 		// Slot 3 (0x1073E380: nothing), slots 24 (0x1073E350) and 25 (0x1073E340)
 		virtual void SetTarget(Entity* target);
+		// Slot 5 (0x1073EC70)
+		virtual void Unknown5();
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		// 0x1073E470: a new controller of the same kind (0x58 bytes)
@@ -429,6 +388,8 @@ namespace pure3d
 		// Slot 3 (0x1072EA10: takes the target if it is a shader), slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26
 		// makes a new controller (0x1072E9F0, 0x48 bytes)
 		virtual void SetTarget(Entity* target);
+		// Slot 5 (0x1072E630): applies the animated values to the shader
+		virtual void Unknown5();
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		virtual ShaderAnimationController* Clone();
@@ -482,8 +443,9 @@ namespace pure3d
 		// 0x10734BF0: a copy of another controller (it takes the same drawable)
 		CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other);
 
-		// Slot 5 (0x107348B0: the segments' visibility at the current frame), slots 24 (0x107347C0) and 25
-		// (0x107347B0), slot 26 (0x10734C30)
+		// Slot 3 (0x10734C50), slot 5 (0x107348B0: the segments' visibility at the current frame), slots 24 (0x107347C0)
+		// and 25 (0x107347B0), slot 26 (0x10734C30)
+		virtual void SetTarget(Entity* target);
 		virtual void Unknown5();
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();

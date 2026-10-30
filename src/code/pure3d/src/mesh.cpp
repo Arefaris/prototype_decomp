@@ -532,10 +532,10 @@ namespace pure3d
 		}
 		if (other.controller2 != 0)
 		{
-			core::RefAssign(controller2, (SimpleFrameController*)other.controller2->Clone());
+			core::RefAssign(controller2, (SimpleFrameController*)((VertexAnimController*)other.controller2)->Clone());
 			if (dynamic_cast<VertexAnimController*>(controller2) != 0)
 			{
-				core::RefAssign(controller2, (SimpleFrameController*)other.controller2->Clone());
+				core::RefAssign(controller2, (SimpleFrameController*)((VertexAnimController*)other.controller2)->Clone());
 				((VertexAnimController*)controller2)->SetMeshState(this);
 			}
 			else
