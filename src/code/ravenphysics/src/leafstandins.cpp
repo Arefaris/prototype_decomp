@@ -1,6 +1,7 @@
 // The tiny leaf functions of 0x106A0000 - 0x106C0000; see leafstandins.h.
 #include <new>
 #include "code/core/interlocked.h"
+#include "code/core/memutils.h"
 #include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/leafstandins.h"
 
@@ -400,6 +401,19 @@ namespace ravenphysics
 	bool LeafInlineIsEmpty<Function, Size, Count>::Get() const
 	{
 		return end == items;
+	}
+
+	template <int Function, int Size>
+	void LeafCopyIn<Function, Size>::Copy(const void* source)
+	{
+		core::MemCopyUnchecked(items, source, count * Size);
+	}
+
+	template <int Function, int Size>
+	void LeafAssign<Function, Size>::Assign(const LeafAssign* other)
+	{
+		count = other->count;
+		core::MemCopyUnchecked(items, other->items, count * Size);
 	}
 
 
@@ -1015,17 +1029,26 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AF350
 	template struct LeafSetWord<0x106AF350, 4>;
 
+	// FUNCTION: ENGINE 0x106AF360
+	template struct LeafCopyIn<0x106AF360, 20>;
+
 	// FUNCTION: ENGINE 0x106AF380
 	template struct LeafWord<0x106AF380, 0>;
 
 	// FUNCTION: ENGINE 0x106AF390
 	template struct LeafSetWord<0x106AF390, 4>;
 
+	// FUNCTION: ENGINE 0x106AF3A0
+	template struct LeafCopyIn<0x106AF3A0, 36>;
+
 	// FUNCTION: ENGINE 0x106AF3C0
 	template struct LeafWord<0x106AF3C0, 0>;
 
 	// FUNCTION: ENGINE 0x106AF3D0
 	template struct LeafWord<0x106AF3D0, 4>;
+
+	// FUNCTION: ENGINE 0x106AF3E0
+	template struct LeafCopyIn<0x106AF3E0, 20>;
 
 	// FUNCTION: ENGINE 0x106AF400
 	template struct LeafWord<0x106AF400, 0>;
@@ -1044,6 +1067,15 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106AF480
 	template struct LeafTwoWords<0x106AF480>;
+
+	// FUNCTION: ENGINE 0x106AF9C0
+	template struct LeafAssign<0x106AF9C0, 20>;
+
+	// FUNCTION: ENGINE 0x106AFA30
+	template struct LeafAssign<0x106AFA30, 36>;
+
+	// FUNCTION: ENGINE 0x106AFAC0
+	template struct LeafAssign<0x106AFAC0, 20>;
 
 	// FUNCTION: ENGINE 0x106AFB30
 	template struct LeafInitThreeLast<0x106AFB30>;

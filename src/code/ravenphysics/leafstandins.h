@@ -583,6 +583,25 @@ namespace ravenphysics
 		LeafElement<Size> items[Count];
 		LeafElement<Size>* end;
 	};
+	// Copies count elements into the array from a block
+	template <int Function, int Size>
+	struct LeafCopyIn
+	{
+		void Copy(const void* source);
+
+		void* items;
+		int count;
+	};
+
+	// Takes the count and the elements of another array
+	template <int Function, int Size>
+	struct LeafAssign
+	{
+		void Assign(const LeafAssign* other);
+
+		void* items;
+		int count;
+	};
 }
 
 #endif
