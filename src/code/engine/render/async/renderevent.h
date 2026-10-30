@@ -344,6 +344,28 @@ namespace engine
 			A2 mA2;
 		};
 
+		template<class Obj, class A1, class A2, class A3> class ObjRenderEvent3 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)(A1, A2, A3);
+
+			ObjRenderEvent3(Obj* object, Function function, A1 a1, A2 a2, A3 a3) :
+				mObject(object), mFunction(function), mA1(a1), mA2(a2), mA3(a3)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)(mA1, mA2, mA3);
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+			A1 mA1;
+			A2 mA2;
+			A3 mA3;
+		};
+
 		template<class Obj, class A1, class A2, class A3, class A4> class ObjRenderEvent4 : public RenderEvent
 		{
 		public:
@@ -430,6 +452,13 @@ namespace engine
 		{
 			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent2<Obj, A1, A2>))) ObjRenderEvent2<Obj, A1, A2>(
 				object, function, a1, a2));
+		}
+
+		template<class Obj, class A1, class A2, class A3> void QueueObjRenderEvent(Obj* object,
+			void (Obj::*function)(A1, A2, A3), A1 a1, A2 a2, A3 a3)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(ObjRenderEvent3<Obj, A1, A2, A3>)))
+				ObjRenderEvent3<Obj, A1, A2, A3>(object, function, a1, a2, a3));
 		}
 
 		template<class Obj, class A1, class A2, class A3, class A4> void QueueObjRenderEvent(Obj* object,
