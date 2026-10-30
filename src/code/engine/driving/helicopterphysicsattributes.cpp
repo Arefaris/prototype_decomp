@@ -29,6 +29,12 @@ namespace engine
 			return &sList;
 		}
 
+		// FUNCTION: ENGINE 0x10906ED0
+		HelicopterControlAttributes* HelicopterPhysicsAttributes::GetControl()
+		{
+			return &control;
+		}
+
 		// FUNCTION: ENGINE 0x10906FC0
 		// EQUIVALENT: the engine's lea of the first member sits behind the reference count store, ours before it, 73.5 %
 		HelicopterPhysicsAttributes::HelicopterPhysicsAttributes()

@@ -42,10 +42,7 @@ namespace engine
 			static content::MemberList* GetMembers();
 
 			// 0x10905A70
-			VehicleMassAttributes* GetMassAttributes()
-			{
-				return &massAttributes;
-			}
+			VehicleMassAttributes* GetMassAttributes();
 
 			VehicleMassAttributes massAttributes;  // +8
 		};
@@ -91,22 +88,10 @@ namespace engine
 			static content::MemberList* GetMembers();
 
 			// 0x10906C80 - 0x10906CB0
-			CarSuspensionAttributes* GetSuspension()
-			{
-				return &suspension;
-			}
-			CarControlAttributes* GetControl()
-			{
-				return &control;
-			}
-			CarAttributesGroup3* GetGroup3()
-			{
-				return &group3;
-			}
-			CarAttributesGroup4* GetGroup4()
-			{
-				return &group4;
-			}
+			CarSuspensionAttributes* GetSuspension();
+			CarControlAttributes* GetControl();
+			CarAttributesGroup3* GetGroup3();
+			CarAttributesGroup4* GetGroup4();
 
 			CarSuspensionAttributes suspension;  // +0x08
 			CarControlAttributes control;  // +0x48
@@ -137,10 +122,7 @@ namespace engine
 			static content::MemberList* GetMembers();
 
 			// 0x10906ED0
-			HelicopterControlAttributes* GetControl()
-			{
-				return &control;
-			}
+			HelicopterControlAttributes* GetControl();
 
 			HelicopterControlAttributes control;  // +0x08
 		};

@@ -1,5 +1,7 @@
 #include "code/engine/camera/cameraloader.h"
 #include "code/engine/camera/cinematographer.h"
+#include "code/engine/camera/director.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
 {
@@ -25,6 +27,40 @@ namespace engine
 		{
 			return true;
 		}
+
+		// FUNCTION: ENGINE 0x109069A0
+		// NONMATCHING: the engine walks the cameras with a pointer it keeps on the stack and the index in a register,
+		// the director spilled; ours indexes the array, 48.5 % (the flag of the name temporary is the engine's)
+#ifdef NONMATCHING
+		void CameraLoader::Slot3(int unused)
+		{
+			int index = 0;
+			camera->Register();
+			Director* director = Director::Get();
+			GameObjectHandle avatar = FindGameObject(avatarName, *(const content::ObjectName*)"");
+			if (avatar.IsValid())
+			{
+				camera->OnEvent(*(int*)&avatar);
+			}
+			if (!cinematographerName.IsEmpty())
+			{
+				int count = director->cameras.Size();
+				for (; index < count; index++)
+				{
+					Cinematographer* current = director->cameras.begin[index];
+					if (current != 0 && current->GetName() == cinematographerName)
+					{
+						camera->kind = (int)current;
+						break;
+					}
+				}
+			}
+			if (spawnActive)
+			{
+				director->StartTransition(camera->GetName(), 0.0f, type, camera->playerIndex);
+			}
+		}
+#endif
 
 		// FUNCTION: ENGINE 0x109068C0
 		core::Name<core::CaseSensitiveKey> CameraLoader::GetAvatarName() const
