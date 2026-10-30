@@ -242,8 +242,8 @@ namespace pure3d
 		virtual void Unknown5();
 		virtual void SetRelativeSpeed(float speed);
 		virtual void Unknown7();
-		virtual void Unknown8();
-		virtual void Unknown9();
+		virtual float Unknown8();
+		virtual float Unknown9();
 		virtual void SetFrame(float frame);
 		virtual float GetFrame();
 		virtual void SetFrameRange(float start, float end);
