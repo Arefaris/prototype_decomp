@@ -114,6 +114,19 @@ namespace pure3d
 	public:
 		VectorChannel* channel;
 	};
+
+	class RefCountedRotationChannel : public RefCounted
+	{
+	public:
+		RotationChannel* channel;
+	};
+
+	// What a generator reads its curves from (RTTI pure3d::ParticleGeneratorData): the arrays behind the pointer at +8
+	class ParticleGeneratorData : public RefCounted
+	{
+	public:
+		void* arrays;
+	};
 }
 
 #endif

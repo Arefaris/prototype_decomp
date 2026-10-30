@@ -35,6 +35,20 @@ template void core::RefAssign<pure3d::ParticleMeshGenerator::MeshData>(pure3d::P
 // FUNCTION: ENGINE 0x10740CD0
 template void core::SafeRelease<pure3d::ParticleMeshGenerator::MeshData>(pure3d::ParticleMeshGenerator::MeshData*& object);
 
+// FUNCTION: ENGINE 0x10740AC0
+template void core::RefAssign<pure3d::ParticleGeneratorData>(pure3d::ParticleGeneratorData*& pointer,
+	pure3d::ParticleGeneratorData* object);
+
+// FUNCTION: ENGINE 0x10740AF0
+template void core::RefAssign<pure3d::RefCountedRotationChannel>(pure3d::RefCountedRotationChannel*& pointer,
+	pure3d::RefCountedRotationChannel* object);
+
+// FUNCTION: ENGINE 0x10740B20
+template void core::SafeRelease<pure3d::ParticleGeneratorData>(pure3d::ParticleGeneratorData*& object);
+
+// FUNCTION: ENGINE 0x10740B40
+template void core::SafeRelease<pure3d::RefCountedRotationChannel>(pure3d::RefCountedRotationChannel*& object);
+
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10740740
