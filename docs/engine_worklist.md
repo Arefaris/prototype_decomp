@@ -5042,3 +5042,50 @@ Not done, in the order of the range:
   `SpawnObjectAction` and the tracks' `CreateAction` of those classes.
 - 0x108FD240 - 0x108FF310: the letterbox render pass (0x108FD2E0 draws two quads through a `PrimStream`) and the
   neighbouring pass functions.
+
+## ravenphysics 0x106A0000 - 0x106C0000 (sn-aa): leaf stand-ins, the overlap tests, the physics tasks
+
+The range holds the end of the constraint solver (`simulateislandxenonwin32.cpp`, `integratekernel.cpp` by their asserts), the
+narrow phase task code (the pair records, `CollidePair`, the mesh face tests), the constraint list factory, the sort entries
+(`std::sort` instances over 4, 8 and 12 byte elements, mapped but not annotated: template instances of the library) and a
+large number of one-function accessors. About half of the 1062 functions are done.
+
+Done (all 100 % unless listed):
+- `leafstandins.h`, `src/leafstandins.cpp` (about 400 functions): the tiny leaf functions as templates whose first parameter
+  is the engine address: member address / word / half / byte / float getters at an offset, bit getters (`LeafBit`,
+  `LeafSignedBit` return a one-bit field of a byte), arrays (`LeafArray<F, Size>::At`, `LeafEnd`, `LeafLast`, `LeafNext`,
+  `LeafPush`, `LeafInlineArray`, `LeafCount` / `LeafInlineCount` for the pointer differences with the compiler's magic
+  divisions), the scratch-allocator creators (`LeafCreate`, `LeafCreateCapacity`, `LeafCreateStacked`, with and without the
+  rounding to 16), the array copies, word initialisers, interlocked counters, empty functions and the `AllocArray<T>` instances
+  of both allocators (the element type is `LeafSized<address, size>` so every address has its own name). `addsyms`-style
+  mapping needs no table: the address is the first integer template argument (or `Unknown<ADDRESS>` in the member's name).
+- `miscleaf.cpp`: single-use leaf shapes (out-parameter fillers, `ContactRecord::Transform`, small counters, a 256-word stack).
+  EQUIVALENT (register choice only, the loads and stores are the same): 0x106B36B0 / 0x106B36D0 (62 % / 64 %), 0x106AF550
+  (56 %).
+- `collision/narrowphase/src/overlaptests.cpp`: the 20 yes / no overlap tests of the second pair table (0x110C49A0, which the
+  header calls the swapped table: it is the table of boolean tests with a contact buffer hit), `ContactBuffer::AddFace`
+  (`contactbuffer.cpp`, the buffer's `Next` is inline in `narrowphase.h`), the mesh test thunks. The tests whose library call
+  returns `int` test only `al` in the engine: `if ((char)math::Intersects(...))`. NONMATCHING: `OverlapSpheres` (0x106B2650,
+  63 %) and `OverlapSpherePlane` (0x106B2720, 55 %): float scheduling and register choice.
+- `collidewrappers.cpp` (the first pair table's wrappers that drop the info argument), `collidefaces.cpp` (volume against a mesh
+  triangle: the face number is an `unsigned int` argument indexed through `(unsigned short)`).
+- `probebody.cpp`: the sphere body the library keeps for queries (globals 0x1127EB80 - 0x1127EB88). `physicstasks.cpp`: the
+  registration and release of the asynchronous tasks and their ids (0x1127EB70 - 0x1127EBA0).
+- `constraintlistfactory.cpp`: `ConstraintSpec` (`ConstraintListFactory::ConstraintSpec`: default constructor with the objects
+  0 and 1, destructor deleting the constraint, `ClearPair`), `JointSet::Count`. NONMATCHING `ApplyPairMask` (0x106A5FB0,
+  16.7 %: the engine reads the end of the list again for the count and keeps the factory in edi).
+
+Findings: a function the tool maps by address comment needs a `symbols.txt` line even when NONMATCHING (the split step cuts
+its target from it); `new (&member) T(x)` with the null check of the placement form keeps the copy constructor out of line,
+the engine inlines it; a thiscall method that never touches `this` still ends with `ret N` (a free function would not); the
+packed `shufps` / `movaps` helpers (0x106A8DE0 - 0x106A8EA0, 0x106AE980 - 0x106AEC00, 0x106AF4A0 - 0x106AF550) and the vector
+helpers at the start of the range take their arguments in xmm0 / eax / ecx and exist only for the solver functions that call
+them (static in the original); they stay unreconstructed together with the solver.
+
+Not done: the solver (0x106A01D0 - 0x106A2630 and 0x106A94F0 - 0x106AB0F0, 0x106BD8C0: 1000 - 4800 bytes each), the narrow
+phase pair code (0x106A3F40 - 0x106A5590: the pair records, `CollidePair`, `ProcessObjectPair`), the broad phase queries
+(0x106AA350 - 0x106ACA20), the mesh overlap tests proper (0x106AE250 - 0x106AE8E0: a 4 KB face list on the stack, the grid
+query at 0x10663AB0 and the triangle tests), the rigid body brokering task (0x106A6ED0), `CollisionInfo::Init` (0x106A4030: the
+engine copy-constructs a `Contact` into the record with the compiler's vector copy iterator, the header's `ContactRecord`
+copies it field by field), the rest of the constraint list factory (reflection, the array operations of the specs and the
+joint creation switch at 0x106A6520), and the sort entry instances.
