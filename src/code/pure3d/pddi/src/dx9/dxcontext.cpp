@@ -1072,3 +1072,8 @@ namespace container
 	// FUNCTION: ENGINE 0x1061BC50
 	template pure3d::dxShaderTemplate*& pure3d::ShaderTemplateMap::operator[](const unsigned int& key);
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108EB2C0
+// FUNCTION: ENGINE 0x108EB2D0
+// FUNCTION: ENGINE 0x108EB4B0

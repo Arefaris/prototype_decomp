@@ -244,3 +244,6 @@ namespace pure3d
 		*name = content::ObjectName(text, 1);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108E6AA0

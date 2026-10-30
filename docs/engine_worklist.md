@@ -4988,3 +4988,57 @@ recovered; `ScaleCylinder` and the vertex transform loops are long SSE sequences
 0x10691F00), the contact joint (0x106952A0, 0x10695400 - 0x10695580: it needs the contact record) and the whole solver
 (0x10695000 - 0x106A0000: the file-local vector helpers take their arguments in registers and exist only for the
 solve functions that call them).
+## 0x108E0000 - 0x10900000 (sn-z): fight actions, the friend interface, script wrappers, kept copies
+The pass adds 567 matching functions to the report: 20 reconstructed functions (7 more are EQUIVALENT, 1 is NONMATCHING)
+and about 550 kept template instances and inline copies, listed in the trailers of their units.
+- `src/code/engine/fight/cameraactions.cpp`: `CameraClipPlaneAction::Slot5` (EQUIVALENT, block layout: the engine's
+  failure return of the camera search sits behind the success path) and `Slot6`; `CameraAnimationAction::Slot6` /
+  `Slot7` (EQUIVALENT, scheduling: the engine loads the track pointer and calls the animation getter before it forms
+  the name's address), `Slot5` (NONMATCHING, 62 %: the engine copies the whole simulation time into a local, two dead
+  stores, and ends the failure return in a second epilogue), the unit's copies of the controller store / release
+  helpers (0x108F23A0 / 0x108F23D0). `AnimatedCamera` gained `controller` (+0x48), `Play` (0x108D5230), `SetTransform`
+  (0x108D5310) and the byte at +0x9F; `pure3d::CameraAnimationController` slot 23 answers the animation it plays and
+  the byte at +0x119 is named.
+- `src/code/engine/fight/expressionactions.cpp`: `ExpressionAnimationAction::Slot5`, `JointLockAction::Slot7`,
+  `PuppetMoveAction::Slot5` / `Slot6` match; `JointLockAction::Slot5` and `PuppetMoveAction::Slot7` are EQUIVALENT.
+  The drawable's part lookup is read through `GetPartLookup` (0x108F5CD0, external linkage: the engine passes its
+  argument on the stack). `PuppetMoveAction::driver` is a `RootDriver` and `JointLockAction::driver` a
+  `JointLockDriver`; the distance left to move is a `math::Vector`.
+- `src/code/engine/fight/spawnactions.cpp` (new, unit 0x108F2C10 - 0x108F4550): `TeleportAction` (members: link +0x1C,
+  target +0x28, owner handle +0x2C, saved transform +0x30; no user destructor, the engine's has no vftable store) with
+  the ctor, `Slot6`, `Slot7` and `TeleportTrack::CreateAction`; `Slot5` is EQUIVALENT (the engine loads the three
+  euler angles onto the x87 stack before storing them as arguments, as in `SetTransformAttributeAction::Slot5` and
+  `JointLockAction::Slot5`: the engine passes a by-value vector to `RotationEulerXYZ`).
+- `src/code/engine/online/olsfriend.cpp` (new): `engine::OLSFriend`, the interface of the online friend list: 23
+  vftable slots whose defaults do nothing (names guessed), the destructor (EQUIVALENT, register allocation; the
+  element loop of the entry array is written out because `delete[]` calls the vector deleting destructor) and
+  `OLSFriendEntry` (0x1C bytes, two `WideStringBuffer`s). `olsfriendwrappers.cpp` and `frontend/feeventwrappers.cpp`
+  instantiate the Method / Closure / RegisterMethod templates of OLSFriend, OLSPeer, FEEventHandler and FELuaHelper
+  (the classes with several bases use two-word method pointers).
+- The kept template instances and inline copies: every function of the range that symbols.txt maps and an object of
+  ours defines identically (the byte compare of objcmp, constants and call / data targets) is listed in the trailer
+  of its source (`// FUNCTION: ENGINE 0x...` after the "Kept copies" comment), so that the report counts it. The
+  property, track factory and condition factory constructors of the ragdoll, supporting limb, character IK, root
+  control, physics blend and input condition units (about 120) were not mapped before; they are now. The
+  `core::Link<T>` constructors and destructors (55 and 16 bytes) are byte-identical for every T, so a name cannot be
+  told from its address; the engine keeps them in front of the destructor of the action that owns the link (the
+  constructor 0x50 bytes before it, a destructor 0x10 and often another 0x70 bytes before it), and 30 of them are
+  paired that way. The classes whose destructors lie closer together than that, and the ones with a second constructor
+  copy, are not mapped.
+Not done, in the order of the range:
+- 0x108E0720 - 0x108E1260: the content manager's array helper instances and the NIS metaobject factories.
+- 0x108E1260 - 0x108E3D70: the front end event handler (`fe_RegisterEvent`, a GameDatabase observer and a
+  MidgroundMap lookup), the Lua helper and the storage dialog (`StorageDialogState::Slot7`, 1105 bytes).
+- 0x108E33F0 - 0x108E3E00: the sound, mixer, music, reverb and sound zone actions.
+- 0x108E3E10 - 0x108E4560: `PrivateDialogState` (a `GameState` with the state request callback, the real time task
+  and the overlay callback as further bases); its helpers are the front end event registration of the unit before.
+- 0x108E4560 - 0x108E7E80: the content manager (`ContentCementFileDefinition`, `ContentPackageKey`,
+  `ContentPackageDefinition`, their class info, member lists and array helpers) and the cement library calls.
+- 0x108E7E80 - 0x108EA320: `OLSPeer` and its message, 0x108EADF0 the 819-byte registration of the friend methods.
+- 0x108EC630 - 0x108ECC00: `NISSpawnAction` (a branch watch at +0x1C, a reference at +0x28, a `Sequencer` at +0x30;
+  the helper 0x108A7CA0 that finds the branch's stream package is not named).
+- Actions: `PuppetAnimationAction::Slot5` / `Slot7`, `AttachObjectAction::Slot5`, `NISAnimationAction`,
+  `SequenceNISNodeAction`, `LightAnimationAction`, `LightAction` (with the 690-byte interpolation helper 0x108F2C90),
+  `SpawnObjectAction` and the tracks' `CreateAction` of those classes.
+- 0x108FD240 - 0x108FF310: the letterbox render pass (0x108FD2E0 draws two quads through a `PrimStream`) and the
+  neighbouring pass functions.

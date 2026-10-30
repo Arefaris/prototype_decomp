@@ -3,7 +3,9 @@
 #ifndef ENGINE_FIGHT_EXPRESSIONACTIONS_H
 #define ENGINE_FIGHT_EXPRESSIONACTIONS_H
 
+#include "code/choreo/drivers.h"
 #include "code/choreo/puppet.h"
+#include "code/choreo/rootdriver.h"
 #include "code/core/linklist.h"
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/expressiontracks.h"
@@ -14,6 +16,9 @@ namespace engine
 	void ReleaseDriverCopy2(choreo::Driver** driver);
 	// 0x107F2010: the puppet of an object (the value of its puppet attribute), or null
 	choreo::Puppet* GetPuppet(GameObject* object);
+
+	// 0x108F5CD0: the part lookup the drawable attribute of an object holds, or null (name guessed)
+	proto::PartLookup* GetPartLookup(GameObject* object);
 
 	namespace animation
 	{
@@ -89,10 +94,9 @@ namespace engine
 
 			core::Link<PuppetMoveTrack> link;  // +0x1C
 			GameObjectHandle target;  // +0x28
-			float unknown2c;
-			float unknown30;
-			float unknown34;
-			choreo::Driver* driver;  // +0x38
+			// What is left of the track's distance to move
+			math::Vector remaining;  // +0x2C
+			choreo::RootDriver* driver;  // +0x38
 		};
 
 		// RTTI: engine::animation::JointLockAction (9 vftable slots, size 0x30)
@@ -111,7 +115,7 @@ namespace engine
 
 			core::Link<JointLockTrack> link;  // +0x1C
 			GameObjectHandle target;  // +0x28
-			choreo::Driver* driver;  // +0x2C
+			choreo::JointLockDriver* driver;  // +0x2C
 		};
 	}
 

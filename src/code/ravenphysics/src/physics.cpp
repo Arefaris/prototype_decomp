@@ -127,3 +127,6 @@ namespace ravenphysics
 		statistics->arrayCCapacity = gStatArrayC.Capacity();
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108E6DC0

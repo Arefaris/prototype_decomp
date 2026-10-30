@@ -261,3 +261,17 @@ namespace engine
 		return new PuppetAnimationAction(listener, this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108ECCC0
+// FUNCTION: ENGINE 0x108ECEA0
+// FUNCTION: ENGINE 0x108ED210
+// FUNCTION: ENGINE 0x108ED630
+// FUNCTION: ENGINE 0x108ED750
+// FUNCTION: ENGINE 0x108EDD60
+// FUNCTION: ENGINE 0x108ED0B0
+// FUNCTION: ENGINE 0x108ED0D0
+// FUNCTION: ENGINE 0x108EDAF0
+// FUNCTION: ENGINE 0x108EDB10
+// FUNCTION: ENGINE 0x108ECAE0
+// FUNCTION: ENGINE 0x108ECB20

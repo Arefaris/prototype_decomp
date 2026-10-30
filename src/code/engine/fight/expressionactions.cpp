@@ -3,6 +3,10 @@
 #include "code/engine/fight/expressionactions.h"
 #include "code/engine/expressionmessages.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/choreo/drivers.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/pure3d/animation.h"
+#include <math.h>
 
 namespace engine
 {
@@ -13,6 +17,30 @@ namespace engine
 		unsigned int kind;  // +0x8
 		GameObjectHandle handle;  // +0xC
 	};
+
+	// Whether a name is set
+	static inline bool HasName(const content::ObjectName& name)
+	{
+		content::ObjectName none((const char*)0, 1);
+		return name != none;
+	}
+
+	// FUNCTION: ENGINE 0x108F5CD0
+	// The part lookup the drawable attribute of an object holds, or null
+	proto::PartLookup* GetPartLookup(GameObject* object)
+	{
+		proto::PartLookup* lookup = 0;
+		Attribute<proto::PartLookup*>* attribute = (Attribute<proto::PartLookup*>*)object->FindAttribute(proto::gDrawableAttributeName);
+		if (attribute != 0)
+		{
+			proto::PartLookup** parts = &attribute->value;
+			if (parts != 0)
+			{
+				lookup = *parts;
+			}
+		}
+		return lookup;
+	}
 
 	namespace animation
 	{
@@ -104,6 +132,38 @@ namespace engine
 			return true;
 		}
 
+		// FUNCTION: ENGINE 0x108F4DE0
+		bool ExpressionAnimationAction::Slot5(int arg, float value)
+		{
+			ExpressionAnimationTrack* track = link.object;
+			if (track == 0)
+			{
+				return false;
+			}
+			if (!target.IsValid())
+			{
+				return false;
+			}
+			content::LoadInventory* inventory = content::gRootInventory;
+			pure3d::Animation* animation = 0;
+			const content::ObjectName& name = track->animation;
+			if (HasName(name))
+			{
+				animation = inventory->Find<pure3d::Animation>(name);
+			}
+			GameObject* object = target.Get();
+			Attribute<render::Drawable>* attribute = (Attribute<render::Drawable>*)object->FindAttribute(proto::gDrawableHandleAttributeName);
+			render::Drawable* pointer = attribute != 0 ? &attribute->value : 0;
+			render::Drawable drawable = *pointer;
+			if (!drawable.IsValid())
+			{
+				return false;
+			}
+			drawable.PlaySkinAnimation(animation, link.object->speed, link.object->initFrame, link.object->startFrame, link.object->endFrame,
+				(pure3d::Animation::CycleMode)link.object->cyclic);
+			return true;
+		}
+
 		// FUNCTION: ENGINE 0x108F4F00
 		fight::Action* ExpressionAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 		{
@@ -116,16 +176,16 @@ namespace engine
 		PuppetMoveAction::PuppetMoveAction(PuppetMoveTrack* newTrack, GameObjectHandle newTarget)
 			: fight::Action(0xE00), link(newTrack), target(newTarget)
 		{
-			unknown2c = 0.0f;
-			unknown30 = 0.0f;
-			unknown34 = 0.0f;
+			remaining.x = 0.0f;
+			remaining.y = 0.0f;
+			remaining.z = 0.0f;
 			driver = 0;
 		}
 
 		// FUNCTION: ENGINE 0x108F5BF0
 		PuppetMoveAction::~PuppetMoveAction()
 		{
-			ReleaseDriverCopy2(&driver);
+			ReleaseDriverCopy2((choreo::Driver**)&driver);
 		}
 
 		// FUNCTION: ENGINE 0x108F6470
@@ -145,6 +205,100 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x108F5C20
+		void PuppetMoveAction::Slot6()
+		{
+			if (driver != 0)
+			{
+				driver->mDelta.Reset();
+				GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
+			}
+		}
+
+		// FUNCTION: ENGINE 0x108F5EB0
+		bool PuppetMoveAction::Slot5(int arg, float value)
+		{
+			if (link.object == 0)
+			{
+				return false;
+			}
+			GameObject* object = target.Get();
+			choreo::Puppet* puppet = GetPuppet(object);
+			if (puppet == 0)
+			{
+				return false;
+			}
+			float blendIn = link.object->blendInTime;
+			int priority = link.object->priority;
+			float blendOut = link.object->blendOutTime;
+			driver = new choreo::RootDriver;
+			content::ObjectName driverName("move", 1);
+			driver->SetName(driverName);
+			driver->AddRef();
+			driver->SetMask(1);
+			puppet->SetDriver(driver, -1.0f, priority, 1.0f, blendIn, blendOut, -1.0f);
+			math::Vector distance = link.object->distance;
+			remaining.x = distance.x;
+			remaining.y = distance.y;
+			remaining.z = distance.z;
+			return true;
+		}
+
+		// FUNCTION: ENGINE 0x108F5FE0
+		// EQUIVALENT: register allocation (the engine keeps the limited step in xmm3 and the direction in xmm0 - xmm2, ours the step in xmm0, with two more register moves); every operation, load and store is the engine's
+		bool PuppetMoveAction::Slot7(int arg, float value)
+		{
+			if (link.object == 0)
+			{
+				return false;
+			}
+			if (arg == 0)
+			{
+				if (driver == 0)
+				{
+					return false;
+				}
+				float duration = link.object->Slot10();
+				if (duration <= 0.0f)
+				{
+					return false;
+				}
+				math::Vector direction = link.object->distance;
+				float length = direction.Normalize();
+				float step = length * (value / duration);
+				const math::Vector* rest = &remaining;
+				float left = sqrtf(rest->x * rest->x + rest->y * rest->y + rest->z * rest->z);
+				if (step > left)
+				{
+					step = left;
+				}
+				direction.x = direction.x * step;
+				direction.y = direction.y * step;
+				direction.z = direction.z * step;
+				remaining.x = remaining.x - direction.x;
+				remaining.y = remaining.y - direction.y;
+				remaining.z = remaining.z - direction.z;
+				if (value > 0.00001f)
+				{
+					float inverse = driving::gOne / value;
+					math::Vector velocity(direction.x * inverse, direction.y * inverse, direction.z * inverse);
+					driver->mDelta.SetVelocity(velocity);
+					return true;
+				}
+				driver->mDelta.SetDelta(direction);
+			}
+			return true;
+		}
+
 		// FUNCTION: ENGINE 0x108F6150
 		JointLockAction::JointLockAction(JointLockTrack* newTrack, GameObjectHandle newTarget)
 			: fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
@@ -154,7 +308,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108F5CA0
 		JointLockAction::~JointLockAction()
 		{
-			ReleaseJointDriver(&driver);
+			ReleaseJointDriver((choreo::Driver**)&driver);
 		}
 
 		// FUNCTION: ENGINE 0x108F5D00
@@ -169,10 +323,99 @@ namespace engine
 					if (puppet != 0)
 					{
 						puppet->RemoveDriver(driver, false);
-						ReleaseJointDriver(&driver);
+						ReleaseJointDriver((choreo::Driver**)&driver);
 					}
 				}
 			}
+		}
+
+		// FUNCTION: ENGINE 0x108F61C0
+		// EQUIVALENT: the engine loads the three angles onto the x87 stack (x, y, z) before storing them as arguments, ours loads and stores one at a time; every other instruction is the engine's
+		bool JointLockAction::Slot5(int arg, float value)
+		{
+			if (link.object == 0)
+			{
+				return false;
+			}
+			GameObject* object = target.Get();
+			choreo::Puppet* puppet = GetPuppet(object);
+			if (puppet == 0)
+			{
+				return false;
+			}
+			const content::ObjectName& jointName = link.object->lockedJoint;
+			{
+				content::ObjectName none((const char*)0, 1);
+				if (jointName == none)
+				{
+					return false;
+				}
+			}
+			pure3d::Pose* pose = (pure3d::Pose*)GetPartLookup(object);
+			if (pose == 0)
+			{
+				return false;
+			}
+			unsigned int joint = ((proto::PartLookup*)pose)->FindPart(jointName);
+			driver = new choreo::JointLockDriver;
+			{
+				content::ObjectName driverName("jointLock", 1);
+				driver->SetName(driverName);
+			}
+			driver->AddRef();
+			driver->SetJoint(joint);
+			{
+				unsigned int modes[4] = { 3, 1, 2, 0 };
+				unsigned int mode = modes[link.object->translationLock];
+				driver->SetMode(mode);
+			}
+			math::Matrix offset;
+			offset.Identity();
+			offset.RotationEulerXYZ(link.object->offsetOrientation.x, link.object->offsetOrientation.y, link.object->offsetOrientation.z);
+			{
+				math::Vector translation = link.object->offsetTranslation;
+				offset.SetTranslation(translation);
+			}
+			pure3d::Skeleton* skeleton = pose->mSkeleton;
+			math::Matrix world;
+			world.Multiply(skeleton->mData.mJoints[joint], offset);
+			world.Multiply(world, skeleton->mData.mInverseJoints[joint]);
+			driver->mTransform.SetMatrix(world);
+			driver->mUnknownC8 = link.object->autoUpdate;
+			driver->GrabMatrix(pose);
+			puppet->SetDriver(driver, -1.0f, link.object->priority, 1.0f, link.object->blendInTime, link.object->blendOutTime, -1.0f);
+			return true;
+		}
+
+		// FUNCTION: ENGINE 0x108F6400
+		bool JointLockAction::Slot7(int arg, float value)
+		{
+			if (link.object == 0)
+			{
+				return false;
+			}
+			if (arg == 0)
+			{
+				if (driver == 0)
+				{
+					return false;
+				}
+				GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				proto::PartLookup* lookup = GetPartLookup(object);
+				if (lookup == 0)
+				{
+					return false;
+				}
+				if (!link.object->autoUpdate)
+				{
+					driver->GrabMatrix((pure3d::Pose*)lookup);
+				}
+			}
+			return true;
 		}
 
 		// FUNCTION: ENGINE 0x108F64B0
@@ -232,3 +475,19 @@ namespace engine
 		return new UndamageableAction(handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108F4640
+// FUNCTION: ENGINE 0x108F46A0
+// FUNCTION: ENGINE 0x108F4930
+// FUNCTION: ENGINE 0x108F4A60
+// FUNCTION: ENGINE 0x108F4DC0
+// FUNCTION: ENGINE 0x108F5E90
+// FUNCTION: ENGINE 0x108F61A0
+// FUNCTION: ENGINE 0x108F6570
+// FUNCTION: ENGINE 0x108F4C20
+// FUNCTION: ENGINE 0x108F4C40
+// FUNCTION: ENGINE 0x108F4740
+// FUNCTION: ENGINE 0x108F4780
+// FUNCTION: ENGINE 0x108F5BA0
+// FUNCTION: ENGINE 0x108F5BE0
