@@ -3,7 +3,7 @@
 namespace engine
 {
 	// The name of the NIS fight context (0x111C17DC, fightsystem.cpp)
-	extern const char* const gNISContextName;
+	extern const char* gNISContextName;
 
 	// FUNCTION: ENGINE 0x1091F890
 	content::ClassInfo* NISPlayerBehaviour::GetClassInfo()

@@ -308,7 +308,8 @@ def buildImageObject(pe, slots, exports, symbols, replaced, path, dataSizes=None
 
 
 def main():
-	parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+	parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+		fromfile_prefix_chars="@")
 	parser.add_argument("objects", nargs="*")
 	parser.add_argument("--version", default="PROTOPC_2025")
 	parser.add_argument("--out")
