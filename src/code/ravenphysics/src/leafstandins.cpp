@@ -416,6 +416,20 @@ namespace ravenphysics
 		core::MemCopyUnchecked(items, other->items, count * Size);
 	}
 
+	template <int Function, int Size>
+	void LeafCreateAligned<Function, Size>::Create(int newCount, int align)
+	{
+		if (newCount != 0)
+		{
+			items = stack->Alloc((newCount * Size + align - 1) & ~(align - 1), align);
+		}
+		else
+		{
+			items = 0;
+		}
+		count = newCount;
+	}
+
 
 	// FUNCTION: ENGINE 0x106A0000
 	template struct LeafAddress<0x106A0000, 104>;
@@ -840,6 +854,9 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106ABB20
 	template void LeafNothing<0x106ABB20>();
 
+	// FUNCTION: ENGINE 0x106ABB30
+	template struct LeafCreateAligned<0x106ABB30, 2>;
+
 	// FUNCTION: ENGINE 0x106ABB70
 	template struct LeafInitThreeLast<0x106ABB70>;
 
@@ -1025,6 +1042,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106AF250
 	template void LeafNothing<0x106AF250>();
+
+	// FUNCTION: ENGINE 0x106AF260
+	template struct LeafCreateAligned<0x106AF260, 4>;
 
 	// FUNCTION: ENGINE 0x106AF350
 	template struct LeafSetWord<0x106AF350, 4>;
@@ -1220,6 +1240,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106B3F10
 	template void LeafNothing<0x106B3F10>();
+
+	// FUNCTION: ENGINE 0x106B3F20
+	template struct LeafCreateAligned<0x106B3F20, 8>;
 
 	// FUNCTION: ENGINE 0x106B3F60
 	template struct LeafArray<0x106B3F60, 8>;

@@ -29694,3 +29694,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??0ConstraintSpec@ConstraintListFactory@ravenphysics@@QAE@XZ = 0x106A5730 ; function size:0x17 | public: __thiscall ravenphysics::ConstraintListFactory::ConstraintSpec::ConstraintSpec(void) (name guess)
 ??1ConstraintSpec@ConstraintListFactory@ravenphysics@@QAE@XZ = 0x106A5750 ; function size:0x1C | public: __thiscall ravenphysics::ConstraintListFactory::ConstraintSpec::~ConstraintSpec(void) (name guess)
 ?ClearPair@ConstraintSpec@ConstraintListFactory@ravenphysics@@QAEXPAEH@Z = 0x106A5770 ; function size:0x24 | public: void __thiscall ravenphysics::ConstraintListFactory::ConstraintSpec::ClearPair(unsigned char *,int) (name guess)
+?Create@?$LeafCreateAligned@$0BAGKLLDA@$01@ravenphysics@@QAEXHH@Z = 0x106ABB30 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275430192,2>::Create(int,int) (name guess)
+?Create@?$LeafCreateAligned@$0BAGKPCGA@$03@ravenphysics@@QAEXHH@Z = 0x106AF260 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275444320,4>::Create(int,int) (name guess)
+?Create@?$LeafCreateAligned@$0BAGLDPCA@$07@ravenphysics@@QAEXHH@Z = 0x106B3F20 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275463968,8>::Create(int,int) (name guess)

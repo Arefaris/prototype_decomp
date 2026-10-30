@@ -602,6 +602,16 @@ namespace ravenphysics
 		void* items;
 		int count;
 	};
+	// A stack-allocated array that takes the alignment as an argument: pointer, count and the allocator
+	template <int Function, int Size>
+	struct LeafCreateAligned
+	{
+		void Create(int newCount, int align);
+
+		void* items;
+		int count;
+		StackAllocator* stack;
+	};
 }
 
 #endif
