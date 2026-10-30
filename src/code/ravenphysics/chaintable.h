@@ -17,6 +17,8 @@ namespace ravenphysics
 		void Release(int unused);
 		// Takes a slot out of the chain of its bucket and clears its link (0x106822D0)
 		void Unlink(unsigned int bucket, unsigned short slot);
+		// Files a slot at the head of a bucket's chain (0x106822A0)
+		void PushFront(int bucket, unsigned short slot);
 
 		unsigned short* next;         // 0x00
 		int nextCount;                // 0x04

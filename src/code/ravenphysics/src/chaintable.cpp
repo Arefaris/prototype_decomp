@@ -28,6 +28,15 @@ namespace ravenphysics
 		next[current] = 0xFFFF;
 	}
 
+	// FUNCTION: ENGINE 0x106822A0
+	void ChainLinks::PushFront(int bucket, unsigned short slot)
+	{
+		unsigned short* head = &heads[bucket];
+		unsigned short first = *head;
+		*head = slot;
+		next[slot] = first;
+	}
+
 	// FUNCTION: ENGINE 0x10682340
 	unsigned char ByteChainTable::Release(unsigned short slot)
 	{
