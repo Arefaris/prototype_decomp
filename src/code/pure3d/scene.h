@@ -13,6 +13,8 @@ namespace pure3d
 	class Light;
 	class LightGroupTable;
 	class LightingScene;
+	struct PartList;
+	class PassEntries;
 
 	// What a scene is made from (0x54 bytes; the constructor 0x10711B90 sets the defaults, 0x80, 0x20, 0x400, 0x100 ...)
 	struct SceneSettings
@@ -57,6 +59,9 @@ namespace pure3d
 		LightGroupTable* GetLightGroupTable();
 		// 0x10710B40
 		void* GetUnknownD8();
+		// 0x10714560 (a jump into the part table the scene keeps at +0xD8): fills the list with the parts that pass the
+		// filter
+		void SelectParts(PartList* list, PassEntries* entries);
 
 		unsigned char unknown4[4];
 		// Every drawable the scene holds (Add appends, Refresh looks here)
