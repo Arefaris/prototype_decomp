@@ -546,6 +546,43 @@ namespace ravenphysics
 
 		unsigned int member;
 	};
+	// Whether the count at +4 is zero
+	template <int Function>
+	struct LeafIsEmpty
+	{
+		bool Get() const;
+
+		int unknown0;
+		int count;
+	};
+
+	// A pointer to the object itself at Offset
+	template <int Function, int Offset>
+	struct LeafSelfPointer : LeafPadding<Offset>
+	{
+		LeafSelfPointer* Init();
+
+		void* self;
+	};
+
+	// The number of elements of an inline array before its end pointer, and whether the end is at the start
+	template <int Function, int Size, int Count>
+	struct LeafInlineCount
+	{
+		int Get() const;
+
+		LeafElement<Size> items[Count];
+		LeafElement<Size>* end;
+	};
+
+	template <int Function, int Size, int Count>
+	struct LeafInlineIsEmpty
+	{
+		bool Get() const;
+
+		LeafElement<Size> items[Count];
+		LeafElement<Size>* end;
+	};
 }
 
 #endif

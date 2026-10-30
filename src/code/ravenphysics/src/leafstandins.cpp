@@ -377,6 +377,31 @@ namespace ravenphysics
 		return member < other->member;
 	}
 
+	template <int Function>
+	bool LeafIsEmpty<Function>::Get() const
+	{
+		return count == 0;
+	}
+
+	template <int Function, int Offset>
+	LeafSelfPointer<Function, Offset>* LeafSelfPointer<Function, Offset>::Init()
+	{
+		self = this;
+		return this;
+	}
+
+	template <int Function, int Size, int Count>
+	int LeafInlineCount<Function, Size, Count>::Get() const
+	{
+		return end - items;
+	}
+
+	template <int Function, int Size, int Count>
+	bool LeafInlineIsEmpty<Function, Size, Count>::Get() const
+	{
+		return end == items;
+	}
+
 
 	// FUNCTION: ENGINE 0x106A0000
 	template struct LeafAddress<0x106A0000, 104>;
@@ -1488,8 +1513,29 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106BF7D0
 	template struct LeafSelf<0x106BF7D0>;
 
+	// FUNCTION: ENGINE 0x106BF7E0
+	template struct LeafArray<0x106BF7E0, 20>;
+
+	// FUNCTION: ENGINE 0x106BF7F0
+	template struct LeafArray<0x106BF7F0, 20>;
+
+	// FUNCTION: ENGINE 0x106BF800
+	template struct LeafEnd<0x106BF800, 20>;
+
+	// FUNCTION: ENGINE 0x106BF810
+	template struct LeafArray<0x106BF810, 20>;
+
+	// FUNCTION: ENGINE 0x106BF820
+	template struct LeafArray<0x106BF820, 20>;
+
 	// FUNCTION: ENGINE 0x106BF830
 	template struct LeafWord<0x106BF830, 0>;
+
+	// FUNCTION: ENGINE 0x106BF840
+	template struct LeafEnd<0x106BF840, 20>;
+
+	// FUNCTION: ENGINE 0x106BF850
+	template struct LeafIsEmpty<0x106BF850>;
 
 	// FUNCTION: ENGINE 0x106BF860
 	template struct LeafArray<0x106BF860, 36>;
@@ -1497,9 +1543,51 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106BF870
 	template struct LeafWord<0x106BF870, 0>;
 
+	// FUNCTION: ENGINE 0x106BF880
+	template struct LeafEnd<0x106BF880, 36>;
+
+	// FUNCTION: ENGINE 0x106BF890
+	template struct LeafEnd<0x106BF890, 36>;
+
+	// FUNCTION: ENGINE 0x106BF8A0
+	template struct LeafSelfPointer<0x106BF8A0, 96>;
+
 	// FUNCTION: ENGINE 0x106BF8B0
 	template struct LeafSelf<0x106BF8B0>;
 
 	// FUNCTION: ENGINE 0x106BF8C0
 	template struct LeafWord<0x106BF8C0, 96>;
+
+	// FUNCTION: ENGINE 0x106BF8D0
+	template struct LeafInlineCount<0x106BF8D0, 12, 8>;
+
+	// FUNCTION: ENGINE 0x106BF8F0
+	template struct LeafInlineArray<0x106BF8F0, 0, 12>;
+
+	// FUNCTION: ENGINE 0x106BF900
+	template struct LeafSelfPointer<0x106BF900, 32>;
+
+	// FUNCTION: ENGINE 0x106BF910
+	template struct LeafInlineArray<0x106BF910, 0, 4>;
+
+	// FUNCTION: ENGINE 0x106BF920
+	template struct LeafSelfPointer<0x106BF920, 3072>;
+
+	// FUNCTION: ENGINE 0x106BF930
+	template struct LeafInlineCount<0x106BF930, 12, 256>;
+
+	// FUNCTION: ENGINE 0x106BF960
+	template struct LeafInlineArray<0x106BF960, 0, 12>;
+
+	// FUNCTION: ENGINE 0x106BF970
+	template struct LeafSelfPointer<0x106BF970, 1024>;
+
+	// FUNCTION: ENGINE 0x106BF980
+	template struct LeafInlineArray<0x106BF980, 0, 4>;
+
+	// FUNCTION: ENGINE 0x106BF9E0
+	template struct LeafInlineCount<0x106BF9E0, 4, 8>;
+
+	// FUNCTION: ENGINE 0x106BF9F0
+	template struct LeafInlineCount<0x106BF9F0, 4, 256>;
 }
