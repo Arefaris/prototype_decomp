@@ -4925,3 +4925,52 @@ history and `AnimatedCamera` (0x108D4B80 - 0x108D5580), `world::Location`, the A
 type of the `EntityType` flag, which is an `int`), `Dictionary::Insert` (0x108CFFD0, red-black insert register
 allocation). The `StreamTriggerHull` unit (0x108C6960 - 0x108C7040: reflection, `Contains`, the Plane array instances)
 is mapped in symbols.txt but not reconstructed; it is the same template set as `streamtrigger.cpp`.
+
+## ravenphysics 0x10680000 - 0x106A0000 (sn-y): the point and orientation constraints, stand-ins for the leaf functions
+
+The range holds three kinds of code. 0x10680000 - 0x10691F00 is the tail of the collision volumes (hull and cylinder
+volumes, the sweep grid's tables), the convex mesh, the object registry, the placement tracker and the batch containers;
+0x10691F10 - 0x10694FC0 is the rest of the constraint classes; 0x10695000 - 0x106A0000 is the constraint solver (one
+dispatch table of per-kind solve functions, a 13-function group of file-local vector helpers and one solve function of
+1000 - 4000 bytes per kind).
+
+Constraints (`src/code/ravenphysics/constraints/src/`, classes in `constraints.h`, shared properties in
+`sharedproperties.h`): `angularfriction.cpp`, `deformablefixdistancealongaxis.cpp` (assert path of the engine), `deformableorientation.cpp`,
+`fixdistance.cpp`, `linearvelocity.cpp`, `poweredconstraint.cpp`, `poweredlinearconstraint.cpp`, `rigidjoint.cpp`,
+`spring.cpp`, `universaljoint.cpp` (a ball in a socket at +0x24 and a `ConstraintPerpendicular2Axes` at +0x88, the same
+shape as the hinge). Kinds: friction 3, deformable fix distance 6, deformable orientation 7, fix distance 8, linear
+velocity 0xD, powered 0xF, powered linear 0x10, rigid joint 0x11, spring 0x14, universal joint 0x15. Their reflection
+is the same set of templates as the other constraints; the strings are `"p"` and `"pn"` (a member of the reflection that
+takes an extra letter, `"n"` for the spring constant).
+- EQUIVALENT: the scale functions of the deformable fix distance (0x106926A0, 16 %: the axis is stored ahead of the squares and read
+  back), fix distance, rigid joint and spring (0x106933A0 / 0x10694440 / 0x106947D0, 30.5 %: the engine multiplies each
+  loaded component by the held one, ours folds the loads into the products), and the three shared properties
+  constructors that load two different constants (0x10692590, 0x10693B90, 0x10694080: the engine stores the first member
+  before the object's own vftable and the reference count behind it; a constructor with one constant matches, as
+  `DeformableOrientationConstraintSharedProperties`).
+- NONMATCHING: the copy constructor of the deformable orientation constraint (0x10692EB0) copies its three row vectors
+  with the vector copy constructor loop of the compiler; a `math::Matrix3` member (floats) cannot give that code.
+- `ConstraintPoweredLinearConstraint` stores `pointA` and `pointB` z, y, x (the engine's order; written out
+  component by component), and `SetAlignmentRigidity` clamps with `!(value >= 0)` for the lower bound.
+- A call through a base reference (`static_cast<Constraint&>(ball).Rotate(m)`) gives the engine's virtual call on an
+  embedded part (the universal joint's `Rotate` / `ScaleBy`); a pointer to the base in a local does not.
+- Not in functions.tsv although they are code: 0x10694280 (the shared properties' `GetMembers` of the powered linear
+  constraint: `maxLinearVelocity`, `maxLinearForce`, `alignmentRigidity`), 0x10694B70 (the universal joint's `GetAxisA`; mapped
+  and annotated in universaljoint.cpp).
+
+Stand-ins (`src/code/ravenphysics/standins.h`, `src/code/ravenphysics/src/standins.cpp`, written for the pattern, 324
+functions): the leaf functions of the range that the image names no owner for: address-of-member and member getters,
+float getters and setters, `At(index)` of an array pointer (strides 1, 2, 4, 8), the aligned array creators (heap
+and the two scratch allocators; `Create(count)` stores the count behind the pointer, the three-word form keeps a
+capacity at +8 and a zero count at +4), the releasers (`FreeAligned` and clear), zero-initialised word groups, word
+pairs, the interlocked counters, the bucket hash of a key (`((key >> 3 ^ key) >> 4) % count`). Every class is
+a stand-in grouped by the neighbourhood of its functions; the template ones carry the function's address as their
+parameter. A unit that recovers the real classes should move the functions onto them.
+
+Not done: the volumes' hull and cylinder code (0x106800B0 - 0x10681EE0: `math::Cylinder` and the cylinder volume are not
+recovered; `ScaleCylinder` and the vertex transform loops are long SSE sequences), the broad-phase detector's tables and
+their register-convention helpers (0x10682520 - 0x10684950), the convex mesh and the composite mesh (0x106853F0 -
+0x10686040), the object registry and the placement tracker (0x10686410 - 0x10689EE0), the batches (0x1068B190 -
+0x10691F00), the contact joint (0x106952A0, 0x10695400 - 0x10695580: it needs the contact record) and the whole solver
+(0x10695000 - 0x106A0000: the file-local vector helpers take their arguments in registers and exist only for the
+solve functions that call them).
