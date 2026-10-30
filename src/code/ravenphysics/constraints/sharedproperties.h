@@ -62,6 +62,65 @@ namespace ravenphysics
 		float dampingConstant;        // 0x0C
 		ScaleByMassType scaleByMassType;  // 0x10
 	};
+
+	// The numbers a deformable slider constraint shares (RTTI: DeformableSliderConstraintSharedProperties)
+	class DeformableSliderConstraintSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x10692590)
+		DeformableSliderConstraintSharedProperties();
+
+		float distanceCorrectionScale;     // 0x08
+		float maxDistanceCorrectionForce;  // 0x0C
+		float maximumStaticForce;          // 0x10
+		float maximumDynamicForce;         // 0x14
+	};
+
+	// The forces a deformable orientation constraint gives way at (RTTI: DeformableOrientationConstraintSharedProperties)
+	class DeformableOrientationConstraintSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x10692DF0)
+		DeformableOrientationConstraintSharedProperties();
+
+		float maximumStaticForce;     // 0x08
+		float maximumDynamicForce;    // 0x0C
+	};
+
+	// The limits a powered orientation constraint turns the second object with (RTTI: PoweredConstraintSharedProperties)
+	class PoweredConstraintSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x10693B90)
+		PoweredConstraintSharedProperties();
+
+		float maxAngularVelocity;     // 0x08
+		float maxOrientationForce;    // 0x0C
+	};
+
+	// The limits a powered linear constraint moves the second object with (RTTI: PoweredLinearConstraintSharedProperties)
+	class PoweredLinearConstraintSharedProperties : public content::MetaLoadObject
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// The engine's defaults (0x10694080)
+		PoweredLinearConstraintSharedProperties();
+
+		float maxLinearVelocity;      // 0x08
+		float maxLinearForce;         // 0x0C
+		float alignmentRigidity;      // 0x10
+	};
 }
 
 #endif

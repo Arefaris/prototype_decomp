@@ -8,6 +8,7 @@
 
 #include "code/content/metatype.h"
 #include "code/math/matrix.h"
+#include "code/math/matrix3.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 
@@ -21,6 +22,17 @@ namespace ravenphysics
 		a.x = a.x * b.x;
 		a.y = y * a.y;
 		a.z = z * a.z;
+	}
+
+	// The same with the stored value first in every product, and the first component read from the vector at the
+	// point of use (the scale functions of the point constraints)
+	inline void ScaleComponents(math::Vector& a, const math::Vector& b)
+	{
+		float y = b.y;
+		float z = b.z;
+		a.x = a.x * b.x;
+		a.y = a.y * y;
+		a.z = a.z * z;
 	}
 
 	class Constraint
