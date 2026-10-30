@@ -280,6 +280,12 @@ namespace engine
 		childTransform.SetIdentity();
 	}
 
+	// FUNCTION: ENGINE 0x108E0F90
+	NIS::NIS()
+	{
+		exclusionRadius = 0.0f;
+	}
+
 }
 
 namespace container
@@ -595,3 +601,4 @@ namespace container
 // FUNCTION: ENGINE 0x10890050
 // FUNCTION: ENGINE 0x108E0F40
 // FUNCTION: ENGINE 0x108E0F60
+// FUNCTION: ENGINE 0x108E1010
