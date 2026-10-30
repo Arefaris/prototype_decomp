@@ -387,6 +387,165 @@ namespace ravenphysics
 		LeafElement<Size>* begin;
 		LeafElement<Size>* end;
 	};
+	// The word at Offset set to zero
+	template <int Function, int Offset>
+	struct LeafClearWord : LeafPadding<Offset>
+	{
+		void Clear();
+
+		int member;
+	};
+
+	// The word at Offset plus one
+	template <int Function, int Offset>
+	struct LeafWordPlusOne : LeafPadding<Offset>
+	{
+		int Get() const;
+
+		int member;
+	};
+
+	// The bucket of a key in a table of count buckets
+	template <int Function>
+	struct LeafBucket
+	{
+		unsigned short Get(unsigned int key) const;
+
+		unsigned char padding[12];
+		unsigned short count;
+	};
+
+	// Whether the first word equals the word an argument points at
+	template <int Function>
+	struct LeafEqualsWord
+	{
+		bool Get(const int* other) const;
+
+		int member;
+	};
+
+	// Whether two words of the object equal those of another
+	template <int Function>
+	struct LeafEqualsPair
+	{
+		bool Get(const LeafEqualsPair* other) const;
+
+		int first;
+		int second;
+	};
+
+	// An inline array of elements at Offset
+	template <int Function, int Offset, int Size>
+	struct LeafInlineArray : LeafPadding<Offset>
+	{
+		LeafElement<Size>* At(int index);
+
+		LeafElement<Size> items[1];
+	};
+
+	// An inline array of words at Offset (indexed from there)
+	template <int Function, int Offset>
+	struct LeafInlineWord : LeafPadding<Offset>
+	{
+		int Get(int index) const;
+
+		int items[1];
+	};
+
+	// A constructor taking a short, a word and a word
+	template <int Function>
+	struct LeafInitShortWordWord
+	{
+		LeafInitShortWordWord(unsigned short newFirst, int newSecond, int newThird);
+
+		int first;
+		int second;
+		int third;
+	};
+
+	// Counts: adds to a short total and bumps a short count
+	template <int Function>
+	struct LeafAddShort
+	{
+		void Add(unsigned short value);
+
+		unsigned char padding[6];
+		unsigned short count;
+		unsigned short total;
+	};
+
+	// Two words that stay zero, the constructor taking an argument it does not use
+	template <int Function>
+	struct LeafZeroTwoIgnoring
+	{
+		LeafZeroTwoIgnoring(int unused);
+
+		int first;
+		int second;
+	};
+
+	// A word taken from the argument (a pointer), a zero short
+	template <int Function>
+	struct LeafInitWordShort
+	{
+		LeafInitWordShort(int newFirst);
+
+		int first;
+		unsigned short second;
+	};
+
+	template <int Function>
+	struct LeafInitWordShortShort
+	{
+		LeafInitWordShortShort(int newFirst, unsigned short newThird);
+
+		int first;
+		unsigned short second;
+		unsigned short pad;
+		unsigned short third;
+	};
+
+	// Free functions of one or two words
+	template <int Function>
+	int LeafFirstArgument(int first);
+
+	template <int Function>
+	int LeafDereference(const int* pointer);
+
+	template <int Function>
+	void LeafSwap(int* first, int* second);
+
+	template <int Function>
+	void LeafCopyWord(int* destination, const int* source);
+
+	// The words two pointers point at
+	template <int Function>
+	struct LeafPairOfPointers
+	{
+		LeafPairOfPointers(const int* newFirst, const int* newSecond);
+
+		int first;
+		int second;
+	};
+
+	// A word taken from a pointer, the second from the argument
+	template <int Function>
+	struct LeafPairPointerWord
+	{
+		LeafPairPointerWord(const int* newFirst, int newSecond);
+
+		int first;
+		int second;
+	};
+
+	// Whether the word at Offset is less than the argument's
+	template <int Function, int Offset>
+	struct LeafLessThan : LeafPadding<Offset>
+	{
+		int Get(const LeafLessThan* other) const;
+
+		unsigned int member;
+	};
 }
 
 #endif

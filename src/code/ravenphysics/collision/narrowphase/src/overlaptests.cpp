@@ -25,6 +25,13 @@ namespace ravenphysics
 	// The test of two volumes of which at least one is a hull (another unit, 0x10677890)
 	bool VolumesOverlap(CollisionVolume* a, CollisionVolume* b);
 
+	// The tests of a volume against a mesh (0x106AE250 - 0x106AE8E0 in this unit's neighbourhood)
+	bool OverlapCapsuleMeshTest(CollisionCapsule* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info);
+	bool OverlapBoxMeshTest(CollisionOBB* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info);
+	bool OverlapSphereMeshTest(CollisionSphere* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info);
+	bool OverlapHullMeshTest(CollisionVolume3* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info);
+	bool OverlapHullGroupMeshTest(CollisionVolume4* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info);
+
 	// FUNCTION: ENGINE 0x106B2420
 	bool OverlapCapsules(CollisionCapsule* a, CollisionCapsule* b, ContactBuffer* contacts, CollideInfo* info)
 	{
@@ -253,5 +260,41 @@ namespace ravenphysics
 			return true;
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106B2540
+	bool OverlapCapsuleMesh(CollisionCapsule* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapCapsuleMeshTest(a, b, contacts, info);
+	}
+
+	// FUNCTION: ENGINE 0x106B2640
+	bool OverlapBoxMesh(CollisionOBB* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapBoxMeshTest(a, b, contacts, info);
+	}
+
+	// FUNCTION: ENGINE 0x106B2770
+	bool OverlapSphereMesh(CollisionSphere* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapSphereMeshTest(a, b, contacts, info);
+	}
+
+	// FUNCTION: ENGINE 0x106B2810
+	bool OverlapHullMesh(CollisionVolume3* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapHullMeshTest(a, b, contacts, info);
+	}
+
+	// FUNCTION: ENGINE 0x106B2880
+	bool OverlapHullGroupMesh(CollisionVolume4* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapHullGroupMeshTest(a, b, contacts, info);
+	}
+
+	// FUNCTION: ENGINE 0x106AE8D0
+	bool OverlapHullGroupMeshTest(CollisionVolume4* a, CollisionVolume6* b, ContactBuffer* contacts, CollideInfo* info)
+	{
+		return OverlapHullMeshTest(&a->materials, b, contacts, info);
 	}
 }
