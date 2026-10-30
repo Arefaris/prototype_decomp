@@ -4,6 +4,16 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10732180
+	bool PoseAnimationController::IsSupported(Animation* animation)
+	{
+		if (animation != 0 && animation->mGroupCount > 0)
+		{
+			return animation->mType == 0x4E525450;
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x10732320
 	// EQUIVALENT: the same operations in the same order; the engine keeps the joint index, the channel pointers and
 	// the lerped vector in other registers (its frame is the same size) and interleaves the three components of the

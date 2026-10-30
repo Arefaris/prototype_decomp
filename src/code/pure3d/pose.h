@@ -62,7 +62,6 @@ namespace pure3d
 		int FindJoint(const core::Name<core::CaseSensitiveKey>& name) const;
 
 		SkeletonData mData;
-		unsigned char unknown50[4];
 		SkeletonDebugInfo* debugInfo;
 		unsigned int partitionCount;
 		Partition* partitions;

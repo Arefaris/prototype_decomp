@@ -13,6 +13,7 @@
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/shader.h"
 
 // This unit's copies of the reference helpers for the controllers and the key frames of a state
 // FUNCTION: ENGINE 0x1071F480
@@ -520,9 +521,9 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x43D, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
-		const float* normals = expression->normalOffsets;
-		const float* tangents = expression->tangentOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
+		const float* normals = (const float*)expression->normalOffsets;
+		const float* tangents = (const float*)expression->tangentOffsets;
 		int positionStride = 3;
 		int normalStride = 3;
 		int tangentStride = 3;
@@ -612,9 +613,9 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x4AF, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
-		const float* normals = expression->normalOffsets;
-		const float* tangents = expression->tangentOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
+		const float* normals = (const float*)expression->normalOffsets;
+		const float* tangents = (const float*)expression->tangentOffsets;
 		int positionStride = 3;
 		int normalStride = 3;
 		int tangentStride = 3;
@@ -712,8 +713,8 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x529, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
-		const float* normals = expression->normalOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
+		const float* normals = (const float*)expression->normalOffsets;
 		int positionStride = 3;
 		int normalStride = 3;
 		if (positions == 0)
@@ -784,8 +785,8 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x585, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
-		const float* normals = expression->normalOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
+		const float* normals = (const float*)expression->normalOffsets;
 		int positionStride = 3;
 		int normalStride = 3;
 		if (positions == 0)
@@ -864,7 +865,7 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x5E9, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
 		if (positions == 0)
 		{
 			positions = gNoVertexOffsets;
@@ -914,7 +915,7 @@ namespace pure3d
 		const math::Matrix* matrices = pose->mData.mSkinMatrices;
 		OLD_ASSERT_AT(SKIN_FILE, 0x630, (((unsigned)matrices & 0x0F) == 0), "(((unsigned)matrices) & 0x0F) == 0",
 			"Bad Skin bone matrices ptr");
-		const float* positions = expression->positionOffsets;
+		const float* positions = (const float*)expression->positionOffsets;
 		if (positions == 0)
 		{
 			positions = gNoVertexOffsets;
@@ -1869,9 +1870,9 @@ namespace pure3d
 			jobData->count = count;
 			if (expression != 0)
 			{
-				jobData->positionOffsets = expression->positionOffsets;
-				jobData->normalOffsets = expression->normalOffsets;
-				jobData->tangentOffsets = expression->tangentOffsets;
+				jobData->positionOffsets = (const float*)expression->positionOffsets;
+				jobData->normalOffsets = (const float*)expression->normalOffsets;
+				jobData->tangentOffsets = (const float*)expression->tangentOffsets;
 			}
 			jobData->hasNormals = streams[1].enabled;
 			jobData->hasTangents = streams[2].enabled;
@@ -2074,5 +2075,28 @@ namespace pure3d
 			lock->unknown0 = 0;
 			lock->unknown4 = 0;
 		}
+	}
+
+	// The shader's flags are mirrored into the primitive's, two of them inverted
+#pragma auto_inline(off)
+	// FUNCTION: ENGINE 0x10720220
+	void Skin::SetFlagsFromShader()
+	{
+		if (unknown18 != 0)
+		{
+			flagWord.SetBit(3, ((Shader*)unknown18)->flags.Test(2));
+			flagWord.SetBit(1, ((Shader*)unknown18)->flags.Test(0));
+			flagWord.SetBit(2, ((Shader*)unknown18)->flags.Test(1));
+			flagWord.SetBit(4, !((Shader*)unknown18)->flags.Test(2));
+			flagWord.SetBit(5, !((Shader*)unknown18)->flags.Test(2));
+		}
+	}
+#pragma auto_inline(on)
+
+	// FUNCTION: ENGINE 0x10721140
+	void Skin::Unknown4(Shader* shader)
+	{
+		Primitive::Unknown4(shader);
+		SetFlagsFromShader();
 	}
 }

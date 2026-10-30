@@ -6,6 +6,13 @@
 #include "code/core/refptr.h"
 #include "code/pure3d/channel.h"
 
+// This unit's copies of the reference helper for the entities of an entity channel and the handlers of the loader
+// FUNCTION: ENGINE 0x107360D0
+template void core::SafeRelease<pure3d::Entity>(pure3d::Entity*& object);
+
+// FUNCTION: ENGINE 0x107360F0
+template void core::SafeRelease<pure3d::ChannelHandler>(pure3d::ChannelHandler*& object);
+
 namespace pure3d
 {
 	// The element copies of the channels' copy constructors (inline in the engine, x87 component moves)

@@ -599,4 +599,14 @@ namespace pure3d
 		}
 		return result;
 	}
+
+	// FUNCTION: ENGINE 0x1073A6F0
+	void Unknown1073A6F0()
+	{
+		if (RenderTargetManager::sSingleton != 0)
+		{
+			delete RenderTargetManager::sSingleton;
+		}
+		RenderTargetManager::sSingleton = 0;
+	}
 }
