@@ -15,7 +15,9 @@ namespace engine
 			// 0x108D53A0 (0xA0 bytes)
 			AnimatedCamera();
 
-			unsigned char unknown48[0xa0 - 0x48];
+			unsigned char unknown48[0x9f - 0x48];
+			// Read and cleared by the camera clipping plane action (name guessed)
+			bool unknown9F;
 		};
 	}
 }

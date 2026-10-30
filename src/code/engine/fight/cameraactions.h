@@ -13,6 +13,7 @@ namespace engine
 	namespace camera
 	{
 		class Camera;
+		class AnimatedCamera;
 	}
 
 	// RTTI: engine::CameraClipPlaneAction (9 vftable slots, size 0x3C): sets the clipping planes of the active camera
@@ -30,7 +31,7 @@ namespace engine
 
 		core::Link<CameraClippingPlanesTrack> link;  // +0x1C
 		core::IRefCount* owner;  // +0x28
-		camera::Camera* camera;  // +0x2C
+		camera::AnimatedCamera* camera;  // +0x2C
 		bool unknown30;
 		float nearPlane;  // +0x34
 		float farPlane;  // +0x38

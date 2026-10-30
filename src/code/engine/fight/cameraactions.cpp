@@ -1,6 +1,9 @@
 // The actions of the camera clipping plane, camera animation and time dilation tracks (unit 0x108F20C0 - 0x108F2B00,
 // no assert path; file name guessed). The tracks are in cameratracks.cpp.
 #include "code/engine/fight/cameraactions.h"
+#include "code/engine/camera/animatedcamera.h"
+#include "code/engine/camera/cinematographer.h"
+#include "code/engine/camera/director.h"
 #include "code/engine/system/simulationdriver.h"
 
 namespace engine
@@ -26,6 +29,43 @@ namespace engine
 	CameraClipPlaneAction::~CameraClipPlaneAction()
 	{
 		ReleaseNISRef(&owner);
+	}
+
+	// FUNCTION: ENGINE 0x108F2220
+	// EQUIVALENT: block layout (the engine's failure return of the camera search sits behind the success path, ours right after the search's test); every other instruction is the engine's
+	bool CameraClipPlaneAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		camera::Director* director = camera::Director::Get();
+		int index = director->playerCamera[0];
+		if (index < 0 && !director->NextActiveCamera(&index, 0))
+		{
+			return false;
+		}
+		camera::AnimatedCamera* animated = director->GetCamera(index, 0)->animated;
+		camera = animated;
+		nearPlane = animated->camera->minZ;
+		farPlane = animated->camera->maxZ;
+		unknown30 = animated->unknown9F;
+		animated->unknown9F = false;
+		animated->camera->SetNearPlane(link.object->nearPlane);
+		animated->camera->SetFarPlane(link.object->farPlane);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F22C0
+	void CameraClipPlaneAction::Slot6()
+	{
+		if (link.object != 0 && link.object->restoreAtEnd)
+		{
+			camera->unknown9F = unknown30;
+			camera->camera->SetFarPlane(farPlane);
+			camera->camera->SetNearPlane(nearPlane);
+			camera = 0;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x108F2310

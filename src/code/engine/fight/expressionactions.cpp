@@ -3,6 +3,7 @@
 #include "code/engine/fight/expressionactions.h"
 #include "code/engine/expressionmessages.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/pure3d/animation.h"
 
 namespace engine
 {
@@ -13,6 +14,13 @@ namespace engine
 		unsigned int kind;  // +0x8
 		GameObjectHandle handle;  // +0xC
 	};
+
+	// Whether a name is set
+	static inline bool HasName(const content::ObjectName& name)
+	{
+		content::ObjectName none((const char*)0, 1);
+		return name != none;
+	}
 
 	namespace animation
 	{
@@ -101,6 +109,38 @@ namespace engine
 			{
 				return false;
 			}
+			return true;
+		}
+
+		// FUNCTION: ENGINE 0x108F4DE0
+		bool ExpressionAnimationAction::Slot5(int arg, float value)
+		{
+			ExpressionAnimationTrack* track = link.object;
+			if (track == 0)
+			{
+				return false;
+			}
+			if (!target.IsValid())
+			{
+				return false;
+			}
+			content::LoadInventory* inventory = content::gRootInventory;
+			pure3d::Animation* animation = 0;
+			const content::ObjectName& name = track->animation;
+			if (HasName(name))
+			{
+				animation = inventory->Find<pure3d::Animation>(name);
+			}
+			GameObject* object = target.Get();
+			Attribute<render::Drawable>* attribute = (Attribute<render::Drawable>*)object->FindAttribute(proto::gDrawableHandleAttributeName);
+			render::Drawable* pointer = attribute != 0 ? &attribute->value : 0;
+			render::Drawable drawable = *pointer;
+			if (!drawable.IsValid())
+			{
+				return false;
+			}
+			drawable.PlaySkinAnimation(animation, link.object->speed, link.object->initFrame, link.object->startFrame, link.object->endFrame,
+				(pure3d::Animation::CycleMode)link.object->cyclic);
 			return true;
 		}
 
