@@ -5128,3 +5128,51 @@ twice and computes the squared radius last), SmartHintManager::SendExitPause (0x
 keeps the two messages in separate slots), the two FindInfo*Handle functions above.
 Helper classes of this range that no caller or RTTI name gives a name to (named after their use, kept as they are):
 CollectibleLog (0x1058D0D0), FREventTimers, SmartHintLog, SmartHintShown, SmartHintFlags, SmartHintEntry.
+
+## pure3d 0x10700000 - 0x10720000: Mesh, pose data, particle state slots, visibility client (this branch)
+
+- **Mesh / MeshState** (src/mesh.cpp, 0x10707240 - 0x10708050): `Mesh` is 0x17C bytes: vertex buffer +0x20, index buffer
+  +0x24 (a union with the `PrimGroupList*` the draw code reads), the state streams as a `ShaderParameters` at +0x28, the
+  vertex data block +0x140 / size +0x144, the format word +0x148, box +0x14C, sphere +0x164, flags +0x174 / +0x175, word
+  +0x178. `MeshState` holds the shader controllers at +0x1C / +0x20 (`ShaderAnimationController`), +0x24
+  (`SimpleFrameController`, cast to `VertexAnimController` by the copy), +0x28 (`VertexRegionAnimController`), the
+  `VertexOffsetList` +0x2C, the two vertex buffers +0x30 / +0x34 and the current one +0x38. Each COMDAT `RefAssign` /
+  `SafeRelease` copy of the unit is for its own type (the linker keeps one copy per decorated name), so the types had to
+  be right: `SimpleFrameController` (new, empty, between `FrameController` and the three controllers) and
+  `VertexOffsetList` for the reference at +0x2C. EQUIVALENT: `Mesh::Mesh` (86.9 %: the engine masks the format word and
+  compares the byte, ours tests the bit) and `MeshState::MeshState(const MeshState&)` (the engine loads the second
+  controller before testing it). Not done: 0x10707A80 (a fourth `RefAssign` setter nothing calls), 0x10707820 /
+  0x10707830 (flag tests nothing calls), 0x10707690's neighbours 0x10707BB0 is `Mesh::SetFlagsFromShader` (match).
+- **ExpressionState is VertexAnimKeyFrameList**: the class name invented for `SkinState`'s second reference was the RTTI
+  class `VertexAnimKeyFrameList`; the mixer, the skin state and their symbols are renamed.
+- **PoseData** (anim/src/posedata.cpp, 0x10708240 - 0x10709A50): constructors (own memory / memory given, with the
+  `size >= GetRawMemorySize(...)` assert at line 0xDE), `SetMemory`, `Initialise`, `SetRestPose`, `Blend`, `CopyFrom`,
+  `CopyMatchingFrom` (joints with equal names), `GetJointMatrix` / `GetJointPosition`, `JointArrays::Set`,
+  `AllocateBoneData`, `GetRawMemorySize` and `AlignBoneMemory` (both external with stack arguments). `mFlags` is a union with
+  bit-fields so `GetLayout` compiles to the engine's merged stores. Not done: 0x10708160 and 0x10708D00 (the
+  quaternion / matrix composition helpers, scalar SSE with the quaternion in xmm0).
+- **Skin**: `LockIndices`, `UnlockIndices`, `LockBuffer`, `DescribeSource`, `DescribeUnknown264`, `SkinState::Unknown9`,
+  `SetController1` (its reference is the mesh unit's `RefAssign<ShaderAnimationController>`), `SetExpressionState`. The
+  second `ShaderParameters` of a skin is at +0x14C (0x118 bytes), its data block pointer at +0x264. Not done: the
+  constructor 0x1071FF00 (756 bytes), 0x1071FCD0 (the state's buffers and the ring/table records of 0x1071F3C0 - 0x1071FC70).
+- **ParticleSystemState** slots 4 / 5 / 6 / 7 and the setters at +0x491 / +0x494 / +0x498 (particlesystem.cpp);
+  `Update`'s test is `!(fabs(-dt) <= 0.00001f)` (the `>` form loads the operands the other way round). Slot 5
+  (`Unknown5`) is EQUIVALENT (the engine tests the controller pointer in memory and loads it again for the call).
+  `Unknown6` is one `&&` chain (a bool returned through eax).
+- **Scene**: `AddLight` / `RemoveLight` / `GetLightGroupTable` / `GetLightingScene`; `Refresh` is EQUIVALENT (register
+  allocation of the two list ends). The scene's arrays are 16-byte `container::ArrayDynamicHeap` members from +8 in steps of
+  0x10 (all drawables at +8, the refresh list at +0xC8). Not done: the constructor / destructor (a 0x5800-byte object with
+  the task groups at +0x5030 / +0x57E0), `Add` / `Remove` and the two scene update slots.
+- **visibility::Client** (visibility/src/client.cpp, 0x1071A720 - 0x1071AD50): the client is {vftable, index, server}; the
+  index is region << 28 | slot. `GetRegion` / `GetSlot` stay real calls (the unit's callers keep ecx across them). The
+  server's partial layout (boxes +0x18, spheres +0x24, user data +0x30, bit sets +0x48, counts +0x140, offsets +0x1B0,
+  flag set count +0x1E8) is in visibility.h. `SetState` (register allocation) and `GetState` (scheduling) are EQUIVALENT.
+  `IsActive` returns int (a bool would return through al). Not done: 0x1071AE30 / 0x1071AE80 (set a result set by kind,
+  move to another server).
+- **Small**: `TextureFont::ToWide` (`text[i] & 0xFF` gives the 32-bit movzx) and `DrawAnsi`, `PartBinding::Attach` /
+  `Detach` (user count at +0x20), `ContextSettings::Unknown148`'s constructor, explicit instances of the COMDAT
+  `RefAssign` / `SafeRelease` copies of the mesh and skin units.
+- Not touched (no class named by RTTI, vftable or caller): the ~600 tiny template instances of the particle module
+  (0x10709DB0 - 0x1070B650, `ArrayDynamic` / iterator members), the pass factories 0x10719680 - 0x10719F80 (nineteen
+  `new Pass(...)` wrappers whose constructors are unnamed), the shadow render manager (0x10715380 - 0x10716AD0), the
+  allocator helpers 0x10714D70 - 0x10715180, the shader unit (0x10704B70, 0x107052A0, `Shader::Init` 0x10706100).
