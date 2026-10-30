@@ -9,12 +9,17 @@
 namespace pure3d
 {
 	class Light;
+	class LightingScene;
 
 	// A growable array of lights (0x10756830 resizes it, filling new slots with fill)
 	class LightArray
 	{
 	public:
 		void Resize(unsigned int count, Light* const& fill);
+		int Size() const
+		{
+			return end - begin;
+		}
 
 		Light** begin;
 		Light** end;
@@ -50,6 +55,17 @@ namespace pure3d
 		// group
 		bool Unknown10758020(const core::Name<core::CaseSensitiveKey>* name, Light* light);
 		bool Unknown10758090(const core::Name<core::CaseSensitiveKey>* name, Light* light);
+		// 0x10757A10: whether the light is in the scene's lists
+		bool Contains(Light* light);
+		// 0x10757AA0: how many lights the scene holds
+		int GetLightCount();
+		// 0x10757AC0: the group of that name (the last one found is tried first), null when there is none
+		Entity* FindGroup(const core::Name<core::CaseSensitiveKey>* name);
+
+		unsigned char unknown0[8];
+		LightingScene* scene;
+		unsigned char unknownC[0x14];
+		Entity* groups[0x20];
 	};
 
 	// The lights of a lighting scene, selected by region
@@ -60,11 +76,20 @@ namespace pure3d
 		void GetLights(LightArray* lights, const unsigned int* region);
 		// 0x10756350: whether the light is in the scene's list
 		bool Contains(Light* light);
+		// 0x10757A80 / 0x10757A90: how many lights are in the first / the second list
+		int GetBoundedCount();
+		int GetUnboundedCount();
 		// 0x10756890 / 0x10756500: takes a light into the scene / out of it (names guessed)
 		void AddLight(Light* light);
 		void RemoveLight(Light* light);
 
-		unsigned char unknown0[0x30];
+		unsigned char unknown0[8];
+		// The lights with a decay range (the ones the visibility regions know) and the ones without; the light's
+		// region index (0xFFFF for none) says which list holds it
+		LightArray bounded;
+		unsigned char unknown14[4];
+		LightArray unbounded;
+		unsigned char unknown24[0xC];
 		Light** lights;
 		unsigned char unknown34[8];
 		unsigned int* indicesBegin;
@@ -131,6 +156,9 @@ namespace pure3d
 	// 0x11280A28: the index of the constant SetShaderConstant writes
 	extern int gLightingInputsConstant;
 
+	// 0x11282AC0: the index of the group FindGroup found last (name guess)
+	extern unsigned int gLastLightGroup;
+
 	// The views and cameras a render pass uses (RTTI name pure3d::RenderParams; one virtual function)
 	class RenderParams : public Entity
 	{
@@ -161,7 +189,9 @@ namespace pure3d
 
 		int unknown10;
 		int unknown14;
-		unsigned char unknown18[0x60];
+		unsigned char unknown18[0x1C];
+		float unknown34;
+		unsigned char unknown38[0x40];
 		struct ViewState
 		{
 			unsigned char unknown0[0x10];
@@ -171,7 +201,11 @@ namespace pure3d
 			int height;
 			unsigned char unknown20[0x5C];
 		} views[5];
-		unsigned char unknown2E4[0x3C];
+		unsigned char unknown2E4[0x18];
+		float unknown2FC[6];
+		float unknown314;
+		float unknown318;
+		float unknown31C;
 		struct CameraData
 		{
 			unsigned char data[0x140];

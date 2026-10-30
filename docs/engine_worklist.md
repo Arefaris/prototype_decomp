@@ -5350,3 +5350,66 @@ Findings:
 Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520; 0x10567C50 and 0x1056F4E0 (the texture managers) are done, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
 reconstructed), the NIS and zone / district behaviours (HUD and message calls through unnamed functions of the front end), the navigation mesh
 reflection (the element copies of Area / Edge / LaneData are not recovered), the unlock table.
+
+## pure3d 0x10740000 - 0x10760000: lights, passes, the font, the particle generators' states (this branch)
+
+- **Light** (lighting/src/light.cpp, 0x10758290 - 0x10758FD0 and the helpers around it): `Light` is 0x228 bytes: the cached
+  geometry (bounding sphere +0x10, box +0x20, nine cone planes +0x38; the bits of the dirty word at +0x174 say which one
+  is stale: 0 the axes, 1 the box, 2 the sphere, 3 the planes, 5 the spot coefficients), colour +0xC8, position +0xD8,
+  direction +0xE4, the up and side axes +0xF0 / +0xFC, `DecayRange` +0x108, the angle pair +0x120 / +0x124, the shadow
+  parameters +0x15C, the type +0x18C, three 9-word light bit sets +0x19C - 0x20C, the user data +0x210 and the spot
+  coefficients +0x218. About sixty accessors and setters match (the setters of position, direction and the second axis
+  store the dirty bits after the copy; `_ReadWriteBarrier()` gives the engine's order), `DecayRange` (constructor
+  EQUIVALENT: the engine loads the third constant before the store of the kind), its destructor and two setters, the
+  `SetShadowEnabled` switch, `SetUserData`, `GetFrame` (the axes as the rows of a matrix), `GetUnknown10758E50` (the
+  ternary form gives the zero in a register) and the four COMDAT copies of `RefAssign` / `SafeRelease` for the user data
+  and the shadow parameters. NONMATCHING: `UpdateAxes` 0x10758840 (12.6 %: the engine reloads the components of the first
+  axis for the second test, ours keeps them on the x87 stack) and `GetUnknown218` 0x10758D10 (18.9 %: ours keeps the dirty
+  word and the decay pointer in registers across the two calls). Not done: the constructors 0x1075A900 / 0x1075AC10 /
+  0x1075AFB0 (the three 9-word arrays are stored in descending order, as the loop of a bit-set member would), the bounds
+  functions 0x10759000 - 0x10759F60, the debug drawing 0x1075B400 / 0x1075B870.
+- **Light groups** (lighting/lightingscene.cpp): `LightingScene` keeps the lights with a decay range at +8 and the others at
+  +0x18 (`LightArray`, a light's region index 0xFFFF puts it in the second list): `Contains`, the two counts,
+  `LightGroupTable::Contains` (a tail jump), `GetLightCount` (EQUIVALENT: the two list loads come in the other order) and
+  `FindGroup` (the group last found is tried first; the cache is the word at 0x11282AC0, the group names are the
+  `Entity` names at +8). `RemoveLight` / `AddLight` need the visibility client helpers (0x10758A90, 0x107566A0).
+- **Pass** (pass/src/pass.cpp): the tree links (`GetParent`, `GetFirstChild`, `GetNextSibling` and their const twins, the same
+  code), `AddChild`, `IsActive`, `Visit` / `CallIsVisible` (tail jumps through slots 3 and 7), `BeginOnce` / `EndOnce`, `Begin` /
+  `End`, `GetParts` (the scene's part table at +0xD8 fills the list: `Scene::SelectParts` 0x10714560), `BeginView` /
+  `EndView`, `SetEnabled`. The second flag word is accessed by byte, so it is a union with `begun` and `unknown24Bit1`
+  bit-fields; the first has the `enabled` bit-field (the xor / and / xor store). `IsActive`'s recursive call is tested through
+  al (`(char)` cast of an int result); `IsEnabled` 0x10754AC0 is NONMATCHING (the engine clears eax, a bool clears al).
+  `ContextRenderSettings`'s constructor is here too. Not done: the visibility test start and finish (unnamed helpers of the
+  scene and the server), the sorting template instances 0x10754860 - 0x107550D0.
+- **Font** (font/src/texturefont.cpp, font.h): `Font` (Entity with 23 virtual slots, 3 - 21 and 25 pure; slots 22 - 24 have
+  defaults) and `TextureFont`. TextureFont's members: the scale words +0x10 / +0x14, the line height +0x18, +0x1C, the line
+  spacing +0x20, the colour +0x30 and the shadow colour +0x34, the shader +0x38, the textures (count +0x3C, array
+  +0x40), the default glyph +0x44, the glyph count +0x48, the glyph records +0x4C (0x28 bytes, the advance at +0xC) and the
+  sorted codes +0x54. `IsSpace` is a member that never reads `this` (it returns an int). `FindGlyph`, `SetDefaultGlyph`,
+  the getters and setters and the slot-9 text width match. EQUIVALENT: the two colour getters (slot 14, 15: eax / ecx
+  swapped). NONMATCHING: the wrapping height (slot 7, 11.2 %), the text height (slot 8, 54.8 %) and the line width (slot 25, 26.1 %). Not done: the text layout
+  helpers that fill the static glyph tables at 0x11281928 - 0x112822A8 (0x10752370, 0x10752B60, 0x10752C00), the quad
+  writer 0x10752430 and the draw functions 0x10752D90 - 0x10753510, 0x10753BC0, 0x10753C90.
+- **Particle generators** (effects/src/particlegeneratorstates.cpp, particlegenerator.cpp, particlearray.cpp,
+  particlecontroller.cpp): the four `GeneratorAnimationState` classes (RefCounted, 3 / 5 / 2 / 7 float channels copied
+  from an animation group by the fourcc of the parameter: HOSP, VESP, RDVA, WDT, HGT, RAD, HSPC, VSPC) with their
+  constructors and destructors, the generators' slot 6 (reads the channel values and calls the base animation step
+  0x10741120), the transform setter (`unknown50 = transform; transform = new; unknown10 = new`), `ParticleArray`'s constructor
+  (EQUIVALENT: register allocation) and `Free`, and the COMDAT copies of `RefAssign` / `SafeRelease` for the states, the
+  mesh data, the generator data and the rotation channel wrapper. `ParticleController`'s no-ops, constant answers and two
+  float getters. `FrameController::Unknown8` / `Unknown9` return float now (no other class overrode them). Not done:
+  the generator constructors (0x10746330 - 0x10746CD0, they need the base members up to +0x410), the setters at +0x420 -
+  +0x448 (which of the five classes owns each is not named), the parameter lookups 0x10740570 - 0x107406F0 and
+  `SetParameter*` (0x10741250 - 0x10741D70), `GetUnknown10740E50`.
+- **RenderParams / RenderContext**: eight accessors of the cascade values (+0x10, +0x34, +0x2FC array, +0x314, +0x318, +0x31C)
+  and `RenderContext::Run` (the parameters' colour and depth surfaces at +0x10 / +0x14 become the device's render
+  targets around the pass run; the context keeps the pass at +0x34 and a flag at +0x38). `RenderPassChain::Update`,
+  `TargetParams`, `RenderContext::Unknown1074DB10` and the scheme tree helpers (0x1074D930 - 0x1074DC80) use unnamed
+  container instances.
+- **Small units**: `RenderScheme` (renderscheme.h; slots 1 / 2 start and stop the pass tree kept at +0x34, slots 4 / 5 are empty;
+  the constructor, destructor and the name slot are not done), the five profiler counters (0x1075D2E0 - 0x1075D320) and
+  `RenderTargetManager::GetSource` (the source texture, else the colour target at hand).
+- Not touched, and why: the profiler timers (0x1075D210 - 0x1075D4E0: 64-bit tick arithmetic over unnamed globals), the blur,
+  tone map and framebuffer passes (0x1075D590 - 0x1075FFFF: the gaussian shader set-up and heap globals), about 600 tiny
+  template instances (ArrayDynamic / iterator members and the sort kernels of the pass and shadow units), the
+  `Glyph` accessors 0x10751EE0 - 0x10752100 (no name for the record).

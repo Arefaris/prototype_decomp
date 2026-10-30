@@ -64,6 +64,10 @@ namespace pure3d
 
 	class LightingInputs;
 
+	// 0x11282AB0 / 0x11282AB4: what GetLightingInputs and GetParts hand out (names guessed)
+	extern LightingInputs* gPassLightingInputs;
+	extern PartList* gPassParts;
+
 	class Pass
 	{
 	public:
@@ -99,6 +103,27 @@ namespace pure3d
 		// is kept in a global) and waits for its result
 		void StartVisibilityTest(PassContext* context, bool unknown);
 		void FinishVisibilityTest(PassContext* context);
+		// 0x10754540 / 0x10754750: bits 0 and 1 of the second flag word
+		bool IsBegun();
+		bool GetUnknown24Bit1();
+		// 0x10754550: sets the word of the part filter
+		void SetEntriesWord(unsigned int value);
+		// 0x10754590 / 0x10754730: tail calls through slots 3 and 7
+		void Visit(void* context);
+		bool CallIsVisible();
+		// 0x107545E0: whether the pass is enabled (with every parent, when asked)
+		int IsActive(bool withParents);
+		// 0x10754620 - 0x10754670: the links of the tree (the same code twice, for const and not)
+		Pass* GetNextSibling();
+		const Pass* GetNextSibling() const;
+		Pass* GetFirstChild();
+		const Pass* GetFirstChild() const;
+		Pass* GetParent();
+		const Pass* GetParent() const;
+		// 0x107546C0: makes the pass a child of this one, before the given child (the last when null)
+		void AddChild(Pass* child, Pass* before);
+		// 0x10754840: runs End and clears bit 0 of the second flag word
+		void EndOnce();
 		// 0x10754810: the lighting inputs the passes upload (the global at 0x11282AB0; the pass is not used)
 		LightingInputs* GetLightingInputs();
 
@@ -108,8 +133,24 @@ namespace pure3d
 		Pass* parent;         // +0x14
 		Pass* firstChild;     // +0x18
 		Pass* nextSibling;    // +0x1c
-		unsigned int flags20; // +0x20
-		unsigned int flags24; // +0x24
+		// +0x20 (bit 0: enabled) and +0x24 (bit 0: Begin has run, bit 1: a second state the tests read)
+		union
+		{
+			unsigned int flags20;
+			struct
+			{
+				unsigned int enabled : 1;
+			};
+		};
+		union
+		{
+			unsigned int flags24;
+			struct
+			{
+				unsigned char begun : 1;
+				unsigned char unknown24Bit1 : 1;
+			};
+		};
 		PassEntries entries;  // +0x28
 	};
 }

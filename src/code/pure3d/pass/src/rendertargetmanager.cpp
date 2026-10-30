@@ -609,4 +609,15 @@ namespace pure3d
 		}
 		RenderTargetManager::sSingleton = 0;
 	}
+
+	// FUNCTION: ENGINE 0x1075D550
+	dxTexture* RenderTargetManager::GetSource()
+	{
+		dxTexture* texture = source;
+		if (texture == 0)
+		{
+			texture = colours[index];
+		}
+		return texture;
+	}
 }

@@ -91,6 +91,8 @@ namespace pure3d
 		void UseTargets(dxTexture* colour, dxTexture* depth, bool keepDepth);
 		// 0x1073AFA0: gives the targets up and makes the one drawn into the next source
 		void Finish(int a, int b);
+		// 0x1075D550: the texture the next pass reads: the source, or the colour target at hand
+		dxTexture* GetSource();
 		// 0x1073B040: the texture the next pass reads (takes a reference)
 		void SetSource(dxTexture* texture);
 		// 0x1073B1A0: a target of that size, divider, format and flag that is not lent out (a new one when the pool has

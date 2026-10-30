@@ -242,8 +242,8 @@ namespace pure3d
 		virtual void Unknown5();
 		virtual void SetRelativeSpeed(float speed);
 		virtual void Unknown7();
-		virtual void Unknown8();
-		virtual void Unknown9();
+		virtual float Unknown8();
+		virtual float Unknown9();
 		virtual void SetFrame(float frame);
 		virtual float GetFrame();
 		virtual void SetFrameRange(float start, float end);
@@ -815,7 +815,9 @@ namespace pure3d
 		virtual void Unknown3();
 		virtual void Unknown4();
 		virtual void Unknown5();
-		virtual void Unknown6();
+		// Slot 6: takes the values of the shape's channels at the time (the generators that have some), then
+		// Unknown10741120
+		virtual void Unknown6(float time);
 		virtual void Unknown7();
 		virtual void Unknown8();
 		// Advances the generator by the update data
@@ -823,6 +825,8 @@ namespace pure3d
 		// Makes the particles of the update data; unknownE4 of the state is the second argument
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 
+		// 0x10741120: advances the generator's own animation to the time (291 bytes)
+		void Unknown10741120(float time);
 		// 0x10740460: the emitter transform, handed on to the generator
 		void SetTransform(const math::Matrix& newTransform);
 		// 0x10742720: forgets the particles it made (name guess)
@@ -841,32 +845,162 @@ namespace pure3d
 		void SetParameter4(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 		void SetParameter5(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
 
-		unsigned char unknown10[0xC0];
+		math::Matrix unknown10;
+		math::Matrix unknown50;
+		math::Matrix unknown90;
 		void* data;
 		ParticleAttributes attributes;
-		unsigned char unknown240[0x60];
+		unsigned char unknown240[0x40];
+		float unknown280;
+		unsigned char unknown284[0x1C];
 		math::Matrix transform;
+		unsigned char unknown2E0[0x14];
+		int unknown2F4;
+		int unknown2F8;
+		unsigned char unknown2FC[0x114];
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
 	class ParticlePointGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticlePointGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10741E40: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740740
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+		};
+
+		// Slot 6 (0x10741F10)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float hosp;
+		float vesp;
+		float rdva;
 	};
 
 	class ParticlePlaneGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticlePlaneGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10741F90
+			GeneratorAnimationState();
+			// 0x10741FE0: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x107407B0
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* wdt;
+			Float1Channel* hgt;
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+		};
+
+		// Slot 6 (0x10742120)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float wdt;
+		float hgt;
+		float hosp;
+		float vesp;
+		float rdva;
 	};
 
 	class ParticleSphereGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticleSphereGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x107421D0
+			GeneratorAnimationState();
+			// 0x10742210: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740830
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* rad;
+			Float1Channel* rdva;
+		};
+
+		// Slot 6 (0x107422B0)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float rad;
+		float rdva;
 	};
 
 	class ParticleGridGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticleGridGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10742310
+			GeneratorAnimationState();
+			// 0x10742360: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740880
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* wdt;
+			Float1Channel* hgt;
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+			Float1Channel* hspc;
+			Float1Channel* vspc;
+		};
+
+		// Slot 6 (0x10742500)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float wdt;
+		float hgt;
+		float hosp;
+		float vesp;
+		float rdva;
+		float hspc;
+		float vspc;
 	};
 
 	class ParticleMeshGenerator : public ParticleGenerator
 	{
+	public:
+		// The vertex data of the mesh the generator emits from (RTTI name pure3d::ParticleMeshGenerator::MeshData; 0x38
+		// bytes, made on first use)
+		class MeshData : public RefCounted
+		{
+		public:
+			void* unknown8;
+			void* unknownC;
+			unsigned char unknown10[4];
+			void* unknown14;
+			void* unknown18;
+			unsigned char unknown1C[4];
+			void* unknown20;
+			void* unknown24;
+		};
+
+		// Slot 6 (0x107425F0): only the base's animation
+		virtual void Unknown6(float time);
 	};
 
 	class MeshState : public PrimitiveState

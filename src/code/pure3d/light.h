@@ -5,12 +5,16 @@
 #ifndef PURE3D_LIGHT_H
 #define PURE3D_LIGHT_H
 
+#include "code/math/aabb.h"
+#include "code/math/matrix.h"
+#include "code/math/sphere.h"
 #include "code/math/vector.h"
 #include "code/math/vector4.h"
 #include "code/pure3d/entity.h"
 
 namespace pure3d
 {
+	class Texture;
 	class LightUserData : public RefCounted
 	{
 	};
@@ -54,10 +58,17 @@ namespace pure3d
 		float unknown4;
 		float range;
 		float unknownC;
-		int unknown10;
+		Texture* unknown10;
 	};
 
 	class RenderParams;
+	class Texture;
+
+	// The limits of the angles SetUnknown120 / SetUnknown124 clamp to (0x11282AD4 / 0x11282AD0; names guessed)
+	extern float gLightMax120;
+	extern float gLightMax124;
+	// 0x11282AC4: the serial number the next change of a light takes (name guess)
+	extern int gLightSerial;
 
 	class Light : public Entity
 	{
@@ -136,21 +147,109 @@ namespace pure3d
 		bool GetUnknown190();
 		int GetUnknown20C();
 		float GetUnknown10758E50();
+		// The accessors of the fields the light API leaves unnamed (names say the offset):
+		// 0x107582C0 / 0x10758470 / 0x10758480 / 0x10758610 / 0x10758620 / 0x10758640 / 0x107585F0 / 0x10758600
+		bool GetUnknown158();
+		Texture* GetUnknown134();
+		float GetUnknown12C();
+		Texture* GetUnknown138();
+		void SetUnknown13C(float value);
+		float GetUnknown13C();
+		void SetUnknown170(bool value);
+		bool GetUnknown170();
+		// 0x10758650 / 0x10758670 / 0x10758680 / 0x107586A0 / 0x107586B0 / 0x107586D0 / 0x107586E0 / 0x107586F0 /
+		// 0x10758710
+		void SetUnknown140(float a, float b);
+		float* GetUnknown140();
+		void SetUnknown148(float a, float b);
+		float* GetUnknown148();
+		void SetUnknown150(int a, int b);
+		int GetUnknown150();
+		int GetUnknown154();
+		void SetUnknown11C(float value);
+		float GetUnknown11C();
+		// 0x107587B0 / 0x10758800
+		bool GetUnknown188();
+		bool GetUnknown216();
+		// 0x10758DD0: the light's frame as the rows of a matrix (side, up, direction)
+		void GetFrame(math::Matrix* out);
+		// 0x10758A40: takes the next serial number (a counter of the unit at 0x11282AC4)
+		void NextSerial();
+		// 0x10758D10: the spot's cone coefficients (four floats from +0x218), made first when the dirty word asks for it
+		float* GetUnknown218();
+		// 0x10758840: makes the two other axes of the light's frame (unknownF0 and unknownFC) from the direction; keeps
+		// unknownF0 when it is a unit vector at a right angle to the direction (clears bit 0 of the dirty word)
+		void UpdateAxes();
+		// 0x10758CD0 / 0x10758CF0: the axes, made first when the dirty word asks for it
+		math::Vector* GetAxisF0();
+		math::Vector* GetAxisFC();
 		// 0x1072D4F0 is Entity's name assignment (the setter of mName)
 
-		unsigned char unknown10[0xB8];
+		// The cached geometry of the light (recomputed from the settings when the bit of the dirty word at +0x174 is
+		// set): the bounding sphere (bit 2), the box (bit 1), the nine planes of the spot's cone (bit 3)
+		math::Sphere sphere;
+		math::AABB bounds;
+		unsigned char planes[0x90];
 		math::Vector4 colour;
 		math::Vector position;
 		math::Vector direction;
-		unsigned char unknownF0[0x18];
+		math::Vector unknownF0;
+		math::Vector unknownFC;
 		DecayRange decay;
-		unsigned char unknown11C[0x44];
+		float unknown11C;
+		float unknown120;
+		float unknown124;
+		float unknown128;
+		float unknown12C;
+		bool unknown130;
+		Texture* unknown134;
+		Texture* unknown138;
+		float unknown13C;
+		float unknown140;
+		float unknown144;
+		float unknown148;
+		float unknown14C;
+		int unknown150;
+		int unknown154;
+		bool unknown158;
+		RenderParams* shadow;
 		bool enabled;
-		unsigned char unknown161[0x2B];
+		int unknown164;
+		float unknown168;
+		float unknown16C;
+		bool unknown170;
+		union
+		{
+			unsigned int dirty;
+			struct
+			{
+				unsigned int axesDirty : 1;
+				unsigned int boundsDirty : 1;
+				unsigned int sphereDirty : 1;
+				unsigned int planesDirty : 1;
+				unsigned int unknownDirty4 : 1;
+				unsigned int spotDirty : 1;
+			};
+		};
+		int serial;
+		float unknown17C;
+		float unknown180;
+		float unknown184;
+		bool unknown188;
 		int type;
-		unsigned char unknown190[0x80];
+		bool unknown190;
+		float unknown194;
+		float unknown198;
+		float unknown19C;
+		unsigned char unknown1A0[0x6C];
+		int unknown20C;
 		LightUserData* userData;
-		unsigned char unknown214[0x14];
+		unsigned short unknown214;
+		bool unknown216;
+		float unknown218;
+		float unknown21C;
+		float unknown220;
+		float unknown224;
 	};
 }
 
