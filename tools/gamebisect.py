@@ -58,8 +58,10 @@ def tryBuild(excluded, keepGame=False):
 		sys.exit("set OP_ORIGINAL_DIR to the test copy")
 	keep = [o for o in relinkObjects() if sourceOf(o) not in excluded]
 	OUT.mkdir(parents=True, exist_ok=True)
+	objectList = OUT / "objects.rsp"
+	objectList.write_text("\n".join(keep) + "\n", encoding="utf-8")
 	relink = subprocess.run([sys.executable, str(ROOT / "tools" / "delink" / "relink.py"), "--version", VERSION, "--out",
-		str(OUT), *keep], cwd=ROOT, capture_output=True, text=True)
+		str(OUT), f"@{objectList}"], cwd=ROOT, capture_output=True, text=True)
 	if relink.returncode != 0:
 		sys.exit("relink failed: " + (relink.stdout + relink.stderr)[-2000:])
 	gamectl("stop")

@@ -86,7 +86,10 @@ def main():
 		f"  command = $python tools/delink/split.py $in --version {version}",
 		"  description = split target objects",
 		"rule relink",
-		f"  command = $python tools/delink/relink.py --version {version} $in",
+		# the object list goes through a response file: on the command line it outgrows Windows' 32767 characters
+		f"  command = $python tools/delink/relink.py --version {version} @$rspfile",
+		"  rspfile = build/relink.rsp",
+		"  rspfile_content = $in_newline",
 		"  description = relink prototypeenginef.dll",
 		"rule verify",
 		f"  command = $python tools/delink/verify.py --version {version} --stamp $out",
