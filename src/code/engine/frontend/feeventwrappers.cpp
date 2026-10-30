@@ -2,14 +2,8 @@
 // registers their methods with the script context instantiates engine::Function's Method and Closure templates for
 // them). The classes themselves are other files'; FEEventHandler has several bases, so its method pointers have two
 // words, FELuaHelper has one base and one-word pointers.
+#include "code/engine/frontend/feluahelpers.h"
 #include "code/engine/function.h"
-
-namespace engine
-{
-	class FELuaHelper
-	{
-	};
-}
 
 template class Method0<engine::FELuaHelper, const char*>;
 template class Method2<engine::FELuaHelper, void, bool, const char*>;

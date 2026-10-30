@@ -7,6 +7,7 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/spawntracks.h"
 #include "code/engine/lightmessages.h"
+#include "code/engine/physics/physicsmessages.h"
 
 namespace engine
 {
@@ -29,6 +30,32 @@ namespace engine
 		GameObjectHandle target;  // +0x28
 		GetLightPropertiesMessage start;  // +0x2C: the properties the light had when the action began
 		float elapsed;  // +0xB8
+	};
+
+	// RTTI: engine::SpawnObjectAction (9 vftable slots, size 0x3C): creates an object and keeps its collision off
+	// against the spawner for a while
+	class SpawnObjectAction : public fight::Action
+	{
+	public:
+		// 0x108F3F40
+		SpawnObjectAction(SpawnObjectTrack* newTrack, GameObjectHandle newOwner);
+		// 0x108F3DD0 (deleting destructor 0x108F3FB0)
+		virtual ~SpawnObjectAction();
+
+		// vftable slot 5 (0x108F3FD0), slot 6 (0x108F4380) and slot 7 (0x108F4310)
+		virtual bool Slot5(int arg, float value);
+		virtual void Slot6();
+		virtual bool Slot7(int arg, float value);
+
+		// 0x108F3E00: gives the spawned object its collision with the spawner back and wakes it up
+		void RestoreCollision();
+
+		core::Link<SpawnObjectTrack> link;  // +0x1C
+		GameObjectHandle owner;  // +0x28
+		GameObjectHandle spawned;  // +0x2C
+		unsigned int intersectionMask;  // +0x30
+		bool collisionChanged;  // +0x34
+		float elapsed;  // +0x38
 	};
 
 	// RTTI: engine::TeleportAction (9 vftable slots, size 0x70): puts an object at a place relative to another one

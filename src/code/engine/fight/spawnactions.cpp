@@ -154,6 +154,100 @@ namespace engine
 		return new LightAction(this);
 	}
 
+	// What the owner is seen as: an IRefCount-derived object whose kind says whether it is a game object
+	struct SpawnOwner : core::IRefCount
+	{
+		int unknown4;
+		unsigned int kind;  // +0x8
+		GameObjectHandle handle;  // +0xC
+	};
+
+	// FUNCTION: ENGINE 0x108F3F40
+	SpawnObjectAction::SpawnObjectAction(SpawnObjectTrack* newTrack, GameObjectHandle newOwner)
+		: fight::Action(0xE00), link(newTrack), owner(newOwner)
+	{
+		intersectionMask = 0;
+		collisionChanged = false;
+		elapsed = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x108F3DD0
+	SpawnObjectAction::~SpawnObjectAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x108F3E00
+	void SpawnObjectAction::RestoreCollision()
+	{
+		SetIntersectionPropertiesMessage restore(intersectionMask, true, 2, false);
+		spawned.Get()->SendMessage(&restore);
+		PhysicsWakeUpMessage wakeUp(false);
+		spawned.Get()->SendMessage(&wakeUp);
+		collisionChanged = false;
+	}
+
+	// FUNCTION: ENGINE 0x108F4380
+	void SpawnObjectAction::Slot6()
+	{
+		GameObject* object = spawned.Get();
+		if (object != 0)
+		{
+			if (collisionChanged)
+			{
+				RestoreCollision();
+			}
+			if (link.object->deleteOnExit)
+			{
+				DeferUpdate(spawned, false);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108F4310
+	bool SpawnObjectAction::Slot7(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		bool running = false;
+		GameObject* object = spawned.Get();
+		if (object != 0)
+		{
+			if (collisionChanged)
+			{
+				elapsed = value + elapsed;
+				if (elapsed >= link.object->collideWithSpawnerDelay)
+				{
+					RestoreCollision();
+				}
+				else
+				{
+					running = true;
+				}
+			}
+			if (link.object->deleteOnExit)
+			{
+				running = true;
+			}
+		}
+		return running;
+	}
+
+	// FUNCTION: ENGINE 0x108F43D0
+	// EQUIVALENT: the engine tests the owner's kind with add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) and
+	// puts the failure return of that test in front of the success path; every call and store is the engine's (49.3 %)
+	fight::Action* SpawnObjectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		SpawnOwner* spawner = (SpawnOwner*)owner;
+		if (spawner == 0 || spawner->kind - 0x10000 > 0x1ffff)
+		{
+			return 0;
+		}
+		GameObjectHandle handle = spawner->handle;
+		return new SpawnObjectAction(this, handle);
+	}
+
 	// FUNCTION: ENGINE 0x108F3400
 	TeleportAction::TeleportAction(TeleportTrack* newTrack, GameObjectHandle newOwner)
 		: fight::Action(0xE00), link(newTrack), owner(newOwner)
