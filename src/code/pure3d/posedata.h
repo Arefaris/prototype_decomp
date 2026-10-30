@@ -39,6 +39,19 @@ namespace pure3d
 	// kept in arrays like the pose's own (16 bytes per joint), the same kinds in a different order
 	struct SkeletonData
 	{
+		// 0x1072D770: the data of a skeleton of that many joints and limbs, its memory allocated
+		SkeletonData(unsigned int jointCount, unsigned int limbCount);
+		// 0x1072D590: the bytes the arrays of a skeleton take
+		unsigned int GetMemorySize();
+		// 0x1072D6C0: lays the arrays out one after the other in a block of that size
+		void SetMemory(void* memory);
+		// 0x1072D5F0: lays the arrays of the parents and the two per-joint flags out from a block and returns the end
+		// of the used part (name guess)
+		unsigned int SetJointArrays(unsigned int memory);
+		// 0x1072D930: gives the memory back
+		void Free();
+		// 0x1072D7D0: the index of the joint of that name, or 0xFFFF
+		unsigned int FindJoint(const core::Name<core::CaseSensitiveKey>& name);
 		// 0x1072D620: the limb count and the word at +0x48 (the skeleton's own data after this part)
 		void GetLimbInfo(SkeletonLimbInfo* out) const;
 
@@ -51,7 +64,9 @@ namespace pure3d
 		math::Vector4* mScales;
 		math::Vector4* mUnknown18;
 		math::Vector4* mUnknown1C;
-		unsigned char unknown20[8];
+		// The rotation and the translation of each limb (mLimbCount of them)
+		math::Quaternion* mLimbRotations;
+		math::Vector4* mLimbTranslations;
 		// The limbs (mLimbCount of them)
 		SkeletonLimb* mLimbs;
 		// The joints' matrices in the file (relative to their parents)
@@ -68,6 +83,8 @@ namespace pure3d
 		signed char* mUnknown40;
 		// The name of every joint
 		core::Name<core::CaseSensitiveKey>* mNames;
+		// The block all the arrays above sit in
+		void* mMemory;
 	};
 
 	// The layout of the arrays of a pose (0x10 bytes): the joint count, the kinds of array that exist, the pose's flags

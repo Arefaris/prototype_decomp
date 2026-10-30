@@ -289,6 +289,30 @@ namespace pure3d
 	};
 
 	class MeshState;
+	class Primitive;
+
+	// The regions a controller follows: room for 16 pointers and the end of the used ones (name guess)
+	struct VertexDeformRegionList
+	{
+		bool IsFull()
+		{
+			return end - items == 16;
+		}
+		void PushBack(VertexDeformRegion* region)
+		{
+			if (!IsFull())
+			{
+				VertexDeformRegion** item = end++;
+				if (item != 0)
+				{
+					*item = region;
+				}
+			}
+		}
+
+		VertexDeformRegion* items[16];
+		VertexDeformRegion** end;
+	};
 
 	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that follows a vertex region. Its slots 24 - 28 are its own.
@@ -318,7 +342,18 @@ namespace pure3d
 		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
 		bool GetUnknownD8();
 
-		unsigned char unknown40[0xA0];
+		// The regions the controller follows (up to 16, +0x40 to the end pointer at +0x80), the key frames, the primitive
+		// and the state it follows with its expression, the offsets it writes for the expression's vertices, the
+		// region's transform (+0x98, 0x40 bytes) and whether anything changed since the last update
+		VertexDeformRegionList mRegions;
+		VertexAnimKeyFrameList* mKeyFrames;
+		Primitive* mPrimitive;
+		MeshState* mMeshState;
+		VertexOffsetList* mExpression;
+		float* mOffsets;
+		unsigned char unknown98[0x40];
+		bool mChanged;
+		unsigned char unknownD9[7];
 	};
 
 	// RTTI: pure3d::VertexAnimController (29 slots, the same bases)
@@ -345,7 +380,15 @@ namespace pure3d
 		// 0x1073E3C0: the byte at +0x50 (name guess)
 		bool GetUnknown50();
 
-		unsigned char unknown40[0x18];
+		// The key frames (+0x40), the primitive and the state it follows (+0x44, +0x48) with its expression, whether the
+		// frame changed since the last update and the frame it showed
+		VertexAnimKeyFrameList* mKeyFrames;
+		Primitive* mPrimitive;
+		MeshState* mMeshState;
+		VertexOffsetList* mExpression;
+		bool mChanged;
+		unsigned char unknown51[3];
+		float mLastFrame;
 	};
 
 	// RTTI: pure3d::ShaderAnimationController (27 slots, bases SimpleFrameController, AnimationFrameController,

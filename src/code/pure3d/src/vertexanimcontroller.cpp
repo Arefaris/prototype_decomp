@@ -1,5 +1,7 @@
 // pure3d::VertexAnimController (unit around 0x1073E340 - 0x1073F220; file name guessed from the class). Names are
 // guesses.
+#include "code/core/refptr.h"
+#include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/primitive.h"
 
 namespace pure3d
@@ -41,5 +43,26 @@ namespace pure3d
 	VertexAnimController* VertexAnimController::Clone()
 	{
 		return new VertexAnimController(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1073E390
+	void VertexAnimController::SetMeshState(MeshState* state)
+	{
+		mPrimitive = state->GetPrimitive();
+		mMeshState = state;
+		mExpression = state->GetExpression();
+		mChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1073E3C0
+	bool VertexAnimController::GetUnknown50()
+	{
+		return mChanged;
+	}
+
+	// FUNCTION: ENGINE 0x1073E490
+	void VertexAnimController::SetKeyFrames(VertexAnimKeyFrameList* keyFrames)
+	{
+		core::RefAssign(mKeyFrames, keyFrames);
 	}
 }
