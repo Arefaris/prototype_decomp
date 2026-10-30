@@ -22,11 +22,15 @@ namespace pure3d
 		{
 		}
 
-		unsigned char unknown0[0x18];
+		// The box and sphere the server tests (the sphere's centre and radius), then the part's flags
+		math::AABB bounds;
 		math::Vector unknown18;
-		int unknown24;
+		float unknown24;
 		PartAnimationFlags unknown28;
 	};
+
+	// 0x112817DC: the state a client is given when it leaves the server (name guess)
+	extern PartAnimationState gDefaultPartAnimationState;
 
 	namespace visibility
 	{
@@ -55,14 +59,73 @@ namespace pure3d
 			unsigned char unknownB0[0x30];
 		};
 
+		// A set of bits as the server keeps them (16 bytes: the words are at +8)
+		struct BitSet
+		{
+			int unknown0;
+			int unknown4;
+			unsigned int* words;
+			int unknownC;
+		};
+
+		// RTTI pure3d::visibility::Server::BitFieldStack: the result sets of the tests (5) and then the flag sets
+		struct BitFieldStack
+		{
+			BitSet results[5];
+			BitSet flags[1];
+		};
+
+		// The bounds and bits of the clients (layout partial; the rest of the class lives in the server's unit)
+		class Server
+		{
+		public:
+			// 0x10726590: how many flag sets there are
+			unsigned int GetFlagSetCount();
+
+			unsigned char unknown0[0x18];
+			math::AABB* boxes;
+			unsigned char unknown1C[8];
+			math::Sphere* spheres;
+			unsigned char unknown28[8];
+			void** userData;
+			unsigned char unknown34[0x14];
+			BitFieldStack* bits;
+			unsigned char unknown4C[0xF4];
+			// How many clients each region holds, and where each region starts in the slots
+			int counts[28];
+			int offsets[14];
+			unsigned int flagSetCount;
+		};
+
 		class Client
 		{
 		public:
 			virtual ~Client();
 
+			// 0x1071A720 / 0x1071A740: the region of the client's index (its top four bits) and its place in the region
+			unsigned int GetRegion() const;
+			unsigned int GetSlot() const;
+
 			// 0x1071AD50 / 0x1071A930
 			void GetState(PartAnimationState* state);
 			void SetState(const PartAnimationState* state);
+			// 0x1071AAA0 / 0x1071AAE0: the bounds the server tests
+			void GetBox(math::AABB* box);
+			void GetSphere(math::Sphere* sphere);
+			// 0x1071A900 / 0x1071A920: the word the owner keeps with the client
+			void SetUserData(void* data);
+			void* GetUserData();
+			// 0x1071A8A0: whether the client is registered and its bit is set in the first result set
+			int IsActive();
+			// 0x1071A8E0: the client's place in its region
+			unsigned int GetRegionIndex() const;
+			// 0x1071A820: takes the client out of the server (name guess)
+			void Unregister();
+			// 0x1071AC60: gives the client the default state and clears its user data and its bits in the result sets
+			// after the first (name guess)
+			void Reset();
+			// 0x1071ACE0: marks the client as registered, optionally resetting it (name guess)
+			void Register(bool reset);
 			// 0x1071AC20: the client's bit in result set `set` (the last visibility test)
 			bool GetResult(int set);
 			// 0x1071ABA0 / 0x1071ABE0: the client's bit in flag set `flag`

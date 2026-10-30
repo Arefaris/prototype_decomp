@@ -2,6 +2,7 @@
 // Only the pieces the passes use are reconstructed. Names are guesses.
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
+#include "code/pure3d/context.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
 
 namespace pure3d
@@ -25,5 +26,12 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10715AC0
 	void ShadowRenderManager::Unknown10715AC0(const void* viewState)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10714D60
+	ContextSettings::Unknown148::Unknown148()
+	{
+		unknown0 = 0x100000;
+		unknown4 = 0;
 	}
 }

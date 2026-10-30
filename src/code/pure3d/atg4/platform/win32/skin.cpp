@@ -7,10 +7,28 @@
 #include "code/core/interlocked.h"
 #include "code/core/refptr.h"
 #include "code/core/thread.h"
+#include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/pddi/dx9/dxindexbuffer.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
+
+// This unit's copies of the reference helpers for the controllers and the key frames of a state
+// FUNCTION: ENGINE 0x1071F480
+template void core::RefAssign<pure3d::VertexAnimKeyFrameList>(pure3d::VertexAnimKeyFrameList*& pointer,
+	pure3d::VertexAnimKeyFrameList* object);
+
+// FUNCTION: ENGINE 0x1071F4B0
+template void core::RefAssign<pure3d::FrameController>(pure3d::FrameController*& pointer,
+	pure3d::FrameController* object);
+
+// FUNCTION: ENGINE 0x1071F4E0
+template void core::SafeRelease<pure3d::ExpressionAnimationController>(
+	pure3d::ExpressionAnimationController*& object);
+
+// FUNCTION: ENGINE 0x1071F500
+template void core::SafeRelease<pure3d::VertexAnimKeyFrameList>(pure3d::VertexAnimKeyFrameList*& object);
 
 namespace pure3d
 {
@@ -1449,7 +1467,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x1071B210
-	ExpressionState* SkinState::GetExpressionState()
+	VertexAnimKeyFrameList* SkinState::GetExpressionState()
 	{
 		return expressionState;
 	}
@@ -1600,6 +1618,18 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x1071EFD0
+	void Skin::LockIndices(dxIndexBufferState* lock)
+	{
+		indexBuffer->Lock(lock);
+	}
+
+	// FUNCTION: ENGINE 0x1071EFF0
+	void Skin::UnlockIndices()
+	{
+		indexBuffer->Unlock();
+	}
+
 	// FUNCTION: ENGINE 0x1071F000
 	void Skin::FillBufferDesc(ShaderParameters* parameters)
 	{
@@ -1734,9 +1764,17 @@ namespace pure3d
 		}
 	}
 
-	// 0x1071F860 (SkinState::SetController1) is not done: it is the same body as 0x1071F880 but its
-	// core::RefAssign copy is the one at 0x10707710 (another unit), so controller1 has to be declared with the type
-	// that instantiation belongs to before it can be written.
+	// FUNCTION: ENGINE 0x1071F860
+	void SkinState::SetController1(FrameController* value)
+	{
+		core::RefAssign(controller1, (ShaderAnimationController*)value);
+	}
+
+	// FUNCTION: ENGINE 0x1071F840
+	void SkinState::SetExpressionState(VertexAnimKeyFrameList* list)
+	{
+		core::RefAssign(expressionState, list);
+	}
 
 	// FUNCTION: ENGINE 0x1071F880
 	void SkinState::SetController2(FrameController* value)
@@ -1976,4 +2014,65 @@ namespace pure3d
 		return unknown2AC;
 	}
 
+
+	// FUNCTION: ENGINE 0x1071F900
+	void SkinState::Unknown9()
+	{
+		PrimitiveState::Unknown9();
+		if (jobPending)
+		{
+			((PrimBuffer*)mPoses[mPoseIndex])->Unlock();
+			_InterlockedDecrement((long volatile*)&gSkinJobCount);
+			jobPending = false;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071FA00
+	void Skin::LockBuffer(dxVertexDeclaration* lock)
+	{
+		if (buffer != 0)
+		{
+			buffer->Lock(lock, 0);
+		}
+		else
+		{
+			dxVertexDeclaration empty;
+			*lock = empty;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071FA50
+	void Skin::DescribeUnknown264(dxVertexDeclaration* lock)
+	{
+		lock->unknown108 = (int)unknown264;
+		lock->unknown0 = stateParameters.unknown0;
+		lock->unknown4 = stateParameters.unknown4;
+		for (int i = 0; i < stateParameters.unknown4; i++)
+		{
+			lock->elements[i] = stateParameters.parameters[i];
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071FAF0
+	void Skin::DescribeSource(dxVertexDeclaration* lock)
+	{
+		unsigned int i = 0;
+		if (unknown138 != 0)
+		{
+			lock->unknown0 = parameters.unknown0;
+			lock->unknown4 = parameters.unknown4;
+			lock->unknown108 = (int)unknown138;
+			lock->unknown110 = 0;
+			for (; i < (unsigned int)parameters.unknown4; i++)
+			{
+				lock->elements[i] = parameters.parameters[i];
+			}
+		}
+		else
+		{
+			lock->unknown108 = 0;
+			lock->unknown0 = 0;
+			lock->unknown4 = 0;
+		}
+	}
 }

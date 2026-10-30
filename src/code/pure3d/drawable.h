@@ -37,6 +37,7 @@ namespace pure3d
 	unsigned int GetCurrentFrame();
 
 	class dxShader;
+	class DrawablePart;
 
 	// A part's binding (a 0x30-byte object made by 0x10706550): its shader parameters and, at +0x28, the flags
 	// the part's render state follows
@@ -46,8 +47,16 @@ namespace pure3d
 		unsigned char unknown0[0x10];
 		// the shader the part is drawn with; its inputs take the part's parameters
 		dxShader* shader;
-		unsigned char unknown14[0x14];
+		unsigned char unknown14[0xC];
+		// How many parts use the binding
+		int users;
+		unsigned char unknown24[4];
 		core::BitField<unsigned int> flags;
+
+		// 0x10704AF0 / 0x10704B00: a part takes the binding / lets go of it (the count is left alone without a part;
+		// names guessed)
+		void Attach(DrawablePart* part);
+		void Detach(DrawablePart* part);
 	};
 
 	// The data the device draws a part with (0x2C bytes; the second word is part of the sort key)

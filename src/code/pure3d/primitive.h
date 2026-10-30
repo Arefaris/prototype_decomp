@@ -10,6 +10,7 @@
 #include "code/core/name.h"
 #include "code/math/pddicolour.h"
 #include "code/math/aabb.h"
+#include "code/math/sphere.h"
 #include "code/math/matrix.h"
 #include "code/pure3d/animation.h"
 #include "code/math/vector.h"
@@ -22,6 +23,8 @@
 namespace pure3d
 {
 	class PartBinding;
+	class dxVertexBuffer;
+	class dxIndexBuffer;
 	class Shader;
 	class PrimBuffer;
 	class PrimitiveState;
@@ -97,6 +100,8 @@ namespace pure3d
 	public:
 		// 0x1073F590: room for the offsets of count vertices, of the kinds the flags name (bits 4 - 6)
 		VertexOffsetList(int count, unsigned int flags);
+		// 0x1073F660: a copy (the same offsets, new storage)
+		VertexOffsetList(const VertexOffsetList& other);
 		// 0x1073F220
 		void Prepare();
 
@@ -109,7 +114,6 @@ namespace pure3d
 		unsigned char unknown20[0x18];
 	};
 
-	class ExpressionState;
 	class dxVertexDeclaration;
 	class dxIndexBufferState;
 	struct IndexBufferDescription;
@@ -122,9 +126,9 @@ namespace pure3d
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
 		// 0x10731700: prepares the expression and mixes the state into it
-		void Apply(VertexOffsetList* expression, ExpressionState* state);
+		void Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 		// 0x10731630
-		void Mix(VertexOffsetList* expression, ExpressionState* state);
+		void Mix(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 
 		void* unknown10;
 	};
@@ -176,6 +180,12 @@ namespace pure3d
 		void SetBindingSource(void* source);
 	};
 
+	// RTTI: pure3d::SimpleFrameController (bases AnimationFrameController, FrameController): the base of the
+	// controllers that animate one thing (a shader, a vertex region, a vertex animation). Only the type is used here.
+	class SimpleFrameController : public FrameController
+	{
+	};
+
 	struct JointChannels;
 	struct PoseAnimationInfo;
 
@@ -208,7 +218,7 @@ namespace pure3d
 
 	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that follows a vertex region. Its slots 24 - 28 are its own.
-	class VertexRegionAnimController : public FrameController
+	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
 		virtual void Unknown24();
@@ -226,10 +236,12 @@ namespace pure3d
 		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
 		// 0x1072EC30: makes the controller follow the state's mesh
 		void SetMeshState(MeshState* state);
+		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
+		bool GetUnknownD8();
 	};
 
 	// RTTI: pure3d::VertexAnimController (29 slots, the same bases)
-	class VertexAnimController : public FrameController
+	class VertexAnimController : public SimpleFrameController
 	{
 	public:
 		virtual void Unknown24();
@@ -243,11 +255,13 @@ namespace pure3d
 		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
 		// 0x1073E390: makes the controller follow the state's mesh
 		void SetMeshState(MeshState* state);
+		// 0x1073E3C0: the byte at +0x50 (name guess)
+		bool GetUnknown50();
 	};
 
 	// RTTI: pure3d::ShaderAnimationController (27 slots, bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that animates a mesh's shader (only its type is used here)
-	class ShaderAnimationController : public FrameController
+	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
 		virtual ShaderAnimationController* Clone();
@@ -288,6 +302,8 @@ namespace pure3d
 	struct PrimitiveFlagWord
 	{
 		void SetBit(int bit, bool on);
+		// 0x10433DA0 (another unit's copy)
+		bool Test(int bit);
 
 		int bits;
 	};
@@ -415,7 +431,6 @@ namespace pure3d
 	};
 
 	// A mesh: the primitive groups its geometry is cut into (slot 3 draws it, slot 7 fills the part's batch).
-	// The destructor is declared first and not defined here, so that the vftable stays with the engine's unit.
 	class Mesh : public Primitive
 	{
 	public:
@@ -423,10 +438,16 @@ namespace pure3d
 		// streams its states keep (none for a mesh without a state), the last argument the prim group's word at +0xC
 		Mesh(const ShaderParameters* parameters, const ShaderParameters* stateParameters,
 			const IndexBufferDescription* indices, int unknown);
+		// 0x10707840
 		virtual ~Mesh();
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
+		virtual void Unknown4(Shader* shader);
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void GetCentre(math::Vector* centre);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		virtual int GetUnknown9();
+		virtual void SetUnknown10(int value);
 		// Slots 11 - 14 are the mesh's own: the first two set a flag byte (+0x174 / +0x175) and refresh the mesh
 		// (0x10708010 / 0x10708030)
 		virtual void SetFlag174(bool value);
@@ -449,13 +470,36 @@ namespace pure3d
 		bool HasUnknown140();
 		void Unknown107074B0();
 
-		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
-		// groups live in
+		// The word the batch carries (the kind of primitive; only its low half is copied), then the vertex buffer and
+		// the index buffer the groups live in (their types are the device's, the primitives' draw and batch code
+		// reach them through PrimGroupList)
 		unsigned int unknown1C;
-		PrimGroupList* unknown20;
-		PrimGroupList* unknown24;
-		// The rest of the 0x17C bytes (the word at +0x140, the format word at +0x148, the flags at +0x174 / +0x175)
-		unsigned char unknown28[0x17C - 0x28];
+		union
+		{
+			PrimGroupList* unknown20;
+			dxVertexBuffer* vertexBuffer;
+		};
+		union
+		{
+			PrimGroupList* unknown24;
+			dxIndexBuffer* indexBuffer;
+		};
+		// The streams the mesh's states keep (0x10707B00 copies it); the loader fills the vertices behind the pointer
+		// at +0x140 (a new[] block of unknown144 bytes)
+		ShaderParameters stateParameters;
+		void* unknown140;
+		int unknown144;
+		// The format word of the first description (bit 4: +0x1000: bits 6 and 7 of the flags)
+		unsigned int unknown148;
+		math::AABB bounds;
+		math::Sphere sphere;
+		bool unknown174;
+		bool unknown175;
+		int unknown178;
+
+	private:
+		// 0x10707BB0: takes the primitive's flags from the shader's (name guess)
+		void SetFlagsFromShader();
 	};
 
 	// Particle system parameter names (globals of the particle module at 0x1127F0B8 - 0x1127F338; set up from
@@ -547,6 +591,12 @@ namespace pure3d
 		// Makes the particles of the update data; unknownE4 of the state is the second argument
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 
+		// 0x10740460: the emitter transform, handed on to the generator
+		void SetTransform(const math::Matrix& newTransform);
+		// 0x10742720: forgets the particles it made (name guess)
+		void Unknown10742720();
+		// 0x10741080: whether the two counts at +0x2F4 / +0x2F8 differ (name guess)
+		bool Unknown10741080();
 		// 0x10740E50: the generator's current transform
 		void GetUnknown10740E50(math::Matrix* out);
 		// 0x107404B0
@@ -592,7 +642,20 @@ namespace pure3d
 	public:
 		// 0x10707970 (0x3C bytes): a state of the mesh; the description makes the two vertex buffers it keeps, the
 		// last argument is held at +0x2C
-		MeshState(Mesh* mesh, const ShaderParameters* vertices, core::IRefCount* unknown);
+		MeshState(Mesh* mesh, const ShaderParameters* vertices, VertexOffsetList* expression);
+		// 0x10707CA0: a copy of a state (its controllers are cloned, its vertex buffers made again)
+		MeshState(const MeshState& other);
+		// 0x10707A00
+		virtual ~MeshState();
+		// Slots 3 - 8: 0x10707E70 makes a copy, 0x107074F0 advances the controllers (and swaps the vertex buffers),
+		// 0x107075A0 and 0x107075F0 pass their reset and question on, 0x10707650 gives the box of the mesh,
+		// 0x10707690 sets the source the controllers bind to
+		virtual PrimitiveState* Unknown3();
+		virtual void Update(float dt);
+		virtual void Unknown5();
+		virtual bool Unknown6();
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void Unknown8(void* source);
 		// 0x10707A60 / 0x10707AA0 / 0x10707AC0: take a reference to the controller at +0x1C / +0x24 / +0x28
 		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
@@ -601,14 +664,19 @@ namespace pure3d
 		FrameController* GetController1();
 		FrameController* GetController2();
 		FrameController* GetController3();
+		// 0x10707640: the offsets of the expression the controllers mix into the state
+		VertexOffsetList* GetExpression();
 
 		unsigned char unknown10[0xC];
-		FrameController* controller1;
-		int unknown20;
-		FrameController* controller2;
-		FrameController* controller3;
-		// The reference at +0x2C, the two vertex buffers at +0x30 / +0x34 and a word
-		unsigned char unknown2C[0x10];
+		ShaderAnimationController* controller1;
+		ShaderAnimationController* controller20;
+		SimpleFrameController* controller2;
+		VertexRegionAnimController* controller3;
+		// The offsets of the expression (+0x2C), the two vertex buffers the state draws from (+0x30 / +0x34; the part
+		// draws the one that is current) and which of them is current
+		VertexOffsetList* expression;
+		dxVertexBuffer* buffers[2];
+		int unknown38;
 	};
 
 	class Skin;
@@ -742,7 +810,7 @@ namespace pure3d
 		void* GetUnknown70();
 		// 0x1071B200, 0x1071B210: the expression and its state at +0x74 / +0x78
 		VertexOffsetList* GetExpression();
-		ExpressionState* GetExpressionState();
+		VertexAnimKeyFrameList* GetExpressionState();
 		// 0x1071B220, 0x1071B230
 		FrameController* GetController1();
 		FrameController* GetController2();
@@ -793,9 +861,7 @@ namespace pure3d
 		void SubmitTask();
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
-		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0 (only the second is
-		// reconstructed: the first one's core::RefAssign copy lives in another unit, so its member's type is not
-		// known yet)
+		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0
 		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
 
@@ -809,7 +875,7 @@ namespace pure3d
 		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
 		Pose* pose;
 		VertexOffsetList* expression;
-		ExpressionState* expressionState;
+		VertexAnimKeyFrameList* expressionState;
 		unsigned char unknown7C[0x21C];
 		bool unknown298;
 		unsigned char unknown299[0x13];
@@ -825,7 +891,7 @@ namespace pure3d
 		int mFrame;
 		int mPoseIndex;
 		math::AABB bounds;
-		FrameController* controller1;
+		ShaderAnimationController* controller1;
 		FrameController* controller2;
 		// The positions, normals and tangents the job writes
 		SkinStream streams[3];
@@ -892,9 +958,16 @@ namespace pure3d
 		void* unknown140;
 		// 0x144: the vertex buffer the skinned vertices go into
 		PrimBuffer* buffer;
-		// 0x148: the group list of this skin's geometry (the batch is prepared through it)
-		PrimGroupList* stream;
-		unsigned char unknown14C[0x120];
+		// 0x148: the group list of this skin's geometry (the batch is prepared through it): the index buffer
+		union
+		{
+			PrimGroupList* stream;
+			dxIndexBuffer* indexBuffer;
+		};
+		// 0x14C: the streams the skin's states keep (0x1071FA50 describes them, with the block at +0x264)
+		ShaderParameters stateParameters;
+		void* unknown264;
+		int unknown268;
 		math::AABB bounds;
 		math::Vector4 centre;
 		int unknown294;
@@ -1038,6 +1111,16 @@ namespace pure3d
 		bool GetUnknown4BC();
 		// 0x10709D30: the emitter transform (handed on to the generator)
 		void SetTransform(const math::Matrix& transform);
+		// Slots 4 and 6: 0x10709C40 advances the controllers while the time step is not zero, 0x10709CF0 answers whether
+		// the update controller has finished and the generator has nothing left (names guessed)
+		virtual void Update(float dt);
+		virtual bool Unknown6();
+		// Slots 5 and 7: 0x1070D220 resets the generator and the controller, 0x1070D9A0 gives the box around the particles
+		// (the parent's when it is inherited)
+		virtual void Unknown5();
+		virtual void GetBoundingBox(math::AABB* box);
+		// 0x1070C340 (not reconstructed)
+		void Unknown1070C340();
 
 		void SetUnknown49C(float value)
 		{
@@ -1204,7 +1287,10 @@ namespace pure3d
 		math::Matrix transform;
 		unsigned char unknown474[0x1C];
 		bool unknown490;
-		unsigned char unknown491[0xB];
+		bool unknown491;
+		unsigned char unknown492[2];
+		float unknown494;
+		float unknown498;
 		float unknown49C;
 		float unknown4A0;
 		float unknown4A4;

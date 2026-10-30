@@ -34,6 +34,8 @@ namespace pure3d
 		// 0x102E8BB0
 		ShaderParameters();
 		ShaderParameters& operator=(const ShaderParameters& other);
+		// 0x10611B10: the bytes element `index` takes in a vertex (its component count times the size of its kind)
+		int GetElementSize(unsigned int index);
 
 		int unknown0;
 		int unknown4;
