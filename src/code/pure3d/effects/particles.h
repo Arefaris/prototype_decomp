@@ -8,6 +8,11 @@
 
 #include "code/pure3d/effects/particledata.h"
 
+namespace core
+{
+	class AsyncTaskCallback;
+}
+
 namespace pure3d
 {
 	// 0x107837F0: ages every particle by dt; one that has run out starts again with the life time and takes the
@@ -44,6 +49,75 @@ namespace pure3d
 	void UpdateKernel24(float dt, unsigned int count, int unknown2, void* a, void* b);
 	void UpdateKernel25(float dt, unsigned int count, int unknown2, void* a, void* b);
 	void UpdateKernel26(float dt, unsigned int count, int unknown2, void* a, void* b, void* c, void* d, void* e, void* f);
+
+	// One link of the chain of batches the particle task runs a kernel on (0x5C bytes): the arrays the kernel reads
+	// and writes, the time step, the number of particles, a value of the state and the chain's result, which the
+	// first link keeps
+	struct ParticleKernelBatch
+	{
+		void* buffers[18];
+		float dt;
+		unsigned int count;
+		int unknown50;
+		int result;
+		ParticleKernelBatch* next;
+	};
+
+	// The task functions that run one kernel on a chain of batches (the unit of the particle task manager)
+	// 0x1073C1C0
+	void RunUpdateKernel00(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C210
+	void RunUpdateKernel01(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C270
+	void RunUpdateKernel02(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C2C0
+	void RunUpdateKernel03(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C320
+	void RunUpdateKernel04(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C370
+	void RunUpdateKernel05(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C3D0
+	void RunUpdateKernel06(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C430
+	void RunUpdateFrameBlend(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C490
+	void RunUpdateKernel08(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C4F0
+	void RunUpdateKernel09(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C550
+	void RunUpdateKernel10(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C5B0
+	void RunUpdateKernel11(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C620
+	void RunUpdateKernel12(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C6A0
+	void RunUpdateKernel13(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C720
+	void RunUpdateKernel14(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C7B0
+	void RunUpdateKernel15(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C840
+	void RunUpdateKernel16(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C8D0
+	void RunUpdateKernel21(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C920
+	void RunUpdateKernel22(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C990
+	void RunUpdateKernel17(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073C9F0
+	void RunUpdateKernel23(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CA40
+	void RunUpdateKernel24(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CA90
+	void RunUpdateKernel25(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CAE0
+	void RunUpdateNothing(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CB30
+	void RunUpdateKernel26(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CB90
+	void RunUpdateKernel19(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
+	// 0x1073CC10
+	void RunUpdateKernel20(ParticleKernelBatch* head, core::AsyncTaskCallback* callback);
 }
 
 #endif

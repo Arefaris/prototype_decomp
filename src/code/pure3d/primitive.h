@@ -14,6 +14,7 @@
 #include "code/math/matrix.h"
 #include "code/pure3d/animation.h"
 #include "code/math/vector.h"
+#include "code/math/vector2.h"
 #include "code/math/vector4.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
@@ -93,25 +94,75 @@ namespace pure3d
 	};
 
 	// RTTI: pure3d::VertexOffsetList (base RefCounted, 3 slots, vftable 0x10E5DE74; 0x38 bytes): the offsets a
-	// mesh's or a skin's state adds to the vertices (the expressions are mixed into it), three floats a vertex each,
-	// null when the list has none of a kind. The rest of the class lives in its own unit.
+	// mesh's or a skin's state adds to the vertices (the expressions are mixed into it). Each kind has one entry per
+	// vertex and is null when the list has none of that kind; the flag word at +8 says which kinds exist (the bits in
+	// the comments below).
 	class VertexOffsetList : public RefCounted
 	{
 	public:
-		// 0x1073F590: room for the offsets of count vertices, of the kinds the flags name (bits 4 - 6)
+		// A colour offset: the signed amounts added to the four bytes of a vertex colour (low byte first)
+		struct ColourOffset
+		{
+			ColourOffset()
+			{
+				x = 0;
+				y = 0;
+				z = 0;
+				w = 0;
+			}
+			// 0x1073EDA0: does nothing (it makes the arrays of these carry a count in front)
+			~ColourOffset()
+			{
+			}
+
+			short x;
+			short y;
+			short z;
+			short w;
+		};
+
+		// 0x1073F590: room for the offsets of count vertices, of the kinds the flags name (bits 4, 5, 14, 15, then one
+		// bit for each of the four texture coordinate sets from bit 0 and one for each of the two colour sets from bit 6)
 		VertexOffsetList(int count, unsigned int flags);
 		// 0x1073F660: a copy (the same offsets, new storage)
 		VertexOffsetList(const VertexOffsetList& other);
+		// 0x1073F7E0
+		virtual ~VertexOffsetList();
 		// 0x1073F220
 		void Prepare();
+		// 0x1073F880: the flag word
+		unsigned int GetFlags();
+		// 0x1073F300 / 0x1073F350 / 0x1073F3A0 / 0x1073F400: make the storage of a kind (when it has none)
+		void AllocatePositions();
+		void AllocateNormals();
+		void AllocateUnknown18();
+		void AllocateTangents();
+		// 0x1073F330 / 0x1073F380 / 0x1073F3E0 / 0x1073F440: let go of it
+		void FreePositions();
+		void FreeNormals();
+		void FreeUnknown18();
+		void FreeTangents();
+		// 0x1073F460 / 0x1073F4D0 / 0x1073F540: the texture coordinate set or colour set with that number
+		void AllocateTexCoords(int set);
+		void AllocateColours(int set);
+		void FreeColours(int set);
+		// 0x1073EF40 / 0x1073EFB0 / 0x1073F020 / 0x1073F090: move the offset of a vertex towards the given one by weight
+		void BlendPosition(int vertex, const math::Vector* target, float weight);
+		void BlendNormal(int vertex, const math::Vector* target, float weight);
+		void BlendUnknown18(int vertex, const math::Vector* target, float weight);
+		void BlendTangent(int vertex, const math::Vector* target, float weight);
+		// 0x1073F100 / 0x1073F150
+		void BlendTexCoords(int vertex, const math::Vector2* target, int set, float weight);
+		void BlendColour(int vertex, const ColourOffset* target, int set, float weight);
 
-		int unknown8;
+		unsigned int flags;
 		int count;
-		const float* positionOffsets;
-		const float* normalOffsets;
-		unsigned char unknown18[4];
-		const float* tangentOffsets;
-		unsigned char unknown20[0x18];
+		math::Vector* positionOffsets;
+		math::Vector* normalOffsets;
+		math::Vector* unknown18;
+		math::Vector* tangentOffsets;
+		math::Vector2* texCoordOffsets[4];
+		ColourOffset* colourOffsets[2];
 	};
 
 	class dxVertexDeclaration;
