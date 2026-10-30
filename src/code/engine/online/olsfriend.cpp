@@ -1,11 +1,52 @@
 // engine::OLSFriend: see olsfriend.h.
 #include "code/engine/online/olsfriend.h"
+#include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/online/ols.h"
 #include "code/core/strings.h"
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x108EA260
+	OLSFriendEntry::OLSFriendEntry() : userId(-1), flags(0), unknown10(-1)
+	{
+		name.Allocate(0x40);
+		status.Allocate(0x100);
+		Reset();
+	}
+
+	// FUNCTION: ENGINE 0x108EADF0
+	OLSFriend::OLSFriend(unsigned int newCount)
+	{
+		unknown4 = newCount;
+		userCount = 0;
+		unknown10 = -1;
+		state = 4;
+		entries = new OLSFriendEntry[newCount];
+		ResetEntries();
+		LuaScriptManager* scripts = GetScriptManager();
+		scripts->SetOwner(this);
+		scripts->RegisterMethod("ols_GetUserId", this, &OLSFriend::GetUserId);
+		scripts->RegisterMethod("ols_ShowFriends", this, &OLSFriend::Slot2);
+		scripts->RegisterMethod("ols_GetPresence", this, &OLSFriend::GetPresence);
+		scripts->RegisterMethod("ols_GetAttributes", this, &OLSFriend::GetAttributes);
+		scripts->RegisterMethod("ols_GetNumUsers", this, &OLSFriend::GetNumUsers);
+		scripts->RegisterMethod("ols_BlackListUser", this, &OLSFriend::BlackListUser);
+		scripts->RegisterMethod("ols_MuteUser", this, &OLSFriend::MuteUser);
+		scripts->RegisterMethod("ols_SendFriendRequest", this, &OLSFriend::SendFriendRequest);
+		scripts->RegisterMethod("ols_AcceptFriendRequest", this, &OLSFriend::AcceptFriendRequest);
+		scripts->RegisterMethod("ols_DeclineFriendRequest", this, &OLSFriend::DeclineFriendRequest);
+		scripts->RegisterMethod("ols_RemoveFriendRequest", this, &OLSFriend::RemoveFriendRequest);
+		scripts->RegisterMethod("ols_RequestNameSearch", this, &OLSFriend::Slot21);
+		scripts->RegisterMethod("ols_LoadUsers", this, &OLSFriend::LoadUsers);
+		scripts->RegisterMethod("ols_LoadUserSearch", this, &OLSFriend::LoadUserSearch);
+		scripts->RegisterMethod("ols_RequestFriendStatus", this, &OLSFriend::RequestFriendStatus);
+		scripts->RegisterMethod("ols_SendGameInvite", this, &OLSFriend::SendGameInvite);
+		scripts->RegisterMethod("ols_AcceptGameInvite", this, &OLSFriend::AcceptGameInvite);
+		scripts->RegisterMethod("ols_DeclineGameInvite", this, &OLSFriend::DeclineGameInvite);
+		scripts->ClearOwner();
+	}
+
 	// FUNCTION: ENGINE 0x108E9C30
 	OLSFriendEntry::~OLSFriendEntry()
 	{
@@ -240,3 +281,6 @@ namespace engine
 // FUNCTION: ENGINE 0x108EA4D0
 // FUNCTION: ENGINE 0x108EA4E0
 // FUNCTION: ENGINE 0x108EA8A0
+// FUNCTION: ENGINE 0x108EA250
+// FUNCTION: ENGINE 0x108EA240
+// FUNCTION: ENGINE 0x108EA2B0

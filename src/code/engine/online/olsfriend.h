@@ -15,6 +15,8 @@ namespace engine
 		~WideStringBuffer();
 		// 0x108A5670: the text as characters, cut to the size
 		void CopyTo(char* destination, int size);
+		// 0x108A55B0: makes room for that many characters
+		void Allocate(int capacity);
 		// 0x108A5640: takes the characters as the text
 		void Set(const char* text);
 
@@ -24,6 +26,8 @@ namespace engine
 	// What the friend list keeps for one friend (0x1C bytes; the destructor is 0x108E9C30)
 	struct OLSFriendEntry
 	{
+		// 0x108EA260
+		OLSFriendEntry();
 		~OLSFriendEntry();
 		// 0x108E9C50: empties the entry and lets the user list know it no longer needs the user
 		void Reset();
@@ -70,6 +74,8 @@ namespace engine
 	class OLSFriend
 	{
 	public:
+		// 0x108EADF0: makes room for that many users and registers the script methods
+		explicit OLSFriend(unsigned int newCount);
 		// 0x108EA8A0 is the deleting destructor, 0x108EA320 the body
 		virtual ~OLSFriend();
 		// vftable slots 1 - 22: the defaults (0x108EA390 - 0x108EA4E0)
@@ -164,6 +170,8 @@ namespace engine
 		// 0x108EA170 / 0x108EA1B0: slots 19 and 18 with the id of the invitation the selected user sent
 		void AcceptGameInvite();
 		void DeclineGameInvite();
+		// 0x108EA100: sends an invitation with that text (not reconstructed)
+		void SendGameInvite(const char* text);
 		// 0x108E9F70: loads the users of a kind (the state follows it) and 0x108EA4F0: the same without a name
 		void LoadUserSearch(int kind, const char* name);
 		void LoadUsers(int kind);
