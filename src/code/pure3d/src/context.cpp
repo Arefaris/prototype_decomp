@@ -3,6 +3,7 @@
 #include "code/container/string.h"
 #include "code/content/chunkhandler.h"
 #include "code/content/loadinventory.h"
+#include "code/content/loadmanager.h"
 #include "code/content/memorystream.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
@@ -37,16 +38,6 @@ extern "C"
 // pure3d::TextureFontLoader for the chunk 0x22000, 0x10 bytes), the load under way and the file the font is loaded out of
 namespace content
 {
-	// A load under way
-	class LoadJob : public core::IRefCount
-	{
-	public:
-		// 0x106089E0: 3 once the load is done
-		int GetStatus();
-		// 0x106089D0: the inventory the load put its objects in
-		LoadInventory* GetInventory();
-	};
-
 	// 0x106075F0: lets the loads under way go on
 	void UpdateLoads();
 }

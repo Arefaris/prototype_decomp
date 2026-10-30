@@ -3,6 +3,7 @@
 // thread that unpacks compressed files are in front of and behind it).
 #include "code/content/chunkhandler.h"
 #include "code/content/loadmanager.h"
+#include "code/content/streams.h"
 #include "code/core/file/filepath.h"
 #include "code/core/heap.h"
 #include "code/core/file/filesystem.h"
@@ -10,6 +11,7 @@
 #include "code/core/memory/memoryspace.h"
 #include "code/core/memutils.h"
 #include "code/core/strings.h"
+#include <new>
 #include <string.h>
 
 namespace content
@@ -505,12 +507,12 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x1060AA40
-	LoadStream::LoadStream(LoadRequest* request, int unused, int mode)
+	LoadStream::LoadStream(LoadArguments* request, int unused, int mode)
 	{
 		Reset();
 		buffered = mode == 1;
 		blocking = request->blocking;
-		Open(request->Data(), true);
+		Open(request->path.Data(), true);
 	}
 
 	// FUNCTION: ENGINE 0x1060AA90
@@ -642,5 +644,185 @@ namespace content
 			}
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1060ACC0
+	LoadStreamWrapper::LoadStreamWrapper(LoadStream* newStream)
+	{
+		stream = newStream;
+		stream->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x1060A920
+	LoadStreamWrapper::~LoadStreamWrapper()
+	{
+		stream->Release();
+	}
+
+	// FUNCTION: ENGINE 0x1060B380
+	void LoadStreamWrapper::Read(void* destination, unsigned int size)
+	{
+		stream->Read(destination, size, 1, 1);
+	}
+
+	// FUNCTION: ENGINE 0x1060A930
+	unsigned int LoadStreamWrapper::GetPosition()
+	{
+		return stream->GetPosition();
+	}
+
+	// FUNCTION: ENGINE 0x1060B3A0
+	void LoadStreamWrapper::Seek(unsigned int position)
+	{
+		stream->Skip(position - stream->GetPosition());
+	}
+
+	// FUNCTION: ENGINE 0x1060A940
+	unsigned int LoadStreamWrapper::GetSize()
+	{
+		return stream->GetSize();
+	}
+
+	// FUNCTION: ENGINE 0x1060ACE0
+	SaveStream::SaveStream()
+	{
+		file = 0;
+		buffer = 0;
+		used = 0;
+		capacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x1060A960
+	bool SaveStream::Open(const char* path, unsigned int bufferSize)
+	{
+		if (bufferSize != 0)
+		{
+			buffer = new unsigned char[bufferSize];
+			capacity = bufferSize;
+		}
+		core::FileSystemOpenFile(&file, core::FilePath(path), true, 3, 1, 0, 1, 1, 0);
+		if (!file->IsOpen())
+		{
+			file->Release();
+			file = 0;
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1060A9D0
+	void SaveStream::Flush()
+	{
+		if (used != 0)
+		{
+			file->WriteWait(buffer, used, 1);
+			used = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1060AD00
+	SaveStream::~SaveStream()
+	{
+		if (file != 0)
+		{
+			Flush();
+			file->CommitWait();
+			file->Release();
+			file = 0;
+			if (buffer != 0)
+			{
+				delete[] buffer;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1060AD50
+	void SaveStream::Write(const void* source, unsigned int size)
+	{
+		if (buffer == 0)
+		{
+			file->WriteWait(source, size, 1);
+			return;
+		}
+		if (size > capacity)
+		{
+			Flush();
+			file->WriteWait(source, size, 1);
+			return;
+		}
+		if (size > capacity - used)
+		{
+			Flush();
+		}
+		memcpy(buffer + used, source, size);
+		used += size;
+	}
+
+	// FUNCTION: ENGINE 0x1060ADD0
+	unsigned int SaveStream::GetPosition()
+	{
+		unsigned int position;
+		Flush();
+		file->GetPositionWait(&position);
+		return position;
+	}
+
+	// FUNCTION: ENGINE 0x1060ADF0
+	void SaveStream::Seek(unsigned int position)
+	{
+		Flush();
+		file->SetPositionWait(position);
+	}
+
+	// FUNCTION: ENGINE 0x1060AE10
+	unsigned int SaveStream::GetSize()
+	{
+		unsigned int size;
+		Flush();
+		file->GetSizeWait(&size);
+		return size;
+	}
+
+	// FUNCTION: ENGINE 0x1060AE30
+	void CreateLoadStream(LoadStream** result, LoadArguments* arguments, int unused, int mode)
+	{
+		*result = new LoadStream(arguments, unused, mode);
+		(*result)->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x1060AE70
+	void CreateLoadStream(LoadStream** result, const char* path, LoadJob* job, int mode)
+	{
+		*result = new LoadStream(path, (int)job, mode);
+		(*result)->AddRef();
+		if (job != 0)
+		{
+			job->SetStream(*result);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1060AEC0
+	void CreateLoadStream(LoadStream** result, core::IFile* file, LoadJob* job, int mode, int blocking)
+	{
+		*result = new LoadStream(file, (int)job, mode, blocking);
+		(*result)->AddRef();
+		if (job != 0)
+		{
+			job->SetStream(*result);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1060AF10
+	void CreateLoadStream(LoadStream** result, const void* data, unsigned int size)
+	{
+		*result = new LoadStream(data, size);
+		(*result)->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x1060B200
+	void CreateLoadStream(LoadStream** result, CompressedReader* compressed, int offset, int size, int blocking)
+	{
+		*result = new LoadStream(compressed, offset, size, blocking);
+		(*result)->AddRef();
 	}
 }

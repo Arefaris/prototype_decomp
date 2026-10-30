@@ -37,9 +37,10 @@ namespace content
 	};
 
 	// What the load manager reads a stream from: the path as a 256 character string, then the places the loaded
-	// objects go to (the engine builds it on the stack with the vftable of container::StringC<256>; names guessed)
-	struct LoadRequest : public container::StringC<256>
+	// objects go to (the engine builds it on the stack; names guessed)
+	struct LoadArguments
 	{
+		container::StringC<256> path;
 		LoadStream* stream;
 		LoadInventory* inventory;
 		int heap;
@@ -60,7 +61,7 @@ namespace content
 		// 0x1060AA00: opens the file of a path (reads it through the buffers when mode is 1)
 		LoadStream(const char* path, int unused, int mode);
 		// 0x1060AA40: opens the file a load request names
-		LoadStream(LoadRequest* request, int unused, int mode);
+		LoadStream(LoadArguments* request, int unused, int mode);
 		// 0x1060AA90: reads through an open file
 		LoadStream(core::IFile* newFile, int unused, int mode, int blocking);
 		// 0x1060AF70: reads a compressed file's data (offset and size are those of the part of it to read)
