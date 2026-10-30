@@ -10,6 +10,7 @@
 #include "code/core/name.h"
 #include "code/math/pddicolour.h"
 #include "code/math/aabb.h"
+#include "code/math/sphere.h"
 #include "code/math/matrix.h"
 #include "code/pure3d/animation.h"
 #include "code/math/vector.h"
@@ -22,6 +23,8 @@
 namespace pure3d
 {
 	class PartBinding;
+	class dxVertexBuffer;
+	class dxIndexBuffer;
 	class Shader;
 	class PrimBuffer;
 	class PrimitiveState;
@@ -97,6 +100,8 @@ namespace pure3d
 	public:
 		// 0x1073F590: room for the offsets of count vertices, of the kinds the flags name (bits 4 - 6)
 		VertexOffsetList(int count, unsigned int flags);
+		// 0x1073F660: a copy (the same offsets, new storage)
+		VertexOffsetList(const VertexOffsetList& other);
 		// 0x1073F220
 		void Prepare();
 
@@ -176,6 +181,12 @@ namespace pure3d
 		void SetBindingSource(void* source);
 	};
 
+	// RTTI: pure3d::SimpleFrameController (bases AnimationFrameController, FrameController): the base of the
+	// controllers that animate one thing (a shader, a vertex region, a vertex animation). Only the type is used here.
+	class SimpleFrameController : public FrameController
+	{
+	};
+
 	struct JointChannels;
 	struct PoseAnimationInfo;
 
@@ -208,7 +219,7 @@ namespace pure3d
 
 	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that follows a vertex region. Its slots 24 - 28 are its own.
-	class VertexRegionAnimController : public FrameController
+	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
 		virtual void Unknown24();
@@ -226,10 +237,12 @@ namespace pure3d
 		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
 		// 0x1072EC30: makes the controller follow the state's mesh
 		void SetMeshState(MeshState* state);
+		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
+		bool GetUnknownD8();
 	};
 
 	// RTTI: pure3d::VertexAnimController (29 slots, the same bases)
-	class VertexAnimController : public FrameController
+	class VertexAnimController : public SimpleFrameController
 	{
 	public:
 		virtual void Unknown24();
@@ -243,11 +256,13 @@ namespace pure3d
 		void SetKeyFrames(VertexAnimKeyFrameList* keyFrames);
 		// 0x1073E390: makes the controller follow the state's mesh
 		void SetMeshState(MeshState* state);
+		// 0x1073E3C0: the byte at +0x50 (name guess)
+		bool GetUnknown50();
 	};
 
 	// RTTI: pure3d::ShaderAnimationController (27 slots, bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that animates a mesh's shader (only its type is used here)
-	class ShaderAnimationController : public FrameController
+	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
 		virtual ShaderAnimationController* Clone();
@@ -288,6 +303,8 @@ namespace pure3d
 	struct PrimitiveFlagWord
 	{
 		void SetBit(int bit, bool on);
+		// 0x10433DA0 (another unit's copy)
+		bool Test(int bit);
 
 		int bits;
 	};
@@ -415,7 +432,6 @@ namespace pure3d
 	};
 
 	// A mesh: the primitive groups its geometry is cut into (slot 3 draws it, slot 7 fills the part's batch).
-	// The destructor is declared first and not defined here, so that the vftable stays with the engine's unit.
 	class Mesh : public Primitive
 	{
 	public:
@@ -423,10 +439,16 @@ namespace pure3d
 		// streams its states keep (none for a mesh without a state), the last argument the prim group's word at +0xC
 		Mesh(const ShaderParameters* parameters, const ShaderParameters* stateParameters,
 			const IndexBufferDescription* indices, int unknown);
+		// 0x10707840
 		virtual ~Mesh();
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
 			const math::Matrix* world, const PrimStreamParameters* parameters, PartBinding* binding);
+		virtual void Unknown4(Shader* shader);
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void GetCentre(math::Vector* centre);
 		virtual bool FillBatch(void* batch, PrimitiveState* state, bool* unknown);
+		virtual int GetUnknown9();
+		virtual void SetUnknown10(int value);
 		// Slots 11 - 14 are the mesh's own: the first two set a flag byte (+0x174 / +0x175) and refresh the mesh
 		// (0x10708010 / 0x10708030)
 		virtual void SetFlag174(bool value);
@@ -449,13 +471,36 @@ namespace pure3d
 		bool HasUnknown140();
 		void Unknown107074B0();
 
-		// The word the batch carries (the kind of primitive; only its low half is copied), then the two lists its
-		// groups live in
+		// The word the batch carries (the kind of primitive; only its low half is copied), then the vertex buffer and
+		// the index buffer the groups live in (their types are the device's, the primitives' draw and batch code
+		// reach them through PrimGroupList)
 		unsigned int unknown1C;
-		PrimGroupList* unknown20;
-		PrimGroupList* unknown24;
-		// The rest of the 0x17C bytes (the word at +0x140, the format word at +0x148, the flags at +0x174 / +0x175)
-		unsigned char unknown28[0x17C - 0x28];
+		union
+		{
+			PrimGroupList* unknown20;
+			dxVertexBuffer* vertexBuffer;
+		};
+		union
+		{
+			PrimGroupList* unknown24;
+			dxIndexBuffer* indexBuffer;
+		};
+		// The streams the mesh's states keep (0x10707B00 copies it); the loader fills the vertices behind the pointer
+		// at +0x140 (a new[] block of unknown144 bytes)
+		ShaderParameters stateParameters;
+		void* unknown140;
+		int unknown144;
+		// The format word of the first description (bit 4: +0x1000: bits 6 and 7 of the flags)
+		unsigned int unknown148;
+		math::AABB bounds;
+		math::Sphere sphere;
+		bool unknown174;
+		bool unknown175;
+		int unknown178;
+
+	private:
+		// 0x10707BB0: takes the primitive's flags from the shader's (name guess)
+		void SetFlagsFromShader();
 	};
 
 	// Particle system parameter names (globals of the particle module at 0x1127F0B8 - 0x1127F338; set up from
@@ -592,7 +637,20 @@ namespace pure3d
 	public:
 		// 0x10707970 (0x3C bytes): a state of the mesh; the description makes the two vertex buffers it keeps, the
 		// last argument is held at +0x2C
-		MeshState(Mesh* mesh, const ShaderParameters* vertices, core::IRefCount* unknown);
+		MeshState(Mesh* mesh, const ShaderParameters* vertices, VertexOffsetList* expression);
+		// 0x10707CA0: a copy of a state (its controllers are cloned, its vertex buffers made again)
+		MeshState(const MeshState& other);
+		// 0x10707A00
+		virtual ~MeshState();
+		// Slots 3 - 8: 0x10707E70 makes a copy, 0x107074F0 advances the controllers (and swaps the vertex buffers),
+		// 0x107075A0 and 0x107075F0 pass their reset and question on, 0x10707650 gives the box of the mesh,
+		// 0x10707690 sets the source the controllers bind to
+		virtual PrimitiveState* Unknown3();
+		virtual void Update(float dt);
+		virtual void Unknown5();
+		virtual bool Unknown6();
+		virtual void GetBoundingBox(math::AABB* box);
+		virtual void Unknown8(void* source);
 		// 0x10707A60 / 0x10707AA0 / 0x10707AC0: take a reference to the controller at +0x1C / +0x24 / +0x28
 		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
@@ -601,14 +659,19 @@ namespace pure3d
 		FrameController* GetController1();
 		FrameController* GetController2();
 		FrameController* GetController3();
+		// 0x10707640: the offsets of the expression the controllers mix into the state
+		VertexOffsetList* GetExpression();
 
 		unsigned char unknown10[0xC];
-		FrameController* controller1;
-		int unknown20;
-		FrameController* controller2;
-		FrameController* controller3;
-		// The reference at +0x2C, the two vertex buffers at +0x30 / +0x34 and a word
-		unsigned char unknown2C[0x10];
+		ShaderAnimationController* controller1;
+		ShaderAnimationController* controller20;
+		SimpleFrameController* controller2;
+		VertexRegionAnimController* controller3;
+		// The offsets of the expression (+0x2C), the two vertex buffers the state draws from (+0x30 / +0x34; the part
+		// draws the one that is current) and which of them is current
+		VertexOffsetList* expression;
+		dxVertexBuffer* buffers[2];
+		int unknown38;
 	};
 
 	class Skin;
