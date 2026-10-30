@@ -28824,3 +28824,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?Invoke@?$Closure2@VFELuaHelper@engine@@X_NPBD@@UAEXPAXPBTFunctionArgument@engine@@0@Z = 0x108E1EC0 ; function size:0x19 | kept template or inline copy of this unit
 ??$RegisterMethod@VFELuaHelper@engine@@PBD@LuaScriptManager@engine@@QAEXPBDPAVFELuaHelper@1@P821@AEPBDXZ@Z = 0x108E1EE0 ; function size:0x6F | kept template or inline copy of this unit
 ??$RegisterMethod@VFELuaHelper@engine@@X_NPBD@LuaScriptManager@engine@@QAEXPBDPAVFELuaHelper@1@P821@AEX_N0@Z@Z = 0x108E1F50 ; function size:0x53 | kept template or inline copy of this unit
+??_R0?AUNIS@engine@@@8 = 0x111E0F20 ; data size:0x8 | engine::NIS RTTI type descriptor
