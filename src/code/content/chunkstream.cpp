@@ -1,6 +1,6 @@
 // content::ChunkReader (names guessed): the reader of the chunk loaders walks the chunks of a P3D stream. Each chunk
-// starts with its id, the length of its header and data and the length of everything it holds (unit 0x1060A410 -
-// 0x1060BC20, the stream in front of it is still unreconstructed).
+// starts with its id, the length of its header and data and the length of everything it holds (unit 0x1060B890 -
+// 0x1060BC20).
 #include "code/content/chunkhandler.h"
 
 namespace content

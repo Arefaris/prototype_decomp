@@ -36,6 +36,10 @@ namespace content
 		// 0x10607660: starts loading what the request (a name, a stream and a few words) names; waits for it when
 		// the last argument is set
 		void Load(const container::String* request, LoadJob** job, bool wait);
+		// 0x106070B0: gives the loading thread a turn (waits a moment when called from another thread)
+		void Yield();
+		// 0x10606D60: does nothing
+		void Idle();
 		// 0x10606D30: whether the calling thread is the loading thread (it reads nothing of the object)
 		bool IsCurrentThread();
 	};
