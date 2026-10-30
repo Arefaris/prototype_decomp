@@ -275,7 +275,8 @@ namespace container
 	template class ArrayDynamic<engine::GameObjectHandle, AllocatorNew>;
 }
 
-
+
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10905CB0
@@ -297,3 +298,8 @@ namespace container
 // FUNCTION: ENGINE 0x10905F20
 // FUNCTION: ENGINE 0x10905F60
 // FUNCTION: ENGINE 0x10905FA0
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x10606E00
+// FUNCTION: ENGINE 0x10606E10
+// FUNCTION: ENGINE 0x10606E20

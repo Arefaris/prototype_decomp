@@ -7,7 +7,9 @@
 #ifndef CONTENT_CHUNKHANDLER_H
 #define CONTENT_CHUNKHANDLER_H
 
+#include "code/container/string.h"
 #include "code/content/loadinventory.h"
+#include "code/core/file/file.h"
 
 namespace math
 {
@@ -16,12 +18,59 @@ namespace math
 
 namespace content
 {
-	// The stream a chunk handler reads through (0x288 bytes; 0x1060BB60 is the constructor, 0x1060B8E0 opens the
-	// chunks, 0x1060B8A0 answers whether there is another one). The layout is partial.
-	// The stream a chunk reader reads through (reference counted; only its read is known)
-	class ChunkStream : public core::IRefCount
+	class LoadStream;
+
+	// The reads of a compressed file's data (class name guessed; not reconstructed)
+	class CompressedReader
 	{
 	public:
+		// 0x1060DC40: queues the read of size bytes into destination
+		void Read(void* destination, unsigned int size);
+		// 0x1060DC90: whether everything queued has been read
+		bool IsDone();
+		// 0x1060DCC0: waits until it has
+		void Wait();
+
+		unsigned char unknown0[0xC];
+		// The size of the unpacked data
+		unsigned int size;
+	};
+
+	// What the load manager reads a stream from: the path as a 256 character string, then the places the loaded
+	// objects go to (the engine builds it on the stack; names guessed)
+	struct LoadArguments
+	{
+		container::StringC<256> path;
+		LoadStream* stream;
+		LoadInventory* inventory;
+		int heap;
+		int objectHeap;
+		unsigned int capacity;
+		bool blocking;
+		bool unknown119;
+		unsigned short unknown11A;
+		int unknown11C;
+	};
+
+	// The stream a chunk reader reads through (RTTI content::LoadStream, a reference counted load object of 0x4C
+	// bytes; the member names are guesses). It reads a file through two buffers of the stream buffer pool, or a
+	// block of memory, or a compressed file. The chunk handlers know it as the chunk stream.
+	class LoadStream : public LoadObject
+	{
+	public:
+		// 0x1060AA00: opens the file of a path (reads it through the buffers when mode is 1)
+		LoadStream(const char* path, int unused, int mode);
+		// 0x1060AA40: opens the file a load request names
+		LoadStream(LoadArguments* request, int unused, int mode);
+		// 0x1060AA90: reads through an open file
+		LoadStream(core::IFile* newFile, int unused, int mode, int blocking);
+		// 0x1060AF70: reads a compressed file's data (offset and size are those of the part of it to read)
+		LoadStream(CompressedReader* newCompressed, int offset, int size, int blocking);
+		// 0x1060AAE0: reads a block of memory
+		LoadStream(const void* data, unsigned int newSize);
+		// 0x1060AB10 (the scalar deleting destructor is 0x1060AF50)
+		virtual ~LoadStream();
+
 		// 0x1060B260: reads count items of size bytes into destination (the last word is unknown)
 		void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
 		// 0x1060B2C0: steps over `bytes` bytes of the stream without reading them (name guess)
@@ -35,7 +84,66 @@ namespace content
 		unsigned char ReadUChar();
 		// 0x1067C400: a four-byte float (name guessed)
 		float ReadFloat();
+
+		// 0x1060A540: 0 when a file is open, else 1 for a block of memory and 2 for a compressed file
+		int GetSource();
+		// 0x1060A560: the name of the file
+		const char* GetName();
+		// 0x1060A570: forgets everything (the members are cleared, nothing is released)
+		void Reset();
+		// 0x1060A5B0: opens the file (the one with ".rz" behind the name when compressed is set)
+		void Open(const char* path, bool compressed);
+		// 0x1060A670: reads from a block of memory
+		void Attach(const void* data, unsigned int newSize);
+		// 0x1060A6A0: copies a block (mode 1 with the processor)
+		void Copy(void* destination, const void* source, unsigned int length, int mode);
+		// 0x1060A770: starts reading the next block into the buffer
+		void ReadBlock(void* buffer);
+		// 0x1060A830: waits until the file or the compressed file is ready
+		void Wait();
+		// 0x1060A8C0: turns the bytes of count items of size bytes around when the data is of the other byte order
+		void SwapBytes(void* data, int count, int size);
+		// 0x1060AB50: gives the stream its buffers (the region of the pool and the size of the stream)
+		void SetBuffers(unsigned int region, unsigned int regionSize);
+		// 0x1060ABF0 / 0x1060AC20: the reads of a stream with no buffers
+		void SkipDirect(int bytes);
+		bool ReadDirect(void* destination, int count, int size, int option);
+		// 0x1060AC80: swaps to the other buffer and starts filling the one just emptied
+		void NextBuffer();
+		// 0x1060B010: opens the stream (when it is not open yet or force is set); path is the name of the
+		// uncompressed file for a stream of a compressed one
+		void Prepare(bool force, const char* path);
+		// 0x1060B130: the reads through the buffers
+		bool ReadBuffered(void* destination, int count, int size, int option);
+		// 0x1060B240: opens the stream when needed and answers whether it is open
+		bool IsOpen();
+		// 0x1060B330: the buffer the stream sits in and its size
+		bool GetBuffer(void** buffer, unsigned int* bufferSize);
+
+		core::IFile* file;
+		CompressedReader* compressed;
+		bool opened;
+		bool blocking;
+		bool buffered;
+		// Whether the data is stored in the other byte order (flipped by a chunk file's byte-swapped marker; name
+		// guessed)
+		bool swapped;
+		bool unknown14;
+		unsigned int size;
+		unsigned int position;
+		unsigned int filePosition;
+		unsigned int currentBuffer;
+		unsigned int buffers[2];
+		unsigned int current;
+		unsigned int offset;
+		unsigned int fill;
+		unsigned int lastRead;
+		unsigned int bufferSize;
+		unsigned int unknown44;
+		unsigned int sinceYield;
 	};
+
+	typedef LoadStream ChunkStream;
 
 	class ChunkReader
 	{
@@ -69,11 +177,30 @@ namespace content
 			((ChunkStream*)stream)->Read(destination, count, size, unknown);
 		}
 
-		unsigned char unknown0[0x280];
+		// 0x1060BB60: reads the first chunk's header out of the stream (takes a reference to it)
+		explicit ChunkReader(ChunkStream* newStream);
+		// 0x1060B9E0: enters a chunk whose id has been read already (the id is the argument)
+		unsigned int BeginChunk(unsigned int id);
+
+		// The header of a chunk the reader has entered (names guessed; the lengths include the 12 header bytes)
+		struct Entry
+		{
+			unsigned int id;
+			// Header and data
+			unsigned int dataLength;
+			// Header, data and the chunks inside
+			unsigned int length;
+			// The stream position of the chunk's first byte
+			unsigned int start;
+		};
+
+		unsigned char unknown0[0x80];
+		// One entry for each chunk the reader sits in
+		Entry entries[32];
 		// The index of the chunk the reader sits in
-		unsigned int chunk;
+		int chunk;
 		// The stream the chunks come from
-		core::IRefCount* stream;
+		ChunkStream* stream;
 	};
 
 	class ObjectLoader : public LoadObject

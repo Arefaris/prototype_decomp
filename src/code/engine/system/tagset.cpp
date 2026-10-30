@@ -344,3 +344,9 @@ template void std::sort<TagNameType*>(TagNameType*, TagNameType*);
 // FUNCTION: ENGINE 0x10834EF0
 // FUNCTION: ENGINE 0x10834FE0
 // FUNCTION: ENGINE 0x10D8A1C0
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x1060C6C0
+// FUNCTION: ENGINE 0x1060CD00
+// FUNCTION: ENGINE 0x1060CD10
+// FUNCTION: ENGINE 0x1060CD20

@@ -12,12 +12,26 @@ namespace container
 
 namespace content
 {
-	class LoadJob;
+	class LoadStream;
 	class ObjectLoader;
 
 	// A loader that reads a whole file by its extension (RTTI: content::FileLoader, a load object)
 	class FileLoader : public LoadObject
 	{
+	};
+
+	// A load under way (a reference counted interface; only what the users need is declared)
+	class LoadJob : public core::IRefCount
+	{
+	public:
+		// Slot 3 (the argument is 0 where the engine calls it; meaning unknown)
+		virtual void Slot3(int unused);
+		// 0x106089E0: 3 once the load is done
+		int GetStatus();
+		// 0x106089D0: the inventory the load put its objects in
+		LoadInventory* GetInventory();
+		// 0x10608B40: takes the stream the job reads from
+		void SetStream(LoadStream* stream);
 	};
 
 	class LoadManager
@@ -36,6 +50,10 @@ namespace content
 		// 0x10607660: starts loading what the request (a name, a stream and a few words) names; waits for it when
 		// the last argument is set
 		void Load(const container::String* request, LoadJob** job, bool wait);
+		// 0x106070B0: gives the loading thread a turn (waits a moment when called from another thread)
+		void Yield();
+		// 0x10606D60: does nothing
+		void Idle();
 		// 0x10606D30: whether the calling thread is the loading thread (it reads nothing of the object)
 		bool IsCurrentThread();
 	};

@@ -21,24 +21,30 @@ namespace content
 	struct MemberList;
 	class MetaObjectFactoryBase;
 
-	// content::MetaObjectTemplate (RTTI: 11 vftable slots; the class lives in another unit): what game objects are
-	// built from. Slot 9 builds one.
+	// content::MetaObjectTemplate (RTTI: 11 vftable slots; unit 0x10606A10 - 0x10606BB0, content/metaobjecttemplate.cpp):
+	// what game objects are built from. It holds an object of the class its factory makes; slot 9 builds a copy.
 	class MetaObjectTemplate : public MetaLoadObject
 	{
 	public:
-		// 0x10606B60 (another unit)
+		// 0x10606B60
 		MetaObjectTemplate();
+		// 0x10606B30 (the scalar deleting destructor is 0x10606B90): destroys the object it holds
+		virtual ~MetaObjectTemplate();
 
+		// Slot 6 (0x10445BE0 in the engine's copy): takes the name
+		virtual void SetName(const ObjectName& newName);
 		// The object the template is made of (slot 7: answers it; slot 8: takes it, a new value of the class)
 		virtual void* Slot7();
 		virtual void Slot8(void* object);
 		// The new object of name in heap, kept in inventory (flag: passed on from the spawner, meaning unknown)
 		virtual engine::GameObject* Create(int heap, LoadInventory* inventory, const ObjectName& name, bool flag);
-		// Slot 10: takes the factory that makes the objects the template stands for
-		virtual void Slot10(MetaObjectFactoryBase* factory);
+		// Slot 10 (0x10606A40): takes the factory that makes the objects the template stands for
+		virtual void Slot10(MetaObjectFactoryBase* newFactory);
+		// 0x10606A50
+		MetaObjectFactoryBase* GetFactory();
 
-		int unknown8;
-		int unknownC;
+		MetaObjectFactoryBase* factory;
+		void* object;
 		ObjectName name;
 	};
 }

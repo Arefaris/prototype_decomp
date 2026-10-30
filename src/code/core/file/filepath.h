@@ -26,6 +26,9 @@ namespace core
 	// The same entry point as FileSystemOpenFile (0x10643C60)
 	void FileSystemOpenFile(IFile** file, FilePath path, bool writable, int mode, int key, int unused1, int unused2,
 		int unused3, int option);
+	// The same entry point as FileSystemOpenFileAsync (0x10643C50)
+	void FileSystemOpenFileAsync(IFile** file, FilePath path, bool writable, int mode, int key, int unused1, int unused2,
+		int unused3, int option);
 }
 
 #endif

@@ -56,3 +56,6 @@ namespace pure3d
 		pddi->constants->Find(this, kind, name);
 	}
 }
+
+// Kept copies (compiler-generated and inline functions of this unit):
+// FUNCTION: ENGINE 0x10611FA0

@@ -7,17 +7,6 @@
 #include "code/core/strings.h"
 #include <new>
 
-namespace content
-{
-	// A load under way
-	class LoadJob : public core::IRefCount
-	{
-	public:
-		// Slot 3 (the argument is 0 here; meaning unknown)
-		virtual void Slot3(int unused);
-	};
-}
-
 namespace
 {
 	// What a load of a file is asked with: a name over the 256 characters of a string, the stream the file is read

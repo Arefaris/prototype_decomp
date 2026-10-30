@@ -17,8 +17,23 @@ namespace container
 			Node* next;
 		};
 
+		// 0x106103C0 (the constructor is this function, mapped under both names)
 		SListBase();
+		// 0x106103C0: empties the list without freeing anything
+		void Reset();
 		void PushBack(Node* node);
+		// 0x106103D0 (names of the members below guessed): links the node in front of the first
+		void PushFront(Node* node);
+		// 0x106103F0: the node in front of the given one, null for the first node (the last one for a null node)
+		Node* Previous(const Node* node) const;
+		// 0x10610420: links the node behind previous (in front of the first one when previous is null)
+		void InsertAfter(Node* previous, Node* node);
+		// 0x106105F0: links the node in front of before
+		void InsertBefore(const Node* before, Node* node);
+		// 0x10610500: appends the nodes of the other list and empties it
+		void Splice(SListBase& other);
+		// 0x10610550: reverses the order of the nodes
+		void Reverse();
 		// 0x10610480 (another unit; names guessed): unlinks the first node and answers it
 		Node* PopFront();
 		// 0x106104B0: unlinks the node after previous (the first one when previous is null) and answers it
