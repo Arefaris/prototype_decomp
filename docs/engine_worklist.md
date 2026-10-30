@@ -5043,6 +5043,33 @@ Not done, in the order of the range:
 - 0x108FD240 - 0x108FF310: the letterbox render pass (0x108FD2E0 draws two quads through a `PrimStream`) and the
   neighbouring pass functions.
 
+
+## 0x108E0000 - 0x10900000 (sn-ad): second pass over the fight system range
+Added by this pass (match unless listed): `engine::NIS` constructor (`exclusionRadius` is the only member the engine sets
+besides the zeroed arrays; the destructor is the implicit one and its deleting destructor is kept); `AllocateManagerObject` /
+`FreeManagerObject` and the desync heap (`managerobjects.cpp`, `gManagerHeap` 0x111E2060 is the heap the selector 1 picks,
+`DesyncSettings::heap` at +0x1C); `engine::render::FrontEndPass` (`render/frontendpass.cpp`); `FELuaHelper` (`frontend/
+feluahelpers.cpp`, the file name is the one its assert names; `FlashDebugDrawCallback` is a struct with one pure slot, the
+helper's destructor is not virtual, `delete gFELuaHelper` calls it directly); `LightAction` with the light property messages
+(`lightmessages.h`: the blend helper 0x108F2C90 is file-local, esi = track, edi = start values, EQUIVALENT: the engine keeps the
+changed mask in eax across the blocks), `SpawnObjectAction` (all but `Slot5` and its three register-argument helpers 0x108F3910
+/ 0x108F3A10 / 0x108F3B60), the mixer action, the reverb action and the constructors of the music and sound zone actions
+(`fight/soundtracks.h` gives the five audio tracks the members the actions read; `MusicAction::Slot5` and `SoundZoneAction::
+Slot5` are NONMATCHING, 7 % and 33 %: the engine keeps the reset flag in a stack word behind the two fade structs, and loads
+the zone manager into edi before it copies the names), `NISSpawnAction` (a `BranchWatch` on a sequence node), `OLSFriend` (the
+script methods, the constructor and the entry; the virtual slots `ShowFriends` / `RequestNameSearch` are the compiler's vcall
+thunks of `&OLSFriend::Slot2` / `Slot21`; `RegisterMethod` only inlines like the engine's when `engine/function.h` is
+included), `util::PackBuffer` / `Packer` / `UnPacker` (`util/packbuffer.cpp`: `1 << bit` without the mask, byte updates as
+`buffer[position] |= (unsigned char)(1 << bit)`), `VariableSimRate` / `VariableSimRateDefault` (`online/variablesimrate.cpp`).
+The Link<T> constructors and destructors of the light, spawn and mixer actions are mapped (the constructor stands in front of
+the action's constructor behind the two or three one-word getters, the destructor 0x10 bytes before the action's).
+Not done: the sound action (the constructor takes a `TrackWatch` by value), `PuppetAnimationAction::Slot5` / `Slot7`,
+`AttachObjectAction::Slot5` (two messages built on the stack, the file-local joint lookup 0x108F03A0 takes the name in esi),
+the NIS animation, sequence node and light animation actions, `SpawnObjectAction::Slot5`, the front end event handler and its
+tables, `PrivateDialogState` and the front end overlay (0x108E2100 - 0x108E2630), the content manager (0x108E4560 -
+0x108E7E80), `OLSPeer` and the rest of the online classes (`ConsoleManagerPeer`, `SyncManager`, `DesyncHunterOnline`), the
+autotester (0x108EB190 - 0x108EC240) and the letterbox fade helpers (0x108FD0A0 - 0x108FD8C0).
+
 ## ravenphysics 0x106A0000 - 0x106C0000 (sn-aa): leaf stand-ins, the overlap tests, the physics tasks
 
 The range holds the end of the constraint solver (`simulateislandxenonwin32.cpp`, `integratekernel.cpp` by their asserts), the
