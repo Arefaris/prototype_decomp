@@ -25,6 +25,8 @@
 #include "code/engine/splinepath.h"
 #include "code/engine/surfacedefinition.h"
 #include "code/engine/camera/cameraloader.h"
+#include "code/engine/camera/fpscamera.h"
+#include "code/engine/camera/onfootcamera.h"
 #include "code/engine/charactersolverproperties.h"
 #include "code/engine/fight/behaviours/motiontreebehaviour.h"
 #include "code/engine/fmv/fmvsubtitlemanager.h"

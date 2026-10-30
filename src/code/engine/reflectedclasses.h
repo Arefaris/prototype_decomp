@@ -304,28 +304,6 @@ namespace engine
 {
 namespace camera
 {
-	// FPSCamera: constructor 0x10915490, reflection 0x10915450 / 0x10915540
-	class FPSCamera
-	{
-	public:
-		FPSCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x48];
-	};
-
-	// OnFootCamera: constructor 0x10915860, reflection 0x109157E0 / 0x10915A50
-	class OnFootCamera
-	{
-	public:
-		OnFootCamera();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x80];
-	};
-
 	// ScriptedCamera: constructor 0x10851480, reflection 0x108509B0 / 0x10851420
 	class ScriptedCamera
 	{
