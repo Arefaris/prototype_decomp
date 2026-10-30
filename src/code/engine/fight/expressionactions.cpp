@@ -475,3 +475,13 @@ namespace engine
 		return new UndamageableAction(handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108F4640
+// FUNCTION: ENGINE 0x108F46A0
+// FUNCTION: ENGINE 0x108F4930
+// FUNCTION: ENGINE 0x108F4A60
+// FUNCTION: ENGINE 0x108F4DC0
+// FUNCTION: ENGINE 0x108F5E90
+// FUNCTION: ENGINE 0x108F61A0
+// FUNCTION: ENGINE 0x108F6570

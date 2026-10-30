@@ -137,3 +137,10 @@ namespace engine
 		return new AnimationControlAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108EE860
+// FUNCTION: ENGINE 0x108EEC40
+// FUNCTION: ENGINE 0x108EECA0
+// FUNCTION: ENGINE 0x108EED70
+// FUNCTION: ENGINE 0x108EEEF0

@@ -517,3 +517,6 @@ namespace content
 // Kept copies of inline functions and template members this unit makes (compiler-made or header-defined, so the
 // annotations stand without a definition)
 // FUNCTION: ENGINE 0x1067D400
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108E6DF0

@@ -38,3 +38,6 @@ namespace engine
 		return new ExitAction(listener, this, (int)effect, owner);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108F45D0

@@ -89,3 +89,8 @@ namespace engine
 		}
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108F05F0
+// FUNCTION: ENGINE 0x108F0680
+// FUNCTION: ENGINE 0x108F0770

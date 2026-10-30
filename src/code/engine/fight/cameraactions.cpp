@@ -315,3 +315,8 @@ namespace engine
 		return new TimeDilationAction(this);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108F2200
+// FUNCTION: ENGINE 0x108F2580
+// FUNCTION: ENGINE 0x108F2A80

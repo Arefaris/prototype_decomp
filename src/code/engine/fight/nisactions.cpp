@@ -176,3 +176,10 @@ namespace engine
 		return new SetObjectLightGroupAction(this, object);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108EF900
+// FUNCTION: ENGINE 0x108EFBB0
+// FUNCTION: ENGINE 0x108EFCA0
+// FUNCTION: ENGINE 0x108EFD40
+// FUNCTION: ENGINE 0x108EFF10

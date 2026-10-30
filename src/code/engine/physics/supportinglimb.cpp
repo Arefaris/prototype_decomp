@@ -1077,3 +1077,6 @@ namespace container
 // the default element the reflection helper's Insert used; kept as the engine kept it
 template engine::SupportingLimbDefinition::SmoothingVelocityMap::Entry& content::ArrayCDynamicHelper<
 	container::ArrayCDynamic<engine::SupportingLimbDefinition::SmoothingVelocityMap::Entry, 3> >::Default();
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108EFA20

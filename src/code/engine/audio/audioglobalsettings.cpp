@@ -646,3 +646,6 @@ namespace om
 // FUNCTION: ENGINE 0x108CEEF0 @ om::MetaMethod1<engine::AudioGlobalSettings,engine::AudioGlobalSettings,void,om::DynamicArray<engine::SoundGroup,unsigned short> const &>::~MetaMethod1<engine::AudioGloba
 // FUNCTION: ENGINE 0x108CEF00 @ om::MetaMethod0Const<engine::AudioGlobalSettings,engine::AudioGlobalSettings,om::DynamicArray<engine::SoundGroup,unsigned short> const &>::~MetaMethod0Const<engine::Audio
 // FUNCTION: ENGINE 0x108CEF10 @ om::MetaProperty<float const &>::~MetaProperty<float const &>(void) (name guess; identical copies)
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108EB3C0
