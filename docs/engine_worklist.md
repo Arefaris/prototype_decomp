@@ -4967,9 +4967,23 @@ pairs, the interlocked counters, the bucket hash of a key (`((key >> 3 ^ key) >>
 a stand-in grouped by the neighbourhood of its functions; the template ones carry the function's address as their
 parameter. A unit that recovers the real classes should move the functions onto them.
 
+Broad phase tables (`chaintable.h`, `src/chaintable.cpp`, `src/chaintablecounted.cpp`, `src/slothashtable.cpp`,
+`alignedruns.h`, `src/alignedruns.cpp`, 0x106822A0 - 0x10683240 and 0x10681F10 - 0x10682290; the unit has no assert and no
+RTTI, so the classes are stand-ins): `ChainLinks` (the link of each slot and the head of each bucket: `Create`, `Release`,
+`Unlink`, `PushFront`), the byte and word variants that keep the bucket of every slot with and without a count per
+bucket, and `SlotHashTable`, the engine's copies of the pointer hash table's insert, remove and find (member templates:
+the parameter names the engine function). Findings: a call to a function of the same unit lets the compiler keep
+registers across it (`ClearBucket` is in a unit of its own for that reason, as are the hash table copies); the
+bucket argument of `Unlink` is a full 32-bit word while the slot is a `unsigned short`; `FreeBucket` stores the
+terminator once after the loop; `!(value >= 0)` gives the `jae` of a clamp; a loop count `count > 0` (not `!= 0`) gives
+`jbe`. EQUIVALENT: `Unlink` (33.6 %), the two counted `Link` functions (23 % / 45 %: ours doubles the bucket once for
+every address), `ChainLinks::Create` (25.5 %: another register for the bucket count) and `AssignBit` (22.4 %).
+`PointerHashTable::Release`, `Insert` and `ObjectRegistry::Release` (0x10686390, 0x10686510, 0x10686410) are in
+`common/src/hashtable.cpp`.
+
 Not done: the volumes' hull and cylinder code (0x106800B0 - 0x10681EE0: `math::Cylinder` and the cylinder volume are not
-recovered; `ScaleCylinder` and the vertex transform loops are long SSE sequences), the broad-phase detector's tables and
-their register-convention helpers (0x10682520 - 0x10684950), the convex mesh and the composite mesh (0x106853F0 -
+recovered; `ScaleCylinder` and the vertex transform loops are long SSE sequences), the broad-phase detector's own functions
+(0x10682520 - 0x10684950, around the tables above), the convex mesh and the composite mesh (0x106853F0 -
 0x10686040), the object registry and the placement tracker (0x10686410 - 0x10689EE0), the batches (0x1068B190 -
 0x10691F00), the contact joint (0x106952A0, 0x10695400 - 0x10695580: it needs the contact record) and the whole solver
 (0x10695000 - 0x106A0000: the file-local vector helpers take their arguments in registers and exist only for the
