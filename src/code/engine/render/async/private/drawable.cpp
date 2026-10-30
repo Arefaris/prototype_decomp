@@ -834,7 +834,7 @@ namespace engine
 								{
 									controller->Reset();
 									controller->SetNameFrom(animation);
-									controller->SetAnimation(animation, 0.0f, 0.0f);
+									static_cast<pure3d::AnimationFrameController*>(controller)->SetAnimation(animation, 0.0f, 0.0f);
 									float startFrame = frame;
 									if (0.0f > startFrame)
 									{
@@ -915,7 +915,7 @@ namespace engine
 					play:
 						controller->Reset();
 						controller->SetNameFrom(animation);
-						controller->SetAnimation(animation, 0.0f, 0.0f);
+						static_cast<pure3d::AnimationFrameController*>(controller)->SetAnimation(animation, 0.0f, 0.0f);
 						controller->SetBindingSource(part->GetBindingSource());
 						float startFrame = frame;
 						if (0.0f > startFrame)

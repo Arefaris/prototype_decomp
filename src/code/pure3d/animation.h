@@ -60,6 +60,10 @@ namespace pure3d
 		void Unknown106E9310(int mode);
 		// 0x106E8590 / 0x106E79E0: the group of the animation for a name, and the group of the whole animation
 		AnimationGroup* FindGroup(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x106E8770: moves a frame on by dt (scaled by the frame rate) inside the range the way the cycle mode says;
+		// remaining is the time left to play and forward the direction the frame moves in (name guess)
+		float AdvanceFrame(float* remaining, bool* forward, float frame, float dt, float start, float end, bool unlimited,
+			int mode);
 		// 0x106E79D0: the group at an index
 		AnimationGroup* GetGroup(int index);
 		AnimationGroup* FindOverallGroup(int mode);

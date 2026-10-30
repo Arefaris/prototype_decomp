@@ -15,8 +15,8 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  10.507 %
-Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  14.560 %  (20434 / 140347)
+Code       ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  10.532 %
+Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  14.596 %  (20485 / 140347)
   audio       391 functions matched, 13,832 bytes
   choreo      612 functions matched, 34,032 bytes
   container    54 functions matched, 4,080 bytes
@@ -30,7 +30,7 @@ Functions  ████░░░░░░░░░░░░░░░░░░░
   music      1159 functions matched, 36,130 bytes
   om           92 functions matched, 4,516 bytes
   proto       898 functions matched, 58,096 bytes
-  pure3d     1313 functions matched, 92,065 bytes
+  pure3d     1364 functions matched, 94,501 bytes
   ravenphysics  2411 functions matched, 94,227 bytes
   scaleformp3d    67 functions matched, 2,567 bytes
 ```
