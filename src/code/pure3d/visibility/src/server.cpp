@@ -1,11 +1,8 @@
 // pure3d::visibility::Server (unit 0x10726540 - 0x10729AE0; the path is guessed from the namespace): the visibility
 // server and the frustum tests its asynchronous tasks run. Names are guesses.
+#include "code/core/asynctask.h"
+#include "code/core/criticalsection.h"
 #include "code/pure3d/visibility.h"
-
-namespace core
-{
-	struct AsyncTask;
-}
 
 namespace pure3d
 {
@@ -61,6 +58,53 @@ namespace pure3d
 					;
 				}
 			}
+		}
+
+		// 0x1128185C, 0x11281860: the ids the two task functions are registered under (name guesses)
+		extern int gTestTaskId;
+		extern int gOcclusionTestTaskId;
+		// 0x10729A90: the occlusion test task (another unit's part of the same file)
+		void RunOcclusionTestTask(Test* test, core::AsyncTaskCallback* callback);
+
+		// FUNCTION: ENGINE 0x10726590
+		unsigned int Server::GetFlagSetCount()
+		{
+			return flagSetCount;
+		}
+
+		// FUNCTION: ENGINE 0x10728350
+		void Server::FinishTest(int slot)
+		{
+			if (slot != -1)
+			{
+				core::EventWait(events + slot * 0xC);
+				core::CriticalSectionEnter(lock);
+				slotBusy[slot] = 0;
+				core::CriticalSectionLeave(lock);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x107285B0
+		void RunTestTask(Test* test, core::AsyncTaskCallback* callback)
+		{
+			RunTest(test, (core::AsyncTask*)callback);
+			callback->SetResult(test->slot);
+		}
+
+		// FUNCTION: ENGINE 0x10726540
+		void RegisterTasks()
+		{
+			core::RegisterAsyncTaskFunction("pure3dVisibilityTest", (void (*)(void*, core::AsyncTaskCallback*))RunTestTask,
+				&gTestTaskId);
+			core::RegisterAsyncTaskFunction("pure3dVisibilityOcclusionTest",
+				(void (*)(void*, core::AsyncTaskCallback*))RunOcclusionTestTask, &gOcclusionTestTaskId);
+		}
+
+		// FUNCTION: ENGINE 0x10726570
+		void UnregisterTasks()
+		{
+			core::UnregisterAsyncTaskFunction(gTestTaskId);
+			core::UnregisterAsyncTaskFunction(gOcclusionTestTaskId);
 		}
 	}
 }

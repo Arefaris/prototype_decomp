@@ -5203,3 +5203,58 @@ CollectibleLog (0x1058D0D0), FREventTimers, SmartHintLog, SmartHintShown, SmartH
   (0x10709DB0 - 0x1070B650, `ArrayDynamic` / iterator members), the pass factories 0x10719680 - 0x10719F80 (nineteen
   `new Pass(...)` wrappers whose constructors are unnamed), the shadow render manager (0x10715380 - 0x10716AD0), the
   allocator helpers 0x10714D70 - 0x10715180, the shader unit (0x10704B70, 0x107052A0, `Shader::Init` 0x10706100).
+
+## pure3d 0x10720000 - 0x10740000: vertex offsets, particle task functions, frame controller slots (this branch)
+
+- **VertexOffsetList** (src/vertexoffsetlist.cpp, 0x1073EF40 - 0x1073F880): 0x38 bytes, flags at +8, count +0xC, the
+  per-vertex offset arrays from +0x10 (positions, normals, a third kind at +0x18, tangents at +0x1C: `math::Vector`
+  arrays allocated with `new[]`), four texture coordinate sets at +0x20 (`math::Vector2`) and two colour sets at +0x30
+  (`ColourOffset`, four signed shorts, an empty user destructor so that the arrays carry a count in front; the constructor
+  0x1073ED80, the destructor 0x1073EDA0 and the vector deleting destructor 0x1073EF00 are mapped). Allocate / Free for
+  each kind, `Prepare`, the six Blend functions, the copy constructor and the destructor match. The (count, flags)
+  constructor is EQUIVALENT (96.4 %: the engine stores the base vftable before it zeroes the register it keeps the
+  zero in). The colour blend must read `colourOffsets[set][vertex]` for each component (the engine does not keep the
+  pointer). skin.cpp now casts the offsets to `const float*` where it walks them.
+- **Particle task functions** (effects/src/particletasks.cpp, 0x1073C1C0 - 0x1073CC10): 27 functions, one for every
+  combination of the update kernels; each walks the chain of `ParticleKernelBatch` (0x5C bytes: 18 buffers, dt, count,
+  a state value, the chain's result, next) and runs its kernel on every link. The parameter must be the loop variable
+  itself, the head is kept in a second variable for the result.
+- **Frame controllers** (anim/src/expressionanimationcontroller.cpp, compdrawvisibilityanimationcontroller.cpp,
+  src/shaderanimationcontroller.cpp, vertexregionanimcontroller.cpp, vertexanimcontroller.cpp, the pose controller):
+  the RTTI chain is FrameController < AnimationFrameController < SimpleFrameController / BlendFrameController. The
+  base members every controller has are in `FrameController` now (start / end frame +0x2C / +0x30, the frame +0x34,
+  the animation +0x3C; the base is 0x40 bytes). Slot names: 3 `SetTarget(Entity*)`, 5 the update, 24
+  `IsSupported(Animation*)` (the kind fourcc at `Animation` +0x1C and the group count at +0x28 are named now), 25 a
+  second question (true for all of them), 26 `Clone` for the Simple controllers (the Pose controller has 31 slots:
+  its Clone is slot 30). Only slots that are not constructors or destructors are defined: those would emit a vftable
+  whose inherited slots (0x1077xxxx) are not mapped. The copy constructors the clones call are declared and mapped.
+  Defined: IsSupported of all six, the `true` slots, the empty slot 3 of three, `ExpressionAnimationController` update /
+  `ClearWeights` / Clone, `CompDrawVisibilityAnimationController` update / Clone, the shader controller's slot 3 and
+  Clone, `VertexAnimController` slots 27 / 28, SetMeshState, SetKeyFrames, `VertexRegionAnimController` SetRegion
+  (`VertexDeformRegionList` holds up to 16 pointers and the end pointer), SetKeyFrames. `VertexRegionAnimController::SetMeshState`
+  is EQUIVALENT (72.6 %: ebx instead of ecx for the overflow temporary of `new float[n]`).
+  The expression mixer's layout is spelled out: expression group +0x10, weights +0x14 / +0x18, changed flag +0x2C.
+  Not done (they need unnamed base-class or container helpers): the update slots of the vertex region (0x10730490),
+  vertex (0x1073EC70) and shader (0x1072E630, 862 bytes) controllers and their helpers 0x1072F150, 0x1072F510,
+  0x1072FB20, 0x1073E4B0, 0x1073E850, 0x1073F8B0; the pose controller's slots 3, 4, 10, 22, 26 / 27 and its helpers;
+  the constructors and destructors of all of them.
+- **SkeletonData** (anim/src/skeletondata.cpp, 0x1072D590 - 0x1072D930): the constructor (jointCount, limbCount),
+  `GetMemorySize` (0x12F bytes per joint and 0x40 per limb), `SetMemory` (the arrays one after the other in a block;
+  the limb names are constructed in place), `SetJointArrays` (parents, two per-joint flag arrays), `FindJoint`, `Free`.
+  The struct is 0x4C bytes: the block pointer at +0x48 is its own member now (it was `Skeleton::unknown50`). Not done:
+  0x1072D810 (the matrix of a limb from four vectors) and 0x1072D940 / 0x1072DB80 (the limbs' rest rotations, the
+  bind pose; float and quaternion work).
+- **ExpressionPose** (src/expressionpose.cpp, 0x10730BA0 - 0x10730C10): an array of 8-byte weights (weight, changed);
+  Clear, SetWeight, GetChanged and the hand-over of the changed weights to a mixer.
+- **visibility::Server**: `GetFlagSetCount`, `FinishTest` (waits for the slot's event and clears its busy byte), the
+  task function of the frustum test, `RegisterTasks` / `UnregisterTasks` (the two task function ids are the
+  words at 0x1128185C / 0x11281860). The occlusion test task 0x10729A90 is mapped, its helper 0x107298B0 is not done.
+- **Not touched, and why**: 0x1072B7F0 - 0x1072D4B0 is zlib (inflate, crc and adler, 5428 bytes for `inflate` alone:
+  a library); the ~400 tiny functions between 0x10721200 and 0x10735000 and in 0x10726500 - 0x10730C00 are instances
+  of the container templates (array allocate / begin / end / size / push back for element sizes 6, 0xC, 0x10, 0x14,
+  0x24, 0xA0 ...) of classes nothing names; the consume effect classes (`ConsumeEffect`, `ConsumeEffect2`,
+  `SharedData`, 0x10721490 - 0x10726500, about 60 functions around unnamed structures); the particle task manager
+  (0x1073B8F0 - 0x1073C190: register-convention helpers); the channel loaders `LoadVector` / `LoadRotation` (their
+  functions.tsv sizes cover only the entry, the case blocks lie behind other functions); `DefaultTextures`
+  (0x1073DA10, 0x1073DF90: x87 sine tables); `TextureLoader` (0x1072A120 and the two statics 0x10729CD0 / 0x10729F00 for
+  `FindTexture`); the mixer's `Mix` / `Update` helpers 0x10730C80 and 0x10730E00 (2003 bytes).

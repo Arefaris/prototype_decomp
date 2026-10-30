@@ -81,6 +81,8 @@ namespace pure3d
 		public:
 			// 0x10726590: how many flag sets there are
 			unsigned int GetFlagSetCount();
+			// 0x10728350: waits until the test of a task slot is done and marks the slot free (nothing for -1; name guess)
+			void FinishTest(int slot);
 
 			unsigned char unknown0[0x18];
 			math::AABB* boxes;
@@ -95,6 +97,13 @@ namespace pure3d
 			int counts[28];
 			int offsets[14];
 			unsigned int flagSetCount;
+			float unknown1EC;
+			int unknown1F0;
+			// Whether the test of each task slot is running (+0x1F4), the lock that guards it (+0x1FC) and the events
+			// that tell the test of a slot is done (+0xC04, 0xC bytes each)
+			unsigned char slotBusy[8];
+			unsigned char lock[0xA08];
+			unsigned char events[1];
 		};
 
 		class Client

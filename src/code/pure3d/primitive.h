@@ -191,11 +191,28 @@ namespace pure3d
 		bool mChanged;
 	};
 
+	// RTTI: pure3d::ExpressionPose (base RefCounted, vftable 0x10E5D340): the weight of every expression of a face,
+	// with a flag for the ones that changed since they were last handed to a mixer
 	class ExpressionPose : public RefCounted
 	{
 	public:
-		// 0x10730C10
+		struct Weight
+		{
+			float weight;
+			bool changed;
+		};
+
+		// 0x10730C10: gives the mixer (a VertexOffsetExpressionMixer) the weights that changed
 		void Unknown10730C10(void* target);
+		// 0x10730BA0: all weights zero and unchanged
+		void Clear();
+		// 0x10730BD0
+		void SetWeight(int index, float newWeight);
+		// 0x10730C00
+		bool GetChanged(int index);
+
+		Weight* mWeights;
+		Weight* mWeightsEnd;
 	};
 
 	class VertexDeformRegion : public RefCounted
@@ -399,10 +416,15 @@ namespace pure3d
 		// 0x1072E9B0: a copy of another controller
 		ShaderAnimationController(const ShaderAnimationController& other);
 
-		// Slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26 makes a new controller (0x1072E9F0, 0x48 bytes)
+		// Slot 3 (0x1072EA10: takes the target if it is a shader), slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26
+		// makes a new controller (0x1072E9F0, 0x48 bytes)
+		virtual void SetTarget(Entity* target);
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		virtual ShaderAnimationController* Clone();
+
+		// 0x1072E5E0
+		Shader* GetShader();
 
 		// The shader the controller sets the animated values of
 		Shader* mShader;
