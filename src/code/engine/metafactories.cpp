@@ -3,6 +3,7 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/animation/behaviours/puppetbehaviour.h"
 #include "code/engine/driving/vehiclebehaviours.h"
 #include "code/engine/nisplayerbehaviour.h"
 #include "code/engine/characterintentionbehaviour.h"
