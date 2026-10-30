@@ -13,6 +13,7 @@
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/shader.h"
 
 // This unit's copies of the reference helpers for the controllers and the key frames of a state
 // FUNCTION: ENGINE 0x1071F480
@@ -2074,5 +2075,28 @@ namespace pure3d
 			lock->unknown0 = 0;
 			lock->unknown4 = 0;
 		}
+	}
+
+	// The shader's flags are mirrored into the primitive's, two of them inverted
+#pragma auto_inline(off)
+	// FUNCTION: ENGINE 0x10720220
+	void Skin::SetFlagsFromShader()
+	{
+		if (unknown18 != 0)
+		{
+			flagWord.SetBit(3, ((Shader*)unknown18)->flags.Test(2));
+			flagWord.SetBit(1, ((Shader*)unknown18)->flags.Test(0));
+			flagWord.SetBit(2, ((Shader*)unknown18)->flags.Test(1));
+			flagWord.SetBit(4, !((Shader*)unknown18)->flags.Test(2));
+			flagWord.SetBit(5, !((Shader*)unknown18)->flags.Test(2));
+		}
+	}
+#pragma auto_inline(on)
+
+	// FUNCTION: ENGINE 0x10721140
+	void Skin::Unknown4(Shader* shader)
+	{
+		Primitive::Unknown4(shader);
+		SetFlagsFromShader();
 	}
 }

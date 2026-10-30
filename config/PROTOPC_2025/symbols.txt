@@ -30901,3 +30901,5 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?gBuiltinTexture112818DC@pure3d@@3PAVTexture@1@A = 0x112818DC ; data size:0x4 | pure3d::gBuiltinTexture112818DC: a texture the texture module builds (name guess)
 ?gBuiltinTexture112818E0@pure3d@@3PAVTexture@1@A = 0x112818E0 ; data size:0x4 | pure3d::gBuiltinTexture112818E0: a texture the texture module builds (name guess)
 ?gBuiltinTexturesMade@pure3d@@3_NA = 0x112818E4 ; data size:0x1 | pure3d::gBuiltinTexturesMade (name guess)
+?SetFlagsFromShader@Skin@pure3d@@QAEXXZ = 0x10720220 ; function size:0x8B | pure3d::Skin::SetFlagsFromShader (name guess)
+?Unknown4@Skin@pure3d@@UAEXPAVShader@2@@Z = 0x10721140 ; function size:0x18 | pure3d::Skin vftable slot 4 (name guess)
