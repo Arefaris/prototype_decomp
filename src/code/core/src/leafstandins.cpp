@@ -600,15 +600,6 @@ namespace leaf
 	// FUNCTION: ENGINE 0x1060DD70
 	template int LeafDereference<0x1060DD70>(const int*);
 
-	// FUNCTION: ENGINE 0x1060E080
-	template struct LeafWord<0x1060E080, 20>;
-
-	// FUNCTION: ENGINE 0x1060E130
-	template void LeafNothing<0x1060E130>();
-
-	// FUNCTION: ENGINE 0x1060E140
-	template void LeafNothing<0x1060E140>();
-
 	// FUNCTION: ENGINE 0x1060E500
 	template struct LeafWord<0x1060E500, 12>;
 
