@@ -108,6 +108,9 @@ namespace engine
 		bool Unknown108882C0();
 	};
 
+	// The list of users at OLS +0x94 (olsfriend.h)
+	class OLSUserList;
+
 	class OLS
 	{
 	public:
@@ -150,7 +153,9 @@ namespace engine
 		unsigned char unknown84[4];
 		int selectedLocalUser;  // +0x88
 		OLSLocalUser** localUsers;  // +0x8C
-		unsigned char unknown90[0xac - 0x90];
+		unsigned char unknown90[4];
+		OLSUserList* userList;  // +0x94
+		unsigned char unknown98[0xac - 0x98];
 		container::SListLite<Callback> callbacks;
 	};
 }
