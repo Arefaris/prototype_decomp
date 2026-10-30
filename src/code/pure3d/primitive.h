@@ -858,18 +858,85 @@ namespace pure3d
 	// The kinds of generator (RTTI names; only the types are used so far)
 	class ParticlePointGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticlePointGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10741E40: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740740
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+		};
 	};
 
 	class ParticlePlaneGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticlePlaneGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10741F90
+			GeneratorAnimationState();
+			// 0x10741FE0: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x107407B0
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* wdt;
+			Float1Channel* hgt;
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+		};
 	};
 
 	class ParticleSphereGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticleSphereGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x107421D0
+			GeneratorAnimationState();
+			// 0x10742210: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740830
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* rad;
+			Float1Channel* rdva;
+		};
 	};
 
 	class ParticleGridGenerator : public ParticleGenerator
 	{
+	public:
+		// The channels the generator's shape is animated with (RTTI name pure3d::ParticleGridGenerator::GeneratorAnimationState)
+		class GeneratorAnimationState : public RefCounted
+		{
+		public:
+			// 0x10742310
+			GeneratorAnimationState();
+			// 0x10742360: takes a copy of the group's channels
+			explicit GeneratorAnimationState(AnimationGroup* group);
+			// 0x10740880
+			virtual ~GeneratorAnimationState();
+
+			Float1Channel* wdt;
+			Float1Channel* hgt;
+			Float1Channel* hosp;
+			Float1Channel* vesp;
+			Float1Channel* rdva;
+			Float1Channel* hspc;
+			Float1Channel* vspc;
+		};
 	};
 
 	class ParticleMeshGenerator : public ParticleGenerator
