@@ -114,7 +114,6 @@ namespace pure3d
 		unsigned char unknown20[0x18];
 	};
 
-	class ExpressionState;
 	class dxVertexDeclaration;
 	class dxIndexBufferState;
 	struct IndexBufferDescription;
@@ -127,9 +126,9 @@ namespace pure3d
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
 		// 0x10731700: prepares the expression and mixes the state into it
-		void Apply(VertexOffsetList* expression, ExpressionState* state);
+		void Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 		// 0x10731630
-		void Mix(VertexOffsetList* expression, ExpressionState* state);
+		void Mix(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 
 		void* unknown10;
 	};
@@ -805,7 +804,7 @@ namespace pure3d
 		void* GetUnknown70();
 		// 0x1071B200, 0x1071B210: the expression and its state at +0x74 / +0x78
 		VertexOffsetList* GetExpression();
-		ExpressionState* GetExpressionState();
+		VertexAnimKeyFrameList* GetExpressionState();
 		// 0x1071B220, 0x1071B230
 		FrameController* GetController1();
 		FrameController* GetController2();
@@ -856,9 +855,7 @@ namespace pure3d
 		void SubmitTask();
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
-		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0 (only the second is
-		// reconstructed: the first one's core::RefAssign copy lives in another unit, so its member's type is not
-		// known yet)
+		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0
 		void SetController1(FrameController* value);
 		void SetController2(FrameController* value);
 
@@ -872,7 +869,7 @@ namespace pure3d
 		// skinning paths read). GetUnknown70 hands it out as a void pointer, as the engine's callers use it.
 		Pose* pose;
 		VertexOffsetList* expression;
-		ExpressionState* expressionState;
+		VertexAnimKeyFrameList* expressionState;
 		unsigned char unknown7C[0x21C];
 		bool unknown298;
 		unsigned char unknown299[0x13];
@@ -888,7 +885,7 @@ namespace pure3d
 		int mFrame;
 		int mPoseIndex;
 		math::AABB bounds;
-		FrameController* controller1;
+		ShaderAnimationController* controller1;
 		FrameController* controller2;
 		// The positions, normals and tangents the job writes
 		SkinStream streams[3];
@@ -955,9 +952,16 @@ namespace pure3d
 		void* unknown140;
 		// 0x144: the vertex buffer the skinned vertices go into
 		PrimBuffer* buffer;
-		// 0x148: the group list of this skin's geometry (the batch is prepared through it)
-		PrimGroupList* stream;
-		unsigned char unknown14C[0x120];
+		// 0x148: the group list of this skin's geometry (the batch is prepared through it): the index buffer
+		union
+		{
+			PrimGroupList* stream;
+			dxIndexBuffer* indexBuffer;
+		};
+		// 0x14C: the streams the skin's states keep (0x1071FA50 describes them, with the block at +0x264)
+		ShaderParameters stateParameters;
+		void* unknown264;
+		int unknown268;
 		math::AABB bounds;
 		math::Vector4 centre;
 		int unknown294;

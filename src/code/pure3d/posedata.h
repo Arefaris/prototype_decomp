@@ -8,6 +8,7 @@
 #include "code/core/name.h"
 #include "code/math/matrix.h"
 #include "code/math/quaternion.h"
+#include "code/math/vector.h"
 #include "code/math/vector4.h"
 
 namespace pure3d
@@ -97,9 +98,22 @@ namespace pure3d
 		math::Vector4* mUnknown1C;
 	};
 
+	// 0x10708DB0: the memory for the arrays of a pose (the size it asked for is handed back when a pointer is given)
+	void* AllocateBoneData(unsigned int jointCount, int* size, int spaces);
+	// 0x10708240: the bytes the arrays of a pose of that many joints take (spaces: bit 0 the local space, bit 1 the
+	// joint and skinning matrices); 0x10708DF0: an address rounded up to 16 bytes (name guesses)
+	int GetRawMemorySize(unsigned int jointCount, int spaces);
+	unsigned int AlignBoneMemory(unsigned int address);
+
 	class PoseData
 	{
 	public:
+		// 0x10709960: the data of a pose of that skeleton, its memory allocated; 0x107099B0: the same in a block the
+		// caller gives (of that many bytes, aligned inside the block)
+		PoseData(SkeletonData* skeleton, int spaces);
+		PoseData(SkeletonData* skeleton, void* memory, unsigned int* size, int spaces);
+		// 0x10708310: lets go of the memory the pose allocated
+		void FreeMemory();
 		// 0x10708260: the layout of the pose
 		void GetLayout(PoseLayout* layout);
 		// 0x107098A0: builds the local and then the joint matrices
@@ -108,6 +122,17 @@ namespace pure3d
 		void UpdateLocal();
 		// 0x10708330: the joint matrices (parents applied) and the skinning matrices (inverse bind pose applied)
 		void UpdateWorld();
+		// 0x107098B0 / 0x107098D0: the joint matrix of a joint (the pose is brought up to date) and its position
+		void GetJointMatrix(int joint, math::Matrix* matrix);
+		void GetJointPosition(int joint, math::Vector* position);
+		// 0x10708980: the joint and skinning matrices of another pose of the same skeleton
+		void CopyMatricesFrom(PoseData* other);
+		// 0x107082B0: lays the arrays out in a block of memory (name guess)
+		void SetMemory(void* memory);
+		// 0x107087D0: the rest pose of the skeleton (name guess)
+		void SetRestPose();
+		// 0x10709910: the rest pose, and the matrices of a pose without the space for them as identities (name guess)
+		void Initialise();
 
 		SkeletonData* mSkeleton;
 		JointArrays mArrays;
@@ -118,7 +143,16 @@ namespace pure3d
 		int mSpaces;
 		// Bit 0: local matrices out of date, bit 1: joint matrices out of date, bit 2: the further transform arrays
 		// are in use
-		unsigned char mFlags;
+		union
+		{
+			unsigned char mFlags;
+			struct
+			{
+				unsigned char mLocalOutOfDate : 1;
+				unsigned char mWorldOutOfDate : 1;
+				unsigned char mFurther : 1;
+			};
+		};
 		unsigned char unknown31[3];
 		void* mUnknown34;
 		void* mUnknown38;

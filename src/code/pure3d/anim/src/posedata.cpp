@@ -1,10 +1,72 @@
 // pure3d::PoseData (code/pure3d/anim/src/posedata.cpp, path from the asserts; the unit runs from about 0x10707240 to
 // 0x10709AA0). Names are guesses.
+#include "code/core/debug.h"
+#include "code/core/heap.h"
+#include "code/core/memutils.h"
 #include "code/pure3d/posedata.h"
 #include "code/pure3d/posedatasimd.h"
 
 namespace pure3d
 {
+	// The file the unit's asserts carry (posedata.cpp)
+	#define POSEDATA_FILE "..\\..\\..\\code\\pure3d\\anim\\src\\posedata.cpp"
+
+	// The bytes the arrays of a pose of that many joints take: 0xA0 per joint for the local space (the arrays and the
+	// local matrices), 0x80 for the joint and skinning matrices
+	// FUNCTION: ENGINE 0x10708240
+	int GetRawMemorySize(unsigned int jointCount, int spaces)
+	{
+		int size = 0;
+		if (spaces & 1)
+		{
+			size = jointCount * 0xA0;
+		}
+		if (spaces & 2)
+		{
+			size += jointCount * 0x80;
+		}
+		return size;
+	}
+
+	// FUNCTION: ENGINE 0x10708DB0
+	void* AllocateBoneData(unsigned int jointCount, int* size, int spaces)
+	{
+		int bytes = GetRawMemorySize(jointCount, spaces) + 0x10;
+		void* memory = core::HeapAlloc(core::GetCurrentHeap(), bytes);
+		if (size != 0)
+		{
+			*size = bytes;
+		}
+		return memory;
+	}
+
+	// The block address rounded up to 16 bytes
+	// FUNCTION: ENGINE 0x10708DF0
+	unsigned int AlignBoneMemory(unsigned int address)
+	{
+		return (address + 0xF) & 0xFFFFFFF0;
+	}
+
+	// The sixteen components of a matrix, one by one
+	static __forceinline void CopyMatrix(math::Matrix* destination, const math::Matrix* source)
+	{
+		for (int row = 0; row < 4; row++)
+		{
+			destination->m[row][0] = source->m[row][0];
+			destination->m[row][1] = source->m[row][1];
+			destination->m[row][2] = source->m[row][2];
+			destination->m[row][3] = source->m[row][3];
+		}
+	}
+
+	// The first three components of a vector
+	static __forceinline void CopyVector3(math::Vector4* destination, const math::Vector4* source)
+	{
+		destination->x = source->x;
+		destination->y = source->y;
+		destination->z = source->z;
+	}
+
 	// The lane n of a vector in all four lanes
 	#define SPLAT(v, n) _mm_shuffle_ps(v, v, _MM_SHUFFLE(n, n, n, n))
 
@@ -202,5 +264,153 @@ namespace pure3d
 			_mm_store_ps(skin[i].m[3], RowTimesMatrix(_mm_load_ps(bind.m[3]), w0, w1, w2, w3));
 		}
 		mFlags &= ~2;
+	}
+
+	// FUNCTION: ENGINE 0x10708260
+	void PoseData::GetLayout(PoseLayout* layout)
+	{
+		layout->jointCount = mArrays.mJointCount;
+		layout->spaces = mSpaces;
+		layout->updateLocal = mLocalOutOfDate;
+		layout->updateWorld = mWorldOutOfDate;
+		layout->further = mFurther;
+		layout->memory = mUnknown38;
+	}
+
+	// FUNCTION: ENGINE 0x10708310
+	void PoseData::FreeMemory()
+	{
+		core::Free(mUnknown34);
+	}
+
+	// FUNCTION: ENGINE 0x107082B0
+	void PoseData::SetMemory(void* memory)
+	{
+		int spaces = mSpaces;
+		mUnknown38 = memory;
+		char* block = (char*)memory;
+		if (spaces & 2)
+		{
+			int size = mArrays.mJointCount * 0x40;
+			char* skin = block + size;
+			mSkinMatrices = (math::Matrix*)skin;
+			mWorldMatrices = (math::Matrix*)block;
+			block = skin + size;
+		}
+		if (spaces & 1)
+		{
+			mLocalMatrices = (math::Matrix*)block;
+			block += mArrays.mJointCount * 0x40;
+			int stride = mArrays.mJointCount * 0x10;
+			mArrays.mRotations = (math::Quaternion*)block;
+			block += stride;
+			mArrays.mTranslations = (math::Vector4*)block;
+			block += stride;
+			mArrays.mUnknown10 = (math::Vector4*)block;
+			block += stride;
+			mArrays.mScales = (math::Vector4*)block;
+			block += stride;
+			mArrays.mUnknown14 = (math::Vector4*)block;
+			mArrays.mUnknown1C = (math::Vector4*)(block + stride);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10709960
+	PoseData::PoseData(SkeletonData* skeleton, int spaces)
+	{
+		mFlags |= 7;
+		mSkeleton = skeleton;
+		mUnknown34 = 0;
+		mUnknown38 = 0;
+		mArrays.mJointCount = skeleton->mJointCount;
+		mSpaces = spaces;
+		mUnknown34 = AllocateBoneData(mArrays.mJointCount, 0, spaces);
+		SetMemory((void*)AlignBoneMemory((unsigned int)mUnknown34));
+		Initialise();
+	}
+
+	// FUNCTION: ENGINE 0x107099B0
+	PoseData::PoseData(SkeletonData* skeleton, void* memory, unsigned int* size, int spaces)
+	{
+		mFlags |= 7;
+		mSkeleton = skeleton;
+		mUnknown34 = 0;
+		mUnknown38 = 0;
+		mArrays.mJointCount = skeleton->mJointCount;
+		mSpaces = spaces;
+		unsigned int aligned = AlignBoneMemory((unsigned int)memory);
+		OLD_ASSERT_TEXT_AT(POSEDATA_FILE, 0xDE,
+			(*size >= (unsigned int)(GetRawMemorySize(mArrays.mJointCount, mSpaces) + (aligned - (unsigned int)memory))),
+			"size >= GetRawMemorySize( mJointCount, mSpaces ) + (alignedMemory - unalignedRawMemory)");
+		SetMemory((void*)aligned);
+		Initialise();
+	}
+
+	// FUNCTION: ENGINE 0x107087D0
+	// EQUIVALENT: scheduling (the engine loads the destination array before the source array of every copy; 68 %)
+	void PoseData::SetRestPose()
+	{
+		for (unsigned int i = 0; i < mArrays.mJointCount; i++)
+		{
+			if (mSpaces & 1)
+			{
+				mArrays.mRotations[i] = mSkeleton->mRotations[i];
+				CopyMatrix(&mLocalMatrices[i], &mSkeleton->mFileMatrices[i]);
+				CopyVector3(&mArrays.mTranslations[i], &mSkeleton->mTranslations[i]);
+				CopyVector3(&mArrays.mUnknown10[i], &mSkeleton->mUnknown10[i]);
+				CopyVector3(&mArrays.mScales[i], &mSkeleton->mScales[i]);
+				CopyVector3(&mArrays.mUnknown14[i], &mSkeleton->mUnknown18[i]);
+				CopyVector3(&mArrays.mUnknown1C[i], &mSkeleton->mUnknown1C[i]);
+			}
+			if (mSpaces & 2)
+			{
+				mWorldMatrices[i].Identity();
+			}
+		}
+		mFlags = (mFlags & 0xFE) | 2;
+		if (mSpaces != 3)
+		{
+			mFlags &= ~2;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10709910
+	void PoseData::Initialise()
+	{
+		if (mSpaces != 3)
+		{
+			mFlags &= ~3;
+			math::Matrix* matrix = mSkinMatrices;
+			for (unsigned int i = 0; i < mArrays.mJointCount; i++)
+			{
+				matrix->Identity();
+				matrix++;
+			}
+		}
+		SetRestPose();
+		Update();
+	}
+
+	// FUNCTION: ENGINE 0x107098B0
+	void PoseData::GetJointMatrix(int joint, math::Matrix* matrix)
+	{
+		Update();
+		*matrix = mWorldMatrices[joint];
+	}
+
+	// FUNCTION: ENGINE 0x107098D0
+	// EQUIVALENT: instruction selection (the engine loads the three floats into SSE registers and stores them from there, ours copies the first through the x87 unit; 51 %)
+	void PoseData::GetJointPosition(int joint, math::Vector* position)
+	{
+		Update();
+		math::Matrix* m = &mWorldMatrices[joint];
+		position->Set(m->m[3][0], m->m[3][1], m->m[3][2]);
+	}
+
+	// FUNCTION: ENGINE 0x10708980
+	void PoseData::CopyMatricesFrom(PoseData* other)
+	{
+		core::MemCopy4(mWorldMatrices, other->mWorldMatrices, mArrays.mJointCount << 7);
+		mFlags &= 0xFC;
 	}
 }

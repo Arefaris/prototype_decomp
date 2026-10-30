@@ -5,7 +5,7 @@
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10731700
-	void VertexOffsetExpressionMixer::Apply(VertexOffsetList* expression, ExpressionState* state)
+	void VertexOffsetExpressionMixer::Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state)
 	{
 		expression->Prepare();
 		Mix(expression, state);
