@@ -163,6 +163,156 @@ namespace ravenphysics
 		int first;
 		int second;
 	};
+
+	// Reference counter: increment and decrement (interlocked)
+	template <int Function>
+	struct LeafIncrement
+	{
+		long Get();
+
+		long member;
+	};
+
+	template <int Function>
+	struct LeafDecrement
+	{
+		long Get();
+
+		long member;
+	};
+
+	// A byte split around one bit
+	template <int Bit>
+	struct LeafBitField
+	{
+		unsigned char before : Bit;
+		unsigned char flag : 1;
+		unsigned char after : 7 - Bit;
+	};
+
+	template <>
+	struct LeafBitField<0>
+	{
+		unsigned char flag : 1;
+		unsigned char after : 7;
+	};
+
+	template <int Bit>
+	struct LeafSignedBitField
+	{
+		char before : Bit;
+		char flag : 1;
+		char after : 7 - Bit;
+	};
+
+	template <>
+	struct LeafSignedBitField<0>
+	{
+		char flag : 1;
+		char after : 7;
+	};
+
+	// A bit of the byte at Offset
+	template <int Function, int Offset, int Bit>
+	struct LeafBit : LeafPadding<Offset>
+	{
+		bool Get() const;
+
+		LeafBitField<Bit> member;
+	};
+
+	// A one-bit signed field
+	template <int Function, int Offset, int Bit>
+	struct LeafSignedBit : LeafPadding<Offset>
+	{
+		char Get() const;
+
+		LeafSignedBitField<Bit> member;
+	};
+
+	// The element of a short array at the short index; the array pointer at Offset
+	template <int Function, int Offset>
+	struct LeafHalfIndexed : LeafPadding<Offset>
+	{
+		unsigned short At(unsigned short index) const;
+
+		unsigned short* items;
+	};
+
+	// An array of Size bytes per element from a scratch allocator: pointer and count
+	template <int Function, int Size>
+	struct LeafCreate
+	{
+		void Create(int count, StackAllocator* stack);
+
+		void* items;
+		int count;
+	};
+
+	// The same with a capacity behind an empty count
+	template <int Function, int Size>
+	struct LeafCreateCapacity
+	{
+		void Create(int newCapacity, StackAllocator* stack);
+
+		void* items;
+		int count;
+		int capacity;
+	};
+
+	// The next element of a counted array
+	template <int Function, int Size>
+	struct LeafNext
+	{
+		LeafElement<Size>* Next();
+
+		LeafElement<Size>* items;
+		int count;
+	};
+
+	// Appends a copy of an element to a counted array
+	template <int Function, int Size>
+	struct LeafPush
+	{
+		void Push(const LeafElement<Size>* value);
+
+		LeafElement<Size>* items;
+		int count;
+	};
+
+	// Three words: the first from the first argument, the second zero, the third from the second argument
+	template <int Function>
+	struct LeafInitThree
+	{
+		LeafInitThree(int newFirst, int newThird);
+
+		int first;
+		int second;
+		int third;
+	};
+
+	// Three words: zero, zero and the argument
+	template <int Function>
+	struct LeafInitThreeLast
+	{
+		LeafInitThreeLast(int newThird);
+
+		int first;
+		int second;
+		int third;
+	};
+
+	// Three zero words and a fourth from the argument
+	template <int Function>
+	struct LeafInitFour
+	{
+		LeafInitFour(int newFourth);
+
+		int first;
+		int second;
+		int third;
+		int fourth;
+	};
 }
 
 #endif

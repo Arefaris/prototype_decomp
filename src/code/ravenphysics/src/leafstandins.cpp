@@ -1,4 +1,7 @@
 // The tiny leaf functions of 0x106A0000 - 0x106C0000; see leafstandins.h.
+#include <new>
+#include "code/core/interlocked.h"
+#include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/leafstandins.h"
 
 namespace ravenphysics
@@ -115,6 +118,90 @@ namespace ravenphysics
 		second = newSecond;
 	}
 
+	template <int Function>
+	long LeafIncrement<Function>::Get()
+	{
+		return _InterlockedIncrement(&member);
+	}
+
+	template <int Function>
+	long LeafDecrement<Function>::Get()
+	{
+		return _InterlockedDecrement(&member);
+	}
+
+	template <int Function, int Offset, int Bit>
+	bool LeafBit<Function, Offset, Bit>::Get() const
+	{
+		return member.flag;
+	}
+
+	template <int Function, int Offset, int Bit>
+	char LeafSignedBit<Function, Offset, Bit>::Get() const
+	{
+		return member.flag;
+	}
+
+	template <int Function, int Offset>
+	unsigned short LeafHalfIndexed<Function, Offset>::At(unsigned short index) const
+	{
+		return items[index];
+	}
+
+	template <int Function, int Size>
+	void LeafCreate<Function, Size>::Create(int newCount, StackAllocator* stack)
+	{
+		items = stack->Alloc(newCount * Size, 16);
+		count = newCount;
+	}
+
+	template <int Function, int Size>
+	void LeafCreateCapacity<Function, Size>::Create(int newCapacity, StackAllocator* stack)
+	{
+		items = stack->Alloc(newCapacity * Size, 16);
+		count = 0;
+		capacity = newCapacity;
+	}
+
+	template <int Function, int Size>
+	LeafElement<Size>* LeafNext<Function, Size>::Next()
+	{
+		count++;
+		return items + count - 1;
+	}
+
+	template <int Function, int Size>
+	void LeafPush<Function, Size>::Push(const LeafElement<Size>* value)
+	{
+		count++;
+		new (items + count - 1) LeafElement<Size>(*value);
+	}
+
+	template <int Function>
+	LeafInitThree<Function>::LeafInitThree(int newFirst, int newThird)
+	{
+		first = newFirst;
+		second = 0;
+		third = newThird;
+	}
+
+	template <int Function>
+	LeafInitThreeLast<Function>::LeafInitThreeLast(int newThird)
+	{
+		first = 0;
+		second = 0;
+		third = newThird;
+	}
+
+	template <int Function>
+	LeafInitFour<Function>::LeafInitFour(int newFourth)
+	{
+		first = 0;
+		second = 0;
+		third = 0;
+		fourth = newFourth;
+	}
+
 
 	// FUNCTION: ENGINE 0x106A0000
 	template struct LeafAddress<0x106A0000, 104>;
@@ -206,6 +293,9 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106A39B0
 	template struct LeafWord<0x106A39B0, 80>;
 
+	// FUNCTION: ENGINE 0x106A3E80
+	template struct LeafNext<0x106A3E80, 112>;
+
 	// FUNCTION: ENGINE 0x106A5E20
 	template struct LeafArray<0x106A5E20, 12>;
 
@@ -236,6 +326,12 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106A7AD0
 	template struct LeafArray<0x106A7AD0, 12>;
 
+	// FUNCTION: ENGINE 0x106A7AE0
+	template struct LeafInitThree<0x106A7AE0>;
+
+	// FUNCTION: ENGINE 0x106A7B00
+	template struct LeafInitFour<0x106A7B00>;
+
 	// FUNCTION: ENGINE 0x106A80C0
 	template void LeafNothing<0x106A80C0>();
 
@@ -245,8 +341,20 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106A80E0
 	template void LeafNothing<0x106A80E0>();
 
+	// FUNCTION: ENGINE 0x106A80F0
+	template struct LeafNext<0x106A80F0, 48>;
+
 	// FUNCTION: ENGINE 0x106A8110
 	template struct LeafWord<0x106A8110, 8>;
+
+	// FUNCTION: ENGINE 0x106A8120
+	template struct LeafNext<0x106A8120, 48>;
+
+	// FUNCTION: ENGINE 0x106A8D70
+	template struct LeafIncrement<0x106A8D70>;
+
+	// FUNCTION: ENGINE 0x106A8D80
+	template struct LeafDecrement<0x106A8D80>;
 
 	// FUNCTION: ENGINE 0x106A8E90
 	template struct LeafSelf<0x106A8E90>;
@@ -256,6 +364,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106A8FD0
 	template struct LeafFloat<0x106A8FD0, 0>;
+
+	// FUNCTION: ENGINE 0x106A9200
+	template struct LeafSignedBit<0x106A9200, 16, 2>;
 
 	// FUNCTION: ENGINE 0x106A9210
 	template struct LeafWord<0x106A9210, 0>;
@@ -332,6 +443,12 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106A9440
 	template struct LeafArray<0x106A9440, 12>;
 
+	// FUNCTION: ENGINE 0x106A9490
+	template struct LeafCreate<0x106A9490, 72>;
+
+	// FUNCTION: ENGINE 0x106A94C0
+	template struct LeafCreate<0x106A94C0, 128>;
+
 	// FUNCTION: ENGINE 0x106AA3F0
 	template struct LeafWord<0x106AA3F0, 0>;
 
@@ -356,6 +473,18 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AA470
 	template struct LeafHalf<0x106AA470, 4>;
 
+	// FUNCTION: ENGINE 0x106AA480
+	template struct LeafBit<0x106AA480, 10, 1>;
+
+	// FUNCTION: ENGINE 0x106AA490
+	template struct LeafBit<0x106AA490, 10, 2>;
+
+	// FUNCTION: ENGINE 0x106AA4A0
+	template struct LeafBit<0x106AA4A0, 10, 3>;
+
+	// FUNCTION: ENGINE 0x106AA4B0
+	template struct LeafBit<0x106AA4B0, 10, 4>;
+
 	// FUNCTION: ENGINE 0x106AA5A0
 	template struct LeafInitTwo<0x106AA5A0, 0, 0>;
 
@@ -368,17 +497,71 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AA610
 	template struct LeafArray<0x106AA610, 28>;
 
+	// FUNCTION: ENGINE 0x106AA630
+	template struct LeafPush<0x106AA630, 8>;
+
 	// FUNCTION: ENGINE 0x106AA660
 	template struct LeafInitTwo<0x106AA660, 0, 0>;
+
+	// FUNCTION: ENGINE 0x106AA6A0
+	template struct LeafPush<0x106AA6A0, 8>;
+
+	// FUNCTION: ENGINE 0x106AA6D0
+	template struct LeafPush<0x106AA6D0, 8>;
 
 	// FUNCTION: ENGINE 0x106AA700
 	template struct LeafTwoWords<0x106AA700>;
 
+	// FUNCTION: ENGINE 0x106AA720
+	template struct LeafCreate<0x106AA720, 64>;
+
+	// FUNCTION: ENGINE 0x106AA750
+	template struct LeafCreate<0x106AA750, 16>;
+
+	// FUNCTION: ENGINE 0x106AA780
+	template struct LeafCreate<0x106AA780, 32>;
+
+	// FUNCTION: ENGINE 0x106AA7B0
+	template struct LeafCreate<0x106AA7B0, 32>;
+
+	// FUNCTION: ENGINE 0x106AA7E0
+	template struct LeafCreate<0x106AA7E0, 36>;
+
+	// FUNCTION: ENGINE 0x106AA810
+	template struct LeafCreate<0x106AA810, 16>;
+
+	// FUNCTION: ENGINE 0x106AA840
+	template struct LeafCreate<0x106AA840, 2>;
+
 	// FUNCTION: ENGINE 0x106AA870
 	template struct LeafSetTwoWords<0x106AA870>;
 
+	// FUNCTION: ENGINE 0x106AA8A0
+	template struct LeafHalfIndexed<0x106AA8A0, 72>;
+
+	// FUNCTION: ENGINE 0x106AA8B0
+	template struct LeafHalfIndexed<0x106AA8B0, 96>;
+
+	// FUNCTION: ENGINE 0x106AA8C0
+	template struct LeafHalfIndexed<0x106AA8C0, 84>;
+
 	// FUNCTION: ENGINE 0x106AB0F0
 	template struct LeafZeroThree<0x106AB0F0>;
+
+	// FUNCTION: ENGINE 0x106AB100
+	template struct LeafCreateCapacity<0x106AB100, 8>;
+
+	// FUNCTION: ENGINE 0x106AB3C0
+	template struct LeafSignedBit<0x106AB3C0, 0, 1>;
+
+	// FUNCTION: ENGINE 0x106AB3D0
+	template struct LeafSignedBit<0x106AB3D0, 0, 2>;
+
+	// FUNCTION: ENGINE 0x106AB3E0
+	template struct LeafBit<0x106AB3E0, 10, 0>;
+
+	// FUNCTION: ENGINE 0x106AB3F0
+	template struct LeafPush<0x106AB3F0, 4>;
 
 	// FUNCTION: ENGINE 0x106AB410
 	template struct LeafWord<0x106AB410, 4>;
@@ -395,8 +578,23 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AB450
 	template struct LeafSetTwoWords<0x106AB450>;
 
+	// FUNCTION: ENGINE 0x106AB5E0
+	template struct LeafCreateCapacity<0x106AB5E0, 4>;
+
+	// FUNCTION: ENGINE 0x106AB610
+	template struct LeafCreateCapacity<0x106AB610, 4>;
+
 	// FUNCTION: ENGINE 0x106ABB20
 	template void LeafNothing<0x106ABB20>();
+
+	// FUNCTION: ENGINE 0x106ABB70
+	template struct LeafInitThreeLast<0x106ABB70>;
+
+	// FUNCTION: ENGINE 0x106ABE60
+	template struct LeafSignedBit<0x106ABE60, 0, 0>;
+
+	// FUNCTION: ENGINE 0x106ABE80
+	template struct LeafNext<0x106ABE80, 12>;
 
 	// FUNCTION: ENGINE 0x106ABEA0
 	template struct LeafArray<0x106ABEA0, 2>;
@@ -412,6 +610,12 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106AC200
 	template struct LeafArray<0x106AC200, 4>;
+
+	// FUNCTION: ENGINE 0x106AC210
+	template struct LeafNext<0x106AC210, 2>;
+
+	// FUNCTION: ENGINE 0x106AC220
+	template struct LeafPush<0x106AC220, 4>;
 
 	// FUNCTION: ENGINE 0x106AC970
 	template struct LeafWord<0x106AC970, 4>;
@@ -449,6 +653,12 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AD350
 	template struct LeafArray<0x106AD350, 4>;
 
+	// FUNCTION: ENGINE 0x106AD360
+	template struct LeafNext<0x106AD360, 8>;
+
+	// FUNCTION: ENGINE 0x106AD370
+	template struct LeafPush<0x106AD370, 8>;
+
 	// FUNCTION: ENGINE 0x106AD3A0
 	template struct LeafWord<0x106AD3A0, 8>;
 
@@ -457,6 +667,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106AD3C0
 	template struct LeafArray<0x106AD3C0, 4>;
+
+	// FUNCTION: ENGINE 0x106AD3D0
+	template struct LeafPush<0x106AD3D0, 4>;
 
 	// FUNCTION: ENGINE 0x106AD3F0
 	template struct LeafArray<0x106AD3F0, 4>;
@@ -472,6 +685,12 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106AD960
 	template struct LeafZeroThree<0x106AD960>;
+
+	// FUNCTION: ENGINE 0x106AD970
+	template struct LeafCreateCapacity<0x106AD970, 8>;
+
+	// FUNCTION: ENGINE 0x106AD9A0
+	template struct LeafCreateCapacity<0x106AD9A0, 4>;
 
 	// FUNCTION: ENGINE 0x106AEDF0
 	template struct LeafSelf<0x106AEDF0>;
@@ -548,6 +767,39 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106AF480
 	template struct LeafTwoWords<0x106AF480>;
 
+	// FUNCTION: ENGINE 0x106AFB30
+	template struct LeafInitThreeLast<0x106AFB30>;
+
+	// FUNCTION: ENGINE 0x106AFB50
+	template struct LeafInitThree<0x106AFB50>;
+
+	// FUNCTION: ENGINE 0x106AFB70
+	template struct LeafInitThree<0x106AFB70>;
+
+	// FUNCTION: ENGINE 0x106AFB90
+	template struct LeafInitThree<0x106AFB90>;
+
+	// FUNCTION: ENGINE 0x106AFBB0
+	template struct LeafInitThree<0x106AFBB0>;
+
+	// FUNCTION: ENGINE 0x106AFBD0
+	template struct LeafInitThree<0x106AFBD0>;
+
+	// FUNCTION: ENGINE 0x106AFBF0
+	template struct LeafInitFour<0x106AFBF0>;
+
+	// FUNCTION: ENGINE 0x106AFC10
+	template struct LeafInitFour<0x106AFC10>;
+
+	// FUNCTION: ENGINE 0x106AFC30
+	template struct LeafInitFour<0x106AFC30>;
+
+	// FUNCTION: ENGINE 0x106AFC50
+	template struct LeafInitFour<0x106AFC50>;
+
+	// FUNCTION: ENGINE 0x106AFC70
+	template struct LeafInitFour<0x106AFC70>;
+
 	// FUNCTION: ENGINE 0x106B23F0
 	template void LeafNothing<0x106B23F0>();
 
@@ -566,6 +818,9 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106B28B0
 	template bool LeafFalse<0x106B28B0>();
 
+	// FUNCTION: ENGINE 0x106B28E0
+	template struct LeafIncrement<0x106B28E0>;
+
 	// FUNCTION: ENGINE 0x106B2940
 	template struct LeafByte<0x106B2940, 44>;
 
@@ -574,6 +829,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106B2960
 	template struct LeafWord<0x106B2960, 48>;
+
+	// FUNCTION: ENGINE 0x106B3550
+	template struct LeafDecrement<0x106B3550>;
 
 	// FUNCTION: ENGINE 0x106B3570
 	template struct LeafSelf<0x106B3570>;
@@ -590,6 +848,15 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106B3600
 	template struct LeafArray<0x106B3600, 64>;
 
+	// FUNCTION: ENGINE 0x106B39D0
+	template struct LeafDecrement<0x106B39D0>;
+
+	// FUNCTION: ENGINE 0x106B3B70
+	template struct LeafDecrement<0x106B3B70>;
+
+	// FUNCTION: ENGINE 0x106B3CD0
+	template struct LeafDecrement<0x106B3CD0>;
+
 	// FUNCTION: ENGINE 0x106B3CF0
 	template struct LeafWord<0x106B3CF0, 80>;
 
@@ -601,6 +868,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106B3D90
 	template void LeafNothing<0x106B3D90>();
+
+	// FUNCTION: ENGINE 0x106B3DE0
+	template struct LeafPush<0x106B3DE0, 4>;
 
 	// FUNCTION: ENGINE 0x106B3E00
 	template struct LeafArray<0x106B3E00, 4>;
@@ -638,6 +908,30 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x106B40A0
 	template int LeafZero<0x106B40A0>();
 
+	// FUNCTION: ENGINE 0x106B4250
+	template struct LeafInitThreeLast<0x106B4250>;
+
+	// FUNCTION: ENGINE 0x106B4270
+	template struct LeafInitThree<0x106B4270>;
+
+	// FUNCTION: ENGINE 0x106B4290
+	template struct LeafInitThree<0x106B4290>;
+
+	// FUNCTION: ENGINE 0x106B42B0
+	template struct LeafInitThree<0x106B42B0>;
+
+	// FUNCTION: ENGINE 0x106B45C0
+	template struct LeafInitFour<0x106B45C0>;
+
+	// FUNCTION: ENGINE 0x106B45E0
+	template struct LeafInitFour<0x106B45E0>;
+
+	// FUNCTION: ENGINE 0x106B4600
+	template struct LeafInitFour<0x106B4600>;
+
+	// FUNCTION: ENGINE 0x106B53E0
+	template struct LeafDecrement<0x106B53E0>;
+
 	// FUNCTION: ENGINE 0x106B5460
 	template struct LeafAddress<0x106B5460, 4>;
 
@@ -652,6 +946,12 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106B54C0
 	template struct LeafArray<0x106B54C0, 8>;
+
+	// FUNCTION: ENGINE 0x106B5640
+	template struct LeafIncrement<0x106B5640>;
+
+	// FUNCTION: ENGINE 0x106B5650
+	template struct LeafDecrement<0x106B5650>;
 
 	// FUNCTION: ENGINE 0x106B5720
 	template struct LeafAddress<0x106B5720, 24>;
