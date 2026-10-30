@@ -37,6 +37,13 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
    `config/PROTOPC_2025/symbols.txt` with its kind and size:
    `?Name@Class@ns@@QAEXXZ = 0x10123456 ; function size:0x4C | ns::Class::Name (guess)`.
    Name what it calls and reads too, as far as needed for the code to compile.
+   A small function (an accessor, an element getter, a word initialiser) goes on its real class only: the class
+   one of its callers, a vftable, the RTTI or an assert names. When nothing names it, leave the function for later;
+   do not invent a class for its machine-code pattern. The stand-ins written that way earlier
+   (`ravenphysics/smallobjects.h`, `standins.h`, `leafstandins.h`: classes or templates named after what their
+   functions compute, some with the engine address as a template argument) are temporary: when a unit recovers the
+   real class of a stand-in's function, move the function onto that class (its annotation and symbols.txt line with
+   it) and delete the stand-in's declaration and definition.
 4. **Write** it in the unit's source file under `src/code/...`, with `// FUNCTION: ENGINE 0x10123456` directly above
    the definition. Declarations go in headers next to the module (`src/code/<module>/...h`).
 5. **Match** it: `ninja && ninja check` (objcmp), or objdiff on the unit (`D:/tools/objdiff/objdiff.exe`, project =
