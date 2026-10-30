@@ -460,41 +460,4 @@ namespace world
 }
 }
 
-namespace ravenphysics
-{
-	// DeformableOrientationConstraintSharedProperties: constructor 0x10692DF0, reflection 0x10692C50 / 0x10693060
-	class DeformableOrientationConstraintSharedProperties : public content::MetaLoadObject
-	{
-	public:
-		DeformableOrientationConstraintSharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
-	};
-
-	// DeformableSliderConstraintSharedProperties: constructor 0x10692590, reflection 0x10692180 / 0x10692930
-	class DeformableSliderConstraintSharedProperties : public content::MetaLoadObject
-	{
-	public:
-		DeformableSliderConstraintSharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x10];
-	};
-
-	// PoweredConstraintSharedProperties: constructor 0x10693B90, reflection 0x106939E0 / 0x10693D40
-	class PoweredConstraintSharedProperties : public content::MetaLoadObject
-	{
-	public:
-		PoweredConstraintSharedProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x8];
-	};
-
-}
-
 #endif

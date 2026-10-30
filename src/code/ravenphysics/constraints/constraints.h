@@ -386,6 +386,326 @@ namespace ravenphysics
 		float unknown58;              // 0x58
 		float unknown5C;              // 0x5C
 	};
+
+	// Slows the second object's turning against the first (RTTI: ConstraintAngularFriction)
+	class ConstraintAngularFriction : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10691F60)
+		ConstraintAngularFriction();
+		// Between the objects two handles name (0x10691FA0)
+		ConstraintAngularFriction(const CollisionHandle* first, const CollisionHandle* second);
+		virtual unsigned short GetKind(int unused);
+
+		// The friction (0x10691FD0)
+		void SetFriction(float value);
+
+		float friction;               // 0x24
+	};
+
+	// A fixed distance along an axis that gives way under a force (RTTI: ConstraintDeformableFixDistanceAlongAxis)
+	class ConstraintDeformableFixDistanceAlongAxis : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x106921C0)
+		ConstraintDeformableFixDistanceAlongAxis();
+		// Between the objects two handles name (0x10692250)
+		ConstraintDeformableFixDistanceAlongAxis(const CollisionHandle* first, const CollisionHandle* second);
+		// A copy (0x106922F0)
+		ConstraintDeformableFixDistanceAlongAxis(const ConstraintDeformableFixDistanceAlongAxis& other);
+		virtual ~ConstraintDeformableFixDistanceAlongAxis();
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The shared properties (0x10692390 / 0x10692660); the setter also takes the constants over
+		DeformableSliderConstraintSharedProperties* GetSharedProperties() const;
+		void SetSharedProperties(DeformableSliderConstraintSharedProperties* properties);
+		// The points (0x106923A0 / 0x106923C0) and the axis (0x106923E0; it is normalised and must not be of no length)
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetAxis(const math::Vector* newAxis);
+		// The distance, how the correction of it is limited and the forces it gives way at
+		// (0x10692450 / 0x10692460 / 0x10692470 / 0x10692490 / 0x106924A0)
+		void SetDistance(float value);
+		void SetDistanceCorrectionScale(float value);
+		void SetMaxDistanceCorrectionForce(float value);
+		void SetMaximumStaticForce(float value);
+		void SetMaximumDynamicForce(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		math::Vector axis;            // 0x3C
+		float distance;               // 0x48
+		float distanceCorrectionScale;  // 0x4C
+		float maxDistanceCorrectionForce;  // 0x50
+		float maximumStaticForce;     // 0x54
+		float maximumDynamicForce;    // 0x58
+		bool flag;                    // 0x5C
+		float unknown60;              // 0x60
+		float unknown64;              // 0x64
+		float unknown68;              // 0x68
+		DeformableSliderConstraintSharedProperties* sharedProperties;  // 0x6C
+	};
+
+	// Keeps the second object's orientation relative to the first, giving way under a force (RTTI:
+	// ConstraintDeformableOrientation)
+	class ConstraintDeformableOrientation : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10692C90)
+		ConstraintDeformableOrientation();
+		// Between the objects two handles name (0x10692CF0)
+		ConstraintDeformableOrientation(const CollisionHandle* first, const CollisionHandle* second);
+		// A copy (0x10692EB0)
+		ConstraintDeformableOrientation(const ConstraintDeformableOrientation& other);
+		virtual ~ConstraintDeformableOrientation();
+		virtual unsigned short GetKind(int unused);
+
+		// The shared properties (0x10692D60 / 0x10692F30); the setter also takes the forces over
+		DeformableOrientationConstraintSharedProperties* GetSharedProperties() const;
+		void SetSharedProperties(DeformableOrientationConstraintSharedProperties* properties);
+		// The forces (0x10692D80 / 0x10692D90)
+		void SetMaximumStaticForce(float value);
+		void SetMaximumDynamicForce(float value);
+
+		DeformableOrientationConstraintSharedProperties* sharedProperties;  // 0x24
+		math::Matrix3 basis;          // 0x28
+		float maximumStaticForce;     // 0x4C
+		float maximumDynamicForce;    // 0x50
+		bool flag;                    // 0x54
+		float unknown58;              // 0x58
+		float unknown5C;              // 0x5C
+		float unknown60;              // 0x60
+		float unknown64;              // 0x64
+		float unknown68;              // 0x68
+		float unknown6C;              // 0x6C
+	};
+
+	// Keeps the distance between a point of each object (RTTI: ConstraintFixDistance)
+	class ConstraintFixDistance : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10693290)
+		ConstraintFixDistance();
+		// Between the objects two handles name (0x106932F0; the members are left as they are)
+		ConstraintFixDistance(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The points (0x10693320 / 0x10693340), the distance (0x10693360) and the two limits (0x10693370 / 0x10693380)
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetDistance(float value);
+		void SetUnknown40(float value);
+		void SetUnknown44(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		float distance;               // 0x3C
+		float unknown40;              // 0x40
+		float unknown44;              // 0x44
+	};
+
+	// Moves a point of the second object along an axis at a speed, with a limit on the force (RTTI:
+	// ConstraintLinearVelocity)
+	class ConstraintLinearVelocity : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10693640)
+		ConstraintLinearVelocity();
+		// Between the objects two handles name (0x106936B0; the force limit starts at the library's default)
+		ConstraintLinearVelocity(const CollisionHandle* first, const CollisionHandle* second);
+		virtual unsigned short GetKind(int unused);
+
+		// The numbers (0x10693730 / 0x10693740), the axis (0x10693750; it is normalised) and the points (0x10693780 /
+		// 0x106937A0)
+		void SetLinearVelocity(float value);
+		void SetMaxForce(float value);
+		void SetAxis(const math::Vector* newAxis);
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+
+		math::Vector axis;            // 0x24 (reflected as "axisB")
+		math::Vector pointA;          // 0x30
+		math::Vector pointB;          // 0x3C
+		float linearVelocity;         // 0x48
+		float maxForce;               // 0x4C
+	};
+
+	// Turns the second object to an orientation of the first within limits (RTTI: ConstraintPoweredConstraint)
+	class ConstraintPoweredConstraint : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10693A20)
+		ConstraintPoweredConstraint();
+		// Between the objects two handles name (0x10693A80)
+		ConstraintPoweredConstraint(const CollisionHandle* first, const CollisionHandle* second);
+		virtual ~ConstraintPoweredConstraint();
+		virtual unsigned short GetKind(int unused);
+
+		// Takes the limits of a shared properties object over (0x10693B00), the orientation (0x10693B30) and the limits
+		// (0x10693B70 / 0x10693B80)
+		void SetSharedProperties(const PoweredConstraintSharedProperties* properties);
+		void SetMatrix(const math::Matrix3* newMatrix);
+		void SetMaxAngularVelocity(float value);
+		void SetMaxOrientationForce(float value);
+
+		math::Matrix3 matrix;         // 0x24
+		float maxAngularVelocity;     // 0x48
+		float maxOrientationForce;    // 0x4C
+		float unknown50;              // 0x50
+		float unknown54;              // 0x54
+		float unknown58;              // 0x58
+		float unknown5C;              // 0x5C
+		float unknown60;              // 0x60
+		float unknown64;              // 0x64
+		float unknown68;              // 0x68
+		float unknown6C;              // 0x6C
+		float unknown70;              // 0x70
+	};
+
+	// Moves a point of the second object to a point of the first within limits (RTTI: ConstraintPoweredLinearConstraint)
+	class ConstraintPoweredLinearConstraint : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10693E70)
+		ConstraintPoweredLinearConstraint();
+		// Between the objects two handles name (0x10693EF0)
+		ConstraintPoweredLinearConstraint(const CollisionHandle* first, const CollisionHandle* second);
+		virtual ~ConstraintPoweredLinearConstraint();
+		virtual unsigned short GetKind(int unused);
+
+		// Takes the limits of a shared properties object over (0x10693F90)
+		void SetSharedProperties(const PoweredLinearConstraintSharedProperties* properties);
+		// The flag (0x10693FB0 / 0x10693FC0), the points (0x10693FE0 / 0x10694000) and the limits (0x10694020 / 0x10694030
+		// / 0x10694040; the last one is clamped to 0 .. 1)
+		bool GetFlag() const;
+		void SetFlag(bool value);
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetMaxLinearVelocity(float value);
+		void SetMaxLinearForce(float value);
+		void SetAlignmentRigidity(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		float maxLinearVelocity;      // 0x3C
+		float maxLinearForce;         // 0x40
+		float alignmentRigidity;      // 0x44
+		float unknown48;              // 0x48
+		float unknown4C;              // 0x4C
+		float unknown50;              // 0x50
+		float unknown54;              // 0x54
+		float unknown58;              // 0x58
+		float unknown5C;              // 0x5C
+		float unknown60;              // 0x60
+		float unknown64;              // 0x64
+		float unknown68;              // 0x68
+		bool flag;                    // 0x6C
+	};
+
+	// Holds a point of the second object to a point of the first and keeps the orientation (RTTI: ConstraintRigidJoint)
+	class ConstraintRigidJoint : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10694390)
+		ConstraintRigidJoint();
+		// Between the objects two handles name (0x106943E0)
+		ConstraintRigidJoint(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The points (0x106944B0 / 0x106944D0) and the orientation (0x106944F0)
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetBasis(const math::Matrix3* newBasis);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		math::Matrix3 basis;          // 0x3C
+	};
+
+	// A spring between a point of each object (RTTI: ConstraintSpring)
+	class ConstraintSpring : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10694700)
+		ConstraintSpring();
+		// Between the objects two handles name (0x10694760)
+		ConstraintSpring(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The points (0x10694840 / 0x10694860) and the numbers (0x10694880 / 0x10694890 / 0x106948A0)
+		void SetPointA(const math::Vector* point);
+		void SetPointB(const math::Vector* point);
+		void SetStableDistance(float value);
+		void SetSpringConstant(float value);
+		void SetDampingConstant(float value);
+
+		math::Vector pointA;          // 0x24
+		math::Vector pointB;          // 0x30
+		float stableDistance;         // 0x3C
+		float springConstant;         // 0x40
+		float dampingConstant;        // 0x44
+	};
+
+	// A ball in a socket and two axes at a right angle (RTTI: ConstraintUniversalJoint)
+	class ConstraintUniversalJoint : public Constraint
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// A constraint between no objects (0x10694D00)
+		ConstraintUniversalJoint();
+		// Between the objects two handles name (0x10694BF0)
+		ConstraintUniversalJoint(const CollisionHandle* first, const CollisionHandle* second);
+		virtual void Rotate(const math::Matrix* matrix);
+		virtual void ScaleBy(const math::Vector* scale);
+		virtual unsigned short GetKind(int unused);
+
+		// The ball's points (0x10694B90 / 0x10694CE0 and 0x10694BA0 / 0x10694CF0) and the axes (0x10694B70 / 0x10694C90
+		// and 0x10694B80 / 0x10694CA0)
+		const math::Vector* GetPointA() const;
+		void SetPointA(const math::Vector* point);
+		const math::Vector* GetPointB() const;
+		void SetPointB(const math::Vector* point);
+		const math::Vector* GetAxisA() const;
+		void SetAxisA(const math::Vector* axis);
+		const math::Vector* GetAxisB() const;
+		void SetAxisB(const math::Vector* axis);
+
+		ConstraintBallInSocket ball;  // 0x24
+		ConstraintPerpendicular2Axes perp;  // 0x88
+	};
 }
 
 #endif

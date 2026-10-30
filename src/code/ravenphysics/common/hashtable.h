@@ -7,6 +7,11 @@
 
 namespace ravenphysics
 {
+	// An empty object the engine passes by reference to the table's release (nothing reads it)
+	struct EmptyArgument
+	{
+	};
+
 	class PointerHashTable
 	{
 	public:
@@ -15,6 +20,10 @@ namespace ravenphysics
 		// Empties the table: the chains and the buckets back to 0xFFFF and the free list rebuilt from capacity
 		// (0x10658AE0; the code sits in the context unit's range, but the class is this one's)
 		void Reset();
+		// Gives the five blocks the table keeps back to the heap (0x10686390)
+		void Release(EmptyArgument& unused);
+		// Files a key under the next free slot and returns the slot (0x10686510)
+		unsigned short Insert(unsigned int key);
 
 		unsigned short* next;
 		int unknown4;
