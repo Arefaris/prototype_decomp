@@ -15,6 +15,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import time
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -45,7 +46,15 @@ def resolve(path):
 		out.extend(ours)
 		out.extend(line for line in theirs if line not in ours)
 		blocks += 1
-	path.write_bytes("\n".join(out).encode("utf-8"))
+	# right after `git merge` the file is sometimes still held open (a scanner): opening it fails with EINVAL
+	for attempt in range(10):
+		try:
+			path.write_bytes("\n".join(out).encode("utf-8"))
+			break
+		except OSError:
+			if attempt == 9:
+				raise
+			time.sleep(1)
 	return blocks
 
 
