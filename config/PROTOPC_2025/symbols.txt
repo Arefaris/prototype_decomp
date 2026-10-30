@@ -29142,3 +29142,5 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?Unknown1069FD10@Block1069FD00@ravenphysics@@QAEPAEXZ = 0x1069FD10 ; function size:0x4 | public: unsigned char * __thiscall ravenphysics::Block1069FD00::Unknown1069FD10(void) (name guess)
 ?Unknown1069FFE0@Block1069FFE0@ravenphysics@@QAEPAEXZ = 0x1069FFE0 ; function size:0x4 | public: unsigned char * __thiscall ravenphysics::Block1069FFE0::Unknown1069FFE0(void) (name guess)
 ?Unknown1069FFF0@Block1069FFE0@ravenphysics@@QAEPAEXZ = 0x1069FFF0 ; function size:0x4 | public: unsigned char * __thiscall ravenphysics::Block1069FFE0::Unknown1069FFF0(void) (name guess)
+?Release@PointerHashTable@ravenphysics@@QAEXAAUEmptyArgument@2@@Z = 0x10686390 ; function size:0x7A | public: void __thiscall ravenphysics::PointerHashTable::Release(struct ravenphysics::EmptyArgument &) (name guess)
+?Insert@PointerHashTable@ravenphysics@@QAEGI@Z = 0x10686510 ; function size:0x55 | public: unsigned short __thiscall ravenphysics::PointerHashTable::Insert(unsigned int) (name guess)
