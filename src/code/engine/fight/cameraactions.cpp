@@ -5,6 +5,7 @@
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
 #include "code/engine/system/simulationdriver.h"
+#include "code/pure3d/animation.h"
 
 namespace engine
 {
@@ -13,6 +14,10 @@ namespace engine
 	{
 		int unknown4;
 		unsigned int kind;  // +0x8
+		GameObjectHandle handle;  // +0xC
+		int unknown10;
+		int unknown14;
+		content::LoadInventory* inventory;  // +0x18
 	};
 
 	// FUNCTION: ENGINE 0x108F2150
@@ -78,7 +83,7 @@ namespace engine
 	// EQUIVALENT: the engine tests the owner's kind with add eax, 0xFFFEFFFB where ours has sub eax, 0x10005 (the same value), and
 	// the owner and the member's address swap ecx and edx; every other instruction is the engine's
 	CameraAnimationAction::CameraAnimationAction(CameraAnimationTrack* newTrack, core::IRefCount* newOwner)
-		: fight::Action(0xE00), link(newTrack), owner(0), unknown2c(0)
+		: fight::Action(0xE00), link(newTrack), owner(0), playback(0)
 	{
 		CameraOwner* object = (CameraOwner*)newOwner;
 		AssignNISRef(&owner, object == 0 ? 0 : (object->kind + 0xfffefffb > 0xfffa ? 0 : newOwner));
@@ -88,6 +93,167 @@ namespace engine
 	CameraAnimationAction::~CameraAnimationAction()
 	{
 		ReleaseNISRef(&owner);
+	}
+
+	// FUNCTION: ENGINE 0x108F23A0
+	void AssignCameraController(pure3d::CameraAnimationController** slot, pure3d::CameraAnimationController* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+
+	// FUNCTION: ENGINE 0x108F23D0
+	void ReleaseCameraController(pure3d::CameraAnimationController** slot)
+	{
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+			*slot = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108F25A0
+	// NONMATCHING: the engine copies the whole simulation time into a local (two dead stores) where ours reads the seconds in place, and the failure return of the camera search is a second epilogue; 62 %
+#ifdef NONMATCHING
+	bool CameraAnimationAction::Slot5(int arg, float value)
+	{
+		CameraAnimationTrack* track = link.object;
+		if (track == 0)
+		{
+			return false;
+		}
+		CameraOwner* object = (CameraOwner*)owner;
+		content::LoadInventory* inventory = object->inventory;
+		if (inventory == 0)
+		{
+			return false;
+		}
+		GameObjectHandle ownerHandle = object->handle;
+		GameObject* ownerObject = ownerHandle.Get();
+		if (ownerObject == 0)
+		{
+			return false;
+		}
+		pure3d::Animation* animation = inventory->Find<pure3d::Animation>(track->animation);
+		if (animation == 0)
+		{
+			animation = content::gRootInventory->Find<pure3d::Animation>(track->animation);
+			if (animation == 0)
+			{
+				return false;
+			}
+		}
+		float init = link.object->initFrame;
+		if (init < 0.0f)
+		{
+			float sum = animation->numFrames + init;
+			if (sum < 0.0f)
+			{
+				init = 0.0f;
+			}
+			else
+			{
+				init = sum;
+			}
+		}
+		float start = link.object->startFrame;
+		if (start < 0.0f)
+		{
+			float sum = animation->numFrames + start;
+			if (sum < 0.0f)
+			{
+				start = 0.0f;
+			}
+			else
+			{
+				start = sum;
+			}
+		}
+		float end = link.object->endFrame;
+		if (end < 0.0f)
+		{
+			float sum = animation->numFrames + end;
+			if (sum < 0.0f)
+			{
+				end = 0.0f;
+			}
+			else
+			{
+				end = sum;
+			}
+		}
+		core::Time now = GetSimulationDriver()->time3;
+		const core::Time* nowPointer = &now;
+		value = (value - nowPointer->seconds) * animation->mFrameRate + init;
+		if (value > end)
+		{
+			return false;
+		}
+		camera::Director* director = camera::Director::Get();
+		int index = director->playerCamera[0];
+		if (index < 0 && !director->NextActiveCamera(&index, 0))
+		{
+			return false;
+		}
+		camera::AnimatedCamera* animated = director->GetCamera(index, 0)->animated;
+		pure3d::CameraAnimationController* controller = animated->Play(animation, value, start, end, link.object->cyclic);
+		controller->unknown119 = false;
+		AssignCameraController(&playback, controller);
+		animated->SetTransform(ownerObject->transform->value);
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x108F2790
+	// EQUIVALENT: scheduling (the engine loads the track pointer and calls the animation getter before it forms the name's address, ours forms the address first); every other instruction is the engine's
+	bool CameraAnimationAction::Slot7(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		if (playback != 0)
+		{
+			if (playback->IsDone())
+			{
+				return false;
+			}
+			if (playback->GetAnimation()->mName != link.object->animation)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x108F27E0
+	// EQUIVALENT: scheduling (the engine loads the track pointer and calls the animation getter before it forms the name's address, ours forms the address first); every other instruction is the engine's
+	void CameraAnimationAction::Slot6()
+	{
+		if (link.object != 0 && playback != 0)
+		{
+			if (playback->IsDone() || playback->GetAnimation()->mName == link.object->animation)
+			{
+				camera::Director* director = camera::Director::Get();
+				int index = director->playerCamera[0];
+				if (index >= 0 || director->NextActiveCamera(&index, 0))
+				{
+					camera::Cinematographer* view = director->GetCamera(index, 0);
+					if (view != 0)
+					{
+						view->animated->Reset();
+					}
+				}
+			}
+			ReleaseCameraController(&playback);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x108F2870

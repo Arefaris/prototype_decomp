@@ -45,7 +45,8 @@ namespace pure3d
 		virtual void Slot21();
 		// vftable slot 22 (0x107780E0)
 		virtual void SetAnimation(Animation* animation, float first, float last);
-		virtual void Slot23();
+		// vftable slot 23: the animation it plays
+		virtual Entity* GetAnimation();
 		virtual void Slot24();
 		// vftable slot 25 (0x107782C0): stops the playback (name guessed)
 		virtual void Stop();
@@ -56,7 +57,10 @@ namespace pure3d
 		// and parameters guessed)
 		bool IsFinished(float previousFrame, float frame);
 
-		unsigned char unknown10[0x110];
+		unsigned char unknown10[0x109];
+		// Cleared by the camera animation action once it has started the playback (name guessed)
+		bool unknown119;
+		unsigned char unknown11A[6];
 	};
 }
 

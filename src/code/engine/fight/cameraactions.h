@@ -7,6 +7,7 @@
 #include "code/engine/fight/cameratracks.h"
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/nisactions.h"
+#include "code/pure3d/cameraanimationcontroller.h"
 
 namespace engine
 {
@@ -37,6 +38,10 @@ namespace engine
 		float farPlane;  // +0x38
 	};
 
+	// 0x108F23A0 / 0x108F23D0: this unit's copies of the helpers that store and release a camera controller
+	void AssignCameraController(pure3d::CameraAnimationController** slot, pure3d::CameraAnimationController* value);
+	void ReleaseCameraController(pure3d::CameraAnimationController** slot);
+
 	// RTTI: engine::CameraAnimationAction (9 vftable slots, size 0x30)
 	class CameraAnimationAction : public fight::Action
 	{
@@ -53,7 +58,8 @@ namespace engine
 
 		core::Link<CameraAnimationTrack> link;  // +0x1C
 		core::IRefCount* owner;  // +0x28
-		int unknown2c;
+		// The playback the animated camera was given (released again when the action ends)
+		pure3d::CameraAnimationController* playback;  // +0x2C
 	};
 
 	// RTTI: engine::TimeDilationAction (9 vftable slots, size 0x30): scales the simulation time while it runs
