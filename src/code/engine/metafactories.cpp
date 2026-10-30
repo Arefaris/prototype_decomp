@@ -3,6 +3,8 @@
 // them (0x108D6E20 on).
 #include "code/content/metafactory.h"
 #include "code/engine/reflectedclasses.h"
+#include "code/engine/nisplayerbehaviour.h"
+#include "code/engine/characterintentionbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
 #include "code/engine/camera/camera.h"
 #include "code/engine/gameobject/genericscriptvalue.h"

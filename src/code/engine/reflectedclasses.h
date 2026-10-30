@@ -126,17 +126,6 @@ namespace engine
 		unsigned char unknownC[0x1C];
 	};
 
-	// CharacterIntentionBehaviour: constructor 0x1091CBC0, reflection 0x1091C500 / 0x1091CA80
-	class CharacterIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		CharacterIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x7C];
-	};
-
 	// CharacterSolverBehaviour: constructor 0x1090AFF0, reflection 0x10907ED0 / 0x1090AA30
 	class CharacterSolverBehaviour : public engine::Behaviour
 	{
@@ -146,17 +135,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// NISPlayerBehaviour: constructor 0x1091FA50, reflection 0x1091F890 / 0x1091FEA0
-	class NISPlayerBehaviour : public engine::Behaviour
-	{
-	public:
-		NISPlayerBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x74];
 	};
 
 	// PlaybackTreeBehaviour: constructor 0x1089AC70, reflection 0x1089AA30 / 0x1089AE60
