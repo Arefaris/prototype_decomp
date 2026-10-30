@@ -11,6 +11,7 @@
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/message.h"
+#include "code/engine/scenariomessage.h"
 
 namespace engine
 {
@@ -52,6 +53,13 @@ namespace engine
 		virtual void OnPostedMessage(Message* message);
 		// vftable slot 6 (0x10920720, not reconstructed)
 		virtual void OnMessage(Message* message);
+
+		// 0x1091FD20 / 0x1091FD80 / 0x1091FDE0: tell the scenario system that the sequence begins, ends and has loaded
+		void SendBeginMessage();
+		void SendEndMessage();
+		void SendLoadCompleteMessage();
+		// 0x1091FFD0: the sequence has loaded
+		void OnLoaded();
 
 		fight::Sequencer sequencer;  // +0x10
 		core::Name<core::CaseSensitiveKey> nisName;  // +0x58

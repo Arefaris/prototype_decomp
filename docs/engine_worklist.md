@@ -5174,8 +5174,19 @@ CollectibleLog (0x1058D0D0), FREventTimers, SmartHintLog, SmartHintShown, SmartH
   `OnActiveChanged`, `OnMessage` (`switch` on the unsigned id), the helper `FindPuppet`, `ReleaseAll` and `Setup`. Not done:
   `Update` 0x1091A720 and `FindJaw` 0x1091A600 (they call the unit's out-of-line smart pointer members 0x1091A100 / 0x1091A1F0).
 - `src/code/engine/characterintentionbehaviour.*` (0x1091C500 - 0x1091CD30) and `nisplayerbehaviour.*` (0x1091F890 - 0x10920900,
-  the first half): reflection, accessors, constructors and kept copies; the intention state (0x58 bytes at +0x10) and the
-  rest of the NIS player (`Update`, `OnMessage`, `Slot0`, `Slot1`, destructor) are mapped, not reconstructed.
+  the first half): reflection, accessors, constructors, the three scenario messages the player sends and `OnLoaded`, and
+  the kept copies; the intention state (0x58 bytes at +0x10) and the rest of the NIS player (`Update`, `OnMessage`, `Slot0`,
+  `Slot1`, destructor, the track lookup: `TrackRegistry` has no members yet) are mapped, not reconstructed.
+- `src/code/engine/animation/behaviours/puppetbehaviour.*` (0x1091B1C0 - 0x1091C4F0): `engine::animation::PuppetBehaviour`
+  (bases `Behaviour` and `choreo::Puppet::ValidationFailedCallback` at +0xC, new in puppet.h): the reflection with its
+  three getter / setter members and the offset member, the accessors and the kept copies (16 functions). Not done: the
+  constructor, `Update` and the puppet makers (a `RefPtr<Puppet>` assignment the engine keeps out of line, 0x10476BB0).
+- `src/code/engine/driving/vehiclebehaviours.*` (0x1091CD30 - 0x1091E000): `CarIntentionBehaviour`,
+  `HelicopterIntentionBehaviour`, `CarPhysicsBehaviour`, `HelicopterPhysicsBehaviour` and the declaration of their base
+  `VehiclePhysicsBehaviour` (0xFC bytes; its reflection 0x10938420 / 0x10938AC0 is mapped, the unit is in the next range):
+  the class info, the member lists (the physics ones reference the attributes and the wheel data) and 21 kept copies. The
+  constructors, destructors, `OnMessage`, `ApplyInput` and the physics slots are mapped, not reconstructed (they need the
+  three-float input struct of 0x10937870 and the wheel state array of the car, which no name or RTTI gives).
 - `src/code/engine/driving/`: the accessors of `VehiclePhysicsAttributes`, `CarPhysicsAttributes` and
   `HelicopterPhysicsAttributes` (0x10905A70, 0x10906C80 - 0x10906CB0, 0x10906ED0) are out of line now, so their kept copies count.
 - `engine::camera::CameraLoader::Slot3` 0x109069A0 is written (NONMATCHING, 48.5 %: the engine walks the cameras with a pointer

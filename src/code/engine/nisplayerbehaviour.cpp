@@ -1,9 +1,13 @@
 #include "code/engine/nisplayerbehaviour.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace engine
 {
 	// The name of the NIS fight context (0x111C17DC, fightsystem.cpp)
 	extern const char* gNISContextName;
+
+	// 0x1131D370: the listeners of the scenario messages the player sends
+	extern MessageListeners gNISPlayerListeners;
 
 	// FUNCTION: ENGINE 0x1091F890
 	content::ClassInfo* NISPlayerBehaviour::GetClassInfo()
@@ -60,6 +64,37 @@ namespace engine
 				break;
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1091FD20
+	void NISPlayerBehaviour::SendBeginMessage()
+	{
+		ScenarioNISBeginMessage message(nisName);
+		message.handles[0] = GetHandle(owner);
+		SendMessage(&message, &gNISPlayerListeners);
+	}
+
+	// FUNCTION: ENGINE 0x1091FD80
+	void NISPlayerBehaviour::SendEndMessage()
+	{
+		ScenarioNISEndMessage message(nisName);
+		message.handles[0] = GetHandle(owner);
+		SendMessage(&message, &gNISPlayerListeners);
+	}
+
+	// FUNCTION: ENGINE 0x1091FDE0
+	void NISPlayerBehaviour::SendLoadCompleteMessage()
+	{
+		ScenarioNISLoadCompleteMessage message(nisName);
+		message.handles[0] = GetHandle(owner);
+		SendMessage(&message, &gNISPlayerListeners);
+	}
+
+	// FUNCTION: ENGINE 0x1091FFD0
+	void NISPlayerBehaviour::OnLoaded()
+	{
+		SendLoadCompleteMessage();
+		state = 3;
 	}
 
 	// FUNCTION: ENGINE 0x1091FEA0
