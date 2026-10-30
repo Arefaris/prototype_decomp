@@ -7,7 +7,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105DC1B0
 	template const char* EntityType<music::Cue>::AllocationTag();
 	// FUNCTION: ENGINE 0x105DD8F0
-	template EntityType<music::Cue>::EntityType(const char*, unsigned int, unsigned int, bool);
+	template EntityType<music::Cue>::EntityType(const char*, unsigned int, unsigned int, int);
 	// FUNCTION: ENGINE 0x105DD9A0
 	template void EntityType<music::Cue>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105DD9E0
@@ -24,5 +24,5 @@ namespace om
 	// FUNCTION: ENGINE 0x105DDB60
 	template void EntityType<music::Cue>::CreateUnregisteredEntity2(Entity**, const ClassName&);
 	// FUNCTION: ENGINE 0x105DF7D0
-	template void EntityType<music::Cue>::Register(const char*, bool);
+	template void EntityType<music::Cue>::Register(const char*, int);
 }

@@ -7,7 +7,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105CC440
 	template const char* EntityType<audio::Mix>::AllocationTag();
 	// FUNCTION: ENGINE 0x105CF140
-	template EntityType<audio::Mix>::EntityType(const char*, unsigned int, unsigned int, bool);
+	template EntityType<audio::Mix>::EntityType(const char*, unsigned int, unsigned int, int);
 	// FUNCTION: ENGINE 0x105CF1E0
 	template void EntityType<audio::Mix>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105CF200
@@ -24,5 +24,5 @@ namespace om
 	// FUNCTION: ENGINE 0x105CF380
 	template EntityType<audio::Mix>::~EntityType();
 	// FUNCTION: ENGINE 0x105CF810
-	template void EntityType<audio::Mix>::Register(const char*, bool);
+	template void EntityType<audio::Mix>::Register(const char*, int);
 }

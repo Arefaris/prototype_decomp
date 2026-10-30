@@ -35,7 +35,7 @@ namespace om
 		virtual bool Slot1();
 		virtual bool Rename(const ClassName& newName);
 		virtual bool Slot3(void* argument);
-		virtual bool Slot4(void* argument);
+		virtual void Slot4(void* argument);
 		virtual bool Slot5(void* argument);
 		virtual bool Slot6(void* argument);
 		virtual bool Slot7(void* argument);
@@ -43,7 +43,15 @@ namespace om
 		virtual EntityTypeBase* GetEntityType();
 
 		ClassName name;  // 8
+		TreeNode nodeByName;  // 0x10
 	};
+
+	// The registry of the entities by name, the lock around it and the registries of the entity types by name and by
+	// type_info (the engine's statics; names guessed)
+	extern void* gEntityLock;  // 0x112762FC
+	extern TreeHead gEntitiesByName;  // 0x11276300
+	extern TreeHead gEntityTypesByName;  // 0x11276314
+	extern TreeHead gEntityTypesByType;  // 0x11276328
 
 	// 0x105B5B60: puts a new entity into the registry of the entities (name guessed)
 	void RegisterEntity(Entity* entity);
@@ -56,7 +64,7 @@ namespace om
 	public:
 		// 0x105B5590
 		EntityTypeBase(const char* newName, unsigned int newSize, unsigned int newAlignment, const type_info* newType,
-			bool newFlag);
+			int newFlag);
 		// 0x105B55E0 is the body; the deleting destructor 0x105B59F0
 		virtual ~EntityTypeBase();
 		// Slot 1: a new entity of the class (counted once, in the registry)
@@ -71,7 +79,7 @@ namespace om
 		const char* name;  // 4
 		unsigned int size;  // 8
 		unsigned int alignment;  // 0xC
-		bool flag;  // 0x10
+		int flag;  // 0x10
 		const type_info* type;  // 0x14
 		bool registered;  // 0x18
 		TreeNode nodeByName;  // 0x1C
@@ -94,7 +102,7 @@ namespace om
 	template<class T> class EntityType : public EntityTypeBase
 	{
 	public:
-		EntityType(const char* newName, unsigned int newSize, unsigned int newAlignment, bool newFlag);
+		EntityType(const char* newName, unsigned int newSize, unsigned int newAlignment, int newFlag);
 		virtual ~EntityType();
 		virtual void CreateEntity(Entity** entity, const ClassName& name);
 		virtual MetaTypeBase* GetMetaType();
@@ -106,11 +114,11 @@ namespace om
 		// Lets go of the reflection of T that the instances share
 		static void ReleaseMetaType();
 		// Creates the entity type of the class (new EntityType(name, sizeof(T), alignment, true))
-		static void Register(const char* newName, bool newFlag);
+		static void Register(const char* newName, int newFlag);
 	};
 
 	template<class T> EntityType<T>::EntityType(const char* newName, unsigned int newSize, unsigned int newAlignment,
-		bool newFlag) :
+		int newFlag) :
 		EntityTypeBase(newName, newSize, newAlignment, &typeid(T), newFlag)
 	{
 		String text(newName, true);
@@ -175,7 +183,7 @@ namespace om
 		cache = 0;
 	}
 
-	template<class T> void EntityType<T>::Register(const char* newName, bool newFlag)
+	template<class T> void EntityType<T>::Register(const char* newName, int newFlag)
 	{
 		new EntityType(newName, sizeof(T), __alignof(T), newFlag);
 	}

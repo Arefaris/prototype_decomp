@@ -14,7 +14,7 @@ namespace om
 		virtual ~DynamicObjectEntity();
 		OM_ENTITY_ALLOCATION(DynamicObjectEntity);
 
-		char unknown10[0x38];
+		char unknown20[0x28];
 	};
 }
 

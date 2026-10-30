@@ -80,7 +80,6 @@ namespace engine
 		const om::DynamicArray<SoundGroup, unsigned short>& GetSoundGroups() const;
 		void SetSoundGroups(const om::DynamicArray<SoundGroup, unsigned short>& newSoundGroups);
 
-		char unknown10[0x10];
 		float listenerOffset;  // 0x20
 		float reverbDistanceFactor;  // 0x24
 		om::DynamicArray<SoundGroup, unsigned short> soundGroups;  // 0x28

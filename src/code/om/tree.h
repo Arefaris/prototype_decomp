@@ -3,9 +3,13 @@
 #define OM_TREE_H
 
 #include "code/om/name.h"
+#include <typeinfo>
 
 namespace om
 {
+	class Entity;
+	class EntityTypeBase;
+
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
 	struct TreeNode
 	{
@@ -48,6 +52,13 @@ namespace om
 		bool Contains(TreeNode* node);
 		// 0x105B61B0: takes the node out
 		void Erase(TreeNode* node);
+		// 0x105B5880: enters an entity under its name (name guessed); false when an entity of that name is there already
+		bool InsertEntity(Entity* entity);
+		// 0x105B4D40 / 0x105B4F60: enters an entity type under its name, and under its type_info (names guessed)
+		bool InsertEntityTypeByName(EntityTypeBase* type);
+		bool InsertEntityTypeByType(EntityTypeBase* type);
+		// 0x105B54A0: the entity type registered for a type_info (name guessed)
+		EntityTypeBase* FindEntityType(const type_info& type);
 		// 0x105E4210 / 0x105E4430: enters an object that has its tree node at 8 and its name at 0x18; false when
 		// an object of that name is there already
 		template<class T> bool InsertByName(T* object);

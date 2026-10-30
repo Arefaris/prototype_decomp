@@ -33,7 +33,7 @@ namespace audio
 		void SetSelected(unsigned int index);
 		unsigned int GetSelected() const;
 
-		char unknown10[0x38];
+		char unknown20[0x28];
 	};
 }
 
