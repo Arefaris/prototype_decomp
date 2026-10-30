@@ -7,6 +7,9 @@
 
 namespace ravenphysics
 {
+	class ScratchStack;
+	class StackAllocator;
+
 	// Three words, all zero; the parameter names the engine function (the constructor of a three-word block)
 	template <int Function>
 	struct ZeroedWords
@@ -23,6 +26,16 @@ namespace ravenphysics
 	struct WordPair
 	{
 		WordPair(int newFirst, int newSecond);
+
+		int first;
+		int second;
+	};
+
+	// Two words, both zero; the parameter names the engine function
+	template <int Function>
+	struct ZeroedTwoWords
+	{
+		ZeroedTwoWords();
 
 		int first;
 		int second;
@@ -72,12 +85,62 @@ namespace ravenphysics
 		int* m0;
 	};
 
+	struct Block106823A0
+	{
+		void Unknown106823A0(int newCount, int unused);
+		void Unknown106823D0(int newCount, int unused);
+		void Unknown10682400(int newCount, int unused);
+		void Unknown10682430(int unused);
+		void Unknown10682460(int unused);
+		void Unknown10682490(int unused);
+
+		void* m0;
+		int m4;
+	};
+
 	struct Block106824C0
 	{
 		int Unknown106824C0() const;
 		int Unknown106824D0() const;
 
 		int m0;
+		int m4;
+	};
+
+	struct Block10682670
+	{
+		unsigned short Unknown10682670(unsigned int key) const;
+		unsigned short Unknown10682690(unsigned int key) const;
+
+		unsigned char unknown0[0xC];
+		unsigned short mC;
+	};
+
+	struct Block10682820
+	{
+		void Unknown10682820(int newCount, int unused);
+		void Unknown10682850(int newCount, int unused);
+		void Unknown10682880(int newCount, int unused);
+		void Unknown106828B0(int newCount, int unused);
+		void Unknown106828E0(int newCount, int unused);
+		void Unknown10682910(int unused);
+		void Unknown10682940(int unused);
+		void Unknown10682970(int unused);
+		void Unknown106829A0(int unused);
+		void Unknown106829D0(int unused);
+		void Unknown10682A00(int unused);
+
+		void* m0;
+		int m4;
+	};
+
+	struct Block10682E30
+	{
+		void Unknown10682E30();
+		void Unknown10682E60();
+		void Unknown10682E90();
+
+		void* m0;
 		int m4;
 	};
 
@@ -146,8 +209,27 @@ namespace ravenphysics
 		int m4;
 	};
 
-	struct Block10686AA0
+	struct Block10686220
 	{
+		void Unknown10686220(int newCount, int unused);
+		void Unknown10686250(int unused);
+
+		void* m0;
+		int m4;
+	};
+
+	struct Block10686370
+	{
+		unsigned short Unknown10686370(unsigned int key) const;
+
+		unsigned char unknown0[0xC];
+		unsigned short mC;
+	};
+
+	struct Block10686A60
+	{
+		long Unknown10686A60();
+		long Unknown10686A70();
 		int Unknown10686AA0() const;
 		unsigned char* Unknown10686AB0();
 		unsigned char* Unknown10686AC0();
@@ -159,7 +241,8 @@ namespace ravenphysics
 		unsigned char* Unknown10686B20();
 		unsigned char* Unknown10686B30();
 
-		unsigned char unknown0[0xC];
+		volatile long m0;
+		unsigned char unknown4[0x8];
 		int mC;
 		unsigned char unknown10[0x70];
 		unsigned char m80;
@@ -213,7 +296,7 @@ namespace ravenphysics
 		int m4;
 	};
 
-	struct Block10686F10
+	struct Block10686EE0
 	{
 		unsigned char* Unknown10686F10(int index);
 		int Unknown10686F20() const;
@@ -237,8 +320,10 @@ namespace ravenphysics
 	{
 		void Unknown10687190(int newFirst, int newSecond);
 		unsigned char* Unknown106871B0();
+		Block10687110* Unknown106871D0();
 		void Unknown106871E0();
 		int Unknown106871F0() const;
+		Block10687110* Unknown10687200();
 		void Unknown10687210();
 		int Unknown10687220() const;
 
@@ -248,51 +333,77 @@ namespace ravenphysics
 		unsigned char m10;
 		unsigned char unknown11[0xF];
 		int m20;
-		unsigned char unknown24[0xC];
+		unsigned char unknown24[0x8];
+		bool m2C;
+		unsigned char unknown2D[0x3];
 		int m30;
 	};
 
-	struct Block10687260
+	struct Block10687230
 	{
+		void Unknown10687230(int newCount, StackAllocator* stack);
+		Block10687230* Unknown10687250();
 		void Unknown10687260();
 
-		unsigned char unknown0[0x30];
+		void* m0;
+		int m4;
+		unsigned char unknown8[0x24];
+		bool m2C;
+		unsigned char unknown2D[0x3];
 		int m30;
 	};
 
-	struct Block106872E0
+	struct Block106872D0
 	{
+		int Unknown106872D0() const;
 		int Unknown106872E0() const;
+		Block106872D0* Unknown106872F0();
 		void Unknown10687300();
 
 		unsigned char unknown0[0x20];
 		int m20;
-		unsigned char unknown24[0xC];
+		int m24;
+		int m28;
+		bool m2C;
+		unsigned char unknown2D[0x3];
 		int m30;
 	};
 
-	struct Block10687380
+	struct Block10687370
 	{
+		int Unknown10687370() const;
 		int Unknown10687380() const;
+		Block10687370* Unknown10687390();
 		void Unknown106873A0();
+		int Unknown106873C0() const;
 		int Unknown106873D0() const;
 
 		unsigned char unknown0[0x20];
 		int m20;
-		unsigned char unknown24[0xC];
+		int m24;
+		int m28;
+		bool m2C;
+		unsigned char unknown2D[0x3];
 		int m30;
 	};
 
-	struct Block106874C0
+	struct Block10687490
 	{
+		void Unknown10687490(int newCount, ScratchStack* stack);
+		Block10687490* Unknown106874B0();
 		void Unknown106874C0();
 		int Unknown106874E0() const;
+		Block10687490* Unknown106874F0();
 		void Unknown10687500();
 		int Unknown10687530() const;
 
-		unsigned char unknown0[0x20];
+		void* m0;
+		int m4;
+		unsigned char unknown8[0x18];
 		int m20;
-		unsigned char unknown24[0xC];
+		unsigned char unknown24[0x8];
+		bool m2C;
+		unsigned char unknown2D[0x3];
 		int m30;
 	};
 
@@ -311,8 +422,17 @@ namespace ravenphysics
 		int m4;
 	};
 
-	struct Block10687950
+	struct Block10687900
 	{
+		void Unknown10687900(int newCount, ScratchStack* stack);
+
+		void* m0;
+		int m4;
+	};
+
+	struct Block10687930
+	{
+		void Unknown10687930(int newFirst, int newThird);
 		void Unknown10687950(int newFirst, int newSecond);
 		unsigned char* Unknown10687990();
 		int Unknown106879A0() const;
@@ -325,9 +445,56 @@ namespace ravenphysics
 		unsigned char mB0;
 	};
 
+	struct Block10687E00
+	{
+		void Unknown10687E10(int newFirst, int newThird);
+
+		int m0;
+		int m4;
+		int m8;
+	};
+
+	struct Block10687E80
+	{
+		void Unknown10687E80(int newCount, StackAllocator* stack);
+
+		void* m0;
+		int m4;
+		int m8;
+	};
+
+	struct Block10687FB0
+	{
+		void Unknown10687FB0(int newCount, StackAllocator* stack);
+		void Unknown10687FF0(int newCount, StackAllocator* stack);
+		void Unknown10688020(int newCount, StackAllocator* stack);
+		void Unknown10688050(int newCount, StackAllocator* stack);
+		void Unknown10688080(int newCount, ScratchStack* stack);
+		void Unknown106880B0(int newCount, ScratchStack* stack);
+		void Unknown106880E0(int newCount, ScratchStack* stack);
+		void Unknown10688110(int newCount, ScratchStack* stack);
+		void Unknown10688140(int newCount, ScratchStack* stack);
+		void Unknown10688170(int newCount, ScratchStack* stack);
+		void Unknown106881A0(int newCount, ScratchStack* stack);
+
+		void* m0;
+		int m4;
+		int m8;
+	};
+
+	struct Block10688390
+	{
+		void Unknown10688390(int newFirst, int newThird);
+
+		int m0;
+		int m4;
+		int m8;
+	};
+
 	struct Block1068A8E0
 	{
 		int Unknown1068A8E0() const;
+		bool Unknown1068A8F0() const;
 		int Unknown1068A900() const;
 		int Unknown1068A910() const;
 		int Unknown1068A920() const;
@@ -335,6 +502,7 @@ namespace ravenphysics
 
 		int m0;
 		int m4;
+		int m8;
 	};
 
 	struct Block1068A990
@@ -363,6 +531,15 @@ namespace ravenphysics
 		unsigned char m74;
 	};
 
+	struct Block1068B900
+	{
+		bool Unknown1068B900() const;
+
+		unsigned char unknown0[0x4];
+		int m4;
+		int m8;
+	};
+
 	struct Block1068B970
 	{
 		int Unknown1068B970() const;
@@ -371,10 +548,12 @@ namespace ravenphysics
 		int Unknown1068B9A0() const;
 		int Unknown1068B9B0() const;
 		int Unknown1068B9C0() const;
+		bool Unknown1068B9E0() const;
 		int Unknown1068B9F0() const;
 
 		int m0;
 		int m4;
+		int m8;
 	};
 
 	struct Block1068BA50
@@ -437,6 +616,14 @@ namespace ravenphysics
 		int m4;
 	};
 
+	struct Block106900A0
+	{
+		long Unknown106900A0();
+		long Unknown106900B0();
+
+		volatile long m0;
+	};
+
 	struct Block106900F0
 	{
 		int Unknown106900F0() const;
@@ -464,6 +651,16 @@ namespace ravenphysics
 		int m4;
 	};
 
+	struct Block10690880
+	{
+		void Unknown10690880(int newCount, ScratchStack* stack);
+		void Unknown106908B0(int newCount, ScratchStack* stack);
+
+		void* m0;
+		int m4;
+		int m8;
+	};
+
 	struct Block10690930
 	{
 		int Unknown10690930() const;
@@ -472,10 +669,13 @@ namespace ravenphysics
 		int m4;
 	};
 
-	struct Block10691610
+	struct Block106915E0
 	{
-		Block10691610* Unknown10691610();
+		long Unknown106915E0();
+		long Unknown106915F0();
+		Block106915E0* Unknown10691610();
 
+		volatile long m0;
 	};
 
 	struct Block10691F10

@@ -1,4 +1,7 @@
 // The small leaf functions of 0x10680000 - 0x106A0000; see standins.h.
+#include "code/core/heap.h"
+#include "code/core/interlocked.h"
+#include "code/ravenphysics/common/stackallocator.h"
 #include "code/ravenphysics/standins.h"
 
 namespace ravenphysics
@@ -153,6 +156,22 @@ namespace ravenphysics
 	// FUNCTION: ENGINE 0x10687170
 	template struct WordPair<0x10687170>;
 
+	template <int Function>
+	ZeroedTwoWords<Function>::ZeroedTwoWords()
+	{
+		first = 0;
+		second = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10686EE0
+	template struct ZeroedTwoWords<0x10686EE0>;
+
+	// FUNCTION: ENGINE 0x10687790
+	template struct ZeroedTwoWords<0x10687790>;
+
+	// FUNCTION: ENGINE 0x10687810
+	template struct ZeroedTwoWords<0x10687810>;
+
 	// FUNCTION: ENGINE 0x10682020
 	int Block10682020::Unknown10682020() const
 	{
@@ -225,6 +244,60 @@ namespace ravenphysics
 		return m0 + index;
 	}
 
+	// FUNCTION: ENGINE 0x106823A0
+	void Block106823A0::Unknown106823A0(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x106823D0
+	void Block106823A0::Unknown106823D0(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10682400
+	void Block106823A0::Unknown10682400(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10682430
+	void Block106823A0::Unknown10682430(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682460
+	void Block106823A0::Unknown10682460(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682490
+	void Block106823A0::Unknown10682490(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x106824C0
 	int Block106824C0::Unknown106824C0() const
 	{
@@ -235,6 +308,152 @@ namespace ravenphysics
 	int Block106824C0::Unknown106824D0() const
 	{
 		return m4;
+	}
+
+	// FUNCTION: ENGINE 0x10682670
+	unsigned short Block10682670::Unknown10682670(unsigned int key) const
+	{
+		return (unsigned short)(((key >> 3 ^ key) >> 4) % mC);
+	}
+
+	// FUNCTION: ENGINE 0x10682690
+	unsigned short Block10682670::Unknown10682690(unsigned int key) const
+	{
+		return (unsigned short)(((key >> 3 ^ key) >> 4) % mC);
+	}
+
+	// FUNCTION: ENGINE 0x10682820
+	void Block10682820::Unknown10682820(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10682850
+	void Block10682820::Unknown10682850(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 8, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10682880
+	void Block10682820::Unknown10682880(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x106828B0
+	void Block10682820::Unknown106828B0(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x106828E0
+	void Block10682820::Unknown106828E0(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10682910
+	void Block10682820::Unknown10682910(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682940
+	void Block10682820::Unknown10682940(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682970
+	void Block10682820::Unknown10682970(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106829A0
+	void Block10682820::Unknown106829A0(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106829D0
+	void Block10682820::Unknown106829D0(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682A00
+	void Block10682820::Unknown10682A00(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10682E30
+	void Block10682E30::Unknown10682E30()
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+		}
+		m0 = 0;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10682E60
+	void Block10682E30::Unknown10682E60()
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+		}
+		m0 = 0;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10682E90
+	void Block10682E30::Unknown10682E90()
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+		}
+		m0 = 0;
+		m4 = 0;
 	}
 
 	// FUNCTION: ENGINE 0x10684FA0
@@ -338,62 +557,98 @@ namespace ravenphysics
 		return m0 + index;
 	}
 
+	// FUNCTION: ENGINE 0x10686220
+	void Block10686220::Unknown10686220(int newCount, int unused)
+	{
+		m0 = core::HeapAllocAligned(core::GetCurrentHeap(), newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10686250
+	void Block10686220::Unknown10686250(int unused)
+	{
+		if (m0)
+		{
+			core::FreeAligned(m0);
+			m0 = 0;
+			m4 = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10686370
+	unsigned short Block10686370::Unknown10686370(unsigned int key) const
+	{
+		return (unsigned short)(((key >> 3 ^ key) >> 4) % mC);
+	}
+
+	// FUNCTION: ENGINE 0x10686A60
+	long Block10686A60::Unknown10686A60()
+	{
+		return _InterlockedIncrement(&m0);
+	}
+
+	// FUNCTION: ENGINE 0x10686A70
+	long Block10686A60::Unknown10686A70()
+	{
+		return _InterlockedDecrement(&m0);
+	}
+
 	// FUNCTION: ENGINE 0x10686AA0
-	int Block10686AA0::Unknown10686AA0() const
+	int Block10686A60::Unknown10686AA0() const
 	{
 		return mC;
 	}
 
 	// FUNCTION: ENGINE 0x10686AB0
-	unsigned char* Block10686AA0::Unknown10686AB0()
+	unsigned char* Block10686A60::Unknown10686AB0()
 	{
 		return &mC8;
 	}
 
 	// FUNCTION: ENGINE 0x10686AC0
-	unsigned char* Block10686AA0::Unknown10686AC0()
+	unsigned char* Block10686A60::Unknown10686AC0()
 	{
 		return &mF4;
 	}
 
 	// FUNCTION: ENGINE 0x10686AD0
-	unsigned char* Block10686AA0::Unknown10686AD0()
+	unsigned char* Block10686A60::Unknown10686AD0()
 	{
 		return &m104;
 	}
 
 	// FUNCTION: ENGINE 0x10686AE0
-	unsigned char* Block10686AA0::Unknown10686AE0()
+	unsigned char* Block10686A60::Unknown10686AE0()
 	{
 		return &m138;
 	}
 
 	// FUNCTION: ENGINE 0x10686AF0
-	unsigned char* Block10686AA0::Unknown10686AF0()
+	unsigned char* Block10686A60::Unknown10686AF0()
 	{
 		return &m140;
 	}
 
 	// FUNCTION: ENGINE 0x10686B00
-	unsigned char* Block10686AA0::Unknown10686B00()
+	unsigned char* Block10686A60::Unknown10686B00()
 	{
 		return &m148;
 	}
 
 	// FUNCTION: ENGINE 0x10686B10
-	unsigned char* Block10686AA0::Unknown10686B10()
+	unsigned char* Block10686A60::Unknown10686B10()
 	{
 		return &mA0;
 	}
 
 	// FUNCTION: ENGINE 0x10686B20
-	unsigned char* Block10686AA0::Unknown10686B20()
+	unsigned char* Block10686A60::Unknown10686B20()
 	{
 		return &m80;
 	}
 
 	// FUNCTION: ENGINE 0x10686B30
-	unsigned char* Block10686AA0::Unknown10686B30()
+	unsigned char* Block10686A60::Unknown10686B30()
 	{
 		return &mC0;
 	}
@@ -447,13 +702,13 @@ namespace ravenphysics
 	}
 
 	// FUNCTION: ENGINE 0x10686F10
-	unsigned char* Block10686F10::Unknown10686F10(int index)
+	unsigned char* Block10686EE0::Unknown10686F10(int index)
 	{
 		return m0 + index;
 	}
 
 	// FUNCTION: ENGINE 0x10686F20
-	int Block10686F10::Unknown10686F20() const
+	int Block10686EE0::Unknown10686F20() const
 	{
 		return m4;
 	}
@@ -495,6 +750,14 @@ namespace ravenphysics
 		return &m10;
 	}
 
+	// FUNCTION: ENGINE 0x106871D0
+	Block10687110* Block10687110::Unknown106871D0()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x106871E0
 	void Block10687110::Unknown106871E0()
 	{
@@ -505,6 +768,14 @@ namespace ravenphysics
 	int Block10687110::Unknown106871F0() const
 	{
 		return m20;
+	}
+
+	// FUNCTION: ENGINE 0x10687200
+	Block10687110* Block10687110::Unknown10687200()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
 	}
 
 	// FUNCTION: ENGINE 0x10687210
@@ -519,62 +790,146 @@ namespace ravenphysics
 		return m20;
 	}
 
+	// FUNCTION: ENGINE 0x10687230
+	void Block10687230::Unknown10687230(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10687250
+	Block10687230* Block10687230::Unknown10687250()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x10687260
-	void Block10687260::Unknown10687260()
+	void Block10687230::Unknown10687260()
 	{
 		m30--;
+	}
+
+	// FUNCTION: ENGINE 0x106872D0
+	int Block106872D0::Unknown106872D0() const
+	{
+		if (m24)
+		{
+			return m24;
+		}
+		return m28;
 	}
 
 	// FUNCTION: ENGINE 0x106872E0
-	int Block106872E0::Unknown106872E0() const
+	int Block106872D0::Unknown106872E0() const
 	{
 		return m20;
+	}
+
+	// FUNCTION: ENGINE 0x106872F0
+	Block106872D0* Block106872D0::Unknown106872F0()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
 	}
 
 	// FUNCTION: ENGINE 0x10687300
-	void Block106872E0::Unknown10687300()
+	void Block106872D0::Unknown10687300()
 	{
 		m30--;
+	}
+
+	// FUNCTION: ENGINE 0x10687370
+	int Block10687370::Unknown10687370() const
+	{
+		if (m24)
+		{
+			return m24;
+		}
+		return m28;
 	}
 
 	// FUNCTION: ENGINE 0x10687380
-	int Block10687380::Unknown10687380() const
+	int Block10687370::Unknown10687380() const
 	{
 		return m20;
 	}
 
+	// FUNCTION: ENGINE 0x10687390
+	Block10687370* Block10687370::Unknown10687390()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x106873A0
-	void Block10687380::Unknown106873A0()
+	void Block10687370::Unknown106873A0()
 	{
 		m30--;
 	}
 
+	// FUNCTION: ENGINE 0x106873C0
+	int Block10687370::Unknown106873C0() const
+	{
+		if (m24)
+		{
+			return m24;
+		}
+		return m28;
+	}
+
 	// FUNCTION: ENGINE 0x106873D0
-	int Block10687380::Unknown106873D0() const
+	int Block10687370::Unknown106873D0() const
 	{
 		return m20;
 	}
 
+	// FUNCTION: ENGINE 0x10687490
+	void Block10687490::Unknown10687490(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x106874B0
+	Block10687490* Block10687490::Unknown106874B0()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x106874C0
-	void Block106874C0::Unknown106874C0()
+	void Block10687490::Unknown106874C0()
 	{
 		m30--;
 	}
 
 	// FUNCTION: ENGINE 0x106874E0
-	int Block106874C0::Unknown106874E0() const
+	int Block10687490::Unknown106874E0() const
 	{
 		return m20;
 	}
 
+	// FUNCTION: ENGINE 0x106874F0
+	Block10687490* Block10687490::Unknown106874F0()
+	{
+		m2C = false;
+		m30 = 1;
+		return this;
+	}
+
 	// FUNCTION: ENGINE 0x10687500
-	void Block106874C0::Unknown10687500()
+	void Block10687490::Unknown10687500()
 	{
 		m30--;
 	}
 
 	// FUNCTION: ENGINE 0x10687530
-	int Block106874C0::Unknown10687530() const
+	int Block10687490::Unknown10687530() const
 	{
 		return m20;
 	}
@@ -592,35 +947,168 @@ namespace ravenphysics
 		m4 = newSecond;
 	}
 
+	// FUNCTION: ENGINE 0x10687900
+	void Block10687900::Unknown10687900(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 4, 16);
+		m4 = newCount;
+	}
+
+	// FUNCTION: ENGINE 0x10687930
+	void Block10687930::Unknown10687930(int newFirst, int newThird)
+	{
+		m0 = newFirst;
+		m4 = 0;
+		m8 = newThird;
+	}
+
 	// FUNCTION: ENGINE 0x10687950
-	void Block10687950::Unknown10687950(int newFirst, int newSecond)
+	void Block10687930::Unknown10687950(int newFirst, int newSecond)
 	{
 		m0 = newFirst;
 		m4 = newSecond;
 	}
 
 	// FUNCTION: ENGINE 0x10687990
-	unsigned char* Block10687950::Unknown10687990()
+	unsigned char* Block10687930::Unknown10687990()
 	{
 		return &mB0;
 	}
 
 	// FUNCTION: ENGINE 0x106879A0
-	int Block10687950::Unknown106879A0() const
+	int Block10687930::Unknown106879A0() const
 	{
 		return m0;
 	}
 
 	// FUNCTION: ENGINE 0x106879B0
-	int Block10687950::Unknown106879B0() const
+	int Block10687930::Unknown106879B0() const
 	{
 		return m8;
+	}
+
+	// FUNCTION: ENGINE 0x10687E10
+	void Block10687E00::Unknown10687E10(int newFirst, int newThird)
+	{
+		m0 = newFirst;
+		m4 = 0;
+		m8 = newThird;
+	}
+
+	// FUNCTION: ENGINE 0x10687E80
+	void Block10687E80::Unknown10687E80(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount * 12, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10687FB0
+	void Block10687FB0::Unknown10687FB0(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount * 28, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10687FF0
+	void Block10687FB0::Unknown10687FF0(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount * 12, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688020
+	void Block10687FB0::Unknown10688020(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount * 8, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688050
+	void Block10687FB0::Unknown10688050(int newCount, StackAllocator* stack)
+	{
+		m0 = stack->Alloc(newCount * 8, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688080
+	void Block10687FB0::Unknown10688080(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 4, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106880B0
+	void Block10687FB0::Unknown106880B0(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 2, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106880E0
+	void Block10687FB0::Unknown106880E0(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 12, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688110
+	void Block10687FB0::Unknown10688110(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 8, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688140
+	void Block10687FB0::Unknown10688140(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 304, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688170
+	void Block10687FB0::Unknown10688170(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 2, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106881A0
+	void Block10687FB0::Unknown106881A0(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 4, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10688390
+	void Block10688390::Unknown10688390(int newFirst, int newThird)
+	{
+		m0 = newFirst;
+		m4 = 0;
+		m8 = newThird;
 	}
 
 	// FUNCTION: ENGINE 0x1068A8E0
 	int Block1068A8E0::Unknown1068A8E0() const
 	{
 		return m4;
+	}
+
+	// FUNCTION: ENGINE 0x1068A8F0
+	bool Block1068A8E0::Unknown1068A8F0() const
+	{
+		return m4 == m8;
 	}
 
 	// FUNCTION: ENGINE 0x1068A900
@@ -671,6 +1159,12 @@ namespace ravenphysics
 		return &m74;
 	}
 
+	// FUNCTION: ENGINE 0x1068B900
+	bool Block1068B900::Unknown1068B900() const
+	{
+		return m4 == m8;
+	}
+
 	// FUNCTION: ENGINE 0x1068B970
 	int Block1068B970::Unknown1068B970() const
 	{
@@ -705,6 +1199,12 @@ namespace ravenphysics
 	int Block1068B970::Unknown1068B9C0() const
 	{
 		return m4;
+	}
+
+	// FUNCTION: ENGINE 0x1068B9E0
+	bool Block1068B970::Unknown1068B9E0() const
+	{
+		return m4 == m8;
 	}
 
 	// FUNCTION: ENGINE 0x1068B9F0
@@ -775,6 +1275,18 @@ namespace ravenphysics
 		m4 = m0;
 	}
 
+	// FUNCTION: ENGINE 0x106900A0
+	long Block106900A0::Unknown106900A0()
+	{
+		return _InterlockedIncrement(&m0);
+	}
+
+	// FUNCTION: ENGINE 0x106900B0
+	long Block106900A0::Unknown106900B0()
+	{
+		return _InterlockedDecrement(&m0);
+	}
+
 	// FUNCTION: ENGINE 0x106900F0
 	int Block106900F0::Unknown106900F0() const
 	{
@@ -806,14 +1318,41 @@ namespace ravenphysics
 		m4 = newSecond;
 	}
 
+	// FUNCTION: ENGINE 0x10690880
+	void Block10690880::Unknown10690880(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 64, 16);
+		m8 = newCount;
+		m4 = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106908B0
+	void Block10690880::Unknown106908B0(int newCount, ScratchStack* stack)
+	{
+		m0 = stack->Alloc(newCount * 48, 16);
+		m4 = newCount;
+	}
+
 	// FUNCTION: ENGINE 0x10690930
 	int Block10690930::Unknown10690930() const
 	{
 		return m4;
 	}
 
+	// FUNCTION: ENGINE 0x106915E0
+	long Block106915E0::Unknown106915E0()
+	{
+		return _InterlockedIncrement(&m0);
+	}
+
+	// FUNCTION: ENGINE 0x106915F0
+	long Block106915E0::Unknown106915F0()
+	{
+		return _InterlockedDecrement(&m0);
+	}
+
 	// FUNCTION: ENGINE 0x10691610
-	Block10691610* Block10691610::Unknown10691610()
+	Block106915E0* Block106915E0::Unknown10691610()
 	{
 		return this;
 	}
