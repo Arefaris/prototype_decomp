@@ -8,18 +8,10 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/proto/smarthint/smarthintmanager.h"
 
 namespace proto
 {
-	// The smart hint manager (RTTI proto::SmartHintManager; the global 0x11275A58), which shows hints to the player
-	class SmartHintManager
-	{
-	public:
-		// 0x1059ACB0: starts one of the timers with a time
-		void SetTimer(int timer, float time);
-	};
-	extern SmartHintManager* gSmartHintManager;
-
 	class SmartHintSetTimerTrack : public fight::Track
 	{
 	public:
