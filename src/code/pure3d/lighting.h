@@ -189,7 +189,9 @@ namespace pure3d
 
 		int unknown10;
 		int unknown14;
-		unsigned char unknown18[0x60];
+		unsigned char unknown18[0x1C];
+		float unknown34;
+		unsigned char unknown38[0x40];
 		struct ViewState
 		{
 			unsigned char unknown0[0x10];
@@ -199,7 +201,11 @@ namespace pure3d
 			int height;
 			unsigned char unknown20[0x5C];
 		} views[5];
-		unsigned char unknown2E4[0x3C];
+		unsigned char unknown2E4[0x18];
+		float unknown2FC[6];
+		float unknown314;
+		float unknown318;
+		float unknown31C;
 		struct CameraData
 		{
 			unsigned char data[0x140];
