@@ -31205,3 +31205,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??$RefAssign@VRefCountedRotationChannel@pure3d@@@core@@YAXAAPAVRefCountedRotationChannel@pure3d@@PAV12@@Z = 0x10740AF0 ; function size:0x28 | core::RefAssign<pure3d::RefCountedRotationChannel> (COMDAT copy in the generator unit)
 ??$SafeRelease@VParticleGeneratorData@pure3d@@@core@@YAXAAPAVParticleGeneratorData@pure3d@@@Z = 0x10740B20 ; function size:0x1A | core::SafeRelease<pure3d::ParticleGeneratorData> (COMDAT copy in the generator unit)
 ??$SafeRelease@VRefCountedRotationChannel@pure3d@@@core@@YAXAAPAVRefCountedRotationChannel@pure3d@@@Z = 0x10740B40 ; function size:0x1A | core::SafeRelease<pure3d::RefCountedRotationChannel> (COMDAT copy in the generator unit)
+?GetSource@RenderTargetManager@pure3d@@QAEPAVdxTexture@2@XZ = 0x1075D550 ; function size:0xF | pure3d::RenderTargetManager::GetSource (name guess)
