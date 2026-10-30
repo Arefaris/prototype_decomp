@@ -28,6 +28,13 @@ namespace ravenphysics
 		char bytes[Size];
 	};
 
+	// An element type of its own per engine function, for the scratch allocators' array functions
+	template <int Function, int Size>
+	struct LeafSized
+	{
+		char bytes[Size];
+	};
+
 	// The address of the member at Offset
 	template <int Function, int Offset>
 	struct LeafAddress : LeafPadding<Offset>
@@ -312,6 +319,73 @@ namespace ravenphysics
 		int second;
 		int third;
 		int fourth;
+	};
+	// A stack-allocated array that rounds its byte size up to 16: pointer, count, capacity and the allocator
+	template <int Function, int Size>
+	struct LeafCreateStacked
+	{
+		void Create(int newCapacity);
+
+		void* items;
+		int count;
+		int capacity;
+		StackAllocator* stack;
+	};
+
+	// The end of, and the last element of, a counted array
+	template <int Function, int Size>
+	struct LeafEnd
+	{
+		LeafElement<Size>* End();
+
+		LeafElement<Size>* items;
+		int count;
+	};
+
+	template <int Function, int Size>
+	struct LeafLast
+	{
+		LeafElement<Size>* Last();
+
+		LeafElement<Size>* items;
+		int count;
+	};
+
+	// Whether two words of the object are equal
+	template <int Function, int First, int Second>
+	struct LeafWordsEqual
+	{
+		bool Get() const;
+
+		int words[Second / 4 + 1];
+	};
+
+	// The number of elements between two pointers of the object
+	template <int Function, int Size, int Begin, int End>
+	struct LeafCount
+	{
+		int Get() const;
+
+		LeafElement<Size>* pointers[End / 4 + 1];
+	};
+
+	// The array helper's size and element functions over a begin / end pair
+	template <int Function, int Size>
+	struct LeafHelperSize
+	{
+		int Get(LeafHelperSize* array);
+
+		LeafElement<Size>* begin;
+		LeafElement<Size>* end;
+	};
+
+	template <int Function, int Size>
+	struct LeafHelperGet
+	{
+		LeafElement<Size>* Get(LeafHelperGet* array, int index);
+
+		LeafElement<Size>* begin;
+		LeafElement<Size>* end;
 	};
 }
 

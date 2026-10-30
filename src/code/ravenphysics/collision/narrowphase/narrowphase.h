@@ -24,6 +24,16 @@ namespace ravenphysics
 	// The contacts a pair function reports; its room is allocated by the caller
 	struct ContactBuffer
 	{
+		// The next free contact
+		Contact* Next()
+		{
+			count++;
+			return contacts + count - 1;
+		}
+		// Records a hit that has no contact data, naming the triangle of a mesh (-1 for none); false when the
+		// buffer is full (0x106A8450; name guess)
+		bool AddFace(int face);
+
 		Contact* contacts;
 		unsigned int count;
 		unsigned int capacity;
