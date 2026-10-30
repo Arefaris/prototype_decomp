@@ -815,7 +815,9 @@ namespace pure3d
 		virtual void Unknown3();
 		virtual void Unknown4();
 		virtual void Unknown5();
-		virtual void Unknown6();
+		// Slot 6: takes the values of the shape's channels at the time (the generators that have some), then
+		// Unknown10741120
+		virtual void Unknown6(float time);
 		virtual void Unknown7();
 		virtual void Unknown8();
 		// Advances the generator by the update data
@@ -823,6 +825,8 @@ namespace pure3d
 		// Makes the particles of the update data; unknownE4 of the state is the second argument
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 
+		// 0x10741120: advances the generator's own animation to the time (291 bytes)
+		void Unknown10741120(float time);
 		// 0x10740460: the emitter transform, handed on to the generator
 		void SetTransform(const math::Matrix& newTransform);
 		// 0x10742720: forgets the particles it made (name guess)
@@ -853,6 +857,7 @@ namespace pure3d
 		unsigned char unknown2E0[0x14];
 		int unknown2F4;
 		int unknown2F8;
+		unsigned char unknown2FC[0x114];
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
@@ -872,6 +877,14 @@ namespace pure3d
 			Float1Channel* vesp;
 			Float1Channel* rdva;
 		};
+
+		// Slot 6 (0x10741F10)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float hosp;
+		float vesp;
+		float rdva;
 	};
 
 	class ParticlePlaneGenerator : public ParticleGenerator
@@ -894,6 +907,16 @@ namespace pure3d
 			Float1Channel* vesp;
 			Float1Channel* rdva;
 		};
+
+		// Slot 6 (0x10742120)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float wdt;
+		float hgt;
+		float hosp;
+		float vesp;
+		float rdva;
 	};
 
 	class ParticleSphereGenerator : public ParticleGenerator
@@ -913,6 +936,13 @@ namespace pure3d
 			Float1Channel* rad;
 			Float1Channel* rdva;
 		};
+
+		// Slot 6 (0x107422B0)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float rad;
+		float rdva;
 	};
 
 	class ParticleGridGenerator : public ParticleGenerator
@@ -937,10 +967,25 @@ namespace pure3d
 			Float1Channel* hspc;
 			Float1Channel* vspc;
 		};
+
+		// Slot 6 (0x10742500)
+		virtual void Unknown6(float time);
+
+		GeneratorAnimationState* animation;
+		float wdt;
+		float hgt;
+		float hosp;
+		float vesp;
+		float rdva;
+		float hspc;
+		float vspc;
 	};
 
 	class ParticleMeshGenerator : public ParticleGenerator
 	{
+	public:
+		// Slot 6 (0x107425F0): only the base's animation
+		virtual void Unknown6(float time);
 	};
 
 	class MeshState : public PrimitiveState

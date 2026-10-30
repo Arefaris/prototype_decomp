@@ -123,6 +123,18 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10741F10
+	void ParticlePointGenerator::Unknown6(float time)
+	{
+		if (animation != 0)
+		{
+			animation->hosp->GetValue(time, &hosp);
+			animation->vesp->GetValue(time, &vesp);
+			animation->rdva->GetValue(time, &rdva);
+		}
+		Unknown10741120(time);
+	}
+
 	// FUNCTION: ENGINE 0x10741F90
 	ParticlePlaneGenerator::GeneratorAnimationState::GeneratorAnimationState() : RefCounted(NO_BARRIER)
 	{
@@ -151,6 +163,20 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10742120
+	void ParticlePlaneGenerator::Unknown6(float time)
+	{
+		if (animation != 0)
+		{
+			animation->wdt->GetValue(time, &wdt);
+			animation->hgt->GetValue(time, &hgt);
+			animation->hosp->GetValue(time, &hosp);
+			animation->vesp->GetValue(time, &vesp);
+			animation->rdva->GetValue(time, &rdva);
+		}
+		Unknown10741120(time);
+	}
+
 	// FUNCTION: ENGINE 0x107421D0
 	ParticleSphereGenerator::GeneratorAnimationState::GeneratorAnimationState() : RefCounted(NO_BARRIER)
 	{
@@ -168,6 +194,17 @@ namespace pure3d
 			rad = new Float1Channel(*(Float1Channel*)group->FindChannel(0x444152, 0x31544C46));
 			rdva = new Float1Channel(*(Float1Channel*)group->FindChannel(0x41564452, 0x31544C46));
 		}
+	}
+
+	// FUNCTION: ENGINE 0x107422B0
+	void ParticleSphereGenerator::Unknown6(float time)
+	{
+		if (animation != 0)
+		{
+			animation->rad->GetValue(time, &rad);
+			animation->rdva->GetValue(time, &rdva);
+		}
+		Unknown10741120(time);
 	}
 
 	// FUNCTION: ENGINE 0x10742310
@@ -202,5 +239,27 @@ namespace pure3d
 			hspc = new Float1Channel(*(Float1Channel*)group->FindChannel(0x43505348, 0x31544C46));
 			vspc = new Float1Channel(*(Float1Channel*)group->FindChannel(0x43505356, 0x31544C46));
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10742500
+	void ParticleGridGenerator::Unknown6(float time)
+	{
+		if (animation != 0)
+		{
+			animation->wdt->GetValue(time, &wdt);
+			animation->hgt->GetValue(time, &hgt);
+			animation->hosp->GetValue(time, &hosp);
+			animation->vesp->GetValue(time, &vesp);
+			animation->rdva->GetValue(time, &rdva);
+			animation->hspc->GetValue(time, &hspc);
+			animation->vspc->GetValue(time, &vspc);
+		}
+		Unknown10741120(time);
+	}
+
+	// FUNCTION: ENGINE 0x107425F0
+	void ParticleMeshGenerator::Unknown6(float time)
+	{
+		Unknown10741120(time);
 	}
 }
