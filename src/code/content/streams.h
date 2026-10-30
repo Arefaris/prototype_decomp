@@ -5,17 +5,11 @@
 #define CONTENT_STREAMS_H
 
 #include "code/content/chunkhandler.h"
+#include "code/content/loadmanager.h"
+#include "code/content/metastream.h"
 
 namespace content
 {
-	struct IReadStream
-	{
-		virtual void Read(void* destination, unsigned int size) = 0;
-		virtual unsigned int GetPosition() = 0;
-		virtual void Seek(unsigned int position) = 0;
-		virtual unsigned int GetSize() = 0;
-	};
-
 	class LoadStreamWrapper : public IReadStream
 	{
 	public:
@@ -24,9 +18,9 @@ namespace content
 		// 0x1060A920
 		~LoadStreamWrapper();
 		// Slots 0 - 3: 0x1060B380, 0x1060A930, 0x1060B3A0, 0x1060A940
-		virtual void Read(void* destination, unsigned int size);
+		virtual void Transfer(void* destination, unsigned int size);
 		virtual unsigned int GetPosition();
-		virtual void Seek(unsigned int position);
+		virtual void SetPosition(unsigned int position);
 		virtual unsigned int GetSize();
 
 		LoadStream* stream;
@@ -62,6 +56,51 @@ namespace content
 		unsigned char* buffer;
 		unsigned int used;
 		unsigned int capacity;
+	};
+
+	// A block of memory written to (the engine has no constructor of its own out of line; names guessed)
+	class MemoryWriteStream : public IWriteStream
+	{
+	public:
+		// Slots 0 - 3: 0x1060E530, 0x1060E560, 0x1060E570, 0x1060E580
+		virtual void Write(const void* source, unsigned int size);
+		virtual unsigned int GetPosition();
+		virtual void Seek(unsigned int position);
+		virtual unsigned int GetSize();
+
+		void* data;
+		unsigned int size;
+		unsigned int position;
+	};
+
+	// A stream that keeps no data, only how far it was written to (the position and the greatest position)
+	class NullWriteStream : public IWriteStream
+	{
+	public:
+		// 0x1060E590
+		NullWriteStream();
+		// Slots 0 - 3: 0x1060E5B0, 0x1060E5D0, 0x1060E5E0, 0x1060E600
+		virtual void Write(const void* source, unsigned int size);
+		virtual unsigned int GetPosition();
+		virtual void Seek(unsigned int position);
+		virtual unsigned int GetSize();
+
+		unsigned int size;
+		unsigned int position;
+	};
+
+	// The same, and the CRC of everything written
+	class CRCWriteStream : public NullWriteStream
+	{
+	public:
+		// 0x1060E610
+		CRCWriteStream();
+		// Slot 0: 0x1060E630
+		virtual void Write(const void* source, unsigned int size);
+		// 0x1060E660
+		unsigned int GetCrc();
+
+		unsigned int crc;
 	};
 
 	// 0x1060AE30 / 0x1060AE70 / 0x1060AEC0 / 0x1060AF10 / 0x1060B200: make a stream and hand back a reference to it

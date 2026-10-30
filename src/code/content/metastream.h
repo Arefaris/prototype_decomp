@@ -8,8 +8,8 @@
 namespace content
 {
 	// The byte stream under the readers and writers (slot 0 reads or writes a block; the others are the position and
-	// the size)
-	class ByteStream
+	// the size). The engine's name for the reading side is content::IReadStream (RTTI: a struct)
+	struct IReadStream
 	{
 	public:
 		virtual void Transfer(void* buffer, unsigned int size) = 0;
@@ -23,6 +23,7 @@ namespace content
 			return GetPosition() < GetSize();
 		}
 	};
+	typedef IReadStream ByteStream;
 
 	class MetaType;
 

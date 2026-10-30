@@ -660,7 +660,7 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x1060B380
-	void LoadStreamWrapper::Read(void* destination, unsigned int size)
+	void LoadStreamWrapper::Transfer(void* destination, unsigned int size)
 	{
 		stream->Read(destination, size, 1, 1);
 	}
@@ -672,7 +672,7 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x1060B3A0
-	void LoadStreamWrapper::Seek(unsigned int position)
+	void LoadStreamWrapper::SetPosition(unsigned int position)
 	{
 		stream->Skip(position - stream->GetPosition());
 	}
