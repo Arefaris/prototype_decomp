@@ -43,6 +43,23 @@ namespace proto
 		bool unknown2;
 	};
 
+	// One hint: a title, six lines of text, six images with their captions (texts of 0x40 bytes) and the number of
+	// lines the script gave (0x52C bytes; read by the registration unit's Load, not reconstructed)
+	struct SmartHintEntry
+	{
+		// 0x1059B890: empties all texts
+		void Clear();
+		// 0x1059B2D0: copies a script text into a field
+		static void CopyText(const char* source, char* destination);
+
+		char title[0x40];  // +0
+		char lines[6][0x40];  // +0x40
+		char images[6][0x40];  // +0x1C0
+		char captions[6][0x40];  // +0x340
+		int lineCount;  // +0x4C0
+		unsigned char unknown4C4[0x52c - 0x4c4];
+	};
+
 	class SmartHintManager
 	{
 	public:
@@ -75,6 +92,10 @@ namespace proto
 		void SetFlag2C();
 		// 0x1059B210
 		void SetUnknown20(float value);
+		// 0x1059B530: puts the manager in or out of the free roam mode (the first time in, the scenario is told)
+		void SetFreeRoam(bool on);
+		// 0x1059B7F0: tells the scenario the pause menu is left (and that something can be bought)
+		void SendExitPause();
 		// 0x1059B510: switches the manager on or off (off hides what is shown)
 		void SetActive(bool active);
 		// 0x1059B1A0: hides the hint on screen when it is the one being shown (not reconstructed)

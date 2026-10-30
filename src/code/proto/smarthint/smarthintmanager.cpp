@@ -1,12 +1,37 @@
 #include "code/proto/smarthint/smarthintmanager.h"
 
+#include "code/core/strings.h"
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/scenariomessage.h"
 
 namespace proto
 {
 	// The names in the game database (0x11275A78: the timers, 0x1126E4C0: the player's setting)
 	extern core::Name<core::CaseSensitiveKey> gSmartHintTimersName;
 	extern core::Name<core::CaseSensitiveKey> gSmartHintSettingName;
+
+	// The listeners of the smart hint scenario messages (0x11275A70)
+	extern engine::MessageListeners gSmartHintListeners;
+
+	// FUNCTION: ENGINE 0x1059B2D0
+	void SmartHintEntry::CopyText(const char* source, char* destination)
+	{
+		core::StrNCpy(destination, source, 0x3fu);
+	}
+
+	// FUNCTION: ENGINE 0x1059B890
+	void SmartHintEntry::Clear()
+	{
+		lineCount = 0;
+		CopyText("", title);
+		for (int i = 0; i < 6; i++)
+		{
+			CopyText("", lines[i]);
+			CopyText("", images[i]);
+			CopyText("", captions[i]);
+		}
+	}
 
 	// FUNCTION: ENGINE 0x1059B340
 	void SmartHintShown::Reset()
@@ -154,5 +179,45 @@ namespace proto
 		{
 			HideShown();
 		}
+	}
+
+	// FUNCTION: ENGINE 0x1059B530
+	void SmartHintManager::SetFreeRoam(bool on)
+	{
+		if (on)
+		{
+			mode = 1;
+			if (flag2C)
+			{
+				flag2C = false;
+				core::Name<core::CaseSensitiveKey> name("smarthint_in_free_roam", 1);
+				engine::StringMessage message(name);
+				engine::SendMessage(&message, &gSmartHintListeners);
+			}
+		}
+		else
+		{
+			mode = 0;
+		}
+	}
+
+	// helper
+	static inline void NotifyHint(const char* text)
+	{
+		core::Name<core::CaseSensitiveKey> name(text, 1);
+		engine::StringMessage message(name);
+		engine::SendMessage(&message, &gSmartHintListeners);
+	}
+
+	// FUNCTION: ENGINE 0x1059B7F0
+	// EQUIVALENT: the same name constructions, messages and calls in the same order; the engine keeps the two messages
+	// in separate stack slots (a 0x58 byte frame), ours shares the slot of the first for the second (0x30 bytes), 97 %
+	void SmartHintManager::SendExitPause()
+	{
+		if (engine::gGameDatabase->GetInt(gSmartHintSettingName, 0, 0) < setting)
+		{
+			NotifyHint("smarthint_exit_pause_purchase");
+		}
+		NotifyHint("smarthint_exit_pause");
 	}
 }
