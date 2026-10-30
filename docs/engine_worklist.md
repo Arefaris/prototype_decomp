@@ -5300,3 +5300,53 @@ input structs are in the next range).
   functions.tsv sizes cover only the entry, the case blocks lie behind other functions); `DefaultTextures`
   (0x1073DA10, 0x1073DF90: x87 sine tables); `TextureLoader` (0x1072A120 and the two statics 0x10729CD0 / 0x10729F00 for
   `FindTexture`); the mixer's `Mix` / `Update` helpers 0x10730C80 and 0x10730E00 (2003 bytes).
+## proto: the range 0x10560000 - 0x10580000 (sn-ah): units found, status
+The range has no assert paths; the units were found from the vftables and RTTI, the Lua registration strings and the
+neighbouring functions. In address order (the file names are guesses):
+| Range | Unit | Source | Status |
+|---|---|---|---|
+| 0x1055B780 - 0x10562F50 | proto::WebOfIntrigueManager (a DBObserver, the singleton 0x11272D48), its nodes and episodes; the script registration is 0x10561BB0 (4009 bytes, 28 natives and the enums WOINodeState / WOINodeType); the node reflection 0x10561390 / 0x10562F90 | src/code/proto/webofintrigue/webofintriguemanager.h (declaration only) | only the script wrappers; the rest of the unit starts before the range |
+| 0x10563630 - 0x10565930 | proto::IsWOITargetCondition and the tracks / actions WOIFMV, WOISendEvent, WOIShowTargetName, WOIPlayReaction | src/code/proto/webofintrigue/woifight.cpp | 140 match, 6 EQUIVALENT; the action slots 5 - 7 are mapped only |
+| 0x10565BD0 - 0x10567600 | proto::CityManager (the singleton 0x112730A0), proto::WorldGetDistrictMessage, the path / lane helpers around it | src/code/proto/citymanager.cpp | 8 match (constructor, destructor, the cell progression lists, script registration), `ReleaseScript` EQUIVALENT (register choice); the object registry and the district queries not done |
+| 0x10567670 - 0x10567D10 | proto::MidgroundTextureManager | src/code/proto/render/midgroundtexturemanager.cpp | 10 match; `LoadTexture` 0x10567A40 not done |
+| 0x10567F20 - 0x10568380, 0x10569030 - 0x105691C0 | proto::NavArea (the 64-byte area records of the mesh): the kind tests, the lane claim counters and the load conversions | src/code/proto/navarea.cpp | 16 match, `SetForwardLoad` NONMATCHING (33 %: the engine multiplies the scale in place behind the test); `PathNode::Link`'s bit-field members (0x10567F20 - 0x10567F90) not done (the struct is declared in another unit's header) |
+| 0x10567D90 - 0x1056EF20 | the reflection of the navigation mesh (proto::HackVector, Area, Edge, LaneData, AmbientNavMesh, PathNode::Link) and its array helpers | src/code/proto/navmeshreflection.cpp | 5 match (the class infos of HackVector / Area / LaneData / Edge and the enumeration Area::AreaType); the member lists and the array helpers not done (the element copies of Area / Edge / LaneData are not recovered) |
+| 0x1056EF20 - 0x1056F580 | proto::PropagandaManager | src/code/proto/propagandamanager.cpp | 10 match; `LoadTextures` 0x1056F2A0 not done |
+| 0x1056F5E0 - 0x105714E0 | proto::StreamManager (not engine::StreamManager) and the stream trigger lookups | src/code/proto/streammanager.cpp | 3 match (constructor, destructor); the trigger lookups and the script registration not done |
+| 0x10571BC0 - 0x10572530 | proto::DistrictBehaviour and the 0x20-byte proto::AmbientStreamPackage with their reflection | src/code/proto/districtbehaviour.cpp | 1 match (the class info) |
+| 0x105726B0 - 0x10573300 | proto::ZoneBehaviour (radius, zone type, zone strength, render effects state) | src/code/proto/zonebehaviour.cpp | 15 match (reflection, strength accessors); the constructor, `Slot1`, `OnActiveChanged`, `Update`, `OnMessage`, `UpdateEffects` not done |
+| 0x10573330 - 0x10575FC0 | proto::NISManager and the NIS messages (`NISDoneScenarioMessage`, `NISGetStateMessage`, ...) | not started (script wrappers only) | |
+| 0x10576000 - 0x10577D10 | the NIS exclusion volume, `NISExcludeVolumeAction` | not started | |
+| 0x10577D10 - 0x10578740 | proto::NISExcludeVolumeTrack | src/code/proto/nis/nisexcludevolume.cpp | 42 match (`RegisterProperties` EQUIVALENT); `CreateAction` 0x10577520 mapped only |
+| 0x10577630 - 0x10578EA0 | proto::FMVTrack, proto::FMVAction | src/code/proto/fmv/fmvtrack.cpp | 42 match (`RegisterProperties` EQUIVALENT); the slots and `CreateAction` mapped only |
+| 0x10578EA0 - 0x1057F000 | proto::UnlockablesManager, UnlockTable, UnlockableInfo / UnlockablesList reflection (the enum `proto::Unlockable` has 484 values), the registration 0x1057CDF0 (14287 bytes) | src/code/proto/unlockables.cpp | 10 match (the five enumerations, the class infos of UnlockableInfo and UnlockablesList, three enumeration meta types); the rest (member lists, table, manager) not done |
+Findings:
+- **The Method / Closure wrappers of the managers** (src/code/proto/*wrappers.cpp, 324 functions): `template class MethodN<C, R, A...>`
+  / `ClosureN<...>` / `LuaScriptManager::RegisterMethod<...>` for every instance the vftables list (RTTI `Method1<class proto::X,void,int>`
+  ...) instantiate the engine's constructors, `Call`, `Invoke` and the `RegisterMethod` copies; the manager class itself is an empty
+  class (single inheritance keeps the member pointers at one word). Identical-looking copies of different instances are told apart
+  by their vftable (a `Method` / `Closure` vftable slot 0 leads to its `Invoke`) and by the `Call` target; mapping them by size and
+  bytes alone is ambiguous.
+- **`??_E` and `??_G`**: the vftable of a compiled class refers to `??_E...` (the vector deleting destructor), which the compiler defines as
+  a name for the same 30 bytes as `??_G...`; symbols.txt maps the `??_G` name to the slot function, the `??_E` one stays unmapped. A
+  base class' own vftable (an abstract `RenderEvent`) must not be mapped by an instance of a derived class: datacheck then reads the
+  pure slot as the first word.
+- **A track class is a regular unit** (copy src/code/proto/webofintrigue/woifight.cpp): `GetProperty` and `ClearProperties` of
+  each track are the two functions next to the property list global; the setters of the properties are the small `return 1` members
+  in the order of the registration (`tools/ghidra` decompilation of `RegisterProperties` names each `LAB_` thunk, and following the
+  `jmp` of the incremental link table gives the setter). The creation functions of the factories follow the order of the casters
+  (the first `FindTrackFactory` caller is the first caster constructor, not the first class of the unit).
+- **WOI action layouts**: `WOIFMVAction` 0x74 bytes (link +0x1C, owner +0x28, a 64 character string at +0x2C, a flag +0x70),
+  `WOISendEventAction` 0x2C (owner +0x1C, link +0x20), `WOIShowTargetNameAction` 0x30 (handle +0x1C, link +0x20, owner +0x2C),
+  `WOIPlayReactionAction` 0x34 (handle +0x1C, the creating action's second argument +0x20, link +0x24, node index +0x30). The node
+  index of an object is read through the manager's `FindNode(handle)` (0x1055CC40). `WOISendEventTrack` +0x14 is `toFrontend`,
+  +0x15 `toScenario`.
+- The track classes' `Link<T>` out-of-line members exist twice in the engine (0x10563430 - 0x10563490 / 0x105634B0 - 0x105635E0 and
+  0x105636B0 - 0x10563970 / 0x10563830 ...): only the second set is produced from one source; the first set (eight 16- and 55-byte
+  copies and sixteen 3-byte getters) is left.
+- `ObjRenderEvent3<C, A1, A2, A3>` and its `QueueObjRenderEvent` were missing from engine/render/async/renderevent.h and were added.
+- `IsWOITargetCondition::Evaluate` is EQUIVALENT (69.8 %: eax / ecx roles of the handle and the table pointer and the result set through
+  cl); no replay states exist for it or for the five `RegisterProperties` functions (shrink-wrap).
+Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520; 0x10567C50 and 0x1056F4E0 (the texture managers) are done, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
+reconstructed), the NIS and zone / district behaviours (HUD and message calls through unnamed functions of the front end), the navigation mesh
+reflection (the element copies of Area / Edge / LaneData are not recovered), the unlock table.
