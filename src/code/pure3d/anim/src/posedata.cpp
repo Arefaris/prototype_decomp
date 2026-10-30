@@ -266,6 +266,28 @@ namespace pure3d
 		mFlags &= ~2;
 	}
 
+	// FUNCTION: ENGINE 0x10708CA0
+	void JointArrays::Set(const PoseLayout* layout)
+	{
+		mJointCount = layout->jointCount;
+		int block = (int)layout->memory;
+		if (layout->spaces & 2)
+		{
+			block += mJointCount * 0x80;
+		}
+		block += mJointCount * 0x40;
+		mRotations = (math::Quaternion*)block;
+		block += mJointCount * 0x10;
+		mTranslations = (math::Vector4*)block;
+		block += mJointCount * 0x10;
+		mUnknown10 = (math::Vector4*)block;
+		block += mJointCount * 0x10;
+		mScales = (math::Vector4*)block;
+		block += mJointCount * 0x10;
+		mUnknown14 = (math::Vector4*)block;
+		mUnknown1C = (math::Vector4*)(block + mJointCount * 0x10);
+	}
+
 	// FUNCTION: ENGINE 0x10708260
 	void PoseData::GetLayout(PoseLayout* layout)
 	{

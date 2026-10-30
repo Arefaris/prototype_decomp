@@ -12,6 +12,16 @@
 #include "code/pure3d/shaderparameters.h"
 
 // This unit's copies of the reference helpers for the controllers and the offsets of a state
+// FUNCTION: ENGINE 0x10707710
+template void core::RefAssign<pure3d::ShaderAnimationController>(pure3d::ShaderAnimationController*& pointer,
+	pure3d::ShaderAnimationController* object);
+
+// FUNCTION: ENGINE 0x107077A0
+template void core::SafeRelease<pure3d::ShaderAnimationController>(pure3d::ShaderAnimationController*& object);
+
+// FUNCTION: ENGINE 0x107077E0
+template void core::SafeRelease<pure3d::VertexRegionAnimController>(pure3d::VertexRegionAnimController*& object);
+
 // FUNCTION: ENGINE 0x107076E0
 template void core::RefAssign<pure3d::VertexOffsetList>(pure3d::VertexOffsetList*& pointer, pure3d::VertexOffsetList* object);
 

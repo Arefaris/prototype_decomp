@@ -22,9 +22,10 @@ namespace pure3d
 		{
 		}
 
-		unsigned char unknown0[0x18];
+		// The box and sphere the server tests (the sphere's centre and radius), then the part's flags
+		math::AABB bounds;
 		math::Vector unknown18;
-		int unknown24;
+		float unknown24;
 		PartAnimationFlags unknown28;
 	};
 
@@ -55,10 +56,47 @@ namespace pure3d
 			unsigned char unknownB0[0x30];
 		};
 
+		// A set of bits as the server keeps them (16 bytes: the words are at +8)
+		struct BitSet
+		{
+			int unknown0;
+			int unknown4;
+			unsigned int* words;
+			int unknownC;
+		};
+
+		// RTTI pure3d::visibility::Server::BitFieldStack: the result sets of the tests (5) and then the flag sets
+		struct BitFieldStack
+		{
+			BitSet results[5];
+			BitSet flags[1];
+		};
+
+		// The bounds and bits of the clients (layout partial; the rest of the class lives in the server's unit)
+		class Server
+		{
+		public:
+			// 0x10726590: how many flag sets there are
+			unsigned int GetFlagSetCount();
+
+			unsigned char unknown0[0x18];
+			math::AABB* boxes;
+			unsigned char unknown1C[8];
+			math::Sphere* spheres;
+			unsigned char unknown28[8];
+			void** userData;
+			unsigned char unknown34[0x14];
+			BitFieldStack* bits;
+		};
+
 		class Client
 		{
 		public:
 			virtual ~Client();
+
+			// 0x1071A720 / 0x1071A740: the region of the client's index (its top four bits) and its place in the region
+			unsigned int GetRegion() const;
+			unsigned int GetSlot() const;
 
 			// 0x1071AD50 / 0x1071A930
 			void GetState(PartAnimationState* state);

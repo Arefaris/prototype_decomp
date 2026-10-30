@@ -14,6 +14,22 @@
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
 
+// This unit's copies of the reference helpers for the controllers and the key frames of a state
+// FUNCTION: ENGINE 0x1071F480
+template void core::RefAssign<pure3d::VertexAnimKeyFrameList>(pure3d::VertexAnimKeyFrameList*& pointer,
+	pure3d::VertexAnimKeyFrameList* object);
+
+// FUNCTION: ENGINE 0x1071F4B0
+template void core::RefAssign<pure3d::FrameController>(pure3d::FrameController*& pointer,
+	pure3d::FrameController* object);
+
+// FUNCTION: ENGINE 0x1071F4E0
+template void core::SafeRelease<pure3d::ExpressionAnimationController>(
+	pure3d::ExpressionAnimationController*& object);
+
+// FUNCTION: ENGINE 0x1071F500
+template void core::SafeRelease<pure3d::VertexAnimKeyFrameList>(pure3d::VertexAnimKeyFrameList*& object);
+
 namespace pure3d
 {
 	// The file the unit's asserts carry (skin.cpp)
