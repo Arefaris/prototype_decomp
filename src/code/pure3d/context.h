@@ -5,6 +5,7 @@
 #ifndef PURE3D_CONTEXT_H
 #define PURE3D_CONTEXT_H
 
+#include "code/pure3d/font.h"
 #include "code/container/arraydynamicstatic.h"
 #include "code/container/map.h"
 #include "code/core/memory/imemoryallocator.h"
@@ -415,34 +416,6 @@ namespace pure3d
 			const core::Name<core::CaseSensitiveKey>* parameter, const T* value);
 
 		ContextKey key;
-	};
-
-	// The debug font (RTTI name pure3d::TextureFont); the context keeps one at +0x24
-	class TextureFont : public core::IRefCount
-	{
-	public:
-		// 0x1070EC40 (another unit): widens a text into the buffer (as much as fits, ended); the length
-		int ToWide(const char* text, unsigned short* buffer, int capacity);
-		// 0x1070EC90: draws an 8-bit text (widened into a buffer of 0x200 characters first; name guess)
-		void DrawAnsi(const char* text, int unknown);
-
-		virtual void Unknown3();
-		virtual void Unknown4();
-		virtual float Unknown5();
-		// The height of a line
-		virtual float Unknown6();
-		virtual void Unknown7();
-		virtual void Unknown8();
-		virtual void Unknown9();
-		virtual void Unknown10();
-		// Draws the wide text
-		virtual void Draw(const unsigned short* text, int unknown);
-		virtual void Unknown12();
-		virtual void Unknown13();
-		virtual void Unknown14();
-		virtual void Unknown15();
-		virtual void Unknown16();
-		virtual void SetColour(unsigned int colour);
 	};
 
 	// The chain of render passes the context's frame runs (the object at +0x68); 0x1074D650 walks the passes of

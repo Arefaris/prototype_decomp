@@ -64,7 +64,13 @@ namespace pure3d
 		void AddLight(Light* light);
 		void RemoveLight(Light* light);
 
-		unsigned char unknown0[0x30];
+		unsigned char unknown0[8];
+		// The lights with a decay range (the ones the visibility regions know) and the ones without; the light's
+		// region index (0xFFFF for none) says which list holds it
+		LightArray bounded;
+		unsigned char unknown14[4];
+		LightArray unbounded;
+		unsigned char unknown24[0xC];
 		Light** lights;
 		unsigned char unknown34[8];
 		unsigned int* indicesBegin;
