@@ -5260,7 +5260,7 @@ neighbouring functions. In address order (the file names are guesses):
 | 0x1056EF20 - 0x1056F580 | proto::PropagandaManager | src/code/proto/propagandamanager.cpp | 10 match; `LoadTextures` 0x1056F2A0 not done |
 | 0x1056F5E0 - 0x105714E0 | proto::StreamManager (not engine::StreamManager) and the stream trigger lookups | not started (script wrappers only) | |
 | 0x10571BC0 - 0x10572530 | proto::DistrictBehaviour and the 0x20-byte proto::AmbientStreamPackage with their reflection | not started | |
-| 0x105726B0 - 0x10573300 | proto::ZoneBehaviour (radius, zone type, zone strength, render effects state) | not started | |
+| 0x105726B0 - 0x10573300 | proto::ZoneBehaviour (radius, zone type, zone strength, render effects state) | src/code/proto/zonebehaviour.cpp | 15 match (reflection, strength accessors); the constructor, `Slot1`, `OnActiveChanged`, `Update`, `OnMessage`, `UpdateEffects` not done |
 | 0x10573330 - 0x10575FC0 | proto::NISManager and the NIS messages (`NISDoneScenarioMessage`, `NISGetStateMessage`, ...) | not started (script wrappers only) | |
 | 0x10576000 - 0x10577D10 | the NIS exclusion volume, `NISExcludeVolumeAction` | not started | |
 | 0x10577D10 - 0x10578740 | proto::NISExcludeVolumeTrack | src/code/proto/nis/nisexcludevolume.cpp | 42 match (`RegisterProperties` EQUIVALENT); `CreateAction` 0x10577520 mapped only |
@@ -5293,7 +5293,6 @@ Findings:
 - `ObjRenderEvent3<C, A1, A2, A3>` and its `QueueObjRenderEvent` were missing from engine/render/async/renderevent.h and were added.
 - `IsWOITargetCondition::Evaluate` is EQUIVALENT (69.8 %: eax / ecx roles of the handle and the table pointer and the result set through
   cl); no replay states exist for it or for the five `RegisterProperties` functions (shrink-wrap).
-Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520, 0x1056F4E0 is done
-for the texture managers only, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
+Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520; 0x10567C50 and 0x1056F4E0 (the texture managers) are done, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
 reconstructed), the NIS and zone / district behaviours (HUD and message calls through unnamed functions of the front end), the navigation mesh
 reflection (the element copies of Area / Edge / LaneData are not recovered), the unlock table.
