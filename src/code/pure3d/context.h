@@ -23,6 +23,7 @@ namespace pure3d
 	class Context;
 	class RenderTarget;
 	class TargetParams;
+	class Pass;
 	class pddiSurface;
 	class Drawable;
 	class PrimStream;
@@ -416,6 +417,10 @@ namespace pure3d
 			const core::Name<core::CaseSensitiveKey>* parameter, const T* value);
 
 		ContextKey key;
+		unsigned char unknown18[0x1C];
+		// The pass the context runs (+0x34) and whether it sets the render targets of the parameters first
+		Pass* pass;
+		bool setsTargets;
 	};
 
 	// The chain of render passes the context's frame runs (the object at +0x68); 0x1074D650 walks the passes of
