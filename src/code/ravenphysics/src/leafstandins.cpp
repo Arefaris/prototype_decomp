@@ -400,7 +400,7 @@ namespace ravenphysics
 	template <int Function, int Size, int Count>
 	bool LeafInlineIsEmpty<Function, Size, Count>::Get() const
 	{
-		return end == items;
+		return items == end;
 	}
 
 	template <int Function, int Size>
@@ -1630,6 +1630,9 @@ namespace ravenphysics
 
 	// FUNCTION: ENGINE 0x106BF930
 	template struct LeafInlineCount<0x106BF930, 12, 256>;
+
+	// FUNCTION: ENGINE 0x106BF950
+	template struct LeafInlineIsEmpty<0x106BF950, 12, 256>;
 
 	// FUNCTION: ENGINE 0x106BF960
 	template struct LeafInlineArray<0x106BF960, 0, 12>;

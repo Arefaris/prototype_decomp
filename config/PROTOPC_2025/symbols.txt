@@ -29697,3 +29697,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?Create@?$LeafCreateAligned@$0BAGKLLDA@$01@ravenphysics@@QAEXHH@Z = 0x106ABB30 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275430192,2>::Create(int,int) (name guess)
 ?Create@?$LeafCreateAligned@$0BAGKPCGA@$03@ravenphysics@@QAEXHH@Z = 0x106AF260 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275444320,4>::Create(int,int) (name guess)
 ?Create@?$LeafCreateAligned@$0BAGLDPCA@$07@ravenphysics@@QAEXHH@Z = 0x106B3F20 ; function size:0x3D | public: void __thiscall ravenphysics::LeafCreateAligned<275463968,8>::Create(int,int) (name guess)
+?Get@?$LeafInlineIsEmpty@$0BAGLPJFA@$0M@$0BAA@@ravenphysics@@QBE_NXZ = 0x106BF950 ; function size:0xC | public: bool __thiscall ravenphysics::LeafInlineIsEmpty<275511632,12,256>::Get(void)const  (name guess)
