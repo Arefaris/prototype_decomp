@@ -1,5 +1,8 @@
 // pure3d::ExpressionAnimationController (unit around 0x10734510 - 0x10734800; file name guessed from the class). Names
 // are guesses.
+#include <new>
+
+#include "code/core/refptr.h"
 #include "code/pure3d/channel.h"
 #include "code/pure3d/expressiongroup.h"
 #include "code/pure3d/primitive.h"
@@ -15,6 +18,27 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10734520
 	void ExpressionAnimationController::SetTarget(Entity* target)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10734530
+	VertexOffsetExpressionMixer* ExpressionAnimationController::GetMixer()
+	{
+		return mMixer;
+	}
+
+	// FUNCTION: ENGINE 0x10734620
+	void ExpressionAnimationController::SetMixer(VertexOffsetExpressionMixer* mixer)
+	{
+		if (mixer != 0)
+		{
+			mWeightCount = 0;
+			delete[] mWeights;
+			mWeights = 0;
+			core::RefAssign(mMixer, mixer);
+			mWeightCount = mMixer->mWeights.Size();
+			mWeights = new float[mWeightCount];
+			ClearWeights();
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10734540
@@ -66,7 +90,7 @@ namespace pure3d
 						float value;
 						channel->GetValue(mFrame, &value);
 						VertexOffsetExpressionMixer* mixer = mMixer;
-						mixer->mWeights[index] = value;
+						mixer->mWeights.begin[index] = value;
 						mixer->mChanged = true;
 					}
 				}

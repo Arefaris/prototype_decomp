@@ -41,7 +41,7 @@ namespace pure3d
 			{
 				if (at->changed)
 				{
-					*(float*)(offset + (char*)mixer->mWeights) = at->weight;
+					*(float*)(offset + (char*)mixer->mWeights.begin) = at->weight;
 					mixer->mChanged = true;
 					at->changed = false;
 				}

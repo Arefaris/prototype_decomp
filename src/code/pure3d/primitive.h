@@ -185,9 +185,19 @@ namespace pure3d
 		// The expressions the weights are for, one weight for each of them (+0x14, to +0x18), the weights the last
 		// mix used (+0x20, to +0x24; entries of 0x18 bytes) and whether the weights changed since
 		ExpressionGroup* mExpressions;
-		float* mWeights;
-		float* mWeightsEnd;
-		unsigned char unknown1C[0x10];
+		// The weights (a growing array of floats: begin, end, end of the storage)
+		struct WeightArray
+		{
+			int Size()
+			{
+				return end - begin;
+			}
+
+			float* begin;
+			float* end;
+			float* capacity;
+		} mWeights;
+		unsigned char unknown20[0xC];
 		bool mChanged;
 	};
 
@@ -454,6 +464,9 @@ namespace pure3d
 
 		// 0x10734540: sets all the weights to zero
 		void ClearWeights();
+		// 0x10734530 / 0x10734620: the mixer the weights go to; setting it makes the weights for its expressions
+		VertexOffsetExpressionMixer* GetMixer();
+		void SetMixer(VertexOffsetExpressionMixer* mixer);
 
 		VertexOffsetExpressionMixer* mMixer;
 		int mWeightCount;

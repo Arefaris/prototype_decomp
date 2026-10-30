@@ -107,4 +107,15 @@ namespace pure3d
 			core::UnregisterAsyncTaskFunction(gOcclusionTestTaskId);
 		}
 	}
+
+
+	// FUNCTION: ENGINE 0x107265E0
+	void Unknown107265E0()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107265F0
+	void Unknown107265F0()
+	{
+	}
 }
