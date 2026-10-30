@@ -11,22 +11,14 @@
 #include "code/engine/dbobserver.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/vector.h"
+#include "code/proto/freeroamevents/frobjects.h"
 
 struct lua_State;
 
 namespace proto
 {
-	// The object an event shows the player (a marker, a locator, a collectible); the vftable slots before the
-	// position are not used by the scripting unit
-	class FREventObject
-	{
-	public:
-		virtual void Slot0();
-		virtual void Slot1();
-		virtual void Slot2();
-		virtual void Slot3();
-		virtual math::Vector GetPosition();
-	};
+	// The object an event shows the player (a marker, a locator, a trigger volume; frobjects.h)
+	typedef FREventObjectBase FREventObject;
 
 	// One event (0x9D bytes at least): the list node (next at +4), the thresholds of the medals at +0x10, the name at
 	// +0x28 and the flag at +0x9C that the unlock all call sets
