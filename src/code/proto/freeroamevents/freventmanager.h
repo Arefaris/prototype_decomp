@@ -36,6 +36,10 @@ namespace proto
 		void ActivateObject(const char* name, bool active);
 		// 0x105859D0: the object of the event with the name
 		FREventObject* FindObject(const char* name);
+		// 0x10585120: turns the event's stored platinum reward into its award (answers it, 0 when there is none)
+		int UpgradeToPlatinum();
+		// 0x10587300: sets the event's active state (called for every event when the manager switches)
+		void Unknown10587300(bool active);
 		// 0x105862C0: the game object the event is attached to
 		const engine::GameObjectHandle& GetHandle(engine::GameObjectHandle* result);
 
@@ -45,7 +49,9 @@ namespace proto
 		float medalThresholds[3];
 		unsigned char unknown1C[0x28 - 0x1c];
 		core::Name<core::CaseSensitiveKey> name;
-		unsigned char unknown30[0x9c - 0x30];
+		unsigned char unknown30[0x58 - 0x30];
+		core::Name<core::CaseSensitiveKey> stateKey;  // +0x58: the game database entry of the event's progress
+		unsigned char unknown60[0x9c - 0x60];
 		bool unlocked;
 	};
 
@@ -82,8 +88,20 @@ namespace proto
 	public:
 		// 0x105910F0: the slots that are still free
 		int GetNumFree();
+		// 0x10592DC0
+		void Unknown10592DC0();
 
 		unsigned char unknown0[0xa0];
+	};
+
+	// The part of the manager at +0x120 (0x40 bytes) that is told to reset when free roam ends
+	class FREventTimers
+	{
+	public:
+		// 0x10587920
+		void Unknown10587920();
+
+		unsigned char unknown0[0x40];
 	};
 
 	// A list of the collectibles of one kind that were picked up (24 bytes; two of them follow the slot pool)
@@ -141,6 +159,11 @@ namespace proto
 		void EnterFreeRoam();
 		// 0x1058C1C0: the manager's active flag
 		void SetActive(bool active);
+		// The members these call (not reconstructed)
+		void Unknown10587B70();
+		void Unknown10587AF0();
+		void Unknown10587B90();
+		void Unknown1058A290();
 		// 0x10588570: the event with the name, null when there is none
 		FREvent* FindEvent(core::Name<core::CaseSensitiveKey> name);
 		// 0x1058AE10: the same for a name as text (cut to seven characters, the length of the event names)
@@ -167,6 +190,9 @@ namespace proto
 		PackageSlotPool slotPool;
 		CollectibleLog hintLog;  // +0xE0
 		CollectibleLog locationLog;  // +0xF8
+		unsigned char unknown110[0x120 - 0x110];
+		FREventTimers timers;  // +0x120
+		int unknown160;
 	};
 
 	// The manager (0x11274F08)
