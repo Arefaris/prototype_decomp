@@ -40,6 +40,10 @@ namespace proto
 		int UpgradeToPlatinum();
 		// 0x10587300: sets the event's active state (called for every event when the manager switches)
 		void Unknown10587300(bool active);
+		// 0x105859A0: unlocks the event when the key is the one it waits for
+		bool Unlock(const core::Name<core::CaseSensitiveKey>& key);
+		// 0x105860F0: makes the marker of the event (not reconstructed)
+		void MakeLocator();
 		// 0x105862C0: the game object the event is attached to
 		const engine::GameObjectHandle& GetHandle(engine::GameObjectHandle* result);
 
@@ -49,10 +53,19 @@ namespace proto
 		float medalThresholds[3];
 		unsigned char unknown1C[0x28 - 0x1c];
 		core::Name<core::CaseSensitiveKey> name;
-		unsigned char unknown30[0x58 - 0x30];
+		unsigned char unknown30[0x40 - 0x30];
+		core::Name<core::CaseSensitiveKey> unlockKey;  // +0x40: the key that unlocks the event
+		core::Name<core::CaseSensitiveKey> requiredEvent;  // +0x48: the event that has to be done first, if any
+		unsigned char unknown50[0x58 - 0x50];
 		core::Name<core::CaseSensitiveKey> stateKey;  // +0x58: the game database entry of the event's progress
-		unsigned char unknown60[0x9c - 0x60];
-		bool unlocked;
+		unsigned char unknown60[0x90 - 0x60];
+		int state;  // +0x90
+		int targetState;  // +0x94
+		float timer;  // +0x98
+		bool unlocked;  // +0x9C
+		unsigned char unknown9D[0xa4 - 0x9d];
+		FREventObjectBase* locator;  // +0xA4: the marker of the event on the map, made when first asked for
+		engine::GameObjectHandle stateMachine;  // +0xA8: the game object that runs the event's state machine
 	};
 
 	// The front end record of an event (next at +0, the name at +4, the category and the index in it): the strings

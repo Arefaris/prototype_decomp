@@ -5042,3 +5042,48 @@ Not done, in the order of the range:
   `SpawnObjectAction` and the tracks' `CreateAction` of those classes.
 - 0x108FD240 - 0x108FF310: the letterbox render pass (0x108FD2E0 draws two quads through a `PrimStream`) and the
   neighbouring pass functions.
+
+## proto: the range 0x10580000 - 0x105A0000 (units found, status)
+
+The range has no assert paths of its own; the units were found from RTTI, vftables, the Lua registration strings and
+the neighbours. In address order (the file names are guesses):
+
+| Range | Unit | Source | Status |
+|---|---|---|---|
+| 0x10581470 - 0x105814D0 | proto::UnlockablesList (constructor, destructor, CreateUnlockablesManager) | not started | |
+| 0x10581620 - 0x10582170 | proto::CollectibleBehaviour, its enum, reflection and messages | src/code/proto/collectiblebehaviour.cpp | 16 match |
+| 0x10582210 - 0x10584E70 | Rijndael (AES) block cipher and the unlock-table code | not started | |
+| 0x10584E70 - 0x10586A00 | proto::FREvent / FREventInfo / FREventLocatorDef | frevent.cpp, freventmanager.cpp | partly |
+| 0x10585440 - 0x10593A00 | FREventObjectBase and its locator / object / trigger classes | src/code/proto/freeroamevents/frobjects.cpp | 29 match, 2 nonmatching |
+| 0x10587C80 - 0x1058C1C0 | proto::FREventManager lookups, free roam entry and exit | src/code/proto/freeroamevents/freventmanager.cpp | 8 match, 2 nonmatching |
+| 0x10588000 - 0x1058D100 | Method / Closure instances for the FREventManager natives, registration at 0x1058D180 | not started (template instances) | |
+| 0x10595000 - 0x1059B000 | AchievementsManager, StatsManager (MetaLoadObject managers, array helpers) | not started | |
+| 0x1059AB30 - 0x1059B930 | proto::SmartHintManager and SmartHintEntry | src/code/proto/smarthint/smarthintmanager.cpp | 23 match, 1 EQUIVALENT |
+| 0x1059E9A0 - 0x1059EF80 | proto::SmartHintSetTimerTrack / Action | src/code/proto/smarthint/smarthintsettimer.cpp | 14 match, 1 EQUIVALENT |
+| 0x1059F010 - 0x105A1xxx | movie::MoviePlayer, BinkData, core::Object helpers (continues past the range) | not started | |
+
+Findings:
+
+- **Name is 8-aligned in the engine, the repo's core::Name is 4-aligned.** Classes with a name member get `int
+  unknown4;` before it and a pad word at the end of a base whose size ends in 4 (FREventObjectBase is 0x18 bytes, the
+  derived members start at 0x18). A function whose frame holds a Name temporary (the engine does `push ebp / and esp,
+  -8`) cannot match (FREventManager::FindInfoByHandle and FindInfoBySavedHandle, nonmatching).
+- **A base-class member the derived constructor stores before a member's copy construction** (the scenario
+  messages' word at +0x1C) is matched by `name((unknown1C = type, newName))`.
+- A virtual function that is also called non-virtually from the same class is two functions in the engine: the
+  helper (0x105816C0 `RestartFade`) and the override that tail-jumps to it (0x10581990, the vftable slot).
+- A `switch` with the cases 4 and 5 followed by the shared tail gives the engine's `add eax, -4 / cmp eax, 1`;
+  `if (t == 4 || t == 5)` and subtraction forms give `cmp`/`sub`.
+- `static inline GameObjectHandle GetFirstPlayer() { if (count <= 0) return GameObjectHandle(); return
+  gPlayerHandles[0]; }` reproduces the engine's conditional handle (the ternary form selects a pointer).
+- A float read from a game object's transform is `const Matrix& m = handle.Get()->transform->value;` then the three
+  `m.m[3][i]` reads (the engine's `add ecx, 4` between them).
+- Inline functions shared by several members (the collectible's pickup test) are `__forceinline` helpers; the engine
+  inlines them and also keeps a standalone copy.
+
+Open: FREventTriggerDef's constructor (0x105908D0, 93 %: the engine builds the by-value name of the inlined base
+constructor in its own argument slot), FREventTriggerDefSphere::IsPlayerInside (0x10591C40: the engine tests the handle
+twice and computes the squared radius last), SmartHintManager::SendExitPause (0x1059B7F0, EQUIVALENT: the engine
+keeps the two messages in separate slots), the two FindInfo*Handle functions above.
+Helper classes of this range that no caller or RTTI name gives a name to (named after their use, kept as they are):
+CollectibleLog (0x1058D0D0), FREventTimers, SmartHintLog, SmartHintShown, SmartHintFlags, SmartHintEntry.

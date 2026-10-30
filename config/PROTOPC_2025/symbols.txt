@@ -29646,3 +29646,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?Unknown10587920@FREventTimers@proto@@QAEXXZ = 0x10587920 ; function | proto::FREventTimers::Unknown10587920 (name unknown)
 ?Unknown10592DC0@PackageSlotPool@proto@@QAEXXZ = 0x10592DC0 ; function | proto::PackageSlotPool::Unknown10592DC0 (name unknown)
 ?gFREventLastIndex@proto@@3HA = 0x110B1188 ; data size:0x4 | proto::gFREventLastIndex (name guess)
+?Unlock@FREvent@proto@@QAE_NABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x105859A0 ; function size:0x26 | proto::FREvent::Unlock (name guess)
+?GetHandle@FREvent@proto@@QAEABVGameObjectHandle@engine@@PAV34@@Z = 0x105862C0 ; function size:0x24 | proto::FREvent::GetHandle (name guess)
+?MakeLocator@FREvent@proto@@QAEXXZ = 0x105860F0 ; function size:0x172 | proto::FREvent::MakeLocator (name guess)
