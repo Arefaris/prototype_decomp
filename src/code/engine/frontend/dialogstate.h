@@ -10,7 +10,7 @@
 
 namespace engine
 {
-	class DialogStateImpl;
+	class PrivateDialogState;
 
 	// What the movie calls a dialog with (0x10883EB0: the name of the function at +8, the first argument at +0x18)
 	struct DialogCall
@@ -55,7 +55,7 @@ namespace engine
 		}
 
 		// 0x10883D50, 0x10883D60, 0x10883D70: forwarded to the implementation object (names unknown)
-		void Unknown10883D50(int controller, bool flag);
+		bool Unknown10883D50(int controller, int flag);
 		void Unknown10883D60();
 		bool Unknown10883D70();
 		// 0x10883D80
@@ -69,7 +69,7 @@ namespace engine
 		// 0x10883DD0: the controller the dialog listens to
 		void GetController(int* controller);
 
-		DialogStateImpl* impl;  // +4
+		PrivateDialogState* impl;  // +4
 	};
 
 	class FEPopUpDialogState : public DialogState

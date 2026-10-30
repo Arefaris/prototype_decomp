@@ -36,6 +36,9 @@ namespace engine
 		int count;
 		unsigned char unknown10[8];
 		bool flag;
+		unsigned char unknown19[3];
+		// The heap the online manager's objects are made in once the settings ask for the desync heap
+		int heap;  // +0x1C
 	};
 
 	// The engine's instance of the settings (0x11318538; another unit defines it)

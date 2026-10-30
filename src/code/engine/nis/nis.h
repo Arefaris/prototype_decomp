@@ -200,6 +200,9 @@ namespace engine
 		typedef container::ArrayDynamic<LightGroup, container::AllocatorNew> LightGroupArray;
 		typedef container::ArrayDynamic<SubTitle, container::AllocatorNew> SubTitleArray;
 
+		// 0x108E0F90 (the unit's tail, where the factory makes the object)
+		NIS();
+
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 

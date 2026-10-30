@@ -63,10 +63,20 @@ namespace engine
 		void Update();
 	};
 
+	struct MusicFade;
+
 	// The music channel of a name (another unit; names guessed)
 	class MusicChannel
 	{
 	public:
+		// 0x1087E450: the music system the fight tracks start their cues on (the global at 0x11316C70; the engine's
+		// callers push the cue's arguments before they call it)
+		static MusicChannel* GetInstance();
+		// 0x1087EF30: starts the cue of a group (names guessed): the group, the cue, the part, the fades out and in
+		// (null for none), the priority and whether it resets the priority
+		void PlayCue(const core::Name<core::CaseSensitiveKey>& group, const core::Name<core::CaseSensitiveKey>& cue,
+			const core::Name<core::CaseSensitiveKey>& part, const MusicFade* fadeOut, const MusicFade* fadeIn, int priority,
+			unsigned int resetPriority);
 		// 0x1087E450
 		static MusicChannel* __stdcall Get(const core::Name<core::CaseSensitiveKey>& channel);
 		// 0x1087EFF0: plays the music of the group
@@ -75,6 +85,19 @@ namespace engine
 		// 0x1087EC50
 		void Stop();
 	};
+
+	// The sound zones (another unit; the global at 0x11316AC0, names guessed): a zone is made of the name of its
+	// reverb, its ambience and its mix; the names are passed by value
+	class SoundZoneManager
+	{
+	public:
+		// 0x1087A4A0
+		void AddZone(core::Name<core::CaseSensitiveKey> zone, core::Name<core::CaseSensitiveKey> reverb,
+			core::Name<core::CaseSensitiveKey> ambience, core::Name<core::CaseSensitiveKey> mix, int boundaryAction);
+		// 0x1087A630
+		void RemoveZone(core::Name<core::CaseSensitiveKey> zone);
+	};
+	extern SoundZoneManager* gSoundZoneManager;
 
 	// The audio emitters' system (another unit; the global at 0x11316A90)
 	class AudioEmitterSystem
