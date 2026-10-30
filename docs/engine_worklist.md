@@ -5337,7 +5337,7 @@ input structs are in the next range).
   +0x40), the default glyph +0x44, the glyph count +0x48, the glyph records +0x4C (0x28 bytes, the advance at +0xC) and the
   sorted codes +0x54. `IsSpace` is a member that never reads `this` (it returns an int). `FindGlyph`, `SetDefaultGlyph`,
   the getters and setters and the slot-9 text width match. EQUIVALENT: the two colour getters (slot 14, 15: eax / ecx
-  swapped). NONMATCHING: the text height (slot 8, 54.8 %) and the line width (slot 25, 26.1 %). Not done: the text layout
+  swapped). NONMATCHING: the wrapping height (slot 7, 11.2 %), the text height (slot 8, 54.8 %) and the line width (slot 25, 26.1 %). Not done: the text layout
   helpers that fill the static glyph tables at 0x11281928 - 0x112822A8 (0x10752370, 0x10752B60, 0x10752C00), the quad
   writer 0x10752430 and the draw functions 0x10752D90 - 0x10753510, 0x10753BC0, 0x10753C90.
 - **Particle generators** (effects/src/particlegeneratorstates.cpp, particlegenerator.cpp, particlearray.cpp,
@@ -5356,6 +5356,9 @@ input structs are in the next range).
   targets around the pass run; the context keeps the pass at +0x34 and a flag at +0x38). `RenderPassChain::Update`,
   `TargetParams`, `RenderContext::Unknown1074DB10` and the scheme tree helpers (0x1074D930 - 0x1074DC80) use unnamed
   container instances.
+- **Small units**: `RenderScheme` (renderscheme.h; slots 1 / 2 start and stop the pass tree kept at +0x34, slots 4 / 5 are empty;
+  the constructor, destructor and the name slot are not done), the five profiler counters (0x1075D2E0 - 0x1075D320) and
+  `RenderTargetManager::GetSource` (the source texture, else the colour target at hand).
 - Not touched, and why: the profiler timers (0x1075D210 - 0x1075D4E0: 64-bit tick arithmetic over unnamed globals), the blur,
   tone map and framebuffer passes (0x1075D590 - 0x1075FFFF: the gaussian shader set-up and heap globals), about 600 tiny
   template instances (ArrayDynamic / iterator members and the sort kernels of the pass and shadow units), the

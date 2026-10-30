@@ -214,6 +214,71 @@ namespace pure3d
 		unknown2C = value;
 	}
 
+	// FUNCTION: ENGINE 0x10752990
+	// NONMATCHING: the engine keeps the position of the last space in ebp and the characters in ebx, the running widths in xmm0 / xmm2 and the
+	// line step in xmm4; ours allocates the loop differently (11.2 %)
+#ifdef NONMATCHING
+	float TextureFont::Unknown7(const unsigned short* text, float width)
+	{
+		float lineSpacing = Unknown12();
+		float step = Unknown5() + lineSpacing;
+		float zero = 0.0f;
+		int lastSpace = -1;
+		float height = 0.0f;
+		float x = 0.0f;
+		float result = 0.0f;
+		int next = 0;
+		if (text[0] != 0)
+		{
+			int position;
+			do
+			{
+				position = next;
+				unsigned short character = text[position];
+				if (character == 10)
+				{
+					height = height + step;
+					lastSpace = -1;
+					x = zero;
+				}
+				else
+				{
+					int glyph = FindGlyph(character);
+					if (glyph == 0 || glyph == -1)
+					{
+						glyph = defaultGlyph;
+					}
+					x = glyphs[glyph].advance + x;
+					if (x <= width)
+					{
+						if (IsSpace(character))
+						{
+							lastSpace = position;
+						}
+					}
+					else
+					{
+						height = height + step;
+						if (!IsSpace(character) && lastSpace != -1)
+						{
+							position = lastSpace + 1;
+						}
+						lastSpace = -1;
+						x = zero;
+					}
+				}
+				next = position + 1;
+			} while (text[next] != 0);
+			result = height;
+			if (next != 0 && text[position] != 10)
+			{
+				result = height + step;
+			}
+		}
+		return result;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10752A90
 	void TextureFont::Unknown19(Shader* newShader)
 	{
