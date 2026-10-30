@@ -30,10 +30,22 @@ namespace proto
 		// 0x10568360 / 0x10568370
 		void AddWalker();
 		void RemoveWalker();
+		// 0x10567FD0: the scale the lane counters are converted with
+		float GetScale() const;
+		// 0x10567FE0: not a sidewalk, a corner, an alley, a rooftop or an unknown area
+		bool IsDriveable() const;
+		// 0x10569030: sets both lane counters from loads (the backward one is limited to a byte)
+		void SetLoads(float backward, float forward);
+		// 0x105690B0 / 0x10569110: sets one lane counter from a load
+		void SetBackwardLoad(float load);
+		void SetForwardLoad(float load);
+		// 0x10569170 / 0x105691A0: refreshes a lane counter that is not claimed
+		void RefreshBackward();
+		void RefreshForward();
 
 		unsigned char unknown0[0x20];
 		int areaType;  // +0x20
-		int unknown24;
+		float scale;  // +0x24
 		container::DoubleListBase vehicles;  // +0x28
 		unsigned short walkers;  // +0x34
 		short forwardClaims;  // +0x36
