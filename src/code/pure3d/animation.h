@@ -13,6 +13,9 @@ namespace pure3d
 	public:
 		// 0x106E7910: the channel of the group by its type and the type of its values
 		void* FindChannel(unsigned int type, unsigned int format);
+
+		unsigned char unknown0[8];
+		core::Name<core::CaseSensitiveKey> mName;
 	};
 
 	// pure3d::AnimationMemoryBlock (RTTI name; base pure3d::RefCounted): the memory an animation's data sits in
@@ -64,9 +67,13 @@ namespace pure3d
 		float numFrames;
 		float mFrameRate;
 		bool mFlag0;
-		unsigned char unknown19[7];
+		unsigned char unknown19[3];
+		// The four characters of the kind of animation (the frame controllers test it); the number of groups
+		unsigned int mType;
 		float mUnknown20;
-		unsigned char unknown24[0x18];
+		unsigned char unknown24[4];
+		int mGroupCount;
+		unsigned char unknown2C[0x10];
 		AnimationMemoryBlock* mBlock;
 	};
 

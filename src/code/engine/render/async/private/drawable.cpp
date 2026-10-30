@@ -1511,7 +1511,7 @@ namespace engine
 					pure3d::VertexOffsetExpressionMixer* mixer = impl->GetExpressionMixer();
 					if (mixer)
 					{
-						return mixer->unknown10;
+						return mixer->mExpressions;
 					}
 				}
 			}

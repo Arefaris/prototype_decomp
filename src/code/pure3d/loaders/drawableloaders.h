@@ -25,12 +25,6 @@ namespace pure3d
 			content::LoadInventory* inventory);
 	};
 
-	// RTTI: pure3d::ExpressionAnimationController (a frame controller of the vertex animations; the RTTI puts
-	// SimpleFrameController and AnimationFrameController between it and FrameController)
-	class ExpressionAnimationController : public FrameController
-	{
-	};
-
 	// RTTI: pure3d::OldVertexAnimKeyFrameList (0x20 bytes): the key frames of the vertex animation chunk
 	class OldVertexAnimKeyFrameList : public RefCounted
 	{
@@ -68,11 +62,6 @@ namespace pure3d
 	struct JointArray : public container::ArrayDynamic<unsigned short, container::AllocatorNew>
 	{
 		int allocator;
-	};
-
-	// RTTI: pure3d::CompDrawVisibilityAnimationController (a frame controller, the bases as the others')
-	class CompDrawVisibilityAnimationController : public FrameController
-	{
 	};
 
 	// Puts a copy of the part behind the last one when there is room for it

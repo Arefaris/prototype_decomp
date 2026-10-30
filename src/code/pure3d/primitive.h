@@ -165,6 +165,7 @@ namespace pure3d
 		ColourOffset* colourOffsets[2];
 	};
 
+	class ExpressionGroup;
 	class dxVertexDeclaration;
 	class dxIndexBufferState;
 	struct IndexBufferDescription;
@@ -181,7 +182,13 @@ namespace pure3d
 		// 0x10731630
 		void Mix(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 
-		void* unknown10;
+		// The expressions the weights are for, one weight for each of them (+0x14, to +0x18), the weights the last
+		// mix used (+0x20, to +0x24; entries of 0x18 bytes) and whether the weights changed since
+		ExpressionGroup* mExpressions;
+		float* mWeights;
+		float* mWeightsEnd;
+		unsigned char unknown1C[0x10];
+		bool mChanged;
 	};
 
 	class ExpressionPose : public RefCounted
@@ -200,7 +207,9 @@ namespace pure3d
 	class FrameController : public Entity
 	{
 	public:
-		virtual void Unknown3();
+		// Slot 3: gives the controller the entity it drives (a drawable, a shader or a pose; the controller takes the
+		// kind it can use)
+		virtual void SetTarget(Entity* target);
 		// Advances the controller by dt
 		virtual void Advance(float dt, bool unknown);
 		virtual void Unknown5();
@@ -222,13 +231,24 @@ namespace pure3d
 		virtual void Reset();
 		virtual void SetAnimation(Animation* animation, float a, float b);
 		virtual void* GetParameters();
-		// Slots 24 - 26 (the vertex controllers below declare them again); 26 makes a new controller of the same kind
-		virtual void Unknown24();
-		virtual void Unknown25();
+		// Slots 24 - 26 (the controllers below declare them again): whether the controller can play the animation (the
+		// kind of animation it names is the controller's), the second question of the same sort, and a new controller
+		// of the same kind
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
 		virtual FrameController* Clone();
 
 		// 0x1072E610
 		void SetBindingSource(void* source);
+
+		// The members every controller has: the current frame (+0x34) and the animation it plays (+0x3C)
+		unsigned char unknown10[0x1C];
+		// The frame range of the controller (+0x2C, +0x30) and the current frame
+		float mStartFrame;
+		float mEndFrame;
+		float mFrame;
+		unsigned char unknown38[4];
+		Animation* mAnimation;
 	};
 
 	// RTTI: pure3d::SimpleFrameController (bases AnimationFrameController, FrameController): the base of the
@@ -247,12 +267,15 @@ namespace pure3d
 		// 0x10732120 (0x168 bytes)
 		PoseAnimationController();
 
+		// Slot 24 (0x10732180): a pose animation
+		virtual bool IsSupported(Animation* animation);
+
 		// 0x10732320: lays the animation's joint values over the pose with the given weight. The root joint gets
 		// the change of its channels since previousTime (the root motion), the other joints the values at time; the
 		// weight 1 replaces the pose's values, the weight 0 keeps them. previousTime becomes time.
 		void Apply(int unknown, float time, float weight, JointChannels* channels, float* previousTime);
 
-		unsigned char unknown10[0x100];
+		unsigned char unknown40[0xD0];
 		Pose* mPose;
 		unsigned char unknown114[0x31];
 		bool mUseFrameTimes;
@@ -272,8 +295,13 @@ namespace pure3d
 	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
-		virtual void Unknown24();
-		virtual void Unknown25();
+		// 0x107302C0: a copy of another controller
+		VertexRegionAnimController(const VertexRegionAnimController& other);
+
+		// Slot 3 (0x1072EC20: nothing), slots 24 (0x1072EBE0) and 25 (0x1072EBD0)
+		virtual void SetTarget(Entity* target);
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
 		// 0x10730460: a new controller of the same kind (0xE0 bytes)
 		virtual VertexRegionAnimController* Clone();
 		virtual void Unknown27();
@@ -289,16 +317,24 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
 		bool GetUnknownD8();
+
+		unsigned char unknown40[0xA0];
 	};
 
 	// RTTI: pure3d::VertexAnimController (29 slots, the same bases)
 	class VertexAnimController : public SimpleFrameController
 	{
 	public:
-		virtual void Unknown24();
-		virtual void Unknown25();
+		// 0x1073E3F0: a copy of another controller
+		VertexAnimController(const VertexAnimController& other);
+
+		// Slot 3 (0x1073E380: nothing), slots 24 (0x1073E350) and 25 (0x1073E340)
+		virtual void SetTarget(Entity* target);
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
 		// 0x1073E470: a new controller of the same kind (0x58 bytes)
 		virtual VertexAnimController* Clone();
+		// Slots 27 and 28 (0x1073E3D0, 0x1073E3E0): go to the first and to the last frame of the range
 		virtual void Unknown27();
 		virtual void Unknown28();
 
@@ -308,6 +344,8 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1073E3C0: the byte at +0x50 (name guess)
 		bool GetUnknown50();
+
+		unsigned char unknown40[0x18];
 	};
 
 	// RTTI: pure3d::ShaderAnimationController (27 slots, bases SimpleFrameController, AnimationFrameController,
@@ -315,7 +353,72 @@ namespace pure3d
 	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
+		// 0x1072E9B0: a copy of another controller
+		ShaderAnimationController(const ShaderAnimationController& other);
+
+		// Slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26 makes a new controller (0x1072E9F0, 0x48 bytes)
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
 		virtual ShaderAnimationController* Clone();
+
+		// The shader the controller sets the animated values of
+		Shader* mShader;
+		unsigned char unknown44[4];
+	};
+
+	class Drawable;
+	class BoolChannel;
+
+	// RTTI: pure3d::ExpressionAnimationController (27 slots, vftable 0x10E5D5D4, 0x50 bytes; bases
+	// SimpleFrameController, AnimationFrameController, FrameController): plays the weights of the expressions of a
+	// face animation into a mixer
+	class ExpressionAnimationController : public SimpleFrameController
+	{
+	public:
+		// 0x10734750: a copy of another controller (it takes the same mixer)
+		ExpressionAnimationController(const ExpressionAnimationController& other);
+
+		// Slot 3 (0x10734520: nothing), slot 5 (0x10734690: the weights of the animation's expressions at the
+		// current frame), slots 24 (0x107345B0: an expression animation whose expressions the mixer's group has) and
+		// 25 (0x10734510), slot 26 (0x10734790)
+		virtual void SetTarget(Entity* target);
+		virtual void Unknown5();
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
+		virtual ExpressionAnimationController* Clone();
+
+		// 0x10734540: sets all the weights to zero
+		void ClearWeights();
+
+		VertexOffsetExpressionMixer* mMixer;
+		int mWeightCount;
+		float* mWeights;
+		unsigned char unknown4C[4];
+	};
+
+	// RTTI: pure3d::CompDrawVisibilityAnimationController (27 slots, vftable 0x10E5D744, 0x60 bytes; the same
+	// bases): shows and hides the segments of a drawable by the visibility channels of the animation
+	class CompDrawVisibilityAnimationController : public SimpleFrameController
+	{
+	public:
+		// 0x10734BF0: a copy of another controller (it takes the same drawable)
+		CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other);
+
+		// Slot 5 (0x107348B0: the segments' visibility at the current frame), slots 24 (0x107347C0) and 25
+		// (0x107347B0), slot 26 (0x10734C30)
+		virtual void Unknown5();
+		virtual bool IsSupported(Animation* animation);
+		virtual bool Unknown25();
+		virtual CompDrawVisibilityAnimationController* Clone();
+
+		Drawable* mDrawable;
+		// One visibility channel and one segment number for each group of the animation
+		BoolChannel** mChannels;
+		BoolChannel** mChannelsEnd;
+		unsigned char unknown4C[4];
+		unsigned short* mSegments;
+		unsigned short* mSegmentsEnd;
+		unsigned char unknown58[8];
 	};
 
 	// What a primitive fills the device's draw data with: the object at DrawablePart::batch (+0xA0). The engine's
