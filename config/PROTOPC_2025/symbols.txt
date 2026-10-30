@@ -31862,7 +31862,6 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?ReleaseScript@PropagandaManager@proto@@QAEXXZ = 0x1056EED0 ; function size:0x12 | proto::PropagandaManager::ReleaseScript (name guess)
 ?gPropagandaManager@proto@@3PAVPropagandaManager@1@A = 0x112735A8 ; data size:0x4 | proto::gPropagandaManager (name guess)
 ??_7MidgroundTextureManager@proto@@6B@ = 0x10E24538 ; data size:0x4 | proto::MidgroundTextureManager::vftable
-??_7RenderEvent@render@engine@@6B@ = 0x10D9C614 ; data size:0x4 | engine::render::RenderEvent::vftable
 ??_7?$ObjRenderEvent3@VMidgroundTextureManager@proto@@PAEIPAVTexture@pure3d@@@render@engine@@6B@ = 0x10E24544 ; data size:0x4 | engine::render::ObjRenderEvent3<class proto::MidgroundTextureManager,unsigned char *,unsigned int,class pure3d::Texture *>::vftable
 ??_R0?AV?$ObjRenderEvent3@VMidgroundTextureManager@proto@@PAEIPAVTexture@pure3d@@@render@engine@@@8 = 0x110ACA70 ; data size:0x8 | engine::render::ObjRenderEvent3<class proto::MidgroundTextureManager,unsigned char *,unsigned int,class pure3d::Texture *> RTTI Type Descriptor RTTI type descriptor
 ?SetEpisode@MidgroundTextureManager@proto@@QAEXH@Z = 0x10567690 ; function size:0x1E | proto::MidgroundTextureManager::SetEpisode (name guess)
