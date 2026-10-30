@@ -94,6 +94,16 @@ namespace proto
 		unsigned char unknown0[0xa0];
 	};
 
+	// A list of the collectibles of one kind that were picked up (24 bytes; two of them follow the slot pool)
+	class CollectibleLog
+	{
+	public:
+		// 0x1058D0D0: notes the collectible with the name
+		void Add(const core::Name<core::CaseSensitiveKey>* name);
+
+		unsigned char unknown0[0x18];
+	};
+
 	class FREventManager : public engine::DBObserver
 	{
 	public:
@@ -163,6 +173,8 @@ namespace proto
 		bool unlockedAll;
 		unsigned char unknown3E[2];
 		PackageSlotPool slotPool;
+		CollectibleLog hintLog;  // +0xE0
+		CollectibleLog locationLog;  // +0xF8
 	};
 
 	// The manager (0x11274F08)
