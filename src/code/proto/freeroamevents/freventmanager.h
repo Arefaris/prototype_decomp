@@ -11,22 +11,14 @@
 #include "code/engine/dbobserver.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/vector.h"
+#include "code/proto/freeroamevents/frobjects.h"
 
 struct lua_State;
 
 namespace proto
 {
-	// The object an event shows the player (a marker, a locator, a collectible); the vftable slots before the
-	// position are not used by the scripting unit
-	class FREventObject
-	{
-	public:
-		virtual void Slot0();
-		virtual void Slot1();
-		virtual void Slot2();
-		virtual void Slot3();
-		virtual math::Vector GetPosition();
-	};
+	// The object an event shows the player (a marker, a locator, a trigger volume; frobjects.h)
+	typedef FREventObjectBase FREventObject;
 
 	// One event (0x9D bytes at least): the list node (next at +4), the thresholds of the medals at +0x10, the name at
 	// +0x28 and the flag at +0x9C that the unlock all call sets
@@ -44,6 +36,14 @@ namespace proto
 		void ActivateObject(const char* name, bool active);
 		// 0x105859D0: the object of the event with the name
 		FREventObject* FindObject(const char* name);
+		// 0x10585120: turns the event's stored platinum reward into its award (answers it, 0 when there is none)
+		int UpgradeToPlatinum();
+		// 0x10587300: sets the event's active state (called for every event when the manager switches)
+		void Unknown10587300(bool active);
+		// 0x105859A0: unlocks the event when the key is the one it waits for
+		bool Unlock(const core::Name<core::CaseSensitiveKey>& key);
+		// 0x105860F0: makes the marker of the event (not reconstructed)
+		void MakeLocator();
 		// 0x105862C0: the game object the event is attached to
 		const engine::GameObjectHandle& GetHandle(engine::GameObjectHandle* result);
 
@@ -53,8 +53,19 @@ namespace proto
 		float medalThresholds[3];
 		unsigned char unknown1C[0x28 - 0x1c];
 		core::Name<core::CaseSensitiveKey> name;
-		unsigned char unknown30[0x9c - 0x30];
-		bool unlocked;
+		unsigned char unknown30[0x40 - 0x30];
+		core::Name<core::CaseSensitiveKey> unlockKey;  // +0x40: the key that unlocks the event
+		core::Name<core::CaseSensitiveKey> requiredEvent;  // +0x48: the event that has to be done first, if any
+		unsigned char unknown50[0x58 - 0x50];
+		core::Name<core::CaseSensitiveKey> stateKey;  // +0x58: the game database entry of the event's progress
+		unsigned char unknown60[0x90 - 0x60];
+		int state;  // +0x90
+		int targetState;  // +0x94
+		float timer;  // +0x98
+		bool unlocked;  // +0x9C
+		unsigned char unknown9D[0xa4 - 0x9d];
+		FREventObjectBase* locator;  // +0xA4: the marker of the event on the map, made when first asked for
+		engine::GameObjectHandle stateMachine;  // +0xA8: the game object that runs the event's state machine
 	};
 
 	// The front end record of an event (next at +0, the name at +4, the category and the index in it): the strings
@@ -90,8 +101,30 @@ namespace proto
 	public:
 		// 0x105910F0: the slots that are still free
 		int GetNumFree();
+		// 0x10592DC0
+		void Unknown10592DC0();
 
 		unsigned char unknown0[0xa0];
+	};
+
+	// The part of the manager at +0x120 (0x40 bytes) that is told to reset when free roam ends
+	class FREventTimers
+	{
+	public:
+		// 0x10587920
+		void Unknown10587920();
+
+		unsigned char unknown0[0x40];
+	};
+
+	// A list of the collectibles of one kind that were picked up (24 bytes; two of them follow the slot pool)
+	class CollectibleLog
+	{
+	public:
+		// 0x1058D0D0: notes the collectible with the name
+		void Add(const core::Name<core::CaseSensitiveKey>* name);
+
+		unsigned char unknown0[0x18];
 	};
 
 	class FREventManager : public engine::DBObserver
@@ -139,6 +172,11 @@ namespace proto
 		void EnterFreeRoam();
 		// 0x1058C1C0: the manager's active flag
 		void SetActive(bool active);
+		// The members these call (not reconstructed)
+		void Unknown10587B70();
+		void Unknown10587AF0();
+		void Unknown10587B90();
+		void Unknown1058A290();
 		// 0x10588570: the event with the name, null when there is none
 		FREvent* FindEvent(core::Name<core::CaseSensitiveKey> name);
 		// 0x1058AE10: the same for a name as text (cut to seven characters, the length of the event names)
@@ -163,6 +201,11 @@ namespace proto
 		bool unlockedAll;
 		unsigned char unknown3E[2];
 		PackageSlotPool slotPool;
+		CollectibleLog hintLog;  // +0xE0
+		CollectibleLog locationLog;  // +0xF8
+		unsigned char unknown110[0x120 - 0x110];
+		FREventTimers timers;  // +0x120
+		int unknown160;
 	};
 
 	// The manager (0x11274F08)
