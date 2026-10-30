@@ -447,12 +447,6 @@ namespace leaf
 	// FUNCTION: ENGINE 0x10606550
 	template void LeafNothing<0x10606550>();
 
-	// FUNCTION: ENGINE 0x10606A40
-	template struct LeafSetWord<0x10606A40, 8>;
-
-	// FUNCTION: ENGINE 0x10606A50
-	template struct LeafWord<0x10606A50, 8>;
-
 	// FUNCTION: ENGINE 0x10606CB0
 	template struct LeafSetWord<0x10606CB0, 4>;
 
