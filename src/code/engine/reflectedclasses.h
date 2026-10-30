@@ -311,50 +311,6 @@ namespace engine
 {
 namespace driving
 {
-	// CarIntentionBehaviour: constructor 0x1091CEA0, reflection 0x1091CD30 / 0x1091CF50
-	class CarIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		CarIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x14];
-	};
-
-	// CarPhysicsBehaviour: constructor 0x1091D920, reflection 0x1091D020 / 0x1091D7B0
-	class CarPhysicsBehaviour : public engine::Behaviour
-	{
-	public:
-		CarPhysicsBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x108];
-	};
-
-	// HelicopterIntentionBehaviour: constructor 0x1091DAC0, reflection 0x1091D980 / 0x1091DB70
-	class HelicopterIntentionBehaviour : public engine::Behaviour
-	{
-	public:
-		HelicopterIntentionBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x14];
-	};
-
-	// HelicopterPhysicsBehaviour: constructor 0x1091DC40, reflection 0x1091DC00 / 0x1091DEA0
-	class HelicopterPhysicsBehaviour : public engine::Behaviour
-	{
-	public:
-		HelicopterPhysicsBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0xF8];
-	};
-
 }
 }
 
