@@ -35,6 +35,11 @@ namespace content
 		unsigned char ReadUChar();
 		// 0x1067C400: a four-byte float (name guessed)
 		float ReadFloat();
+
+		unsigned char unknown4[0xF];
+		// Whether the data is stored in the other byte order (flipped by a chunk file's byte-swapped marker; name
+		// guessed)
+		bool swapped;
 	};
 
 	class ChunkReader
@@ -69,11 +74,30 @@ namespace content
 			((ChunkStream*)stream)->Read(destination, count, size, unknown);
 		}
 
-		unsigned char unknown0[0x280];
+		// 0x1060BB60: reads the first chunk's header out of the stream (takes a reference to it)
+		explicit ChunkReader(ChunkStream* newStream);
+		// 0x1060B9E0: enters a chunk whose id has been read already (the id is the argument)
+		unsigned int BeginChunk(unsigned int id);
+
+		// The header of a chunk the reader has entered (names guessed; the lengths include the 12 header bytes)
+		struct Entry
+		{
+			unsigned int id;
+			// Header and data
+			unsigned int dataLength;
+			// Header, data and the chunks inside
+			unsigned int length;
+			// The stream position of the chunk's first byte
+			unsigned int start;
+		};
+
+		unsigned char unknown0[0x80];
+		// One entry for each chunk the reader sits in
+		Entry entries[32];
 		// The index of the chunk the reader sits in
-		unsigned int chunk;
+		int chunk;
 		// The stream the chunks come from
-		core::IRefCount* stream;
+		ChunkStream* stream;
 	};
 
 	class ObjectLoader : public LoadObject
