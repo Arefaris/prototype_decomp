@@ -22,7 +22,6 @@ namespace engine
 		const MaterialDictionary& GetMap() const;
 		void SetMap(const MaterialDictionary& newMap);
 
-		char unknown10[0x10];
 		MaterialDictionary map;  // 0x20
 	};
 }

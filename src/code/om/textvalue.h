@@ -8,6 +8,7 @@
 #include "code/om/allocation.h"
 #include "code/om/metatype.h"
 #include "code/om/string.h"
+#include "code/om/tree.h"
 
 namespace om
 {
@@ -28,8 +29,8 @@ namespace om
 		// 0x102FB430: the first child that compares equal to the key, null when there is none
 		TextValue* FindFirst(NodeCompare compare, const String* key) const;
 
-		void* root;
-		char nil[0x10];
+		TreeNode* root;
+		TreeNode nil;
 	};
 
 	class TextValue
@@ -49,7 +50,7 @@ namespace om
 			return text == other;
 		}
 
-		char link[0x10];
+		TreeNode link;
 		String text;  // 0x10: the name
 		TextValue* parent;  // 0x1C
 		TextNodeTree children;  // 0x20

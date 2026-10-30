@@ -7,7 +7,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105C1CE0
 	template const char* EntityType<om::DynamicObjectEntity>::AllocationTag();
 	// FUNCTION: ENGINE 0x105C1F30
-	template EntityType<om::DynamicObjectEntity>::EntityType(const char*, unsigned int, unsigned int, bool);
+	template EntityType<om::DynamicObjectEntity>::EntityType(const char*, unsigned int, unsigned int, int);
 	// FUNCTION: ENGINE 0x105C1FE0
 	template void EntityType<om::DynamicObjectEntity>::operator delete(void*);
 	// FUNCTION: ENGINE 0x105C2020
@@ -24,5 +24,5 @@ namespace om
 	// FUNCTION: ENGINE 0x105C21A0
 	template EntityType<om::DynamicObjectEntity>::~EntityType();
 	// FUNCTION: ENGINE 0x105C2230
-	template void EntityType<om::DynamicObjectEntity>::Register(const char*, bool);
+	template void EntityType<om::DynamicObjectEntity>::Register(const char*, int);
 }

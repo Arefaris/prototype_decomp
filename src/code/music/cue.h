@@ -17,7 +17,7 @@ namespace music
 		virtual ~Cue();
 		OM_ENTITY_ALLOCATION(Cue);
 
-		char unknown10[0x58];
+		char unknown20[0x48];
 	};
 
 }
