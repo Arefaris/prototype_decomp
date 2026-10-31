@@ -5,11 +5,30 @@
 #define OM_METASIMPLETYPE_H
 
 #include "code/om/allocation.h"
+#include "code/om/metaproperty.h"
 #include "code/om/metatype.h"
 #include "code/om/textvalue.h"
 
 namespace om
 {
+	// The forms of a value, called without a qualifier so that the friend functions of the arrays are found as well
+	template<class V> inline bool ReadTextOf(const TextValue* text, V* value)
+	{
+		return ReadText(text, value);
+	}
+	template<class V> inline void WriteTextOf(TextValue* text, const V& value)
+	{
+		WriteText(text, value);
+	}
+	template<class V> inline bool ReadBinaryOf(BinaryStream* stream, V* value)
+	{
+		return ReadBinary(stream, value);
+	}
+	template<class V> inline bool WriteBinaryOf(BinaryStream* stream, const V& value)
+	{
+		return WriteBinary(stream, value);
+	}
+
 	template<class T> class MetaSimpleType : public MetaTypeBase
 	{
 	public:
@@ -45,22 +64,22 @@ namespace om
 
 	template<class T> bool MetaSimpleType<T>::ReadText(const TextValue* text, void* value)
 	{
-		return om::ReadText(text, static_cast<T*>(value));
+		return ReadTextOf(text, static_cast<T*>(value));
 	}
 
 	template<class T> void MetaSimpleType<T>::WriteText(TextValue* text, const void* value)
 	{
-		om::WriteText(text, *static_cast<const T*>(value));
+		WriteTextOf(text, *static_cast<const T*>(value));
 	}
 
 	template<class T> bool MetaSimpleType<T>::ReadBinary(BinaryStream* stream, void* value)
 	{
-		return om::ReadBinary(stream, static_cast<T*>(value));
+		return ReadBinaryOf(stream, static_cast<T*>(value));
 	}
 
 	template<class T> bool MetaSimpleType<T>::WriteBinary(BinaryStream* stream, const void* value)
 	{
-		return om::WriteBinary(stream, *static_cast<const T*>(value));
+		return WriteBinaryOf(stream, *static_cast<const T*>(value));
 	}
 }
 
