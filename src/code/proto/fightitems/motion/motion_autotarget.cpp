@@ -922,6 +922,90 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10098EA0
+			AutoTargetClearAction::AutoTargetClearAction(engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10098ED0
+			AutoTargetClearAction::~AutoTargetClearAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10099130
+			fight::Action* AutoTargetClearTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AutoTargetClearAction(handle);
+			}
+
+			// FUNCTION: ENGINE 0x10099C00
+			// NONMATCHING: shrink-wrap, the engine saves esi in the entry block (75.4 %)
+#ifdef NONMATCHING
+			bool AutoTargetClearAction::Slot5(int arg, float value)
+			{
+				bool result = false;
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle none;
+					SetAutoTargetMessage message(none);
+					object->SendMessage(&message);
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1009AC20
+			AutoTargetPositionAction::AutoTargetPositionAction(AutoTargetPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10099B40
+			AutoTargetPositionAction::~AutoTargetPositionAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1009C990
+			fight::Action* AutoTargetPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AutoTargetPositionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1009B110
+			AutoTargetPlayerAction::AutoTargetPlayerAction(AutoTargetPlayerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10099CB0
+			AutoTargetPlayerAction::~AutoTargetPlayerAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009C9E0
+			fight::Action* AutoTargetPlayerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AutoTargetPlayerAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10099CE0
+			void AutoTargetPlayerAction::Slot6()
+			{
+				engine::GameObjectHandle none;
+				unknown2C = none;
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetAutoTargetMessage message(none);
+					object->SendMessage(&message);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<AutoTargetTrack>;
 			template class fight::PropertyBool<AutoTargetTrack>;
 			template class fight::PropertyVector<AutoTargetTrack>;
@@ -1063,3 +1147,16 @@ namespace proto
 // FUNCTION: ENGINE 0x10143D70
 // FUNCTION: ENGINE 0x10143DC0
 // FUNCTION: ENGINE 0x10143E10
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100992B0
+// FUNCTION: ENGINE 0x100992D0
+// FUNCTION: ENGINE 0x10099360
+// FUNCTION: ENGINE 0x100993C0
+// FUNCTION: ENGINE 0x1009AC90
+// FUNCTION: ENGINE 0x1009B190
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10098910
+// FUNCTION: ENGINE 0x100989F0
+// FUNCTION: ENGINE 0x10099170

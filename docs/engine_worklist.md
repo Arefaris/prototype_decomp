@@ -6313,3 +6313,51 @@ not fold them.
   and the DirectSound / XAudio2 device code.
 - Shared changes: `tools/delink/relink.py` (the scan for rel32 calls skips the bytes of an absolute reference already placed:
   an `E8` inside an address operand once matched the incremental-link thunk of a replaced function), `audio/drivers.h`.
+
+## proto/powers, motion filters, fight contexts and motion actions: the range 0x10080000 - 0x100A0000 (sn-be)
+The range is the end of the consumables / transformation block (0x10080000 - 0x10088000, not reconstructed: the transformation
+behaviour needs the enum, faction and slot meta types of the block in front of it), the motion tracking filters
+(0x10087E30 - 0x10089F50), the powers (0x10089F50 - 0x100911E0), the proto fight contexts (0x10091620 - 0x100945F0), the one-line
+getters and messages in front of the animation blend actions (0x100945F0 - 0x100959A0), and the action halves of the motion units
+animation blend, auto target, blood splatter and boundary (0x100959A0 - 0x100A0000).
+- `proto/behaviours/motiontrackingfilters.h`, `.cpp` (0x10087E30 - 0x10089F50): `DistanceAcceleratedMotionTrackingFilter` and
+  `LinearVelocityNoiseTrackingFilter` (with `WaveGenerator` and the `waveGenerators` array): class infos, members, the base class
+  casters, the array helper and the kept copies. Matched: `WaveGenerator::Evaluate` (0x100881A0) and
+  `LinearVelocityNoiseTrackingFilter::EvaluateWaves` (0x10088A10). EQUIVALENT: the three constructors (the engine loads the
+  constant `gOne` once before its first store). NONMATCHING: both `Update` functions (0x10088560 16 %, 0x100894B0 11 %: the engine
+  computes the position difference with SSE and the length with the x87 square root; the bodies are kept under `#ifdef`).
+  `container::ArrayEraseInline<T>::value == 4` (new) erases with `CopyRangeEnd`, a copy that answers the end of the destination
+  (the engine's wave array); `content::GetMemberNameMetaType<C, Id>` moved from `engine/nis/nis.cpp` to `content/metatype.h`
+  (the engine keeps a meta type function of its own for each Name member of a class).
+- `proto/powers/power.h`, `.cpp` (0x10089F50 - 0x1008AF10): `Power` (a `content::MetaLoadObject` with seven hooks, slots 7 - 14),
+  `PowerInstance` (the loaded power and the instance made from it) and `PowerBehaviour` (the instances' array, `Slot1` makes the
+  instances and listens to their message mask, `Update`, `OnMessage`, destructor); all match. The array helper's `Erase` is
+  EQUIVALENT (the engine adds 8 to the element address with a separate `add`).
+- `proto/powers/shieldpower.h`, `.cpp` (0x1008AF10 - 0x1008C670): `ShieldPower` (constructors, destructor, `Clone`, slots 8 / 12 / 13 /
+  14, class info and members). Constructor and `Slot8` are EQUIVALENT (the engine loads constants it stores twice into registers).
+  Not done: the state machine (0x1008B530 `SetState` 376 bytes with the smart hint messages, 0x1008B750), `Slot9` (spawns the shield
+  game object), `Slot10` (the update, 644), `Slot11`.
+- `proto/powers/whipfistpower.h`, `.cpp` (0x1008C970 - 0x100911E0): class info, members and the message mask of `WhipFistPower`
+  (the layout is padded: its constructor, copy constructor, destructor and the 7 KB `Slot10` are not reconstructed).
+- `proto/fightitems/contexts.cpp` (0x10091620 - 0x10094080): the proto fight contexts, in the shape of `engine::MakeAIContext`: AI,
+  Alert, Music, Vehicle (new contexts), the HitEffect context (no `Prepare` / `Complete`), the additions to the Playback and NIS
+  contexts and `RegisterFightContexts` (event mask table, script hook, the PropLogic, Scenario and Motion contexts and the calls of
+  the others; EQUIVALENT: the engine keeps the listeners in `ebx`). The registration functions of the sets a unit registers together
+  (52 of them, e.g. 0x102156F0) have no name in the binary; they are named `Register<First>Factories` / `Register<Name>Factory` in
+  `symbols.txt` (name guess) and declared in the file.
+- `proto/fightitems/motion/motion_animationblend.cpp` (+ `.h`): the four action classes (constructor, destructor, `CreateAction`,
+  `Slot6`), the unit's own copies of the driver release and assign helpers (`ReleaseDriverCopy4` 0x100953C0, `ReleaseDriverCopy5`
+  0x10095410, `AssignDriverCopy2` 0x100953E0; `motionaction.h`). `motion_autotarget.cpp`: `AutoTargetPositionAction`,
+  `AutoTargetPlayerAction` (with `Slot6`), `AutoTargetClearAction` (`SetAutoTargetMessage` is in `ai/aicodemessages.h`; its `Slot5` is
+  NONMATCHING 75.4 %, shrink-wrap); `motion_boundary.cpp`: `JumpFromWaterAction`, `OrientTowardsJumpInPositionAction` (constructor,
+  destructor, `CreateAction`). `LinkList<T>::Remove` of every track class is the engine's single folded copy 0x10095300.
+  `core/src/refcount.cpp`: `engine::AssignRefCounted` (0x10098F50) and `ReleaseDriverCopy2` (0x10098FB0).
+- Not done in the range: the animation blend actions' `Slot5` / `Slot7` (600 - 1300 bytes each, goto-heavy driver set-up; the 4-byte
+  getters in front of the unit are the getters they call), the other action classes of auto target, blood splatter and boundary
+  (constructors with owner arguments or handles at odd offsets), the messages of 0x10094600 - 0x10095A00 (`CharacterMotionMessage`,
+  `FightVariablesMessage`, `VariableIntMessage` ...: their copies belong to the first unit of the link that builds one), the
+  `AccelerationCondition`, and everything that is a one-line copy of a class nothing names.
+- Findings: an unreferenced COMDAT of a template instance (`Create`, `operator[]`, `Begin`, `Free`, `Insert` with a count, ...) is in
+  the engine's unit because some code of it used the member; an explicit member instantiation in the unit's source
+  (`template void WaveArray::Free();` inside `namespace container`) gives the kept copy to map. A virtual destructor defined out of
+  line in the unit (`Power::~Power`) is called by the compiler's deleting destructor instead of being inlined into it.

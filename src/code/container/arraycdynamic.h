@@ -19,6 +19,17 @@ namespace container
 		}
 	}
 
+	// Copies [first, last) to dest, front to back; answers the end of the copies (the engine's copy of the wave
+	// generators' array, name guessed)
+	template<class T> T* CopyRangeEnd(T* first, T* last, T* dest)
+	{
+		for (; first != last; first++, dest++)
+		{
+			*dest = *first;
+		}
+		return dest;
+	}
+
 	// Copy-constructs value at p (null: nothing)
 	template<class T> void ConstructAt(T* p, const T& value)
 	{

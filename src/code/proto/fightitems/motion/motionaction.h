@@ -29,6 +29,11 @@ namespace engine
 	void ReleaseDriverCopy2(choreo::Driver** driver);
 	// 0x100ADA70: another copy of the same helper, taking the pointer by reference (name guess)
 	void ReleaseDriverCopy3(choreo::Driver*& driver);
+	// 0x100953C0 / 0x100953E0: the animation blend unit's copies of the helpers that release a driver and replace one
+	void ReleaseDriverCopy4(choreo::Driver*& driver);
+	void AssignDriverCopy2(choreo::Driver*& driver, choreo::Driver* newDriver);
+	// 0x10095410: the same unit's copy for the second driver of the vertical aim strafe action
+	void ReleaseDriverCopy5(choreo::Driver*& driver);
 }
 
 namespace choreo

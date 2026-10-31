@@ -1,16 +1,6 @@
 #include "code/engine/nis/nis.h"
 #include <new>
 
-namespace content
-{
-	// The meta types of the name members of a class that has several of them (Id tells them apart)
-	template<class C, int Id> NameMetaType* GetMemberNameMetaType(bool unknown8, bool unknown9, const char* code)
-	{
-		static NameMetaType sType(unknown8, unknown9, code);
-		return &sType;
-	}
-}
-
 namespace engine
 {
 #define ENGINE_OFFSET(type, member) \
