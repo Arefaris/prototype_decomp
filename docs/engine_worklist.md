@@ -5841,3 +5841,53 @@ Notes on the units:
 Not matching:
 - `ShootTrack::ApplyGroup` (0x101AD590, NONMATCHING 31%): the same function as `HideHUDTrack::ApplyGroup` (0x10162110): the engine keeps the group flag's result only in
   the argument slot and pushes a register copy for the recursive call; ours holds it in a register (`value = value && flag` was tried as well).
+## proto/fightitems: the fight items of the range 0x101C0000 - 0x101E0000 (sn-at)
+The range continues the motion group (item pattern, unit layout and generator as in the sections above) and then turns into the scenario group
+(`proto::fightitems::scenario`, sources `src/code/proto/fightitems/scenario/scenario_*.cpp`, data in `scenariodata.h`). The motion units of
+0x101C2D60 - 0x101D5F50 (13 files, 1414 functions, 51 EQUIVALENT: every `RegisterProperties`, the known shrink-wrap question; `tools/shrinkcheck.py`
+lists none of them) are complete. The unit that starts at 0x101BFA.. (the transformation conditions and tracks) ends at 0x101C2D60 and belongs to the
+agent below this range; its first 215 functions lie in 0x101C0000 - 0x101C2D60 and are not in these files.
+| file | unit (item half) | functions (equivalent) | classes |
+| `motion_turnround.cpp` | 0x101C2D60 - 0x101C3390 | 31 (1) | TurnRoundTrack |
+| `motion_underground.cpp` | 0x101C3390 - 0x101C42E0 | 87 (4) | UndergroundStateCondition, UndergroundSetTrack, AnchorToGroundTrack, UndergroundTeleportTrack |
+| `motion_uninterruptible.cpp` | 0x101C42E0 - 0x101C4FB0 | 70 (3) | InvulnerableTrack, SpecificUninterruptibleTrack, UninterruptibleTrack |
+| `motion_unlockable.cpp` | 0x101C4FB0 - 0x101C5300 | 19 (1) | UnlockableCondition |
+| `motion_variable.cpp` | 0x101C5300 - 0x101C8410 | 261 (9) | the variable / timer compare and set conditions and tracks |
+| `motion_vehicle.cpp` | 0x101C8410 - 0x101CAFF0 | 252 (12) | the helicopter and vehicle conditions and tracks |
+| `motion_vehiclereticule.cpp` | 0x101CAFF0 - 0x101CB300 | 19 (1) | VehicleReticuleTrack |
+| `motion_velocity.cpp` | 0x101CB300 - 0x101CBD20 | 53 (2) | VelocityYAngleCondition, VelocityAngleCondition |
+| `motion_wallexit.cpp` | 0x101CBD20 - 0x101CC5E0 | 37 (1) | WallExitTrack |
+| `motion_walljump.cpp` | 0x101CC5E0 - 0x101CE030 | 97 (2) | WallJumpTrack, WallJumpUpTrack |
+| `motion_wallrun.cpp` | 0x101CE030 - 0x101D0240 | 133 (3) | WallRunTrack, WallOrientTrack, WallRunEnterTrack |
+| `motion_wallslide.cpp` | 0x101D0240 - 0x101D0A00 | 35 (1) | WallSlideTrack |
+| `motion_whipfist.cpp` | 0x101D0A00 - 0x101D5F50 | 371 (11) | the whip fist and tendril conditions and tracks |
+The scenario group is different in one respect: its code half lies in the same area as its items, in front of them. The translation unit starts at
+0x101D5F50 with the code (condition `Evaluate`, action classes, the `State` / `StateMachine` / `Transition` branches, messages) and the item half (setters,
+properties, factories, template instances; the same layout as the motion units) follows at 0x101D8CE0 - 0x101DD720. The generated item halves are in
+`scenario_motionstate.cpp` (Event_MotionStateCondition), `scenario_package.cpp`, `scenario_playfmv.cpp`, `scenario_statecondition.cpp`,
+`scenario_statemachinestart.cpp`, `scenario_statemachinestop.cpp`, `scenario_statemachinetransition.cpp` and `scenario_conditions.cpp` (0x101DBA70 -
+0x101DD720: the six conditions of the transformation descriptor, alert, mission, player and trigger volume event, whose `Evaluate` functions sit at
+0x101D8E10 - 0x101D90E0). Of the code half only the package and movie groups are reconstructed (`PackageReadyCondition::Evaluate`, `PackageLoadAction`,
+`PackageUnloadAction`, `PlayFMVAction` and the three `CreateAction` functions) and live in the files of their items.
+Additions to the pattern:
+- `fight::PropertyEnumListObject<T>` with the editor's affiliate list (`engine::scenario::gAffiliateLister`) is generated; a `fight::PropertyGroup<T>` whose
+  setter stores the flag and calls `ApplyGroup(index, flag)` too (the members table is `extern const int g...Members[]` in `scenariodata.h`, mapped with the
+  decorated name of a `const int[]`). `TriggerVolumeEventCondition` is a condition with an override mask (`unsigned __int64` at +0x10, `Slot10(int)`) and two
+  groups; its `ApplyGroup` is a `switch` over the two cases and matches.
+- The destructor of a class with several `char*` members frees them in the order the engine's destructor does, which is not always the order of their
+  offsets (`StateMachineStartTrack`, `TriggerVolumeEventCondition`).
+- `PlayFMVAction` has a word between the action base and its link (+0x1C), size 0x2C. `engine::PlayMovie` is called with a float in its fourth argument; the
+  declaration in fmvplayer.cpp has an `int` there, so the unit declares its own overload (`PlayMovie(..., float, ...)`, mapped to 0x1082F990).
+- `core::Link<T>` instances (constructor, destructor) of the action classes are kept copies of the unit; their `LinkList<T>::Remove` is the engine's shared
+  copy at 0x10095300 (mapped by name in symbols.txt).
+Not done in the range:
+- 0x101C0000 - 0x101C2D60 (the transformation unit, see above).
+- The code half of the scenario group: the `State` / `StateMachine` / `Transition` branches and their factories (0x101D6860 - 0x101D6F20, 0x101D6F20 - 0x101D7680,
+  0x101D8570 - 0x101D8CE0), `Event_MotionStateCondition::Evaluate` (0x101D5F90), `StateChangeCondition` / `CurrentStateCondition::Evaluate`, the state machine
+  start / stop / transition actions (0x101D7860 - 0x101D8570), the message classes (`StateMachineMsg`, `GetAlertedDisguiseMsg`, ...) and the `Evaluate` functions
+  of the six conditions at 0x101D8E10 - 0x101D90E0. The owner test of the conditions' `Evaluate` (`add eax, -1` against `sub eax, 1`) is the open question of
+  `engine/scenario/scenarioconditions.cpp` as well.
+- 0x101DD720 - 0x101E0000: the `ai` namespace (`ActivateScaryMonsterBehaviourAction`, `ActivateVehicleBehaviourAction`, `AirHoverAction`, `AirDodgeAction`,
+  `CheckBodyAction`, `HasTrafficPathCondition`, `IsMissileTargetingPlayerCondition` and their tracks' `CreateAction`), 126 functions.
+- Copies of other classes' inline functions that the units hold (the `mov eax, [ecx]` getters, a `ret`, `LinkList` accessors) and the two data words around
+  0x11254CF8 are not named by any class.

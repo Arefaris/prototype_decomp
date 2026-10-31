@@ -151,6 +151,16 @@ namespace proto
 			extern const int gSupportingLimbTestSurfaceNormalVelocityArcConditionVelocityTypeCount;  // 0x10E69984
 			extern fight::EnumEntry gTemporaryTargetableTrackOnBeginTable[];  // 0x11253F10
 			extern const int gTemporaryTargetableTrackOnBeginCount;  // 0x10DA89E4
+			extern fight::EnumEntry gUndergroundStateConditionStateTable[];  // 0x11253F60
+			extern const int gUndergroundStateConditionStateCount;  // 0x10DA92A4
+			extern fight::EnumEntry gVariableIntSetTrackOperatorTable[];  // 0x11254118
+			extern const int gVariableIntSetTrackOperatorCount;  // 0x10DA9984
+			extern fight::EnumEntry gSecondaryWeaponTypeConditionTypeTable[];  // 0x11254168
+			extern const int gSecondaryWeaponTypeConditionTypeCount;  // 0x10DA9C24
+			extern fight::EnumEntry gVelocityYAngleConditionTypeTable[];  // 0x112837F8
+			extern const int gVelocityYAngleConditionTypeCount;  // 0x10E69984
+			extern fight::EnumEntry gWhipFistExtendTrackTargetTable[];  // 0x112541E0
+			extern const int gWhipFistExtendTrackTargetCount;  // 0x10DAAA34
 		}
 	}
 }
