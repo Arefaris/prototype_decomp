@@ -19,6 +19,7 @@
 #include "code/pure3d/texture/texture.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
+#include "code/core/namecopy.h"
 
 #define DRAWABLE_FILE "..\\..\\..\\code\\engine\\render\\async\\private\\drawable.cpp"
 
@@ -2444,6 +2445,122 @@ namespace engine
 		}
 	}
 }
+
+namespace pure3d
+{
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F2B8 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("alphaOverLife", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F254 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("colourBias", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F138 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("diffuseOverLifeBlue", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F314 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("diffuseOverLifeGreen", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F164 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("diffuseOverLifeRed", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F214 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("emissionRate", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F2D8 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorHorizSpread", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F29C = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorRadial", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F320 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorRadius", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F210 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorVertSpread", 0)));
+	core::Name<core::CaseInsensitiveKey32> gParticleKey1127F204 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("meshGeneratorScale", 0)));
+}
+
+namespace engine
+{
+	namespace render
+	{
+		core::Name<core::CaseInsensitiveKey32> gAlphaVariance = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("alphaVariance", 0)));
+		core::Name<core::CaseInsensitiveKey32> gAngleVar = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("angleVar", 0)));
+		core::Name<core::CaseInsensitiveKey32> gAnimDrag = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("animDrag", 0)));
+		core::Name<core::CaseInsensitiveKey32> gCameraPosition = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("cameraPosition", 0)));
+		core::Name<core::CaseInsensitiveKey32> gCohesionMatrix = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("cohesionMatrix", 0)));
+		core::Name<core::CaseInsensitiveKey32> gColourVariance = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("colourVariance", 0)));
+		core::Name<core::CaseInsensitiveKey32> gColourVarianceMask = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("colourVarianceMask", 0)));
+		core::Name<core::CaseInsensitiveKey32> gConstantSpin3D = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("constantSpin3D", 0)));
+		core::Name<core::CaseInsensitiveKey32> gCurl = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("curl", 0)));
+		core::Name<core::CaseInsensitiveKey32> gCutoff = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("cutoff", 0)));
+		core::Name<core::CaseInsensitiveKey32> gDiffuseVariance = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("diffuseVariance", 0)));
+		core::Name<core::CaseInsensitiveKey32> gGeneratorPosition = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorPosition", 0)));
+		core::Name<core::CaseInsensitiveKey32> gGeneratorTransform = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("generatorTransform", 0)));
+		core::Name<core::CaseInsensitiveKey32> gHeightScale = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("heightScale", 0)));
+		core::Name<core::CaseInsensitiveKey32> gHorizGridSpacing = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("horizGridSpacing", 0)));
+		core::Name<core::CaseInsensitiveKey32> gInitDrag = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("initDrag", 0)));
+		core::Name<core::CaseInsensitiveKey32> gInitSize3D = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("initSize3D", 0)));
+		core::Name<core::CaseInsensitiveKey32> gInheritedVelocity = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("inheritedVelocity", 0)));
+		core::Name<core::CaseInsensitiveKey32> gInheritedVelocityScale = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("inheritedVelocityScale", 0)));
+		core::Name<core::CaseInsensitiveKey32> gLastPosition = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("lastPosition", 0)));
+		core::Name<core::CaseInsensitiveKey32> gLastTexChange = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("lastTexChange", 0)));
+		core::Name<core::CaseInsensitiveKey32> gLife = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("life", 0)));
+		core::Name<core::CaseInsensitiveKey32> gLockAxis = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("lockAxis", 0)));
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D68540
+// FUNCTION: ENGINE 0x10D68580
+// FUNCTION: ENGINE 0x10D68600
+// FUNCTION: ENGINE 0x10D68640
+// FUNCTION: ENGINE 0x10D68680
+// FUNCTION: ENGINE 0x10D686C0
+// FUNCTION: ENGINE 0x10D68700
+// FUNCTION: ENGINE 0x10D68740
+// FUNCTION: ENGINE 0x10D68780
+// FUNCTION: ENGINE 0x10D687C0
+// FUNCTION: ENGINE 0x10D68800
+// FUNCTION: ENGINE 0x10D68840
+// FUNCTION: ENGINE 0x10D68980
+// FUNCTION: ENGINE 0x10D689C0
+// FUNCTION: ENGINE 0x10D68A00
+// FUNCTION: ENGINE 0x10D68A40
+// FUNCTION: ENGINE 0x10D68AC0
+// FUNCTION: ENGINE 0x10D68B80
+// FUNCTION: ENGINE 0x10D68BC0
+// FUNCTION: ENGINE 0x10D68C00
+// FUNCTION: ENGINE 0x10D68C40
+// FUNCTION: ENGINE 0x10D68C80
+// FUNCTION: ENGINE 0x10D68CC0
+// FUNCTION: ENGINE 0x10D68D80
+// FUNCTION: ENGINE 0x10D68DC0
+// FUNCTION: ENGINE 0x10D68E00
+// FUNCTION: ENGINE 0x10D68E80
+// FUNCTION: ENGINE 0x10D68EC0
+// FUNCTION: ENGINE 0x10D68F00
+// FUNCTION: ENGINE 0x10D68F80
+// FUNCTION: ENGINE 0x10D68FC0
+// FUNCTION: ENGINE 0x10D69000
+// FUNCTION: ENGINE 0x10D69080
+// FUNCTION: ENGINE 0x10D690C0
+// FUNCTION: ENGINE 0x10D86FD0
+// FUNCTION: ENGINE 0x10D86FE0
+// FUNCTION: ENGINE 0x10D87000
+// FUNCTION: ENGINE 0x10D87010
+// FUNCTION: ENGINE 0x10D87020
+// FUNCTION: ENGINE 0x10D87030
+// FUNCTION: ENGINE 0x10D87040
+// FUNCTION: ENGINE 0x10D87050
+// FUNCTION: ENGINE 0x10D87060
+// FUNCTION: ENGINE 0x10D87070
+// FUNCTION: ENGINE 0x10D87080
+// FUNCTION: ENGINE 0x10D87090
+// FUNCTION: ENGINE 0x10D870E0
+// FUNCTION: ENGINE 0x10D870F0
+// FUNCTION: ENGINE 0x10D87100
+// FUNCTION: ENGINE 0x10D87110
+// FUNCTION: ENGINE 0x10D87130
+// FUNCTION: ENGINE 0x10D87160
+// FUNCTION: ENGINE 0x10D87170
+// FUNCTION: ENGINE 0x10D87180
+// FUNCTION: ENGINE 0x10D87190
+// FUNCTION: ENGINE 0x10D871A0
+// FUNCTION: ENGINE 0x10D871B0
+// FUNCTION: ENGINE 0x10D871E0
+// FUNCTION: ENGINE 0x10D871F0
+// FUNCTION: ENGINE 0x10D87200
+// FUNCTION: ENGINE 0x10D87220
+// FUNCTION: ENGINE 0x10D87230
+// FUNCTION: ENGINE 0x10D87240
+// FUNCTION: ENGINE 0x10D87260
+// FUNCTION: ENGINE 0x10D87270
+// FUNCTION: ENGINE 0x10D87280
+// FUNCTION: ENGINE 0x10D872A0
+// FUNCTION: ENGINE 0x10D872B0
+
 
 // Kept copies: inline members of the headers that the original left as separate code
 // FUNCTION: ENGINE 0x107E85E0

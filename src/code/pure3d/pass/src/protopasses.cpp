@@ -18,6 +18,7 @@
 #include "code/pure3d/view.h"
 
 #include <math.h>
+#include "code/core/namecopy.h"
 
 // The kept copies of the part filter's array (sixteen entries) and the light list's append (eight lights)
 // FUNCTION: ENGINE 0x10766000
@@ -145,7 +146,7 @@ namespace pure3d
 				float lod = part->unknown1C;
 				if (lod > 0.0f)
 				{
-					*pddi->GetConstant(gConstantShaderLODGeo, pddiBaseContext::CONSTANT_FLOAT) = lod;
+					*pddi->GetConstant(gConstantShaderLODGeo.index, pddiBaseContext::CONSTANT_FLOAT) = lod;
 					part->Draw(&gShaderLit, &parameters);
 				}
 			}
@@ -189,7 +190,7 @@ namespace pure3d
 				float alpha = (1.0f - fade * fade) * part->unknown1C;
 				if (alpha > 0.0f)
 				{
-					*pddi->GetConstant(gConstantShaderLODGeo, pddiBaseContext::CONSTANT_FLOAT) = alpha;
+					*pddi->GetConstant(gConstantShaderLODGeo.index, pddiBaseContext::CONSTANT_FLOAT) = alpha;
 					if (part->renderBits.Test(9))
 					{
 						pddi->DrawBatch(&gShaderLit, &part->batch, &parameters);
@@ -206,18 +207,18 @@ namespace pure3d
 		targets.colour = colour->GetHandle();
 		targets.depth = depth->GetHandle();
 		pddi->SetRenderTargets(&targets);
-		BindTextureConstant(gConstantDecalColourBuffer, decalTarget->surface);
-		unsigned int* texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		BindTextureConstant(gConstantDecalColourBuffer.index, decalTarget->surface);
+		unsigned int* texture = pddi->GetTextureConstant(gConstantDecalColourBuffer.index);
 		texture[1] = (texture[1] & 0xf8444754) | 0x444454;
-		texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		texture = pddi->GetTextureConstant(gConstantDecalColourBuffer.index);
 		texture[1] = (texture[1] & 0xf8488bff) | 0x488800;
-		BindTextureConstant(gConstantDecalNormalBuffer, 0);
-		texture = pddi->GetTextureConstant(gConstantDecalNormalBuffer);
+		BindTextureConstant(gConstantDecalNormalBuffer.index, 0);
+		texture = pddi->GetTextureConstant(gConstantDecalNormalBuffer.index);
 		texture[1] = (texture[1] & 0xf8444752) | 0x444452;
 		pddiSize* size = decalTarget->surface->info->size;
 		float halfWidth = 0.5f / size->width;
 		float halfHeight = 0.5f / size->height;
-		float* halfPixel = pddi->GetConstant(gConstantHalfPixel, pddiBaseContext::CONSTANT_FLOAT2);
+		float* halfPixel = pddi->GetConstant(gConstantHalfPixel.index, pddiBaseContext::CONSTANT_FLOAT2);
 		halfPixel[0] = halfWidth;
 		halfPixel[1] = halfHeight;
 	}
@@ -235,7 +236,7 @@ namespace pure3d
 			{
 				state->Unknown9();
 			}
-			float* joint = pddi->GetConstant(gConstantProtoJointMatrix, pddiBaseContext::CONSTANT_MATRIX);
+			float* joint = pddi->GetConstant(gConstantProtoJointMatrix.index, pddiBaseContext::CONSTANT_MATRIX);
 			joint[0] = part->jointMatrix.m[0][0];
 			joint[1] = part->jointMatrix.m[0][1];
 			joint[2] = part->jointMatrix.m[0][2];
@@ -369,7 +370,7 @@ namespace pure3d
 			DrawablePart* part = *it;
 			part->renderBits.Set(10, false);
 			SetObjectSpaceLightPosition(camera, &part->worldMatrix);
-			float* joint = pddi->GetConstant(gConstantProtoJointMatrix, pddiBaseContext::CONSTANT_MATRIX);
+			float* joint = pddi->GetConstant(gConstantProtoJointMatrix.index, pddiBaseContext::CONSTANT_MATRIX);
 			const float* from = &part->jointMatrix.m[0][0];
 			float* to = joint;
 			for (int row = 0; row < 4; row++)
@@ -435,23 +436,23 @@ namespace pure3d
 	// EQUIVALENT: one constant store sits before the loop's first load here, after its compare in the engine
 	void ProtoLitPass::DrawParts(PartList* parts, PrimStreamParameters* parameters, PassContext* context)
 	{
-		pddi->ClearFlagConstant(gConstantLightIsLitPass);
-		float* colour = pddi->GetConstant(gConstantLightColour, pddiBaseContext::CONSTANT_FLOAT4);
+		pddi->ClearFlagConstant(gConstantLightIsLitPass.index);
+		float* colour = pddi->GetConstant(gConstantLightColour.index, pddiBaseContext::CONSTANT_FLOAT4);
 		colour[0] = 0.0f;
 		colour[1] = 0.0f;
 		colour[2] = 0.0f;
 		colour[3] = 0.0f;
-		float* ambient = pddi->GetConstant(gConstantLightAmbient, pddiBaseContext::CONSTANT_FLOAT4);
+		float* ambient = pddi->GetConstant(gConstantLightAmbient.index, pddiBaseContext::CONSTANT_FLOAT4);
 		ambient[0] = 0.0f;
 		ambient[1] = 0.0f;
 		ambient[2] = 0.0f;
 		ambient[3] = 0.0f;
-		float* bounds = pddi->GetConstant(gConstantLightObjectSpaceLightBounds, pddiBaseContext::CONSTANT_FLOAT4);
+		float* bounds = pddi->GetConstant(gConstantLightObjectSpaceLightBounds.index, pddiBaseContext::CONSTANT_FLOAT4);
 		bounds[0] = 0.0f;
 		bounds[1] = 0.0f;
 		bounds[2] = 0.0f;
 		bounds[3] = 1e12f;
-		*pddi->GetConstant(gConstantLightEnableSpotKill, pddiBaseContext::CONSTANT_FLOAT) = 0.0f;
+		*pddi->GetConstant(gConstantLightEnableSpotKill.index, pddiBaseContext::CONSTANT_FLOAT) = 0.0f;
 		for (DrawablePart** it = parts->begin; it != parts->end; it++)
 		{
 			DrawablePart* part = *it;
@@ -580,16 +581,16 @@ namespace pure3d
 				}
 			}
 		}
-		float* constant = pddi->GetConstant(gConstantPRLightAmbient, pddiBaseContext::CONSTANT_FLOAT4);
+		float* constant = pddi->GetConstant(gConstantPRLightAmbient.index, pddiBaseContext::CONSTANT_FLOAT4);
 		constant[0] = ambient.x;
 		constant[1] = ambient.y;
 		constant[2] = ambient.z;
 		constant[3] = ambient.w;
-		constant = pddi->GetConstant(gConstantPRLightAmbientVertex, pddiBaseContext::CONSTANT_FLOAT4);
-		int* colours[4] = {&gConstantPRLightColour1, &gConstantPRLightColour3, &gConstantPRLightColour4,
-			&gConstantPRLightColour5};
-		int* directions[4] = {&gConstantPRLightDirection1, &gConstantPRLightDirection3, &gConstantPRLightDirection4,
-			&gConstantPRLightDirection5};
+		constant = pddi->GetConstant(gConstantPRLightAmbientVertex.index, pddiBaseContext::CONSTANT_FLOAT4);
+		int* colours[4] = {&gConstantPRLightColour1.index, &gConstantPRLightColour3.index, &gConstantPRLightColour4.index,
+			&gConstantPRLightColour5.index};
+		int* directions[4] = {&gConstantPRLightDirection1.index, &gConstantPRLightDirection3.index, &gConstantPRLightDirection4.index,
+			&gConstantPRLightDirection5.index};
 		bool lit = false;
 		constant[0] = ambient.x;
 		constant[1] = ambient.y;
@@ -642,9 +643,9 @@ namespace pure3d
 			float scale = LightSelection::Get()->GetIntensityScale(shadowLightSource, mode);
 			float range = LightSelection::Get()->GetRangeScale(shadowLightSource);
 			const math::Vector4* colour = shadowLightSource->GetColour();
-			float* c = pddi->GetConstant(gConstantPRLightColour2, pddiBaseContext::CONSTANT_FLOAT4);
+			float* c = pddi->GetConstant(gConstantPRLightColour2.index, pddiBaseContext::CONSTANT_FLOAT4);
 			StoreScaled(c, *colour, scale, range);
-			float* d = pddi->GetConstant(gConstantPRLightDirection2, pddiBaseContext::CONSTANT_FLOAT3);
+			float* d = pddi->GetConstant(gConstantPRLightDirection2.index, pddiBaseContext::CONSTANT_FLOAT3);
 			const math::Vector* direction = shadowLightSource->GetDirection();
 			d[0] = direction->x;
 			d[1] = direction->y;
@@ -652,12 +653,12 @@ namespace pure3d
 		}
 		else
 		{
-			float* c = pddi->GetConstant(gConstantPRLightColour2, pddiBaseContext::CONSTANT_FLOAT4);
+			float* c = pddi->GetConstant(gConstantPRLightColour2.index, pddiBaseContext::CONSTANT_FLOAT4);
 			c[0] = 0.0f;
 			c[1] = 0.0f;
 			c[2] = 0.0f;
 			c[3] = 0.0f;
-			float* d = pddi->GetConstant(gConstantPRLightDirection2, pddiBaseContext::CONSTANT_FLOAT3);
+			float* d = pddi->GetConstant(gConstantPRLightDirection2.index, pddiBaseContext::CONSTANT_FLOAT3);
 			d[0] = 1.0f;
 			d[1] = 0.0f;
 			d[2] = 0.0f;
@@ -666,7 +667,7 @@ namespace pure3d
 		UploadVertexLights(mode);
 		if (lit && HasShadowMap())
 		{
-			unsigned int* texture = pddi->GetTextureConstant(gConstantShadowMap);
+			unsigned int* texture = pddi->GetTextureConstant(gConstantShadowMap.index);
 			texture[1] = (texture[1] & 0xf8408bff) | 0x408800;
 		}
 		else
@@ -674,18 +675,18 @@ namespace pure3d
 			GetLightingInputs()->SetSpotLight(0, false, 0);
 		}
 		static math::Vector4 params(0.0f, 0.0f, 0.0f, 0.0f);
-		constant = pddi->GetConstant(gConstantPRLightParams1, pddiBaseContext::CONSTANT_FLOAT4);
+		constant = pddi->GetConstant(gConstantPRLightParams1.index, pddiBaseContext::CONSTANT_FLOAT4);
 		constant[0] = params.x;
 		constant[1] = params.y;
 		constant[2] = params.z;
 		constant[3] = params.w;
-		constant = pddi->GetConstant(gConstantLightObjectSpaceLightBounds, pddiBaseContext::CONSTANT_FLOAT4);
+		constant = pddi->GetConstant(gConstantLightObjectSpaceLightBounds.index, pddiBaseContext::CONSTANT_FLOAT4);
 		constant[0] = 0.0f;
 		constant[1] = 0.0f;
 		constant[2] = 0.0f;
 		constant[3] = 1e12f;
-		*pddi->GetConstant(gConstantLightEnableSpotKill, pddiBaseContext::CONSTANT_FLOAT) = 0.0f;
-		pddi->SetFlagConstant(gConstantLightIsLitPass);
+		*pddi->GetConstant(gConstantLightEnableSpotKill.index, pddiBaseContext::CONSTANT_FLOAT) = 0.0f;
+		pddi->SetFlagConstant(gConstantLightIsLitPass.index);
 	}
 #endif
 
@@ -736,3 +737,15 @@ namespace pure3d
 		}
 	}
 }
+
+namespace pure3d
+{
+	core::Name<core::CaseInsensitiveKey32> gShaderShadowDepth = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("shadowDepth", 0)));
+	core::Name<core::CaseInsensitiveKey32> gShaderLitPR = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("lit_PR", 0)));
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D67BA0
+// FUNCTION: ENGINE 0x10D722D0
+// FUNCTION: ENGINE 0x10D86F00
+// FUNCTION: ENGINE 0x10D893D0

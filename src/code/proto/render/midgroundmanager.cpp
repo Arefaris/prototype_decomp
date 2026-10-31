@@ -10,7 +10,7 @@
 namespace proto
 {
 	// 0x1126E538: the key of the game database string that names the level (name guess)
-	extern core::Name<core::CaseSensitiveKey> gLevelNameKey;
+	core::Name<core::CaseSensitiveKey> gLevelNameKey("Proto_Volatile_ActiveMission", 0);
 	// 0x104DF9E0: the name of the level a game database string stands for (name guess)
 	const char* FindLevelName(const char* text);
 }
@@ -114,3 +114,7 @@ namespace proto
 		engine::GetDrawableRegistry()->Add(engine::gMidgroundRegistryEntry);
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D60850
+// FUNCTION: ENGINE 0x10D857B0

@@ -405,7 +405,7 @@ namespace pure3d
 		float totalSeconds = (float)(total / 1000000) + (float)(total % 1000000) * 0.000001f;
 		ConstantSlot elapsedSlot = FindConstant("p3dTimeElapsed");
 		ConstantSlot cosSlot = FindConstant("p3dTimeCos");
-		*pddi->GetConstant(gConstantTime, pddiBaseContext::CONSTANT_FLOAT) = totalSeconds;
+		*pddi->GetConstant(gConstantTime.index, pddiBaseContext::CONSTANT_FLOAT) = totalSeconds;
 		float deltaSeconds = (float)((unsigned __int64)delta / 1000000) + (float)((unsigned __int64)delta % 1000000) * 0.000001f;
 		*pddi->GetConstant(elapsedSlot.index, pddiBaseContext::CONSTANT_FLOAT) = deltaSeconds;
 		*pddi->GetConstant(cosSlot.index, pddiBaseContext::CONSTANT_FLOAT) = cosf(totalSeconds);

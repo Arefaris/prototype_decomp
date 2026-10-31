@@ -908,3 +908,12 @@ namespace engine
 	// FUNCTION: ENGINE 0x1087C5D0
 	template class fight::PropertyName<SoundZoneTrack>;
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gMixerDefaultCategory("default", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D741D0
+// FUNCTION: ENGINE 0x10D89DF0

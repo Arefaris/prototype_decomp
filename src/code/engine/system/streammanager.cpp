@@ -197,3 +197,12 @@ namespace container
 	template class ArrayDynamic<engine::StreamPackage*, AllocatorCoreStatic<12, 16> >;
 	template class ArrayDynamic<engine::StreamTrigger*, AllocatorCoreStatic<12, 16> >;
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gNoSlotGroup("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74C80
+// FUNCTION: ENGINE 0x10D8A0A0

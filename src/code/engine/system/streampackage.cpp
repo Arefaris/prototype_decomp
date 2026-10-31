@@ -762,6 +762,16 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74150
+// FUNCTION: ENGINE 0x10D89D50
+
+
 // Kept copies: the lists' and strings' members, the string / primitive meta type getters and setters, the member
 // meta type getters, the state name and the stream manager settings accessors, the scalar deleting destructors
 // FUNCTION: ENGINE 0x107F9F50

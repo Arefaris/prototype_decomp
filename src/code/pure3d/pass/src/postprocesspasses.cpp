@@ -1576,3 +1576,314 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x107742F0
 	template pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::~ParameterHandler();
 
+namespace pure3d
+{
+	core::Name<core::CaseSensitiveKey> gPassNamePrototypeBloom("Prototype Bloom", 0);
+	core::Name<core::CaseSensitiveKey> gPassNamePrototypeTonemap("Prototype Tonemap", 0);
+	core::Name<core::CaseSensitiveKey> gPassNamePrototypeColourMatrix("Prototype ColourMatrix", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFBDepthPass("Prototype FB Depth Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFBViewPass("Prototype FB View Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeRadialBlur("Prototype RadialBlur", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFBEffects("Prototype FB Effects", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeComposite("Prototype Composite", 0);
+	core::Name<core::CaseSensitiveKey> gPassNamePrototypeThermalVision("Prototype Thermal Vision", 0);
+	core::Name<core::CaseSensitiveKey> gPassNamePrototypeMotherVision("Prototype Mother Vision", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeChameleonicPass("Prototype Chameleonic Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeHUD("Prototype HUD", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeShaderLODDebug("Prototype Shader LOD Debug", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeMidgroundEnable("Prototype Midground Enable", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeThermalVisionLevel("Prototype Thermal Vision Level", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeBasicParticleEnable("Prototype Basic Particle Enable", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeCMY("Prototype CMY", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeCMYScaleBias("Prototype CMYScaleBias", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeGrainSpeed("Prototype GrainSpeed", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeGrainIntensity("Prototype GrainIntensity", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeOverlayOpacity("Prototype OverlayOpacity", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeOverlaySaturation("Prototype OverlaySaturation", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeDistortionStrength("Prototype DistortionStrength", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeFogTiling("Prototype Fog Tiling", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogDarkTint("Prototype Fog Dark Tint", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogLightTint("Prototype Fog Light Tint", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogFalloff("Prototype Fog Falloff", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogFalloffModifier("Prototype Fog Falloff Modifier", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeFogVariation("Prototype Fog Variation", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeFogSpeed("Prototype Fog Speed", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogNoiseStrength("Prototype Fog Noise Strength", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogGlobalFog("Prototype Fog Global Fog", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFogStrength("Prototype Fog Strength", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurRadius("Prototype RadialBlur Radius", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSource("Prototype RadialBlur Source", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurIntensity("Prototype RadialBlur Intensity", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSize("Prototype RadialBlur Size", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurFalloff("Prototype RadialBlur Falloff", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSampleScale("Prototype RadialBlur Sample Scale", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeChameleonicWarpingFactor("Prototype Chameleonic Warping Factor", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeChameleonicWarpingOffsetScale("Prototype Chameleonic Warping Offset Scale", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeChameleonicBlurFactor("Prototype Chameleonic Blur Factor", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeChameleonicAlexColour("Prototype Chameleonic Alex Colour", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeChameleonicInfecedColour("Prototype Chameleonic Infeced Colour", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeChameleonicColourMix("Prototype Chameleonic Colour Mix", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeVisionMode("Prototype Vision Mode", 0);
+	core::Name<core::CaseSensitiveKey> gParamPrototypeVisionModeStrength("Prototype Vision Mode Strength", 0);
+	core::Name<core::CaseSensitiveKey> gPassNameBlurPass("Blur Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDecalsPass("Decals Pass", 0);
+	core::Name<core::CaseSensitiveKey> gCapturePass("Capture Pass", 0);
+	core::Name<core::CaseSensitiveKey> gColourMatrixPass("ColourMatrix Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPassNameCopyPass("Copy Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDebugPass("Debug Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDebug2DPass("Debug 2D Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDebug3DPass("Debug 3D Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDepthPass("Depth Pass", 0);
+	core::Name<core::CaseSensitiveKey> gDepthOfFieldPass("DepthOfField Pass", 0);
+	core::Name<core::CaseSensitiveKey> gOpaquePass("Opaque Pass", 0);
+	core::Name<core::CaseSensitiveKey> gOrthoNormalPass("OrthoNormal Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrimColourPass("Prim Colour Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrimColourRootPass("Prim Colour Root Pass", 0);
+	core::Name<core::CaseSensitiveKey> gSelectPass("Select Pass", 0);
+	core::Name<core::CaseSensitiveKey> gShadowDebugPass("Shadow Debug Pass", 0);
+	core::Name<core::CaseSensitiveKey> gShadowPass("Shadow Pass", 0);
+	core::Name<core::CaseSensitiveKey> gLetterBoxPass("LetterBox Pass", 0);
+	core::Name<core::CaseSensitiveKey> gRootPass("Root Pass", 0);
+	core::Name<core::CaseSensitiveKey> gTilingPass("Tiling Pass", 0);
+	core::Name<core::CaseSensitiveKey> gTilingInitPass("Tiling Init Pass", 0);
+	core::Name<core::CaseSensitiveKey> gTonemapPass("Tonemap Pass", 0);
+	core::Name<core::CaseSensitiveKey> gTranslucentPass("Translucent Pass", 0);
+	core::Name<core::CaseSensitiveKey> gViewPass("View Pass", 0);
+	core::Name<core::CaseSensitiveKey> gWireframeOverlayPass("WireframeOverlay Pass", 0);
+	core::Name<core::CaseSensitiveKey> gPrimitiveSelectPass("Primitive Select Pass", 0);
+	core::Name<core::CaseSensitiveKey> gAlphaBlend("alphaBlend", 0);
+	core::Name<core::CaseSensitiveKey> gParamBackbufferstrength("backbufferstrength", 0);
+	core::Name<core::CaseSensitiveKey> gParamBloomstrength("bloomstrength", 0);
+	core::Name<core::CaseSensitiveKey> gParamBrightness("Brightness", 0);
+	core::Name<core::CaseSensitiveKey> gParamConstrast("Constrast", 0);
+	core::Name<core::CaseSensitiveKey> gParamHue("hue", 0);
+	core::Name<core::CaseSensitiveKey> gParamLuminanceCutoff("luminance_cutoff", 0);
+	core::Name<core::CaseSensitiveKey> gMaxNumShadowCameras("max_num_shadow_cameras", 0);
+	core::Name<core::CaseSensitiveKey> gParamMidpoint("Midpoint", 0);
+	core::Name<core::CaseSensitiveKey> gNearPlane("near_plane", 0);
+	core::Name<core::CaseSensitiveKey> gOccluderColour("occluder_colour", 0);
+	core::Name<core::CaseSensitiveKey> gRadius("radius", 0);
+	core::Name<core::CaseSensitiveKey> gParamRadiusx("radiusx", 0);
+	core::Name<core::CaseSensitiveKey> gParamRadiusy("radiusy", 0);
+	core::Name<core::CaseSensitiveKey> gParamSaturation("Saturation", 0);
+	core::Name<core::CaseSensitiveKey> gShowAmbientLights("show_ambient_lights", 0);
+	core::Name<core::CaseSensitiveKey> gShowOccluders("show_occluders", 0);
+	core::Name<core::CaseSensitiveKey> gShowParticles("show particles", 0);
+	core::Name<core::CaseSensitiveKey> gShowParticlesStatistics("show particles statistics", 0);
+	core::Name<core::CaseSensitiveKey> gShowCullingCameraFrustum("show_culling_camera_frustum", 0);
+	core::Name<core::CaseSensitiveKey> gShowShadowFrustum("show_shadow_frustum", 0);
+	core::Name<core::CaseSensitiveKey> gShowShadowTexture("show_shadow_texture", 0);
+	core::Name<core::CaseSensitiveKey> gParamTint("tint", 0);
+	core::Name<core::CaseSensitiveKey> gParamWeights("weights", 0);
+	core::Name<core::CaseSensitiveKey> gParamPower("power", 0);
+	core::Name<core::CaseSensitiveKey> gParamDofNearDepth("dof_near_depth", 0);
+	core::Name<core::CaseSensitiveKey> gParamDofFarDepth("dof_far_depth", 0);
+	core::Name<core::CaseSensitiveKey> gParamDofRange("dof_range", 0);
+	core::Name<core::CaseSensitiveKey> gParamDofAperture("dof_aperture", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66B50
+// FUNCTION: ENGINE 0x10D66B70
+// FUNCTION: ENGINE 0x10D66B90
+// FUNCTION: ENGINE 0x10D66BB0
+// FUNCTION: ENGINE 0x10D66BD0
+// FUNCTION: ENGINE 0x10D66BF0
+// FUNCTION: ENGINE 0x10D66C10
+// FUNCTION: ENGINE 0x10D66C30
+// FUNCTION: ENGINE 0x10D66C50
+// FUNCTION: ENGINE 0x10D66C70
+// FUNCTION: ENGINE 0x10D66C90
+// FUNCTION: ENGINE 0x10D66CB0
+// FUNCTION: ENGINE 0x10D66CD0
+// FUNCTION: ENGINE 0x10D66CF0
+// FUNCTION: ENGINE 0x10D66D10
+// FUNCTION: ENGINE 0x10D66D30
+// FUNCTION: ENGINE 0x10D66D50
+// FUNCTION: ENGINE 0x10D66D70
+// FUNCTION: ENGINE 0x10D66D90
+// FUNCTION: ENGINE 0x10D66DB0
+// FUNCTION: ENGINE 0x10D66DD0
+// FUNCTION: ENGINE 0x10D66DF0
+// FUNCTION: ENGINE 0x10D66E10
+// FUNCTION: ENGINE 0x10D66E30
+// FUNCTION: ENGINE 0x10D66E50
+// FUNCTION: ENGINE 0x10D66E70
+// FUNCTION: ENGINE 0x10D66E90
+// FUNCTION: ENGINE 0x10D66EB0
+// FUNCTION: ENGINE 0x10D66ED0
+// FUNCTION: ENGINE 0x10D66EF0
+// FUNCTION: ENGINE 0x10D66F10
+// FUNCTION: ENGINE 0x10D66F30
+// FUNCTION: ENGINE 0x10D66F50
+// FUNCTION: ENGINE 0x10D66F70
+// FUNCTION: ENGINE 0x10D66F90
+// FUNCTION: ENGINE 0x10D66FB0
+// FUNCTION: ENGINE 0x10D66FD0
+// FUNCTION: ENGINE 0x10D66FF0
+// FUNCTION: ENGINE 0x10D67010
+// FUNCTION: ENGINE 0x10D67030
+// FUNCTION: ENGINE 0x10D67050
+// FUNCTION: ENGINE 0x10D67070
+// FUNCTION: ENGINE 0x10D67090
+// FUNCTION: ENGINE 0x10D670B0
+// FUNCTION: ENGINE 0x10D670D0
+// FUNCTION: ENGINE 0x10D670F0
+// FUNCTION: ENGINE 0x10D67110
+// FUNCTION: ENGINE 0x10D71770
+// FUNCTION: ENGINE 0x10D71790
+// FUNCTION: ENGINE 0x10D717B0
+// FUNCTION: ENGINE 0x10D717D0
+// FUNCTION: ENGINE 0x10D717F0
+// FUNCTION: ENGINE 0x10D71810
+// FUNCTION: ENGINE 0x10D71830
+// FUNCTION: ENGINE 0x10D71850
+// FUNCTION: ENGINE 0x10D71870
+// FUNCTION: ENGINE 0x10D71890
+// FUNCTION: ENGINE 0x10D718B0
+// FUNCTION: ENGINE 0x10D718D0
+// FUNCTION: ENGINE 0x10D718F0
+// FUNCTION: ENGINE 0x10D71910
+// FUNCTION: ENGINE 0x10D71930
+// FUNCTION: ENGINE 0x10D71950
+// FUNCTION: ENGINE 0x10D71970
+// FUNCTION: ENGINE 0x10D71990
+// FUNCTION: ENGINE 0x10D719B0
+// FUNCTION: ENGINE 0x10D719D0
+// FUNCTION: ENGINE 0x10D719F0
+// FUNCTION: ENGINE 0x10D71A10
+// FUNCTION: ENGINE 0x10D71A30
+// FUNCTION: ENGINE 0x10D71A50
+// FUNCTION: ENGINE 0x10D71A70
+// FUNCTION: ENGINE 0x10D71A90
+// FUNCTION: ENGINE 0x10D71AB0
+// FUNCTION: ENGINE 0x10D71AD0
+// FUNCTION: ENGINE 0x10D71AF0
+// FUNCTION: ENGINE 0x10D71B10
+// FUNCTION: ENGINE 0x10D71BB0
+// FUNCTION: ENGINE 0x10D71C70
+// FUNCTION: ENGINE 0x10D71C90
+// FUNCTION: ENGINE 0x10D71CB0
+// FUNCTION: ENGINE 0x10D71CD0
+// FUNCTION: ENGINE 0x10D71CF0
+// FUNCTION: ENGINE 0x10D71D10
+// FUNCTION: ENGINE 0x10D71D30
+// FUNCTION: ENGINE 0x10D71D50
+// FUNCTION: ENGINE 0x10D71D70
+// FUNCTION: ENGINE 0x10D71D90
+// FUNCTION: ENGINE 0x10D71DB0
+// FUNCTION: ENGINE 0x10D71DD0
+// FUNCTION: ENGINE 0x10D71DF0
+// FUNCTION: ENGINE 0x10D71E10
+// FUNCTION: ENGINE 0x10D71E30
+// FUNCTION: ENGINE 0x10D71E50
+// FUNCTION: ENGINE 0x10D71E70
+// FUNCTION: ENGINE 0x10D71E90
+// FUNCTION: ENGINE 0x10D71ED0
+// FUNCTION: ENGINE 0x10D71F70
+// FUNCTION: ENGINE 0x10D721B0
+// FUNCTION: ENGINE 0x10D721D0
+// FUNCTION: ENGINE 0x10D721F0
+// FUNCTION: ENGINE 0x10D72210
+// FUNCTION: ENGINE 0x10D86A10
+// FUNCTION: ENGINE 0x10D86A20
+// FUNCTION: ENGINE 0x10D86A30
+// FUNCTION: ENGINE 0x10D86A40
+// FUNCTION: ENGINE 0x10D86A50
+// FUNCTION: ENGINE 0x10D86A60
+// FUNCTION: ENGINE 0x10D86A70
+// FUNCTION: ENGINE 0x10D86A80
+// FUNCTION: ENGINE 0x10D86A90
+// FUNCTION: ENGINE 0x10D86AA0
+// FUNCTION: ENGINE 0x10D86AB0
+// FUNCTION: ENGINE 0x10D86AC0
+// FUNCTION: ENGINE 0x10D86AD0
+// FUNCTION: ENGINE 0x10D86AE0
+// FUNCTION: ENGINE 0x10D86AF0
+// FUNCTION: ENGINE 0x10D86B00
+// FUNCTION: ENGINE 0x10D86B10
+// FUNCTION: ENGINE 0x10D86B20
+// FUNCTION: ENGINE 0x10D86B30
+// FUNCTION: ENGINE 0x10D86B40
+// FUNCTION: ENGINE 0x10D86B50
+// FUNCTION: ENGINE 0x10D86B60
+// FUNCTION: ENGINE 0x10D86B70
+// FUNCTION: ENGINE 0x10D86B80
+// FUNCTION: ENGINE 0x10D86B90
+// FUNCTION: ENGINE 0x10D86BA0
+// FUNCTION: ENGINE 0x10D86BB0
+// FUNCTION: ENGINE 0x10D86BC0
+// FUNCTION: ENGINE 0x10D86BD0
+// FUNCTION: ENGINE 0x10D86BE0
+// FUNCTION: ENGINE 0x10D86BF0
+// FUNCTION: ENGINE 0x10D86C00
+// FUNCTION: ENGINE 0x10D86C10
+// FUNCTION: ENGINE 0x10D86C20
+// FUNCTION: ENGINE 0x10D86C30
+// FUNCTION: ENGINE 0x10D86C40
+// FUNCTION: ENGINE 0x10D86C50
+// FUNCTION: ENGINE 0x10D86C60
+// FUNCTION: ENGINE 0x10D86C70
+// FUNCTION: ENGINE 0x10D86C80
+// FUNCTION: ENGINE 0x10D86C90
+// FUNCTION: ENGINE 0x10D86CA0
+// FUNCTION: ENGINE 0x10D86CB0
+// FUNCTION: ENGINE 0x10D86CC0
+// FUNCTION: ENGINE 0x10D86CD0
+// FUNCTION: ENGINE 0x10D86CE0
+// FUNCTION: ENGINE 0x10D86CF0
+// FUNCTION: ENGINE 0x10D88E30
+// FUNCTION: ENGINE 0x10D88E40
+// FUNCTION: ENGINE 0x10D88E50
+// FUNCTION: ENGINE 0x10D88E60
+// FUNCTION: ENGINE 0x10D88E70
+// FUNCTION: ENGINE 0x10D88E80
+// FUNCTION: ENGINE 0x10D88E90
+// FUNCTION: ENGINE 0x10D88EA0
+// FUNCTION: ENGINE 0x10D88EB0
+// FUNCTION: ENGINE 0x10D88EC0
+// FUNCTION: ENGINE 0x10D88ED0
+// FUNCTION: ENGINE 0x10D88EE0
+// FUNCTION: ENGINE 0x10D88EF0
+// FUNCTION: ENGINE 0x10D88F00
+// FUNCTION: ENGINE 0x10D88F10
+// FUNCTION: ENGINE 0x10D88F20
+// FUNCTION: ENGINE 0x10D88F30
+// FUNCTION: ENGINE 0x10D88F40
+// FUNCTION: ENGINE 0x10D88F50
+// FUNCTION: ENGINE 0x10D88F60
+// FUNCTION: ENGINE 0x10D88F70
+// FUNCTION: ENGINE 0x10D88F80
+// FUNCTION: ENGINE 0x10D88F90
+// FUNCTION: ENGINE 0x10D88FA0
+// FUNCTION: ENGINE 0x10D88FB0
+// FUNCTION: ENGINE 0x10D88FC0
+// FUNCTION: ENGINE 0x10D88FD0
+// FUNCTION: ENGINE 0x10D88FE0
+// FUNCTION: ENGINE 0x10D88FF0
+// FUNCTION: ENGINE 0x10D89000
+// FUNCTION: ENGINE 0x10D89050
+// FUNCTION: ENGINE 0x10D890B0
+// FUNCTION: ENGINE 0x10D890C0
+// FUNCTION: ENGINE 0x10D890D0
+// FUNCTION: ENGINE 0x10D890E0
+// FUNCTION: ENGINE 0x10D890F0
+// FUNCTION: ENGINE 0x10D89100
+// FUNCTION: ENGINE 0x10D89110
+// FUNCTION: ENGINE 0x10D89120
+// FUNCTION: ENGINE 0x10D89130
+// FUNCTION: ENGINE 0x10D89140
+// FUNCTION: ENGINE 0x10D89150
+// FUNCTION: ENGINE 0x10D89160
+// FUNCTION: ENGINE 0x10D89170
+// FUNCTION: ENGINE 0x10D89180
+// FUNCTION: ENGINE 0x10D89190
+// FUNCTION: ENGINE 0x10D891A0
+// FUNCTION: ENGINE 0x10D891B0
+// FUNCTION: ENGINE 0x10D891C0
+// FUNCTION: ENGINE 0x10D891E0
+// FUNCTION: ENGINE 0x10D89230
+// FUNCTION: ENGINE 0x10D89350
+// FUNCTION: ENGINE 0x10D89360
+// FUNCTION: ENGINE 0x10D89370
+// FUNCTION: ENGINE 0x10D89380

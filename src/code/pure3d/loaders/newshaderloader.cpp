@@ -5,6 +5,7 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
+#include "code/core/namecopy.h"
 
 namespace content
 {
@@ -16,7 +17,7 @@ namespace content
 namespace pure3d
 {
 	// 0x112806E0: the name the shader's default texture goes under
-	extern core::Name<core::CaseInsensitiveKey32> gDefaultTextureName;
+	core::Name<core::CaseInsensitiveKey32> gDefaultTextureName = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("p3dLight_ShaderLightMap", 0)));
 
 	// FUNCTION: ENGINE 0x10B96280
 	void NewShaderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name,
@@ -232,3 +233,7 @@ namespace pure3d
 		*name = content::ObjectName(shaderName, 1);
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D6A0A0
+// FUNCTION: ENGINE 0x10D87690

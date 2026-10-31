@@ -54,7 +54,7 @@ namespace engine
 	// GLOBAL: ENGINE 0x11315C70
 	int sScreenCentreY = 0;
 	// GLOBAL: ENGINE 0x11315C78
-	core::Name<core::CaseSensitiveKey> sLanguageName;
+	core::Name<core::CaseSensitiveKey> sLanguageName("english", 0);
 	// GLOBAL: ENGINE 0x11315C5C
 	int sUnknown5C = 0;
 	// GLOBAL: ENGINE 0x11315C64
@@ -483,6 +483,11 @@ namespace engine
 		sUnknown64 = true;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75A40
+// FUNCTION: ENGINE 0x10D8A670
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1036BA70

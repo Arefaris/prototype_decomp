@@ -8,8 +8,8 @@
 namespace proto
 {
 	// The names in the game database (0x11275A78: the timers, 0x1126E4C0: the player's setting)
-	extern core::Name<core::CaseSensitiveKey> gSmartHintTimersName;
-	extern core::Name<core::CaseSensitiveKey> gSmartHintSettingName;
+	core::Name<core::CaseSensitiveKey> gSmartHintTimersName("Proto_Save_SmartHint_Timers", 0);
+	core::Name<core::CaseSensitiveKey> gSmartHintSettingName("Proto_Save_EvolutionPoints", 0);
 
 	// The listeners of the smart hint scenario messages (0x11275A70)
 	extern engine::MessageListeners gSmartHintListeners;
@@ -221,3 +221,22 @@ namespace proto
 		NotifyHint("smarthint_exit_pause");
 	}
 }
+
+namespace proto
+{
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup("Undefined_SlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateBits("Proto_Save_SmartHint_StateBits", 0);
+	core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateInts("Proto_Save_SmartHint_StateInts", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D60550
+// FUNCTION: ENGINE 0x10D65D60
+// FUNCTION: ENGINE 0x10D65DC0
+// FUNCTION: ENGINE 0x10D65DF0
+// FUNCTION: ENGINE 0x10D65E20
+// FUNCTION: ENGINE 0x10D856B0
+// FUNCTION: ENGINE 0x10D864C0
+// FUNCTION: ENGINE 0x10D864E0
+// FUNCTION: ENGINE 0x10D864F0
+// FUNCTION: ENGINE 0x10D86500

@@ -10,6 +10,7 @@
 #include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
 #include "code/pure3d/pddi/dx9/dxvertexbuffer.h"
 #include "code/pure3d/primitive.h"
+#include "code/core/namecopy.h"
 
 namespace pure3d
 {
@@ -18,10 +19,10 @@ namespace pure3d
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F180;  // "position"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F16C;  // "weights"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1B8;  // "normal"
-	extern core::Name<core::CaseInsensitiveKey32> gName1127F0C8;  // "colour"
+	core::Name<core::CaseInsensitiveKey32> gName1127F0C8 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("colour", 0)));  // "colour"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F130;  // "colour0"
-	extern core::Name<core::CaseInsensitiveKey32> gName1127F2D0;  // "colour1"
-	extern core::Name<core::CaseInsensitiveKey32> gName1127F0B0;  // "fog"
+	core::Name<core::CaseInsensitiveKey32> gName1127F2D0 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("colour1", 0)));  // "colour1"
+	core::Name<core::CaseInsensitiveKey32> gName1127F0B0 = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("fog", 0)));  // "fog"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1E4;  // "tex0"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1E8;  // "tex1"
 	extern core::Name<core::CaseInsensitiveKey32> gName1127F1EC;  // "tex2"
@@ -528,3 +529,18 @@ namespace pure3d
 		return (PrimGroupList*)index;
 	}
 }
+
+namespace pure3d
+{
+	core::Name<core::CaseInsensitiveKey32> gInstanceIndices = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("instanceIndices", 0)));
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D67520
+// FUNCTION: ENGINE 0x10D675A0
+// FUNCTION: ENGINE 0x10D676A0
+// FUNCTION: ENGINE 0x10D67AE0
+// FUNCTION: ENGINE 0x10D86DE0
+// FUNCTION: ENGINE 0x10D86E00
+// FUNCTION: ENGINE 0x10D86E40
+// FUNCTION: ENGINE 0x10D86ED0

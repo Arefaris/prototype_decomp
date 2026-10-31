@@ -74,7 +74,7 @@ namespace proto
 	void GetStringField(lua_State* L, const char* key, char* buffer, int size);
 
 	// The game database's text of the unlock keys received so far (the name at 0x1126E4B8)
-	extern core::Name<core::CaseSensitiveKey> gUnlockKeysName;
+	core::Name<core::CaseSensitiveKey> gUnlockKeysName("Proto_Save_EventKeys", 0);
 
 	// The text of the category event description the script asks for ("$" and the event's name)
 	static char sCategoryEventDescription[8] = "$freXXX";
@@ -590,3 +590,7 @@ namespace proto
 		return 0.0f;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D607F0
+// FUNCTION: ENGINE 0x10D85790

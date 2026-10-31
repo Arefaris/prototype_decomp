@@ -190,5 +190,15 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F24C0
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gPackageNameName("packageName", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D73F10
+// FUNCTION: ENGINE 0x10D89AA0
+
+
 // Kept copies (compiler-generated and inline functions of this unit):
 // FUNCTION: ENGINE 0x10602210

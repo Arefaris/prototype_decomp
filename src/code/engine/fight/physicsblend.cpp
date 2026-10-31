@@ -364,6 +364,16 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<PhysicsJointBlendFactorTrack>;
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gPhysicsObjectAttributeName("physicsObject", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D73D70
+// FUNCTION: ENGINE 0x10D89B70
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108F4FD0
 // FUNCTION: ENGINE 0x108F5000

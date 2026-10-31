@@ -31,8 +31,8 @@ namespace engine
 	const char* GetSpeakerText(const core::Name<core::CaseSensitiveKey>& name);
 
 	// The speaker shown when none is known (0x11316A80) and the style of the lines without one (0x11316A88)
-	extern core::Name<core::CaseSensitiveKey> gSubtitleDefaultSpeakerName;
-	extern core::Name<core::CaseSensitiveKey> gSubtitleDefaultStyleName;
+	core::Name<core::CaseSensitiveKey> gSubtitleDefaultSpeakerName("SpeakerNotFoundInTextBible", 0);
+	core::Name<core::CaseSensitiveKey> gSubtitleDefaultStyleName("default", 0);
 
 	// A value handed to the movie, laid out as FEMovie::Value without its constructor
 	struct ScriptValue
@@ -331,6 +331,13 @@ namespace engine
 		return Add(localized, type, speaker, duration);
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75E00
+// FUNCTION: ENGINE 0x10D75E40
+// FUNCTION: ENGINE 0x10D8A7C0
+// FUNCTION: ENGINE 0x10D8A7E0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10876B60

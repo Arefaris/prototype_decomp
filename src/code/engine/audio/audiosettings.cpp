@@ -196,6 +196,37 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gDuckName("duck", 0);
+	core::Name<core::CaseSensitiveKey> gMusicName("music", 0);
+	core::Name<core::CaseSensitiveKey> gPos("pos", 0);
+	core::Name<core::CaseSensitiveKey> gSfxName("sfx", 0);
+	core::Name<core::CaseSensitiveKey> gMusicVolumeSetting("SettingAudioMusicVolume", 0);
+	core::Name<core::CaseSensitiveKey> gSfxVolumeSetting("SettingAudioSFXVolume", 0);
+	core::Name<core::CaseSensitiveKey> gDialogVolumeSetting("SettingAudioDialogVolume", 0);
+	core::Name<core::CaseSensitiveKey> gLatencySetting("SettingAudioLatency", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74250
+// FUNCTION: ENGINE 0x10D743D0
+// FUNCTION: ENGINE 0x10D74410
+// FUNCTION: ENGINE 0x10D74430
+// FUNCTION: ENGINE 0x10D78510
+// FUNCTION: ENGINE 0x10D78530
+// FUNCTION: ENGINE 0x10D78550
+// FUNCTION: ENGINE 0x10D78570
+// FUNCTION: ENGINE 0x10D89E30
+// FUNCTION: ENGINE 0x10D89EF0
+// FUNCTION: ENGINE 0x10D89F10
+// FUNCTION: ENGINE 0x10D89F20
+// FUNCTION: ENGINE 0x10D8AFC0
+// FUNCTION: ENGINE 0x10D8AFD0
+// FUNCTION: ENGINE 0x10D8AFE0
+// FUNCTION: ENGINE 0x10D8AFF0
+
+
 // ---- annotations of the functions mapped in symbols.txt (generated) ----
 
 // FUNCTION: ENGINE 0x108CE7E0 @ void engine::AudioSettings::operator delete(void *)
