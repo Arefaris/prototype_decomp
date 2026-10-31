@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_VEHICLE_VEHICLE_PANIC_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -232,6 +233,119 @@ namespace proto
 			fight::TrackFactory* CreateReturnToNormalTrackFactory(const char* name);
 			void RegisterReturnToNormalTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::vehicle::SetPanicStateAction (9 vftable slots, 0x2C bytes)
+			class SetPanicStateAction : public fight::Action
+			{
+			public:
+				// 0x10279B30
+				SetPanicStateAction(SetPanicStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102791B0
+				virtual ~SetPanicStateAction();
+
+				// vftable slot 7 (0x10279BE0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SetPanicStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::vehicle::PanicAction (9 vftable slots, 0x2C bytes)
+			class PanicAction : public fight::Action
+			{
+			public:
+				// 0x10279500
+				PanicAction(PanicTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10279020
+				virtual ~PanicAction();
+
+				// vftable slot 5 (0x102795E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10278BB0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10279760)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PanicTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				float unknown38;  // +0x38
+			};
+
+			// RTTI: proto::fightitems::vehicle::SpawnCopsBesideCarAction (9 vftable slots, 0x2C bytes)
+			class SpawnCopsBesideCarAction : public fight::Action
+			{
+			public:
+				// 0x10279D50
+				SpawnCopsBesideCarAction(SpawnCopsBesideCarTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10279250
+				virtual ~SpawnCopsBesideCarAction();
+
+				// vftable slot 7 (0x10279E00)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SpawnCopsBesideCarTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::vehicle::SpawnCopsOffScreenAction (9 vftable slots, 0x2C bytes)
+			class SpawnCopsOffScreenAction : public fight::Action
+			{
+			public:
+				// 0x10279C70
+				SpawnCopsOffScreenAction(SpawnCopsOffScreenTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10279200
+				virtual ~SpawnCopsOffScreenAction();
+
+				// vftable slot 7 (0x10279D10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SpawnCopsOffScreenTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::vehicle::TerminateAction (9 vftable slots, 0x2C bytes)
+			class TerminateAction : public fight::Action
+			{
+			public:
+				// 0x10279910
+				TerminateAction(TerminateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10279070
+				virtual ~TerminateAction();
+
+				// vftable slot 5 (0x10278BC0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10278BD0)
+				virtual void Slot6();
+				// vftable slot 7 (0x102790A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TerminateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::vehicle::ReturnToNormalAction (9 vftable slots, 0x2C bytes)
+			class ReturnToNormalAction : public fight::Action
+			{
+			public:
+				// 0x102799C0
+				ReturnToNormalAction(ReturnToNormalTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10279160
+				virtual ~ReturnToNormalAction();
+
+				// vftable slot 5 (0x10278BE0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10278BF0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10279A70)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReturnToNormalTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -164,6 +164,36 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1026D740
+			ReactionAction::ReactionAction(ReactionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D5D0
+			ReactionAction::~ReactionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D460
+			void ReactionAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D450
+			bool ReactionAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026D880
+			fight::Action* ReactionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReactionAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<DisguiseReactionCondition>;
 			template class fight::ConditionFactoryTemplate<DisguiseReactionCondition>;
 			template class fight::ConditionFactoryCasterTemplate<DisguiseReactionCondition>;
@@ -176,6 +206,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10269D70
+// FUNCTION: ENGINE 0x1026A250
+// FUNCTION: ENGINE 0x1026D7C0
 // FUNCTION: ENGINE 0x10275A90
 // FUNCTION: ENGINE 0x10275AC0
 // FUNCTION: ENGINE 0x10275AF0

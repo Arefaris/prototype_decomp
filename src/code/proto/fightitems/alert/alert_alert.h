@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_ALERT_ALERT_ALERT_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -1010,6 +1011,248 @@ namespace proto
 			fight::TrackFactory* CreateHoldOnAlertEventsTrackFactory(const char* name);
 			void RegisterHoldOnAlertEventsTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::alert::ReportBackToIdleAction (9 vftable slots, 0x2C bytes)
+			class ReportBackToIdleAction : public fight::Action
+			{
+			public:
+				// 0x1026CCE0
+				ReportBackToIdleAction(ReportBackToIdleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A7D0
+				virtual ~ReportBackToIdleAction();
+
+				// vftable slot 5 (0x1026CD90)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ReportBackToIdleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::ReportEnterBeginCombatAction (9 vftable slots, 0x2C bytes)
+			class ReportEnterBeginCombatAction : public fight::Action
+			{
+			public:
+				// 0x1026CDF0
+				ReportEnterBeginCombatAction(ReportEnterBeginCombatTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A820
+				virtual ~ReportEnterBeginCombatAction();
+
+				// vftable slot 5 (0x1026CEA0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ReportEnterBeginCombatTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::RadioedSetAction (9 vftable slots, 0x2C bytes)
+			class RadioedSetAction : public fight::Action
+			{
+			public:
+				// 0x1026C500
+				RadioedSetAction(RadioedSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A640
+				virtual ~RadioedSetAction();
+
+				// vftable slot 5 (0x1026C5B0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<RadioedSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::DisablePoliceTrackAction (9 vftable slots, 0x2C bytes)
+			class DisablePoliceTrackAction : public fight::Action
+			{
+			public:
+				// 0x1026CBD0
+				DisablePoliceTrackAction(DisablePoliceTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A780
+				virtual ~DisablePoliceTrackAction();
+
+				// vftable slot 5 (0x1026CC80)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<DisablePoliceTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::AlertReportAction (9 vftable slots, 0x2C bytes)
+			class AlertReportAction : public fight::Action
+			{
+			public:
+				// 0x1026C640
+				AlertReportAction(AlertReportTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A690
+				virtual ~AlertReportAction();
+
+				// vftable slot 5 (0x102696B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102696C0)
+				virtual void Slot6();
+				// vftable slot 7 (0x1026C6F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AlertReportTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::CallStrikeTeamAction (9 vftable slots, 0x2C bytes)
+			class CallStrikeTeamAction : public fight::Action
+			{
+			public:
+				// 0x1026C760
+				CallStrikeTeamAction(CallStrikeTeamTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A6E0
+				virtual ~CallStrikeTeamAction();
+
+				// vftable slot 5 (0x1026C810)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CallStrikeTeamTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::PlayerCallStrikeTeamAction (9 vftable slots, 0x2C bytes)
+			class PlayerCallStrikeTeamAction : public fight::Action
+			{
+			public:
+				// 0x1026C8C0
+				PlayerCallStrikeTeamAction(PlayerCallStrikeTeamTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A730
+				virtual ~PlayerCallStrikeTeamAction();
+
+				// vftable slot 5 (0x1026C970)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<PlayerCallStrikeTeamTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::SetInPursuitAction (9 vftable slots, 0x2C bytes)
+			class SetInPursuitAction : public fight::Action
+			{
+			public:
+				// 0x1026BEC0
+				SetInPursuitAction(SetInPursuitTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A310
+				virtual ~SetInPursuitAction();
+
+				// vftable slot 5 (0x1026BF70)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetInPursuitTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::StartStrikeTeamMeterAction (9 vftable slots, 0x2C bytes)
+			class StartStrikeTeamMeterAction : public fight::Action
+			{
+			public:
+				// 0x1026C2F0
+				StartStrikeTeamMeterAction(StartStrikeTeamMeterTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A400
+				virtual ~StartStrikeTeamMeterAction();
+
+				// vftable slot 5 (0x1026A430)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<StartStrikeTeamMeterTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::SetAlertVariableAction (9 vftable slots, 0x2C bytes)
+			class SetAlertVariableAction : public fight::Action
+			{
+			public:
+				// 0x1026BD70
+				SetAlertVariableAction(SetAlertVariableTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A2C0
+				virtual ~SetAlertVariableAction();
+
+				// vftable slot 5 (0x1026BE20)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetAlertVariableTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::ResetAlertVariablesAction (9 vftable slots, 0x2C bytes)
+			class ResetAlertVariablesAction : public fight::Action
+			{
+			public:
+				// 0x1026C000
+				ResetAlertVariablesAction(ResetAlertVariablesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A360
+				virtual ~ResetAlertVariablesAction();
+
+				// vftable slot 5 (0x10269670)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10269680)
+				virtual void Slot6();
+				// vftable slot 7 (0x1026C0B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ResetAlertVariablesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::ScenarioMessageAction (9 vftable slots, 0x2C bytes)
+			class ScenarioMessageAction : public fight::Action
+			{
+			public:
+				// 0x1026C150
+				ScenarioMessageAction(ScenarioMessageTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A3B0
+				virtual ~ScenarioMessageAction();
+
+				// vftable slot 5 (0x1026D030)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1026D060)
+				virtual void Slot6();
+				// vftable slot 7 (0x10269690)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ScenarioMessageTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::StopStrikeTeamMeterAction (9 vftable slots, 0x2C bytes)
+			class StopStrikeTeamMeterAction : public fight::Action
+			{
+			public:
+				// 0x1026C3A0
+				StopStrikeTeamMeterAction(StopStrikeTeamMeterTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A480
+				virtual ~StopStrikeTeamMeterAction();
+
+				// vftable slot 5 (0x1026A4B0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<StopStrikeTeamMeterTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::alert::HoldOnAlertEventsAction (9 vftable slots, 0x2C bytes)
+			class HoldOnAlertEventsAction : public fight::Action
+			{
+			public:
+				// 0x1026C450
+				HoldOnAlertEventsAction(HoldOnAlertEventsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026A500
+				virtual ~HoldOnAlertEventsAction();
+
+				// vftable slot 5 (0x1026A530)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1026A5B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x102696A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<HoldOnAlertEventsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

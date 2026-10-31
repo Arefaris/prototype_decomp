@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_ALERT_ALERT_DISGUISEBLOWN_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -78,6 +79,28 @@ namespace proto
 			fight::TrackFactory* CreateBlowDisguiseTrackFactory(const char* name);
 			void RegisterBlowDisguiseTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::alert::BlowDisguiseAction (9 vftable slots, 0x2C bytes)
+			class BlowDisguiseAction : public fight::Action
+			{
+			public:
+				// 0x10268D40
+				BlowDisguiseAction(BlowDisguiseTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10268BD0
+				virtual ~BlowDisguiseAction();
+
+				// vftable slot 5 (0x10268AA0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10268AB0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10268DF0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<BlowDisguiseTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

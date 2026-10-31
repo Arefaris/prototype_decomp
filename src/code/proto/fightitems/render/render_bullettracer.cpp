@@ -408,6 +408,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<BulletTracerTrack>;
 			template class fight::PropertyGroup<BulletTracerTrack>;
 			template class fight::PropertyName<BulletTracerTrack>;

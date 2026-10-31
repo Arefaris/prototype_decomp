@@ -164,6 +164,36 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10268D40
+			BlowDisguiseAction::BlowDisguiseAction(BlowDisguiseTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10268BD0
+			BlowDisguiseAction::~BlowDisguiseAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10268AA0
+			bool BlowDisguiseAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10268AB0
+			void BlowDisguiseAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10268E90
+			fight::Action* BlowDisguiseTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new BlowDisguiseAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<DisguiseBlownCondition>;
 			template class fight::PropertyFloatConstRange<DisguiseBlownCondition>;
 			template class fight::ConditionFactoryTemplate<DisguiseBlownCondition>;
@@ -176,6 +206,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10268B30
+// FUNCTION: ENGINE 0x10268B60
+// FUNCTION: ENGINE 0x10268DC0
 // FUNCTION: ENGINE 0x1026DA70
 // FUNCTION: ENGINE 0x1026DAA0
 // FUNCTION: ENGINE 0x1026DAD0

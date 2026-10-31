@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_VEHICLE_VEHICLE_FISHTAIL_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -112,6 +113,57 @@ namespace proto
 			fight::TrackFactory* CreateEBrakeTrackFactory(const char* name);
 			void RegisterEBrakeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::vehicle::FishTailAction (9 vftable slots, 0x2C bytes)
+			class FishTailAction : public fight::Action
+			{
+			public:
+				// 0x10278020
+				FishTailAction(FishTailTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102776C0
+				virtual ~FishTailAction();
+
+				// vftable slot 5 (0x10278130)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102774F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x102784C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FishTailTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				math::Vector unknown38;  // +0x38
+				int unknown44;  // +0x44
+				int unknown48;  // +0x48
+				int unknown4C;  // +0x4C
+				float unknown50;  // +0x50
+			};
+
+			// RTTI: proto::fightitems::vehicle::EBrakeAction (9 vftable slots, 0x2C bytes)
+			class EBrakeAction : public fight::Action
+			{
+			public:
+				// 0x102777D0
+				EBrakeAction(EBrakeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10277670
+				virtual ~EBrakeAction();
+
+				// vftable slot 5 (0x102778C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102774E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10277E60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<EBrakeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+			};
+
+			// ---- actions end
 		}
 	}
 }

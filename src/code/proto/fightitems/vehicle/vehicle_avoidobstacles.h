@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_VEHICLE_VEHICLE_AVOIDOBSTACLES_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -52,6 +53,36 @@ namespace proto
 			fight::TrackFactory* CreateAvoidObstaclesTrackFactory(const char* name);
 			void RegisterAvoidObstaclesTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::vehicle::AvoidObstaclesAction (9 vftable slots, 0x2C bytes)
+			class AvoidObstaclesAction : public fight::Action
+			{
+			public:
+				// 0x10276860
+				AvoidObstaclesAction(AvoidObstaclesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102765D0
+				virtual ~AvoidObstaclesAction();
+
+				// vftable slot 5 (0x10276600)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10276330)
+				virtual void Slot6();
+				// vftable slot 7 (0x10276A10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AvoidObstaclesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				bool unknown40;  // +0x40
+				unsigned char unknown41[0x3];
+				int unknown44;  // +0x44
+			};
+
+			// ---- actions end
 		}
 	}
 }

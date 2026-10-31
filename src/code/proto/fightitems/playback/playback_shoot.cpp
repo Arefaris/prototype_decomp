@@ -206,6 +206,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBool<WasShotByPlayerCondition>;
 			template class fight::ConditionFactoryTemplate<WasShotByPlayerCondition>;
 			template class fight::ConditionFactoryCasterTemplate<WasShotByPlayerCondition>;

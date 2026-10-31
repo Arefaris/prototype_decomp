@@ -330,6 +330,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<OnlineFlagPlayerDeathTrack>;
 			template class fight::TrackFactoryTemplate<OnlineFlagPlayerDeathTrack>;
 			template class fight::TrackFactoryCasterTemplate<OnlineFlagPlayerDeathTrack>;

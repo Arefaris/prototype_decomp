@@ -160,6 +160,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SuckIntoPlayerTrack>;
 			template class fight::PropertyVector<SuckIntoPlayerTrack>;
 			template class fight::PropertyBranch<SuckIntoPlayerTrack>;

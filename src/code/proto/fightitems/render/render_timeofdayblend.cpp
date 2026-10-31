@@ -231,6 +231,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyName<TimeOfDayBlendTrack>;
 			template class fight::PropertyFloatConstRange<TimeOfDayBlendTrack>;
 			template class fight::PropertyEnumConstList<TimeOfDayBlendTrack>;

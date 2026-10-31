@@ -309,6 +309,52 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10278020
+			FishTailAction::FishTailAction(FishTailTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown38(math::kZeroVector), unknown44(0), unknown48(0), unknown4C(0), unknown50(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102776C0
+			FishTailAction::~FishTailAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102774F0
+			void FishTailAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10278970
+			fight::Action* FishTailTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FishTailAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102777D0
+			EBrakeAction::EBrakeAction(EBrakeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown38(1.0f), unknown3C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10277670
+			EBrakeAction::~EBrakeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102774E0
+			void EBrakeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10278920
+			fight::Action* EBrakeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EBrakeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FishTailTrack>;
 			template class fight::PropertyBranch<FishTailTrack>;
 			template class fight::TrackFactoryTemplate<FishTailTrack>;
@@ -322,6 +368,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102765B0
+// FUNCTION: ENGINE 0x102767E0
+// FUNCTION: ENGINE 0x10277550
+// FUNCTION: ENGINE 0x102775A0
+// FUNCTION: ENGINE 0x10277890
+// FUNCTION: ENGINE 0x10278100
 // FUNCTION: ENGINE 0x1027B540
 // FUNCTION: ENGINE 0x1027B570
 // FUNCTION: ENGINE 0x1027B5A0

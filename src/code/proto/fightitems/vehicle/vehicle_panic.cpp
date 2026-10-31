@@ -576,6 +576,137 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10279B30
+			SetPanicStateAction::SetPanicStateAction(SetPanicStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xFFFFF800), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102791B0
+			SetPanicStateAction::~SetPanicStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279FB0
+			fight::Action* SetPanicStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetPanicStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10279500
+			PanicAction::PanicAction(PanicTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279020
+			PanicAction::~PanicAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10278BB0
+			void PanicAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279EC0
+			fight::Action* PanicTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PanicAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10279D50
+			SpawnCopsBesideCarAction::SpawnCopsBesideCarAction(SpawnCopsBesideCarTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xFFFFF800), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279250
+			SpawnCopsBesideCarAction::~SpawnCopsBesideCarAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1027A050
+			fight::Action* SpawnCopsBesideCarTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SpawnCopsBesideCarAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10279C70
+			SpawnCopsOffScreenAction::SpawnCopsOffScreenAction(SpawnCopsOffScreenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xFFFFF800), link(newTrack), target(newTarget), unknown2C(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279200
+			SpawnCopsOffScreenAction::~SpawnCopsOffScreenAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1027A000
+			fight::Action* SpawnCopsOffScreenTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SpawnCopsOffScreenAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10279910
+			TerminateAction::TerminateAction(TerminateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279070
+			TerminateAction::~TerminateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10278BC0
+			bool TerminateAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10278BD0
+			void TerminateAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279F10
+			fight::Action* TerminateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TerminateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102799C0
+			ReturnToNormalAction::ReturnToNormalAction(ReturnToNormalTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279160
+			ReturnToNormalAction::~ReturnToNormalAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10278BE0
+			bool ReturnToNormalAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10278BF0
+			void ReturnToNormalAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10279F60
+			fight::Action* ReturnToNormalTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReturnToNormalAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SetPanicStateTrack>;
 			template class fight::PropertyEnumConstList<SetPanicStateTrack>;
 			template class fight::TrackFactoryTemplate<SetPanicStateTrack>;
@@ -602,6 +733,24 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10277570
+// FUNCTION: ENGINE 0x10277600
+// FUNCTION: ENGINE 0x10277650
+// FUNCTION: ENGINE 0x102776A0
+// FUNCTION: ENGINE 0x102776F0
+// FUNCTION: ENGINE 0x10277760
+// FUNCTION: ENGINE 0x10278D10
+// FUNCTION: ENGINE 0x10278D30
+// FUNCTION: ENGINE 0x10278D50
+// FUNCTION: ENGINE 0x10278DE0
+// FUNCTION: ENGINE 0x10278E30
+// FUNCTION: ENGINE 0x10278E90
+// FUNCTION: ENGINE 0x102795B0
+// FUNCTION: ENGINE 0x10279990
+// FUNCTION: ENGINE 0x10279A40
+// FUNCTION: ENGINE 0x10279BB0
+// FUNCTION: ENGINE 0x10279CE0
+// FUNCTION: ENGINE 0x10279DD0
 // FUNCTION: ENGINE 0x1027C5C0
 // FUNCTION: ENGINE 0x1027C5F0
 // FUNCTION: ENGINE 0x1027C620

@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_ALERT_ALERT_REACTION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -78,6 +79,28 @@ namespace proto
 			fight::TrackFactory* CreateReactionTrackFactory(const char* name);
 			void RegisterReactionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::alert::ReactionAction (9 vftable slots, 0x2C bytes)
+			class ReactionAction : public fight::Action
+			{
+			public:
+				// 0x1026D740
+				ReactionAction(ReactionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1026D5D0
+				virtual ~ReactionAction();
+
+				// vftable slot 5 (0x1026D7F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1026D460)
+				virtual void Slot6();
+				// vftable slot 7 (0x1026D450)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReactionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_PROPLOGIC_PROPLOGIC_ONCOLLISION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -94,6 +95,9 @@ namespace proto
 			fight::TrackFactory* CreateWaitOnCollisionTrackFactory(const char* name);
 			void RegisterWaitOnCollisionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

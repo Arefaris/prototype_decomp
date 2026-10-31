@@ -516,6 +516,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SpawnObjectTrack>;
 			template class fight::PropertyNameList<SpawnObjectTrack>;
 			template class fight::PropertyName<SpawnObjectTrack>;

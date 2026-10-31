@@ -104,6 +104,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10276860
+			// EQUIVALENT: the same ten stores in another order (the byte and word zeroes before the five float zeroes in ours, after them in the engine's); best 72%
+			AvoidObstaclesAction::AvoidObstaclesAction(AvoidObstaclesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(false), unknown44(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102765D0
+			AvoidObstaclesAction::~AvoidObstaclesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102769B0
+			fight::Action* AvoidObstaclesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AvoidObstaclesAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<AvoidObstaclesTrack>;
 			template class fight::PropertyBranch<AvoidObstaclesTrack>;
 			template class fight::PropertyBool<AvoidObstaclesTrack>;
@@ -114,6 +134,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102764A0
+// FUNCTION: ENGINE 0x10276540
+// FUNCTION: ENGINE 0x102768F0
 // FUNCTION: ENGINE 0x1027A310
 // FUNCTION: ENGINE 0x1027A340
 // FUNCTION: ENGINE 0x1027A350

@@ -2356,6 +2356,280 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1026CCE0
+			ReportBackToIdleAction::ReportBackToIdleAction(ReportBackToIdleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A7D0
+			ReportBackToIdleAction::~ReportBackToIdleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D300
+			fight::Action* ReportBackToIdleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReportBackToIdleAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026CDF0
+			ReportEnterBeginCombatAction::ReportEnterBeginCombatAction(ReportEnterBeginCombatTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A820
+			ReportEnterBeginCombatAction::~ReportEnterBeginCombatAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D350
+			fight::Action* ReportEnterBeginCombatTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReportEnterBeginCombatAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C500
+			RadioedSetAction::RadioedSetAction(RadioedSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A640
+			RadioedSetAction::~RadioedSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D170
+			fight::Action* RadioedSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RadioedSetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026CBD0
+			DisablePoliceTrackAction::DisablePoliceTrackAction(DisablePoliceTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A780
+			DisablePoliceTrackAction::~DisablePoliceTrackAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D2B0
+			fight::Action* DisablePoliceTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DisablePoliceTrackAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C640
+			AlertReportAction::AlertReportAction(AlertReportTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A690
+			AlertReportAction::~AlertReportAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102696B0
+			bool AlertReportAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x102696C0
+			void AlertReportAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D1C0
+			fight::Action* AlertReportTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AlertReportAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C760
+			CallStrikeTeamAction::CallStrikeTeamAction(CallStrikeTeamTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A6E0
+			CallStrikeTeamAction::~CallStrikeTeamAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D210
+			fight::Action* CallStrikeTeamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CallStrikeTeamAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C8C0
+			PlayerCallStrikeTeamAction::PlayerCallStrikeTeamAction(PlayerCallStrikeTeamTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A730
+			PlayerCallStrikeTeamAction::~PlayerCallStrikeTeamAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D260
+			fight::Action* PlayerCallStrikeTeamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PlayerCallStrikeTeamAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026BEC0
+			SetInPursuitAction::SetInPursuitAction(SetInPursuitTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A310
+			SetInPursuitAction::~SetInPursuitAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026CF40
+			fight::Action* SetInPursuitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetInPursuitAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C2F0
+			StartStrikeTeamMeterAction::StartStrikeTeamMeterAction(StartStrikeTeamMeterTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A400
+			StartStrikeTeamMeterAction::~StartStrikeTeamMeterAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D080
+			fight::Action* StartStrikeTeamMeterTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new StartStrikeTeamMeterAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026BD70
+			SetAlertVariableAction::SetAlertVariableAction(SetAlertVariableTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A2C0
+			SetAlertVariableAction::~SetAlertVariableAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026CEF0
+			fight::Action* SetAlertVariableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetAlertVariableAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C000
+			ResetAlertVariablesAction::ResetAlertVariablesAction(ResetAlertVariablesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A360
+			ResetAlertVariablesAction::~ResetAlertVariablesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10269670
+			bool ResetAlertVariablesAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10269680
+			void ResetAlertVariablesAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026CF90
+			fight::Action* ResetAlertVariablesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ResetAlertVariablesAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C150
+			ScenarioMessageAction::ScenarioMessageAction(ScenarioMessageTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A3B0
+			ScenarioMessageAction::~ScenarioMessageAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10269690
+			bool ScenarioMessageAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026CFE0
+			fight::Action* ScenarioMessageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ScenarioMessageAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C3A0
+			StopStrikeTeamMeterAction::StopStrikeTeamMeterAction(StopStrikeTeamMeterTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A480
+			StopStrikeTeamMeterAction::~StopStrikeTeamMeterAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026D0D0
+			fight::Action* StopStrikeTeamMeterTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new StopStrikeTeamMeterAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1026C450
+			HoldOnAlertEventsAction::HoldOnAlertEventsAction(HoldOnAlertEventsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1026A500
+			HoldOnAlertEventsAction::~HoldOnAlertEventsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102696A0
+			bool HoldOnAlertEventsAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026D120
+			fight::Action* HoldOnAlertEventsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new HoldOnAlertEventsAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<InsideAlertedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InsideAlertedAreaCondition>;
 			template class fight::ConditionFactoryCasterTemplate<InsideAlertedAreaCondition>;
@@ -2475,6 +2749,48 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10268BB0
+// FUNCTION: ENGINE 0x10268CD0
+// FUNCTION: ENGINE 0x10269BD0
+// FUNCTION: ENGINE 0x10269BF0
+// FUNCTION: ENGINE 0x10269C10
+// FUNCTION: ENGINE 0x10269C30
+// FUNCTION: ENGINE 0x10269C50
+// FUNCTION: ENGINE 0x10269C70
+// FUNCTION: ENGINE 0x10269C90
+// FUNCTION: ENGINE 0x10269CB0
+// FUNCTION: ENGINE 0x10269CD0
+// FUNCTION: ENGINE 0x10269CF0
+// FUNCTION: ENGINE 0x10269D10
+// FUNCTION: ENGINE 0x10269D30
+// FUNCTION: ENGINE 0x10269D50
+// FUNCTION: ENGINE 0x10269DA0
+// FUNCTION: ENGINE 0x10269E00
+// FUNCTION: ENGINE 0x10269E60
+// FUNCTION: ENGINE 0x10269EC0
+// FUNCTION: ENGINE 0x10269F10
+// FUNCTION: ENGINE 0x10269F60
+// FUNCTION: ENGINE 0x10269FB0
+// FUNCTION: ENGINE 0x1026A010
+// FUNCTION: ENGINE 0x1026A070
+// FUNCTION: ENGINE 0x1026A0D0
+// FUNCTION: ENGINE 0x1026A130
+// FUNCTION: ENGINE 0x1026A190
+// FUNCTION: ENGINE 0x1026A1F0
+// FUNCTION: ENGINE 0x1026BDF0
+// FUNCTION: ENGINE 0x1026BF40
+// FUNCTION: ENGINE 0x1026C080
+// FUNCTION: ENGINE 0x1026C1D0
+// FUNCTION: ENGINE 0x1026C370
+// FUNCTION: ENGINE 0x1026C420
+// FUNCTION: ENGINE 0x1026C4D0
+// FUNCTION: ENGINE 0x1026C580
+// FUNCTION: ENGINE 0x1026C6C0
+// FUNCTION: ENGINE 0x1026C7E0
+// FUNCTION: ENGINE 0x1026C940
+// FUNCTION: ENGINE 0x1026CC50
+// FUNCTION: ENGINE 0x1026CD60
+// FUNCTION: ENGINE 0x1026CE70
 // FUNCTION: ENGINE 0x1026F780
 // FUNCTION: ENGINE 0x1026F7B0
 // FUNCTION: ENGINE 0x1026F7E0
