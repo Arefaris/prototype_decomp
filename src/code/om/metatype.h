@@ -84,6 +84,9 @@ namespace om
 		virtual int Slot5() = 0;
 		virtual void Slot6(void* unknown) = 0;
 
+		// 0x105B62E0: the name the description is registered under
+		const ClassName& GetName() const;
+
 		TreeNode nodeByName;  // 8
 		TreeNode nodeByType;  // 0x18
 		ClassName name;  // 0x28

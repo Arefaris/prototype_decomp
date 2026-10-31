@@ -20,6 +20,15 @@ namespace om
 			key(newKey)
 		{
 		}
+		Name(const Name& other)
+		{
+			key = other.key;
+		}
+		Name& operator=(const Name& other)
+		{
+			key = other.key;
+			return *this;
+		}
 
 		unsigned __int64 key;
 	};
