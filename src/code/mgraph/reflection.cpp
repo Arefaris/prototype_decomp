@@ -8,6 +8,7 @@
 #include "code/om/metaenum.h"
 #include "code/om/metamethod.h"
 #include "code/om/metaproperty.h"
+#include "code/om/metasimpletype.h"
 
 #pragma warning(disable: 4661)
 
@@ -457,8 +458,6 @@ namespace om
 	template void MetaClass<mgraph::Catch<mgraph::Packet<mgraph::EnvelopeData> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10AD7A80
 	template void MetaClass<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator delete(void*);
-	// FUNCTION: ENGINE 0x10ADA1C0
-	template char const* MetaClass<mgraph::PropertyNode<mgraph::Packet<bool> > >::AllocationTag();
 	// FUNCTION: ENGINE 0x10ADA2A0
 	template MetaClass<mgraph::PropertyNode<mgraph::Packet<bool> > >::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x10ADA2D0
@@ -939,4 +938,488 @@ namespace om
 	template void MetaClass<mgraph::ListCount<mgraph::EnvelopeData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10ADCF80
 	template void MetaClass<mgraph::ListEntry<mgraph::EnvelopeData> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC5C20
+	template MetaMethod1Base<void,mgraph::NodeColour const&>* MetaProperty<mgraph::NodeColour const&>::GetSetter();
+	// FUNCTION: ENGINE 0x10AC5C30
+	template MetaMethod0Base<mgraph::NodeColour const&>* MetaProperty<mgraph::NodeColour const&>::GetGetter();
+	// FUNCTION: ENGINE 0x10AC5C70
+	template void MetaProperty<mgraph::NodeColour const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC8C60
+	template type_info const* MetaProperty<mgraph::NodeColour const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10AC8CB0
+	template type_info const* MetaProperty<int>::GetValueType();
+	// FUNCTION: ENGINE 0x10AC8D20
+	template MetaMethod1Base<void,int>::MetaMethod1Base(MetaClassBase*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AC8DA0
+	template MetaMethod0Base<int>::MetaMethod0Base(MetaClassBase*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AC8ED0
+	template char const* MetaMethod1<mgraph::Node,mgraph::Node,void,int>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8EE0
+	template char const* MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8EF0
+	template char const* MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F00
+	template char const* MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F10
+	template char const* MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F20
+	template char const* MetaProperty<mgraph::NodeColour const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F30
+	template char const* MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F40
+	template char const* MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F50
+	template char const* MetaMethod0Const<mgraph::Node,mgraph::Node,int>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8F60
+	template char const* MetaProperty<int>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8FD0
+	template bool om::ReadBinary<class mgraph::NodeColour>(BinaryStream*, mgraph::NodeColour*);
+	// FUNCTION: ENGINE 0x10AC9000
+	template void om::WriteResult<class mgraph::NodeColour>(BinaryStream*, mgraph::NodeColour const&);
+	// FUNCTION: ENGINE 0x10AC9070
+	template char const* DelegateMetaProperty<mgraph::NodeColour const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC9080
+	template char const* DelegateMetaProperty<int>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC9090
+	template bool om::ReadText<class mgraph::NodeColour>(TextValue const*, mgraph::NodeColour*);
+	// FUNCTION: ENGINE 0x10AC90C0
+	template void om::WriteText<class mgraph::NodeColour>(TextValue*, mgraph::NodeColour const&);
+	// FUNCTION: ENGINE 0x10AC9340
+	template void* MetaMethod1<mgraph::Node,mgraph::Node,void,int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9390
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,int>::Call(void*, int);
+	// FUNCTION: ENGINE 0x10AC93C0
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,int>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9400
+	template void* MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9420
+	template MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::Function);
+	// FUNCTION: ENGINE 0x10AC9450
+	template void MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::Call(void*, unsigned int const&);
+	// FUNCTION: ENGINE 0x10AC9470
+	template MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::~MetaMethod1();
+	// FUNCTION: ENGINE 0x10AC9480
+	template void MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC94A0
+	template void* MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC94C0
+	template MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::Function);
+	// FUNCTION: ENGINE 0x10AC94F0
+	template unsigned int const& MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::Call(void*);
+	// FUNCTION: ENGINE 0x10AC9500
+	template MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::~MetaMethod0Const();
+	// FUNCTION: ENGINE 0x10AC9510
+	template void MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9530
+	template void MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC95D0
+	template void* MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC95F0
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::Function);
+	// FUNCTION: ENGINE 0x10AC9620
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::Call(void*, mgraph::NodeColour const&);
+	// FUNCTION: ENGINE 0x10AC9650
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9670
+	template char const* Garbage<mgraph::NodeColour>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC9680
+	template void* MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC96A0
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::Function);
+	// FUNCTION: ENGINE 0x10AC96D0
+	template mgraph::NodeColour const& MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::Call(void*);
+	// FUNCTION: ENGINE 0x10AC96F0
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9710
+	template void* MetaProperty<mgraph::NodeColour const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9730
+	template void* MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9750
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10AC9780
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::Call(void*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AC97B0
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC97D0
+	template void* MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC97F0
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10AC9820
+	template Name<CaseSensitive64BitKey> const& MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::Call(void*);
+	// FUNCTION: ENGINE 0x10AC9840
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9860
+	template void* MetaMethod0Const<mgraph::Node,mgraph::Node,int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC98B0
+	template int MetaMethod0Const<mgraph::Node,mgraph::Node,int>::Call(void*);
+	// FUNCTION: ENGINE 0x10AC98D0
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,int>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC98F0
+	template void* MetaProperty<int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9D10
+	template bool om::ReadBinary<class mgraph::TriggerData>(BinaryStream*, mgraph::TriggerData*);
+	// FUNCTION: ENGINE 0x10AC9D40
+	template void* DelegateMetaProperty<mgraph::NodeColour const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9D60
+	template void* DelegateMetaProperty<int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9D80
+	template void* Garbage<mgraph::NodeColour>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9DA0
+	template Garbage<mgraph::NodeColour>::Garbage(mgraph::NodeColour*);
+	// FUNCTION: ENGINE 0x10AC9DC0
+	template Garbage<mgraph::NodeColour>::~Garbage();
+	// FUNCTION: ENGINE 0x10AC9DE0
+	template void Garbage<mgraph::NodeColour>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC9E00
+	template DelegateProperty<mgraph::NodeColour>::DelegateProperty();
+	// FUNCTION: ENGINE 0x10AC9E10
+	template MetaTypeBase* DelegateProperty<mgraph::NodeColour>::GetMetaType();
+	// FUNCTION: ENGINE 0x10AC9E20
+	template DelegateProperty<mgraph::NodeColour>::~DelegateProperty();
+	// FUNCTION: ENGINE 0x10AC9E90
+	template bool om::ReadText<class mgraph::TriggerData>(TextValue const*, mgraph::TriggerData*);
+	// FUNCTION: ENGINE 0x10AC9EC0
+	template void om::WriteText<class mgraph::TriggerData>(TextValue*, mgraph::TriggerData const&);
+	// FUNCTION: ENGINE 0x10ACA280
+	template MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>* MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA2C0
+	template MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>* MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::NodeColour,mgraph::NodeColour,unsigned int const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA360
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>* MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA3A0
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>* MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA440
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>* MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA480
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>* MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACA690
+	template bool om::WriteBinary<class mgraph::NodeColour>(BinaryStream*, mgraph::NodeColour const&);
+	// FUNCTION: ENGINE 0x10ACA8F0
+	template void MetaProperty<mgraph::NodeColour const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10ACA9E0
+	template bool MetaProperty<mgraph::NodeColour const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10ACAA70
+	template DelegateMetaProperty<mgraph::NodeColour const&>::DelegateMetaProperty(void*, MetaProperty<mgraph::NodeColour const&>*);
+	// FUNCTION: ENGINE 0x10ACAAA0
+	template void DelegateMetaProperty<mgraph::NodeColour const&>::SetObject(void*);
+	// FUNCTION: ENGINE 0x10ACAAB0
+	template void DelegateMetaProperty<mgraph::NodeColour const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACAAD0
+	template DelegateMetaProperty<mgraph::NodeColour const&>::~DelegateMetaProperty();
+	// FUNCTION: ENGINE 0x10ACAAE0
+	template mgraph::NodeColour DelegateMetaProperty<mgraph::NodeColour const&>::Get();
+	// FUNCTION: ENGINE 0x10ACAB00
+	template void DelegateMetaProperty<mgraph::NodeColour const&>::Set(mgraph::NodeColour);
+	// FUNCTION: ENGINE 0x10ACAB20
+	template DelegateMetaProperty<int>::DelegateMetaProperty(void*, MetaProperty<int>*);
+	// FUNCTION: ENGINE 0x10ACAB50
+	template void DelegateMetaProperty<int>::SetObject(void*);
+	// FUNCTION: ENGINE 0x10ACAB60
+	template void DelegateMetaProperty<int>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACAB80
+	template DelegateMetaProperty<int>::~DelegateMetaProperty();
+	// FUNCTION: ENGINE 0x10ACAB90
+	template int DelegateMetaProperty<int>::Get();
+	// FUNCTION: ENGINE 0x10ACABB0
+	template void DelegateMetaProperty<int>::Set(int);
+	// FUNCTION: ENGINE 0x10ACAF00
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,mgraph::NodeColour const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACAFB0
+	template mgraph::NodeColour* om::ReadArgument<class mgraph::NodeColour>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10ACB030
+	template DelegatePropertyBase* MetaProperty<mgraph::NodeColour const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10ACB080
+	template DelegatePropertyBase* MetaProperty<int>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10ACB3D0
+	template void MetaMethod1<mgraph::NodeColour,mgraph::NodeColour,void,unsigned int const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACB4A0
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,mgraph::NodeColour const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACB570
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACB640
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACC110
+	template char const* MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ACC120
+	template char const* MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ACC290
+	template void* MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ACC2B0
+	template MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACC2E0
+	template void MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::Call(void*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10ACC300
+	template MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::~MetaMethod1();
+	// FUNCTION: ENGINE 0x10ACC310
+	template void MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACC330
+	template void* MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ACC350
+	template MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACC380
+	template Name<CaseSensitive64BitKey> const& MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::Call(void*);
+	// FUNCTION: ENGINE 0x10ACC390
+	template MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::~MetaMethod0Const();
+	// FUNCTION: ENGINE 0x10ACC3A0
+	template void MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACC630
+	template MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>* MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACC670
+	template MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>* MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACC940
+	template void MetaMethod1<mgraph::LinkedGraph,mgraph::LinkedGraph,void,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACCA10
+	template void MetaMethod0Const<mgraph::LinkedGraph,mgraph::LinkedGraph,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACD1D0
+	template char const* MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ACD1E0
+	template char const* MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ACD2D0
+	template void* MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ACD2F0
+	template MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACD320
+	template void MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::Call(void*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10ACD340
+	template MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::~MetaMethod1();
+	// FUNCTION: ENGINE 0x10ACD350
+	template void MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACD370
+	template void* MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ACD390
+	template MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACD3C0
+	template Name<CaseSensitive64BitKey> const& MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::Call(void*);
+	// FUNCTION: ENGINE 0x10ACD3D0
+	template MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::~MetaMethod0Const();
+	// FUNCTION: ENGINE 0x10ACD3E0
+	template void MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ACD5B0
+	template MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>* MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACD5F0
+	template MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>* MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::Function);
+	// FUNCTION: ENGINE 0x10ACD9C0
+	template void MetaMethod1<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,void,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACDA90
+	template void MetaMethod0Const<mgraph::EmbeddedGraph,mgraph::EmbeddedGraph,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADA1C0
+	template type_info const* MetaProperty<Vector>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADA200
+	template MetaMethod1Base<void,Vector>::MetaMethod1Base(MetaClassBase*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10ADEA50
+	template char const* MetaMethod1<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,void,unsigned int>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADEA60
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEA90
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEAB0
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEAE0
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEB00
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEB30
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEB50
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEB80
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEBA0
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEBD0
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEBF0
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEC20
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEC40
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADEC70
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADEC90
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADECC0
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADECE0
+	template MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,void,unsigned int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,void,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADED10
+	template void MetaMethod1<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,void,unsigned int>::Call(void*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF3E0
+	template type_info const* MetaProperty<bool const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF430
+	template type_info const* MetaProperty<DynamicArray<bool,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF440
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADF470
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADF480
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<bool> >,mgraph::Switch<mgraph::Packet<bool> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF520
+	template MetaProperty<DynamicArray<float,unsigned short> const&>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<float,unsigned short> const&>*, MetaMethod0Base<DynamicArray<float,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF560
+	template type_info const* MetaProperty<DynamicArray<float,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF570
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADF5A0
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADF5B0
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<float> >,mgraph::Switch<mgraph::Packet<float> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF650
+	template MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<unsigned int,unsigned short> const&>*, MetaMethod0Base<DynamicArray<unsigned int,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF690
+	template type_info const* MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF6A0
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADF6D0
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADF6E0
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned int> >,mgraph::Switch<mgraph::Packet<unsigned int> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF7C0
+	template type_info const* MetaProperty<unsigned __int64 const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF810
+	template type_info const* MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADF820
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADF850
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADF860
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<unsigned __int64> >,mgraph::Switch<mgraph::Packet<unsigned __int64> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADF900
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADF930
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADF940
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<String> >,mgraph::Switch<mgraph::Packet<String> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFA20
+	template type_info const* MetaProperty<Vector const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFA70
+	template type_info const* MetaProperty<DynamicArray<Vector,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFA80
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADFAB0
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADFAC0
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<Vector> >,mgraph::Switch<mgraph::Packet<Vector> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFBA0
+	template type_info const* MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFBB0
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADFBE0
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADFBF0
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,mgraph::Switch<mgraph::Packet<mgraph::TriggerData> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFCD0
+	template type_info const* MetaProperty<Complex const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFCE0
+	template MetaProperty<DynamicArray<Complex,unsigned short> const&>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<Complex,unsigned short> const&>*, MetaMethod0Base<DynamicArray<Complex,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFD20
+	template type_info const* MetaProperty<DynamicArray<Complex,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFD30
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADFD60
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADFD70
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<Complex> >,mgraph::Switch<mgraph::Packet<Complex> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFE50
+	template type_info const* MetaProperty<mgraph::EnvelopeData const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFE60
+	template MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<mgraph::EnvelopeData,unsigned short> const&>*, MetaMethod0Base<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ADFEA0
+	template type_info const* MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::GetValueType();
+	// FUNCTION: ENGINE 0x10ADFEB0
+	template MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,unsigned int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,unsigned int>::Function);
+	// FUNCTION: ENGINE 0x10ADFEE0
+	template unsigned int MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,unsigned int>::Call(void*);
+	// FUNCTION: ENGINE 0x10ADFEF0
+	template void MetaMethod0Const<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> >,unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AD5260
+	template type_info const* MetaSimpleType<DynamicArray<bool,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5270
+	template MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5290
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD52A0
+	template MetaSimpleType<mgraph::Packet<bool> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD52D0
+	template type_info const* MetaSimpleType<mgraph::Packet<bool> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5340
+	template type_info const* MetaSimpleType<DynamicArray<float,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5350
+	template MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5370
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD5380
+	template MetaSimpleType<mgraph::Packet<float> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD53A0
+	template type_info const* MetaSimpleType<mgraph::Packet<float> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5410
+	template type_info const* MetaSimpleType<DynamicArray<unsigned int,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5420
+	template MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5440
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD5450
+	template MetaSimpleType<mgraph::Packet<unsigned int> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5470
+	template type_info const* MetaSimpleType<mgraph::Packet<unsigned int> >::GetType();
+	// FUNCTION: ENGINE 0x10AD54E0
+	template type_info const* MetaSimpleType<DynamicArray<unsigned __int64,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD54F0
+	template MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5510
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD5520
+	template MetaSimpleType<mgraph::Packet<unsigned __int64> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5540
+	template type_info const* MetaSimpleType<mgraph::Packet<unsigned __int64> >::GetType();
+	// FUNCTION: ENGINE 0x10AD55B0
+	template type_info const* MetaSimpleType<DynamicArray<String,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD55C0
+	template MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD55E0
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD55F0
+	template MetaSimpleType<mgraph::Packet<String> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5610
+	template type_info const* MetaSimpleType<mgraph::Packet<String> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5680
+	template type_info const* MetaSimpleType<DynamicArray<Vector,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5690
+	template MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD56B0
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD56C0
+	template MetaSimpleType<mgraph::Packet<Vector> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD56F0
+	template type_info const* MetaSimpleType<mgraph::Packet<Vector> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5760
+	template type_info const* MetaSimpleType<DynamicArray<mgraph::TriggerData,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5770
+	template MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5790
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD57A0
+	template MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD57D0
+	template type_info const* MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5850
+	template type_info const* MetaSimpleType<DynamicArray<Complex,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5860
+	template MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5880
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD5890
+	template MetaSimpleType<mgraph::Packet<Complex> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD58B0
+	template type_info const* MetaSimpleType<mgraph::Packet<Complex> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5950
+	template type_info const* MetaSimpleType<DynamicArray<mgraph::EnvelopeData,unsigned short> >::GetType();
+	// FUNCTION: ENGINE 0x10AD5960
+	template MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD5980
+	template type_info const* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetType();
+	// FUNCTION: ENGINE 0x10AD5990
+	template MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::MetaSimpleType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AD59B0
+	template type_info const* MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::GetType();
 }

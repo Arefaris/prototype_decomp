@@ -211,42 +211,6 @@ namespace mgraph
 	template<class N> class NodeType : public NodeTypeBase
 	{
 	};
-
-	class ContextEvent
-	{
-	public:
-		virtual ~ContextEvent();
-	};
-	class BarrierEvent : public ContextEvent
-	{
-	};
-	class AddPreEvaluateCommandEvent : public ContextEvent
-	{
-	};
-	class AddPostEvaluateCommandEvent : public ContextEvent
-	{
-	};
-	class RemovePreEvaluateCommandEvent : public ContextEvent
-	{
-	};
-	class RemovePostEvaluateCommandEvent : public ContextEvent
-	{
-	};
-	class ResetChannelEvent : public ContextEvent
-	{
-	};
-	class AddGraphToContextEvent : public ContextEvent
-	{
-	};
-	class GraphSetNumChannelsContextEvent : public ContextEvent
-	{
-	};
-	class RemoveGraphFromContextEvent : public ContextEvent
-	{
-	};
-	class SetChannelEnabledEvent : public ContextEvent
-	{
-	};
 }
 
 #endif
