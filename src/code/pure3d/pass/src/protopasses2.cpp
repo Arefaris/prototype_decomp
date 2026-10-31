@@ -465,6 +465,132 @@ namespace pure3d
 		parameters.AddBool(&gParamForceDestAlpha, (bool (ViewPass::*)(bool))&ViewPass::SetClearAlpha, 0);
 		parameters.AddFloat(&gParamDestAlpha, &ViewPass::SetAlpha, (float (ViewPass::*)())0);
 	}
+
+	// FUNCTION: ENGINE 0x10774570
+	ProtoHUDPass::ProtoHUDPass(const PassDesc* desc) : Pass(desc)
+	{
+		entries.SetBit(3);
+		entries.AddEntry(1, false);
+		entries.AddEntry(0x15, false);
+	}
+
+	// FUNCTION: ENGINE 0x107745B0
+	ProtoHUDPass::~ProtoHUDPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107747D0
+	SlowZPass::~SlowZPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107747E0
+	FastZPass::~FastZPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107747F0
+	ZPassDesc::ZPassDesc(const core::Name<core::CaseSensitiveKey>* name) : PassDesc(name, 1)
+	{
+		unknown18 = 2;
+		unknown1C = 1;
+		unknown20 = false;
+		unknown14 = 5;
+	}
+
+	// FUNCTION: ENGINE 0x10774830
+	ZPass::~ZPass()
+	{
+		delete slowPass;
+		delete fastPass;
+		core::SafeRelease(shader);
+	}
+
+	// FUNCTION: ENGINE 0x10774CA0
+	SlowZPass::SlowZPass(const core::Name<core::CaseSensitiveKey>* name, bool flag) : Pass(&PassDesc(name, 1))
+	{
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(7, false);
+		if (flag)
+		{
+			entries.AddEntry(9, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10774DD0
+	FastZPass::FastZPass(const core::Name<core::CaseSensitiveKey>* name) : Pass(&PassDesc(name, 1))
+	{
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(7, false);
+		entries.AddEntry(9, true);
+	}
+
+	// FUNCTION: ENGINE 0x107A65F0
+	// EQUIVALENT: the end of the room is formed with lea into another register and stored after the begin pointer's neighbours; the same stores, the same allocation (55.1 %)
+	PartPointerList::PartPointerList(unsigned int size)
+	{
+		begin = 0;
+		end = 0;
+		capacity = 0;
+		if (size != 0)
+		{
+			unsigned int bytes = size * 4;
+			begin = (DrawablePart**)operator new[](bytes);
+			if (begin != 0)
+			{
+				capacity = (DrawablePart**)(bytes + (unsigned int)begin);
+				end = begin;
+				return;
+			}
+		}
+		else
+		{
+			begin = 0;
+		}
+		end = 0;
+		capacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107A6640
+	PartPointerList::~PartPointerList()
+	{
+		if (begin != 0)
+		{
+			operator delete[](begin);
+		}
+		capacity = 0;
+		begin = 0;
+		end = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10767870
+	ProtoShadowPass::~ProtoShadowPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10767970
+	ProtoShadowPass::ProtoShadowPass(const PassDesc* desc) : ShadowPass(desc)
+	{
+		unknown1B0 = false;
+		entries.AddEntry(0x17, true);
+		entries.AddEntry(0x20, true);
+		entries.AddEntry(0x1F, true);
+		entries.AddEntry(0x21, true);
+		entries.AddEntry(10, true);
+		entries.AddEntry(0xF, false);
+		shadowEntries.AddEntry(0x18, true);
+		shadowEntries.AddEntry(0x17, true);
+		shadowEntries.AddEntry(10, true);
+		shadowEntries.AddEntry(0x20, true);
+		shadowEntries.AddEntry(0x21, true);
+		shadowEntries.AddEntry(0x1F, true);
+		entries.AddEntry(0x23, true);
+		shadowEntries.AddEntry(0x23, true);
+	}
 }
 
 // ---- the instances of the parameter handlers ----

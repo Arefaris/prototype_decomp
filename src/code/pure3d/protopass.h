@@ -121,6 +121,67 @@ namespace pure3d
 		virtual void Render(PassContext* context);
 	};
 
+	// Draws the interface (vftable 0x10E5FD0C)
+	class ProtoHUDPass : public Pass
+	{
+	public:
+		// 0x10774570
+		explicit ProtoHUDPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107745B0, the deleting destructor 0x107745C0)
+		virtual ~ProtoHUDPass();
+		// Slot 4 (0x107745E0)
+		virtual void Render(PassContext* context);
+	};
+
+	// The passes that fill the depth buffer without the Proto prefix (RTTI pure3d::SlowZPass, FastZPass, ZPass; vftables
+	// 0x10E5FD48, 0x10E5FD70 and 0x10E5FDA0): made from the name of the pass
+	class SlowZPass : public Pass
+	{
+	public:
+		// 0x10774CA0 (the flag adds the entry 9)
+		SlowZPass(const core::Name<core::CaseSensitiveKey>* name, bool flag);
+		// Slot 0 (the body is 0x107747D0, the deleting destructor 0x10774D10)
+		virtual ~SlowZPass();
+		// Slot 4 (0x10774D30)
+		virtual void Render(PassContext* context);
+	};
+
+	class FastZPass : public Pass
+	{
+	public:
+		// 0x10774DD0
+		explicit FastZPass(const core::Name<core::CaseSensitiveKey>* name);
+		// Slot 0 (the body is 0x107747E0, the deleting destructor 0x10774E40)
+		virtual ~FastZPass();
+		// Slot 4 (0x10774E60)
+		virtual void Render(PassContext* context);
+	};
+
+	// What a Z pass is made from (RTTI pure3d::ZPassDesc, a struct; vftable 0x10E5FD98; names guessed)
+	struct ZPassDesc : public PassDesc
+	{
+		// 0x107747F0
+		explicit ZPassDesc(const core::Name<core::CaseSensitiveKey>* name);
+
+		unsigned int unknown18; // 2
+		unsigned int unknown1C; // 1
+		bool unknown20;
+	};
+
+	class ZPass : public Pass
+	{
+	public:
+		// Slot 0 (the body is 0x10774830, the deleting destructor 0x10775010)
+		virtual ~ZPass();
+		// Slot 4 (0x10775030)
+		virtual void Render(PassContext* context);
+
+		SlowZPass* slowPass; // +0xB0
+		FastZPass* fastPass; // +0xB4
+		unsigned char unknownB8[0xC];
+		Shader* shader;      // +0xC4
+	};
+
 	// Fills the depth buffer with the parts of the middle distance (vftable 0x10E5F914)
 	class ProtoMidgroundZPass : public Pass
 	{
@@ -310,12 +371,31 @@ namespace pure3d
 		ShadowLightList lights;       // +0xB0
 		unsigned char unknownBC[4];
 		PassEntries shadowEntries; // +0xC0
+		unsigned char unknown148[0x18];
+	};
+
+	// A list of part pointers made with operator new[] at a given size (begin, end of the used part, end of the room;
+	// a fourth word the constructor leaves alone)
+	struct PartPointerList
+	{
+		// 0x107A65F0
+		explicit PartPointerList(unsigned int size = 0x800);
+		// 0x107A6640
+		~PartPointerList();
+
+		DrawablePart** begin;
+		DrawablePart** end;
+		DrawablePart** capacity;
+		unsigned int unknownC;
 	};
 
 	// Renders the shadow maps (vftable 0x10E5F584)
 	class ProtoShadowPass : public ShadowPass
 	{
 	public:
+		// 0x10767970
+		explicit ProtoShadowPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10767870, the deleting destructor 0x10767A60)
 		virtual ~ProtoShadowPass();
 		virtual void Render(PassContext* context);
 
@@ -325,6 +405,9 @@ namespace pure3d
 		PartList* GetShadowParts(Scene* scene, int view);
 		// 0x107678D0: sets the device up for the shadow depth (depends on the shadow render manager's flag)
 		void Unknown107678D0();
+
+		PartPointerList shadowParts[5]; // +0x160
+		bool unknown1B0;
 	};
 
 	// Copies the picture to a texture and draws what the game asks it to (vftable 0x10E5F8CC, twelve slots)
