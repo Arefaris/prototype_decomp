@@ -265,10 +265,10 @@ namespace pure3d
 		void AddColour(const ParameterName* name, void (T::*newSetter)(const unsigned int*), ColourResult (T::*newGetter)());
 
 		// The same for a pair on a float, a vector and a four-float colour
-		void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)());
-		void AddVector(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
+		__forceinline void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)());
+		__forceinline void AddVector(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
 			const math::Vector& (T::*newGetter)());
-		void AddColour128(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
+		__forceinline void AddColour128(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
 			const math::Colour128& (T::*newGetter)());
 
 		// Files a pair of adapter functions in the base tree under the name
@@ -280,9 +280,12 @@ namespace pure3d
 			bool (*newGetter)(void*, const ParameterName*, math::Colour128*));
 
 		// A variable of the object as a parameter (the reference kinds 1, 2 and 5 of ParameterValue)
-		void AddVariable(const ParameterName* name, float* variable);
-		void AddVariable(const ParameterName* name, int* variable);
-		void AddVariable(const ParameterName* name, math::Vector* variable);
+		__forceinline void AddVariable(const ParameterName* name, float* variable);
+		__forceinline void AddVariable(const ParameterName* name, int* variable);
+		__forceinline void AddVariable(const ParameterName* name, math::Vector* variable);
+		__forceinline void AddVariable(const ParameterName* name, math::Vector2* variable);
+		__forceinline void AddVariable(const ParameterName* name, math::pddiColour* variable);
+		__forceinline void AddVariable(const ParameterName* name, bool* variable);
 
 		// The functions the base tree holds for such a parameter: look the member functions up by name and call them
 		static bool SetBoolAdapter(void* handler, const ParameterName* name, bool value);
@@ -558,6 +561,21 @@ namespace pure3d
 	}
 
 	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, math::Vector* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, math::Vector2* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, math::pddiColour* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, bool* variable)
 	{
 		parameters.At(name) = ParameterValue(variable);
 	}

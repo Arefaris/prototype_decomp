@@ -8,7 +8,9 @@
 #include "code/math/colour128.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
+#include "code/math/vector2.h"
 #include "code/math/vector4.h"
+#include "code/core/refptr.h"
 #include "code/pure3d/framebufferpass.h"
 #include "code/pure3d/passnames.h"
 #include "code/pure3d/renderscheme.h"
@@ -204,12 +206,75 @@ namespace pure3d
 		bool blurValid;                            // +0x148
 	};
 
+	// The names of the shaders of the colour matrix pass (0x111B9434; name guessed)
+	extern const char* gShaderColourMatrix;
+
+	// 0x10E5F244 / 0x10E5F248 / 0x10E5F240: the start values of the colour matrix pass's grain speed, overlay opacity and
+	// overlay saturation (names guessed)
+	extern const float gColourMatrixGrainSpeed;
+	extern const float gColourMatrixOverlayOpacity;
+	extern const float gColourMatrixOverlaySaturation;
+
+	// Grades the colours of the picture with a colour matrix (vftable 0x10E5F21C): brightness, contrast, saturation, hue
+	// and a tint, plus a CMY shift, an overlay, the grain and the distortion textures
 	class ProtoColourMatrixPass : public FrameBufferPass
 	{
 	public:
+		// 0x10764910
 		explicit ProtoColourMatrixPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10764880, the deleting destructor 0x10764D00)
 		virtual ~ProtoColourMatrixPass();
+		// Slot 2 (0x10763710), 4 (0x10764270), 5 (0x107636F0), 6 (0x10763F30) and 7 (0x10763460)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
 		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual void End();
+		virtual bool IsVisible();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+		// 0x107634E0 - 0x10763520, 0x10763530: the settings
+		float GetBrightness();
+		float GetContrast();
+		float GetMidpoint();
+		float GetSaturation();
+		float GetHue();
+		void GetTint(unsigned int* value);
+		// 0x10763540: takes the settings (the contrast scale follows the contrast)
+		void SetValues(float newBrightness, float newContrast, float newMidpoint, float newSaturation, float newHue,
+			unsigned int newTint);
+		// 0x10763600: the CMY shift in hundredths; 0x10763670: the scale and bias of the shift
+		void SetCMY(const math::Vector* value);
+		void SetCMYScaleBias(const math::Vector2* value);
+		// 0x107636B0: the opacity and the saturation of the overlay
+		void SetOverlayValues(float opacity, float newSaturation);
+		// 0x107636D0, 0x107638A0, 0x107638E0: the textures
+		void SetDistortion(Texture* texture);
+		void SetOverlay(Texture* texture);
+		void SetGrain(Texture* texture);
+		// 0x10763920: puts the matrix and the other inputs on the shader
+		void UpdateShader();
+		// 0x107640F0: draws the parts that distort the picture
+		void DrawDistortion(PassContext* context);
+
+		core::RefPtr<Texture> overlay;               // +0xE8
+		core::RefPtr<Texture> grain;                 // +0xEC
+		Texture* distortion;                         // +0xF0
+		float brightness;                            // +0xF4
+		float contrastScale;                         // +0xF8
+		float contrast;                              // +0xFC
+		float midpoint;                              // +0x100
+		float saturation;                            // +0x104
+		float hue;                                   // +0x108
+		math::pddiColour tint;                       // +0x10C
+		math::Vector cmy;                            // +0x110
+		math::Vector2 cmyScaleBias;                  // +0x11C
+		float grainSpeed;                            // +0x124
+		float grainIntensity;                        // +0x128
+		float overlayOpacity;                        // +0x12C
+		float overlaySaturation;                     // +0x130
+		bool distortionEnabled;                      // +0x134
+		ParameterHandler<ProtoColourMatrixPass> parameters; // +0x138
 	};
 
 	// Draws the picture through all the post processing passes (vftable 0x10E5ED00): makes the tone map, bloom, colour

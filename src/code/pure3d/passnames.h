@@ -32,6 +32,13 @@ namespace pure3d
 	extern core::Name<core::CaseSensitiveKey> gParamSaturation; // 0x112816B8 "Saturation"
 	extern core::Name<core::CaseSensitiveKey> gParamTint; // 0x11281450 "tint"
 	extern core::Name<core::CaseSensitiveKey> gParamWeights; // 0x11281638 "weights"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeCMY; // 0x1127ED08 "Prototype CMY"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeCMYScaleBias; // 0x1127ED90 "Prototype CMYScaleBias"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeGrainSpeed; // 0x1127ECD8 "Prototype GrainSpeed"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeGrainIntensity; // 0x1127EDB8 "Prototype GrainIntensity"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeOverlayOpacity; // 0x1127EC80 "Prototype OverlayOpacity"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeOverlaySaturation; // 0x1127ECC0 "Prototype OverlaySaturation"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeDistortionStrength; // 0x1127EC58 "Prototype DistortionStrength"
 }
 
 #endif

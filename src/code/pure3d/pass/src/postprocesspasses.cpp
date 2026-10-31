@@ -10,12 +10,14 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/postprocesspass.h"
 
+#include <intrin.h>
 #include <new>
 
 namespace pure3d
 {
 	const char* gShaderBloom = "pp_bloom";
 	const char* gShaderBloomAdd = "pp_bloom_add";
+	const char* gShaderColourMatrix = "pp_colourmatrix";
 }
 
 namespace pure3d
@@ -654,6 +656,221 @@ namespace pure3d
 	}
 }
 
+namespace pure3d
+{
+	// The table of the contrast scale of the colour matrix pass (0x10E5F008)
+	extern const float gColourMatrixContrastTable[101];
+
+	// FUNCTION: ENGINE 0x107634E0
+	float ProtoColourMatrixPass::GetBrightness()
+	{
+		return brightness;
+	}
+
+	// FUNCTION: ENGINE 0x107634F0
+	float ProtoColourMatrixPass::GetContrast()
+	{
+		return contrast;
+	}
+
+	// FUNCTION: ENGINE 0x10763500
+	float ProtoColourMatrixPass::GetMidpoint()
+	{
+		return midpoint;
+	}
+
+	// FUNCTION: ENGINE 0x10763510
+	float ProtoColourMatrixPass::GetSaturation()
+	{
+		return saturation;
+	}
+
+	// FUNCTION: ENGINE 0x10763520
+	float ProtoColourMatrixPass::GetHue()
+	{
+		return hue;
+	}
+
+	// FUNCTION: ENGINE 0x10763530
+	// EQUIVALENT: the engine reads the colour into ecx and the output pointer into eax, ours the other way round (80.0 %)
+	void ProtoColourMatrixPass::GetTint(unsigned int* value)
+	{
+		*(math::pddiColour*)value = tint;
+	}
+
+	// FUNCTION: ENGINE 0x10763540
+	// EQUIVALENT: the same stores and float operations in the engine's order; the sum for the table index is formed in a second register and a store is scheduled one step earlier (46.8 %)
+	void ProtoColourMatrixPass::SetValues(float newBrightness, float newContrast, float newMidpoint,
+		float newSaturation, float newHue, unsigned int newTint)
+	{
+		float low = -100.0f;
+		float difference = newContrast - low;
+		contrast = newContrast;
+		if (!(difference >= 0.0f))
+		{
+			newContrast = low;
+		}
+		float high = 100.0f;
+		if (newContrast - high >= 0.0f)
+		{
+			newContrast = high;
+		}
+		float scale;
+		if (newContrast < 0.0f)
+		{
+			scale = newContrast * 0.01f + engine::driving::gOne;
+		}
+		else
+		{
+			scale = gColourMatrixContrastTable[(int)(newContrast + engine::driving::gHalf)];
+		}
+		contrastScale = scale;
+		midpoint = newMidpoint;
+		saturation = newSaturation;
+		brightness = newBrightness;
+		hue = newHue;
+		*(unsigned int*)&tint = newTint;
+	}
+
+	// FUNCTION: ENGINE 0x10763600
+	// EQUIVALENT: the load of the scale constant sits before the copy in the engine, after it in ours (76.2 %)
+	void ProtoColourMatrixPass::SetCMY(const math::Vector* value)
+	{
+		float scale = 0.01f;
+		cmy.x = value->x;
+		cmy.y = value->y;
+		cmy.z = value->z;
+		_ReadWriteBarrier();
+		cmy.x = cmy.x * scale;
+		cmy.y = cmy.y * scale;
+		cmy.z = cmy.z * scale;
+	}
+
+	// FUNCTION: ENGINE 0x10763670
+	void ProtoColourMatrixPass::SetCMYScaleBias(const math::Vector2* value)
+	{
+		cmyScaleBias.x = value->x;
+		cmyScaleBias.y = value->y * value->x;
+	}
+
+	// FUNCTION: ENGINE 0x107636B0
+	void ProtoColourMatrixPass::SetOverlayValues(float opacity, float newSaturation)
+	{
+		overlayOpacity = opacity;
+		overlaySaturation = newSaturation;
+	}
+
+	// FUNCTION: ENGINE 0x107636D0
+	void ProtoColourMatrixPass::SetDistortion(Texture* texture)
+	{
+		distortion = texture;
+		texture->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x107636F0
+	void ProtoColourMatrixPass::Begin()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			CallIsVisible();
+		}
+		begun = 1;
+	}
+
+	// FUNCTION: ENGINE 0x10763710
+	ParameterHandlerTypeless* ProtoColourMatrixPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x10763460
+	bool ProtoColourMatrixPass::IsVisible()
+	{
+		if (GetUnknown24Bit1())
+		{
+			return true;
+		}
+		bool ready = false;
+		if (shader == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderColourMatrix))
+			{
+				shader = new Shader(gShaderColourMatrix);
+				shader->AddRef();
+				unknown24Bit1 = 1;
+				ready = true;
+			}
+		}
+		return ready;
+	}
+
+	// FUNCTION: ENGINE 0x107638A0
+	void ProtoColourMatrixPass::SetOverlay(Texture* texture)
+	{
+		overlay = texture;
+	}
+
+	// FUNCTION: ENGINE 0x107638E0
+	void ProtoColourMatrixPass::SetGrain(Texture* texture)
+	{
+		grain = texture;
+	}
+
+	// FUNCTION: ENGINE 0x10763F30
+	void ProtoColourMatrixPass::End()
+	{
+		core::SafeRelease(distortion);
+	}
+
+	// FUNCTION: ENGINE 0x10764880
+	ProtoColourMatrixPass::~ProtoColourMatrixPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10764910
+	// EQUIVALENT: the handler's construction comes after the plain member stores in the engine (the same calls and stores, scheduled differently) (29.3 %)
+	ProtoColourMatrixPass::ProtoColourMatrixPass(const PassDesc* desc) : FrameBufferPass(desc), distortion(0),
+		brightness(0.0f), hue(0.0f)
+	{
+		float one = engine::driving::gOne;
+		float half = engine::driving::gHalf;
+		contrastScale = one;
+		contrast = one;
+		midpoint = half;
+		saturation = one;
+		*(unsigned int*)&tint = 0xFFFFFFFF;
+		cmy.x = 0.0f;
+		cmy.y = 0.0f;
+		cmy.z = 0.0f;
+		cmyScaleBias.x = 0.0f;
+		cmyScaleBias.y = 0.0f;
+		grainSpeed = gColourMatrixGrainSpeed;
+		grainIntensity = 0.21f;
+		overlayOpacity = gColourMatrixOverlayOpacity;
+		overlaySaturation = gColourMatrixOverlaySaturation;
+		distortionEnabled = true;
+		parameters.AddVariable(&gParamBrightness, &brightness);
+		parameters.AddVariable(&gParamConstrast, &contrast);
+		parameters.AddVariable(&gParamMidpoint, &midpoint);
+		parameters.AddVariable(&gParamSaturation, &saturation);
+		parameters.AddVariable(&gParamHue, &hue);
+		parameters.AddVariable(&gParamTint, &tint);
+		parameters.AddVariable(&gParamPrototypeCMY, &cmy);
+		parameters.AddVariable(&gParamPrototypeCMYScaleBias, &cmyScaleBias);
+		parameters.AddVariable(&gParamPrototypeGrainSpeed, &grainSpeed);
+		parameters.AddVariable(&gParamPrototypeGrainIntensity, &grainIntensity);
+		parameters.AddVariable(&gParamPrototypeOverlayOpacity, &overlayOpacity);
+		parameters.AddVariable(&gParamPrototypeOverlaySaturation, &overlaySaturation);
+		parameters.AddVariable(&gParamPrototypeDistortionStrength, &distortionEnabled);
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ProtoColourMatrixPass::SetParameterEnable, 0);
+		entries.SetBit(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(0x16, false);
+	}
+}
+
 // ---- the instances of the parameter handlers ----
 
 	// FUNCTION: ENGINE 0x1075F570
@@ -839,4 +1056,82 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x10762CC0
 	template pure3d::ParameterHandler<pure3d::ProtoBloomPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107637F0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x10763820
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x10763840
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x10763850
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x107637B0
+	template void pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::SetObject(pure3d::ProtoColourMatrixPass*);
+
+	// FUNCTION: ENGINE 0x10763F50
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x10763F60
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair* container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator::operator->() const;
+
+	// FUNCTION: ENGINE 0x10763F70
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::MapNode::MapNode(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10763FB0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator::Iterator(container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::MapNode*, container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>*);
+
+	// FUNCTION: ENGINE 0x10764440
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::End();
+
+	// FUNCTION: ENGINE 0x10764460
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x107644A0
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::CompareKey(const void*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x107644E0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Insert(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10764550
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Find(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x10764580
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x10764590
+	template pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry& pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryMap::At(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x10764600
+	template bool pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::SetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool);
+
+	// FUNCTION: ENGINE 0x10764660
+	template bool pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::GetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool*);
+
+	// FUNCTION: ENGINE 0x107646E0
+	template void container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::Clear();
+
+	// FUNCTION: ENGINE 0x107646F0
+	template void pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::AddBool(const core::Name<core::CaseSensitiveKey>*, bool (pure3d::ProtoColourMatrixPass::*)(bool), bool (pure3d::ProtoColourMatrixPass::*)());
+
+	// FUNCTION: ENGINE 0x10764760
+	template void pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::AddVariable(const core::Name<core::CaseSensitiveKey>*, math::pddiColour*);
+
+	// FUNCTION: ENGINE 0x107647A0
+	template void pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::AddVariable(const core::Name<core::CaseSensitiveKey>*, math::Vector2*);
+
+	// FUNCTION: ENGINE 0x107647E0
+	template void pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::AddVariable(const core::Name<core::CaseSensitiveKey>*, bool*);
+
+	// FUNCTION: ENGINE 0x10764820
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x10764830
+	template pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10764860
+	template pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::~ParameterHandler();
 
