@@ -2744,6 +2744,364 @@ namespace proto
 			template class fight::PropertyFloatConstRange<HoldOnAlertEventsTrack>;
 			template class fight::TrackFactoryTemplate<HoldOnAlertEventsTrack>;
 			template class fight::TrackFactoryCasterTemplate<HoldOnAlertEventsTrack>;
+
+			// FUNCTION: ENGINE 0x1026A850
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool AlertVariableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDisguiseVariableDisguiseMsg message(variable);
+					object->SendMessage(&message);
+					float current = message.value;
+					float expected = value;
+					result = fight::CompareFloats(compare, &current, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026A940
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool FriendlyFireVariableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDisguiseVariableDisguiseMsg first(13);
+					object->SendMessage(&first);
+					GetDisguiseVariableDisguiseMsg second(15);
+					object->SendMessage(&second);
+					float sum = second.value + first.value;
+					float expected = value;
+					result = fight::CompareFloats(compare, &sum, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026AAA0
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool AlertVariableIncreasedSinceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDisguiseVariableIncreasedSinceDisguiseMsg message(variable);
+					object->SendMessage(&message);
+					float current = message.value;
+					float expected = value;
+					result = fight::CompareFloats(compare, &current, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026AB90
+			// NONMATCHING: the engine hoists a zero into ebx and compares the four seen values in the other direction (best 27%)
+#ifdef NONMATCHING
+			bool SeenCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetSeenStatusDisguiseMsg message;
+					object->SendMessage(&message);
+					if (seen)
+					{
+						float best;
+						if (message.value2 <= message.value0)
+						{
+							best = message.value0;
+						}
+						else
+						{
+							best = message.value2;
+						}
+						float expected = time;
+						return fight::CompareFloats(since, &best, &expected);
+					}
+					float best;
+					if (message.value3 <= message.value1)
+					{
+						best = message.value3;
+					}
+					else
+					{
+						best = message.value1;
+					}
+					float expected = time;
+					return fight::CompareFloats(since, &best, &expected);
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1026AEA0
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool GraceSwitchDisguisesCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetGraceSwitchDisguisesMsg message;
+					object->SendMessage(&message);
+					float expected = time;
+					result = fight::CompareFloats(since, &message.time, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026AF70
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool PursuitTimeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetTimeInPursuitDisguiseMsg message;
+					object->SendMessage(&message);
+					float expected = time;
+					result = fight::CompareFloats(since, &message.time, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B040
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool PursuitGuysCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetChasingDisguiseMsg message;
+					object->SendMessage(&message);
+					int expected = guys;
+					result = fight::CompareInts(compare, &message.guys, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B100
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool BeginCombatGuysCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetBeginningCombatDisguiseMsg message;
+					object->SendMessage(&message);
+					int expected = guys;
+					result = fight::CompareInts(compare, &message.guys, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B1C0
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 80 - 92%)
+			bool AlertCircleDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetInsideAlertCircleDisguiseMsg message;
+					object->SendMessage(&message);
+					float expected = distance;
+					result = fight::CompareFloats(compare, &message.distance, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B290
+			bool InsideAlertCircleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetInsideAlertCircleDisguiseMsg message;
+					object->SendMessage(&message);
+					result = message.inside == inside;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B350
+			bool AllyWithMilitaryCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetAllyWithMilitaryDisguiseMsg message;
+					object->SendMessage(&message);
+					result = message.ally == ally;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B400
+			bool HostileWithMilitaryCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetHostileWithMilitaryDisguiseMsg message;
+					object->SendMessage(&message);
+					result = message.hostile;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026B4A0
+			bool RadioedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetMilitaryRadioedDisguiseMsg message;
+					object->SendMessage(&message);
+					result = message.radioed == radioed;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x1026A530
+			bool HoldOnAlertEventsAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetHoldOnContinuousEventsDisguiseMsg message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026A5B0
+			void HoldOnAlertEventsAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetHoldOnContinuousEventsDisguiseMsg message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1026BE20
+			bool SetAlertVariableAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetDisguiseVariableDisguiseMsg message(link.object->variable, link.object->value);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1026BF70
+			bool SetInPursuitAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetInPursuitDisguiseMsg message(link.object->pursuit);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1026C0B0
+			bool ResetAlertVariablesAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ResetDisguiseVariablesDisguiseMsg message(link.object->resetJustTime, link.object->dontResetFactionIfSniffer);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026C5B0
+			bool RadioedSetAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetMilitaryRadioedDisguiseMsg message(link.object->radioed);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1026C6F0
+			bool AlertReportAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				proto::gAISystem->baseAlert->Unknown1037C5C0(object, link.object->timeout);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1026CC80
+			bool DisablePoliceTrackAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					proto::gAISystem->baseAlert->Unknown1037CA50(link.object->disable, link.object->delay);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1026CD90
+			bool ReportBackToIdleAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					proto::gAISystem->baseAlert->Unknown10381390(link.object->evade);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1026CEA0
+			bool ReportEnterBeginCombatAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					proto::gAISystem->baseAlert->Unknown10380440();
+				}
+				return false;
+			}
 		}
 	}
 }
@@ -2751,6 +3109,20 @@ namespace proto
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10268BB0
 // FUNCTION: ENGINE 0x10268CD0
+// FUNCTION: ENGINE 0x10269870
+// FUNCTION: ENGINE 0x102698A0
+// FUNCTION: ENGINE 0x102698D0
+// FUNCTION: ENGINE 0x10269900
+// FUNCTION: ENGINE 0x10269930
+// FUNCTION: ENGINE 0x10269990
+// FUNCTION: ENGINE 0x102699C0
+// FUNCTION: ENGINE 0x102699F0
+// FUNCTION: ENGINE 0x10269A20
+// FUNCTION: ENGINE 0x10269A50
+// FUNCTION: ENGINE 0x10269A80
+// FUNCTION: ENGINE 0x10269AB0
+// FUNCTION: ENGINE 0x10269AE0
+// FUNCTION: ENGINE 0x10269B10
 // FUNCTION: ENGINE 0x10269BD0
 // FUNCTION: ENGINE 0x10269BF0
 // FUNCTION: ENGINE 0x10269C10

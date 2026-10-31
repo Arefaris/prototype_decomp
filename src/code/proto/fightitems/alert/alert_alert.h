@@ -2,12 +2,20 @@
 #ifndef PROTO_FIGHTITEMS_ALERT_ALERT_ALERT_H
 #define PROTO_FIGHTITEMS_ALERT_ALERT_ALERT_H
 
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/engine/fight/supportingsurface.h"
+#include "code/proto/messages/disguisemessages.h"
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 #include "code/proto/fightitems/alert/alertdata.h"
+
+namespace fight
+{
+	bool CompareInts(int op, const int* lhs, const int* rhs);
+}
 
 namespace proto
 {

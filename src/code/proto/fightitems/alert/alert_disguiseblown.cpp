@@ -201,11 +201,29 @@ namespace proto
 			template class fight::PropertyFloatConstRange<BlowDisguiseTrack>;
 			template class fight::TrackFactoryTemplate<BlowDisguiseTrack>;
 			template class fight::TrackFactoryCasterTemplate<BlowDisguiseTrack>;
+
+			// FUNCTION: ENGINE 0x10268DF0
+			bool BlowDisguiseAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetBlownDisguiseMsg message(link.object->blownTime);
+				object->SendMessage(&message);
+				return true;
+			}
 		}
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10268B00
 // FUNCTION: ENGINE 0x10268B30
 // FUNCTION: ENGINE 0x10268B60
 // FUNCTION: ENGINE 0x10268DC0

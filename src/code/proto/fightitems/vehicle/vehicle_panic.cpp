@@ -728,17 +728,62 @@ namespace proto
 			template class fight::PropertyFloatConstRange<ReturnToNormalTrack>;
 			template class fight::TrackFactoryTemplate<ReturnToNormalTrack>;
 			template class fight::TrackFactoryCasterTemplate<ReturnToNormalTrack>;
+
+			// FUNCTION: ENGINE 0x10279A70
+			bool ReturnToNormalAction::Slot7(int arg, float value)
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					engine::GameObject* object = target.Get();
+					ReturnToNormalMessage message(link.object->timeTillReturn);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10279BE0
+			bool SetPanicStateAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetVehiclePanicStateMessage message(link.object->panicType);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x102790A0
+			bool TerminateAction::Slot7(int arg, float value)
+			{
+				if (target.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					TerminateMessage message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
 		}
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10276410
 // FUNCTION: ENGINE 0x10277570
 // FUNCTION: ENGINE 0x10277600
 // FUNCTION: ENGINE 0x10277650
 // FUNCTION: ENGINE 0x102776A0
 // FUNCTION: ENGINE 0x102776F0
 // FUNCTION: ENGINE 0x10277760
+// FUNCTION: ENGINE 0x10278C80
+// FUNCTION: ENGINE 0x10278CB0
+// FUNCTION: ENGINE 0x10278CE0
 // FUNCTION: ENGINE 0x10278D10
 // FUNCTION: ENGINE 0x10278D30
 // FUNCTION: ENGINE 0x10278D50

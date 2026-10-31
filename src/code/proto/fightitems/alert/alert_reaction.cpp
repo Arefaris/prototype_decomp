@@ -201,6 +201,23 @@ namespace proto
 			template class fight::PropertyEnumConstList<ReactionTrack>;
 			template class fight::TrackFactoryTemplate<ReactionTrack>;
 			template class fight::TrackFactoryCasterTemplate<ReactionTrack>;
+
+			// FUNCTION: ENGINE 0x1026D7F0
+			bool ReactionAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetReactionDisguiseMsg message(link.object->reaction);
+				object->SendMessage(&message);
+				return true;
+			}
 		}
 	}
 }
@@ -208,6 +225,7 @@ namespace proto
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10269D70
 // FUNCTION: ENGINE 0x1026A250
+// FUNCTION: ENGINE 0x1026D4B0
 // FUNCTION: ENGINE 0x1026D7C0
 // FUNCTION: ENGINE 0x10275A90
 // FUNCTION: ENGINE 0x10275AC0

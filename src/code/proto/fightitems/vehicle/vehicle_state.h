@@ -2,6 +2,8 @@
 #ifndef PROTO_FIGHTITEMS_VEHICLE_VEHICLE_STATE_H
 #define PROTO_FIGHTITEMS_VEHICLE_VEHICLE_STATE_H
 
+#include "code/proto/messages/ambientmessages.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"

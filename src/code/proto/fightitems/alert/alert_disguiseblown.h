@@ -2,6 +2,7 @@
 #ifndef PROTO_FIGHTITEMS_ALERT_ALERT_DISGUISEBLOWN_H
 #define PROTO_FIGHTITEMS_ALERT_ALERT_DISGUISEBLOWN_H
 
+#include "code/proto/messages/disguisemessages.h"
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"

@@ -331,6 +331,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10265E30
+			OnlineFlagPlayerDeathAction::OnlineFlagPlayerDeathAction(OnlineFlagPlayerDeathTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack)
+			{
+				target = newTarget;
+			}
+
+			// FUNCTION: ENGINE 0x10265AF0
+			OnlineFlagPlayerDeathAction::~OnlineFlagPlayerDeathAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10266340
+			fight::Action* OnlineFlagPlayerDeathTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new OnlineFlagPlayerDeathAction(this, handle);
+			}
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<OnlineFlagPlayerDeathTrack>;
@@ -351,6 +368,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10265940
+// FUNCTION: ENGINE 0x102659B0
+// FUNCTION: ENGINE 0x10265EA0
 // FUNCTION: ENGINE 0x10267D70
 // FUNCTION: ENGINE 0x10267DA0
 // FUNCTION: ENGINE 0x10267DD0

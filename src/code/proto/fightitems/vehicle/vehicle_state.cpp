@@ -203,11 +203,26 @@ namespace proto
 			template class fight::PropertyBool<WaitingForObjectCondition>;
 			template class fight::ConditionFactoryTemplate<WaitingForObjectCondition>;
 			template class fight::ConditionFactoryCasterTemplate<WaitingForObjectCondition>;
+
+			// FUNCTION: ENGINE 0x10277060
+			bool StateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetStateMessage message;
+					object->SendMessage(&message);
+					return message.state == state;
+				}
+				return false;
+			}
 		}
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10276410
+// FUNCTION: ENGINE 0x10277030
 // FUNCTION: ENGINE 0x1027A890
 // FUNCTION: ENGINE 0x1027A8C0
 // FUNCTION: ENGINE 0x1027A8F0

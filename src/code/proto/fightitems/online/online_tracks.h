@@ -149,6 +149,21 @@ namespace proto
 			void RegisterOnlineSyncLocalWorldCellStreamingTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::online::OnlineFlagPlayerDeathAction (9 vftable slots, 0x2C bytes)
+			class OnlineFlagPlayerDeathAction : public fight::Action
+			{
+			public:
+				// 0x10265E30
+				OnlineFlagPlayerDeathAction(OnlineFlagPlayerDeathTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10265AF0
+				virtual ~OnlineFlagPlayerDeathAction();
+
+				// vftable slot 5 (0x10265ED0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<OnlineFlagPlayerDeathTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
 
 			// ---- actions end
 		}
