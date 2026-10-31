@@ -213,6 +213,7 @@ namespace pure3d
 				const ColourResult& (T::*getterColourReference)();
 				bool (T::*getterNamedColour)(const ParameterName*, unsigned int*);
 				float (T::*getterFloat)();
+				float (T::*getterFloatConst)() const;
 				bool (T::*getterNamedFloat)(const ParameterName*, float*);
 				ParameterVector (T::*getterVector)();
 				const math::Vector& (T::*getterVectorReference)();
@@ -265,10 +266,11 @@ namespace pure3d
 		void AddColour(const ParameterName* name, void (T::*newSetter)(const unsigned int*), ColourResult (T::*newGetter)());
 
 		// The same for a pair on a float, a vector and a four-float colour
-		__forceinline void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)());
-		__forceinline void AddVector(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
+		void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)());
+		void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)() const);
+		void AddVector(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
 			const math::Vector& (T::*newGetter)());
-		__forceinline void AddColour128(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
+		void AddColour128(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
 			const math::Colour128& (T::*newGetter)());
 
 		// Files a pair of adapter functions in the base tree under the name
@@ -279,13 +281,78 @@ namespace pure3d
 		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, const math::Colour128*),
 			bool (*newGetter)(void*, const ParameterName*, math::Colour128*));
 
+		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, unsigned int),
+			bool (*newGetter)(void*, const ParameterName*, unsigned int*));
+		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, const unsigned int*),
+			bool (*newGetter)(void*, const ParameterName*, unsigned int*));
+
 		// A variable of the object as a parameter (the reference kinds 1, 2 and 5 of ParameterValue)
-		__forceinline void AddVariable(const ParameterName* name, float* variable);
-		__forceinline void AddVariable(const ParameterName* name, int* variable);
-		__forceinline void AddVariable(const ParameterName* name, math::Vector* variable);
-		__forceinline void AddVariable(const ParameterName* name, math::Vector2* variable);
-		__forceinline void AddVariable(const ParameterName* name, math::pddiColour* variable);
-		__forceinline void AddVariable(const ParameterName* name, bool* variable);
+		void AddVariable(const ParameterName* name, float* variable);
+		void AddVariable(const ParameterName* name, int* variable);
+		void AddVariable(const ParameterName* name, math::Vector* variable);
+		void AddVariable(const ParameterName* name, math::Vector2* variable);
+		void AddVariable(const ParameterName* name, math::pddiColour* variable);
+		void AddVariable(const ParameterName* name, bool* variable);
+
+		// The same registrations expanded in place (the engine's constructors expand some of them and call the others)
+		__forceinline void AddFloatInline(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)() const)
+		{
+			Entry entry = {1, 2, {0}, {0}};
+			entry.setterFloat = newSetter;
+			entry.getterFloatConst = newGetter;
+			entries.At(*name) = entry;
+			parameters.At(name) = ParameterValue(SetFloatAdapter, GetFloatAdapter);
+		}
+		__forceinline void AddFloatInline(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)())
+		{
+			Entry entry = {1, 2, {0}, {0}};
+			entry.setterFloat = newSetter;
+			entry.getterFloat = newGetter;
+			entries.At(*name) = entry;
+			parameters.At(name) = ParameterValue(SetFloatAdapter, GetFloatAdapter);
+		}
+		__forceinline void AddVectorInline(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
+			const math::Vector& (T::*newGetter)())
+		{
+			Entry entry = {1, 2, {0}, {0}};
+			entry.setterVector = newSetter;
+			entry.getterVectorReference = newGetter;
+			entries.At(*name) = entry;
+			parameters.At(name) = ParameterValue(SetVectorAdapter, GetVectorAdapter);
+		}
+		__forceinline void AddColour128Inline(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
+			const math::Colour128& (T::*newGetter)())
+		{
+			Entry entry = {1, 2, {0}, {0}};
+			entry.setterColour128 = newSetter;
+			entry.getterColour128Reference = newGetter;
+			entries.At(*name) = entry;
+			parameters.At(name) = ParameterValue(SetColour128Adapter, GetColour128Adapter);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, float* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, int* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, math::Vector* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, math::Vector2* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, math::pddiColour* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
+		__forceinline void AddVariableInline(const ParameterName* name, bool* variable)
+		{
+			parameters.At(name) = ParameterValue(variable);
+		}
 
 		// The functions the base tree holds for such a parameter: look the member functions up by name and call them
 		static bool SetBoolAdapter(void* handler, const ParameterName* name, bool value);
@@ -503,15 +570,38 @@ namespace pure3d
 	template<class T> void ParameterHandler<T>::AddFloat(const ParameterName* name, void (T::*newSetter)(float),
 		float (T::*newGetter)())
 	{
-		Entry entry = {1, 2, {0}, {0}};
+		Entry entry = {1, 1, {0}, {0}};
 		entry.setterFloat = newSetter;
 		entry.getterFloat = newGetter;
 		entries.At(*name) = entry;
 		parameters.At(name) = ParameterValue(SetFloatAdapter, GetFloatAdapter);
 	}
 
+	template<class T> void ParameterHandler<T>::AddFloat(const ParameterName* name, void (T::*newSetter)(float),
+		float (T::*newGetter)() const)
+	{
+		Entry entry = {1, 2, {0}, {0}};
+		entry.setterFloat = newSetter;
+		entry.getterFloatConst = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetFloatAdapter, GetFloatAdapter);
+	}
+
 	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
 		bool (*newSetter)(void*, const ParameterName*, float), bool (*newGetter)(void*, const ParameterName*, float*))
+	{
+		parameters.At(name) = ParameterValue(newSetter, newGetter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
+		bool (*newSetter)(void*, const ParameterName*, unsigned int), bool (*newGetter)(void*, const ParameterName*, unsigned int*))
+	{
+		parameters.At(name) = ParameterValue(newSetter, newGetter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
+		bool (*newSetter)(void*, const ParameterName*, const unsigned int*),
+		bool (*newGetter)(void*, const ParameterName*, unsigned int*))
 	{
 		parameters.At(name) = ParameterValue(newSetter, newGetter);
 	}

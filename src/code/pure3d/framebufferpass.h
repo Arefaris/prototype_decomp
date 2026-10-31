@@ -273,6 +273,7 @@ namespace pure3d
 		PassColour colour;        // +0xB0
 		unsigned int unknownB4;
 		ParameterHandler<CapturePass> parameters; // +0xB8
+		unsigned char unknownFC[4];
 	};
 }
 

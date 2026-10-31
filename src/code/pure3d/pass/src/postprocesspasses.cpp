@@ -33,7 +33,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761090
-	float ProtoBloomPass::GetSize()
+	float ProtoBloomPass::GetSize() const
 	{
 		return size;
 	}
@@ -46,7 +46,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107610C0
-	float ProtoBloomPass::GetBlur()
+	float ProtoBloomPass::GetBlur() const
 	{
 		return blur;
 	}
@@ -432,7 +432,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107619B0
-	float ProtoBloomPass::GetBackBufferStrength()
+	float ProtoBloomPass::GetBackBufferStrength() const
 	{
 		return composite->GetBackBufferStrength();
 	}
@@ -444,7 +444,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761980
-	float ProtoBloomPass::GetBloomStrength()
+	float ProtoBloomPass::GetBloomStrength() const
 	{
 		return composite->GetBloomStrength();
 	}
@@ -456,7 +456,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107617F0
-	float ProtoBloomPass::GetBrightness()
+	float ProtoBloomPass::GetBrightness() const
 	{
 		return colourAdjust->GetBrightness();
 	}
@@ -468,7 +468,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761820
-	float ProtoBloomPass::GetContrast()
+	float ProtoBloomPass::GetContrast() const
 	{
 		return colourAdjust->GetContrast();
 	}
@@ -480,7 +480,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107618B0
-	float ProtoBloomPass::GetHue()
+	float ProtoBloomPass::GetHue() const
 	{
 		return colourAdjust->GetHue();
 	}
@@ -492,7 +492,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761900
-	float ProtoBloomPass::GetCutoff()
+	float ProtoBloomPass::GetCutoff() const
 	{
 		return colourAdjust->GetCutoff();
 	}
@@ -504,7 +504,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761930
-	float ProtoBloomPass::GetPower()
+	float ProtoBloomPass::GetPower() const
 	{
 		return colourAdjust->GetPower();
 	}
@@ -516,7 +516,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761850
-	float ProtoBloomPass::GetMidpoint()
+	float ProtoBloomPass::GetMidpoint() const
 	{
 		return colourAdjust->GetMidpoint();
 	}
@@ -528,7 +528,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10761880
-	float ProtoBloomPass::GetSaturation()
+	float ProtoBloomPass::GetSaturation() const
 	{
 		return colourAdjust->GetSaturation();
 	}
@@ -579,20 +579,20 @@ namespace pure3d
 		composite = new ProtoBloomCompositePass(&PassDesc(&core::Name<core::CaseSensitiveKey>("BloomComposite", 1), 1));
 		parameters.object = this;
 		parameters.AddBool(&engine::render::gParameterEnable, &ProtoBloomPass::SetParameterEnable, 0);
-		parameters.AddFloat(&gParamBackbufferstrength, &ProtoBloomPass::SetBackBufferStrength, &ProtoBloomPass::GetBackBufferStrength);
-		parameters.AddFloat(&gParamBloomstrength, &ProtoBloomPass::SetBloomStrength, &ProtoBloomPass::GetBloomStrength);
-		parameters.AddFloat(&gParamBrightness, &ProtoBloomPass::SetBrightness, &ProtoBloomPass::GetBrightness);
-		parameters.AddFloat(&gParamConstrast, &ProtoBloomPass::SetContrast, &ProtoBloomPass::GetContrast);
-		parameters.AddFloat(&gParamHue, &ProtoBloomPass::SetHue, &ProtoBloomPass::GetHue);
-		parameters.AddFloat(&gParamLuminanceCutoff, &ProtoBloomPass::SetCutoff, &ProtoBloomPass::GetCutoff);
-		parameters.AddFloat(&gParamPower, &ProtoBloomPass::SetPower, &ProtoBloomPass::GetPower);
-		parameters.AddFloat(&gParamMidpoint, &ProtoBloomPass::SetMidpoint, &ProtoBloomPass::GetMidpoint);
-		parameters.AddFloat(&gParamRadiusx, &ProtoBloomPass::SetSize, &ProtoBloomPass::GetSize);
-		parameters.AddFloat(&gParamRadiusy, &ProtoBloomPass::SetBlur, &ProtoBloomPass::GetBlur);
-		parameters.AddFloat(&gParamSaturation, &ProtoBloomPass::SetSaturation, &ProtoBloomPass::GetSaturation);
-		parameters.AddFloat(&gParamBrightness, &ProtoBloomPass::SetBrightness, &ProtoBloomPass::GetBrightness);
-		parameters.AddColour128(&gParamTint, &ProtoBloomPass::SetTint, &ProtoBloomPass::GetTint);
-		parameters.AddVector(&gParamWeights, &ProtoBloomPass::SetWeights, &ProtoBloomPass::GetWeights);
+		parameters.AddFloatInline(&gParamBackbufferstrength, &ProtoBloomPass::SetBackBufferStrength, &ProtoBloomPass::GetBackBufferStrength);
+		parameters.AddFloatInline(&gParamBloomstrength, &ProtoBloomPass::SetBloomStrength, &ProtoBloomPass::GetBloomStrength);
+		parameters.AddFloatInline(&gParamBrightness, &ProtoBloomPass::SetBrightness, &ProtoBloomPass::GetBrightness);
+		parameters.AddFloatInline(&gParamConstrast, &ProtoBloomPass::SetContrast, &ProtoBloomPass::GetContrast);
+		parameters.AddFloatInline(&gParamHue, &ProtoBloomPass::SetHue, &ProtoBloomPass::GetHue);
+		parameters.AddFloatInline(&gParamLuminanceCutoff, &ProtoBloomPass::SetCutoff, &ProtoBloomPass::GetCutoff);
+		parameters.AddFloatInline(&gParamPower, &ProtoBloomPass::SetPower, &ProtoBloomPass::GetPower);
+		parameters.AddFloatInline(&gParamMidpoint, &ProtoBloomPass::SetMidpoint, &ProtoBloomPass::GetMidpoint);
+		parameters.AddFloatInline(&gParamRadiusx, &ProtoBloomPass::SetSize, &ProtoBloomPass::GetSize);
+		parameters.AddFloatInline(&gParamRadiusy, &ProtoBloomPass::SetBlur, &ProtoBloomPass::GetBlur);
+		parameters.AddFloatInline(&gParamSaturation, &ProtoBloomPass::SetSaturation, &ProtoBloomPass::GetSaturation);
+		parameters.AddFloatInline(&gParamBrightness, &ProtoBloomPass::SetBrightness, &ProtoBloomPass::GetBrightness);
+		parameters.AddColour128Inline(&gParamTint, &ProtoBloomPass::SetTint, &ProtoBloomPass::GetTint);
+		parameters.AddVectorInline(&gParamWeights, &ProtoBloomPass::SetWeights, &ProtoBloomPass::GetWeights);
 	}
 #endif
 
@@ -648,11 +648,11 @@ namespace pure3d
 		AddChild(colourMatrixPass, 0);
 		AddChild(thermalPass, 0);
 		AddChild(motherPass, 0);
-		parameters.AddVariable(&gParamPrototypeChameleonicColourMix, &mixAmount);
-		parameters.AddVariable(&gParamPrototypeChameleonicAlexColour, &colourMix);
-		parameters.AddVariable(&gParamPrototypeChameleonicInfecedColour, &alexColour);
-		parameters.AddVariable(&gParamPrototypeVisionMode, &visionMode);
-		parameters.AddVariable(&gParamPrototypeVisionModeStrength, &visionStrength);
+		parameters.AddVariableInline(&gParamPrototypeChameleonicColourMix, &mixAmount);
+		parameters.AddVariableInline(&gParamPrototypeChameleonicAlexColour, &colourMix);
+		parameters.AddVariableInline(&gParamPrototypeChameleonicInfecedColour, &alexColour);
+		parameters.AddVariableInline(&gParamPrototypeVisionMode, &visionMode);
+		parameters.AddVariableInline(&gParamPrototypeVisionModeStrength, &visionStrength);
 	}
 }
 
@@ -849,19 +849,19 @@ namespace pure3d
 		overlayOpacity = gColourMatrixOverlayOpacity;
 		overlaySaturation = gColourMatrixOverlaySaturation;
 		distortionEnabled = true;
-		parameters.AddVariable(&gParamBrightness, &brightness);
-		parameters.AddVariable(&gParamConstrast, &contrast);
-		parameters.AddVariable(&gParamMidpoint, &midpoint);
-		parameters.AddVariable(&gParamSaturation, &saturation);
-		parameters.AddVariable(&gParamHue, &hue);
-		parameters.AddVariable(&gParamTint, &tint);
-		parameters.AddVariable(&gParamPrototypeCMY, &cmy);
-		parameters.AddVariable(&gParamPrototypeCMYScaleBias, &cmyScaleBias);
-		parameters.AddVariable(&gParamPrototypeGrainSpeed, &grainSpeed);
-		parameters.AddVariable(&gParamPrototypeGrainIntensity, &grainIntensity);
-		parameters.AddVariable(&gParamPrototypeOverlayOpacity, &overlayOpacity);
-		parameters.AddVariable(&gParamPrototypeOverlaySaturation, &overlaySaturation);
-		parameters.AddVariable(&gParamPrototypeDistortionStrength, &distortionEnabled);
+		parameters.AddVariableInline(&gParamBrightness, &brightness);
+		parameters.AddVariableInline(&gParamConstrast, &contrast);
+		parameters.AddVariableInline(&gParamMidpoint, &midpoint);
+		parameters.AddVariableInline(&gParamSaturation, &saturation);
+		parameters.AddVariableInline(&gParamHue, &hue);
+		parameters.AddVariableInline(&gParamTint, &tint);
+		parameters.AddVariableInline(&gParamPrototypeCMY, &cmy);
+		parameters.AddVariableInline(&gParamPrototypeCMYScaleBias, &cmyScaleBias);
+		parameters.AddVariableInline(&gParamPrototypeGrainSpeed, &grainSpeed);
+		parameters.AddVariableInline(&gParamPrototypeGrainIntensity, &grainIntensity);
+		parameters.AddVariableInline(&gParamPrototypeOverlayOpacity, &overlayOpacity);
+		parameters.AddVariableInline(&gParamPrototypeOverlaySaturation, &overlaySaturation);
+		parameters.AddVariableInline(&gParamPrototypeDistortionStrength, &distortionEnabled);
 		parameters.object = this;
 		parameters.AddBool(&engine::render::gParameterEnable, &ProtoColourMatrixPass::SetParameterEnable, 0);
 		entries.SetBit(1);
@@ -1043,7 +1043,7 @@ namespace pure3d
 	template void pure3d::ParameterHandler<pure3d::ProtoBloomPass>::AddVector(const core::Name<core::CaseSensitiveKey>*, void (pure3d::ProtoBloomPass::*)(const math::Vector*), const math::Vector& (pure3d::ProtoBloomPass::*)());
 
 	// FUNCTION: ENGINE 0x10762BA0
-	template void pure3d::ParameterHandler<pure3d::ProtoBloomPass>::AddFloat(const core::Name<core::CaseSensitiveKey>*, void (pure3d::ProtoBloomPass::*)(float), float (pure3d::ProtoBloomPass::*)());
+	template void pure3d::ParameterHandler<pure3d::ProtoBloomPass>::AddFloat(const core::Name<core::CaseSensitiveKey>*, void (pure3d::ProtoBloomPass::*)(float), float (pure3d::ProtoBloomPass::*)() const);
 
 	// FUNCTION: ENGINE 0x10762C10
 	template void pure3d::ParameterHandler<pure3d::ProtoBloomPass>::AddBool(const core::Name<core::CaseSensitiveKey>*, bool (pure3d::ProtoBloomPass::*)(bool), bool (pure3d::ProtoBloomPass::*)());

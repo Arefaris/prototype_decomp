@@ -159,9 +159,9 @@ namespace pure3d
 		void SetBlurPass(BlurPass* pass);
 		// 0x10761070 / 0x10761090, 0x107610A0 / 0x107610C0: the two sizes the blur is made at
 		void SetSize(float value);
-		float GetSize();
+		float GetSize() const;
 		void SetBlur(float value);
-		float GetBlur();
+		float GetBlur() const;
 		// 0x107610D0: the two textures the bloom draws into
 		void SetTextures(Texture* first, Texture* second);
 		// 0x10761150: the sizes of the blur from the two settings
@@ -173,23 +173,23 @@ namespace pure3d
 		// 0x10761890 / 0x107618B0, 0x107618E0 / 0x10761900, 0x10761910 / 0x10761930, 0x10761830 / 0x10761850,
 		// 0x10761860 / 0x10761880, 0x107618C0 / 0x107618D0, 0x10761940 / 0x10761950: the settings of its two passes
 		void SetBackBufferStrength(float value);
-		float GetBackBufferStrength();
+		float GetBackBufferStrength() const;
 		void SetBloomStrength(float value);
-		float GetBloomStrength();
+		float GetBloomStrength() const;
 		void SetBrightness(float value);
-		float GetBrightness();
+		float GetBrightness() const;
 		void SetContrast(float value);
-		float GetContrast();
+		float GetContrast() const;
 		void SetHue(float value);
-		float GetHue();
+		float GetHue() const;
 		void SetCutoff(float value);
-		float GetCutoff();
+		float GetCutoff() const;
 		void SetPower(float value);
-		float GetPower();
+		float GetPower() const;
 		void SetMidpoint(float value);
-		float GetMidpoint();
+		float GetMidpoint() const;
 		void SetSaturation(float value);
-		float GetSaturation();
+		float GetSaturation() const;
 		void SetTint(const math::Colour128* value);
 		const math::Colour128& GetTint();
 		void SetWeights(const math::Vector* value);
