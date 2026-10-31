@@ -282,6 +282,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A0840
+			EnableButtonHintsAction::EnableButtonHintsAction(EnableButtonHintsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A04E0
+			EnableButtonHintsAction::~EnableButtonHintsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A0A50
+			fight::Action* EnableButtonHintsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EnableButtonHintsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100A05E0
+			ButtonHintShowAction::ButtonHintShowAction(ButtonHintShowTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A0490
+			ButtonHintShowAction::~ButtonHintShowAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A0A00
+			fight::Action* ButtonHintShowTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ButtonHintShowAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<ButtonHintShowingCondition>;
 			template class fight::ConditionFactoryTemplate<ButtonHintShowingCondition>;
 			template class fight::ConditionFactoryCasterTemplate<ButtonHintShowingCondition>;
@@ -302,50 +338,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x10146CC0
-// FUNCTION: ENGINE 0x10146DA0
-// FUNCTION: ENGINE 0x10146DB0
-// FUNCTION: ENGINE 0x10146DE0
-// FUNCTION: ENGINE 0x10146DF0
-// FUNCTION: ENGINE 0x10146E20
-// FUNCTION: ENGINE 0x10146E30
-// FUNCTION: ENGINE 0x10146E60
-// FUNCTION: ENGINE 0x10146E90
-// FUNCTION: ENGINE 0x10146EC0
-// FUNCTION: ENGINE 0x10146EF0
-// FUNCTION: ENGINE 0x10146F20
-// FUNCTION: ENGINE 0x10146F30
-// FUNCTION: ENGINE 0x10146F60
-// FUNCTION: ENGINE 0x10146F90
-// FUNCTION: ENGINE 0x10146FA0
-// FUNCTION: ENGINE 0x10146FE0
-// FUNCTION: ENGINE 0x10147000
-// FUNCTION: ENGINE 0x10147020
-// FUNCTION: ENGINE 0x10147040
-// FUNCTION: ENGINE 0x10147050
-// FUNCTION: ENGINE 0x10147090
-// FUNCTION: ENGINE 0x101470A0
-// FUNCTION: ENGINE 0x101470D0
-// FUNCTION: ENGINE 0x101470F0
-// FUNCTION: ENGINE 0x10147100
-// FUNCTION: ENGINE 0x10147130
-// FUNCTION: ENGINE 0x10147150
-// FUNCTION: ENGINE 0x10147160
-// FUNCTION: ENGINE 0x10147190
-// FUNCTION: ENGINE 0x101471B0
-// FUNCTION: ENGINE 0x101471C0
-// FUNCTION: ENGINE 0x101471F0
-// FUNCTION: ENGINE 0x10147210
-// FUNCTION: ENGINE 0x10147420
-// FUNCTION: ENGINE 0x10147450
-// FUNCTION: ENGINE 0x10147470
-// FUNCTION: ENGINE 0x101474A0
-// FUNCTION: ENGINE 0x101474C0
-// FUNCTION: ENGINE 0x101474F0
-// FUNCTION: ENGINE 0x10147820
-// FUNCTION: ENGINE 0x10147870
-// FUNCTION: ENGINE 0x101478A0
-// FUNCTION: ENGINE 0x101478C0
-// FUNCTION: ENGINE 0x101478F0
-// FUNCTION: ENGINE 0x10147910
-// FUNCTION: ENGINE 0x10147960
+// FUNCTION: ENGINE 0x100A0080
+// FUNCTION: ENGINE 0x100A00A0
+// FUNCTION: ENGINE 0x100A0130
+// FUNCTION: ENGINE 0x100A0190
+// FUNCTION: ENGINE 0x100A0660
+// FUNCTION: ENGINE 0x100A08C0

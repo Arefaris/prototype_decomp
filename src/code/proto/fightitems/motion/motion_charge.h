@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/choreo/puppet.h"
 
 namespace proto
 {
@@ -209,6 +211,63 @@ namespace proto
 			fight::TrackFactory* CreateChargeClearTrackFactory(const char* name);
 			void RegisterChargeClearTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ChargeSetAction (9 vftable slots, 0x2C bytes)
+			class ChargeSetAction : public fight::Action
+			{
+			public:
+				// 0x100A1600
+				ChargeSetAction(ChargeSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A1000
+				virtual ~ChargeSetAction();
+
+				// vftable slot 5 (0x100A16A0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ChargeSetTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::ChargeClearAction (9 vftable slots, 0x2C bytes)
+			class ChargeClearAction : public fight::Action
+			{
+			public:
+				// 0x100A1770
+				ChargeClearAction(ChargeClearTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A1050
+				virtual ~ChargeClearAction();
+
+				// vftable slot 5 (0x100A1810)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A18C0)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ChargeClearTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::AnimationChargeAction (9 vftable slots, 0x2C bytes)
+			class AnimationChargeAction : public fight::Action
+			{
+			public:
+				// 0x100A1960
+				AnimationChargeAction(AnimationChargeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A10A0
+				virtual ~AnimationChargeAction();
+
+				// vftable slot 5 (0x100A1A00)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A10E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100A1C70)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AnimationChargeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

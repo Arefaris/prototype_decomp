@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -252,6 +253,100 @@ namespace proto
 			fight::TrackFactory* CreateConsumeTrackFactory(const char* name);
 			void RegisterConsumeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ConsumeGrabberAction (9 vftable slots, 0x2C bytes)
+			class ConsumeGrabberAction : public fight::Action
+			{
+			public:
+				// 0x100AC7D0
+				ConsumeGrabberAction(ConsumeGrabberTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ABB00
+				virtual ~ConsumeGrabberAction();
+
+				// vftable slot 5 (0x100AC870)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ConsumeGrabberTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::ConsumeMeAction (9 vftable slots, 0x2C bytes)
+			class ConsumeMeAction : public fight::Action
+			{
+			public:
+				// 0x100AC610
+				ConsumeMeAction(ConsumeMeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ABAB0
+				virtual ~ConsumeMeAction();
+
+				// vftable slot 5 (0x100AC6B0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ConsumeMeTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::ConsumeByParentAction (9 vftable slots, 0x2C bytes)
+			class ConsumeByParentAction : public fight::Action
+			{
+			public:
+				// 0x100AC920
+				ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ABB50
+				virtual ~ConsumeByParentAction();
+
+				// vftable slot 5 (0x100ACA90)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ACF60)
+				virtual void Slot6();
+				// vftable slot 7 (0x100ACE20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ConsumeByParentTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+				engine::HandleBase unknown30;  // +0x30
+				float unknown34;  // +0x34
+				bool unknown38;  // +0x38
+				unsigned char unknown39[0x3];
+			};
+
+			// RTTI: proto::fightitems::motion::ScaleJointForConsumeAction (9 vftable slots, 0x2C bytes)
+			class ScaleJointForConsumeAction : public fight::Action
+			{
+			public:
+				// 0x100AD090
+				ScaleJointForConsumeAction(ScaleJointForConsumeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ABBA0
+				virtual ~ScaleJointForConsumeAction();
+
+				// vftable slot 5 (0x100AD140)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100AD240)
+				virtual void Slot6();
+
+				core::Link<ScaleJointForConsumeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+			};
+
+			// RTTI: proto::fightitems::motion::ConsumeAction (9 vftable slots, 0x2C bytes)
+			class ConsumeAction : public fight::Action
+			{
+			public:
+				// 0x100ABE20
+				ConsumeAction(ConsumeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ABA60
+				virtual ~ConsumeAction();
+
+				// vftable slot 5 (0x100AC540)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ConsumeTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

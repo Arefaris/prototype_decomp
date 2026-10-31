@@ -296,6 +296,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BBC80
+			FactionDefaultAction::FactionDefaultAction(FactionDefaultTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB7F0
+			FactionDefaultAction::~FactionDefaultAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BBE60
+			fight::Action* FactionDefaultTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FactionDefaultAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100BBA90
+			FactionSetAction::FactionSetAction(FactionSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB7A0
+			FactionSetAction::~FactionSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BBE10
+			fight::Action* FactionSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FactionSetAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<FactionTypeCondition>;
 			template class fight::ConditionFactoryTemplate<FactionTypeCondition>;
 			template class fight::ConditionFactoryCasterTemplate<FactionTypeCondition>;
@@ -315,47 +351,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015D870
-// FUNCTION: ENGINE 0x1015D950
-// FUNCTION: ENGINE 0x1015D980
-// FUNCTION: ENGINE 0x1015D990
-// FUNCTION: ENGINE 0x1015D9C0
-// FUNCTION: ENGINE 0x1015D9D0
-// FUNCTION: ENGINE 0x1015DA00
-// FUNCTION: ENGINE 0x1015DA10
-// FUNCTION: ENGINE 0x1015DA40
-// FUNCTION: ENGINE 0x1015DA50
-// FUNCTION: ENGINE 0x1015DA80
-// FUNCTION: ENGINE 0x1015DAB0
-// FUNCTION: ENGINE 0x1015DAD0
-// FUNCTION: ENGINE 0x1015DB20
-// FUNCTION: ENGINE 0x1015DB50
-// FUNCTION: ENGINE 0x1015DB80
-// FUNCTION: ENGINE 0x1015DBC0
-// FUNCTION: ENGINE 0x1015DBD0
-// FUNCTION: ENGINE 0x1015DC00
-// FUNCTION: ENGINE 0x1015DC20
-// FUNCTION: ENGINE 0x1015DC30
-// FUNCTION: ENGINE 0x1015DC70
-// FUNCTION: ENGINE 0x1015DC80
-// FUNCTION: ENGINE 0x1015DCB0
-// FUNCTION: ENGINE 0x1015DCD0
-// FUNCTION: ENGINE 0x1015DCE0
-// FUNCTION: ENGINE 0x1015DD10
-// FUNCTION: ENGINE 0x1015DD40
-// FUNCTION: ENGINE 0x1015DD50
-// FUNCTION: ENGINE 0x1015DD80
-// FUNCTION: ENGINE 0x1015DDA0
-// FUNCTION: ENGINE 0x1015E030
-// FUNCTION: ENGINE 0x1015E060
-// FUNCTION: ENGINE 0x1015E080
-// FUNCTION: ENGINE 0x1015E0B0
-// FUNCTION: ENGINE 0x1015E0D0
-// FUNCTION: ENGINE 0x1015E100
-// FUNCTION: ENGINE 0x1015E320
-// FUNCTION: ENGINE 0x1015E370
-// FUNCTION: ENGINE 0x1015E3A0
-// FUNCTION: ENGINE 0x1015E3C0
-// FUNCTION: ENGINE 0x1015E3F0
-// FUNCTION: ENGINE 0x1015E410
-// FUNCTION: ENGINE 0x1015E460
+// FUNCTION: ENGINE 0x100BB690
+// FUNCTION: ENGINE 0x100BB6B0
+// FUNCTION: ENGINE 0x100BB6E0
+// FUNCTION: ENGINE 0x100BB730
+// FUNCTION: ENGINE 0x100BBB10
+// FUNCTION: ENGINE 0x100BBD00

@@ -207,6 +207,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyNameList<InsidePlaneCondition>;
 			template class fight::PropertyBool<InsidePlaneCondition>;
 			template class fight::PropertyVector<InsidePlaneCondition>;

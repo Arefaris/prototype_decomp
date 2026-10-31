@@ -642,6 +642,93 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100AC7D0
+			ConsumeGrabberAction::ConsumeGrabberAction(ConsumeGrabberTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABB00
+			ConsumeGrabberAction::~ConsumeGrabberAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD390
+			fight::Action* ConsumeGrabberTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeGrabberAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AC610
+			ConsumeMeAction::ConsumeMeAction(ConsumeMeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABAB0
+			ConsumeMeAction::~ConsumeMeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD340
+			fight::Action* ConsumeMeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeMeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AC920
+			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown34(0.0f), unknown38(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABB50
+			ConsumeByParentAction::~ConsumeByParentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD430
+			fight::Action* ConsumeByParentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeByParentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AD090
+			ScaleJointForConsumeAction::ScaleJointForConsumeAction(ScaleJointForConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABBA0
+			ScaleJointForConsumeAction::~ScaleJointForConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD480
+			fight::Action* ScaleJointForConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ScaleJointForConsumeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ABE20
+			ConsumeAction::ConsumeAction(ConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABA60
+			ConsumeAction::~ConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD2F0
+			fight::Action* ConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConsumeGrabberTrack>;
 			template class fight::PropertyBool<ConsumeGrabberTrack>;
 			template class fight::TrackFactoryTemplate<ConsumeGrabberTrack>;
@@ -678,94 +765,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1014D6E0
-// FUNCTION: ENGINE 0x1014D8C0
-// FUNCTION: ENGINE 0x1014D960
-// FUNCTION: ENGINE 0x1014D970
-// FUNCTION: ENGINE 0x1014D9A0
-// FUNCTION: ENGINE 0x1014D9B0
-// FUNCTION: ENGINE 0x1014D9E0
-// FUNCTION: ENGINE 0x1014D9F0
-// FUNCTION: ENGINE 0x1014DA20
-// FUNCTION: ENGINE 0x1014DA30
-// FUNCTION: ENGINE 0x1014DA60
-// FUNCTION: ENGINE 0x1014DA70
-// FUNCTION: ENGINE 0x1014DAA0
-// FUNCTION: ENGINE 0x1014DAB0
-// FUNCTION: ENGINE 0x1014DAE0
-// FUNCTION: ENGINE 0x1014DB10
-// FUNCTION: ENGINE 0x1014DB40
-// FUNCTION: ENGINE 0x1014DB70
-// FUNCTION: ENGINE 0x1014DBA0
-// FUNCTION: ENGINE 0x1014DBD0
-// FUNCTION: ENGINE 0x1014DC00
-// FUNCTION: ENGINE 0x1014DC10
-// FUNCTION: ENGINE 0x1014DC40
-// FUNCTION: ENGINE 0x1014DC60
-// FUNCTION: ENGINE 0x1014DC70
-// FUNCTION: ENGINE 0x1014DCA0
-// FUNCTION: ENGINE 0x1014DCD0
-// FUNCTION: ENGINE 0x1014DCE0
-// FUNCTION: ENGINE 0x1014DD10
-// FUNCTION: ENGINE 0x1014DD30
-// FUNCTION: ENGINE 0x1014DD40
-// FUNCTION: ENGINE 0x1014DD70
-// FUNCTION: ENGINE 0x1014DD90
-// FUNCTION: ENGINE 0x1014DDA0
-// FUNCTION: ENGINE 0x1014DDD0
-// FUNCTION: ENGINE 0x1014DDF0
-// FUNCTION: ENGINE 0x1014DE00
-// FUNCTION: ENGINE 0x1014DE30
-// FUNCTION: ENGINE 0x1014DE60
-// FUNCTION: ENGINE 0x1014DE70
-// FUNCTION: ENGINE 0x1014DEA0
-// FUNCTION: ENGINE 0x1014DEC0
-// FUNCTION: ENGINE 0x1014DED0
-// FUNCTION: ENGINE 0x1014DF00
-// FUNCTION: ENGINE 0x1014DF30
-// FUNCTION: ENGINE 0x1014DF40
-// FUNCTION: ENGINE 0x1014DF70
-// FUNCTION: ENGINE 0x1014DFA0
-// FUNCTION: ENGINE 0x1014DFB0
-// FUNCTION: ENGINE 0x1014DFE0
-// FUNCTION: ENGINE 0x1014E000
-// FUNCTION: ENGINE 0x1014E010
-// FUNCTION: ENGINE 0x1014E040
-// FUNCTION: ENGINE 0x1014E070
-// FUNCTION: ENGINE 0x1014E080
-// FUNCTION: ENGINE 0x1014E0B0
-// FUNCTION: ENGINE 0x1014E0D0
-// FUNCTION: ENGINE 0x1014E4E0
-// FUNCTION: ENGINE 0x1014E510
-// FUNCTION: ENGINE 0x1014E530
-// FUNCTION: ENGINE 0x1014E560
-// FUNCTION: ENGINE 0x1014E580
-// FUNCTION: ENGINE 0x1014E590
-// FUNCTION: ENGINE 0x1014E5C0
-// FUNCTION: ENGINE 0x1014E5E0
-// FUNCTION: ENGINE 0x1014E610
-// FUNCTION: ENGINE 0x1014E630
-// FUNCTION: ENGINE 0x1014E640
-// FUNCTION: ENGINE 0x1014E670
-// FUNCTION: ENGINE 0x1014E690
-// FUNCTION: ENGINE 0x1014E6A0
-// FUNCTION: ENGINE 0x1014E6D0
-// FUNCTION: ENGINE 0x1014E6F0
-// FUNCTION: ENGINE 0x1014E700
-// FUNCTION: ENGINE 0x1014E730
-// FUNCTION: ENGINE 0x1014E750
-// FUNCTION: ENGINE 0x1014E780
-// FUNCTION: ENGINE 0x1014F1B0
-// FUNCTION: ENGINE 0x1014F200
-// FUNCTION: ENGINE 0x1014F250
-// FUNCTION: ENGINE 0x1014F280
-// FUNCTION: ENGINE 0x1014F2A0
-// FUNCTION: ENGINE 0x1014F2D0
-// FUNCTION: ENGINE 0x1014F2F0
-// FUNCTION: ENGINE 0x1014F320
-// FUNCTION: ENGINE 0x1014F340
-// FUNCTION: ENGINE 0x1014F370
-// FUNCTION: ENGINE 0x1014F390
-// FUNCTION: ENGINE 0x1014F3E0
-// FUNCTION: ENGINE 0x1014F430
-// FUNCTION: ENGINE 0x1014F480
+// FUNCTION: ENGINE 0x100AB650
+// FUNCTION: ENGINE 0x100AB670
+// FUNCTION: ENGINE 0x100AB690
+// FUNCTION: ENGINE 0x100AB6B0
+// FUNCTION: ENGINE 0x100AB6D0
+// FUNCTION: ENGINE 0x100AB700
+// FUNCTION: ENGINE 0x100AB760
+// FUNCTION: ENGINE 0x100AB7C0
+// FUNCTION: ENGINE 0x100AB820
+// FUNCTION: ENGINE 0x100AB880
+// FUNCTION: ENGINE 0x100ABE90
+// FUNCTION: ENGINE 0x100AC680
+// FUNCTION: ENGINE 0x100AC840
+// FUNCTION: ENGINE 0x100AC9B0
+// FUNCTION: ENGINE 0x100AD110

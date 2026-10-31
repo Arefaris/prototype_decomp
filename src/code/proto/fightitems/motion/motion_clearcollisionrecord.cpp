@@ -79,6 +79,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A23B0
+			ClearCollisionRecordAction::ClearCollisionRecordAction(ClearCollisionRecordTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A22A0
+			ClearCollisionRecordAction::~ClearCollisionRecordAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A2450
+			fight::Action* ClearCollisionRecordTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ClearCollisionRecordAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryTemplate<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryCasterTemplate<ClearCollisionRecordTrack>;
@@ -87,12 +106,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x10149B40
-// FUNCTION: ENGINE 0x10149B70
-// FUNCTION: ENGINE 0x10149B80
-// FUNCTION: ENGINE 0x10149BB0
-// FUNCTION: ENGINE 0x10149BE0
-// FUNCTION: ENGINE 0x10149C10
-// FUNCTION: ENGINE 0x10149D20
-// FUNCTION: ENGINE 0x10149D50
-// FUNCTION: ENGINE 0x10149D70
+// FUNCTION: ENGINE 0x100A2210
+// FUNCTION: ENGINE 0x100A2230
+// FUNCTION: ENGINE 0x100A2420

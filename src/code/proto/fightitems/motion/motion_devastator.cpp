@@ -1071,6 +1071,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyConditionGroup<DevastatorTargetConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<DevastatorTargetConditionGroupCondition>;
 			template class fight::ConditionFactoryCasterTemplate<DevastatorTargetConditionGroupCondition>;

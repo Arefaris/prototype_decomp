@@ -146,6 +146,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeformTrack>;
 			template class fight::PropertyNameList<DeformTrack>;
 			template class fight::PropertyVector<DeformTrack>;

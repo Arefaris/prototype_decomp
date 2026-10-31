@@ -150,6 +150,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BEC20
+			FlyingDashAction::FlyingDashAction(FlyingDashTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f, 0.0f, 0.0f), unknown3C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BEA50
+			FlyingDashAction::~FlyingDashAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BF310
+			fight::Action* FlyingDashTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingDashAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FlyingDashTrack>;
 			template class fight::PropertyBool<FlyingDashTrack>;
 			template class fight::PropertyName<FlyingDashTrack>;
@@ -161,20 +181,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x101603D0
-// FUNCTION: ENGINE 0x101603E0
-// FUNCTION: ENGINE 0x10160410
-// FUNCTION: ENGINE 0x10160440
-// FUNCTION: ENGINE 0x10160470
-// FUNCTION: ENGINE 0x101604A0
-// FUNCTION: ENGINE 0x101604B0
-// FUNCTION: ENGINE 0x101604E0
-// FUNCTION: ENGINE 0x10160500
-// FUNCTION: ENGINE 0x10160510
-// FUNCTION: ENGINE 0x10160540
-// FUNCTION: ENGINE 0x10160560
-// FUNCTION: ENGINE 0x101605D0
-// FUNCTION: ENGINE 0x10160600
-// FUNCTION: ENGINE 0x101608A0
-// FUNCTION: ENGINE 0x101608D0
-// FUNCTION: ENGINE 0x101608F0
+// FUNCTION: ENGINE 0x100BE9B0
+// FUNCTION: ENGINE 0x100BE9E0
+// FUNCTION: ENGINE 0x100BECA0

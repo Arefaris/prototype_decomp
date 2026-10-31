@@ -209,6 +209,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectConsumeTrack>;
 			template class fight::PropertyName<EffectConsumeTrack>;
 			template class fight::PropertyEnumConstList<EffectConsumeTrack>;

@@ -75,6 +75,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<ClassNameCondition>;
 			template class fight::PropertyName<ClassNameCondition>;
 			template class fight::ConditionFactoryTemplate<ClassNameCondition>;

@@ -242,6 +242,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FallTrack>;
 			template class fight::PropertyBitfieldConstList<FallTrack>;
 			template class fight::PropertyVector<FallTrack>;

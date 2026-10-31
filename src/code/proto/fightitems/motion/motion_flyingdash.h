@@ -4,6 +4,9 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/fight/expressionactions.h"
+#include "code/choreo/rootdriver.h"
 
 namespace proto
 {
@@ -59,6 +62,31 @@ namespace proto
 			fight::TrackFactory* CreateFlyingDashTrackFactory(const char* name);
 			void RegisterFlyingDashTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FlyingDashAction (9 vftable slots, 0x2C bytes)
+			class FlyingDashAction : public fight::Action
+			{
+			public:
+				// 0x100BEC20
+				FlyingDashAction(FlyingDashTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BEA50
+				virtual ~FlyingDashAction();
+
+				// vftable slot 5 (0x100BECD0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BEB40)
+				virtual void Slot6();
+				// vftable slot 7 (0x100BEA90)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FlyingDashTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::RootDriver* driver;  // +0x2C
+				math::Vector unknown30;  // +0x30
+				float unknown3C;  // +0x3C
+			};
+
+			// ---- actions end
 		}
 	}
 }

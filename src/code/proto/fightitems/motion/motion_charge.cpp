@@ -1,6 +1,33 @@
 // Fight items of the motion group: ChargeCondition, ChargeTrack, ChargeSetTrack, AnimationChargeTrack, ChargeClearTrack (unit 0x101479B0 - 0x10149690; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_charge.h"
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x100A0C40
+	void ReleaseDriver(choreo::Driver*& driver)
+	{
+		if (driver != 0)
+		{
+			driver->Release();
+			driver = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100A0C60
+	void AssignDriver(choreo::Driver*& driver, choreo::Driver* newDriver)
+	{
+		if (newDriver != 0)
+		{
+			newDriver->AddRef();
+		}
+		if (driver != 0)
+		{
+			driver->Release();
+		}
+		driver = newDriver;
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -551,6 +578,60 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A1600
+			ChargeSetAction::ChargeSetAction(ChargeSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A1000
+			ChargeSetAction::~ChargeSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A1DE0
+			fight::Action* ChargeSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ChargeSetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100A1770
+			ChargeClearAction::ChargeClearAction(ChargeClearTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A1050
+			ChargeClearAction::~ChargeClearAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A1E30
+			fight::Action* ChargeClearTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ChargeClearAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100A1960
+			AnimationChargeAction::AnimationChargeAction(AnimationChargeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A10A0
+			AnimationChargeAction::~AnimationChargeAction()
+			{
+				engine::ReleaseDriver(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100A1E80
+			fight::Action* AnimationChargeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnimationChargeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<ChargeCondition>;
 			template class fight::PropertyFloatConstRange<ChargeCondition>;
 			template class fight::ConditionFactoryTemplate<ChargeCondition>;
@@ -580,82 +661,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x10147F40
-// FUNCTION: ENGINE 0x10147F70
-// FUNCTION: ENGINE 0x10147FA0
-// FUNCTION: ENGINE 0x10148070
-// FUNCTION: ENGINE 0x101480A0
-// FUNCTION: ENGINE 0x101480B0
-// FUNCTION: ENGINE 0x101480E0
-// FUNCTION: ENGINE 0x101480F0
-// FUNCTION: ENGINE 0x10148120
-// FUNCTION: ENGINE 0x10148130
-// FUNCTION: ENGINE 0x10148160
-// FUNCTION: ENGINE 0x10148170
-// FUNCTION: ENGINE 0x101481A0
-// FUNCTION: ENGINE 0x101481B0
-// FUNCTION: ENGINE 0x101481E0
-// FUNCTION: ENGINE 0x10148210
-// FUNCTION: ENGINE 0x10148250
-// FUNCTION: ENGINE 0x10148260
-// FUNCTION: ENGINE 0x10148290
-// FUNCTION: ENGINE 0x101482B0
-// FUNCTION: ENGINE 0x101482C0
-// FUNCTION: ENGINE 0x101482F0
-// FUNCTION: ENGINE 0x10148320
-// FUNCTION: ENGINE 0x10148330
-// FUNCTION: ENGINE 0x10148360
-// FUNCTION: ENGINE 0x10148390
-// FUNCTION: ENGINE 0x101483A0
-// FUNCTION: ENGINE 0x101483E0
-// FUNCTION: ENGINE 0x101483F0
-// FUNCTION: ENGINE 0x10148420
-// FUNCTION: ENGINE 0x10148440
-// FUNCTION: ENGINE 0x10148450
-// FUNCTION: ENGINE 0x10148480
-// FUNCTION: ENGINE 0x101484A0
-// FUNCTION: ENGINE 0x101484B0
-// FUNCTION: ENGINE 0x101484E0
-// FUNCTION: ENGINE 0x10148510
-// FUNCTION: ENGINE 0x10148520
-// FUNCTION: ENGINE 0x10148560
-// FUNCTION: ENGINE 0x10148570
-// FUNCTION: ENGINE 0x101485A0
-// FUNCTION: ENGINE 0x101485C0
-// FUNCTION: ENGINE 0x101485D0
-// FUNCTION: ENGINE 0x10148600
-// FUNCTION: ENGINE 0x10148630
-// FUNCTION: ENGINE 0x10148640
-// FUNCTION: ENGINE 0x10148680
-// FUNCTION: ENGINE 0x10148690
-// FUNCTION: ENGINE 0x101486C0
-// FUNCTION: ENGINE 0x101486E0
-// FUNCTION: ENGINE 0x101486F0
-// FUNCTION: ENGINE 0x10148720
-// FUNCTION: ENGINE 0x10148740
-// FUNCTION: ENGINE 0x10148750
-// FUNCTION: ENGINE 0x10148780
-// FUNCTION: ENGINE 0x101487A0
-// FUNCTION: ENGINE 0x101487B0
-// FUNCTION: ENGINE 0x101487E0
-// FUNCTION: ENGINE 0x10148810
-// FUNCTION: ENGINE 0x10148820
-// FUNCTION: ENGINE 0x10148850
-// FUNCTION: ENGINE 0x10148870
-// FUNCTION: ENGINE 0x10149000
-// FUNCTION: ENGINE 0x10149030
-// FUNCTION: ENGINE 0x10149050
-// FUNCTION: ENGINE 0x10149080
-// FUNCTION: ENGINE 0x101490A0
-// FUNCTION: ENGINE 0x101490D0
-// FUNCTION: ENGINE 0x101490F0
-// FUNCTION: ENGINE 0x10149120
-// FUNCTION: ENGINE 0x10149140
-// FUNCTION: ENGINE 0x10149170
-// FUNCTION: ENGINE 0x101494B0
-// FUNCTION: ENGINE 0x10149500
-// FUNCTION: ENGINE 0x10149550
-// FUNCTION: ENGINE 0x101495A0
-// FUNCTION: ENGINE 0x101495F0
-// FUNCTION: ENGINE 0x10149620
-// FUNCTION: ENGINE 0x10149640
+// FUNCTION: ENGINE 0x100A0CC0
+// FUNCTION: ENGINE 0x100A0CE0
+// FUNCTION: ENGINE 0x100A0D00
+// FUNCTION: ENGINE 0x100A0D50
+// FUNCTION: ENGINE 0x100A0DB0
+// FUNCTION: ENGINE 0x100A0E10
+// FUNCTION: ENGINE 0x100A1670
+// FUNCTION: ENGINE 0x100A17E0
+// FUNCTION: ENGINE 0x100A19D0

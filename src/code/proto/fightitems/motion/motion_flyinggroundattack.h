@@ -4,6 +4,9 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/fight/expressionactions.h"
+#include "code/choreo/rootdriver.h"
 
 namespace proto
 {
@@ -62,6 +65,32 @@ namespace proto
 			fight::TrackFactory* CreateFlyingGroundAttackTrackFactory(const char* name);
 			void RegisterFlyingGroundAttackTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FlyingGroundAttackAction (9 vftable slots, 0x2C bytes)
+			class FlyingGroundAttackAction : public fight::Action
+			{
+			public:
+				// 0x100BF5B0
+				FlyingGroundAttackAction(FlyingGroundAttackTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BF4A0
+				virtual ~FlyingGroundAttackAction();
+
+				// vftable slot 5 (0x100BF660)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BF4E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100BF880)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FlyingGroundAttackTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::RootDriver* driver;  // +0x2C
+				engine::HandleBase unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+			};
+
+			// ---- actions end
 		}
 	}
 }

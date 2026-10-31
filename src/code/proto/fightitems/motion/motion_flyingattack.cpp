@@ -215,6 +215,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BD500
+			FlyingAttackAction::FlyingAttackAction(FlyingAttackTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown34(0.0f, 0.0f, 0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BD430
+			FlyingAttackAction::~FlyingAttackAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BE080
+			fight::Action* FlyingAttackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingAttackAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FlyingAttackTrack>;
 			template class fight::PropertyVector<FlyingAttackTrack>;
 			template class fight::PropertyBool<FlyingAttackTrack>;
@@ -226,21 +246,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015F3B0
-// FUNCTION: ENGINE 0x1015F3E0
-// FUNCTION: ENGINE 0x1015F3F0
-// FUNCTION: ENGINE 0x1015F420
-// FUNCTION: ENGINE 0x1015F450
-// FUNCTION: ENGINE 0x1015F480
-// FUNCTION: ENGINE 0x1015F490
-// FUNCTION: ENGINE 0x1015F4C0
-// FUNCTION: ENGINE 0x1015F4E0
-// FUNCTION: ENGINE 0x1015F4F0
-// FUNCTION: ENGINE 0x1015F520
-// FUNCTION: ENGINE 0x1015F540
-// FUNCTION: ENGINE 0x1015F550
-// FUNCTION: ENGINE 0x1015F580
-// FUNCTION: ENGINE 0x1015F5A0
-// FUNCTION: ENGINE 0x1015FA40
-// FUNCTION: ENGINE 0x1015FA70
-// FUNCTION: ENGINE 0x1015FA90
+// FUNCTION: ENGINE 0x100BD390
+// FUNCTION: ENGINE 0x100BD3C0
+// FUNCTION: ENGINE 0x100BD5A0

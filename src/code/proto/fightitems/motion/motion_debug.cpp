@@ -295,6 +295,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyString<DebugLayerCondition>;
 			template class fight::PropertyBool<DebugLayerCondition>;
 			template class fight::ConditionFactoryTemplate<DebugLayerCondition>;

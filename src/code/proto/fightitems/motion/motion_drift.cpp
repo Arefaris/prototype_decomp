@@ -106,6 +106,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B8970
+			DriftAction::DriftAction(DriftTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B8860
+			DriftAction::~DriftAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B8D80
+			fight::Action* DriftTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DriftAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DriftTrack>;
 			template class fight::TrackFactoryTemplate<DriftTrack>;
 			template class fight::TrackFactoryCasterTemplate<DriftTrack>;
@@ -114,12 +133,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015A940
-// FUNCTION: ENGINE 0x1015A970
-// FUNCTION: ENGINE 0x1015A980
-// FUNCTION: ENGINE 0x1015A9B0
-// FUNCTION: ENGINE 0x1015A9E0
-// FUNCTION: ENGINE 0x1015AA10
-// FUNCTION: ENGINE 0x1015ABD0
-// FUNCTION: ENGINE 0x1015AC00
-// FUNCTION: ENGINE 0x1015AC20
+// FUNCTION: ENGINE 0x100B87C0
+// FUNCTION: ENGINE 0x100B87F0
+// FUNCTION: ENGINE 0x100B89E0

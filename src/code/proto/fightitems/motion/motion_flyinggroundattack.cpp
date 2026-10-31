@@ -168,6 +168,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BF5B0
+			FlyingGroundAttackAction::FlyingGroundAttackAction(FlyingGroundAttackTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown34(0.0f), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BF4A0
+			FlyingGroundAttackAction::~FlyingGroundAttackAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BFE10
+			fight::Action* FlyingGroundAttackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingGroundAttackAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FlyingGroundAttackTrack>;
 			template class fight::PropertyIntConstRange<FlyingGroundAttackTrack>;
 			template class fight::TrackFactoryTemplate<FlyingGroundAttackTrack>;
@@ -177,15 +197,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x10160B80
-// FUNCTION: ENGINE 0x10160BB0
-// FUNCTION: ENGINE 0x10160BC0
-// FUNCTION: ENGINE 0x10160BF0
-// FUNCTION: ENGINE 0x10160C20
-// FUNCTION: ENGINE 0x10160C50
-// FUNCTION: ENGINE 0x10160C60
-// FUNCTION: ENGINE 0x10160C90
-// FUNCTION: ENGINE 0x10160CB0
-// FUNCTION: ENGINE 0x10161020
-// FUNCTION: ENGINE 0x10161050
-// FUNCTION: ENGINE 0x10161070
+// FUNCTION: ENGINE 0x100BF400
+// FUNCTION: ENGINE 0x100BF430
+// FUNCTION: ENGINE 0x100BF630

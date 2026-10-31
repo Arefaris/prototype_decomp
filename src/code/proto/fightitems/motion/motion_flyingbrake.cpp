@@ -159,6 +159,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BE320
+			FlyingBrakeAction::FlyingBrakeAction(FlyingBrakeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f, 0.0f, 0.0f), unknown3C(0.0f, 0.0f, 0.0f), unknown48(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BE200
+			FlyingBrakeAction::~FlyingBrakeAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BE8E0
+			fight::Action* FlyingBrakeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingBrakeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FlyingBrakeTrack>;
 			template class fight::PropertyIntConstRange<FlyingBrakeTrack>;
 			template class fight::TrackFactoryTemplate<FlyingBrakeTrack>;
@@ -168,15 +188,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015FCF0
-// FUNCTION: ENGINE 0x1015FD20
-// FUNCTION: ENGINE 0x1015FD30
-// FUNCTION: ENGINE 0x1015FD60
-// FUNCTION: ENGINE 0x1015FD90
-// FUNCTION: ENGINE 0x1015FDC0
-// FUNCTION: ENGINE 0x1015FDD0
-// FUNCTION: ENGINE 0x1015FE00
-// FUNCTION: ENGINE 0x1015FE20
-// FUNCTION: ENGINE 0x10160150
-// FUNCTION: ENGINE 0x10160180
-// FUNCTION: ENGINE 0x101601A0
+// FUNCTION: ENGINE 0x100BE160
+// FUNCTION: ENGINE 0x100BE190
+// FUNCTION: ENGINE 0x100BE3C0
