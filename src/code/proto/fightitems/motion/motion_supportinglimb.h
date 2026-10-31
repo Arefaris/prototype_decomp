@@ -5,6 +5,8 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
 
 namespace proto
 {

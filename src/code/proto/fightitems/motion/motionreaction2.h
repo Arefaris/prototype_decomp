@@ -69,6 +69,17 @@ namespace proto
 				unsigned char unknown10[0x10];
 				core::Name<core::CaseSensitiveKey> subType;  // +0x20
 			};
+
+			// Kind 0x21006: a supporting surface event
+			struct SupportingSurfaceEvent : ReactionEvent
+			{
+				unsigned char unknown10[0x24];
+				float x;  // +0x34
+				float y;  // +0x38
+				float z;  // +0x3C
+				unsigned char unknown40[0xD];
+				bool switchSurfaces;  // +0x4D
+			};
 		}
 	}
 }

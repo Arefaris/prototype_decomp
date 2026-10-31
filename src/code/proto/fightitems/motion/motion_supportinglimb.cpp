@@ -1396,6 +1396,18 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x1011AA60
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (40.9 %)
+			bool SupportingLimbTestSwitchSurfacesCondition::Evaluate(int a, int b, int c, int d)
+			{
+				SupportingSurfaceEvent* event = (SupportingSurfaceEvent*)c;
+				if (event != 0 && event->kind == 0x21006)
+				{
+					return event->switchSurfaces == switchSurfaces;
+				}
+				return switchSurfaces == false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<SupportingLimbTestSurfaceNormalVelocityArcCondition>;
 			template class fight::PropertyFloatConstRange<SupportingLimbTestSurfaceNormalVelocityArcCondition>;

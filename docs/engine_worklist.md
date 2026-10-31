@@ -6069,3 +6069,14 @@ A unit's action half begins behind the last `CreateAction` of the unit before it
   reconstructed), the `AddButtonHintMessage` family (a message with an embedded `container::StringC<64>` and a 0x78-byte parameter block, 0x100A01E0 / 0x100A02A0), the whole
   `CollisionAction` family, the crowd actions (base `CrowdTestBaseAction`), the devastator and edge actions, the faction and class name conditions (attribute system, cached lookups),
   `AnimationChargeAction::Slot5` (asset lookup 0x10126290) and the big update slots (`CollisionHitAction::Slot15` 2045 bytes, `Slot24` 3314, `FlyingAttackAction::Slot5` ...).
+
+## proto/fightitems/motion: the action half of the units in 0x10100000 - 0x10120000 (sn-ay)
+The range holds the action halves (the `fight::Action` classes, their `CreateAction` and the conditions' `Evaluate`) of the motion units `motion_padrumble` to `motion_targetclass` (29 files, `src/code/proto/fightitems/motion/`); the actions were added at the end of each unit's
+file between the markers `// ---- actions begin` / `// ---- actions end` (generator: local/scratch/sn-ay/gen2.py, which only adds). The shared headers of the other agent (`motionaction.h`, `motionmessages.h`, `motioncommon.h`) were extended with
+`AsActionOwner`, `AssignRefCounted`, `ReleaseDriverCopy2/3`, the shield / targetable / stun / motion state messages, `CompareVectorMeasure` and `choreo::gMinusOne`; `motionreaction2.h` holds the reaction events (kind 0x21000 + n) the conditions read.
+- CreateAction forms seen: handle first (55 bytes), the handle built in the argument (64), the owner checked for the kind range before the allocation and its handle read after (76: EQUIVALENT, the range test is `add 0xFFFF0000` in the engine) or before (75),
+  the owner passed as it is or checked (73 / 40, ctors read the owner's handle), and the track watchers (listener, track, effect, owner).
+- Conditions: a reaction condition reads the reaction event as its third argument; the failure return placed before the body (block order) is the engine's layout for all of them and ours differs (EQUIVALENT, listed per function).
+  `x == y ? true : false` gives the engine's `cmp; sete al`.
+- Not done: the actions with attribute writers (pedestrian, patsy), puppet drivers with long updates (radial blur, spawn gib, reaction throw / hit animation, supporting limb test), the shoot actions and conditions (helpers of the unit), the remaining 13 reaction conditions
+  (originator, collision position / normal, impulse direction, slice angle, height), the distance condition of the supporting surface (SSE vector code), and the actions whose constructors register watchers or hold names.
