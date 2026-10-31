@@ -7,6 +7,21 @@ namespace proto
 #define PROTO_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+	// FUNCTION: ENGINE 0x10068C20
+	FightVariablesBehaviour::FightVariablesBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner),
+		outOfCombatTimer(0.0f)
+	{
+		Listen(0x23, true);
+		Listen(2, true);
+		Listen(0x39, true);
+		Listen2(8, true);
+	}
+
+	// FUNCTION: ENGINE 0x10068CB0
+	FightVariablesBehaviour::~FightVariablesBehaviour()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10065D60
 	content::ClassInfo* FightVariableInt::GetClassInfo()
 	{
@@ -213,3 +228,15 @@ namespace proto
 // FUNCTION: ENGINE 0x10068D10
 // FUNCTION: ENGINE 0x10068DF0
 // FUNCTION: ENGINE 0x10068EE0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10067100
+// FUNCTION: ENGINE 0x10067110
+// FUNCTION: ENGINE 0x10067120
+// FUNCTION: ENGINE 0x10068250
+// FUNCTION: ENGINE 0x100682B0
+// FUNCTION: ENGINE 0x10068310
+// FUNCTION: ENGINE 0x100689F0
+// FUNCTION: ENGINE 0x10068A10
+// FUNCTION: ENGINE 0x10068A30
+// FUNCTION: ENGINE 0x10068FC0

@@ -95,8 +95,16 @@ namespace proto
 		typedef container::ArrayDynamic<FightVariableName, container::AllocatorNew> NameArray;
 		typedef container::ArrayDynamic<FightTimer, container::AllocatorNew> TimerArray;
 
+		// 0x10068C20
+		explicit FightVariablesBehaviour(engine::GameObject* newOwner);
+		// 0x10068CB0 (deleting destructor 0x10068FC0)
+		virtual ~FightVariablesBehaviour();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// vftable slots 4 (0x10066C90) and 6 (0x10067C70)
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnMessage(engine::Message* message);
 
 		IntArray varInts;  // +0xC
 		int unknown18;
