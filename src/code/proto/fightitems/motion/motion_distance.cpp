@@ -1,5 +1,5 @@
 // Fight items of the motion group: InsidePlaneCondition, DistanceToJointCondition (unit 0x10159C60 - 0x1015A810; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/distance.h"
+#include "code/proto/fightitems/motion/motion_distance.h"
 
 namespace proto
 {

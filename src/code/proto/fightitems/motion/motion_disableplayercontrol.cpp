@@ -1,5 +1,5 @@
 // Fight items of the motion group: DisablePlayerControlTrack (unit 0x101598C0 - 0x10159C60; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/disableplayercontrol.h"
+#include "code/proto/fightitems/motion/motion_disableplayercontrol.h"
 
 namespace proto
 {

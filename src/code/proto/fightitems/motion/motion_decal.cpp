@@ -1,5 +1,5 @@
 // Fight items of the motion group: DecalTrack (unit 0x10153160 - 0x10153950; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/decal.h"
+#include "code/proto/fightitems/motion/motion_decal.h"
 
 namespace proto
 {

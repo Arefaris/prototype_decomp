@@ -1,5 +1,5 @@
 // Fight items of the motion group: InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack (unit 0x10144950 - 0x10146A60; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/boundary.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
 
 namespace proto
 {

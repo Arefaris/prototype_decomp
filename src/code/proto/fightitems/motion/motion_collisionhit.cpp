@@ -1,5 +1,5 @@
 // Fight items of the motion group: CollisionHitTrack (unit 0x1014B6C0 - 0x1014D220; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/collisionhit.h"
+#include "code/proto/fightitems/motion/motion_collisionhit.h"
 
 namespace proto
 {

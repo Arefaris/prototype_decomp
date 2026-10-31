@@ -1,5 +1,5 @@
 // Fight items of the motion group: EffectChameleonicSkinTrack (unit 0x1015C310 - 0x1015CB40; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/effectchameleonicskin.h"
+#include "code/proto/fightitems/motion/motion_effectchameleonicskin.h"
 
 namespace proto
 {

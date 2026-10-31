@@ -1,5 +1,5 @@
 // Fight items of the motion group: CrowdMinDistanceCondition, CrowdPositionCondition, LocoCrowdTrack, CrowdTestTrack (unit 0x1014F4D0 - 0x10151930; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/crowd.h"
+#include "code/proto/fightitems/motion/motion_crowd.h"
 
 namespace proto
 {

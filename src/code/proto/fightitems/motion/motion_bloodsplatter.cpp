@@ -1,5 +1,5 @@
 // Fight items of the motion group: BloodSplatterTrack (unit 0x10143E60 - 0x10144950; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/bloodsplatter.h"
+#include "code/proto/fightitems/motion/motion_bloodsplatter.h"
 
 namespace proto
 {

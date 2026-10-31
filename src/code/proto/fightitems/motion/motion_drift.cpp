@@ -1,5 +1,5 @@
 // Fight items of the motion group: DriftTrack (unit 0x1015A810 - 0x1015AC70; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/drift.h"
+#include "code/proto/fightitems/motion/motion_drift.h"
 
 namespace proto
 {

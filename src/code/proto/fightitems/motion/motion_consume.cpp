@@ -1,5 +1,5 @@
-// Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/consume.h"
+// Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
+#include "code/proto/fightitems/motion/motion_consume.h"
 
 namespace proto
 {
@@ -266,6 +266,100 @@ namespace proto
 			void RegisterConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name)
 			{
 				fight::TrackFactoryCasterTemplate<ConsumeByParentTrack> caster;
+				registry->AddFactory(fight::FindTrackFactory(name, &caster));
+			}
+
+			fight::Property** gNISConsumeByParentTrackProperties;  // 0x11254398
+
+			// FUNCTION: ENGINE 0x1014D680
+			bool NISConsumeByParentTrack::SetObject(const fight::Name& newValue)
+			{
+				object = newValue;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1014D330
+			bool NISConsumeByParentTrack::SetToBeContinued(bool newValue)
+			{
+				toBeContinued = newValue;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1014D4E0
+			fight::Property* NISConsumeByParentTrack::GetProperty(int index)
+			{
+				return gNISConsumeByParentTrackProperties[index];
+			}
+
+			// FUNCTION: ENGINE 0x1014D500
+			void NISConsumeByParentTrack::ClearProperties()
+			{
+				fight::FreePropertyList(&gNISConsumeByParentTrackProperties);
+			}
+
+			// FUNCTION: ENGINE 0x1014D7E0
+			NISConsumeByParentTrack::NISConsumeByParentTrack() : ConsumeByParentTrack(), toBeContinued(true)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1014D810
+			NISConsumeByParentTrack::~NISConsumeByParentTrack()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1014EB20
+			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
+			void NISConsumeByParentTrack::RegisterProperties()
+			{
+				if (gNISConsumeByParentTrackProperties == 0)
+				{
+					fight::Property* properties[256] = { 0 };
+					fight::Property* property = 0;
+					property = new fight::PropertyName<NISConsumeByParentTrack>("object", &NISConsumeByParentTrack::SetObject);
+					properties[0] = property;
+					property = new fight::PropertyBool<NISConsumeByParentTrack>("toBeContinued", &NISConsumeByParentTrack::SetToBeContinued);
+					properties[1] = property;
+					property = new fight::PropertyFloatConstRange<NISConsumeByParentTrack>("timeBegin", &ConsumeByParentTrack::SetTimeBegin);
+					properties[2] = property;
+					property = new fight::PropertyFloatConstRange<NISConsumeByParentTrack>("timeEnd", &ConsumeByParentTrack::SetTimeEnd);
+					properties[3] = property;
+					property = new fight::PropertyName<NISConsumeByParentTrack>("ragdollIfNeeded", &ConsumeByParentTrack::SetRagdollIfNeeded);
+					properties[4] = property;
+					property = new fight::PropertyBool<NISConsumeByParentTrack>("switchToRagdollMode", &ConsumeByParentTrack::SetSwitchToRagdollMode);
+					properties[5] = property;
+					property = new fight::PropertyName<NISConsumeByParentTrack>("parentObjectName", &ConsumeByParentTrack::SetParentObjectName);
+					properties[6] = property;
+					property = new fight::PropertyNameList<NISConsumeByParentTrack>("parentDestinationJoint", &ConsumeByParentTrack::SetParentDestinationJoint);
+					properties[7] = property;
+					property = new fight::PropertyVector<NISConsumeByParentTrack>("parentPositionOffset", &ConsumeByParentTrack::SetParentPositionOffset);
+					properties[8] = property;
+					property = new fight::PropertyBool<NISConsumeByParentTrack>("consumeUpwards", &ConsumeByParentTrack::SetConsumeUpwards);
+					properties[9] = property;
+					property = new fight::PropertyFloatConstRange<NISConsumeByParentTrack>("boneSweepConstant", &ConsumeByParentTrack::SetBoneSweepConstant);
+					properties[10] = property;
+					property = new fight::PropertyBool<NISConsumeByParentTrack>("transformationConsume", &ConsumeByParentTrack::SetTransformationConsume);
+					properties[11] = property;
+					property = new fight::PropertyFloatConstRange<NISConsumeByParentTrack>("transformationConsumeTime", &ConsumeByParentTrack::SetTransformationConsumeTime);
+					properties[12] = property;
+					property = new fight::PropertyBool<NISConsumeByParentTrack>("stealthy", &ConsumeByParentTrack::SetStealthy);
+					properties[13] = property;
+					property = new fight::PropertyName<NISConsumeByParentTrack>("consumableProperties", &ConsumeByParentTrack::SetConsumableProperties);
+					properties[14] = property;
+					fight::RegisterPropertyList(properties, &gNISConsumeByParentTrackProperties);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1014E140
+			fight::TrackFactory* CreateNISConsumeByParentTrackFactory(const char* name)
+			{
+				fight::TrackFactoryCasterTemplate<NISConsumeByParentTrack> caster;
+				return fight::FindTrackFactory(name, &caster);
+			}
+
+			// FUNCTION: ENGINE 0x1014E420
+			void RegisterNISConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name)
+			{
+				fight::TrackFactoryCasterTemplate<NISConsumeByParentTrack> caster;
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
@@ -559,6 +653,13 @@ namespace proto
 			template class fight::PropertyVector<ConsumeByParentTrack>;
 			template class fight::TrackFactoryTemplate<ConsumeByParentTrack>;
 			template class fight::TrackFactoryCasterTemplate<ConsumeByParentTrack>;
+			template class fight::PropertyName<NISConsumeByParentTrack>;
+			template class fight::PropertyBool<NISConsumeByParentTrack>;
+			template class fight::PropertyFloatConstRange<NISConsumeByParentTrack>;
+			template class fight::PropertyNameList<NISConsumeByParentTrack>;
+			template class fight::PropertyVector<NISConsumeByParentTrack>;
+			template class fight::TrackFactoryTemplate<NISConsumeByParentTrack>;
+			template class fight::TrackFactoryCasterTemplate<NISConsumeByParentTrack>;
 			template class fight::PropertyFloatConstRange<ScaleJointForConsumeTrack>;
 			template class fight::PropertyNameList<ScaleJointForConsumeTrack>;
 			template class fight::TrackFactoryTemplate<ScaleJointForConsumeTrack>;
@@ -583,6 +684,8 @@ namespace proto
 // FUNCTION: ENGINE 0x1014D970
 // FUNCTION: ENGINE 0x1014D9A0
 // FUNCTION: ENGINE 0x1014D9B0
+// FUNCTION: ENGINE 0x1014D9E0
+// FUNCTION: ENGINE 0x1014D9F0
 // FUNCTION: ENGINE 0x1014DA20
 // FUNCTION: ENGINE 0x1014DA30
 // FUNCTION: ENGINE 0x1014DA60
@@ -590,6 +693,7 @@ namespace proto
 // FUNCTION: ENGINE 0x1014DAA0
 // FUNCTION: ENGINE 0x1014DAB0
 // FUNCTION: ENGINE 0x1014DAE0
+// FUNCTION: ENGINE 0x1014DB10
 // FUNCTION: ENGINE 0x1014DB40
 // FUNCTION: ENGINE 0x1014DB70
 // FUNCTION: ENGINE 0x1014DBA0
@@ -607,6 +711,15 @@ namespace proto
 // FUNCTION: ENGINE 0x1014DD40
 // FUNCTION: ENGINE 0x1014DD70
 // FUNCTION: ENGINE 0x1014DD90
+// FUNCTION: ENGINE 0x1014DDA0
+// FUNCTION: ENGINE 0x1014DDD0
+// FUNCTION: ENGINE 0x1014DDF0
+// FUNCTION: ENGINE 0x1014DE00
+// FUNCTION: ENGINE 0x1014DE30
+// FUNCTION: ENGINE 0x1014DE60
+// FUNCTION: ENGINE 0x1014DE70
+// FUNCTION: ENGINE 0x1014DEA0
+// FUNCTION: ENGINE 0x1014DEC0
 // FUNCTION: ENGINE 0x1014DED0
 // FUNCTION: ENGINE 0x1014DF00
 // FUNCTION: ENGINE 0x1014DF30
@@ -627,6 +740,11 @@ namespace proto
 // FUNCTION: ENGINE 0x1014E530
 // FUNCTION: ENGINE 0x1014E560
 // FUNCTION: ENGINE 0x1014E580
+// FUNCTION: ENGINE 0x1014E590
+// FUNCTION: ENGINE 0x1014E5C0
+// FUNCTION: ENGINE 0x1014E5E0
+// FUNCTION: ENGINE 0x1014E610
+// FUNCTION: ENGINE 0x1014E630
 // FUNCTION: ENGINE 0x1014E640
 // FUNCTION: ENGINE 0x1014E670
 // FUNCTION: ENGINE 0x1014E690
@@ -641,10 +759,13 @@ namespace proto
 // FUNCTION: ENGINE 0x1014F200
 // FUNCTION: ENGINE 0x1014F250
 // FUNCTION: ENGINE 0x1014F280
+// FUNCTION: ENGINE 0x1014F2A0
+// FUNCTION: ENGINE 0x1014F2D0
 // FUNCTION: ENGINE 0x1014F2F0
 // FUNCTION: ENGINE 0x1014F320
 // FUNCTION: ENGINE 0x1014F340
 // FUNCTION: ENGINE 0x1014F370
 // FUNCTION: ENGINE 0x1014F390
+// FUNCTION: ENGINE 0x1014F3E0
 // FUNCTION: ENGINE 0x1014F430
 // FUNCTION: ENGINE 0x1014F480

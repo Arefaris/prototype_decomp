@@ -1,5 +1,5 @@
 // Fight items of the motion group: DeathOnEndTrack, DeathTrack (unit 0x10151930 - 0x101521B0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/death.h"
+#include "code/proto/fightitems/motion/motion_death.h"
 
 namespace proto
 {

@@ -1,5 +1,5 @@
 // Fight items of the motion group: DeformTrack (unit 0x10153950 - 0x10154030; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/deform.h"
+#include "code/proto/fightitems/motion/motion_deform.h"
 
 namespace proto
 {

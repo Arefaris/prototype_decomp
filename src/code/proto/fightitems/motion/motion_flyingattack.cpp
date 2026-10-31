@@ -1,5 +1,5 @@
 // Fight items of the motion group: FlyingAttackTrack (unit 0x1015F0E0 - 0x1015FAE0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/flyingattack.h"
+#include "code/proto/fightitems/motion/motion_flyingattack.h"
 
 namespace proto
 {

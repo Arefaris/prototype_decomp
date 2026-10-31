@@ -1,5 +1,5 @@
 // Fight items of the motion group: CollisionGrabTrack (unit 0x1014A890 - 0x1014B6C0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/collisiongrab.h"
+#include "code/proto/fightitems/motion/motion_collisiongrab.h"
 
 namespace proto
 {

@@ -1,5 +1,5 @@
 // Fight items of the motion group: FactionTypeCondition, FactionCondition, FactionSetTrack, FactionDefaultTrack (unit 0x1015D620 - 0x1015E4B0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/faction.h"
+#include "code/proto/fightitems/motion/motion_faction.h"
 
 namespace proto
 {

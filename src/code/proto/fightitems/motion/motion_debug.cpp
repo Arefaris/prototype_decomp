@@ -1,5 +1,5 @@
 // Fight items of the motion group: DebugLayerCondition, DebugSphereTrack, DebugAxisTrack (unit 0x101521B0 - 0x10153160; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/debug.h"
+#include "code/proto/fightitems/motion/motion_debug.h"
 #include <new>
 
 namespace proto

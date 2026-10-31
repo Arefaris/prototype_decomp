@@ -1,5 +1,5 @@
 // Fight items of the motion group: EffectConsumeTrack (unit 0x1015CB40 - 0x1015D620; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/effectconsume.h"
+#include "code/proto/fightitems/motion/motion_effectconsume.h"
 
 namespace proto
 {

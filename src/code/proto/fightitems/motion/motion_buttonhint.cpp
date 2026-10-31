@@ -1,5 +1,5 @@
 // Fight items of the motion group: ButtonHintShowingCondition, EnableButtonHintsTrack, ButtonHintShowTrack (unit 0x10146A60 - 0x101479B0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/buttonhint.h"
+#include "code/proto/fightitems/motion/motion_buttonhint.h"
 #include <new>
 
 namespace proto

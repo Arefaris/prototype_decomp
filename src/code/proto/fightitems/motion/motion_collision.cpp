@@ -1,5 +1,5 @@
 // Fight items of the motion group: DetectObbCollisionCondition, HitSurfaceCondition (unit 0x10149DC0 - 0x1014A890; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/collision.h"
+#include "code/proto/fightitems/motion/motion_collision.h"
 
 namespace proto
 {

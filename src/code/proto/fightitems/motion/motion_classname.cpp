@@ -1,5 +1,5 @@
 // Fight items of the motion group: ClassNameCondition (unit 0x10149690 - 0x10149A90; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/classname.h"
+#include "code/proto/fightitems/motion/motion_classname.h"
 
 namespace proto
 {

@@ -1,4 +1,4 @@
-// Fight items of the motion group: FallTrack (unit 0x1015E4B0 - 0x1015F0E0; no assert path, the file name is a guess).
+// Fight items of the motion group: FallTrack (unit 0x1015E4B0 - 0x1015F0E0; the assert path of the unit's actions names code/proto/fightitems/motion/motion_fall.cpp).
 #ifndef PROTO_FIGHTITEMS_MOTION_FALL_H
 #define PROTO_FIGHTITEMS_MOTION_FALL_H
 

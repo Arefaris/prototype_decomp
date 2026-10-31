@@ -1,5 +1,5 @@
 // Fight items of the motion group: EdgeNormalCondition, EdgePositionCondition, EdgeDetectTrack, EdgeSynchronizeTrack (unit 0x1015AC70 - 0x1015C310; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/edge.h"
+#include "code/proto/fightitems/motion/motion_edge.h"
 
 namespace proto
 {

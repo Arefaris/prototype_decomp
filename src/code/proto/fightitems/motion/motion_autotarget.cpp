@@ -1,5 +1,5 @@
 // Fight items of the motion group: AutoTargetTrack, AutoTargetClearTrack, AutoTargetPositionTrack, FlyingAutoTargetTrack, PedestrianAutoTargetTrack, AutoTargetPlayerTrack (unit 0x10140FC0 - 0x10143E60; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/autotarget.h"
+#include "code/proto/fightitems/motion/motion_autotarget.h"
 
 namespace proto
 {

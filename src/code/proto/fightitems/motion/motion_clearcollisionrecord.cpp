@@ -1,5 +1,5 @@
 // Fight items of the motion group: ClearCollisionRecordTrack (unit 0x10149A90 - 0x10149DC0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/clearcollisionrecord.h"
+#include "code/proto/fightitems/motion/motion_clearcollisionrecord.h"
 
 namespace proto
 {

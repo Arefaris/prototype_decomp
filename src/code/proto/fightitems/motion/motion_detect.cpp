@@ -1,5 +1,5 @@
 // Fight items of the motion group: DetectedObjectFacingCondition, DetectedObjectAngleCondition, DetectedObjectDistanceCondition, DetectedObjectIsTargetCondition, DetectedObjectConditionGroupCondition, DetectedObjectIsSeenCondition, DetectTrack (unit 0x10154030 - 0x101561B0; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/detect.h"
+#include "code/proto/fightitems/motion/motion_detect.h"
 
 namespace proto
 {

@@ -1,4 +1,4 @@
-// Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
+// Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
 #ifndef PROTO_FIGHTITEMS_MOTION_CONSUME_H
 #define PROTO_FIGHTITEMS_MOTION_CONSUME_H
 
@@ -99,6 +99,49 @@ namespace proto
 			extern fight::Property** gConsumeByParentTrackProperties;
 			fight::TrackFactory* CreateConsumeByParentTrackFactory(const char* name);
 			void RegisterConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name);
+
+			// RTTI: proto::fightitems::motion::NISConsumeByParentTrack (16 vftable slots, 0x60 bytes)
+			class NISConsumeByParentTrack : public ConsumeByParentTrack
+			{
+			public:
+				// 0x1014D7E0
+				NISConsumeByParentTrack();
+				virtual ~NISConsumeByParentTrack();
+
+				// vftable slot 0
+				virtual fight::Property* GetProperty(int index);
+				// vftable slot 15 (0x100AD3E0, another unit)
+				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				// The members the properties write
+				bool SetObject(const fight::Name& newValue);
+				bool SetToBeContinued(bool newValue);
+				// TODO SetTimeBegin
+				// TODO SetTimeEnd
+				// TODO SetRagdollIfNeeded
+				// TODO SetSwitchToRagdollMode
+				// TODO SetParentObjectName
+				// TODO SetParentDestinationJoint
+				// TODO SetParentPositionOffset
+				// TODO SetConsumeUpwards
+				// TODO SetBoneSweepConstant
+				// TODO SetTransformationConsume
+				// TODO SetTransformationConsumeTime
+				// TODO SetStealthy
+				// TODO SetConsumableProperties
+
+				// The property list, built once and freed again
+				static void RegisterProperties();
+				static void ClearProperties();
+
+					fight::Name object;  // +0x50
+					bool toBeContinued;  // +0x58
+					unsigned char unknown59[0x7];
+			};
+
+			extern fight::Property** gNISConsumeByParentTrackProperties;
+			fight::TrackFactory* CreateNISConsumeByParentTrackFactory(const char* name);
+			void RegisterNISConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// RTTI: proto::fightitems::motion::ScaleJointForConsumeTrack (16 vftable slots, 0x28 bytes)
 			class ScaleJointForConsumeTrack : public fight::Track

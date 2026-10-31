@@ -1,5 +1,5 @@
 // Fight items of the motion group: ChargeCondition, ChargeTrack, ChargeSetTrack, AnimationChargeTrack, ChargeClearTrack (unit 0x101479B0 - 0x10149690; no assert path, the file name is a guess).
-#include "code/proto/fightitems/motion/charge.h"
+#include "code/proto/fightitems/motion/motion_charge.h"
 
 namespace proto
 {
