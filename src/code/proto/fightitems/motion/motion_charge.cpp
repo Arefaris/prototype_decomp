@@ -678,20 +678,20 @@ namespace proto
 				{
 					return false;
 				}
-				int type = link.object->type;
+				int type = link.object->GetType();
 				ChargeGetMessage getMessage(type);
 				object->SendMessage(&getMessage);
 				float first = getMessage.value;
 				float second = (first >= 0.0f) ? first : 0.0f;
 				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
-				if (link.object->clearOnBegin)
+				if (link.object->GetClearOnBegin())
 				{
 					charge = 0.0f;
 				}
 				ChargeSetMessage setMessage(charge, type);
 				object->SendMessage(&setMessage);
 				float duration = link.object->Slot10();
-				float goal = link.object->finalCharge;
+				float goal = link.object->GetFinalCharge();
 				if (duration > 0.0f)
 				{
 					if (goal < engine::driving::gOne)
@@ -720,7 +720,7 @@ namespace proto
 				{
 					return false;
 				}
-				ChargeAddMessage message(unknown2C * value, link.object->type);
+				ChargeAddMessage message(unknown2C * value, link.object->GetType());
 				object->SendMessage(&message);
 				return true;
 			}
@@ -752,16 +752,16 @@ namespace proto
 				{
 					return false;
 				}
-				ChargeGetMessage message(link.object->type);
+				ChargeGetMessage message(link.object->GetType());
 				object->SendMessage(&message);
 				float first = message.value;
 				float second = (first >= 0.0f) ? first : 0.0f;
 				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
-				if (link.object->reverse)
+				if (link.object->GetReverse())
 				{
 					charge = engine::driving::gOne - charge;
 				}
-				((choreo::AnimationDriver*)driver)->SetUnknownE4((link.object->endFrame - link.object->startFrame) * charge + link.object->startFrame);
+				((choreo::AnimationDriver*)driver)->SetUnknownE4((link.object->GetEndFrame() - link.object->GetStartFrame()) * charge + link.object->GetStartFrame());
 				return true;
 			}
 
@@ -777,9 +777,9 @@ namespace proto
 				{
 					return false;
 				}
-				float charge = link.object->charge;
-				int type = link.object->type;
-				float range = link.object->randomRange;
+				float charge = link.object->GetCharge();
+				int type = link.object->GetType();
+				float range = link.object->GetRandomRange();
 				ChargeSetMessage message((fight::GetRandomValue(0) * 2.0f - engine::driving::gOne) * range + charge, type);
 				object->SendMessage(&message);
 				return false;
@@ -793,7 +793,7 @@ namespace proto
 					engine::GameObject* object = target.Get();
 					if (object != 0)
 					{
-						if (link.object->clearOnBegin)
+						if (link.object->GetClearOnBegin())
 						{
 							ChargeSetMessage message(0.0f, 0);
 							object->SendMessage(&message);
@@ -811,7 +811,7 @@ namespace proto
 				if (link.object != 0)
 				{
 					engine::GameObject* object = target.Get();
-					if (object != 0 && !link.object->clearOnBegin)
+					if (object != 0 && !link.object->GetClearOnBegin())
 					{
 						ChargeSetMessage message(0.0f, 0);
 						object->SendMessage(&message);
@@ -848,6 +848,17 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100A0AA0
+// FUNCTION: ENGINE 0x100A0AB0
+// FUNCTION: ENGINE 0x100A0AC0
+// FUNCTION: ENGINE 0x100A0AD0
+// FUNCTION: ENGINE 0x100A0AE0
+// FUNCTION: ENGINE 0x100A0AF0
+// FUNCTION: ENGINE 0x100A0B10
+// FUNCTION: ENGINE 0x100A0B20
+// FUNCTION: ENGINE 0x100A0B30
+// FUNCTION: ENGINE 0x100A0B40
+// FUNCTION: ENGINE 0x100A0B90
 // FUNCTION: ENGINE 0x100A0BA0
 // FUNCTION: ENGINE 0x100A0BE0
 // FUNCTION: ENGINE 0x100A0C90

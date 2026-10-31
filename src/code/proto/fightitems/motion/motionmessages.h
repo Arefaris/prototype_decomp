@@ -151,6 +151,19 @@ namespace proto
 		bool enable;  // +0xC
 	};
 
+	// RTTI: proto::DevastatorAvailableMessage: the object answers whether its devastator is available (message type 0x14)
+	struct DevastatorAvailableMessage : public engine::IntrusiveMessage
+	{
+		DevastatorAvailableMessage() : engine::IntrusiveMessage(0x14, 0x22), available(false)
+		{
+		}
+		virtual ~DevastatorAvailableMessage()
+		{
+		}
+
+		bool available;  // +0xC
+	};
+
 	// RTTI: proto::DevastatorUsedMessage: the devastator of the object has been used (message type 0x14)
 	struct DevastatorUsedMessage : public engine::IntrusiveMessage
 	{

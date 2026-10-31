@@ -74,6 +74,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				int GetType() const { return type; }
+				bool GetClearOnBegin() const { return clearOnBegin; }
+				float GetFinalCharge() const { return finalCharge; }
+
 					float finalCharge;  // +0x10
 					float randomRange;  // +0x14
 					float timeBegin;  // +0x18
@@ -113,6 +117,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				int GetType() const { return type; }
+				float GetCharge() const { return charge; }
+				float GetRandomRange() const { return randomRange; }
 
 					float charge;  // +0x10
 					float randomRange;  // +0x14
@@ -158,6 +166,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				int GetType() const { return type; }
+				bool GetReverse() const { return reverse; }
+				float GetEndFrame() const { return endFrame; }
+				float GetStartFrame() const { return startFrame; }
+
 					fight::Name animation;  // +0x10
 					fight::Name partition;  // +0x18
 					float blendInTime;  // +0x20
@@ -201,6 +214,8 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				bool GetClearOnBegin() const { return clearOnBegin; }
 
 					float timeBegin;  // +0x10
 					float timeEnd;  // +0x14

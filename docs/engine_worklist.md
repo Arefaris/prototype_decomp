@@ -6001,3 +6001,28 @@ The property halves of all 20 units are complete (the generator reads them; `fig
   `PoisonAction::FindVictim` (0x102078C0, mapped to the engine's address)); the action classes whose constructor the generator does not read (patrol, path patrol, periodic
   opportunity, delayed sequence, the strafe run family, execute / spawn task, threat ball / dodge / send to target); and about 450 kept copies of one-line getters of the items'
   classes (4 - 7 byte `mov eax, [ecx+N]` copies in runs in front of and behind the actions) and of `core::Link` that nothing here instantiates (no class names them).
+
+## proto/fightitems/motion: the action half of the units in 0x100A0000 - 0x100C0000 (sn-ax)
+The range holds the action half of 27 motion units (button hint, charge, class name, clear collision record, collision (the base `CollisionAction` with 31 slots and its
+derived grab, hit, detect and hit weapon actions), consume, crowd, death, debug, decal, deform, detect, devastator, disable player control, distance, drift, edge, effect
+chameleonic skin, effect consume, faction, fall, flying attack, brake, dash and ground attack) in the order of the property halves (0x1013C5B0 on); the actions live in the
+`motion_*.cpp` / `.h` of their track (between the markers `// ---- actions begin` / `end` where a generator wrote them: local/scratch/sn-ax/mgen.py, adapted from the ai generator), the
+shared declarations in `motionaction.h` (`TrackOwner`, `GetObjectHandle`, the two driver helpers), `motionmessages.h` (the messages, `class` / `struct` as the RTTI says) and `motioncommon.h`.
+A unit's action half begins behind the last `CreateAction` of the unit before it (the one-line getters and link helpers in front of the first action belong to the unit that follows).
+- Layouts: an action is `target` (`GameObjectHandle`, +0x1C) then `core::Link<Track>` (+0x20), or the link first (+0x1C) and the handle at +0x28; the constructor of the first kind
+  sometimes default-constructs the handle and assigns it in the body (`DeformAction`). Members the generator reads: floats, ints, flags, `math::Vector` (three floats stored
+  together decide it: `pop edi` sits behind the vector's three stores in the engine's constructor), `choreo::RootDriver*` / `choreo::Driver*` (released by the destructor through
+  `engine::ReleaseDriverCopy2` or `engine::ReleaseDriver`, both copies of one helper). `engine::ReleaseDriver` (0x100A0C40) and `engine::AssignDriver` (0x100A0C60) are
+  defined in `motion_charge.cpp`.
+- A message whose constructor stores the final vftable behind its fields keeps the fields in the base class (`ChargeMessage(id, value, type)`).
+- Early-return style (`if (link.object == 0) return false; ... if (object == 0) return false; ...`) is what the engine's slots compile from; `bool result = false; ... return result;`
+  where a zero stays in a register. The one-line getters of the unit's tracks that the engine keeps as 4-byte copies in front of the unit are the getters its action code calls (inline
+  members `GetType()`, `GetClearOnBegin()` ... of the track class); writing the slot with them instead of the member makes the compiler emit the same copies (`motion_charge.cpp`).
+- Matched: the constructors, destructors and `CreateAction` of 27 action classes, the slots listed in the sources (charge, button hint enable, clear collision record, drift,
+  flying brake / dash / ground attack / attack, fall, player control) and `ChargeCondition::Evaluate`, `ButtonHintShowingCondition::Evaluate`.
+- EQUIVALENT: `EffectConsumeAction` constructor (the engine stores the vftable before it takes the link's address, 94.6 %), `DevastatorUsedTrack::CreateAction` (`add ecx, 0xFFFF0000`
+  against `sub ecx, 0x10000`, 92.9 %). NONMATCHING: `DevastatorAvailableCondition::Evaluate` (36.7 %, the engine reads the owner's handle as one dword and hoists the loads).
+- Not done: the slots that call helpers no unit names yet (`ConsumeAction::Slot5` and the other two consume entries call the 1320-byte consume routine 0x100ABEC0, which is not
+  reconstructed), the `AddButtonHintMessage` family (a message with an embedded `container::StringC<64>` and a 0x78-byte parameter block, 0x100A01E0 / 0x100A02A0), the whole
+  `CollisionAction` family, the crowd actions (base `CrowdTestBaseAction`), the devastator and edge actions, the faction and class name conditions (attribute system, cached lookups),
+  `AnimationChargeAction::Slot5` (asset lookup 0x10126290) and the big update slots (`CollisionHitAction::Slot15` 2045 bytes, `Slot24` 3314, `FlyingAttackAction::Slot5` ...).

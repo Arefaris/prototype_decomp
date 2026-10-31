@@ -388,6 +388,21 @@ namespace proto
 
 			// ---- actions begin
 
+			// RTTI: proto::fightitems::motion::DevastatorUsedAction (9 vftable slots, 0x20 bytes)
+			class DevastatorUsedAction : public fight::Action
+			{
+			public:
+				// 0x100B2DE0
+				explicit DevastatorUsedAction(engine::GameObjectHandle newTarget);
+				// 0x100B2E10
+				virtual ~DevastatorUsedAction();
+
+				// vftable slot 5 (0x100B3D90)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
 			// ---- actions end
 		}
 	}

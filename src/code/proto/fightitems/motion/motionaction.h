@@ -36,6 +36,15 @@ namespace proto
 	{
 		namespace motion
 		{
+			// What a track runs for (and the fourth argument of a condition): an IRefCount-derived object whose kind says where the
+			// game object handle is kept (a kind in 0x10000 - 0x2FFFF carries it at +0xC); the engine's class is not named
+			struct TrackOwner : core::IRefCount
+			{
+				int unknown4;
+				unsigned int kind;  // +0x8
+				engine::GameObjectHandle handle;  // +0xC
+			};
+
 			// The owner the sequencer hands a condition in its third argument
 			inline core::IRefCount* AsOwner(int value)
 			{
