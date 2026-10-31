@@ -6081,6 +6081,63 @@ file between the markers `// ---- actions begin` / `// ---- actions end` (genera
 - Not done: the actions with attribute writers (pedestrian, patsy), puppet drivers with long updates (radial blur, spawn gib, reaction throw / hit animation, supporting limb test), the shoot actions and conditions (helpers of the unit), the remaining 13 reaction conditions
   (originator, collision position / normal, impulse direction, slice angle, height), the distance condition of the supporting surface (SSE vector code), and the actions whose constructors register watchers or hold names.
 
+## proto/behaviours and content: the range 0x10060000 - 0x10080000 (sn-bb)
+
+The range holds the behaviours of the open world in alphabetical order, each a unit of its own (no assert path names
+any of them; the directory `proto/behaviours` and the file names are guesses): AnchorToGround (0x10060160), ButtonHint
+(0x10061AA0), CharacterMotion (0x10063250), Charge (0x10064370), CollisionAction (0x10064A80), FightVariables
+(0x10065D60, with the element structs FightVariableInt / FightVariableName / FightTimer), the three GroundSpike
+behaviours with the messages of their neighbours (0x10069010), HelicopterIntention (0x1006F8E0), IK (0x10071000, with
+IKLimbInfo and IKSupportingLimbInfo), MotionState and SensesInfo (0x10075450), ShoulderConFixup (0x10076370),
+TankIntention (0x10077400), Tendril (0x10078480), Tunneling (0x10078A70), then the consumables and the transformation
+behaviour (0x1007A210 on). The first unit of the range also carries the copies the link keeps for the whole image:
+`Behaviour::Slot0` / `Slot1` / `OnPostedMessage` (0x100610E0, 0x10060150, 0x100610F0), `GetClassMetaType<Behaviour>`
+(0x10060610) and the slots of `PrimitiveMetaType<bool / float / int / unsigned int>`.
+
+Layout of a behaviour unit: the inline functions the unit's messages and meta types need (copies in the order of
+first use), the class info (51 bytes, version 1, a type code "p" or "pn"), the constructor, destructor and the virtual
+handlers, the base class caster (`BaseClassCasterImpl<Behaviour, X>`), `GetMembers`, then the meta types of the
+members (`GetMemberPrimitiveMetaType<X, T, N>` 50 bytes each, `GetNameMetaType<X>`) and, for an array member, the
+`ArrayDynamicHelper` of its element array with the `ArrayDynamic<T, AllocatorNew>` members it uses. Findings:
+
+- `container::ArrayDynamic<T, AllocatorNew>` members only exist in the unit when the unit uses them, so the arrays are
+  instantiated by the helper (reflection) and the behaviour's own code, not by an explicit instantiation (that makes
+  every member and leaves a tail of functions the engine does not have).
+- The element structs of the reflected arrays are 8-aligned (`__declspec(align(8))`: a `core::Name` is two words in our
+  header, in the engine the struct size is a multiple of 8), and a struct that ends in an array keeps the word behind
+  the array (the array's allocator) out of its copy (`ArrayPad` in ikbehaviour.h).
+- Erase moves the elements down with `AssignRange` for all element structs here (`ArrayEraseInline<T>::value = 0`),
+  and the helper of the Name and limb arrays inserts with the count version of Insert (a specialisation of
+  `ArrayDynamicHelper` in the unit's header).
+- The atexit stub of a function-local `static T sDefault` (the default element the reflection inserts) is the 1-byte
+  `ret` of a trivial destructor and lies in the dynamic initializer region (0x10D81030 and following), not in the unit;
+  `local/scratch/sn-bb/mapunit.py` places it from the operand of the helper that pushes it.
+- The engine keeps one copy of an inline function for the whole image (the first unit of the link that needs it), so a
+  unit's own copy is often missing from its range: the `Behaviour` virtual slots, the `PrimitiveMetaType<T>`
+  constructors and slots, the `MemberOffset<T>` instances.
+- `PrimitiveMetaType<bool / float / int / unsigned int>`: the slots are written as members of
+  `PrimitiveMetaTypeImpl<T>` (content/primitivemetatype.cpp), a class that is never instantiated, so that the
+  vftable's declared slots stay untouched; each member is mapped at the address of its slot (the slot symbols of the
+  header stay mapped at the thunks). ReadText (slot 0) differs from the engine's in the registers of `this` and the
+  reader only.
+
+Reconstructed besides the reflection: Charge (all), CharacterMotion (the constructor and the handlers of its messages,
+ids 0 - 9 and 0xD), CollisionAction (constructor, destructor, the list handling and the handlers of the collision
+messages 0x1D, Update, OnMessage), AnchorToGround (constructor, Slot1, OnMessage) and MotionState (constructor, Reset,
+OnMessage), the constructors of the Helicopter, Tank, Tendril, Tunneling, SensesInfo and FightVariables behaviours.
+When a switch over message ids compiles to a table of stubs, the stubs lie in the order of the case labels of the
+source (CollisionAction: 6, 5, 1, 2, 3, 4, 0, 7; MotionState: 0xC, 0xB, 0xA), which also decides the call targets
+objcmp reports; a comparison written `!(a >= b)` gives the engine's `comiss a, b / jb` where `a < b` gives the
+swapped operands.
+
+Functions left alone: the logic of CharacterMotion (Update 0x10063B50 and its helper 0x100637E0, physics puppet),
+FightVariables (the find loops with their inlined Name comparisons: a local `core::Name` makes our function realign
+the stack, the engine's does not; Update 0x10066C90), AnchorToGround (the physics constraints and Release 0x10060450),
+the messages of the GroundSpike block (their constructors are inline in code that is not reconstructed), ButtonHint,
+Helicopter, IK (Update 0x10071C00, 0x100727F0), Tendril (an empty case 2 of the engine's switch is kept in its
+code), Tank, Tunneling, the shoulder fixup, the consumables and the transformation behaviour (reference meta types,
+fight branch references).
+
 ## Dynamic initializers and atexit stubs (0x10D60000 - 0x10D8E400, the end of .text)
 
 The compiler's initializers of the global objects (`??__E<name>@<ns>@@YAXXZ`: construct the object, then `_atexit` of
