@@ -4663,7 +4663,8 @@ are left. What was done, per unit:
   58 %), and the two sharing tests `IsPlayerSynced` / `IsPlayerSent` (EQUIVALENT: the slot's id is loaded into eax in the
   engine, edx in ours). `OnlineGameDBHelper` (0x108930B0 - 0x10894440, three bases) is still not started.
 - `engine/online/olsprofile.cpp`: `OLSProfile`'s empty slots, `GetUser`, `SelectProfile` (EQUIVALENT 65 %: the engine reads
-  the user back from the message) and the three one-argument slots; `OLSUserList::SetCurrentUser`. The online users'
+  the user back from the message) and the three one-argument slots; `OLSUserList::SetCurrentUser`, `Reset`, `ResetRecord`, `FindIndexById`, `FindIndexByController` and the record's `Reset` (EQUIVALENT 67 %:
+  scheduling). The online users'
   RTTI class is `engine::OLSUser` (the container at `OLS +0x94`); the header's `OLSUserList` is that class and
   `OLSUser` in olsprofile.h is its 0x38-byte record (still under the old names).
 - `engine/controller/monkeycontrollermanager.cpp`: the decorator's seven forwarding slots and the destructor (`Refresh`
