@@ -90,6 +90,14 @@ namespace proto
 	public:
 		// 0x1037E0F0: whether the object should call the radio headquarters (name guess)
 		bool Unknown1037E0F0(engine::GameObject* object);
+		// 0x10381390: the alert's report of being back at idle (name guess)
+		void Unknown10381390(bool evade);
+		// 0x10380440: the alert's report of a character beginning combat (name guess)
+		void Unknown10380440();
+		// 0x1037C5C0: the alert's report of an object for a time (name guess)
+		void Unknown1037C5C0(engine::GameObject* object, float time);
+		// 0x1037CA50: turns the police off or on for a time (name guess)
+		void Unknown1037CA50(bool disable, float delay);
 	};
 
 	class AISystem

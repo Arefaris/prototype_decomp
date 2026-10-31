@@ -6001,3 +6001,46 @@ The property halves of all 20 units are complete (the generator reads them; `fig
   `PoisonAction::FindVictim` (0x102078C0, mapped to the engine's address)); the action classes whose constructor the generator does not read (patrol, path patrol, periodic
   opportunity, delayed sequence, the strafe run family, execute / spawn task, threat ball / dodge / send to target); and about 450 kept copies of one-line getters of the items'
   classes (4 - 7 byte `mov eax, [ecx+N]` copies in runs in front of and behind the actions) and of `core::Link` that nothing here instantiates (no class names them).
+## proto/fightitems: the fight items of the range 0x102573D0 - 0x10280000 (sn-aw)
+The range holds the fight items of the sub-namespaces after ai: `playback`, `proplogic`, `render`, `online`, `alert`, `vehicle`, `citymanager` and `freeroamevents`
+(`proto::fightitems::<sub>`, sources `src/code/proto/fightitems/<sub>/<sub>_<item>.cpp`, one data header per sub-namespace: `playbackdata.h`, `proplogicdata.h`,
+`renderdata.h`, `onlinedata.h`, `alertdata.h`, `vehicledata.h`, `citymanagerdata.h`, `freeroameventsdata.h`). Unlike the ai items, each group keeps its **action half in
+front of its item half in the same area** (the scenario pattern): a group starts with the `fight::Action` classes of its tracks (`Slot5` begins, `Slot6` stops, `Slot7` updates,
+their `CreateAction`), the `Evaluate` of its conditions, many kept copies of inline functions (4 - 7 byte getters, `core::Link<T>` constructors and destructors, `ObjectOf<T>`)
+and the scalar deleting destructors of the messages the group sends, then the item half (setters, properties, factories and template instances; the layout of the motion units).
+The item halves were generated whole (generator of local/scratch/sn-aw: the sn-av generator with the sub-namespace as a setting, `SUB=alert python drv.py <unit>`, a parser for
+`and` / `or` of a constructor byte, a group property of a 17-slot track written by hand for `BulletTracerTrack`).
+| file | unit (item half starts after its action half) | functions (equivalent) | classes |
+| `playback_suckintoplayer.cpp` | 0x102573D0 - 0x1025BC30 | 33 (1) | SuckIntoPlayerTrack |
+| `playback_shoot.cpp` | 0x1025BC30 - 0x1025C660 | 54 (2) | WasShotByPlayerCondition, ShootTrack |
+| `playback_spawnobject.cpp` | 0x1025C660 - 0x1025E0E0 | 105 (2) | SpawnObjectTrack, ManageLifetimeTrack |
+| `proplogic_shootingevent.cpp` | 0x1025E0E0 - 0x1025EFA0 | 19 (1) | ShootingEventCondition |
+| `proplogic_oncollision.cpp` | 0x1025EFA0 - 0x1025FC60 | 64 (2) | OnCollisionTrack, WaitOnCollisionTrack |
+| `render_bullettracer.cpp` | 0x1025FC60 - 0x10262C90 | 68 (1) | BulletTracerTrack (17 slots, two groups) |
+| `render_distancetocamera.cpp`, `render_fog.cpp`, `render_gpufill.cpp`, `render_timeofdayblend.cpp` | 0x10262C90 - 0x10264E40 | 145 (4) | DistanceToCameraCondition, FogTrack, GPUFillCondition, TimeOfDayBlendTrack |
+| `online_conditions.cpp`, `online_tracks.cpp` | 0x10264E40 - 0x102689E0 | 199 (9) | the co-op conditions and tracks |
+| `alert_disguiseblown.cpp`, `alert_alert.cpp`, `alert_reaction.cpp` | 0x102689E0 - 0x10276170 | 920 (45) | 18 alert / disguise conditions, 15 tracks |
+| `vehicle_*.cpp` (avoidobstacles, state, fishtail, panic, name) | 0x10276170 - 0x1027DCE0 | 371 (14) | the vehicle conditions and tracks |
+| `citymanager_inzone.cpp`, `freeroamevents_triggertest.cpp` | 0x1027DCE0 - 0x1027E580 | 36 (2) | InZoneCondition, FREventTriggerTestCondition |
+Code halves reconstructed (all other action and condition code of the range is only mapped or not done, see below): the actions' constructors, destructors and `CreateAction` of the
+alert group (14 + 1 + 1 actions), `AvoidObstaclesAction`, `FishTailAction`, `EBrakeAction` and the six panic actions, `OnlineFlagPlayerDeathAction` (target assigned in the
+constructor body), and the message based functions: 14 alert conditions (`GetDisguiseVariableDisguiseMsg` and the other `proto::...DisguiseMsg`, header `proto/messages/disguisemessages.h`),
+11 alert / vehicle action slots, `vehicle::StateCondition`, two online conditions (`proto/messages/coopmessages.h`, `proto/messages/ambientmessages.h` for the ambient family of type 0x24).
+A message is a struct on `engine::IntrusiveMessage` whose constructor stores the type, the id and the payload; it lives on the stack and its vftable is the engine's (the deleting
+destructor of the message is mapped as the compiler's `??_G`).
+Patterns found:
+- A condition that sends a message and compares the answer with a member is `bool result = false; GameObject* object = GetObjectHandle(owner).Get(); if (object != 0) { ...; result = ...; } return result;`
+  when the engine hoists a zero into ebx; where it does not (`GetStateMessage`, the online conditions) it is `if (object == 0) return false;` or `if (object != 0) { ...; return x; } return false;` - try the other.
+  `target.IsValid()` followed by `target.Get()` (two table lookups) and `target.Get() != 0` followed by `GameObject* object = target.Get();` are both seen in the vehicle actions.
+- Eight float / int compare conditions of the alert group keep the compared value in a dead argument slot in the engine (frame 4 bytes smaller than ours): EQUIVALENT, best 80 - 92 %.
+  Neither assigning the parameter, a declaration order change nor an inline helper with a by-value parameter reproduced it.
+- `core::Link<T>` constructors (55 bytes) and destructors (16 bytes) of the action classes are kept copies of the unit; they are byte-identical, so `mapKept2` (local/scratch/sn-aw/symbolize.py)
+  maps each instance to the next free engine copy of the group.
+Not matching:
+- `alert::SeenCondition::Evaluate` (0x1026AB90, NONMATCHING 27%): the engine hoists a zero into ebx and compares the four seen values in the other direction.
+Not done in the range (about 790 functions; 1.2k of the 3k are 1 - 40 byte kept copies that no class names):
+- The big action slots (`SuckIntoPlayerAction::Slot7` 656, `ShootAction::Slot5` 619, `BulletTracerAction::Slot5` 1039, `AvoidObstaclesAction::Slot7` 1038, `EBrakeAction`, `FishTailAction`, `PanicAction`),
+  the `proplogic` collision actions (an embedded `engine::CollisionResponseCallback`), the conditions that need classes not declared yet (`DistanceToPlayerCondition`, `PlayerSeenCondition`,
+  `InsideAlertedAreaCondition`, `FREventTriggerTestCondition`, `GPUFillCondition`, `WasShotByPlayerCondition`), and the actions of playback / render / online whose constructor or `CreateAction`
+  is not the canonical 98 / 55 byte form (they take the owner as a reference counted pointer or a ready handle).
+- About 80 message classes of the area (`proto::...Message`, scalar deleting destructors at 0x10257F20 and 0x1027F440 - 0x1027FBB0) that no reconstructed code constructs.
