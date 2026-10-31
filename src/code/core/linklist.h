@@ -70,6 +70,11 @@ namespace core
 			}
 		}
 
+		T* Get() const
+		{
+			return object;
+		}
+
 		// The object this node is linked on
 		T* object;
 		Link<T>* next;
