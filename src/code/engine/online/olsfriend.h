@@ -42,18 +42,27 @@ namespace engine
 	// What the friend list keeps for a user the online service knows (0x38 bytes)
 	struct OLSUserRecord
 	{
-		int unknown0;
+		// 0x10886BB0: makes the record free again
+		void Reset();
+
+		int index;  // +0
 		WideStringBuffer name;  // +4
-		int unknownC;
-		int id;  // +0x10
-		unsigned char unknown14[8];
+		unsigned int controller;  // +0xC (-1 for none)
+		int id;  // +0x10 (-1 for a free record)
+		int unknown14;
+		int unknown18;
 		// The invitation the user sent (its id is at +0x10)
 		struct Invite
 		{
 			unsigned char unknown0[0x10];
 			int id;  // +0x10
 		}* invite;  // +0x1C
-		unsigned char unknown20[0x38 - 0x20];
+		unsigned int flags;  // +0x20
+		int unknown24;
+		int valueCount;  // +0x28
+		int unknown2C;
+		void* unknown30;
+		unsigned char* values;  // +0x34 (valueCount entries of 0x10 bytes)
 	};
 
 	// The list of users at OLS +0x94 (another unit; names guessed)
@@ -62,12 +71,24 @@ namespace engine
 	public:
 		// 0x108871C0: the index of the selected user
 		int GetSelected();
+		// 0x10886F50
+		void SetCurrentUser(int id);
 		// 0x10887870: the user is no longer needed (by its id)
 		void Unknown10887870(int id);
 
-		unsigned char unknown0[0x18];
+		// 0x10886C40 / 0x10886C60: makes one record / all of them free again
+		void ResetRecord(int index);
+		void Reset();
+		// 0x10886C90 / 0x10886CD0: the index of the record of a user id / of a controller, -1 for none
+		int FindIndexById(int id);
+		int FindIndexByController(unsigned int controller);
+
+		unsigned char unknown0[0x10];
+		int recordCount;  // +0x10
+		int activeCount;  // +0x14
 		OLSUserRecord* records;  // +0x18
-		unsigned char unknown1C[0x13C - 0x1C];
+		int currentUser;  // +0x1C (the id of the user the current profile belongs to)
+		unsigned char unknown20[0x13C - 0x20];
 		int selected;  // +0x13C
 	};
 
@@ -153,6 +174,8 @@ namespace engine
 		int GetUserId(int index);
 		// 0x108E9D00: empties every entry
 		void ResetEntries();
+		// 0x108E9CE0: the profile of that index (-1 for none) was picked (name guessed)
+		void OnProfileSelected(int index);
 		// 0x108E9D50 / 0x108E9DC0: what the selected user is doing, as the scripts want it (answered in the text member)
 		const char* GetPresence();
 		const char* GetAttributes();

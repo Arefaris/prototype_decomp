@@ -16,9 +16,9 @@ namespace engine
 		// The properties the message sets (bit 1: colour, bit 2: intensity, 0x1438: shadow caster, 0x300: umbra, 0x40:
 		// decay, 0x400: whether the light casts shadows)
 		unsigned int changed;  // +0xC
-		int unknown10;
-		int unknown14;
-		int unknown18;
+		float eulerAngleX;  // +0x10
+		float eulerAngleY;  // +0x14
+		float eulerAngleZ;  // +0x18
 		float intensity;  // +0x1C
 		math::Colour128 colour;  // +0x20
 		float shadowRadiusMultiplier;  // +0x30

@@ -1,6 +1,7 @@
 #include "code/core/heap.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/vtablepool.h"
 #include "code/engine/message.h"
 #include <string.h>
 #include <typeinfo>
@@ -17,40 +18,6 @@ namespace engine
 	// (gameobjectsystem.cpp)
 	extern int gThreadSlotC;
 	extern unsigned char gTimeSliceCounter;
-
-	// Per message type, the indices of the behaviours listening (0xFF ends the list, 0xFE: none worked out, scan the
-	// masks); shared between controllers with the same masks and reference counted (names guessed)
-	class DispatchTable
-	{
-	public:
-		void AddRef()
-		{
-			refCount++;
-		}
-		void Release();
-
-		signed char entries[63][8];
-		int refCount;
-	};
-
-	// The pool of dispatch tables (0x11317848; InitVTablePool creates it)
-	class VTablePool
-	{
-	public:
-		// 0x10898120 / 0x10898240
-		DispatchTable* Find(const BehaviourController::MessageMask* masks, int count);
-		void Free(DispatchTable* table);
-	};
-	extern VTablePool* gVTablePool;
-
-	inline void DispatchTable::Release()
-	{
-		refCount--;
-		if (refCount <= 0)
-		{
-			gVTablePool->Free(this);
-		}
-	}
 
 	// FUNCTION: ENGINE 0x10839420
 	void SetDispatchTable(DispatchTable*& slot, DispatchTable* table)

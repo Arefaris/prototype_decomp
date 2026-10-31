@@ -2,6 +2,7 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/memory/memorypool.h"
 #include "code/core/memory/segmentpoolallocator.h"
+#include "code/engine/gameobject/vtablepool.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/messagerouter.h"
 
@@ -33,12 +34,9 @@ namespace engine
 	extern int gAttributeListHeap;
 	extern unsigned int gAttributeListLength;
 
-	// 0x10898260: creates the behaviours' "VTablePool" (name guess)
-	void InitVTablePool(int count);
 	// 0x1086C0F0: registers the go_* script commands (name guess)
 	void RegisterGameObjectCommands();
-	// 0x108980B0 / 0x10867DD0: the counterparts
-	void ShutdownVTablePool();
+	// 0x10867DD0: the counterpart
 	void UnregisterGameObjectCommands();
 
 	// GLOBAL: ENGINE 0x112836EC

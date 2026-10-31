@@ -120,6 +120,18 @@ namespace engine
 		static void (*sPlayerRegistered)(int playerIndex);
 		static void (*sControlChanged)(int playerIndex);
 
+		// The point of interest on top of the world streamer's stack; the empty stack answers a zeroed point
+		// (0x1130D32C; 0x10898290 is the engine's out-of-line copy)
+		WorldStreamerPOI* GetWorldStreamerPOI()
+		{
+			if (mWorldStreamerPOIStackIndex != 0)
+			{
+				return &mWorldStreamerPOIStack[mWorldStreamerPOIStackIndex - 1];
+			}
+			return &sNoWorldStreamerPOI;
+		}
+		static WorldStreamerPOI sNoWorldStreamerPOI;
+
 		static POIManager& Get(int playerIndex)
 		{
 			OLD_ASSERT_AT(POI_HPP_FILE, 0xd4, playerIndex < sMaxPlayers, "playerIndex < sMaxPlayers", "");

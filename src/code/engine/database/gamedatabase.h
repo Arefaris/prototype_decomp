@@ -152,6 +152,10 @@ namespace engine
 		void RemoveObserver(void* owner);
 		bool IsValidPlayer(unsigned int player);
 		bool IsShared();
+		// 0x108932B0 / 0x10893390 (names guessed): whether the value of a player is kept in step with the other machines
+		// (by the sharing kind in id: 0 for the players of this machine, 1 for all, 2 while online) / is sent
+		bool IsPlayerSynced(unsigned int player);
+		bool IsPlayerSent(unsigned int player);
 
 		core::Name<core::CaseSensitiveKey> GetName() const
 		{
