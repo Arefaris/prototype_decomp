@@ -965,7 +965,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x10099B40
 			AutoTargetPositionAction::~AutoTargetPositionAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x1009C990
@@ -973,6 +973,25 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new AutoTargetPositionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10099B80
+			void AutoTargetPositionAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						if (driver != 0)
+						{
+							driver->mDelta.Reset();
+						}
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
 			}
 
 			// FUNCTION: ENGINE 0x1009B110

@@ -312,7 +312,7 @@ namespace proto
 
 				engine::GameObjectHandle target;  // +0x1C
 				core::Link<OrientTowardsJumpInPositionTrack> link;  // +0x20
-				int unknown2C;  // +0x2C
+				choreo::Driver* driver;  // +0x2C
 				bool unknown30;  // +0x30
 				unsigned char unknown31[0xF];
 				bool unknown40;  // +0x40

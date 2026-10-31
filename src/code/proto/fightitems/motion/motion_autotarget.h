@@ -341,7 +341,7 @@ namespace proto
 
 				core::Link<AutoTargetPositionTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				choreo::Driver* driver;  // +0x2C
+				choreo::RootDriver* driver;  // +0x2C
 			};
 
 			// RTTI: proto::fightitems::motion::AutoTargetPlayerAction (9 vftable slots, 0x30 bytes)

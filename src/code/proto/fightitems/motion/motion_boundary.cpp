@@ -705,8 +705,23 @@ namespace proto
 				return new JumpFromWaterAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1009E890
+			void JumpFromWaterAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x1009ECB0
-			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), unknown2C(0), unknown30(false), unknown40(false), unknown44(0.0f)
+			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), unknown40(false), unknown44(0.0f)
 			{
 			}
 
@@ -720,6 +735,21 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new OrientTowardsJumpInPositionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1009E7C0
+			void OrientTowardsJumpInPositionAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
 			}
 
 			// ---- actions end
