@@ -5797,3 +5797,47 @@ Not matching / not done:
   case, early return, `if (value)`, `value && !flag`.
 - Left over (no real class names them): 0x10162240 / 0x1017ADE0 (a `ret`: folded empty destructors of the property types), 0x10162420 / 0x1017B180
   (`mov eax, 0xf` / `0xb`: the inline `GetType` of the `PropertyGroup` / `PropertyTrackGroup` base types).
+
+## proto/fightitems/motion: the fight items of the range 0x101A0000 - 0x101C0000 (sn-as)
+The range continues the motion items of the sections above (same item pattern, unit layout and generator): 27 more source files, one per run of items
+(`code/proto/fightitems/motion/motion_*.cpp`, all names guesses). Every function of 0x101A0B00 - 0x101C2D60 is reconstructed or mapped (the last unit starts
+in the range and was done whole): 111 EQUIVALENT (every `RegisterProperties`, the known shrink-wrap question; `tools/shrinkcheck.py` lists none of them),
+1 NONMATCHING; the kept copies of each unit are listed in the trailer of its source. The previous unit (`RadialBlurTrack`) ends at 0x101A0B00; the next unit
+(`TurnRoundTrack`, 0x101C2D60) belongs to the agent above.
+| file (src/code/proto/fightitems/motion/) | unit | functions (equivalent) | classes |
+|---|---|---|---|
+| `motion_radiohq.cpp` | 0x101A0B00 - 0x101A1160 | 38 (2) | RadioHQTrack, ScenarioEventRadioAttemptTrack |
+| `motion_reactioncondition.cpp` | 0x101A1160 - 0x101A69E0 | 491 (24) | ReactionEventConditionGroupCondition, ReactionHitCollisionPositionCondition, ReactionHitDamageCondition, ReactionHitChargeCondition, ReactionHitOriginatorDistanceCondition, ReactionReceiverIsTargetCondition, ReactionGiverIsBeingGrabbedCondition, ReactionEventCondition, ReactionHitCollisionNormalCondition, ReactionScriptedSubTypeCondition, ReactionHitOriginatorIsPlayerCondition, ReactionGrabTypeCondition, ReactionHitSliceAngleCondition, ReactionHitFromMuscleMassCondition, ReactionHitCollisionFlagCondition, ReactionThrowHitTypeCondition, ReactionHitImpulseCondition, ReactionHitDamageTypeCondition, ReactionHitImpulseDirectionCondition, ReactionTargetCondition, ReactionHitAttackTypeCondition, ReactionHitHeightCondition, ReactionHitHitTypeCondition, ReactionHitImpulseYAngleCondition |
+| `motion_reactionfloat.cpp` | 0x101A69E0 - 0x101A73A0 | 51 (2) | ReactionFloatTrack, TokenSetFloatDelayTrack |
+| `motion_reactionpushback.cpp` | 0x101A73A0 - 0x101A8000 | 60 (2) | ReactionPushbackOrientTrack, ReactionPushbackTrack |
+| `motion_reactiontargetgiver.cpp` | 0x101A8000 - 0x101A8330 | 19 (1) | ReactionTargetGiverTrack |
+| `motion_reactionthrow.cpp` | 0x101A8330 - 0x101A9500 | 76 (2) | ReactionThrowSpinAngleCondition, ReactionThrowTrack |
+| `motion_reactionhitanimation.cpp` | 0x101A9500 - 0x101A9F10 | 43 (1) | ReactionHitAnimationTrack |
+| `motion_reactionhitapplyimpulse.cpp` | 0x101A9F10 - 0x101AA2B0 | 20 (1) | ReactionHitApplyImpulseTrack |
+| `motion_pushback.cpp` | 0x101AA2B0 - 0x101AADF0 | 61 (3) | PushbackVelocityCondition, PushbackDirectionCondition, ReactionHitPushbackAddTrack |
+| `motion_scrubber.cpp` | 0x101AADF0 - 0x101AB2E0 | 27 (1) | ScrubberTrack |
+| `motion_setvisibility.cpp` | 0x101AB2E0 - 0x101AB8A0 | 31 (1) | SetVisibilityTrack |
+| `motion_shield.cpp` | 0x101AB8A0 - 0x101ACEE0 | 125 (6) | ShieldHealthCondition, ShieldStateCondition, ShieldProtectingCondition, ShieldDeployTrack, ShieldSetStateTrack, ShieldReflectTrack |
+| `motion_shoot.cpp` | 0x101ACEE0 - 0x101B22B0 | 428 (14, 1 nonmatching) | ShootCheckAmmoCountCondition, ShootCheckCooldownTimeCondition, ShootCurrentWeaponConfigurationCondition, ShootCheckOverheatingCondition, ShootSwitchWeaponConfigurationTrack, ShootSetUserProfileTrack, ShootCalculateHitPositionTrack, ShootSetAmmoProfileTrack, ReloadTrack, ShootTrack, ShootAutoTargetTrack, SetFireRateTimerTrack, ShootSelectWeaponConfigurationTrack, ShootTakeAmmoFromParentTrack |
+| `motion_skid.cpp` | 0x101B22B0 - 0x101B3470 | 72 (2) | SkidTrack, SkidPedalTrack |
+| `motion_slavetransform.cpp` | 0x101B3470 - 0x101B3980 | 27 (1) | SlaveTransformTrack |
+| `motion_slowmotion.cpp` | 0x101B3980 - 0x101B3FC0 | 29 (1) | SlowMotionTrack |
+| `motion_footstep.cpp` | 0x101B3FC0 - 0x101B4CC0 | 62 (2) | FootstepTrack, JawFlapTrack |
+| `motion_spawngib.cpp` | 0x101B4CC0 - 0x101B5700 | 45 (1) | SpawnGibTrack |
+| `motion_specialistdodge.cpp` | 0x101B5700 - 0x101B5FB0 | 36 (1) | SpecialistDodgeTrack |
+| `motion_motionstate.cpp` | 0x101B5FB0 - 0x101B6980 | 56 (2) | MotionStateCondition, MotionStateTrack |
+| `motion_stun.cpp` | 0x101B6980 - 0x101B7170 | 44 (2) | StunnedCondition, StunTrack |
+| `motion_supportinglimb.cpp` | 0x101B7170 - 0x101BBA40 | 383 (15) | SupportingLimbTestSurfaceNormalVelocityArcCondition, SupportingLimbTestSurfaceNormalAngleCondition, SupportingLimbSurfaceIntersectionPropertiesCondition, SupportingLimbTestSurfaceVelocityAngleCondition, SupportingLimbTestTimeToImpactCondition, SupportingSurfaceNormalVelocityArcCondition, SupportingSurfaceConditionGroupCondition, SupportingLimbTestSurfaceDistanceCondition, SupportingLimbTestSwitchSurfacesCondition, SupportingLimbTestSurfaceConditionGroupCondition, SupportingLimbSetActiveTrack, SupportingLimbTestTrack, SupportingLimbSetActiveRangeTrack, SurfaceMoveAtVelocityTrack, SupportingLimbSetDirectionTrack |
+| `motion_targetangle.cpp` | 0x101BBA40 - 0x101BBFD0 | 29 (1) | TargetAngleCondition |
+| `motion_targetdistance.cpp` | 0x101BBFD0 - 0x101BD3C0 | 101 (4) | TargetDistanceCondition, TargetCanJumpToCondition, TargetDistanceWithOffsetCondition, AutoTargetDistanceCondition |
+| `motion_targetclass.cpp` | 0x101BD3C0 - 0x101BE030 | 71 (3) | TargetClassTrack, TargetableTrack, TemporaryTargetableTrack |
+| `motion_throw.cpp` | 0x101BE030 - 0x101BF880 | 94 (2) | HitReactionThrowTrack, ThrowTrack |
+| `motion_transformation.cpp` | 0x101BF880 - 0x101C2D60 | 292 (14) | TransformationSlotActiveCondition, TransformationDesiredSensesCondition, ConsumptionNameCondition, TransformationSlotTransformDesiredCondition, TransformationConsumeDescriptionValidCondition, TransformationSlotValidCondition, TransformationAllowedCondition, TransformTrack, TransformationDisallowedTrack, TransformDesiredTrack, TransformCompleteTrack, TransformStartTrack, TransformationAllowedTrack, TransformFadeTrack |
+Notes on the units:
+- `motion_reactioncondition.cpp` is one unit of 24 conditions whose caster constructors and factories come class after class instead of in one run at the end, so a
+  run of caster factories followed by a caster constructor does not end a unit.
+- `ShootTrack` has 17 vftable slots like `HideHUDTrack`: override mask at +0x10, `Slot16(int)`, the `fixedDirection` group (`fight::PropertyGroup<ShootTrack>`, members table
+  0x1102C124 terminated by -1, `SetFixedDirection(bool)` stores the flag at +0x59 and calls `ApplyGroup(0, flag)`).
+Not matching:
+- `ShootTrack::ApplyGroup` (0x101AD590, NONMATCHING 31%): the same function as `HideHUDTrack::ApplyGroup` (0x10162110): the engine keeps the group flag's result only in
+  the argument slot and pushes a register copy for the recursive call; ours holds it in a register (`value = value && flag` was tried as well).
