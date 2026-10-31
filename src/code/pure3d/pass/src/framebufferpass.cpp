@@ -424,6 +424,29 @@ namespace pure3d
 		textures.end = textures.begin;
 	}
 
+	// FUNCTION: ENGINE 0x107B0610
+	ToneMapPass::ToneMapPass(const PassDesc* desc) : FrameBufferPass(desc), shaderE8(0), shaderEC(0), shaderF0(0),
+		shaderF4(0), shaderF8(0), unknownFC(0.18f), unknown100(30.0f), unknown104(1.0f), unknown108(2.5f),
+		unknown10C(1.0f), unknown110(0), unknown114(true), texture118(0), texture11C(0)
+	{
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, (bool (ToneMapPass::*)(bool))&ToneMapPass::SetEnabled, 0);
+		parameters.parameters.At(&gToneMapName100) = ParameterValue(&unknown100);
+		parameters.parameters.At(&gToneMapNameFC) = ParameterValue(&unknownFC);
+		parameters.parameters.At(&gToneMapName10C) = ParameterValue(&unknown10C);
+		parameters.parameters.At(&gToneMapName104) = ParameterValue(&unknown104);
+		parameters.parameters.At(&gToneMapName108) = ParameterValue(&unknown108);
+		textures.begin = (Texture**)operator new[](0x30);
+		if (textures.begin != 0)
+		{
+			textures.end = textures.begin;
+			textures.capacity = textures.begin + 12;
+			return;
+		}
+		textures.end = 0;
+		textures.capacity = 0;
+	}
+
 	// FUNCTION: ENGINE 0x107AF220
 	void ToneMapPass::SetEnabled(bool enabled)
 	{

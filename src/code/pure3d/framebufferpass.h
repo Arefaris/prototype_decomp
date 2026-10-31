@@ -164,8 +164,6 @@ namespace pure3d
 		void SetUnknown104(float first, float second, float third);
 		// 0x107AF3B0: the texture the pass reads (the global at 0x111BACE0 says which of the list, -1 the first)
 		dxTexture* GetSource();
-		// 0x107AF3A0 (a virtual call thunk) is what the handler registers
-		bool SetParameterEnable(bool value);
 
 		Shader* shaderE8;
 		Shader* shaderEC;
@@ -186,6 +184,14 @@ namespace pure3d
 		unsigned char unknown12C[4];
 		ParameterHandler<ToneMapPass> parameters; // +0x130
 	};
+
+	// 0x11281490 / 0x11281478 / 0x112814A8 / 0x11281488 / 0x11281438: the names of the tone map pass's variable parameters (the
+	// floats at +0x100, +0xFC, +0x10C, +0x104 and +0x108; names guessed)
+	extern core::Name<core::CaseSensitiveKey> gToneMapName100;
+	extern core::Name<core::CaseSensitiveKey> gToneMapNameFC;
+	extern core::Name<core::CaseSensitiveKey> gToneMapName10C;
+	extern core::Name<core::CaseSensitiveKey> gToneMapName104;
+	extern core::Name<core::CaseSensitiveKey> gToneMapName108;
 
 	// 0x111BACE0: which texture of the tone map pass's list is the source (-1: the one at +0x11C)
 	extern int gToneMapSourceIndex;
