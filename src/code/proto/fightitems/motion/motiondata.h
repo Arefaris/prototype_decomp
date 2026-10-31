@@ -93,6 +93,37 @@ namespace proto
 			extern const int gPedestrianStateConditionStateCount;  // 0x10E03998
 			extern fight::EnumEntry gRadialBlurTrackAttachSpaceTable[];  // 0x11253860
 			extern const int gRadialBlurTrackAttachSpaceCount;  // 0x10DA0468
+			extern fight::EnumEntry gFXLight_PointTrackAttachSpaceTable[];  // 0x11253860
+			extern fight::EnumEntry gFXLight_PointTrackEmitSpaceTable[];  // 0x11253880
+			extern const int gFXLight_PointTrackAttachSpaceCount;  // 0x10DA0468
+			extern const int gFXLight_PointTrackEmitSpaceCount;  // 0x10DA046C
+			extern fight::EnumEntry gAllowGrabbingTrackOnEndTable[];  // 0x112538B0
+			extern fight::EnumEntry gAllowGrabbingTrackOnBeginTable[];  // 0x112538C8
+			extern fight::EnumEntry gGrabSlotDetachThrowTrackLinearVelocityReferenceTable[];  // 0x112538E0
+			extern fight::EnumEntry gGrabPlayerTrackActionOnEndTable[];  // 0x112538F8
+			extern fight::EnumEntry gReactionHitGrabTrackObjectTable[];  // 0x11253C28
+			extern fight::EnumEntry gGrabSlotReverseAttachmentTrackPhysicsModeTable[];  // 0x11254660
+			extern fight::EnumEntry gGrabPlayerTrackGrabbingPlayerTable[];  // 0x1126E378
+			extern const int gGrabPlayerTrackActionOnEndCount;  // 0x10DA09E4
+			extern const int gAllowGrabbingTrackOnBeginCount;  // 0x10DA09E8
+			extern const int gAllowGrabbingTrackOnEndCount;  // 0x10DA09EC
+			extern const int gGrabSlotDetachThrowTrackLinearVelocityReferenceCount;  // 0x10DA0AF0
+			extern const int gReactionHitGrabTrackObjectCount;  // 0x10DA5A08
+			extern const int gGrabPlayerTrackGrabbingPlayerCount;  // 0x10E17B38
+			extern fight::EnumEntry gGroundSpikeAnimateClusterRadiiTrackSpawnRadiusVelocityTypeTable[];  // 0x11253920
+			extern fight::EnumEntry gGroundSpikeTestStateConditionTestTypeTable[];  // 0x11253958
+			extern const int gGroundSpikeTestStateConditionTestTypeCount;  // 0x10DA1458
+			extern const int gGroundSpikeAnimateClusterRadiiTrackSpawnRadiusVelocityTypeCount;  // 0x10DA145C
+			extern fight::EnumEntry gHUDMarkerTrackAnimTypeTable[];  // 0x11254FC8
+			extern fight::EnumEntry gHUDMarkerTrackDisplayTypeTable[];  // 0x11254FF0
+			extern fight::EnumEntry gHaveIconTypeConditionTypeTable[];  // 0x11255010
+			extern fight::EnumEntry gHUDMarkerTrackColorTable[];  // 0x11255148
+			extern const int gHaveIconTypeConditionTypeCount;  // 0x10DCAFC4
+			extern const int gHUDMarkerTrackColorCount;  // 0x10DCAFC8
+			extern const int gHUDMarkerTrackDisplayTypeCount;  // 0x10DCAFCC
+			extern const int gHUDMarkerTrackAnimTypeCount;  // 0x10DCB0D0
+			extern fight::EnumEntry gHideHUDTrackHideIndividualElementsHideElementsTable[];  // 0x1126D2E0
+			extern const int gHideHUDTrackHideIndividualElementsHideElementsCount;  // 0x10E11290
 		}
 	}
 }
