@@ -4,6 +4,180 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x107A1B30
+	ParameterValue::ParameterValue(float* variable)
+	{
+		kind = 1;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1B50
+	ParameterValue::ParameterValue(int* variable)
+	{
+		kind = 2;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1B70
+	ParameterValue::ParameterValue(unsigned int* variable)
+	{
+		kind = 3;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1B90
+	ParameterValue::ParameterValue(bool* variable)
+	{
+		kind = 4;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1BB0
+	ParameterValue::ParameterValue(math::Vector* variable)
+	{
+		kind = 5;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1BD0
+	ParameterValue::ParameterValue(math::Vector2* variable)
+	{
+		kind = 6;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1BF0
+	ParameterValue::ParameterValue(math::Vector4* variable)
+	{
+		kind = 7;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1C10
+	ParameterValue::ParameterValue(math::pddiColour* variable)
+	{
+		kind = 8;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1C30
+	ParameterValue::ParameterValue(ColourWord* variable)
+	{
+		kind = 9;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1C50
+	ParameterValue::ParameterValue(math::Colour128* variable)
+	{
+		kind = 10;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1C70
+	ParameterValue::ParameterValue(Texture** variable)
+	{
+		kind = 11;
+		setter = variable;
+	}
+
+	// FUNCTION: ENGINE 0x107A1C90
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, float),
+		bool (*newGetter)(void* owner, const ParameterName* name, float*))
+	{
+		kind = 12;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1CB0
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, int),
+		bool (*newGetter)(void* owner, const ParameterName* name, int*))
+	{
+		kind = 13;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1CD0
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, unsigned int),
+		bool (*newGetter)(void* owner, const ParameterName* name, unsigned int*))
+	{
+		kind = 14;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1CF0
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, bool),
+		bool (*newGetter)(void* owner, const ParameterName* name, bool*))
+	{
+		kind = 15;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1D10
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector*),
+		bool (*newGetter)(void* owner, const ParameterName* name, math::Vector*))
+	{
+		kind = 16;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1D30
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector2*),
+		bool (*newGetter)(void* owner, const ParameterName* name, math::Vector2*))
+	{
+		kind = 17;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1D50
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector4*),
+		bool (*newGetter)(void* owner, const ParameterName* name, math::Vector4*))
+	{
+		kind = 18;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1D70
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::pddiColour*),
+		bool (*newGetter)(void* owner, const ParameterName* name, math::pddiColour*))
+	{
+		kind = 19;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1D90
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const unsigned int*),
+		bool (*newGetter)(void* owner, const ParameterName* name, unsigned int*))
+	{
+		kind = 20;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1DB0
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Colour128*),
+		bool (*newGetter)(void* owner, const ParameterName* name, math::Colour128*))
+	{
+		kind = 21;
+		setter = newSetter;
+		getter = newGetter;
+	}
+
+	// FUNCTION: ENGINE 0x107A1DD0
+	ParameterValue::ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, Texture* value))
+	{
+		kind = 22;
+		setter = newSetter;
+	}
+
 	// FUNCTION: ENGINE 0x107A27B0
 	// Takes a parameter node out of the tree for Clear
 	bool DeleteParameter(container::TreeBase::Node* node, void* context)

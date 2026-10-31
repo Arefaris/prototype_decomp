@@ -16,6 +16,14 @@
 
 namespace pure3d
 {
+	class Texture;
+
+	// The packed colour a parameter of kind 9 points at (the word of a pddiColour, as its own type)
+	struct ColourWord
+	{
+		unsigned int bits;
+	};
+
 	// The kinds of a parameter: 1 - 11 point at a variable (float, int, unsigned int, bool, Vector, Vector2, Vector4,
 	// pddiColour, packed unsigned int colour, four-float colour, reference), 12 - 21 are the functions of the same
 	// kinds without the reference and 22 sets a reference through a function
@@ -24,9 +32,47 @@ namespace pure3d
 	public:
 		typedef core::Name<core::CaseSensitiveKey> ParameterName;
 
+		// The ctors 0x107A1B30 - 0x107A1DD0: the variable of kind 1 - 11, the function pair of kind 12 - 21 and the setter
+		// of kind 22
+		explicit ParameterValue(float* variable);
+		explicit ParameterValue(int* variable);
+		explicit ParameterValue(unsigned int* variable);
+		explicit ParameterValue(bool* variable);
+		explicit ParameterValue(math::Vector* variable);
+		explicit ParameterValue(math::Vector2* variable);
+		explicit ParameterValue(math::Vector4* variable);
+		explicit ParameterValue(math::pddiColour* variable);
+		explicit ParameterValue(ColourWord* variable);
+		explicit ParameterValue(math::Colour128* variable);
+		explicit ParameterValue(Texture** variable);
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, float), bool (*newGetter)(void* owner, const ParameterName* name, float*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, int), bool (*newGetter)(void* owner, const ParameterName* name, int*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, unsigned int), bool (*newGetter)(void* owner, const ParameterName* name, unsigned int*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, bool), bool (*newGetter)(void* owner, const ParameterName* name, bool*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector*), bool (*newGetter)(void* owner, const ParameterName* name, math::Vector*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector2*), bool (*newGetter)(void* owner, const ParameterName* name, math::Vector2*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Vector4*), bool (*newGetter)(void* owner, const ParameterName* name, math::Vector4*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::pddiColour*), bool (*newGetter)(void* owner, const ParameterName* name, math::pddiColour*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const unsigned int*), bool (*newGetter)(void* owner, const ParameterName* name, unsigned int*));
+		ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, const math::Colour128*), bool (*newGetter)(void* owner, const ParameterName* name, math::Colour128*));
+		explicit ParameterValue(bool (*newSetter)(void* owner, const ParameterName* name, Texture* value));
+
 		int kind;
 		void* setter;
 		void* getter;
+	};
+
+	// The tree of the parameters (the Map<name, ParameterValue> of the engine; its members are in another unit)
+	class ParameterTree : public container::TreeBase
+	{
+	public:
+		// The empty allocator of the Map the engine's tree is
+		unsigned char allocator;
+
+		typedef core::Name<core::CaseSensitiveKey> ParameterName;
+
+		// 0x1074E4E0: the parameter of that name (made when there is none)
+		ParameterValue& At(const ParameterName* name);
 	};
 
 	// 0x1074E220 (another unit): orders a name against the name of a parameter node
@@ -97,8 +143,140 @@ namespace pure3d
 		bool GetColourFloats(const ParameterName* name, math::Colour128* value);
 
 		void* owner;
-		container::TreeBase parameters;
+		ParameterTree parameters;
 	};
+
+	// ParameterHandler<T> (RTTI names pure3d::ParameterHandler<class pure3d::ProtoMotherPass> and so on, one slot, the
+	// deleting destructor): the handler of the parameters of one pass. A pass keeps it as a member (the handler's owner
+	// is the handler itself, its object the pass) and registers the pass's member functions under the names of the
+	// parameters: the handler files the member functions in its own tree and puts function-kind parameters with the
+	// adapters below in the base tree. Names are guesses.
+	template<class T> class ParameterHandler : public ParameterHandlerTypeless
+	{
+	public:
+		// What a registered parameter calls: the two kinds say how the setter and the getter are called (1: with the
+		// value only, 2 also: the same for a getter that is const; anything else: with the name and the value)
+		struct Entry
+		{
+			int setKind;
+			int getKind;
+			union
+			{
+				bool (T::*setterBool)(bool);
+				bool (T::*setterNamedBool)(const ParameterName*, bool);
+			};
+			union
+			{
+				bool (T::*getterBool)();
+				bool (T::*getterNamedBool)(const ParameterName*, bool*);
+			};
+		};
+
+		// The nodes of the entry tree come from the global array new and delete
+		struct EntryAllocator
+		{
+			static void* Alloc(unsigned int size)
+			{
+				return operator new[](size);
+			}
+			static void Free(void* block)
+			{
+				operator delete[](block);
+			}
+		};
+
+		// The tree of the entries (the value of a new key is made without an initial value)
+		class EntryMap : public container::Map<ParameterName, Entry, EntryAllocator>
+		{
+		public:
+			Entry& At(const ParameterName& key)
+			{
+				MapNode* node = (MapNode*)TreeBase::Find(CompareKey, &key);
+				if (node == 0)
+				{
+					Entry value;
+					Pair pair(key, value);
+					node = Insert(pair).node;
+				}
+				return node->pair.value;
+			}
+		};
+
+		ParameterHandler() : object(0)
+		{
+			owner = this;
+		}
+		// Registers a parameter that is a pair of member functions on bool
+		void AddBool(const ParameterName* name, bool (T::*newSetter)(bool), bool (T::*newGetter)());
+
+		// The functions the base tree holds for such a parameter: look the member functions up by name and call them
+		static bool SetBoolAdapter(void* handler, const ParameterName* name, bool value);
+		static bool GetBoolAdapter(void* handler, const ParameterName* name, bool* value);
+
+		T* object;
+		EntryMap entries;
+	};
+
+	template<class T> void ParameterHandler<T>::AddBool(const ParameterName* name, bool (T::*newSetter)(bool),
+		bool (T::*newGetter)())
+	{
+		Entry entry = {1, 1, {newSetter}, {newGetter}};
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetBoolAdapter, GetBoolAdapter);
+	}
+
+	template<class T> bool ParameterHandler<T>::SetBoolAdapter(void* handler, const ParameterName* name, bool value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterBool)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedBool)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetBoolAdapter(void* handler, const ParameterName* name, bool* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.getKind == 1)
+			{
+				*value = (self->object->*entry.getterBool)();
+				return true;
+			}
+			if (entry.getKind == 2)
+			{
+				*value = (self->object->*entry.getterBool)();
+				return true;
+			}
+			return (self->object->*entry.getterNamedBool)(name, value);
+		}
+		return false;
+	}
 }
 
 #endif

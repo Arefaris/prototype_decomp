@@ -65,9 +65,8 @@ namespace container
 	public:
 		struct Pair
 		{
-			Pair(const Key& newKey, const Value& newValue)
+			Pair(const Key& newKey, const Value& newValue) : key(newKey)
 			{
-				key = newKey;
 				value = newValue;
 			}
 
