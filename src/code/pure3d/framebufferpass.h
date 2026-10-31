@@ -129,6 +129,30 @@ namespace pure3d
 		ParameterHandler<ToneMapPass> parameters; // +0x130
 	};
 
+	// Draws the translucent parts (vftable 0x10E642B4)
+	class TranslucentPass : public Pass
+	{
+	public:
+		// 0x107B1AD0
+		explicit TranslucentPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107B1B20, the deleting destructor 0x107B1B50)
+		virtual ~TranslucentPass();
+		// Slot 4 (0x107B2410)
+		virtual void Render(PassContext* context);
+	};
+
+	// Copies the picture (vftable 0x10E64044)
+	class CopyPass : public FrameBufferPass
+	{
+	public:
+		// 0x107B0990
+		explicit CopyPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107B0850, the deleting destructor 0x107B0A30)
+		virtual ~CopyPass();
+		// Slot 4 (0x107B0860)
+		virtual void Render(PassContext* context);
+	};
+
 	// 0x11281440 / 0x112815E8: the names of the capture pass's parameters (names guessed)
 	extern core::Name<core::CaseSensitiveKey> gCaptureColour;
 	extern core::Name<core::CaseSensitiveKey> gCaptureAmount;

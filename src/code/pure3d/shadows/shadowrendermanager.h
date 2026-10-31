@@ -24,6 +24,8 @@ namespace pure3d
 
 		// 0x10715910
 		static ShadowRenderManager* Get();
+		// 0x10715D60: starts the manager's frame (name guess)
+		void Unknown10715D60();
 		// 0x10715AC0: does nothing (the view state of the render parameters is the argument)
 		void Unknown10715AC0(const void* viewState);
 		// 0x10715F30: makes the shadow map again after the device came back (called by the default pool)

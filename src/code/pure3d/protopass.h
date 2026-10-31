@@ -15,6 +15,9 @@ namespace pure3d
 	class Light;
 	class RenderParams;
 
+	// 0x111BADD0: how many lights the shadow passes make room for
+	extern unsigned int gShadowLightCapacity;
+
 	// 0x11282ABC: set while the visibility test of a pass runs
 	extern bool gVisibilityTestActive;
 
@@ -83,10 +86,39 @@ namespace pure3d
 	};
 
 	// The shadow passes' base (RTTI name pure3d::ShadowPass): the view of the light, set for the parts of a shadow
+	// The lights a shadow pass collects: room made with operator new[] (begin, end of the used part, end of the room)
+	struct ShadowLightList
+	{
+		ShadowLightList()
+		{
+			begin = 0;
+			end = 0;
+			capacity = 0;
+		}
+		~ShadowLightList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				operator delete[](begin);
+			}
+		}
+
+		Light** begin;
+		Light** end;
+		Light** capacity;
+	};
+
 	class ShadowPass : public Pass
 	{
 	public:
-		// Slot 7 (0x107B0A80)
+		// 0x107B12A0 (the description is not used here)
+		explicit ShadowPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107B13A0, the deleting destructor 0x107B13E0)
+		virtual ~ShadowPass();
+		// Slot 4 (0x107B1A30): renders the shadows of the scene's lights
+		virtual void Render(PassContext* context);
+		// Slot 7 (0x107B0A80): starts the shadow render manager's frame once
 		virtual bool IsVisible();
 
 		// 0x107B0AA0: the viewport of a view state of the render parameters (the pass is not used)
@@ -96,6 +128,12 @@ namespace pure3d
 		// 0x107B0B00: the position of the light (the first four floats of its camera) in the object space of a
 		// part, as the shader constant; the matrix null stands for the identity
 		void SetObjectSpaceLightPosition(const void* camera, const math::Matrix* world);
+
+		// The room for the lights of a scene (as many as the global at 0x111BADD0 says), and the filter of the shadow
+		// views
+		ShadowLightList lights;       // +0xB0
+		unsigned char unknownBC[4];
+		PassEntries shadowEntries; // +0xC0
 	};
 
 	// Renders the shadow maps (vftable 0x10E5F584)
@@ -111,9 +149,6 @@ namespace pure3d
 		PartList* GetShadowParts(Scene* scene, int view);
 		// 0x107678D0: sets the device up for the shadow depth (depends on the shadow render manager's flag)
 		void Unknown107678D0();
-
-		unsigned char unknownB0[0x10];
-		PassEntries shadowEntries; // +0xC0
 	};
 
 	// Sets up a view of the scene, runs its children and puts the view away (vftable 0x10E5F6BC, fourteen slots)

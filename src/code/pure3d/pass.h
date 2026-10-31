@@ -29,6 +29,8 @@ namespace pure3d
 	class PassEntries
 	{
 	public:
+		// 0x10610220
+		PassEntries();
 		~PassEntries();
 		// 0x1060F810 (the engine's name is a leaf::LeafSetWord member): sets the word; 0x1060FDB0: adds an entry
 		void SetWord(int value);

@@ -2,6 +2,8 @@
 #include "code/core/refptr.h"
 #include "code/engine/render/async/shaderparameter.h"
 #include "code/pure3d/framebufferpass.h"
+#include "code/pure3d/protopass.h"
+#include "code/pure3d/shadows/shadowrendermanager.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 
 namespace pure3d
@@ -323,6 +325,81 @@ namespace pure3d
 		parameters.object = this;
 		parameters.AddColour(&gCaptureColour, &CapturePass::SetColour, 0);
 		parameters.AddUnsigned(&gCaptureAmount, &CapturePass::SetUnknownB4, 0);
+	}
+}
+
+namespace pure3d
+{
+	unsigned int gShadowLightCapacity = 0x200;
+
+	// FUNCTION: ENGINE 0x107B0850
+	CopyPass::~CopyPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107B0A80
+	bool ShadowPass::IsVisible()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			ShadowRenderManager::Get()->Unknown10715D60();
+			unknown24Bit1 = 1;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x107B12A0
+	// EQUIVALENT: scheduling only (the vftable store sits right after the base constructor call in the engine, after the
+	// first register set-up in ours; 75.1 %)
+	ShadowPass::ShadowPass(const PassDesc* desc) : Pass(desc)
+	{
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(7, false);
+		entries.AddEntry(6, false);
+		shadowEntries.SetWord(1);
+		shadowEntries.AddEntry(2, false);
+		shadowEntries.AddEntry(1, false);
+		shadowEntries.AddEntry(7, false);
+		shadowEntries.AddEntry(6, false);
+		shadowEntries.AddEntry(9, true);
+		if (gShadowLightCapacity == 0)
+		{
+			lights.begin = 0;
+		}
+		else
+		{
+			unsigned int size = gShadowLightCapacity * 4;
+			lights.begin = (Light**)operator new[](size);
+			if (lights.begin != 0)
+			{
+				lights.capacity = (Light**)((unsigned char*)lights.begin + size);
+				lights.end = lights.begin;
+				return;
+			}
+		}
+		lights.end = 0;
+		lights.capacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107B13A0
+	ShadowPass::~ShadowPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107B1AD0
+	TranslucentPass::TranslucentPass(const PassDesc* desc) : Pass(desc)
+	{
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(7, true);
+	}
+
+	// FUNCTION: ENGINE 0x107B1B20
+	TranslucentPass::~TranslucentPass()
+	{
 	}
 }
 	// FUNCTION: ENGINE 0x107AD390
