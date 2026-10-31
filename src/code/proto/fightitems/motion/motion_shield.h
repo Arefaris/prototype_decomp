@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -196,6 +198,43 @@ namespace proto
 			fight::TrackFactory* CreateShieldReflectTrackFactory(const char* name);
 			void RegisterShieldReflectTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::ShieldSetStateAction (9 vftable slots, 0x2C bytes)
+			class ShieldSetStateAction : public fight::Action
+			{
+			public:
+				// 0x1010F8C0
+				ShieldSetStateAction(ShieldSetStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1010F660
+				virtual ~ShieldSetStateAction();
+
+				// vftable slot 5 (0x1010F970)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ShieldSetStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::ShieldReflectAction (9 vftable slots, 0x2C bytes)
+			class ShieldReflectAction : public fight::Action
+			{
+			public:
+				// 0x1010FA00
+				ShieldReflectAction(ShieldReflectTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1010F7B0
+				virtual ~ShieldReflectAction();
+
+				// vftable slot 5 (0x1010FAB0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1010FB50)
+				virtual void Slot6();
+
+				core::Link<ShieldReflectTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

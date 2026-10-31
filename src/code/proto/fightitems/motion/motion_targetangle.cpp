@@ -102,6 +102,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<TargetAngleCondition>;
 			template class fight::PropertyFloatConstRange<TargetAngleCondition>;
 			template class fight::PropertyBool<TargetAngleCondition>;

@@ -258,6 +258,167 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1011F560
+			TemporaryTargetableAction::TemporaryTargetableAction(TemporaryTargetableTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011F140
+			TemporaryTargetableAction::~TemporaryTargetableAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011F8D0
+			fight::Action* TemporaryTargetableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TemporaryTargetableAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011F420
+			TargetableAction::TargetableAction(TargetableTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011F0F0
+			TargetableAction::~TargetableAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011F870
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
+			fight::Action* TargetableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				ActionOwner* actionOwner = AsActionOwner(owner);
+				return new TargetableAction(this, actionOwner->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011F2C0
+			TargetClassAction::TargetClassAction(TargetClassTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* listener, core::IRefCount* newOwner) : fight::Action(0x200), link(newTrack), target(newTarget), watch(listener), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x1011F080
+			TargetClassAction::~TargetClassAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x1011F800
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (94.0 %)
+			fight::Action* TargetClassTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				ActionOwner* actionOwner = AsActionOwner(owner);
+				return new TargetClassAction(this, actionOwner->handle, listener, owner);
+			}
+
+			// FUNCTION: ENGINE 0x1011F390
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (24.6 %)
+			bool TargetClassAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetTargetClassMessage message(link.object->targetClass);
+						object->SendMessage(&message);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1011F4D0
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (24.6 %)
+			bool TargetableAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetTargetableTargetMessage message(link.object->targetable);
+					object->SendMessage(&message);
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1011F610
+			// EQUIVALENT: register allocation and the arms of the switch: the engine stores the state byte per arm and keeps a zero in ebx (76.1 %)
+			bool TemporaryTargetableAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetableInfoMessage info;
+				object->SendMessage(&info);
+				targetable = info.targetable;
+				bool state;
+				switch (link.object->onBegin)
+				{
+				case 1:
+					state = true;
+					break;
+				case 2:
+					state = false;
+					break;
+				default:
+					return true;
+				}
+				SetTargetableTargetMessage message(state);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1011F740
+			bool TemporaryTargetableAction::Slot7(int arg, float value)
+			{
+				return link.object != 0 ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x1011F750
+			// EQUIVALENT: register allocation and the arms of the switch: the engine stores the state byte per arm and keeps a zero in ebx (16.3 %)
+			void TemporaryTargetableAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						bool state;
+						switch (link.object->onEnd)
+						{
+						case 1:
+							state = true;
+							break;
+						case 2:
+							state = false;
+							break;
+						case 3:
+							state = targetable;
+							break;
+						default:
+							return;
+						}
+						SetTargetableTargetMessage message(state);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<TargetClassTrack>;
 			template class fight::PropertyEnumConstList<TargetClassTrack>;
 			template class fight::TrackFactoryTemplate<TargetClassTrack>;
@@ -274,6 +435,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1011EE40
+// FUNCTION: ENGINE 0x1011EE70
+// FUNCTION: ENGINE 0x1011EEB0
+// FUNCTION: ENGINE 0x1011EEE0
+// FUNCTION: ENGINE 0x1011EF00
+// FUNCTION: ENGINE 0x1011EF20
+// FUNCTION: ENGINE 0x1011EF50
+// FUNCTION: ENGINE 0x1011EFB0
+// FUNCTION: ENGINE 0x1011F010
+// FUNCTION: ENGINE 0x1011F360
+// FUNCTION: ENGINE 0x1011F4A0
+// FUNCTION: ENGINE 0x1011F5E0
 // FUNCTION: ENGINE 0x101BD630
 // FUNCTION: ENGINE 0x101BD660
 // FUNCTION: ENGINE 0x101BD690

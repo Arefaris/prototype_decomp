@@ -270,6 +270,30 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x10116DA0
+			FootstepAction::FootstepAction(FootstepTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10116BA0
+			FootstepAction::~FootstepAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101167E0
+			void FootstepAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101173A0
+			fight::Action* FootstepTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new FootstepAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FootstepTrack>;
 			template class fight::PropertyName<FootstepTrack>;
 			template class fight::TrackFactoryTemplate<FootstepTrack>;
@@ -285,6 +309,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101169C0
+// FUNCTION: ENGINE 0x10116A10
+// FUNCTION: ENGINE 0x10116E10
 // FUNCTION: ENGINE 0x101B4340
 // FUNCTION: ENGINE 0x101B4350
 // FUNCTION: ENGINE 0x101B4380

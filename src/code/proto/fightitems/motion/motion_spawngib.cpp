@@ -222,6 +222,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SpawnGibTrack>;
 			template class fight::PropertyName<SpawnGibTrack>;
 			template class fight::PropertyBool<SpawnGibTrack>;

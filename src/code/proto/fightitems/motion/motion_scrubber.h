@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
 
 namespace proto
 {
@@ -49,6 +50,30 @@ namespace proto
 			fight::TrackFactory* CreateScrubberTrackFactory(const char* name);
 			void RegisterScrubberTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::ScrubberAction (9 vftable slots, 0x30 bytes)
+			class ScrubberAction : public fight::Action
+			{
+			public:
+				// 0x1010E4D0
+				ScrubberAction(ScrubberTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1010E350
+				virtual ~ScrubberAction();
+
+				// vftable slot 5 (0x1010E390)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1010E3F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x1010E7C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ScrubberTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

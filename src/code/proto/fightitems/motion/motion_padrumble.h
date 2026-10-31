@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
 
 namespace proto
 {
@@ -129,6 +130,46 @@ namespace proto
 			fight::TrackFactory* CreatePadRumbleClearTrackFactory(const char* name);
 			void RegisterPadRumbleClearTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::PadRumbleRefAction (9 vftable slots, 0x78 bytes): runs the track's branch in its own sequencer
+			class PadRumbleRefAction : public fight::Action
+			{
+			public:
+				// 0x101008D0
+				PadRumbleRefAction(fight::Track* listener, PadRumbleRefTrack* newTrack, int newEffect, core::IRefCount* newOwner);
+				// 0x10100440
+				virtual ~PadRumbleRefAction();
+
+				// vftable slot 3 (0x10100150)
+				virtual fight::Sequencer* GetChild();
+				// vftable slot 5 (0x101009A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10100160)
+				virtual void Slot6();
+
+				core::Link<PadRumbleRefTrack> link;  // +0x1C
+				int effect;  // +0x28
+				core::IRefCount* owner;  // +0x2C
+				fight::Sequencer sequencer;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::PadRumbleClearAction (9 vftable slots, 0x2C bytes)
+			class PadRumbleClearAction : public fight::Action
+			{
+			public:
+				// 0x101005B0
+				PadRumbleClearAction(PadRumbleClearTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101003A0
+				virtual ~PadRumbleClearAction();
+
+				// vftable slot 5 (0x10100200)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<PadRumbleClearTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

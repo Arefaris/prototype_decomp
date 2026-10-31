@@ -105,6 +105,48 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x1010E4D0
+			ScrubberAction::ScrubberAction(ScrubberTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010E350
+			ScrubberAction::~ScrubberAction()
+			{
+				engine::ReleaseDriver(driver);
+			}
+
+			// FUNCTION: ENGINE 0x1010E8E0
+			fight::Action* ScrubberTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ScrubberAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x1010E390
+			// EQUIVALENT: instruction selection of the pointer to bool conversion (neg, sbb, neg where ours has test, setne) (63.9 %)
+			bool ScrubberAction::Slot5(int arg, float value)
+			{
+				return engine::GetPuppet(target.Get()) != 0;
+			}
+
+			// FUNCTION: ENGINE 0x1010E3F0
+			void ScrubberAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriver(driver);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<ScrubberTrack>;
 			template class fight::PropertyFloatConstRange<ScrubberTrack>;
 			template class fight::PropertyBool<ScrubberTrack>;
@@ -115,6 +157,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1010E2B0
+// FUNCTION: ENGINE 0x1010E2E0
+// FUNCTION: ENGINE 0x1010E540
 // FUNCTION: ENGINE 0x101AAF00
 // FUNCTION: ENGINE 0x101AAF10
 // FUNCTION: ENGINE 0x101AAF40

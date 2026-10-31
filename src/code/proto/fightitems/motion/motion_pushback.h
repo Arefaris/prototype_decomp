@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
 
 namespace proto
 {
@@ -102,6 +103,9 @@ namespace proto
 			fight::TrackFactory* CreateReactionHitPushbackAddTrackFactory(const char* name);
 			void RegisterReactionHitPushbackAddTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

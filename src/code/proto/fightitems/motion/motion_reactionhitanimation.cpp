@@ -204,6 +204,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionHitAnimationTrack>;
 			template class fight::PropertyName<ReactionHitAnimationTrack>;
 			template class fight::PropertyEnumConstList<ReactionHitAnimationTrack>;

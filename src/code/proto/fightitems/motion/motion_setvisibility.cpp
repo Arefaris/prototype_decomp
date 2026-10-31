@@ -115,6 +115,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1010EC00
+			SetVisibilityAction::SetVisibilityAction(SetVisibilityTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010EA80
+			SetVisibilityAction::~SetVisibilityAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010EE90
+			fight::Action* SetVisibilityTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetVisibilityAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SetVisibilityTrack>;
 			template class fight::PropertyEnumConstList<SetVisibilityTrack>;
 			template class fight::PropertyBool<SetVisibilityTrack>;
@@ -125,6 +144,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1010E9E0
+// FUNCTION: ENGINE 0x1010EA10
+// FUNCTION: ENGINE 0x1010EC80
 // FUNCTION: ENGINE 0x101AB3F0
 // FUNCTION: ENGINE 0x101AB420
 // FUNCTION: ENGINE 0x101AB430

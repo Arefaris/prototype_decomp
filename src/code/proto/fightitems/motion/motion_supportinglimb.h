@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
 
 namespace proto
 {
@@ -522,6 +523,69 @@ namespace proto
 			fight::TrackFactory* CreateSupportingLimbSetDirectionTrackFactory(const char* name);
 			void RegisterSupportingLimbSetDirectionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SurfaceMoveAtVelocityAction (9 vftable slots, 0x2C bytes)
+			class SurfaceMoveAtVelocityAction : public fight::Action
+			{
+			public:
+				// 0x1011DAA0
+				SurfaceMoveAtVelocityAction(SurfaceMoveAtVelocityTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011C300
+				virtual ~SurfaceMoveAtVelocityAction();
+
+				// vftable slot 5 (0x1011DB60)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1011C340)
+				virtual void Slot6();
+				// vftable slot 7 (0x1011DCF0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SurfaceMoveAtVelocityTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+			};
+
+			// RTTI: proto::fightitems::motion::SupportingLimbSetDirectionAction (9 vftable slots, 0x2C bytes)
+			class SupportingLimbSetDirectionAction : public fight::Action
+			{
+			public:
+				// 0x1011D920
+				SupportingLimbSetDirectionAction(SupportingLimbSetDirectionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011C2B0
+				virtual ~SupportingLimbSetDirectionAction();
+
+				// vftable slot 5 (0x1011D9D0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SupportingLimbSetDirectionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::SupportingLimbSetActiveRangeAction (9 vftable slots, 0x2C bytes)
+			class SupportingLimbSetActiveRangeAction : public fight::Action
+			{
+			public:
+				// 0x1011D7C0
+				SupportingLimbSetActiveRangeAction(SupportingLimbSetActiveRangeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011C260
+				virtual ~SupportingLimbSetActiveRangeAction();
+
+				// vftable slot 5 (0x1011D870)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1011D8D0)
+				virtual void Slot6();
+
+				core::Link<SupportingLimbSetActiveRangeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

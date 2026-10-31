@@ -4,6 +4,9 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction2.h"
+#include "code/engine/fight/effecttrack.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -113,6 +116,64 @@ namespace proto
 			fight::TrackFactory* CreateTemporaryTargetableTrackFactory(const char* name);
 			void RegisterTemporaryTargetableTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TargetClassAction (9 vftable slots, 0x3C bytes)
+			class TargetClassAction : public fight::Action
+			{
+			public:
+				// 0x1011F2C0
+				TargetClassAction(TargetClassTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* listener, core::IRefCount* newOwner);
+				// 0x1011F080
+				virtual ~TargetClassAction();
+
+				// vftable slot 5 (0x1011F390)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TargetClassTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::TrackWatch watch;  // +0x2C
+				core::IRefCount* owner;  // +0x38
+			};
+
+			// RTTI: proto::fightitems::motion::TemporaryTargetableAction (9 vftable slots, 0x2C bytes)
+			class TemporaryTargetableAction : public fight::Action
+			{
+			public:
+				// 0x1011F560
+				TemporaryTargetableAction(TemporaryTargetableTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011F140
+				virtual ~TemporaryTargetableAction();
+
+				// vftable slot 5 (0x1011F610)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1011F750)
+				virtual void Slot6();
+				// vftable slot 7 (0x1011F740)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TemporaryTargetableTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool targetable;  // +0x2C
+				unsigned char unknown2D[0x3];
+			};
+
+			// RTTI: proto::fightitems::motion::TargetableAction (9 vftable slots, 0x2C bytes)
+			class TargetableAction : public fight::Action
+			{
+			public:
+				// 0x1011F420
+				TargetableAction(TargetableTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011F0F0
+				virtual ~TargetableAction();
+
+				// vftable slot 5 (0x1011F4D0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TargetableTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

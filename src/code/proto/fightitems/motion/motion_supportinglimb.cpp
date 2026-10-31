@@ -1325,6 +1325,78 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1011DAA0
+			// EQUIVALENT: scheduling, the store of the driver word comes before the store of the target in ours (82.3 %)
+			SurfaceMoveAtVelocityAction::SurfaceMoveAtVelocityAction(SurfaceMoveAtVelocityTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011C300
+			SurfaceMoveAtVelocityAction::~SurfaceMoveAtVelocityAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1011E010
+			fight::Action* SurfaceMoveAtVelocityTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SurfaceMoveAtVelocityAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011D920
+			SupportingLimbSetDirectionAction::SupportingLimbSetDirectionAction(SupportingLimbSetDirectionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011C2B0
+			SupportingLimbSetDirectionAction::~SupportingLimbSetDirectionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011DFB0
+			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
+			fight::Action* SupportingLimbSetDirectionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new SupportingLimbSetDirectionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011D7C0
+			SupportingLimbSetActiveRangeAction::SupportingLimbSetActiveRangeAction(SupportingLimbSetActiveRangeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011C260
+			SupportingLimbSetActiveRangeAction::~SupportingLimbSetActiveRangeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011DF50
+			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
+			fight::Action* SupportingLimbSetActiveRangeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new SupportingLimbSetActiveRangeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011C340
+			void SurfaceMoveAtVelocityAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<SupportingLimbTestSurfaceNormalVelocityArcCondition>;
 			template class fight::PropertyFloatConstRange<SupportingLimbTestSurfaceNormalVelocityArcCondition>;
 			template class fight::ConditionFactoryTemplate<SupportingLimbTestSurfaceNormalVelocityArcCondition>;
@@ -1397,6 +1469,15 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1011AE00
+// FUNCTION: ENGINE 0x1011AE20
+// FUNCTION: ENGINE 0x1011AE40
+// FUNCTION: ENGINE 0x1011AEB0
+// FUNCTION: ENGINE 0x1011AF10
+// FUNCTION: ENGINE 0x1011AF70
+// FUNCTION: ENGINE 0x1011D840
+// FUNCTION: ENGINE 0x1011D9A0
+// FUNCTION: ENGINE 0x1011DB30
 // FUNCTION: ENGINE 0x101B7DD0
 // FUNCTION: ENGINE 0x101B7E00
 // FUNCTION: ENGINE 0x101B7E30

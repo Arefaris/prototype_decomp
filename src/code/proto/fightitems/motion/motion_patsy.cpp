@@ -585,6 +585,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBool<HasFailedPatsyCondition>;
 			template class fight::ConditionFactoryTemplate<HasFailedPatsyCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HasFailedPatsyCondition>;

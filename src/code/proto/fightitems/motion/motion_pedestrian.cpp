@@ -974,6 +974,98 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10103B40
+			SetPedestrianReadyForDowngradeAction::SetPedestrianReadyForDowngradeAction(SetPedestrianReadyForDowngradeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10102AC0
+			SetPedestrianReadyForDowngradeAction::~SetPedestrianReadyForDowngradeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10103DA0
+			fight::Action* SetPedestrianReadyForDowngradeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetPedestrianReadyForDowngradeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101035D0
+			SpreadPedestrianAlertStateAction::SpreadPedestrianAlertStateAction(SpreadPedestrianAlertStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101029D0
+			SpreadPedestrianAlertStateAction::~SpreadPedestrianAlertStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10103CB0
+			fight::Action* SpreadPedestrianAlertStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SpreadPedestrianAlertStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101038A0
+			SetPedestrianAlertStateAction::SetPedestrianAlertStateAction(SetPedestrianAlertStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10102A20
+			SetPedestrianAlertStateAction::~SetPedestrianAlertStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10103D00
+			fight::Action* SetPedestrianAlertStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetPedestrianAlertStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101039F0
+			SetPedestrianStateAction::SetPedestrianStateAction(SetPedestrianStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10102A70
+			SetPedestrianStateAction::~SetPedestrianStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10103D50
+			fight::Action* SetPedestrianStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetPedestrianStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10103460
+			CharacterCloudStateAction::CharacterCloudStateAction(CharacterCloudStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10102980
+			CharacterCloudStateAction::~CharacterCloudStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10102360
+			void CharacterCloudStateAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10103C60
+			fight::Action* CharacterCloudStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CharacterCloudStateAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<NPCAnimationVersionCondition>;
 			template class fight::PropertyIntConstRange<NPCAnimationVersionCondition>;
 			template class fight::ConditionFactoryTemplate<NPCAnimationVersionCondition>;
@@ -1029,6 +1121,21 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101024E0
+// FUNCTION: ENGINE 0x10102500
+// FUNCTION: ENGINE 0x10102520
+// FUNCTION: ENGINE 0x10102540
+// FUNCTION: ENGINE 0x10102560
+// FUNCTION: ENGINE 0x10102590
+// FUNCTION: ENGINE 0x101025F0
+// FUNCTION: ENGINE 0x10102650
+// FUNCTION: ENGINE 0x101026B0
+// FUNCTION: ENGINE 0x10102710
+// FUNCTION: ENGINE 0x101034D0
+// FUNCTION: ENGINE 0x10103640
+// FUNCTION: ENGINE 0x10103920
+// FUNCTION: ENGINE 0x10103A70
+// FUNCTION: ENGINE 0x10103BC0
 // FUNCTION: ENGINE 0x1019CD80
 // FUNCTION: ENGINE 0x1019CDB0
 // FUNCTION: ENGINE 0x1019CDE0

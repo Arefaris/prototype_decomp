@@ -151,6 +151,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10105DB0
+			RadioHQAction::RadioHQAction(RadioHQTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10105C80
+			RadioHQAction::~RadioHQAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101060D0
+			fight::Action* RadioHQTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RadioHQAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10106020
+			ScenarioEventRadioAttemptAction::ScenarioEventRadioAttemptAction(ScenarioEventRadioAttemptTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10105CD0
+			ScenarioEventRadioAttemptAction::~ScenarioEventRadioAttemptAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10106120
+			fight::Action* ScenarioEventRadioAttemptTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ScenarioEventRadioAttemptAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<RadioHQTrack>;
 			template class fight::TrackFactoryTemplate<RadioHQTrack>;
 			template class fight::TrackFactoryCasterTemplate<RadioHQTrack>;
@@ -162,6 +198,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10105B70
+// FUNCTION: ENGINE 0x10105B90
+// FUNCTION: ENGINE 0x10105BC0
+// FUNCTION: ENGINE 0x10105C10
+// FUNCTION: ENGINE 0x10105E30
+// FUNCTION: ENGINE 0x101060A0
 // FUNCTION: ENGINE 0x101A0C60
 // FUNCTION: ENGINE 0x101A0C90
 // FUNCTION: ENGINE 0x101A0CC0

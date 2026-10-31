@@ -267,6 +267,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionPushbackOrientTrack>;
 			template class fight::PropertyIntConstRange<ReactionPushbackOrientTrack>;
 			template class fight::TrackFactoryTemplate<ReactionPushbackOrientTrack>;
