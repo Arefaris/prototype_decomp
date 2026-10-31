@@ -494,4 +494,74 @@ namespace om
 	template audio::MixType DelegateMetaProperty<audio::MixType>::Get();
 	// FUNCTION: ENGINE 0x10ABFFF0
 	template void DelegateMetaProperty<audio::MixType>::Set(audio::MixType);
+	// FUNCTION: ENGINE 0x10AC0010
+	template DelegateMetaProperty<audio::Focus>::DelegateMetaProperty(void*, MetaProperty<audio::Focus>*);
+	// FUNCTION: ENGINE 0x10AC0040
+	template void DelegateMetaProperty<audio::Focus>::SetObject(void*);
+	// FUNCTION: ENGINE 0x10AC0050
+	template void DelegateMetaProperty<audio::Focus>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AC0070
+	template DelegateMetaProperty<audio::Focus>::~DelegateMetaProperty();
+	// FUNCTION: ENGINE 0x10AC0080
+	template audio::Focus DelegateMetaProperty<audio::Focus>::Get();
+	// FUNCTION: ENGINE 0x10AC00A0
+	template void DelegateMetaProperty<audio::Focus>::Set(audio::Focus);
+	// FUNCTION: ENGINE 0x10AC0640
+	template bool MetaEnum<audio::BufferLocation>::ReadText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC06B0
+	template bool MetaEnum<audio::MixType>::ReadText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC0720
+	template bool MetaEnum<audio::Focus>::ReadText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC08B0
+	template bool MetaProperty<audio::BufferLocation>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC0940
+	template void MetaProperty<audio::BufferLocation>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AC09D0
+	template bool MetaProperty<audio::BufferLocation>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0A30
+	template bool MetaProperty<audio::BufferLocation>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0A80
+	template DelegatePropertyBase* MetaProperty<audio::BufferLocation>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AC0AD0
+	template bool MetaProperty<audio::MixType>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC0B60
+	template void MetaProperty<audio::MixType>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AC0BF0
+	template bool MetaProperty<audio::MixType>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0C50
+	template bool MetaProperty<audio::MixType>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0CA0
+	template DelegatePropertyBase* MetaProperty<audio::MixType>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AC0CF0
+	template bool MetaProperty<audio::Focus>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC0D80
+	template void MetaProperty<audio::Focus>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AC0E10
+	template bool MetaProperty<audio::Focus>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0E70
+	template bool MetaProperty<audio::Focus>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC0EC0
+	template DelegatePropertyBase* MetaProperty<audio::Focus>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AC1900
+	template audio::BufferLocation ArgumentReader<audio::BufferLocation>::Read(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10AC1940
+	template audio::MixType ArgumentReader<audio::MixType>::Read(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10AC1980
+	template audio::Focus ArgumentReader<audio::Focus>::Read(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10AC19C0
+	template void MetaMethod0Const<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,audio::BufferLocation>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1A80
+	template void MetaMethod0Const<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,audio::MixType>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1B40
+	template void MetaMethod0Const<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,audio::Focus>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1C00
+	template void MetaMethod0Const<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,audio::WAVEFORMAT>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1CC0
+	template void MetaMethod1<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,void,audio::BufferLocation>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1DB0
+	template void MetaMethod1<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,void,audio::MixType>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1EA0
+	template void MetaMethod1<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,void,audio::Focus>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AC1F90
+	template void MetaMethod1<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,void,audio::WAVEFORMAT>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 }

@@ -273,7 +273,11 @@ def buildImageObject(pe, slots, exports, symbols, replaced, path, dataSizes=None
 
 	text = layout[0][2]
 	textVa = layout[0][0]
+	# A byte E8 / E9 inside the four bytes of an absolute reference already placed is an operand, not a call
+	occupied = {site + k for site, _, _ in text.relocations for k in range(4)}
 	for at, destination in scanRel32(bytes(text.data), textVa, set(byAddress)):
+		if any(at + k in occupied for k in range(4)):
+			continue
 		struct.pack_into("<i", text.data, at, 0)
 		text.relocations.append((at, writer.external(byAddress[destination]), coff.IMAGE_REL_I386_REL32))
 		stats["replaced"] += 1
