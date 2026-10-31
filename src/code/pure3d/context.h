@@ -48,6 +48,7 @@ namespace pure3d
 	};
 
 	class RenderParams;
+	class ParameterHandlerTypeless;
 	class RenderContext;
 
 	// A name as its 64-bit hash (the key of the context's tree starts with one; the word makes the key 8-byte
@@ -411,7 +412,7 @@ namespace pure3d
 		void Run(const RenderParams* params);
 		// 0x1074DB10 (another unit): the render parameters of the child context of that name, null when there is
 		// none
-		RenderParams* Unknown1074DB10(const core::Name<core::CaseSensitiveKey>* name);
+		ParameterHandlerTypeless* Unknown1074DB10(const core::Name<core::CaseSensitiveKey>* name);
 		// Sets the parameter of the child context to the value (the render events' unit, 0x10826970 - 0x10826CE0)
 		template<class T> bool SetParameter(const core::Name<core::CaseSensitiveKey>* context,
 			const core::Name<core::CaseSensitiveKey>* parameter, const T* value);

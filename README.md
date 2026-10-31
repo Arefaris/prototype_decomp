@@ -15,8 +15,8 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  10.563 %
-Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  14.641 %  (20548 / 140347)
+Code       ███░░░░░░░░░░░░░░░░░░░░░░░░░░░  10.580 %
+Functions  ████░░░░░░░░░░░░░░░░░░░░░░░░░░  14.654 %  (20566 / 140347)
   audio       391 functions matched, 13,832 bytes
   choreo      612 functions matched, 34,032 bytes
   container    54 functions matched, 4,080 bytes
@@ -30,12 +30,12 @@ Functions  ████░░░░░░░░░░░░░░░░░░░
   music      1159 functions matched, 36,130 bytes
   om          155 functions matched, 7,498 bytes
   proto       898 functions matched, 58,096 bytes
-  pure3d     1364 functions matched, 94,501 bytes
+  pure3d     1382 functions matched, 96,132 bytes
   ravenphysics  2411 functions matched, 94,227 bytes
   scaleformp3d    67 functions matched, 2,567 bytes
 ```
 
-Updated 2026-10-30 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
+Updated 2026-10-31 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
 <!-- progress:end -->
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the

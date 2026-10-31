@@ -25,6 +25,14 @@ namespace math
 		// 0x102CD7F0 (another copy, in the bullet tracer's unit): the same for a Colour128
 		explicit pddiColour(const Colour128& colour);
 
+		// 0x10719210 (a copy of the constructor from a Colour128 that is compiled for the x87 unit): sets the colour
+		// from the channels and answers itself
+		pddiColour* FromColour128(const Colour128& colour);
+		// 0x107A1E50 (the parameter handler's own copy of the same constructor, compiled for SSE) and 0x104C2630 (a
+		// copy constructor of another unit that assembles the word channel by channel): answer the colour itself
+		pddiColour* FromColour128Sse(const Colour128& colour);
+		pddiColour* CopyChannels(const pddiColour& other);
+
 		unsigned int b : 8;
 		unsigned int g : 8;
 		unsigned int r : 8;
