@@ -32855,3 +32855,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?OnFlags@MonkeyControllerManager@controller@engine@@UAEXII_NH@Z = 0x108909B0 ; function size:0x9 | engine::controller::MonkeyControllerManager::OnFlags (name guess)
 ?OnValue@MonkeyControllerManager@controller@engine@@UAEXIH@Z = 0x108909C0 ; function size:0xA | engine::controller::MonkeyControllerManager::OnValue (name guess)
 ?OnRelease@MonkeyControllerManager@controller@engine@@UAEXIH@Z = 0x108909D0 ; function size:0xA | engine::controller::MonkeyControllerManager::OnRelease (name guess)
+??_R0?AVControllerManagerInterface@controller@engine@@@8 = 0x111D3D00 ; data size:0x8 | class engine::controller::ControllerManagerInterface RTTI Type Descriptor
