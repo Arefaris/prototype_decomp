@@ -4,6 +4,9 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/choreo/rootdriver.h"
+#include "code/engine/fight/expressionactions.h"
 
 namespace proto
 {
@@ -73,6 +76,38 @@ namespace proto
 			fight::TrackFactory* CreateFlyingAttackTrackFactory(const char* name);
 			void RegisterFlyingAttackTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FlyingAttackAction (9 vftable slots, 0x2C bytes)
+			class FlyingAttackAction : public fight::Action
+			{
+			public:
+				// 0x100BD500
+				FlyingAttackAction(FlyingAttackTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BD430
+				virtual ~FlyingAttackAction();
+
+				// vftable slot 5 (0x100BD5D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BE020)
+				virtual void Slot6();
+				// 0x100BD470 (another function of this unit): forgets the object the action looks at (name guess)
+				void ClearTargetHandle();
+				// vftable slot 7 (0x100BDA10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FlyingAttackTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::RootDriver* driver;  // +0x2C
+				engine::HandleBase unknown30;  // +0x30
+				math::Vector unknown34;  // +0x34
+
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+				float unknown48;  // +0x48
+				float unknown4C;  // +0x4C
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -4,7 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
-#include "code/proto/fightitems/motion/motionaction2.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {

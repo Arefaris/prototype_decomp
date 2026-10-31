@@ -296,6 +296,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BBC80
+			FactionDefaultAction::FactionDefaultAction(FactionDefaultTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB7F0
+			FactionDefaultAction::~FactionDefaultAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BBE60
+			fight::Action* FactionDefaultTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FactionDefaultAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100BBA90
+			FactionSetAction::FactionSetAction(FactionSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB7A0
+			FactionSetAction::~FactionSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BBE10
+			fight::Action* FactionSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FactionSetAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<FactionTypeCondition>;
 			template class fight::ConditionFactoryTemplate<FactionTypeCondition>;
 			template class fight::ConditionFactoryCasterTemplate<FactionTypeCondition>;
@@ -359,3 +395,9 @@ namespace proto
 // FUNCTION: ENGINE 0x1015E3F0
 // FUNCTION: ENGINE 0x1015E410
 // FUNCTION: ENGINE 0x1015E460
+// FUNCTION: ENGINE 0x100BB690
+// FUNCTION: ENGINE 0x100BB6B0
+// FUNCTION: ENGINE 0x100BB6E0
+// FUNCTION: ENGINE 0x100BB730
+// FUNCTION: ENGINE 0x100BBB10
+// FUNCTION: ENGINE 0x100BBD00

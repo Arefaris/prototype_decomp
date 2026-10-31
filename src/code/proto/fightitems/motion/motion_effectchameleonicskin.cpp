@@ -160,6 +160,31 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BA9B0
+			EffectChameleonicSkinAction::EffectChameleonicSkinAction(EffectChameleonicSkinTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BA910
+			EffectChameleonicSkinAction::~EffectChameleonicSkinAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BA820
+			bool EffectChameleonicSkinAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100BAB50
+			fight::Action* EffectChameleonicSkinTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EffectChameleonicSkinAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectChameleonicSkinTrack>;
 			template class fight::PropertyEnumConstList<EffectChameleonicSkinTrack>;
 			template class fight::PropertyColour<EffectChameleonicSkinTrack>;
@@ -187,3 +212,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1015CAA0
 // FUNCTION: ENGINE 0x1015CAD0
 // FUNCTION: ENGINE 0x1015CAF0
+// FUNCTION: ENGINE 0x100BA870
+// FUNCTION: ENGINE 0x100BA8A0
+// FUNCTION: ENGINE 0x100BAA20

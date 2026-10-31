@@ -209,6 +209,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BB030
+			// EQUIVALENT: scheduling; the engine stores the vftable before it takes the link's address, ours after it (94.6 %)
+			EffectConsumeAction::EffectConsumeAction(EffectConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), unknown20(-1), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BAF40
+			EffectConsumeAction::~EffectConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB150
+			fight::Action* EffectConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EffectConsumeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectConsumeTrack>;
 			template class fight::PropertyName<EffectConsumeTrack>;
 			template class fight::PropertyEnumConstList<EffectConsumeTrack>;
@@ -247,3 +267,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1015D580
 // FUNCTION: ENGINE 0x1015D5B0
 // FUNCTION: ENGINE 0x1015D5D0
+// FUNCTION: ENGINE 0x100BAE00
+// FUNCTION: ENGINE 0x100BAE90
+// FUNCTION: ENGINE 0x100BB0B0

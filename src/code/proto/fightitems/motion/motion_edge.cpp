@@ -426,6 +426,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyVector<EdgeNormalCondition>;
 			template class fight::PropertyFloatConstRange<EdgeNormalCondition>;
 			template class fight::ConditionFactoryTemplate<EdgeNormalCondition>;

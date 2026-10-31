@@ -146,6 +146,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B1220
+			DeformAction::DeformAction(DeformTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack)
+			{
+				target = newTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100B1190
+			DeformAction::~DeformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B1550
+			fight::Action* DeformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DeformAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeformTrack>;
 			template class fight::PropertyNameList<DeformTrack>;
 			template class fight::PropertyVector<DeformTrack>;
@@ -171,3 +191,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10153F90
 // FUNCTION: ENGINE 0x10153FC0
 // FUNCTION: ENGINE 0x10153FE0
+// FUNCTION: ENGINE 0x100B10F0
+// FUNCTION: ENGINE 0x100B1120
+// FUNCTION: ENGINE 0x100B12B0

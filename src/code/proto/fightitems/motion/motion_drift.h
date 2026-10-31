@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -48,6 +49,26 @@ namespace proto
 			fight::TrackFactory* CreateDriftTrackFactory(const char* name);
 			void RegisterDriftTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::DriftAction (9 vftable slots, 0x2C bytes)
+			class DriftAction : public fight::Action
+			{
+			public:
+				// 0x100B8970
+				DriftAction(DriftTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100B8860
+				virtual ~DriftAction();
+
+				// vftable slot 6 (0x100B8890)
+				virtual void Slot6();
+				// vftable slot 7 (0x100B8A10)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<DriftTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

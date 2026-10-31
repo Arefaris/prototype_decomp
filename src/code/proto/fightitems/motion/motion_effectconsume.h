@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -71,6 +72,27 @@ namespace proto
 			fight::TrackFactory* CreateEffectConsumeTrackFactory(const char* name);
 			void RegisterEffectConsumeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::EffectConsumeAction (9 vftable slots, 0x2C bytes)
+			class EffectConsumeAction : public fight::Action
+			{
+			public:
+				// 0x100BB030
+				EffectConsumeAction(EffectConsumeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BAF40
+				virtual ~EffectConsumeAction();
+
+				// vftable slot 5 (0x100BB1A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BB0E0)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				int unknown20;  // +0x20
+				core::Link<EffectConsumeTrack> link;  // +0x24
+			};
+
+			// ---- actions end
 		}
 	}
 }

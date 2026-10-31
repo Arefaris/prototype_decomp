@@ -215,6 +215,48 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BD500
+			FlyingAttackAction::FlyingAttackAction(FlyingAttackTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown34(0.0f, 0.0f, 0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BD430
+			FlyingAttackAction::~FlyingAttackAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BE080
+			fight::Action* FlyingAttackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingAttackAction(this, handle);
+			}
+
+			// ---- actions end
+			// FUNCTION: ENGINE 0x100BD470
+			void FlyingAttackAction::ClearTargetHandle()
+			{
+				engine::HandleBase none;
+				unknown30 = none;
+			}
+
+			// FUNCTION: ENGINE 0x100BE020
+			void FlyingAttackAction::Slot6()
+			{
+				ClearTargetHandle();
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<FlyingAttackTrack>;
 			template class fight::PropertyVector<FlyingAttackTrack>;
 			template class fight::PropertyBool<FlyingAttackTrack>;
@@ -244,3 +286,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1015FA40
 // FUNCTION: ENGINE 0x1015FA70
 // FUNCTION: ENGINE 0x1015FA90
+// FUNCTION: ENGINE 0x100BD390
+// FUNCTION: ENGINE 0x100BD3C0
+// FUNCTION: ENGINE 0x100BD5A0

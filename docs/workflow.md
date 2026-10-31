@@ -80,7 +80,8 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 ## Merging and checking a branch
 
 - `python tools/mergesym.py` resolves the conflicts of config/<version>/symbols.txt and docs/engine_worklist.md
-  (both sides' lines) and lists addresses or names the merge gave twice.
+  (both sides' lines), lists addresses or names the merge gave twice and every annotation the merge removed from
+  all sources (a branch's tool that rewrote the trailers once dropped a thousand kept-copy annotations).
 - `python tools/unitcheck.py --all` objcmps every annotated function of every source (seconds); after a shared
   header change this is the check that counts. It also checks that every string literal an EQUIVALENT function reads
   is one the engine's function reads (their instructions differ, their strings may not: a literal with unescaped

@@ -1,5 +1,6 @@
 // Fight items of the motion group: DevastatorTargetConditionGroupCondition, DevastatorAvailableCondition, DevastatorTargetDistanceCondition, DevastatorTargetGroundSpikeTrack, DevastatorTrack, DevastatorUsedTrack, DevastatorTargetExecuteTrack, TendrilDevastatorTrack, DevastatorTargetHitTrack (unit 0x101561B0 - 0x101598C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_devastator.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -1071,6 +1072,61 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x100B2DE0
+			DevastatorUsedAction::DevastatorUsedAction(engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B2E10
+			DevastatorUsedAction::~DevastatorUsedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B3400
+			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) and the handle goes through ecx instead of esi (92.9 %)
+			fight::Action* DevastatorUsedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* trackOwner = (TrackOwner*)owner;
+				TrackOwner* checked = (trackOwner == 0) ? 0 : ((trackOwner->kind + 0xFFFF0000 <= 0x1ffff) ? trackOwner : 0);
+				return new DevastatorUsedAction(checked->handle);
+			}
+
+			// FUNCTION: ENGINE 0x100B3D90
+			bool DevastatorUsedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					DevastatorUsedMessage message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100B3C60
+			// NONMATCHING: the engine copies the owner's handle and tests the table slot through the packed dword, hoists the owner load and puts the failure exit first (36.7 %)
+#ifdef NONMATCHING
+			bool DevastatorAvailableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				TrackOwner* trackOwner = (TrackOwner*)c;
+				if (trackOwner != 0 && trackOwner->kind - 0x10000 <= 0x1ffff)
+				{
+					engine::GameObjectHandle handle = trackOwner->handle;
+					engine::GameObject* object = handle.Get();
+					if (object != 0)
+					{
+						DevastatorAvailableMessage message;
+						object->SendMessage(&message);
+						return message.available == available;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// ---- actions end
 			template class fight::PropertyConditionGroup<DevastatorTargetConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<DevastatorTargetConditionGroupCondition>;
 			template class fight::ConditionFactoryCasterTemplate<DevastatorTargetConditionGroupCondition>;
@@ -1249,3 +1305,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10159820
 // FUNCTION: ENGINE 0x10159850
 // FUNCTION: ENGINE 0x10159870
+// FUNCTION: ENGINE 0x100B2890
+// FUNCTION: ENGINE 0x100B28C0
+// FUNCTION: ENGINE 0x100B2F70
+// FUNCTION: ENGINE 0x100B2FF0
+// FUNCTION: ENGINE 0x100B3100
+// FUNCTION: ENGINE 0x100B3150
+// FUNCTION: ENGINE 0x100B3460

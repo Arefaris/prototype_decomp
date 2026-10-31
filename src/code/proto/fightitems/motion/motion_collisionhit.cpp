@@ -508,6 +508,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<CollisionHitTrack>;
 			template class fight::PropertyBool<CollisionHitTrack>;
 			template class fight::PropertyIntConstRange<CollisionHitTrack>;

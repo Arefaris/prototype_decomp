@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/fight/expressionactions.h"
 
 namespace proto
 {
@@ -79,6 +81,33 @@ namespace proto
 			fight::TrackFactory* CreateFallTrackFactory(const char* name);
 			void RegisterFallTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::FallAction (9 vftable slots, 0x44 bytes)
+			class FallAction : public fight::Action
+			{
+			public:
+				// 0x100BC320
+				FallAction(FallTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BC200
+				virtual ~FallAction();
+
+				// vftable slot 5 (0x100BC430)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BC240)
+				virtual void Slot6();
+				// vftable slot 7 (0x100BCC60)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				choreo::Driver* driver;  // +0x20
+				core::Link<FallTrack> link;  // +0x24
+				float unknown30;  // +0x30
+				math::Vector unknown34;  // +0x34
+				float unknown40;  // +0x40
+			};
+
+			// ---- actions end
 		}
 	}
 }

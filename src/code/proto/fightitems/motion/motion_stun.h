@@ -4,8 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
-#include "code/proto/fightitems/motion/motionaction2.h"
-#include "code/proto/fightitems/motion/motionmessages2.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {

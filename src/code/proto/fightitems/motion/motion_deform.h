@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -57,6 +58,24 @@ namespace proto
 			fight::TrackFactory* CreateDeformTrackFactory(const char* name);
 			void RegisterDeformTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::DeformAction (9 vftable slots, 0x2C bytes)
+			class DeformAction : public fight::Action
+			{
+			public:
+				// 0x100B1220
+				DeformAction(DeformTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100B1190
+				virtual ~DeformAction();
+
+				// vftable slot 5 (0x100B12E0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<DeformTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

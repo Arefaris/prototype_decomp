@@ -612,6 +612,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DetectedObjectFacingCondition>;
 			template class fight::ConditionFactoryTemplate<DetectedObjectFacingCondition>;
 			template class fight::ConditionFactoryCasterTemplate<DetectedObjectFacingCondition>;

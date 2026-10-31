@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -385,6 +386,24 @@ namespace proto
 			fight::TrackFactory* CreateDevastatorTargetHitTrackFactory(const char* name);
 			void RegisterDevastatorTargetHitTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::DevastatorUsedAction (9 vftable slots, 0x20 bytes)
+			class DevastatorUsedAction : public fight::Action
+			{
+			public:
+				// 0x100B2DE0
+				explicit DevastatorUsedAction(engine::GameObjectHandle newTarget);
+				// 0x100B2E10
+				virtual ~DevastatorUsedAction();
+
+				// vftable slot 5 (0x100B3D90)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// ---- actions end
 		}
 	}
 }

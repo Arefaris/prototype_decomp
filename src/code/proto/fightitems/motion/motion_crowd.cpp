@@ -704,6 +704,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<CrowdMinDistanceCondition>;
 			template class fight::PropertyFloatConstRange<CrowdMinDistanceCondition>;
 			template class fight::ConditionFactoryTemplate<CrowdMinDistanceCondition>;

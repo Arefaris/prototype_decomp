@@ -1,5 +1,6 @@
 // Fight items of the motion group: DriftTrack (unit 0x1015A810 - 0x1015AC70; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_drift.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -106,6 +107,36 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B8970
+			DriftAction::DriftAction(DriftTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B8860
+			DriftAction::~DriftAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B8D80
+			fight::Action* DriftTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DriftAction(this, handle);
+			}
+
+			// ---- actions end
+			// FUNCTION: ENGINE 0x100B8890
+			void DriftAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					DriftEnableMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<DriftTrack>;
 			template class fight::TrackFactoryTemplate<DriftTrack>;
 			template class fight::TrackFactoryCasterTemplate<DriftTrack>;
@@ -123,3 +154,10 @@ namespace proto
 // FUNCTION: ENGINE 0x1015ABD0
 // FUNCTION: ENGINE 0x1015AC00
 // FUNCTION: ENGINE 0x1015AC20
+// FUNCTION: ENGINE 0x100B8670
+// FUNCTION: ENGINE 0x100B8680
+// FUNCTION: ENGINE 0x100B86B0
+// FUNCTION: ENGINE 0x100B8760
+// FUNCTION: ENGINE 0x100B87C0
+// FUNCTION: ENGINE 0x100B87F0
+// FUNCTION: ENGINE 0x100B89E0

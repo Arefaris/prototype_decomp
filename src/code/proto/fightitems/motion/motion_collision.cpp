@@ -189,6 +189,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBitfieldConstList<DetectObbCollisionCondition>;
 			template class fight::PropertyBool<DetectObbCollisionCondition>;
 			template class fight::PropertyNameList<DetectObbCollisionCondition>;
@@ -238,3 +241,5 @@ namespace proto
 // FUNCTION: ENGINE 0x1014A7F0
 // FUNCTION: ENGINE 0x1014A820
 // FUNCTION: ENGINE 0x1014A840
+// FUNCTION: ENGINE 0x100A2E50
+// FUNCTION: ENGINE 0x100A2EB0

@@ -162,6 +162,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DecalTrack>;
 			template class fight::PropertyName<DecalTrack>;
 			template class fight::PropertyNameList<DecalTrack>;

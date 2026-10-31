@@ -642,6 +642,93 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100AC7D0
+			ConsumeGrabberAction::ConsumeGrabberAction(ConsumeGrabberTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABB00
+			ConsumeGrabberAction::~ConsumeGrabberAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD390
+			fight::Action* ConsumeGrabberTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeGrabberAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AC610
+			ConsumeMeAction::ConsumeMeAction(ConsumeMeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABAB0
+			ConsumeMeAction::~ConsumeMeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD340
+			fight::Action* ConsumeMeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeMeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AC920
+			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown34(0.0f), unknown38(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABB50
+			ConsumeByParentAction::~ConsumeByParentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD430
+			fight::Action* ConsumeByParentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeByParentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AD090
+			ScaleJointForConsumeAction::ScaleJointForConsumeAction(ScaleJointForConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABBA0
+			ScaleJointForConsumeAction::~ScaleJointForConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD480
+			fight::Action* ScaleJointForConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ScaleJointForConsumeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ABE20
+			ConsumeAction::ConsumeAction(ConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ABA60
+			ConsumeAction::~ConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD2F0
+			fight::Action* ConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ConsumeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConsumeGrabberTrack>;
 			template class fight::PropertyBool<ConsumeGrabberTrack>;
 			template class fight::TrackFactoryTemplate<ConsumeGrabberTrack>;
@@ -769,3 +856,18 @@ namespace proto
 // FUNCTION: ENGINE 0x1014F3E0
 // FUNCTION: ENGINE 0x1014F430
 // FUNCTION: ENGINE 0x1014F480
+// FUNCTION: ENGINE 0x100AB650
+// FUNCTION: ENGINE 0x100AB670
+// FUNCTION: ENGINE 0x100AB690
+// FUNCTION: ENGINE 0x100AB6B0
+// FUNCTION: ENGINE 0x100AB6D0
+// FUNCTION: ENGINE 0x100AB700
+// FUNCTION: ENGINE 0x100AB760
+// FUNCTION: ENGINE 0x100AB7C0
+// FUNCTION: ENGINE 0x100AB820
+// FUNCTION: ENGINE 0x100AB880
+// FUNCTION: ENGINE 0x100ABE90
+// FUNCTION: ENGINE 0x100AC680
+// FUNCTION: ENGINE 0x100AC840
+// FUNCTION: ENGINE 0x100AC9B0
+// FUNCTION: ENGINE 0x100AD110

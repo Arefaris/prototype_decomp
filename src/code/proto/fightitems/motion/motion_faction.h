@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -136,6 +137,40 @@ namespace proto
 			fight::TrackFactory* CreateFactionDefaultTrackFactory(const char* name);
 			void RegisterFactionDefaultTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FactionDefaultAction (9 vftable slots, 0x2C bytes)
+			class FactionDefaultAction : public fight::Action
+			{
+			public:
+				// 0x100BBC80
+				FactionDefaultAction(FactionDefaultTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BB7F0
+				virtual ~FactionDefaultAction();
+
+				// vftable slot 5 (0x100BBD30)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<FactionDefaultTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::FactionSetAction (9 vftable slots, 0x2C bytes)
+			class FactionSetAction : public fight::Action
+			{
+			public:
+				// 0x100BBA90
+				FactionSetAction(FactionSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BB7A0
+				virtual ~FactionSetAction();
+
+				// vftable slot 5 (0x100BBB40)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<FactionSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -1,5 +1,6 @@
 // Fight items of the motion group: ClearCollisionRecordTrack (unit 0x10149A90 - 0x10149DC0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_clearcollisionrecord.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -79,6 +80,33 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A23B0
+			ClearCollisionRecordAction::ClearCollisionRecordAction(ClearCollisionRecordTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A22A0
+			ClearCollisionRecordAction::~ClearCollisionRecordAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A2450
+			fight::Action* ClearCollisionRecordTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ClearCollisionRecordAction(this, handle);
+			}
+
+			// ---- actions end
+			// FUNCTION: ENGINE 0x100A22D0
+			bool ClearCollisionRecordAction::Slot5(int arg, float value)
+			{
+				ClearCollisionRecordMessage message;
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
 			template class fight::PropertyFloatConstRange<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryTemplate<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryCasterTemplate<ClearCollisionRecordTrack>;
@@ -96,3 +124,12 @@ namespace proto
 // FUNCTION: ENGINE 0x10149D20
 // FUNCTION: ENGINE 0x10149D50
 // FUNCTION: ENGINE 0x10149D70
+// FUNCTION: ENGINE 0x100A2140
+// FUNCTION: ENGINE 0x100A2170
+// FUNCTION: ENGINE 0x100A2180
+// FUNCTION: ENGINE 0x100A21A0
+// FUNCTION: ENGINE 0x100A21B0
+// FUNCTION: ENGINE 0x100A21E0
+// FUNCTION: ENGINE 0x100A2210
+// FUNCTION: ENGINE 0x100A2230
+// FUNCTION: ENGINE 0x100A2420
