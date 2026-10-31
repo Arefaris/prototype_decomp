@@ -5,6 +5,7 @@
 
 #include "code/pure3d/pass.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/framebufferpass.h"
 
 namespace pure3d
 {
@@ -31,6 +32,39 @@ namespace pure3d
 
 		bool unknown18;
 		bool unknown19;
+	};
+
+	// 0x111BBA3C: the colour the debug descriptions start with (name guessed)
+	extern const PassColour gDebugColour;
+
+	// RTTI name pure3d::Debug3DPassDesc (vftable 0x10E638C0)
+	struct Debug3DPassDesc : public PassDesc
+	{
+		// 0x107A0780
+		explicit Debug3DPassDesc(const void* name);
+
+		unsigned int colour18;
+		unsigned int colour1C;
+		float size;
+		unsigned int colour24;
+		PassColour colour28;
+		int count;
+		bool flags[6];
+	};
+
+	// RTTI name pure3d::DebugPassDesc (vftable 0x10E638FC)
+	struct DebugPassDesc : public PassDesc
+	{
+		// 0x107A0DF0
+		DebugPassDesc(const void* name, bool newFlag);
+
+		unsigned int colour18;
+		unsigned int colour1C;
+		float size;
+		unsigned int colour24;
+		PassColour colour28;
+		bool unknown2C;
+		bool flag;
 	};
 
 	class RenderScheme

@@ -4,6 +4,35 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x107A0780
+	Debug3DPassDesc::Debug3DPassDesc(const void* name) : PassDesc(name, 1)
+	{
+		colour18 = 0xFFFFFFFF;
+		colour1C = 0xFF00FF00;
+		size = 0.02f;
+		colour24 = 0xFF0000FF;
+		colour28 = gDebugColour;
+		flags[0] = false;
+		flags[1] = false;
+		flags[2] = false;
+		flags[3] = false;
+		flags[4] = false;
+		flags[5] = false;
+		count = 300;
+	}
+
+	// FUNCTION: ENGINE 0x107A0DF0
+	DebugPassDesc::DebugPassDesc(const void* name, bool newFlag) : PassDesc(name, 1)
+	{
+		colour18 = 0xFFFFFFFF;
+		colour1C = 0xFF00FF00;
+		size = 0.02f;
+		colour24 = 0xFF0000FF;
+		colour28 = gDebugColour;
+		unknown2C = true;
+		flag = newFlag;
+	}
+
 	// FUNCTION: ENGINE 0x107A05F0
 	SelectionRenderScheme::~SelectionRenderScheme()
 	{

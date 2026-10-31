@@ -160,6 +160,9 @@ namespace pure3d
 	// A colour word as the capture pass copies it: assembled channel by channel (the engine's copy of a pddiColour)
 	struct PassColour
 	{
+		PassColour()
+		{
+		}
 		PassColour(const PassColour& other)
 		{
 			bits = (((other.a << 8 | other.r) << 8) | other.g) << 8 | other.b;
