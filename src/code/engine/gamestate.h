@@ -6,6 +6,7 @@
 #define ENGINE_GAMESTATE_H
 
 #include "code/core/thread.h"
+#include "code/engine/updatecontext.h"
 
 namespace engine
 {
@@ -61,7 +62,7 @@ namespace engine
 
 	struct IRealTimeTask
 	{
-		virtual void Update(int a, int b, float time) = 0;
+		virtual void Update(UpdateContext context) = 0;
 	};
 }
 

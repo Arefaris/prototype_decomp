@@ -259,9 +259,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DDD70
-		// EQUIVALENT: identical code except the stack slot of the message: the engine builds it over the dead argument
-		// slots, our build over the dead copy of the time info (98.6 %)
-		void Director::Update(int unused1, int unused2, float delta, int flags)
+		void Director::Update(UpdateContext context, int flags)
 		{
 			FrameTime* frame = GetFrameTime();
 			TimeInfo info = frame->info;
@@ -270,7 +268,7 @@ namespace engine
 				Camera* controller = controllers.begin[i];
 				if (controller != 0 && controller->enabled && controller->GetType() != 2)
 				{
-					controller->Update(delta, info.time, flags);
+					controller->Update(context.dt, info.time, flags);
 				}
 			}
 			for (int i = 0; i <= maxControllerIndex; i++)
@@ -278,7 +276,7 @@ namespace engine
 				Camera* controller = controllers.begin[i];
 				if (controller != 0 && controller->enabled && controller->GetType() == 2)
 				{
-					controller->Update(delta, info.time, flags);
+					controller->Update(context.dt, info.time, flags);
 				}
 			}
 			int count = cameras.Size();
@@ -288,7 +286,7 @@ namespace engine
 				Cinematographer* camera = cameras.begin[i];
 				if (camera != 0 && camera->active)
 				{
-					camera->Update(delta, info.time, flags);
+					camera->Update(context.dt, info.time, flags);
 					if (camera->cut)
 					{
 						cut = true;

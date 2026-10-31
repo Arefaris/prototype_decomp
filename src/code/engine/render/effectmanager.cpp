@@ -1211,8 +1211,9 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x1081E5A0
-		void EffectManager::Update(int unused1, int unused2, float timeStep)
+		void EffectManager::Update(UpdateContext context)
 		{
+			float timeStep = context.dt;
 			startedThisFrame = 0;
 			time += timeStep;
 			unknown28 = IsFeatureEnabled(0x40000) == false;

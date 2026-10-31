@@ -63,7 +63,7 @@ namespace engine
 		// 0x108E4220 (the state requests): does nothing
 		virtual void OnFinished(int state, bool aborted);
 		// 0x108E41F0 (the real time task): hands the call to the dialog
-		virtual void Update(int a, int b, float time);
+		virtual void Update(UpdateContext context);
 		// 0x108E4470 (the overlay's calls)
 		virtual void OnCall(int call, int a, int b, int c);
 

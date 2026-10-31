@@ -78,7 +78,7 @@ namespace engine
 	// The tasks the replay registers itself as (the base of the simulation tasks; one virtual function)
 	struct ISimulationTask
 	{
-		virtual void UpdateSimulation(int a, int b, float time) = 0;
+		virtual void UpdateSimulation(UpdateContext context) = 0;
 	};
 
 	// The modes the replay is in
@@ -109,8 +109,8 @@ namespace engine
 
 		// vftable slot of the simulation task (0x108C2900) and of the real time task (0x108C2C40: pauses the game
 		// when a playback has ended)
-		virtual void UpdateSimulation(int a, int b, float time);
-		virtual void Update(int a, int b, float time);
+		virtual void UpdateSimulation(UpdateContext context);
+		virtual void Update(UpdateContext context);
 		// the game state's slots (0x108C2910 / 0x108C2930)
 		virtual void Enter();
 		virtual void Leave();
