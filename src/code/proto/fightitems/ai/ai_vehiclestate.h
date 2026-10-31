@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_VEHICLESTATE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -109,6 +110,28 @@ namespace proto
 			fight::TrackFactory* CreateSetVehicleStateTrackFactory(const char* name);
 			void RegisterSetVehicleStateTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::SetVehicleStateAction (9 vftable slots, 0x2C bytes)
+			class SetVehicleStateAction : public fight::Action
+			{
+			public:
+				// 0x1021A200
+				SetVehicleStateAction(SetVehicleStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10219FE0
+				virtual ~SetVehicleStateAction();
+
+				// vftable slot 5 (0x10219DA0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10219DB0)
+				virtual void Slot6();
+				// vftable slot 7 (0x1021A2B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SetVehicleStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

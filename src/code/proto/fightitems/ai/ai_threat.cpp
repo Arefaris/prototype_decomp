@@ -829,6 +829,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10219400
+			ThreatMemoryResetAction::ThreatMemoryResetAction(ThreatMemoryResetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217DD0
+			ThreatMemoryResetAction::~ThreatMemoryResetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219AF0
+			fight::Action* ThreatMemoryResetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatMemoryResetAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<ThreatCondition>;
 			template class fight::ConditionFactoryTemplate<ThreatCondition>;
 			template class fight::ConditionFactoryCasterTemplate<ThreatCondition>;
@@ -876,6 +895,10 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10217B30
+// FUNCTION: ENGINE 0x10217BC0
+// FUNCTION: ENGINE 0x10219480
+// FUNCTION: ENGINE 0x10219860
 // FUNCTION: ENGINE 0x102539E0
 // FUNCTION: ENGINE 0x10253A80
 // FUNCTION: ENGINE 0x10253C90

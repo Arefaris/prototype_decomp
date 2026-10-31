@@ -217,6 +217,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ExecuteTaskTrack>;
 			template class fight::PropertyName<ExecuteTaskTrack>;
 			template class fight::PropertyBranch<ExecuteTaskTrack>;

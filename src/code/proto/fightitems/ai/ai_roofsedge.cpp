@@ -1,5 +1,7 @@
 // Fight items of the ai group: NearRoofsEdgeCondition, AtRoofsEdgeCondition (unit 0x10246F80 - 0x10247690; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_roofsedge.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -134,6 +136,40 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
+						// FUNCTION: ENGINE 0x10208AC0
+			// EQUIVALENT: register allocation; the compare operator is loaded into eax in the engine and into edx in ours, and the three arguments are pushed from the other registers; every other instruction is the engine's
+			bool AtRoofsEdgeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				AtRoofsEdgeAIMsg message;
+				object->SendMessage(&message);
+				float expected = timeAtEdge;
+				return fight::CompareFloats(compare, &message.time, &expected);
+			}
+
+			// FUNCTION: ENGINE 0x10208B90
+			bool NearRoofsEdgeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				AtRoofsEdgeAIMsg message;
+				object->SendMessage(&message);
+				return message.atEdge == nearEdge;
+			}
+
+
 			template class fight::PropertyBool<NearRoofsEdgeCondition>;
 			template class fight::ConditionFactoryTemplate<NearRoofsEdgeCondition>;
 			template class fight::ConditionFactoryCasterTemplate<NearRoofsEdgeCondition>;
@@ -146,6 +182,11 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10208A50
+// FUNCTION: ENGINE 0x10208A80
+// FUNCTION: ENGINE 0x10208A90
+// FUNCTION: ENGINE 0x10208C80
+// FUNCTION: ENGINE 0x10208EE0
 // FUNCTION: ENGINE 0x102470A0
 // FUNCTION: ENGINE 0x102470D0
 // FUNCTION: ENGINE 0x10247100

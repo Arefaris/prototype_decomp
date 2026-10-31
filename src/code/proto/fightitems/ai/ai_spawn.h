@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_SPAWN_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -109,6 +110,24 @@ namespace proto
 			fight::TrackFactory* CreateObjectSpawnedTrackFactory(const char* name);
 			void RegisterObjectSpawnedTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::ObjectSpawnedAction (9 vftable slots, 0x2C bytes)
+			class ObjectSpawnedAction : public fight::Action
+			{
+			public:
+				// 0x1020B040
+				ObjectSpawnedAction(ObjectSpawnedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1020AE30
+				virtual ~ObjectSpawnedAction();
+
+				// vftable slot 5 (0x1020B0F0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ObjectSpawnedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

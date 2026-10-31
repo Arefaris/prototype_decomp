@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_POISON_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -135,6 +136,27 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				int GetPoisonType() const
+				{
+					return poisonType;
+				}
+				float GetDamageRate() const
+				{
+					return damageRate;
+				}
+				float GetDamageSpikes() const
+				{
+					return damageSpikes;
+				}
+				float GetTimeToHit() const
+				{
+					return timeToHit;
+				}
+				float GetExtraRandomTime() const
+				{
+					return extraRandomTime;
+				}
+
 					fight::Name grabSlot;  // +0x10
 					float damageRate;  // +0x18
 					float damageSpikes;  // +0x1C
@@ -192,6 +214,59 @@ namespace proto
 			fight::TrackFactory* CreateSetPoisonCloudParametersTrackFactory(const char* name);
 			void RegisterSetPoisonCloudParametersTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::CurePoisonAction (9 vftable slots, 0x2C bytes)
+			class CurePoisonAction : public fight::Action
+			{
+			public:
+				// 0x102079E0
+				CurePoisonAction(CurePoisonTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10207330
+				virtual ~CurePoisonAction();
+
+				// vftable slot 5 (0x10207A90)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CurePoisonTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::SetPoisonCloudParametersAction (9 vftable slots, 0x2C bytes)
+			class SetPoisonCloudParametersAction : public fight::Action
+			{
+			public:
+				// 0x10207650
+				SetPoisonCloudParametersAction(SetPoisonCloudParametersTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10207290
+				virtual ~SetPoisonCloudParametersAction();
+
+				// vftable slot 5 (0x10207700)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetPoisonCloudParametersTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::PoisonAction (9 vftable slots, 0x2C bytes)
+			class PoisonAction : public fight::Action
+			{
+			public:
+				// 0x10207810
+				PoisonAction(PoisonTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102072E0
+				virtual ~PoisonAction();
+
+				// vftable slot 5 (0x10207BE0)
+				virtual bool Slot5(int arg, float value);
+
+				// 0x102078C0 (another function of this unit): the object the poison goes to, picked by the track's who
+				engine::GameObject* FindVictim(engine::GameObject* object);
+
+				core::Link<PoisonTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

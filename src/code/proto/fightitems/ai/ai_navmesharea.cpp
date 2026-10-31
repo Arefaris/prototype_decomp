@@ -84,6 +84,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBitfieldConstList<NavMeshAreaCondition>;
 			template class fight::PropertyFloatConstRange<NavMeshAreaCondition>;
 			template class fight::ConditionFactoryTemplate<NavMeshAreaCondition>;

@@ -1,5 +1,7 @@
 // Fight items of the ai group: SpawnTemplateCondition, ShouldSpawnCondition, ObjectSpawnedTrack (unit 0x10249C30 - 0x1024A810; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_spawn.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -232,6 +234,76 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1020B040
+			ObjectSpawnedAction::ObjectSpawnedAction(ObjectSpawnedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020AE30
+			ObjectSpawnedAction::~ObjectSpawnedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020B220
+			fight::Action* ObjectSpawnedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ObjectSpawnedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1020AE60
+			bool ShouldSpawnCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				IsReadySpawnMessage message;
+				object->SendMessage(&message);
+				return message.ready == should;
+			}
+
+			// FUNCTION: ENGINE 0x1020AF10
+			bool SpawnTemplateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetSpawnTemplateSpawnMessage message;
+				object->SendMessage(&message);
+				return fight::CompareNames(compare, &message.templateName, &templateName);
+			}
+
+			// FUNCTION: ENGINE 0x1020B0F0
+			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the early-exit test, ours after it; every other instruction is the engine's
+			bool ObjectSpawnedAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						GetGrabbedObjectMessage query(&link.Get()->grabSlot);
+						object->SendMessage(&query);
+						engine::GameObjectHandle grabbed = query.grabbed;
+						if (grabbed.Get() != 0)
+						{
+							ObjectSpawnedSpawnMessage message(grabbed, link.Get()->lastGuy);
+							object->SendMessage(&message);
+						}
+					}
+				}
+				return false;
+			}
+
+
+			// ---- actions end
 			template class fight::PropertyName<SpawnTemplateCondition>;
 			template class fight::PropertyEnumConstList<SpawnTemplateCondition>;
 			template class fight::ConditionFactoryTemplate<SpawnTemplateCondition>;
@@ -249,6 +321,21 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1020AC00
+// FUNCTION: ENGINE 0x1020AC10
+// FUNCTION: ENGINE 0x1020AC40
+// FUNCTION: ENGINE 0x1020ACA0
+// FUNCTION: ENGINE 0x1020ACB0
+// FUNCTION: ENGINE 0x1020ACE0
+// FUNCTION: ENGINE 0x1020AD10
+// FUNCTION: ENGINE 0x1020AD50
+// FUNCTION: ENGINE 0x1020AD60
+// FUNCTION: ENGINE 0x1020AD90
+// FUNCTION: ENGINE 0x1020ADE0
+// FUNCTION: ENGINE 0x1020B0C0
+// FUNCTION: ENGINE 0x1020B3F0
+// FUNCTION: ENGINE 0x1020B4A0
+// FUNCTION: ENGINE 0x1020B510
 // FUNCTION: ENGINE 0x10249DE0
 // FUNCTION: ENGINE 0x10249E80
 // FUNCTION: ENGINE 0x10249E90

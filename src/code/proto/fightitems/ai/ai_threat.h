@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_THREAT_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -348,6 +349,24 @@ namespace proto
 			fight::TrackFactory* CreateThreatSendToTargetTrackFactory(const char* name);
 			void RegisterThreatSendToTargetTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::ThreatMemoryResetAction (9 vftable slots, 0x2C bytes)
+			class ThreatMemoryResetAction : public fight::Action
+			{
+			public:
+				// 0x10219400
+				ThreatMemoryResetAction(ThreatMemoryResetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10217DD0
+				virtual ~ThreatMemoryResetAction();
+
+				// vftable slot 5 (0x10217E00)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ThreatMemoryResetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -209,6 +209,138 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x1021A910
+			ZiplineLandAction::ZiplineLandAction(ZiplineLandTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+				position.x = 0.0f;
+				position.y = 0.0f;
+				position.z = 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x1021A5A0
+			ZiplineLandAction::~ZiplineLandAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1021A5D0
+			// NONMATCHING: the translation copy goes through x87 for the first component, best 55%
+#ifdef NONMATCHING
+			bool ZiplineLandAction::Slot5(int arg, float value)
+			{
+				math::Matrix& matrix = target.Get()->transform->value;
+				float x = matrix.m[3][0];
+				float y = matrix.m[3][1];
+				float z = matrix.m[3][2];
+				position.x = x;
+				position.y = y;
+				position.z = z;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1021A400
+			void ZiplineLandAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1021A9C0
+			bool ZiplineLandAction::Slot7(int arg, float value)
+			{
+				return link.Get() ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x1021AA20
+			fight::Action* ZiplineLandTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ZiplineLandAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1021A710
+			// EQUIVALENT: scheduling; the integer store of the state sits behind the vector's stores in the engine, ours hoists it; the same stores
+			ZiplineTakeOffAction::ZiplineTakeOffAction(ZiplineTakeOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+				position.x = 0.0f;
+				position.y = 0.0f;
+				position.z = 0.0f;
+				state = 0;
+				elapsed = 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x1021A550
+			ZiplineTakeOffAction::~ZiplineTakeOffAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1021A7C0
+			// NONMATCHING: the translation copy goes through x87 for the first component, best 56%
+#ifdef NONMATCHING
+			bool ZiplineTakeOffAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				math::Matrix& matrix = target.Get()->transform->value;
+				float x = matrix.m[3][0];
+				float y = matrix.m[3][1];
+				float z = matrix.m[3][2];
+				position.x = x;
+				position.y = y;
+				position.z = z;
+				elapsed = 0.0f;
+				state = 1;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1021A850
+			void ZiplineTakeOffAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1021A860
+			// NONMATCHING: float order and block layout, best 25%
+#ifdef NONMATCHING
+			bool ZiplineTakeOffAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (state == 1)
+				{
+					float stepX = link.Get()->ziplineSpeed.x * value;
+					float stepY = link.Get()->ziplineSpeed.y * value;
+					float stepZ = link.Get()->ziplineSpeed.z * value;
+					position.x = position.x + stepX;
+					position.y = position.y + stepY;
+					position.z = position.z + stepZ;
+					elapsed += value;
+					if (elapsed > link.Get()->ziplineTime)
+					{
+						state = 2;
+					}
+				}
+				else if (state != 2)
+				{
+					return false;
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1021A9D0
+			fight::Action* ZiplineTakeOffTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ZiplineTakeOffAction(this, handle);
+			}
+
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ZiplineLandTrack>;
 			template class fight::PropertyVector<ZiplineLandTrack>;
 			template class fight::TrackFactoryTemplate<ZiplineLandTrack>;
@@ -222,6 +354,13 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1021A410
+// FUNCTION: ENGINE 0x1021A430
+// FUNCTION: ENGINE 0x1021A450
+// FUNCTION: ENGINE 0x1021A480
+// FUNCTION: ENGINE 0x1021A4E0
+// FUNCTION: ENGINE 0x1021A790
+// FUNCTION: ENGINE 0x1021A990
 // FUNCTION: ENGINE 0x10256CB0
 // FUNCTION: ENGINE 0x10256CE0
 // FUNCTION: ENGINE 0x10256D10

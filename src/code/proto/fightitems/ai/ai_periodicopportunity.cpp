@@ -263,6 +263,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<PeriodicOpportunityTrack>;
 			template class fight::PropertyBranch<PeriodicOpportunityTrack>;
 			template class fight::PropertyIntConstRange<PeriodicOpportunityTrack>;

@@ -1,5 +1,7 @@
 // Fight items of the ai group: IsInRooftopCondition, StayOnRoofTrack, RooftopDestinationFindTrack (unit 0x10247690 - 0x10249200; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_rooftop.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -525,6 +527,50 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x102096C0
+			StayOnRoofAction::StayOnRoofAction(StayOnRoofTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102090F0
+			StayOnRoofAction::~StayOnRoofAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020A030
+			fight::Action* StayOnRoofTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new StayOnRoofAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10209120
+			bool StayOnRoofAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ActivateStayOnRooftopBehaviourMsg message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x102091A0
+			void StayOnRoofAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ActivateStayOnRooftopBehaviourMsg message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+
+			// ---- actions end
 			template class fight::PropertyBool<IsInRooftopCondition>;
 			template class fight::ConditionFactoryTemplate<IsInRooftopCondition>;
 			template class fight::ConditionFactoryCasterTemplate<IsInRooftopCondition>;
@@ -546,6 +592,14 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10208C50
+// FUNCTION: ENGINE 0x10208EE0
+// FUNCTION: ENGINE 0x10208F30
+// FUNCTION: ENGINE 0x10208F40
+// FUNCTION: ENGINE 0x10208F70
+// FUNCTION: ENGINE 0x10208FC0
+// FUNCTION: ENGINE 0x10209060
+// FUNCTION: ENGINE 0x10209740
 // FUNCTION: ENGINE 0x10247E30
 // FUNCTION: ENGINE 0x10247E60
 // FUNCTION: ENGINE 0x10247E90

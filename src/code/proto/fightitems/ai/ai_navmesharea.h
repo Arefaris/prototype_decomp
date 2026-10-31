@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_NAVMESHAREA_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -43,6 +44,9 @@ namespace proto
 			fight::ConditionFactory* CreateNavMeshAreaConditionFactory(const char* name);
 			void RegisterNavMeshAreaConditionFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

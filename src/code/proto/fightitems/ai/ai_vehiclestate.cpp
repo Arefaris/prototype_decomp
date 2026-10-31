@@ -1,5 +1,7 @@
 // Fight items of the ai group: DriverStateCondition, VehicleStateCondition, SetVehicleStateTrack (unit 0x10255E00 - 0x10256A40; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_vehiclestate.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -232,6 +234,74 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1021A200
+			SetVehicleStateAction::SetVehicleStateAction(SetVehicleStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219FE0
+			SetVehicleStateAction::~SetVehicleStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219DA0
+			bool SetVehicleStateAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10219DB0
+			void SetVehicleStateAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1021A380
+			fight::Action* SetVehicleStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetVehicleStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1021A010
+			bool VehicleStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetVehicleStateVehicleMessage message;
+				object->SendMessage(&message);
+				return fight::CompareNames(compare, &message.state, &value);
+			}
+
+			// FUNCTION: ENGINE 0x1021A0D0
+			bool DriverStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetStateStateChangeMessage message;
+				object->SendMessage(&message);
+				return fight::CompareNames(compare, &message.state, &value);
+			}
+
+			// FUNCTION: ENGINE 0x1021A2B0
+			bool SetVehicleStateAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				SetVehicleStateVehicleMessage message(link.object->value);
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<DriverStateCondition>;
 			template class fight::PropertyName<DriverStateCondition>;
 			template class fight::ConditionFactoryTemplate<DriverStateCondition>;
@@ -249,6 +319,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10219DD0
+// FUNCTION: ENGINE 0x10219E00
+// FUNCTION: ENGINE 0x10219E10
+// FUNCTION: ENGINE 0x10219E50
+// FUNCTION: ENGINE 0x10219E60
+// FUNCTION: ENGINE 0x10219EA0
+// FUNCTION: ENGINE 0x10219EB0
+// FUNCTION: ENGINE 0x10219EE0
+// FUNCTION: ENGINE 0x10219F30
+// FUNCTION: ENGINE 0x10219F60
+// FUNCTION: ENGINE 0x10219F90
+// FUNCTION: ENGINE 0x1021A280
 // FUNCTION: ENGINE 0x10256040
 // FUNCTION: ENGINE 0x10256050
 // FUNCTION: ENGINE 0x10256080

@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_ROOFTOP_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -173,6 +174,26 @@ namespace proto
 			fight::TrackFactory* CreateRooftopDestinationFindTrackFactory(const char* name);
 			void RegisterRooftopDestinationFindTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::StayOnRoofAction (9 vftable slots, 0x2C bytes)
+			class StayOnRoofAction : public fight::Action
+			{
+			public:
+				// 0x102096C0
+				StayOnRoofAction(StayOnRoofTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102090F0
+				virtual ~StayOnRoofAction();
+
+				// vftable slot 5 (0x10209120)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102091A0)
+				virtual void Slot6();
+
+				core::Link<StayOnRoofTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

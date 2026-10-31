@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_PATROL_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -106,6 +107,9 @@ namespace proto
 			fight::TrackFactory* CreatePathPatrolTrackFactory(const char* name);
 			void RegisterPathPatrolTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

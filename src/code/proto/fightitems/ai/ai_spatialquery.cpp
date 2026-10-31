@@ -179,6 +179,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<SpatialQueryCondition>;
 			template class fight::PropertyName<SpatialQueryCondition>;
 			template class fight::PropertyFloatConstRange<SpatialQueryCondition>;

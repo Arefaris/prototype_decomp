@@ -926,6 +926,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBool<TargetHostileCondition>;
 			template class fight::ConditionFactoryTemplate<TargetHostileCondition>;
 			template class fight::ConditionFactoryCasterTemplate<TargetHostileCondition>;

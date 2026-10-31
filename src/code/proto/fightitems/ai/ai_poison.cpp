@@ -1,5 +1,8 @@
 // Fight items of the ai group: IsPoisonedCondition, PoisonedTimeCondition, CurePoisonTrack, PoisonTrack, SetPoisonCloudParametersTrack (unit 0x10244F30 - 0x10246860; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_poison.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
+
 
 namespace proto
 {
@@ -484,6 +487,141 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x102079E0
+			CurePoisonAction::CurePoisonAction(CurePoisonTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207330
+			CurePoisonAction::~CurePoisonAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207CC0
+			fight::Action* CurePoisonTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CurePoisonAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10207650
+			SetPoisonCloudParametersAction::SetPoisonCloudParametersAction(SetPoisonCloudParametersTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207290
+			SetPoisonCloudParametersAction::~SetPoisonCloudParametersAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207B40
+			fight::Action* SetPoisonCloudParametersTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetPoisonCloudParametersAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10207810
+			PoisonAction::PoisonAction(PoisonTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102072E0
+			PoisonAction::~PoisonAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207B90
+			fight::Action* PoisonTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PoisonAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10207360
+			bool IsPoisonedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					GetPoisonedTimeDamageMessage message(poisonType);
+					object->SendMessage(&message);
+					result = message.time > choreo::gZero;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10207430
+			bool PoisonedTimeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					GetPoisonedTimeDamageMessage message(poisonType);
+					object->SendMessage(&message);
+					float expected = time;
+					result = fight::CompareFloats(compareTime, &message.time, &expected);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10207A90
+			// EQUIVALENT: shrink-wrap; the engine saves edi in the entry block before the early-exit test, ours after it; every other instruction is the engine's
+			bool CurePoisonAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.object != 0)
+				{
+					ExitPoisonDamageMessage message;
+					message.poisonType = link.object->poisonType;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10207700
+			bool SetPoisonCloudParametersAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetPoisonCloudParametersDamageMessage message;
+						message.growFacingDir = link.object->growFacingDir;
+						message.growDownDir = link.object->growDownDir;
+						message.inheritFacingDir = link.object->inheritFacingDir;
+						message.fallToGroundSpeed = link.object->fallToGroundSpeed;
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10207BE0
+			bool PoisonAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.object != 0)
+				{
+					engine::GameObject* victim = FindVictim(object);
+					if (victim != 0)
+					{
+						PoisonTrack* track = link.object;
+						int type = track->GetPoisonType();
+						EnterPoisonExDamageMessage message(type, track->GetDamageRate(), track->GetDamageSpikes(), track->GetTimeToHit(), track->GetExtraRandomTime());
+						victim->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyIntConstRange<IsPoisonedCondition>;
 			template class fight::ConditionFactoryTemplate<IsPoisonedCondition>;
 			template class fight::ConditionFactoryCasterTemplate<IsPoisonedCondition>;
@@ -511,6 +649,32 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10206D60
+// FUNCTION: ENGINE 0x10206DD0
+// FUNCTION: ENGINE 0x10206DE0
+// FUNCTION: ENGINE 0x10206E30
+// FUNCTION: ENGINE 0x10206E40
+// FUNCTION: ENGINE 0x10206E70
+// FUNCTION: ENGINE 0x10206E80
+// FUNCTION: ENGINE 0x10206EE0
+// FUNCTION: ENGINE 0x10206F40
+// FUNCTION: ENGINE 0x10206F50
+// FUNCTION: ENGINE 0x10206F60
+// FUNCTION: ENGINE 0x10206F70
+// FUNCTION: ENGINE 0x10206F80
+// FUNCTION: ENGINE 0x10207030
+// FUNCTION: ENGINE 0x10207060
+// FUNCTION: ENGINE 0x10207090
+// FUNCTION: ENGINE 0x102070C0
+// FUNCTION: ENGINE 0x102070F0
+// FUNCTION: ENGINE 0x10207110
+// FUNCTION: ENGINE 0x10207130
+// FUNCTION: ENGINE 0x10207160
+// FUNCTION: ENGINE 0x102071C0
+// FUNCTION: ENGINE 0x10207220
+// FUNCTION: ENGINE 0x102076D0
+// FUNCTION: ENGINE 0x10207890
+// FUNCTION: ENGINE 0x10207A60
 // FUNCTION: ENGINE 0x102453A0
 // FUNCTION: ENGINE 0x102453D0
 // FUNCTION: ENGINE 0x10245400

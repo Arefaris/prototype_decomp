@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_TASK_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
 
@@ -94,6 +95,9 @@ namespace proto
 			fight::TrackFactory* CreateSpawnTaskTrackFactory(const char* name);
 			void RegisterSpawnTaskTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

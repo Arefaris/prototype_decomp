@@ -168,6 +168,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<TankRamTrack>;
 			template class fight::TrackFactoryTemplate<TankRamTrack>;
 			template class fight::TrackFactoryCasterTemplate<TankRamTrack>;
