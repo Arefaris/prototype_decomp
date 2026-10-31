@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -122,6 +123,44 @@ namespace proto
 			fight::TrackFactory* CreateButtonHintShowTrackFactory(const char* name);
 			void RegisterButtonHintShowTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::EnableButtonHintsAction (9 vftable slots, 0x2C bytes)
+			class EnableButtonHintsAction : public fight::Action
+			{
+			public:
+				// 0x100A0840
+				EnableButtonHintsAction(EnableButtonHintsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A04E0
+				virtual ~EnableButtonHintsAction();
+
+				// vftable slot 5 (0x100A08F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A0980)
+				virtual void Slot6();
+
+				core::Link<EnableButtonHintsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::ButtonHintShowAction (9 vftable slots, 0x2C bytes)
+			class ButtonHintShowAction : public fight::Action
+			{
+			public:
+				// 0x100A05E0
+				ButtonHintShowAction(ButtonHintShowTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A0490
+				virtual ~ButtonHintShowAction();
+
+				// vftable slot 5 (0x100A0690)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A0790)
+				virtual void Slot6();
+
+				core::Link<ButtonHintShowTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

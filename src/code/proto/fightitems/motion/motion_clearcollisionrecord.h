@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -42,6 +43,24 @@ namespace proto
 			fight::TrackFactory* CreateClearCollisionRecordTrackFactory(const char* name);
 			void RegisterClearCollisionRecordTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ClearCollisionRecordAction (9 vftable slots, 0x2C bytes)
+			class ClearCollisionRecordAction : public fight::Action
+			{
+			public:
+				// 0x100A23B0
+				ClearCollisionRecordAction(ClearCollisionRecordTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A22A0
+				virtual ~ClearCollisionRecordAction();
+
+				// vftable slot 5 (0x100A22D0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ClearCollisionRecordTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

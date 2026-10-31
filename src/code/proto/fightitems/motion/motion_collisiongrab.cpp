@@ -241,6 +241,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<CollisionGrabTrack>;
 			template class fight::PropertyNameList<CollisionGrabTrack>;
 			template class fight::PropertyVector<CollisionGrabTrack>;

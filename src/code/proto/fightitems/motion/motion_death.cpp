@@ -186,6 +186,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeathOnEndTrack>;
 			template class fight::TrackFactoryTemplate<DeathOnEndTrack>;
 			template class fight::TrackFactoryCasterTemplate<DeathOnEndTrack>;

@@ -1,5 +1,6 @@
 // Fight items of the motion group: DisablePlayerControlTrack (unit 0x101598C0 - 0x10159C60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_disableplayercontrol.h"
+#include "code/engine/system/poimanager.hpp"
 
 namespace proto
 {
@@ -88,6 +89,53 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x100B7700
+			DisablePlayerControlAction::DisablePlayerControlAction(engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B7730
+			DisablePlayerControlAction::~DisablePlayerControlAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B7740
+			fight::Action* DisablePlayerControlTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DisablePlayerControlAction(handle);
+			}
+
+			// FUNCTION: ENGINE 0x100B77B0
+			bool DisablePlayerControlAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				player = engine::GetControllingPlayer(object);
+				if (player >= 0)
+				{
+					engine::GameObjectHandle none;
+					engine::POIManager::Get(player).PushControlled(none);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100B7840
+			void DisablePlayerControlAction::Slot6()
+			{
+				if (target.Get() != 0 && player >= 0)
+				{
+					engine::GameObjectHandle none;
+					engine::POIManager::Get(player).PopControlled(none);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<DisablePlayerControlTrack>;
 			template class fight::TrackFactoryTemplate<DisablePlayerControlTrack>;
 			template class fight::TrackFactoryCasterTemplate<DisablePlayerControlTrack>;
@@ -105,3 +153,5 @@ namespace proto
 // FUNCTION: ENGINE 0x10159BC0
 // FUNCTION: ENGINE 0x10159BF0
 // FUNCTION: ENGINE 0x10159C10
+// FUNCTION: ENGINE 0x100B7690
+// FUNCTION: ENGINE 0x100B7780

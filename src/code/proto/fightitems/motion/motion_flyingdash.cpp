@@ -150,6 +150,68 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BEC20
+			FlyingDashAction::FlyingDashAction(FlyingDashTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f, 0.0f, 0.0f), unknown3C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BEA50
+			FlyingDashAction::~FlyingDashAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BF310
+			fight::Action* FlyingDashTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingDashAction(this, handle);
+			}
+
+			// ---- actions end
+			// FUNCTION: ENGINE 0x100BEA90
+			bool FlyingDashAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (driver == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Quaternion rotation;
+				choreo::InverseRotation(&rotation, object->transform->value);
+				choreo::DeltaTransform* delta = &driver->mDelta;
+				delta->SetVelocity(unknown30, rotation);
+				delta->SetOrientation(unknown3C, rotation);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100BEB40
+			void FlyingDashAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+						}
+					}
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<FlyingDashTrack>;
 			template class fight::PropertyBool<FlyingDashTrack>;
 			template class fight::PropertyName<FlyingDashTrack>;
@@ -178,3 +240,6 @@ namespace proto
 // FUNCTION: ENGINE 0x101608A0
 // FUNCTION: ENGINE 0x101608D0
 // FUNCTION: ENGINE 0x101608F0
+// FUNCTION: ENGINE 0x100BE9B0
+// FUNCTION: ENGINE 0x100BE9E0
+// FUNCTION: ENGINE 0x100BECA0

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -44,6 +45,27 @@ namespace proto
 			fight::TrackFactory* CreateDisablePlayerControlTrackFactory(const char* name);
 			void RegisterDisablePlayerControlTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::DisablePlayerControlAction (9 vftable slots, 0x24 bytes)
+			class DisablePlayerControlAction : public fight::Action
+			{
+			public:
+				// 0x100B7700
+				explicit DisablePlayerControlAction(engine::GameObjectHandle newTarget);
+				// 0x100B7730
+				virtual ~DisablePlayerControlAction();
+
+				// vftable slot 5 (0x100B77B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100B7840)
+				virtual void Slot6();
+
+				int player;  // +0x1C
+				engine::GameObjectHandle target;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

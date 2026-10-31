@@ -3,6 +3,7 @@
 #ifndef PROTO_FIGHTITEMS_MOTION_MOTIONDATA_H
 #define PROTO_FIGHTITEMS_MOTION_MOTIONDATA_H
 
+#include "code/core/name.h"
 #include "code/engine/fight/trackfactory.h"
 
 namespace proto
@@ -11,6 +12,8 @@ namespace proto
 	{
 		namespace motion
 		{
+			// 0x11251200: the name of the button hint that is showing when none is (name guess)
+			extern const core::Name<core::CaseSensitiveKey> gNoButtonHint;
 			extern fight::EnumEntry gAnimationBlendDirectionalTrackAnimNorthAllowedTransitionsTable[];  // 0x11253590
 			extern fight::EnumEntry gAnimationBlendVerticalAimTrackTargetingModeTable[];  // 0x112535B0
 			extern fight::EnumEntry gAutoTargetTrackTargetOverridesTable[];  // 0x112535F8
