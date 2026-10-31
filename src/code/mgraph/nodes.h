@@ -211,6 +211,77 @@ namespace mgraph
 	template<class N> class NodeType : public NodeTypeBase
 	{
 	};
+
+	// 0x10AD1180: the description of the node class registered for the type_info (name guessed)
+	NodeTypeBase* FindNodeType(const type_info& type);
+
+	// The static in which the engine keeps what FindNodeType answered for a node class (one word per class)
+	template<class N> struct NodeTypeCache
+	{
+		static NodeTypeBase* type;
+	};
+
+	// The description of the node class N, found once and kept (names of the two functions guessed)
+	template<class N> NodeTypeBase* GetNodeType()
+	{
+		NodeTypeBase*& cache = NodeTypeCache<N>::type;
+		if (cache == 0)
+		{
+			cache = FindNodeType(typeid(N));
+		}
+		return cache;
+	}
+	// Destroys the description of the node class N (when the library shuts down)
+	template<class N> void DestroyNodeType()
+	{
+		NodeTypeBase*& cache = NodeTypeCache<N>::type;
+		NodeTypeBase* type = cache;
+		if (type == 0)
+		{
+			type = FindNodeType(typeid(N));
+			cache = type;
+		}
+		if (type != 0)
+		{
+			delete type;
+		}
+	}
+
+	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet): it
+	// names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names guessed)
+	class PinDataTypeBase
+	{
+	public:
+		virtual ~PinDataTypeBase();
+		virtual om::MetaTypeBase* GetPacketType() = 0;
+		virtual NodeTypeBase* GetPropertyNodeType() = 0;
+		virtual NodeTypeBase* GetInletType() = 0;
+		virtual NodeTypeBase* GetOutletType() = 0;
+	};
+	template<class P> class PinDataType : public PinDataTypeBase
+	{
+	public:
+		PinDataType()
+		{
+		}
+		virtual ~PinDataType();
+		virtual om::MetaTypeBase* GetPacketType()
+		{
+			return om::FindMetaType(typeid(P));
+		}
+		virtual NodeTypeBase* GetPropertyNodeType()
+		{
+			return GetNodeType<PropertyNode<P> >();
+		}
+		virtual NodeTypeBase* GetInletType()
+		{
+			return GetNodeType<Inlet<P> >();
+		}
+		virtual NodeTypeBase* GetOutletType()
+		{
+			return GetNodeType<Outlet<P> >();
+		}
+	};
 }
 
 #endif

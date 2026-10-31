@@ -5083,3 +5083,584 @@ namespace om
 	// FUNCTION: ENGINE 0x10AFFC30
 	template Garbage<DynamicArray<mgraph::TriggerData,unsigned short> >::~Garbage();
 }
+
+namespace mgraph
+{
+	using namespace om;
+	// FUNCTION: ENGINE 0x10ACA0C0
+	template void mgraph::DestroyNodeType<class mgraph::Node>();
+	// FUNCTION: ENGINE 0x10AE1750
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Rand<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AE1860
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNodeBase>();
+	// FUNCTION: ENGINE 0x10AE1900
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::VectorAdd> >();
+	// FUNCTION: ENGINE 0x10AE1920
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::FloatAdd> >();
+	// FUNCTION: ENGINE 0x10AE1940
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::FloatMultiply> >();
+	// FUNCTION: ENGINE 0x10AE1960
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::BoolOr> >();
+	// FUNCTION: ENGINE 0x10AE1980
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::BoolAnd> >();
+	// FUNCTION: ENGINE 0x10AE19A0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::TriggerAnd> >();
+	// FUNCTION: ENGINE 0x10AE19C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::CommutativeMath<struct mgraph::TriggerOr> >();
+	// FUNCTION: ENGINE 0x10AE19E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::NonCommutativeMath<struct mgraph::FloatSub> >();
+	// FUNCTION: ENGINE 0x10AE1A00
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::GreaterThan<float> > >();
+	// FUNCTION: ENGINE 0x10AE1A20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::GreaterThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AE1A40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::LessThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AE1A60
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::LessThan<float> > >();
+	// FUNCTION: ENGINE 0x10AE1A80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::Equal<float> > >();
+	// FUNCTION: ENGINE 0x10AE1AA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Operator2<struct mgraph::NotEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AE1AC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::UnaryMath<struct mgraph::BoolNot> >();
+	// FUNCTION: ENGINE 0x10AE2BF0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AE2C10
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE2C80
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<bool> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE2DA0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE2E80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AE2EA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE2F10
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<float> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3030
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3110
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AE3130
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE31E0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned int> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE32C0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE33A0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AE33C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE3470
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3550
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3630
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AE3650
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE3700
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<String> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE37E0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE38C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AE38E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE3950
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<Vector> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3A70
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3B50
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE3BC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AE3BF0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3D50
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3E30
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AE3E50
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE3F00
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<Complex> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE3FE0
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE40C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AE40E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4190
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE4270
+	template MetaTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPacketType();
+	// FUNCTION: ENGINE 0x10AE42C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Rand<float> >();
+	// FUNCTION: ENGINE 0x10AE42E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Rand<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AE44E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AE4500
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AE4520
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4540
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4720
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AE4740
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AE4760
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4780
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE48A0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AE48C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AE48E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4900
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4A90
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AE4AB0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AE4AD0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4AF0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4C80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AE4CA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AE4CC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4CE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4EE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AE4F00
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AE4F20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE4F40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5100
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AE5120
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AE5140
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5160
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5350
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AE5370
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AE5390
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE53B0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE54F0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AE5510
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AE5530
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5550
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5CC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AE5CE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AE5D00
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5D20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5D40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AE5D60
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AE5D80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5DA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5DC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AE5DE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AE5E00
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5E20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5E40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AE5E80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AE5EA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5EC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5EE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AE5F20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AE5F40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5F60
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5F80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AE5FA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AE5FC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE5FE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6000
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AE6020
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AE6040
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6060
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6080
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AE60C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AE60E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6100
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6120
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AE6140
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AE6160
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AE6180
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AEBF00
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<bool> >();
+	// FUNCTION: ENGINE 0x10AEBF20
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<bool> >();
+	// FUNCTION: ENGINE 0x10AEBF40
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AEBF60
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<float> >();
+	// FUNCTION: ENGINE 0x10AEBF80
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<float> >();
+	// FUNCTION: ENGINE 0x10AEBFA0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AEBFC0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AEBFE0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AEC000
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AEC020
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10AEC040
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10AEC060
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AEC080
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<class om::String> >();
+	// FUNCTION: ENGINE 0x10AEC0A0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<class om::String> >();
+	// FUNCTION: ENGINE 0x10AEC0C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AEC0E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AEC100
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AEC120
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AEC140
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<class mgraph::TriggerData> >();
+	// FUNCTION: ENGINE 0x10AEC160
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<class mgraph::TriggerData> >();
+	// FUNCTION: ENGINE 0x10AEC180
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AEC1A0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<class om::Complex> >();
+	// FUNCTION: ENGINE 0x10AEC1C0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<class om::Complex> >();
+	// FUNCTION: ENGINE 0x10AEC1E0
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AEC200
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListCount<class mgraph::EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10AEC220
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::ListEntry<class mgraph::EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10AEC240
+	template mgraph::NodeTypeBase* mgraph::GetNodeType<class mgraph::Switch<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF2D10
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNodeBase>();
+	// FUNCTION: ENGINE 0x10AF2D40
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::VectorAdd> >();
+	// FUNCTION: ENGINE 0x10AF2D70
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::FloatAdd> >();
+	// FUNCTION: ENGINE 0x10AF2DA0
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::FloatMultiply> >();
+	// FUNCTION: ENGINE 0x10AF2DD0
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::BoolOr> >();
+	// FUNCTION: ENGINE 0x10AF2E00
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::BoolAnd> >();
+	// FUNCTION: ENGINE 0x10AF2E30
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::TriggerAnd> >();
+	// FUNCTION: ENGINE 0x10AF2E60
+	template void mgraph::DestroyNodeType<class mgraph::CommutativeMath<struct mgraph::TriggerOr> >();
+	// FUNCTION: ENGINE 0x10AF2E90
+	template void mgraph::DestroyNodeType<class mgraph::NonCommutativeMath<struct mgraph::FloatSub> >();
+	// FUNCTION: ENGINE 0x10AF2EC0
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::GreaterThan<float> > >();
+	// FUNCTION: ENGINE 0x10AF2EF0
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::GreaterThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AF2F20
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::LessThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AF2F50
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::LessThan<float> > >();
+	// FUNCTION: ENGINE 0x10AF2F80
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::Equal<float> > >();
+	// FUNCTION: ENGINE 0x10AF2FB0
+	template void mgraph::DestroyNodeType<class mgraph::Operator2<struct mgraph::NotEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AF2FE0
+	template void mgraph::DestroyNodeType<class mgraph::UnaryMath<struct mgraph::BoolNot> >();
+	// FUNCTION: ENGINE 0x10AF3960
+	template void mgraph::DestroyNodeType<class mgraph::Rand<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AF5920
+	template void mgraph::DestroyNodeType<class mgraph::Rand<float> >();
+	// FUNCTION: ENGINE 0x10AF5950
+	template void mgraph::DestroyNodeType<class mgraph::Rand<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AF5EA0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AF5ED0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AF5F00
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF5F30
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6080
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AF60B0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AF60E0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6110
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF62F0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AF6320
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AF6350
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6380
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6860
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AF6980
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF69B0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6B90
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AF6C80
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AF6CB0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF6CE0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF7180
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AF71B0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AF71E0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF7210
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF7330
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AF7360
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AF7390
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF73C0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF75A0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AF76C0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF76F0
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF78D0
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF7900
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF7930
+	template void mgraph::DestroyNodeType<class mgraph::Throw<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF7960
+	template void mgraph::DestroyNodeType<class mgraph::Catch<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8DA0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AF8DD0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AF8E00
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8E30
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8E60
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AF8E90
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8EC0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AF8EF0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AF8F20
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8F50
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8F80
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AF8FB0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF8FE0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AF9010
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AF9040
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9070
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF90A0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AF90D0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9100
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AF9130
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AF9160
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9190
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF91C0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AF91F0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9220
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AF9250
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AF9280
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF92B0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF92E0
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AF9310
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9340
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AF9370
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AF93A0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF93D0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9400
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AF9430
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9460
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AF9490
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AF94C0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF94F0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9520
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9550
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AF9580
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AF95B0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF95E0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9610
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AF9640
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9670
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF96A0
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF96D0
+	template void mgraph::DestroyNodeType<class mgraph::Inlet<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9700
+	template void mgraph::DestroyNodeType<class mgraph::Outlet<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AF9730
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AF9760
+	template void mgraph::DestroyNodeType<class mgraph::PropertyNode<class mgraph::Packet<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AFAC80
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<bool> >();
+	// FUNCTION: ENGINE 0x10AFACB0
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<bool> >();
+	// FUNCTION: ENGINE 0x10AFACE0
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AFAD10
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<float> >();
+	// FUNCTION: ENGINE 0x10AFAD40
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<float> >();
+	// FUNCTION: ENGINE 0x10AFAD70
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AFADA0
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AFADD0
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AFAE00
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AFAE30
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10AFAE60
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10AFAE90
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AFAEC0
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<class om::String> >();
+	// FUNCTION: ENGINE 0x10AFAEF0
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<class om::String> >();
+	// FUNCTION: ENGINE 0x10AFAF20
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<class om::String> > >();
+	// FUNCTION: ENGINE 0x10AFAF50
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AFAF80
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<class om::Vector> >();
+	// FUNCTION: ENGINE 0x10AFAFB0
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<class om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AFAFE0
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<class mgraph::TriggerData> >();
+	// FUNCTION: ENGINE 0x10AFB010
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<class mgraph::TriggerData> >();
+	// FUNCTION: ENGINE 0x10AFB040
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<class mgraph::TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AFB070
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<class om::Complex> >();
+	// FUNCTION: ENGINE 0x10AFB0A0
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<class om::Complex> >();
+	// FUNCTION: ENGINE 0x10AFB0D0
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<class om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AFB100
+	template void mgraph::DestroyNodeType<class mgraph::ListCount<class mgraph::EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10AFB130
+	template void mgraph::DestroyNodeType<class mgraph::ListEntry<class mgraph::EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10AFB160
+	template void mgraph::DestroyNodeType<class mgraph::Switch<class mgraph::Packet<class mgraph::EnvelopeData> > >();
+}
