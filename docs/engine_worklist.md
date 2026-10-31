@@ -5720,3 +5720,42 @@ Not done in the range:
   integers, scaled by 1/255).
 - Two units run over the edges of the range and were done whole: `motion_animationblend.cpp` (0x1013C5B0 - 0x10140FC0, the four AnimationBlend tracks)
   and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 are in the range below.
+
+## proto/fightitems/motion: the fight items of the range 0x10160000 - 0x10180000 (sn-aq)
+The range continues the motion items of the section above (same item pattern, unit layout and generator; 18 more source files, one per run of items,
+`code/proto/fightitems/motion/motion_*.cpp`, all names guesses). 2491 functions of the range are reconstructed (2402 match, 88 EQUIVALENT: every
+`RegisterProperties`, the known shrink-wrap question, none listed by `tools/shrinkcheck.py`; 1 NONMATCHING). The hunter unit runs over the end of the range
+(to 0x10180090) and was done whole.
+| file (src/code/proto/fightitems/motion/) | unit | functions | classes |
+|---|---|---|---|
+| `motion_flyingdash.cpp` | 0x101601F0 - 0x10160940 | 35 | FlyingDashTrack |
+| `motion_flyinggroundattack.cpp` | 0x10160940 - 0x101610C0 | 32 | FlyingGroundAttackTrack |
+| `motion_footstepdamage.cpp` | 0x101610C0 - 0x10161980 | 40 | FootstepDamageTrack |
+| `motion_freezescale.cpp` | 0x10161980 - 0x10161F50 | 29 | FreezeScaleTrack |
+| `motion_hasmarker.cpp` | 0x10161F50 - 0x10162970 | 52 | HasMarkerCondition, HideHUDTrack |
+| `motion_fxlight.cpp` | 0x10162970 - 0x10163BA0 | 68 | FXLight_PointTrack |
+| `motion_gender.cpp` | 0x10163BA0 - 0x10163FA0 | 22 | GenderCondition |
+| `motion_grabcondition.cpp` | 0x10163FA0 - 0x10169790 | 483 | the 22 Grab* / Grabbable* / GrabSlot* conditions |
+| `motion_grabtrack.cpp` | 0x10169790 - 0x10173B80 | 813 | the 27 Grab* / GrabSlot* / Grabbed* tracks, ReactionHitGrabTrack, AllowGrabbingTrack, SetGrabIntersectionPropertiesTrack |
+| `motion_grapple.cpp` | 0x10173B80 - 0x10174CA0 | 72 | GrappleLocoSprintTrack, GrappleLocoSteerTrack |
+| `motion_groundslide.cpp` | 0x10174CA0 - 0x101753C0 | 31 | GroundSlideTrack |
+| `motion_groundspike.cpp` | 0x101753C0 - 0x10177EA0 | 198 | GroundSpike conditions and tracks |
+| `motion_accumulateddamage.cpp` | 0x10177EA0 - 0x10179BB0 | 161 | AccumulatedDamageCondition, IsUndamageableCondition, DisableTimeWithNoDamageCounterTrack, IgnoreHitsTrack, TempRegenAbortTrack, HealthSetMultiplierTrack, AccumulatedDamageResetTrack, TempRegenerationTrack |
+| `motion_heliloco.cpp` | 0x10179BB0 - 0x1017A690 | 42 | HeliLocoTrack |
+| `motion_hitreaction.cpp` | 0x1017A690 - 0x1017C270 | 126 | HitReactionTrack, ReactionTimeExecuteTrack, ReactionHitExecuteTrack |
+| `motion_hitweapon.cpp` | 0x1017C270 - 0x1017CA90 | 42 | HitWeaponTrack |
+| `motion_hudmarker.cpp` | 0x1017CA90 - 0x1017D680 | 62 | HaveIconTypeCondition, HUDMarkerTrack |
+| `motion_hunter.cpp` | 0x1017D680 - 0x10180090 | 183 | HunterOnWallCondition, HunterCanHopAroundCornerCondition, HunterShortRangeLocoTrack, HunterShortRangeHopCornerTrack, HunterShortRangeCorner2Track, HunterLandedTrack |
+Additions to the pattern of the section above:
+- `fight::PropertyGroup<T>` (a group of properties with a flag: `bool SetGroup(bool)` stores the flag and calls `ApplyGroup(0, flag)`, the members
+  table is `-1` terminated and read from the engine's data) and `fight::PropertyTrackGroup<T>` (`fight::TrackGroup* GetTracks()` returns the address of
+  a one-word member) in `HideHUDTrack` and `ReactionTimeExecuteTrack`. The tracks with 17 vftable slots (`HideHUDTrack`) carry the override mask
+  (`unsigned __int64` at +0x10) and `Slot16(int)` as `engine::LightTrack` does.
+- A condition group's list is a one-word `fight::ConditionList`; a class can carry a further word behind it that no constructor writes
+  (`GrabSlotConditionGroupCondition`: name at +0x10, list at +0x18, size 0x20).
+Not matching / not done:
+- `HideHUDTrack::ApplyGroup` (0x10162110, NONMATCHING 35%): the engine keeps the flag's result only in the argument slot and pushes a register copy
+  for the recursive call; ours holds it in a register (the same function in `engine::LightTrack` matches with its five cases). Tried: switch with one
+  case, early return, `if (value)`, `value && !flag`.
+- Left over (no real class names them): 0x10162240 / 0x1017ADE0 (a `ret`: folded empty destructors of the property types), 0x10162420 / 0x1017B180
+  (`mov eax, 0xf` / `0xb`: the inline `GetType` of the `PropertyGroup` / `PropertyTrackGroup` base types).
