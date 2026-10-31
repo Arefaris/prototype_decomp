@@ -13,7 +13,7 @@ namespace pure3d
 {
 	class DrawablePart;
 	class ParameterHandlerTypeless;
-	class PassDesc;
+	struct PassDesc;
 	class Scene;
 	class View;
 
