@@ -59,6 +59,8 @@ namespace pure3d
 		LightGroupTable* GetLightGroupTable();
 		// 0x10710B40
 		void* GetUnknownD8();
+		// 0x10712760 (a root pass calls it before it runs its children)
+		void Unknown10712760();
 		// 0x10714560 (a jump into the part table the scene keeps at +0xD8): fills the list with the parts that pass the
 		// filter
 		void SelectParts(PartList* list, PassEntries* entries);

@@ -4,6 +4,7 @@
 #ifndef PURE3D_OCCLUDER_H
 #define PURE3D_OCCLUDER_H
 
+#include "code/content/chunkhandler.h"
 #include "code/math/obb.h"
 #include "code/math/vector.h"
 #include "code/pure3d/entity.h"
@@ -59,11 +60,34 @@ namespace pure3d
 	class Occluder : public Entity
 	{
 	public:
+		// 0x1077FB20: a unit box at the origin
+		Occluder();
+		// 0x1077FC00: the box (passed by value)
+		explicit Occluder(math::OBB newBox);
+		// 0x1077FF10
+		Occluder(const Occluder& other);
+		// Slot 2 (the body is 0x1077FB90, the deleting destructor 0x1077FBE0)
+		virtual ~Occluder();
+		// 0x1077FF70: a copy made with the pass's allocator
+		Occluder* Clone();
 		// 0x1077FFD0: the planes of the volume the box shadows from light: one through the light and each edge
 		// between a face that sees the light and one that does not, and the faces that see it
 		void GetShadowPlanes(ShadowPlaneList* planes, const math::Vector& light);
 
 		math::OBB box;
+		unsigned char unknown4C[4];
+	};
+
+	// RTTI: pure3d::OccluderLoader (chunk 0x124000, vftable 0x10E603A8): reads an occluder
+	class OccluderLoader : public content::SimpleChunkHandler
+	{
+	public:
+		// Declared first and not defined here, so that the vftable stays with the engine's own copy of the unit
+		virtual ~OccluderLoader();
+
+		// 0x1077FC70: the occluder a chunk describes (chunk 0x10029 holds the box)
+		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			content::LoadInventory* inventory);
 	};
 
 	// What the last GetShadowPlanes saw, for the debug drawing (0x11282C08 - 0x11282C80): the far and near corners,

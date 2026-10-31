@@ -16,12 +16,63 @@
 
 namespace pure3d
 {
-	// RTTI: pure3d::FrameControllerLoader (chunk 0x121201)
+	class FrameController;
+
+	// RTTI: pure3d::FrameControllerHandler (vftable 0x10E60044): reads the frame controllers of some chunk ids
+	class FrameControllerHandler : public RefCounted
+	{
+	public:
+		// 0x10777B70; the destructor is declared first and not defined here, so that the vftable stays with the engine's own
+		// copy (the deleting destructor is 0x10777BA0)
+		FrameControllerHandler();
+		virtual ~FrameControllerHandler();
+		// Slot 3: whether the handler reads the controller of that chunk id; slot 4: reads it (the name of the controller
+		// and the id and version of the chunk)
+		virtual bool IsSupported(unsigned int chunkId) = 0;
+		virtual FrameController* Load(const char* name, unsigned int chunkId, unsigned int version,
+			content::ChunkReader* reader, content::LoadInventory* inventory) = 0;
+	};
+
+	// RTTI: pure3d::DefaultFrameControllerHandler (vftable 0x10E600D4): the handler of the engine's own controllers
+	class DefaultFrameControllerHandler : public FrameControllerHandler
+	{
+	public:
+		// 0x107783B0 (the deleting destructor is 0x107783E0)
+		DefaultFrameControllerHandler();
+		virtual ~DefaultFrameControllerHandler();
+		// Slots 3 (0x10777AF0) and 4 (0x10778920)
+		virtual bool IsSupported(unsigned int chunkId);
+		virtual FrameController* Load(const char* name, unsigned int chunkId, unsigned int version,
+			content::ChunkReader* reader, content::LoadInventory* inventory);
+	};
+
+	// RTTI: pure3d::FrameControllerLoader (chunk 0x121201): asks its handlers (four at most)
 	class FrameControllerLoader : public content::SimpleChunkHandler
 	{
 	public:
 		virtual ~FrameControllerLoader();
 		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			content::LoadInventory* inventory);
+
+		// 0x10777BC0: the first handler that reads that chunk id
+		FrameControllerHandler* FindHandler(unsigned int chunkId);
+		// 0x10778430: takes a handler (nothing when there are four already)
+		void AddHandler(FrameControllerHandler* handler);
+
+		unsigned int handlerCount; // +0x10
+		FrameControllerHandler* handlers[4]; // +0x14
+	};
+
+	// RTTI: pure3d::OldFrameControllerLoader (vftable 0x10E60128, ten slots)
+	class OldFrameControllerLoader : public content::SimpleChunkHandler
+	{
+	public:
+		virtual ~OldFrameControllerLoader();
+		virtual void LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+			content::LoadInventory* inventory);
+		// Slot 8 (0x10777C20): whether the loader reads that chunk id; slot 9 (0x10779010)
+		virtual bool IsSupported(unsigned int chunkId);
+		virtual FrameController* Load(char* name, unsigned int chunkId, content::ChunkReader* reader,
 			content::LoadInventory* inventory);
 	};
 

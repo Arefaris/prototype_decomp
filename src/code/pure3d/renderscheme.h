@@ -20,7 +20,9 @@ namespace pure3d
 		{
 		}
 
-		unsigned char unknown4[0x14];
+		unsigned char unknown4[0x10];
+		// The Z pass's description keeps a number here
+		unsigned int unknown14;
 	};
 
 	// RTTI name pure3d::Debug2DPassDesc (vftable 0x10E638B8)

@@ -206,14 +206,12 @@ namespace pure3d
 		targets.colour = colour->GetHandle();
 		targets.depth = depth->GetHandle();
 		pddi->SetRenderTargets(&targets);
-		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
-		pddi->constants->SetTexture(&gConstantDecalColourBuffer, decalTarget->surface);
+		BindTextureConstant(gConstantDecalColourBuffer, decalTarget->surface);
 		unsigned int* texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
 		texture[1] = (texture[1] & 0xf8444754) | 0x444454;
 		texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
 		texture[1] = (texture[1] & 0xf8488bff) | 0x488800;
-		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
-		pddi->constants->SetTexture(&gConstantDecalNormalBuffer, 0);
+		BindTextureConstant(gConstantDecalNormalBuffer, 0);
 		texture = pddi->GetTextureConstant(gConstantDecalNormalBuffer);
 		texture[1] = (texture[1] & 0xf8444752) | 0x444452;
 		pddiSize* size = decalTarget->surface->info->size;
@@ -414,7 +412,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1076AF90
 	float ViewPass::GetUnknownE4()
 	{
-		return unknownE4;
+		return *(float*)&parameters.owner;
 	}
 
 	// FUNCTION: ENGINE 0x1076B020
@@ -695,7 +693,7 @@ namespace pure3d
 	// EQUIVALENT: the engine loads the device pointer before converting the clear colour and keeps the result in eax
 	void ViewPass::Render(PassContext* context)
 	{
-		view->SetWindow(window[0], window[1], window[2], window[3]);
+		view->SetWindow(windowLeft, windowTop, windowRight, windowBottom);
 		bool replaced = false;
 		if (context->views.Size() != 0)
 		{

@@ -5598,3 +5598,46 @@ animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (
   0x107AC0A0: reflection helpers and `ArrayDynamic<SHCoeffsTriplet>` template instances), the particle generator slot 9 functions (0x107A0310 -
   0x107A0580: they need the generators' channel holders at +0x244 / +0x248), the BMP and memory image texture parsers (0x107B5310 -
   0x107B5C70) and everything from 0x107B5C70 (libpng and zlib).
+
+## pure3d 0x10760000 - 0x10780000: the post processing passes, the render passes' constructors and handlers, the occluder (sn-an)
+
+435 functions annotated in four sources (17 EQUIVALENT, 4 NONMATCHING; the occluder source holds one older function): `pass/src/postprocesspasses.cpp` (+ `postprocesspass.h`, `passnames.h`),
+`pass/src/protopasses2.cpp` (+ `protopass.h`), `src/occluder.cpp`, `loaders/framecontrollerloader.cpp`.
+
+- **Parameter handlers** (parameterhandler.h): the explicit instances of `ParameterHandler<T>` and its `Map<Name, Entry, EntryAllocator>` of the passes
+  ProtoFBPass, ProtoBloomPass, ProtoColourMatrixPass, ProtoFogPass, ProtoRadialBlurPass, DepthOfFieldPass, ProtoWireframePass,
+  ProtoShaderLODDebugPass, ViewPass (the pair, iterator and map helpers, the adapters, the `Add*` members) and the part of ProtoTranslucentPassBase
+  (its handler registers only a variable, so only the constructor, destructor and tree helpers exist). New members: the variable registrations
+  `AddVariable` (float, int, Vector, Vector2, pddiColour, bool), `AddFloat` / `AddVector` / `AddColour128` with their adapters, `AddAdapters`
+  (the three-argument registration of a pair of adapter functions, one per value type), and the `...Inline` forms of the registrations that the
+  engine's constructors expand in place (the `Add*` forms are the out-of-line copies; which one a constructor uses is the engine's choice per site).
+  The kind of a getter is 2 when it is a `const` member function (`AddFloat` with a `const` getter, as the bloom pass's); a getter that answers a
+  vector or colour by value goes through a hidden pointer (`ParameterVector`, `ParameterColour4` are plain structs so that the adapter copies the
+  temporary the call leaves).
+- **Pass constructors** follow one pattern: the passes make their parts with `new T(&PassDesc(&name, 1))`; `PassEntries::SetBit(bit)` (0x1060F820) is
+  the second way to give the filter its word; the shared setter `SetParameterEnable` (0x1075DAF0) is the virtual call thunk of slot 1
+  (`Pass::SetEnabled`), mapped under every class that registers it. A pass that registers a function by member pointer to a virtual function
+  stores the compiler's vcall thunk (`??_9ViewPass@pure3d@@$BCE@AE`, ...), mapped in symbols.txt.
+- **Classes**: ProtoFBPass (makes the tone map, bloom, colour matrix, thermal, mother, copy and blur passes), ProtoBloomPass with its colour adjust
+  and composite passes (the colour matrix is built with `math::Matrix::Concatenate`), ProtoColourMatrixPass, ProtoFogPass, ProtoRadialBlurPass,
+  DepthOfFieldPass, ProtoLightDecalPass, ProtoDecalPass, LetterBoxPass, RootPass, ProtoLitPass / ProtoOpaquePass, ProtoShadowPass (five
+  `PartPointerList`s of 0x800 entries), ProtoCapturePass, the Z passes (Midground, AlphaTest, Fast, Slow, ZPass and the plain SlowZPass,
+  FastZPass, ZPassDesc), ProtoHUDPass, ProtoWireframePass, ProtoBloodPass, ProtoShaderLODDebugPass, ProtoTranslucentPassBase /
+  ProtoTranslucentPass / ProtoMidgroundPass, and ViewPass (constructor, the setters its handler registers, the window floats). Their
+  `Render` slots and the larger helpers are declared, mapped and not reconstructed.
+- **Occluder** (src/occluder.cpp): the default and the box constructors, the copy constructor, `Clone` and the loader of chunk 0x10029 (EQUIVALENT).
+- **Frame controller loaders**: `FrameControllerHandler` / `DefaultFrameControllerHandler` (chunk id test), `FrameControllerLoader::FindHandler` /
+  `AddHandler`, `OldFrameControllerLoader::IsSupported`.
+- EQUIVALENT (scheduling of constant loads and the vftable store, register choice, one x87 copy; no difftest states exist for them): the colour adjust
+  and composite constructors, `SetContrast`, `GetColour128Adapter` (bloom), ProtoColourMatrixPass `SetValues` / `SetCMY` / `GetTint` /
+  constructor, ProtoFBPass, ProtoFogPass, ProtoRadialBlurPass, DepthOfFieldPass and ViewPass constructors, `PartPointerList` constructor, the
+  occluder's default constructor and loader.
+- NONMATCHING: ProtoBloomPass constructor (frame 0x24 against 0x20: the engine's names and descriptions share a zeroed local; 70 %),
+  ProtoZPass constructor (47.9 %, the same), `FrameControllerLoader::LoadObject` (19 %: the engine keeps `this` in a slot the name temporary shares)
+  and `OldFrameControllerLoader::LoadObject` (17.5 %, register allocation and a 4-byte frame difference).
+- Not done, and why: every `Render` and `IsVisible` of the passes with long constant-table sequences (ProtoFBPass, bloom and colour matrix `Render`
+  / `UpdateShader`, the fog, radial blur and depth of field passes, the decal passes' draw, the lit passes, the Z passes), the shadow pass's
+  lights code, ProtoLitRootPass (its map is a subset: the handler only registers variables), ProtoRadialBlurPass / DepthOfFieldPass `Begin` and
+  `IsVisible` helpers that call the heap and the render target manager, the `std::sort` chains of the fog, translucent and opaque passes
+  (0x10769ad0 - 0x1076a3a0, 0x10766470 - 0x107671a0: instances for part pointers with function pointer predicates), and the tiny template
+  instances of the vertex animation loaders (0x10775290 - 0x10776000: array and iterator members over unnamed element types).

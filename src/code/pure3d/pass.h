@@ -35,6 +35,8 @@ namespace pure3d
 		// 0x1060F810 (defined for now by the stand-in leaf::LeafSetWord): sets the word; 0x1060FDB0: adds an entry
 		void SetWord(int value);
 		void AddEntry(int id, bool flag);
+		// 0x1060F820: sets bit n of the word (nothing for 32 and more)
+		void SetBit(int bit);
 
 		unsigned int unknown0;
 		container::ArrayFixed<PassEntry, 16> list;
