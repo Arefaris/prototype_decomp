@@ -218,11 +218,28 @@ namespace proto
 				object->SendMessage(&message);
 				return true;
 			}
+
+			// FUNCTION: ENGINE 0x10268C00
+			// EQUIVALENT: the engine keeps the compared value in a dead argument slot (frame 4 bytes smaller) and loads the member earlier; the same calls, message fields and branches (best 87%)
+			bool DisguiseBlownCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(ai::AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetBlownDisguiseMsg message;
+					object->SendMessage(&message);
+					float expected = value;
+					result = fight::CompareFloats(compare, &message.time, &expected);
+				}
+				return result;
+			}
 		}
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10268AD0
 // FUNCTION: ENGINE 0x10268B00
 // FUNCTION: ENGINE 0x10268B30
 // FUNCTION: ENGINE 0x10268B60

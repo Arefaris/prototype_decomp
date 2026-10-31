@@ -353,11 +353,48 @@ namespace proto
 			template class fight::PropertyEnumConstList<OnlinePlayerTypeCondition>;
 			template class fight::ConditionFactoryTemplate<OnlinePlayerTypeCondition>;
 			template class fight::ConditionFactoryCasterTemplate<OnlinePlayerTypeCondition>;
+
+			// FUNCTION: ENGINE 0x102650E0
+			bool OnlineTestForRespawnStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				int playerType = player;
+				engine::GameObjectHandle handle = FindPlayerHandle(engine::GetObjectHandle(ai::AsOwner(c)), playerType);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				CoOpMessageGetRespawnState message;
+				object->SendMessage(&message);
+				if (state == 0)
+				{
+					return message.state != 0;
+				}
+				return message.state == state;
+			}
+
+			// FUNCTION: ENGINE 0x102651C0
+			bool OnlineTestForPlayerDeathCondition::Evaluate(int a, int b, int c, int d)
+			{
+				int playerType = player;
+				engine::GameObjectHandle handle = FindPlayerHandle(engine::GetObjectHandle(ai::AsOwner(c)), playerType);
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				CoOpMessageGetPlayerDeathState message(engine::GetControllingPlayer(object));
+				object->SendMessage(&message);
+				return message.dead;
+			}
 		}
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10265050
+// FUNCTION: ENGINE 0x10265080
+// FUNCTION: ENGINE 0x102650B0
 // FUNCTION: ENGINE 0x10266B50
 // FUNCTION: ENGINE 0x10266B80
 // FUNCTION: ENGINE 0x10266BB0

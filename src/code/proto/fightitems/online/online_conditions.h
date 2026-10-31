@@ -2,11 +2,18 @@
 #ifndef PROTO_FIGHTITEMS_ONLINE_ONLINE_CONDITIONS_H
 #define PROTO_FIGHTITEMS_ONLINE_ONLINE_CONDITIONS_H
 
+#include "code/proto/messages/coopmessages.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/scenario/scenariodata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 #include "code/proto/fightitems/online/onlinedata.h"
+
+namespace engine
+{
+	int GetControllingPlayer(GameObject* object);
+}
 
 namespace proto
 {
@@ -157,6 +164,8 @@ namespace proto
 			fight::ConditionFactory* CreateOnlinePlayerTypeConditionFactory(const char* name);
 			void RegisterOnlinePlayerTypeConditionFactory(fight::TrackRegistry* registry, const char* name);
 
+			// 0x104DBFF0: the handle of the player of a type (name guess)
+			engine::GameObjectHandle FindPlayerHandle(engine::GameObjectHandle owner, int playerType);
 		}
 	}
 }
