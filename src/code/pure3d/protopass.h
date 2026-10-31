@@ -121,7 +121,7 @@ namespace pure3d
 	{
 	public:
 		virtual ~ViewPass();
-		virtual bool IsEnabled();
+		virtual ParameterHandlerTypeless* GetParameterHandler();
 		// Slot 4 (0x10768670)
 		virtual void Render(PassContext* context);
 		virtual void Unknown9();

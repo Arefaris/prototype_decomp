@@ -1,6 +1,209 @@
 // The frame buffer passes (unit around 0x107AD030 - 0x107B2D80; the file name is a guess). Names are guesses.
+#include "code/core/refptr.h"
+#include "code/engine/render/async/shaderparameter.h"
 #include "code/pure3d/framebufferpass.h"
 
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x107AC500
+	void FrameBufferPass::SetTexture(dxTexture* texture, int slot)
+	{
+		AssignRef(&textures[slot], texture);
+	}
+
+	// FUNCTION: ENGINE 0x107AC520
+	void FrameBufferPass::ReleaseTextures()
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			ReleaseRef(&textures[i]);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107ACE10
+	void FrameBufferPass::PushShader(Shader* newShader)
+	{
+		if (shaderStackEnd < shaderStackCapacity)
+		{
+			Shader** item = shaderStackEnd++;
+			if (item != 0)
+			{
+				*item = shader;
+			}
+		}
+		shader = newShader;
+		newShader->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x107ACE50
+	// EQUIVALENT: the same operations in the same order; the engine copies the loaded end pointer into another register
+	// for the decrement, ours computes the decremented pointer at the load (60.9 %)
+	void FrameBufferPass::PopShader()
+	{
+		if (shaderStack != shaderStackEnd)
+		{
+			core::SafeRelease(shader);
+			Shader** top = shaderStackEnd;
+			shader = top[-1];
+			if (shaderStack != top)
+			{
+				shaderStackEnd = top - 1;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x107AD070
+	// EQUIVALENT: scheduling only (the engine stores the vftable pointer first and pushes the name's address between the
+	// first stores, ours pushes it at the start; 88.3 %)
+	FrameBufferPass::FrameBufferPass(const PassDesc* desc) : Pass(desc), shaderStack(0), shaderStackEnd(0),
+		shaderStackCapacity(0), shader(0), unknownC4(0), unknownC8(false), shaderName(gShaderLit)
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			textures[i] = 0;
+		}
+		shaderStack = (Shader**)operator new[](0x40);
+		if (shaderStack != 0)
+		{
+			shaderStackEnd = shaderStack;
+			shaderStackCapacity = shaderStack + 16;
+			return;
+		}
+		shaderStackEnd = 0;
+		shaderStackCapacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107AD120
+	// EQUIVALENT: scheduling only (the vftable pointer store sits before the first load in the engine; 89.9 %)
+	FrameBufferPass::~FrameBufferPass()
+	{
+		while (shaderStack != shaderStackEnd)
+		{
+			PopShader();
+		}
+		core::SafeRelease(shader);
+		ReleaseTextures();
+		shaderStackEnd = shaderStack;
+		if (shaderStack != 0)
+		{
+			operator delete[](shaderStack);
+		}
+	}
+}
+
+
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x107AD360
+	ParameterHandlerTypeless* ProtoMotherPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107AD1D0
+	void ProtoMotherPass::SetUnknownF4(int value)
+	{
+		unknownF4 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107AD1E0
+	void ProtoMotherPass::SetTextures(Texture* first, Texture* second, Texture* third)
+	{
+		textureE8 = first;
+		textureEC = second;
+		textureF0 = third;
+		first->AddRef();
+		textureEC->AddRef();
+		textureF0->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x107AD340
+	void ProtoMotherPass::Begin()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			CallIsVisible();
+		}
+		begun = 1;
+	}
+
+	// FUNCTION: ENGINE 0x107ADE80
+	ProtoMotherPass::~ProtoMotherPass()
+	{
+		core::SafeRelease(shaderObject);
+		core::SafeRelease(textureE8);
+		core::SafeRelease(textureEC);
+		core::SafeRelease(textureF0);
+	}
+
+	// FUNCTION: ENGINE 0x107ADF20
+	ProtoMotherPass::ProtoMotherPass(const PassDesc* desc) : FrameBufferPass(desc), textureE8(0), textureEC(0),
+		textureF0(0), unknownF4(0), valueF8(3.0f), valueFC(3.0f), shaderObject(0)
+	{
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ProtoMotherPass::SetParameterEnable, 0);
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(0x17, true);
+		entries.AddEntry(0xF, false);
+	}
+
+	// FUNCTION: ENGINE 0x107AE1A0
+	ParameterHandlerTypeless* ProtoThermalPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107AE010
+	void ProtoThermalPass::SetUnknownF4(int value)
+	{
+		unknownF4 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107AE020
+	void ProtoThermalPass::SetTextures(Texture* first, Texture* second, Texture* third)
+	{
+		textureE8 = first;
+		textureEC = second;
+		textureF0 = third;
+		first->AddRef();
+		textureEC->AddRef();
+		textureF0->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x107AE180
+	void ProtoThermalPass::Begin()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			CallIsVisible();
+		}
+		begun = 1;
+	}
+
+	// FUNCTION: ENGINE 0x107AEE70
+	ProtoThermalPass::~ProtoThermalPass()
+	{
+		core::SafeRelease(shaderObject);
+		core::SafeRelease(textureE8);
+		core::SafeRelease(textureEC);
+		core::SafeRelease(textureF0);
+	}
+
+	// FUNCTION: ENGINE 0x107AEF10
+	ProtoThermalPass::ProtoThermalPass(const PassDesc* desc) : FrameBufferPass(desc), textureE8(0), textureEC(0),
+		textureF0(0), unknownF4(0), valueF8(7.0f), valueFC(7.0f), shaderObject(0)
+	{
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ProtoThermalPass::SetParameterEnable, 0);
+		entries.SetWord(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		entries.AddEntry(0x17, true);
+		entries.AddEntry(0xF, false);
+	}
+}
 	// FUNCTION: ENGINE 0x107AD390
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry&);
 

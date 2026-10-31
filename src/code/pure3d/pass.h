@@ -12,6 +12,8 @@
 namespace pure3d
 {
 	class DrawablePart;
+	class ParameterHandlerTypeless;
+	class PassDesc;
 	class Scene;
 	class View;
 
@@ -28,6 +30,9 @@ namespace pure3d
 	{
 	public:
 		~PassEntries();
+		// 0x1060F810 (the engine's name is a leaf::LeafSetWord member): sets the word; 0x1060FDB0: adds an entry
+		void SetWord(int value);
+		void AddEntry(int id, bool flag);
 
 		unsigned int unknown0;
 		container::ArrayFixed<PassEntry, 16> list;
@@ -71,12 +76,15 @@ namespace pure3d
 	class Pass
 	{
 	public:
+		// 0x10754A70 (another unit)
+		explicit Pass(const PassDesc* desc);
 		// Slot 0 (0x10754AE0) and the compiler's scalar deleting destructor (0x10755100)
 		virtual ~Pass();
 		// Slot 1 (0x10754760): calls slot 7 and sets or clears bit 0 of the flag word at +0x20
 		virtual void SetEnabled(bool enabled);
-		// Slot 2 (0x10754AC0): false
-		virtual bool IsEnabled();
+		// Slot 2 (0x10754AC0): the handler of the pass's parameters (none here; the passes that have parameters answer
+		// the handler they keep)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
 		// Slot 3 (0x10754690): walks the children and calls 0x10754590 on each with the argument
 		virtual void VisitChildren(void* context);
 		// Slot 4: pure (the vftable holds the CRT's _purecall); draws what the pass is for
