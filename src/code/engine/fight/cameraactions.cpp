@@ -221,7 +221,7 @@ namespace engine
 		}
 		if (playback != 0)
 		{
-			if (playback->IsDone())
+			if (playback->Unknown20())
 			{
 				return false;
 			}
@@ -239,7 +239,7 @@ namespace engine
 	{
 		if (link.object != 0 && playback != 0)
 		{
-			if (playback->IsDone() || playback->GetAnimation()->mName == link.object->animation)
+			if (playback->Unknown20() || playback->GetAnimation()->mName == link.object->animation)
 			{
 				camera::Director* director = camera::Director::Get();
 				int index = director->playerCamera[0];

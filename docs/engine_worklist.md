@@ -5509,3 +5509,52 @@ Findings:
   initialisation structs (0x1085C210 - 0x1085EFB0, the per-subsystem init parameters have no names) and the heap sort
   instances for 24-byte entries (0x1085BAA0 - 0x1085D530).
 
+## pure3d 0x107A0000 - 0x107C0000: the render parameter handlers, the frame buffer passes and the light and camera controllers (sn-al)
+The range is the end of the render pipeline unit group (passes and their parameters), the lighting inputs, the light
+animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (about 180 functions, not started).
+- **ParameterHandlerTypeless / ParameterHandler<T>** (pass/src/parameterhandler.cpp, parameterhandler.h, framebufferpass.h): the calls
+  an earlier note named `RenderParams::SetInt` ... `GetColour` (0x107A1F80 - 0x107A2B10) belong to `ParameterHandlerTypeless`
+  (RTTI vftable 0x10E639B4, owner +4, a tree of name -> `ParameterValue` at +8 that is 0x1C bytes with the empty allocator
+  word); `RenderContext::Unknown1074DB10` returns one. A `ParameterValue` is {kind, setter, getter}: kinds 1 - 11 point at a variable (float,
+  int, unsigned, bool, Vector, Vector2, Vector4, pddiColour, colour word, four-float colour, reference), 12 - 21 are
+  the function pairs of the same kinds and 22 sets a reference; the 22 constructors (0x107A1B30 - 0x107A1DD0) match. The colour calls
+  convert between the three colour kinds (pddiColour, word, `Colour128`); their conversions return false after a successful
+  conversion in the engine (kept). `GetColourFloats` is EQUIVALENT (block layout: the shared conversion sits after the second
+  case). `ParameterHandler<T>` (derived, +0x24 the object, +0x28 an own `Map<Name, Entry>` that stores the pass's member functions
+  by name) registers a member function pair under a name: `AddBool` / `AddUnsigned` / `AddColour` put function-kind values
+  with the adapters (`Set*Adapter` / `Get*Adapter`, cdecl, owner = the handler) in the base tree. The template is in the header;
+  `framebufferpass.cpp` explicitly instantiates every member the engine has a copy of for the mother, thermal, tone map and capture
+  passes (the instances carry the annotations; `container::Map`'s `Pair` constructor now copies the key in its initialiser list and
+  the entry tree has its own `At`, because the engine's `operator[]` leaves the new value uninitialised).
+- **Passes** (pass/src/framebufferpass.cpp, framebufferpass.h): `FrameBufferPass` (shader stack +0xB0, six textures +0xD0), `ProtoMotherPass`,
+  `ProtoThermalPass` (constructors, destructors, `Begin`, `IsVisible`, the texture setters, the handler getter), `CapturePass` (colour
+  word and amount registered through the handler; its two setters are virtual, so the registered member pointers are the compiler's vcall
+  thunks 0x107B26B0 / 0x107B26C0), `CopyPass`, `TranslucentPass` and `ShadowPass` (constructor, destructor, `IsVisible`; the light list is a
+  member with a destructor, which makes the engine's order of destruction). Pass slot 2, which an earlier note called `IsEnabled`
+  (bool), answers the pass's `ParameterHandlerTypeless*` (`Pass::GetParameterHandler`, 0x10754AC0 now matches). EQUIVALENT (only the
+  place of the vftable store or a register copy): `FrameBufferPass` constructor and destructor, `PopShader`, `ShadowPass` constructor.
+  `ToneMapPass` has its constructor, destructor, enable slot (`IsActive`'s byte result is compared, so the call goes through a
+  bool-returning pointer to member), accessors and `End`; its registered setter is the vcall thunk of the virtual `SetEnabled`.
+  Not done: the `Render` functions (0x107AD630, 0x107AE470, 0x107AF770, 0x107B1A30, 0x107B2480, 0x107B0860, 0x107B2410), the tone map
+  slots 0x107AF010 / 0x107AF5C0, the copy pass constructor 0x107B0990, the helpers 0x107AC550 / 0x107ACEA0 / 0x107AD440.
+- **Render schemes** (pass/src/renderschemes.cpp, renderscheme.h): `PassDesc` and the debug descriptions are structs (RTTI), the six scheme
+  classes have their destructors, `Begin` / `End` of the shadow debug and standard schemes call the device's slot 8 around the base calls; the
+  base class gained its slots 3 (name copy) and 6. Not done: the scheme constructors and the `Create<Pass>` factories (0x107A0880 ... are member
+  templates of the scheme: they need the pass tree helpers 0x1074DB90 / 0x107195D0 and each pass's constructor).
+- **Texture parsers** (texture/src/bmp.cpp, memoryimageparser.cpp): `BMPParser` format test and load, `TextureMemoryImageParser` (its
+  constructor, format test, load and parse through the device's slot 24 object, now typed in `pddiQuery`); the BMP `Parse` (0x107B5910) is not done.
+- **Light group and the light list helpers** (lighting/lightgroup.cpp): `LightGroup` (constructors, destructor, set / add / remove) and the
+  two reference helpers `engine::render::AssignControllerObject` / `ReleaseControllerObject` (0x107AC0F0, 0x107B2F40) now have definitions.
+- **Animation controllers** (anim/src/lightanimationcontroller.cpp, billboardquadgroupanimationcontroller.cpp, cameraanimationcontroller.cpp): the
+  light controller (BlendFrameController, 0x118 bytes), the billboard quad group controller (SimpleFrameController, 0x48 bytes; the group class
+  name is a guess) and the camera controller, which now derives from `BlendFrameController` (the camera code's names of its slots were
+  the frame controller slots under other names: `SetFrame` is slot 6 `SetRelativeSpeed`, `SetStartFrame` slot 10 `SetFrame`, `SetLoop` slot 16
+  `SetNumCycles`, `IsDone` slot 20 `Unknown20`; the three camera sources were changed with it). Not done: the apply slots 26 / 27 of the light and
+  camera controllers (0x107B2FD0 / 0x107B3320, 0x107B4450 / 0x107B4A90, float code over the animation channels), the billboard apply slot 5
+  (0x107B3C70), the camera cut tests (0x107B4110 / 0x107B42B0 / 0x107B4330: static helpers with register arguments) and the setters of the
+  billboard quad (0x107B3A40 - 0x107B3AF0, 0x107B3FD0 - 0x107B4100: no class named by the RTTI).
+- Not started, and why: the lighting inputs (0x107A6B10 - 0x107A9300: `SetLight` is 3115 bytes of constant set-up), the shadow cascade and frustum code
+  of 0x107A2CF0 - 0x107A6540 (no RTTI or assert names its classes; sizes up to 2418 bytes), the ambient grid and spherical harmonics (0x107A8EB0 -
+  0x107AC0A0: reflection helpers and `ArrayDynamic<SHCoeffsTriplet>` template instances), the particle generator slot 9 functions (0x107A0310 -
+  0x107A0580: they need the generators' channel holders at +0x244 / +0x248), the BMP and memory image texture parsers (0x107B5310 -
+  0x107B5C70) and everything from 0x107B5C70 (libpng and zlib).

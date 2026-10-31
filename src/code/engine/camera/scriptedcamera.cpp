@@ -265,7 +265,7 @@ namespace engine
 			case 3:
 				if (controller != 0)
 				{
-					return controller->IsDone();
+					return controller->Unknown20();
 				}
 				return true;
 			}
@@ -631,8 +631,8 @@ namespace engine
 			animationCamera->SetAspect(16.0f / 9.0f, 0);
 			controller->SetAnimation(animation, 0.0f, 0.0f);
 			controller->SetCamera(animationCamera);
-			controller->SetCycleMode(0);
-			controller->SetLoop(animation->mFlag0 == false);
+			controller->SetCycleMode(pure3d::Animation::CYCLE_MODE_0);
+			controller->SetNumCycles(animation->mFlag0 == false);
 			animationCamera->SetNearPlane(0.5f);
 			animationCamera->SetFarPlane(10000.0f);
 			animationCamera->SetWindow(false, 0.0f, 0.0f, 0.0f, 0.0f, false);
@@ -706,12 +706,12 @@ namespace engine
 					reversed = true;
 					controller->SetFrameRange(last, first);
 				}
-				controller->SetStartFrame(first);
+				controller->SetFrame(first);
 			}
-			controller->SetFrame(frame);
+			controller->SetRelativeSpeed(frame);
 			bool loop = loopMode == 2 || (loopMode == 0 && animation->mFlag0);
-			controller->SetCycleMode(reversed ? 3 : 2);
-			controller->SetLoop(!loop);
+			controller->SetCycleMode(reversed ? pure3d::Animation::CYCLE_MODE_3 : pure3d::Animation::CYCLE_MODE_2);
+			controller->SetNumCycles(!loop);
 			unknown55 = newUnknown55;
 			unknown56 = newUnknown56;
 			return true;

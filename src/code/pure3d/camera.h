@@ -99,6 +99,19 @@ namespace pure3d
 			return (const float*)unknown90;
 		}
 	};
+
+	// The kinds of camera the camera animation tells apart (RTTI names, bases pure3d::Camera)
+	class VectorCamera : public Camera
+	{
+	};
+
+	class PointCamera : public Camera
+	{
+	};
+
+	class OrbitCamera : public Camera
+	{
+	};
 }
 
 #endif

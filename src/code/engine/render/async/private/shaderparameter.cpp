@@ -98,7 +98,7 @@ namespace engine
 			return t;
 		}
 
-		ParameterInterpolator<float>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<float>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const float* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target), mStart(0.0f)
 		{
@@ -111,12 +111,12 @@ namespace engine
 			mTimeLeft = mTimeLeft - time;
 			float part = math::Max(0.0f, math::Min(mTimeLeft / mDuration, 1.0f));
 			float curve = Ease(1.0f - part);
-			((pure3d::RenderParams*)mId)->SetFloat(&mName, (1.0f - curve) * mStart + mTarget * curve);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetFloat(&mName, (1.0f - curve) * mStart + mTarget * curve);
 			return mTimeLeft >= 0.0f;
 		}
 
 		// FUNCTION: ENGINE 0x10827AB0
-		ParameterInterpolator<int>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<int>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const int* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target), mStart(0)
 		{
@@ -130,12 +130,12 @@ namespace engine
 			float part = math::Max(0.0f, math::Min(mTimeLeft / mDuration, 1.0f));
 			int start = mStart;
 			float curve = Ease(1.0f - part);
-			((pure3d::RenderParams*)mId)->SetInt(&mName, (int)(curve * (mTarget - start)) + start);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetInt(&mName, (int)(curve * (mTarget - start)) + start);
 			return mTimeLeft >= 0.0f;
 		}
 
 		// FUNCTION: ENGINE 0x10827BC0
-		ParameterInterpolator<bool>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<bool>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const bool* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target), mStart(false)
 		{
@@ -157,12 +157,12 @@ namespace engine
 			{
 				value = mStart;
 			}
-			((pure3d::RenderParams*)mId)->SetBool(&mName, value);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetBool(&mName, value);
 			return mTimeLeft >= 0.0f;
 		}
 
 		// FUNCTION: ENGINE 0x10827CD0
-		ParameterInterpolator<math::Vector>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<math::Vector>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const math::Vector* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target)
 		{
@@ -179,12 +179,12 @@ namespace engine
 			float curve = Ease(1.0f - part);
 			math::Vector value;
 			LerpVector(&value, &mStart, &mTarget, curve);
-			((pure3d::RenderParams*)mId)->SetVector(&mName, &value);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetVector(&mName, &value);
 			return mTimeLeft >= 0.0f;
 		}
 
 		// FUNCTION: ENGINE 0x10827D40
-		ParameterInterpolator<math::Vector4>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<math::Vector4>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const math::Vector4* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target)
 		{
@@ -200,7 +200,7 @@ namespace engine
 			float curve = Ease(1.0f - part);
 			math::Vector4 value;
 			LerpVector(&value, &mStart, &mTarget, curve);
-			((pure3d::RenderParams*)mId)->SetVector4(&mName, &value);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetVector4(&mName, &value);
 			return mTimeLeft >= 0.0f;
 		}
 
@@ -235,7 +235,7 @@ namespace engine
 #endif
 
 		// FUNCTION: ENGINE 0x10827DB0
-		ParameterInterpolator<math::pddiColour>::ParameterInterpolator(pure3d::RenderParams* params,
+		ParameterInterpolator<math::pddiColour>::ParameterInterpolator(pure3d::ParameterHandlerTypeless* params,
 			const core::Name<core::CaseSensitiveKey>& name, const math::pddiColour* target, float duration, int type) :
 			ParameterInterpolatorTypeless((int)params, name, duration, type), mTarget(*target)
 		{
@@ -250,7 +250,7 @@ namespace engine
 			float curve = Ease(1.0f - part);
 			math::pddiColour value;
 			BlendColours(&value, &mStart, &mTarget, curve);
-			((pure3d::RenderParams*)mId)->SetColour(&mName, &value);
+			((pure3d::ParameterHandlerTypeless*)mId)->SetColour(&mName, &value);
 			return mTimeLeft >= 0.0f;
 		}
 
@@ -258,7 +258,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10826A00
 		static void ApplyReset(ParameterReference<int>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				RenderObject* object = GetRenderObject();
@@ -269,7 +269,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10827580
 		static void ApplyInt(ParameterReference<int>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetInt(&reference->parameter, reference->value);
@@ -279,7 +279,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10826A80
 		static void ApplyBool(ParameterReference<bool>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetBool(&reference->parameter, reference->value);
@@ -289,7 +289,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10826AB0
 		static void ApplyFloat(ParameterReference<float>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetFloat(&reference->parameter, reference->value);
@@ -299,7 +299,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108275B0
 		static void ApplyVector(ParameterReference<math::Vector>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetVector(&reference->parameter, &reference->value);
@@ -309,7 +309,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108275E0
 		static void ApplyVector2(ParameterReference<math::Vector2>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetVector2(&reference->parameter, &reference->value);
@@ -319,7 +319,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10827610
 		static void ApplyVector4(ParameterReference<math::Vector4>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetVector4(&reference->parameter, &reference->value);
@@ -329,7 +329,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10827640
 		static void ApplyColour(ParameterReference<math::pddiColour>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				params->SetColour(&reference->parameter, &reference->value);
@@ -340,7 +340,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10829500
 		static void StartFloat(ParameterReference<float>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;
@@ -356,7 +356,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10829560
 		static void StartInt(ParameterReference<int>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;
@@ -372,7 +372,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108295C0
 		static void StartBool(ParameterReference<bool>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;
@@ -388,7 +388,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10829620
 		static void StartVector(ParameterReference<math::Vector>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;
@@ -405,7 +405,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10829680
 		static void StartVector4(ParameterReference<math::Vector4>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;
@@ -422,7 +422,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x108296E0
 		static void StartColour(ParameterReference<math::pddiColour>* reference)
 		{
-			pure3d::RenderParams* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
+			pure3d::ParameterHandlerTypeless* params = pure3d::context->passes->Unknown1074DB10(&reference->context);
 			if (params != 0)
 			{
 				ParameterInterpolatorPool* pool = GetRenderObject()->interpolators;

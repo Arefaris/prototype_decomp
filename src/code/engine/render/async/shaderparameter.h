@@ -15,39 +15,7 @@
 #include "code/math/vector2.h"
 #include "code/math/vector4.h"
 #include "code/pure3d/context.h"
-
-namespace pure3d
-{
-	// The named parameters of a render context (a tree of name -> typed value at +8; a parameter of the type is set
-	// through the pointer the node holds, or through the function the node holds for the "function" types). Each
-	// member returns whether the parameter exists and has the type. All names are guesses.
-	class RenderParams
-	{
-	public:
-		// 0x107A1FE0 (node types 3 and 0xE)
-		bool SetUnknown1FE0(const core::Name<core::CaseSensitiveKey>* name, unsigned int value);
-		// 0x107A1F80 (2 / 0xD)
-		bool SetInt(const core::Name<core::CaseSensitiveKey>* name, int value);
-		// 0x107A2040 (1 / 0xC)
-		bool SetFloat(const core::Name<core::CaseSensitiveKey>* name, float value);
-		// 0x107A20B0 (4 / 0xF)
-		bool SetBool(const core::Name<core::CaseSensitiveKey>* name, bool value);
-		// 0x107A2110 / 0x107A2180 / 0x107A21F0 / 0x107A27C0
-		bool SetVector(const core::Name<core::CaseSensitiveKey>* name, const math::Vector* value);
-		bool SetVector2(const core::Name<core::CaseSensitiveKey>* name, const math::Vector2* value);
-		bool SetVector4(const core::Name<core::CaseSensitiveKey>* name, const math::Vector4* value);
-		bool SetColour(const core::Name<core::CaseSensitiveKey>* name, const math::pddiColour* value);
-
-		// The values the parameters have now: 0x107A2430 / 0x107A24F0 / 0x107A2550 / 0x107A25B0 / 0x107A2620 /
-		// 0x107A2A20
-		bool GetInt(const core::Name<core::CaseSensitiveKey>* name, int* value);
-		bool GetFloat(const core::Name<core::CaseSensitiveKey>* name, float* value);
-		bool GetBool(const core::Name<core::CaseSensitiveKey>* name, bool* value);
-		bool GetVector(const core::Name<core::CaseSensitiveKey>* name, math::Vector* value);
-		bool GetVector4(const core::Name<core::CaseSensitiveKey>* name, math::Vector4* value);
-		bool GetColour(const core::Name<core::CaseSensitiveKey>* name, math::pddiColour* value);
-	};
-}
+#include "code/pure3d/parameterhandler.h"
 
 namespace engine
 {
@@ -91,7 +59,7 @@ namespace engine
 		template<> class ParameterInterpolator<float> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const float* target, float duration, int type);
 			virtual bool Update(float time);
 
@@ -102,7 +70,7 @@ namespace engine
 		template<> class ParameterInterpolator<int> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const int* target, float duration, int type);
 			virtual bool Update(float time);
 
@@ -113,7 +81,7 @@ namespace engine
 		template<> class ParameterInterpolator<bool> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const bool* target, float duration, int type);
 			virtual bool Update(float time);
 
@@ -124,7 +92,7 @@ namespace engine
 		template<> class ParameterInterpolator<math::Vector> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const math::Vector* target, float duration, int type);
 			virtual bool Update(float time);
 
@@ -135,7 +103,7 @@ namespace engine
 		template<> class ParameterInterpolator<math::Vector4> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const math::Vector4* target, float duration, int type);
 			virtual bool Update(float time);
 
@@ -146,7 +114,7 @@ namespace engine
 		template<> class ParameterInterpolator<math::pddiColour> : public ParameterInterpolatorTypeless
 		{
 		public:
-			ParameterInterpolator(pure3d::RenderParams* params, const core::Name<core::CaseSensitiveKey>& name,
+			ParameterInterpolator(pure3d::ParameterHandlerTypeless* params, const core::Name<core::CaseSensitiveKey>& name,
 				const math::pddiColour* target, float duration, int type);
 			virtual bool Update(float time);
 

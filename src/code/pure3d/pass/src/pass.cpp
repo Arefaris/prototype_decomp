@@ -210,13 +210,10 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10754AC0
-	// NONMATCHING: the engine clears eax (the slot returns an int), a bool clears only al (66.7 %)
-#ifdef NONMATCHING
-	bool Pass::IsEnabled()
+	ParameterHandlerTypeless* Pass::GetParameterHandler()
 	{
-		return false;
+		return 0;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10754AE0
 	Pass::~Pass()
