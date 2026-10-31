@@ -89,6 +89,7 @@ namespace pure3d
 
 	class dxVertexDeclaration;
 	class dxIndexBufferState;
+	class dxTexture;
 
 	// What the device's slot 24 hands out for a set of flags (a query on the device; the name and the slots are
 	// guesses, only slots 3, 4 and 7 are used). For 0x102 slots 3 and 4 read a vertex and an index chunk of a mesh
@@ -97,8 +98,9 @@ namespace pure3d
 	{
 	public:
 		virtual void Unknown0();
-		virtual void Unknown1();
-		virtual void Unknown2();
+		// Slots 1 and 2 (for 0x102, the texture parsers): make the texture of a memory image (slot 2 for the cube form)
+		virtual dxTexture* CreateTexture(int type, core::IRefCount* stream, unsigned int size);
+		virtual dxTexture* CreateCubeTexture(int type, core::IRefCount* stream, unsigned int size);
 		virtual void ReadVertices(content::ChunkReader* reader, dxVertexDeclaration* lock, unsigned int count);
 		virtual void ReadIndices(content::ChunkReader* reader, dxIndexBufferState* lock, unsigned int count);
 		virtual void Unknown5();

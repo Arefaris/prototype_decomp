@@ -116,6 +116,42 @@ namespace pure3d
 			int level, int slice);
 	};
 
+	// The BMP reader (RTTI: pure3d::BMPParser, 4 bytes; the unit is code/pure3d/texture/src/bmp.cpp)
+	class BMPParser : public TextureParser
+	{
+	public:
+		virtual ~BMPParser()
+		{
+		}
+		// 0x107B5310: format 3
+		virtual bool IsSupportedFormat(unsigned int format);
+		// 0x107B5320
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source);
+		// 0x107B5910
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice);
+	};
+
+	// The reader of images the device itself reads from memory (RTTI: pure3d::TextureMemoryImageParser, 4 bytes)
+	class TextureMemoryImageParser : public TextureParser
+	{
+	public:
+		// 0x107B5C60; the scalar deleting destructor is 0x107B5C70
+		TextureMemoryImageParser()
+		{
+		}
+		virtual ~TextureMemoryImageParser()
+		{
+		}
+		// 0x107B5B50: the formats 0x1B - 0x1D
+		virtual bool IsSupportedFormat(unsigned int format);
+		// 0x107B5B70
+		virtual Texture* Load(core::IRefCount* stream, const char* name, int usage, bool flag, Texture* source);
+		// 0x107B5BE0
+		virtual Texture* Parse(core::IRefCount* reader, int type, int usage, int levels, int depth, Texture* existing,
+			int level, int slice);
+	};
+
 	// The stream the texture writers put a DDS file into (a file or a memory block; the slots before Write are not
 	// reconstructed, the class name is a guess)
 	class OutputStream : public core::IRefCount
