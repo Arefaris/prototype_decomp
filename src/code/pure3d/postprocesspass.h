@@ -1,0 +1,256 @@
+// The post processing passes that run on the finished picture and own the passes of their parts (RTTI names
+// pure3d::ProtoFBPass, ProtoBloomPass, ProtoBloomColourAdjustPass, ProtoBloomCompositePass, ProtoColourMatrixPass,
+// ProtoFogPass, ProtoRadialBlurPass and DepthOfFieldPass; BlurPass and ProtoToneMapPass are declared only as far as
+// the passes that make them need). Only what the reconstructed functions use is declared; names are guesses.
+#ifndef PURE3D_POSTPROCESSPASS_H
+#define PURE3D_POSTPROCESSPASS_H
+
+#include "code/math/colour128.h"
+#include "code/math/matrix.h"
+#include "code/math/vector.h"
+#include "code/math/vector4.h"
+#include "code/pure3d/framebufferpass.h"
+#include "code/pure3d/passnames.h"
+#include "code/pure3d/renderscheme.h"
+
+namespace pure3d
+{
+	// The names of the shaders of the bloom passes (0x111B9350 / 0x111B9354; names guessed)
+	extern const char* gShaderBloom;
+	extern const char* gShaderBloomAdd;
+
+	// 0x111B935C / 0x111BBED0: the weights of the colour channels in the brightness (0.2127, 0.7152, 0.0722), as a vector and
+	// as the vector with w 1 the colour matrix functions take
+	extern const math::Vector gLuminanceWeights;
+	extern const math::Vector4 gLuminanceWeights4;
+
+	// The tone map pass the frame buffer pass makes (vftable 0x10E5EBD8; the constructor is 0x1075F4E0, the destructor
+	// 0x1075F500)
+	class ProtoToneMapPass : public ToneMapPass
+	{
+	public:
+		explicit ProtoToneMapPass(const PassDesc* desc);
+		virtual ~ProtoToneMapPass();
+	};
+
+	// The pass that blurs the picture (vftable 0x10E5EB68; 0x540 bytes, the constructor is 0x1075F090)
+	class BlurPass : public FrameBufferPass
+	{
+	public:
+		explicit BlurPass(const PassDesc* desc);
+		virtual ~BlurPass();
+		virtual void Render(PassContext* context);
+
+		// 0x1075DB10 / 0x1075D6E0 (another unit): the two settings of the blur the bloom makes from its sizes
+		void SetBlurSize(float value);
+		void SetBlurRatio(float value);
+	};
+
+	class ProtoBloomPass;
+
+	// Four floats copied as a block (the tint of the colour adjust pass)
+	struct PassColour4
+	{
+		float r;
+		float g;
+		float b;
+		float a;
+	};
+
+	// Applies the bloom colour adjustment to the picture (vftable 0x10E5ED5C): a colour matrix made from the settings
+	// (brightness, contrast, saturation, hue, a tint) and the threshold of the bright parts
+	class ProtoBloomColourAdjustPass : public FrameBufferPass
+	{
+	public:
+		// 0x10761EA0
+		explicit ProtoBloomColourAdjustPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10761220, the deleting destructor 0x10761B90)
+		virtual ~ProtoBloomColourAdjustPass();
+		// Slot 4 (0x10762000), 5 (0x107612C0, a jump to slot 7) and 7 (0x10761230)
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual bool IsVisible();
+
+		// 0x107612D0 / 0x107612F0, 0x10761300 / 0x10761390, 0x107613A0 / 0x107613C0, 0x107613D0, 0x10761400,
+		// 0x10761480 / 0x107614B0 and the matching getters: the settings; each one makes the matrix stale
+		void SetBrightness(float value);
+		float GetBrightness();
+		void SetContrast(float value);
+		float GetContrast();
+		void SetMidpoint(float value);
+		float GetMidpoint();
+		void SetSaturation(float value);
+		float GetSaturation();
+		void SetHue(float value);
+		float GetHue();
+		void SetCutoff(float value);
+		float GetCutoff();
+		void SetPower(float value);
+		float GetPower();
+		// 0x10761430 / 0x10761470: the tint, 0x107614E0 / 0x10761510: the luminance weights (kept normalised)
+		void SetTint(const math::Colour128* value);
+		const math::Colour128& GetTint();
+		void SetWeights(const math::Vector* value);
+		const math::Vector& GetWeights();
+		// 0x10761BB0: puts the matrix and the other inputs on the shader (when stale)
+		void UpdateShader();
+
+		float brightness;        // +0xE8
+		float contrastScale;     // +0xEC
+		float contrast;          // +0xF0
+		float midpoint;          // +0xF4
+		float saturation;        // +0xF8
+		float hue;               // +0xFC
+		float cutoff;            // +0x100
+		float power;             // +0x104
+		PassColour4 tint;        // +0x108
+		math::Vector weights;    // +0x118
+		math::Matrix matrix;     // +0x124
+		bool matrixValid;        // +0x164
+	};
+
+	// Adds the bloom to the picture (vftable 0x10E5EF18)
+	class ProtoBloomCompositePass : public FrameBufferPass
+	{
+	public:
+		// 0x10761520
+		explicit ProtoBloomCompositePass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10761560, the deleting destructor 0x10761DF0)
+		virtual ~ProtoBloomCompositePass();
+		// Slot 4 (0x10762410), 5 (0x10761660, a jump to slot 7) and 7 (0x10761570)
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual bool IsVisible();
+
+		// 0x10761600 / 0x10761620, 0x10761630 / 0x10761650
+		void SetBloomStrength(float value);
+		float GetBloomStrength();
+		void SetBackBufferStrength(float value);
+		float GetBackBufferStrength();
+		// 0x107621E0: puts the strengths and the textures on the shader
+		void UpdateShader();
+
+		float bloomStrength;      // +0xE8
+		float backBufferStrength; // +0xEC
+		bool shaderValid;         // +0xF0
+	};
+
+	// The bloom (vftable 0x10E5EF98): finds the bright parts with a colour adjust pass, blurs them and adds them with a
+	// composite pass; the parameters it registers are those of its two passes
+	class ProtoBloomPass : public FrameBufferPass
+	{
+	public:
+		// 0x10762D90
+		explicit ProtoBloomPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10762CE0, the deleting destructor 0x10763390)
+		virtual ~ProtoBloomPass();
+		// Slot 2 (0x10761200), 4 (0x107619C0), 5 (0x10761100), 6 (0x10761B50) and 7 (0x10760FF0)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual void End();
+		virtual bool IsVisible();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+		// 0x10760FE0: the pass that blurs the bright parts (made by the frame buffer pass)
+		void SetBlurPass(BlurPass* pass);
+		// 0x10761070 / 0x10761090, 0x107610A0 / 0x107610C0: the two sizes the blur is made at
+		void SetSize(float value);
+		float GetSize();
+		void SetBlur(float value);
+		float GetBlur();
+		// 0x107610D0: the two textures the bloom draws into
+		void SetTextures(Texture* first, Texture* second);
+		// 0x10761150: the sizes of the blur from the two settings
+		void UpdateBlur();
+		// 0x10761210
+		ProtoBloomCompositePass* GetComposite();
+
+		// 0x10761990 / 0x107619B0, 0x10761960 / 0x10761980, 0x107617D0 / 0x107617F0, 0x10761800 / 0x10761820,
+		// 0x10761890 / 0x107618B0, 0x107618E0 / 0x10761900, 0x10761910 / 0x10761930, 0x10761830 / 0x10761850,
+		// 0x10761860 / 0x10761880, 0x107618C0 / 0x107618D0, 0x10761940 / 0x10761950: the settings of its two passes
+		void SetBackBufferStrength(float value);
+		float GetBackBufferStrength();
+		void SetBloomStrength(float value);
+		float GetBloomStrength();
+		void SetBrightness(float value);
+		float GetBrightness();
+		void SetContrast(float value);
+		float GetContrast();
+		void SetHue(float value);
+		float GetHue();
+		void SetCutoff(float value);
+		float GetCutoff();
+		void SetPower(float value);
+		float GetPower();
+		void SetMidpoint(float value);
+		float GetMidpoint();
+		void SetSaturation(float value);
+		float GetSaturation();
+		void SetTint(const math::Colour128* value);
+		const math::Colour128& GetTint();
+		void SetWeights(const math::Vector* value);
+		const math::Vector& GetWeights();
+
+		Texture* textureE8;
+		Texture* textureEC;
+		ProtoBloomColourAdjustPass* colourAdjust; // +0xF0
+		ProtoBloomCompositePass* composite;       // +0xF4
+		BlurPass* blurPass;                        // +0xF8
+		float size;                                // +0xFC
+		float blur;                                // +0x100
+		ParameterHandler<ProtoBloomPass> parameters; // +0x104
+		bool blurValid;                            // +0x148
+	};
+
+	class ProtoColourMatrixPass : public FrameBufferPass
+	{
+	public:
+		explicit ProtoColourMatrixPass(const PassDesc* desc);
+		virtual ~ProtoColourMatrixPass();
+		virtual void Render(PassContext* context);
+	};
+
+	// Draws the picture through all the post processing passes (vftable 0x10E5ED00): makes the tone map, bloom, colour
+	// matrix, thermal, mother, copy and blur passes itself
+	class ProtoFBPass : public FrameBufferPass
+	{
+	public:
+		// 0x10760BE0
+		explicit ProtoFBPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10760AB0, the deleting destructor 0x10760FC0)
+		virtual ~ProtoFBPass();
+		// Slot 2 (0x1075F4D0), 4 (0x1075F670), 5 (0x1075F200), 6 (0x1075F620) and 7 (0x1075F2A0)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual void End();
+		virtual bool IsVisible();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+
+		ProtoToneMapPass* toneMapPass;               // +0xE8
+		ProtoBloomPass* bloomPass;                   // +0xEC
+		ProtoColourMatrixPass* colourMatrixPass;     // +0xF0
+		ProtoThermalPass* thermalPass;               // +0xF4
+		ProtoMotherPass* motherPass;                 // +0xF8
+		Pass* unknownFC;
+		CopyPass* copyPass;                          // +0x100
+		BlurPass* blurPass;                          // +0x104
+		Texture* texture108;
+		Shader* shader10C;
+		Shader* shader110;
+		int visionMode;                              // +0x114
+		float visionStrength;                        // +0x118
+		int unknown11C;
+		float mixAmount;                             // +0x120
+		math::Vector colourMix;                      // +0x124
+		math::Vector alexColour;                     // +0x130
+		unsigned char unknown13C[0x10];
+		ParameterHandler<ProtoFBPass> parameters;    // +0x14C
+	};
+}
+
+#endif

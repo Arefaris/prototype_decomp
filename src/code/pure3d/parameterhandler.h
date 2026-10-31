@@ -18,6 +18,23 @@ namespace pure3d
 {
 	class Texture;
 
+	// Plain copies of the vector and the four-float colour: what a getter of the first kind answers through a hidden pointer
+	// (a struct without constructors is copied by words)
+	struct ParameterVector
+	{
+		float x;
+		float y;
+		float z;
+	};
+
+	struct ParameterColour4
+	{
+		float r;
+		float g;
+		float b;
+		float a;
+	};
+
 	// The packed colour a parameter of kind 9 points at (the word of a pddiColour, as its own type)
 	struct ColourWord
 	{
@@ -179,6 +196,12 @@ namespace pure3d
 				bool (T::*setterNamedUnsigned)(const ParameterName*, unsigned int);
 				void (T::*setterColour)(const unsigned int*);
 				bool (T::*setterNamedColour)(const ParameterName*, const unsigned int*);
+				void (T::*setterFloat)(float);
+				bool (T::*setterNamedFloat)(const ParameterName*, float);
+				void (T::*setterVector)(const math::Vector*);
+				bool (T::*setterNamedVector)(const ParameterName*, const math::Vector*);
+				void (T::*setterColour128)(const math::Colour128*);
+				bool (T::*setterNamedColour128)(const ParameterName*, const math::Colour128*);
 			};
 			union
 			{
@@ -189,6 +212,14 @@ namespace pure3d
 				ColourResult (T::*getterColour)();
 				const ColourResult& (T::*getterColourReference)();
 				bool (T::*getterNamedColour)(const ParameterName*, unsigned int*);
+				float (T::*getterFloat)();
+				bool (T::*getterNamedFloat)(const ParameterName*, float*);
+				ParameterVector (T::*getterVector)();
+				const math::Vector& (T::*getterVectorReference)();
+				bool (T::*getterNamedVector)(const ParameterName*, math::Vector*);
+				ParameterColour4 (T::*getterColour128)();
+				const math::Colour128& (T::*getterColour128Reference)();
+				bool (T::*getterNamedColour128)(const ParameterName*, math::Colour128*);
 			};
 		};
 
@@ -233,6 +264,26 @@ namespace pure3d
 		void AddUnsigned(const ParameterName* name, void (T::*newSetter)(unsigned int), unsigned int (T::*newGetter)());
 		void AddColour(const ParameterName* name, void (T::*newSetter)(const unsigned int*), ColourResult (T::*newGetter)());
 
+		// The same for a pair on a float, a vector and a four-float colour
+		void AddFloat(const ParameterName* name, void (T::*newSetter)(float), float (T::*newGetter)());
+		void AddVector(const ParameterName* name, void (T::*newSetter)(const math::Vector*),
+			const math::Vector& (T::*newGetter)());
+		void AddColour128(const ParameterName* name, void (T::*newSetter)(const math::Colour128*),
+			const math::Colour128& (T::*newGetter)());
+
+		// Files a pair of adapter functions in the base tree under the name
+		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, float),
+			bool (*newGetter)(void*, const ParameterName*, float*));
+		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, const math::Vector*),
+			bool (*newGetter)(void*, const ParameterName*, math::Vector*));
+		void AddAdapters(const ParameterName* name, bool (*newSetter)(void*, const ParameterName*, const math::Colour128*),
+			bool (*newGetter)(void*, const ParameterName*, math::Colour128*));
+
+		// A variable of the object as a parameter (the reference kinds 1, 2 and 5 of ParameterValue)
+		void AddVariable(const ParameterName* name, float* variable);
+		void AddVariable(const ParameterName* name, int* variable);
+		void AddVariable(const ParameterName* name, math::Vector* variable);
+
 		// The functions the base tree holds for such a parameter: look the member functions up by name and call them
 		static bool SetBoolAdapter(void* handler, const ParameterName* name, bool value);
 		static bool GetBoolAdapter(void* handler, const ParameterName* name, bool* value);
@@ -240,6 +291,12 @@ namespace pure3d
 		static bool GetUnsignedAdapter(void* handler, const ParameterName* name, unsigned int* value);
 		static bool SetColourAdapter(void* handler, const ParameterName* name, const unsigned int* value);
 		static bool GetColourAdapter(void* handler, const ParameterName* name, unsigned int* value);
+		static bool SetFloatAdapter(void* handler, const ParameterName* name, float value);
+		static bool GetFloatAdapter(void* handler, const ParameterName* name, float* value);
+		static bool SetVectorAdapter(void* handler, const ParameterName* name, const math::Vector* value);
+		static bool GetVectorAdapter(void* handler, const ParameterName* name, math::Vector* value);
+		static bool SetColour128Adapter(void* handler, const ParameterName* name, const math::Colour128* value);
+		static bool GetColour128Adapter(void* handler, const ParameterName* name, math::Colour128* value);
 
 		// 0x107AD370 and its copies: the object the handler calls the member functions of
 		void SetObject(T* newObject)
@@ -437,6 +494,243 @@ namespace pure3d
 				return true;
 			}
 			return (self->object->*entry.getterNamedColour)(name, value);
+		}
+		return false;
+	}
+	template<class T> void ParameterHandler<T>::AddFloat(const ParameterName* name, void (T::*newSetter)(float),
+		float (T::*newGetter)())
+	{
+		Entry entry = {1, 2, {0}, {0}};
+		entry.setterFloat = newSetter;
+		entry.getterFloat = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetFloatAdapter, GetFloatAdapter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
+		bool (*newSetter)(void*, const ParameterName*, float), bool (*newGetter)(void*, const ParameterName*, float*))
+	{
+		parameters.At(name) = ParameterValue(newSetter, newGetter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
+		bool (*newSetter)(void*, const ParameterName*, const math::Vector*),
+		bool (*newGetter)(void*, const ParameterName*, math::Vector*))
+	{
+		parameters.At(name) = ParameterValue(newSetter, newGetter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddAdapters(const ParameterName* name,
+		bool (*newSetter)(void*, const ParameterName*, const math::Colour128*),
+		bool (*newGetter)(void*, const ParameterName*, math::Colour128*))
+	{
+		parameters.At(name) = ParameterValue(newSetter, newGetter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVector(const ParameterName* name,
+		void (T::*newSetter)(const math::Vector*), const math::Vector& (T::*newGetter)())
+	{
+		Entry entry = {1, 2, {0}, {0}};
+		entry.setterVector = newSetter;
+		entry.getterVectorReference = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetVectorAdapter, GetVectorAdapter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddColour128(const ParameterName* name,
+		void (T::*newSetter)(const math::Colour128*), const math::Colour128& (T::*newGetter)())
+	{
+		Entry entry = {1, 2, {0}, {0}};
+		entry.setterColour128 = newSetter;
+		entry.getterColour128Reference = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetColour128Adapter, GetColour128Adapter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, float* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, int* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> void ParameterHandler<T>::AddVariable(const ParameterName* name, math::Vector* variable)
+	{
+		parameters.At(name) = ParameterValue(variable);
+	}
+
+	template<class T> bool ParameterHandler<T>::SetFloatAdapter(void* handler, const ParameterName* name, float value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterFloat)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedFloat)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetFloatAdapter(void* handler, const ParameterName* name, float* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.getKind == 1)
+			{
+				*value = (self->object->*entry.getterFloat)();
+				return true;
+			}
+			if (entry.getKind == 2)
+			{
+				*value = (self->object->*entry.getterFloat)();
+				return true;
+			}
+			return (self->object->*entry.getterNamedFloat)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::SetVectorAdapter(void* handler, const ParameterName* name,
+		const math::Vector* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterVector)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedVector)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetVectorAdapter(void* handler, const ParameterName* name,
+		math::Vector* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			const ParameterVector* result;
+			if (entry.getKind == 1)
+			{
+				result = &(self->object->*entry.getterVector)();
+			}
+			else if (entry.getKind == 2)
+			{
+				result = (const ParameterVector*)&(self->object->*entry.getterVectorReference)();
+			}
+			else
+			{
+				return (self->object->*entry.getterNamedVector)(name, value);
+			}
+			value->x = result->x;
+			value->y = result->y;
+			value->z = result->z;
+			return true;
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::SetColour128Adapter(void* handler, const ParameterName* name,
+		const math::Colour128* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterColour128)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedColour128)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetColour128Adapter(void* handler, const ParameterName* name,
+		math::Colour128* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			const ParameterColour4* result;
+			if (entry.getKind == 1)
+			{
+				result = &(self->object->*entry.getterColour128)();
+			}
+			else if (entry.getKind == 2)
+			{
+				result = (const ParameterColour4*)&(self->object->*entry.getterColour128Reference)();
+			}
+			else
+			{
+				return (self->object->*entry.getterNamedColour128)(name, value);
+			}
+			*(ParameterColour4*)value = *result;
+			return true;
 		}
 		return false;
 	}
