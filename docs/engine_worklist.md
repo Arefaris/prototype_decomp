@@ -6224,3 +6224,35 @@ holds the instances of one translation unit, `om/dynamicproperty.h` the template
   NONMATCHING: `CommandMember1<..EnvelopeData..>::Call` 0x10AB42A0 and `CommandDelegate<EnvelopeData>::Set` 0x10AB4180 (the
   engine calls the copy constructor of the points' array for the by-value argument). The shared `DynamicArray` copy constructor
   and `Append` do not match the engine's copies of the float, unsigned int and `VectorT` arrays.
+
+## sn-bc: the range 0x10AC0000 - 0x10AE0000 (audio driver reflection, mgraph node reflection and context events)
+The range continues the template instances of the om library for the audio and mgraph namespaces in the order the compiler
+emitted them (guess: `audio/driverreflection.cpp` goes on up to 0x10AC2080, `mgraph/reflection.cpp` holds the rest). It is
+dense with identical dead copies: a class's reflection (`MetaClass<T>`, `NodeType<T>` ...) has one COMDAT of every member
+(constructor, `GetType`, `Slot5`, `operator delete`, `AllocationTag`, ...) next to the one its vftable uses, and the linker did
+not fold them.
+- `audio/driverreflection.cpp` (0x10AC0010 - 0x10AC1F90, 35 functions match): the rest of the Focus / BufferLocation / MixType
+  properties and enumerations of the DirectSound driver, the `ArgumentReader` of the three enumerations, `Invoke` of the
+  eight DirectSound `MetaMethod` instances. `XAudio2RendererDriver` is declared by name in `audio/drivers.h`.
+- `mgraph/nodes.h`: declarations of the mgraph node classes the reflection names (RTTI names and bases; `om::Vector` and
+  `om::Complex` have placeholder members). `om/metasimpletype.h`: `MetaSimpleType<T>` (constructor, `GetType`, allocation
+  functions; the text and binary forms call the library's functions of the type).
+- `mgraph/reflection.cpp` (0x10AC2850 - 0x10ADFEF0, 703 functions match): `MetaClass<T>` of 142 classes (everything the binding
+  found: `GetType`, constructor, `operator delete`, `AllocationTag` ...), `MetaProperty` / `MetaMethod0Const` / `MetaMethod1`
+  / `DelegateMetaProperty` / `DelegateProperty` of the node, node colour, switch and list properties, `MetaSimpleType` of the
+  27 packet and array types. Left out because their vftables would have slots that differ from the engine's: the constructors and
+  `Create` of `MetaProperty<int>`, `<NodeColour const&>`, `<Vector>`, the array properties, the `MetaMethod` instances of `Node`,
+  and the constructors of `MetaSimpleType<DynamicArray<..>>` (the engine keeps the argument's slot as the value for the
+  by-value properties, array parameters are copied by the engine's own helpers).
+- `mgraph/events.h`, `mgraph/events.cpp` (0x10AC3570 - 0x10AC7700, 38 functions match): `ContextEvent` and the ten events of the
+  context (barrier, add / remove pre / post evaluate command, add / remove graph, reset channel, set number of channels,
+  set channel enabled). All count themselves in one shared word (0x11327700). The `Context` methods they call are mapped only.
+- What the binding taught: the engine's dead copies cannot be told apart by their bytes; the binder (bound by vftable slots,
+  relocations of matching functions, then byte match and distance to the class's other functions) now also checks the type
+  descriptor and the empty string an `AllocationTag` loads. About 2650 functions of the range are not reconstructed: the
+  `Slot5` / `Slot6` / `AllocationTag` / `operator new` / `Create` copies of the 142 classes beyond what the binding could
+  separate, the `NodeType<T>` functions and the nodes' static helpers (a cache of the node type found by `typeid`), the
+  intrusive-list owner conversions, the graph evaluation (`Graph`, `Node`, `LinkedGraph`, `EmbeddedGraph`, pins, connections),
+  and the DirectSound / XAudio2 device code.
+- Shared changes: `tools/delink/relink.py` (the scan for rel32 calls skips the bytes of an absolute reference already placed:
+  an `E8` inside an address operand once matched the incremental-link thunk of a replaced function), `audio/drivers.h`.

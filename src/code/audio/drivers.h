@@ -84,6 +84,13 @@ namespace audio
 		void SetWaveFormat(WAVEFORMAT newWaveFormat);
 		WAVEFORMAT GetWaveFormat() const;
 	};
+
+	// The driver of the XAudio2 device (RTTI: audio::XAudio2RendererDriver, also a voice callback of the device library;
+	// described by its name so far)
+	class XAudio2RendererDriver : public RendererDriver
+	{
+	public:
+	};
 }
 
 #endif
