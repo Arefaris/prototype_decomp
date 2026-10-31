@@ -32406,3 +32406,4 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?OnThreadEntry@ThreadEntryCallback@engine@@UAEXPAVThread@om@@@Z = 0x10844F50 ; function size:0xB | engine::ThreadEntryCallback::OnThreadEntry (name guess)
 ??_7ThreadEntryCallback@engine@@6B@ = 0x10E70420 ; data size:0x4 | engine::ThreadEntryCallback::vftable
 ??_R0?AVThreadEntryCallback@engine@@@8 = 0x111C72CC ; data | engine::ThreadEntryCallback RTTI type descriptor
+?DivideNumberByVector@engine@@YAPAVVector@math@@PAV23@MPBV23@@Z = 0x10840800 ; function size:0x31 | engine::DivideNumberByVector (name guess)
