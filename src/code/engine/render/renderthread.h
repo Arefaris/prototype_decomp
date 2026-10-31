@@ -18,6 +18,19 @@ namespace engine
 		class RenderQueue
 		{
 		public:
+			// 0x1085FDB0: a queue of that many items on the heap, with that many waiters (the second word is stored at +0)
+			RenderQueue(int heap, unsigned int newCapacity, int newUnknown0, unsigned int newWaiterCount);
+			// 0x1085FE60
+			~RenderQueue();
+			// 0x1085FEC0: adds an item at the end and wakes the render thread when it sleeps
+			void Send(void* item);
+			// 0x1085FF20: the first item without taking it; false when there is none
+			bool Peek(void** item);
+			// 0x1085FF70: the first item without taking it, waiting for it when there is none
+			void WaitPeek(void** item);
+			// 0x1085FFD0: takes the first item; false when there is none. On success the lock stays taken (the engine's
+			// caller releases it)
+			bool Pop(void** item);
 			// 0x10860E80: queues item, wakes the render thread when it sleeps and waits until the item is done
 			void SendAndWait(void* item);
 			// 0x108601C0: the calling thread's waiter (a free one is claimed; null when none is left)
@@ -34,6 +47,7 @@ namespace engine
 			void** items;
 			unsigned int readIndex;
 			unsigned int writeIndex;
+			bool unknown3C;
 		};
 	}
 }
