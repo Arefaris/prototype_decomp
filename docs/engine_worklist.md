@@ -5488,10 +5488,16 @@ animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (
   member with a destructor, which makes the engine's order of destruction). Pass slot 2, which an earlier note called `IsEnabled`
   (bool), answers the pass's `ParameterHandlerTypeless*` (`Pass::GetParameterHandler`, 0x10754AC0 now matches). EQUIVALENT (only the
   place of the vftable store or a register copy): `FrameBufferPass` constructor and destructor, `PopShader`, `ShadowPass` constructor.
-  Not done: the `Render` functions (0x107AD630, 0x107AE470, 0x107AF770, 0x107B1A30, 0x107B2480, 0x107B0860, 0x107B2410), the tone map pass (constructor
-  0x107B0610, destructor 0x107B04F0, slots 0x107AF010 / 0x107AF220 / 0x107AF5C0 / 0x107B0180), the copy pass constructor 0x107B0990,
-  the helpers 0x107AC550 / 0x107ACEA0 / 0x107AD440 and the pass descriptions and render schemes (0x107A05F0 - 0x107A1F70: the
-  `Create<Pass>` factories 0x107A0880 ... are member templates of the scheme that need `PassDesc`, 0x10754A40 and the scheme tree helpers).
+  `ToneMapPass` has its constructor, destructor, enable slot (`IsActive`'s byte result is compared, so the call goes through a
+  bool-returning pointer to member), accessors and `End`; its registered setter is the vcall thunk of the virtual `SetEnabled`.
+  Not done: the `Render` functions (0x107AD630, 0x107AE470, 0x107AF770, 0x107B1A30, 0x107B2480, 0x107B0860, 0x107B2410), the tone map
+  slots 0x107AF010 / 0x107AF5C0, the copy pass constructor 0x107B0990, the helpers 0x107AC550 / 0x107ACEA0 / 0x107AD440.
+- **Render schemes** (pass/src/renderschemes.cpp, renderscheme.h): `PassDesc` and the debug descriptions are structs (RTTI), the six scheme
+  classes have their destructors, `Begin` / `End` of the shadow debug and standard schemes call the device's slot 8 around the base calls; the
+  base class gained its slots 3 (name copy) and 6. Not done: the scheme constructors and the `Create<Pass>` factories (0x107A0880 ... are member
+  templates of the scheme: they need the pass tree helpers 0x1074DB90 / 0x107195D0 and each pass's constructor).
+- **Texture parsers** (texture/src/bmp.cpp, memoryimageparser.cpp): `BMPParser` format test and load, `TextureMemoryImageParser` (its
+  constructor, format test, load and parse through the device's slot 24 object, now typed in `pddiQuery`); the BMP `Parse` (0x107B5910) is not done.
 - **Light group and the light list helpers** (lighting/lightgroup.cpp): `LightGroup` (constructors, destructor, set / add / remove) and the
   two reference helpers `engine::render::AssignControllerObject` / `ReleaseControllerObject` (0x107AC0F0, 0x107B2F40) now have definitions.
 - **Animation controllers** (anim/src/lightanimationcontroller.cpp, billboardquadgroupanimationcontroller.cpp, cameraanimationcontroller.cpp): the
