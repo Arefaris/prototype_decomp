@@ -122,4 +122,34 @@ namespace fight
 	};
 }
 
+namespace fight
+{
+	// A name picked from a fixed list (RTTI: fight::PropertyNameConstList<T>, 9 vftable slots): the layout and the slots of
+	// PropertyNameList<T>, the setter takes the picked name
+	template<class T> class PropertyNameConstList : public PropertyTypeNameList
+	{
+	public:
+		typedef bool (T::*Setter)(const Name&);
+
+		PropertyNameConstList(const char* name, Setter setter)
+			: PropertyTypeNameList(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 8
+		virtual bool Set(void* object, const Name& value)
+		{
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+}
+
 #endif
