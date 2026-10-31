@@ -169,6 +169,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10208100
+			// EQUIVALENT: scheduling; the integer store at +0x48 follows the float stores in the engine, ours hoists it; the same stores
+			TankRamAction::TankRamAction(TankRamTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown30(0.0f), unknown34(-1.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10207F30
+			TankRamAction::~TankRamAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102089D0
+			fight::Action* TankRamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TankRamAction(this, handle);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TankRamTrack>;
@@ -179,6 +196,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10207E90
+// FUNCTION: ENGINE 0x10207EC0
+// FUNCTION: ENGINE 0x102081B0
 // FUNCTION: ENGINE 0x10246AA0
 // FUNCTION: ENGINE 0x10246AD0
 // FUNCTION: ENGINE 0x10246AE0

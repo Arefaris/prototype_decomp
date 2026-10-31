@@ -65,6 +65,33 @@ namespace proto
 			void RegisterTankRamTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::ai::TankRamAction (9 vftable slots, 0x2C bytes)
+			class TankRamAction : public fight::Action
+			{
+			public:
+				// 0x10208100
+				TankRamAction(TankRamTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10207F30
+				virtual ~TankRamAction();
+
+				// vftable slot 5 (0x102081E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10207F60)
+				virtual void Slot6();
+				// vftable slot 7 (0x102085F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TankRamTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+				int unknown48;  // +0x48
+			};
 
 			// ---- actions end
 		}

@@ -258,6 +258,49 @@ namespace proto
 		engine::GameObjectHandle spawned;  // +0xC
 		bool lastGuy;  // +0x10
 	};
+	// RTTI: proto::MovementMessage: the base of the messages to the movement of an object (message type 0x26)
+	struct MovementMessage : public engine::IntrusiveMessage
+	{
+		explicit MovementMessage(short newId) : engine::IntrusiveMessage(0x26, newId)
+		{
+		}
+		virtual ~MovementMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::ActivateVehicleMovementBehaviourMessage
+	struct ActivateVehicleMovementBehaviourMessage : public MovementMessage
+	{
+		explicit ActivateVehicleMovementBehaviourMessage(bool newActive) : MovementMessage(0x3a), active(newActive)
+		{
+		}
+		virtual ~ActivateVehicleMovementBehaviourMessage()
+		{
+		}
+
+		bool active;  // +0xC
+	};
+
+	// A path of the traffic system: the range of its points
+	struct TrafficPath
+	{
+		int begin;
+		int end;
+	};
+
+	// RTTI: proto::GetTrafficPathMessage: the object answers the traffic path it follows, null when it has none
+	struct GetTrafficPathMessage : public MovementMessage
+	{
+		GetTrafficPathMessage() : MovementMessage(0x3f), path(0)
+		{
+		}
+		virtual ~GetTrafficPathMessage()
+		{
+		}
+
+		TrafficPath* path;  // +0xC
+	};
 }
 
 #endif
