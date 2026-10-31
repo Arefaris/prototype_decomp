@@ -33347,3 +33347,12 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??_9ViewPass@pure3d@@$BCE@AE = 0x10768640 ; function size:0x5 | pure3d::ViewPass: the virtual call thunk of slot 9
 ??_9ViewPass@pure3d@@$BCI@AE = 0x10768650 ; function size:0x5 | pure3d::ViewPass: the virtual call thunk of slot 10
 ??_9ViewPass@pure3d@@$BCM@AE = 0x10768660 ; function size:0x5 | pure3d::ViewPass: the virtual call thunk of slot 11
+??1Occluder@pure3d@@UAE@XZ = 0x1077FB90 ; function size:0xB | Occluder::~Occluder (name guess)
+?Clone@Occluder@pure3d@@QAEPAV12@XZ = 0x1077FF70 ; function size:0x1F | Occluder::Clone (name guess)
+??_GOccluder@pure3d@@UAEPAXI@Z = 0x1077FBE0 ; function size:0x1E | _GOccluder (vftable slot 2; name guess)
+??_R0?AVOccluder@pure3d@@@8 = 0x111BA25C ; data | data RTTI type descriptor of .?AVOccluder@pure3d@@
+
+??0Occluder@pure3d@@QAE@XZ = 0x1077FB20 ; function size:0x68 | pure3d::Occluder::Occluder (name guess)
+??0Occluder@pure3d@@QAE@VOBB@math@@@Z = 0x1077FC00 ; function size:0x6D | pure3d::Occluder::Occluder (name guess)
+??0Occluder@pure3d@@QAE@ABV01@@Z = 0x1077FF10 ; function size:0x54 | pure3d::Occluder::Occluder (name guess)
+?LoadObject@OccluderLoader@pure3d@@UAEXPAPAUIRefCount@core@@PAV?$Name@UCaseSensitiveKey@core@@@4@PAVChunkReader@content@@PAVLoadInventory@7@@Z = 0x1077FC70 ; function size:0x296 | OccluderLoader::LoadObject (name guess)

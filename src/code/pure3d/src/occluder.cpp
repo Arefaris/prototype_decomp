@@ -1,9 +1,120 @@
 // pure3d::Occluder (unit around 0x1077F150 - 0x10780F00; file name guessed from the class). Names are guesses.
+#include "code/engine/driving/carattributes.h"
+#include <string.h>
+
 #include "code/math/obb.h"
 #include "code/pure3d/occluder.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1077FC70
+	// EQUIVALENT: the same reads, products and stores; the engine keeps the three cross products in other registers and copies the box with float moves (about 55 %)
+	void OccluderLoader::LoadObject(core::IRefCount** object, content::ObjectName* name, content::ChunkReader* reader,
+		content::LoadInventory* inventory)
+	{
+		unsigned char lengthByte;
+		char occluderName[0x100];
+		reader->Read(&lengthByte, 1, 1, 1);
+		unsigned int length = lengthByte;
+		reader->Read(occluderName, length, 1, 1);
+		occluderName[length] = 0;
+		{
+			unsigned int version[2];
+			reader->Read(version, 1, 4, 1);
+		}
+		Occluder* occluder = new Occluder();
+		occluder->AddRef();
+		if (reader->HasChunk())
+		{
+			do
+			{
+				if (reader->BeginChunk() == 0x10029)
+				{
+					unsigned int version[2];
+					reader->Read(version, 1, 4, 1);
+					math::OBB read;
+					reader->Read(&read.centre, 3, 4, 1);
+					reader->Read(&read.axis[0], 3, 4, 1);
+					reader->Read(&read.axis[1], 3, 4, 1);
+					math::Vector& a = read.axis[0];
+					math::Vector& b = read.axis[1];
+					read.axis[2].y = b.x * a.z - a.x * b.z;
+					read.axis[2].z = b.y * a.x - a.y * b.x;
+					read.axis[2].x = a.y * b.z - b.y * a.z;
+					reader->Read(&read.extents, 3, 4, 1);
+					occluder->box.centre.x = read.centre.x;
+					occluder->box.centre.y = read.centre.y;
+					occluder->box.centre.z = read.centre.z;
+					occluder->box.axis[0].x = read.axis[0].x;
+					occluder->box.axis[0].y = read.axis[0].y;
+					occluder->box.axis[0].z = read.axis[0].z;
+					occluder->box.axis[1].x = read.axis[1].x;
+					occluder->box.axis[1].y = read.axis[1].y;
+					occluder->box.axis[1].z = read.axis[1].z;
+					occluder->box.axis[2].x = read.axis[2].x;
+					occluder->box.axis[2].y = read.axis[2].y;
+					occluder->box.axis[2].z = read.axis[2].z;
+					occluder->box.extents.x = read.extents.x;
+					occluder->box.extents.y = read.extents.y;
+					occluder->box.extents.z = read.extents.z;
+				}
+				reader->EndChunk();
+			}
+			while (reader->HasChunk());
+		}
+		occluder->SetNameText(occluderName);
+		*object = occluder;
+		*name = content::ObjectName(occluderName, 1);
+		if (strncmp("art/locations/manhattan/midgeo.p3d", (const char*)reader, 0xFF) == 0)
+		{
+			occluder->Release();
+			*object = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1077FB20
+	// EQUIVALENT: the engine loads the constant before it stores the vftable pointer and keeps it in one register for the later stores (79.8 %)
+	Occluder::Occluder()
+	{
+		box.centre.x = 0.0f;
+		box.centre.y = 0.0f;
+		box.centre.z = 0.0f;
+		float one = engine::driving::gOne;
+		box.extents.x = one;
+		box.extents.y = one;
+		box.extents.z = one;
+		box.axis[0].x = one;
+		box.axis[0].y = 0.0f;
+		box.axis[0].z = 0.0f;
+		box.axis[1].x = 0.0f;
+		box.axis[1].y = one;
+		box.axis[1].z = 0.0f;
+		box.axis[2].x = 0.0f;
+		box.axis[2].y = 0.0f;
+		box.axis[2].z = one;
+	}
+
+	// FUNCTION: ENGINE 0x1077FB90
+	Occluder::~Occluder()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1077FC00
+	Occluder::Occluder(math::OBB newBox) : box(newBox)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1077FF10
+	Occluder::Occluder(const Occluder& other) : box(other.box)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1077FF70
+	Occluder* Occluder::Clone()
+	{
+		return new Occluder(*this);
+	}
+
 	// The box edges: the two faces they join and their corners
 	struct OccluderEdge
 	{
