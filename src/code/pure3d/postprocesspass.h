@@ -277,6 +277,95 @@ namespace pure3d
 		ParameterHandler<ProtoColourMatrixPass> parameters; // +0x138
 	};
 
+	// Draws fog over the picture (vftable 0x10E5F714)
+	class ProtoFogPass : public FrameBufferPass
+	{
+	public:
+		// 0x1076A550
+		explicit ProtoFogPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x1076A4B0, the deleting destructor 0x1076A6A0)
+		virtual ~ProtoFogPass();
+		// Slot 2 (0x10769900), 4 (0x1076A880) and 5 (0x107698F0, the base class's)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+
+		math::Vector2 tiling;   // +0xE8
+		float variation;        // +0xF0
+		float speed;            // +0xF4
+		RefCounted* object;     // +0xF8
+		ParameterHandler<ProtoFogPass> parameters; // +0xFC
+	};
+
+	// The names of the shaders of the radial blur and depth of field passes (0x111B9C7C / 0x111B9D08 / 0x111B9D04; names guessed)
+	extern const char* gShaderRadialBlur;
+
+	// Blurs the picture away from a centre (vftable 0x10E5FC00)
+	class ProtoRadialBlurPass : public FrameBufferPass
+	{
+	public:
+		// 0x107732E0
+		explicit ProtoRadialBlurPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10773280, the deleting destructor 0x10773510)
+		virtual ~ProtoRadialBlurPass();
+		// Slot 2 (0x10772500), 4 (0x10772E80) and 7 (0x10772150)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+		virtual bool IsVisible();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+		// 0x107721C0: the settings
+		void SetValues(float x, float y, float z, float newRadius, float newIntensity, float newSize, float newFalloff);
+
+		float radius;           // +0xE8
+		float unknownEC;
+		float unknownF0;
+		float unknownF4;
+		float unknownF8;
+		math::Vector source;    // +0xFC
+		float intensity;        // +0x108
+		float size;             // +0x10C
+		float falloff;          // +0x110
+		float sampleScale;      // +0x114
+		unsigned char unknown118[0x500 - 0x118];
+		ParameterHandler<ProtoRadialBlurPass> parameters; // +0x500
+	};
+
+	// Blurs the parts of the picture that are out of focus (vftable 0x10E5FCD0)
+	class DepthOfFieldPass : public FrameBufferPass
+	{
+	public:
+		// 0x107743D0
+		explicit DepthOfFieldPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10774310, the deleting destructor 0x10774550)
+		virtual ~DepthOfFieldPass();
+		// Slot 2 (0x10773540), 4 (0x10773870), 5 (0x10773810) and 7 (0x10773620)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual bool IsVisible();
+
+		// 0x1075DAF0 (another unit)
+		bool SetParameterEnable(bool value);
+
+		Shader* shaderE8;
+		Shader* shaderEC;
+		Shader* shaderF0;
+		Shader* shaderF4;
+		Shader* shaderF8;
+		Texture* textureFC;
+		Texture* texture100;
+		float nearDepth;        // +0x104
+		float farDepth;         // +0x108
+		float range;            // +0x10C
+		float aperture;         // +0x110
+		ParameterHandler<DepthOfFieldPass> parameters; // +0x114
+	};
+
 	// Draws the picture through all the post processing passes (vftable 0x10E5ED00): makes the tone map, bloom, colour
 	// matrix, thermal, mother, copy and blur passes itself
 	class ProtoFBPass : public FrameBufferPass

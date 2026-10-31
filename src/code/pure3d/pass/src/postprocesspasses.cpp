@@ -18,6 +18,7 @@ namespace pure3d
 	const char* gShaderBloom = "pp_bloom";
 	const char* gShaderBloomAdd = "pp_bloom_add";
 	const char* gShaderColourMatrix = "pp_colourmatrix";
+	const char* gShaderRadialBlur = "pp_radialblur";
 }
 
 namespace pure3d
@@ -871,6 +872,138 @@ namespace pure3d
 	}
 }
 
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x10769900
+	ParameterHandlerTypeless* ProtoFogPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107698F0
+	void ProtoFogPass::Begin()
+	{
+		Pass::Begin();
+	}
+
+	// FUNCTION: ENGINE 0x1076A4B0
+	ProtoFogPass::~ProtoFogPass()
+	{
+		if (object != 0)
+		{
+			object->Release();
+			object = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1076A550
+	// EQUIVALENT: the engine loads the constant and stores the vftable pointer after the base constructor call, ours stores the vftable pointer first; the same stores and calls (98.1 %)
+	ProtoFogPass::ProtoFogPass(const PassDesc* desc) : FrameBufferPass(desc), tiling(engine::driving::gOne, engine::driving::gOne),
+		variation(0.0f), speed(0.0f), object(0)
+	{
+		entries.SetBit(1);
+		entries.AddEntry(2, false);
+		entries.AddEntry(1, false);
+		parameters.AddVariableInline(&gParamPrototypeFogTiling, &tiling);
+		parameters.AddVariableInline(&gParamPrototypeFogVariation, &variation);
+		parameters.AddVariableInline(&gParamPrototypeFogSpeed, &speed);
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ProtoFogPass::SetParameterEnable, 0);
+	}
+
+	// FUNCTION: ENGINE 0x10772500
+	ParameterHandlerTypeless* ProtoRadialBlurPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107721C0
+	void ProtoRadialBlurPass::SetValues(float x, float y, float z, float newRadius, float newIntensity,
+		float newSize, float newFalloff)
+	{
+		source.x = x;
+		source.y = y;
+		source.z = z;
+		radius = newRadius;
+		intensity = newIntensity;
+		size = newSize;
+		falloff = newFalloff;
+	}
+
+	// FUNCTION: ENGINE 0x10772150
+	bool ProtoRadialBlurPass::IsVisible()
+	{
+		if (GetUnknown24Bit1())
+		{
+			return true;
+		}
+		if (shader == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderRadialBlur))
+			{
+				shader = new Shader(gShaderRadialBlur);
+				shader->AddRef();
+				unknown24Bit1 = 1;
+			}
+		}
+		return unknown24Bit1;
+	}
+
+	// FUNCTION: ENGINE 0x10773280
+	ProtoRadialBlurPass::~ProtoRadialBlurPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107732E0
+	// EQUIVALENT: the same stores and calls; the arguments of the call to the setter are built differently (the zeros come from an SSE register in the engine, from the x87 unit here) (41.4 %)
+	ProtoRadialBlurPass::ProtoRadialBlurPass(const PassDesc* desc) : FrameBufferPass(desc), radius(0.0f), unknownEC(0.0f),
+		unknownF0(0.0f), unknownF4(0.0f), unknownF8(0.0f), source(0.0f, 0.0f, 0.0f), intensity(0.0f), size(0.0f),
+		falloff(engine::driving::gOne), sampleScale(engine::driving::gOne)
+	{
+		SetValues(0.0f, 0.0f, 0.0f, 7.0f, 1.0f, 0.0f, 1.0f);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurRadius, &radius);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurSource, &source);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurIntensity, &intensity);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurSize, &size);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurFalloff, &falloff);
+		parameters.AddVariableInline(&gParamPrototypeRadialBlurSampleScale, &sampleScale);
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ProtoRadialBlurPass::SetParameterEnable, 0);
+	}
+
+	// FUNCTION: ENGINE 0x10773540
+	ParameterHandlerTypeless* DepthOfFieldPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x10774310
+	DepthOfFieldPass::~DepthOfFieldPass()
+	{
+		core::SafeRelease(texture100);
+		core::SafeRelease(textureFC);
+		core::SafeRelease(shaderF8);
+		core::SafeRelease(shaderF4);
+		core::SafeRelease(shaderEC);
+		core::SafeRelease(shaderF0);
+		core::SafeRelease(shaderE8);
+	}
+
+	// FUNCTION: ENGINE 0x107743D0
+	// EQUIVALENT: scheduling of the constant load and an address computation relative to the vftable store; the same stores and calls (80.7 %)
+	DepthOfFieldPass::DepthOfFieldPass(const PassDesc* desc) : FrameBufferPass(desc), shaderE8(0), shaderEC(0), shaderF0(0),
+		shaderF4(0), shaderF8(0), textureFC(0), texture100(0), nearDepth(0.0f), farDepth(0.0f), range(engine::driving::gOne),
+		aperture(0.0f)
+	{
+		parameters.AddVariableInline(&gParamDofNearDepth, &nearDepth);
+		parameters.AddVariableInline(&gParamDofFarDepth, &farDepth);
+		parameters.AddVariableInline(&gParamDofRange, &range);
+		parameters.AddVariableInline(&gParamDofAperture, &aperture);
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &DepthOfFieldPass::SetParameterEnable, 0);
+	}
+}
+
 // ---- the instances of the parameter handlers ----
 
 	// FUNCTION: ENGINE 0x1075F570
@@ -1134,4 +1267,211 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x10764860
 	template pure3d::ParameterHandler<pure3d::ProtoColourMatrixPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10769930
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x10769960
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x10769980
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x10769990
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10769910
+	template void pure3d::ParameterHandler<pure3d::ProtoFogPass>::SetObject(pure3d::ProtoFogPass*);
+
+	// FUNCTION: ENGINE 0x10769A50
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x10769A60
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair* container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator::operator->() const;
+
+	// FUNCTION: ENGINE 0x10769A70
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::MapNode::MapNode(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10769AB0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator::Iterator(container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::MapNode*, container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>*);
+
+	// FUNCTION: ENGINE 0x10769C00
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::End();
+
+	// FUNCTION: ENGINE 0x10769C20
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10769C60
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::CompareKey(const void*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10769DC0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Insert(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10769E30
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Find(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x1076A120
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x1076A130
+	template pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry& pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryMap::At(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x1076A1A0
+	template bool pure3d::ParameterHandler<pure3d::ProtoFogPass>::SetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool);
+
+	// FUNCTION: ENGINE 0x1076A200
+	template bool pure3d::ParameterHandler<pure3d::ProtoFogPass>::GetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool*);
+
+	// FUNCTION: ENGINE 0x1076A2D0
+	template void container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::Clear();
+
+	// FUNCTION: ENGINE 0x1076A2E0
+	template void pure3d::ParameterHandler<pure3d::ProtoFogPass>::AddBool(const core::Name<core::CaseSensitiveKey>*, bool (pure3d::ProtoFogPass::*)(bool), bool (pure3d::ProtoFogPass::*)());
+
+	// FUNCTION: ENGINE 0x1076A360
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoFogPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoFogPass>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x1076A370
+	template pure3d::ParameterHandler<pure3d::ProtoFogPass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x1076A490
+	template pure3d::ParameterHandler<pure3d::ProtoFogPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10772530
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x10772560
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x10772580
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x10772590
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10772510
+	template void pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::SetObject(pure3d::ProtoRadialBlurPass*);
+
+	// FUNCTION: ENGINE 0x10772E00
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x10772E10
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair* container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator::operator->() const;
+
+	// FUNCTION: ENGINE 0x10772E20
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::MapNode::MapNode(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10772E60
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator::Iterator(container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::MapNode*, container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>*);
+
+	// FUNCTION: ENGINE 0x10772F00
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::End();
+
+	// FUNCTION: ENGINE 0x10772F20
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10772F60
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::CompareKey(const void*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10772FA0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Insert(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10773010
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Find(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x10773040
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x10773050
+	template pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry& pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryMap::At(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x107730C0
+	template bool pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::SetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool);
+
+	// FUNCTION: ENGINE 0x10773120
+	template bool pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::GetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool*);
+
+	// FUNCTION: ENGINE 0x107731A0
+	template void container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::Clear();
+
+	// FUNCTION: ENGINE 0x107731B0
+	template void pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::AddBool(const core::Name<core::CaseSensitiveKey>*, bool (pure3d::ProtoRadialBlurPass::*)(bool), bool (pure3d::ProtoRadialBlurPass::*)());
+
+	// FUNCTION: ENGINE 0x10773220
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x10773230
+	template pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10773260
+	template pure3d::ParameterHandler<pure3d::ProtoRadialBlurPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10773570
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x107735A0
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x107735C0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x107735D0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10773550
+	template void pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::SetObject(pure3d::DepthOfFieldPass*);
+
+	// FUNCTION: ENGINE 0x10773EF0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x10773F00
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair* container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator::operator->() const;
+
+	// FUNCTION: ENGINE 0x10773F10
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::MapNode::MapNode(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x10773F50
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator::Iterator(container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::MapNode*, container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>*);
+
+	// FUNCTION: ENGINE 0x10773F90
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::End();
+
+	// FUNCTION: ENGINE 0x10773FB0
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10773FF0
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::CompareKey(const void*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x10774030
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Insert(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x107740A0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Find(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x107740D0
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x107740E0
+	template pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry& pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryMap::At(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x10774150
+	template bool pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::SetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool);
+
+	// FUNCTION: ENGINE 0x107741B0
+	template bool pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::GetBoolAdapter(void*, const core::Name<core::CaseSensitiveKey>*, bool*);
+
+	// FUNCTION: ENGINE 0x10774230
+	template void container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::Clear();
+
+	// FUNCTION: ENGINE 0x10774240
+	template void pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::AddBool(const core::Name<core::CaseSensitiveKey>*, bool (pure3d::DepthOfFieldPass::*)(bool), bool (pure3d::DepthOfFieldPass::*)());
+
+	// FUNCTION: ENGINE 0x107742B0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::Entry, pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x107742C0
+	template pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107742F0
+	template pure3d::ParameterHandler<pure3d::DepthOfFieldPass>::~ParameterHandler();
 

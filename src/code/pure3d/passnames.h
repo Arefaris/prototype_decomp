@@ -39,6 +39,19 @@ namespace pure3d
 	extern core::Name<core::CaseSensitiveKey> gParamPrototypeOverlayOpacity; // 0x1127EC80 "Prototype OverlayOpacity"
 	extern core::Name<core::CaseSensitiveKey> gParamPrototypeOverlaySaturation; // 0x1127ECC0 "Prototype OverlaySaturation"
 	extern core::Name<core::CaseSensitiveKey> gParamPrototypeDistortionStrength; // 0x1127EC58 "Prototype DistortionStrength"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeFogTiling; // 0x1127ED78 "Prototype Fog Tiling"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeFogVariation; // 0x1127ED28 "Prototype Fog Variation"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeFogSpeed; // 0x1127ED50 "Prototype Fog Speed"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurRadius; // 0x1127EC88 "Prototype RadialBlur Radius"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSource; // 0x1127ECB8 "Prototype RadialBlur Source"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurIntensity; // 0x1127ED80 "Prototype RadialBlur Intensity"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSize; // 0x1127EDB0 "Prototype RadialBlur Size"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurFalloff; // 0x1127ECA0 "Prototype RadialBlur Falloff"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeRadialBlurSampleScale; // 0x1127ED58 "Prototype RadialBlur Sample Scale"
+	extern core::Name<core::CaseSensitiveKey> gParamDofNearDepth; // 0x112814D8 "dof_near_depth"
+	extern core::Name<core::CaseSensitiveKey> gParamDofFarDepth; // 0x11281508 "dof_far_depth"
+	extern core::Name<core::CaseSensitiveKey> gParamDofRange; // 0x11281498 "dof_range"
+	extern core::Name<core::CaseSensitiveKey> gParamDofAperture; // 0x112815C0 "dof_aperture"
 }
 
 #endif
