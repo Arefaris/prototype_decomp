@@ -19,16 +19,24 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		FightVariableInt() : name((const char*)0, 1), value(0), unknownC(false)
+		{
+		}
+
 		core::Name<core::CaseSensitiveKey> name;  // +0
 		int value;  // +8
 		bool unknownC;
 	};
 
 	// A name of the behaviour (RTTI proto::FightVariableName; reflected: name, value)
-	struct FightVariableName
+	struct __declspec(align(8)) FightVariableName
 	{
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		FightVariableName() : name((const char*)0, 1), value((const char*)0, 1), unknown10(false)
+		{
+		}
 
 		core::Name<core::CaseSensitiveKey> name;  // +0
 		core::Name<core::CaseSensitiveKey> value;  // +8
@@ -41,11 +49,45 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		FightTimer() : name((const char*)0, 1), time(0.0f), incrementing(false)
+		{
+		}
+
 		core::Name<core::CaseSensitiveKey> name;  // +0
 		float time;  // +8
 		bool incrementing;  // +0xC
 	};
 
+}
+
+namespace container
+{
+	// The engine moves the elements down in Erase with a call of AssignRange
+	template<> struct ArrayEraseInline<proto::FightVariableInt>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ArrayEraseInline<proto::FightVariableName>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ArrayEraseInline<proto::FightTimer>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+}
+
+namespace proto
+{
 	class FightVariablesBehaviour : public engine::Behaviour
 	{
 	public:
@@ -63,6 +105,63 @@ namespace proto
 		TimerArray timers;  // +0x2C
 		int unknown38;
 		float outOfCombatTimer;  // +0x3C
+	};
+}
+
+namespace content
+{
+	// The element access of the behaviour's name array: the engine's insertion makes room with the count version of
+	// Insert (the other two arrays' copies insert the single element)
+	template<> class ArrayDynamicHelper<proto::FightVariablesBehaviour::NameArray> : public ArrayDynamicHelperBase
+	{
+	public:
+		typedef proto::FightVariablesBehaviour::NameArray A;
+		typedef A::Element T;
+
+		virtual int Size(void* array)
+		{
+			return ((A*)array)->Size();
+		}
+		virtual void* Get(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void Insert(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			if (a->Size() >= a->Capacity())
+			{
+				a->Reserve(a->Size() + 1);
+			}
+			T* position = a->begin + index;
+			static T sDefault;
+			a->Insert(position, 1, sDefault);
+		}
+		virtual void Erase(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			a->Erase(a->begin + index);
+		}
+		virtual int Capacity(void* array)
+		{
+			return ((A*)array)->Capacity();
+		}
+		virtual void Expand(void* array, unsigned int count)
+		{
+			A* a = (A*)array;
+			if (a->Capacity() == 0)
+			{
+				a->Allocate(count);
+			}
+			else if (count + a->Size() > a->Capacity())
+			{
+				a->Reserve(count + a->Size());
+			}
+		}
 	};
 }
 
