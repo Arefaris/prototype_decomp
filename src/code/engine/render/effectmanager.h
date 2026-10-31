@@ -9,6 +9,7 @@
 
 #include "code/content/loadinventory.h"
 #include "code/core/name.h"
+#include "code/engine/updatecontext.h"
 #include "code/engine/render/effectlod.h"
 #include "code/pure3d/camera.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
@@ -555,7 +556,7 @@ namespace engine
 			// 0x10819410: whether a feature of the manager is switched on (always)
 			bool IsFeatureEnabled(int features);
 			// 0x1081E5A0: the frame update (the two leading arguments are unused)
-			void Update(int unused1, int unused2, float timeStep);
+			void Update(UpdateContext context);
 			// 0x1081E460: counts up the timers of the manager's name table and drops the ones that ran out
 			void UpdateTimers(float timeStep);
 

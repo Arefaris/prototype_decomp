@@ -519,6 +519,21 @@ namespace engine
 		return 1;
 	}
 
+	// FUNCTION: ENGINE 0x10840800
+	// EQUIVALENT: the engine divides y before z (ours the other way round, into the other register); the same loads,
+	// divisions and stores, 91.8 %
+	// A number divided by every component of a vector (the engine's out-of-line copy of the division the metamethod
+	// does; name guessed)
+	math::Vector* DivideNumberByVector(math::Vector* out, float number, const math::Vector* vector)
+	{
+		out->x = number / vector->x;
+		float z = number / vector->z;
+		float y = number / vector->y;
+		out->y = y;
+		out->z = z;
+		return out;
+	}
+
 	// FUNCTION: ENGINE 0x10840840
 	// EQUIVALENT: ReadVector takes the state in ebx, the engine's on the stack (call sequences and stack offsets differ); the engine loads the three components before the three products, 25.4 %
 	static int LuaMul(lua_State* L)

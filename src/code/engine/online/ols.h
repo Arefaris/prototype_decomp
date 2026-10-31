@@ -141,7 +141,17 @@ namespace engine
 			callbacks.Remove(callback);
 		}
 
-		unsigned char unknown0[0x78];
+		// The vftable (RTTI: engine::OLS, 6 slots; its constructor is 0x10844760, the destructor 0x10844C20 and the deleting
+		// destructor in slot 4 is 0x10844C30)
+		virtual void Slot0();
+		// vftable slot 1 (0x10844300): the per-frame update of the services
+		virtual void Update();
+		virtual void Slot2();
+		virtual void Slot3();
+		virtual ~OLS();
+		virtual void Slot5();
+
+		unsigned char unknown4[0x74];
 		// The profile manager (+0x78); the older name and view of it is currentUser, whose id is its current profile
 		union
 		{

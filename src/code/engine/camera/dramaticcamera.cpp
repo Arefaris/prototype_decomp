@@ -1,6 +1,10 @@
 #include "code/engine/camera/dramaticcamera.h"
 #include "code/core/refptr.h"
+#include "code/engine/driving/carattributes.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/math/random.h"
+#include "code/math/vector4.h"
+#include "code/math/worldbounds.h"
 #include "code/pure3d/animation.h"
 #include "code/pure3d/channel.h"
 #include "code/ravenphysics/context.h"
@@ -97,6 +101,110 @@ namespace engine
 		void DramaticCamera::SetCollisionMask(int value)
 		{
 			collisionMask = value;
+		}
+
+		// FUNCTION: ENGINE 0x1084F420
+		// EQUIVALENT: register allocation and scheduling: the engine keeps the queued animation in ebx and the index in
+		// esi (ours the other way round), pushes ebx only inside the loop, reaches the sample points through the pointer
+		// to their last component and orders the loads of the mirrored point differently; same calls, reads, writes and
+		// float operations in the same order, 56.6 %
+		int DramaticCamera::FindAnimation(const math::Matrix* start, float limit, const math::Vector* point,
+			bool* checked)
+		{
+			int clearCount = 0;
+			bool clear[4][2];
+			math::Vector path[32];
+			math::Vector place;
+			const DramaticAnimation* queued = animations;
+			for (int i = 0; i < animationCount; i++, queued++)
+			{
+				clear[i][0] = false;
+				clear[i][1] = false;
+				int count = SamplePath(queued, path, 32);
+				if (count > 0)
+				{
+					if (queued->unknown10)
+					{
+						for (int j = 0; j < count; j++)
+						{
+							place.x = path[j].x;
+							place.y = path[j].y;
+							place.z = path[j].z;
+							start->Transform(place, place);
+							if (QueryRay(point, &place))
+							{
+								goto skipFirst;
+							}
+						}
+						clearCount++;
+						clear[i][0] = true;
+					}
+				skipFirst:
+					if (queued->unknown11)
+					{
+						for (int j = 0; j < count; j++)
+						{
+							place.y = path[j].y;
+							place.z = path[j].z;
+							place.x = math::WORLD_MIN - path[j].x;
+							start->Transform(place, place);
+							if (QueryRay(point, &place))
+							{
+								goto skipSecond;
+							}
+						}
+						clearCount++;
+						clear[i][1] = true;
+					}
+				}
+			skipSecond:;
+			}
+			if (clearCount > 0)
+			{
+				float total = 0.0f;
+				for (int i = 0; i < animationCount; i++)
+				{
+					if (clear[i][0])
+					{
+						total = animations[i].unknown14 + total;
+					}
+					if (clear[i][1])
+					{
+						total = animations[i].unknown14 + total;
+					}
+				}
+				if (limit < 0.0f)
+				{
+					limit = 0.0f;
+				}
+				if (limit + total != 0.0f)
+				{
+					unsigned int bits = (math::gRandom->Next() & 0x7FFFFF) | 0x3F800000;
+					float roll = (*(float*)&bits - driving::gOne) * (limit + total);
+					for (int i = 0; i < animationCount; i++)
+					{
+						if (clear[i][0])
+						{
+							roll = roll - animations[i].unknown14;
+							if (roll <= 0.0f)
+							{
+								*checked = false;
+								return i;
+							}
+						}
+						if (clear[i][1])
+						{
+							roll = roll - animations[i].unknown14;
+							if (roll <= 0.0f)
+							{
+								*checked = true;
+								return i;
+							}
+						}
+					}
+				}
+			}
+			return -1;
 		}
 
 		// FUNCTION: ENGINE 0x1084F7C0
@@ -279,7 +387,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x1084EE20
-		void DramaticCamera::QueryRay(const math::Vector* from, const math::Vector* to)
+		bool DramaticCamera::QueryRay(const math::Vector* from, const math::Vector* to)
 		{
 			ravenphysics::RayQuery query;
 			query.start.x = from->x;
@@ -290,7 +398,7 @@ namespace engine
 			query.end.z = to->z;
 			query.filter.properties.unknown0 = -1;
 			query.filter.properties.unknown4 = collisionMask;
-			ravenphysics::gContext->QueryObject((ravenphysics::PhysicsBody*)&query);
+			return ravenphysics::gContext->QueryObject((ravenphysics::PhysicsBody*)&query);
 		}
 	}
 }
@@ -298,3 +406,16 @@ namespace engine
 // Kept copies (template instances of this unit):
 // FUNCTION: ENGINE 0x1084EEB0
 // FUNCTION: ENGINE 0x1084EEE0
+
+// The negated vector (the engine keeps this copy of the member in the dramatic camera's unit)
+// FUNCTION: ENGINE 0x1084FFA0
+// EQUIVALENT: the engine subtracts the w component before it stores z; the same loads, subtractions and stores
+// otherwise, 90.3 %
+void math::Vector4::Negate(Vector4& out) const
+{
+	float zero = math::WORLD_MIN;
+	out.x = zero - x;
+	out.y = zero - y;
+	out.z = zero - z;
+	out.w = zero - w;
+}

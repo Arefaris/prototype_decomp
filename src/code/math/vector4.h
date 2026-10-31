@@ -35,6 +35,8 @@ namespace math
 		void Unpack(unsigned int packed);
 		// Nonzero when every component is within tolerance of other's
 		int IsClose(const Vector4& other, float tolerance) const;
+		// 0x1084FFA0 (the dramatic camera's unit has this copy): every component taken from WORLD_MIN (that is, negated)
+		void Negate(Vector4& out) const;
 	};
 }
 

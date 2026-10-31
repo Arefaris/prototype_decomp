@@ -72,7 +72,7 @@ namespace engine
 			// guessed), or -1; sets the flags at 0xD1 and 0xD2
 			int FindAnimation(const math::Matrix* start, float limit, const math::Vector* point, bool* checked);
 			// 0x1084EE20: the rays hit the objects between two points
-			void QueryRay(const math::Vector* from, const math::Vector* to);
+			bool QueryRay(const math::Vector* from, const math::Vector* to);
 
 			DramaticAnimation animations[4];  // +0x48
 			int animationCount;  // +0xA8

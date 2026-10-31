@@ -2,6 +2,15 @@
 
 namespace engine
 {
+	// The singleton (0x1130E74C; created by the engine's start-up)
+	extern AudioManager* gAudioManager;
+
+	// FUNCTION: ENGINE 0x10844DA0
+	AudioManager* AudioManager::Get()
+	{
+		return gAudioManager;
+	}
+
 	inline float Abs(float value)
 	{
 		return value >= 0.0f ? value : -value;
@@ -30,5 +39,43 @@ namespace engine
 		}
 		AudioClock::Get()->Update();
 		gAudioEmitterSystem->Update(context);
+	}
+
+	// FUNCTION: ENGINE 0x108452B0
+	void AudioManager::AddUpdatable(AudioUpdatable* updatable)
+	{
+		AudioUpdatableLink* link = updatable != 0 ? &updatable->link : 0;
+		if (sFirst == 0)
+		{
+			sFirst = link;
+			link->previous = 0;
+			sLast = link;
+			link->next = 0;
+			return;
+		}
+		sLast->next = link;
+		link->previous = sLast;
+		sLast = link;
+		link->next = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10845310
+	void AudioManager::RemoveUpdatable(AudioUpdatable* updatable)
+	{
+		AudioUpdatableLink* link = updatable != 0 ? &updatable->link : 0;
+		if (link->previous == 0)
+		{
+			sFirst = link->next;
+		}
+		else
+		{
+			link->previous->next = link->next;
+		}
+		if (link->next == 0)
+		{
+			sLast = link->previous;
+			return;
+		}
+		link->next->previous = link->previous;
 	}
 }

@@ -4,6 +4,7 @@
 #ifndef ENGINE_GAMEOBJECT_GAMEOBJECTSYSTEM_H
 #define ENGINE_GAMEOBJECT_GAMEOBJECTSYSTEM_H
 
+#include "code/engine/updatecontext.h"
 #include "code/engine/gameobject/details/mastertable.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
@@ -198,13 +199,6 @@ namespace engine
 	GameObjectHandle SearchGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
 	content::ObjectName GetGameObjectName(GameObjectHandle handle);
 	bool UpdateGameObjectSystemShutdown();
-	// The frame's timing the update stages pass by value (12 bytes; only the time step is known)
-	struct UpdateContext
-	{
-		int unknown0;
-		int unknown4;
-		float dt;
-	};
 
 	// Updates the behaviours of the objects in the passes of mask: first the objects of pass 0, then pass by pass
 	// the deferred ones (name guess)

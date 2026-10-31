@@ -161,6 +161,12 @@ namespace engine
 			int unknown1, int unknown2);
 		// Runs the audio subsystems for a frame, and the registered objects when time passes
 		void Update(UpdateContext context);
+		// 0x108452B0 / 0x10845310: puts an object at the end of the list of the objects that are told the time step / takes
+		// it out (the list is the static pair below; this is not read)
+		void AddUpdatable(AudioUpdatable* updatable);
+		void RemoveUpdatable(AudioUpdatable* updatable);
+		// 0x10844D40: the simulation step's audio part (the audio system, the listener and the sound zones)
+		void Unknown10844D40(UpdateContext context);
 
 		static AudioUpdatableLink* sFirst;
 		static AudioUpdatableLink* sLast;

@@ -7,6 +7,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/engine/camera/camera.h"
 #include "code/core/name.h"
+#include "code/engine/updatecontext.h"
 #include "code/engine/database/gamedatabase.h"
 #include "code/engine/display.h"
 #include "code/engine/dbobserver.h"
@@ -112,7 +113,9 @@ namespace engine
 			void Reset();
 			// Updates the controllers (type 2 last), then the active cameras; broadcasts a CameraCutMessage when a camera cut
 			// and flags is 1. The first two arguments are unused.
-			virtual void Update(int unused1, int unused2, float delta, int flags);
+			virtual void Update(UpdateContext context, int flags);
+			// 0x107DDB80: does nothing (the engine's real time task calls it every frame)
+			void Unknown107DDB80(UpdateContext context);
 			// Update(0, 0, 0x200) on every active camera; its own arguments are unused
 			void UpdateCameras(float a, float b, int flags);
 			// Finds the controller of type for owner and starts a transition on the owner's camera of that kind

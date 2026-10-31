@@ -317,7 +317,7 @@ namespace ravenphysics
 		// 0x3C
 		virtual bool QueryPair(void* a, void* b, void* world, unsigned int flags);
 		// 0x40
-		virtual void QueryBody(PhysicsBody* object, void* world, unsigned int flag);
+		virtual bool QueryBody(PhysicsBody* object, void* world, unsigned int flag);
 		// 0x44: the same shape query as QueryBodyShape, but against a body and with the hit buffer emptied first
 		// (the context's 0x10659420; name guess)
 		virtual void QueryBodyShapeHits(void* object, void* hits, void* world, void* a);
@@ -1559,7 +1559,7 @@ namespace ravenphysics
 		void QueryObjectShapeHits(void* object, RayHitArray* hits, void* a);
 
 		// The world's line-of-sight test: what lies between the object and its target (0x106566C0; name guess)
-		void QueryObject(PhysicsBody* object);
+		bool QueryObject(PhysicsBody* object);
 		// The sweep-and-prune detector's ray against the object (0x10656730; name guess)
 		bool QuerySweepObject(PhysicsBody* object, void* ray);
 		// The object's ray cast (0x106567A0; name guess)

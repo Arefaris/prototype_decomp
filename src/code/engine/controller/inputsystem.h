@@ -7,6 +7,7 @@
 #define ENGINE_CONTROLLER_INPUTSYSTEM_H
 
 #include "code/container/map.h"
+#include "code/engine/updatecontext.h"
 #include "code/container/slist.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
@@ -487,7 +488,7 @@ namespace engine
 				physical->SetVibration(id, motor, a, b, c, d);
 			}
 			void CollectPlayers();
-			void UpdatePlayers(int a, int b, float time);
+			void UpdatePlayers(UpdateContext context);
 			void StopVibration();
 			void SetValue(unsigned int id, int value);
 			void NotifyFlags(unsigned int id, int local, unsigned int flags, bool set);

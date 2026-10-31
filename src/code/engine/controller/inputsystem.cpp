@@ -301,10 +301,10 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DF600
 		// FUNCTION: ENGINE 0x107DFE20
 		// EQUIVALENT: register choice: the engine keeps the list address in edi
-		void InputSystem::UpdatePlayers(int a, int b, float time)
+		void InputSystem::UpdatePlayers(UpdateContext context)
 		{
-			GetKeyboard()->Update(time);
-			manager->CollectActive(&active, time);
+			GetKeyboard()->Update(context.dt);
+			manager->CollectActive(&active, context.dt);
 			for (PlayerInfo* info = (PlayerInfo*)active.head; info != 0; info = info->GetNext())
 			{
 				info->Update();

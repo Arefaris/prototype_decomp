@@ -123,13 +123,13 @@ namespace engine
 		desync = newDesync;
 	}
 
-	void Replay::UpdateSimulation(int a, int b, float time)
+	void Replay::UpdateSimulation(UpdateContext context)
 	{
 	}
 
 	// FUNCTION: ENGINE 0x108C2C40
 	// EQUIVALENT: the engine pushes the -1 of the pause state's call from a register (or ecx, -1) instead of an immediate (62.0 %)
-	void Replay::Update(int a, int b, float time)
+	void Replay::Update(UpdateContext context)
 	{
 		// A local the engine keeps on the stack and never reads
 		volatile int unused = 0;
@@ -290,7 +290,7 @@ template void engine::LuaScriptManager::RegisterMethod<engine::Replay, void>(con
 // FUNCTION: ENGINE 0x108C28A0 @ char const * engine::Replay::GetFileName(void)
 // FUNCTION: ENGINE 0x108C28B0 @ bool engine::Replay::Query(int,int)
 // FUNCTION: ENGINE 0x108C28E0 @ void engine::Replay::SetMode(int,bool)
-// FUNCTION: ENGINE 0x108C2900 @ void engine::Replay::UpdateSimulation(int,int,float)
+// FUNCTION: ENGINE 0x108C2900 @ void engine::Replay::UpdateSimulation(UpdateContext)
 // FUNCTION: ENGINE 0x108C2910 @ void engine::Replay::Enter(void)
 // FUNCTION: ENGINE 0x108C2930 @ void engine::Replay::Leave(void)
 // FUNCTION: ENGINE 0x108C2940 @ void engine::Replay::RequestState(void)

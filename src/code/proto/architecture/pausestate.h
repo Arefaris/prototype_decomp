@@ -25,7 +25,7 @@ namespace proto
 		virtual void Slot3();
 		virtual void Slot4();
 		// 0x104E6EC0
-		virtual void Update(int a, int b, float time);
+		virtual void Update(engine::UpdateContext context);
 		// 0x104E7280: the user the event concerns is the current user
 		virtual void OnMessage(engine::OLSMessage* message);
 

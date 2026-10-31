@@ -5461,3 +5461,51 @@ Findings:
   unfinished; the pass units 0x10760000 - 0x10776000 (the `ParameterHandler<T>` tree instances of every pass need the engine's
   parameter registry in 0x107A....; the pass constructors need `PassDesc` 0x10754A40, `Pass::Pass` 0x10754A70, and the
   `PassEntries` set / add helpers 0x1060F810 / 0x1060FDB0 as members of `PassEntries`).
+
+## 0x10840000 - 0x10860000 (sn-am): the frame tasks, the effect controller, the world stream manager, singletons
+
+- `src/code/engine/enginetasks.cpp` (0x1085DE20 - 0x1085E800): the engine's main-loop pieces: the six pass wrappers of
+  `UpdateGameObjects` (the engine passes the by-value `UpdateContext` on), `UpdateGameObjectsPass8Once`, `TimedExit` (the
+  command line option), `EngineSimulationTask::UpdateSimulation` (0x1085DF80, the simulation step: the passes between the
+  camera director, the puppets, the effects, the scripts and the audio) and `EngineRealTimeTask::Update` (0x1085E800).
+  All 11 match. The slot signatures were wrong everywhere: the tasks' and the director's update slots take an
+  `UpdateContext` (the layout of `core::Time`, now in `engine/updatecontext.h`), not `(int, int, float)`. Changed for
+  `ISimulationTask`, `IRealTimeTask`, `Replay`, `PrivateDialogState`, `GamePauseState`, `camera::Director::Update`
+  (now matches 100 %, it was EQUIVALENT), `EffectManager::Update` and `InputSystem::UpdatePlayers` (their decorated names
+  in symbols.txt changed with them). `OLS` got its vftable declared (6 slots; slot 1 is the per-frame `Update`).
+  The callees in other units are declared in the file as `Unknown<address>`; `Director::Unknown107DDB80`,
+  `AudioManager::Unknown10844D40` and `OnlineManagerView::Unknown108BF430` are members of their classes.
+  Not done: 0x1085E100 / 0x1085E250 (stopping / resuming the game: they call the physics post-step registration of
+  an unnamed singleton at 0x11318948 and several unnamed services).
+- `src/code/engine/render/effectcontroller.*` (0x10849610 - 0x108496B0): `engine::EffectController` (RefCounted base, the
+  effects of an action: five handles that `StopAll` stops at once; slot 4 is pure). 4 functions match; the dust controller of
+  the driving unit derives from it.
+- `src/code/engine/render/renderqueue.cpp` (0x1085FDB0 - 0x10860000): the constructor, destructor, `Send`, `Peek`,
+  `WaitPeek` and `Pop` of `RenderQueue` (6 match; `Pop` leaves the lock taken, as the engine's does).
+- `src/code/engine/system/worldstreammanager.*` (0x108540E0 - 0x108543B0, 0x108547D0): `WorldStreamManager` (a `StreamClient`
+  for the world cells, 0x54 bytes): constructor, destructor, `Reset`, `Load`, `Unload`, the making and the getter, and the
+  `DynamicCaster<world::Location>` filter (8 match). `engine::world::Location` is now `engine/world/location.h` (it was a
+  stub in reflectedclasses.h). Not done: the rest of the unit (0x10854810 - 0x10855040: the trigger lookups send the stream
+  trigger messages to every stream object; they need the stream manager's object table, unnamed).
+- `src/code/engine/camera/dramaticcamera.cpp`: `FindAnimation` (0x1084F420) is EQUIVALENT (56.6 %: ebx / esi swapped, the
+  push of ebx inside the loop, the pivot of the sample pointer); `QueryRay` now returns the bool the engine's does
+  (`Context::QueryObject` / the world's `QueryBody` return bool: shared header ravenphysics/context.h and the symbol).
+  `math::Vector4::Negate` (0x1084FFA0) is EQUIVALENT (90.3 %, the engine subtracts w before it stores z). Not done:
+  `Update` (0x1084F9D0, 1473 bytes, a 16-float matrix copy with eight live xmm registers) and `BlendCamera::Update`
+  (0x108528A0, 2375 bytes).
+- Singletons and small functions: `OLS::Get` (ols.cpp), `AudioManager::Get`, `AddUpdatable` / `RemoveUpdatable` (the list
+  of objects told the time step), `AudioMixer::Get` (audiomixer.cpp), `engine::ThreadEntryCallback::OnThreadEntry`
+  (audiothreadcallback.*), `GetServicePump`, `GameLinkDebugOutput` (constructor and `OnOutput`; gamelink.*; the
+  "service pump" is the `GameLinkManager` the global at 0x11315388 points to, its `Update` slot takes the same
+  `UpdateContext`), `NetMessageAllocator`'s constructor (netmessage.h; the abstract bases of the net messages'
+  allocators), the `PropSpawner` dynamic caster, `DivideNumberByVector` (luavector.cpp, EQUIVALENT 91.8 %) and
+  `ResetObjectCollisions` (decals.cpp) and the audio files' `StreamServer` (audio/streamserver.*: the base's constructor and
+  empty slot are the engine's inline copies; `GetPath` is EQUIVALENT, 98.2 %: the order of two string destructors).
+- Not done in the range (what blocks each): the OLS lifecycle (0x10844260 - 0x10844C20: the services it owns at +0x78 - +0xA8
+  have no names), the audio dialogue classes and the om property / command templates of 0x10855000 - 0x1085B7B0 (the
+  `AudioMixer` members they use are unnamed; the red-black tree insertions per key type are NONMATCHING in om as well),
+  the draw task, the effect controller's neighbours and the decal creators (0x10849070 - 0x1084CBB0: the task list holds
+  objects of an unnamed interface), the game link manager (0x10853C30 - 0x10854030: the net library), the engine
+  initialisation structs (0x1085C210 - 0x1085EFB0, the per-subsystem init parameters have no names) and the heap sort
+  instances for 24-byte entries (0x1085BAA0 - 0x1085D530).
+

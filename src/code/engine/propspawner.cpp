@@ -306,3 +306,7 @@ template void container::ArrayDynamic<engine::TreeState, container::AllocatorNew
 // FUNCTION: ENGINE 0x108422B0
 // FUNCTION: ENGINE 0x108429E0
 // FUNCTION: ENGINE 0x10842A00
+
+// The lookup of a prop spawner by name (the filter the inventory is handed)
+// FUNCTION: ENGINE 0x108423C0
+template class content::LoadInventory::DynamicCaster<engine::PropSpawner>;
