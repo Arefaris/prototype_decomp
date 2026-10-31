@@ -14,10 +14,16 @@ namespace content
 	struct MemberList;
 }
 
+namespace math
+{
+	class Matrix;
+}
+
 namespace engine
 {
 	class Behaviour;
 	class GameObject;
+	template<class T> class Attribute;
 	struct Message;
 	class DispatchTable;
 
@@ -119,6 +125,8 @@ namespace engine
 		}
 		unsigned char GetInactiveMask() const;
 		void SetInactiveMask(unsigned char mask);
+		// 0x100601A0 (out of line in another unit; name guessed): the owner's transform attribute
+		Attribute<math::Matrix>* GetTransformAttribute();
 		bool ComputeActive();
 		void ApplyActive(bool active);
 		void SetUpdating(bool updating);
