@@ -90,6 +90,8 @@ namespace proto
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x100BE020)
 				virtual void Slot6();
+				// 0x100BD470 (another function of this unit): forgets the object the action looks at (name guess)
+				void ClearTargetHandle();
 				// vftable slot 7 (0x100BDA10)
 				virtual bool Slot7(int arg, float value);
 
@@ -98,6 +100,7 @@ namespace proto
 				choreo::RootDriver* driver;  // +0x2C
 				engine::HandleBase unknown30;  // +0x30
 				math::Vector unknown34;  // +0x34
+
 				float unknown40;  // +0x40
 				float unknown44;  // +0x44
 				float unknown48;  // +0x48

@@ -210,6 +210,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BB030
+			// EQUIVALENT: scheduling; the engine stores the vftable before it takes the link's address, ours after it (94.6 %)
+			EffectConsumeAction::EffectConsumeAction(EffectConsumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), unknown20(-1), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BAF40
+			EffectConsumeAction::~EffectConsumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BB150
+			fight::Action* EffectConsumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EffectConsumeAction(this, handle);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectConsumeTrack>;
@@ -225,28 +242,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015CE00
-// FUNCTION: ENGINE 0x1015CE10
-// FUNCTION: ENGINE 0x1015CE40
-// FUNCTION: ENGINE 0x1015CE70
-// FUNCTION: ENGINE 0x1015CEA0
-// FUNCTION: ENGINE 0x1015CED0
-// FUNCTION: ENGINE 0x1015CEE0
-// FUNCTION: ENGINE 0x1015CF20
-// FUNCTION: ENGINE 0x1015CF30
-// FUNCTION: ENGINE 0x1015CF60
-// FUNCTION: ENGINE 0x1015CF80
-// FUNCTION: ENGINE 0x1015CF90
-// FUNCTION: ENGINE 0x1015CFC0
-// FUNCTION: ENGINE 0x1015CFE0
-// FUNCTION: ENGINE 0x1015CFF0
-// FUNCTION: ENGINE 0x1015D020
-// FUNCTION: ENGINE 0x1015D040
-// FUNCTION: ENGINE 0x1015D0B0
-// FUNCTION: ENGINE 0x1015D0E0
-// FUNCTION: ENGINE 0x1015D100
-// FUNCTION: ENGINE 0x1015D130
-// FUNCTION: ENGINE 0x1015D150
-// FUNCTION: ENGINE 0x1015D580
-// FUNCTION: ENGINE 0x1015D5B0
-// FUNCTION: ENGINE 0x1015D5D0
+// FUNCTION: ENGINE 0x100BAE00
+// FUNCTION: ENGINE 0x100BAE90
+// FUNCTION: ENGINE 0x100BB0B0

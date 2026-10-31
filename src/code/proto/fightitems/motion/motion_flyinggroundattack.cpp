@@ -188,6 +188,20 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100BF4E0
+			void FlyingGroundAttackAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<FlyingGroundAttackTrack>;
 			template class fight::PropertyIntConstRange<FlyingGroundAttackTrack>;
 			template class fight::TrackFactoryTemplate<FlyingGroundAttackTrack>;

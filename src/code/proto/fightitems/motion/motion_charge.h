@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/choreo/rootdriver.h"
 #include "code/choreo/puppet.h"
 
 namespace proto
@@ -212,6 +213,25 @@ namespace proto
 			void RegisterChargeClearTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ChargeAction (9 vftable slots, 0x2C bytes)
+			class ChargeAction : public fight::Action
+			{
+			public:
+				// 0x100A1310
+				ChargeAction(ChargeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100A0FB0
+				virtual ~ChargeAction();
+
+				// vftable slot 5 (0x100A13C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 7 (0x100A1550)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ChargeTrack> link;  // +0x20
+				float unknown2C;  // +0x2C
+			};
+
 			// RTTI: proto::fightitems::motion::ChargeSetAction (9 vftable slots, 0x2C bytes)
 			class ChargeSetAction : public fight::Action
 			{

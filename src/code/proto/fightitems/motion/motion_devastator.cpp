@@ -1,5 +1,6 @@
 // Fight items of the motion group: DevastatorTargetConditionGroupCondition, DevastatorAvailableCondition, DevastatorTargetDistanceCondition, DevastatorTargetGroundSpikeTrack, DevastatorTrack, DevastatorUsedTrack, DevastatorTargetExecuteTrack, TendrilDevastatorTrack, DevastatorTargetHitTrack (unit 0x101561B0 - 0x101598C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_devastator.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {

@@ -147,6 +147,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B1220
+			DeformAction::DeformAction(DeformTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack)
+			{
+				target = newTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100B1190
+			DeformAction::~DeformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B1550
+			fight::Action* DeformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DeformAction(this, handle);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeformTrack>;
@@ -159,18 +176,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x10153B40
-// FUNCTION: ENGINE 0x10153B50
-// FUNCTION: ENGINE 0x10153B80
-// FUNCTION: ENGINE 0x10153BB0
-// FUNCTION: ENGINE 0x10153BE0
-// FUNCTION: ENGINE 0x10153C10
-// FUNCTION: ENGINE 0x10153C20
-// FUNCTION: ENGINE 0x10153C50
-// FUNCTION: ENGINE 0x10153C70
-// FUNCTION: ENGINE 0x10153CE0
-// FUNCTION: ENGINE 0x10153D10
-// FUNCTION: ENGINE 0x10153D30
-// FUNCTION: ENGINE 0x10153F90
-// FUNCTION: ENGINE 0x10153FC0
-// FUNCTION: ENGINE 0x10153FE0
+// FUNCTION: ENGINE 0x100B10F0
+// FUNCTION: ENGINE 0x100B1120
+// FUNCTION: ENGINE 0x100B12B0

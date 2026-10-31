@@ -244,6 +244,39 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100BC320
+			FallAction::FallAction(FallTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), driver(0), link(newTrack), unknown30(0.0f), unknown34(0.0f, 0.0f, 0.0f), unknown40(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100BC200
+			FallAction::~FallAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100BD230
+			fight::Action* FallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FallAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100BC240
+			void FallAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<FallTrack>;
 			template class fight::PropertyBitfieldConstList<FallTrack>;
@@ -257,26 +290,6 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1015E800
-// FUNCTION: ENGINE 0x1015E830
-// FUNCTION: ENGINE 0x1015E840
-// FUNCTION: ENGINE 0x1015E870
-// FUNCTION: ENGINE 0x1015E8A0
-// FUNCTION: ENGINE 0x1015E8D0
-// FUNCTION: ENGINE 0x1015E8E0
-// FUNCTION: ENGINE 0x1015E920
-// FUNCTION: ENGINE 0x1015E930
-// FUNCTION: ENGINE 0x1015E950
-// FUNCTION: ENGINE 0x1015E960
-// FUNCTION: ENGINE 0x1015E9C0
-// FUNCTION: ENGINE 0x1015E9F0
-// FUNCTION: ENGINE 0x1015EA10
-// FUNCTION: ENGINE 0x1015EA20
-// FUNCTION: ENGINE 0x1015EA50
-// FUNCTION: ENGINE 0x1015EA70
-// FUNCTION: ENGINE 0x1015EA80
-// FUNCTION: ENGINE 0x1015EAB0
-// FUNCTION: ENGINE 0x1015EAD0
-// FUNCTION: ENGINE 0x1015F040
-// FUNCTION: ENGINE 0x1015F070
-// FUNCTION: ENGINE 0x1015F090
+// FUNCTION: ENGINE 0x100BC160
+// FUNCTION: ENGINE 0x100BC190
+// FUNCTION: ENGINE 0x100BC3B0

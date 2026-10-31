@@ -1,5 +1,6 @@
 // Fight items of the motion group: ClearCollisionRecordTrack (unit 0x10149A90 - 0x10149DC0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_clearcollisionrecord.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -98,6 +99,14 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100A22D0
+			bool ClearCollisionRecordAction::Slot5(int arg, float value)
+			{
+				ClearCollisionRecordMessage message;
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
 			template class fight::PropertyFloatConstRange<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryTemplate<ClearCollisionRecordTrack>;
 			template class fight::TrackFactoryCasterTemplate<ClearCollisionRecordTrack>;
@@ -106,6 +115,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100A2140
+// FUNCTION: ENGINE 0x100A2170
+// FUNCTION: ENGINE 0x100A2180
+// FUNCTION: ENGINE 0x100A21A0
+// FUNCTION: ENGINE 0x100A21B0
+// FUNCTION: ENGINE 0x100A21E0
 // FUNCTION: ENGINE 0x100A2210
 // FUNCTION: ENGINE 0x100A2230
 // FUNCTION: ENGINE 0x100A2420

@@ -1,5 +1,8 @@
 // Fight items of the motion group: ChargeCondition, ChargeTrack, ChargeSetTrack, AnimationChargeTrack, ChargeClearTrack (unit 0x101479B0 - 0x10149690; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_charge.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/engine/fight/coreactions.h"
 
 namespace engine
 {
@@ -579,6 +582,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A1310
+			ChargeAction::ChargeAction(ChargeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xA00), target(newTarget), link(newTrack), unknown2C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A0FB0
+			ChargeAction::~ChargeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A1D90
+			fight::Action* ChargeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ChargeAction(this, handle);
+			}
+
 			// FUNCTION: ENGINE 0x100A1600
 			ChargeSetAction::ChargeSetAction(ChargeSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
 			{
@@ -632,6 +652,173 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100A0EC0
+			bool ChargeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ChargeGetMessage message(type);
+				object->SendMessage(&message);
+				float current = message.value;
+				return fight::CompareFloats(compare, &current, &charge);
+			}
+
+			// FUNCTION: ENGINE 0x100A13C0
+			bool ChargeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				int type = link.object->type;
+				ChargeGetMessage getMessage(type);
+				object->SendMessage(&getMessage);
+				float first = getMessage.value;
+				float second = (first >= 0.0f) ? first : 0.0f;
+				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
+				if (link.object->clearOnBegin)
+				{
+					charge = 0.0f;
+				}
+				ChargeSetMessage setMessage(charge, type);
+				object->SendMessage(&setMessage);
+				float duration = link.object->Slot10();
+				float goal = link.object->finalCharge;
+				if (duration > 0.0f)
+				{
+					if (goal < engine::driving::gOne)
+					{
+						goal = goal - charge;
+					}
+					goal = goal / duration;
+				}
+				unknown2C = goal;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A1550
+			bool ChargeAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (arg != 0)
+				{
+					return true;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ChargeAddMessage message(unknown2C * value, link.object->type);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A10E0
+			void AnimationChargeAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriver(driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100A1C70
+			bool AnimationChargeAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ChargeGetMessage message(link.object->type);
+				object->SendMessage(&message);
+				float first = message.value;
+				float second = (first >= 0.0f) ? first : 0.0f;
+				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
+				if (link.object->reverse)
+				{
+					charge = engine::driving::gOne - charge;
+				}
+				((choreo::AnimationDriver*)driver)->SetUnknownE4((link.object->endFrame - link.object->startFrame) * charge + link.object->startFrame);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A16A0
+			bool ChargeSetAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				float charge = link.object->charge;
+				int type = link.object->type;
+				float range = link.object->randomRange;
+				ChargeSetMessage message((fight::GetRandomValue(0) * 2.0f - engine::driving::gOne) * range + charge, type);
+				object->SendMessage(&message);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A1810
+			bool ChargeClearAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						if (link.object->clearOnBegin)
+						{
+							ChargeSetMessage message(0.0f, 0);
+							object->SendMessage(&message);
+							return false;
+						}
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A18C0
+			void ChargeClearAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0 && !link.object->clearOnBegin)
+					{
+						ChargeSetMessage message(0.0f, 0);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			template class fight::PropertyEnumConstList<ChargeCondition>;
 			template class fight::PropertyFloatConstRange<ChargeCondition>;
 			template class fight::ConditionFactoryTemplate<ChargeCondition>;
@@ -661,12 +848,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100A0BA0
+// FUNCTION: ENGINE 0x100A0BE0
+// FUNCTION: ENGINE 0x100A0C90
 // FUNCTION: ENGINE 0x100A0CC0
 // FUNCTION: ENGINE 0x100A0CE0
 // FUNCTION: ENGINE 0x100A0D00
+// FUNCTION: ENGINE 0x100A0D20
 // FUNCTION: ENGINE 0x100A0D50
 // FUNCTION: ENGINE 0x100A0DB0
 // FUNCTION: ENGINE 0x100A0E10
+// FUNCTION: ENGINE 0x100A0E70
+// FUNCTION: ENGINE 0x100A1390
 // FUNCTION: ENGINE 0x100A1670
 // FUNCTION: ENGINE 0x100A17E0
 // FUNCTION: ENGINE 0x100A19D0

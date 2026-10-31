@@ -179,6 +179,24 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100BE240
+			void FlyingBrakeAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+						}
+					}
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<FlyingBrakeTrack>;
 			template class fight::PropertyIntConstRange<FlyingBrakeTrack>;
 			template class fight::TrackFactoryTemplate<FlyingBrakeTrack>;

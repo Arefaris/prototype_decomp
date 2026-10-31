@@ -1,5 +1,6 @@
 // Fight items of the motion group: ButtonHintShowingCondition, EnableButtonHintsTrack, ButtonHintShowTrack (unit 0x10146A60 - 0x101479B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_buttonhint.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 #include <new>
 
 namespace proto
@@ -318,6 +319,54 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100A03A0
+			bool ButtonHintShowingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				IsButtonHintShowingMessasge message;
+				object->SendMessage(&message);
+				if (message.showing)
+				{
+					return message.name == buttonHint;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A08F0
+			bool EnableButtonHintsAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				EnableButtonHintsMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A0980
+			void EnableButtonHintsAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						EnableButtonHintsMessage message(false);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			template class fight::PropertyName<ButtonHintShowingCondition>;
 			template class fight::ConditionFactoryTemplate<ButtonHintShowingCondition>;
 			template class fight::ConditionFactoryCasterTemplate<ButtonHintShowingCondition>;
@@ -338,9 +387,13 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100A0000
+// FUNCTION: ENGINE 0x100A0030
+// FUNCTION: ENGINE 0x100A0070
 // FUNCTION: ENGINE 0x100A0080
 // FUNCTION: ENGINE 0x100A00A0
 // FUNCTION: ENGINE 0x100A0130
 // FUNCTION: ENGINE 0x100A0190
+// FUNCTION: ENGINE 0x100A0370
 // FUNCTION: ENGINE 0x100A0660
 // FUNCTION: ENGINE 0x100A08C0

@@ -235,6 +235,28 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100BD470
+			void FlyingAttackAction::ClearTargetHandle()
+			{
+				engine::HandleBase none;
+				unknown30 = none;
+			}
+
+			// FUNCTION: ENGINE 0x100BE020
+			void FlyingAttackAction::Slot6()
+			{
+				ClearTargetHandle();
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+				}
+			}
+
 			template class fight::PropertyFloatConstRange<FlyingAttackTrack>;
 			template class fight::PropertyVector<FlyingAttackTrack>;
 			template class fight::PropertyBool<FlyingAttackTrack>;
