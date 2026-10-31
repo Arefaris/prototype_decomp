@@ -9,6 +9,7 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/behaviours/collisionmessages.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"
 
@@ -20,6 +21,13 @@ namespace proto
 		// A collider in the list: the object and the time since the last report
 		struct Collider
 		{
+			Collider()
+			{
+			}
+			Collider(int newObject, float newTime) : object(newObject), time(newTime)
+			{
+			}
+
 			int object;
 			float time;
 		};
@@ -41,6 +49,19 @@ namespace proto
 		void ClearColliders(engine::Message* message);
 		// 0x10065A70: starts again
 		void Reset();
+		// 0x10064B20 (id 1) / 0x10065480 (id 2) / 0x100654D0 (id 3) / 0x100659D0 (id 4) / 0x10065430 (id 5) /
+		// 0x10065950 (id 6) / 0x10064B70 (id 7): the handlers of the collision messages
+		void GetCachedWallCollision(GetCachedWallCollisionMessage* message);
+		void SetCollisionActive(SetCollisionActiveMessage* message);
+		void IsValidCollision(IsValidCollisionMessage* message);
+		void ValidateCollision(ValidateCollisionMessage* message);
+		void FindCachedCollider(FindCachedColliderMessage* message);
+		void AddCachedCollider(AddCachedColliderMessage* message);
+		void GetBehaviour(GetCollisionActionBehaviourMessage* message);
+		// 0x10065130: the physics message (type 5)
+		void OnPhysicsMessage(engine::Message* message);
+		// 0x10065880: puts an object in the list, dropping the oldest one when it is full
+		void InsertCollider(int object);
 
 		int unknownC;
 		bool unknown10;

@@ -11,11 +11,40 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/message.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/collision/collisionobject.h"
 
 namespace proto
 {
+	// Anchors the object or lets it go (RTTI proto::AnchorToGroundStateChangeMessage, id 0xE; the member names are guesses)
+	struct AnchorToGroundStateChangeMessage : public StateChangeMessage
+	{
+		AnchorToGroundStateChangeMessage(bool newAnchor, bool newZeroHeight) : StateChangeMessage(0xe),
+			anchor(newAnchor), zeroHeight(newZeroHeight)
+		{
+		}
+		virtual ~AnchorToGroundStateChangeMessage()
+		{
+		}
+
+		bool anchor;  // +0xC
+		bool zeroHeight;  // +0xD
+	};
+
+	// Asks whether the object is anchored (id 0xF; the name is a guess)
+	struct IsAnchoredStateChangeMessage : public StateChangeMessage
+	{
+		IsAnchoredStateChangeMessage() : StateChangeMessage(0xf), anchored(false)
+		{
+		}
+		virtual ~IsAnchoredStateChangeMessage()
+		{
+		}
+
+		bool anchored;  // +0xC
+	};
+
 	class AnchorToGroundBehaviour : public engine::Behaviour
 	{
 	public:
@@ -31,6 +60,9 @@ namespace proto
 		virtual void OnActiveChanged(bool active);
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
+
+		// 0x10061900: anchors the object to the ground (or to the joint) or lets it go
+		void ApplyAnchor(bool anchor, bool zeroHeight);
 
 		engine::BaseAttribute* physicsObjectAttribute;  // +0xC
 		engine::BaseAttribute* drawableAttribute;  // +0x10

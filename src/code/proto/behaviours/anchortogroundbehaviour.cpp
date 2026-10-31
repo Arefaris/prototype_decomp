@@ -24,6 +24,32 @@ namespace proto
 		Listen(0x1a, true);
 	}
 
+	// FUNCTION: ENGINE 0x10061A30
+	void AnchorToGroundBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 0x2f:
+			switch ((unsigned short)message->id)
+			{
+			case 0xe:
+				ApplyAnchor(static_cast<AnchorToGroundStateChangeMessage*>(message)->anchor,
+					static_cast<AnchorToGroundStateChangeMessage*>(message)->zeroHeight);
+				break;
+			case 0xf:
+				static_cast<IsAnchoredStateChangeMessage*>(message)->anchored = ballInSocketHandle.IsValid();
+				break;
+			}
+			break;
+		case 0x1a:
+			if (stayAnchored)
+			{
+				ApplyAnchor(true, false);
+			}
+			break;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x100615D0
 	void AnchorToGroundBehaviour::Slot1()
 	{

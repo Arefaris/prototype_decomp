@@ -1,5 +1,13 @@
 #include "code/proto/behaviours/collisionactionbehaviour.h"
 
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
+	}
+}
+
 namespace proto
 {
 #define PROTO_OFFSET(type, member) \
@@ -39,6 +47,178 @@ namespace proto
 		engine::Behaviour::OnActiveChanged(active);
 	}
 
+	// FUNCTION: ENGINE 0x10064B20
+	void CollisionActionBehaviour::GetCachedWallCollision(GetCachedWallCollisionMessage* message)
+	{
+		message->found = unknown10;
+		message->unknown10 = unknown14;
+		message->unknown14 = unknown18;
+		message->unknown18 = unknown1C;
+		message->unknown1C = unknown20;
+		message->unknown20 = unknown24;
+		message->unknown24 = unknown28;
+		message->unknown28 = unknown2C;
+	}
+
+	// FUNCTION: ENGINE 0x10064B70
+	void CollisionActionBehaviour::GetBehaviour(GetCollisionActionBehaviourMessage* message)
+	{
+		message->behaviour = this;
+	}
+
+	// FUNCTION: ENGINE 0x10065480
+	void CollisionActionBehaviour::SetCollisionActive(SetCollisionActiveMessage* message)
+	{
+		if (message->active)
+		{
+			unknownC++;
+			return;
+		}
+		unknownC--;
+		if ((int)colliders.Size() <= 0 && unknownC < 0)
+		{
+			unknownC = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10065430
+	void CollisionActionBehaviour::FindCachedCollider(FindCachedColliderMessage* message)
+	{
+		int i = 0;
+		int count = colliders.Size();
+		if (0 < count)
+		{
+			Collider* collider = colliders.begin;
+			int object = message->object;
+			do
+			{
+				if (collider->object == object)
+				{
+					message->found = true;
+					return;
+				}
+				i++;
+				collider++;
+			} while (i < count);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100654D0
+	// EQUIVALENT: the message is kept in ebx where the engine keeps it in ebp (90.7 %)
+	void CollisionActionBehaviour::IsValidCollision(IsValidCollisionMessage* message)
+	{
+		int i = 0;
+		message->valid = false;
+		if (0 < unknownC)
+		{
+			int count = colliders.Size();
+			if (0 < count)
+			{
+				Collider* start = colliders.begin;
+				int object = message->object;
+				Collider* collider = start;
+				do
+				{
+					if (collider->object == object)
+					{
+						if (!(message->time >= engine::driving::gZero))
+						{
+							return;
+						}
+						if (!(start[i].time >= message->time))
+						{
+							return;
+						}
+						break;
+					}
+					i++;
+					collider++;
+				} while (i < count);
+			}
+			message->valid = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100659D0
+	void CollisionActionBehaviour::ValidateCollision(ValidateCollisionMessage* message)
+	{
+		int i = 0;
+		message->valid = false;
+		if (0 < unknownC)
+		{
+			int count = colliders.Size();
+			if (0 < count)
+			{
+				Collider* collider = colliders.begin;
+				do
+				{
+					if (collider->object == message->object)
+					{
+						if (!(message->time >= 0.0f))
+						{
+							return;
+						}
+						if (!(colliders.begin[i].time >= message->time))
+						{
+							return;
+						}
+						message->valid = true;
+						colliders.begin[i].time = 0.0f;
+						return;
+					}
+					i++;
+					collider++;
+				} while (i < count);
+			}
+			InsertCollider(message->object);
+			message->valid = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10065950
+	void CollisionActionBehaviour::AddCachedCollider(AddCachedColliderMessage* message)
+	{
+		int count = colliders.Size();
+		int i = 0;
+		if (0 < count)
+		{
+			Collider* collider = colliders.begin;
+			do
+			{
+				if (collider->object == message->object)
+				{
+					colliders.begin[i].time = 0.0f;
+					return;
+				}
+				i++;
+				collider++;
+			} while (i < count);
+		}
+		InsertCollider(message->object);
+	}
+
+	// FUNCTION: ENGINE 0x10065880
+	// EQUIVALENT: the same test with the operands of the comparison the other way round (98.8 %)
+	void CollisionActionBehaviour::InsertCollider(int object)
+	{
+		if (colliders.Capacity() <= colliders.Size())
+		{
+			Collider* oldest = colliders.begin;
+			Collider* last = colliders.end;
+			Collider* collider = oldest;
+			while (++collider != last)
+			{
+				if (collider->time > oldest->time)
+				{
+					oldest = collider;
+				}
+			}
+			colliders.Erase(oldest);
+		}
+		colliders.PushBack(Collider(object, 0.0f));
+		Listen2(4, true);
+	}
+
 	// FUNCTION: ENGINE 0x100659C0
 	void CollisionActionBehaviour::ClearColliders(engine::Message* message)
 	{
@@ -53,6 +233,79 @@ namespace proto
 		colliders.end = colliders.begin;
 		unknown10 = false;
 		Listen2(4, false);
+	}
+
+	// FUNCTION: ENGINE 0x10065A90
+	// EQUIVALENT: the list is tested for being empty with a mask where the engine shifts the byte difference (80.0 %)
+	void CollisionActionBehaviour::Update(float dt, unsigned short mask)
+	{
+		Collider* collider = colliders.begin;
+		unknown10 = false;
+		float limit = 5.0f;
+		if (collider != colliders.end)
+		{
+			do
+			{
+				float old = collider->time;
+				collider->time = old + dt;
+				if (old + dt > limit)
+				{
+					colliders.Erase(collider);
+				}
+				else
+				{
+					collider++;
+				}
+			} while (collider != colliders.end);
+		}
+		if (unknownC <= 0 || colliders.end - colliders.begin == 0)
+		{
+			colliders.end = colliders.begin;
+			Listen2(4, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10065C60
+	void CollisionActionBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+			Reset();
+			break;
+		case 5:
+			OnPhysicsMessage(message);
+			break;
+		case 0x1d:
+			switch ((unsigned short)message->id)
+			{
+			case 6:
+				AddCachedCollider(static_cast<AddCachedColliderMessage*>(message));
+				break;
+			case 5:
+				FindCachedCollider(static_cast<FindCachedColliderMessage*>(message));
+				break;
+			case 1:
+				GetCachedWallCollision(static_cast<GetCachedWallCollisionMessage*>(message));
+				break;
+			case 2:
+				SetCollisionActive(static_cast<SetCollisionActiveMessage*>(message));
+				break;
+			case 3:
+				IsValidCollision(static_cast<IsValidCollisionMessage*>(message));
+				break;
+			case 4:
+				ValidateCollision(static_cast<ValidateCollisionMessage*>(message));
+				break;
+			case 0:
+				ClearColliders(message);
+				break;
+			case 7:
+				GetBehaviour(static_cast<GetCollisionActionBehaviourMessage*>(message));
+				break;
+			}
+			break;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10064AE0
@@ -104,3 +357,10 @@ namespace proto
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10065560
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10064B80
+// FUNCTION: ENGINE 0x10064BB0
+// FUNCTION: ENGINE 0x10064CA0
+// FUNCTION: ENGINE 0x100655C0
+// FUNCTION: ENGINE 0x10065600
