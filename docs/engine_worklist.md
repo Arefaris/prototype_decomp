@@ -5667,7 +5667,7 @@ How the items are written (all of them follow the engine's own pattern, see `eng
   (table at +0x14, count at +0x18, both read from the engine's data: `extern fight::EnumEntry ...[]` and `extern const int ...`, declared in
   `motiondata.h` with names that are guesses and mapped in symbols.txt), `PropertyEnum` (two member functions of the track
   that answer an entry and the count; here they are in other units) and the new `fight::PropertyBitfieldConstList<T>` (in `engine/fight/bitfieldproperty.h`:
-  setter, count and table in this order, `GetEntry` with a function-local empty entry and an unsigned count compare; the shared header change of the pass).
+  setter, count and table in this order, `GetEntry` with a function-local empty entry and an unsigned count compare).
 - Degrees are stored as radians: the setter multiplies by 0.017453292f (a vector by `math::Vector scaled = newValue; scaled.x *= k; ...`, which gives the
   engine's loads-then-multiplies order). Booleans that share a byte are `bool name : 1;` bit-fields (`CollisionHitTrack`, 15 flags in two bytes).
 - `NISConsumeByParentTrack` derives from `ConsumeByParentTrack` (RTTI base); its list reuses the base's setters through `&ConsumeByParentTrack::SetX`
@@ -5683,5 +5683,4 @@ Not done in the range:
   and 0x1014AF00 / 0x101504B0 / 0x101528F0 (the base property types' inline `GetType`), 0x101521B0 (a `math::Colour128` constructor from four
   integers, scaled by 1/255).
 - Two units run over the edges of the range and were done whole: `motion_animationblend.cpp` (0x1013C5B0 - 0x10140FC0, the four AnimationBlend tracks)
-  and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 belong to the
-  next pass down.
+  and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 are in the range below.
