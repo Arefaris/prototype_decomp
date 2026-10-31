@@ -56,6 +56,18 @@ namespace engine
 		}
 	};
 
+	// Tells that a profile was picked (type 0, id 6 and 7; the inline constructor is the engine's, the deleting destructor is
+	// shared with the other messages)
+	struct OLSProfileMessage : public OLSMessage
+	{
+		explicit OLSProfileMessage(short newId) : OLSMessage(0, newId)
+		{
+		}
+		virtual ~OLSProfileMessage()
+		{
+		}
+	};
+
 	// The user the services currently serve (+0x14: its id)
 	class OLSCurrentUser
 	{
@@ -108,8 +120,9 @@ namespace engine
 		bool Unknown108882C0();
 	};
 
-	// The list of users at OLS +0x94 (olsfriend.h)
+	// The list of users at OLS +0x94 and the friend list at +0x98 (olsfriend.h)
 	class OLSUserList;
+	class OLSFriend;
 
 	class OLS
 	{
@@ -165,7 +178,8 @@ namespace engine
 		OLSLocalUser** localUsers;  // +0x8C
 		unsigned char unknown90[4];
 		OLSUserList* userList;  // +0x94
-		unsigned char unknown98[0xac - 0x98];
+		OLSFriend* friends;  // +0x98
+		unsigned char unknown9C[0xac - 0x9c];
 		container::SListLite<Callback> callbacks;
 	};
 }

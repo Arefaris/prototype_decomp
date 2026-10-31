@@ -62,12 +62,15 @@ namespace engine
 	public:
 		// 0x108871C0: the index of the selected user
 		int GetSelected();
+		// 0x10886F50
+		void SetCurrentUser(int id);
 		// 0x10887870: the user is no longer needed (by its id)
 		void Unknown10887870(int id);
 
 		unsigned char unknown0[0x18];
 		OLSUserRecord* records;  // +0x18
-		unsigned char unknown1C[0x13C - 0x1C];
+		int currentUser;  // +0x1C (the id of the user the current profile belongs to)
+		unsigned char unknown20[0x13C - 0x20];
 		int selected;  // +0x13C
 	};
 
@@ -153,6 +156,8 @@ namespace engine
 		int GetUserId(int index);
 		// 0x108E9D00: empties every entry
 		void ResetEntries();
+		// 0x108E9CE0: the profile of that index (-1 for none) was picked (name guessed)
+		void OnProfileSelected(int index);
 		// 0x108E9D50 / 0x108E9DC0: what the selected user is doing, as the scripts want it (answered in the text member)
 		const char* GetPresence();
 		const char* GetAttributes();

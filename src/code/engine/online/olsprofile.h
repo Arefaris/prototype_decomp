@@ -15,6 +15,16 @@ namespace engine
 		unsigned int controller;
 	};
 
+	// What the profile manager keeps for one profile slot (0x18 bytes): the user that picked it (-1 for none) and
+	// whether the profile is a guest's (names guessed)
+	struct OLSProfileEntry
+	{
+		int unknown0;
+		int user;  // +4
+		bool guest;  // +8
+		unsigned char unknown9[0x18 - 9];
+	};
+
 	class OLSProfile
 	{
 	public:
@@ -38,7 +48,7 @@ namespace engine
 		virtual void Slot13() = 0;
 		// vftable slots 14 - 16 (0x10889D50, 0x10889D60, 0x10889D70) and 17 - 19 (shared with other classes)
 		virtual void Slot14(int a);
-		virtual void Slot15(int a);
+		virtual void Slot15(int a, int b);
 		virtual void Slot16(int a);
 		virtual const char* Slot17();
 		virtual void Slot18(int a);
@@ -47,8 +57,10 @@ namespace engine
 		// 0x10888EC0: the user of the profile at the index, null when it has none
 		OLSUser* GetUser(unsigned int index);
 
-		unsigned char unknown4[0x14 - 4];
+		int profileCount;  // +4
+		unsigned char unknown8[0x14 - 8];
 		int currentProfile;  // +0x14
+		OLSProfileEntry* entries;  // +0x18
 	};
 }
 

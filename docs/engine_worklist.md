@@ -4634,6 +4634,45 @@ advertisement client (0x10894840 - 0x10895540, third-party code), the audio play
 and the list template instances at 0x10880800 - 0x10880A70.
 - `src/code/engine/fight/branch.cpp` (0x105A2B10): `fight::Branch::MoveChild` is NONMATCHING (the registers of the child, the
   parent and the list walk are allocated in another order).
+## 0x10880000 - 0x108A0000 (sn-ao): the light behaviour, the dispatch table pool, the profile manager's slots
+
+About 400 of the range's remaining 770 functions have no caller and no vftable slot (inline members of classes the
+unit keeps as copies: setters, getters, list and array helpers); they cannot be given a class from their callers and
+are left. What was done, per unit:
+
+- `engine/lightbehaviour.cpp` (0x1089BA30 - 0x1089F520): the behaviour's dirty flag and activity, the posted query of the
+  light's properties (EQUIVALENT 28 %: the stores of the values come before the update of the change mask in ours), the
+  update (`Update`; the attribute test at its end is on `movement`, not on the kind), the message handler
+  (EQUIVALENT 76 %: the five cascade extents go through the SSE registers in the engine), the controller
+  (`LightBehaviour::Controller`: base `pure3d::SimpleFrameController`, 0x48 bytes, slots 3, 24, 25, 26 overridden), the
+  animation messages (range, pause, resume, set), the sequence player's start and stop, the controller's creation and
+  release (the reference helpers `AssignController` / `ReleaseController` take their arguments on the stack). The colour
+  of the light is copied with the implicit assignment of `Colour128` (word moves; its copy constructor is user defined
+  and moves floats). The Euler angles to matrix function 0x1089DD00 is NONMATCHING (25 %: the engine interleaves the
+  copies of the identity matrix with the rotations). Not done: the two constructors (0x1089F9D0 / 0x1089FF00: they need
+  the instance of `GameObject::SetAttributeAndGet<pure3d::SimpleFrameController*>` of the unit, 0x1089F8C0, with its
+  attribute class), the controller's value application 0x1089CBA0 (1301 bytes) and the inverse offset 0x1089CA20 (the
+  engine copies the matrix with the vector copy constructor iterator).
+- `engine/gameobject/vtablepool.cpp`: `DispatchTable` (moved out of behaviourcontroller.cpp into vtablepool.h) and
+  `VTablePool` with its hash of the message masks. The pool's map has the code of `proto::MidgroundMap` (the linker
+  shares it), so its members are declared only (`DispatchMap`, mapped to 0x102DD6F0 / 0x102DDAD0 / 0x102DE010 /
+  0x106081B0). `DispatchTable::Add` is EQUIVALENT (98.5 %: the list address is [edx + eax] in the engine).
+- `engine/system/streampoibehaviour.cpp`: the five functions; `Behaviour::GetTransformAttribute` (0x100601A0) and
+  `POIManager::GetWorldStreamerPOI` (the top of the stack or the zeroed point at 0x1130D32C) were added.
+- `engine/database/onlinegamedbhelper.cpp`: `DBSubjectBase`'s constructor, `IsValidPlayer` (match), `IsShared` (EQUIVALENT
+  58 %), and the two sharing tests `IsPlayerSynced` / `IsPlayerSent` (EQUIVALENT: the slot's id is loaded into eax in the
+  engine, edx in ours). `OnlineGameDBHelper` (0x108930B0 - 0x10894440, three bases) is still not started.
+- `engine/online/olsprofile.cpp`: `OLSProfile`'s empty slots, `GetUser`, `SelectProfile` (EQUIVALENT 65 %: the engine reads
+  the user back from the message) and the three one-argument slots; `OLSUserList::SetCurrentUser`. The online users'
+  RTTI class is `engine::OLSUser` (the container at `OLS +0x94`); the header's `OLSUserList` is that class and
+  `OLSUser` in olsprofile.h is its 0x38-byte record (still under the old names).
+- `engine/controller/monkeycontrollermanager.cpp`: the decorator's seven forwarding slots and the destructor (`Refresh`
+  EQUIVALENT: eax against edx for the jump).
+- Looked at and left: the cement thread glue (0x10883FE0 - 0x10884E61), the Flash handle natives (0x108854E0 -
+  0x10885D40, they walk the game object table), the NIS random channel generator (0x10890B40, 3179 bytes), the debug
+  camera (0x10896440 - 0x10897780: x87 math and the director), the advertisement client (0x10894840 - 0x10895540), the
+  value formats 0x10883720 / 0x10883820 / 0x10883A90 (they need the physical controller's bindings), `OLSGame`.
+
 ## 0x10840000 - 0x10860000 (sn-s): the lua vectors, the triggers, the props, the cameras and the render scripts
 
 - `src/code/engine/luavector.cpp` (0x108400A0 - 0x10841040; the Lua binding of `math::Vector` and `core::Name`): 27 functions
