@@ -6174,3 +6174,53 @@ Open:
   `Name g(gText, 0)` with the text in a variable of another unit) need those variables' names.
 - Float constant initializers (12: `movss` / `fld` copies of constants into globals, 0x10D66610, 0x10D728E0 ...), objects
   whose constructor takes arguments (`Time(0, 0)`, `Seed`, array loops) and the stubs that call a destructor.
+## sn-az: the range 0x10AA0000 - 0x10AC0000 (om dynamic properties, om services, audio decoders and drivers, mgraph)
+The range (and the area up to 0x10B60000) has no assert paths; its units are template families of the om library and the
+classes of the audio and mgraph namespaces, in the order the compiler emitted them (guesses: `om/dynamicproperties.cpp`
+holds the instances of one translation unit, `om/dynamicproperty.h` the templates).
+- `om/dynamicproperty.h`, `om/dynamicproperties.cpp` (0x10A9E000 - 0x10AA9B40, more than 580 functions): `DynamicPropertyBase`
+  (17 pure slots), `DynamicProperty<T>` (value at 8 behind one unknown word, description at 0xC / 0x10, name key, one
+  unknown 64-bit word), `Command0<R>`, `Command1<R, A>`, `CommandMember0Const<C, B, R>`, `CommandMember1<C, B, R, A>`,
+  `Owned<T>` (the one-pointer holder of the delegate's commands; name guessed), `CommandDelegate<V>`, `FactoryBase<B>` and
+  `Factory<B, D>`, instantiated for the eight whole numbers (`unsigned char` ... `__int64`) and the arrays of `float`,
+  `unsigned int` and `String`. The instances are kept copies of the engine's COMDATs: functions the engine's linker took
+  from other translation units (`0x108D37F0`, `0x105B...`) are only mapped. The symbols were bound with a script that reads
+  our object's vftables, follows the relocations of the functions that match and picks the remaining kept copies by bytes
+  and distance (local/scratch/sn-az/bind.py; not committed).
+- What the matching taught: a destructor defined out of the class body is not expanded into the scalar deleting
+  destructor (`DynamicProperty`, `FactoryBase`), one without a declaration is (`CommandDelegate`, `Factory`: the dead
+  vftable store goes away); a `String::Wrap` temporary passed by address (`lea`) and a `String("..", false)` temporary passed
+  by the constructor's result are different code; a virtual call with an argument built by a call needs a reference
+  (`T& d = *p; d.Set(v)`) to read the slot's address before the argument; `ClassName GetName() const` returns by hidden
+  pointer (loads, then stores); the 64-bit numbers' property does not clear its value, `unsigned int`'s does; the text reader
+  of `__int64` is a call (`ReadText<__int64>` is declared `noinline` for it).
+- EQUIVALENT: `DynamicProperty<T>::ReadText` for all eleven instances (95.5 %): the engine loads both halves of the name key
+  before the test of the result of the name read.
+- NONMATCHING (the engine expands the destructor of the by-value string array, ours calls it): `DynamicProperty<String array>::Set`
+  0x10AA8150, `CommandMember0Const<..String array..>::Call` 0x10AA7B30, `CommandMember1<..>::Call` 0x10AA7BA0,
+  `CommandDelegate<String array>::Set` 0x10AA7AA0.
+- Shared header changes: `om/name.h` (`Name` got a copy constructor and an assignment operator, the engine builds its
+  by-value arguments in place), `om/metatype.h` (`MetaTypeBase::GetName`, 0x105B62E0).
+- Not done: the copies of `DynamicArray<float>` (copy constructor 0x10AA6120, `Append` 0x10AA61B0) and
+  `DynamicArray<unsigned int>::operator=` 0x10AA69B0 differ from the shared template (the engine addresses the source
+  relative to the destination in the copy loop; register allocation of `Append`); they are not mapped. The unreferenced
+  constructor of `DynamicProperty` (0x10AA0410 form, one stack argument) and the unreferenced `T f(T)` identity copies are
+  not reproduced. The `MetaSimpleType<T>` family (0x10A9C000 - 0x10AA3270) is open.
+- `audio/drivers.h`, `audio/driverreflection.cpp` (0x10AA9B40 - 0x10AC0000, 236 functions match): the reflection of the audio
+  renderer drivers made of the om library's template instances: `MetaEnum` of the four audio enumerations, `MetaProperty`,
+  `DelegateProperty`, `DelegateMetaProperty` and `MetaMethod0Const` / `MetaMethod1` of the wave format, buffer location, mix
+  type and focus properties of the Mme, WdmKs and DirectSound drivers, `MetaClass` of the three drivers and of `AudioFile`,
+  `EntityType<AudioFile>`. The driver classes are declared with the accessors the reflection names only (`SetWaveFormat`
+  ... guessed); `DirectSoundRendererDriverImpl` has a second base (`DirectSoundRendererDriver` at 0x7C, the member pointers
+  are 8 bytes), `AudioFile` is an entity of 0x40 bytes. The classes' own functions (constructors, the device code of 27 KB)
+  are open.
+- `om/atgcontent.cpp` (0x10AAC1D0 - 0x10AAD260, 47 functions match): `AtgContentEntityLoader<T>` / `AtgContentEntity<T>` of
+  `Mix`, `Patch`, `AudioFile` and `Cue`, and the base's constructor, `Slot3` and the loader base's constructor.
+  NONMATCHING: `AtgContentEntityBase::IsReady` 0x10AAC200 (the entity's slot answers a byte the engine normalises). Open:
+  `AtgContentEntityLoaderBase::Load` (417 bytes) and the loader registry list functions (0x10AAC1D0 - 0x10AAC4A0).
+- `mgraph/envelope.h`, `mgraph/envelope.cpp` (0x10AB0550 - 0x10AB6400, 131 functions match): the reflection of `Envelope` and
+  `EnvelopeData` (the points array of `VectorT<float,2>`), the dynamic property of `EnvelopeData` with its commands, delegate
+  and factory, and the text and binary forms of `VectorT<float,2>` (0x10AB1750 / 0x10AB17C0 / 0x10AB0C70 / 0x10AB0CB0).
+  NONMATCHING: `CommandMember1<..EnvelopeData..>::Call` 0x10AB42A0 and `CommandDelegate<EnvelopeData>::Set` 0x10AB4180 (the
+  engine calls the copy constructor of the points' array for the by-value argument). The shared `DynamicArray` copy constructor
+  and `Append` do not match the engine's copies of the float, unsigned int and `VectorT` arrays.
