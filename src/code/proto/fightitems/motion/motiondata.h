@@ -124,6 +124,33 @@ namespace proto
 			extern const int gHUDMarkerTrackAnimTypeCount;  // 0x10DCB0D0
 			extern fight::EnumEntry gHideHUDTrackHideIndividualElementsHideElementsTable[];  // 0x1126D2E0
 			extern const int gHideHUDTrackHideIndividualElementsHideElementsCount;  // 0x10E11290
+			extern fight::EnumEntry gReactionGiverIsBeingGrabbedConditionGrabTypeTable[];  // 0x11253BD8
+			extern fight::EnumEntry gReactionEventConditionReactionTypeTable[];  // 0x11253BF0
+			extern fight::EnumEntry gReactionHitDamageConditionTypeTable[];  // 0x11253C18
+			extern fight::EnumEntry gReactionHitCollisionPositionConditionComponentTable[];  // 0x112549C8
+			extern const int gReactionEventConditionReactionTypeCount;  // 0x10DA5A04
+			extern const int gReactionHitDamageConditionTypeCount;  // 0x10DA5A0C
+			extern const int gReactionGiverIsBeingGrabbedConditionGrabTypeCount;  // 0x10DA5B10
+			extern fight::EnumEntry gReactionHitAnimationTrackCyclicTable[];  // 0x11254A28
+			extern fight::EnumEntry gSetVisibilityTrackActionOnBeginTable[];  // 0x11253C90
+			extern fight::EnumEntry gSetVisibilityTrackActionOnEndTable[];  // 0x11253CA0
+			extern const int gSetVisibilityTrackActionOnBeginCount;  // 0x10DA6DB4
+			extern const int gSetVisibilityTrackActionOnEndCount;  // 0x10DA6DB8
+			extern fight::EnumEntry gShieldStateConditionStateTable[];  // 0x11253CC0
+			extern const int gShieldStateConditionStateCount;  // 0x10DA6F54
+			extern fight::EnumEntry gShootTrackFixedDirectionSpaceTable[];  // 0x11255CB0
+			extern const int gShootTrackFixedDirectionSpaceCount;  // 0x10DDB6D4
+			extern fight::EnumEntry gMotionStateConditionStateTable[];  // 0x11253DC8
+			extern const int gMotionStateConditionStateCount;  // 0x10DA7F44
+			extern fight::EnumEntry gStunTrackOnEndTable[];  // 0x11253EA8
+			extern fight::EnumEntry gStunTrackOnBeginTable[];  // 0x11253EC0
+			extern const int gStunTrackOnBeginCount;  // 0x10DA80F4
+			extern const int gStunTrackOnEndCount;  // 0x10DA80F8
+			extern fight::EnumEntry gSupportingLimbSurfaceIntersectionPropertiesConditionMatchAgainstTable[];  // 0x11254B50
+			extern fight::EnumEntry gSupportingLimbTestSurfaceNormalVelocityArcConditionVelocityTypeTable[];  // 0x112837F8
+			extern const int gSupportingLimbTestSurfaceNormalVelocityArcConditionVelocityTypeCount;  // 0x10E69984
+			extern fight::EnumEntry gTemporaryTargetableTrackOnBeginTable[];  // 0x11253F10
+			extern const int gTemporaryTargetableTrackOnBeginCount;  // 0x10DA89E4
 		}
 	}
 }
