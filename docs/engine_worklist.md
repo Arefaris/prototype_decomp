@@ -5561,7 +5561,7 @@ animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (
 
 ## pure3d 0x10760000 - 0x10780000: the post processing passes, the render passes' constructors and handlers, the occluder (sn-an)
 
-421 functions annotated in four sources (17 EQUIVALENT, 4 NONMATCHING): `pass/src/postprocesspasses.cpp` (+ `postprocesspass.h`, `passnames.h`),
+435 functions annotated in four sources (17 EQUIVALENT, 4 NONMATCHING; the occluder source holds one older function): `pass/src/postprocesspasses.cpp` (+ `postprocesspass.h`, `passnames.h`),
 `pass/src/protopasses2.cpp` (+ `protopass.h`), `src/occluder.cpp`, `loaders/framecontrollerloader.cpp`.
 
 - **Parameter handlers** (parameterhandler.h): the explicit instances of `ParameterHandler<T>` and its `Map<Name, Entry, EntryAllocator>` of the passes
