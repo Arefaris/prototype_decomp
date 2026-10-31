@@ -1,63 +1,50 @@
 // pure3d::CameraAnimationController (RTTI name; bases pure3d::BlendFrameController / AnimationFrameController /
-// FrameController / Entity / RefCounted / core::IRefCount; 0x120 bytes, constructor 0x107B43C0, 31 vftable slots):
-// plays a camera animation. Only the slots the cameras call are declared (as ordinary virtual members in vftable
-// order); the rest of the class is in other units. Method names are guesses.
+// FrameController / Entity / RefCounted / core::IRefCount; 0x120 bytes, 31 vftable slots): plays a camera animation on
+// a camera. The slots are those of the frame controllers (framecontroller.h); the camera code calls them under the names
+// of the base classes. Method names are guesses.
 #ifndef PURE3D_CAMERAANIMATIONCONTROLLER_H
 #define PURE3D_CAMERAANIMATIONCONTROLLER_H
 
-#include "code/pure3d/entity.h"
+#include "code/pure3d/camera.h"
+#include "code/pure3d/framecontroller.h"
 
 namespace pure3d
 {
-	class Animation;
-	class Camera;
-
-	class CameraAnimationController : public Entity
+	class CameraAnimationController : public BlendFrameController
 	{
 	public:
-		// 0x107B43C0
+		// 0x107B43C0 / 0x107B5260 (the copy takes the same camera)
 		CameraAnimationController();
+		CameraAnimationController(const CameraAnimationController& other);
+		// Slot 2 (the body is 0x107B5150, the deleting destructor 0x107B5240)
+		virtual ~CameraAnimationController();
 
-		virtual void Slot3();
-		// vftable slot 4 (0x107775C0): advances by a time in milliseconds
-		virtual void Advance(float time, bool flag);
-		virtual void Slot5();
-		// vftable slot 6 (0x10777050)
-		virtual void SetFrame(float frame);
-		virtual void Slot7();
-		virtual void Slot8();
-		virtual void Slot9();
-		// vftable slots 10 - 12 (0x107777B0, 0x10777830, 0x10777860)
-		virtual void SetStartFrame(float frame);
-		virtual float GetFrame();
-		virtual void SetFrameRange(float first, float last);
-		virtual void Slot13();
-		// vftable slot 14 (0x10777940)
-		virtual void SetCycleMode(int mode);
-		virtual void Slot15();
-		// vftable slot 16 (0x107779D0)
-		virtual void SetLoop(int loop);
-		virtual void Slot17();
-		virtual void Slot18();
-		virtual void Slot19();
-		// vftable slot 20 (0x10777A90): the animation has finished
-		virtual bool IsDone();
-		virtual void Slot21();
-		// vftable slot 22 (0x107780E0)
-		virtual void SetAnimation(Animation* animation, float first, float last);
-		// vftable slot 23: the animation it plays
-		virtual Entity* GetAnimation();
-		virtual void Slot24();
-		// vftable slot 25 (0x107782C0): stops the playback (name guessed)
-		virtual void Stop();
+		// Slot 3 (0x107B52E0): the camera is the target when it is one
+		virtual void SetTarget(Entity* target);
+		// Slot 24 (0x107B4410): a camera animation
+		virtual bool IsSupported(Animation* animation);
+		// Slots 26 and 27 (0x107B4450, 0x107B4A90): lay the values of the animation (of the first entry, of all of them
+		// by their weights) over the camera
+		virtual void Unknown26();
+		virtual void Unknown27();
+		// Slot 29 (0x107B4400): true
+		virtual bool Unknown29();
+		// Slot 30 (0x107B52B0)
+		virtual CameraAnimationController* Clone();
 
-		// 0x107B5170: the camera the animation drives
+		// 0x107B5170: the camera the animation drives (the controller takes a reference and keeps which kind of camera it
+		// is: 1 a vector camera, 2 a point camera, 0 any other, -1 none)
 		void SetCamera(Camera* camera);
+		// 0x107B4440
+		Camera* GetCamera();
 		// 0x107B4330: whether the animation has played to its end between the previous and the current frame (name
 		// and parameters guessed)
 		bool IsFinished(float previousFrame, float frame);
 
-		unsigned char unknown10[0x109];
+		unsigned char unknown10C[4];
+		int cameraKind;   // +0x110
+		Camera* camera;   // +0x114
+		bool unknown118;
 		// Cleared by the camera animation action once it has started the playback (name guessed)
 		bool unknown119;
 		unsigned char unknown11A[6];

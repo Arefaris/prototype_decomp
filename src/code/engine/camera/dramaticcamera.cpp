@@ -139,7 +139,7 @@ namespace engine
 					DramaticAnimation* entry = &animations[index];
 					pure3d::Animation* animation = entry->animation;
 					controller->SetAnimation(animation, 0.0f, 0.0f);
-					controller->SetStartFrame(0.0f);
+					controller->SetFrame(0.0f);
 					if (duration > 0.0f)
 					{
 						unknownB8 = duration;
