@@ -5720,3 +5720,43 @@ Not done in the range:
   integers, scaled by 1/255).
 - Two units run over the edges of the range and were done whole: `motion_animationblend.cpp` (0x1013C5B0 - 0x10140FC0, the four AnimationBlend tracks)
   and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 are in the range below.
+
+## proto/fightitems/motion: the fight items of the range 0x10180000 - 0x101A0000 (sn-ar)
+The range continues the motion group (pattern, unit layout and `RegisterProperties` handling as in the section above): 27 more source files, 2462
+functions (2381 match, 81 EQUIVALENT: every `RegisterProperties`, the known open shrink-wrap question; `tools/shrinkcheck.py` lists none of them),
+the kept copies of each unit are listed in the trailer of its source. The first function of the range (0x10180040, the `CreateFactory` of
+`HunterShortRangeCorner2Track`) ends the unit below. `motion_radialblur.cpp` starts before 0x101A0000 and runs to 0x101A0B00; the next unit
+(`RadioHQTrack`, 0x101A0B00) belongs to the agent above. The file names are guesses in the pattern of the first agent.
+| file (src/code/proto/fightitems/motion/) | unit | functions (equivalent) | classes |
+|---|---|---|---|
+| `motion_ikfixup.cpp` | 0x10180090 - 0x10180910 | 48 (2) | IKSurfaceFixupTrack, ShoulderConFixupTrack |
+| `motion_impulse.cpp` | 0x10180910 - 0x10180EC0 | 29 (1) | ImpulseTrack |
+| `motion_axisdirection.cpp` | 0x10180EC0 - 0x10181350 | 24 (1) | AxisDirectionCondition |
+| `motion_intersectionproperties.cpp` | 0x10181350 - 0x10181890 | 29 (1) | IntersectionPropertiesCondition |
+| `motion_joint.cpp` | 0x10181890 - 0x10182180 | 42 (1) | JointTrack |
+| `motion_jointanchortoanimation.cpp` | 0x10182180 - 0x101827B0 | 32 (1) | JointAnchorToAnimationTrack |
+| `motion_jointlookat.cpp` | 0x101827B0 - 0x10183A80 | 83 (2) | JointLookAtCondition, JointLookAtTrack |
+| `motion_jointorientation.cpp` | 0x10183A80 - 0x10184060 | 30 (1) | JointOrientationCondition |
+| `motion_jump.cpp` | 0x10184060 - 0x10184DF0 | 53 (1) | JumpTrack |
+| `motion_jumpanimation.cpp` | 0x10184DF0 - 0x10185900 | 47 (1) | JumpAnimationTrack |
+| `motion_jumpto.cpp` | 0x10185900 - 0x101865E0 | 53 (1) | JumpToTrack |
+| `motion_jumpy.cpp` | 0x101865E0 - 0x10187250 | 50 (1) | JumpYTrack |
+| `motion_laser.cpp` | 0x10187250 - 0x10187C50 | 43 (1) | LaserTrack |
+| `motion_lococlimb.cpp` | 0x10187C50 - 0x10188680 | 40 (1) | LocoClimbTrack |
+| `motion_locosprint.cpp` | 0x10188680 - 0x1018AAB0 | 136 (3) | SprintVelocityClearTrack, LocoSprintTrack, LocoSprintChargeTrack |
+| `motion_locosteer.cpp` | 0x1018AAB0 - 0x1018C680 | 102 (2) | LocoSteerTrack, LocoSteerLeanTrack |
+| `motion_locostrafe.cpp` | 0x1018C680 - 0x1018D500 | 52 (1) | LocoStrafeTrack |
+| `motion_magneticboots.cpp` | 0x1018D500 - 0x10192C50 | 421 (13) | MagneticBootsNextSurfaceNormalCondition, UsingHunterShortRangeCondition, OrientationNormalAngleCondition, MagneticBootsTestDetachTrack, MagneticBootsResetInfoTrack, MagneticBootsJumpTrack, MagneticBootsDetachTrack, MagneticBootsTestCornerTrack, MagneticBootsStickToWallTrack, MagneticBootsTurnCornerTrack, MagneticBootsTrack, MagneticBootsTestJumpStuckTrack, MagneticBootsTestWallTrack |
+| `motion_moveatvelocity.cpp` | 0x10192C50 - 0x10193360 | 35 (1) | MoveAtVelocityTrack |
+| `motion_movecharged.cpp` | 0x10193360 - 0x101939C0 | 31 (1) | MoveChargedTrack |
+| `motion_nopushback.cpp` | 0x101939C0 - 0x10193D60 | 20 (1) | NoPushbackTrack |
+| `motion_obstacle.cpp` | 0x10193D60 - 0x10198800 | 372 (14) | ObstacleDistanceCondition, ObstacleTimeToObstacleCondition, ObstacleSlopeCondition, ObstacleFaceHeightSlopeCondition, ObstacleFaceHeightCondition, ObstacleColliderTypeCondition, ObstacleVelocityCondition, ObstacleLengthCondition, ObstacleWidthCondition, ObstacleHeightCondition, ObstacleAvoidExitTrack, ObstacleAvoidTrack, PushFromObstacleTrack, ObstacleTestTrack |
+| `motion_orient.cpp` | 0x10198800 - 0x101998F0 | 84 (3) | OrientationDesiredCondition, OrientTrack, WorldOrientTrack |
+| `motion_padrumble.cpp` | 0x101998F0 - 0x1019A8A0 | 79 (3) | PadRumbleSetTrack, PadRumbleRefTrack, PadRumbleClearTrack |
+| `motion_patsy.cpp` | 0x1019A8A0 - 0x1019C4A0 | 164 (9) | HasFailedPatsyCondition, IsPatsyCondition, PatsyDeadCondition, HasPatsyCondition, PatsyConditionGroupCondition, IsFailedPatsyCondition, PatsyCreateTrack, ClearFailedPatsyTrack, ClearPatsyTrack |
+| `motion_pedestrian.cpp` | 0x1019C4A0 - 0x1019F890 | 295 (13) | NPCAnimationVersionCondition, PedestrianFirstFrameUpgradedCondition, PedestrianStateCondition, PedestrianAngleToTargetCondition, CharacterCloudStateCondition, PedestrianRequestDowngradeCondition, PedestrianLowMoraleCondition, PedestrianAlertStateCondition, SetPedestrianReadyForDowngradeTrack, SpreadPedestrianAlertStateTrack, SetPedestrianAlertStateTrack, SetPedestrianStateTrack, CharacterCloudStateTrack |
+| `motion_radialblur.cpp` | 0x1019F890 - 0x101A0B00 | 68 (1) | RadialBlurTrack |
+Notes on the units:
+- A track or condition whose constructor builds a `fight::Name` member from text (`JointLookAtCondition::joint` with "Character_Root", `ImpulseTrack::joint`
+  with an empty text) initialises it with `joint(text, 1)`: the engine calls the two-argument name constructor in the constructor body before the other members.
+- `motiondata.h` gained the enum tables, counts and constants this range reads (appended at the end, nothing reordered).

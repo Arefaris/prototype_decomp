@@ -70,6 +70,29 @@ namespace proto
 			extern const int gCollisionGrabTrackCollideWithDefault;  // 0x10FF132C
 			extern const int gCollisionHitTrackCollideWithDefault;  // 0x10FF1694
 			extern const int gDetectTrackCollideWithDefault;  // 0x10FF268C
+			extern fight::EnumEntry gAxisDirectionConditionAxisTable[];  // 0x112539E0
+			extern const int gAxisDirectionConditionAxisCount;  // 0x10DA27B4
+			extern fight::EnumEntry gIntersectionPropertiesConditionTypeTable[];  // 0x11254758
+			extern fight::EnumEntry gJointLookAtTrackWhereTable[];  // 0x11253A08
+			extern const int gJointLookAtTrackWhereCount;  // 0x10DA2DA8
+			extern fight::EnumEntry gJumpTrackUnlockableFirstTable[];  // 0x112738D8
+			extern const int gJumpTrackUnlockableFirstCount;  // 0x10E25FF4
+			extern const int gMagneticBootsTestWallTrackCollideWithDefault;  // 0x10FF78DC
+			extern const int gMagneticBootsTestCornerTrackCollideWithDefault;  // 0x10FF78E0
+			extern fight::EnumEntry gObstacleColliderTypeConditionCompareTable[];  // 0x11254878
+			extern const int gPushFromObstacleTrackCollideWithDefault;  // 0x10FF80E4
+			extern fight::EnumEntry gPadRumbleSetTrackMotorTable[];  // 0x11253B10
+			extern const int gPadRumbleSetTrackMotorCount;  // 0x10DA4CA4
+			extern fight::EnumEntry gPatsyCreateTrackWhoTable[];  // 0x11253B28
+			extern const int gPatsyCreateTrackWhoCount;  // 0x10DA4EE4
+			extern fight::EnumEntry gCharacterCloudStateConditionStateTable[];  // 0x11253B80
+			extern fight::EnumEntry gPedestrianAlertStateConditionStateTable[];  // 0x11263BB8
+			extern fight::EnumEntry gPedestrianStateConditionStateTable[];  // 0x11268120
+			extern const int gCharacterCloudStateConditionStateCount;  // 0x10DA5194
+			extern const int gPedestrianAlertStateConditionStateCount;  // 0x10DF62C4
+			extern const int gPedestrianStateConditionStateCount;  // 0x10E03998
+			extern fight::EnumEntry gRadialBlurTrackAttachSpaceTable[];  // 0x11253860
+			extern const int gRadialBlurTrackAttachSpaceCount;  // 0x10DA0468
 		}
 	}
 }
