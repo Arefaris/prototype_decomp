@@ -5601,10 +5601,10 @@ animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (
 
 ## proto/fightitems/motion: the fight items of the range 0x10140000 - 0x10160000 (sn-ap)
 
-The range holds the code half of 27 source files of the game's motion fight items (`code/proto/fightitems/motion/motion_*.cpp`; only
+The range holds the code half of 29 source files of the game's motion fight items (`code/proto/fightitems/motion/motion_*.cpp`; only
 `motion_fall.cpp` and `motion_walljump.cpp` are named by an assert, the other file names are guesses in the same pattern, one file per run of items
-below). Each file holds tracks (`fight::Track`), conditions (`fight::Condition`) and, in another part of the image, their actions. 2329 functions are
-reconstructed (2252 match, 77 EQUIVALENT: every `RegisterProperties`, the known open shrink-wrap question; `tools/shrinkcheck.py` lists none of them
+below). Each file holds tracks (`fight::Track`), conditions (`fight::Condition`) and, in another part of the image, their actions. 2621 functions are
+reconstructed (2539 match, 82 EQUIVALENT: every `RegisterProperties`, the known open shrink-wrap question; `tools/shrinkcheck.py` lists none of them
 as more than shrink-wrap), and all the unit's template instances are listed in the trailers of the sources.
 
 Layout of one unit (every file has the same order; it is how the run of functions is cut into files):
@@ -5623,6 +5623,7 @@ action code and these items are one translation unit each in the original (the `
 
 | file (src/code/proto/fightitems/motion/) | unit | functions (equivalent) | classes |
 |---|---|---|---|
+| `motion_animationblend.cpp` | 0x1013C5B0 - 0x10140FC0 | 261 (4) | AnimationBlendVerticalAimTrack, AnimationBlendSimpleTrack, AnimationBlendVerticalAimStrafeTrack, AnimationBlendDirectionalTrack |
 | `motion_autotarget.cpp` | 0x10140FC0 - 0x10143E60 | 217 (6) | AutoTargetTrack, AutoTargetClearTrack, AutoTargetPositionTrack, FlyingAutoTargetTrack, PedestrianAutoTargetTrack, AutoTargetPlayerTrack |
 | `motion_bloodsplatter.cpp` | 0x10143E60 - 0x10144950 | 40 (1) | BloodSplatterTrack |
 | `motion_boundary.cpp` | 0x10144950 - 0x10146A60 | 167 (7) | InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack |
@@ -5650,6 +5651,7 @@ action code and these items are one translation unit each in the original (the `
 | `motion_faction.cpp` | 0x1015D620 - 0x1015E4B0 | 83 (4) | FactionTypeCondition, FactionCondition, FactionSetTrack, FactionDefaultTrack |
 | `motion_fall.cpp` | 0x1015E4B0 - 0x1015F0E0 | 51 (1) | FallTrack |
 | `motion_flyingattack.cpp` | 0x1015F0E0 - 0x1015FAE0 | 43 (1) | FlyingAttackTrack |
+| `motion_flyingbrake.cpp` | 0x1015FAE0 - 0x101601F0 | 31 (1) | FlyingBrakeTrack |
 
 How the items are written (all of them follow the engine's own pattern, see `engine/fight/physicsblend.cpp` for the shortest example):
 - A track is `class X : public fight::Track` with the members its properties write (named after the property), the setter per property
@@ -5676,10 +5678,10 @@ How the items are written (all of them follow the engine's own pattern, see `eng
   the engine data the properties and constructors read from memory).
 
 Not done in the range:
-- 0x101402C0 - 0x10140F70: the tail of the unit that starts before the range (`AnimationBlendVerticalAim/Simple/VerticalAimStrafe/DirectionalTrack`: the
-  2100-byte `RegisterProperties`, the track factory templates and casters); the head of that unit is in the range below.
-- 0x1015FAE0 - 0x10160000: the start of the unit with `FlyingBrakeTrack` (its setters, `GetProperty`, the constructor); the unit continues with
-  `FlyingDashTrack`, `FlyingGroundAttackTrack` and more beyond the range, so it is left to the pass that has the rest.
-- Copies of other classes' inline functions that the unit's object holds: 0x10140FC0 (a setter of the unit before, never referenced through a
-  vftable or a property list), 0x10141C50 / 0x1014AC40 / 0x1014FFE0 / 0x10152600 (a `ret`), 0x10141E80 and 0x1014AF00 / 0x101504B0 / 0x101528F0 (the
-  base property types' inline `GetType`), 0x101521B0 (a `math::Colour128` constructor from four integers, scaled by 1/255).
+- Copies of other classes' inline functions that the unit's objects hold: 0x10140FC0 (a one-member setter nothing in a vftable or a property list
+  points at), 0x10141C50 / 0x1014AC40 / 0x1014FFE0 / 0x10152600 (a `ret`: the engine folded the empty destructors of the property types), 0x10141E80
+  and 0x1014AF00 / 0x101504B0 / 0x101528F0 (the base property types' inline `GetType`), 0x101521B0 (a `math::Colour128` constructor from four
+  integers, scaled by 1/255).
+- Two units run over the edges of the range and were done whole: `motion_animationblend.cpp` (0x1013C5B0 - 0x10140FC0, the four AnimationBlend tracks)
+  and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 belong to the
+  next pass down.

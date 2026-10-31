@@ -11,6 +11,8 @@ namespace proto
 	{
 		namespace motion
 		{
+			extern fight::EnumEntry gAnimationBlendDirectionalTrackAnimNorthAllowedTransitionsTable[];  // 0x11253590
+			extern fight::EnumEntry gAnimationBlendVerticalAimTrackTargetingModeTable[];  // 0x112535B0
 			extern fight::EnumEntry gAutoTargetTrackTargetOverridesTable[];  // 0x112535F8
 			extern fight::EnumEntry gHeliBoundaryStatusConditionHeliBoundaryStatusTable[];  // 0x11253640
 			extern fight::EnumEntry gButtonHintShowTrackPressTypeTable[];  // 0x11253660
@@ -23,6 +25,11 @@ namespace proto
 			extern fight::EnumEntry gFallTrackPreserveMomentumTable[];  // 0x11253840
 			extern fight::EnumEntry gCollisionGrabTrackPhysicsModeTable[];  // 0x11253F98
 			extern fight::EnumEntry gDetectObbCollisionConditionCollideWithTable[];  // 0x11253FD0
+			extern fight::EnumEntry gAnimationBlendDirectionalTrackCyclicTable[];  // 0x11254218
+			extern fight::EnumEntry gAnimationBlendVerticalAimStrafeTrackCyclicTable[];  // 0x11254230
+			extern fight::EnumEntry gAnimationBlendDirectionalTrackInputTable[];  // 0x11254248
+			extern fight::EnumEntry gAnimationBlendVerticalAimTrackCyclicTable[];  // 0x11254250
+			extern fight::EnumEntry gAnimationBlendSimpleTrackCyclicTable[];  // 0x11254268
 			extern fight::EnumEntry gDetectedObjectAngleConditionTypeTable[];  // 0x11254408
 			extern fight::EnumEntry gEdgePositionConditionComponentTable[];  // 0x11254488
 			extern fight::EnumEntry gEffectChameleonicSkinTrackColourTypeTable[];  // 0x112544B0
@@ -36,6 +43,8 @@ namespace proto
 			extern fight::EnumEntry gDistanceFromWaterSurfaceConditionCompareTable[];  // 0x11276158
 			extern fight::EnumEntry gClassNameConditionCompareTable[];  // 0x112761B0
 			extern fight::EnumEntry gCrowdPositionConditionDirectionTable[];  // 0x112837B8
+			extern const int gAnimationBlendDirectionalTrackAnimNorthAllowedTransitionsCount;  // 0x10D9BE5C
+			extern const int gAnimationBlendVerticalAimTrackTargetingModeCount;  // 0x10D9BF60
 			extern const int gAutoTargetTrackTargetOverridesCount;  // 0x10D9C108
 			extern const int gHeliBoundaryStatusConditionHeliBoundaryStatusCount;  // 0x10D9C698
 			extern const int gButtonHintShowTrackPressTypeCount;  // 0x10D9C924
