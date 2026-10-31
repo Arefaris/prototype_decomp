@@ -290,6 +290,41 @@ namespace pure3d
 		entries.AddEntry(0xF, false);
 	}
 }
+
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x107B2430
+	void CapturePass::SetColour(const unsigned int* newColour)
+	{
+		colour = *(const PassColour*)newColour;
+	}
+
+	// FUNCTION: ENGINE 0x107B2460
+	void CapturePass::SetUnknownB4(unsigned int value)
+	{
+		unknownB4 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107B2470
+	ParameterHandlerTypeless* CapturePass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107B2C60
+	CapturePass::~CapturePass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x107B2CC0
+	CapturePass::CapturePass(const PassDesc* desc) : Pass(desc), colour(*(const PassColour*)((const unsigned char*)desc + 0x18)),
+		unknownB4(*(const unsigned int*)((const unsigned char*)desc + 0x1C))
+	{
+		parameters.object = this;
+		parameters.AddColour(&gCaptureColour, &CapturePass::SetColour, 0);
+		parameters.AddUnsigned(&gCaptureAmount, &CapturePass::SetUnknownB4, 0);
+	}
+}
 	// FUNCTION: ENGINE 0x107AD390
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry&);
 
@@ -352,6 +387,9 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x107ADE30
 	template pure3d::ParameterHandler<pure3d::ProtoMotherPass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107AD370
+	template void pure3d::ParameterHandler<pure3d::ProtoMotherPass>::SetObject(pure3d::ProtoMotherPass*);
 
 	// FUNCTION: ENGINE 0x107ADE60
 	template pure3d::ParameterHandler<pure3d::ProtoMotherPass>::~ParameterHandler();
@@ -419,6 +457,9 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x107AEE20
 	template pure3d::ParameterHandler<pure3d::ProtoThermalPass>::ParameterHandler();
 
+	// FUNCTION: ENGINE 0x107AE1B0
+	template void pure3d::ParameterHandler<pure3d::ProtoThermalPass>::SetObject(pure3d::ProtoThermalPass*);
+
 	// FUNCTION: ENGINE 0x107AEE50
 	template pure3d::ParameterHandler<pure3d::ProtoThermalPass>::~ParameterHandler();
 
@@ -485,6 +526,87 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x107B04A0
 	template pure3d::ParameterHandler<pure3d::ToneMapPass>::ParameterHandler();
 
+	// FUNCTION: ENGINE 0x107AF2D0
+	template void pure3d::ParameterHandler<pure3d::ToneMapPass>::SetObject(pure3d::ToneMapPass*);
+
 	// FUNCTION: ENGINE 0x107B04D0
 	template pure3d::ParameterHandler<pure3d::ToneMapPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107B2600
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::CapturePass>::Entry&);
+
+	// FUNCTION: ENGINE 0x107B2630
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x107B2650
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x107B2660
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x107B26E0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x107B26F0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair* container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator::operator->() const;
+
+	// FUNCTION: ENGINE 0x107B2700
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::MapNode::MapNode(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x107B2740
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator::Iterator(container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::MapNode*, container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>*);
+
+	// FUNCTION: ENGINE 0x107B2780
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::End();
+
+	// FUNCTION: ENGINE 0x107B27A0
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x107B27E0
+	template int container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::CompareKey(const void*, const container::TreeBase::Node*);
+
+	// FUNCTION: ENGINE 0x107B2820
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Insert(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Pair&);
+
+	// FUNCTION: ENGINE 0x107B2890
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Iterator container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Find(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x107B28C0
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x107B28D0
+	template pure3d::ParameterHandler<pure3d::CapturePass>::Entry& pure3d::ParameterHandler<pure3d::CapturePass>::EntryMap::At(const core::Name<core::CaseSensitiveKey>&);
+
+	// FUNCTION: ENGINE 0x107B2B10
+	template void container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::Clear();
+
+	// FUNCTION: ENGINE 0x107B2C00
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::CapturePass>::Entry, pure3d::ParameterHandler<pure3d::CapturePass>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x107B2C10
+	template pure3d::ParameterHandler<pure3d::CapturePass>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107B25E0
+	template void pure3d::ParameterHandler<pure3d::CapturePass>::SetObject(pure3d::CapturePass*);
+
+	// FUNCTION: ENGINE 0x107B2940
+	template bool pure3d::ParameterHandler<pure3d::CapturePass>::SetUnsignedAdapter(void*, const core::Name<core::CaseSensitiveKey>*, unsigned int);
+
+	// FUNCTION: ENGINE 0x107B2A00
+	template bool pure3d::ParameterHandler<pure3d::CapturePass>::GetUnsignedAdapter(void*, const core::Name<core::CaseSensitiveKey>*, unsigned int*);
+
+	// FUNCTION: ENGINE 0x107B29A0
+	template bool pure3d::ParameterHandler<pure3d::CapturePass>::SetColourAdapter(void*, const core::Name<core::CaseSensitiveKey>*, const unsigned int*);
+
+	// FUNCTION: ENGINE 0x107B2A80
+	template bool pure3d::ParameterHandler<pure3d::CapturePass>::GetColourAdapter(void*, const core::Name<core::CaseSensitiveKey>*, unsigned int*);
+
+	// FUNCTION: ENGINE 0x107B2B90
+	template void pure3d::ParameterHandler<pure3d::CapturePass>::AddUnsigned(const core::Name<core::CaseSensitiveKey>*, void (pure3d::CapturePass::*)(unsigned int), unsigned int (pure3d::CapturePass::*)());
+
+	// FUNCTION: ENGINE 0x107B2B20
+	template void pure3d::ParameterHandler<pure3d::CapturePass>::AddColour(const core::Name<core::CaseSensitiveKey>*, void (pure3d::CapturePass::*)(const unsigned int*), pure3d::ColourResult (pure3d::CapturePass::*)());
+
+	// FUNCTION: ENGINE 0x107B2C40
+	template pure3d::ParameterHandler<pure3d::CapturePass>::~ParameterHandler();
 

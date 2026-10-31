@@ -151,6 +151,17 @@ namespace pure3d
 	// is the handler itself, its object the pass) and registers the pass's member functions under the names of the
 	// parameters: the handler files the member functions in its own tree and puts function-kind parameters with the
 	// adapters below in the base tree. Names are guesses.
+	// What a colour getter answers (a word; it has a copy constructor, so it is answered through a hidden pointer)
+	struct ColourResult
+	{
+		ColourResult(const ColourResult& other)
+		{
+			bits = other.bits;
+		}
+
+		unsigned int bits;
+	};
+
 	template<class T> class ParameterHandler : public ParameterHandlerTypeless
 	{
 	public:
@@ -164,11 +175,20 @@ namespace pure3d
 			{
 				bool (T::*setterBool)(bool);
 				bool (T::*setterNamedBool)(const ParameterName*, bool);
+				void (T::*setterUnsigned)(unsigned int);
+				bool (T::*setterNamedUnsigned)(const ParameterName*, unsigned int);
+				void (T::*setterColour)(const unsigned int*);
+				bool (T::*setterNamedColour)(const ParameterName*, const unsigned int*);
 			};
 			union
 			{
 				bool (T::*getterBool)();
 				bool (T::*getterNamedBool)(const ParameterName*, bool*);
+				unsigned int (T::*getterUnsigned)();
+				bool (T::*getterNamedUnsigned)(const ParameterName*, unsigned int*);
+				ColourResult (T::*getterColour)();
+				const ColourResult& (T::*getterColourReference)();
+				bool (T::*getterNamedColour)(const ParameterName*, unsigned int*);
 			};
 		};
 
@@ -209,9 +229,23 @@ namespace pure3d
 		// Registers a parameter that is a pair of member functions on bool
 		void AddBool(const ParameterName* name, bool (T::*newSetter)(bool), bool (T::*newGetter)());
 
+		// The same for a pair on an unsigned integer and on a colour word
+		void AddUnsigned(const ParameterName* name, void (T::*newSetter)(unsigned int), unsigned int (T::*newGetter)());
+		void AddColour(const ParameterName* name, void (T::*newSetter)(const unsigned int*), ColourResult (T::*newGetter)());
+
 		// The functions the base tree holds for such a parameter: look the member functions up by name and call them
 		static bool SetBoolAdapter(void* handler, const ParameterName* name, bool value);
 		static bool GetBoolAdapter(void* handler, const ParameterName* name, bool* value);
+		static bool SetUnsignedAdapter(void* handler, const ParameterName* name, unsigned int value);
+		static bool GetUnsignedAdapter(void* handler, const ParameterName* name, unsigned int* value);
+		static bool SetColourAdapter(void* handler, const ParameterName* name, const unsigned int* value);
+		static bool GetColourAdapter(void* handler, const ParameterName* name, unsigned int* value);
+
+		// 0x107AD370 and its copies: the object the handler calls the member functions of
+		void SetObject(T* newObject)
+		{
+			object = newObject;
+		}
 
 		T* object;
 		EntryMap entries;
@@ -274,6 +308,135 @@ namespace pure3d
 				return true;
 			}
 			return (self->object->*entry.getterNamedBool)(name, value);
+		}
+		return false;
+	}
+	template<class T> void ParameterHandler<T>::AddUnsigned(const ParameterName* name, void (T::*newSetter)(unsigned int),
+		unsigned int (T::*newGetter)())
+	{
+		Entry entry = {1, 1, {0}, {0}};
+		entry.setterUnsigned = newSetter;
+		entry.getterUnsigned = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetUnsignedAdapter, GetUnsignedAdapter);
+	}
+
+	template<class T> void ParameterHandler<T>::AddColour(const ParameterName* name, void (T::*newSetter)(const unsigned int*),
+		ColourResult (T::*newGetter)())
+	{
+		Entry entry = {1, 1, {0}, {0}};
+		entry.setterColour = newSetter;
+		entry.getterColour = newGetter;
+		entries.At(*name) = entry;
+		parameters.At(name) = ParameterValue(SetColourAdapter, GetColourAdapter);
+	}
+
+	template<class T> bool ParameterHandler<T>::SetUnsignedAdapter(void* handler, const ParameterName* name,
+		unsigned int value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterUnsigned)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedUnsigned)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetUnsignedAdapter(void* handler, const ParameterName* name,
+		unsigned int* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.getKind == 1)
+			{
+				*value = (self->object->*entry.getterUnsigned)();
+				return true;
+			}
+			if (entry.getKind == 2)
+			{
+				*value = (self->object->*entry.getterUnsigned)();
+				return true;
+			}
+			return (self->object->*entry.getterNamedUnsigned)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::SetColourAdapter(void* handler, const ParameterName* name,
+		const unsigned int* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.setKind == 1)
+			{
+				(self->object->*entry.setterColour)(value);
+				return true;
+			}
+			return (self->object->*entry.setterNamedColour)(name, value);
+		}
+		return false;
+	}
+
+	template<class T> bool ParameterHandler<T>::GetColourAdapter(void* handler, const ParameterName* name,
+		unsigned int* value)
+	{
+		ParameterHandler* self = (ParameterHandler*)handler;
+		if (self == 0)
+		{
+			return false;
+		}
+		if (self->object == 0)
+		{
+			return false;
+		}
+		if (self->entries.TreeBase::Find(EntryMap::CompareKey, name) != 0)
+		{
+			Entry& entry = self->entries.At(*name);
+			if (entry.getKind == 1)
+			{
+				*value = (self->object->*entry.getterColour)().bits;
+				return true;
+			}
+			if (entry.getKind == 2)
+			{
+				*value = (self->object->*entry.getterColourReference)().bits;
+				return true;
+			}
+			return (self->object->*entry.getterNamedColour)(name, value);
 		}
 		return false;
 	}

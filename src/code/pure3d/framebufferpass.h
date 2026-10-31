@@ -128,6 +128,58 @@ namespace pure3d
 		unsigned char unknownE8[0x3C];
 		ParameterHandler<ToneMapPass> parameters; // +0x130
 	};
+
+	// 0x11281440 / 0x112815E8: the names of the capture pass's parameters (names guessed)
+	extern core::Name<core::CaseSensitiveKey> gCaptureColour;
+	extern core::Name<core::CaseSensitiveKey> gCaptureAmount;
+
+	// A colour word as the capture pass copies it: assembled channel by channel (the engine's copy of a pddiColour)
+	struct PassColour
+	{
+		PassColour(const PassColour& other)
+		{
+			bits = (((other.a << 8 | other.r) << 8) | other.g) << 8 | other.b;
+		}
+		PassColour& operator=(const PassColour& other)
+		{
+			bits = (((other.a << 8 | other.r) << 8) | other.g) << 8 | other.b;
+			return *this;
+		}
+
+		union
+		{
+			unsigned int bits;
+			struct
+			{
+				unsigned int b : 8;
+				unsigned int g : 8;
+				unsigned int r : 8;
+				unsigned int a : 8;
+			};
+		};
+	};
+
+	// Copies the picture to a texture (vftable 0x10E642F8, eleven slots; ProtoCapturePass derives from it)
+	class CapturePass : public Pass
+	{
+	public:
+		// 0x107B2CC0 (the colour and the second word come from the description)
+		explicit CapturePass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107B2C60, the deleting destructor 0x107B2D60)
+		virtual ~CapturePass();
+
+		// Slot 2 (0x107B2470)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		// Slot 4 (0x107B2480)
+		virtual void Render(PassContext* context);
+		// Slots 9 and 10 (0x107B2430, 0x107B2460): the parameters the handler registers
+		virtual void SetColour(const unsigned int* newColour);
+		virtual void SetUnknownB4(unsigned int value);
+
+		PassColour colour;        // +0xB0
+		unsigned int unknownB4;
+		ParameterHandler<CapturePass> parameters; // +0xB8
+	};
 }
 
 #endif
