@@ -214,6 +214,8 @@ namespace engine
 		static void AddActive(StreamPackage* package);
 		static StreamSlotGroup* FindSlotGroup(const content::ObjectName& name);
 		static void Unregister(StreamPackage* package);
+		// 0x1082CF10: takes a client out of the manager's list (the client's flag at +0x18 says whether it is in)
+		static void UnregisterClient(StreamClient* client);
 
 		unsigned char unknown1C[0x4c - 0x1C];
 		Settings settings;

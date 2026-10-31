@@ -6,6 +6,7 @@
 #define ENGINE_REFLECTEDCLASSES_H
 
 #include "code/content/loadinventory.h"
+#include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
 #include "code/ravenphysics/constraints/sharedproperties.h"
@@ -332,22 +333,5 @@ namespace trigger
 }
 }
 
-namespace engine
-{
-namespace world
-{
-	// Location: constructor 0x108D6580, reflection 0x108D5F50 / 0x108D64A0
-	class Location : public content::MetaLoadObject
-	{
-	public:
-		Location();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x3C];
-	};
-
-}
-}
 
 #endif
