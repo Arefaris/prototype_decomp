@@ -104,6 +104,43 @@ def literalProblems(coff, name, image, base, operands):
 	return problems
 
 
+PUSH_IMMEDIATE = re.compile(r"^push\s+(0x[0-9a-f]+|\d+)$")
+
+
+def immediates(code, address, mask=None):
+	"""The immediate arguments the function pushes (relocated operands left out): a size passed to operator new, a
+	flag, a count. Other immediates are left out: the compiler may pick another instruction and constant for them."""
+	values = []
+	for at, size, text in objcmp.disassemble(code, address):
+		match = PUSH_IMMEDIATE.match(text)
+		if not match:
+			continue
+		if mask is not None and any(mask[at - address + k] for k in range(size)):
+			continue  # a relocation: an address, not a value
+		value = int(match.group(1), 0)
+		if value > 1:
+			values.append(value)
+	return values
+
+
+def immediateProblems(coff, name, image, base, address, size):
+	"""The pushed immediates of an EQUIVALENT function must be the engine's: register allocation and scheduling do
+	not change them, a wrong struct size (operator new of a class four bytes short) does."""
+	code, mask = coff.function(name)
+	ours = immediates(code, address, mask)
+	original = bytes(image[address - base:address - base + size])
+	theirs = immediates(original, address)
+	# the engine may build the same value in a register first (mov eax, 0xFF000000 / push eax)
+	anywhere = {int(m.group(1), 0) for _, _, text in objcmp.disassemble(original, address)
+		for m in [re.search(r"(?:,\s*|^push\s+)(0x[0-9a-f]+|\d+)$", text)] if m}
+	extra = sorted(set(ours) - anywhere)
+	if not extra:
+		return []
+	missing = sorted(set(theirs) - set(ours))
+	return [f"pushed values only ours has: {', '.join(hex(v) for v in extra)}; the engine pushes instead: "
+		f"{', '.join(hex(v) for v in missing) or 'none'}"]
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("files", nargs="*")
@@ -150,10 +187,11 @@ def main():
 					continue
 				literalsChecked += 1
 				problems = literalProblems(coff, candidates[0], image, base,
-					engineOperands(image, base, address, sizes[address]))
+					engineOperands(image, base, address, sizes[address])) \
+					+ immediateProblems(coff, candidates[0], image, base, address, sizes[address])
 				if problems:
 					literalsFailed += 1
-					print(f"{candidates[0]} vs 0x{address:08X} (EQUIVALENT): {len(problems)} literal(s) the engine's"
+					print(f"{candidates[0]} vs 0x{address:08X} (EQUIVALENT): {len(problems)} literal(s) or pushed value(s) the engine's"
 						f" function does not read  [{source.relative_to(ROOT)}]")
 					for problem in problems:
 						print("  " + problem)

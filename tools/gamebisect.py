@@ -131,6 +131,8 @@ def wrap(path, addresses):
 				while lines[i].strip().startswith("//"):
 					out.append(lines[i])
 					i += 1
+				if lines[i].rstrip().endswith(";"):
+					continue  # an explicit instantiation: no body here to leave to the engine
 				out.append("#ifdef NONMATCHING")
 				depth = 0
 				started = False

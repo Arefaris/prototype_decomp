@@ -84,7 +84,9 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - `python tools/unitcheck.py --all` objcmps every annotated function of every source (seconds); after a shared
   header change this is the check that counts. It also checks that every string literal an EQUIVALENT function reads
   is one the engine's function reads (their instructions differ, their strings may not: a literal with unescaped
-  backslashes once sent every audio file to a path that does not exist and the game stood still).
+  backslashes once sent every audio file to a path that does not exist and the game stood still), and that every
+  value it pushes the engine's function has too (a class four bytes short once went to operator new and the engine's
+  constructor wrote past the block).
 - `python tools/keptcheck.py` compares the unannotated functions the relink puts in place of the engine's.
 - `python tools/callcheck.py` compares the convention our declarations give the engine functions we call with the
   engine's `ret N` (a member declared as a free function shifts the stack after every call).
