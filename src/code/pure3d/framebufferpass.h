@@ -7,17 +7,13 @@
 
 #include "code/pure3d/parameterhandler.h"
 #include "code/pure3d/pass.h"
+#include "code/pure3d/primitive.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 #include "code/pure3d/shader.h"
 #include "code/pure3d/shaderconstants.h"
 
 namespace pure3d
 {
-
-	// The texture of the passes (declared as far as the passes use it: the reference count is the entity's)
-	class Texture : public Entity
-	{
-	};
 
 	// The names of the shaders of the passes (0x111BABA4 / 0x111BABA8 / 0x111BAC30 / 0x111BAC34; names guessed)
 	extern const char* gShaderMother;
@@ -119,15 +115,80 @@ namespace pure3d
 		ParameterHandler<ProtoThermalPass> parameters; // +0x104
 	};
 
+	// A list of textures made with operator new[] (begin, end of the used part, end of the room)
+	struct TextureList
+	{
+		TextureList()
+		{
+			begin = 0;
+			end = 0;
+			capacity = 0;
+		}
+		~TextureList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				operator delete[](begin);
+			}
+		}
+
+		Texture** begin;
+		Texture** end;
+		Texture** capacity;
+	};
+
+	// Maps the picture's brightness (vftable 0x10E64004; ProtoToneMapPass derives from it)
 	class ToneMapPass : public FrameBufferPass
 	{
 	public:
-		// 0x1075DAF0 / 0x107AF3A0 (another unit)
+		// 0x107B0610
+		explicit ToneMapPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x107B04F0, the deleting destructor 0x107B0830)
+		virtual ~ToneMapPass();
+
+		// Slot 1 (0x107AF220): remembers that the state changed
+		virtual void SetEnabled(bool enabled);
+		// Slot 2 (0x107AF2C0)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		// Slot 4 (0x107AF770), 5 (0x107AF5C0), 6 (0x107B0180), 7 (0x107AF010)
+		virtual void Render(PassContext* context);
+		virtual void Begin();
+		virtual void End();
+		virtual bool IsVisible();
+
+		// 0x107AF250 / 0x107AF260 / 0x107AF270 / 0x107AF290
+		float GetUnknown100();
+		float GetUnknownFC();
+		void SetUnknownFC100(float second, float first);
+		void SetUnknown104(float first, float second, float third);
+		// 0x107AF3B0: the texture the pass reads (the global at 0x111BACE0 says which of the list, -1 the first)
+		dxTexture* GetSource();
+		// 0x107AF3A0 (a virtual call thunk) is what the handler registers
 		bool SetParameterEnable(bool value);
 
-		unsigned char unknownE8[0x3C];
+		Shader* shaderE8;
+		Shader* shaderEC;
+		Shader* shaderF0;
+		Shader* shaderF4;
+		Shader* shaderF8;
+		float unknownFC;
+		float unknown100;
+		float unknown104;
+		float unknown108;
+		float unknown10C;
+		int unknown110;
+		bool unknown114;
+		unsigned char unknown115[3];
+		Texture* texture118;
+		Texture* texture11C;
+		TextureList textures;       // +0x120
+		unsigned char unknown12C[4];
 		ParameterHandler<ToneMapPass> parameters; // +0x130
 	};
+
+	// 0x111BACE0: which texture of the tone map pass's list is the source (-1: the one at +0x11C)
+	extern int gToneMapSourceIndex;
 
 	// Draws the translucent parts (vftable 0x10E642B4)
 	class TranslucentPass : public Pass

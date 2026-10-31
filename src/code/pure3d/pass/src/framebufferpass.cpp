@@ -402,6 +402,95 @@ namespace pure3d
 	{
 	}
 }
+
+namespace pure3d
+{
+	int gToneMapSourceIndex = -1;
+
+	// FUNCTION: ENGINE 0x107B04F0
+	ToneMapPass::~ToneMapPass()
+	{
+		core::SafeRelease(shaderF0);
+		core::SafeRelease(shaderEC);
+		core::SafeRelease(shaderF4);
+		core::SafeRelease(shaderE8);
+		core::SafeRelease(shaderF8);
+		core::SafeRelease(texture118);
+		core::SafeRelease(texture11C);
+		for (unsigned int i = 0; i < (unsigned int)(textures.end - textures.begin); i++)
+		{
+			core::SafeRelease(textures.begin[i]);
+		}
+		textures.end = textures.begin;
+	}
+
+	// FUNCTION: ENGINE 0x107AF220
+	void ToneMapPass::SetEnabled(bool enabled)
+	{
+		// The engine compares the byte IsActive answers (its result is a bool here)
+		bool (Pass::*isActive)(bool) = (bool (Pass::*)(bool))&Pass::IsActive;
+		if (enabled != (this->*isActive)(false))
+		{
+			unknown114 = true;
+		}
+		Pass::SetEnabled(enabled);
+	}
+
+	// FUNCTION: ENGINE 0x107AF250
+	float ToneMapPass::GetUnknown100()
+	{
+		return unknown100;
+	}
+
+	// FUNCTION: ENGINE 0x107AF260
+	float ToneMapPass::GetUnknownFC()
+	{
+		return unknownFC;
+	}
+
+	// FUNCTION: ENGINE 0x107AF270
+	void ToneMapPass::SetUnknownFC100(float second, float first)
+	{
+		unknownFC = first;
+		unknown100 = second;
+	}
+
+	// FUNCTION: ENGINE 0x107AF290
+	void ToneMapPass::SetUnknown104(float first, float second, float third)
+	{
+		unknown10C = third;
+		unknown108 = second;
+		unknown104 = first;
+	}
+
+	// FUNCTION: ENGINE 0x107AF2C0
+	ParameterHandlerTypeless* ToneMapPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107AF3B0
+	dxTexture* ToneMapPass::GetSource()
+	{
+		if (gToneMapSourceIndex == -1)
+		{
+			return texture11C->info;
+		}
+		return textures.begin[gToneMapSourceIndex]->info;
+	}
+
+	// FUNCTION: ENGINE 0x107B0180
+	void ToneMapPass::End()
+	{
+		for (unsigned int i = 0; i < (unsigned int)(textures.end - textures.begin); i++)
+		{
+			core::SafeRelease(textures.begin[i]);
+		}
+		textures.end = textures.begin;
+		core::SafeRelease(texture11C);
+		core::SafeRelease(texture118);
+	}
+}
 	// FUNCTION: ENGINE 0x107AD390
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry&);
 
