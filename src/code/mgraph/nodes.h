@@ -15,7 +15,7 @@ namespace om
 	class Vector
 	{
 	public:
-		float values[4];
+		float values[3];
 	};
 
 	class Complex
@@ -38,7 +38,7 @@ namespace mgraph
 	class TriggerData
 	{
 	public:
-		unsigned int unknown0;
+		unsigned char unknown0;
 	};
 
 	class PinChannelData
@@ -203,13 +203,96 @@ namespace mgraph
 		explicit Graph(const om::ClassName& newName);
 	};
 
-	class NodeTypeBase
+	// The description of a node class that creates its nodes (RTTI: mgraph::NodeTypeBase and mgraph::NodeType<N>, 0x30 bytes;
+	// the slots are the destructor, the creation of a node and the reflection of N)
+	class __declspec(align(8)) NodeTypeBase
 	{
 	public:
 		virtual ~NodeTypeBase();
+
+		char unknown4[0x2C];
 	};
+
+	// 0x10AD1180: the description of the node class registered for the type_info (name guessed)
+	NodeTypeBase* FindNodeType(const type_info& type);
+
+	// The static in which the engine keeps what FindNodeType answered for a node class (one word per class)
+	template<class N> struct NodeTypeCache
+	{
+		static NodeTypeBase* type;
+	};
+
 	template<class N> class NodeType : public NodeTypeBase
 	{
+	public:
+		// The description of the node class N, found once and kept (names of the two functions guessed)
+		static NodeTypeBase* Get();
+		// Destroys the description of the node class N (when the library shuts down)
+		static void Destroy();
+		OM_ALLOCATION(NodeType);
+	};
+	template<class N> const char* NodeType<N>::AllocationTag()
+	{
+		return "";
+	}
+	template<class N> NodeTypeBase* NodeType<N>::Get()
+	{
+		NodeTypeBase*& cache = NodeTypeCache<N>::type;
+		if (cache == 0)
+		{
+			cache = FindNodeType(typeid(N));
+		}
+		return cache;
+	}
+	template<class N> void NodeType<N>::Destroy()
+	{
+		NodeTypeBase*& cache = NodeTypeCache<N>::type;
+		NodeTypeBase* type = cache;
+		if (type == 0)
+		{
+			type = FindNodeType(typeid(N));
+			cache = type;
+		}
+		if (type != 0)
+		{
+			delete type;
+		}
+	}
+
+	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet): it
+	// names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names guessed)
+	class PinDataTypeBase
+	{
+	public:
+		virtual ~PinDataTypeBase();
+		virtual om::MetaTypeBase* GetPacketType() = 0;
+		virtual NodeTypeBase* GetPropertyNodeType() = 0;
+		virtual NodeTypeBase* GetInletType() = 0;
+		virtual NodeTypeBase* GetOutletType() = 0;
+	};
+	template<class P> class PinDataType : public PinDataTypeBase
+	{
+	public:
+		PinDataType()
+		{
+		}
+		virtual ~PinDataType();
+		virtual om::MetaTypeBase* GetPacketType()
+		{
+			return om::FindMetaType(typeid(P));
+		}
+		virtual NodeTypeBase* GetPropertyNodeType()
+		{
+			return NodeType<PropertyNode<P> >::Get();
+		}
+		virtual NodeTypeBase* GetInletType()
+		{
+			return NodeType<Inlet<P> >::Get();
+		}
+		virtual NodeTypeBase* GetOutletType()
+		{
+			return NodeType<Outlet<P> >::Get();
+		}
 	};
 }
 

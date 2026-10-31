@@ -6313,3 +6313,43 @@ not fold them.
   and the DirectSound / XAudio2 device code.
 - Shared changes: `tools/delink/relink.py` (the scan for rel32 calls skips the bytes of an absolute reference already placed:
   an `E8` inside an address operand once matched the incremental-link thunk of a replaced function), `audio/drivers.h`.
+
+## sn-bd: the range 0x10AE0000 - 0x10B00000 (mgraph reflection: node classes, property nodes, pins' simple types)
+The range goes on with the template instances of `mgraph/reflection.cpp` (see sn-bc): the batches of one member per class
+(`operator new`, `operator delete`, `AllocationTag`, `Slot5` / `Slot6`, constructors, `Create`, `GetValueType` ...) for the 135
+node classes (`Throw`, `Catch`, `Inlet`, `Outlet`, `PropertyNode`, `Switch`, `ListCount`, `ListEntry`, `Rand`, the math nodes),
+for the `MetaProperty` / `DelegateMetaProperty` / `DelegateProperty` / `Garbage` / `MetaMethod0Const` / `MetaMethod1` instances
+of the property nodes and for the `MetaSimpleType` of the packets and arrays.
+- The instances were bound with the sn-bc tools (local/scratch/sn-bd/, not committed) over ONE object that holds all the
+  families (a binder that runs per family gave two symbols the same address for identical 6-byte tag functions). Fixes of the
+  binder: the addresses of symbols that are already mapped count as taken for the candidates; the type descriptors are bound
+  before the relocations of matching functions are followed (a wrong mapping of the `mgraph::TriggerData` descriptor to that
+  of `NodeColour`, made by following the relocations of three functions that really belong to `NodeColour`, is corrected in
+  symbols.txt: the descriptor is 0x110B654C, the word its type cache uses is 0x11276364).
+- The functions of the lower range (0x10AC0000 - 0x10AE0000) that sn-bc had mapped without annotating are annotated as well
+  (slots 5 and 6, tags, the `Create` of many classes).
+- `om/metasimpletype.h`: the text and binary forms of a value are called without a qualifier (`ReadTextOf` ...), so that the
+  friend functions of `DynamicArray` are found (a qualified call chose the generic one that asks the type's description,
+  which would have called the description itself for the arrays).
+- The vftables of 34 classes whose slots differ from the engine's (the by-value properties, the array properties, the
+  `MetaMethod` instances of `Node` and `Rand<Vector>` ...) would be defined by our object with unmapped slots: the functions
+  that emit them (constructors, `Create`, the allocation of the object) are not annotated, as in sn-bc.
+- `MetaSimpleType<T>` got the two statics the engine has per type (`Create`, which finds or makes the description and counts a
+  user, and a release of one user; names guessed) and slots 5 / 6 that make and destroy an array value for the array types
+  (the packets' stay empty). `om::Vector` is 12 bytes and `mgraph::TriggerData` 1 byte (the release of the arrays' memory
+  showed it); `DynamicArray` allocates and releases with the alignment of its element (`unsigned __int64`: 8). Functions
+  that had matched with the old sizes were copies of other classes' identical functions and were bound again.
+- `mgraph/nodes.h`: `PinDataTypeBase` / `PinDataType<P>` (the five slots: destructor, the reflection of the packet, and the node
+  types of the property node, the inlet and the outlet that carry such packets) and `NodeTypeBase` / `NodeType<N>` (0x30 bytes,
+  8-byte aligned): the allocation functions of `NodeType<N>` and its two statics (`Get` finds the registered node type once and keeps
+  it in `NodeTypeCache<N>::type`, `Destroy` deletes it; names guessed, 0x10AD1180 is the registry lookup `FindNodeType`). The
+  engine has two copies of `Get` per class in this range and the one before it; only one can carry the name. The binder orders
+  the identical functions of the 135 node classes of this translation unit by the order of their classes (Get, Destroy, `operator
+  new`, `AllocationTag`); the `operator delete` of `NodeType<N>` is not in this range.
+- Symbols: the type caches of `Vector`, `DynamicArray<bool>`, `<unsigned __int64>`, `<Vector>` and `<TriggerData>` are mapped.
+  The tag of `DelegateMetaProperty<EnvelopeData const&>` is 0x10AE15A0 (sn-az had mapped an identical copy at 0x10AB25A0).
+  `ReadArgument<String>` (a kept copy in this unit) calls the tag of another class, the engine's linker folded the identical
+  tag functions: listed in keptcopies.txt.
+- Not done: the second copy of `NodeType<N>::Get` of each class (28 bytes, 142 functions); the base destructors of `MetaMethod0Base` /
+  `MetaMethod1Base` (50 identical 7-byte functions, the class of each is not named by anything); the `Packet<T>` slots; the scalar
+  deleting destructors (mapped only).

@@ -95,11 +95,11 @@ namespace om
 
 		T* Allocate(Count count)
 		{
-			return static_cast<T*>(om::Allocate(AllocationTag(), count * sizeof(T), 4));
+			return static_cast<T*>(om::Allocate(AllocationTag(), count * sizeof(T), __alignof(T)));
 		}
 		void ReleaseElements(T* elements, Count count)
 		{
-			om::Release(elements, count * sizeof(T), 4);
+			om::Release(elements, count * sizeof(T), __alignof(T));
 		}
 		// Takes the elements out (this array's memory is not touched)
 		void DestroyElements(T* elements, Count count)

@@ -30,3 +30,4 @@
 ??_GGDelegatedFile@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
 ??_GFlashFileHandler@scaleformp3d@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
 ??_GGRenderer@@UAEPAXI@Z ; the engine's deleting destructor has the destructor's body inline, ours calls it
+??$ReadArgument@VString@om@@@om@@YAPAVString@0@PAVBinaryStream@0@PAVGarbageList@0@@Z ; the allocation tag it calls is another copy of the same empty-string function (the engine folded the tags of several classes into one)

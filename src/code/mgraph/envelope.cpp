@@ -238,8 +238,6 @@ namespace om
 	template Garbage<DynamicArray<VectorT<float,2>,unsigned short> >::~Garbage();
 	// FUNCTION: ENGINE 0x10AB23F0
 	template void DelegateMetaProperty<mgraph::EnvelopeData const&>::operator delete(void*);
-	// FUNCTION: ENGINE 0x10AB25A0
-	template char const* DelegateMetaProperty<mgraph::EnvelopeData const&>::AllocationTag();
 	// FUNCTION: ENGINE 0x10AB28A0
 	template DynamicArray<VectorT<float,2>,unsigned short> DelegateMetaProperty<DynamicArray<VectorT<float,2>,unsigned short> const&>::Get();
 	// FUNCTION: ENGINE 0x10AB28D0
