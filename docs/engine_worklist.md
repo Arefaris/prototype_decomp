@@ -6121,11 +6121,22 @@ members (`GetMemberPrimitiveMetaType<X, T, N>` 50 bytes each, `GetNameMetaType<X
   header stay mapped at the thunks). ReadText (slot 0) differs from the engine's in the registers of `this` and the
   reader only.
 
+Reconstructed besides the reflection: Charge (all), CharacterMotion (the constructor and the handlers of its messages,
+ids 0 - 9 and 0xD), CollisionAction (constructor, destructor, the list handling and the handlers of the collision
+messages 0x1D, Update, OnMessage), AnchorToGround (constructor, Slot1, OnMessage) and MotionState (constructor, Reset,
+OnMessage), the constructors of the Helicopter, Tank, Tendril, Tunneling, SensesInfo and FightVariables behaviours.
+When a switch over message ids compiles to a table of stubs, the stubs lie in the order of the case labels of the
+source (CollisionAction: 6, 5, 1, 2, 3, 4, 0, 7; MotionState: 0xC, 0xB, 0xA), which also decides the call targets
+objcmp reports; a comparison written `!(a >= b)` gives the engine's `comiss a, b / jb` where `a < b` gives the
+swapped operands.
+
 Functions left alone: the logic of CharacterMotion (Update 0x10063B50 and its helper 0x100637E0, physics puppet),
-FightVariables (the find loops with their inlined Name comparisons, Update 0x10066C90), AnchorToGround (the physics
-constraints), the messages of the GroundSpike block (their constructors are inline in code that is not reconstructed),
-ButtonHint, Helicopter, IK (Update 0x10071C00, 0x100727F0), Tendril, Tank, Tunneling, the shoulder fixup, the consumables
-and the transformation behaviour (reference meta types, fight branch references).
+FightVariables (the find loops with their inlined Name comparisons: a local `core::Name` makes our function realign
+the stack, the engine's does not; Update 0x10066C90), AnchorToGround (the physics constraints and Release 0x10060450),
+the messages of the GroundSpike block (their constructors are inline in code that is not reconstructed), ButtonHint,
+Helicopter, IK (Update 0x10071C00, 0x100727F0), Tendril (an empty case 2 of the engine's switch is kept in its
+code), Tank, Tunneling, the shoulder fixup, the consumables and the transformation behaviour (reference meta types,
+fight branch references).
 
 ## Dynamic initializers and atexit stubs (0x10D60000 - 0x10D8E400, the end of .text)
 
