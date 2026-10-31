@@ -82,13 +82,16 @@ the `symbols.txt` append conflicts, runs `ninja check` and `ninja report progres
 - `python tools/mergesym.py` resolves the conflicts of config/<version>/symbols.txt and docs/engine_worklist.md
   (both sides' lines) and lists addresses or names the merge gave twice.
 - `python tools/unitcheck.py --all` objcmps every annotated function of every source (seconds); after a shared
-  header change this is the check that counts.
+  header change this is the check that counts. It also checks that every string literal an EQUIVALENT function reads
+  is one the engine's function reads (their instructions differ, their strings may not: a literal with unescaped
+  backslashes once sent every audio file to a path that does not exist and the game stood still).
 - `python tools/keptcheck.py` compares the unannotated functions the relink puts in place of the engine's.
 - `python tools/callcheck.py` compares the convention our declarations give the engine functions we call with the
   engine's `ret N` (a member declared as a free function shifts the stack after every call).
 - `python tools/shrinkcheck.py [--all]` lists the EQUIVALENT functions whose instructions are more than moved.
 - In the game: `python tools/gamebisect.py try [--exclude LIST]` relinks without some units, launches the test copy,
-  teleports and fights; `units LIST` narrows a crash down to one unit, `wrap FILE [0x...]` leaves single functions to
+  teleports and fights, and reports FROZEN when Alex stays in the air where the teleport put him (the game runs
+  but its simulation does not); `units LIST` narrows a crash down to one unit, `wrap FILE [0x...]` leaves single functions to
   the engine.
 
 ## Checking an EQUIVALENT function (tools/difftest)

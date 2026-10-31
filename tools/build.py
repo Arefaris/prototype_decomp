@@ -20,7 +20,8 @@ import objcmp  # noqa: E402
 import relink  # noqa: E402
 
 # Options measured from the binary and confirmed by matching (docs/toolchain.md)
-CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/D", "NDEBUG", "/D", "WIN32"]
+# /we4129: an unknown escape in a literal ("audio\english") is an error; it changes the string, not the code
+CFLAGS = ["/c", "/O2", "/Ob1", "/arch:SSE", "/fp:fast", "/GS-", "/GR", "/MD", "/Gy", "/W3", "/we4129", "/D", "NDEBUG", "/D", "WIN32"]
 # A source whose unit the engine compiled with other options says so in a comment among its first lines:
 # "// CFLAGS: /arch:SSE2". An option replaces the default of the same name (the part before the colon); "!/arch"
 # removes it.

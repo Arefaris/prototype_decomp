@@ -6,8 +6,9 @@ launch the test copy, teleport and fight, and tell whether the game survived.
 	python tools/gamebisect.py wrap FILE.cpp [0xADDRESS ...]        # put these definitions (default: every EQUIVALENT)
 	                                                            # under #ifdef NONMATCHING, so the engine's code runs
 
-`try` needs OP_ORIGINAL_DIR naming the test copy (as gamectl.py); it prints `RESULT OK` or `RESULT CRASH` and the
-fault the proxy logged. `units` assumes the full list crashes and that leaving all of LIST out does not; it reports
+`try` needs OP_ORIGINAL_DIR naming the test copy (as gamectl.py); it prints `RESULT OK`, `RESULT CRASH` (and the
+fault the proxy logged) or `RESULT FROZEN` (the game runs but Alex stays where the teleport put him: the
+simulation does not update). `units` assumes the full list crashes and that leaving all of LIST out does not; it reports
 the unit whose absence alone makes the game survive (or the smallest set it found). Only one bisect may run at a
 time: they share the relinked DLL and the game.
 """
@@ -23,7 +24,8 @@ import time
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 VERSION = "PROTOPC_2025"
 OUT = ROOT / "build" / VERSION / "bisect"
-PLAY = ["teleport 300 30 -400", "keys e:0.3,:0.8,lmb:0.3,:0.8,rmb:0.6,:1,space:0.3,lmb:0.4,:1"]
+TELEPORT_HEIGHT = 30
+PLAY = [f"teleport 300 {TELEPORT_HEIGHT} -400","keys e:0.3,:0.8,lmb:0.3,:0.8,rmb:0.6,:1,space:0.3,lmb:0.4,:1"]
 
 
 def relinkObjects():
@@ -75,13 +77,19 @@ def tryBuild(excluded, keepGame=False):
 		if not ok:
 			break
 		gamectl(*command.split())
+	frozen = False
 	if ok:
-		ok = gamectl("where")[0] == 0
+		code, text = gamectl("where")
+		ok = code == 0
+		# Alex is teleported 12 m above the ground: a game whose simulation does not run leaves him in the air
+		feet = re.search(r"feet\s+(\S+)\s+(\S+)\s+(\S+)", text)
+		frozen = ok and (feet is None or float(feet.group(2)) > TELEPORT_HEIGHT - 1)
 	fault = lastFault()
 	if not keepGame:
 		gamectl("stop")
-	print(f"RESULT {'OK' if ok else 'CRASH'}" + (f"\n{fault}" if fault and fault != before else ""))
-	return ok
+	print(f"RESULT {'FROZEN' if frozen else 'OK' if ok else 'CRASH'}"
+		+ (f"\n{fault}" if fault and fault != before else ""))
+	return ok and not frozen
 
 
 def readList(path):

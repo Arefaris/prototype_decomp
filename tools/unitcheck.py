@@ -73,6 +73,37 @@ def compare(coff, name, address, image, base, known):
 	return ratio, len(code), problems, diff
 
 
+def engineOperands(image, base, address, size):
+	"""The addresses the engine's function names in its operands (the data it reads: literals, constants)."""
+	original = bytes(image[address - base:address - base + size])
+	operands = set()
+	for _, _, text in objcmp.disassemble(original, address):
+		operands.update(int(h, 16) for h in re.findall(r"0x([0-9a-f]{6,8})\b", text))
+	return {a for a in operands if base <= a < base + len(image)}
+
+
+def literalProblems(coff, name, image, base, operands):
+	"""An EQUIVALENT function's instructions differ, but every string literal it reads must be one the engine's
+	function reads too (a literal with an unescaped backslash once broke every audio path). Float constants are left
+	out: the engine loads some of them with other instructions (fld1, a table with an index)."""
+	defined = {n: (value, section) for n, value, section, storage in coff.symbols if section > 0}
+	problems = []
+	for offset, target, kind in coff.relocations(name):
+		if kind != 0x06:
+			continue
+		if target.startswith("??_C@") and target in defined:
+			value, section = defined[target]
+			sec = coff.sections[section - 1]
+			wanted = bytes(coff.data[sec["raw"] + value:sec["raw"] + sec["size"]])
+			if wanted == b"\0":
+				continue  # "": a developer message of the original's that the repository leaves out
+		else:
+			continue
+		if not any(bytes(image[a - base:a - base + len(wanted)]) == wanted for a in operands):
+			problems.append(f"+0x{offset:X}: {target} ({wanted[:40]!r}) is read by no operand of the engine's function")
+	return problems
+
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("files", nargs="*")
@@ -86,12 +117,24 @@ def main():
 	pe = pefile.PE(str(ROOT / "orig" / args.version / "prototypeenginef.dll"), fast_load=True)
 	image = pe.get_memory_mapped_image()
 	base = pe.OPTIONAL_HEADER.ImageBase
+	sizes = {}
+	for line in (ROOT / "config" / args.version / "functions.tsv").read_text(encoding="utf-8").splitlines()[1:]:
+		fields = line.split("\t")
+		sizes[int(fields[0], 16)] = int(fields[1])
+	# a function split into chunks has only its first chunk's size in functions.tsv; symbols.txt gives the whole
+	for line in (ROOT / "config" / args.version / "symbols.txt").read_text(encoding="utf-8").splitlines():
+		match = re.match(r"\s*\S+\s*=\s*(0x[0-9A-Fa-f]+)\s*;\s*function\s+size:(0x[0-9A-Fa-f]+)", line)
+		if match:
+			address = int(match.group(1), 16)
+			sizes[address] = max(sizes.get(address, 0), int(match.group(2), 16))
 	checked = 0
 	failed = 0
+	literalsChecked = 0
+	literalsFailed = 0
 	for source in sources:
 		relative = source.relative_to(ROOT / "src").with_suffix(".obj")
 		objectPath = ROOT / "build" / args.version / "obj" / relative
-		wanted = [(a, s) for a, s in annotations(source) if s == "match"]
+		wanted = [(a, s) for a, s in annotations(source) if s in ("match", "equivalent")]
 		if not wanted:
 			continue
 		if not objectPath.exists():
@@ -101,8 +144,21 @@ def main():
 		coff = objcmp.Coff(objectPath)
 		defined = {n for n, v, s, st in coff.symbols if s > 0 and coff.sections[s - 1]["name"].startswith(".text")}
 		for address, status in wanted:
-			checked += 1
 			candidates = [n for n in names.get(address, []) if n in defined]
+			if status == "equivalent":
+				if not candidates or address not in sizes:
+					continue
+				literalsChecked += 1
+				problems = literalProblems(coff, candidates[0], image, base,
+					engineOperands(image, base, address, sizes[address]))
+				if problems:
+					literalsFailed += 1
+					print(f"{candidates[0]} vs 0x{address:08X} (EQUIVALENT): {len(problems)} literal(s) the engine's"
+						f" function does not read  [{source.relative_to(ROOT)}]")
+					for problem in problems:
+						print("  " + problem)
+				continue
+			checked += 1
 			if not candidates:
 				failed += 1
 				print(f"0x{address:08X} ({source.relative_to(ROOT)}): no symbol of this address in symbols.txt is"
@@ -127,8 +183,9 @@ def main():
 			if not args.quiet:
 				for line in diff[:60]:
 					print("  " + line)
-	print(f"{checked} checked, {failed} not matching")
-	sys.exit(1 if failed else 0)
+	print(f"{checked} checked, {failed} not matching; {literalsChecked} EQUIVALENT checked for their literals,"
+		f" {literalsFailed} reading a literal the engine's function does not")
+	sys.exit(1 if failed or literalsFailed else 0)
 
 
 if __name__ == "__main__":
