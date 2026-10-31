@@ -203,13 +203,14 @@ namespace mgraph
 		explicit Graph(const om::ClassName& newName);
 	};
 
-	class NodeTypeBase
+	// The description of a node class that creates its nodes (RTTI: mgraph::NodeTypeBase and mgraph::NodeType<N>, 0x30 bytes;
+	// the slots are the destructor, the creation of a node and the reflection of N)
+	class __declspec(align(8)) NodeTypeBase
 	{
 	public:
 		virtual ~NodeTypeBase();
-	};
-	template<class N> class NodeType : public NodeTypeBase
-	{
+
+		char unknown4[0x2C];
 	};
 
 	// 0x10AD1180: the description of the node class registered for the type_info (name guessed)
@@ -221,8 +222,20 @@ namespace mgraph
 		static NodeTypeBase* type;
 	};
 
-	// The description of the node class N, found once and kept (names of the two functions guessed)
-	template<class N> NodeTypeBase* GetNodeType()
+	template<class N> class NodeType : public NodeTypeBase
+	{
+	public:
+		// The description of the node class N, found once and kept (names of the two functions guessed)
+		static NodeTypeBase* Get();
+		// Destroys the description of the node class N (when the library shuts down)
+		static void Destroy();
+		OM_ALLOCATION(NodeType);
+	};
+	template<class N> const char* NodeType<N>::AllocationTag()
+	{
+		return "";
+	}
+	template<class N> NodeTypeBase* NodeType<N>::Get()
 	{
 		NodeTypeBase*& cache = NodeTypeCache<N>::type;
 		if (cache == 0)
@@ -231,8 +244,7 @@ namespace mgraph
 		}
 		return cache;
 	}
-	// Destroys the description of the node class N (when the library shuts down)
-	template<class N> void DestroyNodeType()
+	template<class N> void NodeType<N>::Destroy()
 	{
 		NodeTypeBase*& cache = NodeTypeCache<N>::type;
 		NodeTypeBase* type = cache;
@@ -271,15 +283,15 @@ namespace mgraph
 		}
 		virtual NodeTypeBase* GetPropertyNodeType()
 		{
-			return GetNodeType<PropertyNode<P> >();
+			return NodeType<PropertyNode<P> >::Get();
 		}
 		virtual NodeTypeBase* GetInletType()
 		{
-			return GetNodeType<Inlet<P> >();
+			return NodeType<Inlet<P> >::Get();
 		}
 		virtual NodeTypeBase* GetOutletType()
 		{
-			return GetNodeType<Outlet<P> >();
+			return NodeType<Outlet<P> >::Get();
 		}
 	};
 }

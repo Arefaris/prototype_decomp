@@ -6340,15 +6340,16 @@ of the property nodes and for the `MetaSimpleType` of the packets and arrays.
   showed it); `DynamicArray` allocates and releases with the alignment of its element (`unsigned __int64`: 8). Functions
   that had matched with the old sizes were copies of other classes' identical functions and were bound again.
 - `mgraph/nodes.h`: `PinDataTypeBase` / `PinDataType<P>` (the five slots: destructor, the reflection of the packet, and the node
-  types of the property node, the inlet and the outlet that carry such packets), and for each node class the two statics the
-  engine has (`mgraph::GetNodeType<N>()` finds the registered node type once and keeps it in `NodeTypeCache<N>::type`,
-  `mgraph::DestroyNodeType<N>()` deletes it; names guessed, 0x10AD1180 is the registry lookup `FindNodeType`). Only one of the
-  engine's two copies of each per class can carry the name.
+  types of the property node, the inlet and the outlet that carry such packets) and `NodeTypeBase` / `NodeType<N>` (0x30 bytes,
+  8-byte aligned): the allocation functions of `NodeType<N>` and its two statics (`Get` finds the registered node type once and keeps
+  it in `NodeTypeCache<N>::type`, `Destroy` deletes it; names guessed, 0x10AD1180 is the registry lookup `FindNodeType`). The
+  engine has two copies of `Get` per class in this range and the one before it; only one can carry the name. The binder orders
+  the identical functions of the 135 node classes of this translation unit by the order of their classes (Get, Destroy, `operator
+  new`, `AllocationTag`); the `operator delete` of `NodeType<N>` is not in this range.
 - Symbols: the type caches of `Vector`, `DynamicArray<bool>`, `<unsigned __int64>`, `<Vector>` and `<TriggerData>` are mapped.
   The tag of `DelegateMetaProperty<EnvelopeData const&>` is 0x10AE15A0 (sn-az had mapped an identical copy at 0x10AB25A0).
   `ReadArgument<String>` (a kept copy in this unit) calls the tag of another class, the engine's linker folded the identical
   tag functions: listed in keptcopies.txt.
-- Not done: the node classes' own statics (the 28-byte type-cache getters, the 42-byte releases of the cached type, `operator new` /
-  `delete` of the classes with sizes of 0x20 to 0x60) need layouts of the node classes; the base destructors of `MetaMethod0Base` /
+- Not done: the second copy of `NodeType<N>::Get` of each class (28 bytes, 142 functions); the base destructors of `MetaMethod0Base` /
   `MetaMethod1Base` (50 identical 7-byte functions, the class of each is not named by anything); the `Packet<T>` slots; the scalar
   deleting destructors (mapped only).
