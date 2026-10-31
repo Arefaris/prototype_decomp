@@ -32,7 +32,11 @@ namespace pure3d
 	{
 	public:
 		explicit ProtoToneMapPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x1075F500, the deleting destructor 0x1075FC60)
 		virtual ~ProtoToneMapPass();
+		// Slot 4 (0x1075FC80) and 5 (0x1075F510)
+		virtual void Render(PassContext* context);
+		virtual void Begin();
 	};
 
 	// The pass that blurs the picture (vftable 0x10E5EB68; 0x540 bytes, the constructor is 0x1075F090)
@@ -384,6 +388,16 @@ namespace pure3d
 
 		// 0x1075DAF0 (another unit)
 		bool SetParameterEnable(bool value);
+		// 0x1075F460, 0x1075F470, 0x1075F450, 0x1075F480, 0x1075F490, 0x1075F4C0: the passes it made
+		ProtoToneMapPass* GetToneMapPass();
+		ProtoBloomPass* GetBloomPass();
+		ProtoColourMatrixPass* GetColourMatrixPass();
+		ProtoThermalPass* GetThermalPass();
+		ProtoMotherPass* GetMotherPass();
+		BlurPass* GetBlurPass();
+		// 0x1075F4A0 / 0x1075F4B0: the pass kept at +0xFC
+		void SetPassFC(Pass* pass);
+		Pass* GetPassFC();
 
 		ProtoToneMapPass* toneMapPass;               // +0xE8
 		ProtoBloomPass* bloomPass;                   // +0xEC
@@ -402,7 +416,10 @@ namespace pure3d
 		float mixAmount;                             // +0x120
 		math::Vector colourMix;                      // +0x124
 		math::Vector alexColour;                     // +0x130
-		unsigned char unknown13C[0x10];
+		Texture* texture13C;
+		Texture* texture140;
+		Texture* texture144;
+		unsigned int unknown148;
 		ParameterHandler<ProtoFBPass> parameters;    // +0x14C
 	};
 }

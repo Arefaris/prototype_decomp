@@ -21,6 +21,14 @@ namespace pure3d
 	class Shader;
 	class Texture;
 
+	// Binds a texture to a texture constant: the engine takes the table before it marks the group
+	__forceinline void BindTextureConstant(int& slot, pddiSurface* surface)
+	{
+		pddiBaseContext::Constants* table = pddi->constants;
+		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
+		table->SetTexture(&slot, surface);
+	}
+
 	// 0x111BADD0: how many lights the shadow passes make room for
 	extern unsigned int gShadowLightCapacity;
 

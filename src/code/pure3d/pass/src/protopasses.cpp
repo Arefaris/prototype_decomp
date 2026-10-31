@@ -206,14 +206,12 @@ namespace pure3d
 		targets.colour = colour->GetHandle();
 		targets.depth = depth->GetHandle();
 		pddi->SetRenderTargets(&targets);
-		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
-		pddi->constants->SetTexture(&gConstantDecalColourBuffer, decalTarget->surface);
+		BindTextureConstant(gConstantDecalColourBuffer, decalTarget->surface);
 		unsigned int* texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
 		texture[1] = (texture[1] & 0xf8444754) | 0x444454;
 		texture = pddi->GetTextureConstant(gConstantDecalColourBuffer);
 		texture[1] = (texture[1] & 0xf8488bff) | 0x488800;
-		pddi->constantsDirty |= pddiBaseContext::CONSTANT_TEXTURE;
-		pddi->constants->SetTexture(&gConstantDecalNormalBuffer, 0);
+		BindTextureConstant(gConstantDecalNormalBuffer, 0);
 		texture = pddi->GetTextureConstant(gConstantDecalNormalBuffer);
 		texture[1] = (texture[1] & 0xf8444752) | 0x444452;
 		pddiSize* size = decalTarget->surface->info->size;

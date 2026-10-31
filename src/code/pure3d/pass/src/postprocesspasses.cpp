@@ -631,10 +631,10 @@ namespace pure3d
 		alexColour.x = engine::driving::gHalf;
 		alexColour.y = 0.0f;
 		alexColour.z = 0.0f;
-		unknown13C[0] = 0;
-		unknown13C[1] = 0;
-		unknown13C[2] = 0;
-		unknown13C[3] = 0;
+		texture13C = 0;
+		texture140 = 0;
+		texture144 = 0;
+		unknown148 = 0;
 		parameters.object = this;
 		parameters.AddBool(&engine::render::gParameterEnable, &ProtoFBPass::SetParameterEnable, 0);
 		toneMapPass = new ProtoToneMapPass(&PassDesc(&gPassNamePrototypeTonemap, 1));
@@ -1001,6 +1001,107 @@ namespace pure3d
 		parameters.AddVariableInline(&gParamDofAperture, &aperture);
 		parameters.object = this;
 		parameters.AddBool(&engine::render::gParameterEnable, &DepthOfFieldPass::SetParameterEnable, 0);
+	}
+}
+
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x1075F450
+	ProtoColourMatrixPass* ProtoFBPass::GetColourMatrixPass()
+	{
+		return colourMatrixPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F460
+	ProtoToneMapPass* ProtoFBPass::GetToneMapPass()
+	{
+		return toneMapPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F470
+	ProtoBloomPass* ProtoFBPass::GetBloomPass()
+	{
+		return bloomPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F480
+	ProtoThermalPass* ProtoFBPass::GetThermalPass()
+	{
+		return thermalPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F490
+	ProtoMotherPass* ProtoFBPass::GetMotherPass()
+	{
+		return motherPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F4A0
+	void ProtoFBPass::SetPassFC(Pass* pass)
+	{
+		unknownFC = pass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F4B0
+	Pass* ProtoFBPass::GetPassFC()
+	{
+		return unknownFC;
+	}
+
+	// FUNCTION: ENGINE 0x1075F4C0
+	BlurPass* ProtoFBPass::GetBlurPass()
+	{
+		return blurPass;
+	}
+
+	// FUNCTION: ENGINE 0x1075F200
+	void ProtoFBPass::Begin()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			CallIsVisible();
+		}
+		thermalPass->SetTextures(texture13C, texture140, texture144);
+		motherPass->SetTextures(texture13C, texture140, texture144);
+		blurPass->Begin();
+		bloomPass->Begin();
+		colourMatrixPass->Begin();
+		thermalPass->Begin();
+		motherPass->Begin();
+	}
+
+	// FUNCTION: ENGINE 0x1075F620
+	void ProtoFBPass::End()
+	{
+		core::SafeRelease(texture108);
+		core::SafeRelease(texture13C);
+		core::SafeRelease(texture140);
+		core::SafeRelease(texture144);
+		Pass::End();
+		blurPass->EndOnce();
+	}
+
+	// FUNCTION: ENGINE 0x1075F4D0
+	ParameterHandlerTypeless* ProtoFBPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x1075F4E0
+	ProtoToneMapPass::ProtoToneMapPass(const PassDesc* desc) : ToneMapPass(desc)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1075F500
+	ProtoToneMapPass::~ProtoToneMapPass()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1075F510
+	void ProtoToneMapPass::Begin()
+	{
+		ToneMapPass::Begin();
+		begun = 1;
 	}
 }
 

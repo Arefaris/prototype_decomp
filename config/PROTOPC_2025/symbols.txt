@@ -33392,3 +33392,17 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ??_GProtoShadowPass@pure3d@@UAEPAXI@Z = 0x10767A60 ; function size:0x1E | _GProtoShadowPass (vftable slot 0; name guess)
 ?Render@ProtoShadowPass@pure3d@@UAEXPAVPassContext@2@@Z = 0x10768280 ; function size:0x126 | Render (vftable slot 4; name guess)
 ??_R0?AVProtoShadowPass@pure3d@@@8 = 0x111B96C0 ; data | data RTTI type descriptor of .?AVProtoShadowPass@pure3d@@
+?GetColourMatrixPass@ProtoFBPass@pure3d@@QAEPAVProtoColourMatrixPass@2@XZ = 0x1075F450 ; function size:0x7 | ProtoFBPass::GetColourMatrixPass (name guess)
+?GetToneMapPass@ProtoFBPass@pure3d@@QAEPAVProtoToneMapPass@2@XZ = 0x1075F460 ; function size:0x7 | ProtoFBPass::GetToneMapPass (name guess)
+?GetBloomPass@ProtoFBPass@pure3d@@QAEPAVProtoBloomPass@2@XZ = 0x1075F470 ; function size:0x7 | ProtoFBPass::GetBloomPass (name guess)
+?GetThermalPass@ProtoFBPass@pure3d@@QAEPAVProtoThermalPass@2@XZ = 0x1075F480 ; function size:0x7 | ProtoFBPass::GetThermalPass (name guess)
+?GetMotherPass@ProtoFBPass@pure3d@@QAEPAVProtoMotherPass@2@XZ = 0x1075F490 ; function size:0x7 | ProtoFBPass::GetMotherPass (name guess)
+?SetPassFC@ProtoFBPass@pure3d@@QAEXPAVPass@2@@Z = 0x1075F4A0 ; function size:0xD | ProtoFBPass::SetPassFC (name guess)
+?GetPassFC@ProtoFBPass@pure3d@@QAEPAVPass@2@XZ = 0x1075F4B0 ; function size:0x7 | ProtoFBPass::GetPassFC (name guess)
+?GetBlurPass@ProtoFBPass@pure3d@@QAEPAVBlurPass@2@XZ = 0x1075F4C0 ; function size:0x7 | ProtoFBPass::GetBlurPass (name guess)
+??1ProtoToneMapPass@pure3d@@UAE@XZ = 0x1075F500 ; function size:0xB | ProtoToneMapPass::~ProtoToneMapPass (name guess)
+?Begin@ProtoToneMapPass@pure3d@@UAEXXZ = 0x1075F510 ; function size:0xE | ProtoToneMapPass::Begin (name guess)
+??_GProtoToneMapPass@pure3d@@UAEPAXI@Z = 0x1075FC60 ; function size:0x1E | _GProtoToneMapPass (vftable slot 0; name guess)
+?Render@ProtoToneMapPass@pure3d@@UAEXPAVPassContext@2@@Z = 0x1075FC80 ; function size:0x93B | Render (vftable slot 4; name guess)
+??_R0?AVProtoToneMapPass@pure3d@@@8 = 0x111B9280 ; data | data RTTI type descriptor of .?AVProtoToneMapPass@pure3d@@
+
