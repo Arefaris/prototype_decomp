@@ -59962,5 +59962,3 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?GetClearOnBegin@ChargeClearTrack@motion@fightitems@proto@@QBE_NXZ = 0x100A0B90 ; function size:0x4 | kept template or inline copy of this unit
 ??1PropertyTypeBitfield@fight@@QAE@XZ = 0x100A2E50 ; function size:0x1 | kept template or inline copy of this unit
 ??1PropertyTypeNameList@fight@@QAE@XZ = 0x100A2EB0 ; function size:0x1 | kept template or inline copy of this unit
-??__FemptyEntry@?1??GetEntry@?$PropertyBitfieldConstList@VDetectObbCollisionCondition@motion@fightitems@proto@@@fight@@UAEPBUEnumEntry@2@PAXH@Z@YAXXZ = 0x100A2EC0 ; function size:0x1 | kept template or inline copy of this unit
-??__FemptyEntry@?1??GetEntry@?$PropertyBitfieldConstList@VCollisionHitTrack@motion@fightitems@proto@@@fight@@UAEPBUEnumEntry@2@PAXH@Z@YAXXZ = 0x100A85D0 ; function size:0x1 | kept template or inline copy of this unit
