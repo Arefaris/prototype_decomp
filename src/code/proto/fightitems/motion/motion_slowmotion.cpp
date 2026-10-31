@@ -142,6 +142,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SlowMotionTrack>;
 			template class fight::PropertyBool<SlowMotionTrack>;
 			template class fight::TrackFactoryTemplate<SlowMotionTrack>;

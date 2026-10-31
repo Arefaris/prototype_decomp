@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -79,6 +81,25 @@ namespace proto
 			fight::TrackFactory* CreateMotionStateTrackFactory(const char* name);
 			void RegisterMotionStateTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::MotionStateAction (9 vftable slots, 0x2C bytes)
+			class MotionStateAction : public fight::Action
+			{
+			public:
+				// 0x10119D90
+				MotionStateAction(MotionStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10119C00
+				virtual ~MotionStateAction();
+
+				// vftable slot 5 (0x10119E40)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<MotionStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

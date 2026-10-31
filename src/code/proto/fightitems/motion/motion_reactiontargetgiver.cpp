@@ -79,6 +79,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionTargetGiverTrack>;
 			template class fight::TrackFactoryTemplate<ReactionTargetGiverTrack>;
 			template class fight::TrackFactoryCasterTemplate<ReactionTargetGiverTrack>;

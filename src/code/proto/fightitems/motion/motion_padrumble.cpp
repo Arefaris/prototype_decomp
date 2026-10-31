@@ -329,6 +329,72 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101008D0
+			PadRumbleRefAction::PadRumbleRefAction(fight::Track* listener, PadRumbleRefTrack* newTrack, int newEffect, core::IRefCount* newOwner) : fight::Action(0x760), link(newTrack), effect(newEffect), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10100440
+			PadRumbleRefAction::~PadRumbleRefAction()
+			{
+				core::SafeReleaseRef(owner);
+				sequencer.End();
+			}
+
+			// FUNCTION: ENGINE 0x10100150
+			fight::Sequencer* PadRumbleRefAction::GetChild()
+			{
+				return &sequencer;
+			}
+
+			// FUNCTION: ENGINE 0x101009A0
+			bool PadRumbleRefAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				fight::Branch* branch = link.object->branch.GetBranch();
+				if (branch == 0)
+				{
+					return false;
+				}
+				sequencer.SetPending(branch, effect, owner, 0);
+				return sequencer.Unknown105A45A0(true);
+			}
+
+			// FUNCTION: ENGINE 0x10100160
+			void PadRumbleRefAction::Slot6()
+			{
+				sequencer.Reset();
+			}
+
+			// FUNCTION: ENGINE 0x10100B40
+			fight::Action* PadRumbleRefTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new PadRumbleRefAction(listener, this, (int)effect, owner);
+			}
+
+			// FUNCTION: ENGINE 0x101005B0
+			PadRumbleClearAction::PadRumbleClearAction(PadRumbleClearTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101003A0
+			PadRumbleClearAction::~PadRumbleClearAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101009F0
+			fight::Action* PadRumbleClearTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PadRumbleClearAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<PadRumbleSetTrack>;
 			template class fight::PropertyEnumConstList<PadRumbleSetTrack>;
 			template class fight::PropertyBool<PadRumbleSetTrack>;
@@ -346,6 +412,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10100210
+// FUNCTION: ENGINE 0x10100230
+// FUNCTION: ENGINE 0x10100270
+// FUNCTION: ENGINE 0x101002D0
+// FUNCTION: ENGINE 0x10100630
+// FUNCTION: ENGINE 0x10100970
 // FUNCTION: ENGINE 0x10199CD0
 // FUNCTION: ENGINE 0x10199D00
 // FUNCTION: ENGINE 0x10199D30

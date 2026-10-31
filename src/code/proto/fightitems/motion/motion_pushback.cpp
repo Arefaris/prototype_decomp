@@ -224,6 +224,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<PushbackVelocityCondition>;
 			template class fight::PropertyFloatConstRange<PushbackVelocityCondition>;
 			template class fight::ConditionFactoryTemplate<PushbackVelocityCondition>;

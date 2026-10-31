@@ -370,6 +370,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<RadialBlurTrack>;
 			template class fight::PropertyVector<RadialBlurTrack>;
 			template class fight::PropertyEnumConstList<RadialBlurTrack>;

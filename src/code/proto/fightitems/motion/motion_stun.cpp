@@ -164,6 +164,39 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1011A2B0
+			StunAction::StunAction(StunTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget), unknown2C(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011A160
+			StunAction::~StunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011A4C0
+			fight::Action* StunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new StunAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011A190
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (61.4 %)
+			bool StunnedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetStunnedMovementMessage message;
+					object->SendMessage(&message);
+					return stunned == message.stunned;
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<StunnedCondition>;
 			template class fight::ConditionFactoryTemplate<StunnedCondition>;
 			template class fight::ConditionFactoryCasterTemplate<StunnedCondition>;
@@ -176,6 +209,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10119F60
+// FUNCTION: ENGINE 0x10119F70
+// FUNCTION: ENGINE 0x1011A090
+// FUNCTION: ENGINE 0x1011A0C0
+// FUNCTION: ENGINE 0x1011A0F0
+// FUNCTION: ENGINE 0x1011A320
 // FUNCTION: ENGINE 0x101B6AF0
 // FUNCTION: ENGINE 0x101B6B20
 // FUNCTION: ENGINE 0x101B6B50

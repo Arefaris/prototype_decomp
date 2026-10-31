@@ -107,6 +107,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SlaveTransformTrack>;
 			template class fight::PropertyName<SlaveTransformTrack>;
 			template class fight::PropertyVector<SlaveTransformTrack>;

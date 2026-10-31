@@ -174,6 +174,63 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x10119D90
+			MotionStateAction::MotionStateAction(MotionStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10119C00
+			MotionStateAction::~MotionStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10119EE0
+			fight::Action* MotionStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new MotionStateAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10119E40
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (74.6 %)
+			bool MotionStateAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetMotionStateMsg message(link.object->state, link.object->name);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10119C30
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (32.3 %)
+			bool MotionStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetMotionStateMsg message;
+					object->SendMessage(&message);
+					bool equal = message.state == state;
+					if (equal)
+					{
+						if (!name.IsEmpty())
+						{
+							equal = message.name == name;
+						}
+					}
+					return match == equal;
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<MotionStateCondition>;
 			template class fight::PropertyNameList<MotionStateCondition>;
 			template class fight::PropertyBool<MotionStateCondition>;
@@ -189,6 +246,14 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10119A50
+// FUNCTION: ENGINE 0x10119AB0
+// FUNCTION: ENGINE 0x10119AF0
+// FUNCTION: ENGINE 0x10119B00
+// FUNCTION: ENGINE 0x10119B30
+// FUNCTION: ENGINE 0x10119B80
+// FUNCTION: ENGINE 0x10119BB0
+// FUNCTION: ENGINE 0x10119E10
 // FUNCTION: ENGINE 0x101B6150
 // FUNCTION: ENGINE 0x101B6160
 // FUNCTION: ENGINE 0x101B6190

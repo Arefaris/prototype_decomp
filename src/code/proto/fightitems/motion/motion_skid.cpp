@@ -383,6 +383,75 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10114B80
+			SkidAction::SkidAction(SkidTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10114920
+			SkidAction::~SkidAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x10115B70
+			fight::Action* SkidTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SkidAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10115150
+			// EQUIVALENT: scheduling, the store of the driver word comes before the store of the target in ours (74.6 %)
+			SkidPedalAction::SkidPedalAction(SkidPedalTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101149F0
+			SkidPedalAction::~SkidPedalAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x10115BC0
+			fight::Action* SkidPedalTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SkidPedalAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10114960
+			void SkidAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10114A30
+			void SkidPedalAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy3(driver);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SkidTrack>;
 			template class fight::PropertyIntConstRange<SkidTrack>;
 			template class fight::TrackFactoryTemplate<SkidTrack>;
@@ -397,6 +466,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10114800
+// FUNCTION: ENGINE 0x10114820
+// FUNCTION: ENGINE 0x10114850
+// FUNCTION: ENGINE 0x101148B0
+// FUNCTION: ENGINE 0x10114C00
+// FUNCTION: ENGINE 0x101151F0
 // FUNCTION: ENGINE 0x101B2740
 // FUNCTION: ENGINE 0x101B2860
 // FUNCTION: ENGINE 0x101B2870

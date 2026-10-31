@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -73,6 +74,40 @@ namespace proto
 			fight::TrackFactory* CreateScenarioEventRadioAttemptTrackFactory(const char* name);
 			void RegisterScenarioEventRadioAttemptTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::RadioHQAction (9 vftable slots, 0x2C bytes)
+			class RadioHQAction : public fight::Action
+			{
+			public:
+				// 0x10105DB0
+				RadioHQAction(RadioHQTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10105C80
+				virtual ~RadioHQAction();
+
+				// vftable slot 5 (0x10105E60)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<RadioHQTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::ScenarioEventRadioAttemptAction (9 vftable slots, 0x2C bytes)
+			class ScenarioEventRadioAttemptAction : public fight::Action
+			{
+			public:
+				// 0x10106020
+				ScenarioEventRadioAttemptAction(ScenarioEventRadioAttemptTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10105CD0
+				virtual ~ScenarioEventRadioAttemptAction();
+
+				// vftable slot 5 (0x10105A80)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ScenarioEventRadioAttemptTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

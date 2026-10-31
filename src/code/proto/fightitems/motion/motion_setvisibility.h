@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -51,6 +52,26 @@ namespace proto
 			fight::TrackFactory* CreateSetVisibilityTrackFactory(const char* name);
 			void RegisterSetVisibilityTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SetVisibilityAction (9 vftable slots, 0x2C bytes)
+			class SetVisibilityAction : public fight::Action
+			{
+			public:
+				// 0x1010EC00
+				SetVisibilityAction(SetVisibilityTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1010EA80
+				virtual ~SetVisibilityAction();
+
+				// vftable slot 5 (0x1010ECB0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1010EDA0)
+				virtual void Slot6();
+
+				core::Link<SetVisibilityTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

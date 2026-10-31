@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -126,6 +127,61 @@ namespace proto
 			fight::TrackFactory* CreateSkidPedalTrackFactory(const char* name);
 			void RegisterSkidPedalTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SkidAction (9 vftable slots, 0x2C bytes)
+			class SkidAction : public fight::Action
+			{
+			public:
+				// 0x10114B80
+				SkidAction(SkidTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10114920
+				virtual ~SkidAction();
+
+				// vftable slot 5 (0x10114C30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10114960)
+				virtual void Slot6();
+				// vftable slot 7 (0x10114EE0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SkidTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				unsigned char unknown3C[0xC];
+			};
+
+			// RTTI: proto::fightitems::motion::SkidPedalAction (9 vftable slots, 0x2C bytes)
+			class SkidPedalAction : public fight::Action
+			{
+			public:
+				// 0x10115150
+				SkidPedalAction(SkidPedalTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101149F0
+				virtual ~SkidPedalAction();
+
+				// vftable slot 5 (0x10115220)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10114A30)
+				virtual void Slot6();
+				// vftable slot 7 (0x10115680)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SkidPedalTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+				float unknown48;  // +0x48
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -183,6 +183,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SpecialistDodgeTrack>;
 			template class fight::PropertyIntConstRange<SpecialistDodgeTrack>;
 			template class fight::PropertyTrackGroup<SpecialistDodgeTrack>;

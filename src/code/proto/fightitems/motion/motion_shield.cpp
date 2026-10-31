@@ -445,6 +445,139 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x1010F8C0
+			ShieldSetStateAction::ShieldSetStateAction(ShieldSetStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F660
+			ShieldSetStateAction::~ShieldSetStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010FBE0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
+			fight::Action* ShieldSetStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ShieldSetStateAction(this, actionOwner->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1010FA00
+			ShieldReflectAction::ShieldReflectAction(ShieldReflectTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F7B0
+			ShieldReflectAction::~ShieldReflectAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010FC40
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
+			fight::Action* ShieldReflectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ShieldReflectAction(this, actionOwner->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1010F970
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.1 %)
+			bool ShieldSetStateAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ShieldSetStateMessage message(link.object->state);
+						object->SendMessage(&message);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010FAB0
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.2 %)
+			bool ShieldReflectAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ShieldReflectStartMessage message(link.object->reflectBullets, link.object->reflectMissiles);
+						object->SendMessage(&message);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010FB50
+			void ShieldReflectAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ShieldReflectStopMessage message(link.object->reflectBullets, link.object->reflectMissiles);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1010F590
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.6 %)
+			bool ShieldStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ShieldGetStateMessage message(6);
+					object->SendMessage(&message);
+					return state == message.state;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010F4E0
+			bool ShieldProtectingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ShieldGetStateMessage message(6);
+					object->SendMessage(&message);
+					if (message.state != 6 && message.state != 5)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010F3D0
+			// EQUIVALENT: operand order of the two comiss compares (the same comparisons) (94.0 %)
+			bool ShieldHealthCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ShieldGetHealthMessage message;
+					object->SendMessage(&message);
+					if (message.health >= 0.0f && message.maxHealth >= 0.0f)
+					{
+						float percentage = message.health / message.maxHealth;
+						float limit = healthPercentage;
+						return fight::CompareFloats(compare, &percentage, &limit);
+					}
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<ShieldHealthCondition>;
 			template class fight::PropertyFloatConstRange<ShieldHealthCondition>;
 			template class fight::ConditionFactoryTemplate<ShieldHealthCondition>;
@@ -470,6 +603,25 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1010EF80
+// FUNCTION: ENGINE 0x1010EFC0
+// FUNCTION: ENGINE 0x1010EFD0
+// FUNCTION: ENGINE 0x1010F000
+// FUNCTION: ENGINE 0x1010F010
+// FUNCTION: ENGINE 0x1010F050
+// FUNCTION: ENGINE 0x1010F060
+// FUNCTION: ENGINE 0x1010F0A0
+// FUNCTION: ENGINE 0x1010F150
+// FUNCTION: ENGINE 0x1010F180
+// FUNCTION: ENGINE 0x1010F1B0
+// FUNCTION: ENGINE 0x1010F1E0
+// FUNCTION: ENGINE 0x1010F210
+// FUNCTION: ENGINE 0x1010F2D0
+// FUNCTION: ENGINE 0x1010F2F0
+// FUNCTION: ENGINE 0x1010F320
+// FUNCTION: ENGINE 0x1010F380
+// FUNCTION: ENGINE 0x1010F940
+// FUNCTION: ENGINE 0x1010FA80
 // FUNCTION: ENGINE 0x101ABD50
 // FUNCTION: ENGINE 0x101ABD80
 // FUNCTION: ENGINE 0x101ABDB0

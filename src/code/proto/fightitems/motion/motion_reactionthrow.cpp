@@ -338,6 +338,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionThrowSpinAngleCondition>;
 			template class fight::ConditionFactoryTemplate<ReactionThrowSpinAngleCondition>;
 			template class fight::ConditionFactoryCasterTemplate<ReactionThrowSpinAngleCondition>;

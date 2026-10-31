@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -583,6 +584,62 @@ namespace proto
 			fight::TrackFactory* CreateShootTakeAmmoFromParentTrackFactory(const char* name);
 			void RegisterShootTakeAmmoFromParentTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// RTTI: proto::fightitems::motion::ShootSwitchWeaponConfigurationAction (9 vftable slots, 0x2C bytes)
+			class ShootSwitchWeaponConfigurationAction : public fight::Action
+			{
+			public:
+				// 0x10113C80
+				ShootSwitchWeaponConfigurationAction(ShootSwitchWeaponConfigurationTrack* newTrack, engine::GameObjectHandle newTarget);
+				// no destructor of its own: the compiler's, which the scalar deleting destructor inlines
+
+				// vftable slot 5 (0x10113D70)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ShootSwitchWeaponConfigurationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::ShootAutoTargetAction (9 vftable slots, 0x3C bytes)
+			class ShootAutoTargetAction : public fight::Action
+			{
+			public:
+				// 0x10113510
+				ShootAutoTargetAction(ShootAutoTargetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10111D80
+				virtual ~ShootAutoTargetAction();
+
+				// vftable slot 5 (0x101135C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 7 (0x10113660)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ShootAutoTargetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				bool unknown38;  // +0x38
+				unsigned char unknown39[0x3];
+			};
+
+			// RTTI: proto::fightitems::motion::ShootSelectWeaponConfigurationAction (9 vftable slots, 0x2C bytes)
+			class ShootSelectWeaponConfigurationAction : public fight::Action
+			{
+			public:
+				// 0x10113A50
+				ShootSelectWeaponConfigurationAction(ShootSelectWeaponConfigurationTrack* newTrack, engine::GameObjectHandle newTarget);
+				// no destructor of its own: the compiler's, which the scalar deleting destructor inlines
+
+				// vftable slot 5 (0x10113B40)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ShootSelectWeaponConfigurationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

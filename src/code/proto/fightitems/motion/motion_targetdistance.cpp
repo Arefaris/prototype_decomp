@@ -353,6 +353,9 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<TargetDistanceCondition>;
 			template class fight::PropertyFloatConstRange<TargetDistanceCondition>;
 			template class fight::ConditionFactoryTemplate<TargetDistanceCondition>;

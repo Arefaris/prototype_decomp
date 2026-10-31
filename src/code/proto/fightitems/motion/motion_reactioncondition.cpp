@@ -1604,6 +1604,193 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			static inline ReactionEvent* AsEvent(int value)
+			{
+				return (ReactionEvent*)value;
+			}
+
+			static inline ReactionGrabEvent* AsGrabEvent(ReactionEvent* event)
+			{
+				if (event == 0)
+				{
+					return 0;
+				}
+				return (event->kind == 0x21002) ? (ReactionGrabEvent*)event : 0;
+			}
+
+			static inline ReactionHitEvent* AsHitEvent(ReactionEvent* event)
+			{
+				return (event != 0 && event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
+			}
+
+			static inline ReactionThrowEvent* AsThrowEvent(ReactionEvent* event)
+			{
+				return (event != 0 && event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
+			}
+
+			static inline ReactionScriptedEvent* AsScriptedEvent(ReactionEvent* event)
+			{
+				return (event != 0 && event->kind == 0x21004) ? (ReactionScriptedEvent*)event : 0;
+			}
+
+			// FUNCTION: ENGINE 0x10106730
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), ours has a redundant xor before the setcc (33.3 %)
+			bool ReactionHitDamageTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					bool equal = hit->damageType == damageType;
+					return doesMatch == equal;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101066C0
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), the flag compare goes through a register in ours (44.4 %)
+			bool ReactionHitAttackTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					return ((hit->attackType == attackType) == doesMatch) ? true : false;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10106700
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (51.4 %)
+			bool ReactionHitFromMuscleMassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					return (hit->muscleMass == muscleMassActive) ? true : false;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10106860
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
+			bool ReactionHitHitTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					return ((hit->hitType == hitType) == doesMatch) ? true : false;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101068A0
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
+			bool ReactionThrowHitTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionThrowEvent* thrown = AsThrowEvent(AsEvent(c));
+				if (thrown != 0)
+				{
+					return ((thrown->hitType == hitType) == doesMatch) ? true : false;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101068E0
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), setcc through edx in ours (43.8 %)
+			bool ReactionHitCollisionFlagCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					return ((hit->collisionFlag == collisionFlag) == doesMatch) ? true : false;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10106A50
+			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.8 %)
+			bool ReactionScriptedSubTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionScriptedEvent* scripted = AsScriptedEvent(AsEvent(c));
+				if (scripted != 0)
+				{
+					return scripted->subType == subType;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101067F0
+			bool ReactionGrabTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				return (AsGrabEvent(AsEvent(c))->isGrabbed == isGrabbed) ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x10106930
+			// EQUIVALENT: block order and the register of the compare operator (27.0 %)
+			bool ReactionHitDamageCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					float value = 0.0f;
+					switch (type)
+					{
+					case 0:
+						value = hit->damage;
+						break;
+					case 1:
+						value = hit->damageRatio;
+						break;
+					}
+					float limit = damage;
+					return fight::CompareFloats(compare, &value, &limit);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101069B0
+			// EQUIVALENT: block order, the two failure returns are shared in the engine, register of the compare operator (9.2 %)
+			bool ReactionHitChargeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionEvent* event = AsEvent(c);
+				if (event == 0)
+				{
+					return false;
+				}
+				ReactionHitEvent* hit = (event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
+				ReactionThrowEvent* thrown = (event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
+				float value;
+				if (hit != 0)
+				{
+					value = hit->charge;
+				}
+				else
+				{
+					if (thrown == 0)
+					{
+						return false;
+					}
+					value = thrown->charge;
+				}
+				float limit = charge;
+				return fight::CompareFloats(compare, &value, &limit);
+			}
+
+			// FUNCTION: ENGINE 0x10106770
+			// EQUIVALENT: block order and scheduling of the argument loads (25.5 %)
+			bool ReactionHitImpulseCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					math::Vector vector = hit->impulse;
+					return fight::CompareVectorMeasure(compare, &vector, direction, impulse);
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<ReactionEventConditionGroupCondition>;
 			template class fight::PropertyConditionGroup<ReactionEventConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<ReactionEventConditionGroupCondition>;

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -420,6 +421,93 @@ namespace proto
 			fight::TrackFactory* CreateCharacterCloudStateTrackFactory(const char* name);
 			void RegisterCharacterCloudStateTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SetPedestrianReadyForDowngradeAction (9 vftable slots, 0x2C bytes)
+			class SetPedestrianReadyForDowngradeAction : public fight::Action
+			{
+			public:
+				// 0x10103B40
+				SetPedestrianReadyForDowngradeAction(SetPedestrianReadyForDowngradeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10102AC0
+				virtual ~SetPedestrianReadyForDowngradeAction();
+
+				// vftable slot 5 (0x10103BF0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetPedestrianReadyForDowngradeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::SpreadPedestrianAlertStateAction (9 vftable slots, 0x2C bytes)
+			class SpreadPedestrianAlertStateAction : public fight::Action
+			{
+			public:
+				// 0x101035D0
+				SpreadPedestrianAlertStateAction(SpreadPedestrianAlertStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101029D0
+				virtual ~SpreadPedestrianAlertStateAction();
+
+				// vftable slot 7 (0x10103670)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SpreadPedestrianAlertStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+				int unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::SetPedestrianAlertStateAction (9 vftable slots, 0x2C bytes)
+			class SetPedestrianAlertStateAction : public fight::Action
+			{
+			public:
+				// 0x101038A0
+				SetPedestrianAlertStateAction(SetPedestrianAlertStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10102A20
+				virtual ~SetPedestrianAlertStateAction();
+
+				// vftable slot 5 (0x10103950)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetPedestrianAlertStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::SetPedestrianStateAction (9 vftable slots, 0x2C bytes)
+			class SetPedestrianStateAction : public fight::Action
+			{
+			public:
+				// 0x101039F0
+				SetPedestrianStateAction(SetPedestrianStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10102A70
+				virtual ~SetPedestrianStateAction();
+
+				// vftable slot 5 (0x10103AA0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetPedestrianStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::CharacterCloudStateAction (9 vftable slots, 0x2C bytes)
+			class CharacterCloudStateAction : public fight::Action
+			{
+			public:
+				// 0x10103460
+				CharacterCloudStateAction(CharacterCloudStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10102980
+				virtual ~CharacterCloudStateAction();
+
+				// vftable slot 5 (0x10103500)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10102360)
+				virtual void Slot6();
+
+				core::Link<CharacterCloudStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

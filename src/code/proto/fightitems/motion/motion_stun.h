@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -76,6 +78,28 @@ namespace proto
 			fight::TrackFactory* CreateStunTrackFactory(const char* name);
 			void RegisterStunTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::StunAction (9 vftable slots, 0x2C bytes)
+			class StunAction : public fight::Action
+			{
+			public:
+				// 0x1011A2B0
+				StunAction(StunTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011A160
+				virtual ~StunAction();
+
+				// vftable slot 5 (0x1011A350)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1011A440)
+				virtual void Slot6();
+
+				core::Link<StunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+			};
+
+			// ---- actions end
 		}
 	}
 }

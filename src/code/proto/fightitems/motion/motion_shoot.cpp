@@ -1613,6 +1613,49 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x10113C80
+			ShootSwitchWeaponConfigurationAction::ShootSwitchWeaponConfigurationAction(ShootSwitchWeaponConfigurationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10114520
+			fight::Action* ShootSwitchWeaponConfigurationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ShootSwitchWeaponConfigurationAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10113510
+			// EQUIVALENT: scheduling, the engine stores the flag byte after the three floats (81.6 %)
+			ShootAutoTargetAction::ShootAutoTargetAction(ShootAutoTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xA00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f)
+			{
+				unknown38 = false;
+			}
+
+			// FUNCTION: ENGINE 0x10111D80
+			ShootAutoTargetAction::~ShootAutoTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10114480
+			fight::Action* ShootAutoTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ShootAutoTargetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10113A50
+			ShootSelectWeaponConfigurationAction::ShootSelectWeaponConfigurationAction(ShootSelectWeaponConfigurationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101144D0
+			fight::Action* ShootSelectWeaponConfigurationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ShootSelectWeaponConfigurationAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<ShootCheckAmmoCountCondition>;
 			template class fight::PropertyNameList<ShootCheckAmmoCountCondition>;
 			template class fight::PropertyEnumConstList<ShootCheckAmmoCountCondition>;
@@ -1693,6 +1736,15 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10110E60
+// FUNCTION: ENGINE 0x10110E80
+// FUNCTION: ENGINE 0x10110FC0
+// FUNCTION: ENGINE 0x10111070
+// FUNCTION: ENGINE 0x101110D0
+// FUNCTION: ENGINE 0x10111140
+// FUNCTION: ENGINE 0x10113590
+// FUNCTION: ENGINE 0x10113B00
+// FUNCTION: ENGINE 0x10113D30
 // FUNCTION: ENGINE 0x101ADD80
 // FUNCTION: ENGINE 0x101AE0E0
 // FUNCTION: ENGINE 0x101AE310
