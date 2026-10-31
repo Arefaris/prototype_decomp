@@ -9,6 +9,7 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace proto
 {
@@ -42,6 +43,19 @@ namespace proto
 		};
 	};
 
+	// Turns the broadcast of the state to the scenario on or off (id 0xC)
+	struct SetBroadcastMotionStateMsg : public CharacterMotionMessage
+	{
+		explicit SetBroadcastMotionStateMsg(bool newBroadcast) : CharacterMotionMessage(0xc), broadcast(newBroadcast)
+		{
+		}
+		virtual ~SetBroadcastMotionStateMsg()
+		{
+		}
+
+		bool broadcast;  // +0xC
+	};
+
 	class MotionStateBehaviour : public engine::Behaviour
 	{
 	public:
@@ -54,6 +68,13 @@ namespace proto
 
 		// vftable slot 6 (0x100759F0)
 		virtual void OnMessage(engine::Message* message);
+
+		// 0x10075880: forgets the state
+		void Reset();
+		// 0x10075590: turns the broadcast on or off
+		void SetBroadcast(bool broadcast);
+		// 0x10075780: takes a new state and tells the scenario and the fight system of it
+		void SetState(int newState, const core::Name<core::CaseSensitiveKey>& newName);
 
 		unsigned char unknownC[4];
 		core::Name<core::CaseSensitiveKey> name;  // +0x10

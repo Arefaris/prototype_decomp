@@ -67038,3 +67038,7 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?IsValidCollision@CollisionActionBehaviour@proto@@QAEXPAVIsValidCollisionMessage@2@@Z = 0x100654D0 ; function size:0x61 | public: void __thiscall proto::CollisionActionBehaviour::IsValidCollision(class proto::IsValidCollis (name guess)
 ?InsertCollider@CollisionActionBehaviour@proto@@QAEXH@Z = 0x10065880 ; function size:0x9A | public: void __thiscall proto::CollisionActionBehaviour::InsertCollider(int) (name guess)
 ?gZero@driving@engine@@3MB = 0x10D94F78 ; data size:0x4 | engine::driving::gZero: 0.0f in the pooled constants (name guess)
+?ApplyAnchor@AnchorToGroundBehaviour@proto@@QAEX_N0@Z = 0x10061900 ; function size:0xF1 | proto::AnchorToGroundBehaviour::ApplyAnchor (name guess)
+?SetState@MotionStateBehaviour@proto@@QAEXHABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x10075780 ; function size:0xCC | proto::MotionStateBehaviour::SetState (name guess)
+?SetBroadcast@MotionStateBehaviour@proto@@QAEX_N@Z = 0x10075590 ; function size:0xA | public: void __thiscall proto::MotionStateBehaviour::SetBroadcast(bool) (name guess)
+?Reset@MotionStateBehaviour@proto@@QAEXXZ = 0x10075880 ; function size:0x28 | public: void __thiscall proto::MotionStateBehaviour::Reset(void) (name guess)

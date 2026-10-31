@@ -56,6 +56,46 @@ namespace proto
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10075880
+	void MotionStateBehaviour::Reset()
+	{
+		motionState = MotionState::STATE_NOT_SET;
+		name = core::Name<core::CaseSensitiveKey>();
+		unknown1C = false;
+	}
+
+	// FUNCTION: ENGINE 0x10075590
+	void MotionStateBehaviour::SetBroadcast(bool broadcast)
+	{
+		unknown1C = broadcast;
+	}
+
+	// FUNCTION: ENGINE 0x100759F0
+	void MotionStateBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+			Reset();
+			break;
+		case 0x21:
+			switch ((unsigned short)message->id)
+			{
+			case 0xc:
+				SetBroadcast(static_cast<SetBroadcastMotionStateMsg*>(message)->broadcast);
+				break;
+			case 0xb:
+				static_cast<GetMotionStateMsg*>(message)->state = motionState;
+				static_cast<GetMotionStateMsg*>(message)->name = name;
+				break;
+			case 0xa:
+				SetState(static_cast<SetMotionStateMsg*>(message)->kind, static_cast<SetMotionStateMsg*>(message)->name);
+				break;
+			}
+			break;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10075550
 	content::ClassInfo* MotionStateBehaviour::GetClassInfo()
 	{
