@@ -5480,7 +5480,7 @@ Findings:
 - `src/code/engine/render/effectcontroller.*` (0x10849610 - 0x108496B0): `engine::EffectController` (RefCounted base, the
   effects of an action: five handles that `StopAll` stops at once; slot 4 is pure). 4 functions match; the dust controller of
   the driving unit derives from it.
-- `src/code/engine/render/renderqueue.cpp` (0x1085FDB0 - 0x1086000): the constructor, destructor, `Send`, `Peek`,
+- `src/code/engine/render/renderqueue.cpp` (0x1085FDB0 - 0x10860000): the constructor, destructor, `Send`, `Peek`,
   `WaitPeek` and `Pop` of `RenderQueue` (6 match; `Pop` leaves the lock taken, as the engine's does).
 - `src/code/engine/system/worldstreammanager.*` (0x108540E0 - 0x108543B0, 0x108547D0): `WorldStreamManager` (a `StreamClient`
   for the world cells, 0x54 bytes): constructor, destructor, `Reset`, `Load`, `Unload`, the making and the getter, and the
@@ -5499,7 +5499,8 @@ Findings:
   "service pump" is the `GameLinkManager` the global at 0x11315388 points to, its `Update` slot takes the same
   `UpdateContext`), `NetMessageAllocator`'s constructor (netmessage.h; the abstract bases of the net messages'
   allocators), the `PropSpawner` dynamic caster, `DivideNumberByVector` (luavector.cpp, EQUIVALENT 91.8 %) and
-  `ResetObjectCollisions` (decals.cpp).
+  `ResetObjectCollisions` (decals.cpp) and the audio files' `StreamServer` (audio/streamserver.*: the base's constructor and
+  empty slot are the engine's inline copies; `GetPath` is EQUIVALENT, 98.2 %: the order of two string destructors).
 - Not done in the range (what blocks each): the OLS lifecycle (0x10844260 - 0x10844C20: the services it owns at +0x78 - +0xA8
   have no names), the audio dialogue classes and the om property / command templates of 0x10855000 - 0x1085B7B0 (the
   `AudioMixer` members they use are unnamed; the red-black tree insertions per key type are NONMATCHING in om as well),
