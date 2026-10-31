@@ -1428,10 +1428,6 @@ namespace om
 	template MetaMethod0Const<mgraph::Node,mgraph::Node,Name<CaseSensitive64BitKey> const&>::~MetaMethod0Const();
 	// FUNCTION: ENGINE 0x10AC98C0
 	template MetaMethod0Const<mgraph::Node,mgraph::Node,int>::~MetaMethod0Const();
-	// FUNCTION: ENGINE 0x10AD0420
-	template mgraph::TriggerData const& DynamicArray<mgraph::TriggerData,unsigned short>::operator[](unsigned short) const;
-	// FUNCTION: ENGINE 0x10AD0460
-	template void DynamicArray<mgraph::TriggerData,unsigned short>::ReleaseElements(mgraph::TriggerData*, unsigned short);
 	// FUNCTION: ENGINE 0x10AD5120
 	template char const* MetaClass<mgraph::PropertyNodeBase>::AllocationTag();
 	// FUNCTION: ENGINE 0x10AD5130
@@ -1570,8 +1566,6 @@ namespace om
 	template mgraph::EnvelopeData const& DynamicArray<mgraph::EnvelopeData,unsigned short>::operator[](unsigned short) const;
 	// FUNCTION: ENGINE 0x10ADD670
 	template mgraph::EnvelopeData* DynamicArray<mgraph::EnvelopeData,unsigned short>::Allocate(unsigned short);
-	// FUNCTION: ENGINE 0x10ADD690
-	template void DynamicArray<Vector,unsigned short>::ReleaseElements(Vector*, unsigned short);
 	// FUNCTION: ENGINE 0x10ADD6D0
 	template char const* MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::AllocationTag();
 	// FUNCTION: ENGINE 0x10ADD6E0
@@ -2708,8 +2702,6 @@ namespace om
 	template void DynamicArray<unsigned __int64,unsigned short>::Empty();
 	// FUNCTION: ENGINE 0x10AE8990
 	template DynamicArray<VectorT<float,2>,unsigned short>::~DynamicArray();
-	// FUNCTION: ENGINE 0x10AE89B0
-	template void DynamicArray<unsigned __int64,unsigned short>::Clear();
 	// FUNCTION: ENGINE 0x10AE89E0
 	template void DynamicArray<Complex,unsigned short>::Reserve(unsigned short);
 	// FUNCTION: ENGINE 0x10AE8A20
@@ -2718,8 +2710,6 @@ namespace om
 	template void DynamicArray<Complex,unsigned short>::Empty();
 	// FUNCTION: ENGINE 0x10AE8B90
 	template void DynamicArray<mgraph::EnvelopeData,unsigned short>::Reserve(unsigned short);
-	// FUNCTION: ENGINE 0x10AE8BC0
-	template Vector const& DynamicArray<Vector,unsigned short>::operator[](unsigned short) const;
 	// FUNCTION: ENGINE 0x10AE8C50
 	template void* MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AE8CD0
@@ -4756,4 +4746,340 @@ namespace om
 	template Garbage<DynamicArray<unsigned int,unsigned short> >::~Garbage();
 	// FUNCTION: ENGINE 0x10AFFC70
 	template Garbage<DynamicArray<Complex,unsigned short> >::~Garbage();
+	// FUNCTION: ENGINE 0x10AD80C0
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD80D0
+	template char const* MetaSimpleType<mgraph::Packet<bool> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8160
+	template char const* MetaSimpleType<DynamicArray<float,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8170
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8180
+	template char const* MetaSimpleType<mgraph::Packet<float> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8210
+	template char const* MetaSimpleType<DynamicArray<unsigned int,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8220
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8230
+	template char const* MetaSimpleType<mgraph::Packet<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD82C0
+	template char const* MetaSimpleType<DynamicArray<unsigned __int64,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD82D0
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD82E0
+	template char const* MetaSimpleType<mgraph::Packet<unsigned __int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8370
+	template char const* MetaSimpleType<DynamicArray<String,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8380
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8390
+	template char const* MetaSimpleType<mgraph::Packet<String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8420
+	template char const* MetaSimpleType<DynamicArray<Vector,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8430
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8440
+	template char const* MetaSimpleType<mgraph::Packet<Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD84D0
+	template char const* MetaSimpleType<DynamicArray<mgraph::TriggerData,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD84E0
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD84F0
+	template char const* MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8550
+	template char const* MetaSimpleType<DynamicArray<Complex,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8560
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8570
+	template char const* MetaSimpleType<mgraph::Packet<Complex> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8600
+	template char const* MetaSimpleType<DynamicArray<mgraph::EnvelopeData,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8610
+	template char const* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8620
+	template char const* MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AE2B90
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2BC0
+	template void* MetaSimpleType<mgraph::Packet<bool> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2DF0
+	template void* MetaSimpleType<DynamicArray<float,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2E20
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2E50
+	template void* MetaSimpleType<mgraph::Packet<float> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3080
+	template void* MetaSimpleType<DynamicArray<unsigned int,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE30B0
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE30E0
+	template void* MetaSimpleType<mgraph::Packet<unsigned int> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3310
+	template void* MetaSimpleType<DynamicArray<unsigned __int64,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3340
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3370
+	template void* MetaSimpleType<mgraph::Packet<unsigned __int64> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE35A0
+	template void* MetaSimpleType<DynamicArray<String,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE35D0
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3600
+	template void* MetaSimpleType<mgraph::Packet<String> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3830
+	template void* MetaSimpleType<DynamicArray<Vector,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3860
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3890
+	template void* MetaSimpleType<mgraph::Packet<Vector> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3AC0
+	template void* MetaSimpleType<DynamicArray<mgraph::TriggerData,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3AF0
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3B20
+	template void* MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3DA0
+	template void* MetaSimpleType<DynamicArray<Complex,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3DD0
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3E00
+	template void* MetaSimpleType<mgraph::Packet<Complex> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE4030
+	template void* MetaSimpleType<DynamicArray<mgraph::EnvelopeData,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE4060
+	template void* MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE4090
+	template void* MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AF39F0
+	template void MetaSimpleType<DynamicArray<bool,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF3A20
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3A80
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF3AB0
+	template void MetaSimpleType<mgraph::Packet<bool> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3B10
+	template void MetaSimpleType<mgraph::Packet<bool> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF3D80
+	template void MetaSimpleType<DynamicArray<float,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3DE0
+	template void MetaSimpleType<DynamicArray<float,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF3E10
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3E70
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<float,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF3EA0
+	template void MetaSimpleType<mgraph::Packet<float> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3F00
+	template void MetaSimpleType<mgraph::Packet<float> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4170
+	template void MetaSimpleType<DynamicArray<unsigned int,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF41D0
+	template void MetaSimpleType<DynamicArray<unsigned int,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4200
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4260
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4290
+	template void MetaSimpleType<mgraph::Packet<unsigned int> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF42F0
+	template void MetaSimpleType<mgraph::Packet<unsigned int> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF44A0
+	template void MetaSimpleType<DynamicArray<unsigned __int64,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4500
+	template void MetaSimpleType<DynamicArray<unsigned __int64,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4530
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4590
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF45C0
+	template void MetaSimpleType<mgraph::Packet<unsigned __int64> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4620
+	template void MetaSimpleType<mgraph::Packet<unsigned __int64> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF47D0
+	template void MetaSimpleType<DynamicArray<String,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4830
+	template void MetaSimpleType<DynamicArray<String,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4860
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF48C0
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<String,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF48F0
+	template void MetaSimpleType<mgraph::Packet<String> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4950
+	template void MetaSimpleType<mgraph::Packet<String> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4B00
+	template void MetaSimpleType<DynamicArray<Vector,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4B60
+	template void MetaSimpleType<DynamicArray<Vector,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4B90
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4BF0
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4C20
+	template void MetaSimpleType<mgraph::Packet<Vector> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4C80
+	template void MetaSimpleType<mgraph::Packet<Vector> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4EF0
+	template void MetaSimpleType<DynamicArray<mgraph::TriggerData,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4F50
+	template void MetaSimpleType<DynamicArray<mgraph::TriggerData,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF4F80
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4FE0
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF5010
+	template void MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5070
+	template void MetaSimpleType<mgraph::Packet<mgraph::TriggerData> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF52C0
+	template void MetaSimpleType<DynamicArray<Complex,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5320
+	template void MetaSimpleType<DynamicArray<Complex,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF5350
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF53B0
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF53E0
+	template void MetaSimpleType<mgraph::Packet<Complex> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5440
+	template void MetaSimpleType<mgraph::Packet<Complex> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF55F0
+	template void MetaSimpleType<DynamicArray<mgraph::EnvelopeData,unsigned short> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5650
+	template void MetaSimpleType<DynamicArray<mgraph::EnvelopeData,unsigned short> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF5680
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF56E0
+	template void MetaSimpleType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AF5710
+	template void MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5770
+	template void MetaSimpleType<mgraph::Packet<mgraph::EnvelopeData> >::ReleaseType();
+	// FUNCTION: ENGINE 0x10AC34A0
+	template DynamicArray<float,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10AC36E0
+	template void DynamicArray<float,unsigned short>::DestroyElements(float*, unsigned short);
+	// FUNCTION: ENGINE 0x10AC3700
+	template void DynamicArray<float,unsigned short>::ReleaseElements(float*, unsigned short);
+	// FUNCTION: ENGINE 0x10AC3F20
+	template DynamicArray<float,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10AC3F50
+	template void DynamicArray<float,unsigned short>::Empty();
+	// FUNCTION: ENGINE 0x10AC5CC0
+	template void DynamicArray<float,unsigned short>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10ADCFF0
+	template void DynamicArray<unsigned int,unsigned short>::DestroyElements(unsigned int*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD040
+	template bool* DynamicArray<bool,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10ADD060
+	template void DynamicArray<bool,unsigned short>::ReleaseElements(bool*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD1D0
+	template void DynamicArray<unsigned __int64,unsigned short>::DestroyElements(unsigned __int64*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD230
+	template unsigned __int64* DynamicArray<unsigned __int64,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10ADD250
+	template void DynamicArray<unsigned __int64,unsigned short>::ReleaseElements(unsigned __int64*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD350
+	template void DynamicArray<Vector,unsigned short>::DestroyElements(Vector*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD3B0
+	template Vector* DynamicArray<Vector,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10ADD450
+	template void DynamicArray<mgraph::TriggerData,unsigned short>::DestroyElements(mgraph::TriggerData*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD4A0
+	template mgraph::TriggerData* DynamicArray<mgraph::TriggerData,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10ADD4C0
+	template void DynamicArray<mgraph::TriggerData,unsigned short>::ReleaseElements(mgraph::TriggerData*, unsigned short);
+	// FUNCTION: ENGINE 0x10ADD690
+	template void DynamicArray<mgraph::EnvelopeData,unsigned short>::ReleaseElements(mgraph::EnvelopeData*, unsigned short);
+	// FUNCTION: ENGINE 0x10AE7EF0
+	template DynamicArray<bool,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10AE7F10
+	template void DynamicArray<bool,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AE7F40
+	template void DynamicArray<bool,unsigned short>::Reserve(unsigned short);
+	// FUNCTION: ENGINE 0x10AE8000
+	template void DynamicArray<bool,unsigned short>::Empty();
+	// FUNCTION: ENGINE 0x10AE82B0
+	template DynamicArray<unsigned __int64,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10AE82D0
+	template void DynamicArray<unsigned __int64,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AE8300
+	template void DynamicArray<unsigned __int64,unsigned short>::Reserve(unsigned short);
+	// FUNCTION: ENGINE 0x10AE8340
+	template unsigned __int64& DynamicArray<unsigned __int64,unsigned short>::Append();
+	// FUNCTION: ENGINE 0x10AE8590
+	template DynamicArray<Vector,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10AE85B0
+	template void DynamicArray<Vector,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AE85E0
+	template void DynamicArray<Vector,unsigned short>::Reserve(unsigned short);
+	// FUNCTION: ENGINE 0x10AE8620
+	template Vector& DynamicArray<Vector,unsigned short>::Append();
+	// FUNCTION: ENGINE 0x10AE86A0
+	template void DynamicArray<Vector,unsigned short>::Empty();
+	// FUNCTION: ENGINE 0x10AE8790
+	template DynamicArray<mgraph::TriggerData,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10AE87B0
+	template void DynamicArray<mgraph::TriggerData,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AE87E0
+	template void DynamicArray<mgraph::TriggerData,unsigned short>::Reserve(unsigned short);
+	// FUNCTION: ENGINE 0x10AE88A0
+	template void DynamicArray<mgraph::TriggerData,unsigned short>::Empty();
+	// FUNCTION: ENGINE 0x10AE89B0
+	template void DynamicArray<Complex,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AE8CA0
+	template void MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Call(void*, Vector);
+	// FUNCTION: ENGINE 0x10AE9880
+	template Vector MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::Call(void*);
+	// FUNCTION: ENGINE 0x10AEEC00
+	template DynamicArray<Vector,unsigned short>::DynamicArray(DynamicArray<Vector,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AF5DB0
+	template int om::NewValue<bool,unsigned short>(DynamicArray<bool,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF5F60
+	template int om::NewValue<float,unsigned short>(DynamicArray<float,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF6140
+	template int om::NewValue<unsigned int,unsigned short>(DynamicArray<unsigned int,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF63B0
+	template bool om::ReadText(TextValue const*, DynamicArray<unsigned __int64,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF64B0
+	template void om::WriteText(TextValue*, DynamicArray<unsigned __int64,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AF65B0
+	template bool om::ReadBinary(BinaryStream*, DynamicArray<unsigned __int64,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF66B0
+	template int om::NewValue<unsigned __int64,unsigned short>(DynamicArray<unsigned __int64,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF69E0
+	template int om::NewValue<class om::String,unsigned short>(DynamicArray<String,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF7090
+	template int om::NewValue<class om::Vector,unsigned short>(DynamicArray<Vector,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF7240
+	template int om::NewValue<class mgraph::TriggerData,unsigned short>(DynamicArray<mgraph::TriggerData,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF73F0
+	template int om::NewValue<class om::Complex,unsigned short>(DynamicArray<Complex,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AF7720
+	template int om::NewValue<class mgraph::EnvelopeData,unsigned short>(DynamicArray<mgraph::EnvelopeData,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AFAC40
+	template void DelegateMetaProperty<Vector>::Set(Vector);
+	// FUNCTION: ENGINE 0x10AFE950
+	template void DelegateMetaProperty<DynamicArray<bool,unsigned short> const&>::Set(DynamicArray<bool,unsigned short>);
+	// FUNCTION: ENGINE 0x10AFEAE0
+	template void DelegateMetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::Set(DynamicArray<unsigned __int64,unsigned short>);
+	// FUNCTION: ENGINE 0x10AFEC80
+	template Vector DelegateMetaProperty<Vector const&>::Get();
+	// FUNCTION: ENGINE 0x10AFECB0
+	template void DelegateMetaProperty<Vector const&>::Set(Vector);
+	// FUNCTION: ENGINE 0x10AFECD0
+	template DynamicArray<Vector,unsigned short> DelegateMetaProperty<DynamicArray<Vector,unsigned short> const&>::Get();
+	// FUNCTION: ENGINE 0x10AFED00
+	template void DelegateMetaProperty<DynamicArray<Vector,unsigned short> const&>::Set(DynamicArray<Vector,unsigned short>);
+	// FUNCTION: ENGINE 0x10AFED70
+	template void DelegateMetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::Set(DynamicArray<mgraph::TriggerData,unsigned short>);
+	// FUNCTION: ENGINE 0x10AFFB30
+	template Garbage<DynamicArray<bool,unsigned short> >::~Garbage();
+	// FUNCTION: ENGINE 0x10AFFBB0
+	template Garbage<DynamicArray<unsigned __int64,unsigned short> >::~Garbage();
+	// FUNCTION: ENGINE 0x10AFFBF0
+	template Garbage<DynamicArray<Vector,unsigned short> >::~Garbage();
+	// FUNCTION: ENGINE 0x10AFFC30
+	template Garbage<DynamicArray<mgraph::TriggerData,unsigned short> >::~Garbage();
 }

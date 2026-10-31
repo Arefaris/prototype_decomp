@@ -15,7 +15,7 @@ namespace om
 	class Vector
 	{
 	public:
-		float values[4];
+		float values[3];
 	};
 
 	class Complex
@@ -38,7 +38,7 @@ namespace mgraph
 	class TriggerData
 	{
 	public:
-		unsigned int unknown0;
+		unsigned char unknown0;
 	};
 
 	class PinChannelData

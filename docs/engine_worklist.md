@@ -6334,6 +6334,11 @@ of the property nodes and for the `MetaSimpleType` of the packets and arrays.
 - The vftables of 34 classes whose slots differ from the engine's (the by-value properties, the array properties, the
   `MetaMethod` instances of `Node` and `Rand<Vector>` ...) would be defined by our object with unmapped slots: the functions
   that emit them (constructors, `Create`, the allocation of the object) are not annotated, as in sn-bc.
+- `MetaSimpleType<T>` got the two statics the engine has per type (`Create`, which finds or makes the description and counts a
+  user, and a release of one user; names guessed) and slots 5 / 6 that make and destroy an array value for the array types
+  (the packets' stay empty). `om::Vector` is 12 bytes and `mgraph::TriggerData` 1 byte (the release of the arrays' memory
+  showed it); `DynamicArray` allocates and releases with the alignment of its element (`unsigned __int64`: 8). Functions
+  that had matched with the old sizes were copies of other classes' identical functions and were bound again.
 - Symbols: the type caches of `Vector`, `DynamicArray<bool>`, `<unsigned __int64>`, `<Vector>` and `<TriggerData>` are mapped.
   The tag of `DelegateMetaProperty<EnvelopeData const&>` is 0x10AE15A0 (sn-az had mapped an identical copy at 0x10AB25A0).
   `ReadArgument<String>` (a kept copy in this unit) calls the tag of another class, the engine's linker folded the identical
