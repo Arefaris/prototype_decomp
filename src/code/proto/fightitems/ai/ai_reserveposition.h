@@ -276,6 +276,27 @@ namespace proto
 			void RegisterReserveTargetsPositionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::ai::ReservePositionAction (9 vftable slots, 0x2C bytes)
+			class ReservePositionAction : public fight::Action
+			{
+			public:
+				// 0x101EF030
+				ReservePositionAction(ReservePositionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EE080
+				virtual ~ReservePositionAction();
+
+				// vftable slot 5 (0x101F03A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101ED700)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EF3F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReservePositionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+			};
+
 			// RTTI: proto::fightitems::ai::CommanderInCombatAction (9 vftable slots, 0x2C bytes)
 			class CommanderInCombatAction : public fight::Action
 			{
@@ -296,6 +317,27 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::ReserveHydraPositionAction (9 vftable slots, 0x2C bytes)
+			class ReserveHydraPositionAction : public fight::Action
+			{
+			public:
+				// 0x101EF4B0
+				ReserveHydraPositionAction(ReserveHydraPositionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EE0D0
+				virtual ~ReserveHydraPositionAction();
+
+				// vftable slot 5 (0x101F0450)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101ED720)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EF870)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReserveHydraPositionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+			};
+
 			// RTTI: proto::fightitems::ai::ReserveGunButtAction (9 vftable slots, 0x2C bytes)
 			class ReserveGunButtAction : public fight::Action
 			{
@@ -314,6 +356,27 @@ namespace proto
 
 				core::Link<ReserveGunButtTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ReserveTargetsPositionAction (9 vftable slots, 0x2C bytes)
+			class ReserveTargetsPositionAction : public fight::Action
+			{
+			public:
+				// 0x101EF930
+				ReserveTargetsPositionAction(ReserveTargetsPositionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EE120
+				virtual ~ReserveTargetsPositionAction();
+
+				// vftable slot 5 (0x101EFA00)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101ED740)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EFA60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReserveTargetsPositionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
 			};
 
 			// ---- actions end

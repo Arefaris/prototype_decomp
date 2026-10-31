@@ -5841,3 +5841,64 @@ Notes on the units:
 Not matching:
 - `ShootTrack::ApplyGroup` (0x101AD590, NONMATCHING 31%): the same function as `HideHUDTrack::ApplyGroup` (0x10162110): the engine keeps the group flag's result only in
   the argument slot and pushes a register copy for the recursive call; ours holds it in a register (`value = value && flag` was tried as well).
+
+## proto/fightitems/ai: the fight items of the range 0x101E0000 - 0x10200000 (sn-au)
+The range is not the motion pattern of the sections above: it holds the **action half** of the game's ai fight items (`code/proto/fightitems/ai/`, namespace
+`proto::fightitems::ai`, 204 tracks and conditions in 39 translation units): the `fight::Action` classes of the tracks (`Slot5` begins, `Slot6` stops, `Slot7`
+updates), `CreateAction` of every track (vftable slot 15), `Evaluate` of every condition (slot 9), the messages the actions send (`proto::Get...Message`, their scalar
+deleting destructors sit in the range) and many kept copies of inline functions of the engine's containers and links. The **property half** (properties, setters,
+constructors, `RegisterProperties`, factories and the property template instances of the same classes) of these units lies at 0x1021A010 - 0x102573D0, outside the
+range: the units are the translation units of that half (`tools` found them with the same cut rule as the motion units, and the action half of a unit is the run of
+functions that holds its classes' `CreateAction` / `Evaluate` / action slots, in the same order). A unit is one source file with both halves; the units that start in the
+range (`ai_circle` to `ai_destination`) were generated whole with the property half too (generator of local/scratch/sn-au: sn-as' generator plus the ai namespace,
+`PropertyNameConstList`, a group property of a 17-slot track and members whose names start with a digit), so the classes carry their real layouts; the units before
+(0x101DD800 - 0x101E0067) belong to the agent below and the units from `NavMeshAreaCondition` (0x10204C40) on to the agent above.
+Units (src/code/proto/fightitems/ai/, shared data in `aidata.h`, the shared action base and AI system classes in `aiaction.h` / `aihelpers.h`):
+| file | action half | property half | functions |
+|---|---|---|---|
+| `ai_circle.cpp` | 0x101E02F0 - 0x101E3890 | 0x1021CD90 - 0x1021E550 | 105 |
+| `ai_token.cpp` | 0x101E4430 - 0x101E8020 | 0x1021E550 - 0x10225F80 | 634 |
+| `ai_combatbudget.cpp` | 0x101E8100 - 0x101E8500 | 0x10225F80 - 0x10226DB0 | 84 |
+| `ai_conditionalexecute.cpp` | 0x101E8560 - 0x101E88D0 | 0x10226DB0 - 0x102272B0 | 26 |
+| `ai_disguise.cpp` | 0x101E8C10 - 0x101EBDD0 | 0x102272B0 - 0x1022AC60 | 359 |
+| `ai_emotionalstate.cpp` | 0x101EBE70 - 0x101ED080 | 0x1022AC60 - 0x1022CB50 | 186 |
+| `ai_alertmode.cpp` | 0x101ED120 - 0x101ED220 | 0x1022CB50 - 0x1022D810 | 71 |
+| `ai_reserveposition.cpp` | 0x101ED700 - 0x101F05B0 | 0x1022D810 - 0x1022F8E0 | 188 |
+| `ai_aitreeevent.cpp` | 0x101F07A0 - 0x101F0DC0 | 0x1022F8E0 - 0x102305F0 | 76 |
+| `ai_fixeddestination.cpp` | 0x101F16D0 - 0x101F2E70 | 0x102305F0 - 0x10231FB0 | 137 |
+| `ai_flee.cpp` | 0x101F3020 - 0x101F3690 | 0x10231FB0 - 0x10232390 | 21 |
+| `ai_formation.cpp` | 0x101F3B20 - 0x101F5E40 | 0x10232390 - 0x102338F0 | 108 |
+| `ai_goto.cpp` | 0x101F6040 - 0x101F7A90 | 0x102338F0 - 0x10234D10 | 110 |
+| `ai_idle.cpp` | 0x101F7B50 - 0x101F8B10 | 0x10234D10 - 0x102356A0 | 58 |
+| `ai_takeoff.cpp` | 0x101F8F90 - 0x101F9ED0 | 0x102356A0 - 0x10236270 | 58 |
+| `ai_lod.cpp` | 0x101FA1B0 - 0x101FCCF0 | 0x10236270 - 0x10239F70 | 378 |
+| `ai_enabled.cpp` | 0x101FCE90 - 0x101FD010 | 0x10239F70 - 0x1023A830 | 49 |
+| `ai_message.cpp` | 0x101FD200 - 0x101FE360 | 0x1023A830 - 0x1023BC30 | 108 |
+| `ai_destination.cpp` | 0x101FED00 - 0x10204A50 | 0x1023BC30 - 0x102432A0 | 672 |
+How the action half is written:
+- An action is `class X : public fight::Action` with `core::Link<XTrack> link` at +0x1C, the object handle `target` at +0x28 and the members its constructor initialises
+  (`unknown2C` ... where nothing names them; `engine::HandleBase` members are default constructed; the zero vector the constructors copy is `math::kZeroVector`). The constructor
+  takes the track and the handle (`ret 8`) or, in the units where `CreateAction` passes four values, the effect and the listener as well (`ret 0x10`, both unused).
+  `CreateAction` is `GetObjectHandle(owner)` and a `new` of the action. A class whose scalar deleting destructor is bigger than 30 bytes has no destructor of its own (the
+  compiler's inlined one: declaring an empty `~X() {}` adds the store of the vftable).
+- A bool argument the engine stores in the argument slot and pushes as a word is a one-byte struct (`proto::ByteFlag`).
+- `Evaluate(int, int, int, int)`: the third argument is the owner (`ai::AsOwner`), the object is `GetObjectHandle(owner).Get()`.
+- `proto::gAISystem` (0x11263AB0, created at 0x10364D70) is the AI system singleton: the soldier budgets (+0x10), the combat budgets (+0x14, `entries` at +4, 0x20 bytes
+  each), the strafe run tokens (+0x1C) and the base alert (+0x20). Names are guesses; the members' functions are `Unknown<address>`.
+- Functions that are not reconstructed are declared (as virtual slots of the action classes) and mapped to the engine's addresses in symbols.txt, so the classes' vftables stay
+  complete (`tools/vtcheck.py`).
+EQUIVALENT in this range (all differences read instruction by instruction: register allocation, instruction scheduling, the order of the failure exit): the `RegisterProperties`
+of the property half (shrink-wrap) and the following action half functions: `CheckTagAvailableSpaceCondition::Evaluate`, `HasCombatBudgetTokenCondition::Evaluate`,
+`HaveStrafeRunTokenCondition::Evaluate`, `ShouldRadioHQCondition::Evaluate`, `EmotionalStateCondition::Evaluate`, `CanGunButtCondition::Evaluate`,
+`CanReserveSoldierBudgetCondition::Evaluate`, `IsInLoadedCellCondition::Evaluate`, `CircleStrafeAction` constructor, `RefreshStrafeRunTokenAction::Slot5`, `DrawDebugAction::Slot5`,
+`AddMarkerByKeyAction::Slot7`, `PlayDebugDialogAction::Slot7`, `AdjustHydraMovementAction::Slot5`, `HelicopterStrafeModeAction::Slot5`, `ReserveGunButtAction::Slot5`; none has captured
+game states yet (`tools/difftest`).
+NONMATCHING: `CombatDestinationFindTrack::ApplyGroup` (0x1021F9C0, the same function as `HideHUDTrack::ApplyGroup`).
+Not done in the range (1433 of the 1649 functions):
+- The action classes whose constructor does something the generator does not read (members with destructors such as `EngageAction`'s array of vectors, floats and flags loaded from
+  data, `CombatDestination*`, `ConditionalExecute`, `Message` / `PeriodicMessage`, `Destination*` with a 94-byte `CreateAction`, `LodGotoFixedDestination`, the follow, fixed destination,
+  goto, land, flee classes) and their destructors, constructors and slots; the big update functions (`CircleStrafeAction::Slot7` 1009 bytes, `CombatDestinationFindAction::Slot7`
+  1412, `FollowFormationAction::Slot7` 2696, ...); the `Evaluate` of about 50 conditions that send messages (`proto::Get...Message`, whose classes are not declared yet).
+- The message classes (`proto::MovementMessage` family, `TargetMessage`, `TokenMessage`, `AIMessage`, ...: 70 classes whose deleting destructors are in the range) and the kept
+  copies of inline functions (about 800 functions of 1 - 40 bytes: float getters, container accessors, link constructors, `BitField::Set`) that no reconstructed code instantiates.
+- The shared header `code/engine/fight/bitfieldproperty.h` gained `fight::PropertyNameConstList<T>` (same layout and slots as `PropertyNameList<T>`).

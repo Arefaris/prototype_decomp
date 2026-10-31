@@ -1186,6 +1186,35 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+
+			// FUNCTION: ENGINE 0x101EA690
+			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
+			bool AddMarkerByKeyAction::Slot7(int arg, float value)
+			{
+				return link.object != 0;
+			}
+
+			// FUNCTION: ENGINE 0x101EA190
+			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
+			bool PlayDebugDialogAction::Slot7(int arg, float value)
+			{
+				return link.object != 0;
+			}
+
+			// FUNCTION: ENGINE 0x101EB900
+			// EQUIVALENT: block order and constant selection (the engine puts the failure exit first and returns the constants in al, ours in eax); the same tests (best 17.9 %)
+			bool AdjustHydraMovementAction::Slot5(int arg, float value)
+			{
+				return link.object != 0 && target.IsValid();
+			}
+
+			// FUNCTION: ENGINE 0x101E9A60
+			// EQUIVALENT: block order and constant selection (the engine returns the failure first and the constants in al, ours in eax); the same tests (best 68.0 %)
+			bool HelicopterStrafeModeAction::Slot5(int arg, float value)
+			{
+				return target.IsValid();
+			}
+
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x101EA6A0
 			ClearMarkersAction::ClearMarkersAction(ClearMarkersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
@@ -1421,6 +1450,14 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101EA040
+// FUNCTION: ENGINE 0x101EA160
+// FUNCTION: ENGINE 0x101EA220
+// FUNCTION: ENGINE 0x101EA530
+// FUNCTION: ENGINE 0x101EA720
+// FUNCTION: ENGINE 0x101EB430
+// FUNCTION: ENGINE 0x101EB820
+// FUNCTION: ENGINE 0x101EB8D0
 // FUNCTION: ENGINE 0x10227FA0
 // FUNCTION: ENGINE 0x10227FD0
 // FUNCTION: ENGINE 0x10228000

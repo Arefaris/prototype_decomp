@@ -260,20 +260,6 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
-			// ---- actions begin
-			// FUNCTION: ENGINE 0x101E83C0
-			RequestCombatBudgetTokenAction::RequestCombatBudgetTokenAction(RequestCombatBudgetTokenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
-			{
-			}
-
-			// FUNCTION: ENGINE 0x101E84F0
-			fight::Action* RequestCombatBudgetTokenTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
-			{
-				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
-				return new RequestCombatBudgetTokenAction(this, handle);
-			}
-
-			// ---- actions end
 
 			// FUNCTION: ENGINE 0x101E8100
 			// EQUIVALENT: register choice and scheduling (the engine tests the limit in memory and loads it into esi after the first float, ours loads it first and keeps this in esi); same call with the same arguments (best 20.3 %)
@@ -312,6 +298,20 @@ namespace proto
 				return false;
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101E83C0
+			RequestCombatBudgetTokenAction::RequestCombatBudgetTokenAction(RequestCombatBudgetTokenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E84F0
+			fight::Action* RequestCombatBudgetTokenTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RequestCombatBudgetTokenAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<CheckTagAvailableSpaceCondition>;
 			template class fight::PropertyIntConstRange<CheckTagAvailableSpaceCondition>;
 			template class fight::PropertyBool<CheckTagAvailableSpaceCondition>;
@@ -331,6 +331,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101E8470
 // FUNCTION: ENGINE 0x10226200
 // FUNCTION: ENGINE 0x10226230
 // FUNCTION: ENGINE 0x10226260

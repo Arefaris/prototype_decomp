@@ -731,7 +731,54 @@ namespace proto
 				return proto::gAISystem->strafeRunTokens->Unknown103840E0(target);
 			}
 
+
+			// FUNCTION: ENGINE 0x101ED780
+			bool CommanderInCombatAction::Slot5(int arg, float value)
+			{
+				proto::gAISystem->strafeRunTokens->Unknown10381E10();
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101ED7B0
+			void CommanderInCombatAction::Slot6()
+			{
+				proto::gAISystem->strafeRunTokens->Unknown10381E20();
+			}
+
+			// FUNCTION: ENGINE 0x101EFBD0
+			// EQUIVALENT: scheduling (the engine loads the track's float and the manager before it pops the handle call's arguments, ours after); the same calls with the same arguments (best 78.6 %)
+			bool ReserveGunButtAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::GameObjectHandle targetHandle = proto::Unknown103B8B80(object);
+						proto::gAISystem->strafeRunTokens->Unknown10384160(targetHandle, link.object->reserveLength);
+					}
+				}
+				return false;
+			}
+
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x101EF030
+			ReservePositionAction::ReservePositionAction(ReservePositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EE080
+			ReservePositionAction::~ReservePositionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F0350
+			fight::Action* ReservePositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReservePositionAction(this, handle);
+			}
+
 			// FUNCTION: ENGINE 0x101EFC50
 			CommanderInCombatAction::CommanderInCombatAction(CommanderInCombatTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
@@ -753,6 +800,23 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new CommanderInCombatAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101EF4B0
+			ReserveHydraPositionAction::ReserveHydraPositionAction(ReserveHydraPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EE0D0
+			ReserveHydraPositionAction::~ReserveHydraPositionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F0400
+			fight::Action* ReserveHydraPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReserveHydraPositionAction(this, handle);
 			}
 
 			// FUNCTION: ENGINE 0x101EFB20
@@ -781,6 +845,23 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ReserveGunButtAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101EF930
+			ReserveTargetsPositionAction::ReserveTargetsPositionAction(ReserveTargetsPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EE120
+			ReserveTargetsPositionAction::~ReserveTargetsPositionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F04B0
+			fight::Action* ReserveTargetsPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReserveTargetsPositionAction(this, handle);
 			}
 
 			// ---- actions end
@@ -812,6 +893,11 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101EF0D0
+// FUNCTION: ENGINE 0x101EF550
+// FUNCTION: ENGINE 0x101EF9D0
+// FUNCTION: ENGINE 0x101EFBA0
+// FUNCTION: ENGINE 0x101EFCD0
 // FUNCTION: ENGINE 0x1022E090
 // FUNCTION: ENGINE 0x1022E0C0
 // FUNCTION: ENGINE 0x1022E0F0

@@ -536,7 +536,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E1330
-			// EQUIVALENT: scheduling: the engine's instructions in another order (best 93.5 %)
+			// EQUIVALENT: scheduling (the engine clears xmm0 before it loads the handle argument, ours after); the same stores (best 93.5 %)
 			CircleStrafeAction::CircleStrafeAction(CircleStrafeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
 			{
 			}
@@ -575,6 +575,8 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101E13C0
+// FUNCTION: ENGINE 0x101E14D0
 // FUNCTION: ENGINE 0x1021D530
 // FUNCTION: ENGINE 0x1021D560
 // FUNCTION: ENGINE 0x1021D590

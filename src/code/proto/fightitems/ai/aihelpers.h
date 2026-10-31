@@ -71,6 +71,13 @@ namespace proto
 	class StrafeRunTokens
 	{
 	public:
+		// 0x10383FF0: gives the object a token for a time (name guess)
+		bool Unknown10383FF0(engine::GameObjectHandle handle, float time);
+		// 0x10381E10 / 0x10381E20: counts a commander in or out of combat (name guess)
+		void Unknown10381E10();
+		void Unknown10381E20();
+		// 0x10384160: holds a gun butt for the object for a time (name guess)
+		void Unknown10384160(engine::GameObjectHandle handle, float time);
 		// 0x10384090: whether the object holds a token, asking for one first when the flag is set
 		bool Unknown10384090(engine::GameObjectHandle handle, ByteFlag requestIt);
 		// 0x103840E0: whether the object may gun butt (name guess)

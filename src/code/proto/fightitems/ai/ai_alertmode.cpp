@@ -220,9 +220,6 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
-			// ---- actions begin
-
-			// ---- actions end
 
 			// FUNCTION: ENGINE 0x101ED120
 			bool PerceptionEventCondition::Evaluate(int a, int b, int c, int d)
@@ -231,6 +228,9 @@ namespace proto
 				return false;
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<InAlertModeCondition>;
 			template class fight::PropertyFloatConstRange<InAlertModeCondition>;
 			template class fight::ConditionFactoryTemplate<InAlertModeCondition>;

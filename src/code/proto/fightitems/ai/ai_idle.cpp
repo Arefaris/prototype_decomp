@@ -212,6 +212,14 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+
+			// FUNCTION: ENGINE 0x101F7B50
+			bool IdleAction::Slot5(int arg, float value)
+			{
+				unknown2C = false;
+				return true;
+			}
+
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x101F8650
 			FlyingIdleAction::FlyingIdleAction(FlyingIdleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(false), unknown30(3.0f)
@@ -265,6 +273,8 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101F81E0
+// FUNCTION: ENGINE 0x101F86D0
 // FUNCTION: ENGINE 0x10234FA0
 // FUNCTION: ENGINE 0x10234FD0
 // FUNCTION: ENGINE 0x10235000

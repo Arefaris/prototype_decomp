@@ -873,6 +873,27 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::RequestTokenAction (9 vftable slots, 0x2C bytes)
+			class RequestTokenAction : public fight::Action
+			{
+			public:
+				// 0x101E77B0
+				RequestTokenAction(RequestTokenTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101E4CD0
+				virtual ~RequestTokenAction();
+
+				// vftable slot 5 (0x101E7E10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E7FB0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101E7EB0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<RequestTokenTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+			};
+
 			// RTTI: proto::fightitems::ai::DrawDebugAction (9 vftable slots, 0x2C bytes)
 			class DrawDebugAction : public fight::Action
 			{

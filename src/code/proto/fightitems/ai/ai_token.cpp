@@ -2252,6 +2252,43 @@ namespace proto
 				return proto::gAISystem->baseAlert->Unknown1037E0F0(object) == radio;
 			}
 
+
+			// FUNCTION: ENGINE 0x101E44B0
+			// EQUIVALENT: scheduling and register choice (the engine loads the float constant and the manager first, ours the handle first); the same call with the same arguments (best 38.7 %)
+			bool RefreshStrafeRunTokenAction::Slot5(int arg, float value)
+			{
+				return proto::gAISystem->strafeRunTokens->Unknown10383FF0(target, 2.0f);
+			}
+
+			// FUNCTION: ENGINE 0x101E7A30
+			bool RefreshStrafeRunTokenAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				proto::gAISystem->strafeRunTokens->Unknown10383FF0(target, 2.0f);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7740
+			// EQUIVALENT: block order (the engine puts the failure exit first and jumps back to it, ours puts it last); the same tests, the same store (best 21.7 %)
+			bool DrawDebugAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					unknown2C = 0;
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101E77A0
+			void DrawDebugAction::Slot6()
+			{
+				unknown2C = 0;
+			}
+
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x101E7980
 			RefreshStrafeRunTokenAction::RefreshStrafeRunTokenAction(RefreshStrafeRunTokenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
@@ -2301,6 +2338,23 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ActionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101E77B0
+			RequestTokenAction::RequestTokenAction(RequestTokenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4CD0
+			RequestTokenAction::~RequestTokenAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E7DC0
+			fight::Action* RequestTokenTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RequestTokenAction(this, handle);
 			}
 
 			// FUNCTION: ENGINE 0x101E76A0
@@ -2449,6 +2503,11 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101E75B0
+// FUNCTION: ENGINE 0x101E7710
+// FUNCTION: ENGINE 0x101E7830
+// FUNCTION: ENGINE 0x101E7A00
+// FUNCTION: ENGINE 0x101E7B00
 // FUNCTION: ENGINE 0x1021FC90
 // FUNCTION: ENGINE 0x1021FCC0
 // FUNCTION: ENGINE 0x1021FCF0
