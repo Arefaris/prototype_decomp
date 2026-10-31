@@ -1,6 +1,18 @@
 // The frame buffer passes (unit around 0x107AD030 - 0x107B2D80; the file name is a guess). Names are guesses.
 #include "code/pure3d/framebufferpass.h"
 
+	// FUNCTION: ENGINE 0x107AD390
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x107AD3C0
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x107AD3E0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x107AD3F0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Pair&);
+
 	// FUNCTION: ENGINE 0x107ADA60
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoMotherPass>::EntryAllocator);
 
@@ -55,6 +67,18 @@
 	// FUNCTION: ENGINE 0x107ADE60
 	template pure3d::ParameterHandler<pure3d::ProtoMotherPass>::~ParameterHandler();
 
+	// FUNCTION: ENGINE 0x107AE1D0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x107AE200
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x107AE220
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x107AE230
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Pair&);
+
 	// FUNCTION: ENGINE 0x107AEA50
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::Entry, pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoThermalPass>::EntryAllocator);
 
@@ -108,6 +132,18 @@
 
 	// FUNCTION: ENGINE 0x107AEE50
 	template pure3d::ParameterHandler<pure3d::ProtoThermalPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x107AF2F0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Pair::Pair(const core::Name<core::CaseSensitiveKey>&, const pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry&);
+
+	// FUNCTION: ENGINE 0x107AF320
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Iterator::operator!=(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Iterator&) const;
+
+	// FUNCTION: ENGINE 0x107AF340
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Pair& container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Iterator::operator*() const;
+
+	// FUNCTION: ENGINE 0x107AF350
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Pair::Pair(const container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Pair&);
 
 	// FUNCTION: ENGINE 0x107AF540
 	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ToneMapPass>::Entry, pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ToneMapPass>::EntryAllocator);
