@@ -3,9 +3,23 @@
 
 namespace engine
 {
-	extern fight::EnumEntry gCharacterEnableLimbIKTrackActionOnBeginTable[];
-	extern fight::EnumEntry gCharacterEnableLimbIKTrackActionOnEndTable[];
-	extern fight::EnumEntry gCharacterIKTrackTargetTypeTable[];
+	fight::EnumEntry gCharacterEnableLimbIKTrackActionOnBeginTable[3] =
+		{
+			{ fight::Name("Do nothing", 0) },
+			{ fight::Name("Enable limb IK", 0) },
+			{ fight::Name("Disable limb IK", 0) }
+		};
+	fight::EnumEntry gCharacterEnableLimbIKTrackActionOnEndTable[3] =
+		{
+			{ fight::Name("Restore to previous", 0) },
+			{ fight::Name("Enable limb IK", 0) },
+			{ fight::Name("Disable limb IK", 0) }
+		};
+	fight::EnumEntry gCharacterIKTrackTargetTypeTable[2] =
+		{
+			{ fight::Name("End joint start location", 0) },
+			{ fight::Name("Limb matrix from pose", 0) }
+		};
 	extern const int gCharacterEnableLimbIKTrackActionOnBeginCount;
 	extern const int gCharacterEnableLimbIKTrackActionOnEndCount;
 	extern const int gCharacterIKTrackTargetTypeCount;
@@ -480,6 +494,15 @@ namespace engine
 		return blendOutTime;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D797D0
+// FUNCTION: ENGINE 0x10D79800
+// FUNCTION: ENGINE 0x10D79840
+// FUNCTION: ENGINE 0x10D8B4B0
+// FUNCTION: ENGINE 0x10D8B4C0
+// FUNCTION: ENGINE 0x10D8B4D0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108FA810

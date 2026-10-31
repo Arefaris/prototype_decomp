@@ -3,6 +3,7 @@
 // scene classes of nis.cpp in the binary).
 #include "code/engine/function.h"
 #include "code/engine/nismessages.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
@@ -15,7 +16,7 @@ namespace engine
 	void DestroyNISGameState();
 
 	// 0x11316F60: the listeners of the sequence messages; 0x11316F10: the owner the natives are registered under
-	extern MessageListeners gNISListeners;
+	MessageListeners gNISListeners("NIS Player", 0);
 	extern unsigned char gNISScriptOwner;
 
 	// FUNCTION: ENGINE 0x1088C200
@@ -73,3 +74,7 @@ namespace engine
 		script->ClearOwner();
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D773A0
+// FUNCTION: ENGINE 0x10D8A9C0

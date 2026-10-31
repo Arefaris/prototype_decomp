@@ -3,8 +3,18 @@
 
 namespace engine
 {
-	extern fight::EnumEntry gHealthTrackOperationTable[];
-	extern fight::EnumEntry gHealthTrackApplyToTable[];
+	fight::EnumEntry gHealthTrackOperationTable[3] =
+		{
+			{ fight::Name("Set", 0) },
+			{ fight::Name("Add", 0) },
+			{ fight::Name("Multiply", 0) }
+		};
+	fight::EnumEntry gHealthTrackApplyToTable[3] =
+		{
+			{ fight::Name("Current health (absolute value)", 0) },
+			{ fight::Name("Percentage of current health", 0) },
+			{ fight::Name("Percentage of maximum health", 0) }
+		};
 
 	fight::Property** gHealthTrackProperties;  // 0x11284C00
 
@@ -131,3 +141,9 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<HealthTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74BE0
+// FUNCTION: ENGINE 0x10D74C20
+// FUNCTION: ENGINE 0x10D8A020
+// FUNCTION: ENGINE 0x10D8A030

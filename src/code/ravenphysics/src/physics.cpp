@@ -128,5 +128,14 @@ namespace ravenphysics
 	}
 }
 
+namespace ravenphysics
+{
+	ravenphysics::InitSettings gSettings;
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66950
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108E6DC0

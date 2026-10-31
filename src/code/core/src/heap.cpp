@@ -19,8 +19,7 @@ namespace core
 	};
 
 	// The address map (0x11277F98): a RangeMap over a fixed buffer of 0x100 ranges. The buffer starts at the
-	// RangeMap's heap member (a fixed map never uses it). Constructed by a dynamic initializer elsewhere (0x10D66895),
-	// so only declared here.
+	// RangeMap's heap member (a fixed map never uses it). Its dynamic initializer is 0x10D66890.
 	class HeapMap : public RangeMap
 	{
 	public:
@@ -31,7 +30,7 @@ namespace core
 		Pair buffer[0x201];
 	};
 
-	extern HeapMap gHeapMap;
+	HeapMap gHeapMap;
 
 	// GLOBAL: ENGINE 0x11276F50
 	static int sHeapSlot;
@@ -520,3 +519,7 @@ namespace core
 		RegisterHeap(index, allocator);
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66890
+// FUNCTION: ENGINE 0x10D86820

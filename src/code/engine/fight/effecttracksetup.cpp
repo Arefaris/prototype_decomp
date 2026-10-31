@@ -119,9 +119,22 @@ namespace engine
 	template class fight::TrackFactoryTemplate<AbortEffectTrack>;
 	template class fight::TrackFactoryCasterTemplate<AbortEffectTrack>;
 
-	extern fight::EnumEntry gEffectTrackEmitSpaceTable[];
+	fight::EnumEntry gEffectTrackEmitSpaceTable[6] =
+		{
+			{ fight::Name("World Space", 0) },
+			{ fight::Name("Game Object Space", 0) },
+			{ fight::Name("Game Object Start With Global Up Space", 0) },
+			{ fight::Name("Joint Space", 0) },
+			{ fight::Name("Collision Space", 0) },
+			{ fight::Name("Surface Space", 0) }
+		};
 	extern const int gEffectTrackEmitSpaceCount;
-	extern fight::EnumEntry gEffectTrackAttachSpaceTable[];
+	fight::EnumEntry gEffectTrackAttachSpaceTable[3] =
+		{
+			{ fight::Name("World Space", 0) },
+			{ fight::Name("Game Object Space", 0) },
+			{ fight::Name("Joint Space", 0) }
+		};
 	extern const int gEffectTrackAttachSpaceCount;
 	extern fight::EnumEntry gEffectTrackEffectStoreTable[];
 	extern const int gEffectTrackEffectStoreCount;
@@ -1415,3 +1428,9 @@ namespace engine
 	template class fight::TrackFactoryTemplate<MotionTrailTrack>;
 	template class fight::TrackFactoryCasterTemplate<MotionTrailTrack>;
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74980
+// FUNCTION: ENGINE 0x10D749C0
+// FUNCTION: ENGINE 0x10D89FC0
+// FUNCTION: ENGINE 0x10D89FD0

@@ -3,7 +3,11 @@
 
 namespace engine
 {
-	extern fight::EnumEntry gVelocityLinearTrackOperationTable[];
+	fight::EnumEntry gVelocityLinearTrackOperationTable[2] =
+		{
+			{ fight::Name("Set", 0) },
+			{ fight::Name("Add", 0) }
+		};
 
 	fight::Property** gVelocityLinearTrackProperties;  // 0x11318230
 
@@ -104,7 +108,11 @@ namespace engine
 	template class fight::TrackFactoryTemplate<VelocityLinearTrack>;
 	template class fight::TrackFactoryCasterTemplate<VelocityLinearTrack>;
 
-	extern fight::EnumEntry gVelocityAngularTrackOperationTable[];
+	fight::EnumEntry gVelocityAngularTrackOperationTable[2] =
+		{
+			{ fight::Name("Set", 0) },
+			{ fight::Name("Add", 0) }
+		};
 
 	fight::Property** gVelocityAngularTrackProperties;  // 0x11318234
 
@@ -208,7 +216,16 @@ namespace engine
 	template class fight::TrackFactoryTemplate<VelocityAngularTrack>;
 	template class fight::TrackFactoryCasterTemplate<VelocityAngularTrack>;
 
-	extern fight::EnumEntry gSimpleMessageTrackMessageTable[];
+	fight::EnumEntry gSimpleMessageTrackMessageTable[7] =
+		{
+			{ fight::Name("None", 0) },
+			{ fight::Name("Reset", 0) },
+			{ fight::Name("Show Debug", 0) },
+			{ fight::Name("Hide Debug", 0) },
+			{ fight::Name("Start Animation", 0) },
+			{ fight::Name("Stop Animation", 0) },
+			{ fight::Name("Force Query Tree", 0) }
+		};
 	extern const int gSimpleMessageTrackMessageCount;
 
 	fight::Property** gSimpleMessageTrackProperties;  // 0x11318258
@@ -480,8 +497,20 @@ namespace engine
 	template class fight::TrackFactoryTemplate<SetRotationAttributeTrack>;
 	template class fight::TrackFactoryCasterTemplate<SetRotationAttributeTrack>;
 
-	extern fight::EnumEntry gPuppetAnimationTrackCyclicTable[];
-	extern fight::EnumEntry gPuppetAnimationTrackSyncPhaseTable[];
+	fight::EnumEntry gPuppetAnimationTrackCyclicTable[6] =
+		{
+			{ fight::Name("From Animation", 0) },
+			{ fight::Name("Not Cyclic", 0) },
+			{ fight::Name("Cyclic", 0) },
+			{ fight::Name("Hold End Frame", 0) },
+			{ fight::Name("Not Cyclic - Backward", 0) },
+			{ fight::Name("Cyclic - Backward", 0) }
+		};
+	fight::EnumEntry gPuppetAnimationTrackSyncPhaseTable[2] =
+		{
+			{ fight::Name("Legacy", 0) },
+			{ fight::Name("From Puppet Phase", 0) }
+		};
 
 	fight::Property** gPuppetAnimationTrackProperties;  // 0x11318268
 
@@ -755,3 +784,15 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<PuppetAnimationTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D77D90
+// FUNCTION: ENGINE 0x10D77DC0
+// FUNCTION: ENGINE 0x10D77DF0
+// FUNCTION: ENGINE 0x10D77E70
+// FUNCTION: ENGINE 0x10D78A20
+// FUNCTION: ENGINE 0x10D8ADC0
+// FUNCTION: ENGINE 0x10D8ADD0
+// FUNCTION: ENGINE 0x10D8ADE0
+// FUNCTION: ENGINE 0x10D8ADF0
+// FUNCTION: ENGINE 0x10D8B130

@@ -690,6 +690,397 @@ namespace pure3d
 	ConstantSlot gConstantSlot11281214;
 }
 
+namespace pure3d
+{
+	ConstantSlot gConstantSlot11276BE4;
+	ConstantSlot gConstantSlot11276BE0;
+	ConstantSlot gConstantLightAmbient;
+	ConstantSlot gConstantSlot11280CAC;
+	ConstantSlot gConstantLightColour;
+	ConstantSlot gConstantSlot11280AB4;
+	ConstantSlot gConstantSlot11281124;
+	ConstantSlot gConstantSlot11280A44;
+	ConstantSlot gConstantSlot11281324;
+	ConstantSlot gConstantSlot11280DF4;
+	ConstantSlot gConstantSlot11280FE4;
+	ConstantSlot gConstantSlot11280A98;
+	ConstantSlot gConstantSlot11280E28;
+	ConstantSlot gConstantSlot11281304;
+	ConstantSlot gConstantSlot11280F88;
+	ConstantSlot gConstantSlot11280EA4;
+	ConstantSlot gConstantSlot11280B04;
+	ConstantSlot gConstantSlot11280F5C;
+	ConstantSlot gConstantSlot112810B4;
+	ConstantSlot gConstantSlot11281258;
+	ConstantSlot gConstantSlot112811A4;
+	ConstantSlot gConstantSlot11280CB8;
+	ConstantSlot gConstantSlot11280FC4;
+	ConstantSlot gConstantSlot11280ADC;
+	ConstantSlot gConstantSlot11280B08;
+	ConstantSlot gConstantSlot11280C74;
+	ConstantSlot gConstantSlot11280EEC;
+	ConstantSlot gConstantSlot11280E94;
+	ConstantSlot gConstantSlot11280C30;
+	ConstantSlot gConstantSlot11280CDC;
+	ConstantSlot gConstantSlot11280D50;
+	ConstantSlot gConstantSlot11280C70;
+	ConstantSlot gConstantSlot112812E4;
+	ConstantSlot gConstantSlot11280E9C;
+	ConstantSlot gConstantSlot11280D64;
+	ConstantSlot gConstantSlot11280E64;
+	ConstantSlot gConstantSlot11280BE8;
+	ConstantSlot gConstantSlot11281280;
+	ConstantSlot gConstantSlot11280C8C;
+	ConstantSlot gConstantSlot112811F0;
+	ConstantSlot gConstantSlot11280A38;
+	ConstantSlot gConstantSlot11280A30;
+	ConstantSlot gConstantSlot11280B94;
+	ConstantSlot gConstantSlot11280AB8;
+	ConstantSlot gConstantSlot11280B34;
+	ConstantSlot gConstantSlot11280BF8;
+	ConstantSlot gConstantSlot11280C68;
+	ConstantSlot gConstantSlot11280B74;
+	ConstantSlot gConstantSlot11280DA4;
+	ConstantSlot gConstantSlot11280F2C;
+	ConstantSlot gConstantSlot11280AE8;
+	ConstantSlot gConstantSlot11281060;
+	ConstantSlot gConstantLightIsLitPass;
+	ConstantSlot gConstantSlot11280C7C;
+	ConstantSlot gConstantSlot1128102C;
+	ConstantSlot gConstantSlot11280CA4;
+	ConstantSlot gConstantLightEnableSpotKill;
+	ConstantSlot gConstantSlot11280F78;
+	ConstantSlot gConstantLightObjectSpaceLightBounds;
+	ConstantSlot gConstantHalfPixel;
+	ConstantSlot gConstantSlot1128126C;
+	ConstantSlot gConstantSlot11280C2C;
+	ConstantSlot gConstantSlot11280A5C;
+	ConstantSlot gConstantSlot112811C4;
+	ConstantSlot gConstantShaderLODGeo;
+	ConstantSlot gConstantSlot11281110;
+	ConstantSlot gConstantSlot11280B54;
+	ConstantSlot gConstantSlot1128129C;
+	ConstantSlot gConstantSlot11280A68;
+	ConstantSlot gConstantSlot112812D4;
+	ConstantSlot gConstantSlot11280F1C;
+	ConstantSlot gConstantSlot11280D4C;
+	ConstantSlot gConstantSlot11280D88;
+	ConstantSlot gConstantSlot11280DB4;
+	ConstantSlot gConstantSlot112810A4;
+	ConstantSlot gConstantSlot112810BC;
+	ConstantSlot gConstantSlot11281190;
+	ConstantSlot gConstantSlot1128111C;
+	ConstantSlot gConstantSlot11280D04;
+	ConstantSlot gConstantSlot11280E78;
+	ConstantSlot gConstantSlot11280CC0;
+	ConstantSlot gConstantSlot11280CB4;
+	ConstantSlot gConstantSlot11280F64;
+	ConstantSlot gConstantSlot11280B78;
+	ConstantSlot gConstantSlot11280E40;
+	ConstantSlot gConstantSlot11280B88;
+	ConstantSlot gConstantSlot11280BA0;
+	ConstantSlot gConstantSlot112811F4;
+	ConstantSlot gConstantShadowMap;
+	ConstantSlot gConstantTime;
+	ConstantSlot gConstantLightDecalBuffer;
+	ConstantSlot gConstantPRLightColour1;
+	ConstantSlot gConstantPRLightColour2;
+	ConstantSlot gConstantPRLightColour3;
+	ConstantSlot gConstantPRLightColour4;
+	ConstantSlot gConstantPRLightColour5;
+	ConstantSlot gConstantPRLightAmbient;
+	ConstantSlot gConstantPRLightDirection1;
+	ConstantSlot gConstantPRLightDirection2;
+	ConstantSlot gConstantPRLightDirection3;
+	ConstantSlot gConstantPRLightDirection4;
+	ConstantSlot gConstantPRLightDirection5;
+	ConstantSlot gConstantPRLightParams1;
+	ConstantSlot gConstantSlot11280B70;
+	ConstantSlot gConstantSlot11280C10;
+	ConstantSlot gConstantSlot112810C4;
+	ConstantSlot gConstantSlot11280B7C;
+	ConstantSlot gConstantSlot11281034;
+	ConstantSlot gConstantSlot11280B5C;
+	ConstantSlot gConstantSlot11280FB4;
+	ConstantSlot gConstantSlot11280B18;
+	ConstantSlot gConstantSlot11280D80;
+	ConstantSlot gConstantSlot11280C38;
+	ConstantSlot gConstantSlot11280B44;
+	ConstantSlot gConstantSlot11280F54;
+	ConstantSlot gConstantSlot11280CD4;
+	ConstantSlot gConstantSlot11280E4C;
+	ConstantSlot gConstantSlot11280D3C;
+	ConstantSlot gConstantSlot11280ED4;
+	ConstantSlot gConstantSlot11280F9C;
+	ConstantSlot gConstantSlot11280A58;
+	ConstantSlot gConstantSlot11280D84;
+	ConstantSlot gConstantSlot11280E5C;
+	ConstantSlot gConstantSlot11280B50;
+	ConstantSlot gConstantSlot1128113C;
+	ConstantSlot gConstantSlot11280D40;
+	ConstantSlot gConstantSlot11280BB4;
+	ConstantSlot gConstantSlot11280B3C;
+	ConstantSlot gConstantSlot112812B4;
+	ConstantSlot gConstantSlot11280DB8;
+	ConstantSlot gConstantSlot1128120C;
+	ConstantSlot gConstantSlot11280E44;
+	ConstantSlot gConstantSlot11280EFC;
+	ConstantSlot gConstantSlot11280BC4;
+	ConstantSlot gConstantSlot11280B4C;
+	ConstantSlot gConstantSlot11280C08;
+	ConstantSlot gConstantSlot11280BC8;
+	ConstantSlot gConstantSlot11280B6C;
+	ConstantSlot gConstantSlot11280B2C;
+	ConstantSlot gConstantSlot112812A4;
+	ConstantSlot gConstantSlot11280B14;
+	ConstantSlot gConstantSlot11280CC8;
+	ConstantSlot gConstantSlot11280CE4;
+	ConstantSlot gConstantSlot11280A88;
+	ConstantSlot gConstantSlot1128103C;
+	ConstantSlot gConstantSlot11280C50;
+	ConstantSlot gConstantSlot11280A40;
+	ConstantSlot gConstantSlot1128128C;
+	ConstantSlot gConstantSlot11280CEC;
+	ConstantSlot gConstantSlot11280B00;
+	ConstantSlot gConstantSlot11280EAC;
+	ConstantSlot gConstantSlot11280F24;
+	ConstantSlot gConstantSlot11280AB0;
+	ConstantSlot gConstantSlot11280BCC;
+	ConstantSlot gConstantSlot11280D34;
+	ConstantSlot gConstantSlot112810CC;
+	ConstantSlot gConstantSlot11281174;
+	ConstantSlot gConstantSlot11280CB0;
+	ConstantSlot gConstantSlot11280E7C;
+	ConstantSlot gConstantSlot11280C98;
+	ConstantSlot gConstantSlot112812CC;
+	ConstantSlot gConstantSlot11281064;
+	ConstantSlot gConstantSlot112810F4;
+	ConstantSlot gConstantSlot11280AF0;
+	ConstantSlot gConstantSlot11280C18;
+	ConstantSlot gConstantSlot11280EB4;
+	ConstantSlot gConstantSlot11280C58;
+	ConstantSlot gConstantSlot11281014;
+	ConstantSlot gConstantSlot11280E14;
+	ConstantSlot gConstantSlot11281164;
+	ConstantSlot gConstantSlot11280D9C;
+	ConstantSlot gConstantSlot11280A8C;
+	ConstantSlot gConstantSlot11280FA4;
+	ConstantSlot gConstantSlot11281244;
+	ConstantSlot gConstantSlot11281264;
+	ConstantSlot gConstantSlot11280DCC;
+	ConstantSlot gConstantSlot11280D14;
+	ConstantSlot gConstantSlot11280CF4;
+	ConstantSlot gConstantSlot11280D8C;
+	ConstantSlot gConstantSlot11280CD8;
+	ConstantSlot gConstantSlot11280CF0;
+	ConstantSlot gConstantSlot11280C20;
+	ConstantSlot gConstantSlot11280E80;
+	ConstantSlot gConstantSlot11280E84;
+	ConstantSlot gConstantSlot11280B80;
+	ConstantSlot gConstantSlot11280F3C;
+	ConstantSlot gConstantSlot11280CA0;
+	ConstantSlot gConstantSlot11280EBC;
+	ConstantSlot gConstantSlot11280D60;
+	ConstantSlot gConstantPRLightAmbientVertex;
+	ConstantSlot gConstantSlot11280FDC;
+	ConstantSlot gConstantProtoJointMatrix;
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66720
+// FUNCTION: ENGINE 0x10D66730
+// FUNCTION: ENGINE 0x10D6FF70
+// FUNCTION: ENGINE 0x10D6FF80
+// FUNCTION: ENGINE 0x10D6FF90
+// FUNCTION: ENGINE 0x10D6FFA0
+// FUNCTION: ENGINE 0x10D6FFB0
+// FUNCTION: ENGINE 0x10D6FFC0
+// FUNCTION: ENGINE 0x10D6FFD0
+// FUNCTION: ENGINE 0x10D6FFE0
+// FUNCTION: ENGINE 0x10D6FFF0
+// FUNCTION: ENGINE 0x10D70000
+// FUNCTION: ENGINE 0x10D70010
+// FUNCTION: ENGINE 0x10D70020
+// FUNCTION: ENGINE 0x10D70030
+// FUNCTION: ENGINE 0x10D70040
+// FUNCTION: ENGINE 0x10D70050
+// FUNCTION: ENGINE 0x10D70060
+// FUNCTION: ENGINE 0x10D70070
+// FUNCTION: ENGINE 0x10D70080
+// FUNCTION: ENGINE 0x10D70090
+// FUNCTION: ENGINE 0x10D700A0
+// FUNCTION: ENGINE 0x10D700B0
+// FUNCTION: ENGINE 0x10D700C0
+// FUNCTION: ENGINE 0x10D700D0
+// FUNCTION: ENGINE 0x10D700E0
+// FUNCTION: ENGINE 0x10D700F0
+// FUNCTION: ENGINE 0x10D70100
+// FUNCTION: ENGINE 0x10D70110
+// FUNCTION: ENGINE 0x10D70120
+// FUNCTION: ENGINE 0x10D70130
+// FUNCTION: ENGINE 0x10D70140
+// FUNCTION: ENGINE 0x10D70150
+// FUNCTION: ENGINE 0x10D70160
+// FUNCTION: ENGINE 0x10D70170
+// FUNCTION: ENGINE 0x10D70180
+// FUNCTION: ENGINE 0x10D70190
+// FUNCTION: ENGINE 0x10D701A0
+// FUNCTION: ENGINE 0x10D701B0
+// FUNCTION: ENGINE 0x10D701C0
+// FUNCTION: ENGINE 0x10D701D0
+// FUNCTION: ENGINE 0x10D701E0
+// FUNCTION: ENGINE 0x10D701F0
+// FUNCTION: ENGINE 0x10D70200
+// FUNCTION: ENGINE 0x10D70210
+// FUNCTION: ENGINE 0x10D70220
+// FUNCTION: ENGINE 0x10D70230
+// FUNCTION: ENGINE 0x10D70240
+// FUNCTION: ENGINE 0x10D70250
+// FUNCTION: ENGINE 0x10D70260
+// FUNCTION: ENGINE 0x10D70270
+// FUNCTION: ENGINE 0x10D70280
+// FUNCTION: ENGINE 0x10D70290
+// FUNCTION: ENGINE 0x10D702A0
+// FUNCTION: ENGINE 0x10D702B0
+// FUNCTION: ENGINE 0x10D702C0
+// FUNCTION: ENGINE 0x10D702D0
+// FUNCTION: ENGINE 0x10D702E0
+// FUNCTION: ENGINE 0x10D702F0
+// FUNCTION: ENGINE 0x10D707B0
+// FUNCTION: ENGINE 0x10D707C0
+// FUNCTION: ENGINE 0x10D707D0
+// FUNCTION: ENGINE 0x10D707E0
+// FUNCTION: ENGINE 0x10D707F0
+// FUNCTION: ENGINE 0x10D70800
+// FUNCTION: ENGINE 0x10D70810
+// FUNCTION: ENGINE 0x10D70820
+// FUNCTION: ENGINE 0x10D70830
+// FUNCTION: ENGINE 0x10D70840
+// FUNCTION: ENGINE 0x10D70850
+// FUNCTION: ENGINE 0x10D70860
+// FUNCTION: ENGINE 0x10D70870
+// FUNCTION: ENGINE 0x10D70880
+// FUNCTION: ENGINE 0x10D70890
+// FUNCTION: ENGINE 0x10D708A0
+// FUNCTION: ENGINE 0x10D708B0
+// FUNCTION: ENGINE 0x10D708C0
+// FUNCTION: ENGINE 0x10D708D0
+// FUNCTION: ENGINE 0x10D708E0
+// FUNCTION: ENGINE 0x10D708F0
+// FUNCTION: ENGINE 0x10D70900
+// FUNCTION: ENGINE 0x10D70910
+// FUNCTION: ENGINE 0x10D70920
+// FUNCTION: ENGINE 0x10D70930
+// FUNCTION: ENGINE 0x10D70940
+// FUNCTION: ENGINE 0x10D70950
+// FUNCTION: ENGINE 0x10D70960
+// FUNCTION: ENGINE 0x10D70970
+// FUNCTION: ENGINE 0x10D70980
+// FUNCTION: ENGINE 0x10D709A0
+// FUNCTION: ENGINE 0x10D70D80
+// FUNCTION: ENGINE 0x10D70FC0
+// FUNCTION: ENGINE 0x10D70FD0
+// FUNCTION: ENGINE 0x10D70FE0
+// FUNCTION: ENGINE 0x10D70FF0
+// FUNCTION: ENGINE 0x10D71000
+// FUNCTION: ENGINE 0x10D71010
+// FUNCTION: ENGINE 0x10D71020
+// FUNCTION: ENGINE 0x10D71030
+// FUNCTION: ENGINE 0x10D71040
+// FUNCTION: ENGINE 0x10D71050
+// FUNCTION: ENGINE 0x10D71060
+// FUNCTION: ENGINE 0x10D71070
+// FUNCTION: ENGINE 0x10D71080
+// FUNCTION: ENGINE 0x10D71090
+// FUNCTION: ENGINE 0x10D710A0
+// FUNCTION: ENGINE 0x10D710B0
+// FUNCTION: ENGINE 0x10D710C0
+// FUNCTION: ENGINE 0x10D710D0
+// FUNCTION: ENGINE 0x10D710E0
+// FUNCTION: ENGINE 0x10D710F0
+// FUNCTION: ENGINE 0x10D71100
+// FUNCTION: ENGINE 0x10D71110
+// FUNCTION: ENGINE 0x10D71120
+// FUNCTION: ENGINE 0x10D71130
+// FUNCTION: ENGINE 0x10D71140
+// FUNCTION: ENGINE 0x10D71150
+// FUNCTION: ENGINE 0x10D71160
+// FUNCTION: ENGINE 0x10D71170
+// FUNCTION: ENGINE 0x10D71180
+// FUNCTION: ENGINE 0x10D71190
+// FUNCTION: ENGINE 0x10D711A0
+// FUNCTION: ENGINE 0x10D711B0
+// FUNCTION: ENGINE 0x10D711C0
+// FUNCTION: ENGINE 0x10D711D0
+// FUNCTION: ENGINE 0x10D711E0
+// FUNCTION: ENGINE 0x10D711F0
+// FUNCTION: ENGINE 0x10D71200
+// FUNCTION: ENGINE 0x10D71210
+// FUNCTION: ENGINE 0x10D71220
+// FUNCTION: ENGINE 0x10D71230
+// FUNCTION: ENGINE 0x10D71240
+// FUNCTION: ENGINE 0x10D71250
+// FUNCTION: ENGINE 0x10D71260
+// FUNCTION: ENGINE 0x10D71270
+// FUNCTION: ENGINE 0x10D71280
+// FUNCTION: ENGINE 0x10D71290
+// FUNCTION: ENGINE 0x10D712A0
+// FUNCTION: ENGINE 0x10D712B0
+// FUNCTION: ENGINE 0x10D712C0
+// FUNCTION: ENGINE 0x10D712D0
+// FUNCTION: ENGINE 0x10D712E0
+// FUNCTION: ENGINE 0x10D712F0
+// FUNCTION: ENGINE 0x10D71300
+// FUNCTION: ENGINE 0x10D71310
+// FUNCTION: ENGINE 0x10D71320
+// FUNCTION: ENGINE 0x10D71330
+// FUNCTION: ENGINE 0x10D71340
+// FUNCTION: ENGINE 0x10D71350
+// FUNCTION: ENGINE 0x10D71360
+// FUNCTION: ENGINE 0x10D71370
+// FUNCTION: ENGINE 0x10D71380
+// FUNCTION: ENGINE 0x10D71390
+// FUNCTION: ENGINE 0x10D713A0
+// FUNCTION: ENGINE 0x10D713B0
+// FUNCTION: ENGINE 0x10D713C0
+// FUNCTION: ENGINE 0x10D713D0
+// FUNCTION: ENGINE 0x10D713E0
+// FUNCTION: ENGINE 0x10D713F0
+// FUNCTION: ENGINE 0x10D71400
+// FUNCTION: ENGINE 0x10D71410
+// FUNCTION: ENGINE 0x10D71420
+// FUNCTION: ENGINE 0x10D71430
+// FUNCTION: ENGINE 0x10D71440
+// FUNCTION: ENGINE 0x10D71450
+// FUNCTION: ENGINE 0x10D71460
+// FUNCTION: ENGINE 0x10D71470
+// FUNCTION: ENGINE 0x10D71480
+// FUNCTION: ENGINE 0x10D71490
+// FUNCTION: ENGINE 0x10D714A0
+// FUNCTION: ENGINE 0x10D714B0
+// FUNCTION: ENGINE 0x10D714C0
+// FUNCTION: ENGINE 0x10D714D0
+// FUNCTION: ENGINE 0x10D714E0
+// FUNCTION: ENGINE 0x10D714F0
+// FUNCTION: ENGINE 0x10D71500
+// FUNCTION: ENGINE 0x10D71510
+// FUNCTION: ENGINE 0x10D71520
+// FUNCTION: ENGINE 0x10D71530
+// FUNCTION: ENGINE 0x10D71540
+// FUNCTION: ENGINE 0x10D71550
+// FUNCTION: ENGINE 0x10D71560
+// FUNCTION: ENGINE 0x10D71570
+// FUNCTION: ENGINE 0x10D71580
+// FUNCTION: ENGINE 0x10D71590
+// FUNCTION: ENGINE 0x10D715A0
+// FUNCTION: ENGINE 0x10D715B0
+// FUNCTION: ENGINE 0x10D715C0
+// FUNCTION: ENGINE 0x10D715D0
+// FUNCTION: ENGINE 0x10D715E0
+// FUNCTION: ENGINE 0x10D715F0
+// FUNCTION: ENGINE 0x10D71600
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D671A0
 // FUNCTION: ENGINE 0x10D671E0

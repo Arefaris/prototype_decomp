@@ -11,7 +11,7 @@
 namespace engine
 {
 	// The channel the behaviour listens on for the scenario's messages (0x11316A50; name guessed)
-	extern MessageListeners gScenarioTreeListeners;
+	MessageListeners gScenarioTreeListeners("scenario", 0);
 	// Set when a sequencer was started (0x111D0611; name guessed)
 	extern bool gScenarioTreeRunning;
 
@@ -434,6 +434,21 @@ namespace engine
 		GetHandle(object).RouterRemove(gScenarioTreeListeners);
 	}
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup4("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75D80
+// FUNCTION: ENGINE 0x10D8A780
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75DA0
+// FUNCTION: ENGINE 0x10D8A790
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10875F70

@@ -29,13 +29,27 @@ namespace engine
 		float y;
 	};
 
-	extern fight::EnumEntry gCharacterInputConditionButtonStateTable[];
+	fight::EnumEntry gCharacterInputConditionButtonStateTable[4] =
+		{
+			{ fight::Name("Up", 0) },
+			{ fight::Name("Pressed", 0) },
+			{ fight::Name("Down", 0) },
+			{ fight::Name("Released", 0) }
+		};
 	extern const int gCharacterInputConditionButtonStateCount;
 	extern const int gCompareOperatorCount;
 	extern fight::EnumEntry gCompareOperatorTable[];
 	extern fight::EnumEntry gLocoInputConditionInputTypeTable[];
-	extern fight::EnumEntry gTurnInputConditionPreviousDirectionTable[];
-	extern fight::EnumEntry gTurnInputConditionRangeTypeTable[];
+	fight::EnumEntry gTurnInputConditionPreviousDirectionTable[2] =
+		{
+			{ fight::Name("Facing Direction", 0) },
+			{ fight::Name("Physical Velocity Direction", 0) }
+		};
+	fight::EnumEntry gTurnInputConditionRangeTypeTable[2] =
+		{
+			{ fight::Name("Inside Range", 0) },
+			{ fight::Name("Outside Range", 0) }
+		};
 
 	fight::Property** gCharacterInputConditionProperties;  // 0x1131B290
 
@@ -434,6 +448,15 @@ namespace engine
 
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D79240
+// FUNCTION: ENGINE 0x10D79270
+// FUNCTION: ENGINE 0x10D79740
+// FUNCTION: ENGINE 0x10D8B2D0
+// FUNCTION: ENGINE 0x10D8B2E0
+// FUNCTION: ENGINE 0x10D8B490
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108F68C0

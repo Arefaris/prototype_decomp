@@ -1069,7 +1069,7 @@ namespace engine
 	// 0x11276940: the name of the prop whose logic tree is asked (name guessed)
 	extern ScriptName gUnknownName11276940;
 	// The channel the scenario messages of the scripts go to (0x11315F68)
-	extern MessageListeners gScenarioListeners;
+	MessageListeners gScenarioListeners("scenario", 0);
 	// The text of the script that makes a handle persistable (0x111CF2A4)
 	extern const char* gLuaGOHPersistScript;
 
@@ -1419,6 +1419,21 @@ namespace engine
 		CreateLuaGOHMetatable();
 	}
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup2("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75A80
+// FUNCTION: ENGINE 0x10D8A6B0
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75AA0
+// FUNCTION: ENGINE 0x10D8A6C0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10867970

@@ -208,6 +208,16 @@ namespace engine
 	core::Name<core::CaseSensitiveKey> gLatencySetting("SettingAudioLatency", 0);
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gSettingAudioTHXNeutralEnabled("SettingAudioTHXNeutralEnabled", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D78590
+// FUNCTION: ENGINE 0x10D8B000
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D74250
 // FUNCTION: ENGINE 0x10D743D0

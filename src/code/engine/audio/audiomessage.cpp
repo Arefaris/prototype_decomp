@@ -97,6 +97,25 @@ namespace engine
 	core::Name<core::CaseSensitiveKey> gAudioVolume("volume", 0);
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gEvent("event", 0);
+	core::Name<core::CaseSensitiveKey> gFile("file", 0);
+	core::Name<core::CaseSensitiveKey> gAudioPlay("play", 0);
+	core::Name<core::CaseSensitiveKey> gUserMixName("user_mix", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74290
+// FUNCTION: ENGINE 0x10D742B0
+// FUNCTION: ENGINE 0x10D743F0
+// FUNCTION: ENGINE 0x10D74470
+// FUNCTION: ENGINE 0x10D89E50
+// FUNCTION: ENGINE 0x10D89E60
+// FUNCTION: ENGINE 0x10D89F00
+// FUNCTION: ENGINE 0x10D89F40
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D742D0
 // FUNCTION: ENGINE 0x10D742F0

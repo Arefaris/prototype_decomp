@@ -3,7 +3,15 @@
 
 namespace engine
 {
-	extern fight::EnumEntry gNISAnimationTrackCyclicTable[];
+	fight::EnumEntry gNISAnimationTrackCyclicTable[6] =
+		{
+			{ fight::Name("From Animation", 0) },
+			{ fight::Name("Hold on current frame", 0) },
+			{ fight::Name("Forward", 0) },
+			{ fight::Name("Backward", 0) },
+			{ fight::Name("Forward - Backward", 0) },
+			{ fight::Name("Backward - Forward", 0) }
+		};
 
 	fight::Property** gNISAnimationTrackProperties;  // 0x11318358
 
@@ -607,7 +615,13 @@ namespace engine
 	template class fight::TrackFactoryTemplate<CameraClippingPlanesTrack>;
 	template class fight::TrackFactoryCasterTemplate<CameraClippingPlanesTrack>;
 
-	extern fight::EnumEntry gCameraAnimationTrackCyclicTable[];
+	fight::EnumEntry gCameraAnimationTrackCyclicTable[4] =
+		{
+			{ fight::Name("From Animation", 0) },
+			{ fight::Name("Not Cyclic", 0) },
+			{ fight::Name("Cyclic", 0) },
+			{ fight::Name("Hold End Frame", 0) }
+		};
 
 	fight::Property** gCameraAnimationTrackProperties;  // 0x113183A0
 
@@ -935,3 +949,9 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<TimeDilationTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D77FE0
+// FUNCTION: ENGINE 0x10D78060
+// FUNCTION: ENGINE 0x10D8AE70
+// FUNCTION: ENGINE 0x10D8AE80

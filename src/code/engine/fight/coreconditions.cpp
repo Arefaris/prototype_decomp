@@ -1606,6 +1606,21 @@ namespace fight
 	}
 }
 
+namespace fight
+{
+	fight::EnumEntry gDebugConditionModeTable[3] =
+		{
+			{ fight::Name("RAD_DEBUG", 0) },
+			{ fight::Name("RAD_TUNE", 0) },
+			{ fight::Name("RAD_RELEASE", 0) }
+		};
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66400
+// FUNCTION: ENGINE 0x10D866A0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x105ADCE0
 // FUNCTION: ENGINE 0x105ADD00

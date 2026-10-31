@@ -8,11 +8,12 @@
 #include "code/engine/database/gamedatabase.h"
 #include "code/engine/scenariomessage.h"
 #include "code/lua/lua.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace proto
 {
 	// The listeners of the free roam events' scenario messages (0x11274F18)
-	extern engine::MessageListeners gFREventListeners;
+	engine::MessageListeners gFREventListeners("scenario", 0);
 	// A number the free roam entry resets (0x110B1188)
 	extern int gFREventLastIndex;
 	// 0x104DF2C0: tells the stats unit that the free roam state changed (name guess)
@@ -205,3 +206,7 @@ namespace proto
 	}
 #endif
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D65490
+// FUNCTION: ENGINE 0x10D86320

@@ -305,7 +305,12 @@ namespace engine
 	template class fight::TrackFactoryTemplate<LightTrack>;
 	template class fight::TrackFactoryCasterTemplate<LightTrack>;
 
-	extern fight::EnumEntry gTeleportTrackSpaceTable[];
+	fight::EnumEntry gTeleportTrackSpaceTable[3] =
+		{
+			{ fight::Name("World Space", 0) },
+			{ fight::Name("Game Object Space", 0) },
+			{ fight::Name("Joint Space", 0) }
+		};
 	extern const int gTeleportTrackSpaceCount;
 
 	fight::Property** gTeleportTrackProperties;  // 0x113183D4
@@ -669,3 +674,7 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<SpawnObjectTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D79140
+// FUNCTION: ENGINE 0x10D8B290

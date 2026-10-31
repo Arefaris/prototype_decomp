@@ -1682,6 +1682,116 @@ namespace pure3d
 	core::Name<core::CaseSensitiveKey> gParamDofAperture("dof_aperture", 0);
 }
 
+namespace pure3d
+{
+	core::Name<core::CaseSensitiveKey> gPrototypeDepth("Prototype Depth", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeOpaque("Prototype Opaque", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeTranslucent("Prototype Translucent", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeLitRoot("Prototype Lit Root", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeLitRoot2("Prototype Lit Root 2", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeViewPass2("Prototype View Pass 2", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeMidground("Prototype Midground", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeDecal("Prototype Decal", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeLightDecal("Prototype LightDecal", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeBlood("Prototype Blood", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeVisibility("Prototype Visibility", 0);
+	core::Name<core::CaseSensitiveKey> gPrototypeFog("Prototype Fog", 0);
+	core::Name<core::CaseSensitiveKey> gBloomPass("Bloom Pass", 0);
+	core::Name<core::CaseSensitiveKey> gCaptureColour("ClearColour", 0);
+	core::Name<core::CaseSensitiveKey> gCaptureAmount("ClearMask", 0);
+	core::Name<core::CaseSensitiveKey> gColour("colour", 0);
+	core::Name<core::CaseSensitiveKey> gInnerSaturationDistance("inner saturation distance", 0);
+	core::Name<core::CaseSensitiveKey> gOuterSaturationDistance("outer_saturation distance", 0);
+	core::Name<core::CaseSensitiveKey> gInnerContrastDistance("inner_contrast_distance", 0);
+	core::Name<core::CaseSensitiveKey> gOuterContrastDistance("outer_contrast_distance", 0);
+	core::Name<core::CaseSensitiveKey> gInnerBrightnessDistance("inner_brightness_distance", 0);
+	core::Name<core::CaseSensitiveKey> gOuterBrightnessDistance("outer_brightness_distance", 0);
+	core::Name<core::CaseSensitiveKey> gInnerTintDistance("inner_tint_distance", 0);
+	core::Name<core::CaseSensitiveKey> gOuterTintDistance("outer_tint_distance", 0);
+	core::Name<core::CaseSensitiveKey> gBrightnessFalloff("brightness_falloff", 0);
+	core::Name<core::CaseSensitiveKey> gContrastFalloff("contrast_falloff", 0);
+	core::Name<core::CaseSensitiveKey> gFalloffPower("FalloffPower", 0);
+	core::Name<core::CaseSensitiveKey> gCutoff("Cutoff", 0);
+	core::Name<core::CaseSensitiveKey> gSelectCoordEnable("select_coord_enable", 0);
+	core::Name<core::CaseSensitiveKey> gSelectCoordX("select_coord_x", 0);
+	core::Name<core::CaseSensitiveKey> gSelectCoordY("select_coord_y", 0);
+}
+
+namespace engine
+{
+	namespace render
+	{
+		core::Name<core::CaseSensitiveKey> gParameterEnable("Enable", 0);
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D669D0
+// FUNCTION: ENGINE 0x10D669F0
+// FUNCTION: ENGINE 0x10D66A10
+// FUNCTION: ENGINE 0x10D66A30
+// FUNCTION: ENGINE 0x10D66A50
+// FUNCTION: ENGINE 0x10D66A70
+// FUNCTION: ENGINE 0x10D66A90
+// FUNCTION: ENGINE 0x10D66AB0
+// FUNCTION: ENGINE 0x10D66AD0
+// FUNCTION: ENGINE 0x10D66AF0
+// FUNCTION: ENGINE 0x10D66B10
+// FUNCTION: ENGINE 0x10D66B30
+// FUNCTION: ENGINE 0x10D71750
+// FUNCTION: ENGINE 0x10D71B30
+// FUNCTION: ENGINE 0x10D71B50
+// FUNCTION: ENGINE 0x10D71B90
+// FUNCTION: ENGINE 0x10D71BF0
+// FUNCTION: ENGINE 0x10D71F90
+// FUNCTION: ENGINE 0x10D71FB0
+// FUNCTION: ENGINE 0x10D71FD0
+// FUNCTION: ENGINE 0x10D71FF0
+// FUNCTION: ENGINE 0x10D72010
+// FUNCTION: ENGINE 0x10D72030
+// FUNCTION: ENGINE 0x10D72050
+// FUNCTION: ENGINE 0x10D72070
+// FUNCTION: ENGINE 0x10D72090
+// FUNCTION: ENGINE 0x10D720B0
+// FUNCTION: ENGINE 0x10D72170
+// FUNCTION: ENGINE 0x10D72190
+// FUNCTION: ENGINE 0x10D72230
+// FUNCTION: ENGINE 0x10D72250
+// FUNCTION: ENGINE 0x10D72270
+// FUNCTION: ENGINE 0x10D86950
+// FUNCTION: ENGINE 0x10D86960
+// FUNCTION: ENGINE 0x10D86970
+// FUNCTION: ENGINE 0x10D86980
+// FUNCTION: ENGINE 0x10D86990
+// FUNCTION: ENGINE 0x10D869A0
+// FUNCTION: ENGINE 0x10D869B0
+// FUNCTION: ENGINE 0x10D869C0
+// FUNCTION: ENGINE 0x10D869D0
+// FUNCTION: ENGINE 0x10D869E0
+// FUNCTION: ENGINE 0x10D869F0
+// FUNCTION: ENGINE 0x10D86A00
+// FUNCTION: ENGINE 0x10D88E20
+// FUNCTION: ENGINE 0x10D89010
+// FUNCTION: ENGINE 0x10D89020
+// FUNCTION: ENGINE 0x10D89040
+// FUNCTION: ENGINE 0x10D89070
+// FUNCTION: ENGINE 0x10D89240
+// FUNCTION: ENGINE 0x10D89250
+// FUNCTION: ENGINE 0x10D89260
+// FUNCTION: ENGINE 0x10D89270
+// FUNCTION: ENGINE 0x10D89280
+// FUNCTION: ENGINE 0x10D89290
+// FUNCTION: ENGINE 0x10D892A0
+// FUNCTION: ENGINE 0x10D892B0
+// FUNCTION: ENGINE 0x10D892C0
+// FUNCTION: ENGINE 0x10D892D0
+// FUNCTION: ENGINE 0x10D89330
+// FUNCTION: ENGINE 0x10D89340
+// FUNCTION: ENGINE 0x10D89390
+// FUNCTION: ENGINE 0x10D893A0
+// FUNCTION: ENGINE 0x10D893B0
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D66B50
 // FUNCTION: ENGINE 0x10D66B70

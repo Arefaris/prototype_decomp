@@ -489,8 +489,18 @@ namespace engine
 
 	namespace animation
 	{
-		extern fight::EnumEntry gAttachObjectTrackModeIfUsingPhysicsTable[];
-		extern fight::EnumEntry gAttachObjectTrackCharacterModeIfSimulatedTable[];
+		fight::EnumEntry gAttachObjectTrackModeIfUsingPhysicsTable[3] =
+			{
+				{ fight::Name("Simulated", 0) },
+				{ fight::Name("SimulatedChild", 0) },
+				{ fight::Name("Keyframed", 0) }
+			};
+		fight::EnumEntry gAttachObjectTrackCharacterModeIfSimulatedTable[3] =
+			{
+				{ fight::Name("Unsupported", 0) },
+				{ fight::Name("Supported", 0) },
+				{ fight::Name("Locomoting", 0) }
+			};
 
 		fight::Property** gAttachObjectTrackProperties;  // 0x1131831C
 
@@ -770,3 +780,9 @@ namespace engine
 	}
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D77F60
+// FUNCTION: ENGINE 0x10D77FA0
+// FUNCTION: ENGINE 0x10D8AE50
+// FUNCTION: ENGINE 0x10D8AE60

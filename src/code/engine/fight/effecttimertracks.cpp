@@ -259,7 +259,13 @@ namespace engine
 
 	namespace animation
 	{
-		extern fight::EnumEntry gShaderAnimationTrackCyclicTable[];
+		fight::EnumEntry gShaderAnimationTrackCyclicTable[4] =
+			{
+				{ fight::Name("From Animation", 0) },
+				{ fight::Name("Not Cyclic", 0) },
+				{ fight::Name("Cyclic", 0) },
+				{ fight::Name("Hold End Frame", 0) }
+			};
 
 		fight::Property** gShaderAnimationTrackProperties;  // 0x11284BB0
 
@@ -415,3 +421,7 @@ namespace engine
 	}
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74B70
+// FUNCTION: ENGINE 0x10D8A000

@@ -260,7 +260,15 @@ namespace engine
 	template class fight::TrackFactoryTemplate<DestroyTrack>;
 	template class fight::TrackFactoryCasterTemplate<DestroyTrack>;
 
-	extern fight::EnumEntry gAnimationControlTrackCycleModeTable[];
+	fight::EnumEntry gAnimationControlTrackCycleModeTable[6] =
+		{
+			{ fight::Name("Animation Default", 0) },
+			{ fight::Name("Hold", 0) },
+			{ fight::Name("Forward", 0) },
+			{ fight::Name("Backward", 0) },
+			{ fight::Name("ForwardBackward", 0) },
+			{ fight::Name("BackwardForward", 0) }
+		};
 	extern const int gAnimationControlTrackCycleModeCount;
 
 	fight::Property** gAnimationControlTrackProperties;  // 0x113182DC
@@ -388,3 +396,7 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<AnimationControlTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D78C00
+// FUNCTION: ENGINE 0x10D8B1A0

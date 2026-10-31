@@ -493,6 +493,25 @@ namespace proto
 	core::Name<core::CaseSensitiveKey> gNISAnimStreamTag("NISAnimStreamTag", 0);
 }
 
+namespace proto
+{
+	core::Name<core::CaseSensitiveKey> gNISStreamTag("NISStreamTag", 0);
+	core::Name<core::CaseSensitiveKey> gLocatorForNIS("Locator for NIS ", 0);
+	core::Name<core::CaseSensitiveKey> gShotGroup("Shot-Group", 0);
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup2("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D773C0
+// FUNCTION: ENGINE 0x10D77440
+// FUNCTION: ENGINE 0x10D77460
+// FUNCTION: ENGINE 0x10D77480
+// FUNCTION: ENGINE 0x10D8A9D0
+// FUNCTION: ENGINE 0x10D8AA10
+// FUNCTION: ENGINE 0x10D8AA20
+// FUNCTION: ENGINE 0x10D8AAB0
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D60EF0
 // FUNCTION: ENGINE 0x10D60F20

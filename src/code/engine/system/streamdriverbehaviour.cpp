@@ -8,6 +8,7 @@
 #include "code/engine/system/streampackage.h"
 #include "code/engine/system/streamtrigger.h"
 #include <algorithm>
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
@@ -15,7 +16,7 @@ namespace engine
 	// both are another unit's)
 	extern core::Name<core::CaseSensitiveKey> gTransformName;
 	class MessageListeners;
-	extern MessageListeners gStreamListeners;
+	MessageListeners gStreamListeners("stream", 0);
 
 	// Sorts a range with a predicate (0x10899750; not inline, so the callers jump to it)
 	template<class Iterator, class Predicate> void SortRange(Iterator first, Iterator last, Predicate predicate)
@@ -314,6 +315,11 @@ namespace engine
 		last = found;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74CE0
+// FUNCTION: ENGINE 0x10D8A0D0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108984C0

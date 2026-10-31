@@ -526,6 +526,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gCollisionHitTrackPropAreaEmissionScaleFunctionTable[4] =
+				{
+					{ fight::Name("Linear", 0) },
+					{ fight::Name("Exponential", 0) },
+					{ fight::Name("Square root", 0) },
+					{ fight::Name("Logarithmic", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D61400
+// FUNCTION: ENGINE 0x10D85A40
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1014BFE0
 // FUNCTION: ENGINE 0x1014BFF0

@@ -332,6 +332,19 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gSubtitleFirstName("none", 0);
+	core::Name<core::CaseSensitiveKey> gSubtitleSecondName("NoSpeaker", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D75DE0
+// FUNCTION: ENGINE 0x10D75E20
+// FUNCTION: ENGINE 0x10D8A7B0
+// FUNCTION: ENGINE 0x10D8A7D0
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D75E00
 // FUNCTION: ENGINE 0x10D75E40

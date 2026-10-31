@@ -178,7 +178,13 @@ namespace engine
 	extern const int gLodBiasesGroupMembers[];
 	extern fight::EnumEntry gEffectLODBiasTrackBiasesEmissionRateScaleFunctionTable[];
 	extern const int gEffectLODBiasTrackBiasesEmissionRateScaleFunctionCount;
-	extern fight::EnumEntry gEffectLODBiasTrackBiasesSize1DScaleFunctionTable[];
+	fight::EnumEntry gEffectLODBiasTrackBiasesSize1DScaleFunctionTable[4] =
+		{
+			{ fight::Name("Linear", 0) },
+			{ fight::Name("Exponential", 0) },
+			{ fight::Name("Square root", 0) },
+			{ fight::Name("Logarithmic", 0) }
+		};
 	extern const int gEffectLODBiasTrackBiasesSize1DScaleFunctionCount;
 	extern const int gLodOverridesGroupMembers[];
 
@@ -891,3 +897,7 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<EffectLODBiasTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74A40
+// FUNCTION: ENGINE 0x10D89FE0

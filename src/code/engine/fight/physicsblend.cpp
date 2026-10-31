@@ -10,8 +10,19 @@ namespace engine
 	extern content::ObjectName gPhysicsObjectAttributeName;
 	GameObjectHandle GetObjectHandle(core::IRefCount* object);
 	// The enum tables of the condition's properties (0x1131B270: three entries, 0x1131B250: four)
-	extern fight::EnumEntry gHasPhysicsInContextTable[];
-	extern fight::EnumEntry gHasPhysicsCollisionObjectsTable[];
+	fight::EnumEntry gHasPhysicsInContextTable[3] =
+		{
+			{ fight::Name("Yes", 0) },
+			{ fight::Name("No", 0) },
+			{ fight::Name("Dont care", 0) }
+		};
+	fight::EnumEntry gHasPhysicsCollisionObjectsTable[4] =
+		{
+			{ fight::Name("All", 0) },
+			{ fight::Name("None", 0) },
+			{ fight::Name("At least one", 0) },
+			{ fight::Name("Dont care", 0) }
+		};
 
 	fight::Property** gHasPhysicsConditionProperties;  // 0x1131B248
 
@@ -368,6 +379,13 @@ namespace engine
 {
 	core::Name<core::CaseSensitiveKey> gPhysicsObjectAttributeName("physicsObject", 0);
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D79180
+// FUNCTION: ENGINE 0x10D791C0
+// FUNCTION: ENGINE 0x10D8B2A0
+// FUNCTION: ENGINE 0x10D8B2B0
+
 
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D73D70

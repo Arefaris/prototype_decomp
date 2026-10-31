@@ -78,7 +78,11 @@ namespace engine
 	namespace animation
 	{
 		extern fight::EnumEntry gPuppetPhaseConditionPositionConditionTypeTable[];
-		extern fight::EnumEntry gPuppetPhaseConditionVelocityConditionTypeTable[];
+		fight::EnumEntry gPuppetPhaseConditionVelocityConditionTypeTable[2] =
+			{
+				{ fight::Name("Inside Range", 0) },
+				{ fight::Name("Outside Range", 0) }
+			};
 
 		fight::Property** gPuppetPhaseConditionProperties;  // 0x11318490
 
@@ -269,3 +273,7 @@ namespace engine
 	}
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D78230
+// FUNCTION: ENGINE 0x10D8AEF0

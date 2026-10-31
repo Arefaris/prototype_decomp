@@ -6080,3 +6080,97 @@ file between the markers `// ---- actions begin` / `// ---- actions end` (genera
   `x == y ? true : false` gives the engine's `cmp; sete al`.
 - Not done: the actions with attribute writers (pedestrian, patsy), puppet drivers with long updates (radial blur, spawn gib, reaction throw / hit animation, supporting limb test), the shoot actions and conditions (helpers of the unit), the remaining 13 reaction conditions
   (originator, collision position / normal, impulse direction, slice angle, height), the distance condition of the supporting surface (SSE vector code), and the actions whose constructors register watchers or hold names.
+
+## Dynamic initializers and atexit stubs (0x10D60000 - 0x10D8E400, the end of .text)
+
+The compiler's initializers of the global objects (`??__E<name>@<ns>@@YAXXZ`: construct the object, then `_atexit` of
+its stub) lie in link order from 0x10D60010 to about 0x10D7A040; the atexit stubs they register (`??__F<name>...`) from
+0x10D85580 to 0x10D8BA20, in the same order (43 of them out of order); every initializer's stub is its own function
+(nothing is folded). 1445 initializers register a stub; the others only construct (an object without a destructor, a
+hashed name) or store constants. The 2400 one-byte `ret` stubs are the atexit stubs of empty destructors: 1312 belong to
+an initializer, 1094 are pushed by `_atexit` calls inside functions (the function-local statics of functions that are
+not reconstructed; the 35 references from reconstructed functions are mapped, except the seven whose owner is only a
+trailer annotation: 0x10D86890, 0x10D868A0, 0x10D89500, 0x10D89A60, 0x10D89D70, 0x10D8A1F0, 0x10D8A6F0).
+
+A global of the engine is defined in the source of the unit whose group it belongs to, written the way the compiler
+reproduces the initializer; symbols.txt maps the global (`data size:0xN`), its initializer and its stub
+(`??__E<name>@<ns>@@YAXXZ`, `??__F<name>@<ns>@@YAXXZ`), and the unit's trailer lists their addresses as
+`// FUNCTION: ENGINE` annotations (a "dynamic initialisers" block) so unitcheck compares them. The globals' names are
+guesses (`g` + the text of the name); where an earlier unit had named the global the name is kept.
+
+| Form of the initializer | Source form | Notes |
+|---|---|---|
+| `Name<CaseSensitiveKey> g("text", 0)` | the same | an `extern` declaration in the unit becomes the definition |
+| `MessageListeners g("text", 0)` | the same | `MessageListeners` got an inline constructor (messagerouter.h) |
+| `Name<CaseInsensitiveKey32>` built, copied twice | `g = core::PassName32(core::PassName32(Name32("text", 0)))` | `PassName32` (core/namecopy.h) is a by-value identity function |
+| `ConstantSlot` default constructor, no stub | `ConstantSlot g;` | the shader constant variables were `int`; they are `ConstantSlot` objects now (users read `.index`) |
+| a run of `Name` constructors at 8-byte steps | `fight::EnumEntry g[N] = {{fight::Name("a", 0)}, ...};` | the enum tables of the fight tracks and conditions |
+| class constructor taking no arguments, then a stub | `Class g;` | TreeHead, HeapMap, MemorySpaceAsyncRequest_Copy, InitSettings |
+
+Done (initializer and stub match): the Name globals of the render pass parameters and pass names, audio, fight, smart
+hint, collectible and profile units; all 516 shader and particle Name32 globals and 406 of the 407 shader constant slots
+(`pure3d/shaderconstants.cpp`, a new unit whose name is a guess: the variables are defined in one run of 0x10D67160 -
+0x10D71660; the 42 Name32 whose users are in `drawable.cpp`, `dxvertexbuffer.cpp`, `dxcontext.cpp`,
+`newshaderloader.cpp` and `protopasses.cpp` stayed in those units); 39 enum tables; six objects. Three more data-only
+units (names guessed) hold runs that no reconstructed unit defines: `proto/profilekeys.cpp` (the game database keys
+0x10D60280 - 0x10D60940), `pure3d/pass/src/postprocessparameters.cpp` (0x10D72D00 - 0x10D73360) and
+`engine/attributenames.cpp` (0x10D73C10 - 0x10D73EB0).
+
+| Family | Initializers | Done |
+|---|---|---|
+| Name | 525 | 340 |
+| Name32 (copied twice) | 516 | 508 |
+| ConstantSlot | 407 | 406 |
+| Name array | 124 | 0 |
+| Name64 hashed from om::String | 99 | 0 |
+| other | 94 | 0 |
+| om::String | 55 | 0 |
+| Name32 | 54 | 0 |
+| EnumEntry table | 53 | 39 |
+| object | 35 | 6 |
+| float constants | 12 | 0 |
+| table of Name + fields | 7 | 0 |
+| Name64 hash | 5 | 0 |
+
+Groups (runs of one family; "done" counts the initializers that match), with the units that read the globals (counts of
+reconstructed functions) as the guess for the unit that defines them. Groups that no reconstructed unit reads, and
+groups read from several units, are data-only translation units (the file name is unknown):
+
+| Initializers | Count | Family | Done | Read by |
+|---|---|---|---|---|
+| 0x10D60280 - 0x10D60940 | 37 | Name | 37 | smarthintmanager.cpp 2, eventscripting.cpp 2, midgroundmanager.cpp 1 |
+| 0x10D61AB0 - 0x10D61C30 | 9 | Name | 0 |  |
+| 0x10D61F00 - 0x10D62020 | 7 | Name | 0 |  |
+| 0x10D620E0 - 0x10D62230 | 8 | Name | 0 |  |
+| 0x10D65010 - 0x10D65490 | 25 | Name | 10 | collectiblebehaviour.cpp 8, freventmanager.cpp 2 |
+| 0x10D66110 - 0x10D66270 | 12 | Name array | 0 | chunk.cpp 6, branch.cpp 4, fightbase.cpp 3 |
+| 0x10D669D0 - 0x10D67110 | 59 | Name | 59 | postprocesspasses.cpp 26 |
+| 0x10D67420 - 0x10D67760 | 14 | Name32 (copied twice) | 14 | primgrouploader.cpp 20, dxvertexbuffer.cpp 10, protopasses.cpp 2, dxcontext.cpp 2 |
+| 0x10D68380 - 0x10D69700 | 79 | Name32 (copied twice) | 79 | drawable.cpp 55, effectlod.cpp 16 |
+| 0x10D697E0 - 0x10D6FCE0 | 405 | Name32 (copied twice) | 405 | newshaderloader.cpp 1 |
+| 0x10D6FD20 - 0x10D71660 | 405 | ConstantSlot | 404 | protopasses.cpp 28, protopasses2.cpp 3, lightinginputs.cpp 1, context.cpp 1 |
+| 0x10D71670 - 0x10D71730 | 7 | other | 0 |  |
+| 0x10D71750 - 0x10D72270 | 90 | Name | 90 | postprocesspasses.cpp 31, protopasses2.cpp 13, framebufferpass.cpp 10, shaderparameter.cpp 1 |
+| 0x10D72290 - 0x10D72490 | 9 | Name32 (copied twice) | 1 | protopasses.cpp 1 |
+| 0x10D72940 - 0x10D72CE0 | 30 | Name32 | 0 |  |
+| 0x10D72D00 - 0x10D73360 | 52 | Name | 52 |  |
+| 0x10D73C10 - 0x10D73F10 | 25 | Name | 25 | renderbehaviour.cpp 11, lightbehaviour.cpp 6, effecttrack.cpp 3, effectmanager.cpp 3 |
+| 0x10D74290 - 0x10D744F0 | 20 | Name | 20 | audiomessage.cpp 7, audiosettings.cpp 6, fmvplayer.cpp 3, vehiclebehaviourambient.cpp 1 |
+| 0x10D74510 - 0x10D74790 | 9 | Name64 hashed from om::String | 0 | string.cpp 117, filesystem.cpp 63, audioglobalsettings.cpp 45, cell.cpp 18 |
+| 0x10D75910 - 0x10D759A0 | 6 | other | 0 |  |
+| 0x10D75EB0 - 0x10D764F0 | 21 | Name64 hashed from om::String | 0 | string.cpp 273, filesystem.cpp 147, audioglobalsettings.cpp 105, cell.cpp 42 |
+| 0x10D773A0 - 0x10D77480 | 8 | Name | 8 | nisscripting.cpp 4, protomain.cpp 2 |
+| 0x10D79BA0 - 0x10D79C60 | 7 | Name32 | 0 |  |
+| 0x10D79F20 - 0x10D79FC0 | 6 | other | 0 |  |
+
+Open:
+- Name groups with no source: 0x10D61AB0 - 0x10D62230 (the names of the motion fight items), 0x10D60A80 - 0x10D61A50
+  (scattered game database keys), 0x10D74E00 - 0x10D79A80 (track, condition and behaviour names of the engine's fight
+  units; most are read only by unreconstructed code).
+- Name64 hashed from an `om::String` (99, 0x10D60010 - 0x10D76E00: `String s("text")` then `Hash64` of its text or of
+  the empty text, the audio and music names) and `om::String` globals (55): read by unreconstructed code only.
+- Name arrays whose elements carry more fields (a Name, a text and two words: 7 initializers, 0x10D60BA0, 0x10D654C0 ...)
+  need the element struct; the fight names built from `const char*` variables (0x10D66110 - 0x10D66270, 12 of them,
+  `Name g(gText, 0)` with the text in a variable of another unit) need those variables' names.
+- Float constant initializers (12: `movss` / `fld` copies of constants into globals, 0x10D66610, 0x10D728E0 ...), objects
+  whose constructor takes arguments (`Time(0, 0)`, `Seed`, array loops) and the stubs that call a destructor.

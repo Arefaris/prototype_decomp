@@ -20,6 +20,7 @@
 #include "code/pure3d/pddi.h"
 #include <new>
 #include <string.h>
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace core
 {
@@ -250,7 +251,7 @@ namespace engine
 	core::Name<core::CaseSensitiveKey> gMasterName("master", 0);
 	extern content::ObjectName gFmvNoSlotGroup;
 	extern container::DoubleList<FmvRequest> gRequests;
-	extern MessageListeners gMovieListeners;
+	MessageListeners gMovieListeners("scenario", 0);
 
 	// The unit's globals
 	unsigned char gMovieLock[24];
@@ -821,6 +822,11 @@ namespace engine
 {
 	core::Name<core::CaseSensitiveKey> gFmvNoSlotGroup("Undefined_SlotGroup", 0);
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74D80
+// FUNCTION: ENGINE 0x10D8A100
+
 
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D744D0

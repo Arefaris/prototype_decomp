@@ -2,7 +2,33 @@
 
 namespace proto
 {
-	extern fight::EnumEntry gSmartHintTimerTable[];
+	fight::EnumEntry gSmartHintTimerTable[24] =
+		{
+			{ fight::Name("Sprint", 0) },
+			{ fight::Name("WallRun", 0) },
+			{ fight::Name("Target", 0) },
+			{ fight::Name("Special", 0) },
+			{ fight::Name("Attack", 0) },
+			{ fight::Name("ThrowObject", 0) },
+			{ fight::Name("CameraStick", 0) },
+			{ fight::Name("CameraReset", 0) },
+			{ fight::Name("Combo", 0) },
+			{ fight::Name("AttackCharged", 0) },
+			{ fight::Name("JumpCharged", 0) },
+			{ fight::Name("JumpChargedSprinting", 0) },
+			{ fight::Name("JumpMulti", 0) },
+			{ fight::Name("CameraResetInTank", 0) },
+			{ fight::Name("Consume", 0) },
+			{ fight::Name("EPRemind", 0) },
+			{ fight::Name("PowerUnused", 0) },
+			{ fight::Name("ThermalVisionUnused", 0) },
+			{ fight::Name("AirDash", 0) },
+			{ fight::Name("WOINeglected", 0) },
+			{ fight::Name("GlideRemind", 0) },
+			{ fight::Name("StartMission", 0) },
+			{ fight::Name("WeaponGrab", 0) },
+			{ fight::Name("Devastator", 0) }
+		};
 	extern const int gSmartHintTimerCount;
 
 	fight::Property** gSmartHintSetTimerTrackProperties;  // 0x11275B90
@@ -122,3 +148,7 @@ namespace proto
 		return false;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D65E80
+// FUNCTION: ENGINE 0x10D86520
