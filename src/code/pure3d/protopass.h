@@ -11,6 +11,7 @@
 #include "code/pure3d/pass.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/renderscheme.h"
 #include "code/math/matrix.h"
 
 namespace pure3d
@@ -201,6 +202,46 @@ namespace pure3d
 		void DrawParts(PartList* parts, PrimStreamParameters* parameters, PassContext* context);
 	};
 
+	// The passes that draw translucent parts (RTTI pure3d::ProtoTranslucentPassBase, vftable 0x10E5FB48; the Translucent and
+	// Midground passes derive from it): a lit pass with a handler of its own and a filter for the second draw
+	class ProtoTranslucentPassBase : public ProtoLitPass
+	{
+	public:
+		// 0x10771FA0
+		explicit ProtoTranslucentPassBase(const PassDesc* desc);
+		// Slot 0 (the body is 0x10771F20, the deleting destructor 0x10772060)
+		virtual ~ProtoTranslucentPassBase();
+		// Slot 2 (0x10771490) and 4 (0x107719E0)
+		virtual ParameterHandlerTypeless* GetParameterHandler();
+		virtual void Render(PassContext* context);
+
+		ParameterHandler<ProtoTranslucentPassBase> parameters; // +0xB0
+		PassEntries unknownF4; // +0xF4
+		bool unknown17C;
+	};
+
+	// Vftable 0x10E5FB70
+	class ProtoTranslucentPass : public ProtoTranslucentPassBase
+	{
+	public:
+		// 0x10772080
+		explicit ProtoTranslucentPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x10771F60, the deleting destructor 0x10772100)
+		virtual ~ProtoTranslucentPass();
+	};
+
+	// Vftable 0x10E5FA34
+	class ProtoMidgroundPass : public ProtoTranslucentPassBase
+	{
+	public:
+		// 0x1076F940
+		explicit ProtoMidgroundPass(const PassDesc* desc);
+		// Slot 0 (the body is 0x1076F9A0, the deleting destructor 0x1076F9C0)
+		virtual ~ProtoMidgroundPass();
+		// Slot 4 (0x1076F9E0)
+		virtual void Render(PassContext* context);
+	};
+
 	// Draws the opaque parts lit (vftable 0x10E5F454)
 	class ProtoOpaquePass : public ProtoLitPass
 	{
@@ -349,37 +390,68 @@ namespace pure3d
 		ParameterHandler<ProtoShaderLODDebugPass> parameters; // +0xB0
 	};
 
+	// What a view pass is made from (RTTI pure3d::ViewPassDesc, a struct; names guessed)
+	struct ViewPassDesc : public PassDesc
+	{
+		PassColour clearColour; // +0x18
+		unsigned int clearMask; // +0x1C
+		unsigned int viewLevel; // +0x20
+		bool shadowView;        // +0x24
+		bool unknown25;         // +0x25
+	};
+
 	// Sets up a view of the scene, runs its children and puts the view away (vftable 0x10E5F6BC, fourteen slots)
 	class ViewPass : public Pass
 	{
 	public:
+		// 0x107696C0
+		explicit ViewPass(const ViewPassDesc* desc);
+		// Slot 0 (the body is 0x10769640, the deleting destructor 0x107698A0)
 		virtual ~ViewPass();
 		virtual ParameterHandlerTypeless* GetParameterHandler();
 		// Slot 4 (0x10768670)
 		virtual void Render(PassContext* context);
-		virtual void Unknown9();
-		virtual void Unknown10();
-		virtual void Unknown11();
+		// Slots 9 - 11 (0x107683D0, 0x10768400, 0x10768410): the colour the view is cleared to, which buffers it clears and
+		// the checker board flag; slots 12 and 13 (0x10768840, 0x107688B0)
+		virtual void Unknown9(const unsigned int* value);
+		virtual void Unknown10(unsigned int value);
+		virtual void Unknown11(bool value);
 		virtual void Unknown12();
 		virtual void Unknown13(int value);
 
 		// 0x1076AF90
 		float GetUnknownE4();
+		// 0x1075DAF0 (the virtual thunk of Pass::SetEnabled)
+		bool SetParameterEnable(bool value);
+		// 0x10768420 - 0x10768480, 0x107684A0, 0x107684B0, 0x107684C0: the window, the level, the alpha clear and its alpha
+		void SetWindowLeft(float value);
+		void SetWindowTop(float value);
+		void SetWindowRight(float value);
+		void SetWindowBottom(float value);
+		void SetViewLevel(unsigned int value);
+		void SetClearAlpha(bool value);
+		void SetAlpha(float value);
 
-		unsigned char unknownB0[8];
+		PassColour clearColour; // +0xB0
+		unsigned int clearMask; // +0xB4
 		bool unknownB8;
 		unsigned char unknownB9[3];
 		View* view; // +0xBC
-		// The window of the view (left, top, right, bottom)
-		float window[4]; // +0xC0
+		// The window of the view
+		float windowLeft;   // +0xC0
+		float windowTop;    // +0xC4
+		float windowRight;  // +0xC8
+		float windowBottom; // +0xCC
 		// The level of the context's stack of views this pass takes its camera and scene from
 		unsigned int viewLevel; // +0xD0
 		bool clearAlpha; // +0xD4
 		unsigned char unknownD5[3];
 		float alpha; // +0xD8
 		bool shadowView; // +0xDC
-		unsigned char unknownDD[7];
-		float unknownE4;
+		bool unknownDD;
+		unsigned char unknownDE[2];
+		ParameterHandler<ViewPass> parameters; // +0xE0
+		PassEntries unknown124;                // +0x124
 	};
 }
 

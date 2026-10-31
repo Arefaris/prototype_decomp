@@ -52,6 +52,15 @@ namespace pure3d
 	extern core::Name<core::CaseSensitiveKey> gParamDofFarDepth; // 0x11281508 "dof_far_depth"
 	extern core::Name<core::CaseSensitiveKey> gParamDofRange; // 0x11281498 "dof_range"
 	extern core::Name<core::CaseSensitiveKey> gParamDofAperture; // 0x112815C0 "dof_aperture"
+	extern core::Name<core::CaseSensitiveKey> gParamPrototypeBasicParticleEnable; // 0x1127EC70 "Prototype Basic Particle Enable"
+	extern core::Name<core::CaseSensitiveKey> gParamCheckerboard; // 0x112815D0 "Checkerboard"
+	extern core::Name<core::CaseSensitiveKey> gParamWindowLeft; // 0x11281480 "windowLeft"
+	extern core::Name<core::CaseSensitiveKey> gParamWindowTop; // 0x112814C8 "windowTop"
+	extern core::Name<core::CaseSensitiveKey> gParamWindowRight; // 0x112815E0 "windowRight"
+	extern core::Name<core::CaseSensitiveKey> gParamWindowBottom; // 0x11281610 "windowBottom"
+	extern core::Name<core::CaseSensitiveKey> gParamViewIndex; // 0x11281470 "viewIndex"
+	extern core::Name<core::CaseSensitiveKey> gParamForceDestAlpha; // 0x11281468 "forceDestAlpha"
+	extern core::Name<core::CaseSensitiveKey> gParamDestAlpha; // 0x112815F8 "destAlpha"
 }
 
 #endif

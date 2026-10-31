@@ -1,16 +1,19 @@
 // The small passes of the render pipeline and the constructors and destructors of the others (0x10764D20 - 0x10775000;
 // the file name is a guess, the units of this range are not told apart). Names are guesses.
 #include "code/core/refptr.h"
+#include "code/engine/driving/carattributes.h"
 #include "code/engine/render/async/shaderparameter.h"
 #include "code/math/pddicolour.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/framebufferpass.h"
+#include "code/pure3d/passnames.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/protopass.h"
 #include "code/pure3d/renderscheme.h"
 #include "code/pure3d/scene.h"
 #include "code/pure3d/shader.h"
 #include "code/pure3d/shaderconstants.h"
+#include "code/pure3d/view.h"
 
 namespace pure3d
 {
@@ -368,6 +371,100 @@ namespace pure3d
 		parameters.object = this;
 		parameters.AddBool(&engine::render::gParameterEnable, &ProtoShaderLODDebugPass::SetParameterEnable, 0);
 	}
+
+	// FUNCTION: ENGINE 0x107683D0
+	void ViewPass::Unknown9(const unsigned int* value)
+	{
+		clearColour = *(const PassColour*)value;
+	}
+
+	// FUNCTION: ENGINE 0x10768400
+	void ViewPass::Unknown10(unsigned int value)
+	{
+		clearMask = value;
+	}
+
+	// FUNCTION: ENGINE 0x10768410
+	void ViewPass::Unknown11(bool value)
+	{
+		unknownB8 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10768420
+	void ViewPass::SetWindowLeft(float value)
+	{
+		windowLeft = value;
+	}
+
+	// FUNCTION: ENGINE 0x10768440
+	void ViewPass::SetWindowTop(float value)
+	{
+		windowTop = value;
+	}
+
+	// FUNCTION: ENGINE 0x10768460
+	void ViewPass::SetWindowRight(float value)
+	{
+		windowRight = value;
+	}
+
+	// FUNCTION: ENGINE 0x10768480
+	void ViewPass::SetWindowBottom(float value)
+	{
+		windowBottom = value;
+	}
+
+	// FUNCTION: ENGINE 0x107684A0
+	void ViewPass::SetViewLevel(unsigned int value)
+	{
+		viewLevel = value;
+	}
+
+	// FUNCTION: ENGINE 0x107684B0
+	void ViewPass::SetClearAlpha(bool value)
+	{
+		clearAlpha = value;
+	}
+
+	// FUNCTION: ENGINE 0x107684C0
+	void ViewPass::SetAlpha(float value)
+	{
+		alpha = value;
+	}
+
+	// FUNCTION: ENGINE 0x107684E0
+	ParameterHandlerTypeless* ViewPass::GetParameterHandler()
+	{
+		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x10769640
+	ViewPass::~ViewPass()
+	{
+		core::SafeRelease(view);
+	}
+
+	// FUNCTION: ENGINE 0x107696C0
+	// EQUIVALENT: the engine loads the constant once and stores it three times, ours loads it per store; the same stores in a different order, the same calls (53.7 %)
+	ViewPass::ViewPass(const ViewPassDesc* desc) : Pass(desc), clearColour(desc->clearColour), clearMask(desc->clearMask),
+		unknownB8(false), view(0), windowLeft(0.0f), windowTop(0.0f), windowRight(engine::driving::gOne),
+		windowBottom(engine::driving::gOne), viewLevel(desc->viewLevel), clearAlpha(false), alpha(engine::driving::gOne),
+		shadowView(desc->shadowView), unknownDD(desc->unknown25)
+	{
+		core::RefAssign(view, new View());
+		parameters.object = this;
+		parameters.AddBool(&engine::render::gParameterEnable, &ViewPass::SetParameterEnable, 0);
+		parameters.AddColour(&gCaptureColour, (void (ViewPass::*)(const unsigned int*))&ViewPass::Unknown9, 0);
+		parameters.AddUnsigned(&gCaptureAmount, (void (ViewPass::*)(unsigned int))&ViewPass::Unknown10, 0);
+		parameters.AddBool(&gParamCheckerboard, (bool (ViewPass::*)(bool))&ViewPass::Unknown11, 0);
+		parameters.AddFloat(&gParamWindowLeft, &ViewPass::SetWindowLeft, (float (ViewPass::*)())0);
+		parameters.AddFloat(&gParamWindowTop, &ViewPass::SetWindowTop, (float (ViewPass::*)())0);
+		parameters.AddFloat(&gParamWindowRight, &ViewPass::SetWindowRight, (float (ViewPass::*)())0);
+		parameters.AddFloat(&gParamWindowBottom, &ViewPass::SetWindowBottom, (float (ViewPass::*)())0);
+		parameters.AddUnsigned(&gParamViewIndex, &ViewPass::SetViewLevel, 0);
+		parameters.AddBool(&gParamForceDestAlpha, (bool (ViewPass::*)(bool))&ViewPass::SetClearAlpha, 0);
+		parameters.AddFloat(&gParamDestAlpha, &ViewPass::SetAlpha, (float (ViewPass::*)())0);
+	}
 }
 
 // ---- the instances of the parameter handlers ----
@@ -611,4 +708,19 @@ namespace pure3d
 
 	// FUNCTION: ENGINE 0x10769620
 	template pure3d::ParameterHandler<pure3d::ViewPass>::~ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10771690
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::Entry, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::EntryAllocator>::Map(pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::EntryAllocator);
+
+	// FUNCTION: ENGINE 0x10771EA0
+	template bool container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::Entry, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::EntryAllocator>::DeleteNode(container::TreeBase::Node*, void*);
+
+	// FUNCTION: ENGINE 0x10771EC0
+	template container::Map<core::Name<core::CaseSensitiveKey>, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::Entry, pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::EntryAllocator>::~Map();
+
+	// FUNCTION: ENGINE 0x10771ED0
+	template pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::ParameterHandler();
+
+	// FUNCTION: ENGINE 0x10771F00
+	template pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::~ParameterHandler();
 

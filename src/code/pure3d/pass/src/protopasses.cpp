@@ -414,7 +414,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1076AF90
 	float ViewPass::GetUnknownE4()
 	{
-		return unknownE4;
+		return *(float*)&parameters.owner;
 	}
 
 	// FUNCTION: ENGINE 0x1076B020
@@ -695,7 +695,7 @@ namespace pure3d
 	// EQUIVALENT: the engine loads the device pointer before converting the clear colour and keeps the result in eax
 	void ViewPass::Render(PassContext* context)
 	{
-		view->SetWindow(window[0], window[1], window[2], window[3]);
+		view->SetWindow(windowLeft, windowTop, windowRight, windowBottom);
 		bool replaced = false;
 		if (context->views.Size() != 0)
 		{
