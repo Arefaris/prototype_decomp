@@ -70,6 +70,56 @@ namespace fight
 		EntryFunction m_entry;
 		CountFunction m_count;
 	};
+	// A bit mask picked from a constant table of entries (the engine's template fight::PropertyBitfieldConstList<T>):
+	// the number of entries is held beside the setter and the table behind it. An index outside the table answers a
+	// function-local empty entry.
+	template<class T> class PropertyBitfieldConstList : public PropertyTypeBitfield
+	{
+	public:
+		typedef bool (T::*Setter)(int);
+
+		PropertyBitfieldConstList(const char* name, const EnumEntry* table, unsigned int count, Setter setter)
+			: PropertyTypeBitfield(name), m_setter(setter), m_count(count), m_table(table)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual const EnumEntry* GetEntry(void* object, int index)
+		{
+			static EnumEntry emptyEntry;
+			if (m_table != 0 && index >= 0 && index < m_count)
+			{
+				return &m_table[index];
+			}
+			return &emptyEntry;
+		}
+
+		// vftable slot 8
+		virtual int GetCount(void* object) const
+		{
+			return m_count;
+		}
+
+		// vftable slot 9
+		virtual bool Set(void* object, int value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (static_cast<T*>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+		unsigned int m_count;
+		const EnumEntry* m_table;
+	};
 }
 
 #endif

@@ -5641,3 +5641,82 @@ animation controllers, the texture parsers and, from 0x107B5C00, libpng / zlib (
   `IsVisible` helpers that call the heap and the render target manager, the `std::sort` chains of the fog, translucent and opaque passes
   (0x10769ad0 - 0x1076a3a0, 0x10766470 - 0x107671a0: instances for part pointers with function pointer predicates), and the tiny template
   instances of the vertex animation loaders (0x10775290 - 0x10776000: array and iterator members over unnamed element types).
+## proto/fightitems/motion: the fight items of the range 0x10140000 - 0x10160000 (sn-ap)
+The range holds the code half of 29 source files of the game's motion fight items (`code/proto/fightitems/motion/motion_*.cpp`; only
+`motion_fall.cpp` and `motion_walljump.cpp` are named by an assert, the other file names are guesses in the same pattern, one file per run of items
+below). Each file holds tracks (`fight::Track`), conditions (`fight::Condition`) and, in another part of the image, their actions. 2621 functions are
+reconstructed (2539 match, 82 EQUIVALENT: every `RegisterProperties`, the known open shrink-wrap question; `tools/shrinkcheck.py` lists none of them
+as more than shrink-wrap), and all the unit's template instances are listed in the trailers of the sources.
+Layout of one unit (every file has the same order; it is how the run of functions is cut into files):
+1. the properties' setters, class after class (conditions first, then tracks), each class in the order of its properties;
+2. per class: `GetProperty` (vftable slot 0), `ClearProperties`, the constructor, `GetTimeBegin` / `Slot10` (tracks), the destructor;
+3. the compiler's scalar deleting destructors (vftable slot 7), then per class the caster constructor and `IsType`;
+4. the property template instances in the order of first use: constructor, `Set`, `IsNull`, ... per `fight::PropertyX<Class>`;
+5. the `Create<Class>Factory` functions, the `RegisterProperties` of every class, the `Register<Class>Factory` functions;
+6. `fight::TrackFactoryTemplate<Class>` / `ConditionFactoryTemplate` constructor and `CreateTrack`, then every caster's `CreateFactory`.
+The other half of each file is not here: `CreateAction` (vftable slot 15 of a track) and `Evaluate` (slot 9 of a condition) and the action classes
+(`proto::fightitems::motion::<Name>Action`, base `fight::Action`) sit in 0x1009xxxx - 0x100Fxxxx (for example `AutoTargetTrack::CreateAction` is
+0x1009C940, `AutoTargetAction` follows it). They are declared on the classes here and mapped by address in symbols.txt as "another unit". The
+action code and these items are one translation unit each in the original (the `motion_fall.cpp` assert is read by the action functions at
+0x100BC506 - 0x100BD05D); whoever reconstructs the actions adds them to the file of the track they belong to.
+| file (src/code/proto/fightitems/motion/) | unit | functions (equivalent) | classes |
+|---|---|---|---|
+| `motion_animationblend.cpp` | 0x1013C5B0 - 0x10140FC0 | 261 (4) | AnimationBlendVerticalAimTrack, AnimationBlendSimpleTrack, AnimationBlendVerticalAimStrafeTrack, AnimationBlendDirectionalTrack |
+| `motion_autotarget.cpp` | 0x10140FC0 - 0x10143E60 | 217 (6) | AutoTargetTrack, AutoTargetClearTrack, AutoTargetPositionTrack, FlyingAutoTargetTrack, PedestrianAutoTargetTrack, AutoTargetPlayerTrack |
+| `motion_bloodsplatter.cpp` | 0x10143E60 - 0x10144950 | 40 (1) | BloodSplatterTrack |
+| `motion_boundary.cpp` | 0x10144950 - 0x10146A60 | 167 (7) | InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack |
+| `motion_buttonhint.cpp` | 0x10146A60 - 0x101479B0 | 83 (3) | ButtonHintShowingCondition, EnableButtonHintsTrack, ButtonHintShowTrack |
+| `motion_charge.cpp` | 0x101479B0 - 0x10149690 | 149 (5) | ChargeCondition, ChargeTrack, ChargeSetTrack, AnimationChargeTrack, ChargeClearTrack |
+| `motion_classname.cpp` | 0x10149690 - 0x10149A90 | 22 (1) | ClassNameCondition |
+| `motion_clearcollisionrecord.cpp` | 0x10149A90 - 0x10149DC0 | 19 (1) | ClearCollisionRecordTrack |
+| `motion_collision.cpp` | 0x10149DC0 - 0x1014A890 | 56 (2) | DetectObbCollisionCondition, HitSurfaceCondition |
+| `motion_collisiongrab.cpp` | 0x1014A890 - 0x1014B6C0 | 61 (1) | CollisionGrabTrack |
+| `motion_collisionhit.cpp` | 0x1014B6C0 - 0x1014D220 | 92 (1) | CollisionHitTrack |
+| `motion_consume.cpp` | 0x1014D220 - 0x1014F4D0 | 170 (6) | ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack |
+| `motion_crowd.cpp` | 0x1014F4D0 - 0x10151930 | 147 (4) | CrowdMinDistanceCondition, CrowdPositionCondition, LocoCrowdTrack, CrowdTestTrack |
+| `motion_death.cpp` | 0x10151930 - 0x101521B0 | 47 (2) | DeathOnEndTrack, DeathTrack |
+| `motion_debug.cpp` | 0x101521B0 - 0x10153160 | 79 (3) | DebugLayerCondition, DebugSphereTrack, DebugAxisTrack |
+| `motion_decal.cpp` | 0x10153160 - 0x10153950 | 36 (1) | DecalTrack |
+| `motion_deform.cpp` | 0x10153950 - 0x10154030 | 32 (1) | DeformTrack |
+| `motion_detect.cpp` | 0x10154030 - 0x101561B0 | 171 (7) | DetectedObjectFacingCondition, DetectedObjectAngleCondition, DetectedObjectDistanceCondition, DetectedObjectIsTargetCondition, DetectedObjectConditionGroupCondition, DetectedObjectIsSeenCondition, DetectTrack |
+| `motion_devastator.cpp` | 0x101561B0 - 0x101598C0 | 265 (9) | DevastatorTargetConditionGroupCondition, DevastatorAvailableCondition, DevastatorTargetDistanceCondition, DevastatorTargetGroundSpikeTrack, DevastatorTrack, DevastatorUsedTrack, DevastatorTargetExecuteTrack, TendrilDevastatorTrack, DevastatorTargetHitTrack |
+| `motion_disableplayercontrol.cpp` | 0x101598C0 - 0x10159C60 | 20 (1) | DisablePlayerControlTrack |
+| `motion_distance.cpp` | 0x10159C60 - 0x1015A810 | 59 (2) | InsidePlaneCondition, DistanceToJointCondition |
+| `motion_drift.cpp` | 0x1015A810 - 0x1015AC70 | 22 (1) | DriftTrack |
+| `motion_edge.cpp` | 0x1015AC70 - 0x1015C310 | 113 (4) | EdgeNormalCondition, EdgePositionCondition, EdgeDetectTrack, EdgeSynchronizeTrack |
+| `motion_effectchameleonicskin.cpp` | 0x1015C310 - 0x1015CB40 | 36 (1) | EffectChameleonicSkinTrack |
+| `motion_effectconsume.cpp` | 0x1015CB40 - 0x1015D620 | 49 (1) | EffectConsumeTrack |
+| `motion_faction.cpp` | 0x1015D620 - 0x1015E4B0 | 83 (4) | FactionTypeCondition, FactionCondition, FactionSetTrack, FactionDefaultTrack |
+| `motion_fall.cpp` | 0x1015E4B0 - 0x1015F0E0 | 51 (1) | FallTrack |
+| `motion_flyingattack.cpp` | 0x1015F0E0 - 0x1015FAE0 | 43 (1) | FlyingAttackTrack |
+| `motion_flyingbrake.cpp` | 0x1015FAE0 - 0x101601F0 | 31 (1) | FlyingBrakeTrack |
+How the items are written (all of them follow the engine's own pattern, see `engine/fight/physicsblend.cpp` for the shortest example):
+- A track is `class X : public fight::Track` with the members its properties write (named after the property), the setter per property
+  (`bool SetName(T newValue)` returning `true`), `GetProperty` (`return gXProperties[index]`), the static `RegisterProperties` / `ClearProperties`, the
+  constructor with the defaults, `GetTimeBegin` (`timeBegin`, `0.0f` or a constant) and `Slot10` (`timeEnd - timeBegin`, `0.0f` or a constant). A condition is
+  the same on `fight::Condition` (constructor `fight::Condition(0)`, members from +0xC) with `Evaluate` in another unit. The tracks' `unknownC = 1;` is
+  in every constructor body.
+- `RegisterProperties` is the usual `if (list == 0) { Property* properties[256] = { 0 }; ... property = new fight::PropertyKind<X>("name", &X::SetName);
+  properties[i] = property; ... RegisterPropertyList(properties, &list); }`. The property kinds seen here: `PropertyBool`, `PropertyFloatConstRange`,
+  `PropertyIntConstRange`, `PropertyVector`, `PropertyColour`, `PropertyName`, `PropertyNameList`, `PropertyString` (the setter replaces the text with
+  `fight::ReplaceString`, the destructor `delete[]`s it and needs `<new>` in the unit), `PropertyBranch` / `PropertyConditionGroup` (the setter returns the
+  address of a `fight::BranchHolder` / `fight::ConditionList` member, the holder is built with the branch kind text or 0), `PropertyEnumConstList`
+  (table at +0x14, count at +0x18, both read from the engine's data: `extern fight::EnumEntry ...[]` and `extern const int ...`, declared in
+  `motiondata.h` with names that are guesses and mapped in symbols.txt), `PropertyEnum` (two member functions of the track
+  that answer an entry and the count; here they are in other units) and the new `fight::PropertyBitfieldConstList<T>` (in `engine/fight/bitfieldproperty.h`:
+  setter, count and table in this order, `GetEntry` with a function-local empty entry and an unsigned count compare).
+- Degrees are stored as radians: the setter multiplies by 0.017453292f (a vector by `math::Vector scaled = newValue; scaled.x *= k; ...`, which gives the
+  engine's loads-then-multiplies order). Booleans that share a byte are `bool name : 1;` bit-fields (`CollisionHitTrack`, 15 flags in two bytes).
+- `NISConsumeByParentTrack` derives from `ConsumeByParentTrack` (RTTI base); its list reuses the base's setters through `&ConsumeByParentTrack::SetX`
+  and adds `object` and `toBeContinued`.
+- The `Create<Class>Factory` / `Register<Class>Factory` free functions and the explicit `template class` instantiations (`PropertyX<Class>`,
+  `TrackFactoryTemplate<Class>`, `TrackFactoryCasterTemplate<Class>`) are the same shape as in `physicsblend.cpp`.
+- Each file comes with a header declaring its classes; names the binary does not give are guesses (`g<Class><Property>Table`, `...Count`, `...Default` for
+  the engine data the properties and constructors read from memory).
+Not done in the range:
+- Copies of other classes' inline functions that the unit's objects hold: 0x10140FC0 (a one-member setter nothing in a vftable or a property list
+  points at), 0x10141C50 / 0x1014AC40 / 0x1014FFE0 / 0x10152600 (a `ret`: the engine folded the empty destructors of the property types), 0x10141E80
+  and 0x1014AF00 / 0x101504B0 / 0x101528F0 (the base property types' inline `GetType`), 0x101521B0 (a `math::Colour128` constructor from four
+  integers, scaled by 1/255).
+- Two units run over the edges of the range and were done whole: `motion_animationblend.cpp` (0x1013C5B0 - 0x10140FC0, the four AnimationBlend tracks)
+  and `motion_flyingbrake.cpp` (0x1015FAE0 - 0x101601F0, `FlyingBrakeTrack`). `AccelerationCondition` and the files before 0x1013C5B0 are in the range below.
