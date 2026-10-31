@@ -24,20 +24,56 @@ namespace om
 	template bool MetaEnum<audio::AudioFileType>::WriteBinary(BinaryStream*, void const*);
 	// FUNCTION: ENGINE 0x10AB6560
 	template void MetaEnum<audio::AudioFileType>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AB65A0
+	template MetaClass<audio::AudioFile>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x10AB65D0
+	template type_info const* MetaClass<audio::AudioFile>::GetType();
+	// FUNCTION: ENGINE 0x10AB6610
+	template void MetaClass<audio::AudioFile>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AB6640
+	template char const* EntityType<audio::AudioFile>::AllocationTag();
 	// FUNCTION: ENGINE 0x10AB6650
 	template char const* MetaEnum<audio::AudioFileType>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AB6670
+	template char const* MetaClass<audio::AudioFile>::AllocationTag();
 	// FUNCTION: ENGINE 0x10AB66D0
 	template bool MetaEnum<audio::AudioFileType>::ReadBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x10AB66F0
 	template int MetaEnum<audio::AudioFileType>::Slot5();
 	// FUNCTION: ENGINE 0x10AB6700
 	template void MetaEnum<audio::AudioFileType>::Slot6(void*);
+	// FUNCTION: ENGINE 0x10AB6740
+	template void* EntityType<audio::AudioFile>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AB6760
 	template void* MetaEnum<audio::AudioFileType>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AB6780
+	template int MetaClass<audio::AudioFile>::Slot5();
+	// FUNCTION: ENGINE 0x10AB6790
+	template void MetaClass<audio::AudioFile>::Slot6(void*);
+	// FUNCTION: ENGINE 0x10AB67A0
+	template void* MetaClass<audio::AudioFile>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AB6BA0
 	template void MetaEnum<audio::AudioFileType>::WriteText(TextValue*, void const*);
+	// FUNCTION: ENGINE 0x10AB6BB0
+	template void MetaClass<audio::AudioFile>::Create(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x10AB6CA0
 	template bool MetaEnum<audio::AudioFileType>::ReadText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AB6D10
+	template EntityType<audio::AudioFile>::EntityType(char const*, unsigned int, unsigned int, int);
+	// FUNCTION: ENGINE 0x10AB6DB0
+	template void EntityType<audio::AudioFile>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AB6DF0
+	template MetaTypeBase* EntityType<audio::AudioFile>::GetMetaType();
+	// FUNCTION: ENGINE 0x10AB6E10
+	template void EntityType<audio::AudioFile>::CreateEntity(Entity**, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AB6E60
+	template void EntityType<audio::AudioFile>::CreateUnregisteredEntity(Entity**, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AB6EC0
+	template void EntityType<audio::AudioFile>::CreateUnregisteredEntity2(Entity**, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AB6F70
+	template EntityType<audio::AudioFile>::~EntityType();
+	// FUNCTION: ENGINE 0x10AB70E0
+	template void EntityType<audio::AudioFile>::Register(char const*, int);
 	// FUNCTION: ENGINE 0x10AB79C0
 	template MetaClass<audio::MmeRendererDriver>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x10AB79F0
@@ -218,6 +254,12 @@ namespace om
 	template void MetaClass<audio::DirectSoundRendererDriverImpl>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10ABD4F0
 	template char const* MetaClass<audio::DirectSoundRendererDriverImpl>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ABD500
+	template char const* MetaEnum<audio::BufferLocation>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ABD510
+	template char const* MetaEnum<audio::MixType>::AllocationTag();
+	// FUNCTION: ENGINE 0x10ABD520
+	template char const* MetaEnum<audio::Focus>::AllocationTag();
 	// FUNCTION: ENGINE 0x10ABD530
 	template MetaProperty<audio::BufferLocation>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,audio::BufferLocation>*, MetaMethod0Base<audio::BufferLocation>*, unsigned int);
 	// FUNCTION: ENGINE 0x10ABD570
@@ -288,6 +330,12 @@ namespace om
 	template void MetaEnum<audio::Focus>::Slot6(void*);
 	// FUNCTION: ENGINE 0x10ABE080
 	template void* MetaClass<audio::DirectSoundRendererDriverImpl>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ABE0A0
+	template void* MetaEnum<audio::BufferLocation>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ABE0C0
+	template void* MetaEnum<audio::MixType>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10ABE0E0
+	template void* MetaEnum<audio::Focus>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10ABE150
 	template void* MetaMethod1<audio::DirectSoundRendererDriverImpl,audio::DirectSoundRendererDriverImpl,void,audio::BufferLocation>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10ABE170

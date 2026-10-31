@@ -37,6 +37,13 @@ namespace audio
 	class AudioFile : public om::Entity
 	{
 	public:
+		// 0x10AB67F0
+		explicit AudioFile(const om::ClassName& newName);
+		OM_ENTITY_ALLOCATION(AudioFile);
+
+		AudioFileType fileType;  // 0x20
+		char unknown24[0x10];
+		om::String path;  // 0x34
 	};
 
 	// The multimedia extension driver (names of the accessors guessed)

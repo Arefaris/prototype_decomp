@@ -6103,5 +6103,22 @@ holds the instances of one translation unit, `om/dynamicproperty.h` the template
   `DynamicArray<unsigned int>::operator=` 0x10AA69B0 differ from the shared template (the engine addresses the source
   relative to the destination in the copy loop; register allocation of `Append`); they are not mapped. The unreferenced
   constructor of `DynamicProperty` (0x10AA0410 form, one stack argument) and the unreferenced `T f(T)` identity copies are
-  not reproduced. The `MetaSimpleType<T>` family (0x10A9C000 - 0x10AA3270) and the `EnvelopeData` property
-  (0x10AB38A0 - 0x10AB44A0) are open.
+  not reproduced. The `MetaSimpleType<T>` family (0x10A9C000 - 0x10AA3270) is open.
+- `audio/drivers.h`, `audio/driverreflection.cpp` (0x10AA9B40 - 0x10AC0000, 236 functions match): the reflection of the audio
+  renderer drivers made of the om library's template instances: `MetaEnum` of the four audio enumerations, `MetaProperty`,
+  `DelegateProperty`, `DelegateMetaProperty` and `MetaMethod0Const` / `MetaMethod1` of the wave format, buffer location, mix
+  type and focus properties of the Mme, WdmKs and DirectSound drivers, `MetaClass` of the three drivers and of `AudioFile`,
+  `EntityType<AudioFile>`. The driver classes are declared with the accessors the reflection names only (`SetWaveFormat`
+  ... guessed); `DirectSoundRendererDriverImpl` has a second base (`DirectSoundRendererDriver` at 0x7C, the member pointers
+  are 8 bytes), `AudioFile` is an entity of 0x40 bytes. The classes' own functions (constructors, the device code of 27 KB)
+  are open.
+- `om/atgcontent.cpp` (0x10AAC1D0 - 0x10AAD260, 47 functions match): `AtgContentEntityLoader<T>` / `AtgContentEntity<T>` of
+  `Mix`, `Patch`, `AudioFile` and `Cue`, and the base's constructor, `Slot3` and the loader base's constructor.
+  NONMATCHING: `AtgContentEntityBase::IsReady` 0x10AAC200 (the entity's slot answers a byte the engine normalises). Open:
+  `AtgContentEntityLoaderBase::Load` (417 bytes) and the loader registry list functions (0x10AAC1D0 - 0x10AAC4A0).
+- `mgraph/envelope.h`, `mgraph/envelope.cpp` (0x10AB0550 - 0x10AB6400, 131 functions match): the reflection of `Envelope` and
+  `EnvelopeData` (the points array of `VectorT<float,2>`), the dynamic property of `EnvelopeData` with its commands, delegate
+  and factory, and the text and binary forms of `VectorT<float,2>` (0x10AB1750 / 0x10AB17C0 / 0x10AB0C70 / 0x10AB0CB0).
+  NONMATCHING: `CommandMember1<..EnvelopeData..>::Call` 0x10AB42A0 and `CommandDelegate<EnvelopeData>::Set` 0x10AB4180 (the
+  engine calls the copy constructor of the points' array for the by-value argument). The shared `DynamicArray` copy constructor
+  and `Append` do not match the engine's copies of the float, unsigned int and `VectorT` arrays.
