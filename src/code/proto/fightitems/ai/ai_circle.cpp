@@ -517,6 +517,48 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101E1450
+			CirclePatrolAction::CirclePatrolAction(CirclePatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0.0f), unknown34(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E0EF0
+			CirclePatrolAction::~CirclePatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E1CA0
+			fight::Action* CirclePatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CirclePatrolAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101E1330
+			// EQUIVALENT: scheduling: the engine's instructions in another order (best 93.5 %)
+			CircleStrafeAction::CircleStrafeAction(CircleStrafeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E0EA0
+			CircleStrafeAction::~CircleStrafeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E02F0
+			void CircleStrafeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E1760
+			fight::Action* CircleStrafeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CircleStrafeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<CirclePatrolTrack>;
 			template class fight::PropertyIntConstRange<CirclePatrolTrack>;
 			template class fight::TrackFactoryTemplate<CirclePatrolTrack>;

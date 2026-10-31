@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_CIRCLE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -172,6 +173,57 @@ namespace proto
 			fight::TrackFactory* CreateCircleStrafeTrackFactory(const char* name);
 			void RegisterCircleStrafeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::CirclePatrolAction (9 vftable slots, 0x2C bytes)
+			class CirclePatrolAction : public fight::Action
+			{
+			public:
+				// 0x101E1450
+				CirclePatrolAction(CirclePatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101E0EF0
+				virtual ~CirclePatrolAction();
+
+				// vftable slot 5 (0x101E3650)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E2250)
+				virtual void Slot6();
+				// vftable slot 7 (0x101E3700)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<CirclePatrolTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				bool unknown34;  // +0x34
+				unsigned char unknown35[0x3];
+			};
+
+			// RTTI: proto::fightitems::ai::CircleStrafeAction (9 vftable slots, 0x2C bytes)
+			class CircleStrafeAction : public fight::Action
+			{
+			public:
+				// 0x101E1330
+				CircleStrafeAction(CircleStrafeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101E0EA0
+				virtual ~CircleStrafeAction();
+
+				// vftable slot 5 (0x101E13F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E02F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101E17B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<CircleStrafeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				unsigned char unknown3C[0x8];
+			};
+
+			// ---- actions end
 		}
 	}
 }

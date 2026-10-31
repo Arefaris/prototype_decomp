@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_LOD_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -500,6 +501,194 @@ namespace proto
 			fight::TrackFactory* CreateUpdateSoldierReservationBudgetTrackFactory(const char* name);
 			void RegisterUpdateSoldierReservationBudgetTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::LodSteerAction (9 vftable slots, 0x2C bytes)
+			class LodSteerAction : public fight::Action
+			{
+			public:
+				// 0x101FBCE0
+				LodSteerAction(LodSteerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FABE0
+				virtual ~LodSteerAction();
+
+				// vftable slot 5 (0x101FA1F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA210)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FA200)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LodSteerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ResetPhysicVelocitiesAction (9 vftable slots, 0x2C bytes)
+			class ResetPhysicVelocitiesAction : public fight::Action
+			{
+			public:
+				// 0x101FBAE0
+				ResetPhysicVelocitiesAction(ResetPhysicVelocitiesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FAA40
+				virtual ~ResetPhysicVelocitiesAction();
+
+				// vftable slot 5 (0x101FBB90)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA1E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FAA70)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ResetPhysicVelocitiesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::LodMoveAction (9 vftable slots, 0x2C bytes)
+			class LodMoveAction : public fight::Action
+			{
+			public:
+				// 0x101FBD90
+				LodMoveAction(LodMoveTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FAC30
+				virtual ~LodMoveAction();
+
+				// vftable slot 5 (0x101FA220)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA240)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FA230)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LodMoveTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::EnableLODPatrolAction (9 vftable slots, 0x2C bytes)
+			class EnableLODPatrolAction : public fight::Action
+			{
+			public:
+				// 0x101FC5E0
+				EnableLODPatrolAction(EnableLODPatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FB340
+				virtual ~EnableLODPatrolAction();
+
+				// vftable slot 5 (0x101FA320)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA330)
+				virtual void Slot6();
+
+				core::Link<EnableLODPatrolTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+			};
+
+			// RTTI: proto::fightitems::ai::GameObjectOrientAction (9 vftable slots, 0x2C bytes)
+			class GameObjectOrientAction : public fight::Action
+			{
+			public:
+				// 0x101FBA30
+				GameObjectOrientAction(GameObjectOrientTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FA9F0
+				virtual ~GameObjectOrientAction();
+
+				// vftable slot 5 (0x101FA1B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA1D0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FA1C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GameObjectOrientTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::SetNPCLODStateAction (9 vftable slots, 0x2C bytes)
+			class SetNPCLODStateAction : public fight::Action
+			{
+			public:
+				// 0x101FB920
+				SetNPCLODStateAction(SetNPCLODStateTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FA9A0
+				virtual ~SetNPCLODStateAction();
+
+				// vftable slot 5 (0x101FB9D0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<SetNPCLODStateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::UnDowngradableAction (9 vftable slots, 0x2C bytes)
+			class UnDowngradableAction : public fight::Action
+			{
+			public:
+				// 0x101FBE40
+				UnDowngradableAction(UnDowngradableTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FAC80
+				virtual ~UnDowngradableAction();
+
+				// vftable slot 5 (0x101FBEF0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FBFA0)
+				virtual void Slot6();
+
+				core::Link<UnDowngradableTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::UpdateSoldierReservationBudgetAction (9 vftable slots, 0x2C bytes)
+			class UpdateSoldierReservationBudgetAction : public fight::Action
+			{
+			public:
+				// 0x101FC030
+				UpdateSoldierReservationBudgetAction(UpdateSoldierReservationBudgetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FACD0
+				virtual ~UpdateSoldierReservationBudgetAction();
+
+				// vftable slot 5 (0x101FC0E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FA250)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FAD00)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<UpdateSoldierReservationBudgetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::CharacterizeAction (9 vftable slots, 0x2C bytes)
+			class CharacterizeAction : public fight::Action
+			{
+			public:
+				// 0x101FC2B0
+				CharacterizeAction(CharacterizeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FADC0
+				virtual ~CharacterizeAction();
+
+				// vftable slot 5 (0x101FC360)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CharacterizeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::CharacterizeFromReservedAction (9 vftable slots, 0x2C bytes)
+			class CharacterizeFromReservedAction : public fight::Action
+			{
+			public:
+				// 0x101FC140
+				CharacterizeFromReservedAction(CharacterizeFromReservedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FAD70
+				virtual ~CharacterizeFromReservedAction();
+
+				// vftable slot 5 (0x101FC1F0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CharacterizeFromReservedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

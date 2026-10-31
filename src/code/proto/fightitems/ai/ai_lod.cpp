@@ -1264,6 +1264,277 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+
+			// FUNCTION: ENGINE 0x101FB410
+			// EQUIVALENT: register allocation (the engine keeps the false result in bl, ours returns a literal; the handle and the budget type use other registers); the same call with the same arguments (best 23.9 %)
+			bool CanReserveSoldierBudgetCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() != 0)
+				{
+					return proto::gAISystem->soldierBudgets->Unknown10386810(soldiers, handle);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101FB490
+			// EQUIVALENT: register allocation (the engine keeps the false result in bl, ours returns a literal; the handle uses another register); the same call with the same argument (best 30.8 %)
+			bool IsInLoadedCellCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() != 0)
+				{
+					return proto::gAISystem->soldierBudgets->Unknown103866C0(handle);
+				}
+				return result;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101FBCE0
+			LodSteerAction::LodSteerAction(LodSteerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FABE0
+			LodSteerAction::~LodSteerAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA1F0
+			bool LodSteerAction::Slot5(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA210
+			void LodSteerAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA200
+			bool LodSteerAction::Slot7(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FC770
+			fight::Action* LodSteerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LodSteerAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FBAE0
+			ResetPhysicVelocitiesAction::ResetPhysicVelocitiesAction(ResetPhysicVelocitiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FAA40
+			ResetPhysicVelocitiesAction::~ResetPhysicVelocitiesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA1E0
+			void ResetPhysicVelocitiesAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC720
+			fight::Action* ResetPhysicVelocitiesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ResetPhysicVelocitiesAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FBD90
+			LodMoveAction::LodMoveAction(LodMoveTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FAC30
+			LodMoveAction::~LodMoveAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA220
+			bool LodMoveAction::Slot5(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA240
+			void LodMoveAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA230
+			bool LodMoveAction::Slot7(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FC7C0
+			fight::Action* LodMoveTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LodMoveAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FC5E0
+			EnableLODPatrolAction::EnableLODPatrolAction(EnableLODPatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(true)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FB340
+			EnableLODPatrolAction::~EnableLODPatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA320
+			bool EnableLODPatrolAction::Slot5(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA330
+			void EnableLODPatrolAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FCCE0
+			fight::Action* EnableLODPatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EnableLODPatrolAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FBA30
+			GameObjectOrientAction::GameObjectOrientAction(GameObjectOrientTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA9F0
+			GameObjectOrientAction::~GameObjectOrientAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA1B0
+			bool GameObjectOrientAction::Slot5(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA1D0
+			void GameObjectOrientAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA1C0
+			bool GameObjectOrientAction::Slot7(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FC6D0
+			fight::Action* GameObjectOrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GameObjectOrientAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FB920
+			SetNPCLODStateAction::SetNPCLODStateAction(SetNPCLODStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA9A0
+			SetNPCLODStateAction::~SetNPCLODStateAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC680
+			fight::Action* SetNPCLODStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetNPCLODStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FBE40
+			UnDowngradableAction::UnDowngradableAction(UnDowngradableTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FAC80
+			UnDowngradableAction::~UnDowngradableAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC810
+			fight::Action* UnDowngradableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new UnDowngradableAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FC030
+			UpdateSoldierReservationBudgetAction::UpdateSoldierReservationBudgetAction(UpdateSoldierReservationBudgetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FACD0
+			UpdateSoldierReservationBudgetAction::~UpdateSoldierReservationBudgetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FA250
+			void UpdateSoldierReservationBudgetAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC860
+			fight::Action* UpdateSoldierReservationBudgetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new UpdateSoldierReservationBudgetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FC2B0
+			CharacterizeAction::CharacterizeAction(CharacterizeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FADC0
+			CharacterizeAction::~CharacterizeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC900
+			fight::Action* CharacterizeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CharacterizeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FC140
+			CharacterizeFromReservedAction::CharacterizeFromReservedAction(CharacterizeFromReservedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FAD70
+			CharacterizeFromReservedAction::~CharacterizeFromReservedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FC8B0
+			fight::Action* CharacterizeFromReservedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CharacterizeFromReservedAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyIntConstRange<CanReserveSoldierBudgetCondition>;
 			template class fight::ConditionFactoryTemplate<CanReserveSoldierBudgetCondition>;
 			template class fight::ConditionFactoryCasterTemplate<CanReserveSoldierBudgetCondition>;

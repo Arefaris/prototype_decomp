@@ -96,6 +96,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FleeTrack>;
 			template class fight::TrackFactoryTemplate<FleeTrack>;
 			template class fight::TrackFactoryCasterTemplate<FleeTrack>;

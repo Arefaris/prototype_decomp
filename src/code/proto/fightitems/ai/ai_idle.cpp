@@ -212,6 +212,47 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101F8650
+			FlyingIdleAction::FlyingIdleAction(FlyingIdleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(false), unknown30(3.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7D00
+			FlyingIdleAction::~FlyingIdleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F8930
+			fight::Action* FlyingIdleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FlyingIdleAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101F8160
+			IdleAction::IdleAction(IdleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(false), unknown30(3.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7CB0
+			IdleAction::~IdleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7B60
+			void IdleAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F87F0
+			fight::Action* IdleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new IdleAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FlyingIdleTrack>;
 			template class fight::TrackFactoryTemplate<FlyingIdleTrack>;
 			template class fight::TrackFactoryCasterTemplate<FlyingIdleTrack>;

@@ -3,6 +3,8 @@
 #define PROTO_FIGHTITEMS_AI_AI_COMBATBUDGET_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -114,6 +116,23 @@ namespace proto
 			fight::TrackFactory* CreateRequestCombatBudgetTokenTrackFactory(const char* name);
 			void RegisterRequestCombatBudgetTokenTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::RequestCombatBudgetTokenAction (9 vftable slots, 0x2C bytes)
+			class RequestCombatBudgetTokenAction : public fight::Action
+			{
+			public:
+				// 0x101E83C0
+				RequestCombatBudgetTokenAction(RequestCombatBudgetTokenTrack* newTrack, engine::GameObjectHandle newTarget);
+				// no destructor of its own: the compiler's, which the scalar deleting destructor inlines
+
+				// vftable slot 5 (0x101E84B0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<RequestCombatBudgetTokenTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

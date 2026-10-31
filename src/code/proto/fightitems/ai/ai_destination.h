@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_DESTINATION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -941,6 +942,181 @@ namespace proto
 			fight::TrackFactory* CreateDestinationGoToTrackFactory(const char* name);
 			void RegisterDestinationGoToTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::SetAvoidanceGapAnywhereAction (9 vftable slots, 0x2C bytes)
+			class SetAvoidanceGapAnywhereAction : public fight::Action
+			{
+			public:
+				// 0x102037B0
+				SetAvoidanceGapAnywhereAction(SetAvoidanceGapAnywhereTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10200400
+				virtual ~SetAvoidanceGapAnywhereAction();
+
+				// vftable slot 5 (0x10203860)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10203950)
+				virtual void Slot6();
+
+				core::Link<SetAvoidanceGapAnywhereTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+			};
+
+			// RTTI: proto::fightitems::ai::SpeedAction (9 vftable slots, 0x2C bytes)
+			class SpeedAction : public fight::Action
+			{
+			public:
+				// 0x102025A0
+				SpeedAction(SpeedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFED0
+				virtual ~SpeedAction();
+
+				// vftable slot 5 (0x101FED50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED60)
+				virtual void Slot6();
+				// vftable slot 7 (0x10202650)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SpeedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::DisableStayOnNavmeshAction (9 vftable slots, 0x2C bytes)
+			class DisableStayOnNavmeshAction : public fight::Action
+			{
+			public:
+				// 0x102039E0
+				DisableStayOnNavmeshAction(DisableStayOnNavmeshTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10200450
+				virtual ~DisableStayOnNavmeshAction();
+
+				// vftable slot 5 (0x10203A90)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10203B20)
+				virtual void Slot6();
+
+				core::Link<DisableStayOnNavmeshTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ForceMotionAction (9 vftable slots, 0x2C bytes)
+			class ForceMotionAction : public fight::Action
+			{
+			public:
+				// 0x10202ED0
+				ForceMotionAction(ForceMotionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102001C0
+				virtual ~ForceMotionAction();
+
+				// vftable slot 5 (0x10202F80)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102001F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10203040)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ForceMotionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ForceRecalculatePathAction (9 vftable slots, 0x2C bytes)
+			class ForceRecalculatePathAction : public fight::Action
+			{
+			public:
+				// 0x10202E20
+				ForceRecalculatePathAction(ForceRecalculatePathTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10200100
+				virtual ~ForceRecalculatePathAction();
+
+				// vftable slot 5 (0x10200130)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ForceRecalculatePathTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::StopAction (9 vftable slots, 0x2C bytes)
+			class StopAction : public fight::Action
+			{
+			public:
+				// 0x102024F0
+				StopAction(StopTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFE30
+				virtual ~StopAction();
+
+				// vftable slot 5 (0x101FED30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED40)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FFE60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<StopTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::TempSpeedAction (9 vftable slots, 0x2C bytes)
+			class TempSpeedAction : public fight::Action
+			{
+			public:
+				// 0x10202730
+				TempSpeedAction(TempSpeedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFF20
+				virtual ~TempSpeedAction();
+
+				// vftable slot 5 (0x102027E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10202950)
+				virtual void Slot6();
+				// vftable slot 7 (0x102028F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TempSpeedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+			};
+
+			// RTTI: proto::fightitems::ai::SetBrakeDistanceAction (9 vftable slots, 0x2C bytes)
+			class SetBrakeDistanceAction : public fight::Action
+			{
+			public:
+				// 0x10203110
+				SetBrakeDistanceAction(SetBrakeDistanceTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10200280
+				virtual ~SetBrakeDistanceAction();
+
+				// vftable slot 5 (0x102031C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102002B0)
+				virtual void Slot6();
+
+				core::Link<SetBrakeDistanceTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::ai::AimAction (9 vftable slots, 0x2C bytes)
+			class AimAction : public fight::Action
+			{
+			public:
+				// 0x102022F0
+				AimAction(AimTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFDE0
+				virtual ~AimAction();
+
+				// vftable slot 5 (0x102023A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED20)
+				virtual void Slot6();
+				// vftable slot 7 (0x102023F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AimTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

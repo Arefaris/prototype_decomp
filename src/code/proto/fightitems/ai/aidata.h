@@ -34,6 +34,26 @@ namespace proto
 			extern fight::EnumEntry gTargetGoToTrackWhereTable[];  // 0x11255568
 			extern const int gAimTrackWhereCount;  // 0x10DCD724
 			extern const int gTargetGoToTrackWhereCount;  // 0x10DCD728
+			extern fight::EnumEntry gCombatDestinationFindTrackCameraVisibilityTable[];  // 0x11254E60
+			extern fight::EnumEntry gHaveTokenConditionTypeTable[];  // 0x11254E78
+			extern fight::EnumEntry gCombatDestinationFindTrackAllowedAreasTable[];  // 0x11254E88
+			extern fight::EnumEntry gCombatDestinationFindTrackReferencePositionTable[];  // 0x11254EC8
+			extern fight::EnumEntry gTargetHasLoFConditionCollisionFlagsTable[];  // 0x11254EE0
+			extern fight::EnumEntry gHaveTokenConditionOwnerTable[];  // 0x11254F08
+			extern fight::EnumEntry gCombatDestinationFindTrackHeightDifferenceCheckTable[];  // 0x11254F18
+			extern fight::EnumEntry gCombatDestinationFindTrackHeuristicTable[];  // 0x11254F30
+			extern fight::EnumEntry gFacingAngleTargetConditionTypeTable[];  // 0x11254F58
+			extern const int gCombatDestinationFindTrackHeuristicCount;  // 0x10DCA928
+			extern const int gCombatDestinationFindTrackCameraVisibilityCount;  // 0x10DCA92C
+			extern const int gCombatDestinationFindTrackReferencePositionCount;  // 0x10DCAA10
+			extern const int gHaveTokenConditionTypeCount;  // 0x10DCAA14
+			extern const int gHaveTokenConditionOwnerCount;  // 0x10DCAA18
+			extern const int gCombatDestinationFindTrackAllowedAreasCount;  // 0x10DCAA1C
+			extern const int gTargetHasLoFConditionCollisionFlagsCount;  // 0x10DCAA20
+			extern const int gCombatDestinationFindTrackHeightDifferenceCheckCount;  // 0x10DCAA24
+			extern const int gFacingAngleTargetConditionTypeCount;  // 0x10DCAA28
+			extern const int gCombatDestinationFindTrackCollideWithTypeLOFDefault;  // 0x10DCA924
+			extern const int gCombatDestinationFindTrackAllowedAreasDefault;  // 0x11040CD0
 		}
 	}
 }

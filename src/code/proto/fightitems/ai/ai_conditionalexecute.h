@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_CONDITIONALEXECUTE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -49,6 +50,9 @@ namespace proto
 			fight::TrackFactory* CreateConditionalExecuteTrackFactory(const char* name);
 			void RegisterConditionalExecuteTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

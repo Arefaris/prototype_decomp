@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_FLEE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -47,6 +48,9 @@ namespace proto
 			fight::TrackFactory* CreateFleeTrackFactory(const char* name);
 			void RegisterFleeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

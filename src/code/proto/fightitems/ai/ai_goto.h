@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_GOTO_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -184,6 +185,9 @@ namespace proto
 			fight::TrackFactory* CreateGoToTrackFactory(const char* name);
 			void RegisterGoToTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }

@@ -2395,6 +2395,188 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x102037B0
+			SetAvoidanceGapAnywhereAction::SetAvoidanceGapAnywhereAction(SetAvoidanceGapAnywhereTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200400
+			SetAvoidanceGapAnywhereAction::~SetAvoidanceGapAnywhereAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102044B0
+			fight::Action* SetAvoidanceGapAnywhereTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetAvoidanceGapAnywhereAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102025A0
+			SpeedAction::SpeedAction(SpeedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFED0
+			SpeedAction::~SpeedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FED50
+			bool SpeedAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FED60
+			void SpeedAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204140
+			fight::Action* SpeedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SpeedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102039E0
+			DisableStayOnNavmeshAction::DisableStayOnNavmeshAction(DisableStayOnNavmeshTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200450
+			DisableStayOnNavmeshAction::~DisableStayOnNavmeshAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204500
+			fight::Action* DisableStayOnNavmeshTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DisableStayOnNavmeshAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10202ED0
+			ForceMotionAction::ForceMotionAction(ForceMotionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102001C0
+			ForceMotionAction::~ForceMotionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204360
+			fight::Action* ForceMotionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ForceMotionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10202E20
+			ForceRecalculatePathAction::ForceRecalculatePathAction(ForceRecalculatePathTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200100
+			ForceRecalculatePathAction::~ForceRecalculatePathAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204310
+			fight::Action* ForceRecalculatePathTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ForceRecalculatePathAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102024F0
+			StopAction::StopAction(StopTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFE30
+			StopAction::~StopAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FED30
+			bool StopAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FED40
+			void StopAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102040F0
+			fight::Action* StopTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new StopAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10202730
+			TempSpeedAction::TempSpeedAction(TempSpeedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFF20
+			TempSpeedAction::~TempSpeedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204190
+			fight::Action* TempSpeedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TempSpeedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10203110
+			SetBrakeDistanceAction::SetBrakeDistanceAction(SetBrakeDistanceTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(-1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200280
+			SetBrakeDistanceAction::~SetBrakeDistanceAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102043B0
+			fight::Action* SetBrakeDistanceTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetBrakeDistanceAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102022F0
+			AimAction::AimAction(AimTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFDE0
+			AimAction::~AimAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FED20
+			void AimAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102040A0
+			fight::Action* AimTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AimAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;
 			template class fight::ConditionFactoryCasterTemplate<InReservedAreaCondition>;

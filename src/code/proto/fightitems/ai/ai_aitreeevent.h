@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_AITREEEVENT_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -110,6 +111,28 @@ namespace proto
 			fight::TrackFactory* CreateAiTreeEventSendTrackFactory(const char* name);
 			void RegisterAiTreeEventSendTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::AiTreeEventSendAction (9 vftable slots, 0x2C bytes)
+			class AiTreeEventSendAction : public fight::Action
+			{
+			public:
+				// 0x101F0B90
+				AiTreeEventSendAction(AiTreeEventSendTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F08B0
+				virtual ~AiTreeEventSendAction();
+
+				// vftable slot 5 (0x101F0C40)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F0D00)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F07A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AiTreeEventSendTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

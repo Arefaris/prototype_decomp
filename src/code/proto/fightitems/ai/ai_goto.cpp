@@ -428,6 +428,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyBool<HasFixedDestinationCondition>;
 			template class fight::ConditionFactoryTemplate<HasFixedDestinationCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HasFixedDestinationCondition>;

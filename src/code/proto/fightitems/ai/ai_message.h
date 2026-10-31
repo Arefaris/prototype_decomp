@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_MESSAGE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -142,6 +143,26 @@ namespace proto
 			fight::TrackFactory* CreateBlindTrackFactory(const char* name);
 			void RegisterBlindTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::BlindAction (9 vftable slots, 0x2C bytes)
+			class BlindAction : public fight::Action
+			{
+			public:
+				// 0x101FDF90
+				BlindAction(BlindTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FD800
+				virtual ~BlindAction();
+
+				// vftable slot 5 (0x101FE040)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FE150)
+				virtual void Slot6();
+
+				core::Link<BlindTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

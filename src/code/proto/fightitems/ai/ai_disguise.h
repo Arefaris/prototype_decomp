@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_DISGUISE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -484,6 +485,164 @@ namespace proto
 			fight::TrackFactory* CreateAdjustHydraMovementTrackFactory(const char* name);
 			void RegisterAdjustHydraMovementTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::ClearMarkersAction (9 vftable slots, 0x2C bytes)
+			class ClearMarkersAction : public fight::Action
+			{
+			public:
+				// 0x101EA6A0
+				ClearMarkersAction(ClearMarkersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E9590
+				virtual ~ClearMarkersAction();
+
+				// vftable slot 5 (0x101E8C70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8CC0)
+				virtual void Slot6();
+
+				core::Link<ClearMarkersTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::PlayDebugDialogAction (9 vftable slots, 0x2C bytes)
+			class PlayDebugDialogAction : public fight::Action
+			{
+			public:
+				// 0x101EA0E0
+				PlayDebugDialogAction(PlayDebugDialogTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E94A0
+				virtual ~PlayDebugDialogAction();
+
+				// vftable slot 5 (0x101E8C30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8C40)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EA190)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PlayDebugDialogTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::HelicopterStrafeModeAction (9 vftable slots, 0x2C bytes)
+			class HelicopterStrafeModeAction : public fight::Action
+			{
+			public:
+				// 0x101EB7A0
+				HelicopterStrafeModeAction(HelicopterStrafeModeTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E9A30
+				virtual ~HelicopterStrafeModeAction();
+
+				// vftable slot 5 (0x101E9A60)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E9B20)
+				virtual void Slot6();
+				// vftable slot 7 (0x101E9AA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<HelicopterStrafeModeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ShowDisguiseActionHUDAction (9 vftable slots, 0x2C bytes)
+			class ShowDisguiseActionHUDAction : public fight::Action
+			{
+			public:
+				// 0x101EB3B0
+				ShowDisguiseActionHUDAction(ShowDisguiseActionHUDTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E96F0
+				virtual ~ShowDisguiseActionHUDAction();
+
+				// vftable slot 5 (0x101EBC30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101EB460)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EBCE0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ShowDisguiseActionHUDTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::AddMarkerByKeyAction (9 vftable slots, 0x2C bytes)
+			class AddMarkerByKeyAction : public fight::Action
+			{
+			public:
+				// 0x101EA4B0
+				AddMarkerByKeyAction(AddMarkerByKeyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E9540
+				virtual ~AddMarkerByKeyAction();
+
+				// vftable slot 5 (0x101EA560)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101EA610)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EA690)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AddMarkerByKeyTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::SetUserTooltipAction (9 vftable slots, 0x2C bytes)
+			class SetUserTooltipAction : public fight::Action
+			{
+			public:
+				// 0x101E9FC0
+				SetUserTooltipAction(SetUserTooltipTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E9450
+				virtual ~SetUserTooltipAction();
+
+				// vftable slot 5 (0x101E8C10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8C20)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EA070)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SetUserTooltipTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::AdjustHydraMovementAction (9 vftable slots, 0x2C bytes)
+			class AdjustHydraMovementAction : public fight::Action
+			{
+			public:
+				// 0x101EB850
+				AdjustHydraMovementAction(AdjustHydraMovementTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E9B50
+				virtual ~AdjustHydraMovementAction();
+
+				// vftable slot 5 (0x101EB900)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101EB950)
+				virtual void Slot6();
+
+				core::Link<AdjustHydraMovementTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::DrawObjectDebugAction (9 vftable slots, 0x2C bytes)
+			class DrawObjectDebugAction : public fight::Action
+			{
+			public:
+				// 0x101EA1A0
+				DrawObjectDebugAction(DrawObjectDebugTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101E94F0
+				virtual ~DrawObjectDebugAction();
+
+				// vftable slot 5 (0x101E8C50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8C60)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EA250)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<DrawObjectDebugTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

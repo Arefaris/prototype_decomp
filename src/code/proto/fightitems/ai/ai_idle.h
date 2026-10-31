@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_IDLE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -89,6 +90,54 @@ namespace proto
 			fight::TrackFactory* CreateIdleTrackFactory(const char* name);
 			void RegisterIdleTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::FlyingIdleAction (9 vftable slots, 0x2C bytes)
+			class FlyingIdleAction : public fight::Action
+			{
+			public:
+				// 0x101F8650
+				FlyingIdleAction(FlyingIdleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F7D00
+				virtual ~FlyingIdleAction();
+
+				// vftable slot 5 (0x101F8980)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F8B00)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F8700)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FlyingIdleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+				float unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::ai::IdleAction (9 vftable slots, 0x2C bytes)
+			class IdleAction : public fight::Action
+			{
+			public:
+				// 0x101F8160
+				IdleAction(IdleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F7CB0
+				virtual ~IdleAction();
+
+				// vftable slot 5 (0x101F7B50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F7B60)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F8840)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<IdleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+				float unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

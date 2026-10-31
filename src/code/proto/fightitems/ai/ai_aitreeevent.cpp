@@ -242,6 +242,31 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101F0B90
+			AiTreeEventSendAction::AiTreeEventSendAction(AiTreeEventSendTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F08B0
+			AiTreeEventSendAction::~AiTreeEventSendAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F07A0
+			bool AiTreeEventSendAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F0DB0
+			fight::Action* AiTreeEventSendTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AiTreeEventSendAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<EventValueCondition>;
 			template class fight::PropertyEnumConstList<EventValueCondition>;
 			template class fight::PropertyIntConstRange<EventValueCondition>;

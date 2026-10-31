@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_RESERVEPOSITION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -274,6 +275,48 @@ namespace proto
 			fight::TrackFactory* CreateReserveTargetsPositionTrackFactory(const char* name);
 			void RegisterReserveTargetsPositionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::CommanderInCombatAction (9 vftable slots, 0x2C bytes)
+			class CommanderInCombatAction : public fight::Action
+			{
+			public:
+				// 0x101EFC50
+				CommanderInCombatAction(CommanderInCombatTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EE280
+				virtual ~CommanderInCombatAction();
+
+				// vftable slot 5 (0x101ED780)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101ED7B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101ED7A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<CommanderInCombatTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::ai::ReserveGunButtAction (9 vftable slots, 0x2C bytes)
+			class ReserveGunButtAction : public fight::Action
+			{
+			public:
+				// 0x101EFB20
+				ReserveGunButtAction(ReserveGunButtTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EE230
+				virtual ~ReserveGunButtAction();
+
+				// vftable slot 5 (0x101EFBD0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101ED770)
+				virtual void Slot6();
+				// vftable slot 7 (0x101ED760)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReserveGunButtTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

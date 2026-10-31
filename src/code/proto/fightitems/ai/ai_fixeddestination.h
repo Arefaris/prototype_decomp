@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_FIXEDDESTINATION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -207,6 +208,26 @@ namespace proto
 			fight::TrackFactory* CreateFixedDestinationFlytoTrackFactory(const char* name);
 			void RegisterFixedDestinationFlytoTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::ClearFixedAreaDestinationAction (9 vftable slots, 0x2C bytes)
+			class ClearFixedAreaDestinationAction : public fight::Action
+			{
+			public:
+				// 0x101F2560
+				ClearFixedAreaDestinationAction(ClearFixedAreaDestinationTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener);
+				// 0x101F16A0
+				virtual ~ClearFixedAreaDestinationAction();
+
+				// vftable slot 5 (0x101F2610)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F26A0)
+				virtual void Slot6();
+
+				core::Link<ClearFixedAreaDestinationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_TAKEOFF_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -101,6 +102,32 @@ namespace proto
 			fight::TrackFactory* CreateLandTrackFactory(const char* name);
 			void RegisterLandTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::TakeOffAction (9 vftable slots, 0x2C bytes)
+			class TakeOffAction : public fight::Action
+			{
+			public:
+				// 0x101F9B20
+				TakeOffAction(TakeOffTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F8F60
+				virtual ~TakeOffAction();
+
+				// vftable slot 5 (0x101F9BD0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F8F90)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F9D00)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TakeOffTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				bool unknown34;  // +0x34
+				unsigned char unknown35[0x3];
+			};
+
+			// ---- actions end
 		}
 	}
 }

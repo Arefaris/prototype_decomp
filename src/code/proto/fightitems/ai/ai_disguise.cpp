@@ -1186,6 +1186,187 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101EA6A0
+			ClearMarkersAction::ClearMarkersAction(ClearMarkersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9590
+			ClearMarkersAction::~ClearMarkersAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CC0
+			void ClearMarkersAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBB70
+			fight::Action* ClearMarkersTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ClearMarkersAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EA0E0
+			PlayDebugDialogAction::PlayDebugDialogAction(PlayDebugDialogTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E94A0
+			PlayDebugDialogAction::~PlayDebugDialogAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8C30
+			bool PlayDebugDialogAction::Slot5(int arg, float value)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101E8C40
+			void PlayDebugDialogAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBA50
+			fight::Action* PlayDebugDialogTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PlayDebugDialogAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EB7A0
+			HelicopterStrafeModeAction::HelicopterStrafeModeAction(HelicopterStrafeModeTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9A30
+			HelicopterStrafeModeAction::~HelicopterStrafeModeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9B20
+			void HelicopterStrafeModeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBD60
+			fight::Action* HelicopterStrafeModeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new HelicopterStrafeModeAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EB3B0
+			ShowDisguiseActionHUDAction::ShowDisguiseActionHUDAction(ShowDisguiseActionHUDTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E96F0
+			ShowDisguiseActionHUDAction::~ShowDisguiseActionHUDAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBBD0
+			fight::Action* ShowDisguiseActionHUDTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ShowDisguiseActionHUDAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EA4B0
+			AddMarkerByKeyAction::AddMarkerByKeyAction(AddMarkerByKeyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9540
+			AddMarkerByKeyAction::~AddMarkerByKeyAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBB10
+			fight::Action* AddMarkerByKeyTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AddMarkerByKeyAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101E9FC0
+			SetUserTooltipAction::SetUserTooltipAction(SetUserTooltipTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9450
+			SetUserTooltipAction::~SetUserTooltipAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8C10
+			bool SetUserTooltipAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8C20
+			void SetUserTooltipAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EB9F0
+			fight::Action* SetUserTooltipTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetUserTooltipAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EB850
+			AdjustHydraMovementAction::AdjustHydraMovementAction(AdjustHydraMovementTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9B50
+			AdjustHydraMovementAction::~AdjustHydraMovementAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBDC0
+			fight::Action* AdjustHydraMovementTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AdjustHydraMovementAction(this, handle, effect, listener);
+			}
+
+			// FUNCTION: ENGINE 0x101EA1A0
+			DrawObjectDebugAction::DrawObjectDebugAction(DrawObjectDebugTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E94F0
+			DrawObjectDebugAction::~DrawObjectDebugAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8C50
+			bool DrawObjectDebugAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8C60
+			void DrawObjectDebugAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EBAB0
+			fight::Action* DrawObjectDebugTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DrawObjectDebugAction(this, handle, effect, listener);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<AbsoluteHeightCondition>;
 			template class fight::PropertyFloatConstRange<AbsoluteHeightCondition>;
 			template class fight::ConditionFactoryTemplate<AbsoluteHeightCondition>;

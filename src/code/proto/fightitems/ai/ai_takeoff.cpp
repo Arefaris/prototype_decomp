@@ -266,6 +266,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101F9B20
+			TakeOffAction::TakeOffAction(TakeOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F8F60
+			TakeOffAction::~TakeOffAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F9EC0
+			fight::Action* TakeOffTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TakeOffAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;
 			template class fight::TrackFactoryTemplate<TakeOffTrack>;
 			template class fight::TrackFactoryCasterTemplate<TakeOffTrack>;

@@ -717,6 +717,73 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+
+			// FUNCTION: ENGINE 0x101EDF30
+			// EQUIVALENT: register allocation and scheduling (the engine loads the manager pointer before the target's handle, ours the other way round); the same calls with the same arguments (best 88.0 %)
+			bool CanGunButtCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return true;
+				}
+				engine::GameObjectHandle target = proto::Unknown103B8B80(object);
+				return proto::gAISystem->strafeRunTokens->Unknown103840E0(target);
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101EFC50
+			CommanderInCombatAction::CommanderInCombatAction(CommanderInCombatTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EE280
+			CommanderInCombatAction::~CommanderInCombatAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101ED7A0
+			bool CommanderInCombatAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F0550
+			fight::Action* CommanderInCombatTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CommanderInCombatAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101EFB20
+			ReserveGunButtAction::ReserveGunButtAction(ReserveGunButtTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EE230
+			ReserveGunButtAction::~ReserveGunButtAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101ED770
+			void ReserveGunButtAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101ED760
+			bool ReserveGunButtAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F0500
+			fight::Action* ReserveGunButtTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReserveGunButtAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::ConditionFactoryTemplate<CanGunButtCondition>;
 			template class fight::ConditionFactoryCasterTemplate<CanGunButtCondition>;
 			template class fight::PropertyFloatConstRange<ReservePositionTrack>;

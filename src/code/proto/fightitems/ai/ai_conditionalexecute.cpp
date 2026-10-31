@@ -103,6 +103,9 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConditionalExecuteTrack>;
 			template class fight::PropertyBranch<ConditionalExecuteTrack>;
 			template class fight::PropertyConditionGroup<ConditionalExecuteTrack>;

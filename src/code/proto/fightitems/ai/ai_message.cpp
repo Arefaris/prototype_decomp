@@ -373,6 +373,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101FDF90
+			BlindAction::BlindAction(BlindTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FD800
+			BlindAction::~BlindAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FE350
+			fight::Action* BlindTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new BlindAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<PeriodicMessageTrack>;
 			template class fight::PropertyEnumConstList<PeriodicMessageTrack>;
 			template class fight::PropertyBool<PeriodicMessageTrack>;

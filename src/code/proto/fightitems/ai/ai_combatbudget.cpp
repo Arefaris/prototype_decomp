@@ -260,6 +260,58 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101E83C0
+			RequestCombatBudgetTokenAction::RequestCombatBudgetTokenAction(RequestCombatBudgetTokenTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E84F0
+			fight::Action* RequestCombatBudgetTokenTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RequestCombatBudgetTokenAction(this, handle);
+			}
+
+			// ---- actions end
+
+			// FUNCTION: ENGINE 0x101E8100
+			// EQUIVALENT: register choice and scheduling (the engine tests the limit in memory and loads it into esi after the first float, ours loads it first and keeps this in esi); same call with the same arguments (best 20.3 %)
+			bool CheckTagAvailableSpaceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				if (limit > 0)
+				{
+					proto::ByteFlag tryDespawn = { tryDespawnIfFull };
+					int count = proto::Unknown103C4A00(&tag, limit, tryDespawn, minDespawnDistance, objRadius);
+					return count < limit;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8200
+			// EQUIVALENT: instruction selection (the engine clears eax / loads 1 into eax before the compare, ours reuses the result of the budget's Has in al); same calls in the same order (best 78.0 %)
+			bool HasCombatBudgetTokenCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (requestInAdvance)
+				{
+					proto::gAISystem->budgets->Request(combatType, &handle);
+				}
+				bool wanted = hasToken;
+				int type = combatType;
+				return wanted == proto::gAISystem->budgets->Has(type, &handle);
+			}
+
+			// FUNCTION: ENGINE 0x101E84B0
+			bool RequestCombatBudgetTokenAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					proto::gAISystem->budgets->Request(link.object->combatType, &target);
+				}
+				return false;
+			}
+
 			template class fight::PropertyName<CheckTagAvailableSpaceCondition>;
 			template class fight::PropertyIntConstRange<CheckTagAvailableSpaceCondition>;
 			template class fight::PropertyBool<CheckTagAvailableSpaceCondition>;

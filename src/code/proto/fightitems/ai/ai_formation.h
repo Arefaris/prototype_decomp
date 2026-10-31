@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_FORMATION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
 
@@ -190,6 +191,9 @@ namespace proto
 			fight::TrackFactory* CreateReformTrackFactory(const char* name);
 			void RegisterReformTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+
+			// ---- actions end
 		}
 	}
 }
