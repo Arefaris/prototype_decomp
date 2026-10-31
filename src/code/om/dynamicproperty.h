@@ -162,7 +162,8 @@ namespace om
 		}
 		virtual void Set(V value)
 		{
-			setter.pointer->Call(value);
+			Command1<void, V>& command = *setter.pointer;
+			command.Call(value);
 		}
 		OM_ALLOCATION(CommandDelegate);
 
@@ -232,6 +233,24 @@ namespace om
 		virtual bool ReadBinary(BinaryStream* stream) = 0;
 		virtual bool WriteBinary(BinaryStream* stream) = 0;
 	};
+
+	// The forms of a value, found by the argument's namespace and class as well (the arrays have theirs in the class)
+	template<class V> inline bool ReadValueText(const TextValue* text, V* value)
+	{
+		return ReadText(text, value);
+	}
+	template<class V> inline void WriteValueText(TextValue* text, const V& value)
+	{
+		WriteText(text, value);
+	}
+	template<class V> inline bool ReadValueBinary(BinaryStream* stream, V* value)
+	{
+		return ReadBinary(stream, value);
+	}
+	template<class V> inline bool WriteValueBinary(BinaryStream* stream, const V& value)
+	{
+		return WriteBinary(stream, value);
+	}
 
 	// The engine sets the value of a new property to zero for the unsigned int property only
 	template<class T> inline void InitializeValue(T& value)
@@ -306,9 +325,6 @@ namespace om
 	template<class B, class D> class Factory : public FactoryBase<B>
 	{
 	public:
-		virtual ~Factory()
-		{
-		}
 		virtual B* Create(void* unknown)
 		{
 			return new D();
@@ -371,7 +387,8 @@ namespace om
 
 	template<class T> void DynamicProperty<T>::WriteToDelegate(DelegatePropertyBase* delegate)
 	{
-		static_cast<DelegateProperty<T>*>(delegate)->Set(value);
+		DelegateProperty<T>& target = *static_cast<DelegateProperty<T>*>(delegate);
+		target.Set(value);
 	}
 
 	template<class T> void DynamicProperty<T>::ReadFromDelegate(DelegatePropertyBase* delegate)
@@ -415,7 +432,7 @@ namespace om
 			SetName(ClassName(key.key));
 			if (valueNode != 0)
 			{
-				om::ReadText(valueNode, &value);
+				ReadValueText(valueNode, &value);
 				return ok;
 			}
 		}
@@ -430,14 +447,14 @@ namespace om
 		TextNode* valueNode = new TextNode(property, String::Wrap("Value"));
 		om::WriteText(typeNode, FindMetaType(typeid(T))->GetName());
 		om::WriteText(nameNode, name);
-		om::WriteText(valueNode, value);
+		WriteValueText(valueNode, value);
 	}
 
 	template<class T> bool DynamicProperty<T>::ReadBinary(BinaryStream* stream)
 	{
 		if (om::ReadBinary(stream, &name))
 		{
-			if (om::ReadBinary(stream, &value))
+			if (ReadValueBinary(stream, &value))
 			{
 				return true;
 			}
@@ -451,7 +468,7 @@ namespace om
 		{
 			if (om::WriteBinary(stream, name))
 			{
-				if (om::WriteBinary(stream, value))
+				if (WriteValueBinary(stream, value))
 				{
 					return true;
 				}

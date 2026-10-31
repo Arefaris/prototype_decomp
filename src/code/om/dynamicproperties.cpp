@@ -1,11 +1,67 @@
 // The dynamic properties of the om library (0x10A9E000 - 0x10AA9B40): the template instances of the property classes
-// for the number types.
+// for the number types and the arrays.
+#include "code/om/dynamicarray.h"
 #include "code/om/dynamicproperty.h"
 
 #pragma warning(disable: 4661)
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x10AA32D0
+	template<> __declspec(noinline) bool ReadText<__int64>(const TextValue* text, __int64* value)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<__int64>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(__int64));
+		}
+		return cache->ReadText(text, value);
+	}
+
+	// The engine expands the destructor of the string array in these four functions, ours calls it
+	typedef DynamicArray<String, unsigned short> StringArray;
+	template<> void DynamicProperty<StringArray>::Set(StringArray newValue);
+	template<> StringArray CommandMember0Const<DynamicProperty<StringArray>, DynamicProperty<StringArray>, StringArray>::Call();
+	template<> void CommandMember1<DynamicProperty<StringArray>, DynamicProperty<StringArray>, void, StringArray>::Call(StringArray value);
+	template<> void CommandDelegate<StringArray>::Set(StringArray value);
+
+	// FUNCTION: ENGINE 0x10AA8150
+	// NONMATCHING: the array passed by value is destroyed by a call of its destructor, the engine expands it (8.0 %)
+#ifdef NONMATCHING
+	template<> void DynamicProperty<StringArray>::Set(StringArray newValue)
+	{
+		value = newValue;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AA7B30
+	// NONMATCHING: the returned copy of the array is built by a call of the copy constructor and the temporary is destroyed by a call, the engine expands it (33.0 %)
+#ifdef NONMATCHING
+	template<> StringArray CommandMember0Const<DynamicProperty<StringArray>, DynamicProperty<StringArray>, StringArray>::Call()
+	{
+		return (object->*function)();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AA7BA0
+	// NONMATCHING: the array passed by value is destroyed by a call of its destructor, the engine expands it (18.0 %)
+#ifdef NONMATCHING
+	template<> void CommandMember1<DynamicProperty<StringArray>, DynamicProperty<StringArray>, void, StringArray>::Call(StringArray value)
+	{
+		(object->*function)(value);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AA7AA0
+	// NONMATCHING: the array passed by value is destroyed by a call of its destructor, the engine expands it (18.0 %)
+#ifdef NONMATCHING
+	template<> void CommandDelegate<StringArray>::Set(StringArray value)
+	{
+		Command1<void, StringArray>& command = *setter.pointer;
+		command.Call(value);
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10A9E380
 	template type_info const* Factory<DynamicPropertyBase,DynamicProperty<unsigned char> >::GetType();
 	// FUNCTION: ENGINE 0x10A9E3B0
@@ -13,9 +69,7 @@ namespace om
 	// FUNCTION: ENGINE 0x10A9E3D0
 	template char const* DynamicProperty<unsigned char>::AllocationTag();
 	// FUNCTION: ENGINE 0x10A9E450
-	template type_info const* Factory<DynamicPropertyBase,DynamicProperty<unsigned short> >::GetType();
-	// FUNCTION: ENGINE 0x10A9E480
-	template void Factory<DynamicPropertyBase,DynamicProperty<unsigned short> >::operator delete(void*);
+	template char const* Factory<DynamicPropertyBase,DynamicProperty<unsigned char> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10A9E4A0
 	template char const* DynamicProperty<unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10A9E4F0
@@ -56,6 +110,12 @@ namespace om
 	template char const* DynamicProperty<__int64>::AllocationTag();
 	// FUNCTION: ENGINE 0x10A9E820
 	template char const* Factory<DynamicPropertyBase,DynamicProperty<__int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10A9EA10
+	template char const* DynamicProperty<DynamicArray<String,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10A9EAA0
+	template char const* DynamicProperty<DynamicArray<float,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10A9EB30
+	template char const* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10A9EEE0
 	template void* DynamicProperty<unsigned char>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10A9EF00
@@ -72,6 +132,12 @@ namespace om
 	template void* DynamicProperty<int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10A9EFC0
 	template void* DynamicProperty<__int64>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10A9EFE0
+	template void* DynamicProperty<DynamicArray<String,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10A9F000
+	template void* DynamicProperty<DynamicArray<float,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10A9F020
+	template void* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10A9F070
 	template DynamicProperty<unsigned char>::~DynamicProperty();
 	// FUNCTION: ENGINE 0x10A9F080
@@ -168,14 +234,6 @@ namespace om
 	template void DynamicProperty<unsigned short>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10A9F930
 	template CommandMember0Const<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,unsigned short>::~CommandMember0Const();
-	// FUNCTION: ENGINE 0x10A9F990
-	template Owned<Command1<void,unsigned short> >::Owned(Command1<void,unsigned short>*);
-	// FUNCTION: ENGINE 0x10A9F9A0
-	template Owned<Command1<void,unsigned short> >::~Owned();
-	// FUNCTION: ENGINE 0x10A9F9B0
-	template Owned<Command0<unsigned short> >::Owned(Command0<unsigned short>*);
-	// FUNCTION: ENGINE 0x10A9F9C0
-	template Owned<Command0<unsigned short> >::~Owned();
 	// FUNCTION: ENGINE 0x10A9F9D0
 	template Command0<unsigned short>::Command0();
 	// FUNCTION: ENGINE 0x10A9F9E0
@@ -210,8 +268,6 @@ namespace om
 	template DelegateProperty<unsigned short>::DelegateProperty();
 	// FUNCTION: ENGINE 0x10A9FD40
 	template MetaTypeBase* DelegateProperty<unsigned short>::GetMetaType();
-	// FUNCTION: ENGINE 0x10A9FD50
-	template DelegateProperty<unsigned short>::~DelegateProperty();
 	// FUNCTION: ENGINE 0x10A9FD80
 	template void* CommandMember0Const<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,unsigned short>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10A9FDA0
@@ -679,7 +735,7 @@ namespace om
 	// FUNCTION: ENGINE 0x10AA2280
 	template void CommandMember1<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,void,unsigned short>::Call(unsigned short);
 	// FUNCTION: ENGINE 0x10AA22A0
-	template void CommandMember1<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,void,unsigned short>::operator delete(void*);
+	template void CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10AA22C0
 	template void* CommandMember1<DynamicProperty<unsigned int>,DynamicProperty<unsigned int>,void,unsigned int>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AA22E0
@@ -798,8 +854,6 @@ namespace om
 	template void CommandDelegate<unsigned short>::Set(unsigned short);
 	// FUNCTION: ENGINE 0x10AA4780
 	template MetaTypeBase* CommandDelegate<unsigned short>::GetMetaType();
-	// FUNCTION: ENGINE 0x10AA47A0
-	template CommandDelegate<unsigned short>::~CommandDelegate();
 	// FUNCTION: ENGINE 0x10AA47D0
 	template Command0<unsigned short>* CommandMember0Const<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,unsigned short>::Clone();
 	// FUNCTION: ENGINE 0x10AA4810
@@ -890,6 +944,200 @@ namespace om
 	template Command1<void,int>* CommandMember1<DynamicProperty<int>,DynamicProperty<int>,void,int>::Create(DynamicProperty<int>*, CommandMember1<DynamicProperty<int>,DynamicProperty<int>,void,int>::Function);
 	// FUNCTION: ENGINE 0x10AA5480
 	template Command1<void,__int64>* CommandMember1<DynamicProperty<__int64>,DynamicProperty<__int64>,void,__int64>::Create(DynamicProperty<__int64>*, CommandMember1<DynamicProperty<__int64>,DynamicProperty<__int64>,void,__int64>::Function);
+	// FUNCTION: ENGINE 0x10AA54F0
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::SetName(Name<CaseSensitive64BitKey>);
+	// FUNCTION: ENGINE 0x10AA5510
+	template Name<CaseSensitive64BitKey> DynamicProperty<DynamicArray<String,unsigned short> >::GetName() const;
+	// FUNCTION: ENGINE 0x10AA5530
+	template void const* DynamicProperty<DynamicArray<String,unsigned short> >::GetValuePointer() const;
+	// FUNCTION: ENGINE 0x10AA5540
+	template void* DynamicProperty<DynamicArray<String,unsigned short> >::GetValuePointer();
+	// FUNCTION: ENGINE 0x10AA5550
+	template MetaTypeBase* DynamicProperty<DynamicArray<String,unsigned short> >::GetMetaType() const;
+	// FUNCTION: ENGINE 0x10AA5580
+	template Command0<DynamicArray<String,unsigned short> >::~Command0();
+	// FUNCTION: ENGINE 0x10AA5590
+	template Command1<void,DynamicArray<String,unsigned short> >::~Command1();
+	// FUNCTION: ENGINE 0x10AA5620
+	template Command0<DynamicArray<String,unsigned short> >::Command0();
+	// FUNCTION: ENGINE 0x10AA5640
+	template char const* CommandDelegate<DynamicArray<String,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5650
+	template char const* CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5660
+	template Command1<void,DynamicArray<String,unsigned short> >::Command1();
+	// FUNCTION: ENGINE 0x10AA5670
+	template char const* CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5680
+	template void* CommandDelegate<DynamicArray<String,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA56A0
+	template void* CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA56C0
+	template CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::CommandMember0Const(DynamicProperty<DynamicArray<String,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA56E0
+	template CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::~CommandMember0Const();
+	// FUNCTION: ENGINE 0x10AA56F0
+	template void CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA5740
+	template Command0<DynamicArray<String,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::Create(DynamicProperty<DynamicArray<String,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA5770
+	template void* CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA5790
+	template CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::CommandMember1(DynamicProperty<DynamicArray<String,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA57B0
+	template CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA57C0
+	template void CommandMember1<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,void,unsigned short>::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA5810
+	template DynamicProperty<DynamicArray<String,unsigned short> >::~DynamicProperty();
+	// FUNCTION: ENGINE 0x10AA5860
+	template CommandDelegate<DynamicArray<String,unsigned short> >::CommandDelegate(Command0<DynamicArray<String,unsigned short> >*, Command1<void,DynamicArray<String,unsigned short> >*);
+	// FUNCTION: ENGINE 0x10AA58C0
+	template MetaTypeBase* CommandDelegate<DynamicArray<String,unsigned short> >::GetMetaType();
+	// FUNCTION: ENGINE 0x10AA5910
+	template DynamicArray<String,unsigned short> CommandDelegate<DynamicArray<String,unsigned short> >::Get();
+	// FUNCTION: ENGINE 0x10AA5930
+	template Command0<DynamicArray<String,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,DynamicArray<String,unsigned short> >::Clone();
+	// FUNCTION: ENGINE 0x10AA59C0
+	template Command1<void,DynamicArray<String,unsigned short> >* CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::Create(DynamicProperty<DynamicArray<String,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA5A30
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::SetName(Name<CaseSensitive64BitKey>);
+	// FUNCTION: ENGINE 0x10AA5A50
+	template Name<CaseSensitive64BitKey> DynamicProperty<DynamicArray<float,unsigned short> >::GetName() const;
+	// FUNCTION: ENGINE 0x10AA5A70
+	template void const* DynamicProperty<DynamicArray<float,unsigned short> >::GetValuePointer() const;
+	// FUNCTION: ENGINE 0x10AA5A80
+	template void* DynamicProperty<DynamicArray<float,unsigned short> >::GetValuePointer();
+	// FUNCTION: ENGINE 0x10AA5A90
+	template MetaTypeBase* DynamicProperty<DynamicArray<float,unsigned short> >::GetMetaType() const;
+	// FUNCTION: ENGINE 0x10AA5AC0
+	template Command0<DynamicArray<float,unsigned short> >::~Command0();
+	// FUNCTION: ENGINE 0x10AA5AD0
+	template Command1<void,DynamicArray<float,unsigned short> >::~Command1();
+	// FUNCTION: ENGINE 0x10AA5B60
+	template Command0<DynamicArray<float,unsigned short> >::Command0();
+	// FUNCTION: ENGINE 0x10AA5B90
+	template char const* CommandDelegate<DynamicArray<float,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5BA0
+	template char const* CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5BB0
+	template Command1<void,DynamicArray<float,unsigned short> >::Command1();
+	// FUNCTION: ENGINE 0x10AA5BC0
+	template char const* CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA5BD0
+	template void* CommandDelegate<DynamicArray<float,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA5BF0
+	template DelegateProperty<DynamicArray<float,unsigned short> >::DelegateProperty();
+	// FUNCTION: ENGINE 0x10AA5C00
+	template MetaTypeBase* DelegateProperty<DynamicArray<float,unsigned short> >::GetMetaType();
+	// FUNCTION: ENGINE 0x10AA5C40
+	template void* CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA5C60
+	template CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::CommandMember0Const(DynamicProperty<DynamicArray<float,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA5C80
+	template CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::~CommandMember0Const();
+	// FUNCTION: ENGINE 0x10AA5C90
+	template void CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA5CE0
+	template void DynamicArray<float,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AA5D20
+	template Command0<DynamicArray<float,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::Create(DynamicProperty<DynamicArray<float,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA5D50
+	template void* CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA5D70
+	template CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::CommandMember1(DynamicProperty<DynamicArray<float,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA5D90
+	template CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA5DA0
+	template void CommandMember1<DynamicProperty<DynamicArray<String,unsigned short> >,DynamicProperty<DynamicArray<String,unsigned short> >,void,DynamicArray<String,unsigned short> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA5DF0
+	template DynamicProperty<DynamicArray<float,unsigned short> >::~DynamicProperty();
+	// FUNCTION: ENGINE 0x10AA5E50
+	template CommandDelegate<DynamicArray<float,unsigned short> >::CommandDelegate(Command0<DynamicArray<float,unsigned short> >*, Command1<void,DynamicArray<float,unsigned short> >*);
+	// FUNCTION: ENGINE 0x10AA5ED0
+	template MetaTypeBase* CommandDelegate<DynamicArray<float,unsigned short> >::GetMetaType();
+	// FUNCTION: ENGINE 0x10AA5F20
+	template DynamicArray<float,unsigned short> CommandDelegate<DynamicArray<float,unsigned short> >::Get();
+	// FUNCTION: ENGINE 0x10AA5F40
+	template Command0<DynamicArray<float,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::Clone();
+	// FUNCTION: ENGINE 0x10AA5F80
+	template void om::WriteText(TextValue*, DynamicArray<float,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AA6080
+	template bool om::WriteBinary(BinaryStream*, DynamicArray<float,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AA6180
+	template void DynamicArray<float,unsigned short>::Reserve(unsigned short);
+	// FUNCTION: ENGINE 0x10AA6230
+	template Command1<void,DynamicArray<float,unsigned short> >* CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::Create(DynamicProperty<DynamicArray<float,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA62A0
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::SetName(Name<CaseSensitive64BitKey>);
+	// FUNCTION: ENGINE 0x10AA62C0
+	template Name<CaseSensitive64BitKey> DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetName() const;
+	// FUNCTION: ENGINE 0x10AA62E0
+	template void const* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetValuePointer() const;
+	// FUNCTION: ENGINE 0x10AA62F0
+	template void* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetValuePointer();
+	// FUNCTION: ENGINE 0x10AA6300
+	template MetaTypeBase* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetMetaType() const;
+	// FUNCTION: ENGINE 0x10AA6330
+	template Command0<DynamicArray<unsigned int,unsigned short> >::~Command0();
+	// FUNCTION: ENGINE 0x10AA6340
+	template Command1<void,DynamicArray<unsigned int,unsigned short> >::~Command1();
+	// FUNCTION: ENGINE 0x10AA63D0
+	template Command0<DynamicArray<unsigned int,unsigned short> >::Command0();
+	// FUNCTION: ENGINE 0x10AA6400
+	template char const* CommandDelegate<DynamicArray<unsigned int,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA6410
+	template char const* CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA6420
+	template Command1<void,DynamicArray<unsigned int,unsigned short> >::Command1();
+	// FUNCTION: ENGINE 0x10AA6430
+	template float const& DynamicArray<float,unsigned short>::operator[](unsigned short) const;
+	// FUNCTION: ENGINE 0x10AA6440
+	template char const* CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AA6450
+	template void* CommandDelegate<DynamicArray<unsigned int,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA6470
+	template DelegateProperty<DynamicArray<unsigned int,unsigned short> >::DelegateProperty();
+	// FUNCTION: ENGINE 0x10AA6480
+	template MetaTypeBase* DelegateProperty<DynamicArray<unsigned int,unsigned short> >::GetMetaType();
+	// FUNCTION: ENGINE 0x10AA64C0
+	template void* CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA64E0
+	template CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::CommandMember0Const(DynamicProperty<DynamicArray<unsigned int,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA6500
+	template CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::~CommandMember0Const();
+	// FUNCTION: ENGINE 0x10AA6510
+	template void CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA6560
+	template void DynamicArray<unsigned int,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AA6590
+	template unsigned int const& DynamicArray<unsigned int,unsigned short>::operator[](unsigned short) const;
+	// FUNCTION: ENGINE 0x10AA65B0
+	template Command0<DynamicArray<unsigned int,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::Create(DynamicProperty<DynamicArray<unsigned int,unsigned short> >*, CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA65E0
+	template void* CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AA6600
+	template CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::CommandMember1(DynamicProperty<DynamicArray<unsigned int,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::Function);
+	// FUNCTION: ENGINE 0x10AA6620
+	template CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA6630
+	template void CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AA6680
+	template DynamicProperty<DynamicArray<unsigned int,unsigned short> >::~DynamicProperty();
+	// FUNCTION: ENGINE 0x10AA66E0
+	template CommandDelegate<DynamicArray<unsigned int,unsigned short> >::CommandDelegate(Command0<DynamicArray<unsigned int,unsigned short> >*, Command1<void,DynamicArray<unsigned int,unsigned short> >*);
+	// FUNCTION: ENGINE 0x10AA6760
+	template MetaTypeBase* CommandDelegate<DynamicArray<unsigned int,unsigned short> >::GetMetaType();
+	// FUNCTION: ENGINE 0x10AA67B0
+	template DynamicArray<unsigned int,unsigned short> CommandDelegate<DynamicArray<unsigned int,unsigned short> >::Get();
+	// FUNCTION: ENGINE 0x10AA67D0
+	template Command0<DynamicArray<unsigned int,unsigned short> >* CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::Clone();
+	// FUNCTION: ENGINE 0x10AA6810
+	template void om::WriteText(TextValue*, DynamicArray<unsigned int,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AA6910
+	template bool om::WriteBinary(BinaryStream*, DynamicArray<unsigned int,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10AA6A30
+	template Command1<void,DynamicArray<unsigned int,unsigned short> >* CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::Create(DynamicProperty<DynamicArray<unsigned int,unsigned short> >*, CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::Function);
 	// FUNCTION: ENGINE 0x10AA7010
 	template DelegatePropertyBase* DynamicProperty<unsigned char>::CreateDelegate();
 	// FUNCTION: ENGINE 0x10AA7080
@@ -906,4 +1154,109 @@ namespace om
 	template DelegatePropertyBase* DynamicProperty<int>::CreateDelegate();
 	// FUNCTION: ENGINE 0x10AA72C0
 	template DelegatePropertyBase* DynamicProperty<__int64>::CreateDelegate();
+	// FUNCTION: ENGINE 0x10AA7320
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::WriteToDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA7350
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::SetFromPointer2(void const*, unsigned int);
+	// FUNCTION: ENGINE 0x10AA7360
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::GetValue(void*) const;
+	// FUNCTION: ENGINE 0x10AA7370
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::WriteText(TextValue*);
+	// FUNCTION: ENGINE 0x10AA74E0
+	template bool DynamicProperty<DynamicArray<String,unsigned short> >::WriteBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA7540
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<DynamicArray<String,unsigned short> > >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA75A0
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::WriteToDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA75D0
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::SetFromPointer2(void const*, unsigned int);
+	// FUNCTION: ENGINE 0x10AA75E0
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::GetValue(void*) const;
+	// FUNCTION: ENGINE 0x10AA75F0
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::WriteText(TextValue*);
+	// FUNCTION: ENGINE 0x10AA7760
+	template bool DynamicProperty<DynamicArray<float,unsigned short> >::WriteBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA77C0
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<DynamicArray<float,unsigned short> > >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA7820
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::WriteToDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA7850
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::SetFromPointer2(void const*, unsigned int);
+	// FUNCTION: ENGINE 0x10AA7860
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetValue(void*) const;
+	// FUNCTION: ENGINE 0x10AA7870
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::WriteText(TextValue*);
+	// FUNCTION: ENGINE 0x10AA79E0
+	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::WriteBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA7A40
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<DynamicArray<unsigned int,unsigned short> > >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA7C30
+	template void CommandDelegate<DynamicArray<float,unsigned short> >::Set(DynamicArray<float,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA7C70
+	template DynamicArray<float,unsigned short> CommandMember0Const<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,DynamicArray<float,unsigned short> >::Call();
+	// FUNCTION: ENGINE 0x10AA7CC0
+	template void CommandMember1<DynamicProperty<DynamicArray<float,unsigned short> >,DynamicProperty<DynamicArray<float,unsigned short> >,void,DynamicArray<float,unsigned short> >::Call(DynamicArray<float,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA7D00
+	template bool om::ReadText(TextValue const*, DynamicArray<float,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AA7E10
+	template bool om::ReadBinary(BinaryStream*, DynamicArray<float,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AA7EB0
+	template void CommandDelegate<DynamicArray<unsigned int,unsigned short> >::Set(DynamicArray<unsigned int,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA7EF0
+	template DynamicArray<unsigned int,unsigned short> CommandMember0Const<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicArray<unsigned int,unsigned short> >::Call();
+	// FUNCTION: ENGINE 0x10AA7F40
+	template void CommandMember1<DynamicProperty<DynamicArray<unsigned int,unsigned short> >,DynamicProperty<DynamicArray<unsigned int,unsigned short> >,void,DynamicArray<unsigned int,unsigned short> >::Call(DynamicArray<unsigned int,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA7F80
+	template bool om::ReadText(TextValue const*, DynamicArray<unsigned int,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AA8090
+	template bool om::ReadBinary(BinaryStream*, DynamicArray<unsigned int,unsigned short>*);
+	// FUNCTION: ENGINE 0x10AA8130
+	template DynamicArray<String,unsigned short> DynamicProperty<DynamicArray<String,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10AA81A0
+	template DynamicArray<float,unsigned short> DynamicProperty<DynamicArray<float,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10AA81C0
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::Set(DynamicArray<float,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA81F0
+	template DynamicArray<unsigned int,unsigned short> DynamicProperty<DynamicArray<unsigned int,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10AA8210
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::Set(DynamicArray<unsigned int,unsigned short>);
+	// FUNCTION: ENGINE 0x10AA8730
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::SetFrom(DynamicPropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8750
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::ReadFromDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8770
+	template void DynamicProperty<DynamicArray<String,unsigned short> >::SetFromPointer(void const*);
+	// FUNCTION: ENGINE 0x10AA8790
+	template DelegatePropertyBase* DynamicProperty<DynamicArray<String,unsigned short> >::CreateDelegate();
+	// FUNCTION: ENGINE 0x10AA87F0
+	// EQUIVALENT: scheduling: the engine loads both halves of the key before the test of the result of the name read (95.5 %)
+	template bool DynamicProperty<DynamicArray<String,unsigned short> >::ReadText(TextValue const*);
+	// FUNCTION: ENGINE 0x10AA88C0
+	template bool DynamicProperty<DynamicArray<String,unsigned short> >::ReadBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA8900
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::SetFrom(DynamicPropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8920
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::ReadFromDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8940
+	template void DynamicProperty<DynamicArray<float,unsigned short> >::SetFromPointer(void const*);
+	// FUNCTION: ENGINE 0x10AA8960
+	template DelegatePropertyBase* DynamicProperty<DynamicArray<float,unsigned short> >::CreateDelegate();
+	// FUNCTION: ENGINE 0x10AA89C0
+	// EQUIVALENT: scheduling: the engine loads both halves of the key before the test of the result of the name read (95.5 %)
+	template bool DynamicProperty<DynamicArray<float,unsigned short> >::ReadText(TextValue const*);
+	// FUNCTION: ENGINE 0x10AA8A90
+	template bool DynamicProperty<DynamicArray<float,unsigned short> >::ReadBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA8AD0
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::SetFrom(DynamicPropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8AF0
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadFromDelegate(DelegatePropertyBase*);
+	// FUNCTION: ENGINE 0x10AA8B10
+	template void DynamicProperty<DynamicArray<unsigned int,unsigned short> >::SetFromPointer(void const*);
+	// FUNCTION: ENGINE 0x10AA8B30
+	template DelegatePropertyBase* DynamicProperty<DynamicArray<unsigned int,unsigned short> >::CreateDelegate();
+	// FUNCTION: ENGINE 0x10AA8B90
+	// EQUIVALENT: scheduling: the engine loads both halves of the key before the test of the result of the name read (95.5 %)
+	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadText(TextValue const*);
+	// FUNCTION: ENGINE 0x10AA8C60
+	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadBinary(BinaryStream*);
 }

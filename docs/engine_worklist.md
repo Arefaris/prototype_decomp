@@ -6069,3 +6069,39 @@ A unit's action half begins behind the last `CreateAction` of the unit before it
   reconstructed), the `AddButtonHintMessage` family (a message with an embedded `container::StringC<64>` and a 0x78-byte parameter block, 0x100A01E0 / 0x100A02A0), the whole
   `CollisionAction` family, the crowd actions (base `CrowdTestBaseAction`), the devastator and edge actions, the faction and class name conditions (attribute system, cached lookups),
   `AnimationChargeAction::Slot5` (asset lookup 0x10126290) and the big update slots (`CollisionHitAction::Slot15` 2045 bytes, `Slot24` 3314, `FlyingAttackAction::Slot5` ...).
+
+## sn-az: the range 0x10AA0000 - 0x10AC0000 (om dynamic properties, om services, audio decoders and drivers, mgraph)
+
+The range (and the area up to 0x10B60000) has no assert paths; its units are template families of the om library and the
+classes of the audio and mgraph namespaces, in the order the compiler emitted them (guesses: `om/dynamicproperties.cpp`
+holds the instances of one translation unit, `om/dynamicproperty.h` the templates).
+
+- `om/dynamicproperty.h`, `om/dynamicproperties.cpp` (0x10A9E000 - 0x10AA9B40, more than 580 functions): `DynamicPropertyBase`
+  (17 pure slots), `DynamicProperty<T>` (value at 8 behind one unknown word, description at 0xC / 0x10, name key, one
+  unknown 64-bit word), `Command0<R>`, `Command1<R, A>`, `CommandMember0Const<C, B, R>`, `CommandMember1<C, B, R, A>`,
+  `Owned<T>` (the one-pointer holder of the delegate's commands; name guessed), `CommandDelegate<V>`, `FactoryBase<B>` and
+  `Factory<B, D>`, instantiated for the eight whole numbers (`unsigned char` ... `__int64`) and the arrays of `float`,
+  `unsigned int` and `String`. The instances are kept copies of the engine's COMDATs: functions the engine's linker took
+  from other translation units (`0x108D37F0`, `0x105B...`) are only mapped. The symbols were bound with a script that reads
+  our object's vftables, follows the relocations of the functions that match and picks the remaining kept copies by bytes
+  and distance (local/scratch/sn-az/bind.py; not committed).
+- What the matching taught: a destructor defined out of the class body is not expanded into the scalar deleting
+  destructor (`DynamicProperty`, `FactoryBase`), one without a declaration is (`CommandDelegate`, `Factory`: the dead
+  vftable store goes away); a `String::Wrap` temporary passed by address (`lea`) and a `String("..", false)` temporary passed
+  by the constructor's result are different code; a virtual call with an argument built by a call needs a reference
+  (`T& d = *p; d.Set(v)`) to read the slot's address before the argument; `ClassName GetName() const` returns by hidden
+  pointer (loads, then stores); the 64-bit numbers' property does not clear its value, `unsigned int`'s does; the text reader
+  of `__int64` is a call (`ReadText<__int64>` is declared `noinline` for it).
+- EQUIVALENT: `DynamicProperty<T>::ReadText` for all eleven instances (95.5 %): the engine loads both halves of the name key
+  before the test of the result of the name read.
+- NONMATCHING (the engine expands the destructor of the by-value string array, ours calls it): `DynamicProperty<String array>::Set`
+  0x10AA8150, `CommandMember0Const<..String array..>::Call` 0x10AA7B30, `CommandMember1<..>::Call` 0x10AA7BA0,
+  `CommandDelegate<String array>::Set` 0x10AA7AA0.
+- Shared header changes: `om/name.h` (`Name` got a copy constructor and an assignment operator, the engine builds its
+  by-value arguments in place), `om/metatype.h` (`MetaTypeBase::GetName`, 0x105B62E0).
+- Not done: the copies of `DynamicArray<float>` (copy constructor 0x10AA6120, `Append` 0x10AA61B0) and
+  `DynamicArray<unsigned int>::operator=` 0x10AA69B0 differ from the shared template (the engine addresses the source
+  relative to the destination in the copy loop; register allocation of `Append`); they are not mapped. The unreferenced
+  constructor of `DynamicProperty` (0x10AA0410 form, one stack argument) and the unreferenced `T f(T)` identity copies are
+  not reproduced. The `MetaSimpleType<T>` family (0x10A9C000 - 0x10AA3270) and the `EnvelopeData` property
+  (0x10AB38A0 - 0x10AB44A0) are open.
