@@ -3,6 +3,7 @@
 #include "code/engine/driving/carattributes.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/random.h"
+#include "code/math/vector4.h"
 #include "code/math/worldbounds.h"
 #include "code/pure3d/animation.h"
 #include "code/pure3d/channel.h"
@@ -405,3 +406,16 @@ namespace engine
 // Kept copies (template instances of this unit):
 // FUNCTION: ENGINE 0x1084EEB0
 // FUNCTION: ENGINE 0x1084EEE0
+
+// The negated vector (the engine keeps this copy of the member in the dramatic camera's unit)
+// FUNCTION: ENGINE 0x1084FFA0
+// EQUIVALENT: the engine subtracts the w component before it stores z; the same loads, subtractions and stores
+// otherwise, 90.3 %
+void math::Vector4::Negate(Vector4& out) const
+{
+	float zero = math::WORLD_MIN;
+	out.x = zero - x;
+	out.y = zero - y;
+	out.z = zero - z;
+	out.w = zero - w;
+}

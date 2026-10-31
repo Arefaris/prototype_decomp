@@ -3,6 +3,7 @@
 #include "code/core/file/file.h"
 #include "code/core/file/filesystem.h"
 #include "code/core/heap.h"
+#include "code/engine/gamelink.h"
 #include "code/core/strings.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/gameobject.h"
@@ -257,15 +258,6 @@ namespace engine
 
 	// 0x1005F240 (another unit's copy of the inline GameObjectHandle::Get; a thiscall without stack arguments)
 	GameObject* __fastcall GameObjectHandleGet(const GameObjectHandle* handle);
-
-	// The object the breakpoint keeps updating while the game waits (0x10853890, another unit; names guessed)
-	class ServicePump
-	{
-	public:
-		virtual void Update(core::Time elapsed) = 0;
-	};
-
-	ServicePump* GetServicePump();
 
 	// 0x108407D0 / 0x10840C00 (another unit): whether the value at index is a math::Vector / a UID userdata
 	bool LuaIsVector(lua_State* L, int index);
