@@ -98,7 +98,28 @@ def main():
 		print(f"  new address with two names: 0x{address:08X} {', '.join(nameList)}")
 	for name, count in sorted(newNames.items()):
 		print(f"  new name given {count} times: {name}")
-	sys.exit(1 if newAddresses or newNames else 0)
+	lost = lostAnnotations()
+	for address, path in lost:
+		print(f"  annotation lost: 0x{address:08X} (was in {path}, now in no source)")
+	sys.exit(1 if newAddresses or newNames or lost else 0)
+
+
+def lostAnnotations():
+	"""[(address, file)] annotated in HEAD's sources and in no source of the working tree: a branch whose tool
+	rewrote a trailer once dropped a thousand kept-copy annotations, and the count fell without any check failing."""
+	pattern = re.compile(r"//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)")
+	now = set()
+	for path in (ROOT / "src").rglob("*"):
+		if path.suffix in (".cpp", ".h", ".c", ".inl"):
+			now.update(int(a, 16) for a in pattern.findall(path.read_text(encoding="utf-8", errors="replace")))
+	grep = subprocess.run(["git", "grep", "-E", r"FUNCTION:\s*ENGINE\s+0x", "HEAD", "--", "src"], cwd=ROOT,
+		capture_output=True).stdout.decode("utf-8", errors="replace")
+	lost = {}
+	for line in grep.splitlines():
+		match = re.match(r"HEAD:([^:]+):.*?ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+		if match and int(match.group(2), 16) not in now:
+			lost.setdefault(int(match.group(2), 16), match.group(1))
+	return sorted(lost.items())
 
 
 if __name__ == "__main__":
