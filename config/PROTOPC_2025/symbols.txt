@@ -32536,3 +32536,7 @@ __imp__isspace = 0x11331ECC ; data size:0x4 | __imp__isspace (another unit; name
 ?GetParameterHandler@ProtoThermalPass@pure3d@@UAEPAVParameterHandlerTypeless@2@XZ = 0x107AE1A0 ; function size:0x7 | pure3d::ProtoThermalPass::GetParameterHandler (name guess)
 ?Render@ProtoThermalPass@pure3d@@UAEXPAVPassContext@2@@Z = 0x107AE470 ; function size:0x5B3 | pure3d::ProtoThermalPass::Render (name guess)
 ?IsVisible@ProtoThermalPass@pure3d@@UAE_NXZ = 0x107AE070 ; function size:0x10F | pure3d::ProtoThermalPass::IsVisible (name guess)
+?gShaderMother@pure3d@@3PBDB = 0x111BABA4 ; data size:0x4 | pure3d::gShaderMother (name guess)
+?gShaderInfected@pure3d@@3PBDB = 0x111BABA8 ; data size:0x4 | pure3d::gShaderInfected (name guess)
+?gShaderThermal@pure3d@@3PBDB = 0x111BAC30 ; data size:0x4 | pure3d::gShaderThermal (name guess)
+?gShaderObjThermal@pure3d@@3PBDB = 0x111BAC34 ; data size:0x4 | pure3d::gShaderObjThermal (name guess)

@@ -2,9 +2,15 @@
 #include "code/core/refptr.h"
 #include "code/engine/render/async/shaderparameter.h"
 #include "code/pure3d/framebufferpass.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 
 namespace pure3d
 {
+	const char* gShaderMother = "pp_mother";
+	const char* gShaderInfected = "pp_obj_infected";
+	const char* gShaderThermal = "pp_thermal";
+	const char* gShaderObjThermal = "pp_obj_thermal";
+
 	// FUNCTION: ENGINE 0x107AC500
 	void FrameBufferPass::SetTexture(dxTexture* texture, int slot)
 	{
@@ -100,6 +106,46 @@ namespace pure3d
 		return &parameters;
 	}
 
+	// FUNCTION: ENGINE 0x107AD230
+	bool ProtoMotherPass::IsVisible()
+	{
+		if (GetUnknown24Bit1())
+		{
+			return true;
+		}
+		if (unknownF4 == 0)
+		{
+			return false;
+		}
+		bool ready = true;
+		if (shader == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderMother))
+			{
+				shader = new Shader(gShaderMother);
+				shader->AddRef();
+			}
+			else
+			{
+				ready = false;
+			}
+		}
+		if (shaderObject == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderInfected))
+			{
+				shaderObject = new Shader(gShaderInfected);
+				shaderObject->AddRef();
+			}
+			else
+			{
+				ready = false;
+			}
+		}
+		unknown24Bit1 = ready;
+		return ready;
+	}
+
 	// FUNCTION: ENGINE 0x107AD1D0
 	void ProtoMotherPass::SetUnknownF4(int value)
 	{
@@ -153,6 +199,46 @@ namespace pure3d
 	ParameterHandlerTypeless* ProtoThermalPass::GetParameterHandler()
 	{
 		return &parameters;
+	}
+
+	// FUNCTION: ENGINE 0x107AE070
+	bool ProtoThermalPass::IsVisible()
+	{
+		if (GetUnknown24Bit1())
+		{
+			return true;
+		}
+		if (unknownF4 == 0)
+		{
+			return false;
+		}
+		bool ready = true;
+		if (shader == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderThermal))
+			{
+				shader = new Shader(gShaderThermal);
+				shader->AddRef();
+			}
+			else
+			{
+				ready = false;
+			}
+		}
+		if (shaderObject == 0)
+		{
+			if (gPddiDx->Unknown1061BC00(gShaderObjThermal))
+			{
+				shaderObject = new Shader(gShaderObjThermal);
+				shaderObject->AddRef();
+			}
+			else
+			{
+				ready = false;
+			}
+		}
+		unknown24Bit1 = ready;
+		return ready;
 	}
 
 	// FUNCTION: ENGINE 0x107AE010

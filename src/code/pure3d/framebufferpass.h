@@ -19,6 +19,12 @@ namespace pure3d
 	{
 	};
 
+	// The names of the shaders of the passes (0x111BABA4 / 0x111BABA8 / 0x111BAC30 / 0x111BAC34; names guessed)
+	extern const char* gShaderMother;
+	extern const char* gShaderInfected;
+	extern const char* gShaderThermal;
+	extern const char* gShaderObjThermal;
+
 	// Draws the picture again with a shader; keeps a stack of shaders (the one in use is at +0xC0) and six textures
 	class FrameBufferPass : public Pass
 	{
