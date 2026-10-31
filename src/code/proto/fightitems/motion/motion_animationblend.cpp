@@ -1,6 +1,46 @@
 // Fight items of the motion group: AnimationBlendVerticalAimTrack, AnimationBlendSimpleTrack, AnimationBlendVerticalAimStrafeTrack, AnimationBlendDirectionalTrack (unit 0x1013C5B0 - 0x10140FC0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_animationblend.h"
 
+namespace engine
+{
+	// The name of the puppet attribute of a game object (0x112834F0)
+	extern content::ObjectName gPuppetAttributeName;
+
+	// FUNCTION: ENGINE 0x100953C0
+	void ReleaseDriverCopy4(choreo::Driver*& driver)
+	{
+		if (driver != 0)
+		{
+			driver->Release();
+			driver = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10095410
+	void ReleaseDriverCopy5(choreo::Driver*& driver)
+	{
+		if (driver != 0)
+		{
+			driver->Release();
+			driver = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100953E0
+	void AssignDriverCopy2(choreo::Driver*& driver, choreo::Driver* newDriver)
+	{
+		if (newDriver != 0)
+		{
+			newDriver->AddRef();
+		}
+		if (driver != 0)
+		{
+			driver->Release();
+		}
+		driver = newDriver;
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -1418,6 +1458,154 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10096CC0
+			AnimationBlendVerticalAimAction::AnimationBlendVerticalAimAction(AnimationBlendVerticalAimTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10095AC0
+			AnimationBlendVerticalAimAction::~AnimationBlendVerticalAimAction()
+			{
+				engine::ReleaseDriverCopy4(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100987C0
+			fight::Action* AnimationBlendVerticalAimTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnimationBlendVerticalAimAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10095F00
+			void AnimationBlendVerticalAimAction::Slot6()
+			{
+				if (target.Get() != 0)
+				{
+					engine::BaseAttribute* attribute = target.Get()->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+						if (value != 0 && *value != 0)
+						{
+							(*value)->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy4(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10098230
+			AnimationBlendSimpleAction::AnimationBlendSimpleAction(AnimationBlendSimpleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100960E0
+			AnimationBlendSimpleAction::~AnimationBlendSimpleAction()
+			{
+				engine::ReleaseDriverCopy4(driver);
+			}
+
+			// FUNCTION: ENGINE 0x10098860
+			fight::Action* AnimationBlendSimpleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnimationBlendSimpleAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10096120
+			void AnimationBlendSimpleAction::Slot6()
+			{
+				if (target.Get() != 0)
+				{
+					engine::BaseAttribute* attribute = target.Get()->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+						if (value != 0 && *value != 0)
+						{
+							(*value)->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy4(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100975C0
+			AnimationBlendVerticalAimStrafeAction::AnimationBlendVerticalAimStrafeAction(AnimationBlendVerticalAimStrafeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), secondDriver(0), unknown34(0.0f), unknown38(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10095FC0
+			AnimationBlendVerticalAimStrafeAction::~AnimationBlendVerticalAimStrafeAction()
+			{
+				engine::ReleaseDriverCopy5(secondDriver);
+				engine::ReleaseDriverCopy4(driver);
+			}
+
+			// FUNCTION: ENGINE 0x10098810
+			fight::Action* AnimationBlendVerticalAimStrafeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnimationBlendVerticalAimStrafeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10096010
+			void AnimationBlendVerticalAimStrafeAction::Slot6()
+			{
+				if (target.Get() != 0)
+				{
+					engine::BaseAttribute* attribute = target.Get()->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+						if (value != 0 && *value != 0)
+						{
+							(*value)->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy5(secondDriver);
+							engine::ReleaseDriverCopy4(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10096380
+			AnimationBlendDirectionalAction::AnimationBlendDirectionalAction(AnimationBlendDirectionalTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100959C0
+			AnimationBlendDirectionalAction::~AnimationBlendDirectionalAction()
+			{
+				engine::ReleaseDriverCopy4(driver);
+			}
+
+			// FUNCTION: ENGINE 0x10098770
+			fight::Action* AnimationBlendDirectionalTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnimationBlendDirectionalAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10095A00
+			void AnimationBlendDirectionalAction::Slot6()
+			{
+				if (target.Get() != 0)
+				{
+					engine::BaseAttribute* attribute = target.Get()->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+						if (value != 0 && *value != 0)
+						{
+							(*value)->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy4(driver);
+						}
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<AnimationBlendVerticalAimTrack>;
 			template class fight::PropertyEnumConstList<AnimationBlendVerticalAimTrack>;
 			template class fight::PropertyName<AnimationBlendVerticalAimTrack>;
@@ -1549,3 +1737,17 @@ namespace proto
 // FUNCTION: ENGINE 0x10140ED0
 // FUNCTION: ENGINE 0x10140F20
 // FUNCTION: ENGINE 0x10140F70
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100959A0
+// FUNCTION: ENGINE 0x10095AA0
+// FUNCTION: ENGINE 0x10095FA0
+// FUNCTION: ENGINE 0x100960C0
+// FUNCTION: ENGINE 0x100961C0
+// FUNCTION: ENGINE 0x10096230
+// FUNCTION: ENGINE 0x100962A0
+// FUNCTION: ENGINE 0x10096310
+// FUNCTION: ENGINE 0x100963F0
+// FUNCTION: ENGINE 0x10096D40
+// FUNCTION: ENGINE 0x10097640
+// FUNCTION: ENGINE 0x100982A0

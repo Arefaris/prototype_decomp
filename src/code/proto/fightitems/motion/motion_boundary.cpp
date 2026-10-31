@@ -686,6 +686,73 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1009F1B0
+			JumpFromWaterAction::JumpFromWaterAction(JumpFromWaterTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), unknown2C(true), unknown30(0.0f), driver(0), unknown38(0.0f), unknown3C(0.0f), unknown40(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009E850
+			JumpFromWaterAction::~JumpFromWaterAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1009F5B0
+			fight::Action* JumpFromWaterTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new JumpFromWaterAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1009E890
+			void JumpFromWaterAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1009ECB0
+			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), unknown40(false), unknown44(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009E790
+			OrientTowardsJumpInPositionAction::~OrientTowardsJumpInPositionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009F560
+			fight::Action* OrientTowardsJumpInPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new OrientTowardsJumpInPositionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1009E7C0
+			void OrientTowardsJumpInPositionAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<InsideJumpInBoundaryCondition>;
 			template class fight::ConditionFactoryTemplate<InsideJumpInBoundaryCondition>;
 			template class fight::ConditionFactoryCasterTemplate<InsideJumpInBoundaryCondition>;
@@ -795,3 +862,11 @@ namespace proto
 // FUNCTION: ENGINE 0x10146970
 // FUNCTION: ENGINE 0x101469C0
 // FUNCTION: ENGINE 0x10146A10
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009E770
+// FUNCTION: ENGINE 0x1009E830
+// FUNCTION: ENGINE 0x1009EB30
+// FUNCTION: ENGINE 0x1009EBA0
+// FUNCTION: ENGINE 0x1009ED30
+// FUNCTION: ENGINE 0x1009F260

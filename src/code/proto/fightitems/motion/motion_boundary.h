@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -266,6 +267,60 @@ namespace proto
 			fight::TrackFactory* CreateOrientTowardsJumpInPositionTrackFactory(const char* name);
 			void RegisterOrientTowardsJumpInPositionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::JumpFromWaterAction (9 vftable slots, 0x4C bytes)
+			class JumpFromWaterAction : public fight::Action
+			{
+			public:
+				// 0x1009F1B0
+				JumpFromWaterAction(JumpFromWaterTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1009E850
+				virtual ~JumpFromWaterAction();
+
+				// vftable slot 5 (0x1009F600)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1009E890)
+				virtual void Slot6();
+				// vftable slot 7 (0x1009F8E0)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<JumpFromWaterTrack> link;  // +0x20
+				bool unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				choreo::Driver* driver;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				math::Vector unknown40;  // +0x40
+			};
+
+			// RTTI: proto::fightitems::motion::OrientTowardsJumpInPositionAction (9 vftable slots, 0x48 bytes)
+			class OrientTowardsJumpInPositionAction : public fight::Action
+			{
+			public:
+				// 0x1009ECB0
+				OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1009E790
+				virtual ~OrientTowardsJumpInPositionAction();
+
+				// vftable slot 5 (0x1009ED60)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1009E7C0)
+				virtual void Slot6();
+				// vftable slot 7 (0x1009EF70)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<OrientTowardsJumpInPositionTrack> link;  // +0x20
+				choreo::Driver* driver;  // +0x2C
+				bool unknown30;  // +0x30
+				unsigned char unknown31[0xF];
+				bool unknown40;  // +0x40
+				unsigned char unknown41[0x3];
+				float unknown44;  // +0x44
+			};
+
+			// ---- actions end
 		}
 	}
 }

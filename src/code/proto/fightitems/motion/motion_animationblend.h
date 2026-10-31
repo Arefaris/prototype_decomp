@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -388,6 +389,99 @@ namespace proto
 			fight::TrackFactory* CreateAnimationBlendDirectionalTrackFactory(const char* name);
 			void RegisterAnimationBlendDirectionalTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::AnimationBlendVerticalAimAction (9 vftable slots, 0x38 bytes)
+			class AnimationBlendVerticalAimAction : public fight::Action
+			{
+			public:
+				// 0x10096CC0
+				AnimationBlendVerticalAimAction(AnimationBlendVerticalAimTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10095AC0
+				virtual ~AnimationBlendVerticalAimAction();
+
+				// vftable slot 5 (0x10096D70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10095F00)
+				virtual void Slot6();
+				// vftable slot 7 (0x10097200)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AnimationBlendVerticalAimTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				int unknown34;  // +0x34
+			};
+
+			// RTTI: proto::fightitems::motion::AnimationBlendSimpleAction (9 vftable slots, 0x34 bytes)
+			class AnimationBlendSimpleAction : public fight::Action
+			{
+			public:
+				// 0x10098230
+				AnimationBlendSimpleAction(AnimationBlendSimpleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100960E0
+				virtual ~AnimationBlendSimpleAction();
+
+				// vftable slot 5 (0x100982D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10096120)
+				virtual void Slot6();
+				// vftable slot 7 (0x100985C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AnimationBlendSimpleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				int unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::AnimationBlendVerticalAimStrafeAction (9 vftable slots, 0x3C bytes)
+			class AnimationBlendVerticalAimStrafeAction : public fight::Action
+			{
+			public:
+				// 0x100975C0
+				AnimationBlendVerticalAimStrafeAction(AnimationBlendVerticalAimStrafeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10095FC0
+				virtual ~AnimationBlendVerticalAimStrafeAction();
+
+				// vftable slot 5 (0x10097670)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10096010)
+				virtual void Slot6();
+				// vftable slot 7 (0x10097B90)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AnimationBlendVerticalAimStrafeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				choreo::Driver* secondDriver;  // +0x30
+				float unknown34;  // +0x34
+				int unknown38;  // +0x38
+			};
+
+			// RTTI: proto::fightitems::motion::AnimationBlendDirectionalAction (9 vftable slots, 0x34 bytes)
+			class AnimationBlendDirectionalAction : public fight::Action
+			{
+			public:
+				// 0x10096380
+				AnimationBlendDirectionalAction(AnimationBlendDirectionalTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100959C0
+				virtual ~AnimationBlendDirectionalAction();
+
+				// vftable slot 5 (0x100965B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10095A00)
+				virtual void Slot6();
+				// vftable slot 7 (0x10096B60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AnimationBlendDirectionalTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				int unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

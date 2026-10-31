@@ -17,7 +17,8 @@ namespace container
 	// How Erase moves the elements down: 1 with a loop of its own (the engine's compiler inlines the assignment of
 	// small elements), 0 with a call of AssignRange (larger elements; a class of this kind specialises it), 2 with
 	// CopyRange (pointers, whose loop keeps the distance between its two pointers in a register), 3 with that loop
-	// written out (small elements the engine moves like pointers)
+	// written out (small elements the engine moves like pointers), 4 with CopyRangeEnd (a copy that answers the
+	// end of the destination)
 	template<class T> struct ArrayEraseInline
 	{
 		enum
@@ -223,6 +224,10 @@ namespace container
 			else if (ArrayEraseInline<T>::value == 2)
 			{
 				CopyRange(position + 1, end, position);
+			}
+			else if (ArrayEraseInline<T>::value == 4)
+			{
+				CopyRangeEnd(position + 1, end, position);
 			}
 			else if (ArrayEraseInline<T>::value == 3)
 			{

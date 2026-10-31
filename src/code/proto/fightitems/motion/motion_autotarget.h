@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -305,6 +307,65 @@ namespace proto
 			fight::TrackFactory* CreateAutoTargetPlayerTrackFactory(const char* name);
 			void RegisterAutoTargetPlayerTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::AutoTargetClearAction (9 vftable slots, 0x20 bytes)
+			class AutoTargetClearAction : public fight::Action
+			{
+			public:
+				// 0x10098EA0
+				explicit AutoTargetClearAction(engine::GameObjectHandle newTarget);
+				// 0x10098ED0
+				virtual ~AutoTargetClearAction();
+
+				// vftable slot 5 (0x10099C00)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// RTTI: proto::fightitems::motion::AutoTargetPositionAction (9 vftable slots, 0x30 bytes)
+			class AutoTargetPositionAction : public fight::Action
+			{
+			public:
+				// 0x1009AC20
+				AutoTargetPositionAction(AutoTargetPositionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10099B40
+				virtual ~AutoTargetPositionAction();
+
+				// vftable slot 5 (0x1009ACC0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10099B80)
+				virtual void Slot6();
+				// vftable slot 7 (0x1009AD90)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AutoTargetPositionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::RootDriver* driver;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::AutoTargetPlayerAction (9 vftable slots, 0x30 bytes)
+			class AutoTargetPlayerAction : public fight::Action
+			{
+			public:
+				// 0x1009B110
+				AutoTargetPlayerAction(AutoTargetPlayerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10099CB0
+				virtual ~AutoTargetPlayerAction();
+
+				// vftable slot 5 (0x1009CA30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10099CE0)
+				virtual void Slot6();
+				// vftable slot 7 (0x1009CC80)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AutoTargetPlayerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

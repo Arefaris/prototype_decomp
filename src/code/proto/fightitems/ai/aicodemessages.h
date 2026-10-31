@@ -379,6 +379,20 @@ namespace proto
 
 		engine::GameObjectHandle target;  // +0xC
 	};
+
+	// RTTI: proto::SetAutoTargetMessage: the automatic target of the object is set
+	class SetAutoTargetMessage : public TargetMessage
+	{
+	public:
+		explicit SetAutoTargetMessage(engine::GameObjectHandle newTarget) : TargetMessage(4), target(newTarget)
+		{
+		}
+		virtual ~SetAutoTargetMessage()
+		{
+		}
+
+		engine::GameObjectHandle target;  // +0xC
+	};
 }
 
 #endif

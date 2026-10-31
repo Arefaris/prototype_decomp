@@ -2,6 +2,7 @@
 // 0x10098F60 / 0x10098FB0 / 0x10098FD0, so it is one instantiation of the SafeRelease template of
 // code/core/refptr.h, kept out of line in this unit): releases a reference through core::IRefCount and clears the
 // pointer. The sequencer's unit calls it, which is why its callers treat it as clobbering every register.
+#include "code/choreo/puppet.h"
 #include "code/core/refptr.h"
 
 namespace core
@@ -13,6 +14,33 @@ namespace core
 		{
 			object->Release();
 			object = 0;
+		}
+	}
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x10098F50
+	void AssignRefCounted(core::IRefCount** slot, core::IRefCount* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+
+	// FUNCTION: ENGINE 0x10098FB0
+	void ReleaseDriverCopy2(choreo::Driver** driver)
+	{
+		if (*driver != 0)
+		{
+			(*driver)->Release();
+			*driver = 0;
 		}
 	}
 }
