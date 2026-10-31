@@ -5952,3 +5952,52 @@ Not done in the range (1433 of the 1649 functions):
 - The message classes (`proto::MovementMessage` family, `TargetMessage`, `TokenMessage`, `AIMessage`, ...: 70 classes whose deleting destructors are in the range) and the kept
   copies of inline functions (about 800 functions of 1 - 40 bytes: float getters, container accessors, link constructors, `BitField::Set`) that no reconstructed code instantiates.
 - The shared header `code/engine/fight/bitfieldproperty.h` gained `fight::PropertyNameConstList<T>` (same layout and slots as `PropertyNameList<T>`).
+
+## proto/fightitems/ai: the units from NavMeshAreaCondition on, and the five units before the scary monster tracks (sn-av)
+The rest of the ai fight items (see the section of sn-au for the layout: the action half lies in 0x101DD720 - 0x1021AB50, the property half in 0x1021AB50 - 0x102573D0;
+a unit is one source file with both halves, generated with local/scratch/sn-av/ai.py, the action classes with aigenact.py of sn-au). 20 units, `src/code/proto/fightitems/ai/`:
+| file | action half | property half | classes |
+|---|---|---|---|
+| `ai_scarymonster.cpp` | 0x101DD7xx - 0x101DE0xx | 0x1021AB50 - 0x1021B3C0 | Configure / ActivateScaryMonsterBehaviourTrack |
+| `ai_vehiclebehaviour.cpp` | 0x101DDF10 - 0x101DE3D0 | 0x1021B3C0 - 0x1021BA30 | HasTrafficPathCondition, ActivateVehicleBehaviourTrack |
+| `ai_air.cpp` | 0x101DE5xx - 0x101DF7B0 | 0x1021BA30 - 0x1021C6F0 | AirHoverTrack, AirDodgeTrack |
+| `ai_missile.cpp` | 0x101DF9B0 | 0x1021C6F0 - 0x1021C920 | IsMissileTargetingPlayerCondition (no properties) |
+| `ai_checkbody.cpp` | 0x101DFAD0 - 0x101E0030 | 0x1021C920 - 0x1021CD90 | CheckBodyTrack |
+| `ai_navmesharea.cpp` | 0x10204BD0 - 0x10204F40 | 0x102432A0 - 0x10243760 | NavMeshAreaCondition |
+| `ai_patrol.cpp` | 0x10204F40 - 0x10206300 | 0x10243760 - 0x10244160 | HasPatrolPathCondition, PatrolTrack, PathPatrolTrack |
+| `ai_periodicopportunity.cpp` | 0x10206300 - 0x10206D60 | 0x10244160 - 0x10244F30 | PeriodicOpportunityTrack, DelayedSequenceTrack |
+| `ai_poison.cpp` | 0x10206D60 - 0x10207E30 | 0x10244F30 - 0x10246860 | IsPoisoned / PoisonedTimeCondition, Poison, CurePoison, SetPoisonCloudParameters tracks |
+| `ai_tankram.cpp` | 0x10207E30 - 0x10208A20 | 0x10246860 - 0x10246F80 | TankRamTrack |
+| `ai_roofsedge.cpp` | 0x10208A20 - 0x10208C50 | 0x10246F80 - 0x10247690 | Near / AtRoofsEdgeCondition |
+| `ai_rooftop.cpp` | 0x10208C50 - 0x1020A2E0 | 0x10247690 - 0x10249200 | IsInRooftopCondition, StayOnRoofTrack, RooftopDestinationFindTrack |
+| `ai_spatialquery.cpp` | 0x1020A2E0 - 0x1020ABF0 | 0x10249200 - 0x10249C30 | SpatialQueryCondition, SoldierWithinDistanceCondition |
+| `ai_spawn.cpp` | 0x1020ABF0 - 0x1020B600 | 0x10249C30 - 0x1024A810 | SpawnTemplate / ShouldSpawnCondition, ObjectSpawnedTrack |
+| `ai_strafe.cpp` | 0x1020B600 - 0x10215810 | 0x1024A810 - 0x1024F860 | CanStrafeRunCondition and the strafe run tracks |
+| `ai_target.cpp` | 0x10215810 - 0x10216D10 | 0x1024F860 - 0x102527C0 | the 15 target conditions |
+| `ai_task.cpp` | 0x10216D10 - 0x10217900 | 0x102527C0 - 0x10253340 | ExecuteTaskTrack, SpawnTaskTrack |
+| `ai_threat.cpp` | 0x10217900 - 0x10219D90 | 0x10253340 - 0x10255E00 | the threat conditions and tracks |
+| `ai_vehiclestate.cpp` | 0x10219D90 - 0x1021A3D0 | 0x10255E00 - 0x10256A40 | Driver / VehicleStateCondition, SetVehicleStateTrack |
+| `ai_zipline.cpp` | 0x1021A3D0 - 0x1021AB50 | 0x10256A40 - 0x102573D0 | ZiplineLandTrack, ZiplineTakeOffTrack |
+The property halves of all 20 units are complete (the generator reads them; `fight::PropertyNameConstList` of sn-au is not needed). The action halves are partial:
+- Written: the action classes the generator reads (constructor, destructor, `CreateAction`, trivial slots: poison, cure poison, poison cloud, stay on roof, object spawned, threat memory
+  reset, set vehicle state, tank ram, the scary monster, vehicle behaviour, air and check body actions) and by hand `ZiplineLandAction` / `ZiplineTakeOffAction`; the conditions
+  `IsPoisoned`, `PoisonedTime`, `VehicleState`, `DriverState`, `NearRoofsEdge`, `AtRoofsEdge`, `ShouldSpawn`, `SpawnTemplate`, `HasTrafficPath`, `Targetable`, `TargetClass`,
+  `AutoTargeting` (`Evaluate`); the slots that send one message (`Slot5` / `Slot6` / `Slot7` of the poison, vehicle behaviour, stay on roof, object spawned and threat memory reset
+  actions). The messages are in `aicodemessages.h` (the bases `proto::AIMessage`, `MovementMessage`, `SpawnMessage`, `StateChangeMessage`, `VehicleMessage`, `TargetMessage`,
+  `TargetableMessage`, `ThreatMessage`, `GrabMessage` and 20 derived messages; `sn-au` declares its own messages in `aihelpers.h`: no unit includes both), `aicodecommon.h` holds
+  `fight::CompareFloats` / `CompareNames` (0x1009E120 / 0x100A1FB0) and `choreo::gZero`. `core::Link<T>::Get()` was added to `core/linklist.h` (the engine's 3-byte copies).
+- Idioms that decided matches: a condition that sends a message and compares is `bool result = false; ... if (object != 0) { ...; result = Compare(...); } return result;` when the
+  engine keeps a zero in ebx, an early `return false` when it shares eax; `GetObjectHandle(c).Get()` (temporary) against `GameObjectHandle handle = ...; handle.Get()` (stored) decide
+  whether the table index is read from the returned pointer or from the stack; the engine's `if (target.Get() != 0) { object = target.Get(); ...}` is two `Get`s; `x ? true : false`
+  gives `cmp [mem], 0; setne al` where `x != 0` gives `xor eax, eax; cmp`; the arguments of an inlined constructor are evaluated in the engine's order when the values come from getters
+  (`PoisonTrack::GetDamageRate` ...) and a first `int type = track->GetPoisonType()` fixes the position of the integer.
+- EQUIVALENT: `CurePoisonAction::Slot5`, `ObjectSpawnedAction::Slot5` (shrink-wrap: edi / esi saved in the entry block), `AtRoofsEdgeCondition::Evaluate` (register allocation of the compare
+  operator), `ZiplineTakeOffAction` constructor and `TankRamAction` constructor (the order of the stores), `AutoTargetingCondition::Evaluate` (the engine repeats the comparison in both
+  branches). NONMATCHING: `ZiplineTakeOffAction::Slot7` (float order and block layout, 25 %), `ZiplineTakeOffAction::Slot5` and `ZiplineLandAction::Slot5` (the translation copy goes
+  through x87 for the first component, 55 %).
+- Not done: the bodies that need classes no unit declares yet (`NavMeshAreaCondition::Evaluate` with the sweep query and `NavMesh::Find`, `IsInRooftopCondition::Evaluate`, the patrol,
+  periodic opportunity, delayed sequence, tank ram, rooftop destination find, spatial query, strafe run (`StrafeRunAction::Slot7` ... 1694 bytes, `TightStrafeRunAction`,
+  `PredefinedPatrolAction::Slot7` 1444), execute / spawn task (they own `fight::Sequencer`s), threat ball / dodge / send to target and the remaining threat and target conditions,
+  `PoisonAction::FindVictim` (0x102078C0, mapped to the engine's address)); the action classes whose constructor the generator does not read (patrol, path patrol, periodic
+  opportunity, delayed sequence, the strafe run family, execute / spawn task, threat ball / dodge / send to target); and about 450 kept copies of one-line getters of the items'
+  classes (4 - 7 byte `mov eax, [ecx+N]` copies in runs in front of and behind the actions) and of `core::Link` that nothing here instantiates (no class names them).

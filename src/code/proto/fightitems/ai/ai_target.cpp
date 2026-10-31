@@ -1,5 +1,7 @@
 // Fight items of the ai group: TargetHostileCondition, TargetClassCondition, TargetDefenseCondition, TargetAlertSubStateCondition, AutoTargetConditionGroupCondition, TargetCanSeeCondition, TargetAlertStateCondition, ChangedTargetSinceCondition, TargetableCondition, TargetConditionGroupCondition, TargetIsTankCondition, TargetIsPlayerCondition, TargetingCondition, TargetIsHelicopterCondition, AutoTargetingCondition (unit 0x1024F860 - 0x102527C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_target.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -929,6 +931,70 @@ namespace proto
 			// ---- actions begin
 
 			// ---- actions end
+						// FUNCTION: ENGINE 0x10216B00
+			bool TargetableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetableInfoMessage message;
+				object->SendMessage(&message);
+				return message.targetable == isTargetable;
+			}
+
+
+						// FUNCTION: ENGINE 0x102157F0
+			bool CompareIntsEqual(const int* lhs, const int* rhs)
+			{
+				return *lhs == *rhs;
+			}
+
+			// FUNCTION: ENGINE 0x102158A0
+			bool CompareIntsEquality(int op, const int* lhs, const int* rhs)
+			{
+				switch (op)
+				{
+				case 0:
+					return CompareIntsEqual(lhs, rhs);
+				case 1:
+					return !CompareIntsEqual(lhs, rhs);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10216BD0
+			bool TargetClassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetableInfoMessage message;
+				object->SendMessage(&message);
+				int expected = targetClass;
+				return CompareIntsEquality(compare, &message.targetClass, &expected);
+			}
+
+
+						// FUNCTION: ENGINE 0x10215C30
+			// EQUIVALENT: scheduling and block layout; the engine repeats the comparison with the flag at the end of both the valid and the invalid branch and loads the flag late, ours shares one comparison; the same message, the same table reads, best 85%
+			bool AutoTargetingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
+				if (object == 0)
+				{
+					return isAutoTargeting == false;
+				}
+				GetAutoTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				return isAutoTargeting == (target != 0);
+			}
+
+
 			template class fight::PropertyBool<TargetHostileCondition>;
 			template class fight::ConditionFactoryTemplate<TargetHostileCondition>;
 			template class fight::ConditionFactoryCasterTemplate<TargetHostileCondition>;

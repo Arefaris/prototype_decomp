@@ -1,5 +1,7 @@
 // Fight items of the ai group: ThreatCondition, ThreatInMemoryCondition, ThreatCanSeeCondition, LastThreatConditionGroupCondition, ThreatCanGrabCondition, ThreatStoreCondition, ThreatBallTrack, ThreatDodgeTrack, ThreatMemoryResetTrack, ThreatSendToTargetTrack (unit 0x10253340 - 0x10255E00; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_threat.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -847,6 +849,20 @@ namespace proto
 				return new ThreatMemoryResetAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x10217E00
+			bool ThreatMemoryResetAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ThreatMemoryClearMessage message;
+				object->SendMessage(&message);
+				return false;
+			}
+
+
 			// ---- actions end
 			template class fight::PropertyName<ThreatCondition>;
 			template class fight::ConditionFactoryTemplate<ThreatCondition>;
@@ -895,6 +911,11 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10217900
+// FUNCTION: ENGINE 0x10217930
+// FUNCTION: ENGINE 0x102179D0
+// FUNCTION: ENGINE 0x10217A40
+// FUNCTION: ENGINE 0x10217B00
 // FUNCTION: ENGINE 0x10217B30
 // FUNCTION: ENGINE 0x10217BC0
 // FUNCTION: ENGINE 0x10219480

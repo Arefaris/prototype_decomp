@@ -301,6 +301,84 @@ namespace proto
 
 		TrafficPath* path;  // +0xC
 	};
+	// RTTI: proto::TargetableMessage: the base of the messages about what an object can be targeted as (message type 0x3B)
+	class TargetableMessage : public engine::IntrusiveMessage
+	{
+	public:
+		explicit TargetableMessage(short newId) : engine::IntrusiveMessage(0x3b, newId)
+		{
+		}
+		virtual ~TargetableMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::GetTargetableInfoMessage: the object answers whether it can be targeted and as what class
+	class GetTargetableInfoMessage : public TargetableMessage
+	{
+	public:
+		GetTargetableInfoMessage() : TargetableMessage(2), targetable(false), unknownD(false), unknownE(false), targetClass(0), unknown14(0.0f), unknown18(0.0f)
+		{
+		}
+		virtual ~GetTargetableInfoMessage()
+		{
+		}
+
+		bool targetable;  // +0xC
+		bool unknownD;
+		bool unknownE;
+		int targetClass;  // +0x10
+		float unknown14;
+		float unknown18;
+	};
+
+	// RTTI: proto::ThreatMessage: the base of the messages about the threats of an object (message type 0x35)
+	struct ThreatMessage : public engine::IntrusiveMessage
+	{
+		explicit ThreatMessage(short newId) : engine::IntrusiveMessage(0x35, newId)
+		{
+		}
+		virtual ~ThreatMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::ThreatMemoryClearMessage: the object forgets its threats
+	struct ThreatMemoryClearMessage : public ThreatMessage
+	{
+		ThreatMemoryClearMessage() : ThreatMessage(3)
+		{
+		}
+		virtual ~ThreatMemoryClearMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::TargetMessage: the base of the messages about the target of an object (message type 0x20)
+	class TargetMessage : public engine::IntrusiveMessage
+	{
+	public:
+		explicit TargetMessage(short newId) : engine::IntrusiveMessage(0x20, newId)
+		{
+		}
+		virtual ~TargetMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::GetAutoTargetMessage: the object answers its automatic target
+	class GetAutoTargetMessage : public TargetMessage
+	{
+	public:
+		GetAutoTargetMessage() : TargetMessage(3), target()
+		{
+		}
+		virtual ~GetAutoTargetMessage()
+		{
+		}
+
+		engine::GameObjectHandle target;  // +0xC
+	};
 }
 
 #endif

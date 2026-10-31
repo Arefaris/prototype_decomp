@@ -19,4 +19,17 @@ namespace fight
 	bool CompareNames(int op, const core::Name<core::CaseSensitiveKey>* lhs, const core::Name<core::CaseSensitiveKey>* rhs);
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			// 0x102157F0 / 0x102158A0 (the target unit): equality of two integers, and with the compare operator (0 equal, 1 not equal)
+			bool CompareIntsEqual(const int* lhs, const int* rhs);
+			bool CompareIntsEquality(int op, const int* lhs, const int* rhs);
+		}
+	}
+}
+
 #endif
