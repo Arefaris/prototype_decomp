@@ -2,6 +2,7 @@
 #include "code/engine/fight/playbackactions.h"
 #include "code/engine/camera/director.h"
 #include "code/engine/scenariomessage.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
@@ -29,7 +30,7 @@ namespace engine
 	bool IsTutorialActive();
 
 	// 0x11318188: the listeners the scenario string events are sent to (name guess)
-	extern MessageListeners gScenarioStringListeners;
+	MessageListeners gScenarioStringListeners("scenario", 0);
 
 	// FUNCTION: ENGINE 0x108A9040
 	bool ScenarioStringAction::Slot5(int arg, float value)
@@ -69,3 +70,7 @@ namespace engine
 	}
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D77C10
+// FUNCTION: ENGINE 0x10D8AD50

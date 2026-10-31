@@ -30,7 +30,13 @@ namespace engine
 	// GLOBAL: ENGINE 0x11316B70
 	fight::Property** gSoundTrackProperties;
 
-	extern fight::EnumEntry gSoundTrackTriggerTypeTable[];
+	fight::EnumEntry gSoundTrackTriggerTypeTable[4] =
+		{
+			{ fight::Name("Retrigger", 0) },
+			{ fight::Name("Overlap", 0) },
+			{ fight::Name("StopExisting", 0) },
+			{ fight::Name("IgnoreIfPlaying", 0) }
+		};
 	extern fight::Name gMixerDefaultCategory;
 
 	// GLOBAL: ENGINE 0x11316B74
@@ -44,7 +50,11 @@ namespace engine
 	fight::Property** gReverbTrackProperties;
 	// GLOBAL: ENGINE 0x11316B84
 	fight::Property** gSoundZoneTrackProperties;
-	extern fight::EnumEntry gSoundZoneTrackBoundaryActionTable[];
+	fight::EnumEntry gSoundZoneTrackBoundaryActionTable[2] =
+		{
+			{ fight::Name("ZoneEnter", 0) },
+			{ fight::Name("ZoneExit", 0) }
+		};
 
 	// FUNCTION: ENGINE 0x1087A9F0
 	fight::Property* SoundTrack::GetProperty(int index)
@@ -908,3 +918,19 @@ namespace engine
 	// FUNCTION: ENGINE 0x1087C5D0
 	template class fight::PropertyName<SoundZoneTrack>;
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gMixerDefaultCategory("default", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D76560
+// FUNCTION: ENGINE 0x10D765E0
+// FUNCTION: ENGINE 0x10D8A820
+// FUNCTION: ENGINE 0x10D8A840
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D741D0
+// FUNCTION: ENGINE 0x10D89DF0

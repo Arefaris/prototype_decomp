@@ -7,6 +7,7 @@
 #include "code/math/mathconstants.h"
 #include <math.h>
 #include <new>
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
@@ -18,7 +19,7 @@ namespace engine
 
 	// The listener list the props leave when they stop (0x1130E5A0; name guessed) and the name of the attribute that
 	// holds the spawner (0x11283538; name guessed)
-	extern MessageListeners gPropListeners;
+	MessageListeners gPropListeners("Prop", 0);
 	extern content::ObjectName gPropSpawnerName;
 	extern content::ObjectName gMetaObjectTemplateName;
 	extern int gAttributeHeap;
@@ -161,4 +162,9 @@ namespace engine
 // FUNCTION: ENGINE 0x10841350
 
 template class engine::ConstAttribute<engine::PropSpawner*>;
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D750E0
+// FUNCTION: ENGINE 0x10D8A2B0
+
 // FUNCTION: ENGINE 0x10841530

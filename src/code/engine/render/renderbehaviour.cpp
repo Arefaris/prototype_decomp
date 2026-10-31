@@ -711,6 +711,19 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gDrawableNameName("drawableName", 0);
+	core::Name<core::CaseSensitiveKey> gPoseAwakeName("poseAwake", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D73CD0
+// FUNCTION: ENGINE 0x10D73EF0
+// FUNCTION: ENGINE 0x10D89AB0
+// FUNCTION: ENGINE 0x10D89BC0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10862490
 // FUNCTION: ENGINE 0x108624D0

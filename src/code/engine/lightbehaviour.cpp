@@ -947,6 +947,16 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gLightControllerName("light animation controller", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D73ED0
+// FUNCTION: ENGINE 0x10D89AC0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1089BE00
 // FUNCTION: ENGINE 0x1089BE20

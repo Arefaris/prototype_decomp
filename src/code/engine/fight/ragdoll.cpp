@@ -1233,6 +1233,16 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gRagdollPhysicsObjectAttributeName("ragdollPhysicsObject", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D73D90
+// FUNCTION: ENGINE 0x10D89B60
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108F7A60
 // FUNCTION: ENGINE 0x108F7A80

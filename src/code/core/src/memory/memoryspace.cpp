@@ -95,3 +95,12 @@ namespace core
 		CoreName();
 	}
 }
+
+namespace core
+{
+	core::MemorySpaceAsyncRequest_Copy gMemorySpaceCopyRequest;
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66930
+// FUNCTION: ENGINE 0x10D86880

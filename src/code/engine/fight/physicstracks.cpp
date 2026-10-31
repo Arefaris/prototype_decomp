@@ -91,9 +91,20 @@ namespace engine
 	template class fight::TrackFactoryTemplate<PhysicsSetKeyframedTrack>;
 	template class fight::TrackFactoryCasterTemplate<PhysicsSetKeyframedTrack>;
 
-	extern fight::EnumEntry gPhysicsActionOnBeginTable[];
+	fight::EnumEntry gPhysicsActionOnBeginTable[3] =
+		{
+			{ fight::Name("Do nothing", 0) },
+			{ fight::Name("Enable physics", 0) },
+			{ fight::Name("Disable physics", 0) }
+		};
 	extern const int gPhysicsActionOnBeginCount;
-	extern fight::EnumEntry gPhysicsActionOnEndTable[];
+	fight::EnumEntry gPhysicsActionOnEndTable[4] =
+		{
+			{ fight::Name("Do nothing", 0) },
+			{ fight::Name("Restore to previous", 0) },
+			{ fight::Name("Enable physics", 0) },
+			{ fight::Name("Disable physics", 0) }
+		};
 	extern const int gPhysicsActionOnEndCount;
 
 	fight::Property** gPhysicsEnableTrackProperties;  // 0x11284B88
@@ -388,7 +399,13 @@ namespace engine
 
 	extern fight::EnumEntry gCollisionActionOnBeginTable[];
 	extern const int gCollisionActionOnBeginCount;
-	extern fight::EnumEntry gCollisionActionOnEndTable[];
+	fight::EnumEntry gCollisionActionOnEndTable[4] =
+		{
+			{ fight::Name("Do nothing", 0) },
+			{ fight::Name("Restore to previous", 0) },
+			{ fight::Name("Enable collision", 0) },
+			{ fight::Name("Disable collision", 0) }
+		};
 	extern const int gCollisionActionOnEndCount;
 
 	fight::Property** gCollisionEnableOnJointTrackProperties;  // 0x11284B8C
@@ -750,3 +767,11 @@ namespace engine
 	template class fight::TrackFactoryCasterTemplate<CollisionEnableByNameTrack>;
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D77C30
+// FUNCTION: ENGINE 0x10D77C70
+// FUNCTION: ENGINE 0x10D77D00
+// FUNCTION: ENGINE 0x10D8AD60
+// FUNCTION: ENGINE 0x10D8AD70
+// FUNCTION: ENGINE 0x10D8AD90

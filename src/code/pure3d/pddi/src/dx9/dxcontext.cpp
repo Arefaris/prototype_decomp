@@ -6,6 +6,7 @@
 #include "code/engine/display.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/shaderconstants.h"
+#include "code/core/namecopy.h"
 
 namespace pure3d
 {
@@ -1072,6 +1073,16 @@ namespace container
 	// FUNCTION: ENGINE 0x1061BC50
 	template pure3d::dxShaderTemplate*& pure3d::ShaderTemplateMap::operator[](const unsigned int& key);
 }
+
+namespace pure3d
+{
+	core::Name<core::CaseInsensitiveKey32> gShaderFallback = core::PassName32(core::PassName32(core::Name<core::CaseInsensitiveKey32>("error", 0)));
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D674A0
+// FUNCTION: ENGINE 0x10D86DC0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108EB2C0

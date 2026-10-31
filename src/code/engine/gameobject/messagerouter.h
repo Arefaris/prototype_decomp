@@ -14,6 +14,12 @@ namespace engine
 	// A message channel: the name its subscribers are registered under
 	class MessageListeners : public core::Name<core::CaseSensitiveKey>
 	{
+	public:
+		// The static lists are built from the channel's text
+		MessageListeners(const char* text, int unknown)
+			: core::Name<core::CaseSensitiveKey>(text, unknown)
+		{
+		}
 	};
 
 	// The valid handles of a list, in order (skips the handles whose objects are gone)

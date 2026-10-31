@@ -114,12 +114,12 @@ namespace proto
 	float GetWorldOrientation(float a, float b);
 
 	// 0x1126EE70 .. : the names of the slot groups the engine looks up by number (guesses)
-	extern core::Name<core::CaseSensitiveKey> gGroupName1126EE68;
-	extern core::Name<core::CaseSensitiveKey> gGroupName1126EE70;
-	extern core::Name<core::CaseSensitiveKey> gGroupName1126EE78;
-	extern core::Name<core::CaseSensitiveKey> gGroupName1126EEC8;
-	extern core::Name<core::CaseSensitiveKey> gGroupName11316F28;
-	extern core::Name<core::CaseSensitiveKey> gGroupName11316F58;
+	core::Name<core::CaseSensitiveKey> gGroupName1126EE68("MissionPackageSlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gGroupName1126EE70("WorldCellGroup", 0);
+	core::Name<core::CaseSensitiveKey> gGroupName1126EE78("DynamicPackageSlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gGroupName1126EEC8("PermanentMissionPackageSlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gGroupName11316F28("NISStreamGroup", 0);
+	core::Name<core::CaseSensitiveKey> gGroupName11316F58("NISAnimStreamGroup", 0);
 
 	// The heap a slot group's slots use: its size, a flag and an alignment (the group copies the three words)
 	struct SlotGroupConfig
@@ -487,3 +487,43 @@ namespace proto
 		engine::SetFrontend(gFrontend);
 	}
 }
+
+namespace proto
+{
+	core::Name<core::CaseSensitiveKey> gNISAnimStreamTag("NISAnimStreamTag", 0);
+}
+
+namespace proto
+{
+	core::Name<core::CaseSensitiveKey> gNISStreamTag("NISStreamTag", 0);
+	core::Name<core::CaseSensitiveKey> gLocatorForNIS("Locator for NIS ", 0);
+	core::Name<core::CaseSensitiveKey> gShotGroup("Shot-Group", 0);
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup2("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D773C0
+// FUNCTION: ENGINE 0x10D77440
+// FUNCTION: ENGINE 0x10D77460
+// FUNCTION: ENGINE 0x10D77480
+// FUNCTION: ENGINE 0x10D8A9D0
+// FUNCTION: ENGINE 0x10D8AA10
+// FUNCTION: ENGINE 0x10D8AA20
+// FUNCTION: ENGINE 0x10D8AAB0
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D60EF0
+// FUNCTION: ENGINE 0x10D60F20
+// FUNCTION: ENGINE 0x10D60F50
+// FUNCTION: ENGINE 0x10D60F80
+// FUNCTION: ENGINE 0x10D773E0
+// FUNCTION: ENGINE 0x10D77400
+// FUNCTION: ENGINE 0x10D77420
+// FUNCTION: ENGINE 0x10D858C0
+// FUNCTION: ENGINE 0x10D858D0
+// FUNCTION: ENGINE 0x10D858E0
+// FUNCTION: ENGINE 0x10D858F0
+// FUNCTION: ENGINE 0x10D8A9E0
+// FUNCTION: ENGINE 0x10D8A9F0
+// FUNCTION: ENGINE 0x10D8AA00

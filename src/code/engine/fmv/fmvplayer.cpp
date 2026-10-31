@@ -20,6 +20,7 @@
 #include "code/pure3d/pddi.h"
 #include <new>
 #include <string.h>
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace core
 {
@@ -246,11 +247,11 @@ namespace engine
 	// their units' initialisers)
 	extern core::Name<core::CaseSensitiveKey> gUserMixName;
 	extern core::Name<core::CaseSensitiveKey> gDialogName;
-	extern core::Name<core::CaseSensitiveKey> gFmvName;
-	extern core::Name<core::CaseSensitiveKey> gMasterName;
+	core::Name<core::CaseSensitiveKey> gFmvName("fmv", 0);
+	core::Name<core::CaseSensitiveKey> gMasterName("master", 0);
 	extern content::ObjectName gFmvNoSlotGroup;
 	extern container::DoubleList<FmvRequest> gRequests;
-	extern MessageListeners gMovieListeners;
+	MessageListeners gMovieListeners("scenario", 0);
 
 	// The unit's globals
 	unsigned char gMovieLock[24];
@@ -816,6 +817,25 @@ namespace engine
 		}
 	}
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gFmvNoSlotGroup("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74D80
+// FUNCTION: ENGINE 0x10D8A100
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D744D0
+// FUNCTION: ENGINE 0x10D744F0
+// FUNCTION: ENGINE 0x10D74DA0
+// FUNCTION: ENGINE 0x10D89F70
+// FUNCTION: ENGINE 0x10D89F80
+// FUNCTION: ENGINE 0x10D8A110
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1082F0D0

@@ -1,5 +1,6 @@
 #include "code/engine/nisplayerbehaviour.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace engine
 {
@@ -7,7 +8,7 @@ namespace engine
 	extern const char* gNISContextName;
 
 	// 0x1131D370: the listeners of the scenario messages the player sends
-	extern MessageListeners gNISPlayerListeners;
+	MessageListeners gNISPlayerListeners("scenario", 0);
 
 	// FUNCTION: ENGINE 0x1091F890
 	content::ClassInfo* NISPlayerBehaviour::GetClassInfo()
@@ -118,6 +119,11 @@ namespace engine
 		return &sList;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D796B0
+// FUNCTION: ENGINE 0x10D8B430
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1091F9A0

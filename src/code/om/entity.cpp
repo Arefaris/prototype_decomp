@@ -132,3 +132,18 @@ namespace om
 		return gEntityTypesByType.FindEntityType(type);
 	}
 }
+
+namespace om
+{
+	om::TreeHead gEntityTypesByName;
+	om::TreeHead gEntityTypesByType;
+	om::TreeHead gEntitiesByName;
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D66480
+// FUNCTION: ENGINE 0x10D664A0
+// FUNCTION: ENGINE 0x10D664C0
+// FUNCTION: ENGINE 0x10D866D0
+// FUNCTION: ENGINE 0x10D866E0
+// FUNCTION: ENGINE 0x10D866F0

@@ -39,14 +39,16 @@ namespace proto
 	engine::GameObject* GetPlayerObject(int index);
 	// 0x103C01F0: asks an object for the object it is linked to and answers it when it is the given one (name guess)
 	engine::GameObject* GetLinkedObject(engine::GameObject* object);
-	// Names of the unit's sounds and animations (0x11274E68 - 0x11274EA0; what they hold is unknown)
-	extern core::Name<core::CaseSensitiveKey> gPlaybackStandard;
-	extern core::Name<core::CaseSensitiveKey> gPlaybackHint;
-	extern core::Name<core::CaseSensitiveKey> gPlaybackExpire;
-	extern core::Name<core::CaseSensitiveKey> gPlaybackLocation;
-	extern core::Name<core::CaseSensitiveKey> gPlaybackWaypoint;
-	extern core::Name<core::CaseSensitiveKey> gPickupLocation;
-	extern core::Name<core::CaseSensitiveKey> gPickupStandard;
+	// Names of the unit's sounds and animations (0x11274E60 - 0x11274EA0; what they hold is unknown)
+	core::Name<core::CaseSensitiveKey> gPlaybackSmall("small", 0);
+	core::Name<core::CaseSensitiveKey> gPlaybackStandard("large", 0);
+	core::Name<core::CaseSensitiveKey> gPlaybackLocation("location", 0);
+	core::Name<core::CaseSensitiveKey> gPlaybackHint("hint", 0);
+	core::Name<core::CaseSensitiveKey> gPlaybackWaypoint("initial", 0);
+	core::Name<core::CaseSensitiveKey> gPlaybackExpire("final", 0);
+	core::Name<core::CaseSensitiveKey> gPickupStandard("largeCollected", 0);
+	core::Name<core::CaseSensitiveKey> gPickupSmall("smallCollected", 0);
+	core::Name<core::CaseSensitiveKey> gPickupLocation("collected", 0);
 	// The listeners of the collectible scenario messages (0x11274E58)
 	extern engine::MessageListeners gCollectibleListeners;
 	// 0x10078F70: whether the object is the first player's
@@ -335,3 +337,23 @@ namespace proto
 		}
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D65160
+// FUNCTION: ENGINE 0x10D65190
+// FUNCTION: ENGINE 0x10D651C0
+// FUNCTION: ENGINE 0x10D651F0
+// FUNCTION: ENGINE 0x10D65220
+// FUNCTION: ENGINE 0x10D65250
+// FUNCTION: ENGINE 0x10D65280
+// FUNCTION: ENGINE 0x10D652B0
+// FUNCTION: ENGINE 0x10D652E0
+// FUNCTION: ENGINE 0x10D86210
+// FUNCTION: ENGINE 0x10D86220
+// FUNCTION: ENGINE 0x10D86230
+// FUNCTION: ENGINE 0x10D86240
+// FUNCTION: ENGINE 0x10D86250
+// FUNCTION: ENGINE 0x10D86260
+// FUNCTION: ENGINE 0x10D86270
+// FUNCTION: ENGINE 0x10D86280
+// FUNCTION: ENGINE 0x10D86290

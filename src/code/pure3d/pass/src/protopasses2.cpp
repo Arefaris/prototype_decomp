@@ -18,7 +18,7 @@
 namespace pure3d
 {
 	// 0x11280D98: the texture constant the light decal buffer is bound to (name guessed)
-	extern int gConstantLightDecalBuffer;
+	extern ConstantSlot gConstantLightDecalBuffer;
 
 	namespace
 	{
@@ -39,10 +39,10 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10764D40
 	bool ProtoLightDecalPass::IsVisible()
 	{
-		BindTexture(gConstantLightDecalBuffer, 0);
-		unsigned int* constant = pddi->GetTextureConstant(gConstantLightDecalBuffer);
+		BindTexture(gConstantLightDecalBuffer.index, 0);
+		unsigned int* constant = pddi->GetTextureConstant(gConstantLightDecalBuffer.index);
 		constant[1] = (constant[1] & 0xf8444754) | 0x444454;
-		constant = pddi->GetTextureConstant(gConstantLightDecalBuffer);
+		constant = pddi->GetTextureConstant(gConstantLightDecalBuffer.index);
 		constant[1] = (constant[1] & 0xf84047ff) | 0x404400;
 		return true;
 	}
@@ -87,15 +87,15 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10765330
 	bool ProtoDecalPass::IsVisible()
 	{
-		BindTexture(gConstantDecalColourBuffer, 0);
-		unsigned int* constant = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		BindTexture(gConstantDecalColourBuffer.index, 0);
+		unsigned int* constant = pddi->GetTextureConstant(gConstantDecalColourBuffer.index);
 		constant[1] = (constant[1] & 0xf8444754) | 0x444454;
-		constant = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		constant = pddi->GetTextureConstant(gConstantDecalColourBuffer.index);
 		constant[1] = (constant[1] & 0xf84047ff) | 0x404400;
-		BindTexture(gConstantDecalNormalBuffer, 0);
-		constant = pddi->GetTextureConstant(gConstantDecalNormalBuffer);
+		BindTexture(gConstantDecalNormalBuffer.index, 0);
+		constant = pddi->GetTextureConstant(gConstantDecalNormalBuffer.index);
 		constant[1] = (constant[1] & 0xf8444752) | 0x444452;
-		constant = pddi->GetTextureConstant(gConstantDecalColourBuffer);
+		constant = pddi->GetTextureConstant(gConstantDecalColourBuffer.index);
 		constant[1] = (constant[1] & 0xf84047ff) | 0x404400;
 		return true;
 	}
@@ -850,3 +850,38 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10771F00
 	template pure3d::ParameterHandler<pure3d::ProtoTranslucentPassBase>::~ParameterHandler();
 
+namespace pure3d
+{
+	core::Name<core::CaseSensitiveKey> gParamCheckerboard("Checkerboard", 0);
+	core::Name<core::CaseSensitiveKey> gParamDestAlpha("destAlpha", 0);
+	core::Name<core::CaseSensitiveKey> gFarPlane("far_plane", 0);
+	core::Name<core::CaseSensitiveKey> gFocalLength("focal_length", 0);
+	core::Name<core::CaseSensitiveKey> gParamForceDestAlpha("forceDestAlpha", 0);
+	core::Name<core::CaseSensitiveKey> gParamViewIndex("viewIndex", 0);
+	core::Name<core::CaseSensitiveKey> gParamWindowLeft("windowLeft", 0);
+	core::Name<core::CaseSensitiveKey> gParamWindowTop("windowTop", 0);
+	core::Name<core::CaseSensitiveKey> gParamWindowRight("windowRight", 0);
+	core::Name<core::CaseSensitiveKey> gParamWindowBottom("windowBottom", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D71B70
+// FUNCTION: ENGINE 0x10D71BD0
+// FUNCTION: ENGINE 0x10D71C10
+// FUNCTION: ENGINE 0x10D71C30
+// FUNCTION: ENGINE 0x10D71C50
+// FUNCTION: ENGINE 0x10D71EB0
+// FUNCTION: ENGINE 0x10D71EF0
+// FUNCTION: ENGINE 0x10D71F10
+// FUNCTION: ENGINE 0x10D71F30
+// FUNCTION: ENGINE 0x10D71F50
+// FUNCTION: ENGINE 0x10D89030
+// FUNCTION: ENGINE 0x10D89060
+// FUNCTION: ENGINE 0x10D89080
+// FUNCTION: ENGINE 0x10D89090
+// FUNCTION: ENGINE 0x10D890A0
+// FUNCTION: ENGINE 0x10D891D0
+// FUNCTION: ENGINE 0x10D891F0
+// FUNCTION: ENGINE 0x10D89200
+// FUNCTION: ENGINE 0x10D89210
+// FUNCTION: ENGINE 0x10D89220

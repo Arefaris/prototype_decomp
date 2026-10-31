@@ -264,9 +264,23 @@ namespace engine
 
 	namespace animation
 	{
-		extern fight::EnumEntry gVelocityTypeTable[];
+		fight::EnumEntry gVelocityTypeTable[2] =
+			{
+				{ fight::Name("Locomotion", 0) },
+				{ fight::Name("Physics", 0) }
+			};
 		extern const int gVelocityTypeCount;
-		extern fight::EnumEntry gVelocityDirectionTable[];
+		fight::EnumEntry gVelocityDirectionTable[8] =
+			{
+				{ fight::Name("X", 0) },
+				{ fight::Name("Y", 0) },
+				{ fight::Name("Z", 0) },
+				{ fight::Name("XZ", 0) },
+				{ fight::Name("Magnitude", 0) },
+				{ fight::Name("AbsX", 0) },
+				{ fight::Name("AbsY", 0) },
+				{ fight::Name("AbsZ", 0) }
+			};
 		extern const int gVelocityDirectionCount;
 		extern fight::EnumEntry gCompareOperatorTable[];
 		extern const int gCompareOperatorCount;
@@ -474,3 +488,9 @@ namespace engine
 	}
 
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74010
+// FUNCTION: ENGINE 0x10D74040
+// FUNCTION: ENGINE 0x10D89D00
+// FUNCTION: ENGINE 0x10D89D10

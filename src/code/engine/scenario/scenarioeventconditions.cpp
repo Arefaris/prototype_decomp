@@ -7,7 +7,11 @@ namespace engine
 {
 	namespace scenario
 	{
-		extern fight::EnumEntry gTriggerDirectionTable[];
+		fight::EnumEntry gTriggerDirectionTable[2] =
+			{
+				{ fight::Name("Enter", 0) },
+				{ fight::Name("Exit", 0) }
+			};
 		extern const int gTriggerDirectionCount;
 
 		fight::Property** gScenarioGameObjectAttributeConditionProperties;  // 0x1131B328
@@ -370,6 +374,11 @@ namespace engine
 		template class fight::ConditionFactoryTemplate<ScenarioStringCondition>;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D78380
+// FUNCTION: ENGINE 0x10D8AF50
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108FF560

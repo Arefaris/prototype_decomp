@@ -3,7 +3,14 @@
 namespace proto
 {
 	// The entries of the action on props property and how many there are (data of the start-up code)
-	extern fight::EnumEntry gNISExcludeActionTable[];
+	fight::EnumEntry gNISExcludeActionTable[5] =
+		{
+			{ fight::Name("DoNothing", 0) },
+			{ fight::Name("Hide", 0) },
+			{ fight::Name("HideOnlyDisplacedOrGenerated", 0) },
+			{ fight::Name("Delete", 0) },
+			{ fight::Name("DeleteOnlyDisplacedOrGenerated", 0) }
+		};
 	extern const int gNISExcludeActionCount;
 
 	fight::Property** gNISExcludeVolumeTrackProperties;  // 0x112738AC
@@ -197,6 +204,11 @@ namespace proto
 	template class fight::TrackFactoryTemplate<NISExcludeVolumeTrack>;
 	template class fight::TrackFactoryCasterTemplate<NISExcludeVolumeTrack>;
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D62630
+// FUNCTION: ENGINE 0x10D86110
+
 
 // Kept copies (template instances and wrappers of this unit):
 // FUNCTION: ENGINE 0x10577F00

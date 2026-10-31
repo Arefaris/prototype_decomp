@@ -2749,7 +2749,7 @@ namespace engine
 	}
 
 	// The channel of the Lua environment query (0x11284A58)
-	extern MessageListeners gLuaEnvironmentListeners;
+	MessageListeners gLuaEnvironmentListeners("scenario", 0);
 
 	// FUNCTION: ENGINE 0x10803A60
 	// EQUIVALENT: the engine keeps the iterator's handle in a register and copies the end iterator each round; ours
@@ -3186,6 +3186,21 @@ namespace engine
 	template int* ScriptArguments::Push<int>(int);
 	template void** ScriptArguments::Push<void*>(void*);
 }
+
+namespace engine
+{
+	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup3("Undefined_SlotGroup", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74920
+// FUNCTION: ENGINE 0x10D89F90
+
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D74940
+// FUNCTION: ENGINE 0x10D89FA0
+
 
 // Kept copies: the container, callback and registration template members this unit instantiates
 // FUNCTION: ENGINE 0x10800850

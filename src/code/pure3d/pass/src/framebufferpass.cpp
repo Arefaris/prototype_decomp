@@ -799,3 +799,23 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x107B2C40
 	template pure3d::ParameterHandler<pure3d::CapturePass>::~ParameterHandler();
 
+namespace pure3d
+{
+	core::Name<core::CaseSensitiveKey> gToneMapName100("adapt_rate", 0);
+	core::Name<core::CaseSensitiveKey> gToneMapNameFC("average_luminance", 0);
+	core::Name<core::CaseSensitiveKey> gToneMapName104("min", 0);
+	core::Name<core::CaseSensitiveKey> gToneMapName108("max", 0);
+	core::Name<core::CaseSensitiveKey> gToneMapName10C("exposure_power", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D720D0
+// FUNCTION: ENGINE 0x10D720F0
+// FUNCTION: ENGINE 0x10D72110
+// FUNCTION: ENGINE 0x10D72130
+// FUNCTION: ENGINE 0x10D72150
+// FUNCTION: ENGINE 0x10D892E0
+// FUNCTION: ENGINE 0x10D892F0
+// FUNCTION: ENGINE 0x10D89300
+// FUNCTION: ENGINE 0x10D89310
+// FUNCTION: ENGINE 0x10D89320

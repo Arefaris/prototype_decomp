@@ -34,7 +34,7 @@ namespace core
 		int count;
 	};
 
-	// The static request; defined (and constructed) with the dynamic initializers, outside our units
+	// The static request (defined in memoryspace.cpp; its dynamic initializer is 0x10D66930)
 	extern MemorySpaceAsyncRequest_Copy gMemorySpaceCopyRequest;
 
 	void* MemorySpaceCopy(void* destination, int destinationSpace, const void* source, int sourceSpace, unsigned int size);
