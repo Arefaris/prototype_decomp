@@ -69,6 +69,18 @@ namespace proto
 			template class fight::PropertyEnumConstList<ShootingEventCondition>;
 			template class fight::ConditionFactoryTemplate<ShootingEventCondition>;
 			template class fight::ConditionFactoryCasterTemplate<ShootingEventCondition>;
+
+			// FUNCTION: ENGINE 0x1025E130
+			// EQUIVALENT: the same test and comparison; ours places the failure exit after the comparison and materialises the flag through edx (best 34%)
+			bool ShootingEventCondition::Evaluate(int a, int b, int c, int d)
+			{
+				const ShootingEvent* shot = reinterpret_cast<const ShootingEvent*>(c);
+				if (shot == 0 || shot->type != 0x2100a)
+				{
+					return false;
+				}
+				return shot->shot == event + 0x17;
+			}
 		}
 	}
 }

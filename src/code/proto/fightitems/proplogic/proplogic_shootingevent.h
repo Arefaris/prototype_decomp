@@ -41,6 +41,15 @@ namespace proto
 			fight::ConditionFactory* CreateShootingEventConditionFactory(const char* name);
 			void RegisterShootingEventConditionFactory(fight::TrackRegistry* registry, const char* name);
 
+			// The event the third argument of a shooting event condition points at when it is a shot (type 0x2100A); the layout is read from
+			// the condition (name guess)
+			struct ShootingEvent
+			{
+				unsigned char unknown0[8];
+				int type;  // +0x8
+				unsigned char unknownC[8];
+				unsigned short shot;  // +0x14
+			};
 		}
 	}
 }
