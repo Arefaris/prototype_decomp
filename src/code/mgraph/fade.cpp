@@ -1,9 +1,11 @@
 // The fade node of the mgraph library (0x10B6F1A0 - 0x10B707C0): the reflection of the class, its methods and the description of its
 // node type, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/mgraph/fade.h"
+#include "code/mgraph/registration.h"
 #include "code/om/invoke.h"
 #include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
+#include "code/om/metaproperty.h"
 
 #pragma warning(disable: 4661)
 
@@ -28,6 +30,25 @@ namespace mgraph
 	{
 		return time;
 	}
+
+	// FUNCTION: ENGINE 0x10B70550
+	// NONMATCHING: the engine reads the characters of a borrowed string from the object, ours from the constructor's result, and it keeps the cached type in other registers (66.4 %)
+#ifdef NONMATCHING
+	void RegisterFade()
+	{
+		{
+			String nodeName("Fade", 0);
+			ClassName name(core::Hash64(nodeName.GetText(), 0));
+			String category("Audio", 0);
+			unsigned int flags = core::Hash32(category.GetText(), 0);
+			NodeType<Fade>::RegisterDerived(CachedNodeType<Node>(), flags, name);
+		}
+		MetaProperty<float>::Create(FindNodeClass<Fade>(), BorrowedKey(String("Time", 1)),
+			MetaMethod1<Fade, Fade, void, float>::Create(FindNodeClass<Fade>(), BorrowedKey(String("SetTime", 1)), &Fade::SetTime),
+			MetaMethod0Const<Fade, Fade, float>::Create(FindNodeClass<Fade>(), BorrowedKey(String("GetTime", 1)), &Fade::GetTime), 3);
+	}
+
+#endif
 
 	// FUNCTION: ENGINE 0x10B704D0
 	template<> Node* NodeType<Fade>::CreateNode(void* graph, const ClassName* nodeName)

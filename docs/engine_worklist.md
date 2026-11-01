@@ -6795,3 +6795,46 @@ as the engine's `CreateAction` passes them); `keptmap.py` maps the unit's unmapp
   (ExecuteTask, SpawnTask), the owner-kind forms (Message, PeriodicMessage, DestinationGoTo / FlyTo / Jump), the slots of Land (its constructor, destructor and CreateAction are written), DumbGotoLOD, LodGotoFixedDestination, PeriodicOpportunity, DelayedSequence, Engage, PredefinedPatrol,
   IntersectionCirclePatrol; every slot that sends the flying constraints message (29 users, the message embeds two small arrays), the request conditions (they read the strafe run tokens of the ai system),
   TargetAlertState (a one-entry cache in static data), TargetDefense and the ravenphysics users (ResetPhysicVelocities).
+
+## sn-bp: the range 0x10B60000 - 0x10BA0000 (mgraph node classes, om file streams, core task nodes, the Lua base, table and math libraries)
+
+1896 functions of the range were open at the start. Reconstructed (functions match unless noted):
+- `mgraph/castnodes.cpp/.h` (0x10B6BB90 - 0x10B6D210): `CastBoolToTrigger` and `CastTriggerToBool` complete (constructors, `SetNumChannels`, `Slot16`, the registration
+  functions `RegisterCastBoolToTrigger` / `RegisterCastTriggerToBool`, `CreateNode`), with the template instances of their `MetaClass<N>`, `NodeType<N>` and
+  the two `DynamicArray` element types. EQUIVALENT: the two constructors (the pin allocation tag call leads to a folded copy; the trigger input pins
+  schedule their stores in another order), `CastBoolToTrigger::Slot16` (dl / cl). The `FillElements` / `CopyElements` of the 1-byte element arrays do not match
+  (the engine keeps the count in cx / dx, ours in ax; 28 of 42 bytes): left to the engine.
+- `mgraph/chooser`, `delay`, `meter`, `minmaxdistance`, `systemnode` (`.cpp/.h`), `fade`, `filter`, `selectinttrigger`, `smoother`: the node classes as sized placeholders
+  (`MGRAPH_NODE_BODY`) with their `MetaClass<N>` / `NodeType<N>` instances, the node's `AllocationTag` / `operator new` / `operator delete`, `CreateNode`,
+  `RegisterDerived`, the `MetaMethod0Const` / `MetaMethod1` instances of the properties (`Fade`: `Time`; `Filter`: `Frequency`, `Q`, `FilterType` with the
+  `dsp::BiQuadFilterType` enumeration reflection: `MetaEnum`, `MetaProperty`, `DelegateProperty`, `DelegateMetaProperty`, `src/code/dsp/biquadfiltertype.h`;
+  `SelectIntFromTrigger`: `NumInputs`; `Smoother`: `RiseRate`, `FallRate`), and `Fade::SetTime` / `GetTime`. The registration functions of the plain nodes
+  (`RegisterChooser`, `RegisterDelay`, `RegisterMeter`, `RegisterMinMaxDistance`, `RegisterSystemNode`) match. Not done: the constructors, `SetNumChannels`, `Slot16`
+  and the registrations that also register properties (`Fade` 0x10B70550 NONMATCHING 66 %: the engine reads the characters of a borrowed string from the object
+  where ours uses the constructor's result; `Filter`, `Smoother`, `SelectIntFromTrigger`, the four `Switch` and the `PropertyNode` ones), `Chooser` / `Delay` /
+  `Filter` / `Meter` / `MinMaxDistance` / `SelectIntFromTrigger` / `Smoother` / `SystemNode` layouts.
+- `mgraph/nodetyperegistration.cpp`: the twenty 207-byte registrations of `ListCount` / `ListEntry` / `Inlet` / `Outlet` for the vector, trigger, complex and envelope packets.
+  `mgraph/registration.h`: `FindNodeClass<N>` and `BorrowedKey` for the registrations that register properties.
+- Found while matching: a node class without a declared destructor gets the compiler's deleting destructor without the vftable store (a declared empty
+  `virtual ~N() {}` stores it; the engine's does not). `NodeType<Node>::Get()` inlined in a registration is `CachedNodeType<Node>()`. The probe-and-bind generator tools of this unit (`bind.py` binds the symbols of a compiled
+  probe to the engine's addresses by byte match, `emit2.py` writes the annotations and symbols.txt lines) are in local/scratch/sn-bp/.
+- Not done in the mgraph part: the nine per-packet registration functions 0x10B63ED0 - 0x10B681D0 (2133 bytes each, call ~30 registrations of the other units), the
+  initialisation 0x10B68D70, the trigger property node block 0x10B6AC40 - 0x10B6BB90 (the engine's scalar trigger property node differs from the template instances of
+  propertynode.cpp: 30 of 80 functions bind), the pin list bases 0x10B698F0 - 0x10B6A130.
+- `om/atgstreams.cpp/.h` (0x10B6A130 - 0x10B6A5F0): `om::AtgCoreFileStream` (all slots; `Write` passes the constant 1 as the size, as the engine does) and `om::ErrorLoggingStream`
+  (constructor, slots 0 - 4, the extra slot 8 `GetDescription`; the log texts are `""`, the class keeps the stream's `operator delete`, so its deleting
+  destructor releases 8 bytes). The class has no `OM_ALLOCATION`.
+- `core/src/asynctasknode.cpp` (0x10B7F3D0 - 0x10B7FB00): `AsyncTaskNode` accessors, `AddChild`, `CountNodes`, `Set`, `Submit`, `Run`, `AsyncTaskJob` (`GetState`, `Set`, `SetData` ...,
+  `AddChild`, `Submit`, `RunHere`, `IsQueued`, `GetResult`). `AsyncTaskNode::Flatten` NONMATCHING (85 %: the zero register); its `flag` is a `bool` (the symbols.txt name changed,
+  `AsyncTaskNode::Clear` is the engine's constructor body and returns `this`: left mapped). `ClearChildren` (0x10B7F4E0) left to the engine (ours repeats the tail).
+- `lua/src/lbaselib.cpp`, `ltablib.cpp`, `lmathlib.cpp` (0x10B7AD60 - 0x10B7BD60, 0x10B7D940 - 0x10B7EB10): the Lua 5.1 base and coroutine library, table library and
+  math library with the engine's float numbers, all the functions but the math library's `random` (the engine draws from `fight::gFightRandom` and `randomseed` does
+  nothing). The libraries are stock sources in `namespace engine`; they matched at the first compile for almost every function. functions.tsv cuts three
+  of them short: `luaB_tostring` (252 bytes, the cases follow behind), `auxresume` (173 = 78 + 95) and `auxsort` (607; the epilogue sits in the padding): their symbols.txt sizes are the
+  real ones. The CRT's float wrappers of lmathlib (`sinf`, `logf` ...) are the compiler's `<math.h>` inline functions, mapped by byte match where unique.
+  Not done: `lstrlib` (0x10B7BD60 - 0x10B7D8F0), `ldblib` (0x10B7A280 - 0x10B7AD40), the engine's Lua serializer (0x10B77640 - 0x10B7A280).
+- Shared header changes: `mgraph/nodes.h` (the eleven placeholder node classes are gone: each has its own header), `core/asynctask.h` (members of `AsyncTaskNode` and `AsyncTaskJob`,
+  `GetAsyncTaskFunction`, `Flatten`'s flag is `bool`), `lua/lua.h` (`lua_getfenv`, `lua_pushthread`, `lua_yield`, `lua_status`, `lua_lessthan`), `lua/lauxlib.h` (`luaL_register`).
+  symbols.txt: `AsyncTaskNode::Flatten` renamed (`I` to `_N`); `__imp__` lines for `fputs`, `__iob_func`, `strtoul`, `frexp`, `ldexp`, `ceil`, `modf`, `_HUGE`.
+- Not done in the rest of the range: the allocators' leftovers (0x10B80000 - 0x10B86000: the async task function registry and the `externalheap` / `spillover` remainders), pure3d sprites, billboards and
+  decals (0x10B86000 - 0x10B8B000, 0x10B9D000 on), the loaders (0x10B8B000 - 0x10B9D000: each a big `Handler` slot), the DSP code in lmathlib's neighbours.

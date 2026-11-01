@@ -174,9 +174,14 @@ extern "C"
 	int lua_gc(lua_State* L, int what, int data);
 	int lua_error(lua_State* L);
 	int lua_next(lua_State* L, int idx);
+	int lua_lessthan(lua_State* L, int idx1, int idx2);
 	void lua_concat(lua_State* L, int n);
 
 	int lua_getstack(lua_State* L, int level, lua_Debug* ar);
+	void lua_getfenv(lua_State* L, int idx);
+	int lua_pushthread(lua_State* L);
+	int lua_yield(lua_State* L, int nresults);
+	int lua_status(lua_State* L);
 	int lua_getinfo(lua_State* L, const char* what, lua_Debug* ar);
 
 	int luaL_callmeta(lua_State* L, int obj, const char* e);
