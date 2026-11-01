@@ -6737,6 +6737,9 @@ solver (0x10310000 on). Reconstructed (file names are guesses, no assert path na
   0x102EEDE0, see below), `healthshaderbehaviour.cpp` (all), `collisionsqueezebehaviour.cpp` (all but Update 0x102F1F40)
   and `proto/behaviours/physicslodbehaviour.cpp` (PhysicsLOD, the behaviour's constructor, Slot1, OnMessage, the three small
   handlers and the reflection; the level switch 0x102F2C50 and the array members of PhysicsLOD are not done).
+- `proto/render/fogeffectcontroller.cpp`: FogEffectController (constructor, destructor, AddEffect, Slot4, `SetParams`
+  and the override of `StopAll`, which is the 5-byte jump to the base class's at 0x102E9E40 that the vftable holds;
+  the 24-byte `FogParams` assignment 0x102E9E00 is not done).
 - Shared header changes: `engine/render/effectmanager.h` (`AttachedEffectSetup` got the inline constructor the decal code
   inlines and its `unknown24` pair is a `math::Vector2`; effectmanager.cpp passes `&unknown24.x`),
   `engine/healthmessages.h` (`GetMinHealthMessage(float)`, the health shader unit keeps a copy of it).
@@ -6759,6 +6762,6 @@ Findings:
   stores `end = begin`, so the destructor is NONMATCHING.
 Not done: the render manager block (a settings observer with Lua bindings: `Method<T>` / `Closure<T>` / `ObjRenderEvent<T>`
 instances of `proto::ProtoRenderManager`, 0x102E1910 - 0x102E3120), ShaderPalette reflection (0x102E5780 - 0x102E8700:
-ShaderInputPatch classes, `MetaInstanceHelper`), the consume effect messages, FogEffectController, AttachBillboard, LightDecal,
+ShaderInputPatch classes, `MetaInstanceHelper`), the consume effect messages, AttachBillboard, LightDecal,
 TankSolver, the vehicle constraints and the helicopter units (all the properties classes read their reflection through
 `PrimitiveMemberGetSetter<C, float>` pairs of unnamed accessors; the constraint creation code uses the physics context).
