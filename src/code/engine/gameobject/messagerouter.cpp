@@ -26,6 +26,14 @@ namespace engine
 		return first;
 	}
 
+	// FUNCTION: ENGINE 0x108A5510
+	MessageRouter::MessageRouter(const container::AllocatorCoreAligned<16>& allocator)
+	{
+		heap = allocator.heap;
+		core::Name<core::CaseSensitiveKey> none(0, 1);
+		cachedName = none;
+	}
+
 	// FUNCTION: ENGINE 0x108A4BE0
 	void MessageRouter::Invalidate(GameObjectHandle handle)
 	{

@@ -11,16 +11,26 @@ namespace engine
 	class WideStringBuffer
 	{
 	public:
+		// 0x108A5560 / 0x108A5570
 		WideStringBuffer();
 		~WideStringBuffer();
 		// 0x108A5670: the text as characters, cut to the size
 		void CopyTo(char* destination, int size);
-		// 0x108A55B0: makes room for that many characters
-		void Allocate(int capacity);
+		// 0x108A55B0: makes room for that many characters (the characters it held are gone)
+		void Allocate(int newCapacity);
 		// 0x108A5640: takes the characters as the text
 		void Set(const char* text);
+		// 0x108A5590: gives the characters back
+		void Release();
+		// 0x108A55F0: uses the characters of somebody else as its text when it holds none of its own
+		void Borrow(const wchar_t* text);
+		// 0x108A5600 / 0x108A5620: copies the text of another buffer / the wide characters in
+		void CopyFrom(const WideStringBuffer& other);
+		void Copy(const wchar_t* text);
 
-		unsigned char unknown0[8];
+		wchar_t* data;
+		// The characters data has room for; 0 when it is borrowed or empty
+		unsigned int capacity;  // +4
 	};
 
 	// What the friend list keeps for one friend (0x1C bytes; the destructor is 0x108E9C30)

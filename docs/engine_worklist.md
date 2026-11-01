@@ -6532,7 +6532,7 @@ class info, members, constructor, destructor, `Slot1`, `Update`, `OnPostedMessag
 `frontend/femovie.cpp` (the table of script callbacks, the two calls into the movie that start a state and advance it), `database/onlinegamedbhelper.cpp` (`AddSubject`, `RemoveSubject`), `controller/slotmanager.cpp`,
 `controller/playerinfo.cpp`, `controller/tracebuffer.cpp` (`core::Trace`, its buffer), `gameobject/messagerouter.cpp` (`Add`, `Remove`, `Query`, `Invalidate`, `SwapHandles`,
 `FindListSlow`, the lower bound of the sorted channel table), `system/desyncchecker.cpp` (the desync recorder: constructor, `Append`, a printf, a checksum, the table of
-simulation variables, the generator line), `nis/nisexclusionvolume.cpp` (reflection).
+simulation variables, the generator line), `nis/nisexclusionvolume.cpp` (reflection), `online/widestringbuffer.cpp` (the wide character buffer: all nine members), `world/zoneset.cpp/.h` (`GetZoneSet`, `SetDefaults`, `AddZone`; the opaque copy in protomain.cpp is gone).
 
 Compiler facts found on the way:
 - A range test of a message's or owner's kind word is `add reg, -LO; cmp reg, N; ja` in the engine (the "add 0xFFFF0000" of the earlier EQUIVALENTs) when the word is a signed `int`
@@ -6560,7 +6560,7 @@ EQUIVALENT: `EffectLODDisableAction::Slot5` 0x108B97D0 (stack slots: the engine 
 94.3 %), `PlayerInfo::PlayerInfo` 0x108A15F0 (register of the id -1, 81 %), `PlaybackTreeBehaviour::OnPostedMessage` 0x1089B0D0 (ebx / ebp swapped, 85.5 %); no difftest states exist for them.
 Shared header changes: `AudioMixer::PlayDialogue` (bool), `GetHealthMessage(float)` (a second constructor), `passnames.h` (extern pass and parameter names), `effectmanager.h` (`HasTimer`,
 `GetTimer`), `playbackmessage.h` (`GetPlaybackStateMessage`), `messagerouter.h` (`MessageRouterEntry` has its key and list, `InitListeners` answers the list and `Remove` a `bool`:
-two symbols.txt names changed), `inputsystem.h` (`SlotManager::capacity`, `Slot()`), `gamedatabase.h` (the subject table of `OnlineGameDBHelper`), `desynchunter.h` (the layout of `DesyncChecker`).
+two symbols.txt names changed), `inputsystem.h` (`SlotManager::capacity`, `Slot()`), `gamedatabase.h` (the subject table of `OnlineGameDBHelper`), `olsfriend.h` (`WideStringBuffer` has its two members), `gameobjectparams.h` (the destructor, 0x107FC790, which the scalar deleting destructor of `PlaybackParams` calls), `desynchunter.h` (the layout of `DesyncChecker`).
 Not done and why: the units whose class is not reconstructed (online manager 0x108BF430 on, audio system and emitter 0x10870000 - 0x10880000, the front end 0x10872790 - 0x10874400 and
 0x10884000 - 0x1088B000, the online users and games 0x10886000 - 0x1088B000, the motion trail 0x108BD740 on, the key table of the keyboard, `GameDBStorage` (its size in the database is
 0x28, the header says 0x20), `MessageRouter::InitListeners`, `PlaybackTreeBehaviour::OnMessage` (453 bytes, six messages the unit sends), `PrimitiveDisplayTrack` (a track with a list property),

@@ -13,6 +13,7 @@
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/simulationdriver.h"
 #include "code/engine/system/streampackage.h"
+#include "code/engine/world/zoneset.h"
 #include "code/math/random.h"
 #include "code/proto/protomain.h"
 
@@ -42,24 +43,6 @@ namespace core
 
 namespace engine
 {
-	// 0x10894830 - 0x10894860 (the zone unit): the zones the world is streamed in (name guesses)
-	struct ZoneEntry
-	{
-		unsigned char unknown0[0x18];
-	};
-
-	class ZoneSet
-	{
-	public:
-		// 0x10894850: remembers the table of zones every world starts with
-		void SetDefaults(const void* table);
-		// 0x10894860: adds a zone and its package file with that many entries
-		void AddZone(const char* name, const char* file, unsigned int count, const ZoneEntry* entries);
-	};
-
-	// 0x10894830
-	ZoneSet* GetZoneSet();
-
 	// 0x10E19AA8 (the unit's table of default zones) and 0x1126EE80 (the entries of "zone2")
 	extern const unsigned char gDefaultZones[];
 	extern ZoneEntry gZone2Entries[];
