@@ -695,6 +695,52 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101307A0
+			// EQUIVALENT: scheduling: the engine pushes the arguments of the owner assignment right before its call, ours right after the owner is loaded (55.4 %)
+			WallRunAction::WallRunAction(WallRunTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), surfaceEvent(0), driver(0), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(false), unknown4D(false), unknown50(0.0f), unknown54(0.0f)
+			{
+				engine::AssignRefCountedCopy2(&surfaceEvent, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x101303C0
+			WallRunAction::~WallRunAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+				core::SafeReleaseRefCopy2(surfaceEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10132BE0
+			// EQUIVALENT: the range test of the owner kind is add eax, 0xFFFF0000 where ours has sub eax, 0x10000 (the same value) (97.0 %)
+			fight::Action* WallRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new WallRunAction(this, handle, AsSurfaceEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10132750
+			// EQUIVALENT: scheduling: the engine pushes the arguments of the owner assignment right before its call, ours right after the owner is loaded (94.9 %)
+			WallOrientAction::WallOrientAction(WallOrientTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), surfaceEvent(0), driver(0), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f)
+			{
+				engine::AssignRefCountedCopy2(&surfaceEvent, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10130590
+			WallOrientAction::~WallOrientAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy2(surfaceEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10133700
+			// EQUIVALENT: the range test of the owner kind is add eax, 0xFFFF0000 where ours has sub eax, 0x10000 (the same value) (97.0 %)
+			fight::Action* WallOrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new WallOrientAction(this, handle, AsSurfaceEventOwner(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<WallRunTrack>;
 			template class fight::PropertyName<WallRunTrack>;
 			template class fight::PropertyBool<WallRunTrack>;
@@ -717,6 +763,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10130220
+// FUNCTION: ENGINE 0x10130240
+// FUNCTION: ENGINE 0x10130290
+// FUNCTION: ENGINE 0x101302F0
+// FUNCTION: ENGINE 0x10130860
+// FUNCTION: ENGINE 0x101327F0
 // FUNCTION: ENGINE 0x101CEAB0
 // FUNCTION: ENGINE 0x101CEAE0
 // FUNCTION: ENGINE 0x101CEB10

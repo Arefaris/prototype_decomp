@@ -6,6 +6,13 @@
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
 
+namespace fight
+{
+	// 0x10111310 (another unit): compares two integers with a compare operator (0 less, 1 less or equal, 2 equal, 3 not equal, 4 greater or equal,
+	// 5 greater): lhs op rhs
+	bool CompareInts(int op, const int* lhs, const int* rhs);
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -24,6 +31,19 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x101287B0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				const fight::Name& GetValue() const
+				{
+					return value;
+				}
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
 
 				// The members the properties write
 				bool SetVariable(const fight::Name& newValue);
@@ -58,6 +78,19 @@ namespace proto
 				// vftable slot 9 (0x101288A0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+
 				// The members the properties write
 				bool SetTimer(const fight::Name& newValue);
 				bool SetCompare(int newValue);
@@ -90,6 +123,15 @@ namespace proto
 				// vftable slot 9 (0x10128A90, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+
 				// The members the properties write
 				bool SetCompare(int newValue);
 				bool SetTime(float newValue);
@@ -118,6 +160,19 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x10128670, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+				int GetValue() const
+				{
+					return value;
+				}
 
 				// The members the properties write
 				bool SetVariable(const fight::Name& newValue);

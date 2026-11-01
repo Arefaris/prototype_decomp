@@ -1,5 +1,6 @@
 // Fight items of the motion group: VariableNameCompareCondition, TimerCompareCondition, OutOfCombatTimerCondition, VariableIntCompareCondition, TimerContinousSetTrack, VariableNameSetTrack, TimerSetTrack, VariableIntSetTrack, VariableIntTemporarySetTrack (unit 0x101C5300 - 0x101C8410; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_variable.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -957,6 +958,68 @@ namespace proto
 				return new VariableIntSetAction(this, engine::GetObjectHandle(owner));
 			}
 
+			// FUNCTION: ENGINE 0x10128670
+			// EQUIVALENT: register allocation (the engine keeps this in esi and the object in edi) and the stack slots of the message and the two compared values (61.9 %)
+			bool VariableIntCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VariableIntGetMessage message(GetVariable());
+				object->SendMessage(&message);
+				int current = message.value;
+				int wanted = GetValue();
+				return fight::CompareInts(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x101287B0
+			// EQUIVALENT: register allocation (the engine keeps this in edi and the object in esi) (90.6 %)
+			bool VariableNameCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VariableNameGetMessage message(GetVariable());
+				object->SendMessage(&message);
+				return fight::CompareNames(GetCompare(), &message.value, &GetValue());
+			}
+
+			// FUNCTION: ENGINE 0x101288A0
+			// EQUIVALENT: register allocation and the stack slots of the message and the two compared values (the engine keeps this in edi and the object in esi) (58.1 %)
+			bool TimerCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				TimerGetMessage message(GetTimer());
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x10128A90
+			// EQUIVALENT: register allocation and the order of the loads of the condition's members (the engine keeps this in edi and the object in esi) (92.4 %)
+			bool OutOfCombatTimerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				OutOfCombatTimerGetMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<VariableNameCompareCondition>;
 			template class fight::PropertyEnumConstList<VariableNameCompareCondition>;
@@ -1011,6 +1074,21 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10127F30
+// FUNCTION: ENGINE 0x10127F40
+// FUNCTION: ENGINE 0x10127F50
+// FUNCTION: ENGINE 0x10127F60
+// FUNCTION: ENGINE 0x10127F70
+// FUNCTION: ENGINE 0x10127F80
+// FUNCTION: ENGINE 0x10127F90
+// FUNCTION: ENGINE 0x10127FA0
+// FUNCTION: ENGINE 0x10127FB0
+// FUNCTION: ENGINE 0x10127FC0
+// FUNCTION: ENGINE 0x10127FD0
+// FUNCTION: ENGINE 0x10128140
+// FUNCTION: ENGINE 0x10128170
+// FUNCTION: ENGINE 0x10128380
+// FUNCTION: ENGINE 0x10128390
 // FUNCTION: ENGINE 0x101283C0
 // FUNCTION: ENGINE 0x101283E0
 // FUNCTION: ENGINE 0x10128400
@@ -1019,6 +1097,7 @@ namespace proto
 // FUNCTION: ENGINE 0x101284D0
 // FUNCTION: ENGINE 0x10128530
 // FUNCTION: ENGINE 0x10128590
+// FUNCTION: ENGINE 0x10128640
 // FUNCTION: ENGINE 0x10128E20
 // FUNCTION: ENGINE 0x10128FA0
 // FUNCTION: ENGINE 0x101290D0

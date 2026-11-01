@@ -573,6 +573,21 @@ namespace proto
 				return new WallJumpAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1012D020
+			void WallJumpAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<WallJumpTrack>;
 			template class fight::PropertyBool<WallJumpTrack>;

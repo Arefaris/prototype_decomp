@@ -410,4 +410,257 @@ namespace proto
 	};
 }
 
+namespace proto
+{
+	// RTTI: proto::ReleaseWhipFistPowerMessage: releases the whip fist (power message id 0x15)
+	class ReleaseWhipFistPowerMessage : public TransformationMessage
+	{
+	public:
+		ReleaseWhipFistPowerMessage() : TransformationMessage(0x15)
+		{
+		}
+		virtual ~ReleaseWhipFistPowerMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::AnimatedWhipFistPowerMessage: switches the whip fist's animation on or off
+	class AnimatedWhipFistPowerMessage : public TransformationMessage
+	{
+	public:
+		explicit AnimatedWhipFistPowerMessage(bool newAnimated) : TransformationMessage(0x14), animated(newAnimated)
+		{
+		}
+		virtual ~AnimatedWhipFistPowerMessage()
+		{
+		}
+
+		bool animated;  // +0xC
+	};
+
+	// RTTI: proto::WhipFistResetTargetMessage: resets the target of the whip fist
+	class WhipFistResetTargetMessage : public TransformationMessage
+	{
+	public:
+		WhipFistResetTargetMessage() : TransformationMessage(0x1c)
+		{
+		}
+		virtual ~WhipFistResetTargetMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::WhipFistCheckExtendBlockedMessage: the object answers whether the whip fist's extension is blocked
+	class WhipFistCheckExtendBlockedMessage : public TransformationMessage
+	{
+	public:
+		WhipFistCheckExtendBlockedMessage() : TransformationMessage(0x1a), blocked(false)
+		{
+		}
+		virtual ~WhipFistCheckExtendBlockedMessage()
+		{
+		}
+
+		bool blocked;  // +0xC
+	};
+
+	// RTTI: proto::GetWhipFistStateMessage: the object answers the state of its whip fist
+	class GetWhipFistStateMessage : public TransformationMessage
+	{
+	public:
+		GetWhipFistStateMessage() : TransformationMessage(0x16), state(0)
+		{
+		}
+		virtual ~GetWhipFistStateMessage()
+		{
+		}
+
+		int state;  // +0xC
+	};
+
+	// RTTI: proto::GetWhipFistSegmentCountMessage: the object answers the number of segments of its whip fist
+	class GetWhipFistSegmentCountMessage : public TransformationMessage
+	{
+	public:
+		GetWhipFistSegmentCountMessage() : TransformationMessage(0x17), count(-1)
+		{
+		}
+		virtual ~GetWhipFistSegmentCountMessage()
+		{
+		}
+
+		int count;  // +0xC
+	};
+
+	// RTTI: proto::RetractWhipFistPowerMessage: retracts the whip fist
+	class RetractWhipFistPowerMessage : public TransformationMessage
+	{
+	public:
+		RetractWhipFistPowerMessage(float newVelocity, float newSoundLeadTime) : TransformationMessage(0x12), velocity(newVelocity), unknown10(0.0f), soundLeadTime(newSoundLeadTime)
+		{
+		}
+		virtual ~RetractWhipFistPowerMessage()
+		{
+		}
+
+		float velocity;  // +0xC
+		float unknown10;  // +0x10
+		float soundLeadTime;  // +0x14
+	};
+
+	// RTTI: proto::MakeTautWhipFistPowerMessage: makes the whip fist taut
+	class MakeTautWhipFistPowerMessage : public TransformationMessage
+	{
+	public:
+		explicit MakeTautWhipFistPowerMessage(float newTautTime) : TransformationMessage(0x13), tautTime(newTautTime)
+		{
+		}
+		virtual ~MakeTautWhipFistPowerMessage()
+		{
+		}
+
+		float tautTime;  // +0xC
+	};
+
+	// RTTI: proto::WhipFistFreezeSegmentsMessage: freezes the first segments of the whip fist
+	class WhipFistFreezeSegmentsMessage : public TransformationMessage
+	{
+	public:
+		explicit WhipFistFreezeSegmentsMessage(int newNumSegments) : TransformationMessage(0x19), numSegments(newNumSegments)
+		{
+		}
+		virtual ~WhipFistFreezeSegmentsMessage()
+		{
+		}
+
+		int numSegments;  // +0xC
+	};
+}
+
+namespace proto
+{
+	// RTTI: proto::FightVariablesMessage: the base of the messages to the fight variables of an object (message type 0x23)
+	class FightVariablesMessage : public engine::IntrusiveMessage
+	{
+	public:
+		explicit FightVariablesMessage(short newId) : engine::IntrusiveMessage(0x23, newId)
+		{
+		}
+		virtual ~FightVariablesMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::VariableIntMessage: the base of the messages about an integer variable
+	class VariableIntMessage : public FightVariablesMessage
+	{
+	public:
+		VariableIntMessage(short newId, const core::Name<core::CaseSensitiveKey>& newVariable, int newValue) : FightVariablesMessage(newId), variable(newVariable), value(newValue)
+		{
+		}
+		virtual ~VariableIntMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> variable;  // +0x10
+		int value;  // +0x18
+	};
+
+	// RTTI: proto::VariableIntGetMessage: the object answers the value of an integer variable
+	class VariableIntGetMessage : public VariableIntMessage
+	{
+	public:
+		explicit VariableIntGetMessage(const core::Name<core::CaseSensitiveKey>& newVariable) : VariableIntMessage(0, newVariable, 0)
+		{
+		}
+		virtual ~VariableIntGetMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::VariableNameMessage: the base of the messages about a name variable
+	class VariableNameMessage : public FightVariablesMessage
+	{
+	public:
+		VariableNameMessage(short newId, const core::Name<core::CaseSensitiveKey>& newVariable, const core::Name<core::CaseSensitiveKey>& newValue) : FightVariablesMessage(newId), variable(newVariable), value(newValue)
+		{
+		}
+		virtual ~VariableNameMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> variable;  // +0x10
+		core::Name<core::CaseSensitiveKey> value;  // +0x18
+	};
+
+	// RTTI: proto::VariableNameGetMessage: the object answers the value of a name variable
+	class VariableNameGetMessage : public VariableNameMessage
+	{
+	public:
+		explicit VariableNameGetMessage(const core::Name<core::CaseSensitiveKey>& newVariable) : VariableNameMessage(2, newVariable, core::Name<core::CaseSensitiveKey>((const char*)0, 1))
+		{
+		}
+		virtual ~VariableNameGetMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::TimerMessage: the base of the messages about a timer
+	class TimerMessage : public FightVariablesMessage
+	{
+	public:
+		TimerMessage(short newId, const core::Name<core::CaseSensitiveKey>& newTimer, float newTime, bool newIncrementing) : FightVariablesMessage(newId), timer(newTimer), time(newTime), incrementing(newIncrementing)
+		{
+		}
+		virtual ~TimerMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> timer;  // +0x10
+		float time;  // +0x18
+		bool incrementing;  // +0x1C
+	};
+
+	// RTTI: proto::TimerGetMessage: the object answers the time of a timer
+	class TimerGetMessage : public TimerMessage
+	{
+	public:
+		explicit TimerGetMessage(const core::Name<core::CaseSensitiveKey>& newTimer) : TimerMessage(4, newTimer, 0.0f, false)
+		{
+		}
+		virtual ~TimerGetMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::OutOfCombatTimerMessage: the base of the messages about the out of combat timer
+	class OutOfCombatTimerMessage : public FightVariablesMessage
+	{
+	public:
+		OutOfCombatTimerMessage(short newId, float newTime) : FightVariablesMessage(newId), time(newTime)
+		{
+		}
+		virtual ~OutOfCombatTimerMessage()
+		{
+		}
+
+		float time;  // +0xC
+	};
+
+	// RTTI: proto::OutOfCombatTimerGetMessage: the object answers the out of combat time
+	class OutOfCombatTimerGetMessage : public OutOfCombatTimerMessage
+	{
+	public:
+		OutOfCombatTimerGetMessage() : OutOfCombatTimerMessage(6, 0.0f)
+		{
+		}
+		virtual ~OutOfCombatTimerGetMessage()
+		{
+		}
+	};
+}
+
 #endif

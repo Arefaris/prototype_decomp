@@ -25,6 +25,11 @@ namespace proto
 				// vftable slot 9 (0x10137940, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				bool GetBlocked() const
+				{
+					return blocked;
+				}
+
 				// The members the properties write
 				bool SetBlocked(bool newValue);
 
@@ -186,6 +191,19 @@ namespace proto
 				// vftable slot 15 (0x1013BDD0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetSoundLeadTime() const
+				{
+					return soundLeadTime;
+				}
+				float GetVelocity() const
+				{
+					return velocity;
+				}
+				int GetMinSegmentsRemaining() const
+				{
+					return minSegmentsRemaining;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -224,6 +242,11 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x1013BFB0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				int GetNumSegments() const
+				{
+					return numSegments;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -546,6 +569,11 @@ namespace proto
 				// vftable slot 15 (0x1013BE30, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetTautTime() const
+				{
+					return tautTime;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -703,6 +731,21 @@ namespace proto
 
 				core::Link<WhipFistSegmentFixToJointTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistResetTargetAction (9 vftable slots, 0x20 bytes)
+			class WhipFistResetTargetAction : public fight::Action
+			{
+			public:
+				// 0x10134E60
+				explicit WhipFistResetTargetAction(engine::GameObjectHandle newTarget);
+				// 0x10134E90
+				virtual ~WhipFistResetTargetAction();
+
+				// vftable slot 5 (0x10137880)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
 			};
 
 			// ---- actions end

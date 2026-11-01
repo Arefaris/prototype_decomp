@@ -34,6 +34,14 @@ namespace engine
 	void AssignDriverCopy2(choreo::Driver*& driver, choreo::Driver* newDriver);
 	// 0x10095410: the same unit's copy for the second driver of the vertical aim strafe action
 	void ReleaseDriverCopy5(choreo::Driver*& driver);
+	// 0x1011AAF0: the supporting limb unit's copy of AssignRefCounted
+	void AssignRefCountedCopy2(core::IRefCount** slot, core::IRefCount* value);
+}
+
+namespace core
+{
+	// 0x1011AB30: the supporting limb unit's copy of SafeReleaseRef
+	void SafeReleaseRefCopy2(IRefCount*& object);
 }
 
 namespace choreo

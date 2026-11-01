@@ -152,6 +152,21 @@ namespace proto
 				return new TurnRoundAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x10123620
+			void TurnRoundAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TurnRoundTrack>;
 			template class fight::PropertyBool<TurnRoundTrack>;

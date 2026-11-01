@@ -196,7 +196,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x1012C050
 			WallExitAction::~WallExitAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x1012CB20
@@ -204,6 +204,22 @@ namespace proto
 			fight::Action* WallExitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				return new WallExitAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012C090
+			void WallExitAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						driver->mDelta.Reset();
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
 			}
 
 			// ---- actions end
