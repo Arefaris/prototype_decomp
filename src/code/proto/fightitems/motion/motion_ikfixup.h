@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -83,6 +84,44 @@ namespace proto
 			fight::TrackFactory* CreateShoulderConFixupTrackFactory(const char* name);
 			void RegisterShoulderConFixupTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::IKSurfaceFixupAction (9 vftable slots, 0x2C bytes)
+			class IKSurfaceFixupAction : public fight::Action
+			{
+			public:
+				// 0x100DAB50
+				IKSurfaceFixupAction(IKSurfaceFixupTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100DA9F0
+				virtual ~IKSurfaceFixupAction();
+
+				// vftable slot 5 (0x100DAC00)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100DAC90)
+				virtual void Slot6();
+
+				core::Link<IKSurfaceFixupTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::ShoulderConFixupAction (9 vftable slots, 0x2C bytes)
+			class ShoulderConFixupAction : public fight::Action
+			{
+			public:
+				// 0x100DAD20
+				ShoulderConFixupAction(ShoulderConFixupTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100DAA40
+				virtual ~ShoulderConFixupAction();
+
+				// vftable slot 5 (0x100DADD0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100DAE60)
+				virtual void Slot6();
+
+				core::Link<ShoulderConFixupTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

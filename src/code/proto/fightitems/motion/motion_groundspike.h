@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -312,6 +313,79 @@ namespace proto
 			fight::TrackFactory* CreateGroundSpikeSpawnOffshootTrackFactory(const char* name);
 			void RegisterGroundSpikeSpawnOffshootTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::GroundSpikeClusterDescendAction (9 vftable slots, 0x2C bytes)
+			class GroundSpikeClusterDescendAction : public fight::Action
+			{
+			public:
+				// 0x100D0570
+				GroundSpikeClusterDescendAction(GroundSpikeClusterDescendTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CF920
+				virtual ~GroundSpikeClusterDescendAction();
+
+				// vftable slot 5 (0x100D0620)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GroundSpikeClusterDescendTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GroundSpikeAnimateClusterRadiiAction (9 vftable slots, 0x2C bytes)
+			class GroundSpikeAnimateClusterRadiiAction : public fight::Action
+			{
+			public:
+				// 0x100D0320
+				GroundSpikeAnimateClusterRadiiAction(GroundSpikeAnimateClusterRadiiTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CF8D0
+				virtual ~GroundSpikeAnimateClusterRadiiAction();
+
+				// vftable slot 5 (0x100D03D0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GroundSpikeAnimateClusterRadiiTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GroundSpikeConfigureAutoOffshootsAction (9 vftable slots, 0x2C bytes)
+			class GroundSpikeConfigureAutoOffshootsAction : public fight::Action
+			{
+			public:
+				// 0x100D0720
+				GroundSpikeConfigureAutoOffshootsAction(GroundSpikeConfigureAutoOffshootsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CF970
+				virtual ~GroundSpikeConfigureAutoOffshootsAction();
+
+				// vftable slot 5 (0x100D07D0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GroundSpikeConfigureAutoOffshootsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GroundSpikeSpawnOffshootAction (9 vftable slots, 0x40 bytes)
+			class GroundSpikeSpawnOffshootAction : public fight::Action
+			{
+			public:
+				// 0x100CFBD0
+				GroundSpikeSpawnOffshootAction(GroundSpikeSpawnOffshootTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CF830
+				virtual ~GroundSpikeSpawnOffshootAction();
+
+				// vftable slot 5 (0x100D09A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 7 (0x100D0A80)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GroundSpikeSpawnOffshootTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				int unknown38;  // +0x38
+				unsigned char unknown3C[0x4];
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -1,5 +1,6 @@
 // Fight items of the motion group: GrabSlotUpdateAttachmentWithRestoreTrack, GrabSlotDetachThrowTrack, GrabSlotDetachTrack, GrabSetGrabbingTimerTrack, GrabSlotSwapTrack, GrabSlotReverseAttachmentTrack, GrabbedExecuteUsingParentTrack, GrabbedSwapGrabberSlotsTrack, GrabButtonStruggleTrack, GrabbedDetachTrack, GrabObjectFromChildGrabSlotTrack, GrabSlotExecuteTrack, GrabTargetClearTrack, GrabSlotDeathTrack, ReactionHitGrabTrack, SetGrabIntersectionPropertiesTrack, GrabbedPlaybackTrack, AllowGrabbingTrack, DelayCollisionWithGrabbedTrack, GrabObjectFromParentGrabSlotTrack, GrabSlotExecuteUsingChildTrack, GrabbedUpdateAttachmentTrack, GrabGrabTargetTrack, GrabSlotUpdateAttachmentTrack, GrabPlayerTrack, GrabbedExecuteOnParentTrack, GrabSlotEnableStuckTestTrack (unit 0x10169790 - 0x10173B80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabtrack.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -3228,6 +3229,402 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100CB920
+			GrabSetGrabbingTimerAction::GrabSetGrabbingTimerAction(GrabSetGrabbingTimerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6E80
+			GrabSetGrabbingTimerAction::~GrabSetGrabbingTimerAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCB70
+			fight::Action* GrabSetGrabbingTimerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSetGrabbingTimerAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CA790
+			GrabbedDetachAction::GrabbedDetachAction(GrabbedDetachTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6830
+			GrabbedDetachAction::~GrabbedDetachAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC530
+			fight::Action* GrabbedDetachTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabbedDetachAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C4DB0
+			GrabTargetClearAction::GrabTargetClearAction(GrabTargetClearTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C4DE0
+			GrabTargetClearAction::~GrabTargetClearAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C51D0
+			fight::Action* GrabTargetClearTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabTargetClearAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CB540
+			AllowGrabbingAction::AllowGrabbingAction(AllowGrabbingTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(true)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6DE0
+			AllowGrabbingAction::~AllowGrabbingAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCAD0
+			fight::Action* AllowGrabbingTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AllowGrabbingAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CB4A0
+			DelayCollisionWithGrabbedAction::DelayCollisionWithGrabbedAction(DelayCollisionWithGrabbedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6B70
+			DelayCollisionWithGrabbedAction::~DelayCollisionWithGrabbedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCA80
+			fight::Action* DelayCollisionWithGrabbedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DelayCollisionWithGrabbedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CAA00
+			GrabbedExecuteOnParentAction::GrabbedExecuteOnParentAction(GrabbedExecuteOnParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C69A0
+			GrabbedExecuteOnParentAction::~GrabbedExecuteOnParentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC8F0
+			fight::Action* GrabbedExecuteOnParentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabbedExecuteOnParentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C9480
+			GrabSlotDetachAction::GrabSlotDetachAction(GrabSlotDetachTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6650
+			GrabSlotDetachAction::~GrabSlotDetachAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC350
+			fight::Action* GrabSlotDetachTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotDetachAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CA4C0
+			GrabSlotSwapAction::GrabSlotSwapAction(GrabSlotSwapTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6790
+			GrabSlotSwapAction::~GrabSlotSwapAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC490
+			fight::Action* GrabSlotSwapTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotSwapAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CA0D0
+			GrabSlotReverseAttachmentAction::GrabSlotReverseAttachmentAction(GrabSlotReverseAttachmentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6740
+			GrabSlotReverseAttachmentAction::~GrabSlotReverseAttachmentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC440
+			fight::Action* GrabSlotReverseAttachmentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotReverseAttachmentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CA600
+			GrabbedSwapGrabberSlotsAction::GrabbedSwapGrabberSlotsAction(GrabbedSwapGrabberSlotsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C67E0
+			GrabbedSwapGrabberSlotsAction::~GrabbedSwapGrabberSlotsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC4E0
+			fight::Action* GrabbedSwapGrabberSlotsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabbedSwapGrabberSlotsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CA840
+			GrabButtonStruggleAction::GrabButtonStruggleAction(GrabButtonStruggleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C68D0
+			GrabButtonStruggleAction::~GrabButtonStruggleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC580
+			fight::Action* GrabButtonStruggleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabButtonStruggleAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CB260
+			GrabObjectFromChildGrabSlotAction::GrabObjectFromChildGrabSlotAction(GrabObjectFromChildGrabSlotTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6B20
+			GrabObjectFromChildGrabSlotAction::~GrabObjectFromChildGrabSlotAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCA30
+			fight::Action* GrabObjectFromChildGrabSlotTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabObjectFromChildGrabSlotAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C9EE0
+			GrabSlotExecuteAction::GrabSlotExecuteAction(GrabSlotExecuteTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C66F0
+			GrabSlotExecuteAction::~GrabSlotExecuteAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC3F0
+			fight::Action* GrabSlotExecuteTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotExecuteAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C92C0
+			GrabSlotDeathAction::GrabSlotDeathAction(GrabSlotDeathTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6600
+			GrabSlotDeathAction::~GrabSlotDeathAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC300
+			fight::Action* GrabSlotDeathTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotDeathAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CB740
+			GrabbedPlaybackAction::GrabbedPlaybackAction(GrabbedPlaybackTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6E30
+			GrabbedPlaybackAction::~GrabbedPlaybackAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCB20
+			fight::Action* GrabbedPlaybackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabbedPlaybackAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CAFC0
+			GrabObjectFromParentGrabSlotAction::GrabObjectFromParentGrabSlotAction(GrabObjectFromParentGrabSlotTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6AD0
+			GrabObjectFromParentGrabSlotAction::~GrabObjectFromParentGrabSlotAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC9E0
+			fight::Action* GrabObjectFromParentGrabSlotTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabObjectFromParentGrabSlotAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C83C0
+			GrabbedUpdateAttachmentAction::GrabbedUpdateAttachmentAction(GrabbedUpdateAttachmentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6510
+			GrabbedUpdateAttachmentAction::~GrabbedUpdateAttachmentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC210
+			fight::Action* GrabbedUpdateAttachmentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabbedUpdateAttachmentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C8D90
+			GrabGrabTargetAction::GrabGrabTargetAction(GrabGrabTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C65B0
+			GrabGrabTargetAction::~GrabGrabTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC2B0
+			fight::Action* GrabGrabTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabGrabTargetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C7B70
+			GrabSlotUpdateAttachmentAction::GrabSlotUpdateAttachmentAction(GrabSlotUpdateAttachmentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6470
+			GrabSlotUpdateAttachmentAction::~GrabSlotUpdateAttachmentAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CC170
+			fight::Action* GrabSlotUpdateAttachmentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotUpdateAttachmentAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CBFA0
+			GrabSlotEnableStuckTestAction::GrabSlotEnableStuckTestAction(GrabSlotEnableStuckTestTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C7020
+			GrabSlotEnableStuckTestAction::~GrabSlotEnableStuckTestAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCC50
+			fight::Action* GrabSlotEnableStuckTestTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrabSlotEnableStuckTestAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CBD70
+			SetGrabIntersectionPropertiesAction::SetGrabIntersectionPropertiesAction(SetGrabIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6F30
+			SetGrabIntersectionPropertiesAction::~SetGrabIntersectionPropertiesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCC00
+			fight::Action* SetGrabIntersectionPropertiesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetGrabIntersectionPropertiesAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C6F60
+			bool GrabTargetClearAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle handle;
+					proto::SetGrabTargetGrabMessage message(handle);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100CBA60
+			ReactionHitGrabAction::ReactionHitGrabAction(ReactionHitGrabTrack* newTrack, core::IRefCount* newOwner) : fight::Action(0x600), link(newTrack), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x100C6ED0
+			ReactionHitGrabAction::~ReactionHitGrabAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x100C51C0
+			void ReactionHitGrabAction::Slot6()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x100CCBC0
+			fight::Action* ReactionHitGrabTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ReactionHitGrabAction(this, owner);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyVector<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -3368,6 +3765,71 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C4140
+// FUNCTION: ENGINE 0x100C5220
+// FUNCTION: ENGINE 0x100C5250
+// FUNCTION: ENGINE 0x100C5270
+// FUNCTION: ENGINE 0x100C5290
+// FUNCTION: ENGINE 0x100C52B0
+// FUNCTION: ENGINE 0x100C52D0
+// FUNCTION: ENGINE 0x100C52F0
+// FUNCTION: ENGINE 0x100C5310
+// FUNCTION: ENGINE 0x100C5330
+// FUNCTION: ENGINE 0x100C5350
+// FUNCTION: ENGINE 0x100C5370
+// FUNCTION: ENGINE 0x100C5390
+// FUNCTION: ENGINE 0x100C53B0
+// FUNCTION: ENGINE 0x100C53D0
+// FUNCTION: ENGINE 0x100C53F0
+// FUNCTION: ENGINE 0x100C5410
+// FUNCTION: ENGINE 0x100C5430
+// FUNCTION: ENGINE 0x100C5450
+// FUNCTION: ENGINE 0x100C5470
+// FUNCTION: ENGINE 0x100C5490
+// FUNCTION: ENGINE 0x100C54B0
+// FUNCTION: ENGINE 0x100C54D0
+// FUNCTION: ENGINE 0x100C55A0
+// FUNCTION: ENGINE 0x100C5600
+// FUNCTION: ENGINE 0x100C5660
+// FUNCTION: ENGINE 0x100C56C0
+// FUNCTION: ENGINE 0x100C5720
+// FUNCTION: ENGINE 0x100C5780
+// FUNCTION: ENGINE 0x100C57E0
+// FUNCTION: ENGINE 0x100C5840
+// FUNCTION: ENGINE 0x100C58A0
+// FUNCTION: ENGINE 0x100C5900
+// FUNCTION: ENGINE 0x100C5960
+// FUNCTION: ENGINE 0x100C59C0
+// FUNCTION: ENGINE 0x100C5A10
+// FUNCTION: ENGINE 0x100C5A70
+// FUNCTION: ENGINE 0x100C5AD0
+// FUNCTION: ENGINE 0x100C5B30
+// FUNCTION: ENGINE 0x100C5B90
+// FUNCTION: ENGINE 0x100C5BF0
+// FUNCTION: ENGINE 0x100C5C50
+// FUNCTION: ENGINE 0x100C5CA0
+// FUNCTION: ENGINE 0x100C5D00
+// FUNCTION: ENGINE 0x100C7BF0
+// FUNCTION: ENGINE 0x100C8440
+// FUNCTION: ENGINE 0x100C8E10
+// FUNCTION: ENGINE 0x100C9340
+// FUNCTION: ENGINE 0x100C9500
+// FUNCTION: ENGINE 0x100C9F60
+// FUNCTION: ENGINE 0x100CA150
+// FUNCTION: ENGINE 0x100CA540
+// FUNCTION: ENGINE 0x100CA680
+// FUNCTION: ENGINE 0x100CA810
+// FUNCTION: ENGINE 0x100CA8C0
+// FUNCTION: ENGINE 0x100CAA80
+// FUNCTION: ENGINE 0x100CB040
+// FUNCTION: ENGINE 0x100CB2E0
+// FUNCTION: ENGINE 0x100CB510
+// FUNCTION: ENGINE 0x100CB5B0
+// FUNCTION: ENGINE 0x100CB7B0
+// FUNCTION: ENGINE 0x100CB990
+// FUNCTION: ENGINE 0x100CBAE0
+// FUNCTION: ENGINE 0x100CBDF0
+// FUNCTION: ENGINE 0x100CC020
 // FUNCTION: ENGINE 0x1016B6A0
 // FUNCTION: ENGINE 0x1016B820
 // FUNCTION: ENGINE 0x1016B960

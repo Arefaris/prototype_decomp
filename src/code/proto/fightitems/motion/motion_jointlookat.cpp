@@ -364,6 +364,41 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100DDF50
+			JointLookAtAction::JointLookAtAction(JointLookAtTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(65535), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DD900
+			JointLookAtAction::~JointLookAtAction()
+			{
+				ReleaseDriverJoint(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100DED00
+			fight::Action* JointLookAtTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new JointLookAtAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100DD940
+			void JointLookAtAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						ReleaseDriverJoint(driver);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyNameList<JointLookAtCondition>;
 			template class fight::PropertyVector<JointLookAtCondition>;
 			template class fight::PropertyFloatConstRange<JointLookAtCondition>;
@@ -382,6 +417,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DD860
+// FUNCTION: ENGINE 0x100DD890
+// FUNCTION: ENGINE 0x100DDFC0
 // FUNCTION: ENGINE 0x10182CC0
 // FUNCTION: ENGINE 0x10182CD0
 // FUNCTION: ENGINE 0x10182D00

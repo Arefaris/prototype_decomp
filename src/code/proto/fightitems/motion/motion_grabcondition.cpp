@@ -1545,6 +1545,30 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x100C25C0
+			bool GrabbedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool wanted = isGrabbed;
+				return proto::IsGrabbedObject(object) == wanted;
+			}
+
+			// FUNCTION: ENGINE 0x100C2640
+			bool GrabbedByPlayerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool wanted = isGrabbedByPlayer;
+				return proto::IsPlayerObject(proto::GetGrabbingObject(object)) == wanted;
+			}
+
 			template class fight::PropertyBool<GrabbedCondition>;
 			template class fight::ConditionFactoryTemplate<GrabbedCondition>;
 			template class fight::ConditionFactoryCasterTemplate<GrabbedCondition>;

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -74,6 +75,30 @@ namespace proto
 			fight::TrackFactory* CreateLocoClimbTrackFactory(const char* name);
 			void RegisterLocoClimbTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::LocoClimbAction (9 vftable slots, 0x40 bytes)
+			class LocoClimbAction : public fight::Action
+			{
+			public:
+				// 0x100E5130
+				LocoClimbAction(LocoClimbTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E5010
+				virtual ~LocoClimbAction();
+
+				// vftable slot 5 (0x100E53B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E5050)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E5680)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LocoClimbTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				unsigned char unknown30[0x10];
+			};
+
+			// ---- actions end
 		}
 	}
 }

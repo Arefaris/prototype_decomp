@@ -365,6 +365,46 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100CD840
+			GrappleLocoSprintAction::GrappleLocoSprintAction(GrappleLocoSprintTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CD100
+			GrappleLocoSprintAction::~GrappleLocoSprintAction()
+			{
+				engine::ReleaseDriverCopy3(unknown30);
+				engine::ReleaseDriverCopy3(unknown2C);
+			}
+
+			// FUNCTION: ENGINE 0x100CDDD0
+			fight::Action* GrappleLocoSprintTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrappleLocoSprintAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CD370
+			GrappleLocoSteerAction::GrappleLocoSteerAction(GrappleLocoSteerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCF50
+			GrappleLocoSteerAction::~GrappleLocoSteerAction()
+			{
+				engine::ReleaseDriverCopy3(unknown30);
+				engine::ReleaseDriverCopy3(unknown2C);
+			}
+
+			// FUNCTION: ENGINE 0x100CDD80
+			fight::Action* GrappleLocoSteerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GrappleLocoSteerAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrappleLocoSprintTrack>;
 			template class fight::PropertyName<GrappleLocoSprintTrack>;
 			template class fight::PropertyIntConstRange<GrappleLocoSprintTrack>;
@@ -380,6 +420,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100CCE30
+// FUNCTION: ENGINE 0x100CCE50
+// FUNCTION: ENGINE 0x100CCE80
+// FUNCTION: ENGINE 0x100CCEE0
+// FUNCTION: ENGINE 0x100CD3E0
+// FUNCTION: ENGINE 0x100CD8B0
 // FUNCTION: ENGINE 0x10174080
 // FUNCTION: ENGINE 0x10174090
 // FUNCTION: ENGINE 0x101740C0

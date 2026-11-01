@@ -858,6 +858,81 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100D9620
+			HunterLandedAction::HunterLandedAction(HunterLandedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D7B50
+			HunterLandedAction::~HunterLandedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D6D50
+			bool HunterLandedAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100D6D60
+			void HunterLandedAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DA6E0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* HunterLandedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new HunterLandedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D84D0
+			// NONMATCHING: the engine stores the three components of the vector member in the order z, y, x (98.2 %)
+#ifdef NONMATCHING
+			HunterShortRangeHopCornerAction::HunterShortRangeHopCornerAction(HunterShortRangeHopCornerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown4C(0.0f, 0.0f, 0.0f), unknown58(engine::driving::gOne)
+			{
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100D7940
+			HunterShortRangeHopCornerAction::~HunterShortRangeHopCornerAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100DA1D0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* HunterShortRangeHopCornerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new HunterShortRangeHopCornerAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D8A70
+			// NONMATCHING: six vector members stored in the order z, y, x and a different store schedule (45.8 %)
+#ifdef NONMATCHING
+			HunterShortRangeCorner2Action::HunterShortRangeCorner2Action(HunterShortRangeCorner2Track* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown38(0), unknown3C(0.0f, 0.0f, 0.0f), unknown48(0.0f, 0.0f, 0.0f), unknown54(0.0f, 0.0f, 0.0f), unknown60(0.0f, 0.0f, 0.0f), unknown6C(engine::driving::gOne), unknown70(0.0f, 0.0f, 0.0f), unknown7C(engine::driving::gOne), unknown80(0.0f), unknown84(0.0f), unknown88(0.0f, 0.0f, 0.0f)
+			{
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100D79A0
+			HunterShortRangeCorner2Action::~HunterShortRangeCorner2Action()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100DA670
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* HunterShortRangeCorner2Track::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new HunterShortRangeCorner2Action(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<HunterOnWallCondition>;
 			template class fight::ConditionFactoryTemplate<HunterOnWallCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HunterOnWallCondition>;
@@ -890,6 +965,13 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D7540
+// FUNCTION: ENGINE 0x100D7560
+// FUNCTION: ENGINE 0x100D7580
+// FUNCTION: ENGINE 0x100D75D0
+// FUNCTION: ENGINE 0x100D8560
+// FUNCTION: ENGINE 0x100D8B90
+// FUNCTION: ENGINE 0x100D96A0
 // FUNCTION: ENGINE 0x1017DFA0
 // FUNCTION: ENGINE 0x1017DFD0
 // FUNCTION: ENGINE 0x1017E340

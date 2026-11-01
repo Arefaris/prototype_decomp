@@ -6081,6 +6081,27 @@ file between the markers `// ---- actions begin` / `// ---- actions end` (genera
 - Not done: the actions with attribute writers (pedestrian, patsy), puppet drivers with long updates (radial blur, spawn gib, reaction throw / hit animation, supporting limb test), the shoot actions and conditions (helpers of the unit), the remaining 13 reaction conditions
   (originator, collision position / normal, impulse direction, slice angle, height), the distance condition of the supporting surface (SSE vector code), and the actions whose constructors register watchers or hold names.
 
+## proto/fightitems/motion: the action half of the units in 0x100C0000 - 0x10100000 (sn-bl)
+The range holds the action halves of the motion units from `motion_footstepdamage` to `motion_orient` (40 files, `src/code/proto/fightitems/motion/`), in the order of the earlier sections (sn-ax, sn-ay); the actions were added between the markers
+`// ---- actions begin` / `// ---- actions end` of each unit's file. Findings:
+- Classes whose constructor only holds the track link and the object handle, a few floats, ints, bytes, a `math::Vector` or driver / reference counted pointers (the stores in the engine's program order decide the members: a vector is three float stores
+  in the order z, y, x; a global float such as `engine::driving::gOne` is a load from the global, not a literal) were generated from the instructions: class with named members (`link`, `target`, `driver`, otherwise `unknownNN`), constructor, destructor,
+  trivial slots and `CreateAction`. CreateAction forms: handle first (55 bytes), handle built in the argument (64), owner checked for the kind range (75 / 76), track only (35: `new X(this)`), handle only (49); the constructor of the last two takes only the track or only the handle.
+- Release helpers: the actions' destructors call a helper that releases a driver (`Driver::Release`, then the pointer is cleared; 24 bytes) or a reference counted object (the second vftable slot of the object, 26 bytes) through a pointer on the stack. A helper lives in every original
+  translation unit that uses it (next to the first unit that calls it) and is shared by the units that follow until the next translation unit begins, so the units of one source file call one address (`ReleaseDriverJoint` is called by `JointLookAtAction`). The copies of this
+  range are `ReleaseDriverFreezescale`, `SafeReleaseRefFreezescale` and `ReleaseDriverJoint` (declared in `motionhelpers.h`, defined in the unit that holds the address); a destructor whose helper is the shared copy of another unit calls the copy declared in `motionaction.h`
+  (`ReleaseDriverCopy2`, `ReleaseDriverCopy3`, `engine::ReleaseDriver`).
+- Slot 6 of the actions that release a driver (stop: remove the driver from the puppet, then release it) has three shapes: the release behind a `driver != 0` test (`LocoClimbAction`, `LocoSprintAction`), outside the puppet test (`JumpAction`), inside it (`GroundSlideAction`).
+- Slots that only build one message on the stack and send it (`target.Get()`, optional link test, the message with its type, id and fields, `SendMessage`) were generated; `motionmessages3.h` holds the message classes that no other header declares (class or struct as the RTTI says;
+  the constructors are inline in the engine and take the field values as arguments). A bool field the engine stores as the result of `sete` after a byte test is the negation done inside the message's constructor.
+- Early-return style (`if (object == 0) return false; ...; return true;`) is the engine's layout where its failure path returns false and the success path true.
+- Conditions: the ones that fetch the object of the owner (`engine::GetObjectHandle(AsOwner(c)).Get()`), call one query helper and compare with a member match (`GrabbedCondition`, `GrabbedByPlayerCondition`, `IsUndamageableCondition`; the two
+  grab queries are 0x103BE4C0 / 0x103BE560, names guessed). The conditions that send a message and compare, and the obstacle conditions (owner kind 0x21007) were tried: the engine puts the failure return first and keeps the owner's handle as a packed dword
+  (27 %), the message conditions keep the zero of the message's stores in a register (24 %); not done.
+- Not done in the range: the actions whose constructors register the track as a listener watcher (`MagneticBoots*`, `ObstacleTest`, the 4-argument forms), construct a `fight::Sequencer` or a `GameObjectParams` (`GrabbedExecuteUsingParent`, `GrabSlotExecuteUsingChild`,
+  `GrabSlotUpdateAttachmentWithRestore`), hold names or matrices, or take the owner as a counted pointer; the big update slots (`Slot7` of the locomotion actions, hunters, joints, jump, obstacle, magnetic boots) and the conditions of the grab, obstacle and hunter units.
+  The one-line getters in front of the units (`Link<T>::Get`, vector and member getters of the tracks) are inline copies that only exist where the slots using them are reconstructed.
+
 ## proto/behaviours and content: the range 0x10060000 - 0x10080000 (sn-bb)
 
 The range holds the behaviours of the open world in alphabetical order, each a unit of its own (no assert path names

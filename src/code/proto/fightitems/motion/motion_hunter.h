@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 
 namespace proto
 {
@@ -292,6 +294,86 @@ namespace proto
 			fight::TrackFactory* CreateHunterLandedTrackFactory(const char* name);
 			void RegisterHunterLandedTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::HunterLandedAction (9 vftable slots, 0x2C bytes)
+			class HunterLandedAction : public fight::Action
+			{
+			public:
+				// 0x100D9620
+				HunterLandedAction(HunterLandedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D7B50
+				virtual ~HunterLandedAction();
+
+				// vftable slot 5 (0x100D6D50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D6D60)
+				virtual void Slot6();
+				// vftable slot 7 (0x100D7B80)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<HunterLandedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::HunterShortRangeHopCornerAction (9 vftable slots, 0x88 bytes)
+			class HunterShortRangeHopCornerAction : public fight::Action
+			{
+			public:
+				// 0x100D84D0
+				HunterShortRangeHopCornerAction(HunterShortRangeHopCornerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D7940
+				virtual ~HunterShortRangeHopCornerAction();
+
+				// vftable slot 5 (0x100D8590)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D89E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100DA240)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<HunterShortRangeHopCornerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				unsigned char unknown30[0x1C];
+				math::Vector unknown4C;  // +0x4C
+				float unknown58;  // +0x58
+				unsigned char unknown5C[0x2C];
+			};
+
+			// RTTI: proto::fightitems::motion::HunterShortRangeCorner2Action (9 vftable slots, 0x94 bytes)
+			class HunterShortRangeCorner2Action : public fight::Action
+			{
+			public:
+				// 0x100D8A70
+				HunterShortRangeCorner2Action(HunterShortRangeCorner2Track* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D79A0
+				virtual ~HunterShortRangeCorner2Action();
+
+				// vftable slot 5 (0x100D8BC0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D79E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100D8F20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<HunterShortRangeCorner2Track> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				unsigned char unknown30[0x8];
+				int unknown38;  // +0x38
+				math::Vector unknown3C;  // +0x3C
+				math::Vector unknown48;  // +0x48
+				math::Vector unknown54;  // +0x54
+				math::Vector unknown60;  // +0x60
+				float unknown6C;  // +0x6C
+				math::Vector unknown70;  // +0x70
+				float unknown7C;  // +0x7C
+				float unknown80;  // +0x80
+				float unknown84;  // +0x84
+				math::Vector unknown88;  // +0x88
+			};
+
+			// ---- actions end
 		}
 	}
 }

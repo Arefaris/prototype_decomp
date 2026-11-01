@@ -1,5 +1,7 @@
 // Fight items of the motion group: AccumulatedDamageCondition, IsUndamageableCondition, DisableTimeWithNoDamageCounterTrack, IgnoreHitsTrack, TempRegenAbortTrack, HealthSetMultiplierTrack, AccumulatedDamageResetTrack, TempRegenerationTrack (unit 0x10177EA0 - 0x10179BB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_accumulateddamage.h"
+#include "code/engine/healthmessages.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -629,6 +631,147 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100D2600
+			DisableTimeWithNoDamageCounterAction::DisableTimeWithNoDamageCounterAction(DisableTimeWithNoDamageCounterTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1BC0
+			DisableTimeWithNoDamageCounterAction::~DisableTimeWithNoDamageCounterAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D2840
+			fight::Action* DisableTimeWithNoDamageCounterTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DisableTimeWithNoDamageCounterAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D2550
+			IgnoreHitsAction::IgnoreHitsAction(IgnoreHitsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1930
+			IgnoreHitsAction::~IgnoreHitsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D27F0
+			fight::Action* IgnoreHitsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new IgnoreHitsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D24A0
+			TempRegenAbortAction::TempRegenAbortAction(TempRegenAbortTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1850
+			TempRegenAbortAction::~TempRegenAbortAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D27A0
+			fight::Action* TempRegenAbortTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TempRegenAbortAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D2070
+			HealthSetMultiplierAction::HealthSetMultiplierAction(HealthSetMultiplierTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D16E0
+			HealthSetMultiplierAction::~HealthSetMultiplierAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D26B0
+			fight::Action* HealthSetMultiplierTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new HealthSetMultiplierAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D22A0
+			AccumulatedDamageResetAction::AccumulatedDamageResetAction(AccumulatedDamageResetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1730
+			AccumulatedDamageResetAction::~AccumulatedDamageResetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D2700
+			fight::Action* AccumulatedDamageResetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AccumulatedDamageResetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D2350
+			TempRegenerationAction::TempRegenerationAction(TempRegenerationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1800
+			TempRegenerationAction::~TempRegenerationAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D2750
+			fight::Action* TempRegenerationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TempRegenerationAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D1BF0
+			bool DisableTimeWithNoDamageCounterAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				proto::SetTimeWithNoDamageCounterEnabledMessage message(0);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100D1C70
+			void DisableTimeWithNoDamageCounterAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					proto::SetTimeWithNoDamageCounterEnabledMessage message(1);
+					object->SendMessage(&message);
+				}
+			}
+
+			// ---- actions end
+			// FUNCTION: ENGINE 0x100D1DC0
+			bool IsUndamageableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetUndamageableMessage message;
+				object->PostMessage(&message);
+				return message.count != 0;
+			}
+
 			template class fight::PropertyEnumConstList<AccumulatedDamageCondition>;
 			template class fight::PropertyFloatConstRange<AccumulatedDamageCondition>;
 			template class fight::ConditionFactoryTemplate<AccumulatedDamageCondition>;
@@ -659,6 +802,31 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D1040
+// FUNCTION: ENGINE 0x100D1050
+// FUNCTION: ENGINE 0x100D1090
+// FUNCTION: ENGINE 0x100D10E0
+// FUNCTION: ENGINE 0x100D1130
+// FUNCTION: ENGINE 0x100D12B0
+// FUNCTION: ENGINE 0x100D13A0
+// FUNCTION: ENGINE 0x100D1400
+// FUNCTION: ENGINE 0x100D1420
+// FUNCTION: ENGINE 0x100D1440
+// FUNCTION: ENGINE 0x100D1460
+// FUNCTION: ENGINE 0x100D1480
+// FUNCTION: ENGINE 0x100D14A0
+// FUNCTION: ENGINE 0x100D14C0
+// FUNCTION: ENGINE 0x100D1520
+// FUNCTION: ENGINE 0x100D1580
+// FUNCTION: ENGINE 0x100D15D0
+// FUNCTION: ENGINE 0x100D1620
+// FUNCTION: ENGINE 0x100D1670
+// FUNCTION: ENGINE 0x100D20F0
+// FUNCTION: ENGINE 0x100D2320
+// FUNCTION: ENGINE 0x100D23D0
+// FUNCTION: ENGINE 0x100D2520
+// FUNCTION: ENGINE 0x100D25D0
+// FUNCTION: ENGINE 0x100D2680
 // FUNCTION: ENGINE 0x10178580
 // FUNCTION: ENGINE 0x101785B0
 // FUNCTION: ENGINE 0x101785E0

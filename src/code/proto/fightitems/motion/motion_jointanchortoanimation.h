@@ -4,6 +4,9 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionhelpers.h"
+#include "code/math/matrix.h"
 
 namespace proto
 {
@@ -52,6 +55,31 @@ namespace proto
 			fight::TrackFactory* CreateJointAnchorToAnimationTrackFactory(const char* name);
 			void RegisterJointAnchorToAnimationTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::JointAnchorToAnimationAction (9 vftable slots, 0x74 bytes)
+			class JointAnchorToAnimationAction : public fight::Action
+			{
+			public:
+				// 0x100DC8C0
+				JointAnchorToAnimationAction(JointAnchorToAnimationTrack* newTrack, core::IRefCount* owner);
+				// 0x100DC700
+				virtual ~JointAnchorToAnimationAction();
+
+				// vftable slot 5 (0x100DC990)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100DC7B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100DC750)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<JointAnchorToAnimationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				choreo::Driver* secondDriver;  // +0x30
+				math::Matrix matrix;  // +0x34
+			};
+
+			// ---- actions end
 		}
 	}
 }

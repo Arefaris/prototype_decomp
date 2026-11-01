@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -585,6 +586,51 @@ namespace proto
 			fight::TrackFactory* CreateMagneticBootsTestWallTrackFactory(const char* name);
 			void RegisterMagneticBootsTestWallTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::MagneticBootsResetInfoAction (9 vftable slots, 0x2C bytes)
+			class MagneticBootsResetInfoAction : public fight::Action
+			{
+			public:
+				// 0x100F45F0
+				MagneticBootsResetInfoAction(MagneticBootsResetInfoTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100EDCE0
+				virtual ~MagneticBootsResetInfoAction();
+
+				// vftable slot 5 (0x100ECC50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ECC60)
+				virtual void Slot6();
+				// vftable slot 7 (0x100EDD10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsResetInfoTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsAction (9 vftable slots, 0x3C bytes)
+			class MagneticBootsAction : public fight::Action
+			{
+			public:
+				// 0x100EE520
+				MagneticBootsAction(MagneticBootsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100ED6F0
+				virtual ~MagneticBootsAction();
+
+				// vftable slot 5 (0x100EE5C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ED730)
+				virtual void Slot6();
+				// vftable slot 7 (0x100EEAD0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				unsigned char unknown30[0x8];
+				int unknown38;  // +0x38
+			};
+
+			// ---- actions end
 		}
 	}
 }

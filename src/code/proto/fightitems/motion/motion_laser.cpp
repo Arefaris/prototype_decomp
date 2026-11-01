@@ -199,6 +199,31 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E40D0
+			// NONMATCHING: the ctor builds a vector from the shared zero vector and a different store schedule (68.6 %)
+#ifdef NONMATCHING
+			LaserAction::LaserAction(LaserTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(-1), unknown30(math::kZeroVector), unknown3C(0.0f), unknown40(false), unknown44(0)
+			{
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100E3BB0
+			// NONMATCHING: the destructor releases a ref with an inline test before the call (42.9 %)
+#ifdef NONMATCHING
+			LaserAction::~LaserAction()
+			{
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100E44D0
+			fight::Action* LaserTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LaserAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<LaserTrack>;
 			template class fight::PropertyName<LaserTrack>;
 			template class fight::PropertyColour<LaserTrack>;

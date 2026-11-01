@@ -124,6 +124,47 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100C05D0
+			void ReleaseDriverFreezescale(choreo::Driver*& driver)
+			{
+				if (driver != 0)
+				{
+					driver->Release();
+					driver = 0;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100C05F0
+			void SafeReleaseRefFreezescale(core::IRefCount*& object)
+			{
+				if (object != 0)
+				{
+					object->Release();
+					object = 0;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100C0860
+			FreezeScaleAction::FreezeScaleAction(FreezeScaleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C0720
+			FreezeScaleAction::~FreezeScaleAction()
+			{
+				ReleaseDriverFreezescale(driver);
+				SafeReleaseRefFreezescale(unknown30);
+			}
+
+			// FUNCTION: ENGINE 0x100C0A20
+			fight::Action* FreezeScaleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FreezeScaleAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<FreezeScaleTrack>;
 			template class fight::PropertyName<FreezeScaleTrack>;
 			template class fight::PropertyIntConstRange<FreezeScaleTrack>;
@@ -134,6 +175,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C0680
+// FUNCTION: ENGINE 0x100C06B0
+// FUNCTION: ENGINE 0x100C08D0
 // FUNCTION: ENGINE 0x10161AF0
 // FUNCTION: ENGINE 0x10161B00
 // FUNCTION: ENGINE 0x10161B30

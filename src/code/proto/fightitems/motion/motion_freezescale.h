@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionhelpers.h"
 
 namespace proto
 {
@@ -53,6 +55,28 @@ namespace proto
 			fight::TrackFactory* CreateFreezeScaleTrackFactory(const char* name);
 			void RegisterFreezeScaleTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FreezeScaleAction (9 vftable slots, 0x34 bytes)
+			class FreezeScaleAction : public fight::Action
+			{
+			public:
+				// 0x100C0860
+				FreezeScaleAction(FreezeScaleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C0720
+				virtual ~FreezeScaleAction();
+
+				// vftable slot 5 (0x100C0900)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C0770)
+				virtual void Slot6();
+
+				core::Link<FreezeScaleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				core::IRefCount* unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

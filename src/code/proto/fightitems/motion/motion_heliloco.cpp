@@ -235,6 +235,29 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100D2D10
+			// NONMATCHING: the engine schedules the stores of the float members differently (57.8 %)
+#ifdef NONMATCHING
+			HeliLocoAction::HeliLocoAction(HeliLocoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f), unknown50(0.0f), unknown54(0.0f), unknown58(0.0f), unknown5C(0.0f), unknown60(0.0f), unknown64(0.05f), unknown68(0.0f)
+			{
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100D2B30
+			HeliLocoAction::~HeliLocoAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100D3AB0
+			fight::Action* HeliLocoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new HeliLocoAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<HeliLocoTrack>;
 			template class fight::PropertyVector<HeliLocoTrack>;
 			template class fight::PropertyIntConstRange<HeliLocoTrack>;
@@ -245,6 +268,8 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D2A90
+// FUNCTION: ENGINE 0x100D2DE0
 // FUNCTION: ENGINE 0x10179F40
 // FUNCTION: ENGINE 0x10179F70
 // FUNCTION: ENGINE 0x10179F80

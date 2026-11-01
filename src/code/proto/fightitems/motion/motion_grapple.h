@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -121,6 +122,52 @@ namespace proto
 			fight::TrackFactory* CreateGrappleLocoSteerTrackFactory(const char* name);
 			void RegisterGrappleLocoSteerTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::GrappleLocoSprintAction (9 vftable slots, 0x34 bytes)
+			class GrappleLocoSprintAction : public fight::Action
+			{
+			public:
+				// 0x100CD840
+				GrappleLocoSprintAction(GrappleLocoSprintTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CD100
+				virtual ~GrappleLocoSprintAction();
+
+				// vftable slot 5 (0x100CD8E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100CD210)
+				virtual void Slot6();
+				// vftable slot 7 (0x100CD150)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GrappleLocoSprintTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* unknown2C;  // +0x2C
+				choreo::Driver* unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::GrappleLocoSteerAction (9 vftable slots, 0x34 bytes)
+			class GrappleLocoSteerAction : public fight::Action
+			{
+			public:
+				// 0x100CD370
+				GrappleLocoSteerAction(GrappleLocoSteerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100CCF50
+				virtual ~GrappleLocoSteerAction();
+
+				// vftable slot 5 (0x100CD410)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100CD060)
+				virtual void Slot6();
+				// vftable slot 7 (0x100CCFA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GrappleLocoSteerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* unknown2C;  // +0x2C
+				choreo::Driver* unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

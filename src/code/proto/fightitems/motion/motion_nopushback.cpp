@@ -88,6 +88,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100F6600
+			NoPushbackAction::NoPushbackAction(engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F6630
+			NoPushbackAction::~NoPushbackAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F6670
+			fight::Action* NoPushbackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new NoPushbackAction(handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<NoPushbackTrack>;
 			template class fight::TrackFactoryTemplate<NoPushbackTrack>;
 			template class fight::TrackFactoryCasterTemplate<NoPushbackTrack>;
@@ -96,6 +115,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F66B0
 // FUNCTION: ENGINE 0x10193AA0
 // FUNCTION: ENGINE 0x10193AD0
 // FUNCTION: ENGINE 0x10193AE0

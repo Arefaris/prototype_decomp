@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -1124,6 +1125,377 @@ namespace proto
 			fight::TrackFactory* CreateGrabSlotEnableStuckTestTrackFactory(const char* name);
 			void RegisterGrabSlotEnableStuckTestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::GrabSetGrabbingTimerAction (9 vftable slots, 0x2C bytes)
+			class GrabSetGrabbingTimerAction : public fight::Action
+			{
+			public:
+				// 0x100CB920
+				GrabSetGrabbingTimerAction(GrabSetGrabbingTimerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6E80
+				virtual ~GrabSetGrabbingTimerAction();
+
+				// vftable slot 5 (0x100CB9C0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<GrabSetGrabbingTimerTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::GrabbedDetachAction (9 vftable slots, 0x2C bytes)
+			class GrabbedDetachAction : public fight::Action
+			{
+			public:
+				// 0x100CA790
+				GrabbedDetachAction(GrabbedDetachTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6830
+				virtual ~GrabbedDetachAction();
+
+				// vftable slot 5 (0x100C6860)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabbedDetachTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabTargetClearAction (9 vftable slots, 0x20 bytes)
+			class GrabTargetClearAction : public fight::Action
+			{
+			public:
+				// 0x100C4DB0
+				GrabTargetClearAction(GrabTargetClearTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C4DE0
+				virtual ~GrabTargetClearAction();
+
+				// vftable slot 5 (0x100C6F60)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// RTTI: proto::fightitems::motion::AllowGrabbingAction (9 vftable slots, 0x30 bytes)
+			class AllowGrabbingAction : public fight::Action
+			{
+			public:
+				// 0x100CB540
+				AllowGrabbingAction(AllowGrabbingTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6DE0
+				virtual ~AllowGrabbingAction();
+
+				// vftable slot 5 (0x100CB5E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100CB6C0)
+				virtual void Slot6();
+
+				core::Link<AllowGrabbingTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+			};
+
+			// RTTI: proto::fightitems::motion::DelayCollisionWithGrabbedAction (9 vftable slots, 0x30 bytes)
+			class DelayCollisionWithGrabbedAction : public fight::Action
+			{
+			public:
+				// 0x100CB4A0
+				DelayCollisionWithGrabbedAction(DelayCollisionWithGrabbedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6B70
+				virtual ~DelayCollisionWithGrabbedAction();
+
+				// vftable slot 5 (0x100C6BA0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C6D30)
+				virtual void Slot6();
+
+				core::Link<DelayCollisionWithGrabbedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::GrabbedExecuteOnParentAction (9 vftable slots, 0x2C bytes)
+			class GrabbedExecuteOnParentAction : public fight::Action
+			{
+			public:
+				// 0x100CAA00
+				GrabbedExecuteOnParentAction(GrabbedExecuteOnParentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C69A0
+				virtual ~GrabbedExecuteOnParentAction();
+
+				// vftable slot 5 (0x100CAAB0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabbedExecuteOnParentTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotDetachAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotDetachAction : public fight::Action
+			{
+			public:
+				// 0x100C9480
+				GrabSlotDetachAction(GrabSlotDetachTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6650
+				virtual ~GrabSlotDetachAction();
+
+				// vftable slot 5 (0x100C9530)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotDetachTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotSwapAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotSwapAction : public fight::Action
+			{
+			public:
+				// 0x100CA4C0
+				GrabSlotSwapAction(GrabSlotSwapTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6790
+				virtual ~GrabSlotSwapAction();
+
+				// vftable slot 5 (0x100CA570)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotSwapTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotReverseAttachmentAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotReverseAttachmentAction : public fight::Action
+			{
+			public:
+				// 0x100CA0D0
+				GrabSlotReverseAttachmentAction(GrabSlotReverseAttachmentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6740
+				virtual ~GrabSlotReverseAttachmentAction();
+
+				// vftable slot 5 (0x100CA180)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotReverseAttachmentTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabbedSwapGrabberSlotsAction (9 vftable slots, 0x2C bytes)
+			class GrabbedSwapGrabberSlotsAction : public fight::Action
+			{
+			public:
+				// 0x100CA600
+				GrabbedSwapGrabberSlotsAction(GrabbedSwapGrabberSlotsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C67E0
+				virtual ~GrabbedSwapGrabberSlotsAction();
+
+				// vftable slot 5 (0x100CA6B0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabbedSwapGrabberSlotsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabButtonStruggleAction (9 vftable slots, 0x30 bytes)
+			class GrabButtonStruggleAction : public fight::Action
+			{
+			public:
+				// 0x100CA840
+				GrabButtonStruggleAction(GrabButtonStruggleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C68D0
+				virtual ~GrabButtonStruggleAction();
+
+				// vftable slot 5 (0x100CC5D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C6900)
+				virtual void Slot6();
+				// vftable slot 7 (0x100CC6C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GrabButtonStruggleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::GrabObjectFromChildGrabSlotAction (9 vftable slots, 0x2C bytes)
+			class GrabObjectFromChildGrabSlotAction : public fight::Action
+			{
+			public:
+				// 0x100CB260
+				GrabObjectFromChildGrabSlotAction(GrabObjectFromChildGrabSlotTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6B20
+				virtual ~GrabObjectFromChildGrabSlotAction();
+
+				// vftable slot 5 (0x100CB310)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabObjectFromChildGrabSlotTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotExecuteAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotExecuteAction : public fight::Action
+			{
+			public:
+				// 0x100C9EE0
+				GrabSlotExecuteAction(GrabSlotExecuteTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C66F0
+				virtual ~GrabSlotExecuteAction();
+
+				// vftable slot 5 (0x100C9F90)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotExecuteTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotDeathAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotDeathAction : public fight::Action
+			{
+			public:
+				// 0x100C92C0
+				GrabSlotDeathAction(GrabSlotDeathTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6600
+				virtual ~GrabSlotDeathAction();
+
+				// vftable slot 5 (0x100C9370)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotDeathTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabbedPlaybackAction (9 vftable slots, 0x2C bytes)
+			class GrabbedPlaybackAction : public fight::Action
+			{
+			public:
+				// 0x100CB740
+				GrabbedPlaybackAction(GrabbedPlaybackTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6E30
+				virtual ~GrabbedPlaybackAction();
+
+				// vftable slot 5 (0x100CB7E0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<GrabbedPlaybackTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::GrabObjectFromParentGrabSlotAction (9 vftable slots, 0x2C bytes)
+			class GrabObjectFromParentGrabSlotAction : public fight::Action
+			{
+			public:
+				// 0x100CAFC0
+				GrabObjectFromParentGrabSlotAction(GrabObjectFromParentGrabSlotTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6AD0
+				virtual ~GrabObjectFromParentGrabSlotAction();
+
+				// vftable slot 5 (0x100CB070)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabObjectFromParentGrabSlotTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabbedUpdateAttachmentAction (9 vftable slots, 0x2C bytes)
+			class GrabbedUpdateAttachmentAction : public fight::Action
+			{
+			public:
+				// 0x100C83C0
+				GrabbedUpdateAttachmentAction(GrabbedUpdateAttachmentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6510
+				virtual ~GrabbedUpdateAttachmentAction();
+
+				// vftable slot 5 (0x100C8470)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabbedUpdateAttachmentTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabGrabTargetAction (9 vftable slots, 0x2C bytes)
+			class GrabGrabTargetAction : public fight::Action
+			{
+			public:
+				// 0x100C8D90
+				GrabGrabTargetAction(GrabGrabTargetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C65B0
+				virtual ~GrabGrabTargetAction();
+
+				// vftable slot 5 (0x100C8E40)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabGrabTargetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotUpdateAttachmentAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotUpdateAttachmentAction : public fight::Action
+			{
+			public:
+				// 0x100C7B70
+				GrabSlotUpdateAttachmentAction(GrabSlotUpdateAttachmentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6470
+				virtual ~GrabSlotUpdateAttachmentAction();
+
+				// vftable slot 5 (0x100C7C20)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotUpdateAttachmentTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::GrabSlotEnableStuckTestAction (9 vftable slots, 0x2C bytes)
+			class GrabSlotEnableStuckTestAction : public fight::Action
+			{
+			public:
+				// 0x100CBFA0
+				GrabSlotEnableStuckTestAction(GrabSlotEnableStuckTestTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C7020
+				virtual ~GrabSlotEnableStuckTestAction();
+
+				// vftable slot 5 (0x100CC050)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<GrabSlotEnableStuckTestTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::SetGrabIntersectionPropertiesAction (9 vftable slots, 0x38 bytes)
+			class SetGrabIntersectionPropertiesAction : public fight::Action
+			{
+			public:
+				// 0x100CBD70
+				SetGrabIntersectionPropertiesAction(SetGrabIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6F30
+				virtual ~SetGrabIntersectionPropertiesAction();
+
+				// vftable slot 5 (0x100CBE20)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100CBF30)
+				virtual void Slot6();
+
+				core::Link<SetGrabIntersectionPropertiesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+				core::Name<core::CaseSensitiveKey> unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::ReactionHitGrabAction (9 vftable slots, 0x2C bytes)
+			class ReactionHitGrabAction : public fight::Action
+			{
+			public:
+				// 0x100CBA60
+				ReactionHitGrabAction(ReactionHitGrabTrack* newTrack, core::IRefCount* newOwner);
+				// 0x100C6ED0
+				virtual ~ReactionHitGrabAction();
+
+				// vftable slot 5 (0x100CBB10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C51C0)
+				virtual void Slot6();
+
+				core::Link<ReactionHitGrabTrack> link;  // +0x1C
+				core::IRefCount* owner;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -345,6 +345,59 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100FF660
+			OrientAction::OrientAction(OrientTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), driver(0), link(newTrack), unknown34(0.0f), unknown38(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100FF3F0
+			OrientAction::~OrientAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100FFF70
+			fight::Action* OrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new OrientAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100FFB70
+			WorldOrientAction::WorldOrientAction(WorldOrientTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), driver(0), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100FF4D0
+			WorldOrientAction::~WorldOrientAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100FFFC0
+			fight::Action* WorldOrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new WorldOrientAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100FF510
+			void WorldOrientAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<OrientationDesiredCondition>;
 			template class fight::PropertyFloatConstRange<OrientationDesiredCondition>;
 			template class fight::ConditionFactoryTemplate<OrientationDesiredCondition>;
@@ -363,6 +416,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100FF1D0
+// FUNCTION: ENGINE 0x100FF1F0
+// FUNCTION: ENGINE 0x100FF220
+// FUNCTION: ENGINE 0x100FF280
+// FUNCTION: ENGINE 0x100FF6E0
+// FUNCTION: ENGINE 0x100FFBE0
 // FUNCTION: ENGINE 0x10198C00
 // FUNCTION: ENGINE 0x10198C30
 // FUNCTION: ENGINE 0x10198C60

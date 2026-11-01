@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -62,6 +63,29 @@ namespace proto
 			fight::TrackFactory* CreateFootstepDamageTrackFactory(const char* name);
 			void RegisterFootstepDamageTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::FootstepDamageAction (9 vftable slots, 0x30 bytes)
+			class FootstepDamageAction : public fight::Action
+			{
+			public:
+				// 0x100C0070
+				FootstepDamageAction(FootstepDamageTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100BFFD0
+				virtual ~FootstepDamageAction();
+
+				// vftable slot 5 (0x100BFF00)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100BFF10)
+				virtual void Slot6();
+				// vftable slot 7 (0x100C0110)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<FootstepDamageTrack> link;  // +0x20
+				unsigned char unknown2C[0x4];
+			};
+
+			// ---- actions end
 		}
 	}
 }

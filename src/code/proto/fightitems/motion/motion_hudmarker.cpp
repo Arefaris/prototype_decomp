@@ -210,6 +210,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100D6370
+			HUDMarkerAction::HUDMarkerAction(HUDMarkerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D6230
+			HUDMarkerAction::~HUDMarkerAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D66D0
+			fight::Action* HUDMarkerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new HUDMarkerAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<HaveIconTypeCondition>;
 			template class fight::ConditionFactoryTemplate<HaveIconTypeCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HaveIconTypeCondition>;
@@ -225,6 +244,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D6190
+// FUNCTION: ENGINE 0x100D61C0
+// FUNCTION: ENGINE 0x100D63F0
 // FUNCTION: ENGINE 0x1017CC10
 // FUNCTION: ENGINE 0x1017CCD0
 // FUNCTION: ENGINE 0x1017CCE0

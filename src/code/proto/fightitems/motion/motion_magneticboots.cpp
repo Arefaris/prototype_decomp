@@ -1,5 +1,6 @@
 // Fight items of the motion group: MagneticBootsNextSurfaceNormalCondition, UsingHunterShortRangeCondition, OrientationNormalAngleCondition, MagneticBootsTestDetachTrack, MagneticBootsResetInfoTrack, MagneticBootsJumpTrack, MagneticBootsDetachTrack, MagneticBootsTestCornerTrack, MagneticBootsStickToWallTrack, MagneticBootsTurnCornerTrack, MagneticBootsTrack, MagneticBootsTestJumpStuckTrack, MagneticBootsTestWallTrack (unit 0x1018D500 - 0x10192C50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_magneticboots.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -1679,6 +1680,73 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100F45F0
+			MagneticBootsResetInfoAction::MagneticBootsResetInfoAction(MagneticBootsResetInfoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100EDCE0
+			MagneticBootsResetInfoAction::~MagneticBootsResetInfoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ECC50
+			bool MagneticBootsResetInfoAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100ECC60
+			void MagneticBootsResetInfoAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F5620
+			fight::Action* MagneticBootsResetInfoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MagneticBootsResetInfoAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100EE520
+			MagneticBootsAction::MagneticBootsAction(MagneticBootsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown38(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ED6F0
+			MagneticBootsAction::~MagneticBootsAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100F4C60
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* MagneticBootsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new MagneticBootsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ED730
+			void MagneticBootsAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyVector<MagneticBootsNextSurfaceNormalCondition>;
 			template class fight::PropertyFloatConstRange<MagneticBootsNextSurfaceNormalCondition>;
 			template class fight::ConditionFactoryTemplate<MagneticBootsNextSurfaceNormalCondition>;
@@ -1755,6 +1823,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100ED1E0
+// FUNCTION: ENGINE 0x100ED200
+// FUNCTION: ENGINE 0x100ED330
+// FUNCTION: ENGINE 0x100ED390
+// FUNCTION: ENGINE 0x100EE590
+// FUNCTION: ENGINE 0x100F4670
 // FUNCTION: ENGINE 0x1018E930
 // FUNCTION: ENGINE 0x1018E960
 // FUNCTION: ENGINE 0x1018E990
