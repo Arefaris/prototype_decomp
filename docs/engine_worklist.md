@@ -6441,3 +6441,40 @@ The range goes on with the template instances of the mgraph library (see sn-bd):
   constructor), `Throw` / `Catch` / `Switch` / `ListCount` / `ListEntry` slot 16 (copy a packet out of an event), the scalar deleting
   destructors (mapped), the `MetaProperty` / `MetaMethod0Const` instances of the property nodes, the `CommutativeMath` helpers and the
   container helpers of the element types of the nodes' arrays.
+
+## sn-bh: the range 0x10B00000 - 0x10B60000 (mgraph: property nodes, node type registration, pins, reflection of the array properties)
+Continues sn-bf: 3607 functions of the range were not reconstructed at the start.
+- `mgraph/propertynode.cpp`: the property nodes of the string and envelope packets and of all the array packets (bool, float, unsigned int,
+  unsigned __int64, string, vector, trigger, complex): constructors of the events and delegates, `SetNumChannels`, `PostInputEvent` /
+  `PostOutputEvent` / `PostPropertyValue` (one full expression: the temporary value lives until the event is queued; `EventQueue::Post`),
+  `SetPropertyValue` (the strings pass the address of the temporary the property returns: `PropertyValueAccess`), `SetChannelValue`
+  (`ValuesDiffer`: strings and arrays, only the curve of an envelope), slot 16 (`PropertyChannel<T>::Update` takes the value the
+  evaluation brought for its channel and leaves it in the output of the frame: `EvaluationFrame`, `FrameEntries`, `FrameOutput`), the
+  getters `DynamicProperty<DynamicArray<E>>::GetValue`. Not done: `CreateDelegate` (slot 20, the engine stores the delegate's words in
+  another order: `[4], [8], vftable, [0xC]`, ours `[8], [4], ...`), `SetPropertyValue` / `PostPropertyValue` / `SetNumChannels` of the
+  arrays and of the envelope (the engine inlines the temporary's destructor with other registers), the array property node
+  `PropertyPropertyDelegate<Packet<DynamicArray<String>>>` (its `Set` inlines the array destructor, which ours does not: the constructor
+  is left out so that the vftable stays the engine's), `Slot0` of the packets.
+- `mgraph/methods.cpp` (about 115 functions): the `Invoke` slots of the reflected methods of `Throw`, `Switch`, `Rand` and the property
+  nodes (`MetaMethod0Const` / `MetaMethod1`), and `SetText` / `GetText` / `SetBinary` / `GetBinary` of the `MetaProperty` instances of the
+  arrays (`DynamicArray<E> const &`).
+- `mgraph/nodetypes.cpp`: `NodeType<N>::Register` and `RegisterDerived` (the 135 pairs: the registration of a node type under the
+  reflection of a class, or of the class another node type stands for). The registration functions gave the true classes of the
+  `AllocationTag` and `operator new` of the node types: the earlier assignment by order was shifted, so the 135 symbols of each and the
+  annotations of the `operator new` instances in `reflection.cpp` were re-pointed (the same functions, other classes).
+- `mgraph/pins.cpp` / `pins.h`: `InputPin<P>` constructors and destructors (bool, unsigned int, unsigned __int64, string, vector, complex;
+  the array pins need an array destructor whose first vftable store the engine drops, the trigger pin differs in scheduling),
+  `OutputPin<P>::Slot3` for the 18 packet types (resizes the channels and sets their owner), the constructors of the packets
+  (`Packet<T>` is `PinChannelData` (vftable and owner) plus a word plus the value `T` at 0xC: 0x10 bytes for the 4-byte types, 0x14 and
+  more for arrays, vectors, envelopes), `Vector()` / `Complex()` / `TriggerData()` constructors. Not done: `OutputPin<P>` constructor (the
+  engine stores the zeroed words of the base around the packet's arguments in another order), the factories of the context connections.
+- `mgraph/arrays.cpp`: members of `om::DynamicArray<E>` for the packets and channels (constructors, element access, allocation, element
+  release); the copies of identical code are told apart only by their neighbours.
+- Tools of this section bind a family by vftable slot (`vtforce`) when the bytes of many classes are identical.
+- Shared header changes: `mgraph/nodes.h` (`PinChannelData` has the owner word and a constructor, `Packet<T>` has `value`, `Vector` /
+  `Complex` / `TriggerData` constructors, `NodeType<N>::Register*`, `EvaluationFrame` and the frame entries, `PropertyChannel<T>::Update`,
+  `Node::Slot16(EvaluationFrame*)`, `EventQueue::Post`), `mgraph/pins.h` (pin base constructors, `ConcreteOutputPinBase` members,
+  `Slot3(count, owner)`), `mgraph/envelope.h` (`Slot16` takes the frame), `mgraph/propertynode.h`.
+- Not done (node classes): the constructors, destructors and slots of `Inlet` / `Outlet` / `Throw` / `Catch` / `Switch` / `ListCount` /
+  `ListEntry` / `Rand` / the math nodes and with them `NodeType<N>::CreateNode` of those classes: they need the layout of `Node` (pin lists,
+  the registration of pins and inlets in the graph, the functions of 0x10AC.... - 0x10AD....), which no unit has recovered.
