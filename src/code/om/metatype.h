@@ -21,6 +21,8 @@ namespace om
 		StreamBuffer(Stream* newStream, int nativeOrder);
 		bool Read(void* data, int size);
 		bool Write(const void* data, int size);
+		// 0x105B7C60: reads from the stream as it is, without turning the bytes over
+		bool ReadRaw(void* data, unsigned int size);
 
 		Stream* stream;
 		bool swap;
