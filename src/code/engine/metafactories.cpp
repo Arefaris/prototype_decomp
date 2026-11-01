@@ -17,6 +17,7 @@
 #include "code/math/obb.h"
 #include "code/math/plane.h"
 #include "code/math/sphere.h"
+#include "code/engine/fight/behaviours/playbacktreebehaviour.h"
 #include "code/engine/fight/behaviours/proplogictreebehaviour.h"
 #include "code/engine/gameobject/behaviours/pathbehaviour.h"
 #include "code/engine/firstpersoncontrolbehaviour.h"

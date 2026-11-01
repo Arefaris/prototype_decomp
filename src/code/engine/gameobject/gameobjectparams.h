@@ -13,6 +13,8 @@ namespace engine
 	{
 	public:
 		explicit GameObjectParams(int value);
+		// 0x107FC790 (another unit): installs its vftable and leaves it to the base
+		virtual ~GameObjectParams();
 
 		// The object the parameters belong to (the class's constructor leaves it invalid)
 		HandleBase handle;

@@ -6,6 +6,7 @@
 #define ENGINE_REFLECTEDCLASSES_H
 
 #include "code/content/loadinventory.h"
+#include "code/math/obb.h"
 #include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
@@ -113,7 +114,7 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknown8[0x3C];
+		math::OBB obb;  // +8
 	};
 
 	// AdvertisementBehaviour: constructor 0x10919D70, reflection 0x10917A30 / 0x109197C0
@@ -136,17 +137,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// PlaybackTreeBehaviour: constructor 0x1089AC70, reflection 0x1089AA30 / 0x1089AE60
-	class PlaybackTreeBehaviour : public engine::Behaviour
-	{
-	public:
-		PlaybackTreeBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x7C];
 	};
 
 	// PoseAnimationBehaviour: constructor 0x10921260, reflection 0x109208B0 / 0x10920AF0
