@@ -2608,6 +2608,27 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new SetIntersectionPropertiesAction(this, handle);
 			}
+			// FUNCTION: ENGINE 0x10201C70
+			TargetGoToAction::TargetGoToAction(TargetGoToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), unknown1C(math::kZeroVector), unknown34(-1.0f), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFD90
+			TargetGoToAction::~TargetGoToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FED10
+			void TargetGoToAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10203D20
+			fight::Action* TargetGoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TargetGoToAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;

@@ -499,6 +499,81 @@ namespace proto
 
 			// ---- actions begin
 
+			// RTTI: proto::fightitems::ai::TightStrafeRunAction (9 vftable slots, 0x90 bytes)
+			class TightStrafeRunAction : public fight::Action
+			{
+			public:
+				// 0x1020E080
+				TightStrafeRunAction(TightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1020D1D0
+				virtual ~TightStrafeRunAction();
+
+				// vftable slot 5 (0x10213630)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102119E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10213C20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TightStrafeRunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
+				float unknown30;  // +0x30
+				unsigned char unknown34[0x4];
+				int unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+				float unknown48;  // +0x48
+				float unknown4C;  // +0x4C
+				float unknown50;  // +0x50
+				float unknown54;  // +0x54
+				float unknown58;  // +0x58
+				float unknown5C;  // +0x5C
+				float unknown60;  // +0x60
+				float unknown64;  // +0x64
+				int unknown68;  // +0x68
+				int unknown6C;  // +0x6C
+				bool unknown70;  // +0x70
+				unsigned char unknown71[0x3];
+				math::Vector unknown74;  // +0x74
+				math::Vector unknown80;  // +0x80
+				engine::HandleBase unknown8C;  // +0x8C
+			};
+			// RTTI: proto::fightitems::ai::PrepareTightStrafeRunAction (9 vftable slots, 0x88 bytes)
+			class PrepareTightStrafeRunAction : public fight::Action
+			{
+			public:
+				// 0x1020E5B0
+				PrepareTightStrafeRunAction(PrepareTightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1020D220
+				virtual ~PrepareTightStrafeRunAction();
+
+				// vftable slot 5 (0x10214090)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10212500)
+				virtual void Slot6();
+				// vftable slot 7 (0x10214470)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PrepareTightStrafeRunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+				math::Vector unknown30;  // +0x30
+				math::Vector unknown3C;  // +0x3C
+				math::Vector unknown48;  // +0x48
+				float unknown54;  // +0x54
+				float unknown58;  // +0x58
+				int unknown5C;  // +0x5C
+				int unknown60;  // +0x60
+				bool unknown64;  // +0x64
+				unsigned char unknown65[0x3];
+				math::Vector unknown68;  // +0x68
+				math::Vector unknown74;  // +0x74
+				float unknown80;  // +0x80
+				unsigned char unknown84[0x4];
+			};
 			// ---- actions end
 		}
 	}

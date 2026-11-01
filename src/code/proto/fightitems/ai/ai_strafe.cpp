@@ -1633,6 +1633,38 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x1020E080
+			TightStrafeRunAction::TightStrafeRunAction(TightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(false), unknown30(0.0f), unknown38(0), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f), unknown50(0.0f), unknown54(0.0f), unknown58(0.0f), unknown5C(0.0f), unknown60(0.0f), unknown64(-1.0f), unknown68(0x5), unknown6C(0x28), unknown70(false), unknown74(0.0f, 0.0f, 0.0f), unknown80(0.0f, 0.0f, 0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D1D0
+			TightStrafeRunAction::~TightStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F1D0
+			fight::Action* TightStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TightStrafeRunAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x1020E5B0
+			PrepareTightStrafeRunAction::PrepareTightStrafeRunAction(PrepareTightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0.0f, 0.0f, 0.0f), unknown3C(0.0f, 0.0f, 0.0f), unknown48(0.0f, 0.0f, 0.0f), unknown54(0.0f), unknown58(-1.0f), unknown5C(0x5), unknown60(0x28), unknown64(false), unknown68(0.0f, 0.0f, 0.0f), unknown74(0.0f, 0.0f, 0.0f), unknown80(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D220
+			PrepareTightStrafeRunAction::~PrepareTightStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F220
+			fight::Action* PrepareTightStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PrepareTightStrafeRunAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CanStrafeRunCondition>;
 			template class fight::PropertyIntConstRange<CanStrafeRunCondition>;

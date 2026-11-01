@@ -2398,7 +2398,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E6CA0
-			CombatDestinationTransmitAction::CombatDestinationTransmitAction(CombatDestinationTransmitTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), target(newTarget), listener(newListener), link(newTrack), owner(newOwner)
+			CombatDestinationTransmitAction::CombatDestinationTransmitAction(CombatDestinationTransmitTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
 			{
 			}
 
@@ -2414,15 +2414,14 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E7C60
-			// EQUIVALENT: register allocation; ours keeps the owner in edi across the calls where the engine reloads it from its argument slot (18.8 %)
-			fight::Action* CombatDestinationTransmitTrack::CreateAction(fight::Track* newListener, core::IRefCount* effect, core::IRefCount* newOwner)
+			fight::Action* CombatDestinationTransmitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				engine::GameObjectHandle handle = engine::GetObjectHandle(newOwner);
-				return new CombatDestinationTransmitAction(this, newOwner, handle, newListener);
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CombatDestinationTransmitAction(this, handle, effect, listener);
 			}
 
 			// FUNCTION: ENGINE 0x101E6D70
-			CombatDestinationFindAction::CombatDestinationFindAction(CombatDestinationFindTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), target(newTarget), listener(newListener), link(newTrack), owner(newOwner)
+			CombatDestinationFindAction::CombatDestinationFindAction(CombatDestinationFindTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
 			{
 			}
 
@@ -2443,11 +2442,10 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E7CC0
-			// EQUIVALENT: register allocation; ours keeps the owner in edi across the calls where the engine reloads it from its argument slot (18.8 %)
-			fight::Action* CombatDestinationFindTrack::CreateAction(fight::Track* newListener, core::IRefCount* effect, core::IRefCount* newOwner)
+			fight::Action* CombatDestinationFindTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				engine::GameObjectHandle handle = engine::GetObjectHandle(newOwner);
-				return new CombatDestinationFindAction(this, newOwner, handle, newListener);
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CombatDestinationFindAction(this, handle, effect, listener);
 			}
 
 			// ---- actions end

@@ -98,6 +98,27 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101F3270
+			FleeAction::FleeAction(FleeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), unknown1C(0), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3100
+			FleeAction::~FleeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3040
+			void FleeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3470
+			fight::Action* FleeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FleeAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<FleeTrack>;
 			template class fight::TrackFactoryTemplate<FleeTrack>;

@@ -937,17 +937,17 @@ namespace proto
 			{
 			public:
 				// 0x101E6CA0
-				CombatDestinationTransmitAction(CombatDestinationTransmitTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener);
+				CombatDestinationTransmitAction(CombatDestinationTransmitTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
 				// 0x101E4B60
 				virtual ~CombatDestinationTransmitAction();
 
 				// vftable slot 5 (0x101E4430)
 				virtual bool Slot5(int arg, float value);
 
-				engine::GameObjectHandle target;  // +0x1C
+				core::IRefCount* effect;  // +0x1C
 				engine::TrackWatch listener;  // +0x20
 				core::Link<CombatDestinationTransmitTrack> link;  // +0x2C
-				core::IRefCount* owner;  // +0x38
+				engine::GameObjectHandle target;  // +0x38
 			};
 
 			// RTTI: proto::fightitems::ai::CombatDestinationFindAction (9 vftable slots, 0x3C bytes)
@@ -955,7 +955,7 @@ namespace proto
 			{
 			public:
 				// 0x101E6D70
-				CombatDestinationFindAction(CombatDestinationFindTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener);
+				CombatDestinationFindAction(CombatDestinationFindTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
 				// 0x101E4BC0
 				virtual ~CombatDestinationFindAction();
 
@@ -966,10 +966,10 @@ namespace proto
 				// vftable slot 7 (0x101E6E40)
 				virtual bool Slot7(int arg, float value);
 
-				engine::GameObjectHandle target;  // +0x1C
+				core::IRefCount* effect;  // +0x1C
 				engine::TrackWatch listener;  // +0x20
 				core::Link<CombatDestinationFindTrack> link;  // +0x2C
-				core::IRefCount* owner;  // +0x38
+				engine::GameObjectHandle target;  // +0x38
 			};
 
 			// ---- actions end

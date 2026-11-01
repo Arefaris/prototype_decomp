@@ -1155,6 +1155,28 @@ namespace proto
 				unsigned char unknown2C[0x4];
 				core::Name<core::CaseSensitiveKey> unknown30;  // +0x30
 			};
+			// RTTI: proto::fightitems::ai::TargetGoToAction (9 vftable slots, 0x48 bytes)
+			class TargetGoToAction : public fight::Action
+			{
+			public:
+				// 0x10201C70
+				TargetGoToAction(TargetGoToTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFD90
+				virtual ~TargetGoToAction();
+
+				// vftable slot 5 (0x10203D70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED10)
+				virtual void Slot6();
+				// vftable slot 7 (0x10203ED0)
+				virtual bool Slot7(int arg, float value);
+
+				math::Vector unknown1C;  // +0x1C
+				unsigned char unknown28[0xC];
+				float unknown34;  // +0x34
+				core::Link<TargetGoToTrack> link;  // +0x38
+				engine::GameObjectHandle target;  // +0x44
+			};
 			// ---- actions end
 		}
 	}
