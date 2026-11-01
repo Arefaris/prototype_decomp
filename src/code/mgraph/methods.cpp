@@ -240,4 +240,22 @@ namespace om
 	template bool MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::SetText(TextValue const*, void*);
 	// FUNCTION: ENGINE 0x10B546F0
 	template bool MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2D7C0
+	template DynamicArray<bool,unsigned short>* om::ReadArgument<class om::DynamicArray<bool,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B2D860
+	template DynamicArray<unsigned int,unsigned short>* om::ReadArgument<class om::DynamicArray<unsigned int,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B2D8E0
+	template unsigned __int64* om::ReadArgument<unsigned __int64>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B2D960
+	template DynamicArray<unsigned __int64,unsigned short>* om::ReadArgument<class om::DynamicArray<unsigned __int64,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B2DA80
+	template DynamicArray<Vector,unsigned short>* om::ReadArgument<class om::DynamicArray<class om::Vector,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B47E60
+	template DynamicArray<float,unsigned short>* om::ReadArgument<class om::DynamicArray<float,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B47EF0
+	template DynamicArray<mgraph::TriggerData,unsigned short>* om::ReadArgument<class om::DynamicArray<class mgraph::TriggerData,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B47F80
+	template DynamicArray<Complex,unsigned short>* om::ReadArgument<class om::DynamicArray<class om::Complex,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B54550
+	template DynamicArray<mgraph::EnvelopeData,unsigned short>* om::ReadArgument<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> >(BinaryStream*, GarbageList*);
 }
