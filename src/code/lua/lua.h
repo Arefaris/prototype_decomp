@@ -178,6 +178,14 @@ extern "C"
 	void lua_concat(lua_State* L, int n);
 
 	int lua_getstack(lua_State* L, int level, lua_Debug* ar);
+	int lua_sethook(lua_State* L, lua_Hook func, int mask, int count);
+	lua_Hook lua_gethook(lua_State* L);
+	int lua_gethookmask(lua_State* L);
+	int lua_gethookcount(lua_State* L);
+	const char* lua_getlocal(lua_State* L, const lua_Debug* ar, int n);
+	const char* lua_setlocal(lua_State* L, const lua_Debug* ar, int n);
+	const char* lua_getupvalue(lua_State* L, int funcindex, int n);
+	const char* lua_setupvalue(lua_State* L, int funcindex, int n);
 	void lua_getfenv(lua_State* L, int idx);
 	int lua_pushthread(lua_State* L);
 	int lua_yield(lua_State* L, int nresults);
