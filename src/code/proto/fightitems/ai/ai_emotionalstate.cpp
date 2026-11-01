@@ -750,6 +750,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::~Link();
+template proto::fightitems::ai::ForceEmotionalStateTrack* core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::Link(proto::fightitems::ai::ForceEmotionalStateTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101ECFD0
 // FUNCTION: ENGINE 0x1022B4A0
@@ -839,3 +843,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1022CA90
 // FUNCTION: ENGINE 0x1022CAB0
 // FUNCTION: ENGINE 0x1022CB00
+// FUNCTION: ENGINE 0x101EBF70
+// FUNCTION: ENGINE 0x101EBFC0
+// FUNCTION: ENGINE 0x101ECF30

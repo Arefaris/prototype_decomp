@@ -519,6 +519,13 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::GoToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DumbGotoTrack>::~Link();
+template proto::fightitems::ai::GoToTrack* core::Link<proto::fightitems::ai::GoToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::GoToTrack>::Link(proto::fightitems::ai::GoToTrack*);
+template proto::fightitems::ai::DumbGotoTrack* core::Link<proto::fightitems::ai::DumbGotoTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DumbGotoTrack>::Link(proto::fightitems::ai::DumbGotoTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10233D40
 // FUNCTION: ENGINE 0x10233D70
@@ -574,3 +581,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10234C20
 // FUNCTION: ENGINE 0x10234C70
 // FUNCTION: ENGINE 0x10234CC0
+// FUNCTION: ENGINE 0x101F6030
+// FUNCTION: ENGINE 0x101F6450
+// FUNCTION: ENGINE 0x101F64B0
+// FUNCTION: ENGINE 0x101F64C0
+// FUNCTION: ENGINE 0x101F6700
+// FUNCTION: ENGINE 0x101F69C0
+// FUNCTION: ENGINE 0x101F69E0

@@ -5,6 +5,7 @@
 
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/math/vector.h"
 
 namespace proto
 {
@@ -113,6 +114,213 @@ namespace proto
 
 		engine::GameObjectHandle target;  // +0xC
 		float unknown10;
+	};
+
+	// RTTI: proto::GetTargetSuspicionStateTargetMessage: the object answers how suspicious it is of its target
+	struct GetTargetSuspicionStateTargetMessage : public TargetMessage
+	{
+		GetTargetSuspicionStateTargetMessage() : TargetMessage(0xe), unknownC(0), state(0), target()
+		{
+		}
+		virtual ~GetTargetSuspicionStateTargetMessage()
+		{
+		}
+
+		int unknownC;
+		int state;  // +0x10
+		engine::GameObjectHandle target;  // +0x14
+	};
+
+	// One event of the list an object keeps (0x10 bytes; member names are guesses)
+	struct AIEvent
+	{
+		core::Name<core::CaseSensitiveKey> name;  // +0x0
+		int kind;  // +0x8
+		int value;  // +0xC
+	};
+
+	// The events of an object: six slots inline, then the end of the used ones (0x64 bytes)
+	struct AIEventList
+	{
+		AIEvent events[6];  // +0x0
+		AIEvent* end;  // +0x60
+	};
+
+	// RTTI: proto::GetEventsAIMsg: the object answers the list of its events
+	struct GetEventsAIMsg : public AIMessage
+	{
+		GetEventsAIMsg() : AIMessage(8), events(0)
+		{
+		}
+		virtual ~GetEventsAIMsg()
+		{
+		}
+
+		AIEventList* events;  // +0xC
+	};
+
+	// RTTI: proto::ClearFixedAreaDestinationMessage: the object forgets its fixed area destination
+	struct ClearFixedAreaDestinationMessage : public MovementMessage
+	{
+		ClearFixedAreaDestinationMessage() : MovementMessage(0x1b)
+		{
+		}
+		virtual ~ClearFixedAreaDestinationMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::ForceRecalculatePathMovementMessage: the object plans its path again
+	struct ForceRecalculatePathMovementMessage : public MovementMessage
+	{
+		ForceRecalculatePathMovementMessage() : MovementMessage(0x2e)
+		{
+		}
+		virtual ~ForceRecalculatePathMovementMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::DisableStayOnMeshMovementMessage: the object stays on the navigation mesh or leaves it
+	struct DisableStayOnMeshMovementMessage : public MovementMessage
+	{
+		explicit DisableStayOnMeshMovementMessage(bool newDisable) : MovementMessage(0x59), disable(newDisable)
+		{
+		}
+		virtual ~DisableStayOnMeshMovementMessage()
+		{
+		}
+
+		bool disable;  // +0xC
+	};
+
+	// RTTI: proto::GetBrakingDistanceMovementMessage: the object answers how far ahead it brakes
+	struct GetBrakingDistanceMovementMessage : public MovementMessage
+	{
+		GetBrakingDistanceMovementMessage() : MovementMessage(0x1d), distance(0.0f)
+		{
+		}
+		virtual ~GetBrakingDistanceMovementMessage()
+		{
+		}
+
+		float distance;  // +0xC
+	};
+
+	// RTTI: proto::SetBrakingDistanceMovementMessage: how far ahead the object brakes
+	struct SetBrakingDistanceMovementMessage : public MovementMessage
+	{
+		explicit SetBrakingDistanceMovementMessage(float newDistance) : MovementMessage(0x1c), distance(newDistance)
+		{
+		}
+		virtual ~SetBrakingDistanceMovementMessage()
+		{
+		}
+
+		float distance;  // +0xC
+	};
+
+	// RTTI: proto::GetAvoidanceGapAnywhereMovementMessage: the object answers whether it keeps a gap to others anywhere
+	struct GetAvoidanceGapAnywhereMovementMessage : public MovementMessage
+	{
+		GetAvoidanceGapAnywhereMovementMessage() : MovementMessage(0x31), enabled(false)
+		{
+		}
+		virtual ~GetAvoidanceGapAnywhereMovementMessage()
+		{
+		}
+
+		bool enabled;  // +0xC
+	};
+
+	// RTTI: proto::SetAvoidanceGapAnywhereMovementMessage: whether the object keeps a gap to others anywhere
+	struct SetAvoidanceGapAnywhereMovementMessage : public MovementMessage
+	{
+		explicit SetAvoidanceGapAnywhereMovementMessage(bool newEnabled) : MovementMessage(0x32), enabled(newEnabled)
+		{
+		}
+		virtual ~SetAvoidanceGapAnywhereMovementMessage()
+		{
+		}
+
+		bool enabled;  // +0xC
+	};
+
+	// RTTI: proto::GetSpeedMovementMessage: the object answers its speed
+	struct GetSpeedMovementMessage : public MovementMessage
+	{
+		GetSpeedMovementMessage() : MovementMessage(0x24), speed(0.0f)
+		{
+		}
+		virtual ~GetSpeedMovementMessage()
+		{
+		}
+
+		float speed;  // +0xC
+	};
+
+	// RTTI: proto::SetSpeedMovementMessage: the speed of the object
+	struct SetSpeedMovementMessage : public MovementMessage
+	{
+		explicit SetSpeedMovementMessage(float newSpeed) : MovementMessage(0x23), speed(newSpeed)
+		{
+		}
+		virtual ~SetSpeedMovementMessage()
+		{
+		}
+
+		float speed;  // +0xC
+	};
+
+	// RTTI: proto::TriggerEventAIMsg: an event happens on the object (name, then whether it ends)
+	struct TriggerEventAIMsg : public AIMessage
+	{
+		TriggerEventAIMsg(core::Name<core::CaseSensitiveKey> newEvent, int newEnds) : AIMessage(9), event(newEvent), ends(newEnds)
+		{
+		}
+		virtual ~TriggerEventAIMsg()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> event;  // +0x10
+		int ends;  // +0x18
+		int unknown1C;
+	};
+
+	// RTTI: proto::ClearVehicleAccelerationsMessage: the vehicle forgets its accelerations
+	struct ClearVehicleAccelerationsMessage : public VehicleMessage
+	{
+		ClearVehicleAccelerationsMessage() : VehicleMessage(7)
+		{
+		}
+		virtual ~ClearVehicleAccelerationsMessage()
+		{
+		}
+	};
+
+	// What the object answers for its aim: filled in by the sender through the pointer (0x18 bytes, member names are guesses)
+	struct AimParameters
+	{
+		int active;  // +0x0
+		int where;  // +0x4
+		math::Vector offset;  // +0x8
+		bool forceWorldAngles;  // +0x14
+		unsigned char unknown15[0x3];
+	};
+
+	// RTTI: proto::GetAimParametersMovementMessage: the object answers the block of its aim parameters
+	struct GetAimParametersMovementMessage : public MovementMessage
+	{
+		explicit GetAimParametersMovementMessage(bool newFlag) : MovementMessage(0x57), parameters(0), flag(newFlag)
+		{
+		}
+		virtual ~GetAimParametersMovementMessage()
+		{
+		}
+
+		AimParameters* parameters;  // +0xC
+		bool flag;  // +0x10
 	};
 }
 

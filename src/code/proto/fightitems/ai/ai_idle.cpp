@@ -272,6 +272,13 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::FlyingIdleTrack>::~Link();
+template core::Link<proto::fightitems::ai::IdleTrack>::~Link();
+template proto::fightitems::ai::FlyingIdleTrack* core::Link<proto::fightitems::ai::FlyingIdleTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FlyingIdleTrack>::Link(proto::fightitems::ai::FlyingIdleTrack*);
+template proto::fightitems::ai::IdleTrack* core::Link<proto::fightitems::ai::IdleTrack>::Get() const;
+template core::Link<proto::fightitems::ai::IdleTrack>::Link(proto::fightitems::ai::IdleTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F81E0
 // FUNCTION: ENGINE 0x101F86D0
@@ -296,3 +303,9 @@ namespace proto
 // FUNCTION: ENGINE 0x102355E0
 // FUNCTION: ENGINE 0x10235600
 // FUNCTION: ENGINE 0x10235650
+// FUNCTION: ENGINE 0x101F7B90
+// FUNCTION: ENGINE 0x101F7BD0
+// FUNCTION: ENGINE 0x101F7BE0
+// FUNCTION: ENGINE 0x101F7C90
+// FUNCTION: ENGINE 0x101F80E0
+// FUNCTION: ENGINE 0x101F80F0

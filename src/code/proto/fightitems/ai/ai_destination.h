@@ -960,7 +960,8 @@ namespace proto
 
 				core::Link<SetAvoidanceGapAnywhereTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				unsigned char unknown2C[0x4];
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
 			};
 
 			// RTTI: proto::fightitems::ai::SpeedAction (9 vftable slots, 0x2C bytes)
@@ -1075,7 +1076,7 @@ namespace proto
 
 				core::Link<TempSpeedTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				unsigned char unknown2C[0x4];
+				float unknown2C;  // +0x2C
 			};
 
 			// RTTI: proto::fightitems::ai::SetBrakeDistanceAction (9 vftable slots, 0x2C bytes)

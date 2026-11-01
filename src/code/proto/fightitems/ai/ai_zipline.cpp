@@ -353,6 +353,13 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ZiplineLandTrack>::~Link();
+template core::Link<proto::fightitems::ai::ZiplineTakeOffTrack>::~Link();
+template proto::fightitems::ai::ZiplineLandTrack* core::Link<proto::fightitems::ai::ZiplineLandTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ZiplineLandTrack>::Link(proto::fightitems::ai::ZiplineLandTrack*);
+template proto::fightitems::ai::ZiplineTakeOffTrack* core::Link<proto::fightitems::ai::ZiplineTakeOffTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ZiplineTakeOffTrack>::Link(proto::fightitems::ai::ZiplineTakeOffTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1021A410
 // FUNCTION: ENGINE 0x1021A430
@@ -385,3 +392,4 @@ namespace proto
 // FUNCTION: ENGINE 0x10257310
 // FUNCTION: ENGINE 0x10257330
 // FUNCTION: ENGINE 0x10257380
+// FUNCTION: ENGINE 0x1021A420

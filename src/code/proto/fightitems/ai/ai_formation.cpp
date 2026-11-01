@@ -545,6 +545,16 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::FollowTargetTrack>::~Link();
+template core::Link<proto::fightitems::ai::FollowFormationTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReformTrack>::~Link();
+template proto::fightitems::ai::FollowTargetTrack* core::Link<proto::fightitems::ai::FollowTargetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FollowTargetTrack>::Link(proto::fightitems::ai::FollowTargetTrack*);
+template proto::fightitems::ai::FollowFormationTrack* core::Link<proto::fightitems::ai::FollowFormationTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FollowFormationTrack>::Link(proto::fightitems::ai::FollowFormationTrack*);
+template proto::fightitems::ai::ReformTrack* core::Link<proto::fightitems::ai::ReformTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReformTrack>::Link(proto::fightitems::ai::ReformTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102328E0
 // FUNCTION: ENGINE 0x10232910
@@ -594,3 +604,12 @@ namespace proto
 // FUNCTION: ENGINE 0x10233800
 // FUNCTION: ENGINE 0x10233850
 // FUNCTION: ENGINE 0x102338A0
+// FUNCTION: ENGINE 0x101F3E00
+// FUNCTION: ENGINE 0x101F3E60
+// FUNCTION: ENGINE 0x101F3E70
+// FUNCTION: ENGINE 0x101F3ED0
+// FUNCTION: ENGINE 0x101F3F80
+// FUNCTION: ENGINE 0x101F3FD0
+// FUNCTION: ENGINE 0x101F44D0
+// FUNCTION: ENGINE 0x101F44E0
+// FUNCTION: ENGINE 0x101F4530

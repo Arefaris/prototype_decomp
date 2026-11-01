@@ -1605,6 +1605,37 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::LodSteerTrack>::~Link();
+template core::Link<proto::fightitems::ai::ResetPhysicVelocitiesTrack>::~Link();
+template core::Link<proto::fightitems::ai::LodMoveTrack>::~Link();
+template core::Link<proto::fightitems::ai::EnableLODPatrolTrack>::~Link();
+template core::Link<proto::fightitems::ai::GameObjectOrientTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetNPCLODStateTrack>::~Link();
+template core::Link<proto::fightitems::ai::UnDowngradableTrack>::~Link();
+template core::Link<proto::fightitems::ai::UpdateSoldierReservationBudgetTrack>::~Link();
+template core::Link<proto::fightitems::ai::CharacterizeTrack>::~Link();
+template core::Link<proto::fightitems::ai::CharacterizeFromReservedTrack>::~Link();
+template proto::fightitems::ai::LodSteerTrack* core::Link<proto::fightitems::ai::LodSteerTrack>::Get() const;
+template core::Link<proto::fightitems::ai::LodSteerTrack>::Link(proto::fightitems::ai::LodSteerTrack*);
+template proto::fightitems::ai::ResetPhysicVelocitiesTrack* core::Link<proto::fightitems::ai::ResetPhysicVelocitiesTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ResetPhysicVelocitiesTrack>::Link(proto::fightitems::ai::ResetPhysicVelocitiesTrack*);
+template proto::fightitems::ai::LodMoveTrack* core::Link<proto::fightitems::ai::LodMoveTrack>::Get() const;
+template core::Link<proto::fightitems::ai::LodMoveTrack>::Link(proto::fightitems::ai::LodMoveTrack*);
+template proto::fightitems::ai::EnableLODPatrolTrack* core::Link<proto::fightitems::ai::EnableLODPatrolTrack>::Get() const;
+template core::Link<proto::fightitems::ai::EnableLODPatrolTrack>::Link(proto::fightitems::ai::EnableLODPatrolTrack*);
+template proto::fightitems::ai::GameObjectOrientTrack* core::Link<proto::fightitems::ai::GameObjectOrientTrack>::Get() const;
+template core::Link<proto::fightitems::ai::GameObjectOrientTrack>::Link(proto::fightitems::ai::GameObjectOrientTrack*);
+template proto::fightitems::ai::SetNPCLODStateTrack* core::Link<proto::fightitems::ai::SetNPCLODStateTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetNPCLODStateTrack>::Link(proto::fightitems::ai::SetNPCLODStateTrack*);
+template proto::fightitems::ai::UnDowngradableTrack* core::Link<proto::fightitems::ai::UnDowngradableTrack>::Get() const;
+template core::Link<proto::fightitems::ai::UnDowngradableTrack>::Link(proto::fightitems::ai::UnDowngradableTrack*);
+template proto::fightitems::ai::UpdateSoldierReservationBudgetTrack* core::Link<proto::fightitems::ai::UpdateSoldierReservationBudgetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::UpdateSoldierReservationBudgetTrack>::Link(proto::fightitems::ai::UpdateSoldierReservationBudgetTrack*);
+template proto::fightitems::ai::CharacterizeTrack* core::Link<proto::fightitems::ai::CharacterizeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CharacterizeTrack>::Link(proto::fightitems::ai::CharacterizeTrack*);
+template proto::fightitems::ai::CharacterizeFromReservedTrack* core::Link<proto::fightitems::ai::CharacterizeFromReservedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CharacterizeFromReservedTrack>::Link(proto::fightitems::ai::CharacterizeFromReservedTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101FB9A0
 // FUNCTION: ENGINE 0x101FBAB0
@@ -1773,3 +1804,33 @@ namespace proto
 // FUNCTION: ENGINE 0x10239EB0
 // FUNCTION: ENGINE 0x10239ED0
 // FUNCTION: ENGINE 0x10239F20
+// FUNCTION: ENGINE 0x101FA440
+// FUNCTION: ENGINE 0x101FA460
+// FUNCTION: ENGINE 0x101FA480
+// FUNCTION: ENGINE 0x101FA4A0
+// FUNCTION: ENGINE 0x101FA4C0
+// FUNCTION: ENGINE 0x101FA5A0
+// FUNCTION: ENGINE 0x101FA5B0
+// FUNCTION: ENGINE 0x101FA600
+// FUNCTION: ENGINE 0x101FA650
+// FUNCTION: ENGINE 0x101FA660
+// FUNCTION: ENGINE 0x101FA750
+// FUNCTION: ENGINE 0x101FA760
+// FUNCTION: ENGINE 0x101FA7B0
+// FUNCTION: ENGINE 0x101FA7C0
+// FUNCTION: ENGINE 0x101FA810
+// FUNCTION: ENGINE 0x101FA980
+// FUNCTION: ENGINE 0x101FA9D0
+// FUNCTION: ENGINE 0x101FAA20
+// FUNCTION: ENGINE 0x101FABC0
+// FUNCTION: ENGINE 0x101FAC10
+// FUNCTION: ENGINE 0x101FB550
+// FUNCTION: ENGINE 0x101FB560
+// FUNCTION: ENGINE 0x101FB570
+// FUNCTION: ENGINE 0x101FB5C0
+// FUNCTION: ENGINE 0x101FB610
+// FUNCTION: ENGINE 0x101FB620
+// FUNCTION: ENGINE 0x101FB710
+// FUNCTION: ENGINE 0x101FB720
+// FUNCTION: ENGINE 0x101FB730
+// FUNCTION: ENGINE 0x101FB790

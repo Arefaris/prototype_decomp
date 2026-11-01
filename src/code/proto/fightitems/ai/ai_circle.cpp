@@ -592,6 +592,16 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::CirclePatrolTrack>::~Link();
+template core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::~Link();
+template core::Link<proto::fightitems::ai::CircleStrafeTrack>::~Link();
+template proto::fightitems::ai::CirclePatrolTrack* core::Link<proto::fightitems::ai::CirclePatrolTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CirclePatrolTrack>::Link(proto::fightitems::ai::CirclePatrolTrack*);
+template proto::fightitems::ai::IntersectionCirclePatrolTrack* core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::Get() const;
+template core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::Link(proto::fightitems::ai::IntersectionCirclePatrolTrack*);
+template proto::fightitems::ai::CircleStrafeTrack* core::Link<proto::fightitems::ai::CircleStrafeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CircleStrafeTrack>::Link(proto::fightitems::ai::CircleStrafeTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E13C0
 // FUNCTION: ENGINE 0x101E14D0
@@ -628,3 +638,14 @@ namespace proto
 // FUNCTION: ENGINE 0x1021E460
 // FUNCTION: ENGINE 0x1021E4B0
 // FUNCTION: ENGINE 0x1021E500
+// FUNCTION: ENGINE 0x101E0670
+// FUNCTION: ENGINE 0x101E0730
+// FUNCTION: ENGINE 0x101E0740
+// FUNCTION: ENGINE 0x101E07A0
+// FUNCTION: ENGINE 0x101E0E80
+// FUNCTION: ENGINE 0x101E0ED0
+// FUNCTION: ENGINE 0x101E0FA0
+// FUNCTION: ENGINE 0x101E0FB0
+// FUNCTION: ENGINE 0x101E0FC0
+// FUNCTION: ENGINE 0x101E0440
+// FUNCTION: ENGINE 0x101E0510

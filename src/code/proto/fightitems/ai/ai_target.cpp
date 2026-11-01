@@ -930,6 +930,9 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// 0x10DCF0FC: the message value of each alert sub state (name guess)
+			extern const int gTargetAlertSubStateValues[];
+
 
 			// FUNCTION: ENGINE 0x102166E0
 			bool TargetIsPlayerCondition::Evaluate(int a, int b, int c, int d)
@@ -983,6 +986,25 @@ namespace proto
 					return false;
 				}
 				return Unknown103C02D0(target);
+			}
+
+			// FUNCTION: ENGINE 0x10216190
+			bool TargetAlertSubStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool result = false;
+				GetTargetSuspicionStateTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				if (target != 0)
+				{
+					result = message.state == gTargetAlertSubStateValues[subState];
+				}
+				return result;
 			}
 
 			// ---- actions end

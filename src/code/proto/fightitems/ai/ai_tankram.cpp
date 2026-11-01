@@ -195,6 +195,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::TankRamTrack>::~Link();
+template proto::fightitems::ai::TankRamTrack* core::Link<proto::fightitems::ai::TankRamTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TankRamTrack>::Link(proto::fightitems::ai::TankRamTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10207E90
 // FUNCTION: ENGINE 0x10207EC0
@@ -208,3 +212,4 @@ namespace proto
 // FUNCTION: ENGINE 0x10246EE0
 // FUNCTION: ENGINE 0x10246F10
 // FUNCTION: ENGINE 0x10246F30
+// FUNCTION: ENGINE 0x10207EB0

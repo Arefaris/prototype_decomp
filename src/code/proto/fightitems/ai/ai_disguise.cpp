@@ -1499,6 +1499,40 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ClearMarkersTrack>::~Link();
+template core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::~Link();
+template core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::~Link();
+template core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::~Link();
+template core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetUserTooltipTrack>::~Link();
+template core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::~Link();
+template core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::~Link();
+template core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::~Link();
+template core::Link<proto::fightitems::ai::AddDiversionTrack>::~Link();
+template core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::~Link();
+template proto::fightitems::ai::ClearMarkersTrack* core::Link<proto::fightitems::ai::ClearMarkersTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ClearMarkersTrack>::Link(proto::fightitems::ai::ClearMarkersTrack*);
+template proto::fightitems::ai::PlayDebugDialogTrack* core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::Get() const;
+template core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::Link(proto::fightitems::ai::PlayDebugDialogTrack*);
+template proto::fightitems::ai::HelicopterStrafeModeTrack* core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::Link(proto::fightitems::ai::HelicopterStrafeModeTrack*);
+template proto::fightitems::ai::ShowDisguiseActionHUDTrack* core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::Link(proto::fightitems::ai::ShowDisguiseActionHUDTrack*);
+template proto::fightitems::ai::AddMarkerByKeyTrack* core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::Link(proto::fightitems::ai::AddMarkerByKeyTrack*);
+template proto::fightitems::ai::SetUserTooltipTrack* core::Link<proto::fightitems::ai::SetUserTooltipTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetUserTooltipTrack>::Link(proto::fightitems::ai::SetUserTooltipTrack*);
+template proto::fightitems::ai::AdjustHydraMovementTrack* core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::Link(proto::fightitems::ai::AdjustHydraMovementTrack*);
+template proto::fightitems::ai::DrawObjectDebugTrack* core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::Link(proto::fightitems::ai::DrawObjectDebugTrack*);
+template proto::fightitems::ai::DumpAlertCharactersTrack* core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::Link(proto::fightitems::ai::DumpAlertCharactersTrack*);
+template proto::fightitems::ai::AddDiversionTrack* core::Link<proto::fightitems::ai::AddDiversionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AddDiversionTrack>::Link(proto::fightitems::ai::AddDiversionTrack*);
+template proto::fightitems::ai::DisguiseActionUsedTrack* core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Link(proto::fightitems::ai::DisguiseActionUsedTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101EA040
 // FUNCTION: ENGINE 0x101EA160
@@ -1665,3 +1699,36 @@ namespace proto
 // FUNCTION: ENGINE 0x1022ABC0
 // FUNCTION: ENGINE 0x1022ABF0
 // FUNCTION: ENGINE 0x1022AC10
+// FUNCTION: ENGINE 0x101E8EE0
+// FUNCTION: ENGINE 0x101E8F00
+// FUNCTION: ENGINE 0x101E8F20
+// FUNCTION: ENGINE 0x101E8F40
+// FUNCTION: ENGINE 0x101E8F60
+// FUNCTION: ENGINE 0x101E9040
+// FUNCTION: ENGINE 0x101E9050
+// FUNCTION: ENGINE 0x101E90A0
+// FUNCTION: ENGINE 0x101E90B0
+// FUNCTION: ENGINE 0x101E9100
+// FUNCTION: ENGINE 0x101E9110
+// FUNCTION: ENGINE 0x101E9160
+// FUNCTION: ENGINE 0x101E9170
+// FUNCTION: ENGINE 0x101E91C0
+// FUNCTION: ENGINE 0x101E9260
+// FUNCTION: ENGINE 0x101E9270
+// FUNCTION: ENGINE 0x101E9430
+// FUNCTION: ENGINE 0x101E9480
+// FUNCTION: ENGINE 0x101E94D0
+// FUNCTION: ENGINE 0x101E9520
+// FUNCTION: ENGINE 0x101E9570
+// FUNCTION: ENGINE 0x101E95C0
+// FUNCTION: ENGINE 0x101E9BD0
+// FUNCTION: ENGINE 0x101E9BE0
+// FUNCTION: ENGINE 0x101E9BF0
+// FUNCTION: ENGINE 0x101E9C40
+// FUNCTION: ENGINE 0x101E9C50
+// FUNCTION: ENGINE 0x101E9CA0
+// FUNCTION: ENGINE 0x101E9CB0
+// FUNCTION: ENGINE 0x101E9CC0
+// FUNCTION: ENGINE 0x101E9D10
+// FUNCTION: ENGINE 0x101E9D30
+// FUNCTION: ENGINE 0x101E9D80

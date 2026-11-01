@@ -1735,9 +1735,18 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::TightStrafeRunTrack>::~Link();
+template core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::~Link();
+template core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::~Link();
+template proto::fightitems::ai::TightStrafeRunTrack* core::Link<proto::fightitems::ai::TightStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TightStrafeRunTrack>::Link(proto::fightitems::ai::TightStrafeRunTrack*);
+template proto::fightitems::ai::PrepareTightStrafeRunTrack* core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::Link(proto::fightitems::ai::PrepareTightStrafeRunTrack*);
+template proto::fightitems::ai::TryOpenStrafeRunTrack* core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Link(proto::fightitems::ai::TryOpenStrafeRunTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1020C010
-// FUNCTION: ENGINE 0x1020C020
 // FUNCTION: ENGINE 0x1024BFB0
 // FUNCTION: ENGINE 0x1024BFE0
 // FUNCTION: ENGINE 0x1024C010
@@ -1872,3 +1881,12 @@ namespace proto
 // FUNCTION: ENGINE 0x1024F770
 // FUNCTION: ENGINE 0x1024F7C0
 // FUNCTION: ENGINE 0x1024F810
+// FUNCTION: ENGINE 0x1020CD70
+// FUNCTION: ENGINE 0x1020CEB0
+// FUNCTION: ENGINE 0x1020CEC0
+// FUNCTION: ENGINE 0x1020CF20
+// FUNCTION: ENGINE 0x1020D150
+// FUNCTION: ENGINE 0x1020D1B0
+// FUNCTION: ENGINE 0x1020DB30
+// FUNCTION: ENGINE 0x1020DB40
+// FUNCTION: ENGINE 0x1020DB50

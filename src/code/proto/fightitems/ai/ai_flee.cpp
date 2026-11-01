@@ -127,6 +127,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::FleeTrack>::~Link();
+template proto::fightitems::ai::FleeTrack* core::Link<proto::fightitems::ai::FleeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FleeTrack>::Link(proto::fightitems::ai::FleeTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102320A0
 // FUNCTION: ENGINE 0x102320D0
@@ -137,3 +141,6 @@ namespace proto
 // FUNCTION: ENGINE 0x102322F0
 // FUNCTION: ENGINE 0x10232320
 // FUNCTION: ENGINE 0x10232340
+// FUNCTION: ENGINE 0x101F3090
+// FUNCTION: ENGINE 0x101F30E0
+// FUNCTION: ENGINE 0x101F3260

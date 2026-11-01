@@ -963,6 +963,19 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatBallTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::~Link();
+template proto::fightitems::ai::ThreatMemoryResetTrack* core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::Link(proto::fightitems::ai::ThreatMemoryResetTrack*);
+template proto::fightitems::ai::ThreatBallTrack* core::Link<proto::fightitems::ai::ThreatBallTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatBallTrack>::Link(proto::fightitems::ai::ThreatBallTrack*);
+template proto::fightitems::ai::ThreatSendToTargetTrack* core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::Link(proto::fightitems::ai::ThreatSendToTargetTrack*);
+template proto::fightitems::ai::ThreatDodgeTrack* core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Link(proto::fightitems::ai::ThreatDodgeTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10217900
 // FUNCTION: ENGINE 0x10217930
@@ -972,7 +985,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10217B30
 // FUNCTION: ENGINE 0x10217BC0
 // FUNCTION: ENGINE 0x10219480
-// FUNCTION: ENGINE 0x10219860
 // FUNCTION: ENGINE 0x102539E0
 // FUNCTION: ENGINE 0x10253A80
 // FUNCTION: ENGINE 0x10253C90
@@ -1091,3 +1103,13 @@ namespace proto
 // FUNCTION: ENGINE 0x10255D10
 // FUNCTION: ENGINE 0x10255D60
 // FUNCTION: ENGINE 0x10255DB0
+// FUNCTION: ENGINE 0x10217940
+// FUNCTION: ENGINE 0x10217B50
+// FUNCTION: ENGINE 0x10217BB0
+// FUNCTION: ENGINE 0x10217C20
+// FUNCTION: ENGINE 0x10217C70
+// FUNCTION: ENGINE 0x10217D50
+// FUNCTION: ENGINE 0x10217DB0
+// FUNCTION: ENGINE 0x10218FD0
+// FUNCTION: ENGINE 0x10218FE0
+// FUNCTION: ENGINE 0x10218FF0

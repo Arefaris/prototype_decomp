@@ -116,6 +116,8 @@ namespace proto
 
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
+	// 0x103B8630: sets how an object moves (the sprint and the maximum speed flags; name guess)
+	void Unknown103B8630(engine::GameObject* object, bool sprint, bool useMaxSpeed);
 	// 0x10078F70: whether the object is the player's
 	bool IsPlayerObject(engine::GameObject* object);
 	// 0x103C0360 / 0x103C02D0: whether the object is a tank / a helicopter (name guesses; each asks the object for its vehicle kind)

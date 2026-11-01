@@ -296,6 +296,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::TakeOffTrack>::~Link();
+template proto::fightitems::ai::TakeOffTrack* core::Link<proto::fightitems::ai::TakeOffTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TakeOffTrack>::Link(proto::fightitems::ai::TakeOffTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F9BA0
 // FUNCTION: ENGINE 0x10235A00
@@ -319,3 +323,6 @@ namespace proto
 // FUNCTION: ENGINE 0x102361B0
 // FUNCTION: ENGINE 0x102361D0
 // FUNCTION: ENGINE 0x10236220
+// FUNCTION: ENGINE 0x101F8E10
+// FUNCTION: ENGINE 0x101F8EF0
+// FUNCTION: ENGINE 0x101F9070

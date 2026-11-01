@@ -1,5 +1,6 @@
 // Fight items of the ai group: EventValueCondition, EventCondition, AiTreeEventSendTrack (unit 0x1022F8E0 - 0x102305F0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_aitreeevent.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -266,6 +267,98 @@ namespace proto
 				return new AiTreeEventSendAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101F08E0
+			// NONMATCHING: the engine keeps this in a stack slot and re-reads the compared member in every iteration of the loop (register allocation of the loop), best 14 %
+#ifdef NONMATCHING
+			bool EventCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					GetEventsAIMsg message;
+					object->SendMessage(&message);
+					AIEventList* list = message.events;
+					if (list != 0)
+					{
+						for (AIEvent* item = list->events; item != list->end; item++)
+						{
+							if (item->kind == when && item->name == event)
+							{
+								return true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F0A00
+			// NONMATCHING: the engine keeps this in a stack slot and keeps the failure exit behind the body, best 22 %
+#ifdef NONMATCHING
+			bool EventValueCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetEventsAIMsg message;
+				object->SendMessage(&message);
+				AIEventList* list = message.events;
+				if (list != 0)
+				{
+					for (AIEvent* item = list->events; item != list->end; item++)
+					{
+						if (item->name == event)
+						{
+							int expected = value;
+							if (fight::CompareInts(compare, &item->value, &expected))
+							{
+								result = true;
+								break;
+							}
+						}
+					}
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F0C40
+			bool AiTreeEventSendAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				TriggerEventAIMsg message(link.object->event, 0);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F0D00
+			void AiTreeEventSendAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						TriggerEventAIMsg message(link.object->event, 1);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<EventValueCondition>;
 			template class fight::PropertyEnumConstList<EventValueCondition>;
@@ -283,6 +376,10 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::~Link();
+template proto::fightitems::ai::AiTreeEventSendTrack* core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::Link(proto::fightitems::ai::AiTreeEventSendTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F0C10
@@ -326,3 +423,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10230500
 // FUNCTION: ENGINE 0x10230550
 // FUNCTION: ENGINE 0x102305A0
+// FUNCTION: ENGINE 0x101F0840
+// FUNCTION: ENGINE 0x101F0890
+// FUNCTION: ENGINE 0x101F0B70

@@ -2553,6 +2553,28 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::RefreshStrafeRunTokenTrack>::~Link();
+template core::Link<proto::fightitems::ai::ActionTrack>::~Link();
+template core::Link<proto::fightitems::ai::RequestTokenTrack>::~Link();
+template core::Link<proto::fightitems::ai::DrawDebugTrack>::~Link();
+template core::Link<proto::fightitems::ai::TargetTokenBoostTrack>::~Link();
+template core::Link<proto::fightitems::ai::CombatDestinationTransmitTrack>::~Link();
+template core::Link<proto::fightitems::ai::CombatDestinationFindTrack>::~Link();
+template proto::fightitems::ai::RefreshStrafeRunTokenTrack* core::Link<proto::fightitems::ai::RefreshStrafeRunTokenTrack>::Get() const;
+template core::Link<proto::fightitems::ai::RefreshStrafeRunTokenTrack>::Link(proto::fightitems::ai::RefreshStrafeRunTokenTrack*);
+template proto::fightitems::ai::ActionTrack* core::Link<proto::fightitems::ai::ActionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ActionTrack>::Link(proto::fightitems::ai::ActionTrack*);
+template proto::fightitems::ai::RequestTokenTrack* core::Link<proto::fightitems::ai::RequestTokenTrack>::Get() const;
+template core::Link<proto::fightitems::ai::RequestTokenTrack>::Link(proto::fightitems::ai::RequestTokenTrack*);
+template proto::fightitems::ai::DrawDebugTrack* core::Link<proto::fightitems::ai::DrawDebugTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DrawDebugTrack>::Link(proto::fightitems::ai::DrawDebugTrack*);
+template proto::fightitems::ai::TargetTokenBoostTrack* core::Link<proto::fightitems::ai::TargetTokenBoostTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TargetTokenBoostTrack>::Link(proto::fightitems::ai::TargetTokenBoostTrack*);
+template proto::fightitems::ai::CombatDestinationTransmitTrack* core::Link<proto::fightitems::ai::CombatDestinationTransmitTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CombatDestinationTransmitTrack>::Link(proto::fightitems::ai::CombatDestinationTransmitTrack*);
+template proto::fightitems::ai::CombatDestinationFindTrack* core::Link<proto::fightitems::ai::CombatDestinationFindTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CombatDestinationFindTrack>::Link(proto::fightitems::ai::CombatDestinationFindTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E75B0
 // FUNCTION: ENGINE 0x101E7710
@@ -2884,3 +2906,26 @@ namespace proto
 // FUNCTION: ENGINE 0x10225E90
 // FUNCTION: ENGINE 0x10225EE0
 // FUNCTION: ENGINE 0x10225F30
+// FUNCTION: ENGINE 0x101E3980
+// FUNCTION: ENGINE 0x101E47A0
+// FUNCTION: ENGINE 0x101E47B0
+// FUNCTION: ENGINE 0x101E47D0
+// FUNCTION: ENGINE 0x101E47F0
+// FUNCTION: ENGINE 0x101E4890
+// FUNCTION: ENGINE 0x101E48E0
+// FUNCTION: ENGINE 0x101E48F0
+// FUNCTION: ENGINE 0x101E4940
+// FUNCTION: ENGINE 0x101E4950
+// FUNCTION: ENGINE 0x101E49A0
+// FUNCTION: ENGINE 0x101E49B0
+// FUNCTION: ENGINE 0x101E4B40
+// FUNCTION: ENGINE 0x101E4BA0
+// FUNCTION: ENGINE 0x101E4C00
+// FUNCTION: ENGINE 0x101E4C50
+// FUNCTION: ENGINE 0x101E6A60
+// FUNCTION: ENGINE 0x101E6A70
+// FUNCTION: ENGINE 0x101E6A80
+// FUNCTION: ENGINE 0x101E6AD0
+// FUNCTION: ENGINE 0x101E6AE0
+// FUNCTION: ENGINE 0x101E6AF0
+// FUNCTION: ENGINE 0x101E6B60

@@ -318,6 +318,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::SetVehicleStateTrack>::~Link();
+template proto::fightitems::ai::SetVehicleStateTrack* core::Link<proto::fightitems::ai::SetVehicleStateTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetVehicleStateTrack>::Link(proto::fightitems::ai::SetVehicleStateTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10219DD0
 // FUNCTION: ENGINE 0x10219E00
@@ -368,3 +372,4 @@ namespace proto
 // FUNCTION: ENGINE 0x10256950
 // FUNCTION: ENGINE 0x102569A0
 // FUNCTION: ENGINE 0x102569F0
+// FUNCTION: ENGINE 0x10219DC0

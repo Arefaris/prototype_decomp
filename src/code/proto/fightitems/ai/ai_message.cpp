@@ -413,6 +413,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::BlindTrack>::~Link();
+template proto::fightitems::ai::BlindTrack* core::Link<proto::fightitems::ai::BlindTrack>::Get() const;
+template core::Link<proto::fightitems::ai::BlindTrack>::Link(proto::fightitems::ai::BlindTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101FE010
 // FUNCTION: ENGINE 0x1023AB30
@@ -472,3 +476,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1023BB70
 // FUNCTION: ENGINE 0x1023BB90
 // FUNCTION: ENGINE 0x1023BBE0
+// FUNCTION: ENGINE 0x101FD310
+// FUNCTION: ENGINE 0x101FD740
+// FUNCTION: ENGINE 0x101FD880
