@@ -97,6 +97,16 @@ namespace proto
 				return new VehicleReticuleAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1012B960
+			bool VehicleReticuleAction::Slot5(int arg, float value)
+			{
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<VehicleReticuleTrack>;
 			template class fight::TrackFactoryTemplate<VehicleReticuleTrack>;

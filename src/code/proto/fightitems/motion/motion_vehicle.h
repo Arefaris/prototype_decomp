@@ -25,6 +25,15 @@ namespace proto
 				// vftable slot 9 (0x1012A5C0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				float GetHeight() const
+				{
+					return height;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+
 				// The members the properties write
 				bool SetCompare(int newValue);
 				bool SetHeight(float newValue);
@@ -53,6 +62,15 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x1012A410, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
 
 				// The members the properties write
 				bool SetCompare(int newValue);
@@ -83,6 +101,15 @@ namespace proto
 				// vftable slot 9 (0x1012AA00, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				int GetCompare() const
+				{
+					return compare;
+				}
+				int GetType() const
+				{
+					return type;
+				}
+
 				// The members the properties write
 				bool SetCompare(int newValue);
 				bool SetType(int newValue);
@@ -112,6 +139,11 @@ namespace proto
 				// vftable slot 9 (0x1012A690, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				bool GetPowerOn() const
+				{
+					return powerOn;
+				}
+
 				// The members the properties write
 				bool SetPowerOn(bool newValue);
 
@@ -139,6 +171,15 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x1012A4F0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
 
 				// The members the properties write
 				bool SetCompare(int newValue);
@@ -172,6 +213,11 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x1012B7B0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				bool GetAnimated() const
+				{
+					return animated;
+				}
 
 				// The members the properties write
 				bool SetAnimated(bool newValue);
@@ -271,6 +317,11 @@ namespace proto
 				// vftable slot 15 (0x1012B810, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				bool GetEnabled() const
+				{
+					return enabled;
+				}
+
 				// The members the properties write
 				bool SetEnabled(bool newValue);
 
@@ -302,6 +353,15 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x1012B630, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				bool GetPowerOn() const
+				{
+					return powerOn;
+				}
+				bool GetUseSpinup() const
+				{
+					return useSpinup;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -339,6 +399,11 @@ namespace proto
 				// vftable slot 15 (0x1012B6F0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				int GetType() const
+				{
+					return type;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetType(int newValue);
@@ -372,6 +437,11 @@ namespace proto
 				// vftable slot 15 (0x1012B750, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				bool GetEnabled() const
+				{
+					return enabled;
+				}
+
 				// The members the properties write
 				bool SetEnabled(bool newValue);
 
@@ -388,6 +458,14 @@ namespace proto
 			void RegisterSetVehicleSolverEnabledTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// 0x10129CC0: the factories of the unit's conditions the fight system registers together (name guess)
+			bool RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry);
+
+			// 0x10129D80 / 0x1012A340 (this unit's copies): compare two integers with a compare operator (0 less, 1 less or equal, 2 equal, 3 not equal,
+			// 4 greater or equal, 5 greater): lhs op rhs
+			bool CompareIntsEqual(const int* lhs, const int* rhs);
+			bool CompareInts(int op, const int* lhs, const int* rhs);
+
 			// RTTI: proto::fightitems::motion::SetVehicleAnimatedAction (9 vftable slots, 0x2C bytes)
 			class SetVehicleAnimatedAction : public fight::Action
 			{

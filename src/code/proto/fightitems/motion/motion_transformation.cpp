@@ -1,5 +1,6 @@
 // Fight items of the motion group: TransformationSlotActiveCondition, TransformationDesiredSensesCondition, ConsumptionNameCondition, TransformationSlotTransformDesiredCondition, TransformationConsumeDescriptionValidCondition, TransformationSlotValidCondition, TransformationAllowedCondition, TransformTrack, TransformationDisallowedTrack, TransformDesiredTrack, TransformCompleteTrack, TransformStartTrack, TransformationAllowedTrack, TransformFadeTrack (unit 0x101BF880 - 0x101C2D60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_transformation.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -1213,6 +1214,257 @@ namespace proto
 				return new TransformStartAction(this, engine::GetObjectHandle(owner));
 			}
 
+			// FUNCTION: ENGINE 0x10121B80
+			bool ConsumptionNameCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				core::Name<core::CaseSensitiveKey> nameCopy(GetName());
+				bool wanted = GetIsActive();
+				GetTransformationSlotByDescriptionNameMessage message(nameCopy);
+				object->SendMessage(&message);
+				return wanted == message.active;
+			}
+
+			// FUNCTION: ENGINE 0x10121C60
+			bool TransformationAllowedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTransformationAllowedMessage message;
+				object->SendMessage(&message);
+				return message.allowed == GetAllowed();
+			}
+
+			// FUNCTION: ENGINE 0x10121D10
+			bool TransformationSlotActiveCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				core::Name<core::CaseSensitiveKey> nameCopy(GetSlotName());
+				bool wanted = GetIsActive();
+				GetTransformationSlotMessage message(nameCopy);
+				object->SendMessage(&message);
+				if (message.slot == 0)
+				{
+					return false;
+				}
+				return message.slot->active == wanted;
+			}
+
+			// FUNCTION: ENGINE 0x10122160
+			bool TransformationConsumeDescriptionValidCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool wanted = GetIsValid();
+				ConsumeTransformationDescriptionIsValidMessage message;
+				object->SendMessage(&message);
+				return message.valid == wanted;
+			}
+
+			// FUNCTION: ENGINE 0x10122210
+			bool TransformationDesiredSensesCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetDesiredSensesPowerMessage message;
+				object->SendMessage(&message);
+				bool result = false;
+				if (message.desired != message.current)
+				{
+					if (GetThermalVisionDesired() && message.desired == 10)
+					{
+						result = true;
+					}
+					if (GetInfectedVisionDesired() && message.desired == 11)
+					{
+						result = true;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10122430
+			bool TransformCompleteAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					CompleteTransformationMessage message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10122540
+			bool TransformationAllowedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				TransformationAllowedMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101225C0
+			void TransformationAllowedAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					TransformationAllowedMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10122680
+			bool TransformationDisallowedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				TransformationAllowedMessage message(false);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10122700
+			void TransformationDisallowedAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					TransformationAllowedMessage message(true);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10122AE0
+			bool TransformFadeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				unknown2C = link.Get()->GetFadeAtBegin();
+				engine::SetCloudFade message(unknown2C);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10122B80
+			// EQUIVALENT: scheduling: the engine loads the member into xmm0 before the message is built and adds the spilled quotient to it, ours loads the quotient first (the same sum) (70.1 %)
+			bool TransformFadeAction::Slot7(int arg, float value)
+			{
+				TransformFadeTrack* track = link.Get();
+				if (track == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				float fadeAtEnd = track->GetFadeAtEnd();
+				float fadeAtBegin = track->GetFadeAtBegin();
+				float step = (fadeAtEnd - fadeAtBegin) / track->Slot10() * value;
+				unknown2C = unknown2C + step;
+				engine::SetCloudFade message(unknown2C);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10122C60
+			void TransformFadeAction::Slot6()
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::SetCloudFade message(link.Get()->GetFadeAtEnd());
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10122D90
+			// EQUIVALENT: shrink-wrap and a duplicated epilogue (ebx and esi are saved behind the owner tests) (23.6 %)
+			bool TransformAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						StartTransformationMessage start(link.Get()->GetSlotName(), link.Get()->GetStealthy());
+						object->SendMessage(&start);
+						CompleteTransformationMessage complete;
+						object->SendMessage(&complete);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10122F10
+			// EQUIVALENT: shrink-wrap and a duplicated epilogue (ebx and esi are saved behind the owner tests) (69.5 %)
+			bool TransformStartAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						StartTransformationMessage start(link.Get()->GetSlotName(), link.Get()->GetStealthy());
+						object->SendMessage(&start);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101230F0
+			// EQUIVALENT: shrink-wrap and a duplicated epilogue (esi is saved behind the owner tests) (66.7 %)
+			bool TransformDesiredAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetDesiredTransformationMessage message(link.Get()->GetSlotName(), link.Get()->GetTransformationDescription(), false);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<TransformationSlotActiveCondition>;
 			template class fight::PropertyBool<TransformationSlotActiveCondition>;
@@ -1270,6 +1522,50 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10121210
+// FUNCTION: ENGINE 0x10121220
+// FUNCTION: ENGINE 0x10121230
+// FUNCTION: ENGINE 0x10121240
+// FUNCTION: ENGINE 0x10121250
+// FUNCTION: ENGINE 0x10121260
+// FUNCTION: ENGINE 0x10121270
+// FUNCTION: ENGINE 0x101212C0
+// FUNCTION: ENGINE 0x101212D0
+// FUNCTION: ENGINE 0x101212E0
+// FUNCTION: ENGINE 0x10121300
+// FUNCTION: ENGINE 0x10121310
+// FUNCTION: ENGINE 0x10121320
+// FUNCTION: ENGINE 0x10121360
+// FUNCTION: ENGINE 0x10121370
+// FUNCTION: ENGINE 0x10121380
+// FUNCTION: ENGINE 0x10121390
+// FUNCTION: ENGINE 0x101213C0
+// FUNCTION: ENGINE 0x101213D0
+// FUNCTION: ENGINE 0x10121400
+// FUNCTION: ENGINE 0x10121410
+// FUNCTION: ENGINE 0x10121440
+// FUNCTION: ENGINE 0x10121450
+// FUNCTION: ENGINE 0x10121480
+// FUNCTION: ENGINE 0x10121490
+// FUNCTION: ENGINE 0x101214C0
+// FUNCTION: ENGINE 0x101214D0
+// FUNCTION: ENGINE 0x10121510
+// FUNCTION: ENGINE 0x10121520
+// FUNCTION: ENGINE 0x10121530
+// FUNCTION: ENGINE 0x10121540
+// FUNCTION: ENGINE 0x10121550
+// FUNCTION: ENGINE 0x10121560
+// FUNCTION: ENGINE 0x101215A0
+// FUNCTION: ENGINE 0x101215B0
+// FUNCTION: ENGINE 0x10121610
+// FUNCTION: ENGINE 0x10121620
+// FUNCTION: ENGINE 0x10121670
+// FUNCTION: ENGINE 0x10121680
+// FUNCTION: ENGINE 0x101216B0
+// FUNCTION: ENGINE 0x101216E0
+// FUNCTION: ENGINE 0x10121710
+// FUNCTION: ENGINE 0x10121740
+// FUNCTION: ENGINE 0x10121770
 // FUNCTION: ENGINE 0x101217A0
 // FUNCTION: ENGINE 0x101217C0
 // FUNCTION: ENGINE 0x101217E0
@@ -1284,6 +1580,9 @@ namespace proto
 // FUNCTION: ENGINE 0x10121A00
 // FUNCTION: ENGINE 0x10121A50
 // FUNCTION: ENGINE 0x10121AA0
+// FUNCTION: ENGINE 0x10121AF0
+// FUNCTION: ENGINE 0x10121B20
+// FUNCTION: ENGINE 0x10121B50
 // FUNCTION: ENGINE 0x10122AB0
 // FUNCTION: ENGINE 0x10122D60
 // FUNCTION: ENGINE 0x10122EE0

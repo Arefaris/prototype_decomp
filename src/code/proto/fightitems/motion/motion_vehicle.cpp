@@ -1,5 +1,6 @@
 // Fight items of the motion group: HelicopterHeightAboveGroundCondition, HelicopterRotorCollisionCondition, SecondaryWeaponTypeCondition, VehiclePowerOnOffCondition, HelicopterOnGroundCondition, SetVehicleAnimatedTrack, HelicopterSpawnBloodtoxTrack, VehiclePlayAnimationTrack, SetVehicleHeadlightTrack, VehiclePowerOnOffTrack, SetSecondaryWeaponTypeTrack, SetVehicleSolverEnabledTrack (unit 0x101C8410 - 0x101CAFF0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_vehicle.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -1013,6 +1014,232 @@ namespace proto
 				return new SetVehicleSolverEnabledAction(this, AsActionOwner(owner)->handle);
 			}
 
+			// FUNCTION: ENGINE 0x10129CC0
+			bool RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry)
+			{
+				RegisterHelicopterRotorCollisionConditionFactory(registry, "helicopterRotorCollision");
+				RegisterHelicopterOnGroundConditionFactory(registry, "helicopterOnGround");
+				RegisterHelicopterHeightAboveGroundConditionFactory(registry, "helicopterHeightAboveGround");
+				RegisterVehiclePowerOnOffConditionFactory(registry, "vehiclePowerOnOff");
+				RegisterSecondaryWeaponTypeConditionFactory(registry, "SecondaryWeaponType");
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A410
+			bool HelicopterRotorCollisionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetRotorCollisionTimeMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A4F0
+			bool HelicopterOnGroundCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetHelicopterOnGroundMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A5C0
+			bool HelicopterHeightAboveGroundCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetHelicopterHeightAboveGroundMessage message;
+				object->SendMessage(&message);
+				float current = message.height;
+				float wanted = GetHeight();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A690
+			bool VehiclePowerOnOffCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetVehiclePowerOnOffMessage message;
+				object->SendMessage(&message);
+				return message.powerOn == GetPowerOn();
+			}
+
+			// FUNCTION: ENGINE 0x10129D80
+			bool CompareIntsEqual(const int* lhs, const int* rhs)
+			{
+				return *lhs == *rhs;
+			}
+
+			// FUNCTION: ENGINE 0x1012A340
+			bool CompareInts(int op, const int* lhs, const int* rhs)
+			{
+				switch (op)
+				{
+				case 0:
+					return *lhs < *rhs;
+				case 1:
+					return *lhs <= *rhs;
+				case 2:
+					return CompareIntsEqual(lhs, rhs);
+				case 3:
+					return !CompareIntsEqual(lhs, rhs);
+				case 4:
+					return *lhs >= *rhs;
+				case 5:
+					return *lhs > *rhs;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1012AA00
+			bool SecondaryWeaponTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetSecondaryWeaponTypeMessage message;
+				object->SendMessage(&message);
+				int current = message.type;
+				int wanted = GetType();
+				return CompareInts(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A780
+			bool VehiclePlayAnimationAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VehiclePlayAnimationMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A800
+			void VehiclePlayAnimationAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					VehiclePlayAnimationMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1012A910
+			bool HelicopterSpawnBloodtoxAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetHelicopterWashTypeMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A990
+			void HelicopterSpawnBloodtoxAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetHelicopterWashTypeMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1012AFD0
+			bool VehiclePowerOnOffAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool powerOn = link.Get()->GetPowerOn();
+				bool useSpinup = link.Get()->GetUseSpinup();
+				VehiclePowerOnOffMessage message(powerOn, useSpinup);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B1B0
+			bool SetSecondaryWeaponTypeAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetSecondaryWeaponTypeMessage message(link.Get()->GetType());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B2E0
+			bool SetVehicleSolverEnabledAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetSolverEnabledMessage message(link.Get()->GetEnabled());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B410
+			bool SetVehicleAnimatedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetAnimatedMessage message(link.Get()->GetAnimated());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B540
+			bool SetVehicleHeadlightAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::EnableAttachedBillboard message(link.Get()->GetEnabled());
+				object->SendMessage(&message);
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<HelicopterHeightAboveGroundCondition>;
 			template class fight::PropertyFloatConstRange<HelicopterHeightAboveGroundCondition>;
@@ -1060,6 +1287,61 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101298C0
+// FUNCTION: ENGINE 0x101298D0
+// FUNCTION: ENGINE 0x101298E0
+// FUNCTION: ENGINE 0x101298F0
+// FUNCTION: ENGINE 0x10129900
+// FUNCTION: ENGINE 0x10129910
+// FUNCTION: ENGINE 0x10129920
+// FUNCTION: ENGINE 0x10129930
+// FUNCTION: ENGINE 0x10129940
+// FUNCTION: ENGINE 0x10129950
+// FUNCTION: ENGINE 0x10129960
+// FUNCTION: ENGINE 0x10129970
+// FUNCTION: ENGINE 0x10129980
+// FUNCTION: ENGINE 0x10129990
+// FUNCTION: ENGINE 0x101299A0
+// FUNCTION: ENGINE 0x101299B0
+// FUNCTION: ENGINE 0x101299E0
+// FUNCTION: ENGINE 0x101299F0
+// FUNCTION: ENGINE 0x10129A20
+// FUNCTION: ENGINE 0x10129A30
+// FUNCTION: ENGINE 0x10129A60
+// FUNCTION: ENGINE 0x10129AB0
+// FUNCTION: ENGINE 0x10129AC0
+// FUNCTION: ENGINE 0x10129AF0
+// FUNCTION: ENGINE 0x10129B00
+// FUNCTION: ENGINE 0x10129B30
+// FUNCTION: ENGINE 0x10129B40
+// FUNCTION: ENGINE 0x10129B70
+// FUNCTION: ENGINE 0x10129B80
+// FUNCTION: ENGINE 0x10129BB0
+// FUNCTION: ENGINE 0x10129BC0
+// FUNCTION: ENGINE 0x10129BF0
+// FUNCTION: ENGINE 0x10129C00
+// FUNCTION: ENGINE 0x10129C30
+// FUNCTION: ENGINE 0x10129C40
+// FUNCTION: ENGINE 0x10129C70
+// FUNCTION: ENGINE 0x10129C80
+// FUNCTION: ENGINE 0x10129CB0
+// FUNCTION: ENGINE 0x10129D30
+// FUNCTION: ENGINE 0x10129D40
+// FUNCTION: ENGINE 0x10129D50
+// FUNCTION: ENGINE 0x10129D60
+// FUNCTION: ENGINE 0x10129D70
+// FUNCTION: ENGINE 0x10129DA0
+// FUNCTION: ENGINE 0x10129DD0
+// FUNCTION: ENGINE 0x10129E00
+// FUNCTION: ENGINE 0x10129E30
+// FUNCTION: ENGINE 0x10129E60
+// FUNCTION: ENGINE 0x10129E90
+// FUNCTION: ENGINE 0x10129EC0
+// FUNCTION: ENGINE 0x10129EF0
+// FUNCTION: ENGINE 0x10129F20
+// FUNCTION: ENGINE 0x10129F50
+// FUNCTION: ENGINE 0x10129F80
+// FUNCTION: ENGINE 0x10129FB0
 // FUNCTION: ENGINE 0x10129FE0
 // FUNCTION: ENGINE 0x1012A000
 // FUNCTION: ENGINE 0x1012A020

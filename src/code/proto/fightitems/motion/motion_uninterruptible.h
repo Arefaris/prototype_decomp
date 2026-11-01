@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -61,6 +62,11 @@ namespace proto
 				// vftable slot 15 (0x10125610, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				bool GetIgnoreGrabs() const
+				{
+					return ignoreGrabs;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -97,6 +103,19 @@ namespace proto
 				// vftable slot 15 (0x101255C0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				bool GetAllowDevastatorGrabs() const
+				{
+					return allowDevastatorGrabs;
+				}
+				bool GetIgnoreGrabs() const
+				{
+					return ignoreGrabs;
+				}
+				bool GetIgnoreHits() const
+				{
+					return ignoreHits;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -120,6 +139,61 @@ namespace proto
 			fight::TrackFactory* CreateUninterruptibleTrackFactory(const char* name);
 			void RegisterUninterruptibleTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::InvulnerableAction (9 vftable slots, 0x20 bytes): makes the object undamageable and uninterruptible
+			class InvulnerableAction : public fight::Action
+			{
+			public:
+				// 0x10124A20
+				explicit InvulnerableAction(engine::GameObjectHandle newTarget);
+				// 0x10124A50
+				virtual ~InvulnerableAction();
+
+				// vftable slot 5 (0x10124D40)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10124E40)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// RTTI: proto::fightitems::motion::UninterruptibleAction (9 vftable slots, 0x2C bytes)
+			class UninterruptibleAction : public fight::Action
+			{
+			public:
+				// 0x10125070
+				UninterruptibleAction(engine::GameObjectHandle newTarget, UninterruptibleTrack* newTrack);
+				// 0x10124D10
+				virtual ~UninterruptibleAction();
+
+				// vftable slot 5 (0x10125110)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10125240)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<UninterruptibleTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::SpecificUninterruptibleAction (9 vftable slots, 0x2C bytes)
+			class SpecificUninterruptibleAction : public fight::Action
+			{
+			public:
+				// 0x10125370
+				SpecificUninterruptibleAction(engine::GameObjectHandle newTarget, SpecificUninterruptibleTrack* newTrack);
+				// 0x10124F60
+				virtual ~SpecificUninterruptibleAction();
+
+				// vftable slot 5 (0x10125410)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101254F0)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SpecificUninterruptibleTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

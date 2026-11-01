@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -24,6 +25,11 @@ namespace proto
 				// vftable slot 9 (0x10125670, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				int GetUnlockable() const
+				{
+					return unlockable;
+				}
+
 				// The members the properties write
 				bool SetUnlockable(int newValue);
 
@@ -37,6 +43,9 @@ namespace proto
 			extern fight::Property** gUnlockableConditionProperties;
 			fight::ConditionFactory* CreateUnlockableConditionFactory(const char* name);
 			void RegisterUnlockableConditionFactory(fight::TrackRegistry* registry, const char* name);
+
+			// 0x105793F0 (another unit): whether the player has the unlockable (a bit of the game database; name guess)
+			bool __stdcall IsUnlockableAvailable(int player, int unlockable);
 
 		}
 	}

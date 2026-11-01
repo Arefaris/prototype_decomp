@@ -25,6 +25,15 @@ namespace proto
 				// vftable slot 9 (0x10121D10, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				const fight::Name& GetSlotName() const
+				{
+					return slotName;
+				}
+				bool GetIsActive() const
+				{
+					return isActive;
+				}
+
 				// The members the properties write
 				bool SetSlotName(const fight::Name& newValue);
 				bool SetIsActive(bool newValue);
@@ -56,6 +65,15 @@ namespace proto
 				// vftable slot 9 (0x10122210, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				bool GetInfectedVisionDesired() const
+				{
+					return infectedVisionDesired;
+				}
+				bool GetThermalVisionDesired() const
+				{
+					return thermalVisionDesired;
+				}
+
 				// The members the properties write
 				bool SetThermalVisionDesired(bool newValue);
 				bool SetInfectedVisionDesired(bool newValue);
@@ -85,6 +103,15 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x10121B80, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				const fight::Name& GetName() const
+				{
+					return name;
+				}
+				bool GetIsActive() const
+				{
+					return isActive;
+				}
 
 				// The members the properties write
 				bool SetName(const fight::Name& newValue);
@@ -156,6 +183,11 @@ namespace proto
 				// vftable slot 9 (0x10122160, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				bool GetIsValid() const
+				{
+					return isValid;
+				}
+
 				// The members the properties write
 				bool SetIsValid(bool newValue);
 
@@ -215,6 +247,11 @@ namespace proto
 				// vftable slot 9 (0x10121C60, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				bool GetAllowed() const
+				{
+					return allowed;
+				}
+
 				// The members the properties write
 				bool SetAllowed(bool newValue);
 
@@ -246,6 +283,15 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x10123300, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				const fight::Name& GetSlotName() const
+				{
+					return slotName;
+				}
+				bool GetStealthy() const
+				{
+					return stealthy;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -316,6 +362,15 @@ namespace proto
 				// vftable slot 15 (0x101233F0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				const fight::Name& GetSlotName() const
+				{
+					return slotName;
+				}
+				const fight::Name& GetTransformationDescription() const
+				{
+					return transformationDescription;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetSlotName(const fight::Name& newValue);
@@ -382,6 +437,15 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x10123350, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				const fight::Name& GetSlotName() const
+				{
+					return slotName;
+				}
+				bool GetStealthy() const
+				{
+					return stealthy;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -451,6 +515,15 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x101232B0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				float GetFadeAtBegin() const
+				{
+					return fadeAtBegin;
+				}
+				float GetFadeAtEnd() const
+				{
+					return fadeAtEnd;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);

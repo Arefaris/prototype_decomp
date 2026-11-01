@@ -105,7 +105,7 @@ namespace motion
 	void RegisterSetVehicleSolverEnabledTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterSetVehicleAnimatedTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterSetVehicleHeadlightTrackFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry);
+	bool RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry);
 	void RegisterDecalTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterGrabbableClassConditionFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterNISConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name);
