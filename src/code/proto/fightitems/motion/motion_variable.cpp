@@ -1,5 +1,7 @@
 // Fight items of the motion group: VariableNameCompareCondition, TimerCompareCondition, OutOfCombatTimerCondition, VariableIntCompareCondition, TimerContinousSetTrack, VariableNameSetTrack, TimerSetTrack, VariableIntSetTrack, VariableIntTemporarySetTrack (unit 0x101C5300 - 0x101C8410; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_variable.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
+#include "code/math/random.h"
 
 namespace proto
 {
@@ -881,6 +883,198 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101291F0
+			TimerContinousSetAction::TimerContinousSetAction(TimerContinousSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128A10
+			TimerContinousSetAction::~TimerContinousSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101282A0
+			bool TimerContinousSetAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101282B0
+			void TimerContinousSetAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129810
+			fight::Action* TimerContinousSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TimerContinousSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10128F20
+			VariableNameSetAction::VariableNameSetAction(VariableNameSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128870
+			VariableNameSetAction::~VariableNameSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129770
+			fight::Action* VariableNameSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VariableNameSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10129050
+			TimerSetAction::TimerSetAction(TimerSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101289C0
+			TimerSetAction::~TimerSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101297C0
+			fight::Action* TimerSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TimerSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10128DA0
+			VariableIntSetAction::VariableIntSetAction(VariableIntSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128780
+			VariableIntSetAction::~VariableIntSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129720
+			fight::Action* VariableIntSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VariableIntSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10128670
+			// EQUIVALENT: register allocation (the engine keeps this in esi and the object in edi) and the stack slots of the message and the two compared values (61.9 %)
+			bool VariableIntCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VariableIntGetMessage message(GetVariable());
+				object->SendMessage(&message);
+				int current = message.value;
+				int wanted = GetValue();
+				return fight::CompareInts(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x101287B0
+			// EQUIVALENT: register allocation (the engine keeps this in edi and the object in esi) (90.6 %)
+			bool VariableNameCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VariableNameGetMessage message(GetVariable());
+				object->SendMessage(&message);
+				return fight::CompareNames(GetCompare(), &message.value, &GetValue());
+			}
+
+			// FUNCTION: ENGINE 0x101288A0
+			// EQUIVALENT: register allocation and the stack slots of the message and the two compared values (the engine keeps this in edi and the object in esi) (58.1 %)
+			bool TimerCompareCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				TimerGetMessage message(GetTimer());
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x10128A90
+			// EQUIVALENT: register allocation and the order of the loads of the condition's members (the engine keeps this in edi and the object in esi) (92.4 %)
+			bool OutOfCombatTimerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				OutOfCombatTimerGetMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x10129100
+			// EQUIVALENT: shrink-wrap (the engine saves edi in the entry block before the owner tests) (87.3 %)
+			bool TimerSetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					float time = math::gRandom->Jitter(link.Get()->GetTime(), link.Get()->GetRandomRange());
+					TimerSetMessage message(link.Get()->GetTimer(), time, link.Get()->GetIncrementing());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101292A0
+			// EQUIVALENT: shrink-wrap (the engine saves edi in the entry block before the owner tests) (87.3 %)
+			bool TimerContinousSetAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					float time = math::gRandom->Jitter(link.Get()->GetTime(), link.Get()->GetRandomRange());
+					TimerSetMessage message(link.Get()->GetTimer(), time, link.Get()->GetIncrementing());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10128FD0
+			// EQUIVALENT: shrink-wrap (the engine saves esi in the entry block before the owner tests) (77.7 %)
+			bool VariableNameSetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					VariableNameSetMessage message(link.Get()->GetVariable(), link.Get()->GetValue(), link.Get()->GetPersistent());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<VariableNameCompareCondition>;
 			template class fight::PropertyEnumConstList<VariableNameCompareCondition>;
 			template class fight::ConditionFactoryTemplate<VariableNameCompareCondition>;
@@ -934,6 +1128,49 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10127EC0
+// FUNCTION: ENGINE 0x10127F30
+// FUNCTION: ENGINE 0x10127F40
+// FUNCTION: ENGINE 0x10127F50
+// FUNCTION: ENGINE 0x10127F60
+// FUNCTION: ENGINE 0x10127F70
+// FUNCTION: ENGINE 0x10127F80
+// FUNCTION: ENGINE 0x10127F90
+// FUNCTION: ENGINE 0x10127FA0
+// FUNCTION: ENGINE 0x10127FB0
+// FUNCTION: ENGINE 0x10127FC0
+// FUNCTION: ENGINE 0x10127FD0
+// FUNCTION: ENGINE 0x10127FE0
+// FUNCTION: ENGINE 0x10127FF0
+// FUNCTION: ENGINE 0x10128000
+// FUNCTION: ENGINE 0x10128010
+// FUNCTION: ENGINE 0x10128020
+// FUNCTION: ENGINE 0x10128030
+// FUNCTION: ENGINE 0x10128040
+// FUNCTION: ENGINE 0x10128050
+// FUNCTION: ENGINE 0x10128060
+// FUNCTION: ENGINE 0x10128070
+// FUNCTION: ENGINE 0x10128080
+// FUNCTION: ENGINE 0x10128140
+// FUNCTION: ENGINE 0x10128170
+// FUNCTION: ENGINE 0x101282C0
+// FUNCTION: ENGINE 0x101282D0
+// FUNCTION: ENGINE 0x101282E0
+// FUNCTION: ENGINE 0x10128380
+// FUNCTION: ENGINE 0x10128390
+// FUNCTION: ENGINE 0x101283C0
+// FUNCTION: ENGINE 0x101283E0
+// FUNCTION: ENGINE 0x10128400
+// FUNCTION: ENGINE 0x10128420
+// FUNCTION: ENGINE 0x10128470
+// FUNCTION: ENGINE 0x101284D0
+// FUNCTION: ENGINE 0x10128530
+// FUNCTION: ENGINE 0x10128590
+// FUNCTION: ENGINE 0x10128640
+// FUNCTION: ENGINE 0x10128E20
+// FUNCTION: ENGINE 0x10128FA0
+// FUNCTION: ENGINE 0x101290D0
+// FUNCTION: ENGINE 0x10129270
 // FUNCTION: ENGINE 0x101C5990
 // FUNCTION: ENGINE 0x101C5CB0
 // FUNCTION: ENGINE 0x101C5CC0

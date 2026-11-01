@@ -1,5 +1,6 @@
 // Fight items of the motion group: HelicopterHeightAboveGroundCondition, HelicopterRotorCollisionCondition, SecondaryWeaponTypeCondition, VehiclePowerOnOffCondition, HelicopterOnGroundCondition, SetVehicleAnimatedTrack, HelicopterSpawnBloodtoxTrack, VehiclePlayAnimationTrack, SetVehicleHeadlightTrack, VehiclePowerOnOffTrack, SetSecondaryWeaponTypeTrack, SetVehicleSolverEnabledTrack (unit 0x101C8410 - 0x101CAFF0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_vehicle.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -887,6 +888,359 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1012B370
+			SetVehicleAnimatedAction::SetVehicleAnimatedAction(SetVehicleAnimatedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AB90
+			SetVehicleAnimatedAction::~SetVehicleAnimatedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B7B0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleAnimatedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleAnimatedAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B070
+			HelicopterSpawnBloodtoxAction::HelicopterSpawnBloodtoxAction(HelicopterSpawnBloodtoxTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A8E0
+			HelicopterSpawnBloodtoxAction::~HelicopterSpawnBloodtoxAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129D20
+			bool HelicopterSpawnBloodtoxAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B690
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* HelicopterSpawnBloodtoxTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new HelicopterSpawnBloodtoxAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012AE90
+			VehiclePlayAnimationAction::VehiclePlayAnimationAction(VehiclePlayAnimationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A750
+			VehiclePlayAnimationAction::~VehiclePlayAnimationAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B5D0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* VehiclePlayAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VehiclePlayAnimationAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B4A0
+			SetVehicleHeadlightAction::SetVehicleHeadlightAction(SetVehicleHeadlightTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012ABE0
+			SetVehicleHeadlightAction::~SetVehicleHeadlightAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B810
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleHeadlightTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleHeadlightAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012AF30
+			VehiclePowerOnOffAction::VehiclePowerOnOffAction(VehiclePowerOnOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A890
+			VehiclePowerOnOffAction::~VehiclePowerOnOffAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B630
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* VehiclePowerOnOffTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VehiclePowerOnOffAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B110
+			SetSecondaryWeaponTypeAction::SetSecondaryWeaponTypeAction(SetSecondaryWeaponTypeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AAF0
+			SetSecondaryWeaponTypeAction::~SetSecondaryWeaponTypeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B6F0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetSecondaryWeaponTypeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetSecondaryWeaponTypeAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B240
+			SetVehicleSolverEnabledAction::SetVehicleSolverEnabledAction(SetVehicleSolverEnabledTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AB40
+			SetVehicleSolverEnabledAction::~SetVehicleSolverEnabledAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B750
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleSolverEnabledTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleSolverEnabledAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x10129CC0
+			bool RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry)
+			{
+				RegisterHelicopterRotorCollisionConditionFactory(registry, "helicopterRotorCollision");
+				RegisterHelicopterOnGroundConditionFactory(registry, "helicopterOnGround");
+				RegisterHelicopterHeightAboveGroundConditionFactory(registry, "helicopterHeightAboveGround");
+				RegisterVehiclePowerOnOffConditionFactory(registry, "vehiclePowerOnOff");
+				RegisterSecondaryWeaponTypeConditionFactory(registry, "SecondaryWeaponType");
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A410
+			bool HelicopterRotorCollisionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetRotorCollisionTimeMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A4F0
+			bool HelicopterOnGroundCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetHelicopterOnGroundMessage message;
+				object->SendMessage(&message);
+				float current = message.time;
+				float wanted = GetTime();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A5C0
+			bool HelicopterHeightAboveGroundCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetHelicopterHeightAboveGroundMessage message;
+				object->SendMessage(&message);
+				float current = message.height;
+				float wanted = GetHeight();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A690
+			bool VehiclePowerOnOffCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetVehiclePowerOnOffMessage message;
+				object->SendMessage(&message);
+				return message.powerOn == GetPowerOn();
+			}
+
+			// FUNCTION: ENGINE 0x10129D80
+			bool CompareIntsEqual(const int* lhs, const int* rhs)
+			{
+				return *lhs == *rhs;
+			}
+
+			// FUNCTION: ENGINE 0x1012A340
+			bool CompareInts(int op, const int* lhs, const int* rhs)
+			{
+				switch (op)
+				{
+				case 0:
+					return *lhs < *rhs;
+				case 1:
+					return *lhs <= *rhs;
+				case 2:
+					return CompareIntsEqual(lhs, rhs);
+				case 3:
+					return !CompareIntsEqual(lhs, rhs);
+				case 4:
+					return *lhs >= *rhs;
+				case 5:
+					return *lhs > *rhs;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1012AA00
+			bool SecondaryWeaponTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetSecondaryWeaponTypeMessage message;
+				object->SendMessage(&message);
+				int current = message.type;
+				int wanted = GetType();
+				return CompareInts(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012A780
+			bool VehiclePlayAnimationAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				VehiclePlayAnimationMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A800
+			void VehiclePlayAnimationAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					VehiclePlayAnimationMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1012A910
+			bool HelicopterSpawnBloodtoxAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetHelicopterWashTypeMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012A990
+			void HelicopterSpawnBloodtoxAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetHelicopterWashTypeMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1012AFD0
+			bool VehiclePowerOnOffAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool powerOn = link.Get()->GetPowerOn();
+				bool useSpinup = link.Get()->GetUseSpinup();
+				VehiclePowerOnOffMessage message(powerOn, useSpinup);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B1B0
+			bool SetSecondaryWeaponTypeAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetSecondaryWeaponTypeMessage message(link.Get()->GetType());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B2E0
+			bool SetVehicleSolverEnabledAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetSolverEnabledMessage message(link.Get()->GetEnabled());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B410
+			bool SetVehicleAnimatedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetAnimatedMessage message(link.Get()->GetAnimated());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B540
+			bool SetVehicleHeadlightAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::EnableAttachedBillboard message(link.Get()->GetEnabled());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<HelicopterHeightAboveGroundCondition>;
 			template class fight::PropertyFloatConstRange<HelicopterHeightAboveGroundCondition>;
 			template class fight::ConditionFactoryTemplate<HelicopterHeightAboveGroundCondition>;
@@ -933,6 +1287,82 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101298C0
+// FUNCTION: ENGINE 0x101298D0
+// FUNCTION: ENGINE 0x101298E0
+// FUNCTION: ENGINE 0x101298F0
+// FUNCTION: ENGINE 0x10129900
+// FUNCTION: ENGINE 0x10129910
+// FUNCTION: ENGINE 0x10129920
+// FUNCTION: ENGINE 0x10129930
+// FUNCTION: ENGINE 0x10129940
+// FUNCTION: ENGINE 0x10129950
+// FUNCTION: ENGINE 0x10129960
+// FUNCTION: ENGINE 0x10129970
+// FUNCTION: ENGINE 0x10129980
+// FUNCTION: ENGINE 0x10129990
+// FUNCTION: ENGINE 0x101299A0
+// FUNCTION: ENGINE 0x101299B0
+// FUNCTION: ENGINE 0x101299E0
+// FUNCTION: ENGINE 0x101299F0
+// FUNCTION: ENGINE 0x10129A20
+// FUNCTION: ENGINE 0x10129A30
+// FUNCTION: ENGINE 0x10129A60
+// FUNCTION: ENGINE 0x10129AB0
+// FUNCTION: ENGINE 0x10129AC0
+// FUNCTION: ENGINE 0x10129AF0
+// FUNCTION: ENGINE 0x10129B00
+// FUNCTION: ENGINE 0x10129B30
+// FUNCTION: ENGINE 0x10129B40
+// FUNCTION: ENGINE 0x10129B70
+// FUNCTION: ENGINE 0x10129B80
+// FUNCTION: ENGINE 0x10129BB0
+// FUNCTION: ENGINE 0x10129BC0
+// FUNCTION: ENGINE 0x10129BF0
+// FUNCTION: ENGINE 0x10129C00
+// FUNCTION: ENGINE 0x10129C30
+// FUNCTION: ENGINE 0x10129C40
+// FUNCTION: ENGINE 0x10129C70
+// FUNCTION: ENGINE 0x10129C80
+// FUNCTION: ENGINE 0x10129CB0
+// FUNCTION: ENGINE 0x10129D30
+// FUNCTION: ENGINE 0x10129D40
+// FUNCTION: ENGINE 0x10129D50
+// FUNCTION: ENGINE 0x10129D60
+// FUNCTION: ENGINE 0x10129D70
+// FUNCTION: ENGINE 0x10129DA0
+// FUNCTION: ENGINE 0x10129DD0
+// FUNCTION: ENGINE 0x10129E00
+// FUNCTION: ENGINE 0x10129E30
+// FUNCTION: ENGINE 0x10129E60
+// FUNCTION: ENGINE 0x10129E90
+// FUNCTION: ENGINE 0x10129EC0
+// FUNCTION: ENGINE 0x10129EF0
+// FUNCTION: ENGINE 0x10129F20
+// FUNCTION: ENGINE 0x10129F50
+// FUNCTION: ENGINE 0x10129F80
+// FUNCTION: ENGINE 0x10129FB0
+// FUNCTION: ENGINE 0x10129FE0
+// FUNCTION: ENGINE 0x1012A000
+// FUNCTION: ENGINE 0x1012A020
+// FUNCTION: ENGINE 0x1012A040
+// FUNCTION: ENGINE 0x1012A060
+// FUNCTION: ENGINE 0x1012A080
+// FUNCTION: ENGINE 0x1012A0A0
+// FUNCTION: ENGINE 0x1012A0C0
+// FUNCTION: ENGINE 0x1012A120
+// FUNCTION: ENGINE 0x1012A170
+// FUNCTION: ENGINE 0x1012A1D0
+// FUNCTION: ENGINE 0x1012A230
+// FUNCTION: ENGINE 0x1012A290
+// FUNCTION: ENGINE 0x1012A2F0
+// FUNCTION: ENGINE 0x1012AF00
+// FUNCTION: ENGINE 0x1012AFA0
+// FUNCTION: ENGINE 0x1012B0E0
+// FUNCTION: ENGINE 0x1012B180
+// FUNCTION: ENGINE 0x1012B2B0
+// FUNCTION: ENGINE 0x1012B3E0
+// FUNCTION: ENGINE 0x1012B510
 // FUNCTION: ENGINE 0x101C8C40
 // FUNCTION: ENGINE 0x101C8C70
 // FUNCTION: ENGINE 0x101C8CA0

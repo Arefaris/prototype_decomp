@@ -6441,3 +6441,49 @@ The range goes on with the template instances of the mgraph library (see sn-bd):
   constructor), `Throw` / `Catch` / `Switch` / `ListCount` / `ListEntry` slot 16 (copy a packet out of an event), the scalar deleting
   destructors (mapped), the `MetaProperty` / `MetaMethod0Const` instances of the property nodes, the `CommutativeMath` helpers and the
   container helpers of the element types of the nodes' arrays.
+## proto/fightitems/motion: the action halves of the units in 0x10120000 - 0x10140000 (sn-bg)
+The range holds the action halves of the motion units `motion_throw` (the tail: the reaction throw action) to `motion_whipfist` (`motion_throw`,
+`motion_transformation`, `motion_turnround`, `motion_underground`, `motion_uninterruptible`, `motion_unlockable`, `motion_variable`, `motion_vehicle`,
+`motion_vehiclereticule`, `motion_velocity`, `motion_wallexit`, `motion_walljump`, `motion_wallrun`, `motion_wallslide`, `motion_whipfist` with the tendril
+actions) and the property half of the one unit that was left out of the property ranges, `motion_acceleration.cpp` (0x1013C010 - 0x1013C5B0:
+`AccelerationCondition`, its factory registration `proto::fightitems::RegisterAccelerationFactory` and, from 0x10094730, its `Evaluate`). Of the 1187 open
+functions 536 are reconstructed (the generators of sn-ay/sn-ap, local/scratch/sn-bg/gen2.py and prop/, add the constructors, destructors and
+`CreateAction`, the rest was written by hand); the slots are in the order of the units (action constructor, scalar deleting destructor, slots 5 / 6 / 7 per class, the
+`CreateAction` of the tracks last). 651 remain: about 390 are 3 - 8 byte copies, 105 are 9 - 40 bytes, 155 are bigger.
+- Matched: the constructors, destructors and `CreateAction` of 36 action classes, the kept copies of their `Link<Track>` (constructor, destructor, `Get`) and of the
+  getters of the track and condition classes, the messages' scalar deleting destructors, the `Evaluate` of 21 conditions (underground state, unlockable, the five
+  transformation conditions, the vehicle and helicopter ones, the velocity ones, the four fight variable ones, the acceleration condition, the whip fist blocked test)
+  and the `Slot5` / `Slot6` / `Slot7` of about 45 actions (underground, anchor to ground, invulnerable / uninterruptible, transformation, vehicle, whip fist,
+  turn round, timer set). 37 functions are EQUIVALENT (shrink-wrap, scheduling or register allocation, listed in the sources with their percentages; the
+  conditions that keep a zero or the condition itself in a callee-saved register have 20 - 90 %).
+- How the bodies are written (all found by trying): an early return (`if (object == 0) { return false; }`, then the body, then `return true;`) gives the engine's
+  block order of the failing handle test, while `if (object != 0) { ...; return true; } return false;` puts the failure return at the end; `if (!x) { return false; }
+  return true;` and not `return x;`. The owner of a condition is its third argument (`engine::GetObjectHandle(AsOwner(c)).Get()`); a condition that reads the handle with
+  `IsValid()` and then `Get()` tests the table entry twice (`UnlockableCondition`, EQUIVALENT: ours merges the two tests). A track's one-line getters (`GetState()`,
+  `GetIgnoreHits()`, `GetFadeAtBegin()` ...) written in the track class and used in the slot make the compiler emit the 4-byte copies the engine keeps in front of each
+  unit; `link.Get()` emits the 3-byte `Link::Get`. A message built from a track's name is copied twice in the engine (`core::Name<...> nameCopy(GetSlotName());
+  bool wanted = GetIsActive(); Message message(nameCopy);` with a `const Name&` constructor). A message class with a `Name` is padded to a multiple of 8 on the
+  stack: an `int unknownNN;` after its last member gives the engine's frame (`StartTransformationMessage`, `SetDesiredTransformationMessage`, `VariableNameSetMessage`).
+  A constructor that the engine calls out of line (`VariableNameSetMessage` 0x100B3280) is declared and not defined, mapped in symbols.txt.
+- New files: `motion_acceleration.cpp/.h`, `motionmessages2.h` (the grab / interrupt, transformation, whip fist, vehicle, fight variable and timer messages, 60
+  classes with the RTTI key and ids read from the engine's inline constructors). Shared header changes: `motionaction.h` (`engine::AssignRefCountedCopy2` 0x1011AAF0,
+  `core::SafeReleaseRefCopy2` 0x1011AB30, the supporting limb unit's copies), `motionmessages.h` (`GetTunnelingStateStateChangeMessage`), `math/random.h` (the
+  inline member `Random::Jitter`, 0x10127EC0), `motion_underground.h` (`SetTunnelingState` 0x103B9BB0, `FindGroundHeight` 0x103BCE10), `contexts.cpp` (the two
+  registration groups `RegisterUndergroundStateFactories` 0x10123E80 and `RegisterHelicopterRotorCollisionFactories` 0x10129CC0 return `bool`, like the engine's; their
+  symbols.txt names changed from `YAX` to `YA_N`), symbols.txt (`??_GSetUndamageableMessage@engine` moved from the thunk 0x10024730 to the function 0x10124A80;
+  engine::GetObjectVelocity 0x107F19D0, proto::fightitems::motion::IsUnlockableAvailable 0x105793F0, `CompareInts` / `CompareIntsEqual` of the vehicle unit
+  0x1012A340 / 0x10129D80 which are that unit's own copies).
+- Layouts: an action is `link` (+0x1C) and the handle (+0x28), or the handle (+0x1C) and the link (+0x20) when the constructor takes the handle first (uninterruptible,
+  transformation, underground: `new X(engine::GetObjectHandle(owner), this)` allocates before the handle is read); `InvulnerableAction` and
+  `WhipFistResetTargetAction` have only the handle. The wall run / orient actions keep a reference counted supporting surface event (kind 0x21006) at +0x2C, the wall
+  exit / turn round / wall jump actions a `choreo::RootDriver*` (released with `ReleaseDriverCopy2` / `3`). `WallJumpUpAction` is 0x70C0 bytes (an array of 0x6F40 bytes
+  at +0xBC) and `TendrilAction` 0x178.
+- Not done and why: the `Link<Track>` copies of the second group (per class two more 55-byte constructors, 16-byte destructors and 3-byte `Get` that nothing calls: 0x10124280,
+  0x10124F90 ..., about 180 functions; their code is the one of the matched copies and no member of `core::Link` that this unit could use is known to emit them, an explicit
+  instantiation emits a copy constructor the engine does not have); the 4-byte float getters of the tracks whose bodies are not written (wall jump, wall run, tendril); the
+  helper block 0x10125700 - 0x10127F30 (40 functions: random numbers, vector and angle helpers of the wall units, `Random::NextFloat01` / `NextFloat11` out of line); the slots
+  that are bigger than 300 bytes or use the driver and puppet set-up (`TurnRoundAction::Slot7`, `WallExitAction::Slot5` / `Slot7`, `WallJumpAction`, `WallRun*`,
+  `WallSlideAction`, `WallOrientAction::Slot5` / `Slot7`, `WhipFistExtendAction::Slot5`, `WhipFistPullParentToTargetAction`, `WhipFistSegmentFixToJointAction`, the tendril
+  actions), `HitReactionThrowAction` (a sequencer and an event handle), `WallSlideAction` (its owner is a dynamic_cast to `SupportingLimbTestParams`, a class nothing declares
+  yet), `TransformationSlotValidCondition` / `TransformationSlotTransformDesiredCondition` (slots with a stream package), `VariableIntSetAction` /
+  `VariableIntTemporarySetAction` (they call the message constructors of 0x10095550 / 0x100B31B0 out of line while the conditions inline the same constructor).

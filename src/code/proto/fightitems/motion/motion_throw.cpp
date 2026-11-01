@@ -520,6 +520,24 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1011FEA0
+			ThrowAction::ThrowAction(ThrowTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1011FD20
+			ThrowAction::~ThrowAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10121180
+			fight::Action* ThrowTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ThrowAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<HitReactionThrowTrack>;
 			template class fight::PropertyNameList<HitReactionThrowTrack>;
 			template class fight::TrackFactoryTemplate<HitReactionThrowTrack>;

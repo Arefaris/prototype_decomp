@@ -133,6 +133,66 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10123700
+			TurnRoundAction::TurnRoundAction(TurnRoundTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101235E0
+			TurnRoundAction::~TurnRoundAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x10123D00
+			fight::Action* TurnRoundTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TurnRoundAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10123620
+			void TurnRoundAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101237A0
+			bool TurnRoundAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("turnRound", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(2);
+				return true;
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<TurnRoundTrack>;
 			template class fight::PropertyBool<TurnRoundTrack>;
 			template class fight::PropertyIntConstRange<TurnRoundTrack>;
@@ -143,6 +203,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10123540
+// FUNCTION: ENGINE 0x10123570
+// FUNCTION: ENGINE 0x10123770
 // FUNCTION: ENGINE 0x101C2EE0
 // FUNCTION: ENGINE 0x101C2F10
 // FUNCTION: ENGINE 0x101C2F20

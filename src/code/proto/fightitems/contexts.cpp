@@ -74,7 +74,7 @@ namespace motion
 	void RegisterStunnedFactories(fight::TrackRegistry* registry);
 	void RegisterHasPatsyFactories(fight::TrackRegistry* registry);
 	void RegisterFactionFactories(fight::TrackRegistry* registry);
-	void RegisterUndergroundStateFactories(fight::TrackRegistry* registry);
+	bool RegisterUndergroundStateFactories(fight::TrackRegistry* registry);
 	void RegisterAccumulatedDamageFactories(fight::TrackRegistry* registry);
 	void RegisterSupportingLimbTestSurfaceNormalAngleFactories(fight::TrackRegistry* registry);
 	void RegisterHaveIconTypeConditionFactory(fight::TrackRegistry* registry, const char* name);
@@ -105,7 +105,7 @@ namespace motion
 	void RegisterSetVehicleSolverEnabledTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterSetVehicleAnimatedTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterSetVehicleHeadlightTrackFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry);
+	bool RegisterHelicopterRotorCollisionFactories(fight::TrackRegistry* registry);
 	void RegisterDecalTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterGrabbableClassConditionFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterNISConsumeByParentTrackFactory(fight::TrackRegistry* registry, const char* name);

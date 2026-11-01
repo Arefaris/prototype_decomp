@@ -79,6 +79,35 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1012B9F0
+			VehicleReticuleAction::VehicleReticuleAction(VehicleReticuleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B930
+			VehicleReticuleAction::~VehicleReticuleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012BA90
+			fight::Action* VehicleReticuleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new VehicleReticuleAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B960
+			bool VehicleReticuleAction::Slot5(int arg, float value)
+			{
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				return true;
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<VehicleReticuleTrack>;
 			template class fight::TrackFactoryTemplate<VehicleReticuleTrack>;
 			template class fight::TrackFactoryCasterTemplate<VehicleReticuleTrack>;
@@ -87,6 +116,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1012B8A0
+// FUNCTION: ENGINE 0x1012B8C0
+// FUNCTION: ENGINE 0x1012BA60
 // FUNCTION: ENGINE 0x101CB090
 // FUNCTION: ENGINE 0x101CB0C0
 // FUNCTION: ENGINE 0x101CB0D0

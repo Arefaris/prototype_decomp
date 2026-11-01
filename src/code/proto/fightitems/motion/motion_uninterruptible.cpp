@@ -1,5 +1,6 @@
 // Fight items of the motion group: InvulnerableTrack, SpecificUninterruptibleTrack, UninterruptibleTrack (unit 0x101C42E0 - 0x101C4FB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_uninterruptible.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -286,6 +287,180 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10124A20
+			InvulnerableAction::InvulnerableAction(engine::GameObjectHandle newTarget) : fight::Action(0x600), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124A50
+			InvulnerableAction::~InvulnerableAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124B70
+			fight::Action* InvulnerableTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new InvulnerableAction(engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10124D40
+			bool InvulnerableAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::SetUndamageableMessage undamageable(true);
+				object->SendMessage(&undamageable);
+				SetUninterruptibleMessage uninterruptible(true);
+				object->SendMessage(&uninterruptible);
+				SetGrabbableUninterruptibleMessage grabbable(true);
+				object->SendMessage(&grabbable);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10124E40
+			void InvulnerableAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetGrabbableUninterruptibleMessage grabbable(false);
+					object->SendMessage(&grabbable);
+					SetUninterruptibleMessage uninterruptible(false);
+					object->SendMessage(&uninterruptible);
+					engine::SetUndamageableMessage undamageable(false);
+					object->SendMessage(&undamageable);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10125070
+			UninterruptibleAction::UninterruptibleAction(engine::GameObjectHandle newTarget, UninterruptibleTrack* newTrack) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124D10
+			UninterruptibleAction::~UninterruptibleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101255C0
+			fight::Action* UninterruptibleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new UninterruptibleAction(engine::GetObjectHandle(owner), this);
+			}
+
+			// FUNCTION: ENGINE 0x10125110
+			bool UninterruptibleAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (link.Get()->GetIgnoreHits())
+				{
+					SetUninterruptibleMessage message(true);
+					object->SendMessage(&message);
+				}
+				if (link.Get()->GetIgnoreGrabs())
+				{
+					SetGrabbableUninterruptibleMessage message(true);
+					object->SendMessage(&message);
+				}
+				if (link.Get()->GetAllowDevastatorGrabs())
+				{
+					SetDevastatorInterruptAllowedMessage message(true);
+					object->SendMessage(&message);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10125240
+			void UninterruptibleAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.Get() != 0)
+				{
+					if (link.Get()->GetIgnoreGrabs())
+					{
+						SetGrabbableUninterruptibleMessage message(false);
+						object->SendMessage(&message);
+					}
+					if (link.Get()->GetAllowDevastatorGrabs())
+					{
+						SetDevastatorInterruptAllowedMessage message(false);
+						object->SendMessage(&message);
+					}
+					if (link.Get()->GetIgnoreHits())
+					{
+						SetUninterruptibleMessage message(false);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10125370
+			SpecificUninterruptibleAction::SpecificUninterruptibleAction(engine::GameObjectHandle newTarget, SpecificUninterruptibleTrack* newTrack) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124F60
+			SpecificUninterruptibleAction::~SpecificUninterruptibleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10125610
+			fight::Action* SpecificUninterruptibleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SpecificUninterruptibleAction(engine::GetObjectHandle(owner), this);
+			}
+
+			// FUNCTION: ENGINE 0x10125410
+			bool SpecificUninterruptibleAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				SetSpecificUninterruptibleMessage message(true);
+				object->SendMessage(&message);
+				if (link.Get()->GetIgnoreGrabs())
+				{
+					SetGrabbableUninterruptibleMessage grabbable(true);
+					object->SendMessage(&grabbable);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101254F0
+			void SpecificUninterruptibleAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.Get() != 0)
+				{
+					if (link.Get()->GetIgnoreGrabs())
+					{
+						SetGrabbableUninterruptibleMessage grabbable(false);
+						object->SendMessage(&grabbable);
+					}
+					SetSpecificUninterruptibleMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<InvulnerableTrack>;
 			template class fight::TrackFactoryTemplate<InvulnerableTrack>;
 			template class fight::TrackFactoryCasterTemplate<InvulnerableTrack>;
@@ -302,6 +477,29 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10124910
+// FUNCTION: ENGINE 0x10124920
+// FUNCTION: ENGINE 0x10124950
+// FUNCTION: ENGINE 0x10124960
+// FUNCTION: ENGINE 0x10124990
+// FUNCTION: ENGINE 0x101249A0
+// FUNCTION: ENGINE 0x101249D0
+// FUNCTION: ENGINE 0x101249E0
+// FUNCTION: ENGINE 0x10124A10
+// FUNCTION: ENGINE 0x10124A60
+// FUNCTION: ENGINE 0x10124A70
+// FUNCTION: ENGINE 0x10124A80
+// FUNCTION: ENGINE 0x10124AB0
+// FUNCTION: ENGINE 0x10124AE0
+// FUNCTION: ENGINE 0x10124B10
+// FUNCTION: ENGINE 0x10124B40
+// FUNCTION: ENGINE 0x10124BC0
+// FUNCTION: ENGINE 0x10124BF0
+// FUNCTION: ENGINE 0x10124C10
+// FUNCTION: ENGINE 0x10124C40
+// FUNCTION: ENGINE 0x10124CA0
+// FUNCTION: ENGINE 0x101250E0
+// FUNCTION: ENGINE 0x101253E0
 // FUNCTION: ENGINE 0x101C45D0
 // FUNCTION: ENGINE 0x101C4600
 // FUNCTION: ENGINE 0x101C4630

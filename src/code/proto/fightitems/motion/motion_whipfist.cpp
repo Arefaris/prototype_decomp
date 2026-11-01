@@ -1,5 +1,6 @@
 // Fight items of the motion group: WhipFistExtendBlockedOrNotCondition, WhipFistResetTargetTrack, TendrilTrack, WhipFistRetractTrack, WhipFistFreezeSegmentsTrack, WhipFistSegmentFixToJointTrack, TendrilFromParentTrack, WhipFistExtendTrack, WhipFistPullParentToTargetTrack, WhipFistAnimatedTrack, WhipFistMakeTautTrack (unit 0x101D0A00 - 0x101D5F50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_whipfist.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -1747,6 +1748,370 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1013A240
+			WhipFistRetractAction::WhipFistRetractAction(WhipFistRetractTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137540
+			WhipFistRetractAction::~WhipFistRetractAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BDD0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistRetractTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistRetractAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013B790
+			WhipFistFreezeSegmentsAction::WhipFistFreezeSegmentsAction(WhipFistFreezeSegmentsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137910
+			WhipFistFreezeSegmentsAction::~WhipFistFreezeSegmentsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BFB0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistFreezeSegmentsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistFreezeSegmentsAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x10139E70
+			WhipFistExtendAction::WhipFistExtendAction(WhipFistExtendTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101373E0
+			WhipFistExtendAction::~WhipFistExtendAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BD70
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistExtendTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistExtendAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013AA80
+			WhipFistPullParentToTargetAction::WhipFistPullParentToTargetAction(WhipFistPullParentToTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(-1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101377D0
+			WhipFistPullParentToTargetAction::~WhipFistPullParentToTargetAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1013BF50
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistPullParentToTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistPullParentToTargetAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A660
+			WhipFistAnimatedAction::WhipFistAnimatedAction(WhipFistAnimatedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101376C0
+			WhipFistAnimatedAction::~WhipFistAnimatedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BE90
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistAnimatedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistAnimatedAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A460
+			WhipFistMakeTautAction::WhipFistMakeTautAction(WhipFistMakeTautTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137600
+			WhipFistMakeTautAction::~WhipFistMakeTautAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BE30
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistMakeTautTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistMakeTautAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A7A0
+			WhipFistSegmentFixToJointAction::WhipFistSegmentFixToJointAction(WhipFistSegmentFixToJointTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137780
+			WhipFistSegmentFixToJointAction::~WhipFistSegmentFixToJointAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BEF0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistSegmentFixToJointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistSegmentFixToJointAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x10137410
+			bool WhipFistExtendAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetWhipFistStateMessage message;
+				object->SendMessage(&message);
+				return message.state == 1;
+			}
+
+			// FUNCTION: ENGINE 0x101374B0
+			void WhipFistExtendAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ReleaseWhipFistPowerMessage message;
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10137570
+			void WhipFistRetractAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ReleaseWhipFistPowerMessage message;
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10137630
+			void WhipFistMakeTautAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ReleaseWhipFistPowerMessage message;
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101376F0
+			void WhipFistAnimatedAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					AnimatedWhipFistPowerMessage message(false);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10134E60
+			WhipFistResetTargetAction::WhipFistResetTargetAction(engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10134E90
+			WhipFistResetTargetAction::~WhipFistResetTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10136920
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (14.6 %)
+			fight::Action* WhipFistResetTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistResetTargetAction(AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x10137880
+			bool WhipFistResetTargetAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					WhipFistResetTargetMessage message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10137940
+			bool WhipFistExtendBlockedOrNotCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				WhipFistCheckExtendBlockedMessage message;
+				object->SendMessage(&message);
+				return message.blocked == GetBlocked();
+			}
+
+			// FUNCTION: ENGINE 0x1013A2F0
+			bool WhipFistRetractAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				RetractWhipFistPowerMessage message(link.Get()->GetVelocity(), link.Get()->GetSoundLeadTime());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1013A3A0
+			bool WhipFistRetractAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetWhipFistSegmentCountMessage message;
+				object->SendMessage(&message);
+				return message.count >= link.Get()->GetMinSegmentsRemaining();
+			}
+
+			// FUNCTION: ENGINE 0x1013A510
+			bool WhipFistMakeTautAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				MakeTautWhipFistPowerMessage message(link.Get()->GetTautTime());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1013A5B0
+			bool WhipFistMakeTautAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetWhipFistStateMessage message;
+				object->SendMessage(&message);
+				return message.state == 3;
+			}
+
+			// FUNCTION: ENGINE 0x1013A710
+			bool WhipFistAnimatedAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				AnimatedWhipFistPowerMessage message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1013B840
+			bool WhipFistFreezeSegmentsAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				WhipFistFreezeSegmentsMessage message(link.Get()->GetNumSegments());
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1013B8D0
+			void WhipFistFreezeSegmentsAction::Slot6()
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						WhipFistFreezeSegmentsMessage message(0);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10137810
+			void WhipFistPullParentToTargetAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<WhipFistExtendBlockedOrNotCondition>;
 			template class fight::ConditionFactoryTemplate<WhipFistExtendBlockedOrNotCondition>;
 			template class fight::ConditionFactoryCasterTemplate<WhipFistExtendBlockedOrNotCondition>;
@@ -1805,6 +2170,64 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101341C0
+// FUNCTION: ENGINE 0x101343C0
+// FUNCTION: ENGINE 0x101343D0
+// FUNCTION: ENGINE 0x101343E0
+// FUNCTION: ENGINE 0x101343F0
+// FUNCTION: ENGINE 0x101346C0
+// FUNCTION: ENGINE 0x10134860
+// FUNCTION: ENGINE 0x101348C0
+// FUNCTION: ENGINE 0x101348D0
+// FUNCTION: ENGINE 0x10134910
+// FUNCTION: ENGINE 0x10134920
+// FUNCTION: ENGINE 0x10134950
+// FUNCTION: ENGINE 0x10134960
+// FUNCTION: ENGINE 0x10134990
+// FUNCTION: ENGINE 0x101349A0
+// FUNCTION: ENGINE 0x101349D0
+// FUNCTION: ENGINE 0x101349E0
+// FUNCTION: ENGINE 0x10134A10
+// FUNCTION: ENGINE 0x10134A70
+// FUNCTION: ENGINE 0x10134A80
+// FUNCTION: ENGINE 0x10134AB0
+// FUNCTION: ENGINE 0x10134AC0
+// FUNCTION: ENGINE 0x10134B00
+// FUNCTION: ENGINE 0x10134EE0
+// FUNCTION: ENGINE 0x10134EF0
+// FUNCTION: ENGINE 0x10134F00
+// FUNCTION: ENGINE 0x10134F10
+// FUNCTION: ENGINE 0x10135000
+// FUNCTION: ENGINE 0x10135030
+// FUNCTION: ENGINE 0x10135060
+// FUNCTION: ENGINE 0x10135090
+// FUNCTION: ENGINE 0x101350C0
+// FUNCTION: ENGINE 0x101350F0
+// FUNCTION: ENGINE 0x101351F0
+// FUNCTION: ENGINE 0x10135220
+// FUNCTION: ENGINE 0x10135250
+// FUNCTION: ENGINE 0x10136980
+// FUNCTION: ENGINE 0x101369B0
+// FUNCTION: ENGINE 0x101369D0
+// FUNCTION: ENGINE 0x101369F0
+// FUNCTION: ENGINE 0x10136A10
+// FUNCTION: ENGINE 0x10136A30
+// FUNCTION: ENGINE 0x10136A50
+// FUNCTION: ENGINE 0x10136A70
+// FUNCTION: ENGINE 0x10136AE0
+// FUNCTION: ENGINE 0x10136B40
+// FUNCTION: ENGINE 0x10136BA0
+// FUNCTION: ENGINE 0x10136C00
+// FUNCTION: ENGINE 0x10136C60
+// FUNCTION: ENGINE 0x10136CC0
+// FUNCTION: ENGINE 0x10136D20
+// FUNCTION: ENGINE 0x10139EF0
+// FUNCTION: ENGINE 0x1013A2C0
+// FUNCTION: ENGINE 0x1013A4E0
+// FUNCTION: ENGINE 0x1013A6E0
+// FUNCTION: ENGINE 0x1013A820
+// FUNCTION: ENGINE 0x1013AB20
+// FUNCTION: ENGINE 0x1013B810
 // FUNCTION: ENGINE 0x101D1EA0
 // FUNCTION: ENGINE 0x101D1ED0
 // FUNCTION: ENGINE 0x101D20E0

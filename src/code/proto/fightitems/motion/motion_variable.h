@@ -4,6 +4,14 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+
+namespace fight
+{
+	// 0x10111310 (another unit): compares two integers with a compare operator (0 less, 1 less or equal, 2 equal, 3 not equal, 4 greater or equal,
+	// 5 greater): lhs op rhs
+	bool CompareInts(int op, const int* lhs, const int* rhs);
+}
 
 namespace proto
 {
@@ -23,6 +31,19 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x101287B0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				const fight::Name& GetValue() const
+				{
+					return value;
+				}
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
 
 				// The members the properties write
 				bool SetVariable(const fight::Name& newValue);
@@ -57,6 +78,19 @@ namespace proto
 				// vftable slot 9 (0x101288A0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+
 				// The members the properties write
 				bool SetTimer(const fight::Name& newValue);
 				bool SetCompare(int newValue);
@@ -89,6 +123,15 @@ namespace proto
 				// vftable slot 9 (0x10128A90, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
 
+				float GetTime() const
+				{
+					return time;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+
 				// The members the properties write
 				bool SetCompare(int newValue);
 				bool SetTime(float newValue);
@@ -117,6 +160,19 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x10128670, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+				int GetValue() const
+				{
+					return value;
+				}
 
 				// The members the properties write
 				bool SetVariable(const fight::Name& newValue);
@@ -153,6 +209,23 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x10129810, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetRandomRange() const
+				{
+					return randomRange;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				bool GetIncrementing() const
+				{
+					return incrementing;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -196,6 +269,19 @@ namespace proto
 				// vftable slot 15 (0x10129770, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				const fight::Name& GetValue() const
+				{
+					return value;
+				}
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				bool GetPersistent() const
+				{
+					return persistent;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetVariable(const fight::Name& newValue);
@@ -233,6 +319,23 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x101297C0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetRandomRange() const
+				{
+					return randomRange;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				bool GetIncrementing() const
+				{
+					return incrementing;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -345,6 +448,76 @@ namespace proto
 			fight::TrackFactory* CreateVariableIntTemporarySetTrackFactory(const char* name);
 			void RegisterVariableIntTemporarySetTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TimerContinousSetAction (9 vftable slots, 0x2C bytes)
+			class TimerContinousSetAction : public fight::Action
+			{
+			public:
+				// 0x101291F0
+				TimerContinousSetAction(TimerContinousSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128A10
+				virtual ~TimerContinousSetAction();
+
+				// vftable slot 5 (0x101282A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101282B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101292A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TimerContinousSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::VariableNameSetAction (9 vftable slots, 0x2C bytes)
+			class VariableNameSetAction : public fight::Action
+			{
+			public:
+				// 0x10128F20
+				VariableNameSetAction(VariableNameSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128870
+				virtual ~VariableNameSetAction();
+
+				// vftable slot 5 (0x10128FD0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<VariableNameSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::TimerSetAction (9 vftable slots, 0x2C bytes)
+			class TimerSetAction : public fight::Action
+			{
+			public:
+				// 0x10129050
+				TimerSetAction(TimerSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101289C0
+				virtual ~TimerSetAction();
+
+				// vftable slot 5 (0x10129100)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TimerSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::VariableIntSetAction (9 vftable slots, 0x2C bytes)
+			class VariableIntSetAction : public fight::Action
+			{
+			public:
+				// 0x10128DA0
+				VariableIntSetAction(VariableIntSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128780
+				virtual ~VariableIntSetAction();
+
+				// vftable slot 5 (0x10128E50)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<VariableIntSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

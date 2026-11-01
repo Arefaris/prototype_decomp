@@ -4,6 +4,11 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
+#include "code/math/worldbounds.h"
+#include "code/choreo/deltatransform.h"
 
 namespace proto
 {
@@ -118,6 +123,27 @@ namespace proto
 				// vftable slot 15 (0x10133700, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+
+				float GetOrientOffset() const
+				{
+					return orientOffset;
+				}
+				float GetTurningVelocity() const
+				{
+					return turningVelocity;
+				}
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -211,6 +237,83 @@ namespace proto
 			fight::TrackFactory* CreateWallRunEnterTrackFactory(const char* name);
 			void RegisterWallRunEnterTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// The owner of an action when it is a supporting surface event (kind 0x21006), else none
+			inline core::IRefCount* AsSurfaceEventOwner(core::IRefCount* owner)
+			{
+				TrackOwner* trackOwner = (TrackOwner*)owner;
+				if (trackOwner == 0)
+				{
+					return 0;
+				}
+				return (trackOwner->kind == 0x21006) ? owner : 0;
+			}
+
+			// The supporting surface event as the wall orient action reads it (kind 0x21006; the normal of the surface)
+			struct SupportingSurfaceNormalEvent : ReactionEvent
+			{
+				unsigned char unknown10[0x18];
+				float normalX;  // +0x28
+				float normalY;  // +0x2C
+				float normalZ;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::WallRunAction (9 vftable slots, 0x58 bytes)
+			class WallRunAction : public fight::Action
+			{
+			public:
+				// 0x101307A0
+				WallRunAction(WallRunTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x101303C0
+				virtual ~WallRunAction();
+
+				// vftable slot 5 (0x10130890)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10130410)
+				virtual void Slot6();
+				// vftable slot 7 (0x10132C60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WallRunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* surfaceEvent;  // +0x2C
+				choreo::Driver* driver;  // +0x30
+				float unknown34;
+				float unknown38;
+				float unknown3C;
+				float unknown40;
+				float unknown44;
+				float unknown48;
+				bool unknown4C;
+				bool unknown4D;
+				float unknown50;
+				float unknown54;
+			};
+
+			// RTTI: proto::fightitems::motion::WallOrientAction (9 vftable slots, 0x40 bytes)
+			class WallOrientAction : public fight::Action
+			{
+			public:
+				// 0x10132750
+				WallOrientAction(WallOrientTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x10130590
+				virtual ~WallOrientAction();
+
+				// vftable slot 5 (0x10132820)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101305E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10132A10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WallOrientTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* surfaceEvent;  // +0x2C
+				choreo::RootDriver* driver;  // +0x30
+				math::Vector normal;  // +0x34
+			};
+
+			// ---- actions end
 		}
 	}
 }

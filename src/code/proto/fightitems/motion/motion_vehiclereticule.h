@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -43,6 +44,24 @@ namespace proto
 			fight::TrackFactory* CreateVehicleReticuleTrackFactory(const char* name);
 			void RegisterVehicleReticuleTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::VehicleReticuleAction (9 vftable slots, 0x2C bytes)
+			class VehicleReticuleAction : public fight::Action
+			{
+			public:
+				// 0x1012B9F0
+				VehicleReticuleAction(VehicleReticuleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012B930
+				virtual ~VehicleReticuleAction();
+
+				// vftable slot 5 (0x1012B960)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<VehicleReticuleTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

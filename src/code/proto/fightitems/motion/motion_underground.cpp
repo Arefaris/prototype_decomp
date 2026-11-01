@@ -1,5 +1,7 @@
 // Fight items of the motion group: UndergroundStateCondition, UndergroundSetTrack, AnchorToGroundTrack, UndergroundTeleportTrack (unit 0x101C3390 - 0x101C42E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_underground.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/proto/behaviours/anchortogroundbehaviour.h"
 
 namespace proto
 {
@@ -327,6 +329,132 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101243D0
+			UndergroundSetAction::UndergroundSetAction(UndergroundSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124100
+			UndergroundSetAction::~UndergroundSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101247B0
+			fight::Action* UndergroundSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new UndergroundSetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101244E0
+			AnchorToGroundAction::AnchorToGroundAction(AnchorToGroundTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124150
+			AnchorToGroundAction::~AnchorToGroundAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124800
+			fight::Action* AnchorToGroundTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new AnchorToGroundAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10124620
+			UndergroundTeleportAction::UndergroundTeleportAction(UndergroundTeleportTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101241A0
+			UndergroundTeleportAction::~UndergroundTeleportAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10124850
+			fight::Action* UndergroundTeleportTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new UndergroundTeleportAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10123E80
+			bool RegisterUndergroundStateFactories(fight::TrackRegistry* registry)
+			{
+				RegisterUndergroundStateConditionFactory(registry, "undergroundState");
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101241D0
+			// EQUIVALENT: register allocation (the engine keeps a zero in ebx for the null test, the stores and the failure result) (22.1 %)
+			bool UndergroundStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetTunnelingStateStateChangeMessage message;
+					object->SendMessage(&message);
+					return message.state == GetState();
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10124480
+			bool UndergroundSetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetTunnelingState(object, link.Get()->GetUnderground(), link.Get()->GetInstantaneous());
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10124590
+			bool AnchorToGroundAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						AnchorToGroundStateChangeMessage message(link.Get()->GetAnchor(), link.Get()->GetGroundLevel());
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101246D0
+			// EQUIVALENT: shrink-wrap (the engine saves esi behind the handle's index test, ours behind the table test) (86.5 %)
+			bool UndergroundTeleportAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					math::Matrix* matrix = object->transform->GetPointer();
+					math::Vector position(matrix->m[3][0], matrix->m[3][1], matrix->m[3][2]);
+					float height = position.y;
+					if (FindGroundHeight(&position, &height, 0))
+					{
+						position.y = height - link.Get()->GetDistanceUnderground();
+						object->SetPosition(position);
+					}
+				}
+				return false;
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<UndergroundStateCondition>;
 			template class fight::ConditionFactoryTemplate<UndergroundStateCondition>;
 			template class fight::ConditionFactoryCasterTemplate<UndergroundStateCondition>;
@@ -346,6 +474,27 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10123E20
+// FUNCTION: ENGINE 0x10123E30
+// FUNCTION: ENGINE 0x10123E40
+// FUNCTION: ENGINE 0x10123E50
+// FUNCTION: ENGINE 0x10123E60
+// FUNCTION: ENGINE 0x10123E70
+// FUNCTION: ENGINE 0x10123EA0
+// FUNCTION: ENGINE 0x10123EB0
+// FUNCTION: ENGINE 0x10123EC0
+// FUNCTION: ENGINE 0x10123ED0
+// FUNCTION: ENGINE 0x10123F00
+// FUNCTION: ENGINE 0x10123F30
+// FUNCTION: ENGINE 0x10123F60
+// FUNCTION: ENGINE 0x10123F80
+// FUNCTION: ENGINE 0x10123FA0
+// FUNCTION: ENGINE 0x10123FD0
+// FUNCTION: ENGINE 0x10124030
+// FUNCTION: ENGINE 0x10124090
+// FUNCTION: ENGINE 0x10124450
+// FUNCTION: ENGINE 0x10124560
+// FUNCTION: ENGINE 0x101246A0
 // FUNCTION: ENGINE 0x101C36B0
 // FUNCTION: ENGINE 0x101C36E0
 // FUNCTION: ENGINE 0x101C3710

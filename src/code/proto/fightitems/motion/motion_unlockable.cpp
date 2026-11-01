@@ -66,6 +66,22 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x10125670
+			// EQUIVALENT: the engine tests the handle twice (the validity test, then the object lookup) where ours merges the two (41.9 %)
+			bool UnlockableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.IsValid())
+				{
+					int player = engine::GetControllingPlayer(handle.Get());
+					if (player >= 0)
+					{
+						return IsUnlockableAvailable(player, GetUnlockable());
+					}
+				}
+				return false;
+			}
+
 			template class fight::PropertyEnumConstList<UnlockableCondition>;
 			template class fight::ConditionFactoryTemplate<UnlockableCondition>;
 			template class fight::ConditionFactoryCasterTemplate<UnlockableCondition>;
@@ -74,6 +90,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10125660
 // FUNCTION: ENGINE 0x101C5030
 // FUNCTION: ENGINE 0x101C5060
 // FUNCTION: ENGINE 0x101C5070

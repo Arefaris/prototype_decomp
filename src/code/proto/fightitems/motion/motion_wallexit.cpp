@@ -186,6 +186,43 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1012C180
+			// EQUIVALENT: scheduling, the engine stores the flag byte after the three floats (82.2 %)
+			WallExitAction::WallExitAction(WallExitTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f), unknown3C(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012C050
+			WallExitAction::~WallExitAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1012CB20
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WallExitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WallExitAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012C090
+			void WallExitAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						driver->mDelta.Reset();
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<WallExitTrack>;
 			template class fight::PropertyNameList<WallExitTrack>;
 			template class fight::PropertyIntConstRange<WallExitTrack>;
@@ -196,6 +233,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1012BFB0
+// FUNCTION: ENGINE 0x1012BFE0
+// FUNCTION: ENGINE 0x1012C200
 // FUNCTION: ENGINE 0x101CBFC0
 // FUNCTION: ENGINE 0x101CBFD0
 // FUNCTION: ENGINE 0x101CC000

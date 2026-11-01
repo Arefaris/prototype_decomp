@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -23,6 +24,11 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x10137940, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				bool GetBlocked() const
+				{
+					return blocked;
+				}
 
 				// The members the properties write
 				bool SetBlocked(bool newValue);
@@ -185,6 +191,19 @@ namespace proto
 				// vftable slot 15 (0x1013BDD0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetSoundLeadTime() const
+				{
+					return soundLeadTime;
+				}
+				float GetVelocity() const
+				{
+					return velocity;
+				}
+				int GetMinSegmentsRemaining() const
+				{
+					return minSegmentsRemaining;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -223,6 +242,11 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x1013BFB0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				int GetNumSegments() const
+				{
+					return numSegments;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
@@ -545,6 +569,11 @@ namespace proto
 				// vftable slot 15 (0x1013BE30, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetTautTime() const
+				{
+					return tautTime;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -563,6 +592,163 @@ namespace proto
 			fight::TrackFactory* CreateWhipFistMakeTautTrackFactory(const char* name);
 			void RegisterWhipFistMakeTautTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::WhipFistRetractAction (9 vftable slots, 0x2C bytes)
+			class WhipFistRetractAction : public fight::Action
+			{
+			public:
+				// 0x1013A240
+				WhipFistRetractAction(WhipFistRetractTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10137540
+				virtual ~WhipFistRetractAction();
+
+				// vftable slot 5 (0x1013A2F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10137570)
+				virtual void Slot6();
+				// vftable slot 7 (0x1013A3A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WhipFistRetractTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistFreezeSegmentsAction (9 vftable slots, 0x2C bytes)
+			class WhipFistFreezeSegmentsAction : public fight::Action
+			{
+			public:
+				// 0x1013B790
+				WhipFistFreezeSegmentsAction(WhipFistFreezeSegmentsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10137910
+				virtual ~WhipFistFreezeSegmentsAction();
+
+				// vftable slot 5 (0x1013B840)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1013B8D0)
+				virtual void Slot6();
+
+				core::Link<WhipFistFreezeSegmentsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistExtendAction (9 vftable slots, 0x2C bytes)
+			class WhipFistExtendAction : public fight::Action
+			{
+			public:
+				// 0x10139E70
+				WhipFistExtendAction(WhipFistExtendTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101373E0
+				virtual ~WhipFistExtendAction();
+
+				// vftable slot 5 (0x10139F20)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101374B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10137410)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WhipFistExtendTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistPullParentToTargetAction (9 vftable slots, 0x44 bytes)
+			class WhipFistPullParentToTargetAction : public fight::Action
+			{
+			public:
+				// 0x1013AA80
+				WhipFistPullParentToTargetAction(WhipFistPullParentToTargetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101377D0
+				virtual ~WhipFistPullParentToTargetAction();
+
+				// vftable slot 5 (0x1013B220)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10137810)
+				virtual void Slot6();
+				// vftable slot 7 (0x1013B4C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WhipFistPullParentToTargetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+				choreo::Driver* driver;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistAnimatedAction (9 vftable slots, 0x2C bytes)
+			class WhipFistAnimatedAction : public fight::Action
+			{
+			public:
+				// 0x1013A660
+				WhipFistAnimatedAction(WhipFistAnimatedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101376C0
+				virtual ~WhipFistAnimatedAction();
+
+				// vftable slot 5 (0x1013A710)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101376F0)
+				virtual void Slot6();
+
+				core::Link<WhipFistAnimatedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistMakeTautAction (9 vftable slots, 0x2C bytes)
+			class WhipFistMakeTautAction : public fight::Action
+			{
+			public:
+				// 0x1013A460
+				WhipFistMakeTautAction(WhipFistMakeTautTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10137600
+				virtual ~WhipFistMakeTautAction();
+
+				// vftable slot 5 (0x1013A510)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10137630)
+				virtual void Slot6();
+				// vftable slot 7 (0x1013A5B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<WhipFistMakeTautTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistSegmentFixToJointAction (9 vftable slots, 0x2C bytes)
+			class WhipFistSegmentFixToJointAction : public fight::Action
+			{
+			public:
+				// 0x1013A7A0
+				WhipFistSegmentFixToJointAction(WhipFistSegmentFixToJointTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10137780
+				virtual ~WhipFistSegmentFixToJointAction();
+
+				// vftable slot 5 (0x1013A850)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1013A970)
+				virtual void Slot6();
+
+				core::Link<WhipFistSegmentFixToJointTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::WhipFistResetTargetAction (9 vftable slots, 0x20 bytes)
+			class WhipFistResetTargetAction : public fight::Action
+			{
+			public:
+				// 0x10134E60
+				explicit WhipFistResetTargetAction(engine::GameObjectHandle newTarget);
+				// 0x10134E90
+				virtual ~WhipFistResetTargetAction();
+
+				// vftable slot 5 (0x10137880)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// ---- actions end
 		}
 	}
 }
