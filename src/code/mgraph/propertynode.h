@@ -143,6 +143,46 @@ namespace mgraph
 		return event != 0 ? &event->unknown4 : 0;
 	}
 
+	template<class T> void PropertyChannel<T>::Update(PropertyNodeBase* node, EvaluationFrame* frame)
+	{
+		FrameEntry<T>* target = static_cast<FrameOutput<T>*>(frame->outputs)->entry;
+		FrameEntries<T>* inputs = static_cast<FrameEntries<T>*>(frame->inputs);
+		unsigned int i = 0;
+		if (inputs->count > 0)
+		{
+			FrameEntry<T>** entryPointer = inputs->entries;
+			FrameEntry<T>* entry;
+			do
+			{
+				entry = *entryPointer;
+				if (entry->id == frame->id)
+				{
+					break;
+				}
+				i++;
+				entryPointer++;
+			}
+			while (i < inputs->count);
+			if (entry->id == frame->id)
+			{
+				value = entry->value;
+				changed = true;
+			}
+		}
+		if (changed)
+		{
+			unsigned int channelId = frame->id;
+			target->value = value;
+			target->id = channelId;
+			changed = false;
+		}
+	}
+
+	template<class P> void PropertyNode<P>::Slot16(EvaluationFrame* frame)
+	{
+		channels[frame->channel].Update(this, frame);
+	}
+
 	template<class P> void PropertyNode<P>::SetNumChannels(unsigned short newCount)
 	{
 		channels.Resize(newCount, Channel(value));

@@ -255,10 +255,40 @@ namespace mgraph
 		typedef T Type;
 	};
 
+	// What the evaluation of a graph hands to a node for a channel (names guessed): the entries the channel's inputs brought and the
+	// place the node leaves its output
+	template<class T> struct FrameEntry
+	{
+		unsigned int unknown0;
+		unsigned int id;
+		unsigned int unknown8;
+		T value;
+	};
+	template<class T> struct FrameEntries
+	{
+		FrameEntry<T>** entries;
+		unsigned int count;
+	};
+	template<class T> struct FrameOutput
+	{
+		FrameEntry<T>* entry;
+	};
+	class EvaluationFrame
+	{
+	public:
+		unsigned short channel;
+		void* inputs;  // 4: the FrameEntries of the channel's type
+		char unknown8[8];
+		void* outputs;  // 0x10: the FrameOutput of the channel's type
+		unsigned int id;  // 0x14
+	};
+
 	// What a property node keeps for a channel: the value, whether it changed and a number that goes with it (names guessed)
 	template<class T> struct PropertyChannel
 	{
 		PropertyChannel(const T& newValue);
+		// Takes the value the evaluation brought for its channel and hands it on (0x10B13B10 and the like)
+		void Update(PropertyNodeBase* node, EvaluationFrame* frame);
 
 		T value;
 		bool changed;
@@ -305,6 +335,7 @@ namespace mgraph
 
 		virtual void SetNumChannels(unsigned short newCount);
 		virtual void Slot15(unsigned int channel);
+		virtual void Slot16(EvaluationFrame* frame);
 		virtual void PostPropertyValue(unsigned int channel, EventQueue* queue, const om::DynamicPropertyBase* property);
 		virtual void SetPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown);
 		virtual om::MetaTypeBase* GetValueMetaType();

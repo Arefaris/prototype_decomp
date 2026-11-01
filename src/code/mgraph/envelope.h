@@ -8,6 +8,8 @@
 
 namespace mgraph
 {
+	class EvaluationFrame;
+
 	// The base of the nodes and of the connections of a graph (RTTI: mgraph::GraphItem). Slots 1 and 2 are pure, 3 to 6 are the
 	// library's (not recovered).
 	class GraphItem
@@ -41,7 +43,7 @@ namespace mgraph
 		virtual void Slot13();
 		virtual void Slot14();
 		virtual void Slot15(unsigned int channel);
-		virtual void Slot16();
+		virtual void Slot16(EvaluationFrame* frame);
 	};
 
 	// The curve of an envelope: its points, and an array of numbers (meaning not recovered)

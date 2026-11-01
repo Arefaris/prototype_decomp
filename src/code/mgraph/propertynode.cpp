@@ -802,18 +802,230 @@ namespace mgraph
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
 	// FUNCTION: ENGINE 0x10B50110
 	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B13B10
+	template void mgraph::PropertyChannel<unsigned int>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B13E40
+	template void mgraph::PropertyNode<mgraph::Packet<unsigned int> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B14A80
+	template void mgraph::PropertyChannel<unsigned __int64>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B14DD0
+	template void mgraph::PropertyNode<mgraph::Packet<unsigned __int64> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B16660
+	template void mgraph::PropertyChannel<Complex>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B169A0
+	template void mgraph::PropertyNode<mgraph::Packet<Complex> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B37E10
+	template void mgraph::PropertyChannel<bool>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B38110
+	template void mgraph::PropertyNode<mgraph::Packet<bool> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B39430
+	template void mgraph::PropertyChannel<float>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B39770
+	template void mgraph::PropertyNode<mgraph::Packet<float> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3BE60
+	template void mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3BED0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3C4C0
+	template void mgraph::PropertyChannel<String>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3C830
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3D6F0
+	template void mgraph::PropertyChannel<DynamicArray<String,unsigned short> >::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3D760
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3DCF0
+	template void mgraph::PropertyChannel<Vector>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3E0A0
+	template void mgraph::PropertyNode<mgraph::Packet<Vector> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3EFA0
+	template void mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3F010
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B40820
+	template void mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B40890
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B506B0
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B389A0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B391C0
+	template char const* mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<bool,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B39FB0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<float,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3AC30
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3B930
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3E9B0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3F250
+	template char const* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3F260
+	template char const* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3F2B0
+	template MetaTypeBase* mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetValueMetaType();
+	// FUNCTION: ENGINE 0x10B3F2D0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::SetDefaultValue(DynamicArray<mgraph::TriggerData,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B3F300
+	template void* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3F320
+	template void* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3F340
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PropertyNodeOutputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >*, unsigned int, DynamicArray<mgraph::TriggerData,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B3F380
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3F3A0
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3F3C0
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::~PropertyNodeOutputEvent();
+	// FUNCTION: ENGINE 0x10B3F3F0
+	template mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PropertyNodeInputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >*, unsigned int, DynamicArray<mgraph::TriggerData,unsigned short> const&, int);
+	// FUNCTION: ENGINE 0x10B3F440
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3F460
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3F4A0
+	template mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >::PropertyChannel(DynamicArray<mgraph::TriggerData,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B3F580
+	template mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >::PropertyChannel(mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B3F5B0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PostInputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<mgraph::TriggerData,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B3F640
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3F6F0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PostOutputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<mgraph::TriggerData,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B3F7F0
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PropertyPropertyDelegate(mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >*, unsigned int);
+	// FUNCTION: ENGINE 0x10B3F840
+	template DynamicArray<mgraph::TriggerData,unsigned short> mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Get();
+	// FUNCTION: ENGINE 0x10B3F860
+	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Set(DynamicArray<mgraph::TriggerData,unsigned short>);
+	// FUNCTION: ENGINE 0x10B3FA50
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::SetChannelValue(DynamicArray<mgraph::TriggerData,unsigned short> const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B3FBF0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::SetNumChannels(unsigned short);
+	// FUNCTION: ENGINE 0x10B3FF20
+	template char const* mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3FF30
+	template char const* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3FF40
+	template char const* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3FFC0
+	template void* mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3FFE0
+	template void* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B40000
+	template void* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B40020
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PropertyNodeOutputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >*, unsigned int, DynamicArray<Complex,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B40060
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B40080
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B400A0
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::~PropertyNodeOutputEvent();
+	// FUNCTION: ENGINE 0x10B400D0
+	template mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PropertyNodeInputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >*, unsigned int, DynamicArray<Complex,unsigned short> const&, int);
+	// FUNCTION: ENGINE 0x10B40120
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B40140
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B40180
+	template mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >::PropertyChannel(DynamicArray<Complex,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B40230
+	template mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >::PropertyChannel(mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B40260
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PostInputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<Complex,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B402F0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B403A0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PostOutputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<Complex,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B40420
+	template DynamicArray<mgraph::TriggerData,unsigned short> const* mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetChannelValue(unsigned int);
+	// FUNCTION: ENGINE 0x10B40430
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Slot15(unsigned int);
+	// FUNCTION: ENGINE 0x10B404A0
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PropertyPropertyDelegate(mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >*, unsigned int);
+	// FUNCTION: ENGINE 0x10B404E0
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::~PropertyPropertyDelegate();
+	// FUNCTION: ENGINE 0x10B404F0
+	template DynamicArray<Complex,unsigned short> mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Get();
+	// FUNCTION: ENGINE 0x10B40510
+	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Set(DynamicArray<Complex,unsigned short>);
+	// FUNCTION: ENGINE 0x10B408B0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::SetNumChannels(unsigned short);
 }
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x10B385E0
+	template mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B38870
+	template bool DynamicArray<bool,unsigned short>::operator==<class om::DynamicArray<bool,unsigned short> >(DynamicArray<bool,unsigned short> const&) const;
+	// FUNCTION: ENGINE 0x10B388C0
+	template mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B38CE0
+	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<bool,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B39E80
+	template bool DynamicArray<float,unsigned short>::operator==<class om::DynamicArray<float,unsigned short> >(DynamicArray<float,unsigned short> const&) const;
+	// FUNCTION: ENGINE 0x10B3A330
+	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<float,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<float,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<float,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B3A890
+	template mgraph::PropertyChannel<DynamicArray<float,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<float,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3AB00
+	template bool DynamicArray<unsigned int,unsigned short>::operator==<class om::DynamicArray<unsigned int,unsigned short> >(DynamicArray<unsigned int,unsigned short> const&) const;
+	// FUNCTION: ENGINE 0x10B3AF80
+	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B3B560
+	template mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3B6C0
+	template mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3B7F0
+	template bool DynamicArray<unsigned __int64,unsigned short>::operator==<class om::DynamicArray<unsigned __int64,unsigned short> >(DynamicArray<unsigned __int64,unsigned short> const&) const;
+	// FUNCTION: ENGINE 0x10B3B850
+	template mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B3E850
+	template bool DynamicArray<Vector,unsigned short>::operator==<class om::DynamicArray<class om::Vector,unsigned short> >(DynamicArray<Vector,unsigned short> const&) const;
+	// FUNCTION: ENGINE 0x10B3F280
+	template mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3F2A0
+	template char const* DynamicArray<mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3F560
+	template mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<Vector,unsigned short> >,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B3F980
+	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B3FF60
+	template mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3FF80
+	template char const* DynamicArray<mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B400C0
+	template mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B40210
+	template mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B40C90
+	template char const* DynamicArray<mgraph::PropertyChannel<DynamicArray<Complex,unsigned short> >,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B13900
+	template mgraph::PropertyChannel<unsigned int>& DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B14840
+	template mgraph::PropertyChannel<unsigned __int64>& DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B16420
+	template mgraph::PropertyChannel<Complex>& DynamicArray<mgraph::PropertyChannel<Complex>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B37C00
+	template mgraph::PropertyChannel<bool>& DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B39220
+	template mgraph::PropertyChannel<float>& DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B3C260
 	template mgraph::PropertyChannel<String>& DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3DAB0
+	template mgraph::PropertyChannel<Vector>& DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B48D70
+	template mgraph::PropertyChannel<mgraph::EnvelopeData>& DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B3C550
 	template void DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::FillElements(mgraph::PropertyChannel<String>*, unsigned short, mgraph::PropertyChannel<String> const&);
 	// FUNCTION: ENGINE 0x10B3C5E0
 	template mgraph::PropertyChannel<String>* DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::Allocate(unsigned short);
-	// FUNCTION: ENGINE 0x10B48D70
-	template mgraph::PropertyChannel<mgraph::EnvelopeData>& DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B48D90
 	template char const* DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B490D0
@@ -822,8 +1034,6 @@ namespace om
 	template bool DynamicArray<VectorT<float,2>,unsigned short>::operator==<class om::DynamicArray<class om::VectorT<float,2>,unsigned short> >(DynamicArray<VectorT<float,2>,unsigned short> const&) const;
 	// FUNCTION: ENGINE 0x10B13530
 	template void DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::ReleaseElements(mgraph::PropertyChannel<unsigned int>*, unsigned short);
-	// FUNCTION: ENGINE 0x10B13900
-	template mgraph::PropertyChannel<unsigned int>& DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B13920
 	template char const* DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B13C20
@@ -832,16 +1042,12 @@ namespace om
 	template void DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<unsigned int> const&);
 	// FUNCTION: ENGINE 0x10B14450
 	template void DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::ReleaseElements(mgraph::PropertyChannel<unsigned __int64>*, unsigned short);
-	// FUNCTION: ENGINE 0x10B14840
-	template mgraph::PropertyChannel<unsigned __int64>& DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B14860
 	template char const* DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B14BA0
 	template mgraph::PropertyChannel<unsigned __int64>* DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B14F10
 	template void DynamicArray<mgraph::PropertyChannel<unsigned __int64>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<unsigned __int64> const&);
-	// FUNCTION: ENGINE 0x10B16420
-	template mgraph::PropertyChannel<Complex>& DynamicArray<mgraph::PropertyChannel<Complex>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B16440
 	template char const* DynamicArray<mgraph::PropertyChannel<Complex>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B16780
@@ -850,46 +1056,34 @@ namespace om
 	template void DynamicArray<mgraph::PropertyChannel<Complex>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<Complex> const&);
 	// FUNCTION: ENGINE 0x10B16D10
 	template void DynamicArray<mgraph::PropertyChannel<Complex>,unsigned short>::ReleaseElements(mgraph::PropertyChannel<Complex>*, unsigned short);
-	// FUNCTION: ENGINE 0x10B37C00
-	template mgraph::PropertyChannel<bool>& DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B37C20
 	template char const* DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B37F10
 	template mgraph::PropertyChannel<bool>* DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B38240
 	template void DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<bool> const&);
-	// FUNCTION: ENGINE 0x10B385E0
-	template mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::operator[](unsigned short);
-	// FUNCTION: ENGINE 0x10B388C0
-	template mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::Allocate(unsigned short);
-	// FUNCTION: ENGINE 0x10B38CE0
-	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<bool,unsigned short> > const&);
-	// FUNCTION: ENGINE 0x10B39220
-	template mgraph::PropertyChannel<float>& DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B39240
 	template char const* DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B39540
 	template mgraph::PropertyChannel<float>* DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B398B0
 	template void DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<float> const&);
-	// FUNCTION: ENGINE 0x10B3A330
-	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<float,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<float,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<float,unsigned short> > const&);
-	// FUNCTION: ENGINE 0x10B3A890
-	template mgraph::PropertyChannel<DynamicArray<float,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<float,unsigned short> >,unsigned short>::operator[](unsigned short);
-	// FUNCTION: ENGINE 0x10B3AF80
-	template void DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >,unsigned short>::FillElements(mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >*, unsigned short, mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> > const&);
-	// FUNCTION: ENGINE 0x10B3B560
-	template mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short> >,unsigned short>::operator[](unsigned short);
-	// FUNCTION: ENGINE 0x10B3B6C0
-	template mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >& DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::operator[](unsigned short);
-	// FUNCTION: ENGINE 0x10B3B850
-	template mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >* DynamicArray<mgraph::PropertyChannel<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::Allocate(unsigned short);
-	// FUNCTION: ENGINE 0x10B3DAB0
-	template mgraph::PropertyChannel<Vector>& DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10B3DAD0
 	template char const* DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B3DE30
 	template mgraph::PropertyChannel<Vector>* DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B3E200
 	template void DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<Vector> const&);
+	// FUNCTION: ENGINE 0x10B387E0
+	template DynamicArray<bool,unsigned short> DynamicProperty<DynamicArray<bool,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10B3B760
+	template DynamicArray<unsigned __int64,unsigned short> DynamicProperty<DynamicArray<unsigned __int64,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10B3E7C0
+	template DynamicArray<Vector,unsigned short> DynamicProperty<DynamicArray<Vector,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10B3F480
+	template DynamicArray<mgraph::TriggerData,unsigned short> DynamicProperty<DynamicArray<mgraph::TriggerData,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10B40160
+	template DynamicArray<Complex,unsigned short> DynamicProperty<DynamicArray<Complex,unsigned short> >::GetValue() const;
+	// FUNCTION: ENGINE 0x10B3F830
+	template DelegateProperty<DynamicArray<float,unsigned short> >::~DelegateProperty();
 }
