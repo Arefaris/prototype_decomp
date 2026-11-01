@@ -889,6 +889,76 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100D0570
+			GroundSpikeClusterDescendAction::GroundSpikeClusterDescendAction(GroundSpikeClusterDescendTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CF920
+			GroundSpikeClusterDescendAction::~GroundSpikeClusterDescendAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D0EF0
+			fight::Action* GroundSpikeClusterDescendTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GroundSpikeClusterDescendAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D0320
+			GroundSpikeAnimateClusterRadiiAction::GroundSpikeAnimateClusterRadiiAction(GroundSpikeAnimateClusterRadiiTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CF8D0
+			GroundSpikeAnimateClusterRadiiAction::~GroundSpikeAnimateClusterRadiiAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D0EA0
+			fight::Action* GroundSpikeAnimateClusterRadiiTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GroundSpikeAnimateClusterRadiiAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100D0720
+			GroundSpikeConfigureAutoOffshootsAction::GroundSpikeConfigureAutoOffshootsAction(GroundSpikeConfigureAutoOffshootsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CF970
+			GroundSpikeConfigureAutoOffshootsAction::~GroundSpikeConfigureAutoOffshootsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D0F40
+			fight::Action* GroundSpikeConfigureAutoOffshootsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GroundSpikeConfigureAutoOffshootsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100CFBD0
+			GroundSpikeSpawnOffshootAction::GroundSpikeSpawnOffshootAction(GroundSpikeSpawnOffshootTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), unknown38(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CF830
+			GroundSpikeSpawnOffshootAction::~GroundSpikeSpawnOffshootAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100D0950
+			fight::Action* GroundSpikeSpawnOffshootTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GroundSpikeSpawnOffshootAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyConditionGroup<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryCasterTemplate<GroundSpikeParentConditionGroupCondition>;
@@ -923,6 +993,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100CF190
+// FUNCTION: ENGINE 0x100CF1B0
+// FUNCTION: ENGINE 0x100CF1D0
+// FUNCTION: ENGINE 0x100CF1F0
+// FUNCTION: ENGINE 0x100CF240
+// FUNCTION: ENGINE 0x100CF2A0
+// FUNCTION: ENGINE 0x100CF300
+// FUNCTION: ENGINE 0x100CF360
+// FUNCTION: ENGINE 0x100CFC50
+// FUNCTION: ENGINE 0x100D03A0
+// FUNCTION: ENGINE 0x100D05F0
+// FUNCTION: ENGINE 0x100D07A0
 // FUNCTION: ENGINE 0x10175CA0
 // FUNCTION: ENGINE 0x10175CD0
 // FUNCTION: ENGINE 0x10175D00

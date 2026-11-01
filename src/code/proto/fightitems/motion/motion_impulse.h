@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -50,6 +51,24 @@ namespace proto
 			fight::TrackFactory* CreateImpulseTrackFactory(const char* name);
 			void RegisterImpulseTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ImpulseAction (9 vftable slots, 0x2C bytes)
+			class ImpulseAction : public fight::Action
+			{
+			public:
+				// 0x100DB1F0
+				ImpulseAction(ImpulseTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100DB150
+				virtual ~ImpulseAction();
+
+				// vftable slot 5 (0x100DB2A0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ImpulseTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

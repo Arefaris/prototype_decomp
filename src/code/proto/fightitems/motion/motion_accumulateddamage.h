@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -268,6 +269,111 @@ namespace proto
 			fight::TrackFactory* CreateTempRegenerationTrackFactory(const char* name);
 			void RegisterTempRegenerationTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::DisableTimeWithNoDamageCounterAction (9 vftable slots, 0x2C bytes)
+			class DisableTimeWithNoDamageCounterAction : public fight::Action
+			{
+			public:
+				// 0x100D2600
+				DisableTimeWithNoDamageCounterAction(DisableTimeWithNoDamageCounterTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D1BC0
+				virtual ~DisableTimeWithNoDamageCounterAction();
+
+				// vftable slot 5 (0x100D1BF0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D1C70)
+				virtual void Slot6();
+
+				core::Link<DisableTimeWithNoDamageCounterTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::IgnoreHitsAction (9 vftable slots, 0x2C bytes)
+			class IgnoreHitsAction : public fight::Action
+			{
+			public:
+				// 0x100D2550
+				IgnoreHitsAction(IgnoreHitsTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D1930
+				virtual ~IgnoreHitsAction();
+
+				// vftable slot 5 (0x100D1960)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D1A80)
+				virtual void Slot6();
+
+				core::Link<IgnoreHitsTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::TempRegenAbortAction (9 vftable slots, 0x2C bytes)
+			class TempRegenAbortAction : public fight::Action
+			{
+			public:
+				// 0x100D24A0
+				TempRegenAbortAction(TempRegenAbortTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D1850
+				virtual ~TempRegenAbortAction();
+
+				// vftable slot 5 (0x100D1880)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TempRegenAbortTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::HealthSetMultiplierAction (9 vftable slots, 0x30 bytes)
+			class HealthSetMultiplierAction : public fight::Action
+			{
+			public:
+				// 0x100D2070
+				HealthSetMultiplierAction(HealthSetMultiplierTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D16E0
+				virtual ~HealthSetMultiplierAction();
+
+				// vftable slot 5 (0x100D2120)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D2210)
+				virtual void Slot6();
+
+				core::Link<HealthSetMultiplierTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::AccumulatedDamageResetAction (9 vftable slots, 0x2C bytes)
+			class AccumulatedDamageResetAction : public fight::Action
+			{
+			public:
+				// 0x100D22A0
+				AccumulatedDamageResetAction(AccumulatedDamageResetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D1730
+				virtual ~AccumulatedDamageResetAction();
+
+				// vftable slot 5 (0x100D1760)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<AccumulatedDamageResetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::TempRegenerationAction (9 vftable slots, 0x2C bytes)
+			class TempRegenerationAction : public fight::Action
+			{
+			public:
+				// 0x100D2350
+				TempRegenerationAction(TempRegenerationTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D1800
+				virtual ~TempRegenerationAction();
+
+				// vftable slot 5 (0x100D2400)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TempRegenerationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

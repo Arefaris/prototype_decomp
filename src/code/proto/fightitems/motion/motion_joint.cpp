@@ -186,6 +186,37 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100DBB40
+			void ReleaseDriverJoint(choreo::Driver*& driver)
+			{
+				if (driver != 0)
+				{
+					driver->Release();
+					driver = 0;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100DBD10
+			JointAction::JointAction(JointTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown68(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DBC00
+			JointAction::~JointAction()
+			{
+				ReleaseDriverJoint(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100DC3E0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* JointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
+				return new JointAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<JointTrack>;
 			template class fight::PropertyNameList<JointTrack>;
 			template class fight::PropertyBool<JointTrack>;
@@ -198,6 +229,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DBB60
+// FUNCTION: ENGINE 0x100DBB90
+// FUNCTION: ENGINE 0x100DBD80
 // FUNCTION: ENGINE 0x10181AE0
 // FUNCTION: ENGINE 0x10181AF0
 // FUNCTION: ENGINE 0x10181B20

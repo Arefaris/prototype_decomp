@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -171,6 +172,54 @@ namespace proto
 			fight::TrackFactory* CreateLocoSteerLeanTrackFactory(const char* name);
 			void RegisterLocoSteerLeanTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::LocoSteerAction (9 vftable slots, 0x3C bytes)
+			class LocoSteerAction : public fight::Action
+			{
+			public:
+				// 0x100E9040
+				LocoSteerAction(LocoSteerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E8DE0
+				virtual ~LocoSteerAction();
+
+				// vftable slot 5 (0x100E90E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E8E20)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E9630)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				choreo::Driver* driver;  // +0x20
+				unsigned char unknown24[0x8];
+				core::Link<LocoSteerTrack> link;  // +0x2C
+				unsigned char unknown38[0x4];
+			};
+
+			// RTTI: proto::fightitems::motion::LocoSteerLeanAction (9 vftable slots, 0x3C bytes)
+			class LocoSteerLeanAction : public fight::Action
+			{
+			public:
+				// 0x100E9B50
+				LocoSteerLeanAction(LocoSteerLeanTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E8EB0
+				virtual ~LocoSteerLeanAction();
+
+				// vftable slot 5 (0x100E9BF0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E8EF0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100EA2D0)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				choreo::Driver* driver;  // +0x20
+				unsigned char unknown24[0x8];
+				core::Link<LocoSteerLeanTrack> link;  // +0x2C
+				unsigned char unknown38[0x4];
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -83,6 +84,32 @@ namespace proto
 			fight::TrackFactory* CreateJumpYTrackFactory(const char* name);
 			void RegisterJumpYTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::JumpYAction (9 vftable slots, 0x3C bytes)
+			class JumpYAction : public fight::Action
+			{
+			public:
+				// 0x100E2FA0
+				JumpYAction(JumpYTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E2E80
+				virtual ~JumpYAction();
+
+				// vftable slot 5 (0x100E3050)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E2EC0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E3630)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<JumpYTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -159,6 +159,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100CE070
+			GroundSlideAction::GroundSlideAction(GroundSlideTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CDF50
+			GroundSlideAction::~GroundSlideAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100CE740
+			fight::Action* GroundSlideTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GroundSlideAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<GroundSlideTrack>;
 			template class fight::PropertyIntConstRange<GroundSlideTrack>;
 			template class fight::TrackFactoryTemplate<GroundSlideTrack>;
@@ -168,6 +188,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100CDEB0
+// FUNCTION: ENGINE 0x100CDEE0
+// FUNCTION: ENGINE 0x100CE0F0
 // FUNCTION: ENGINE 0x10174EC0
 // FUNCTION: ENGINE 0x10174EF0
 // FUNCTION: ENGINE 0x10174F00

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -68,6 +69,34 @@ namespace proto
 			fight::TrackFactory* CreateLaserTrackFactory(const char* name);
 			void RegisterLaserTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::LaserAction (9 vftable slots, 0x48 bytes)
+			class LaserAction : public fight::Action
+			{
+			public:
+				// 0x100E40D0
+				LaserAction(LaserTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E3BB0
+				virtual ~LaserAction();
+
+				// vftable slot 5 (0x100E3C00)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E3A80)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E4960)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LaserTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+				math::Vector unknown30;  // +0x30
+				float unknown3C;  // +0x3C
+				bool unknown40;  // +0x40
+				unsigned char unknown41[0x3];
+				int unknown44;  // +0x44
+			};
+
+			// ---- actions end
 		}
 	}
 }

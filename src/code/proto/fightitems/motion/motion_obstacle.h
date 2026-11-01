@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -509,6 +510,24 @@ namespace proto
 			fight::TrackFactory* CreateObstacleTestTrackFactory(const char* name);
 			void RegisterObstacleTestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::PushFromObstacleAction (9 vftable slots, 0x2C bytes)
+			class PushFromObstacleAction : public fight::Action
+			{
+			public:
+				// 0x100FC430
+				PushFromObstacleAction(PushFromObstacleTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100F9AC0
+				virtual ~PushFromObstacleAction();
+
+				// vftable slot 7 (0x100FC4E0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PushFromObstacleTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

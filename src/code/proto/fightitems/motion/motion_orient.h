@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -131,6 +132,54 @@ namespace proto
 			fight::TrackFactory* CreateWorldOrientTrackFactory(const char* name);
 			void RegisterWorldOrientTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::OrientAction (9 vftable slots, 0x3C bytes)
+			class OrientAction : public fight::Action
+			{
+			public:
+				// 0x100FF660
+				OrientAction(OrientTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100FF3F0
+				virtual ~OrientAction();
+
+				// vftable slot 5 (0x100FF710)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100FF430)
+				virtual void Slot6();
+				// vftable slot 7 (0x100FF920)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				choreo::Driver* driver;  // +0x20
+				core::Link<OrientTrack> link;  // +0x24
+				unsigned char unknown30[0x4];
+				float unknown34;  // +0x34
+				bool unknown38;  // +0x38
+				unsigned char unknown39[0x3];
+			};
+
+			// RTTI: proto::fightitems::motion::WorldOrientAction (9 vftable slots, 0x30 bytes)
+			class WorldOrientAction : public fight::Action
+			{
+			public:
+				// 0x100FFB70
+				WorldOrientAction(WorldOrientTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100FF4D0
+				virtual ~WorldOrientAction();
+
+				// vftable slot 5 (0x100FFC10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100FF510)
+				virtual void Slot6();
+				// vftable slot 7 (0x100FFD50)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				choreo::Driver* driver;  // +0x20
+				core::Link<WorldOrientTrack> link;  // +0x24
+			};
+
+			// ---- actions end
 		}
 	}
 }

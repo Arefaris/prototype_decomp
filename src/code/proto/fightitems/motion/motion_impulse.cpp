@@ -121,6 +121,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100DB1F0
+			ImpulseAction::ImpulseAction(ImpulseTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DB150
+			ImpulseAction::~ImpulseAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DB4D0
+			fight::Action* ImpulseTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ImpulseAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<ImpulseTrack>;
 			template class fight::PropertyVector<ImpulseTrack>;
 			template class fight::PropertyNameList<ImpulseTrack>;
@@ -131,6 +150,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DB0B0
+// FUNCTION: ENGINE 0x100DB0E0
+// FUNCTION: ENGINE 0x100DB270
 // FUNCTION: ENGINE 0x10180A90
 // FUNCTION: ENGINE 0x10180AA0
 // FUNCTION: ENGINE 0x10180AD0

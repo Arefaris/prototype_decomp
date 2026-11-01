@@ -137,6 +137,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100F6070
+			MoveChargedAction::MoveChargedAction(MoveChargedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F5F40
+			MoveChargedAction::~MoveChargedAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100F6570
+			fight::Action* MoveChargedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MoveChargedAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<MoveChargedTrack>;
 			template class fight::PropertyVector<MoveChargedTrack>;
 			template class fight::PropertyIntConstRange<MoveChargedTrack>;
@@ -147,6 +167,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F5EA0
+// FUNCTION: ENGINE 0x100F5ED0
+// FUNCTION: ENGINE 0x100F60F0
 // FUNCTION: ENGINE 0x10193510
 // FUNCTION: ENGINE 0x10193540
 // FUNCTION: ENGINE 0x10193550

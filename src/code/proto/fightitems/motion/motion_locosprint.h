@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -222,6 +223,74 @@ namespace proto
 			fight::TrackFactory* CreateLocoSprintChargeTrackFactory(const char* name);
 			void RegisterLocoSprintChargeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SprintVelocityClearAction (9 vftable slots, 0x20 bytes)
+			class SprintVelocityClearAction : public fight::Action
+			{
+			public:
+				// 0x100E6040
+				SprintVelocityClearAction(engine::GameObjectHandle newTarget);
+				// 0x100E6070
+				virtual ~SprintVelocityClearAction();
+
+				// vftable slot 5 (0x100E6240)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// RTTI: proto::fightitems::motion::LocoSprintAction (9 vftable slots, 0x44 bytes)
+			class LocoSprintAction : public fight::Action
+			{
+			public:
+				// 0x100E6570
+				LocoSprintAction(LocoSprintTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E6310
+				virtual ~LocoSprintAction();
+
+				// vftable slot 5 (0x100E6620)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E6350)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E6CE0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LocoSprintTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				unsigned char unknown34[0x4];
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+				unsigned char unknown40[0x4];
+			};
+
+			// RTTI: proto::fightitems::motion::LocoSprintChargeAction (9 vftable slots, 0x40 bytes)
+			class LocoSprintChargeAction : public fight::Action
+			{
+			public:
+				// 0x100E7800
+				LocoSprintChargeAction(LocoSprintChargeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100E63E0
+				virtual ~LocoSprintChargeAction();
+
+				// vftable slot 5 (0x100E78B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E6420)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E7E10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LocoSprintChargeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+				unsigned char unknown34[0x4];
+				float unknown38;  // +0x38
+				float unknown3C;  // +0x3C
+			};
+
+			// ---- actions end
 		}
 	}
 }

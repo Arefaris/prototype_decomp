@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -57,6 +58,30 @@ namespace proto
 			fight::TrackFactory* CreateMoveAtVelocityTrackFactory(const char* name);
 			void RegisterMoveAtVelocityTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::MoveAtVelocityAction (9 vftable slots, 0x34 bytes)
+			class MoveAtVelocityAction : public fight::Action
+			{
+			public:
+				// 0x100F5930
+				MoveAtVelocityAction(MoveAtVelocityTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100F5810
+				virtual ~MoveAtVelocityAction();
+
+				// vftable slot 5 (0x100F59D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100F5850)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F5B10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MoveAtVelocityTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				float unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

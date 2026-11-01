@@ -743,6 +743,61 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E6040
+			SprintVelocityClearAction::SprintVelocityClearAction(engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E6070
+			SprintVelocityClearAction::~SprintVelocityClearAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E60D0
+			fight::Action* SprintVelocityClearTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SprintVelocityClearAction(handle);
+			}
+
+			// FUNCTION: ENGINE 0x100E6570
+			LocoSprintAction::LocoSprintAction(LocoSprintTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown38(0.0f), unknown3C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E6310
+			LocoSprintAction::~LocoSprintAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100E87C0
+			fight::Action* LocoSprintTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LocoSprintAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100E7800
+			LocoSprintChargeAction::LocoSprintChargeAction(LocoSprintChargeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown38(0.0f), unknown3C(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E63E0
+			LocoSprintChargeAction::~LocoSprintChargeAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100E8810
+			fight::Action* LocoSprintChargeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LocoSprintChargeAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<SprintVelocityClearTrack>;
 			template class fight::TrackFactoryTemplate<SprintVelocityClearTrack>;
 			template class fight::TrackFactoryCasterTemplate<SprintVelocityClearTrack>;
@@ -764,6 +819,13 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E6110
+// FUNCTION: ENGINE 0x100E6140
+// FUNCTION: ENGINE 0x100E6160
+// FUNCTION: ENGINE 0x100E6190
+// FUNCTION: ENGINE 0x100E61F0
+// FUNCTION: ENGINE 0x100E65F0
+// FUNCTION: ENGINE 0x100E7880
 // FUNCTION: ENGINE 0x10188F50
 // FUNCTION: ENGINE 0x10189250
 // FUNCTION: ENGINE 0x10189260

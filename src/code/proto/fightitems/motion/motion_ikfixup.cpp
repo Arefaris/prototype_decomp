@@ -187,6 +187,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100DAB50
+			IKSurfaceFixupAction::IKSurfaceFixupAction(IKSurfaceFixupTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DA9F0
+			IKSurfaceFixupAction::~IKSurfaceFixupAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DAEF0
+			fight::Action* IKSurfaceFixupTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new IKSurfaceFixupAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100DAD20
+			ShoulderConFixupAction::ShoulderConFixupAction(ShoulderConFixupTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DAA40
+			ShoulderConFixupAction::~ShoulderConFixupAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100DAF40
+			fight::Action* ShoulderConFixupTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ShoulderConFixupAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<IKSurfaceFixupTrack>;
 			template class fight::PropertyBool<IKSurfaceFixupTrack>;
 			template class fight::TrackFactoryTemplate<IKSurfaceFixupTrack>;
@@ -200,6 +236,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DA8D0
+// FUNCTION: ENGINE 0x100DA8F0
+// FUNCTION: ENGINE 0x100DA920
+// FUNCTION: ENGINE 0x100DA980
+// FUNCTION: ENGINE 0x100DABD0
+// FUNCTION: ENGINE 0x100DADA0
 // FUNCTION: ENGINE 0x10180270
 // FUNCTION: ENGINE 0x101802A0
 // FUNCTION: ENGINE 0x101802D0

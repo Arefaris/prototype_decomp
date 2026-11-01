@@ -581,6 +581,44 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E9040
+			LocoSteerAction::LocoSteerAction(LocoSteerTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), driver(0), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E8DE0
+			LocoSteerAction::~LocoSteerAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100EA8D0
+			fight::Action* LocoSteerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LocoSteerAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100E9B50
+			LocoSteerLeanAction::LocoSteerLeanAction(LocoSteerLeanTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), driver(0), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E8EB0
+			LocoSteerLeanAction::~LocoSteerLeanAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100EA920
+			fight::Action* LocoSteerLeanTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LocoSteerLeanAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<LocoSteerTrack>;
 			template class fight::PropertyBool<LocoSteerTrack>;
 			template class fight::PropertyName<LocoSteerTrack>;
@@ -598,6 +636,12 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E8CC0
+// FUNCTION: ENGINE 0x100E8CE0
+// FUNCTION: ENGINE 0x100E8D10
+// FUNCTION: ENGINE 0x100E8D70
+// FUNCTION: ENGINE 0x100E90B0
+// FUNCTION: ENGINE 0x100E9BC0
 // FUNCTION: ENGINE 0x1018B3D0
 // FUNCTION: ENGINE 0x1018B3E0
 // FUNCTION: ENGINE 0x1018B410

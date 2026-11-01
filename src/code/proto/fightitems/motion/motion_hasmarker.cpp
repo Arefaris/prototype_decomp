@@ -204,6 +204,24 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100C0D80
+			HideHUDAction::HideHUDAction(HideHUDTrack* newTrack) : fight::Action(0x600), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C0CE0
+			HideHUDAction::~HideHUDAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C0EB0
+			fight::Action* HideHUDTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new HideHUDAction(this);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<HasMarkerCondition>;
 			template class fight::ConditionFactoryTemplate<HasMarkerCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HasMarkerCondition>;
@@ -217,6 +235,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C0B90
+// FUNCTION: ENGINE 0x100C0BC0
+// FUNCTION: ENGINE 0x100C0DF0
 // FUNCTION: ENGINE 0x101621C0
 // FUNCTION: ENGINE 0x101621F0
 // FUNCTION: ENGINE 0x10162250

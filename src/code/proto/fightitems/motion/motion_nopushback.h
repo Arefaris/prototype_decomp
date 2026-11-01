@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -44,6 +45,25 @@ namespace proto
 			fight::TrackFactory* CreateNoPushbackTrackFactory(const char* name);
 			void RegisterNoPushbackTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::NoPushbackAction (9 vftable slots, 0x20 bytes)
+			class NoPushbackAction : public fight::Action
+			{
+			public:
+				// 0x100F6600
+				NoPushbackAction(engine::GameObjectHandle newTarget);
+				// 0x100F6630
+				virtual ~NoPushbackAction();
+
+				// vftable slot 5 (0x100F66E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100F6770)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
+			// ---- actions end
 		}
 	}
 }

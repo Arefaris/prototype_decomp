@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -86,6 +87,27 @@ namespace proto
 			fight::TrackFactory* CreateHUDMarkerTrackFactory(const char* name);
 			void RegisterHUDMarkerTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::HUDMarkerAction (9 vftable slots, 0x30 bytes)
+			class HUDMarkerAction : public fight::Action
+			{
+			public:
+				// 0x100D6370
+				HUDMarkerAction(HUDMarkerTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100D6230
+				virtual ~HUDMarkerAction();
+
+				// vftable slot 5 (0x100D6420)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100D6650)
+				virtual void Slot6();
+
+				core::Link<HUDMarkerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

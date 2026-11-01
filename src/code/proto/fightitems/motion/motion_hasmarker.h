@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -80,6 +81,25 @@ namespace proto
 			fight::TrackFactory* CreateHideHUDTrackFactory(const char* name);
 			void RegisterHideHUDTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::HideHUDAction (9 vftable slots, 0x28 bytes)
+			class HideHUDAction : public fight::Action
+			{
+			public:
+				// 0x100C0D80
+				HideHUDAction(HideHUDTrack* newTrack);
+				// 0x100C0CE0
+				virtual ~HideHUDAction();
+
+				// vftable slot 5 (0x100C0E20)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C0E70)
+				virtual void Slot6();
+
+				core::Link<HideHUDTrack> link;  // +0x1C
+			};
+
+			// ---- actions end
 		}
 	}
 }

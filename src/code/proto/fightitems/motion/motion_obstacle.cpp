@@ -1355,6 +1355,25 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100FC430
+			PushFromObstacleAction::PushFromObstacleAction(PushFromObstacleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x800), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F9AC0
+			PushFromObstacleAction::~PushFromObstacleAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100FCE60
+			fight::Action* PushFromObstacleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PushFromObstacleAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<ObstacleDistanceCondition>;
 			template class fight::PropertyFloatConstRange<ObstacleDistanceCondition>;
 			template class fight::ConditionFactoryTemplate<ObstacleDistanceCondition>;
@@ -1420,6 +1439,10 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F77F0
+// FUNCTION: ENGINE 0x100F8790
+// FUNCTION: ENGINE 0x100F8820
+// FUNCTION: ENGINE 0x100FC4B0
 // FUNCTION: ENGINE 0x10194CA0
 // FUNCTION: ENGINE 0x10194CD0
 // FUNCTION: ENGINE 0x10194D00
