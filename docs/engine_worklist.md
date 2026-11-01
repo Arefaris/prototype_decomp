@@ -6677,8 +6677,11 @@ Added (functions match unless noted):
 - `om/valueio.cpp`: `StreamBuffer::ReadRaw` (0x105B7C60). `om/stringio.cpp`: `ReadBinary(BinaryStream*, String*)`
   0x105C12E0 NONMATCHING (58 %: the engine builds the two texts in two constructor calls into a slot below the length).
 Found in this range, not done:
-- Defining a class's constructor makes our object emit its vftable: vtcheck then needs every slot declared and mapped
-  (`MGraphCellPlayer` 0x105E3120 matches as a constructor, its 13-slot vftable and the base's are not declared yet).
+- `music/cellplayer.cpp`: `CellPlayer` (the nine empty slots 1 - 9, `SetState`, slot 11) and `MGraphCellPlayer` (constructor,
+  slots 2, 3, 4, 5, 7, 8; the layout of the two 0x2C byte requests at +0x30 and +0x5C). Defining a constructor makes
+  our object emit the class's vftable, so every slot is declared and mapped in symbols.txt (vtcheck). Not done: slots 1, 9,
+  10, 11, 12 of `MGraphCellPlayer`, `Reset` (0x105E31D0) and the 884 / 1297 byte functions (they read the graph's sample
+  rate and state words).
 - The unreferenced 47-byte `ReadText` / `WriteText` / `ReadBinary` / `WriteBinary` bodies of the reflected value types
   exist twice per type (0x105D7C50 and 0x105D8D20 for `FollowAction::Type`); no caller names the second set.
 - Families without a name: the 72-byte releases of the cached classes (50 copies, shrink-wrap), the 5-byte identity
