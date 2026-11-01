@@ -158,4 +158,86 @@ namespace om
 	template void MetaMethod1<mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >,void,mgraph::EnvelopeData const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B544B0
 	template void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >,mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >,DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10B03E20
+	template void om::WriteText(TextValue*, DynamicArray<mgraph::TriggerData,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B03F40
+	template bool om::ReadBinary(BinaryStream*, DynamicArray<mgraph::TriggerData,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B04000
+	template bool om::WriteBinary(BinaryStream*, DynamicArray<mgraph::TriggerData,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B040A0
+	template bool om::ReadText(TextValue const*, DynamicArray<Complex,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B041C0
+	template void om::WriteText(TextValue*, DynamicArray<Complex,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B042E0
+	template bool om::ReadBinary(BinaryStream*, DynamicArray<Complex,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B043C0
+	template bool om::WriteBinary(BinaryStream*, DynamicArray<Complex,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B04460
+	template void om::WriteText(TextValue*, DynamicArray<mgraph::EnvelopeData,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B04580
+	template bool om::WriteBinary(BinaryStream*, DynamicArray<mgraph::EnvelopeData,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B2DB90
+	template bool MetaProperty<DynamicArray<bool,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B2DC80
+	template void MetaProperty<DynamicArray<bool,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B2DD20
+	template bool MetaProperty<DynamicArray<bool,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2DD90
+	template bool MetaProperty<DynamicArray<bool,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2DDB0
+	template void MetaProperty<DynamicArray<float,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B2DE50
+	template bool MetaProperty<DynamicArray<float,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2DE70
+	template bool MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B2DF60
+	template void MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B2E000
+	template bool MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2E070
+	template bool MetaProperty<DynamicArray<unsigned int,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2E090
+	template bool MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B2E180
+	template void MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B2E220
+	template bool MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2E290
+	template bool MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2E2B0
+	template bool MetaProperty<DynamicArray<Vector,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B2E3A0
+	template void MetaProperty<DynamicArray<Vector,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B2E440
+	template bool MetaProperty<DynamicArray<Vector,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B2E4B0
+	template bool MetaProperty<DynamicArray<Vector,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B480A0
+	template bool MetaProperty<DynamicArray<float,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B48190
+	template bool MetaProperty<DynamicArray<float,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B48200
+	template bool MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B482F0
+	template void MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B48390
+	template bool MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B48400
+	template bool MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B48420
+	template bool MetaProperty<DynamicArray<Complex,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B48510
+	template void MetaProperty<DynamicArray<Complex,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B485B0
+	template bool MetaProperty<DynamicArray<Complex,unsigned short> const&>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B48620
+	template bool MetaProperty<DynamicArray<Complex,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B487B0
+	template void MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10B48860
+	template bool MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10B545D0
+	template bool MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10B546F0
+	template bool MetaProperty<DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::SetBinary(BinaryStream*, void*);
 }

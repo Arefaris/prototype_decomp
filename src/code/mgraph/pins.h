@@ -106,7 +106,8 @@ namespace mgraph
 		{
 		}
 		virtual ~ConcreteOutputPinBase();
-		virtual void Slot3() = 0;
+		// Slot 3: gives the pin the channels for a number of nodes' channels, which belong to an owner
+		virtual void Slot3(unsigned int newCount, void* newOwner) = 0;
 
 		// Two lists of the connections (head and tail)
 		struct List
@@ -351,7 +352,7 @@ namespace mgraph
 			}
 			return cache;
 		}
-		virtual void Slot3();
+		virtual void Slot3(unsigned int newCount, void* newOwner);
 		OM_ALLOCATION(OutputPin);
 
 		P value;  // 0x40
@@ -360,6 +361,22 @@ namespace mgraph
 	template<class P> const char* OutputPin<P>::AllocationTag()
 	{
 		return "";
+	}
+	template<class P> void OutputPin<P>::Slot3(unsigned int newCount, void* newOwner)
+	{
+		unsigned int oldCount = channels.size;
+		channels.Resize(newCount, value);
+		if (oldCount < newCount)
+		{
+			unsigned int i = oldCount;
+			do
+			{
+				channels[i].unknown4 = reinterpret_cast<unsigned int>(newOwner);
+				i++;
+			}
+			while (i < newCount);
+		}
+		unknown28.tail = reinterpret_cast<unsigned int>(channels.data);
 	}
 
 	template<class P> class AbstractInputPin : public AbstractInputPinBase
