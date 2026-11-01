@@ -5,6 +5,7 @@
 #include "code/om/invoke.h"
 #include "code/om/metaclass.h"
 #include "code/om/metamethod.h"
+#include "code/om/memorystream.h"
 #include "code/om/metaproperty.h"
 #include "code/om/reflection.h"
 
@@ -122,6 +123,25 @@ namespace music
 			return true;
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105DFAE0
+	Cell* Cell::Clone()
+	{
+		Cell* copy = reinterpret_cast<Cell*>(GetMetaType()->Slot5());
+		char buffer[0x10000];
+		om::MemoryStream output(buffer, 0x10000, true);
+		om::StreamBuffer outputBuffer(&output, 1);
+		om::StreamContext context;
+		context.Set(om::GetStreamContextObject(), om::GetStreamContextObject(), om::GetStreamContextObject(),
+			om::GetStreamContextObject());
+		om::MemoryStream input(buffer, 0x10000, false);
+		om::StreamBuffer inputBuffer(&input, 1);
+		om::BinaryOutput outputStream(&outputBuffer, &context);
+		WriteBinary(&outputStream.stream);
+		om::BinaryStream inputStream(&inputBuffer, &context);
+		copy->ReadBinary(&inputStream);
+		return copy;
 	}
 
 	// FUNCTION: ENGINE 0x105DFAD0
@@ -615,4 +635,18 @@ namespace music
 			om::MetaProperty<const om::ClassName&>::Create((om::MetaClassBase*)propertyOwner, propertyName, setter, getter, 3);
 		}
 	}
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105DC6D0
+	template MetaClassBase* GetCachedClass<music::Cell>();
+	// FUNCTION: ENGINE 0x105DCAC0
+	template MetaClassBase* GetCachedClass<music::FollowAction>();
+	// FUNCTION: ENGINE 0x105E0320
+	template MetaClassBase* GetCachedClass<music::MGraphCell>();
+	// FUNCTION: ENGINE 0x105E0380
+	template MetaClassBase* GetCachedClass<music::MGraphCellPlayer>();
+	// FUNCTION: ENGINE 0x105E0A50
+	template MetaClassBase* GetCachedClass<music::Fade>();
 }

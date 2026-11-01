@@ -25,4 +25,6 @@ namespace om
 	template EntityType<audio::Mix>::~EntityType();
 	// FUNCTION: ENGINE 0x105CF810
 	template void EntityType<audio::Mix>::Register(const char*, int);
+	// FUNCTION: ENGINE 0x105CCD20
+	template void* EntityType<audio::Mix>::operator new(size_t);
 }

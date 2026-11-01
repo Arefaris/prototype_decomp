@@ -25,4 +25,6 @@ namespace om
 	template void EntityType<music::Cue>::CreateUnregisteredEntity2(Entity**, const ClassName&);
 	// FUNCTION: ENGINE 0x105DF7D0
 	template void EntityType<music::Cue>::Register(const char*, int);
+	// FUNCTION: ENGINE 0x105DC6F0
+	template void* EntityType<music::Cue>::operator new(size_t);
 }

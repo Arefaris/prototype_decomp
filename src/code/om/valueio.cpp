@@ -55,6 +55,12 @@ namespace om
 	{
 	}
 
+	// FUNCTION: ENGINE 0x105B7C60
+	bool StreamBuffer::ReadRaw(void* data, unsigned int size)
+	{
+		return stream->Read(data, size);
+	}
+
 #ifdef NONMATCHING
 	// 0x105B7B90: reverses the bytes of a value (the start in ecx, the size in eax)
 	static void ReverseBytes(int size, char* data)

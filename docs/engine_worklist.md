@@ -6654,3 +6654,41 @@ and levels), the graph entity with its XML load / save (0x10AC6FE0 - 0x10AC8500)
 - Not done: Context (0x10AC4600 - 0x10AC6F60: the node list with levels (the function at 0x10AC46F0), the event queue), the graph's XML slots (0x10AC7980, 0x10AC6FE0),
   the node reflection `RegisterNodeProperties` (0x10ACB6D0), `LinkedGraph` / `EmbeddedGraph` / `Abstraction`, the pins' and connections' base constructors
   (0x10AD17B0 - 0x10AD2350), and the node classes `Inlet`, `Outlet`, `Switch`, `Rand`, the math nodes (`Slot16` with the array / vector helpers).
+
+## 0x105C0000 - 0x10600000: music, audio mixer, om streams and files, content meta types (sn-bm)
+Added (functions match unless noted):
+- The typed `Invoke` slots of the time classes (`Time`, `TimeSignature`, `FollowAction`, `Fade`) and of `Mix` / `MixStrip`
+  (`music/time.cpp`, `audio/mix.cpp`) with `ReadArgument<unsigned int>`, `<FollowAction::Type>`, `<Time>`, `<ClassName>`.
+  `om/invoke.h` gained a `WriteResult` for `bool` (one byte, the value tested first: the engine's inline form).
+- The engine's two copies of `Garbage<Time>` / `Garbage<FollowAction::Type>` were swapped in symbols.txt and time.cpp
+  (the tags are 0x105D8690 / 0x105D8800, `new` 0x105D8EC0 / 0x105D8F40); `Time::AllocationTag` is 0x105D87A0.
+- `om/path.cpp`: `GetExtension` (EQUIVALENT: the engine joins its two returns behind the push of the copy's argument),
+  `ReduceToFileName`, `HasExtension`, `HaveSameExtension`, `GetRelativePath` (shlwapi `PathRelativePathToA`),
+  `AppendPath`, `CombinePaths`, `RemoveFirstDirectory`. `om/filesystem.cpp`: `MakeFileWritable` (0x105CB650, not in
+  functions.tsv), the recursive `VisitFiles` (the `.` / `..` tests are `strcmp` against literals), `VisitAllFiles`,
+  `GetFileNameOf`, `CopyFileWritable`, `CreateEmptyFile`, `RemoveFilesBelow` and its visitor (EQUIVALENT: edi / esi). The
+  log texts of the visitor are `""`. `String::GetText` out of line is the engine's 0x1008CE60 (mapped).
+- `om/garbagelist.cpp` (new): `GarbageList::Add`, `GetFirst`, `Remove`, `DeleteAll`. `music/cell.cpp`: `Cell::Clone`
+  (a 64 KB stack buffer written through a `BinaryOutput` and read back through a plain `BinaryStream`).
+- `MetaClass<DynamicObjectEntity>` and the `operator new` of the three entity types (`dynamicobjectentity.cpp`,
+  `mixentity.cpp`, `cueentity.cpp`); `om::GetCachedClass<T>` for 34 classes (28 bytes each, found by the named
+  `MetaTypeCache<T>::type` word they read; the copies that read an unnamed cache word are other templates with the same
+  code, e.g. 0x105CCCE0, 0x105D7E00 - 0x105D7F10) in the units of the classes.
+- `om/valueio.cpp`: `StreamBuffer::ReadRaw` (0x105B7C60). `om/stringio.cpp`: `ReadBinary(BinaryStream*, String*)`
+  0x105C12E0 NONMATCHING (58 %: the engine builds the two texts in two constructor calls into a slot below the length).
+Found in this range, not done:
+- `music/cellplayer.cpp`: `CellPlayer` (the nine empty slots 1 - 9, `SetState`, slot 11) and `MGraphCellPlayer` (constructor,
+  slots 2, 3, 4, 5, 7, 8; the layout of the two 0x2C byte requests at +0x30 and +0x5C). Defining a constructor makes
+  our object emit the class's vftable, so every slot is declared and mapped in symbols.txt (vtcheck). Not done: slots 1, 9,
+  10, 11, 12 of `MGraphCellPlayer`, `Reset` (0x105E31D0) and the 884 / 1297 byte functions (they read the graph's sample
+  rate and state words).
+- The unreferenced 47-byte `ReadText` / `WriteText` / `ReadBinary` / `WriteBinary` bodies of the reflected value types
+  exist twice per type (0x105D7C50 and 0x105D8D20 for `FollowAction::Type`); no caller names the second set.
+- Families without a name: the 72-byte releases of the cached classes (50 copies, shrink-wrap), the 5-byte identity
+  functions at 0x105ED780 - 0x105ED7F0, the 82-byte `MetaProperty<const Name&>` creators with the flag 4 (14 copies).
+- `Mix` / `MixStrip` (0x105CEF50 - 0x105D0F40: the strips hang in a tree at +0x30 of the mix, their node at +0x2c),
+  `DynamicObject` (0x105C1400 - 0x105C1B30, the entity embeds one at +0x20 and forwards its slots 10 - 13),
+  `MetaEnumBase` (0x105EB8C0 - 0x105EBCF0: the tree at +0x38 holds the nodes at +0 keyed by value at +0x20, the tree at
+  +0x4c nodes at +0x10 keyed by the name at +0x28; `WriteValueName` only looks the value up), the audio task queue and
+  filter code (0x105C5100 - 0x105CA800, biquad coefficient and unrolled filter loops), `Renderer` (0x105D1100 -
+  0x105D2800), the ADPCM decoders (0x105E8860 - 0x105EB600) and `NameMetaType` (0x105FCC70 - 0x105FD350).

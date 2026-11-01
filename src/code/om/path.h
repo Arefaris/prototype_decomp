@@ -37,6 +37,22 @@ namespace om
 	String GetDirectoryOf(const String& path);
 	// 0x105CB090: the part up to the last separator
 	String* GetDirectory(String* path);
+	// 0x105CB130: the text behind the last dot (the whole path when there is none)
+	String GetExtension(const String& path);
+	// 0x105CB1E0: the path becomes the part behind the last separator
+	String* ReduceToFileName(String* path);
+	// 0x105CB240: the extension of the path is the other text (in small letters)
+	bool HasExtension(const String& path, const String& extension);
+	// 0x105CB2A0: both paths end in the same extension
+	bool HaveSameExtension(const String& first, const String& second);
+	// 0x105CB2F0: the second path as seen from the first (false when there is none)
+	bool GetRelativePath(String* result, const String& from, const String& to);
+	// 0x105CB3B0: the other path behind this one, a backslash between them
+	String* AppendPath(String* path, const String& other);
+	// 0x105CB420
+	String CombinePaths(const String& first, const String& second);
+	// 0x105CB450: the path without its first part (up to the first separator after the leading one)
+	String RemoveFirstDirectory(const String& path);
 }
 
 #endif

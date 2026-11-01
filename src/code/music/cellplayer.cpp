@@ -2,6 +2,160 @@
 #include "code/music/cellplayer.h"
 #include "code/om/metaenum.h"
 
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E2A10
+	bool CellPlayer::Slot1(int, int, int)
+	{
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105E2A20
+	void CellPlayer::Slot2()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A30
+	void CellPlayer::Slot3()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A40
+	void CellPlayer::Slot4()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A50
+	bool CellPlayer::Slot5()
+	{
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105E2A60
+	void CellPlayer::Slot6(int)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A70
+	void CellPlayer::Slot7(CellPlayerParameters)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A80
+	void CellPlayer::Slot8(CellPlayerParameters)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E2A90
+	int CellPlayer::Slot9()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x105F9A10
+	void CellPlayer::SetState(int newState)
+	{
+		state = newState;
+	}
+
+	// FUNCTION: ENGINE 0x105F9A00
+	void CellPlayer::Slot11(int)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105E3120
+	MGraphCellPlayer::MGraphCellPlayer() :
+		graph(0),
+		unknown1C(0.0f),
+		unknown20(false),
+		unknown21(false),
+		unknown22(false),
+		unknown24(0),
+		unknown28(0),
+		unknown2C(0)
+	{
+		first.valid = false;
+		first.parameters.unknown0 = 0;
+		first.parameters.unknown4 = 0;
+		first.parameters.unknown8 = 0;
+		first.parameters.unknownC = 0;
+		first.parameters.unknown10 = false;
+		first.parameters.unknown14 = 0;
+		first.parameters.unknown18 = 0;
+		first.parameters.unknown1C = 0;
+		first.parameters.unknown20 = 0;
+		first.parameters.unknown24 = false;
+		second.valid = false;
+		second.parameters.unknown0 = 0;
+		second.parameters.unknown4 = 0;
+		second.parameters.unknown8 = 0;
+		second.parameters.unknownC = 0;
+		second.parameters.unknown10 = false;
+		second.parameters.unknown14 = 0;
+		second.parameters.unknown18 = 0;
+		second.parameters.unknown1C = 0;
+		second.parameters.unknown20 = 0;
+		second.parameters.unknown24 = false;
+	}
+
+	// FUNCTION: ENGINE 0x105E2B70
+	void MGraphCellPlayer::Slot2()
+	{
+		if (state == 2)
+		{
+			SetState(3);
+			unknown22 = false;
+		}
+		if (state == 1)
+		{
+			unknown22 = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105E2BA0
+	void MGraphCellPlayer::Slot3()
+	{
+		int current = state;
+		if (current != 6 && current != 7 && current != 0)
+		{
+			if (current == 3)
+			{
+				SetState(0);
+			}
+			else
+			{
+				SetState(6);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105E3210
+	void MGraphCellPlayer::Slot4()
+	{
+		Reset();
+	}
+
+	// FUNCTION: ENGINE 0x105E31C0
+	bool MGraphCellPlayer::Slot5()
+	{
+		return unknown21;
+	}
+
+	// FUNCTION: ENGINE 0x105E2BD0
+	void MGraphCellPlayer::Slot7(CellPlayerParameters parameters)
+	{
+		first.valid = true;
+		first.parameters = parameters;
+	}
+
+	// FUNCTION: ENGINE 0x105E2BF0
+	void MGraphCellPlayer::Slot8(CellPlayerParameters parameters)
+	{
+		second.valid = true;
+		second.parameters = parameters;
+	}
+}
+
 namespace om
 {
 

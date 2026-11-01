@@ -2,6 +2,7 @@
 // made of template instances of the om library.
 #include "code/music/cue.h"
 #include "code/om/metaclass.h"
+#include "code/om/reflection.h"
 
 namespace om
 {
@@ -24,4 +25,10 @@ namespace om
 	template void* MetaClass<music::Cue>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105DCFD0
 	template void MetaClass<music::Cue>::Create(const ClassName&, MetaClassBase*);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105DD9C0
+	template MetaClassBase* GetCachedClass<music::Cue>();
 }
