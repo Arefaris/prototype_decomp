@@ -642,6 +642,58 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::DumpAlertCharactersAction (9 vftable slots, 0x2C bytes)
+			class DumpAlertCharactersAction : public fight::Action
+			{
+			public:
+				// 0x101EA750
+				DumpAlertCharactersAction(DumpAlertCharactersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener);
+				// 0x101E95E0
+				virtual ~DumpAlertCharactersAction();
+
+				// vftable slot 5 (0x101E9610)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8CE0)
+				virtual void Slot6();
+
+				core::Link<DumpAlertCharactersTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+			// RTTI: proto::fightitems::ai::AddDiversionAction (9 vftable slots, 0x30 bytes)
+			class AddDiversionAction : public fight::Action
+			{
+			public:
+				// 0x101EA800
+				AddDiversionAction(AddDiversionTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener);
+				// 0x101E96A0
+				virtual ~AddDiversionAction();
+
+				// vftable slot 5 (0x101EA8B0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101EB1F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101EAD10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<AddDiversionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::HandleBase unknown2C;  // +0x2C
+			};
+			// RTTI: proto::fightitems::ai::DisguiseActionUsedAction (9 vftable slots, 0x2C bytes)
+			class DisguiseActionUsedAction : public fight::Action
+			{
+			public:
+				// 0x101EB640
+				DisguiseActionUsedAction(DisguiseActionUsedTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener);
+				// 0x101E9740
+				virtual ~DisguiseActionUsedAction();
+
+				// vftable slot 5 (0x101EB6F0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<DisguiseActionUsedTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
 			// ---- actions end
 		}
 	}

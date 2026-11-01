@@ -1395,6 +1395,56 @@ namespace proto
 				return new DrawObjectDebugAction(this, handle, effect, listener);
 			}
 
+			// FUNCTION: ENGINE 0x101EA750
+			DumpAlertCharactersAction::DumpAlertCharactersAction(DumpAlertCharactersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E95E0
+			DumpAlertCharactersAction::~DumpAlertCharactersAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CE0
+			void DumpAlertCharactersAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CD0
+			fight::Action* DumpAlertCharactersTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+			// FUNCTION: ENGINE 0x101EA800
+			AddDiversionAction::AddDiversionAction(AddDiversionTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E96A0
+			AddDiversionAction::~AddDiversionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CF0
+			fight::Action* AddDiversionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+			// FUNCTION: ENGINE 0x101EB640
+			DisguiseActionUsedAction::DisguiseActionUsedAction(DisguiseActionUsedTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9740
+			DisguiseActionUsedAction::~DisguiseActionUsedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8D00
+			fight::Action* DisguiseActionUsedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
 			// ---- actions end
 			template class fight::PropertyEnumConstList<AbsoluteHeightCondition>;
 			template class fight::PropertyFloatConstRange<AbsoluteHeightCondition>;
