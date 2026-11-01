@@ -127,6 +127,37 @@ namespace proto
 				unsigned char unknown35[0x3];
 			};
 
+			// RTTI: proto::fightitems::ai::LandAction (9 vftable slots, 0x70 bytes)
+			class LandAction : public fight::Action
+			{
+			public:
+				// 0x101F9100
+				LandAction(LandTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F8F10
+				virtual ~LandAction();
+
+				// vftable slot 5 (0x101F91F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F9580)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F96B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LandTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				unsigned char unknown38[0xC];
+				math::Vector unknown44;  // +0x44
+				unsigned char unknown50[0xC];
+				float unknown5C;  // +0x5C
+				bool unknown60;  // +0x60
+				unsigned char unknown61[0x3];
+				float unknown64;  // +0x64
+				float unknown68;  // +0x68
+				bool unknown6C;  // +0x6C
+				unsigned char unknown6D[0x3];
+			};
+
 			// ---- actions end
 		}
 	}

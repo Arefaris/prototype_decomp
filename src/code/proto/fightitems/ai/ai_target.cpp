@@ -1007,6 +1007,27 @@ namespace proto
 				return result;
 			}
 
+			// FUNCTION: ENGINE 0x10215EE0
+			// NONMATCHING: the engine tests the target handle through a stored boolean (inline Get, setne, test), best 72 %
+#ifdef NONMATCHING
+			bool TargetHostileCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return isHostile == false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				bool hostile = false;
+				if (message.target.IsValid())
+				{
+					hostile = Unknown103BA7F0(object, message.target);
+				}
+				return isHostile == hostile;
+			}
+#endif
+
 			// ---- actions end
 						// FUNCTION: ENGINE 0x10216B00
 			bool TargetableCondition::Evaluate(int a, int b, int c, int d)

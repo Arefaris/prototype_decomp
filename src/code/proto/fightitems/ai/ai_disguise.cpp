@@ -1,5 +1,6 @@
 // Fight items of the ai group: AbsoluteHeightCondition, AreDisguiseActionsEnabledCondition, IsDisguiseActionEnabledCondition, DisguiseActionUsedTrack, ClearMarkersTrack, DumpAlertCharactersTrack, PlayDebugDialogTrack, DrawObjectDebugTrack, HelicopterStrafeModeTrack, ShowDisguiseActionHUDTrack, AddMarkerByKeyTrack, AddDiversionTrack, SetUserTooltipTrack, AdjustHydraMovementTrack (unit 0x102272B0 - 0x1022AC60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_disguise.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 #include <new>
 
 namespace proto
@@ -1445,6 +1446,66 @@ namespace proto
 			{
 				return 0;
 			}
+			// FUNCTION: ENGINE 0x101E9610
+			bool DumpAlertCharactersAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					DumpAlertCharactersDisguiseMsg message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EB6F0
+			bool DisguiseActionUsedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				switch (link.object->action)
+				{
+				case 1:
+					{
+						ReportAirStrikeUsedMsg message;
+						object->SendMessage(&message);
+					}
+					break;
+				case 2:
+					{
+						ReportCallStrikeTeamUsedMsg message;
+						object->SendMessage(&message);
+					}
+					break;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101EB950
+			void AdjustHydraMovementAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						if (link.object->aboveGround)
+						{
+							ForcePositionOutsideStateChangeMessage message;
+							object->SendMessage(&message);
+						}
+						else
+						{
+							ForcePositionUndergroundStateChangeMessage message;
+							object->SendMessage(&message);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<AbsoluteHeightCondition>;
 			template class fight::PropertyFloatConstRange<AbsoluteHeightCondition>;

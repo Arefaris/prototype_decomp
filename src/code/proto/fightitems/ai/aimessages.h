@@ -439,6 +439,97 @@ namespace proto
 		bool inHotZone;  // +0xC
 		bool onGround;  // +0xD
 	};
+
+	// RTTI: proto::ThreatBallsGetMessage: the object answers the handles of the threat balls around it
+	struct ThreatBallsGetMessage : public ThreatMessage
+	{
+		ThreatBallsGetMessage() : ThreatMessage(1), balls(0), count(0)
+		{
+		}
+		virtual ~ThreatBallsGetMessage()
+		{
+		}
+
+		engine::GameObjectHandle* balls;  // +0xC
+		int count;  // +0x10
+	};
+
+	// RTTI: proto::ThreatGetInfoMessage: the threat answers what it is called and who it belongs to
+	struct ThreatGetInfoMessage : public engine::IntrusiveMessage
+	{
+		ThreatGetInfoMessage() : engine::IntrusiveMessage(0x28, 4), owner(), target(), name(), unknown20(0), unknown24(-1)
+		{
+		}
+		virtual ~ThreatGetInfoMessage()
+		{
+		}
+
+		engine::GameObjectHandle owner;  // +0xC
+		engine::GameObjectHandle target;  // +0x10
+		int unknown14;
+		core::Name<core::CaseSensitiveKey> name;  // +0x18
+		int unknown20;
+		int unknown24;
+	};
+
+	// RTTI: proto::DumpAlertCharactersDisguiseMsg: the characters that are alerted are dumped
+	struct DumpAlertCharactersDisguiseMsg : public DisguiseMessage
+	{
+		DumpAlertCharactersDisguiseMsg() : DisguiseMessage(0x40)
+		{
+		}
+		virtual ~DumpAlertCharactersDisguiseMsg()
+		{
+		}
+	};
+
+	// RTTI: proto::ReportAirStrikeUsedMsg: an air strike was used
+	struct ReportAirStrikeUsedMsg : public DisguiseMessage
+	{
+		ReportAirStrikeUsedMsg() : DisguiseMessage(0x45)
+		{
+		}
+		virtual ~ReportAirStrikeUsedMsg()
+		{
+		}
+	};
+
+	// RTTI: proto::ReportCallStrikeTeamUsedMsg: a strike team was called
+	struct ReportCallStrikeTeamUsedMsg : public DisguiseMessage
+	{
+		ReportCallStrikeTeamUsedMsg() : DisguiseMessage(0x46)
+		{
+		}
+		virtual ~ReportCallStrikeTeamUsedMsg()
+		{
+		}
+	};
+
+	// RTTI: proto::ForcePositionOutsideStateChangeMessage: the object is put outside
+	struct ForcePositionOutsideStateChangeMessage : public StateChangeMessage
+	{
+		ForcePositionOutsideStateChangeMessage() : StateChangeMessage(0xc)
+		{
+		}
+		virtual ~ForcePositionOutsideStateChangeMessage()
+		{
+		}
+
+		int unknownC;
+	};
+
+	// RTTI: proto::ForcePositionUndergroundStateChangeMessage: the object is put underground
+	struct ForcePositionUndergroundStateChangeMessage : public StateChangeMessage
+	{
+		ForcePositionUndergroundStateChangeMessage() : StateChangeMessage(0xd)
+		{
+		}
+		virtual ~ForcePositionUndergroundStateChangeMessage()
+		{
+		}
+
+		int unknownC;
+	};
 }
 
 #endif

@@ -1,5 +1,6 @@
 // Fight items of the ai group: ThreatCondition, ThreatInMemoryCondition, ThreatCanSeeCondition, LastThreatConditionGroupCondition, ThreatCanGrabCondition, ThreatStoreCondition, ThreatBallTrack, ThreatDodgeTrack, ThreatMemoryResetTrack, ThreatSendToTargetTrack (unit 0x10253340 - 0x10255E00; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_threat.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
 
@@ -916,6 +917,36 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ThreatDodgeAction(this, handle, effect, listener);
 			}
+			// FUNCTION: ENGINE 0x10218020
+			// EQUIVALENT: register allocation of the loop (the engine keeps the zero in ebx and the index in ebp and spills this; ours the other way round); the same calls, tests and message (64.5 %)
+			bool ThreatCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ThreatBallsGetMessage message;
+					object->SendMessage(&message);
+					for (int index = 0; index < message.count; index++)
+					{
+						engine::GameObject* ball = message.balls[index].Get();
+						if (ball != 0)
+						{
+							if (name.IsEmpty())
+							{
+								return true;
+							}
+							ThreatGetInfoMessage info;
+							ball->SendMessage(&info);
+							if (info.name == name)
+							{
+								return true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<ThreatCondition>;
 			template class fight::ConditionFactoryTemplate<ThreatCondition>;

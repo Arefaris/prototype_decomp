@@ -284,6 +284,24 @@ namespace proto
 				return new TakeOffAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101F9100
+			LandAction::LandAction(LandTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f, 0.0f, 0.0f), unknown44(0.0f, 0.0f, 0.0f), unknown5C(0.0f), unknown60(false), unknown64(0.0f), unknown6C(false)
+			{
+				unknown68 = link.object->toleranceXZ * link.object->toleranceXZ;
+			}
+
+			// FUNCTION: ENGINE 0x101F8F10
+			LandAction::~LandAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F9E70
+			fight::Action* LandTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LandAction(this, handle);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;
 			template class fight::TrackFactoryTemplate<TakeOffTrack>;

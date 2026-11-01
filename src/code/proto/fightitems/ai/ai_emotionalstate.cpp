@@ -1,5 +1,6 @@
 // Fight items of the ai group: EmotionalStateCondition, RequestStopPursuitCondition, RequestCheckBodyCondition, RequestPlayerDiversionCondition, RequestDenyPatsyCondition, RequestCallStrikeTeamCondition, RequestRecognizePatsyCondition, RequestPointingCondition, RequestLostHimCondition, RequestSuspicionCondition, RequestRadioHQCondition, ForceEmotionalStateTrack (unit 0x1022AC60 - 0x1022CB50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_emotionalstate.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -714,6 +715,17 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ForceEmotionalStateAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101ED000
+			bool ForceEmotionalStateAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				Unknown103BB590(target.Get(), link.object->state);
+				return true;
 			}
 
 			// ---- actions end
