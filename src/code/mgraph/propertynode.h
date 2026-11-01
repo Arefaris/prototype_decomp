@@ -6,6 +6,19 @@
 #include "code/mgraph/events.h"
 #include "code/mgraph/nodes.h"
 
+namespace om
+{
+	// The comparison of the vectors and complex numbers the property nodes' arrays use
+	inline bool operator==(const Vector& left, const Vector& right)
+	{
+		return left.values[0] == right.values[0] && left.values[1] == right.values[1] && left.values[2] == right.values[2];
+	}
+	inline bool operator==(const Complex& left, const Complex& right)
+	{
+		return left.values[0] == right.values[0] && left.values[1] == right.values[1];
+	}
+}
+
 namespace mgraph
 {
 	// An event that copies the value of a channel out of its property node (RTTI: mgraph::PropertyNodeOutputEvent<P>, 0x14 bytes)
@@ -176,10 +189,29 @@ namespace mgraph
 		value = *newValue;
 	}
 
+	// Whether a new value differs from the one a channel has: the engine does not compare the complex numbers
+	template<class V> inline bool ValuesDiffer(const V& left, const V& right)
+	{
+		return left != right;
+	}
+	inline bool ValuesDiffer(const om::Complex& left, const om::Complex& right)
+	{
+		return false;
+	}
+	template<class E> inline bool ValuesDiffer(const om::DynamicArray<E, unsigned short>& left,
+		const om::DynamicArray<E, unsigned short>& right)
+	{
+		return !(left == right);
+	}
+	inline bool ValuesDiffer(const om::Vector& left, const om::Vector& right)
+	{
+		return !(left.values[0] == right.values[0] && left.values[1] == right.values[1] && left.values[2] == right.values[2]);
+	}
+
 	template<class P> void PropertyNode<P>::SetChannelValue(const Value* newValue, unsigned int channel, int unknown)
 	{
 		Channel& target = channels[channel];
-		if (target.value != *newValue || target.unknown8 != unknown)
+		if (ValuesDiffer(target.value, *newValue) || target.unknown8 != unknown)
 		{
 			target.value = *newValue;
 			target.unknown8 = unknown;

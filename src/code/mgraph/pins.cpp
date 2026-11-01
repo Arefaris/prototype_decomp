@@ -504,10 +504,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<bool> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B17A80
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<bool> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B17AB0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<bool> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B17AD0
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<bool> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B17AF0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<bool> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B17B20
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<bool> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B17CB0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<bool> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B18370
@@ -542,10 +546,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B18910
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B18940
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B18960
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B18980
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B189B0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B18B40
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B191E0
@@ -580,10 +588,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<float> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B19780
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<float> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B197B0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<float> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B197D0
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<float> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B197F0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<float> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B19820
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<float> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B199B0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<float> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B19B50
@@ -622,10 +634,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1A5F0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1A620
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1A640
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1A660
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1A690
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1A820
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1ABE0
@@ -662,10 +678,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned int> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1B460
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned int> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1B490
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned int> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1B4B0
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned int> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1B4D0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned int> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1B500
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned int> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1B690
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<unsigned int> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1BD30
@@ -700,10 +720,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1C2D0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1C300
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1C320
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1C340
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1C370
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1C500
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1CBA0
@@ -738,10 +762,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1D140
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1D170
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1D190
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1D1B0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1D1E0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<unsigned __int64> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1D370
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<unsigned __int64> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1DA10
@@ -776,10 +804,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1DFB0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1DFE0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1E000
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1E020
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1E050
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1E1E0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1E880
@@ -814,10 +846,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<String> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1EE20
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<String> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1EE50
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<String> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1EE70
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<String> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1EE90
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<String> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1EEC0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<String> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1F050
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<String> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B1F6F0
@@ -852,10 +888,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1FC90
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1FCC0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1FCE0
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B1FD00
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B1FD30
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1FEC0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B20560
@@ -890,10 +930,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Vector> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B20B40
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Vector> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B20B70
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Vector> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B20B90
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Vector> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B20BB0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Vector> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B20BE0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Vector> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B20D70
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<Vector> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B21410
@@ -928,10 +972,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B219B0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B219E0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B21A00
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B21A20
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B21A50
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B21BE0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B22280
@@ -966,10 +1014,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B22840
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B22870
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B22890
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B228B0
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B228E0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B22A70
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<mgraph::TriggerData> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B23110
@@ -1004,10 +1056,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B236B0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B236E0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B23700
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B23720
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B23750
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B238E0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B23F80
@@ -1042,10 +1098,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Complex> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B24520
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Complex> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B24550
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<Complex> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B24570
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Complex> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B24590
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Complex> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B245C0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<Complex> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B24750
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<Complex> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B24DF0
@@ -1080,10 +1140,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B25390
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B253C0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B253E0
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B25400
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B25430
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B255C0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B25C60
@@ -1118,10 +1182,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B26200
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B26230
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B26250
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B26270
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B262A0
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<mgraph::EnvelopeData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B26430
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<mgraph::EnvelopeData> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B265D0
@@ -1164,10 +1232,14 @@ namespace mgraph
 	template void* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B270B0
 	template mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AbstractToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B270E0
+	template void mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B27100
 	template void* mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B27120
 	template mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::ConcreteToAbstractGraphConnection(mgraph::Pin*, mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B27150
+	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B272E0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B276A0

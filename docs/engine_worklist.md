@@ -6400,3 +6400,44 @@ animation blend, auto target, blood splatter and boundary (0x100959A0 - 0x100A00
   the engine's unit because some code of it used the member; an explicit member instantiation in the unit's source
   (`template void WaveArray::Free();` inside `namespace container`) gives the kept copy to map. A virtual destructor defined out of
   line in the unit (`Power::~Power`) is called by the compiler's deleting destructor instead of being inlined into it.
+
+## sn-bf: the range 0x10B00000 - 0x10B40000 (mgraph: node types, pins and connections, property nodes)
+The range goes on with the template instances of the mgraph library (see sn-bd): 4720 functions were not reconstructed at the start.
+- `mgraph/nodetypes.cpp` (1008 functions match, 135 EQUIVALENT): the rest of `NodeType<N>` for the 135 node classes (constructor,
+  `operator delete`, the destructor, `GetMetaType` (slot 2), the statics that look up (`FindMetaType`) and release (`ReleaseMetaType`) the
+  reflection of N and forget the node type (`ForgetNodeType`); names guessed) and `N::operator new` / `N::AllocationTag` of the node
+  classes. The node classes got their sizes (read off the `new` of the `CreateNode` slot of each `NodeType`), an alignment of 8 and
+  `OM_ALLOCATION` (`mgraph/nodes.h`, macro `MGRAPH_NODE_BODY`). `ReleaseMetaType` is EQUIVALENT everywhere (shrink-wrap: the engine
+  saves esi before testing the cached type; the standalone copy is a dead COMDAT, the destructor that inlines it matches). Slot 1
+  (`CreateNode`) is declared and not defined (mapped by the vftable binding); `NodeType<PropertyNodeBase>::CreateNode` (0x10B006B0) and the
+  `CreateNode` of the other classes are not reconstructed. The second copy of `FindMetaType` of 66 classes does not exist in the engine
+  (folded with slot 2).
+- `mgraph/simpletypes.cpp` (107 functions): `MetaSimpleType<T>` slots of the arrays and packets that are in this range.
+- `mgraph/pins.h`, `pins.cpp` (685 functions): the pin classes (`Pin` 0x20 bytes, 8-aligned; `InputPinBase`, `OutputPinBase`,
+  `Concrete*` / `Abstract*` bases, sizes 0x30 / 0x38 / 0x40 / 0x30), `GraphConnectionBase` and its four derived kinds, `ContextConnectionBase`
+  and the templates `ConcreteToConcrete` / `AbstractToConcrete` / `AbstractToAbstract` / `ConcreteToAbstractGraphConnection<P>`,
+  `ContextConnection<P>` (`Destroy` frees through the allocator of its owner), `InputPin<P>`, `OutputPin<P>`, `AbstractInputPin<P>`,
+  `AbstractOutputPin<P>` for the packet types. Matched: constructors, `GetPacketType` (slot 1) and `GetPacketTypeCached` (slot 2, the cache
+  `GraphMetaTypeCache<P>` is not the `MetaTypeCache<P>` of the reflection), `MakeConnection` (slot 3 of the input pins), `GetChannelData` /
+  `SetChannelOwner` / `IsChannelOwner` of `InputPin<P>`, `Destroy`, the allocation functions, and the helpers of `DynamicArray<Packet<P>>`
+  (`ReleaseElements`, destructor). `InputPin<P>` has an implicit destructor in the engine (it does not store its own vftable), so it is
+  mapped only; the derived destructors of the connections are thunks to the base destructor that the linker folded (one copy per type).
+  `Packet<T>` (nodes.h) is a handle of 0x10 bytes (three words behind the vftable; slot 0 pure, slot 1 the destructor); `PinChannelData` has
+  a pure slot 0 and the destructor in slot 1.
+- `mgraph/propertynode.h`, `propertynode.cpp` (350 functions): `PropertyNode<P>` (members `channels` 0x58 and `value` 0x60; slots 11, 15,
+  17 - 25), its channel array (`PropertyChannel<T>`: value, changed, a number; `DynamicArray<PropertyChannel<T>>::Resize` and
+  `FillElements` are new members of `om::DynamicArray`), the events `PropertyNodeInputEvent<P>` / `PropertyNodeOutputEvent<P>` (they
+  use the `EventQueue` the context keeps: head, tail, count; `EventQueue::Add` is 0x105CBE20), `PropertyPropertyDelegate<P>`, and the four
+  default slots of `PropertyNodeBase` (0x10B00600 - 0x10B00630). Done for the bool, float, unsigned int, unsigned __int64, Complex and Vector
+  properties and the arrays of bool, float, unsigned int, unsigned __int64, Vector and Complex (the comparison of a new channel value is
+  `ValuesDiffer`: none for the complex numbers, three float tests for the vectors, `DynamicArray::operator==` for the arrays, a member
+  template of `om::DynamicArray` so that the other instances do not need it). Not done: the string, envelope data and trigger properties
+  and their arrays, slot 16 (copies a value out of an event, 0x10B13B10), `CreateDelegate` (the engine stores the delegate's words in
+  another order than ours: scheduling), the destructors (implicit in the engine).
+- Shared changes: `mgraph/envelope.h` (`GraphItem` has the 7 slots of the engine's vftable, `Node` 17: slots 1 - 16 are declared by their
+  numbers, 11 is `SetNumChannels`), `mgraph/nodes.h` (node classes, `PinChannelData`, `Packet<T>`, `PropertyNode<P>`), `om/dynamicarray.h`
+  (new members `Resize`, `FillElements` and the member template `operator==`), `tools`: none.
+- Not done: `Inlet<P>` / `Outlet<P>` (about 180 functions: dtor with the pin lists, `CreateNode` of 307 bytes with the inlined
+  constructor), `Throw` / `Catch` / `Switch` / `ListCount` / `ListEntry` slot 16 (copy a packet out of an event), the scalar deleting
+  destructors (mapped), the `MetaProperty` / `MetaMethod0Const` instances of the property nodes, the `CommutativeMath` helpers and the
+  container helpers of the element types of the nodes' arrays.

@@ -93,6 +93,22 @@ namespace om
 			capacity = count;
 		}
 
+		// A member template so that the instances of arrays of types without a comparison do not need it
+		template<class Other> bool operator==(const Other& other) const
+		{
+			if (other.size != size)
+			{
+				return false;
+			}
+			for (Count i = 0; i < size; i++)
+			{
+				if (!(data[i] == other.data[i]))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
 		// Changes the number of elements: new ones are copies of the element given (the capacity grows to fit)
 		void Resize(Count newSize, const T& fill)
 		{
