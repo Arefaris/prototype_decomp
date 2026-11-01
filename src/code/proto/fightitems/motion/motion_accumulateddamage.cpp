@@ -1,5 +1,6 @@
 // Fight items of the motion group: AccumulatedDamageCondition, IsUndamageableCondition, DisableTimeWithNoDamageCounterTrack, IgnoreHitsTrack, TempRegenAbortTrack, HealthSetMultiplierTrack, AccumulatedDamageResetTrack, TempRegenerationTrack (unit 0x10177EA0 - 0x10179BB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_accumulateddamage.h"
+#include "code/engine/healthmessages.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
@@ -758,6 +759,19 @@ namespace proto
 			}
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100D1DC0
+			bool IsUndamageableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetUndamageableMessage message;
+				object->PostMessage(&message);
+				return message.count != 0;
+			}
+
 			template class fight::PropertyEnumConstList<AccumulatedDamageCondition>;
 			template class fight::PropertyFloatConstRange<AccumulatedDamageCondition>;
 			template class fight::ConditionFactoryTemplate<AccumulatedDamageCondition>;
@@ -789,7 +803,11 @@ namespace proto
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D1040
+// FUNCTION: ENGINE 0x100D1050
+// FUNCTION: ENGINE 0x100D1090
+// FUNCTION: ENGINE 0x100D10E0
 // FUNCTION: ENGINE 0x100D1130
+// FUNCTION: ENGINE 0x100D12B0
 // FUNCTION: ENGINE 0x100D13A0
 // FUNCTION: ENGINE 0x100D1400
 // FUNCTION: ENGINE 0x100D1420
