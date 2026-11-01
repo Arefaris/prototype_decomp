@@ -105,6 +105,84 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101E8700
+			ConditionalExecuteAction::ConditionalExecuteAction(fight::Track* newListener, ConditionalExecuteTrack* newTrack, int newEffect, core::IRefCount* newOwner) : fight::Action(0xFFFFFF20), watch(newListener), link(newTrack), effect(newEffect), owner(0), active(false)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x101E8630
+			ConditionalExecuteAction::~ConditionalExecuteAction()
+			{
+				core::SafeReleaseRef(owner);
+				sequencer.End();
+			}
+
+			// FUNCTION: ENGINE 0x101E8560
+			fight::Sequencer* ConditionalExecuteAction::GetChild()
+			{
+				return &sequencer;
+			}
+
+			// FUNCTION: ENGINE 0x101E8570
+			void ConditionalExecuteAction::Slot6()
+			{
+				sequencer.Reset();
+			}
+
+			// FUNCTION: ENGINE 0x101E87E0
+			bool ConditionalExecuteAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (link.object->branch.GetBranch() == 0)
+				{
+					return false;
+				}
+				active = false;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8810
+			// EQUIVALENT: scheduling of the argument loads and the register of the branch holder address, and the block order of the inactive exit; the same calls with the same arguments (44.6 %)
+			bool ConditionalExecuteAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				fight::ConditionList* conditions = &link.object->conditions;
+				if (conditions == 0 || conditions->Evaluate((int)watch.track, effect, (int)owner, 0))
+				{
+					if (!active)
+					{
+						fight::Branch* branch = link.object->branch.GetBranch();
+						fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, owner, 0, false);
+						if (started != 0)
+						{
+							active = sequencer.SetPending(started, effect, owner, 0);
+							return true;
+						}
+					}
+					return true;
+				}
+				if (!active)
+				{
+					return true;
+				}
+				sequencer.Reset();
+				active = false;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E88C0
+			fight::Action* ConditionalExecuteTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ConditionalExecuteAction(listener, this, (int)effect, owner);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConditionalExecuteTrack>;
 			template class fight::PropertyBranch<ConditionalExecuteTrack>;

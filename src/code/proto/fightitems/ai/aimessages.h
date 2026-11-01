@@ -322,6 +322,123 @@ namespace proto
 		AimParameters* parameters;  // +0xC
 		bool flag;  // +0x10
 	};
+
+	// RTTI: proto::SquadMessage: the base of the messages about the squad of an object (message type 0x27)
+	struct SquadMessage : public engine::IntrusiveMessage
+	{
+		explicit SquadMessage(short newId) : engine::IntrusiveMessage(0x27, newId)
+		{
+		}
+		virtual ~SquadMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::GetCommanderSquadMessage: the object answers the commander of its squad
+	struct GetCommanderSquadMessage : public SquadMessage
+	{
+		GetCommanderSquadMessage() : SquadMessage(1), commander()
+		{
+		}
+		virtual ~GetCommanderSquadMessage()
+		{
+		}
+
+		engine::GameObjectHandle commander;  // +0xC
+	};
+
+	// RTTI: proto::IsFormationSquadMessage: the squad answers whether it is in a formation
+	struct IsFormationSquadMessage : public SquadMessage
+	{
+		IsFormationSquadMessage() : SquadMessage(0x12), inFormation(false)
+		{
+		}
+		virtual ~IsFormationSquadMessage()
+		{
+		}
+
+		bool inFormation;  // +0xC
+	};
+
+	// RTTI: proto::FormationReformingSquadMessage: the squad answers whether it reforms its formation
+	struct FormationReformingSquadMessage : public SquadMessage
+	{
+		FormationReformingSquadMessage() : SquadMessage(0x13), reforming(false)
+		{
+		}
+		virtual ~FormationReformingSquadMessage()
+		{
+		}
+
+		bool reforming;  // +0xC
+	};
+
+	// RTTI: proto::LODAIMessage: the base of the messages about the level of detail of the ai of an object (message type 0x3A)
+	struct LODAIMessage : public engine::IntrusiveMessage
+	{
+		explicit LODAIMessage(short newId) : engine::IntrusiveMessage(0x3a, newId)
+		{
+		}
+		virtual ~LODAIMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::SetUnDowngradableMsg: whether the object may lose detail
+	struct SetUnDowngradableMsg : public LODAIMessage
+	{
+		explicit SetUnDowngradableMsg(bool newUnDowngradable) : LODAIMessage(7), unDowngradable(newUnDowngradable)
+		{
+		}
+		virtual ~SetUnDowngradableMsg()
+		{
+		}
+
+		bool unDowngradable;  // +0xC
+	};
+
+	// RTTI: proto::GetDestinationMessage: the object answers whether it has a destination, and where
+	struct GetDestinationMessage : public MovementMessage
+	{
+		GetDestinationMessage() : MovementMessage(1), hasDestination(false), unknownD(false), destination(math::kZeroVector)
+		{
+		}
+		virtual ~GetDestinationMessage()
+		{
+		}
+
+		bool hasDestination;  // +0xC
+		bool unknownD;
+		math::Vector destination;  // +0x10
+	};
+
+	// RTTI: proto::GetStuckMovementMessage: the object answers whether it is stuck
+	struct GetStuckMovementMessage : public MovementMessage
+	{
+		GetStuckMovementMessage() : MovementMessage(0x25), stuck(false), unknown10(0.0f)
+		{
+		}
+		virtual ~GetStuckMovementMessage()
+		{
+		}
+
+		bool stuck;  // +0xC
+		float unknown10;
+	};
+
+	// RTTI: proto::GetInHotZoneMovementMessage: the object answers whether it is in a hot zone, and whether it stands on the ground
+	struct GetInHotZoneMovementMessage : public MovementMessage
+	{
+		GetInHotZoneMovementMessage() : MovementMessage(0x4d), inHotZone(false), onGround(false)
+		{
+		}
+		virtual ~GetInHotZoneMovementMessage()
+		{
+		}
+
+		bool inHotZone;  // +0xC
+		bool onGround;  // +0xD
+	};
 }
 
 #endif

@@ -1551,6 +1551,38 @@ namespace proto
 				return result;
 			}
 
+			// FUNCTION: ENGINE 0x101FBEF0
+			// EQUIVALENT: block order; the engine puts the failure return of the library test in front of the body, ours behind it; the same instructions (63.0 %)
+			bool UnDowngradableAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0 || Unknown103B8DC0(object) == -2)
+				{
+					return false;
+				}
+				SetUnDowngradableMsg message(true);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FBFA0
+			void UnDowngradableAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0 && link.object->clearAtEnd)
+					{
+						SetUnDowngradableMsg message(false);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyIntConstRange<CanReserveSoldierBudgetCondition>;
 			template class fight::ConditionFactoryTemplate<CanReserveSoldierBudgetCondition>;

@@ -2885,6 +2885,83 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x10200480
+			bool DestinationHaveArrivedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					result = Unknown103B8440(object);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200A20
+			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %
+			bool HaveDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDestinationMessage message;
+					object->SendMessage(&message);
+					if (message.hasDestination && message.unknownD)
+					{
+						result = true;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200B20
+			bool StuckCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetStuckMovementMessage message;
+					object->SendMessage(&message);
+					result = message.stuck == stuck;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200BE0
+			// NONMATCHING: the engine keeps the zero in ebx for the message flags and compares the flag with it, ours zeroes bl and tests the pointer, best 62 %
+#ifdef NONMATCHING
+			bool InHotZoneCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetInHotZoneMovementMessage message;
+					object->SendMessage(&message);
+					result = message.inHotZone == in;
+					if (result && requireStayOnGround)
+					{
+						return message.onGround;
+					}
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101FFE60
+			bool StopAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Unknown103B82F0(object);
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;

@@ -1,5 +1,6 @@
 // Fight items of the ai group: InFormationCondition, FormationReformingCondition, FollowFormationTrack, FollowTargetTrack, ReformTrack (unit 0x10232390 - 0x102338F0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_formation.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -524,6 +525,51 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ReformAction(this, handle);
 			}
+			// FUNCTION: ENGINE 0x101F4220
+			// NONMATCHING: the engine joins the two flag tests behind one tail and keeps the zero in ebx, best 21 %
+#ifdef NONMATCHING
+			bool InFormationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetCommanderSquadMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* commander = message.commander.Get();
+				if (commander != 0)
+				{
+					IsFormationSquadMessage formationMessage;
+					commander->SendMessage(&formationMessage);
+					result = formationMessage.inFormation;
+				}
+				return result == in;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F4360
+			bool FormationReformingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetCommanderSquadMessage message;
+				object->SendMessage(&message);
+				bool result = false;
+				engine::GameObject* commander = message.commander.Get();
+				if (commander != 0)
+				{
+					FormationReformingSquadMessage reformingMessage;
+					commander->SendMessage(&reformingMessage);
+					result = reformingMessage.reforming == reforming;
+				}
+				return result;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<InFormationCondition>;
 			template class fight::ConditionFactoryTemplate<InFormationCondition>;

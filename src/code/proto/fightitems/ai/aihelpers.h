@@ -116,6 +116,10 @@ namespace proto
 
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
+	// 0x103B8440: whether the object has arrived at its destination (name guess)
+	bool Unknown103B8440(engine::GameObject* object);
+	// 0x103B82F0: makes the object stop (name guess)
+	void Unknown103B82F0(engine::GameObject* object);
 	// 0x103B8630: sets how an object moves (the sprint and the maximum speed flags; name guess)
 	void Unknown103B8630(engine::GameObject* object, bool sprint, bool useMaxSpeed);
 	// 0x10078F70: whether the object is the player's
