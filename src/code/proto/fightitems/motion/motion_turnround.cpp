@@ -133,6 +133,26 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10123700
+			TurnRoundAction::TurnRoundAction(TurnRoundTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101235E0
+			TurnRoundAction::~TurnRoundAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x10123D00
+			fight::Action* TurnRoundTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TurnRoundAction(this, handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<TurnRoundTrack>;
 			template class fight::PropertyBool<TurnRoundTrack>;
 			template class fight::PropertyIntConstRange<TurnRoundTrack>;
@@ -143,6 +163,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10123540
+// FUNCTION: ENGINE 0x10123570
+// FUNCTION: ENGINE 0x10123770
 // FUNCTION: ENGINE 0x101C2EE0
 // FUNCTION: ENGINE 0x101C2F10
 // FUNCTION: ENGINE 0x101C2F20

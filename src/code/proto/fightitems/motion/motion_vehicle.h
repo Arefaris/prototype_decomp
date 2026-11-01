@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -386,6 +387,126 @@ namespace proto
 			fight::TrackFactory* CreateSetVehicleSolverEnabledTrackFactory(const char* name);
 			void RegisterSetVehicleSolverEnabledTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SetVehicleAnimatedAction (9 vftable slots, 0x2C bytes)
+			class SetVehicleAnimatedAction : public fight::Action
+			{
+			public:
+				// 0x1012B370
+				SetVehicleAnimatedAction(SetVehicleAnimatedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012AB90
+				virtual ~SetVehicleAnimatedAction();
+
+				// vftable slot 5 (0x1012B410)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SetVehicleAnimatedTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::HelicopterSpawnBloodtoxAction (9 vftable slots, 0x2C bytes)
+			class HelicopterSpawnBloodtoxAction : public fight::Action
+			{
+			public:
+				// 0x1012B070
+				HelicopterSpawnBloodtoxAction(HelicopterSpawnBloodtoxTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012A8E0
+				virtual ~HelicopterSpawnBloodtoxAction();
+
+				// vftable slot 5 (0x1012A910)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1012A990)
+				virtual void Slot6();
+				// vftable slot 7 (0x10129D20)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<HelicopterSpawnBloodtoxTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::VehiclePlayAnimationAction (9 vftable slots, 0x2C bytes)
+			class VehiclePlayAnimationAction : public fight::Action
+			{
+			public:
+				// 0x1012AE90
+				VehiclePlayAnimationAction(VehiclePlayAnimationTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012A750
+				virtual ~VehiclePlayAnimationAction();
+
+				// vftable slot 5 (0x1012A780)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1012A800)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<VehiclePlayAnimationTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::SetVehicleHeadlightAction (9 vftable slots, 0x2C bytes)
+			class SetVehicleHeadlightAction : public fight::Action
+			{
+			public:
+				// 0x1012B4A0
+				SetVehicleHeadlightAction(SetVehicleHeadlightTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012ABE0
+				virtual ~SetVehicleHeadlightAction();
+
+				// vftable slot 5 (0x1012B540)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SetVehicleHeadlightTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::VehiclePowerOnOffAction (9 vftable slots, 0x2C bytes)
+			class VehiclePowerOnOffAction : public fight::Action
+			{
+			public:
+				// 0x1012AF30
+				VehiclePowerOnOffAction(VehiclePowerOnOffTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012A890
+				virtual ~VehiclePowerOnOffAction();
+
+				// vftable slot 5 (0x1012AFD0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<VehiclePowerOnOffTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::SetSecondaryWeaponTypeAction (9 vftable slots, 0x2C bytes)
+			class SetSecondaryWeaponTypeAction : public fight::Action
+			{
+			public:
+				// 0x1012B110
+				SetSecondaryWeaponTypeAction(SetSecondaryWeaponTypeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012AAF0
+				virtual ~SetSecondaryWeaponTypeAction();
+
+				// vftable slot 5 (0x1012B1B0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SetSecondaryWeaponTypeTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::SetVehicleSolverEnabledAction (9 vftable slots, 0x2C bytes)
+			class SetVehicleSolverEnabledAction : public fight::Action
+			{
+			public:
+				// 0x1012B240
+				SetVehicleSolverEnabledAction(SetVehicleSolverEnabledTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1012AB40
+				virtual ~SetVehicleSolverEnabledAction();
+
+				// vftable slot 5 (0x1012B2E0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SetVehicleSolverEnabledTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

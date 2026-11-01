@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -55,6 +56,30 @@ namespace proto
 			fight::TrackFactory* CreateTurnRoundTrackFactory(const char* name);
 			void RegisterTurnRoundTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TurnRoundAction (9 vftable slots, 0x34 bytes)
+			class TurnRoundAction : public fight::Action
+			{
+			public:
+				// 0x10123700
+				TurnRoundAction(TurnRoundTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101235E0
+				virtual ~TurnRoundAction();
+
+				// vftable slot 5 (0x101237A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10123620)
+				virtual void Slot6();
+				// vftable slot 7 (0x10123870)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TurnRoundTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				choreo::Driver* driver;  // +0x2C
+				engine::HandleBase unknown30;  // +0x30
+			};
+
+			// ---- actions end
 		}
 	}
 }

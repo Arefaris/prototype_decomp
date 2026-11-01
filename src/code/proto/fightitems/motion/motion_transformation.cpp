@@ -1100,6 +1100,120 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10123210
+			TransformationDisallowedAction::TransformationDisallowedAction(TransformationDisallowedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10122650
+			TransformationDisallowedAction::~TransformationDisallowedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10123490
+			fight::Action* TransformationDisallowedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformationDisallowedAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10122FB0
+			TransformCompleteAction::TransformCompleteAction(TransformCompleteTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10122400
+			TransformCompleteAction::~TransformCompleteAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101233A0
+			fight::Action* TransformCompleteTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformCompleteAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10123170
+			TransformationAllowedAction::TransformationAllowedAction(TransformationAllowedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10122510
+			TransformationAllowedAction::~TransformationAllowedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10123440
+			fight::Action* TransformationAllowedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformationAllowedAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10122A30
+			TransformFadeAction::TransformFadeAction(TransformFadeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), unknown2C(1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10122310
+			TransformFadeAction::~TransformFadeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101232B0
+			fight::Action* TransformFadeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformFadeAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10122CF0
+			TransformAction::TransformAction(TransformTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10122360
+			TransformAction::~TransformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10123300
+			fight::Action* TransformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10123050
+			TransformDesiredAction::TransformDesiredAction(TransformDesiredTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101224C0
+			TransformDesiredAction::~TransformDesiredAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101233F0
+			fight::Action* TransformDesiredTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformDesiredAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10122E70
+			TransformStartAction::TransformStartAction(TransformStartTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101223B0
+			TransformStartAction::~TransformStartAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10123350
+			fight::Action* TransformStartTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TransformStartAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<TransformationSlotActiveCondition>;
 			template class fight::PropertyBool<TransformationSlotActiveCondition>;
 			template class fight::ConditionFactoryTemplate<TransformationSlotActiveCondition>;
@@ -1156,6 +1270,27 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101217A0
+// FUNCTION: ENGINE 0x101217C0
+// FUNCTION: ENGINE 0x101217E0
+// FUNCTION: ENGINE 0x10121800
+// FUNCTION: ENGINE 0x10121820
+// FUNCTION: ENGINE 0x10121840
+// FUNCTION: ENGINE 0x10121860
+// FUNCTION: ENGINE 0x10121890
+// FUNCTION: ENGINE 0x101218F0
+// FUNCTION: ENGINE 0x10121950
+// FUNCTION: ENGINE 0x101219A0
+// FUNCTION: ENGINE 0x10121A00
+// FUNCTION: ENGINE 0x10121A50
+// FUNCTION: ENGINE 0x10121AA0
+// FUNCTION: ENGINE 0x10122AB0
+// FUNCTION: ENGINE 0x10122D60
+// FUNCTION: ENGINE 0x10122EE0
+// FUNCTION: ENGINE 0x10123020
+// FUNCTION: ENGINE 0x101230C0
+// FUNCTION: ENGINE 0x101231E0
+// FUNCTION: ENGINE 0x10123280
 // FUNCTION: ENGINE 0x101C0120
 // FUNCTION: ENGINE 0x101C01F0
 // FUNCTION: ENGINE 0x101C0260

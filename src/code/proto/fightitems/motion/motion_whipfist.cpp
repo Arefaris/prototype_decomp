@@ -1747,6 +1747,128 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1013A240
+			WhipFistRetractAction::WhipFistRetractAction(WhipFistRetractTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137540
+			WhipFistRetractAction::~WhipFistRetractAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BDD0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistRetractTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistRetractAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013B790
+			WhipFistFreezeSegmentsAction::WhipFistFreezeSegmentsAction(WhipFistFreezeSegmentsTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137910
+			WhipFistFreezeSegmentsAction::~WhipFistFreezeSegmentsAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BFB0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistFreezeSegmentsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistFreezeSegmentsAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x10139E70
+			WhipFistExtendAction::WhipFistExtendAction(WhipFistExtendTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101373E0
+			WhipFistExtendAction::~WhipFistExtendAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BD70
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistExtendTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistExtendAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013AA80
+			WhipFistPullParentToTargetAction::WhipFistPullParentToTargetAction(WhipFistPullParentToTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f), unknown40(-1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101377D0
+			WhipFistPullParentToTargetAction::~WhipFistPullParentToTargetAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x1013BF50
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistPullParentToTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistPullParentToTargetAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A660
+			WhipFistAnimatedAction::WhipFistAnimatedAction(WhipFistAnimatedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101376C0
+			WhipFistAnimatedAction::~WhipFistAnimatedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BE90
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistAnimatedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistAnimatedAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A460
+			WhipFistMakeTautAction::WhipFistMakeTautAction(WhipFistMakeTautTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137600
+			WhipFistMakeTautAction::~WhipFistMakeTautAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BE30
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistMakeTautTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistMakeTautAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1013A7A0
+			WhipFistSegmentFixToJointAction::WhipFistSegmentFixToJointAction(WhipFistSegmentFixToJointTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10137780
+			WhipFistSegmentFixToJointAction::~WhipFistSegmentFixToJointAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1013BEF0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* WhipFistSegmentFixToJointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new WhipFistSegmentFixToJointAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyBool<WhipFistExtendBlockedOrNotCondition>;
 			template class fight::ConditionFactoryTemplate<WhipFistExtendBlockedOrNotCondition>;
 			template class fight::ConditionFactoryCasterTemplate<WhipFistExtendBlockedOrNotCondition>;
@@ -1805,6 +1927,27 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101369B0
+// FUNCTION: ENGINE 0x101369D0
+// FUNCTION: ENGINE 0x101369F0
+// FUNCTION: ENGINE 0x10136A10
+// FUNCTION: ENGINE 0x10136A30
+// FUNCTION: ENGINE 0x10136A50
+// FUNCTION: ENGINE 0x10136A70
+// FUNCTION: ENGINE 0x10136AE0
+// FUNCTION: ENGINE 0x10136B40
+// FUNCTION: ENGINE 0x10136BA0
+// FUNCTION: ENGINE 0x10136C00
+// FUNCTION: ENGINE 0x10136C60
+// FUNCTION: ENGINE 0x10136CC0
+// FUNCTION: ENGINE 0x10136D20
+// FUNCTION: ENGINE 0x10139EF0
+// FUNCTION: ENGINE 0x1013A2C0
+// FUNCTION: ENGINE 0x1013A4E0
+// FUNCTION: ENGINE 0x1013A6E0
+// FUNCTION: ENGINE 0x1013A820
+// FUNCTION: ENGINE 0x1013AB20
+// FUNCTION: ENGINE 0x1013B810
 // FUNCTION: ENGINE 0x101D1EA0
 // FUNCTION: ENGINE 0x101D1ED0
 // FUNCTION: ENGINE 0x101D20E0

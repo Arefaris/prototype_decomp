@@ -203,6 +203,19 @@ namespace proto
 		int targetClass;  // +0xC
 	};
 
+	// RTTI: proto::GetTunnelingStateStateChangeMessage: the object answers the state of its tunneling (id 9)
+	struct GetTunnelingStateStateChangeMessage : public StateChangeMessage
+	{
+		GetTunnelingStateStateChangeMessage() : StateChangeMessage(9), state(-1)
+		{
+		}
+		virtual ~GetTunnelingStateStateChangeMessage()
+		{
+		}
+
+		int state;  // +0xC
+	};
+
 	// RTTI: proto::TransformationMessage: the base of the messages about the transformations and powers of an object (message type 0x1E)
 	class TransformationMessage : public engine::IntrusiveMessage
 	{

@@ -881,6 +881,83 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x101291F0
+			TimerContinousSetAction::TimerContinousSetAction(TimerContinousSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128A10
+			TimerContinousSetAction::~TimerContinousSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101282A0
+			bool TimerContinousSetAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101282B0
+			void TimerContinousSetAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129810
+			fight::Action* TimerContinousSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TimerContinousSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10128F20
+			VariableNameSetAction::VariableNameSetAction(VariableNameSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128870
+			VariableNameSetAction::~VariableNameSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129770
+			fight::Action* VariableNameSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VariableNameSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10129050
+			TimerSetAction::TimerSetAction(TimerSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101289C0
+			TimerSetAction::~TimerSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101297C0
+			fight::Action* TimerSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new TimerSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10128DA0
+			VariableIntSetAction::VariableIntSetAction(VariableIntSetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10128780
+			VariableIntSetAction::~VariableIntSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129720
+			fight::Action* VariableIntSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VariableIntSetAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// ---- actions end
 			template class fight::PropertyName<VariableNameCompareCondition>;
 			template class fight::PropertyEnumConstList<VariableNameCompareCondition>;
 			template class fight::ConditionFactoryTemplate<VariableNameCompareCondition>;
@@ -934,6 +1011,18 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101283C0
+// FUNCTION: ENGINE 0x101283E0
+// FUNCTION: ENGINE 0x10128400
+// FUNCTION: ENGINE 0x10128420
+// FUNCTION: ENGINE 0x10128470
+// FUNCTION: ENGINE 0x101284D0
+// FUNCTION: ENGINE 0x10128530
+// FUNCTION: ENGINE 0x10128590
+// FUNCTION: ENGINE 0x10128E20
+// FUNCTION: ENGINE 0x10128FA0
+// FUNCTION: ENGINE 0x101290D0
+// FUNCTION: ENGINE 0x10129270
 // FUNCTION: ENGINE 0x101C5990
 // FUNCTION: ENGINE 0x101C5CB0
 // FUNCTION: ENGINE 0x101C5CC0

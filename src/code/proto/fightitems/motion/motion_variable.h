@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -345,6 +346,76 @@ namespace proto
 			fight::TrackFactory* CreateVariableIntTemporarySetTrackFactory(const char* name);
 			void RegisterVariableIntTemporarySetTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TimerContinousSetAction (9 vftable slots, 0x2C bytes)
+			class TimerContinousSetAction : public fight::Action
+			{
+			public:
+				// 0x101291F0
+				TimerContinousSetAction(TimerContinousSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128A10
+				virtual ~TimerContinousSetAction();
+
+				// vftable slot 5 (0x101282A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101282B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101292A0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<TimerContinousSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::VariableNameSetAction (9 vftable slots, 0x2C bytes)
+			class VariableNameSetAction : public fight::Action
+			{
+			public:
+				// 0x10128F20
+				VariableNameSetAction(VariableNameSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128870
+				virtual ~VariableNameSetAction();
+
+				// vftable slot 5 (0x10128FD0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<VariableNameSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::TimerSetAction (9 vftable slots, 0x2C bytes)
+			class TimerSetAction : public fight::Action
+			{
+			public:
+				// 0x10129050
+				TimerSetAction(TimerSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101289C0
+				virtual ~TimerSetAction();
+
+				// vftable slot 5 (0x10129100)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<TimerSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::VariableIntSetAction (9 vftable slots, 0x2C bytes)
+			class VariableIntSetAction : public fight::Action
+			{
+			public:
+				// 0x10128DA0
+				VariableIntSetAction(VariableIntSetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10128780
+				virtual ~VariableIntSetAction();
+
+				// vftable slot 5 (0x10128E50)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<VariableIntSetTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -471,6 +472,129 @@ namespace proto
 			fight::TrackFactory* CreateTransformFadeTrackFactory(const char* name);
 			void RegisterTransformFadeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TransformationDisallowedAction (9 vftable slots, 0x2C bytes)
+			class TransformationDisallowedAction : public fight::Action
+			{
+			public:
+				// 0x10123210
+				TransformationDisallowedAction(TransformationDisallowedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10122650
+				virtual ~TransformationDisallowedAction();
+
+				// vftable slot 5 (0x10122680)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10122700)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformationDisallowedTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::TransformCompleteAction (9 vftable slots, 0x2C bytes)
+			class TransformCompleteAction : public fight::Action
+			{
+			public:
+				// 0x10122FB0
+				TransformCompleteAction(TransformCompleteTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10122400
+				virtual ~TransformCompleteAction();
+
+				// vftable slot 5 (0x10122430)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformCompleteTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::TransformationAllowedAction (9 vftable slots, 0x2C bytes)
+			class TransformationAllowedAction : public fight::Action
+			{
+			public:
+				// 0x10123170
+				TransformationAllowedAction(TransformationAllowedTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10122510
+				virtual ~TransformationAllowedAction();
+
+				// vftable slot 5 (0x10122540)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101225C0)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformationAllowedTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::TransformFadeAction (9 vftable slots, 0x30 bytes)
+			class TransformFadeAction : public fight::Action
+			{
+			public:
+				// 0x10122A30
+				TransformFadeAction(TransformFadeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10122310
+				virtual ~TransformFadeAction();
+
+				// vftable slot 5 (0x10122AE0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10122C60)
+				virtual void Slot6();
+				// vftable slot 7 (0x10122B80)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformFadeTrack> link;  // +0x20
+				float unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::TransformAction (9 vftable slots, 0x2C bytes)
+			class TransformAction : public fight::Action
+			{
+			public:
+				// 0x10122CF0
+				TransformAction(TransformTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10122360
+				virtual ~TransformAction();
+
+				// vftable slot 5 (0x10122D90)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::TransformDesiredAction (9 vftable slots, 0x2C bytes)
+			class TransformDesiredAction : public fight::Action
+			{
+			public:
+				// 0x10123050
+				TransformDesiredAction(TransformDesiredTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101224C0
+				virtual ~TransformDesiredAction();
+
+				// vftable slot 5 (0x101230F0)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformDesiredTrack> link;  // +0x20
+			};
+
+			// RTTI: proto::fightitems::motion::TransformStartAction (9 vftable slots, 0x2C bytes)
+			class TransformStartAction : public fight::Action
+			{
+			public:
+				// 0x10122E70
+				TransformStartAction(TransformStartTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101223B0
+				virtual ~TransformStartAction();
+
+				// vftable slot 5 (0x10122F10)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TransformStartTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

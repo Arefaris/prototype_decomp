@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
 
 namespace proto
 {
@@ -157,6 +158,24 @@ namespace proto
 			fight::TrackFactory* CreateThrowTrackFactory(const char* name);
 			void RegisterThrowTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ThrowAction (9 vftable slots, 0x2C bytes)
+			class ThrowAction : public fight::Action
+			{
+			public:
+				// 0x1011FEA0
+				ThrowAction(ThrowTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1011FD20
+				virtual ~ThrowAction();
+
+				// vftable slot 5 (0x1011FF50)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ThrowTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// ---- actions end
 		}
 	}
 }

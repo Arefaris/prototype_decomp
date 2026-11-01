@@ -887,6 +887,133 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1012B370
+			SetVehicleAnimatedAction::SetVehicleAnimatedAction(SetVehicleAnimatedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AB90
+			SetVehicleAnimatedAction::~SetVehicleAnimatedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B7B0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleAnimatedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleAnimatedAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B070
+			HelicopterSpawnBloodtoxAction::HelicopterSpawnBloodtoxAction(HelicopterSpawnBloodtoxTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A8E0
+			HelicopterSpawnBloodtoxAction::~HelicopterSpawnBloodtoxAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10129D20
+			bool HelicopterSpawnBloodtoxAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1012B690
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* HelicopterSpawnBloodtoxTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new HelicopterSpawnBloodtoxAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012AE90
+			VehiclePlayAnimationAction::VehiclePlayAnimationAction(VehiclePlayAnimationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A750
+			VehiclePlayAnimationAction::~VehiclePlayAnimationAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B5D0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* VehiclePlayAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VehiclePlayAnimationAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B4A0
+			SetVehicleHeadlightAction::SetVehicleHeadlightAction(SetVehicleHeadlightTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012ABE0
+			SetVehicleHeadlightAction::~SetVehicleHeadlightAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B810
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleHeadlightTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleHeadlightAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012AF30
+			VehiclePowerOnOffAction::VehiclePowerOnOffAction(VehiclePowerOnOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012A890
+			VehiclePowerOnOffAction::~VehiclePowerOnOffAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B630
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* VehiclePowerOnOffTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new VehiclePowerOnOffAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B110
+			SetSecondaryWeaponTypeAction::SetSecondaryWeaponTypeAction(SetSecondaryWeaponTypeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AAF0
+			SetSecondaryWeaponTypeAction::~SetSecondaryWeaponTypeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B6F0
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetSecondaryWeaponTypeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetSecondaryWeaponTypeAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// FUNCTION: ENGINE 0x1012B240
+			SetVehicleSolverEnabledAction::SetVehicleSolverEnabledAction(SetVehicleSolverEnabledTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012AB40
+			SetVehicleSolverEnabledAction::~SetVehicleSolverEnabledAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1012B750
+			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
+			fight::Action* SetVehicleSolverEnabledTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SetVehicleSolverEnabledAction(this, AsActionOwner(owner)->handle);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<HelicopterHeightAboveGroundCondition>;
 			template class fight::PropertyFloatConstRange<HelicopterHeightAboveGroundCondition>;
 			template class fight::ConditionFactoryTemplate<HelicopterHeightAboveGroundCondition>;
@@ -933,6 +1060,27 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10129FE0
+// FUNCTION: ENGINE 0x1012A000
+// FUNCTION: ENGINE 0x1012A020
+// FUNCTION: ENGINE 0x1012A040
+// FUNCTION: ENGINE 0x1012A060
+// FUNCTION: ENGINE 0x1012A080
+// FUNCTION: ENGINE 0x1012A0A0
+// FUNCTION: ENGINE 0x1012A0C0
+// FUNCTION: ENGINE 0x1012A120
+// FUNCTION: ENGINE 0x1012A170
+// FUNCTION: ENGINE 0x1012A1D0
+// FUNCTION: ENGINE 0x1012A230
+// FUNCTION: ENGINE 0x1012A290
+// FUNCTION: ENGINE 0x1012A2F0
+// FUNCTION: ENGINE 0x1012AF00
+// FUNCTION: ENGINE 0x1012AFA0
+// FUNCTION: ENGINE 0x1012B0E0
+// FUNCTION: ENGINE 0x1012B180
+// FUNCTION: ENGINE 0x1012B2B0
+// FUNCTION: ENGINE 0x1012B3E0
+// FUNCTION: ENGINE 0x1012B510
 // FUNCTION: ENGINE 0x101C8C40
 // FUNCTION: ENGINE 0x101C8C70
 // FUNCTION: ENGINE 0x101C8CA0
