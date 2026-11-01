@@ -54,6 +54,7 @@ typedef struct luaL_Buffer
 	((void)((B)->p < ((B)->buffer + LUAL_BUFFERSIZE) || luaL_prepbuffer(B)), \
 	(*(B)->p++ = (char)(c)))
 
+void luaL_register(lua_State* L, const char* libname, const luaL_Reg* l);
 int luaL_getmetafield(lua_State* L, int obj, const char* e);
 int luaL_callmeta(lua_State* L, int obj, const char* e);
 int luaL_typerror(lua_State* L, int narg, const char* tname);

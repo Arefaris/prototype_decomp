@@ -85,6 +85,22 @@ namespace core
 
 		// Zeroes the node (0x10B7F3A0, the body of the engine's constructor; name guess)
 		void Clear();
+		// The data, the callback, the event and the timing record of the node (0x10B7F430 - 0x10B7F4A0; names guessed)
+		void SetData(void* newData);
+		void* GetData();
+		void SetCallback(AsyncTaskCallback* newCallback);
+		AsyncTaskCallback* GetCallback();
+		void SetEvent(void* newEvent);
+		void* GetEvent();
+		void SetTiming(AsyncTaskTiming* newTiming);
+		AsyncTaskTiming* GetTiming();
+		// Puts a node behind the last child (0x10B7F4B0); the number of children, the first child and the node behind a node
+		// (0x10B7F510 / 0x10B7F520 / 0x10B7F530); the nodes of the tree under this one and this one (0x10B7F540)
+		void AddChild(AsyncTaskNode* child);
+		unsigned int GetChildCount();
+		AsyncTaskNode* GetFirstChild();
+		AsyncTaskNode* GetNext();
+		int CountNodes();
 		// Does nothing (0x10B7F3D0, the engine's destructor)
 		void Destroy();
 		// Gives the node a registered function (looked up by its id), its data, callback and event; false when
@@ -93,9 +109,10 @@ namespace core
 		// Writes the node's tasks (the node, then its children) into the buffer, size bytes of it, and says where
 		// they are (0x10B7F570; name guess)
 		Flattened* Flatten(Flattened* result, AsyncTask* buffer, unsigned int size, AsyncTaskGroup* group,
-			unsigned int flag, int kind);
-		// Flattens the tree into a stack buffer of 32 tasks and submits it
+			bool flag, int kind);
+		// Flattens the tree into a stack buffer of 32 tasks and submits it, or runs it at once on the calling thread (0x10B7F6C0; name guess)
 		void Submit(int unused);
+		void Run(int unused);
 		void ClearChildren();
 	};
 
@@ -110,6 +127,24 @@ namespace core
 		AsyncTaskNode node;
 
 		bool Submit(int unused);
+		// The state, brought up to date (a submitted job whose timing record says it is done is idle again) (0x10B7F9A0; names guessed)
+		int GetState();
+		// Makes the job run a registered function (0x10B7F9D0)
+		void Set(int functionId, void* newData, AsyncTaskCallback* newCallback);
+		// The node's data, callback and event (0x10B7FA10 - 0x10B7FA50)
+		void SetData(void* newData);
+		void* GetData();
+		void SetCallback(AsyncTaskCallback* newCallback);
+		AsyncTaskCallback* GetCallback();
+		void SetEvent(void* newEvent);
+		// Puts another job's node under this job's node as a child and marks that job as submitted (0x10B7FA60)
+		bool AddChild(AsyncTaskJob* child);
+		// Runs the job on the calling thread (0x10B7FAB0)
+		void RunHere();
+		// Whether the job's node is waiting behind another node (0x10B7FAD0)
+		bool IsQueued();
+		// What the timing record says once the job is done (0x10B7FAE0)
+		bool GetResult(unsigned int* start, unsigned int* end, unsigned char* processor);
 	};
 
 	// The per-thread state of a running task (a core thread-data slot points at it while the task runs)
@@ -218,6 +253,8 @@ namespace core
 	// names are guesses
 	int RegisterAsyncTaskFunction(const char* name, void (*function)(void* data, AsyncTaskCallback* callback), int* id);
 	void UnregisterAsyncTaskFunction(int id);
+	// The function registered under an id (0x10B80170; name guess)
+	const AsyncTaskFunction* GetAsyncTaskFunction(int id);
 }
 
 #endif
