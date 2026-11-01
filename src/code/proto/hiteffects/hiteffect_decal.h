@@ -60,4 +60,13 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		// 0x104FB8A0: registers the factory of the decal track (name guess)
+		bool RegisterAt104FB8A0Factories(fight::TrackRegistry* registry);
+	}
+}
+
 #endif

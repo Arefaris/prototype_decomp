@@ -268,6 +268,53 @@ namespace proto
 	template class fight::TrackFactoryCasterTemplate<CauseDamageTrack>;
 }
 
+namespace proto
+{
+	// FUNCTION: ENGINE 0x104FB220
+	DebugDamageAction::DebugDamageAction(DebugDamageTrack* newTrack) : fight::Action(0xE00), link(newTrack)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104FAE50
+	DebugDamageAction::~DebugDamageAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104FAF40
+	CauseDamageAction::CauseDamageAction(CauseDamageTrack* newTrack, const engine::HandleBase& newOriginator, const engine::HandleBase& newTarget) : fight::Action(0xE00), originator(newOriginator), target(newTarget), link(newTrack)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104FAE00
+	CauseDamageAction::~CauseDamageAction()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104FB4B0
+	fight::Action* DebugDamageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		if (owner != 0)
+		{
+			return new DebugDamageAction(this);
+		}
+		return 0;
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		// FUNCTION: ENGINE 0x104FAC90
+		bool RegisterAt104FAC90Factories(fight::TrackRegistry* registry)
+		{
+			RegisterCauseDamageTrackFactory(registry, "causeDamage");
+			RegisterDebugDamageTrackFactory(registry, "debugDamage");
+			return true;
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10503F40
 // FUNCTION: ENGINE 0x10503F50
@@ -305,3 +352,9 @@ namespace proto
 // FUNCTION: ENGINE 0x10504900
 // FUNCTION: ENGINE 0x10504920
 // FUNCTION: ENGINE 0x10504970
+// FUNCTION: ENGINE 0x104FAD30
+// FUNCTION: ENGINE 0x104FADE0
+// FUNCTION: ENGINE 0x104FAE80
+// FUNCTION: ENGINE 0x104FB8E0
+// FUNCTION: ENGINE 0x104FAFC0
+// FUNCTION: ENGINE 0x104FB290

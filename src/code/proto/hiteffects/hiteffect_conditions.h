@@ -29,7 +29,7 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				int attackType;  // +0xC
+			int attackType;  // +0xC
 		};
 
 		extern fight::Property** gAttackTypeConditionProperties;
@@ -56,7 +56,7 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				fight::ConditionList conditions;  // +0xC
+			fight::ConditionList conditions;  // +0xC
 		};
 
 		extern fight::Property** gGiverConditionGroupConditionProperties;
@@ -83,8 +83,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				bool muscleMassActive;  // +0xC
-				unsigned char unknownD[0x3];
+			bool muscleMassActive;  // +0xC
+			unsigned char unknownD[0x3];
 		};
 
 		extern fight::Property** gFromMuscleMassConditionProperties;
@@ -112,8 +112,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float damageTaken;  // +0xC
-				int compare;  // +0x10
+			float damageTaken;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gDamageTakenConditionProperties;
@@ -140,8 +140,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name materialType;  // +0x10
+			unsigned char unknownC[0x4];
+			fight::Name materialType;  // +0x10
 		};
 
 		extern fight::Property** gMaterialTypeConditionProperties;
@@ -169,8 +169,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float damageScale;  // +0xC
-				int compare;  // +0x10
+			float damageScale;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gDamageScaleConditionProperties;
@@ -197,8 +197,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name effectType;  // +0x10
+			unsigned char unknownC[0x4];
+			fight::Name effectType;  // +0x10
 		};
 
 		extern fight::Property** gEffectTypeConditionProperties;
@@ -226,8 +226,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float tolerance;  // +0xC
-				int compare;  // +0x10
+			float tolerance;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gImpactVsSurfaceAngleConditionProperties;
@@ -255,8 +255,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float volume;  // +0xC
-				int compare;  // +0x10
+			float volume;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gObjectVolumeConditionProperties;
@@ -284,8 +284,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float damageGiven;  // +0xC
-				int compare;  // +0x10
+			float damageGiven;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gDamageGivenConditionProperties;
@@ -339,9 +339,9 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				math::Vector direction;  // +0xC
-				float tolerance;  // +0x18
-				int compare;  // +0x1C
+			math::Vector direction;  // +0xC
+			float tolerance;  // +0x18
+			int compare;  // +0x1C
 		};
 
 		extern fight::Property** gSurfaceAngleConditionProperties;
@@ -368,7 +368,7 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				fight::ConditionList conditions;  // +0xC
+			fight::ConditionList conditions;  // +0xC
 		};
 
 		extern fight::Property** gReceiverConditionGroupConditionProperties;
@@ -396,8 +396,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float charge;  // +0xC
-				int compare;  // +0x10
+			float charge;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gChargeValueConditionProperties;
@@ -425,10 +425,10 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name grabbableClass;  // +0x10
-				int compare;  // +0x18
-				unsigned char unknown1C[0x4];
+			unsigned char unknownC[0x4];
+			fight::Name grabbableClass;  // +0x10
+			int compare;  // +0x18
+			unsigned char unknown1C[0x4];
 		};
 
 		extern fight::Property** gReceiverGrabbableClassConditionProperties;
@@ -455,8 +455,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name giverMaterialType;  // +0x10
+			unsigned char unknownC[0x4];
+			fight::Name giverMaterialType;  // +0x10
 		};
 
 		extern fight::Property** gGiverMaterialTypeConditionProperties;
@@ -484,10 +484,10 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name value;  // +0x10
-				int compare;  // +0x18
-				unsigned char unknown1C[0x4];
+			unsigned char unknownC[0x4];
+			fight::Name value;  // +0x10
+			int compare;  // +0x18
+			unsigned char unknown1C[0x4];
 		};
 
 		extern fight::Property** gReceiverClassNameConditionProperties;
@@ -515,8 +515,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				float speed;  // +0xC
-				int compare;  // +0x10
+			float speed;  // +0xC
+			int compare;  // +0x10
 		};
 
 		extern fight::Property** gObjectSpeedConditionProperties;
@@ -543,7 +543,7 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				int damageType;  // +0xC
+			int damageType;  // +0xC
 		};
 
 		extern fight::Property** gDamageTypeConditionProperties;
@@ -570,8 +570,8 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
-				unsigned char unknownC[0x4];
-				fight::Name hitType;  // +0x10
+			unsigned char unknownC[0x4];
+			fight::Name hitType;  // +0x10
 		};
 
 		extern fight::Property** gHitTypeConditionProperties;

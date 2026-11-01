@@ -681,6 +681,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		// FUNCTION: ENGINE 0x10502080
+		bool RegisterAt10502080Factories(fight::TrackRegistry* registry)
+		{
+			motion::RegisterWorldDamageTrackFactory(registry, "worldDamage");
+			motion::RegisterWorldConeDamageTrackFactory(registry, "worldConeDamage");
+			return true;
+		}
+
+		// FUNCTION: ENGINE 0x105020B0
+		bool RegisterAt105020B0Factories(fight::TrackRegistry* registry)
+		{
+			motion::RegisterExplicitWorldDamageTrackFactory(registry, "worldDamage");
+			motion::RegisterExplicitWorldConeDamageTrackFactory(registry, "worldConeDamage");
+			return true;
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1050E640
 // FUNCTION: ENGINE 0x1050E650

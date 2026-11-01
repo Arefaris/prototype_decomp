@@ -3,6 +3,8 @@
 #define PROTO_DAMAGETRACKS_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/core/linklist.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/proto/damage/damagedata.h"
 
 namespace proto
@@ -95,6 +97,50 @@ namespace proto
 	fight::TrackFactory* CreateCauseDamageTrackFactory(const char* name);
 	void RegisterCauseDamageTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+}
+
+namespace proto
+{
+	// RTTI: proto::DebugDamageAction (9 vftable slots, 0x28 bytes)
+	class DebugDamageAction : public fight::Action
+	{
+	public:
+		// 0x104FB220
+		explicit DebugDamageAction(DebugDamageTrack* newTrack);
+		// 0x104FAE50 (the deleting destructor is 0x104FB290)
+		virtual ~DebugDamageAction();
+
+		// vftable slot 7 (0x104FB2C0): left to the engine
+		virtual bool Slot7(int arg, float value);
+
+		core::Link<DebugDamageTrack> link;  // +0x1C
+	};
+
+	// RTTI: proto::CauseDamageAction (9 vftable slots, 0x30 bytes)
+	class CauseDamageAction : public fight::Action
+	{
+	public:
+		// 0x104FAF40
+		CauseDamageAction(CauseDamageTrack* newTrack, const engine::HandleBase& newOriginator, const engine::HandleBase& newTarget);
+		// 0x104FAE00 (the deleting destructor is 0x104FAFC0)
+		virtual ~CauseDamageAction();
+
+		// vftable slot 5 (0x104FB4F0): left to the engine
+		virtual bool Slot5(int arg, float value);
+
+		engine::HandleBase originator;  // +0x1C
+		engine::HandleBase target;  // +0x20
+		core::Link<CauseDamageTrack> link;  // +0x24
+	};
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		// 0x104FAC90: registers the factories of the damage tracks (name guess)
+		bool RegisterAt104FAC90Factories(fight::TrackRegistry* registry);
+	}
 }
 
 #endif

@@ -596,13 +596,13 @@ namespace proto
 namespace fightitems
 {
 	void RegisterAt102061F0Factories(fight::TrackRegistry* registry);
-	void RegisterAt10502080Factories(fight::TrackRegistry* registry);
+	bool RegisterAt10502080Factories(fight::TrackRegistry* registry);
 	void RegisterAt103591C0Factories(fight::TrackRegistry* registry);
 	bool RegisterPhysicsLODAndDoorsFactories(fight::TrackRegistry* registry);
 	void RegisterAt104F3900Factories(fight::TrackRegistry* registry);
-	void RegisterAt104FB8A0Factories(fight::TrackRegistry* registry);
-	void RegisterAt105020B0Factories(fight::TrackRegistry* registry);
-	void RegisterAt104FAC90Factories(fight::TrackRegistry* registry);
+	bool RegisterAt104FB8A0Factories(fight::TrackRegistry* registry);
+	bool RegisterAt105020B0Factories(fight::TrackRegistry* registry);
+	bool RegisterAt104FAC90Factories(fight::TrackRegistry* registry);
 	void RegisterAt101D7500Factories(fight::TrackRegistry* registry);
 	void RegisterAt101D6DA0Factories(fight::TrackRegistry* registry);
 	void RegisterAt101D8B60Factories(fight::TrackRegistry* registry);

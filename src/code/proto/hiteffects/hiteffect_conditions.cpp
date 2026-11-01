@@ -1,5 +1,11 @@
 // Fight items of the hit effects: AttackTypeCondition, GiverConditionGroupCondition, FromMuscleMassCondition, DamageTakenCondition, MaterialTypeCondition, DamageScaleCondition, EffectTypeCondition, ImpactVsSurfaceAngleCondition, ObjectVolumeCondition, DamageGivenCondition, DamageOriginatorIsPlayerCondition, SurfaceAngleCondition, ReceiverConditionGroupCondition, ChargeValueCondition, ReceiverGrabbableClassCondition, GiverMaterialTypeCondition, ReceiverClassNameCondition, ObjectSpeedCondition, DamageTypeCondition, HitTypeCondition (unit 0x104F5600 - 0x104FB000; no assert path, the file name is a guess).
 #include "code/proto/hiteffects/hiteffect_conditions.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include <math.h>
+#include "code/engine/gameobject/gameobject.h"
+#include "code/proto/hiteffects/hiteffectparams.h"
+#include "code/ravenphysics/material.h"
 
 namespace proto
 {
@@ -1274,6 +1280,287 @@ namespace proto
 			fight::ConditionFactoryCasterTemplate<HitTypeCondition> caster;
 			registry->AddFactory(fight::FindConditionFactory(name, &caster));
 		}
+
+		// ---- evaluate begin
+
+		// The fourth argument of a condition is the hit's parameters
+		static inline const HitEffectParams* AsParams(int c)
+		{
+			return (const HitEffectParams*)c;
+		}
+
+		// FUNCTION: ENGINE 0x104F5600
+		bool DamageTypeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			return AsParams(c)->damageType == damageType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5620
+		bool AttackTypeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			return AsParams(c)->attackType == attackType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5640
+		bool MaterialTypeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			unsigned char material = AsParams(c)->materialType;
+			return material == ravenphysics::FindMaterialIndex(materialType);
+		}
+
+		// FUNCTION: ENGINE 0x104F5670
+		bool DamageGivenCondition::Evaluate(int a, int b, int c, int d)
+		{
+			float value = AsParams(c)->damageGiven;
+			switch (compare)
+			{
+			case 0:
+				return value < damageGiven;
+			case 1:
+				return value <= damageGiven;
+			case 2:
+				return value == damageGiven;
+			case 3:
+				return value != damageGiven;
+			case 4:
+				return value >= damageGiven;
+			case 5:
+				return value > damageGiven;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x104F5730
+		bool DamageTakenCondition::Evaluate(int a, int b, int c, int d)
+		{
+			float value = AsParams(c)->damageTaken;
+			switch (compare)
+			{
+			case 0:
+				return value < damageTaken;
+			case 1:
+				return value <= damageTaken;
+			case 2:
+				return value == damageTaken;
+			case 3:
+				return value != damageTaken;
+			case 4:
+				return value >= damageTaken;
+			case 5:
+				return value > damageTaken;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x104F5C10
+		bool FromMuscleMassCondition::Evaluate(int a, int b, int c, int d)
+		{
+			return AsParams(c)->fromMuscleMass == muscleMassActive;
+		}
+
+		// FUNCTION: ENGINE 0x104F5C60
+		bool HitTypeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			return AsParams(c)->hitType == hitType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5C80
+		bool EffectTypeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			return AsParams(c)->effectType == effectType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5EF0
+		bool DamageScaleCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			if (params == 0)
+			{
+				return false;
+			}
+			int attackType = params->attackType;
+			engine::GameObjectHandle receiver = params->receiver;
+			engine::GameObject* object = receiver.Get();
+			if (object == 0)
+			{
+				return false;
+			}
+			GetDamageScaleByAttackTypeMessage message(attackType);
+			object->SendMessage(&message);
+			int op = compare;
+			float rhs = damageScale;
+			return fight::CompareFloats(op, &message.scale, &rhs);
+		}
+
+		// 0x112562B8: the name of the attribute that holds an object's class name (name guess)
+		extern core::Name<core::CaseSensitiveKey> gClassNameAttributeName;
+
+		// FUNCTION: ENGINE 0x104F61E0
+		bool ReceiverClassNameCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			if (params == 0)
+			{
+				return false;
+			}
+			engine::GameObjectHandle receiver = params->receiver;
+			engine::GameObject* object = receiver.Get();
+			if (object == 0)
+			{
+				return false;
+			}
+			engine::BaseAttribute* attribute = object->FindAttribute(gClassNameAttributeName);
+			if (attribute == 0)
+			{
+				return false;
+			}
+			core::Name<core::CaseSensitiveKey>* attributeValue = &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+			if (attributeValue == 0)
+			{
+				return false;
+			}
+			return fight::CompareNames(compare, attributeValue, &value);
+		}
+
+		// FUNCTION: ENGINE 0x104F5CA0
+		bool ChargeValueCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			if (params == 0)
+			{
+				return false;
+			}
+			float rhs = charge;
+			int op = compare;
+			float lhs = params->chargeValue;
+			return fight::CompareFloats(op, &lhs, &rhs);
+		}
+
+		// FUNCTION: ENGINE 0x104F57F0
+		// NONMATCHING: the engine sums the three products of the dot product in the order z, x, y; the compiler orders ours z, y, x whatever the source order, and the clamp loads its constants in other places (46.9 %)
+#ifdef NONMATCHING
+		bool ImpactVsSurfaceAngleCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			math::Vector impact;
+			impact.x = params->impactDirection.x;
+			impact.y = params->impactDirection.y;
+			impact.z = params->impactDirection.z;
+			math::Vector surface;
+			surface.x = params->surfaceNormal.x;
+			surface.y = params->surfaceNormal.y;
+			surface.z = params->surfaceNormal.z;
+			impact.Normalize();
+			surface.Normalize();
+			float zz = surface.z * impact.z;
+			float xx = surface.x * impact.x;
+			float yy = surface.y * impact.y;
+			float angle = zz + xx + yy;
+			if (!(angle - choreo::gMinusOne >= 0.0f))
+			{
+				angle = choreo::gMinusOne;
+			}
+			if (angle - engine::driving::gOne >= 0.0f)
+			{
+				angle = engine::driving::gOne;
+			}
+			angle = (float)acos(angle);
+			switch (compare)
+			{
+			case 0:
+				return angle < tolerance;
+			case 1:
+				return angle <= tolerance;
+			case 2:
+				return angle == tolerance;
+			case 3:
+				return angle != tolerance;
+			case 4:
+				return angle >= tolerance;
+			case 5:
+				return angle > tolerance;
+			}
+			return false;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x104F5A00
+		// NONMATCHING: the engine sums the three products of the dot product in the order z, x, y; the compiler orders ours z, y, x whatever the source order, and the clamp loads its constants in other places (46.9 %)
+#ifdef NONMATCHING
+		bool SurfaceAngleCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			math::Vector impact;
+			impact.x = params->impactDirection.x;
+			impact.y = params->impactDirection.y;
+			impact.z = params->impactDirection.z;
+			math::Vector surface;
+			surface.x = direction.x;
+			surface.y = direction.y;
+			surface.z = direction.z;
+			impact.Normalize();
+			surface.Normalize();
+			float zz = surface.z * impact.z;
+			float xx = surface.x * impact.x;
+			float yy = surface.y * impact.y;
+			float angle = zz + xx + yy;
+			if (!(angle - choreo::gMinusOne >= 0.0f))
+			{
+				angle = choreo::gMinusOne;
+			}
+			if (angle - engine::driving::gOne >= 0.0f)
+			{
+				angle = engine::driving::gOne;
+			}
+			angle = (float)acos(angle);
+			switch (compare)
+			{
+			case 0:
+				return angle < tolerance;
+			case 1:
+				return angle <= tolerance;
+			case 2:
+				return angle == tolerance;
+			case 3:
+				return angle != tolerance;
+			case 4:
+				return angle >= tolerance;
+			case 5:
+				return angle > tolerance;
+			}
+			return false;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x104F5CF0
+		bool ObjectVolumeCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			if (params == 0)
+			{
+				return false;
+			}
+			float rhs = volume;
+			int op = compare;
+			float lhs = params->objectVolume;
+			return fight::CompareFloats(op, &lhs, &rhs);
+		}
+
+		// FUNCTION: ENGINE 0x104F5D50
+		bool ObjectSpeedCondition::Evaluate(int a, int b, int c, int d)
+		{
+			const HitEffectParams* params = AsParams(c);
+			if (params == 0)
+			{
+				return false;
+			}
+			float rhs = speed * speed;
+			int op = compare;
+			float lhs = params->objectSpeed;
+			return fight::CompareFloats(op, &lhs, &rhs);
+		}
+
+		// ---- evaluate end
 
 		template class fight::PropertyEnumConstList<AttackTypeCondition>;
 		template class fight::ConditionFactoryTemplate<AttackTypeCondition>;

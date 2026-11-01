@@ -233,4 +233,14 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		// 0x10502080 / 0x105020B0: register the factories of the world damage tracks, the plain and the explicit ones (name guesses)
+		bool RegisterAt10502080Factories(fight::TrackRegistry* registry);
+		bool RegisterAt105020B0Factories(fight::TrackRegistry* registry);
+	}
+}
+
 #endif

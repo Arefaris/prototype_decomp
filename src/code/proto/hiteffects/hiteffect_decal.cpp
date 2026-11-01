@@ -161,6 +161,19 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		// FUNCTION: ENGINE 0x104FB8A0
+		bool RegisterAt104FB8A0Factories(fight::TrackRegistry* registry)
+		{
+			HitEffectManager::RegisterDecalTrackFactory(registry, "decal");
+			return true;
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10504B80
 // FUNCTION: ENGINE 0x10504B90
