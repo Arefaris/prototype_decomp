@@ -8,6 +8,7 @@
 #include "code/om/staticinit.h"
 #include "code/om/string.h"
 #include "code/om/tree.h"
+#include "code/math/matrix.h"
 
 namespace engine
 {
@@ -124,6 +125,7 @@ namespace engine
 	om::TreeHead gTreeHeadObject10;
 	om::TreeHead gTreeHeadObject11;
 	core::Name<core::CaseInsensitiveKey32> gCaseInsensitiveKey32Object10;
+	math::Matrix gIdentityMatrix3 = math::Matrix::IDENTITY;
 }
 
 // The dynamic initialisers and atexit stubs of the unit's globals:
@@ -306,3 +308,4 @@ namespace engine
 // FUNCTION: ENGINE 0x10D8BA00
 // FUNCTION: ENGINE 0x10D8BA10
 // FUNCTION: ENGINE 0x10D8BA20
+// FUNCTION: ENGINE 0x10D79340

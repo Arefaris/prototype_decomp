@@ -16,7 +16,7 @@ namespace pure3d
 	extern unsigned int gCurrentShaderStamp;
 	// 0x11276BD0 / 0x11276BA0: what the getters answer for an input there is not (a null vector and the identity)
 	extern float gDefaultVector[4];
-	extern math::Matrix gDefaultMatrix;
+	math::Matrix gDefaultMatrix = math::Matrix::IDENTITY;
 
 	typedef core::Name<core::CaseInsensitiveKey32> ShaderInputName;
 
@@ -446,3 +446,6 @@ namespace pure3d
 
 // Kept copies (compiler-generated and inline functions of this unit):
 // FUNCTION: ENGINE 0x10614620
+
+// The dynamic initialiser of the unit's global:
+// FUNCTION: ENGINE 0x10D66610

@@ -7,6 +7,8 @@
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/om/string.h"
 #include "code/om/tree.h"
+#include "code/math/matrix.h"
+#include "code/pure3d/pddi/vertexdeclaration.h"
 
 namespace engine
 {
@@ -171,6 +173,9 @@ namespace engine
 	core::Name<core::CaseInsensitiveKey32> gEnvMidgroundShorelinebuildings("env_midground_shorelinebuildings", 0);
 	core::Name<core::CaseInsensitiveKey32> gFxCbvcolorAlpha("fx_cbvcolor_alpha", 0);
 	core::Name<core::CaseInsensitiveKey32> gHudIcon("hud_icon", 0);
+	math::Matrix gIdentityMatrix = math::Matrix::IDENTITY;
+	math::Matrix gIdentityMatrix2 = math::Matrix::IDENTITY;
+	pure3d::dxVertexDeclaration gdxVertexDeclarationObject;
 }
 
 // The dynamic initialisers and atexit stubs of the unit's globals:
@@ -340,3 +345,7 @@ namespace engine
 // FUNCTION: ENGINE 0x10D896C0
 // FUNCTION: ENGINE 0x10D896D0
 // FUNCTION: ENGINE 0x10D896E0
+// FUNCTION: ENGINE 0x10D66740
+// FUNCTION: ENGINE 0x10D727C0
+// FUNCTION: ENGINE 0x10D67140
+// FUNCTION: ENGINE 0x10D86D20

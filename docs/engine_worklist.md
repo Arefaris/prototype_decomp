@@ -6175,19 +6175,19 @@ units (names guessed) hold runs that no reconstructed unit defines: `proto/profi
 
 | Family | Initializers | Done |
 |---|---|---|
-| Name | 525 | 340 |
-| Name32 (copied twice) | 516 | 508 |
+| Name | 525 | 525 |
+| Name32 (copied twice) | 516 | 516 |
 | ConstantSlot | 407 | 406 |
-| Name array | 124 | 0 |
-| Name64 hashed from om::String | 99 | 0 |
-| other | 94 | 0 |
-| om::String | 55 | 0 |
-| Name32 | 54 | 0 |
-| EnumEntry table | 53 | 39 |
-| object | 35 | 6 |
-| float constants | 12 | 0 |
+| Name array | 124 | 122 |
+| Name64 hashed from om::String | 99 | 95 |
+| other | 94 | 8 |
+| om::String | 55 | 41 |
+| Name32 | 54 | 49 |
+| EnumEntry table | 53 | 53 |
+| object | 35 | 33 |
+| float constants | 12 | 4 |
 | table of Name + fields | 7 | 0 |
-| Name64 hash | 5 | 0 |
+| Name64 hash | 5 | 3 |
 
 Groups (runs of one family; "done" counts the initializers that match), with the units that read the globals (counts of
 reconstructed functions) as the guess for the unit that defines them. Groups that no reconstructed unit reads, and
@@ -6196,11 +6196,11 @@ groups read from several units, are data-only translation units (the file name i
 | Initializers | Count | Family | Done | Read by |
 |---|---|---|---|---|
 | 0x10D60280 - 0x10D60940 | 37 | Name | 37 | smarthintmanager.cpp 2, eventscripting.cpp 2, midgroundmanager.cpp 1 |
-| 0x10D61AB0 - 0x10D61C30 | 9 | Name | 0 |  |
-| 0x10D61F00 - 0x10D62020 | 7 | Name | 0 |  |
-| 0x10D620E0 - 0x10D62230 | 8 | Name | 0 |  |
-| 0x10D65010 - 0x10D65490 | 25 | Name | 10 | collectiblebehaviour.cpp 8, freventmanager.cpp 2 |
-| 0x10D66110 - 0x10D66270 | 12 | Name array | 0 | chunk.cpp 6, branch.cpp 4, fightbase.cpp 3 |
+| 0x10D61AB0 - 0x10D61C30 | 9 | Name | 9 |  |
+| 0x10D61F00 - 0x10D62020 | 7 | Name | 7 |  |
+| 0x10D620E0 - 0x10D62230 | 8 | Name | 8 |  |
+| 0x10D65010 - 0x10D65490 | 25 | Name | 25 | collectiblebehaviour.cpp 8, freventmanager.cpp 2 |
+| 0x10D66110 - 0x10D66270 | 12 | Name array | 12 | chunk.cpp 6, branch.cpp 4, fightbase.cpp 3 |
 | 0x10D669D0 - 0x10D67110 | 59 | Name | 59 | postprocesspasses.cpp 26 |
 | 0x10D67420 - 0x10D67760 | 14 | Name32 (copied twice) | 14 | primgrouploader.cpp 20, dxvertexbuffer.cpp 10, protopasses.cpp 2, dxcontext.cpp 2 |
 | 0x10D68380 - 0x10D69700 | 79 | Name32 (copied twice) | 79 | drawable.cpp 55, effectlod.cpp 16 |
@@ -6208,29 +6208,57 @@ groups read from several units, are data-only translation units (the file name i
 | 0x10D6FD20 - 0x10D71660 | 405 | ConstantSlot | 404 | protopasses.cpp 28, protopasses2.cpp 3, lightinginputs.cpp 1, context.cpp 1 |
 | 0x10D71670 - 0x10D71730 | 7 | other | 0 |  |
 | 0x10D71750 - 0x10D72270 | 90 | Name | 90 | postprocesspasses.cpp 31, protopasses2.cpp 13, framebufferpass.cpp 10, shaderparameter.cpp 1 |
-| 0x10D72290 - 0x10D72490 | 9 | Name32 (copied twice) | 1 | protopasses.cpp 1 |
-| 0x10D72940 - 0x10D72CE0 | 30 | Name32 | 0 |  |
+| 0x10D72290 - 0x10D72490 | 9 | Name32 (copied twice) | 9 | protopasses.cpp 1 |
+| 0x10D72940 - 0x10D72CE0 | 30 | Name32 | 30 |  |
 | 0x10D72D00 - 0x10D73360 | 52 | Name | 52 |  |
-| 0x10D73C10 - 0x10D73F10 | 25 | Name | 25 | renderbehaviour.cpp 11, lightbehaviour.cpp 6, effecttrack.cpp 3, effectmanager.cpp 3 |
+| 0x10D73C10 - 0x10D73F10 | 25 | Name | 25 | renderbehaviour.cpp 11, lightbehaviour.cpp 6, motion_animationblend.cpp 4, effecttrack.cpp 3 |
 | 0x10D74290 - 0x10D744F0 | 20 | Name | 20 | audiomessage.cpp 7, audiosettings.cpp 6, fmvplayer.cpp 3, vehiclebehaviourambient.cpp 1 |
-| 0x10D74510 - 0x10D74790 | 9 | Name64 hashed from om::String | 0 | string.cpp 117, filesystem.cpp 63, audioglobalsettings.cpp 45, cell.cpp 18 |
-| 0x10D75910 - 0x10D759A0 | 6 | other | 0 |  |
-| 0x10D75EB0 - 0x10D764F0 | 21 | Name64 hashed from om::String | 0 | string.cpp 273, filesystem.cpp 147, audioglobalsettings.cpp 105, cell.cpp 42 |
+| 0x10D74510 - 0x10D74790 | 9 | Name64 hashed from om::String | 9 | string.cpp 117, filesystem.cpp 63, audioglobalsettings.cpp 45, cell.cpp 18 |
+| 0x10D75910 - 0x10D759A0 | 6 | other | 2 |  |
+| 0x10D75EB0 - 0x10D764F0 | 21 | Name64 hashed from om::String | 21 | string.cpp 273, filesystem.cpp 147, audioglobalsettings.cpp 105, cell.cpp 42 |
 | 0x10D773A0 - 0x10D77480 | 8 | Name | 8 | nisscripting.cpp 4, protomain.cpp 2 |
-| 0x10D79BA0 - 0x10D79C60 | 7 | Name32 | 0 |  |
+| 0x10D79BA0 - 0x10D79C60 | 7 | Name32 | 7 |  |
 | 0x10D79F20 - 0x10D79FC0 | 6 | other | 0 |  |
 
-Open:
-- Name groups with no source: 0x10D61AB0 - 0x10D62230 (the names of the motion fight items), 0x10D60A80 - 0x10D61A50
-  (scattered game database keys), 0x10D74E00 - 0x10D79A80 (track, condition and behaviour names of the engine's fight
-  units; most are read only by unreconstructed code).
-- Name64 hashed from an `om::String` (99, 0x10D60010 - 0x10D76E00: `String s("text")` then `Hash64` of its text or of
-  the empty text, the audio and music names) and `om::String` globals (55): read by unreconstructed code only.
-- Name arrays whose elements carry more fields (a Name, a text and two words: 7 initializers, 0x10D60BA0, 0x10D654C0 ...)
-  need the element struct; the fight names built from `const char*` variables (0x10D66110 - 0x10D66270, 12 of them,
-  `Name g(gText, 0)` with the text in a variable of another unit) need those variables' names.
-- Float constant initializers (12: `movss` / `fld` copies of constants into globals, 0x10D66610, 0x10D728E0 ...), objects
-  whose constructor takes arguments (`Time(0, 0)`, `Seed`, array loops) and the stubs that call a destructor.
+### sn-bi: the rest of the range (names, strings, objects of the units without code)
+
+The runs no reconstructed unit defines are data-only units under `engine/statics/` (file names after what the names are of;
+a file holds the runs of several translation units, and the shared per-unit statics of the headers: the slot group names
+"Undefined_SlotGroup" and "", the audio file string "audio\global.p3d", the "Listener" and "Master" names, the "scenario"
+listeners, repeat in nearly every unit and get one global each, numbered): `fightitemnames.cpp` (0x10D60010 - 0x10D62700, the fight
+item units' enum tables and slot groups), `scenarionames.cpp` (0x10D62700 - 0x10D73B00: scenario, unlockable, free roam event and
+comparison names, the lit shader names, the 32-bit name arrays of the light and texture slots, three identity matrices, a vertex
+declaration object), `dialoguenames.cpp`, `reverbnames.cpp`, `fadeaudionames.cpp` (audio, streaming, reverb, fade names),
+`nisnames.cpp`; plus `engine/fight/branchnames.cpp` (the chunk and branch names built from the text variables of the unit, and the
+three path hashes). Done in existing units: `om/string.cpp` (gStringTag), `scenariolisters.cpp` (gEmptyListName),
+`mastertable.cpp` (sReservedHandle), `crashrecord.cpp` (gCrashRecord), `shadercommon.cpp` (gDefaultMatrix; its mapped size was
+0x30, the identity copy is 0x40 bytes), `shaderconstants.cpp` (five tables of the spot light and decay name copies),
+`motion_unlockable.cpp` (the 484-entry unlockable enum table, 0x10D627D0), `collectiblebehaviour.cpp`, `smarthintmanager.cpp`,
+`fmvplayer.cpp`.
+
+| Form | Source form |
+|---|---|
+| `String g` built from a text, copied | `om::String g = om::StringOfText("text")` (`om/staticinit.h`: a named temporary, copied out of it) |
+| 64-bit name hashed from an `om::String` | `om::ClassName g = om::NameOfText("text")` (`om/staticinit.h`) |
+| `Name<CaseInsensitiveKey32> g("text", 0)` | the same; the copied-twice form is `PassName32(PassName32(...))` also inside array initialisers |
+| `Name<CaseSensitiveKey> g("", 0)` | the empty text is the shared empty literal |
+| `core::Time g(0, 0)`, `om::TreeHead g`, `Name g`, `Name32 g`, `dxVertexDeclaration g` | the default / two-argument constructors, stubs of the destructors |
+| `math::Matrix g = math::Matrix::IDENTITY` | sixteen `movss` copies |
+| `Name g(gText, 0)` with `gText` a `const char*` the unit keeps | `extern const char* const gText;` mapped under its own name |
+
+How the 64-bit names were checked: the initializer inlines the name's constructor (a `Hash64` call on the string's text, or on the
+empty text when the string is empty, then both words are stored before the string temporary is destroyed), so no constructor call
+names the class. A plain `unsigned __int64` result is stored after the destructor call (different code), so the global needs an
+object whose constructor stores in place; `om::Name<CaseSensitive64BitKey>` (RTTI `om::Name<struct om::CaseSensitive64BitKey>`) is the
+only 64-bit name class of the binary, and the readers (0x10870830, 0x108D3CF0) copy the two words as one by-value 8-byte object.
+That is the evidence for `om::ClassName`; it is a type guess confirmed by no constructor call.
+
+Still open: the property tables (a 64-bit name from a string next to a function pointer, 0x10D768C0, 0x10D76E00, 0x10D76FC0,
+0x10D77060: the element struct is unknown), the tables of a name with a text and fields (7, 0x10D60BA0 ...), the four arrays of
+`dxvertexbuffer.cpp` (its elements are mapped one by one), the `Random::Seed` initialisers (the class has no constructor), the
+`ContextName` globals whose mapped type is `MessageListeners`, the camera and world streamer objects, the double list and tree
+resets of lists whose element type is unknown, float and matrix expressions that read other globals, and the initializers
+and stubs whose class is only an address (`sub_...`).
 ## sn-az: the range 0x10AA0000 - 0x10AC0000 (om dynamic properties, om services, audio decoders and drivers, mgraph)
 The range (and the area up to 0x10B60000) has no assert paths; its units are template families of the om library and the
 classes of the audio and mgraph namespaces, in the order the compiler emitted them (guesses: `om/dynamicproperties.cpp`
