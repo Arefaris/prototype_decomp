@@ -1,0 +1,100 @@
+// Fight items of the damage tracks: DebugDamageTrack, CauseDamageTrack (unit 0x10503C60 - 0x105049C0; no assert path, the file name is a guess).
+#ifndef PROTO_DAMAGETRACKS_H
+#define PROTO_DAMAGETRACKS_H
+
+#include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/damage/damagedata.h"
+
+namespace proto
+{
+	// RTTI: proto::DebugDamageTrack (16 vftable slots, 0x30 bytes)
+	class DebugDamageTrack : public fight::Track
+	{
+	public:
+		// 0x10503E20
+		DebugDamageTrack();
+		virtual ~DebugDamageTrack();
+
+		// vftable slot 0
+		virtual fight::Property* GetProperty(int index);
+		// vftable slot 9
+		virtual float GetTimeBegin() const;
+		// vftable slot 10
+		virtual float Slot10() const;
+		// vftable slot 15 (0x104FB4B0, another unit)
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+		// The members the properties write
+		bool SetTimeBegin(float newValue);
+		bool SetDistance(float newValue);
+		bool SetDamageType(int newValue);
+		bool SetScaleX(float newValue);
+		bool SetScaleY(float newValue);
+		bool SetDamageSource(const fight::Name& newValue);
+
+		// The property list, built once and freed again
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		fight::Name damageSource;  // +0x10
+		float distance;  // +0x18
+		float scaleX;  // +0x1C
+		float scaleY;  // +0x20
+		float timeBegin;  // +0x24
+		int damageType;  // +0x28
+		unsigned char unknown2C[0x4];
+	};
+
+	extern fight::Property** gDebugDamageTrackProperties;
+	fight::TrackFactory* CreateDebugDamageTrackFactory(const char* name);
+	void RegisterDebugDamageTrackFactory(fight::TrackRegistry* registry, const char* name);
+
+	// RTTI: proto::CauseDamageTrack (16 vftable slots, 0x30 bytes)
+	class CauseDamageTrack : public fight::Track
+	{
+	public:
+		// 0x10503EC0
+		CauseDamageTrack();
+		virtual ~CauseDamageTrack();
+
+		// vftable slot 0
+		virtual fight::Property* GetProperty(int index);
+		// vftable slot 9
+		virtual float GetTimeBegin() const;
+		// vftable slot 10
+		virtual float Slot10() const;
+		// vftable slot 15 (0x104FB180, another unit)
+		virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+		// The members the properties write
+		bool SetTimeBegin(float newValue);
+		bool SetForceZeroHealth(bool newValue);
+		bool SetDamage(float newValue);
+		bool SetAttackType(int newValue);
+		bool SetOriginator(int newValue);
+		bool SetGrabSlot(const fight::Name& newValue);
+		bool SetIgnoreShield(bool newValue);
+		bool SetSendAlert(bool newValue);
+
+		// The property list, built once and freed again
+		static void RegisterProperties();
+		static void ClearProperties();
+
+		fight::Name grabSlot;  // +0x10
+		float damage;  // +0x18
+		float timeBegin;  // +0x1C
+		int attackType;  // +0x20
+		int originator;  // +0x24
+		bool forceZeroHealth;  // +0x28
+		bool ignoreShield;  // +0x29
+		bool sendAlert;  // +0x2A
+		unsigned char unknown2B[0x5];
+	};
+
+	extern fight::Property** gCauseDamageTrackProperties;
+	fight::TrackFactory* CreateCauseDamageTrackFactory(const char* name);
+	void RegisterCauseDamageTrackFactory(fight::TrackRegistry* registry, const char* name);
+
+}
+
+#endif
