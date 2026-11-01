@@ -54,7 +54,7 @@ namespace proto
 		bool unknown29;
 		bool renderEffectsState;  // +0x2A
 		float strength;  // +0x2C
-		unsigned char unknown30[0x44];
+		unsigned char unknown30[0x40];
 	};
 }
 

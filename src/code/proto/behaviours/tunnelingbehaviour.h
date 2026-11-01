@@ -41,6 +41,7 @@ namespace proto
 		engine::BaseAttribute* puppetAttribute;  // +0x48
 		bool unknown4C;
 		float unknown50;
+		unsigned char unknown54[12];
 	};
 
 }

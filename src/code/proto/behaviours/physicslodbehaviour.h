@@ -154,6 +154,7 @@ namespace proto
 		ravenphysics::ObjectHandle savedPhysicsObject;  // +0x3C
 		bool saveInitialPhysicsObject;  // +0x40
 		bool isNotAmbientVehicle;  // +0x41
+		int unknown44;  // behind the array: its allocator word
 	};
 }
 

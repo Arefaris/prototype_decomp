@@ -159,6 +159,7 @@ namespace proto
 		MomentumEntry* Lookup(float value, float* damage);
 
 		MomentumArray momentum;  // +8
+		int unknown14;  // behind the array: its allocator word
 	};
 
 	// 0x1126F6A4

@@ -92,6 +92,7 @@ namespace proto
 		virtual void OnMessage(engine::Message* message);
 
 		InstanceArray powerInstances;  // +0xC
+		int unknown18;  // behind the array: its allocator word
 	};
 }
 

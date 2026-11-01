@@ -30,6 +30,7 @@ namespace proto
 		engine::BaseAttribute* physicsObjectAttribute;  // +0xC
 		bool unknown10;
 		int unknown14;
+		unsigned char unknown18[12];
 	};
 }
 

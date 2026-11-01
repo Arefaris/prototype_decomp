@@ -84,6 +84,7 @@ namespace proto
 		float overallCycleDuration;  // +0x10
 		float maxAcceleration;  // +0x14
 		WaveArray waveGenerators;  // +0x18
+		int unknown24;  // behind the array: its allocator word
 	};
 }
 

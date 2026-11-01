@@ -142,6 +142,7 @@ namespace proto
 		bool unknown39;
 		bool unknown3A;
 		bool unknown3B;
+		int unknown3C;
 	};
 }
 
