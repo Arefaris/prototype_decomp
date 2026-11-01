@@ -6,6 +6,8 @@
 
 #include "code/mgraph/envelope.h"
 #include "code/om/dynamicarray.h"
+#include "code/om/delegate.h"
+#include "code/om/dynamicproperty.h"
 #include "code/om/entity.h"
 #include "code/om/metaclass.h"
 #include "code/om/string.h"
@@ -184,9 +186,32 @@ namespace mgraph
 		return "";
 	}
 
+	// The queue of the events a context executes (an intrusive list of the events' links and their number)
+	class EventQueue
+	{
+	public:
+		// 0x105CBE20: puts the link of an event at the end of the list
+		void Add(unsigned int* link);
+
+		unsigned int* head;
+		unsigned int* tail;
+		int count;
+	};
+
 	class __declspec(align(8)) PropertyNodeBase : public Node
 	{
-		MGRAPH_NODE_BODY(PropertyNodeBase, Node, 0x50);
+	public:
+		virtual ~PropertyNodeBase()
+		{
+		}
+		// Slots 17 to 20 do nothing in the base: the typed property nodes post the value of a property as an event, take it
+		// from the property, answer the reflection of their value and make the delegate of a channel (names guessed)
+		virtual void PostPropertyValue(unsigned int channel, EventQueue* queue, const om::DynamicPropertyBase* property);
+		virtual void SetPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown);
+		virtual om::MetaTypeBase* GetValueMetaType();
+		virtual om::DelegatePropertyBase* CreateDelegate(unsigned int channel);
+		OM_ALLOCATION(PropertyNodeBase);
+		char unknown4[0x50 - sizeof(Node)];
 	};
 	class InletBase : public Node
 	{
@@ -194,33 +219,59 @@ namespace mgraph
 	class OutletBase : public Node
 	{
 	};
-	// The property nodes of the values the node holds itself are bigger
-	template<class P> struct PropertyNodeSize
-	{
-		enum { value = 0x68 };
-	};
-	template<class T> struct PropertyNodeSize<Packet<T> > : PropertyNodeSize<T>
+	// The value a packet type carries
+	template<class P> struct PacketValue
 	{
 	};
-	template<> struct PropertyNodeSize<om::String>
+	template<class T> struct PacketValue<Packet<T> >
 	{
-		enum { value = 0x70 };
+		typedef T Type;
 	};
-	template<> struct PropertyNodeSize<om::Vector>
+
+	// What a property node keeps for a channel: the value, whether it changed and a number that goes with it (names guessed)
+	template<class T> struct PropertyChannel
 	{
-		enum { value = 0x70 };
+		PropertyChannel(const T& newValue);
+
+		T value;
+		bool changed;
+		int unknown8;
 	};
-	template<> struct PropertyNodeSize<EnvelopeData>
+
+	template<class T> PropertyChannel<T>::PropertyChannel(const T& newValue) :
+		value(newValue),
+		changed(true),
+		unknown8(0)
 	{
-		enum { value = 0x70 };
-	};
-	template<> struct PropertyNodeSize<TriggerData>
-	{
-		enum { value = 0x60 };
-	};
+	}
+
+	template<class P> class PropertyNodeOutputEvent;
+	template<class P> class PropertyNodeInputEvent;
+	template<class P> class PropertyPropertyDelegate;
+
 	template<class P> class __declspec(align(8)) PropertyNode : public PropertyNodeBase
 	{
-		MGRAPH_NODE_BODY(PropertyNode, PropertyNodeBase, PropertyNodeSize<P>::value);
+	public:
+		typedef typename PacketValue<P>::Type Value;
+		typedef PropertyChannel<Value> Channel;
+
+		virtual void SetNumChannels(unsigned short newCount);
+		virtual void Slot15(unsigned int channel);
+		virtual void PostPropertyValue(unsigned int channel, EventQueue* queue, const om::DynamicPropertyBase* property);
+		virtual void SetPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown);
+		virtual om::MetaTypeBase* GetValueMetaType();
+		virtual om::DelegatePropertyBase* CreateDelegate(unsigned int channel);
+		// Slots 21 to 25 are the property node's own: events for the channels and the values (names guessed)
+		virtual void PostInputEvent(EventQueue* queue, unsigned int channel, const Value* newValue);
+		virtual void PostOutputEvent(EventQueue* queue, unsigned int channel, Value* destination);
+		virtual const Value* GetChannelValue(unsigned int channel);
+		virtual void SetDefaultValue(const Value* newValue);
+		virtual void SetChannelValue(const Value* newValue, unsigned int channel, int unknown);
+		OM_ALLOCATION(PropertyNode);
+
+		char unknown50[8];
+		om::DynamicArray<Channel, unsigned short> channels;  // 0x58
+		Value value;  // 0x60
 	};
 	template<class P> const char* PropertyNode<P>::AllocationTag()
 	{
