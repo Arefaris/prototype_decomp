@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_STRAFE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
@@ -573,6 +574,28 @@ namespace proto
 				math::Vector unknown74;  // +0x74
 				float unknown80;  // +0x80
 				unsigned char unknown84[0x4];
+			};
+			// RTTI: proto::fightitems::ai::TryOpenStrafeRunAction (9 vftable slots, 0x60 bytes)
+			class TryOpenStrafeRunAction : public fight::Action
+			{
+			public:
+				// 0x1020E900
+				TryOpenStrafeRunAction(TryOpenStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
+				// 0x1020D2E0
+				virtual ~TryOpenStrafeRunAction();
+
+				// vftable slot 5 (0x1020E9D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1020C020)
+				virtual void Slot6();
+				// vftable slot 7 (0x10210850)
+				virtual bool Slot7(int arg, float value);
+
+				core::IRefCount* effect;  // +0x1C
+				engine::TrackWatch listener;  // +0x20
+				core::Link<TryOpenStrafeRunTrack> link;  // +0x2C
+				engine::GameObjectHandle target;  // +0x38
+				unsigned char unknown3C[0x24];
 			};
 			// ---- actions end
 		}

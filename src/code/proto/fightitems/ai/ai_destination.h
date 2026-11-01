@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_DESTINATION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -1176,6 +1177,23 @@ namespace proto
 				float unknown34;  // +0x34
 				core::Link<TargetGoToTrack> link;  // +0x38
 				engine::GameObjectHandle target;  // +0x44
+			};
+			// RTTI: proto::fightitems::ai::DestinationSetDeadBodyAction (9 vftable slots, 0x3C bytes)
+			class DestinationSetDeadBodyAction : public fight::Action
+			{
+			public:
+				// 0x102032C0
+				DestinationSetDeadBodyAction(DestinationSetDeadBodyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
+				// 0x10200350
+				virtual ~DestinationSetDeadBodyAction();
+
+				// vftable slot 5 (0x10203390)
+				virtual bool Slot5(int arg, float value);
+
+				core::IRefCount* effect;  // +0x1C
+				engine::TrackWatch listener;  // +0x20
+				core::Link<DestinationSetDeadBodyTrack> link;  // +0x2C
+				engine::GameObjectHandle target;  // +0x38
 			};
 			// ---- actions end
 		}

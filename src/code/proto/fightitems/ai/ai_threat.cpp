@@ -863,6 +863,59 @@ namespace proto
 			}
 
 
+			// FUNCTION: ENGINE 0x10219120
+			ThreatBallAction::ThreatBallAction(ThreatBallTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), link(newTrack), listener(newListener), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217D70
+			ThreatBallAction::~ThreatBallAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219930
+			fight::Action* ThreatBallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatBallAction(this, handle, listener);
+			}
+			// FUNCTION: ENGINE 0x102194B0
+			ThreatSendToTargetAction::ThreatSendToTargetAction(ThreatSendToTargetTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), link(newTrack), listener(newListener), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217E90
+			ThreatSendToTargetAction::~ThreatSendToTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219B40
+			fight::Action* ThreatSendToTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatSendToTargetAction(this, handle, listener);
+			}
+			// FUNCTION: ENGINE 0x10219780
+			ThreatDodgeAction::ThreatDodgeAction(ThreatDodgeTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget), unknown40(-1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217EF0
+			ThreatDodgeAction::~ThreatDodgeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219860
+			void ThreatDodgeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219B90
+			fight::Action* ThreatDodgeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatDodgeAction(this, handle, effect, listener);
+			}
 			// ---- actions end
 			template class fight::PropertyName<ThreatCondition>;
 			template class fight::ConditionFactoryTemplate<ThreatCondition>;

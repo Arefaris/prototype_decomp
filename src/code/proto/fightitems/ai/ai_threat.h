@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_THREAT_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
@@ -366,6 +367,66 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::ThreatBallAction (9 vftable slots, 0x3C bytes)
+			class ThreatBallAction : public fight::Action
+			{
+			public:
+				// 0x10219120
+				ThreatBallAction(ThreatBallTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener);
+				// 0x10217D70
+				virtual ~ThreatBallAction();
+
+				// vftable slot 5 (0x10219980)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102191E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10219A60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ThreatBallTrack> link;  // +0x1C
+				engine::TrackWatch listener;  // +0x28
+				engine::GameObjectHandle target;  // +0x34
+				engine::HandleBase unknown38;  // +0x38
+			};
+			// RTTI: proto::fightitems::ai::ThreatSendToTargetAction (9 vftable slots, 0x38 bytes)
+			class ThreatSendToTargetAction : public fight::Action
+			{
+			public:
+				// 0x102194B0
+				ThreatSendToTargetAction(ThreatSendToTargetTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener);
+				// 0x10217E90
+				virtual ~ThreatSendToTargetAction();
+
+				// vftable slot 5 (0x10219580)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ThreatSendToTargetTrack> link;  // +0x1C
+				engine::TrackWatch listener;  // +0x28
+				engine::GameObjectHandle target;  // +0x34
+			};
+			// RTTI: proto::fightitems::ai::ThreatDodgeAction (9 vftable slots, 0x44 bytes)
+			class ThreatDodgeAction : public fight::Action
+			{
+			public:
+				// 0x10219780
+				ThreatDodgeAction(ThreatDodgeTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
+				// 0x10217EF0
+				virtual ~ThreatDodgeAction();
+
+				// vftable slot 5 (0x10219BF0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10219860)
+				virtual void Slot6();
+				// vftable slot 7 (0x10219CF0)
+				virtual bool Slot7(int arg, float value);
+
+				core::IRefCount* effect;  // +0x1C
+				engine::TrackWatch listener;  // +0x20
+				core::Link<ThreatDodgeTrack> link;  // +0x2C
+				engine::GameObjectHandle target;  // +0x38
+				engine::HandleBase unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+			};
 			// ---- actions end
 		}
 	}

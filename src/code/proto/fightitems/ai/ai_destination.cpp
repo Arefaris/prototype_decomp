@@ -2629,6 +2629,22 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new TargetGoToAction(this, handle);
 			}
+			// FUNCTION: ENGINE 0x102032C0
+			DestinationSetDeadBodyAction::DestinationSetDeadBodyAction(DestinationSetDeadBodyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200350
+			DestinationSetDeadBodyAction::~DestinationSetDeadBodyAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204400
+			fight::Action* DestinationSetDeadBodyTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DestinationSetDeadBodyAction(this, handle, effect, listener);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;

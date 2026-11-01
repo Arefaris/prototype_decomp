@@ -1665,6 +1665,27 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new PrepareTightStrafeRunAction(this, handle);
 			}
+			// FUNCTION: ENGINE 0x1020E900
+			TryOpenStrafeRunAction::TryOpenStrafeRunAction(TryOpenStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D2E0
+			TryOpenStrafeRunAction::~TryOpenStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020C020
+			void TryOpenStrafeRunAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F960
+			fight::Action* TryOpenStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TryOpenStrafeRunAction(this, handle, effect, listener);
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CanStrafeRunCondition>;
 			template class fight::PropertyIntConstRange<CanStrafeRunCondition>;
