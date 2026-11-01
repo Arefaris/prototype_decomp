@@ -13,6 +13,10 @@ namespace om
 	{
 		return left.values[0] == right.values[0] && left.values[1] == right.values[1] && left.values[2] == right.values[2];
 	}
+	inline bool operator==(const VectorT<float, 2>& left, const VectorT<float, 2>& right)
+	{
+		return left.values[0] == right.values[0] && left.values[1] == right.values[1];
+	}
 	inline bool operator==(const Complex& left, const Complex& right)
 	{
 		return left.values[0] == right.values[0] && left.values[1] == right.values[1];
@@ -21,6 +25,16 @@ namespace om
 
 namespace mgraph
 {
+	// The comparison of the elements of the arrays the property nodes keep
+	inline bool operator==(const TriggerData& left, const TriggerData& right)
+	{
+		return left.unknown0 == right.unknown0;
+	}
+	inline bool operator==(const EnvelopeData& left, const EnvelopeData& right)
+	{
+		return left.points == right.points;
+	}
+
 	// An event that copies the value of a channel out of its property node (RTTI: mgraph::PropertyNodeOutputEvent<P>, 0x14 bytes)
 	template<class P> class PropertyNodeOutputEvent : public ContextEvent
 	{
@@ -123,6 +137,52 @@ namespace mgraph
 	{
 		node->channels[channel].value = newValue;
 	}
+	// Where the queue links an event
+	inline unsigned int* EventLink(ContextEvent* event)
+	{
+		return event != 0 ? &event->unknown4 : 0;
+	}
+
+	template<class T> void PropertyChannel<T>::Update(PropertyNodeBase* node, EvaluationFrame* frame)
+	{
+		FrameEntry<T>* target = static_cast<FrameOutput<T>*>(frame->outputs)->entry;
+		FrameEntries<T>* inputs = static_cast<FrameEntries<T>*>(frame->inputs);
+		unsigned int i = 0;
+		if (inputs->count > 0)
+		{
+			FrameEntry<T>** entryPointer = inputs->entries;
+			FrameEntry<T>* entry;
+			do
+			{
+				entry = *entryPointer;
+				if (entry->id == frame->id)
+				{
+					break;
+				}
+				i++;
+				entryPointer++;
+			}
+			while (i < inputs->count);
+			if (entry->id == frame->id)
+			{
+				value = entry->value;
+				changed = true;
+			}
+		}
+		if (changed)
+		{
+			unsigned int channelId = frame->id;
+			target->value = value;
+			target->id = channelId;
+			changed = false;
+		}
+	}
+
+	template<class P> void PropertyNode<P>::Slot16(EvaluationFrame* frame)
+	{
+		channels[frame->channel].Update(this, frame);
+	}
+
 	template<class P> void PropertyNode<P>::SetNumChannels(unsigned short newCount)
 	{
 		channels.Resize(newCount, Channel(value));
@@ -137,17 +197,28 @@ namespace mgraph
 	template<class P> void PropertyNode<P>::PostPropertyValue(unsigned int channel, EventQueue* queue,
 		const om::DynamicPropertyBase* property)
 	{
-		PropertyNodeInputEvent<P>* event = new PropertyNodeInputEvent<P>(this, channel,
-			static_cast<const om::DynamicProperty<Value>*>(property)->GetValue(), 0);
-		queue->Add(event != 0 ? &event->unknown4 : 0);
-		queue->count++;
+		// The temporary value of the property lives until the event is queued
+		queue->Post(EventLink(new PropertyNodeInputEvent<P>(this, channel,
+			static_cast<const om::DynamicProperty<Value>*>(property)->GetValue(), 0)));
 	}
 
 	template<class P> void PropertyNode<P>::SetPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property,
 		int unknown)
 	{
+		PassPropertyValue(channel, property, unknown, typename PropertyValueAccess<Value>::Kind());
+	}
+
+	template<class P> __forceinline void PropertyNode<P>::PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property,
+		int unknown, ValueInLocal)
+	{
 		Value newValue = static_cast<const om::DynamicProperty<Value>*>(property)->GetValue();
 		SetChannelValue(&newValue, channel, unknown);
+	}
+
+	template<class P> __forceinline void PropertyNode<P>::PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property,
+		int unknown, ValueInTemporary)
+	{
+		SetChannelValue(&static_cast<const om::DynamicProperty<Value>*>(property)->GetValue(), channel, unknown);
 	}
 
 	template<class P> om::MetaTypeBase* PropertyNode<P>::GetValueMetaType()
@@ -167,16 +238,12 @@ namespace mgraph
 
 	template<class P> void PropertyNode<P>::PostInputEvent(EventQueue* queue, unsigned int channel, const Value* newValue)
 	{
-		PropertyNodeInputEvent<P>* event = new PropertyNodeInputEvent<P>(this, channel, *newValue, 0);
-		queue->Add(event != 0 ? &event->unknown4 : 0);
-		queue->count++;
+		queue->Post(EventLink(new PropertyNodeInputEvent<P>(this, channel, *newValue, 0)));
 	}
 
 	template<class P> void PropertyNode<P>::PostOutputEvent(EventQueue* queue, unsigned int channel, Value* destination)
 	{
-		PropertyNodeOutputEvent<P>* event = new PropertyNodeOutputEvent<P>(this, channel, destination);
-		queue->Add(event != 0 ? &event->unknown4 : 0);
-		queue->count++;
+		queue->Post(EventLink(new PropertyNodeOutputEvent<P>(this, channel, destination)));
 	}
 
 	template<class P> const typename PropertyNode<P>::Value* PropertyNode<P>::GetChannelValue(unsigned int channel)
@@ -202,6 +269,11 @@ namespace mgraph
 		const om::DynamicArray<E, unsigned short>& right)
 	{
 		return !(left == right);
+	}
+	// The engine compares only the curve of an envelope
+	inline bool ValuesDiffer(const EnvelopeData& left, const EnvelopeData& right)
+	{
+		return !(left.points == right.points);
 	}
 	inline bool ValuesDiffer(const om::Vector& left, const om::Vector& right)
 	{

@@ -5291,7 +5291,7 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Rand<Vector> >::Get();
 	// FUNCTION: ENGINE 0x10AE1860
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::PropertyNodeBase>::Get();
-	// FUNCTION: ENGINE 0x10AE18E0
+	// FUNCTION: ENGINE 0x10AE1D00
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::VectorAdd> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AE1900
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::CommutativeMath<mgraph::VectorAdd> >::Get();
@@ -5323,35 +5323,35 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Operator2<mgraph::NotEqual<float> > >::Get();
 	// FUNCTION: ENGINE 0x10AE1AC0
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::UnaryMath<mgraph::BoolNot> >::Get();
-	// FUNCTION: ENGINE 0x10AE1D00
+	// FUNCTION: ENGINE 0x10AE5B80
 	template void* mgraph::NodeType<mgraph::Rand<Vector> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1D20
+	// FUNCTION: ENGINE 0x10AE18E0
 	template void* mgraph::NodeType<mgraph::PropertyNodeBase>::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1D40
+	// FUNCTION: ENGINE 0x10AE1D20
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatAdd> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1D60
+	// FUNCTION: ENGINE 0x10AE1D40
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatMultiply> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1D80
+	// FUNCTION: ENGINE 0x10AE1D60
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolOr> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1DA0
+	// FUNCTION: ENGINE 0x10AE1D80
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolAnd> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1DC0
+	// FUNCTION: ENGINE 0x10AE1DA0
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerAnd> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1DE0
+	// FUNCTION: ENGINE 0x10AE1DC0
 	template void* mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerOr> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1E00
+	// FUNCTION: ENGINE 0x10AE1DE0
 	template void* mgraph::NodeType<mgraph::NonCommutativeMath<mgraph::FloatSub> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1E20
+	// FUNCTION: ENGINE 0x10AE1E00
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThan<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1E40
+	// FUNCTION: ENGINE 0x10AE1E20
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThanOrEqual<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1E60
+	// FUNCTION: ENGINE 0x10AE1E40
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::LessThanOrEqual<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1E80
+	// FUNCTION: ENGINE 0x10AE1E60
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::LessThan<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1EA0
+	// FUNCTION: ENGINE 0x10AE1E80
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::Equal<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE1EC0
+	// FUNCTION: ENGINE 0x10AE1EA0
 	template void* mgraph::NodeType<mgraph::Operator2<mgraph::NotEqual<float> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AE2490
 	template void mgraph::NodeType<mgraph::Rand<Vector> >::Destroy();
@@ -5465,11 +5465,11 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Get();
 	// FUNCTION: ENGINE 0x10AE5550
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Get();
-	// FUNCTION: ENGINE 0x10AE5B80
+	// FUNCTION: ENGINE 0x10AE6D20
 	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE5C80
+	// FUNCTION: ENGINE 0x10AE6D00
 	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<bool> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE5CA0
+	// FUNCTION: ENGINE 0x10AE6CE0
 	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<bool> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AE5CC0
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Throw<mgraph::Packet<bool> > >::Get();
@@ -5543,77 +5543,77 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Get();
 	// FUNCTION: ENGINE 0x10AE6180
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Get();
-	// FUNCTION: ENGINE 0x10AE6CE0
+	// FUNCTION: ENGINE 0x10AE1EC0
 	template void* mgraph::NodeType<mgraph::UnaryMath<mgraph::BoolNot> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6D00
+	// FUNCTION: ENGINE 0x10AEC4A0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<bool> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6D20
+	// FUNCTION: ENGINE 0x10AEC4C0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6D40
+	// FUNCTION: ENGINE 0x10AEC4E0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6D60
+	// FUNCTION: ENGINE 0x10AEC500
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6D80
+	// FUNCTION: ENGINE 0x10AEC520
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned int> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6DA0
+	// FUNCTION: ENGINE 0x10AEC540
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6DC0
+	// FUNCTION: ENGINE 0x10AEC560
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6DE0
+	// FUNCTION: ENGINE 0x10AEC580
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6E00
+	// FUNCTION: ENGINE 0x10AEC5A0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<String> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6E20
+	// FUNCTION: ENGINE 0x10AEC5C0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6E40
+	// FUNCTION: ENGINE 0x10AEC5E0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Vector> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6E60
+	// FUNCTION: ENGINE 0x10AEC600
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6E80
+	// FUNCTION: ENGINE 0x10AEC620
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6EA0
+	// FUNCTION: ENGINE 0x10AEC640
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Complex> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6EC0
+	// FUNCTION: ENGINE 0x10AEC660
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6EE0
+	// FUNCTION: ENGINE 0x10AEC680
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6F00
+	// FUNCTION: ENGINE 0x10AEC6A0
 	template void* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6F20
+	// FUNCTION: ENGINE 0x10AE5C80
 	template void* mgraph::NodeType<mgraph::Rand<float> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6F40
+	// FUNCTION: ENGINE 0x10AE5CA0
 	template void* mgraph::NodeType<mgraph::Rand<unsigned int> >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6F60
+	// FUNCTION: ENGINE 0x10AEC6C0
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<bool> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6F80
+	// FUNCTION: ENGINE 0x10AEC6E0
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<bool> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6FA0
+	// FUNCTION: ENGINE 0x10AEC700
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6FC0
+	// FUNCTION: ENGINE 0x10AEC720
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE6FE0
+	// FUNCTION: ENGINE 0x10AEC740
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7000
+	// FUNCTION: ENGINE 0x10AEC760
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7020
+	// FUNCTION: ENGINE 0x10AEC780
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7040
+	// FUNCTION: ENGINE 0x10AEC7A0
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7060
+	// FUNCTION: ENGINE 0x10AEC7C0
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned int> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7080
+	// FUNCTION: ENGINE 0x10AEC7E0
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned int> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE70A0
+	// FUNCTION: ENGINE 0x10AEC800
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE70C0
+	// FUNCTION: ENGINE 0x10AEC820
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE70E0
+	// FUNCTION: ENGINE 0x10AEC840
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7100
+	// FUNCTION: ENGINE 0x10AEC860
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7120
+	// FUNCTION: ENGINE 0x10AEC880
 	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AE7140
+	// FUNCTION: ENGINE 0x10AEC8A0
 	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AE8D00
 	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<bool> > >::Destroy();
@@ -5775,111 +5775,111 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::ListEntry<mgraph::EnvelopeData> >::Get();
 	// FUNCTION: ENGINE 0x10AEC240
 	template mgraph::NodeTypeBase* mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::Get();
-	// FUNCTION: ENGINE 0x10AEC4A0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<String> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC4C0
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<String> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC4E0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC500
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC520
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Vector> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC540
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Vector> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC560
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC580
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC5A0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC5C0
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC5E0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC600
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC620
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Complex> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC640
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Complex> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC660
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC680
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC6A0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC6C0
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC6E0
-	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC700
-	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC720
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC740
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC760
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<float> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC780
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC7A0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC7C0
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned int> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC7E0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned int> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC800
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC820
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC840
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC860
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC880
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
-	// FUNCTION: ENGINE 0x10AEC8A0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC8C0
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<String> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<String> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC8E0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<String> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<String> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC900
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC920
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC940
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<Vector> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Vector> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC960
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<Vector> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Vector> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC980
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC9A0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC9C0
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AEC9E0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECA00
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECA20
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECA40
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<Complex> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Complex> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECA60
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<Complex> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Complex> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECA80
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECAA0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECAC0
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECAE0
-	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECB00
-	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
+	template void* mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECB20
+	template void* mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6D40
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6D60
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<float> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6D80
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<float> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6DA0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6DC0
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<float,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6DE0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned int> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6E00
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned int> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6E20
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6E40
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6E60
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6E80
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned __int64> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6EA0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6EC0
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6EE0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<String> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6F00
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<String> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6F20
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6F40
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6F60
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<Vector> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6F80
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<Vector> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6FA0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6FC0
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE6FE0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7000
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::TriggerData> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7020
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7040
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7060
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<Complex> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7080
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<Complex> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE70A0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE70C0
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE70E0
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7100
+	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7120
+	template void* mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7140
 	template void* mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECB40
 	template void* mgraph::NodeType<mgraph::ListCount<bool> >::operator new(size_t);

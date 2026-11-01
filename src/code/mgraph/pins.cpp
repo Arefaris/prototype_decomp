@@ -18,8 +18,6 @@ namespace mgraph
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::GetPacketTypeCached();
 	// FUNCTION: ENGINE 0x10B02550
 	template mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::~OutputPin();
-	// FUNCTION: ENGINE 0x10B09680
-	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B0B680
 	template mgraph::PinChannelData* mgraph::InputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetChannelData();
 	// FUNCTION: ENGINE 0x10B0B6E0
@@ -1366,20 +1364,196 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<bool> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B30870
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<bool> >::MakeConnection(mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B0C000
+	template mgraph::InputPin<mgraph::Packet<unsigned int> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<unsigned int>);
+	// FUNCTION: ENGINE 0x10B0C060
+	template mgraph::InputPin<mgraph::Packet<unsigned int> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B4EC10
+	template mgraph::PinChannelData* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetChannelData();
+	// FUNCTION: ENGINE 0x10B4EE00
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::SetChannelOwner(void*);
+	// FUNCTION: ENGINE 0x10B4EE10
+	template bool mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::IsChannelOwner(void*);
+	// FUNCTION: ENGINE 0x10B4EEF0
+	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::MakeConnection(mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B0B6C0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0C790
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0CE30
+	template mgraph::InputPin<mgraph::Packet<unsigned __int64> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<unsigned __int64>);
+	// FUNCTION: ENGINE 0x10B0CE90
+	template mgraph::InputPin<mgraph::Packet<unsigned __int64> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B0CED0
+	template void mgraph::InputPin<mgraph::Packet<unsigned __int64> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0D5E0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0DC90
+	template mgraph::InputPin<mgraph::Packet<String> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<String>);
+	// FUNCTION: ENGINE 0x10B0DD70
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0E4C0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0EBF0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0F360
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0FAB0
+	template void mgraph::InputPin<mgraph::Packet<Complex> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B101E0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B2EAE0
+	template void mgraph::InputPin<mgraph::Packet<Vector> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B30500
+	template mgraph::InputPin<mgraph::Packet<bool> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<bool>);
+	// FUNCTION: ENGINE 0x10B30560
+	template mgraph::InputPin<mgraph::Packet<bool> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B4EC50
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0E410
+	template mgraph::InputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<DynamicArray<String,unsigned short> >);
+	// FUNCTION: ENGINE 0x10B0FA00
+	template mgraph::InputPin<mgraph::Packet<Complex> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<Complex>);
+	// FUNCTION: ENGINE 0x10B0FA70
+	template mgraph::InputPin<mgraph::Packet<Complex> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B2EA60
+	template mgraph::InputPin<mgraph::Packet<Vector> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<Vector>);
+	// FUNCTION: ENGINE 0x10B2EAD0
+	template mgraph::InputPin<mgraph::Packet<Vector> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B05560
+	template mgraph::Packet<DynamicArray<bool,unsigned short> >::Packet(mgraph::Packet<DynamicArray<bool,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B05590
+	template mgraph::Packet<DynamicArray<bool,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B05D70
+	template mgraph::Packet<DynamicArray<float,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B069C0
+	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B07660
+	template mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >::Packet(mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B07690
+	template mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B07A10
+	template mgraph::Packet<String>::~Packet();
+	// FUNCTION: ENGINE 0x10B082E0
+	template mgraph::Packet<DynamicArray<String,unsigned short> >::Packet(mgraph::Packet<DynamicArray<String,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B08310
+	template mgraph::Packet<DynamicArray<String,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B08EB0
+	template mgraph::Packet<DynamicArray<Vector,unsigned short> >::Packet(mgraph::Packet<DynamicArray<Vector,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B08EE0
+	template mgraph::Packet<DynamicArray<Vector,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B09C80
+	template mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >::Packet(mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B09CB0
+	template mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B0A930
+	template mgraph::Packet<DynamicArray<Complex,unsigned short> >::Packet(mgraph::Packet<DynamicArray<Complex,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B0A960
+	template mgraph::Packet<DynamicArray<Complex,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B0AE10
+	template mgraph::Packet<mgraph::EnvelopeData>::~Packet();
+	// FUNCTION: ENGINE 0x10B32BC0
+	template mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >::~Packet();
+	// FUNCTION: ENGINE 0x10B33750
+	template mgraph::Packet<float>::Packet(mgraph::Packet<float> const&);
+	// FUNCTION: ENGINE 0x10B34630
+	template mgraph::Packet<unsigned __int64>::Packet(mgraph::Packet<unsigned __int64> const&);
+	// FUNCTION: ENGINE 0x10B34E30
+	template mgraph::Packet<String>::Packet(mgraph::Packet<String> const&);
+	// FUNCTION: ENGINE 0x10B36360
+	template mgraph::Packet<Complex>::Packet(mgraph::Packet<Complex> const&);
+	// FUNCTION: ENGINE 0x10B37960
+	template mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >::Packet(mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B4E5C0
+	template mgraph::Packet<DynamicArray<float,unsigned short> >::Packet(mgraph::Packet<DynamicArray<float,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B59D60
+	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::Packet(mgraph::Packet<DynamicArray<unsigned int,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B374E0
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37540
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B375A0
+	template void mgraph::OutputPin<mgraph::Packet<unsigned int> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37600
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37660
+	template void mgraph::OutputPin<mgraph::Packet<unsigned __int64> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B376C0
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37720
+	template void mgraph::OutputPin<mgraph::Packet<String> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37780
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B377E0
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37840
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B378A0
+	template void mgraph::OutputPin<mgraph::Packet<Complex> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B37900
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B495E0
+	template void mgraph::OutputPin<mgraph::Packet<Vector> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B4CCA0
+	template void mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B4CD00
+	template void mgraph::OutputPin<mgraph::Packet<bool> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B5C130
+	template void mgraph::OutputPin<mgraph::Packet<mgraph::EnvelopeData> >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B5C1A0
+	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Slot3(unsigned int, void*);
+	// FUNCTION: ENGINE 0x10B05370
+	template mgraph::Packet<DynamicArray<bool,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B07460
+	template mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B08100
+	template mgraph::Packet<DynamicArray<String,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B08CB0
+	template mgraph::Packet<DynamicArray<Vector,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B09A90
+	template mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B0A730
+	template mgraph::Packet<DynamicArray<Complex,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B32B80
+	template mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B32F10
+	template mgraph::Packet<bool>::Packet();
+	// FUNCTION: ENGINE 0x10B33010
+	template mgraph::Packet<bool>::Packet(mgraph::Packet<bool> const&);
+	// FUNCTION: ENGINE 0x10B33650
+	template mgraph::Packet<float>::Packet();
+	// FUNCTION: ENGINE 0x10B33DE0
+	template mgraph::Packet<unsigned int>::Packet();
+	// FUNCTION: ENGINE 0x10B345C0
+	template mgraph::Packet<unsigned __int64>::Packet();
+	// FUNCTION: ENGINE 0x10B34E10
+	template mgraph::Packet<String>::Packet();
+	// FUNCTION: ENGINE 0x10B355D0
+	template mgraph::Packet<Vector>::Packet();
+	// FUNCTION: ENGINE 0x10B356F0
+	template mgraph::Packet<Vector>::Packet(mgraph::Packet<Vector> const&);
+	// FUNCTION: ENGINE 0x10B35D70
+	template mgraph::Packet<mgraph::TriggerData>::Packet();
+	// FUNCTION: ENGINE 0x10B36340
+	template mgraph::Packet<Complex>::Packet();
+	// FUNCTION: ENGINE 0x10B4E5A0
+	template mgraph::Packet<DynamicArray<float,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B59D90
+	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::Packet();
 }
 
 namespace om
 {
 	// FUNCTION: ENGINE 0x10B00E10
 	template void DynamicArray<mgraph::Packet<bool>,unsigned short>::ReleaseElements(mgraph::Packet<bool>*, unsigned short);
-	// FUNCTION: ENGINE 0x10B00E90
-	template DynamicArray<mgraph::Packet<bool>,unsigned short>::~DynamicArray();
 	// FUNCTION: ENGINE 0x10B01260
 	template void DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::ReleaseElements(mgraph::Packet<mgraph::TriggerData>*, unsigned short);
-	// FUNCTION: ENGINE 0x10B012E0
-	template DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::~DynamicArray();
 	// FUNCTION: ENGINE 0x10B04AB0
 	template void DynamicArray<mgraph::Packet<unsigned int>,unsigned short>::ReleaseElements(mgraph::Packet<unsigned int>*, unsigned short);
+	// FUNCTION: ENGINE 0x10B00E90
+	template DynamicArray<mgraph::Packet<bool>,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10B012E0
+	template DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::~DynamicArray();
 	// FUNCTION: ENGINE 0x10B04B60
 	template DynamicArray<mgraph::Packet<unsigned int>,unsigned short>::~DynamicArray();
 }

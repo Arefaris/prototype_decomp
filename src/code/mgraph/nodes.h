@@ -18,12 +18,25 @@ namespace om
 	class Vector
 	{
 	public:
+		Vector()
+		{
+			values[2] = 0.0f;
+			values[1] = 0.0f;
+			values[0] = 0.0f;
+		}
+
 		float values[3];
 	};
 
 	class Complex
 	{
 	public:
+		Complex()
+		{
+			values[0] = 0.0f;
+			values[1] = 0.0f;
+		}
+
 		float values[2];
 	};
 }
@@ -41,6 +54,11 @@ namespace mgraph
 	class TriggerData
 	{
 	public:
+		TriggerData() :
+			unknown0(0)
+		{
+		}
+
 		unsigned char unknown0;
 	};
 
@@ -49,10 +67,16 @@ namespace mgraph
 	class PinChannelData
 	{
 	public:
+		PinChannelData() :
+			unknown4(0)
+		{
+		}
 		virtual void Slot0(void* unknown, int unknown2) = 0;
 		virtual ~PinChannelData()
 		{
 		}
+
+		unsigned int unknown4;  // the owner of the channel (set by the input pins)
 	};
 
 	// The values a pin carries for each channel
@@ -60,15 +84,13 @@ namespace mgraph
 	{
 	public:
 		Packet() :
-			unknown4(0),
 			unknown8(0),
-			unknownC(0)
+			value()
 		{
 		}
 		Packet(const Packet& other) :
-			unknown4(0),
 			unknown8(0),
-			unknownC(0)
+			value()
 		{
 			Assign(other, 0, 0);
 		}
@@ -79,9 +101,8 @@ namespace mgraph
 		// 0x10AF5980 (one copy in the engine): gives up what the packet holds and shares what the other holds
 		void Assign(const Packet& other, int unknown, int unknown2);
 
-		unsigned int unknown4;
 		unsigned int unknown8;
-		unsigned int unknownC;
+		T value;  // 0xC
 	};
 
 	// The operations of the math nodes (RTTI: structs)
@@ -192,6 +213,12 @@ namespace mgraph
 	public:
 		// 0x105CBE20: puts the link of an event at the end of the list
 		void Add(unsigned int* link);
+		// Queues an event and counts it
+		void Post(unsigned int* link)
+		{
+			Add(link);
+			count++;
+		}
 
 		unsigned int* head;
 		unsigned int* tail;
@@ -228,10 +255,40 @@ namespace mgraph
 		typedef T Type;
 	};
 
+	// What the evaluation of a graph hands to a node for a channel (names guessed): the entries the channel's inputs brought and the
+	// place the node leaves its output
+	template<class T> struct FrameEntry
+	{
+		unsigned int unknown0;
+		unsigned int id;
+		unsigned int unknown8;
+		T value;
+	};
+	template<class T> struct FrameEntries
+	{
+		FrameEntry<T>** entries;
+		unsigned int count;
+	};
+	template<class T> struct FrameOutput
+	{
+		FrameEntry<T>* entry;
+	};
+	class EvaluationFrame
+	{
+	public:
+		unsigned short channel;
+		void* inputs;  // 4: the FrameEntries of the channel's type
+		char unknown8[8];
+		void* outputs;  // 0x10: the FrameOutput of the channel's type
+		unsigned int id;  // 0x14
+	};
+
 	// What a property node keeps for a channel: the value, whether it changed and a number that goes with it (names guessed)
 	template<class T> struct PropertyChannel
 	{
 		PropertyChannel(const T& newValue);
+		// Takes the value the evaluation brought for its channel and hands it on (0x10B13B10 and the like)
+		void Update(PropertyNodeBase* node, EvaluationFrame* frame);
 
 		T value;
 		bool changed;
@@ -245,6 +302,27 @@ namespace mgraph
 	{
 	}
 
+	// How a property node passes the value of a property on: through a local, or (for the types with a destructor)
+	// by the address of the temporary the property returns
+	struct ValueInLocal
+	{
+	};
+	struct ValueInTemporary
+	{
+	};
+	template<class T> struct PropertyValueAccess
+	{
+		typedef ValueInLocal Kind;
+	};
+	template<> struct PropertyValueAccess<om::String>
+	{
+		typedef ValueInTemporary Kind;
+	};
+	template<> struct PropertyValueAccess<om::DynamicArray<om::String, unsigned short> >
+	{
+		typedef ValueInTemporary Kind;
+	};
+
 	template<class P> class PropertyNodeOutputEvent;
 	template<class P> class PropertyNodeInputEvent;
 	template<class P> class PropertyPropertyDelegate;
@@ -257,6 +335,7 @@ namespace mgraph
 
 		virtual void SetNumChannels(unsigned short newCount);
 		virtual void Slot15(unsigned int channel);
+		virtual void Slot16(EvaluationFrame* frame);
 		virtual void PostPropertyValue(unsigned int channel, EventQueue* queue, const om::DynamicPropertyBase* property);
 		virtual void SetPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown);
 		virtual om::MetaTypeBase* GetValueMetaType();
@@ -268,6 +347,9 @@ namespace mgraph
 		virtual void SetDefaultValue(const Value* newValue);
 		virtual void SetChannelValue(const Value* newValue, unsigned int channel, int unknown);
 		OM_ALLOCATION(PropertyNode);
+
+		void PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown, ValueInLocal);
+		void PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown, ValueInTemporary);
 
 		char unknown50[8];
 		om::DynamicArray<Channel, unsigned short> channels;  // 0x58
@@ -428,6 +510,17 @@ namespace mgraph
 		virtual om::MetaTypeBase* GetMetaType()
 		{
 			return FindMetaType();
+		}
+		// Makes the description of the node class N, which registers itself (names of the statics guessed): under the
+		// reflection of a parent class, or under that of the node class another description stands for
+		static void Register(om::MetaClassBase* parent, const unsigned int& newUnknown, const om::ClassName& newName)
+		{
+			new NodeType(parent, newUnknown, newName);
+		}
+		static void RegisterDerived(NodeTypeBase* parent, const unsigned int& newUnknown, const om::ClassName& newName)
+		{
+			om::MetaClassBase* parentType = static_cast<om::MetaClassBase*>(parent->GetMetaType());
+			new NodeType(parentType, newUnknown, newName);
 		}
 		// The description of the node class N, found once and kept (names of the statics guessed)
 		static NodeTypeBase* Get();
