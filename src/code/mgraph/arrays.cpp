@@ -10,16 +10,6 @@ namespace mgraph
 {
 	using namespace om;
 
-	// FUNCTION: ENGINE 0x10B05870
-	template mgraph::Packet<DynamicArray<bool,unsigned short> >::~Packet();
-	// FUNCTION: ENGINE 0x10B06D40
-	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::~Packet();
-	// FUNCTION: ENGINE 0x10B085E0
-	template mgraph::Packet<DynamicArray<String,unsigned short> >::~Packet();
-	// FUNCTION: ENGINE 0x10B091C0
-	template mgraph::Packet<DynamicArray<Vector,unsigned short> >::~Packet();
-	// FUNCTION: ENGINE 0x10B0A020
-	template mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >::~Packet();
 	// FUNCTION: ENGINE 0x10B33E60
 	template mgraph::Packet<unsigned int>::Packet(mgraph::Packet<unsigned int> const&);
 }

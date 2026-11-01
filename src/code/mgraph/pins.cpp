@@ -18,8 +18,6 @@ namespace mgraph
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::GetPacketTypeCached();
 	// FUNCTION: ENGINE 0x10B02550
 	template mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::~OutputPin();
-	// FUNCTION: ENGINE 0x10B09680
-	template void mgraph::OutputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B0B680
 	template mgraph::PinChannelData* mgraph::InputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetChannelData();
 	// FUNCTION: ENGINE 0x10B0B6E0
@@ -1366,6 +1364,62 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<bool> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B30870
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<bool> >::MakeConnection(mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B0C000
+	template mgraph::InputPin<mgraph::Packet<unsigned int> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<unsigned int>);
+	// FUNCTION: ENGINE 0x10B0C060
+	template mgraph::InputPin<mgraph::Packet<unsigned int> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B4EC10
+	template mgraph::PinChannelData* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetChannelData();
+	// FUNCTION: ENGINE 0x10B4EE00
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::SetChannelOwner(void*);
+	// FUNCTION: ENGINE 0x10B4EE10
+	template bool mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::IsChannelOwner(void*);
+	// FUNCTION: ENGINE 0x10B4EEF0
+	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::MakeConnection(mgraph::Pin*);
+	// FUNCTION: ENGINE 0x10B0B6C0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0C790
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0CE30
+	template mgraph::InputPin<mgraph::Packet<unsigned __int64> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<unsigned __int64>);
+	// FUNCTION: ENGINE 0x10B0CE90
+	template mgraph::InputPin<mgraph::Packet<unsigned __int64> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B0CED0
+	template void mgraph::InputPin<mgraph::Packet<unsigned __int64> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0D5E0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0DC90
+	template mgraph::InputPin<mgraph::Packet<String> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<String>);
+	// FUNCTION: ENGINE 0x10B0DD70
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0E4C0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0EBF0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0F360
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0FAB0
+	template void mgraph::InputPin<mgraph::Packet<Complex> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B101E0
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B2EAE0
+	template void mgraph::InputPin<mgraph::Packet<Vector> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B30500
+	template mgraph::InputPin<mgraph::Packet<bool> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<bool>);
+	// FUNCTION: ENGINE 0x10B30560
+	template mgraph::InputPin<mgraph::Packet<bool> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B4EC50
+	template void mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B0E410
+	template mgraph::InputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<DynamicArray<String,unsigned short> >);
+	// FUNCTION: ENGINE 0x10B0FA00
+	template mgraph::InputPin<mgraph::Packet<Complex> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<Complex>);
+	// FUNCTION: ENGINE 0x10B0FA70
+	template mgraph::InputPin<mgraph::Packet<Complex> >::~InputPin();
+	// FUNCTION: ENGINE 0x10B2EA60
+	template mgraph::InputPin<mgraph::Packet<Vector> >::InputPin(void*, Name<CaseSensitive64BitKey> const*, int, int, mgraph::Packet<Vector>);
+	// FUNCTION: ENGINE 0x10B2EAD0
+	template mgraph::InputPin<mgraph::Packet<Vector> >::~InputPin();
 }
 
 namespace om

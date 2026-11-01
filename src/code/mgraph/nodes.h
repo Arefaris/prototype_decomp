@@ -18,12 +18,25 @@ namespace om
 	class Vector
 	{
 	public:
+		Vector()
+		{
+			values[2] = 0.0f;
+			values[1] = 0.0f;
+			values[0] = 0.0f;
+		}
+
 		float values[3];
 	};
 
 	class Complex
 	{
 	public:
+		Complex()
+		{
+			values[0] = 0.0f;
+			values[1] = 0.0f;
+		}
+
 		float values[2];
 	};
 }
@@ -41,6 +54,11 @@ namespace mgraph
 	class TriggerData
 	{
 	public:
+		TriggerData() :
+			unknown0(0)
+		{
+		}
+
 		unsigned char unknown0;
 	};
 
@@ -49,10 +67,16 @@ namespace mgraph
 	class PinChannelData
 	{
 	public:
+		PinChannelData() :
+			unknown4(0)
+		{
+		}
 		virtual void Slot0(void* unknown, int unknown2) = 0;
 		virtual ~PinChannelData()
 		{
 		}
+
+		unsigned int unknown4;  // the owner of the channel (set by the input pins)
 	};
 
 	// The values a pin carries for each channel
@@ -60,15 +84,13 @@ namespace mgraph
 	{
 	public:
 		Packet() :
-			unknown4(0),
 			unknown8(0),
-			unknownC(0)
+			value()
 		{
 		}
 		Packet(const Packet& other) :
-			unknown4(0),
 			unknown8(0),
-			unknownC(0)
+			value()
 		{
 			Assign(other, 0, 0);
 		}
@@ -79,9 +101,8 @@ namespace mgraph
 		// 0x10AF5980 (one copy in the engine): gives up what the packet holds and shares what the other holds
 		void Assign(const Packet& other, int unknown, int unknown2);
 
-		unsigned int unknown4;
 		unsigned int unknown8;
-		unsigned int unknownC;
+		T value;  // 0xC
 	};
 
 	// The operations of the math nodes (RTTI: structs)

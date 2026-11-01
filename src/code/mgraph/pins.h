@@ -39,6 +39,8 @@ namespace mgraph
 	class OutputPinBase : public Pin
 	{
 	public:
+		// 0x10AD17B0: keeps the name and registers the pin with its node (the second argument is 0 for the typed pins)
+		OutputPinBase(const om::ClassName* newName, int newUnknown, void* newNode, int newIndex);
 		virtual ~OutputPinBase();
 	};
 
@@ -83,6 +85,8 @@ namespace mgraph
 	class ConcreteInputPinBase : public InputPinBase
 	{
 	public:
+		// 0x10AD1C20: keeps the name and registers the pin with its node
+		ConcreteInputPinBase(const om::ClassName* newName, int newUnknown, void* newNode, int newIndex);
 		virtual ~ConcreteInputPinBase();
 		virtual GraphConnectionBase* MakeConnection(Pin* other) = 0;
 		virtual void Slot4() = 0;
@@ -96,10 +100,29 @@ namespace mgraph
 	class ConcreteOutputPinBase : public OutputPinBase
 	{
 	public:
+		ConcreteOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex) :
+			OutputPinBase(newName, 0, newNode, newIndex),
+			unknown30(0x10)
+		{
+		}
 		virtual ~ConcreteOutputPinBase();
 		virtual void Slot3() = 0;
 
-		char unknown20[0x20];
+		// Two lists of the connections (head and tail)
+		struct List
+		{
+			List() :
+				head(0),
+				tail(0)
+			{
+			}
+			unsigned int head;
+			unsigned int tail;
+		};
+		List unknown20;
+		List unknown28;
+		unsigned int unknown30;
+		char unknown34[0xC];
 	};
 
 	// The connections between pins (RTTI: GraphConnectionBase and its four derived kinds). Slot 0 is the destructor, the
@@ -248,6 +271,11 @@ namespace mgraph
 	template<class P> class InputPin : public ConcreteInputPinBase
 	{
 	public:
+		InputPin(void* newNode, const om::ClassName* newName, int newUnknown, int newIndex, P initial) :
+			ConcreteInputPinBase(newName, newUnknown, newNode, newIndex),
+			value(initial)
+		{
+		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
@@ -302,6 +330,11 @@ namespace mgraph
 	template<class P> class OutputPin : public ConcreteOutputPinBase
 	{
 	public:
+		OutputPin(void* newNode, const om::ClassName* newName, int newIndex, const P& initial) :
+			ConcreteOutputPinBase(newName, newNode, newIndex),
+			value(initial)
+		{
+		}
 		virtual ~OutputPin()
 		{
 		}
