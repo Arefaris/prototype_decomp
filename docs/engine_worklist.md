@@ -6713,3 +6713,52 @@ Found in this range, not done:
   +0x4c nodes at +0x10 keyed by the name at +0x28; `WriteValueName` only looks the value up), the audio task queue and
   filter code (0x105C5100 - 0x105CA800, biquad coefficient and unrolled filter loops), `Renderer` (0x105D1100 -
   0x105D2800), the ADPCM decoders (0x105E8860 - 0x105EB600) and `NameMetaType` (0x105FCC70 - 0x105FD350).
+
+## proto render and vehicle behaviours: the range 0x102E0000 - 0x10320000 (sn-bo)
+
+The range holds, in this order: the render manager and its video-settings observer (0x102E0030 - 0x102E5780), the shader
+palette and its reflection (0x102E5780 - 0x102E8700), the consume effect messages (0x102E87B0 - 0x102E9E00), the fog
+effect controller, AttachBillboard (0x102EA4F0), BlobShadow (0x102EDD50), Decal (0x102EE790), HealthShader (0x102EF190),
+LightDecal (0x102EF600), CollisionSqueeze (0x102F1D80), PhysicsLOD (0x102F1AA0 with its messages), TankSolver
+(0x102F4xxx - 0x10307xxx, with the `om::DynamicProperty<float>` copies), the vehicle constraint properties
+(0x10308000 - 0x1030E8E0), the three physics fight tracks (0x1030E910 - 0x10310000), the helicopter rotor animation and
+solver (0x10310000 on). Reconstructed (file names are guesses, no assert path names the units):
+
+- `proto/fightitems/physics/physics_setintersectionproperties.cpp` (SetIntersectionPropertiesTrack and its action:
+  all 0x1030E910 - 0x1030F7C0 except the copies of other `Link<T>` types) and `physics_lodanddoors.cpp`
+  (SetPhysicsLODTrack, SetVehicleDoorsLatchedTrack, their actions and `RegisterPhysicsLODAndDoorsFactories`, all).
+  The actions of the three tracks and the two messages (`proto/messages/physicsmessages.h`: PhysicsMessage,
+  SetPhysicsLODMessage, GetPhysicsLODMessage, SetVehicleDoorsLatchedMessage) lie in the run in front of the tracks'
+  code. The engine's copies of the `Link<T>` constructor, destructor and `Get` exist six / six / twelve times in this run
+  (each action uses more `Link` types than its track), only the three tracks' own are mapped (the identical copies were
+  placed in address order).
+- `proto/render/blobshadowbehaviour.cpp` (all but Update 0x102EE230 and the binding update 0x102EE010: a sweep through
+  the physics context and float code), `decalbehaviour.cpp` (all but the NONMATCHING Update 0x102EEC80 and AddDecal
+  0x102EEDE0, see below), `healthshaderbehaviour.cpp` (all), `collisionsqueezebehaviour.cpp` (all but Update 0x102F1F40)
+  and `proto/behaviours/physicslodbehaviour.cpp` (PhysicsLOD, the behaviour's constructor, Slot1, OnMessage, the three small
+  handlers and the reflection; the level switch 0x102F2C50 and the array members of PhysicsLOD are not done).
+- Shared header changes: `engine/render/effectmanager.h` (`AttachedEffectSetup` got the inline constructor the decal code
+  inlines and its `unknown24` pair is a `math::Vector2`; effectmanager.cpp passes `&unknown24.x`),
+  `engine/healthmessages.h` (`GetMinHealthMessage(float)`, the health shader unit keeps a copy of it).
+- `RegisterAt1030ECF0Factories` was renamed `RegisterPhysicsLODAndDoorsFactories` and returns a bool (symbols.txt, contexts.cpp).
+
+Findings:
+- `pure3d::Texture` / `Shader` members of a behaviour are released with `core::SafeRelease`; the shader is made with
+  `core::RefAssign(shader, new pure3d::Shader(name))`. A local `pure3d::Shader* current = shader;` before the use of
+  `current->shader` decides the registers of BlobShadow::Slot1.
+- A `switch (type)` with two or three cases compiles to the engine's `sub eax, N / je` chains where a chain of `if`s gives
+  `cmp`; the id switch of HealthShader::OnMessage needs `(unsigned short)message->id` to get the engine's `movzx` and
+  jump table. A range test `id >= 3 && id <= 5` is written as a nested `switch` with the Clear call in the case body.
+- `AttachedEffectSetup`'s default constructor is inlined by the decal code in declaration order (unknown30, unknown34,
+  unknown38, key, needsView); the out-of-line copy 0x102EE8F0 schedules the stores differently and stays unmapped.
+- A virtual function with a loop whose invalid-element branch the engine lays out in front of the valid one
+  (`DecalBehaviour::Update`) is not reproduced by `goto` or by swapping the branches; the compiler normalises the layout.
+- The array of `PhysicsLOD` (virtual destructor): the engine's `ArrayDynamic<T, AllocatorNew>` destructor for such an
+  element is `if (begin) { destroy loop; delete[] begin }` (0x102F2B00) and its `Clear` a separate function (0x102F2FE0);
+  the behaviour's destructor 0x102F3660 calls `Clear` and frees the block itself. The template here destroys inline and
+  stores `end = begin`, so the destructor is NONMATCHING.
+Not done: the render manager block (a settings observer with Lua bindings: `Method<T>` / `Closure<T>` / `ObjRenderEvent<T>`
+instances of `proto::ProtoRenderManager`, 0x102E1910 - 0x102E3120), ShaderPalette reflection (0x102E5780 - 0x102E8700:
+ShaderInputPatch classes, `MetaInstanceHelper`), the consume effect messages, FogEffectController, AttachBillboard, LightDecal,
+TankSolver, the vehicle constraints and the helicopter units (all the properties classes read their reflection through
+`PrimitiveMemberGetSetter<C, float>` pairs of unnamed accessors; the constraint creation code uses the physics context).

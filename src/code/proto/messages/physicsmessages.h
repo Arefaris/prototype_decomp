@@ -34,6 +34,21 @@ namespace proto
 		const core::Name<core::CaseSensitiveKey>* lod;  // +0xC
 	};
 
+	// Asks for the name of the level of detail the physics is on (RTTI proto::GetPhysicsLODMessage, id 0x1F); the name
+	// comes back in the message
+	struct GetPhysicsLODMessage : public PhysicsMessage
+	{
+		GetPhysicsLODMessage() : PhysicsMessage(0x1f)
+		{
+		}
+		virtual ~GetPhysicsLODMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> lod;  // +0x10
+	};
+
 	// Latches or unlatches the doors of a vehicle (id 0x23)
 	struct SetVehicleDoorsLatchedMessage : public PhysicsMessage
 	{
