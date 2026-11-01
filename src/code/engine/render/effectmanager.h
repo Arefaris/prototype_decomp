@@ -17,7 +17,21 @@
 #include "code/engine/render/async/light.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
+#include "code/math/vector2.h"
 #include "code/math/vector4.h"
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
 
 namespace proto
 {
@@ -431,11 +445,17 @@ namespace engine
 		// values it is made with, the game object and the key of the ring it goes in
 		struct AttachedEffectSetup
 		{
+			// The defaults the engine's callers (the decal behaviour among them) start from: the two sizes one, no
+			// ring key, the camera is not asked
+			AttachedEffectSetup() : unknown24(engine::driving::gOne, engine::driving::gOne), unknown30(0.0f), unknown34(choreo::gMinusOne), unknown38(choreo::gMinusOne), key(0), needsView(false)
+			{
+			}
+
 			EffectName shader;  // +0x00
 			int unknown8;
 			math::Vector position;  // +0x0C
 			math::Vector unknown18;
-			float unknown24[2];
+			math::Vector2 unknown24;
 			GameObjectHandle owner;  // +0x2C
 			float unknown30;
 			float unknown34;

@@ -15,6 +15,11 @@ namespace engine
 		{
 			minHealth = 0.0f;
 		}
+		// 0x102EF140 (the health shader behaviour's unit keeps a copy): the caller's own start value for the answer
+		explicit GetMinHealthMessage(float newMinHealth) : NonintrusiveMessage(0x14, 4)
+		{
+			minHealth = newMinHealth;
+		}
 
 		float minHealth;
 	};
