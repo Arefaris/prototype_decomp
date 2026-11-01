@@ -5,6 +5,8 @@
 
 namespace engine
 {
+	GameObjectHandle MasterTable::sReservedHandle;
+
 	// Kept copies of inline functions (Entry and ArrayFixed members, container helpers, GameObjectHandle's
 	// (index, serial) constructor); their symbols are in symbols.txt
 	// FUNCTION: ENGINE 0x107E1D20
@@ -189,3 +191,6 @@ namespace engine
 		freeList = 0;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's globals:
+// FUNCTION: ENGINE 0x10D73C00

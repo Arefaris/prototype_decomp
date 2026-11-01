@@ -821,6 +821,7 @@ namespace engine
 namespace engine
 {
 	core::Name<core::CaseSensitiveKey> gFmvNoSlotGroup("Undefined_SlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gFmvEmptyName("", 0);
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:
@@ -852,3 +853,7 @@ namespace engine
 // FUNCTION: ENGINE 0x1082F6C0
 // FUNCTION: ENGINE 0x1082F920
 // FUNCTION: ENGINE 0x1082F960
+
+// The dynamic initialisers and atexit stubs of the unit's globals:
+// FUNCTION: ENGINE 0x10D74DC0
+// FUNCTION: ENGINE 0x10D8A120

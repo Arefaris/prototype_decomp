@@ -226,6 +226,7 @@ namespace proto
 namespace proto
 {
 	core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup("Undefined_SlotGroup", 0);
+	core::Name<core::CaseSensitiveKey> gEmpty("", 0);
 	core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateBits("Proto_Save_SmartHint_StateBits", 0);
 	core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateInts("Proto_Save_SmartHint_StateInts", 0);
 }
@@ -262,3 +263,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10D864E0
 // FUNCTION: ENGINE 0x10D864F0
 // FUNCTION: ENGINE 0x10D86500
+
+// The dynamic initialisers and atexit stubs of the unit's globals:
+// FUNCTION: ENGINE 0x10D65D90
+// FUNCTION: ENGINE 0x10D864D0
