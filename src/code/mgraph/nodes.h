@@ -459,6 +459,17 @@ namespace mgraph
 		{
 			return FindMetaType();
 		}
+		// Makes the description of the node class N, which registers itself (names of the statics guessed): under the
+		// reflection of a parent class, or under that of the node class another description stands for
+		static void Register(om::MetaClassBase* parent, const unsigned int& newUnknown, const om::ClassName& newName)
+		{
+			new NodeType(parent, newUnknown, newName);
+		}
+		static void RegisterDerived(NodeTypeBase* parent, const unsigned int& newUnknown, const om::ClassName& newName)
+		{
+			om::MetaClassBase* parentType = static_cast<om::MetaClassBase*>(parent->GetMetaType());
+			new NodeType(parentType, newUnknown, newName);
+		}
 		// The description of the node class N, found once and kept (names of the statics guessed)
 		static NodeTypeBase* Get();
 		// Destroys the description of the node class N (when the library shuts down)

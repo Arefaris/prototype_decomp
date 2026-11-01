@@ -2436,4 +2436,544 @@ namespace mgraph
 	template mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::~NodeType();
 	// FUNCTION: ENGINE 0x10B2AA80
 	template MetaTypeBase* mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::GetMetaType();
+	// FUNCTION: ENGINE 0x10B2F180
+	template void mgraph::NodeType<mgraph::PropertyNodeBase>::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FE10
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::VectorAdd> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FE60
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatAdd> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FEB0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatMultiply> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FF00
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolOr> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FF50
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolAnd> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FFA0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerAnd> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B2FFF0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerOr> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30040
+	template void mgraph::NodeType<mgraph::NonCommutativeMath<mgraph::FloatSub> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30090
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThan<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B300E0
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThanOrEqual<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30130
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::LessThanOrEqual<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30180
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::LessThan<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B301D0
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::Equal<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30220
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::NotEqual<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B30270
+	template void mgraph::NodeType<mgraph::UnaryMath<mgraph::BoolNot> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B327F0
+	template void mgraph::NodeType<mgraph::Rand<Vector> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B32840
+	template void mgraph::NodeType<mgraph::Rand<float> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B32890
+	template void mgraph::NodeType<mgraph::Rand<unsigned int> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B369A0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B369F0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36A40
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36A90
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36AE0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36B30
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36B80
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36BD0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<float,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36C20
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36C70
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36CC0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36D10
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36D60
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36DB0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36E00
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36E50
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36EA0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36EF0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36F40
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<String,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36F90
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B36FE0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37030
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37080
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B370D0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37120
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::TriggerData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37170
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::TriggerData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B371C0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37210
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37260
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B372B0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37300
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37350
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B373A0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B373F0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37440
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B37490
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43120
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43170
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B431C0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43210
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<float,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43260
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B432B0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43300
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43350
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B433A0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B433F0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43440
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43490
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B434E0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43530
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43580
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B435D0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43620
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43670
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B436C0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43710
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43760
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B437B0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43800
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43850
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B438A0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B438F0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43940
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43990
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B439E0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43A30
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43A80
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43AD0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43B20
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43B70
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43BC0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43C10
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43C60
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43CB0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43D00
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43D50
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43DA0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43DF0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::TriggerData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43E40
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::TriggerData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43E90
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43EE0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43F30
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43F80
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B43FD0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44020
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44070
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B440C0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44110
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44160
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B441B0
+	template void mgraph::NodeType<mgraph::ListCount<bool> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44200
+	template void mgraph::NodeType<mgraph::ListEntry<bool> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44250
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<bool> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B442A0
+	template void mgraph::NodeType<mgraph::ListCount<float> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B442F0
+	template void mgraph::NodeType<mgraph::ListEntry<float> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44340
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<float> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44390
+	template void mgraph::NodeType<mgraph::ListCount<unsigned int> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B443E0
+	template void mgraph::NodeType<mgraph::ListEntry<unsigned int> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44430
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<unsigned int> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44480
+	template void mgraph::NodeType<mgraph::ListCount<unsigned __int64> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B444D0
+	template void mgraph::NodeType<mgraph::ListEntry<unsigned __int64> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44520
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<unsigned __int64> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44570
+	template void mgraph::NodeType<mgraph::ListCount<String> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B445C0
+	template void mgraph::NodeType<mgraph::ListEntry<String> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44610
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<String> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44660
+	template void mgraph::NodeType<mgraph::ListCount<Vector> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B446B0
+	template void mgraph::NodeType<mgraph::ListEntry<Vector> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44700
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<Vector> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44750
+	template void mgraph::NodeType<mgraph::ListCount<mgraph::TriggerData> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B447A0
+	template void mgraph::NodeType<mgraph::ListEntry<mgraph::TriggerData> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B447F0
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44840
+	template void mgraph::NodeType<mgraph::ListCount<Complex> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44890
+	template void mgraph::NodeType<mgraph::ListEntry<Complex> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B448E0
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<Complex> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44930
+	template void mgraph::NodeType<mgraph::ListCount<mgraph::EnvelopeData> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B44980
+	template void mgraph::NodeType<mgraph::ListEntry<mgraph::EnvelopeData> >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B449D0
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49560
+	template void mgraph::NodeType<mgraph::PropertyNodeBase>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49670
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::VectorAdd> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B496C0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatAdd> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49710
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::FloatMultiply> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49760
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolOr> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B497B0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::BoolAnd> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49830
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerAnd> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B498B0
+	template void mgraph::NodeType<mgraph::CommutativeMath<mgraph::TriggerOr> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49900
+	template void mgraph::NodeType<mgraph::NonCommutativeMath<mgraph::FloatSub> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49950
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThan<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B499A0
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::GreaterThanOrEqual<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B499F0
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::LessThanOrEqual<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49A40
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::LessThan<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49A90
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::Equal<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49AE0
+	template void mgraph::NodeType<mgraph::Operator2<mgraph::NotEqual<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B49B30
+	template void mgraph::NodeType<mgraph::UnaryMath<mgraph::BoolNot> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4CD60
+	template void mgraph::NodeType<mgraph::Rand<Vector> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D320
+	template void mgraph::NodeType<mgraph::Rand<float> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D3A0
+	template void mgraph::NodeType<mgraph::Rand<unsigned int> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D460
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D4E0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D530
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D5B0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D630
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D6B0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D700
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D780
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<float,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D800
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D880
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D8D0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D950
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4D9D0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DA50
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DAA0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DB20
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DBA0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DC20
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DC70
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<String,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DCF0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DD70
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DDF0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DE40
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DEC0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DF40
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::TriggerData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DF90
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::TriggerData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4DFE0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E060
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E0E0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E160
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E1B0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E230
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E2C0
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E310
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E360
+	template void mgraph::NodeType<mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E3B0
+	template void mgraph::NodeType<mgraph::Catch<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50C80
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50CD0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50D20
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50D70
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<float,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50DC0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50E10
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50E60
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50EB0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50F00
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50F50
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50FA0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B50FF0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51040
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51090
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B510E0
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51130
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51180
+	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B511D0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51220
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51270
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B512C0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<bool,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51310
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51360
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B513B0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51400
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<float,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51450
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B514A0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B514F0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51540
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51590
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B515E0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51630
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51680
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B516D0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51720
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51770
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B517C0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<String,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51810
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51860
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B518B0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51900
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Vector,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51950
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::TriggerData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B519A0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::TriggerData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B519F0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51A40
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51A90
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51AE0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51B30
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51B80
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<Complex,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51BD0
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51C20
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51C70
+	template void mgraph::NodeType<mgraph::Inlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51CC0
+	template void mgraph::NodeType<mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51D10
+	template void mgraph::NodeType<mgraph::ListCount<bool> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51D90
+	template void mgraph::NodeType<mgraph::ListEntry<bool> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51DE0
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<bool> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51E30
+	template void mgraph::NodeType<mgraph::ListCount<float> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51EB0
+	template void mgraph::NodeType<mgraph::ListEntry<float> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51F00
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<float> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51F50
+	template void mgraph::NodeType<mgraph::ListCount<unsigned int> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B51FA0
+	template void mgraph::NodeType<mgraph::ListEntry<unsigned int> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52020
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<unsigned int> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52070
+	template void mgraph::NodeType<mgraph::ListCount<unsigned __int64> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B520C0
+	template void mgraph::NodeType<mgraph::ListEntry<unsigned __int64> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52140
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<unsigned __int64> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52190
+	template void mgraph::NodeType<mgraph::ListCount<String> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B521E0
+	template void mgraph::NodeType<mgraph::ListEntry<String> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52260
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<String> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B522B0
+	template void mgraph::NodeType<mgraph::ListCount<Vector> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52330
+	template void mgraph::NodeType<mgraph::ListEntry<Vector> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52380
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<Vector> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B523D0
+	template void mgraph::NodeType<mgraph::ListCount<mgraph::TriggerData> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52420
+	template void mgraph::NodeType<mgraph::ListEntry<mgraph::TriggerData> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52470
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::TriggerData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B524C0
+	template void mgraph::NodeType<mgraph::ListCount<Complex> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52510
+	template void mgraph::NodeType<mgraph::ListEntry<Complex> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52590
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<Complex> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B525E0
+	template void mgraph::NodeType<mgraph::ListCount<mgraph::EnvelopeData> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52630
+	template void mgraph::NodeType<mgraph::ListEntry<mgraph::EnvelopeData> >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B52680
+	template void mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
 }
