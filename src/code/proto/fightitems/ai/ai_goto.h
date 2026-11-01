@@ -187,6 +187,51 @@ namespace proto
 
 			// ---- actions begin
 
+			// RTTI: proto::fightitems::ai::GoToAction (9 vftable slots, 0x48 bytes)
+			class GoToAction : public fight::Action
+			{
+			public:
+				// 0x101F6AA0
+				GoToAction(GoToTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F6720
+				virtual ~GoToAction();
+
+				// vftable slot 5 (0x101F6040)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F6070)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F70D0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<GoToTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int unknown2C;  // +0x2C
+				math::Vector unknown30;  // +0x30
+				math::Vector unknown3C;  // +0x3C
+			};
+			// RTTI: proto::fightitems::ai::DumbGotoAction (9 vftable slots, 0x48 bytes)
+			class DumbGotoAction : public fight::Action
+			{
+			public:
+				// 0x101F6DE0
+				DumbGotoAction(DumbGotoTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F6770
+				virtual ~DumbGotoAction();
+
+				// vftable slot 5 (0x101F67A0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F71C0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F71D0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<DumbGotoTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				unsigned char unknown38[0xC];
+				bool unknown44;  // +0x44
+				unsigned char unknown45[0x3];
+			};
 			// ---- actions end
 		}
 	}

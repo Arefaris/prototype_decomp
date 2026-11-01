@@ -2576,6 +2576,38 @@ namespace proto
 				return new AimAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x102029E0
+			ReserveVolumeAction::ReserveVolumeAction(ReserveVolumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFF70
+			ReserveVolumeAction::~ReserveVolumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102041E0
+			fight::Action* ReserveVolumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReserveVolumeAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x10203580
+			SetIntersectionPropertiesAction::SetIntersectionPropertiesAction(SetIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102003B0
+			SetIntersectionPropertiesAction::~SetIntersectionPropertiesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204460
+			fight::Action* SetIntersectionPropertiesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetIntersectionPropertiesAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;

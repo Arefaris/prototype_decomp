@@ -430,6 +430,43 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101F6AA0
+			GoToAction::GoToAction(GoToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(math::kZeroVector), unknown3C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6720
+			GoToAction::~GoToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6070
+			void GoToAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7080
+			fight::Action* GoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GoToAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F6DE0
+			DumbGotoAction::DumbGotoAction(DumbGotoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown44(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6770
+			DumbGotoAction::~DumbGotoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7170
+			fight::Action* DumbGotoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DumbGotoAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<HasFixedDestinationCondition>;
 			template class fight::ConditionFactoryTemplate<HasFixedDestinationCondition>;

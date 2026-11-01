@@ -466,6 +466,64 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101F45C0
+			FollowTargetAction::FollowTargetAction(FollowTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3FA0
+			FollowTargetAction::~FollowTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3B20
+			void FollowTargetAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5B60
+			fight::Action* FollowTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FollowTargetAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F4850
+			FollowFormationAction::FollowFormationAction(FollowFormationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown38(math::kZeroVector), unknown44(math::kZeroVector), unknown5C(0), unknown68(0), unknown6C(false), unknown6D(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3FF0
+			FollowFormationAction::~FollowFormationAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3C70
+			void FollowFormationAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5BB0
+			fight::Action* FollowFormationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FollowFormationAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F5690
+			ReformAction::ReformAction(ReformTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown3C(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F41F0
+			ReformAction::~ReformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5C00
+			fight::Action* ReformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReformAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<InFormationCondition>;
 			template class fight::ConditionFactoryTemplate<InFormationCondition>;

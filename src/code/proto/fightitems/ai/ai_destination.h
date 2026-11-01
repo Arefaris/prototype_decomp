@@ -1116,6 +1116,45 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::ReserveVolumeAction (9 vftable slots, 0x38 bytes)
+			class ReserveVolumeAction : public fight::Action
+			{
+			public:
+				// 0x102029E0
+				ReserveVolumeAction(ReserveVolumeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFF70
+				virtual ~ReserveVolumeAction();
+
+				// vftable slot 5 (0x10204230)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FEDC0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10202CA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReserveVolumeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+			};
+			// RTTI: proto::fightitems::ai::SetIntersectionPropertiesAction (9 vftable slots, 0x38 bytes)
+			class SetIntersectionPropertiesAction : public fight::Action
+			{
+			public:
+				// 0x10203580
+				SetIntersectionPropertiesAction(SetIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102003B0
+				virtual ~SetIntersectionPropertiesAction();
+
+				// vftable slot 5 (0x10203630)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10203740)
+				virtual void Slot6();
+
+				core::Link<SetIntersectionPropertiesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+				core::Name<core::CaseSensitiveKey> unknown30;  // +0x30
+			};
 			// ---- actions end
 		}
 	}

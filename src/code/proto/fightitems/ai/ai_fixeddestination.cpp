@@ -550,6 +550,54 @@ namespace proto
 				return new ClearFixedAreaDestinationAction(this, handle, effect, listener);
 			}
 
+			// FUNCTION: ENGINE 0x101F19D0
+			FixedDestinationGotoAction::FixedDestinationGotoAction(FixedDestinationGotoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown40(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F15B0
+			FixedDestinationGotoAction::~FixedDestinationGotoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2720
+			fight::Action* FixedDestinationGotoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationGotoAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F1B60
+			FixedDestinationFlytoAction::FixedDestinationFlytoAction(FixedDestinationFlytoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown38(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F1600
+			FixedDestinationFlytoAction::~FixedDestinationFlytoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2A60
+			fight::Action* FixedDestinationFlytoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationFlytoAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F1D70
+			FixedDestinationJumpToAction::FixedDestinationJumpToAction(FixedDestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown40(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F1650
+			FixedDestinationJumpToAction::~FixedDestinationJumpToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2AB0
+			fight::Action* FixedDestinationJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationJumpToAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyEnumConstList<FixedDestinationDistanceCondition>;
 			template class fight::PropertyFloatConstRange<FixedDestinationDistanceCondition>;
