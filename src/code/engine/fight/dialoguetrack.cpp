@@ -174,6 +174,29 @@ namespace engine
 	{
 	}
 
+	// FUNCTION: ENGINE 0x108A8D60
+	bool DialogueAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		{
+			core::Name<core::CaseSensitiveKey> playOn(link.object->PlayOn, 1);
+			core::Name<core::CaseSensitiveKey> eventName(link.object->EventName, 1);
+			core::Name<core::CaseSensitiveKey> characterName(link.object->CharacterName, 1);
+			om::String text("", false);
+			float sensitivity = link.object->InstanceFrequencySensitivity;
+			bool seen = link.object->IfPlayerCanBeSeen;
+			int maxDelay = link.object->MaxDelay;
+			float frequency = link.object->Frequency;
+			int minDelay = link.object->MinDelay;
+			AudioMixer::Get()->PlayDialogue(unknown30, seen, characterName, eventName, playOn, target,
+				minDelay, maxDelay, frequency, sensitivity, core::Name<core::CaseSensitiveKey>(), text);
+		}
+		return link.object->KillOnExit;
+	}
+
 	// FUNCTION: ENGINE 0x108A87C0
 	void DialogueAction::Slot6()
 	{

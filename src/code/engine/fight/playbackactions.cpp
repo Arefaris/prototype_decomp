@@ -3,6 +3,7 @@
 #include "code/engine/camera/director.h"
 #include "code/engine/scenariomessage.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/playbackmessage.h"
 
 namespace engine
 {
@@ -17,6 +18,33 @@ namespace engine
 	PlaybackAction::~PlaybackAction()
 	{
 		ReleaseEffectRef(unknown2c);
+	}
+
+	// FUNCTION: ENGINE 0x108A84C0
+	bool PlaybackAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		bool ownerIsEvent = false;
+		PlaybackOwner* eventOwner = (PlaybackOwner*)unknown2c;
+		if (eventOwner != 0)
+		{
+			int kind = eventOwner->kind;
+			if (kind >= 0x10000 && kind < 0x30000 && eventOwner->type == 0xb && eventOwner->id == 6)
+			{
+				ownerIsEvent = true;
+			}
+		}
+		PlaybackMessage message(link.object->state, link.object->specificPlaybackSet, link.object->notifyOnPlaybackFinished, ownerIsEvent, 0.0f);
+		object->SendMessage(&message);
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x108A8560

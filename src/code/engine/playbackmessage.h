@@ -28,6 +28,23 @@ namespace engine
 		bool flagB;  // +0x21
 		float value;  // +0x24
 	};
+
+	// engine::GetPlaybackStateMessage (RTTI name; derives engine::NonintrusiveMessage; type 0xB, id 4): asks an object for
+	// the state of a playback; the answer is written to the last name. The constructor takes both names by value and the
+	// engine keeps one out of line copy (0x102C5320). The field names are guesses.
+	struct GetPlaybackStateMessage : public NonintrusiveMessage
+	{
+		// 0x102C5320 (another unit)
+		GetPlaybackStateMessage(core::Name<core::CaseSensitiveKey> newPlaybackSet, core::Name<core::CaseSensitiveKey> newState);
+		virtual ~GetPlaybackStateMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> playbackSet;  // +0x10
+		core::Name<core::CaseSensitiveKey> requestedState;  // +0x18
+		core::Name<core::CaseSensitiveKey> state;  // +0x20: the answer
+	};
 }
 
 #endif

@@ -29,6 +29,12 @@ namespace engine
 			health = 0.0f;
 			maxHealth = 0.0f;
 		}
+		// The caller's own start value for the answer
+		explicit GetHealthMessage(float newHealth) : NonintrusiveMessage(0x14, 1)
+		{
+			health = newHealth;
+			maxHealth = 0.0f;
+		}
 
 		float health;
 		float maxHealth;

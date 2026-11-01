@@ -1,5 +1,8 @@
 // The fight condition that tests the state of a playback (unit 0x10812C10 - 0x10812F90).
 #include "code/engine/fight/playbackstatecondition.h"
+#include "code/engine/fight/effecttrack.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/playbackmessage.h"
 
 namespace engine
 {
@@ -47,8 +50,6 @@ namespace engine
 	{
 	}
 
-	// TODO Evaluate at 0x108B94F0: mov eax, dword ptr [esp + 0xc]; sub esp, 0x30; push ebx; push esi; push edi; mov esi, ecx; push eax; lea ecx, [esp + 0x4c]; push ecx; call 0x107fc7a0; mov eax, dword ptr [esp + 0x50]; add esp, 8; cmp 
-
 	// FUNCTION: ENGINE 0x10812CB0
 	PlaybackStateCondition::~PlaybackStateCondition()
 	{
@@ -92,4 +93,21 @@ namespace engine
 	template class fight::ConditionFactoryTemplate<PlaybackStateCondition>;
 	template class fight::ConditionFactoryCasterTemplate<PlaybackStateCondition>;
 
+	// FUNCTION: ENGINE 0x108B94F0
+	// NONMATCHING: the engine builds both by-value name arguments of the message constructor in each branch of the emptiness test and joins at the call (59.5 %); ours builds one temporary with a cleanup flag
+#ifdef NONMATCHING
+	bool PlaybackStateCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		core::Name<core::CaseSensitiveKey> playbackSet(specificPlaybackSet);
+		GetPlaybackStateMessage message(playbackSet.IsEmpty() ? core::Name<core::CaseSensitiveKey>() : core::Name<core::CaseSensitiveKey>(playbackSet), state);
+		object->PostMessage(&message);
+		return fight::CompareNames(compare, &message.state, &state);
+	}
+#endif
 }

@@ -88,4 +88,28 @@ namespace engine
 		}
 		return true;
 	}
+
+	// FUNCTION: ENGINE 0x108933E0
+	void OnlineGameDBHelper::AddSubject(DBSubject* subject)
+	{
+		for (int index = 0; index < subjectCount; index++)
+		{
+			if (subjects[index] == 0)
+			{
+				subject->unknown0 = index;
+				subjects[index] = subject;
+				return;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10893420
+	void OnlineGameDBHelper::RemoveSubject(DBSubject* subject)
+	{
+		if (subject->unknown0 >= 0)
+		{
+			subjects[subject->unknown0] = 0;
+			subject->unknown0 = -1;
+		}
+	}
 }

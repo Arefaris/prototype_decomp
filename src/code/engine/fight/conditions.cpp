@@ -1,5 +1,8 @@
 // The fight conditions that test health, object templates, attributes and velocities (unit 0x1080A6B0 - 0x1080BA40).
 #include "code/engine/fight/conditions.h"
+#include "code/engine/fight/effecttrack.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 
 namespace engine
 {
@@ -46,8 +49,6 @@ namespace engine
 	HealthCondition::HealthCondition() : fight::Condition(0), healthThreshold(0.0f), compare(0), usePercentage(false)
 	{
 	}
-
-	// TODO Evaluate at 0x108AACC0: mov eax, dword ptr [esp + 0xc]; sub esp, 0x1c; push esi; mov esi, ecx; push eax; lea ecx, [esp + 0x30]; push ecx; call 0x107fc7a0; mov eax, dword ptr [esp + 0x34]; add esp, 8; cmp ax, 0xffff; je 0x108
 
 	// FUNCTION: ENGINE 0x1080A730
 	HealthCondition::~HealthCondition()
@@ -216,8 +217,6 @@ namespace engine
 	AttributeNameCondition::AttributeNameCondition() : fight::Condition(0), compare(0)
 	{
 	}
-
-	// TODO Evaluate at 0x108AADE0: mov eax, dword ptr [esp + 0xc]; push esi; mov esi, ecx; push eax; lea ecx, [esp + 0x14]; push ecx; call 0x107fc7a0; mov eax, dword ptr [esp + 0x18]; add esp, 8; cmp ax, 0xffff; je 0x108aae1b; movzx ed
 
 	// FUNCTION: ENGINE 0x1080AEA0
 	AttributeNameCondition::~AttributeNameCondition()
@@ -487,6 +486,60 @@ namespace engine
 		template class fight::ConditionFactoryCasterTemplate<VelocityAngularCondition>;
 	}
 
+	// FUNCTION: ENGINE 0x108AACC0
+	bool HealthCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		GetHealthMessage message(-1.0f);
+		object->PostMessage(&message);
+		bool result = false;
+		float health = message.health;
+		if (usePercentage)
+		{
+			if (!(message.maxHealth > 0.0f))
+			{
+				goto done;
+			}
+			health = message.health / message.maxHealth * 100.0f;
+		}
+		if (health >= 0.0f)
+		{
+			int op = compare;
+			float threshold = healthThreshold;
+			result = fight::CompareFloats(op, &health, &threshold);
+		}
+	done:
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x108AADE0
+	// NONMATCHING: the engine tests the handle's serial twice (the validity test and the lookup, 46.7 %); ours folds the second test away
+#ifdef NONMATCHING
+	bool AttributeNameCondition::Evaluate(int a, int b, int c, int d)
+	{
+		GameObjectHandle handle = GetObjectHandle((core::IRefCount*)c);
+		if (!handle.IsValid())
+		{
+			return false;
+		}
+		BaseAttribute* attribute = handle.Get()->FindAttribute(key);
+		if (attribute == 0)
+		{
+			return false;
+		}
+		core::Name<core::CaseSensitiveKey>* attributeValue = &((Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+		if (attributeValue == 0)
+		{
+			return false;
+		}
+		return fight::CompareNames(compare, attributeValue, &value);
+	}
+#endif
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:
