@@ -93,6 +93,54 @@ namespace om
 			capacity = count;
 		}
 
+		// A member template so that the instances of arrays of types without a comparison do not need it
+		template<class Other> bool operator==(const Other& other) const
+		{
+			if (other.size != size)
+			{
+				return false;
+			}
+			for (Count i = 0; i < size; i++)
+			{
+				if (!(data[i] == other.data[i]))
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		// Changes the number of elements: new ones are copies of the element given (the capacity grows to fit)
+		void Resize(Count newSize, const T& fill)
+		{
+			if (newSize >= size)
+			{
+				if (newSize <= capacity)
+				{
+					FillElements(data + size, newSize - size, fill);
+					size = newSize;
+					return;
+				}
+				T* elements = Allocate(newSize);
+				CopyElements(elements, data, size);
+				FillElements(elements + size, newSize - size, fill);
+				ReleaseElements(data, capacity);
+				data = elements;
+				capacity = newSize;
+			}
+			size = newSize;
+		}
+		void FillElements(T* destination, Count count, const T& value)
+		{
+			for (Count i = 0; i < count; i++)
+			{
+				if (destination != 0)
+				{
+					new (destination) T(value);
+				}
+				destination++;
+			}
+		}
+
 		T* Allocate(Count count)
 		{
 			return static_cast<T*>(om::Allocate(AllocationTag(), count * sizeof(T), __alignof(T)));

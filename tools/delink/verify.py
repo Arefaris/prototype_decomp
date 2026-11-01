@@ -84,8 +84,13 @@ def main():
 	relinkDir = pathlib.Path(args.dll).parent if args.dll else ROOT / "build" / args.version / "relink"
 	report = json.loads((relinkDir / "relink.json").read_text(encoding="utf-8")) if (relinkDir / "relink.json").exists() else {"replaced": {}, "redirects": []}
 	mapped = mapAddresses(relinkDir / "prototypeenginef.map")
-	origReplaced = {address: name for name, address in report["replaced"].items()}
-	ourReplaced = {mapped[name]: name for name in report["replaced"]}
+	# identical functions the engine's linker folded carry several names at one address (and ours may fold them too):
+	# a reference counts as the same when the names at both ends share one
+	origReplaced = {}
+	ourReplaced = {}
+	for name, address in report["replaced"].items():
+		origReplaced.setdefault(address, set()).add(name)
+		ourReplaced.setdefault(mapped[name], set()).add(name)
 	rel32 = {r["site"] - base: r["symbol"] for r in report["redirects"] if r["kind"] == "rel32"}
 	# References inside a replaced data object (relink.py: "offset"): the original's pointed at the member of its own
 	# object, ours must point at the same member of our copy
@@ -119,8 +124,10 @@ def main():
 					ca = ("replaced", symbol, offset) if va == report["replaced"][symbol] + offset else ("?", va)
 					cb = ("replaced", symbol, offset) if vb == mapped[symbol] + offset else ("?", vb)
 				else:
-					ca = ("replaced", origReplaced[va]) if va in origReplaced else classify(va, origSecs, origSlots, imageSecs)
-					cb = ("replaced", ourReplaced[vb]) if vb in ourReplaced else classify(vb, ourSecs, ourSlots, imageSecs)
+					ca = ("replaced", min(origReplaced[va])) if va in origReplaced else classify(va, origSecs, origSlots, imageSecs)
+					cb = ("replaced", min(ourReplaced[vb])) if vb in ourReplaced else classify(vb, ourSecs, ourSlots, imageSecs)
+					if va in origReplaced and vb in ourReplaced and origReplaced[va] & ourReplaced[vb]:
+						cb = ca
 				if ca != cb:
 					badRelocs += 1
 					if badRelocs <= 10:
