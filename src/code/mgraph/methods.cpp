@@ -1,6 +1,7 @@
 // The reflected methods of the node classes of the mgraph library (0x10B41860 - 0x10B58000): the Invoke slots of the instances of
 // om::MetaMethod0Const<C, B, R> and om::MetaMethod1<C, B, R, A> for the throws, switches, random nodes and property nodes.
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/throw.h"
 #include "code/om/invoke.h"
 #include "code/om/metamethod.h"
 

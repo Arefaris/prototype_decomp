@@ -2,6 +2,7 @@
 // classes (constructor, destructor, the reflection of the class and the statics that look up and release it) and the
 // allocation of the node classes themselves, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/listnodes.h"
 #include "code/om/metaclass.h"
 
 #pragma warning(disable: 4661)

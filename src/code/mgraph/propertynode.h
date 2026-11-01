@@ -183,7 +183,7 @@ namespace mgraph
 		channels[frame->channel].Update(this, frame);
 	}
 
-	template<class P> void PropertyNode<P>::SetNumChannels(unsigned short newCount)
+	template<class P> void PropertyNode<P>::SetNumChannels(unsigned int newCount)
 	{
 		channels.Resize(newCount, Channel(value));
 		Node::SetNumChannels(newCount);

@@ -6552,3 +6552,48 @@ Continues sn-bf: 3607 functions of the range were not reconstructed at the start
 - Not done (node classes): the constructors, destructors and slots of `Inlet` / `Outlet` / `Throw` / `Catch` / `Switch` / `ListCount` /
   `ListEntry` / `Rand` / the math nodes and with them `NodeType<N>::CreateNode` of those classes: they need the layout of `Node` (pin lists,
   the registration of pins and inlets in the graph, the functions of 0x10AC.... - 0x10AD....), which no unit has recovered.
+
+## sn-bk: the core of the mgraph library (Node, GraphItem) and the node classes Throw, Catch, ListCount, ListEntry
+The range 0x10AC0000 - 0x10AE0000 turned out to be four things: the DirectSound / XAudio2 driver reflection (0x10AC0000 - 0x10AC3400, big
+registration functions, not reconstructed), the evaluation context (0x10AC3400 - 0x10AC6FE0: the event queue, `Context` with its list of nodes
+and levels), the graph entity with its XML load / save (0x10AC6FE0 - 0x10AC8500) and the node reflection with the abstractions (0x10AC8800 -
+0x10ACE000); the pins and connections follow up to 0x10AD4800. Of the 2410 open functions 1190 are copies of 1 - 6 bytes, 560 of them the
+`Slot5` / `Slot6` / `AllocationTag` copies of classes nothing names (skipped by the rule for small functions).
+- `mgraph/node.h`, `node.cpp` (0x10AC88F0 - 0x10ACB230, 0x10AD2AA0 - 0x10AD2B00): `GraphItem` (the graph at 4; slot 1 / 2 are
+  `Attach(Context*)` / `Detach(Context*)`, 3 - 6 do nothing and are overridden by the nodes), `Node` (0x50 bytes, 8-aligned: the name key at 8, the node type
+  at 0x10, the input pins `DynamicArray<InputPinBase*, unsigned short>` at 0x14 and the output pins at 0x1C, the context at 0x24, the level at 0x28,
+  the links in the context's list at 0x2C and in the level's list at 0x34, the node in the graph's tree at 0x3C). Slots 3 - 6 read and write the node
+  through the reflection of its node type (`type->GetMetaType()->ReadText(argument, this)` ...), 7 renames it (`Graph::FindNode`, erase, insert), 11
+  `SetNumChannels(unsigned int)` hands the number of channels to the output pins (it takes the full 32 bits: its `unsigned short` in sn-bf is gone, the
+  symbols of the property nodes were renamed), 16 is the evaluation. The constructors take the number of pins as `unsigned int`. `Node::~Node` and
+  `Node::Rename` are EQUIVALENT (register allocation of the graph pointer).
+- `mgraph/graph.h`: `Graph` layout (context 0x24, the number of contexts 0x2C, channels 0x30, the connection data array 0x34, the connections 0x3C, the
+  node tree `NodeTree` 0x44, the abstractions 0x58, the enabled channels 0x78), `NodeTree::Insert` / `Find`, `Graph::FindNode` (mapped only).
+- `mgraph/throw.h`, `throw.cpp` (202 functions, 8 of them EQUIVALENT): `Throw<P>` (the channels `DynamicArray<P>` at 0x50, the event name at 0x58, the catch node at 0x60; 0x68
+  bytes) and `Catch<P>` (the output pin at 0x50, the throw node at 0x54). Constructors, destructors, `Slot8` (finds the catch node again), `Slot16`,
+  `SetNumChannels`, `SetEventName` and the `CreateNode` of the node types of all 18 packet types, except what is listed in the header as left to the engine
+  (the constructors of `Throw<float>`, `Throw<DA<float>>`, `Throw<EnvelopeData>`, `Throw<DA<EnvelopeData>>`, the destructors and `SetNumChannels` of the array types).
+- `mgraph/listnodes.h`, `listnodes.cpp` (54 functions, 18 of them EQUIVALENT): `ListCount<T>` (input `list_in`, output `count`) and `ListEntry<T>` (inputs `list_in`, `list_index`,
+  output `entry`); the cases of `Vector`, `Complex`, `TriggerData`, `EnvelopeData` and `float` are left to the engine.
+- `reflection.cpp`: the text / binary slots, constructor and `Create` of `MetaProperty<int>`, the constructor and `Create` of `MetaProperty<NodeColour const&>`, the
+  constructors, `Create` and `Invoke` of the `int` methods of `Node` (`MetaMethod1` / `MetaMethod0Const`); `SetText` / `SetBinary` of the colour property are left
+  to the engine (declared as explicit specializations: the engine merges the paths of the cached type found and not found).
+- What the matching taught: (1) a class with an 8-aligned member (`om::Name`) and a vftable has a hole behind the vftable: `Pin::name` is at 8, `Pin` has no
+  member at 4. (2) The engine builds the name of a pin in the expression that makes the pin: `new InputPin<P>(this, &om::ClassName(core::Hash64(
+  om::String::Wrap("i").GetText(), 0)), 0, 0, P())`; a named `String` or a temporary built by `String("i", 0)` gives other code (the constructor's
+  result in eax is used for the temporary, the data is loaded from the stack for the `Wrap` temporary and for a named local). (3) A member
+  array that the node destroys by hand (`element->P::~P()`, the base class destructor without the virtual call) is kept as plain storage in `Throw`
+  (the array pin of the same type calls the standalone destructor with the virtual call). (4) The linker folded identical functions: the call of
+  `OutputPin<P>::AllocationTag` in the constructors of `Catch` and the list nodes goes to the engine's representative copy, so those constructors are
+  EQUIVALENT (99.6 %). (5) `functions.tsv` splits some constructors in two (0x10B330D0 + 0x10B330DD): the literal check of an EQUIVALENT function
+  sees only the first part (false positives on `Catch<bool>` and `Catch<TriggerData>`).
+- Shared changes: `nodes.h` (`GraphItem` / `Node` moved to `node.h`; `NodeTypeBase::instanceCount`; `EvaluationFrame::unknown18`, `GetInputs`; the
+  placeholders of `Throw`, `Catch`, `ListCount`, `ListEntry` removed; `MGRAPH_NODE_BODY_PLAIN`), `envelope.h`, `events.h` (`Context::AddNode`,
+  `RemoveNode`, `GetChannelOwner`), `pins.h` (`Pin::name`, `Pin::node`; the `OutputPin<P>` constructor is declared only; `GraphConnectionBase::Attach` /
+  `Detach` / `Slot5(void*)` / `Slot6(void*)` instead of `Slot1` - `Slot6` without arguments, `GraphItem` has the graph at 4), `propertynode.h` /
+  `propertynode.cpp` (`SetNumChannels(unsigned int)`), `nodetypes.cpp`, `reflection.cpp`, `methods.cpp`, `simpletypes.cpp`, `arrays.cpp` (include of
+  `throw.h` / `listnodes.h`). symbols.txt: the 15 `SetNumChannels` and the `Node` constructor renamed (`G` to `I`), `GraphConnectionBase::Slot1..6` renamed
+  (`Slot3`, `Slot4` are `GraphItem`'s), about 400 new lines.
+- Not done: Context (0x10AC4600 - 0x10AC6F60: the node list with levels (the function at 0x10AC46F0), the event queue), the graph's XML slots (0x10AC7980, 0x10AC6FE0),
+  the node reflection `RegisterNodeProperties` (0x10ACB6D0), `LinkedGraph` / `EmbeddedGraph` / `Abstraction`, the pins' and connections' base constructors
+  (0x10AD17B0 - 0x10AD2350), and the node classes `Inlet`, `Outlet`, `Switch`, `Rand`, the math nodes (`Slot16` with the array / vector helpers).

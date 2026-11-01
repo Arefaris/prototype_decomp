@@ -2,6 +2,7 @@
 // property nodes use, for the packets and channels of the engine's packet types, in the order the compiler emitted them (a guess:
 // one translation unit).
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/throw.h"
 #include "code/mgraph/propertynode.h"
 
 #pragma warning(disable: 4661 4345)
