@@ -7,6 +7,7 @@
 #include "code/mgraph/envelope.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/entity.h"
+#include "code/om/metaclass.h"
 #include "code/om/string.h"
 
 namespace om
@@ -101,24 +102,64 @@ namespace mgraph
 	{
 	};
 
-	template<class Op> class CommutativeMath : public Node
-	{
-	};
-	template<class Op> class NonCommutativeMath : public Node
-	{
-	};
-	template<class Op> class Operator2 : public Node
-	{
-	};
-	template<class Op> class UnaryMath : public Node
-	{
-	};
-	template<class T> class Rand : public Node
-	{
-	};
+	// The nodes allocate exactly their size (the engine's node classes have members that are not recovered yet)
+#define MGRAPH_NODE_BODY(Type, Base, Size) \
+	public: \
+		OM_ALLOCATION(Type); \
+		char unknown4[Size - sizeof(Base)]
 
-	class PropertyNodeBase : public Node
+	template<class Op> class __declspec(align(8)) CommutativeMath : public Node
 	{
+		MGRAPH_NODE_BODY(CommutativeMath, Node, 0x50);
+	};
+	template<class Op> const char* CommutativeMath<Op>::AllocationTag()
+	{
+		return "";
+	}
+	template<class Op> class __declspec(align(8)) NonCommutativeMath : public Node
+	{
+		MGRAPH_NODE_BODY(NonCommutativeMath, Node, 0x50);
+	};
+	template<class Op> const char* NonCommutativeMath<Op>::AllocationTag()
+	{
+		return "";
+	}
+	template<class Op> class __declspec(align(8)) Operator2 : public Node
+	{
+		MGRAPH_NODE_BODY(Operator2, Node, 0x50);
+	};
+	template<class Op> const char* Operator2<Op>::AllocationTag()
+	{
+		return "";
+	}
+	template<class Op> class __declspec(align(8)) UnaryMath : public Node
+	{
+		MGRAPH_NODE_BODY(UnaryMath, Node, 0x50);
+	};
+	template<class Op> const char* UnaryMath<Op>::AllocationTag()
+	{
+		return "";
+	}
+	template<class T> struct RandSize
+	{
+		enum { value = 0x60 };
+	};
+	template<> struct RandSize<om::Vector>
+	{
+		enum { value = 0x70 };
+	};
+	template<class T> class __declspec(align(8)) Rand : public Node
+	{
+		MGRAPH_NODE_BODY(Rand, Node, RandSize<T>::value);
+	};
+	template<class T> const char* Rand<T>::AllocationTag()
+	{
+		return "";
+	}
+
+	class __declspec(align(8)) PropertyNodeBase : public Node
+	{
+		MGRAPH_NODE_BODY(PropertyNodeBase, Node, 0x50);
 	};
 	class InletBase : public Node
 	{
@@ -126,30 +167,94 @@ namespace mgraph
 	class OutletBase : public Node
 	{
 	};
-	template<class P> class PropertyNode : public PropertyNodeBase
+	// The property nodes of the values the node holds itself are bigger
+	template<class P> struct PropertyNodeSize
+	{
+		enum { value = 0x68 };
+	};
+	template<class T> struct PropertyNodeSize<Packet<T> > : PropertyNodeSize<T>
 	{
 	};
-	template<class P> class Inlet : public InletBase
+	template<> struct PropertyNodeSize<om::String>
 	{
+		enum { value = 0x70 };
 	};
-	template<class P> class Outlet : public OutletBase
+	template<> struct PropertyNodeSize<om::Vector>
 	{
+		enum { value = 0x70 };
 	};
-	template<class P> class Throw : public Node
+	template<> struct PropertyNodeSize<EnvelopeData>
 	{
+		enum { value = 0x70 };
 	};
-	template<class P> class Catch : public Node
+	template<> struct PropertyNodeSize<TriggerData>
 	{
+		enum { value = 0x60 };
 	};
-	template<class P> class Switch : public Node
+	template<class P> class __declspec(align(8)) PropertyNode : public PropertyNodeBase
 	{
+		MGRAPH_NODE_BODY(PropertyNode, PropertyNodeBase, PropertyNodeSize<P>::value);
 	};
-	template<class T> class ListCount : public Node
+	template<class P> const char* PropertyNode<P>::AllocationTag()
 	{
-	};
-	template<class T> class ListEntry : public Node
+		return "";
+	}
+	template<class P> class __declspec(align(8)) Inlet : public InletBase
 	{
+		MGRAPH_NODE_BODY(Inlet, InletBase, 0x60);
 	};
+	template<class P> const char* Inlet<P>::AllocationTag()
+	{
+		return "";
+	}
+	template<class P> class __declspec(align(8)) Outlet : public OutletBase
+	{
+		MGRAPH_NODE_BODY(Outlet, OutletBase, 0x58);
+	};
+	template<class P> const char* Outlet<P>::AllocationTag()
+	{
+		return "";
+	}
+	template<class P> class __declspec(align(8)) Throw : public Node
+	{
+		MGRAPH_NODE_BODY(Throw, Node, 0x68);
+	};
+	template<class P> const char* Throw<P>::AllocationTag()
+	{
+		return "";
+	}
+	template<class P> class __declspec(align(8)) Catch : public Node
+	{
+		MGRAPH_NODE_BODY(Catch, Node, 0x58);
+	};
+	template<class P> const char* Catch<P>::AllocationTag()
+	{
+		return "";
+	}
+	template<class P> class __declspec(align(8)) Switch : public Node
+	{
+		MGRAPH_NODE_BODY(Switch, Node, 0x60);
+	};
+	template<class P> const char* Switch<P>::AllocationTag()
+	{
+		return "";
+	}
+	template<class T> class __declspec(align(8)) ListCount : public Node
+	{
+		MGRAPH_NODE_BODY(ListCount, Node, 0x50);
+	};
+	template<class T> const char* ListCount<T>::AllocationTag()
+	{
+		return "";
+	}
+	template<class T> class __declspec(align(8)) ListEntry : public Node
+	{
+		MGRAPH_NODE_BODY(ListEntry, Node, 0x50);
+	};
+	template<class T> const char* ListEntry<T>::AllocationTag()
+	{
+		return "";
+	}
 
 	class CastBoolToTrigger : public Node
 	{
@@ -208,7 +313,13 @@ namespace mgraph
 	class __declspec(align(8)) NodeTypeBase
 	{
 	public:
+		// 0x10AD1860 (registers the node type), the destructor 0x10AD1840
+		NodeTypeBase(const unsigned int& newUnknown, const om::ClassName& newName);
 		virtual ~NodeTypeBase();
+		// Slot 1: makes a node of the class (the first argument is passed on to the node, the second is its name)
+		virtual Node* CreateNode(void* unknown, const om::ClassName* nodeName) = 0;
+		// Slot 2: the reflection of the node class
+		virtual om::MetaTypeBase* GetMetaType() = 0;
 
 		char unknown4[0x2C];
 	};
@@ -225,10 +336,55 @@ namespace mgraph
 	template<class N> class NodeType : public NodeTypeBase
 	{
 	public:
-		// The description of the node class N, found once and kept (names of the two functions guessed)
+		NodeType(om::MetaClassBase* parent, const unsigned int& newUnknown, const om::ClassName& newName) :
+			NodeTypeBase(newUnknown, newName)
+		{
+			om::MetaClass<N>::Create(newName, parent);
+		}
+		virtual ~NodeType()
+		{
+			ReleaseMetaType();
+			ForgetNodeType();
+		}
+		virtual Node* CreateNode(void* unknown, const om::ClassName* nodeName);
+		virtual om::MetaTypeBase* GetMetaType()
+		{
+			return FindMetaType();
+		}
+		// The description of the node class N, found once and kept (names of the statics guessed)
 		static NodeTypeBase* Get();
 		// Destroys the description of the node class N (when the library shuts down)
 		static void Destroy();
+		// The reflection of N, found once and kept in the cache the users of the type share
+		static om::MetaTypeBase* FindMetaType()
+		{
+			om::MetaTypeBase*& cache = om::MetaTypeCache<N>::type;
+			if (cache == 0)
+			{
+				cache = om::FindMetaType(typeid(N));
+			}
+			return cache;
+		}
+		// Lets go of the reflection of N that the node types share
+		static void ReleaseMetaType()
+		{
+			om::MetaTypeBase*& cache = om::MetaTypeCache<N>::type;
+			if (cache == 0)
+			{
+				cache = om::FindMetaType(typeid(N));
+			}
+			om::MetaTypeBase* type = cache;
+			if (om::ThreadSafeRefCount::Release(&cache->count) == 0 && type != 0)
+			{
+				delete type;
+			}
+			cache = 0;
+		}
+		// Forgets the description of N
+		static void ForgetNodeType()
+		{
+			NodeTypeCache<N>::type = 0;
+		}
 		OM_ALLOCATION(NodeType);
 	};
 	template<class N> const char* NodeType<N>::AllocationTag()
