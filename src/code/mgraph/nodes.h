@@ -445,18 +445,26 @@ namespace mgraph
 	class __declspec(align(8)) NodeTypeBase
 	{
 	public:
-		// 0x10AD1860 (registers the node type), the destructor 0x10AD1840
-		NodeTypeBase(const unsigned int& newUnknown, const om::ClassName& newName);
+		// 0x10AD1860 (registers the node type), the destructor 0x10AD1840 (takes it out of the registry again)
+		NodeTypeBase(const unsigned int& newFlags, const om::ClassName& newName);
 		virtual ~NodeTypeBase();
-		// Slot 1: makes a node of the class (the first argument is passed on to the node, the second is its name)
+		// Slot 1: makes a node of the class (the first argument is the graph the node belongs to, the second is its name)
 		virtual Node* CreateNode(void* unknown, const om::ClassName* nodeName) = 0;
 		// Slot 2: the reflection of the node class
 		virtual om::MetaTypeBase* GetMetaType() = 0;
 
-		char unknown4[4];
+		// 0x10AD10E0: takes the node type out of the registry
+		void Unregister();
+
 		int instanceCount;  // 8: how many nodes of the class there are
-		char unknownC[0x24];
+		om::ClassName name;  // 0x10
+		unsigned int flags;  // 0x18
+		om::TreeNode treeNode;  // 0x1C: the node type in the registry of the node types
+		unsigned int unknown2C;
 	};
+
+	// 0x10AD1460: enters a node type in the registry (name guessed)
+	void RegisterNodeType(NodeTypeBase* nodeType);
 
 	// 0x10AD1180: the description of the node class registered for the type_info (name guessed)
 	NodeTypeBase* FindNodeType(const type_info& type);

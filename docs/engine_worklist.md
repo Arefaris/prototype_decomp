@@ -6578,6 +6578,11 @@ and levels), the graph entity with its XML load / save (0x10AC6FE0 - 0x10AC8500)
 - `reflection.cpp`: the text / binary slots, constructor and `Create` of `MetaProperty<int>`, the constructor and `Create` of `MetaProperty<NodeColour const&>`, the
   constructors, `Create` and `Invoke` of the `int` methods of `Node` (`MetaMethod1` / `MetaMethod0Const`); `SetText` / `SetBinary` of the colour property are left
   to the engine (declared as explicit specializations: the engine merges the paths of the cached type found and not found).
+- `mgraph/graph.cpp`, `graphtype.cpp`, `basenodetype.cpp`, `abstractiontypes.cpp`, `nodetypebase.cpp`: the graph's constructor (EQUIVALENT, scheduling),
+  `Graph::Slot1`, `GetEntityType`, `FindNode`; the instance of `EntityType<Graph>`; the node types of `Node`, `LinkedGraph` and `EmbeddedGraph` like the others
+  of nodetypes.cpp; `NodeTypeBase` (the constructor; the layout: instance count at 8, the name key at 0x10, the flags at 0x18, the node in the registry
+  `engine::gTreeHeadObject10` at 0x1C). NONMATCHING: `NodeTypeBase::~NodeTypeBase` (the engine keeps a stack slot) and `FindNodeType` (22 %, the exits
+  and the saved registers), `MetaProperty<NodeColour const&>::SetText` / `SetBinary`.
 - What the matching taught: (1) a class with an 8-aligned member (`om::Name`) and a vftable has a hole behind the vftable: `Pin::name` is at 8, `Pin` has no
   member at 4. (2) The engine builds the name of a pin in the expression that makes the pin: `new InputPin<P>(this, &om::ClassName(core::Hash64(
   om::String::Wrap("i").GetText(), 0)), 0, 0, P())`; a named `String` or a temporary built by `String("i", 0)` gives other code (the constructor's
