@@ -54,7 +54,7 @@ namespace engine
 	// 0x10836B40: enters a game state in the table of states under its number (name guess)
 	void AddGameState(void* state, int number, int a, int b, int c, int d);
 	// 0x1088A230: the heap the front end allocates from (set to the first slot of FETransient; name guess)
-	void SetFrontEndHeap(int heap);
+	int SetFrontEndHeap(int heap);
 }
 
 namespace proto

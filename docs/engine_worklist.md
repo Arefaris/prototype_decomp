@@ -6532,7 +6532,7 @@ class info, members, constructor, destructor, `Slot1`, `Update`, `OnPostedMessag
 `frontend/femovie.cpp` (the table of script callbacks, the two calls into the movie that start a state and advance it), `database/onlinegamedbhelper.cpp` (`AddSubject`, `RemoveSubject`), `controller/slotmanager.cpp`,
 `controller/playerinfo.cpp`, `controller/tracebuffer.cpp` (`core::Trace`, its buffer), `gameobject/messagerouter.cpp` (`Add`, `Remove`, `Query`, `Invalidate`, `SwapHandles`,
 `FindListSlow`, the lower bound of the sorted channel table), `system/desyncchecker.cpp` (the desync recorder: constructor, `Append`, a printf, a checksum, the table of
-simulation variables, the generator line), `nis/nisexclusionvolume.cpp` (reflection), `online/widestringbuffer.cpp` (the wide character buffer: all nine members), `world/zoneset.cpp/.h` (`GetZoneSet`, `SetDefaults`, `AddZone`; the opaque copy in protomain.cpp is gone).
+simulation variables, the generator line), `nis/nisexclusionvolume.cpp` (reflection), `online/widestringbuffer.cpp` (the wide character buffer: all nine members), `audio/audiodebug.cpp` (the four empty debug hooks), `frontend/frontendoutput.cpp` (`SetFrontendOutput`, `SetFrontEndHeap`, which answers the previous heap: its symbols.txt name changed from `YAXH` to `YAHH`), `OLSUserList::GetSelected`, `world/zoneset.cpp/.h` (`GetZoneSet`, `SetDefaults`, `AddZone`; the opaque copy in protomain.cpp is gone).
 
 Compiler facts found on the way:
 - A range test of a message's or owner's kind word is `add reg, -LO; cmp reg, N; ja` in the engine (the "add 0xFFFF0000" of the earlier EQUIVALENTs) when the word is a signed `int`
