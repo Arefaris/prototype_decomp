@@ -1,6 +1,7 @@
 // Fight items of the motion group: VariableNameCompareCondition, TimerCompareCondition, OutOfCombatTimerCondition, VariableIntCompareCondition, TimerContinousSetTrack, VariableNameSetTrack, TimerSetTrack, VariableIntSetTrack, VariableIntTemporarySetTrack (unit 0x101C5300 - 0x101C8410; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_variable.h"
 #include "code/proto/fightitems/motion/motionmessages2.h"
+#include "code/math/random.h"
 
 namespace proto
 {
@@ -1020,6 +1021,42 @@ namespace proto
 				return fight::CompareFloats(GetCompare(), &current, &wanted);
 			}
 
+			// FUNCTION: ENGINE 0x10129100
+			// EQUIVALENT: shrink-wrap (the engine saves edi in the entry block before the owner tests) (87.3 %)
+			bool TimerSetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					float time = math::gRandom->Jitter(link.Get()->GetTime(), link.Get()->GetRandomRange());
+					TimerSetMessage message(link.Get()->GetTimer(), time, link.Get()->GetIncrementing());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101292A0
+			// EQUIVALENT: shrink-wrap (the engine saves edi in the entry block before the owner tests) (87.3 %)
+			bool TimerContinousSetAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					float time = math::gRandom->Jitter(link.Get()->GetTime(), link.Get()->GetRandomRange());
+					TimerSetMessage message(link.Get()->GetTimer(), time, link.Get()->GetIncrementing());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<VariableNameCompareCondition>;
 			template class fight::PropertyEnumConstList<VariableNameCompareCondition>;
@@ -1074,6 +1111,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10127EC0
 // FUNCTION: ENGINE 0x10127F30
 // FUNCTION: ENGINE 0x10127F40
 // FUNCTION: ENGINE 0x10127F50
@@ -1085,8 +1123,18 @@ namespace proto
 // FUNCTION: ENGINE 0x10127FB0
 // FUNCTION: ENGINE 0x10127FC0
 // FUNCTION: ENGINE 0x10127FD0
+// FUNCTION: ENGINE 0x10127FE0
+// FUNCTION: ENGINE 0x10127FF0
+// FUNCTION: ENGINE 0x10128000
+// FUNCTION: ENGINE 0x10128010
+// FUNCTION: ENGINE 0x10128030
+// FUNCTION: ENGINE 0x10128040
+// FUNCTION: ENGINE 0x10128060
+// FUNCTION: ENGINE 0x10128080
 // FUNCTION: ENGINE 0x10128140
 // FUNCTION: ENGINE 0x10128170
+// FUNCTION: ENGINE 0x101282C0
+// FUNCTION: ENGINE 0x101282D0
 // FUNCTION: ENGINE 0x10128380
 // FUNCTION: ENGINE 0x10128390
 // FUNCTION: ENGINE 0x101283C0

@@ -4,6 +4,10 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/math/worldbounds.h"
+#include "code/engine/fight/supportingsurface.h"
 
 namespace proto
 {
@@ -23,6 +27,19 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x1012BDF0, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				float GetAngle() const
+				{
+					return angle;
+				}
+				int GetCompare() const
+				{
+					return compare;
+				}
+				int GetType() const
+				{
+					return type;
+				}
 
 				// The members the properties write
 				bool SetType(int newValue);
@@ -54,6 +71,27 @@ namespace proto
 				virtual fight::Property* GetProperty(int index);
 				// vftable slot 9 (0x1012BB60, another unit)
 				virtual bool Evaluate(int a, int b, int c, int d);
+
+				float GetAngle() const
+				{
+					return angle;
+				}
+				int GetCompareTime() const
+				{
+					return compareTime;
+				}
+				int GetType() const
+				{
+					return type;
+				}
+				bool GetSignedValue() const
+				{
+					return signedValue;
+				}
+				bool GetXz() const
+				{
+					return xz;
+				}
 
 				// The members the properties write
 				bool SetType(int newValue);

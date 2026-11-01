@@ -75,7 +75,7 @@ namespace proto
 
 				core::Link<TurnRoundTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				choreo::Driver* driver;  // +0x2C
+				choreo::RootDriver* driver;  // +0x2C
 				engine::HandleBase unknown30;  // +0x30
 			};
 

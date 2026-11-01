@@ -1,5 +1,6 @@
 // Fight items of the motion group: VelocityYAngleCondition, VelocityAngleCondition (unit 0x101CB300 - 0x101CBD20; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_velocity.h"
+#include <math.h>
 
 namespace proto
 {
@@ -179,6 +180,82 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1012BDF0
+			// EQUIVALENT: scheduling: the engine loads the operator before the compared value and keeps the condition in eax, ours in esi (93.7 %)
+			bool VelocityYAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector velocity;
+				velocity.x = math::kZeroVector.x;
+				velocity.y = math::kZeroVector.y;
+				velocity.z = math::kZeroVector.z;
+				engine::GetObjectVelocity(object, GetType(), &velocity);
+				velocity.Normalize();
+				float current = (float)asin(velocity.y);
+				float wanted = GetAngle();
+				return fight::CompareFloats(GetCompare(), &current, &wanted);
+			}
+
+			// FUNCTION: ENGINE 0x1012BB60
+			// EQUIVALENT: scheduling and register allocation (the engine keeps a zero in bl, loads the three matrix components before negating them and sums the three products with the xorps of the clamp in another place); every operation and the order of the sum are the engine's (19.4 %)
+			bool VelocityAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector velocity;
+				velocity.x = math::kZeroVector.x;
+				velocity.y = math::kZeroVector.y;
+				velocity.z = math::kZeroVector.z;
+				engine::GetObjectVelocity(object, GetType(), &velocity);
+				if (GetXz())
+				{
+					velocity.y = 0.0f;
+				}
+				float angle = 0.0f;
+				if (velocity.Normalize() > 0.00001f)
+				{
+					math::Matrix* matrix = object->transform->GetPointer();
+					float rowX = matrix->m[2][0];
+					float rowY = matrix->m[2][1];
+					float rowZ = matrix->m[2][2];
+					math::Vector forward(math::WORLD_MIN - rowX, math::WORLD_MIN - rowY, math::WORLD_MIN - rowZ);
+					if (GetXz())
+					{
+						forward.y = 0.0f;
+					}
+					forward.Normalize();
+					float dot = forward.z * velocity.z + forward.x * velocity.x + forward.y * velocity.y;
+					if (!(dot - choreo::gMinusOne >= 0.0f))
+					{
+						dot = choreo::gMinusOne;
+					}
+					angle = dot;
+					if (angle - engine::driving::gOne >= 0.0f)
+					{
+						angle = engine::driving::gOne;
+					}
+					angle = (float)acos(angle);
+					if (GetSignedValue())
+					{
+						if (forward.z * velocity.x - velocity.z * forward.x < 0.0f)
+						{
+							angle = math::WORLD_MIN - angle;
+						}
+					}
+				}
+				float wanted = GetAngle();
+				return fight::CompareFloats(GetCompareTime(), &angle, &wanted);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<VelocityYAngleCondition>;
 			template class fight::PropertyFloatConstRange<VelocityYAngleCondition>;
 			template class fight::ConditionFactoryTemplate<VelocityYAngleCondition>;
@@ -193,6 +270,14 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1012BAE0
+// FUNCTION: ENGINE 0x1012BAF0
+// FUNCTION: ENGINE 0x1012BB00
+// FUNCTION: ENGINE 0x1012BB10
+// FUNCTION: ENGINE 0x1012BB20
+// FUNCTION: ENGINE 0x1012BB30
+// FUNCTION: ENGINE 0x1012BB40
+// FUNCTION: ENGINE 0x1012BB50
 // FUNCTION: ENGINE 0x101CB4A0
 // FUNCTION: ENGINE 0x101CB4D0
 // FUNCTION: ENGINE 0x101CB500

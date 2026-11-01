@@ -142,7 +142,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x101235E0
 			TurnRoundAction::~TurnRoundAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x10123D00
@@ -162,9 +162,34 @@ namespace proto
 					if (puppet != 0)
 					{
 						puppet->RemoveDriver(driver, false);
-						engine::ReleaseDriverCopy2(&driver);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 					}
 				}
+			}
+
+			// FUNCTION: ENGINE 0x101237A0
+			bool TurnRoundAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("turnRound", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(2);
+				return true;
 			}
 
 			// ---- actions end

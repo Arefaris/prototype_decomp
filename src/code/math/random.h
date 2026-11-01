@@ -47,6 +47,12 @@ namespace math
 			return *(float*)&bits - 3.0f;
 		}
 
+		// A value around center: NextFloat11() times spread, plus center (name guess; the motion fight items keep a copy)
+		float Jitter(float center, float spread)
+		{
+			return NextFloat11() * spread + center;
+		}
+
 	private:
 		// One multiply-with-carry step of a state. Taking the state by reference is what the compiler saw: every
 		// step stores to the member and reloads it (the inlined code does not keep the states in registers).

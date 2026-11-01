@@ -663,4 +663,19 @@ namespace proto
 	};
 }
 
+namespace proto
+{
+	// RTTI: proto::TimerSetMessage: sets a timer
+	class TimerSetMessage : public TimerMessage
+	{
+	public:
+		TimerSetMessage(const core::Name<core::CaseSensitiveKey>& newTimer, float newTime, bool newIncrementing) : TimerMessage(5, newTimer, newTime, newIncrementing)
+		{
+		}
+		virtual ~TimerSetMessage()
+		{
+		}
+	};
+}
+
 #endif

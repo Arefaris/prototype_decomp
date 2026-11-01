@@ -210,6 +210,23 @@ namespace proto
 				// vftable slot 15 (0x10129810, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetRandomRange() const
+				{
+					return randomRange;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				bool GetIncrementing() const
+				{
+					return incrementing;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -289,6 +306,23 @@ namespace proto
 				virtual float Slot10() const;
 				// vftable slot 15 (0x101297C0, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
+
+				const fight::Name& GetTimer() const
+				{
+					return timer;
+				}
+				float GetRandomRange() const
+				{
+					return randomRange;
+				}
+				float GetTime() const
+				{
+					return time;
+				}
+				bool GetIncrementing() const
+				{
+					return incrementing;
+				}
 
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
