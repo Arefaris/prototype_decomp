@@ -884,6 +884,51 @@ namespace pure3d
 	ConstantSlot gConstantPRLightAmbientVertex;
 	ConstantSlot gConstantSlot11280FDC;
 	ConstantSlot gConstantProtoJointMatrix;
+	core::Name<core::CaseInsensitiveKey32> gP3dPRLightSpotPosNames[6] =
+	{
+		gP3dPRLightSpotPos1,
+		gP3dPRLightSpotPos2,
+		gP3dPRLightSpotPos3,
+		gP3dPRLightSpotPos4,
+		gP3dPRLightSpotPos5,
+		gP3dPRLightSpotPos6
+	};
+	core::Name<core::CaseInsensitiveKey32> gP3dPRLightSpotDirNames[6] =
+	{
+		gP3dPRLightSpotDir1,
+		gP3dPRLightSpotDir2,
+		gP3dPRLightSpotDir3,
+		gP3dPRLightSpotDir4,
+		gP3dPRLightSpotDir5,
+		gP3dPRLightSpotDir6
+	};
+	core::Name<core::CaseInsensitiveKey32> gP3dPRLightSpotColNames[6] =
+	{
+		gP3dPRLightSpotCol1,
+		gP3dPRLightSpotCol2,
+		gP3dPRLightSpotCol3,
+		gP3dPRLightSpotCol4,
+		gP3dPRLightSpotCol5,
+		gP3dPRLightSpotCol6
+	};
+	core::Name<core::CaseInsensitiveKey32> gP3dPRLightSpotDecNames[6] =
+	{
+		gP3dPRLightSpotDec1,
+		gP3dPRLightSpotDec2,
+		gP3dPRLightSpotDec3,
+		gP3dPRLightSpotDec4,
+		gP3dPRLightSpotDec5,
+		gP3dPRLightSpotDec6
+	};
+	core::Name<core::CaseInsensitiveKey32> gP3dProtoDecayPosNames[6] =
+	{
+		gP3dProtoDecayPos0,
+		gP3dProtoDecayPos1,
+		gP3dProtoDecayPos2,
+		gP3dProtoDecayPos3,
+		gP3dProtoDecayPos4,
+		gP3dProtoDecayPos5
+	};
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:
@@ -2228,3 +2273,15 @@ namespace pure3d
 // FUNCTION: ENGINE 0x10D88D80
 // FUNCTION: ENGINE 0x10D88D90
 // FUNCTION: ENGINE 0x10D88DA0
+
+// The dynamic initialisers and atexit stubs of the copied name tables:
+// FUNCTION: ENGINE 0x10D724D0
+// FUNCTION: ENGINE 0x10D72540
+// FUNCTION: ENGINE 0x10D725B0
+// FUNCTION: ENGINE 0x10D72620
+// FUNCTION: ENGINE 0x10D72690
+// FUNCTION: ENGINE 0x10D89450
+// FUNCTION: ENGINE 0x10D89460
+// FUNCTION: ENGINE 0x10D89470
+// FUNCTION: ENGINE 0x10D89480
+// FUNCTION: ENGINE 0x10D89490

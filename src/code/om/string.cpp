@@ -12,7 +12,7 @@
 namespace om
 {
 	// The engine's tag for the allocations of the string buffers: a static string "om::String" (constructed elsewhere)
-	extern String gStringTag;
+	String gStringTag("om::String", 0);
 
 	// FUNCTION: ENGINE 0x105B3AF0
 	void StringData::Create(StringData** result, const char* text, unsigned int count, unsigned int capacity)
@@ -575,3 +575,7 @@ namespace om
 		result = text;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's globals:
+// FUNCTION: ENGINE 0x10D66440
+// FUNCTION: ENGINE 0x10D866B0

@@ -19,6 +19,8 @@ namespace engine
 {
 	namespace scenario
 	{
+		core::Name<core::CaseSensitiveKey> gEmptyListName;
+
 		ScenarioMessageLister gScenarioMessageLister;
 		AffiliateLister gAffiliateLister;
 
@@ -338,3 +340,7 @@ template void std::sort<engine::scenario::AffiliateEntry*>(engine::scenario::Aff
 // FUNCTION: ENGINE 0x10832180
 // FUNCTION: ENGINE 0x10832290
 // FUNCTION: ENGINE 0x108322B0
+
+// The dynamic initialisers and atexit stubs of the unit's globals:
+// FUNCTION: ENGINE 0x10D66340
+// FUNCTION: ENGINE 0x10D86640

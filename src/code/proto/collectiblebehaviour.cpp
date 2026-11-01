@@ -2,6 +2,7 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/playbackmessage.h"
 #include "code/proto/freeroamevents/freventmanager.h"
+#include "code/engine/gameobject/messagerouter.h"
 
 namespace content
 {
@@ -50,7 +51,7 @@ namespace proto
 	core::Name<core::CaseSensitiveKey> gPickupSmall("smallCollected", 0);
 	core::Name<core::CaseSensitiveKey> gPickupLocation("collected", 0);
 	// The listeners of the collectible scenario messages (0x11274E58)
-	extern engine::MessageListeners gCollectibleListeners;
+	engine::MessageListeners gCollectibleListeners("scenario", 0);
 	// 0x10078F70: whether the object is the first player's
 	bool IsPlayerObject(engine::GameObject* object);
 
@@ -339,6 +340,8 @@ namespace proto
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D65130
+// FUNCTION: ENGINE 0x10D86200
 // FUNCTION: ENGINE 0x10D65160
 // FUNCTION: ENGINE 0x10D65190
 // FUNCTION: ENGINE 0x10D651C0

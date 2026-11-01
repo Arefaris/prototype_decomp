@@ -5,6 +5,8 @@
 
 namespace core
 {
+	CrashRecordDebugOutputHandler gCrashRecord;
+
 	// FUNCTION: ENGINE 0x106444F0
 	void DebugOutputHandlerBase::OnOutput(DebugMessage* message)
 	{
@@ -107,3 +109,7 @@ namespace core
 		}
 	}
 }
+
+// The dynamic initialiser and atexit stub of the unit's global:
+// FUNCTION: ENGINE 0x10D66910
+// FUNCTION: ENGINE 0x10D86870
