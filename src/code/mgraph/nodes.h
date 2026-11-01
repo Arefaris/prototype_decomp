@@ -397,39 +397,6 @@ namespace mgraph
 	{
 		return "";
 	}
-	class CastBoolToTrigger : public Node
-	{
-	};
-	class CastTriggerToBool : public Node
-	{
-	};
-	class Chooser : public Node
-	{
-	};
-	class Delay : public Node
-	{
-	};
-	class Fade : public Node
-	{
-	};
-	class Filter : public Node
-	{
-	};
-	class Meter : public Node
-	{
-	};
-	class MinMaxDistance : public Node
-	{
-	};
-	class SelectIntFromTrigger : public Node
-	{
-	};
-	class Smoother : public Node
-	{
-	};
-	class SystemNode : public Node
-	{
-	};
 
 	// The nodes that contain a graph
 	class Abstraction : public Node
