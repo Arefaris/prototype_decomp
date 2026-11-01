@@ -648,6 +648,16 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::CurePoisonTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetPoisonCloudParametersTrack>::~Link();
+template core::Link<proto::fightitems::ai::PoisonTrack>::~Link();
+template proto::fightitems::ai::CurePoisonTrack* core::Link<proto::fightitems::ai::CurePoisonTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CurePoisonTrack>::Link(proto::fightitems::ai::CurePoisonTrack*);
+template proto::fightitems::ai::SetPoisonCloudParametersTrack* core::Link<proto::fightitems::ai::SetPoisonCloudParametersTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetPoisonCloudParametersTrack>::Link(proto::fightitems::ai::SetPoisonCloudParametersTrack*);
+template proto::fightitems::ai::PoisonTrack* core::Link<proto::fightitems::ai::PoisonTrack>::Get() const;
+template core::Link<proto::fightitems::ai::PoisonTrack>::Link(proto::fightitems::ai::PoisonTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10206D60
 // FUNCTION: ENGINE 0x10206DD0
@@ -747,3 +757,6 @@ namespace proto
 // FUNCTION: ENGINE 0x102467C0
 // FUNCTION: ENGINE 0x102467F0
 // FUNCTION: ENGINE 0x10246810
+// FUNCTION: ENGINE 0x10207000
+// FUNCTION: ENGINE 0x10207010
+// FUNCTION: ENGINE 0x10207020

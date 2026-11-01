@@ -1,5 +1,6 @@
 // Fight items of the ai group: AbsoluteHeightCondition, AreDisguiseActionsEnabledCondition, IsDisguiseActionEnabledCondition, DisguiseActionUsedTrack, ClearMarkersTrack, DumpAlertCharactersTrack, PlayDebugDialogTrack, DrawObjectDebugTrack, HelicopterStrafeModeTrack, ShowDisguiseActionHUDTrack, AddMarkerByKeyTrack, AddDiversionTrack, SetUserTooltipTrack, AdjustHydraMovementTrack (unit 0x102272B0 - 0x1022AC60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_disguise.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 #include <new>
 
 namespace proto
@@ -1395,6 +1396,116 @@ namespace proto
 				return new DrawObjectDebugAction(this, handle, effect, listener);
 			}
 
+			// FUNCTION: ENGINE 0x101EA750
+			DumpAlertCharactersAction::DumpAlertCharactersAction(DumpAlertCharactersTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E95E0
+			DumpAlertCharactersAction::~DumpAlertCharactersAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CE0
+			void DumpAlertCharactersAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CD0
+			fight::Action* DumpAlertCharactersTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+			// FUNCTION: ENGINE 0x101EA800
+			AddDiversionAction::AddDiversionAction(AddDiversionTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E96A0
+			AddDiversionAction::~AddDiversionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8CF0
+			fight::Action* AddDiversionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+			// FUNCTION: ENGINE 0x101EB640
+			DisguiseActionUsedAction::DisguiseActionUsedAction(DisguiseActionUsedTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* unusedEffect, fight::Track* unusedListener) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E9740
+			DisguiseActionUsedAction::~DisguiseActionUsedAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E8D00
+			fight::Action* DisguiseActionUsedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+			// FUNCTION: ENGINE 0x101E9610
+			bool DumpAlertCharactersAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					DumpAlertCharactersDisguiseMsg message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EB6F0
+			bool DisguiseActionUsedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				switch (link.object->action)
+				{
+				case 1:
+					{
+						ReportAirStrikeUsedMsg message;
+						object->SendMessage(&message);
+					}
+					break;
+				case 2:
+					{
+						ReportCallStrikeTeamUsedMsg message;
+						object->SendMessage(&message);
+					}
+					break;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101EB950
+			void AdjustHydraMovementAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						if (link.object->aboveGround)
+						{
+							ForcePositionOutsideStateChangeMessage message;
+							object->SendMessage(&message);
+						}
+						else
+						{
+							ForcePositionUndergroundStateChangeMessage message;
+							object->SendMessage(&message);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<AbsoluteHeightCondition>;
 			template class fight::PropertyFloatConstRange<AbsoluteHeightCondition>;
@@ -1448,6 +1559,40 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::ClearMarkersTrack>::~Link();
+template core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::~Link();
+template core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::~Link();
+template core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::~Link();
+template core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetUserTooltipTrack>::~Link();
+template core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::~Link();
+template core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::~Link();
+template core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::~Link();
+template core::Link<proto::fightitems::ai::AddDiversionTrack>::~Link();
+template core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::~Link();
+template proto::fightitems::ai::ClearMarkersTrack* core::Link<proto::fightitems::ai::ClearMarkersTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ClearMarkersTrack>::Link(proto::fightitems::ai::ClearMarkersTrack*);
+template proto::fightitems::ai::PlayDebugDialogTrack* core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::Get() const;
+template core::Link<proto::fightitems::ai::PlayDebugDialogTrack>::Link(proto::fightitems::ai::PlayDebugDialogTrack*);
+template proto::fightitems::ai::HelicopterStrafeModeTrack* core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::HelicopterStrafeModeTrack>::Link(proto::fightitems::ai::HelicopterStrafeModeTrack*);
+template proto::fightitems::ai::ShowDisguiseActionHUDTrack* core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ShowDisguiseActionHUDTrack>::Link(proto::fightitems::ai::ShowDisguiseActionHUDTrack*);
+template proto::fightitems::ai::AddMarkerByKeyTrack* core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AddMarkerByKeyTrack>::Link(proto::fightitems::ai::AddMarkerByKeyTrack*);
+template proto::fightitems::ai::SetUserTooltipTrack* core::Link<proto::fightitems::ai::SetUserTooltipTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetUserTooltipTrack>::Link(proto::fightitems::ai::SetUserTooltipTrack*);
+template proto::fightitems::ai::AdjustHydraMovementTrack* core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AdjustHydraMovementTrack>::Link(proto::fightitems::ai::AdjustHydraMovementTrack*);
+template proto::fightitems::ai::DrawObjectDebugTrack* core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DrawObjectDebugTrack>::Link(proto::fightitems::ai::DrawObjectDebugTrack*);
+template proto::fightitems::ai::DumpAlertCharactersTrack* core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DumpAlertCharactersTrack>::Link(proto::fightitems::ai::DumpAlertCharactersTrack*);
+template proto::fightitems::ai::AddDiversionTrack* core::Link<proto::fightitems::ai::AddDiversionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AddDiversionTrack>::Link(proto::fightitems::ai::AddDiversionTrack*);
+template proto::fightitems::ai::DisguiseActionUsedTrack* core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Link(proto::fightitems::ai::DisguiseActionUsedTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101EA040
@@ -1615,3 +1760,47 @@ namespace proto
 // FUNCTION: ENGINE 0x1022ABC0
 // FUNCTION: ENGINE 0x1022ABF0
 // FUNCTION: ENGINE 0x1022AC10
+// FUNCTION: ENGINE 0x101E8EE0
+// FUNCTION: ENGINE 0x101E8F00
+// FUNCTION: ENGINE 0x101E8F20
+// FUNCTION: ENGINE 0x101E8F40
+// FUNCTION: ENGINE 0x101E8F60
+// FUNCTION: ENGINE 0x101E9040
+// FUNCTION: ENGINE 0x101E9050
+// FUNCTION: ENGINE 0x101E90A0
+// FUNCTION: ENGINE 0x101E90B0
+// FUNCTION: ENGINE 0x101E9100
+// FUNCTION: ENGINE 0x101E9110
+// FUNCTION: ENGINE 0x101E9160
+// FUNCTION: ENGINE 0x101E9170
+// FUNCTION: ENGINE 0x101E91C0
+// FUNCTION: ENGINE 0x101E9260
+// FUNCTION: ENGINE 0x101E9270
+// FUNCTION: ENGINE 0x101E9430
+// FUNCTION: ENGINE 0x101E9480
+// FUNCTION: ENGINE 0x101E94D0
+// FUNCTION: ENGINE 0x101E9520
+// FUNCTION: ENGINE 0x101E9570
+// FUNCTION: ENGINE 0x101E95C0
+// FUNCTION: ENGINE 0x101E9BD0
+// FUNCTION: ENGINE 0x101E9BE0
+// FUNCTION: ENGINE 0x101E9BF0
+// FUNCTION: ENGINE 0x101E9C40
+// FUNCTION: ENGINE 0x101E9C50
+// FUNCTION: ENGINE 0x101E9CA0
+// FUNCTION: ENGINE 0x101E9CB0
+// FUNCTION: ENGINE 0x101E9CC0
+// FUNCTION: ENGINE 0x101E9D10
+// FUNCTION: ENGINE 0x101E9D30
+// FUNCTION: ENGINE 0x101E9D80
+// FUNCTION: ENGINE 0x101E8A80
+// FUNCTION: ENGINE 0x101E8AB0
+// FUNCTION: ENGINE 0x101E8B00
+// FUNCTION: ENGINE 0x101E8B10
+// FUNCTION: ENGINE 0x101E8B40
+// FUNCTION: ENGINE 0x101E8B50
+// FUNCTION: ENGINE 0x101E8B80
+// FUNCTION: ENGINE 0x101E8B90
+// FUNCTION: ENGINE 0x101E8BC0
+// FUNCTION: ENGINE 0x101E8BD0
+// FUNCTION: ENGINE 0x101E8C00

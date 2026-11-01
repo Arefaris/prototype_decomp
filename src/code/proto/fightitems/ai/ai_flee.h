@@ -50,6 +50,28 @@ namespace proto
 
 			// ---- actions begin
 
+			// RTTI: proto::fightitems::ai::FleeAction (9 vftable slots, 0x40 bytes)
+			class FleeAction : public fight::Action
+			{
+			public:
+				// 0x101F3270
+				FleeAction(FleeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F3100
+				virtual ~FleeAction();
+
+				// vftable slot 5 (0x101F3020)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F3040)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F3680)
+				virtual bool Slot7(int arg, float value);
+
+				int unknown1C;  // +0x1C
+				engine::HandleBase unknown20;  // +0x20
+				unsigned char unknown24[0xC];
+				core::Link<FleeTrack> link;  // +0x30
+				engine::GameObjectHandle target;  // +0x3C
+			};
 			// ---- actions end
 		}
 	}

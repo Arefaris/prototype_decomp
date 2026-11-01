@@ -2,6 +2,7 @@
 #include "code/proto/fightitems/ai/ai_target.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -929,6 +930,103 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// 0x10DCF0FC: the message value of each alert sub state (name guess)
+			extern const int gTargetAlertSubStateValues[];
+
+
+			// FUNCTION: ENGINE 0x102166E0
+			bool TargetIsPlayerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				if (target == 0)
+				{
+					return false;
+				}
+				return IsPlayerObject(target) == is;
+			}
+
+			// FUNCTION: ENGINE 0x10216920
+			bool TargetIsTankCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				if (target == 0)
+				{
+					return false;
+				}
+				return Unknown103C0360(target);
+			}
+
+			// FUNCTION: ENGINE 0x10216A10
+			bool TargetIsHelicopterCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				if (target == 0)
+				{
+					return false;
+				}
+				return Unknown103C02D0(target);
+			}
+
+			// FUNCTION: ENGINE 0x10216190
+			bool TargetAlertSubStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool result = false;
+				GetTargetSuspicionStateTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* target = message.target.Get();
+				if (target != 0)
+				{
+					result = message.state == gTargetAlertSubStateValues[subState];
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10215EE0
+			// NONMATCHING: the engine tests the target handle through a stored boolean (inline Get, setne, test), best 72 %
+#ifdef NONMATCHING
+			bool TargetHostileCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return isHostile == false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				bool hostile = false;
+				if (message.target.IsValid())
+				{
+					hostile = Unknown103BA7F0(object, message.target);
+				}
+				return isHostile == hostile;
+			}
+#endif
 
 			// ---- actions end
 						// FUNCTION: ENGINE 0x10216B00

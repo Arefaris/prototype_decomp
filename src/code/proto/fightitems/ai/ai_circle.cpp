@@ -1,5 +1,6 @@
 // Fight items of the ai group: CirclePatrolTrack, IntersectionCirclePatrolTrack, CircleStrafeTrack (unit 0x1021CD90 - 0x1021E550; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_circle.h"
+#include "code/math/random.h"
 
 namespace proto
 {
@@ -558,6 +559,23 @@ namespace proto
 				return new CircleStrafeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101E13F0
+			bool CircleStrafeAction::Slot5(int arg, float value)
+			{
+				CircleStrafeTrack* track = link.object;
+				if (track == 0)
+				{
+					return false;
+				}
+				float high = track->maxSpeed;
+				float low = track->minSpeed;
+				unknown2C = math::gRandom->Range(low, high);
+				unknown30 = 0.0f;
+				unknown34 = 0.0f;
+				unknown38 = 0.0f;
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CirclePatrolTrack>;
 			template class fight::PropertyIntConstRange<CirclePatrolTrack>;
@@ -573,6 +591,16 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::CirclePatrolTrack>::~Link();
+template core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::~Link();
+template core::Link<proto::fightitems::ai::CircleStrafeTrack>::~Link();
+template proto::fightitems::ai::CirclePatrolTrack* core::Link<proto::fightitems::ai::CirclePatrolTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CirclePatrolTrack>::Link(proto::fightitems::ai::CirclePatrolTrack*);
+template proto::fightitems::ai::IntersectionCirclePatrolTrack* core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::Get() const;
+template core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::Link(proto::fightitems::ai::IntersectionCirclePatrolTrack*);
+template proto::fightitems::ai::CircleStrafeTrack* core::Link<proto::fightitems::ai::CircleStrafeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CircleStrafeTrack>::Link(proto::fightitems::ai::CircleStrafeTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E13C0
@@ -610,3 +638,14 @@ namespace proto
 // FUNCTION: ENGINE 0x1021E460
 // FUNCTION: ENGINE 0x1021E4B0
 // FUNCTION: ENGINE 0x1021E500
+// FUNCTION: ENGINE 0x101E0670
+// FUNCTION: ENGINE 0x101E0730
+// FUNCTION: ENGINE 0x101E0740
+// FUNCTION: ENGINE 0x101E07A0
+// FUNCTION: ENGINE 0x101E0E80
+// FUNCTION: ENGINE 0x101E0ED0
+// FUNCTION: ENGINE 0x101E0FA0
+// FUNCTION: ENGINE 0x101E0FB0
+// FUNCTION: ENGINE 0x101E0FC0
+// FUNCTION: ENGINE 0x101E0440
+// FUNCTION: ENGINE 0x101E0510

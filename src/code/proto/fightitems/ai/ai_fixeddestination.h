@@ -227,6 +227,74 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::FixedDestinationGotoAction (9 vftable slots, 0x48 bytes)
+			class FixedDestinationGotoAction : public fight::Action
+			{
+			public:
+				// 0x101F19D0
+				FixedDestinationGotoAction(FixedDestinationGotoTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F15B0
+				virtual ~FixedDestinationGotoAction();
+
+				// vftable slot 5 (0x101F2770)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F1AA0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F28B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FixedDestinationGotoTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				core::Name<core::CaseSensitiveKey> unknown38;  // +0x38
+				bool unknown40;  // +0x40
+				unsigned char unknown41[0x7];
+			};
+			// RTTI: proto::fightitems::ai::FixedDestinationFlytoAction (9 vftable slots, 0x3C bytes)
+			class FixedDestinationFlytoAction : public fight::Action
+			{
+			public:
+				// 0x101F1B60
+				FixedDestinationFlytoAction(FixedDestinationFlytoTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F1600
+				virtual ~FixedDestinationFlytoAction();
+
+				// vftable slot 5 (0x101F2D70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F1C30)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F2E60)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FixedDestinationFlytoTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				bool unknown38;  // +0x38
+				unsigned char unknown39[0x3];
+			};
+			// RTTI: proto::fightitems::ai::FixedDestinationJumpToAction (9 vftable slots, 0x48 bytes)
+			class FixedDestinationJumpToAction : public fight::Action
+			{
+			public:
+				// 0x101F1D70
+				FixedDestinationJumpToAction(FixedDestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101F1650
+				virtual ~FixedDestinationJumpToAction();
+
+				// vftable slot 5 (0x101F1E40)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101F20E0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F2130)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<FixedDestinationJumpToTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				core::Name<core::CaseSensitiveKey> unknown38;  // +0x38
+				bool unknown40;  // +0x40
+				unsigned char unknown41[0x7];
+			};
 			// ---- actions end
 		}
 	}

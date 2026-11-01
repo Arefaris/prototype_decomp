@@ -1,5 +1,6 @@
 // Fight items of the ai group: InAlertModeCondition, PerceptionEventCondition, TargetFreeHeightRadiusCondition (unit 0x1022CB50 - 0x1022D810; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_alertmode.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -229,6 +230,20 @@ namespace proto
 			}
 
 			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x101ED140
+			bool InAlertModeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetAlertedDisguiseMsg message;
+				object->SendMessage(&message);
+				float expected = seconds;
+				return fight::CompareFloats(compare, &message.alert, &expected);
+			}
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<InAlertModeCondition>;

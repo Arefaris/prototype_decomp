@@ -284,6 +284,24 @@ namespace proto
 				return new TakeOffAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101F9100
+			LandAction::LandAction(LandTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f, 0.0f, 0.0f), unknown44(0.0f, 0.0f, 0.0f), unknown5C(0.0f), unknown60(false), unknown64(0.0f), unknown6C(false)
+			{
+				unknown68 = link.object->toleranceXZ * link.object->toleranceXZ;
+			}
+
+			// FUNCTION: ENGINE 0x101F8F10
+			LandAction::~LandAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F9E70
+			fight::Action* LandTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LandAction(this, handle);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;
 			template class fight::TrackFactoryTemplate<TakeOffTrack>;
@@ -295,6 +313,14 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::TakeOffTrack>::~Link();
+template proto::fightitems::ai::TakeOffTrack* core::Link<proto::fightitems::ai::TakeOffTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TakeOffTrack>::Link(proto::fightitems::ai::TakeOffTrack*);
+
+template core::Link<proto::fightitems::ai::LandTrack>::~Link();
+template proto::fightitems::ai::LandTrack* core::Link<proto::fightitems::ai::LandTrack>::Get() const;
+template core::Link<proto::fightitems::ai::LandTrack>::Link(proto::fightitems::ai::LandTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F9BA0
@@ -319,3 +345,9 @@ namespace proto
 // FUNCTION: ENGINE 0x102361B0
 // FUNCTION: ENGINE 0x102361D0
 // FUNCTION: ENGINE 0x10236220
+// FUNCTION: ENGINE 0x101F8E10
+// FUNCTION: ENGINE 0x101F8EF0
+// FUNCTION: ENGINE 0x101F9070
+// FUNCTION: ENGINE 0x101F8E70
+// FUNCTION: ENGINE 0x101F8F40
+// FUNCTION: ENGINE 0x101F9080

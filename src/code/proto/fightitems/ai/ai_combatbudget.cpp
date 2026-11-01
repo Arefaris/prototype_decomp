@@ -330,6 +330,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::~Link();
+template proto::fightitems::ai::RequestCombatBudgetTokenTrack* core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::Get() const;
+template core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::Link(proto::fightitems::ai::RequestCombatBudgetTokenTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E8470
 // FUNCTION: ENGINE 0x10226200
@@ -377,3 +381,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10226D10
 // FUNCTION: ENGINE 0x10226D40
 // FUNCTION: ENGINE 0x10226D60
+// FUNCTION: ENGINE 0x101E82E0
+// FUNCTION: ENGINE 0x101E8330
+// FUNCTION: ENGINE 0x101E83A0
+// FUNCTION: ENGINE 0x101E8440

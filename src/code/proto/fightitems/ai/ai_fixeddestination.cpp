@@ -1,5 +1,6 @@
 // Fight items of the ai group: FixedDestinationDistanceCondition, FixedDestinationGotoTrack, FixedDestinationJumpToTrack, ClearFixedAreaDestinationTrack, FixedDestinationFlytoTrack (unit 0x102305F0 - 0x10231FB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_fixeddestination.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -550,6 +551,88 @@ namespace proto
 				return new ClearFixedAreaDestinationAction(this, handle, effect, listener);
 			}
 
+			// FUNCTION: ENGINE 0x101F19D0
+			FixedDestinationGotoAction::FixedDestinationGotoAction(FixedDestinationGotoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown40(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F15B0
+			FixedDestinationGotoAction::~FixedDestinationGotoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2720
+			fight::Action* FixedDestinationGotoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationGotoAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F1B60
+			FixedDestinationFlytoAction::FixedDestinationFlytoAction(FixedDestinationFlytoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown38(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F1600
+			FixedDestinationFlytoAction::~FixedDestinationFlytoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2A60
+			fight::Action* FixedDestinationFlytoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationFlytoAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F1D70
+			FixedDestinationJumpToAction::FixedDestinationJumpToAction(FixedDestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown40(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F1650
+			FixedDestinationJumpToAction::~FixedDestinationJumpToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F2AB0
+			fight::Action* FixedDestinationJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FixedDestinationJumpToAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F2610
+			bool ClearFixedAreaDestinationAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.object->clearOnBegin)
+				{
+					ClearFixedAreaDestinationMessage message;
+					object->SendMessage(&message);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F26A0
+			void ClearFixedAreaDestinationAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0 && !link.object->clearOnBegin)
+					{
+						ClearFixedAreaDestinationMessage message;
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<FixedDestinationDistanceCondition>;
 			template class fight::PropertyFloatConstRange<FixedDestinationDistanceCondition>;
@@ -575,6 +658,19 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::ClearFixedAreaDestinationTrack>::~Link();
+template core::Link<proto::fightitems::ai::FixedDestinationGotoTrack>::~Link();
+template core::Link<proto::fightitems::ai::FixedDestinationFlytoTrack>::~Link();
+template core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::~Link();
+template proto::fightitems::ai::ClearFixedAreaDestinationTrack* core::Link<proto::fightitems::ai::ClearFixedAreaDestinationTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ClearFixedAreaDestinationTrack>::Link(proto::fightitems::ai::ClearFixedAreaDestinationTrack*);
+template proto::fightitems::ai::FixedDestinationGotoTrack* core::Link<proto::fightitems::ai::FixedDestinationGotoTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FixedDestinationGotoTrack>::Link(proto::fightitems::ai::FixedDestinationGotoTrack*);
+template proto::fightitems::ai::FixedDestinationFlytoTrack* core::Link<proto::fightitems::ai::FixedDestinationFlytoTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FixedDestinationFlytoTrack>::Link(proto::fightitems::ai::FixedDestinationFlytoTrack*);
+template proto::fightitems::ai::FixedDestinationJumpToTrack* core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Link(proto::fightitems::ai::FixedDestinationJumpToTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F25E0
@@ -643,3 +739,17 @@ namespace proto
 // FUNCTION: ENGINE 0x10231EC0
 // FUNCTION: ENGINE 0x10231F10
 // FUNCTION: ENGINE 0x10231F60
+// FUNCTION: ENGINE 0x101F1360
+// FUNCTION: ENGINE 0x101F1380
+// FUNCTION: ENGINE 0x101F13E0
+// FUNCTION: ENGINE 0x101F13F0
+// FUNCTION: ENGINE 0x101F1440
+// FUNCTION: ENGINE 0x101F1450
+// FUNCTION: ENGINE 0x101F1590
+// FUNCTION: ENGINE 0x101F15E0
+// FUNCTION: ENGINE 0x101F1860
+// FUNCTION: ENGINE 0x101F1870
+// FUNCTION: ENGINE 0x101F1880
+// FUNCTION: ENGINE 0x101F18F0
+// FUNCTION: ENGINE 0x101F0FA0
+// FUNCTION: ENGINE 0x101F0FD0

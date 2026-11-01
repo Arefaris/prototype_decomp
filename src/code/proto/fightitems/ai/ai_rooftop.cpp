@@ -570,6 +570,33 @@ namespace proto
 			}
 
 
+			// FUNCTION: ENGINE 0x102093F0
+			RooftopDestinationFindAction::RooftopDestinationFindAction(RooftopDestinationFindTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10209090
+			RooftopDestinationFindAction::~RooftopDestinationFindAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10208ED0
+			bool RooftopDestinationFindAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10208EE0
+			void RooftopDestinationFindAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10209780
+			fight::Action* RooftopDestinationFindTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new RooftopDestinationFindAction(this, handle, effect, listener);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<IsInRooftopCondition>;
 			template class fight::ConditionFactoryTemplate<IsInRooftopCondition>;
@@ -591,9 +618,15 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::StayOnRoofTrack>::~Link();
+template core::Link<proto::fightitems::ai::RooftopDestinationFindTrack>::~Link();
+template proto::fightitems::ai::StayOnRoofTrack* core::Link<proto::fightitems::ai::StayOnRoofTrack>::Get() const;
+template core::Link<proto::fightitems::ai::StayOnRoofTrack>::Link(proto::fightitems::ai::StayOnRoofTrack*);
+template proto::fightitems::ai::RooftopDestinationFindTrack* core::Link<proto::fightitems::ai::RooftopDestinationFindTrack>::Get() const;
+template core::Link<proto::fightitems::ai::RooftopDestinationFindTrack>::Link(proto::fightitems::ai::RooftopDestinationFindTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10208C50
-// FUNCTION: ENGINE 0x10208EE0
 // FUNCTION: ENGINE 0x10208F30
 // FUNCTION: ENGINE 0x10208F40
 // FUNCTION: ENGINE 0x10208F70
@@ -650,3 +683,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10249110
 // FUNCTION: ENGINE 0x10249160
 // FUNCTION: ENGINE 0x102491B0
+// FUNCTION: ENGINE 0x10208F20
+// FUNCTION: ENGINE 0x10209010
+// FUNCTION: ENGINE 0x10209070
+// FUNCTION: ENGINE 0x10209370

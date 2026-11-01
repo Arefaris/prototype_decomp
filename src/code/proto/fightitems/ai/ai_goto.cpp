@@ -1,5 +1,6 @@
 // Fight items of the ai group: HasFixedDestinationCondition, HasFixedAreaDestinationCondition, DumbGotoTrack, DumbGotoLODTrack, GoToTrack (unit 0x102338F0 - 0x10234D10; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_goto.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -430,6 +431,71 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101F6AA0
+			GoToAction::GoToAction(GoToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(math::kZeroVector), unknown3C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6720
+			GoToAction::~GoToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6070
+			void GoToAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7080
+			fight::Action* GoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new GoToAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F6DE0
+			DumbGotoAction::DumbGotoAction(DumbGotoTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown44(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6770
+			DumbGotoAction::~DumbGotoAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F7170
+			fight::Action* DumbGotoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DumbGotoAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F65C0
+			bool HasFixedDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFixedDestinationMessage message;
+					object->SendMessage(&message);
+					result = message.destination != 0;
+				}
+				return result == hasDestination ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x101F6660
+			bool HasFixedAreaDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFixedAreaDestinationMessage message;
+					object->SendMessage(&message);
+					result = message.destination != 0;
+				}
+				return result == hasDestination ? true : false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<HasFixedDestinationCondition>;
 			template class fight::ConditionFactoryTemplate<HasFixedDestinationCondition>;
@@ -452,6 +518,13 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::GoToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DumbGotoTrack>::~Link();
+template proto::fightitems::ai::GoToTrack* core::Link<proto::fightitems::ai::GoToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::GoToTrack>::Link(proto::fightitems::ai::GoToTrack*);
+template proto::fightitems::ai::DumbGotoTrack* core::Link<proto::fightitems::ai::DumbGotoTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DumbGotoTrack>::Link(proto::fightitems::ai::DumbGotoTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10233D40
@@ -508,3 +581,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10234C20
 // FUNCTION: ENGINE 0x10234C70
 // FUNCTION: ENGINE 0x10234CC0
+// FUNCTION: ENGINE 0x101F6030
+// FUNCTION: ENGINE 0x101F6450
+// FUNCTION: ENGINE 0x101F64B0
+// FUNCTION: ENGINE 0x101F64C0
+// FUNCTION: ENGINE 0x101F6700
+// FUNCTION: ENGINE 0x101F69C0
+// FUNCTION: ENGINE 0x101F69E0

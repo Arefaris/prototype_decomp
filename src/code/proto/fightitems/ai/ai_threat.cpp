@@ -1,5 +1,6 @@
 // Fight items of the ai group: ThreatCondition, ThreatInMemoryCondition, ThreatCanSeeCondition, LastThreatConditionGroupCondition, ThreatCanGrabCondition, ThreatStoreCondition, ThreatBallTrack, ThreatDodgeTrack, ThreatMemoryResetTrack, ThreatSendToTargetTrack (unit 0x10253340 - 0x10255E00; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_threat.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
 
@@ -863,6 +864,89 @@ namespace proto
 			}
 
 
+			// FUNCTION: ENGINE 0x10219120
+			ThreatBallAction::ThreatBallAction(ThreatBallTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), link(newTrack), listener(newListener), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217D70
+			ThreatBallAction::~ThreatBallAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219930
+			fight::Action* ThreatBallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatBallAction(this, handle, listener);
+			}
+			// FUNCTION: ENGINE 0x102194B0
+			ThreatSendToTargetAction::ThreatSendToTargetAction(ThreatSendToTargetTrack* newTrack, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), link(newTrack), listener(newListener), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217E90
+			ThreatSendToTargetAction::~ThreatSendToTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219B40
+			fight::Action* ThreatSendToTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatSendToTargetAction(this, handle, listener);
+			}
+			// FUNCTION: ENGINE 0x10219780
+			ThreatDodgeAction::ThreatDodgeAction(ThreatDodgeTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget), unknown40(-1.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10217EF0
+			ThreatDodgeAction::~ThreatDodgeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219860
+			void ThreatDodgeAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10219B90
+			fight::Action* ThreatDodgeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ThreatDodgeAction(this, handle, effect, listener);
+			}
+			// FUNCTION: ENGINE 0x10218020
+			// EQUIVALENT: register allocation of the loop (the engine keeps the zero in ebx and the index in ebp and spills this; ours the other way round); the same calls, tests and message (64.5 %)
+			bool ThreatCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ThreatBallsGetMessage message;
+					object->SendMessage(&message);
+					for (int index = 0; index < message.count; index++)
+					{
+						engine::GameObject* ball = message.balls[index].Get();
+						if (ball != 0)
+						{
+							if (name.IsEmpty())
+							{
+								return true;
+							}
+							ThreatGetInfoMessage info;
+							ball->SendMessage(&info);
+							if (info.name == name)
+							{
+								return true;
+							}
+						}
+					}
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<ThreatCondition>;
 			template class fight::ConditionFactoryTemplate<ThreatCondition>;
@@ -910,6 +994,19 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatBallTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::~Link();
+template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::~Link();
+template proto::fightitems::ai::ThreatMemoryResetTrack* core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatMemoryResetTrack>::Link(proto::fightitems::ai::ThreatMemoryResetTrack*);
+template proto::fightitems::ai::ThreatBallTrack* core::Link<proto::fightitems::ai::ThreatBallTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatBallTrack>::Link(proto::fightitems::ai::ThreatBallTrack*);
+template proto::fightitems::ai::ThreatSendToTargetTrack* core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::Link(proto::fightitems::ai::ThreatSendToTargetTrack*);
+template proto::fightitems::ai::ThreatDodgeTrack* core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Link(proto::fightitems::ai::ThreatDodgeTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10217900
 // FUNCTION: ENGINE 0x10217930
@@ -919,7 +1016,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10217B30
 // FUNCTION: ENGINE 0x10217BC0
 // FUNCTION: ENGINE 0x10219480
-// FUNCTION: ENGINE 0x10219860
 // FUNCTION: ENGINE 0x102539E0
 // FUNCTION: ENGINE 0x10253A80
 // FUNCTION: ENGINE 0x10253C90
@@ -1038,3 +1134,14 @@ namespace proto
 // FUNCTION: ENGINE 0x10255D10
 // FUNCTION: ENGINE 0x10255D60
 // FUNCTION: ENGINE 0x10255DB0
+// FUNCTION: ENGINE 0x10217940
+// FUNCTION: ENGINE 0x10217B50
+// FUNCTION: ENGINE 0x10217BB0
+// FUNCTION: ENGINE 0x10217C20
+// FUNCTION: ENGINE 0x10217C70
+// FUNCTION: ENGINE 0x10217D50
+// FUNCTION: ENGINE 0x10217DB0
+// FUNCTION: ENGINE 0x10218FD0
+// FUNCTION: ENGINE 0x10218FE0
+// FUNCTION: ENGINE 0x10218FF0
+// FUNCTION: ENGINE 0x10217970

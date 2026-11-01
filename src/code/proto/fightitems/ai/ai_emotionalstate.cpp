@@ -1,5 +1,6 @@
 // Fight items of the ai group: EmotionalStateCondition, RequestStopPursuitCondition, RequestCheckBodyCondition, RequestPlayerDiversionCondition, RequestDenyPatsyCondition, RequestCallStrikeTeamCondition, RequestRecognizePatsyCondition, RequestPointingCondition, RequestLostHimCondition, RequestSuspicionCondition, RequestRadioHQCondition, ForceEmotionalStateTrack (unit 0x1022AC60 - 0x1022CB50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_emotionalstate.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -716,6 +717,17 @@ namespace proto
 				return new ForceEmotionalStateAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101ED000
+			bool ForceEmotionalStateAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				Unknown103BB590(target.Get(), link.object->state);
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyNameConstList<EmotionalStateCondition>;
 			template class fight::ConditionFactoryTemplate<EmotionalStateCondition>;
@@ -749,6 +761,10 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::~Link();
+template proto::fightitems::ai::ForceEmotionalStateTrack* core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ForceEmotionalStateTrack>::Link(proto::fightitems::ai::ForceEmotionalStateTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101ECFD0
@@ -839,3 +855,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1022CA90
 // FUNCTION: ENGINE 0x1022CAB0
 // FUNCTION: ENGINE 0x1022CB00
+// FUNCTION: ENGINE 0x101EBF70
+// FUNCTION: ENGINE 0x101EBFC0
+// FUNCTION: ENGINE 0x101ECF30

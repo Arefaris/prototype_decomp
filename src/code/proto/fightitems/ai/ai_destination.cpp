@@ -1,5 +1,6 @@
 // Fight items of the ai group: InReservedAreaCondition, DestinationDistanceCondition, GroundDistanceCondition, DestinationTargetOrientationCondition, InsideReservedVolumeCondition, InBlastAreaCondition, StuckCondition, HaveDestinationCondition, InHotZoneCondition, DestinationHaveArrivedCondition, SetAvoidanceGapAnywhereTrack, SpeedTrack, DestinationJumpToTrack, DestinationFlyToTrack, SetIntersectionPropertiesTrack, DisableStayOnNavmeshTrack, TargetGoToTrack, ForceMotionTrack, ForceRecalculatePathTrack, ReserveVolumeTrack, DestinationSetDeadBodyTrack, StopTrack, TempSpeedTrack, SetBrakeDistanceTrack, AimTrack, DestinationGoToTrack (unit 0x1023BC30 - 0x102432A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_destination.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -2576,6 +2577,391 @@ namespace proto
 				return new AimAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x102029E0
+			ReserveVolumeAction::ReserveVolumeAction(ReserveVolumeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFF70
+			ReserveVolumeAction::~ReserveVolumeAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102041E0
+			fight::Action* ReserveVolumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReserveVolumeAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x10203580
+			SetIntersectionPropertiesAction::SetIntersectionPropertiesAction(SetIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102003B0
+			SetIntersectionPropertiesAction::~SetIntersectionPropertiesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204460
+			fight::Action* SetIntersectionPropertiesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetIntersectionPropertiesAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x10201C70
+			TargetGoToAction::TargetGoToAction(TargetGoToTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), unknown1C(math::kZeroVector), unknown34(-1.0f), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FFD90
+			TargetGoToAction::~TargetGoToAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FED10
+			void TargetGoToAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10203D20
+			fight::Action* TargetGoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TargetGoToAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x102032C0
+			DestinationSetDeadBodyAction::DestinationSetDeadBodyAction(DestinationSetDeadBodyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10200350
+			DestinationSetDeadBodyAction::~DestinationSetDeadBodyAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10204400
+			fight::Action* DestinationSetDeadBodyTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DestinationSetDeadBodyAction(this, handle, effect, listener);
+			}
+			// FUNCTION: ENGINE 0x10200130
+			bool ForceRecalculatePathAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ForceRecalculatePathMovementMessage message;
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10203A90
+			bool DisableStayOnNavmeshAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					DisableStayOnMeshMovementMessage message(true);
+					object->SendMessage(&message);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10203B20
+			void DisableStayOnNavmeshAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						DisableStayOnMeshMovementMessage message(false);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x102031C0
+			bool SetBrakeDistanceAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetBrakingDistanceMovementMessage getMessage;
+				object->SendMessage(&getMessage);
+				unknown2C = getMessage.distance;
+				SetBrakingDistanceMovementMessage setMessage(link.object->brakeDistance);
+				object->SendMessage(&setMessage);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x102002B0
+			void SetBrakeDistanceAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetBrakingDistanceMovementMessage message(unknown2C);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10203860
+			bool SetAvoidanceGapAnywhereAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (link.object->temporary)
+					{
+						GetAvoidanceGapAnywhereMovementMessage getMessage;
+						object->SendMessage(&getMessage);
+						unknown2C = getMessage.enabled;
+					}
+					SetAvoidanceGapAnywhereMovementMessage setMessage(link.object->enable);
+					object->SendMessage(&setMessage);
+				}
+				return link.object->temporary;
+			}
+
+			// FUNCTION: ENGINE 0x10203950
+			void SetAvoidanceGapAnywhereAction::Slot6()
+			{
+				if (link.object != 0 && link.object->temporary)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetAvoidanceGapAnywhereMovementMessage message(unknown2C);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x102027E0
+			bool TempSpeedAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				float speed = link.object->speed;
+				if (0.0f < speed)
+				{
+					GetSpeedMovementMessage getMessage;
+					object->SendMessage(&getMessage);
+					unknown2C = getMessage.speed;
+					SetSpeedMovementMessage setMessage(speed);
+					object->SendMessage(&setMessage);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10202950
+			void TempSpeedAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetSpeedMovementMessage message(unknown2C);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x102028F0
+			bool TempSpeedAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Unknown103B8630(object, link.object->sprint, link.object->useMaxSpeed);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10202650
+			bool SpeedAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Unknown103B8630(object, link.object->sprint, link.object->useMaxSpeed);
+				float speed = link.object->speed;
+				if (speed > choreo::gZero)
+				{
+					SetSpeedMovementMessage message(speed);
+					object->SendMessage(&message);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x102001F0
+			void ForceMotionAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ClearVehicleAccelerationsMessage message;
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x102023A0
+			// EQUIVALENT: block order; the engine puts the failure return in front of the body and jumps to it from the other tests, ours behind (22.6 %)
+			bool AimAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (target.Get() != 0)
+				{
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x102023F0
+			// NONMATCHING: the engine copies the offset vector with three SSE loads and three stores (ours: x87 for the first component), best 42 %
+#ifdef NONMATCHING
+			bool AimAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetAimParametersMovementMessage message(true);
+				object->SendMessage(&message);
+				AimParameters* parameters = message.parameters;
+				if (parameters != 0)
+				{
+					parameters->active = 1;
+					parameters->offset.Set(link.object->offset.x, link.object->offset.y, link.object->offset.z);
+					parameters->where = link.object->where;
+					parameters->forceWorldAngles = link.object->forceWorldAngles;
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10200480
+			bool DestinationHaveArrivedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					result = Unknown103B8440(object);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200A20
+			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %
+			bool HaveDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDestinationMessage message;
+					object->SendMessage(&message);
+					if (message.hasDestination && message.unknownD)
+					{
+						result = true;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200B20
+			bool StuckCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetStuckMovementMessage message;
+					object->SendMessage(&message);
+					result = message.stuck == stuck;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200BE0
+			// NONMATCHING: the engine keeps the zero in ebx for the message flags and compares the flag with it, ours zeroes bl and tests the pointer, best 62 %
+#ifdef NONMATCHING
+			bool InHotZoneCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetInHotZoneMovementMessage message;
+					object->SendMessage(&message);
+					result = message.inHotZone == in;
+					if (result && requireStayOnGround)
+					{
+						return message.onGround;
+					}
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101FFE60
+			bool StopAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Unknown103B82F0(object);
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;
@@ -2684,6 +3070,46 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::SetAvoidanceGapAnywhereTrack>::~Link();
+template core::Link<proto::fightitems::ai::SpeedTrack>::~Link();
+template core::Link<proto::fightitems::ai::DisableStayOnNavmeshTrack>::~Link();
+template core::Link<proto::fightitems::ai::ForceMotionTrack>::~Link();
+template core::Link<proto::fightitems::ai::ForceRecalculatePathTrack>::~Link();
+template core::Link<proto::fightitems::ai::StopTrack>::~Link();
+template core::Link<proto::fightitems::ai::TempSpeedTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetBrakeDistanceTrack>::~Link();
+template core::Link<proto::fightitems::ai::AimTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReserveVolumeTrack>::~Link();
+template core::Link<proto::fightitems::ai::SetIntersectionPropertiesTrack>::~Link();
+template core::Link<proto::fightitems::ai::TargetGoToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::~Link();
+template proto::fightitems::ai::SetAvoidanceGapAnywhereTrack* core::Link<proto::fightitems::ai::SetAvoidanceGapAnywhereTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetAvoidanceGapAnywhereTrack>::Link(proto::fightitems::ai::SetAvoidanceGapAnywhereTrack*);
+template proto::fightitems::ai::SpeedTrack* core::Link<proto::fightitems::ai::SpeedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SpeedTrack>::Link(proto::fightitems::ai::SpeedTrack*);
+template proto::fightitems::ai::DisableStayOnNavmeshTrack* core::Link<proto::fightitems::ai::DisableStayOnNavmeshTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DisableStayOnNavmeshTrack>::Link(proto::fightitems::ai::DisableStayOnNavmeshTrack*);
+template proto::fightitems::ai::ForceMotionTrack* core::Link<proto::fightitems::ai::ForceMotionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ForceMotionTrack>::Link(proto::fightitems::ai::ForceMotionTrack*);
+template proto::fightitems::ai::ForceRecalculatePathTrack* core::Link<proto::fightitems::ai::ForceRecalculatePathTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ForceRecalculatePathTrack>::Link(proto::fightitems::ai::ForceRecalculatePathTrack*);
+template proto::fightitems::ai::StopTrack* core::Link<proto::fightitems::ai::StopTrack>::Get() const;
+template core::Link<proto::fightitems::ai::StopTrack>::Link(proto::fightitems::ai::StopTrack*);
+template proto::fightitems::ai::TempSpeedTrack* core::Link<proto::fightitems::ai::TempSpeedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TempSpeedTrack>::Link(proto::fightitems::ai::TempSpeedTrack*);
+template proto::fightitems::ai::SetBrakeDistanceTrack* core::Link<proto::fightitems::ai::SetBrakeDistanceTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetBrakeDistanceTrack>::Link(proto::fightitems::ai::SetBrakeDistanceTrack*);
+template proto::fightitems::ai::AimTrack* core::Link<proto::fightitems::ai::AimTrack>::Get() const;
+template core::Link<proto::fightitems::ai::AimTrack>::Link(proto::fightitems::ai::AimTrack*);
+template proto::fightitems::ai::ReserveVolumeTrack* core::Link<proto::fightitems::ai::ReserveVolumeTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReserveVolumeTrack>::Link(proto::fightitems::ai::ReserveVolumeTrack*);
+template proto::fightitems::ai::SetIntersectionPropertiesTrack* core::Link<proto::fightitems::ai::SetIntersectionPropertiesTrack>::Get() const;
+template core::Link<proto::fightitems::ai::SetIntersectionPropertiesTrack>::Link(proto::fightitems::ai::SetIntersectionPropertiesTrack*);
+template proto::fightitems::ai::TargetGoToTrack* core::Link<proto::fightitems::ai::TargetGoToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TargetGoToTrack>::Link(proto::fightitems::ai::TargetGoToTrack*);
+template proto::fightitems::ai::DestinationSetDeadBodyTrack* core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Link(proto::fightitems::ai::DestinationSetDeadBodyTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10202370
@@ -3014,3 +3440,62 @@ namespace proto
 // FUNCTION: ENGINE 0x10243200
 // FUNCTION: ENGINE 0x10243230
 // FUNCTION: ENGINE 0x10243250
+// FUNCTION: ENGINE 0x101FF370
+// FUNCTION: ENGINE 0x101FF390
+// FUNCTION: ENGINE 0x101FF3B0
+// FUNCTION: ENGINE 0x101FF3D0
+// FUNCTION: ENGINE 0x101FF3F0
+// FUNCTION: ENGINE 0x101FF410
+// FUNCTION: ENGINE 0x101FF570
+// FUNCTION: ENGINE 0x101FF580
+// FUNCTION: ENGINE 0x101FF5D0
+// FUNCTION: ENGINE 0x101FF5E0
+// FUNCTION: ENGINE 0x101FF630
+// FUNCTION: ENGINE 0x101FF640
+// FUNCTION: ENGINE 0x101FF690
+// FUNCTION: ENGINE 0x101FF6A0
+// FUNCTION: ENGINE 0x101FF6F0
+// FUNCTION: ENGINE 0x101FF700
+// FUNCTION: ENGINE 0x101FF750
+// FUNCTION: ENGINE 0x101FF7A0
+// FUNCTION: ENGINE 0x101FF7B0
+// FUNCTION: ENGINE 0x101FFBB0
+// FUNCTION: ENGINE 0x101FFC60
+// FUNCTION: ENGINE 0x101FFD10
+// FUNCTION: ENGINE 0x101FFD70
+// FUNCTION: ENGINE 0x101FFDC0
+// FUNCTION: ENGINE 0x101FFE10
+// FUNCTION: ENGINE 0x101FFEB0
+// FUNCTION: ENGINE 0x102011B0
+// FUNCTION: ENGINE 0x102011C0
+// FUNCTION: ENGINE 0x102011D0
+// FUNCTION: ENGINE 0x10201220
+// FUNCTION: ENGINE 0x10201230
+// FUNCTION: ENGINE 0x10201240
+// FUNCTION: ENGINE 0x10201290
+// FUNCTION: ENGINE 0x102012A0
+// FUNCTION: ENGINE 0x102012B0
+// FUNCTION: ENGINE 0x10201300
+// FUNCTION: ENGINE 0x10201320
+// FUNCTION: ENGINE 0x10201390
+// FUNCTION: ENGINE 0x102013E0
+// FUNCTION: ENGINE 0x101FED00
+// FUNCTION: ENGINE 0x101FE3F0
+// FUNCTION: ENGINE 0x101FE430
+// FUNCTION: ENGINE 0x101FE440
+// FUNCTION: ENGINE 0x101FE470
+// FUNCTION: ENGINE 0x101FE480
+// FUNCTION: ENGINE 0x101FE4C0
+// FUNCTION: ENGINE 0x101FE4D0
+// FUNCTION: ENGINE 0x101FE500
+// FUNCTION: ENGINE 0x101FE510
+// FUNCTION: ENGINE 0x101FE540
+// FUNCTION: ENGINE 0x101FE550
+// FUNCTION: ENGINE 0x101FE580
+// FUNCTION: ENGINE 0x101FE5C0
+// FUNCTION: ENGINE 0x101FE5D0
+// FUNCTION: ENGINE 0x101FE600
+// FUNCTION: ENGINE 0x101FE670
+// FUNCTION: ENGINE 0x101FE6A0
+// FUNCTION: ENGINE 0x101FE6E0
+// FUNCTION: ENGINE 0x101FEB90

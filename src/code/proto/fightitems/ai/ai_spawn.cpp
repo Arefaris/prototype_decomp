@@ -320,6 +320,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ObjectSpawnedTrack>::~Link();
+template proto::fightitems::ai::ObjectSpawnedTrack* core::Link<proto::fightitems::ai::ObjectSpawnedTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ObjectSpawnedTrack>::Link(proto::fightitems::ai::ObjectSpawnedTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1020AC00
 // FUNCTION: ENGINE 0x1020AC10

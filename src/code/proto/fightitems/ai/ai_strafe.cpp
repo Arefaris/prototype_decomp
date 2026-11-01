@@ -1633,6 +1633,59 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x1020E080
+			TightStrafeRunAction::TightStrafeRunAction(TightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(false), unknown30(0.0f), unknown38(0), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f), unknown50(0.0f), unknown54(0.0f), unknown58(0.0f), unknown5C(0.0f), unknown60(0.0f), unknown64(-1.0f), unknown68(0x5), unknown6C(0x28), unknown70(false), unknown74(0.0f, 0.0f, 0.0f), unknown80(0.0f, 0.0f, 0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D1D0
+			TightStrafeRunAction::~TightStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F1D0
+			fight::Action* TightStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TightStrafeRunAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x1020E5B0
+			PrepareTightStrafeRunAction::PrepareTightStrafeRunAction(PrepareTightStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0), unknown30(0.0f, 0.0f, 0.0f), unknown3C(0.0f, 0.0f, 0.0f), unknown48(0.0f, 0.0f, 0.0f), unknown54(0.0f), unknown58(-1.0f), unknown5C(0x5), unknown60(0x28), unknown64(false), unknown68(0.0f, 0.0f, 0.0f), unknown74(0.0f, 0.0f, 0.0f), unknown80(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D220
+			PrepareTightStrafeRunAction::~PrepareTightStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F220
+			fight::Action* PrepareTightStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PrepareTightStrafeRunAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x1020E900
+			TryOpenStrafeRunAction::TryOpenStrafeRunAction(TryOpenStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener) : fight::Action(0xE00), effect(newEffect), listener(newListener), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020D2E0
+			TryOpenStrafeRunAction::~TryOpenStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020C020
+			void TryOpenStrafeRunAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1020F960
+			fight::Action* TryOpenStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new TryOpenStrafeRunAction(this, handle, effect, listener);
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CanStrafeRunCondition>;
 			template class fight::PropertyIntConstRange<CanStrafeRunCondition>;
@@ -1682,9 +1735,18 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::TightStrafeRunTrack>::~Link();
+template core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::~Link();
+template core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::~Link();
+template proto::fightitems::ai::TightStrafeRunTrack* core::Link<proto::fightitems::ai::TightStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TightStrafeRunTrack>::Link(proto::fightitems::ai::TightStrafeRunTrack*);
+template proto::fightitems::ai::PrepareTightStrafeRunTrack* core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::Link(proto::fightitems::ai::PrepareTightStrafeRunTrack*);
+template proto::fightitems::ai::TryOpenStrafeRunTrack* core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Get() const;
+template core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Link(proto::fightitems::ai::TryOpenStrafeRunTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1020C010
-// FUNCTION: ENGINE 0x1020C020
 // FUNCTION: ENGINE 0x1024BFB0
 // FUNCTION: ENGINE 0x1024BFE0
 // FUNCTION: ENGINE 0x1024C010
@@ -1819,3 +1881,12 @@ namespace proto
 // FUNCTION: ENGINE 0x1024F770
 // FUNCTION: ENGINE 0x1024F7C0
 // FUNCTION: ENGINE 0x1024F810
+// FUNCTION: ENGINE 0x1020CD70
+// FUNCTION: ENGINE 0x1020CEB0
+// FUNCTION: ENGINE 0x1020CEC0
+// FUNCTION: ENGINE 0x1020CF20
+// FUNCTION: ENGINE 0x1020D150
+// FUNCTION: ENGINE 0x1020D1B0
+// FUNCTION: ENGINE 0x1020DB30
+// FUNCTION: ENGINE 0x1020DB40
+// FUNCTION: ENGINE 0x1020DB50

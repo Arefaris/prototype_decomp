@@ -3,6 +3,9 @@
 #define PROTO_FIGHTITEMS_AI_AI_CONDITIONALEXECUTE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/branch.h"
+#include "code/engine/fight/effecttrack.h"
+#include "code/engine/fight/lodactions.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -51,6 +54,33 @@ namespace proto
 			void RegisterConditionalExecuteTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+
+			// RTTI: proto::fightitems::ai::ConditionalExecuteAction (9 vftable slots, 0x88 bytes)
+			class ConditionalExecuteAction : public fight::Action
+			{
+			public:
+				// 0x101E8700
+				ConditionalExecuteAction(fight::Track* newListener, ConditionalExecuteTrack* newTrack, int newEffect, core::IRefCount* newOwner);
+				// 0x101E8630
+				virtual ~ConditionalExecuteAction();
+
+				// vftable slot 3 (0x101E8560)
+				virtual fight::Sequencer* GetChild();
+				// vftable slot 5 (0x101E87E0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101E8570)
+				virtual void Slot6();
+				// vftable slot 7 (0x101E8810)
+				virtual bool Slot7(int arg, float value);
+
+				engine::TrackWatch watch;  // +0x1C
+				core::Link<ConditionalExecuteTrack> link;  // +0x28
+				int effect;  // +0x34
+				core::IRefCount* owner;  // +0x38
+				bool active;  // +0x3C
+				unsigned char unknown3D[0x3];
+				fight::Sequencer sequencer;  // +0x40
+			};
 
 			// ---- actions end
 		}

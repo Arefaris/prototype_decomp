@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_DESTINATION_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -959,7 +960,8 @@ namespace proto
 
 				core::Link<SetAvoidanceGapAnywhereTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				unsigned char unknown2C[0x4];
+				bool unknown2C;  // +0x2C
+				unsigned char unknown2D[0x3];
 			};
 
 			// RTTI: proto::fightitems::ai::SpeedAction (9 vftable slots, 0x2C bytes)
@@ -1074,7 +1076,7 @@ namespace proto
 
 				core::Link<TempSpeedTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				unsigned char unknown2C[0x4];
+				float unknown2C;  // +0x2C
 			};
 
 			// RTTI: proto::fightitems::ai::SetBrakeDistanceAction (9 vftable slots, 0x2C bytes)
@@ -1116,6 +1118,84 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::ReserveVolumeAction (9 vftable slots, 0x38 bytes)
+			class ReserveVolumeAction : public fight::Action
+			{
+			public:
+				// 0x102029E0
+				ReserveVolumeAction(ReserveVolumeTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFF70
+				virtual ~ReserveVolumeAction();
+
+				// vftable slot 5 (0x10204230)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FEDC0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10202CA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReserveVolumeTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+			};
+			// RTTI: proto::fightitems::ai::SetIntersectionPropertiesAction (9 vftable slots, 0x38 bytes)
+			class SetIntersectionPropertiesAction : public fight::Action
+			{
+			public:
+				// 0x10203580
+				SetIntersectionPropertiesAction(SetIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102003B0
+				virtual ~SetIntersectionPropertiesAction();
+
+				// vftable slot 5 (0x10203630)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10203740)
+				virtual void Slot6();
+
+				core::Link<SetIntersectionPropertiesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+				core::Name<core::CaseSensitiveKey> unknown30;  // +0x30
+			};
+			// RTTI: proto::fightitems::ai::TargetGoToAction (9 vftable slots, 0x48 bytes)
+			class TargetGoToAction : public fight::Action
+			{
+			public:
+				// 0x10201C70
+				TargetGoToAction(TargetGoToTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FFD90
+				virtual ~TargetGoToAction();
+
+				// vftable slot 5 (0x10203D70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED10)
+				virtual void Slot6();
+				// vftable slot 7 (0x10203ED0)
+				virtual bool Slot7(int arg, float value);
+
+				math::Vector unknown1C;  // +0x1C
+				unsigned char unknown28[0xC];
+				float unknown34;  // +0x34
+				core::Link<TargetGoToTrack> link;  // +0x38
+				engine::GameObjectHandle target;  // +0x44
+			};
+			// RTTI: proto::fightitems::ai::DestinationSetDeadBodyAction (9 vftable slots, 0x3C bytes)
+			class DestinationSetDeadBodyAction : public fight::Action
+			{
+			public:
+				// 0x102032C0
+				DestinationSetDeadBodyAction(DestinationSetDeadBodyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
+				// 0x10200350
+				virtual ~DestinationSetDeadBodyAction();
+
+				// vftable slot 5 (0x10203390)
+				virtual bool Slot5(int arg, float value);
+
+				core::IRefCount* effect;  // +0x1C
+				engine::TrackWatch listener;  // +0x20
+				core::Link<DestinationSetDeadBodyTrack> link;  // +0x2C
+				engine::GameObjectHandle target;  // +0x38
+			};
 			// ---- actions end
 		}
 	}

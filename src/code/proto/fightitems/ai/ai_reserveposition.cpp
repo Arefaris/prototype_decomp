@@ -892,6 +892,22 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ReservePositionTrack>::~Link();
+template core::Link<proto::fightitems::ai::CommanderInCombatTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReserveHydraPositionTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReserveGunButtTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReserveTargetsPositionTrack>::~Link();
+template proto::fightitems::ai::ReservePositionTrack* core::Link<proto::fightitems::ai::ReservePositionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReservePositionTrack>::Link(proto::fightitems::ai::ReservePositionTrack*);
+template proto::fightitems::ai::CommanderInCombatTrack* core::Link<proto::fightitems::ai::CommanderInCombatTrack>::Get() const;
+template core::Link<proto::fightitems::ai::CommanderInCombatTrack>::Link(proto::fightitems::ai::CommanderInCombatTrack*);
+template proto::fightitems::ai::ReserveHydraPositionTrack* core::Link<proto::fightitems::ai::ReserveHydraPositionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReserveHydraPositionTrack>::Link(proto::fightitems::ai::ReserveHydraPositionTrack*);
+template proto::fightitems::ai::ReserveGunButtTrack* core::Link<proto::fightitems::ai::ReserveGunButtTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReserveGunButtTrack>::Link(proto::fightitems::ai::ReserveGunButtTrack*);
+template proto::fightitems::ai::ReserveTargetsPositionTrack* core::Link<proto::fightitems::ai::ReserveTargetsPositionTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReserveTargetsPositionTrack>::Link(proto::fightitems::ai::ReserveTargetsPositionTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101EF0D0
 // FUNCTION: ENGINE 0x101EF550
@@ -967,3 +983,18 @@ namespace proto
 // FUNCTION: ENGINE 0x1022F840
 // FUNCTION: ENGINE 0x1022F870
 // FUNCTION: ENGINE 0x1022F890
+// FUNCTION: ENGINE 0x101EDC40
+// FUNCTION: ENGINE 0x101EDC60
+// FUNCTION: ENGINE 0x101EDD00
+// FUNCTION: ENGINE 0x101EDD10
+// FUNCTION: ENGINE 0x101EDD60
+// FUNCTION: ENGINE 0x101EDD70
+// FUNCTION: ENGINE 0x101EDDD0
+// FUNCTION: ENGINE 0x101EDFB0
+// FUNCTION: ENGINE 0x101EE060
+// FUNCTION: ENGINE 0x101EE0B0
+// FUNCTION: ENGINE 0x101EE300
+// FUNCTION: ENGINE 0x101EE310
+// FUNCTION: ENGINE 0x101EE320
+// FUNCTION: ENGINE 0x101EE370
+// FUNCTION: ENGINE 0x101EE390

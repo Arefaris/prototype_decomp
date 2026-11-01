@@ -3,6 +3,7 @@
 #ifndef PROTO_FIGHTITEMS_AI_AIHELPERS_H
 #define PROTO_FIGHTITEMS_AI_AIHELPERS_H
 
+#include "code/core/name.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobject.h"
@@ -116,6 +117,23 @@ namespace proto
 
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
+	// 0x103B8440: whether the object has arrived at its destination (name guess)
+	bool Unknown103B8440(engine::GameObject* object);
+	// 0x103B82F0: makes the object stop (name guess)
+	void Unknown103B82F0(engine::GameObject* object);
+	// 0x103BA7F0: whether the target is hostile to the object (name guess)
+	bool Unknown103BA7F0(engine::GameObject* object, engine::GameObjectHandle target);
+	// 0x103BB590: forces the emotional state of the object (name guess)
+	void Unknown103BB590(engine::GameObject* object, core::Name<core::CaseSensitiveKey> state);
+	// 0x103B8630: sets how an object moves (the sprint and the maximum speed flags; name guess)
+	void Unknown103B8630(engine::GameObject* object, bool sprint, bool useMaxSpeed);
+	// 0x10078F70: whether the object is the player's
+	bool IsPlayerObject(engine::GameObject* object);
+	// 0x103C0360 / 0x103C02D0: whether the object is a tank / a helicopter (name guesses; each asks the object for its vehicle kind)
+	bool Unknown103C0360(engine::GameObject* object);
+	bool Unknown103C02D0(engine::GameObject* object);
+	// 0x103B8DC0: the level of detail state of an object (name guess)
+	int Unknown103B8DC0(engine::GameObject* object);
 	// 0x103B8B80: the handle of the object's target (name guess)
 	engine::GameObjectHandle Unknown103B8B80(engine::GameObject* object);
 }

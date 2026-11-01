@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AI_ROOFTOP_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
@@ -193,6 +194,27 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::RooftopDestinationFindAction (9 vftable slots, 0x3C bytes)
+			class RooftopDestinationFindAction : public fight::Action
+			{
+			public:
+				// 0x102093F0
+				RooftopDestinationFindAction(RooftopDestinationFindTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEffect, fight::Track* newListener);
+				// 0x10209090
+				virtual ~RooftopDestinationFindAction();
+
+				// vftable slot 5 (0x10208ED0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10208EE0)
+				virtual void Slot6();
+				// vftable slot 7 (0x102097E0)
+				virtual bool Slot7(int arg, float value);
+
+				core::IRefCount* effect;  // +0x1C
+				engine::TrackWatch listener;  // +0x20
+				core::Link<RooftopDestinationFindTrack> link;  // +0x2C
+				engine::GameObjectHandle target;  // +0x38
+			};
 			// ---- actions end
 		}
 	}

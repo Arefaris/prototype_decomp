@@ -1,5 +1,6 @@
 // Fight items of the ai group: InFormationCondition, FormationReformingCondition, FollowFormationTrack, FollowTargetTrack, ReformTrack (unit 0x10232390 - 0x102338F0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_formation.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -466,6 +467,109 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x101F45C0
+			FollowTargetAction::FollowTargetAction(FollowTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f), unknown48(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3FA0
+			FollowTargetAction::~FollowTargetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3B20
+			void FollowTargetAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5B60
+			fight::Action* FollowTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FollowTargetAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F4850
+			FollowFormationAction::FollowFormationAction(FollowFormationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown38(math::kZeroVector), unknown44(math::kZeroVector), unknown5C(0), unknown68(0), unknown6C(false), unknown6D(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3FF0
+			FollowFormationAction::~FollowFormationAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3C70
+			void FollowFormationAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5BB0
+			fight::Action* FollowFormationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new FollowFormationAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F5690
+			ReformAction::ReformAction(ReformTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(math::kZeroVector), unknown3C(false)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F41F0
+			ReformAction::~ReformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101F5C00
+			fight::Action* ReformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ReformAction(this, handle);
+			}
+			// FUNCTION: ENGINE 0x101F4220
+			// NONMATCHING: the engine joins the two flag tests behind one tail and keeps the zero in ebx, best 21 %
+#ifdef NONMATCHING
+			bool InFormationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetCommanderSquadMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* commander = message.commander.Get();
+				if (commander != 0)
+				{
+					IsFormationSquadMessage formationMessage;
+					commander->SendMessage(&formationMessage);
+					result = formationMessage.inFormation;
+				}
+				return result == in;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F4360
+			bool FormationReformingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetCommanderSquadMessage message;
+				object->SendMessage(&message);
+				bool result = false;
+				engine::GameObject* commander = message.commander.Get();
+				if (commander != 0)
+				{
+					FormationReformingSquadMessage reformingMessage;
+					commander->SendMessage(&reformingMessage);
+					result = reformingMessage.reforming == reforming;
+				}
+				return result;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<InFormationCondition>;
 			template class fight::ConditionFactoryTemplate<InFormationCondition>;
@@ -486,6 +590,16 @@ namespace proto
 		}
 	}
 }
+
+template core::Link<proto::fightitems::ai::FollowTargetTrack>::~Link();
+template core::Link<proto::fightitems::ai::FollowFormationTrack>::~Link();
+template core::Link<proto::fightitems::ai::ReformTrack>::~Link();
+template proto::fightitems::ai::FollowTargetTrack* core::Link<proto::fightitems::ai::FollowTargetTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FollowTargetTrack>::Link(proto::fightitems::ai::FollowTargetTrack*);
+template proto::fightitems::ai::FollowFormationTrack* core::Link<proto::fightitems::ai::FollowFormationTrack>::Get() const;
+template core::Link<proto::fightitems::ai::FollowFormationTrack>::Link(proto::fightitems::ai::FollowFormationTrack*);
+template proto::fightitems::ai::ReformTrack* core::Link<proto::fightitems::ai::ReformTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ReformTrack>::Link(proto::fightitems::ai::ReformTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102328E0
@@ -536,3 +650,17 @@ namespace proto
 // FUNCTION: ENGINE 0x10233800
 // FUNCTION: ENGINE 0x10233850
 // FUNCTION: ENGINE 0x102338A0
+// FUNCTION: ENGINE 0x101F3E00
+// FUNCTION: ENGINE 0x101F3E60
+// FUNCTION: ENGINE 0x101F3E70
+// FUNCTION: ENGINE 0x101F3ED0
+// FUNCTION: ENGINE 0x101F3F80
+// FUNCTION: ENGINE 0x101F3FD0
+// FUNCTION: ENGINE 0x101F44D0
+// FUNCTION: ENGINE 0x101F44E0
+// FUNCTION: ENGINE 0x101F4530
+// FUNCTION: ENGINE 0x101F3890
+// FUNCTION: ENGINE 0x101F3A20
+// FUNCTION: ENGINE 0x101F3A60
+// FUNCTION: ENGINE 0x101F3AB0
+// FUNCTION: ENGINE 0x101F3AE0
