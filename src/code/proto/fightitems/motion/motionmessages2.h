@@ -678,4 +678,20 @@ namespace proto
 	};
 }
 
+namespace proto
+{
+	// RTTI: proto::VariableNameSetMessage: sets a name variable (the constructor is an out of line function of another unit, 0x100B3280)
+	class VariableNameSetMessage : public VariableNameMessage
+	{
+	public:
+		VariableNameSetMessage(const core::Name<core::CaseSensitiveKey>& newVariable, const core::Name<core::CaseSensitiveKey>& newValue, bool newPersistent);
+		virtual ~VariableNameSetMessage()
+		{
+		}
+
+		bool persistent;  // +0x20
+		int unknown24;
+	};
+}
+
 #endif

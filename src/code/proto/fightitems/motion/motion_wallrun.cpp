@@ -1,5 +1,6 @@
 // Fight items of the motion group: WallRunTrack, WallOrientTrack, WallRunEnterTrack (unit 0x101CE030 - 0x101D0240; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_wallrun.h"
+#include <math.h>
 
 namespace proto
 {
@@ -720,7 +721,7 @@ namespace proto
 
 			// FUNCTION: ENGINE 0x10132750
 			// EQUIVALENT: scheduling: the engine pushes the arguments of the owner assignment right before its call, ours right after the owner is loaded (94.9 %)
-			WallOrientAction::WallOrientAction(WallOrientTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), surfaceEvent(0), driver(0), unknown34(0.0f), unknown38(0.0f), unknown3C(0.0f)
+			WallOrientAction::WallOrientAction(WallOrientTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), surfaceEvent(0), driver(0), normal(0.0f, 0.0f, 0.0f)
 			{
 				engine::AssignRefCountedCopy2(&surfaceEvent, newEvent);
 			}
@@ -728,7 +729,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x10130590
 			WallOrientAction::~WallOrientAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 				core::SafeReleaseRefCopy2(surfaceEvent);
 			}
 
@@ -739,6 +740,101 @@ namespace proto
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
 				return new WallOrientAction(this, handle, AsSurfaceEventOwner(owner));
 			}
+
+			// FUNCTION: ENGINE 0x10132820
+			// EQUIVALENT: scheduling of the float loads: the engine keeps the negation constant in xmm0 and loads the three matrix components before the subtractions, ours subtracts from memory; every operation, its order and the stores are the engine's (41.8 %)
+			bool WallOrientAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SupportingSurfaceNormalEvent* event = (SupportingSurfaceNormalEvent*)surfaceEvent;
+				if (event != 0)
+				{
+					normal.x = event->normalX;
+					normal.y = event->normalY;
+					normal.z = event->normalZ;
+				}
+				else
+				{
+					math::Matrix* matrix = object->transform->GetPointer();
+					float x = matrix->m[2][0];
+					float y = matrix->m[2][1];
+					float z = matrix->m[2][2];
+					normal.x = math::WORLD_MIN - x;
+					normal.z = math::WORLD_MIN - z;
+					normal.x = normal.x * choreo::gMinusOne;
+					normal.y = math::WORLD_MIN - y;
+					normal.y = normal.y * choreo::gMinusOne;
+					normal.z = normal.z * choreo::gMinusOne;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				float blendIn = link.Get()->GetBlendInTime();
+				int priority = link.Get()->GetPriority();
+				float blendOut = link.Get()->GetBlendOutTime();
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("wallOrient", 1);
+				driver->SetName(driverName);
+				driver->SetMask(2);
+				driver->AddRef();
+				puppet->SetDriver(driver, choreo::gMinusOne, priority, 1.0f, blendIn, blendOut, choreo::gMinusOne);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10132A10
+			// NONMATCHING: the engine compares the angle difference on the x87 stack (fldz / fcompi, the value kept for the sign and the magnitude) where ours spills it and compares in SSE (21.4 %)
+#ifdef NONMATCHING
+			bool WallOrientAction::Slot7(int arg, float value)
+			{
+				if (driver == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix* matrix = object->transform->GetPointer();
+				math::Vector forward(math::WORLD_MIN - matrix->m[2][0], math::WORLD_MIN - matrix->m[2][1], math::WORLD_MIN - matrix->m[2][2]);
+				float heading = choreo::Heading(forward);
+				float offset = link.Get()->GetOrientOffset();
+				float goal = choreo::Heading(normal) + offset;
+				float turning = link.Get()->GetTurningVelocity();
+				if (turning > choreo::gZero)
+				{
+					float difference = choreo::AngleDifference(heading, goal);
+					float step = turning * value;
+					float direction = choreo::gMinusOne;
+					if (0.0f <= difference)
+					{
+						direction = 0.0f;
+						if (0.0f > difference)
+						{
+							direction = engine::driving::gOne;
+						}
+					}
+					float magnitude = (float)fabs(difference);
+					if (magnitude < step)
+					{
+						step = magnitude;
+					}
+					goal = step * direction + heading;
+				}
+				driver->mDelta.SetOrientation(goal, *matrix);
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<WallRunTrack>;
@@ -763,6 +859,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x101301F0
 // FUNCTION: ENGINE 0x10130220
 // FUNCTION: ENGINE 0x10130240
 // FUNCTION: ENGINE 0x10130290

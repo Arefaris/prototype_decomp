@@ -269,6 +269,19 @@ namespace proto
 				// vftable slot 15 (0x10129770, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				const fight::Name& GetValue() const
+				{
+					return value;
+				}
+				const fight::Name& GetVariable() const
+				{
+					return variable;
+				}
+				bool GetPersistent() const
+				{
+					return persistent;
+				}
+
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetVariable(const fight::Name& newValue);

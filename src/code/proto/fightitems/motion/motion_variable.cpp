@@ -1057,6 +1057,23 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x10128FD0
+			// EQUIVALENT: shrink-wrap (the engine saves esi in the entry block before the owner tests) (77.7 %)
+			bool VariableNameSetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					VariableNameSetMessage message(link.Get()->GetVariable(), link.Get()->GetValue(), link.Get()->GetPersistent());
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyName<VariableNameCompareCondition>;
 			template class fight::PropertyEnumConstList<VariableNameCompareCondition>;
@@ -1127,14 +1144,18 @@ namespace proto
 // FUNCTION: ENGINE 0x10127FF0
 // FUNCTION: ENGINE 0x10128000
 // FUNCTION: ENGINE 0x10128010
+// FUNCTION: ENGINE 0x10128020
 // FUNCTION: ENGINE 0x10128030
 // FUNCTION: ENGINE 0x10128040
+// FUNCTION: ENGINE 0x10128050
 // FUNCTION: ENGINE 0x10128060
+// FUNCTION: ENGINE 0x10128070
 // FUNCTION: ENGINE 0x10128080
 // FUNCTION: ENGINE 0x10128140
 // FUNCTION: ENGINE 0x10128170
 // FUNCTION: ENGINE 0x101282C0
 // FUNCTION: ENGINE 0x101282D0
+// FUNCTION: ENGINE 0x101282E0
 // FUNCTION: ENGINE 0x10128380
 // FUNCTION: ENGINE 0x10128390
 // FUNCTION: ENGINE 0x101283C0

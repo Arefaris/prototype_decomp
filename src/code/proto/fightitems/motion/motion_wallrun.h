@@ -5,6 +5,10 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
+#include "code/math/worldbounds.h"
+#include "code/choreo/deltatransform.h"
 
 namespace proto
 {
@@ -119,6 +123,27 @@ namespace proto
 				// vftable slot 15 (0x10133700, another unit)
 				virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+
+				float GetOrientOffset() const
+				{
+					return orientOffset;
+				}
+				float GetTurningVelocity() const
+				{
+					return turningVelocity;
+				}
 				// The members the properties write
 				bool SetTimeBegin(float newValue);
 				bool SetTimeEnd(float newValue);
@@ -224,6 +249,15 @@ namespace proto
 				return (trackOwner->kind == 0x21006) ? owner : 0;
 			}
 
+			// The supporting surface event as the wall orient action reads it (kind 0x21006; the normal of the surface)
+			struct SupportingSurfaceNormalEvent : ReactionEvent
+			{
+				unsigned char unknown10[0x18];
+				float normalX;  // +0x28
+				float normalY;  // +0x2C
+				float normalZ;  // +0x30
+			};
+
 			// RTTI: proto::fightitems::motion::WallRunAction (9 vftable slots, 0x58 bytes)
 			class WallRunAction : public fight::Action
 			{
@@ -275,10 +309,8 @@ namespace proto
 				core::Link<WallOrientTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				core::IRefCount* surfaceEvent;  // +0x2C
-				choreo::Driver* driver;  // +0x30
-				float unknown34;
-				float unknown38;
-				float unknown3C;
+				choreo::RootDriver* driver;  // +0x30
+				math::Vector normal;  // +0x34
 			};
 
 			// ---- actions end
