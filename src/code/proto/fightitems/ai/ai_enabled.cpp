@@ -1,5 +1,6 @@
 // Fight items of the ai group: EnabledCondition, TaskCondition, GoalCondition (unit 0x10239F70 - 0x1023A830; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_enabled.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -185,6 +186,45 @@ namespace proto
 			}
 
 			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x101FCE90
+			bool EnabledCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetEnabledAIMsg message;
+				object->SendMessage(&message);
+				return isEnabled == message.enabled;
+			}
+
+			// FUNCTION: ENGINE 0x101FCF40
+			bool TaskCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTaskAIMsg message;
+				object->SendMessage(&message);
+				return task == message.task;
+			}
+
+			// FUNCTION: ENGINE 0x101FD000
+			bool GoalCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGoalAIMsg message;
+				object->SendMessage(&message);
+				return goal == message.goal;
+			}
 
 			// ---- actions end
 			template class fight::PropertyBool<EnabledCondition>;

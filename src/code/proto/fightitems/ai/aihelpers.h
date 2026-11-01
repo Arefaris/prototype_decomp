@@ -116,6 +116,13 @@ namespace proto
 
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
+	// 0x10078F70: whether the object is the player's
+	bool IsPlayerObject(engine::GameObject* object);
+	// 0x103C0360 / 0x103C02D0: whether the object is a tank / a helicopter (name guesses; each asks the object for its vehicle kind)
+	bool Unknown103C0360(engine::GameObject* object);
+	bool Unknown103C02D0(engine::GameObject* object);
+	// 0x103B8DC0: the level of detail state of an object (name guess)
+	int Unknown103B8DC0(engine::GameObject* object);
 	// 0x103B8B80: the handle of the object's target (name guess)
 	engine::GameObjectHandle Unknown103B8B80(engine::GameObject* object);
 }

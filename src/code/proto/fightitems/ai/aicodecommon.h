@@ -15,6 +15,13 @@ namespace fight
 	// 0x1009E120 (another unit): compares two floats with one of the compare operators (0 less, 1 less or equal, 2 equal, 3
 	// not equal, 4 greater or equal, 5 greater): lhs op rhs
 	bool CompareFloats(int op, const float* lhs, const float* rhs);
+	// 0x10111310 (another unit): compares two integers with one of the compare operators (the numbers as for the floats)
+	bool CompareInts(int op, const int* lhs, const int* rhs);
+	// The comparison with the operands as values (an inline wrapper the conditions expand)
+	inline bool CompareIntValues(int op, int lhs, int rhs)
+	{
+		return CompareInts(op, &lhs, &rhs);
+	}
 	// 0x100A1FB0 (another unit): compares two names (0 equal, 1 not equal)
 	bool CompareNames(int op, const core::Name<core::CaseSensitiveKey>* lhs, const core::Name<core::CaseSensitiveKey>* rhs);
 }

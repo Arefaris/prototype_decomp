@@ -1,5 +1,6 @@
 // Fight items of the ai group: CirclePatrolTrack, IntersectionCirclePatrolTrack, CircleStrafeTrack (unit 0x1021CD90 - 0x1021E550; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_circle.h"
+#include "code/math/random.h"
 
 namespace proto
 {
@@ -556,6 +557,23 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new CircleStrafeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101E13F0
+			bool CircleStrafeAction::Slot5(int arg, float value)
+			{
+				CircleStrafeTrack* track = link.object;
+				if (track == 0)
+				{
+					return false;
+				}
+				float high = track->maxSpeed;
+				float low = track->minSpeed;
+				unknown2C = math::gRandom->Range(low, high);
+				unknown30 = 0.0f;
+				unknown34 = 0.0f;
+				unknown38 = 0.0f;
+				return true;
 			}
 
 			// ---- actions end

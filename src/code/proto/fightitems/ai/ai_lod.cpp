@@ -1,5 +1,6 @@
 // Fight items of the ai group: CanReserveSoldierBudgetCondition, IsInLoadedCellCondition, NPCLODCondition, LodSteerTrack, ResetPhysicVelocitiesTrack, LodMoveTrack, EnableLODPatrolTrack, GameObjectOrientTrack, CharacterizeTrack, CharacterizeFromReservedTrack, SetNPCLODStateTrack, LodGotoFixedDestinationTrack, UnDowngradableTrack, UpdateSoldierReservationBudgetTrack (unit 0x10236270 - 0x10239F70; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_lod.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -1532,6 +1533,22 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new CharacterizeFromReservedAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101FB370
+			// EQUIVALENT: stack slot layout; the engine's second operand shares the owner argument's slot with the handle (a frame of 4 bytes), ours takes a slot of its own (frame of 8 bytes); every instruction is the engine's
+			bool NPCLODCondition::Evaluate(int a, int b, int c, int)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					int state = Unknown103B8DC0(object);
+					int expected = value;
+					result = fight::CompareInts(compare, &state, &expected);
+				}
+				return result;
 			}
 
 			// ---- actions end

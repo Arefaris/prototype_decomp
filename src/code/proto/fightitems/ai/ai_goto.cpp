@@ -1,5 +1,6 @@
 // Fight items of the ai group: HasFixedDestinationCondition, HasFixedAreaDestinationCondition, DumbGotoTrack, DumbGotoLODTrack, GoToTrack (unit 0x102338F0 - 0x10234D10; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_goto.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -467,6 +468,34 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new DumbGotoAction(this, handle);
 			}
+			// FUNCTION: ENGINE 0x101F65C0
+			bool HasFixedDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFixedDestinationMessage message;
+					object->SendMessage(&message);
+					result = message.destination != 0;
+				}
+				return result == hasDestination ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x101F6660
+			bool HasFixedAreaDestinationCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFixedAreaDestinationMessage message;
+					object->SendMessage(&message);
+					result = message.destination != 0;
+				}
+				return result == hasDestination ? true : false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<HasFixedDestinationCondition>;
 			template class fight::ConditionFactoryTemplate<HasFixedDestinationCondition>;
