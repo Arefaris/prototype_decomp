@@ -156,12 +156,14 @@ namespace mgraph
 	// The nodes allocate exactly their size (the engine's node classes have members that are not recovered yet)
 #define MGRAPH_NODE_BODY(Type, Base, Size) \
 	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
 		OM_ALLOCATION(Type); \
 		char unknown4[Size - sizeof(Base)]
 
 	// The same for the classes that add nothing to the node
 #define MGRAPH_NODE_BODY_PLAIN(Type) \
 	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
 		OM_ALLOCATION(Type)
 
 	template<class Op> class __declspec(align(8)) CommutativeMath : public Node
