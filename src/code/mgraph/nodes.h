@@ -42,17 +42,44 @@ namespace mgraph
 		unsigned char unknown0;
 	};
 
+	// What a pin keeps for one channel (RTTI: mgraph::PinChannelData and mgraph::Packet<T>, 0x10 bytes). Slot 0 of the packets is
+	// not recovered; slot 1 is the destructor. The packet is a handle (a pointer into a table, a count and a pool).
 	class PinChannelData
 	{
 	public:
-		virtual ~PinChannelData();
+		virtual void Slot0(void* unknown, int unknown2) = 0;
+		virtual ~PinChannelData()
+		{
+		}
 	};
 
 	// The values a pin carries for each channel
 	template<class T> class Packet : public PinChannelData
 	{
 	public:
-		T value;
+		Packet() :
+			unknown4(0),
+			unknown8(0),
+			unknownC(0)
+		{
+		}
+		Packet(const Packet& other) :
+			unknown4(0),
+			unknown8(0),
+			unknownC(0)
+		{
+			Assign(other, 0, 0);
+		}
+		virtual void Slot0(void* unknown, int unknown2);
+		virtual ~Packet()
+		{
+		}
+		// 0x10AF5980 (one copy in the engine): gives up what the packet holds and shares what the other holds
+		void Assign(const Packet& other, int unknown, int unknown2);
+
+		unsigned int unknown4;
+		unsigned int unknown8;
+		unsigned int unknownC;
 	};
 
 	// The operations of the math nodes (RTTI: structs)
