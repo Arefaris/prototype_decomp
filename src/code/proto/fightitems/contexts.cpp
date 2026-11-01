@@ -598,7 +598,7 @@ namespace fightitems
 	void RegisterAt102061F0Factories(fight::TrackRegistry* registry);
 	void RegisterAt10502080Factories(fight::TrackRegistry* registry);
 	void RegisterAt103591C0Factories(fight::TrackRegistry* registry);
-	void RegisterAt1030ECF0Factories(fight::TrackRegistry* registry);
+	bool RegisterPhysicsLODAndDoorsFactories(fight::TrackRegistry* registry);
 	void RegisterAt104F3900Factories(fight::TrackRegistry* registry);
 	void RegisterAt104FB8A0Factories(fight::TrackRegistry* registry);
 	void RegisterAt105020B0Factories(fight::TrackRegistry* registry);
@@ -1134,7 +1134,7 @@ namespace proto
 				proto::fightitems::motion::RegisterImpulseTrackFactory(registry, "Impulse");
 				proto::fightitems::RegisterAt10502080Factories(registry);
 				proto::fightitems::RegisterAt103591C0Factories(registry);
-				proto::fightitems::RegisterAt1030ECF0Factories(registry);
+				proto::fightitems::RegisterPhysicsLODAndDoorsFactories(registry);
 				engine::animation::RegisterShaderAnimationTrackFactory(registry, "shaderAnimation");
 				engine::scenario::RegisterLuaTrackFactory(registry, "lua");
 				proto::fightitems::playback::RegisterShootTrackFactory(registry, "shoot");
@@ -1730,7 +1730,7 @@ namespace proto
 		proto::RegisterWOISendEventTrackFactory(registry, "WOISendEvent");
 		proto::RegisterWOIPlayReactionTrackFactory(registry, "WOIPlayReaction");
 		proto::RegisterWOIShowTargetNameTrackFactory(registry, "WOIShowTargetName");
-		proto::fightitems::RegisterAt1030ECF0Factories(registry);
+		proto::fightitems::RegisterPhysicsLODAndDoorsFactories(registry);
 		proto::RegisterSmartHintSetTimerTrackFactory(registry, "smartHintSetTimer");
 		registry->Prepare();
 		registry->Complete();

@@ -1061,7 +1061,7 @@ namespace engine
 				ownerDrawable = message.drawable;
 			}
 			Drawable created = CreateAttachedDrawable(shader, setup->unknown8, &setup->position, &setup->unknown18,
-				setup->unknown24, setup->unknown30, ownerDrawable, setup->unknown34, setup->unknown38);
+				&setup->unknown24.x, setup->unknown30, ownerDrawable, setup->unknown34, setup->unknown38);
 			AttachedDrawable attached;
 			attached.drawable = created;
 			attached.owner = setup->owner;
