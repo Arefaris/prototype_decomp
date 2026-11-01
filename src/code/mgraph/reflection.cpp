@@ -2,6 +2,7 @@
 // node types, their pins and their properties, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/audio/drivers.h"
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/listnodes.h"
 #include "code/om/delegate.h"
 #include "code/om/invoke.h"
 #include "code/om/metaclass.h"
@@ -15,6 +16,11 @@
 namespace om
 {
 	using namespace mgraph;
+
+	// Left to the engine: the text and binary slots of the colour property (the engine merges the paths of the cached type found
+	// and not found)
+	template<> bool MetaProperty<mgraph::NodeColour const&>::SetText(TextValue const*, void*);
+	template<> bool MetaProperty<mgraph::NodeColour const&>::SetBinary(BinaryStream*, void*);
 
 	// FUNCTION: ENGINE 0x10AC2850
 	template MetaClass<audio::XAudio2RendererDriver>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
@@ -64,6 +70,10 @@ namespace om
 	template char const* MetaClass<mgraph::NodeColour>::AllocationTag();
 	// FUNCTION: ENGINE 0x10AC8C00
 	template char const* MetaClass<mgraph::Node>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC8C10
+	template MetaProperty<mgraph::NodeColour const&>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,mgraph::NodeColour const&>*, MetaMethod0Base<mgraph::NodeColour const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AC8C70
+	template MetaProperty<int>::MetaProperty(MetaTypeBase*, MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,int>*, MetaMethod0Base<int>*, unsigned int);
 	// FUNCTION: ENGINE 0x10AC9160
 	template int MetaClass<mgraph::NodeColour>::Slot5();
 	// FUNCTION: ENGINE 0x10AC9170
@@ -76,10 +86,44 @@ namespace om
 	template void* MetaClass<mgraph::NodeColour>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AC9230
 	template void* MetaClass<mgraph::Node>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AC9360
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,int>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,int>::Function);
+	// FUNCTION: ENGINE 0x10AC9880
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,int>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,int>::Function);
+	// FUNCTION: ENGINE 0x10AC9B80
+	template bool MetaProperty<int>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AC9C10
+	template void MetaProperty<int>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AC9C80
+	template bool MetaProperty<int>::SetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AC9CC0
+	template bool MetaProperty<int>::GetBinary(BinaryStream*, void*);
 	// FUNCTION: ENGINE 0x10ACA0F0
 	template void MetaClass<mgraph::NodeColour>::Create(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x10ACA1B0
 	template void MetaClass<mgraph::Node>::Create(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x10ACA3E0
+	template void MetaProperty<mgraph::NodeColour const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,mgraph::NodeColour const&>*, MetaMethod0Base<mgraph::NodeColour const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ACA520
+	template MetaMethod1<mgraph::Node,mgraph::Node,void,int>* MetaMethod1<mgraph::Node,mgraph::Node,void,int>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Node,mgraph::Node,void,int>::Function);
+	// FUNCTION: ENGINE 0x10ACA560
+	template MetaMethod0Const<mgraph::Node,mgraph::Node,int>* MetaMethod0Const<mgraph::Node,mgraph::Node,int>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Node,mgraph::Node,int>::Function);
+	// FUNCTION: ENGINE 0x10ACA5A0
+	template void MetaProperty<int>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,int>*, MetaMethod0Base<int>*, unsigned int);
+	// FUNCTION: ENGINE 0x10ACA5F0
+	template void MetaMethod0Const<mgraph::Node,mgraph::Node,int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10ACA870
+	// NONMATCHING: the engine merges the paths of the cached type found and not found (32.6 %)
+#ifdef NONMATCHING
+	template bool MetaProperty<mgraph::NodeColour const&>::SetText(TextValue const*, void*);
+#endif
+	// FUNCTION: ENGINE 0x10ACA980
+	// NONMATCHING: the engine merges the paths of the cached type found and not found (30.6 %)
+#ifdef NONMATCHING
+	template bool MetaProperty<mgraph::NodeColour const&>::SetBinary(BinaryStream*, void*);
+#endif
+	// FUNCTION: ENGINE 0x10ACB2F0
+	template void MetaMethod1<mgraph::Node,mgraph::Node,void,int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10ACC020
 	template MetaClass<mgraph::LinkedGraph>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x10ACC050

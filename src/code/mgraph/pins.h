@@ -28,7 +28,8 @@ namespace mgraph
 		virtual om::MetaTypeBase* GetPacketType() = 0;
 		virtual om::MetaTypeBase* GetPacketTypeCached() = 0;
 
-		char unknown4[0x10];
+		om::ClassName name;  // 8 (the compiler leaves a hole behind the vftable)
+		Node* node;  // 0x10: the node the pin belongs to
 		unsigned char kind;  // 0x14: 0 for a concrete pin, 1 for an abstract one
 		char unknown15[3];
 		unsigned int unknown18;
@@ -133,14 +134,12 @@ namespace mgraph
 	public:
 		GraphConnectionBase(Pin* newFrom, Pin* newTo);
 		virtual ~GraphConnectionBase();
-		virtual void Slot1();
-		virtual void Slot2();
-		virtual void Slot3();
-		virtual void Slot4();
-		virtual void Slot5();
-		virtual void Slot6();
+		virtual void Attach(Context* newContext);
+		virtual void Detach(Context* oldContext);
+		virtual void Slot5(void* argument);
+		virtual bool Slot6(void* argument);
 
-		char unknown4[0x24];
+		char unknown8[0x20];
 	};
 
 	class AbstractToConcreteGraphConnectionBase : public GraphConnectionBase
@@ -331,11 +330,8 @@ namespace mgraph
 	template<class P> class OutputPin : public ConcreteOutputPinBase
 	{
 	public:
-		OutputPin(void* newNode, const om::ClassName* newName, int newIndex, const P& initial) :
-			ConcreteOutputPinBase(newName, newNode, newIndex),
-			value(initial)
-		{
-		}
+		// Out of line in the engine (one copy for each packet type; not reconstructed)
+		OutputPin(void* newNode, const om::ClassName* newName, int newIndex, const P& initial);
 		virtual ~OutputPin()
 		{
 		}

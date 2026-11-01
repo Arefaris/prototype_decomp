@@ -2,6 +2,7 @@
 // om::MetaSimpleType<T> for the arrays of the property types and for the packets, in the order the compiler emitted them
 // (a guess: one translation unit).
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/throw.h"
 #include "code/om/metasimpletype.h"
 
 #pragma warning(disable: 4661)

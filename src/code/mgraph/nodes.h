@@ -5,6 +5,7 @@
 #define MGRAPH_NODES_H
 
 #include "code/mgraph/envelope.h"
+#include "code/mgraph/graph.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/delegate.h"
 #include "code/om/dynamicproperty.h"
@@ -155,12 +156,19 @@ namespace mgraph
 	// The nodes allocate exactly their size (the engine's node classes have members that are not recovered yet)
 #define MGRAPH_NODE_BODY(Type, Base, Size) \
 	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
 		OM_ALLOCATION(Type); \
 		char unknown4[Size - sizeof(Base)]
 
+	// The same for the classes that add nothing to the node
+#define MGRAPH_NODE_BODY_PLAIN(Type) \
+	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
+		OM_ALLOCATION(Type)
+
 	template<class Op> class __declspec(align(8)) CommutativeMath : public Node
 	{
-		MGRAPH_NODE_BODY(CommutativeMath, Node, 0x50);
+		MGRAPH_NODE_BODY_PLAIN(CommutativeMath);
 	};
 	template<class Op> const char* CommutativeMath<Op>::AllocationTag()
 	{
@@ -168,7 +176,7 @@ namespace mgraph
 	}
 	template<class Op> class __declspec(align(8)) NonCommutativeMath : public Node
 	{
-		MGRAPH_NODE_BODY(NonCommutativeMath, Node, 0x50);
+		MGRAPH_NODE_BODY_PLAIN(NonCommutativeMath);
 	};
 	template<class Op> const char* NonCommutativeMath<Op>::AllocationTag()
 	{
@@ -176,7 +184,7 @@ namespace mgraph
 	}
 	template<class Op> class __declspec(align(8)) Operator2 : public Node
 	{
-		MGRAPH_NODE_BODY(Operator2, Node, 0x50);
+		MGRAPH_NODE_BODY_PLAIN(Operator2);
 	};
 	template<class Op> const char* Operator2<Op>::AllocationTag()
 	{
@@ -184,7 +192,7 @@ namespace mgraph
 	}
 	template<class Op> class __declspec(align(8)) UnaryMath : public Node
 	{
-		MGRAPH_NODE_BODY(UnaryMath, Node, 0x50);
+		MGRAPH_NODE_BODY_PLAIN(UnaryMath);
 	};
 	template<class Op> const char* UnaryMath<Op>::AllocationTag()
 	{
@@ -238,7 +246,6 @@ namespace mgraph
 		virtual om::MetaTypeBase* GetValueMetaType();
 		virtual om::DelegatePropertyBase* CreateDelegate(unsigned int channel);
 		OM_ALLOCATION(PropertyNodeBase);
-		char unknown4[0x50 - sizeof(Node)];
 	};
 	class InletBase : public Node
 	{
@@ -281,6 +288,13 @@ namespace mgraph
 		char unknown8[8];
 		void* outputs;  // 0x10: the FrameOutput of the channel's type
 		unsigned int id;  // 0x14
+		unsigned int unknown18;
+
+		// The entries the input pin of an index brought (one FrameEntries for each input pin)
+		template<class T> FrameEntries<T>* GetInputs(unsigned int pinIndex)
+		{
+			return reinterpret_cast<FrameEntries<T>*>(static_cast<FrameEntries<int>*>(inputs) + pinIndex);
+		}
 	};
 
 	// What a property node keeps for a channel: the value, whether it changed and a number that goes with it (names guessed)
@@ -333,7 +347,7 @@ namespace mgraph
 		typedef typename PacketValue<P>::Type Value;
 		typedef PropertyChannel<Value> Channel;
 
-		virtual void SetNumChannels(unsigned short newCount);
+		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot15(unsigned int channel);
 		virtual void Slot16(EvaluationFrame* frame);
 		virtual void PostPropertyValue(unsigned int channel, EventQueue* queue, const om::DynamicPropertyBase* property);
@@ -375,22 +389,6 @@ namespace mgraph
 	{
 		return "";
 	}
-	template<class P> class __declspec(align(8)) Throw : public Node
-	{
-		MGRAPH_NODE_BODY(Throw, Node, 0x68);
-	};
-	template<class P> const char* Throw<P>::AllocationTag()
-	{
-		return "";
-	}
-	template<class P> class __declspec(align(8)) Catch : public Node
-	{
-		MGRAPH_NODE_BODY(Catch, Node, 0x58);
-	};
-	template<class P> const char* Catch<P>::AllocationTag()
-	{
-		return "";
-	}
 	template<class P> class __declspec(align(8)) Switch : public Node
 	{
 		MGRAPH_NODE_BODY(Switch, Node, 0x60);
@@ -399,23 +397,6 @@ namespace mgraph
 	{
 		return "";
 	}
-	template<class T> class __declspec(align(8)) ListCount : public Node
-	{
-		MGRAPH_NODE_BODY(ListCount, Node, 0x50);
-	};
-	template<class T> const char* ListCount<T>::AllocationTag()
-	{
-		return "";
-	}
-	template<class T> class __declspec(align(8)) ListEntry : public Node
-	{
-		MGRAPH_NODE_BODY(ListEntry, Node, 0x50);
-	};
-	template<class T> const char* ListEntry<T>::AllocationTag()
-	{
-		return "";
-	}
-
 	class CastBoolToTrigger : public Node
 	{
 	};
@@ -461,28 +442,31 @@ namespace mgraph
 	{
 	};
 
-	// The graph itself, an entity (RTTI: mgraph::Graph)
-	class Graph : public om::Entity
-	{
-	public:
-		explicit Graph(const om::ClassName& newName);
-	};
-
 	// The description of a node class that creates its nodes (RTTI: mgraph::NodeTypeBase and mgraph::NodeType<N>, 0x30 bytes;
 	// the slots are the destructor, the creation of a node and the reflection of N)
 	class __declspec(align(8)) NodeTypeBase
 	{
 	public:
-		// 0x10AD1860 (registers the node type), the destructor 0x10AD1840
-		NodeTypeBase(const unsigned int& newUnknown, const om::ClassName& newName);
+		// 0x10AD1860 (registers the node type), the destructor 0x10AD1840 (takes it out of the registry again)
+		NodeTypeBase(const unsigned int& newFlags, const om::ClassName& newName);
 		virtual ~NodeTypeBase();
-		// Slot 1: makes a node of the class (the first argument is passed on to the node, the second is its name)
+		// Slot 1: makes a node of the class (the first argument is the graph the node belongs to, the second is its name)
 		virtual Node* CreateNode(void* unknown, const om::ClassName* nodeName) = 0;
 		// Slot 2: the reflection of the node class
 		virtual om::MetaTypeBase* GetMetaType() = 0;
 
-		char unknown4[0x2C];
+		// 0x10AD10E0: takes the node type out of the registry
+		void Unregister();
+
+		int instanceCount;  // 8: how many nodes of the class there are
+		om::ClassName name;  // 0x10
+		unsigned int flags;  // 0x18
+		om::TreeNode treeNode;  // 0x1C: the node type in the registry of the node types
+		unsigned int unknown2C;
 	};
+
+	// 0x10AD1460: enters a node type in the registry (name guessed)
+	void RegisterNodeType(NodeTypeBase* nodeType);
 
 	// 0x10AD1180: the description of the node class registered for the type_info (name guessed)
 	NodeTypeBase* FindNodeType(const type_info& type);

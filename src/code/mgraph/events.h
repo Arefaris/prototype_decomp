@@ -4,6 +4,7 @@
 #ifndef MGRAPH_EVENTS_H
 #define MGRAPH_EVENTS_H
 
+#include "code/mgraph/node.h"
 #include "code/om/allocation.h"
 #include "code/om/refcount.h"
 
@@ -13,6 +14,11 @@ namespace mgraph
 	class Context
 	{
 	public:
+		// 0x10AC4950 / 0x10AC49B0: puts a node in the lists of the context, takes it out
+		void AddNode(Node* node);
+		void RemoveNode(Node* node);
+		// 0x10AC33D0: what the nodes allocate their channels for (name guessed)
+		void* GetChannelOwner();
 		// 0x10AC5770 / 0x10AC5780 / 0x10AC59F0 / 0x10AC5A00: a command of the evaluation pass
 		void AddPreEvaluateCommand(void* command);
 		void AddPostEvaluateCommand(void* command);
