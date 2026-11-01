@@ -33,6 +33,13 @@ namespace om
 		}
 	}
 
+	// A bool goes out as one byte
+	inline void WriteResult(BinaryStream* stream, bool value)
+	{
+		char byte = value ? 1 : 0;
+		stream->buffer->Write(&byte, 1);
+	}
+
 	template<class T> inline void WriteResult(BinaryStream* stream, const T& value)
 	{
 		WriteBinary(stream, value);

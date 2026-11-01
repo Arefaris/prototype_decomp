@@ -1,5 +1,8 @@
 // The om library's file system interface and file helpers (0x105C1040 - 0x105C10C0 and 0x105CB6A0 - 0x105CB92C).
 #include "code/om/filesystem.h"
+#include "code/om/path.h"
+#include "code/om/stream.h"
+#include <string.h>
 
 // The kernel32 imports (see win32drive.cpp)
 extern "C"
@@ -25,6 +28,9 @@ extern "C"
 	};
 
 	__declspec(dllimport) int __stdcall FindClose(void* find);
+	__declspec(dllimport) int __stdcall FindNextFileA(void* find, _WIN32_FIND_DATAA* data);
+	__declspec(dllimport) unsigned long __stdcall GetFileAttributesA(const char* path);
+	__declspec(dllimport) int __stdcall SetFileAttributesA(const char* path, unsigned long attributes);
 	__declspec(dllimport) void* __stdcall FindFirstFileA(const char* pattern, _WIN32_FIND_DATAA* data);
 	__declspec(dllimport) int __stdcall DeleteFileA(const char* path);
 	__declspec(dllimport) int __stdcall MoveFileA(const char* existing, const char* replacement);
@@ -37,6 +43,9 @@ extern "C"
 	__declspec(dllimport) int __stdcall CloseHandle(void* handle);
 }
 #pragma comment(linker, "/alternatename:__imp__FindClose@4=__imp__FindClose")
+#pragma comment(linker, "/alternatename:__imp__FindNextFileA@8=__imp__FindNextFileA")
+#pragma comment(linker, "/alternatename:__imp__GetFileAttributesA@4=__imp__GetFileAttributesA")
+#pragma comment(linker, "/alternatename:__imp__SetFileAttributesA@8=__imp__SetFileAttributesA")
 #pragma comment(linker, "/alternatename:__imp__FindFirstFileA@8=__imp__FindFirstFileA")
 #pragma comment(linker, "/alternatename:__imp__DeleteFileA@4=__imp__DeleteFileA")
 #pragma comment(linker, "/alternatename:__imp__MoveFileA@8=__imp__MoveFileA")
@@ -159,5 +168,174 @@ namespace om
 	{
 		CreateDirectories(destination);
 		return CopyFileA(source.GetText(), destination.GetText(), 0) != 0;
+	}
+
+	// FUNCTION: ENGINE 0x105CB650
+	bool MakeFileWritable(const String& path)
+	{
+		unsigned long attributes = GetFileAttributesA(path.GetText());
+		if (attributes == 0xFFFFFFFF)
+		{
+			return false;
+		}
+		attributes &= 0xFFFFFFFE;
+		return SetFileAttributesA(path.GetText(), attributes) != 0;
+	}
+
+	// FUNCTION: ENGINE 0x105CB930
+	int VisitFiles(const String& root, const String& directory, FileVisitor visitor, void* data)
+	{
+		String pattern;
+		if (directory.length > 0)
+		{
+			Sprintf(pattern, "%s\\%s\\*", root.GetText(), directory.GetText());
+		}
+		else
+		{
+			Sprintf(pattern, "%s\\*", root.GetText());
+		}
+		_WIN32_FIND_DATAA found;
+		void* find = FindFirstFileA(pattern.GetTextOutOfLine(), &found);
+		if (find == reinterpret_cast<void*>(-1))
+		{
+			return 0;
+		}
+		do
+		{
+			if (found.dwFileAttributes & 0x10)
+			{
+				if (strcmp(found.cFileName, ".") != 0 && strcmp(found.cFileName, "..") != 0)
+				{
+					String subdirectory;
+					if (directory.length > 0)
+					{
+						Sprintf(subdirectory, "%s\\%s", directory.GetText(), found.cFileName);
+					}
+					else
+					{
+						Sprintf(subdirectory, "%s", found.cFileName);
+					}
+					if (VisitFiles(root, subdirectory, visitor, data) == 2)
+					{
+						FindClose(find);
+						return 2;
+					}
+				}
+			}
+			else
+			{
+				String path;
+				if (directory.length > 0)
+				{
+					Sprintf(path, "%s\\%s", directory.GetText(), found.cFileName);
+				}
+				else
+				{
+					Sprintf(path, "%s", found.cFileName);
+				}
+				if (!visitor(path.GetTextOutOfLine(), data))
+				{
+					FindClose(find);
+					return 0;
+				}
+			}
+		}
+		while (FindNextFileA(find, &found));
+		FindClose(find);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x105CBBB0
+	bool VisitAllFiles(const String& root, FileVisitor visitor, void* data)
+	{
+		int result = VisitFiles(root, String(), visitor, data);
+		if (result == 0)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105CBBF0
+	String GetFileNameOf(const String& path)
+	{
+		String result(path);
+		ReduceToFileName(&result);
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x105CBC10
+	void CopyFileWritable(const String& destination, const String& source)
+	{
+		CreateDirectories(destination);
+		if (CopyFileTo(destination, source))
+		{
+			MakeFileWritable(destination);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105CBC40
+	bool CreateEmptyFile(const String& path, bool overwrite)
+	{
+		bool exists = FileExists(path);
+		if (overwrite || !exists)
+		{
+			CreateDirectories(path);
+			void* file = CreateFileA(path.GetText(), 0x40000000, 0, 0, 2, 0x80, 0);
+			if (file == reinterpret_cast<void*>(-1))
+			{
+				return false;
+			}
+			CloseHandle(file);
+			return true;
+		}
+		return false;
+	}
+
+	// What the removal hands to the visitor
+	struct FileRemovalContext
+	{
+		FileRemovalLog* log;
+		const char* directory;
+	};
+
+	// FUNCTION: ENGINE 0x105CBCA0
+	// EQUIVALENT: register allocation: the engine keeps the log's error stream in edi and returns the flag from bl, ours reuses esi and returns the constants (66.8 %)
+	static bool RemoveVisitedFile(const char* name, void* data)
+	{
+		FileRemovalContext* context = static_cast<FileRemovalContext*>(data);
+		FileRemovalLog* log = context->log;
+		String path = Format(0, "%s\\%s", context->directory, name);
+		bool removed = RemoveFile(path);
+		if (removed)
+		{
+			Stream* stream = log->removed;
+			StreamPrintf(stream, "", path.GetTextOutOfLine());
+			return removed;
+		}
+		Stream* errors = log->errors;
+		StreamPrintf(errors, "", path.GetTextOutOfLine());
+		char message[256];
+		if (GetLastErrorText(message, 256))
+		{
+			StreamPrintf(errors, "", message);
+			return false;
+		}
+		StreamPrintf(errors, "");
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105CBD90
+	bool RemoveFilesBelow(const String& directory, FileRemovalLog* log)
+	{
+		if (FileExists(directory))
+		{
+			const char* text = directory.GetText();
+			FileRemovalContext context;
+			context.directory = text;
+			context.log = log;
+			return VisitAllFiles(directory, RemoveVisitedFile, &context);
+		}
+		return true;
 	}
 }

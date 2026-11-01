@@ -5,6 +5,7 @@
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 #include "code/om/metamethod.h"
+#include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 
 #pragma warning(disable: 4661)
@@ -148,9 +149,9 @@ namespace music
 namespace om
 {
 
-	// FUNCTION: ENGINE 0x10462480
+	// FUNCTION: ENGINE 0x105D8800
 	template const char* Garbage<music::Time>::AllocationTag();
-	// FUNCTION: ENGINE 0x104629C0
+	// FUNCTION: ENGINE 0x105D8F40
 	template void* Garbage<music::Time>::operator new(size_t);
 	// FUNCTION: ENGINE 0x10479410
 	template MetaMethod1Base<void, const unsigned int&>* MetaProperty<const unsigned int&>::GetSetter();
@@ -441,7 +442,7 @@ namespace om
 	template MetaMethod1<music::Fade, music::Fade, void, const music::Time&>::~MetaMethod1();
 	// FUNCTION: ENGINE 0x105D87E0
 	template void MetaMethod1<music::Fade, music::Fade, void, const music::Time&>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105D8800
+	// FUNCTION: ENGINE 0x105D8690
 	template const char* Garbage<music::FollowAction::Type>::AllocationTag();
 	// FUNCTION: ENGINE 0x105D8830
 	template void* MetaMethod0Const<music::Fade, music::Fade, const music::Time&>::operator new(size_t);
@@ -483,7 +484,7 @@ namespace om
 	template Garbage<music::FollowAction::Type>::~Garbage();
 	// FUNCTION: ENGINE 0x105D8F20
 	template void Garbage<music::FollowAction::Type>::operator delete(void*);
-	// FUNCTION: ENGINE 0x105D8F40
+	// FUNCTION: ENGINE 0x105D8EC0
 	template void* Garbage<music::FollowAction::Type>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105D8F60
 	template Garbage<music::Time>::Garbage(music::Time*);
@@ -599,4 +600,30 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<const music::FollowAction::Type&>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105DBA10
 	template DelegatePropertyBase* MetaProperty<const music::Time&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x105DB800
+	template unsigned int* ReadArgument<unsigned int>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105DB860
+	template music::FollowAction::Type* ReadArgument<music::FollowAction::Type>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105DB8E0
+	template music::Time* ReadArgument<music::Time>(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105D82B0
+	template void MetaMethod0Const<music::Time, music::Time, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105D8530
+	template void MetaMethod0Const<music::TimeSignature, music::TimeSignature, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105D99F0
+	template void MetaMethod0Const<music::Time, music::Time, bool>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DB6A0
+	template void MetaMethod0Const<music::FollowAction, music::FollowAction, const music::FollowAction::Type&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DB750
+	template void MetaMethod0Const<music::Fade, music::Fade, const music::Time&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DBA60
+	template void MetaMethod1<music::Time, music::Time, void, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DBB40
+	template void MetaMethod1<music::Time, music::Time, void, bool>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DBBF0
+	template void MetaMethod1<music::TimeSignature, music::TimeSignature, void, const unsigned int&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DBCC0
+	template void MetaMethod1<music::FollowAction, music::FollowAction, void, const music::FollowAction::Type&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105DBD90
+	template void MetaMethod1<music::Fade, music::Fade, void, const music::Time&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 }

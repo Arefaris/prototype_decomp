@@ -3,6 +3,7 @@
 #ifndef OM_FILESYSTEM_H
 #define OM_FILESYSTEM_H
 
+#include "code/om/stream.h"
 #include "code/om/string.h"
 
 namespace om
@@ -45,6 +46,31 @@ namespace om
 	bool IsFileNewer(const String& first, const String& second);
 	// 0x105CB610: copies a file over another, making the directories
 	bool CopyFileTo(const String& destination, const String& source);
+	// 0x105CB650: takes the read-only attribute off a file
+	bool MakeFileWritable(const String& path);
+	// 0x105CB930: calls the function with the path of every file below the directory of the root (the root's own files
+	// when the directory is empty), directories first met in the order the host lists them; answers 0 when the search
+	// or the function stopped, 1 when it went through all
+	typedef bool (*FileVisitor)(const char* path, void* data);
+	int VisitFiles(const String& root, const String& directory, FileVisitor visitor, void* data);
+	// 0x105CBBB0: all the files below the root
+	bool VisitAllFiles(const String& root, FileVisitor visitor, void* data);
+	// 0x105CBBF0: the file name of a path
+	String GetFileNameOf(const String& path);
+	// 0x105CBC10: copies a file (making the directories) and takes the read-only attribute off the copy
+	void CopyFileWritable(const String& destination, const String& source);
+	// 0x105CBC40: makes an empty file (an existing one is only emptied when asked to)
+	bool CreateEmptyFile(const String& path, bool overwrite);
+	// 0x105CBD90: removes the files below a directory, reporting each to the streams
+	struct FileRemovalLog
+	{
+		Stream* errors;
+		Stream* unknown4;
+		Stream* removed;
+	};
+	bool RemoveFilesBelow(const String& directory, FileRemovalLog* log);
+	// 0x105E4150: the host's text for the last error
+	bool GetLastErrorText(char* buffer, unsigned int size);
 }
 
 #endif

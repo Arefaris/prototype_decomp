@@ -2,6 +2,7 @@
 // made of the om library's template instances.
 #include "code/audio/mix.h"
 #include "code/om/metamethod.h"
+#include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 #include "code/om/delegate.h"
 #include "code/om/metaclass.h"
@@ -399,4 +400,22 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<float>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105CF750
 	template DelegatePropertyBase* MetaProperty<bool>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x105CD1C0
+	template void MetaMethod0Const<audio::Mix, audio::Mix, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CD4D0
+	template void MetaMethod0Const<audio::MixStrip, audio::MixStrip, float>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CE780
+	template void MetaMethod0Const<audio::MixStrip, audio::MixStrip, bool>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CF460
+	template void MetaMethod0Const<audio::MixStrip, audio::MixStrip, const Name<CaseSensitive64BitKey>&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CF4F0
+	template Name<CaseSensitive64BitKey>* ReadArgument<Name<CaseSensitive64BitKey> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x105CF840
+	template void MetaMethod1<audio::Mix, audio::Mix, void, unsigned int>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CF920
+	template void MetaMethod1<audio::MixStrip, audio::MixStrip, void, float>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CFA00
+	template void MetaMethod1<audio::MixStrip, audio::MixStrip, void, bool>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x105CFAB0
+	template void MetaMethod1<audio::MixStrip, audio::MixStrip, void, const Name<CaseSensitive64BitKey>&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 }

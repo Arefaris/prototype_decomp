@@ -2,6 +2,14 @@
 #include "code/om/path.h"
 #include <string.h>
 
+// The shell library's import (see win32drive.cpp)
+extern "C"
+{
+	__declspec(dllimport) int __stdcall PathRelativePathToA(char* path, const char* from, unsigned long fromAttributes,
+		const char* to, unsigned long toAttributes);
+}
+#pragma comment(linker, "/alternatename:__imp__PathRelativePathToA@20=__imp__PathRelativePathToA")
+
 namespace om
 {
 	// FUNCTION: ENGINE 0x105CAC30
@@ -333,4 +341,116 @@ namespace om
 		return path;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x105CB130
+	// EQUIVALENT: block layout: the engine joins the two returns behind the push of the copy's argument, ours loads the return slot before it (80.2 %)
+	String GetExtension(const String& path)
+	{
+		String extension(path);
+		unsigned short length = path.length;
+		if (length > 0)
+		{
+			const char* begin = path.data == gEmptyStringData ? "" : path.data;
+			const char* position = (path.data == gEmptyStringData ? "" : path.data) + length;
+			while (position >= begin)
+			{
+				if (*position == '.')
+				{
+					String suffix(position + 1, true);
+					extension = suffix;
+					return String(extension);
+				}
+				position--;
+			}
+		}
+		return String(extension);
+	}
+
+	// FUNCTION: ENGINE 0x105CB1E0
+	String* ReduceToFileName(String* path)
+	{
+		char fileName[256];
+		GetFileName(path->GetText(), fileName, 256);
+		String name(fileName, true);
+		*path = name;
+		return path;
+	}
+
+	// FUNCTION: ENGINE 0x105CB240
+	bool HasExtension(const String& path, const String& extension)
+	{
+		return GetExtension(path).ToLower() == extension.ToLower();
+	}
+
+	// FUNCTION: ENGINE 0x105CB2A0
+	bool HaveSameExtension(const String& first, const String& second)
+	{
+		return GetExtension(first) == GetExtension(second);
+	}
+
+	// FUNCTION: ENGINE 0x105CB2F0
+	bool GetRelativePath(String* result, const String& from, const String& to)
+	{
+		String normalizedFrom = NormalizedPath(from);
+		String normalizedTo = NormalizedPath(to);
+		char buffer[256];
+		buffer[0] = 0;
+		int found = PathRelativePathToA(buffer, normalizedFrom.GetText(), 0x10, normalizedTo.GetText(), 0x10);
+		{
+			String text(buffer, true);
+			*result = text;
+		}
+		NormalizePath(result);
+		return found != 0;
+	}
+
+	// FUNCTION: ENGINE 0x105CB3B0
+	String* AppendPath(String* path, const String& other)
+	{
+		RemoveTrailingSeparator(path);
+		if (other.length > 0)
+		{
+			char first = *path->GetText();
+			if (first != '\\' && first != '/' && path->length > 0)
+			{
+				*path += String("\\", false);
+			}
+			*path += other;
+		}
+		return path;
+	}
+
+	// FUNCTION: ENGINE 0x105CB420
+	String CombinePaths(const String& first, const String& second)
+	{
+		String result(first);
+		AppendPath(&result, second);
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x105CB450
+	String RemoveFirstDirectory(const String& path)
+	{
+		const char* text = path.GetText();
+		char c = *text;
+		if (c != 0)
+		{
+			if (c == '\\' || c == '/')
+			{
+				text++;
+			}
+			c = *text;
+			while (c != 0)
+			{
+				if (c == '\\' || c == '/')
+				{
+					text++;
+					break;
+				}
+				c = *++text;
+			}
+		}
+		String rest(text, true);
+		return String(rest);
+	}
 }
