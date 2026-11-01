@@ -241,6 +241,24 @@ namespace proto
 				return new LocoClimbAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100E5050
+			void LocoClimbAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy5(driver);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<LocoClimbTrack>;
 			template class fight::PropertyName<LocoClimbTrack>;

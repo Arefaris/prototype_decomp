@@ -1,5 +1,6 @@
 // Fight items of the motion group: GrabSlotUpdateAttachmentWithRestoreTrack, GrabSlotDetachThrowTrack, GrabSlotDetachTrack, GrabSetGrabbingTimerTrack, GrabSlotSwapTrack, GrabSlotReverseAttachmentTrack, GrabbedExecuteUsingParentTrack, GrabbedSwapGrabberSlotsTrack, GrabButtonStruggleTrack, GrabbedDetachTrack, GrabObjectFromChildGrabSlotTrack, GrabSlotExecuteTrack, GrabTargetClearTrack, GrabSlotDeathTrack, ReactionHitGrabTrack, SetGrabIntersectionPropertiesTrack, GrabbedPlaybackTrack, AllowGrabbingTrack, DelayCollisionWithGrabbedTrack, GrabObjectFromParentGrabSlotTrack, GrabSlotExecuteUsingChildTrack, GrabbedUpdateAttachmentTrack, GrabGrabTargetTrack, GrabSlotUpdateAttachmentTrack, GrabPlayerTrack, GrabbedExecuteOnParentTrack, GrabSlotEnableStuckTestTrack (unit 0x10169790 - 0x10173B80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabtrack.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -3569,6 +3570,60 @@ namespace proto
 				return new GrabSlotEnableStuckTestAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100CBD70
+			SetGrabIntersectionPropertiesAction::SetGrabIntersectionPropertiesAction(SetGrabIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100C6F30
+			SetGrabIntersectionPropertiesAction::~SetGrabIntersectionPropertiesAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100CCC00
+			fight::Action* SetGrabIntersectionPropertiesTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SetGrabIntersectionPropertiesAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100C6F60
+			bool GrabTargetClearAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle handle;
+					proto::SetGrabTargetGrabMessage message(handle);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100CBA60
+			ReactionHitGrabAction::ReactionHitGrabAction(ReactionHitGrabTrack* newTrack, core::IRefCount* newOwner) : fight::Action(0x600), link(newTrack), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x100C6ED0
+			ReactionHitGrabAction::~ReactionHitGrabAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x100C51C0
+			void ReactionHitGrabAction::Slot6()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x100CCBC0
+			fight::Action* ReactionHitGrabTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ReactionHitGrabAction(this, owner);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -3710,6 +3765,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C4140
 // FUNCTION: ENGINE 0x100C5220
 // FUNCTION: ENGINE 0x100C5250
 // FUNCTION: ENGINE 0x100C5270
@@ -3730,6 +3786,8 @@ namespace proto
 // FUNCTION: ENGINE 0x100C5450
 // FUNCTION: ENGINE 0x100C5470
 // FUNCTION: ENGINE 0x100C5490
+// FUNCTION: ENGINE 0x100C54B0
+// FUNCTION: ENGINE 0x100C54D0
 // FUNCTION: ENGINE 0x100C55A0
 // FUNCTION: ENGINE 0x100C5600
 // FUNCTION: ENGINE 0x100C5660
@@ -3749,6 +3807,8 @@ namespace proto
 // FUNCTION: ENGINE 0x100C5B90
 // FUNCTION: ENGINE 0x100C5BF0
 // FUNCTION: ENGINE 0x100C5C50
+// FUNCTION: ENGINE 0x100C5CA0
+// FUNCTION: ENGINE 0x100C5D00
 // FUNCTION: ENGINE 0x100C7BF0
 // FUNCTION: ENGINE 0x100C8440
 // FUNCTION: ENGINE 0x100C8E10
@@ -3767,6 +3827,8 @@ namespace proto
 // FUNCTION: ENGINE 0x100CB5B0
 // FUNCTION: ENGINE 0x100CB7B0
 // FUNCTION: ENGINE 0x100CB990
+// FUNCTION: ENGINE 0x100CBAE0
+// FUNCTION: ENGINE 0x100CBDF0
 // FUNCTION: ENGINE 0x100CC020
 // FUNCTION: ENGINE 0x1016B6A0
 // FUNCTION: ENGINE 0x1016B820

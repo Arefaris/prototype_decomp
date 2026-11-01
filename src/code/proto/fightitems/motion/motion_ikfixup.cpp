@@ -1,5 +1,6 @@
 // Fight items of the motion group: IKSurfaceFixupTrack, ShoulderConFixupTrack (unit 0x10180090 - 0x10180910; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_ikfixup.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -222,6 +223,40 @@ namespace proto
 				return new ShoulderConFixupAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100DAC00
+			bool IKSurfaceFixupAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				proto::SetIKSurfaceFixupEnabledMessage message(link.object->enabled);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100DADD0
+			bool ShoulderConFixupAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				proto::SetShoulderConFixupEnabledMessage message(link.object->enabled);
+				object->SendMessage(&message);
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<IKSurfaceFixupTrack>;
 			template class fight::PropertyBool<IKSurfaceFixupTrack>;
@@ -236,6 +271,15 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DA760
+// FUNCTION: ENGINE 0x100DA790
+// FUNCTION: ENGINE 0x100DA7A0
+// FUNCTION: ENGINE 0x100DA7D0
+// FUNCTION: ENGINE 0x100DA7E0
+// FUNCTION: ENGINE 0x100DA810
+// FUNCTION: ENGINE 0x100DA840
+// FUNCTION: ENGINE 0x100DA870
+// FUNCTION: ENGINE 0x100DA8A0
 // FUNCTION: ENGINE 0x100DA8D0
 // FUNCTION: ENGINE 0x100DA8F0
 // FUNCTION: ENGINE 0x100DA920

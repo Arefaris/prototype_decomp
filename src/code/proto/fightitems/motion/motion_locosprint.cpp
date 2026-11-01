@@ -797,6 +797,42 @@ namespace proto
 				return new LocoSprintChargeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100E6350
+			void LocoSprintAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100E6420
+			void LocoSprintChargeAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<SprintVelocityClearTrack>;
 			template class fight::TrackFactoryTemplate<SprintVelocityClearTrack>;

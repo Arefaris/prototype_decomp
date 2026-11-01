@@ -1,5 +1,6 @@
 // Fight items of the motion group: MagneticBootsNextSurfaceNormalCondition, UsingHunterShortRangeCondition, OrientationNormalAngleCondition, MagneticBootsTestDetachTrack, MagneticBootsResetInfoTrack, MagneticBootsJumpTrack, MagneticBootsDetachTrack, MagneticBootsTestCornerTrack, MagneticBootsStickToWallTrack, MagneticBootsTurnCornerTrack, MagneticBootsTrack, MagneticBootsTestJumpStuckTrack, MagneticBootsTestWallTrack (unit 0x1018D500 - 0x10192C50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_magneticboots.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {
@@ -1725,6 +1726,24 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
 				return new MagneticBootsAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ED730
+			void MagneticBootsAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
 			}
 
 			// ---- actions end

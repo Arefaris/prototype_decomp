@@ -618,6 +618,42 @@ namespace proto
 				return new LocoSteerLeanAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100E8E20
+			void LocoSteerAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100E8EF0
+			void LocoSteerLeanAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy3(driver);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<LocoSteerTrack>;
 			template class fight::PropertyBool<LocoSteerTrack>;

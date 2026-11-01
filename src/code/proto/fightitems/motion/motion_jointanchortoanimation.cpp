@@ -124,6 +124,28 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100DC8C0
+			JointAnchorToAnimationAction::JointAnchorToAnimationAction(JointAnchorToAnimationTrack* newTrack, core::IRefCount* owner) : fight::Action(0xE00), link(newTrack), driver(0), secondDriver(0)
+			{
+				target = engine::GetObjectHandle(owner);
+				matrix.Identity();
+			}
+
+			// FUNCTION: ENGINE 0x100DC700
+			JointAnchorToAnimationAction::~JointAnchorToAnimationAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				ReleaseDriverJoint(secondDriver);
+			}
+
+			// FUNCTION: ENGINE 0x100DD100
+			fight::Action* JointAnchorToAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new JointAnchorToAnimationAction(this, owner);
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<JointAnchorToAnimationTrack>;
 			template class fight::PropertyNameList<JointAnchorToAnimationTrack>;
 			template class fight::PropertyName<JointAnchorToAnimationTrack>;
@@ -135,6 +157,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100DC620
+// FUNCTION: ENGINE 0x100DC650
+// FUNCTION: ENGINE 0x100DC960
 // FUNCTION: ENGINE 0x101822F0
 // FUNCTION: ENGINE 0x10182300
 // FUNCTION: ENGINE 0x10182330

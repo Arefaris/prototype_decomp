@@ -383,6 +383,21 @@ namespace proto
 				return new JointLookAtAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100DD940
+			void JointLookAtAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						ReleaseDriverJoint(driver);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyNameList<JointLookAtCondition>;
 			template class fight::PropertyVector<JointLookAtCondition>;

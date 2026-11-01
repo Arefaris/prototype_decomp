@@ -322,6 +322,24 @@ namespace proto
 				return new LocoStrafeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100EB230
+			void LocoStrafeAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy5(driver);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<LocoStrafeTrack>;
 			template class fight::PropertyBool<LocoStrafeTrack>;

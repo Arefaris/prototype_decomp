@@ -1,5 +1,6 @@
 // Fight items of the motion group: GroundSpikeParentConditionGroupCondition, GroundSpikeTestStateCondition, GroundSpikeClusterDescendTrack, GroundSpikeConfigureAutoOffshootsTrack, GroundSpikeSpawnClusterTrack, GroundSpikeAnimateClusterRadiiTrack, GroundSpikeSpawnOffshootTrack (unit 0x101753C0 - 0x10177EA0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_groundspike.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 
 namespace proto
 {

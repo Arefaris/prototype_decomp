@@ -304,6 +304,21 @@ namespace proto
 				return new JumpAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100DF410
+			void JumpAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<JumpTrack>;
 			template class fight::PropertyBool<JumpTrack>;

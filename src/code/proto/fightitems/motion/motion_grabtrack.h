@@ -1457,6 +1457,44 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::motion::SetGrabIntersectionPropertiesAction (9 vftable slots, 0x38 bytes)
+			class SetGrabIntersectionPropertiesAction : public fight::Action
+			{
+			public:
+				// 0x100CBD70
+				SetGrabIntersectionPropertiesAction(SetGrabIntersectionPropertiesTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100C6F30
+				virtual ~SetGrabIntersectionPropertiesAction();
+
+				// vftable slot 5 (0x100CBE20)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100CBF30)
+				virtual void Slot6();
+
+				core::Link<SetGrabIntersectionPropertiesTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				unsigned char unknown2C[0x4];
+				core::Name<core::CaseSensitiveKey> unknown30;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::ReactionHitGrabAction (9 vftable slots, 0x2C bytes)
+			class ReactionHitGrabAction : public fight::Action
+			{
+			public:
+				// 0x100CBA60
+				ReactionHitGrabAction(ReactionHitGrabTrack* newTrack, core::IRefCount* newOwner);
+				// 0x100C6ED0
+				virtual ~ReactionHitGrabAction();
+
+				// vftable slot 5 (0x100CBB10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100C51C0)
+				virtual void Slot6();
+
+				core::Link<ReactionHitGrabTrack> link;  // +0x1C
+				core::IRefCount* owner;  // +0x28
+			};
+
 			// ---- actions end
 		}
 	}
