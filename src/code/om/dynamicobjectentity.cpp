@@ -1,5 +1,6 @@
 // The entity type of om::DynamicObjectEntity (a template instance of the om library).
 #include "code/om/dynamicobjectentity.h"
+#include "code/om/reflection.h"
 
 namespace om
 {
@@ -46,4 +47,10 @@ namespace om
 	template void* MetaClass<om::DynamicObjectEntity>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105C1EA0
 	template void MetaClass<om::DynamicObjectEntity>::Create(const ClassName&, MetaClassBase*);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105C2000
+	template MetaClassBase* GetCachedClass<om::DynamicObjectEntity>();
 }

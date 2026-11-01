@@ -7,6 +7,7 @@
 #include "code/om/metamethod.h"
 #include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
+#include "code/om/reflection.h"
 
 #pragma warning(disable: 4661)
 
@@ -626,4 +627,12 @@ namespace om
 	template void MetaMethod1<music::FollowAction, music::FollowAction, void, const music::FollowAction::Type&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105DBD90
 	template void MetaMethod1<music::Fade, music::Fade, void, const music::Time&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105D7C10
+	template MetaClassBase* GetCachedClass<music::FollowAction::Type>();
+	// FUNCTION: ENGINE 0x105D7C30
+	template MetaClassBase* GetCachedClass<music::Time>();
 }

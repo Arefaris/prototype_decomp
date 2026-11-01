@@ -6,6 +6,7 @@
 #include "code/om/metaproperty.h"
 #include "code/om/delegate.h"
 #include "code/om/metaclass.h"
+#include "code/om/reflection.h"
 
 #pragma warning(disable: 4661)
 
@@ -418,4 +419,14 @@ namespace om
 	template void MetaMethod1<audio::MixStrip, audio::MixStrip, void, bool>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x105CFAB0
 	template void MetaMethod1<audio::MixStrip, audio::MixStrip, void, const Name<CaseSensitive64BitKey>&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105CCA90
+	template MetaClassBase* GetCachedClass<unsigned int>();
+	// FUNCTION: ENGINE 0x105CCAB0
+	template MetaClassBase* GetCachedClass<Name<CaseSensitive64BitKey>>();
+	// FUNCTION: ENGINE 0x105CCCA0
+	template MetaClassBase* GetCachedClass<audio::Mix>();
 }

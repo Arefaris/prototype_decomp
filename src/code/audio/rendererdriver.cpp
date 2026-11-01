@@ -7,6 +7,7 @@
 #include "code/om/metamethod.h"
 #include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
+#include "code/om/reflection.h"
 
 #pragma warning(disable: 4661)
 
@@ -466,4 +467,14 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<audio::FoldDownType>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E8850
 	template FixedArray<unsigned int, 8>::FixedArray();
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E5590
+	template MetaClassBase* GetCachedClass<FixedArray<unsigned int, 8>>();
+	// FUNCTION: ENGINE 0x105E5920
+	template MetaClassBase* GetCachedClass<audio::RendererDriver>();
+	// FUNCTION: ENGINE 0x105E60F0
+	template MetaClassBase* GetCachedClass<audio::FoldDownType>();
 }

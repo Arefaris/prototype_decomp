@@ -6,6 +6,7 @@
 #include "code/om/metamethod.h"
 #include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
+#include "code/om/reflection.h"
 
 #pragma warning(disable: 4661)
 
@@ -2014,4 +2015,46 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<unsigned __int64>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105F77D0
 	template DelegatePropertyBase* MetaProperty<const Bool32&>::CreateDelegate(void*);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105D34D0
+	template MetaClassBase* GetCachedClass<music::CueEventSetCurrentCuePlayer>();
+	// FUNCTION: ENGINE 0x105D34F0
+	template MetaClassBase* GetCachedClass<music::CueEventSetCurrentCell>();
+	// FUNCTION: ENGINE 0x105D59D0
+	template MetaClassBase* GetCachedClass<music::CueEventSetCellType>();
+	// FUNCTION: ENGINE 0x105D59F0
+	template MetaClassBase* GetCachedClass<music::CueEventCommand>();
+	// FUNCTION: ENGINE 0x105D5A10
+	template MetaClassBase* GetCachedClass<music::CueEventNewCuePlayer>();
+	// FUNCTION: ENGINE 0x105D5A30
+	template MetaClassBase* GetCachedClass<music::CueEventDestroyCuePlayer>();
+	// FUNCTION: ENGINE 0x105D5A50
+	template MetaClassBase* GetCachedClass<music::CueEventCellState>();
+	// FUNCTION: ENGINE 0x105D5A70
+	template MetaClassBase* GetCachedClass<music::CueEventSetCurrentCue>();
+	// FUNCTION: ENGINE 0x105D5A90
+	template MetaClassBase* GetCachedClass<music::CueEventSetPartName>();
+	// FUNCTION: ENGINE 0x105D5AB0
+	template MetaClassBase* GetCachedClass<music::CueEventSetLayerName>();
+	// FUNCTION: ENGINE 0x105D5AD0
+	template MetaClassBase* GetCachedClass<music::CueEventMoveCell>();
+	// FUNCTION: ENGINE 0x105D5AF0
+	template MetaClassBase* GetCachedClass<music::CueEventMovePart>();
+	// FUNCTION: ENGINE 0x105D5B10
+	template MetaClassBase* GetCachedClass<music::CueEventSetBPM>();
+	// FUNCTION: ENGINE 0x105D5B30
+	template MetaClassBase* GetCachedClass<music::CueEventSync>();
+	// FUNCTION: ENGINE 0x105D5B50
+	template MetaClassBase* GetCachedClass<music::CueEventSetFade>();
+	// FUNCTION: ENGINE 0x105ED800
+	template MetaClassBase* GetCachedClass<music::CellPlayer::State>();
+	// FUNCTION: ENGINE 0x105ED820
+	template MetaClassBase* GetCachedClass<unsigned __int64>();
+	// FUNCTION: ENGINE 0x105ED840
+	template MetaClassBase* GetCachedClass<Bool32>();
+	// FUNCTION: ENGINE 0x105EEBA0
+	template MetaClassBase* GetCachedClass<music::CueEventCueState>();
 }

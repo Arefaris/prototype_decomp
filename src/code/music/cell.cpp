@@ -636,3 +636,17 @@ namespace music
 		}
 	}
 }
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105DC6D0
+	template MetaClassBase* GetCachedClass<music::Cell>();
+	// FUNCTION: ENGINE 0x105DCAC0
+	template MetaClassBase* GetCachedClass<music::FollowAction>();
+	// FUNCTION: ENGINE 0x105E0320
+	template MetaClassBase* GetCachedClass<music::MGraphCell>();
+	// FUNCTION: ENGINE 0x105E0380
+	template MetaClassBase* GetCachedClass<music::MGraphCellPlayer>();
+	// FUNCTION: ENGINE 0x105E0A50
+	template MetaClassBase* GetCachedClass<music::Fade>();
+}
