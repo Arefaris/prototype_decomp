@@ -6692,3 +6692,34 @@ Found in this range, not done:
   +0x4c nodes at +0x10 keyed by the name at +0x28; `WriteValueName` only looks the value up), the audio task queue and
   filter code (0x105C5100 - 0x105CA800, biquad coefficient and unrolled filter loops), `Renderer` (0x105D1100 -
   0x105D2800), the ADPCM decoders (0x105E8860 - 0x105EB600) and `NameMetaType` (0x105FCC70 - 0x105FD350).
+
+## proto/fightitems/ai: the action half of the units in 0x101E0000 - 0x10220000 (sn-bn)
+The action halves of the ai units `ai_circle` to `ai_zipline` (section of sn-au for the unit table; the action half of a unit is added at the end of its file between
+`// ---- actions begin` / `end`). Generators and tools of this pass (local/scratch/sn-bn): `gen2.py` reads a constructor, its `CreateAction` and destructor and writes the class, constructor,
+destructor, trivial slots and `CreateAction` (layouts: link at +0x1C and handle at +0x28, or the handle first, the listener's `engine::TrackWatch`, the effect and the owner
+as the engine's `CreateAction` passes them); `keptmap.py` maps the unit's unmapped COMDAT symbols to the engine's unmapped functions of equal bytes and writes the trailer annotations;
+`sym.py` maps annotated functions, vftables, slots and RTTI descriptors into symbols.txt (and every `core::LinkList<T>::Remove` to 0x10095300).
+- Action classes written (constructor, destructor, trivial slots, `CreateAction`; the 4-argument form is track, handle, effect, listener with the listener watched through `engine::TrackWatch`
+  and the owner slot reused by the engine for the handle): CombatDestinationTransmit / Find, FixedDestinationGoto / Flyto / JumpTo, FollowTarget, FollowFormation, Reform, GoTo, DumbGoto,
+  ReserveVolume, SetIntersectionProperties, Flee, TargetGoTo, TightStrafeRun, PrepareTightStrafeRun, Land, DestinationSetDeadBody, RooftopDestinationFind, TryOpenStrafeRun, ThreatBall, ThreatSendToTarget,
+  ThreatDodge, DumpAlertCharacters, AddDiversion, DisguiseActionUsed (these three are never created: `CreateAction` returns null and their constructors take the four values unused), ConditionalExecute.
+  Three or more consecutive zero floats the engine stores together are `math::Vector` members initialised with `math::Vector(0.0f, 0.0f, 0.0f)` (this decided the scheduling of the strafe run constructors).
+- Kept copies: `template core::Link<T>::~Link() / Get() / Link(T*)` are instantiated at the end of every unit for its action tracks (global scope, the full names), the message destructors come with the message
+  definitions; `keptmap.py` pairs them with the engine's copies by their bytes (the copies of one shape are interchangeable). `fight::TrackFactoryCaster` / `ConditionFactoryCaster` constructors store another vftable
+  per unit: not mapped by bytes.
+- Messages: `aimessages.h` (new, includes aicodemessages.h) declares the messages the new code sends: movement (fixed destination, fixed area destination, destination, braking distance, speed, avoidance gap, aim
+  parameters, stuck, in hot zone, disable stay on mesh, force recalculate path), ai (enabled, task, goal, events with the 6 slot event list, trigger event), disguise (alerted), target (target, suspicion state), squad, lod
+  (un-downgradable), threat (balls, info), vehicle (clear accelerations). The shared header `aicodecommon.h` gained `fight::CompareInts` (0x10111310) and the wrapper `CompareIntValues`; `aihelpers.h` gained `IsPlayerObject`
+  and name guesses of helpers (`Unknown103B8DC0` lod state, `Unknown103C0360` / `Unknown103C02D0` tank / helicopter test, `Unknown103B8630`, `Unknown103B8440`, `Unknown103B82F0`).
+- Conditions and slots written: HasFixedDestination, HasFixedAreaDestination, Enabled, Task, Goal, InAlertMode, NPCLOD (EQUIVALENT: the engine shares the owner slot between the handle and the second operand),
+  TargetIsPlayer / Tank / Helicopter, TargetAlertSubState, DestinationHaveArrived, Stuck, FormationReforming, Threat (EQUIVALENT: loop register allocation), the Land action; slots of CircleStrafe, ClearFixedAreaDestination, ForceRecalculatePath,
+  DisableStayOnNavmesh, SetBrakeDistance, SetAvoidanceGapAnywhere, TempSpeed, Speed, ForceMotion, Aim (Slot5 EQUIVALENT block order), AiTreeEventSend, Stop, UnDowngradable (EQUIVALENT block order),
+  ConditionalExecute (Slot7 EQUIVALENT), DumpAlertCharacters / DisguiseActionUsed / AdjustHydraMovement / ForceEmotionalState slots.
+- Idioms that decided matches: `GetObjectHandle(owner).Get()` (temporary) reads the table index from the returned pointer, a stored `GameObjectHandle` reads it from the stack; `if (object == 0) return false;`
+  at the top or `bool result = false; ... return result;` follows whether the engine keeps a zero in ebx; two floats of one object passed to a call are read into locals first (`float high = ..; float low = ..;`).
+- NONMATCHING: `EventCondition::Evaluate` (14 %), `EventValueCondition::Evaluate` (22 %) (loop register allocation), `AimAction::Slot7` (the offset vector is copied with SSE loads), `InHotZoneCondition::Evaluate`
+  (62 %), `InFormationCondition::Evaluate` (21 %), `TargetHostileCondition::Evaluate` (72 %: the target handle is tested through a stored boolean).
+- Not done: the action classes whose constructors need the patrol path following system (Patrol, PathPatrol), the strafe run parameters (StrafeRun, SimpleOpenStrafeRun, TryStrafeRun), the task sequencers
+  (ExecuteTask, SpawnTask), the owner-kind forms (Message, PeriodicMessage, DestinationGoTo / FlyTo / Jump), the slots of Land (its constructor, destructor and CreateAction are written), DumbGotoLOD, LodGotoFixedDestination, PeriodicOpportunity, DelayedSequence, Engage, PredefinedPatrol,
+  IntersectionCirclePatrol; every slot that sends the flying constraints message (29 users, the message embeds two small arrays), the request conditions (they read the strafe run tokens of the ai system),
+  TargetAlertState (a one-entry cache in static data), TargetDefense and the ravenphysics users (ResetPhysicVelocities).
