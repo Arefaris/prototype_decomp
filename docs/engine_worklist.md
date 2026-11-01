@@ -6407,9 +6407,9 @@ The range holds the action halves of the motion units `motion_throw` (the tail: 
 `motion_vehiclereticule`, `motion_velocity`, `motion_wallexit`, `motion_walljump`, `motion_wallrun`, `motion_wallslide`, `motion_whipfist` with the tendril
 actions) and the property half of the one unit that was left out of the property ranges, `motion_acceleration.cpp` (0x1013C010 - 0x1013C5B0:
 `AccelerationCondition`, its factory registration `proto::fightitems::RegisterAccelerationFactory` and, from 0x10094730, its `Evaluate`). Of the 1187 open
-functions 529 are reconstructed (the generators of sn-ay/sn-ap, local/scratch/sn-bg/gen2.py and prop/, add the constructors, destructors and
+functions 536 are reconstructed (the generators of sn-ay/sn-ap, local/scratch/sn-bg/gen2.py and prop/, add the constructors, destructors and
 `CreateAction`, the rest was written by hand); the slots are in the order of the units (action constructor, scalar deleting destructor, slots 5 / 6 / 7 per class, the
-`CreateAction` of the tracks last). 658 remain: 393 are 3 - 8 byte copies, 106 are 9 - 40 bytes, 159 are bigger.
+`CreateAction` of the tracks last). 651 remain: about 390 are 3 - 8 byte copies, 105 are 9 - 40 bytes, 155 are bigger.
 - Matched: the constructors, destructors and `CreateAction` of 36 action classes, the kept copies of their `Link<Track>` (constructor, destructor, `Get`) and of the
   getters of the track and condition classes, the messages' scalar deleting destructors, the `Evaluate` of 21 conditions (underground state, unlockable, the five
   transformation conditions, the vehicle and helicopter ones, the velocity ones, the four fight variable ones, the acceleration condition, the whip fist blocked test)
