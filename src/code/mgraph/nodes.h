@@ -192,6 +192,12 @@ namespace mgraph
 	public:
 		// 0x105CBE20: puts the link of an event at the end of the list
 		void Add(unsigned int* link);
+		// Queues an event and counts it
+		void Post(unsigned int* link)
+		{
+			Add(link);
+			count++;
+		}
 
 		unsigned int* head;
 		unsigned int* tail;
@@ -245,6 +251,27 @@ namespace mgraph
 	{
 	}
 
+	// How a property node passes the value of a property on: through a local, or (for the types with a destructor)
+	// by the address of the temporary the property returns
+	struct ValueInLocal
+	{
+	};
+	struct ValueInTemporary
+	{
+	};
+	template<class T> struct PropertyValueAccess
+	{
+		typedef ValueInLocal Kind;
+	};
+	template<> struct PropertyValueAccess<om::String>
+	{
+		typedef ValueInTemporary Kind;
+	};
+	template<> struct PropertyValueAccess<om::DynamicArray<om::String, unsigned short> >
+	{
+		typedef ValueInTemporary Kind;
+	};
+
 	template<class P> class PropertyNodeOutputEvent;
 	template<class P> class PropertyNodeInputEvent;
 	template<class P> class PropertyPropertyDelegate;
@@ -268,6 +295,9 @@ namespace mgraph
 		virtual void SetDefaultValue(const Value* newValue);
 		virtual void SetChannelValue(const Value* newValue, unsigned int channel, int unknown);
 		OM_ALLOCATION(PropertyNode);
+
+		void PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown, ValueInLocal);
+		void PassPropertyValue(unsigned int channel, const om::DynamicPropertyBase* property, int unknown, ValueInTemporary);
 
 		char unknown50[8];
 		om::DynamicArray<Channel, unsigned short> channels;  // 0x58

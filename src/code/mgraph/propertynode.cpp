@@ -650,10 +650,176 @@ namespace mgraph
 	template MetaTypeBase* mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetValueMetaType();
 	// FUNCTION: ENGINE 0x10B3FFB0
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::SetDefaultValue(DynamicArray<Complex,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B3C1B0
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::SetDefaultValue(String const*);
+	// FUNCTION: ENGINE 0x10B3C1E0
+	template mgraph::PropertyChannel<String>::PropertyChannel(String const&);
+	// FUNCTION: ENGINE 0x10B3C210
+	template char const* mgraph::PropertyNodeInputEvent<mgraph::Packet<String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3C220
+	template char const* mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3C2C0
+	template MetaTypeBase* mgraph::PropertyNode<mgraph::Packet<String> >::GetValueMetaType();
+	// FUNCTION: ENGINE 0x10B3C340
+	template void* mgraph::PropertyNodeInputEvent<mgraph::Packet<String> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3C360
+	template void* mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3C380
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::PropertyNodeOutputEvent(mgraph::PropertyNode<mgraph::Packet<String> >*, unsigned int, String*);
+	// FUNCTION: ENGINE 0x10B3C3C0
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3C3E0
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3C400
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<String> >::~PropertyNodeOutputEvent();
+	// FUNCTION: ENGINE 0x10B3C430
+	template mgraph::PropertyNodeInputEvent<mgraph::Packet<String> >::PropertyNodeInputEvent(mgraph::PropertyNode<mgraph::Packet<String> >*, unsigned int, String const&, int);
+	// FUNCTION: ENGINE 0x10B3C480
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<String> >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3C4A0
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<String> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3C600
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::PostInputEvent(mgraph::EventQueue*, unsigned int, String const*);
+	// FUNCTION: ENGINE 0x10B3C730
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::PostOutputEvent(mgraph::EventQueue*, unsigned int, String*);
+	// FUNCTION: ENGINE 0x10B3C7B0
+	template String const* mgraph::PropertyNode<mgraph::Packet<String> >::GetChannelValue(unsigned int);
+	// FUNCTION: ENGINE 0x10B3C7D0
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::Slot15(unsigned int);
+	// FUNCTION: ENGINE 0x10B3C7F0
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::SetChannelValue(String const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B3C850
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<String> >::PropertyPropertyDelegate(mgraph::PropertyNode<mgraph::Packet<String> >*, unsigned int);
+	// FUNCTION: ENGINE 0x10B3C890
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<String> >::~PropertyPropertyDelegate();
+	// FUNCTION: ENGINE 0x10B3C8A0
+	template String mgraph::PropertyPropertyDelegate<mgraph::Packet<String> >::Get();
+	// FUNCTION: ENGINE 0x10B3C8D0
+	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<String> >::Set(String);
+	// FUNCTION: ENGINE 0x10B3CAE0
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::SetNumChannels(unsigned short);
+	// FUNCTION: ENGINE 0x10B3CCE0
+	template char const* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3CCF0
+	template char const* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B3CD40
+	template MetaTypeBase* mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetValueMetaType();
+	// FUNCTION: ENGINE 0x10B3CD60
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::SetDefaultValue(DynamicArray<String,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B3CD90
+	template void* mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3CDB0
+	template void* mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B3CDD0
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::PropertyNodeOutputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >*, unsigned int, DynamicArray<String,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B3CE10
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3CE30
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3CE50
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::~PropertyNodeOutputEvent();
+	// FUNCTION: ENGINE 0x10B3CE80
+	template mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::PropertyNodeInputEvent(mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >*, unsigned int, DynamicArray<String,unsigned short> const&, int);
+	// FUNCTION: ENGINE 0x10B3CED0
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B3CEF0
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B3CF10
+	template mgraph::PropertyChannel<DynamicArray<String,unsigned short> >::PropertyChannel(DynamicArray<String,unsigned short> const&);
+	// FUNCTION: ENGINE 0x10B3CFF0
+	template mgraph::PropertyChannel<DynamicArray<String,unsigned short> >::PropertyChannel(mgraph::PropertyChannel<DynamicArray<String,unsigned short> > const&);
+	// FUNCTION: ENGINE 0x10B3D020
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::PostInputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<String,unsigned short> const*);
+	// FUNCTION: ENGINE 0x10B3D150
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::PostOutputEvent(mgraph::EventQueue*, unsigned int, DynamicArray<String,unsigned short>*);
+	// FUNCTION: ENGINE 0x10B3D1D0
+	template DynamicArray<String,unsigned short> const* mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetChannelValue(unsigned int);
+	// FUNCTION: ENGINE 0x10B3D1E0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::Slot15(unsigned int);
+	// FUNCTION: ENGINE 0x10B3D2C0
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<String,unsigned short> > >::~PropertyPropertyDelegate();
+	// FUNCTION: ENGINE 0x10B3D2D0
+	template DynamicArray<String,unsigned short> mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<String,unsigned short> > >::Get();
+	// FUNCTION: ENGINE 0x10B3D5E0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::SetChannelValue(DynamicArray<String,unsigned short> const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B4FB10
+	template char const* mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B4FB20
+	template char const* mgraph::PropertyNodeInputEvent<mgraph::Packet<mgraph::EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B4FB30
+	template char const* mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B4FB80
+	template MetaTypeBase* mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::GetValueMetaType();
+	// FUNCTION: ENGINE 0x10B4FBA0
+	template void* mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B4FBC0
+	template void* mgraph::PropertyNodeInputEvent<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B4FBE0
+	template void* mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10B4FC00
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::PropertyNodeOutputEvent(mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >*, unsigned int, mgraph::EnvelopeData*);
+	// FUNCTION: ENGINE 0x10B4FC40
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B4FC60
+	template mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::~PropertyNodeOutputEvent();
+	// FUNCTION: ENGINE 0x10B4FD30
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::PostOutputEvent(mgraph::EventQueue*, unsigned int, mgraph::EnvelopeData*);
+	// FUNCTION: ENGINE 0x10B4FDB0
+	template mgraph::EnvelopeData const* mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::GetChannelValue(unsigned int);
+	// FUNCTION: ENGINE 0x10B4FDD0
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::Slot15(unsigned int);
+	// FUNCTION: ENGINE 0x10B4FDF0
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::PropertyPropertyDelegate(mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >*, unsigned int);
+	// FUNCTION: ENGINE 0x10B4FE30
+	template mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::~PropertyPropertyDelegate();
+	// FUNCTION: ENGINE 0x10B4FEA0
+	template mgraph::PropertyNodeInputEvent<mgraph::Packet<mgraph::EnvelopeData> >::PropertyNodeInputEvent(mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >*, unsigned int, mgraph::EnvelopeData const&, int);
+	// FUNCTION: ENGINE 0x10B4FF00
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<mgraph::EnvelopeData> >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B4FF20
+	template void mgraph::PropertyNodeInputEvent<mgraph::Packet<mgraph::EnvelopeData> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10B4FF90
+	template mgraph::PropertyChannel<mgraph::EnvelopeData>::PropertyChannel(mgraph::EnvelopeData const&);
+	// FUNCTION: ENGINE 0x10B50020
+	template mgraph::PropertyChannel<mgraph::EnvelopeData>::PropertyChannel(mgraph::PropertyChannel<mgraph::EnvelopeData> const&);
+	// FUNCTION: ENGINE 0x10B500B0
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::PostInputEvent(mgraph::EventQueue*, unsigned int, mgraph::EnvelopeData const*);
+	// FUNCTION: ENGINE 0x10B501C0
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::SetDefaultValue(mgraph::EnvelopeData const*);
+	// FUNCTION: ENGINE 0x10B50290
+	template mgraph::EnvelopeData mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::Get();
+	// FUNCTION: ENGINE 0x10B502D0
+	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<mgraph::EnvelopeData> >::Set(mgraph::EnvelopeData);
+	// FUNCTION: ENGINE 0x10B50330
+	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::Execute(mgraph::Context*);
+	// FUNCTION: ENGINE 0x10B50470
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::SetChannelValue(mgraph::EnvelopeData const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B3C2E0
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::SetPropertyValue(unsigned int, DynamicPropertyBase const*, int);
+	// FUNCTION: ENGINE 0x10B3C690
+	template void mgraph::PropertyNode<mgraph::Packet<String> >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B3D0B0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<String,unsigned short> > >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
+	// FUNCTION: ENGINE 0x10B50110
+	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::PostPropertyValue(unsigned int, mgraph::EventQueue*, DynamicPropertyBase const*);
 }
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x10B3C260
+	template mgraph::PropertyChannel<String>& DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B3C550
+	template void DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::FillElements(mgraph::PropertyChannel<String>*, unsigned short, mgraph::PropertyChannel<String> const&);
+	// FUNCTION: ENGINE 0x10B3C5E0
+	template mgraph::PropertyChannel<String>* DynamicArray<mgraph::PropertyChannel<String>,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B48D70
+	template mgraph::PropertyChannel<mgraph::EnvelopeData>& DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B48D90
+	template char const* DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B490D0
+	template void DynamicArray<mgraph::PropertyChannel<mgraph::EnvelopeData>,unsigned short>::Resize(unsigned short, mgraph::PropertyChannel<mgraph::EnvelopeData> const&);
+	// FUNCTION: ENGINE 0x10B4FCC0
+	template bool DynamicArray<VectorT<float,2>,unsigned short>::operator==<class om::DynamicArray<class om::VectorT<float,2>,unsigned short> >(DynamicArray<VectorT<float,2>,unsigned short> const&) const;
 	// FUNCTION: ENGINE 0x10B13530
 	template void DynamicArray<mgraph::PropertyChannel<unsigned int>,unsigned short>::ReleaseElements(mgraph::PropertyChannel<unsigned int>*, unsigned short);
 	// FUNCTION: ENGINE 0x10B13900
