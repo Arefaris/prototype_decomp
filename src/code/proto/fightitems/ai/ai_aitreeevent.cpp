@@ -426,3 +426,4 @@ template core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::Link(proto::fi
 // FUNCTION: ENGINE 0x101F0840
 // FUNCTION: ENGINE 0x101F0890
 // FUNCTION: ENGINE 0x101F0B70
+// FUNCTION: ENGINE 0x101F0730

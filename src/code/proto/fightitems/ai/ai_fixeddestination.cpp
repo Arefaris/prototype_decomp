@@ -751,3 +751,5 @@ template core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Link(pr
 // FUNCTION: ENGINE 0x101F1870
 // FUNCTION: ENGINE 0x101F1880
 // FUNCTION: ENGINE 0x101F18F0
+// FUNCTION: ENGINE 0x101F0FA0
+// FUNCTION: ENGINE 0x101F0FD0
