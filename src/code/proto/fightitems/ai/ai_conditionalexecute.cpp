@@ -193,6 +193,10 @@ namespace proto
 	}
 }
 
+template core::Link<proto::fightitems::ai::ConditionalExecuteTrack>::~Link();
+template proto::fightitems::ai::ConditionalExecuteTrack* core::Link<proto::fightitems::ai::ConditionalExecuteTrack>::Get() const;
+template core::Link<proto::fightitems::ai::ConditionalExecuteTrack>::Link(proto::fightitems::ai::ConditionalExecuteTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10226EE0
 // FUNCTION: ENGINE 0x10226F10
@@ -209,3 +213,4 @@ namespace proto
 // FUNCTION: ENGINE 0x10227260
 // FUNCTION: ENGINE 0x101E85C0
 // FUNCTION: ENGINE 0x101E8610
+// FUNCTION: ENGINE 0x101E8580

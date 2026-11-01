@@ -318,6 +318,10 @@ template core::Link<proto::fightitems::ai::TakeOffTrack>::~Link();
 template proto::fightitems::ai::TakeOffTrack* core::Link<proto::fightitems::ai::TakeOffTrack>::Get() const;
 template core::Link<proto::fightitems::ai::TakeOffTrack>::Link(proto::fightitems::ai::TakeOffTrack*);
 
+template core::Link<proto::fightitems::ai::LandTrack>::~Link();
+template proto::fightitems::ai::LandTrack* core::Link<proto::fightitems::ai::LandTrack>::Get() const;
+template core::Link<proto::fightitems::ai::LandTrack>::Link(proto::fightitems::ai::LandTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F9BA0
 // FUNCTION: ENGINE 0x10235A00
@@ -344,3 +348,6 @@ template core::Link<proto::fightitems::ai::TakeOffTrack>::Link(proto::fightitems
 // FUNCTION: ENGINE 0x101F8E10
 // FUNCTION: ENGINE 0x101F8EF0
 // FUNCTION: ENGINE 0x101F9070
+// FUNCTION: ENGINE 0x101F8E70
+// FUNCTION: ENGINE 0x101F8F40
+// FUNCTION: ENGINE 0x101F9080

@@ -1144,3 +1144,4 @@ template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Link(proto::fighti
 // FUNCTION: ENGINE 0x10218FD0
 // FUNCTION: ENGINE 0x10218FE0
 // FUNCTION: ENGINE 0x10218FF0
+// FUNCTION: ENGINE 0x10217970
