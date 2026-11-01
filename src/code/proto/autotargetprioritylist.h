@@ -177,6 +177,9 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// vftable slot 5 (0x102B4920): takes over the entries of the referenced list and of the priorities array
+		virtual bool Slot5();
+
 		AutoTargetPriorityList* referenceList;  // +8
 		PriorityArray priorities;  // +0xC
 		int unknown18;  // behind the array: its allocator word
