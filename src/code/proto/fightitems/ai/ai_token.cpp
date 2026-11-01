@@ -2397,6 +2397,59 @@ namespace proto
 				return new TargetTokenBoostAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101E6CA0
+			CombatDestinationTransmitAction::CombatDestinationTransmitAction(CombatDestinationTransmitTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), target(newTarget), listener(newListener), link(newTrack), owner(newOwner)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4B60
+			CombatDestinationTransmitAction::~CombatDestinationTransmitAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4430
+			bool CombatDestinationTransmitAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7C60
+			// EQUIVALENT: register allocation; ours keeps the owner in edi across the calls where the engine reloads it from its argument slot (18.8 %)
+			fight::Action* CombatDestinationTransmitTrack::CreateAction(fight::Track* newListener, core::IRefCount* effect, core::IRefCount* newOwner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(newOwner);
+				return new CombatDestinationTransmitAction(this, newOwner, handle, newListener);
+			}
+
+			// FUNCTION: ENGINE 0x101E6D70
+			CombatDestinationFindAction::CombatDestinationFindAction(CombatDestinationFindTrack* newTrack, core::IRefCount* newOwner, engine::GameObjectHandle newTarget, fight::Track* newListener) : fight::Action(0xE00), target(newTarget), listener(newListener), link(newTrack), owner(newOwner)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4BC0
+			CombatDestinationFindAction::~CombatDestinationFindAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4440
+			bool CombatDestinationFindAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E4450
+			void CombatDestinationFindAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101E7CC0
+			// EQUIVALENT: register allocation; ours keeps the owner in edi across the calls where the engine reloads it from its argument slot (18.8 %)
+			fight::Action* CombatDestinationFindTrack::CreateAction(fight::Track* newListener, core::IRefCount* effect, core::IRefCount* newOwner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(newOwner);
+				return new CombatDestinationFindAction(this, newOwner, handle, newListener);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TargetHasLoFCondition>;
 			template class fight::PropertyEnumConstList<TargetHasLoFCondition>;
