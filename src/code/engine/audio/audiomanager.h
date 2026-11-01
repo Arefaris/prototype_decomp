@@ -47,7 +47,7 @@ namespace engine
 		void Update(UpdateContext context);
 		// 0x10859460: starts a dialogue line (names guessed): the two zeros, then three names, the object it comes
 		// from, the shortest and the longest wait in milliseconds, two numbers, a name and a subtitle text
-		void PlayDialogue(int unknown1, int unknown2, const core::Name<core::CaseSensitiveKey>& first,
+		void PlayDialogue(int unknown1, bool unknown2, const core::Name<core::CaseSensitiveKey>& first,
 			const core::Name<core::CaseSensitiveKey>& second, const core::Name<core::CaseSensitiveKey>& third,
 			GameObjectHandle object, int minimum, int maximum, float fourth, float fifth,
 			const core::Name<core::CaseSensitiveKey>& sixth, const om::String& text);

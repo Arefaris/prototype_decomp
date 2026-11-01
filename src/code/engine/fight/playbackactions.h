@@ -9,6 +9,17 @@
 
 namespace engine
 {
+	// What the playback action keeps of its owner: an IRefCount-derived object whose kind word (+8) says it carries a game object
+	// handle, followed by a type and an id (names guessed)
+	struct PlaybackOwner : core::IRefCount
+	{
+		int unknown4;
+		int kind;  // +0x8
+		int unknownC;
+		int type;  // +0x10
+		short id;  // +0x14
+	};
+
 	// RTTI: engine::PlaybackAction (9 vftable slots, size 0x30)
 	class PlaybackAction : public fight::Action
 	{

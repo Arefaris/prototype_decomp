@@ -142,6 +142,9 @@ namespace engine
 		public:
 			struct Slot
 			{
+				// 0x108A1A10 (the array constructor's element: an empty slot holds the id -1)
+				Slot();
+
 				unsigned int id;
 				PlayerInfo* info;
 			};
@@ -157,15 +160,20 @@ namespace engine
 			int FindSlot(unsigned int id);
 			// 0x108A1AB0
 			void ResetSlots();
+			// 0x108A1A80: counts the slots in use into slotCount (name guess)
+			void CountSlots();
+			// 0x108A1C60: lets go of the slots whose id carries that kind in its second byte (name guess)
+			void ReleaseSlotsOfKind(unsigned int kind);
 			// 0x108A1AF0
 			void ReleaseSlot(unsigned int id, int value);
 			// 0x108A1E50: the keyboard (a jump to 0x108D6AA0, which answers the one instance)
 			static class Keyboard* GetKeyboard();
 
 			Slot* slots;
-			// The number of slots (the fight conditions on the online session read it as the number of players)
+			// The number of slots in use (the fight conditions on the online session read it as the number of players)
 			int slotCount;
-			int unknownC;
+			// The number of slots the table has
+			int capacity;
 		};
 
 		// The controller manager the InputSystem drives (RTTI: ControllerManagerInterface, 5 slots)

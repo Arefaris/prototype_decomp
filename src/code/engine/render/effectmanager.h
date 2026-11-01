@@ -565,6 +565,10 @@ namespace engine
 
 			// 0x1081B9B0: lets go of every attached drawable
 			void ReleaseAttached();
+			// 0x1081D030: whether a timer of that name exists
+			bool HasTimer(const EffectName& name);
+			// 0x1081D080: the time of a named timer (1e12 when there is none)
+			float GetTimer(const EffectName& name);
 			// 0x1081DCF0: sets a named timer to a time
 			void SetTimer(const EffectName& name, float time);
 			// 0x1081C260: moves the attached drawables to their game objects

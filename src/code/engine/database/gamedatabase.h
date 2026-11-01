@@ -272,7 +272,9 @@ namespace engine
 		void Clear();
 
 		void* vftable0;
-		int unknown4[7];
+		int unknown4[5];
+		DBSubject** subjects;  // +0x18: the subjects by the number they were given
+		int subjectCount;  // +0x1C
 		DataCallback* callback;
 		int unknown24[16];
 	};

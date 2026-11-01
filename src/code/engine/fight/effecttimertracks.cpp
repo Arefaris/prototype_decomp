@@ -1,5 +1,7 @@
 // The fight tracks and conditions that clear decals, time effects and drive shader animations (unit 0x10810E00 - 0x10812300).
 #include "code/engine/fight/effecttimertracks.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/render/effectmanager.h"
 
 namespace engine
 {
@@ -123,8 +125,6 @@ namespace engine
 	CheckEffectTimerCondition::CheckEffectTimerCondition() : fight::Condition(0), timeElapsed(0.0f), compare(0)
 	{
 	}
-
-	// TODO Evaluate at 0x108AC940: sub esp, 8; push ebx; push ebp; push esi; push edi; mov esi, ecx; call 0x108193a0; mov ebp, dword ptr [esi + 0x1c]; mov edi, eax; lea ebx, [esi + 0x10]; push ebx; mov ecx, edi; call 0x1081d030; test a
 
 	// FUNCTION: ENGINE 0x10811120
 	CheckEffectTimerCondition::~CheckEffectTimerCondition()
@@ -420,6 +420,35 @@ namespace engine
 		template class fight::TrackFactoryCasterTemplate<ShaderAnimationTrack>;
 	}
 
+	// FUNCTION: ENGINE 0x108AC940
+	bool CheckEffectTimerCondition::Evaluate(int a, int b, int c, int d)
+	{
+		render::EffectManager* manager = render::GetEffectManager();
+		int op = compare;
+		if (!manager->HasTimer(timerName))
+		{
+			switch ((unsigned int)op)
+			{
+			case 0:
+				return false;
+			case 1:
+				return false;
+			case 2:
+				return false;
+			case 3:
+				return true;
+			case 4:
+				return true;
+			case 5:
+				return true;
+			default:
+				return true;
+			}
+		}
+		float elapsed = manager->GetTimer(timerName);
+		float wanted = timeElapsed;
+		return fight::CompareFloats(op, &elapsed, &wanted);
+	}
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:

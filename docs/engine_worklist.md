@@ -6552,3 +6552,53 @@ Continues sn-bf: 3607 functions of the range were not reconstructed at the start
 - Not done (node classes): the constructors, destructors and slots of `Inlet` / `Outlet` / `Throw` / `Catch` / `Switch` / `ListCount` /
   `ListEntry` / `Rand` / the math nodes and with them `NodeType<N>::CreateNode` of those classes: they need the layout of `Node` (pin lists,
   the registration of pins and inlets in the graph, the functions of 0x10AC.... - 0x10AD....), which no unit has recovered.
+## sn-bj: the range 0x10870000 - 0x108C0000 (fight action halves, front end movie callbacks, controller slots, message router, desync recorder)
+
+2975 functions of the range were open at the start (a third of them 1 - 7 byte kept copies of container, `om::` and `core::Link` members that no class names, and about 630 template
+instances and 80 scalar deleting destructors that only need a symbols.txt line). The functions that stand for themselves and have a class named by the RTTI, a vftable slot or
+their callers were done; a unit with a class that nothing reconstructs yet (the online manager, the audio system, the front end, the motion trail, `GameDBStorage`,
+`PrimitiveDisplayTrack`, the playback set / node branches) needs its layout first and was left.
+
+New or extended sources: `engine/fight/conditions.cpp` (`HealthCondition::Evaluate`), `effecttimertracks.cpp` (`CheckEffectTimerCondition::Evaluate`), `dialoguetrack.cpp`
+(`DialogueAction::Slot5`), `playbackactions.cpp` (`PlaybackAction::Slot5`), `playbackstatecondition.cpp`, `lodactions.cpp` (`EffectLODDisableAction::Slot5`),
+`framebufferactions.cpp` (the actions of the frame buffer tracks with their file-local helpers `ApplyToneMap` / `BlendToneMap`, `ApplyDepthOfField` / `BlendDepthOfField`,
+`ApplyColourMatrix` / `BlendColourMatrix`, `ApplyBloom` / `BlendBloom`, `ApplyFade`), `fightsystem.cpp` (`RegisterPhysicsTrackFactories`, `RegisterCharacterTrackFactories`),
+`fightcommon.h` (the declarations of `fight::CompareFloats` / `CompareNames`), `fight/behaviours/playbacktreebehaviour.cpp/.h` (the whole behaviour but `OnMessage`:
+class info, members, constructor, destructor, `Slot1`, `Update`, `OnPostedMessage`, and `PlaybackParams`, `PlaybackFinishedMessage`; its stub in `reflectedclasses.h` is gone),
+`frontend/femovie.cpp` (the table of script callbacks, the two calls into the movie that start a state and advance it), `database/onlinegamedbhelper.cpp` (`AddSubject`, `RemoveSubject`), `controller/slotmanager.cpp`,
+`controller/playerinfo.cpp`, `controller/tracebuffer.cpp` (`core::Trace`, its buffer), `gameobject/messagerouter.cpp` (`Add`, `Remove`, `Query`, `Invalidate`, `SwapHandles`,
+`FindListSlow`, the lower bound of the sorted channel table), `system/desyncchecker.cpp` (the desync recorder: constructor, `Append`, a printf, a checksum, the table of
+simulation variables, the generator line), `nis/nisexclusionvolume.cpp` (reflection), `online/widestringbuffer.cpp` (the wide character buffer: all nine members), `audio/audiodebug.cpp` (the four empty debug hooks), `frontend/frontendoutput.cpp` (`SetFrontendOutput`, `SetFrontEndHeap`, which answers the previous heap: its symbols.txt name changed from `YAXH` to `YAHH`), `OLSUserList::GetSelected`, `world/zoneset.cpp/.h` (`GetZoneSet`, `SetDefaults`, `AddZone`; the opaque copy in protomain.cpp is gone).
+
+Compiler facts found on the way:
+- A range test of a message's or owner's kind word is `add reg, -LO; cmp reg, N; ja` in the engine (the "add 0xFFFF0000" of the earlier EQUIVALENTs) when the word is a signed `int`
+  copied to a local first and tested as `k >= LO && k < HI`; the unsigned subtraction `kind - LO <= N` gives `sub reg, LO` and reading the member twice gives two compares. In a
+  ternary select the same local (`cond ? owner : 0`) compiles to the branchless `cmp; sbb; not; and` (`AsParamsOwner` in lodactions.cpp: both constructors of the unit now match).
+- Early-return style (`if (link.object == 0) return false; GameObject* object = target.Get(); if (object == 0) return false; ...`) matches where the nested
+  `if (a) { if (b) {...} } return false;` form needed the "shrink-wrap" EQUIVALENT (`PlaybackAction::Slot5`).
+- A `bool` parameter of an out-of-line function is pushed as the whole stack slot, not extended: `AudioMixer::PlayDialogue`'s second argument is a `bool` (its symbols.txt name changed,
+  the back references of the name moved).
+- A float compared with 0.0f or -1.0f is the engine's pooled `__real@` constant (0x10D94F78 / 0x10D94FF8): write the literal; an `extern const float gZero` is loaded once into a
+  register and shared, which the engine does not do.
+- A `switch` whose cases each `return` their own constant keeps the jump table (`CheckEffectTimerCondition::Evaluate`); merged cases become `cmp; seta`.
+- A file-local helper that takes a track in esi is `__declspec(noinline) static` (otherwise it is inlined into its only caller) and needs its own symbols.txt line with the
+  compiler's decorated name (`?ApplyToneMap@framebufferfx@engine@@YA_NPAVToneMapTrack@12@@Z`); the helpers of the frame buffer tracks return `false` (`xor al, al`).
+- A loop that reads `capacity` every time is a `for` with the member in the condition, a do / while hoists it into a register (`SlotManager::CountSlots`); a count and a table
+  pointer the engine holds in registers are locals read before the test (`UnregisterDesyncVariable`).
+- `new T[n]` calls the array operator new only when `<new>` is included (`DesyncChecker`).
+- A by-value `core::Name` argument of an out-of-line message constructor (`GetPlaybackStateMessage` 0x102C5320) is built in the argument slots of each branch of the
+  condition that picks it; a ternary makes one temporary with a cleanup flag and does not match (`PlaybackStateCondition::Evaluate`, NONMATCHING).
+- A handle test `IsValid()` followed by `Get()` is two table compares in the engine (also `HealthAction`, `ShaderAnimationAction`, `AttributeNameCondition`); ours always keeps one.
+
+Not matching: `AttributeNameCondition::Evaluate` 0x108AADE0 (46.7 %, the second table compare), `PlaybackStateCondition::Evaluate` 0x108B94F0 (59.5 %), `SlotManager::ResetSlots` 0x108A1AB0 (61.5 %, the engine
+keeps the empty id in ebx) and `ReleaseSlotsOfKind` 0x108A1C60 (33.3 %, word load and shift against our byte load).
+EQUIVALENT: `EffectLODDisableAction::Slot5` 0x108B97D0 (stack slots: the engine reuses the elapsed-time slot for the effect handle, 96.7 %), `MessageRouter::FindListSlow` 0x108A5020 (scheduling of one lea,
+94.3 %), `PlayerInfo::PlayerInfo` 0x108A15F0 (register of the id -1, 81 %), `PlaybackTreeBehaviour::OnPostedMessage` 0x1089B0D0 (ebx / ebp swapped, 85.5 %); no difftest states exist for them.
+Shared header changes: `AudioMixer::PlayDialogue` (bool), `GetHealthMessage(float)` (a second constructor), `passnames.h` (extern pass and parameter names), `effectmanager.h` (`HasTimer`,
+`GetTimer`), `playbackmessage.h` (`GetPlaybackStateMessage`), `messagerouter.h` (`MessageRouterEntry` has its key and list, `InitListeners` answers the list and `Remove` a `bool`:
+two symbols.txt names changed), `inputsystem.h` (`SlotManager::capacity`, `Slot()`), `gamedatabase.h` (the subject table of `OnlineGameDBHelper`), `olsfriend.h` (`WideStringBuffer` has its two members), `gameobjectparams.h` (the destructor, 0x107FC790, which the scalar deleting destructor of `PlaybackParams` calls), `desynchunter.h` (the layout of `DesyncChecker`).
+Not done and why: the units whose class is not reconstructed (online manager 0x108BF430 on, audio system and emitter 0x10870000 - 0x10880000, the front end 0x10872790 - 0x10874400 and
+0x10884000 - 0x1088B000, the online users and games 0x10886000 - 0x1088B000, the motion trail 0x108BD740 on, the key table of the keyboard, `GameDBStorage` (its size in the database is
+0x28, the header says 0x20), `MessageRouter::InitListeners`, `PlaybackTreeBehaviour::OnMessage` (453 bytes, six messages the unit sends), `PrimitiveDisplayTrack` (a track with a list property),
+the playback set / node branches 0x108B0860 - 0x108B10A0 and the NIS nodes 0x108A71B0 - 0x108A8200 (each needs the vftables, factories and property classes of a branch unit mapped),
+`HealthAction::Slot5`, `ShaderAnimationAction`, the collision enable actions and `EffectLODSwitchAction` / `EffectLODBiasAction` (helpers of the physics object and the driver that nothing names).

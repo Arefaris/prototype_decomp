@@ -1,6 +1,15 @@
 // The set-up of the fight system (see fightsystem.h).
 #include "code/core/heap.h"
+#include "code/engine/fight/characterik.h"
 #include "code/engine/fight/fightsystem.h"
+#include "code/engine/fight/inputconditions.h"
+#include "code/engine/fight/physicsblend.h"
+#include "code/engine/fight/physicstracks.h"
+#include "code/engine/fight/ragdoll.h"
+#include "code/engine/fight/rootcontrol.h"
+#include "code/engine/fight/supportinglimb.h"
+#include "code/engine/fight/supportingstick.h"
+#include "code/engine/fight/supportingsurface.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/math/random.h"
 
@@ -367,5 +376,52 @@ namespace engine
 		framebufferfx::RegisterColourMatrixTrackFactory(registry, "FX_colourMatrix");
 		registry->Prepare();
 		registry->Complete();
+	}
+
+	// FUNCTION: ENGINE 0x108B7DA0
+	void RegisterPhysicsTrackFactories(fight::TrackRegistry* registry)
+	{
+		RegisterCollisionEnableOnJointTrackFactory(registry, "collisionEnableOnJoint");
+		RegisterCollisionEnableByNameTrackFactory(registry, "collisionEnableByName");
+		RegisterCollisionEnableFromRootJointTrackFactory(registry, "collisionEnableFromRootJoint");
+		RegisterPhysicsEnableTrackFactory(registry, "physicsEnable");
+		RegisterPhysicsPoseBlendFactorTrackFactory(registry, "physicsPoseBlendFactor");
+		RegisterPhysicsJointBlendFactorTrackFactory(registry, "physicsJointBlendFactor");
+		RegisterPhysicsSetKeyframedTrackFactory(registry, "physicsSetKeyframed");
+		RegisterPhysicsKeyframedEnableTrackFactory(registry, "physicsKeyframedEnable");
+		RegisterPhysicsDisallowSleepingTrackFactory(registry, "physicsDisallowSleeping");
+		RegisterVelocityLinearTrackFactory(registry, "velocityLinear");
+		RegisterVelocityAngularTrackFactory(registry, "velocityAngular");
+		RegisterHasPhysicsConditionFactory(registry, "hasPhysics");
+	}
+
+	// FUNCTION: ENGINE 0x108B8D20
+	void RegisterCharacterTrackFactories(fight::TrackRegistry* registry)
+	{
+		RegisterCharacterSteerTrackFactory(registry, "engine_steer");
+		RegisterChoreoTestsTrackFactory(registry, "choreo_tests");
+		RegisterControlRootTrackFactory(registry, "controlRoot");
+		RegisterStrafeAdjustRootTrackFactory(registry, "strafeAdjustRoot");
+		RegisterCharacterJumpTrackFactory(registry, "engine_jump");
+		RegisterCharacterIKTrackFactory(registry, "characterIK");
+		RegisterCharacterEnableLimbIKTrackFactory(registry, "enableLimbIK");
+		RegisterSupportingLimbTrackFactory(registry, "supportingLimb");
+		RegisterSupportingSurfaceStickTrackFactory(registry, "supportingSurfaceStick");
+		RegisterSupportingLimbExtraLengthTrackFactory(registry, "supportingLimbExtraLength");
+		RegisterRagdollEnabledConditionFactory(registry, "ragdollEnabled");
+		RegisterRagdollPossibleConditionFactory(registry, "ragdollPossible");
+		RegisterEnableRagdollTrackFactory(registry, "enableRagdoll");
+		RegisterDisableRagdollTrackFactory(registry, "disableRagdoll");
+		RegisterRagdollStoreJointVelocitiesTrackFactory(registry, "ragdollStoreJointVelocities");
+		RegisterPowerRagdollByPoseTrackFactory(registry, "powerRagdollByPose");
+		RegisterPowerRagdollByAnimationTrackFactory(registry, "powerRagdollByAnimation");
+		RegisterPowerRagdollByPuppetTrackFactory(registry, "powerRagdollByPuppet");
+		RegisterUnpowerRagdollTrackFactory(registry, "unpowerRagdoll");
+		RegisterDeactivateRagdollTrackFactory(registry, "deactivateRagdoll");
+		RegisterRagdollSetKeyframeUpdatedTrackFactory(registry, "ragdollSetKeyframeUpdated");
+		RegisterCharacterInputConditionFactory(registry, "input");
+		RegisterLocoInputConditionFactory(registry, "locoInput");
+		RegisterTurnInputConditionFactory(registry, "turnInput");
+		RegisterSupportingSurfaceConditionFactories(registry);
 	}
 }

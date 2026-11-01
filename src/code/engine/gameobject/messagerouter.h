@@ -74,6 +74,13 @@ namespace engine
 			return HandleIterator(handles.end, &handles);
 		}
 
+		// The unit's own calls on the handles of the list (0x10832500 - 0x108327E0; names guessed)
+		bool AddHandle(GameObjectHandle handle);
+		void QueryHandle(GameObjectHandle handle);
+		bool RemoveHandle(GameObjectHandle handle);
+		void InvalidateHandle(GameObjectHandle handle);
+		void SwapHandles(GameObjectHandle first, GameObjectHandle second);
+
 		core::Name<core::CaseSensitiveKey> name;
 		container::ArrayDynamicHeap<GameObjectHandle> handles;
 		int unknown18;
@@ -96,10 +103,12 @@ namespace engine
 		MessageListenerList* list;
 	};
 
-	// The 16-byte entries of the router's second table (meaning unknown)
+	// The 16-byte entries of the router's second table, sorted by the channel's name: the channel and its list
 	struct MessageRouterEntry
 	{
-		int unknown[4];
+		core::Name<core::CaseSensitiveKey> key;
+		MessageListenerList* list;  // +8
+		int unknownC;
 	};
 
 	class MessageRouter
@@ -108,11 +117,11 @@ namespace engine
 		// 0x108A5510
 		explicit MessageRouter(const container::AllocatorCoreAligned<16>& allocator);
 
-		// 0x108A5370
-		void InitListeners(MessageListeners* listeners, int count);
+		// 0x108A5370: makes the list of a channel, answering it (null when the table is full)
+		MessageListenerList* InitListeners(MessageListeners* listeners, int count);
 		// 0x108A5170 / 0x108A54C0 / 0x108A51B0: the handle's registrations on a channel (Query's meaning unknown)
 		bool Add(GameObjectHandle handle, const MessageListeners& listeners);
-		void Remove(GameObjectHandle handle, const MessageListeners& listeners);
+		bool Remove(GameObjectHandle handle, const MessageListeners& listeners);
 		void Query(GameObjectHandle handle, const MessageListeners& listeners);
 		// 0x108A4BE0 / 0x108A4C10: forget a handle's registrations, exchange two handles' registrations
 		void Invalidate(GameObjectHandle handle);

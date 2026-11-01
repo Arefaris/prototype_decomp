@@ -37,6 +37,12 @@ namespace engine
 		}
 	}
 
+	// FUNCTION: ENGINE 0x108871C0
+	int OLSUserList::GetSelected()
+	{
+		return selected;
+	}
+
 	// FUNCTION: ENGINE 0x10886C90
 	int OLSUserList::FindIndexById(int userId)
 	{
