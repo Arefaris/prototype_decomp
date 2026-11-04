@@ -47,8 +47,7 @@ namespace proto
 		return &sInfo;
 	}
 
-	// FUNCTION: ENGINE 0x1054DAB0
-	// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.4 %)
+	// Left to the engine (it calls another copy of MemberOffset<Name> than the one mapped for the other units)
 	template<> content::MemberList* GlobalShaderRig::Param<float>::GetMembers()
 	{
 		static content::MemberList sList;
@@ -62,8 +61,7 @@ namespace proto
 		return &sList;
 	}
 
-	// FUNCTION: ENGINE 0x1054DB80
-	// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.4 %)
+	// Left to the engine (it calls another copy of MemberOffset<Name> than the one mapped for the other units)
 	template<> content::MemberList* GlobalShaderRig::Param<math::Vector>::GetMembers()
 	{
 		static content::MemberList sList;
@@ -77,8 +75,7 @@ namespace proto
 		return &sList;
 	}
 
-	// FUNCTION: ENGINE 0x1054DC50
-	// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.4 %)
+	// Left to the engine (it calls another copy of MemberOffset<Name> than the one mapped for the other units)
 	template<> content::MemberList* GlobalShaderRig::Param<math::Colour128>::GetMembers()
 	{
 		static content::MemberList sList;
@@ -156,20 +153,8 @@ namespace proto
 // FUNCTION: ENGINE 0x1054F070
 // FUNCTION: ENGINE 0x1054F090
 // FUNCTION: ENGINE 0x1054F0B0
-// FUNCTION: ENGINE 0x1054FA20
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (29.3 %)
-// FUNCTION: ENGINE 0x1054FA40
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (26.7 %)
-// FUNCTION: ENGINE 0x1054FA60
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.5 %)
-// FUNCTION: ENGINE 0x1054FB70
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.5 %)
-// FUNCTION: ENGINE 0x1054FC80
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (99.5 %)
 // FUNCTION: ENGINE 0x10550070
 // FUNCTION: ENGINE 0x105500C0
-// FUNCTION: ENGINE 0x10550110
-// EQUIVALENT: calls the engine's other identical copy of a shared helper (the Name copy, MemberOffset<Name>) or inlines it; the same operations otherwise (28.0 %)
 // FUNCTION: ENGINE 0x10550130
 // FUNCTION: ENGINE 0x10550280
 // FUNCTION: ENGINE 0x10550300

@@ -6894,7 +6894,7 @@ No assert path names any unit; the file names are guesses.
 The range holds, in this order: the key arrays and key reflection of the time of day channels (0x1051F1F0 on: the unit starts before the range), `proto::TimeOfDayVars` and `TimeOfDayVarGroup` with their variation, light info and fog
 values classes (0x10521530 - 0x1052C190, 0x1052C0A0 the `TimeOfDayVars` constructor), the channel instances `TimeOfDayVarChannel<float / Vector2 / Vector / Colour128>` (0x10525B30 - 0x1052DD10), the framebuffer effects rig (0x1052E0F0 -
 0x1053D870), the lighting rig (0x1053D870 - 0x1054D580), the shader rig (0x1054D580 - 0x10550600), the spawn messages (0x10550DB0 - 0x105514D0), the spawner behaviours and the door trigger (0x10552860 - 0x1055B1E0), `WebNodeLocator`
-(0x1055B1E0 - 0x1055B770) and the web of intrigue manager with its script wrappers (0x1055B780 on). No assert path names a unit; the file names are guesses. 823 functions match, 41 are EQUIVALENT (none has captured game states yet).
+(0x1055B1E0 - 0x1055B770) and the web of intrigue manager with its script wrappers (0x1055B780 on). No assert path names a unit; the file names are guesses. 653 functions match, none is EQUIVALENT. 41 functions that did not reach 100 % and 12 kept copies that call another copy of a shared helper are left to the engine (declared and mapped in symbols.txt, not defined); see below.
 - `proto/timeofday/timeofdayvarchannel.h`: `TimeOfDayVarChannelBase` (9 slots), the template `TimeOfDayVarChannel<T>` (RTTI) with its `Key` (a time and the value; 20 bytes for a colour), the key array (`keys` at +4, the allocator word at +0x10),
   the editing slots (`HasKey`, `GetValueSize`, `SetKeyValue`, `AddKey`, `SetSingleKey`, `RemoveKey`, `Clear`, `ResetKey`; names of the slots are guesses) and the engine's key array helpers (`PROTO_KEY_ARRAY_HELPER_*`: the engine's copies
   insert the default key in three ways: the count version of `Array::Insert` with the shift expanded in place (float keys), the single insert with the default key built in a guarded local static (vector keys), and the count
@@ -6905,8 +6905,12 @@ values classes (0x10521530 - 0x1052C190, 0x1052C0A0 the `TimeOfDayVars` construc
   the `Evaluate` functions need the time of day manager at 0x10514000 - 0x10520000).
 - `globalfbeffectsrig.h/.cpp`, `globallightingrig.h/.cpp`, `globalshaderrig.h/.cpp`: the rigs with their parameter structs (`GlobalFBEffectsRig::BloomParameters` ... , `GlobalLightingRig::SkyParameters` ..., `Light::LightData`, `GlobalShaderRig::Param<T>`), the
   defaults the engine's key constructors store (read off the engine's `Default()` functions), `GlobalFBEffectsRigChannel<T>` and the reflection of all of them. `Evaluate` of the four framebuffer effect types lies in the range (0x1052F290,
-  0x10531E00, 0x10531F60, 0x1052F4A0) and is only mapped. The functions that do not reach 100 % are EQUIVALENT (scheduling of the independent loads of the size and the capacity, constants loaded in another order,
-  inlining of `Array::Erase` / the struct copy, a call to another identical copy of a shared helper): the `Key` constructors of the framebuffer effects, `RemoveKey` / `ResetKey` / `AddKey` of the struct channels.
+  0x10531E00, 0x10531F60, 0x1052F4A0) and is only mapped. Left to the engine (the member is declared as an explicit specialization without a body, or the helper slot is
+  declared, and the symbols.txt line maps it): `AddKey` of the Colour128, the four effects and the four lighting channels
+  (the compile loads the end and the capacity words in another order and the constants and the struct copy differently), `RemoveKey` of the
+  Vector2, Bloom and the three lighting struct channels, `ResetKey` of Bloom, Tonemap, ColourMatrix and `LightData`, the `Erase` slots of the float, Bloom,
+  Sky, GlobalLight, Cloud, `Light` and shader parameter key arrays, the `Insert` slots of the ColourMatrix, GlobalLight, Cloud keys and of the `Light` array.
+  Unmapped (our copy is private): the four effects' `Key` constructors, `Param<T>::GetMembers`, and `Reserve` / `ConstructFill` / `Default` of the shader parameter arrays (they call another copy of `Name` or `MemberOffset<Name>`).
 - `webofintrigue/webnodelocator.h/.cpp` (all of the unit); the stub in `proto/reflectedstubs.h` was replaced by the include of the header (shared header change).
 - Not started: the spawn messages, `SpawnerBehaviour`, `EncounterSpawnerBehaviour`, `CloudEncounterSpawnerBehaviour`, `MobileSpawnerBehaviour`, `DoorTriggerBehaviour` (reflection and constructors are small, the layouts of the spawner
   family are 0x4F0 bytes with an unknown middle), the web of intrigue manager and its nodes.

@@ -423,7 +423,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1052E9F0
 // FUNCTION: ENGINE 0x1052EFE0
 // FUNCTION: ENGINE 0x1052F040
-// FUNCTION: ENGINE 0x1052F090
 // FUNCTION: ENGINE 0x1052F130
 // FUNCTION: ENGINE 0x1052F680
 // FUNCTION: ENGINE 0x1052F6C0
@@ -489,19 +488,8 @@ namespace proto
 // FUNCTION: ENGINE 0x105305D0
 // FUNCTION: ENGINE 0x10530850
 // FUNCTION: ENGINE 0x105309F0
-// FUNCTION: ENGINE 0x10530A20
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (33.3 %)
-// FUNCTION: ENGINE 0x10530AB0
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (52.9 %)
-// FUNCTION: ENGINE 0x10530B00
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (34.3 %)
-// FUNCTION: ENGINE 0x10530B90
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (52.9 %)
 // FUNCTION: ENGINE 0x10530BC0
-// FUNCTION: ENGINE 0x10530C00
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (20.5 %)
 // FUNCTION: ENGINE 0x10530C20
-// FUNCTION: ENGINE 0x10530D60
 // FUNCTION: ENGINE 0x10530ED0
 // FUNCTION: ENGINE 0x10531020
 // FUNCTION: ENGINE 0x10531090
@@ -520,7 +508,6 @@ namespace proto
 // FUNCTION: ENGINE 0x105324F0
 // FUNCTION: ENGINE 0x10532560
 // FUNCTION: ENGINE 0x105327E0
-// FUNCTION: ENGINE 0x10532890
 // FUNCTION: ENGINE 0x10533440
 // FUNCTION: ENGINE 0x105334A0
 // FUNCTION: ENGINE 0x10533500
@@ -531,91 +518,33 @@ namespace proto
 // FUNCTION: ENGINE 0x10533D70
 // FUNCTION: ENGINE 0x10533DD0
 // FUNCTION: ENGINE 0x10533E30
-// FUNCTION: ENGINE 0x10533EF0
 // FUNCTION: ENGINE 0x10534360
-// FUNCTION: ENGINE 0x105343E0
-// FUNCTION: ENGINE 0x10534480
 // FUNCTION: ENGINE 0x105344C0
 // FUNCTION: ENGINE 0x10534510
-// FUNCTION: ENGINE 0x10534580
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (96.8 %)
-// FUNCTION: ENGINE 0x10534700
-// FUNCTION: ENGINE 0x105348F0
 // FUNCTION: ENGINE 0x10534950
-// FUNCTION: ENGINE 0x10534970
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (38.2 %)
 // FUNCTION: ENGINE 0x105349F0
 // FUNCTION: ENGINE 0x10534A00
-// FUNCTION: ENGINE 0x10534AC0
-// FUNCTION: ENGINE 0x10534BA0
-// FUNCTION: ENGINE 0x10534CF0
-// FUNCTION: ENGINE 0x10534D80
-// FUNCTION: ENGINE 0x10534DC0
-// FUNCTION: ENGINE 0x10534DF0
-// FUNCTION: ENGINE 0x10535050
 // FUNCTION: ENGINE 0x105350B0
-// FUNCTION: ENGINE 0x10535130
-// FUNCTION: ENGINE 0x105351C0
-// FUNCTION: ENGINE 0x105352A0
 // FUNCTION: ENGINE 0x10535300
 // FUNCTION: ENGINE 0x10535380
 // FUNCTION: ENGINE 0x10535430
-// FUNCTION: ENGINE 0x105354A0
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (92.9 %)
-// FUNCTION: ENGINE 0x105355B0
-// FUNCTION: ENGINE 0x10535620
-// FUNCTION: ENGINE 0x10535630
-// FUNCTION: ENGINE 0x10535690
-// FUNCTION: ENGINE 0x105357B0
-// FUNCTION: ENGINE 0x10535830
 // FUNCTION: ENGINE 0x105358D0
 // FUNCTION: ENGINE 0x105358F0
 // FUNCTION: ENGINE 0x105359B0
-// FUNCTION: ENGINE 0x105359C0
-// FUNCTION: ENGINE 0x10535BC0
-// FUNCTION: ENGINE 0x10535C60
-// FUNCTION: ENGINE 0x10535CA0
-// FUNCTION: ENGINE 0x105366B0
-// FUNCTION: ENGINE 0x10536700
-// FUNCTION: ENGINE 0x10536850
 // FUNCTION: ENGINE 0x10536900
 // FUNCTION: ENGINE 0x10536BE0
-// FUNCTION: ENGINE 0x10536D00
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (48.4 %)
 // FUNCTION: ENGINE 0x10537220
 // FUNCTION: ENGINE 0x10537240
 // FUNCTION: ENGINE 0x10537250
-// FUNCTION: ENGINE 0x10537330
-// FUNCTION: ENGINE 0x10537570
 // FUNCTION: ENGINE 0x10537650
-// FUNCTION: ENGINE 0x10537710
-// FUNCTION: ENGINE 0x10537750
-// FUNCTION: ENGINE 0x105377A0
-// FUNCTION: ENGINE 0x10537AD0
 // FUNCTION: ENGINE 0x10537B40
-// FUNCTION: ENGINE 0x10537BC0
-// FUNCTION: ENGINE 0x10537C30
-// FUNCTION: ENGINE 0x10537D00
 // FUNCTION: ENGINE 0x10537D50
 // FUNCTION: ENGINE 0x10537DD0
 // FUNCTION: ENGINE 0x10537E70
-// FUNCTION: ENGINE 0x10537F50
-// FUNCTION: ENGINE 0x10537FB0
-// FUNCTION: ENGINE 0x10538020
-// FUNCTION: ENGINE 0x10538080
-// FUNCTION: ENGINE 0x10538190
-// FUNCTION: ENGINE 0x10538210
 // FUNCTION: ENGINE 0x105382A0
 // FUNCTION: ENGINE 0x105382C0
 // FUNCTION: ENGINE 0x10538380
 // FUNCTION: ENGINE 0x10538390
-// FUNCTION: ENGINE 0x10538400
-// FUNCTION: ENGINE 0x10538600
-// FUNCTION: ENGINE 0x10538690
-// FUNCTION: ENGINE 0x105386D0
-// FUNCTION: ENGINE 0x10538F60
-// FUNCTION: ENGINE 0x10538FB0
-// FUNCTION: ENGINE 0x105390E0
 // FUNCTION: ENGINE 0x10539150
 // FUNCTION: ENGINE 0x105391B0
 // FUNCTION: ENGINE 0x10539210
@@ -631,37 +560,8 @@ namespace proto
 // FUNCTION: ENGINE 0x105396C0
 // FUNCTION: ENGINE 0x10539800
 // FUNCTION: ENGINE 0x10539910
-// FUNCTION: ENGINE 0x10539960
-// FUNCTION: ENGINE 0x105399B0
-// FUNCTION: ENGINE 0x1053A880
-// FUNCTION: ENGINE 0x1053B9B0
-// FUNCTION: ENGINE 0x1053B9D0
-// FUNCTION: ENGINE 0x1053BBD0
-// FUNCTION: ENGINE 0x1053BC80
-// FUNCTION: ENGINE 0x1053BCF0
 // FUNCTION: ENGINE 0x1053C0E0
 // FUNCTION: ENGINE 0x1053C130
 // FUNCTION: ENGINE 0x1053C180
 // FUNCTION: ENGINE 0x1053C1D0
-// FUNCTION: ENGINE 0x1053C310
-// FUNCTION: ENGINE 0x1053C320
-// FUNCTION: ENGINE 0x1053C330
-// FUNCTION: ENGINE 0x1053C340
-// FUNCTION: ENGINE 0x1053C570
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (87.8 %)
 // FUNCTION: ENGINE 0x1053C620
-// FUNCTION: ENGINE 0x1053C6A0
-// FUNCTION: ENGINE 0x1053C7A0
-// FUNCTION: ENGINE 0x1053C920
-// FUNCTION: ENGINE 0x1053CAA0
-// FUNCTION: ENGINE 0x1053CDD0
-// FUNCTION: ENGINE 0x1053CE00
-// FUNCTION: ENGINE 0x1053CE80
-// FUNCTION: ENGINE 0x1053CF40
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (99.4 %)
-// FUNCTION: ENGINE 0x1053D0E0
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (99.4 %)
-// FUNCTION: ENGINE 0x1053D290
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (19.0 %)
-// FUNCTION: ENGINE 0x1053D460
-// EQUIVALENT: scheduling and inlining; the same loads, stores, copies and calls of the key operations, in the order and with the helpers the engine's compile chose (99.3 %)

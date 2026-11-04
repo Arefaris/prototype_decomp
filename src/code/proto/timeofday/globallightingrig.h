@@ -282,6 +282,27 @@ namespace proto
 
 namespace proto
 {
+	// Left to the engine (declared and mapped in symbols.txt, not defined): the compile of these keys' operations schedules
+	// the loads, the constants and the copies of the struct differently
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::SkyParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::GlobalLightParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::CloudParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::Light::LightData>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::SkyParameters>::RemoveKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::GlobalLightParameters>::RemoveKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::CloudParameters>::RemoveKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalLightingRig::Light::LightData>::ResetKey(float time);
+}
+
+namespace content
+{
+	// The lights' array helper: Insert and Erase are left to the engine
+	template<> void ArrayDynamicHelper<container::ArrayDynamic<proto::GlobalLightingRig::Light, container::AllocatorNew> >::Insert(void* array, int index, int unused);
+	template<> void ArrayDynamicHelper<container::ArrayDynamic<proto::GlobalLightingRig::Light, container::AllocatorNew> >::Erase(void* array, int index, int unused);
+}
+
+namespace proto
+{
 	// The lighting's RemoveKey reaches the array through a reference
 	template<> struct KeyOrder<GlobalLightingRig::SkyParameters>
 	{
@@ -361,7 +382,8 @@ namespace content
 {
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalLightingRig::SkyParameters>::Key)
 	PROTO_KEY_ARRAY_HELPER_INSERT(static T sDefault; a->Insert(position, sDefault);)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalLightingRig::GlobalLightParameters>::Key)
 		static T& Default()
@@ -369,8 +391,9 @@ namespace content
 			static T sDefault;
 			return sDefault;
 		}
-	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_INSERT_DECL
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalLightingRig::CloudParameters>::Key)
 		static T& Default()
@@ -378,8 +401,9 @@ namespace content
 			static T sDefault;
 			return sDefault;
 		}
-	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_INSERT_DECL
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalLightingRig::Light::LightData>::Key)
 	PROTO_KEY_ARRAY_HELPER_INSERT(static T sDefault; a->Insert(position, sDefault);)

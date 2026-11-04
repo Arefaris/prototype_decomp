@@ -87,7 +87,8 @@ namespace content
 			return sDefault;
 		}
 	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::GlobalShaderRig::Param<math::Vector>)
 		static T& Default()
@@ -96,7 +97,8 @@ namespace content
 			return sDefault;
 		}
 	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::GlobalShaderRig::Param<math::Colour128>)
 		static T& Default()
@@ -105,7 +107,8 @@ namespace content
 			return sDefault;
 		}
 	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 }
 
 #endif

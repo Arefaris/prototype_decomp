@@ -179,6 +179,20 @@ namespace proto
 
 namespace proto
 {
+	// Left to the engine (declared and mapped in symbols.txt, not defined): the compile of these keys' operations schedules
+	// the loads, the constants and the copies of the struct differently
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::BloomParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::TonemapParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::DOFParameters>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::BloomParameters>::RemoveKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::BloomParameters>::ResetKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::TonemapParameters>::ResetKey(float time);
+	template<> void TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::ResetKey(float time);
+}
+
+namespace proto
+{
 	// The framebuffer effects' RemoveKey reaches the array through a reference
 	template<> struct KeyOrder<GlobalFBEffectsRig::ColourMatrixParameters>
 	{
@@ -255,7 +269,7 @@ namespace content
 			static T sDefault;
 			return sDefault;
 		}
-	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
+	PROTO_KEY_ARRAY_HELPER_INSERT_DECL
 	PROTO_KEY_ARRAY_HELPER_END
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::TonemapParameters>::Key)
@@ -269,7 +283,8 @@ namespace content
 			return sDefault;
 		}
 	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::DOFParameters>::Key)
 	PROTO_KEY_ARRAY_HELPER_INSERT(static T sDefault; a->Insert(position, sDefault);)

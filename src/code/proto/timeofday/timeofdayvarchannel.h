@@ -322,6 +322,14 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	// Left to the engine (declared and mapped in symbols.txt, not defined): the colour channel's AddKey schedules two loads
+	// differently and the two-component channel's RemoveKey copies the elements in another order
+	template<> void TimeOfDayVarChannel<math::Colour128>::AddKey(float time);
+	template<> void TimeOfDayVarChannel<math::Vector2>::RemoveKey(float time);
+}
+
 namespace container
 {
 	// The keys of the vector channel are moved down by the out-of-line AssignRange
@@ -405,6 +413,9 @@ namespace content
 			T* position = a->begin + index; \
 			__VA_ARGS__ \
 		}
+#define PROTO_KEY_ARRAY_HELPER_INSERT_DECL 		virtual void Insert(void* array, int index, int unused);
+#define PROTO_KEY_ARRAY_HELPER_ERASE_DECL 		virtual void Erase(void* array, int index, int unused);
+#define PROTO_KEY_ARRAY_HELPER_TAIL 		virtual int Capacity(void* array) 		{ 			return ((A*)array)->Capacity(); 		} 		virtual void Expand(void* array, unsigned int count) 		{ 			A* a = (A*)array; 			if (a->Capacity() == 0) 			{ 				a->Allocate(count); 			} 			else if (count + a->Size() > a->Capacity()) 			{ 				a->Reserve(count + a->Size()); 			} 		} 	};
 #define PROTO_KEY_ARRAY_HELPER_END \
 		virtual void Erase(void* array, int index, int unused) \
 		{ \
@@ -429,9 +440,11 @@ namespace content
 		} \
 	};
 
+	// The float keys' Erase is left to the engine (the engine adds the element size to the position with a separate add)
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<float>::Key)
 	PROTO_KEY_ARRAY_HELPER_INSERT(static T sDefault; a->Insert(position, 1, sDefault);)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVarChannel<math::Vector>::Key)
 	PROTO_KEY_ARRAY_HELPER_INSERT(static T sDefault; a->Insert(position, sDefault);)
