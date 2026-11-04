@@ -13,6 +13,7 @@
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
+#include "code/proto/webofintrigue/webnodelocator.h"
 
 namespace proto
 {
@@ -414,16 +415,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x5C - sizeof(content::MetaLoadObject)];
-	};
-
-	class WebNodeLocator : public content::MetaLoadObject
-	{
-	public:
-		WebNodeLocator();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
 	};
 
 	struct IntersectionData

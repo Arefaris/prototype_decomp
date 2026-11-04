@@ -6889,3 +6889,24 @@ No assert path names any unit; the file names are guesses.
   offset (thunks followed) and fixes the symbols.txt lines. The code string of a member is `"p"` or `"pn"` (0x10D94FF4 / 0x10D94E7C), read from the push in front of the getter call.
 - Not started: `TargetableBehaviour` / `PropTargetableByAIBehaviour` (read: the targeters list, the filter accessors of `TargetPoint`, the enumeration getter 0x102B1770 is mapped through `AutoTargetPriorityList`), `AutoTargetingBehaviour`, `LockOnTargetingBehaviour`,
   `BaseHealthBehaviour` / `HunterHealthBehaviour` / `MotherHealthBehaviour` / `PrototypeHealthBehaviour` (their tables are 7 and 34 floats), the fog channel, `EffectsPropSpawner`, the time bubble manager and the large update functions.
+
+## proto time of day channels and rigs, web node locator: the range 0x10520000 - 0x10560000 (sn-bt)
+The range holds, in this order: the key arrays and key reflection of the time of day channels (0x1051F1F0 on: the unit starts before the range), `proto::TimeOfDayVars` and `TimeOfDayVarGroup` with their variation, light info and fog
+values classes (0x10521530 - 0x1052C190, 0x1052C0A0 the `TimeOfDayVars` constructor), the channel instances `TimeOfDayVarChannel<float / Vector2 / Vector / Colour128>` (0x10525B30 - 0x1052DD10), the framebuffer effects rig (0x1052E0F0 -
+0x1053D870), the lighting rig (0x1053D870 - 0x1054D580), the shader rig (0x1054D580 - 0x10550600), the spawn messages (0x10550DB0 - 0x105514D0), the spawner behaviours and the door trigger (0x10552860 - 0x1055B1E0), `WebNodeLocator`
+(0x1055B1E0 - 0x1055B770) and the web of intrigue manager with its script wrappers (0x1055B780 on). No assert path names a unit; the file names are guesses. 823 functions match, 41 are EQUIVALENT (none has captured game states yet).
+- `proto/timeofday/timeofdayvarchannel.h`: `TimeOfDayVarChannelBase` (9 slots), the template `TimeOfDayVarChannel<T>` (RTTI) with its `Key` (a time and the value; 20 bytes for a colour), the key array (`keys` at +4, the allocator word at +0x10),
+  the editing slots (`HasKey`, `GetValueSize`, `SetKeyValue`, `AddKey`, `SetSingleKey`, `RemoveKey`, `Clear`, `ResetKey`; names of the slots are guesses) and the engine's key array helpers (`PROTO_KEY_ARRAY_HELPER_*`: the engine's copies
+  insert the default key in three ways: the count version of `Array::Insert` with the shift expanded in place (float keys), the single insert with the default key built in a guarded local static (vector keys), and the count
+  version behind a function that answers the default key (colour, bloom, colour matrix, global light and cloud keys and the shader parameters)). `HasKeys` and `Evaluate` of every channel are defined out of line in other units and mapped in symbols.txt.
+  Per type codegen switches (`KeyOrder<T>`): which of size and capacity AddKey compares first (the engine's copies differ by type), and whether RemoveKey reaches the array through a reference (bloom keys only).
+- `timeofdayvars.cpp` (0x1051F340 - 0x1052E100): the float, vector and colour channels with the reflection of the keys and the channels, the two-component channel, `std::sort` of the keys (called, not expanded: `void (*sort)(Key*, Key*) = std::sort<Key*>`).
+  Not done: `TimeOfDayVars`, `TimeOfDayVarGroup`, `TimeOfDayVariation`, `TimeOfDayLightInfo`, `FogAreaValues` and its channel (0x10521530 - 0x1052C190: the layouts are only partly recovered from the reflection, the constructors and
+  the `Evaluate` functions need the time of day manager at 0x10514000 - 0x10520000).
+- `globalfbeffectsrig.h/.cpp`, `globallightingrig.h/.cpp`, `globalshaderrig.h/.cpp`: the rigs with their parameter structs (`GlobalFBEffectsRig::BloomParameters` ... , `GlobalLightingRig::SkyParameters` ..., `Light::LightData`, `GlobalShaderRig::Param<T>`), the
+  defaults the engine's key constructors store (read off the engine's `Default()` functions), `GlobalFBEffectsRigChannel<T>` and the reflection of all of them. `Evaluate` of the four framebuffer effect types lies in the range (0x1052F290,
+  0x10531E00, 0x10531F60, 0x1052F4A0) and is only mapped. The functions that do not reach 100 % are EQUIVALENT (scheduling of the independent loads of the size and the capacity, constants loaded in another order,
+  inlining of `Array::Erase` / the struct copy, a call to another identical copy of a shared helper): the `Key` constructors of the framebuffer effects, `RemoveKey` / `ResetKey` / `AddKey` of the struct channels.
+- `webofintrigue/webnodelocator.h/.cpp` (all of the unit); the stub in `proto/reflectedstubs.h` was replaced by the include of the header (shared header change).
+- Not started: the spawn messages, `SpawnerBehaviour`, `EncounterSpawnerBehaviour`, `CloudEncounterSpawnerBehaviour`, `MobileSpawnerBehaviour`, `DoorTriggerBehaviour` (reflection and constructors are small, the layouts of the spawner
+  family are 0x4F0 bytes with an unknown middle), the web of intrigue manager and its nodes.
