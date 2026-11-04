@@ -60,12 +60,10 @@ namespace proto
 
 		// 0x1046FDA0: the clip capacity with the unlockables added
 		int GetClipCapacity() const;
-		// 0x1046FDE0: the fire rate multiplier the unlockables give
-		float GetFireRateMultiplier() const;
-		// 0x1046FE60: the fire rate of the player's (true) or of anybody else's use
-		float GetFireRate(bool player) const;
-		// 0x1046FEB0: the damage with the unlockables
-		float GetDamage() const;
+		// 0x1046FDE0: the damage multiplier the unlockables give
+		float GetDamageMultiplier() const;
+		// 0x1046FE60: the damage of a hit on the player (true) or on anybody else, with the unlockables
+		float GetDamage(bool onPlayer) const;
 
 		BulletTracerProfile* tracerParams;  // +8
 		int unknownC;
@@ -105,6 +103,12 @@ namespace proto
 		virtual void SetName(const content::ObjectName& newName);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x1046FEB0: the best accuracy with the unlockables
+		float GetAccuracyMin() const;
+		// 0x10470B40: the accuracy after the weapon was held on target for time (full for the player's target, scaled
+		// otherwise)
+		float GetAccuracy(float time, bool playerTarget) const;
 
 		// The four angle limits are kept in radians and shown in degrees
 		float GetPitchMinAngle() const;

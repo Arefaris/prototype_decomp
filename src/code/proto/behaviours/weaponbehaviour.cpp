@@ -2,18 +2,21 @@
 #include "code/core/refptr.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/proto/unlockables.h"
+#include <math.h>
 
 namespace engine
 {
 	namespace driving
 	{
 		extern const float gOne;
+		extern const float gHalf;
 	}
 }
 
 namespace choreo
 {
 	extern const float gMinusOne;
+	extern const float gZero;
 }
 
 namespace proto
@@ -102,6 +105,53 @@ namespace proto
 			capacity += clipCapacityUnlockableAdd * unlocked;
 		}
 		return capacity;
+	}
+
+	// FUNCTION: ENGINE 0x1046FDE0
+	float AmmoProfileBase::GetDamageMultiplier() const
+	{
+		float multiplier = engine::driving::gOne;
+		int unlocked = gUnlockTable->CountUnlocked(damageUnlockableFirst, damageUnlockableLast);
+		if (0 < unlocked)
+		{
+			multiplier = ((float)unlocked / (float)((damageUnlockableLast - damageUnlockableFirst) + 1)) *
+				(damageUnlockableMultiplier - engine::driving::gOne) + engine::driving::gOne;
+		}
+		return multiplier;
+	}
+
+	// FUNCTION: ENGINE 0x1046FE60
+	float AmmoProfileBase::GetDamage(bool onPlayer) const
+	{
+		float damage;
+		if (onPlayer)
+		{
+			damage = damageOnPlayer;
+		}
+		else
+		{
+			damage = damageOnNPC;
+		}
+		return GetDamageMultiplier() * damage;
+	}
+
+	// FUNCTION: ENGINE 0x1046FEB0
+	float WeaponUserProfile::GetAccuracyMin() const
+	{
+		float result = accuracyMin;
+		int unlocked = gUnlockTable->CountUnlocked(accuracyUnlockableFirst, accuracyUnlockableLast);
+		if (0 < unlocked)
+		{
+			int total = (accuracyUnlockableLast - accuracyUnlockableFirst) + 1;
+			if (accuracyMinUnlockableMultiplierConfig == 1)
+			{
+				unlocked = (int)ceil((double)((float)unlocked * engine::driving::gHalf));
+				total = (int)ceil((double)((float)total * engine::driving::gHalf));
+			}
+			result = (((float)unlocked / (float)total) * (accuracyMinUnlockableMultiplier - engine::driving::gOne) +
+				engine::driving::gOne) * result;
+		}
+		return result;
 	}
 
 	// FUNCTION: ENGINE 0x1046FFA0
@@ -265,6 +315,27 @@ namespace proto
 	{
 		clipCount--;
 	}
+
+	// FUNCTION: ENGINE 0x10470B40
+	// NONMATCHING: the engine keeps the scale and the clamped fraction in other registers and lays the test for a zero gain time out in front (53 %)
+#ifdef NONMATCHING
+	float WeaponUserProfile::GetAccuracy(float time, bool playerTarget) const
+	{
+		float one = engine::driving::gOne;
+		float scale = playerTarget ? one : accuracyNonPlayerTargetScalar;
+		if (accuracyGainTime != choreo::gZero)
+		{
+			time = time / accuracyGainTime;
+			if (one < time)
+			{
+				time = one;
+			}
+			float range = accuracyMax - GetAccuracyMin();
+			return (range * time + GetAccuracyMin()) * scale;
+		}
+		return accuracyMax * scale;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10470BF0
 	WeaponBehaviour::~WeaponBehaviour()

@@ -78,4 +78,23 @@ namespace proto
 	{
 		unknown9D = true;
 	}
+
+	// FUNCTION: ENGINE 0x10443870
+	void VehicleBehaviour::Slot9(int state)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10442880
+	content::MemberList* VehicleBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<engine::FightTreeBehaviour>();
+		static content::BaseClassCasterImpl<engine::FightTreeBehaviour, VehicleBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		return &sList;
+	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104423C0
+// FUNCTION: ENGINE 0x104423D0

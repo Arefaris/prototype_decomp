@@ -47,11 +47,11 @@ namespace proto
 		virtual void Slot7();
 
 		// 0x10440A00: stands for a vehicle; 0x10440A20: stands for none
-		void Attach(VehicleBehaviourAmbient* newVehicle);
+		void Attach(VehicleBehaviour* newVehicle);
 		void Detach();
 
 		engine::GameObject* unknown4;  // the vehicle's owner
-		VehicleBehaviourAmbient* vehicle;  // +8
+		VehicleBehaviour* vehicle;  // +8
 		bool unknownC;
 	};
 }

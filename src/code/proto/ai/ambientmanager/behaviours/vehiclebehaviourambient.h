@@ -29,6 +29,7 @@ namespace engine
 namespace proto
 {
 	class NavArea;
+	class BaseLODVehicle;
 	// The tuning record a vehicle refers to (RTTI: proto::VehicleProperties, a reflected load object): the members the
 	// script data sets, in the units the data uses. The maximum speed is kept in metres per second and read and
 	// written in kilometres per hour.
@@ -156,6 +157,9 @@ namespace proto
 	class VehicleBehaviour : public engine::FightTreeBehaviour, public container::ListBase::Node
 	{
 	public:
+		// 0x10443760 (left to the engine)
+		explicit VehicleBehaviour(engine::GameObject* newOwner);
+
 		// The vehicle layer's overrides (vftable 0x10E04A9C: slots 1, 3 and 6 are 0x10442400, 0x10442140, 0x10442150)
 		virtual void Slot1();
 		virtual void OnActiveChanged(bool active);
@@ -190,7 +194,9 @@ namespace proto
 		PathNode* GetPathNode(int index);
 
 		// The node at +0x68 links the ambient manager's list of vehicle behaviours
-		unsigned char unknown6C[0x74 - 0x6c];
+		unsigned char unknown6C[0x70 - 0x6c];
+		// +0x70: the level-of-detail interface the vehicle of a character shows (0x104441B0)
+		BaseLODVehicle* lodVehicle;
 		NavArea* unknown74;   // +0x74, the record of the area the car stands in (0x10446700 reads its plane)
 		math::Vector extents; // +0x78: half the size of the car (0x10445D20 derives the corners from it)
 

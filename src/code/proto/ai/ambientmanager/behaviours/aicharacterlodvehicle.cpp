@@ -3,7 +3,7 @@
 namespace proto
 {
 	// FUNCTION: ENGINE 0x10440A00
-	void AICharacterLODVehicle::Attach(VehicleBehaviourAmbient* newVehicle)
+	void AICharacterLODVehicle::Attach(VehicleBehaviour* newVehicle)
 	{
 		vehicle = newVehicle;
 		unknown4 = newVehicle->owner;
