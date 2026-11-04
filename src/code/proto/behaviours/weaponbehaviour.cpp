@@ -295,6 +295,19 @@ namespace proto
 	{
 	}
 
+	// FUNCTION: ENGINE 0x104701B0
+	// EQUIVALENT: the engine leaves the upper bytes of eax alone where ours zeroes them first; its callers read al only (0 %)
+	bool WeaponBehaviour::IsClipEmpty() const
+	{
+		return !(clipCount > 0);
+	}
+
+	// FUNCTION: ENGINE 0x10470220
+	void WeaponBehaviour::ResetUnknown28()
+	{
+		unknown28 = 0;
+	}
+
 	// FUNCTION: ENGINE 0x10470340
 	// EQUIVALENT: register choice; the engine reads the profile argument into ecx and restores this before the first virtual call (24 %)
 	void WeaponBehaviour::Slot9(AmmoProfileBase* profile)
@@ -336,6 +349,20 @@ namespace proto
 		return accuracyMax * scale;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x10470C20
+	void WeaponBehaviour::SetUserProfile(WeaponUserProfile* profile)
+	{
+		core::RefAssign(userProfile, profile);
+	}
+
+	// FUNCTION: ENGINE 0x10470CB0
+	// EQUIVALENT: register choice; the engine masks in eax and stores it, ours masks in edx (91 %)
+	void WeaponBehaviour::DecrementUnknown28()
+	{
+		int count = unknown28 - 1;
+		unknown28 = count & ((count < 0) - 1);
+	}
 
 	// FUNCTION: ENGINE 0x10470BF0
 	WeaponBehaviour::~WeaponBehaviour()
@@ -569,3 +596,6 @@ namespace proto
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10470AF0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104706F0

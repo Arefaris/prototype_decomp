@@ -189,6 +189,14 @@ namespace proto
 		virtual AmmoProfileBase* GetAmmoProfile() = 0;
 		virtual void SetAmmoProfile(AmmoProfileBase* profile) = 0;
 
+		// 0x104701B0: no shot is left in the clip
+		bool IsClipEmpty() const;
+		// 0x10470220 / 0x10470CB0 (counts down to zero)
+		void ResetUnknown28();
+		void DecrementUnknown28();
+		// 0x10470C20: takes the profile of whoever uses the weapon
+		void SetUserProfile(WeaponUserProfile* profile);
+
 		bool unknownC;
 		bool unknownD;
 		bool unknownE;

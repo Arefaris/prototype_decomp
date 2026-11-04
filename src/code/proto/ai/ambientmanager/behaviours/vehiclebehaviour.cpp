@@ -93,7 +93,39 @@ namespace proto
 		sList.baseCaster = &sCaster;
 		return &sList;
 	}
+	// FUNCTION: ENGINE 0x104451E0
+	content::ClassInfo* VehicleProperties::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::VehicleProperties";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10445220
+	content::ClassInfo* VehicleBehaviourAmbient::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::VehicleBehaviourAmbient";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10445300
+	void VehicleProperties::SetMaxSpeed(float kilometresPerHour)
+	{
+		maxSpeed = kilometresPerHour * 0.2777777910232544f;
+	}
+
+	// FUNCTION: ENGINE 0x10445320
+	float VehicleProperties::GetMaxSpeed() const
+	{
+		return maxSpeed * 3.5999999046325684f;
+	}
 }
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x104423C0
