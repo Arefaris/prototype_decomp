@@ -174,6 +174,15 @@ namespace proto
 
 		// 0x104421F0: the byte at +0x84, set to 1 by the halt path (0x1044BF10)
 		bool GetUnknown84();
+		// 0x10442170: marks the byte at +0x9e and answers whether the value at +0xa0 has run out (names guessed)
+		bool MarkUnknown9E();
+		// 0x10442190 / 0x104421B0 (the half size of the car)
+		int GetUnknownA4();
+		math::Vector* GetExtents();
+		// 0x104421C0 / 0x104421D0 / 0x104421E0: the byte at +0x9d
+		bool GetUnknown9D();
+		void ClearUnknown9D();
+		void SetUnknown9D();
 		// 0x104438C0: true when one of the vehicles on this car's path is within maxDistanceSquared of it (the
 		// "car ahead" test of the ambient traffic; the name is a guess)
 		bool IsVehicleAhead(float maxDistanceSquared);
