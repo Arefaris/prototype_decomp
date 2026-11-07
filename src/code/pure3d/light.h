@@ -62,6 +62,10 @@ namespace pure3d
 	};
 
 	class RenderParams;
+	namespace visibility
+	{
+		class Client;
+	}
 	class Texture;
 
 	// The limits of the angles SetUnknown120 / SetUnknown124 clamp to (0x11282AD4 / 0x11282AD0; names guessed)
@@ -83,6 +87,28 @@ namespace pure3d
 
 		// 0x1075AFB0: a light of the type with the defaults (the render thread's light API makes them)
 		explicit Light(LightType newType);
+		// 0x1075B310 (the scalar deleting destructor is 0x1075C620)
+		virtual ~Light();
+
+		// 0x10756220: whether the light has a place in the visibility server's regions
+		bool HasRegion();
+		// 0x10756230: whether bit 4 of the dirty word is set and the decay is limited to a range
+		bool Unknown10756230();
+		// 0x10758A90: takes the region of the visibility client the light is registered with
+		void SetClient(visibility::Client* client);
+		// 0x10758EA0 / 0x10758F50 / 0x10758ED0: the textures at +0x134 / +0x138 and the shadow parameters
+		void SetUnknown12C(Texture* texture, float value);
+		void SetUnknown138(Texture* texture);
+		void SetShadow(RenderParams* params);
+		// 0x1075B370 / 0x1075B390 / 0x1075B3B0: the box, the sphere and the nine planes of the spot's cone (the count is
+		// 0 and the planes null for a light that is not one), made first when the dirty word asks for it
+		math::AABB* GetBounds();
+		math::Sphere* GetSphere();
+		void* GetPlanes(unsigned int* count);
+		// 0x10759000 / 0x10759D90 / 0x10759F60: make the box, the sphere and the planes from the settings
+		void UpdateBounds();
+		void UpdateSphere();
+		void UpdatePlanes();
 
 		// 0x10758300: the colour (red, green, blue, intensity)
 		const math::Vector4* GetColour();
