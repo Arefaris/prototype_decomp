@@ -1,5 +1,7 @@
 // pure3d::ParticleGenerator and the generators built on it (unit around 0x10740000 - 0x10748800; the file name is a
 // guess). Names are guesses.
+#include <math.h>
+
 #include "code/core/refptr.h"
 #include "code/pure3d/effects/particlecontroller.h"
 #include "code/pure3d/primitive.h"
@@ -37,6 +39,174 @@ namespace pure3d
 	void ParticleGenerator::Unknown8()
 	{
 		attributes.ResetValues();
+	}
+
+	// FUNCTION: ENGINE 0x10740490
+	void ParticleGenerator::SetUnknown254(float value)
+	{
+		unknown254 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740520
+	void ParticleGenerator::SetUnknown260(float value)
+	{
+		unknown260 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740540
+	void ParticleGenerator::SetUnknown264(float value)
+	{
+		unknown264 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740410
+	void ParticleGenerator::Unknown10740410(float value)
+	{
+		if (!unknown291 && value > 0.00001f)
+		{
+			unknown294 = (float)ceil((double)value);
+			unknown291 = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10740730
+	void ParticleGenerator::Unknown10740730()
+	{
+		unknown292 = true;
+	}
+
+	// FUNCTION: ENGINE 0x10740180
+	void ParticlePointGenerator::SetUnknown420(float value)
+	{
+		unknown420 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401A0
+	void ParticlePointGenerator::SetUnknown424(float value)
+	{
+		unknown424 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401C0
+	void ParticlePointGenerator::SetUnknown428(float value)
+	{
+		unknown428 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401E0
+	void ParticlePlaneGenerator::SetUnknown428(float value)
+	{
+		unknown428 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740200
+	void ParticlePlaneGenerator::SetUnknown42C(float value)
+	{
+		unknown42C = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740220
+	void ParticlePlaneGenerator::SetUnknown430(float value)
+	{
+		unknown430 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740240
+	void ParticlePlaneGenerator::SetUnknown434(float value)
+	{
+		unknown434 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740260
+	void ParticlePlaneGenerator::SetUnknown438(float value)
+	{
+		unknown438 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740280
+	void ParticlePlaneGenerator::SetUnknown43C(float value)
+	{
+		unknown43C = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402A0
+	void ParticlePlaneGenerator::SetUnknown440(float value)
+	{
+		unknown440 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402C0
+	void ParticleSphereGenerator::SetUnknown41C(float value)
+	{
+		unknown41C = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402E0
+	void ParticleSphereGenerator::SetUnknown420(float value)
+	{
+		unknown420 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740300
+	void ParticleGridGenerator::SetUnknown438(float value)
+	{
+		unknown438 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740320
+	void ParticleGridGenerator::SetUnknown43C(float value)
+	{
+		unknown43C = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740340
+	void ParticleGridGenerator::SetUnknown440(float value)
+	{
+		unknown440 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740360
+	void ParticleGridGenerator::SetUnknown444(float value)
+	{
+		unknown444 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740380
+	void ParticleGridGenerator::SetUnknown448(float value)
+	{
+		unknown448 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403A0
+	void ParticleGridGenerator::SetUnknown430(float value)
+	{
+		unknown430 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403C0
+	void ParticleGridGenerator::SetUnknown434(float value)
+	{
+		unknown434 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403E0
+	void ParticleMeshGenerator::SetUnknown410(const math::Vector& value)
+	{
+		unknown410 = value.x;
+		unknown414 = value.y;
+		unknown418 = value.z;
+	}
+
+	// FUNCTION: ENGINE 0x10740940
+	int ParticleMeshGenerator::GetUnknown424()
+	{
+		return unknown424;
+	}
+
+	// FUNCTION: ENGINE 0x10740950
+	void ParticleMeshGenerator::SetUnknown424(int value)
+	{
+		unknown424 = value;
 	}
 
 	// FUNCTION: ENGINE 0x10740500
