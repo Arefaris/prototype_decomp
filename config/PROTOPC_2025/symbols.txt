@@ -102775,3 +102775,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??0ScenarioManager@scenario@proto@@QAE@XZ = 0x1048B1E0 ; function size:0x137 | proto::scenario::ScenarioManager::ScenarioManager (name guess)
 ??1ScenarioManager@scenario@proto@@QAE@XZ = 0x1048B370 ; function size:0x2D | proto::scenario::ScenarioManager::~ScenarioManager (name guess)
 ?sEnabled@?3??ConfirmMissionPackageSlotGroupEmpty@ScenarioManager@scenario@proto@@QAE_NXZ@4_NA = 0x11090659 ; data size:0x1 | the assert's enable flag of ConfirmMissionPackageSlotGroupEmpty
+?SetCellTriggerBoundingBox@scenario@proto@@YA_NPBDVVector@math@@1@Z = 0x1048AD40 ; function size:0x8A | proto::scenario::SetCellTriggerBoundingBox (name guess)
+?GetCellTriggerHigh@scenario@proto@@YA?AVVector@math@@PBD@Z = 0x1048ADF0 ; function size:0x67 | proto::scenario::GetCellTriggerHigh (name guess)
+?GetCellTriggerLow@scenario@proto@@YA?AVVector@math@@PBD@Z = 0x1048AE70 ; function size:0x67 | proto::scenario::GetCellTriggerLow (name guess)
+?RegisterScript@ScenarioManager@scenario@proto@@QAEXXZ = 0x1048B3B0 ; function size:0x392 | proto::scenario::ScenarioManager::RegisterScript (name guess)

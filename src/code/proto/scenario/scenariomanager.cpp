@@ -7,7 +7,10 @@
 #include "code/core/strings.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/engine/system/streamtrigger.h"
+#include "code/math/vector.h"
 #include "code/engine/scenariomessage.h"
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/engine/system/streammanager.h"
@@ -20,6 +23,12 @@ namespace engine
 	extern core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup230;
 	// 0x1126B8C8: the channel "scenario"
 	extern MessageListeners gScenario79;
+}
+
+// The one-argument registration (each unit that registers one keeps a copy)
+template<class R, class A> inline void engine::LuaScriptManager::Register(const char* name, R (*function)(A))
+{
+	AddFunction(name, new Function1<R, A>(name, function));
 }
 
 namespace proto
@@ -391,6 +400,86 @@ namespace proto
 				engine::SendMessage(&message, &engine::gScenario79);
 				heartbeatTime = 0.0f;
 			}
+		}
+		// FUNCTION: ENGINE 0x1048AD40
+		// NONMATCHING: register choice of the inventory lookup, 12 %
+#ifdef NONMATCHING
+		bool SetCellTriggerBoundingBox(const char* name, math::Vector low, math::Vector high)
+		{
+			engine::StreamTrigger* trigger = content::gRootInventory->Find<engine::StreamTrigger>(name);
+			if (trigger != 0)
+			{
+				trigger->boundingBox.max.x = high.x;
+				trigger->boundingBox.max.y = high.y;
+				trigger->boundingBox.max.z = high.z;
+				trigger->boundingBox.min.x = low.x;
+				trigger->boundingBox.min.y = low.y;
+				trigger->boundingBox.min.z = low.z;
+				return true;
+			}
+			return false;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x1048ADF0
+		// NONMATCHING: the vector copy is three movss loads then stores in the engine, 61 %
+#ifdef NONMATCHING
+		math::Vector GetCellTriggerHigh(const char* name)
+		{
+			math::Vector result;
+			content::LoadInventory* inventory = content::gRootInventory;
+			engine::StreamTrigger* trigger = inventory->Find<engine::StreamTrigger>(name);
+			if (trigger != 0)
+			{
+				float x = trigger->boundingBox.max.x;
+				float y = trigger->boundingBox.max.y;
+				float z = trigger->boundingBox.max.z;
+				result.x = x;
+				result.y = y;
+				result.z = z;
+			}
+			return result;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x1048AE70
+		// NONMATCHING: the vector copy is three movss loads then stores in the engine, 61 %
+#ifdef NONMATCHING
+		math::Vector GetCellTriggerLow(const char* name)
+		{
+			math::Vector result;
+			content::LoadInventory* inventory = content::gRootInventory;
+			engine::StreamTrigger* trigger = inventory->Find<engine::StreamTrigger>(name);
+			if (trigger != 0)
+			{
+				result.x = trigger->boundingBox.min.x;
+				result.y = trigger->boundingBox.min.y;
+				result.z = trigger->boundingBox.min.z;
+			}
+			return result;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x1048B3B0
+		void ScenarioManager::RegisterScript()
+		{
+			engine::LuaScriptManager* script = engine::GetScriptManager();
+			script->SetOwner(this);
+			script->RegisterMethod("sm_StartTimer", this, &ScenarioManager::StartTimer);
+			script->RegisterMethod("sm_CancelTimer", this, &ScenarioManager::CancelTimer);
+			script->RegisterMethod("time_GetSimulationDelta", this, &ScenarioManager::GetSimulationDelta);
+			script->RegisterMethod("time_GetElapsedTime", this, &ScenarioManager::GetElapsedTime);
+			script->RegisterMethod("time_GetRealTimeDelta", this, &ScenarioManager::GetRealTimeDelta);
+			script->RegisterMethod("time_GetElapsedRealTime", this, &ScenarioManager::GetElapsedRealTime);
+			script->RegisterMethod("scenario_SetMission", this, &ScenarioManager::SetMission);
+			script->Register("stream_SetCellTriggerBoundingBox", SetCellTriggerBoundingBox);
+			script->Register("stream_GetCellTriggerHigh", GetCellTriggerHigh);
+			script->Register("stream_GetCellTriggerLow", GetCellTriggerLow);
+			script->RegisterMethod("stream_PackageSwap", this, &ScenarioManager::PackageSwap);
+			script->RegisterMethod("stream_ConfirmMissionPackageSlotGroupEmpty", this, &ScenarioManager::ConfirmMissionPackageSlotGroupEmpty);
+			script->RegisterMethod("stream_CombineDynamicSlots", this, &ScenarioManager::CombineDynamicSlots);
+			script->RegisterMethod("stream_RestoreDynamicSlots", this, &ScenarioManager::RestoreDynamicSlots);
+			script->ClearOwner();
 		}
 	}
 }
