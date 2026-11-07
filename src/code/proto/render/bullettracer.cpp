@@ -1,6 +1,7 @@
 // proto::BulletTracer, BulletTracerState and the helpers of their unit (code/proto/render/bullettracer.cpp, 0x102CC000 -
 // 0x102D2500; the path is a guess from the class names). Names are guesses.
 #include "code/content/colourmetatype.h"
+#include "code/core/refptr.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
 #include "code/math/pddicolour.h"
@@ -87,6 +88,14 @@ namespace math
 		int green = ToByte(colour.g);
 		int red = ToByte(colour.r);
 		*(unsigned int*)this = ((alpha << 8 | red) << 8 | green) << 8 | blue;
+	}
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
 	}
 }
 
@@ -604,6 +613,222 @@ namespace proto
 		}
 		stream->End();
 	}
+
+	// FUNCTION: ENGINE 0x102CF450
+	BulletTracerState::BulletTracerState(pure3d::Primitive* newPrimitive, const BulletTracerSetup* setup)
+		: pure3d::PrimitiveState(newPrimitive), owner(setup->owner), head(setup->head), tail(setup->tail)
+	{
+		wait = setup->wait;
+		local.x = setup->localX;
+		local.y = setup->localY;
+		local.z = setup->localZ;
+		jointIndex = setup->jointIndex;
+		age = 0.0f;
+		headScroll = 0.0f;
+		tailScroll = 0.0f;
+		unknown114 = setup->unknownBC;
+		unknown118 = setup->unknownC0;
+		unknown11C = setup->unknownC4;
+		unknown120 = setup->unknownC8;
+		unknown124 = setup->unknownC8;
+		unknown128 = setup->unknownCC;
+		unknown12C = setup->unknownD0;
+		speed = setup->unknownC8;
+		unknown134 = setup->unknownD4;
+		unknown138 = 0.0f;
+		length = 0.0f;
+		unknown140 = 1000000.0f;
+		UpdateMuzzle();
+	}
+
+	// FUNCTION: ENGINE 0x102CF600
+	BulletTracerState::BulletTracerState(const BulletTracerState& other) : pure3d::PrimitiveState(other.primitive),
+		owner(other.owner), head(other.head), tail(other.tail)
+	{
+		wait = other.wait;
+		local.x = other.local.x;
+		local.y = other.local.y;
+		local.z = other.local.z;
+		jointIndex = other.jointIndex;
+		age = 0.0f;
+		headScroll = 0.0f;
+		tailScroll = 0.0f;
+		unknown114 = other.unknown114;
+		unknown118 = other.unknown118;
+		unknown11C = other.unknown11C;
+		unknown120 = other.unknown120;
+		unknown124 = other.unknown124;
+		unknown128 = other.unknown128;
+		unknown12C = other.unknown12C;
+		speed = other.speed;
+		unknown134 = other.unknown134;
+		unknown138 = other.unknown138;
+		length = other.length;
+		unknown140 = other.unknown140;
+		UpdateMuzzle();
+	}
+
+	// FUNCTION: ENGINE 0x102CF780
+	pure3d::PrimitiveState* BulletTracerState::Unknown3()
+	{
+		return new BulletTracerState(*this);
+	}
+
+	// FUNCTION: ENGINE 0x102CDAE0
+	// NONMATCHING: the operations and their order are the engine's; the engine reads the updated position back from the
+	// object where ours forwards the stored values, and orders the loads differently (about 47 %)
+#ifdef NONMATCHING
+	void BulletTracerState::Update(float dt)
+	{
+		dt = dt * 0.001f;
+		age = age + dt;
+		headScroll = head.textureScrollRate * dt + headScroll;
+		tailScroll = tail.textureScrollRate * dt + tailScroll;
+		if (unknown140 > 1000.0f)
+		{
+			if (0.0f >= unknown128)
+			{
+				unknown120 = unknown12C;
+			}
+			else
+			{
+				float rate = unknown120 + unknown128 * dt;
+				unknown120 = rate;
+				if (rate > unknown12C)
+				{
+					rate = unknown12C;
+				}
+				unknown120 = rate;
+			}
+			math::Vector previous;
+			float step = unknown120 * dt;
+			previous.z = position.z;
+			previous.y = position.y;
+			previous.x = position.x;
+			position.y = unknown118 * step + position.y;
+			position.z = unknown11C * step + position.z;
+			position.x = previous.x + unknown114 * step;
+			if (unknown134 > engine::driving::gZero)
+			{
+				unknown138 = unknown134 * dt + unknown138;
+				position.y = position.y - unknown138 * dt;
+			}
+			else
+			{
+				previous.x = offset.x;
+				previous.y = offset.y;
+				previous.z = offset.z;
+			}
+			if (!(fabsf(previous.x - position.x) <= 0.00001f && fabsf(previous.y - position.y) <= 0.00001f
+				&& fabsf(previous.z - position.z) <= 0.00001f))
+			{
+				direction.x = position.x - previous.x;
+				direction.y = position.y - previous.y;
+				direction.z = position.z - previous.z;
+				direction.Normalize();
+			}
+			float dx = offset.x - position.x;
+			float dy = offset.y - position.y;
+			float dz = offset.z - position.z;
+			length = sqrtf(dz * dz + dy * dy + dx * dx);
+			speed = length / age;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x102CCE90
+	void BulletTracerState::Unknown5()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x102CDE00
+	float BulletTracerState::GetDuration()
+	{
+		float headTime = head.generateTime + head.fadeOutTime + head.fadeInTime;
+		float tailTime = tail.generateTime + tail.fadeOutTime + tail.fadeInTime;
+		float longest = tailTime > headTime ? tailTime : headTime;
+		return wait + longest;
+	}
+
+	// FUNCTION: ENGINE 0x102CDE60
+	bool BulletTracerState::Unknown6()
+	{
+		return age >= GetDuration();
+	}
+
+	// FUNCTION: ENGINE 0x102CD220
+	void BulletTracerState::GetBoundingBox(math::AABB* box)
+	{
+		primitive->GetBoundingBox(box);
+	}
+
+	// FUNCTION: ENGINE 0x102CEC70
+	BulletTracer::BulletTracer(pure3d::Shader* head, pure3d::Shader* tail) : pure3d::Primitive(0x2000), headShader(0),
+		tailShader(0)
+	{
+		Unknown4(head);
+		flagWord.SetBit(3, true);
+		core::RefAssign(headShader, head);
+		core::RefAssign(tailShader, tail);
+	}
+
+	// FUNCTION: ENGINE 0x102CE070
+	BulletTracer::~BulletTracer()
+	{
+		core::SafeRelease(headShader);
+		core::SafeRelease(tailShader);
+	}
+
+	// FUNCTION: ENGINE 0x102D2000
+	void BulletTracer::Draw(const core::Name<core::CaseInsensitiveKey32>* shader, pure3d::PrimitiveState* state,
+		const math::Matrix* world, const pure3d::PrimStreamParameters* parameters, pure3d::PartBinding* binding)
+	{
+		int cullMode = pure3d::pddi->GetCullMode();
+		pure3d::pddi->SetCullMode(0);
+		pure3d::pddi->SetWorldMatrix(&math::Matrix::IDENTITY);
+		BulletTracerState* tracer = static_cast<BulletTracerState*>(state);
+		if (tracer)
+		{
+			DrawLayer(1, reinterpret_cast<const char*>(shader), tracer, &tracer->tail, tailShader);
+			DrawLayer(0, reinterpret_cast<const char*>(shader), tracer, &tracer->head, headShader);
+		}
+		pure3d::pddi->SetCullMode(cullMode);
+	}
+
+	// FUNCTION: ENGINE 0x102CD250
+	void BulletTracer::GetBoundingBox(math::AABB* box)
+	{
+		box->max.x = 10000.0f;
+		box->max.y = 10000.0f;
+		box->max.z = 10000.0f;
+		box->min.x = -10000.0f;
+		box->min.y = -10000.0f;
+		box->min.z = -10000.0f;
+	}
+
+	// The centre is a Vector4 but the caller's pointer (the vftable takes a Vector) is followed by a fourth float in
+	// the engine too
+	// FUNCTION: ENGINE 0x102CD2A0
+	void BulletTracer::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = 0.0f;
+		centre[0].y = 0.0f;
+		centre[0].z = 0.0f;
+		centre[1].x = 10000.0f;
+	}
+
+	// FUNCTION: ENGINE 0x102CD230
+	bool BulletTracer::FillBatch(void* batch, pure3d::PrimitiveState* state, bool* unknown)
+	{
+		*unknown = false;
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x102CE0A0
+	int BulletTracer::Unknown8()
+	{
+		return 0;
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -646,3 +871,9 @@ namespace proto
 // FUNCTION: ENGINE 0x102CED20
 // FUNCTION: ENGINE 0x102CFDC0
 // FUNCTION: ENGINE 0x102D2370
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102CF5C0
+// FUNCTION: ENGINE 0x102CD910
+// FUNCTION: ENGINE 0x102CECF0
+// FUNCTION: ENGINE 0x102CF5D0
