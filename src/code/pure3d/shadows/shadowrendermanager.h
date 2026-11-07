@@ -37,6 +37,13 @@ namespace pure3d
 		void ReclaimShadowMapHeap();
 		// 0x10715EF0: sets the manager up for a mode (the second argument is the manager's word at +4; name guess)
 		void Setup(int newMode, int unknown);
+		// 0x10715900 / 0x10715920: the word at +0x20 (the render parameters follow it)
+		int GetUnknown20();
+		void SetUnknown20(int value);
+		// 0x10715B20
+		void SetUnknown10(bool value);
+		// 0x10715F50: sets the manager up again for the second argument unless the mode is 3 (name guess)
+		void Unknown10715F50(int unknown);
 		// 0x10715B00: gives the device the shadow map constant (name guess)
 		void Unknown10715B00();
 		// 0x10715CD0: the frame's shadow map set-up (name guess)
@@ -47,7 +54,12 @@ namespace pure3d
 		// 0x0: the texture the shadow map is drawn into (released when the memory is lent)
 		Texture* texture;
 		int unknown4;
-		unsigned char unknown8[0x10];
+		void* unknown8;
+		int unknownC;
+		// 0x10: set by 0x10715B20 (0x10715CD0 reads it; name guess)
+		bool unknown10;
+		unsigned char unknown11[3];
+		int unknown14;
 		// 0x107064A0 over the name "unlit"
 		void* unknown18;
 		// The mode Create was given (0 - 3, from the context settings' shadow setting)
@@ -56,7 +68,10 @@ namespace pure3d
 		pddiSurface* shadowMap;
 		// Set while the shadow map memory is lent out (0x10715C80, 0x10716900)
 		bool lent;
-		unsigned char unknown25[0xb];
+		unsigned char unknown25[3];
+		// The size of the shadow map (0x400 square to start with)
+		int width;
+		int height;
 		// 0x30: set when the shadow map has to be made again (name guess)
 		bool needsRemake;
 		unsigned char unknown31[3];

@@ -1,6 +1,7 @@
 // pure3d::ShadowRenderManager (code/pure3d/shadows/implementation/shadowrendermanager.cpp; 0x10714560 - 0x10717900).
 // Only the pieces the passes use are reconstructed. Names are guesses.
 #include "code/core/criticalsection.h"
+#include "code/core/debug.h"
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/memory/memorypool.h"
@@ -262,6 +263,80 @@ namespace pure3d
 		Unknown106EC370();
 	}
 
+	// FUNCTION: ENGINE 0x10715430
+	void SetParticleTransformFlag(bool value)
+	{
+		if (value)
+		{
+			gParticleTransform[8] = engine::driving::gOne;
+			return;
+		}
+		gParticleTransform[8] = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x107154E0
+	void SetParticleTransformX(int row, float value)
+	{
+		gParticleTransform[row * 4] = value;
+	}
+
+	// FUNCTION: ENGINE 0x10715500
+	void SetParticleTransformY(int row, float value)
+	{
+		gParticleTransform[row * 4 + 1] = value;
+	}
+
+	// FUNCTION: ENGINE 0x10715520
+	void SetParticleTransformZ(int row, float value)
+	{
+		gParticleTransform[row * 4 + 2] = value;
+	}
+
+	// FUNCTION: ENGINE 0x10715540
+	void SetParticleTransformW(int row, float value)
+	{
+		gParticleTransform[row * 4 + 3] = value;
+	}
+
+	// FUNCTION: ENGINE 0x10715560
+	void SetParticleTransformRow(int row, float x, float y, float z, float w)
+	{
+		float* at = &gParticleTransform[row * 4];
+		at[0] = x;
+		at[1] = y;
+		at[2] = z;
+		at[3] = w;
+	}
+
+	// FUNCTION: ENGINE 0x107155A0
+	void* AllocRenderHeap(unsigned int size)
+	{
+		return core::HeapAlloc(GetRenderHeap(), size);
+	}
+
+	// FUNCTION: ENGINE 0x10716770
+	ShadowRenderManager::ShadowRenderManager(int newMode)
+	{
+		texture = 0;
+		unknown4 = -1;
+		unknown8 = 0;
+		unknownC = 0;
+		unknown10 = false;
+		unknown14 = 0;
+		unknown18 = 0;
+		shadowMap = (pddiSurface*)1;
+		lent = false;
+		width = 0x400;
+		height = 0x400;
+		needsRemake = false;
+		OLD_ASSERT_TEXT_AT("..\\..\\..\\code\\pure3d\\shadows\\implementation\\shadowrendermanager.cpp", 0x46,
+			gShadowRenderManager == 0, "0 == sSingleton");
+		mode = newMode;
+		Setup(newMode, -1);
+		unknown18 = new Shader("unlit");
+		((Shader*)unknown18)->AddRef();
+	}
+
 	// FUNCTION: ENGINE 0x10716830
 	void ShadowRenderManager::Create(int mode)
 	{
@@ -281,6 +356,34 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x10715AC0
 	void ShadowRenderManager::Unknown10715AC0(const void* viewState)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10715900
+	int ShadowRenderManager::GetUnknown20()
+	{
+		return (int)shadowMap;
+	}
+
+	// FUNCTION: ENGINE 0x10715920
+	void ShadowRenderManager::SetUnknown20(int value)
+	{
+		shadowMap = (pddiSurface*)value;
+		context->UpdateRenderParams();
+	}
+
+	// FUNCTION: ENGINE 0x10715B20
+	void ShadowRenderManager::SetUnknown10(bool value)
+	{
+		unknown10 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10715F50
+	void ShadowRenderManager::Unknown10715F50(int unknown)
+	{
+		if (mode != 3)
+		{
+			Setup(mode, unknown);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10715F30
