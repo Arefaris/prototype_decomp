@@ -91,6 +91,11 @@ namespace container
 	public:
 		struct ValueNode : public SListBase::Node
 		{
+			ValueNode(const T& newValue)
+			{
+				value = newValue;
+			}
+
 			T value;
 		};
 
@@ -121,6 +126,14 @@ namespace container
 			{
 				return node != other.node;
 			}
+			bool operator==(const Iterator& other) const
+			{
+				return node == other.node;
+			}
+			T* operator->() const
+			{
+				return &node->value;
+			}
 
 			ValueNode* node;
 		};
@@ -144,6 +157,16 @@ namespace container
 		Iterator End() const
 		{
 			return Iterator(0);
+		}
+		// Takes the first node out and frees it
+		void PopFrontAndFree()
+		{
+			Allocator::Free(SListBase::PopFront());
+		}
+		// Takes the node behind another out and frees it
+		void RemoveAfterAndFree(ValueNode* previous)
+		{
+			Allocator::Free(SListBase::RemoveAfter(previous));
 		}
 		void PushBack(const T& value)
 		{

@@ -426,10 +426,10 @@ namespace engine
 				while (waiting)
 				{
 					core::ThreadSleep(0);
-					ServicePump* pump = GetServicePump();
+					GameLinkManager* pump = GetGameLinkManager();
 					if (pump != 0)
 					{
-						pump->Update(core::Time(0, 0));
+						pump->UpdateSimulation(*(UpdateContext*)&core::Time(0, 0));
 					}
 					lua_getfield(L, LUA_GLOBALSINDEX, "_BREAK");
 					waiting = lua_toboolean(L, -1) != 0;

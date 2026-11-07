@@ -5,10 +5,15 @@
 #ifndef ENGINE_SYSTEM_WORLDSTREAMMANAGER_H
 #define ENGINE_SYSTEM_WORLDSTREAMMANAGER_H
 
+#include "code/container/arrayfixed.h"
 #include "code/engine/system/streampackage.h"
+#include "code/math/vector.h"
 
 namespace engine
 {
+	class StreamTrigger;
+	class TagSet;
+
 	namespace world
 	{
 		class Location;
@@ -21,7 +26,7 @@ namespace engine
 		// one unloads (the words are kept at +0x40 - +0x48)
 		struct Config
 		{
-			int unknown0;
+			void (*loadCallback)(int unknown);
 			int unknown4;
 			int unknown8;
 			void (*onLoaded)(StreamPackageInstance* instance);
@@ -39,10 +44,20 @@ namespace engine
 
 		// 0x10854150: lets go of the location and leaves the stream manager
 		void Reset();
+		// 0x10854270: the number of the zone the stream driver is in ("-" when there is none)
+		void GetCurrentZoneNumber(char* out);
+		// 0x10854420: updates the stream drivers' behaviours, then calls the function at +0x40 for what is still to load
+		void UpdateDrivers();
+		// 0x108546C0: whether one of the triggers, or one of their neighbours, has its package of the tags loaded around the
+		// point (the triggers are a fixed array of sixteen)
+		bool IsAnyTriggerLoaded(const math::Vector* point, const TagSet* tags, container::ArrayFixed<StreamTrigger*, 16>* triggers,
+			float margin);
+		// 0x10854810: collects the stream triggers of the stream drivers whose tags intersect the given ones
+		void CollectStreamTriggers(const TagSet* tags, container::ArrayFixed<StreamTrigger*, 16>* triggers);
 
 		char locationName[0x20];  // +0x1C
 		world::Location* location;  // +0x3C
-		int unknown40;
+		void (*loadCallback)(int unknown);  // +0x40
 		int unknown44;
 		int unknown48;
 		void (*onLoaded)(StreamPackageInstance* instance);  // +0x4C

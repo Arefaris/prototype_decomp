@@ -7838,3 +7838,24 @@ The range holds, in this order: the tail of the road mesh path code (0x10460360 
 - `proto/npcinstance.h/.cpp`, `npcrenderbehaviour.h/.cpp` (new): `NPCInstance` (the object embedded in the behaviour at +0xC: drawable, level of detail, visibility, scale, type, render type) with its accessors, `NPCRenderBehaviour` (reflection, construction, destruction, `Slot1`, `OnActiveChanged`, `Update`). `NPCInstance::Create` (0x10479620) and `SetRender` (0x104795C0) and the message handler are left to the engine.
 - Findings: a ctor / dtor pair of messages whose members are all inline is emitted out of line by a helper that builds one of each under `inline_depth(0)`; a function the engine's code calls through a folded copy (`core::SafeRelease<NPCRender>` at 0x104794B0 is the copy the behaviour's destructor uses too) needs the type the engine used (`NPCRender*`, not `NPCType*`, as the reference caster says); a bool returned by a chain of `&&` is `mov eax, 1` / `xor eax, eax`, one returned through nested ifs is `mov al, 1`; an argument that is a call (`GetUnknown10()`) is evaluated before or after pushing `this` depending on whether the engine's source had it inline in the argument list or in a local.
 - Not done: the road mesh path code (0x10460360 - 0x10461960), the bullet tracer and its array of 0x50 byte tracers (0x10461A70 - 0x10464B20: the manager keeps raw bytes in our source, the engine's array of tracers has `Create`, `PushBack`, `Erase`, `Insert` instances), the weapon update, shooting and message code (`WeaponBehaviour::OnMessage` 0x10471C60, `Update` 0x104721D0, the missile flight 0x10469AB0 - 0x1046CE43, `DiscardedFirearmBehaviour::Update` 0x10465010 and the fade code: they need the `Drawable` binding API and the shader input init data), the array helper instances of `WeaponConfiguration` (copy constructor, `AssignRange`, `ShiftUp`, `Reserve`: ours are inlined differently), the `ArrayDynamic<NPCInstance*, AllocatorCoreStatic<0xA1, 16>>` instances (the engine has three sets of copies and the bytes cannot tell them apart), `NPCInstance::Create`, the faction table (0x1047BA50 - 0x1047D2D0), the serialisation buffer's write templates (about fifty 15-byte functions that differ in one constant), the save manager state machine (0x1047F650 - 0x10480000), the save game manager's script natives.
+## 0x10840000 - 0x10860000 (sn-dn): the game link, the world stream manager, the render task, the database lists
+- `engine/gamelink.*` (0x108537E0 - 0x10854060): `GameLinkManager` is the RTTI name of what was guessed as the service pump (base
+  `ISimulationTask`, 0x20 bytes: the net library's link at +4, the serializer's Lua reference at +8, the heap, the pending count, the
+  connection and session of the other end, an inline `NetMessageAllocatorDynamic`). Its update, Lua receive, forward, text/packet
+  sends, serializer bind/release, connect/disconnect, destructor, creation and destruction match. The constructor is NONMATCHING
+  (the engine keeps the constant 0x70000 in ebx). The net library's link, packet, session and connection are only declared
+  (`NetLink`, `NetPacket`, `NetSession`, `NetConnection`; names guessed). `ServicePump` / `GetServicePump` were renamed.
+- `engine/system/worldstreammanager.*`: the zone number, the stream driver update (the function at +0x40 is a callback taking 1),
+  the trigger loaded checks and the trigger collection, `StreamMessage` (streamtriggermessages.h also holds the
+  `StreamTriggerInfoMessage` query) and the kept copies of the trigger lists. `IsTriggerLoadedFor` (0x108544E0) is NONMATCHING
+  (43.6 %: the engine keeps the result in bl on its early exits, ours folds them to xor al, al).
+- `engine/render/drawableregistry.cpp`: `RenderTask` (RTTI; IRealTimeTask at +0, ISimulationTask at +4; the old guess
+  `DrawableRegistry` is renamed, midgroundmanager.cpp's local declaration with it): constructor, the step update, Add / Remove and
+  the kept copies of its fixed list of presentation tasks (`ArrayFixed<PresentationTask*, 16>`, which got `Erase`). Not done: its
+  real-time update (0x10849190, 651 bytes).
+- `engine/database/dbsubject.cpp`: eight more kept copies of the observer / change lists (`SList::Iterator::operator->` / `==` /
+  post-increment, `ValueNode(const T&)`, `PopFrontAndFree`, `RemoveAfterAndFree`; slist.h got those members).
+- Blocked in the rest of the range: the unnamed audio mixer / dialogue structures (0x10855xxx - 0x1085AFFF), the OLS services
+  (nine unnamed interfaces at +0x78 - +0xA8), the decal creators, the 24-byte heap sort instances (no named element type), the
+  red-black tree instances per key type, and inline class members the engine emitted without a caller (HealthBehaviour 0x10847E70
+  - 0x10847E90, cannot be emitted from the sources).
