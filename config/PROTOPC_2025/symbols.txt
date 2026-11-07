@@ -104201,3 +104201,6 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ??_R0?AVJumpToAction@motion@fightitems@proto@@@8 = 0x10FF6EC0 ; data size:0x8 | proto::fightitems::motion::JumpToAction RTTI type descriptor
 ?PlanJump@JumpToAction@motion@fightitems@proto@@QAE_NXZ = 0x100E2520 ; function size:0x399 | proto::fightitems::motion::JumpToAction::PlanJump (name guess)
 ?Advance@JumpToAction@motion@fightitems@proto@@QAEXM@Z = 0x100E22E0 ; function size:0x1CB | proto::fightitems::motion::JumpToAction::Advance (name guess)
+??1?$Link@VJumpToTrack@motion@fightitems@proto@@@core@@QAE@XZ = 0x100E11C0 ; function size:0x10 | kept template or inline copy of this unit
+?Get@?$Link@VJumpToTrack@motion@fightitems@proto@@@core@@QBEPAVJumpToTrack@motion@fightitems@proto@@XZ = 0x100E11E0 ; function size:0x3 | kept template or inline copy of this unit
+??0?$Link@VJumpToTrack@motion@fightitems@proto@@@core@@QAE@PAVJumpToTrack@motion@fightitems@proto@@@Z = 0x100E11F0 ; function size:0x37 | kept template or inline copy of this unit
