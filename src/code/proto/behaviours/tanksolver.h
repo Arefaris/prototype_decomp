@@ -67,8 +67,35 @@ namespace proto
 	{
 	public:
 		AlignedAxleConstraint(); //@0x102FC830
-		AlignedAxleConstraint(const AlignedAxleConstraint& other); //@0x102FAAC0
-		AlignedAxleConstraint& operator=(const AlignedAxleConstraint& other); //@0x102FAB30
+		// 0x102FAAC0 / 0x102FAB30 are the out-of-line copies of these; the containers' code has them inline
+		AlignedAxleConstraint(const AlignedAxleConstraint& other)
+			: childJointName(other.childJointName), parentJointName(other.parentJointName)
+		{
+			unknown10 = other.unknown10;
+			unknown14 = other.unknown14;
+			unknown18 = other.unknown18;
+			unknown1C = other.unknown1C;
+			handles[0] = other.handles[0];
+			handles[1] = other.handles[1];
+			handles[2] = other.handles[2];
+			handles[3] = other.handles[3];
+			properties = other.properties;
+		}
+		AlignedAxleConstraint& operator=(const AlignedAxleConstraint& other)
+		{
+			childJointName = other.childJointName;
+			parentJointName = other.parentJointName;
+			unknown10 = other.unknown10;
+			unknown14 = other.unknown14;
+			unknown18 = other.unknown18;
+			unknown1C = other.unknown1C;
+			handles[0] = other.handles[0];
+			handles[1] = other.handles[1];
+			handles[2] = other.handles[2];
+			handles[3] = other.handles[3];
+			properties = other.properties;
+			return *this;
+		}
 		~AlignedAxleConstraint(); //@0x102F69D0
 		static content::ClassInfo* GetClassInfo(); //@0x102F3D80
 		static content::MemberList* GetMembers();
@@ -349,7 +376,7 @@ namespace container
 	};
 }
 
-PROTO_ARRAY_HELPER(proto::AlignedAxleConstraint)
+PROTO_ARRAY_HELPER_CREATE(proto::AlignedAxleConstraint)
 
 namespace proto
 {
@@ -445,6 +472,13 @@ namespace container
 		enum
 		{
 			value = 0
+		};
+	};
+	template<> struct ArrayReserveBeginFirst<proto::TankSolverBehaviour::JointData>
+	{
+		enum
+		{
+			value = 1
 		};
 	};
 }

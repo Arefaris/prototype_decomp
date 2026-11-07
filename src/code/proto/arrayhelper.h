@@ -8,7 +8,7 @@
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/metatype.h"
 
-#define PROTO_ARRAY_HELPER(ElementType) \
+#define PROTO_ARRAY_HELPER_BODY(ElementType, allocate) \
 namespace content \
 { \
 	template<> class ArrayDynamicHelper<container::ArrayDynamic<ElementType, container::AllocatorNew> > \
@@ -55,7 +55,7 @@ namespace content \
 			A* a = (A*)array; \
 			if (a->Capacity() == 0) \
 			{ \
-				a->Allocate(count); \
+				allocate; \
 			} \
 			else if (count + a->Size() > a->Capacity()) \
 			{ \
@@ -64,5 +64,10 @@ namespace content \
 		} \
 	}; \
 }
+
+// The engine's helpers differ in how they make the first storage: with Allocate, or with Create (which answers whether
+// it succeeded)
+#define PROTO_ARRAY_HELPER(ElementType) PROTO_ARRAY_HELPER_BODY(ElementType, a->Allocate(count))
+#define PROTO_ARRAY_HELPER_CREATE(ElementType) PROTO_ARRAY_HELPER_BODY(ElementType, a->Create(count))
 
 #endif
