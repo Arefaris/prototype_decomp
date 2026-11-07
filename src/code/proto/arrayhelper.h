@@ -28,6 +28,12 @@ namespace container
 	};
 }
 
+namespace proto
+{
+	// The array of the joints a part of a vehicle moves
+	typedef container::ArrayDynamic<core::Name<core::CaseSensitiveKey>, container::AllocatorNew> JointNameArray;
+}
+
 #define PROTO_ARRAY_HELPER_BODY(ElementType, allocate) \
 namespace content \
 { \

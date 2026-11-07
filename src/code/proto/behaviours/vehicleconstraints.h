@@ -18,8 +18,6 @@
 
 namespace proto
 {
-	typedef container::ArrayDynamic<core::Name<core::CaseSensitiveKey>, container::AllocatorNew> JointNameArray;
-
 	// The limits and damping of a wheel's suspension (0x1C bytes)
 	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
 	{

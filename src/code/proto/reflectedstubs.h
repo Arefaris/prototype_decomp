@@ -35,6 +35,7 @@
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
 #include "code/proto/behaviours/vehicleconstraints.h"
+#include "code/proto/behaviours/helicopterrotor.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
@@ -820,16 +821,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
-	class HelicopterRotorAnimationBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit HelicopterRotorAnimationBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
 	};
 
 	class MusicTreeBehaviour : public engine::FightTreeBehaviour
