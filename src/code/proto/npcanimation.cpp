@@ -1,4 +1,5 @@
 #include "code/proto/npcanimation.h"
+#include "code/choreo/puppet.h"
 #include "code/core/refptr.h"
 #include "code/pure3d/pose.h"
 #include "code/pure3d/animation.h"
@@ -41,6 +42,17 @@ namespace proto
 	bool NPCAnimation::Slot5()
 	{
 		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10476A50
+	void NPCAnimation::UpdatePose(float dt)
+	{
+		pure3d::Pose* source = puppet->mPoseObject;
+		pure3d::Pose* destination = pose;
+		if (source != 0 && destination != 0)
+		{
+			destination->CopyStateFrom(source);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x104770B0

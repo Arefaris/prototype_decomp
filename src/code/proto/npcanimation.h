@@ -47,6 +47,9 @@ namespace proto
 		// vftable slot 5 (0x10476A40)
 		virtual bool Slot5();
 
+		// 0x10476A50: copies the state of the puppet's pose into the pose of the animation
+		void UpdatePose(float dt);
+
 		pure3d::Animation* animation;  // +8
 		pure3d::Pose* pose;  // +0xC
 		choreo::Puppet* puppet;  // +0x10
