@@ -36,6 +36,7 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/disguiseconfig.h"
 #include "code/proto/behaviours/bloodtoxbehaviour.h"
 #include "code/proto/behaviours/driverbehaviour.h"
 #include "code/proto/behaviours/emotionalstatebehaviour.h"
@@ -242,16 +243,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
-	};
-
-	struct DisguiseConfig : public content::MetaLoadObject
-	{
-	public:
-		DisguiseConfig();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x274 - sizeof(content::MetaLoadObject)];
 	};
 
 	struct BulletTracerProfile : public content::MetaLoadObject
