@@ -158,7 +158,9 @@ namespace pure3d
 		unsigned char unknown110[0x18];
 		// The render state bits (1 - 5 from the binding's flags, 7 from the primitive, 10: identity world matrix)
 		core::BitField<unsigned short> renderBits;
-		unsigned char unknown12A;
+		// +0x12A: the low nibble is the value of Drawable::SetUnknownCC
+		unsigned char unknownCC : 4;
+		unsigned char unknown12A : 4;
 		unsigned char unknownIndex : 4;
 		unsigned char unknown12B : 4;
 	};
@@ -285,6 +287,17 @@ namespace pure3d
 		// 0x106E0A40 / 0x106E0AA0: the index of the named segment (0xFFFF when there is none)
 		unsigned short FindSegment(const core::Name<core::CaseSensitiveKey>& name);
 		unsigned short FindSegment(unsigned __int64 name);
+		// 0x106E0B80: the segment of that index, null for a bad index
+		DrawableSegment* GetSegment(unsigned short segment);
+		// 0x106E0790 / 0x106E07B0: the bit 0 of the part's flags (the state is updated; setting it also tells the part's
+		// visibility client)
+		bool GetPartUpdated(unsigned int part);
+		void SetPartUpdated(unsigned int part, bool value);
+		// 0x106E0800: the joint of a part
+		unsigned short GetPartJoint(unsigned int part);
+		// 0x106E1240 / 0x106E1900: the bits of the flag word at +0x8C
+		bool TestFlag8C(int bit);
+		void SetFlag8C(int bit, bool value);
 		// 0x106E0BB0
 		void SetSegmentVisible(unsigned short segment, bool visible);
 		// 0x106E0B30: the first part and the part count of a segment (both 0 for a bad index)
@@ -333,11 +346,14 @@ namespace pure3d
 		VertexOffsetExpressionMixer* expressionMixer;
 		// Bit 0: unknownB8 changed, bit 2: transforms changed, bit 3: unknownBC changed
 		core::BitField<unsigned int> dirty;
-		core::BitField<unsigned int> unknown8C;
+		PrimitiveFlagWord unknown8C;
 		unsigned char unknown90[4];
 		// Per part: bit 1 the state is updated, bits 2 - 4 render flags
 		container::ArrayDynamic<unsigned char, container::AllocatorNew> partFlags;
-		unsigned char unknownA0[0x14];
+		unsigned char unknownA0[4];
+		// The named runs of parts (+0xA4)
+		container::ArrayDynamic<DrawableSegment, container::AllocatorNew> segments;
+		unsigned char unknownB0[4];
 		float unknownB4;
 		int unknownB8;
 		float unknownBC;

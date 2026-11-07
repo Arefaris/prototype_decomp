@@ -2,6 +2,7 @@
 // drawable instance (controllers, expressions, particle emitters), its parts' world matrices and render bits, and its
 // bounds. Names are guesses unless noted.
 #include "code/core/bitfield.h"
+#include "code/core/refptr.h"
 #include "code/math/aabb.h"
 #include "code/math/matrix.h"
 #include "code/math/mathutils.h"
@@ -57,6 +58,8 @@ namespace math
 
 namespace pure3d
 {
+	void AssignCoreRef(core::IRefCount*& pointer, core::IRefCount* object);
+
 	// The frame number the drawables compare their marks with is pure3d::context's, unless overridden
 	// (0x1127EBCD / 0x1127EBD0); 0x106DF4A0 sets whether IsPoseCurrent checks the pose's frame (0x1127EBCC)
 	extern bool gUseFrameOverride;
@@ -216,6 +219,374 @@ namespace pure3d
 			}
 		}
 		forceUpdate = false;
+	}
+
+	// FUNCTION: ENGINE 0x106E02C0
+	void Drawable::Unknown106E02C0()
+	{
+		for (unsigned int i = 0; i < (unsigned int)parts.Size(); i++)
+		{
+			PrimitiveState* state = parts[i].state;
+			if (state)
+			{
+				state->Unknown5();
+			}
+		}
+		if (unknown78)
+		{
+			unknown78->Reset();
+		}
+		if (unknown7C)
+		{
+			unknown7C->Reset();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E0340
+	bool Drawable::IsFinished()
+	{
+		if (unknown78 && !unknown78->Unknown20())
+		{
+			return false;
+		}
+		if (unknown7C && !unknown7C->Unknown20())
+		{
+			return false;
+		}
+		for (unsigned int i = 0; i < (unsigned int)parts.Size(); i++)
+		{
+			PrimitiveState* state = parts[i].state;
+			if (state && !state->Unknown6())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x106E0540
+	void Drawable::SetTransform(const math::Matrix& newTransform)
+	{
+		if (!(newTransform == transform))
+		{
+			transform = newTransform;
+			partsDirty = true;
+			boundsDirty = true;
+			dirty.SetMask(4);
+		}
+		frameC0 = GetCurrentFrame();
+	}
+
+	// FUNCTION: ENGINE 0x106E0580
+	void Drawable::SetSkeleton(Skeleton* newSkeleton)
+	{
+		core::RefAssign(skeleton, newSkeleton);
+	}
+
+	// FUNCTION: ENGINE 0x106E0810
+	void Drawable::SetPartJoint(unsigned int part, unsigned short joint)
+	{
+		partJoints.begin[part] = joint;
+	}
+
+	// FUNCTION: ENGINE 0x106E03E0
+	void Drawable::Unknown106E03E0()
+	{
+		int count = parts.Size();
+		for (int i = 0; i < count; i++)
+		{
+			if (parts.begin[i].primitive->type == 2 && parts.begin[i].state)
+			{
+				MeshState* mesh = (MeshState*)parts.begin[i].state;
+				VertexAnimController* animation = dynamic_cast<VertexAnimController*>((SimpleFrameController*)mesh->GetController2());
+				FrameController* region = mesh->GetController3();
+				if (animation)
+				{
+					animation->Unknown28();
+				}
+				if (region)
+				{
+					((VertexRegionAnimController*)region)->Unknown28();
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E0490
+	void Drawable::Unknown106E0490()
+	{
+		int count = parts.Size();
+		for (int i = 0; i < count; i++)
+		{
+			if (parts.begin[i].primitive->type == 2 && parts.begin[i].state)
+			{
+				MeshState* mesh = (MeshState*)parts.begin[i].state;
+				VertexAnimController* animation = dynamic_cast<VertexAnimController*>((SimpleFrameController*)mesh->GetController2());
+				FrameController* region = mesh->GetController3();
+				if (animation)
+				{
+					animation->Unknown27();
+				}
+				if (region)
+				{
+					((VertexRegionAnimController*)region)->Unknown27();
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E05A0
+	// NONMATCHING: register allocation (88 %: the engine keeps this in ebx and the pose in edi; same operations)
+#ifdef NONMATCHING
+	void Drawable::SetPose(Pose* object)
+	{
+		if (object != pose)
+		{
+			AssignCoreRef((core::IRefCount*&)pose, (core::IRefCount*)object);
+			if (unknown78 && pose)
+			{
+				((PoseAnimationController*)unknown78)->SetPose(pose);
+			}
+			int count = parts.Size();
+			for (int i = 0; i < count; i++)
+			{
+				int type = parts.begin[i].primitive->type;
+				if (type == 4)
+				{
+					SkinState* skin = (SkinState*)parts.begin[i].state;
+					Pose* newPose = pose;
+					skin->Unknown9();
+					AssignCoreRef((core::IRefCount*&)skin->pose, (core::IRefCount*)newPose);
+				}
+				else if (type == 0x4000)
+				{
+					// the gpu skin state keeps the pose in the word at +0x1C
+					AssignCoreRef(((GpuSkinState*)parts.begin[i].state)->buffer, (core::IRefCount*)pose);
+				}
+			}
+			poseFrame = GetCurrentFrame();
+			cyclic = true;
+			dirty.SetMask(2);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E06E0
+	void Drawable::SetExpressionSource(Entity* source)
+	{
+		core::RefAssign(expressionMixer, (VertexOffsetExpressionMixer*)source);
+		int count = parts.Size();
+		for (int i = 0; i < count; i++)
+		{
+			if (parts.begin[i].primitive->type == 4)
+			{
+				ExpressionAnimationController* controller =
+					(ExpressionAnimationController*)((SkinState*)parts.begin[i].state)->GetController2();
+				if (controller)
+				{
+					controller->SetMixer((VertexOffsetExpressionMixer*)source);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E09A0
+	void Drawable::Unknown106E09A0(Drawable* other)
+	{
+		for (unsigned int i = 0; i < (unsigned int)segments.Size(); i++)
+		{
+			for (unsigned int j = 0; j < segments.begin[i].partCount; j++)
+			{
+				unsigned int part = segments.begin[i].firstPart + j;
+				SetPartUpdated(part, other->GetPartUpdated(part));
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E06A0
+	void Drawable::SetUnknown78(FrameController* controller)
+	{
+		RefCounted::Assign(unknown78, controller);
+		if (unknown78 && pose)
+		{
+			((PoseAnimationController*)unknown78)->SetPose(pose);
+		}
+		if (unknown78)
+		{
+			cyclic = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E0760
+	void Drawable::SetUnknown7C(FrameController* controller)
+	{
+		core::RefAssign((CompDrawVisibilityAnimationController*&)unknown7C, (CompDrawVisibilityAnimationController*)controller);
+		if (unknown7C)
+		{
+			((CompDrawVisibilityAnimationController*)unknown7C)->SetDrawable(this);
+			cyclic = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E0790
+	bool Drawable::GetPartUpdated(unsigned int part)
+	{
+		return partFlags.begin[part] & 1;
+	}
+
+	// FUNCTION: ENGINE 0x106E07B0
+	// NONMATCHING: register allocation (the engine keeps the flag byte in edx and this in ecx; best 9 %, same operations)
+#ifdef NONMATCHING
+	void Drawable::SetPartUpdated(unsigned int part, bool value)
+	{
+		unsigned char* entry = &partFlags.begin[part];
+		unsigned char flags = *entry;
+		flags = value ? flags | 1 : flags & 0xFE;
+		*entry = flags;
+		visibility::Client& client = parts.begin[part].client;
+		if (client.IsRegistered())
+		{
+			client.SetListed(1, value);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E0800
+	unsigned short Drawable::GetPartJoint(unsigned int part)
+	{
+		return partJoints.begin[part];
+	}
+
+	// FUNCTION: ENGINE 0x106E0910
+	void Drawable::SetUnknownFloat(int index, float value)
+	{
+		if (index != unknownB8 || value != unknownB4)
+		{
+			partsDirty = true;
+			unknownB4 = value;
+			unknownB8 = index;
+			dirty.SetMask(1);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E1240
+	bool Drawable::TestFlag8C(int bit)
+	{
+		return unknown8C.Test(bit);
+	}
+
+	// FUNCTION: ENGINE 0x106E1900
+	void Drawable::SetFlag8C(int bit, bool value)
+	{
+		unknown8C.SetBit(bit, value);
+	}
+
+	// FUNCTION: ENGINE 0x106E1250
+	void Drawable::Unknown106E1250(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unknownF8 = name;
+	}
+
+	// FUNCTION: ENGINE 0x106E1260
+	void Drawable::SetPartUnknown2C(int part, float value)
+	{
+		parts.begin[part].unknown2C = value;
+		dirty.SetMask(8);
+	}
+
+	// FUNCTION: ENGINE 0x106E0A40
+	// NONMATCHING: the engine tests the count with sar + je, ours folds the test into a mask test (non-zero test of the shifted size)
+#ifdef NONMATCHING
+	unsigned short Drawable::FindSegment(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unsigned int i = 0;
+		unsigned int count = segments.Size();
+		if (count != 0)
+		{
+			DrawableSegment* segment = segments.begin;
+			do
+			{
+				if (name == segment->name)
+				{
+					return (unsigned short)i;
+				}
+				i++;
+				segment++;
+			}
+			while (i < (unsigned int)segments.Size());
+		}
+		return 0xFFFF;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E0AA0
+	// NONMATCHING: the engine tests the count with sar + je, ours folds the test into a mask test (non-zero test of the shifted size)
+#ifdef NONMATCHING
+	unsigned short Drawable::FindSegment(unsigned __int64 name)
+	{
+		unsigned int i = 0;
+		unsigned int count = segments.Size();
+		if (count != 0)
+		{
+			DrawableSegment* segment = segments.begin;
+			do
+			{
+				if (core::Name<core::CaseSensitiveKey>(name) == segment->name)
+				{
+					return (unsigned short)i;
+				}
+				i++;
+				segment++;
+			}
+			while (i < (unsigned int)segments.Size());
+		}
+		return 0xFFFF;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E0B30
+	void Drawable::GetSegmentParts(unsigned short segment, unsigned int* first, unsigned int* count)
+	{
+		*first = 0;
+		*count = 0;
+		if (segment < (unsigned int)segments.Size())
+		{
+			*first = segments.begin[segment].firstPart;
+			*count = segments.begin[segment].partCount;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E0B80
+	DrawableSegment* Drawable::GetSegment(unsigned short segment)
+	{
+		if (segment < (unsigned int)segments.Size())
+		{
+			return &segments.begin[segment];
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106E0BB0
+	void Drawable::SetSegmentVisible(unsigned short segment, bool visible)
+	{
+		if (segment < (unsigned int)segments.Size())
+		{
+			for (unsigned int i = 0; i < segments.begin[segment].partCount; i++)
+			{
+				SetPartUpdated(segments.begin[segment].firstPart + i, visible);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E11F0
+	void Drawable::SetUnknownCC(int value)
+	{
+		unknownCC = value;
+		for (DrawablePart* part = parts.begin; part != parts.end; part++)
+		{
+			part->primitive->SetUnknown10(value);
+			part->unknownCC = value;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x106E0680
