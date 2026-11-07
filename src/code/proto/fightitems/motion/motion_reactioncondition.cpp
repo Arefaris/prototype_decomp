@@ -2110,6 +2110,189 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10106170
+			int ReactionEventConditionGroupCondition::GetObject() const
+			{
+				return object;
+			}
+
+			// FUNCTION: ENGINE 0x10106190
+			int ReactionHitCollisionPositionCondition::GetComponent() const
+			{
+				return component;
+			}
+
+			// FUNCTION: ENGINE 0x101061A0
+			int ReactionHitCollisionPositionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101061B0
+			float ReactionHitCollisionPositionCondition::GetPosition() const
+			{
+				return position;
+			}
+
+			// FUNCTION: ENGINE 0x101061C0
+			int ReactionHitDamageCondition::GetType() const
+			{
+				return type;
+			}
+
+			// FUNCTION: ENGINE 0x101061D0
+			int ReactionHitDamageCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101061E0
+			float ReactionHitDamageCondition::GetDamage() const
+			{
+				return damage;
+			}
+
+			// FUNCTION: ENGINE 0x101061F0
+			int ReactionHitChargeCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106200
+			float ReactionHitChargeCondition::GetCharge() const
+			{
+				return charge;
+			}
+
+			// FUNCTION: ENGINE 0x10106210
+			int ReactionHitOriginatorDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106220
+			int ReactionHitOriginatorDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106230
+			float ReactionHitOriginatorDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x10106240
+			bool ReactionReceiverIsTargetCondition::GetIsTarget() const
+			{
+				return isTarget;
+			}
+
+			// FUNCTION: ENGINE 0x10106250
+			int ReactionGiverIsBeingGrabbedCondition::GetGrabType() const
+			{
+				return grabType;
+			}
+
+			// FUNCTION: ENGINE 0x10106260
+			bool ReactionEventCondition::GetIsReactionEvent() const
+			{
+				return isReactionEvent;
+			}
+
+			// FUNCTION: ENGINE 0x10106270
+			int ReactionEventCondition::GetReactionType() const
+			{
+				return reactionType;
+			}
+
+			// FUNCTION: ENGINE 0x10106320
+			int ReactionHitImpulseCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106330
+			int ReactionHitImpulseCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106340
+			float ReactionHitImpulseCondition::GetImpulse() const
+			{
+				return impulse;
+			}
+
+			// FUNCTION: ENGINE 0x10106350
+			bool ReactionHitDamageTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106360
+			int ReactionHitDamageTypeCondition::GetDamageType() const
+			{
+				return damageType;
+			}
+
+			// FUNCTION: ENGINE 0x10106390
+			bool ReactionTargetCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063A0
+			bool ReactionHitAttackTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063B0
+			int ReactionHitAttackTypeCondition::GetAttackType() const
+			{
+				return attackType;
+			}
+
+			// FUNCTION: ENGINE 0x101063C0
+			int ReactionHitHeightCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101063D0
+			float ReactionHitHeightCondition::GetHeight() const
+			{
+				return height;
+			}
+
+			// FUNCTION: ENGINE 0x101063E0
+			bool ReactionHitHitTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063F0
+			const fight::Name& ReactionHitHitTypeCondition::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x10106400
+			int ReactionHitImpulseYAngleCondition::GetCompare() const
+			{
+				return compare;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4E830
 // FUNCTION: ENGINE 0x10D4E8F0
