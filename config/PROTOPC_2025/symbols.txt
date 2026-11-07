@@ -102717,3 +102717,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_7?$BaseClassCasterImpl@VBehaviour@engine@@VTriggerBehaviour@2@@content@@6B@ = 0x10E6F524 ; data size:0x4 | content::BaseClassCasterImpl<class engine::Behaviour,class engine::TriggerBehaviour> vftable
 ??_7?$BaseClassCasterImpl@VTriggerBehaviour@engine@@VMovingTriggerBehaviour@2@@content@@6B@ = 0x10E6F52C ; data size:0x4 | content::BaseClassCasterImpl<class engine::TriggerBehaviour,class engine::MovingTriggerBehaviour> vftable
 ??_7?$MetaInstanceHelper@UIntrusiveMessage@engine@@$00@content@@6B@ = 0x10E6F560 ; data size:0x4 | content::MetaInstanceHelper<struct engine::IntrusiveMessage,1> vftable
+??0MessageListenerList@engine@@QAE@ABV?$Name@UCaseSensitiveKey@core@@@core@@ABU?$AllocatorCoreAligned@$0BA@@container@@@Z = 0x10832780 ; function size:0x2D | engine::MessageListenerList constructor (name guess)
+?DropInvalid@MessageListenerList@engine@@QAEXXZ = 0x10832660 ; function size:0x6C | engine::MessageListenerList::DropInvalid: drops the entries of objects that are gone (name guess)
