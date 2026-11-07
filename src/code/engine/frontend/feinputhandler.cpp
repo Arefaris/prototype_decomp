@@ -1,4 +1,5 @@
 #include "code/engine/frontend/feinputhandler.h"
+#include "code/engine/controller/monkeycontrollermanager.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
 #include "code/engine/display.h"
@@ -28,13 +29,6 @@ namespace engine
 		unsigned char unknown0[0x2C];
 		FrontendScreen screen;
 	};
-
-	// The gate that decides which state gets the input (0x10890930, 0x108909E0; another unit; names guessed)
-	struct StateGate
-	{
-		void SetFocus(const char* name);
-	};
-	StateGate* Unknown10890930();
 
 	// One of a control's three events: the state value it is read as and the names the movie knows it by
 	struct ControlEvent
@@ -320,9 +314,9 @@ namespace engine
 	// FUNCTION: ENGINE 0x10881560
 	void FEInputHandler::SetInputFocus(const char* name)
 	{
-		if (Unknown10890930() != 0)
+		if (controller::GetMonkeyControllerManager() != 0)
 		{
-			Unknown10890930()->SetFocus(name);
+			controller::GetMonkeyControllerManager()->SetFocus(name);
 		}
 	}
 
