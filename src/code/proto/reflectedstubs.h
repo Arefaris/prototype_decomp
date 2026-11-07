@@ -36,6 +36,7 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/aitreebehaviour.h"
 #include "code/proto/disguiseconfig.h"
 #include "code/proto/behaviours/bloodtoxbehaviour.h"
 #include "code/proto/behaviours/driverbehaviour.h"
@@ -387,16 +388,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknown0[0x60];
-	};
-
-	class AiTreeBehaviour : public engine::FightTreeBehaviour
-	{
-	public:
-		explicit AiTreeBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
 	};
 
 	class ConsumableBehaviour : public engine::Behaviour
