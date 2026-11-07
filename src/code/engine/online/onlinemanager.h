@@ -20,8 +20,9 @@ namespace engine
 	class ChannelManager
 	{
 	public:
-		// 0x108BEFC0
+		// 0x108BEFC0 / 0x108BEFE0
 		static void* operator new(unsigned int size);
+		static void operator delete(void* block);
 	};
 
 	class ConsoleManagerPeer;
@@ -32,7 +33,7 @@ namespace engine
 	class OnlineManager : public ISimulationDriver
 	{
 	public:
-		// 0x108BEF80 / 0x108EC840
+		// 0x108BEF80 / 0x108BF1A0
 		static void* operator new(unsigned int size);
 		static void operator delete(void* block)
 		{

@@ -71,6 +71,12 @@ namespace engine
 		return AllocateManagerObject(size, 0, "ChannelManager");
 	}
 
+	// FUNCTION: ENGINE 0x108BEFE0
+	void ChannelManager::operator delete(void* block)
+	{
+		FreeManagerObject(block);
+	}
+
 	// FUNCTION: ENGINE 0x108BEFA0
 	void* ConsoleManagerPeer::operator new(unsigned int size)
 	{
@@ -108,3 +114,6 @@ namespace engine
 	{
 	}
 }
+
+// Kept copies (inline members of this unit):
+// FUNCTION: ENGINE 0x108BF1A0

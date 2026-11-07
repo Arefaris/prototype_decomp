@@ -104191,3 +104191,5 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ??1NISParams@engine@@UAE@XZ = 0x108A82A0 ; function size:0x1D | engine::NISParams::~NISParams (name guess)
 ??_GNISParams@engine@@UAEPAXI@Z = 0x108A71B0 ; function size:0x1E | engine::NISParams::scalar deleting destructor vftable slot 0
 ??2ChannelManager@engine@@SAPAXI@Z = 0x108BEFC0 ; function size:0x15 | engine::ChannelManager::operator new (name guess)
+??3ChannelManager@engine@@SAXPAX@Z = 0x108BEFE0 ; function size:0x5 | engine::ChannelManager::operator delete (name guess)
+??3OnlineManager@engine@@SAXPAX@Z = 0x108BF1A0 ; function size:0x5 | engine::OnlineManager::operator delete (name guess)
