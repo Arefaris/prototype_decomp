@@ -1240,3 +1240,7 @@ namespace engine
 // FUNCTION: ENGINE 0x10490470
 // FUNCTION: ENGINE 0x10490D60
 // FUNCTION: ENGINE 0x104911F0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102C7820
+// FUNCTION: ENGINE 0x102C7850

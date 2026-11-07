@@ -351,3 +351,7 @@ namespace choreo
 	}
 #endif
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D9770
+// FUNCTION: ENGINE 0x102D9790

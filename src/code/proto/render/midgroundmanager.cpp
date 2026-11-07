@@ -118,3 +118,9 @@ namespace proto
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D60850
 // FUNCTION: ENGINE 0x10D857B0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D22C0
+// FUNCTION: ENGINE 0x102DD240
+// FUNCTION: ENGINE 0x102DD250
+// FUNCTION: ENGINE 0x102DD260

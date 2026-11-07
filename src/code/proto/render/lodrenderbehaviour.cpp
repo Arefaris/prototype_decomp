@@ -217,3 +217,12 @@ namespace proto
 		}
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D9580
+// FUNCTION: ENGINE 0x102D9590
+// FUNCTION: ENGINE 0x102D95A0
+// FUNCTION: ENGINE 0x102D95B0
+// FUNCTION: ENGINE 0x102D95C0
+// FUNCTION: ENGINE 0x102D95D0
+// FUNCTION: ENGINE 0x102D95E0
