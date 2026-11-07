@@ -31,7 +31,8 @@ namespace proto
 				float charge;  // +0x20
 				unsigned char unknown24[0x4];
 				core::Name<core::CaseSensitiveKey> collisionFlag;  // +0x28
-				unsigned char unknown30[0x18];
+				math::Vector collisionNormal;  // +0x30
+				unsigned char unknown3C[0xC];
 				engine::GameObjectHandle originator;  // +0x48
 				float damage;  // +0x4C
 				float damageRatio;  // +0x50

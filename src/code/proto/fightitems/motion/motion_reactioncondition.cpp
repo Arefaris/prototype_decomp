@@ -1,6 +1,10 @@
 // Fight items of the motion group: ReactionEventConditionGroupCondition, ReactionHitCollisionPositionCondition, ReactionHitDamageCondition, ReactionHitChargeCondition, ReactionHitOriginatorDistanceCondition, ReactionReceiverIsTargetCondition, ReactionGiverIsBeingGrabbedCondition, ReactionEventCondition, ReactionHitCollisionNormalCondition, ReactionScriptedSubTypeCondition, ReactionHitOriginatorIsPlayerCondition, ReactionGrabTypeCondition, ReactionHitSliceAngleCondition, ReactionHitFromMuscleMassCondition, ReactionHitCollisionFlagCondition, ReactionThrowHitTypeCondition, ReactionHitImpulseCondition, ReactionHitDamageTypeCondition, ReactionHitImpulseDirectionCondition, ReactionTargetCondition, ReactionHitAttackTypeCondition, ReactionHitHeightCondition, ReactionHitHitTypeCondition, ReactionHitImpulseYAngleCondition (unit 0x101A1160 - 0x101A69E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactioncondition.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/choreo/deltatransform.h"
+#include "code/math/mathutils.h"
+#include "code/engine/driving/carattributes.h"
+#include <math.h>
 
 namespace proto
 {
@@ -1873,6 +1877,83 @@ namespace proto
 				}
 				return false;
 			}
+
+			// FUNCTION: ENGINE 0x10107390
+			bool ReactionHitImpulseYAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit == 0)
+				{
+					return false;
+				}
+				engine::GameObjectHandle receiver = hit->receiver;
+				engine::GameObject* object = receiver.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector impulse = hit->impulse;
+				object->transform->value.RotateInverse(impulse, impulse);
+				impulse.Normalize();
+				float value = asinf(impulse.y);
+				float limit = angle;
+				int op = compare;
+				return fight::CompareFloats(op, &value, &limit);
+			}
+
+			// FUNCTION: ENGINE 0x10107120
+			// NONMATCHING: the engine stores the third component of the impulse copy before it loads the transform, ours after the matrix pointer is formed (best 93.1 %)
+#ifdef NONMATCHING
+			bool ReactionHitImpulseDirectionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					engine::GameObjectHandle receiver = hit->receiver;
+					engine::GameObject* object = receiver.Get();
+					if (object != 0)
+					{
+						math::Vector impulse = hit->impulse;
+						object->transform->value.RotateInverse(impulse, impulse);
+						float heading = choreo::Heading(impulse);
+						float difference = (float)fabs(choreo::AngleDifference(heading, direction));
+						if (difference < arc * engine::driving::gHalf)
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10106DE0
+			// NONMATCHING: the engine stores the third component of the copied normal between the pushes of the call, loads the condition's members into registers before the dot product and keeps the arc in a local (best 49.1 %)
+#ifdef NONMATCHING
+			bool ReactionHitCollisionNormalCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					engine::GameObjectHandle receiver = hit->receiver;
+					engine::GameObject* object = receiver.Get();
+					if (object != 0)
+					{
+						math::Vector collision = hit->collisionNormal;
+						math::Vector local;
+						object->transform->value.RotateInverse(collision, local);
+						float limit = arc;
+						float dot = local.z * normal.z + local.y * normal.y + normal.x * local.x;
+						float difference = (float)fabs(acosf(math::Clamp(dot, choreo::gMinusOne, engine::driving::gOne)));
+						if (difference <= limit * engine::driving::gHalf)
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101064F0
 			void RegisterReactionEventConditionGroupFactories(fight::TrackRegistry* registry)

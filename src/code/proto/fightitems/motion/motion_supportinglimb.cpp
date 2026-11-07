@@ -1,5 +1,6 @@
 // Fight items of the motion group: SupportingLimbTestSurfaceNormalVelocityArcCondition, SupportingLimbTestSurfaceNormalAngleCondition, SupportingLimbSurfaceIntersectionPropertiesCondition, SupportingLimbTestSurfaceVelocityAngleCondition, SupportingLimbTestTimeToImpactCondition, SupportingSurfaceNormalVelocityArcCondition, SupportingSurfaceConditionGroupCondition, SupportingLimbTestSurfaceDistanceCondition, SupportingLimbTestSwitchSurfacesCondition, SupportingLimbTestSurfaceConditionGroupCondition, SupportingLimbSetActiveTrack, SupportingLimbTestTrack, SupportingLimbSetActiveRangeTrack, SurfaceMoveAtVelocityTrack, SupportingLimbSetDirectionTrack (unit 0x101B7170 - 0x101BBA40; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_supportinglimb.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/physics/supportinglimb.h"
 #include "code/math/worldbounds.h"
 #include "code/engine/physics/supportinglimbmessages.h"
@@ -1439,6 +1440,30 @@ namespace proto
 					}
 				}
 			}
+
+			// FUNCTION: ENGINE 0x1011D9D0
+			// NONMATCHING: the engine loads the three components into xmm registers before the stores, ours moves the first one through the x87 stack (best 71.3 %)
+#ifdef NONMATCHING
+			bool SupportingLimbSetDirectionAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::SupportingLimbGetActiveMessage query;
+						object->SendMessage(&query);
+						engine::SupportingLimb* limb = (engine::SupportingLimb*)query.limb;
+						if (limb != 0)
+						{
+							const math::Vector& direction = link.object->direction;
+							limb->castDirection.Set(direction.x, direction.y, direction.z);
+						}
+					}
+				}
+				return false;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x1011C340
 			void SurfaceMoveAtVelocityAction::Slot6()
