@@ -401,6 +401,8 @@ namespace mgraph
 	// The nodes that contain a graph
 	class Abstraction : public Node
 	{
+	public:
+		NodeLink graphLink;  // 0x50: in the abstractions of the graph the node contains
 	};
 	class LinkedGraph : public Abstraction
 	{

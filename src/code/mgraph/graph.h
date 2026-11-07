@@ -18,6 +18,15 @@ namespace mgraph
 		Node* Find(const om::ClassName& nodeName);
 	};
 
+	// The list of the graphs that belong together (name guessed): the graphs link themselves in with the links at 0x84
+	struct GraphGroup
+	{
+		NodeLink* head;
+		NodeLink* tail;
+	};
+
+	class Abstraction;
+
 	class __declspec(align(8)) Graph : public om::Entity
 	{
 	public:
@@ -38,12 +47,33 @@ namespace mgraph
 
 		// 0x10AC78D0: the node of a name, null when there is none
 		Node* FindNode(const om::ClassName& nodeName);
+		// 0x10AC6A30 / 0x10AC6A50: the first graph of the group, and the one after another (this graph itself when it has no group)
+		Graph* FirstInGroup();
+		Graph* NextInGroup(Graph* graph);
+		// 0x10AC6A80: whether this graph is in the group of another
+		bool IsInGroupOf(Graph* other);
+		// 0x10AC6AB0 / 0x10AC6AD0: the first node, and the one after another
+		Node* FirstNode();
+		Node* NextNode(Node* node);
+		// 0x10AC6B00 / 0x10AC6B50: the abstractions that contain the graph
+		void AddAbstraction(Abstraction* abstraction);
+		void RemoveAbstraction(Abstraction* abstraction);
+		// 0x10AC6B90 / 0x10AC6BA0: the first one, and the one after another
+		Abstraction* FirstAbstraction();
+		Abstraction* NextAbstraction(Abstraction* abstraction);
+		// 0x10AC6CA0 / 0x10AC6F60: the first context takes the graph in (its nodes and connections follow), the last lets it go
+		void Attach(Context* newContext);
+		void Detach(Context* oldContext);
+		// 0x10AC6D20 / 0x10AC6E40 / 0x10AC6F00: passed on to the nodes
+		void ResetChannel(unsigned int channel);
+		void SetNumChannels(unsigned int newNumChannels);
+		void SetChannelEnabled(unsigned int channel, bool enabled);
 		void RemoveNode(Node* node)
 		{
 			nodes.Erase(&node->treeNode);
 		}
 
-		void* unknown20;
+		GraphGroup* group;  // 0x20
 		Context* context;  // 0x24: the context the graph was added to
 		bool unknown28;
 		int attachCount;  // 0x2C
@@ -54,8 +84,8 @@ namespace mgraph
 		NodeLink* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
 		NodeLink* lastConnection;  // 0x40
 		NodeTree nodes;  // 0x44
-		void* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
-		void* lastAbstraction;  // 0x5C
+		NodeLink* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
+		NodeLink* lastAbstraction;  // 0x5C
 		unsigned int unknown60;
 		unsigned int unknown64;
 		unsigned int unknown68;
@@ -65,8 +95,7 @@ namespace mgraph
 		unsigned int channelsEnabledLow;  // 0x78
 		unsigned int channelsEnabledHigh;  // 0x7C
 		bool unknown80;
-		void* nextGraph;  // 0x84
-		void* previousGraph;  // 0x88
+		NodeLink groupLink;  // 0x84
 	};
 }
 

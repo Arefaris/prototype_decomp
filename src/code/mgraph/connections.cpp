@@ -61,4 +61,26 @@ namespace mgraph
 		Unlink(&from->firstConnection, &fromLink);
 		Unlink(&graph->firstConnection, &graphLink);
 	}
+
+	// FUNCTION: ENGINE 0x10AD2810
+	// NONMATCHING: register choice of the name pointers (88 %)
+#ifdef NONMATCHING
+	bool GraphConnectionBase::Slot6(void* argument)
+	{
+		if (om::WriteBinary(static_cast<om::BinaryStream*>(argument), from->node->name))
+		{
+			if (om::WriteBinary(static_cast<om::BinaryStream*>(argument), from->name))
+			{
+				if (om::WriteBinary(static_cast<om::BinaryStream*>(argument), to->node->name))
+				{
+					if (om::WriteBinary(static_cast<om::BinaryStream*>(argument), to->name))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+#endif
 }

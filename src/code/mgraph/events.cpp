@@ -1,5 +1,6 @@
 // The events of the mgraph library's context (0x10AC3B00 - 0x10AC7700).
 #include "code/mgraph/events.h"
+#include "code/mgraph/graph.h"
 #include "code/core/time.h"
 
 namespace mgraph
@@ -132,7 +133,7 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AC62C0
-	ResetChannelEvent::ResetChannelEvent(Context* newTarget, unsigned int newChannel) :
+	ResetChannelEvent::ResetChannelEvent(Graph* newTarget, unsigned int newChannel) :
 		target(newTarget),
 		channel(newChannel)
 	{
@@ -156,7 +157,7 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AC6350
-	AddGraphToContextEvent::AddGraphToContextEvent(Context* newTarget) :
+	AddGraphToContextEvent::AddGraphToContextEvent(Graph* newTarget) :
 		target(newTarget)
 	{
 	}
@@ -164,7 +165,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10AC76B0
 	void AddGraphToContextEvent::Execute(Context* context)
 	{
-		target->AddGraph(context);
+		target->Attach(context);
 	}
 
 	// FUNCTION: ENGINE 0x10AC5EF0
@@ -178,7 +179,7 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AC63E0
-	GraphSetNumChannelsContextEvent::GraphSetNumChannelsContextEvent(Context* newTarget, unsigned int newNumChannels) :
+	GraphSetNumChannelsContextEvent::GraphSetNumChannelsContextEvent(Graph* newTarget, unsigned int newNumChannels) :
 		target(newTarget),
 		numChannels(newNumChannels)
 	{
@@ -202,7 +203,7 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AC6470
-	RemoveGraphFromContextEvent::RemoveGraphFromContextEvent(Context* newTarget) :
+	RemoveGraphFromContextEvent::RemoveGraphFromContextEvent(Graph* newTarget) :
 		target(newTarget)
 	{
 	}
@@ -210,7 +211,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10AC76D0
 	void RemoveGraphFromContextEvent::Execute(Context* context)
 	{
-		target->RemoveGraph(context);
+		target->Detach(context);
 	}
 
 	// FUNCTION: ENGINE 0x10AC5F10
@@ -225,7 +226,7 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AC6500
-	SetChannelEnabledEvent::SetChannelEnabledEvent(Context* newTarget, unsigned int newChannel, bool newEnabled) :
+	SetChannelEnabledEvent::SetChannelEnabledEvent(Graph* newTarget, unsigned int newChannel, bool newEnabled) :
 		target(newTarget),
 		channel(newChannel),
 		enabled(newEnabled)
