@@ -18,6 +18,7 @@
 #include "code/proto/ai/ambientmanager/ambientspawners.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "code/proto/webofintrigue/webnodelocator.h"
 =======
 #include "code/proto/ai/ambientmanager/intersectionbehaviour.h"
@@ -29,6 +30,11 @@
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
 #include "code/proto/behaviours/watertowerbehaviour.h"
 >>>>>>> sn-bu
+=======
+#include "code/proto/characterbudgetpolicy.h"
+#include "code/proto/heightmap.h"
+#include "code/proto/helipathfindingloader.h"
+>>>>>>> sn-bz
 
 namespace proto
 {
@@ -112,16 +118,6 @@ namespace proto
 		unsigned char unknownTail[0x38 - sizeof(proto::NPCRender)];
 	};
 
-	class HeliPathfindingLoader : public content::MetaLoadObject
-	{
-	public:
-		HeliPathfindingLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x27114 - sizeof(content::MetaLoadObject)];
-	};
-
 	class HelicopterSolverGenericProperties : public content::MetaLoadObject
 	{
 	public:
@@ -182,16 +178,6 @@ namespace proto
 		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
-	class Heightmap : public content::MetaLoadObject
-	{
-	public:
-		Heightmap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x190 - sizeof(content::MetaLoadObject)];
-	};
-
 	struct DisguiseConfig : public content::MetaLoadObject
 	{
 	public:
@@ -220,16 +206,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x20C - sizeof(content::MetaLoadObject)];
-	};
-
-	class CharacterBudgetPolicyList : public content::MetaLoadObject
-	{
-	public:
-		CharacterBudgetPolicyList();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
 	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
@@ -423,16 +399,6 @@ namespace proto
 	{
 	public:
 		MissileSpawnDrawSwap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknown0[0x28];
-	};
-
-	class CharacterBudgetPolicy
-	{
-	public:
-		CharacterBudgetPolicy();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	
