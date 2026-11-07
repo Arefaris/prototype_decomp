@@ -252,6 +252,12 @@ namespace engine
 		virtual bool Save(unsigned int player, void* buffer, int a, int b, int c, int d, int e);
 		virtual bool Slot6(int a, int b, int c);
 		virtual bool Slot7(int a, int b);
+		// Slots 8 - 12 (0x108A58D0, 0x108A5950, 0x108A5A10, 0x108A5A50, 0x108A5AD0): the storage messages' answers
+		virtual void Slot8(int a, bool b);
+		virtual void Slot9(int a, bool b);
+		virtual void Slot10(int a, bool b);
+		virtual void Slot11(int a, bool b);
+		virtual void Slot12(int a, bool b);
 
 		GameDBStorageCallback* callback;  // +4
 		DBSubject* timestampSubject;  // +8: the observer of the profile's time stamp, made on first use
