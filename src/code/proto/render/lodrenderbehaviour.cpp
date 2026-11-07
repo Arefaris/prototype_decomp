@@ -61,7 +61,7 @@ namespace proto
 		math::Vector cameraPosition = camera->position;
 		delta.Sub(position, cameraPosition);
 		float distance = LengthOf(delta);
-		float scale = gLODDetailScale->GetScale(camera);
+		float scale = gCameraManager->GetScale(camera);
 		float divisor = scale > 1.0f ? scale : 1.0f;
 		float scaled = fadeScale * gLODDistanceScale;
 		float value = scaled * (distance / divisor);
