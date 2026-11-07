@@ -183,11 +183,11 @@ namespace audio
 	}
 }
 
+template class om::DynamicArray<om::ClassName, unsigned short>;
+template class om::DynamicArray<mgraph::EnvelopeData, unsigned short>;
 template class om::DynamicArray<om::VectorT<float, 2>, unsigned short>;
 template class om::DynamicArray<float, unsigned short>;
-template class om::DynamicArray<om::ClassName, unsigned short>;
 template class om::DynamicArray<om::String, unsigned short>;
-template class om::DynamicArray<mgraph::EnvelopeData, unsigned short>;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x104A2D50
@@ -246,3 +246,12 @@ template class om::DynamicArray<mgraph::EnvelopeData, unsigned short>;
 // FUNCTION: ENGINE 0x104A7150
 // FUNCTION: ENGINE 0x104A7310
 // FUNCTION: ENGINE 0x104A7470
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104A3850
+// FUNCTION: ENGINE 0x104A3860
+// FUNCTION: ENGINE 0x104A3890
+// FUNCTION: ENGINE 0x104A38C0
+// FUNCTION: ENGINE 0x104A5460
+// FUNCTION: ENGINE 0x104A5800
+// FUNCTION: ENGINE 0x104A5820

@@ -54,6 +54,24 @@ namespace om
 			return *this;
 		}
 
+		Count GetSize() const
+		{
+			return size;
+		}
+		T* GetData() const
+		{
+			return data;
+		}
+		// A copy of the element at the end
+		void PushBack(const T& value)
+		{
+			T* element = &Append();
+			if (element != 0)
+			{
+				::new (element) T(value);
+			}
+		}
+
 		T& operator[](Count index)
 		{
 			return data[index];
