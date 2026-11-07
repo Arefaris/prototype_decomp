@@ -1,5 +1,6 @@
 #include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/core/refptr.h"
+#include "code/engine/driving/carattributes.h"
 
 namespace content
 {
@@ -127,6 +128,45 @@ namespace proto
 		sList.members = sMembers;
 		sList.count = 5;
 		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x10308D60
+	// NONMATCHING: the engine loads the constant before the base class stores and mixes the vftable store into the member stores, 41 %
+#ifdef NONMATCHING
+	VehicleWheelSuspensionProperties::VehicleWheelSuspensionProperties()
+	{
+		float one = engine::driving::gOne;
+		maxSuspensionStretch = one;
+		maxSuspensionCompression = one;
+		dampingScale = one;
+		suspensionOffsetStretch = 0.0f;
+		rollingFrictionScale = 0.0f;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103090B0
+	// NONMATCHING: the engine sets up the argument of the setter between the base class stores, 60 %
+#ifdef NONMATCHING
+	VehicleDoorProperties::VehicleDoorProperties()
+	{
+		SetDoorOpenAngle(engine::driving::gThirty);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10309140
+	VehicleMassProperties::VehicleMassProperties()
+	{
+		chassisMassProperties = 0;
+		wheelMassProperties = 0;
+		doorMassProperties = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10309170
+	VehicleMassProperties::~VehicleMassProperties()
+	{
+		core::SafeRelease(chassisMassProperties);
+		core::SafeRelease(wheelMassProperties);
+		core::SafeRelease(doorMassProperties);
 	}
 
 	// FUNCTION: ENGINE 0x10307A10
@@ -436,3 +476,4 @@ template class container::ArrayDynamic<proto::VehicleDoorList::DoorGroup, contai
 // FUNCTION: ENGINE 0x1030E4A0
 // FUNCTION: ENGINE 0x1030EA70
 // FUNCTION: ENGINE 0x1030ED20
+// FUNCTION: ENGINE 0x1030B200

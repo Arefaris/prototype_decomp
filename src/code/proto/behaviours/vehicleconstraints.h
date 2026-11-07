@@ -153,6 +153,7 @@ namespace proto
 		};
 
 		VehicleMassProperties(); //@0x10309140
+		virtual ~VehicleMassProperties(); //@0x10309170 (deleting destructor 0x1030B200)
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
