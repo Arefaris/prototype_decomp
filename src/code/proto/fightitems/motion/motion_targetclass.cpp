@@ -331,7 +331,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011F4D0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (24.6 %)
 			bool TargetableAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -339,13 +338,13 @@ namespace proto
 					return false;
 				}
 				engine::GameObject* object = target.Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					SetTargetableTargetMessage message(link.object->targetable);
-					object->SendMessage(&message);
-					return true;
+					return false;
 				}
-				return false;
+				SetTargetableTargetMessage message(link.object->targetable);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1011F610
