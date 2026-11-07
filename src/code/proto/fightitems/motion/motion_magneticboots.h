@@ -7,6 +7,7 @@
 #include "code/proto/fightitems/motion/motionaction.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
 #include "code/engine/fight/effecttrack.h"
+#include "code/engine/gameobject/gameobjectparams.h"
 
 namespace proto
 {
@@ -589,6 +590,18 @@ namespace proto
 			void RegisterMagneticBootsTestWallTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::MagneticBootsParams (4 vftable slots): the surface event the magnetic boots actions
+			// keep as their owner (kind 0x2100E)
+			class MagneticBootsParams : public engine::GameObjectParams
+			{
+			public:
+				// 0x100EC4E0 (the deleting destructor 0x100EC4F0 is slot 2)
+				virtual ~MagneticBootsParams();
+				// vftable slot 3 (0x100EC4A0): the kind of event (name guess)
+				virtual int GetKind();
+			};
+
+
 			// RTTI: proto::fightitems::motion::MagneticBootsResetInfoAction (9 vftable slots, 0x2C bytes)
 			class MagneticBootsResetInfoAction : public fight::Action
 			{

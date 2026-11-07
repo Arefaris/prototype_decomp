@@ -2196,6 +2196,17 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100EC4E0
+			MagneticBootsParams::~MagneticBootsParams()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100EC4A0
+			int MagneticBootsParams::GetKind()
+			{
+				return 0x2100E;
+			}
+
 			// ---- actions end
 			template class fight::PropertyVector<MagneticBootsNextSurfaceNormalCondition>;
 			template class fight::PropertyFloatConstRange<MagneticBootsNextSurfaceNormalCondition>;
