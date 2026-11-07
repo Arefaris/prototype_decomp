@@ -58,6 +58,12 @@ namespace proto
 			value.boolean = newBoolean;
 		}
 
+		// 0x104A9C60 / 0x104A9C80
+		explicit FlashValue(double newNumber)
+		{
+			value.number = newNumber;
+			type = FLASHVALUE_NUMBER;
+		}
 		// 0x104C22A0: keeps a copy of the text
 		void SetString(const char* text)
 		{
