@@ -721,3 +721,4 @@ template core::Link<proto::fightitems::ai::RooftopDestinationFindTrack>::Link(pr
 // FUNCTION: ENGINE 0x10209010
 // FUNCTION: ENGINE 0x10209070
 // FUNCTION: ENGINE 0x10209370
+// FUNCTION: ENGINE 0x10215650
