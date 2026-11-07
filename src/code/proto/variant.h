@@ -88,6 +88,17 @@ namespace proto
 			return -1;
 		}
 
+		// Whether no value is held
+		bool IsEmpty() const
+		{
+			return index == -1;
+		}
+		// The discriminator of the held type
+		TypeDiscriminator* GetHeldDiscriminator() const
+		{
+			return GetTable()[index];
+		}
+
 		// An empty variant
 		Variant()
 		{
