@@ -14,6 +14,8 @@ namespace proto
 	class GameCamera : public engine::camera::Camera
 	{
 	public:
+		// vftable slot 5 (0x10351140; the subclasses share it)
+		virtual int GetType();
 		// vftable slots 11 - 15 (this class's own; the subclasses override them)
 		virtual void Slot11();
 		virtual void Slot12();
