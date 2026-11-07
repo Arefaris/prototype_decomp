@@ -6,11 +6,12 @@
 #include "code/engine/message.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/core/name.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
 	// RTTI: proto::FEDisplayMessage: the base of the messages to the front end display (message type 0x33)
-	class FEDisplayMessage : public engine::IntrusiveMessage
+	struct FEDisplayMessage : public engine::IntrusiveMessage
 	{
 	public:
 		explicit FEDisplayMessage(short newId) : engine::IntrusiveMessage(0x33, newId)
@@ -22,7 +23,7 @@ namespace proto
 	};
 
 	// RTTI: proto::GetMarkerIconTypeMessage: the object answers the type of its marker icon
-	class GetMarkerIconTypeMessage : public FEDisplayMessage
+	struct GetMarkerIconTypeMessage : public FEDisplayMessage
 	{
 	public:
 		GetMarkerIconTypeMessage() : FEDisplayMessage(7), iconType(0x26)
@@ -33,6 +34,23 @@ namespace proto
 		}
 
 		int iconType;  // +0xC
+	};
+
+	// RTTI: proto::GetGrabbableClassMessage: the object answers the class of its grabs
+	class GetGrabbableClassMessage : public GrabbableMessage
+	{
+	public:
+		GetGrabbableClassMessage() : GrabbableMessage(1), className(), unknown18(false)
+		{
+		}
+		virtual ~GetGrabbableClassMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> className;  // +0x10
+		bool unknown18;  // +0x18
+		int unknown1C;
 	};
 }
 

@@ -1,5 +1,8 @@
 // Fight items of the motion group: GrabbedCondition, GrabbedConditionGroupCondition, HaveGrabTargetCondition, GrabSlotObjectTemplateCondition, GrabbedClassNameCondition, IsGrabbableCondition, GrabbedGrabbableClassCondition, GrabbedBySlotCondition, GrabbedByPlayerCondition, GrabSlotClassNameCondition, GrabSlotDistanceCondition, GrabTargetConditionGroupCondition, GrabSlotGrabbableClassCondition, GrabbableSizeCondition, GrabSlotConditionGroupCondition, TargetIsGrabTargetCondition, GrabSlotCondition, TargetCanGrabCondition, GrabSlotMassCondition, GrabbableClassCondition, GrabTargetAngleCondition, GrabTargetDistanceCondition (unit 0x10163FA0 - 0x10169790; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -1557,6 +1560,41 @@ namespace proto
 				return proto::IsGrabbedObject(object) == wanted;
 			}
 
+			// FUNCTION: ENGINE 0x100C2B70
+			bool GrabbableClassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbableClassMessage message;
+				object->SendMessage(&message);
+				return fight::CompareNames(compare, &message.className, &grabbableClass);
+			}
+
+			// FUNCTION: ENGINE 0x100C2C40
+			bool GrabbableSizeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				static core::Name<core::CaseSensitiveKey> sGrabbableSize("grabbableSize", 0);
+				engine::BaseAttribute* attribute = object->FindAttribute(sGrabbableSize);
+				if (attribute == 0)
+				{
+					return false;
+				}
+				core::Name<core::CaseSensitiveKey>* attributeValue = &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+				if (attributeValue == 0)
+				{
+					return false;
+				}
+				return fight::CompareNames(compare, attributeValue, &grabbableSize);
+			}
+
 			// FUNCTION: ENGINE 0x100C2640
 			bool GrabbedByPlayerCondition::Evaluate(int a, int b, int c, int d)
 			{
@@ -1663,6 +1701,8 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C23F0
+// FUNCTION: ENGINE 0x100C2480
 // FUNCTION: ENGINE 0x10164A40
 // FUNCTION: ENGINE 0x10164A70
 // FUNCTION: ENGINE 0x10164B90
