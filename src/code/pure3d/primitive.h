@@ -778,13 +778,25 @@ namespace pure3d
 	class ParticleGenerator : public Entity
 	{
 	public:
-		virtual void Unknown3();
-		virtual void Unknown4();
-		virtual void Unknown5();
+		// 0x10746330 (the first argument makes the generator's data, the second is the most particles it keeps),
+		// 0x10746560 (a copy), 0x10746800 (a copy with its own most particles), 0x10746AA0
+		ParticleGenerator(unsigned int dataArgument, int maxParticles);
+		ParticleGenerator(const ParticleGenerator& other);
+		ParticleGenerator(const ParticleGenerator& other, int maxParticles);
+		virtual ~ParticleGenerator();
+		// 0x10740500 / 0x10740510: the generators come from the particle code's own allocator
+		static void* operator new(unsigned int size);
+		static void operator delete(void* pointer);
+
+		// Slot 3: always true in the generators; slots 4 / 5: a copy (with its own most particles)
+		virtual bool Unknown3() = 0;
+		virtual ParticleGenerator* Unknown4(int maxParticles) = 0;
+		virtual ParticleGenerator* Unknown5() = 0;
 		// Slot 6: takes the values of the shape's channels at the time (the generators that have some), then
 		// Unknown10741120
 		virtual void Unknown6(float time);
 		virtual void Unknown7();
+		// Slot 8 (0x10740450): sets the attribute arrays to their starting values
 		virtual void Unknown8();
 		// Advances the generator by the update data
 		virtual void Update(ParticleUpdateData* data);
@@ -844,6 +856,19 @@ namespace pure3d
 			Float1Channel* rdva;
 		};
 
+		// 0x10746B40 / 0x10746BB0 / 0x10746C40 / 0x10746CD0
+		ParticlePointGenerator(unsigned int dataArgument, int maxParticles);
+		ParticlePointGenerator(const ParticlePointGenerator& other);
+		ParticlePointGenerator(const ParticlePointGenerator& other, int maxParticles);
+		virtual ~ParticlePointGenerator();
+
+		// Slot 3 (0x107407A0), 4 (0x10746D20), 5 (0x10746CF0)
+		virtual bool Unknown3();
+		virtual ParticleGenerator* Unknown4(int maxParticles);
+		virtual ParticleGenerator* Unknown5();
+		virtual void Unknown7();
+		virtual void Update(ParticleUpdateData* data);
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10741F10)
 		virtual void Unknown6(float time);
 
@@ -851,6 +876,10 @@ namespace pure3d
 		float hosp;
 		float vesp;
 		float rdva;
+		float unknown420;
+		float unknown424;
+		float unknown428;
+		float unknown42C;
 	};
 
 	class ParticlePlaneGenerator : public ParticleGenerator
@@ -874,6 +903,19 @@ namespace pure3d
 			Float1Channel* rdva;
 		};
 
+		// 0x10746D50 / 0x10746E10 / 0x10746ED0 / 0x10746FA0
+		ParticlePlaneGenerator(unsigned int dataArgument, int maxParticles);
+		ParticlePlaneGenerator(const ParticlePlaneGenerator& other);
+		ParticlePlaneGenerator(const ParticlePlaneGenerator& other, int maxParticles);
+		virtual ~ParticlePlaneGenerator();
+
+		// Slot 3 (0x10740820), 4 (0x10746FF0), 5 (0x10746FC0)
+		virtual bool Unknown3();
+		virtual ParticleGenerator* Unknown4(int maxParticles);
+		virtual ParticleGenerator* Unknown5();
+		virtual void Unknown7();
+		virtual void Update(ParticleUpdateData* data);
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742120)
 		virtual void Unknown6(float time);
 
@@ -883,6 +925,14 @@ namespace pure3d
 		float hosp;
 		float vesp;
 		float rdva;
+		float unknown428;
+		float unknown42C;
+		float unknown430;
+		float unknown434;
+		float unknown438;
+		float unknown43C;
+		float unknown440;
+		unsigned char unknown444[0xC];
 	};
 
 	class ParticleSphereGenerator : public ParticleGenerator
@@ -903,12 +953,28 @@ namespace pure3d
 			Float1Channel* rdva;
 		};
 
+		// 0x10747020 / 0x10747080 / 0x107470F0 / 0x10747160
+		ParticleSphereGenerator(unsigned int dataArgument, int maxParticles);
+		ParticleSphereGenerator(const ParticleSphereGenerator& other);
+		ParticleSphereGenerator(const ParticleSphereGenerator& other, int maxParticles);
+		virtual ~ParticleSphereGenerator();
+
+		// Slot 3 (0x10740870), 4 (0x107471B0), 5 (0x10747180)
+		virtual bool Unknown3();
+		virtual ParticleGenerator* Unknown4(int maxParticles);
+		virtual ParticleGenerator* Unknown5();
+		virtual void Unknown7();
+		virtual void Update(ParticleUpdateData* data);
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107422B0)
 		virtual void Unknown6(float time);
 
 		GeneratorAnimationState* animation;
 		float rad;
 		float rdva;
+		float unknown41C;
+		float unknown420;
+		unsigned char unknown424[0xC];
 	};
 
 	class ParticleGridGenerator : public ParticleGenerator
@@ -934,6 +1000,19 @@ namespace pure3d
 			Float1Channel* vspc;
 		};
 
+		// 0x107471E0 / 0x107472B0 / 0x10747390 / 0x10747470
+		ParticleGridGenerator(unsigned int dataArgument, int maxParticles);
+		ParticleGridGenerator(const ParticleGridGenerator& other);
+		ParticleGridGenerator(const ParticleGridGenerator& other, int maxParticles);
+		virtual ~ParticleGridGenerator();
+
+		// Slot 3 (0x10740920), 4 (0x107474C0), 5 (0x10747490)
+		virtual bool Unknown3();
+		virtual ParticleGenerator* Unknown4(int maxParticles);
+		virtual ParticleGenerator* Unknown5();
+		virtual void Unknown7();
+		virtual void Update(ParticleUpdateData* data);
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742500)
 		virtual void Unknown6(float time);
 
@@ -945,6 +1024,14 @@ namespace pure3d
 		float rdva;
 		float hspc;
 		float vspc;
+		float unknown430;
+		float unknown434;
+		float unknown438;
+		float unknown43C;
+		float unknown440;
+		float unknown444;
+		float unknown448;
+		unsigned char unknown44C[4];
 	};
 
 	class ParticleMeshGenerator : public ParticleGenerator
@@ -965,8 +1052,29 @@ namespace pure3d
 			void* unknown24;
 		};
 
+		// 0x107474F0 / 0x10747550 / 0x107475C0 / 0x10747640
+		ParticleMeshGenerator(unsigned int dataArgument, int maxParticles);
+		ParticleMeshGenerator(const ParticleMeshGenerator& other);
+		ParticleMeshGenerator(const ParticleMeshGenerator& other, int maxParticles);
+		virtual ~ParticleMeshGenerator();
+
+		// Slot 3 (0x10740930), 4 (0x10747690), 5 (0x10747660)
+		virtual bool Unknown3();
+		virtual ParticleGenerator* Unknown4(int maxParticles);
+		virtual ParticleGenerator* Unknown5();
+		virtual void Unknown7();
+		virtual void Update(ParticleUpdateData* data);
+		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107425F0): only the base's animation
 		virtual void Unknown6(float time);
+
+		float unknown410;
+		float unknown414;
+		float unknown418;
+		MeshData* meshData;
+		int unknown420;
+		int unknown424;
+		unsigned char unknown428[8];
 	};
 
 	class MeshState : public PrimitiveState
