@@ -490,11 +490,8 @@ namespace engine
 			void ClearControllers();
 			void SetFactory(PlayerInfoFactoryInterface* newFactory);
 			void Reset();
-			// Inline (StopVibration expands it); 0x107DF600 is the kept copy
-			void SetVibration(unsigned int id, int motor, float a, float b, float c, float d)
-			{
-				physical->SetVibration(id, motor, a, b, c, d);
-			}
+			// 0x107DF600: out of line (StopVibration expands the call of the manager itself)
+			void SetVibration(unsigned int id, int motor, float a, float b, float c, float d);
 			void CollectPlayers();
 			void UpdatePlayers(UpdateContext context);
 			void StopVibration();
