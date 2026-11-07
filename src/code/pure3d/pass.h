@@ -68,7 +68,10 @@ namespace pure3d
 		CameraData* camera;
 		CameraData* shadowCamera;
 		Scene* scene;
-		unsigned char unknown10[0x14];
+		unsigned char unknown10[0xC];
+		// The size of the picture (names guessed)
+		int width;
+		int height;
 		container::ArrayFixed<PassView, 8> views;
 	};
 

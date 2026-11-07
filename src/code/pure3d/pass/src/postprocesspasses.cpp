@@ -911,6 +911,27 @@ namespace pure3d
 		parameters.AddBool(&engine::render::gParameterEnable, &ProtoFogPass::SetParameterEnable, 0);
 	}
 
+	// FUNCTION: ENGINE 0x10773810
+	void DepthOfFieldPass::Begin()
+	{
+		if (!GetUnknown24Bit1())
+		{
+			CallIsVisible();
+		}
+		core::RefAssign(textureFC, RenderTargetManager::sSingleton->BorrowDivided(1, 5, false));
+		core::RefAssign(texture100, RenderTargetManager::sSingleton->BorrowDivided(1, 5, false));
+		Pass::Begin();
+	}
+
+	// FUNCTION: ENGINE 0x10772E80
+	void ProtoRadialBlurPass::Render(PassContext* context)
+	{
+		if (GetUnknown24Bit1() && intensity > 0.0f && size > 0.0f)
+		{
+			Blur(context->width, context->height, RenderTargetManager::sSingleton->source == 0 ? RenderTargetManager::sSingleton->colours[RenderTargetManager::sSingleton->index] : RenderTargetManager::sSingleton->source, 0);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10772500
 	ParameterHandlerTypeless* ProtoRadialBlurPass::GetParameterHandler()
 	{

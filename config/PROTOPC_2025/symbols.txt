@@ -96478,3 +96478,4 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?UpdateBounds@Light@pure3d@@QAEXXZ = 0x10759000 ; function size:0xD72 | pure3d::Light (name guess)
 ?UpdateSphere@Light@pure3d@@QAEXXZ = 0x10759D90 ; function size:0x1C7 | pure3d::Light (name guess)
 ?UpdatePlanes@Light@pure3d@@QAEXXZ = 0x10759F60 ; function size:0x7CB | pure3d::Light (name guess)
+?Blur@ProtoRadialBlurPass@pure3d@@QAEXHHPAVdxTexture@2@H@Z = 0x107725E0 ; function size:0x80A | pure3d::ProtoRadialBlurPass::Blur (name guess)
