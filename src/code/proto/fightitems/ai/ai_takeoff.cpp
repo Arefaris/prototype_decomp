@@ -1,5 +1,7 @@
 // Fight items of the ai group: TakeOffTrack, LandTrack (unit 0x102356A0 - 0x10236270; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_takeoff.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/heightmap.h"
 
 namespace proto
 {
@@ -301,6 +303,39 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new LandAction(this, handle);
 			}
+
+			// FUNCTION: ENGINE 0x101F8F90
+			void TakeOffAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && !unknown34)
+				{
+					SetStateStateChangeMessage message(engine::gDriverAI3);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101F9BD0
+			// NONMATCHING: the engine schedules the grid size product after the loads of the position, ours before them, 86 %
+#ifdef NONMATCHING
+			bool TakeOffAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetStateStateChangeMessage message(engine::gDriverAITakingOff);
+				object->SendMessage(&message);
+				math::Matrix& world = object->transform->value;
+				math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+				Heightmap* map = gAISystem->GetHeightmap();
+				float cellX = position.x - map->minVec.x + map->gridSize * 0.5f;
+				float cellZ = position.z - map->minVec.z + map->gridSize * 0.5f;
+				unknown2C = map->GetHeight((int)(map->inverseGridSize * cellX), (int)(map->inverseGridSize * cellZ), false);
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;

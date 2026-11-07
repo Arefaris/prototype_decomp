@@ -1,6 +1,7 @@
 // Fight items of the ai group: CirclePatrolTrack, IntersectionCirclePatrolTrack, CircleStrafeTrack (unit 0x1021CD90 - 0x1021E550; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_circle.h"
 #include "code/math/random.h"
+#include "code/proto/heightmap.h"
 
 namespace proto
 {
@@ -601,6 +602,34 @@ template proto::fightitems::ai::IntersectionCirclePatrolTrack* core::Link<proto:
 template core::Link<proto::fightitems::ai::IntersectionCirclePatrolTrack>::Link(proto::fightitems::ai::IntersectionCirclePatrolTrack*);
 template proto::fightitems::ai::CircleStrafeTrack* core::Link<proto::fightitems::ai::CircleStrafeTrack>::Get() const;
 template core::Link<proto::fightitems::ai::CircleStrafeTrack>::Link(proto::fightitems::ai::CircleStrafeTrack*);
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x101E0A80
+	float Heightmap::GetHeight(int x, int z, bool invalidOutside) const
+	{
+		if (x >= 0 && x < sizeX && z >= 0 && z < sizeY)
+		{
+			float raw = (float)data.begin[sizeY * x + z];
+			if (raw > (float)sMaxRawHeight)
+			{
+				if (invalidOutside)
+				{
+					return (float)sInvalidHeight;
+				}
+			}
+			else
+			{
+				return quantum * raw + minHeight;
+			}
+		}
+		else if (invalidOutside)
+		{
+			return (float)sInvalidHeight;
+		}
+		return 0.0f;
+	}
+}
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E13C0

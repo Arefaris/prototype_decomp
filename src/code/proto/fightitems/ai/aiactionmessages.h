@@ -15,6 +15,9 @@ namespace engine
 {
 	// 0x11255368: the names of the goto tasks (aifightitemnames.cpp)
 	extern fight::EnumEntry gGotoTable[8];
+	// 0x11265840 / 0x11265858: the names "DriverAI" and "DriverAITakingOff" (charactertypenames.cpp)
+	extern core::Name<core::CaseSensitiveKey> gDriverAI3;
+	extern core::Name<core::CaseSensitiveKey> gDriverAITakingOff;
 	// 0x11255360: the listeners of the scenario messages ("scenario"; aifightitemnames.cpp)
 	extern MessageListeners gScenario38;
 }
@@ -32,6 +35,20 @@ namespace proto
 		}
 
 		fight::Action* source;  // +0xC
+	};
+
+	// RTTI: proto::SetStateStateChangeMessage: the object takes the state of that name
+	struct SetStateStateChangeMessage : public StateChangeMessage
+	{
+		explicit SetStateStateChangeMessage(const core::Name<core::CaseSensitiveKey>& newState) : StateChangeMessage(1), state(newState)
+		{
+		}
+		virtual ~SetStateStateChangeMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> state;  // +0x10
 	};
 
 	// RTTI: proto::SetNPCLODStateAIMsg: the object takes a level of detail state

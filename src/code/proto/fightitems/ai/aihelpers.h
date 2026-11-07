@@ -12,6 +12,8 @@
 
 namespace proto
 {
+	class Heightmap;
+
 	// A one byte flag the engine passes by value (stored in the argument slot and pushed as a word)
 	struct ByteFlag
 	{
@@ -115,12 +117,17 @@ namespace proto
 	class AISystem
 	{
 	public:
+		// 0x10360BF0: the height map of the world
+		Heightmap* GetHeightmap();
+
 		unsigned char unknown0[0x10];
 		SoldierBudgets* soldierBudgets;  // +0x10
 		CombatBudgets* budgets;  // +0x14
 		unsigned char unknown18[4];
 		StrafeRunTokens* strafeRunTokens;  // +0x1C
 		BaseAlert* baseAlert;  // +0x20
+		unsigned char unknown24[4];
+		Heightmap* heightmap;  // +0x28
 	};
 
 	// 0x11263AB0
