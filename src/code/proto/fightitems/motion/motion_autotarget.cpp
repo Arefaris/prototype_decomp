@@ -1,6 +1,36 @@
 // Fight items of the motion group: AutoTargetTrack, AutoTargetClearTrack, AutoTargetPositionTrack, FlyingAutoTargetTrack, PedestrianAutoTargetTrack, AutoTargetPlayerTrack (unit 0x10140FC0 - 0x10143E60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_autotarget.h"
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x10098FD0
+	void AssignRefCountedCopy3(core::IRefCount** slot, core::IRefCount* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+}
+
+namespace core
+{
+	// FUNCTION: ENGINE 0x10099010
+	void SafeReleaseRefCopy3(IRefCount** slot)
+	{
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+			*slot = 0;
+		}
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
