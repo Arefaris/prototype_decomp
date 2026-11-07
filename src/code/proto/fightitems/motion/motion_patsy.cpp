@@ -1,5 +1,29 @@
 // Fight items of the motion group: HasFailedPatsyCondition, IsPatsyCondition, PatsyDeadCondition, HasPatsyCondition, PatsyConditionGroupCondition, IsFailedPatsyCondition, PatsyCreateTrack, ClearFailedPatsyTrack, ClearPatsyTrack (unit 0x1019A8A0 - 0x1019C4A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_patsy.h"
+#include "code/engine/controller/inputsystem.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+
+namespace proto
+{
+	// The handles of the players' game objects
+	extern engine::GameObjectHandle gPlayerHandles[];
+
+	// Whether two handles are the same word
+	inline bool SameHandle(const engine::GameObjectHandle& a, const engine::GameObjectHandle& b)
+	{
+		return *reinterpret_cast<const unsigned int*>(&a) == *reinterpret_cast<const unsigned int*>(&b);
+	}
+
+	// The handle of a player's game object, the empty handle when there is none
+	inline engine::GameObjectHandle GetPlayerHandle(int index)
+	{
+		if (index < 0 || index >= engine::controller::InputSystem::Get()->GetPlayerCount())
+		{
+			return engine::GameObjectHandle();
+		}
+		return gPlayerHandles[index];
+	}
+}
 
 namespace proto
 {
@@ -586,6 +610,222 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10101E90
+			PatsyCreateAction::PatsyCreateAction(PatsyCreateTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner) : fight::Action(0xE00), link(newTrack), target(newTarget), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					patsy = GetWho(object);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10101010
+			PatsyCreateAction::~PatsyCreateAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x101019D0
+			bool PatsyCreateAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetPatsyDisguiseMsg message(patsy);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10101B80
+			ClearPatsyAction::ClearPatsyAction(ClearPatsyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner) : fight::Action(0xE00), link(newTrack), target(newTarget), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10101070
+			ClearPatsyAction::~ClearPatsyAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x10101C40
+			bool ClearPatsyAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::GameObjectHandle player = GetPlayerHandle(0);
+						engine::GameObject* playerObject = player.Get();
+						SetPatsyDisguiseMsg message((engine::GameObjectHandle()));
+						playerObject->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10101D30
+			ClearFailedPatsyAction::ClearFailedPatsyAction(ClearFailedPatsyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner) : fight::Action(0xE00), link(newTrack), target(newTarget), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x101010D0
+			ClearFailedPatsyAction::~ClearFailedPatsyAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x10101DF0
+			// NONMATCHING: the engine saves esi before the second test of the object's handle (best 82 %)
+#ifdef NONMATCHING
+			bool ClearFailedPatsyAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetFailedPatsyDisguiseMsg message((engine::GameObjectHandle()));
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10102010
+			fight::Action* PatsyCreateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PatsyCreateAction(this, handle, owner);
+			}
+
+			// FUNCTION: ENGINE 0x10101F70
+			fight::Action* ClearPatsyTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ClearPatsyAction(this, handle, owner);
+			}
+
+			// FUNCTION: ENGINE 0x10101FC0
+			fight::Action* ClearFailedPatsyTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ClearFailedPatsyAction(this, handle, owner);
+			}
+
+			// FUNCTION: ENGINE 0x10101110
+			bool HasPatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetPatsyDisguiseMsg message;
+					object->SendMessage(&message);
+					bool exists = message.patsy.Get() != 0;
+					result = exists == has;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10101230
+			bool HasFailedPatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFailedPatsyDisguiseMsg message;
+					object->SendMessage(&message);
+					bool exists = message.patsy.Get() != 0;
+					result = exists == has;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10101750
+			bool PatsyDeadCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetPatsyDisguiseMsg message;
+				object->SendMessage(&message);
+				bool result = false;
+				engine::GameObject* patsy = message.patsy.Get();
+				if (patsy != 0)
+				{
+					bool isDead = GetObjectHealth(patsy) < 0.00001f;
+					result = isDead == dead;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10101350
+			// NONMATCHING: the engine keeps the handle of the owner above the player's handle and the message in its frame, and tests the loop at the top (best 45 %)
+#ifdef NONMATCHING
+			bool IsPatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle ownerHandle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = ownerHandle.Get();
+				if (object != 0)
+				{
+					for (int i = 0; i < 1 && !result; i++)
+					{
+						engine::GameObjectHandle player = GetPlayerHandle(i);
+						engine::GameObject* playerObject = player.Get();
+						if (playerObject != 0)
+						{
+							GetPatsyDisguiseMsg message;
+							playerObject->SendMessage(&message);
+							result = SameHandle(message.patsy, ownerHandle);
+						}
+					}
+					return result == is;
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101014B0
+			// NONMATCHING: the engine keeps the handle of the owner above the player's handle and the message in its frame, and tests the loop at the top (best 45 %)
+#ifdef NONMATCHING
+			bool IsFailedPatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle ownerHandle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = ownerHandle.Get();
+				if (object != 0)
+				{
+					for (int i = 0; i < 1 && !result; i++)
+					{
+						engine::GameObjectHandle player = GetPlayerHandle(i);
+						engine::GameObject* playerObject = player.Get();
+						if (playerObject != 0)
+						{
+							GetFailedPatsyDisguiseMsg message;
+							playerObject->SendMessage(&message);
+							result = SameHandle(message.patsy, ownerHandle);
+						}
+					}
+					return result == is;
+				}
+				return false;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyBool<HasFailedPatsyCondition>;
