@@ -298,6 +298,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10107850
+			bool ReactionFloatTrack::GetSnapToPushback() const
+			{
+				return snapToPushback;
+			}
+
+			// FUNCTION: ENGINE 0x10107870
+			int ReactionFloatTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x10107880
+			float ReactionFloatTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x10107890
+			float ReactionFloatTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A6C30
 // FUNCTION: ENGINE 0x101A6C60

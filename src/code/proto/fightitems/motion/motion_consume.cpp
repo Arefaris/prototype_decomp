@@ -914,6 +914,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10110440
+			bool NISConsumeByParentTrack::GetToBeContinued() const
+			{
+				return toBeContinued;
+			}
+
+			// FUNCTION: ENGINE 0x1010E250
+			float ScaleJointForConsumeTrack::GetDesiredScale() const
+			{
+				return desiredScale;
+			}
+
+			// FUNCTION: ENGINE 0x1010E260
+			float ScaleJointForConsumeTrack::GetScaleRate() const
+			{
+				return scaleRate;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1014D6E0
 // FUNCTION: ENGINE 0x1014D8C0

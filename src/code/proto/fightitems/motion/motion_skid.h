@@ -46,6 +46,17 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetVelocityInit() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				float GetDecelerationMin() const;
+				float GetDecelerationMax() const;
+				float GetSprintVelocityDeceleration() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					float blendInTime;  // +0x10
 					float blendOutTime;  // +0x14
 					float decelerationMax;  // +0x18
@@ -102,6 +113,15 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetTimeEndMin() const;
+				float GetAcceleration() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
 
 					fight::Name animEast;  // +0x10
 					fight::Name animNorth;  // +0x18

@@ -1594,6 +1594,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A890
+			bool SurfaceMoveAtVelocityTrack::GetPreserveMomentum() const
+			{
+				return preserveMomentum;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8A0
+			int SurfaceMoveAtVelocityTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8B0
+			float SurfaceMoveAtVelocityTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8C0
+			float SurfaceMoveAtVelocityTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FEE0
 // FUNCTION: ENGINE 0x10D81C20

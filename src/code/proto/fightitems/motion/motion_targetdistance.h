@@ -68,6 +68,12 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetGravity() const;
+				float GetMaxInitialVelocity() const;
+				bool GetUseStoredValues() const;
+				float GetMargin() const;
+
 					float gravity;  // +0xC
 					float launchAngle;  // +0x10
 					float margin;  // +0x14
@@ -103,6 +109,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetDistance() const;
 
 					math::Vector offset;  // +0xC
 					float distance;  // +0x18

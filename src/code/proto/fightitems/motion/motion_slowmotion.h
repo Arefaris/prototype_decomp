@@ -43,6 +43,14 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetSimulationRate() const;
+				float GetFadeInTime() const;
+				float GetSimulationDuration() const;
+				float GetFadeOutTime() const;
+				bool GetRealTime() const;
+				bool GetAbortOnEnd() const;
+
 					float fadeInTime;  // +0x10
 					float fadeOutTime;  // +0x14
 					float simulationDuration;  // +0x18

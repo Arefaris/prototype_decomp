@@ -114,6 +114,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011E060
+			int TargetAngleCondition::GetCompareTime() const
+			{
+				return compareTime;
+			}
+
+			// FUNCTION: ENGINE 0x1011E090
+			bool TargetAngleCondition::GetUseMovementDirection() const
+			{
+				return useMovementDirection;
+			}
+
+			// FUNCTION: ENGINE 0x1011E0A0
+			bool TargetAngleCondition::GetUseInputDirection() const
+			{
+				return useInputDirection;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BBB30
 // FUNCTION: ENGINE 0x101BBB60

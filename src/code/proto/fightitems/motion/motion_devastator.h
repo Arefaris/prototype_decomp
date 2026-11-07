@@ -125,6 +125,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetParameter() const;
+				bool GetRandom() const;
+
 					fight::Name templateValue;  // +0x10
 					float timeBegin;  // +0x18
 					int parameter;  // +0x1C

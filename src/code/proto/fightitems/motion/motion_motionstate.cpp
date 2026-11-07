@@ -245,6 +245,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101199F0
+			int MotionStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x10119A10
+			bool MotionStateCondition::GetMatch() const
+			{
+				return match;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10119A50
 // FUNCTION: ENGINE 0x10119AB0

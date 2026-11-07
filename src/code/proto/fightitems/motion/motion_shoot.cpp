@@ -1763,6 +1763,111 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10110220
+			bool ShootCheckAmmoCountCondition::GetTestOnParent() const
+			{
+				return testOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x10110250
+			int ShootCheckAmmoCountCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10110260
+			int ShootCheckAmmoCountCondition::GetRequiredAmount() const
+			{
+				return requiredAmount;
+			}
+
+			// FUNCTION: ENGINE 0x10110270
+			bool ShootCheckCooldownTimeCondition::GetTestOnParent() const
+			{
+				return testOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x101102A0
+			int ShootCheckCooldownTimeCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101102B0
+			float ShootCheckCooldownTimeCondition::GetRequiredTime() const
+			{
+				return requiredTime;
+			}
+
+			// FUNCTION: ENGINE 0x101102E0
+			bool ShootCheckOverheatingCondition::GetTestOnParent() const
+			{
+				return testOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x10110310
+			bool ShootCheckOverheatingCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x10110370
+			bool ShootCalculateHitPositionTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x101104F0
+			float ShootAutoTargetTrack::GetMaxDistance() const
+			{
+				return maxDistance;
+			}
+
+			// FUNCTION: ENGINE 0x10110500
+			bool ShootAutoTargetTrack::GetUseSecondCone() const
+			{
+				return useSecondCone;
+			}
+
+			// FUNCTION: ENGINE 0x10110520
+			float ShootAutoTargetTrack::GetMaxDistance2() const
+			{
+				return maxDistance2;
+			}
+
+			// FUNCTION: ENGINE 0x10110530
+			int ShootAutoTargetTrack::GetMinPriorityTargetClass() const
+			{
+				return minPriorityTargetClass;
+			}
+
+			// FUNCTION: ENGINE 0x10110540
+			int ShootAutoTargetTrack::GetMaxPriorityTargetClass() const
+			{
+				return maxPriorityTargetClass;
+			}
+
+			// FUNCTION: ENGINE 0x10110560
+			bool SetFireRateTimerTrack::GetIncrementing() const
+			{
+				return incrementing;
+			}
+
+			// FUNCTION: ENGINE 0x10110570
+			bool SetFireRateTimerTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10110E60
 // FUNCTION: ENGINE 0x10110E80

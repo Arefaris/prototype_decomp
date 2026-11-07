@@ -191,6 +191,27 @@ namespace proto
 // Explicit instances of the track links' accessors (the engine keeps their copies):
 template proto::fightitems::motion::JointAnchorToAnimationTrack* core::Link<proto::fightitems::motion::JointAnchorToAnimationTrack>::Get() const;
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10108500
+			float JointAnchorToAnimationTrack::GetFrame() const
+			{
+				return frame;
+			}
+
+			// FUNCTION: ENGINE 0x10108510
+			int JointAnchorToAnimationTrack::GetPriority() const
+			{
+				return priority;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100DC620
 // FUNCTION: ENGINE 0x100DC640

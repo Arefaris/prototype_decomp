@@ -156,6 +156,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E250
+			float ScrubberTrack::GetFrame() const
+			{
+				return frame;
+			}
+
+			// FUNCTION: ENGINE 0x1010E260
+			float ScrubberTrack::GetFrameOffset() const
+			{
+				return frameOffset;
+			}
+
+			// FUNCTION: ENGINE 0x1010E270
+			bool ScrubberTrack::GetHasRootTranslation() const
+			{
+				return hasRootTranslation;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1010E2B0
 // FUNCTION: ENGINE 0x1010E2E0

@@ -85,6 +85,13 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetMaxDistance() const;
+				bool GetSnapToPushback() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					float blendInTime;  // +0x10
 					float blendOutTime;  // +0x14
 					float maxDistance;  // +0x18

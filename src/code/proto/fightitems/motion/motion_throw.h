@@ -55,6 +55,17 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetDistanceMin() const;
+				float GetDistanceMax() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				float GetDamageMin() const;
+				float GetDamageMax() const;
+				float GetImpulseMin() const;
+				float GetImpulseMax() const;
+				float GetFriendlyFire() const;
+
 					fight::Name hitType;  // +0x10
 					float arcMax;  // +0x18
 					float arcRange;  // +0x1C

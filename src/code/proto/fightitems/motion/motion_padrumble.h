@@ -47,6 +47,17 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetMotor() const;
+				float GetScale() const;
+				float GetFadeInTime() const;
+				float GetHoldTime() const;
+				float GetFadeOutTime() const;
+				bool GetUseObjectPos() const;
+				float GetFullIntensityRadius() const;
+				float GetFallOffRadius() const;
+				bool GetCancelOnTrackEnd() const;
+
 					float fadeInTime;  // +0x10
 					float fadeOutTime;  // +0x14
 					float fallOffRadius;  // +0x18

@@ -35,6 +35,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetState() const;
+				bool GetMatch() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name name;  // +0x10
 					int state;  // +0x18

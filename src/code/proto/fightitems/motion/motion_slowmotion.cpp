@@ -176,6 +176,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101160C0
+			float SlowMotionTrack::GetSimulationRate() const
+			{
+				return simulationRate;
+			}
+
+			// FUNCTION: ENGINE 0x101160D0
+			float SlowMotionTrack::GetFadeInTime() const
+			{
+				return fadeInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101160E0
+			float SlowMotionTrack::GetSimulationDuration() const
+			{
+				return simulationDuration;
+			}
+
+			// FUNCTION: ENGINE 0x101160F0
+			float SlowMotionTrack::GetFadeOutTime() const
+			{
+				return fadeOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x10116100
+			bool SlowMotionTrack::GetRealTime() const
+			{
+				return realTime;
+			}
+
+			// FUNCTION: ENGINE 0x10116110
+			bool SlowMotionTrack::GetAbortOnEnd() const
+			{
+				return abortOnEnd;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101B3B30
 // FUNCTION: ENGINE 0x101B3B60

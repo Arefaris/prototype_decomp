@@ -1174,6 +1174,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E980
+			int DevastatorTargetGroundSpikeTrack::GetParameter() const
+			{
+				return parameter;
+			}
+
+			// FUNCTION: ENGINE 0x1010E990
+			bool DevastatorTargetGroundSpikeTrack::GetRandom() const
+			{
+				return random;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10156EB0
 // FUNCTION: ENGINE 0x10156EE0

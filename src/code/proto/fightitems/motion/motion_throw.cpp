@@ -553,6 +553,69 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011F940
+			float HitReactionThrowTrack::GetDistanceMin() const
+			{
+				return distanceMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011F950
+			float HitReactionThrowTrack::GetDistanceMax() const
+			{
+				return distanceMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011F960
+			float HitReactionThrowTrack::GetVelocityMin() const
+			{
+				return velocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011F970
+			float HitReactionThrowTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9E0
+			float HitReactionThrowTrack::GetDamageMin() const
+			{
+				return damageMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9F0
+			float HitReactionThrowTrack::GetDamageMax() const
+			{
+				return damageMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA00
+			float HitReactionThrowTrack::GetImpulseMin() const
+			{
+				return impulseMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA10
+			float HitReactionThrowTrack::GetImpulseMax() const
+			{
+				return impulseMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA20
+			float HitReactionThrowTrack::GetFriendlyFire() const
+			{
+				return friendlyFire;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BE7D0
 // FUNCTION: ENGINE 0x101BE7E0

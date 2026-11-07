@@ -36,6 +36,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetTestOnParent() const;
+				int GetCompare() const;
+				int GetRequiredAmount() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10
 					fight::Name weaponEntry;  // +0x18
@@ -72,6 +77,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetTestOnParent() const;
+				int GetCompare() const;
+				float GetRequiredTime() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10
@@ -139,6 +149,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetTestOnParent() const;
+				bool GetMatch() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10
@@ -254,6 +268,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
 
 					fight::Name ammoProfile;  // +0x10
 					fight::Name grabSlot;  // +0x18
@@ -433,6 +450,13 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetMaxDistance() const;
+				bool GetUseSecondCone() const;
+				float GetMaxDistance2() const;
+				int GetMinPriorityTargetClass() const;
+				int GetMaxPriorityTargetClass() const;
+
 					float arc;  // +0x10
 					float arc2;  // +0x14
 					float maxDistance;  // +0x18
@@ -481,6 +505,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetIncrementing() const;
+				bool GetApplyOnParent() const;
 
 					fight::Name ammoProfile;  // +0x10
 					fight::Name grabSlot;  // +0x18

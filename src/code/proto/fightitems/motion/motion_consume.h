@@ -135,6 +135,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetToBeContinued() const;
+
 					fight::Name object;  // +0x50
 					bool toBeContinued;  // +0x58
 					unsigned char unknown59[0x7];
@@ -171,6 +174,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetDesiredScale() const;
+				float GetScaleRate() const;
 
 					fight::Name jointToScale;  // +0x10
 					float desiredScale;  // +0x18

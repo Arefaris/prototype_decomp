@@ -703,6 +703,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A800
+			bool ExplicitWorldDamageTrack::GetToBeContinued() const
+			{
+				return toBeContinued;
+			}
+
+			// FUNCTION: ENGINE 0x1011A800
+			bool ExplicitWorldConeDamageTrack::GetToBeContinued() const
+			{
+				return toBeContinued;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1050E640
 // FUNCTION: ENGINE 0x1050E650

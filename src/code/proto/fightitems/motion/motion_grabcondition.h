@@ -356,6 +356,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetDistance() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10
 					float distance;  // +0x18
@@ -598,6 +603,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetMass() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10

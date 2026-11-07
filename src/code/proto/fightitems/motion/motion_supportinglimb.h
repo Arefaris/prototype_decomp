@@ -477,6 +477,12 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetPreserveMomentum() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					math::Vector velocity;  // +0x10
 					float blendInTime;  // +0x1C
 					float blendOutTime;  // +0x20
