@@ -2293,6 +2293,93 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10106180
+			const fight::ConditionList& ReactionEventConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x10106280
+			math::Vector ReactionHitCollisionNormalCondition::GetNormal() const
+			{
+				return normal;
+			}
+
+			// FUNCTION: ENGINE 0x101062A0
+			float ReactionHitCollisionNormalCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x101062B0
+			float ReactionHitSliceAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x101062C0
+			float ReactionHitSliceAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x101062D0
+			bool ReactionHitFromMuscleMassCondition::GetMuscleMassActive() const
+			{
+				return muscleMassActive;
+			}
+
+			// FUNCTION: ENGINE 0x101062E0
+			const fight::Name& ReactionHitCollisionFlagCondition::GetCollisionFlag() const
+			{
+				return collisionFlag;
+			}
+
+			// FUNCTION: ENGINE 0x101062F0
+			bool ReactionHitCollisionFlagCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106300
+			bool ReactionThrowHitTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106310
+			const fight::Name& ReactionThrowHitTypeCondition::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x10106370
+			float ReactionHitImpulseDirectionCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106380
+			float ReactionHitImpulseDirectionCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x10106410
+			float ReactionHitImpulseYAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4E830
 // FUNCTION: ENGINE 0x10D4E8F0

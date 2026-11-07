@@ -259,6 +259,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::ConditionList& GetConditions() const;
+
 					fight::ConditionList conditions;  // +0xC
 			};
 
@@ -350,6 +353,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::ConditionList& GetConditions() const;
+
 					fight::ConditionList conditions;  // +0xC
 			};
 
@@ -432,6 +438,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::BranchHolder& GetBranch() const;
+				const fight::ConditionList& GetConditions() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				math::Vector GetDirection() const;

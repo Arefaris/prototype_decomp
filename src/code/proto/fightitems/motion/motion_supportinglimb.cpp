@@ -1873,6 +1873,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A6E0
+			const fight::ConditionList& SupportingSurfaceConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x1011A720
+			const fight::ConditionList& SupportingLimbTestSurfaceConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x1011A810
+			const fight::BranchHolder& SupportingLimbTestTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x1011A830
+			const fight::ConditionList& SupportingLimbTestTrack::GetConditions() const
+			{
+				return conditions;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FEE0
 // FUNCTION: ENGINE 0x10D81C20
