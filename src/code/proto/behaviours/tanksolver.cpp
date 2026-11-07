@@ -1501,3 +1501,21 @@ template class om::Command1<void, float>;
 // FUNCTION: ENGINE 0x102FBD70
 // FUNCTION: ENGINE 0x102FBD80
 // FUNCTION: ENGINE 0x102FBDA0
+
+// The engine's copies of every member of the arrays of joints and of axle constraints
+template class container::ArrayDynamic<proto::TankSolverBehaviour::JointData, container::AllocatorNew>;
+template class container::ArrayDynamic<proto::AlignedAxleConstraint, container::AllocatorNew>;
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102F5850
+// FUNCTION: ENGINE 0x102F5860
+// FUNCTION: ENGINE 0x102F5870
+// FUNCTION: ENGINE 0x102F5880
+// FUNCTION: ENGINE 0x102F58B0
+// FUNCTION: ENGINE 0x102F58D0
+// FUNCTION: ENGINE 0x102F5920
+// FUNCTION: ENGINE 0x102F59E0
+// FUNCTION: ENGINE 0x102F95B0
+// FUNCTION: ENGINE 0x102F95C0
+// FUNCTION: ENGINE 0x102FAAA0
+// FUNCTION: ENGINE 0x102FB030
