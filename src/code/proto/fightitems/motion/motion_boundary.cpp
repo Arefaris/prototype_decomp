@@ -1,6 +1,42 @@
 // Fight items of the motion group: InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack (unit 0x10144950 - 0x10146A60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_boundary.h"
 
+namespace engine
+{
+	// 0x1009E210 / 0x1009E250: this unit's copies of the helpers that store a reference counted object in a slot (releasing the previous one) and let one go
+	void AssignRefCountedCopy4(core::IRefCount** slot, core::IRefCount* value);
+	void SafeReleaseRefCopy4(core::IRefCount** slot);
+}
+
+// FUNCTION: ENGINE 0x1009E210
+void engine::AssignRefCountedCopy4(core::IRefCount** slot, core::IRefCount* value)
+{
+	if (value != 0)
+	{
+		value->AddRef();
+	}
+	if (*slot != 0)
+	{
+		(*slot)->Release();
+	}
+	*slot = value;
+}
+
+// FUNCTION: ENGINE 0x1009E250
+void engine::SafeReleaseRefCopy4(core::IRefCount** slot)
+{
+	if (*slot != 0)
+	{
+		(*slot)->Release();
+		*slot = 0;
+	}
+}
+
+namespace proto
+{
+	WorldTriggerCollisionCallback* gWorldTriggerCollisionCallback;  // 0x11264740 (another unit defines it)
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -752,6 +788,92 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x1009F400
+			FromWaterSetJumpToAction::FromWaterSetJumpToAction(FromWaterSetJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), target(newTarget), link(newTrack), event(0)
+			{
+				engine::AssignRefCountedCopy4(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x1009E920
+			FromWaterSetJumpToAction::~FromWaterSetJumpToAction()
+			{
+				engine::SafeReleaseRefCopy4(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1009FD70
+			fight::Action* FromWaterSetJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = AsJumpDestinationEvent(owner);
+				return new FromWaterSetJumpToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x1009E960
+			// NONMATCHING: the engine's locals (the destination, then the handle, sharing the slot of the looked-up position) sit at other frame offsets (best 56 %)
+#ifdef NONMATCHING
+			bool FromWaterSetJumpToAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				{
+					math::Vector destination = math::kZeroVector;
+					JumpDestinationEvent* jumpEvent = (JumpDestinationEvent*)event;
+					if (jumpEvent != 0)
+					{
+						destination.x = jumpEvent->position.x;
+						destination.y = jumpEvent->position.y;
+						destination.z = jumpEvent->position.z;
+					}
+					else
+					{
+						math::Vector position(object->transform->value.m[3][0], object->transform->value.m[3][1], object->transform->value.m[3][2]);
+						gAISystem->Unknown10360C80(&position, &destination);
+					}
+					JumpToMovementMessage message(engine::GameObjectHandle(), destination);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1009F4C0
+			IgnoreWaterReactionAction::IgnoreWaterReactionAction(IgnoreWaterReactionTrack* newTrack) : fight::Action(0x600), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009EB00
+			IgnoreWaterReactionAction::~IgnoreWaterReactionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009FDF0
+			fight::Action* IgnoreWaterReactionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new IgnoreWaterReactionAction(this);
+			}
+
+			// FUNCTION: ENGINE 0x1009E0C0
+			bool IgnoreWaterReactionAction::Slot5(int arg, float value)
+			{
+				if (gWorldTriggerCollisionCallback != 0)
+				{
+					gWorldTriggerCollisionCallback->ignoreWaterReaction = true;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1009E0E0
+			void IgnoreWaterReactionAction::Slot6()
+			{
+				if (gWorldTriggerCollisionCallback != 0)
+				{
+					gWorldTriggerCollisionCallback->ignoreWaterReaction = false;
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<InsideJumpInBoundaryCondition>;
 			template class fight::ConditionFactoryTemplate<InsideJumpInBoundaryCondition>;
@@ -891,3 +1013,12 @@ namespace proto
 // FUNCTION: ENGINE 0x1009EBA0
 // FUNCTION: ENGINE 0x1009ED30
 // FUNCTION: ENGINE 0x1009F260
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009DD30
+// FUNCTION: ENGINE 0x1009EC10
+// FUNCTION: ENGINE 0x1009E900
+// FUNCTION: ENGINE 0x1009EC60
+// FUNCTION: ENGINE 0x1009EAE0
+// FUNCTION: ENGINE 0x1009F490
+// FUNCTION: ENGINE 0x1009F530

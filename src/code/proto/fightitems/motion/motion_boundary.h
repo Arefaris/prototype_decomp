@@ -5,6 +5,38 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/math/vector.h"
+
+namespace proto
+{
+	// RTTI: proto::WorldTriggerCollisionCallback (0x3C bytes, the object 0x103B5040 makes): only the flag the water reaction actions set is known
+	class WorldTriggerCollisionCallback
+	{
+	public:
+		unsigned char unknown0[0x38];
+		bool ignoreWaterReaction;  // +0x38
+		unsigned char unknown39[3];
+	};
+
+	// 0x11264740
+	extern WorldTriggerCollisionCallback* gWorldTriggerCollisionCallback;
+
+	// RTTI: proto::JumpToMovementMessage: the object is to jump to a destination
+	struct JumpToMovementMessage : public MovementMessage
+	{
+		JumpToMovementMessage(const engine::GameObjectHandle& newTarget, const math::Vector& newDestination) : MovementMessage(0x27), target(newTarget), destination(newDestination)
+		{
+		}
+		virtual ~JumpToMovementMessage()
+		{
+		}
+
+		engine::GameObjectHandle target;  // +0xC
+		math::Vector destination;  // +0x10
+	};
+}
 
 namespace proto
 {
@@ -267,6 +299,24 @@ namespace proto
 			fight::TrackFactory* CreateOrientTowardsJumpInPositionTrackFactory(const char* name);
 			void RegisterOrientTowardsJumpInPositionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// The events a jump to a destination is made on (kinds 0x21010 - 0x21013): the destination is at +0x18
+			struct JumpDestinationEvent : public TrackOwner
+			{
+				unsigned char unknown10[8];
+				math::Vector position;  // +0x18
+			};
+
+			// The owner of a jump to a destination as the actions keep it: null when the owner is none or not one of those events
+			inline core::IRefCount* AsJumpDestinationEvent(core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				int ownerKind = (int)((TrackOwner*)owner)->kind;
+				return (ownerKind >= 0x21010 && ownerKind < 0x21014) ? owner : 0;
+			}
+
 			// ---- actions begin
 			// RTTI: proto::fightitems::motion::JumpFromWaterAction (9 vftable slots, 0x4C bytes)
 			class JumpFromWaterAction : public fight::Action
@@ -318,6 +368,40 @@ namespace proto
 				bool unknown40;  // +0x40
 				unsigned char unknown41[0x3];
 				float unknown44;  // +0x44
+			};
+
+			// RTTI: proto::fightitems::motion::FromWaterSetJumpToAction (9 vftable slots, 0x30 bytes)
+			class FromWaterSetJumpToAction : public fight::Action
+			{
+			public:
+				// 0x1009F400
+				FromWaterSetJumpToAction(FromWaterSetJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x1009E920
+				virtual ~FromWaterSetJumpToAction();
+
+				// vftable slot 5 (0x1009E960)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<FromWaterSetJumpToTrack> link;  // +0x20
+				core::IRefCount* event;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::IgnoreWaterReactionAction (9 vftable slots, 0x28 bytes)
+			class IgnoreWaterReactionAction : public fight::Action
+			{
+			public:
+				// 0x1009F4C0
+				explicit IgnoreWaterReactionAction(IgnoreWaterReactionTrack* newTrack);
+				// 0x1009EB00
+				virtual ~IgnoreWaterReactionAction();
+
+				// vftable slot 5 (0x1009E0C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1009E0E0)
+				virtual void Slot6();
+
+				core::Link<IgnoreWaterReactionTrack> link;  // +0x1C
 			};
 
 			// ---- actions end

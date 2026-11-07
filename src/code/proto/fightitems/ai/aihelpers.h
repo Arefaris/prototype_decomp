@@ -110,6 +110,9 @@ namespace proto
 		unsigned char unknown18[4];
 		StrafeRunTokens* strafeRunTokens;  // +0x1C
 		BaseAlert* baseAlert;  // +0x20
+
+		// 0x10360C80: looks a point up for a position through the object at +0x30 (false when there is none; name guess)
+		bool Unknown10360C80(const math::Vector* position, math::Vector* result);
 	};
 
 	// 0x11263AB0
