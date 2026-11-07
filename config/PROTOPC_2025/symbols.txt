@@ -6714,8 +6714,8 @@ __RTDynamicCast = 0x10A88356 ; function size:0x6 | the CRT's dynamic_cast helper
 ?SetLanguage@proto@@YAXPBDH@Z = 0x104DDBB0 ; function size:0x1C7 | proto::SetLanguage: the language of the game by name (name guess)
 ?LoadFrontEndPackages@proto@@YAXPBD0@Z = 0x104E2BC0 ; function size:0x29C | proto::LoadFrontEndPackages: loads the packages of a front end group (name guess)
 ?FrontEndHeap@proto@@YAPAUIMemoryAllocator@core@@HPAVStreamSlotGroup@engine@@PBD@Z = 0x104E1870 ; function | proto::FrontEndHeap: makes the heap of a slot of a front end group (name guess)
-?GetRandomFloat@proto@@YAMXZ = 0x104E79D0 ; function | proto::GetRandomFloat: the Lua native util_GetRandomFloat (name guess)
-?GetWorldOrientation@proto@@YAMMM@Z = 0x104E7AB0 ; function | proto::GetWorldOrientation: the Lua native util_GetWorldOrientation (name guess)
+?GetRandomFloat@proto@@YAMXZ = 0x104E79D0 ; function size:0xB1 | proto::GetRandomFloat: the Lua native util_GetRandomFloat (name guess)
+?GetWorldOrientation@proto@@YAMMM@Z = 0x104E7AB0 ; function size:0x21 | proto::GetWorldOrientation: the Lua native util_GetWorldOrientation (name guess)
 ?CreateProtoRenderManager@proto@@YAXXZ = 0x102E52A0 ; function size:0x40 | proto::CreateProtoRenderManager (name guess)
 ?CreateSaveGameManager@proto@@YAXXZ = 0x10487D10 ; function size:0x26 | proto::CreateSaveGameManager (name guess)
 ?CreateGameFEManager@proto@@YAXXZ = 0x104B55E0 ; function size:0x47 | proto::CreateGameFEManager (name guess)
@@ -96673,3 +96673,6 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?Call@?$Function3@HPBDVVector@math@@M@@SAXPAXPBTFunctionArgument@engine@@0P6AHPBDVVector@math@@M@Z@Z = 0x104F3C40 ; function size:0x45 | public: static void __cdecl Function3<int,char const *,class math::Vector,float>::Call(void *,union engine::FunctionArgument const *,void *,int (__cdecl*)(char const *,class math::Vector,float))
 ?Call@?$Function4@HPBDVVector@math@@V12@M@@SAXPAXPBTFunctionArgument@engine@@0P6AHPBDVVector@math@@3M@Z@Z = 0x104F3D90 ; function size:0x6D | public: static void __cdecl Function4<int,char const *,class math::Vector,class math::Vector,float>::Call(void *,union engine::FunctionArgument const *,void *,int (__cdecl*)(char const *,class math::Vector,class math::Vector,float))
 ?Call@?$Function2@_NHVVector@math@@@@SAXPAXPBTFunctionArgument@engine@@0P6A_NHVVector@math@@@Z@Z = 0x104F3F20 ; function size:0x3E | public: static void __cdecl Function2<bool,int,class math::Vector>::Call(void *,union engine::FunctionArgument const *,void *,bool (__cdecl*)(int,class math::Vector))
+?InterpolateClamped@proto@@YAMMMMMM@Z = 0x104E7900 ; function size:0x58 | proto::InterpolateClamped: a linear interpolation clamped to the end values (name guess)
+?PlayMovieDefault@proto@@YAXPBD@Z = 0x104E7C00 ; function size:0x24 | proto::PlayMovieDefault: queues a movie with the default arguments (name guess)
+
