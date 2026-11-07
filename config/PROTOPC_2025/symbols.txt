@@ -98874,3 +98874,4 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?ApplyAvailablePalette@LODRenderBehaviour@proto@@QAEXXZ = 0x102D9B10 ; function size:0x2A | public: void __thiscall proto::LODRenderBehaviour::ApplyAvailablePalette(void) (name guess)
 ?DestroyLevels@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA7E0 ; function size:0x4E | public: void __thiscall proto::LODRenderBehaviour::DestroyLevels(void) (name guess)
 ?SetAnimation@LODRenderBehaviour@proto@@QAEXPAVAnimation@pure3d@@@Z = 0x102DA910 ; function size:0x14 | public: void __thiscall proto::LODRenderBehaviour::SetAnimation(class pure3d::Animation *) (name guess)
+?ResetLevels@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA850 ; function size:0x99 | proto::LODRenderBehaviour::ResetLevels (name guess)
