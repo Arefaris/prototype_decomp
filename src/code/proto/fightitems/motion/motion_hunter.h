@@ -7,6 +7,11 @@
 #include "code/proto/fightitems/motion/motionaction.h"
 #include "code/proto/fightitems/motion/motioncommon.h"
 
+namespace engine
+{
+	class SupportingLimb;
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -362,7 +367,7 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 				choreo::Driver* driver;  // +0x2C
 				unsigned char unknown30[0x8];
-				int unknown38;  // +0x38
+				engine::SupportingLimb* unknown38;  // +0x38
 				math::Vector unknown3C;  // +0x3C
 				math::Vector unknown48;  // +0x48
 				math::Vector unknown54;  // +0x54

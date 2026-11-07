@@ -2,6 +2,9 @@
 #include "code/proto/fightitems/motion/motion_hunter.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
 #include "code/engine/physics/supportinglimbmessages.h"
+#include "code/engine/physics/supportinglimb.h"
+#include "code/engine/fight/fighteventmessage.h"
+#include "code/math/worldbounds.h"
 #include "code/engine/gameobject/gameobject.h"
 
 namespace proto
@@ -991,6 +994,38 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100D79E0
+			void HunterShortRangeCorner2Action::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::FightEventMessage eventMessage(0x200000);
+					object->SendMessage(&eventMessage);
+					engine::SupportingLimb* limb = unknown38;
+					if (limb != 0)
+					{
+						math::Vector negated(math::WORLD_MIN - unknown3C.x, math::WORLD_MIN - unknown3C.y, math::WORLD_MIN - unknown3C.z);
+						limb->castDirection.x = negated.x;
+						limb->castDirection.y = negated.y;
+						limb->castDirection.z = negated.z;
+					}
+					engine::SupportingLimbSetActiveMessage setActive(unknown38);
+					object->SendMessage(&setActive);
+				}
+				if (driver != 0)
+				{
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+					engine::ReleaseDriverCopy3(driver);
+				}
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<HunterOnWallCondition>;
 			template class fight::ConditionFactoryTemplate<HunterOnWallCondition>;
@@ -1030,6 +1065,8 @@ template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<pro
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D6AF0
+// FUNCTION: ENGINE 0x100D6B00
+// FUNCTION: ENGINE 0x100D6B30
 // FUNCTION: ENGINE 0x100D6BE0
 // FUNCTION: ENGINE 0x100D6EF0
 // FUNCTION: ENGINE 0x100D7540
