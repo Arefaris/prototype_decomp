@@ -98848,3 +98848,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?HideLevels@LODRenderBehaviour@proto@@QAEXPBULODLevel@2@0@Z = 0x102D9540 ; function size:0x2D | public: void __thiscall proto::LODRenderBehaviour::HideLevels(struct proto::LODLevel const *,struct  (name guess)
 ?Acquire@LODLevel@proto@@QAEX_N0@Z = 0x102D92D0 ; function size:0x9F | public: void __thiscall proto::LODLevel::Acquire(bool,bool) (name guess)
 ?Release@LODLevel@proto@@QAEX_N0@Z = 0x102D93A0 ; function size:0x8B | public: void __thiscall proto::LODLevel::Release(bool,bool) (name guess)
+??0AttributeUpdatedMessage@engine@@QAE@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x102D98F0 ; function size:0x2D | public: __thiscall engine::AttributeUpdatedMessage::AttributeUpdatedMessage(class core::Name<struct  (kept copy)
+??$Construct@ULODLevel@proto@@@container@@YAXPAULODLevel@proto@@ABU12@@Z = 0x102DAA60 ; function size:0x13 | void __cdecl container::Construct<struct proto::LODLevel>(struct proto::LODLevel *,struct proto::LOD (kept copy)
+?PushBack@?$ArrayDynamicHeap@ULODLevel@proto@@@container@@QAE_NABULODLevel@proto@@@Z = 0x102DB490 ; function size:0x28 | public: bool __thiscall container::ArrayDynamicHeap<struct proto::LODLevel>::PushBack(struct proto:: (kept copy)

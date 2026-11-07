@@ -11,6 +11,22 @@
 #include "code/math/mathutils.h"
 #include "code/proto/render/lodrenderbehaviour.h"
 
+namespace pure3d
+{
+	void AssignCoreRef(core::IRefCount*& pointer, core::IRefCount* object);
+	void ReleaseCoreRef(core::IRefCount*& pointer);
+}
+
+namespace engine
+{
+	extern core::Name<core::CaseSensitiveKey> gBoundingBox;
+
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
+
 namespace proto
 {
 	// FUNCTION: ENGINE 0x102D91B0
@@ -177,6 +193,147 @@ namespace proto
 		{
 			const_cast<LODLevel*>(last)->Release(false, true);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x102DB9F0
+	void LODRenderBehaviour::AddLevel(const LODReady* readyItem)
+	{
+		engine::render::Drawable drawable = engine::render::Drawable::CreateInstance(readyItem->source, true, false);
+		drawable.SetUnknownCC(4);
+		drawable.SetRegistered(false);
+		LODLevel level(drawable);
+		levels.PushBack(level);
+	}
+
+	// FUNCTION: ENGINE 0x102D99A0
+	void LODRenderBehaviour::UpdateFadeIn(float dt)
+	{
+		float position = fadeInPosition;
+		float previous = position;
+		float target = fadeInTarget;
+		if (position > target)
+		{
+			position = position - dt * 4.0f;
+			if (target > position)
+			{
+				position = target;
+			}
+			fadeInPosition = position;
+		}
+		else if (position < target)
+		{
+			position = dt * 4.0f + position;
+			if (!(target > position))
+			{
+				position = target;
+			}
+			fadeInPosition = position;
+		}
+		fadeInTarget = engine::driving::gOne;
+		if (previous != fadeInPosition)
+		{
+			float shown = fadeInScale * fadeInPosition;
+			int count = levels.Size();
+			for (int i = 0; i < count; i++)
+			{
+				if (levels.begin[i].drawable.IsValid())
+				{
+					levels.begin[i].drawable.SetUnknownBC(shown);
+				}
+			}
+		}
+	}
+
+	// A message of the shader palette's: the byte it points at takes the number of entries and the picked entry
+	struct PaletteIndexMessage : public engine::Message
+	{
+		unsigned char* index;
+	};
+
+	// FUNCTION: ENGINE 0x102D9E80
+	void LODRenderBehaviour::OnPostedMessage(engine::Message* message)
+	{
+		if (message->type == 0x16 && message->id == 6 && available != 0)
+		{
+			int count = available->data.Size();
+			if ((unsigned int)(count - 1) <= 0xFE)
+			{
+				unsigned char* index = static_cast<PaletteIndexMessage*>(message)->index;
+				*index = (unsigned char)(*index * (char)count + (char)availableIndex);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DA2C0
+	void LODRenderBehaviour::OnActiveChanged(bool active)
+	{
+		if (active != IsActive())
+		{
+			engine::Behaviour::OnActiveChanged(active);
+			flags &= 0xFB;
+			level = 0xFFFFFFFF;
+			forcedFade = 0.0f;
+			if (!active)
+			{
+				if (shownFirst != 0)
+				{
+					shownFirst->Hide();
+					shownLast->Hide();
+				}
+				if (forcedFirst != 0)
+				{
+					forcedFirst->Hide();
+					forcedLast->Hide();
+				}
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.SetUnknownBC(1.0f);
+					}
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DA3A0
+	void LODRenderBehaviour::ChangeDrawableLevels(unsigned int previous, const LODLevel* first, const LODLevel* last)
+	{
+		if (previous != 0xFFFFFFFF && IsActive() && (flags & 1) != 0)
+		{
+			flags |= 4;
+			forcedFirst = shownFirst;
+			forcedFade = 0.0f;
+			shownFirst = const_cast<LODLevel*>(first);
+			forcedLast = shownLast;
+			shownLast = const_cast<LODLevel*>(last);
+		}
+		else
+		{
+			flags &= 0xFB;
+			shownFirst = const_cast<LODLevel*>(first);
+			shownLast = const_cast<LODLevel*>(last);
+			if (IsActive())
+			{
+				ShowLevels(first, last);
+			}
+			else
+			{
+				const_cast<LODLevel*>(first)->Hide();
+				shownLast->Hide();
+			}
+		}
+		shownFirst->drawable.SetTransformQueued(owner->transform->value);
+		if (poseSource != 0)
+		{
+			core::HeapScope scope(heap);
+			pure3d::ReleaseCoreRef(reinterpret_cast<core::IRefCount*&>(poseSource->pose));
+			core::IRefCount** pose = reinterpret_cast<core::IRefCount**>(&poseSource->pose);
+			pure3d::AssignCoreRef(*pose, shownFirst->drawable.CreatePose((int)boneData, (int)&boneDataSize));
+		}
+		engine::AttributeUpdatedMessage message(engine::gBoundingBox);
+		owner->SendMessage(&message);
 	}
 
 	inline float LengthOf(const math::Vector& v)
@@ -373,3 +530,8 @@ namespace proto
 // FUNCTION: ENGINE 0x102D95C0
 // FUNCTION: ENGINE 0x102D95D0
 // FUNCTION: ENGINE 0x102D95E0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D98F0
+// FUNCTION: ENGINE 0x102DAA60
+// FUNCTION: ENGINE 0x102DB490
