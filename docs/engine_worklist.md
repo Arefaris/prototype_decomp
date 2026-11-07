@@ -7188,3 +7188,22 @@ dialogue resolvers / sound manager (0x1049B130 - 0x104A0000). No assert path nam
 - Not done: the save game manager (its base `engine::GameDataBaseClient` is not recovered, so the 12 `Method` / `Closure` instances of `sgm_*` wait for it), `ScenarioStateMachineBehaviour` (reflection with a fight branch
   reference), `LifetimeManager`, the state machine and spawner messages (deleting destructors only), the dialogue resolvers (`engine::AudioDialogueResolver` and its three tiny virtual slots, `proto::SoundDialogueResolver`),
   `proto::SoundManager`'s script wrappers and the big update functions.
+
+## proto game top level: the range 0x104E0000 - 0x10500000, second pass (sn-cj)
+929 functions of the range were open at the start. Written (functions match unless noted):
+- `proto/architecture/gamewrappers.cpp` (new): the script wrappers of the range, as explicit instantiations of `engine::Function`'s templates: `Method0..3` / `Closure0..3` / `LuaScriptManager::RegisterMethod` for `proto::CloudManager` (23 signatures, 0x104E8D00 - 0x104ED960 and
+  0x104EBCF0 - 0x104EC840), `proto::GameDatabaseHelper` and `proto::InGameState` (the two classes with several bases use the full-generality method pointers), `Function2..4` and the one-argument-list `Register` instances of the natives (`Function3<void, const char*, int, const char*>`,
+  `Function3<int, const char*, Vector, float>`, `Function4<int, const char*, Vector, Vector, float>`, `Function2<bool, int, Vector>`), and the class casters `BaseClassCasterImpl<PropSpawner, CloudSpawnerBase>` / `<CloudSpawnerBase, CloudSpawner>` (only their `IsDerived` slots; the constructors are
+  inlined into the unreconstructed `GetMembers`). The classes are declared in the file as far as the signatures need them (`CloudManager` empty, `CloudSpawnerBase : PropSpawner` with the nested `Priority`, `CloudSpawner`). About 300 symbols.txt lines (mapped by byte match with
+  `local/scratch/sn-cj/bind.py`; the kept copies are mapped, not annotated). The plain constructors of the one-argument closures are not in the engine.
+- `proto/protomain.cpp/.h`: `GameEngine` constructor (0x104E1EB0) and its vftable slots 0 (takes an int), 1 (the former `CreateGameHeaps`, renamed in symbols.txt), 2 (destroys the heaps), 3 - 7 (the fight systems reset, the context makers, the scenario lister reset, the registry key and the language
+  setting name; slots 6 and 7 return `const char*`). `engine::IGame` is a `struct` (RTTI `.?AU`). Slots 8 (0x104E3000) and 10 (0x104E2620) stay with the engine (declared, mapped). The unknown callees are mapped under guessed names (`ResetFightSystems` 0x102A2730, `MakeScenarioContext` 0x10832330 and
+  five empty functions 0x10811F80 - 0x10811FC0).
+- `proto/behaviours/cloudbehaviour.cpp/.h`: `CloudBehaviour : PropBehaviour` (class info, constructor with `maxRadius` 5.0 at +0xC, `GetMembers`); the stub in `reflectedstubs.h` became an include.
+- `proto/protoutil.cpp` (new, 0x104E7900 - 0x104E7C00): `InterpolateClamped` (`!(x0 >= x)` and `(y1 - y0) * ((x - x0) / width) + y0` give the engine's operand order), `GetWorldOrientation`, `PlayMovieDefault`.
+- `proto/architecture/pausestate.cpp/.h`: `GamePauseState` slots 3 and 4 and the five flag setters 0x104E7130 - 0x104E7170 (called by the head-up display and the in game state).
+- Not matching (left out): `GetRandomFloat` (0x104E79D0: the engine steps the second state through a pointer taken with `lea`, ours stores to the member), `CloudConfig` constructor (0x104E7D00: the engine loads the pooled constants in an order the source does not give), the string copy and the two
+  case-insensitive compares (0x104E7970, 0x104E7AE0, 0x104E7B70: other register choices), the 26 half-float getters of `EffectTrack` (0x104FC450 + 0x1B0 steps: the branch-free conversion allocates five stack slots, the source form tried needs three).
+- Not done: `CloudManager` itself (the class is declared as an empty type; its members, the script natives and the container instances 0x104E7E00 - 0x104EBC70 need the layout), the cloud spawners (`CloudSpawnerBase` has bit-field members at +0xB9 / +0xBA / +0xBB that two reflected properties and a
+  copy routine read), the hit effect manager's free functions (0x104F3630 - 0x104F5270), the accessors 0x104F5300 - 0x104F54A0 and 0x104FBEE0 - 0x104FC440 (no caller or RTTI names their classes), `OLSGameStub` (its base `OLSGame` is not reconstructed), `GamePauseState::Enter` / `Leave` / `Update` and the
+  `InGameState` slots (long runs of calls into unreconstructed code).
