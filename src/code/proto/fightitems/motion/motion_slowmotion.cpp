@@ -160,6 +160,29 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10116430
+			bool SlowMotionAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				float hold = link.object->simulationDuration;
+				hold = (hold > 0.0f) ? hold : 0.0f;
+				SlowMotionRequest params(hold, link.object->realTime, link.object->fadeOutTime, link.object->fadeInTime, link.object->simulationRate);
+				request = gSlowMotionManager->Request(&params);
+				return request >= 0 && (HasFlag11() || Notifies());
+			}
+
+			// FUNCTION: ENGINE 0x101161A0
+			void SlowMotionAction::Slot6()
+			{
+				if (request >= 0)
+				{
+					gSlowMotionManager->End(request, true);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x101165E0
 			fight::Action* SlowMotionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{

@@ -104584,3 +104584,6 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?GetConditions@SupportingLimbTestSurfaceConditionGroupCondition@motion@fightitems@proto@@QBEABVConditionList@fight@@XZ = 0x1011A720 ; function size:0x4 | proto::fightitems::motion::SupportingLimbTestSurfaceConditionGroupCondition::GetConditions (name guess)
 ?GetBranch@SupportingLimbTestTrack@motion@fightitems@proto@@QBEABVBranchHolder@fight@@XZ = 0x1011A810 ; function size:0x4 | proto::fightitems::motion::SupportingLimbTestTrack::GetBranch (name guess)
 ?GetConditions@SupportingLimbTestTrack@motion@fightitems@proto@@QBEABVConditionList@fight@@XZ = 0x1011A830 ; function size:0x4 | proto::fightitems::motion::SupportingLimbTestTrack::GetConditions (name guess)
+?Request@SlowMotionManager@motion@fightitems@proto@@QAEHPBUSlowMotionRequest@234@@Z = 0x102A68E0 ; function size:0x58 | proto::fightitems::motion::SlowMotionManager::Request (name guess)
+?End@SlowMotionManager@motion@fightitems@proto@@QAEXH_N@Z = 0x102A69B0 ; function size:0x26 | proto::fightitems::motion::SlowMotionManager::End (name guess)
+?gSlowMotionManager@motion@fightitems@proto@@3PAVSlowMotionManager@123@A = 0x1125A4A0 ; data size:0x4 | proto::fightitems::motion::gSlowMotionManager (name guess)
