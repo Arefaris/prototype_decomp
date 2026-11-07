@@ -62,6 +62,38 @@ namespace proto
 			bool SetEndColour(const math::Colour128& newValue);
 			bool SetFalloff(bool newValue);
 
+			// The getters the effect action reads the track through (0x104FBEE0 - 0x104FC0D0)
+			int GetEmitSpace() const;
+			const fight::Name& GetEmitJoint() const;
+			float GetBlendFromImpulseToHit() const;
+			int GetAttachTo() const;
+			int GetAttachSpace() const;
+			const fight::Name& GetAttachJoint() const;
+			math::Vector GetOffset() const;
+			math::Vector GetOrientation() const;
+			bool GetRunTillInterrupted() const;
+			float GetWait() const;
+			float GetFadeIn() const;
+			float GetDuration() const;
+			float GetFadeOut() const;
+			float GetWaitRand() const;
+			float GetFadeInRand() const;
+			float GetDurationRand() const;
+			float GetFadeOutRand() const;
+			float GetIntensity() const;
+			float GetRadius() const;
+			float GetIntensityRand() const;
+			float GetRadiusRand() const;
+			float GetFlickerIntensityFreq() const;
+			float GetFlickerIntensityFreqRand() const;
+			float GetFlickerIntensityMag() const;
+			float GetFlickerIntensityMagRand() const;
+			float GetFlickerRadiusFreq() const;
+			float GetFlickerRadiusFreqRand() const;
+			float GetFlickerRadiusMag() const;
+			float GetFlickerRadiusMagRand() const;
+			bool GetFalloff() const;
+
 			// The property list, built once and freed again
 			static void RegisterProperties();
 			static void ClearProperties();

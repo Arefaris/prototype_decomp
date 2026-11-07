@@ -381,6 +381,186 @@ namespace proto
 			registry->AddFactory(fight::FindTrackFactory(name, &caster));
 		}
 
+		// FUNCTION: ENGINE 0x104FBEE0
+		int FXLight_PointTrack::GetEmitSpace() const
+		{
+			return emitSpace;
+		}
+
+		// FUNCTION: ENGINE 0x104FBEF0
+		const fight::Name& FXLight_PointTrack::GetEmitJoint() const
+		{
+			return emitJoint;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF00
+		float FXLight_PointTrack::GetBlendFromImpulseToHit() const
+		{
+			return blendFromImpulseToHit;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF10
+		int FXLight_PointTrack::GetAttachTo() const
+		{
+			return attachTo;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF20
+		int FXLight_PointTrack::GetAttachSpace() const
+		{
+			return attachSpace;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF30
+		const fight::Name& FXLight_PointTrack::GetAttachJoint() const
+		{
+			return attachJoint;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF40
+		math::Vector FXLight_PointTrack::GetOffset() const
+		{
+			return offset;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF60
+		math::Vector FXLight_PointTrack::GetOrientation() const
+		{
+			return orientation;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF80
+		bool FXLight_PointTrack::GetRunTillInterrupted() const
+		{
+			return runTillInterrupted;
+		}
+
+		// FUNCTION: ENGINE 0x104FBF90
+		float FXLight_PointTrack::GetWait() const
+		{
+			return wait;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFA0
+		float FXLight_PointTrack::GetFadeIn() const
+		{
+			return fadeIn;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFB0
+		float FXLight_PointTrack::GetDuration() const
+		{
+			return duration;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFC0
+		float FXLight_PointTrack::GetFadeOut() const
+		{
+			return fadeOut;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFD0
+		float FXLight_PointTrack::GetWaitRand() const
+		{
+			return waitRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFE0
+		float FXLight_PointTrack::GetFadeInRand() const
+		{
+			return fadeInRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FBFF0
+		float FXLight_PointTrack::GetDurationRand() const
+		{
+			return durationRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC000
+		float FXLight_PointTrack::GetFadeOutRand() const
+		{
+			return fadeOutRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC010
+		float FXLight_PointTrack::GetIntensity() const
+		{
+			return intensity;
+		}
+
+		// FUNCTION: ENGINE 0x104FC020
+		float FXLight_PointTrack::GetRadius() const
+		{
+			return radius;
+		}
+
+		// FUNCTION: ENGINE 0x104FC030
+		float FXLight_PointTrack::GetIntensityRand() const
+		{
+			return intensityRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC040
+		float FXLight_PointTrack::GetRadiusRand() const
+		{
+			return radiusRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC050
+		float FXLight_PointTrack::GetFlickerIntensityFreq() const
+		{
+			return flickerIntensityFreq;
+		}
+
+		// FUNCTION: ENGINE 0x104FC060
+		float FXLight_PointTrack::GetFlickerIntensityFreqRand() const
+		{
+			return flickerIntensityFreqRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC070
+		float FXLight_PointTrack::GetFlickerIntensityMag() const
+		{
+			return flickerIntensityMag;
+		}
+
+		// FUNCTION: ENGINE 0x104FC080
+		float FXLight_PointTrack::GetFlickerIntensityMagRand() const
+		{
+			return flickerIntensityMagRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC090
+		float FXLight_PointTrack::GetFlickerRadiusFreq() const
+		{
+			return flickerRadiusFreq;
+		}
+
+		// FUNCTION: ENGINE 0x104FC0A0
+		float FXLight_PointTrack::GetFlickerRadiusFreqRand() const
+		{
+			return flickerRadiusFreqRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC0B0
+		float FXLight_PointTrack::GetFlickerRadiusMag() const
+		{
+			return flickerRadiusMag;
+		}
+
+		// FUNCTION: ENGINE 0x104FC0C0
+		float FXLight_PointTrack::GetFlickerRadiusMagRand() const
+		{
+			return flickerRadiusMagRand;
+		}
+
+		// FUNCTION: ENGINE 0x104FC0D0
+		bool FXLight_PointTrack::GetFalloff() const
+		{
+			return falloff;
+		}
+
 		template class fight::PropertyFloatConstRange<FXLight_PointTrack>;
 		template class fight::PropertyEnumConstList<FXLight_PointTrack>;
 		template class fight::PropertyNameList<FXLight_PointTrack>;
