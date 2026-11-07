@@ -6,10 +6,13 @@
 
 #include "code/om/allocation.h"
 
+#include "code/mgraph/patch.h"
+
 namespace music
 {
 	class Cell;
 	class Cue;
+
 
 	// What a request to a cell player carries (0x28 bytes; the meaning of the members is not known)
 	struct CellPlayerParameters
@@ -56,7 +59,7 @@ namespace music
 		{
 		}
 		// Slots 1 to 9 (0x105E2A10 - 0x105E2A90): the base class does nothing, whatever the arguments are
-		virtual bool Slot1(int unknown0, int unknown4, int unknown8);
+		virtual bool Slot1(Cell* cell, int layer, int part);
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual void Slot4();
@@ -91,7 +94,7 @@ namespace music
 		virtual ~MGraphCellPlayer();
 		OM_ALLOCATION(MGraphCellPlayer);
 
-		virtual bool Slot1(int unknown0, int unknown4, int unknown8);
+		virtual bool Slot1(Cell* cell, int layer, int part);
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual void Slot4();
@@ -101,17 +104,32 @@ namespace music
 		virtual int Slot9();
 		virtual void SetState(int newState);
 		virtual void Slot11(int unknown);
+		// Slot 12 (0x105E2F00): the base class's
+		virtual Cell* Slot12();
+
+		// 0x105E3E10: takes the cell to play (its layer and part) and makes the player's state from its patch; resets the
+		// player and answers false when the cell has no patch
+		bool Setup(Cell* cell, int layer, int part);
+		// 0x105E38F0: makes the player's state from the patch (not reconstructed)
+		bool SetUpFromPatch(mgraph::Patch* patch);
+
+		// 0x105E2F50 (name guessed): how many of the patch's samples make one of 48000 samples a second
+		float GetSampleScale();
+
+		// 0x105E3220 (name guessed): plays the next frames of the cell and answers how many of them it played (not
+		// reconstructed)
+		int Advance(int frames);
 
 		// 0x105E31D0: lets the graph go and puts the player back in the state it starts from
 		void Reset();
 
-		void* graph;  // 0x18
+		mgraph::Patch* graph;  // 0x18
 		float unknown1C;
 		bool unknown20;
 		bool unknown21;
 		bool unknown22;
-		int unknown24;
-		int unknown28;
+		unsigned int unknown24;
+		unsigned int unknown28;
 		int unknown2C;
 		CellPlayerRequest first;  // 0x30
 		CellPlayerRequest second;  // 0x5C
