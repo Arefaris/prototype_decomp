@@ -115,7 +115,8 @@ namespace pure3d
 		unsigned int index : 16;
 		// 0 texture, 1 float, 2 - 4 the vectors, 5 matrix, 6 flag
 		int kind : 4;
-		unsigned int unknown : 12;
+		// Padding: a copy of the entry leaves it out
+		unsigned int : 12;
 	};
 
 	// The slot of a constant in the device's constant table (the name is a guess)
@@ -654,6 +655,10 @@ namespace pure3d
 			void CopyValuesFrom(Constants* other);
 			// 0x1061A410: copies the table (the values and the names) into another one
 			void CopyTo(Constants* destination);
+			// 0x1061A3D0: where the value at slot starts
+			float* GetValueAt(const int* slot);
+			// 0x1061A4B0: holds the texture another table has at source (and its sampler word) in the constant at slot
+			void CopyTexture(const int* slot, const unsigned int* source);
 			// 0x10613A20 / 0x10613A30: the values and how many there are
 			float* GetValues();
 			unsigned int GetCount();

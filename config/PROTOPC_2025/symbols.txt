@@ -102753,3 +102753,5 @@ _sMultiSampleTypes = 0x10E33DA0 ; data size:0xC | pure3d: the Direct3D multisamp
 ??$ReleaseHeldRef@VdxTexture@pure3d@@@pure3d@@YAXPAPAVdxTexture@0@@Z = 0x1061CB30 ; function size:0x1A | pure3d::ReleaseHeldRef<dxTexture>: the default textures unit's copy of ReleaseRef<dxTexture> (name guess)
 ?SetContext@pure3d@@YAXPAVdxContext@1@@Z = 0x1061F1C0 ; function size:0xA | pure3d::SetContext (name guess)
 ?SetCurrentDevice@pure3d@@YAXPAVdxDevice@1@@Z = 0x1061B440 ; function size:0xA | pure3d::SetCurrentDevice (name guess)
+?GetValueAt@Constants@pddiBaseContext@pure3d@@QAEPAMPBH@Z = 0x1061A3D0 ; function size:0xF | pure3d::pddiBaseContext::Constants::GetValueAt (name guess)
+?CopyTexture@Constants@pddiBaseContext@pure3d@@QAEXPBHPBI@Z = 0x1061A4B0 ; function size:0x3A | pure3d::pddiBaseContext::Constants::CopyTexture (name guess)
