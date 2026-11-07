@@ -58,23 +58,19 @@ namespace proto
 		ScenarioManager* gScenarioManager;
 
 		// FUNCTION: ENGINE 0x1048B1E0
-		// NONMATCHING: the engine builds the timer array in a do-while loop with the constant hoisted (21 %)
-#ifdef NONMATCHING
 		ScenarioManager::ScenarioManager() : nextTimerId(0), elapsedTime(0.0f), simulationDelta(0.0f), elapsedRealTime(0.0f), realTimeDelta(0.0f), heartbeatTime(0.0f), missionFirst(0), missionSecond(0), swapIn(0), swapOut(0), savedGroupName(), slotsCombined(false)
 		{
 			deferred.Create(0x20);
 			for (int i = 0; i < 0x20; i++)
 			{
-				DeferredDeactivation entry;
-				entry.frame = 0;
-				deferred.PushBack(entry);
+				engine::GameObjectHandle none;
+				deferred.PushBack(DeferredDeactivation(none, 0));
 			}
 			deferredHead = 0;
 			deferredTail = 0;
 			deferredCount = 0;
 			gScenarioManager = this;
 		}
-#endif
 
 		// FUNCTION: ENGINE 0x1048B370
 		ScenarioManager::~ScenarioManager()
@@ -91,7 +87,7 @@ namespace proto
 		}
 
 		// FUNCTION: ENGINE 0x10488FB0
-		// NONMATCHING: register allocation of the string scan (ebx / ebp), 65.6 %
+		// NONMATCHING: register allocation of the string scan (ebx / ebp) and the timer address (lea), 65.6 %
 #ifdef NONMATCHING
 		int ScenarioManager::StartTimer(float time, const char* message)
 		{
@@ -100,31 +96,25 @@ namespace proto
 				return -1;
 			}
 			const char* end = message;
-			const char* start = message + 1;
+			const char* start = end + 1;
 			do
 			{
 			}
 			while (*end++ != 0);
-			int length = end - start;
-			if (length < 0x100)
+			if (end - start < 0x100)
 			{
-				int i = 0;
-				ScenarioTimer* timer = timers;
-				do
+				for (int i = 0; i < 16; i++)
 				{
-					if (timer->time == choreo::gMinusOne)
+					if (timers[i].time == -1.0f)
 					{
-						timer = timers + i;
+						ScenarioTimer* timer = timers + i;
 						timer->time = time;
 						core::StrNCpy(timer->message, message, 0x100);
 						timer->id = nextTimerId;
 						nextTimerId++;
 						return timer->id;
 					}
-					i++;
-					timer++;
 				}
-				while (i < 16);
 			}
 			return -1;
 		}
@@ -138,7 +128,7 @@ namespace proto
 				if (timers[i].id == id)
 				{
 					ScenarioTimer* timer = &timers[i];
-					timer->time = choreo::gMinusOne;
+					timer->time = -1.0f;
 					timer->message[0] = 0;
 					timer->id = -1;
 					return;
@@ -185,7 +175,7 @@ namespace proto
 						engine::LuaScriptManager* script = engine::GetScriptManager();
 						core::SNPrintf(name, 0x40, "=timer: %.50s", timer->message);
 						script->DoBuffer(timer->message, name, -1);
-						timer->time = choreo::gMinusOne;
+						timer->time = -1.0f;
 						timer->message[0] = 0;
 						timer->id = -1;
 					}
@@ -197,7 +187,7 @@ namespace proto
 		// FUNCTION: ENGINE 0x104891D0
 		void ScenarioManager::ClearTimers()
 		{
-			float free = choreo::gMinusOne;
+			float free = -1.0f;
 			for (int i = 0; i < 16; i++)
 			{
 				timers[i].time = free;
@@ -205,6 +195,69 @@ namespace proto
 				timers[i].id = -1;
 			}
 			nextTimerId = 0;
+		}
+
+		// FUNCTION: ENGINE 0x10489690
+		void ScenarioManager::SaveTimers(container::ArrayFixed<ScenarioTimer, 16>* saved, int* nextId)
+		{
+			ScenarioTimer* timer = timers;
+			for (int i = 0; i < 4; i++)
+			{
+				if (0.0f <= timer[0].time)
+				{
+					if (saved->Size() != 16)
+					{
+						ScenarioTimer* slot = saved->end;
+						saved->end++;
+						*new (slot) ScenarioTimer = timer[0];
+					}
+				}
+				if (0.0f <= timer[1].time)
+				{
+					if (saved->Size() != 16)
+					{
+						ScenarioTimer* slot = saved->end;
+						saved->end++;
+						*new (slot) ScenarioTimer = timer[1];
+					}
+				}
+				if (0.0f <= timer[2].time)
+				{
+					if (saved->Size() != 16)
+					{
+						ScenarioTimer* slot = saved->end;
+						saved->end++;
+						*new (slot) ScenarioTimer = timer[2];
+					}
+				}
+				if (0.0f <= timer[3].time)
+				{
+					if (saved->Size() != 16)
+					{
+						ScenarioTimer* slot = saved->end;
+						saved->end++;
+						*new (slot) ScenarioTimer = timer[3];
+					}
+				}
+				timer += 4;
+			}
+			*nextId = nextTimerId;
+		}
+
+		// FUNCTION: ENGINE 0x10489900
+		void ScenarioManager::RestoreTimers(container::ArrayFixed<ScenarioTimer, 16>* saved, int newNextId)
+		{
+			ClearTimers();
+			nextTimerId = newNextId;
+			int count = saved->Size();
+			if (count >= 16)
+			{
+				count = 16;
+			}
+			for (int i = 0; i < count; i++)
+			{
+				timers[i] = (*saved)[i];
+			}
 		}
 
 		// FUNCTION: ENGINE 0x10489230
@@ -390,6 +443,13 @@ namespace proto
 				deferredTail = deferredTail % deferred.Capacity();
 			}
 		}
+		// FUNCTION: ENGINE 0x10489480
+		void ScenarioManager::UnregisterScript()
+		{
+			engine::LuaScriptManager* script = engine::GetScriptManager();
+			script->Unregister(this);
+		}
+
 		// FUNCTION: ENGINE 0x1048A930
 		void ScenarioManager::Update(float delta)
 		{
@@ -490,7 +550,16 @@ namespace proto
 	}
 }
 
-template class container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>;
+// The members of the queue's container that the engine keeps out of line
+template container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::ArrayDynamicNew();
+template container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::~ArrayDynamicNew();
+template void container::ConstructAt<proto::scenario::DeferredDeactivation>(proto::scenario::DeferredDeactivation*, const proto::scenario::DeferredDeactivation&);
+template void container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::Clear();
+template bool container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::PushBack(const proto::scenario::DeferredDeactivation&);
+template proto::scenario::DeferredDeactivation& container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::operator[](int);
+template unsigned int container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::Capacity() const;
+template bool container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::Create(unsigned int);
+template void container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>::Allocate(unsigned int);
 template class container::ArrayFixed<proto::scenario::ScenarioTimer, 16>;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):

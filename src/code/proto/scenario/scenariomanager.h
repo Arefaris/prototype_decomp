@@ -6,17 +6,12 @@
 #ifndef PROTO_SCENARIO_SCENARIOMANAGER_H
 #define PROTO_SCENARIO_SCENARIOMANAGER_H
 
+#include <new>
 #include "code/container/arraydynamicnew.h"
 #include "code/container/arrayfixed.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/system/streampackage.h"
-
-namespace choreo
-{
-	// 0x10D94FF8
-	extern const float gMinusOne;
-}
 
 namespace proto
 {
@@ -27,7 +22,7 @@ namespace proto
 		{
 			ScenarioTimer()
 			{
-				time = choreo::gMinusOne;
+				time = -1.0f;
 				message[0] = 0;
 				id = -1;
 			}
@@ -37,9 +32,20 @@ namespace proto
 			int id;
 		};
 
+		// The engine's list builds a timer in its place by the constructor and then assigns it (found with argument-dependent
+		// lookup from container::ArrayFixed)
+		inline void Construct(ScenarioTimer* place, const ScenarioTimer& value)
+		{
+			*new (place) ScenarioTimer = value;
+		}
+
 		// An object waiting for its deactivation to be completed: the handle and the frame it was deactivated in
 		struct DeferredDeactivation
 		{
+			DeferredDeactivation(const engine::GameObjectHandle& newHandle, int newFrame) : handle(newHandle), frame(newFrame)
+			{
+			}
+
 			engine::GameObjectHandle handle;
 			int frame;
 		};
@@ -52,6 +58,8 @@ namespace proto
 
 			// 0x1048B3B0: registers the natives
 			void RegisterScript();
+			// 0x10489480: takes them out again
+			void UnregisterScript();
 			// 0x1048A930: the per frame step (the simulation's delta)
 			void Update(float delta);
 			// 0x10488F80: the real time clocks advance
@@ -73,6 +81,10 @@ namespace proto
 			// 0x10489230 (scenario_SetMission) / 0x10489250
 			void SetMission(unsigned int first, unsigned int second);
 			void GetMission(unsigned int* first, unsigned int* second);
+			// 0x10489690: puts the timers that are running into saved (the checkpoint) and the next timer number into nextId /
+			// 0x10489900: makes the timers the saved ones again
+			void SaveTimers(container::ArrayFixed<ScenarioTimer, 16>* saved, int* nextId);
+			void RestoreTimers(container::ArrayFixed<ScenarioTimer, 16>* saved, int newNextId);
 			// 0x104892D0 (stream_ConfirmMissionPackageSlotGroupEmpty)
 			bool ConfirmMissionPackageSlotGroupEmpty();
 			// 0x10489370 (stream_RestoreDynamicSlots) / 0x10489A20 (stream_CombineDynamicSlots)
