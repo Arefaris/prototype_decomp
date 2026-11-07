@@ -1,4 +1,7 @@
 #include "code/proto/behaviours/fedisplaybehaviour.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/proto/frontend/frontendhud.h"
+#include "code/proto/frontend/markermessages.h"
 
 namespace content
 {
@@ -78,6 +81,51 @@ namespace proto
 	// FUNCTION: ENGINE 0x104BFC00
 	void FEDisplayBehaviour::Slot1()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x104BFC10
+	void FEDisplayBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 0x33:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				static_cast<ShowTargetHealthMessage*>(message)->show = showTargetHealth;
+				return;
+			case 2:
+				static_cast<GetAmmoTypeMessage*>(message)->ammoType = ammoType;
+				return;
+			case 1:
+				static_cast<GetReticuleTypeMessage*>(message)->reticuleType = retType;
+				return;
+			case 5:
+				static_cast<GetAimingDirection*>(message)->direction = vehicleReticulePosY;
+				static_cast<GetAimingDirection*>(message)->valid = true;
+				return;
+			case 6:
+				unknown1C = static_cast<SetIsMarkedMessage*>(message)->marker;
+				unknown20 = static_cast<SetIsMarkedMessage*>(message)->marked;
+				return;
+			case 7:
+				static_cast<GetMarkerIconTypeMessage*>(message)->iconType = unknown1C;
+				return;
+			case 8:
+				static_cast<GetMarkerCallerTypeMessage*>(message)->callerType = unknown20;
+				return;
+			}
+			break;
+		case 0x14:
+			if (message->id == 0x29 && unknown1C != 0x26)
+			{
+				engine::GameObjectHandle handle = engine::GetHandle(owner);
+				GetFrontEndHud()->GetMarkers()->Unknown104B94D0(engine::SerializeHandle(handle), 0x26);
+				unknown1C = 0x26;
+				unknown20 = 7;
+			}
+			break;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x104BFD50
