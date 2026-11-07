@@ -9,6 +9,7 @@
 
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/container/arraydynamicstatic.h"
+#include "code/content/arrayhelpercount.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/content/vectormetatype.h"
@@ -193,6 +194,14 @@ namespace engine
 
 namespace container
 {
+	// The curve points are moved with a loop over a source and a destination pointer
+	template<> struct ArrayEraseInline<engine::TrackedMotionToExpressionMap::PropertyMappingKeyValuePair>
+	{
+		enum
+		{
+			value = 3
+		};
+	};
 	// The mappings and the joints are too large for the compiler to inline the assignment of their elements
 	template<> struct ArrayEraseInline<engine::TrackedMotionToExpressionMap::PropertyMapping>
 	{
@@ -208,6 +217,13 @@ namespace container
 			value = 0
 		};
 	};
+}
+
+namespace content
+{
+	// The engine's Insert of the curve points and the mappings makes room with the count version
+	CONTENT_ARRAY_HELPER_COUNT_INSERT(engine::TrackedMotionToExpressionMap::CurveArray);
+	CONTENT_ARRAY_HELPER_COUNT_INSERT(engine::TrackedMotionToExpressionMap::PropertyArray);
 }
 
 #endif
