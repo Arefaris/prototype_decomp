@@ -6,6 +6,8 @@
 #define PURE3D_CONTEXT_H
 
 #include "code/pure3d/font.h"
+#include "code/pure3d/pass.h"
+#include "code/pure3d/renderoptions.h"
 #include "code/container/arraydynamicstatic.h"
 #include "code/container/map.h"
 #include "code/core/memory/imemoryallocator.h"
@@ -602,16 +604,22 @@ namespace pure3d
 	class TargetParams
 	{
 	public:
+		// 0x1074E540 (the engine's RenderParams: made on the size of the display); the copy takes the whole of the
+		// other one, the table included (0x1074E5A0)
+		TargetParams();
 		TargetParams(const TargetParams* source);
 		virtual ~TargetParams();
 
-		unsigned char unknown4[0xC];
+		int unknown4;
+		int unknown8;
+		int unknownC;
 		pddiSurface* colour;
 		pddiSurface* depth;
-		unsigned int flags;
+		RenderOptions options;
 		unsigned int width;
 		unsigned int height;
-		unsigned char unknown24[0x88 - 0x24];
+		// The stack of views the passes run in (the table the copy takes along)
+		container::ArrayFixed<PassView, 8> views;
 	};
 
 	// The subsystems the context starts (the constructor) and stops (the destructor), named after their addresses

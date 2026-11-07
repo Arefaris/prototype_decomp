@@ -2,10 +2,50 @@
 // after the class). Names are guesses.
 #include "code/core/refptr.h"
 #include "code/pure3d/font.h"
+#include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10752760
+	// NONMATCHING: the engine stores the vftable after the two flags and before the other members (the pointers are cleared last); ours clears the pointers first (30.7 %)
+#ifdef NONMATCHING
+	TextureFont::TextureFont() : unknown24(false), unknown2C(false)
+	{
+		unknown10 = 0.0f;
+		unknown14 = 0.0f;
+		unknown18 = 0.0f;
+		unknown1C = 0.0f;
+		unknown20 = 0.0f;
+		unknown28 = 0.0f;
+		unknown2D = true;
+		colour = 0xFFFFFFFF;
+		unknown34 = 0xFF000000;
+		shader = 0;
+		textureCount = 0;
+		textures = 0;
+		defaultGlyph = 0;
+		glyphCount = 0;
+		glyphs = 0;
+		glyphInfo = 0;
+		codes = 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107528E0
+	TextureFont::~TextureFont()
+	{
+		core::SafeRelease(shader);
+		for (unsigned int i = 0; i < textureCount; i++)
+		{
+			core::SafeRelease(textures[i]);
+		}
+		delete[] textures;
+		delete[] glyphs;
+		delete[] codes;
+		delete[] glyphInfo;
+	}
+
 	// FUNCTION: ENGINE 0x10752150
 	bool Font::Unknown22()
 	{

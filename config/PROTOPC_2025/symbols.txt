@@ -102759,3 +102759,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?ClearLightBits@pure3d@@YAXPAULightBits@1@PBULightGroups@1@I@Z = 0x1075CA60 ; function size:0x62 | pure3d::ClearLightBits (name guess)
 ?CountLightBits@pure3d@@YAHPBULightBits@1@PBULightGroups@1@I@Z = 0x1075C640 ; function size:0x84 | pure3d::CountLightBits (name guess)
 ?Unknown1075C570@Light@pure3d@@QAEXPAM00@Z = 0x1075C570 ; function size:0x77 | pure3d::Light::Unknown1075C570 (name guess)
+??0TextureFont@pure3d@@QAE@XZ = 0x10752760 ; function size:0x65 | pure3d::TextureFont::TextureFont (name guess)
+??1TextureFont@pure3d@@UAE@XZ = 0x107528E0 ; function size:0xA2 | pure3d::TextureFont::~TextureFont (name guess)
+??1FontGlyph@pure3d@@QAE@XZ = 0x107520E0 ; function size:0x5 | pure3d::FontGlyph::~FontGlyph (name guess)
+??0TargetParams@pure3d@@QAE@XZ = 0x1074E540 ; function size:0x48 | pure3d::TargetParams::TargetParams (name guess)
