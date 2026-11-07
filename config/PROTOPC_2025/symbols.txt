@@ -102789,3 +102789,4 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?Unknown10@TextureFont@pure3d@@UAEXXZ = 0x10753C90 ; function size:0xDC | pure3d::TextureFont vftable slot 10 (name guess)
 ?Draw@TextureFont@pure3d@@UAEXPBGH@Z = 0x10753BC0 ; function size:0xCC | pure3d::TextureFont vftable slot 11 (name guess)
 ??_GTextureFont@pure3d@@UAEPAXI@Z = 0x10753720 ; function size:0x1E | pure3d::TextureFont scalar deleting destructor (compiler-generated, mapped)
+??_R0?AVFont@pure3d@@@8 = 0x111B8E78 ; data size:0x8 | pure3d::Font RTTI type descriptor
