@@ -137,6 +137,8 @@ namespace proto
 	void Unknown103B9940(engine::GameObject* object, int channel, const char* text);
 	// 0x103BE5F0: the object that holds the given one, null when none does (name guess)
 	engine::GameObject* Unknown103BE5F0(engine::GameObject* object);
+	// 0x103B85A0: drives the object with a strength along a direction (name guess)
+	void Unknown103B85A0(engine::GameObject* object, float strength, const math::Vector* direction, bool flag);
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
 	// 0x103B8440: whether the object has arrived at its destination (name guess)

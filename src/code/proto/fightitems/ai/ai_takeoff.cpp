@@ -337,6 +337,48 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x101F9D00
+			// NONMATCHING: the engine clamps the strength in registers and stores it once into the argument slot, ours stores it in each branch, about 90 %
+#ifdef NONMATCHING
+			bool TakeOffAction::Slot7(int arg, float value)
+			{
+				TakeOffTrack* track = link.Get();
+				if (track == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector up(0.0f, 1.0f, 0.0f);
+				unknown30 = track->acceleration * value + unknown30;
+				value = unknown30;
+				if (!(track->speed > value))
+				{
+					value = track->speed;
+				}
+				if (!(value >= 0.0f))
+				{
+					value = 0.0f;
+				}
+				if (value - 1.0f >= 0.0f)
+				{
+					value = 1.0f;
+				}
+				Unknown103B85A0(object, value, &up, false);
+				if (object->transform->value.m[3][1] - unknown2C > link.Get()->minHeight)
+				{
+					SetStateStateChangeMessage message(engine::gDriverAI3);
+					object->SendMessage(&message);
+					unknown34 = true;
+					return false;
+				}
+				return true;
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;
 			template class fight::TrackFactoryTemplate<TakeOffTrack>;
