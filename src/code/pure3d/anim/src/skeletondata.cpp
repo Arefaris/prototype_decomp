@@ -3,6 +3,11 @@
 #include <new>
 
 #include "code/core/heap.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/math/matrix.h"
+#include "code/math/plane.h"
+#include "code/engine/nis/nis.h"
+#include "code/math/worldbounds.h"
 #include "code/pure3d/posedata.h"
 
 namespace pure3d
@@ -91,6 +96,38 @@ namespace pure3d
 		SetMemory(core::HeapAllocAligned(core::GetCurrentHeap(), size, 0x10));
 	}
 
+	// FUNCTION: ENGINE 0x1072D810
+	// The matrix of a limb: its centre moved to the origin, scaled, sheared and moved back, then its offset (name guess)
+	void BuildLimbMatrix(math::Matrix* matrix, const math::Vector* centre, const math::Vector* shear,
+		const math::Vector* scale, const math::Vector* offset)
+	{
+		matrix->Identity();
+		float origin = math::WORLD_MIN;
+		matrix->m[3][0] = origin - centre->x;
+		matrix->m[3][1] = origin - centre->y;
+		matrix->m[3][2] = origin - centre->z;
+		math::Matrix factor;
+		factor.Identity();
+		factor.m[0][0] = scale->x;
+		factor.m[1][1] = scale->y;
+		factor.m[2][2] = scale->z;
+		matrix->Multiply(*matrix, factor);
+		factor.Identity();
+		factor.m[1][0] = shear->x;
+		factor.m[2][0] = shear->y;
+		factor.m[2][1] = shear->z;
+		matrix->Multiply(*matrix, factor);
+		factor.Identity();
+		factor.m[3][0] = centre->x;
+		factor.m[3][1] = centre->y;
+		factor.m[3][2] = centre->z;
+		matrix->Multiply(*matrix, factor);
+		factor.m[3][0] = offset->x;
+		factor.m[3][1] = offset->y;
+		factor.m[3][2] = offset->z;
+		matrix->Multiply(*matrix, factor);
+	}
+
 	// FUNCTION: ENGINE 0x1072D7D0
 	unsigned int SkeletonData::FindJoint(const core::Name<core::CaseSensitiveKey>& name)
 	{
@@ -117,4 +154,76 @@ namespace pure3d
 	{
 		core::FreeAligned(mMemory);
 	}
+
+	// FUNCTION: ENGINE 0x1072DB80
+	// NONMATCHING: the engine keeps the joint index and both offsets in registers and spills the parent (50 %)
+#ifdef NONMATCHING
+	void SkeletonData::BuildBindPose()
+	{
+		math::Matrix product;
+		math::Matrix limb;
+		BuildLimbMatrix(&limb, mUnknown10, mUnknown18, mScales, mUnknown1C);
+		limb.Invert();
+		product.Multiply(mFileMatrices[0], limb);
+		mRotations[0].FromMatrix(product);
+		math::Vector4* translation = &mTranslations[0];
+		translation->x = product.m[3][0];
+		translation->y = product.m[3][1];
+		translation->z = product.m[3][2];
+		*(engine::NISTransform*)&mJoints[0] = *(const engine::NISTransform*)&mFileMatrices[0];
+		math::Matrix* inverse = mInverseJoints;
+		*(engine::NISTransform*)inverse = *(const engine::NISTransform*)&mFileMatrices[0];
+		inverse->Invert();
+		for (unsigned int joint = 1; joint < mJointCount; joint++)
+		{
+			BuildLimbMatrix(&limb, &mUnknown10[joint], &mUnknown18[joint], &mScales[joint], &mUnknown1C[joint]);
+			limb.Invert();
+			product.Multiply(mFileMatrices[joint], limb);
+			mRotations[joint].FromMatrix(product);
+			translation = &mTranslations[joint];
+			translation->x = product.m[3][0];
+			translation->y = product.m[3][1];
+			translation->z = product.m[3][2];
+			unsigned int parent = mParents[joint];
+			mJoints[joint].Multiply(mFileMatrices[joint], mJoints[parent]);
+			mInverseJoints[joint] = mJoints[joint];
+			mInverseJoints[joint].Invert();
+		}
+		if (mLimbCount != 0)
+		{
+			BuildLimbRotations();
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1072D940
+	// NONMATCHING: the engine takes the base of the joint matrices in ecx and the index in eax (49 %)
+#ifdef NONMATCHING
+	void SkeletonData::BuildLimbRotations()
+	{
+		math::Matrix rotation = math::Matrix::IDENTITY;
+		math::Quaternion* quaternion = mLimbRotations;
+		math::Vector4* translation = mLimbTranslations;
+		for (unsigned int limb = 0; limb < mLimbCount; limb++)
+		{
+			SkeletonLimb* current = &mLimbs[limb];
+			math::Vector third(mJoints[current->joints[2]].m[3][0], mJoints[current->joints[2]].m[3][1],
+				mJoints[current->joints[2]].m[3][2]);
+			math::Vector second(mJoints[current->joints[1]].m[3][0], mJoints[current->joints[1]].m[3][1],
+				mJoints[current->joints[1]].m[3][2]);
+			math::Vector first(mJoints[current->joints[0]].m[3][0], mJoints[current->joints[0]].m[3][1],
+				mJoints[current->joints[0]].m[3][2]);
+			math::Plane plane;
+			plane.Set(first, second, third);
+			math::Vector up(0.0f, 0.0f, engine::driving::gOne);
+			rotation.RotationFromTo(up, plane.normal);
+			quaternion->FromMatrix(rotation);
+			translation->x = mJoints[current->joints[2]].m[3][0];
+			translation->y = mJoints[current->joints[2]].m[3][1];
+			translation->z = mJoints[current->joints[2]].m[3][2];
+			quaternion++;
+			translation++;
+		}
+	}
+#endif
 }
