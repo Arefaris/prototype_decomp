@@ -5,6 +5,7 @@
 #define ENGINE_RENDER_ASYNC_PRIVATE_FLASH_H
 
 #include "code/container/string.h"
+#include "code/core/interlocked.h"
 #include "code/engine/render/async/renderevent.h"
 
 namespace engine
@@ -83,11 +84,18 @@ namespace engine
 			// 0x10884FD0: gives the handle's entry back
 			void Free(const FlashMovieHandler* handle);
 
+			// An unused entry waits in a list headed by freeHead (a node per entry: the next one and the index)
+			struct FreeNode
+			{
+				FreeNode* next;
+				unsigned int index;
+			};
+
 			FlashMovie** objects;  // +0
 			FlashMovie** objectsEnd;  // +4
 			int unknown8;
-			int freeHead;  // +0xC
-			void* nodes;  // +0x10
+			volatile long freeHead;  // +0xC
+			FreeNode* nodes;  // +0x10
 			void* nodesEnd;  // +0x14
 			int unknown18;
 			unsigned int* serials;  // +0x1C

@@ -32,6 +32,31 @@ namespace engine
 
 		FlashMovieTable* gFlashMovieTable;
 
+		// FUNCTION: ENGINE 0x10884FD0
+		// NONMATCHING: the engine keeps the address of the list head in ecx and copies the value it read for the compare (58.2 %)
+#ifdef NONMATCHING
+		void FlashMovieTable::Free(const FlashMovieHandler* handle)
+		{
+			if (handle->index < capacity)
+			{
+				unsigned int* serial = &serials[handle->index];
+				if (handle->generation == *serial)
+				{
+					*serial = 0;
+					FreeNode* node = nodes + handle->index;
+					volatile long* head = &freeHead;
+					long old;
+					do
+					{
+						old = *head;
+						node->next = (FreeNode*)old;
+					}
+					while (_InterlockedCompareExchange(head, (long)node, old) != old);
+				}
+			}
+		}
+#endif
+
 		// FUNCTION: ENGINE 0x108854E0
 		void DestroyMovie(FlashMovieHandler movie)
 		{
