@@ -110,8 +110,8 @@ namespace proto
 				return (((TrackOwner*)owner)->kind == 0x21001) ? owner : 0;
 			}
 
-			// The owner a magnetic boots action keeps: null when the owner is none or not a surface event (kind 0x2100E)
-			inline core::IRefCount* AsSurfaceEventOwner(core::IRefCount* owner)
+			// The owner a magnetic boots action keeps: null when the owner is none or not a magnetic boots event (kind 0x2100E)
+			inline core::IRefCount* AsMagneticBootsEventOwner(core::IRefCount* owner)
 			{
 				if (owner == 0)
 				{

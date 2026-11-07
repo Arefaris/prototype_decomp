@@ -2117,7 +2117,7 @@ namespace proto
 			fight::Action* MagneticBootsJumpTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
-				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				core::IRefCount* surface = AsMagneticBootsEventOwner(owner);
 				return new MagneticBootsJumpAction(this, handle, surface);
 			}
 
@@ -2147,7 +2147,7 @@ namespace proto
 			fight::Action* MagneticBootsTurnCornerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
-				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				core::IRefCount* surface = AsMagneticBootsEventOwner(owner);
 				return new MagneticBootsTurnCornerAction(this, handle, surface);
 			}
 
@@ -2162,7 +2162,7 @@ namespace proto
 			fight::Action* MagneticBootsStickToWallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
-				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				core::IRefCount* surface = AsMagneticBootsEventOwner(owner);
 				return new MagneticBootsStickToWallAction(this, handle, surface);
 			}
 
@@ -2177,7 +2177,7 @@ namespace proto
 			fight::Action* MagneticBootsDetachTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
-				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				core::IRefCount* surface = AsMagneticBootsEventOwner(owner);
 				return new MagneticBootsDetachAction(this, handle, surface);
 			}
 
