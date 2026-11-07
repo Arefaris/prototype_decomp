@@ -99025,3 +99025,13 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?GetGrabSlot@CauseDamageTrack@proto@@QBEABV?$Name@UCaseSensitiveKey@core@@@core@@XZ = 0x104FAC60 ; function size:0x4 | proto::CauseDamageTrack::GetGrabSlot (name guess)
 ?GetIgnoreShield@CauseDamageTrack@proto@@QBE_NXZ = 0x104FAC70 ; function size:0x4 | proto::CauseDamageTrack::GetIgnoreShield (name guess)
 ?GetSendAlert@CauseDamageTrack@proto@@QBE_NXZ = 0x104FAC80 ; function size:0x4 | proto::CauseDamageTrack::GetSendAlert (name guess)
+?PrepareGameDevSelect@proto@@YAXI@Z = 0x104E04C0 ; function size:0x42 | proto::PrepareGameDevSelect (name guess)
+?AddValidMission@GameDatabaseHelper@proto@@QAEXPBD0@Z = 0x104E0520 ; function size:0x67 | proto::GameDatabaseHelper::AddValidMission (name guess)
+?GetNumMissions@GameDatabaseHelper@proto@@QAEIXZ = 0x104E05A0 ; function size:0x1E | proto::GameDatabaseHelper::GetNumMissions (name guess)
+?GetMissionName@GameDatabaseHelper@proto@@QAEPBDI@Z = 0x104E05D0 ; function size:0x12 | proto::GameDatabaseHelper::GetMissionName (name guess)
+?GetLocationName@GameDatabaseHelper@proto@@QAEPBDI@Z = 0x104E05F0 ; function size:0x12 | proto::GameDatabaseHelper::GetLocationName (name guess)
+?RestoreGameDBDefault@GameDatabaseHelper@proto@@QAEXPBDI@Z = 0x104E0610 ; function size:0x12A | proto::GameDatabaseHelper::RestoreGameDBDefault (name guess)
+?gDevSelectList@proto@@3UDevSelectList@1@A = 0x1109D158 ; data size:0x3004 | proto::gDevSelectList: the levels of the dev select screen (name guess)
+
+?OnDBSlot0@GameDatabaseHelper@proto@@UAEXHH@Z = 0x104E0790 ; function size:0x21 | proto::GameDatabaseHelper::OnDBSlot0 (DBObserver slot 0; name guess)
+?Unknown108951B0@ZoneSet@engine@@QAEXXZ = 0x108951B0 ; function size:0x32 | engine::ZoneSet::Unknown108951B0 (name unknown)
