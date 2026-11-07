@@ -1737,15 +1737,17 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101066C0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), the flag compare goes through a register in ours (44.4 %)
 			bool ReactionHitAttackTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->attackType == attackType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				bool same = (hit->attackType == attackType);
+				bool wanted = doesMatch;
+				return (same == wanted) ? true : false;
+
 			}
 
 			// FUNCTION: ENGINE 0x10106700
@@ -1782,15 +1784,15 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101068E0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), setcc through edx in ours (43.8 %)
 			bool ReactionHitCollisionFlagCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->collisionFlag == collisionFlag) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				bool same = hit->collisionFlag == collisionFlag;
+				return same == doesMatch;
 			}
 
 			// FUNCTION: ENGINE 0x10106A50
