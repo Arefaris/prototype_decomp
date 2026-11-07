@@ -111,6 +111,8 @@ namespace engine
 
 	// 0x10836AD0: the simulation driver in force
 	ISimulationDriver* GetSimulationDriver();
+	// 0x10836AB0: puts a driver in force (the default one for null)
+	void SetSimulationDriver(SimulationDriver* driver);
 }
 
 #endif

@@ -7,23 +7,58 @@
 #ifndef ENGINE_ONLINE_REPLAY_H
 #define ENGINE_ONLINE_REPLAY_H
 
+#include "code/content/streams.h"
 #include "code/engine/gamestate.h"
 #include "code/engine/online/onlinemanager.h"
+#include "code/engine/system/desynchunter.h"
 #include "code/engine/system/simulationdriver.h"
 
 namespace engine
 {
-	// The driver that records and plays back (0xB4 bytes; the RTTI says ISimulationDriver, SimulationDriverTimeData)
+	// 0x108336A0: whether the recorded input of the frame is ready (name guessed)
+	bool RecordedInputsReady();
+	// 0x10833590 / 0x10833640: read the recorded inputs of a stream / write them (names guessed)
+	void LoadRecordedInputs(void* stream);
+	void SaveRecordedInputs(void* stream);
+
+	// A reader of a recording (a file read through a buffer; another unit's class, only deleted here): 0x108C3B60
+	class ReplayReader
+	{
+	public:
+		~ReplayReader();
+	};
+
+	// The object at +0xB0 of the driver (another unit's class, only deleted here): 0x109337A0
+	class ReplayExtra
+	{
+	public:
+		~ReplayExtra();
+	};
+
+	// What the replay driver tells about the simulation steps (the objects it keeps five of; the class is another
+	// unit's and the names are guesses)
+	struct IReplayListener
+	{
+		// Whether the step is allowed to go on
+		virtual bool CheckStep(ReplayReader* reader) = 0;
+		virtual void OnStep(content::SaveStream* writer) = 0;
+		virtual void OnReset() = 0;
+	};
+
+	// The driver that records and plays back (0xB4 bytes; the RTTI says ISimulationDriver, SimulationDriverTimeData). It
+	// wraps the driver the game runs (inner) and, while it records or plays back, steps it one frame at a time.
 	class ReplaySimDriver : public ISimulationDriver
 	{
 	public:
 		// 0x10900260
 		ReplaySimDriver();
+		// 0x10900E80 (deleting destructor 0x10900EC0)
+		virtual ~ReplaySimDriver();
 
 		// 0x108C27E0 / 0x108C27F0 / 0x108C2800 / 0x108C2810 / 0x108C2820
 		bool HasRecording() const
 		{
-			return recording != 0;
+			return inputWriter != 0;
 		}
 		bool GetPlaybackFlagA4() const
 		{
@@ -42,9 +77,9 @@ namespace engine
 			return flagA9;
 		}
 
-		// 0x10900450 / 0x10900480: forwarded by the replay
-		void Unknown10900450();
-		void Unknown10900480();
+		// 0x10900450 / 0x10900480: add a listener (in the first free place) and take it out
+		void AddListener(IReplayListener* listener);
+		void RemoveListener(IReplayListener* listener);
 		// 0x109004B0: whether the recording of the file has the entries (names guessed)
 		bool Query(const char* file, int first, int second);
 		// 0x10900D40: stops what is going on
@@ -52,27 +87,43 @@ namespace engine
 		// 0x10900960: starts the recording or the playback of the file
 		void Start(int mode, bool desync, const char* file);
 
-		// The driver's slots (another unit)
+		// 0x109005D0: tells the listeners the step (not while the flag A6 is set)
+		void NotifyListeners();
+		// 0x10900610: asks the listeners whether the step may go on; flushes the streams when one says so
+		void PollListeners();
+		// 0x10900690 / 0x109007C0: check the checksum of the step against the recording / put it into it (left to
+		// the engine)
+		void VerifyChecksum();
+		void RecordChecksum();
+
+		// The driver's slots: they forward to the inner driver (slot 1 copies its times)
 		virtual void Slot1();
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual bool Slot4();
 		virtual void Slot5();
+		virtual void Slot6();
+		virtual void Slot9();
 
-		int unknown70[8];
-		int recording;  // +0x90
-		int unknown94;
-		int unknown98;
-		int unknown9C;
-		int unknownA0;
+		IReplayListener* listeners[5];  // +0x70
+		// Three pairs of a reader (playback) and a writer (recording): the events the listeners see, the inputs and
+		// the checksums
+		ReplayReader* eventReader;  // +0x84
+		content::SaveStream* eventWriter;  // +0x88
+		ReplayReader* inputReader;  // +0x8C
+		content::SaveStream* inputWriter;  // +0x90
+		ReplayReader* checksumReader;  // +0x94
+		content::SaveStream* checksumWriter;  // +0x98
+		DesyncHunter* hunter;  // +0x9C
+		SimulationDriver* inner;  // +0xA0
 		bool playbackFlagA4;
 		bool playbackFlagA5;
 		bool flagA6;
 		bool unknownA7;
 		bool unknownA8;
 		bool flagA9;
-		int unknownAC;
-		int unknownB0;
+		int stepCount;  // +0xAC
+		ReplayExtra* extra;  // +0xB0
 	};
 
 	// The tasks the replay registers itself as (the base of the simulation tasks; one virtual function)
@@ -117,9 +168,9 @@ namespace engine
 
 		// 0x108C2830: the state the replay runs in
 		void SetState(int id, int priority, int leaveState);
-		// 0x108C2860 / 0x108C2870
-		void Unknown108C2860();
-		void Unknown108C2870();
+		// 0x108C2860 / 0x108C2870: forward to the driver
+		void AddListener(IReplayListener* listener);
+		void RemoveListener(IReplayListener* listener);
 		// 0x108C2880 / 0x108C28A0: the file of the recording
 		void SetFileName(const char* newName);
 		const char* GetFileName();
