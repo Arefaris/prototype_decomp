@@ -891,6 +891,85 @@ namespace proto
 		int purchaseType;  // +0x1C
 	};
 
+	struct ObjectZeroHealthMessage : public engine::ScenarioMessage
+	{
+		ObjectZeroHealthMessage(engine::GameObjectHandle object, engine::GameObjectHandle originator, int newAttackType,
+			bool newSpawnCollectible) : engine::ScenarioMessage(0x18), attackType(newAttackType),
+			spawnCollectible(newSpawnCollectible)
+		{
+			handles[0] = object;
+			handles[1] = originator;
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int attackType;  // +0x1C
+		bool spawnCollectible;  // +0x20
+	};
+
+	struct ObjectOffscreenDespawnMessage : public engine::ScenarioMessage
+	{
+		explicit ObjectOffscreenDespawnMessage(engine::GameObjectHandle object) : engine::ScenarioMessage(0x19)
+		{
+			handles[0] = object;
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+	};
+
+	struct DisguiseChangedMessage : public engine::ScenarioMessage
+	{
+		DisguiseChangedMessage() : engine::ScenarioMessage(0x15)
+		{
+		}
+		DisguiseChangedMessage(const DisguiseChangedMessage& other) : engine::ScenarioMessage(other),
+			newFaction(other.newFaction)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int unknown1C;  // +0x1C
+		core::Name<core::CaseSensitiveKey> newFaction;  // +0x20
+	};
+
+	struct ObjectDeadMessage : public engine::ScenarioMessage
+	{
+		ObjectDeadMessage() : engine::ScenarioMessage(0x17)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int attackType;  // +0x1C
+		core::Name<core::CaseSensitiveKey> unknownName20;  // +0x20
+	};
+
 }
 
 #endif

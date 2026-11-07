@@ -692,6 +692,64 @@ namespace proto
 		context->SetInt("purchaseType", purchaseType);
 	}
 
+	// FUNCTION: ENGINE 0x10490130
+	engine::ScenarioMessage* ObjectZeroHealthMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) ObjectZeroHealthMessage(handles[0], handles[1], attackType, spawnCollectible);
+	}
+
+	// FUNCTION: ENGINE 0x1048CB00
+	void ObjectZeroHealthMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		context->SetHandle("object", engine::SerializeHandle(handles[0]));
+		context->SetHandle("originator", engine::SerializeHandle(handles[1]));
+		context->SetInt("attackType", attackType);
+		context->SetBool("spawnCollectible", spawnCollectible);
+	}
+
+	// FUNCTION: ENGINE 0x10490190
+	engine::ScenarioMessage* ObjectOffscreenDespawnMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) ObjectOffscreenDespawnMessage(handles[0]);
+	}
+
+	// FUNCTION: ENGINE 0x1048CB90
+	void ObjectOffscreenDespawnMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		context->SetHandle("object", engine::SerializeHandle(handles[0]));
+	}
+
+	// FUNCTION: ENGINE 0x10492380
+	engine::ScenarioMessage* DisguiseChangedMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) DisguiseChangedMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x104900C0
+	void DisguiseChangedMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		context->SetHandle("object", engine::SerializeHandle(handles[0]));
+		{
+			core::Name<core::CaseSensitiveKey> faction(newFaction);
+			context->SetName("newFaction", faction);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104923C0
+	engine::ScenarioMessage* ObjectDeadMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) ObjectDeadMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048CA60
+	void ObjectDeadMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		context->SetHandle("dead", engine::SerializeHandle(handles[0]));
+		context->SetHandle("object", engine::SerializeHandle(handles[0]));
+		context->SetHandle("originator", engine::SerializeHandle(handles[1]));
+		context->SetInt("attackType", attackType);
+	}
+
 }
 
 namespace engine
@@ -796,6 +854,14 @@ namespace engine
 		template void RegisterMessageKind<proto::UnlockableAcquiredScenarioMessage>(int, const char*);
 		// FUNCTION: ENGINE 0x1048FC20
 		template void RegisterMessageKind<proto::UnlockableIncrementedPurchaseTypeScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048DA60
+		template void RegisterMessageKind<proto::DisguiseChangedMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048DDC0
+		template void RegisterMessageKind<proto::ObjectDeadMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048DE50
+		template void RegisterMessageKind<proto::ObjectZeroHealthMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048DEE0
+		template void RegisterMessageKind<proto::ObjectOffscreenDespawnMessage>(int, const char*);
 	}
 }
 
@@ -934,3 +1000,9 @@ namespace engine
 // FUNCTION: ENGINE 0x1048C750
 // FUNCTION: ENGINE 0x1048C790
 // FUNCTION: ENGINE 0x1048C7D0
+// FUNCTION: ENGINE 0x1048B910
+// FUNCTION: ENGINE 0x1048B990
+// FUNCTION: ENGINE 0x1048B9D0
+// FUNCTION: ENGINE 0x1048BA10
+// FUNCTION: ENGINE 0x104902C0
+// FUNCTION: ENGINE 0x104903B0
