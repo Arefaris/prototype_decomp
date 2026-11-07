@@ -252,11 +252,7 @@ namespace om
 	template void EntityType<mgraph::Patch>::CreateUnregisteredEntity(Entity**, const ClassName&);
 	// FUNCTION: ENGINE 0x105B9F60
 	template void EntityType<mgraph::Patch>::CreateUnregisteredEntity2(Entity**, const ClassName&);
-	// FUNCTION: ENGINE 0x105B9FC0
-	// NONMATCHING: shrink-wrap: the engine saves esi before testing the cached type, ours behind it (87.5 %)
-#ifdef NONMATCHING
-	template void EntityType<mgraph::Patch>::ReleaseMetaType();
-#endif
+	// 0x105B9FC0 (ReleaseMetaType) is not reconstructed: the engine saves esi before testing the cached type, ours behind it (87.5 %)
 	// FUNCTION: ENGINE 0x105BA010
 	template EntityType<mgraph::Patch>::~EntityType();
 	// FUNCTION: ENGINE 0x105BA4F0

@@ -104207,7 +104207,6 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?CreateEntity@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z = 0x105B9EB0 ; function size:0x50 | ?CreateEntity@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z (name guess)
 ?CreateUnregisteredEntity@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z = 0x105B9F00 ; function size:0x57 | ?CreateUnregisteredEntity@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z (name guess)
 ?CreateUnregisteredEntity2@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z = 0x105B9F60 ; function size:0x57 | ?CreateUnregisteredEntity2@?$EntityType@VPatch@mgraph@@@om@@UAEXPAPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z (name guess)
-?ReleaseMetaType@?$EntityType@VPatch@mgraph@@@om@@SAXXZ = 0x105B9FC0 ; function size:0x48 | ?ReleaseMetaType@?$EntityType@VPatch@mgraph@@@om@@SAXXZ (name guess)
 ??1?$EntityType@VPatch@mgraph@@@om@@UAE@XZ = 0x105BA010 ; function size:0x58 | ??1?$EntityType@VPatch@mgraph@@@om@@UAE@XZ (name guess)
 ??_G?$EntityType@VPatch@mgraph@@@om@@UAEPAXI@Z = 0x105BA070 ; function size:0x22 | ??_G?$EntityType@VPatch@mgraph@@@om@@UAEPAXI@Z (name guess)
 ?Register@?$EntityType@VPatch@mgraph@@@om@@SAXPBDH@Z = 0x105BA4F0 ; function size:0x2C | ?Register@?$EntityType@VPatch@mgraph@@@om@@SAXPBDH@Z (name guess)
