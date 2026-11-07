@@ -7188,3 +7188,43 @@ dialogue resolvers / sound manager (0x1049B130 - 0x104A0000). No assert path nam
 - Not done: the save game manager (its base `engine::GameDataBaseClient` is not recovered, so the 12 `Method` / `Closure` instances of `sgm_*` wait for it), `ScenarioStateMachineBehaviour` (reflection with a fight branch
   reference), `LifetimeManager`, the state machine and spawner messages (deleting destructors only), the dialogue resolvers (`engine::AudioDialogueResolver` and its three tiny virtual slots, `proto::SoundDialogueResolver`),
   `proto::SoundManager`'s script wrappers and the big update functions.
+
+## pure3d 0x10700000 - 0x10740000, second pass: frame controllers, mixer, skin, the particle module's pools, the shadow manager (sn-ce)
+
+- **Member destructors fix the vftable store.** A class whose destructor body is empty and whose arrays are members with their
+  own destructors (`~OwnedArray`, `~WeightArray`, `OwnedReference<T>`: `if (begin) delete[] begin`) gets the vftable store as
+  the first instruction, as the engine's; the same code as statements in the body schedules the store behind the loads
+  (`CompDrawVisibilityAnimationController`, `ExpressionPose`, `VertexOffsetExpressionMixer`). `<new>` must be included so
+  that `delete[]` calls `operator delete[]`. A member with a constructor (`OwnedArray() : begin(0), end(0)`) also fixes
+  the order of the zero stores of a copy constructor.
+- **A file `static` pointer the engine reads before its prologue.** `gParticleControllerPool`, `gParticleGeneratorPool`
+  and `gParticleSystemStatePool` (0x112816EC / F0 / F4) are `static core::MemoryPool*` in shadowrendermanager.cpp: only
+  then the allocation and free functions load the pool before the `push esi`. datacheck then wants every engine user of the
+  static compiled, hence the unit's start (0x107151B0) and stop (0x10715380) functions are written too. The unit also holds the
+  particle module's other pools (0x112816E4 / E8, extern), the render thread word (0x112816E0), the debug shader (0x112816FC)
+  and the 12 floats at 0x11281700 (setters 0x10715430 - 0x10715560).
+- **Controllers** (primitive.h, anim/src, src/): destructors and copy constructors of `ShaderAnimationController`,
+  `ExpressionAnimationController`, `CompDrawVisibilityAnimationController` (with `GetDrawable`, `SetDrawable`, `SetAnimation`,
+  `SetTarget`) match; `PoseAnimationController` slots 3, 4, 10, 22, 29 and the clone match (its copy constructor 0x107343D0, its
+  `UpdateFrameTimes` 0x10732D40 and its destructor 0x10732F60 are mapped only; the +0x118 / +0x11C / +0x148 members are arrays of
+  five). `VertexAnimController`: destructor matches, copy constructor NONMATCHING (87.9 %, the engine loads -1 before the first
+  member store, as in its default constructor 0x1073E300). `VertexRegionAnimController`: destructor (about 40 %: the engine's loop
+  counts a copy of the first pointer) and copy constructor (96 %: the engine reloads the expression into ecx right after the
+  allocation) are NONMATCHING. `VertexOffsetExpressionMixer` / `ExpressionPose` destructors match. The update slots (5) of the vertex,
+  vertex region and shader controllers and the mixer's `Update` / `Mix` helpers (0x10730C80, 0x10730E00) are mapped only.
+- **Skin**: `~Skin` (the vftable is emitted now and vtcheck passes), `SkinState::FinishTask` (0x1071F8A0, `ret 4`) and
+  `AsyncTaskAdaptor::OnResult`; `LockableRefCounted::Unlock` (0x106E2A50) is declared. `SkeletonData::GetLimbInfo`.
+- **Shadow render manager / light selection**: constructor, `Setup` is mapped only, `Unknown10715F30`, `Unknown10715D60`,
+  `LendShadowMapHeap`, `ReclaimShadowMapHeap`, `Unknown10715F50`, the +0x20 / +0x10 accessors, the four device constant writers
+  (0x10716930 - 0x107169C0; the matrix writer 0x10716A00 calls `NISTransform::operator=`, not done) and
+  `LightSelection::UploadVertexLights`. The manager's own destructor (0x10715C00) and `Setup`'s helpers 0x10715980 / 0x10715D90
+  are not done (they need the surface class that +0xC holds).
+- **Small**: the eight built-in texture getters (0x10704A00 - 0x10704AD0), the start / stop pairs of the shader module
+  (0x10704B60 / 0x107063A0, the globals 0x11281338) and the skin task (0x1071F7D0), and the empty or forwarding functions
+  0x1073E260, E290, E2C0, E2D0, E2E0, E2F0. 0x1073E250 / E270 / E280 / E2A0 / E2B0 forward their arguments to the pass factories
+  (0x1079C500 ... 0x1079CB60) and are left.
+- **Not touched, and why**: the particle task manager (0x1073B8F0 - 0x1073C190: 50 task slots of 0x80 bytes with two `ArrayFixed`
+  index lists, helpers that take their argument in eax); the consume effects (0x10721490 - 0x10726500, no unit declares them);
+  the shader unit (0x10704B70 / 0x107052A0 / `Shader::Init` 0x10706100, 462 - 3447 bytes); the scene (constructor, destructor, add /
+  remove, 0x5800 bytes); the container template instances between 0x10730570 and 0x10732100 and 0x1073A7xx - 0x1073BDxx (no
+  class names them); `TextureLoader` (a cache object at +0x10 that nothing names).
