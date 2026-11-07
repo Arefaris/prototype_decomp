@@ -6,6 +6,7 @@
 #define PROTO_REFLECTEDSTUBS_H
 
 #include "code/proto/coopbehaviour.h"
+#include "code/proto/shaders/shaderpalette.h"
 #include "code/proto/behaviours/powerwheelbehaviour.h"
 #include "code/proto/behaviours/fedisplaybehaviour.h"
 #include "code/content/loadinventory.h"
@@ -385,41 +386,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknown0[0x60];
-	};
-
-	struct ShaderInputPatch
-	{
-	public:
-	};
-
-	struct ShaderInputPatchBool : public proto::ShaderInputPatch
-	{
-	public:
-		ShaderInputPatchBool();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(proto::ShaderInputPatch)];
-	};
-
-	struct ShaderInputPatchFloat1 : public proto::ShaderInputPatch
-	{
-	public:
-		ShaderInputPatchFloat1();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(proto::ShaderInputPatch)];
-	};
-
-	struct ShaderInputPatchFloat4 : public proto::ShaderInputPatch
-	{
-	public:
-		ShaderInputPatchFloat4();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(proto::ShaderInputPatch)];
 	};
 
 	class AiTreeBehaviour : public engine::FightTreeBehaviour
