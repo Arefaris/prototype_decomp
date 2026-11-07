@@ -158,6 +158,13 @@ namespace engine
 
 	int gDialogueActionCounter = 1;  // 0x111D54B8
 
+	// FUNCTION: ENGINE 0x108A8C90
+	void RegisterDialogueTrackFactory(fight::TrackRegistry* registry, const char* name)
+	{
+		fight::TrackFactoryCasterTemplate<DialogueTrack> caster;
+		registry->AddFactory(fight::FindTrackFactory(name, &caster));
+	}
+
 	// FUNCTION: ENGINE 0x108A8CC0
 	DialogueAction::DialogueAction(DialogueTrack* newTrack, GameObjectHandle newTarget, core::IRefCount* newOwner)
 		: fight::Action(0x200 + (newTrack->KillOnExit ? 0x400 : 0)), target(newTarget), link(newTrack), owner(newOwner)

@@ -104193,3 +104193,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ??2ChannelManager@engine@@SAPAXI@Z = 0x108BEFC0 ; function size:0x15 | engine::ChannelManager::operator new (name guess)
 ??3ChannelManager@engine@@SAXPAX@Z = 0x108BEFE0 ; function size:0x5 | engine::ChannelManager::operator delete (name guess)
 ??3OnlineManager@engine@@SAXPAX@Z = 0x108BF1A0 ; function size:0x5 | engine::OnlineManager::operator delete (name guess)
+?RegisterDialogueTrackFactory@engine@@YAXPAVTrackRegistry@fight@@PBD@Z = 0x108A8C90 ; function size:0x26 | engine::RegisterDialogueTrackFactory (name guess)
