@@ -802,6 +802,55 @@ namespace proto
 				return distance;
 			}
 
+			// FUNCTION: ENGINE 0x1009F600
+			// NONMATCHING: the engine keeps this in ecx across its helpers (they do not touch it), ours reloads it, and the comparison of the height with zero is built the other way round (best 64.1 %)
+#ifdef NONMATCHING
+			bool JumpFromWaterAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				ChargeEatMessage message(1);
+				object->SendMessage(&message);
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				gAISystem->Unknown10360C80(&position, &unknown40);
+				driver = new choreo::RootDriver;
+				fight::Name driverName("jump", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->priority, 1.0f, link.Get()->blendInTime, link.Get()->blendOutTime, choreo::gMinusOne);
+				const math::Matrix& placement = object->transform->value;
+				float height = unknown40.y - placement.m[3][1];
+				height = 0.0f < height ? height : engine::driving::gOne;
+				float apex = link.Get()->upOvershootDistance + height;
+				position.x = placement.m[3][0];
+				position.y = placement.m[3][1];
+				position.z = placement.m[3][2];
+				float distance = GetForwardDistance(&position, &unknown40);
+				float flightTime = GetFlightTime(distance);
+				float upSpeed = GetInitialSpeed(apex, flightTime);
+				unknown3C = upSpeed;
+				float gravity = GetGravity(apex, flightTime);
+				unknown30 = gravity;
+				float forwardSpeed = GetForwardSpeed(distance, flightTime);
+				unknown38 = forwardSpeed;
+				gCameraManager->ChaseCameraVector(*(int*)&target, forwardSpeed, upSpeed, gravity);
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x1009E890
 			void JumpFromWaterAction::Slot6()
 			{

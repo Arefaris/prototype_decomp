@@ -101151,3 +101151,6 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ??_R0?AUGetJumpDestinationMovementMessage@proto@@@8 = 0x10FF0654 ; data size:0x8 | proto::GetJumpDestinationMovementMessage RTTI type descriptor
 ??_R0?AVFromWaterSetJumpToAction@motion@fightitems@proto@@@8 = 0x10FF0768 ; data size:0x8 | proto::fightitems::motion::FromWaterSetJumpToAction RTTI type descriptor
 ??_R0?AVIgnoreWaterReactionAction@motion@fightitems@proto@@@8 = 0x10FF07B8 ; data size:0x8 | proto::fightitems::motion::IgnoreWaterReactionAction RTTI type descriptor
+??_7FromWaterSetJumpToAction@motion@fightitems@proto@@6B@ = 0x10D9C870 ; data size:0x24 | proto::fightitems::motion::FromWaterSetJumpToAction vftable
+??_7IgnoreWaterReactionAction@motion@fightitems@proto@@6B@ = 0x10D9C8A0 ; data size:0x24 | proto::fightitems::motion::IgnoreWaterReactionAction vftable
+??_7GetJumpDestinationMovementMessage@proto@@6B@ = 0x10D9C7F8 ; data size:0x4 | proto::GetJumpDestinationMovementMessage vftable

@@ -8,6 +8,7 @@
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aihelpers.h"
 #include "code/math/vector.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -22,6 +23,33 @@ namespace proto
 
 	// 0x11264740
 	extern WorldTriggerCollisionCallback* gWorldTriggerCollisionCallback;
+
+	// RTTI: proto::ChargeMessage: the base of the messages to the charge of an object (message type 0x1c)
+	class ChargeMessage : public engine::IntrusiveMessage
+	{
+	public:
+		ChargeMessage(short newId, int newValue) : engine::IntrusiveMessage(0x1c, newId), unknownC(0.0f), value(newValue)
+		{
+		}
+		virtual ~ChargeMessage()
+		{
+		}
+
+		float unknownC;  // +0xC
+		int value;  // +0x10
+	};
+
+	// RTTI: proto::ChargeEatMessage
+	class ChargeEatMessage : public ChargeMessage
+	{
+	public:
+		explicit ChargeEatMessage(int newValue) : ChargeMessage(1, newValue)
+		{
+		}
+		virtual ~ChargeEatMessage()
+		{
+		}
+	};
 
 	// 0x10071800 (another unit): a copy of a transform matrix as the engine makes it, row by row
 	struct TransformCopy
