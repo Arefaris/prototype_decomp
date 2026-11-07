@@ -1,6 +1,6 @@
 // engine::AudioPlayer (RTTI name): what the audio system keeps for a sound source of the game (an ambience, a
 // helicopter, a vehicle): the game's players derive from it (proto::SoundPlayerAmbience, SoundPlayerHelicopter and
-// SoundPlayerVehicle) and answer the five calls every player gets; the base class has the defaults of the three
+// SoundPlayerVehicle, each with a header of its own) and answer the five calls every player gets; the base class has the defaults of the three
 // optional ones. Of the classes only what is reconstructed is declared. Names other than the RTTI ones are guesses.
 #ifndef ENGINE_AUDIO_AUDIOPLAYER_H
 #define ENGINE_AUDIO_AUDIOPLAYER_H
@@ -35,32 +35,6 @@ namespace engine
 		virtual float Slot6(int a);
 		virtual void Slot7(int a);
 		virtual bool Slot8(int a, int b);
-	};
-}
-
-namespace proto
-{
-	// The sound players of the game (RTTI: proto::SoundPlayerHelicopter, SoundPlayerVehicle; the ambience player has a header of its own)
-	class SoundPlayerHelicopter : public engine::AudioPlayer
-	{
-	public:
-		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		virtual void Slot2(om::DynamicObject* properties);
-		virtual bool Slot3();
-		virtual void Slot4();
-		virtual bool Slot5();
-		virtual void Slot7(int a);
-	};
-
-	class SoundPlayerVehicle : public engine::AudioPlayer
-	{
-	public:
-		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		virtual void Slot2(om::DynamicObject* properties);
-		virtual bool Slot3();
-		virtual void Slot4();
-		virtual bool Slot5();
-		virtual void Slot7(int a);
 	};
 }
 

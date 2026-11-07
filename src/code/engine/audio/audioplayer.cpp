@@ -2,6 +2,7 @@
 // (no assert path; the file name is a guess).
 #include "code/engine/audio/audioplayer.h"
 #include "code/proto/audio/soundplayerambience.h"
+#include "code/proto/audio/soundplayers.h"
 
 namespace engine
 {

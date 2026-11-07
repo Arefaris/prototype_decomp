@@ -6,6 +6,8 @@
 #define AUDIO_REMOTEPLAYEREVENT_H
 
 #include "code/audio/remoteplayer.h"
+#include <string.h>
+#include <typeinfo.h>
 #include "code/om/dynamicarray.h"
 #include "code/om/string.h"
 
@@ -47,17 +49,51 @@ namespace audio
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
-		unsigned char unknown4[0x3c - 4];
+		unsigned char unknown4[0x28 - 4];
+		bool ready;  // 0x28
+		unsigned char unknown29[0x3c - 0x29];
 	};
 	// Names a remote player (0x11276370 holds the table): the index in the low half
 	struct RemotePlayerHandle
 	{
-		unsigned short index;
-		unsigned short serial;
+		RemotePlayerHandle()
+		{
+		}
+		// The table hands the handle out as one word
+		RemotePlayerHandle(unsigned int packed) :
+			word(packed)
+		{
+		}
+
+		union
+		{
+			unsigned int word;
+			struct
+			{
+				unsigned short index;
+				unsigned short serial;
+			};
+		};
+	};
+
+	// What a new remote player is made from (the first word is the kind of player, the rest is zero for the game's players)
+	struct RemotePlayerParams
+	{
+		explicit RemotePlayerParams(int newKind) :
+			kind(newKind)
+		{
+			memset(unknown4, 0, sizeof(unknown4));
+		}
+
+		int kind;
+		unsigned char unknown4[0x44];
 	};
 
 	struct RemotePlayerTable
 	{
+		// 0x105BAE40: makes a remote player (the audio thread is told to make it) and answers its handle (name guessed;
+		// the arguments after the parameters are not recovered, the type is the class of the game's player that asks)
+		unsigned int Create(const RemotePlayerParams& params, int unknown1, int unknown2, int unknown3, const type_info* owner, int unknown4);
 		// 0x105BAF90: gives the remote player back (name guessed)
 		void Release(RemotePlayerHandle player);
 
@@ -174,6 +210,86 @@ namespace audio
 		T1 value1;
 		T2 value2;
 	};
+
+	inline void RemotePlayerTable::Start(const RemotePlayerHandle& player)
+	{
+		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Start, 0);
+	}
+
+	inline void RemotePlayerTable::SetLoop(const RemotePlayerHandle& player, bool value)
+	{
+		new RemotePlayerEvent_Param1<bool>(player, &RemotePlayer::SetLoop, value);
+	}
+
+	inline void RemotePlayerTable::SetFilename(const RemotePlayerHandle& player, const om::String& value)
+	{
+		new RemotePlayerEvent_Param1<const om::String&>(player, &RemotePlayer::SetFilename, value);
+	}
+
+	inline void RemotePlayerTable::SetVolumes(const RemotePlayerHandle& player, const dsp::MixVoiceChannelBinVolumes& value)
+	{
+		new RemotePlayerEvent_Param1<const dsp::MixVoiceChannelBinVolumes&>(player, &RemotePlayer::SetVolumes, value);
+	}
+
+	inline void RemotePlayerTable::SetChannelVolume(const RemotePlayerHandle& player, unsigned int channel, float volume)
+	{
+		new RemotePlayerEvent_Param2<unsigned int, float>(player, &RemotePlayer::SetChannelVolume, channel, volume);
+	}
+
+	inline void RemotePlayerTable::Stop(const RemotePlayerHandle& player)
+	{
+		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Stop, 0);
+	}
+
+	inline void RemotePlayerTable::SetPosition(const RemotePlayerHandle& player, const om::Vector& value)
+	{
+		new RemotePlayerEvent_Param1<const om::Vector&>(player, &RemotePlayer::SetPosition, value);
+	}
+
+	inline void RemotePlayerTable::SetVelocity(const RemotePlayerHandle& player, const om::Vector& value)
+	{
+		new RemotePlayerEvent_Param1<const om::Vector&>(player, &RemotePlayer::SetVelocity, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown474(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown474, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown478(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown478, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown498(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown498, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown49C(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown49C, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown51C(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown51C, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown530(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown530, value);
+	}
+
+	inline void RemotePlayerTable::SetUnknown484(const RemotePlayerHandle& player, float value)
+	{
+		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown484, value);
+	}
+
+	inline void RemotePlayerTable::SetNames(const RemotePlayerHandle& player, const om::DynamicArray<om::String, unsigned short>& value)
+	{
+		new RemotePlayerEvent_Param1<const om::DynamicArray<om::String, unsigned short>&>(player, &RemotePlayer::SetNames, value);
+	}
 }
 
 #endif

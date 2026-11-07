@@ -10,8 +10,20 @@
 #include "code/om/string.h"
 #include "code/om/vectort.h"
 #include "code/core/hash.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/proto/audio/soundplayers.h"
 
 #pragma warning(disable: 4661 4345)
+
+namespace ravenphysics
+{
+	extern const float gDefaultMaxForce;
+}
+
+namespace proto
+{
+	extern const float gHundred;
+}
 
 namespace audio
 {
@@ -91,85 +103,31 @@ namespace audio
 		unknown484 = value;
 	}
 
-	void RemotePlayerTable::Start(const RemotePlayerHandle& player)
+	// Calls every posting member once, with inlining off, so that the unit has the out-of-line copy of each that the engine's unit has
+	// (this function is not the engine's)
+#pragma inline_depth(0)
+	void ReferencePosters(const RemotePlayerHandle& player, const dsp::MixVoiceChannelBinVolumes& volumes, const om::Vector& vector, const om::String& text,
+		const om::DynamicArray<om::String, unsigned short>& names)
 	{
-		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Start, 0);
+		RemotePlayerTable* table = gRemotePlayers;
+		table->Start(player);
+		table->SetLoop(player, true);
+		table->SetFilename(player, text);
+		table->SetVolumes(player, volumes);
+		table->SetChannelVolume(player, 0, 0.0f);
+		table->Stop(player);
+		table->SetPosition(player, vector);
+		table->SetVelocity(player, vector);
+		table->SetUnknown474(player, 0.0f);
+		table->SetUnknown478(player, 0.0f);
+		table->SetUnknown498(player, 0.0f);
+		table->SetUnknown49C(player, 0.0f);
+		table->SetUnknown51C(player, 0.0f);
+		table->SetUnknown530(player, 0.0f);
+		table->SetUnknown484(player, 0.0f);
+		table->SetNames(player, names);
 	}
-
-	void RemotePlayerTable::SetLoop(const RemotePlayerHandle& player, bool value)
-	{
-		new RemotePlayerEvent_Param1<bool>(player, &RemotePlayer::SetLoop, value);
-	}
-
-	void RemotePlayerTable::SetFilename(const RemotePlayerHandle& player, const om::String& value)
-	{
-		new RemotePlayerEvent_Param1<const om::String&>(player, &RemotePlayer::SetFilename, value);
-	}
-
-	void RemotePlayerTable::SetVolumes(const RemotePlayerHandle& player, const dsp::MixVoiceChannelBinVolumes& value)
-	{
-		new RemotePlayerEvent_Param1<const dsp::MixVoiceChannelBinVolumes&>(player, &RemotePlayer::SetVolumes, value);
-	}
-
-	void RemotePlayerTable::SetChannelVolume(const RemotePlayerHandle& player, unsigned int channel, float volume)
-	{
-		new RemotePlayerEvent_Param2<unsigned int, float>(player, &RemotePlayer::SetChannelVolume, channel, volume);
-	}
-
-	void RemotePlayerTable::Stop(const RemotePlayerHandle& player)
-	{
-		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Stop, 0);
-	}
-
-	void RemotePlayerTable::SetPosition(const RemotePlayerHandle& player, const om::Vector& value)
-	{
-		new RemotePlayerEvent_Param1<const om::Vector&>(player, &RemotePlayer::SetPosition, value);
-	}
-
-	void RemotePlayerTable::SetVelocity(const RemotePlayerHandle& player, const om::Vector& value)
-	{
-		new RemotePlayerEvent_Param1<const om::Vector&>(player, &RemotePlayer::SetVelocity, value);
-	}
-
-	void RemotePlayerTable::SetUnknown474(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown474, value);
-	}
-
-	void RemotePlayerTable::SetUnknown478(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown478, value);
-	}
-
-	void RemotePlayerTable::SetUnknown498(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown498, value);
-	}
-
-	void RemotePlayerTable::SetUnknown49C(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown49C, value);
-	}
-
-	void RemotePlayerTable::SetUnknown51C(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown51C, value);
-	}
-
-	void RemotePlayerTable::SetUnknown530(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown530, value);
-	}
-
-	void RemotePlayerTable::SetUnknown484(const RemotePlayerHandle& player, float value)
-	{
-		new RemotePlayerEvent_Param1<float>(player, &RemotePlayer::SetUnknown484, value);
-	}
-
-	void RemotePlayerTable::SetNames(const RemotePlayerHandle& player, const om::DynamicArray<om::String, unsigned short>& value)
-	{
-		new RemotePlayerEvent_Param1<const om::DynamicArray<om::String, unsigned short>&>(player, &RemotePlayer::SetNames, value);
-	}
+#pragma inline_depth()
 
 	void RemotePlayerTable::SetMixBuses(const RemotePlayerHandle& player, const om::DynamicArray<om::String, unsigned short>& names)
 	{
@@ -255,3 +213,230 @@ template class om::DynamicArray<om::String, unsigned short>;
 // FUNCTION: ENGINE 0x104A5460
 // FUNCTION: ENGINE 0x104A5800
 // FUNCTION: ENGINE 0x104A5820
+
+namespace proto
+{
+	using audio::RemotePlayer;
+	using audio::RemotePlayerEvent_Param1;
+
+	// A new voice for a player of the class: the table makes it and answers the handle
+	unsigned int SoundPlayerHelicopter::CreatePlayer()
+	{
+		return audio::gRemotePlayers->Create(audio::RemotePlayerParams(6), 1, 1, 0, &typeid(SoundPlayerHelicopter), 1);
+	}
+
+	// FUNCTION: ENGINE 0x104A66B0
+	// NONMATCHING: 93.9 %, the engine stores the vftable later, between the stores of the members
+#ifdef NONMATCHING
+	SoundPlayerHelicopter::SoundPlayerHelicopter()
+	{
+		float half = engine::driving::gHalf;
+		float zero = 0.0f;
+		unknown28 = half;
+		unknown2C = half;
+		unknown30 = zero;
+		unknown34 = zero;
+		unknown48 = false;
+		unknown49 = false;
+		unknown4A = false;
+		unknown4C = 0;
+		unknown50 = 0;
+		player0C = CreatePlayer();
+		player10 = CreatePlayer();
+		player18 = CreatePlayer();
+		player14 = CreatePlayer();
+		player1C = CreatePlayer();
+		player20 = CreatePlayer();
+		player24 = CreatePlayer();
+		new RemotePlayerEvent_Param1<bool>(player0C, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player18, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player1C, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player0C, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player20, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player24, &RemotePlayer::SetLoop, true);
+	}
+#endif
+
+	SoundPlayerHelicopter::~SoundPlayerHelicopter()
+	{
+		audio::gRemotePlayers->Release(player1C);
+		audio::gRemotePlayers->Release(player14);
+		audio::gRemotePlayers->Release(player18);
+		audio::gRemotePlayers->Release(player0C);
+		audio::gRemotePlayers->Release(player10);
+		audio::gRemotePlayers->Release(player20);
+		audio::gRemotePlayers->Release(player24);
+	}
+
+	void SoundPlayerHelicopter::Slot4()
+	{
+		audio::RemotePlayerTable* table = audio::gRemotePlayers;
+		table->Stop(player14);
+		table->Stop(player18);
+		table->Stop(player0C);
+		table->Stop(player1C);
+		table->Stop(player10);
+		table->Stop(player20);
+		table->Stop(player24);
+	}
+
+	bool SoundPlayerHelicopter::Slot5()
+	{
+		audio::RemotePlayerEntry* entries = audio::gRemotePlayers->entries;
+		if (entries[player14.index].ready && entries[player18.index].ready && entries[player0C.index].ready && entries[player1C.index].ready
+			&& entries[player10.index].ready && entries[player20.index].ready && entries[player24.index].ready)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	void SoundPlayerHelicopter::SetUnknown49C(float value)
+	{
+		audio::RemotePlayerTable* table = audio::gRemotePlayers;
+		table->SetUnknown49C(player1C, value);
+		table->SetUnknown49C(player0C, value);
+		table->SetUnknown49C(player18, value);
+		table->SetUnknown49C(player14, value);
+		table->SetUnknown49C(player24, value);
+		table->SetUnknown49C(player20, value);
+	}
+
+	bool SoundPlayerHelicopter::Slot1(core::Name<core::CaseSensitiveKey>* name)
+	{
+		if (*name == engine::gPlay3)
+		{
+			unknown48 = true;
+			audio::gRemotePlayers->Start(player14);
+			audio::gRemotePlayers->Start(player18);
+			audio::gRemotePlayers->Start(player0C);
+			audio::gRemotePlayers->Start(player1C);
+			if (unknown49)
+			{
+				audio::gRemotePlayers->Start(player20);
+			}
+			if (unknown4A)
+			{
+				audio::gRemotePlayers->Start(player24);
+			}
+		}
+		else if (*name == engine::gStop2)
+		{
+			unknown48 = false;
+			audio::gRemotePlayers->Stop(player1C);
+			audio::gRemotePlayers->Stop(player14);
+			audio::gRemotePlayers->Stop(player18);
+			audio::gRemotePlayers->Stop(player0C);
+			audio::gRemotePlayers->Start(player10);
+			audio::gRemotePlayers->Stop(player20);
+			audio::gRemotePlayers->Stop(player24);
+		}
+		else if (*name == engine::gWinddown2)
+		{
+			audio::gRemotePlayers->SetUnknown49C(player10, ravenphysics::gDefaultMaxForce);
+			audio::gRemotePlayers->Start(player10);
+		}
+		return true;
+	}
+
+	unsigned int SoundPlayerVehicle::CreatePlayer()
+	{
+		return audio::gRemotePlayers->Create(audio::RemotePlayerParams(6), 1, 1, 0, &typeid(SoundPlayerVehicle), 1);
+	}
+
+	// FUNCTION: ENGINE 0x104A89E0
+	// NONMATCHING: 81.5 %, the engine stores the vftable later, between the stores of the members
+#ifdef NONMATCHING
+	SoundPlayerVehicle::SoundPlayerVehicle()
+	{
+		unknown1C = 0.0f;
+		unknown20 = 0.0f;
+		float hundred = gHundred;
+		unknown24 = hundred;
+		unknown28 = hundred;
+		unknown2C = hundred;
+		unknown30 = hundred;
+		float one = engine::driving::gOne;
+		unknown34 = one;
+		unknown38 = one;
+		unknown3C = 0;
+		unknown40 = 0;
+		playerC = CreatePlayer();
+		player10 = CreatePlayer();
+		player14 = CreatePlayer();
+		player18 = CreatePlayer();
+		new RemotePlayerEvent_Param1<bool>(playerC, &RemotePlayer::SetLoop, true);
+		new RemotePlayerEvent_Param1<bool>(player18, &RemotePlayer::SetLoop, true);
+	}
+#endif
+
+	SoundPlayerVehicle::~SoundPlayerVehicle()
+	{
+		audio::gRemotePlayers->Release(player18);
+		audio::gRemotePlayers->Release(playerC);
+		audio::gRemotePlayers->Release(player14);
+		audio::gRemotePlayers->Release(player10);
+	}
+
+	bool SoundPlayerVehicle::Slot1(core::Name<core::CaseSensitiveKey>* name)
+	{
+		if (*name == engine::gStartup2)
+		{
+			audio::gRemotePlayers->Start(playerC);
+			audio::gRemotePlayers->Start(player18);
+			audio::gRemotePlayers->Start(player14);
+		}
+		else if (*name == engine::gStop3)
+		{
+			audio::gRemotePlayers->Stop(playerC);
+			audio::gRemotePlayers->Stop(player18);
+			audio::gRemotePlayers->Stop(player14);
+			audio::gRemotePlayers->Stop(player10);
+		}
+		else if (*name == engine::gWinddown3)
+		{
+			audio::gRemotePlayers->Start(player10);
+			audio::gRemotePlayers->Start(playerC);
+			audio::gRemotePlayers->Stop(player18);
+		}
+		else if (*name == engine::gIdle2)
+		{
+			audio::gRemotePlayers->Start(playerC);
+			audio::gRemotePlayers->Stop(player18);
+		}
+		return true;
+	}
+
+	void SoundPlayerVehicle::Slot4()
+	{
+		audio::gRemotePlayers->Stop(playerC);
+		audio::gRemotePlayers->Stop(player18);
+		audio::gRemotePlayers->Stop(player14);
+		audio::gRemotePlayers->Stop(player10);
+	}
+
+	bool SoundPlayerVehicle::Slot5()
+	{
+		audio::RemotePlayerEntry* entries = audio::gRemotePlayers->entries;
+		if (entries[playerC.index].ready && entries[player18.index].ready && entries[player14.index].ready && entries[player10.index].ready)
+		{
+			return true;
+		}
+		return false;
+	}
+}
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104A5F70
+// FUNCTION: ENGINE 0x104A6010
+// FUNCTION: ENGINE 0x104A68A0
+// FUNCTION: ENGINE 0x104A68D0
+// FUNCTION: ENGINE 0x104A6C40
+// FUNCTION: ENGINE 0x104A6DC0
+// FUNCTION: ENGINE 0x104A71F0
+// FUNCTION: ENGINE 0x104A8840
+// FUNCTION: ENGINE 0x104A88A0
+// FUNCTION: ENGINE 0x104A8AF0
+// FUNCTION: ENGINE 0x104A8B20
+// FUNCTION: ENGINE 0x104A8F00
+// FUNCTION: ENGINE 0x104A8FF0
