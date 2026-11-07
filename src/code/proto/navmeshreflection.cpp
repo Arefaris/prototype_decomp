@@ -89,6 +89,62 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x1056CB40
+	content::MemberList* Edge::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<Edge, unsigned short, 0>("p"), PROTO_OFFSET(Edge, start), "start" },
+			{ content::GetMemberPrimitiveMetaType<Edge, unsigned short, 1>("p"), PROTO_OFFSET(Edge, ajacentArea),
+				"ajacentArea" },
+			{ content::GetMemberPrimitiveMetaType<Edge, unsigned short, 2>("p"), PROTO_OFFSET(Edge, intersectionIndex),
+				"intersectionIndex" },
+			{ content::GetMemberPrimitiveMetaType<Edge, unsigned char, 3>("p"), PROTO_OFFSET(Edge, numLanes),
+				"numLanes" },
+			{ content::GetArrayDynamicMetaType<Edge, LaneDataArray>(content::GetClassMetaType<LaneData>(), "p"),
+				PROTO_OFFSET(Edge, laneData), "laneData" }
+		};
+		sList.members = sMembers;
+		sList.count = 5;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1056D7F0
+	content::MemberList* Area::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<Area, unsigned short, 0>("p"), PROTO_OFFSET(Area, index), "index" },
+			{ content::GetEnumMetaType<AreaType>(), 0x20, "type" },
+			{ content::GetArrayDynamicMetaType<Area, EdgeArray>(content::GetClassMetaType<Edge>(), "p"),
+				PROTO_OFFSET(Area, edges), "edges" }
+		};
+		sList.members = sMembers;
+		sList.count = 3;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1056DFA0
+	content::MemberList* AmbientNavMesh::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetArrayDynamicMetaType<AmbientNavMesh, HackVectorArray>(content::GetClassMetaType<HackVector>(),
+				"p"), PROTO_OFFSET(AmbientNavMesh, vertices), "vertices" },
+			{ content::GetArrayDynamicMetaType<AmbientNavMesh, JointNameArray>(
+				content::GetNameMetaType<AmbientNavMesh>(true, true, "p"), "p"),
+				PROTO_OFFSET(AmbientNavMesh, intersectionNames), "intersectionNames" },
+			{ content::GetArrayDynamicMetaType<AmbientNavMesh, AreaArray>(content::GetClassMetaType<Area>(), "p"),
+				PROTO_OFFSET(AmbientNavMesh, areas), "areas" }
+		};
+		sList.members = sMembers;
+		sList.count = 3;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x10567F20
 	LaneData::LaneData() : currentLane(0), nextEdge(0), nextLane(0), nextLightIndex(0), active(1)
 	{
@@ -141,6 +197,16 @@ namespace proto
 	}
 }
 
+namespace content
+{
+#define PROTO_NAV_HELPER_SLOTS(ArrayType) 	int ArrayDynamicHelper<ArrayType>::Size(void* array) 	{ 		return ((ArrayType*)array)->Size(); 	} 	void* ArrayDynamicHelper<ArrayType>::Get(void* array, int index) 	{ 		return ((ArrayType*)array)->begin + index; 	} 	void* ArrayDynamicHelper<ArrayType>::GetConst(void* array, int index) 	{ 		return ((ArrayType*)array)->begin + index; 	} 	int ArrayDynamicHelper<ArrayType>::Capacity(void* array) 	{ 		return ((ArrayType*)array)->Capacity(); 	}
+
+	PROTO_NAV_HELPER_SLOTS(proto::LaneDataArray)
+	PROTO_NAV_HELPER_SLOTS(proto::EdgeArray)
+	PROTO_NAV_HELPER_SLOTS(proto::AreaArray)
+	PROTO_NAV_HELPER_SLOTS(proto::HackVectorArray)
+}
+
 // Kept copies (template instances and wrappers of this unit):
 // FUNCTION: ENGINE 0x10569E60
 // FUNCTION: ENGINE 0x10569EA0
@@ -156,3 +222,42 @@ namespace proto
 // FUNCTION: ENGINE 0x10569D60
 // FUNCTION: ENGINE 0x10569DA0
 // FUNCTION: ENGINE 0x10569DE0
+// FUNCTION: ENGINE 0x10569F20
+// FUNCTION: ENGINE 0x10569F60
+// FUNCTION: ENGINE 0x10569FA0
+// FUNCTION: ENGINE 0x10569FE0
+// FUNCTION: ENGINE 0x10569E20
+// FUNCTION: ENGINE 0x10568920
+// FUNCTION: ENGINE 0x10568940
+// FUNCTION: ENGINE 0x10568960
+// FUNCTION: ENGINE 0x105688C0
+// FUNCTION: ENGINE 0x10568910
+// FUNCTION: ENGINE 0x105688D0
+// FUNCTION: ENGINE 0x10568590
+// FUNCTION: ENGINE 0x1056B980
+// FUNCTION: ENGINE 0x1056B820
+// FUNCTION: ENGINE 0x1056B700
+// FUNCTION: ENGINE 0x1056B760
+// FUNCTION: ENGINE 0x1056B7C0
+// FUNCTION: ENGINE 0x1056B670
+// FUNCTION: ENGINE 0x1056C7D0
+// FUNCTION: ENGINE 0x1056A4F0
+// FUNCTION: ENGINE 0x1056A510
+// FUNCTION: ENGINE 0x1056A7E0
+// FUNCTION: ENGINE 0x1056A800
+// FUNCTION: ENGINE 0x1056A450
+// FUNCTION: ENGINE 0x1056A4A0
+// FUNCTION: ENGINE 0x1056A480
+// FUNCTION: ENGINE 0x1056A6B0
+// FUNCTION: ENGINE 0x1056A210
+// FUNCTION: ENGINE 0x1056A250
+// FUNCTION: ENGINE 0x1056A230
+// FUNCTION: ENGINE 0x1056A690
+// FUNCTION: ENGINE 0x1056A610
+// FUNCTION: ENGINE 0x1056A080
+// FUNCTION: ENGINE 0x1056A640
+// FUNCTION: ENGINE 0x1056A660
+// FUNCTION: ENGINE 0x105689B0
+// FUNCTION: ENGINE 0x105689E0
+// FUNCTION: ENGINE 0x10568A20
+// FUNCTION: ENGINE 0x10568DF0

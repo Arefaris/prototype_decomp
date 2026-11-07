@@ -13,8 +13,9 @@
 namespace proto
 {
 	// A vertex of the mesh (three floats; RTTI proto::HackVector)
-	struct HackVector
+	class HackVector
 	{
+public:
 		// 0x10567D90
 		static content::ClassInfo* GetClassInfo();
 		// 0x1056AB70
@@ -64,41 +65,20 @@ namespace proto
 	typedef container::ArrayDynamic<HackVector, container::AllocatorNew> HackVectorArray;
 
 	// One edge of an area (RTTI proto::Edge, 0x1C bytes): the vertex it starts at, the area behind it and its lanes
-	struct Edge
+	class Edge
 	{
-		Edge()
-		{
-		}
-		Edge(const Edge& other) : laneData(other.laneData)
-		{
-			CopyFields(other);
-		}
-		Edge& operator=(const Edge& other)
-		{
-			laneData = other.laneData;
-			CopyFields(other);
-			return *this;
-		}
-
+	public:
 		// 0x10567ED0
 		static content::ClassInfo* GetClassInfo();
 		// 0x1056CB40
 		static content::MemberList* GetMembers();
-
-		void CopyFields(const Edge& other)
-		{
-			start = other.start;
-			intersectionIndex = other.intersectionIndex;
-			ajacentArea = other.ajacentArea;
-			numLanes = other.numLanes;
-		}
 
 		unsigned short start;  // +0
 		unsigned short intersectionIndex;  // +2
 		unsigned short ajacentArea;  // +4
 		unsigned char numLanes;  // +6
 		unsigned char unknown7;
-		unsigned char unknown8[4];
+		int unknown8;
 		LaneDataArray laneData;  // +0xC
 		int unknown18;  // behind the array: its allocator word
 	};
@@ -107,22 +87,9 @@ namespace proto
 
 	// An area of the mesh (RTTI proto::Area, 0x40 bytes: the record navarea.h calls NavArea and navmesh.h calls
 	// NavMeshHull is this one)
-	struct Area
+	class Area
 	{
-		Area()
-		{
-		}
-		Area(const Area& other) : edges(other.edges)
-		{
-			CopyFields(other);
-		}
-		Area& operator=(const Area& other)
-		{
-			edges = other.edges;
-			CopyFields(other);
-			return *this;
-		}
-
+	public:
 		// The kinds of area (reflected as proto::Area::AreaType)
 		enum AreaType
 		{
@@ -142,11 +109,6 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		// 0x1056D7F0
 		static content::MemberList* GetMembers();
-
-		void CopyFields(const Area& other)
-		{
-			unknown10[0] = other.unknown10[0];
-		}
 
 		EdgeArray edges;  // +0
 		int unknownC;  // behind the array: its allocator word
@@ -175,7 +137,21 @@ namespace proto
 		unsigned char unknown28[0x10];
 		AreaArray areas;  // +0x38
 		int unknown44;
+		void* unknown48;  // the object the destructor deletes
 	};
+}
+
+// The engine's element helpers of the four arrays (one copy of each slot, in the unit of the navigation mesh
+// reflection): the slots that compare are written in navmeshreflection.cpp, the others (Insert, Erase and Expand,
+// which move elements) are the engine's own and only declared here.
+#define PROTO_NAV_ARRAY_HELPER(ArrayType) 	template<> class ArrayDynamicHelper<ArrayType> : public ArrayDynamicHelperBase 	{ 	public: 		virtual int Size(void* array); 		virtual void* Get(void* array, int index); 		virtual void* GetConst(void* array, int index); 		virtual void Insert(void* array, int index, int unused); 		virtual void Erase(void* array, int index, int unused); 		virtual int Capacity(void* array); 		virtual void Expand(void* array, unsigned int count); 	};
+
+namespace content
+{
+	PROTO_NAV_ARRAY_HELPER(proto::LaneDataArray)
+	PROTO_NAV_ARRAY_HELPER(proto::EdgeArray)
+	PROTO_NAV_ARRAY_HELPER(proto::AreaArray)
+	PROTO_NAV_ARRAY_HELPER(proto::HackVectorArray)
 }
 
 #endif
