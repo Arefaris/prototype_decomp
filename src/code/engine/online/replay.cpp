@@ -87,14 +87,14 @@ namespace engine
 		}
 	}
 
-	void Replay::Unknown108C2860()
+	void Replay::AddListener(IReplayListener* listener)
 	{
-		driver->Unknown10900450();
+		driver->AddListener(listener);
 	}
 
-	void Replay::Unknown108C2870()
+	void Replay::RemoveListener(IReplayListener* listener)
 	{
-		driver->Unknown10900480();
+		driver->RemoveListener(listener);
 	}
 
 	void Replay::SetFileName(const char* newName)
@@ -284,8 +284,8 @@ template void engine::LuaScriptManager::RegisterMethod<engine::Replay, void>(con
 // FUNCTION: ENGINE 0x108C2810 @ void engine::ReplaySimDriver::SetFlagA6(bool)
 // FUNCTION: ENGINE 0x108C2820 @ bool engine::ReplaySimDriver::GetFlagA9(void)const 
 // FUNCTION: ENGINE 0x108C2830 @ void engine::Replay::SetState(int,int,int)
-// FUNCTION: ENGINE 0x108C2860 @ void engine::Replay::Unknown108C2860(void)
-// FUNCTION: ENGINE 0x108C2870 @ void engine::Replay::Unknown108C2870(void)
+// FUNCTION: ENGINE 0x108C2860 @ void engine::Replay::AddListener(struct engine::IReplayListener *)
+// FUNCTION: ENGINE 0x108C2870 @ void engine::Replay::RemoveListener(struct engine::IReplayListener *)
 // FUNCTION: ENGINE 0x108C2880 @ void engine::Replay::SetFileName(char const *)
 // FUNCTION: ENGINE 0x108C28A0 @ char const * engine::Replay::GetFileName(void)
 // FUNCTION: ENGINE 0x108C28B0 @ bool engine::Replay::Query(int,int)
