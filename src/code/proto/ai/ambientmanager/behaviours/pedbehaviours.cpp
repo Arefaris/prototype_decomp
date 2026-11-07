@@ -116,3 +116,16 @@ namespace proto
 		return &sList;
 	}
 }
+
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1042F190
+// FUNCTION: ENGINE 0x1042F1A0
+// FUNCTION: ENGINE 0x1042F1D0
+// FUNCTION: ENGINE 0x1042F1E0
+// FUNCTION: ENGINE 0x1042FCA0
+// FUNCTION: ENGINE 0x1042FCB0
+// FUNCTION: ENGINE 0x104341F0
+// FUNCTION: ENGINE 0x10434200
+// FUNCTION: ENGINE 0x10434270
+// FUNCTION: ENGINE 0x10434280
