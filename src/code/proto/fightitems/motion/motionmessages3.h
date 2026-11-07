@@ -16,14 +16,14 @@ namespace proto
 	struct SetGrabbingTimerGrabMessage : public proto::GrabMessage
 	{
 	public:
-		SetGrabbingTimerGrabMessage(int vC, bool v10) : GrabMessage(11), unknownC(vC), unknown10(v10)
+		SetGrabbingTimerGrabMessage(float vC, bool v10) : GrabMessage(11), unknownC(vC), unknown10(v10)
 		{
 		}
 		virtual ~SetGrabbingTimerGrabMessage()
 		{
 		}
 
-		int unknownC;  // +0xC
+		float unknownC;  // +0xC
 		bool unknown10;  // +0x10
 	};
 

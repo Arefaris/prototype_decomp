@@ -1,6 +1,9 @@
 // Fight items of the motion group: GrabSlotUpdateAttachmentWithRestoreTrack, GrabSlotDetachThrowTrack, GrabSlotDetachTrack, GrabSetGrabbingTimerTrack, GrabSlotSwapTrack, GrabSlotReverseAttachmentTrack, GrabbedExecuteUsingParentTrack, GrabbedSwapGrabberSlotsTrack, GrabButtonStruggleTrack, GrabbedDetachTrack, GrabObjectFromChildGrabSlotTrack, GrabSlotExecuteTrack, GrabTargetClearTrack, GrabSlotDeathTrack, ReactionHitGrabTrack, SetGrabIntersectionPropertiesTrack, GrabbedPlaybackTrack, AllowGrabbingTrack, DelayCollisionWithGrabbedTrack, GrabObjectFromParentGrabSlotTrack, GrabSlotExecuteUsingChildTrack, GrabbedUpdateAttachmentTrack, GrabGrabTargetTrack, GrabSlotUpdateAttachmentTrack, GrabPlayerTrack, GrabbedExecuteOnParentTrack, GrabSlotEnableStuckTestTrack (unit 0x10169790 - 0x10173B80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabtrack.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/proto/fightitems/motion/motion_grabcondition.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -3624,6 +3627,123 @@ namespace proto
 				return new ReactionHitGrabAction(this, owner);
 			}
 
+			// FUNCTION: ENGINE 0x100C6860
+			bool GrabbedDetachAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					proto::DetachGrabbedObject(object);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100C9530
+			// NONMATCHING: shrink-wrap; the engine saves esi in the entry block before the early-exit branch, ours after the lookup (86.6 %)
+#ifdef NONMATCHING
+			bool GrabSlotDetachAction::Slot5(int arg, float value)
+			{
+				GrabSlotDetachTrack* track = link.Get();
+				if (track != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::GameObjectHandle none;
+						SetGrabbedObjectMessage message(&track->grabSlot, none, 0);
+						object->SendMessage(&message);
+						return false;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100CA570
+			bool GrabSlotSwapAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SwapGrabSlotsMessage message(&link.Get()->slotA, &link.Get()->slotB);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100CB9C0
+			bool GrabSetGrabbingTimerAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetGrabbingTimerGrabMessage message(link.Get()->duration, link.Get()->isGrabAttack);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100C4D60
+			void AllowGrabbingAction::SetAllowGrabbing(engine::GameObject* object, bool allow)
+			{
+				SetAllowGrabbingMessage message(allow);
+				object->SendMessage(&message);
+			}
+
+			// FUNCTION: ENGINE 0x100CB5E0
+			bool AllowGrabbingAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				GetAllowGrabbingMessage message;
+				object->SendMessage(&message);
+				unknown2C = message.allow;
+				switch (link.Get()->onBegin)
+				{
+				case 1:
+					SetAllowGrabbing(object, true);
+					break;
+				case 2:
+					SetAllowGrabbing(object, false);
+					break;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100CB6C0
+			void AllowGrabbingAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.Get() != 0)
+				{
+					switch (link.Get()->onEnd)
+					{
+					case 0:
+						SetAllowGrabbing(object, unknown2C);
+						break;
+					case 1:
+						SetAllowGrabbing(object, true);
+						break;
+					case 2:
+						SetAllowGrabbing(object, false);
+						break;
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -3816,7 +3936,15 @@ namespace proto
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C4110
 // FUNCTION: ENGINE 0x100C4140
+// FUNCTION: ENGINE 0x100C4150
+// FUNCTION: ENGINE 0x100C4190
+// FUNCTION: ENGINE 0x100C41D0
+// FUNCTION: ENGINE 0x100C4F90
+// FUNCTION: ENGINE 0x100C4FC0
+// FUNCTION: ENGINE 0x100C5030
+// FUNCTION: ENGINE 0x100C5110
 // FUNCTION: ENGINE 0x100C5220
 // FUNCTION: ENGINE 0x100C5250
 // FUNCTION: ENGINE 0x100C5270
@@ -3839,12 +3967,15 @@ namespace proto
 // FUNCTION: ENGINE 0x100C5490
 // FUNCTION: ENGINE 0x100C54B0
 // FUNCTION: ENGINE 0x100C54D0
+// FUNCTION: ENGINE 0x100C5590
 // FUNCTION: ENGINE 0x100C55A0
 // FUNCTION: ENGINE 0x100C5600
+// FUNCTION: ENGINE 0x100C5650
 // FUNCTION: ENGINE 0x100C5660
 // FUNCTION: ENGINE 0x100C56C0
 // FUNCTION: ENGINE 0x100C5720
 // FUNCTION: ENGINE 0x100C5780
+// FUNCTION: ENGINE 0x100C57D0
 // FUNCTION: ENGINE 0x100C57E0
 // FUNCTION: ENGINE 0x100C5840
 // FUNCTION: ENGINE 0x100C58A0

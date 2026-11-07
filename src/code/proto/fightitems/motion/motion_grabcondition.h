@@ -12,6 +12,8 @@ namespace proto
 	bool IsGrabbedObject(engine::GameObject* object);
 	// 0x103BE560: the game object that holds a grabbed object (name guess)
 	engine::GameObject* GetGrabbingObject(engine::GameObject* object);
+	// 0x103BE920: lets a grabbed object go (name guess)
+	void DetachGrabbedObject(engine::GameObject* object);
 	// 0x10078F70
 	bool IsPlayerObject(engine::GameObject* object);
 }

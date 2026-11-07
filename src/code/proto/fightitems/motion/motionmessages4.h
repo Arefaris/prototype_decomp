@@ -7,6 +7,7 @@
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/core/name.h"
 #include "code/proto/fightitems/motion/motionmessages2.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 
 namespace proto
 {
@@ -51,6 +52,65 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> className;  // +0x10
 		bool unknown18;  // +0x18
 		int unknown1C;
+	};
+
+	// RTTI: proto::SetGrabbedObjectMessage: gives the object an object to hold in a named grab slot
+	class SetGrabbedObjectMessage : public GrabMessage
+	{
+	public:
+		SetGrabbedObjectMessage(const core::Name<core::CaseSensitiveKey>* newSlot, engine::GameObjectHandle newObject, int v14) : GrabMessage(1), slot(newSlot), object(newObject), unknown14(v14)
+		{
+		}
+		virtual ~SetGrabbedObjectMessage()
+		{
+		}
+
+		const core::Name<core::CaseSensitiveKey>* slot;  // +0xC
+		engine::GameObjectHandle object;  // +0x10
+		int unknown14;
+	};
+
+	// RTTI: proto::SwapGrabSlotsMessage: swaps what two grab slots hold
+	class SwapGrabSlotsMessage : public GrabMessage
+	{
+	public:
+		SwapGrabSlotsMessage(const core::Name<core::CaseSensitiveKey>* newSlotA, const core::Name<core::CaseSensitiveKey>* newSlotB) : GrabMessage(6), slotA(newSlotA), slotB(newSlotB)
+		{
+		}
+		virtual ~SwapGrabSlotsMessage()
+		{
+		}
+
+		const core::Name<core::CaseSensitiveKey>* slotA;  // +0xC
+		const core::Name<core::CaseSensitiveKey>* slotB;  // +0x10
+	};
+
+	// RTTI: proto::SetAllowGrabbingMessage: allows grabs of the object or not
+	class SetAllowGrabbingMessage : public GrabbableMessage
+	{
+	public:
+		explicit SetAllowGrabbingMessage(bool newAllow) : GrabbableMessage(2), allow(newAllow)
+		{
+		}
+		virtual ~SetAllowGrabbingMessage()
+		{
+		}
+
+		bool allow;  // +0xC
+	};
+
+	// RTTI: proto::GetAllowGrabbingMessage: the object answers whether grabs are allowed
+	class GetAllowGrabbingMessage : public GrabbableMessage
+	{
+	public:
+		GetAllowGrabbingMessage() : GrabbableMessage(3), allow(true)
+		{
+		}
+		virtual ~GetAllowGrabbingMessage()
+		{
+		}
+
+		bool allow;  // +0xC
 	};
 }
 
