@@ -7566,3 +7566,18 @@ Second pass over the instances of sn-bd (see there); 254 functions of the range 
   `ReadBinary`, `WriteBinary`, `Append` of the byte arrays and `DeleteValue<float>` (one argument in the engine) did not reach 100 %.
 - Shared header changes: `mgraph/nodes.h` (`PinDataTypeBase`, `PinDataType`, `Packet`, `PacketBlock`, `TriggerData::operator=`, `Vector(float, float,
   float)`, `Complex` allocation), `mgraph/throw.h` (the Assign casts), `mgraph/envelope.h` (allocation), `om/dynamicarray.h` (`::new`).
+## mgraph 0x10B00000 - 0x10B20000, second pass (sn-cx)
+- `mgraph/nodetypes.cpp`: `NodeType<N>::Destroy()` for 79 node classes (the property node base, the math nodes, `Rand`, `Throw` / `Catch`,
+  `ListCount` / `ListEntry` / `Switch`): the engine's static that finds the node type through `NodeTypeCache<N>` and deletes it.
+- `mgraph/pins.h`: the engine's connections and abstract pins have implicit destructors (no vftable store: the scalar deleting destructor calls the
+  base destructor straight), so the explicit `{}` destructors of `ConcreteToConcrete` / `AbstractToConcrete` / `AbstractToAbstract` / `ConcreteToAbstract`
+  `GraphConnection<P>`, their `...Base` classes, `ContextConnection<P>`, `AbstractInputPin<P>` and `AbstractOutputPin<P>` are gone; with them the
+  scalar deleting destructors and the destructors (a `jmp` to the base destructor, one per class and type) of these classes are 100 % and mapped in
+  symbols.txt (115 mapped functions). `ContextConnection<P>::Create` (name guessed; 11 types: allocates "Event" from the connection owner's allocator
+  when the input pin may take a connection) is new, `PinAllocator::Slot1` is `Allocate`, `ConcreteInputPinBase::unknown28` is two words.
+- The scalar deleting destructors of `Packet<DynamicArray<E>>` (0x10B05520 ...) are 73 - 81 % (the engine inlines the array release with other registers): left to the engine.
+- Not done: the `Inlet<P>` / `Outlet<P>` nodes (constructors, destructors, slots 12, 13, 23, 24 of 97 - 130 bytes: they need the graph's node
+  iteration functions of 0x10AC6B90 - 0x10ACCDA0), the 2nd copies of template instances that the engine keeps once per translation unit
+  (`DynamicArray<E>` constructors, `ReleaseElements`, `Packet<T>` constructors at 0x10B00530 / 0x10B00560 are second copies of 0x10B33... / 0x10B356F0:
+  one name cannot be mapped to two addresses), the 3 - 30 byte kept copies without a class (accessors, `ret` stubs), `OutputPin<P>` constructors,
+  `PropertyPropertyDelegate::CreateDelegate`.

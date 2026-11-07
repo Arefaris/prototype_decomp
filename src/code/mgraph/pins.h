@@ -5,6 +5,7 @@
 #ifndef MGRAPH_PINS_H
 #define MGRAPH_PINS_H
 
+#include <new>
 #include "code/mgraph/nodes.h"
 
 namespace mgraph
@@ -95,7 +96,8 @@ namespace mgraph
 		virtual void SetChannelOwner(void* newOwner) = 0;
 		virtual bool IsChannelOwner(void* checkOwner) = 0;
 
-		char unknown28[8];
+		unsigned int unknown28;
+		unsigned int unknown2C;
 	};
 
 	class ConcreteOutputPinBase : public OutputPinBase
@@ -150,27 +152,18 @@ namespace mgraph
 	{
 	public:
 		AbstractToConcreteGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~AbstractToConcreteGraphConnectionBase()
-		{
-		}
 	};
 
 	class ConcreteToAbstractGraphConnectionBase : public GraphConnectionBase
 	{
 	public:
 		ConcreteToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~ConcreteToAbstractGraphConnectionBase()
-		{
-		}
 	};
 
 	class AbstractToAbstractGraphConnectionBase : public GraphConnectionBase
 	{
 	public:
 		AbstractToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~AbstractToAbstractGraphConnectionBase()
-		{
-		}
 	};
 
 	// The connection a context keeps for the pin of a graph (RTTI: mgraph::ContextConnectionBase). Slot 0 destroys it
@@ -179,7 +172,8 @@ namespace mgraph
 	{
 	public:
 		virtual void Slot0();
-		virtual void Slot1();
+		// Slot 1: memory for an object (the tag names what it is for)
+		virtual void* Allocate(const char* tag, unsigned int size, unsigned int alignment);
 		virtual void Release(void* memory, unsigned int size, unsigned int alignment);
 	};
 
@@ -211,9 +205,6 @@ namespace mgraph
 			GraphConnectionBase(newFrom, newTo)
 		{
 		}
-		virtual ~ConcreteToConcreteGraphConnection()
-		{
-		}
 		OM_ALLOCATION(ConcreteToConcreteGraphConnection);
 	};
 	template<class P> const char* ConcreteToConcreteGraphConnection<P>::AllocationTag()
@@ -226,9 +217,6 @@ namespace mgraph
 	public:
 		AbstractToConcreteGraphConnection(Pin* newFrom, Pin* newTo) :
 			AbstractToConcreteGraphConnectionBase(newFrom, newTo)
-		{
-		}
-		virtual ~AbstractToConcreteGraphConnection()
 		{
 		}
 		OM_ALLOCATION(AbstractToConcreteGraphConnection);
@@ -245,9 +233,6 @@ namespace mgraph
 			AbstractToAbstractGraphConnectionBase(newFrom, newTo)
 		{
 		}
-		virtual ~AbstractToAbstractGraphConnection()
-		{
-		}
 		OM_ALLOCATION(AbstractToAbstractGraphConnection);
 	};
 	template<class P> const char* AbstractToAbstractGraphConnection<P>::AllocationTag()
@@ -260,9 +245,6 @@ namespace mgraph
 	public:
 		ConcreteToAbstractGraphConnection(Pin* newFrom, Pin* newTo) :
 			ConcreteToAbstractGraphConnectionBase(newFrom, newTo)
-		{
-		}
-		virtual ~ConcreteToAbstractGraphConnection()
 		{
 		}
 		OM_ALLOCATION(ConcreteToAbstractGraphConnection);
@@ -386,9 +368,6 @@ namespace mgraph
 			AbstractInputPinBase(newNode, 1, newName, newIndex)
 		{
 		}
-		virtual ~AbstractInputPin()
-		{
-		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
@@ -436,9 +415,6 @@ namespace mgraph
 			AbstractOutputPinBase(newNode, newName, newIndex)
 		{
 		}
-		virtual ~AbstractOutputPin()
-		{
-		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
@@ -467,14 +443,22 @@ namespace mgraph
 		{
 		}
 		virtual void Destroy();
-		virtual ~ContextConnection()
-		{
-		}
+		// Makes the connection of an input pin in a context, which allocates it from its connection owner (name guessed)
+		static ContextConnection* Create(ConnectionOwner* creator, void* argument, ConcreteInputPinBase* inputPin);
 		OM_ALLOCATION(ContextConnection);
 	};
 	template<class P> const char* ContextConnection<P>::AllocationTag()
 	{
 		return "";
+	}
+	template<class P> ContextConnection<P>* ContextConnection<P>::Create(ConnectionOwner* creator, void* argument, ConcreteInputPinBase* inputPin)
+	{
+		if (inputPin->unknown20 != 1 && inputPin->unknown28 != 0 && inputPin->unknown28 - 4 != 0)
+		{
+			return 0;
+		}
+		void* memory = creator->allocator.Allocate("Event", sizeof(ContextConnection), __alignof(ContextConnection));
+		return ::new (memory) ContextConnection(creator, argument, inputPin);
 	}
 	template<class P> void ContextConnection<P>::Destroy()
 	{

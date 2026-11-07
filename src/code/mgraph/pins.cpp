@@ -1540,6 +1540,28 @@ namespace mgraph
 	template mgraph::Packet<DynamicArray<float,unsigned short> >::Packet();
 	// FUNCTION: ENGINE 0x10B59D90
 	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B0BA60
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0C440
+	template mgraph::ContextConnection<mgraph::Packet<unsigned int> >* mgraph::ContextConnection<mgraph::Packet<unsigned int> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0CB30
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0D270
+	template mgraph::ContextConnection<mgraph::Packet<unsigned __int64> >* mgraph::ContextConnection<mgraph::Packet<unsigned __int64> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0D990
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0E120
+	template mgraph::ContextConnection<mgraph::Packet<String> >* mgraph::ContextConnection<mgraph::Packet<String> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0E860
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0EFA0
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0F700
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B0FE50
+	template mgraph::ContextConnection<mgraph::Packet<Complex> >* mgraph::ContextConnection<mgraph::Packet<Complex> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B10590
+	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
 }
 
 namespace om
