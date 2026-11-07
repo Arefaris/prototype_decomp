@@ -1,5 +1,8 @@
 // Fight items of the motion group: SupportingLimbTestSurfaceNormalVelocityArcCondition, SupportingLimbTestSurfaceNormalAngleCondition, SupportingLimbSurfaceIntersectionPropertiesCondition, SupportingLimbTestSurfaceVelocityAngleCondition, SupportingLimbTestTimeToImpactCondition, SupportingSurfaceNormalVelocityArcCondition, SupportingSurfaceConditionGroupCondition, SupportingLimbTestSurfaceDistanceCondition, SupportingLimbTestSwitchSurfacesCondition, SupportingLimbTestSurfaceConditionGroupCondition, SupportingLimbSetActiveTrack, SupportingLimbTestTrack, SupportingLimbSetActiveRangeTrack, SurfaceMoveAtVelocityTrack, SupportingLimbSetDirectionTrack (unit 0x101B7170 - 0x101BBA40; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_supportinglimb.h"
+#include "code/engine/physics/supportinglimb.h"
+#include "code/math/worldbounds.h"
+#include "code/engine/physics/supportinglimbmessages.h"
 
 namespace proto
 {
@@ -1377,6 +1380,64 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
 				return new SupportingLimbSetActiveRangeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1011ACE0
+			// NONMATCHING: the engine loads the first component before the constant (xmm2 before xmm0), ours the constant first (best 97 %)
+#ifdef NONMATCHING
+			void SupportingLimbSetActiveRangeAction::SetActiveLimb(engine::GameObject* object, const fight::Name* name)
+			{
+				if (!name->IsEmpty())
+				{
+					engine::FindSupportingLimbMessage find(*name);
+					object->SendMessage(&find);
+					engine::SupportingLimb* limb = find.limb;
+					engine::SupportingLimbSetActiveMessage setActive(limb);
+					object->SendMessage(&setActive);
+					if (limb != 0 && limb->limbDef != 0 && limb->limbDef->smoothRestingLength)
+					{
+						const math::Matrix& matrix = object->transform->value;
+						math::Vector up(matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]);
+						float zero = math::WORLD_MIN;
+						math::Vector down;
+						down.x = zero - up.x;
+						down.y = zero - up.y;
+						down.z = zero - up.z;
+						limb->castDirection.x = down.x;
+						limb->castDirection.y = down.y;
+						limb->castDirection.z = down.z;
+					}
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1011D870
+			bool SupportingLimbSetActiveRangeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetActiveLimb(object, &link.object->onBegin);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1011D8D0
+			void SupportingLimbSetActiveRangeAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetActiveLimb(object, &link.object->onEnd);
+					}
+				}
 			}
 
 			// FUNCTION: ENGINE 0x1011C340

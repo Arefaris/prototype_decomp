@@ -583,6 +583,9 @@ namespace proto
 				// vftable slot 6 (0x1011D8D0)
 				virtual void Slot6();
 
+				// 0x1011ACE0: makes the named limb the object's active one and points its cast down along the object's up axis (name guess)
+				void SetActiveLimb(engine::GameObject* object, const fight::Name* name);
+
 				core::Link<SupportingLimbSetActiveRangeTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 			};
