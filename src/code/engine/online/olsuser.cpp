@@ -28,6 +28,7 @@ namespace engine
 #ifdef NONMATCHING
 	OLSUserRecord::OLSUserRecord()
 	{
+		controller = 0xffffffff;
 		unknown30 = 0;
 		values = 0;
 		unknown14 = 0;
@@ -36,10 +37,10 @@ namespace engine
 		flags = 0;
 		unknown24 = 0;
 		valueCount = 0;
-		controller = 0xffffffff;
 		name.Allocate(0x20);
 		Reset();
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x10887B70
 	OLSUserRecord::~OLSUserRecord()
