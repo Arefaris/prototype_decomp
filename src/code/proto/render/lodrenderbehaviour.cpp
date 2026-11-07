@@ -433,11 +433,11 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x102DB450
-	void LODRenderBehaviour::SetBound(unsigned char bound)
+	void LODRenderBehaviour::SetBound(bool bound)
 	{
 		if (bound != (flags & 1))
 		{
-			flags = ((flags ^ bound) & 1) ^ flags;
+			flags = ((flags ^ (int)bound) & 1) ^ flags;
 			if (level != 0)
 			{
 				ResetLevels();
@@ -484,6 +484,24 @@ namespace proto
 			PickPaletteEntry();
 		}
 	}
+
+	// FUNCTION: ENGINE 0x102D9B50
+	// NONMATCHING: the steps of the inlined generator are the engine's; the engine keeps the generator's address and the
+	// second state in other registers (about 36 %)
+#ifdef NONMATCHING
+	void LODRenderBehaviour::PickPaletteEntry()
+	{
+		if (available != 0)
+		{
+			availableIndex = paletteIndexSource->value;
+			if (availableIndex < 0 || availableIndex >= (int)available->data.Size())
+			{
+				availableIndex = math::gRandom->Next() % available->data.Size();
+			}
+			ApplyAvailablePalette();
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x102DB9F0
 	void LODRenderBehaviour::AddLevel(const LODReady* readyItem)
@@ -909,3 +927,5 @@ namespace proto
 // FUNCTION: ENGINE 0x102D98F0
 // FUNCTION: ENGINE 0x102DAA60
 // FUNCTION: ENGINE 0x102DB490
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):

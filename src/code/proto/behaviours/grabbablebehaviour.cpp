@@ -9,6 +9,41 @@ namespace proto
 #define PROTO_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+	// FUNCTION: ENGINE 0x102C5410
+	GrabbableBehaviour::GrabbableBehaviour(engine::GameObject* newOwner) : engine::animation::AttachableBehaviour(newOwner),
+		uninterruptible(0), unknown54(0), grabbingForbidden(false), unknown59(false)
+	{
+		Listen(0x3C, true);
+		Listen(0xF, true);
+		Listen(2, true);
+	}
+
+	// FUNCTION: ENGINE 0x102C5480
+	GrabbableBehaviour::~GrabbableBehaviour()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x102C4FB0
+	void GrabbableBehaviour::Slot1()
+	{
+		unknown59 = grabbingForbidden;
+		engine::animation::AttachableBehaviour::Slot1();
+	}
+
+	// FUNCTION: ENGINE 0x102C5070
+	void GrabbableBehaviour::Slot8()
+	{
+		Listen(4, false);
+		unknown59 = grabbingForbidden;
+	}
+
+	// FUNCTION: ENGINE 0x102C54E0
+	GrabbableStaticBehaviour::GrabbableStaticBehaviour(engine::GameObject* newOwner) : GrabbableBehaviour(newOwner),
+		playbackTreeName("", 1), playbackTreeState("initial", 1), spawnedObjectTemplate(0), parentTransitionState(0),
+		childTransitionState(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x102C4F30
 	content::ClassInfo* GrabbableBehaviour::GetClassInfo()
 	{
@@ -52,7 +87,18 @@ namespace proto
 	struct TransitionStateRef
 	{
 		static void Assign(engine::UnpackedInitialState*& pointer, engine::UnpackedInitialState* object);
+		static void Release(engine::UnpackedInitialState*& pointer);
 	};
+
+	// FUNCTION: ENGINE 0x102C5230
+	void TransitionStateRef::Release(engine::UnpackedInitialState*& pointer)
+	{
+		if (pointer != 0)
+		{
+			pointer->Release();
+			pointer = 0;
+		}
+	}
 
 	// FUNCTION: ENGINE 0x102C5250
 	void TransitionStateRef::Assign(engine::UnpackedInitialState*& pointer, engine::UnpackedInitialState* object)
@@ -66,6 +112,20 @@ namespace proto
 			pointer->Release();
 		}
 		pointer = object;
+	}
+
+	// FUNCTION: ENGINE 0x102C5090
+	void GrabbableStaticBehaviour::Slot1()
+	{
+		GrabbableBehaviour::Slot1();
+	}
+
+	// FUNCTION: ENGINE 0x102C5540
+	GrabbableStaticBehaviour::~GrabbableStaticBehaviour()
+	{
+		core::SafeRelease(spawnedObjectTemplate);
+		TransitionStateRef::Release(parentTransitionState);
+		TransitionStateRef::Release(childTransitionState);
 	}
 
 	// FUNCTION: ENGINE 0x102C5580
@@ -150,3 +210,8 @@ namespace proto
 // FUNCTION: ENGINE 0x102C5A20
 // FUNCTION: ENGINE 0x102C5A80
 // FUNCTION: ENGINE 0x102C5B10
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102C4E10
+// FUNCTION: ENGINE 0x102C5840
+// FUNCTION: ENGINE 0x102C59F0

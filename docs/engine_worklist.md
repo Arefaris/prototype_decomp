@@ -7368,6 +7368,11 @@ classes the units do not name; those stay open.
   registers) and `OnPlaybackMessage` (31 %). Not done: the destructor (the arrays are `ArrayDynamic` + a word in the engine, not `ArrayDynamicHeap`), `OnMessage`, the streaming load 0x102DBA70, the accessor based reflection, `PickPaletteEntry`.
 - `proto/render/deformshaderbehaviour.h/.cpp`: the behaviour owns a `DeformShaderModifier` at +0xC (members `current`), constructor, destructor, `OnMessage`, `ClearDents`, `GetDrawable` (with `GetHighLODMessage`),
   `DentBuffer::Clear`; `DentBuffer::operator=` is NONMATCHING (70 %, the middle of the source is formed in another register); `AddCollisionDent` (0x102D44B0, 680 bytes of matrix work) is declared and left to the engine.
+- `proto/behaviours/grabbablebehaviour.h/.cpp`: `GrabbableBehaviour` and `GrabbableStaticBehaviour` have their constructors, destructors, `Slot1` / `Slot8`, the static one's `Slot1` (a jump to the base's) and the unit's own release helper of
+  the transition states (`TransitionStateRef::Release`); `OnMessage`, `Slot9` and the other slots are declared and left to the engine. `engine::animation::AttachableBehaviour` (reflectedclasses2.h) declares its destructor and
+  slots 1, 4, 5 and 6 (mapped in symbols.txt) so that the grab classes' vftables are right.
+- `proto/behaviours/shieldhitreactionbehaviour.cpp`: `OnHitsBegin`, `OnHitsEnd` and `OnMessage` match; `OnAttachmentMessage` (0x102C4B10) is NONMATCHING (53 %: the engine tests the attached object's handle from the table three times).
+  `LODRenderBehaviour::PickPaletteEntry` (0x102D9B50) is NONMATCHING (36 %, the inlined generator's registers).
 - Findings: a loop over an array of drawables that tests `IsValid` before the call and reloads the array base after each call matches with `int count = levels.Size(); for (int i = 0; i < count; i++) levels.begin[i]...`; `x = a; if (x < b) x = b;`
   clamps are the compare-and-branch forms (`v = dt * k + v;` ... `if (!(target > v)) v = target;`), not `Min` / `Max`; a bool test chain `if (a == 0 && b == 0) ... else if (a == 0 && c)` compiles to the engine's shared tail only as an else-if chain
   without locals; the hidden return slot is only initialised early when the function builds its result in a named local and assigns it in both branches.

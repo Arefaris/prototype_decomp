@@ -17,8 +17,16 @@ namespace engine
 		{
 		public:
 			AttachableBehaviour(engine::GameObject* owner);
+			// 0x1083C070 (the deleting destructor is 0x1083C960)
+			virtual ~AttachableBehaviour();
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
+
+			// The vftable (0x10E6F74C): slots 1 (0x1083C980), 4 (0x1083E1F0), 5 (0x1083C9A0) and 6 (0x1083E460)
+			virtual void Slot1();
+			virtual void Update(float dt, unsigned short mask);
+			virtual void OnPostedMessage(engine::Message* message);
+			virtual void OnMessage(engine::Message* message);
 
 			unsigned char unknownC[0x38];
 		};

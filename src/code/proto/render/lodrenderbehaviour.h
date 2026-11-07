@@ -99,6 +99,13 @@ namespace proto
 		pure3d::Pose* pose;
 	};
 
+	// The attribute that names the palette entry the object asks for (its first word is unknown)
+	struct LODIndexSource
+	{
+		int unknown0;
+		int value;
+	};
+
 	struct LODScaleSource
 	{
 		int unknown0;
@@ -147,7 +154,7 @@ namespace proto
 		// 0x102D9B50: picks the palette entry from the attribute that asks for one (name guess)
 		void PickPaletteEntry();
 		// 0x102DB450: the drawables are bound or not (bit 0 of the flags)
-		void SetBound(unsigned char bound);
+		void SetBound(bool bound);
 		// 0x102DB3B0: the drawables of a package go (the package named at +0x88 is not the empty one) or wait for it (bit 3)
 		void ReleaseLevelsForPackage();
 		// 0x102D9AB0: gives every level the shader inputs of one entry of the palette; 0x102D9B10: the entry that was picked
@@ -167,7 +174,9 @@ namespace proto
 		LODPoseSource* poseSource;
 		// +0x10: the scale the drawables are given
 		LODScaleSource* scaleSource;
-		unsigned char unknown14[0x1C - 0x14];
+		unsigned char unknown14[4];
+		// +0x18: the attribute of the entry asked for
+		LODIndexSource* paletteIndexSource;
 		// +0x1C / +0x24: the first and the last level shown now (name guess)
 		LODLevel* shownFirst;
 		// +0x20 / +0x28: the ones shown before the level was forced (name guess)
