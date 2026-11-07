@@ -101104,3 +101104,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?UnregisterWaveFormatMeta@audio@@YAXXZ = 0x105E7B30 ; function size:0x36 | void __cdecl audio::UnregisterWaveFormatMeta(void) (name guess)
 ?gWaveFormatMetaUsers@audio@@3HA = 0x112768F4 ; data size:0x4 | audio::gWaveFormatMetaUsers (name guess)
 ?UnregisterRendererDriverMeta@audio@@YAXXZ = 0x105E7990 ; function size:0x72 | void __cdecl audio::UnregisterRendererDriverMeta(void) (name guess)
+?SetLatencyRange@RendererDriver@audio@@QAEXII@Z = 0x105E5710 ; function size:0x55 | public: void __thiscall audio::RendererDriver::SetLatencyRange(unsigned int,unsigned int) (name guess)
+?SetSampleRateRange@RendererDriver@audio@@QAEXII@Z = 0x105E5770 ; function size:0x36 | public: void __thiscall audio::RendererDriver::SetSampleRateRange(unsigned int,unsigned int) (name guess)
+?SetNumberOfChannelsRange@RendererDriver@audio@@QAEXII@Z = 0x105E57B0 ; function size:0x36 | public: void __thiscall audio::RendererDriver::SetNumberOfChannelsRange(unsigned int,unsigned int) (name guess)

@@ -58,6 +58,75 @@ namespace audio
 		return cache;
 	}
 
+	// FUNCTION: ENGINE 0x105E5710
+	// NONMATCHING: the engine stores both limits before it reads the value in use and tests the lower limit first (56.4 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetLatencyRange(unsigned int newMinLatency, unsigned int newMaxLatency)
+	{
+		minLatency = om::AlignUp(newMinLatency, 0x100);
+		maxLatency = om::AlignUp(newMaxLatency, 0x100);
+		unsigned int current = latency;
+		if (current >= minLatency && current <= maxLatency)
+		{
+			latency = current;
+		}
+		else if (current > maxLatency)
+		{
+			latency = maxLatency;
+		}
+		else
+		{
+			latency = minLatency;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105E5770
+	// NONMATCHING: the engine reads the value in use after the stores and compares it with the new upper limit itself (2 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetSampleRateRange(unsigned int newMinSampleRate, unsigned int newMaxSampleRate)
+	{
+		minSampleRate = newMinSampleRate;
+		maxSampleRate = newMaxSampleRate;
+		unsigned int current = sampleRate;
+		if (current >= minSampleRate && current <= maxSampleRate)
+		{
+			sampleRate = current;
+		}
+		else if (current > maxSampleRate)
+		{
+			sampleRate = maxSampleRate;
+		}
+		else
+		{
+			sampleRate = minSampleRate;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105E57B0
+	// NONMATCHING: the engine reads the value in use after the stores and compares it with the new upper limit itself (4 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetNumberOfChannelsRange(unsigned int newMinNumberOfChannels, unsigned int newMaxNumberOfChannels)
+	{
+		minNumberOfChannels = newMinNumberOfChannels;
+		maxNumberOfChannels = newMaxNumberOfChannels;
+		unsigned int current = numberOfChannels;
+		if (current >= minNumberOfChannels && current <= maxNumberOfChannels)
+		{
+			numberOfChannels = current;
+		}
+		else if (current > maxNumberOfChannels)
+		{
+			numberOfChannels = maxNumberOfChannels;
+		}
+		else
+		{
+			numberOfChannels = minNumberOfChannels;
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105E66F0
 	void RendererDriver::SetUserData(unsigned int newUserData)
 	{
