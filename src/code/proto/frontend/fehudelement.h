@@ -42,6 +42,12 @@ namespace proto
 		typedef container::StringLiteral Storage;
 	};
 
+	class SymbolPathStoragePolicy_FixedLength
+	{
+	public:
+		typedef container::StringC<128> Storage;
+	};
+
 	template<class Policy, int N> class FEHudVariableTemplate : public FEHudVariable
 	{
 	public:
@@ -54,6 +60,20 @@ namespace proto
 		}
 
 		typename Policy::Storage path;  // +0xA0
+	};
+
+	// The variable with a path of its own (the path is set after the construction)
+	template<> class FEHudVariableTemplate<SymbolPathStoragePolicy_FixedLength, 0> : public FEHudVariable
+	{
+	public:
+		// 0x104AA380 (another unit): an empty path
+		FEHudVariableTemplate();
+		virtual const char* GetPath()
+		{
+			return path.ConstData();
+		}
+
+		container::StringC<128> path;  // +0xA0
 	};
 
 	class FEHudElement
