@@ -1,5 +1,6 @@
 // The cell player's enumeration of states, reflected as an om meta enumeration (a template instance of the om library).
 #include "code/music/cellplayer.h"
+#include "code/music/cue.h"
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 
@@ -62,6 +63,15 @@ namespace music
 	// FUNCTION: ENGINE 0x105F9A00
 	void CellPlayer::Slot11(int)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x105F9A60
+	Cell* CellPlayer::Slot12()
+	{
+		int part = unknownC;
+		int layer = unknown8;
+		Cue* current = *cue;
+		return current->GetCell(layer, part);
 	}
 
 	// FUNCTION: ENGINE 0x105E3120

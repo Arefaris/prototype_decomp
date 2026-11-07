@@ -1,5 +1,6 @@
 // The audio renderer drivers (0x105E4E50 - 0x105EBCD0): the base class of the device drivers and the reflection of
 // audio::RendererDriver and its enumerations made of template instances of the om library.
+#include "code/audio/drivers.h"
 #include "code/audio/rendererdriver.h"
 #include "code/om/delegate.h"
 #include "code/om/metaclass.h"
@@ -14,6 +15,12 @@
 
 namespace audio
 {
+	// FUNCTION: ENGINE 0x105E4E30
+	RendererDriverModel::RendererDriverModel(const om::String& newName) :
+		name(newName)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x105E65E0
 	// NONMATCHING: the engine builds a temporary string for the description and copies it, ours constructs it in place (32.7 %)
 #ifdef NONMATCHING
