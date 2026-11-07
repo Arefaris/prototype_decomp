@@ -971,6 +971,110 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10217F30
+			// NONMATCHING: the engine loads the position of the object, steps its pointer and then loads the threat's position into other registers, best 77 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::IsThreatNear()
+			{
+				engine::GameObject* object = target.Get();
+				engine::GameObject* threat = unknown3C.Get();
+				if (object != 0 && threat != 0)
+				{
+					math::Matrix& objectWorld = object->transform->value;
+					math::Matrix& threatWorld = threat->transform->value;
+					math::Vector from(objectWorld.m[3][0], objectWorld.m[3][1], objectWorld.m[3][2]);
+					math::Vector to(threatWorld.m[3][0], threatWorld.m[3][1], threatWorld.m[3][2]);
+					float dx = from.x - to.x;
+					float dz = from.z - to.z;
+					float dy = from.y - to.y;
+					float lengthSquared = dx * dx;
+					lengthSquared = lengthSquared + dz * dz;
+					lengthSquared = lengthSquared + dy * dy;
+					if (!(unknown40 > lengthSquared))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219870
+			// NONMATCHING: the argument loads of the condition call take other registers (effect in edx, listener in eax, track in ecx), best 94.6 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::StartDodge()
+			{
+				fight::Branch* branch = link.Get()->dodgeBranch.GetBranch();
+				engine::GameObjectParams* params = new engine::GameObjectParams(target, 0, 0x10001);
+				params->AddRef();
+				int currentEffect = (int)effect;
+				int currentListener = (int)listener.track;
+				fight::ConditionList* conditions = &link.Get()->conditions;
+				if (conditions->Evaluate(currentListener, currentEffect, (int)params, 0))
+				{
+					fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, params, 0, false);
+					if (started != 0)
+					{
+						started->Slot11((fight::Sequencer*)effect, params, link.Get()->priority);
+					}
+				}
+				params->Release();
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219BF0
+			// NONMATCHING: the call of the (not compiled) threat distance test keeps ecx in the engine, best 82 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (link.object->dodgeBranch.GetBranch() == 0)
+				{
+					return false;
+				}
+				unknown40 = link.object->distanceToThreat * link.object->distanceToThreat;
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					GetLastThreatMessage message;
+					object->SendMessage(&message);
+					if (message.threat.Exists())
+					{
+						unknown3C = message.threat;
+						if (!IsThreatNear())
+						{
+							return true;
+						}
+					}
+					StartDodge();
+					return false;
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219CF0
+			// NONMATCHING: the call of the (not compiled) threat distance test keeps ecx in the engine
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (unknown3C.IsValid() && IsThreatNear())
+				{
+					StartDodge();
+					return false;
+				}
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x10219860
 			void ThreatDodgeAction::Slot6()
 			{

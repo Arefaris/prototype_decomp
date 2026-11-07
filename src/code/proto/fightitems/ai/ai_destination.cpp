@@ -2,6 +2,7 @@
 #include "code/proto/fightitems/ai/ai_destination.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -3078,6 +3079,65 @@ namespace proto
 					}
 				}
 			}
+
+			// FUNCTION: ENGINE 0x102004F0
+			// NONMATCHING: the engine places the message branch behind the common tail and keeps the params pointer in ebp, ours the other way, 26 % by bytes (same instructions)
+#ifdef NONMATCHING
+			bool DestinationDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				DestinationParams* params = (DestinationParams*)c;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Vector target;
+					bool useGiven = false;
+					if (useParams && params != 0)
+					{
+						switch (params->value)
+						{
+						case 0x21010:
+						case 0x21011:
+						case 0x21012:
+						case 0x21013:
+							useGiven = true;
+							break;
+						}
+					}
+					if (!useGiven)
+					{
+						GetDestinationMessage message;
+						object->SendMessage(&message);
+						if (!message.hasDestination)
+						{
+							return false;
+						}
+						if (message.unknownD)
+						{
+							target.x = message.destination.x;
+							target.y = message.destination.y;
+							target.z = message.destination.z;
+						}
+						else
+						{
+							float zero = 0.0f;
+							float limit = distance;
+							return fight::CompareFloats(compare, &zero, &limit);
+						}
+					}
+					else
+					{
+						target.x = params->position.x;
+						target.y = params->position.y;
+						target.z = params->position.z;
+					}
+					math::Matrix& world = object->transform->value;
+					math::Vector offset(target.x - world.m[3][0], target.y - world.m[3][1], target.z - world.m[3][2]);
+					result = fight::CompareVectorMeasure(compare, &offset, direction, distance);
+				}
+				return result;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x10200A20
 			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %

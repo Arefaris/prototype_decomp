@@ -199,6 +199,32 @@ namespace proto
 		PatrolPath* path;  // +0xC
 	};
 
+	// RTTI: proto::SetBrakingInMotionMovementMessage: the object does or does not brake while it moves
+	struct SetBrakingInMotionMovementMessage : public MovementMessage
+	{
+		explicit SetBrakingInMotionMovementMessage(bool newBraking) : MovementMessage(0x20), braking(newBraking)
+		{
+		}
+		virtual ~SetBrakingInMotionMovementMessage()
+		{
+		}
+
+		bool braking;  // +0xC
+	};
+
+	// RTTI: proto::SetReverseGearMovementMessage: the object drives in reverse gear or not
+	struct SetReverseGearMovementMessage : public MovementMessage
+	{
+		explicit SetReverseGearMovementMessage(bool newReverse) : MovementMessage(0x21), reverse(newReverse)
+		{
+		}
+		virtual ~SetReverseGearMovementMessage()
+		{
+		}
+
+		bool reverse;  // +0xC
+	};
+
 	// What an object follows (the part the follow target action reads)
 	struct FollowInformation
 	{

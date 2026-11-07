@@ -102747,3 +102747,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??1?$Link@VExecuteTaskTrack@ai@fightitems@proto@@@core@@QAE@XZ = 0x10205120 ; function size:0x10 | kept template or inline copy of this unit
 ??0?$Link@VSpawnTaskTrack@ai@fightitems@proto@@@core@@QAE@PAVSpawnTaskTrack@ai@fightitems@proto@@@Z = 0x102051C0 ; function size:0x37 | kept template or inline copy of this unit
 ??1?$Link@VSpawnTaskTrack@ai@fightitems@proto@@@core@@QAE@XZ = 0x10205360 ; function size:0x10 | kept template or inline copy of this unit
+?Exists@GameObjectHandle@engine@@QBE_NXZ = 0x1006B210 ; function size:0x37 | engine::GameObjectHandle::Exists (name guess)
+?IsThreatNear@ThreatDodgeAction@ai@fightitems@proto@@QAE_NXZ = 0x10217F30 ; function size:0xB5 | proto::fightitems::ai::ThreatDodgeAction::IsThreatNear (name guess)
+?StartDodge@ThreatDodgeAction@ai@fightitems@proto@@QAE_NXZ = 0x10219870 ; function size:0x94 | proto::fightitems::ai::ThreatDodgeAction::StartDodge (name guess)

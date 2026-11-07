@@ -2,7 +2,14 @@
 #include "code/proto/fightitems/ai/ai_poison.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/proto/fightitems/motion/motionmessages5.h"
 
+
+namespace engine
+{
+	// 0x10018D22 (an incremental link thunk of the engine's copy of GameObjectHandle::Get)
+	GameObject* __fastcall GameObjectHandleGet(const GameObjectHandle* handle);
+}
 
 namespace proto
 {
@@ -488,6 +495,36 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x102078C0
+			engine::GameObject* PoisonAction::FindVictim(engine::GameObject* object)
+			{
+				engine::GameObject* victim = 0;
+				switch (link.object->who)
+				{
+				case 0:
+					victim = object;
+					break;
+				case 1:
+					victim = engine::GameObjectHandleGet(&Unknown103B8B80(object));
+					break;
+				case 2:
+				{
+					GetGrabbedObjectMessage message(&link.object->grabSlot);
+					object->SendMessage(&message);
+					victim = message.grabbed.Get();
+					break;
+				}
+				case 3:
+				{
+					GetGrabTargetGrabMessage message;
+					object->SendMessage(&message);
+					victim = message.target.Get();
+					break;
+				}
+				}
+				return victim;
+			}
+
 			// FUNCTION: ENGINE 0x102079E0
 			CurePoisonAction::CurePoisonAction(CurePoisonTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
