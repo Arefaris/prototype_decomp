@@ -10,18 +10,57 @@
 #include "code/engine/system/desynchunter.h"
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/streampackage.h"
+#include "code/engine/controller/defaultcontrollerhandler.h"
+#include "code/engine/luascriptmanager.h"
+#include "code/engine/system/simulationdriver.h"
+#include "code/core/file/mounts.h"
+#include "code/core/report.h"
+#include "code/proto/protomain.h"
 
 namespace engine
 {
 	// 0x1082C6D0 / 0x108366F0
 	void Unknown1082C6D0();
 	void YieldFiber();
+	// The two times the frame step takes: the engine builds them in place in the argument area (its class declares a
+	// copy constructor), which a class of this unit does with a declaration only
+	struct StepTime : public core::Time
+	{
+		StepTime(unsigned int newMilliseconds, unsigned int newMicroseconds) : core::Time(newMilliseconds, newMicroseconds)
+		{
+		}
+		StepTime(const StepTime& other);
+	};
 	// 0x10861170 / 0x10861270 (name unknown)
-	void Unknown10861170(core::Time first, core::Time second);
+	void Unknown10861170(StepTime first, StepTime second);
 	void Unknown10861270();
 
 	// 0x11283xxx..: the name of the group the packages of the front end are in (0x1126EE48)
 	extern core::Name<core::CaseSensitiveKey> gUndefinedSlotGroup6;
+}
+
+namespace engine
+{
+	// The front end object (the same class as femovie.cpp's); the game engine deletes it when it shuts down
+	class FrontEnd
+	{
+	public:
+		// 0x10872920
+		void Unknown10872920(const char* newName);
+		// 0x108727E0
+		~FrontEnd();
+	};
+	FrontEnd* Unknown10864330();
+	// 0x10864310 / 0x10837B10
+	void SetFrontend(void* frontend);
+	void FreeGameState(int number);
+	// The shutdown of the content manager's cement tables (names unknown): 0x10884000 asks whether one is open,
+	// 0x10883FF0 closes the one of that name, 0x10884010 answers how many requests are left
+	bool Unknown10884000();
+	void Unknown10883FF0(const core::Name<core::CaseSensitiveKey>& name, int mode);
+	int Unknown10884010();
+	// 0x10644620 (core), 0x10126280
+	void Unknown10644620();
 }
 
 namespace content
@@ -32,6 +71,12 @@ namespace content
 
 namespace proto
 {
+	// The name a package or slot group is registered under
+	static inline core::Name<core::CaseSensitiveKey> MakeName(const char* text)
+	{
+		return core::Name<core::CaseSensitiveKey>(text, 1);
+	}
+
 	// 0x1126EE18 / 0x1126EE14 / 0x1126EE10: the packages (name guesses)
 	engine::StreamPackage* gFrontEndTransient;
 	engine::StreamPackage* gFrontEndPermanent;
@@ -56,8 +101,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x104E1A40
-	// NONMATCHING: the engine builds the two Time arguments in place (the class has a copy constructor there), 39.5 %
-#ifdef NONMATCHING
 	void UnloadFrontEndPackages(const char* group)
 	{
 		if (core::StrCmp(group, "FETransient") == 0)
@@ -65,13 +108,9 @@ namespace proto
 			if (gFrontEndTransient)
 			{
 				gFrontEndTransient->Unload(0, false);
-				for (;;)
+				gFrontEndTransient->ReleaseRequests();
+				while (gFrontEndTransient->GetState() != 0 || gFrontEndTransient->instance != 0)
 				{
-					gFrontEndTransient->ReleaseRequests();
-					if (gFrontEndTransient->GetState() == 0 && gFrontEndTransient->instance == 0)
-					{
-						break;
-					}
 					engine::YieldFiber();
 				}
 				delete gFrontEndTransient;
@@ -89,9 +128,7 @@ namespace proto
 				{
 					engine::Unknown1082C6D0();
 					content::UpdateLoads();
-					core::Time first(0, 0);
-					core::Time second(0, 0);
-					engine::Unknown10861170(first, second);
+					engine::Unknown10861170(engine::StepTime(0, 0), engine::StepTime(0, 0));
 					engine::Unknown10861270();
 				}
 				delete gFrontEndPermanent;
@@ -117,7 +154,6 @@ namespace proto
 			}
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x104E1C50
 	void BeginFrontEndTransientUnload()
@@ -154,23 +190,32 @@ namespace proto
 		return gFrontEndTransient->GetState() == 5;
 	}
 
+	// 0x1126EE1C / 0x1126EE28 (protomain.cpp)
+	extern engine::FrontEnd* gFrontend;
+	extern engine::controller::DefaultControllerHandler* gControllerHandler;
+	// The shutdown calls of the game engine (names unknown)
+	void ShutdownProtoRenderManager();  // 0x102E4610
+	void Unknown104A0A60();
+	void Unknown1047F900();
+	void Unknown104BD0D0();
+	void Unknown104B09D0();
+	void Unknown10579280();
+	void Unknown10562FF0();
+	void Unknown104DBBD0();
+	void Unknown10126280();
+
 	// FUNCTION: ENGINE 0x104E2860
-	// NONMATCHING: the engine builds the name temporaries in one frame slot behind a zeroed word, 60.7 %
-#ifdef NONMATCHING
 	void StartFrontEndTransientLoad(const char* files, const char* group)
 	{
-		gFrontEndTransient = new engine::StreamPackage(core::Name<core::CaseSensitiveKey>(group, 1));
-		gFrontEndTransient->slotGroup = core::Name<core::CaseSensitiveKey>(group, 1);
+		gFrontEndTransient = new engine::StreamPackage(MakeName(group));
+		gFrontEndTransient->slotGroup = MakeName(group);
 		gFrontEndTransient->SetResources(files);
 		gFrontEndTransient->tags.FromString("FEResourceTag");
 		gFrontEndTransient->sync = false;
 		gFrontEndTransient->Load(0, 0xFFFF, engine::gUndefinedSlotGroup6, false);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x104E2BC0
-	// NONMATCHING: the names are built in one frame slot like StartFrontEndTransientLoad's, 58.7 %
-#ifdef NONMATCHING
 	void LoadFrontEndPackages(const char* files, const char* group)
 	{
 		UnloadFrontEndPackages(group);
@@ -188,8 +233,8 @@ namespace proto
 		}
 		else if (core::StrCmp(group, "FEPermanent") == 0)
 		{
-			gFrontEndPermanent = new engine::StreamPackage(core::Name<core::CaseSensitiveKey>(group, 1));
-			gFrontEndPermanent->slotGroup = core::Name<core::CaseSensitiveKey>(group, 1);
+			gFrontEndPermanent = new engine::StreamPackage(MakeName(group));
+			gFrontEndPermanent->slotGroup = MakeName(group);
 			gFrontEndPermanent->SetResources(files);
 			container::StringC<256> tags;
 			tags.Format("%s;__Persistent__", "FEResourceTag");
@@ -205,13 +250,14 @@ namespace proto
 		}
 		else if (core::StrCmp(group, "FETextBible") == 0)
 		{
-			gFrontEndTextBible = new engine::StreamPackage(core::Name<core::CaseSensitiveKey>(group, 1));
-			gFrontEndTextBible->slotGroup = core::Name<core::CaseSensitiveKey>(group, 1);
+			gFrontEndTextBible = new engine::StreamPackage(MakeName(group));
+			gFrontEndTextBible->slotGroup = MakeName(group);
 			gFrontEndTextBible->SetResources(files);
 			container::StringC<256> tags;
 			tags.Format("%s;__Persistent__", "FEResourceTag");
 			gFrontEndTextBible->inventoryInitialSize = 4;
 			gFrontEndTextBible->tags.FromString(tags.ConstData());
+			gFrontEndTextBible->sync = false;
 			gFrontEndTextBible->Load(0, 0xFFFF, engine::gUndefinedSlotGroup6, false);
 			while (gFrontEndTextBible->GetState() != 5)
 			{
@@ -220,5 +266,68 @@ namespace proto
 			}
 		}
 	}
-#endif
+
+	// FUNCTION: ENGINE 0x104E2620
+	void GameEngine::Slot10()
+	{
+		engine::Unknown10864330()->Unknown10872920("NONE");
+		for (int i = 10; i != 0; i--)
+		{
+			engine::Unknown10861170(engine::StepTime(0, 0), engine::StepTime(0, 0));
+			engine::Unknown10861270();
+		}
+		engine::SetFrontend(0);
+		delete gFrontend;
+		for (int i = 10; i != 0; i--)
+		{
+			engine::Unknown10861170(engine::StepTime(0, 0), engine::StepTime(0, 0));
+			engine::Unknown10861270();
+		}
+		UnloadFrontEndPackages("FEPermanent");
+		UnloadFrontEndPackages("FETextBible");
+		ShutdownProtoRenderManager();
+		if (engine::Unknown10884000())
+		{
+			engine::Unknown10883FF0(MakeName("default"), 0);
+			if (engine::Unknown10884010())
+			{
+				do
+				{
+					core::FileSystemUpdate();
+				}
+				while (engine::Unknown10884010());
+			}
+		}
+		engine::Unknown10644620();
+		Unknown104A0A60();
+		engine::LuaScriptManager* script = engine::GetScriptManager();
+		script->Unregister(this);
+		engine::FreeGameState(3);
+		engine::FreeGameState(2);
+		Unknown1047F900();
+		if (inGameState)
+		{
+			delete inGameState;
+		}
+		if (frontEndState)
+		{
+			delete frontEndState;
+		}
+		if (pauseState)
+		{
+			delete pauseState;
+		}
+		delete gControllerHandler;
+		if (simulationDriver)
+		{
+			delete simulationDriver;
+		}
+		Unknown104BD0D0();
+		Unknown104B09D0();
+		Unknown10579280();
+		Unknown10562FF0();
+		Unknown104DBBD0();
+		core::ShutdownChannels();
+		Unknown10126280();
+	}
 }

@@ -73,6 +73,11 @@ namespace engine
 	const char* GetCommandLineValue(const char* option);
 }
 
+namespace engine
+{
+	class FrontEnd;
+}
+
 namespace proto
 {
 	// 0x102A2730: resets the systems of the fight classes between two game states (name guess)
@@ -87,7 +92,7 @@ namespace proto
 	// 0x1126EE28
 	extern engine::controller::DefaultControllerHandler* gControllerHandler;
 	// 0x1126EE1C
-	extern void* gFrontend;
+	extern engine::FrontEnd* gFrontend;
 
 	// 0x104DF950: whether the level is one of the dev select list's (name guess)
 	bool HasDevSelectLevel(const char* name);
@@ -638,7 +643,7 @@ namespace proto
 		LoadFrontEndPackages("art/hud/fe_resourcetable.p3d;art/hud/fe_permanent.p3d", "FEPermanent");
 		int language = core::LanguageGet();
 		SetLanguage(core::GetLanguageName(language), 0);
-		gFrontend = engine::CreateFrontend((int)"protomain", 0);
+		gFrontend = (engine::FrontEnd*)engine::CreateFrontend((int)"protomain", 0);
 		engine::SetFrontend(gFrontend);
 	}
 }
