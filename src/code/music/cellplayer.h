@@ -8,6 +8,9 @@
 
 namespace music
 {
+	class Cell;
+	class Cue;
+
 	// What a request to a cell player carries (0x28 bytes; the meaning of the members is not known)
 	struct CellPlayerParameters
 	{
@@ -45,7 +48,7 @@ namespace music
 			state(0),
 			unknown8(0),
 			unknownC(0),
-			unknown10(0)
+			cue(0)
 		{
 		}
 		// Slot 0 (0x105E2AA0 is the deleting destructor)
@@ -64,16 +67,19 @@ namespace music
 		virtual int Slot9();
 		// Slot 10 (0x105F9A10): the new state
 		virtual void SetState(int newState);
-		// Slots 11 and 12 (0x105F9A00 / 0x105F9A60)
+		// Slots 11 and 12 (0x105F9A00 / 0x105F9A60): the second answers the cell of the cue that the player plays
 		virtual void Slot11(int unknown);
-		virtual void Slot12();
+		virtual Cell* Slot12();
 
 		int state;  // 4
 		int unknown8;
 		int unknownC;
-		int unknown10;
+		Cue** cue;  // 0x10
 		int unknown14;
 	};
+
+	// 0x105E3790 (name guessed): makes the reflection of the player
+	void RegisterMGraphCellPlayerMeta();
 
 	// The player of a cell that plays a graph of the music graph library (0x88 bytes)
 	class MGraphCellPlayer : public CellPlayer

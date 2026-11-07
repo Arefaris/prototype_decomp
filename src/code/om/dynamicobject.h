@@ -95,10 +95,32 @@ namespace om
 		virtual bool WriteBinary(BinaryStream* stream);
 		OM_ALLOCATION(DynamicObject);
 
+		// The property of a name that holds a value of the type, null when there is none (name guessed; defined by the user)
+		template<class T> DynamicProperty<T>* FindTypedProperty(ClassName propertyName);
+
 		ClassName name;  // 0x10
 		PropertyList properties;  // 0x18
 		ClassName className;  // 0x20
 	};
+
+	template<class T> DynamicProperty<T>* DynamicObject::FindTypedProperty(ClassName propertyName)
+	{
+		DynamicPropertyBase* property = GetFirstProperty();
+		while (property != 0)
+		{
+			ClassName currentName = property->GetName();
+			if (currentName.key == propertyName.key)
+			{
+				DynamicProperty<T>* typed = dynamic_cast<DynamicProperty<T>*>(property);
+				if (typed != 0)
+				{
+					return typed;
+				}
+			}
+			property = GetNextProperty(property);
+		}
+		return 0;
+	}
 }
 
 #endif

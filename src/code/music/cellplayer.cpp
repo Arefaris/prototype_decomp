@@ -1,6 +1,12 @@
 // The cell player's enumeration of states, reflected as an om meta enumeration (a template instance of the om library).
 #include "code/music/cellplayer.h"
+#include "code/music/cue.h"
+#include "code/om/dynamicarray.h"
+#include "code/om/dynamicobjectentity.h"
+#include "code/om/dynamicproperty.h"
+#include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
+#include "code/om/reflection.h"
 
 namespace music
 {
@@ -61,6 +67,15 @@ namespace music
 	// FUNCTION: ENGINE 0x105F9A00
 	void CellPlayer::Slot11(int)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x105F9A60
+	Cell* CellPlayer::Slot12()
+	{
+		int part = unknownC;
+		int layer = unknown8;
+		Cue* current = *cue;
+		return current->GetCell(layer, part);
 	}
 
 	// FUNCTION: ENGINE 0x105E3120
@@ -183,4 +198,60 @@ namespace om
 	template void MetaEnum<music::CellPlayer::State>::WriteText(TextValue*, const void*);
 	// FUNCTION: ENGINE 0x105D4690
 	template bool MetaEnum<music::CellPlayer::State>::ReadText(const TextValue*, void*);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E3870
+	template<> int MetaClass<music::MGraphCellPlayer>::Slot5()
+	{
+		return reinterpret_cast<int>(new music::MGraphCellPlayer);
+	}
+
+	// FUNCTION: ENGINE 0x105E2C90
+	template<> void MetaClass<music::MGraphCellPlayer>::Slot6(void* object)
+	{
+		delete static_cast<music::MGraphCellPlayer*>(object);
+	}
+
+	// FUNCTION: ENGINE 0x105E3660
+	template void MetaClass<music::MGraphCellPlayer>::Create(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105E2C30
+	template MetaClass<music::MGraphCellPlayer>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105E2C80
+	template const type_info* MetaClass<music::MGraphCellPlayer>::GetType();
+	// FUNCTION: ENGINE 0x105E2D20
+	template const char* MetaClass<music::MGraphCellPlayer>::AllocationTag();
+	// FUNCTION: ENGINE 0x105E2FE0
+	template void* MetaClass<music::MGraphCellPlayer>::operator new(size_t);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E2CF0
+	template String DynamicProperty<String>::GetValue() const;
+
+	// FUNCTION: ENGINE 0x105E2D30
+	template DynamicProperty<bool>* DynamicObject::FindTypedProperty<bool>(ClassName);
+	// FUNCTION: ENGINE 0x105E2DB0
+	template DynamicProperty<String>* DynamicObject::FindTypedProperty<String>(ClassName);
+	// FUNCTION: ENGINE 0x105E2E30
+	template DynamicProperty<DynamicArray<String, unsigned short> >* DynamicObject::FindTypedProperty<DynamicArray<String, unsigned short> >(ClassName);
+
+	// FUNCTION: ENGINE 0x105E3040
+	template DynamicProperty<bool>* DynamicObjectEntity::FindTypedProperty<bool>(ClassName);
+	// FUNCTION: ENGINE 0x105E3060
+	template DynamicProperty<String>* DynamicObjectEntity::FindTypedProperty<String>(ClassName);
+	// FUNCTION: ENGINE 0x105E3080
+	template DynamicProperty<DynamicArray<String, unsigned short> >* DynamicObjectEntity::FindTypedProperty<DynamicArray<String, unsigned short> >(ClassName);
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E3790
+	void RegisterMGraphCellPlayerMeta()
+	{
+		om::String text("MusicMGraphCellPlayer", false);
+		om::MetaClass<MGraphCellPlayer>::Create(om::MakeClassName(text), 0);
+	}
 }

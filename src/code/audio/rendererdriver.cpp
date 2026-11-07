@@ -1,5 +1,6 @@
 // The audio renderer drivers (0x105E4E50 - 0x105EBCD0): the base class of the device drivers and the reflection of
 // audio::RendererDriver and its enumerations made of template instances of the om library.
+#include "code/audio/drivers.h"
 #include "code/audio/rendererdriver.h"
 #include "code/om/delegate.h"
 #include "code/om/metaclass.h"
@@ -8,11 +9,18 @@
 #include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 #include "code/om/reflection.h"
+#include "code/om/textvalue.h"
 
 #pragma warning(disable: 4661)
 
 namespace audio
 {
+	// FUNCTION: ENGINE 0x105E4E30
+	RendererDriverModel::RendererDriverModel(const om::String& newName) :
+		name(newName)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x105E65E0
 	// NONMATCHING: the engine builds a temporary string for the description and copies it, ours constructs it in place (32.7 %)
 #ifdef NONMATCHING
@@ -49,6 +57,75 @@ namespace audio
 		}
 		return cache;
 	}
+
+	// FUNCTION: ENGINE 0x105E5710
+	// NONMATCHING: the engine stores both limits before it reads the value in use and tests the lower limit first (56.4 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetLatencyRange(unsigned int newMinLatency, unsigned int newMaxLatency)
+	{
+		minLatency = om::AlignUp(newMinLatency, 0x100);
+		maxLatency = om::AlignUp(newMaxLatency, 0x100);
+		unsigned int current = latency;
+		if (current >= minLatency && current <= maxLatency)
+		{
+			latency = current;
+		}
+		else if (current > maxLatency)
+		{
+			latency = maxLatency;
+		}
+		else
+		{
+			latency = minLatency;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105E5770
+	// NONMATCHING: the engine reads the value in use after the stores and compares it with the new upper limit itself (2 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetSampleRateRange(unsigned int newMinSampleRate, unsigned int newMaxSampleRate)
+	{
+		minSampleRate = newMinSampleRate;
+		maxSampleRate = newMaxSampleRate;
+		unsigned int current = sampleRate;
+		if (current >= minSampleRate && current <= maxSampleRate)
+		{
+			sampleRate = current;
+		}
+		else if (current > maxSampleRate)
+		{
+			sampleRate = maxSampleRate;
+		}
+		else
+		{
+			sampleRate = minSampleRate;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105E57B0
+	// NONMATCHING: the engine reads the value in use after the stores and compares it with the new upper limit itself (4 %)
+#ifdef NONMATCHING
+	void RendererDriver::SetNumberOfChannelsRange(unsigned int newMinNumberOfChannels, unsigned int newMaxNumberOfChannels)
+	{
+		minNumberOfChannels = newMinNumberOfChannels;
+		maxNumberOfChannels = newMaxNumberOfChannels;
+		unsigned int current = numberOfChannels;
+		if (current >= minNumberOfChannels && current <= maxNumberOfChannels)
+		{
+			numberOfChannels = current;
+		}
+		else if (current > maxNumberOfChannels)
+		{
+			numberOfChannels = maxNumberOfChannels;
+		}
+		else
+		{
+			numberOfChannels = minNumberOfChannels;
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x105E66F0
 	void RendererDriver::SetUserData(unsigned int newUserData)
@@ -224,6 +301,14 @@ namespace audio
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x105E6710
+	template void MetaEnum<audio::FoldDownType>::Create(const ClassName&);
+	// FUNCTION: ENGINE 0x105E6770
+	template void MetaEnum<audio::FoldDownType>::ReleaseType();
+	// FUNCTION: ENGINE 0x105E6870
+	template void MetaEnum<audio::WAVEFORMAT>::Create(const ClassName&);
+	// FUNCTION: ENGINE 0x105E68D0
+	template void MetaEnum<audio::WAVEFORMAT>::ReleaseType();
 	// FUNCTION: ENGINE 0x105E4FB0
 	template MetaEnum<audio::FoldDownType>::MetaEnum(const ClassName&);
 	// FUNCTION: ENGINE 0x105E4FD0
@@ -312,6 +397,8 @@ namespace om
 	template void* MetaEnum<audio::WAVEFORMAT>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E5AA0
 	template void* MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E6C00
+	template FixedArray<unsigned int, 8>* GarbageList::Hold<FixedArray<unsigned int, 8> >(FixedArray<unsigned int, 8>*);
 	// FUNCTION: ENGINE 0x105E7CC0
 	template FixedArray<unsigned int, 8>* ReadArgument<FixedArray<unsigned int, 8> >(BinaryStream*, GarbageList*);
 
@@ -467,6 +554,14 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<audio::FoldDownType>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E8850
 	template FixedArray<unsigned int, 8>::FixedArray();
+	// FUNCTION: ENGINE 0x105E51A0
+	template void FixedArray<unsigned int, 8>::Fill(const unsigned int&);
+	// FUNCTION: ENGINE 0x105E5190
+	template unsigned int& FixedArray<unsigned int, 8>::operator[](int);
+	// FUNCTION: ENGINE 0x105E5C80
+	template const char* FixedArray<unsigned int, 8>::AllocationTag();
+	// FUNCTION: ENGINE 0x105E6110
+	template void* FixedArray<unsigned int, 8>::operator new(size_t);
 }
 
 namespace om
@@ -477,4 +572,161 @@ namespace om
 	template MetaClassBase* GetCachedClass<audio::RendererDriver>();
 	// FUNCTION: ENGINE 0x105E60F0
 	template MetaClassBase* GetCachedClass<audio::FoldDownType>();
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E6410
+	bool ReadText(const TextValue* text, FixedArray<unsigned int, 8>* value)
+	{
+		TextValue* node = text->FindChild("Items");
+		if (node == 0)
+		{
+			return true;
+		}
+		node = node->FindChild("Item");
+		unsigned int* item = value->items;
+		while (node != 0 && node->text == String::Wrap("Item"))
+		{
+			ReadText(node, item);
+			node = node->parent->children.Next(node);
+			item++;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105E6500
+	void WriteText(TextValue* text, const FixedArray<unsigned int, 8>& value)
+	{
+		TextNode* items = new TextNode(text, String::Wrap("Items"));
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			WriteText(new TextNode(items, String::Wrap("Item")), value.items[i]);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105E61A0
+	bool ReadBinary(BinaryStream* stream, FixedArray<unsigned int, 8>* value)
+	{
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			if (!ReadBinary(stream, &value->items[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105E61E0
+	bool WriteBinary(BinaryStream* stream, const FixedArray<unsigned int, 8>& value)
+	{
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			if (!WriteBinary(stream, value.items[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+namespace audio
+{
+	// FUNCTION: ENGINE 0x105E5680
+	void RendererDriver::SetSurroundChannelMap(const om::FixedArray<unsigned int, 8>& newSurroundChannelMap)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			if (newSurroundChannelMap.items[i] >= maxNumberOfChannels)
+			{
+				surroundChannelMap.items[i] = 0xFFFFFFFF;
+			}
+			else
+			{
+				surroundChannelMap.items[i] = newSurroundChannelMap.items[i];
+			}
+		}
+	}
+}
+
+namespace audio
+{
+	// The number of users of the reflection of WAVEFORMAT (0x112768F4, name guessed)
+	int gWaveFormatMetaUsers = 0;
+
+	// FUNCTION: ENGINE 0x105E7A10
+	void RegisterWaveFormatMeta()
+	{
+		if (gWaveFormatMetaUsers == 0)
+		{
+			{
+				om::String text("WAVEFORMAT", false);
+				om::MetaEnum<WAVEFORMAT>::Create(om::MakeClassName(text));
+			}
+			{
+				om::String text("EX", true);
+				om::ClassName name = om::MakeClassName(text);
+				om::MetaTypeBase* type = om::FindMetaType(typeid(WAVEFORMAT));
+				static_cast<om::MetaEnumBase*>(type)->AddValue(name, 0);
+			}
+			{
+				om::String text("EXTENSIBLE", true);
+				om::ClassName name = om::MakeClassName(text);
+				om::MetaTypeBase* type = om::FindMetaType(typeid(WAVEFORMAT));
+				static_cast<om::MetaEnumBase*>(type)->AddValue(name, 1);
+			}
+		}
+		gWaveFormatMetaUsers++;
+	}
+
+	// FUNCTION: ENGINE 0x105E7B30
+	void UnregisterWaveFormatMeta()
+	{
+		gWaveFormatMetaUsers--;
+		if (gWaveFormatMetaUsers == 0)
+		{
+			om::MetaEnum<WAVEFORMAT>::ReleaseType();
+		}
+	}
+}
+
+namespace audio
+{
+	// FUNCTION: ENGINE 0x105E7990
+	void UnregisterRendererDriverMeta()
+	{
+		om::MetaEnum<FoldDownType>::ReleaseType();
+		om::MetaTypeBase*& cache = om::MetaTypeCache<RendererDriver>::type;
+		if (cache == 0)
+		{
+			cache = om::FindMetaType(typeid(RendererDriver));
+		}
+		om::MetaTypeBase* type = cache;
+		if (om::ThreadSafeRefCount::Release(&cache->count) == 0 && type != 0)
+		{
+			delete type;
+		}
+		cache = 0;
+	}
+}
+
+namespace audio
+{
+	// What the fold down needs for each type: the name and the program that does it (0x10E30E54, 8 entries of 12 bytes)
+	struct FoldDownDescription
+	{
+		const char* name;
+		const void* program;
+		int unknown8;
+	};
+	extern const FoldDownDescription gFoldDownDescriptions[8];
+
+	// FUNCTION: ENGINE 0x105E4DD0
+	om::String GetFoldDownTypeName(FoldDownType type)
+	{
+		om::String text(gFoldDownDescriptions[type].name, true);
+		return om::String(text);
+	}
 }

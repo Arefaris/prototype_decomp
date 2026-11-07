@@ -397,6 +397,10 @@ namespace om
 	template void* DelegateMetaProperty<const music::FollowAction&>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E0B60
 	template void* Garbage<music::FollowAction>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E12B0
+	template music::Fade* GarbageList::Hold<music::Fade>(music::Fade*);
+	// FUNCTION: ENGINE 0x105E1300
+	template music::FollowAction* GarbageList::Hold<music::FollowAction>(music::FollowAction*);
 	// FUNCTION: ENGINE 0x105E0AD0
 	template Garbage<music::Fade>::Garbage(music::Fade*);
 	// FUNCTION: ENGINE 0x105E0B10

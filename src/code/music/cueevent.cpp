@@ -13,15 +13,87 @@
 namespace music
 {
 	// FUNCTION: ENGINE 0x105D28B0
-	void CueEvent::Read(om::BinaryStream* stream)
+	bool CueEvent::Read(om::BinaryStream* stream)
 	{
-		GetMetaClassForRead()->ReadBinary(stream, this);
+		return GetMetaClassForRead()->ReadBinary(stream, this);
 	}
 
 	// FUNCTION: ENGINE 0x105D28D0
-	void CueEvent::Write(om::BinaryStream* stream)
+	bool CueEvent::Write(om::BinaryOutput* output)
 	{
-		GetMetaClassForWrite()->WriteBinary(stream, this);
+		return GetMetaClassForWrite()->WriteBinary(&output->stream, this);
+	}
+
+	// FUNCTION: ENGINE 0x105F7980
+	CueEventCueState::CueEventCueState(Cue* newCue) :
+		cue(newCue)
+	{
+		if (cue != 0)
+		{
+			om::ThreadSafeRefCount::AddRef(&cue->count);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105F5FB0
+	// NONMATCHING: the engine calls its own copy of the cue entity type's CreateEntity directly
+#ifdef NONMATCHING
+	bool CueEventCueState::Read(om::BinaryStream* stream)
+	{
+		if (cue == 0)
+		{
+			{
+				om::String text("CueEventCueStateCue", false);
+				om::ClassName name = om::MakeClassName(text);
+				om::EntityTypeBase* type = om::FindEntityType(typeid(Cue));
+				// the engine creates the cue through this unit's own copy of EntityType<Cue>::CreateEntity (0x105F1980), which
+				// no class of this source tree names
+				type->CreateEntity(reinterpret_cast<om::Entity**>(&cue), name);
+			}
+			return cue->Slot6(stream);
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105F6820
+	bool CueEventCellState::Read(om::BinaryStream* stream)
+	{
+		om::BinaryStream copy = *stream;
+		if (cell == 0)
+		{
+			om::ClassName name;
+			om::ReadBinary(stream, &name);
+			om::MetaClassBase* description = om::FindMetaClassByName(name);
+			if (description != 0)
+			{
+				cell = reinterpret_cast<Cell*>(description->Slot5());
+				return cell->ReadBinary(&copy);
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105F68A0
+	bool CueEventCellState::Write(om::BinaryOutput* output)
+	{
+		om::BinaryOutput copy = *output;
+		if (cell != 0)
+		{
+			om::WriteBinary(&output->stream, cell->GetMetaType()->GetName());
+			return cell->WriteBinary(&copy.stream);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105F1960
+	bool CueEventCueState::Write(om::BinaryOutput* output)
+	{
+		Cue* current = cue;
+		if (current != 0)
+		{
+			return current->Slot7(output);
+		}
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x105D2900
@@ -1274,6 +1346,10 @@ namespace om
 	template const char* MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::AllocationTag();
 	// FUNCTION: ENGINE 0x105ED770
 	template const char* MetaProperty<const Bool32&>::AllocationTag();
+	// FUNCTION: ENGINE 0x105F3D00
+	template float* GarbageList::Hold<float>(float*);
+	// FUNCTION: ENGINE 0x105F3D50
+	template Bool32* GarbageList::Hold<Bool32>(Bool32*);
 	// FUNCTION: ENGINE 0x105ED860
 	template bool ReadBinary<music::CellPlayer::State>(BinaryStream*, music::CellPlayer::State*);
 	// FUNCTION: ENGINE 0x105ED890
@@ -2057,4 +2133,51 @@ namespace om
 	template MetaClassBase* GetCachedClass<Bool32>();
 	// FUNCTION: ENGINE 0x105EEBA0
 	template MetaClassBase* GetCachedClass<music::CueEventCueState>();
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105F78C0
+	void RegisterCueEventMetas()
+	{
+		RegisterCueEventSetCellTypeMeta();
+		RegisterCueEventCommandMeta();
+		RegisterCueEventCueStateMeta();
+		RegisterCueEventCellStateMeta();
+		RegisterCueEventSetCurrentCueMeta();
+		RegisterCueEventSetCurrentCellMeta();
+		RegisterCueEventSetCurrentCuePlayerMeta();
+		RegisterCueEventCellPlayerStateMeta();
+		RegisterCueEventSetPartNameMeta();
+		RegisterCueEventSetLayerNameMeta();
+		RegisterCueEventMoveCellMeta();
+		RegisterCueEventMovePartMeta();
+		RegisterCueEventNewCuePlayerMeta();
+		RegisterCueEventDestroyCuePlayerMeta();
+		RegisterCueEventSetBPMMeta();
+		RegisterCueEventSyncMeta();
+		RegisterCueEventSetFadeMeta();
+	}
+
+	// FUNCTION: ENGINE 0x105F7920
+	void UnregisterCueEventMetas()
+	{
+		UnregisterCueEventSetCellTypeMeta();
+		UnregisterCueEventCommandMeta();
+		UnregisterCueEventCueStateMeta();
+		UnregisterCueEventCellStateMeta();
+		UnregisterCueEventSetCurrentCueMeta();
+		UnregisterCueEventSetCurrentCellMeta();
+		UnregisterCueEventSetCurrentCuePlayerMeta();
+		UnregisterCueEventCellPlayerStateMeta();
+		UnregisterCueEventSetPartNameMeta();
+		UnregisterCueEventSetLayerNameMeta();
+		UnregisterCueEventMoveCellMeta();
+		UnregisterCueEventMovePartMeta();
+		UnregisterCueEventNewCuePlayerMeta();
+		UnregisterCueEventDestroyCuePlayerMeta();
+		UnregisterCueEventSetBPMMeta();
+		UnregisterCueEventSyncMeta();
+		UnregisterCueEventSetFadeMeta();
+	}
 }
