@@ -404,6 +404,13 @@ namespace proto
 				// vftable slot 7 (0x101F05A0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101EFDA0 / 0x101EE660 / 0x101EE990 / 0x101EFFD0 / 0x101F02C0: the updates of the states 0, 1, 2, 3 and 5 (name guesses)
+				void RunState0(float time);
+				void RunState1(float time);
+				void RunState2(float time);
+				void RunState3(float time);
+				void RunState5(float time);
+
 				// 0x101ED6D0: gives the reserved position back (name guess)
 				void ReleasePosition();
 				// 0x101EEAF0: picks the speed and the stop distances of the next move (name guess)
@@ -414,7 +421,7 @@ namespace proto
 				float unknown2C;  // +0x2C
 				float unknown30;  // +0x30
 				float unknown34;  // +0x34
-				engine::HandleBase unknown38;  // +0x38
+				engine::GameObjectHandle unknown38;  // +0x38
 				math::Vector unknown3C;  // +0x3C
 				float unknown48;  // +0x48
 				float unknown4C;  // +0x4C

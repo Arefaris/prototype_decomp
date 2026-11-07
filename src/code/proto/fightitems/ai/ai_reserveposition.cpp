@@ -1156,7 +1156,7 @@ namespace proto
 				}
 				unknown5C = 0;
 				unknown5A = true;
-				engine::HandleBase none;
+				engine::GameObjectHandle none;
 				unknown38 = none;
 				ChooseDistances();
 				return true;
@@ -1171,6 +1171,43 @@ namespace proto
 				{
 					Unknown103B82F0(object);
 				}
+			}
+
+			// FUNCTION: ENGINE 0x101F05A0
+			bool EngageAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				unknown38 = Unknown103B8B80(target.Get());
+				if (!unknown38.IsValid())
+				{
+					unknown5C = 5;
+				}
+				switch (unknown5C)
+				{
+				case 0:
+					RunState0(value);
+					break;
+				case 1:
+					RunState1(value);
+					break;
+				case 2:
+					RunState2(value);
+					break;
+				case 3:
+					RunState3(value);
+					break;
+				case 4:
+					return true;
+				case 5:
+					RunState5(value);
+					break;
+				case 6:
+					return true;
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101EFD00
