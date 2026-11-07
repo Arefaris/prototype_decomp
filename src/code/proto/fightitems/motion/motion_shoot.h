@@ -126,6 +126,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetMatch() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetWeaponConfiguration() const;
 
 					unsigned char unknownC[0x4];
@@ -206,6 +209,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
+
 					float timeBegin;  // +0x10
 					bool applyOnParent;  // +0x14
 					unsigned char unknown15[0x3];
@@ -241,6 +247,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetGrabSlot() const;
@@ -342,6 +351,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetGrabSlot() const;
 				const fight::Name& GetWeaponEntry() const;
 				const fight::Name& GetProfileName() const;
@@ -382,6 +394,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetGrabSlot() const;
@@ -601,6 +616,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetWeaponConfiguration() const;

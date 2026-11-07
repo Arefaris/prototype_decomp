@@ -2087,6 +2087,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101102D0
+			bool ShootCurrentWeaponConfigurationCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x10110320
+			bool ShootSwitchWeaponConfigurationTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x10110330
+			bool ShootSetUserProfileTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x101103D0
+			bool ShootSetAmmoProfileTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x10110410
+			bool ReloadTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+
+			// FUNCTION: ENGINE 0x101105B0
+			bool ShootSelectWeaponConfigurationTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10110E60
 // FUNCTION: ENGINE 0x10110E80
