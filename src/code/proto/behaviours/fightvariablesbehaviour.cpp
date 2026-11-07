@@ -26,7 +26,7 @@ namespace proto
 
 	// A free entry has no name or no value
 	// FUNCTION: ENGINE 0x100663E0
-	// NONMATCHING: the engine keeps the element pointer of the free test in edi across the calls and passes the temporary by address; the registers of this and index are swapped (14 %)
+	// NONMATCHING: the engine computes the element pointer after the temporary and passes the temporary by address; the registers of this and index are swapped (30 %)
 #ifdef NONMATCHING
 	bool FightVariablesBehaviour::FindInt(const VarName& name, unsigned int& index)
 	{
@@ -38,11 +38,8 @@ namespace proto
 				index = i;
 				return true;
 			}
-			bool isFree = false;
-			if (i < index)
-			{
-				isFree = varInts.begin[i].IsFree();
-			}
+			FightVariableInt* entry = &varInts.begin[i];
+			bool isFree = i < index && (entry->name == VarName((const char*)0, 1) || entry->value == 0);
 			if (isFree)
 			{
 				index = i;
