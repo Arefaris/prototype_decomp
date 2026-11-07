@@ -1,5 +1,12 @@
 // Fight items of the motion group: MoveChargedTrack (unit 0x10193360 - 0x101939C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_movecharged.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/engine/fight/fightcommon.h"
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
 
 namespace proto
 {
@@ -139,14 +146,14 @@ namespace proto
 
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x100F6070
-			MoveChargedAction::MoveChargedAction(MoveChargedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0.0f), unknown34(0.0f), unknown38(0.0f)
+			MoveChargedAction::MoveChargedAction(MoveChargedTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), distance(0.0f, 0.0f, 0.0f)
 			{
 			}
 
 			// FUNCTION: ENGINE 0x100F5F40
 			MoveChargedAction::~MoveChargedAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x100F6570
@@ -161,7 +168,7 @@ namespace proto
 			{
 				if (driver != 0)
 				{
-					((choreo::RootDriver*)driver)->mDelta.Reset();
+					driver->mDelta.Reset();
 					engine::GameObject* object = target.Get();
 					if (object != 0)
 					{
@@ -169,11 +176,127 @@ namespace proto
 						if (puppet != 0)
 						{
 							puppet->RemoveDriver(driver, false);
-							engine::ReleaseDriverCopy2(&driver);
+							engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 						}
 					}
 				}
 			}
+
+			// FUNCTION: ENGINE 0x100F6120
+			// NONMATCHING: the engine copies and updates the member vector component by component through memory with the minimum kept in registers, the clamp compares the message value in memory (75 %)
+#ifdef NONMATCHING
+			bool MoveChargedAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				float blendIn = link.object->blendInTime;
+				int priority = link.object->priority;
+				float blendOut = link.object->blendOutTime;
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("moveCharged", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(1);
+				puppet->SetDriver(driver, choreo::gMinusOne, priority, 1.0f, blendIn, blendOut, choreo::gMinusOne);
+				ChargeGetMessage message(2);
+				object->SendMessage(&message);
+				if (message.value < 0.0f)
+				{
+					message.value = 0.0f;
+				}
+				if (0.0f <= message.value - engine::driving::gOne)
+				{
+					message.value = engine::driving::gOne;
+				}
+				float minX = link.object->distanceMin.x;
+				float minY = link.object->distanceMin.y;
+				float minZ = link.object->distanceMin.z;
+				float maxX = link.object->distanceMax.x;
+				float maxY = link.object->distanceMax.y;
+				float maxZ = link.object->distanceMax.z;
+				distance.x = maxX;
+				distance.y = maxY;
+				distance.z = maxZ;
+				distance.x = distance.x - minX;
+				distance.y = distance.y - minY;
+				distance.z = distance.z - minZ;
+				distance.x = distance.x * message.value;
+				distance.z = message.value * distance.z;
+				distance.y = message.value * distance.y;
+				distance.x = distance.x + minX;
+				distance.y = distance.y + minY;
+				distance.z = distance.z + minZ;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100F63C0
+			// NONMATCHING: the engine keeps the track in ecx after its test, orders the clamp of the blend factor as comiss t, 0 / jae and scales the three components in registers (21 %)
+#ifdef NONMATCHING
+			bool MoveChargedAction::Slot7(int arg, float value)
+			{
+				if (arg == 0)
+				{
+					if (driver == 0)
+					{
+						return false;
+					}
+					if (link.object == 0)
+					{
+						return false;
+					}
+					engine::GameObject* object = target.Get();
+					if (object == 0)
+					{
+						return false;
+					}
+					math::Vector offset;
+					offset.x = distance.x;
+					offset.y = distance.y;
+					offset.z = distance.z;
+					float duration = link.object->Slot10();
+					if (duration > 0.0f)
+					{
+						float t = value / duration;
+						if (t < 0.0f)
+						{
+							t = 0.0f;
+						}
+						if (0.0f <= t - engine::driving::gOne)
+						{
+							t = engine::driving::gOne;
+						}
+						offset.x = t * offset.x;
+						offset.y = t * offset.y;
+						offset.z = offset.z * t;
+					}
+					if (0.00001f < value)
+					{
+						float inverse = engine::driving::gOne / value;
+						math::Vector velocity;
+						velocity.x = offset.x * inverse;
+						velocity.y = offset.y * inverse;
+						velocity.z = offset.z * inverse;
+						driver->mDelta.SetVelocity(velocity);
+						return true;
+					}
+					driver->mDelta.SetDelta(offset);
+				}
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<MoveChargedTrack>;

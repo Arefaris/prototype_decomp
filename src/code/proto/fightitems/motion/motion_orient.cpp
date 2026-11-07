@@ -1,6 +1,24 @@
 // Fight items of the motion group: OrientationDesiredCondition, OrientTrack, WorldOrientTrack (unit 0x10198800 - 0x101998F0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_orient.h"
 
+#include "code/engine/fight/fightcommon.h"
+#include "code/math/worldbounds.h"
+#include <math.h>
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		// 0x10D94F78: zero, a pooled constant
+		extern const float gZero;
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -372,7 +390,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100FF4D0
 			WorldOrientAction::~WorldOrientAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x100FFFC0
@@ -397,7 +415,7 @@ namespace proto
 					{
 						((choreo::RootDriver*)driver)->mDelta.Reset();
 					}
-					engine::ReleaseDriverCopy2(&driver);
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 				}
 			}
 
@@ -412,9 +430,91 @@ namespace proto
 					{
 						puppet->RemoveDriver(driver, false);
 					}
-					engine::ReleaseDriverCopy2(&driver);
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 				}
 			}
+
+			// FUNCTION: ENGINE 0x100FFC10
+			bool WorldOrientAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				float blendIn = link.object->blendInTime;
+				int priority = link.object->priority;
+				float blendOut = link.object->blendOutTime;
+				choreo::Puppet* puppet = engine::GetPuppet(target.Get());
+				if (puppet == 0)
+				{
+					return false;
+				}
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("orient", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(2);
+				puppet->SetDriver(driver, choreo::gMinusOne, priority, 1.0f, blendIn, blendOut, choreo::gMinusOne);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100FFD50
+			// NONMATCHING: the engine keeps this in edi and the object in esi, loads the three matrix components before the subtractions and shares one frame for both vectors (30 %)
+#ifdef NONMATCHING
+			bool WorldOrientAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector vector;
+				const math::Matrix& rotation = object->transform->value;
+				vector.x = math::WORLD_MIN - rotation.m[2][0];
+				vector.y = math::WORLD_MIN - rotation.m[2][1];
+				vector.z = math::WORLD_MIN - rotation.m[2][2];
+				float heading = choreo::Heading(vector);
+				float yaw = link.object->yaw;
+				float turning = link.object->turningVelocity;
+				if (turning > engine::driving::gZero)
+				{
+					float difference = choreo::AngleDifference(heading, yaw);
+					float step = turning * value;
+					float direction;
+					if (difference < 0.0f)
+					{
+						direction = choreo::gMinusOne;
+					}
+					else if (difference > 0.0f)
+					{
+						direction = engine::driving::gOne;
+					}
+					else
+					{
+						direction = 0.0f;
+					}
+					if ((float)fabs(difference) < step)
+					{
+						step = (float)fabs(difference);
+					}
+					vector.x = 0.0f;
+					vector.y = 0.0f;
+					vector.z = 0.0f;
+					if (0.00001f <= value)
+					{
+						vector.y = ((step * direction + heading) - heading) / value;
+					}
+					driver->mDelta.SetAngularVelocity(vector, object->transform->value);
+					return true;
+				}
+				driver->mDelta.SetOrientation(yaw, object->transform->value);
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<OrientationDesiredCondition>;
