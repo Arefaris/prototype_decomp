@@ -17,6 +17,7 @@
 #include "code/proto/behaviours/aimbehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
+#include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 
 namespace proto
 {
@@ -1208,16 +1209,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x70 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class StayOnNavmeshBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit StayOnNavmeshBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x24 - sizeof(engine::Behaviour)];
 	};
 
 	class FadeoutBehaviour : public engine::Behaviour
