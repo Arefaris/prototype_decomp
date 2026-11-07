@@ -90,3 +90,4 @@ namespace engine
 // Kept copies (template instances of this unit):
 // FUNCTION: ENGINE 0x109154E0
 // FUNCTION: ENGINE 0x109154F0
+// FUNCTION: ENGINE 0x10915520
