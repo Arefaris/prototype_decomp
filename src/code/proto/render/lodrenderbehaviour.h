@@ -11,6 +11,7 @@
 #include "code/engine/render/async/drawable.h"
 #include "code/math/aabb.h"
 #include "code/math/vector.h"
+#include "code/proto/camera/cameramanager.h"
 #include "code/proto/shaders/shaderpalette.h"
 
 namespace pure3d
@@ -58,18 +59,6 @@ namespace proto
 	extern LODRange gLODRanges[3];
 	// 0x11075120: a multiplier on every level's fade distance (name guess)
 	extern float gLODDistanceScale;
-
-	// 0x11263108: the object the behaviour asks for the detail scale of the camera in view (name guess). The
-	// engine's method (0x1032C430) reads the float at the object's +0x68 and, without a camera, the pointer chain
-	// +0x14 / +0x40; only the method is needed here.
-	class LODDetailScale
-	{
-	public:
-		// 0x1032C430: the scale the camera asks for, 1 when it has none
-		float GetScale(const pure3d::Camera* camera) const;
-	};
-
-	extern LODDetailScale* gLODDetailScale;
 
 	// One level of the object: the drawable shown for it (8 bytes; the two words after the handle are unknown)
 	struct LODLevel

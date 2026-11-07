@@ -1,0 +1,34 @@
+// proto::ChaseCamera (RTTI name; base proto::GameCamera): the camera that follows the player on foot. Only what the other
+// units call is declared; the names are guesses.
+#ifndef PROTO_CAMERA_CHASECAMERA_H
+#define PROTO_CAMERA_CHASECAMERA_H
+
+#include "code/math/vector.h"
+#include "code/proto/camera/vehiclecamera.h"
+
+namespace proto
+{
+	class ChaseCamera : public GameCamera
+	{
+	public:
+		// 0x1033A3D0 (name guess)
+		bool Unknown1033A3D0();
+		// 0x10341FF0 (name guess)
+		void Unknown10341FF0();
+		// 0x1033F3A0 / 0x1033F5B0 / 0x1033A300 (name guesses)
+		void Unknown1033F3A0(int first, float second, float third, float fourth);
+		void Unknown1033F5B0(int value, float time);
+		void Unknown1033A300(float first, float second);
+		// 0x1033FA90 / 0x1033FC00: turns the camera to face / look along a direction over the time (name guesses)
+		void FaceDirection(const math::Vector* direction, float time);
+		void LookAlongDirection(const math::Vector* direction, float time);
+		// 0x1033F990: turns the camera behind its avatar over the time
+		void ResetBehind(float time);
+		// 0x10338FE0: the field of view
+		float GetFieldOfView();
+		// 0x1033FDB0: turns the camera to face along a direction over the time
+		void ResetFacing3D(const math::Vector* direction, float time);
+	};
+}
+
+#endif

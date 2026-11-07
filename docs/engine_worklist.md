@@ -7222,3 +7222,32 @@ Not done: the tank solver's update, the physics sound code and the tread effects
 - Not done: `CloudManager` itself (the class is declared as an empty type; its members, the script natives and the container instances 0x104E7E00 - 0x104EBC70 need the layout), the cloud spawners (`CloudSpawnerBase` has bit-field members at +0xB9 / +0xBA / +0xBB that two reflected properties and a
   copy routine read), the hit effect manager's free functions (0x104F3630 - 0x104F5270), the accessors 0x104F5300 - 0x104F54A0 and 0x104FBEE0 - 0x104FC440 (no caller or RTTI names their classes), `OLSGameStub` (its base `OLSGame` is not reconstructed), `GamePauseState::Enter` / `Leave` / `Update` and the
   `InGameState` slots (long runs of calls into unreconstructed code).
+## proto cameras: the range 0x10320000 - 0x10360000 (sn-cd)
+1745 functions of the range were open at the start, 1043 are now (702 reconstructed or mapped). The range holds, in this order: the helicopter solver properties' reflection (0x10320000 - 0x10324C30, continues
+below the range), the game cameras (AirCamera 0x10324C10 - 0x10327D30, AirGunnerCamera to 0x1032A330, BridgeCamera and its behaviour to 0x1032B900), the camera manager (0x1032BAB0 - 0x1032F640, its
+script method wrappers 0x1032C560 - 0x10331D80 and the registration function 0x10331D80, 5240 bytes), the chase camera (0x10333xxx - 0x10345xxx, with the stick helper and the settings), the smoothing data
+reflection (0x103453C0 - 0x10346A70), the framer camera (0x10347xxx - 0x10351000), the game camera (0x10350FF0 - 0x10353800), the vehicle camera (0x10354xxx - 0x10358500) and the camera fight items
+(0x10358570 - 0x1035F000: the action half of nine items, then their track half; the RegisterAt103585C0 / 103591C0 groups). Written (functions match unless noted):
+- The nine camera fight tracks, generated with the machinery of the motion units (one pass over the engine's `RegisterProperties`, the setters, the constructors, the factories and the property template
+  instances; `tools/` has no generator, the scripts are in `local/scratch/sn-cd/gen`): `motion_cameraselect.cpp` (CameraAvatarSelectTrack, CameraTypeSelectTrack), `motion_camerahint.cpp`,
+  `motion_camerareset.cpp`, `motion_dramaticcamera.cpp`, `motion_blockframercam.cpp`, `motion_punchincamera.cpp`, `motion_scriptedcamera.cpp` (all in `proto/fightitems/motion`) and
+  `proto/camera/camerashakerequest.cpp` (`proto::camera::CameraShakeRequestTrack`). Every `RegisterProperties` is NONMATCHING (shrink-wrap). The enum tables and counts the properties read are the engine's
+  (`extern`, mapped in symbols.txt). The file names are guesses.
+- The action half of the same units (constructors with the inlined `core::Link`, destructors, `CreateAction`, the small slots) and the out-of-line accessors of the tracks that the action half keeps
+  (`GetCameraType`, `GetOffset`, ... as ordinary members; a `math::Vector` getter returns by value). Slot 5 of the avatar select (250 bytes, two messages), dramatic (792), punch in (162) and scripted
+  (625) actions and `CameraShakeRequestTrack::CreateAction` (0x10359410, NONMATCHING 46.4 %: the engine loads the translation into three registers before storing it) are not done.
+  `RegisterAt103585C0Factories` / `RegisterAt103591C0Factories` return a bool now (contexts.cpp declarations and symbols.txt follow); the six `Register<Name>Factory` declarations of contexts.cpp
+  became `motion::Register<Name>TrackFactory`.
+- `proto/camera/cameramanager.h/.cpp`: `proto::CameraManager` (0x7C bytes, the global 0x11263108, replaces the `LODDetailScale` stand-in of lodrenderbehaviour.h): the game cameras by type, the scripted
+  cameras (`engine::camera::ScriptedCamera`), the camera mask, the shake state, the spline of the scripted cameras. 70 members match. NONMATCHING: `StartSpline` (0x1032BD90, 16 %), `AttachCameraToObject`
+  (0x1032CC50, 19 %), `IsSlotBusy` (0x1032D460, 46 %). `cameramanagerwrappers.cpp` (200): the `Method` / `Closure` / `RegisterMethod` instances of its 33 signatures (the 8 one-argument
+  `RegisterMethod` instances differ only in the closure constructor they call, so they are placed by it: `local/scratch/sn-cd/gen/fixreg.py`). `chasecamera.h` / `framercam.h` declare what the
+  other units call. `gamecamera.cpp`: the small virtual slots of `proto::GameCamera` (the class stub of vehiclecamera.h got its slots 5 and 11 - 15 and the members the manager reads).
+- Findings: `if (x) return true; return false;` gives the engine's `cmp / setbe` for a range test that `return x <= 4;` compiles as `sbb`; a `bool` returning static inline helper (`(mask >> n) & 1`)
+  gives the `shr / test al, 1` the engine's callers have where a direct test gives `test byte ptr`; a ternary `value = flag ? a : a * k` reproduces a load before the branch; a vector copied through a
+  local (`math::Vector v = track->direction;`) uses the copy constructor's loads the engine has; a function that forwards its arguments unchanged keeps the first dword of a by-value `Vector` in `eax`
+  only when it is an `int` (the signature is not the script one).
+- Not done: the helicopter solver properties (about 190 functions, the unit starts below the range: its `GetMemberPrimitiveMetaType<C, float, N>` instances sit at 0x1031FExx), AirCamera /
+  AirGunnerCamera / ChaseCamera / VehicleCamera (constructors, destructors, `Update`, the settings), BridgeCamera and its behaviour (an array of 20-byte requests, `OnMessage`), the smoothing
+  data / state / wrapper reflection (an enum meta type, 22 float members, 11 of them through degree / radian accessors, `ArrayCDynamicHelper<Labelled, 12>`), FramerCam and its sequencer, the remaining
+  camera manager natives (the framer natives, `RequestShake`, `CreateCinematographer`) and the registration function 0x10331D80.
