@@ -1,6 +1,8 @@
 // The audio dialogue unit (RTTI: engine::AudioDialoguePersonality, AudioDialogueSubtitle, AudioDialogueSound and their
 // loaders; 0x10855xxx - 0x1085Bxxx): the instance of the dynamic property of a string that the unit's vftables use. No
 // assert path names the unit; the file name is a guess.
+#include "code/core/criticalsection.h"
+#include "code/engine/audio/audiodialogue.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/dynamicproperty.h"
 #include "code/om/string.h"
@@ -117,4 +119,44 @@ namespace om
 	template Command1<void,String>* CommandMember1<DynamicProperty<String>,DynamicProperty<String>,void,String>::Create(DynamicProperty<String>*, CommandMember1<DynamicProperty<String>,DynamicProperty<String>,void,String>::Function);
 	template DelegatePropertyBase* DynamicProperty<String>::CreateDelegate();
 	template DynamicProperty<String>::DynamicProperty(const ClassName&, String);
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x10856410
+	// FUNCTION: ENGINE 0x10856470
+	// FUNCTION: ENGINE 0x108564B0
+	// FUNCTION: ENGINE 0x10856450
+	// FUNCTION: ENGINE 0x10856490
+	// FUNCTION: ENGINE 0x10858280
+	// FUNCTION: ENGINE 0x10857880
+	// FUNCTION: ENGINE 0x10858260
+	// FUNCTION: ENGINE 0x10855820
+	const char* AudioDialoguePersonalityLoader::AllocationTag()
+	{
+		return "";
+	}
+
+	// The engine's constructor (0x10858230) stores the reference count before it pushes the address of the lock, this one
+	// behind it (78.3 %): it is neither annotated nor mapped and only makes the compiler emit the vftable and the
+	// destructors the matching functions below belong to
+	AudioDialogueSubtitleLoader::AudioDialogueSubtitleLoader()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10856280
+	const char* AudioDialogueSubtitleLoader::AllocationTag()
+	{
+		return "";
+	}
+
+	// The loaders as the registry makes them (a helper to keep the constructors and the destructors out of line)
+	content::ObjectLoader2* MakeDialogueLoader(bool subtitles)
+	{
+		if (subtitles)
+		{
+			return new AudioDialogueSubtitleLoader;
+		}
+		return new AudioDialoguePersonalityLoader;
+	}
 }
