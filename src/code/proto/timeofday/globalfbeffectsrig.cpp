@@ -392,6 +392,54 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x1052E430
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>* GlobalFBEffectsRig::GetBloomKeys()
+	{
+		return &bloomKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E440
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>* GlobalFBEffectsRig::GetTonemapKeys()
+	{
+		return &tonemapKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E450
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>* GlobalFBEffectsRig::GetColourMatrixKeys()
+	{
+		return &colourMatrixKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E460
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::DOFParameters>* GlobalFBEffectsRig::GetDofKeys()
+	{
+		return &dofKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E470
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>* GlobalFBEffectsRig::GetBloomKeys() const
+	{
+		return &bloomKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E480
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>* GlobalFBEffectsRig::GetTonemapKeys() const
+	{
+		return &tonemapKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E490
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>* GlobalFBEffectsRig::GetColourMatrixKeys() const
+	{
+		return &colourMatrixKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E4A0
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::DOFParameters>* GlobalFBEffectsRig::GetDofKeys() const
+	{
+		return &dofKeys;
+	}
+
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
