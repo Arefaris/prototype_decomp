@@ -104,6 +104,105 @@ namespace om
 		return gEntitiesByName.InsertEntity(this);
 	}
 
+	// FUNCTION: ENGINE 0x105B5880
+	// NONMATCHING: the engine keeps the tree in memory and the high half of the name in edi (register assignment, 47.7 %)
+#ifdef NONMATCHING
+	bool TreeHead::InsertEntity(Entity* entity)
+	{
+		TreeNode* inserted = entity != 0 ? &entity->nodeByName : 0;
+		TreeNode* parent = &nil;
+		TreeNode* current = root;
+		if (current != &nil)
+		{
+			do
+			{
+				parent = current;
+				Entity* other = current != 0 ? (Entity*)((char*)current - 0x10) : 0;
+				if (entity->name.key < other->name.key)
+				{
+					current = current->left;
+				}
+				else
+				{
+					current = current->right;
+				}
+			}
+			while (current != &nil);
+		}
+		inserted->parent = parent;
+		if (parent == &nil)
+		{
+			root = inserted;
+		}
+		else
+		{
+			Entity* other = parent != 0 ? (Entity*)((char*)parent - 0x10) : 0;
+			if (entity->name.key < other->name.key)
+			{
+				parent->left = inserted;
+			}
+			else
+			{
+				parent->right = inserted;
+			}
+		}
+		inserted->left = &nil;
+		inserted->right = &nil;
+		inserted->color = 1;
+		TreeNode* fixed = inserted;
+		while (fixed != root && fixed->parent->color == 1)
+		{
+			if (fixed->parent == fixed->parent->parent->left)
+			{
+				TreeNode* uncle = fixed->parent->parent->right;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->right)
+					{
+						fixed = fixed->parent;
+						RotateLeft(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateRight(fixed->parent->parent);
+				}
+			}
+			else
+			{
+				TreeNode* uncle = fixed->parent->parent->left;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->left)
+					{
+						fixed = fixed->parent;
+						RotateRight(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateLeft(fixed->parent->parent);
+				}
+			}
+		}
+		root->color = 0;
+		return true;
+	}
+
+#endif
+
 	// FUNCTION: ENGINE 0x105B4D40
 	bool TreeHead::InsertEntityTypeByName(EntityTypeBase* type)
 	{
@@ -317,6 +416,149 @@ namespace om
 		}
 		root->color = 0;
 		return true;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B54A0
+	// NONMATCHING: the engine's search is one template body whose registers and branch layout differ (14.8 %)
+#ifdef NONMATCHING
+	EntityTypeBase* TreeHead::FindEntityType(const type_info& type)
+	{
+		TreeNode* current = root;
+		if (current == &nil)
+		{
+			return 0;
+		}
+		TreeNode* previous;
+		while (true)
+		{
+			EntityTypeBase* other = current != 0 ? (EntityTypeBase*)((char*)current - 0x3C) : 0;
+			const type_info* otherType = other->type;
+			if (!type.before(*otherType))
+			{
+				if (!otherType->before(type))
+				{
+					previous = Previous(current);
+					break;
+				}
+				current = current->left;
+			}
+			else
+			{
+				current = current->right;
+			}
+			if (current == &nil)
+			{
+				return 0;
+			}
+		}
+		while (previous != 0)
+		{
+			const type_info* otherType = ((EntityTypeBase*)((char*)previous - 0x3C))->type;
+			if (type.before(*otherType) || otherType->before(type))
+			{
+				break;
+			}
+			current = previous;
+			previous = Previous(previous);
+		}
+		return current != 0 ? (EntityTypeBase*)((char*)current - 0x3C) : 0;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B53C0
+	// NONMATCHING: as the search by type (53.5 %)
+#ifdef NONMATCHING
+	EntityTypeBase* TreeHead::FindEntityTypeByName(const String& name)
+	{
+		TreeNode* current = root;
+		if (current == &nil)
+		{
+			return 0;
+		}
+		TreeNode* previous;
+		while (true)
+		{
+			EntityTypeBase* other = current != 0 ? (EntityTypeBase*)((char*)current - 0x1C) : 0;
+			int result = strcmp(name.data, other->name);
+			if (result < 0)
+			{
+				current = current->left;
+			}
+			else
+			{
+				if (result <= 0)
+				{
+					previous = Previous(current);
+					break;
+				}
+				current = current->right;
+			}
+			if (current == &nil)
+			{
+				return 0;
+			}
+		}
+		while (previous != 0)
+		{
+			EntityTypeBase* other = (EntityTypeBase*)((char*)previous - 0x1C);
+			if (strcmp(name.data, other->name) != 0)
+			{
+				break;
+			}
+			current = previous;
+			previous = Previous(previous);
+		}
+		return current != 0 ? (EntityTypeBase*)((char*)current - 0x1C) : 0;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B57D0
+	// NONMATCHING: as the search by type (24.3 %)
+#ifdef NONMATCHING
+	Entity* TreeHead::FindEntity(const ClassName& name)
+	{
+		TreeNode* current = root;
+		if (current == &nil)
+		{
+			return 0;
+		}
+		TreeNode* previous;
+		while (true)
+		{
+			Entity* other = current != 0 ? (Entity*)((char*)current - 0x10) : 0;
+			if (name.key < other->name.key)
+			{
+				current = current->left;
+			}
+			else
+			{
+				if (name.key <= other->name.key)
+				{
+					previous = Previous(current);
+					break;
+				}
+				current = current->right;
+			}
+			if (current == &nil)
+			{
+				return 0;
+			}
+		}
+		while (previous != 0)
+		{
+			Entity* other = (Entity*)((char*)previous - 0x10);
+			if (name.key != other->name.key)
+			{
+				break;
+			}
+			current = previous;
+			previous = Previous(previous);
+		}
+		return current != 0 ? (Entity*)((char*)current - 0x10) : 0;
 	}
 
 #endif
