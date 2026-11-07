@@ -1029,6 +1029,9 @@ template proto::fightitems::motion::HunterShortRangeHopCornerTrack* core::Link<p
 template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Get() const;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D6AF0
+// FUNCTION: ENGINE 0x100D6BE0
+// FUNCTION: ENGINE 0x100D6EF0
 // FUNCTION: ENGINE 0x100D7540
 // FUNCTION: ENGINE 0x100D7560
 // FUNCTION: ENGINE 0x100D7580

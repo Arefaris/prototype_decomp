@@ -4028,7 +4028,9 @@ template proto::fightitems::motion::GrabSlotEnableStuckTestTrack* core::Link<pro
 template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::fightitems::motion::ReactionHitGrabTrack>::Get() const;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C2400
 // FUNCTION: ENGINE 0x100C40D0
+// FUNCTION: ENGINE 0x100C4100
 // FUNCTION: ENGINE 0x100C4110
 // FUNCTION: ENGINE 0x100C4140
 // FUNCTION: ENGINE 0x100C4150
@@ -4038,6 +4040,7 @@ template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::figh
 // FUNCTION: ENGINE 0x100C4F90
 // FUNCTION: ENGINE 0x100C4FC0
 // FUNCTION: ENGINE 0x100C5030
+// FUNCTION: ENGINE 0x100C5040
 // FUNCTION: ENGINE 0x100C5070
 // FUNCTION: ENGINE 0x100C50B0
 // FUNCTION: ENGINE 0x100C50C0
