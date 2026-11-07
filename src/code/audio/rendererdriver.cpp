@@ -475,6 +475,14 @@ namespace om
 	template DelegatePropertyBase* MetaProperty<audio::FoldDownType>::CreateDelegate(void*);
 	// FUNCTION: ENGINE 0x105E8850
 	template FixedArray<unsigned int, 8>::FixedArray();
+	// FUNCTION: ENGINE 0x105E51A0
+	template void FixedArray<unsigned int, 8>::Fill(const unsigned int&);
+	// FUNCTION: ENGINE 0x105E5190
+	template unsigned int& FixedArray<unsigned int, 8>::operator[](int);
+	// FUNCTION: ENGINE 0x105E5C80
+	template const char* FixedArray<unsigned int, 8>::AllocationTag();
+	// FUNCTION: ENGINE 0x105E6110
+	template void* FixedArray<unsigned int, 8>::operator new(size_t);
 }
 
 namespace om

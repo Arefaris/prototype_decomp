@@ -36,6 +36,14 @@ namespace om
 			}
 			return *this;
 		}
+		// Every item gets the value (name guessed)
+		void Fill(const T& value)
+		{
+			for (int i = 0; i < N; ++i)
+			{
+				items[i] = value;
+			}
+		}
 		T& operator[](int index)
 		{
 			return items[index];

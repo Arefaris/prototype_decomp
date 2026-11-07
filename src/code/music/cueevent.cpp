@@ -30,6 +30,16 @@ namespace music
 		return GetMetaClassForWrite()->WriteBinary(&output->stream, this);
 	}
 
+	// FUNCTION: ENGINE 0x105F7980
+	CueEventCueState::CueEventCueState(Cue* newCue) :
+		cue(newCue)
+	{
+		if (cue != 0)
+		{
+			om::ThreadSafeRefCount::AddRef(&cue->count);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x105F1980
 	void CueEntityTypeCopy::CreateEntity(om::Entity** entity, const om::ClassName& name)
 	{
@@ -2129,4 +2139,51 @@ namespace om
 	template MetaClassBase* GetCachedClass<Bool32>();
 	// FUNCTION: ENGINE 0x105EEBA0
 	template MetaClassBase* GetCachedClass<music::CueEventCueState>();
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105F78C0
+	void RegisterCueEventMetas()
+	{
+		RegisterCueEventSetCellTypeMeta();
+		RegisterCueEventCommandMeta();
+		RegisterCueEventCueStateMeta();
+		RegisterCueEventCellStateMeta();
+		RegisterCueEventSetCurrentCueMeta();
+		RegisterCueEventSetCurrentCellMeta();
+		RegisterCueEventSetCurrentCuePlayerMeta();
+		RegisterCueEventCellPlayerStateMeta();
+		RegisterCueEventSetPartNameMeta();
+		RegisterCueEventSetLayerNameMeta();
+		RegisterCueEventMoveCellMeta();
+		RegisterCueEventMovePartMeta();
+		RegisterCueEventNewCuePlayerMeta();
+		RegisterCueEventDestroyCuePlayerMeta();
+		RegisterCueEventSetBPMMeta();
+		RegisterCueEventSyncMeta();
+		RegisterCueEventSetFadeMeta();
+	}
+
+	// FUNCTION: ENGINE 0x105F7920
+	void UnregisterCueEventMetas()
+	{
+		UnregisterCueEventSetCellTypeMeta();
+		UnregisterCueEventCommandMeta();
+		UnregisterCueEventCueStateMeta();
+		UnregisterCueEventCellStateMeta();
+		UnregisterCueEventSetCurrentCueMeta();
+		UnregisterCueEventSetCurrentCellMeta();
+		UnregisterCueEventSetCurrentCuePlayerMeta();
+		UnregisterCueEventCellPlayerStateMeta();
+		UnregisterCueEventSetPartNameMeta();
+		UnregisterCueEventSetLayerNameMeta();
+		UnregisterCueEventMoveCellMeta();
+		UnregisterCueEventMovePartMeta();
+		UnregisterCueEventNewCuePlayerMeta();
+		UnregisterCueEventDestroyCuePlayerMeta();
+		UnregisterCueEventSetBPMMeta();
+		UnregisterCueEventSyncMeta();
+		UnregisterCueEventSetFadeMeta();
+	}
 }
