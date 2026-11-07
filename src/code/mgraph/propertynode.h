@@ -138,9 +138,9 @@ namespace mgraph
 		node->channels[channel].value = newValue;
 	}
 	// Where the queue links an event
-	inline unsigned int* EventLink(ContextEvent* event)
+	inline om::GarbageLink* EventLink(ContextEvent* event)
 	{
-		return event != 0 ? &event->unknown4 : 0;
+		return event != 0 ? &event->link : 0;
 	}
 
 	template<class T> void PropertyChannel<T>::Update(PropertyNodeBase* node, EvaluationFrame* frame)

@@ -6,6 +6,7 @@
 
 #include "code/mgraph/node.h"
 #include "code/om/allocation.h"
+#include "code/om/delegate.h"
 #include "code/om/refcount.h"
 
 namespace mgraph
@@ -95,7 +96,8 @@ namespace mgraph
 		// 0x11327700: how many events are alive (name guessed)
 		static int liveEvents;
 
-		unsigned int unknown4;
+		// +4: the link of the event in its queue
+		om::GarbageLink link;
 	};
 
 	class BarrierEvent : public ContextEvent

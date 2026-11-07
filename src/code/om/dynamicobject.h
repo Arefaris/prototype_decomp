@@ -57,8 +57,6 @@ namespace om
 	class PropertyList : public GarbageList
 	{
 	public:
-		// 0x105CBE20: puts the link at the end
-		void Append(GarbageLink* link);
 		// 0x105CBE90
 		unsigned int Count();
 		// 0x105C1600

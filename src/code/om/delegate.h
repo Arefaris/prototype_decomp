@@ -116,6 +116,8 @@ namespace om
 		void Add(GarbageLink* link);
 		// 0x105CD920: the first holder
 		GarbageBase* GetFirst();
+		// 0x105CBE20: puts a link at the end
+		void Append(GarbageLink* link);
 		// 0x105CBE50: takes a link out
 		void Remove(GarbageLink* link);
 		// 0x105CF410: takes the holders out one by one and deletes them

@@ -216,20 +216,16 @@ namespace mgraph
 	}
 
 	// The queue of the events a context executes (an intrusive list of the events' links and their number)
-	class EventQueue
+	class EventQueue : public om::GarbageList
 	{
 	public:
-		// 0x105CBE20: puts the link of an event at the end of the list
-		void Add(unsigned int* link);
 		// Queues an event and counts it
-		void Post(unsigned int* link)
+		void Post(om::GarbageLink* link)
 		{
-			Add(link);
+			Append(link);
 			count++;
 		}
 
-		unsigned int* head;
-		unsigned int* tail;
 		int count;
 	};
 
