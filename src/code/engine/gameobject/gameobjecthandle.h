@@ -80,6 +80,11 @@ namespace engine
 			}
 			return 0;
 		}
+		// Whether both words match (the engine compares the handle as one 32-bit value)
+		bool operator==(const GameObjectHandle& other) const
+		{
+			return *(const unsigned int*)this == *(const unsigned int*)&other;
+		}
 		bool IsValid() const
 		{
 			return index != 0xffff && GetGameObjectEntries()[index].serial == serial && GetGameObjectEntries()[index].object != 0;

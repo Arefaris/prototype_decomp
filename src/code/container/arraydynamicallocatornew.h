@@ -135,6 +135,15 @@ namespace container
 		{
 			return capacity - begin;
 		}
+		// Room for one more element at the end (uninitialised), or null when the array is full
+		T* Grow()
+		{
+			if (end < capacity)
+			{
+				return end++;
+			}
+			return 0;
+		}
 		T& operator[](int index)
 		{
 			return begin[index];

@@ -8,6 +8,7 @@
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/proto/combatbudgetmanager.h"
 
 namespace proto
 {
@@ -19,44 +20,6 @@ namespace proto
 
 	// 0x103C4A00: how many objects of a tag are around (name guess)
 	int Unknown103C4A00(const fight::Name* tag, int limit, ByteFlag tryDespawnIfFull, float minDespawnDistance, float objRadius);
-
-	// One combat type's pool of tokens (0x20 bytes)
-	class CombatBudget
-	{
-	public:
-		// 0x1038A4C0: asks for a token for an object
-		void Unknown1038A4C0(const engine::GameObjectHandle* handle);
-		// 0x1038A100: whether the object holds a token
-		bool Unknown1038A100(const engine::GameObjectHandle* handle);
-
-		unsigned char unknown0[0x20];
-	};
-
-	// The combat budgets (0x84 bytes): the flag that turns them on, then one pool per combat type
-	class CombatBudgets
-	{
-	public:
-		void Request(int type, const engine::GameObjectHandle* handle)
-		{
-			if (enabled)
-			{
-				entries[type].Unknown1038A4C0(handle);
-			}
-		}
-
-		bool Has(int type, const engine::GameObjectHandle* handle)
-		{
-			if (enabled && !entries[type].Unknown1038A100(handle))
-			{
-				return false;
-			}
-			return true;
-		}
-
-		bool enabled;  // +0x0
-		unsigned char unknown1[3];
-		CombatBudget entries[4];  // +0x4
-	};
 
 	// The soldier budgets (gAISystem +0x10; name guess)
 	class SoldierBudgets
@@ -106,7 +69,7 @@ namespace proto
 	public:
 		unsigned char unknown0[0x10];
 		SoldierBudgets* soldierBudgets;  // +0x10
-		CombatBudgets* budgets;  // +0x14
+		CombatBudgetManager* budgets;  // +0x14
 		unsigned char unknown18[4];
 		StrafeRunTokens* strafeRunTokens;  // +0x1C
 		BaseAlert* baseAlert;  // +0x20
