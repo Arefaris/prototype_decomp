@@ -6,9 +6,13 @@
 #include "code/om/stream.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 namespace om
 {
+	// 0x112767D4: what the words of a stream context are made of
+	extern int gStreamContextObject;
+
 	// FUNCTION: ENGINE 0x105B7A80
 	TextValue* TextNodeTree::First() const
 	{
@@ -46,6 +50,51 @@ namespace om
 			}
 		}
 		return next != end ? (TextValue*)next : 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B78F0
+	TextNodeTree::TextNodeTree()
+	{
+		TreeNode* end = &nil;
+		nil.left = end;
+		nil.right = end;
+		nil.parent = end;
+		nil.color = 0;
+		root = end;
+	}
+
+	// FUNCTION: ENGINE 0x105B8BF0
+	int CompareNodeName(const String* key, const TextValue* node)
+	{
+		return strcmp(key->GetText(), node->text.GetText());
+	}
+
+	// FUNCTION: ENGINE 0x105B8B50
+	int CompareStrings(const String* first, const String* second)
+	{
+		return strcmp(first->GetText(), second->GetText());
+	}
+
+	// FUNCTION: ENGINE 0x105B8BA0
+	int CompareNodes(const TextValue* first, const TextValue* second)
+	{
+		return strcmp(first->text.GetText(), second->text.GetText());
+	}
+
+	// FUNCTION: ENGINE 0x105B8C80
+	TextNode::TextNode(TextValue* newParent, const String& name) :
+		TextValue(newParent, name)
+	{
+		if (parent != 0)
+		{
+			parent->children.Insert(this, CompareNodes, 1);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105BFF30
+	void* GetStreamContextObject()
+	{
+		return &gStreamContextObject;
 	}
 
 	// FUNCTION: ENGINE 0x105B7B50

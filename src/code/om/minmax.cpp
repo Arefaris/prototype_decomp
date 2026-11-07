@@ -13,4 +13,10 @@ namespace om
 		}
 		return result;
 	}
+
+	// FUNCTION: ENGINE 0x105BC9B0
+	unsigned int Min(const unsigned int& first, const unsigned int& second)
+	{
+		return first < second ? first : second;
+	}
 }
