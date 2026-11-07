@@ -125,7 +125,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010E390
-			// EQUIVALENT: instruction selection of the pointer to bool conversion (neg, sbb, neg where ours has test, setne) (63.9 %)
 			bool ScrubberAction::Slot5(int arg, float value)
 			{
 				return engine::GetPuppet(target.Get()) != 0;

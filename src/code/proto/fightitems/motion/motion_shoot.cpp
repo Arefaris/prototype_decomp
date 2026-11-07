@@ -1628,7 +1628,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10113510
-			// EQUIVALENT: scheduling, the engine stores the flag byte after the three floats (81.6 %)
 			ShootAutoTargetAction::ShootAutoTargetAction(ShootAutoTargetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xA00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f)
 			{
 				unknown38 = false;

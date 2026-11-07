@@ -596,7 +596,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F3D0
-			// EQUIVALENT: operand order of the two comiss compares (the same comparisons) (94.0 %)
 			bool ShieldHealthCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
@@ -604,7 +603,7 @@ namespace proto
 				{
 					ShieldGetHealthMessage message;
 					object->SendMessage(&message);
-					if (message.health >= 0.0f && message.maxHealth >= 0.0f)
+					if (!(message.health < 0.0f) && !(message.maxHealth < 0.0f))
 					{
 						float percentage = message.health / message.maxHealth;
 						float limit = healthPercentage;
