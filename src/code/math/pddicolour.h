@@ -16,6 +16,14 @@ namespace math
 		static const pddiColour WHITE;
 		// 0x111BBA28 (another unit, name guessed): opaque black
 		static const pddiColour BLACK;
+		// 0x111BBA30 - 0x111BBA88 (another unit, names guessed): named colours of the engine's table
+		static const pddiColour GREY;
+		static const pddiColour BLUE;
+		static const pddiColour TURQUOISE;
+		static const pddiColour LIME_GREEN;
+		static const pddiColour YELLOW;
+		static const pddiColour LAVENDER;
+		static const pddiColour BROWN;
 
 		pddiColour()
 		{
