@@ -193,6 +193,10 @@ namespace content
 
 		// 0x1060BB60: reads the first chunk's header out of the stream (takes a reference to it)
 		explicit ChunkReader(ChunkStream* newStream);
+		// 0x1060B870: lets go of the stream
+		~ChunkReader();
+		// 0x1060B830: from the heap the second argument names
+		static void* operator new(unsigned int size, int heap);
 		// 0x1060B9E0: enters a chunk whose id has been read already (the id is the argument)
 		unsigned int BeginChunk(unsigned int id);
 
@@ -242,9 +246,9 @@ namespace content
 		virtual void LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader,
 			LoadInventory* inventory) = 0;
 
-		// The chunk id the constructor is given, and a word the derived loaders do not use
+		// The chunk id the constructor is given, and the reader the handler loads out of when it has one already
 		unsigned int chunkId;
-		int unknownC;
+		ChunkReader* reader;
 	};
 }
 

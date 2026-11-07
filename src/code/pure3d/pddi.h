@@ -11,6 +11,11 @@
 #include "code/math/matrix.h"
 #include "code/pure3d/pddi/dx9/d3d9.h"
 
+namespace engine
+{
+	class Display;
+}
+
 namespace content
 {
 	class ChunkReader;
@@ -77,14 +82,22 @@ namespace pure3d
 		pddiSurfaceInfo* info;
 	};
 
-	// The render targets the device draws into (five handles; only the first two are set by the passes)
+	// The render targets the device draws into (five handles; the passes set the depth and the first colour target)
 	struct pddiRenderTargets
 	{
 		int depth;
-		int colour;
-		int unknown8;
-		int unknownC;
-		int unknown10;
+		union
+		{
+			struct
+			{
+				int colour;
+				int unknown8;
+				int unknownC;
+				int unknown10;
+			};
+			// The four colour targets
+			int colours[4];
+		};
 	};
 
 	class dxVertexDeclaration;
@@ -735,7 +748,8 @@ namespace pure3d
 		}
 
 		int unknown4;
-		int unknown8;
+		// The display the device was made for
+		engine::Display* display;
 		// 0x1061B550 and 0x1061B5A0 hand this to a new dxTexture
 		IDirect3DDevice9* unknownC;
 		// 0x10: the number of frames begun; 0x14: set while one is under way

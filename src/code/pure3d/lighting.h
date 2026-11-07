@@ -6,6 +6,7 @@
 #include "code/math/vector.h"
 #include "code/core/name.h"
 #include "code/pure3d/entity.h"
+#include "code/pure3d/visibility.h"
 
 namespace pure3d
 {
@@ -34,14 +35,25 @@ namespace pure3d
 		// region names a shared light bit set: the count of set light bits is its first word (the group count is
 		// that >> 7). The count argument is not read.
 		unsigned int Select(unsigned int* indices, unsigned int count, const unsigned int* region);
-		// 0x1060FC30 (mapped, not reconstructed): copies the region's bit set into bits (its three words at
-		// +0 / +4 / +8 are the caller's bit count, a spare word and the mask pointer)
-		void SetRegionMask(unsigned int* bits, const unsigned int* region);
+		// 0x1060FC30: sets the bits of the lights the region touches in the set: each group the region's mask names
+		// is all ones (else all zeros), and then the sets of the region's entries are taken away from it, or the
+		// ones they do not have
+		void SetRegionMask(visibility::BitSet* bits, const unsigned int* region);
 
-		unsigned char unknown0[0x3c];
-		unsigned int bitCount;     // +0x3c: how many light bits the region has (the group count is this >> 7)
-		unsigned int unknown40;    // +0x40
-		unsigned int* mask;        // +0x44: the light mask words (128 bits per group)
+		// The sets of lights each region of the scene holds
+		visibility::BitSet* sets;
+		unsigned char unknown4[0x1c - 4];
+		// The set the region entries that are not wanted are made into
+		visibility::BitSet notSet;
+		unsigned char unknown2C[0x3c - 0x2c];
+		// The lights of the region the last query found (bitCount and the mask words)
+		visibility::BitSet lights;
+		// Where each group starts in the set of all lights, and how many words it has
+		int* offsets;
+		unsigned char unknown50[0x58 - 0x50];
+		int* counts;
+		unsigned char unknown5C[0x70 - 0x5c];
+		unsigned char groupCount;
 	};
 
 	// 0x1060F840: the indices of the set bits of the 128-bit groups of masks, in order
