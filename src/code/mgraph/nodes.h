@@ -398,15 +398,41 @@ namespace mgraph
 		return "";
 	}
 
-	// The nodes that contain a graph
+	// The nodes that contain a graph (the graph is attached to and detached from the same contexts as the node)
 	class Abstraction : public Node
 	{
+	public:
+		// 0x10ACCDB0 / 0x10ACCDC0
+		virtual void Attach(Context* newContext);
+		virtual void Detach(Context* oldContext);
+
+		NodeLink graphLink;  // 0x50: in the abstractions of the graph the node contains
+		Graph* innerGraph;  // 0x58
 	};
+	// A node of the graph that stands for another graph, which always has one channel
 	class LinkedGraph : public Abstraction
 	{
+	public:
+		// 0x10ACBFE0 / 0x10ACC000
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void SetChannelEnabled(unsigned int channel, bool enabled);
+
+		om::ClassName abstractedName;  // 0x60
 	};
+	// A node whose graph has the channels of the node
 	class EmbeddedGraph : public Abstraction
 	{
+	public:
+		// 0x10ACD080 / 0x10ACD0C0
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void SetChannelEnabled(unsigned int channel, bool enabled);
+		// 0x10ACD060 / 0x10ACD070: nothing to do
+		virtual void Slot13();
+		virtual void Slot14();
+		// 0x10ACD0B0
+		virtual void Slot15(unsigned int channel);
+
+		om::ClassName abstractedName;  // 0x60
 	};
 
 	// The description of a node class that creates its nodes (RTTI: mgraph::NodeTypeBase and mgraph::NodeType<N>, 0x30 bytes;

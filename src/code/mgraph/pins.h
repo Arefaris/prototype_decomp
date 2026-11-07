@@ -32,8 +32,8 @@ namespace mgraph
 		Node* node;  // 0x10: the node the pin belongs to
 		unsigned char kind;  // 0x14: 0 for a concrete pin, 1 for an abstract one
 		char unknown15[3];
-		unsigned int unknown18;
-		unsigned int unknown1C;
+		NodeLink* firstConnection;  // 0x18: the connections of the pin (the links at 8 or 0x10 of the connections)
+		NodeLink* lastConnection;  // 0x1C
 	};
 
 	// Where a connection starts and ends
@@ -139,7 +139,11 @@ namespace mgraph
 		virtual void Slot5(void* argument);
 		virtual bool Slot6(void* argument);
 
-		char unknown8[0x20];
+		NodeLink toLink;  // 8: in the connections of the pin the connection ends at
+		NodeLink fromLink;  // 0x10: in the connections of the pin it starts at
+		NodeLink graphLink;  // 0x18: in the connections of the graph
+		Pin* to;  // 0x20
+		Pin* from;  // 0x24
 	};
 
 	class AbstractToConcreteGraphConnectionBase : public GraphConnectionBase
@@ -410,7 +414,7 @@ namespace mgraph
 	{
 		if (other->GetPacketType() == GetPacketType())
 		{
-			if (unknown20 != 0 || unknown18 == 0 || reinterpret_cast<GraphConnectionBase*>(unknown18 - 8) == 0)
+			if (unknown20 != 0 || firstConnection == 0 || reinterpret_cast<GraphConnectionBase*>(reinterpret_cast<char*>(firstConnection) - 8) == 0)
 			{
 				if (other->kind == 1)
 				{

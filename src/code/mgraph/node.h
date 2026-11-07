@@ -82,7 +82,8 @@ namespace mgraph
 		{
 		}
 		virtual void SetNumChannels(unsigned int newCount);
-		virtual void Slot12(void* argument, void* argument2)
+		// Slot 12: the context enabled or disabled a channel
+		virtual void SetChannelEnabled(unsigned int channel, bool enabled)
 		{
 		}
 		virtual void Slot13()

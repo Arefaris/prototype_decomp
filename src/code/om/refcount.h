@@ -13,7 +13,7 @@ namespace om
 	struct ThreadSafeRefCount
 	{
 		// 0x105B4C50 / 0x105B4C70 (names guessed): the interlocked change of a counter, and what it came to
-		static void AddRef(int* count);
+		static int AddRef(int* count);
 		static int Release(int* count);
 	};
 
