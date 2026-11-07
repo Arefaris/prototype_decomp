@@ -4,6 +4,8 @@
 
 #include "code/core/refptr.h"
 #include "code/pure3d/effects/particlecontroller.h"
+#include "code/math/quaternion.h"
+#include "code/math/worldbounds.h"
 #include "code/pure3d/primitive.h"
 
 namespace engine
@@ -17,6 +19,14 @@ namespace engine
 namespace choreo
 {
 	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
+	}
 }
 
 namespace pure3d
@@ -235,6 +245,62 @@ namespace pure3d
 		unknown50.Identity();
 		unknown292 = false;
 	}
+
+	// FUNCTION: ENGINE 0x10740E50
+	// NONMATCHING: the engine's frame is 0xD0 bytes and shares its vector slots, ours is 0xDC (25.2 %)
+#ifdef NONMATCHING
+	void ParticleGenerator::GetUnknown10740E50(math::Matrix* out)
+	{
+		math::Vector vector;
+		out->Identity();
+		if (unknown292)
+		{
+			if (unknown24C > engine::driving::gZero)
+			{
+				math::Quaternion from;
+				from.FromMatrix(unknown50);
+				math::Quaternion to;
+				to.FromMatrix(transform);
+				from.x = math::WORLD_MIN - from.x;
+				from.y = math::WORLD_MIN - from.y;
+				from.z = math::WORLD_MIN - from.z;
+				math::Quaternion difference;
+				math::Multiply(difference, to, from);
+				math::Quaternion identity;
+				identity.x = 0.0f;
+				identity.y = 0.0f;
+				identity.z = 0.0f;
+				identity.w = engine::driving::gOne;
+				math::Quaternion blended;
+				blended.Slerp(identity, difference, unknown24C);
+				blended.ToMatrix(*out);
+				math::Matrix pivot;
+				pivot.Identity();
+				vector.x = transform.m[3][0];
+				vector.y = transform.m[3][1];
+				vector.z = transform.m[3][2];
+				pivot.SetTranslation(vector);
+				math::Matrix pivotCopy;
+				pivotCopy = pivot;
+				pivot.Invert();
+				out->Multiply(pivot, *out);
+				out->Multiply(*out, pivotCopy);
+			}
+			if (unknown250 > engine::driving::gZero)
+			{
+				vector.x = transform.m[3][0] - unknown50.m[3][0];
+				vector.y = transform.m[3][1] - unknown50.m[3][1];
+				vector.z = transform.m[3][2] - unknown50.m[3][2];
+				math::Matrix move;
+				move.Identity();
+				move.m[3][0] = vector.x * unknown250;
+				move.m[3][1] = vector.y * unknown250;
+				move.m[3][2] = vector.z * unknown250;
+				out->Multiply(*out, move);
+			}
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10741080
 	bool ParticleGenerator::Unknown10741080()

@@ -973,7 +973,9 @@ namespace pure3d
 		math::Matrix unknown90;
 		void* data;
 		ParticleAttributes attributes;
-		unsigned char unknown240[0x14];
+		unsigned char unknown240[0xC];
+		float unknown24C;
+		float unknown250;
 		float unknown254;
 		unsigned char unknown258[8];
 		float unknown260;
