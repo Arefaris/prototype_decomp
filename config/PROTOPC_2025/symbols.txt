@@ -97291,3 +97291,4 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?GetOffset@DramaticCameraTrack@motion@fightitems@proto@@QBE?AVVector@math@@XZ = 0x10359530 ; function size:0x18 | public: class math::Vector __thiscall proto::fightitems::motion::DramaticCameraTrack::GetOffset(void (name guess)
 ?GetAimPoint@PunchinCameraTrack@motion@fightitems@proto@@QBE?AVVector@math@@XZ = 0x1035A150 ; function size:0x18 | public: class math::Vector __thiscall proto::fightitems::motion::PunchinCameraTrack::GetAimPoint(voi (name guess)
 ?GetOffset@ScriptedCameraTrack@motion@fightitems@proto@@QBE?AVVector@math@@XZ = 0x1035A520 ; function size:0x18 | public: class math::Vector __thiscall proto::fightitems::motion::ScriptedCameraTrack::GetOffset(void (name guess)
+?ResetFacing3D@ChaseCamera@proto@@QAEXPBVVector@math@@M@Z = 0x1033FDB0 ; function size:0x125 | proto::ChaseCamera::ResetFacing3D (name guess)

@@ -131,6 +131,26 @@ namespace proto
 				return new CameraResetAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x10359080
+			bool CameraResetAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						math::Vector direction = link.object->direction;
+						math::Vector rotated;
+						object->transform->GetPointer()->Rotate(direction, rotated);
+						ChaseCamera* camera = gCameraManager->GetChaseCamera();
+						if (camera != 0)
+						{
+							camera->ResetFacing3D(&rotated, link.object->blendTime);
+						}
+					}
+				}
+				return false;
+			}
 			// ---- actions end
 
 			template class fight::PropertyFloatConstRange<CameraResetTrack>;
