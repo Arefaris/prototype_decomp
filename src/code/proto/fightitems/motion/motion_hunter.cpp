@@ -1,5 +1,7 @@
 // Fight items of the motion group: HunterOnWallCondition, HunterCanHopAroundCornerCondition, HunterShortRangeLocoTrack, HunterShortRangeHopCornerTrack, HunterShortRangeCorner2Track, HunterLandedTrack (unit 0x1017D680 - 0x10180090; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_hunter.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -932,7 +934,20 @@ namespace proto
 				return new HunterShortRangeCorner2Action(this, handle);
 			}
 
-			// ---- actions end
+			// FUNCTION: ENGINE 0x100D7E30
+			bool HunterCanHopAroundCornerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					HunterCanHopAroundCornerMovementMessage message;
+					object->SendMessage(&message);
+					result = message.canHop;
+				}
+				return result;
+			}
+// ---- actions end
 			template class fight::PropertyFloatConstRange<HunterOnWallCondition>;
 			template class fight::ConditionFactoryTemplate<HunterOnWallCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HunterOnWallCondition>;

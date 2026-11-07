@@ -138,6 +138,19 @@ namespace proto
 
 		float damage;  // +0xC
 	};
+
+	// RTTI: proto::HunterCanHopAroundCornerMovementMessage: the object answers whether it may hop around a corner
+	struct HunterCanHopAroundCornerMovementMessage : public MovementMessage
+	{
+		HunterCanHopAroundCornerMovementMessage() : MovementMessage(0x53), canHop(false)
+		{
+		}
+		virtual ~HunterCanHopAroundCornerMovementMessage()
+		{
+		}
+
+		bool canHop;  // +0xC
+	};
 }
 
 #endif
