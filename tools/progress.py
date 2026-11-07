@@ -3,7 +3,7 @@
     python tools/progress.py [--version PROTOPC_2025] [--markdown docs/progress.md] [--svg docs/progress.svg] [--readme README.md]
 
 Numerator: functions objdiff reports as 100 % matching (build/<VERSION>/report.json, `ninja report`), mapped to
-addresses through symbols.txt. Denominator: every function of the original (config/<VERSION>/functions.tsv), by
+addresses through symbols.txt, except those annotated EQUIVALENT. Denominator: every function of the original (config/<VERSION>/functions.tsv), by
 count and by bytes.
 """
 
@@ -36,11 +36,14 @@ def main():
 	report = json.loads((ROOT / "build" / args.version / "report.json").read_text(encoding="utf-8"))
 	matched = {}
 	perModule = collections.defaultdict(lambda: [0, 0])
+	# objdiff takes relocations as wildcards: an EQUIVALENT function that calls another identical copy of a helper
+	# than the engine's reads 100 %, but it is not a match
+	equivalent = relink.equivalentAddresses()
 	for unit in report["units"]:
 		module = unit["name"].split("/")[1]
 		for function in unit.get("functions", []):
 			address = symbols.get(function["name"])
-			if address is None or function.get("fuzzy_match_percent", 0) < 100.0:
+			if address is None or address in equivalent or function.get("fuzzy_match_percent", 0) < 100.0:
 				continue
 			size = sizes.get(address, int(function["size"]))
 			matched[address] = size

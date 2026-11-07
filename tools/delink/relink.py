@@ -47,15 +47,16 @@ def runTool(tool, args, cwd):
 		sys.exit(f"{tool} failed ({code})")
 
 
-def loadDataSizes(version):
-	"""The sizes symbols.txt gives data symbols ('name = 0x... ; data size:0xN | ...')."""
+def loadDataSizes(version, sized=True):
+	"""The sizes symbols.txt gives data symbols ('name = 0x... ; data size:0xN | ...'); with sized False, every data
+	symbol (size None where the line gives none)."""
 	path = ROOT / "config" / version / "symbols.txt"
 	sizes = {}
 	if path.exists():
 		for line in path.read_text(encoding="utf-8").splitlines():
-			match = re.match(r"\s*(\S+)\s*=\s*0x[0-9A-Fa-f]+\s*;\s*data\s+size:(0x[0-9A-Fa-f]+|\d+)", line)
-			if match:
-				sizes[match.group(1)] = int(match.group(2), 0)
+			match = re.match(r"\s*(\S+)\s*=\s*0x[0-9A-Fa-f]+\s*;\s*data(?:\s+size:(0x[0-9A-Fa-f]+|\d+))?", line)
+			if match and (match.group(2) or not sized):
+				sizes[match.group(1)] = int(match.group(2), 0) if match.group(2) else None
 	return sizes
 
 
@@ -173,6 +174,79 @@ def nonmatchingAddresses():
 					addresses.add(int(match.group(1), 16))
 					break
 	return addresses
+
+
+def equivalentAddresses():
+	"""Addresses whose `// FUNCTION: ENGINE` annotation is followed by `// EQUIVALENT` in its comment block."""
+	addresses = set()
+	for path in (ROOT / "src").rglob("*"):
+		if path.suffix not in (".cpp", ".c", ".h", ".inl"):
+			continue
+		lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+		for i, line in enumerate(lines):
+			match = re.match(r"\s*//\s*FUNCTION:\s*ENGINE\s+(0x[0-9A-Fa-f]+)", line)
+			if not match:
+				continue
+			for following in lines[i + 1:i + 12]:
+				if not following.strip().startswith("//") or "FUNCTION:" in following:
+					break
+				if re.match(r"\s*//\s*EQUIVALENT", following):
+					addresses.add(int(match.group(1), 16))
+					break
+	return addresses
+
+
+def patchObject(path, hidden, statics, out):
+	"""A copy of the object at path in which every relocation against one of these symbols refers instead to a new
+	undefined external of the same name, which the image object defines at the engine's address:
+	- the external definitions of `hidden` (functions to leave to the engine), which become static symbols of their
+	  section (the code stays, dead);
+	- the static data of `statics`, names symbols.txt maps: a file's `static` variable or a function's local static
+	  is the engine's object, which the unit's functions that are not ours (NONMATCHING, EQUIVALENT left to the engine,
+	  not reconstructed) keep using, so ours must use it too. The original declares them static (the compiler moves
+	  their stores as it may only for a static), so the source cannot make them external.
+	Returns the copy's path, or path itself when nothing is redirected."""
+	data = bytearray(path.read_bytes())
+	_, nSections, _, symtab, nSymbols, optSize, _ = struct.unpack_from("<HHIIIHH", data, 0)
+	strtab = symtab + 18 * nSymbols
+	redirected = {}  # old symbol index -> (raw name field, type)
+	i = 0
+	while i < nSymbols:
+		at = symtab + 18 * i
+		raw, value, section, kind, storage, aux = struct.unpack_from("<8sIhHBB", data, at)
+		if section > 0 and storage in (coff.IMAGE_SYM_CLASS_EXTERNAL, coff.IMAGE_SYM_CLASS_STATIC):
+			if raw[:4] == b"\0\0\0\0":
+				offset = struct.unpack_from("<I", raw, 4)[0]
+				name = bytes(data[strtab + offset:data.index(b"\0", strtab + offset)]).decode("latin-1")
+			else:
+				name = raw.rstrip(b"\0").decode("latin-1")
+			if storage == coff.IMAGE_SYM_CLASS_EXTERNAL and name in hidden:
+				redirected[i] = (raw, kind)
+				data[at + 16] = coff.IMAGE_SYM_CLASS_STATIC
+			elif storage == coff.IMAGE_SYM_CLASS_STATIC and aux == 0 and name in statics:
+				redirected[i] = (raw, kind)
+		i += 1 + aux
+	if not redirected:
+		return path
+	# the new externals go behind the symbol table; their names stay where they are in the string table (a short
+	# name is copied as it is), so the string table only moves
+	newIndex = {}
+	extra = bytearray()
+	for k, (old, (raw, kind)) in enumerate(sorted(redirected.items())):
+		newIndex[old] = nSymbols + k
+		extra += struct.pack("<8sIhHBB", raw, 0, 0, kind, coff.IMAGE_SYM_CLASS_EXTERNAL, 0)
+	for s in range(nSections):
+		at = 20 + optSize + 40 * s
+		_, _, _, _, _, relocs, _, nRelocs, _, _ = struct.unpack_from("<8sIIIIIIHHI", data, at)
+		for r in range(nRelocs):
+			index = struct.unpack_from("<I", data, relocs + 10 * r + 4)[0]
+			if index in newIndex:
+				struct.pack_into("<I", data, relocs + 10 * r + 4, newIndex[index])
+	struct.pack_into("<I", data, 12, nSymbols + len(redirected))
+	data[strtab:strtab] = extra
+	out.parent.mkdir(parents=True, exist_ok=True)
+	out.write_bytes(data)
+	return out
 
 
 def definedSymbols(objects):
@@ -318,6 +392,8 @@ def main():
 	parser.add_argument("objects", nargs="*")
 	parser.add_argument("--version", default="PROTOPC_2025")
 	parser.add_argument("--out")
+	parser.add_argument("--no-equivalent", action="store_true",
+		help="keep the engine's code for every EQUIVALENT function: only 100 %% matches replace it")
 	args = parser.parse_args()
 	out = pathlib.Path(args.out or ROOT / "build" / args.version / "relink").resolve()
 	out.mkdir(parents=True, exist_ok=True)
@@ -326,6 +402,16 @@ def main():
 	dllName = "prototypeenginef.dll"
 	pe = pefile.PE(str(ROOT / "orig" / args.version / dllName))
 	symbols = loadSymbols(args.version)
+	hidden = set()
+	if args.no_equivalent:
+		equivalent = equivalentAddresses()
+		hidden = {name for name, address in symbols.items() if address in equivalent}
+		print(f"{len(equivalent)} EQUIVALENT functions keep the engine's code ({len(hidden)} names)")
+	statics = set(loadDataSizes(args.version, sized=False))
+	patched = [patchObject(o, hidden, statics, out / "patched" / f"{k}_{o.name}") for k, o in enumerate(objects)]
+	print(f"{sum(1 for a, b in zip(objects, patched) if a != b)} objects patched (statics shared with the engine"
+		+ (", EQUIVALENT functions left to it)" if hidden else ")"))
+	objects = patched
 	ours = definedSymbols(objects)
 	replaced = {name: symbols[name] for name in ours if name in symbols}
 	print(f"{len(symbols)} known symbols, {len(replaced)} replaced by {len(objects)} objects")

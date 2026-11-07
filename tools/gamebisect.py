@@ -1,19 +1,22 @@
 """Find what breaks the hybrid DLL in the game: relink without some units (or with some functions left to the engine),
 launch the test copy, teleport and fight, and tell whether the game survived.
 
-	python tools/gamebisect.py try [--exclude LIST] [--keep-game]   # relink without the units in LIST (one .cpp per line)
+	python tools/gamebisect.py try [--exclude LIST] [--keep-game] [--no-equivalent]
+	                                                            # relink without the units in LIST (one .cpp per line)
 	python tools/gamebisect.py units LIST                           # exclude each half of LIST in turn, then narrow down
 	python tools/gamebisect.py wrap FILE.cpp [0xADDRESS ...]        # put these definitions (default: every EQUIVALENT)
 	                                                            # under #ifdef NONMATCHING, so the engine's code runs
 
 `try` needs OP_ORIGINAL_DIR naming the test copy (as gamectl.py); it prints `RESULT OK`, `RESULT CRASH` (and the
-fault the proxy logged) or `RESULT FROZEN` (the game runs but Alex stays where the teleport put him: the
-simulation does not update). `units` assumes the full list crashes and that leaving all of LIST out does not; it reports
+fault the proxy logged), `RESULT DRIFT` (right after the load, with no input, Alex moves away from where the save
+left him) or `RESULT FROZEN` (the game runs but Alex stays where the teleport put him: the simulation does not
+update). `units` assumes the full list crashes and that leaving all of LIST out does not; it reports
 the unit whose absence alone makes the game survive (or the smallest set it found). Only one bisect may run at a
 time: they share the relinked DLL and the game.
 """
 
 import argparse
+import math
 import os
 import pathlib
 import re
@@ -25,6 +28,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 VERSION = "PROTOPC_2025"
 OUT = ROOT / "build" / VERSION / "bisect"
 TELEPORT_HEIGHT = 30
+DRIFT_SECONDS = 8
+DRIFT_LIMIT = 0.5
 PLAY = [f"teleport 300 {TELEPORT_HEIGHT} -400","keys e:0.3,:0.8,lmb:0.3,:0.8,rmb:0.6,:1,space:0.3,lmb:0.4,:1"]
 
 
@@ -54,8 +59,9 @@ def lastFault():
 	return "\n".join(faults[-2:])
 
 
-def tryBuild(excluded, keepGame=False):
-	"""Relinks without the excluded sources, plays the test; True when the game survived."""
+def tryBuild(excluded, keepGame=False, noEquivalent=False):
+	"""Relinks without the excluded sources (and with the engine's code for every EQUIVALENT function when
+	noEquivalent), plays the test; True when the game survived."""
 	if "OP_ORIGINAL_DIR" not in os.environ:
 		sys.exit("set OP_ORIGINAL_DIR to the test copy")
 	keep = [o for o in relinkObjects() if sourceOf(o) not in excluded]
@@ -63,7 +69,7 @@ def tryBuild(excluded, keepGame=False):
 	objectList = OUT / "objects.rsp"
 	objectList.write_text("\n".join(keep) + "\n", encoding="utf-8")
 	relink = subprocess.run([sys.executable, str(ROOT / "tools" / "delink" / "relink.py"), "--version", VERSION, "--out",
-		str(OUT), f"@{objectList}"], cwd=ROOT, capture_output=True, text=True)
+		str(OUT), f"@{objectList}"] + (["--no-equivalent"] if noEquivalent else []), cwd=ROOT, capture_output=True, text=True)
 	if relink.returncode != 0:
 		sys.exit("relink failed: " + (relink.stdout + relink.stderr)[-2000:])
 	gamectl("stop")
@@ -73,6 +79,15 @@ def tryBuild(excluded, keepGame=False):
 	before = lastFault()
 	code, text = gamectl("launch", "1", timeout=420)
 	ok = code == 0
+	# with no input Alex stands where the save left him: one that walks off on his own (the engine's player control
+	# or motion state broken) got through the teleport test for a whole day of merges
+	drift = None
+	if ok:
+		start = feetOf(gamectl("where")[1])
+		time.sleep(DRIFT_SECONDS)
+		end = feetOf(gamectl("where")[1])
+		if start and end:
+			drift = math.dist(start, end)
 	for command in PLAY:
 		if not ok:
 			break
@@ -87,9 +102,16 @@ def tryBuild(excluded, keepGame=False):
 	fault = lastFault()
 	if not keepGame:
 		gamectl("stop")
-	print(f"RESULT {'FROZEN' if frozen else 'OK' if ok else 'CRASH'}"
+	drifting = ok and not frozen and (drift is None or drift > DRIFT_LIMIT)
+	print(f"RESULT {'FROZEN' if frozen else 'DRIFT' if drifting else 'OK' if ok else 'CRASH'}"
+		+ (f" (Alex moved {drift:.1f} m in {DRIFT_SECONDS} s without input)" if drifting and drift is not None else "")
 		+ (f"\n{fault}" if fault and fault != before else ""))
-	return ok and not frozen
+	return ok and not frozen and not drifting
+
+
+def feetOf(text):
+	feet = re.search(r"feet\s+(\S+)\s+(\S+)\s+(\S+)", text)
+	return tuple(float(v) for v in feet.groups()) if feet else None
 
 
 def readList(path):
@@ -158,6 +180,7 @@ def main():
 	t = sub.add_parser("try")
 	t.add_argument("--exclude")
 	t.add_argument("--keep-game", action="store_true")
+	t.add_argument("--no-equivalent", action="store_true", help="only 100 % matches replace the engine's code")
 	u = sub.add_parser("units")
 	u.add_argument("list")
 	w = sub.add_parser("wrap")
@@ -165,7 +188,7 @@ def main():
 	w.add_argument("addresses", nargs="*")
 	args = parser.parse_args()
 	if args.command == "try":
-		sys.exit(0 if tryBuild(set(readList(args.exclude)) if args.exclude else set(), args.keep_game) else 1)
+		sys.exit(0 if tryBuild(set(readList(args.exclude)) if args.exclude else set(), args.keep_game, args.no_equivalent) else 1)
 	elif args.command == "units":
 		units(args.list)
 	else:
