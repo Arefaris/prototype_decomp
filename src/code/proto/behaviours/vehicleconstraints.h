@@ -187,8 +187,17 @@ namespace proto
 		VehicleConstraintProperties* GetSharedProperties() const;
 		void SetSharedProperties(VehicleConstraintProperties* properties); //@0x1030A1C0
 
+		// vftable slot 1 (0x1030DEA0), slot 6 (0x1030DEC0) and the destructor (0x1030D9E0; the deleting destructor is
+		// 0x1030DE70)
+		virtual void Slot1();
+		virtual void OnMessage(engine::Message* message);
+		virtual ~VehicleConstraintsBehaviour();
+
 		VehicleConstraintProperties* sharedProperties;  // +0xC
-		unsigned char unknown10[0x0C];
+		int unknown10;
+		int unknown14;
+		bool unknown18;
+		unsigned char unknown19[3];
 	};
 }
 

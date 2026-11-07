@@ -1,6 +1,7 @@
 #include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/core/refptr.h"
 #include "code/engine/driving/carattributes.h"
+#include "code/pure3d/pose.h"
 
 namespace content
 {
@@ -167,6 +168,15 @@ namespace proto
 		core::SafeRelease(chassisMassProperties);
 		core::SafeRelease(wheelMassProperties);
 		core::SafeRelease(doorMassProperties);
+	}
+
+	// FUNCTION: ENGINE 0x10308260
+	VehicleConstraintsBehaviour::VehicleConstraintsBehaviour(engine::GameObject* newOwner) :
+		engine::Behaviour(newOwner), sharedProperties(0), unknown10(0), unknown14(0), unknown18(true)
+	{
+		Listen(3, true);
+		Listen(6, true);
+		Listen(2, true);
 	}
 
 	// FUNCTION: ENGINE 0x10307A10
@@ -421,6 +431,9 @@ namespace proto
 // FUNCTION: ENGINE 0x1030E6B0
 // FUNCTION: ENGINE 0x1030E790
 
+// The engine's copy of the skeleton reference caster of the constraints' loader code
+template class content::LoadInventory::DynamicCaster<pure3d::Skeleton>;
+
 // The engine's copies of every member of the arrays of wheel groups and of door groups
 template class container::ArrayDynamic<proto::VehicleWheelList::LateralWheelGroup, container::AllocatorNew>;
 template class container::ArrayDynamic<proto::VehicleDoorList::DoorGroup, container::AllocatorNew>;
@@ -477,3 +490,6 @@ template class container::ArrayDynamic<proto::VehicleDoorList::DoorGroup, contai
 // FUNCTION: ENGINE 0x1030EA70
 // FUNCTION: ENGINE 0x1030ED20
 // FUNCTION: ENGINE 0x1030B200
+// FUNCTION: ENGINE 0x1030DE70
+// FUNCTION: ENGINE 0x10308990
+// FUNCTION: ENGINE 0x1030ACB0
