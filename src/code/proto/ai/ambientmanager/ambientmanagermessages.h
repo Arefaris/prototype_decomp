@@ -23,7 +23,9 @@ namespace proto
 		// 0x10420680
 		explicit CreateVehicleMessage(void* newArgument);
 		// 0x104206B0 (the deleting destructor is 0x104208E0)
-		virtual ~CreateVehicleMessage();
+		virtual ~CreateVehicleMessage()
+		{
+		}
 
 		void* argument;  // +0xC
 	};
@@ -35,7 +37,9 @@ namespace proto
 		// 0x104206C0
 		CreatePedMessage(void* newArgument, NPCType* newType);
 		// 0x10420700 (the deleting destructor is 0x10420910)
-		virtual ~CreatePedMessage();
+		virtual ~CreatePedMessage()
+		{
+		}
 
 		void* argument;  // +0xC
 		NPCType* type;  // +0x10
@@ -48,7 +52,9 @@ namespace proto
 		// 0x104289C0
 		VehicleMovementBehaviourActiveMessage();
 		// 0x104289F0
-		virtual ~VehicleMovementBehaviourActiveMessage();
+		virtual ~VehicleMovementBehaviourActiveMessage()
+		{
+		}
 
 		bool active;  // +0xC
 	};
@@ -60,7 +66,9 @@ namespace proto
 		// 0x10428A00
 		SetVehiclePatrolHeightOffsetMessage(float newOffset, bool newFlag);
 		// 0x10428A40
-		virtual ~SetVehiclePatrolHeightOffsetMessage();
+		virtual ~SetVehiclePatrolHeightOffsetMessage()
+		{
+		}
 
 		float offset;  // +0xC
 		bool flag;  // +0x10
@@ -74,7 +82,9 @@ namespace proto
 		// 0x1042D320
 		explicit SetLODDestinationAIMsg(const math::Vector& newDestination);
 		// 0x1042D360
-		virtual ~SetLODDestinationAIMsg();
+		virtual ~SetLODDestinationAIMsg()
+		{
+		}
 
 		math::Vector destination;  // +0xC
 	};
@@ -86,7 +96,9 @@ namespace proto
 		// 0x1042D370
 		HasLODArrivedAIMsg();
 		// 0x1042D3A0
-		virtual ~HasLODArrivedAIMsg();
+		virtual ~HasLODArrivedAIMsg()
+		{
+		}
 
 		bool arrived;  // +0xC
 	};
@@ -98,7 +110,9 @@ namespace proto
 		// 0x1042EE20
 		ForceUpDatePerceptionMessage();
 		// 0x1042EE50
-		virtual ~ForceUpDatePerceptionMessage();
+		virtual ~ForceUpDatePerceptionMessage()
+		{
+		}
 	};
 
 	// RTTI proto::SetAmbientControlledAIMsg (message type 0x2B, id 0x11)
@@ -108,7 +122,9 @@ namespace proto
 		// 0x1042EE60
 		explicit SetAmbientControlledAIMsg(bool newControlled);
 		// 0x1042EE90
-		virtual ~SetAmbientControlledAIMsg();
+		virtual ~SetAmbientControlledAIMsg()
+		{
+		}
 
 		bool controlled;  // +0xC
 	};
@@ -120,7 +136,9 @@ namespace proto
 		// 0x1042EEA0
 		explicit SetTurnedOffMovementMessage(bool newTurnedOff);
 		// 0x1042EED0
-		virtual ~SetTurnedOffMovementMessage();
+		virtual ~SetTurnedOffMovementMessage()
+		{
+		}
 
 		bool turnedOff;  // +0xC
 	};
@@ -132,7 +150,9 @@ namespace proto
 		// 0x104305D0
 		explicit GetIntersectionStateMessage(int newDirection);
 		// 0x10430620
-		virtual ~GetIntersectionStateMessage();
+		virtual ~GetIntersectionStateMessage()
+		{
+		}
 
 		int state;  // +0xC
 		int direction;  // +0x10
@@ -148,7 +168,9 @@ namespace proto
 		// 0x10432D40
 		GetIntersectionBehaviourMessage();
 		// 0x10432D70
-		virtual ~GetIntersectionBehaviourMessage();
+		virtual ~GetIntersectionBehaviourMessage()
+		{
+		}
 
 		void* behaviour;  // +0xC
 	};
@@ -160,7 +182,9 @@ namespace proto
 		// 0x10432D80
 		GetAlertInfoMessage();
 		// 0x10432DC0
-		virtual ~GetAlertInfoMessage();
+		virtual ~GetAlertInfoMessage()
+		{
+		}
 
 		engine::HandleBase giver;  // +0xC
 		engine::HandleBase taker;  // +0x10

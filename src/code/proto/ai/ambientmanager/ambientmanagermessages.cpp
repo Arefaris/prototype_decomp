@@ -7,19 +7,9 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x104206B0
-	CreateVehicleMessage::~CreateVehicleMessage()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x104206C0
 	CreatePedMessage::CreatePedMessage(void* newArgument, NPCType* newType) :
 		AmbientMessage(6), argument(newArgument), type(newType)
-	{
-	}
-
-	// FUNCTION: ENGINE 0x10420700
-	CreatePedMessage::~CreatePedMessage()
 	{
 	}
 
@@ -29,19 +19,9 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x104289F0
-	VehicleMovementBehaviourActiveMessage::~VehicleMovementBehaviourActiveMessage()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x10428A00
 	SetVehiclePatrolHeightOffsetMessage::SetVehiclePatrolHeightOffsetMessage(float newOffset, bool newFlag) :
 		MovementMessage(0x3c), offset(newOffset), flag(newFlag)
-	{
-	}
-
-	// FUNCTION: ENGINE 0x10428A40
-	SetVehiclePatrolHeightOffsetMessage::~SetVehiclePatrolHeightOffsetMessage()
 	{
 	}
 
@@ -53,18 +33,8 @@ namespace proto
 		destination.z = newDestination.z;
 	}
 
-	// FUNCTION: ENGINE 0x1042D360
-	SetLODDestinationAIMsg::~SetLODDestinationAIMsg()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x1042D370
 	HasLODArrivedAIMsg::HasLODArrivedAIMsg() : LODAIMessage(0x16), arrived(true)
-	{
-	}
-
-	// FUNCTION: ENGINE 0x1042D3A0
-	HasLODArrivedAIMsg::~HasLODArrivedAIMsg()
 	{
 	}
 
@@ -73,18 +43,8 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x1042EE50
-	ForceUpDatePerceptionMessage::~ForceUpDatePerceptionMessage()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x1042EE60
 	SetAmbientControlledAIMsg::SetAmbientControlledAIMsg(bool newControlled) : AIMessage(0x11), controlled(newControlled)
-	{
-	}
-
-	// FUNCTION: ENGINE 0x1042EE90
-	SetAmbientControlledAIMsg::~SetAmbientControlledAIMsg()
 	{
 	}
 
@@ -94,19 +54,9 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x1042EED0
-	SetTurnedOffMovementMessage::~SetTurnedOffMovementMessage()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x104305D0
 	GetIntersectionStateMessage::GetIntersectionStateMessage(int newDirection) :
 		AmbientMessage(0), state(-1), direction(newDirection), unknown14(0), unknown18(0.0f), unknown1C(0.0f)
-	{
-	}
-
-	// FUNCTION: ENGINE 0x10430620
-	GetIntersectionStateMessage::~GetIntersectionStateMessage()
 	{
 	}
 
@@ -115,30 +65,35 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x10432D70
-	GetIntersectionBehaviourMessage::~GetIntersectionBehaviourMessage()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x10432D80
 	GetAlertInfoMessage::GetAlertInfoMessage() : AmbientMessage(0x14)
 	{
 	}
 
-	// FUNCTION: ENGINE 0x10432DC0
-	GetAlertInfoMessage::~GetAlertInfoMessage()
-	{
-	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104206B0
+// FUNCTION: ENGINE 0x10420700
 // FUNCTION: ENGINE 0x104208E0
 // FUNCTION: ENGINE 0x10420910
+// FUNCTION: ENGINE 0x104289F0
+// FUNCTION: ENGINE 0x10428A40
 // FUNCTION: ENGINE 0x104290A0
 // FUNCTION: ENGINE 0x104290D0
+// FUNCTION: ENGINE 0x1042D360
+// FUNCTION: ENGINE 0x1042D3A0
 // FUNCTION: ENGINE 0x1042D5A0
 // FUNCTION: ENGINE 0x1042D5D0
+// FUNCTION: ENGINE 0x1042EE50
+// FUNCTION: ENGINE 0x1042EE90
+// FUNCTION: ENGINE 0x1042EED0
 // FUNCTION: ENGINE 0x1042F100
 // FUNCTION: ENGINE 0x1042F130
 // FUNCTION: ENGINE 0x1042F160
+// FUNCTION: ENGINE 0x10430620
 // FUNCTION: ENGINE 0x104309D0
+// FUNCTION: ENGINE 0x10432D70
+// FUNCTION: ENGINE 0x10432DC0
+// FUNCTION: ENGINE 0x10434100
+// FUNCTION: ENGINE 0x10434130
