@@ -31,20 +31,25 @@ namespace proto
 		const math::Vector* GetRotationAxis() const; //@0x102F4280
 		void SetRotationAxis(const math::Vector* axis); //@0x102F6920
 		const math::Vector* GetFacingAxis() const; //@0x102F4290
+		const math::Vector* GetPerpendicularAxis() const; //@0x102F42A0
 		void SetFacingAxis(const math::Vector* axis); //@0x102F6960
 		float GetMaxForce() const; //@0x102F42D0
 		void SetMaxForce(float value); //@0x102F42B0
 		float GetMaxVelocity() const; //@0x102F4300
+		float GetMaxVelocityRadians() const; //@0x102F4310
 		void SetMaxVelocity(float degrees); //@0x102F42E0
 		float GetDampingConstant() const; //@0x102F4340
 		void SetDampingConstant(float value); //@0x102F4320
 		float GetSpringConstant() const; //@0x102F4370
 		void SetSpringConstant(float value); //@0x102F4350
 		float GetMaxAngle() const; //@0x102F43A0
+		float GetMaxAngleRadians() const; //@0x102F43B0
 		void SetMaxAngle(float degrees); //@0x102F4380
 		float GetMinAngle() const; //@0x102F43E0
+		float GetMinAngleRadians() const; //@0x102F43F0
 		void SetMinAngle(float degrees); //@0x102F43C0
 		float GetDistanceForDamper() const; //@0x102F4420
+		float GetDistanceForDamperRadians() const; //@0x102F4430
 		void SetDistanceForDamper(float degrees); //@0x102F4400
 		float GetDamperFactor() const; //@0x102F4460
 		void SetDamperFactor(float value); //@0x102F4440
@@ -117,6 +122,7 @@ namespace proto
 		// The solver's camera (0x10 bytes)
 		struct CameraParams
 		{
+			CameraParams(); //@0x102F4990
 			static content::ClassInfo* GetClassInfo(); //@0x102F3DC0
 			static content::MemberList* GetMembers(); //@0x102FBE00
 
@@ -127,10 +133,12 @@ namespace proto
 		// What the turret does to the sound (0xC bytes)
 		struct SoundParams
 		{
+			SoundParams(); //@0x102F49F0
 			static content::ClassInfo* GetClassInfo(); //@0x102F3E00
 			static content::MemberList* GetMembers();
 
 			float GetAngleThresholdForMovingTurret() const; //@0x102F4A40
+			float GetAngleThresholdForMovingTurretRadians() const; //@0x102F4A50
 			void SetAngleThresholdForMovingTurret(float degrees); //@0x102F4A20
 
 			float angleThresholdForMovingTurret;  // +0 (radians)
@@ -141,6 +149,7 @@ namespace proto
 		// The spring of a wheel's suspension (0x2C bytes)
 		struct SuspensionSpring
 		{
+			SuspensionSpring(); //@0x102F4A60
 			static content::ClassInfo* GetClassInfo(); //@0x102F3E40
 			static content::MemberList* GetMembers(); //@0x102FBED0
 
@@ -158,6 +167,7 @@ namespace proto
 		// The springs of the sensors in front of and behind the tank (0x80 bytes)
 		struct SensorSpring
 		{
+			SensorSpring(); //@0x102F4AE0
 			static content::ClassInfo* GetClassInfo(); //@0x102F3E80
 			static content::MemberList* GetMembers();
 
@@ -197,9 +207,11 @@ namespace proto
 		// The friction of the suspension and of the sensors
 		struct Friction
 		{
+			Friction(); //@0x102F4E00
 			// The scales of one group of friction (0x24 bytes)
 			struct Scales
 			{
+				Scales(); //@0x102F4DA0
 				static content::ClassInfo* GetClassInfo(); //@0x102F3F00
 				static content::MemberList* GetMembers(); //@0x102FC100
 
@@ -222,6 +234,7 @@ namespace proto
 		// The thrust (0x54 bytes); the speeds are reflected in kilometres per hour
 		struct Thrust
 		{
+			Thrust(); //@0x102F7E70
 			static content::ClassInfo* GetClassInfo(); //@0x102F3F80
 			static content::MemberList* GetMembers();
 
@@ -257,9 +270,10 @@ namespace proto
 			float upwardThrustFullCutoffCosine;  // +0x50
 		};
 
-		// The steering (0x38 bytes)
+		// The steering (0x2C bytes)
 		struct Steering
 		{
+			Steering(); //@0x102F4F90
 			static content::ClassInfo* GetClassInfo(); //@0x102F3FC0
 			static content::MemberList* GetMembers();
 
@@ -275,12 +289,12 @@ namespace proto
 			float sensorMaxTurnSpeed;  // +0x18
 			float sensorSteeringForceScale;  // +0x1C
 			math::Vector sensorSteeringTorqueScale;  // +0x20
-			int unknown2C[3];
 		};
 
 		// The drag in the air (0xC bytes)
 		struct InAir
 		{
+			InAir(); //@0x102F5070
 			static content::ClassInfo* GetClassInfo(); //@0x102F4000
 			static content::MemberList* GetMembers();
 
@@ -295,6 +309,7 @@ namespace proto
 		// The reaction to the tank's own movement (0x10 bytes)
 		struct Reaction
 		{
+			Reaction(); //@0x102F50E0
 			static content::ClassInfo* GetClassInfo(); //@0x102F4040
 			static content::MemberList* GetMembers(); //@0x102FC260
 
@@ -307,6 +322,7 @@ namespace proto
 		// The animation of the treads (8 bytes)
 		struct Animation
 		{
+			Animation(); //@0x102F52D0
 			static content::ClassInfo* GetClassInfo(); //@0x102F4080
 			static content::MemberList* GetMembers(); //@0x102FC3A0
 
@@ -317,6 +333,7 @@ namespace proto
 		// What the solver draws for debugging (0x24 bytes)
 		struct DebugDraw
 		{
+			DebugDraw(); //@0x102F5120
 			static content::ClassInfo* GetClassInfo(); //@0x102F40C0
 			static content::MemberList* GetMembers(); //@0x102FC470
 
@@ -359,6 +376,7 @@ namespace proto
 		Friction friction;  // +0xF4
 		Thrust thrust;  // +0x144
 		Steering steering;  // +0x198
+		InAir inAir;  // +0x1C4
 		Reaction reaction;  // +0x1D0
 		Animation animation;  // +0x1E0
 		DebugDraw debugDraw;  // +0x1E8
