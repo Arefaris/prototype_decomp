@@ -329,6 +329,8 @@ namespace proto
 			public:
 				// 0x100AC920
 				ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x100AC9E0: the action of a NIS track, which names the object it consumes by parent
+				ConsumeByParentAction(ConsumeByParentTrack* newTrack, fight::Name objectName);
 				// 0x100ABB50
 				virtual ~ConsumeByParentAction();
 

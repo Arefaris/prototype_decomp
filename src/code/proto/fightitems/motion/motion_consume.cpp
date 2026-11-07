@@ -1,6 +1,7 @@
 // Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_consume.h"
 #include "code/proto/fightitems/motion/motionactionmessages.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace proto
 {
@@ -681,6 +682,18 @@ namespace proto
 			// FUNCTION: ENGINE 0x100AC920
 			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), consumeTime(0.0f), consumed(false)
 			{
+			}
+
+			// FUNCTION: ENGINE 0x100AC9E0
+			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, fight::Name objectName) : fight::Action(0xE00), link(newTrack), consumeTime(0.0f), consumed(false)
+			{
+				target = engine::FindGameObject(objectName, *(const content::ObjectName*)"");
+			}
+
+			// FUNCTION: ENGINE 0x100AD3E0
+			fight::Action* NISConsumeByParentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ConsumeByParentAction(this, object);
 			}
 
 			// FUNCTION: ENGINE 0x100ABB50
