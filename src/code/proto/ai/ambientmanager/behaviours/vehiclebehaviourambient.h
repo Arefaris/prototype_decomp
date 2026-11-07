@@ -29,6 +29,7 @@ namespace engine
 namespace proto
 {
 	class NavArea;
+	class BaseLODVehicle;
 	// The tuning record a vehicle refers to (RTTI: proto::VehicleProperties, a reflected load object): the members the
 	// script data sets, in the units the data uses. The maximum speed is kept in metres per second and read and
 	// written in kilometres per hour.
@@ -156,6 +157,9 @@ namespace proto
 	class VehicleBehaviour : public engine::FightTreeBehaviour, public container::ListBase::Node
 	{
 	public:
+		// 0x10443760 (left to the engine)
+		explicit VehicleBehaviour(engine::GameObject* newOwner);
+
 		// The vehicle layer's overrides (vftable 0x10E04A9C: slots 1, 3 and 6 are 0x10442400, 0x10442140, 0x10442150)
 		virtual void Slot1();
 		virtual void OnActiveChanged(bool active);
@@ -174,6 +178,15 @@ namespace proto
 
 		// 0x104421F0: the byte at +0x84, set to 1 by the halt path (0x1044BF10)
 		bool GetUnknown84();
+		// 0x10442170: marks the byte at +0x9e and answers whether the value at +0xa0 has run out (names guessed)
+		bool MarkUnknown9E();
+		// 0x10442190 / 0x104421B0 (the half size of the car)
+		int GetUnknownA4();
+		math::Vector* GetExtents();
+		// 0x104421C0 / 0x104421D0 / 0x104421E0: the byte at +0x9d
+		bool GetUnknown9D();
+		void ClearUnknown9D();
+		void SetUnknown9D();
 		// 0x104438C0: true when one of the vehicles on this car's path is within maxDistanceSquared of it (the
 		// "car ahead" test of the ambient traffic; the name is a guess)
 		bool IsVehicleAhead(float maxDistanceSquared);
@@ -181,7 +194,9 @@ namespace proto
 		PathNode* GetPathNode(int index);
 
 		// The node at +0x68 links the ambient manager's list of vehicle behaviours
-		unsigned char unknown6C[0x74 - 0x6c];
+		unsigned char unknown6C[0x70 - 0x6c];
+		// +0x70: the level-of-detail interface the vehicle of a character shows (0x104441B0)
+		BaseLODVehicle* lodVehicle;
 		NavArea* unknown74;   // +0x74, the record of the area the car stands in (0x10446700 reads its plane)
 		math::Vector extents; // +0x78: half the size of the car (0x10445D20 derives the corners from it)
 
