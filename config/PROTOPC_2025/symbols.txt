@@ -104217,3 +104217,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?CheckSpace@StorageManager@engine@@YA_NHPBD_N@Z = 0x10874490 ; function size:0xBF | engine::StorageManager::CheckSpace (name guess)
 ?ShowMessage@StorageManager@engine@@YAHPBD0HPAUFiber@core@@PAX@Z = 0x108E2D10 ; function | engine::StorageManager::ShowMessage (another unit; name guess)
 ?gRequestWord7E@StorageManager@engine@@3FA = 0x1131697E ; data size:0x2 | engine::StorageManager::gRequestWord7E (name guess)
+??1EntityReference@om@@QAE@XZ = 0x1087E970 ; function size:0x2D | om::EntityReference::~EntityReference (the AudioCue unit's copy; name guess)
+??3AudioCue@engine@@SAXPAX@Z = 0x1087EA90 ; function size:0x12 | engine::AudioCue::operator delete
+??2?$RemotePlayerEvent_Param2@W4MixBin@audio@@M@audio@@SAPAXI@Z = 0x1087F290 ; function size:0x11 | audio::RemotePlayerEvent_Param2<MixBin, float>::operator new
+?GetNoDrawable@engine@@YAABVDrawable@render@1@XZ = 0x10862500 ; function size:0x23 | engine::GetNoDrawable (name guess)

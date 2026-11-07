@@ -288,7 +288,8 @@ namespace engine
 	}
 
 	// The handle an attribute of drawables starts with: no drawable (a function-local static, 0x11315B98)
-	static inline const render::Drawable& GetNoDrawable()
+	// FUNCTION: ENGINE 0x10862500
+	inline const render::Drawable& GetNoDrawable()
 	{
 		static render::Drawable sNone;
 		return sNone;
