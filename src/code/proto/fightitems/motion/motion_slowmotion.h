@@ -59,6 +59,28 @@ namespace proto
 			void RegisterSlowMotionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SlowMotionAction (9 vftable slots, 0x38 bytes): slows the simulation down for the length of the track
+			class SlowMotionAction : public fight::Action
+			{
+			public:
+				// 0x10116340
+				SlowMotionAction(SlowMotionTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101162A0
+				virtual ~SlowMotionAction();
+
+				// vftable slot 5 (0x10116430, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101161A0, the engine's)
+				virtual void Slot6();
+				// vftable slot 7 (0x101164F0, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SlowMotionTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				int request;  // +0x2C
+				float elapsed;  // +0x30
+				float fadeInTime;  // +0x34
+			};
 
 			// ---- actions end
 		}
