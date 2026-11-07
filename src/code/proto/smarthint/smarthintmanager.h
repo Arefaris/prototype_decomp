@@ -11,29 +11,6 @@
 
 namespace proto
 {
-<<<<<<< HEAD
-	// The set of hint flags the manager keeps (the object at +4 of the manager; two members of another unit)
-	class SmartHintLog
-	{
-	public:
-		// 0x104E07C0 / 0x104E0860: a log of count hints (or timers) kept in the game database entry with the name
-		SmartHintLog(core::Name<core::CaseSensitiveKey> newName, int count);
-		~SmartHintLog();
-		// 0x104DF330 / 0x104DF3E0: marks / unmarks the hint with the index
-		void Set(int index);
-		void Clear(int index);
-		// 0x104DF2F0: whether the hint with the index is marked
-		bool Get(int index);
-		// 0x104DF440: unmarks every hint (name guess)
-		void ClearAll();
-		// 0x104DF380 (name unknown)
-		void Unknown104DF380();
-
-		unsigned char unknown0[0x18];
-	};
-
-=======
->>>>>>> sn-by
 	// The hint on screen: what is shown, how far it is and which hint it is
 	struct SmartHintShown
 	{
@@ -151,7 +128,7 @@ namespace proto
 		SmartHintShown shown;  // +8
 		float unknown1C;
 		float unknown20;
-		SmartHintLog* timerLog;  // +0x24: the flags of the enabled timers
+		GameDatabaseBitRecord* timerLog;  // +0x24: the flags of the enabled timers
 		int mode;  // +0x28
 		bool flag2C;  // +0x2C
 		unsigned char unknown2D[3];

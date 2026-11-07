@@ -18,7 +18,7 @@ struct lua_State;
 
 namespace proto
 {
-	class SmartHintLog;
+	class GameDatabaseBitRecord;
 
 	// The scenario message the scripts post for a free roam event (event 0x4F): a number and three names (their
 	// meaning is unknown). Its virtual members are in another unit.
@@ -171,7 +171,7 @@ namespace proto
 		int FindIndex(const core::Name<core::CaseSensitiveKey>* name);
 
 		int unknown0;
-		SmartHintLog* log;  // +4: the flags of the collectibles that were noted
+		GameDatabaseBitRecord* log;  // +4: the flags of the collectibles that were noted
 		unsigned char unknown8[0x18 - 8];
 	};
 

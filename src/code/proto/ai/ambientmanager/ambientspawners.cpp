@@ -79,11 +79,6 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x10420B50
-	VehicleSpawner::~VehicleSpawner()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x10420850
 	bool VehicleSpawner::Slot7(void* argument)
 	{
@@ -148,3 +143,6 @@ namespace proto
 		return &sList;
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10420B50

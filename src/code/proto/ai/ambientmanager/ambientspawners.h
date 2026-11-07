@@ -47,7 +47,7 @@ namespace proto
 		// 0x10420AA0
 		VehicleSpawner();
 		// 0x10420B50 (the deleting destructor is 0x10420B60)
-		virtual ~VehicleSpawner();
+		virtual ~VehicleSpawner() {}
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 

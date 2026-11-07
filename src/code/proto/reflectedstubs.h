@@ -17,10 +17,7 @@
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/ambientspawners.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "code/proto/webofintrigue/webnodelocator.h"
-=======
 #include "code/proto/ai/ambientmanager/intersectionbehaviour.h"
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
 #include "code/proto/behaviours/randomdeadpedbehaviour.h"
@@ -29,12 +26,9 @@
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
 #include "code/proto/behaviours/watertowerbehaviour.h"
->>>>>>> sn-bu
-=======
 #include "code/proto/characterbudgetpolicy.h"
 #include "code/proto/heightmap.h"
 #include "code/proto/helipathfindingloader.h"
->>>>>>> sn-bz
 
 namespace proto
 {
@@ -943,27 +937,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x90 - sizeof(engine::Behaviour)];
-	};
-
-<<<<<<< HEAD
-	class PowerWheelBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit PowerWheelBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x10 - sizeof(engine::Behaviour)];
-=======
-	class WaterTowerBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit WaterTowerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
->>>>>>> sn-by
 	};
 
 	class WeaponConfigurationBehaviour : public engine::Behaviour

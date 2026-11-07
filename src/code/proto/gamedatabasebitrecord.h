@@ -14,6 +14,9 @@ namespace proto
 	class GameDatabaseBitRecord : public engine::DBObserver
 	{
 	public:
+		// 0x104E07C0 / 0x104E0860: a record of count flags in the game database subject with the name
+		GameDatabaseBitRecord(core::Name<core::CaseSensitiveKey> newName, int newCount);
+		~GameDatabaseBitRecord();
 		// vftable slots 0 and 1 (0x104DF2D0, 0x104DF2E0): the second one lets go of the subject
 		virtual void OnDBSlot0(int a, int b);
 		virtual void OnDBSlot1(int a, int b);

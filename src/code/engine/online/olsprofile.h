@@ -49,17 +49,10 @@ namespace engine
 		// vftable slot 7 (0x10888E10): makes the profile of the index the current one (-1 for none) and tells the
 		// online services
 		virtual void SelectProfile(int index);
-<<<<<<< HEAD
-		virtual void Slot8() = 0;
-		virtual void Slot9() = 0;
-		virtual void Slot10() = 0;
-		virtual void Slot11(int profileIndex, int achievementId) = 0;
-=======
 		virtual void Slot8(int a, int b) = 0;
 		virtual void Slot9(int a, int b) = 0;
 		virtual void Slot10(int a, int b) = 0;
-		virtual void Slot11(int a, int b) = 0;
->>>>>>> sn-by
+		virtual void Slot11(int profileIndex, int achievementId) = 0;
 		// vftable slot 12 (0x10888F00)
 		virtual bool Slot12();
 		virtual void Slot13(int a, int b) = 0;

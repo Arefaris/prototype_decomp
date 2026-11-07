@@ -39,7 +39,7 @@ namespace proto
 		{
 			database->SetFloat(gSmartHintTimersName, 0, 0.0f, i);
 		}
-		timerLog->Unknown104DF380();
+		timerLog->SetAll();
 	}
 
 	// FUNCTION: ENGINE 0x1059D250
@@ -77,7 +77,7 @@ namespace proto
 	// FUNCTION: ENGINE 0x1059AC50
 	bool SmartHintManager::GetHintFlag(int index)
 	{
-		return log->Get(index);
+		return log->Test(index);
 	}
 
 	// FUNCTION: ENGINE 0x1059ACE0
@@ -117,14 +117,14 @@ namespace proto
 	// FUNCTION: ENGINE 0x1059B5A0
 	void SmartHintManager::CreateLogs()
 	{
-		log = new SmartHintLog(gProtoSaveSmartHintStateBits, 0x12c);
+		log = new GameDatabaseBitRecord(gProtoSaveSmartHintStateBits, 0x12c);
 		engine::GameDatabase* database = engine::gGameDatabase;
 		engine::DBSubjectInfo info(true, 1, -1);
 		info.a = 0x10;
 		database->AddIntSubject(gProtoSaveSmartHintStateInts, 0, 0, info);
 		info.a = 0x20;
 		database->AddFloatSubject(gSmartHintTimersName, 0, 0.0f, info);
-		timerLog = new SmartHintLog(gProtoSaveSmartHintTimersEnabled, 0x20);
+		timerLog = new GameDatabaseBitRecord(gProtoSaveSmartHintTimersEnabled, 0x20);
 	}
 
 	// FUNCTION: ENGINE 0x1059B6C0
