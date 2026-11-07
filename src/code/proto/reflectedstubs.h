@@ -721,16 +721,6 @@ namespace proto
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
 	};
 
-	class TankSolverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit TankSolverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1D8 - sizeof(engine::Behaviour)];
-	};
-
 	class ThreatBallBehaviour : public engine::TriggerBehaviour
 	{
 	public:

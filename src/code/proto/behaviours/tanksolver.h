@@ -14,6 +14,7 @@
 #include "code/content/vectormetatype.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/arrayhelper.h"
 #include "code/math/vector.h"
 
 namespace proto
@@ -65,6 +66,10 @@ namespace proto
 	class AlignedAxleConstraint
 	{
 	public:
+		AlignedAxleConstraint(); //@0x102FC830
+		AlignedAxleConstraint(const AlignedAxleConstraint& other); //@0x102FAAC0
+		AlignedAxleConstraint& operator=(const AlignedAxleConstraint& other); //@0x102FAB30
+		~AlignedAxleConstraint(); //@0x102F69D0
 		static content::ClassInfo* GetClassInfo(); //@0x102F3D80
 		static content::MemberList* GetMembers();
 
@@ -332,5 +337,117 @@ namespace proto
 		DebugDraw debugDraw;  // +0x1E8
 	};
 }
+
+namespace container
+{
+	template<> struct ArrayEraseInline<proto::AlignedAxleConstraint>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+}
+
+PROTO_ARRAY_HELPER(proto::AlignedAxleConstraint)
+
+namespace proto
+{
+	// The tread effects of a tank (0x78 bytes; the shader patch and the two sides' effects)
+	struct TreadEffects
+	{
+		static content::ClassInfo* GetClassInfo(); //@0x102F4200
+		static content::MemberList* GetMembers(); //@0x102FC730
+
+		unsigned char unknown0[0x78];
+	};
+
+	class TankSolverBehaviour : public engine::Behaviour
+	{
+	public:
+		// One joint of a tread or of a sensor (0x50 bytes)
+		struct JointData
+		{
+			JointData(); //@0x102F80C0
+			JointData(const JointData& other); //@0x102FA8E0
+			JointData& operator=(const JointData& other); //@0x102FB150
+			static content::ClassInfo* GetClassInfo(); //@0x102F4140
+			static content::MemberList* GetMembers(); //@0x102F65F0
+
+			bool unknown0;
+			int unknown4;
+			int unknown8;
+			int unknownC;
+			int unknown10;
+			int unknown14;
+			core::Name<core::CaseSensitiveKey> suspensionJoint;  // +0x18
+			int unknown20;
+			int unknown24;
+			core::Name<core::CaseSensitiveKey> wheelJoint;  // +0x28
+			int unknown30;
+			int unknown34;
+			int unknown38;
+			int unknown3C;
+			bool unknown40;
+			int unknown44;
+			int unknown48;
+			int unknown4C;
+		};
+
+		// Tell the four joint arrays' meta types apart (each has its own in the engine)
+		struct LeftTreadJoints
+		{
+		};
+		struct RightTreadJoints
+		{
+		};
+		struct ForwardSensorJoints
+		{
+		};
+		struct ReverseSensorJoints
+		{
+		};
+
+		typedef container::ArrayDynamic<JointData, container::AllocatorNew> JointArray;
+		typedef container::ArrayDynamic<AlignedAxleConstraint, container::AllocatorNew> ConstraintArray;
+
+		explicit TankSolverBehaviour(engine::GameObject* newOwner); //@0x10307090
+		static content::ClassInfo* GetClassInfo(); //@0x102F4240
+		static content::MemberList* GetMembers();
+
+		unsigned char unknownC[8];
+		JointArray leftTreadJoints;  // +0x14
+		int unknown20;
+		JointArray rightTreadJoints;  // +0x24
+		int unknown30;
+		JointArray forwardSensorJoints;  // +0x34
+		int unknown40;
+		JointArray reverseSensorJoints;  // +0x44
+		int unknown50;
+		unsigned char unknown54[4];
+		TreadEffects treadEffects;  // +0x58
+		TankSolverProperties* sharedProperties;  // +0xD0
+		unsigned char unknownD4[0x28];
+		ConstraintArray cannonAxleConstraints;  // +0xFC
+		int unknown108;
+		int unknown10C;
+		AlignedAxleConstraint turretAxleConstraint;  // +0x110
+		unsigned char unknown148[0x70];
+		core::Name<core::CaseSensitiveKey> audioPatchName;  // +0x1B8
+		unsigned char unknown1C0[0x18];
+	};
+}
+
+namespace container
+{
+	template<> struct ArrayEraseInline<proto::TankSolverBehaviour::JointData>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+}
+
 
 #endif

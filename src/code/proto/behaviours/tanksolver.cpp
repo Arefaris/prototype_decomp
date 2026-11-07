@@ -297,6 +297,44 @@ namespace proto
 		sList.count = 19;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x10306780
+	content::MemberList* TankSolverBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<engine::Behaviour>();
+		static content::BaseClassCasterImpl<engine::Behaviour, TankSolverBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetArrayDynamicMetaType<LeftTreadJoints, JointArray>(
+				content::GetClassMetaType<JointData>(), "p"), PROTO_OFFSET(TankSolverBehaviour, leftTreadJoints),
+				"leftTreadJoints" },
+			{ content::GetArrayDynamicMetaType<RightTreadJoints, JointArray>(
+				content::GetClassMetaType<JointData>(), "p"), PROTO_OFFSET(TankSolverBehaviour, rightTreadJoints),
+				"rightTreadJoints" },
+			{ content::GetArrayDynamicMetaType<ForwardSensorJoints, JointArray>(
+				content::GetClassMetaType<JointData>(), "p"), PROTO_OFFSET(TankSolverBehaviour, forwardSensorJoints),
+				"forwardSensorJoints" },
+			{ content::GetArrayDynamicMetaType<ReverseSensorJoints, JointArray>(
+				content::GetClassMetaType<JointData>(), "p"), PROTO_OFFSET(TankSolverBehaviour, reverseSensorJoints),
+				"reverseSensorJoints" },
+			{ content::GetClassMetaType<TreadEffects>(), PROTO_OFFSET(TankSolverBehaviour, treadEffects),
+				"treadEffects" },
+			{ content::GetReferenceMetaType<TankSolverBehaviour, TankSolverProperties>("pn"),
+				PROTO_OFFSET(TankSolverBehaviour, sharedProperties), "sharedProperties" },
+			{ content::GetArrayDynamicMetaType<TankSolverBehaviour, ConstraintArray>(
+				content::GetClassMetaType<AlignedAxleConstraint>(), "p"),
+				PROTO_OFFSET(TankSolverBehaviour, cannonAxleConstraints), "cannonAxleConstraints" },
+			{ content::GetClassMetaType<AlignedAxleConstraint>(),
+				PROTO_OFFSET(TankSolverBehaviour, turretAxleConstraint), "turretAxleConstraint" },
+			{ content::GetNameMetaType<TankSolverBehaviour>(true, true, "p"),
+				PROTO_NAME_OFFSET(TankSolverBehaviour, audioPatchName), "audioPatchName" }
+		};
+		sList.members = sMembers;
+		sList.count = 9;
+		return &sList;
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -322,6 +360,13 @@ namespace proto
 // FUNCTION: ENGINE 0x102F5EF0
 // FUNCTION: ENGINE 0x102F5F00
 // FUNCTION: ENGINE 0x102F5F10
+// FUNCTION: ENGINE 0x102F6070
+// FUNCTION: ENGINE 0x102F6080
+// FUNCTION: ENGINE 0x102F6090
+// FUNCTION: ENGINE 0x102F60A0
+// FUNCTION: ENGINE 0x102F60B0
+// FUNCTION: ENGINE 0x102F60C0
+// FUNCTION: ENGINE 0x102F9660
 // FUNCTION: ENGINE 0x102F97C0
 // FUNCTION: ENGINE 0x102F9800
 // FUNCTION: ENGINE 0x102F9A40
@@ -359,6 +404,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10301410
 // FUNCTION: ENGINE 0x10301470
 // FUNCTION: ENGINE 0x103014D0
+// FUNCTION: ENGINE 0x10301530
 // FUNCTION: ENGINE 0x10301930
 // FUNCTION: ENGINE 0x103019B0
 // FUNCTION: ENGINE 0x10301A30
@@ -384,8 +430,17 @@ namespace proto
 // FUNCTION: ENGINE 0x10302410
 // FUNCTION: ENGINE 0x10302490
 // FUNCTION: ENGINE 0x10302510
+// FUNCTION: ENGINE 0x10302590
+// FUNCTION: ENGINE 0x103025F0
+// FUNCTION: ENGINE 0x10302650
+// FUNCTION: ENGINE 0x103026B0
+// FUNCTION: ENGINE 0x10302710
+// FUNCTION: ENGINE 0x10302770
+// FUNCTION: ENGINE 0x10305C30
 // FUNCTION: ENGINE 0x10305C90
 // FUNCTION: ENGINE 0x10305CF0
 // FUNCTION: ENGINE 0x10305D50
 // FUNCTION: ENGINE 0x10305DB0
 // FUNCTION: ENGINE 0x10305E10
+// FUNCTION: ENGINE 0x10306BD0
+// FUNCTION: ENGINE 0x10D82CC0
