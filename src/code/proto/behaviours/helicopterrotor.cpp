@@ -1,6 +1,13 @@
 #include "code/proto/behaviours/helicopterrotor.h"
+#include "code/core/refptr.h"
 #include "code/engine/driving/carattributes.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/proto/reflectedstubs.h"
+
+namespace engine
+{
+	extern content::ObjectName gPoseAwakeName;
+}
 
 namespace proto
 {
@@ -10,6 +17,39 @@ namespace proto
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 #define PROTO_RAW_OFFSET(type, member) \
 	((int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x10311600
+	HelicopterRotorAnimationBehaviour::HelicopterRotorAnimationBehaviour(engine::GameObject* newOwner) :
+		engine::Behaviour(newOwner), rotorPowerChangeTime(0.0f), rotorsOn(false), genericProperties(0)
+	{
+		Listen(0x2b, true);
+		Listen(0x31, true);
+		bool awake = true;
+		owner->SetAttribute<bool>(engine::gPoseAwakeName, awake, false);
+	}
+
+	// FUNCTION: ENGINE 0x10311680
+	HelicopterRotorAnimationBehaviour::~HelicopterRotorAnimationBehaviour()
+	{
+		core::SafeRelease(genericProperties);
+	}
+
+	// FUNCTION: ENGINE 0x10310000
+	void HelicopterRotorAnimationBehaviour::OnMessage(engine::Message* message)
+	{
+		if (message->type == 0x31)
+		{
+			switch ((unsigned short)message->id)
+			{
+			case 0x17:
+				rotorsOn = ((SetTurnOnRotorStateMessage*)message)->turnOn;
+				break;
+			case 0x18:
+				rotorPowerChangeTime = ((SetRotorPowerChangeTimeMessage*)message)->time;
+				break;
+			}
+		}
+	}
 
 	// FUNCTION: ENGINE 0x1030FFC0
 	content::ClassInfo* HelicopterRotorAnimationBehaviour::GetClassInfo()
@@ -166,3 +206,5 @@ template class container::ArrayDynamic<proto::Rotor, container::AllocatorNew>;
 // FUNCTION: ENGINE 0x10311330
 // FUNCTION: ENGINE 0x10311490
 // FUNCTION: ENGINE 0x103114E0
+// FUNCTION: ENGINE 0x103117A0
+// FUNCTION: ENGINE 0x10310170
