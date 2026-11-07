@@ -5307,9 +5307,10 @@ input structs are in the next range).
 - `wheelcollectiondata.*` / `trackedmotiontoexpressionmap.*`: `ArrayReserveBeginFirst<WheelData>` (the engine's `Reserve` stores
   the begin pointer first), `ArrayEraseInline<PropertyMappingKeyValuePair>` mode 3 and `CONTENT_ARRAY_HELPER_COUNT_INSERT` for the
   curve points and the mappings (the engine's helper inserts by count) make `Reserve<WheelData>` 0x10907840, the curve points' `Erase`
-  0x10913070 and the mappings' `Insert` 0x10914200 match. Still different: `Insert` of the curve points 0x109136B0 (the engine keeps
-  the array's count `Insert` out of line), `Reserve<PropertyMapping>` 0x10913D60 and the `JointData` array members (the engine
-  inlines the element copy where ours calls it, or the other way round), `CreateDefaultWheels` 0x10907C40 (four corners copied
+  0x10913070, the mappings' `Insert` 0x10914200 and, with the `JointData` copy constructor defined out of line (the engine's
+  `ConstructFill` / `ShiftUp` call it), `ConstructFill<JointData>` 0x109142C0 and `ShiftUp<JointData>` 0x10914410 match. Still different: `Insert` of the curve points 0x109136B0 (the engine keeps
+  the array's count `Insert` out of line), `Reserve<PropertyMapping>` 0x10913D60 and the `JointData` copy constructor, assignment and `AssignRange` (the engine copies the offset's matrix as four vector rows with the
+  vector copy constructor loop, `__vec_cc_ctor`, and assigns it with sixteen `fld`/`fstp`; `math::Matrix` has neither form), `CreateDefaultWheels` 0x10907C40 (four corners copied
   through register-allocated vector temporaries).
 - Class information of `CharacterSolverBehaviour` 0x10907ED0, `GameObjectTemplateBuilder` 0x1090C110 and `AdvertisementBehaviour`
   0x10917A30 (charactersolverbehaviour.cpp, gameobjecttemplatebuilder.cpp, advertisementbehaviour.cpp: the classes stay in

@@ -132,11 +132,7 @@ namespace engine
 			// 0x10914180
 			JointData();
 			// 0x10914110 / 0x10913EE0 (the copies share the filter)
-			JointData(const JointData& other) : jointName(other.jointName), offset(other.offset),
-				offsetTranslation(other.offsetTranslation), motionFilter(other.motionFilter),
-				trackedProperties(other.trackedProperties), debugDisable(other.debugDisable)
-			{
-			}
+			JointData(const JointData& other);
 			JointData& operator=(const JointData& other)
 			{
 				jointName = other.jointName;
