@@ -87039,3 +87039,11 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ??4Vertex@WorldBoundary@proto@@QAEAAU012@ABU012@@Z = 0x103B38D0 ; function size:0x19 | public: struct proto::WorldBoundary::Vertex & __thiscall proto::WorldBoundary::Vertex::operator=(str (kept copy)
 ??$CopyRangeEnd@UVertex@WorldBoundary@proto@@@container@@YAPAUVertex@WorldBoundary@proto@@PAU123@00@Z = 0x103B39D0 ; function size:0x2B | struct proto::WorldBoundary::Vertex * __cdecl container::CopyRangeEnd<struct proto::WorldBoundary::V (kept copy)
 ?Erase@?$ArrayDynamic@UVertex@WorldBoundary@proto@@UAllocatorNew@container@@@container@@QAEPAUVertex@WorldBoundary@proto@@PAU345@@Z = 0x103B3CF0 ; function size:0x38 | public: struct proto::WorldBoundary::Vertex * __thiscall container::ArrayDynamic<struct proto::World (kept copy)
+??_7TunnelVolume@proto@@6B@ = 0x10DFB868 ; data size:0x1C | proto::TunnelVolume vftable
+??_GTunnelVolume@proto@@UAEPAXI@Z = 0x103B2DC0 ; function size:0x1E | proto::TunnelVolume::scalar deleting destructor vftable slot 2
+?Slot3@TunnelVolume@proto@@UAEXH@Z = 0x103B2ED0 ; function size:0x3F | proto::TunnelVolume::Slot3 vftable slot 3
+?IsReady@TunnelVolume@proto@@UAE_NXZ = 0x103B2F20 ; function size:0x15 | proto::TunnelVolume::IsReady vftable slot 4
+??1TunnelVolume@proto@@UAE@XZ = 0x103B25D0 ; function size:0x7 | public: virtual __thiscall proto::TunnelVolume::~TunnelVolume(void) (kept copy)
+??_R0?AUTunnelVolume@proto@@@8 = 0x110845D4 ; data size:0x8 | proto::TunnelVolume RTTI type descriptor
+??$GetMemberVectorMetaType@UTunnelVolume@proto@@$0A@@content@@YAPAVVectorMetaType@0@PBD@Z = 0x103B2830 ; function size:0x28 | class content::VectorMetaType * __cdecl content::GetMemberVectorMetaType<struct proto::TunnelVolume, (kept copy)
+??$GetMemberVectorMetaType@UTunnelVolume@proto@@$00@content@@YAPAVVectorMetaType@0@PBD@Z = 0x103B2870 ; function size:0x28 | class content::VectorMetaType * __cdecl content::GetMemberVectorMetaType<struct proto::TunnelVolume, (kept copy)

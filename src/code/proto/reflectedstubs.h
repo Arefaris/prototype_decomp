@@ -21,6 +21,7 @@
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
 #include "code/proto/worldboundary.h"
+#include "code/proto/tunnelvolume.h"
 
 namespace proto
 {
@@ -402,16 +403,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x60 - sizeof(content::MetaLoadObject)];
-	};
-
-	struct TunnelVolume : public content::MetaLoadObject
-	{
-	public:
-		TunnelVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x5C - sizeof(content::MetaLoadObject)];
 	};
 
 	class WebNodeLocator : public content::MetaLoadObject

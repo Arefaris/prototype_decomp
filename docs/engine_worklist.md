@@ -6889,3 +6889,28 @@ No assert path names any unit; the file names are guesses.
   offset (thunks followed) and fixes the symbols.txt lines. The code string of a member is `"p"` or `"pn"` (0x10D94FF4 / 0x10D94E7C), read from the push in front of the getter call.
 - Not started: `TargetableBehaviour` / `PropTargetableByAIBehaviour` (read: the targeters list, the filter accessors of `TargetPoint`, the enumeration getter 0x102B1770 is mapped through `AutoTargetPriorityList`), `AutoTargetingBehaviour`, `LockOnTargetingBehaviour`,
   `BaseHealthBehaviour` / `HunterHealthBehaviour` / `MotherHealthBehaviour` / `PrototypeHealthBehaviour` (their tables are 7 and 34 floats), the fog channel, `EffectsPropSpawner`, the time bubble manager and the large update functions.
+
+## proto movement, aim and squad behaviours: the range 0x103A0000 - 0x10400000 (sn-ca)
+
+The range holds, in this order: the path following of the patrol and hunter code (`PatrolPathFollowing`, `SimplePathFollowing`, the `Follower` classes, `PathWrapper` adapters, 0x103A0000 - 0x103B2000, large AI functions), then one unit per class
+in alphabetical order: TimeSliceManager and TunnelVolume (0x103B2500), WorldBoundary (0x103B31B0), CameraFloor (0x103B4180), WorldTriggers (0x103B5A60), AddToHeightmap (0x103C5D80), Aim / TankAim / HelicopterAim (0x103C65A0),
+AiTree (0x103C78E0, with the first `PrimitiveMetaType<char>` copy), Bloodtox (0x103C90D0), Disguise and DisguiseConfig (0x103CA070 - 0x103D6320), Driver (0x103D6320), EmotionalState (0x103D7600), Flying (0x103D7880), Formation (0x103DA2E0),
+HelicopterMovement (0x103DD860), HunterMovement (0x103E3830), HydraMovement (0x103E6E10), LODAI (0x103E8830), PatrolPoint and PatrolPath (0x103EE460), Perception (0x103F0410 - 0x103F7F80, with the first `PrimitiveMetaType<short>` copy),
+ScaryMonster (0x103F7F80), the squad behaviours (0x103F83B0 - 0x103FA8F0), StayOnNavmesh (0x103FA8F0), StayOnRooftop (0x103FB020), TargetSelection (0x103FEE30, goes on behind the range). No assert path names any unit; the file names are guesses.
+Reconstructed (all 100 % unless noted):
+
+- `proto/behaviours/addtoheightmapbehaviour.cpp` (all but `Remove` 0x103C5EC0: NONMATCHING 85 %, the engine loads `localCenter.x` after the translation's y), `aimbehaviour.cpp` (AimBehaviour, TankAimBehaviour, HelicopterAimBehaviour: class infos,
+  constructors, destructors, `Update`, `OnMessage`, slots 1, 9, 12 - 15, the empty reflection; slots 8, 10, 11 and the tank's slot 8 and the helicopter's slots 8 and 13 are declared and left to the engine, `Unknown103C76C0` too),
+  `scarymonsterbehaviour.cpp` (all but `Update`), `camerafloorbehaviour.cpp` (all but `OnMessage`), `stayonnavmeshbehaviour.cpp` (all but `Update` and the edge helper), `squadmemberbehaviour.cpp`, `squadblackboardbehaviour.cpp`
+  (all but `OnMessage` and the list helpers) and `proto/worldboundary.cpp` (WorldBoundary and its Vertex with the array helper instances).
+- `content/primitivemetatypeimpl.h` (the slots of `PrimitiveMetaType<T>` moved out of primitivemetatype.cpp, with the traits of `char` and `short` added), `primitivemetatypechar.cpp` and `primitivemetatypeshort.cpp` (the copies the link keeps in the
+  AiTree and Perception units); slot 0 (`ReadText`) of both is left to the engine like the other types' (register allocation of `this` and the reader).
+- `proto/messages/movementrestrictionsmessage.h` (GetMovementRestrictionsMessage, a stack message of the aim slots).
+- Shared header changes: `proto/reflectedstubs.h` (the stubs of the reconstructed classes are replaced by includes of their headers); `content/primitivemetatype.cpp` lost its template to `primitivemetatypeimpl.h` (same functions, 51 still match).
+- Findings: a float constant of the engine's pooled constants (`proto::gTen`) is written as a literal (`10.0f`): the compiler then schedules the vftable store as the engine does, with the extern variable it does not (ScaryMonster's constructor); a
+  `ClassInfo` name is either `proto::Name` or the bare `Name` (AimBehaviour, SquadMember, SquadBlackboard), read it from the string; `Vector` members read through `owner->transform->GetPointer()` and built with the three-float constructor
+  match `AddToHeightmapBehaviour::Update`; the explicit `ArrayEraseInline<T>` of a 12 byte element with a user-defined `operator=` copying x, y, z is 3 (the pointer loop) and the element needs the copy constructor and `operator=` that copy
+  component by component (WorldBoundary::Vertex); the unit of a class that ends in a container with an end pointer inside the object (SquadBlackboard) keeps `Clear()` as a member of the container so that the pointer is stored through the base register.
+- Not done: the large update and message functions (they need the AI, navmesh and movement classes no unit names yet), the path following code, TunnelVolume (the box is built from a `Matrix3` temporary; its slots 3 and 4 use a manager global),
+  WorldTriggers (enumeration of the trigger type), AiTree, Bloodtox (its base `TriggerBehaviour` is a stub), Disguise, Driver and Perception (enumerations, `Name` statics, `ArrayDynamic` of structs with enumerations), the movement
+  behaviours (the base `MovementBehaviour` is a stub with 15 slots and a 0x1D0 byte constructor), EmotionalState (a file static `Name` copied by the constructor), LODAI, PatrolPoint / PatrolPath (`StringC<64>` members).
