@@ -7,6 +7,26 @@
 
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/metatype.h"
+#include "code/core/name.h"
+
+// The engine's arrays of names erase with a call of AssignRange and reserve with the begin pointer stored first
+namespace container
+{
+	template<> struct ArrayEraseInline<core::Name<core::CaseSensitiveKey> >
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ArrayReserveBeginFirst<core::Name<core::CaseSensitiveKey> >
+	{
+		enum
+		{
+			value = 1
+		};
+	};
+}
 
 #define PROTO_ARRAY_HELPER_BODY(ElementType, allocate) \
 namespace content \

@@ -11,6 +11,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/metatype.h"
+#include "code/proto/arrayhelper.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobjecthandle.h"

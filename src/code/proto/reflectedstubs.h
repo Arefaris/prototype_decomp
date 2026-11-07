@@ -34,6 +34,7 @@
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
+#include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
@@ -180,56 +181,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xD8 - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleWheelSuspensionProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleDoorProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleDoorProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleWheelList : public content::MetaLoadObject
-	{
-	public:
-		VehicleWheelList();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x30 - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleMassProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleMassProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleConstraintProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleConstraintProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x30 - sizeof(content::MetaLoadObject)];
 	};
 
 	class LightDecalInfo : public content::MetaLoadObject
@@ -819,16 +770,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x164 - sizeof(proto::MovementBehaviour)];
-	};
-
-	class VehicleConstraintsBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit VehicleConstraintsBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
 	};
 
 	class NPCRenderBehaviour : public engine::Behaviour
