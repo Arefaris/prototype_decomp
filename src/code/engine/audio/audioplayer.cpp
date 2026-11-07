@@ -1,6 +1,7 @@
 // engine::AudioPlayer and the constant answers of the game's sound players: see audioplayer.h. Unit 0x104A2E40 - 0x104A3530
 // (no assert path; the file name is a guess).
 #include "code/engine/audio/audioplayer.h"
+#include "code/proto/audio/soundplayerambience.h"
 
 namespace engine
 {

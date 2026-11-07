@@ -5,6 +5,7 @@
 #ifndef AUDIO_REMOTEPLAYEREVENT_H
 #define AUDIO_REMOTEPLAYEREVENT_H
 
+#include "code/audio/remoteplayer.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/string.h"
 
@@ -43,24 +44,47 @@ namespace audio
 	extern EventQueue* gEventQueue;
 
 	// A remote player of the audio library (the entry's first word, a pointer, is the player)
-	class RemotePlayer;
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
 		unsigned char unknown4[0x3c - 4];
 	};
-	struct RemotePlayerTable
-	{
-		RemotePlayerEntry* entries;
-	};
-	extern RemotePlayerTable* gRemotePlayers;
-
 	// Names a remote player (0x11276370 holds the table): the index in the low half
 	struct RemotePlayerHandle
 	{
 		unsigned short index;
 		unsigned short serial;
 	};
+
+	struct RemotePlayerTable
+	{
+		// 0x105BAF90: gives the remote player back (name guessed)
+		void Release(RemotePlayerHandle player);
+
+		// The posting members (names after the members of the player they run): each posts an event that calls the
+		// member on the player the handle names
+		void Start(const RemotePlayerHandle& player);  // 0x104A3C40, position 0
+		void SetLoop(const RemotePlayerHandle& player, bool value);  // 0x104A3C90
+		void SetFilename(const RemotePlayerHandle& player, const om::String& value);  // 0x104A3CE0
+		void SetVolumes(const RemotePlayerHandle& player, const dsp::MixVoiceChannelBinVolumes& value);  // 0x104A3D30
+		void SetChannelVolume(const RemotePlayerHandle& player, unsigned int channel, float volume);  // 0x104A3D90
+		void Stop(const RemotePlayerHandle& player);  // 0x104A6370
+		void SetPosition(const RemotePlayerHandle& player, const om::Vector& value);  // 0x104A63C0
+		void SetVelocity(const RemotePlayerHandle& player, const om::Vector& value);  // 0x104A6420
+		void SetUnknown474(const RemotePlayerHandle& player, float value);  // 0x104A6480
+		void SetUnknown478(const RemotePlayerHandle& player, float value);  // 0x104A64D0
+		void SetUnknown498(const RemotePlayerHandle& player, float value);  // 0x104A6520
+		void SetUnknown49C(const RemotePlayerHandle& player, float value);  // 0x104A6570
+		void SetUnknown51C(const RemotePlayerHandle& player, float value);  // 0x104A65C0
+		void SetUnknown530(const RemotePlayerHandle& player, float value);  // 0x104A6610
+		void SetUnknown484(const RemotePlayerHandle& player, float value);  // 0x104A6660
+		void SetNames(const RemotePlayerHandle& player, const om::DynamicArray<om::String, unsigned short>& value);  // 0x104A7470
+		// 0x104A58D0: the names of the busses as 64-bit keys
+		void SetMixBuses(const RemotePlayerHandle& player, const om::DynamicArray<om::String, unsigned short>& names);
+
+		RemotePlayerEntry* entries;
+	};
+	extern RemotePlayerTable* gRemotePlayers;
 
 	class Event
 	{
@@ -110,7 +134,7 @@ namespace audio
 	template<class T> class RemotePlayerEvent_Param1 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T);
+		typedef void (RemotePlayer::*Function)(T);
 
 		RemotePlayerEvent_Param1(const RemotePlayerHandle& newPlayer, Function newFunction, T newValue) :
 			RemotePlayerEvent(newPlayer),
@@ -120,7 +144,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value);
+			(gRemotePlayers->entries[player.index].player->*function)(value);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param1)
 
@@ -131,7 +155,7 @@ namespace audio
 	template<class T1, class T2> class RemotePlayerEvent_Param2 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T1, T2);
+		typedef void (RemotePlayer::*Function)(T1, T2);
 
 		RemotePlayerEvent_Param2(RemotePlayerHandle newPlayer, Function newFunction, T1 newValue1, T2 newValue2) :
 			RemotePlayerEvent(newPlayer),
@@ -142,7 +166,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value1, value2);
+			(gRemotePlayers->entries[player.index].player->*function)(value1, value2);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param2)
 

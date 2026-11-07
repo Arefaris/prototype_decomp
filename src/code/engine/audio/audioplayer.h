@@ -7,10 +7,14 @@
 
 #include "code/core/name.h"
 
+namespace om
+{
+	class DynamicObject;
+}
+
 namespace engine
 {
 	class AudioPlayerMessage;
-	class AudioPlayerUpdate;
 
 	class AudioPlayer
 	{
@@ -22,7 +26,8 @@ namespace engine
 		}
 		// vftable slots 1 - 5
 		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name) = 0;
-		virtual void Slot2(AudioPlayerUpdate* update) = 0;
+		// The settings of the player, a dynamic object whose properties the player takes over
+		virtual void Slot2(om::DynamicObject* properties) = 0;
 		virtual bool Slot3() = 0;
 		virtual void Slot4() = 0;
 		virtual bool Slot5() = 0;
@@ -35,23 +40,12 @@ namespace engine
 
 namespace proto
 {
-	// The sound players of the game (RTTI: proto::SoundPlayerAmbience, SoundPlayerHelicopter, SoundPlayerVehicle)
-	class SoundPlayerAmbience : public engine::AudioPlayer
-	{
-	public:
-		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		virtual void Slot2(engine::AudioPlayerUpdate* update);
-		virtual bool Slot3();
-		virtual void Slot4();
-		virtual bool Slot5();
-		virtual void Slot7(int a);
-	};
-
+	// The sound players of the game (RTTI: proto::SoundPlayerHelicopter, SoundPlayerVehicle; the ambience player has a header of its own)
 	class SoundPlayerHelicopter : public engine::AudioPlayer
 	{
 	public:
 		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		virtual void Slot2(engine::AudioPlayerUpdate* update);
+		virtual void Slot2(om::DynamicObject* properties);
 		virtual bool Slot3();
 		virtual void Slot4();
 		virtual bool Slot5();
@@ -62,7 +56,7 @@ namespace proto
 	{
 	public:
 		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		virtual void Slot2(engine::AudioPlayerUpdate* update);
+		virtual void Slot2(om::DynamicObject* properties);
 		virtual bool Slot3();
 		virtual void Slot4();
 		virtual bool Slot5();
