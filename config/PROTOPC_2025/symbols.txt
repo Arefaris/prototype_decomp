@@ -102712,3 +102712,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_R0?AU?$BaseClassCasterImpl@VAdvancedHealthBehaviour@proto@@VHunterHealthBehaviour@2@@content@@@8 = 0x110736C0 ; data size:0x8 | content::BaseClassCasterImpl<proto::AdvancedHealthBehaviour,proto::HunterHealthBehaviour> RTTI type descriptor
 ??_R0?AVHunterHealthBehaviour@proto@@@8 = 0x1107373C ; data size:0x8 | proto::HunterHealthBehaviour RTTI type descriptor
 ?GetClassInfo@MotherHealthBehaviour@proto@@SAPAUClassInfo@content@@XZ = 0x102BFF80 ; function size:0x33 | proto::MotherHealthBehaviour::GetClassInfo (name guess)
+?GetEntry@AutoTargetPriorityList@proto@@QAEPAUTargetClassPriority@2@H@Z = 0x102B4830 ; function size:0xE | proto::AutoTargetPriorityList::GetEntry (name guess)
+?GetCurrentTarget@proto@@YA?AVGameObjectHandle@engine@@PAVGameObject@3@@Z = 0x102B50C0 ; function size:0xBC | proto::GetCurrentTarget (name guess)

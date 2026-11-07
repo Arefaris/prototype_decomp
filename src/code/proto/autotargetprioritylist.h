@@ -10,6 +10,7 @@
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 
 namespace proto
 {
@@ -163,8 +164,16 @@ namespace content
 	};
 }
 
+namespace engine
+{
+	class GameObject;
+}
+
 namespace proto
 {
+	// 0x102B50C0: the target of an object, its automatic target when it has none (name guess)
+	engine::GameObjectHandle GetCurrentTarget(engine::GameObject* object);
+
 	class AutoTargetPriorityList : public content::MetaLoadObject
 	{
 	public:
@@ -176,6 +185,9 @@ namespace proto
 		virtual ~AutoTargetPriorityList();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x102B4830: the entry of a target class
+		TargetClassPriority* GetEntry(int index);
 
 		// vftable slot 5 (0x102B4920): takes over the entries of the referenced list and of the priorities array
 		virtual bool Slot5();
