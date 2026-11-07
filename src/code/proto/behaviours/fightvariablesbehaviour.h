@@ -10,6 +10,7 @@
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/message.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace proto
 {
@@ -21,6 +22,11 @@ namespace proto
 
 		FightVariableInt() : name((const char*)0, 1), value(0), unknownC(false)
 		{
+		}
+
+		bool IsFree() const
+		{
+			return name == core::Name<core::CaseSensitiveKey>((const char*)0, 1) || value == 0;
 		}
 
 		core::Name<core::CaseSensitiveKey> name;  // +0
@@ -38,6 +44,11 @@ namespace proto
 		{
 		}
 
+		bool IsFree() const
+		{
+			return name == core::Name<core::CaseSensitiveKey>((const char*)0, 1) || value == core::Name<core::CaseSensitiveKey>((const char*)0, 1);
+		}
+
 		core::Name<core::CaseSensitiveKey> name;  // +0
 		core::Name<core::CaseSensitiveKey> value;  // +8
 		bool unknown10;
@@ -51,6 +62,11 @@ namespace proto
 
 		FightTimer() : name((const char*)0, 1), time(0.0f), incrementing(false)
 		{
+		}
+
+		bool IsFree() const
+		{
+			return name == core::Name<core::CaseSensitiveKey>((const char*)0, 1) || (!(0.0f < time) && !incrementing);
 		}
 
 		core::Name<core::CaseSensitiveKey> name;  // +0
@@ -88,6 +104,37 @@ namespace container
 
 namespace proto
 {
+	// The stream the checkpoint messages carry (a buffer with a cursor at +4; the class is not reconstructed, the name is a guess)
+	struct CheckpointStream;
+
+	// RTTI: proto::CheckpointMessage: the base of the messages that save and load the state of an object in a
+	// checkpoint (message type 0x39; ids 0 and 1 are the serialize and unserialize messages)
+	struct CheckpointMessage : public engine::IntrusiveMessage
+	{
+	public:
+		explicit CheckpointMessage(short newId) : engine::IntrusiveMessage(0x39, newId)
+		{
+		}
+		virtual ~CheckpointMessage()
+		{
+		}
+
+		CheckpointStream* stream;  // +0xC
+	};
+
+	// The layout of the fight variables messages 8 and 9: a variable name and a flag (names guessed)
+	struct VariableFlagMessage : public FightVariablesMessage
+	{
+	public:
+		VariableFlagMessage(short newId, const core::Name<core::CaseSensitiveKey>& newVariable, bool newFlag) : FightVariablesMessage(newId), variable(newVariable), flag(newFlag)
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> variable;  // +0x10
+		bool flag;  // +0x18
+	};
+
 	class FightVariablesBehaviour : public engine::Behaviour
 	{
 	public:
@@ -113,6 +160,29 @@ namespace proto
 		TimerArray timers;  // +0x2C
 		int unknown38;
 		float outOfCombatTimer;  // +0x3C
+
+		typedef core::Name<core::CaseSensitiveKey> VarName;
+
+		// The find functions leave the index of the entry with the name, or else of the first free entry, in index
+		// (the size when there is none); true when the name is present (names guessed)
+		bool FindInt(const VarName& name, unsigned int& index);
+		bool FindName(const VarName& name, unsigned int& index);
+		bool FindTimer(const VarName& name, unsigned int& index);
+		void GetInt(VariableIntMessage* message);
+		void SetInt(const VarName& name, int value, bool flag);
+		void GetName(VariableNameMessage* message);
+		void SetName(const VarName& name, const VarName& value, bool flag);
+		void GetTimer(TimerMessage* message);
+		void SetTimer(TimerMessage* message);
+		void Reset();
+		void SetIntFlag(const VarName& name, bool flag);
+		void SetNameFlag(const VarName& name, bool flag);
+		void GetOutOfCombatTimer(OutOfCombatTimerMessage* message);
+		void SetOutOfCombatTimer(OutOfCombatTimerMessage* message);
+		void ResetOutOfCombatTimer();
+		// The checkpoint handlers (the messages 0x39, ids 0 and 1); not reconstructed
+		void Save(CheckpointStream* stream);
+		void Load(CheckpointStream* stream);
 	};
 }
 

@@ -1,4 +1,6 @@
 #include "code/proto/behaviours/fightvariablesbehaviour.h"
+#include "code/engine/fight/fighteventmessage.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -20,6 +22,349 @@ namespace proto
 	// FUNCTION: ENGINE 0x10068CB0
 	FightVariablesBehaviour::~FightVariablesBehaviour()
 	{
+	}
+
+	// A free entry has no name or no value
+	// FUNCTION: ENGINE 0x100663E0
+	// NONMATCHING: the engine keeps the element pointer of the free test in edi across the calls and passes the temporary by address; the registers of this and index are swapped (14 %)
+#ifdef NONMATCHING
+	bool FightVariablesBehaviour::FindInt(const VarName& name, unsigned int& index)
+	{
+		index = varInts.Size();
+		for (unsigned int i = 0; i < (unsigned int)varInts.Size(); i++)
+		{
+			if (varInts.begin[i].name == name)
+			{
+				index = i;
+				return true;
+			}
+			bool isFree = false;
+			if (i < index)
+			{
+				isFree = varInts.begin[i].IsFree();
+			}
+			if (isFree)
+			{
+				index = i;
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x100664E0
+	void FightVariablesBehaviour::GetInt(VariableIntMessage* message)
+	{
+		unsigned int index;
+		if (FindInt(message->variable, index))
+		{
+			message->value = varInts.begin[index].value;
+			return;
+		}
+		message->value = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10066530
+	void FightVariablesBehaviour::SetInt(const VarName& name, int value, bool persistent)
+	{
+		unsigned int found;
+		bool exists = FindInt(name, found);
+		unsigned int index = found;
+		if (exists || index < (unsigned int)varInts.Size())
+		{
+			varInts.begin[index].name = name;
+			varInts.begin[index].value = value;
+			if (persistent)
+			{
+				varInts.begin[index].unknownC = true;
+			}
+			engine::FightEventMessage message(0x400);
+			owner->SendMessage(&message);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100665F0
+	// NONMATCHING: see FindInt (name array)
+#ifdef NONMATCHING
+	bool FightVariablesBehaviour::FindName(const VarName& name, unsigned int& index)
+	{
+		index = varNames.Size();
+		for (unsigned int i = 0; i < (unsigned int)varNames.Size(); i++)
+		{
+			if (varNames.begin[i].name == name)
+			{
+				index = i;
+				return true;
+			}
+			bool isFree = false;
+			if (i < index)
+			{
+				isFree = varNames.begin[i].IsFree();
+			}
+			if (isFree)
+			{
+				index = i;
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10066750
+	void FightVariablesBehaviour::GetName(VariableNameMessage* message)
+	{
+		unsigned int index;
+		if (FindName(message->variable, index))
+		{
+			message->value = varNames.begin[index].value;
+			return;
+		}
+		VarName empty((const char*)0, 1);
+		message->value = empty;
+	}
+
+	// FUNCTION: ENGINE 0x100667D0
+	void FightVariablesBehaviour::SetName(const VarName& name, const VarName& value, bool persistent)
+	{
+		unsigned int found;
+		bool exists = FindName(name, found);
+		unsigned int index = found;
+		if (exists || index < (unsigned int)varNames.Size())
+		{
+			varNames.begin[index].name = name;
+			varNames.begin[index].value = value;
+			if (persistent)
+			{
+				varNames.begin[index].unknown10 = true;
+			}
+			engine::FightEventMessage message(0x400);
+			owner->SendMessage(&message);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100668B0
+	// NONMATCHING: see FindInt (timer array)
+#ifdef NONMATCHING
+	bool FightVariablesBehaviour::FindTimer(const VarName& name, unsigned int& index)
+	{
+		index = timers.Size();
+		for (unsigned int i = 0; i < (unsigned int)timers.Size(); i++)
+		{
+			if (timers.begin[i].name == name)
+			{
+				index = i;
+				return true;
+			}
+			bool isFree = false;
+			if (i < index)
+			{
+				isFree = timers.begin[i].IsFree();
+			}
+			if (isFree)
+			{
+				index = i;
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x100669B0
+	void FightVariablesBehaviour::GetTimer(TimerMessage* message)
+	{
+		unsigned int index;
+		if (FindTimer(message->timer, index))
+		{
+			message->time = timers.begin[index].time;
+			message->incrementing = timers.begin[index].incrementing;
+			return;
+		}
+		message->time = 0.0f;
+		message->incrementing = false;
+	}
+
+	// FUNCTION: ENGINE 0x10066A10
+	// NONMATCHING: the engine's two sends share one tail with the flags stored as an immediate; ours keeps a zero in ecx (54 %)
+#ifdef NONMATCHING
+	void FightVariablesBehaviour::SetTimer(TimerMessage* message)
+	{
+		unsigned int found;
+		bool exists = FindTimer(message->timer, found);
+		unsigned int index = found;
+		if (exists || index < (unsigned int)timers.Size())
+		{
+			float oldTime = timers.begin[index].time;
+			if (oldTime != 0.0f && message->time == 0.0f)
+			{
+				engine::FightEventMessage event(0x400);
+				owner->SendMessage(&event);
+			}
+			else if (oldTime <= 0.0f && 0.0f < message->time)
+			{
+				engine::FightEventMessage event(0x400);
+				owner->SendMessage(&event);
+			}
+			timers.begin[index].name = message->timer;
+			timers.begin[index].time = message->time;
+			timers.begin[index].incrementing = message->incrementing;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10066E30
+	void FightVariablesBehaviour::SetIntFlag(const VarName& name, bool flag)
+	{
+		unsigned int index;
+		if (FindInt(name, index))
+		{
+			varInts.begin[index].unknownC = flag;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10066E70
+	void FightVariablesBehaviour::SetNameFlag(const VarName& name, bool flag)
+	{
+		unsigned int index;
+		if (FindName(name, index))
+		{
+			varNames.begin[index].unknown10 = flag;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10065E60
+	void FightVariablesBehaviour::GetOutOfCombatTimer(OutOfCombatTimerMessage* message)
+	{
+		message->time = outOfCombatTimer;
+	}
+
+	// FUNCTION: ENGINE 0x10065E70
+	void FightVariablesBehaviour::SetOutOfCombatTimer(OutOfCombatTimerMessage* message)
+	{
+		outOfCombatTimer = message->time;
+	}
+
+	// FUNCTION: ENGINE 0x10065E80
+	void FightVariablesBehaviour::ResetOutOfCombatTimer()
+	{
+		outOfCombatTimer = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x10066B10
+	void FightVariablesBehaviour::Reset()
+	{
+		for (unsigned int i = 0; i < (unsigned int)varInts.Size(); i++)
+		{
+			VarName empty((const char*)0, 1);
+			varInts.begin[i].name = empty;
+			varInts.begin[i].value = 0;
+		}
+		for (unsigned int i = 0; i < (unsigned int)varNames.Size(); i++)
+		{
+			VarName empty((const char*)0, 1);
+			varNames.begin[i].name = empty;
+			VarName emptyValue((const char*)0, 1);
+			varNames.begin[i].value = emptyValue;
+		}
+		for (unsigned int i = 0; i < (unsigned int)timers.Size(); i++)
+		{
+			VarName empty((const char*)0, 1);
+			timers.begin[i].name = empty;
+			timers.begin[i].time = 0.0f;
+			timers.begin[i].incrementing = false;
+		}
+		ResetOutOfCombatTimer();
+	}
+
+	// FUNCTION: ENGINE 0x10066C90
+	// NONMATCHING: the zero and the old time swap xmm0 and xmm1 (96.6 %)
+#ifdef NONMATCHING
+	void FightVariablesBehaviour::Update(float dt, unsigned short mask)
+	{
+		for (unsigned int i = 0; i < (unsigned int)timers.Size(); i++)
+		{
+			float oldTime = timers.begin[i].time;
+			if (timers.begin[i].incrementing)
+			{
+				timers.begin[i].time = oldTime + dt;
+			}
+			else
+			{
+				timers.begin[i].time = oldTime - dt;
+				if (0.0f > timers.begin[i].time)
+				{
+					timers.begin[i].time = 0.0f;
+				}
+			}
+			if (oldTime != 0.0f && timers.begin[i].time == 0.0f)
+			{
+				engine::FightEventMessage event(0x400);
+				owner->SendMessage(&event);
+			}
+			else if (oldTime <= 0.0f && 0.0f < timers.begin[i].time)
+			{
+				engine::FightEventMessage event(0x400);
+				owner->SendMessage(&event);
+			}
+		}
+		outOfCombatTimer += dt;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10067C70
+	void FightVariablesBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+			Reset();
+			break;
+		case 0x23:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				GetInt(static_cast<VariableIntMessage*>(message));
+				break;
+			case 1:
+				SetInt(static_cast<VariableIntSetMessage*>(message)->variable, static_cast<VariableIntSetMessage*>(message)->value, static_cast<VariableIntSetMessage*>(message)->flag);
+				break;
+			case 2:
+				GetName(static_cast<VariableNameMessage*>(message));
+				break;
+			case 3:
+				SetName(static_cast<VariableNameSetMessage*>(message)->variable, static_cast<VariableNameSetMessage*>(message)->value, static_cast<VariableNameSetMessage*>(message)->persistent);
+				break;
+			case 4:
+				GetTimer(static_cast<TimerMessage*>(message));
+				break;
+			case 5:
+				SetTimer(static_cast<TimerMessage*>(message));
+				break;
+			case 6:
+				GetOutOfCombatTimer(static_cast<OutOfCombatTimerMessage*>(message));
+				break;
+			case 7:
+				SetOutOfCombatTimer(static_cast<OutOfCombatTimerMessage*>(message));
+				break;
+			case 8:
+				SetIntFlag(static_cast<VariableFlagMessage*>(message)->variable, static_cast<VariableFlagMessage*>(message)->flag);
+				break;
+			case 9:
+				SetNameFlag(static_cast<VariableFlagMessage*>(message)->variable, static_cast<VariableFlagMessage*>(message)->flag);
+				break;
+			}
+			break;
+		case 0x39:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				Save(static_cast<CheckpointMessage*>(message)->stream);
+				break;
+			case 1:
+				Load(static_cast<CheckpointMessage*>(message)->stream);
+				break;
+			}
+			break;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10065D60
