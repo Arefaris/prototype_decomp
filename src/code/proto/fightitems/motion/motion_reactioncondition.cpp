@@ -1811,67 +1811,72 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106930
-			// EQUIVALENT: block order and the register of the compare operator (27.0 %)
 			bool ReactionHitDamageCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
-				{
-					float value = 0.0f;
-					switch (type)
-					{
-					case 0:
-						value = hit->damage;
-						break;
-					case 1:
-						value = hit->damageRatio;
-						break;
-					}
-					float limit = damage;
-					return fight::CompareFloats(compare, &value, &limit);
-				}
-				return false;
-			}
-
-			// FUNCTION: ENGINE 0x101069B0
-			// EQUIVALENT: block order, the two failure returns are shared in the engine, register of the compare operator (9.2 %)
-			bool ReactionHitChargeCondition::Evaluate(int a, int b, int c, int d)
-			{
-				ReactionEvent* event = AsEvent(c);
-				if (event == 0)
+				if (hit == 0)
 				{
 					return false;
 				}
-				ReactionHitEvent* hit = (event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
-				ReactionThrowEvent* thrown = (event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
-				float value;
-				if (hit != 0)
+				float value = 0.0f;
+				switch (type)
 				{
-					value = hit->charge;
+				case 0:
+					value = hit->damage;
+					break;
+				case 1:
+					value = hit->damageRatio;
+					break;
 				}
-				else
+				float limit = damage;
+				int op = compare;
+				return fight::CompareFloats(op, &value, &limit);
+			}
+
+			// FUNCTION: ENGINE 0x101069B0
+			// NONMATCHING: shrink-wrap: the engine saves esi and edi in the entry block before the early exit test (best 76.2 %)
+#ifdef NONMATCHING
+			bool ReactionHitChargeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionEvent* event = AsEvent(c);
+				if (event != 0)
 				{
-					if (thrown == 0)
+					ReactionHitEvent* hit = (event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
+					ReactionThrowEvent* thrown = (event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
+					float value;
+					if (hit != 0)
+					{
+						value = hit->charge;
+					}
+					else if (thrown != 0)
+					{
+						value = thrown->charge;
+					}
+					else
 					{
 						return false;
 					}
-					value = thrown->charge;
+					float limit = charge;
+					int op = compare;
+					return fight::CompareFloats(op, &value, &limit);
 				}
-				float limit = charge;
-				return fight::CompareFloats(compare, &value, &limit);
+				return false;
 			}
+#endif
 
 			// FUNCTION: ENGINE 0x10106770
-			// EQUIVALENT: block order and scheduling of the argument loads (25.5 %)
 			bool ReactionHitImpulseCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					math::Vector vector = hit->impulse;
-					return fight::CompareVectorMeasure(compare, &vector, direction, impulse);
+					return false;
 				}
-				return false;
+				math::Vector vector = hit->impulse;
+				int op = compare;
+				int selector = direction;
+				float amount = impulse;
+				return fight::CompareVectorMeasure(op, &vector, selector, amount);
 			}
 
 			// FUNCTION: ENGINE 0x10107390
