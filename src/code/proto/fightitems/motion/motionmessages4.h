@@ -201,6 +201,47 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> className;  // +0x20
 		engine::GameObjectHandle target;  // +0x28
 	};
+
+	// RTTI: proto::GetGrabIntersectionPropertiesMessage: the object answers the name of its grab intersection properties
+	struct GetGrabIntersectionPropertiesMessage : public GrabMessage
+	{
+		GetGrabIntersectionPropertiesMessage() : GrabMessage(0xc), properties()
+		{
+		}
+		virtual ~GetGrabIntersectionPropertiesMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> properties;  // +0x10
+	};
+
+	// RTTI: proto::SetGrabIntersectionPropertiesMessage: gives the object the grab intersection properties of a name
+	struct SetGrabIntersectionPropertiesMessage : public GrabMessage
+	{
+		explicit SetGrabIntersectionPropertiesMessage(const core::Name<core::CaseSensitiveKey>& newProperties) : GrabMessage(0xd), properties(newProperties)
+		{
+		}
+		virtual ~SetGrabIntersectionPropertiesMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> properties;  // +0x10
+	};
+
+	// RTTI: proto::StartStuckInCollisionTestOnDetachMessage: tells a grabbed object to start testing whether it is stuck once it is let go
+	struct StartStuckInCollisionTestOnDetachMessage : public engine::IntrusiveMessage
+	{
+		explicit StartStuckInCollisionTestOnDetachMessage(engine::GameObjectHandle newDetacher) : engine::IntrusiveMessage(0x14, 0x30), detacher(newDetacher)
+		{
+		}
+		virtual ~StartStuckInCollisionTestOnDetachMessage()
+		{
+		}
+
+		engine::GameObjectHandle detacher;  // +0xC
+	};
 }
 
 #endif

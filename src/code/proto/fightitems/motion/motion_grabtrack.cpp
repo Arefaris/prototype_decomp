@@ -3744,6 +3744,68 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100CBE20
+			bool SetGrabIntersectionPropertiesAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (link.Get()->temporary)
+					{
+						GetGrabIntersectionPropertiesMessage getMessage;
+						object->SendMessage(&getMessage);
+						unknown30 = getMessage.properties;
+					}
+					SetGrabIntersectionPropertiesMessage setMessage(link.Get()->intersectionProperties);
+					object->SendMessage(&setMessage);
+				}
+				return link.Get()->temporary;
+			}
+
+			// FUNCTION: ENGINE 0x100CBF30
+			void SetGrabIntersectionPropertiesAction::Slot6()
+			{
+				if (link.Get() != 0 && link.Get()->temporary)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetGrabIntersectionPropertiesMessage message(unknown30);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100CC050
+			// NONMATCHING: shrink-wrap; the engine saves esi in the entry block before the early-exit branch and keeps this in edi to the end (87.1 %)
+#ifdef NONMATCHING
+			bool GrabSlotEnableStuckTestAction::Slot5(int arg, float value)
+			{
+				GrabSlotEnableStuckTestTrack* track = link.Get();
+				if (track != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						GetGrabbedObjectMessage query(&track->grabSlot);
+						object->SendMessage(&query);
+						engine::GameObjectHandle grabbedHandle = query.grabbed;
+						engine::GameObject* grabbed = grabbedHandle.Get();
+						if (grabbed != 0)
+						{
+							StartStuckInCollisionTestOnDetachMessage message(target);
+							grabbed->SendMessage(&message);
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -3960,9 +4022,14 @@ template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::figh
 // FUNCTION: ENGINE 0x100C4150
 // FUNCTION: ENGINE 0x100C4190
 // FUNCTION: ENGINE 0x100C41D0
+// FUNCTION: ENGINE 0x100C4DF0
 // FUNCTION: ENGINE 0x100C4F90
 // FUNCTION: ENGINE 0x100C4FC0
 // FUNCTION: ENGINE 0x100C5030
+// FUNCTION: ENGINE 0x100C5070
+// FUNCTION: ENGINE 0x100C50B0
+// FUNCTION: ENGINE 0x100C50C0
+// FUNCTION: ENGINE 0x100C5100
 // FUNCTION: ENGINE 0x100C5110
 // FUNCTION: ENGINE 0x100C5220
 // FUNCTION: ENGINE 0x100C5250
@@ -4026,6 +4093,8 @@ template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::figh
 // FUNCTION: ENGINE 0x100C5CA0
 // FUNCTION: ENGINE 0x100C5CF0
 // FUNCTION: ENGINE 0x100C5D00
+// FUNCTION: ENGINE 0x100C5F30
+// FUNCTION: ENGINE 0x100C5F60
 // FUNCTION: ENGINE 0x100C7BF0
 // FUNCTION: ENGINE 0x100C8440
 // FUNCTION: ENGINE 0x100C8E10
