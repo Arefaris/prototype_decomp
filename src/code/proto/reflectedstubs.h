@@ -13,6 +13,7 @@
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
+#include "code/proto/behaviours/addtoheightmapbehaviour.h"
 
 namespace proto
 {
@@ -1194,16 +1195,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
-	class AddToHeightmapBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AddToHeightmapBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
 	};
 
 	class HelicopterRotorAnimationBehaviour : public engine::Behaviour
