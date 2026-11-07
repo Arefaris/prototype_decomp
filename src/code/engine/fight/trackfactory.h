@@ -104,6 +104,12 @@ namespace fight
 	class PropertyTypePropertyList : public Property
 	{
 	public:
+		// 0x108AF0B0 (the primitive display track's unit keeps a copy; the engine's calls expand it)
+		PropertyTypePropertyList(const char* name) : Property(name)
+		{
+		}
+		// vftable slot 0 (0x108AF0D0)
+		virtual int GetType() const;
 		// vftable slot 6 (0x105A94C0)
 		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slots 7 - 9: the count of items / the property of an item / sets the count
