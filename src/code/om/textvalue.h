@@ -29,7 +29,7 @@ namespace om
 		// 0x105B78F0
 		TextNodeTree();
 		// 0x105B89F0: enters a child under its name (the mode is 1 for a node that may stand beside another of the same name)
-		TextValue* Insert(TextValue* node, NodesCompare compare, int mode);
+		bool Insert(TextValue* node, NodesCompare compare, bool mode);
 		// 0x105B7A80: the first child, null when there is none
 		TextValue* First() const;
 		// 0x105B7AA0: the child after another, null at the end

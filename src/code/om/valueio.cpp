@@ -340,7 +340,7 @@ namespace om
 	{
 		if (parent != 0)
 		{
-			parent->children.Insert(this, CompareNodes, 1);
+			parent->children.Insert(this, CompareNodes, true);
 		}
 	}
 
@@ -364,7 +364,7 @@ namespace om
 		text = name;
 		if (parent != 0)
 		{
-			parent->children.Insert(this, CompareNodes, 1);
+			parent->children.Insert(this, CompareNodes, true);
 		}
 	}
 
@@ -378,7 +378,7 @@ namespace om
 		parent = newParent;
 		if (newParent != 0)
 		{
-			newParent->children.Insert(this, CompareNodes, 1);
+			newParent->children.Insert(this, CompareNodes, true);
 		}
 	}
 
@@ -605,6 +605,106 @@ namespace om
 		return ok;
 	}
 
+	// FUNCTION: ENGINE 0x105B89F0
+	bool TextNodeTree::Insert(TextValue* node, NodesCompare compare, bool mode)
+	{
+		TreeNode* inserted = (TreeNode*)node;
+		TreeNode* parent = &nil;
+		TreeNode* current = root;
+		if (current != &nil)
+		{
+			do
+			{
+				parent = current;
+				int result = compare(node, (TextValue*)current);
+				if (mode && result == 0)
+				{
+					goto right;
+				}
+				if (result < 0)
+				{
+					current = current->left;
+				}
+				else
+				{
+					if (result <= 0)
+					{
+						return false;
+					}
+				right:
+					current = current->right;
+				}
+			}
+			while (current != &nil);
+		}
+		inserted->parent = parent;
+		if (parent == &nil)
+		{
+			root = inserted;
+		}
+		else if (compare(node, (TextValue*)parent) < 0)
+		{
+			parent->left = inserted;
+		}
+		else
+		{
+			parent->right = inserted;
+		}
+		inserted->left = &nil;
+		inserted->right = &nil;
+		inserted->color = 1;
+		TreeNode* fixed = inserted;
+		while (fixed != root && fixed->parent->color == 1)
+		{
+			if (fixed->parent == fixed->parent->parent->left)
+			{
+				TreeNode* uncle = fixed->parent->parent->right;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->right)
+					{
+						fixed = fixed->parent;
+						RotateLeft(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateRight(fixed->parent->parent);
+				}
+			}
+			else
+			{
+				TreeNode* uncle = fixed->parent->parent->left;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->left)
+					{
+						fixed = fixed->parent;
+						RotateRight(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateLeft(fixed->parent->parent);
+				}
+			}
+		}
+		root->color = 0;
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x105B8BF0
 	int CompareNodeName(const String* key, const TextValue* node)
 	{
@@ -629,7 +729,7 @@ namespace om
 	{
 		if (parent != 0)
 		{
-			parent->children.Insert(this, CompareNodes, 1);
+			parent->children.Insert(this, CompareNodes, true);
 		}
 	}
 
