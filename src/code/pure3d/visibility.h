@@ -104,6 +104,9 @@ namespace pure3d
 			unsigned int GetFlagSetCount();
 			// 0x107298B0: the occlusion test of the boxes of a slot against the occluders (name guess)
 			void RunOcclusionTest(const math::Vector* viewer, unsigned int* outputBits, int a, unsigned int slot);
+			// 0x10726F20: sets in the third result set the bit of every active client whose sphere touches the given
+			// sphere (name guess)
+			void TestSphere(const math::Sphere* sphere);
 			// 0x107265A0 / 0x10726E20: the size boxes must have to be tested (kept squared), and the setter
 			float GetUnknown1EC();
 			void SetUnknown1EC(float size);

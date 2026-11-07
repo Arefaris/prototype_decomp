@@ -115,6 +115,51 @@ namespace pure3d
 			return regionTable94[region] << 5;
 		}
 
+		// FUNCTION: ENGINE 0x10726F20
+		// NONMATCHING: the engine keeps the server and the result sets on the stack and the sphere in ebx, and reads the
+		// components in order (8 %)
+#ifdef NONMATCHING
+		void Server::TestSphere(const math::Sphere* sphere)
+		{
+			unsigned int lastWord = ((userDataEnd - userData) - 1U) >> 5;
+			BitFieldStack* stack = bits;
+			unsigned int word = 0;
+			do
+			{
+				unsigned int candidates = stack->results[1].words[word] & stack->results[4].words[word];
+				if (candidates == 0)
+				{
+					stack->results[2].words[word] = 0;
+				}
+				else
+				{
+					unsigned int result = 0;
+					int offset = word << 9;
+					unsigned int bit = 1;
+					do
+					{
+						if (candidates & bit)
+						{
+							const math::Sphere* other = (const math::Sphere*)((char*)spheres + offset);
+							float dx = sphere->centre.x - other->centre.x;
+							float dy = sphere->centre.y - other->centre.y;
+							float dz = sphere->centre.z - other->centre.z;
+							float reach = other->radius + sphere->radius;
+							if (dx * dx + dy * dy + dz * dz <= reach * reach)
+							{
+								result |= bit;
+							}
+						}
+						bit += bit;
+						offset += 0x10;
+					} while (bit != 0);
+					stack->results[2].words[word] = result;
+				}
+				word++;
+			} while (word <= lastWord);
+		}
+#endif
+
 		// FUNCTION: ENGINE 0x10726590
 		unsigned int Server::GetFlagSetCount()
 		{
