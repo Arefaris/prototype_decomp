@@ -7951,3 +7951,20 @@ Ten more units of the range were started or extended (about 130 functions match;
 - `timeofdayvarchannel.h`: `FindPreviousKey` / `FindNextKey` (the index of the last key at or before a time, the first key behind it; the time is kept within a day of 24), instantiated for the framebuffer effect types and the lighting types (`globalfbeffectsrig.cpp`; the Bloom pair is NONMATCHING: the power-of-two key size changes the emptiness test and the second computation of the last index).
 - `globalfbeffectsrig.h/.cpp`: the rig's channel getters (`GetBloomKeys`, ... in a const and a non-const form), the channel destructors of the four effects.
 - Shared header changes: `timeofdayvarchannel.h` (the two key searches), `globalfbeffectsrig.h` (the getters).
+## 0x108E0000 - 0x10900000 (sn-dr): NIS and light animation actions, the letterbox fade helper
+- `src/code/engine/fight/nisanimationactions.cpp` (unit 0x108F0C10 - 0x108F2000): `NISAnimationAction` (constructor, the compiler's
+  destructors and `NISAnimationTrack::CreateAction`), `LightAnimationAction` (`Slot6`, both track
+  `CreateAction`s), `SequenceNISNodeAction` (destructor, `Slot7`, the track's `CreateAction`), the file-local-looking leaf name helper
+  0x108F12E0 (external linkage, arguments on the stack), `SetAnimationMessage` (type 10, size 0x28) and the Link copies. NONMATCHING: the
+  two `Slot7` (shrink-wrap), `NISAnimationAction::Slot6` (92 %, registers), the light action's first constructor and destructor
+  (88 % / 95 %, store scheduling), the named-object constructor of the light action (83.6 %, `add eax, 0xFFFEFFFB` against `sub edx,
+  0x10005`), `SequenceNISNodeAction`'s constructor (94.9 %, registers) and `Slot5` (block layout of the shared return-false tail).
+  Not done: `NISAnimationAction::Slot5`, `LightAnimationAction::Slot5` (they build the animation message from the track and the
+  controller's animation; 605 and 512 bytes), `NISBeginMessage`.
+- `src/code/engine/render/fadehelper.cpp` (unit 0x108FD0A0 - 0x108FD8C0): `FadeValue` (a float that slides to a target: flag +0, value
+  +4, target +8, step +0xC) and `FadeHelper` (0x38 bytes: two fade values at +0x14 / +0x24 and the "unlit" shader at +0x10). The
+  engine folded `FadeValue::GetValue` with `pure3d::FrameTime::GetFloat` (0x108FD140). `GetBars` is NONMATCHING (the engine multiplies
+  the display height by a half before the call that answers the amount; 45.8 %).
+- `src/code/engine/online/olsfriend.cpp`: `OnProfileSelected` and `SendGameInvite`.
+- Shared header changes: `engine/nismessages.h` gained the three-argument `NISPlayMessage` constructor (the engine's copy 0x105736B0),
+  `engine/nis/nisnodes.h` gained `NISNode::Unknown108A7CE0`.
