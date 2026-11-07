@@ -15,6 +15,8 @@
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/scarymonsterbehaviour.h"
+#include "code/proto/behaviours/camerafloorbehaviour.h"
 
 namespace proto
 {
@@ -1038,16 +1040,6 @@ namespace proto
 		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
 	};
 
-	class ScaryMonsterBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ScaryMonsterBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(engine::Behaviour)];
-	};
-
 	class DriverBehaviour : public engine::Behaviour
 	{
 	public:
@@ -1276,16 +1268,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
-	};
-
-	class CameraFloorBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit CameraFloorBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 }
