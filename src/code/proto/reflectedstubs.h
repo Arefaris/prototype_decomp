@@ -5,6 +5,9 @@
 #ifndef PROTO_REFLECTEDSTUBS_H
 #define PROTO_REFLECTEDSTUBS_H
 
+#include "code/proto/coopbehaviour.h"
+#include "code/proto/behaviours/powerwheelbehaviour.h"
+#include "code/proto/behaviours/fedisplaybehaviour.h"
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/content/loadinventory.h"
@@ -536,16 +539,6 @@ namespace proto
 		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
 	};
 
-	class CoOpBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit CoOpBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
-	};
-
 	class DisguiseBehaviour : public engine::FightTreeBehaviour
 	{
 	public:
@@ -574,16 +567,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xE0 - sizeof(engine::Behaviour)];
-	};
-
-	class FEDisplayBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit FEDisplayBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x24 - sizeof(engine::Behaviour)];
 	};
 
 	class MovementBehaviour : public engine::Behaviour
@@ -996,6 +979,7 @@ namespace proto
 		unsigned char unknownTail[0x90 - sizeof(engine::Behaviour)];
 	};
 
+<<<<<<< HEAD
 	class PowerWheelBehaviour : public engine::Behaviour
 	{
 	public:
@@ -1004,6 +988,16 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x10 - sizeof(engine::Behaviour)];
+=======
+	class WaterTowerBehaviour : public engine::Behaviour
+	{
+	public:
+		explicit WaterTowerBehaviour(engine::GameObject* newOwner);
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+	
+		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
+>>>>>>> sn-by
 	};
 
 	class WeaponConfigurationBehaviour : public engine::Behaviour

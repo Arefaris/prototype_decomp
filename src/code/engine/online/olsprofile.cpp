@@ -83,4 +83,22 @@ namespace engine
 	void OLSProfile::Slot16(int a)
 	{
 	}
+
+	// FUNCTION: ENGINE 0x104DC940
+	const char* OLSProfile::Slot17()
+	{
+		return "";
+	}
+
+	// FUNCTION: ENGINE 0x104DC950
+	void OLSProfile::Slot18(int a)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104DC960
+	void OLSProfile::Slot19(int a)
+	{
+	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):

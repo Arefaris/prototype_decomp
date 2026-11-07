@@ -7030,3 +7030,39 @@ Not done (read, dependencies missing): `SecondaryPhysicsBehaviour` (the driver d
 of 0x74 and 0x40 byte elements and the apply functions 0x10911FA0 / 0x10912AE0), `AudioEmitterBehaviour` / `AudioZoneBehaviour` / `AudioUDOBehaviour` (0x1093C290 - 0x1093CE00, with the registration
 0x1092B450), `NetSystemLinkPublish` / `NetSystemLinkDiscovery` (0x1092B520 - 0x1092CF40: packet classes), `ControllerInputLogManager` (0x109337A0 - 0x10933E00), the NIS player's remaining members
 (0x109201C0 - 0x10920720, they call members of the previous range), the car attribute groups 3 and 4 (constants without names) and the large action slots.
+## sn-by: the range 0x104A0000 - 0x104E0000 (audio events and players, the front end script wrappers, the online profile layer, co-op behaviours)
+2301 functions of the range were open at the start. Most of them are small members of classes no RTTI name, vftable or assert reaches (the head-up display elements, the front end and mission objective
+managers, the sound players' updates, the unit's hundreds of one-line accessors on `FrontEndHud` / `GameFEManager` / `FECellManager` objects whose layouts are not recovered): they were left, as the small-function rule says.
+Reconstructed (all 100 %, no EQUIVALENT):
+- `proto/frontend/fewrappers.cpp` (0x104AA980 - 0x104D9xxx, about 640 functions): the `Method0..8` / `Closure0..8` and `LuaScriptManager::RegisterMethod` instances of the script bindings of `FrontEndState`, `GameFEManager`,
+  `GameFEControllerManager`, `FECredits`, `FEBlackFade`, `FECellManager`, `MarkerManager`, `StaticMarkerFilter`, `MissionObjectivesManager`, `FEHudScreen`, `FEHudMiniMap`, `FEHudPowers`, `FEHudMeter`, `FEHudPopup`, `FEHudTextLog`,
+  `FEHudCombatConclusion`, `FEHudKeyCard`, `FEHudEventPopup`, `FEHudMissionPopup`, `FEHudOpportunityEventPopup` and `FEHUDTypewriter` (108 signatures). The classes are declared in the file as far as the signatures need them: a class with one
+  base is an empty complete class (an incomplete class gets a three-word method pointer), the classes with several bases (`FrontEndState`, `GameFEControllerManager`, `FEHudMiniMap`, `FEHudPowers`, `FEHudMeter`) come after
+  `#pragma pointers_to_members(full_generality, multiple_inheritance)` as incomplete classes, and the enumerations nested in classes (`FEMarker::IconType`, `FEHudMeter::EIcons`, ...) are defined with one dummy enumerator so that
+  the mangled names come out right. Generator: `local/scratch/sn-by/genwrap.py`, binder `bind.py` (maps the object's unmapped COMDATs to the engine's by bytes and call targets, vftable slots first, then annotations, then order).
+  The plain constructor of every `Closure1` is not in the engine (only the in-place form is) and stays unmapped.
+- `audio/remoteplayerevent.h`, `remoteplayerevents.cpp`, `remoteplayerevents_b.cpp` (0x104A2CC0 - 0x104A5F70 and 0x104A6150 - 0x104A7430): `audio::Event`, `RemotePlayerEvent` and the instances of `RemotePlayerEvent_Param1<T>` /
+  `_Param2<T1, T2>` (constructor, `Execute`, destructors, the queue's `operator new` / `operator delete`) for the unit of the ambience player (unsigned int, bool, `const String&`, (unsigned int, float), `const MixVoiceChannelBinVolumes&`,
+  `const DynamicArray<Name, unsigned short>&`) and of the helicopter / vehicle players (`const Vector&`, float, `const DynamicArray<String, unsigned short>&`). An event is built in the audio thread's ring buffer (`gEventQueue`, 0x1127636C;
+  `Allocate` 0x105BA7B0, `Free` 0x105BA730), keeps the remote player handle (index in the low half) and calls `function(player, value)` through `gRemotePlayers->entries[index].player` (0x11276370, entries of 0x3C bytes); the function is a
+  `__thiscall` pointer. `Param2`'s constructor takes the handle by value. Copies that are identical in bytes (the 7-byte destructors, `operator new` / `delete`) are mapped to the next unmapped copy of the unit in address order.
+- `engine/audio/audioplayer.h/.cpp`: `engine::AudioPlayer` (constructor, slots 6 - 8, the destructor copy and the deleting destructor) and the constant answers of `SoundPlayerAmbience` (slots 1, 3, 4, 5), `SoundPlayerHelicopter` and
+  `SoundPlayerVehicle` (slot 3). The update, message and event slots of the three players are not reconstructed.
+- `proto/olsproto.h/.cpp` (0x104DC8F0 - 0x104DCBF0): `engine::OLSProfileProto` (the game's layer of the profile manager: constructor with the table of seventeen slot descriptions at 0x1109C520, destructor, slots 1 - 6, 8 - 11, 13 - 16 and
+  the jump of slot 2) and the base `OLSProfile` slots 17 - 19 (0x104DC940 - 0x104DC960). `olsprofile.h`: the pure slots got their signatures (`Slot3(int)`, `Slot8..11(int, int)`, `Slot13(int, int)`), the constructor `OLSProfile(int, int)` (0x10889C50),
+  `SetSlot`, `RegisterMethods`, `Unknown10889320`, `OLSProfileSlot` and the member `slots`. The message of slots 4, 9 and 10 sets `unknownC` after `user` (as `SelectProfile` does).
+  Not done: `OLSUserProto` (`engine::OLSUser` is declared as the non-polymorphic `OLSUserList`), `OLSGameProto` / `OLSGameSystemLinkProto` (their slots call functions of the unit that are not reconstructed).
+- `proto/behaviours/fedisplaybehaviour.h/.cpp` (the two `HUDReticuleType` / `HUDAmmoType` enumerations with their values, `ClassInfo`, `GetMembers`, constructor, destructor, slots 1 and 4), `powerwheelbehaviour.h/.cpp`
+  (`ClassInfo`, `GetMembers`, constructor, destructor, slots 1 and 6, `SetPowerWheelActiveMessage`), `coopbehaviour.h/.cpp` and `coopstateinstances.cpp` (`CoOpBehaviour`: `ClassInfo`, constructor, slot 1, `GetMembers` with its three object
+  members; `RespawnState`, `PlayerDeadState`, `PairingVolumeState` as plain classes with their `ClassInfo`, empty `GetMembers`, `GetClassMetaType`, `GetObjectMetaType` and `MetaInstanceHelper` instances). The stubs of the three behaviours are gone from
+  `reflectedstubs.h` (it includes the real headers). Left to the engine (declared, mapped in symbols.txt): `FEDisplayBehaviour::OnMessage` (0x104BFC10), `PowerWheelBehaviour::Update` (0x104C0250), `CoOpBehaviour::Update` / `OnMessage` and
+  the destructor body (0x104DB8E0, 0x104DB980, 0x104DB960).
+- `proto/gamedatabasebitrecord.h/.cpp` (0x104DF2D0 - 0x104DF440): `proto::GameDatabaseBitRecord` (RTTI; the bit set in a game database subject): the two observer slots, `Test`, `Set`, `SetAll`, `Clear`, `ClearAll`. It replaces the stand-in
+  `proto::SmartHintLog` of `smarthintmanager.h` (deleted; the two symbols.txt lines were replaced).
+- `proto/frontend/hudenums.h/.cpp`: the enumerations `HUDTransformationSlot` and `HUDPower` (reflection functions 0x104B0950 and 0x104B0990).
+- Shared header changes: `engine/function.h` (`Method5`, `Method6`, `Closure5`, `Closure6` and their `RegisterMethod` forms), `engine/luascriptmanager.h` (the two declarations), `engine/online/olsprofile.h` (see above), `proto/reflectedstubs.h`
+  (three stubs replaced by includes), `proto/smarthint/smarthintmanager.h` (`SmartHintLog` replaced by `GameDatabaseBitRecord`). symbols.txt: the two `SmartHintLog` lines were renamed to `GameDatabaseBitRecord`.
+- Not done and why: the rest of the sound players (`SoundPlayerAmbience` update 0x104A3E60 and the others are 300 - 4000 bytes of mixer-parameter code), `FrontEndState` (three bases, calls the unreconstructed front end), `OLSGame*`, the
+  head-up display elements (`FEHudElement` and its 25 subclasses: layouts not recovered), `FEHudVariable` templates and `container::StringLiteral` (the slots live behind incremental link thunks that other units' symbols still name; the string
+  classes' inline copies are folded across units), and the ~1000 small accessors of unnamed classes. The `om::DynamicArray` helper instances of the ambience unit (0x104A38F0 - 0x104A4780) are not reproduced: the engine's copies differ from the
+  template's members in their loops.
