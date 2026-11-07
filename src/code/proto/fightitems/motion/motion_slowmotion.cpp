@@ -143,6 +143,29 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10116340
+			SlowMotionAction::SlowMotionAction(SlowMotionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xA00), link(newTrack), target(newTarget), request(-1), elapsed(0.0f)
+			{
+				float fade = newTrack->fadeInTime;
+				fadeInTime = (fade > 0.0f) ? fade : 0.0f;
+				if (link.object->simulationDuration >= 0.0f)
+				{
+					SetFlag(0x800, false);
+					SetFlag(0x400, link.object->abortOnEnd);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101162A0
+			SlowMotionAction::~SlowMotionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101165E0
+			fight::Action* SlowMotionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new SlowMotionAction(this, handle);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<SlowMotionTrack>;

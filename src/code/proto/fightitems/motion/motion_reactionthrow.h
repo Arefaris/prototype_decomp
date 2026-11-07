@@ -118,6 +118,9 @@ namespace proto
 
 			// ---- actions begin
 
+			// 0x10109BE0
+			void RegisterReactionThrowSpinAngleFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

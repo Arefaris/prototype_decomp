@@ -1356,7 +1356,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011DFB0
-			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
 			fight::Action* SupportingLimbSetDirectionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -1374,7 +1373,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011DF50
-			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
 			fight::Action* SupportingLimbSetActiveRangeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -1406,6 +1404,21 @@ namespace proto
 					return event->switchSurfaces == switchSurfaces;
 				}
 				return switchSurfaces == false;
+			}
+
+			// FUNCTION: ENGINE 0x1011A9C0
+			void RegisterSupportingLimbTestSurfaceNormalAngleFactories(fight::TrackRegistry* registry)
+			{
+				RegisterSupportingLimbTestSurfaceNormalAngleConditionFactory(registry, "supportingLimbTestSurfaceNormalAngle");
+				RegisterSupportingLimbSurfaceIntersectionPropertiesConditionFactory(registry, "supportingLimbSurfaceIntersectionProperties");
+				RegisterSupportingLimbTestSurfaceDistanceConditionFactory(registry, "supportingLimbTestSurfaceDistance");
+				RegisterSupportingLimbTestTimeToImpactConditionFactory(registry, "supportingLimbTestTimeToImpact");
+				RegisterSupportingLimbTestSurfaceVelocityAngleConditionFactory(registry, "supportingLimbTestSurfaceVelocityAngle");
+				RegisterSupportingLimbTestSurfaceNormalVelocityArcConditionFactory(registry, "supportingLimbTestSurfaceNormalVelocityArc");
+				RegisterSupportingLimbTestSurfaceConditionGroupConditionFactory(registry, "supportingLimbTestSurfaceConditionGroup");
+				RegisterSupportingLimbTestSwitchSurfacesConditionFactory(registry, "supportingLimbTestSwitchSurfaces");
+				RegisterSupportingSurfaceConditionGroupConditionFactory(registry, "supportingSurfaceConditionGroup");
+				RegisterSupportingSurfaceNormalVelocityArcConditionFactory(registry, "supportingSurfaceNormalVelocityArc");
 			}
 
 			// ---- actions end

@@ -102,6 +102,55 @@ namespace proto
 			void RegisterReactionPushbackTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ReactionPushbackAction (9 vftable slots, 0x54 bytes): pushes the object back by the hit's impulse
+			class ReactionPushbackAction : public fight::Action
+			{
+			public:
+				// 0x10108900
+				ReactionPushbackAction(ReactionPushbackTrack* newTrack, TrackOwner* owner);
+				// 0x10108680
+				virtual ~ReactionPushbackAction();
+
+				// vftable slot 5 (0x10108A00, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101086D0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10108E10, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				float unknown1C;  // +0x1C
+				engine::GameObjectHandle target;  // +0x20
+				core::IRefCount* event;  // +0x24
+				float unknown28;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				choreo::Driver* driver;  // +0x38
+				float unknown3C;  // +0x3C
+				core::Link<ReactionPushbackTrack> link;  // +0x40
+				float unknown4C;  // +0x4C
+				unsigned char unknown50[0x4];
+			};
+
+			// RTTI: proto::fightitems::motion::ReactionPushbackOrientAction (9 vftable slots, 0x34 bytes)
+			class ReactionPushbackOrientAction : public fight::Action
+			{
+			public:
+				// 0x10109000
+				ReactionPushbackOrientAction(ReactionPushbackOrientTrack* newTrack, TrackOwner* owner);
+				// 0x10108760
+				virtual ~ReactionPushbackOrientAction();
+
+				// vftable slot 5 (0x101090C0, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101087B0)
+				virtual void Slot6();
+
+				core::Link<ReactionPushbackOrientTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				choreo::Driver* driver;  // +0x30
+			};
 
 			// ---- actions end
 		}

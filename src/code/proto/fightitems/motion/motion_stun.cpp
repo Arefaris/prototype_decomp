@@ -1,5 +1,6 @@
 // Fight items of the motion group: StunnedCondition, StunTrack (unit 0x101B6980 - 0x101B7170; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_stun.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
 {
@@ -175,6 +176,67 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10119FE0
+			void StunAction::SetStunned(engine::GameObject* object, bool stunned)
+			{
+				SetStunnedMovementMessage message(stunned);
+				object->SendMessage(&message);
+			}
+
+			// FUNCTION: ENGINE 0x1011A350
+			bool StunAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.object->onEnd == 0)
+				{
+					GetStunnedMovementMessage message;
+					object->SendMessage(&message);
+					unknown2C = message.stunned;
+				}
+				switch (link.object->onBegin)
+				{
+				case 1:
+					SetStunned(object, true);
+					break;
+				case 2:
+					SetStunned(object, false);
+					break;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1011A440
+			void StunAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						switch (link.object->onEnd)
+						{
+						case 0:
+							SetStunned(object, unknown2C);
+							break;
+						case 1:
+							SetStunned(object, true);
+							break;
+						case 2:
+							SetStunned(object, false);
+							break;
+						}
+					}
+				}
+			}
+
 			// FUNCTION: ENGINE 0x1011A4C0
 			fight::Action* StunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -194,6 +256,13 @@ namespace proto
 					return stunned == message.stunned;
 				}
 				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1011A030
+			bool RegisterStunnedFactories(fight::TrackRegistry* registry)
+			{
+				RegisterStunnedConditionFactory(registry, "stunned");
+				return true;
 			}
 
 			// ---- actions end

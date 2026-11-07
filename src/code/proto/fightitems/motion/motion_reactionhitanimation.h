@@ -73,6 +73,27 @@ namespace proto
 			void RegisterReactionHitAnimationTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ReactionHitAnimationAction (9 vftable slots, 0x34 bytes): plays the hit animation of the reaction
+			class ReactionHitAnimationAction : public fight::Action
+			{
+			public:
+				// 0x1010D060
+				ReactionHitAnimationAction(ReactionHitAnimationTrack* newTrack, core::IRefCount* owner);
+				// 0x1010CE30
+				virtual ~ReactionHitAnimationAction();
+
+				// vftable slot 5 (0x1010D130, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1010CF30, the engine's)
+				virtual void Slot6();
+				// vftable slot 7 (0x1010CE80, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ReactionHitAnimationTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				choreo::Driver* driver;  // +0x30
+			};
 
 			// ---- actions end
 		}

@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace proto
 {
@@ -51,6 +52,22 @@ namespace proto
 			void RegisterSlaveTransformTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::SlaveTransformAction (9 vftable slots, 0x30 bytes): keeps an object at an offset from a master object
+			class SlaveTransformAction : public fight::Action
+			{
+			public:
+				// 0x10115D90
+				SlaveTransformAction(SlaveTransformTrack* newTrack, TrackOwner* owner);
+				// 0x10115CF0
+				virtual ~SlaveTransformAction();
+
+				// vftable slot 7 (0x10115E50, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SlaveTransformTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::GameObjectHandle master;  // +0x2C
+			};
 
 			// ---- actions end
 		}

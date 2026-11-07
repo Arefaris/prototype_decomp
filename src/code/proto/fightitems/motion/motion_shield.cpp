@@ -159,7 +159,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101ABAA0
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void ShieldProtectingCondition::RegisterProperties()
 			{
 				if (gShieldProtectingConditionProperties == 0)
@@ -447,6 +446,47 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x1010F0F0
+			ShieldDeployAction::ShieldDeployAction(engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F120
+			ShieldDeployAction::~ShieldDeployAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F690
+			bool ShieldDeployAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldSetStateMessage message(2);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1010F720
+			void ShieldDeployAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ShieldSetStateMessage message(0);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1010F240
+			fight::Action* ShieldDeployTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ShieldDeployAction(engine::GameObjectHandle(actionOwner->handle));
+			}
+
 			// FUNCTION: ENGINE 0x1010F8C0
 			ShieldSetStateAction::ShieldSetStateAction(ShieldSetStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
@@ -458,11 +498,10 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010FBE0
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
 			fight::Action* ShieldSetStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				TrackOwner* actionOwner = AsActionOwner(owner);
-				return new ShieldSetStateAction(this, actionOwner->handle);
+				return new ShieldSetStateAction(this, engine::GameObjectHandle(actionOwner->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1010FA00
@@ -476,11 +515,10 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010FC40
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
 			fight::Action* ShieldReflectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				TrackOwner* actionOwner = AsActionOwner(owner);
-				return new ShieldReflectAction(this, actionOwner->handle);
+				return new ShieldReflectAction(this, engine::GameObjectHandle(actionOwner->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1010F970
@@ -575,6 +613,14 @@ namespace proto
 					}
 				}
 				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010F0B0
+			void RegisterShieldHealthFactories(fight::TrackRegistry* registry)
+			{
+				RegisterShieldHealthConditionFactory(registry, "shieldHealth");
+				RegisterShieldProtectingConditionFactory(registry, "shieldProtecting");
+				RegisterShieldStateConditionFactory(registry, "shieldState");
 			}
 
 			// ---- actions end

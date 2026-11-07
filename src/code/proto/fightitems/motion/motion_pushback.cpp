@@ -1,5 +1,10 @@
 // Fight items of the motion group: PushbackVelocityCondition, PushbackDirectionCondition, ReactionHitPushbackAddTrack (unit 0x101AA2B0 - 0x101AADF0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_pushback.h"
+#include "code/choreo/deltatransform.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include <math.h>
 
 namespace proto
 {
@@ -225,6 +230,62 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x1010DBB0
+			// NONMATCHING: the engine keeps the handle and the two compared floats in the slots of its incoming arguments and of the dead message (best 92 %)
+#ifdef NONMATCHING
+			bool PushbackVelocityCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				PushbackGetMessage message;
+				object->SendMessage(&message);
+				float current = message.velocity;
+				float wanted = velocity;
+				return fight::CompareFloats(compare, &current, &wanted);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1010DCC0
+			bool PushbackDirectionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				PushbackGetMessage message;
+				object->SendMessage(&message);
+				math::Vector local;
+				object->transform->value.RotateInverse(message.direction, local);
+				float heading = choreo::Heading(local);
+				float difference = (float)fabs(choreo::AngleDifference(heading, direction));
+				if (difference < arc * engine::driving::gHalf)
+				{
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x1010DED0
+			ReactionHitPushbackAddAction::ReactionHitPushbackAddAction(ReactionHitPushbackAddTrack* newTrack, core::IRefCount* owner) : fight::Action(0xE00), event(0), link(newTrack)
+			{
+				engine::AssignRefCountedCopy3(&event, AsHitEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x1010DE20
+			ReactionHitPushbackAddAction::~ReactionHitPushbackAddAction()
+			{
+				core::SafeReleaseRefCopy3(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1010E1C0
+			fight::Action* ReactionHitPushbackAddTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ReactionHitPushbackAddAction(this, owner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<PushbackVelocityCondition>;

@@ -1,5 +1,15 @@
 // Fight items of the motion group: ReactionThrowSpinAngleCondition, ReactionThrowTrack (unit 0x101A8330 - 0x101A9500; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactionthrow.h"
+#include "code/choreo/deltatransform.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/math/worldbounds.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
+#include <math.h>
+
+namespace choreo
+{
+	float HeadingXZ(float x, float z);
+}
 
 namespace proto
 {
@@ -339,6 +349,29 @@ namespace proto
 			}
 
 			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x10109C00
+			bool ReactionThrowSpinAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionThrowEvent* event = (ReactionThrowEvent*)c;
+				if (event != 0 && event->kind == 0x21003)
+				{
+					float spinX = event->spinX;
+					float heading = choreo::HeadingXZ(event->spinZ, math::WORLD_MIN - spinX);
+					float difference = (float)fabs(choreo::AngleDifference(heading, angle));
+					if (difference < arc * engine::driving::gHalf)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10109BE0
+			void RegisterReactionThrowSpinAngleFactories(fight::TrackRegistry* registry)
+			{
+				RegisterReactionThrowSpinAngleConditionFactory(registry, "reactionThrowSpinAngle");
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionThrowSpinAngleCondition>;

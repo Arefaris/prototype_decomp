@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/primitivemessages.h"
 
 namespace proto
 {
@@ -66,6 +67,9 @@ namespace proto
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x1010EDA0)
 				virtual void Slot6();
+
+				// 0x1010EAB0: sends the visibility message to the objects the grab slots of the object hold
+				void SendToGrabSlots(engine::SetAllVisibilityMessage* message);
 
 				core::Link<SetVisibilityTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

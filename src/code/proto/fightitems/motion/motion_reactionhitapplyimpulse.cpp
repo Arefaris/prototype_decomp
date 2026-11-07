@@ -89,6 +89,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x1010D730
+			ReactionHitApplyImpulseAction::ReactionHitApplyImpulseAction(ReactionHitApplyImpulseTrack* newTrack, core::IRefCount* owner) : fight::Action(0xE00), event(0), link(newTrack)
+			{
+				engine::AssignRefCountedCopy3(&event, AsHitEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x1010D680
+			ReactionHitApplyImpulseAction::~ReactionHitApplyImpulseAction()
+			{
+				core::SafeReleaseRefCopy3(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1010D950
+			fight::Action* ReactionHitApplyImpulseTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ReactionHitApplyImpulseAction(this, owner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionHitApplyImpulseTrack>;

@@ -42,6 +42,7 @@ namespace proto
 				bool SetFallOffRadius(float newValue);
 				bool SetCancelOnTrackEnd(bool newValue);
 
+
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
@@ -130,7 +131,44 @@ namespace proto
 			fight::TrackFactory* CreatePadRumbleClearTrackFactory(const char* name);
 			void RegisterPadRumbleClearTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// 0x10FF83F4: the controller motor the track's motor property picks (name guess)
+			extern const int gPadRumbleSetTrackMotorIndex[];
+
 			// ---- actions begin
+			// 0x101001B0: stops the vibration of both motors of the first active controller (name guess)
+			void StopPadRumble();
+
+			// What a track owner of kind 0x40000 holds: a position
+			struct PadRumbleOwnerPoint : TrackOwner
+			{
+				unsigned char unknown10[0x30];
+				math::Vector position;  // +0x40
+			};
+
+			// RTTI: proto::fightitems::motion::PadRumbleSetAction (9 vftable slots, 0x38 bytes): vibrates the pad for as long as the track runs
+			class PadRumbleSetAction : public fight::Action
+			{
+			public:
+				// 0x10100660
+				PadRumbleSetAction(PadRumbleSetTrack* newTrack);
+				// 0x101003F0
+				virtual ~PadRumbleSetAction();
+
+				// vftable slot 5 (0x10100710)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101008B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10100140)
+				virtual bool Slot7(int arg, float value);
+
+				// 0x10100110: the world position the rumble comes from
+				void SetPosition(const math::Vector& newPosition);
+
+				core::Link<PadRumbleSetTrack> link;  // +0x1C
+				math::Vector position;  // +0x28
+				bool usePosition;  // +0x34
+			};
+
 			// RTTI: proto::fightitems::motion::PadRumbleRefAction (9 vftable slots, 0x78 bytes): runs the track's branch in its own sequencer
 			class PadRumbleRefAction : public fight::Action
 			{
@@ -168,6 +206,9 @@ namespace proto
 				core::Link<PadRumbleClearTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 			};
+
+			// 0x101000D0
+			void RegisterPadRumbleClearFactories(fight::TrackRegistry* registry);
 
 			// ---- actions end
 		}

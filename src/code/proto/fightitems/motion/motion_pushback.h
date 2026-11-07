@@ -104,6 +104,21 @@ namespace proto
 			void RegisterReactionHitPushbackAddTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ReactionHitPushbackAddAction (9 vftable slots, 0x2C bytes): adds the impulse of the hit to the pushback of the object
+			class ReactionHitPushbackAddAction : public fight::Action
+			{
+			public:
+				// 0x1010DED0
+				ReactionHitPushbackAddAction(ReactionHitPushbackAddTrack* newTrack, core::IRefCount* owner);
+				// 0x1010DE20
+				virtual ~ReactionHitPushbackAddAction();
+
+				// vftable slot 5 (0x1010DFB0, the engine's)
+				virtual bool Slot5(int arg, float value);
+
+				core::IRefCount* event;  // +0x1C
+				core::Link<ReactionHitPushbackAddTrack> link;  // +0x20
+			};
 
 			// ---- actions end
 		}

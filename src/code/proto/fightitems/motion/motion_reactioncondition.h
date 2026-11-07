@@ -718,6 +718,9 @@ namespace proto
 
 			// ---- actions begin
 
+			// 0x101064F0
+			void RegisterReactionEventConditionGroupFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

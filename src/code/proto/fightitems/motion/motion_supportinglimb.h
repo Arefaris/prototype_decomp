@@ -587,6 +587,9 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// 0x1011A9C0
+			void RegisterSupportingLimbTestSurfaceNormalAngleFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

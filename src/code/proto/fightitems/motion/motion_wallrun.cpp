@@ -712,7 +712,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10132BE0
-			// EQUIVALENT: the range test of the owner kind is add eax, 0xFFFF0000 where ours has sub eax, 0x10000 (the same value) (97.0 %)
 			fight::Action* WallRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -720,7 +719,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10132750
-			// EQUIVALENT: scheduling: the engine pushes the arguments of the owner assignment right before its call, ours right after the owner is loaded (94.9 %)
 			WallOrientAction::WallOrientAction(WallOrientTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), surfaceEvent(0), driver(0), normal(0.0f, 0.0f, 0.0f)
 			{
 				engine::AssignRefCountedCopy2(&surfaceEvent, newEvent);
@@ -734,7 +732,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10133700
-			// EQUIVALENT: the range test of the owner kind is add eax, 0xFFFF0000 where ours has sub eax, 0x10000 (the same value) (97.0 %)
 			fight::Action* WallOrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;

@@ -71,8 +71,8 @@ namespace motion
 	void RegisterGrabSlotFactories(fight::TrackRegistry* registry);
 	void RegisterSetGrabIntersectionPropertiesTrackFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterGrabTargetClearTrackFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterStunnedFactories(fight::TrackRegistry* registry);
-	void RegisterHasPatsyFactories(fight::TrackRegistry* registry);
+	bool RegisterStunnedFactories(fight::TrackRegistry* registry);
+	bool RegisterHasPatsyFactories(fight::TrackRegistry* registry);
 	void RegisterFactionFactories(fight::TrackRegistry* registry);
 	bool RegisterUndergroundStateFactories(fight::TrackRegistry* registry);
 	void RegisterAccumulatedDamageFactories(fight::TrackRegistry* registry);

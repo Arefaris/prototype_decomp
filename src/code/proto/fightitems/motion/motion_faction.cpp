@@ -271,7 +271,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1015D750
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void FactionDefaultTrack::RegisterProperties()
 			{
 				if (gFactionDefaultTrackProperties == 0)

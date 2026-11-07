@@ -80,6 +80,48 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x101092F0
+			void AssignRefCountedTargetGiver(core::IRefCount** slot, core::IRefCount* value)
+			{
+				if (value != 0)
+				{
+					value->AddRef();
+				}
+				if (*slot != 0)
+				{
+					(*slot)->Release();
+				}
+				*slot = value;
+			}
+
+			// FUNCTION: ENGINE 0x10109330
+			void SafeReleaseRefTargetGiver(core::IRefCount*& object)
+			{
+				if (object != 0)
+				{
+					object->Release();
+					object = 0;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10109520
+			ReactionTargetGiverAction::ReactionTargetGiverAction(ReactionTargetGiverTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), target(engine::GetObjectHandle(owner)), event(0), link(newTrack)
+			{
+				AssignRefCountedTargetGiver(&event, AsReactionEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x101093E0
+			ReactionTargetGiverAction::~ReactionTargetGiverAction()
+			{
+				SafeReleaseRefTargetGiver(event);
+			}
+
+			// FUNCTION: ENGINE 0x10109620
+			fight::Action* ReactionTargetGiverTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ReactionTargetGiverAction(this, actionOwner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionTargetGiverTrack>;

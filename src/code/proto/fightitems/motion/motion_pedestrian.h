@@ -507,6 +507,12 @@ namespace proto
 				int unknown2C;  // +0x2C
 			};
 
+			// 0x10102280
+			void RegisterCharacterCloudStateAt10102280Factories(fight::TrackRegistry* registry);
+
+			// 0x10102300
+			void RegisterCharacterCloudStateFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

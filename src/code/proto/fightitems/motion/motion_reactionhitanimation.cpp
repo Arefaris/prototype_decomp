@@ -1,5 +1,11 @@
 // Fight items of the motion group: ReactionHitAnimationTrack (unit 0x101A9500 - 0x101A9F10; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactionhitanimation.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+
+namespace engine
+{
+	extern core::Name<core::CaseSensitiveKey> gPuppetAttributeName;
+}
 
 namespace proto
 {
@@ -205,6 +211,68 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x1010D060
+			ReactionHitAnimationAction::ReactionHitAnimationAction(ReactionHitAnimationTrack* newTrack, core::IRefCount* owner) : fight::Action(0x600), link(newTrack), target(engine::GetObjectHandle(owner)), event(0), driver(0)
+			{
+				engine::AssignRefCountedCopy3(&event, AsHitEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x1010CE30
+			ReactionHitAnimationAction::~ReactionHitAnimationAction()
+			{
+				engine::ReleaseDriver(driver);
+				core::SafeReleaseRefCopy3(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1010CF30
+			void ReactionHitAnimationAction::Slot6()
+			{
+				core::SafeReleaseRefCopy3(&event);
+				if (driver != 0 && target.IsValid())
+				{
+					engine::GameObject* object = target.Get();
+					engine::Attribute<choreo::Puppet*>* attribute = (engine::Attribute<choreo::Puppet*>*)object->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &attribute->value;
+						if (value != 0 && *value != 0)
+						{
+							(*value)->SetEndlessLifetime(driver, false, choreo::gMinusOne);
+							engine::ReleaseDriverCopy(driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1010CE80
+			// NONMATCHING: block order, the engine places the shared failure return before the body (best 24 %)
+#ifdef NONMATCHING
+			bool ReactionHitAnimationAction::Slot7(int arg, float value)
+			{
+				if (driver == 0 || !target.IsValid())
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				engine::Attribute<choreo::Puppet*>* attribute = (engine::Attribute<choreo::Puppet*>*)object->FindAttribute(engine::gPuppetAttributeName);
+				if (attribute != 0)
+				{
+					choreo::Puppet** slot = &attribute->value;
+					if (slot != 0 && *slot != 0)
+					{
+						return !(*slot)->IsEnding(driver);
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1010D560
+			fight::Action* ReactionHitAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ReactionHitAnimationAction(this, actionOwner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionHitAnimationTrack>;

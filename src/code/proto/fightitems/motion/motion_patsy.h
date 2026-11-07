@@ -275,6 +275,66 @@ namespace proto
 			void RegisterClearPatsyTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// 0x103B8B20: the health an object answers (name guess)
+			float GetObjectHealth(engine::GameObject* object);
+
+			// RTTI: proto::fightitems::motion::PatsyCreateAction (9 vftable slots, 0x34 bytes): gives the object the patsy picked from the track's who
+			class PatsyCreateAction : public fight::Action
+			{
+			public:
+				// 0x10101E90
+				PatsyCreateAction(PatsyCreateTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner);
+				// 0x10101010
+				virtual ~PatsyCreateAction();
+
+				// vftable slot 5 (0x101019D0)
+				virtual bool Slot5(int arg, float value);
+
+				// 0x10101A60: the handle the track's who names (name guess)
+				engine::GameObjectHandle GetWho(engine::GameObject* object);
+
+				core::Link<PatsyCreateTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* owner;  // +0x2C
+				engine::GameObjectHandle patsy;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::ClearPatsyAction (9 vftable slots, 0x30 bytes): takes the patsy away from the object
+			class ClearPatsyAction : public fight::Action
+			{
+			public:
+				// 0x10101B80
+				ClearPatsyAction(ClearPatsyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner);
+				// 0x10101070
+				virtual ~ClearPatsyAction();
+
+				// vftable slot 5 (0x10101C40)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ClearPatsyTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* owner;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::ClearFailedPatsyAction (9 vftable slots, 0x30 bytes): takes the failed patsy away from the object
+			class ClearFailedPatsyAction : public fight::Action
+			{
+			public:
+				// 0x10101D30
+				ClearFailedPatsyAction(ClearFailedPatsyTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner);
+				// 0x101010D0
+				virtual ~ClearFailedPatsyAction();
+
+				// vftable slot 5 (0x10101DF0)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<ClearFailedPatsyTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* owner;  // +0x2C
+			};
+
+			// 0x10100D10
+			bool RegisterHasPatsyFactories(fight::TrackRegistry* registry);
 
 			// ---- actions end
 		}

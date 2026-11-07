@@ -297,8 +297,12 @@ namespace engine
 			}
 		}
 
-		// SetVibration is inline in the header; this is its kept copy
 		// FUNCTION: ENGINE 0x107DF600
+		void InputSystem::SetVibration(unsigned int id, int motor, float a, float b, float c, float d)
+		{
+			physical->SetVibration(id, motor, a, b, c, d);
+		}
+
 		// FUNCTION: ENGINE 0x107DFE20
 		// EQUIVALENT: register choice: the engine keeps the list address in edi
 		void InputSystem::UpdatePlayers(UpdateContext context)
@@ -317,8 +321,8 @@ namespace engine
 		{
 			for (PlayerInfo* info = (PlayerInfo*)active.head; info != 0; info = info->GetNext())
 			{
-				SetVibration(info->id, 0, 0.0f, 0.0f, 0.0f, 0.0f);
-				SetVibration(info->id, 1, 0.0f, 0.0f, 0.0f, 0.0f);
+				physical->SetVibration(info->id, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+				physical->SetVibration(info->id, 1, 0.0f, 0.0f, 0.0f, 0.0f);
 			}
 		}
 

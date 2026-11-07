@@ -1,5 +1,6 @@
 // Fight items of the motion group: SetVisibilityTrack (unit 0x101AB2E0 - 0x101AB8A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_setvisibility.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
 {
@@ -124,6 +125,59 @@ namespace proto
 			// FUNCTION: ENGINE 0x1010EA80
 			SetVisibilityAction::~SetVisibilityAction()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x1010EAB0
+			void SetVisibilityAction::SendToGrabSlots(engine::SetAllVisibilityMessage* message)
+			{
+				GetGrabSlotsMessage slotsMessage;
+				target.Get()->SendMessage(&slotsMessage);
+				if (slotsMessage.slots != 0)
+				{
+					for (GrabSlot* slot = slotsMessage.slots->begin; slot != slotsMessage.slots->end; slot++)
+					{
+						engine::GameObject* object = static_cast<engine::GameObjectHandle&>(slot->held).Get();
+						if (object != 0)
+						{
+							object->SendMessage(message);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1010ECB0
+			bool SetVisibilityAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (target.IsValid())
+				{
+					int action = link.object->actionOnBegin;
+					engine::SetAllVisibilityMessage message(action == 0);
+					target.Get()->SendMessage(&message);
+					if (link.object->applyToGrabSlots)
+					{
+						SendToGrabSlots(&message);
+					}
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1010EDA0
+			void SetVisibilityAction::Slot6()
+			{
+				if (link.object != 0 && target.IsValid() && link.object->actionOnEnd != 0)
+				{
+					int action = link.object->actionOnEnd;
+					engine::SetAllVisibilityMessage message(action == 1);
+					target.Get()->SendMessage(&message);
+					if (link.object->applyToGrabSlots)
+					{
+						SendToGrabSlots(&message);
+					}
+				}
 			}
 
 			// FUNCTION: ENGINE 0x1010EE90

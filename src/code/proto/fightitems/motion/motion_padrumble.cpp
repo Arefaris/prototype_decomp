@@ -1,5 +1,10 @@
 // Fight items of the motion group: PadRumbleSetTrack, PadRumbleRefTrack, PadRumbleClearTrack (unit 0x101998F0 - 0x1019A8A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_padrumble.h"
+#include "code/engine/camera/director.h"
+#include "code/engine/controller/inputsystem.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/math/worldbounds.h"
+#include <math.h>
 
 namespace proto
 {
@@ -392,6 +397,132 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new PadRumbleClearAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101001B0
+			void StopPadRumble()
+			{
+				engine::controller::PlayerInfo* info = (engine::controller::PlayerInfo*)engine::controller::InputSystem::Get()->connected.head;
+				for (int motor = 0; motor < 2; motor++)
+				{
+					engine::controller::InputSystem::Get()->SetVibration(info->id, motor, 0.0f, 0.0f, 0.0f, 0.0f);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10100200
+			bool PadRumbleClearAction::Slot5(int arg, float value)
+			{
+				StopPadRumble();
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10100660
+			PadRumbleSetAction::PadRumbleSetAction(PadRumbleSetTrack* newTrack) : fight::Action(0xE00), link(newTrack)
+			{
+				position.Set(0.0f, 0.0f, 0.0f);
+				usePosition = false;
+			}
+
+			// FUNCTION: ENGINE 0x101003F0
+			PadRumbleSetAction::~PadRumbleSetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10100110
+			// NONMATCHING: the engine stores the flag after the last component (best 75 %)
+#ifdef NONMATCHING
+			void PadRumbleSetAction::SetPosition(const math::Vector& newPosition)
+			{
+				position.x = newPosition.x;
+				position.y = newPosition.y;
+				position.z = newPosition.z;
+				usePosition = true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10100710
+			// NONMATCHING: the attenuation of the intensity loads its operands in another order and keeps the track in another register (best 28 %)
+#ifdef NONMATCHING
+			bool PadRumbleSetAction::Slot5(int arg, float value)
+			{
+				engine::controller::PlayerInfo* info = (engine::controller::PlayerInfo*)engine::controller::InputSystem::Get()->connected.head;
+				float intensity = link.object->scale;
+				if (usePosition)
+				{
+					const math::Matrix* camera = engine::camera::Director::Get()->GetCameraMatrix(0, 0);
+					math::Vector offset;
+					offset.Sub(position, *(const math::Vector*)&camera->m[3][0]);
+					float distance = (float)sqrt((double)(offset.z * offset.z + offset.y * offset.y + offset.x * offset.x));
+					PadRumbleSetTrack* track = link.object;
+					if (distance > track->fullIntensityRadius)
+					{
+						intensity = (distance - track->fullIntensityRadius) / (track->fallOffRadius - track->fullIntensityRadius) * (math::WORLD_MIN - intensity) + intensity;
+					}
+				}
+				if (intensity > engine::driving::gOne)
+				{
+					intensity = engine::driving::gOne;
+				}
+				PadRumbleSetTrack* track = link.object;
+				int motor = gPadRumbleSetTrackMotorIndex[track->motor];
+				engine::controller::InputSystem::Get()->SetVibration(info->id, motor, track->holdTime, intensity, track->fadeInTime, track->fadeOutTime);
+				return link.object->cancelOnTrackEnd;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101008B0
+			void PadRumbleSetAction::Slot6()
+			{
+				if (link.object->cancelOnTrackEnd)
+				{
+					StopPadRumble();
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10100140
+			bool PadRumbleSetAction::Slot7(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10100A40
+			// NONMATCHING: calls SetPosition, which is not compiled (the engine's caller keeps the action in ecx across the call)
+#ifdef NONMATCHING
+			fight::Action* PadRumbleSetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				PadRumbleSetAction* action = new PadRumbleSetAction(this);
+				if (useObjectPos)
+				{
+					TrackOwner* trackOwner = (TrackOwner*)owner;
+					if (trackOwner != 0)
+					{
+						if (trackOwner->kind == 0x40000)
+						{
+							action->SetPosition(((PadRumbleOwnerPoint*)trackOwner)->position);
+						}
+						else if (trackOwner->kind - 0x10000 <= 0x1ffff)
+						{
+							engine::GameObject* object = trackOwner->handle.Get();
+							if (object != 0)
+							{
+								math::Matrix* matrix = object->transform->GetPointer();
+								math::Vector point;
+								point.Set(matrix->m[3][0], matrix->m[3][1], matrix->m[3][2]);
+								action->SetPosition(point);
+							}
+						}
+					}
+				}
+				return action;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101000D0
+			void RegisterPadRumbleClearFactories(fight::TrackRegistry* registry)
+			{
+				RegisterPadRumbleClearTrackFactory(registry, "padRumbleClear");
+				RegisterPadRumbleSetTrackFactory(registry, "padRumbleSet");
+				RegisterPadRumbleRefTrackFactory(registry, "padRumbleReference");
 			}
 
 			// ---- actions end

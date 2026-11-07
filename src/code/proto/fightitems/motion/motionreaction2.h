@@ -31,7 +31,8 @@ namespace proto
 				float charge;  // +0x20
 				unsigned char unknown24[0x4];
 				core::Name<core::CaseSensitiveKey> collisionFlag;  // +0x28
-				unsigned char unknown30[0x1C];
+				unsigned char unknown30[0x18];
+				engine::GameObjectHandle originator;  // +0x48
 				float damage;  // +0x4C
 				float damageRatio;  // +0x50
 				int attackType;  // +0x54
@@ -59,7 +60,10 @@ namespace proto
 				engine::GameObjectHandle giver;  // +0x18
 				unsigned char unknown1C[0x4];
 				float charge;  // +0x20
-				unsigned char unknown24[0x34];
+				unsigned char unknown24[0x14];
+				float spinX;  // +0x38
+				float spinZ;  // +0x3C
+				unsigned char unknown40[0x18];
 				core::Name<core::CaseSensitiveKey> hitType;  // +0x58
 			};
 
