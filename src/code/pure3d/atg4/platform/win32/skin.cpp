@@ -3,10 +3,12 @@
 #include <mmintrin.h>
 #include <xmmintrin.h>
 
+#include "code/core/criticalsection.h"
 #include "code/core/debug.h"
 #include "code/core/interlocked.h"
 #include "code/core/refptr.h"
 #include "code/core/thread.h"
+#include "code/pure3d/context.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
@@ -73,6 +75,9 @@ namespace pure3d
 	static bool gSkinAsync = true;
 	// GLOBAL: ENGINE 0x1128180C
 	int gSkinQueuedCount = 0;
+	// How many have finished (name guess)
+	// GLOBAL: ENGINE 0x11281810
+	int gSkinFinishedCount = 0;
 
 	// Pushes a node on a list head, retrying while another thread changes it; the node's first word is its next
 	// FUNCTION: ENGINE 0x1071B010
@@ -1610,6 +1615,22 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x1071F940
+	Skin::~Skin()
+	{
+		core::FreeAligned(unknown140);
+		operator delete(unknown264);
+		unknown264 = 0;
+		if (buffer != 0)
+		{
+			core::SafeRelease((dxVertexBuffer*&)buffer);
+		}
+		if (indexBuffer != 0)
+		{
+			Unknown107076C0(&indexBuffer);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1071EFE0
 	void Skin::UnlockBuffer()
 	{
@@ -2015,6 +2036,27 @@ namespace pure3d
 		return unknown2AC;
 	}
 
+
+	// FUNCTION: ENGINE 0x1071F8A0
+	void SkinState::FinishTask(int result)
+	{
+		pose->Unlock();
+		gSkinFinishedCount++;
+		unknown10 = 0;
+		if (jobPending)
+		{
+			((PrimBuffer*)mPoses[mPoseIndex])->Unlock();
+			_InterlockedDecrement((long volatile*)&gSkinJobCount);
+			jobPending = false;
+		}
+		core::EventSignal(&unknown14, 1);
+	}
+
+	// FUNCTION: ENGINE 0x1071FCC0
+	void SkinState::AsyncTaskAdaptor::OnResult(int result)
+	{
+		mState->FinishTask(result);
+	}
 
 	// FUNCTION: ENGINE 0x1071F900
 	void SkinState::Unknown9()

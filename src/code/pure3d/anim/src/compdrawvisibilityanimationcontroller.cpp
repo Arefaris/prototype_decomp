@@ -1,5 +1,7 @@
 // pure3d::CompDrawVisibilityAnimationController (unit around 0x107347B0 - 0x10734C60; file name guessed from the
 // class). Names are guesses.
+#include <new>
+
 #include "code/pure3d/channel.h"
 #include "code/pure3d/drawable.h"
 #include "code/pure3d/primitive.h"
@@ -7,21 +9,10 @@
 namespace pure3d
 {
 	// FUNCTION: ENGINE 0x10734A50
-	// NONMATCHING: the engine stores the vftable and the drawable before it loads the two arrays (75.0 %)
-#ifdef NONMATCHING
 	CompDrawVisibilityAnimationController::~CompDrawVisibilityAnimationController()
 	{
 		mDrawable = 0;
-		if (mSegments != 0)
-		{
-			delete[] mSegments;
-		}
-		if (mChannels != 0)
-		{
-			delete[] mChannels;
-		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x107347F0
 	Drawable* CompDrawVisibilityAnimationController::GetDrawable()
@@ -30,14 +21,10 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10734BF0
-	// NONMATCHING: the engine loads the other controller's pointer for the GetDrawable call between the stores of the
-	// two arrays (78.0 %)
-#ifdef NONMATCHING
-	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other) : SimpleFrameController(other), mDrawable(0), mChannels(0), mChannelsEnd(0), mSegments(0), mSegmentsEnd(0)
+	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other) : SimpleFrameController(other), mDrawable(0)
 	{
 		SetDrawable(const_cast<CompDrawVisibilityAnimationController&>(other).GetDrawable());
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10734BE0
 	void CompDrawVisibilityAnimationController::SetDrawable(Drawable* drawable)
