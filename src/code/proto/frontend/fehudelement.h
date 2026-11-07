@@ -66,6 +66,8 @@ namespace proto
 		// vftable slot 1: the element appears or disappears
 		virtual void OnShow(bool shown) = 0;
 
+		// 0x104C0440
+		bool IsShown() const;
 		// 0x104C03B0: one more request to show (or hide) the element; true when its state changed
 		bool Show(bool show);
 		// 0x104C0450

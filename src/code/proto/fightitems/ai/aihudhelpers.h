@@ -4,6 +4,7 @@
 #define PROTO_FIGHTITEMS_AI_AIHUDHELPERS_H
 
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/proto/frontend/fehuddisguiseactions.h"
 
 namespace proto
 {
@@ -20,22 +21,11 @@ namespace proto
 		void Unknown104B94D0(engine::SerializedHandle handle, int type);
 	};
 
-	// The pop-up of the disguise actions
-	class DisguiseActionPopup
-	{
-	public:
-		// 0x104C0440: whether the pop-up is on (name guess)
-		bool GetEnabled();
-		// 0x104CF840 / 0x104CF870: shows the pop-up for the actions / hides it (name guesses)
-		void Unknown104CF840();
-		void Unknown104CF870();
-	};
-
 	class PopupController
 	{
 	public:
 		unsigned char unknown0[0x20];
-		DisguiseActionPopup* disguiseActions;  // +0x20
+		FEHudDisguiseActions* disguiseActions;  // +0x20
 	};
 
 	class FrontEndHud

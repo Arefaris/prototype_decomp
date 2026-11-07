@@ -562,7 +562,7 @@ namespace proto
 				virtual bool Slot7(int arg, float value);
 
 				// 0x101EB490: shows the pop-up for the object (name guess)
-				void Update(DisguiseActionPopup* popup, engine::GameObject* object);
+				void Update(FEHudDisguiseActions* popup, engine::GameObject* object);
 
 				core::Link<ShowDisguiseActionHUDTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

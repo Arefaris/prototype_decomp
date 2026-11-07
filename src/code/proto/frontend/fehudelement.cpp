@@ -38,6 +38,12 @@ namespace proto
 		hideCount = 0;
 	}
 
+	// FUNCTION: ENGINE 0x104C0440
+	bool FEHudElement::IsShown() const
+	{
+		return shown;
+	}
+
 	// FUNCTION: ENGINE 0x104C03B0
 	bool FEHudElement::Show(bool show)
 	{
