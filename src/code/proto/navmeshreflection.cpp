@@ -201,6 +201,13 @@ namespace content
 {
 #define PROTO_NAV_HELPER_SLOTS(ArrayType) 	int ArrayDynamicHelper<ArrayType>::Size(void* array) 	{ 		return ((ArrayType*)array)->Size(); 	} 	void* ArrayDynamicHelper<ArrayType>::Get(void* array, int index) 	{ 		return ((ArrayType*)array)->begin + index; 	} 	void* ArrayDynamicHelper<ArrayType>::GetConst(void* array, int index) 	{ 		return ((ArrayType*)array)->begin + index; 	} 	int ArrayDynamicHelper<ArrayType>::Capacity(void* array) 	{ 		return ((ArrayType*)array)->Capacity(); 	}
 
+#define PROTO_NAV_HELPER_EXPAND(ArrayType, allocate) 	void ArrayDynamicHelper<ArrayType>::Expand(void* array, unsigned int count) 	{ 		ArrayType* a = (ArrayType*)array; 		if (a->Capacity() == 0) 		{ 			allocate; 		} 		else if (count + a->Size() > a->Capacity()) 		{ 			a->Reserve(count + a->Size()); 		} 	}
+
+	PROTO_NAV_HELPER_EXPAND(proto::LaneDataArray, a->Allocate(count))
+	PROTO_NAV_HELPER_EXPAND(proto::EdgeArray, a->Create(count))
+	PROTO_NAV_HELPER_EXPAND(proto::AreaArray, a->Allocate(count))
+	PROTO_NAV_HELPER_EXPAND(proto::HackVectorArray, a->Allocate(count))
+
 	PROTO_NAV_HELPER_SLOTS(proto::LaneDataArray)
 	PROTO_NAV_HELPER_SLOTS(proto::EdgeArray)
 	PROTO_NAV_HELPER_SLOTS(proto::AreaArray)
@@ -261,3 +268,22 @@ namespace content
 // FUNCTION: ENGINE 0x105689E0
 // FUNCTION: ENGINE 0x10568A20
 // FUNCTION: ENGINE 0x10568DF0
+// FUNCTION: ENGINE 0x1056C910
+// FUNCTION: ENGINE 0x1056E400
+// FUNCTION: ENGINE 0x1056EC00
+// FUNCTION: ENGINE 0x1056C8A0
+// FUNCTION: ENGINE 0x1056A270
+// FUNCTION: ENGINE 0x1056A530
+// FUNCTION: ENGINE 0x1056BD40
+// FUNCTION: ENGINE 0x1056A280
+// FUNCTION: ENGINE 0x10568730
+// FUNCTION: ENGINE 0x1056A130
+// FUNCTION: ENGINE 0x1056A100
+// FUNCTION: ENGINE 0x1056A0A0
+// FUNCTION: ENGINE 0x10568570
+// FUNCTION: ENGINE 0x1056A310
+// FUNCTION: ENGINE 0x1056A2B0
+// FUNCTION: ENGINE 0x1056A050
+// FUNCTION: ENGINE 0x1056A200
+// FUNCTION: ENGINE 0x1056A440
+// FUNCTION: ENGINE 0x1056A4E0

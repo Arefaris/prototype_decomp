@@ -141,6 +141,14 @@ public:
 	};
 }
 
+// The engine's own Reserve of three of the arrays (it moves elements; the engine's code runs)
+namespace container
+{
+	template<> void ArrayDynamic<proto::HackVector, AllocatorNew>::Reserve(int count);
+	template<> void ArrayDynamic<proto::Edge, AllocatorNew>::Reserve(int count);
+	template<> void ArrayDynamic<proto::Area, AllocatorNew>::Reserve(int count);
+}
+
 // The engine's element helpers of the four arrays (one copy of each slot, in the unit of the navigation mesh
 // reflection): the slots that compare are written in navmeshreflection.cpp, the others (Insert, Erase and Expand,
 // which move elements) are the engine's own and only declared here.
