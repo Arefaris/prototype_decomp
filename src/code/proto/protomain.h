@@ -35,6 +35,8 @@ namespace proto
 	public:
 		// 0x104E6790
 		InGameState();
+		// 0x104E51E0
+		~InGameState();
 		unsigned char unknown0[0x12C];
 	};
 
@@ -43,6 +45,10 @@ namespace proto
 	public:
 		// 0x104DE970
 		FrontEndState();
+		// 0x104DD8B0 (name guess)
+		void Unknown104DD8B0(int value);
+		// 0x104DDA20
+		~FrontEndState();
 		unsigned char unknown0[0xA8];
 	};
 
@@ -51,6 +57,8 @@ namespace proto
 	public:
 		// 0x104E7710
 		GamePauseState();
+		// 0x104E7430
+		~GamePauseState();
 		unsigned char unknown0[0x94];
 	};
 

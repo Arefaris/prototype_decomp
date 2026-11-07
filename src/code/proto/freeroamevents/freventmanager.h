@@ -207,6 +207,8 @@ namespace proto
 		const char* GetLuaString(const char* table, const char* key);
 		void AssociateStateMachine(const char* name, engine::LuaGOH handle);
 		void SetFreeRoamState(bool active);
+		// 0x10588520: called when the pause menu is entered (name unknown)
+		void Unknown10588520();
 		void SetManagerActiveState(bool active);
 		void ActivateEvent(const char* name);
 		void DeactivateEvent(const char* name, float time);

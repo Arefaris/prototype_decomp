@@ -25,6 +25,8 @@ namespace engine
 
 		// 0x108948D0: told when the window gains or loses the focus
 		void Unknown108948D0(bool focused);
+		// 0x108951B0: reloads the zones when the level changes (name unknown)
+		void Unknown108951B0();
 
 		int unknown0;
 		const char* name;  // +4

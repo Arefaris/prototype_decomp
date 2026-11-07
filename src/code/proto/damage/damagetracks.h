@@ -34,6 +34,13 @@ namespace proto
 		bool SetScaleY(float newValue);
 		bool SetDamageSource(const fight::Name& newValue);
 
+		// The getters the actions read the track through (0x104FABD0 - 0x104FAC10; names after the properties)
+		float GetDistance() const;
+		int GetDamageType() const;
+		float GetScaleX() const;
+		float GetScaleY() const;
+		const fight::Name& GetDamageSource() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -77,6 +84,13 @@ namespace proto
 		bool SetGrabSlot(const fight::Name& newValue);
 		bool SetIgnoreShield(bool newValue);
 		bool SetSendAlert(bool newValue);
+
+		// The getters the actions read the track through (0x104FAC20 - 0x104FAC80)
+		bool GetForceZeroHealth() const;
+		float GetDamage() const;
+		const fight::Name& GetGrabSlot() const;
+		bool GetIgnoreShield() const;
+		bool GetSendAlert() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
