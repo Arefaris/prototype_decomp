@@ -21,6 +21,8 @@ namespace pure3d
 namespace engine
 {
 	extern core::Name<core::CaseSensitiveKey> gBoundingBox;
+	extern core::Name<core::CaseSensitiveKey> gScaleName;
+	extern core::Name<core::CaseSensitiveKey> gInstancePaletteIndex;
 
 	namespace driving
 	{
@@ -429,6 +431,59 @@ namespace proto
 		}
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x102DB450
+	void LODRenderBehaviour::SetBound(unsigned char bound)
+	{
+		if (bound != (flags & 1))
+		{
+			flags = ((flags ^ bound) & 1) ^ flags;
+			if (level != 0)
+			{
+				ResetLevels();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DB3B0
+	void LODRenderBehaviour::ReleaseLevelsForPackage()
+	{
+		core::Name<core::CaseSensitiveKey> none("", 1);
+		if (packageName == none)
+		{
+			for (unsigned int i = 0; i < levels.Size(); i++)
+			{
+				levels.begin[i].Destroy();
+			}
+		}
+		else
+		{
+			DestroyLevels();
+		}
+		flags |= 8;
+	}
+
+	// FUNCTION: ENGINE 0x102DB2E0
+	void LODRenderBehaviour::OnAttributeUpdated(engine::Message* message)
+	{
+		engine::AttributeUpdatedMessage* update = static_cast<engine::AttributeUpdatedMessage*>(message);
+		if (engine::gScaleName == update->name)
+		{
+			if (scaleSource == 0)
+			{
+				scaleSource = reinterpret_cast<LODScaleSource*>(owner->FindAttribute(engine::gScaleName));
+			}
+			const math::Vector& scale = scaleSource->scale;
+			if (fabsf(scale.x - 1.0f) <= 0.00001f && fabsf(scale.y - 1.0f) <= 0.00001f && fabsf(scale.z - 1.0f) <= 0.00001f)
+			{
+				scaleSource = 0;
+			}
+		}
+		else if (engine::gInstancePaletteIndex == update->name)
+		{
+			PickPaletteEntry();
+		}
+	}
 
 	// FUNCTION: ENGINE 0x102DB9F0
 	void LODRenderBehaviour::AddLevel(const LODReady* readyItem)

@@ -98875,3 +98875,7 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?DestroyLevels@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA7E0 ; function size:0x4E | public: void __thiscall proto::LODRenderBehaviour::DestroyLevels(void) (name guess)
 ?SetAnimation@LODRenderBehaviour@proto@@QAEXPAVAnimation@pure3d@@@Z = 0x102DA910 ; function size:0x14 | public: void __thiscall proto::LODRenderBehaviour::SetAnimation(class pure3d::Animation *) (name guess)
 ?ResetLevels@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA850 ; function size:0x99 | proto::LODRenderBehaviour::ResetLevels (name guess)
+?PickPaletteEntry@LODRenderBehaviour@proto@@QAEXXZ = 0x102D9B50 ; function size:0x7D | proto::LODRenderBehaviour::PickPaletteEntry (name guess)
+?OnAttributeUpdated@LODRenderBehaviour@proto@@QAEXPAUMessage@engine@@@Z = 0x102DB2E0 ; function size:0x9D | public: void __thiscall proto::LODRenderBehaviour::OnAttributeUpdated(struct engine::Message *) (name guess)
+?SetBound@LODRenderBehaviour@proto@@QAEXE@Z = 0x102DB450 ; function size:0x32 | public: void __thiscall proto::LODRenderBehaviour::SetBound(unsigned char) (name guess)
+?ReleaseLevelsForPackage@LODRenderBehaviour@proto@@QAEXXZ = 0x102DB3B0 ; function size:0x7B | proto::LODRenderBehaviour::ReleaseLevelsForPackage (name guess)

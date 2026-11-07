@@ -6,6 +6,7 @@
 #define PROTO_RENDER_LODRENDERBEHAVIOUR_H
 
 #include "code/container/arraydynamic.h"
+#include "code/core/name.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/async/drawable.h"
@@ -141,6 +142,14 @@ namespace proto
 		// 0x102D9ED0 / 0x102DA090: the messages of type 8 and 10 are handed to every level's drawable
 		void OnSegmentMessage(engine::Message* message);
 		void OnPlaybackMessage(engine::Message* message);
+		// 0x102DB2E0: an attribute of the object changed (the scale, the index of the palette entry)
+		void OnAttributeUpdated(engine::Message* message);
+		// 0x102D9B50: picks the palette entry from the attribute that asks for one (name guess)
+		void PickPaletteEntry();
+		// 0x102DB450: the drawables are bound or not (bit 0 of the flags)
+		void SetBound(unsigned char bound);
+		// 0x102DB3B0: the drawables of a package go (the package named at +0x88 is not the empty one) or wait for it (bit 3)
+		void ReleaseLevelsForPackage();
 		// 0x102D9AB0: gives every level the shader inputs of one entry of the palette; 0x102D9B10: the entry that was picked
 		void ApplyPaletteToLevels(ShaderPaletteData* data);
 		void ApplyAvailablePalette();
@@ -190,7 +199,9 @@ namespace proto
 		float fadeInScale;
 		// +0x78: a multiplier on this behaviour's fade distance
 		float fadeScale;
-		unsigned char unknown7C[0x90 - 0x7C];
+		unsigned char unknown7C[0x88 - 0x7C];
+		// +0x88: the package the drawables come from (the empty name: none)
+		core::Name<core::CaseSensitiveKey> packageName;
 		// +0x90: the heap of the bone data, +0x94 the data, +0x98 its size (names guessed)
 		int heap;
 		void* boneData;
