@@ -52,9 +52,47 @@ namespace engine
 		sList.count = 1;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x10927330
+	content::MemberList* RagdollBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<Behaviour>();
+		static content::BaseClassCasterImpl<Behaviour, RagdollBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberReferenceMetaType<RagdollBehaviour, ravenphysics::PhysicsObjectFactory, 0>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, ragdollFactory), "ragdollFactory" },
+			{ content::GetMemberReferenceMetaType<RagdollBehaviour, ravenphysics::PhysicsObjectFactory, 1>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, ragdoll), "ragdoll" },
+			{ content::GetMemberReferenceMetaType<RagdollBehaviour, ravenphysics::PhysicsObjectFactory, 2>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, lowLODRagdollFactory), "lowLODRagdollFactory" },
+			{ content::GetMemberReferenceMetaType<RagdollBehaviour, ravenphysics::IntersectionPropertiesLoader, 0>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, intersectionProperties), "intersectionProperties" },
+			{ content::GetMemberReferenceMetaType<RagdollBehaviour, ravenphysics::MaterialLoader, 0>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, overrideMaterial), "overrideMaterial" },
+			{ content::GetMemberPrimitiveMetaType<RagdollBehaviour, bool, 0>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, createRagdollPhysicsObject), "createRagdollPhysicsObject" },
+			{ content::GetMemberPrimitiveMetaType<RagdollBehaviour, bool, 1>("p"),
+				ENGINE_OFFSET(RagdollBehaviour, isKeyframeUpdated), "isKeyframeUpdated" }
+		};
+		sList.members = sMembers;
+		sList.count = 7;
+		return &sList;
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10925320
 // FUNCTION: ENGINE 0x10925330
 // FUNCTION: ENGINE 0x109272E0
+// FUNCTION: ENGINE 0x10927150
+// FUNCTION: ENGINE 0x109271A0
+// FUNCTION: ENGINE 0x109271F0
+// FUNCTION: ENGINE 0x10927240
+// FUNCTION: ENGINE 0x10927290
+// FUNCTION: ENGINE 0x109264D0
+// FUNCTION: ENGINE 0x10926510
+// FUNCTION: ENGINE 0x109252E0
+// FUNCTION: ENGINE 0x109252F0

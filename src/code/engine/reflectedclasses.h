@@ -164,7 +164,17 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknownC[0x88];
+		unsigned char unknownC[8];
+		ravenphysics::PhysicsObjectFactory* ragdollFactory;  // +0x14
+		ravenphysics::PhysicsObjectFactory* lowLODRagdollFactory;  // +0x18
+		ravenphysics::PhysicsObjectFactory* ragdoll;  // +0x1C
+		unsigned char unknown20[0x18];
+		ravenphysics::IntersectionPropertiesLoader* intersectionProperties;  // +0x38
+		unsigned char unknown3C[0x40];
+		bool createRagdollPhysicsObject;  // +0x7C
+		bool isKeyframeUpdated;  // +0x7D
+		ravenphysics::MaterialLoader* overrideMaterial;  // +0x80
+		unsigned char unknown84[0x10];
 	};
 
 	// SecondaryPhysicsBehaviour: constructor 0x10929460, reflection 0x10927F60 / 0x10928F80
