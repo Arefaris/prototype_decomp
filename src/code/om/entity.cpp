@@ -2,6 +2,7 @@
 #include "code/om/entity.h"
 
 #include "code/core/criticalsection.h"
+#include <string.h>
 
 namespace om
 {
@@ -102,6 +103,223 @@ namespace om
 		name = newName;
 		return gEntitiesByName.InsertEntity(this);
 	}
+
+	// FUNCTION: ENGINE 0x105B4D40
+	bool TreeHead::InsertEntityTypeByName(EntityTypeBase* type)
+	{
+		TreeNode* inserted = type != 0 ? &type->nodeByName : 0;
+		TreeNode* parent = &nil;
+		TreeNode* current = root;
+		if (current != &nil)
+		{
+			const char* name = type->name;
+			do
+			{
+				parent = current;
+				EntityTypeBase* other = current != 0 ? (EntityTypeBase*)((char*)current - 0x1C) : 0;
+				int result = strcmp(name, other->name);
+				if (result < 0)
+				{
+					current = current->left;
+				}
+				else if (result > 0)
+				{
+					current = current->right;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			while (current != &nil);
+		}
+		inserted->parent = parent;
+		if (parent == &nil)
+		{
+			root = inserted;
+		}
+		else
+		{
+			EntityTypeBase* other = parent != 0 ? (EntityTypeBase*)((char*)parent - 0x1C) : 0;
+			int result = strcmp(type->name, other->name);
+			if (result < 0)
+			{
+				parent->left = inserted;
+			}
+			else if (result > 0)
+			{
+				parent->right = inserted;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		inserted->left = &nil;
+		inserted->right = &nil;
+		inserted->color = 1;
+		TreeNode* fixed = inserted;
+		while (fixed != root && fixed->parent->color == 1)
+		{
+			if (fixed->parent == fixed->parent->parent->left)
+			{
+				TreeNode* uncle = fixed->parent->parent->right;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->right)
+					{
+						fixed = fixed->parent;
+						RotateLeft(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateRight(fixed->parent->parent);
+				}
+			}
+			else
+			{
+				TreeNode* uncle = fixed->parent->parent->left;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->left)
+					{
+						fixed = fixed->parent;
+						RotateRight(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateLeft(fixed->parent->parent);
+				}
+			}
+		}
+		root->color = 0;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B4F60
+	// NONMATCHING: the engine lays the branch of the greater key out behind the one of the smaller (89.9 %)
+#ifdef NONMATCHING
+	bool TreeHead::InsertEntityTypeByType(EntityTypeBase* type)
+	{
+		TreeNode* inserted = type != 0 ? &type->nodeByType : 0;
+		TreeNode* parent = &nil;
+		TreeNode* current = root;
+		if (current != &nil)
+		{
+			do
+			{
+				parent = current;
+				EntityTypeBase* other = current != 0 ? (EntityTypeBase*)((char*)current - 0x3C) : 0;
+				const type_info* key = type->type;
+				const type_info* otherKey = other->type;
+				if (key->before(*otherKey))
+				{
+					current = current->right;
+				}
+				else if (otherKey->before(*key))
+				{
+					current = current->left;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			while (current != &nil);
+		}
+		inserted->parent = parent;
+		if (parent == &nil)
+		{
+			root = inserted;
+		}
+		else
+		{
+			EntityTypeBase* other = parent != 0 ? (EntityTypeBase*)((char*)parent - 0x3C) : 0;
+			const type_info* key = type->type;
+			const type_info* otherKey = other->type;
+			if (key->before(*otherKey))
+			{
+				parent->right = inserted;
+			}
+			else if (otherKey->before(*key))
+			{
+				parent->left = inserted;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		inserted->left = &nil;
+		inserted->right = &nil;
+		inserted->color = 1;
+		TreeNode* fixed = inserted;
+		while (fixed != root && fixed->parent->color == 1)
+		{
+			if (fixed->parent == fixed->parent->parent->left)
+			{
+				TreeNode* uncle = fixed->parent->parent->right;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->right)
+					{
+						fixed = fixed->parent;
+						RotateLeft(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateRight(fixed->parent->parent);
+				}
+			}
+			else
+			{
+				TreeNode* uncle = fixed->parent->parent->left;
+				if (uncle->color == 1)
+				{
+					fixed->parent->color = 0;
+					uncle->color = 0;
+					fixed->parent->parent->color = 1;
+					fixed = fixed->parent->parent;
+				}
+				else
+				{
+					if (fixed == fixed->parent->left)
+					{
+						fixed = fixed->parent;
+						RotateRight(fixed);
+					}
+					fixed->parent->color = 0;
+					fixed->parent->parent->color = 1;
+					RotateLeft(fixed->parent->parent);
+				}
+			}
+		}
+		root->color = 0;
+		return true;
+	}
+
+#endif
 
 	// FUNCTION: ENGINE 0x105B5590
 	EntityTypeBase::EntityTypeBase(const char* newName, unsigned int newSize, unsigned int newAlignment,
