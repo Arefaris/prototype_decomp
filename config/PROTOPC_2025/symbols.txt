@@ -104251,3 +104251,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Unknown10960E60@FlashRenderer@render@engine@@QAEXPAVFlashMovie@23@@Z = 0x10960E60 ; function size:0x4B | engine::render::FlashRenderer::Unknown10960E60 (name unknown)
 ?Free@FlashMovieTable@render@engine@@QAEXPBVFlashMovieHandler@23@@Z = 0x10884FD0 ; function size:0x56 | engine::render::FlashMovieTable::Free (name guess)
 ?Unknown10964120@FlashMovie@render@engine@@QAEXPBUFlashMovieInput@23@@Z = 0x10964120 ; function size:0x14 | engine::render::FlashMovie::Unknown10964120 (name unknown)
+?GetSelectedIdsText@OLSUserList@engine@@QAEPBDXZ = 0x10887260 ; function size:0xB2 | engine::OLSUserList::GetSelectedIdsText (name guess)
+?Describe@OLSUserRecord@engine@@QAEXPAUOLSKeyTable@2@PADH@Z = 0x10886C00 ; function size:0x1E | engine::OLSUserRecord::Describe (name guess)
+?GetSelectedValuesText@OLSUserList@engine@@QAEPBDXZ = 0x10887230 ; function size:0x2F | engine::OLSUserList::GetSelectedValuesText (name guess)
+?Format@OLSKeyTable@engine@@QAEXPAUOLSValue@2@HPADH@Z = 0x10844590 ; function size:0xE5 | engine::OLSKeyTable::Format (another unit; name guess)

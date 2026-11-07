@@ -51,6 +51,19 @@ namespace engine
 		WideStringBuffer status;  // +0x14
 	};
 
+	struct OLSValue;
+	struct OLSKeyTable;
+
+	// One of the values a user record keeps for an id of the services (0x10 bytes; names guessed)
+	struct OLSIdValue
+	{
+		bool flagA;
+		bool flagB;
+		int number;  // +4
+		unsigned short word;  // +8
+		unsigned char bytes[5];  // +0xA
+	};
+
 	// What the friend list keeps for a user the online service knows (0x38 bytes)
 	struct OLSUserRecord
 	{
@@ -60,6 +73,8 @@ namespace engine
 		void FreeValues();
 		// 0x10886BB0: makes the record free again
 		void Reset();
+		// 0x10886C00: writes the items as text, one line per item named by the keys
+		void Describe(OLSKeyTable* keys, char* buffer, int size);
 		// 0x10886BF0: gives the user a name
 		void SetName(const WideStringBuffer& text);
 		// 0x10887340 / 0x10887360 / 0x10887380: the game / the session / the invitation the user is in (names guessed); each
@@ -116,11 +131,11 @@ namespace engine
 			int id;  // +0x10
 		}* invite;  // +0x1C
 		unsigned int flags;  // +0x20
-		int unknown24;
+		int itemCount;  // +0x24
 		int valueCount;  // +0x28
 		int unknown2C;
-		void* unknown30;
-		unsigned char* values;  // +0x34 (valueCount entries of 0x10 bytes)
+		OLSValue* items;  // +0x30
+		OLSIdValue* values;  // +0x34 (valueCount entries)
 	};
 
 	// A tagged value of the online services (16 bytes; the tag at +0, a wide string for tag 4 at +8; 0x10844110 /
@@ -146,6 +161,8 @@ namespace engine
 
 		// 0x10844450
 		void Set(int index, int id, int kind);
+		// 0x10844590: writes the items as text in the buffer
+		void Format(OLSValue* items, int count, char* buffer, int size);
 
 		Entry* entries;
 		int count;
@@ -219,6 +236,8 @@ namespace engine
 		const char* GetSelectedName();
 		// 0x10887230: the selected user's values as text
 		const char* GetSelectedValuesText();
+		// 0x10887260: the selected user's ids as text
+		const char* GetSelectedIdsText();
 		// 0x108876C0 / 0x10887780 / 0x10887820: the user takes part in a game / in a session / was invited (answer the index)
 		int SetGame(int id, int value, const WideStringBuffer* text);
 		int SetSession(int id, int value, const WideStringBuffer* text, unsigned int controller);

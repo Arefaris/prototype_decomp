@@ -1,5 +1,6 @@
 // engine::OLSUserList (the RTTI name is engine::OLSUser; see olsfriend.h). Unit 0x10886A70 - 0x108879EA.
 #include "code/engine/online/olsfriend.h"
+#include "code/core/strings.h"
 #include "code/engine/gamelink.h"
 #include "code/engine/online/ols.h"
 #include "code/engine/online/olsgame.h"
@@ -30,13 +31,13 @@ namespace engine
 	OLSUserRecord::OLSUserRecord()
 	{
 		controller = 0xffffffff;
-		unknown30 = 0;
+		items = 0;
 		values = 0;
 		unknown14 = 0;
 		unknown18 = 0;
 		invite = 0;
 		flags = 0;
-		unknown24 = 0;
+		itemCount = 0;
 		valueCount = 0;
 		name.Allocate(0x20);
 		Reset();
@@ -315,6 +316,33 @@ namespace engine
 	const char* OLSUserList::GetSelectedName()
 	{
 		records[selected].name.CopyTo(text, 0x100);
+		return text;
+	}
+
+	// FUNCTION: ENGINE 0x10886C00
+	void OLSUserRecord::Describe(OLSKeyTable* keys, char* buffer, int size)
+	{
+		keys->Format(items, itemCount, buffer, size);
+	}
+
+	// FUNCTION: ENGINE 0x10887230
+	const char* OLSUserList::GetSelectedValuesText()
+	{
+		records[selected].Describe(&settingKeyTable, text, 0x100);
+		return text;
+	}
+
+	// FUNCTION: ENGINE 0x10887260
+	const char* OLSUserList::GetSelectedIdsText()
+	{
+		text[0] = 0;
+		for (int i = 0; i < idCount; i++)
+		{
+			const OLSIdValue* value = &records[selected].values[i];
+			core::SNPrintf(text, 0x100, "%s %s=%s,%s,%d,{%d,%d,%d,%d,%d,%d}", text, (const char*)settingKeys[i].kind,
+				value->flagA ? "true" : "false", value->flagB ? "true" : "false", value->number, value->word,
+				value->bytes[0], value->bytes[1], value->bytes[2], value->bytes[3], value->bytes[4]);
+		}
 		return text;
 	}
 
