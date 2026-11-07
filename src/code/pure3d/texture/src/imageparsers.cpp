@@ -2,11 +2,60 @@
 // 0x1073DFF0 in the engine, file name guessed from the classes). Names are guesses.
 #include <string.h>
 
+#include "code/core/heap.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
 #include "code/pure3d/texture/texture.h"
 
 namespace pure3d
 {
+	// 0x10792120: the pointer a PNG reader keeps for its callbacks (name guess)
+	void* GetPngIoPointer(void* png);
+
+	// FUNCTION: ENGINE 0x1073CC70
+	// The PNG reader's callback that reads from the stream (name guess)
+	void ReadPngData(void* png, void* data, unsigned int length)
+	{
+		content::LoadStream* stream = (content::LoadStream*)GetPngIoPointer(png);
+		stream->Read(data, length, 1, 1);
+	}
+
+	// FUNCTION: ENGINE 0x1073CCA0
+	// The PNG writer's callback that writes to the stream (name guess)
+	void WritePngData(void* png, const void* data, unsigned int length)
+	{
+		OutputStream* stream = (OutputStream*)GetPngIoPointer(png);
+		stream->Write(data, length, 1);
+	}
+
+	// FUNCTION: ENGINE 0x1073CCF0
+	// The PNG library's allocator (name guess)
+	void* AllocatePngMemory(void* png, unsigned int size)
+	{
+		return core::HeapAlloc(1, size);
+	}
+
+	// FUNCTION: ENGINE 0x1073CD00
+	// The PNG library's release (name guess)
+	void FreePngMemory(void* png, void* block)
+	{
+		core::HeapFree(1, block);
+	}
+
+	// FUNCTION: ENGINE 0x1073D9B0
+	// A colour as the format wants it: format 5 keeps it, format 7 swaps red and blue, any other gives nothing (name guess)
+	unsigned int ConvertColour(unsigned int colour, int format)
+	{
+		unsigned int result = 0;
+		switch (format)
+		{
+		case 5:
+			result = colour;
+			break;
+		case 7:
+			return (colour >> 16 & 0xFF) | (colour & 0xFF) << 16 | (colour & 0xFF00FF00);
+		}
+		return result;
+	}
 	// 0x10E5DBF0: the bits a pixel of each texture format takes (this unit's copy of the table; name guess)
 	static const int sImageFormatBits[37] =
 	{
