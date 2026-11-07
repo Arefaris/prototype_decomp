@@ -304,6 +304,24 @@ namespace engine
 		// The events that call a member function of an object (RTTI ObjRenderEventN<Object, ...>): the object and the
 		// function pointer come first, then the arguments, the first of which is laid out like a name needs (the
 		// events with a name argument have it at +0x10)
+		template<class Obj> class ObjRenderEvent0 : public RenderEvent
+		{
+		public:
+			typedef void (Obj::*Function)();
+
+			ObjRenderEvent0(Obj* object, Function function) : mObject(object), mFunction(function)
+			{
+			}
+			virtual void Execute()
+			{
+				(mObject->*mFunction)();
+				delete this;
+			}
+
+			Obj* mObject;
+			Function mFunction;
+		};
+
 		template<class Obj, class A1> class ObjRenderEvent1 : public RenderEvent
 		{
 		public:
