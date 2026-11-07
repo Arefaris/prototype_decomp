@@ -2462,6 +2462,33 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x101E6140
+			bool TargetBeingHeldCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* targetObject = message.target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				engine::GameObject* holder = Unknown103BE5F0(targetObject);
+				if (holder != 0)
+				{
+					if (dontCountIfHeldByMe && holder == object)
+					{
+						holder = 0;
+					}
+				}
+				bool isHeld = holder != 0;
+				return isHeld == held;
+			}
+
 			// FUNCTION: ENGINE 0x101E7D20
 			fight::Action* ActionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -3092,3 +3119,14 @@ namespace proto
 // FUNCTION: ENGINE 0x101E6AE0
 // FUNCTION: ENGINE 0x101E6AF0
 // FUNCTION: ENGINE 0x101E6B60
+// FUNCTION: ENGINE 0x101E3AB0
+// FUNCTION: ENGINE 0x101E3AF0
+// FUNCTION: ENGINE 0x101E3C10
+// FUNCTION: ENGINE 0x101E3C50
+// FUNCTION: ENGINE 0x101E3CB0
+// FUNCTION: ENGINE 0x101E3CF0
+// FUNCTION: ENGINE 0x101E3D00
+// FUNCTION: ENGINE 0x101E3D40
+// FUNCTION: ENGINE 0x101E3D50
+// FUNCTION: ENGINE 0x101E3D90
+// FUNCTION: ENGINE 0x101FD210

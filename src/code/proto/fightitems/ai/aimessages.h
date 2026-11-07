@@ -9,6 +9,14 @@
 
 namespace proto
 {
+	// The fixed destination an object has been given (the part the actions read; layout from their users)
+	struct FixedDestination
+	{
+		math::Vector position;  // +0x0
+		math::Vector unknownC;  // +0xC
+		void* source;  // +0x18: the action that set it
+	};
+
 	// RTTI: proto::GetFixedDestinationMessage: the object answers whether it has a fixed destination
 	struct GetFixedDestinationMessage : public MovementMessage
 	{
@@ -19,7 +27,7 @@ namespace proto
 		{
 		}
 
-		int destination;  // +0xC
+		FixedDestination* destination;  // +0xC
 	};
 
 	// RTTI: proto::GetFixedAreaDestinationMessage: the object answers whether it has a fixed area destination

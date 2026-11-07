@@ -208,6 +208,10 @@ namespace proto
 			fight::TrackFactory* CreateFixedDestinationFlytoTrackFactory(const char* name);
 			void RegisterFixedDestinationFlytoTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// 0x101F1290: tells the object to forget the destination an action gave it, unless it has been given another goto
+			// task meanwhile (name guess)
+			void ClearFixedDestinationUnlessGoto(fight::Action* action, const core::Name<core::CaseSensitiveKey>* task, engine::GameObject* object);
+
 			// ---- actions begin
 			// RTTI: proto::fightitems::ai::ClearFixedAreaDestinationAction (9 vftable slots, 0x2C bytes)
 			class ClearFixedAreaDestinationAction : public fight::Action
@@ -242,6 +246,9 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x101F28B0)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x101F1AF0: sends the object to the destination (name guess)
+				void MoveToDestination(engine::GameObject* object);
 
 				core::Link<FixedDestinationGotoTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

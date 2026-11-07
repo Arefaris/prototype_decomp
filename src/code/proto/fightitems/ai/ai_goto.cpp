@@ -638,3 +638,5 @@ template core::Link<proto::fightitems::ai::DumbGotoTrack>::Link(proto::fightitem
 // FUNCTION: ENGINE 0x101F6700
 // FUNCTION: ENGINE 0x101F69C0
 // FUNCTION: ENGINE 0x101F69E0
+// FUNCTION: ENGINE 0x101E3C20
+// FUNCTION: ENGINE 0x101E3CA0

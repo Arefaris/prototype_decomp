@@ -4,10 +4,19 @@
 #define PROTO_FIGHTITEMS_AI_AIACTIONMESSAGES_H
 
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace fight
 {
 	class Action;
+}
+
+namespace engine
+{
+	// 0x11255368: the names of the goto tasks (aifightitemnames.cpp)
+	extern fight::EnumEntry gGotoTable[8];
+	// 0x11255360: the listeners of the scenario messages ("scenario"; aifightitemnames.cpp)
+	extern MessageListeners gScenario38;
 }
 
 namespace proto
