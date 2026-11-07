@@ -59,7 +59,7 @@ def lastFault():
 	return "\n".join(faults[-2:])
 
 
-def tryBuild(excluded, keepGame=False, noEquivalent=False):
+def tryBuild(excluded, keepGame=False, noEquivalent=False, leaveToEngine=None):
 	"""Relinks without the excluded sources (and with the engine's code for every EQUIVALENT function when
 	noEquivalent), plays the test; True when the game survived."""
 	if "OP_ORIGINAL_DIR" not in os.environ:
@@ -69,7 +69,8 @@ def tryBuild(excluded, keepGame=False, noEquivalent=False):
 	objectList = OUT / "objects.rsp"
 	objectList.write_text("\n".join(keep) + "\n", encoding="utf-8")
 	relink = subprocess.run([sys.executable, str(ROOT / "tools" / "delink" / "relink.py"), "--version", VERSION, "--out",
-		str(OUT), f"@{objectList}"] + (["--no-equivalent"] if noEquivalent else []), cwd=ROOT, capture_output=True, text=True)
+		str(OUT), f"@{objectList}"] + (["--no-equivalent"] if noEquivalent else [])
+		+ (["--leave-to-engine", str(leaveToEngine)] if leaveToEngine else []), cwd=ROOT, capture_output=True, text=True)
 	if relink.returncode != 0:
 		sys.exit("relink failed: " + (relink.stdout + relink.stderr)[-2000:])
 	gamectl("stop")
@@ -181,6 +182,7 @@ def main():
 	t.add_argument("--exclude")
 	t.add_argument("--keep-game", action="store_true")
 	t.add_argument("--no-equivalent", action="store_true", help="only 100 % matches replace the engine's code")
+	t.add_argument("--leave-to-engine", help="a file of addresses (one per line) whose engine code stays")
 	u = sub.add_parser("units")
 	u.add_argument("list")
 	w = sub.add_parser("wrap")
@@ -188,7 +190,7 @@ def main():
 	w.add_argument("addresses", nargs="*")
 	args = parser.parse_args()
 	if args.command == "try":
-		sys.exit(0 if tryBuild(set(readList(args.exclude)) if args.exclude else set(), args.keep_game, args.no_equivalent) else 1)
+		sys.exit(0 if tryBuild(set(readList(args.exclude)) if args.exclude else set(), args.keep_game, args.no_equivalent, args.leave_to_engine) else 1)
 	elif args.command == "units":
 		units(args.list)
 	else:

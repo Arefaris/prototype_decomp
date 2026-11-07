@@ -394,6 +394,8 @@ def main():
 	parser.add_argument("--out")
 	parser.add_argument("--no-equivalent", action="store_true",
 		help="keep the engine's code for every EQUIVALENT function: only 100 %% matches replace it")
+	parser.add_argument("--leave-to-engine", metavar="FILE",
+		help="keep the engine's code for the functions at these addresses (one per line), e.g. to bisect a fault")
 	args = parser.parse_args()
 	out = pathlib.Path(args.out or ROOT / "build" / args.version / "relink").resolve()
 	out.mkdir(parents=True, exist_ok=True)
@@ -407,6 +409,10 @@ def main():
 		equivalent = equivalentAddresses()
 		hidden = {name for name, address in symbols.items() if address in equivalent}
 		print(f"{len(equivalent)} EQUIVALENT functions keep the engine's code ({len(hidden)} names)")
+	if args.leave_to_engine:
+		chosen = {int(line, 16) for line in pathlib.Path(args.leave_to_engine).read_text(encoding="utf-8").split() if line}
+		hidden |= {name for name, address in symbols.items() if address in chosen}
+		print(f"{len(chosen)} chosen functions keep the engine's code")
 	statics = set(loadDataSizes(args.version, sized=False))
 	patched = [patchObject(o, hidden, statics, out / "patched" / f"{k}_{o.name}") for k, o in enumerate(objects)]
 	print(f"{sum(1 for a, b in zip(objects, patched) if a != b)} objects patched (statics shared with the engine"
