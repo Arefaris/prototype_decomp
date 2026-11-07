@@ -572,7 +572,7 @@ namespace proto
 			if (nodes[i] != 0)
 			{
 				int state = nodes[i]->GetState();
-				if (nodes[i]->kinds != 1 && (state & 2) > 0 && (signed char)state >= 0)
+				if (nodes[i]->kinds != 1 && (state & 2) > 0 && !((state & 0x80) != 0))
 				{
 					return true;
 				}
