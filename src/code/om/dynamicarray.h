@@ -135,7 +135,7 @@ namespace om
 			{
 				if (destination != 0)
 				{
-					new (destination) T(value);
+					::new (destination) T(value);
 				}
 				destination++;
 			}
@@ -171,7 +171,7 @@ namespace om
 			{
 				if (destination != 0)
 				{
-					new (destination) T(*source);
+					::new (destination) T(*source);
 				}
 				destination++;
 				source++;
@@ -192,7 +192,7 @@ namespace om
 			}
 			while (node != 0 && node->text == String::Wrap("Item"))
 			{
-				T* element = new (&array->Append()) T();
+				T* element = ::new (&array->Append()) T();
 				ReadText(node, element);
 				node = node->parent->children.Next(node);
 			}
@@ -217,7 +217,7 @@ namespace om
 				array->Reserve(count);
 				for (unsigned int i = 0; i < count; i++)
 				{
-					T* element = new (&array->Append()) T();
+					T* element = ::new (&array->Append()) T();
 					ok = ReadBinary(stream, element);
 					if (!ok)
 					{

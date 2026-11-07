@@ -4128,6 +4128,8 @@ namespace om
 	template void* Garbage<DynamicArray<mgraph::TriggerData,unsigned short> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AF29E0
 	template void* Garbage<Complex>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AF2A40
+	template Garbage<mgraph::EnvelopeData>::~Garbage();
 	// FUNCTION: ENGINE 0x10AF2A00
 	template void* Garbage<DynamicArray<Complex,unsigned short> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AF2A20

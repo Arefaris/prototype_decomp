@@ -4,6 +4,7 @@
 #define MGRAPH_ENVELOPE_H
 
 #include "code/mgraph/node.h"
+#include "code/om/allocation.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/vectort.h"
 
@@ -15,10 +16,16 @@ namespace mgraph
 	public:
 		void SetPoints(const om::DynamicArray<om::VectorT<float, 2>, unsigned short>& newPoints);
 		const om::DynamicArray<om::VectorT<float, 2>, unsigned short>& GetPoints() const;
+		OM_ALLOCATION(EnvelopeData);
 
 		om::DynamicArray<om::VectorT<float, 2>, unsigned short> points;
 		om::DynamicArray<float, unsigned short> unknown8;
 	};
+
+	inline const char* EnvelopeData::AllocationTag()
+	{
+		return "";
+	}
 
 	class Envelope : public Node
 	{
