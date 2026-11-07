@@ -45,8 +45,14 @@ namespace om
 			values[1] = 0.0f;
 		}
 
+		OM_ALLOCATION(Complex);
+
 		float values[2];
 	};
+	inline const char* Complex::AllocationTag()
+	{
+		return "";
+	}
 }
 
 namespace mgraph

@@ -99080,3 +99080,4 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??2?$PacketBlock@VComplex@om@@@mgraph@@SAPAXIPAVAllocator@om@@@Z = 0x10AE6A80 ; function size:0x1B | public: static void * __cdecl mgraph::PacketBlock<class om::Complex>::operator new(unsigned int,class om::Allocator *) (name guess)
 ?WriteText@om@@YAXPAVTextValue@1@ABV?$DynamicArray@VVector@om@@G@1@@Z = 0x10AF6E20 ; function size:0xF6 | void __cdecl om::WriteText(class om::TextValue *,class om::DynamicArray<class om::Vector,unsigned short> const &) (name guess)
 ??1?$Garbage@VEnvelopeData@mgraph@@@om@@UAE@XZ = 0x10AF2A40 ; function size:0x50 | public: virtual __thiscall om::Garbage<class mgraph::EnvelopeData>::~Garbage<class mgraph::EnvelopeData>(void) (name guess)
+??1?$Garbage@VComplex@om@@@om@@UAE@XZ = 0x10AF0860 ; function size:0x21 | public: virtual __thiscall om::Garbage<class om::Complex>::~Garbage<class om::Complex>(void) (name guess)
