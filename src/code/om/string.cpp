@@ -376,6 +376,25 @@ namespace om
 		return result;
 	}
 
+	// FUNCTION: ENGINE 0x105B41F0
+	String String::ToLower() const
+	{
+		String result(*this);
+		char* text = result.GetWritableText();
+		if (text != 0)
+		{
+			while (*text != 0)
+			{
+				if (*text >= 'A' && *text <= 'Z')
+				{
+					*text += 32;
+				}
+				text++;
+			}
+		}
+		return result;
+	}
+
 	// FUNCTION: ENGINE 0x105B4230
 	String String::ToUpper() const
 	{
