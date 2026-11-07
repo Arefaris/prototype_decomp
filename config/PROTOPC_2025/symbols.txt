@@ -99035,3 +99035,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 
 ?OnDBSlot0@GameDatabaseHelper@proto@@UAEXHH@Z = 0x104E0790 ; function size:0x21 | proto::GameDatabaseHelper::OnDBSlot0 (DBObserver slot 0; name guess)
 ?Unknown108951B0@ZoneSet@engine@@QAEXXZ = 0x108951B0 ; function size:0x32 | engine::ZoneSet::Unknown108951B0 (name unknown)
+?Unknown104AE020@HudSettings@proto@@QAEXXZ = 0x104AE020 ; function size:0x51 | proto::HudSettings::Unknown104AE020 (name unknown)
+?Unknown104B0CB0@FrontEndHud@proto@@QAEPAVHudSettings@2@XZ = 0x104B0CB0 ; function size:0x7 | proto::FrontEndHud::Unknown104B0CB0 (name unknown)
+?ReleaseSettingSubjects@GameDatabaseHelper@proto@@QAEXXZ = 0x104E02F0 ; function size:0x51 | proto::GameDatabaseHelper::ReleaseSettingSubjects (name guess)

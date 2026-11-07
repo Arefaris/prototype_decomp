@@ -16,6 +16,22 @@ namespace proto
 	extern core::Name<core::CaseSensitiveKey> gOLSProfileYAxisInversion;
 	extern core::Name<core::CaseSensitiveKey> gOLSProfileControllerVibration;
 
+	// The head-up display's elements (names unknown)
+	class HudSettings
+	{
+	public:
+		// 0x104AE020
+		void Unknown104AE020();
+	};
+	class FrontEndHud
+	{
+	public:
+		// 0x104B0CB0
+		HudSettings* Unknown104B0CB0();
+	};
+	// 0x104B0A00
+	FrontEndHud* GetFrontEndHud();
+
 	// 0x1126E538 (midgroundmanager.cpp)
 	extern core::Name<core::CaseSensitiveKey> gLevelNameKey;
 
@@ -39,6 +55,15 @@ namespace proto
 		{
 			StartDevSelectLevel(gDevSelectList.entries[index].name, 1, "DevSelect");
 		}
+	}
+
+	// FUNCTION: ENGINE 0x104E02F0
+	void GameDatabaseHelper::ReleaseSettingSubjects()
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		database->ReleaseSubject(core::Name<core::CaseSensitiveKey>("SettingVideoResolution", 0));
+		database->ReleaseSubject(core::Name<core::CaseSensitiveKey>("SettingsDefaultController", 0));
+		GetFrontEndHud()->Unknown104B0CB0()->Unknown104AE020();
 	}
 
 	// FUNCTION: ENGINE 0x104E0520

@@ -56,6 +56,8 @@ namespace proto
 		unsigned int GetNumMissions();
 		const char* GetMissionName(unsigned int index);
 		const char* GetLocationName(unsigned int index);
+		// 0x104E02F0: lets go of the subjects of the video and controller settings and tells the front end's hud
+		void ReleaseSettingSubjects();
 		// 0x104E0610: fe_RestoreGameDBDefault
 		void RestoreGameDBDefault(const char* key, unsigned int player);
 	};
