@@ -129,6 +129,8 @@ namespace engine
 		explicit LightBehaviour(GameObject* newOwner, pure3d::Light::LightType newType = pure3d::Light::TYPE_AMBIENT);
 		// 0x1089FF00: a behaviour with the settings of a light
 		LightBehaviour(GameObject* newOwner, pure3d::Light* source);
+		// 0x108A0520 (deleting destructor 0x108A05B0): takes the light's groups and the light away
+		virtual ~LightBehaviour();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 

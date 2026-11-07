@@ -104163,3 +104163,5 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?ApplySquareDeadZone@PlayerInput@controller@engine@@QAEXHH@Z = 0x108A1500 ; function size:0xE9 | engine::controller::PlayerInput::ApplySquareDeadZone (name guess)
 ?ApplyRoundDeadZone@PlayerInput@controller@engine@@QAEXHH@Z = 0x108A1640 ; function size:0xDF | engine::controller::PlayerInput::ApplyRoundDeadZone (name guess)
 ?ApplyDeadZones@PlayerInput@controller@engine@@QAEXXZ = 0x108A1720 ; function size:0xBE | engine::controller::PlayerInput::ApplyDeadZones (name guess)
+??1LightBehaviour@engine@@UAE@XZ = 0x108A0520 ; function size:0x8F | engine::LightBehaviour destructor
+??_GLightBehaviour@engine@@UAEPAXI@Z = 0x108A05B0 ; function size:0x1E | engine::LightBehaviour scalar deleting destructor vftable slot 0
