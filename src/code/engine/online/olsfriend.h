@@ -71,6 +71,8 @@ namespace engine
 		OLSUserRecord();
 		~OLSUserRecord();
 		void FreeValues();
+		// 0x108873F0: makes room for that many items and values
+		void AllocateValues(int newItemCount, int newValueCount);
 		// 0x10886BB0: makes the record free again
 		void Reset();
 		// 0x10886C00: writes the items as text, one line per item named by the keys
@@ -147,7 +149,18 @@ namespace engine
 
 		unsigned char type;
 		unsigned char unknown1[7];
-		WideStringBuffer text;  // +8
+		// The value by its tag: for tag 4 the characters of a wide string
+		union
+		{
+			int integer;
+			float real;
+			bool boolean;
+			struct
+			{
+				wchar_t* data;
+				unsigned int capacity;
+			} wide;
+		};
 	};
 
 	// A table of eight-byte entries (an id and a kind; 0x10844450 sets one), made by 0x108443F0 (names guessed)
@@ -159,6 +172,9 @@ namespace engine
 			int kind;
 		};
 
+		// 0x108443F0 / 0x10844440: make room for that many entries (their ids cleared) / let them go
+		explicit OLSKeyTable(int newCount);
+		~OLSKeyTable();
 		// 0x10844450
 		void Set(int index, int id, int kind);
 		// 0x10844590: writes the items as text in the buffer
@@ -197,9 +213,10 @@ namespace engine
 		virtual void OnFlags(unsigned int id, int local, unsigned int flags, bool set);
 		virtual void OnValue(unsigned int id, int local, controller::PlayerInfo* input);
 		virtual void OnNotify(int a, int b, int c);
-		// vftable slot 3 (0x10887CD0), slot 4 (0x104DCCF0) and slot 5 (0x108878B0, the list starts listening and makes
-		// the database subjects of its settings)
-		virtual void Slot3();
+		// vftable slot 3 (the deleting destructor 0x10887CD0, the body 0x10887C00: lets the database subjects of the
+		// settings go and stops listening), slot 4 (0x104DCCF0, empty) and slot 5 (0x108878B0, the list starts
+		// listening and makes the database subjects of its settings)
+		virtual ~OLSUserList();
 		virtual void Slot4();
 		virtual void Start();
 

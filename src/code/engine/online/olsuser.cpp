@@ -1,13 +1,121 @@
 // engine::OLSUserList (the RTTI name is engine::OLSUser; see olsfriend.h). Unit 0x10886A70 - 0x108879EA.
 #include "code/engine/online/olsfriend.h"
 #include "code/core/strings.h"
+#include "code/engine/database/gamedatabase.h"
 #include "code/engine/gamelink.h"
 #include "code/engine/online/ols.h"
 #include "code/engine/online/olsgame.h"
+#include "code/core/heap.h"
+#include <new>
 #include <string.h>
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x10844110
+	OLSValue::OLSValue()
+	{
+		type = 0;
+		wide.data = 0;
+		wide.capacity = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10844120
+	OLSValue::~OLSValue()
+	{
+		if (type == 4)
+		{
+			reinterpret_cast<WideStringBuffer*>(&wide)->Release();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10887500
+	void OLSUserRecord::FreeValues()
+	{
+		if (items != 0)
+		{
+			delete[] items;
+			items = 0;
+			itemCount = 0;
+		}
+		if (values != 0)
+		{
+			delete[] values;
+			values = 0;
+			valueCount = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x108873F0
+	void OLSUserRecord::AllocateValues(int newItemCount, int newValueCount)
+	{
+		core::HeapScope scope(0x81);
+		itemCount = newItemCount;
+		items = new OLSValue[newItemCount];
+		valueCount = newValueCount;
+		values = new OLSIdValue[newValueCount];
+		Reset();
+	}
+
+	// FUNCTION: ENGINE 0x108443F0
+	OLSKeyTable::OLSKeyTable(int newCount)
+	{
+		count = newCount;
+		entries = new Entry[newCount];
+		for (int i = 0; i < count; i++)
+		{
+			entries[i].id = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10844440
+	OLSKeyTable::~OLSKeyTable()
+	{
+		delete[] entries;
+	}
+
+	// FUNCTION: ENGINE 0x10887560
+	OLSUserList::OLSUserList(int newSettingCount, int newIdCount, int newRecordCount)
+		: settingCount(newSettingCount), idCount(newIdCount), recordCount(newRecordCount), activeCount(0),
+		settingKeyTable(newSettingCount), idKeyTable(newIdCount)
+	{
+		selected = -1;
+		records = new OLSUserRecord[recordCount];
+		Reset();
+		for (int i = 0; i < recordCount; i++)
+		{
+			records[i].index = i;
+			records[i].AllocateValues(settingCount, idCount);
+		}
+		settings = new OLSSettingInfo[settingCount];
+		for (int i = 0; i < settingCount; i++)
+		{
+			settings[i].scope = 2;
+		}
+		settingKeys = new OLSKeyTable::Entry[idCount];
+		for (int i = 0; i < idCount; i++)
+		{
+			settingKeys[i].id = -1;
+			settingKeys[i].kind = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10887C00
+	OLSUserList::~OLSUserList()
+	{
+		GameDatabase* database = gGameDatabase;
+		for (int i = 0; i < settingCount; i++)
+		{
+			if (settings[i].used == 1 && settings[i].scope != 2)
+			{
+				database->ReleaseSubject(core::Name<core::CaseSensitiveKey>(settings[i].name, 0));
+			}
+		}
+		controller::InputSystem::Get()->RemoveCallback(this);
+		delete[] records;
+		delete[] settingKeys;
+		delete[] settings;
+	}
+
 	// FUNCTION: ENGINE 0x10886BF0
 	void OLSUserRecord::SetName(const WideStringBuffer& text)
 	{
