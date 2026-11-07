@@ -75,4 +75,22 @@ namespace pure3d
 		}
 		return scale;
 	}
+
+	// FUNCTION: ENGINE 0x10718170
+	void LightSelection::UploadVertexLights()
+	{
+		for (unsigned int slot = 0; slot < 5; slot++)
+		{
+			UploadLight(0, slot, 0);
+		}
+		if (Get()->GetMode() != 0)
+		{
+			unsigned int size = vertex.end - vertex.begin;
+			unsigned int count = size > 5 ? 5 : size;
+			for (unsigned int slot = 0; slot < count; slot++)
+			{
+				UploadLight(vertex.begin[slot], slot, 0);
+			}
+		}
+	}
 }
