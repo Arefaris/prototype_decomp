@@ -107,6 +107,11 @@ namespace mgraph
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10ACBFB0
+	LinkedGraph::~LinkedGraph()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10ACC420
 	LinkedGraph::LinkedGraph(Graph* newGraph, const om::ClassName& newName) :
 		Abstraction(CachedNodeType<LinkedGraph>(), newGraph, newName, 0)

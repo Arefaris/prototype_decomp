@@ -465,6 +465,8 @@ namespace mgraph
 	public:
 		// 0x10ACC420
 		LinkedGraph(Graph* newGraph, const om::ClassName& newName);
+		// 0x10ACBFB0 (the deleting destructor is 0x10ACC150)
+		virtual ~LinkedGraph();
 		OM_ALLOCATION(LinkedGraph);
 		// 0x10ACC180: the graph is found by its name
 		void SetAbstractedName(const om::ClassName& newName);

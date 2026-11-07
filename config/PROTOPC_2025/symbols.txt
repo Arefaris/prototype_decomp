@@ -102724,3 +102724,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?AllocationTag@EmbeddedGraph@mgraph@@SAPBDXZ = 0x10AAAF20 ; function size:0x6 | public: static char const * __cdecl mgraph::EmbeddedGraph::AllocationTag(void) (name guess)
 ?CompareNodeTypeName@mgraph@@YAHPB_KPBVNodeTypeBase@1@@Z = 0x10AD10A0 ; function size:0x38 | int __cdecl mgraph::CompareNodeTypeName(unsigned __int64 const *,class mgraph::NodeTypeBase const *) (name guess)
 ?ComparePinDataTypeName@mgraph@@YAHPB_KPBVPinDataTypeBase@1@@Z = 0x10AD2E90 ; function size:0x38 | int __cdecl mgraph::ComparePinDataTypeName(unsigned __int64 const *,class mgraph::PinDataTypeBase const *) (name guess)
+??1LinkedGraph@mgraph@@UAE@XZ = 0x10ACBFB0 ; function size:0xB | public: virtual __thiscall mgraph::LinkedGraph::~LinkedGraph(void) (name guess)
+?AddConnection@Context@mgraph@@QAEXPAVContextConnectionBase@2@@Z = 0x10AC5430 ; function size:0xE8 | public: void __thiscall mgraph::Context::AddConnection(class mgraph::ContextConnectionBase *) (name guess)
+?RemoveConnection@Context@mgraph@@QAEXPAVContextConnectionBase@2@@Z = 0x10AC5520 ; function size:0x15C | public: void __thiscall mgraph::Context::RemoveConnection(class mgraph::ContextConnectionBase *) (name guess)
+??_GContextConnectionBase@mgraph@@UAEPAXI@Z = 0x10AD3270 ; function size:0x1E | public: virtual void * __thiscall mgraph::ContextConnectionBase::`scalar deleting destructor'(unsigned int) (name guess)
