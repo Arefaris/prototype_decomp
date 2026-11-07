@@ -225,6 +225,23 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x1010DED0
+			ReactionHitPushbackAddAction::ReactionHitPushbackAddAction(ReactionHitPushbackAddTrack* newTrack, core::IRefCount* owner) : fight::Action(0xE00), event(0), link(newTrack)
+			{
+				engine::AssignRefCountedCopy3(&event, AsHitEventOwner(owner));
+			}
+
+			// FUNCTION: ENGINE 0x1010DE20
+			ReactionHitPushbackAddAction::~ReactionHitPushbackAddAction()
+			{
+				core::SafeReleaseRefCopy3(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1010E1C0
+			fight::Action* ReactionHitPushbackAddTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ReactionHitPushbackAddAction(this, owner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<PushbackVelocityCondition>;

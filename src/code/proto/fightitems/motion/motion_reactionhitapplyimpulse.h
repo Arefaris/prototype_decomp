@@ -46,6 +46,21 @@ namespace proto
 			void RegisterReactionHitApplyImpulseTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ReactionHitApplyImpulseAction (9 vftable slots, 0x2C bytes): applies the impulse of the hit to the object
+			class ReactionHitApplyImpulseAction : public fight::Action
+			{
+			public:
+				// 0x1010D730
+				ReactionHitApplyImpulseAction(ReactionHitApplyImpulseTrack* newTrack, core::IRefCount* owner);
+				// 0x1010D680
+				virtual ~ReactionHitApplyImpulseAction();
+
+				// vftable slot 5 (0x1010D810, the engine's)
+				virtual bool Slot5(int arg, float value);
+
+				core::IRefCount* event;  // +0x1C
+				core::Link<ReactionHitApplyImpulseTrack> link;  // +0x20
+			};
 
 			// ---- actions end
 		}

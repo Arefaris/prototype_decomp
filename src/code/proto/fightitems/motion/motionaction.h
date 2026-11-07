@@ -94,6 +94,16 @@ namespace proto
 				return (ownerKind >= 0x21000 && ownerKind < 0x21006) ? owner : 0;
 			}
 
+			// The owner of a reaction action as its constructor keeps it: null when the owner is none or not a hit event (kind 0x21001)
+			inline core::IRefCount* AsHitEventOwner(core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				return (((TrackOwner*)owner)->kind == 0x21001) ? owner : 0;
+			}
+
 			// The owner the sequencer hands a condition in its third argument
 			inline core::IRefCount* AsOwner(int value)
 			{
