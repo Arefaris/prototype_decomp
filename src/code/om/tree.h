@@ -9,6 +9,7 @@ namespace om
 {
 	class Entity;
 	class EntityTypeBase;
+	class MetaClassBase;
 
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
 	struct TreeNode
@@ -59,9 +60,15 @@ namespace om
 		bool InsertEntityTypeByType(EntityTypeBase* type);
 		// 0x105B54A0: the entity type registered for a type_info (name guessed)
 		EntityTypeBase* FindEntityType(const type_info& type);
+		// 0x105C0AB0 / 0x105C0170: enters a class description under its name, and under its type_info (names guessed)
+		bool InsertMetaClassByName(MetaClassBase* metaClass);
+		bool InsertMetaClassByType(MetaClassBase* metaClass);
 		// 0x105E4210 / 0x105E4430: enters an object that has its tree node at 8 and its name at 0x18; false when
 		// an object of that name is there already
 		template<class T> bool InsertByName(T* object);
+		// 0x105C0750 (attributes), 0x105C07B0 (properties), 0x105C0780 (methods): takes the objects that have their tree
+		// node at 8 out one by one and deletes them
+		template<class T> void DeleteAll();
 
 		TreeNode* root;
 		TreeNode nil;
