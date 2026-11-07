@@ -96681,3 +96681,7 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?SetUnknown8B@GamePauseState@proto@@QAEXXZ = 0x104E7150 ; function size:0x8 | proto::GamePauseState::SetUnknown8B (name guess)
 ?SetUnknown8C@GamePauseState@proto@@QAEXXZ = 0x104E7160 ; function size:0x8 | proto::GamePauseState::SetUnknown8C (name guess)
 ?SetUnknown8D@GamePauseState@proto@@QAEXXZ = 0x104E7170 ; function size:0x8 | proto::GamePauseState::SetUnknown8D (name guess)
+??_R0?AVCloudSpawnerBase@proto@@@8 = 0x11070F00 ; data size:0x8 | class proto::CloudSpawnerBase RTTI type descriptor
+??_R0?AVCloudSpawner@proto@@@8 = 0x11070ED8 ; data size:0x8 | class proto::CloudSpawner RTTI type descriptor
+?IsDerived@?$BaseClassCasterImpl@VPropSpawner@engine@@VCloudSpawnerBase@proto@@@content@@UAE_NPAX@Z = 0x104F0AE0 ; function size:0x24 | public: virtual bool __thiscall content::BaseClassCasterImpl<class engine::PropSpawner,class proto::CloudSpawnerBase>::IsDerived(void *)
+?IsDerived@?$BaseClassCasterImpl@VCloudSpawnerBase@proto@@VCloudSpawner@2@@content@@UAE_NPAX@Z = 0x104F0B20 ; function size:0x24 | public: virtual bool __thiscall content::BaseClassCasterImpl<class proto::CloudSpawnerBase,class proto::CloudSpawner>::IsDerived(void *)

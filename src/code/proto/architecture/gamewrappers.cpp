@@ -6,17 +6,22 @@
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/vector.h"
+#include "code/content/metatype.h"
 #include "code/core/name.h"
+#include "code/engine/propspawner.h"
 
 namespace proto
 {
-	class CloudSpawnerBase
+	class CloudSpawnerBase : public engine::PropSpawner
 	{
 	public:
 		enum Priority
 		{
 			PriorityFirst
 		};
+	};
+	class CloudSpawner : public CloudSpawnerBase
+	{
 	};
 	class CloudManager
 	{
@@ -182,3 +187,6 @@ template class Closure1<proto::InGameState, void, bool>;
 template void engine::LuaScriptManager::RegisterMethod<proto::InGameState, void, bool>(const char*,
 	proto::InGameState*, void (proto::InGameState::*)(bool));
 
+// The class casters of the cloud spawners (their classes are declared above as far as the casts and signatures need them)
+template struct content::BaseClassCasterImpl<engine::PropSpawner, proto::CloudSpawnerBase>;
+template struct content::BaseClassCasterImpl<proto::CloudSpawnerBase, proto::CloudSpawner>;
