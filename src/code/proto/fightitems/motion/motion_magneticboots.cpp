@@ -19,6 +19,36 @@ namespace choreo
 	extern const float gMinusOne;
 }
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x100ECE60
+	void AssignRefCountedCopy4(core::IRefCount** slot, core::IRefCount* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+}
+
+namespace core
+{
+	// FUNCTION: ENGINE 0x100ECEA0
+	void SafeReleaseRefCopy4(IRefCount** object)
+	{
+		if (*object != 0)
+		{
+			(*object)->Release();
+			*object = 0;
+		}
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -2058,6 +2088,114 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100F46A0
+			// NONMATCHING: the engine schedules the address of the event slot and the pushes of the helper call behind the vector stores (85 %)
+#ifdef NONMATCHING
+			MagneticBootsJumpAction::MagneticBootsJumpAction(MagneticBootsJumpTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), target(newTarget), event(0), unknown30(0), driver(0)
+			{
+				unknown38.x = math::kZeroVector.x;
+				unknown38.y = math::kZeroVector.y;
+				unknown38.z = math::kZeroVector.z;
+				unknown44.x = math::kZeroVector.x;
+				unknown44.y = math::kZeroVector.y;
+				unknown44.z = math::kZeroVector.z;
+				unknown50 = 0.0f;
+				unknown54 = 0.0f;
+				unknown58 = 0.0f;
+				engine::AssignRefCountedCopy4(&event, newEvent);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100EDDD0
+			MagneticBootsJumpAction::~MagneticBootsJumpAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy4(&event);
+			}
+
+			// FUNCTION: ENGINE 0x100F5670
+			fight::Action* MagneticBootsJumpTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				return new MagneticBootsJumpAction(this, handle, surface);
+			}
+
+			// FUNCTION: ENGINE 0x100EDE20
+			void MagneticBootsJumpAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100ED940
+			MagneticBootsTurnCornerAction::~MagneticBootsTurnCornerAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy4(&event);
+			}
+
+			// FUNCTION: ENGINE 0x100F54D0
+			fight::Action* MagneticBootsTurnCornerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				return new MagneticBootsTurnCornerAction(this, handle, surface);
+			}
+
+			// FUNCTION: ENGINE 0x100EDAC0
+			MagneticBootsStickToWallAction::~MagneticBootsStickToWallAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy4(&event);
+			}
+
+			// FUNCTION: ENGINE 0x100F5540
+			fight::Action* MagneticBootsStickToWallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				return new MagneticBootsStickToWallAction(this, handle, surface);
+			}
+
+			// FUNCTION: ENGINE 0x100EDC00
+			MagneticBootsDetachAction::~MagneticBootsDetachAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy4(&event);
+			}
+
+			// FUNCTION: ENGINE 0x100F55B0
+			fight::Action* MagneticBootsDetachTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* surface = AsSurfaceEventOwner(owner);
+				return new MagneticBootsDetachAction(this, handle, surface);
+			}
+
+			// FUNCTION: ENGINE 0x100EDC50
+			void MagneticBootsDetachAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyVector<MagneticBootsNextSurfaceNormalCondition>;
 			template class fight::PropertyFloatConstRange<MagneticBootsNextSurfaceNormalCondition>;
@@ -2135,6 +2273,14 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100ED220
+// FUNCTION: ENGINE 0x100ED240
+// FUNCTION: ENGINE 0x100ED260
+// FUNCTION: ENGINE 0x100ED280
+// FUNCTION: ENGINE 0x100ED3F0
+// FUNCTION: ENGINE 0x100ED450
+// FUNCTION: ENGINE 0x100ED4B0
+// FUNCTION: ENGINE 0x100ED510
 // FUNCTION: ENGINE 0x100ED1E0
 // FUNCTION: ENGINE 0x100ED200
 // FUNCTION: ENGINE 0x100ED330

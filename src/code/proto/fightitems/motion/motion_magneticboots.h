@@ -726,6 +726,105 @@ namespace proto
 				core::IRefCount* effect;  // +0x3C
 			};
 
+			// RTTI: proto::fightitems::motion::MagneticBootsJumpAction (9 vftable slots, 0x5C bytes)
+			class MagneticBootsJumpAction : public fight::Action
+			{
+			public:
+				// 0x100F46A0
+				MagneticBootsJumpAction(MagneticBootsJumpTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100EDDD0
+				virtual ~MagneticBootsJumpAction();
+
+				// vftable slot 5 (0x100F47D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100EDE20)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F4AA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsJumpTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				int unknown30;  // +0x30
+				choreo::Driver* driver;  // +0x34
+				math::Vector unknown38;  // +0x38
+				math::Vector unknown44;  // +0x44
+				float unknown50;  // +0x50
+				float unknown54;  // +0x54
+				float unknown58;  // +0x58
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsTurnCornerAction (9 vftable slots, 0xD4 bytes)
+			class MagneticBootsTurnCornerAction : public fight::Action
+			{
+			public:
+				// 0x100F0FA0 (not reconstructed)
+				MagneticBootsTurnCornerAction(MagneticBootsTurnCornerTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100ED940
+				virtual ~MagneticBootsTurnCornerAction();
+
+				// vftable slot 5 (0x100F1290)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ED990)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F18B0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTurnCornerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				unsigned char unknown30[0xD0 - 0x30];
+				choreo::Driver* driver;  // +0xD0
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsStickToWallAction (9 vftable slots, 0xB8 bytes)
+			class MagneticBootsStickToWallAction : public fight::Action
+			{
+			public:
+				// 0x100F2370 (not reconstructed)
+				MagneticBootsStickToWallAction(MagneticBootsStickToWallTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100EDAC0
+				virtual ~MagneticBootsStickToWallAction();
+
+				// vftable slot 5 (0x100F2600)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100EDB10)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F2AA0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsStickToWallTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				unsigned char unknown30[4];
+				choreo::Driver* driver;  // +0x34
+				unsigned char unknown38[0xB8 - 0x38];
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsDetachAction (9 vftable slots, 0xC0 bytes)
+			class MagneticBootsDetachAction : public fight::Action
+			{
+			public:
+				// 0x100F3530 (not reconstructed)
+				MagneticBootsDetachAction(MagneticBootsDetachTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100EDC00
+				virtual ~MagneticBootsDetachAction();
+
+				// vftable slot 5 (0x100F3840)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100EDC50)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F3D90)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsDetachTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				unsigned char unknown30[4];
+				choreo::Driver* driver;  // +0x34
+				unsigned char unknown38[0xC0 - 0x38];
+			};
+
 			// ---- actions end
 		}
 	}
