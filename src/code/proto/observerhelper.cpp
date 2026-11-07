@@ -60,6 +60,8 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x104DF710
+	// NONMATCHING: the engine calls SetLanguage through three jumps (a thunk of the unit), 99.7 %
+#ifdef NONMATCHING
 	void ObserverHelper::OnDBSlot0(int key, int change)
 	{
 		const core::Name<core::CaseSensitiveKey>& name = *(const core::Name<core::CaseSensitiveKey>*)key;
@@ -93,4 +95,5 @@ namespace proto
 			Unknown108732E0(record->value < 2);
 		}
 	}
+#endif
 }
