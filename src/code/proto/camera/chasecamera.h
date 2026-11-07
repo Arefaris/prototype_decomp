@@ -15,6 +15,10 @@ namespace proto
 		bool Unknown1033A3D0();
 		// 0x10341FF0 (name guess)
 		void Unknown10341FF0();
+		// 0x1033F990: turns the camera behind its avatar over the time
+		void ResetBehind(float time);
+		// 0x10338FE0: the field of view
+		float GetFieldOfView();
 		// 0x1033FDB0: turns the camera to face along a direction over the time
 		void ResetFacing3D(const math::Vector* direction, float time);
 	};
