@@ -1,6 +1,8 @@
 // Fight items of the ai group: AbsoluteHeightCondition, AreDisguiseActionsEnabledCondition, IsDisguiseActionEnabledCondition, DisguiseActionUsedTrack, ClearMarkersTrack, DumpAlertCharactersTrack, PlayDebugDialogTrack, DrawObjectDebugTrack, HelicopterStrafeModeTrack, ShowDisguiseActionHUDTrack, AddMarkerByKeyTrack, AddDiversionTrack, SetUserTooltipTrack, AdjustHydraMovementTrack (unit 0x102272B0 - 0x1022AC60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_disguise.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 #include <new>
 
 namespace proto
@@ -1343,6 +1345,49 @@ namespace proto
 			void SetUserTooltipAction::Slot6()
 			{
 			}
+
+			// FUNCTION: ENGINE 0x101EA070
+			bool SetUserTooltipAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				char* tooltip = link.Get()->tooltip;
+				Unknown103B9940(target.Get(), 0xB, tooltip);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101E9AA0
+			bool HelicopterStrafeModeAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::CharacterQueryIntentionMessage message;
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E9950
+			// NONMATCHING: the object pointer sits in eax in the engine and in ecx in ours, 91.9 %
+#ifdef NONMATCHING
+			bool AbsoluteHeightCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Matrix& world = object->transform->value;
+					math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+					float limit = distance;
+					result = fight::CompareVectorMeasure(compare, &position, 1, limit);
+				}
+				return result;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101EB9F0
 			fight::Action* SetUserTooltipTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

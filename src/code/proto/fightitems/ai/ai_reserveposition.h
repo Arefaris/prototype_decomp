@@ -388,6 +388,44 @@ namespace proto
 				math::Vector unknown2C;  // +0x2C
 			};
 
+			// RTTI: proto::fightitems::ai::EngageAction (9 vftable slots, 0x60 bytes)
+			class EngageAction : public fight::Action
+			{
+			public:
+				// 0x101EE550
+				EngageAction(EngageTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101EDFD0
+				virtual ~EngageAction();
+
+				// vftable slot 5 (0x101EFD50)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101EE010)
+				virtual void Slot6();
+				// vftable slot 7 (0x101F05A0)
+				virtual bool Slot7(int arg, float value);
+
+				// 0x101ED6D0: gives the reserved position back (name guess)
+				void ReleasePosition();
+				// 0x101EEAF0: picks the speed and the stop distances of the next move (name guess)
+				void ChooseDistances();
+
+				core::Link<EngageTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				engine::HandleBase unknown38;  // +0x38
+				math::Vector unknown3C;  // +0x3C
+				float unknown48;  // +0x48
+				float unknown4C;  // +0x4C
+				float unknown50;  // +0x50
+				float unknown54;  // +0x54
+				bool unknown58;  // +0x58
+				bool unknown59;  // +0x59
+				bool unknown5A;  // +0x5A
+				int unknown5C;  // +0x5C
+			};
+
 			// ---- actions end
 		}
 	}

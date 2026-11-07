@@ -108,6 +108,15 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x101F3020
+			bool FleeAction::Slot5(int arg, float value)
+			{
+				unknown1C = 0;
+				unknown20.serial = 0;
+				unknown20.index = 0xFFFF;
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x101F3040
 			void FleeAction::Slot6()
 			{

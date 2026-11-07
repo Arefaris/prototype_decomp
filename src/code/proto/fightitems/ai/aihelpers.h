@@ -67,6 +67,8 @@ namespace proto
 		bool Unknown103866C0(engine::GameObjectHandle handle);
 		// 0x10386810: whether a soldier of a type may still be reserved for the object (name guess)
 		bool Unknown10386810(int type, engine::GameObjectHandle handle);
+		// 0x10385DA0: renews the object's reservation (name guess)
+		bool Unknown10385DA0(engine::GameObjectHandle handle);
 	};
 
 	// The strafe run tokens (gAISystem +0x1C; name guess)
@@ -124,6 +126,8 @@ namespace proto
 	// 0x11263AB0
 	extern AISystem* gAISystem;
 
+	// 0x103B9940: a debug output the release build leaves empty (name guess)
+	void Unknown103B9940(engine::GameObject* object, int channel, const char* text);
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
 	// 0x103B8440: whether the object has arrived at its destination (name guess)

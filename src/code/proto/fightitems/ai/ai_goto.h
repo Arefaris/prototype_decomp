@@ -225,6 +225,9 @@ namespace proto
 				// vftable slot 7 (0x101F71D0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101F6EB0: tells the object to forget the destination (name guess)
+				void ClearDestination();
+
 				core::Link<DumbGotoTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				math::Vector unknown2C;  // +0x2C

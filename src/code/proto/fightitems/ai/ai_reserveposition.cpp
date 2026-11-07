@@ -1,6 +1,7 @@
 // Fight items of the ai group: CanGunButtCondition, ReservePositionTrack, CommanderInCombatTrack, EngageTrack, ReserveHydraPositionTrack, ReserveGunButtTrack, ReserveTargetsPositionTrack (unit 0x1022D810 - 0x1022F8E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_reserveposition.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/math/random.h"
 
 namespace proto
 {
@@ -1106,6 +1107,77 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ReserveTargetsPositionAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x101EE550
+			EngageAction::EngageAction(EngageTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), unknown3C(math::kZeroVector), unknown48(0.0f), unknown4C(0.0f), unknown50(0.0f), unknown54(0.0f), unknown58(false), unknown59(false), unknown5A(true), unknown5C(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101EDFD0
+			EngageAction::~EngageAction()
+			{
+				ReleasePosition();
+			}
+
+			// FUNCTION: ENGINE 0x101ED6D0
+			void EngageAction::ReleasePosition()
+			{
+				if (unknown59 && gAISystem != 0)
+				{
+					unknown59 = false;
+					gAISystem->strafeRunTokens->Unknown103833C0(&unknown3C, false);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EEAF0
+			// NONMATCHING: the inlined random steps keep a pointer to the second state in esi and the temporary in edi, ours the temporary in esi, about 85 %
+#ifdef NONMATCHING
+			void EngageAction::ChooseDistances()
+			{
+				float lowSpeed = link.Get()->minSpeed;
+				float highSpeed = link.Get()->maxSpeed;
+				unknown2C = (highSpeed - lowSpeed) * math::gRandom->NextFloat01() + lowSpeed;
+				float lowStop = link.Get()->minStopDistance;
+				float highStop = link.Get()->maxStopDistance;
+				float stop = (highStop - lowStop) * math::gRandom->NextFloat01() + lowStop;
+				float far = link.Get()->maxStopDistance + link.Get()->extraMoveDistance;
+				unknown30 = stop * stop;
+				unknown34 = far * far;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101EFD50
+			bool EngageAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				unknown5C = 0;
+				unknown5A = true;
+				engine::HandleBase none;
+				unknown38 = none;
+				ChooseDistances();
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101EE010
+			void EngageAction::Slot6()
+			{
+				ReleasePosition();
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					Unknown103B82F0(object);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EFD00
+			fight::Action* EngageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new EngageAction(this, handle);
 			}
 
 			// ---- actions end

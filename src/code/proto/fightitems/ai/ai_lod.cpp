@@ -1,6 +1,7 @@
 // Fight items of the ai group: CanReserveSoldierBudgetCondition, IsInLoadedCellCondition, NPCLODCondition, LodSteerTrack, ResetPhysicVelocitiesTrack, LodMoveTrack, EnableLODPatrolTrack, GameObjectOrientTrack, CharacterizeTrack, CharacterizeFromReservedTrack, SetNPCLODStateTrack, LodGotoFixedDestinationTrack, UnDowngradableTrack, UpdateSoldierReservationBudgetTrack (unit 0x10236270 - 0x10239F70; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_lod.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 
 namespace proto
 {
@@ -1318,6 +1319,51 @@ namespace proto
 			bool LodSteerAction::Slot7(int arg, float value)
 			{
 				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FAD00
+			bool UpdateSoldierReservationBudgetAction::Slot7(int arg, float value)
+			{
+				if (target.Get() != 0)
+				{
+					SoldierBudgets* budgets = gAISystem->soldierBudgets;
+					return budgets->Unknown10385DA0(target);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FC0E0
+			bool UpdateSoldierReservationBudgetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0 && target.Get() != 0)
+				{
+					SoldierBudgets* budgets = gAISystem->soldierBudgets;
+					return budgets->Unknown10385DA0(target);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA160
+			void SetNPCLODState(int state, engine::GameObject* object)
+			{
+				SetNPCLODStateAIMsg message(state);
+				object->SendMessage(&message);
+			}
+
+			// FUNCTION: ENGINE 0x101FB9D0
+			bool SetNPCLODStateAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetNPCLODState(link.Get()->value, object);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101FC770

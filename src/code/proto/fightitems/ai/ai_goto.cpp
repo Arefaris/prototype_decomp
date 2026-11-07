@@ -1,6 +1,7 @@
 // Fight items of the ai group: HasFixedDestinationCondition, HasFixedAreaDestinationCondition, DumbGotoTrack, DumbGotoLODTrack, GoToTrack (unit 0x102338F0 - 0x10234D10; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_goto.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 
 namespace proto
 {
@@ -444,6 +445,55 @@ namespace proto
 			// FUNCTION: ENGINE 0x101F6070
 			void GoToAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101F6040
+			bool GoToAction::Slot5(int arg, float value)
+			{
+				unknown2C = 0;
+				unknown30.z = 0.0f;
+				unknown30.y = 0.0f;
+				unknown30.x = 0.0f;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F67A0
+			bool DumbGotoAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = object->transform->value;
+				math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+				unknown2C.x = place.x;
+				unknown2C.y = place.y;
+				unknown2C.z = place.z;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F6EB0
+			void DumbGotoAction::ClearDestination()
+			{
+				if (link.Get()->clearDestination)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ClearFixedDestinationMessage message(this);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101F71C0
+			void DumbGotoAction::Slot6()
+			{
+				if (link.Get() != 0)
+				{
+					ClearDestination();
+				}
 			}
 
 			// FUNCTION: ENGINE 0x101F7080
