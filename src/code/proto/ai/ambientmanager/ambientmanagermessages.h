@@ -21,7 +21,9 @@ namespace proto
 	{
 	public:
 		// 0x10420680
-		explicit CreateVehicleMessage(void* newArgument);
+		explicit CreateVehicleMessage(void* newArgument) : AmbientMessage(5), argument(newArgument)
+		{
+		}
 		// 0x104206B0 (the deleting destructor is 0x104208E0)
 		virtual ~CreateVehicleMessage()
 		{
@@ -35,7 +37,10 @@ namespace proto
 	{
 	public:
 		// 0x104206C0
-		CreatePedMessage(void* newArgument, NPCType* newType);
+		CreatePedMessage(void* newArgument, NPCType* newType) :
+			AmbientMessage(6), argument(newArgument), type(newType)
+		{
+		}
 		// 0x10420700 (the deleting destructor is 0x10420910)
 		virtual ~CreatePedMessage()
 		{
@@ -50,7 +55,10 @@ namespace proto
 	{
 	public:
 		// 0x104289C0
-		VehicleMovementBehaviourActiveMessage();
+		VehicleMovementBehaviourActiveMessage() :
+			MovementMessage(0x3b), active(false)
+		{
+		}
 		// 0x104289F0
 		virtual ~VehicleMovementBehaviourActiveMessage()
 		{
@@ -64,7 +72,10 @@ namespace proto
 	{
 	public:
 		// 0x10428A00
-		SetVehiclePatrolHeightOffsetMessage(float newOffset, bool newFlag);
+		SetVehiclePatrolHeightOffsetMessage(float newOffset, bool newFlag) :
+			MovementMessage(0x3c), offset(newOffset), flag(newFlag)
+		{
+		}
 		// 0x10428A40
 		virtual ~SetVehiclePatrolHeightOffsetMessage()
 		{
@@ -80,7 +91,12 @@ namespace proto
 	{
 	public:
 		// 0x1042D320
-		explicit SetLODDestinationAIMsg(const math::Vector& newDestination);
+		explicit SetLODDestinationAIMsg(const math::Vector& newDestination) : LODAIMessage(0x15)
+		{
+			destination.x = newDestination.x;
+		destination.y = newDestination.y;
+		destination.z = newDestination.z;
+		}
 		// 0x1042D360
 		virtual ~SetLODDestinationAIMsg()
 		{
@@ -94,7 +110,9 @@ namespace proto
 	{
 	public:
 		// 0x1042D370
-		HasLODArrivedAIMsg();
+		HasLODArrivedAIMsg() : LODAIMessage(0x16), arrived(true)
+		{
+		}
 		// 0x1042D3A0
 		virtual ~HasLODArrivedAIMsg()
 		{
@@ -108,7 +126,9 @@ namespace proto
 	{
 	public:
 		// 0x1042EE20
-		ForceUpDatePerceptionMessage();
+		ForceUpDatePerceptionMessage() : PerceptionMessage(0x11)
+		{
+		}
 		// 0x1042EE50
 		virtual ~ForceUpDatePerceptionMessage()
 		{
@@ -120,7 +140,9 @@ namespace proto
 	{
 	public:
 		// 0x1042EE60
-		explicit SetAmbientControlledAIMsg(bool newControlled);
+		explicit SetAmbientControlledAIMsg(bool newControlled) : AIMessage(0x11), controlled(newControlled)
+		{
+		}
 		// 0x1042EE90
 		virtual ~SetAmbientControlledAIMsg()
 		{
@@ -134,7 +156,10 @@ namespace proto
 	{
 	public:
 		// 0x1042EEA0
-		explicit SetTurnedOffMovementMessage(bool newTurnedOff);
+		explicit SetTurnedOffMovementMessage(bool newTurnedOff) :
+			MovementMessage(0x46), turnedOff(newTurnedOff)
+		{
+		}
 		// 0x1042EED0
 		virtual ~SetTurnedOffMovementMessage()
 		{
@@ -148,7 +173,10 @@ namespace proto
 	{
 	public:
 		// 0x104305D0
-		explicit GetIntersectionStateMessage(int newDirection);
+		explicit GetIntersectionStateMessage(int newDirection) :
+			AmbientMessage(0), state(-1), direction(newDirection), unknown14(0), unknown18(0.0f), unknown1C(0.0f)
+		{
+		}
 		// 0x10430620
 		virtual ~GetIntersectionStateMessage()
 		{
@@ -166,7 +194,9 @@ namespace proto
 	{
 	public:
 		// 0x10432D40
-		GetIntersectionBehaviourMessage();
+		GetIntersectionBehaviourMessage() : AmbientMessage(1), behaviour(0)
+		{
+		}
 		// 0x10432D70
 		virtual ~GetIntersectionBehaviourMessage()
 		{
@@ -180,7 +210,9 @@ namespace proto
 	{
 	public:
 		// 0x10432D80
-		GetAlertInfoMessage();
+		GetAlertInfoMessage() : AmbientMessage(0x14)
+		{
+		}
 		// 0x10432DC0
 		virtual ~GetAlertInfoMessage()
 		{
