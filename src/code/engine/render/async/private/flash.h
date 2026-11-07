@@ -17,6 +17,18 @@ namespace engine
 			unsigned short index;  // +0
 			unsigned short generation;  // +2
 		};
+
+		// What the movie's events run on the render thread (flash.cpp's neighbours, another unit; names guessed)
+		// 0x108854E0 / 0x10885540 / 0x108855D0 / 0x10885610 / 0x108856A0 / 0x10885720
+		void DestroyMovie(FlashMovieHandler movie);
+		void SetMovieFloat(FlashMovieHandler movie, float value);
+		void SetMovieFlag(FlashMovieHandler movie, bool value);
+		void SetMovieValue(FlashMovieHandler movie, unsigned int index, bool value, int a, int b);
+		void SetMovieCursor(FlashMovieHandler movie, int x, int y);
+		void SetMovieNumber(FlashMovieHandler movie, int index, int a, float value);
+
+		// 0x10886410: has the render thread let the movie go
+		void ReleaseMovie(FlashMovieHandler movie);
 	}
 }
 

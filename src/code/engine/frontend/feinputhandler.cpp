@@ -5,20 +5,12 @@
 #include "code/engine/display.h"
 #include "code/engine/frontend/femovie.h"
 #include "code/engine/frontend/frontend.h"
+#include "code/engine/frontend/frontendscreen.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 
 namespace engine
 {
-	// The object at +0x2C of the frontend object (0x10886490 and the following, another unit; names guessed)
-	class FrontendScreen
-	{
-	public:
-		void SetValue(int index, bool value, int a, int b);
-		void SetCursor(int x, int y);
-		void SetFloat(int index, int a, float value);
-	};
-
 	// The front end's movie as this unit uses it (the object GetFrontend answers; 0x10872830: calls an ActionScript
 	// function)
 	class FrontendMovie
