@@ -1,7 +1,8 @@
 // The script method wrappers of the game top level of proto (CloudManager, GameDatabaseHelper, InGameState): the units that
 // register methods of these classes with the script context instantiate engine::Function's Method and Closure templates for
 // their signatures. The classes themselves are other files'; they are declared here as far as the signatures need them (a
-// class with several bases has method pointers of two words, which the declarations below ask for).
+// class with several bases has method pointers of two words, which the declarations below ask for). The global script
+// functions of the game's top level (the game database helper's, the hit effect manager's) are instantiated here too.
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/vector.h"
@@ -39,6 +40,15 @@ namespace proto
 	{
 	};
 }
+
+template class Function3<void, const char*, int, const char*>;
+template class Function3<int, const char*, math::Vector, float>;
+template class Function4<int, const char*, math::Vector, math::Vector, float>;
+template class Function2<bool, int, math::Vector>;
+template void engine::LuaScriptManager::Register<void, const char*, int, const char*>(const char*, void (*)(const char*, int, const char*));
+template void engine::LuaScriptManager::Register<int, const char*, math::Vector, float>(const char*, int (*)(const char*, math::Vector, float));
+template void engine::LuaScriptManager::Register<int, const char*, math::Vector, math::Vector, float>(const char*, int (*)(const char*, math::Vector, math::Vector, float));
+template void engine::LuaScriptManager::Register<bool, int, math::Vector>(const char*, bool (*)(int, math::Vector));
 
 template class Method1<proto::CloudManager, bool, const char*>;
 template class Closure1<proto::CloudManager, bool, const char*>;
