@@ -255,6 +255,10 @@ namespace proto
 	}
 }
 
+// The array of the weights and the list of the candidates: the engine keeps its out-of-line copies of their members
+template class container::ArrayDynamic<proto::TargetSelectionWeights::Pair, container::AllocatorNew>;
+template class container::ArrayFixed<proto::TargetSelectionBehaviour::Candidate, 8>;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x103FF2F0
 // FUNCTION: ENGINE 0x103FF3C0
@@ -295,3 +299,22 @@ namespace proto
 // FUNCTION: ENGINE 0x10402380
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x103FED50
+// FUNCTION: ENGINE 0x103FF2C0
+// FUNCTION: ENGINE 0x103FF2D0
+// FUNCTION: ENGINE 0x103FF2E0
+// FUNCTION: ENGINE 0x103FF300
+// FUNCTION: ENGINE 0x103FF310
+// FUNCTION: ENGINE 0x103FF330
+// FUNCTION: ENGINE 0x103FF340
+// FUNCTION: ENGINE 0x103FF350
+// FUNCTION: ENGINE 0x103FF370
+// FUNCTION: ENGINE 0x103FF390
+// FUNCTION: ENGINE 0x103FF460
+// FUNCTION: ENGINE 0x103FFDF0
+// FUNCTION: ENGINE 0x103FFE60
+// FUNCTION: ENGINE 0x103FFE70
+// FUNCTION: ENGINE 0x103FFE90
+// FUNCTION: ENGINE 0x103FFEB0
