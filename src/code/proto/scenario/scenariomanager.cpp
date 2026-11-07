@@ -87,7 +87,7 @@ namespace proto
 		}
 
 		// FUNCTION: ENGINE 0x10488FB0
-		// NONMATCHING: register allocation of the string scan (ebx / ebp) and the timer address (lea), 65.6 %
+		// NONMATCHING: register allocation of the string scan (ebp where the engine has ebx), 93.8 %
 #ifdef NONMATCHING
 		int ScenarioManager::StartTimer(float time, const char* message)
 		{
@@ -107,12 +107,11 @@ namespace proto
 				{
 					if (timers[i].time == -1.0f)
 					{
-						ScenarioTimer* timer = timers + i;
-						timer->time = time;
-						core::StrNCpy(timer->message, message, 0x100);
-						timer->id = nextTimerId;
+						timers[i].time = time;
+						core::StrNCpy(timers[i].message, message, 0x100);
+						timers[i].id = nextTimerId;
 						nextTimerId++;
-						return timer->id;
+						return timers[i].id;
 					}
 				}
 			}
