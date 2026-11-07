@@ -24,6 +24,8 @@ namespace engine
 	namespace driving
 	{
 		extern const float gOne;
+		extern const float gHalf;
+		extern const float gTwo;
 	}
 }
 
@@ -243,6 +245,90 @@ namespace proto
 			}
 		}
 	}
+
+	// FUNCTION: ENGINE 0x102D9BF0
+	// NONMATCHING: the fade arithmetic and the order of the calls are the engine's; the engine clamps in other registers
+	// and keeps the shown levels' fades in x87 temporaries (about 50 %)
+#ifdef NONMATCHING
+	void LODRenderBehaviour::UpdateForced(float dt)
+	{
+		float step = gLODRanges[distanceLevel].rate * dt;
+		if (forcedFade >= engine::driving::gOne)
+		{
+			flags &= 0xFB;
+			shownFirst->drawable.SetUnknownBC(1.0f);
+			if (shownFirst != shownLast)
+			{
+				shownLast->drawable.SetUnknownBC(1.0f);
+			}
+			if (IsActive())
+			{
+				HideLevels(forcedFirst, forcedLast);
+			}
+			else
+			{
+				forcedFirst->Hide();
+				forcedLast->Hide();
+			}
+			return;
+		}
+		if (forcedFade == 0.0f)
+		{
+			if (IsActive())
+			{
+				ShowLevels(shownFirst, shownLast);
+			}
+			else
+			{
+				shownFirst->Hide();
+				shownLast->Hide();
+			}
+		}
+		float out = (forcedFade - engine::driving::gHalf) * engine::driving::gTwo;
+		if (out < 0.0f)
+		{
+			out = 0.0f;
+		}
+		if (out - engine::driving::gOne >= 0.0f)
+		{
+			out = engine::driving::gOne;
+		}
+		float in = (engine::driving::gHalf - forcedFade) * engine::driving::gTwo;
+		float outShown = (engine::driving::gOne - out) * fadeInPosition * fadeInScale;
+		if (in < 0.0f)
+		{
+			in = 0.0f;
+		}
+		if (in - engine::driving::gOne >= 0.0f)
+		{
+			in = engine::driving::gOne;
+		}
+		float inShown = (1.0f - in) * fadeInPosition * fadeInScale;
+		shownFirst->drawable.SetUnknownBC(inShown);
+		forcedFirst->drawable.SetUnknownBC(outShown);
+		LODLevel* last = shownLast;
+		if (forcedLast == last)
+		{
+			if (inShown < outShown)
+			{
+				inShown = outShown;
+			}
+			forcedLast->drawable.SetUnknownBC(inShown);
+		}
+		else
+		{
+			if (shownFirst != last)
+			{
+				last->drawable.SetUnknownBC(inShown);
+			}
+			if (forcedFirst != forcedLast)
+			{
+				forcedLast->drawable.SetUnknownBC(outShown);
+			}
+		}
+		forcedFade = step + forcedFade;
+	}
+#endif
 
 	// A message of the shader palette's: the byte it points at takes the number of entries and the picked entry
 	struct PaletteIndexMessage : public engine::Message
