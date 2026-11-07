@@ -2,6 +2,7 @@
 // node types, their pins and their properties, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/audio/drivers.h"
 #include "code/mgraph/nodes.h"
+#include "code/mgraph/pins.h"
 #include "code/mgraph/listnodes.h"
 #include "code/om/delegate.h"
 #include "code/om/invoke.h"
@@ -5979,4 +5980,377 @@ namespace mgraph
 	template void* mgraph::NodeType<mgraph::ListEntry<mgraph::EnvelopeData> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10AECE80
 	template void* mgraph::NodeType<mgraph::Switch<mgraph::Packet<mgraph::EnvelopeData> > >::operator new(size_t);
+
+	// The release of a data type: destroys it and forgets it and the packet reflection the pins share
+	template<class P> void PinDataType<P>::Release()
+	{
+		PinDataTypeBase* type = PinDataTypeCache<P>::type;
+		if (type != 0)
+		{
+			delete type;
+		}
+		PinDataTypeCache<P>::type = 0;
+		GraphMetaTypeCache<P>::type = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10AD8140
+	template char const* mgraph::PinDataType<mgraph::Packet<bool> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8150
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD81F0
+	template char const* mgraph::PinDataType<mgraph::Packet<float> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8200
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD82A0
+	template char const* mgraph::PinDataType<mgraph::Packet<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD82B0
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8350
+	template char const* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8360
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8400
+	template char const* mgraph::PinDataType<mgraph::Packet<String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8410
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD84B0
+	template char const* mgraph::PinDataType<mgraph::Packet<Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD84C0
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8530
+	template char const* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8540
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD85E0
+	template char const* mgraph::PinDataType<mgraph::Packet<Complex> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD85F0
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD8690
+	template char const* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD86A0
+	template char const* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AE2500
+	template void mgraph::PinDataType<mgraph::Packet<bool> >::Release();
+	// FUNCTION: ENGINE 0x10AE2530
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE25A0
+	template void mgraph::PinDataType<mgraph::Packet<float> >::Release();
+	// FUNCTION: ENGINE 0x10AE25D0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2640
+	template void mgraph::PinDataType<mgraph::Packet<unsigned int> >::Release();
+	// FUNCTION: ENGINE 0x10AE2670
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE26E0
+	template void mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::Release();
+	// FUNCTION: ENGINE 0x10AE2710
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2780
+	template void mgraph::PinDataType<mgraph::Packet<String> >::Release();
+	// FUNCTION: ENGINE 0x10AE27B0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2820
+	template void mgraph::PinDataType<mgraph::Packet<Vector> >::Release();
+	// FUNCTION: ENGINE 0x10AE2850
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE28C0
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::Release();
+	// FUNCTION: ENGINE 0x10AE28F0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2960
+	template void mgraph::PinDataType<mgraph::Packet<Complex> >::Release();
+	// FUNCTION: ENGINE 0x10AE2990
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2A00
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::Release();
+	// FUNCTION: ENGINE 0x10AE2A30
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Release();
+	// FUNCTION: ENGINE 0x10AE2C30
+	template void* mgraph::PinDataType<mgraph::Packet<bool> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2C50
+	template mgraph::PinDataType<mgraph::Packet<bool> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE2C90
+	template mgraph::PinDataType<mgraph::Packet<bool> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE2CB0
+	template void mgraph::PinDataType<mgraph::Packet<bool> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE2D10
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2D30
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE2D60
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE2D80
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE2EC0
+	template void* mgraph::PinDataType<mgraph::Packet<float> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2EE0
+	template mgraph::PinDataType<mgraph::Packet<float> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE2F20
+	template mgraph::PinDataType<mgraph::Packet<float> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE2F40
+	template void mgraph::PinDataType<mgraph::Packet<float> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE2FA0
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2FC0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE2FF0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3010
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3150
+	template void* mgraph::PinDataType<mgraph::Packet<unsigned int> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3170
+	template mgraph::PinDataType<mgraph::Packet<unsigned int> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE31A0
+	template mgraph::PinDataType<mgraph::Packet<unsigned int> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE31C0
+	template void mgraph::PinDataType<mgraph::Packet<unsigned int> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3230
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3250
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3280
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE32A0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE33E0
+	template void* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3400
+	template mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3430
+	template mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3450
+	template void mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE34C0
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE34E0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3510
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3530
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3670
+	template void* mgraph::PinDataType<mgraph::Packet<String> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3690
+	template mgraph::PinDataType<mgraph::Packet<String> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE36C0
+	template mgraph::PinDataType<mgraph::Packet<String> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE36E0
+	template void mgraph::PinDataType<mgraph::Packet<String> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3750
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3770
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE37A0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE37C0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3900
+	template void* mgraph::PinDataType<mgraph::Packet<Vector> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3920
+	template mgraph::PinDataType<mgraph::Packet<Vector> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3960
+	template mgraph::PinDataType<mgraph::Packet<Vector> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3980
+	template void mgraph::PinDataType<mgraph::Packet<Vector> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE39E0
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3A00
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3A30
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3A50
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3B70
+	template void* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3B90
+	template mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3C00
+	template mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3C20
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3C60
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AE3CC0
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3CE0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3D10
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3D30
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3E70
+	template void* mgraph::PinDataType<mgraph::Packet<Complex> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3E90
+	template mgraph::PinDataType<mgraph::Packet<Complex> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3EC0
+	template mgraph::PinDataType<mgraph::Packet<Complex> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3EE0
+	template void mgraph::PinDataType<mgraph::Packet<Complex> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE3F50
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE3F70
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE3FA0
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE3FC0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE4100
+	template void* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE4120
+	template mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE4150
+	template mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE4170
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AE41E0
+	template void* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE4200
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::PinDataType(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AE4230
+	template mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::~PinDataType();
+	// FUNCTION: ENGINE 0x10AE4250
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
+	// FUNCTION: ENGINE 0x10AF3C00
+	template void mgraph::PinDataType<mgraph::Packet<bool> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3C60
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<bool> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF3C80
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<bool> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF3CA0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<bool> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF3CC0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF3D20
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF3D40
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF3D60
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<bool,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF3FF0
+	template void mgraph::PinDataType<mgraph::Packet<float> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4050
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<float> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4070
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<float> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4090
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<float> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF40B0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4110
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4130
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4150
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4320
+	template void mgraph::PinDataType<mgraph::Packet<unsigned int> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4380
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned int> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF43A0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned int> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF43C0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned int> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF43E0
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4440
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4460
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4480
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4650
+	template void mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF46B0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF46D0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF46F0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<unsigned __int64> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4710
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4770
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4790
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF47B0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4980
+	template void mgraph::PinDataType<mgraph::Packet<String> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF49E0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<String> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4A00
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<String> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4A20
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<String> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4A40
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4AA0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4AC0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4AE0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4D70
+	template void mgraph::PinDataType<mgraph::Packet<Vector> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4DD0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Vector> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4DF0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Vector> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4E10
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Vector> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF4E30
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF4E90
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF4EB0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF4ED0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF5160
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF51C0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF51E0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::TriggerData> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF5200
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5260
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF5280
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF52A0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF5470
+	template void mgraph::PinDataType<mgraph::Packet<Complex> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF54D0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Complex> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF54F0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Complex> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF5510
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<Complex> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF5530
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5590
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF55B0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF55D0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF57A0
+	template void mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF5800
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF5820
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF5840
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<mgraph::EnvelopeData> >::GetPropertyNodeType();
+	// FUNCTION: ENGINE 0x10AF5860
+	template void mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Create(Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10AF58C0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetInletType();
+	// FUNCTION: ENGINE 0x10AF58E0
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetOutletType();
+	// FUNCTION: ENGINE 0x10AF5900
+	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPropertyNodeType();
 }

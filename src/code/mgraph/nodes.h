@@ -537,41 +537,91 @@ namespace mgraph
 		}
 	}
 
-	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet): it
-	// names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names guessed)
+	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet, 0x20 bytes,
+	// 8-aligned): it names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names
+	// guessed). It sits in a registry under its name (the tree node is the last member).
 	class PinDataTypeBase
 	{
 	public:
-		virtual ~PinDataTypeBase();
+		PinDataTypeBase(const om::ClassName& newName) :
+			name(newName)
+		{
+		}
+		virtual ~PinDataTypeBase()
+		{
+		}
 		virtual om::MetaTypeBase* GetPacketType() = 0;
 		virtual NodeTypeBase* GetPropertyNodeType() = 0;
 		virtual NodeTypeBase* GetInletType() = 0;
 		virtual NodeTypeBase* GetOutletType() = 0;
+
+		om::ClassName name;  // 8
+		om::TreeNode treeNode;  // 0x10: the data type in the registry of the data types
 	};
+
+	// 0x10AD31E0 / 0x10AD2ED0: enter a data type in the registry, and take it out of it again (names guessed)
+	void RegisterPinDataType(PinDataTypeBase* dataType);
+	void UnregisterPinDataType(PinDataTypeBase* dataType);
+
+	// The static in which the engine keeps the data type made for a packet type (one word per packet type, name guessed)
+	template<class P> struct PinDataTypeCache
+	{
+		static PinDataTypeBase* type;
+	};
+
 	template<class P> class PinDataType : public PinDataTypeBase
 	{
 	public:
-		PinDataType()
+		PinDataType(const om::ClassName& newName) :
+			PinDataTypeBase(newName)
 		{
+			RegisterPinDataType(this);
 		}
-		virtual ~PinDataType();
+		virtual ~PinDataType()
+		{
+			UnregisterPinDataType(this);
+		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
 		}
 		virtual NodeTypeBase* GetPropertyNodeType()
 		{
-			return NodeType<PropertyNode<P> >::Get();
+			return FindCachedNodeType<PropertyNode<P> >();
 		}
 		virtual NodeTypeBase* GetInletType()
 		{
-			return NodeType<Inlet<P> >::Get();
+			return FindCachedNodeType<Inlet<P> >();
 		}
 		virtual NodeTypeBase* GetOutletType()
 		{
-			return NodeType<Outlet<P> >::Get();
+			return FindCachedNodeType<Outlet<P> >();
+		}
+		// Makes the data type of the packet type P and keeps it (names guessed)
+		static void Create(const om::ClassName& newName)
+		{
+			PinDataTypeCache<P>::type = new PinDataType(newName);
+		}
+		// Destroys the data type of P and forgets it together with the packet reflection the pins share (defined where the
+		// pins are known)
+		static void Release();
+		OM_ALLOCATION(PinDataType);
+
+	private:
+		template<class N> static NodeTypeBase* FindCachedNodeType()
+		{
+			NodeTypeBase*& cache = NodeTypeCache<N>::type;
+			if (cache == 0)
+			{
+				cache = FindNodeType(typeid(N));
+			}
+			return cache;
 		}
 	};
+	template<class P> const char* PinDataType<P>::AllocationTag()
+	{
+		return "";
+	}
 }
 
 #endif
