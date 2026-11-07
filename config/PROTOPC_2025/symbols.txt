@@ -101082,3 +101082,4 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?Read@TextTree@om@@QAE_NPAVTextScanner@2@PAUStreamContext@2@@Z = 0x105B90D0 ; function size:0x45 | om::TextTree::Read(TextScanner *,StreamContext *) (name guess)
 ?Read@TextTree@om@@QAE_NPAVStream@2@PAUStreamContext@2@@Z = 0x105B9120 ; function size:0x35 | om::TextTree::Read(Stream *,StreamContext *) (name guess)
 ?Write@TextTree@om@@QAE_NPAVStream@2@PAUStreamContext@2@@Z = 0x105B9160 ; function size:0x83 | om::TextTree::Write (name guess)
+?ToSnakeCase@om@@YA?AVString@1@ABV21@@Z = 0x105B45D0 ; function size:0xD7 | om::ToSnakeCase (name guess)
