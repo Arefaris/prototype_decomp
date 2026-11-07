@@ -102926,3 +102926,6 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ??1?$StringC@$0IA@@container@@UAE@XZ = 0x104D9A80 ; function size:0x7 | container::StringC<128>::~StringC<128> (name guess)
 ??_R0?AV?$FEHudVariableTemplate@VSymbolPathStoragePolicy_FixedLength@proto@@$00@proto@@@8 = 0x1109B7B0 ; data size:0x8 | proto::FEHudVariableTemplate<class proto::SymbolPathStoragePolicy_FixedLength,1> RTTI type descriptor
 ??_7?$FEHudVariableTemplate@VSymbolPathStoragePolicy_FixedLength@proto@@$00@proto@@6B@ = 0x10E17648 ; data size:0x8 | proto::FEHudVariableTemplate<class proto::SymbolPathStoragePolicy_FixedLength,1>::vftable
+?SetString@FlashValue@proto@@QAEXPBD@Z = 0x104C22A0 ; function size:0x29 | proto::FlashValue::SetString (name guess)
+?SetWideString@FlashValue@proto@@QAEXPB_W@Z = 0x104C2250 ; function size:0x10 | proto::FlashValue::SetWideString (name guess)
+??0FlashValue@proto@@QAE@XZ = 0x104C2270 ; function size:0x9 | proto::FlashValue::FlashValue (name guess)
