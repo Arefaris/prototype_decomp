@@ -15,6 +15,12 @@ namespace core
 namespace pure3d
 {
 	class Texture;
+	// 0x10715980: the size of the shadow map of a mode (the width and the height; the number of cascades, four when
+	// it is -1, scales the height of the first three modes; the last two modes take 0x800 square whatever is said)
+	void GetShadowMapSize(int mode, int* width, int* height, int unused, int cascades);
+	// 0x10715A70: the memory the shadow map of a mode takes (four bytes a pixel, to the next 64 KB; name guess)
+	int GetShadowMapMemory(int mode);
+
 	class ShadowRenderManager
 	{
 	public:

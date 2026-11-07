@@ -1,5 +1,7 @@
 // pure3d::ShadowRenderManager (code/pure3d/shadows/implementation/shadowrendermanager.cpp; 0x10714560 - 0x10717900).
 // Only the pieces the passes use are reconstructed. Names are guesses.
+#include <math.h>
+
 #include "code/core/criticalsection.h"
 #include "code/core/debug.h"
 #include "code/core/heap.h"
@@ -24,6 +26,14 @@ namespace engine
 namespace proto
 {
 	extern const float gTen;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gHalf;
+	}
 }
 
 namespace pure3d
@@ -409,6 +419,46 @@ namespace pure3d
 	{
 		shadowMap = (pddiSurface*)value;
 		context->UpdateRenderParams();
+	}
+
+	// FUNCTION: ENGINE 0x10715980
+	void GetShadowMapSize(int mode, int* width, int* height, int unused, int cascades)
+	{
+		if (cascades == -1)
+		{
+			cascades = 4;
+		}
+		unsigned int rows = (unsigned int)ceil((double)((float)cascades * engine::driving::gHalf));
+		switch (mode)
+		{
+		case 0:
+			*width = 0x800;
+			*height = rows << 10;
+			break;
+		case 1:
+			*width = 0x400;
+			*height = rows << 9;
+			break;
+		case 2:
+			*width = 0x200;
+			*height = rows << 8;
+			break;
+		case 3:
+			*width = 0x400;
+			*height = 0x400;
+			break;
+		}
+		*width = 0x800;
+		*height = 0x800;
+	}
+
+	// FUNCTION: ENGINE 0x10715A70
+	int GetShadowMapMemory(int mode)
+	{
+		int width = 0;
+		int height = 0;
+		GetShadowMapSize(mode, &width, &height, 2, -1);
+		return (width * height * 4 + 0xFFFE & 0xFFFF0000) + 0x10000;
 	}
 
 	// FUNCTION: ENGINE 0x10715B00
