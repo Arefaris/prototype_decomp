@@ -74,6 +74,26 @@ namespace proto
 			void RegisterSpawnGibTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// 0x10117A80 / 0x10117AC0: this unit's copies of the helpers that store a reference counted object and release one (name guesses)
+			void AssignRefCountedSpawnGib(core::IRefCount** slot, core::IRefCount* value);
+			void SafeReleaseRefSpawnGib(core::IRefCount*& object);
+
+			// RTTI: proto::fightitems::motion::SpawnGibAction (9 vftable slots, 0x30 bytes): spawns the gibs of an object
+			class SpawnGibAction : public fight::Action
+			{
+			public:
+				// 0x10117CC0
+				SpawnGibAction(SpawnGibTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner);
+				// 0x10117C10
+				virtual ~SpawnGibAction();
+
+				// vftable slot 5 (0x10117D80, the engine's)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<SpawnGibTrack> link;  // +0x20
+				core::IRefCount* owner;  // +0x2C
+			};
 
 			// ---- actions end
 		}

@@ -223,6 +223,47 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10117A80
+			void AssignRefCountedSpawnGib(core::IRefCount** slot, core::IRefCount* value)
+			{
+				if (value != 0)
+				{
+					value->AddRef();
+				}
+				if (*slot != 0)
+				{
+					(*slot)->Release();
+				}
+				*slot = value;
+			}
+
+			// FUNCTION: ENGINE 0x10117AC0
+			void SafeReleaseRefSpawnGib(core::IRefCount*& object)
+			{
+				if (object != 0)
+				{
+					object->Release();
+					object = 0;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10117CC0
+			SpawnGibAction::SpawnGibAction(SpawnGibTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newOwner) : fight::Action(0xE00), target(newTarget), link(newTrack), owner(0)
+			{
+				AssignRefCountedSpawnGib(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10117C10
+			SpawnGibAction::~SpawnGibAction()
+			{
+				SafeReleaseRefSpawnGib(owner);
+			}
+
+			// FUNCTION: ENGINE 0x10118940
+			fight::Action* SpawnGibTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new SpawnGibAction(this, engine::GetObjectHandle(owner), AsActionOwner(owner));
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<SpawnGibTrack>;
