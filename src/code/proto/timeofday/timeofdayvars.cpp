@@ -5,8 +5,15 @@
 #include "code/math/vector.h"
 #include "code/math/vector2.h"
 
+namespace container
+{
+	// The arrays of this unit's objects with all their members, as the unit's template instances (the engine's copies of the
+	// variation array's functions call the key arrays' and the rigs' special members)
+	template class ArrayDynamic<proto::TimeOfDayVariation, AllocatorNew>;
+}
+
 namespace proto
-	{
+{
 #define PROTO_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 

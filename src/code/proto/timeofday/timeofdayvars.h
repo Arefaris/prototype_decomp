@@ -171,8 +171,8 @@ namespace proto
 	{
 	public:
 		virtual ~TimeOfDayVarGroup();
-		virtual bool Slot3();
-		virtual bool Slot4();
+		virtual void Slot3(int unused);
+		virtual bool IsReady();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
@@ -187,8 +187,8 @@ namespace proto
 	public:
 		TimeOfDayVars();
 		virtual ~TimeOfDayVars();
-		virtual bool Slot3();
-		virtual bool Slot4();
+		virtual void Slot3(int unused);
+		virtual bool IsReady();
 
 		// The lengths of the day (the engine's order)
 		float GetDawnTime();
@@ -286,14 +286,11 @@ namespace content
 	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
 	PROTO_KEY_ARRAY_HELPER_END
 
+	// Insert and Erase of the variations are left to the engine (the compile expands the rigs' copies differently)
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVariation)
-		static T& Default()
-		{
-			static T sDefault;
-			return sDefault;
-		}
-	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
-	PROTO_KEY_ARRAY_HELPER_END
+	PROTO_KEY_ARRAY_HELPER_INSERT_DECL
+	PROTO_KEY_ARRAY_HELPER_ERASE_DECL
+	PROTO_KEY_ARRAY_HELPER_TAIL
 
 	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayLightInfo)
 		static T& Default()
