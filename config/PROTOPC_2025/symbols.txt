@@ -102692,3 +102692,12 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_7InputPinBase@mgraph@@6B@ = 0x10EA5800 ; data size:0x10 | const mgraph::InputPinBase::`vftable'
 ??_GConcreteInputPinBase@mgraph@@UAEPAXI@Z = 0x10AD1CA0 ; function size:0x1E | public: virtual void * __thiscall mgraph::ConcreteInputPinBase::`scalar deleting destructor'(unsigned int) (name guess)
 ??_7ConcreteInputPinBase@mgraph@@6B@ = 0x10EA5814 ; data size:0x20 | const mgraph::ConcreteInputPinBase::`vftable'
+?MakeConnection@ConnectionData@mgraph@@QAEPAVGraphConnectionBase@2@PAVGraph@2@@Z = 0x10AD3A70 ; function size:0x6A | public: class mgraph::GraphConnectionBase * __thiscall mgraph::ConnectionData::MakeConnection(class mgraph::Graph *) (name guess)
+??4MemoryBufferCopy@mgraph@@QAEAAU01@ABU01@@Z = 0x10AD3AE0 ; function size:0x46 | public: struct mgraph::MemoryBufferCopy & __thiscall mgraph::MemoryBufferCopy::operator=(struct mgraph::MemoryBufferCopy const &) (name guess)
+??0ConnectionData@mgraph@@QAE@ABV01@@Z = 0x10AD3B30 ; function size:0xA7 | public: __thiscall mgraph::ConnectionData::ConnectionData(class mgraph::ConnectionData const &) (name guess)
+?FindConnection@Graph@mgraph@@QAEPAVGraphConnectionBase@2@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@000@Z = 0x10AD3D00 ; function size:0x9B | public: class mgraph::GraphConnectionBase * __thiscall mgraph::Graph::FindConnection(class om::Name<struct om::CaseSensitive64BitKey> const &,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::Name<struct om::CaseSensitive64BitKey> const &,class om::Name<struct om::CaseSensitive64BitKey> const &) (name guess)
+?FindConnection@ConnectionData@mgraph@@QAEPAVGraphConnectionBase@2@PAVGraph@2@@Z = 0x10AD3DA0 ; function size:0x1C | public: class mgraph::GraphConnectionBase * __thiscall mgraph::ConnectionData::FindConnection(class mgraph::Graph *) (name guess)
+?ReadBinary@ConnectionData@mgraph@@UAE_NPAVBinaryStream@om@@@Z = 0x10AD3DC0 ; function size:0x5A | public: virtual bool __thiscall mgraph::ConnectionData::ReadBinary(class om::BinaryStream *) (name guess)
+?ReadText@ConnectionData@mgraph@@UAE_NPBVTextValue@om@@@Z = 0x10AD3E20 ; function size:0x18E | public: virtual bool __thiscall mgraph::ConnectionData::ReadText(class om::TextValue const *) (name guess)
+??_7ConnectionData@mgraph@@6B@ = 0x10EA4760 ; data size:0x8 | const mgraph::ConnectionData::`vftable'
+??_R0?AVConnectionData@mgraph@@@8 = 0x111F694C ; data size:0x8 | class mgraph::ConnectionData `RTTI Type Descriptor' RTTI type descriptor
