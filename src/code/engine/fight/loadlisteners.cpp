@@ -37,6 +37,48 @@ namespace fight
 		slot = value;
 	}
 
+	// FUNCTION: ENGINE 0x105A5380
+	Branch* TrackRegistry::FindBranchByPath(const char* path, bool* found)
+	{
+		if (found != 0)
+		{
+			*found = false;
+			core::CriticalSectionEnter(lockA);
+		}
+		Branch* branch = branches->FindInTree(path);
+		if (branch != 0)
+		{
+			if (found != 0)
+			{
+				*found = true;
+			}
+			return branch;
+		}
+		if (found != 0)
+		{
+			core::CriticalSectionLeave(lockA);
+		}
+		unsigned int length = core::StrLen(path);
+		core::CriticalSectionEnter(lockB);
+		Branch* item = (Branch*)pending;
+		do
+		{
+			if (item == 0)
+			{
+				break;
+			}
+			unsigned int prefix = core::StrLen("/");
+			if (core::StrNICmp("/", path, prefix) == 0 && (int)length > (int)(prefix + 1))
+			{
+				branch = item->FindInTree(path + prefix);
+			}
+			item = (Branch*)((TrackRegistry::PendingItem*)item)->next;
+		}
+		while (branch == 0);
+		core::CriticalSectionLeave(lockB);
+		return branch;
+	}
+
 	// FUNCTION: ENGINE 0x105A5C90
 	// NONMATCHING: the engine loads both halves of the key before it stores the first (85.9 %)
 #ifdef NONMATCHING

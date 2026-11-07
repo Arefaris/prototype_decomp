@@ -1135,6 +1135,10 @@ namespace fight
 		void AddPending(PendingItem* item);
 		void RemovePending(PendingItem* item, int unused);
 
+		// 0x105A5380: the branch a path names, looked for in the tree of the context first and then in the trees that wait
+		// to be loaded (the flag is set when the first lookup found it; name guess)
+		Branch* FindBranchByPath(const char* path, bool* found);
+
 		// 0x105A59D0 / 0x105A5990 / 0x105A5950: the track / condition / branch factory of a name (null when there is none)
 		TrackFactory* FindTrackFactory(const Name& key);
 		ConditionFactory* FindConditionFactory(const Name& key);

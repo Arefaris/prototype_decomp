@@ -96390,3 +96390,4 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?AtomicRead@audio@@YAJPCJ@Z = 0x105BA640 ; function size:0x16 | audio::AtomicRead (name guess)
 ?AtomicExchange@audio@@YAJPCJPBJ@Z = 0x105BA660 ; function size:0x15 | audio::AtomicExchange (name guess)
 ?Peek@EventQueue@audio@@QAEPAEXZ = 0x105BA6D0 ; function size:0x34 | audio::EventQueue::Peek (name guess)
+?FindBranchByPath@TrackRegistry@fight@@QAEPAVBranch@2@PBDPA_N@Z = 0x105A5380 ; function size:0xD5 | fight::TrackRegistry::FindBranchByPath (name guess)
