@@ -51,8 +51,8 @@ namespace mgraph
 		void* unknown34;
 		unsigned short unknown38;
 		unsigned short unknown3A;
-		void* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
-		void* lastConnection;  // 0x40
+		NodeLink* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
+		NodeLink* lastConnection;  // 0x40
 		NodeTree nodes;  // 0x44
 		void* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
 		void* lastAbstraction;  // 0x5C
