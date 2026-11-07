@@ -7730,3 +7730,42 @@ marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to share
 - `engine/fight/playbackset.h`, `playbackbranches.cpp`: `PlaybackSet` and `PlaybackNode` (constructors, properties, slots 10 / 11 / 14, the factories). The destructor of `PlaybackNode` (0x108B1010) stays with the engine: it leaves out the stores of the vftable that ours makes; `PlaybackNode::Slot12` 0x108B0CD0 is not done; `RegisterProperties` of both are NONMATCHING (shrink-wrap).
 - Shared header changes: `inputsystem.h` (the types above), `trackfactory.h` (`PropertyTypePropertyList`'s constructor and type, `PropertyFloat<T>`, `ObjectOf` in three property templates), `monkeycontrollermanager.h`, `defaultcontrollerhandler.cpp` (the view class is gone), `playbackset.h`.
 - Not done and why: `GameDBStorage` (0x108A56C0 - 0x108A5F30: its slots call the profile storage messages and packers of other units), `MessageRouter::InitListeners` (inlined array operations), the stream package states (0x108A6140 - 0x108A6B80: calls into the world stream manager that nothing names), `FMVState` (0x108A0520 - 0x108A0890), the collision enable actions' `FindObject` (0x108ABDE0 / 0x108ABEE0: the engine keeps the loop result in a stack slot), `ShaderAnimationAction`, `HealthAction`, the effect LOD actions, the motion trail (0x108BD650 - 0x108BEFxx) and the online manager (0x108BF430 on). About 780 of the remaining functions are 1 - 20 byte kept copies of container, `om::` and `core::Link` members that no class names.
+
+## pure3d 0x10700000 - 0x10720000, third pass: particle system, pass factories, shader forwarders, shadow manager (sn-ed)
+- **ParticleSystem / ParticleRenderer / PSAsyncTaskCallback** (effects/particlesystem.h, effects/src/particlesystem.cpp):
+  the primitive a particle chunk loads as (renderer +0x1C, the box +0x20, the centre +0x38). The renderer reference is a
+  member with a constructor (the copy constructor stores its zero through the member's address) and the centre a member
+  that zeroes its first three components. `Primitive(const Primitive&)` (0x106F2F60) is declared in primitive.h.
+- **ParticleSystemState**: the reference helper copies of the unit (SharedDetails, the three channel kinds, the generator,
+  the update controller, the parent state, the vertex buffer: 0x1070A4E0 - 0x1070A8E0), the accessors (0x10709C00 - 0x10709F10,
+  0x1070AEB0 - 0x1070AF70), `SetParent`, and the four span getters 0x1070BD00 - 0x1070BE20 (a conditional expression of the parent's
+  call and a constructed `Span`: the result goes through a local and is copied to the returned slot). `unknown3F8` is a
+  `ShaderAnimationController*` and `unknown3FC` a `ParticleController*` (the destructor releases them as those).
+  `pddiBaseContext`'s second vertex buffer creator (0x1061B650) answers none and is declared in dxcontext.h.
+- **particles::MultiArray<57> / AttributeData<57> / ParticleData** (effects/multiarray.h, particledata.h): the constructors and the
+  destructor body are inline (the derived constructor contains the base one), `Free` and the derived constructor are not (an
+  out-of-class member is not inlined at /Ob1). The span getters return `Span` by value (a hidden return slot: the engine
+  returns the slot in eax). ParticleData is a vftable and an AttributeData at +4; the state keeps one at +0xE4.
+  `ParticleUpdateData`'s layout in particledata.h does not match its constructor 0x1070B620 (an AttributeData at +8); not touched.
+- **ProtoRenderScheme** (protorenderscheme.h, pass/src/protorenderscheme.cpp): the nineteen pass factories are one member template
+  `CreatePass<Pass, Description>` (find the parent by name, make the pass, keep it, hang it below the parent; a failed registration deletes
+  the pass and returns the cleared variable), `CreateRootPass`, `ViewPassDesc`'s constructor and the x87 form of
+  `pddiColour::FromColour128` (a float to `unsigned int` conversion inline). Ten pass classes were four bytes short of the engine's
+  object (the factory pushes the size): their headers carry a four-byte tail member. `FindPass` (0x107195D0) and `RegisterPass` /
+  `RegisterRootPass` (0x1074DB90 / 0x1074DBE0) are declared and mapped; the scheme's constructor (0x1071A000, with the pass
+  descriptions on the stack) and the tree helpers 0x10719130 - 0x10719570 (the tree is keyed by a `ContextKey`) are not done.
+- **Shader** (loaders/shaderloader.cpp): the forwarders to the device shader (0x107049D0, 0x107049E0, 0x10704B40), the template
+  accessors, the destructor and the input name map's instances (Find twice, Insert, Clear, the comparators and the node deleter).
+  `Shader::Init` (0x10706100) and the constructors (0x107064A0 / 0x10706500) are not done: the engine loads the constant 0.5 for
+  the draw parameters' first float before the vftable store, which no member initialiser reproduces.
+- **Skin**: the body of the skinning task (`&&` of the two stream flags, then `else if` on the first: the second test of the flag is kept),
+  `GetIndexDescription` and `~SkinState` (the empty `AsyncTaskJob` destructor 0x10B7F990 is declared). The constructor 0x1071FF00 is
+  NONMATCHING (89.8 %: the engine fetches the allocator's vtable slot before it works out the block size).
+- **ShadowRenderManager**: the shadow map size and memory helpers (0x10715980, 0x10715A70, a switch whose cases fall into the common 0x800
+  stores), the device states (0x10715940, 0x10715B00, 0x10715CD0) and the shutdown (0x107168B0). Not done: 0x10715AD0 (the surface goes
+  onto the stack before the context is loaded), the destructor 0x10715C00 (the type of the reference at +0xC), `Setup`'s helper 0x10715D90.
+- Not done, with the reason: `CountParticles` 0x1070C560 (the compiler unrolls and allocates the registers differently; 80 %), the
+  setters of the shared attribute arrays 0x1070BE80 - 0x1070C210, the state's constructors, destructor and clones (0x1070D540,
+  0x1070DEE0, 0x1070E060, 0x1070EA40, 0x1070EA90: the type of the reference at +0x474 and the scratch object at +0x3B4 have no name),
+  the scene (0x5800 bytes), the tiny container instances between 0x10709DB0 and 0x1070B650, 0x10710D00 - 0x10712110 and 0x10717A30 -
+  0x10718390 (their element types are not named anywhere).
