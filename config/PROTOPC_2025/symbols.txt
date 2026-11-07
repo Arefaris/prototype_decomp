@@ -104244,3 +104244,9 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 
 ??$QueueRenderEvent@VFlashMovieHandler@render@engine@@V?$StringC@$0IA@@container@@HHHH_N@render@engine@@YAXP6AXVFlashMovieHandler@01@V?$StringC@$0IA@@container@@HHHH_N@Z01HHHH2@Z = 0x10886090 ; function size:0xB0 | engine::render::QueueRenderEvent for the Flash movie (name guess)
 ?ReleaseMovie@render@engine@@YAXVFlashMovieHandler@12@@Z = 0x10886410 ; function size:0x13 | engine::render::ReleaseMovie (name guess)
+?SetMovieFlagB@render@engine@@YAXVFlashMovieHandler@12@_N@Z = 0x10885590 ; function size:0x3F | engine::render::SetMovieFlagB (name guess)
+?gFlashMovieTable@render@engine@@3PAVFlashMovieTable@12@A = 0x11316E3C ; data size:0x4 | engine::render::gFlashMovieTable: the Flash movies by handle (name guess)
+?Unknown10964000@FlashMovie@render@engine@@QAEXM@Z = 0x10964000 ; function size:0x89 | engine::render::FlashMovie::Unknown10964000 (name unknown)
+?Get@FlashRenderer@render@engine@@SAPAV123@XZ = 0x109602F0 ; function size:0x6 | engine::render::FlashRenderer::Get (name guess)
+?Unknown10960E60@FlashRenderer@render@engine@@QAEXPAVFlashMovie@23@@Z = 0x10960E60 ; function size:0x4B | engine::render::FlashRenderer::Unknown10960E60 (name unknown)
+?Free@FlashMovieTable@render@engine@@QAEXPBVFlashMovieHandler@23@@Z = 0x10884FD0 ; function size:0x56 | engine::render::FlashMovieTable::Free (name guess)

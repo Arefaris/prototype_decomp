@@ -30,6 +30,52 @@ namespace engine
 			void (*)(FlashMovieHandler, container::StringC<128>, int, int, int, int, bool), FlashMovieHandler,
 			container::StringC<128>, int, int, int, int, bool);
 
+		FlashMovieTable* gFlashMovieTable;
+
+		// FUNCTION: ENGINE 0x108854E0
+		void DestroyMovie(FlashMovieHandler movie)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				FlashMovie* object = *slot;
+				FlashRenderer::Get()->Unknown10960E60(object);
+				FlashMovieTable* table = gFlashMovieTable;
+				*slot = 0;
+				table->Free(&movie);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x10885540
+		void SetMovieFloat(FlashMovieHandler movie, float value)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				(*slot)->Unknown10964000(value);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x10885590
+		void SetMovieFlagB(FlashMovieHandler movie, bool value)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				(*slot)->unknown9D = value;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x108855D0
+		void SetMovieFlag(FlashMovieHandler movie, bool value)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				(*slot)->unknown9E = value;
+			}
+		}
+
 		// FUNCTION: ENGINE 0x10886410
 		void ReleaseMovie(FlashMovieHandler movie)
 		{
