@@ -138,7 +138,9 @@ namespace pure3d
 		}
 
 		unsigned char* flags;
-		unsigned char unknown4[0x14];
+		// The distance of the part from the eye, less its radius (0x10754BD0 sets it, the passes sort by it)
+		float distance;
+		unsigned char unknown8[0x10];
 		float unknown18;
 		float unknown1C;
 		visibility::Client client;
