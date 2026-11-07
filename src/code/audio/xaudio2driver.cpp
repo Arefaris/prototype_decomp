@@ -7,6 +7,10 @@
 
 #pragma function(memcpy)
 
+// The ole32 import, declared like the SDK does; the relinker's import libraries name the slot without the decoration
+extern "C" __declspec(dllimport) void __stdcall CoUninitialize();
+#pragma comment(linker, "/alternatename:__imp__CoUninitialize@0=__imp__CoUninitialize")
+
 namespace audio
 {
 	// The settings of a thread that may run on any processor
@@ -391,4 +395,46 @@ namespace audio
 			SetUserData(data);
 		}
 	}
+
+	// FUNCTION: ENGINE 0x10AC28E0
+	const char* XAudio2RendererDriver::AllocationTag()
+	{
+		return "";
+	}
+
+	// FUNCTION: ENGINE 0x10AC2140
+	// NONMATCHING: the engine passes the address of the name's temporary, ours the constructor's result in eax (65.4 %)
+#ifdef NONMATCHING
+	// The temporary that stays alive for the whole call of the base constructor
+	static __forceinline const om::String& Keep(const om::String& text)
+	{
+		return text;
+	}
+	XAudio2RendererDriverModel::XAudio2RendererDriverModel() :
+		RendererDriverModel(Keep(om::String("XAudio2", false)))
+	{
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AC31B0
+	// NONMATCHING: shrink-wrap: the engine saves esi before the test of the cached type (91 %)
+#ifdef NONMATCHING
+	void XAudio2RendererDriverModel::Slot1()
+	{
+		om::MetaTypeBase*& cache = om::MetaTypeCache<XAudio2RendererDriver>::type;
+		if (cache == 0)
+		{
+			cache = om::FindMetaType(typeid(XAudio2RendererDriver));
+		}
+		om::MetaTypeBase* type = cache;
+		if (om::ThreadSafeRefCount::Release(&cache->count) == 0 && type != 0)
+		{
+			delete type;
+		}
+		cache = 0;
+		gXAudio2->lpVtbl->Release(gXAudio2);
+		gXAudio2 = 0;
+		CoUninitialize();
+	}
+#endif
 }

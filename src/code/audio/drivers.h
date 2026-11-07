@@ -105,7 +105,9 @@ struct IXAudio2SourceVoice
 
 struct IXAudio2Vtbl
 {
-	void* slots[3];
+	void* slot0;
+	void* slot1;
+	unsigned long (__stdcall *Release)(IXAudio2* engine);
 	long (__stdcall *GetDeviceCount)(IXAudio2* engine, unsigned int* count);
 	long (__stdcall *GetDeviceDetails)(IXAudio2* engine, unsigned int index, XAudioDeviceDetails* details);
 	long (__stdcall *Initialize)(IXAudio2* engine, unsigned int flags, unsigned int processor);
@@ -208,6 +210,31 @@ namespace audio
 		Focus GetFocus() const;
 		void SetWaveFormat(WAVEFORMAT newWaveFormat);
 		WAVEFORMAT GetWaveFormat() const;
+	};
+
+	// The base of the models of the platform's drivers (RTTI: audio::RendererDriverModel): finds the devices of a platform and
+	// makes a driver of each, and lets go of the platform again
+	class RendererDriverModel
+	{
+	public:
+		// 0x105E4E30
+		explicit RendererDriverModel(const om::String& newName);
+		virtual void Slot0() = 0;
+		virtual void Slot1() = 0;
+
+		om::String name;  // 4
+	};
+
+	// The XAudio2 platform (RTTI: audio::XAudio2RendererDriverModel)
+	class XAudio2RendererDriverModel : public RendererDriverModel
+	{
+	public:
+		// 0x10AC2140
+		XAudio2RendererDriverModel();
+		// Slot 0 (0x10AC2F70): opens the XAudio2 engine and makes a driver of every device (not reconstructed)
+		virtual void Slot0();
+		// Slot 1 (0x10AC31B0): lets go of the reflection of the driver and of the engine
+		virtual void Slot1();
 	};
 
 	// 0x105C6E60 (name guessed): whether two counters hold the same value
