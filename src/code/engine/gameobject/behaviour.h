@@ -81,7 +81,7 @@ namespace engine
 
 	template<class T> bool BitField<T>::Test(int bit) const
 	{
-		return (bits & (1 << bit)) != 0;
+		return ((unsigned char)(1 << (unsigned char)bit) & bits) != 0;
 	}
 
 	class Behaviour
