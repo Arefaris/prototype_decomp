@@ -1,6 +1,7 @@
 // Fight items of the motion group: HasFailedPatsyCondition, IsPatsyCondition, PatsyDeadCondition, HasPatsyCondition, PatsyConditionGroupCondition, IsFailedPatsyCondition, PatsyCreateTrack, ClearFailedPatsyTrack, ClearPatsyTrack (unit 0x1019A8A0 - 0x1019C4A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_patsy.h"
 #include "code/engine/controller/inputsystem.h"
+#include "code/engine/gameobject/gameobjectparams.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
@@ -750,6 +751,28 @@ namespace proto
 					bool exists = message.patsy.Get() != 0;
 					result = exists == has;
 				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10101610
+			bool PatsyConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetPatsyDisguiseMsg message;
+				object->SendMessage(&message);
+				if (!message.patsy.IsValid())
+				{
+					return false;
+				}
+				engine::GameObjectParams* params = new engine::GameObjectParams(0x10001);
+				params->handle = message.patsy;
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
 				return result;
 			}
 

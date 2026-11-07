@@ -1,5 +1,6 @@
 // Fight items of the motion group: ShootCheckAmmoCountCondition, ShootCheckCooldownTimeCondition, ShootCurrentWeaponConfigurationCondition, ShootCheckOverheatingCondition, ShootSwitchWeaponConfigurationTrack, ShootSetUserProfileTrack, ShootCalculateHitPositionTrack, ShootSetAmmoProfileTrack, ReloadTrack, ShootTrack, ShootAutoTargetTrack, SetFireRateTimerTrack, ShootSelectWeaponConfigurationTrack, ShootTakeAmmoFromParentTrack (unit 0x101ACEE0 - 0x101B22B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_shoot.h"
+#include "code/math/worldbounds.h"
 
 namespace proto
 {
@@ -1632,6 +1633,33 @@ namespace proto
 			{
 				unknown38 = false;
 			}
+
+			// FUNCTION: ENGINE 0x101135C0
+			// NONMATCHING: the engine loads the constant between the first and the second component (best 94.8 %)
+#ifdef NONMATCHING
+			bool ShootAutoTargetAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix* matrix = object->transform->GetPointer();
+				math::Vector row(matrix->m[2][0], matrix->m[2][1], matrix->m[2][2]);
+				math::Vector facing;
+				facing.x = math::WORLD_MIN - row.x;
+				facing.y = math::WORLD_MIN - row.y;
+				facing.z = math::WORLD_MIN - row.z;
+				unknown2C = facing.x;
+				unknown30 = facing.y;
+				unknown34 = facing.z;
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x10111D80
 			ShootAutoTargetAction::~ShootAutoTargetAction()
