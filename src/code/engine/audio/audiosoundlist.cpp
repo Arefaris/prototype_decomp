@@ -19,6 +19,59 @@ namespace engine
 		released = true;
 	}
 
+	// The helpers the lists of sounds are walked with (template instances of the unit, not expanded)
+	template<class T> bool IsPresent(T* item)
+	{
+		return item != 0;
+	}
+
+	template<class T> inline T* NodeToItem(om::TreeNode* node)
+	{
+		if (node != 0)
+		{
+			return (T*)((char*)node - 0x8c);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1086F2D0
+	// NONMATCHING: the engine walks the tree with an iterator it keeps in a stack word and in registers differently (17 %)
+#ifdef NONMATCHING
+	AudioSound* AudioSoundList::Find(const AudioName& soundName)
+	{
+		AudioSound* current = NodeToItem<AudioSound>(tree.First());
+		AudioSound* following = 0;
+		if (current != 0)
+		{
+			following = NodeToItem<AudioSound>(tree.Next(&current->node));
+		}
+		if (IsPresent(current))
+		{
+			const unsigned int* hash = (const unsigned int*)&soundName.GetHash();
+			do
+			{
+				AudioName& soundData = current->bank->data->name;
+				if (soundData.hash == hash[0] && soundData.index == hash[1])
+				{
+					return current;
+				}
+				AudioSound* previous = following;
+				if (following != 0)
+				{
+					following = NodeToItem<AudioSound>(tree.Next(&following->node));
+				}
+				else
+				{
+					following = 0;
+				}
+				current = previous;
+			}
+			while (IsPresent(current));
+		}
+		return 0;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10870AF0
 	AudioSoundList::AudioSoundList(const AudioName& newName) :
 		name(newName),

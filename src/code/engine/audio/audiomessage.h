@@ -56,7 +56,9 @@ namespace engine
 	{
 		struct Data
 		{
-			int unknown0[8];
+			int unknown0[2];
+			AudioName name;  // +8
+			int unknown10[4];
 			AudioParameterTable parameters;
 		};
 
@@ -104,6 +106,9 @@ namespace engine
 		bool unknown20;
 		bool unknown21;
 		int unknown24;
+		unsigned char unknown28[0x8c - 0x28];
+		om::TreeNode node;  // +0x8C: in the tree of the list
+		unsigned char unknown9C[0xa8 - 0x9c];
 	};
 
 	// The sounds of an emitter by name
