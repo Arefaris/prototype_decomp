@@ -58,6 +58,14 @@ namespace proto
 			value.boolean = newBoolean;
 		}
 
+		explicit FlashValue(const char* text) : FlashVariant(FLASHVALUE_UNDEFINED)
+		{
+			SetString(text);
+		}
+		explicit FlashValue(const wchar_t* text) : FlashVariant(FLASHVALUE_UNDEFINED)
+		{
+			SetWideString(text);
+		}
 		// 0x104A9C60 / 0x104A9C80
 		explicit FlashValue(double newNumber)
 		{
