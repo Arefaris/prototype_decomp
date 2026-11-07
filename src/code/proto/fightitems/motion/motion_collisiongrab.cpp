@@ -309,10 +309,10 @@ namespace proto
 #ifdef NONMATCHING
 			math::Vector* CollisionGrabAction::GetOffset(math::Vector* offset)
 			{
-				const math::Vector* source = &link.object->offset;
-				offset->x = source->x;
-				offset->y = source->y;
-				offset->z = source->z;
+				math::Vector copy(link.object->offset);
+				offset->x = copy.x;
+				offset->y = copy.y;
+				offset->z = copy.z;
 				return offset;
 			}
 #endif
