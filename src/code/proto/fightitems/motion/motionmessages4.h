@@ -9,6 +9,7 @@
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/proto/messages/airequestmessages.h"
+#include "code/proto/behaviours/grabbehaviour.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 
 namespace proto
@@ -76,6 +77,20 @@ namespace proto
 		}
 
 		bool stunned;  // +0xC
+	};
+
+	// RTTI: proto::GetGrabSlotsMessage: the object answers the slots of its grab behaviour
+	class GetGrabSlotsMessage : public GrabMessage
+	{
+	public:
+		GetGrabSlotsMessage() : GrabMessage(3), slots(0)
+		{
+		}
+		virtual ~GetGrabSlotsMessage()
+		{
+		}
+
+		GrabBehaviour::SlotArray* slots;  // +0xC
 	};
 
 	// RTTI: proto::SetFloatDelayTokenMsg: sets the delay of the object's token
