@@ -1,4 +1,5 @@
 #include "code/proto/ai/ambientmanager/ambientspawners.h"
+#include "code/proto/ai/ambientmanager/ambientmanager.h"
 #include "code/core/refptr.h"
 #include "code/proto/reflectedstubs.h"
 
@@ -14,6 +15,16 @@ namespace proto
 		sInfo.version = 1;
 		sInfo.name = "proto::AmbientSpawner";
 		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x104207D0
+	content::ClassInfo* ParkedCarSpawner::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::ParkedCarSpawner";
+		sInfo.code = "pn";
 		return &sInfo;
 	}
 
@@ -79,6 +90,19 @@ namespace proto
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10420810
+	void VehicleSpawner::Slot3(int unused)
+	{
+		gAmbientManager->AddVehicleSpawner(this);
+	}
+
+	// FUNCTION: ENGINE 0x10420830
+	bool VehicleSpawner::IsReady()
+	{
+		gAmbientManager->VehicleSpawnerReady(this);
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x10420850
 	bool VehicleSpawner::Slot7(void* argument)
 	{
@@ -94,6 +118,19 @@ namespace proto
 	PedestrianSpawner::~PedestrianSpawner()
 	{
 		core::SafeRelease(type);
+	}
+
+	// FUNCTION: ENGINE 0x10420860
+	void PedestrianSpawner::Slot3(int unused)
+	{
+		gAmbientManager->AddPedestrianSpawner(this);
+	}
+
+	// FUNCTION: ENGINE 0x10420880
+	bool PedestrianSpawner::IsReady()
+	{
+		gAmbientManager->PedestrianSpawnerReady(this);
+		return true;
 	}
 
 	// FUNCTION: ENGINE 0x104208A0
@@ -144,5 +181,20 @@ namespace proto
 	}
 }
 
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104208B0
+// FUNCTION: ENGINE 0x104208C0
+// FUNCTION: ENGINE 0x104209A0
+// FUNCTION: ENGINE 0x104209B0
+// FUNCTION: ENGINE 0x104209E0
+// FUNCTION: ENGINE 0x104209F0
+// FUNCTION: ENGINE 0x10420B10
+// FUNCTION: ENGINE 0x10420B20
 // FUNCTION: ENGINE 0x10420B50
+// FUNCTION: ENGINE 0x10420B60
+// FUNCTION: ENGINE 0x10420C10
+// FUNCTION: ENGINE 0x10420C40
+// FUNCTION: ENGINE 0x10420C70
+// FUNCTION: ENGINE 0x10420CD0
+// FUNCTION: ENGINE 0x10421000

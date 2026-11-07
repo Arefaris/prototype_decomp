@@ -12,6 +12,8 @@
 
 namespace proto
 {
+	class AmbientSpawner;
+	class AmbientSpawner;
 	class NavMesh;
 	class ParkedCarCloudManager;
 	class VehicleBehaviourAmbient;
@@ -211,6 +213,12 @@ namespace proto
 		void ReleaseName(const core::Name<core::CaseSensitiveKey>& name, bool flag);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
+		// 0x10409990 / 0x104099B0: keeps the spawner under the name it makes objects of (the vehicle spawners / the
+		// pedestrian spawners); 0x104099A0 / 0x104099C0: a hook the same spawners call when they are ready (nothing)
+		void AddVehicleSpawner(AmbientSpawner* spawner);
+		void VehicleSpawnerReady(AmbientSpawner* spawner);
+		void AddPedestrianSpawner(AmbientSpawner* spawner);
+		void PedestrianSpawnerReady(AmbientSpawner* spawner);
 
 		AmbientArray12 unknown0;
 		unsigned char unknownC[4];
