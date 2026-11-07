@@ -65,6 +65,12 @@ namespace engine
 		inner->Slot9();
 	}
 
+	// FUNCTION: ENGINE 0x108BEFC0
+	void* ChannelManager::operator new(unsigned int size)
+	{
+		return AllocateManagerObject(size, 0, "ChannelManager");
+	}
+
 	// FUNCTION: ENGINE 0x108BEFA0
 	void* ConsoleManagerPeer::operator new(unsigned int size)
 	{

@@ -16,7 +16,14 @@ namespace engine
 	// 0x108EC840: gives such an object back
 	void FreeManagerObject(void* object);
 
-	class ChannelManager;
+	// The channel manager of the net layer (the name is the one its operator new passes to the allocator)
+	class ChannelManager
+	{
+	public:
+		// 0x108BEFC0
+		static void* operator new(unsigned int size);
+	};
+
 	class ConsoleManagerPeer;
 
 	// RTTI: engine::OnlineManager (0x9C bytes; bases ISimulationDriver and SimulationDriverTimeData): the simulation
