@@ -7,18 +7,10 @@
 #define PROTO_SMARTHINT_SMARTHINTMANAGER_H
 
 #include "code/core/name.h"
+#include "code/proto/gamedatabasebitrecord.h"
 
 namespace proto
 {
-	// The set of hint flags the manager keeps (the object at +4 of the manager; two members of another unit)
-	class SmartHintLog
-	{
-	public:
-		// 0x104DF330 / 0x104DF3E0: marks / unmarks the hint with the index
-		void Set(int index);
-		void Clear(int index);
-	};
-
 	// The hint on screen: what is shown, how far it is and which hint it is
 	struct SmartHintShown
 	{
@@ -106,7 +98,7 @@ namespace proto
 		bool enabled;  // +0
 		bool active;  // +1
 		unsigned char unknown2[2];
-		SmartHintLog* log;  // +4
+		GameDatabaseBitRecord* log;  // +4
 		SmartHintShown shown;  // +8
 		float unknown1C;
 		float unknown20;
