@@ -1,5 +1,7 @@
 // Fight items of the motion group: JointAnchorToAnimationTrack (unit 0x10182180 - 0x101827B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jointanchortoanimation.h"
+#include "code/choreo/rootdriver.h"
+#include "code/choreo/deltatransform.h"
 
 namespace proto
 {
@@ -145,6 +147,36 @@ namespace proto
 				return new JointAnchorToAnimationAction(this, owner);
 			}
 
+			// FUNCTION: ENGINE 0x100DC7B0
+			void JointAnchorToAnimationAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						puppet->RemoveDriver(secondDriver, false);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100DC750
+			bool JointAnchorToAnimationAction::Slot7(int arg, float value)
+			{
+				if (arg == 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object == 0)
+					{
+						return false;
+					}
+					static_cast<choreo::RootDriver*>(driver)->mDelta.SetDelta(matrix, object->transform->value);
+				}
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<JointAnchorToAnimationTrack>;
 			template class fight::PropertyNameList<JointAnchorToAnimationTrack>;
@@ -156,8 +188,12 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::JointAnchorToAnimationTrack* core::Link<proto::fightitems::motion::JointAnchorToAnimationTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100DC620
+// FUNCTION: ENGINE 0x100DC640
 // FUNCTION: ENGINE 0x100DC650
 // FUNCTION: ENGINE 0x100DC960
 // FUNCTION: ENGINE 0x101822F0

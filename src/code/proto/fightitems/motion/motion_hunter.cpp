@@ -1,5 +1,11 @@
 // Fight items of the motion group: HunterOnWallCondition, HunterCanHopAroundCornerCondition, HunterShortRangeLocoTrack, HunterShortRangeHopCornerTrack, HunterShortRangeCorner2Track, HunterLandedTrack (unit 0x1017D680 - 0x10180090; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_hunter.h"
+#include "code/proto/fightitems/motion/motionmessages5.h"
+#include "code/engine/physics/supportinglimbmessages.h"
+#include "code/engine/physics/supportinglimb.h"
+#include "code/engine/fight/fighteventmessage.h"
+#include "code/math/worldbounds.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -928,6 +934,94 @@ namespace proto
 				return new HunterShortRangeCorner2Action(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100D7E30
+			bool HunterCanHopAroundCornerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					HunterCanHopAroundCornerMovementMessage message;
+					object->SendMessage(&message);
+					result = message.canHop;
+				}
+				return result;
+			}
+			// FUNCTION: ENGINE 0x100D8920
+			// NONMATCHING: the engine keeps the track in ecx and addresses the name with lea where ours adds to the loaded pointer (93.8 %)
+#ifdef NONMATCHING
+			void HunterShortRangeHopCornerAction::ActivateNewSupportingLimb(engine::GameObject* object)
+			{
+				HunterShortRangeHopCornerTrack* track = link.Get();
+				const fight::Name& limbName = track->newSupportingLimb;
+				if (!limbName.IsEmpty())
+				{
+					engine::FindSupportingLimbMessage find(limbName);
+					object->SendMessage(&find);
+					if (find.limb != 0)
+					{
+						engine::SupportingLimbSetActiveMessage setActive(find.limb);
+						object->SendMessage(&setActive);
+					}
+				}
+			}
+#endif
+
+
+			// FUNCTION: ENGINE 0x100D89E0
+			void HunterShortRangeHopCornerAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ActivateNewSupportingLimb(object);
+				}
+				if (driver != 0)
+				{
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100D79E0
+			void HunterShortRangeCorner2Action::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::FightEventMessage eventMessage(0x200000);
+					object->SendMessage(&eventMessage);
+					engine::SupportingLimb* limb = unknown38;
+					if (limb != 0)
+					{
+						math::Vector negated(math::WORLD_MIN - unknown3C.x, math::WORLD_MIN - unknown3C.y, math::WORLD_MIN - unknown3C.z);
+						limb->castDirection.x = negated.x;
+						limb->castDirection.y = negated.y;
+						limb->castDirection.z = negated.z;
+					}
+					engine::SupportingLimbSetActiveMessage setActive(unknown38);
+					object->SendMessage(&setActive);
+				}
+				if (driver != 0)
+				{
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+					engine::ReleaseDriverCopy3(driver);
+				}
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<HunterOnWallCondition>;
 			template class fight::ConditionFactoryTemplate<HunterOnWallCondition>;
@@ -960,11 +1054,24 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::HunterLandedTrack* core::Link<proto::fightitems::motion::HunterLandedTrack>::Get() const;
+template proto::fightitems::motion::HunterShortRangeHopCornerTrack* core::Link<proto::fightitems::motion::HunterShortRangeHopCornerTrack>::Get() const;
+template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D6AF0
+// FUNCTION: ENGINE 0x100D6B00
+// FUNCTION: ENGINE 0x100D6B30
+// FUNCTION: ENGINE 0x100D6BE0
+// FUNCTION: ENGINE 0x100D6EF0
 // FUNCTION: ENGINE 0x100D7540
 // FUNCTION: ENGINE 0x100D7560
 // FUNCTION: ENGINE 0x100D7580
+// FUNCTION: ENGINE 0x100D75C0
 // FUNCTION: ENGINE 0x100D75D0
+// FUNCTION: ENGINE 0x100D7620
+// FUNCTION: ENGINE 0x100D7680
 // FUNCTION: ENGINE 0x100D8560
 // FUNCTION: ENGINE 0x100D8B90
 // FUNCTION: ENGINE 0x100D96A0

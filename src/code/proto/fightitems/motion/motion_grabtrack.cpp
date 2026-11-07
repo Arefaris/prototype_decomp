@@ -1,6 +1,10 @@
 // Fight items of the motion group: GrabSlotUpdateAttachmentWithRestoreTrack, GrabSlotDetachThrowTrack, GrabSlotDetachTrack, GrabSetGrabbingTimerTrack, GrabSlotSwapTrack, GrabSlotReverseAttachmentTrack, GrabbedExecuteUsingParentTrack, GrabbedSwapGrabberSlotsTrack, GrabButtonStruggleTrack, GrabbedDetachTrack, GrabObjectFromChildGrabSlotTrack, GrabSlotExecuteTrack, GrabTargetClearTrack, GrabSlotDeathTrack, ReactionHitGrabTrack, SetGrabIntersectionPropertiesTrack, GrabbedPlaybackTrack, AllowGrabbingTrack, DelayCollisionWithGrabbedTrack, GrabObjectFromParentGrabSlotTrack, GrabSlotExecuteUsingChildTrack, GrabbedUpdateAttachmentTrack, GrabGrabTargetTrack, GrabSlotUpdateAttachmentTrack, GrabPlayerTrack, GrabbedExecuteOnParentTrack, GrabSlotEnableStuckTestTrack (unit 0x10169790 - 0x10173B80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabtrack.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/proto/fightitems/motion/motionmessages5.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/proto/fightitems/motion/motion_grabcondition.h"
+#include "code/engine/gameobject/gameobject.h"
 
 namespace proto
 {
@@ -3624,6 +3628,196 @@ namespace proto
 				return new ReactionHitGrabAction(this, owner);
 			}
 
+			// FUNCTION: ENGINE 0x100C6860
+			bool GrabbedDetachAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					proto::DetachGrabbedObject(object);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100C9530
+			// NONMATCHING: shrink-wrap; the engine saves esi in the entry block before the early-exit branch, ours after the lookup (86.6 %)
+#ifdef NONMATCHING
+			bool GrabSlotDetachAction::Slot5(int arg, float value)
+			{
+				GrabSlotDetachTrack* track = link.Get();
+				if (track != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::GameObjectHandle none;
+						SetGrabbedObjectMessage message(&track->grabSlot, none, 0);
+						object->SendMessage(&message);
+						return false;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100CA570
+			bool GrabSlotSwapAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SwapGrabSlotsMessage message(&link.Get()->slotA, &link.Get()->slotB);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100CB9C0
+			bool GrabSetGrabbingTimerAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetGrabbingTimerGrabMessage message(link.Get()->duration, link.Get()->isGrabAttack);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100C4D60
+			void AllowGrabbingAction::SetAllowGrabbing(engine::GameObject* object, bool allow)
+			{
+				SetAllowGrabbingMessage message(allow);
+				object->SendMessage(&message);
+			}
+
+			// FUNCTION: ENGINE 0x100CB5E0
+			bool AllowGrabbingAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				GetAllowGrabbingMessage message;
+				object->SendMessage(&message);
+				unknown2C = message.allow;
+				switch (link.Get()->onBegin)
+				{
+				case 1:
+					SetAllowGrabbing(object, true);
+					break;
+				case 2:
+					SetAllowGrabbing(object, false);
+					break;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100CB6C0
+			void AllowGrabbingAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.Get() != 0)
+				{
+					switch (link.Get()->onEnd)
+					{
+					case 0:
+						SetAllowGrabbing(object, unknown2C);
+						break;
+					case 1:
+						SetAllowGrabbing(object, true);
+						break;
+					case 2:
+						SetAllowGrabbing(object, false);
+						break;
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100CBE20
+			bool SetGrabIntersectionPropertiesAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (link.Get()->temporary)
+					{
+						GetGrabIntersectionPropertiesMessage getMessage;
+						object->SendMessage(&getMessage);
+						unknown30 = getMessage.properties;
+					}
+					SetGrabIntersectionPropertiesMessage setMessage(link.Get()->intersectionProperties);
+					object->SendMessage(&setMessage);
+				}
+				return link.Get()->temporary;
+			}
+
+			// FUNCTION: ENGINE 0x100CBF30
+			void SetGrabIntersectionPropertiesAction::Slot6()
+			{
+				if (link.Get() != 0 && link.Get()->temporary)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetGrabIntersectionPropertiesMessage message(unknown30);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100CC050
+			// NONMATCHING: shrink-wrap; the engine saves esi in the entry block before the early-exit branch and keeps this in edi to the end (87.1 %)
+#ifdef NONMATCHING
+			bool GrabSlotEnableStuckTestAction::Slot5(int arg, float value)
+			{
+				GrabSlotEnableStuckTestTrack* track = link.Get();
+				if (track != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						GetGrabbedObjectMessage query(&track->grabSlot);
+						object->SendMessage(&query);
+						engine::GameObjectHandle grabbedHandle = query.grabbed;
+						engine::GameObject* grabbed = grabbedHandle.Get();
+						if (grabbed != 0)
+						{
+							StartStuckInCollisionTestOnDetachMessage message(target);
+							grabbed->SendMessage(&message);
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100C6900
+			void GrabButtonStruggleAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ChargeSetMessage message(0.0f, 2);
+					object->SendMessage(&message);
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -3815,8 +4009,44 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81B60
 
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::GrabbedDetachTrack* core::Link<proto::fightitems::motion::GrabbedDetachTrack>::Get() const;
+template proto::fightitems::motion::DelayCollisionWithGrabbedTrack* core::Link<proto::fightitems::motion::DelayCollisionWithGrabbedTrack>::Get() const;
+template proto::fightitems::motion::GrabbedExecuteOnParentTrack* core::Link<proto::fightitems::motion::GrabbedExecuteOnParentTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotDetachTrack* core::Link<proto::fightitems::motion::GrabSlotDetachTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotReverseAttachmentTrack* core::Link<proto::fightitems::motion::GrabSlotReverseAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabbedSwapGrabberSlotsTrack* core::Link<proto::fightitems::motion::GrabbedSwapGrabberSlotsTrack>::Get() const;
+template proto::fightitems::motion::GrabButtonStruggleTrack* core::Link<proto::fightitems::motion::GrabButtonStruggleTrack>::Get() const;
+template proto::fightitems::motion::GrabObjectFromChildGrabSlotTrack* core::Link<proto::fightitems::motion::GrabObjectFromChildGrabSlotTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotExecuteTrack* core::Link<proto::fightitems::motion::GrabSlotExecuteTrack>::Get() const;
+template proto::fightitems::motion::GrabbedPlaybackTrack* core::Link<proto::fightitems::motion::GrabbedPlaybackTrack>::Get() const;
+template proto::fightitems::motion::GrabObjectFromParentGrabSlotTrack* core::Link<proto::fightitems::motion::GrabObjectFromParentGrabSlotTrack>::Get() const;
+template proto::fightitems::motion::GrabbedUpdateAttachmentTrack* core::Link<proto::fightitems::motion::GrabbedUpdateAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabGrabTargetTrack* core::Link<proto::fightitems::motion::GrabGrabTargetTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotUpdateAttachmentTrack* core::Link<proto::fightitems::motion::GrabSlotUpdateAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotEnableStuckTestTrack* core::Link<proto::fightitems::motion::GrabSlotEnableStuckTestTrack>::Get() const;
+template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::fightitems::motion::ReactionHitGrabTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C2400
+// FUNCTION: ENGINE 0x100C40D0
+// FUNCTION: ENGINE 0x100C4100
+// FUNCTION: ENGINE 0x100C4110
 // FUNCTION: ENGINE 0x100C4140
+// FUNCTION: ENGINE 0x100C4150
+// FUNCTION: ENGINE 0x100C4190
+// FUNCTION: ENGINE 0x100C41D0
+// FUNCTION: ENGINE 0x100C4DF0
+// FUNCTION: ENGINE 0x100C4F90
+// FUNCTION: ENGINE 0x100C4FC0
+// FUNCTION: ENGINE 0x100C5030
+// FUNCTION: ENGINE 0x100C5040
+// FUNCTION: ENGINE 0x100C5070
+// FUNCTION: ENGINE 0x100C50B0
+// FUNCTION: ENGINE 0x100C50C0
+// FUNCTION: ENGINE 0x100C5100
+// FUNCTION: ENGINE 0x100C5110
+// FUNCTION: ENGINE 0x100C51B0
 // FUNCTION: ENGINE 0x100C5220
 // FUNCTION: ENGINE 0x100C5250
 // FUNCTION: ENGINE 0x100C5270
@@ -3839,27 +4069,48 @@ namespace proto
 // FUNCTION: ENGINE 0x100C5490
 // FUNCTION: ENGINE 0x100C54B0
 // FUNCTION: ENGINE 0x100C54D0
+// FUNCTION: ENGINE 0x100C5590
 // FUNCTION: ENGINE 0x100C55A0
+// FUNCTION: ENGINE 0x100C55F0
 // FUNCTION: ENGINE 0x100C5600
+// FUNCTION: ENGINE 0x100C5650
 // FUNCTION: ENGINE 0x100C5660
+// FUNCTION: ENGINE 0x100C56B0
 // FUNCTION: ENGINE 0x100C56C0
+// FUNCTION: ENGINE 0x100C5710
 // FUNCTION: ENGINE 0x100C5720
+// FUNCTION: ENGINE 0x100C5770
 // FUNCTION: ENGINE 0x100C5780
+// FUNCTION: ENGINE 0x100C57D0
 // FUNCTION: ENGINE 0x100C57E0
+// FUNCTION: ENGINE 0x100C5830
 // FUNCTION: ENGINE 0x100C5840
+// FUNCTION: ENGINE 0x100C5890
 // FUNCTION: ENGINE 0x100C58A0
+// FUNCTION: ENGINE 0x100C58F0
 // FUNCTION: ENGINE 0x100C5900
+// FUNCTION: ENGINE 0x100C5950
 // FUNCTION: ENGINE 0x100C5960
+// FUNCTION: ENGINE 0x100C59B0
 // FUNCTION: ENGINE 0x100C59C0
 // FUNCTION: ENGINE 0x100C5A10
+// FUNCTION: ENGINE 0x100C5A60
 // FUNCTION: ENGINE 0x100C5A70
+// FUNCTION: ENGINE 0x100C5AC0
 // FUNCTION: ENGINE 0x100C5AD0
+// FUNCTION: ENGINE 0x100C5B20
 // FUNCTION: ENGINE 0x100C5B30
+// FUNCTION: ENGINE 0x100C5B80
 // FUNCTION: ENGINE 0x100C5B90
+// FUNCTION: ENGINE 0x100C5BE0
 // FUNCTION: ENGINE 0x100C5BF0
+// FUNCTION: ENGINE 0x100C5C40
 // FUNCTION: ENGINE 0x100C5C50
 // FUNCTION: ENGINE 0x100C5CA0
+// FUNCTION: ENGINE 0x100C5CF0
 // FUNCTION: ENGINE 0x100C5D00
+// FUNCTION: ENGINE 0x100C5F30
+// FUNCTION: ENGINE 0x100C5F60
 // FUNCTION: ENGINE 0x100C7BF0
 // FUNCTION: ENGINE 0x100C8440
 // FUNCTION: ENGINE 0x100C8E10

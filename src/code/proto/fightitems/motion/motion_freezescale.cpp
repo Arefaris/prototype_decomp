@@ -1,5 +1,6 @@
 // Fight items of the motion group: FreezeScaleTrack (unit 0x10161980 - 0x10161F50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_freezescale.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 
 namespace proto
 {
@@ -145,8 +146,36 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100C0610
+			void AssignRefCountedFreezescale(core::IRefCount*& slot, core::IRefCount* value)
+			{
+				if (value != 0)
+				{
+					value->AddRef();
+				}
+				if (slot != 0)
+				{
+					slot->Release();
+				}
+				slot = value;
+			}
+
+			// FUNCTION: ENGINE 0x100C0650
+			void AssignDriverFreezescale(choreo::Driver*& slot, choreo::Driver* value)
+			{
+				if (value != 0)
+				{
+					value->AddRef();
+				}
+				if (slot != 0)
+				{
+					slot->Release();
+				}
+				slot = value;
+			}
+
 			// FUNCTION: ENGINE 0x100C0860
-			FreezeScaleAction::FreezeScaleAction(FreezeScaleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), unknown30(0)
+			FreezeScaleAction::FreezeScaleAction(FreezeScaleTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), pose(0)
 			{
 			}
 
@@ -154,8 +183,51 @@ namespace proto
 			FreezeScaleAction::~FreezeScaleAction()
 			{
 				ReleaseDriverFreezescale(driver);
-				SafeReleaseRefFreezescale(unknown30);
+				SafeReleaseRefFreezescale(pose);
 			}
+
+			// FUNCTION: ENGINE 0x100C0900
+			bool FreezeScaleAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				pure3d::Skeleton* skeleton = puppet->GetSkeleton();
+				core::IRefCount*& slot = pose;
+				pure3d::Pose* newPose = puppet->mPoseObject->CreateInstance(3);
+				AssignRefCountedFreezescale(slot, newPose);
+				AssignDriverFreezescale(driver, new choreo::PoseDriver(skeleton, static_cast<pure3d::Pose*>(slot), 0x10));
+				static_cast<choreo::PartitionDriver*>(driver)->SetPartitionByName(link.Get()->partition);
+				puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->priority, 1.0f, link.Get()->blendInTime, link.Get()->blendOutTime, choreo::gMinusOne);
+				return true;
+			}
+// FUNCTION: ENGINE 0x100C0770
+			void FreezeScaleAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+				}
+				ReleaseDriverFreezescale(driver);
+				SafeReleaseRefFreezescale(pose);
+			}
+
 
 			// FUNCTION: ENGINE 0x100C0A20
 			fight::Action* FreezeScaleTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
@@ -176,6 +248,7 @@ namespace proto
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100C0680
+// FUNCTION: ENGINE 0x100C06A0
 // FUNCTION: ENGINE 0x100C06B0
 // FUNCTION: ENGINE 0x100C08D0
 // FUNCTION: ENGINE 0x10161AF0

@@ -215,6 +215,23 @@ namespace proto
 				return new JointAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100DBC40
+			void JointAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<JointTrack>;
 			template class fight::PropertyNameList<JointTrack>;
@@ -227,8 +244,12 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::JointTrack* core::Link<proto::fightitems::motion::JointTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100DBB60
+// FUNCTION: ENGINE 0x100DBB80
 // FUNCTION: ENGINE 0x100DBB90
 // FUNCTION: ENGINE 0x100DBD80
 // FUNCTION: ENGINE 0x10181AE0

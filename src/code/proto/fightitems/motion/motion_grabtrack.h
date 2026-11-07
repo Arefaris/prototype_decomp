@@ -1186,6 +1186,8 @@ namespace proto
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x100CB6C0)
 				virtual void Slot6();
+				// 0x100C4D60: tells an object whether grabs are allowed (name guess)
+				void SetAllowGrabbing(engine::GameObject* object, bool allow);
 
 				core::Link<AllowGrabbingTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

@@ -959,7 +959,38 @@ namespace proto
 				return new GroundSpikeSpawnOffshootAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100D0620
+			// NONMATCHING: the engine keeps the master table base in edx across both handle lookups and builds the message in the order of the track's members (35.2 %)
+#ifdef NONMATCHING
+			bool GroundSpikeClusterDescendAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0 && target.Get() != 0)
+				{
+					GroundSpikeShardInitializeForDescendMessage message(link.Get()->applyToOffshoots, link.Get()->descendDelayMax, link.Get()->descendDelayMin, link.Get()->descendDuration);
+					target.Get()->SendMessage(&message);
+				}
+				return false;
+			}
+#endif
+
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100CEDD0
+			void RegisterGroundSpikeTestStateFactories(fight::TrackRegistry* registry)
+			{
+				RegisterGroundSpikeTestStateConditionFactory(registry, "groundSpikeTestState");
+				RegisterGroundSpikeParentConditionGroupConditionFactory(registry, "groundSpikeParentConditionGroup");
+			}
+
+			// FUNCTION: ENGINE 0x100CEE00
+			void RegisterGroundSpikeSpawnClusterFactories(fight::TrackRegistry* registry)
+			{
+				RegisterGroundSpikeSpawnClusterTrackFactory(registry, "groundSpikeSpawnCluster");
+				RegisterGroundSpikeSpawnOffshootTrackFactory(registry, "groundSpikeSpawnOffshoot");
+				RegisterGroundSpikeClusterDescendTrackFactory(registry, "groundSpikeClusterDescend");
+				RegisterGroundSpikeAnimateClusterRadiiTrackFactory(registry, "groundSpikeAnimateClusterRadii");
+				RegisterGroundSpikeConfigureAutoOffshootsTrackFactory(registry, "groundSpikeConfigureAutoOffshoots");
+			}
+
 			template class fight::PropertyConditionGroup<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryCasterTemplate<GroundSpikeParentConditionGroupCondition>;
@@ -1032,14 +1063,24 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81520
 
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::GroundSpikeClusterDescendTrack* core::Link<proto::fightitems::motion::GroundSpikeClusterDescendTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeAnimateClusterRadiiTrack* core::Link<proto::fightitems::motion::GroundSpikeAnimateClusterRadiiTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeConfigureAutoOffshootsTrack* core::Link<proto::fightitems::motion::GroundSpikeConfigureAutoOffshootsTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeSpawnOffshootTrack* core::Link<proto::fightitems::motion::GroundSpikeSpawnOffshootTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100CF190
 // FUNCTION: ENGINE 0x100CF1B0
 // FUNCTION: ENGINE 0x100CF1D0
 // FUNCTION: ENGINE 0x100CF1F0
+// FUNCTION: ENGINE 0x100CF230
 // FUNCTION: ENGINE 0x100CF240
+// FUNCTION: ENGINE 0x100CF290
 // FUNCTION: ENGINE 0x100CF2A0
+// FUNCTION: ENGINE 0x100CF2F0
 // FUNCTION: ENGINE 0x100CF300
+// FUNCTION: ENGINE 0x100CF350
 // FUNCTION: ENGINE 0x100CF360
 // FUNCTION: ENGINE 0x100CFC50
 // FUNCTION: ENGINE 0x100D03A0

@@ -1,5 +1,14 @@
 // Fight items of the motion group: GenderCondition (unit 0x10163BA0 - 0x10163FA0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_gender.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/engine/gameobject/gameobject.h"
+
+namespace engine
+{
+	extern core::Name<core::CaseSensitiveKey> gGender;  // 0x11256268
+}
 
 namespace proto
 {
@@ -75,6 +84,29 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100C1E20
+			bool GenderCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::BaseAttribute* attribute = object->FindAttribute(engine::gGender);
+				if (attribute == 0)
+				{
+					return false;
+				}
+				core::Name<core::CaseSensitiveKey>* attributeValue = &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+				if (attributeValue == 0)
+				{
+					return false;
+				}
+				return fight::CompareNames(compare, attributeValue, &value);
+			}
+
+			// ---- actions end
 			template class fight::PropertyEnumConstList<GenderCondition>;
 			template class fight::PropertyName<GenderCondition>;
 			template class fight::ConditionFactoryTemplate<GenderCondition>;

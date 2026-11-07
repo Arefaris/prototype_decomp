@@ -16,14 +16,14 @@ namespace proto
 	struct SetGrabbingTimerGrabMessage : public proto::GrabMessage
 	{
 	public:
-		SetGrabbingTimerGrabMessage(int vC, bool v10) : GrabMessage(11), unknownC(vC), unknown10(v10)
+		SetGrabbingTimerGrabMessage(float vC, bool v10) : GrabMessage(11), unknownC(vC), unknown10(v10)
 		{
 		}
 		virtual ~SetGrabbingTimerGrabMessage()
 		{
 		}
 
-		int unknownC;  // +0xC
+		float unknownC;  // +0xC
 		bool unknown10;  // +0x10
 	};
 
@@ -66,7 +66,7 @@ namespace proto
 	class GroundSpikeShardInitializeForDescendMessage : public proto::GroundSpikeMessage
 	{
 	public:
-		GroundSpikeShardInitializeForDescendMessage(bool vC, int v10, int v14, int v18) : GroundSpikeMessage(8), unknownC(vC), unknown10(v10), unknown14(v14), unknown18(v18)
+		GroundSpikeShardInitializeForDescendMessage(bool vC, float v18, float v14, float v10) : GroundSpikeMessage(8), unknownC(vC), unknown10(v10), unknown14(v14), unknown18(v18)
 		{
 		}
 		virtual ~GroundSpikeShardInitializeForDescendMessage()
@@ -74,9 +74,9 @@ namespace proto
 		}
 
 		bool unknownC;  // +0xC
-		int unknown10;  // +0x10
-		int unknown14;  // +0x14
-		int unknown18;  // +0x18
+		float unknown10;  // +0x10
+		float unknown14;  // +0x14
+		float unknown18;  // +0x18
 	};
 
 }
@@ -103,16 +103,16 @@ namespace proto
 	struct TemporaryRegenerationDamageMessage : public engine::IntrusiveMessage
 	{
 	public:
-		TemporaryRegenerationDamageMessage(int vC, int v10, int v14) : engine::IntrusiveMessage(20, 27), unknownC(vC), unknown10(v10), unknown14(v14)
+		TemporaryRegenerationDamageMessage(float newExpiry, float newRegenMaxHealthPercentage, float newRegenRate) : engine::IntrusiveMessage(20, 27), regenRate(newRegenRate), regenMaxHealthPercentage(newRegenMaxHealthPercentage), expiry(newExpiry)
 		{
 		}
 		virtual ~TemporaryRegenerationDamageMessage()
 		{
 		}
 
-		int unknownC;  // +0xC
-		int unknown10;  // +0x10
-		int unknown14;  // +0x14
+		float regenRate;  // +0xC
+		float regenMaxHealthPercentage;  // +0x10
+		float expiry;  // +0x14
 	};
 
 }

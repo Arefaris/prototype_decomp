@@ -15,6 +15,9 @@ namespace proto
 			void ReleaseDriverFreezescale(choreo::Driver*& driver);
 			// 0x100C05F0
 			void SafeReleaseRefFreezescale(core::IRefCount*& object);
+			// 0x100C0610 / 0x100C0650: replace a reference counted object or a driver (the new one is referenced first)
+			void AssignRefCountedFreezescale(core::IRefCount*& slot, core::IRefCount* value);
+			void AssignDriverFreezescale(choreo::Driver*& slot, choreo::Driver* value);
 			// 0x100DBB40
 			void ReleaseDriverJoint(choreo::Driver*& driver);
 		}

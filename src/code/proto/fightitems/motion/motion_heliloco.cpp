@@ -1,5 +1,8 @@
 // Fight items of the motion group: HeliLocoTrack (unit 0x10179BB0 - 0x1017A690; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_heliloco.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/choreo/rootdriver.h"
+#include "code/choreo/deltatransform.h"
 
 namespace proto
 {
@@ -257,6 +260,54 @@ namespace proto
 				return new HeliLocoAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100D2B70
+			void HeliLocoAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					static_cast<choreo::RootDriver*>(driver)->mDelta.Reset();
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100D2E10
+			bool HeliLocoAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				float blendIn = link.Get()->blendInTime;
+				int priority = link.Get()->priority;
+				float blendOut = link.Get()->blendOutTime;
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("heliFly", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				puppet->SetDriver(driver, choreo::gMinusOne, priority, 1.0f, blendIn, blendOut, choreo::gMinusOne);
+				unknown30 = 0.0f;
+				unknown68 = 0.0f;
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<HeliLocoTrack>;
 			template class fight::PropertyVector<HeliLocoTrack>;
@@ -268,6 +319,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D2A20
 // FUNCTION: ENGINE 0x100D2A90
 // FUNCTION: ENGINE 0x100D2DE0
 // FUNCTION: ENGINE 0x10179F40

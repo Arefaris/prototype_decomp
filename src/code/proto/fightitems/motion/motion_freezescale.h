@@ -6,6 +6,7 @@
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
 #include "code/proto/fightitems/motion/motionhelpers.h"
+#include "code/choreo/drivers.h"
 
 namespace proto
 {
@@ -73,7 +74,7 @@ namespace proto
 				core::Link<FreezeScaleTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				choreo::Driver* driver;  // +0x2C
-				core::IRefCount* unknown30;  // +0x30
+				core::IRefCount* pose;  // +0x30
 			};
 
 			// ---- actions end
