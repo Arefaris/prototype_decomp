@@ -1774,6 +1774,105 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A5C0
+			float SupportingLimbTestSurfaceNormalVelocityArcCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5D0
+			math::Vector SupportingLimbTestSurfaceNormalAngleCondition::GetNormal() const
+			{
+				return normal;
+			}
+
+			// FUNCTION: ENGINE 0x1011A600
+			float SupportingLimbTestSurfaceNormalAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x1011A640
+			math::Vector SupportingLimbTestSurfaceVelocityAngleCondition::GetZeroVector() const
+			{
+				return zeroVector;
+			}
+
+			// FUNCTION: ENGINE 0x1011A660
+			float SupportingLimbTestSurfaceVelocityAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x1011A670
+			float SupportingLimbTestSurfaceVelocityAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6D0
+			float SupportingSurfaceNormalVelocityArcCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A750
+			math::Vector SupportingLimbTestTrack::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011A770
+			math::Vector SupportingLimbTestTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7A0
+			float SupportingLimbTestTrack::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7D0
+			float SupportingLimbTestTrack::GetMaxInputArc() const
+			{
+				return maxInputArc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A820
+			int SupportingLimbTestTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x1011A860
+			math::Vector SurfaceMoveAtVelocityTrack::GetVelocity() const
+			{
+				return velocity;
+			}
+
+			// FUNCTION: ENGINE 0x1011A880
+			float SurfaceMoveAtVelocityTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8D0
+			math::Vector SupportingLimbSetDirectionTrack::GetDirection() const
+			{
+				return direction;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FEE0
 // FUNCTION: ENGINE 0x10D81C20

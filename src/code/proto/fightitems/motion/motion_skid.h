@@ -115,6 +115,12 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetTurnVelocityMin() const;
+				float GetTurnVelocityMax() const;
+				float GetTurnAccelerationMin() const;
+				float GetTurnAccelerationMax() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetAnimNorth() const;
 				const fight::Name& GetAnimWest() const;
 				const fight::Name& GetAnimSouth() const;

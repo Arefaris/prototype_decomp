@@ -42,6 +42,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetOrientation() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetPriority() const;
 				float GetBlendInTime() const;
 				float GetBlendOutTime() const;
@@ -89,6 +92,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetOrientation() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				float GetMaxDistance() const;

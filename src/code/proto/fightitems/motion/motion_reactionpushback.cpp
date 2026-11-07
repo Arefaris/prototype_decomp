@@ -429,6 +429,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10108490
+			float ReactionPushbackOrientTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x101084F0
+			float ReactionPushbackTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A76D0
 // FUNCTION: ENGINE 0x101A7700

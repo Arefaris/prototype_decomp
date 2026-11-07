@@ -402,6 +402,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10116650
+			float JawFlapTrack::GetAngleMin() const
+			{
+				return angleMin;
+			}
+
+			// FUNCTION: ENGINE 0x10116660
+			float JawFlapTrack::GetAngleMax() const
+			{
+				return angleMax;
+			}
+
+			// FUNCTION: ENGINE 0x101166A0
+			math::Vector JawFlapTrack::GetAxis() const
+			{
+				return axis;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101169C0
 // FUNCTION: ENGINE 0x10116A10

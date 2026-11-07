@@ -364,6 +364,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101178A0
+			math::Vector SpawnGibTrack::GetOffset() const
+			{
+				return offset;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101B4F80
 // FUNCTION: ENGINE 0x101B4F90

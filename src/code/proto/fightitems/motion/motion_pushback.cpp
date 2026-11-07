@@ -329,6 +329,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010D9C0
+			float PushbackDirectionCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1010D9D0
+			float PushbackDirectionCondition::GetArc() const
+			{
+				return arc;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101AA4F0
 // FUNCTION: ENGINE 0x101AA520

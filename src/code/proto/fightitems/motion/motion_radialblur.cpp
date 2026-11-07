@@ -568,6 +568,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10104060
+			math::Vector RadialBlurTrack::GetOffset() const
+			{
+				return offset;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1019FE70
 // FUNCTION: ENGINE 0x1019FE80

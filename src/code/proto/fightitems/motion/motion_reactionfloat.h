@@ -43,6 +43,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetOrientation() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				bool GetSnapToPushback() const;
 				int GetPriority() const;
 				float GetBlendInTime() const;

@@ -37,6 +37,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetArc() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetVelocityType() const;
 				int GetCompare() const;
 
@@ -70,6 +73,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetNormal() const;
+				float GetAngle() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetCompare() const;
@@ -141,6 +148,11 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetZeroVector() const;
+				float GetAngle() const;
+				float GetArc() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetVelocityType() const;
 				bool GetUseExcessVelocity() const;
 
@@ -210,6 +222,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetArc() const;
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetVelocityType() const;
@@ -419,6 +434,13 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetDirection() const;
+				math::Vector GetOffset() const;
+				float GetArc() const;
+				float GetMaxInputArc() const;
+				int GetPriority() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetSupportingLimb() const;
 				float GetRadius() const;
 				float GetExtraDistance() const;
@@ -523,6 +545,10 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetVelocity() const;
+				float GetOrientation() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				bool GetPreserveMomentum() const;
 				int GetPriority() const;
 				float GetBlendInTime() const;
@@ -567,6 +593,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetDirection() const;
 
 					math::Vector direction;  // +0x10
 					float timeBegin;  // +0x1C

@@ -69,6 +69,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetOffset() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				float GetWait() const;
 				float GetFadeIn() const;
 				float GetDuration() const;

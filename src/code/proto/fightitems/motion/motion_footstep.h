@@ -89,6 +89,11 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetAngleMin() const;
+				float GetAngleMax() const;
+				math::Vector GetAxis() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				float GetThresholdMin() const;
 				float GetThresholdMax() const;
 				const fight::Name& GetJoint() const;

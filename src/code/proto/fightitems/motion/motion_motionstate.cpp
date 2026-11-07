@@ -287,6 +287,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10119A20
+			int MotionStateTrack::GetState() const
+			{
+				return state;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10119A50
 // FUNCTION: ENGINE 0x10119AB0

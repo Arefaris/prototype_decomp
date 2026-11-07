@@ -141,6 +141,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011E070
+			float TargetAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x1011E080
+			float TargetAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BBB30
 // FUNCTION: ENGINE 0x101BBB60

@@ -667,6 +667,159 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011F920
+			float HitReactionThrowTrack::GetAutoTargetArc() const
+			{
+				return autoTargetArc;
+			}
+
+			// FUNCTION: ENGINE 0x1011F930
+			float HitReactionThrowTrack::GetMaxTargetArc() const
+			{
+				return maxTargetArc;
+			}
+
+			// FUNCTION: ENGINE 0x1011F980
+			float HitReactionThrowTrack::GetTrackingMin() const
+			{
+				return trackingMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011F990
+			float HitReactionThrowTrack::GetTrackingMax() const
+			{
+				return trackingMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9A0
+			float HitReactionThrowTrack::GetSpinMin() const
+			{
+				return spinMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9B0
+			float HitReactionThrowTrack::GetSpinMax() const
+			{
+				return spinMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9C0
+			float HitReactionThrowTrack::GetArcRange() const
+			{
+				return arcRange;
+			}
+
+			// FUNCTION: ENGINE 0x1011F9D0
+			float HitReactionThrowTrack::GetArcMax() const
+			{
+				return arcMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA50
+			math::Vector ThrowTrack::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA70
+			float ThrowTrack::GetDistanceMin() const
+			{
+				return distanceMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA80
+			float ThrowTrack::GetDistanceMax() const
+			{
+				return distanceMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA90
+			float ThrowTrack::GetVelocityMin() const
+			{
+				return velocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAA0
+			float ThrowTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAB0
+			float ThrowTrack::GetTrackingMin() const
+			{
+				return trackingMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAC0
+			float ThrowTrack::GetTrackingMax() const
+			{
+				return trackingMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAD0
+			float ThrowTrack::GetSpinMin() const
+			{
+				return spinMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAE0
+			float ThrowTrack::GetSpinMax() const
+			{
+				return spinMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FAF0
+			float ThrowTrack::GetArcRange() const
+			{
+				return arcRange;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB00
+			float ThrowTrack::GetArcMax() const
+			{
+				return arcMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB10
+			float ThrowTrack::GetDamageMin() const
+			{
+				return damageMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB20
+			float ThrowTrack::GetDamageMax() const
+			{
+				return damageMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB30
+			float ThrowTrack::GetImpulseMin() const
+			{
+				return impulseMin;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB40
+			float ThrowTrack::GetImpulseMax() const
+			{
+				return impulseMax;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB50
+			float ThrowTrack::GetFriendlyFire() const
+			{
+				return friendlyFire;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BE7D0
 // FUNCTION: ENGINE 0x101BE7E0

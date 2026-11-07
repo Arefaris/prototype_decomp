@@ -603,6 +603,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10114730
+			float SkidPedalTrack::GetTurnVelocityMin() const
+			{
+				return turnVelocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114740
+			float SkidPedalTrack::GetTurnVelocityMax() const
+			{
+				return turnVelocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x10114750
+			float SkidPedalTrack::GetTurnAccelerationMin() const
+			{
+				return turnAccelerationMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114760
+			float SkidPedalTrack::GetTurnAccelerationMax() const
+			{
+				return turnAccelerationMax;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10114800
 // FUNCTION: ENGINE 0x10114820
