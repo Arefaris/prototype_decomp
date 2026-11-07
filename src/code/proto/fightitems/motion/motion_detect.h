@@ -34,6 +34,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetAngle() const;
+				float GetArc() const;
+
 					float angle;  // +0xC
 					float arc;  // +0x10
 			};
@@ -63,6 +67,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetType() const;
+				float GetAngle() const;
+				float GetArc() const;
 
 					float angle;  // +0xC
 					float arc;  // +0x10
@@ -95,6 +104,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetDistance() const;
+
 					float distance;  // +0xC
 					int compare;  // +0x10
 					int direction;  // +0x14
@@ -123,6 +137,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				bool GetIsTarget() const;
 
 					bool isTarget;  // +0xC
 					unsigned char unknownD[0x3];
@@ -184,6 +201,14 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				bool GetSeen() const;
+				float GetMaxDistanceFactor() const;
+				float GetMaxAngle() const;
+				bool GetOnlyMilitary() const;
+				bool GetExcludeIfCantReport() const;
+				float GetMaxDistance() const;
+
 					float maxAngle;  // +0xC
 					float maxDistance;  // +0x10
 					float maxDistanceFactor;  // +0x14
@@ -230,6 +255,13 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetJoint() const;
+				float GetRadius() const;
+				int GetCollideWith() const;
+				const fight::BranchHolder& GetBranch() const;
+				int GetPriority() const;
 
 					fight::BranchHolder branch;  // +0x10
 					unsigned char unknown34[0x4];

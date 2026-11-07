@@ -436,6 +436,54 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100A5C90
+			int DetectObbCollisionCondition::GetCollideWith() const
+			{
+				return collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100A5CA0
+			bool DetectObbCollisionCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x100A5CB0
+			const fight::Name& DetectObbCollisionCondition::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x100A5CC0
+			math::Vector DetectObbCollisionCondition::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x100A5CE0
+			math::Vector DetectObbCollisionCondition::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x100A5D00
+			math::Vector DetectObbCollisionCondition::GetExtents() const
+			{
+				return extents;
+			}
+
+			// FUNCTION: ENGINE 0x100A5D20
+			int HitSurfaceCondition::GetSurface() const
+			{
+				return surface;
+			}
+
+			// FUNCTION: ENGINE 0x100A5D30
+			bool HitSurfaceCondition::GetHitSurface() const
+			{
+				return hitSurface;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBitfieldConstList<DetectObbCollisionCondition>;
 			template class fight::PropertyBool<DetectObbCollisionCondition>;

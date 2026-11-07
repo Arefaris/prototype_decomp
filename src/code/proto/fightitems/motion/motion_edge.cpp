@@ -428,6 +428,102 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100B8E20
+			math::Vector EdgeNormalCondition::GetNormal() const
+			{
+				return normal;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E40
+			float EdgeNormalCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E50
+			int EdgePositionCondition::GetComponent() const
+			{
+				return component;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E60
+			int EdgePositionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E70
+			float EdgePositionCondition::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E80
+			float EdgeDetectTrack::GetSurfaceOffset() const
+			{
+				return surfaceOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100B8E90
+			float EdgeDetectTrack::GetLookaheadDistance() const
+			{
+				return lookaheadDistance;
+			}
+
+			// FUNCTION: ENGINE 0x100B8EA0
+			float EdgeDetectTrack::GetEdgeDepth() const
+			{
+				return edgeDepth;
+			}
+
+			// FUNCTION: ENGINE 0x100B8EB0
+			math::Vector EdgeDetectTrack::GetCardinalVector() const
+			{
+				return cardinalVector;
+			}
+
+			// FUNCTION: ENGINE 0x100B8ED0
+			float EdgeDetectTrack::GetLookaheadDistanceNonCardinal() const
+			{
+				return lookaheadDistanceNonCardinal;
+			}
+
+			// FUNCTION: ENGINE 0x100B8EE0
+			const fight::BranchHolder& EdgeDetectTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x100B8EF0
+			int EdgeDetectTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100B8F10
+			math::Vector EdgeSynchronizeTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x100B8F30
+			int EdgeSynchronizeTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100B8F40
+			float EdgeSynchronizeTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100B8F50
+			float EdgeSynchronizeTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			template class fight::PropertyVector<EdgeNormalCondition>;
 			template class fight::PropertyFloatConstRange<EdgeNormalCondition>;

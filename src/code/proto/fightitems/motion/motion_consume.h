@@ -37,6 +37,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				bool GetStealthy() const;
+
 					float timeBegin;  // +0x10
 					bool stealthy;  // +0x14
 					unsigned char unknown15[0x3];
@@ -81,6 +84,19 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetRagdollIfNeeded() const;
+				bool GetSwitchToRagdollMode() const;
+				const fight::Name& GetParentObjectName() const;
+				const fight::Name& GetParentDestinationJoint() const;
+				math::Vector GetParentPositionOffset() const;
+				bool GetConsumeUpwards() const;
+				float GetBoneSweepConstant() const;
+				bool GetTransformationConsume() const;
+				float GetTransformationConsumeTime() const;
+				bool GetStealthy() const;
+				const fight::Name& GetConsumableProperties() const;
 
 					fight::Name consumableProperties;  // +0x10
 					fight::Name parentDestinationJoint;  // +0x18
@@ -135,6 +151,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetObject() const;
+
 					fight::Name object;  // +0x50
 					bool toBeContinued;  // +0x58
 					unsigned char unknown59[0x7];
@@ -172,6 +191,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetJointToScale() const;
+				float GetDesiredScale() const;
+				float GetScaleRate() const;
+
 					fight::Name jointToScale;  // +0x10
 					float desiredScale;  // +0x18
 					float scaleRate;  // +0x1C
@@ -208,6 +232,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				bool GetStealthy() const;
+
 					float timeBegin;  // +0x10
 					bool stealthy;  // +0x14
 					unsigned char unknown15[0x3];
@@ -242,6 +269,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetGrabSlot() const;
+				bool GetStealthy() const;
 
 					fight::Name grabSlot;  // +0x10
 					float timeBegin;  // +0x18

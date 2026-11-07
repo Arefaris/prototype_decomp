@@ -187,6 +187,60 @@ namespace proto
 				return new FlyingGroundAttackAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BF360
+			float FlyingGroundAttackTrack::GetVelocityXZMin() const
+			{
+				return velocityXZMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BF370
+			float FlyingGroundAttackTrack::GetVelocityXZMax() const
+			{
+				return velocityXZMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BF380
+			float FlyingGroundAttackTrack::GetAccelerationXZ() const
+			{
+				return accelerationXZ;
+			}
+
+			// FUNCTION: ENGINE 0x100BF390
+			float FlyingGroundAttackTrack::GetGravity() const
+			{
+				return gravity;
+			}
+
+			// FUNCTION: ENGINE 0x100BF3A0
+			float FlyingGroundAttackTrack::GetTurningVelocity() const
+			{
+				return turningVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100BF3B0
+			float FlyingGroundAttackTrack::GetTargetOffset() const
+			{
+				return targetOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100BF3C0
+			int FlyingGroundAttackTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100BF3D0
+			float FlyingGroundAttackTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100BF3E0
+			float FlyingGroundAttackTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100BF4E0
 			void FlyingGroundAttackAction::Slot6()

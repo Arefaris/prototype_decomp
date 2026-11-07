@@ -330,6 +330,42 @@ namespace proto
 				return new FactionSetAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BB470
+			int FactionTypeCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100BB480
+			int FactionTypeCondition::GetFactionType() const
+			{
+				return factionType;
+			}
+
+			// FUNCTION: ENGINE 0x100BB490
+			int FactionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4A0
+			const fight::Name& FactionCondition::GetFaction() const
+			{
+				return faction;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4B0
+			const fight::Name& FactionSetTrack::GetFaction() const
+			{
+				return faction;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4C0
+			bool FactionSetTrack::GetNotifyAI() const
+			{
+				return notifyAI;
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<FactionTypeCondition>;
 			template class fight::ConditionFactoryTemplate<FactionTypeCondition>;

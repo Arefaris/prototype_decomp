@@ -46,6 +46,17 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetPhase() const;
+				const fight::Name& GetJointName() const;
+				math::Vector GetJointOffset() const;
+				int GetDamageType() const;
+				int GetAttackType() const;
+				const fight::Name& GetHitType() const;
+				const fight::Name& GetEffectType() const;
+				float GetScaleX() const;
+				float GetScaleY() const;
+
 					fight::Name effectType;  // +0x10
 					fight::Name hitType;  // +0x18
 					fight::Name jointName;  // +0x20

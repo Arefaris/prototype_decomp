@@ -164,6 +164,48 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100B0730
+			const fight::Name& DecalTrack::GetShaderName() const
+			{
+				return shaderName;
+			}
+
+			// FUNCTION: ENGINE 0x100B0740
+			float DecalTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x100B0750
+			float DecalTrack::GetScaleX() const
+			{
+				return scaleX;
+			}
+
+			// FUNCTION: ENGINE 0x100B0760
+			float DecalTrack::GetScaleY() const
+			{
+				return scaleY;
+			}
+
+			// FUNCTION: ENGINE 0x100B07A0
+			float DecalTrack::GetMaxDistance() const
+			{
+				return maxDistance;
+			}
+
+			// FUNCTION: ENGINE 0x100B07B0
+			float DecalTrack::GetMinNormalArc() const
+			{
+				return minNormalArc;
+			}
+
+			// FUNCTION: ENGINE 0x100B07C0
+			float DecalTrack::GetFadeOutTime() const
+			{
+				return fadeOutTime;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DecalTrack>;
 			template class fight::PropertyName<DecalTrack>;

@@ -829,6 +829,282 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100AD530
+			int CrowdMinDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100AD540
+			float CrowdMinDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x100AD550
+			int CrowdPositionCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x100AD560
+			int CrowdPositionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100AD570
+			float CrowdPositionCondition::GetPosition() const
+			{
+				return position;
+			}
+
+			// FUNCTION: ENGINE 0x100AD580
+			float LocoCrowdTrack::GetAcceleration() const
+			{
+				return acceleration;
+			}
+
+			// FUNCTION: ENGINE 0x100AD590
+			float LocoCrowdTrack::GetTurningVelocity() const
+			{
+				return turningVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5A0
+			float LocoCrowdTrack::GetTwistRateOn() const
+			{
+				return twistRateOn;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5B0
+			float LocoCrowdTrack::GetTwistRateOff() const
+			{
+				return twistRateOff;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5C0
+			float LocoCrowdTrack::GetVelocityWalk() const
+			{
+				return velocityWalk;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5D0
+			float LocoCrowdTrack::GetVelocityRun() const
+			{
+				return velocityRun;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5E0
+			float LocoCrowdTrack::GetSmoothSteeringAngle() const
+			{
+				return smoothSteeringAngle;
+			}
+
+			// FUNCTION: ENGINE 0x100AD5F0
+			float LocoCrowdTrack::GetPhase() const
+			{
+				return phase;
+			}
+
+			// FUNCTION: ENGINE 0x100AD600
+			const fight::Name& LocoCrowdTrack::GetLocomotion() const
+			{
+				return locomotion;
+			}
+
+			// FUNCTION: ENGINE 0x100AD610
+			const fight::Name& LocoCrowdTrack::GetAnimIdle() const
+			{
+				return animIdle;
+			}
+
+			// FUNCTION: ENGINE 0x100AD620
+			const fight::Name& LocoCrowdTrack::GetAnimIdleTwistLeft() const
+			{
+				return animIdleTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD630
+			const fight::Name& LocoCrowdTrack::GetAnimIdleTwistRight() const
+			{
+				return animIdleTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD640
+			const fight::Name& LocoCrowdTrack::GetAnimWalk() const
+			{
+				return animWalk;
+			}
+
+			// FUNCTION: ENGINE 0x100AD650
+			const fight::Name& LocoCrowdTrack::GetAnimWalkTwistLeft() const
+			{
+				return animWalkTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD660
+			const fight::Name& LocoCrowdTrack::GetAnimWalkTwistRight() const
+			{
+				return animWalkTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD670
+			const fight::Name& LocoCrowdTrack::GetAnimRun() const
+			{
+				return animRun;
+			}
+
+			// FUNCTION: ENGINE 0x100AD680
+			const fight::Name& LocoCrowdTrack::GetAnimRunTwistLeft() const
+			{
+				return animRunTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD690
+			const fight::Name& LocoCrowdTrack::GetAnimRunTwistRight() const
+			{
+				return animRunTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6A0
+			float LocoCrowdTrack::GetSyncFrameIdle() const
+			{
+				return syncFrameIdle;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6B0
+			float LocoCrowdTrack::GetSyncFrameIdleTwistLeft() const
+			{
+				return syncFrameIdleTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6C0
+			float LocoCrowdTrack::GetSyncFrameIdleTwistRight() const
+			{
+				return syncFrameIdleTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6D0
+			float LocoCrowdTrack::GetSyncFrameWalk() const
+			{
+				return syncFrameWalk;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6E0
+			float LocoCrowdTrack::GetSyncFrameWalkTwistLeft() const
+			{
+				return syncFrameWalkTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD6F0
+			float LocoCrowdTrack::GetSyncFrameWalkTwistRight() const
+			{
+				return syncFrameWalkTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD700
+			float LocoCrowdTrack::GetSyncFrameRun() const
+			{
+				return syncFrameRun;
+			}
+
+			// FUNCTION: ENGINE 0x100AD710
+			float LocoCrowdTrack::GetSyncFrameRunTwistLeft() const
+			{
+				return syncFrameRunTwistLeft;
+			}
+
+			// FUNCTION: ENGINE 0x100AD720
+			float LocoCrowdTrack::GetSyncFrameRunTwistRight() const
+			{
+				return syncFrameRunTwistRight;
+			}
+
+			// FUNCTION: ENGINE 0x100AD730
+			const fight::Name& LocoCrowdTrack::GetPartition() const
+			{
+				return partition;
+			}
+
+			// FUNCTION: ENGINE 0x100AD740
+			int LocoCrowdTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100AD750
+			float LocoCrowdTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100AD760
+			float LocoCrowdTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x100AD770
+			float LocoCrowdTrack::GetRadiusMin() const
+			{
+				return radiusMin;
+			}
+
+			// FUNCTION: ENGINE 0x100AD780
+			float LocoCrowdTrack::GetRadiusMax() const
+			{
+				return radiusMax;
+			}
+
+			// FUNCTION: ENGINE 0x100AD790
+			float LocoCrowdTrack::GetOffsetMax() const
+			{
+				return offsetMax;
+			}
+
+			// FUNCTION: ENGINE 0x100AD7A0
+			const fight::BranchHolder& LocoCrowdTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x100AD7C0
+			float CrowdTestTrack::GetVelocityCap() const
+			{
+				return velocityCap;
+			}
+
+			// FUNCTION: ENGINE 0x100AD7D0
+			float CrowdTestTrack::GetRadiusMin() const
+			{
+				return radiusMin;
+			}
+
+			// FUNCTION: ENGINE 0x100AD7E0
+			float CrowdTestTrack::GetRadiusMax() const
+			{
+				return radiusMax;
+			}
+
+			// FUNCTION: ENGINE 0x100AD7F0
+			float CrowdTestTrack::GetOffsetMax() const
+			{
+				return offsetMax;
+			}
+
+			// FUNCTION: ENGINE 0x100AD800
+			const fight::BranchHolder& CrowdTestTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x100AD810
+			int CrowdTestTrack::GetPriority() const
+			{
+				return priority;
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<CrowdMinDistanceCondition>;
 			template class fight::PropertyFloatConstRange<CrowdMinDistanceCondition>;
@@ -925,3 +1201,4 @@ namespace proto
 // FUNCTION: ENGINE 0x100ADCF0
 // FUNCTION: ENGINE 0x100AE900
 // FUNCTION: ENGINE 0x100AEAB0
+// FUNCTION: ENGINE 0x100A2950

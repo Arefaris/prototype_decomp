@@ -53,6 +53,23 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetTimeEndMin() const;
+				float GetTimeEndMax() const;
+				math::Vector GetDirection() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				float GetAccelerationMin() const;
+				float GetAccelerationMax() const;
+				float GetTrackingMin() const;
+				float GetTrackingMax() const;
+				bool GetFaceDirection() const;
+				bool GetUseAutoTarget() const;
+				bool GetSlideOnGround() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					math::Vector direction;  // +0x10
 					float accelerationMax;  // +0x1C
 					float accelerationMin;  // +0x20
