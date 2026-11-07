@@ -205,6 +205,13 @@ namespace container
 			value = 1
 		};
 	};
+	template<> struct ArrayEraseInline<engine::ContentManager::FileName>
+	{
+		enum
+		{
+			value = 3
+		};
+	};
 	template<> struct ArrayEraseInline<engine::ContentManager::ContentCementFileDefinition::Collection>
 	{
 		enum
@@ -217,6 +224,25 @@ namespace container
 		enum
 		{
 			value = 0
+		};
+	};
+}
+
+namespace content
+{
+	// Whether the helper of an element type inserts its default element through the counted Insert (shift, then fill)
+	template<class T> struct ContentManagerInsertFill
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ContentManagerInsertFill<engine::ContentManager::ContentCementFileDefinition::Collection>
+	{
+		enum
+		{
+			value = 1
 		};
 	};
 }
@@ -258,7 +284,14 @@ namespace container
 					a->Reserve(a->Size() + 1); \
 				} \
 				T* position = a->begin + index; \
-				a->Insert(position, Default()); \
+				if (ContentManagerInsertFill<T>::value) \
+				{ \
+					a->Insert(position, 1, Default()); \
+				} \
+				else \
+				{ \
+					a->Insert(position, Default()); \
+				} \
 			} \
 			virtual void Erase(void* array, int index, int unused) \
 			{ \
