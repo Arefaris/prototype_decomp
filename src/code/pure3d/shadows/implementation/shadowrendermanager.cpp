@@ -213,6 +213,10 @@ namespace pure3d
 	void Unknown106F2DB0();
 	void Unknown1075CD00();
 
+	// This unit's copy of the release helper for the shadow map heap
+	// FUNCTION: ENGINE 0x10715B50
+	template void core::SafeRelease<core::IMemoryAllocator>(core::IMemoryAllocator*& object);
+
 	// This unit's copy of the texture reference helper
 	// FUNCTION: ENGINE 0x10715B70
 	template void core::RefAssign<pure3d::Texture>(pure3d::Texture*& pointer, pure3d::Texture* object);
@@ -395,6 +399,19 @@ namespace pure3d
 		gShadowMapHeap->AddRef();
 		gShadowMapHeap->SetSafetyMode(2);
 		gShadowRenderManager = new ShadowRenderManager(mode);
+	}
+
+	// FUNCTION: ENGINE 0x107168B0
+	void Unknown107168B0()
+	{
+		delete gShadowRenderManager;
+		gShadowRenderManager = 0;
+		core::UnregisterHeap(4);
+		core::SafeRelease(gShadowMapHeap);
+		if (gShadowMapBlock != 0)
+		{
+			core::FreeAligned(gShadowMapBlock);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10715910

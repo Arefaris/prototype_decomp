@@ -102798,3 +102798,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?Find@?$Map@IPBDUInputNameAllocator@ShaderLoader@pure3d@@@container@@QBE?AVIterator@12@ABI@Z = 0x107063F0 ; function size:0x21 | pure3d shaderloader.cpp: the input name map's Find, second copy (template instance)
 ?GetShadowMapSize@pure3d@@YAXHPAH0HH@Z = 0x10715980 ; function size:0xD7 | pure3d::GetShadowMapSize (name guess)
 ?GetShadowMapMemory@pure3d@@YAHH@Z = 0x10715A70 ; function size:0x43 | pure3d::GetShadowMapMemory (name guess)
+?gShadowMapBlock@pure3d@@3PAXA = 0x11281738 ; data size:0x4 | pure3d::gShadowMapBlock: the aligned block the shadow render manager's start-up left (name guess)
+??1ShadowRenderManager@pure3d@@QAE@XZ = 0x10715C00 ; function size:0x57 | pure3d::ShadowRenderManager destructor (not reconstructed; name guess)
+??$SafeRelease@UIMemoryAllocator@core@@@core@@YAXAAPAUIMemoryAllocator@0@@Z = 0x10715B50 ; function size:0x1A | template instance (name guess)

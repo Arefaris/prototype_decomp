@@ -26,6 +26,8 @@ namespace pure3d
 	public:
 		// 0x10716770: builds the manager over the shadow quality mode its argument names (it must be the first one)
 		ShadowRenderManager(int mode);
+		// 0x10715C00 (not reconstructed)
+		~ShadowRenderManager();
 		// 0x10716830: creates the shadow map heap and the manager over it
 		static void Create(int mode);
 
@@ -88,6 +90,8 @@ namespace pure3d
 	extern ShadowRenderManager* gShadowRenderManager;
 	// 0x11281734: the heap the shadow maps and their surfaces are allocated from
 	extern core::IMemoryAllocator* gShadowMapHeap;
+	// 0x11281738: the aligned block the manager's start-up left (freed when it stops; name guess)
+	extern void* gShadowMapBlock;
 }
 
 #endif
