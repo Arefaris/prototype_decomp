@@ -178,11 +178,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10734FA0
-	void IntChannel::GetValue(FrameTime time, int* out)
+	void IntChannel::GetKey(unsigned int index, float* frame, int* out)
 	{
 		ChannelKeys<int> keys;
 		keys.Set(mode, count, frames, values);
-		keys.EvaluateFrame(time, out);
+		keys.GetKey(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x10734FE0
@@ -245,11 +245,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10735070
-	void Float1Channel::GetValue(FrameTime time, float* out)
+	void Float1Channel::GetKey(unsigned int index, float* frame, float* out)
 	{
 		ChannelKeys<float> keys;
 		keys.Set(mode, count, frames, values);
-		keys.EvaluateFrame(time, out);
+		keys.GetKey(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x107350B0
@@ -320,11 +320,11 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10735190
-	void Float2Channel::GetValue(FrameTime time, Float2* out)
+	void Float2Channel::GetKey(unsigned int index, float* frame, Float2* out)
 	{
 		ChannelKeys<Float2> keys;
 		keys.Set(mode, count, frames, values);
-		keys.EvaluateFrame(time, out);
+		keys.GetKey(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x107351D0

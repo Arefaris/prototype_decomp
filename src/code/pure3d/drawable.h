@@ -233,6 +233,9 @@ namespace pure3d
 		Drawable(const char* name, container::ArrayDynamic<DrawablePart, container::AllocatorNew>& newParts,
 			bool unknown);
 
+		// 0x106E21B0: an instance of another drawable (the source's parts, state and animation controllers are copied;
+		// name guess)
+		Drawable(Drawable* source, const CreateOptions& options);
 		// 0x106E2890: a new drawable made from this one (0x108 bytes, constructor 0x106E21B0)
 		Drawable* CreateInstance(const CreateOptions& options);
 

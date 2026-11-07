@@ -56,6 +56,19 @@ namespace math
 	}
 }
 
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
+
 namespace pure3d
 {
 	void AssignCoreRef(core::IRefCount*& pointer, core::IRefCount* object);
@@ -839,5 +852,34 @@ namespace pure3d
 		}
 		partsDirty = false;
 		dirty.ClearAll();
+	}
+
+	// FUNCTION: ENGINE 0x106E1400
+	// NONMATCHING: scheduling (93 %: the engine loads the one before the alpha store, ours after it)
+#ifdef NONMATCHING
+	Drawable::CreateOptions::CreateOptions()
+	{
+		b0 = false;
+		b2 = false;
+		b3 = false;
+		b4 = false;
+		b5 = false;
+		instanceOf = 0;
+		b1 = true;
+		colour.x = (int)math::pddiColour::WHITE.r * (1.0f / 255.0f);
+		colour.y = (int)math::pddiColour::WHITE.g * (1.0f / 255.0f);
+		colour.z = (int)math::pddiColour::WHITE.b * (1.0f / 255.0f);
+		colour.w = (int)math::pddiColour::WHITE.a * (1.0f / 255.0f);
+		unknown1C = engine::driving::gOne;
+		float minusOne = choreo::gMinusOne;
+		unknown20 = minusOne;
+		unknown24 = minusOne;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E2890
+	Drawable* Drawable::CreateInstance(const CreateOptions& options)
+	{
+		return new Drawable(this, options);
 	}
 }

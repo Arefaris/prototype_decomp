@@ -49,6 +49,10 @@ namespace pure3d
 		// after the last key, where both keys are that one
 		bool FindKeys(FrameTime time, unsigned int* index0, unsigned int* index1, short* frame0, short* frame1);
 
+		// 0x106E3FE0 / 0x106E4000: the frame of the first and of the last key (names guessed)
+		int GetFirstFrame();
+		int GetLastFrame();
+
 		unsigned int mode;
 		unsigned int count;
 		const short* frames;
@@ -83,9 +87,21 @@ namespace pure3d
 		void Set(unsigned int mode, unsigned int count, const short* frames);
 	};
 
+	// The base of the keys of vectors (three axes, or one or two through a constant): the vector unit holds its own copy
+	// of the setter (0x106E3100; name guess)
+	class VectorKeysBase : public ChannelKeysBase
+	{
+	public:
+		void Set(unsigned int mode, unsigned int count, const short* frames);
+	};
+
 	template<class T> struct KeysBase
 	{
 		typedef ChannelKeysBase Type;
+	};
+	template<> struct KeysBase<math::Vector>
+	{
+		typedef VectorKeysBase Type;
 	};
 	template<> struct KeysBase<math::Quaternion>
 	{
@@ -106,6 +122,12 @@ namespace pure3d
 	template<> struct KeysBase<math::CompressedQuaternion3>
 	{
 		typedef RotationKeysBase Type;
+	};
+
+	struct Short3;
+	template<> struct KeysBase<Short3>
+	{
+		typedef VectorKeysBase Type;
 	};
 
 	// Two floats and two or three shorts a key (plain structs: the channels allocate their values without constructors)
@@ -135,8 +157,8 @@ namespace pure3d
 	public:
 		void Set(unsigned int mode, unsigned int count, const short* frames, const T* values);
 		void Evaluate(FrameTime time, typename KeyValue<T>::Type* out);
-		// The cheaper lookup of a key of the time's frame (no interpolation); 0x106E4020, 0x106E4180, 0x106E42E0
-		void EvaluateFrame(FrameTime time, typename KeyValue<T>::Type* out);
+		// The frame number (as a float) and the value of the key of that index; 0x106E4020, 0x106E4180, 0x106E42E0
+		void GetKey(unsigned int index, float* frame, typename KeyValue<T>::Type* out);
 		// 0x106E35B0 (float): the change of the value between two times, the span of a cycle and whether it wraps
 		void GetDelta(float previousTime, float time, typename KeyValue<T>::Type* out, float length, bool cycle);
 
@@ -145,7 +167,7 @@ namespace pure3d
 
 	// The keys of a vector channel that animates one or two axes through a constant vector and a value a key
 	// (0x106E3110, 0x106E3160 and 0x106E31B0 are the instances of Set)
-	template<class T> class DOFKeys : public ChannelKeysBase
+	template<class T> class DOFKeys : public VectorKeysBase
 	{
 	public:
 		void Set(unsigned int mode, unsigned int count, const short* frames, int axis, math::Vector constant,
@@ -266,7 +288,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10734FA0 / 0x10734FE0: the value at a frame, and at a time
-		void GetValue(FrameTime time, int* out);
+		void GetKey(unsigned int index, float* frame, int* out);
 		void GetValue(float time, int* out);
 
 		int* values;
@@ -289,7 +311,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10735070 / 0x107350B0: the value at a frame, and at a time; 0x10735100: the change over a span of time
-		void GetValue(FrameTime time, float* out);
+		void GetKey(unsigned int index, float* frame, float* out);
 		void GetValue(float time, float* out);
 		void GetDelta(float previousTime, float time, float* out, float length, bool cycle);
 
@@ -311,7 +333,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10735190 / 0x107351D0
-		void GetValue(FrameTime time, Float2* out);
+		void GetKey(unsigned int index, float* frame, Float2* out);
 		void GetValue(float time, Float2* out);
 
 		Float2* values;
