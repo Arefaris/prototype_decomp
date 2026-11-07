@@ -282,6 +282,13 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x101167D0
+			bool FootstepAction::Slot5(int arg, float value)
+			{
+				unknown2C = 0.0f;
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x101167E0
 			void FootstepAction::Slot6()
 			{
@@ -291,6 +298,36 @@ namespace proto
 			fight::Action* FootstepTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				return new FootstepAction(this, engine::GetObjectHandle(owner));
+			}
+
+			// FUNCTION: ENGINE 0x10116E40
+			JawFlapAction::JawFlapAction(JawFlapTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* owner) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown34(0xffff)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10116BF0
+			JawFlapAction::~JawFlapAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10116C20
+			void JawFlapAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101173F0
+			fight::Action* JawFlapTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new JawFlapAction(this, engine::GetObjectHandle(owner), owner);
 			}
 
 			// ---- actions end

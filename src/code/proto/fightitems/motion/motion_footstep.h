@@ -121,7 +121,30 @@ namespace proto
 
 				engine::GameObjectHandle target;  // +0x1C
 				core::Link<FootstepTrack> link;  // +0x20
+				float unknown2C;  // +0x2C
+			};
+
+			// RTTI: proto::fightitems::motion::JawFlapAction (9 vftable slots, 0x38 bytes)
+			class JawFlapAction : public fight::Action
+			{
+			public:
+				// 0x10116E40
+				JawFlapAction(JawFlapTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* owner);
+				// 0x10116BF0
+				virtual ~JawFlapAction();
+
+				// vftable slot 5 (0x10116EE0, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10116C20)
+				virtual void Slot6();
+				// vftable slot 7 (0x10117030, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<JawFlapTrack> link;  // +0x20
 				unsigned char unknown2C[0x4];
+				choreo::Driver* driver;  // +0x30
+				int unknown34;  // +0x34
 			};
 
 			// ---- actions end
