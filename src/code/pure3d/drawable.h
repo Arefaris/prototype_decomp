@@ -307,6 +307,10 @@ namespace pure3d
 		void GetSegmentParts(unsigned short segment, unsigned int* first, unsigned int* count);
 		// 0x106E0D60: the box and sphere around every part (when the transform changed, or always with force)
 		void UpdateBounds(bool force);
+		// 0x106E0C10 / 0x106E0D20: the bounds (box and sphere) of the drawable in its own space, from the world bounds
+		// and the inverse of its transform (names guessed)
+		void GetLocalBounds(math::AABB* box);
+		void GetLocalSphere(math::Sphere* sphere);
 		// 0x106E11F0: the value at +0xCC, handed to every part's primitive
 		void SetUnknownCC(int value);
 		// 0x106E0950: the float at +0xBC (clamped to 0 - 1)

@@ -591,6 +591,44 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106E0C10
+	void Drawable::GetLocalBounds(math::AABB* box)
+	{
+		math::Matrix inverse;
+		inverse.m[0][0] = transform.m[0][0];
+		inverse.m[0][1] = transform.m[0][1];
+		inverse.m[0][2] = transform.m[0][2];
+		inverse.m[0][3] = transform.m[0][3];
+		inverse.m[1][0] = transform.m[1][0];
+		inverse.m[1][1] = transform.m[1][1];
+		inverse.m[1][2] = transform.m[1][2];
+		inverse.m[1][3] = transform.m[1][3];
+		inverse.m[2][0] = transform.m[2][0];
+		inverse.m[2][1] = transform.m[2][1];
+		inverse.m[2][2] = transform.m[2][2];
+		inverse.m[2][3] = transform.m[2][3];
+		inverse.m[3][0] = transform.m[3][0];
+		inverse.m[3][1] = transform.m[3][1];
+		inverse.m[3][2] = transform.m[3][2];
+		inverse.m[3][3] = transform.m[3][3];
+		inverse.Invert();
+		box->max.x = bounds.max.x;
+		box->max.y = bounds.max.y;
+		box->max.z = bounds.max.z;
+		box->min.x = bounds.min.x;
+		box->min.y = bounds.min.y;
+		box->min.z = bounds.min.z;
+		box->SetTransformed(inverse, *box);
+	}
+
+	// FUNCTION: ENGINE 0x106E0D20
+	void Drawable::GetLocalSphere(math::Sphere* sphere)
+	{
+		math::AABB box;
+		GetLocalBounds(&box);
+		CopySphere(*sphere, box.GetSphere());
+	}
+
 	// FUNCTION: ENGINE 0x106E11F0
 	void Drawable::SetUnknownCC(int value)
 	{

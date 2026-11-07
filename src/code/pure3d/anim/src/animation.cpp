@@ -5,6 +5,15 @@
 #include <math.h>
 #include "code/pure3d/animation.h"
 #include "code/pure3d/channel.h"
+#include "code/pure3d/effects/particlecontroller.h"
+
+namespace engine
+{
+	namespace camera
+	{
+		extern const float gThousandth;
+	}
+}
 
 
 namespace math
@@ -196,6 +205,170 @@ namespace pure3d
 	{
 		type = 4;
 		CopyRotationKeys(keys, newKeys);
+	}
+
+	// FUNCTION: ENGINE 0x106E79D0
+	AnimationGroup* Animation::GetGroup(int index)
+	{
+		return mGroups[index];
+	}
+
+	// FUNCTION: ENGINE 0x106E79E0
+	// NONMATCHING: register allocation (65 %: the engine keeps the upper bound in edi and the lower in esi; same operations)
+#ifdef NONMATCHING
+	AnimationGroup* Animation::FindOverallGroup(int id)
+	{
+		if (mGroupCount > 0)
+		{
+			if (mSortMode == 1)
+			{
+				int low = 0;
+				int high = mGroupCount - 1;
+				int middle = high / 2;
+				if (high > 0)
+				{
+					do
+					{
+						int key = mGroups[middle]->mId;
+						if (key > id)
+						{
+							high = middle - 1;
+						}
+						else
+						{
+							if (key >= id)
+							{
+								return mGroups[middle];
+							}
+							low = middle + 1;
+						}
+						middle = (high - low) / 2 + low;
+					}
+					while (low < high);
+				}
+				AnimationGroup* group = mGroups[middle];
+				if (group->mId == id)
+				{
+					return group;
+				}
+			}
+			else
+			{
+				int i = 0;
+				if (mGroupCount > 0)
+				{
+					AnimationGroup** group = mGroups;
+					do
+					{
+						if ((*group)->mId == id)
+						{
+							return mGroups[i];
+						}
+						i++;
+						group++;
+					}
+					while (i < mGroupCount);
+					return 0;
+				}
+			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E7A90
+	// NONMATCHING: register allocation (65 %: the engine keeps the upper bound in edi and the lower in esi; same operations)
+#ifdef NONMATCHING
+	int Animation::FindOverallGroupIndex(int id)
+	{
+		if (mGroupCount > 0)
+		{
+			if (mSortMode == 1)
+			{
+				int high = mGroupCount - 1;
+				int low = 0;
+				int middle = high / 2;
+				if (high > 0)
+				{
+					do
+					{
+						int key = mGroups[middle]->mId;
+						if (key > id)
+						{
+							high = middle - 1;
+						}
+						else
+						{
+							if (key >= id)
+							{
+								return middle;
+							}
+							low = middle + 1;
+						}
+						middle = (high - low) / 2 + low;
+					}
+					while (low < high);
+				}
+				if (mGroups[middle]->mId == id)
+				{
+					return middle;
+				}
+			}
+			else
+			{
+				int i = 0;
+				if (mGroupCount > 0)
+				{
+					AnimationGroup** group = mGroups;
+					do
+					{
+						if ((*group)->mId == id)
+						{
+							return i;
+						}
+						i++;
+						group++;
+					}
+					while (i < mGroupCount);
+				}
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E8240
+	unsigned __int64 AnimationGroup::GetNameHash()
+	{
+		return mName.GetHash();
+	}
+
+	// FUNCTION: ENGINE 0x106E8770
+	// NONMATCHING: operand order of the step and the argument register (22 %: the engine multiplies the frame rate by dt
+	// before the scale and passes the flag zero-extended)
+#ifdef NONMATCHING
+	float Animation::AdvanceFrame(float* remaining, bool* forward, float frame, float dt, float start, float end,
+		bool unlimited, int mode)
+	{
+		if (mode == 0)
+		{
+			unlimited = mFlag0;
+		}
+		return AdvanceFrameCycle(remaining, forward, frame, mFrameRate * dt * engine::camera::gThousandth, start, end,
+			unlimited, mode);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E8D30
+	AnimationGroup* Animation::FindGroup(const char* name)
+	{
+		return FindGroup(&core::Name<core::CaseSensitiveKey>(name, 1));
+	}
+
+	// FUNCTION: ENGINE 0x106E8D60
+	int Animation::FindGroupIndex(const char* name)
+	{
+		return FindGroupIndex(&core::Name<core::CaseSensitiveKey>(name, 1));
 	}
 
 	// FUNCTION: ENGINE 0x106E7B20
@@ -398,6 +571,73 @@ namespace pure3d
 		pure3d::GetKey(values, index0, out);
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106E57C0
+	// NONMATCHING: stack frame (49 %: the engine's frame is 8 bytes larger and it computes the time offset before the key call)
+#ifdef NONMATCHING
+	template<> void ChannelKeys<math::Vector>::Evaluate(FrameTime time, math::Vector* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			math::Vector a;
+			math::Vector b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				out->x = a.x;
+				out->y = a.y;
+				out->z = a.z;
+				return;
+			}
+			float t = alpha / (time1.time - time0.time);
+			out->x = (b.x - a.x) * t + a.x;
+			out->y = (b.y - a.y) * t + a.y;
+			out->z = (b.z - a.z) * t + a.z;
+			return;
+		}
+		pure3d::GetKey(values, index0, out);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E5B40
+	template<> void ChannelKeys<math::Quaternion>::Evaluate(FrameTime time, math::Quaternion* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			math::Quaternion a;
+			math::Quaternion b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				*out = a;
+				return;
+			}
+			float t = alpha / (time1.time - time0.time);
+			out->Slerp(a, b, t);
+			return;
+		}
+		pure3d::GetKey(values, index0, out);
+	}
 
 	// FUNCTION: ENGINE 0x106E6350
 	template<> void ChannelKeys<math::CompressedQuaternion6>::Evaluate(FrameTime time, math::Quaternion* out)
@@ -608,3 +848,9 @@ template void pure3d::ChannelKeys<float>::GetKey(unsigned int index, float* fram
 
 // FUNCTION: ENGINE 0x106E42E0
 template void pure3d::ChannelKeys<pure3d::Float2>::GetKey(unsigned int index, float* frame, pure3d::Float2* out);
+
+// FUNCTION: ENGINE 0x106E5700
+template void pure3d::ChannelKeys<math::Vector>::GetKey(unsigned int index, float* frame, math::Vector* out);
+
+// FUNCTION: ENGINE 0x106E5AD0
+template void pure3d::ChannelKeys<math::Quaternion>::GetKey(unsigned int index, float* frame, math::Quaternion* out);
