@@ -101371,3 +101371,4 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??1HelicopterSolverProperties@proto@@UAE@XZ = 0x1031F4B0 ; function size:0x7 | proto::HelicopterSolverProperties::~HelicopterSolverProperties (name guess)
 ?Cast@?$DynamicCaster@VHelicopterSolverProperties@proto@@@LoadInventory@content@@UAEPAUIRefCount@core@@PAU45@@Z = 0x10316B30 ; function size:0x1E | kept template or inline copy of this unit
 ?IsDerived@?$BaseClassCasterImpl@VBehaviour@engine@@VHelicopterSolverBehaviour@proto@@@content@@UAE_NPAX@Z = 0x10313740 ; function size:0x24 | kept template or inline copy of this unit
+??_R0?AVHelicopterSolverBehaviour@proto@@@8 = 0x1107A738 ; data size:0x8 | proto::HelicopterSolverBehaviour RTTI type descriptor
