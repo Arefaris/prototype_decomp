@@ -174,7 +174,7 @@ namespace proto
 	public:
 		// 0x104305D0
 		explicit GetIntersectionStateMessage(int newDirection) :
-			AmbientMessage(0), state(-1), direction(newDirection), unknown14(0), unknown18(0.0f), unknown1C(0.0f)
+			AmbientMessage(0), state(-1), direction(newDirection), lightState(0), timeLeft(0.0f), phaseDuration(0.0f)
 		{
 		}
 		// 0x10430620
@@ -182,11 +182,11 @@ namespace proto
 		{
 		}
 
-		int state;  // +0xC
+		int state;  // +0xC: the index of the phase the intersection is in
 		int direction;  // +0x10
-		int unknown14;
-		float unknown18;
-		float unknown1C;
+		int lightState;  // +0x14: the state of the light for the direction in that phase
+		float timeLeft;  // +0x18
+		float phaseDuration;  // +0x1C
 	};
 
 	// RTTI proto::GetIntersectionBehaviourMessage (id 1)

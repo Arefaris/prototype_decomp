@@ -99127,3 +99127,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??_7GetSensesInfoMessage@proto@@6B@ = 0x10DA7D4C ; data size:0x4 | proto::GetSensesInfoMessage vftable
 ??_GGetSensesInfoMessage@proto@@UAEPAXI@Z = 0x10117B10 ; function size:0x1F | proto::GetSensesInfoMessage::scalar deleting destructor vftable slot 0
 ??0GetSensesInfoMessage@proto@@QAE@_N@Z = 0x10432E30 ; function size:0x25 | public: __thiscall proto::GetSensesInfoMessage::GetSensesInfoMessage(bool) (kept copy)
+?AnswerBehaviour@IntersectionBehaviour@proto@@QAEXPAUGetIntersectionBehaviourMessage@2@@Z = 0x104307C0 ; function size:0xA | proto::IntersectionBehaviour::AnswerBehaviour (name guess)
+?AnswerState@IntersectionBehaviour@proto@@QAEXPAUGetIntersectionStateMessage@2@@Z = 0x10430AA0 ; function size:0x45 | proto::IntersectionBehaviour::AnswerState (name guess)
+?GetLightState@IntersectionBehaviour@proto@@QAEHH@Z = 0x10430B40 ; function size:0x18 | proto::IntersectionBehaviour::GetLightState (name guess)

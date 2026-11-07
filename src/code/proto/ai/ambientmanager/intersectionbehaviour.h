@@ -12,6 +12,9 @@
 namespace proto
 {
 
+	struct GetIntersectionStateMessage;
+	struct GetIntersectionBehaviourMessage;
+
 	class IntersectionBehaviour : public engine::Behaviour
 	{
 	public:
@@ -23,6 +26,12 @@ namespace proto
 		virtual void Update(float dt, unsigned short mask);
 		// vftable slot 6 (0x10430B00): the message type 0x24 answers the current phase and takes a new intersection
 		virtual void OnMessage(engine::Message* message);
+
+		// 0x10430AA0 / 0x104307C0: the answers to the two messages
+		void AnswerState(GetIntersectionStateMessage* message);
+		void AnswerBehaviour(GetIntersectionBehaviourMessage* message);
+		// 0x10430B40: the state of the light for a direction in the current phase
+		int GetLightState(int direction);
 
 		IntersectionData* data;  // +0xC
 		int phase;  // +0x10
