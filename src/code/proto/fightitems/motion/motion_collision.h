@@ -135,7 +135,7 @@ namespace proto
 				virtual bool Slot30(engine::GameObject* object);
 
 				engine::GameObjectHandle target;  // +0x1C
-				engine::HandleBase unknown20;  // +0x20
+				engine::GameObjectHandle unknown20;  // +0x20
 				CollisionActionBehaviour* behaviour;  // +0x24
 				bool unknown28;  // +0x28
 				bool unknown29;  // +0x29

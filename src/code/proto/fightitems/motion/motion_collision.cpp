@@ -1,6 +1,8 @@
 // Fight items of the motion group: DetectObbCollisionCondition, HitSurfaceCondition (unit 0x10149DC0 - 0x1014A890; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_collision.h"
 #include "code/proto/behaviours/collisionmessages.h"
+#include "code/proto/behaviours/collisionactionbehaviour.h"
+#include "code/proto/fightitems/motion/motionactionmessages.h"
 #include "code/proto/fightitems/motion/motioncommon.h"
 #include <math.h>
 
@@ -208,6 +210,49 @@ namespace proto
 			{
 				delete volume;
 				volume = 0;
+			}
+
+			// FUNCTION: ENGINE 0x100A3790
+			void CollisionAction::Slot6()
+			{
+				if (Slot22() && unknown20.Get() != 0 && behaviour != 0)
+				{
+					SetCollisionActiveMessage message(false);
+					behaviour->SetCollisionActive(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100A4320
+			void CollisionAction::Slot23()
+			{
+				unknown20 = target;
+				engine::GameObject* object = unknown20.Get();
+				if (unknown29)
+				{
+					if (object == 0)
+					{
+						behaviour = 0;
+						return;
+					}
+					GetDamageOriginatorDamageMessage originatorMessage;
+					object->SendMessage(&originatorMessage);
+					engine::GameObject* originator = originatorMessage.originator.Get();
+					if (originator != 0)
+					{
+						unknown20 = originatorMessage.originator;
+						object = originator;
+					}
+				}
+				if (object != 0)
+				{
+					GetCollisionActionBehaviourMessage behaviourMessage;
+					object->SendMessage(&behaviourMessage);
+					behaviour = behaviourMessage.behaviour;
+				}
+				else
+				{
+					behaviour = 0;
+				}
 			}
 
 			// FUNCTION: ENGINE 0x100A5B90
@@ -476,3 +521,10 @@ namespace proto
 // FUNCTION: ENGINE 0x100A59F0
 // FUNCTION: ENGINE 0x100A5C30
 // FUNCTION: ENGINE 0x100A5F60
+// FUNCTION: ENGINE 0x100A25B0
+// FUNCTION: ENGINE 0x100A2A10
+// FUNCTION: ENGINE 0x100A2A40
+// FUNCTION: ENGINE 0x100A2A90
+// FUNCTION: ENGINE 0x100A2AE0
+// FUNCTION: ENGINE 0x100A2FF0
+// FUNCTION: ENGINE 0x100A3080

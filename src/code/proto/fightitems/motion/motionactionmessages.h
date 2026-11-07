@@ -126,6 +126,20 @@ namespace proto
 		bool devastatorGrab;  // +0x16
 	};
 
+	// RTTI: proto::GetDamageOriginatorDamageMessage: the object answers which object is the originator of the damage it deals
+	struct GetDamageOriginatorDamageMessage : public engine::IntrusiveMessage
+	{
+		GetDamageOriginatorDamageMessage() : engine::IntrusiveMessage(0x14, 0x12), originator(), unknown10()
+		{
+		}
+		virtual ~GetDamageOriginatorDamageMessage()
+		{
+		}
+
+		engine::GameObjectHandle originator;  // +0xC
+		engine::GameObjectHandle unknown10;  // +0x10
+	};
+
 	// RTTI: proto::QueryConsumeAnimationFinishedMessage: the object answers whether its consume animation has finished
 	struct QueryConsumeAnimationFinishedMessage : public GrabbableMessage
 	{
