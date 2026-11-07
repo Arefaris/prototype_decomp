@@ -867,7 +867,13 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::LocoSprintTrack* core::Link<proto::fightitems::motion::LocoSprintTrack>::Get() const;
+
+template proto::fightitems::motion::LocoSprintChargeTrack* core::Link<proto::fightitems::motion::LocoSprintChargeTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E61E0
+// FUNCTION: ENGINE 0x100E6180
 // FUNCTION: ENGINE 0x100E6110
 // FUNCTION: ENGINE 0x100E6140
 // FUNCTION: ENGINE 0x100E6160

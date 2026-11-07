@@ -265,7 +265,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::LaserTrack* core::Link<proto::fightitems::motion::LaserTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E3B20
 // FUNCTION: ENGINE 0x10187540
 // FUNCTION: ENGINE 0x10187550
 // FUNCTION: ENGINE 0x10187580

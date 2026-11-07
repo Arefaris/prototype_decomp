@@ -308,7 +308,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::MoveChargedTrack* core::Link<proto::fightitems::motion::MoveChargedTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F5EC0
 // FUNCTION: ENGINE 0x100F5EA0
 // FUNCTION: ENGINE 0x100F5ED0
 // FUNCTION: ENGINE 0x100F60F0

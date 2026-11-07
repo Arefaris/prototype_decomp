@@ -303,7 +303,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::JumpYTrack* core::Link<proto::fightitems::motion::JumpYTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E2E00
 // FUNCTION: ENGINE 0x100E2DE0
 // FUNCTION: ENGINE 0x100E2E10
 // FUNCTION: ENGINE 0x100E3020

@@ -507,7 +507,13 @@ namespace proto
 	}
 }
 
+// Explicit instance of the track link's accessor (the engine keeps its copy):
+template proto::fightitems::motion::JumpAnimationTrack* core::Link<proto::fightitems::motion::JumpAnimationTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E01B0
+// FUNCTION: ENGINE 0x100E01D0
+// FUNCTION: ENGINE 0x100E01E0
 // FUNCTION: ENGINE 0x100E0000
 // FUNCTION: ENGINE 0x100E0010
 // FUNCTION: ENGINE 0x100E0020

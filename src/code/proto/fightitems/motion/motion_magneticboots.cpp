@@ -2283,7 +2283,25 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::MagneticBootsResetInfoTrack* core::Link<proto::fightitems::motion::MagneticBootsResetInfoTrack>::Get() const;
+
+template proto::fightitems::motion::MagneticBootsTrack* core::Link<proto::fightitems::motion::MagneticBootsTrack>::Get() const;
+
+template proto::fightitems::motion::MagneticBootsTestWallTrack* core::Link<proto::fightitems::motion::MagneticBootsTestWallTrack>::Get() const;
+
+template proto::fightitems::motion::MagneticBootsTestCornerTrack* core::Link<proto::fightitems::motion::MagneticBootsTestCornerTrack>::Get() const;
+
+template proto::fightitems::motion::MagneticBootsTestJumpStuckTrack* core::Link<proto::fightitems::motion::MagneticBootsTestJumpStuckTrack>::Get() const;
+
+template proto::fightitems::motion::MagneticBootsTestDetachTrack* core::Link<proto::fightitems::motion::MagneticBootsTestDetachTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100ED500
+// FUNCTION: ENGINE 0x100ED4A0
+// FUNCTION: ENGINE 0x100ED440
+// FUNCTION: ENGINE 0x100ED3E0
+// FUNCTION: ENGINE 0x100ED380
+// FUNCTION: ENGINE 0x100ED320
 // FUNCTION: ENGINE 0x100ED220
 // FUNCTION: ENGINE 0x100ED240
 // FUNCTION: ENGINE 0x100ED260

@@ -534,7 +534,13 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::OrientTrack* core::Link<proto::fightitems::motion::OrientTrack>::Get() const;
+
+template proto::fightitems::motion::WorldOrientTrack* core::Link<proto::fightitems::motion::WorldOrientTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100FF270
+// FUNCTION: ENGINE 0x100FF210
 // FUNCTION: ENGINE 0x100FF1D0
 // FUNCTION: ENGINE 0x100FF1F0
 // FUNCTION: ENGINE 0x100FF220

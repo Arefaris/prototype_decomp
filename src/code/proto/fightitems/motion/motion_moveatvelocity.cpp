@@ -309,7 +309,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::MoveAtVelocityTrack* core::Link<proto::fightitems::motion::MoveAtVelocityTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F5790
 // FUNCTION: ENGINE 0x100F5770
 // FUNCTION: ENGINE 0x100F57A0
 // FUNCTION: ENGINE 0x100F59A0
