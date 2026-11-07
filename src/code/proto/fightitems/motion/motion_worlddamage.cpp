@@ -709,17 +709,6 @@ namespace proto
 	{
 		namespace motion
 		{
-			// FUNCTION: ENGINE 0x1011A800
-			bool ExplicitWorldDamageTrack::GetToBeContinued() const
-			{
-				return toBeContinued;
-			}
-
-			// FUNCTION: ENGINE 0x1011A800
-			bool ExplicitWorldConeDamageTrack::GetToBeContinued() const
-			{
-				return toBeContinued;
-			}
 		}
 	}
 }

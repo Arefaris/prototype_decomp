@@ -43,10 +43,6 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
-				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
-				float GetFrame() const;
-				int GetPriority() const;
-
 					fight::Name animation;  // +0x10
 					fight::Name joint;  // +0x18
 					float frame;  // +0x20

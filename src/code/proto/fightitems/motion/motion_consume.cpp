@@ -419,12 +419,6 @@ namespace proto
 				unknownC = 1;
 			}
 
-			// FUNCTION: ENGINE 0x1014D890
-			float ScaleJointForConsumeTrack::GetTimeBegin() const
-			{
-				return timeBegin;
-			}
-
 			// FUNCTION: ENGINE 0x1014D8A0
 			float ScaleJointForConsumeTrack::Slot10() const
 			{
@@ -920,23 +914,6 @@ namespace proto
 	{
 		namespace motion
 		{
-			// FUNCTION: ENGINE 0x10110440
-			bool NISConsumeByParentTrack::GetToBeContinued() const
-			{
-				return toBeContinued;
-			}
-
-			// FUNCTION: ENGINE 0x1010E250
-			float ScaleJointForConsumeTrack::GetDesiredScale() const
-			{
-				return desiredScale;
-			}
-
-			// FUNCTION: ENGINE 0x1010E260
-			float ScaleJointForConsumeTrack::GetScaleRate() const
-			{
-				return scaleRate;
-			}
 		}
 	}
 }

@@ -451,6 +451,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetApplyOnParent() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::Name& GetGrabSlot() const;
 				const fight::Name& GetWeaponEntry() const;
 				const fight::Name& GetShooter() const;

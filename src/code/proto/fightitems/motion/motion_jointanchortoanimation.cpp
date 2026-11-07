@@ -71,12 +71,6 @@ namespace proto
 				unknownC = 1;
 			}
 
-			// FUNCTION: ENGINE 0x101822C0
-			float JointAnchorToAnimationTrack::GetTimeBegin() const
-			{
-				return timeBegin;
-			}
-
 			// FUNCTION: ENGINE 0x101822D0
 			float JointAnchorToAnimationTrack::Slot10() const
 			{
@@ -197,17 +191,6 @@ namespace proto
 	{
 		namespace motion
 		{
-			// FUNCTION: ENGINE 0x10108500
-			float JointAnchorToAnimationTrack::GetFrame() const
-			{
-				return frame;
-			}
-
-			// FUNCTION: ENGINE 0x10108510
-			int JointAnchorToAnimationTrack::GetPriority() const
-			{
-				return priority;
-			}
 		}
 	}
 }

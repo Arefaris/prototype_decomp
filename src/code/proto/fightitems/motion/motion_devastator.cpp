@@ -249,12 +249,6 @@ namespace proto
 			{
 			}
 
-			// FUNCTION: ENGINE 0x10156F80
-			float DevastatorTargetGroundSpikeTrack::GetTimeBegin() const
-			{
-				return timeBegin;
-			}
-
 			// FUNCTION: ENGINE 0x10156F90
 			float DevastatorTargetGroundSpikeTrack::Slot10() const
 			{
@@ -1180,17 +1174,6 @@ namespace proto
 	{
 		namespace motion
 		{
-			// FUNCTION: ENGINE 0x1010E980
-			int DevastatorTargetGroundSpikeTrack::GetParameter() const
-			{
-				return parameter;
-			}
-
-			// FUNCTION: ENGINE 0x1010E990
-			bool DevastatorTargetGroundSpikeTrack::GetRandom() const
-			{
-				return random;
-			}
 		}
 	}
 }

@@ -113,9 +113,6 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
-				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
-				bool GetToBeContinued() const;
-
 				fight::Name object;  // +0x70
 				bool toBeContinued;  // +0x78
 				unsigned char unknown79[0x7];
@@ -222,9 +219,6 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
-
-				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
-				bool GetToBeContinued() const;
 
 				fight::Name object;  // +0x70
 				bool toBeContinued;  // +0x78

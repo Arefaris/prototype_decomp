@@ -1931,6 +1931,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A800
+			bool SupportingLimbTestTrack::GetSwitchSurfaces() const
+			{
+				return switchSurfaces;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FEE0
 // FUNCTION: ENGINE 0x10D81C20

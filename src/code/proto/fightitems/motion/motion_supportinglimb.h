@@ -440,6 +440,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetSwitchSurfaces() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				const fight::BranchHolder& GetBranch() const;
 				const fight::ConditionList& GetConditions() const;
 

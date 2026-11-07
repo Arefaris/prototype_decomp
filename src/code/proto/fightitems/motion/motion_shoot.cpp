@@ -2132,6 +2132,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10110440
+			bool ShootTrack::GetApplyOnParent() const
+			{
+				return applyOnParent;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10110E60
 // FUNCTION: ENGINE 0x10110E80
