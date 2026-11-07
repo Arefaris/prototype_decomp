@@ -10,6 +10,8 @@ namespace om
 	class Entity;
 	class EntityTypeBase;
 	class MetaClassBase;
+	class MetaTypeBase;
+	class String;
 
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
 	struct TreeNode
@@ -60,6 +62,15 @@ namespace om
 		bool InsertEntityTypeByType(EntityTypeBase* type);
 		// 0x105B54A0: the entity type registered for a type_info (name guessed)
 		EntityTypeBase* FindEntityType(const type_info& type);
+		// 0x105B53C0: the first entity type registered under a name (name guessed)
+		EntityTypeBase* FindEntityTypeByName(const char** name);
+		// 0x105B57D0: the first entity of a name (name guessed)
+		Entity* FindEntity(const ClassName& name);
+		// 0x105B7140 / 0x105B6470: enters a type description under its name, and under its type_info (names guessed)
+		bool InsertMetaTypeByName(MetaTypeBase* metaType);
+		bool InsertMetaTypeByType(MetaTypeBase* metaType);
+		// 0x105B67A0: the type description registered for a type_info (name guessed)
+		MetaTypeBase* FindMetaType(const type_info& type);
 		// 0x105C0AB0 / 0x105C0170: enters a class description under its name, and under its type_info (names guessed)
 		bool InsertMetaClassByName(MetaClassBase* metaClass);
 		bool InsertMetaClassByType(MetaClassBase* metaClass);

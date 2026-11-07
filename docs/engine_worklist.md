@@ -7791,3 +7791,27 @@ Units extended in `src/code/proto/fightitems/motion/` (jump animation, laser, mo
 - `proto/powers/whipfistpower.cpp` (+ `.h`): the layout of `WhipFistPower` (0x130 bytes), its segment and chain structs, the destructor, `Clone`.
   NONMATCHING: both constructors (87.7 % and 95.4 %, the engine zeroes the floats with two registers and schedules the handle's address later).
   Shared header change: `ai/aihelpers.h` (`AISystem::Unknown10360C80`).
+## proto/om: the range 0x105A0000 - 0x105C0000, third pass (sn-dg)
+- Done: the text tree unit (`om/valueio.cpp`, `om/texttree.h`, `om/textscanner.*`): the red-black operations of `TextNodeTree`
+  (rotations, `Successor`, `FixAfterErase`, `Erase`, `Previous`, `Insert`, `VisitAll`), the `TextValue` members (destructor,
+  `SetName`, `SetParent`, `Clone`, `DeleteChildren`), the `TextNode(parent)` constructor, `TextTree` (the document: `Escape` /
+  `Unescape`, `ReadNodes`, `WriteNode`, `Read`, `Write`) and the text scanner (`TextScanner`, a window of 128 characters over
+  a stream, and its word, number, identifier and quoted text readers). `StreamPrintf` and `SkipAndConsume` answer a `char`
+  (the callers convert it with `test al, al; setne`).
+- Also: `ToSnakeCase` (0x105B45D0), `SpaceOutCapitals` now matches (explicit `if (c < 'A' || c > 'Z')` tests), the entity type
+  registry's `InsertEntityTypeByName`, the registry walkers, `ThreadSafeRefCount::AddRef` / `Release`, `MetaTypeBase` (constructor,
+  `GetName`, `FindMetaType`; its vftable and deleting destructor are mapped), three sequencer queue helpers and
+  `Entity::SetName`.
+- Findings: a `goto` into the shared right-hand branch reproduces the engine's insert loop (`TextNodeTree::Insert`); `if (...)
+  return true; return false;` gives the `setbe` / `mov al, 1` forms of the character predicates; `while (node->left != end)
+  node = node->left;` (no cached copy of the pointer) gives the engine's loads; a `ret`-only destructor of a member must live in
+  another unit or the compiler drops the call (`~TextNodeTree` 0x105B7910 is declared and left to the engine: in the engine it sits inside the value I/O unit).
+- NONMATCHING: `TextScanner::Fill` (87.8 %), `CharAt` (96.4 %), `StripQuotes` (57.5 %), `ReadUntil` (13.9 %, the engine keeps its
+  flags in the homes of the arguments), `TreeHead::InsertEntityTypeByType` (89.9 %, branch layout), `InsertEntity` (47.7 %),
+  the three registry searches (`FindEntityType`, `FindEntityTypeByName`, `FindEntity`), the lock walkers `GetFirstEntity` /
+  `GetNextEntity` / `FindEntityByName` (the engine reads the lock before it saves esi), `EntityReference::Reset` / `operator=`,
+  `FindEntityTypeByName(String*)`, `MetaTypeBase::~MetaTypeBase` (95.6 %).
+- Not done: the movie player (0x105A0050 - 0x105A2300 needs the classes of 0x1059F...), the audio renderer / mixer / effect classes
+  (0x105BB0A0 - 0x105BD670, 0x105BD8E0 - 0x105BF000: layouts unknown), the file loading of the text tree (0x105B91F0, 0x105B92B0:
+  they call the file system's open slot, unnamed in `om/filesystem.h`), `Context` loaders (0x105A4C10 - 0x105A50E0), the
+  `TrackRegistry` constructor, the hash map instances of the factory maps.
