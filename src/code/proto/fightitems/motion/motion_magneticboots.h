@@ -703,6 +703,29 @@ namespace proto
 				MagneticBootsGetSteerInfoMessage::SteerInfo* steerInfo;  // +0x3C
 			};
 
+			// RTTI: proto::fightitems::motion::MagneticBootsTestDetachAction (9 vftable slots, 0x40 bytes)
+			class MagneticBootsTestDetachAction : public fight::Action
+			{
+			public:
+				// 0x100F0D00
+				MagneticBootsTestDetachAction(MagneticBootsTestDetachTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100ED8E0
+				virtual ~MagneticBootsTestDetachAction();
+
+				// vftable slot 5 (0x100F0DE0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ECC40)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F52C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTestDetachTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float angleCos;  // +0x2C
+				engine::TrackWatch watch;  // +0x30
+				core::IRefCount* effect;  // +0x3C
+			};
+
 			// ---- actions end
 		}
 	}

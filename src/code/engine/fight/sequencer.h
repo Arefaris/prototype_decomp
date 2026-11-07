@@ -94,6 +94,9 @@ namespace fight
 		// vftable slot 8 (0x105A24A0): copies the action's flags and three times into another action (name guessed)
 		virtual Action* Slot8(Action* other, core::IRefCount* effect, core::IRefCount* owner);
 
+		// 0x10095460 (the animation blend unit's copy of an inline member; name guess): sets or clears the flag bit 0x800 << index
+		void SetIndexedFlag(int index, bool value);
+
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
 		// 0x105A2560: makes another action the next one (the old one is let go)

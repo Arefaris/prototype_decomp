@@ -1,6 +1,39 @@
 // Fight items of the motion group: MagneticBootsNextSurfaceNormalCondition, UsingHunterShortRangeCondition, OrientationNormalAngleCondition, MagneticBootsTestDetachTrack, MagneticBootsResetInfoTrack, MagneticBootsJumpTrack, MagneticBootsDetachTrack, MagneticBootsTestCornerTrack, MagneticBootsStickToWallTrack, MagneticBootsTurnCornerTrack, MagneticBootsTrack, MagneticBootsTestJumpStuckTrack, MagneticBootsTestWallTrack (unit 0x1018D500 - 0x10192C50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_magneticboots.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/math/worldbounds.h"
+#include <math.h>
+
+namespace engine
+{
+	namespace driving
+	{
+		// 0x10D94CC4: one half, a pooled constant
+		extern const float gHalf;
+	}
+}
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// The owner the next surface normal condition reads (kind 0x2100E): the normal of the surface the character moves to
+			struct NextSurfaceOwner : TrackOwner
+			{
+				unsigned char unknown10[0x8];
+				math::Vector normal;  // +0x18
+			};
+		}
+	}
+}
 #include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/engine/physics/supportinglimbactivemessage.h"
 
@@ -1880,6 +1913,150 @@ namespace proto
 				object->SendMessage(&resetMessage);
 				return true;
 			}
+
+			// FUNCTION: ENGINE 0x100F0D00
+			MagneticBootsTestDetachAction::MagneticBootsTestDetachAction(MagneticBootsTestDetachTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), angleCos(0.0f), watch(listener), effect(newEffect)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ED8E0
+			MagneticBootsTestDetachAction::~MagneticBootsTestDetachAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F5260
+			fight::Action* MagneticBootsTestDetachTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MagneticBootsTestDetachAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ECC40
+			void MagneticBootsTestDetachAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F0DE0
+			bool MagneticBootsTestDetachAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				angleCos = (float)cos(link.object->thresoldAngle);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100EDD10
+			bool MagneticBootsResetInfoAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				MagneticBootsGetSteerInfoMessage message;
+				object->SendMessage(&message);
+				if (message.info != 0)
+				{
+					message.info->unknownC = false;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100EDE90
+			bool UsingHunterShortRangeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					UsingHunterShortRangeMovementMessage message;
+					object->SendMessage(&message);
+					bool found = message.result;
+					result = (found == usingValue);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x100EDF40
+			// NONMATCHING: the engine keeps the dot product in the slot the compared angle takes later and orders the clamp as comiss x, 0 / jae (72 %)
+#ifdef NONMATCHING
+			bool OrientationNormalAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Matrix& transform = object->transform->value;
+					math::Vector up;
+					up.x = transform.m[1][0];
+					up.y = transform.m[1][1];
+					up.z = transform.m[1][2];
+					math::Vector desired;
+					desired.x = normal.x;
+					desired.y = normal.y;
+					desired.z = normal.z;
+					desired.Normalize();
+					float dot = desired.z * up.z + desired.y * up.y + desired.x * up.x;
+					if (!(dot - choreo::gMinusOne >= 0.0f))
+					{
+						dot = choreo::gMinusOne;
+					}
+					if (0.0f <= dot - engine::driving::gOne)
+					{
+						dot = engine::driving::gOne;
+					}
+					float wanted = angle;
+					float current = (float)acos(dot);
+					result = fight::CompareFloats(compare, &current, &wanted);
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100ECC70
+			// NONMATCHING: the engine loads the owner into ecx after the prologue and sets al to false before the owner test, ours loads it into eax (same instructions otherwise)
+#ifdef NONMATCHING
+			bool MagneticBootsNextSurfaceNormalCondition::Evaluate(int a, int b, int c, int d)
+			{
+				NextSurfaceOwner* owner = (NextSurfaceOwner*)AsOwner(d);
+				if (owner != 0 && owner->kind == 0x2100E)
+				{
+					math::Vector next;
+					next.x = owner->normal.x;
+					next.y = owner->normal.y;
+					next.z = owner->normal.z;
+					math::Vector wanted;
+					wanted.x = normal.x;
+					wanted.y = normal.y;
+					wanted.z = normal.z;
+					next.Normalize();
+					wanted.Normalize();
+					float dot = wanted.z * next.z + wanted.y * next.y + wanted.x * next.x;
+					if (dot <= choreo::gMinusOne)
+					{
+						dot = choreo::gMinusOne;
+					}
+					else if (dot >= engine::driving::gOne)
+					{
+						dot = engine::driving::gOne;
+					}
+					dot = (float)acos(dot);
+					float half = arc * engine::driving::gHalf;
+					if (math::WORLD_MIN - half <= dot && dot <= half)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyVector<MagneticBootsNextSurfaceNormalCondition>;
