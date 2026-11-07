@@ -27,6 +27,11 @@ namespace om
 		return ReadBinary(stream, &value->values[0]) && ReadBinary(stream, &value->values[1]) && ReadBinary(stream, &value->values[2]);
 	}
 
+	// Left to the engine: the invocation of the property node's string getter
+	template<> void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// Left to the engine: the invocation of the random vector's setter
+	template<> void MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+
 	// Left to the engine: the text and binary slots of the colour property (the engine merges the paths of the cached type found
 	// and not found)
 	template<> bool MetaProperty<mgraph::NodeColour const&>::SetText(TextValue const*, void*);
@@ -6580,4 +6585,92 @@ namespace om
 	template void MetaProperty<Vector const&>::GetText(TextValue*, void*);
 	// FUNCTION: ENGINE 0x10AF21E0
 	template bool MetaProperty<Vector const&>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AEE7A0
+	template<> bool MetaProperty<Vector>::SetText(const TextValue* text, void* object)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<Vector>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(Vector));
+		}
+		MetaTypeBase* type = cache;
+		bool ok;
+		if (type == 0)
+		{
+			Vector value(0.0f, 0.0f, 0.0f);
+			ok = ReadText(text, &value);
+			if (ok)
+			{
+				GetSetter()->Call(object, value);
+			}
+		}
+		else
+		{
+			Vector value(0.0f, 0.0f, 0.0f);
+			ok = type->ReadText(text, &value);
+			if (ok)
+			{
+				GetSetter()->Call(object, value);
+			}
+		}
+		return ok;
+	}
+	// FUNCTION: ENGINE 0x10AEE8D0
+	template<> bool MetaProperty<Vector>::SetBinary(BinaryStream* stream, void* object)
+	{
+		Vector value(0.0f, 0.0f, 0.0f);
+		bool ok = ReadBinary(stream, &value);
+		if (ok)
+		{
+			GetSetter()->Call(object, value);
+		}
+		return ok;
+	}
+	// FUNCTION: ENGINE 0x10AEE850
+	template void MetaProperty<Vector>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AEE970
+	template bool MetaProperty<Vector>::GetBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AF8D50
+	template void MetaProperty<Vector>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,Vector>*, MetaMethod0Base<Vector>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFD490
+	template DelegatePropertyBase* MetaProperty<Vector>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AEEED0
+	template DelegateMetaProperty<Vector>::DelegateMetaProperty(void*, MetaProperty<Vector>*);
+	// FUNCTION: ENGINE 0x10AE8C70
+	template MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::MetaMethod1(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Function);
+	// FUNCTION: ENGINE 0x10AE9850
+	template MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::Function);
+	// FUNCTION: ENGINE 0x10AEF180
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>::Function);
+	// FUNCTION: ENGINE 0x10AF0070
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::Function);
+	// FUNCTION: ENGINE 0x10AF0360
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>::MetaMethod0Const(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>::Function);
+	// FUNCTION: ENGINE 0x10AF8CD0
+	template MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>* MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Function);
+	// FUNCTION: ENGINE 0x10AF8D10
+	template MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>* MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::Function);
+	// FUNCTION: ENGINE 0x10AFD520
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>* MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>::Function);
+	// FUNCTION: ENGINE 0x10AFDE20
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>* MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::Function);
+	// FUNCTION: ENGINE 0x10AFE060
+	template MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>* MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>::Function);
+	// FUNCTION: ENGINE 0x10AEF220
+	template void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<bool> >,mgraph::PropertyNode<mgraph::Packet<bool> >,bool const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AFEBE0
+	template void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Vector> >,mgraph::PropertyNode<mgraph::Packet<Vector> >,Vector const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10AFAB30
+	template<> void MetaMethod0Const<mgraph::Rand<Vector>,mgraph::Rand<Vector>,Vector>::Invoke(void* object, unsigned int a,
+		unsigned int b, unsigned int c, unsigned int d)
+	{
+		MemoryStream outputStream((void*)c, d, true);
+		StreamBuffer outputBuffer(&outputStream, 1);
+		StreamContext context;
+		context.Set(GetStreamContextObject(), GetStreamContextObject(), GetStreamContextObject(),
+			GetStreamContextObject());
+		BinaryOutput output2(&outputBuffer, &context);
+		Vector value = (static_cast<mgraph::Rand<Vector>*>(object)->*function)();
+		WriteBinary(&output2.stream, value.values[0]) && WriteBinary(&output2.stream, value.values[1]) && WriteBinary(&output2.stream, value.values[2]);
+	}
 }
