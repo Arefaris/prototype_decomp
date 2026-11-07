@@ -130,7 +130,7 @@ namespace engine
 		{
 			return false;
 		}
-		int wantedButton = button;
+		int wantedButton = GetButton();
 		CharacterQueryIntentionMessage message;
 		object->SendMessage(&message);
 		if (message.intention == 0)
@@ -139,7 +139,7 @@ namespace engine
 		}
 		CharacterIntentionButton* entry = message.intention->GetButton(wantedButton);
 		float held = entry->time;
-		int wantedState = buttonState;
+		int wantedState = GetButtonState();
 		int state = entry->state;
 		if (state != wantedState)
 		{
@@ -149,14 +149,14 @@ namespace engine
 			}
 			held = 0.0f;
 		}
-		float limit = time;
-		if (!fight::CompareFloats(compareTime, &held, &limit))
+		float limit = GetTime();
+		if (!fight::CompareFloats(GetCompareTime(), &held, &limit))
 		{
 			return false;
 		}
 		float current = entry->value;
-		float wantedValue = value;
-		return fight::CompareFloats(compareValue, &current, &wantedValue) != 0;
+		float wantedValue = GetValue();
+		return fight::CompareFloats(GetCompareValue(), &current, &wantedValue) != 0;
 	}
 
 	// FUNCTION: ENGINE 0x108F6790
@@ -283,7 +283,7 @@ namespace engine
 			return false;
 		}
 		AxisValue axis;
-		switch (inputType)
+		switch (GetInputType())
 		{
 		case 0:
 			axis = *(AxisValue*)intention->GetAxis(axisA);
@@ -293,14 +293,14 @@ namespace engine
 			break;
 		}
 		float held = axis.y;
-		float limit = time;
-		if (!fight::CompareFloats(compareTime, &held, &limit))
+		float limit = GetTime();
+		if (!fight::CompareFloats(GetCompareTime(), &held, &limit))
 		{
 			return false;
 		}
 		float current = axis.x;
-		float wantedValue = value;
-		return fight::CompareFloats(compareValue, &current, &wantedValue) != 0;
+		float wantedValue = GetValue();
+		return fight::CompareFloats(GetCompareValue(), &current, &wantedValue) != 0;
 	}
 
 	// FUNCTION: ENGINE 0x108F6800
@@ -506,3 +506,14 @@ namespace engine
 // FUNCTION: ENGINE 0x108F7340
 // FUNCTION: ENGINE 0x108F7380
 // FUNCTION: ENGINE 0x108F73C0
+// FUNCTION: ENGINE 0x1092D720
+// FUNCTION: ENGINE 0x1092D730
+// FUNCTION: ENGINE 0x1092D740
+// FUNCTION: ENGINE 0x1092D750
+// FUNCTION: ENGINE 0x1092D760
+// FUNCTION: ENGINE 0x1092D770
+// FUNCTION: ENGINE 0x1092D780
+// FUNCTION: ENGINE 0x1092D790
+// FUNCTION: ENGINE 0x1092D7A0
+// FUNCTION: ENGINE 0x1092D7B0
+// FUNCTION: ENGINE 0x1092D7C0

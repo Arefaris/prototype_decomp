@@ -6,6 +6,7 @@
 #define ENGINE_AUDIO_AUDIOMANAGER_H
 
 #include "code/core/name.h"
+#include "code/math/vector.h"
 #include "code/om/string.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 
@@ -96,6 +97,8 @@ namespace engine
 			core::Name<core::CaseSensitiveKey> ambience, core::Name<core::CaseSensitiveKey> mix, int boundaryAction);
 		// 0x1087A630
 		void RemoveZone(core::Name<core::CaseSensitiveKey> zone);
+		// 0x10879B20: the position of the audio listener (name guessed)
+		void GetListenerPosition(math::Vector* position);
 	};
 	extern SoundZoneManager* gSoundZoneManager;
 
