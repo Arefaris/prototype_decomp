@@ -16,6 +16,7 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
+#include "code/proto/ai/ambientmanager/ambientexclusionvolume.h"
 #include "code/proto/ai/ambientmanager/ambientspawners.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/webofintrigue/webnodelocator.h"
@@ -28,6 +29,7 @@
 #include "code/proto/behaviours/testwalkbehaviour.h"
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
+#include "code/proto/behaviours/tokenbehaviour.h"
 #include "code/proto/behaviours/watertowerbehaviour.h"
 #include "code/proto/characterbudgetpolicy.h"
 #include "code/proto/heightmap.h"
@@ -372,15 +374,6 @@ namespace proto
 		unsigned char unknownTail[0x14 - sizeof(content::MetaLoadObject)];
 	};
 
-	class AmbientExclusionVolume : public content::MetaLoadObject
-	{
-	public:
-		AmbientExclusionVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x60 - sizeof(content::MetaLoadObject)];
-	};
 
 	struct MissileSpawnDrawSwap
 	{
@@ -806,15 +799,6 @@ namespace proto
 		unsigned char unknownTail[0x5F4 - sizeof(proto::MovementBehaviour)];
 	};
 
-	class TokenBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit TokenBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
-	};
 
 	class DriverBehaviour : public engine::Behaviour
 	{

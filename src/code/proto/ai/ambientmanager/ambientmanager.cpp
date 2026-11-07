@@ -1,5 +1,6 @@
 // proto::AmbientManager: see the header. The file name and the names are guesses.
 #include "code/core/heap.h"
+#include "code/engine/frontend/frontend.h"
 #include "code/engine/system/enginememory.h"
 #include "code/math/vector.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
@@ -161,3 +162,208 @@ namespace proto
 		engine::CreateBlockHeap(0xAB, newConfig->physicsCount, 0x4000, 0, 0x10, "VehiclePhysicsObjectPool", 0xA8, 2, 0);
 	}
 }
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x10409CF0
+	void AmbientManager::SetMaxVehicles(unsigned int count)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10409D00
+	void AmbientManager::SetMaxCharacters(unsigned int count)
+	{
+		config.unknown5C = count;
+	}
+
+	// FUNCTION: ENGINE 0x10409D10
+	void AmbientManager::SetFarSpawnDistance(float distance)
+	{
+		config.unknown44 = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10409D30
+	void AmbientManager::SetNearSpawnDistance(float distance)
+	{
+		config.unknown40 = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10409D50
+	void AmbientManager::SetSpawnAreaSize(float size)
+	{
+		config.unknown38 = size;
+	}
+
+	// FUNCTION: ENGINE 0x10409D70
+	void AmbientManager::SetPedestrianDensityScale(float scale)
+	{
+		unknown280 = scale;
+	}
+
+	// FUNCTION: ENGINE 0x10409D90
+	void AmbientManager::SetPercentInfectedLevelZero(float percent)
+	{
+		unknown504 = percent;
+	}
+
+	// FUNCTION: ENGINE 0x10409DB0
+	void AmbientManager::SetVehicleDensityScale(float scale)
+	{
+		unknown284 = scale;
+	}
+
+	// FUNCTION: ENGINE 0x10409E70
+	void AmbientManager::SetInMissionBriefing(bool briefing)
+	{
+		unknown515 = briefing;
+	}
+
+	// FUNCTION: ENGINE 0x10409F60
+	void AmbientManager::SetPercentageLowMorale(float percent)
+	{
+		unknown5FC = percent;
+	}
+
+	// FUNCTION: ENGINE 0x1040A0B0
+	bool AmbientManager::OnCameraSpawnFinished()
+	{
+		if (engine::HasCommandLineOption("DisableAmbientManager"))
+		{
+			return true;
+		}
+		if (!unknown41)
+		{
+			if (unknown55C > 3 || !unknown40)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1040A0F0
+	void AmbientManager::SpawnOnCamera()
+	{
+		unknown55C = 1;
+	}
+
+	// FUNCTION: ENGINE 0x1040A100
+	void AmbientManager::SetIgnoreDeadSphereLocaters(bool ignore)
+	{
+		unknown603 = ignore;
+	}
+}
+
+// The containers of the manager's members: the engine keeps its out-of-line copies of their members
+template class container::ArrayDynamicHeap<proto::AmbientElement8A>;
+template class container::ArrayDynamicHeap<proto::AmbientElement8B>;
+template class container::ArrayDynamicHeap<proto::AmbientElement4A>;
+template class container::ArrayDynamicHeap<proto::AmbientElement4B>;
+template class container::ArrayDynamicHeap<proto::AmbientElement4C>;
+template class container::ArrayDynamicHeap<proto::AmbientElement4D>;
+template class container::ArrayDynamicHeap<proto::AmbientElement4E>;
+template class container::ArrayDynamicHeap<proto::AmbientElement20>;
+template class container::ArrayDynamicHeap<proto::AmbientElement790>;
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10409340
+// FUNCTION: ENGINE 0x1040A6D0
+// FUNCTION: ENGINE 0x1040B200
+// FUNCTION: ENGINE 0x10410220
+// FUNCTION: ENGINE 0x104102C0
+// FUNCTION: ENGINE 0x10410320
+// FUNCTION: ENGINE 0x104103F0
+// FUNCTION: ENGINE 0x10410460
+// FUNCTION: ENGINE 0x10410530
+// FUNCTION: ENGINE 0x104105E0
+// FUNCTION: ENGINE 0x10410660
+// FUNCTION: ENGINE 0x10410770
+// FUNCTION: ENGINE 0x10414F50
+// FUNCTION: ENGINE 0x10415060
+// FUNCTION: ENGINE 0x104151F0
+// FUNCTION: ENGINE 0x10415210
+// FUNCTION: ENGINE 0x10415290
+// FUNCTION: ENGINE 0x104152C0
+// FUNCTION: ENGINE 0x104152E0
+// FUNCTION: ENGINE 0x10415470
+// FUNCTION: ENGINE 0x1041A020
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10400000
+// FUNCTION: ENGINE 0x10400080
+// FUNCTION: ENGINE 0x104030E0
+// FUNCTION: ENGINE 0x10403100
+// FUNCTION: ENGINE 0x10403860
+// FUNCTION: ENGINE 0x10403870
+// FUNCTION: ENGINE 0x104038A0
+// FUNCTION: ENGINE 0x104038C0
+// FUNCTION: ENGINE 0x10403A20
+// FUNCTION: ENGINE 0x10403BD0
+// FUNCTION: ENGINE 0x10403C00
+// FUNCTION: ENGINE 0x1040A6F0
+// FUNCTION: ENGINE 0x1040A760
+// FUNCTION: ENGINE 0x1040A8A0
+// FUNCTION: ENGINE 0x1040A8D0
+// FUNCTION: ENGINE 0x1040A8E0
+// FUNCTION: ENGINE 0x1040A960
+// FUNCTION: ENGINE 0x1040A970
+// FUNCTION: ENGINE 0x1040A980
+// FUNCTION: ENGINE 0x1040A9B0
+// FUNCTION: ENGINE 0x1040A9C0
+// FUNCTION: ENGINE 0x1040A9F0
+// FUNCTION: ENGINE 0x1040AA00
+// FUNCTION: ENGINE 0x1040AA10
+// FUNCTION: ENGINE 0x1040AA40
+// FUNCTION: ENGINE 0x1040AA80
+// FUNCTION: ENGINE 0x1040AAA0
+// FUNCTION: ENGINE 0x1040AAD0
+// FUNCTION: ENGINE 0x1040AB00
+// FUNCTION: ENGINE 0x1040AB30
+// FUNCTION: ENGINE 0x1040AB40
+// FUNCTION: ENGINE 0x1040AB50
+// FUNCTION: ENGINE 0x1040AB60
+// FUNCTION: ENGINE 0x1040AB80
+// FUNCTION: ENGINE 0x1040ABB0
+// FUNCTION: ENGINE 0x1040ABF0
+// FUNCTION: ENGINE 0x1040ACB0
+// FUNCTION: ENGINE 0x1040AED0
+// FUNCTION: ENGINE 0x1040AF20
+// FUNCTION: ENGINE 0x1040B090
+// FUNCTION: ENGINE 0x1040B0C0
+// FUNCTION: ENGINE 0x1040BD10
+// FUNCTION: ENGINE 0x1040BD30
+// FUNCTION: ENGINE 0x1040BD50
+// FUNCTION: ENGINE 0x1040BD70
+// FUNCTION: ENGINE 0x1040BDA0
+// FUNCTION: ENGINE 0x1040BE10
+// FUNCTION: ENGINE 0x1040BE50
+// FUNCTION: ENGINE 0x1040BEA0
+// FUNCTION: ENGINE 0x1040BF30
+// FUNCTION: ENGINE 0x1040C290
+// FUNCTION: ENGINE 0x10410140
+// FUNCTION: ENGINE 0x10410170
+// FUNCTION: ENGINE 0x10410190
+// FUNCTION: ENGINE 0x10410250
+// FUNCTION: ENGINE 0x10410290
+// FUNCTION: ENGINE 0x104102F0
+// FUNCTION: ENGINE 0x10410390
+// FUNCTION: ENGINE 0x104103C0
+// FUNCTION: ENGINE 0x104103E0
+// FUNCTION: ENGINE 0x104104D0
+// FUNCTION: ENGINE 0x10410500
+// FUNCTION: ENGINE 0x10410520
+// FUNCTION: ENGINE 0x10410610
+// FUNCTION: ENGINE 0x10410640
+// FUNCTION: ENGINE 0x10410690
+// FUNCTION: ENGINE 0x104107D0
+// FUNCTION: ENGINE 0x104107F0
+// FUNCTION: ENGINE 0x10410A70
+// FUNCTION: ENGINE 0x10410AE0
+// FUNCTION: ENGINE 0x10410AF0
+// FUNCTION: ENGINE 0x10410B00
+// FUNCTION: ENGINE 0x10410B10
+// FUNCTION: ENGINE 0x10410B70
+// FUNCTION: ENGINE 0x10411870
+// FUNCTION: ENGINE 0x10415080
+// FUNCTION: ENGINE 0x1041A090
+// FUNCTION: ENGINE 0x1041A140

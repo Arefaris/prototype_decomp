@@ -20,7 +20,7 @@ namespace proto
 		struct ThreatEntry
 		{
 			engine::GameObjectHandle handle;
-			float amount;
+			int amount;
 		};
 
 		// 0x10403690
@@ -41,6 +41,10 @@ namespace proto
 
 		// 0x10403580: forgets the threatening objects
 		void ClearThreatenedBy();
+		// 0x104033D0: an object reports that it threatens (the threat memory and the list of the threatened are updated)
+		void OnThreatReported(engine::GameObjectHandle handle);
+		// 0x10403190: whether the memory holds a threat of that object with another second word than the argument
+		bool HasThreat(unsigned int handle, int other);
 
 		container::ArrayFixed<engine::GameObjectHandle, 5> threatenedBy;  // +0xC
 		container::ArrayFixed<ThreatEntry, 4> threats;  // +0x24

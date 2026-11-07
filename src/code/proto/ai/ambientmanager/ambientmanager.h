@@ -9,6 +9,7 @@
 #include "code/core/heap.h"
 #include "code/core/name.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/context.h"
 
 namespace proto
 {
@@ -162,15 +163,15 @@ namespace proto
 	};
 
 	// The elements of the manager's arrays; only their sizes are known
-	struct AmbientElement8A { unsigned int a, b; };
-	struct AmbientElement8B { unsigned int a, b; };
-	struct AmbientElement4A { unsigned int a; };
-	struct AmbientElement4B { unsigned int a; };
-	struct AmbientElement4C { unsigned int a; };
-	struct AmbientElement4D { unsigned int a; };
-	struct AmbientElement4E { unsigned int a; };
-	struct AmbientElement20 { unsigned int a[5]; };
-	struct AmbientElement790 { unsigned char a[0x790]; };
+	struct AmbientElement8A { unsigned int a, b; bool operator!=(const AmbientElement8A& other) const { return a != other.a; } };
+	struct AmbientElement8B { unsigned int a, b; bool operator!=(const AmbientElement8B& other) const { return a != other.a; } };
+	struct AmbientElement4A { unsigned int a; bool operator!=(const AmbientElement4A& other) const { return a != other.a; } };
+	struct AmbientElement4B { unsigned int a; bool operator!=(const AmbientElement4B& other) const { return a != other.a; } };
+	struct AmbientElement4C { unsigned int a; bool operator!=(const AmbientElement4C& other) const { return a != other.a; } };
+	struct AmbientElement4D { unsigned int a; bool operator!=(const AmbientElement4D& other) const { return a != other.a; } };
+	struct AmbientElement4E { unsigned int a; bool operator!=(const AmbientElement4E& other) const { return a != other.a; } };
+	struct AmbientElement20 { unsigned int a[5]; bool operator!=(const AmbientElement20& other) const { return a[0] != other.a[0]; } };
+	struct AmbientElement790 { unsigned char a[0x790]; bool operator!=(const AmbientElement790& other) const { return a[0] != other.a[0]; } };
 	struct AmbientElement10 { unsigned int a[4]; };
 	struct AmbientElement8C { unsigned int a, b; };
 	struct AmbientElement12 { unsigned int a[3]; };
@@ -219,6 +220,26 @@ namespace proto
 		void VehicleSpawnerReady(AmbientSpawner* spawner);
 		void AddPedestrianSpawner(AmbientSpawner* spawner);
 		void PedestrianSpawnerReady(AmbientSpawner* spawner);
+		// 0x1041C190: how many pedestrians and vehicles the physics area lets in (1.0 all, 0.0 none; name guess)
+		void SetAreaDensity(ravenphysics::ObjectHandle area, float pedestrians, float vehicles);
+		// The script natives amb_SetMaxVehicles (0x10409CF0: nothing to set), amb_SetMaxCharacters, amb_SetSpawnAreaSize,
+		// amb_SetNearSpawnDist, amb_SetFarSpawnDist, amb_SetPedsGlobalDensityScale, amb_SetVehiclesGlobalDensityScale,
+		// amb_SetPercentInfectedLevelZero, amb_SetInMissionBriefing, amb_SetPercentageLowMorale and
+		// amb_SetIgnoreDeadSphereLocaters (names of the members they set are guesses)
+		void SetMaxVehicles(unsigned int count);
+		void SetMaxCharacters(unsigned int count);
+		void SetFarSpawnDistance(float distance);
+		void SetNearSpawnDistance(float distance);
+		void SetSpawnAreaSize(float size);
+		void SetPedestrianDensityScale(float scale);
+		void SetPercentInfectedLevelZero(float percent);
+		void SetVehicleDensityScale(float scale);
+		void SetInMissionBriefing(bool briefing);
+		void SetPercentageLowMorale(float percent);
+		void SetIgnoreDeadSphereLocaters(bool ignore);
+		// amb_OnCameraSpawnFinished (0x1040A0B0) and amb_SpawnOnCamera (0x1040A0F0)
+		bool OnCameraSpawnFinished();
+		void SpawnOnCamera();
 
 		AmbientArray12 unknown0;
 		unsigned char unknownC[4];
