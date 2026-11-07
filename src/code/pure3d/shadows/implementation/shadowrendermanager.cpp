@@ -201,6 +201,10 @@ namespace pure3d
 	void Unknown106F2DB0();
 	void Unknown1075CD00();
 
+	// This unit's copy of the texture reference helper
+	// FUNCTION: ENGINE 0x10715B70
+	template void core::RefAssign<pure3d::Texture>(pure3d::Texture*& pointer, pure3d::Texture* object);
+
 	// This unit's copy of the pool release
 	// FUNCTION: ENGINE 0x10715180
 	template void core::SafeRelease<core::MemoryPool>(core::MemoryPool*& object);

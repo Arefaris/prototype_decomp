@@ -1,4 +1,6 @@
 // pure3d::ProtoRenderScheme (unit around 0x10718DD0 - 0x1071A000; file name guessed from the class). Names are guesses.
+#include "code/math/colour128.h"
+#include "code/math/pddicolour.h"
 #include "code/pure3d/postprocesspass.h"
 #include "code/pure3d/protopass.h"
 #include "code/pure3d/protorenderscheme.h"
@@ -104,3 +106,17 @@ template pure3d::ProtoFBPass* pure3d::ProtoRenderScheme::CreatePass<pure3d::Prot
 // FUNCTION: ENGINE 0x10719F80
 template pure3d::ProtoHUDPass* pure3d::ProtoRenderScheme::CreatePass<pure3d::ProtoHUDPass, pure3d::PassDesc>(
 	const pure3d::PassDesc* description, core::Name<core::CaseSensitiveKey> parentName);
+
+namespace math
+{
+	// FUNCTION: ENGINE 0x10719210
+	pddiColour* pddiColour::FromColour128(const Colour128& colour)
+	{
+		unsigned int alpha = (unsigned int)(colour.a * 255.5f);
+		unsigned int red = (unsigned int)(colour.r * 255.5f);
+		unsigned int green = (unsigned int)(colour.g * 255.5f);
+		unsigned int blue = (unsigned int)(colour.b * 255.5f);
+		*(unsigned int*)this = ((alpha << 8 | red) << 8 | green) << 8 | blue;
+		return this;
+	}
+}

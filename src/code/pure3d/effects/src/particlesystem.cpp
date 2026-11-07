@@ -64,6 +64,9 @@ template void core::SafeRelease<pure3d::ParticleSystemState>(pure3d::ParticleSys
 template void core::RefAssign<pure3d::ParticleSystemState>(pure3d::ParticleSystemState*& pointer,
 	pure3d::ParticleSystemState* object);
 
+// FUNCTION: ENGINE 0x1070A880
+template void core::RefAssign<pure3d::dxVertexBuffer>(pure3d::dxVertexBuffer*& pointer, pure3d::dxVertexBuffer* object);
+
 // FUNCTION: ENGINE 0x1070A8E0
 template void core::RefAssign<pure3d::ParticleGenerator>(pure3d::ParticleGenerator*& pointer,
 	pure3d::ParticleGenerator* object);
