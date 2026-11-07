@@ -155,6 +155,21 @@ namespace engine
 		void UpdateListening();
 		// 0x1089BDD0
 		void SetShadowType(LightShadowType newShadowType);
+		// 0x1089C270 - 0x1089C3E0: set one setting and mark the light dirty (names guessed)
+		void SetColour(const math::Colour128& newColour);
+		void SetIntensity(float value);
+		void SetAmbientContribution(float value);
+		void SetUmbra(float value);
+		void SetPenumbra(float value);
+		void SetCastShadow(bool value);
+		void SetShadowOffset(float value);
+		void SetDecayInner(float value);
+		void SetDecayOuter(float value);
+		void SetAttenConstant(float value);
+		void SetAttenLinear(float value);
+		void SetAttenQuadratic(float value);
+		// 0x1089C400: one spherical harmonics value (the indices fall back to 0 out of range)
+		float GetSphericalHarmonic(int channel, int coefficient);
 		// 0x1089C9F0 / 0x1089CA20: the target's transform times the matrix, and the other way
 		void SetTargetOffset(const math::Matrix& matrix);
 		math::Matrix* GetTargetOffset(math::Matrix* result);

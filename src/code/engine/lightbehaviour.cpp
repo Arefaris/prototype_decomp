@@ -417,6 +417,96 @@ namespace engine
 		MarkDirty();
 	}
 
+	// FUNCTION: ENGINE 0x1089C270
+	void LightBehaviour::SetColour(const math::Colour128& newColour)
+	{
+		colour = newColour;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2A0
+	void LightBehaviour::SetIntensity(float value)
+	{
+		intensity = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2C0
+	void LightBehaviour::SetAmbientContribution(float value)
+	{
+		ambientContribution = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2E0
+	void LightBehaviour::SetUmbra(float value)
+	{
+		umbra = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C300
+	void LightBehaviour::SetPenumbra(float value)
+	{
+		penumbra = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C320
+	void LightBehaviour::SetCastShadow(bool value)
+	{
+		castShadow = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C340
+	void LightBehaviour::SetShadowOffset(float value)
+	{
+		shadowOffset = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C360
+	void LightBehaviour::SetDecayInner(float value)
+	{
+		decayInner = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C380
+	void LightBehaviour::SetDecayOuter(float value)
+	{
+		decayOuter = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3A0
+	void LightBehaviour::SetAttenConstant(float value)
+	{
+		attenConstant = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3C0
+	void LightBehaviour::SetAttenLinear(float value)
+	{
+		attenLinear = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3E0
+	void LightBehaviour::SetAttenQuadratic(float value)
+	{
+		attenQuadratic = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C400
+	float LightBehaviour::GetSphericalHarmonic(int channel, int coefficient)
+	{
+		return sphericalHarmonicValues[(channel < 3 ? channel : 0) * 9 + (coefficient < 9 ? coefficient : 0)];
+	}
+
 	// FUNCTION: ENGINE 0x1089C500
 	void LightBehaviour::Slot1()
 	{
