@@ -1191,17 +1191,23 @@ namespace proto
 
 
 			// FUNCTION: ENGINE 0x101EA690
-			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
 			bool AddMarkerByKeyAction::Slot7(int arg, float value)
 			{
-				return link.object != 0;
+				if (link.object != 0)
+				{
+					return true;
+				}
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x101EA190
-			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
 			bool PlayDebugDialogAction::Slot7(int arg, float value)
 			{
-				return link.object != 0;
+				if (link.object != 0)
+				{
+					return true;
+				}
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x101EB900
@@ -1401,6 +1407,117 @@ namespace proto
 				return result;
 			}
 #endif
+
+			// FUNCTION: ENGINE 0x101EB460
+			void ShowDisguiseActionHUDAction::Slot6()
+			{
+				if (link.object != 0 && link.object->showAndHideOnly)
+				{
+					PopupController* popups = GetFrontEndHud()->GetPopups();
+					if (popups->disguiseActions != 0)
+					{
+						popups->disguiseActions->Unknown104CF870();
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EBC30
+			bool ShowDisguiseActionHUDAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				if (popup != 0 && popup->GetEnabled())
+				{
+					Update(popup, object);
+					if (link.object->showAndHideOnly)
+					{
+						popup->Unknown104CF840();
+					}
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EBCE0
+			bool ShowDisguiseActionHUDAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				if (popup != 0)
+				{
+					Update(popup, object);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8C70
+			bool ClearMarkersAction::Slot5(int arg, float value)
+			{
+				MarkerList* markers = GetFrontEndHud()->GetMarkers();
+				engine::SerializedHandle handle = engine::SerializeHandle(target);
+				markers->Unknown104B94D0(handle, 0x26);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EA610
+			void AddMarkerByKeyAction::Slot6()
+			{
+				if (link.object != 0 && target.Get() != 0)
+				{
+					MarkerList* markers = GetFrontEndHud()->GetMarkers();
+					engine::SerializedHandle handle = engine::SerializeHandle(target);
+					markers->Unknown104B94D0(handle, link.object->type);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EA560
+			bool AddMarkerByKeyAction::Slot5(int arg, float value)
+			{
+				MarkerList* markers = GetFrontEndHud()->GetMarkers();
+				engine::SerializedHandle handle = engine::SerializeHandle(target);
+				int displayType = link.object->displayType;
+				if (displayType == 0)
+				{
+					displayType = 0xFF;
+				}
+				markers->Unknown104B57D0(handle, 3);
+				markers->Unknown104B9400(handle, link.object->type, displayType, 1, 0);
+				markers->Unknown104B57F0(handle, link.object->color);
+				if (link.object->animType != 0)
+				{
+					markers->Unknown104B8280(handle, link.object->animType);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E98C0
+			bool AreDisguiseActionsEnabledCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (GetFrontEndHud()->GetPopups()->disguiseActions != 0 && object != 0)
+				{
+					result = GetFrontEndHud()->GetPopups()->disguiseActions->GetEnabled();
+				}
+				return result;
+			}
 
 			// FUNCTION: ENGINE 0x101EB9F0
 			fight::Action* SetUserTooltipTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
