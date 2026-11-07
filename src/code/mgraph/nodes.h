@@ -426,9 +426,17 @@ namespace mgraph
 	class Abstraction : public Node
 	{
 	public:
+		// 0x10ACCDD0: makes the node and takes the graph it contains (counted), if there is one
+		Abstraction(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName, Graph* newInnerGraph);
+		// 0x10ACCE20 (the deleting destructor is 0x10ACCED0): lets the contained graph go
+		virtual ~Abstraction();
 		// 0x10ACCDB0 / 0x10ACCDC0
 		virtual void Attach(Context* newContext);
 		virtual void Detach(Context* oldContext);
+		// Slot 17: the name of the graph the node stands for
+		virtual const om::ClassName* GetGraphName() = 0;
+		// 0x10ACCF00: puts another graph in the node (counted) and makes the pins of the node follow the graph's inlets and outlets
+		void SetInnerGraph(Graph* graph);
 
 		NodeLink graphLink;  // 0x50: in the abstractions of the graph the node contains
 		Graph* innerGraph;  // 0x58
@@ -437,6 +445,17 @@ namespace mgraph
 	class LinkedGraph : public Abstraction
 	{
 	public:
+		// 0x10ACC420
+		LinkedGraph(Graph* newGraph, const om::ClassName& newName);
+		// 0x10ACBFB0 (the deleting destructor is 0x10ACC150)
+		virtual ~LinkedGraph();
+		OM_ALLOCATION(LinkedGraph);
+		// 0x10ACC180: the graph is found by its name
+		void SetAbstractedName(const om::ClassName& newName);
+		// Slot 8 (0x10ACC470)
+		virtual bool Slot8(void* argument);
+		// Slot 17 (0x10ACC510)
+		virtual const om::ClassName* GetGraphName();
 		// 0x10ACBFE0 / 0x10ACC000
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void SetChannelEnabled(unsigned int channel, bool enabled);
@@ -447,6 +466,15 @@ namespace mgraph
 	class EmbeddedGraph : public Abstraction
 	{
 	public:
+		// 0x10ACD460
+		EmbeddedGraph(Graph* newGraph, const om::ClassName& newName);
+		OM_ALLOCATION(EmbeddedGraph);
+		// 0x10ACD860: finds the graph and makes a copy of it for the node when it is shared (the name is kept)
+		void SetAbstractedName(const om::ClassName* newName);
+		// Slot 8 (0x10ACD930)
+		virtual bool Slot8(void* argument);
+		// Slot 17 (0x10ACD050)
+		virtual const om::ClassName* GetGraphName();
 		// 0x10ACD080 / 0x10ACD0C0
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void SetChannelEnabled(unsigned int channel, bool enabled);

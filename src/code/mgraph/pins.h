@@ -25,6 +25,9 @@ namespace mgraph
 	class __declspec(align(8)) Pin
 	{
 	public:
+		// 0x10B6A600: keeps the name, the kind (0 concrete, 1 abstract) and the node
+		Pin(const om::ClassName* newName, unsigned char newKind, Node* newNode);
+		// 0x10B6A5F0
 		virtual ~Pin();
 		virtual om::MetaTypeBase* GetPacketType() = 0;
 		virtual om::MetaTypeBase* GetPacketTypeCached() = 0;
@@ -43,17 +46,23 @@ namespace mgraph
 	public:
 		// 0x10AD17B0: keeps the name and registers the pin with its node (the second argument is 0 for the typed pins)
 		OutputPinBase(const om::ClassName* newName, int newUnknown, void* newNode, int newIndex);
+		// 0x10AD1600 (the deleting destructor is 0x10AD1820): takes the pin out of its node's list
 		virtual ~OutputPinBase();
 	};
 
 	class InputPinBase : public Pin
 	{
 	public:
+		// 0x10AD1B10: keeps the name and the flag and registers the pin with its node (index -1: the next free one)
+		InputPinBase(const om::ClassName* newName, int newKind, void* newNode, unsigned char newUnknown, int newIndex);
+		// 0x10AD1BC0 (the deleting destructor is 0x10AD1C80): takes the pin out of its node's list and deletes its connections
 		virtual ~InputPinBase();
-		// Slot 3: makes the connection from an output pin (null when the pins do not fit)
+		// Slot 3 (0x10AD1BB0): makes the connection from an output pin (null when the pins do not fit)
 		virtual GraphConnectionBase* MakeConnection(Pin* other);
+		// 0x10AD19D0: deletes the connections that end at the pin (name guessed)
+		void DeleteConnections();
 
-		bool unknown20;
+		unsigned char unknown20;
 		char unknown21[7];
 	};
 
@@ -89,6 +98,7 @@ namespace mgraph
 	public:
 		// 0x10AD1C20: keeps the name and registers the pin with its node
 		ConcreteInputPinBase(const om::ClassName* newName, int newUnknown, void* newNode, int newIndex);
+		// 0x10AD1C60 (the deleting destructor is 0x10AD1CA0)
 		virtual ~ConcreteInputPinBase();
 		virtual GraphConnectionBase* MakeConnection(Pin* other) = 0;
 		virtual void Slot4() = 0;
@@ -108,7 +118,12 @@ namespace mgraph
 			unknown30(0x10)
 		{
 		}
+		// 0x10AD16A0
 		virtual ~ConcreteOutputPinBase();
+		// 0x10AD1640: deletes the connections that start at the pin (name guessed)
+		void DeleteConnections();
+		// 0x10AD1490: hands the channels of the pin to an owner (name guessed)
+		void SetChannelOwners(void* newOwner);
 		// Slot 3: gives the pin the channels for a number of nodes' channels, which belong to an owner
 		virtual void Slot3(unsigned int newCount, void* newOwner) = 0;
 
