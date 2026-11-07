@@ -1,5 +1,6 @@
 #include "code/proto/webofintrigue/webofintriguemanager.h"
 #include "code/engine/camera/director.h"
+#include "code/engine/nis/nis.h"
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/content/enummetatype.h"
 #include "code/content/arraycmetatype.h"
@@ -51,11 +52,11 @@ namespace proto
 		int flags;  // +0x4C
 		float unknown50;
 		float unknown54;
-		math::Matrix transformA;  // +0x58
+		engine::NISTransform transformA;  // +0x58
 		bool unknown98;
 		unsigned char unknown99;
 		engine::GameObjectHandle target;  // +0x9A
-		math::Matrix transformB;  // +0xA0
+		engine::NISTransform transformB;  // +0xA0
 		bool useTransformB;  // +0xE0
 		unsigned char unknownE1[3];
 		int unknownE4;
@@ -69,7 +70,7 @@ namespace proto
 		// 0x1055B830
 		bool IsType2();
 		// 0x1055B840: the transform of the node
-		math::Matrix* GetTransform();
+		engine::NISTransform* GetTransform();
 		// 0x1055C8F0: the name of the node's gender (names guessed)
 		core::Name<core::CaseSensitiveKey> GetGenderName();
 		// 0x1055C940 / 0x1055C990 / 0x1055C9E0: the flag of the link at a place in the state / of the link to a node
@@ -180,7 +181,7 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x1055B840
-	math::Matrix* WebOfIntrigueManager::Node::GetTransform()
+	engine::NISTransform* WebOfIntrigueManager::Node::GetTransform()
 	{
 		if (useTransformB)
 		{
@@ -376,6 +377,43 @@ namespace proto
 	int WebOfIntrigueManager::GetSelectedEpisode()
 	{
 		return selectedEpisode;
+	}
+
+	// FUNCTION: ENGINE 0x1055CA30
+	void WebOfIntrigueManager::SetNodeTransform(int nodeID, const math::Matrix* transform)
+	{
+		Node* node = GetNode(FindNodeIndex(nodeID));
+		if (node != 0)
+		{
+			node->transformA = *reinterpret_cast<const engine::NISTransform*>(transform);
+			node->unknown98 = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1055CA70
+	void WebOfIntrigueManager::NodeLocatorLoaded(int nodeID)
+	{
+		Node* node = GetNode(FindNodeIndex(nodeID));
+		if (node != 0)
+		{
+			node->unknown98 = false;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1055CC40
+	WebOfIntrigueManager::Node* WebOfIntrigueManager::FindNode(engine::GameObjectHandle handle)
+	{
+		Node** at = nodeListBegin;
+		while (at != nodeListEnd)
+		{
+			Node* node = *at;
+			if (node != 0 && *(int*)&node->target == *(int*)&handle)
+			{
+				return node;
+			}
+			at++;
+		}
+		return 0;
 	}
 
 	// FUNCTION: ENGINE 0x1055B9E0
@@ -766,6 +804,72 @@ namespace proto
 			}
 		}
 		return -1;
+	}
+
+	// FUNCTION: ENGINE 0x1055C260
+	void WebOfIntrigueManager::CountFinishedNodes()
+	{
+		int highest = -1;
+		Node** at = nodes;
+		int count = 0xff;
+		do
+		{
+			if (*at != 0)
+			{
+				int state = (*at)->GetState();
+				if ((state & 0x10) != 0)
+				{
+					WOIEpisode* episode = GetVisibleNode((*at)->episode);
+					if (episode != 0)
+					{
+						episode->done++;
+					}
+				}
+				if (!((state & 0x80) != 0) && (*at)->episode > highest)
+				{
+					highest = (*at)->episode;
+				}
+			}
+			at++;
+			count--;
+		}
+		while (count != 0);
+		if (highest > unknown464)
+		{
+			unknown464 = highest;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1055C2E0
+	void WebOfIntrigueManager::ResetAllNodes()
+	{
+		for (int i = 0; i < nodeCount; i++)
+		{
+			if (nodes[i] != 0)
+			{
+				nodes[i]->SetState(0x10, false);
+			}
+		}
+		for (int i = 0; i < visibleCount; i++)
+		{
+			if (visible[i] != 0)
+			{
+				visible[i]->ResetDone();
+			}
+		}
+		CountFinishedNodes();
+	}
+
+	// FUNCTION: ENGINE 0x1055C360
+	void WebOfIntrigueManager::SetAllNodesOpen(int unused)
+	{
+		for (int i = 0; i < nodeCount; i++)
+		{
+			if (nodes[i] != 0)
+			{
+				nodes[i]->SetState(2, false);
+			}
+		}
 	}
 }
 

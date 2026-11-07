@@ -28,6 +28,8 @@ namespace proto
 		int GetDone();
 		int GetTotal();
 		void IncrementDone();
+		// 0x105630F0 (another unit)
+		void ResetDone();
 	};
 
 	// RTTI: proto::WebOfIntrigueManager
@@ -99,6 +101,12 @@ namespace proto
 		bool GetNodeLinkFlag(int index, unsigned int place);
 		// 0x1055CB70: links two nodes with each other by their ids
 		void LinkNodes(int firstID, int secondID);
+		// 0x1055C260: counts the finished nodes in their episodes and remembers the highest episode in use
+		void CountFinishedNodes();
+		// 0x1055C2E0: sets every node to its first state, clears the episodes' counts and counts again
+		void ResetAllNodes();
+		// 0x1055C360: sets every node to the state 2
+		void SetAllNodesOpen(int unused);
 		// 0x1055BF00: remembers that a node was targeted (the state 2 when its episode is done, else 1)
 		void OnNodeTargeted(Node* node);
 		// 0x1055BF60: tells the scenario that a target was consumed and forgets the targeting
@@ -111,7 +119,11 @@ namespace proto
 		int CountNodeLinks(int index);
 		int GetNodeLink(int index, unsigned int place);
 
-		Node* nodes[0x103];  // +4
+		Node* nodes[0xff];  // +4
+		Node** nodeListBegin;  // +0x400 (a second list of the nodes)
+		Node** nodeListEnd;  // +0x404
+		Node** nodeListCapacity;  // +0x408
+		int unknown40C;
 		int nodeCount;  // +0x410
 		int unknown414;
 		int selectedIndex;  // +0x418
