@@ -522,37 +522,37 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F970
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.1 %)
 			bool ShieldSetStateAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						ShieldSetStateMessage message(link.object->state);
-						object->SendMessage(&message);
-						return true;
-					}
+					return false;
 				}
-				return false;
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldSetStateMessage message(link.object->state);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1010FAB0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.2 %)
 			bool ShieldReflectAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						ShieldReflectStartMessage message(link.object->reflectBullets, link.object->reflectMissiles);
-						object->SendMessage(&message);
-						return true;
-					}
+					return false;
 				}
-				return false;
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldReflectStartMessage message(link.object->reflectBullets, link.object->reflectMissiles);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1010FB50
@@ -567,17 +567,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F590
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.6 %)
 			bool ShieldStateCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					ShieldGetStateMessage message(6);
-					object->SendMessage(&message);
-					return state == message.state;
+					return false;
 				}
-				return false;
+				ShieldGetStateMessage message(6);
+				object->SendMessage(&message);
+				return state == message.state;
 			}
 
 			// FUNCTION: ENGINE 0x1010F4E0

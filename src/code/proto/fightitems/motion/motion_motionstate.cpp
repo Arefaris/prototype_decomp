@@ -193,41 +193,41 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10119E40
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (74.6 %)
 			bool MotionStateAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						SetMotionStateMsg message(link.object->state, link.object->name);
-						object->SendMessage(&message);
-					}
+					return false;
 				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetMotionStateMsg message(link.object->state, link.object->name);
+				object->SendMessage(&message);
 				return false;
 			}
 
 			// FUNCTION: ENGINE 0x10119C30
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (32.3 %)
 			bool MotionStateCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					GetMotionStateMsg message;
-					object->SendMessage(&message);
-					bool equal = message.state == state;
-					if (equal)
-					{
-						if (!name.IsEmpty())
-						{
-							equal = message.name == name;
-						}
-					}
-					return match == equal;
+					return false;
 				}
-				return false;
+				GetMotionStateMsg message;
+				object->SendMessage(&message);
+				bool equal = message.state == state;
+				if (equal)
+				{
+					if (!name.IsEmpty())
+					{
+						equal = message.name == name;
+					}
+				}
+				return match == equal;
 			}
 
 			// ---- actions end

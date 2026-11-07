@@ -245,17 +245,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011A190
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (61.4 %)
 			bool StunnedCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					GetStunnedMovementMessage message;
-					object->SendMessage(&message);
-					return stunned == message.stunned;
+					return false;
 				}
-				return false;
+				GetStunnedMovementMessage message;
+				object->SendMessage(&message);
+				return stunned == message.stunned;
 			}
 
 			// FUNCTION: ENGINE 0x1011A030
