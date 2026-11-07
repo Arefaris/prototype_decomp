@@ -12,8 +12,8 @@ namespace engine
 namespace proto
 {
 	// 0x1126D8B0 / 0x1126D8A8: the log's text (UTF-16) and where it ends
-	static unsigned short sLogBuffer[0x200];
-	static unsigned short* sLogEnd;
+	unsigned short gLogBuffer[0x200];
+	unsigned short* gLogEnd;
 
 	// FUNCTION: ENGINE 0x104D2F60
 	FEHudTextLog::~FEHudTextLog()
@@ -63,18 +63,15 @@ namespace proto
 	// FUNCTION: ENGINE 0x104D2D00
 	void FEHudTextLog::Clear()
 	{
-		sLogEnd = sLogBuffer;
-		sLogBuffer[0] = 0;
+		gLogEnd = gLogBuffer;
+		gLogBuffer[0] = 0;
 	}
 
 	// FUNCTION: ENGINE 0x104D2D20
-	// NONMATCHING: the engine does not fold the reserved characters into the constant (0x200 - used - (newline + 1)), 44 %
-#ifdef NONMATCHING
 	void FEHudTextLog::Add(const char* newText, bool newline)
 	{
-		unsigned int room = 0x200 - (sLogEnd - sLogBuffer);
-		unsigned int reserved = (newline != false) + 1;
-		room -= reserved;
+		unsigned int room = 0x200 - (gLogEnd - gLogBuffer);
+		room -= newline ? 2 : 1;
 		if (*newText == '$')
 		{
 			newText = engine::GetLocalizedText(newText + 1);
@@ -87,22 +84,21 @@ namespace proto
 		core::ConvertText(converted, core::ENCODING_UTF16, newText, core::ENCODING_UTF8, 0, room, 0, 0, 0);
 		unsigned int bytes;
 		core::Utf16Count(converted, &bytes);
-		core::Utf16Copy(sLogEnd, converted, room);
-		sLogEnd += bytes >> 1;
+		core::Utf16Copy(gLogEnd, converted, room);
+		gLogEnd += bytes >> 1;
 		if (newline)
 		{
-			*sLogEnd = 10;
-			sLogEnd++;
+			*gLogEnd = 10;
+			gLogEnd++;
 		}
-		*sLogEnd = 0;
+		*gLogEnd = 0;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x104D3090
 	void FEHudTextLog::Close()
 	{
 		logVisible.Set(FlashValue(active));
-		text.Set(FlashValue((const wchar_t*)sLogBuffer));
+		text.Set(FlashValue((const wchar_t*)gLogBuffer));
 		text.Flush(true);
 	}
 
