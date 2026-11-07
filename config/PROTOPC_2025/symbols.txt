@@ -98810,3 +98810,7 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??1ReplayExtra@engine@@QAE@XZ = 0x109337A0 ; function size:0x44 | engine::ReplayExtra::~ReplayExtra (name guess)
 ?Erase@?$ArrayDynamicHelper@V?$ArrayDynamic@VFileName@ContentManager@engine@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z = 0x108E58E0 ; function size:0x3A | content::ArrayDynamicHelper<container::ArrayDynamic<engine::ContentManager::FileName>>::Erase (vftable slot 4)
 ?Insert@?$ArrayDynamicHelper@V?$ArrayDynamic@VCollection@ContentCementFileDefinition@ContentManager@engine@@UAllocatorNew@container@@@container@@@content@@UAEXPAXHH@Z = 0x108E6210 ; function size:0xA0 | content::ArrayDynamicHelper<container::ArrayDynamic<engine::ContentManager::ContentCementFileDefinition::Collection>>::Insert (vftable slot 3)
+?HideElements@FrontEndHud@proto@@QAEXH@Z = 0x104B1110 ; function size:0x31 | proto::FrontEndHud::HideElements (name guess)
+?ShowElements@FrontEndHud@proto@@QAEXH@Z = 0x104B10D0 ; function size:0x31 | proto::FrontEndHud::ShowElements (name guess)
+?SetVisible@FrontEndHud@proto@@QAEX_N@Z = 0x104B1090 ; function size:0x28 | proto::FrontEndHud::SetVisible (name guess)
+?Get@?$Link@VHideHUDTrack@motion@fightitems@proto@@@core@@QBEPAVHideHUDTrack@motion@fightitems@proto@@XZ = 0x100C0BB0 ; function size:0x3 | kept template or inline copy of this unit

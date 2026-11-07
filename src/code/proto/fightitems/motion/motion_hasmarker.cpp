@@ -1,5 +1,6 @@
 // Fight items of the motion group: HasMarkerCondition, HideHUDTrack (unit 0x10161F50 - 0x10162970; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_hasmarker.h"
+#include "code/proto/frontendhud.h"
 
 namespace proto
 {
@@ -215,6 +216,38 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x100C0E20
+			bool HideHUDAction::Slot5(int arg, float value)
+			{
+				HideHUDTrack* track = link.Get();
+				if (track == 0)
+				{
+					return false;
+				}
+				if (track->hideIndividualElements)
+				{
+					GetFrontEndHud()->HideElements(track->hideIndividualElementsHideElements);
+					return true;
+				}
+				GetFrontEndHud()->SetVisible(false);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100C0E70
+			void HideHUDAction::Slot6()
+			{
+				HideHUDTrack* track = link.Get();
+				if (track != 0)
+				{
+					if (track->hideIndividualElements)
+					{
+						GetFrontEndHud()->ShowElements(track->hideIndividualElementsHideElements);
+						return;
+					}
+					GetFrontEndHud()->SetVisible(true);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x100C0EB0
 			fight::Action* HideHUDTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -270,6 +303,7 @@ namespace proto
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100C0B90
+// FUNCTION: ENGINE 0x100C0BB0
 // FUNCTION: ENGINE 0x100C0BC0
 // FUNCTION: ENGINE 0x100C0DF0
 // FUNCTION: ENGINE 0x101621C0
