@@ -1484,6 +1484,8 @@ namespace pure3d
 		unsigned int GetUnknown1C();
 		// 0x10720220: takes the primitive's flags from the shader's (called by Unknown4; name guess)
 		void SetFlagsFromShader();
+		// 0x1071ED40: the description of the index buffer at +0x148 (name guess)
+		void GetIndexDescription(IndexBufferDescription* description);
 		// 0x1071FF00 (0x29C bytes): a skin of the streams of the first description (the second and the third are
 		// the mesh's and the state's when the group animates some; argument names guessed)
 		Skin(const ShaderParameters* parameters, const ShaderParameters* meshParameters,

@@ -56,6 +56,128 @@ namespace pure3d
 	// 0x1071EAF0: the body of the skinning task
 	void SkinTask(void* data, core::AsyncTaskCallback* callback);
 
+	// FUNCTION: ENGINE 0x1071EAF0
+	void SkinTask(void* data, core::AsyncTaskCallback* callback)
+	{
+		SkinState* state = ((SkinState::AsyncTaskAdaptor*)callback)->mState;
+		Skin* skin = (Skin*)state->GetPrimitive();
+		SkinJobData* job = (SkinJobData*)data;
+		if (job->hasNormals && job->hasTangents)
+		{
+			if (state->expression != 0)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071CA40((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071C530((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (job->wide)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071DD60((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071D960((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (skin->unknown298)
+			{
+				state->Unknown1071B9A0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			state->Unknown1071B610((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+			callback->SetResult(1);
+			return;
+		}
+		else if (job->hasNormals)
+		{
+			if (state->expression != 0)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071D1B0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071CDC0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (job->wide)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071E390((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071DFF0((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (skin->unknown298)
+			{
+				state->Unknown1071BEE0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			state->Unknown1071BBD0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+			callback->SetResult(1);
+			return;
+		}
+		else
+		{
+			if (state->expression != 0)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071D770((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071D440((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (job->wide)
+			{
+				if (skin->unknown298)
+				{
+					state->Unknown1071E8F0((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+					callback->SetResult(1);
+					return;
+				}
+				state->Unknown1071E5D0((math::Vector4*)job->destination, (const SkinVertex2*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			if (skin->unknown298)
+			{
+				state->Unknown1071C390((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+				callback->SetResult(1);
+				return;
+			}
+			state->Unknown1071C0C0((math::Vector4*)job->destination, (const SkinVertex*)job->source, job->count);
+			callback->SetResult(1);
+			return;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1071ED40
+	void Skin::GetIndexDescription(IndexBufferDescription* description)
+	{
+		indexBuffer->GetDescription(description);
+	}
+
 	// FUNCTION: ENGINE 0x1071F7D0
 	void Unknown1071F7D0()
 	{

@@ -102749,3 +102749,4 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??$CreatePass@VDepthOfFieldPass@pure3d@@UPassDesc@2@@ProtoRenderScheme@pure3d@@QAEPAVDepthOfFieldPass@1@PBUPassDesc@1@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x10719E80 ; function size:0x73 | template instance (name guess)
 ??$CreatePass@VProtoFBPass@pure3d@@UPassDesc@2@@ProtoRenderScheme@pure3d@@QAEPAVProtoFBPass@1@PBUPassDesc@1@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x10719F00 ; function size:0x73 | template instance (name guess)
 ??$CreatePass@VProtoHUDPass@pure3d@@UPassDesc@2@@ProtoRenderScheme@pure3d@@QAEPAVProtoHUDPass@1@PBUPassDesc@1@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x10719F80 ; function size:0x73 | template instance (name guess)
+?GetIndexDescription@Skin@pure3d@@QAEXPAUIndexBufferDescription@2@@Z = 0x1071ED40 ; function size:0xB | pure3d::Skin::GetIndexDescription (name guess)
