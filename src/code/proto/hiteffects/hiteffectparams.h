@@ -18,6 +18,11 @@ namespace proto
 		class HitEffectParams : public fight::Params
 		{
 		public:
+			// 0x104F51A0
+			HitEffectParams();
+			// 0x104F5270 (the deleting destructor is 0x104F5280)
+			virtual ~HitEffectParams();
+
 			unsigned int kind;  // +0xC: 10
 			engine::GameObjectHandle giver;  // +0x10
 			engine::GameObjectHandle receiver;  // +0x14

@@ -43,6 +43,8 @@ namespace proto
 	public:
 		// 0x104DE970
 		FrontEndState();
+		// 0x104DD8B0 (name guess)
+		void Unknown104DD8B0(int value);
 		unsigned char unknown0[0xA8];
 	};
 

@@ -8,6 +8,7 @@
 #include "code/core/strings.h"
 #include "code/engine/controller/defaultcontrollerhandler.h"
 #include "code/engine/frontend/frontend.h"
+#include "code/engine/frontend/privatedialogstate.h"
 #include "code/engine/fight/fightsystem.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
@@ -67,6 +68,9 @@ namespace engine
 	void AddGameState(void* state, int number, int a, int b, int c, int d);
 	// 0x1088A230: the heap the front end allocates from (set to the first slot of FETransient; name guess)
 	int SetFrontEndHeap(int heap);
+
+	// 0x10848EE0: the value of a command line option, 0 when it is not given
+	const char* GetCommandLineValue(const char* option);
 }
 
 namespace proto
@@ -84,6 +88,24 @@ namespace proto
 	extern engine::controller::DefaultControllerHandler* gControllerHandler;
 	// 0x1126EE1C
 	extern void* gFrontend;
+
+	// 0x104DF950: whether the level is one of the dev select list's (name guess)
+	bool HasDevSelectLevel(const char* name);
+	// 0x104DEEC0: starts the level of that name from the list named group (name guess)
+	void StartDevSelectLevel(const char* name, int flag, const char* group);
+	// 0x104DEFC0 (name guess)
+	void FinishDevSelectStart();
+	// 0x104E1A30
+	engine::controller::DefaultControllerHandler* GetControllerHandler();
+
+	// The head-up display of the front end (0x104B0A00 makes it)
+	class FrontEndHud
+	{
+	public:
+		// 0x104B1470 (name guess)
+		void Unknown104B1470(int value);
+	};
+	FrontEndHud* GetFrontEndHud();
 
 	// 0x1125E388: the render manager (RTTI proto::ProtoRenderManager, 0xE8 bytes)
 	class ProtoRenderManager
@@ -299,6 +321,37 @@ namespace proto
 	const char* GameEngine::Slot7()
 	{
 		return "FE_Language";
+	}
+
+	// FUNCTION: ENGINE 0x104E1A30
+	engine::controller::DefaultControllerHandler* GetControllerHandler()
+	{
+		return gControllerHandler;
+	}
+
+	// FUNCTION: ENGINE 0x104E2540
+	void GameEngine::Launch()
+	{
+		const char* level = engine::GetCommandLineValue("Level");
+		if (level)
+		{
+			if (HasDevSelectLevel(level))
+			{
+				StartDevSelectLevel(level, 1, "DevSelect");
+				FinishDevSelectStart();
+			}
+			GetControllerHandler()->LockController(0);
+			GetFrontEndHud()->Unknown104B1470(1);
+			frontEndState->Unknown104DD8B0(0);
+			engine::RequestGameState(2, 0, 0);
+			return;
+		}
+		if (engine::GetCommandLineValue("Replay"))
+		{
+			GetControllerHandler()->LockController(0);
+			GetFrontEndHud()->Unknown104B1470(1);
+		}
+		engine::RequestGameState(3, 2, 0);
 	}
 
 	// The script wrappers the registration of the two natives builds (function.h), and the zero-argument
