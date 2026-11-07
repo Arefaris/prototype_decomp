@@ -277,6 +277,93 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10117850
+			const fight::Name& SpawnGibTrack::GetGibName() const
+			{
+				return gibName;
+			}
+
+			// FUNCTION: ENGINE 0x10117860
+			bool SpawnGibTrack::GetAddSuffix() const
+			{
+				return addSuffix;
+			}
+
+			// FUNCTION: ENGINE 0x10117870
+			const fight::Name& SpawnGibTrack::GetTemplateName() const
+			{
+				return templateName;
+			}
+
+			// FUNCTION: ENGINE 0x10117880
+			bool SpawnGibTrack::GetCopyShader() const
+			{
+				return copyShader;
+			}
+
+			// FUNCTION: ENGINE 0x10117890
+			const fight::Name& SpawnGibTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x101178E0
+			bool SpawnGibTrack::GetAttachToParent() const
+			{
+				return attachToParent;
+			}
+
+			// FUNCTION: ENGINE 0x101178F0
+			const fight::Name& SpawnGibTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10117900
+			bool SpawnGibTrack::GetInheritPose() const
+			{
+				return inheritPose;
+			}
+
+			// FUNCTION: ENGINE 0x10117910
+			bool SpawnGibTrack::GetAttachToGrandParent() const
+			{
+				return attachToGrandParent;
+			}
+
+			// FUNCTION: ENGINE 0x10117920
+			float SpawnGibTrack::GetImpulseScale() const
+			{
+				return impulseScale;
+			}
+
+			// FUNCTION: ENGINE 0x10117930
+			bool SpawnGibTrack::GetTransferTargetLocks() const
+			{
+				return transferTargetLocks;
+			}
+
+			// FUNCTION: ENGINE 0x10117940
+			bool SpawnGibTrack::GetCopyTranformationDescription() const
+			{
+				return copyTranformationDescription;
+			}
+
+			// FUNCTION: ENGINE 0x10117950
+			bool SpawnGibTrack::GetUseParentExclusionGroup() const
+			{
+				return useParentExclusionGroup;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101B4F80
 // FUNCTION: ENGINE 0x101B4F90

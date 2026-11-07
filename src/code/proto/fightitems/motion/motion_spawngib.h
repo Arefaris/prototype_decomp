@@ -51,6 +51,21 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetGibName() const;
+				bool GetAddSuffix() const;
+				const fight::Name& GetTemplateName() const;
+				bool GetCopyShader() const;
+				const fight::Name& GetJoint() const;
+				bool GetAttachToParent() const;
+				const fight::Name& GetGrabSlot() const;
+				bool GetInheritPose() const;
+				bool GetAttachToGrandParent() const;
+				float GetImpulseScale() const;
+				bool GetTransferTargetLocks() const;
+				bool GetCopyTranformationDescription() const;
+				bool GetUseParentExclusionGroup() const;
+
 					fight::Name gibName;  // +0x10
 					fight::Name grabSlot;  // +0x18
 					fight::Name joint;  // +0x20

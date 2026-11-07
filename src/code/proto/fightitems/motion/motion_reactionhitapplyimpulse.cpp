@@ -115,6 +115,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010D5C0
+			float ReactionHitApplyImpulseTrack::GetImpulseScale() const
+			{
+				return impulseScale;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A9FF0
 // FUNCTION: ENGINE 0x101AA020

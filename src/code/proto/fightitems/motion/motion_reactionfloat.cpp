@@ -331,6 +331,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101078A0
+			float TokenSetFloatDelayTrack::GetFloatDelay() const
+			{
+				return floatDelay;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A6C30
 // FUNCTION: ENGINE 0x101A6C60

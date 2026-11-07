@@ -383,6 +383,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010CC70
+			const fight::Name& ReactionHitAnimationTrack::GetAnimation() const
+			{
+				return animation;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCF0
+			const fight::Name& ReactionHitAnimationTrack::GetPartition() const
+			{
+				return partition;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FE70
 // FUNCTION: ENGINE 0x10D81C10

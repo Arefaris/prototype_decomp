@@ -36,6 +36,9 @@ namespace proto
 				static void ClearProperties();
 
 				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetName() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
 				int GetState() const;
 				bool GetMatch() const;
 
@@ -75,6 +78,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetName() const;
 
 					fight::Name name;  // +0x10
 					float timeBegin;  // +0x18

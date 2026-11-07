@@ -345,6 +345,63 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10116630
+			float FootstepTrack::GetPhase() const
+			{
+				return phase;
+			}
+
+			// FUNCTION: ENGINE 0x10116640
+			const fight::Name& FootstepTrack::GetFootstepMapName() const
+			{
+				return footstepMapName;
+			}
+
+			// FUNCTION: ENGINE 0x10116670
+			float JawFlapTrack::GetThresholdMin() const
+			{
+				return thresholdMin;
+			}
+
+			// FUNCTION: ENGINE 0x10116680
+			float JawFlapTrack::GetThresholdMax() const
+			{
+				return thresholdMax;
+			}
+
+			// FUNCTION: ENGINE 0x10116690
+			const fight::Name& JawFlapTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x101166C0
+			int JawFlapTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101166D0
+			float JawFlapTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101166E0
+			float JawFlapTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101169C0
 // FUNCTION: ENGINE 0x10116A10

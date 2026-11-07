@@ -40,6 +40,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetMasterObject() const;
+
 					fight::Name masterObject;  // +0x10
 					math::Vector offset;  // +0x18
 					float timeBegin;  // +0x24

@@ -183,6 +183,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E240
+			const fight::Name& ScrubberTrack::GetAnimation() const
+			{
+				return animation;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1010E2B0
 // FUNCTION: ENGINE 0x1010E2E0

@@ -1627,6 +1627,153 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A5A0
+			int SupportingLimbTestSurfaceNormalVelocityArcCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5B0
+			int SupportingLimbTestSurfaceNormalVelocityArcCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5F0
+			int SupportingLimbTestSurfaceNormalAngleCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A610
+			int SupportingLimbSurfaceIntersectionPropertiesCondition::GetTestBits() const
+			{
+				return testBits;
+			}
+
+			// FUNCTION: ENGINE 0x1011A620
+			int SupportingLimbSurfaceIntersectionPropertiesCondition::GetMatchAgainst() const
+			{
+				return matchAgainst;
+			}
+
+			// FUNCTION: ENGINE 0x1011A630
+			int SupportingLimbTestSurfaceVelocityAngleCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A680
+			bool SupportingLimbTestSurfaceVelocityAngleCondition::GetUseExcessVelocity() const
+			{
+				return useExcessVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x1011A690
+			int SupportingLimbTestTimeToImpactCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6A0
+			float SupportingLimbTestTimeToImpactCondition::GetTimeToImpact() const
+			{
+				return timeToImpact;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6B0
+			int SupportingSurfaceNormalVelocityArcCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6C0
+			int SupportingSurfaceNormalVelocityArcCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6F0
+			int SupportingLimbTestSurfaceDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A700
+			float SupportingLimbTestSurfaceDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x1011A710
+			bool SupportingLimbTestSwitchSurfacesCondition::GetSwitchSurfaces() const
+			{
+				return switchSurfaces;
+			}
+
+			// FUNCTION: ENGINE 0x1011A730
+			const fight::Name& SupportingLimbSetActiveTrack::GetSupportingLimb() const
+			{
+				return supportingLimb;
+			}
+
+			// FUNCTION: ENGINE 0x1011A740
+			const fight::Name& SupportingLimbTestTrack::GetSupportingLimb() const
+			{
+				return supportingLimb;
+			}
+
+			// FUNCTION: ENGINE 0x1011A790
+			float SupportingLimbTestTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7B0
+			float SupportingLimbTestTrack::GetExtraDistance() const
+			{
+				return extraDistance;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7C0
+			bool SupportingLimbTestTrack::GetUseInput() const
+			{
+				return useInput;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7E0
+			bool SupportingLimbTestTrack::GetUsePreviousSurface() const
+			{
+				return usePreviousSurface;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7F0
+			bool SupportingLimbTestTrack::GetUseMotion() const
+			{
+				return useMotion;
+			}
+
+			// FUNCTION: ENGINE 0x1011A840
+			const fight::Name& SupportingLimbSetActiveRangeTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x1011A850
+			const fight::Name& SupportingLimbSetActiveRangeTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FEE0
 // FUNCTION: ENGINE 0x10D81C20

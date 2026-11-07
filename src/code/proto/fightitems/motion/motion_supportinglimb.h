@@ -36,6 +36,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetVelocityType() const;
+				int GetCompare() const;
+
 					float arc;  // +0xC
 					int compare;  // +0x10
 					int velocityType;  // +0x14
@@ -67,6 +71,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+
 					math::Vector normal;  // +0xC
 					float angle;  // +0x18
 					int compare;  // +0x1C
@@ -96,6 +103,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetTestBits() const;
+				int GetMatchAgainst() const;
 
 					int matchAgainst;  // +0xC
 					int testBits;  // +0x10
@@ -128,6 +139,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetVelocityType() const;
+				bool GetUseExcessVelocity() const;
 
 					math::Vector zeroVector;  // +0xC
 					float angle;  // +0x18
@@ -162,6 +177,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetTimeToImpact() const;
+
 					float timeToImpact;  // +0xC
 					int compare;  // +0x10
 			};
@@ -191,6 +210,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetVelocityType() const;
+				int GetCompare() const;
 
 					float arc;  // +0xC
 					int compare;  // +0x10
@@ -249,6 +272,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetDistance() const;
+
 					float distance;  // +0xC
 					int compare;  // +0x10
 			};
@@ -276,6 +303,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetSwitchSurfaces() const;
 
 					bool switchSurfaces;  // +0xC
 					unsigned char unknownD[0x3];
@@ -337,6 +367,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetSupportingLimb() const;
+
 					fight::Name supportingLimb;  // +0x10
 					float timeBegin;  // +0x18
 					unsigned char unknown1C[0x4];
@@ -384,6 +417,14 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetSupportingLimb() const;
+				float GetRadius() const;
+				float GetExtraDistance() const;
+				bool GetUseInput() const;
+				bool GetUsePreviousSurface() const;
+				bool GetUseMotion() const;
 
 					fight::BranchHolder branch;  // +0x10
 					unsigned char unknown34[0x4];
@@ -435,6 +476,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetOnBegin() const;
+				const fight::Name& GetOnEnd() const;
 
 					fight::Name onBegin;  // +0x10
 					fight::Name onEnd;  // +0x18

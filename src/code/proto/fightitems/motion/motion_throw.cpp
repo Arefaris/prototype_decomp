@@ -616,6 +616,57 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011FA30
+			const fight::Name& HitReactionThrowTrack::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x1011FA40
+			const fight::Name& ThrowTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB60
+			bool ThrowTrack::GetUseTarget() const
+			{
+				return useTarget;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB70
+			bool ThrowTrack::GetUseTargetVehicle() const
+			{
+				return useTargetVehicle;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB80
+			float ThrowTrack::GetRandomOffset() const
+			{
+				return randomOffset;
+			}
+
+			// FUNCTION: ENGINE 0x1011FB90
+			int ThrowTrack::GetInterruptPriority() const
+			{
+				return interruptPriority;
+			}
+
+			// FUNCTION: ENGINE 0x1011FBA0
+			const fight::Name& ThrowTrack::GetHitType() const
+			{
+				return hitType;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BE7D0
 // FUNCTION: ENGINE 0x101BE7E0

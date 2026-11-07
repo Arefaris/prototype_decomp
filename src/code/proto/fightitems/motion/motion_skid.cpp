@@ -570,6 +570,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10114770
+			const fight::Name& SkidPedalTrack::GetAnimNorth() const
+			{
+				return animNorth;
+			}
+
+			// FUNCTION: ENGINE 0x10114780
+			const fight::Name& SkidPedalTrack::GetAnimWest() const
+			{
+				return animWest;
+			}
+
+			// FUNCTION: ENGINE 0x10114790
+			const fight::Name& SkidPedalTrack::GetAnimSouth() const
+			{
+				return animSouth;
+			}
+
+			// FUNCTION: ENGINE 0x101147A0
+			const fight::Name& SkidPedalTrack::GetAnimEast() const
+			{
+				return animEast;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10114800
 // FUNCTION: ENGINE 0x10114820

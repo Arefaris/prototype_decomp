@@ -39,6 +39,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetPhase() const;
+				const fight::Name& GetFootstepMapName() const;
+
 					fight::Name footstepMapName;  // +0x10
 					float phase;  // +0x18
 					float timeBegin;  // +0x1C
@@ -83,6 +87,14 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetThresholdMin() const;
+				float GetThresholdMax() const;
+				const fight::Name& GetJoint() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
 
 					fight::Name joint;  // +0x10
 					math::Vector axis;  // +0x18
