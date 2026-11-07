@@ -132,6 +132,8 @@ namespace proto
 		virtual ~CanBeInSquadSquadMessage()
 		{
 		}
+
+		bool canBe;  // +0xC (the answer; the constructor leaves it alone)
 	};
 
 	struct IsSquadSquadMessage : public SquadMessage

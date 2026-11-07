@@ -210,6 +210,9 @@ namespace engine
 		CharacterIntentionAxis* GetAxis(int index);
 		// 0x107E30A0: the engine's second out-of-line copy of GetButton, the one the ai fight items call
 		CharacterIntentionButton* GetButtonOther(int index);
+		// 0x107E2920 / 0x107E30F0 (another unit): the name of the state the character is in (at +8) and its setter
+		core::Name<core::CaseSensitiveKey>* GetStateName();
+		void SetStateName(const core::Name<core::CaseSensitiveKey>& newName);
 
 		unsigned char unknown0[0x10];
 		CharacterIntentionButton* buttons;  // +0x10

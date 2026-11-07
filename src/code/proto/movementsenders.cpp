@@ -2,6 +2,21 @@
 #include "code/proto/messages/statemessages.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/motion/motion_patsy.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/core/strings.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
+	}
+}
 
 namespace proto
 {
@@ -49,6 +64,182 @@ namespace proto
 		RunMovementMessage message(run, unknownD);
 		object->SendMessage(&message);
 	}
+
+	// FUNCTION: ENGINE 0x103B8DC0
+	int Unknown103B8DC0(engine::GameObject* object)
+	{
+		GetGameObjectLODAIMsg message;
+		object->SendMessage(&message);
+		return message.level;
+	}
+
+	// FUNCTION: ENGINE 0x103B8E10
+	int Unknown103B8E10(engine::GameObject* object)
+	{
+		GetSustainedGameObjectLODAIMsg message;
+		object->SendMessage(&message);
+		return message.level;
+	}
+
+	// FUNCTION: ENGINE 0x103B8B80
+	engine::GameObjectHandle Unknown103B8B80(engine::GameObject* object)
+	{
+		GetTargetMessage message;
+		object->SendMessage(&message);
+		return message.target;
+	}
+
+	// FUNCTION: ENGINE 0x103B92B0
+	const fight::Name* Unknown103B92B0(engine::GameObject* object)
+	{
+		engine::CharacterQueryIntentionMessage message;
+		object->SendMessage(&message);
+		return message.intention->GetStateName();
+	}
+
+	// FUNCTION: ENGINE 0x103BB590
+	void Unknown103BB590(engine::GameObject* object, core::Name<core::CaseSensitiveKey> state)
+	{
+		engine::CharacterQueryIntentionMessage message;
+		object->SendMessage(&message);
+		message.intention->SetStateName(state);
+	}
+
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x103B8B20
+			float GetObjectHealth(engine::GameObject* object)
+			{
+				engine::GetHealthMessage message;
+				object->PostMessage(&message);
+				return message.health;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x103B8E60
+	bool Unknown103B8E60(engine::GameObject* object)
+	{
+		GetLODStateAIMsg message;
+		object->SendMessage(&message);
+		if (message.state == 0)
+		{
+			return false;
+		}
+		if (message.state != 3)
+		{
+			return false;
+		}
+		ThawAIMsg thaw;
+		object->SendMessage(&thaw);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x103B8F00
+	bool Unknown103B8F00(engine::GameObject* object)
+	{
+		GetLODStateAIMsg message;
+		object->SendMessage(&message);
+		if (message.state == 0)
+		{
+			return false;
+		}
+		if (message.state != 1)
+		{
+			return false;
+		}
+		FreezeAIMsg freeze;
+		object->SendMessage(&freeze);
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x103B8FA0
+	bool Unknown103B8FA0(engine::GameObject* object)
+	{
+		GetLODStateAIMsg message;
+		object->SendMessage(&message);
+		return message.state == 3;
+	}
+
+	// FUNCTION: ENGINE 0x103B8FF0
+	bool Unknown103B8FF0(engine::GameObject* object)
+	{
+		GetLODStateAIMsg message;
+		object->SendMessage(&message);
+		return message.state != 0;
+	}
+
+	// FUNCTION: ENGINE 0x103B91C0
+	bool Unknown103B91C0(engine::GameObject* object)
+	{
+		IsSquadSquadMessage message;
+		object->SendMessage(&message);
+		return message.isSquad;
+	}
+
+	// FUNCTION: ENGINE 0x103B9210
+	bool Unknown103B9210(engine::GameObject* object)
+	{
+		CanBeInSquadSquadMessage message;
+		object->SendMessage(&message);
+		return message.canBe;
+	}
+
+	// FUNCTION: ENGINE 0x103B9C80
+	bool Unknown103B9C80(engine::GameObject* object)
+	{
+		GetTunnelingStateStateChangeMessage message;
+		object->SendMessage(&message);
+		return message.state != 0;
+	}
+
+	// FUNCTION: ENGINE 0x103B98B0
+	int Unknown103B98B0(int value)
+	{
+		if (value != 0 && value != 1 && value != 2)
+		{
+			return 0;
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x103B98E0
+	int Unknown103B98E0(const char* text)
+	{
+		if (text != 0 && *text != 0)
+		{
+			int lines = 1;
+			unsigned int length = core::StrLen(text);
+			for (unsigned int i = 0; i < length; i++)
+			{
+				if (text[i] == '\n')
+				{
+					lines++;
+				}
+			}
+			if (text[length - 1] == '\n')
+			{
+				lines--;
+			}
+			return lines;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x103B9A10
+	// NONMATCHING: the engine loads the four floats into registers before the products (40.8 %)
+#ifdef NONMATCHING
+	float Unknown103B9A10(const float* first, const float* second)
+	{
+		if (first[1] * second[0] - second[1] * first[0] > engine::driving::gZero)
+		{
+			return -1.0f;
+		}
+		return 1.0f;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x103B87F0
 	void Unknown103B87F0(engine::GameObject* object, const math::Vector* direction)
