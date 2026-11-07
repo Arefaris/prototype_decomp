@@ -63,6 +63,8 @@ namespace pure3d
 		void SetTexture(Texture* texture);
 
 		RenderTarget* decalTarget; // +0xB0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknownB4[4];
 	};
 
 	// Draws the light decals into a buffer the lit passes read (vftable 0x10E5F264)
@@ -83,6 +85,8 @@ namespace pure3d
 		void SetTexture(Texture* newTexture);
 
 		Texture* texture; // +0xB0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknownB4[4];
 	};
 
 	// The scene calls the root pass makes before it runs its children use the scene's own functions
@@ -245,6 +249,8 @@ namespace pure3d
 		ProtoSlowZPass* slowPass;           // +0xB8
 		ProtoFastZPass* fastPass;           // +0xBC
 		Shader* shader;                     // +0xC0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknownC4[4];
 	};
 
 	// The passes that light parts: the lights are chosen per part from the scene's selection and uploaded to the
@@ -328,6 +334,8 @@ namespace pure3d
 		PassEntries unknownB0;  // +0xB0
 		PassEntries unknown138; // +0x138
 		unsigned int clearColour; // +0x1C0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknown1C4[4];
 	};
 
 	// The shadow passes' base (RTTI name pure3d::ShadowPass): the view of the light, set for the parts of a shadow
@@ -416,6 +424,8 @@ namespace pure3d
 
 		PartPointerList shadowParts[5]; // +0x160
 		bool unknown1B0;
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknown1B4[4];
 	};
 
 	// Copies the picture to a texture and draws what the game asks it to (vftable 0x10E5F8CC, twelve slots)
@@ -431,6 +441,8 @@ namespace pure3d
 		virtual void SetUnknown100(void* value);
 
 		void* unknown100;
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknown104[4];
 	};
 
 	// Draws the parts as lines (vftable 0x10E5FA80)
@@ -449,6 +461,8 @@ namespace pure3d
 		bool SetParameterEnable(bool value);
 
 		ParameterHandler<ProtoWireframePass> parameters; // +0xB0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknownF4[4];
 	};
 
 	// Draws the blood on the parts (vftable 0x10E5FABC)
@@ -479,6 +493,8 @@ namespace pure3d
 		bool SetParameterEnable(bool value);
 
 		ParameterHandler<ProtoShaderLODDebugPass> parameters; // +0xB0
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknownF4[4];
 	};
 
 	// What a view pass is made from (RTTI pure3d::ViewPassDesc, a struct; names guessed)
@@ -543,6 +559,8 @@ namespace pure3d
 		unsigned char unknownDE[2];
 		ParameterHandler<ViewPass> parameters; // +0xE0
 		PassEntries unknown124;                // +0x124
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknown1AC[4];
 	};
 }
 
