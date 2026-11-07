@@ -99238,7 +99238,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?Invoke@?$Method1@VProtoRenderManager@proto@@_NI@@UAEXPAXPBTFunctionArgument@engine@@0@Z = 0x102E2580 ; function size:0x22 | Method1<class proto::ProtoRenderManager,bool,unsigned int>::Invoke vftable slot 0
 ??_7?$Closure1@VProtoRenderManager@proto@@_NI@@6B@ = 0x10DEB3C0 ; data size:0x4 | Closure1<class proto::ProtoRenderManager,bool,unsigned int> vftable
 ?Invoke@?$Closure1@VProtoRenderManager@proto@@_NI@@UAEXPAXPBTFunctionArgument@engine@@0@Z = 0x102E30F0 ; function size:0x23 | Closure1<class proto::ProtoRenderManager,bool,unsigned int>::Invoke vftable slot 0
-??_7RenderEvent@render@engine@@6B@ = 0x10D9C614 ; data size:0x4 | engine::render::RenderEvent vftable
 ??_7?$ObjRenderEvent1@VProtoRenderManager@proto@@V?$Name@UCaseSensitiveKey@core@@@core@@@render@engine@@6B@ = 0x10DEB270 ; data size:0x4 | engine::render::ObjRenderEvent1<class proto::ProtoRenderManager,class core::Name<struct core::CaseSensitiveKey> > vftable
 ?Execute@?$ObjRenderEvent1@VProtoRenderManager@proto@@V?$Name@UCaseSensitiveKey@core@@@core@@@render@engine@@UAEXXZ = 0x102E3120 ; function size:0x27 | engine::render::ObjRenderEvent1<class proto::ProtoRenderManager,class core::Name<struct core::CaseSensitiveKey> >::Execute vftable slot 0
 ??_7?$ObjRenderEvent1@VProtoRenderManager@proto@@M@render@engine@@6B@ = 0x10DEB27C ; data size:0x4 | engine::render::ObjRenderEvent1<class proto::ProtoRenderManager,float> vftable
