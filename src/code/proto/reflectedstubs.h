@@ -33,6 +33,10 @@
 #include "code/proto/behaviours/aimbehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
+#include "code/proto/behaviours/tanksolver.h"
+#include "code/proto/behaviours/vehicleconstraints.h"
+#include "code/proto/behaviours/wheelconstraint.h"
+#include "code/proto/behaviours/helicopterrotor.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
@@ -124,6 +128,37 @@ namespace proto
 	class HelicopterSolverGenericProperties : public content::MetaLoadObject
 	{
 	public:
+		class CameraParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031DFE0
+		};
+		class EffectsParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E020
+		};
+		class HealthParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E060
+		};
+		class PowerParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E0A0
+		};
+		class RotorParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E0E0
+		};
+		class SoundParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E120
+		};
+
 		HelicopterSolverGenericProperties();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -134,31 +169,52 @@ namespace proto
 	class HelicopterSolverProperties : public content::MetaLoadObject
 	{
 	public:
+		class AIParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E160
+		};
+		class HoverParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E1A0
+		};
+		class LateralAxisLinearParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E1E0
+		};
+		class LateralAxisAngularParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E220
+		};
+		class LongitudinalAxisLinearParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E260
+		};
+		class LongitudinalAxisAngularParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E2A0
+		};
+		class VerticalAxisParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E2E0
+		};
+		class YawAxisParams
+		{
+		public:
+			static content::ClassInfo* GetClassInfo(); //@0x1031E320
+		};
+
 		HelicopterSolverProperties();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x124 - sizeof(content::MetaLoadObject)];
-	};
-
-	class WheelConstraintParams : public content::MetaLoadObject
-	{
-	public:
-		WheelConstraintParams();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x40 - sizeof(content::MetaLoadObject)];
-	};
-
-	class AlignedAxleConstraintProperties : public content::MetaLoadObject
-	{
-	public:
-		AlignedAxleConstraintProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
 	};
 
 	class WorldTriggers : public content::MetaLoadObject
@@ -189,66 +245,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xD8 - sizeof(content::MetaLoadObject)];
-	};
-
-	class TankSolverProperties : public content::MetaLoadObject
-	{
-	public:
-		TankSolverProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20C - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleWheelSuspensionProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleDoorProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleDoorProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleWheelList : public content::MetaLoadObject
-	{
-	public:
-		VehicleWheelList();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x30 - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleMassProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleMassProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(content::MetaLoadObject)];
-	};
-
-	class VehicleConstraintProperties : public content::MetaLoadObject
-	{
-	public:
-		VehicleConstraintProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x30 - sizeof(content::MetaLoadObject)];
 	};
 
 	class LightDecalInfo : public content::MetaLoadObject
@@ -740,16 +736,6 @@ namespace proto
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
 	};
 
-	class TankSolverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit TankSolverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1D8 - sizeof(engine::Behaviour)];
-	};
-
 	class ThreatBallBehaviour : public engine::TriggerBehaviour
 	{
 	public:
@@ -850,16 +836,6 @@ namespace proto
 		unsigned char unknownTail[0x164 - sizeof(proto::MovementBehaviour)];
 	};
 
-	class VehicleConstraintsBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit VehicleConstraintsBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
 	class NPCRenderBehaviour : public engine::Behaviour
 	{
 	public:
@@ -908,16 +884,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
-	class HelicopterRotorAnimationBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit HelicopterRotorAnimationBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
 	};
 
 	class MusicTreeBehaviour : public engine::FightTreeBehaviour
