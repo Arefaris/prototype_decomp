@@ -959,6 +959,20 @@ namespace proto
 				return new GroundSpikeSpawnOffshootAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100D0620
+			// NONMATCHING: the engine keeps the master table base in edx across both handle lookups and builds the message in the order of the track's members (35.2 %)
+#ifdef NONMATCHING
+			bool GroundSpikeClusterDescendAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0 && target.Get() != 0)
+				{
+					GroundSpikeShardInitializeForDescendMessage message(link.Get()->applyToOffshoots, link.Get()->descendDelayMax, link.Get()->descendDelayMin, link.Get()->descendDuration);
+					target.Get()->SendMessage(&message);
+				}
+				return false;
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyConditionGroup<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<GroundSpikeParentConditionGroupCondition>;

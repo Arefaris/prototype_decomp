@@ -2,6 +2,7 @@
 #include "code/proto/fightitems/motion/motion_grabtrack.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
 #include "code/engine/gameobject/gameobject.h"
 
@@ -3806,6 +3807,17 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100C6900
+			void GrabButtonStruggleAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ChargeSetMessage message(0.0f, 2);
+					object->SendMessage(&message);
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<GrabSlotUpdateAttachmentWithRestoreTrack>;
 			template class fight::PropertyNameList<GrabSlotUpdateAttachmentWithRestoreTrack>;
@@ -4031,6 +4043,7 @@ template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::figh
 // FUNCTION: ENGINE 0x100C50C0
 // FUNCTION: ENGINE 0x100C5100
 // FUNCTION: ENGINE 0x100C5110
+// FUNCTION: ENGINE 0x100C51B0
 // FUNCTION: ENGINE 0x100C5220
 // FUNCTION: ENGINE 0x100C5250
 // FUNCTION: ENGINE 0x100C5270
