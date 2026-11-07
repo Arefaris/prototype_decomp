@@ -93,6 +93,37 @@ namespace proto
 		GrabBehaviour::SlotArray* slots;  // +0xC
 	};
 
+	// RTTI: proto::IsGrabbingGrabMessage: the object answers whether it grabs, and whether it holds the grabbed object
+	class IsGrabbingGrabMessage : public GrabMessage
+	{
+	public:
+		explicit IsGrabbingGrabMessage(engine::GameObjectHandle newGrabber) : GrabMessage(10), grabber(newGrabber), isGrabbing(false), isHolding(false)
+		{
+		}
+		virtual ~IsGrabbingGrabMessage()
+		{
+		}
+
+		engine::GameObjectHandle grabber;  // +0xC
+		bool isGrabbing;  // +0x10
+		bool isHolding;  // +0x11
+	};
+
+	// RTTI: proto::PushbackGetMessage: the object answers the direction and the velocity of its pushback
+	class PushbackGetMessage : public CharacterMotionMessage
+	{
+	public:
+		PushbackGetMessage() : CharacterMotionMessage(5), direction(math::kZeroVector), velocity(0.0f)
+		{
+		}
+		virtual ~PushbackGetMessage()
+		{
+		}
+
+		math::Vector direction;  // +0xC
+		float velocity;  // +0x18
+	};
+
 	// RTTI: proto::SetFloatDelayTokenMsg: sets the delay of the object's token
 	struct SetFloatDelayTokenMsg : public TokenMessage
 	{

@@ -1,5 +1,11 @@
 // Fight items of the motion group: ReactionEventConditionGroupCondition, ReactionHitCollisionPositionCondition, ReactionHitDamageCondition, ReactionHitChargeCondition, ReactionHitOriginatorDistanceCondition, ReactionReceiverIsTargetCondition, ReactionGiverIsBeingGrabbedCondition, ReactionEventCondition, ReactionHitCollisionNormalCondition, ReactionScriptedSubTypeCondition, ReactionHitOriginatorIsPlayerCondition, ReactionGrabTypeCondition, ReactionHitSliceAngleCondition, ReactionHitFromMuscleMassCondition, ReactionHitCollisionFlagCondition, ReactionThrowHitTypeCondition, ReactionHitImpulseCondition, ReactionHitDamageTypeCondition, ReactionHitImpulseDirectionCondition, ReactionTargetCondition, ReactionHitAttackTypeCondition, ReactionHitHeightCondition, ReactionHitHitTypeCondition, ReactionHitImpulseYAngleCondition (unit 0x101A1160 - 0x101A69E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactioncondition.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+
+namespace proto
+{
+	bool IsPlayerObject(engine::GameObject* object);
+}
 
 namespace proto
 {
@@ -1610,6 +1616,16 @@ namespace proto
 				return (ReactionEvent*)value;
 			}
 
+			static inline ReactionEvent* AsAnyEvent(ReactionEvent* event)
+			{
+				if (event == 0)
+				{
+					return 0;
+				}
+				int kind = event->kind;
+				return (kind >= 0x21000 && kind < 0x21006) ? event : 0;
+			}
+
 			static inline ReactionGrabEvent* AsGrabEvent(ReactionEvent* event)
 			{
 				if (event == 0)
@@ -1643,6 +1659,75 @@ namespace proto
 				{
 					bool equal = hit->damageType == damageType;
 					return doesMatch == equal;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101075D0
+			// NONMATCHING: block order, the engine places the shared failure return before the body (best 18 %)
+#ifdef NONMATCHING
+			bool ReactionGiverIsBeingGrabbedCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionEvent* event = AsAnyEvent(AsEvent(c));
+				if (event == 0)
+				{
+					return false;
+				}
+				engine::GameObject* receiver = event->receiver.Get();
+				if (receiver == 0)
+				{
+					return false;
+				}
+				IsGrabbingGrabMessage message(((ReactionHitEvent*)event)->giver);
+				receiver->SendMessage(&message);
+				if (grabType < 0)
+				{
+					return false;
+				}
+				if (grabType <= 1)
+				{
+					return message.isGrabbing;
+				}
+				if (grabType != 2)
+				{
+					return false;
+				}
+				return message.isGrabbing && message.isHolding;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10106650
+			bool ReactionEventCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionEvent* event = AsAnyEvent(AsEvent(c));
+				bool exists = event != 0;
+				if (exists != isReactionEvent)
+				{
+					return false;
+				}
+				if (!isReactionEvent)
+				{
+					return true;
+				}
+				int index = reactionType - 1;
+				if (index < 0)
+				{
+					return true;
+				}
+				return (event->kind - 0x21001 == index) ? true : false;
+			}
+
+			// FUNCTION: ENGINE 0x101076C0
+			bool ReactionHitOriginatorIsPlayerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					engine::GameObject* originator = hit->originator.Get();
+					if (originator != 0)
+					{
+						return IsPlayerObject(originator);
+					}
 				}
 				return false;
 			}

@@ -1,5 +1,7 @@
 // Fight items of the motion group: TargetDistanceCondition, TargetCanJumpToCondition, TargetDistanceWithOffsetCondition, AutoTargetDistanceCondition (unit 0x101BBFD0 - 0x101BD3C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_targetdistance.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 
 namespace proto
 {
@@ -354,6 +356,31 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x1011E660
+			// NONMATCHING: register choice of the two transform pointers (best 90 %)
+#ifdef NONMATCHING
+			bool TargetDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					engine::GameObject* target = Unknown103B8B80(object).Get();
+					if (target != 0)
+					{
+						math::Matrix* targetMatrix = target->transform->GetPointer();
+						math::Vector targetPosition(targetMatrix->m[3][0], targetMatrix->m[3][1], targetMatrix->m[3][2]);
+						math::Matrix* ownMatrix = object->transform->GetPointer();
+						math::Vector ownPosition(ownMatrix->m[3][0], ownMatrix->m[3][1], ownMatrix->m[3][2]);
+						math::Vector offset;
+						offset.Sub(targetPosition, ownPosition);
+						ownMatrix->RotateInverse(offset, offset);
+						result = fight::CompareVectorMeasure(compare, &offset, direction, distance);
+					}
+				}
+				return result;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<TargetDistanceCondition>;
