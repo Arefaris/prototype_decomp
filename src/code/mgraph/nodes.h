@@ -12,23 +12,11 @@
 #include "code/om/entity.h"
 #include "code/om/metaclass.h"
 #include "code/om/string.h"
+#include "code/om/vector.h"
 
 namespace om
 {
-	// A vector of the engine's property types and a complex number (sizes not recovered)
-	class Vector
-	{
-	public:
-		Vector()
-		{
-			values[2] = 0.0f;
-			values[1] = 0.0f;
-			values[0] = 0.0f;
-		}
-
-		float values[3];
-	};
-
+	// A complex number (size not recovered)
 	class Complex
 	{
 	public:
