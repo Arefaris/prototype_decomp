@@ -5,8 +5,8 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x108E3900
-	MixerAction::MixerAction(MixerTrack* newTrack, int newUnknown28)
-		: fight::Action(newTrack->uninstallOnExit ? 0x600 : 0x200), link(newTrack), unknown28(newUnknown28)
+	MixerAction::MixerAction(MixerTrack* newTrack, GameObjectHandle newTarget)
+		: fight::Action(newTrack->uninstallOnExit ? 0x600 : 0x200), link(newTrack), target(newTarget)
 	{
 	}
 
@@ -34,7 +34,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x108E3A00
-	MusicAction::MusicAction(MusicTrack* newTrack, core::IRefCount* owner)
+	MusicAction::MusicAction(MusicTrack* newTrack, GameObjectHandle newTarget)
 		: fight::Action(0xE00), link(newTrack)
 	{
 	}
@@ -72,7 +72,7 @@ namespace engine
 #endif
 
 	// FUNCTION: ENGINE 0x108E3C00
-	ReverbAction::ReverbAction(ReverbTrack* newTrack, core::IRefCount* owner)
+	ReverbAction::ReverbAction(ReverbTrack* newTrack, GameObjectHandle newTarget)
 		: fight::Action(0xE00), link(newTrack)
 	{
 	}
@@ -84,7 +84,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x108E3CC0
-	SoundZoneAction::SoundZoneAction(SoundZoneTrack* newTrack, core::IRefCount* owner)
+	SoundZoneAction::SoundZoneAction(SoundZoneTrack* newTrack, GameObjectHandle newTarget)
 		: fight::Action(0xE00), link(newTrack)
 	{
 	}

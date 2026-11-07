@@ -10,7 +10,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x104A2E50
-	float AudioPlayer::Slot6(int a)
+	float AudioPlayer::Slot6(int* unknown)
 	{
 		return 0.0f;
 	}
@@ -21,7 +21,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x104A2E70
-	bool AudioPlayer::Slot8(int a, int b)
+	bool AudioPlayer::Slot8(const core::Name<core::CaseSensitiveKey>& name, float* value)
 	{
 		return false;
 	}
