@@ -927,6 +927,10 @@ namespace pure3d
 		void ReleaseState(PrimitiveState* state);
 		// 0x106EE570: prepares the module's frame (called when a frame opens)
 		void Unknown106EE570();
+		// 0x106EE790: the index of the entry of that name (-1 when there is none); 0x106EE7E0: the number a kind of entry
+		// has (names guessed)
+		int FindEntry(const core::Name<core::CaseInsensitiveKey32>& name);
+		int GetEntryNumber(int index);
 		// 0x106EE6E0: the index of a parameter
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
