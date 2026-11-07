@@ -14,6 +14,17 @@ namespace engine
 	// FUNCTION: ENGINE 0x1087D580
 	template struct content::BaseClassCasterImpl<Behaviour, AudioUDOBehaviour>;
 
+	// FUNCTION: ENGINE 0x1087D4B0
+	const char* AudioObject::AllocationTag()
+	{
+		return "";
+	}
+
+	// The kept copies of the allocation functions and of the scalar deleting destructor of the audio object
+	// FUNCTION: ENGINE 0x1087D500
+	// FUNCTION: ENGINE 0x1087D3C0
+	// FUNCTION: ENGINE 0x1087D480
+
 	// The kept out-of-line members of the owner of the audio object
 	// FUNCTION: ENGINE 0x1087D450
 	// FUNCTION: ENGINE 0x1087D460
