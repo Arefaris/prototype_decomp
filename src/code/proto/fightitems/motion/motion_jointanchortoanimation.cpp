@@ -1,5 +1,7 @@
 // Fight items of the motion group: JointAnchorToAnimationTrack (unit 0x10182180 - 0x101827B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jointanchortoanimation.h"
+#include "code/choreo/rootdriver.h"
+#include "code/choreo/deltatransform.h"
 
 namespace proto
 {
@@ -143,6 +145,36 @@ namespace proto
 			fight::Action* JointAnchorToAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				return new JointAnchorToAnimationAction(this, owner);
+			}
+
+			// FUNCTION: ENGINE 0x100DC7B0
+			void JointAnchorToAnimationAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						puppet->RemoveDriver(secondDriver, false);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100DC750
+			bool JointAnchorToAnimationAction::Slot7(int arg, float value)
+			{
+				if (arg == 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object == 0)
+					{
+						return false;
+					}
+					static_cast<choreo::RootDriver*>(driver)->mDelta.SetDelta(matrix, object->transform->value);
+				}
+				return true;
 			}
 
 			// ---- actions end
