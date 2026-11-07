@@ -51,6 +51,14 @@ namespace core
 
 namespace engine
 {
+	namespace driving
+	{
+		extern const float gTwo;
+	}
+}
+
+namespace engine
+{
 	// 0x1005E140 (another unit): the intention of a character (asks the object with a query message)
 	CharacterIntention* GetCharacterIntention(GameObject* object);
 }
@@ -61,6 +69,13 @@ namespace proto
 	{
 		namespace motion
 		{
+			// The owner a jump of the magnetic boots reads (kind 0x2100E): the direction it leaves in
+			struct JumpSurfaceOwner : TrackOwner
+			{
+				unsigned char unknown10[0x20];
+				math::Vector direction;  // +0x30
+			};
+
 			// The owner the next surface normal condition reads (kind 0x2100E): the normal of the surface the character moves to
 			struct NextSurfaceOwner : TrackOwner
 			{
@@ -2234,6 +2249,75 @@ namespace proto
 					}
 				}
 			}
+
+			// FUNCTION: ENGINE 0x100F47D0
+			// NONMATCHING: the engine keeps the object in edi and the puppet in ebx, shares one frame between the fallback direction, the driver name and the message, and does not keep zero in a register (18 %)
+#ifdef NONMATCHING
+			bool MagneticBootsJumpAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				engine::SupportingLimbGetActiveMessageConst limbMessage;
+				object->PostMessage(&limbMessage);
+				const engine::SupportingLimb* limb = limbMessage.limb;
+				if (limb == 0)
+				{
+					return false;
+				}
+				unknown38.x = math::WORLD_MIN - limb->castDirection.x;
+				unknown38.y = math::WORLD_MIN - limb->castDirection.y;
+				unknown38.z = math::WORLD_MIN - limb->castDirection.z;
+				unknown38.Normalize();
+				math::Vector fallback;
+				const math::Vector* source;
+				if (event != 0)
+				{
+					source = &((const JumpSurfaceOwner*)event)->direction;
+				}
+				else
+				{
+					const math::Matrix& transform = object->transform->value;
+					fallback.x = math::WORLD_MIN - transform.m[2][0];
+					fallback.y = math::WORLD_MIN - transform.m[2][1];
+					fallback.z = math::WORLD_MIN - transform.m[2][2];
+					source = &fallback;
+				}
+				unknown44.x = source->x;
+				unknown44.y = source->y;
+				unknown44.z = source->z;
+				unknown44.Normalize();
+				choreo::RootDriver* jumpDriver = new choreo::RootDriver;
+				driver = jumpDriver;
+				content::ObjectName driverName("jump", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				jumpDriver->SetMask(3);
+				puppet->SetDriver(driver, choreo::gMinusOne, link.object->choreoPriority, 1.0f, link.object->blendInTime, link.object->blendOutTime, choreo::gMinusOne);
+				if (link.object->flightTime > 0.0f)
+				{
+					unknown54 = link.object->upDistance / link.object->flightTime * engine::driving::gTwo;
+					unknown50 = link.object->forwardDistance / link.object->flightTime;
+					unknown58 = link.object->upDistance * engine::driving::gTwo / (link.object->flightTime * link.object->flightTime);
+					return true;
+				}
+				unknown58 = 0.0f;
+				unknown54 = 0.0f;
+				unknown50 = 0.0f;
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x100F4AA0
 			// NONMATCHING: the engine hoists the loads and products of the velocity above its stores (78.6 %)
