@@ -13,6 +13,7 @@
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
+#include "code/proto/characterbudgetpolicy.h"
 
 namespace proto
 {
@@ -231,16 +232,6 @@ namespace proto
 		unsigned char unknownTail[0x20C - sizeof(content::MetaLoadObject)];
 	};
 
-	class CharacterBudgetPolicyList : public content::MetaLoadObject
-	{
-	public:
-		CharacterBudgetPolicyList();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
-	};
-
 	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
 	{
 	public:
@@ -440,16 +431,6 @@ namespace proto
 	{
 	public:
 		MissileSpawnDrawSwap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknown0[0x28];
-	};
-
-	class CharacterBudgetPolicy
-	{
-	public:
-		CharacterBudgetPolicy();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	

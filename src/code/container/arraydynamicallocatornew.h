@@ -54,6 +54,11 @@ namespace container
 			end = 0;
 			capacity = 0;
 		}
+		// Room for count elements (empty when the allocation fails)
+		explicit ArrayDynamic(unsigned int count)
+		{
+			Create(count);
+		}
 		// Another array's elements, in room for as many as it has room for
 		ArrayDynamic(const ArrayDynamic& other)
 		{

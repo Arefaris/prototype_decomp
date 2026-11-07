@@ -267,6 +267,12 @@ namespace engine
 		template<class R, class A1, class A2, class A3> void Register(const char* name, R (*function)(A1, A2, A3));
 		template<class R, class A1, class A2, class A3, class A4> void Register(const char* name,
 			R (*function)(A1, A2, A3, A4));
+		template<class R, class A1, class A2, class A3, class A4, class A5> void Register(const char* name,
+			R (*function)(A1, A2, A3, A4, A5));
+		template<class R, class A1, class A2, class A3, class A4, class A5, class A6> void Register(const char* name,
+			R (*function)(A1, A2, A3, A4, A5, A6));
+		template<class R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8> void Register(
+			const char* name, R (*function)(A1, A2, A3, A4, A5, A6, A7, A8));
 		// 0x10801D50: adds the function under name
 		void AddFunction(const char* name, Function* function);
 		// Binds method of object under name as a closure (function.h; out of line per instantiation)

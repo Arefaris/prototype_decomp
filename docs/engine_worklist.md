@@ -6889,3 +6889,33 @@ No assert path names any unit; the file names are guesses.
   offset (thunks followed) and fixes the symbols.txt lines. The code string of a member is `"p"` or `"pn"` (0x10D94FF4 / 0x10D94E7C), read from the push in front of the getter call.
 - Not started: `TargetableBehaviour` / `PropTargetableByAIBehaviour` (read: the targeters list, the filter accessors of `TargetPoint`, the enumeration getter 0x102B1770 is mapped through `AutoTargetPriorityList`), `AutoTargetingBehaviour`, `LockOnTargetingBehaviour`,
   `BaseHealthBehaviour` / `HunterHealthBehaviour` / `MotherHealthBehaviour` / `PrototypeHealthBehaviour` (their tables are 7 and 34 floats), the fog channel, `EffectsPropSpawner`, the time bubble manager and the large update functions.
+
+## sn-bz: the range 0x10360000 - 0x103A0000 (the script binding forms, the AI variant tables, the character budget policy, the path wrappers)
+
+2255 functions of the range were open at the start. The range holds, in this order: the AI messages with their constructors and the Lua natives that send them (0x10360770 - 0x10378630, about 110 messages of the categories target, squad,
+perception, movement, ai, lod-ai, disguise, token, world and scenario), the proto natives' registration function (0x10378630, 8999 bytes), the AI budget manager and its policy classes (0x10385A00 - 0x1038A400), the
+variant tables of the AI parameters (0x10369460 - 0x103695C0, 0x103745C0 - 0x10377700, 0x1037D0F0 - 0x10380B50, 0x1038AE40 - 0x1038BFD0), the combat sequence parameters (0x1038B980 - 0x1038C100), the path interface and the pathfinders'
+wrappers (0x1038C600 - 0x1039F100) and the height map with the helicopter pathfinding grid (0x10393100 - 0x10397B00). Reconstructed (functions match unless noted):
+- `proto/protoscriptfunctions2.cpp` (168): the explicit instances of `Function0..8<R, A...>` for the 43 signatures of this part of the proto natives (constructor, `Call`, `Invoke`), and of the registration forms (`LuaScriptManager::Register<...>`, the
+  65-byte forms for two to eight arguments and the 113-byte one-argument forms that inline the constructor). The same technique as `protoscriptfunctions.cpp`; `Function6` and `Function8` and the registrations of five, six and eight arguments
+  were added to `engine/function.h` and `engine/luascriptmanager.h`. The engine keeps one registration copy for the whole image, so the copies of `<void, bool, bool>` and the other forms with a constructor in the first
+  unit are not in this list; mapunit's "ordered" assignment shifted the five registrations after the missing one by one place (`local/scratch/sn-bz/fixreg.py` fixes a mapping by the constructor each registration calls).
+- `proto/variant.h`, `variantinstances.cpp` (89): `proto::Variant<T0 ... T14>` with its `TypeDiscriminator` / `TypeDiscriminatorImpl<T>` (slots: the type_info, destroy, copy-construct at a place), the function-local `GetDiscriminator<T>`
+  statics, the table of fifteen discriminators (`GetTable`, a function-local static array with the guard checks of every `GetDiscriminator` inlined), `FindIndex`, `Construct<T>` (the engine's out-of-line "constructors"
+  by held type: they return nothing and leave the old value alone), `~Variant` and `operator=(const T&)`. Instances: `<float, OBB>`, `<Sphere, OBB>` and `<Vector, float, int, Name, GameObjectHandle, bool>` (the value of a combat
+  sequence parameter). The statics are mapped by name from the operands of the annotated functions (`local/scratch/sn-bz/mapstatics.py`); the OBB copy constructor is the engine's shared 0x100F8350.
+- `content/primitivemetatypeimpl.h` (the slots and traits of `PrimitiveMetaType<T>` moved out of primitivemetatype.cpp) and `primitivemetatypeushort.cpp` (13): `PrimitiveMetaType<unsigned short>`. Slot 0 (`ReadText`, 0x103934F0) differs from
+  the engine's in the registers of `this` and the reader, like the other primitive types', and stays with the engine.
+- `proto/characterbudgetpolicy.h/.cpp` (51): `proto::CharacterBudgetPolicy` (0x28 bytes, 8-aligned: the class name, the despawn and freeze distances kept squared, the priority and weights per level of detail) and
+  `proto::CharacterBudgetPolicyList` with their ClassInfo, GetMembers (the two distances through getter / setter pairs), constructor, copy, the `ArrayDynamicHelper` instances (the full `ArrayDynamic<CharacterBudgetPolicy>` family) and the
+  two squared default distances. `container::ConstructCopyAt<CharacterBudgetPolicy>` is specialised in the unit (the engine's copy expands the copy constructor; the generic `inline` one calls it). The stubs of both classes are gone from
+  reflectedstubs.h, which includes the header. `container::ArrayDynamic<T, AllocatorNew>` got the constructor with a count (the engine's `ComSeqParams` constructor allocates through it).
+- `proto/fightitems/comseq/comseqparams.h/.cpp` (11): `ComSeqParams` (base `engine::GameObjectParams`, a table of named values `ParamEntry` = name + `Variant`, room for ten), its constructor, `GetTypeCode` (slot 3, 0x2100D),
+  `AddParam`. The Lua loader of the table (0x1038BAD0 with the jump table pieces 0x1038BC67 - 0x1038BE47) is not done.
+- `proto/pathinterface.h/.cpp` (9): `proto::PathInterface` (3 slots) and the wrappers of the flying and hunter pathfinders. `HunterPathfinder::PathWrapper::GetPoint` is NONMATCHING (9 %: the engine keeps the position in SSE registers and mixes
+  `fld` / `fstp` with `movss` in its vector copies). The short range wrapper (0x1039F080) has a vftable of its own (slots 0x103A0690 - 0x103A06E0 outside this range) and is left to the engine.
+- Findings: a free `inline` template (`ConstructCopyAt`) is not expanded into callers once it has an explicit specialisation without `inline`; a message ctor can be forced out of line with `#pragma inline_depth(0)` around a function that
+  constructs it (the ctor then costs exactly the engine's out-of-line copy and the class keeps its inline constructor for the natives); an `else { item = 0; }` in both branches of a "take the next slot" function gives the engine's block
+  order (`AddParam`).
+- Not done: the AI messages (about 110 classes, constructors 28 - 103 bytes and the 7-byte destructors; generator work in `local/scratch/sn-bz/msgs.py`), the Lua natives between them, the registration function 0x10378630, the AI budget manager
+  (0x10385A00 - 0x1038A400 besides the policy classes), `Method` / `Closure` instances of the combat budget manager, the height map's constructor / destructor (a memory pool and a lookup table), the pathfinders themselves.
