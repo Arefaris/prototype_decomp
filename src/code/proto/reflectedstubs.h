@@ -9,6 +9,7 @@
 #include "code/proto/shaders/shaderpalette.h"
 #include "code/proto/behaviours/powerwheelbehaviour.h"
 #include "code/proto/behaviours/fedisplaybehaviour.h"
+#include "code/proto/behaviours/consumablebehaviour.h"
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/content/loadinventory.h"
@@ -208,16 +209,6 @@ namespace proto
 		content::MetaObjectTemplate* pedestrianTemplate;  // +0x544
 	};
 
-	struct ConsumableProperties : public content::MetaLoadObject
-	{
-	public:
-		ConsumableProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x38 - sizeof(content::MetaLoadObject)];
-	};
-
 	struct WeaponUserProfile : public content::MetaLoadObject
 	{
 	public:
@@ -312,16 +303,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class ConsumableBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ConsumableBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
 	};
 
 	class DisguiseBehaviour : public engine::FightTreeBehaviour
