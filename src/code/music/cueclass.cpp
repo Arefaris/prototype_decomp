@@ -4,6 +4,42 @@
 
 namespace music
 {
+	// FUNCTION: ENGINE 0x105DC680
+	Cell* Cue::GetCellAt(unsigned int layer, unsigned int part)
+	{
+		return grid.cells[grid.layerCount * part + layer];
+	}
+
+	// FUNCTION: ENGINE 0x105DC100
+	const char* Part::AllocationTag()
+	{
+		return "";
+	}
+
+	// FUNCTION: ENGINE 0x105DC110
+	const char* Layer::AllocationTag()
+	{
+		return "";
+	}
+
+	// FUNCTION: ENGINE 0x105DCAE0
+	// NONMATCHING: the engine keeps this in eax and adds the offset of the node to it, ours takes the node's address with lea (36.4 %)
+#ifdef NONMATCHING
+	Part::~Part()
+	{
+		cue->parts.Erase(&node);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105DCB20
+	// NONMATCHING: the engine keeps this in eax and adds the offset of the node to it, ours takes the node's address with lea (36.4 %)
+#ifdef NONMATCHING
+	Layer::~Layer()
+	{
+		cue->layers.Erase(&node);
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105DC6A0
 	Cell* Cue::GetCell(unsigned int layer, unsigned int part)
 	{
