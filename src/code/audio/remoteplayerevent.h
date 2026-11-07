@@ -42,12 +42,24 @@ namespace audio
 	long AtomicExchange(volatile long* value, const long* newValue);
 	extern EventQueue* gEventQueue;
 
-	// A remote player of the audio library (the entry's first word, a pointer, is the player)
-	class RemotePlayer;
+	// A remote player of the audio library (the entry's first word, a pointer, is the player). The events keep the
+	// method they call as a pointer to a member of it; only the methods the game posts are declared.
+	class RemotePlayer
+	{
+	public:
+		// 0x104A5E20 (behind the jump thunk 0x1003CD62) and 0x104A2D90 (behind 0x10023DDF); names guessed
+		void Stop(unsigned int value);
+		void Play(unsigned int value);
+	};
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
-		unsigned char unknown4[0x3c - 4];
+		unsigned char unknown4[0x28 - 4];
+		bool unknown28;
+		unsigned int unknown2C;
+		float amplitude;  // +0x30
+		int unknown34;
+		float unknown38;
 	};
 	struct RemotePlayerTable
 	{
@@ -110,7 +122,7 @@ namespace audio
 	template<class T> class RemotePlayerEvent_Param1 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T);
+		typedef void (RemotePlayer::*Function)(T);
 
 		RemotePlayerEvent_Param1(const RemotePlayerHandle& newPlayer, Function newFunction, T newValue) :
 			RemotePlayerEvent(newPlayer),
@@ -120,7 +132,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value);
+			(gRemotePlayers->entries[player.index].player->*function)(value);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param1)
 
@@ -131,7 +143,7 @@ namespace audio
 	template<class T1, class T2> class RemotePlayerEvent_Param2 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T1, T2);
+		typedef void (RemotePlayer::*Function)(T1, T2);
 
 		RemotePlayerEvent_Param2(RemotePlayerHandle newPlayer, Function newFunction, T1 newValue1, T2 newValue2) :
 			RemotePlayerEvent(newPlayer),
@@ -142,7 +154,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value1, value2);
+			(gRemotePlayers->entries[player.index].player->*function)(value1, value2);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param2)
 

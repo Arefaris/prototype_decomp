@@ -27,9 +27,9 @@ namespace engine
 		virtual void Slot4() = 0;
 		virtual bool Slot5() = 0;
 		// vftable slots 6 - 8 (0x104A2E50, 0x104A2E60, 0x104A2E70): the defaults
-		virtual float Slot6(int a);
+		virtual float Slot6(int* unknown);
 		virtual void Slot7(int a);
-		virtual bool Slot8(int a, int b);
+		virtual bool Slot8(const core::Name<core::CaseSensitiveKey>& name, float* value);
 	};
 }
 
