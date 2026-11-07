@@ -2,6 +2,7 @@
 #include "code/engine/system/streammanager.h"
 
 #include "code/core/heap.h"
+#include "code/engine/fight/trackfactory.h"
 #include "code/engine/system/streampackage.h"
 #include "code/engine/system/streamtrigger.h"
 #include "code/engine/system/tagset.h"
@@ -9,6 +10,39 @@
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x1082BEC0
+	bool StreamManager::IsBusy()
+	{
+		return gStreamManager->unknown114 != 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082C060
+	void StreamManager::SetCurrentPackage(StreamPackage* package)
+	{
+		gStreamManager->currentPackage = package;
+	}
+
+	extern fight::EnumEntry gStartupGroupTable[3];
+
+	// FUNCTION: ENGINE 0x1082C560
+	int StreamManager::GetSlotGroupIndex(const content::ObjectName& name)
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (gStartupGroupTable[i].name == name)
+			{
+				return i;
+			}
+		}
+		return 3;
+	}
+
+	// FUNCTION: ENGINE 0x1082D080
+	void StreamManager::Register(StreamPackage* package)
+	{
+		gStreamManager->knownPackages.PushBack(package);
+	}
+
 	// FUNCTION: ENGINE 0x1082DB20
 	void AddTriggerPackages(StreamPackageArray* packages, StreamTrigger* trigger, const TagSet& tags, int count,
 		int base)

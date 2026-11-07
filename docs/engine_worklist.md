@@ -7998,3 +7998,26 @@ The range holds, in this order: the hunter short range pathfinder and the path w
 - Not started: the AutoTargetingBehaviour body (0x102A8390 - 0x102AA300: the two reference members of one type need two instances of `GetReferenceMetaType`, the engine keeps them as separate copies), the lock-on behaviour (0x102AA380 - 0x102B1280), `EffectsPropSpawner` (0x102A7130 - 0x102A8350),
   the fog channel and cloud spawner (0x102A0010 - 0x102A7130), the drivable vehicle health modifier body (0x102BB300 - 0x102BD480: arrays of 16-byte `Name` + value records and the weapon profile mapping), `HealthBehaviour` slots (0x102BD6A0 - 0x102BEAE0), `HitReactionBehaviour` slots.
 - Shared header changes: `fightitems/ai/aihelpers.h` (two `AISystem` members), `fightitems/ai/aicodemessages.h` (`EnterPoisonDamageMessage`, static `GetClassInfo` / `GetMembers` of `ExitPoisonDamageMessage`).
+## engine/triggerbehaviour.cpp (0x1083AD20 - 0x1083B950), gameobject/messagelistenerlist.cpp (0x10832480 - 0x10832890) and small statics of 0x10820000 - 0x10840000 (sn-dw)
+- `engine::TriggerBehaviour` (vftable 0x10E6F534, 0xA4 bytes: volume +0xC, targetMode +0x10, targetName `StringC<128>` +0x14, the
+  cached target handle +0x98, the enter / exit messages +0x9C / +0xA0) and `MovingTriggerBehaviour` (vftable 0x10E21E80, no
+  constructor of its own in the unit; its `Update` follows the owner's transform): the class, the three constructors, the
+  destructor, the vftable slots, the `Target` enumeration and the reflection match. `SendTriggerMessage` (0x1083B2B0) is
+  NONMATCHING at 99.7 %: the engine builds the `FindGameObject` result in the dead slot of its first argument. The stub in
+  reflectedclasses2.h is gone. The second `GetObjectMetaType<IntrusiveMessage>` the engine keeps (0x1083B490) and the volume's
+  (0x1083B3F0) are the `GetObjectMetaTypeCopy` instances; the string member's meta type is `GetMemberStringMetaType<1>` (the
+  `<0>` instance is the door trigger's).
+- `MessageListenerList`: `AddHandle` (really a search), `SwapHandles`, `Begin` and the new `DropInvalid` (0x10832660) match.
+  `QueryHandle` and `InvalidateHandle` (the engine leaves the second test after the search loop), the constructor (the heap
+  word is stored before the three zero words) and `RemoveHandle` (really "put the handle in"; register allocation) are
+  NONMATCHING. `messagerouter.h` declares the constructor and `DropInvalid`.
+- Statics and flags: `HasEngineFlags` / `SetEngineFlags` / `ClearEngineFlags` (`gEngineFlags`, 0x1130DC64), the tutorial flag
+  (0x1130D43C), `ScriptOwner::GetPart` / `GetCurrentId` / `SetCurrentId` (`sCurrentId`, 0x1130D3A8; the constructor needs the
+  vftable and stays with the engine), `StreamSlotGroup::GetSlot`, `PhysicsContextCallBack::SetNext`, `GetAspect`,
+  `SetGlobalShadowRangeHack`, `StreamManager::IsBusy` / `SetCurrentPackage` / `Register` / `GetSlotGroupIndex`
+  (`streampackage.h` names the manager's fields at +0xF0 / +0x114 / +0x118). `ViewHandle::IsValid` is NONMATCHING (the engine
+  masks the whole word and answers through eax).
+- Not done: the render event and shader parameter template instances (0x10826970 - 0x1082A250: compiler-generated, a class per
+  event is needed), the stream manager's tree lookups (0x1082E010 / 0x1082E050 / 0x1082E090: the map type is unknown), the
+  attachable behaviour (0x1083B960 - 0x1083E5C0: layout of 0x44 bytes and the physics attachment records are open), the
+  game state functions 0x10837D00 / 0x10838BA0 / 0x10838ED0 and the recorded input functions (0x10833450 - 0x10833790).
