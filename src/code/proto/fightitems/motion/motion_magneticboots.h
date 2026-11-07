@@ -5,6 +5,8 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/engine/fight/effecttrack.h"
 
 namespace proto
 {
@@ -628,6 +630,77 @@ namespace proto
 				choreo::Driver* driver;  // +0x2C
 				unsigned char unknown30[0x8];
 				int unknown38;  // +0x38
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsTestWallAction (9 vftable slots, 0x44 bytes)
+			class MagneticBootsTestWallAction : public fight::Action
+			{
+			public:
+				// 0x100EF6D0
+				MagneticBootsTestWallAction(MagneticBootsTestWallTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100ED7C0
+				virtual ~MagneticBootsTestWallAction();
+
+				// vftable slot 5 (0x100EF790)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ECC10)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F4D20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTestWallTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::TrackWatch watch;  // +0x2C
+				core::IRefCount* effect;  // +0x38
+				MagneticBootsGetSteerInfoMessage::SteerInfo* steerInfo;  // +0x3C
+				int intersection;  // +0x40
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsTestCornerAction (9 vftable slots, 0x44 bytes)
+			class MagneticBootsTestCornerAction : public fight::Action
+			{
+			public:
+				// 0x100F0030
+				MagneticBootsTestCornerAction(MagneticBootsTestCornerTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100ED820
+				virtual ~MagneticBootsTestCornerAction();
+
+				// vftable slot 5 (0x100F00F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ECC20)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F4E20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTestCornerTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::TrackWatch watch;  // +0x2C
+				core::IRefCount* effect;  // +0x38
+				MagneticBootsGetSteerInfoMessage::SteerInfo* steerInfo;  // +0x3C
+				int intersection;  // +0x40
+			};
+
+			// RTTI: proto::fightitems::motion::MagneticBootsTestJumpStuckAction (9 vftable slots, 0x40 bytes)
+			class MagneticBootsTestJumpStuckAction : public fight::Action
+			{
+			public:
+				// 0x100F09B0
+				MagneticBootsTestJumpStuckAction(MagneticBootsTestJumpStuckTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100ED880
+				virtual ~MagneticBootsTestJumpStuckAction();
+
+				// vftable slot 5 (0x100F0A70)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100ECC30)
+				virtual void Slot6();
+				// vftable slot 7 (0x100F4F20)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<MagneticBootsTestJumpStuckTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				engine::TrackWatch watch;  // +0x2C
+				core::IRefCount* effect;  // +0x38
+				MagneticBootsGetSteerInfoMessage::SteerInfo* steerInfo;  // +0x3C
 			};
 
 			// ---- actions end

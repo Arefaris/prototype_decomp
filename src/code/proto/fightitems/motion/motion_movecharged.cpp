@@ -156,6 +156,25 @@ namespace proto
 				return new MoveChargedAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100F5F80
+			void MoveChargedAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					((choreo::RootDriver*)driver)->mDelta.Reset();
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy2(&driver);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<MoveChargedTrack>;
 			template class fight::PropertyVector<MoveChargedTrack>;

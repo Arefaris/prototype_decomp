@@ -204,6 +204,8 @@ namespace engine
 		// 0x107E3090 / 0x107E30B0 (another unit): the entries of the button and of the axis table
 		CharacterIntentionButton* GetButton(int index);
 		CharacterIntentionAxis* GetAxis(int index);
+		// 0x107E30C0: another copy of GetAxis (a unit that holds its own)
+		CharacterIntentionAxis* GetAxisCopy(int index);
 
 		unsigned char unknown0[0x10];
 		CharacterIntentionButton* buttons;  // +0x10

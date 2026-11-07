@@ -382,6 +382,25 @@ namespace proto
 				return new WorldOrientAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100FF430
+			void OrientAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					if (driver != 0)
+					{
+						((choreo::RootDriver*)driver)->mDelta.Reset();
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x100FF510
 			void WorldOrientAction::Slot6()
 			{

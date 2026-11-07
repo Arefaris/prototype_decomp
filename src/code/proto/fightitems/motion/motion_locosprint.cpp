@@ -1,5 +1,6 @@
 // Fight items of the motion group: SprintVelocityClearTrack, LocoSprintTrack, LocoSprintChargeTrack (unit 0x10188680 - 0x1018AAB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_locosprint.h"
+#include "code/proto/behaviours/charactermotionbehaviour.h"
 
 namespace proto
 {
@@ -831,6 +832,18 @@ namespace proto
 						}
 					}
 				}
+			}
+
+			// FUNCTION: ENGINE 0x100E6240
+			bool SprintVelocityClearAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SprintVelocitySetMessage message(math::kZeroVector);
+					object->SendMessage(&message);
+				}
+				return false;
 			}
 
 			// ---- actions end

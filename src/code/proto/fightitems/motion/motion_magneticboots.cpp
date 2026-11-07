@@ -1,6 +1,8 @@
 // Fight items of the motion group: MagneticBootsNextSurfaceNormalCondition, UsingHunterShortRangeCondition, OrientationNormalAngleCondition, MagneticBootsTestDetachTrack, MagneticBootsResetInfoTrack, MagneticBootsJumpTrack, MagneticBootsDetachTrack, MagneticBootsTestCornerTrack, MagneticBootsStickToWallTrack, MagneticBootsTurnCornerTrack, MagneticBootsTrack, MagneticBootsTestJumpStuckTrack, MagneticBootsTestWallTrack (unit 0x1018D500 - 0x10192C50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_magneticboots.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
+#include "code/engine/physics/supportinglimbactivemessage.h"
 
 namespace proto
 {
@@ -1743,6 +1745,140 @@ namespace proto
 						}
 					}
 				}
+			}
+
+			// FUNCTION: ENGINE 0x100EF6D0
+			MagneticBootsTestWallAction::MagneticBootsTestWallAction(MagneticBootsTestWallTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), watch(listener), effect(newEffect), intersection(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ED7C0
+			MagneticBootsTestWallAction::~MagneticBootsTestWallAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F4CC0
+			fight::Action* MagneticBootsTestWallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MagneticBootsTestWallAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ECC10
+			void MagneticBootsTestWallAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100EF790
+			bool MagneticBootsTestWallAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				MagneticBootsGetSteerInfoMessage steerMessage;
+				object->SendMessage(&steerMessage);
+				steerInfo = steerMessage.info;
+				engine::GetIntersectionPropertiesMessage propertiesMessage;
+				object->PostMessage(&propertiesMessage);
+				intersection = propertiesMessage.result;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100F0030
+			MagneticBootsTestCornerAction::MagneticBootsTestCornerAction(MagneticBootsTestCornerTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), watch(listener), effect(newEffect), intersection(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ED820
+			MagneticBootsTestCornerAction::~MagneticBootsTestCornerAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F4DC0
+			fight::Action* MagneticBootsTestCornerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MagneticBootsTestCornerAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ECC20
+			void MagneticBootsTestCornerAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F00F0
+			bool MagneticBootsTestCornerAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				MagneticBootsGetSteerInfoMessage steerMessage;
+				object->SendMessage(&steerMessage);
+				steerInfo = steerMessage.info;
+				engine::GetIntersectionPropertiesMessage propertiesMessage;
+				object->PostMessage(&propertiesMessage);
+				intersection = propertiesMessage.result;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100F09B0
+			MagneticBootsTestJumpStuckAction::MagneticBootsTestJumpStuckAction(MagneticBootsTestJumpStuckTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), watch(listener), effect(newEffect), steerInfo(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ED880
+			MagneticBootsTestJumpStuckAction::~MagneticBootsTestJumpStuckAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F4EC0
+			fight::Action* MagneticBootsTestJumpStuckTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MagneticBootsTestJumpStuckAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ECC30
+			void MagneticBootsTestJumpStuckAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F0A70
+			bool MagneticBootsTestJumpStuckAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::SupportingLimbGetActiveMessageConst limbMessage;
+				object->PostMessage(&limbMessage);
+				if (limbMessage.limb == 0)
+				{
+					return false;
+				}
+				MagneticBootsGetSteerInfoMessage steerMessage;
+				object->SendMessage(&steerMessage);
+				steerInfo = steerMessage.info;
+				HunterResetStuckTimeMovementMessage resetMessage;
+				object->SendMessage(&resetMessage);
+				return true;
 			}
 
 			// ---- actions end

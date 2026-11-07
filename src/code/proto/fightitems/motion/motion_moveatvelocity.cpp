@@ -1,5 +1,19 @@
 // Fight items of the motion group: MoveAtVelocityTrack (unit 0x10192C50 - 0x10193360; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_moveatvelocity.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/math/worldbounds.h"
+#include "code/engine/fight/fightcommon.h"
+
+namespace engine
+{
+	// 0x1005E140: the intention of the character an object is (another unit's copy; name guess)
+	CharacterIntention* QueryCharacterIntention(GameObject* object);
+}
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
 
 namespace proto
 {
@@ -155,7 +169,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100F5810
 			MoveAtVelocityAction::~MoveAtVelocityAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x100F5DD0
@@ -164,6 +178,125 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new MoveAtVelocityAction(this, handle);
 			}
+
+			// FUNCTION: ENGINE 0x100F5850
+			void MoveAtVelocityAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100F59D0
+			bool MoveAtVelocityAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				float blendIn = link.Get()->blendInTime;
+				int priority = link.Get()->priority;
+				float blendOut = link.Get()->blendOutTime;
+				driver = new choreo::RootDriver;
+				content::ObjectName driverName("moveAtVelocity", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(1);
+				puppet->SetDriver(driver, choreo::gMinusOne, priority, 1.0f, blendIn, blendOut, choreo::gMinusOne);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100F5B10
+			// NONMATCHING: the engine holds the zero and gOne in registers from the duration test on and interleaves the three loads, subtractions, products and sums of the blend; the frame is 8 bytes larger (41 %)
+#ifdef NONMATCHING
+			bool MoveAtVelocityAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (driver == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				unknown30 = unknown30 + value;
+				math::Vector velocity;
+				velocity.x = link.Get()->velocityBegin.x;
+				velocity.y = link.Get()->velocityBegin.y;
+				velocity.z = link.Get()->velocityBegin.z;
+				float duration = link.Get()->Slot10();
+				if (duration > 0.0f)
+				{
+					float t = unknown30 / duration;
+					if (t < 0.0f)
+					{
+						t = 0.0f;
+					}
+					if (0.0f <= t - engine::driving::gOne)
+					{
+						t = engine::driving::gOne;
+					}
+					const math::Vector& end = link.Get()->velocityEnd;
+					float x = (end.x - velocity.x) * t + velocity.x;
+					float y = (end.y - velocity.y) * t + velocity.y;
+					float z = (end.z - velocity.z) * t + velocity.z;
+					velocity.x = x;
+					velocity.y = y;
+					velocity.z = z;
+				}
+				if (link.Get()->useInput)
+				{
+					engine::CharacterIntention* intention = engine::QueryCharacterIntention(object);
+					if (intention != 0)
+					{
+						float forward = math::WORLD_MIN - intention->GetAxisCopy(1)->x;
+						float sideways = math::WORLD_MIN - intention->GetAxisCopy(0)->x;
+						float length = velocity.Normalize();
+						float amount = sideways * velocity.z + forward * velocity.x + velocity.y * 0.0f;
+						if (amount < 0.0f)
+						{
+							amount = 0.0f;
+						}
+						if (0.0f <= amount - engine::driving::gOne)
+						{
+							amount = engine::driving::gOne;
+						}
+						amount = amount * length;
+						velocity.x = amount * velocity.x;
+						velocity.y = velocity.y * amount;
+						velocity.z = velocity.z * amount;
+					}
+				}
+				driver->mDelta.SetVelocity(velocity);
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<MoveAtVelocityTrack>;

@@ -1,5 +1,29 @@
 // Fight items of the motion group: JumpAnimationTrack (unit 0x10184DF0 - 0x10185900; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jumpanimation.h"
+#include "code/engine/fight/supportingsurface.h"
+#include "code/math/worldbounds.h"
+#include <math.h>
+
+namespace engine
+{
+	// The name of the puppet attribute of a game object (0x112834F0)
+	extern content::ObjectName gPuppetAttributeName;
+
+	// FUNCTION: ENGINE 0x100E0190
+	void ReleaseDriverCopy(choreo::Driver*& driver)
+	{
+		if (driver != 0)
+		{
+			driver->Release();
+			driver = 0;
+		}
+	}
+}
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
 
 namespace proto
 {
@@ -231,6 +255,151 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E00D0
+			float JumpAnimationAction::GetVerticalVelocity(engine::GameObject* object)
+			{
+				math::Vector velocity;
+				velocity.x = math::kZeroVector.x;
+				velocity.y = math::kZeroVector.y;
+				velocity.z = math::kZeroVector.z;
+				engine::GetObjectVelocity(object, 0, &velocity);
+				return velocity.y;
+			}
+
+			// FUNCTION: ENGINE 0x100E0130
+			void JumpAnimationAction::SetRange(float duration, float start, float end)
+			{
+				((choreo::AnimationDriver*)driver)->SetRange(duration, 1.0f, start, end);
+				((choreo::AnimationDriver*)driver)->SetUnknownE4(start);
+			}
+
+			// FUNCTION: ENGINE 0x100E0480
+			void JumpAnimationAction::SetClimbRange(float height, float peak)
+			{
+				SetRange((height - peak) / link.object->gravity, link.object->startFrameClimb, link.object->endFrameClimb);
+			}
+
+			// FUNCTION: ENGINE 0x100E04C0
+			void JumpAnimationAction::SetPeakRange(float height, float peak)
+			{
+				SetRange((height - peak) / link.object->gravity, link.object->startFramePeak, link.object->endFramePeak);
+			}
+
+			// FUNCTION: ENGINE 0x100E0500
+			void JumpAnimationAction::SetFallRange()
+			{
+				float start = link.object->startFrameFall;
+				((choreo::AnimationDriver*)driver)->SetRange(0.0f, 1.0f, start, link.object->endFrameFall);
+				((choreo::AnimationDriver*)driver)->SetUnknownE4(start);
+			}
+
+			// FUNCTION: ENGINE 0x100E05B0
+			float JumpAnimationAction::UpdatePhase(engine::GameObject* object)
+			{
+				float velocity = GetVerticalVelocity(object);
+				float peak = (float)fabs(link.object->peakVerticalVelocity);
+				float lower = math::WORLD_MIN - peak;
+				if (lower > velocity)
+				{
+					if (phase != 3)
+					{
+						phase = 3;
+						SetFallRange();
+					}
+				}
+				else if (peak > velocity)
+				{
+					if (phase != 2)
+					{
+						phase = 2;
+						SetPeakRange(velocity, lower);
+					}
+				}
+				else if (phase != 1)
+				{
+					phase = 1;
+					SetClimbRange(velocity, peak);
+				}
+				return velocity;
+			}
+
+			// FUNCTION: ENGINE 0x100E03B0
+			JumpAnimationAction::JumpAnimationAction(fight::Track* listener, JumpAnimationTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), watch(listener), link(newTrack), target(newTarget), driver(0), unknown3C(0.0f), unknown44(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100E0250
+			JumpAnimationAction::~JumpAnimationAction()
+			{
+				engine::ReleaseDriver(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100E0560
+			fight::Action* JumpAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new JumpAnimationAction(listener, this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100E02A0
+			void JumpAnimationAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = 0;
+					engine::BaseAttribute* attribute = object->FindAttribute(engine::gPuppetAttributeName);
+					if (attribute != 0)
+					{
+						choreo::Puppet** value = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+						if (value != 0 && *value != 0)
+						{
+							puppet = *value;
+						}
+					}
+					if (driver != 0 && puppet != 0)
+					{
+						puppet->SetEndlessLifetime(driver, false, choreo::gMinusOne);
+						engine::ReleaseDriverCopy(driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100E0A50
+			// NONMATCHING: the engine tests the puppet pointer with cmp [eax], 0 and loads it again for IsEnding, ours loads it once into ecx (99 %)
+#ifdef NONMATCHING
+			bool JumpAnimationAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && link.object != 0 && driver != 0)
+				{
+					if (arg == 0)
+					{
+						UpdatePhase(object);
+					}
+					if (arg == unknown44 - 1)
+					{
+						engine::AttributePtr<choreo::Puppet*> attribute = object->GetAttributePtr<choreo::Puppet*>(engine::gPuppetAttributeName);
+						choreo::Puppet** value = attribute.value;
+						if (value == 0 || *value == 0)
+						{
+							return false;
+						}
+						choreo::Puppet* puppet = *value;
+						if (phase == 3)
+						{
+							bool stopped = puppet->IsEnding(driver) || ((choreo::AnimationDriver*)driver)->mUnknownE4 > unknown3C;
+							return !stopped;
+						}
+					}
+					return true;
+				}
+				return false;
+			}
+#endif
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<JumpAnimationTrack>;
 			template class fight::PropertyName<JumpAnimationTrack>;
 			template class fight::PropertyBool<JumpAnimationTrack>;
