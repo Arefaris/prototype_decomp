@@ -2851,22 +2851,21 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x102023A0
-			// EQUIVALENT: block order; the engine puts the failure return in front of the body and jumps to it from the other tests, ours behind (22.6 %)
 			bool AimAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
 				{
 					return false;
 				}
-				if (target.Get() != 0)
+				if (!target.IsValid())
 				{
-					return true;
+					return false;
 				}
-				return false;
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x102023F0
-			// NONMATCHING: the engine copies the offset vector with three SSE loads and three stores (ours: x87 for the first component), best 42 %
+			// NONMATCHING: the engine keeps the object in eax where ours uses ecx, best 41 % by bytes (the instructions are the engine's)
 #ifdef NONMATCHING
 			bool AimAction::Slot7(int arg, float value)
 			{
@@ -2885,7 +2884,10 @@ namespace proto
 				if (parameters != 0)
 				{
 					parameters->active = 1;
-					parameters->offset.Set(link.object->offset.x, link.object->offset.y, link.object->offset.z);
+					math::Vector offset(link.object->offset.x, link.object->offset.y, link.object->offset.z);
+					parameters->offset.x = offset.x;
+					parameters->offset.y = offset.y;
+					parameters->offset.z = offset.z;
 					parameters->where = link.object->where;
 					parameters->forceWorldAngles = link.object->forceWorldAngles;
 				}
