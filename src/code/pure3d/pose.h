@@ -74,6 +74,9 @@ namespace pure3d
 		Partition* partitions;
 	};
 
+	// 0x106DDB60: gives the root partition its empty name and no joints again (name guessed)
+	void Unknown106DDB60();
+
 	class LockableRefCounted : public core::IRefCount
 	{
 	public:

@@ -110,6 +110,18 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106DDB60
+	void Unknown106DDB60()
+	{
+		if (gRootPartition.joints)
+		{
+			delete gRootPartition.joints;
+		}
+		gRootPartition.joints = 0;
+		core::Name<core::CaseSensitiveKey> empty(0, 1);
+		gRootPartition.name = empty;
+	}
+
 	// FUNCTION: ENGINE 0x106DDC20
 	Skeleton::~Skeleton()
 	{
@@ -126,47 +138,34 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x106DDC80
-	// NONMATCHING: the engine zeroes the empty name before constructing it and keeps the name in ebx (20.1 %)
+	// NONMATCHING: the engine zeroes the empty name before constructing it, keeps the name in ebx and walks the partitions by index (27.7 %)
 #ifdef NONMATCHING
 	Skeleton::Partition* Skeleton::FindPartition(const core::Name<core::CaseSensitiveKey>& name)
 	{
+		unsigned int i = 0;
 		core::Name<core::CaseSensitiveKey> empty(0, 1);
 		if (name == empty || name == gRootPartition.name)
 		{
 			return &gRootPartition;
 		}
-		for (unsigned int i = 0; i < partitionCount; i++)
-		{
-			if (partitions[i].name == name)
-			{
-				return partitions + i;
-			}
-		}
-		return 0;
-	}
-#endif
-
-	// FUNCTION: ENGINE 0x106DDD20
-	SkeletonLimb* Skeleton::FindLimb(const core::Name<core::CaseSensitiveKey>& name)
-	{
-		unsigned int count = mData.mLimbCount;
-		unsigned int i = 0;
+		unsigned int count = partitionCount;
 		if (i < count)
 		{
-			SkeletonLimb* limb = mData.mLimbs;
+			Partition* partition = partitions;
 			do
 			{
-				if (limb->name == name)
+				if (partition->name == name)
 				{
-					return limb;
+					return partition;
 				}
 				i++;
-				limb++;
+				partition++;
 			}
 			while (i < count);
 		}
 		return 0;
 	}
+#endif
 
 	// FUNCTION: ENGINE 0x106DDF20
 	// NONMATCHING: register allocation: the engine moves this to ebx and keeps the partition count in esi (15.3 %)
