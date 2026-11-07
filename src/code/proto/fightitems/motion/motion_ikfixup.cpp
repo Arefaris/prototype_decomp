@@ -300,6 +300,10 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::IKSurfaceFixupTrack* core::Link<proto::fightitems::motion::IKSurfaceFixupTrack>::Get() const;
+template proto::fightitems::motion::ShoulderConFixupTrack* core::Link<proto::fightitems::motion::ShoulderConFixupTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100DA760
 // FUNCTION: ENGINE 0x100DA790
@@ -312,7 +316,9 @@ namespace proto
 // FUNCTION: ENGINE 0x100DA8A0
 // FUNCTION: ENGINE 0x100DA8D0
 // FUNCTION: ENGINE 0x100DA8F0
+// FUNCTION: ENGINE 0x100DA910
 // FUNCTION: ENGINE 0x100DA920
+// FUNCTION: ENGINE 0x100DA970
 // FUNCTION: ENGINE 0x100DA980
 // FUNCTION: ENGINE 0x100DABD0
 // FUNCTION: ENGINE 0x100DADA0

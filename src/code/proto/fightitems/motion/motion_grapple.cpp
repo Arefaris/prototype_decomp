@@ -419,10 +419,16 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::GrappleLocoSprintTrack* core::Link<proto::fightitems::motion::GrappleLocoSprintTrack>::Get() const;
+template proto::fightitems::motion::GrappleLocoSteerTrack* core::Link<proto::fightitems::motion::GrappleLocoSteerTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100CCE30
 // FUNCTION: ENGINE 0x100CCE50
+// FUNCTION: ENGINE 0x100CCE70
 // FUNCTION: ENGINE 0x100CCE80
+// FUNCTION: ENGINE 0x100CCED0
 // FUNCTION: ENGINE 0x100CCEE0
 // FUNCTION: ENGINE 0x100CD3E0
 // FUNCTION: ENGINE 0x100CD8B0

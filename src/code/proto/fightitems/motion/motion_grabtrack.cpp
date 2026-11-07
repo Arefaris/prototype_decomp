@@ -3935,7 +3935,26 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81B60
 
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::GrabbedDetachTrack* core::Link<proto::fightitems::motion::GrabbedDetachTrack>::Get() const;
+template proto::fightitems::motion::DelayCollisionWithGrabbedTrack* core::Link<proto::fightitems::motion::DelayCollisionWithGrabbedTrack>::Get() const;
+template proto::fightitems::motion::GrabbedExecuteOnParentTrack* core::Link<proto::fightitems::motion::GrabbedExecuteOnParentTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotDetachTrack* core::Link<proto::fightitems::motion::GrabSlotDetachTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotReverseAttachmentTrack* core::Link<proto::fightitems::motion::GrabSlotReverseAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabbedSwapGrabberSlotsTrack* core::Link<proto::fightitems::motion::GrabbedSwapGrabberSlotsTrack>::Get() const;
+template proto::fightitems::motion::GrabButtonStruggleTrack* core::Link<proto::fightitems::motion::GrabButtonStruggleTrack>::Get() const;
+template proto::fightitems::motion::GrabObjectFromChildGrabSlotTrack* core::Link<proto::fightitems::motion::GrabObjectFromChildGrabSlotTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotExecuteTrack* core::Link<proto::fightitems::motion::GrabSlotExecuteTrack>::Get() const;
+template proto::fightitems::motion::GrabbedPlaybackTrack* core::Link<proto::fightitems::motion::GrabbedPlaybackTrack>::Get() const;
+template proto::fightitems::motion::GrabObjectFromParentGrabSlotTrack* core::Link<proto::fightitems::motion::GrabObjectFromParentGrabSlotTrack>::Get() const;
+template proto::fightitems::motion::GrabbedUpdateAttachmentTrack* core::Link<proto::fightitems::motion::GrabbedUpdateAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabGrabTargetTrack* core::Link<proto::fightitems::motion::GrabGrabTargetTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotUpdateAttachmentTrack* core::Link<proto::fightitems::motion::GrabSlotUpdateAttachmentTrack>::Get() const;
+template proto::fightitems::motion::GrabSlotEnableStuckTestTrack* core::Link<proto::fightitems::motion::GrabSlotEnableStuckTestTrack>::Get() const;
+template proto::fightitems::motion::ReactionHitGrabTrack* core::Link<proto::fightitems::motion::ReactionHitGrabTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C40D0
 // FUNCTION: ENGINE 0x100C4110
 // FUNCTION: ENGINE 0x100C4140
 // FUNCTION: ENGINE 0x100C4150
@@ -3969,27 +3988,43 @@ namespace proto
 // FUNCTION: ENGINE 0x100C54D0
 // FUNCTION: ENGINE 0x100C5590
 // FUNCTION: ENGINE 0x100C55A0
+// FUNCTION: ENGINE 0x100C55F0
 // FUNCTION: ENGINE 0x100C5600
 // FUNCTION: ENGINE 0x100C5650
 // FUNCTION: ENGINE 0x100C5660
+// FUNCTION: ENGINE 0x100C56B0
 // FUNCTION: ENGINE 0x100C56C0
+// FUNCTION: ENGINE 0x100C5710
 // FUNCTION: ENGINE 0x100C5720
+// FUNCTION: ENGINE 0x100C5770
 // FUNCTION: ENGINE 0x100C5780
 // FUNCTION: ENGINE 0x100C57D0
 // FUNCTION: ENGINE 0x100C57E0
+// FUNCTION: ENGINE 0x100C5830
 // FUNCTION: ENGINE 0x100C5840
+// FUNCTION: ENGINE 0x100C5890
 // FUNCTION: ENGINE 0x100C58A0
+// FUNCTION: ENGINE 0x100C58F0
 // FUNCTION: ENGINE 0x100C5900
+// FUNCTION: ENGINE 0x100C5950
 // FUNCTION: ENGINE 0x100C5960
+// FUNCTION: ENGINE 0x100C59B0
 // FUNCTION: ENGINE 0x100C59C0
 // FUNCTION: ENGINE 0x100C5A10
+// FUNCTION: ENGINE 0x100C5A60
 // FUNCTION: ENGINE 0x100C5A70
+// FUNCTION: ENGINE 0x100C5AC0
 // FUNCTION: ENGINE 0x100C5AD0
+// FUNCTION: ENGINE 0x100C5B20
 // FUNCTION: ENGINE 0x100C5B30
+// FUNCTION: ENGINE 0x100C5B80
 // FUNCTION: ENGINE 0x100C5B90
+// FUNCTION: ENGINE 0x100C5BE0
 // FUNCTION: ENGINE 0x100C5BF0
+// FUNCTION: ENGINE 0x100C5C40
 // FUNCTION: ENGINE 0x100C5C50
 // FUNCTION: ENGINE 0x100C5CA0
+// FUNCTION: ENGINE 0x100C5CF0
 // FUNCTION: ENGINE 0x100C5D00
 // FUNCTION: ENGINE 0x100C7BF0
 // FUNCTION: ENGINE 0x100C8440

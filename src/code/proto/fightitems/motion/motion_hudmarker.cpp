@@ -243,8 +243,12 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::HUDMarkerTrack* core::Link<proto::fightitems::motion::HUDMarkerTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D6190
+// FUNCTION: ENGINE 0x100D61B0
 // FUNCTION: ENGINE 0x100D61C0
 // FUNCTION: ENGINE 0x100D63F0
 // FUNCTION: ENGINE 0x1017CC10

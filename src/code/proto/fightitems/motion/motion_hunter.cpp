@@ -979,11 +979,19 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::HunterLandedTrack* core::Link<proto::fightitems::motion::HunterLandedTrack>::Get() const;
+template proto::fightitems::motion::HunterShortRangeHopCornerTrack* core::Link<proto::fightitems::motion::HunterShortRangeHopCornerTrack>::Get() const;
+template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D7540
 // FUNCTION: ENGINE 0x100D7560
 // FUNCTION: ENGINE 0x100D7580
+// FUNCTION: ENGINE 0x100D75C0
 // FUNCTION: ENGINE 0x100D75D0
+// FUNCTION: ENGINE 0x100D7620
+// FUNCTION: ENGINE 0x100D7680
 // FUNCTION: ENGINE 0x100D8560
 // FUNCTION: ENGINE 0x100D8B90
 // FUNCTION: ENGINE 0x100D96A0

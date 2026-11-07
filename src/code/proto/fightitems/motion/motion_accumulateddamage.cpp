@@ -884,6 +884,10 @@ namespace proto
 	}
 }
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::IgnoreHitsTrack* core::Link<proto::fightitems::motion::IgnoreHitsTrack>::Get() const;
+template proto::fightitems::motion::TempRegenAbortTrack* core::Link<proto::fightitems::motion::TempRegenAbortTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D1000
 // FUNCTION: ENGINE 0x100D1040
@@ -907,7 +911,9 @@ namespace proto
 // FUNCTION: ENGINE 0x100D1480
 // FUNCTION: ENGINE 0x100D14A0
 // FUNCTION: ENGINE 0x100D14C0
+// FUNCTION: ENGINE 0x100D1510
 // FUNCTION: ENGINE 0x100D1520
+// FUNCTION: ENGINE 0x100D1570
 // FUNCTION: ENGINE 0x100D1580
 // FUNCTION: ENGINE 0x100D15D0
 // FUNCTION: ENGINE 0x100D1620

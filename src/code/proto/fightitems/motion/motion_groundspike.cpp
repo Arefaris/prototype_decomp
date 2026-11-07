@@ -1032,14 +1032,24 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81520
 
 
+// Explicit instances of the track links' accessors (the engine keeps their copies):
+template proto::fightitems::motion::GroundSpikeClusterDescendTrack* core::Link<proto::fightitems::motion::GroundSpikeClusterDescendTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeAnimateClusterRadiiTrack* core::Link<proto::fightitems::motion::GroundSpikeAnimateClusterRadiiTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeConfigureAutoOffshootsTrack* core::Link<proto::fightitems::motion::GroundSpikeConfigureAutoOffshootsTrack>::Get() const;
+template proto::fightitems::motion::GroundSpikeSpawnOffshootTrack* core::Link<proto::fightitems::motion::GroundSpikeSpawnOffshootTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100CF190
 // FUNCTION: ENGINE 0x100CF1B0
 // FUNCTION: ENGINE 0x100CF1D0
 // FUNCTION: ENGINE 0x100CF1F0
+// FUNCTION: ENGINE 0x100CF230
 // FUNCTION: ENGINE 0x100CF240
+// FUNCTION: ENGINE 0x100CF290
 // FUNCTION: ENGINE 0x100CF2A0
+// FUNCTION: ENGINE 0x100CF2F0
 // FUNCTION: ENGINE 0x100CF300
+// FUNCTION: ENGINE 0x100CF350
 // FUNCTION: ENGINE 0x100CF360
 // FUNCTION: ENGINE 0x100CFC50
 // FUNCTION: ENGINE 0x100D03A0
