@@ -74,6 +74,21 @@ namespace proto
 
 namespace proto
 {
+	// FUNCTION: ENGINE 0x1056AB70
+	content::MemberList* HackVector::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<HackVector, float, 0>("p"), PROTO_OFFSET(HackVector, x), "x" },
+			{ content::GetMemberPrimitiveMetaType<HackVector, float, 1>("p"), PROTO_OFFSET(HackVector, y), "y" },
+			{ content::GetMemberPrimitiveMetaType<HackVector, float, 2>("p"), PROTO_OFFSET(HackVector, z), "z" }
+		};
+		sList.members = sMembers;
+		sList.count = 3;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x10567F20
 	LaneData::LaneData() : currentLane(0), nextEdge(0), nextLane(0), nextLightIndex(0), active(1)
 	{
@@ -138,3 +153,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1056A780
 // FUNCTION: ENGINE 0x1056B880
 // FUNCTION: ENGINE 0x1056B900
+// FUNCTION: ENGINE 0x10569D60
+// FUNCTION: ENGINE 0x10569DA0
+// FUNCTION: ENGINE 0x10569DE0

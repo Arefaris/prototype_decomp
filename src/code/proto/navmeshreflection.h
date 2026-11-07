@@ -4,7 +4,11 @@
 #ifndef PROTO_NAVMESHREFLECTION_H
 #define PROTO_NAVMESHREFLECTION_H
 
+#include "code/container/arraydynamicallocatornew.h"
+#include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
+#include "code/core/name.h"
+#include "code/proto/arrayhelper.h"
 
 namespace proto
 {
@@ -13,28 +17,12 @@ namespace proto
 	{
 		// 0x10567D90
 		static content::ClassInfo* GetClassInfo();
-	};
+		// 0x1056AB70
+		static content::MemberList* GetMembers();
 
-	// An area of the mesh (RTTI proto::Area)
-	struct Area
-	{
-		// The kinds of area (reflected as proto::Area::AreaType)
-		enum AreaType
-		{
-			AREA_UNKNOWN = 0,
-			AREA_INTERSECTION = 1,
-			AREA_ROAD = 2,
-			AREA_CROSSWALK = 3,
-			AREA_SIDEWALK = 4,
-			AREA_CROSSWALK_CORNER = 5,
-			AREA_ALLYWAY = 6,
-			AREA_ROOFTOP = 7,
-			AREA_STAIRWAY = 8,
-			AREA_NO_SPAWN = 9
-		};
-
-		// 0x10567E50
-		static content::ClassInfo* GetClassInfo();
+		float x;
+		float y;
+		float z;
 	};
 
 	// One lane of an edge (RTTI proto::LaneData, 4 bytes): the lane the vehicle is in, where it goes next and the light
@@ -72,11 +60,121 @@ namespace proto
 		unsigned char unknown3 : 3;
 	};
 
-	// One edge of an area (RTTI proto::Edge)
+	typedef container::ArrayDynamic<LaneData, container::AllocatorNew> LaneDataArray;
+	typedef container::ArrayDynamic<HackVector, container::AllocatorNew> HackVectorArray;
+
+	// One edge of an area (RTTI proto::Edge, 0x1C bytes): the vertex it starts at, the area behind it and its lanes
 	struct Edge
 	{
+		Edge()
+		{
+		}
+		Edge(const Edge& other) : laneData(other.laneData)
+		{
+			CopyFields(other);
+		}
+		Edge& operator=(const Edge& other)
+		{
+			laneData = other.laneData;
+			CopyFields(other);
+			return *this;
+		}
+
 		// 0x10567ED0
 		static content::ClassInfo* GetClassInfo();
+		// 0x1056CB40
+		static content::MemberList* GetMembers();
+
+		void CopyFields(const Edge& other)
+		{
+			start = other.start;
+			intersectionIndex = other.intersectionIndex;
+			ajacentArea = other.ajacentArea;
+			numLanes = other.numLanes;
+		}
+
+		unsigned short start;  // +0
+		unsigned short intersectionIndex;  // +2
+		unsigned short ajacentArea;  // +4
+		unsigned char numLanes;  // +6
+		unsigned char unknown7;
+		unsigned char unknown8[4];
+		LaneDataArray laneData;  // +0xC
+		int unknown18;  // behind the array: its allocator word
+	};
+
+	typedef container::ArrayDynamic<Edge, container::AllocatorNew> EdgeArray;
+
+	// An area of the mesh (RTTI proto::Area, 0x40 bytes: the record navarea.h calls NavArea and navmesh.h calls
+	// NavMeshHull is this one)
+	struct Area
+	{
+		Area()
+		{
+		}
+		Area(const Area& other) : edges(other.edges)
+		{
+			CopyFields(other);
+		}
+		Area& operator=(const Area& other)
+		{
+			edges = other.edges;
+			CopyFields(other);
+			return *this;
+		}
+
+		// The kinds of area (reflected as proto::Area::AreaType)
+		enum AreaType
+		{
+			AREA_UNKNOWN = 0,
+			AREA_INTERSECTION = 1,
+			AREA_ROAD = 2,
+			AREA_CROSSWALK = 3,
+			AREA_SIDEWALK = 4,
+			AREA_CROSSWALK_CORNER = 5,
+			AREA_ALLYWAY = 6,
+			AREA_ROOFTOP = 7,
+			AREA_STAIRWAY = 8,
+			AREA_NO_SPAWN = 9
+		};
+
+		// 0x10567E50
+		static content::ClassInfo* GetClassInfo();
+		// 0x1056D7F0
+		static content::MemberList* GetMembers();
+
+		void CopyFields(const Area& other)
+		{
+			unknown10[0] = other.unknown10[0];
+		}
+
+		EdgeArray edges;  // +0
+		int unknownC;  // behind the array: its allocator word
+		unsigned char unknown10[0x10];
+		int areaType;  // +0x20
+		unsigned char unknown24[0x16];
+		unsigned short index;  // +0x3A
+		unsigned char unknown3C[4];
+	};
+
+	typedef container::ArrayDynamic<Area, container::AllocatorNew> AreaArray;
+
+	// The navigation mesh as a load object (RTTI proto::AmbientNavMesh, 0x4C bytes)
+	class AmbientNavMesh : public content::MetaLoadObject
+	{
+	public:
+		AmbientNavMesh();
+		static content::ClassInfo* GetClassInfo();
+		// 0x1056DFA0
+		static content::MemberList* GetMembers();
+
+		HackVectorArray vertices;  // +8
+		int unknown14;  // behind the array: its allocator word
+		JointNameArray intersectionNames;  // +0x18
+		int unknown24;
+		unsigned char unknown28[0x10];
+		AreaArray areas;  // +0x38
+		int unknown44;
 	};
 }
 

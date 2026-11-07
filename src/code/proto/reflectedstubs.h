@@ -5,6 +5,7 @@
 #ifndef PROTO_REFLECTEDSTUBS_H
 #define PROTO_REFLECTEDSTUBS_H
 
+#include "code/proto/navmeshreflection.h"
 #include "code/proto/coopbehaviour.h"
 #include "code/proto/shaders/shaderpalette.h"
 #include "code/proto/behaviours/powerwheelbehaviour.h"
@@ -67,16 +68,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x68 - sizeof(content::MetaLoadObject)];
-	};
-
-	class AmbientNavMesh : public content::MetaLoadObject
-	{
-	public:
-		AmbientNavMesh();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
 	};
 
 	class NPCAnimation : public content::MetaLoadObject
