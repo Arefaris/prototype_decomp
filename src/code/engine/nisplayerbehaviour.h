@@ -45,10 +45,7 @@ namespace engine
 			action = 0;
 		}
 		// 0x108A82A0 (deleting destructor 0x108A71B0)
-		virtual ~NISParams()
-		{
-			core::SafeRelease(action);
-		}
+		virtual ~NISParams();
 
 		int unknown18;  // +0x18: the load inventory of the sequence's stream package
 		int unknown1C;

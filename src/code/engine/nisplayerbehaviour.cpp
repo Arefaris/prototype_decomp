@@ -43,6 +43,12 @@ namespace engine
 		Listen(0x18, true);
 	}
 
+	// FUNCTION: ENGINE 0x108A82A0
+	NISParams::~NISParams()
+	{
+		core::SafeRelease(action);
+	}
+
 	// FUNCTION: ENGINE 0x1091FAD0
 	void NISPlayerBehaviour::Slot0()
 	{
