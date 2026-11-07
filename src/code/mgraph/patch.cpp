@@ -4,11 +4,38 @@
 #include "code/mgraph/graph.h"
 #include "code/om/metaproperty.h"
 #include "code/om/metaenum.h"
+#include "code/om/dynamicobject.h"
 #include "code/om/metaclass.h"
 #include "code/om/reflection.h"
 
 namespace mgraph
 {
+#ifdef NONMATCHING
+	// Reads the name of a property and, when a length follows, passes over the data of the property that many bytes
+	// on (the engine's copy of it, 0x105B9600, is called by other units)
+	static inline bool ReadPropertyHeader(om::BinaryStream* stream, unsigned __int64* key, bool* skipped)
+	{
+		*skipped = false;
+		om::StreamBuffer* keyBuffer = stream->buffer;
+		if (keyBuffer->Read(key, 8))
+		{
+			unsigned char hasLength;
+			om::StreamBuffer* flagBuffer = stream->buffer;
+			bool read = flagBuffer->Read(&hasLength, 1);
+			bool skip = hasLength != 0;
+			if (skip)
+			{
+				unsigned int length;
+				unsigned int position;
+				om::ReadBinary(stream, &length);
+				stream->buffer->stream->GetPosition(&position);
+				stream->buffer->stream->Seek(position + length + 1);
+			}
+		}
+		return true;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105B9540
 	Patch::Patch(const om::ClassName& newName) :
 		DynamicObjectEntity(newName),
@@ -106,6 +133,61 @@ namespace mgraph
 			property = GetNextProperty(property);
 		}
 	}
+
+	// FUNCTION: ENGINE 0x105BA370
+	// NONMATCHING: the engine loads the stream buffer before pushing the arguments of the second read and tests its flag through a bool (40.7 %)
+#ifdef NONMATCHING
+	bool Patch::Slot6(void* argument)
+	{
+		om::BinaryStream* stream = static_cast<om::BinaryStream*>(argument);
+		bool result;
+		unsigned int count;
+		if (om::ReadBinary(stream, &graphName))
+		{
+			unsigned char singleton;
+			om::StreamBuffer* buffer = stream->buffer;
+			bool read = buffer->Read(&singleton, 1);
+			isSingleton = singleton != 0;
+			result = read && om::ReadBinary(stream, &count);
+		}
+		else
+		{
+			result = false;
+		}
+		for (unsigned int i = 0; i < count; i++)
+		{
+			unsigned __int64 key;
+			bool skipped;
+			ReadPropertyHeader(stream, &key, &skipped);
+			om::ClassName propertyName(key);
+			om::FactoryBase<om::DynamicPropertyBase>* factory = om::gPropertyFactories->Find(propertyName);
+			if (factory == 0)
+			{
+				return false;
+			}
+			om::DynamicPropertyBase* property = factory->Create(0);
+			if (result && property->ReadBinary(stream))
+			{
+				result = true;
+			}
+			else
+			{
+				result = false;
+			}
+			om::DynamicPropertyBase* existing = FindProperty(property->GetName());
+			if (existing != 0)
+			{
+				existing->SetFrom(property);
+				delete property;
+			}
+			else
+			{
+				AddProperty(property);
+			}
+		}
+		return result;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x105B93B0
 	const om::ClassName& Patch::GetGraphName() const
