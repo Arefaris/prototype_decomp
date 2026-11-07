@@ -38,6 +38,12 @@ namespace math
 		Step(w, 18000);
 	}
 
+	// FUNCTION: ENGINE 0x10069B80
+	float Random::Range(float low, float high)
+	{
+		return low + NextFloat01() * (high - low);
+	}
+
 	// FUNCTION: ENGINE 0x107D8460
 	Vector Random::NextVector01()
 	{
