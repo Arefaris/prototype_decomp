@@ -101107,3 +101107,14 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?FreePngMemory@pure3d@@YAXPAX0@Z = 0x1073CD00 ; function size:0xD | pure3d::FreePngMemory (name guess)
 ?ConvertColour@pure3d@@YAIIH@Z = 0x1073D9B0 ; function size:0x34 | pure3d::ConvertColour (name guess)
 ?GetPngIoPointer@pure3d@@YAPAXPAX@Z = 0x10792120 ; function size:0x8 | pure3d::GetPngIoPointer (name guess)
+?RunOcclusionTest@Server@visibility@pure3d@@QAEXPBVVector@math@@PAIHI@Z = 0x107298B0 ; function size:0x190 | pure3d::visibility::Server::RunOcclusionTest (name guess)
+
+?RunOcclusionTestHere@visibility@pure3d@@YAXPAUTest@12@@Z = 0x10729A50 ; function size:0x36 | pure3d::visibility::RunOcclusionTestHere (name guess)
+??0VisibilityTestTaskCallBack@visibility@pure3d@@QAE@XZ = 0x10726510 ; function size:0x12 | pure3d::visibility::VisibilityTestTaskCallBack::VisibilityTestTaskCallBack
+?OnResult@VisibilityTestTaskCallBack@visibility@pure3d@@UAEXH@Z = 0x10728330 ; function size:0x11 | pure3d::visibility::VisibilityTestTaskCallBack::OnResult vftable slot 0
+?GetUnknown1EC@Server@visibility@pure3d@@QAEMXZ = 0x107265A0 ; function size:0x9 | pure3d::visibility::Server::GetUnknown1EC (name guess)
+?SetUnknown1EC@Server@visibility@pure3d@@QAEXM@Z = 0x10726E20 ; function size:0x23 | pure3d::visibility::Server::SetUnknown1EC (name guess)
+?GetUserDataCount@Server@visibility@pure3d@@QAEHXZ = 0x10726970 ; function size:0xA | pure3d::visibility::Server::GetUserDataCount (name guess)
+?GetRegionBase@Server@visibility@pure3d@@QAEHH@Z = 0x10726930 ; function size:0x13 | pure3d::visibility::Server::GetRegionBase (name guess)
+?GetRegionBase2@Server@visibility@pure3d@@QAEHH@Z = 0x10726950 ; function size:0x13 | pure3d::visibility::Server::GetRegionBase2 (name guess)
+??_R0?AVVisibilityTestTaskCallBack@visibility@pure3d@@@8 = 0x11137A6C ; data | data RTTI type descriptor of pure3d::visibility::VisibilityTestTaskCallBack
