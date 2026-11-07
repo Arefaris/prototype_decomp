@@ -23,10 +23,45 @@ namespace proto
 	// 0x11264740
 	extern WorldTriggerCollisionCallback* gWorldTriggerCollisionCallback;
 
+	// 0x10071800 (another unit): a copy of a transform matrix as the engine makes it, row by row
+	struct TransformCopy
+	{
+		explicit TransformCopy(const math::Matrix& source);
+
+		math::Matrix value;
+	};
+
+	// Where a jump ends: an object and the position it was at (guesses)
+	struct JumpDestination
+	{
+		JumpDestination() : target(), position(math::kZeroVector)
+		{
+		}
+
+		// 0x103C5C60 (another unit): takes the position of the object
+		void Update();
+
+		engine::GameObjectHandle target;  // +0
+		math::Vector position;  // +4
+	};
+
+	// RTTI: proto::GetJumpDestinationMovementMessage: the object answers where it is going to jump
+	struct GetJumpDestinationMovementMessage : public MovementMessage
+	{
+		// 0x1009DFA0
+		GetJumpDestinationMovementMessage();
+		virtual ~GetJumpDestinationMovementMessage()
+		{
+		}
+
+		JumpDestination destination;  // +0xC
+		bool found;  // +0x1C
+	};
+
 	// RTTI: proto::JumpToMovementMessage: the object is to jump to a destination
 	struct JumpToMovementMessage : public MovementMessage
 	{
-		JumpToMovementMessage(const engine::GameObjectHandle& newTarget, const math::Vector& newDestination) : MovementMessage(0x27), target(newTarget), destination(newDestination)
+		JumpToMovementMessage(const engine::GameObjectHandle& newTarget, const math::Vector& newPosition) : MovementMessage(0x27), target(newTarget), position(newPosition)
 		{
 		}
 		virtual ~JumpToMovementMessage()
@@ -34,7 +69,7 @@ namespace proto
 		}
 
 		engine::GameObjectHandle target;  // +0xC
-		math::Vector destination;  // +0x10
+		math::Vector position;  // +0x10
 	};
 }
 
@@ -362,10 +397,11 @@ namespace proto
 
 				engine::GameObjectHandle target;  // +0x1C
 				core::Link<OrientTowardsJumpInPositionTrack> link;  // +0x20
-				choreo::Driver* driver;  // +0x2C
+				choreo::RootDriver* driver;  // +0x2C
 				bool unknown30;  // +0x30
-				unsigned char unknown31[0xF];
-				bool unknown40;  // +0x40
+				unsigned char unknown31[3];
+				math::Vector destination;  // +0x34
+				bool found;  // +0x40
 				unsigned char unknown41[0x3];
 				float unknown44;  // +0x44
 			};

@@ -1,11 +1,24 @@
 // Fight items of the motion group: InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack (unit 0x10144950 - 0x10146A60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include <math.h>
+
+namespace math
+{
+	// 0x1006FBA0 (another unit): -1, 0 or 1 by the sign of the value (name guess)
+	float Sign(float value);
+}
 
 namespace engine
 {
 	// 0x1009E210 / 0x1009E250: this unit's copies of the helpers that store a reference counted object in a slot (releasing the previous one) and let one go
 	void AssignRefCountedCopy4(core::IRefCount** slot, core::IRefCount* value);
 	void SafeReleaseRefCopy4(core::IRefCount** slot);
+}
+
+// FUNCTION: ENGINE 0x1009DFA0
+proto::GetJumpDestinationMovementMessage::GetJumpDestinationMovementMessage() : MovementMessage(0x26), found(false)
+{
 }
 
 // FUNCTION: ENGINE 0x1009E210
@@ -757,7 +770,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1009ECB0
-			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), unknown40(false), unknown44(0.0f)
+			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), found(false), unknown44(0.0f)
 			{
 			}
 
@@ -773,6 +786,116 @@ namespace proto
 				return new OrientTowardsJumpInPositionAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1009ED60
+			bool OrientTowardsJumpInPositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				if (link.Get()->useJumpDestination)
+				{
+					GetJumpDestinationMovementMessage message;
+					object->SendMessage(&message);
+					found = message.found;
+					message.destination.Update();
+					destination.x = message.destination.position.x;
+					destination.y = message.destination.position.y;
+					destination.z = message.destination.position.z;
+				}
+				else
+				{
+					const math::Matrix& matrix = object->transform->value;
+					math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+					found = gAISystem->Unknown10360C80(&position, &destination);
+				}
+				if (found)
+				{
+					unknown44 = link.Get()->orientationCutOffDistance * link.Get()->orientationCutOffDistance;
+					driver = new choreo::RootDriver;
+					fight::Name driverName("orient_towards_jump_in", 1);
+					driver->SetName(driverName);
+					driver->AddRef();
+					driver->SetMask(2);
+					puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->priority, 1.0f, link.Get()->blendInTime, link.Get()->blendOutTime, choreo::gMinusOne);
+				}
+				return found;
+			}
+
+			// FUNCTION: ENGINE 0x1009EF70
+			// NONMATCHING: the engine keeps the turning velocity and the target heading in the other order in its frame and leaves the heading on the x87 stack (best 88.6 %)
+#ifdef NONMATCHING
+			bool OrientTowardsJumpInPositionAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (driver == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (!found)
+				{
+					return false;
+				}
+				TransformCopy rootMatrix(object->transform->value);
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector row(matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]);
+				math::Vector forward = -row;
+				float currentHeading = choreo::Heading(forward);
+				const math::Matrix& placement = object->transform->value;
+				math::Vector position(placement.m[3][0], placement.m[3][1], placement.m[3][2]);
+				math::Vector toTarget;
+				toTarget.Sub(destination, position);
+				if (unknown44 > toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+				{
+					return false;
+				}
+				float targetHeading = choreo::Heading(toTarget);
+				float turningVelocity = link.Get()->turningVelocity;
+				float orientation;
+				if (turningVelocity > choreo::gZero)
+				{
+					float difference = choreo::AngleDifference(currentHeading, targetHeading);
+					float step = turningVelocity * value;
+					if (fabsf(difference) > step)
+					{
+						orientation = math::Sign(difference) * step + currentHeading;
+					}
+					else
+					{
+						orientation = targetHeading;
+					}
+				}
+				else
+				{
+					orientation = targetHeading;
+				}
+				driver->mDelta.SetOrientation(orientation, rootMatrix.value);
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x1009E7C0
 			void OrientTowardsJumpInPositionAction::Slot6()
 			{
@@ -784,7 +907,7 @@ namespace proto
 					{
 						puppet->RemoveDriver(driver, false);
 					}
-					engine::ReleaseDriverCopy2(&driver);
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 				}
 			}
 
@@ -809,7 +932,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1009E960
-			// NONMATCHING: the engine's locals (the destination, then the handle, sharing the slot of the looked-up position) sit at other frame offsets (best 56 %)
+			// NONMATCHING: the engine's locals (the destination, then the handle, sharing the slot of the looked-up position) sit at other frame offsets (best 94.7 %)
 #ifdef NONMATCHING
 			bool FromWaterSetJumpToAction::Slot5(int arg, float value)
 			{
@@ -829,7 +952,8 @@ namespace proto
 					}
 					else
 					{
-						math::Vector position(object->transform->value.m[3][0], object->transform->value.m[3][1], object->transform->value.m[3][2]);
+						const math::Matrix& matrix = object->transform->value;
+						math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
 						gAISystem->Unknown10360C80(&position, &destination);
 					}
 					JumpToMovementMessage message(engine::GameObjectHandle(), destination);
@@ -1022,3 +1146,11 @@ namespace proto
 // FUNCTION: ENGINE 0x1009EAE0
 // FUNCTION: ENGINE 0x1009F490
 // FUNCTION: ENGINE 0x1009F530
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009DF60
+// FUNCTION: ENGINE 0x1009E010
+// FUNCTION: ENGINE 0x1009E2D0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009EBF0
