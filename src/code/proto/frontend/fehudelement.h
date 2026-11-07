@@ -58,6 +58,11 @@ namespace proto
 		{
 			return path.ConstData();
 		}
+		// Replaces the path (the instance of the typewriter keeps its own path)
+		void SetPath(const char* newPath)
+		{
+			path = newPath;
+		}
 
 		typename Policy::Storage path;  // +0xA0
 	};
