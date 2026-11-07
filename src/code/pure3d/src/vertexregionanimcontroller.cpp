@@ -4,6 +4,7 @@
 #include <new>
 
 #include "code/core/refptr.h"
+#include "code/pure3d/channel.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/primitive.h"
 
@@ -128,6 +129,31 @@ namespace pure3d
 			for (unsigned int i = 0; i < count; i++)
 			{
 				mOffsets[i] = 0.0f;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10730490
+	void VertexRegionAnimController::Unknown5()
+	{
+		if (UpdateWeights() == true)
+		{
+			IntChannel* channel = (IntChannel*)mAnimation->GetGroup(0)->FindChannel(0x58545256, 0x544E49);
+			if (channel != 0)
+			{
+				unsigned int index0;
+				unsigned int index1;
+				int key0;
+				int key1;
+				float frame0;
+				float frame1;
+				channel->FindKeys(mFrame, &index0, &index1);
+				channel->GetKey(index0, &frame0, &key0);
+				SetFromKey(key0, true);
+				channel->GetKey(index1, &frame1, &key1);
+				SetToKey(key1, channel->mode);
+				ApplyKeys();
+				mChanged = false;
 			}
 		}
 	}

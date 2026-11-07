@@ -129,6 +129,8 @@ namespace pure3d
 
 		// 0x10777570
 		Animation* GetAnimation();
+		// 0x10777590
+		float GetFrame();
 		// 0x10777E80: takes the animation
 		void SetAnimation(Animation* animation);
 		// 0x10777EC0: the whole range of the animation, no fade

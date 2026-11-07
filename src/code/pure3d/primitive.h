@@ -26,6 +26,7 @@ namespace pure3d
 {
 	class PartBinding;
 	class dxVertexBuffer;
+	class Mesh;
 	class dxIndexBuffer;
 	class Shader;
 	class PrimBuffer;
@@ -131,6 +132,8 @@ namespace pure3d
 		virtual ~VertexOffsetList();
 		// 0x1073F220
 		void Prepare();
+		// 0x1073F8B0: writes the vertices of the mesh into the buffer with the offsets added
+		void ApplyTo(Mesh* mesh, dxVertexBuffer* buffer);
 		// 0x1073F880: the flag word
 		unsigned int GetFlags();
 		// 0x1073F300 / 0x1073F350 / 0x1073F3A0 / 0x1073F400: make the storage of a kind (when it has none)
@@ -293,7 +296,6 @@ namespace pure3d
 	};
 
 	struct JointChannels;
-	struct PoseAnimationInfo;
 
 	// Bases in the RTTI: BlendFrameController, AnimationFrameController
 	class PoseAnimationController : public BlendFrameController
@@ -330,17 +332,22 @@ namespace pure3d
 
 		unsigned char unknown10C[4];
 		Pose* mPose;
-		unsigned char unknown114[0x1C];
+		float unknown114;
+		// How many joints the channel and frame time arrays have room for, and the channels of the joints for each of
+		// the five animations (one block, the animation's joints one after the other)
+		unsigned int mJointCapacity;
+		JointChannels* mChannels[5];
 		// The time each animation was last applied at, for the root motion of the next application (name guess)
 		float mPreviousTimes[5];
 		bool mAnimationChanged;
 		bool mUseFrameTimes;
 		unsigned char unknown146[2];
-		float* mFrameTimes;
-		unsigned char unknown14C[0x10];
+		// The time of every joint, for each of the five animations
+		float* mFrameTimes[5];
 		bool mAnimatesRoot;
 		unsigned char unknown15D[3];
-		PoseAnimationInfo* mInfo;
+		// The partition of the skeleton the controller drives (the root partition when it names none)
+		Skeleton::Partition* mInfo;
 		unsigned char unknown164[4];
 	};
 
@@ -403,6 +410,12 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
 		bool GetUnknownD8();
+		// 0x1072F510: recomputes the weights of the regions when something changed; false when nothing is to be done
+		bool UpdateWeights();
+		// 0x1072F150 / 0x1072FF40 / 0x1072FB20: the key frame steps of the update (name guesses)
+		void SetFromKey(int key, bool first);
+		void SetToKey(int key, unsigned int mode);
+		void ApplyKeys();
 
 		// The regions the controller follows (up to 16, +0x40 to the end pointer at +0x80), the key frames, the primitive
 		// and the state it follows with its expression, the offsets it writes for the expression's vertices, the
@@ -444,6 +457,9 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1073E3C0: the byte at +0x50 (name guess)
 		bool GetUnknown50();
+		// 0x1073E4B0 / 0x1073E850: the key frame steps of the update (name guesses)
+		void SetFromKey(int key, bool first);
+		void SetToKey(int key, float weight, unsigned int mode);
 
 		// The key frames (+0x40), the primitive and the state it follows (+0x44, +0x48) with its expression, whether the
 		// frame changed since the last update and the frame it showed

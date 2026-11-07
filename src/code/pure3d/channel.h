@@ -136,7 +136,7 @@ namespace pure3d
 		void Set(unsigned int mode, unsigned int count, const short* frames, const T* values);
 		void Evaluate(FrameTime time, typename KeyValue<T>::Type* out);
 		// The cheaper lookup of a key of the time's frame (no interpolation); 0x106E4020, 0x106E4180, 0x106E42E0
-		void EvaluateFrame(FrameTime time, typename KeyValue<T>::Type* out);
+		void GetKeyAt(unsigned int index, float* frame, typename KeyValue<T>::Type* out);
 		// 0x106E35B0 (float): the change of the value between two times, the span of a cycle and whether it wraps
 		void GetDelta(float previousTime, float time, typename KeyValue<T>::Type* out, float length, bool cycle);
 
@@ -266,7 +266,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10734FA0 / 0x10734FE0: the value at a frame, and at a time
-		void GetValue(FrameTime time, int* out);
+		void GetKey(unsigned int index, float* frame, int* out);
 		void GetValue(float time, int* out);
 
 		int* values;
@@ -289,7 +289,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10735070 / 0x107350B0: the value at a frame, and at a time; 0x10735100: the change over a span of time
-		void GetValue(FrameTime time, float* out);
+		void GetKey(unsigned int index, float* frame, float* out);
 		void GetValue(float time, float* out);
 		void GetDelta(float previousTime, float time, float* out, float length, bool cycle);
 
@@ -311,7 +311,7 @@ namespace pure3d
 		virtual unsigned int GetType();
 
 		// 0x10735190 / 0x107351D0
-		void GetValue(FrameTime time, Float2* out);
+		void GetKey(unsigned int index, float* frame, Float2* out);
 		void GetValue(float time, Float2* out);
 
 		Float2* values;
