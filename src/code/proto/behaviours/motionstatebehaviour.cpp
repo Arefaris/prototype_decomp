@@ -1,4 +1,20 @@
 #include "code/proto/behaviours/motionstatebehaviour.h"
+#include "code/engine/fight/fighteventmessage.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/scenariomessage.h"
+#include "code/proto/scenariomessages.h"
+
+namespace engine
+{
+	// 0x11252058: the listeners of the name "scenario" of this unit (name guess)
+	extern MessageListeners gScenario28;
+
+	// FUNCTION: ENGINE 0x10075450
+	ScenarioMessage::ScenarioMessage(int event) : IntrusiveMessage(0xd, (short)event)
+	{
+	}
+}
 
 namespace content
 {
@@ -55,6 +71,30 @@ namespace proto
 	MotionStateBehaviour::~MotionStateBehaviour()
 	{
 	}
+
+	// FUNCTION: ENGINE 0x10075780
+	// NONMATCHING: the engine shares the stack slot of the old name with the fight event message (85.3 %)
+#ifdef NONMATCHING
+	void MotionStateBehaviour::SetState(int newState, const core::Name<core::CaseSensitiveKey>& newName)
+	{
+		int oldState = motionState;
+		core::Name<core::CaseSensitiveKey> oldName(name);
+		motionState = (MotionState::State)newState;
+		name = newName;
+		if (oldState == newState && !(oldName != name))
+		{
+			return;
+		}
+		if (unknown1C)
+		{
+			int state = motionState;
+			MotionStateScenarioMessage message(engine::GetHandle(owner), state, oldState);
+			engine::SendMessage(&message, &engine::gScenario28);
+		}
+		engine::FightEventMessage fightEvent(0x40000);
+		owner->SendMessage(&fightEvent);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10075880
 	void MotionStateBehaviour::Reset()
@@ -134,3 +174,6 @@ namespace proto
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10075770
 // FUNCTION: ENGINE 0x100759C0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10075670
