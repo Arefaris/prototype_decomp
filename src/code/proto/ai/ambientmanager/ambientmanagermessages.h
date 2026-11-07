@@ -221,6 +221,23 @@ namespace proto
 		engine::HandleBase giver;  // +0xC
 		engine::HandleBase taker;  // +0x10
 	};
+	// RTTI proto::GetSensesInfoMessage (message type 0x3D, id 0xF)
+	struct GetSensesInfoMessage : public ProtoRenderMsg
+	{
+	public:
+		// 0x10432E30
+		explicit GetSensesInfoMessage(bool newFlag) : ProtoRenderMsg(0xf)
+		{
+			flag = newFlag;
+		}
+		// 0x10432E60
+		virtual ~GetSensesInfoMessage()
+		{
+		}
+
+		unsigned char unknownC[8];
+		bool flag;  // +0x14
+	};
 }
 
 #endif

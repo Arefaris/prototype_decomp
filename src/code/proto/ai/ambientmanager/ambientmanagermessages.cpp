@@ -65,6 +65,11 @@ namespace
 	{
 		proto::GetAlertInfoMessage message;
 	}
+
+	void EmitGetSensesInfoMessage()
+	{
+		proto::GetSensesInfoMessage message(false);
+	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -102,5 +107,7 @@ namespace
 // FUNCTION: ENGINE 0x10432D70
 // FUNCTION: ENGINE 0x10432D80
 // FUNCTION: ENGINE 0x10432DC0
+// FUNCTION: ENGINE 0x10432E30
+// FUNCTION: ENGINE 0x10432E60
 // FUNCTION: ENGINE 0x10434100
 // FUNCTION: ENGINE 0x10434130
