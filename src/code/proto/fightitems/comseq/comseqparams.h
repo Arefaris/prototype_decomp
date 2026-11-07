@@ -46,6 +46,8 @@ namespace proto
 				virtual int GetTypeCode();
 				// 0x1038B980: takes the next free entry for name (null when the table is full)
 				ParamEntry* AddParam(core::Name<core::CaseSensitiveKey> name);
+				// 0x1038AE50: the entry of a name (null when there is none)
+				ParamEntry* FindParam(core::Name<core::CaseSensitiveKey> name);
 
 				ParamArray params;  // +0x18
 			};

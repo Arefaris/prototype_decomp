@@ -13,6 +13,10 @@
 
 namespace proto
 {
+	// The squares of the distances a new policy starts with (data of the engine, names guessed)
+	extern float gDefaultFreezeDistanceSquared;
+	extern float gDefaultDespawnDistanceSquared;
+
 	// RTTI class proto::CharacterBudgetPolicy (0x28 bytes)
 	class __declspec(align(8)) CharacterBudgetPolicy
 	{

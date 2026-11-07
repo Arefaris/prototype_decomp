@@ -44,8 +44,15 @@ template void ValueVariant::Construct<float>(const float&);
 template void ValueVariant::Construct<core::Name<core::CaseSensitiveKey> >(const core::Name<core::CaseSensitiveKey>&);
 template void ValueVariant::Construct<engine::GameObjectHandle>(const engine::GameObjectHandle&);
 template void ValueVariant::Construct<bool>(const bool&);
+template ValueVariant& ValueVariant::operator=<math::Vector>(const math::Vector&);
+template ValueVariant& ValueVariant::operator=<float>(const float&);
+template ValueVariant& ValueVariant::operator=<core::Name<core::CaseSensitiveKey> >(const core::Name<core::CaseSensitiveKey>&);
+template ValueVariant& ValueVariant::operator=<engine::GameObjectHandle>(const engine::GameObjectHandle&);
+template ValueVariant& ValueVariant::operator=<bool>(const bool&);
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10367C40
 // FUNCTION: ENGINE 0x10367C50
 // FUNCTION: ENGINE 0x10367CC0
 // FUNCTION: ENGINE 0x10369460
@@ -65,9 +72,11 @@ template void ValueVariant::Construct<bool>(const bool&);
 // FUNCTION: ENGINE 0x10374620
 // FUNCTION: ENGINE 0x103768A0
 // FUNCTION: ENGINE 0x10376AB0
+// FUNCTION: ENGINE 0x10377600
 // FUNCTION: ENGINE 0x10377620
 // FUNCTION: ENGINE 0x10377680
 // FUNCTION: ENGINE 0x10377C50
+// FUNCTION: ENGINE 0x1037BE40
 // FUNCTION: ENGINE 0x1037BF70
 // FUNCTION: ENGINE 0x1037D0F0
 // FUNCTION: ENGINE 0x1037D100
@@ -87,11 +96,13 @@ template void ValueVariant::Construct<bool>(const bool&);
 // FUNCTION: ENGINE 0x1037EAE0
 // FUNCTION: ENGINE 0x1037FB50
 // FUNCTION: ENGINE 0x1037FD70
+// FUNCTION: ENGINE 0x1037FED0
 // FUNCTION: ENGINE 0x1037FFA0
 // FUNCTION: ENGINE 0x10380010
 // FUNCTION: ENGINE 0x103806C0
 // FUNCTION: ENGINE 0x10381FE0
 // FUNCTION: ENGINE 0x1038AD10
+// FUNCTION: ENGINE 0x1038ADA0
 // FUNCTION: ENGINE 0x1038AE40
 // FUNCTION: ENGINE 0x1038AF70
 // FUNCTION: ENGINE 0x1038AF80
@@ -130,8 +141,14 @@ template void ValueVariant::Construct<bool>(const bool&);
 // FUNCTION: ENGINE 0x1038B2C0
 // FUNCTION: ENGINE 0x1038B2F0
 // FUNCTION: ENGINE 0x1038B530
+// FUNCTION: ENGINE 0x1038B560
 // FUNCTION: ENGINE 0x1038B580
 // FUNCTION: ENGINE 0x1038B5E0
 // FUNCTION: ENGINE 0x1038B640
 // FUNCTION: ENGINE 0x1038B6A0
 // FUNCTION: ENGINE 0x1038B700
+// FUNCTION: ENGINE 0x1038B7A0
+// FUNCTION: ENGINE 0x1038B7E0
+// FUNCTION: ENGINE 0x1038B820
+// FUNCTION: ENGINE 0x1038B860
+// FUNCTION: ENGINE 0x1038B8A0
