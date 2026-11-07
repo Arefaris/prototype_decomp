@@ -11,7 +11,7 @@ namespace mgraph
 
 	class __declspec(align(8)) Delay : public Node
 	{
-		MGRAPH_NODE_BODY(Delay, Node, 0x58);
+		MGRAPH_NODE_BODY_OUT(Delay, Node, 0x58);
 	};
 
 }

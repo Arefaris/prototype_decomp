@@ -11,7 +11,7 @@ namespace mgraph
 
 	class __declspec(align(8)) MinMaxDistance : public Node
 	{
-		MGRAPH_NODE_BODY(MinMaxDistance, Node, 0x60);
+		MGRAPH_NODE_BODY_OUT(MinMaxDistance, Node, 0x60);
 	};
 
 }

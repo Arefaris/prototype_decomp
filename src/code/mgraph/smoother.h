@@ -13,7 +13,9 @@ namespace mgraph
 	{
 	public:
 		Smoother(Graph* newGraph, const om::ClassName& newName);
-		OM_ALLOCATION(Smoother);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The properties "RiseRate" and "FallRate" (not reconstructed)
 		void SetRiseRate(float newRate);

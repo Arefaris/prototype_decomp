@@ -14,6 +14,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B74150
+	inline void* MinMaxDistance::operator new(size_t)
+	{
+		return Allocate(MinMaxDistance::AllocationTag(), sizeof(MinMaxDistance), __alignof(MinMaxDistance));
+	}
+
+	inline void MinMaxDistance::operator delete(void* memory)
+	{
+		Release(memory, sizeof(MinMaxDistance), __alignof(MinMaxDistance));
+	}
+
 	// FUNCTION: ENGINE 0x10B747D0
 	void RegisterMinMaxDistance()
 	{

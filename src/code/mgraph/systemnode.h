@@ -16,7 +16,9 @@ namespace mgraph
 		virtual ~SystemNode();
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot16(EvaluationFrame* frame);
-		OM_ALLOCATION(SystemNode);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		char unknown4[0x50 - sizeof(Node)];
 	};

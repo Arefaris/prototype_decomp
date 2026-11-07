@@ -14,6 +14,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B6E9A0
+	inline void* Delay::operator new(size_t)
+	{
+		return Allocate(Delay::AllocationTag(), sizeof(Delay), __alignof(Delay));
+	}
+
+	inline void Delay::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Delay), __alignof(Delay));
+	}
+
 	// FUNCTION: ENGINE 0x10B6F040
 	void RegisterDelay()
 	{

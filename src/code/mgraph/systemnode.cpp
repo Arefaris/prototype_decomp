@@ -15,6 +15,18 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B77250
+	inline void* SystemNode::operator new(size_t)
+	{
+		return Allocate(SystemNode::AllocationTag(), sizeof(SystemNode), __alignof(SystemNode));
+	}
+
+	// FUNCTION: ENGINE 0x10B76EC0
+	inline void SystemNode::operator delete(void* memory)
+	{
+		Release(memory, sizeof(SystemNode), __alignof(SystemNode));
+	}
+
 	// FUNCTION: ENGINE 0x10B773F0
 	// NONMATCHING: the call that gets the allocation tag of the pin leads to another copy of the same function in the engine (99.5 %)
 #ifdef NONMATCHING

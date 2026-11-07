@@ -13,7 +13,9 @@ namespace mgraph
 	{
 	public:
 		Fade(Graph* newGraph, const om::ClassName& newName);
-		OM_ALLOCATION(Fade);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The property "Time" (0x10B6F170 / 0x10B6F180)
 		void SetTime(float newTime);

@@ -19,6 +19,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B6F9E0
+	inline void* Fade::operator new(size_t)
+	{
+		return Allocate(Fade::AllocationTag(), sizeof(Fade), __alignof(Fade));
+	}
+
+	inline void Fade::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Fade), __alignof(Fade));
+	}
+
 	// FUNCTION: ENGINE 0x10B6F170
 	void Fade::SetTime(float newTime)
 	{

@@ -17,6 +17,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B76340
+	inline void* Smoother::operator new(size_t)
+	{
+		return Allocate(Smoother::AllocationTag(), sizeof(Smoother), __alignof(Smoother));
+	}
+
+	inline void Smoother::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Smoother), __alignof(Smoother));
+	}
+
 	// FUNCTION: ENGINE 0x10B76A20
 	template<> Node* NodeType<Smoother>::CreateNode(void* graph, const ClassName* nodeName)
 	{
