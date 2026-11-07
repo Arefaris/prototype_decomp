@@ -2,6 +2,7 @@
 #include "code/om/entity.h"
 
 #include "code/core/criticalsection.h"
+#include "code/om/atgcontent.h"
 #include <string.h>
 
 namespace om
@@ -471,7 +472,7 @@ namespace om
 	// FUNCTION: ENGINE 0x105B53C0
 	// NONMATCHING: as the search by type (53.5 %)
 #ifdef NONMATCHING
-	EntityTypeBase* TreeHead::FindEntityTypeByName(const String& name)
+	EntityTypeBase* TreeHead::FindEntityTypeByName(const char** name)
 	{
 		TreeNode* current = root;
 		if (current == &nil)
@@ -482,7 +483,7 @@ namespace om
 		while (true)
 		{
 			EntityTypeBase* other = current != 0 ? (EntityTypeBase*)((char*)current - 0x1C) : 0;
-			int result = strcmp(name.data, other->name);
+			int result = strcmp(*name, other->name);
 			if (result < 0)
 			{
 				current = current->left;
@@ -504,7 +505,7 @@ namespace om
 		while (previous != 0)
 		{
 			EntityTypeBase* other = (EntityTypeBase*)((char*)previous - 0x1C);
-			if (strcmp(name.data, other->name) != 0)
+			if (strcmp(*name, other->name) != 0)
 			{
 				break;
 			}
@@ -559,6 +560,174 @@ namespace om
 			previous = Previous(previous);
 		}
 		return current != 0 ? (Entity*)((char*)current - 0x10) : 0;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5610
+	EntityTypeBase* GetFirstEntityType()
+	{
+		TreeNode* node = gEntityTypesByType.First();
+		if (node != 0)
+		{
+			return (EntityTypeBase*)((char*)node - 0x3C);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B5630
+	EntityTypeBase* GetNextEntityType(EntityTypeBase* type)
+	{
+		TreeNode* node = type != 0 ? &type->nodeByType : 0;
+		node = gEntityTypesByType.Next(node);
+		if (node != 0)
+		{
+			return (EntityTypeBase*)((char*)node - 0x3C);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B5660
+	// NONMATCHING: the engine loads the string data pointer before the test of the empty string (57.1 %)
+#ifdef NONMATCHING
+	EntityTypeBase* FindEntityTypeByName(String* name)
+	{
+		const char* text = name->data;
+		if (text == gEmptyStringData)
+		{
+			text = "";
+		}
+		return gEntityTypesByName.FindEntityTypeByName(&text);
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B56E0
+	// NONMATCHING: the engine reads the lock before it saves esi and edi (37.7 %)
+#ifdef NONMATCHING
+	Entity* GetFirstEntity()
+	{
+		void* lock = gEntityLock;
+		core::CriticalSectionEnter(lock);
+		TreeNode* node = gEntitiesByName.First();
+		if (node != 0)
+		{
+			core::CriticalSectionLeave(lock);
+			return (Entity*)((char*)node - 0x10);
+		}
+		core::CriticalSectionLeave(lock);
+		return 0;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5730
+	// NONMATCHING: as GetFirstEntity (29 %)
+#ifdef NONMATCHING
+	Entity* GetNextEntity(Entity* entity)
+	{
+		void* lock = gEntityLock;
+		core::CriticalSectionEnter(lock);
+		TreeNode* node = entity != 0 ? &entity->nodeByName : 0;
+		node = gEntitiesByName.Next(node);
+		if (node != 0)
+		{
+			core::CriticalSectionLeave(lock);
+			return (Entity*)((char*)node - 0x10);
+		}
+		core::CriticalSectionLeave(lock);
+		return 0;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5790
+	int AddRefEntity(Entity* entity)
+	{
+		return ThreadSafeRefCount::AddRef(&entity->count);
+	}
+
+	// FUNCTION: ENGINE 0x105B5A30
+	// NONMATCHING: as GetFirstEntity (41.7 %)
+#ifdef NONMATCHING
+	Entity* FindEntityByName(const ClassName& name)
+	{
+		void* lock = gEntityLock;
+		core::CriticalSectionEnter(lock);
+		Entity* found = gEntitiesByName.FindEntity(name);
+		core::CriticalSectionLeave(lock);
+		return found;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5A70
+	// NONMATCHING: the engine tests the pointer again before the delete (68.3 %)
+#ifdef NONMATCHING
+	void EntityReference::Reset()
+	{
+		Entity* held = entity;
+		if (held != 0)
+		{
+			entity = 0;
+			if (ThreadSafeRefCount::Release(&held->count) == 0)
+			{
+				delete held;
+			}
+		}
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5AA0
+	// NONMATCHING: register assignment of the two pointers (42.5 %)
+#ifdef NONMATCHING
+	EntityReference& EntityReference::operator=(const EntityReference& other)
+	{
+		Entity* held = entity;
+		if (other.entity != held)
+		{
+			if (held != 0)
+			{
+				if (ThreadSafeRefCount::Release(&held->count) == 0)
+				{
+					delete held;
+				}
+			}
+			entity = other.entity;
+			if (entity != 0)
+			{
+				ThreadSafeRefCount::AddRef(&entity->count);
+			}
+		}
+		return *this;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x105B5AF0
+	// NONMATCHING: register assignment of the two pointers (81.6 %)
+#ifdef NONMATCHING
+	Entity* EntityReference::operator=(Entity* newEntity)
+	{
+		Entity* held = entity;
+		if (held != newEntity)
+		{
+			entity = newEntity;
+			if (newEntity != 0)
+			{
+				ThreadSafeRefCount::AddRef(&newEntity->count);
+			}
+			if (held != 0)
+			{
+				if (ThreadSafeRefCount::Release(&held->count) == 0)
+				{
+					delete held;
+				}
+			}
+			return entity;
+		}
+		return held;
 	}
 
 #endif
