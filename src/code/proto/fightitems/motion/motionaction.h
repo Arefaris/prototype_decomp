@@ -40,6 +40,8 @@ namespace engine
 	void AssignRefCountedCopy3(core::IRefCount** slot, core::IRefCount* value);
 	// 0x1011AAF0: the supporting limb unit's copy of AssignRefCounted
 	void AssignRefCountedCopy2(core::IRefCount** slot, core::IRefCount* value);
+	// 0x100ECE60: the magnetic boots unit's copy of AssignRefCounted
+	void AssignRefCountedCopy4(core::IRefCount** slot, core::IRefCount* value);
 }
 
 namespace core
@@ -48,6 +50,8 @@ namespace core
 	void SafeReleaseRefCopy3(IRefCount** object);
 	// 0x1011AB30: the supporting limb unit's copy of SafeReleaseRef
 	void SafeReleaseRefCopy2(IRefCount*& object);
+	// 0x100ECEA0: the magnetic boots unit's copy of SafeReleaseRef, taking the address of the pointer
+	void SafeReleaseRefCopy4(IRefCount** object);
 }
 
 namespace choreo
@@ -104,6 +108,16 @@ namespace proto
 					return 0;
 				}
 				return (((TrackOwner*)owner)->kind == 0x21001) ? owner : 0;
+			}
+
+			// The owner a magnetic boots action keeps: null when the owner is none or not a magnetic boots event (kind 0x2100E)
+			inline core::IRefCount* AsMagneticBootsEventOwner(core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				return (((TrackOwner*)owner)->kind == 0x2100E) ? owner : 0;
 			}
 
 			// The owner the sequencer hands a condition in its third argument

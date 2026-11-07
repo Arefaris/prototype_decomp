@@ -1,5 +1,6 @@
 // Fight items of the motion group: LaserTrack (unit 0x10187250 - 0x10187C50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_laser.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
 
 namespace proto
 {
@@ -201,26 +202,55 @@ namespace proto
 
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x100E40D0
-			// NONMATCHING: the ctor builds a vector from the shared zero vector and a different store schedule (68.6 %)
+			// NONMATCHING: the engine stores the last component of the vector before the flag and the word behind it (92 %)
 #ifdef NONMATCHING
-			LaserAction::LaserAction(LaserTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown2C(-1), unknown30(math::kZeroVector), unknown3C(0.0f), unknown40(false), unknown44(0)
+			LaserAction::LaserAction(LaserTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), drawable(0xffffffff), unknown30(0.0f)
 			{
+				unknown34.x = math::kZeroVector.x;
+				unknown34.y = math::kZeroVector.y;
+				unknown34.z = math::kZeroVector.z;
+				unknown40 = false;
+				unknown44 = 0;
 			}
 #endif
 
 			// FUNCTION: ENGINE 0x100E3BB0
-			// NONMATCHING: the destructor releases a ref with an inline test before the call (42.9 %)
-#ifdef NONMATCHING
 			LaserAction::~LaserAction()
 			{
+				if (drawable.IsValid())
+				{
+					engine::render::Drawable::Destroy(&drawable, 0);
+				}
 			}
-#endif
+
+			// FUNCTION: ENGINE 0x100E3A80
+			void LaserAction::Slot6()
+			{
+				if (drawable.IsValid())
+				{
+					engine::render::Drawable::Destroy(&drawable, 0);
+				}
+			}
 
 			// FUNCTION: ENGINE 0x100E44D0
 			fight::Action* LaserTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new LaserAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100E3C00
+			bool LaserAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetIntersectionPropertiesMessage message;
+				object->PostMessage(&message);
+				unknown44 = message.result;
+				return true;
 			}
 
 			// ---- actions end
@@ -235,7 +265,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::LaserTrack* core::Link<proto::fightitems::motion::LaserTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E3B20
 // FUNCTION: ENGINE 0x10187540
 // FUNCTION: ENGINE 0x10187550
 // FUNCTION: ENGINE 0x10187580

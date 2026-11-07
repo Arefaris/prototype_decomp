@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/render/async/drawable.h"
 
 namespace proto
 {
@@ -88,9 +89,9 @@ namespace proto
 
 				core::Link<LaserTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				int unknown2C;  // +0x2C
-				math::Vector unknown30;  // +0x30
-				float unknown3C;  // +0x3C
+				engine::render::Drawable drawable;  // +0x2C
+				float unknown30;  // +0x30
+				math::Vector unknown34;  // +0x34
 				bool unknown40;  // +0x40
 				unsigned char unknown41[0x3];
 				int unknown44;  // +0x44

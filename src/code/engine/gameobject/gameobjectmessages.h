@@ -210,6 +210,8 @@ namespace engine
 		CharacterIntentionAxis* GetAxis(int index);
 		// 0x107E30A0: the engine's second out-of-line copy of GetButton, the one the ai fight items call
 		CharacterIntentionButton* GetButtonOther(int index);
+		// 0x107E30C0: another copy of GetAxis (a unit that holds its own)
+		CharacterIntentionAxis* GetAxisCopy(int index);
 
 		unsigned char unknown0[0x10];
 		CharacterIntentionButton* buttons;  // +0x10
