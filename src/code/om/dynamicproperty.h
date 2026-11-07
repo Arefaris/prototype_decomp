@@ -209,7 +209,8 @@ namespace om
 		virtual ~DynamicPropertyBase()
 		{
 		}
-		int unknown4;
+		// The link of the property in the list of the object it belongs to
+		GarbageLink link;
 		// Slot 1: takes the value of another property of the same type
 		virtual void SetFrom(DynamicPropertyBase* other) = 0;
 		// Slot 2: takes the value a pointer refers to

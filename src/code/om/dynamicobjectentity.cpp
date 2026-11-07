@@ -4,6 +4,89 @@
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x105C1D10
+	DynamicObjectEntity::DynamicObjectEntity(const ClassName& newName) :
+		Entity(newName),
+		object(newName)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105C1B70
+	DynamicObjectEntity::~DynamicObjectEntity()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x105C1C00
+	bool DynamicObjectEntity::Slot3(void* argument)
+	{
+		return object.ReadText(static_cast<const TextValue*>(argument));
+	}
+
+	// FUNCTION: ENGINE 0x105C1C10
+	void DynamicObjectEntity::Slot4(void* argument)
+	{
+		object.WriteText(static_cast<TextValue*>(argument));
+	}
+
+	// FUNCTION: ENGINE 0x105C1C20
+	bool DynamicObjectEntity::Slot6(void* argument)
+	{
+		return object.ReadBinary(static_cast<BinaryStream*>(argument));
+	}
+
+	// FUNCTION: ENGINE 0x105C1C30
+	bool DynamicObjectEntity::Slot7(void* argument)
+	{
+		return object.WriteBinary(static_cast<BinaryStream*>(argument));
+	}
+
+	// FUNCTION: ENGINE 0x105C1E70
+	EntityTypeBase* DynamicObjectEntity::GetEntityType()
+	{
+		return FindEntityType(typeid(DynamicObjectEntity));
+	}
+
+	// FUNCTION: ENGINE 0x105C1BB0
+	DynamicPropertyBase* DynamicObjectEntity::GetFirstProperty()
+	{
+		return object.GetFirstProperty();
+	}
+
+	// FUNCTION: ENGINE 0x105C1BC0
+	DynamicPropertyBase* DynamicObjectEntity::GetNextProperty(DynamicPropertyBase* property)
+	{
+		return object.GetNextProperty(property);
+	}
+
+	// FUNCTION: ENGINE 0x105C1BD0
+	unsigned int DynamicObjectEntity::GetPropertyCount()
+	{
+		return object.GetPropertyCount();
+	}
+
+	// FUNCTION: ENGINE 0x105C1BE0
+	void DynamicObjectEntity::AddProperty(DynamicPropertyBase* property)
+	{
+		object.AddProperty(property);
+	}
+
+	// FUNCTION: ENGINE 0x105C1BF0
+	void DynamicObjectEntity::RemoveProperty(DynamicPropertyBase* property)
+	{
+		object.RemoveProperty(property);
+	}
+
+	// FUNCTION: ENGINE 0x105C1D80
+	DynamicPropertyBase* DynamicObjectEntity::FindProperty(ClassName propertyName)
+	{
+		return object.FindProperty(propertyName);
+	}
+
+	// FUNCTION: ENGINE 0x105C1DA0
+	DynamicPropertyBase* DynamicObjectEntity::CreateProperty(ClassName propertyName, MetaTypeBase* type)
+	{
+		return object.CreateProperty(propertyName, type);
+	}
 
 	// FUNCTION: ENGINE 0x105C1CE0
 	template const char* EntityType<om::DynamicObjectEntity>::AllocationTag();
