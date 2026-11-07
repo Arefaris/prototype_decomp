@@ -44,6 +44,30 @@ namespace proto
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x10476A80
+	pure3d::Pose* NPCAnimation::GetPuppetPose() const
+	{
+		return puppet->mPoseObject;
+	}
+
+	// FUNCTION: ENGINE 0x10476A90
+	pure3d::Pose* NPCAnimation::GetPose() const
+	{
+		return pose;
+	}
+
+	// FUNCTION: ENGINE 0x10476AA0
+	choreo::Puppet* NPCAnimation::GetPuppet() const
+	{
+		return puppet;
+	}
+
+	// FUNCTION: ENGINE 0x10476AB0
+	float NPCAnimation::GetLocomotionSpeed() const
+	{
+		return locomotionSpeed;
+	}
+
 	// FUNCTION: ENGINE 0x10476A50
 	void NPCAnimation::UpdatePose(float dt)
 	{
@@ -93,6 +117,41 @@ namespace proto
 	NPCDrawable::NPCDrawable() : drawable(0), animationList(0)
 	{
 	}
+
+	// FUNCTION: ENGINE 0x10478F40
+	NPCDrawable::~NPCDrawable()
+	{
+		core::SafeRelease((core::IRefCount*&)drawable);
+		core::SafeRelease(animationList);
+	}
+
+	// FUNCTION: ENGINE 0x10478F70
+	int NPCDrawable::PickAnimationIndex(int state, unsigned int seed) const
+	{
+		if (animationList->states[state].IsEmpty())
+		{
+			return -1;
+		}
+		return (seed / 7) % animationList->states[state].Size();
+	}
+
+	// FUNCTION: ENGINE 0x10479040
+	// NONMATCHING: the engine places the return of the animation of the entry behind the return of the first animation (71.9 %)
+#ifdef NONMATCHING
+	NPCAnimation* NPCDrawable::GetAnimation(int state, unsigned int seed) const
+	{
+		int pick = PickAnimationIndex(state, seed);
+		if (pick >= 0)
+		{
+			int entry = animationList->states[state][pick];
+			if (entry >= 0)
+			{
+				return animationList->animations[entry];
+			}
+		}
+		return animationList->animations[0];
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10478530
 	content::MemberList* NPCAnimation::GetMembers()
@@ -301,3 +360,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10478FE0
 // FUNCTION: ENGINE 0x10479090
 // FUNCTION: ENGINE 0x104790F0
+// FUNCTION: ENGINE 0x10478ED0
+// FUNCTION: ENGINE 0x10478F00
+// FUNCTION: ENGINE 0x10479010

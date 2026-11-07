@@ -79,6 +79,47 @@ namespace proto
 		return render;
 	}
 
+	// FUNCTION: ENGINE 0x10479400
+	ShaderPalette* NPCInstance::GetShaderPalette() const
+	{
+		ShaderPalette* palette = 0;
+		if (render != 0)
+		{
+			palette = render->shaderPalette;
+		}
+		return palette;
+	}
+
+	// FUNCTION: ENGINE 0x10479420
+	NPCAnimation* NPCInstance::GetAnimation() const
+	{
+		NPCDrawable* lodDrawable = render->GetLod(GetLod());
+		if (lodDrawable == 0)
+		{
+			return 0;
+		}
+		return lodDrawable->GetAnimation(GetUnknown10(), (unsigned int)this);
+	}
+
+	// FUNCTION: ENGINE 0x104793A0
+	void NPCInstance::SetPoseFromAnimation()
+	{
+		NPCDrawable* lodDrawable = render->GetLod(GetLod());
+		if (lodDrawable != 0)
+		{
+			int state = GetUnknown10();
+			NPCAnimation* animation = lodDrawable->GetAnimation(state, (unsigned int)this);
+			if (animation != 0)
+			{
+				pure3d::Pose* pose = animation->GetPose();
+				if (pose != 0)
+				{
+					drawable.SetPose(pose);
+				}
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10479460
 	void NPCInstance::SetScale(float newScale)
 	{

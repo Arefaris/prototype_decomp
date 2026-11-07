@@ -38,6 +38,12 @@ namespace proto
 		void SetObject(engine::GameObject* newObject);
 		void SetLod(int newLod);
 		void SetUnknown10(char newValue);
+		// 0x10479400: the shader palette of the render type
+		ShaderPalette* GetShaderPalette() const;
+		// 0x10479420: the animation the instance shows
+		NPCAnimation* GetAnimation() const;
+		// 0x104793A0: gives the drawable the pose of that animation
+		void SetPoseFromAnimation();
 		// 0x10479390: what the instance is drawn as (the type or one of its drawables)
 		NPCRender* GetRender() const;
 		// 0x10479620: makes the drawable of the type and shows it (left to the engine; name guess)

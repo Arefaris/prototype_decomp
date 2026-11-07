@@ -47,6 +47,12 @@ namespace proto
 		// vftable slot 5 (0x10476A40)
 		virtual bool Slot5();
 
+		// 0x10476A80 / 0x10476A90 / 0x10476AA0 / 0x10476AB0
+		pure3d::Pose* GetPuppetPose() const;
+		pure3d::Pose* GetPose() const;
+		choreo::Puppet* GetPuppet() const;
+		float GetLocomotionSpeed() const;
+
 		// 0x10476A50: copies the state of the puppet's pose into the pose of the animation
 		void UpdatePose(float dt);
 
@@ -148,8 +154,15 @@ namespace proto
 	public:
 		// 0x10478F20
 		NPCDrawable();
+		// 0x10478F40 (the deleting destructor is 0x10479010)
+		virtual ~NPCDrawable();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x10478F70: which of the animations of a state a pedestrian shows (-1 for a state without any)
+		int PickAnimationIndex(int state, unsigned int seed) const;
+		// 0x10479040: the animation of the state a pedestrian shows
+		NPCAnimation* GetAnimation(int state, unsigned int seed) const;
 
 		engine::render::DrawableArchetype* drawable;  // +8
 		NPCAnimationList* animationList;  // +0xC
