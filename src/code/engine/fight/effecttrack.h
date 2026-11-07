@@ -14,6 +14,8 @@
 #include "code/engine/render/async/drawable.h"
 #include "code/engine/render/effectmanager.h"
 #include "code/math/matrix.h"
+#include "code/math/quaternion.h"
+#include "code/math/vector4.h"
 #include "code/math/vector.h"
 
 namespace engine
@@ -658,6 +660,11 @@ namespace engine
 
 }
 
+namespace engine
+{
+	struct NISTransform;
+}
+
 namespace proto
 {
 	// The lookup of the parts of a drawable (RTTI unknown): the drawable attribute of a game object holds a pointer to
@@ -673,11 +680,22 @@ namespace proto
 		// 0x106DD6D0 (forwards to a member at +0x10)
 		int FindPart(const core::Name<core::CaseSensitiveKey>& name);
 
-		unsigned char unknown0[0x28];
+		// The rotation and the position of every part (16 bytes each)
+		unsigned char unknown0[0x18];
+		math::Quaternion* rotations;  // +0x18
+		math::Vector4* positions;  // +0x1C
+		unsigned char unknown20[8];
 		Part* parts;  // +0x28
-		unsigned char unknown2C[8];
+		unsigned char unknown2C[4];
+		// Three more tables of the transforms of the parts (0x40 bytes each; the second one is the one below)
+		engine::NISTransform* transforms30;  // +0x30
 		// The transform of every part (0x40 bytes each)
-		math::Matrix* matrices;  // +0x34
+		union
+		{
+			math::Matrix* matrices;  // +0x34
+			engine::NISTransform* transforms34;
+		};
+		engine::NISTransform* transforms38;  // +0x38
 	};
 
 	// The name of the attribute that holds a game object's part lookup (0x112834C8)

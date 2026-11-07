@@ -6,6 +6,7 @@
 #include "code/proto/behaviours/grabbehaviour.h"
 #include "code/proto/behaviours/poisonreactionbehaviour.h"
 #include "code/proto/behaviours/shieldhitreactionbehaviour.h"
+#include "code/proto/behaviours/shoulderconfixupbehaviour.h"
 #include "code/proto/render/protocolourvariationbehaviour.h"
 #include "code/proto/reflectedstubs.h"
 

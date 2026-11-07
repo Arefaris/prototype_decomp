@@ -345,16 +345,6 @@ namespace proto
 		unsigned char unknownTail[0x14 - sizeof(content::MetaLoadObject)];
 	};
 
-	class ShoulderConFixupProperties : public content::MetaLoadObject
-	{
-	public:
-		ShoulderConFixupProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
-	};
-
 	class AmbientExclusionVolume : public content::MetaLoadObject
 	{
 	public:
@@ -695,16 +685,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x15C - sizeof(engine::Behaviour)];
-	};
-
-	class ShoulderConFixupBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ShoulderConFixupBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x2C - sizeof(engine::Behaviour)];
 	};
 
 	class SquadCommanderBehaviour : public engine::Behaviour
