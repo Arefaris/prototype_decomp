@@ -1366,6 +1366,48 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x101FC1F0
+			bool CharacterizeFromReservedAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage message(&link.Get()->grabSlot);
+				object->SendMessage(&message);
+				gAISystem->soldierBudgets->Unknown10388130(message.grabbed);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FC360
+			bool CharacterizeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage message(&link.Get()->grabSlot);
+				object->SendMessage(&message);
+				engine::GameObjectHandle grabbed = message.grabbed;
+				if (grabbed.IsValid())
+				{
+					gAISystem->soldierBudgets->Unknown10388030(grabbed, true);
+					return true;
+				}
+				gAISystem->soldierBudgets->Unknown10388030(target, true);
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x101FC770
 			fight::Action* LodSteerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
