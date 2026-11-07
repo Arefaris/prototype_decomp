@@ -20,20 +20,34 @@ namespace content
 {
 	class LoadStream;
 
-	// The reads of a compressed file's data (class name guessed; not reconstructed)
+	class Decompressor;
+
+	// The reads of a compressed file's data (class name guessed): the unpacking of a block of memory by a decompressor
 	class CompressedReader
 	{
 	public:
+		// 0x1060DBE0: unpacks the data at buffer (bufferSize bytes) for the level, from the heap; size is the size
+		// of the unpacked data
+		CompressedReader(int level, void* newBuffer, unsigned int newBufferSize, unsigned int newSize, int heap);
+		// 0x1060DC20: waits for the decompressor and destroys it
+		~CompressedReader();
 		// 0x1060DC40: queues the read of size bytes into destination
 		void Read(void* destination, unsigned int size);
 		// 0x1060DC90: whether everything queued has been read
-		bool IsDone();
+		int IsDone();
 		// 0x1060DCC0: waits until it has
 		void Wait();
+		// 0x1060DCD0: reads and waits
+		void ReadWait(void* destination, unsigned int size);
 
-		unsigned char unknown0[0xC];
+		Decompressor* decompressor;
+		void* buffer;
+		unsigned int bufferSize;
 		// The size of the unpacked data
 		unsigned int size;
+		// How much of the packed data and of the unpacked data the reads have used so far
+		unsigned int consumed;
+		unsigned int produced;
 	};
 
 	// What the load manager reads a stream from: the path as a 256 character string, then the places the loaded
@@ -179,6 +193,10 @@ namespace content
 
 		// 0x1060BB60: reads the first chunk's header out of the stream (takes a reference to it)
 		explicit ChunkReader(ChunkStream* newStream);
+		// 0x1060B870: lets go of the stream
+		~ChunkReader();
+		// 0x1060B830: from the heap the second argument names
+		static void* operator new(unsigned int size, int heap);
 		// 0x1060B9E0: enters a chunk whose id has been read already (the id is the argument)
 		unsigned int BeginChunk(unsigned int id);
 
@@ -228,9 +246,9 @@ namespace content
 		virtual void LoadObject(core::IRefCount** object, ObjectName* name, ChunkReader* reader,
 			LoadInventory* inventory) = 0;
 
-		// The chunk id the constructor is given, and a word the derived loaders do not use
+		// The chunk id the constructor is given, and the reader the handler loads out of when it has one already
 		unsigned int chunkId;
-		int unknownC;
+		ChunkReader* reader;
 	};
 }
 

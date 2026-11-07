@@ -170,4 +170,28 @@ namespace pure3d
 		}
 		gRampTexture->Unlock();
 	}
+
+	// The unit's own copy of ReleaseRef<dxTexture> (the engine keeps one per unit; the name differs here so that the
+	// call reaches this copy and not the one of dxtexture.cpp)
+	template <class T> void ReleaseHeldRef(T** ref)
+	{
+		if (*ref != 0)
+		{
+			(*ref)->Release();
+			*ref = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061CB30
+	template void ReleaseHeldRef<dxTexture>(dxTexture** ref);
+
+	// FUNCTION: ENGINE 0x1061CCE0
+	void ReleaseDefaultTextures()
+	{
+		ReleaseHeldRef(&gBlackTexture);
+		ReleaseHeldRef(&gFlatNormalTexture);
+		ReleaseHeldRef(&gRampTexture);
+		ReleaseHeldRef(&gWhiteTexture);
+		ReleaseHeldRef(&gTransparentTexture);
+	}
 }
