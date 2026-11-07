@@ -101069,3 +101069,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?gAudioSystem@engine@@3PAVAudioSystem@1@A = 0x113164B0 ; data size:0x4 | engine::gAudioSystem: the audio system singleton (name guess)
 ?MarkReleased@AudioSound@engine@@QAEXXZ = 0x1086E000 ; function size:0x5 | engine::AudioSound::MarkReleased (name guess)
 ??$IsPresent@VAudioSound@engine@@@engine@@YA_NPAVAudioSound@0@@Z = 0x1086E2D0 ; function size:0xA | engine::IsPresent<AudioSound> (name guess)
+?SpawnObject@engine@@YA?AVGameObjectHandle@1@ABV?$Name@UCaseSensitiveKey@core@@@core@@0PBVMatrix@math@@@Z = 0x1086B960 ; function size:0x37 | engine::SpawnObject: spawns an object from the template of that name (name guess)
+?SpawnTemplateObject@engine@@YAPAVGameObject@1@ABV?$Name@UCaseSensitiveKey@core@@@core@@PAVMetaObjectTemplate@content@@PBVMatrix@math@@@Z = 0x10868150 ; function size:0xFE | engine::SpawnTemplateObject (not reconstructed; name guess)
+?FindTemplate@engine@@YAPAVMetaObjectTemplate@content@@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x1086B940 ; function size:0x20 | engine::FindTemplate: the template of that name in the root inventory (name guess)
