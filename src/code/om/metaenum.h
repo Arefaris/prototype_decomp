@@ -72,6 +72,25 @@ namespace om
 		{
 			return &typeid(E);
 		}
+		// Makes the description of the enumeration when there is none yet, and counts one more user of it (name guessed)
+		static void Create(const ClassName& newName)
+		{
+			MetaTypeBase* type = FindMetaType(typeid(E));
+			if (type == 0)
+			{
+				type = new MetaEnum(newName);
+			}
+			ThreadSafeRefCount::AddRef(&type->count);
+		}
+		// Lets go of one user of the description (name guessed)
+		static void ReleaseType()
+		{
+			MetaTypeBase* type = FindMetaType(typeid(E));
+			if (ThreadSafeRefCount::Release(&type->count) == 0 && type != 0)
+			{
+				delete type;
+			}
+		}
 		OM_ALLOCATION(MetaEnum);
 	};
 

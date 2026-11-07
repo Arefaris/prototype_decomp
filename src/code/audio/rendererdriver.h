@@ -45,6 +45,12 @@ namespace audio
 		WAVEFORMAT_EXTENSIBLE
 	};
 
+	// 0x105E7A10 / 0x105E7B30 (names guessed): the reflection of WAVEFORMAT is made by the first user and let go by the last
+	void RegisterWaveFormatMeta();
+	void UnregisterWaveFormatMeta();
+	// 0x105E7990 (name guessed): lets go of the reflection of the driver class and of FoldDownType
+	void UnregisterRendererDriverMeta();
+
 	class RendererDriver
 	{
 	public:

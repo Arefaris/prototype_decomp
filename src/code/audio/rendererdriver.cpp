@@ -232,6 +232,14 @@ namespace audio
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x105E6710
+	template void MetaEnum<audio::FoldDownType>::Create(const ClassName&);
+	// FUNCTION: ENGINE 0x105E6770
+	template void MetaEnum<audio::FoldDownType>::ReleaseType();
+	// FUNCTION: ENGINE 0x105E6870
+	template void MetaEnum<audio::WAVEFORMAT>::Create(const ClassName&);
+	// FUNCTION: ENGINE 0x105E68D0
+	template void MetaEnum<audio::WAVEFORMAT>::ReleaseType();
 	// FUNCTION: ENGINE 0x105E4FB0
 	template MetaEnum<audio::FoldDownType>::MetaEnum(const ClassName&);
 	// FUNCTION: ENGINE 0x105E4FD0
@@ -569,5 +577,66 @@ namespace audio
 				surroundChannelMap.items[i] = newSurroundChannelMap.items[i];
 			}
 		}
+	}
+}
+
+namespace audio
+{
+	// The number of users of the reflection of WAVEFORMAT (0x112768F4, name guessed)
+	int gWaveFormatMetaUsers = 0;
+
+	// FUNCTION: ENGINE 0x105E7A10
+	void RegisterWaveFormatMeta()
+	{
+		if (gWaveFormatMetaUsers == 0)
+		{
+			{
+				om::String text("WAVEFORMAT", false);
+				om::MetaEnum<WAVEFORMAT>::Create(om::MakeClassName(text));
+			}
+			{
+				om::String text("EX", true);
+				om::ClassName name = om::MakeClassName(text);
+				om::MetaTypeBase* type = om::FindMetaType(typeid(WAVEFORMAT));
+				static_cast<om::MetaEnumBase*>(type)->AddValue(name, 0);
+			}
+			{
+				om::String text("EXTENSIBLE", true);
+				om::ClassName name = om::MakeClassName(text);
+				om::MetaTypeBase* type = om::FindMetaType(typeid(WAVEFORMAT));
+				static_cast<om::MetaEnumBase*>(type)->AddValue(name, 1);
+			}
+		}
+		gWaveFormatMetaUsers++;
+	}
+
+	// FUNCTION: ENGINE 0x105E7B30
+	void UnregisterWaveFormatMeta()
+	{
+		gWaveFormatMetaUsers--;
+		if (gWaveFormatMetaUsers == 0)
+		{
+			om::MetaEnum<WAVEFORMAT>::ReleaseType();
+		}
+	}
+}
+
+namespace audio
+{
+	// FUNCTION: ENGINE 0x105E7990
+	void UnregisterRendererDriverMeta()
+	{
+		om::MetaEnum<FoldDownType>::ReleaseType();
+		om::MetaTypeBase*& cache = om::MetaTypeCache<RendererDriver>::type;
+		if (cache == 0)
+		{
+			cache = om::FindMetaType(typeid(RendererDriver));
+		}
+		om::MetaTypeBase* type = cache;
+		if (om::ThreadSafeRefCount::Release(&cache->count) == 0 && type != 0)
+		{
+			delete type;
+		}
+		cache = 0;
 	}
 }
