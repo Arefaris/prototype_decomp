@@ -9,7 +9,11 @@
 #include "code/engine/frontend/frontend.h"
 #include "code/engine/function.h"
 #include "code/engine/message.h"
+#include "code/proto/architecture/frontendpackages.h"
+#include "code/proto/freeroamevents/freventmanager.h"
+#include "code/proto/smarthint/smarthintmanager.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
+#include "code/engine/database/gamedatabase.h"
 
 namespace engine
 {
@@ -23,14 +27,346 @@ namespace engine
 	void RequestGameStateByIndex(int index, int mode);
 }
 
+namespace engine
+{
+	// The front end as the game state sees it (the same class as femovie.cpp's)
+	class FrontEnd
+	{
+	public:
+		// 0x10872920: remembers the name of the screen and tells the movie to forward to it
+		void Unknown10872920(const char* newName);
+	};
+	// 0x10864330
+	FrontEnd* Unknown10864330();
+	// 0x10872840: calls a function of the front end's movie with one text argument (name unknown)
+	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* argument);
+	// 0x1088A9D0 / 0x1088A690 / 0x108644B0 / 0x1085FC10 / 0x10864440 (names unknown)
+	void Unknown1088A9D0(int value);
+	void Unknown1088A690();
+	void Unknown108644B0(int a, int b);
+	void Unknown1085FC10(int value);
+	void UpdateScreenCentre();
+	// 0x108388A0 / 0x10837A50
+	void AddRealTimeTask(IRealTimeTask* task, unsigned int mask, int priority, unsigned int data);
+	void RemoveRealTimeTask(IRealTimeTask* task);
+	// 0x10882950: whether the game disc or the storage was taken out
+	bool IsMediaRemoved();
+}
+
+namespace scaleformp3d
+{
+	// 0x1095C4D0
+	bool RemoveFlashFile(const char* name, int heap);
+}
+
 namespace proto
 {
+	// The head-up display's elements the pause state shows and hides (names unknown)
+	class HudScreen
+	{
+	public:
+		// 0x104AB600 / 0x104ABC60
+		void Unknown104AB600();
+		void Unknown104ABC60();
+
+		int mode;  // +0
+		int unknown4;
+		bool ready;  // +8
+	};
+
+	class HudLayer
+	{
+	public:
+		// 0x104AC0F0 / 0x104AC120
+		void Unknown104AC0F0();
+		void Unknown104AC120();
+	};
+
+	class PauseMenuState
+	{
+	public:
+		// 0x1049D610, 0x1049B4F0, 0x1049B450, 0x1049B580, 0x1049B490, 0x1049C780 (names unknown)
+		void Unknown1049D610();
+		void Unknown1049B4F0();
+		void Unknown1049B450();
+		void Unknown1049B580();
+		void Unknown1049B490();
+		void Unknown1049C780();
+	};
+	// 0x1049B3D0
+	PauseMenuState* GetPauseMenuState();
+
+	class FrontEndHud
+	{
+	public:
+		// 0x104B0D00 / 0x104B0CF0
+		HudScreen* Unknown104B0D00();
+		HudLayer* Unknown104B0CF0();
+		// 0x104B1D80 / 0x104B1DD0
+		void Unknown104B1D80(int value);
+		void Unknown104B1DD0(int value);
+	};
+	FrontEndHud* GetFrontEndHud();
+
+	class SaveManager
+	{
+	public:
+		// 0x10486BF0
+		void Unknown10486BF0(float dt, int unused);
+	};
+	SaveManager* GetSaveManager();
+
+	// 0x1126E4F0 (profilekeys.cpp)
+	extern core::Name<core::CaseSensitiveKey> gProtoTutorialNum;
+	// 0x104DEFD0 (name unknown)
+	void Unknown104DEFD0();
+	// 0x110A1374 / 0x110A137C: the movies the front end loads (names guessed)
+	extern const char* gFrontEndFlashFiles[];
+	extern unsigned int gFrontEndFlashFileCount;
+
 	#define PAUSESTATE_FILE "..\\..\\..\\code\\proto\\architecture\\pausestate.cpp"
 
 	// The name a slot group is registered under
 	static inline core::Name<core::CaseSensitiveKey> MakeName(const char* text)
 	{
 		return core::Name<core::CaseSensitiveKey>(text, 1);
+	}
+
+	// FUNCTION: ENGINE 0x104E6940
+	void GamePauseState::Enter()
+	{
+		unknown8A = false;
+		if (unknown8D)
+		{
+			GetPauseMenuState()->Unknown1049D610();
+			unknown8E = 0;
+		}
+		else if (!unknown8B)
+		{
+			GetFrontEndHud()->Unknown104B0D00()->Unknown104AB600();
+			if (!GetFrontEndHud()->Unknown104B0D00()->ready)
+			{
+				do
+				{
+					engine::YieldFiber();
+				}
+				while (!GetFrontEndHud()->Unknown104B0D00()->ready);
+			}
+			engine::Unknown1085FC10(1);
+			if (unknown8C)
+			{
+				GetPauseMenuState()->Unknown1049B4F0();
+			}
+			else
+			{
+				GetFrontEndHud()->Unknown104B0CF0()->Unknown104AC0F0();
+				GetPauseMenuState()->Unknown1049D610();
+			}
+		}
+		else
+		{
+			GetPauseMenuState()->Unknown1049B450();
+		}
+		engine::Unknown10864330()->Unknown10872920("NONE");
+		engine::YieldFiber();
+		for (unsigned int i = 0; i < gFrontEndFlashFileCount; i++)
+		{
+			scaleformp3d::RemoveFlashFile(gFrontEndFlashFiles[i], 0x72);
+		}
+		if (unknown88)
+		{
+			LoadFrontEndPackages("art/hud/fe_woi.p3d", "FETransient");
+			engine::Unknown10872840(engine::Unknown10864330(), "AS_InstallPauseMenuFESounds", "");
+			engine::Unknown10864330()->Unknown10872920("WEBOFINTRIGUE");
+		}
+		else if (unknown8C)
+		{
+			LoadFrontEndPackages("art/hud/fe_endcredits.p3d", "FETransient");
+			engine::Unknown1088A9D0(2);
+			engine::Unknown10864330()->Unknown10872920("ENDCREDITS");
+		}
+		else if (unknown8B)
+		{
+			engine::Unknown1088A9D0(engine::gGameDatabase->GetInt(gProtoTutorialNum, 0, 0));
+			engine::Unknown10872840(engine::Unknown10864330(), "AS_InstallInGameFESounds", "");
+			engine::Unknown10864330()->Unknown10872920("TUTORIAL");
+		}
+		else if (!unknown8D)
+		{
+			LoadFrontEndPackages("art/hud/fe_pause.p3d", "FETransient");
+			engine::Unknown1088A9D0(0x10);
+			engine::Unknown10872840(engine::Unknown10864330(), "AS_InstallPauseMenuFESounds", "");
+			engine::Unknown10864330()->Unknown10872920(unknown89 ? "POWERPURCHASE" : "MAP");
+			GetFrontEndHud()->Unknown104B1D80(0xF);
+			unknown90 = true;
+			gSmartHintManager->ReadSetting();
+			gFREventManager->Unknown10588520();
+		}
+		engine::UpdateScreenCentre();
+		engine::Unknown108644B0(1, 0);
+		engine::AddRealTimeTask(this, 1, 1, (unsigned int)"Paused Task");
+		engine::PauseState::Enter();
+	}
+
+	// FUNCTION: ENGINE 0x104E6C70
+	void GamePauseState::Leave()
+	{
+		if (!unknown8D && !unknown8B && unknown8A)
+		{
+			int mode = GetFrontEndHud()->Unknown104B0D00()->mode;
+			if (mode != 0 && mode != 1)
+			{
+				GetFrontEndHud()->Unknown104B0D00()->Unknown104ABC60();
+				if (!GetFrontEndHud()->Unknown104B0D00()->ready)
+				{
+					do
+					{
+						engine::YieldFiber();
+					}
+					while (!GetFrontEndHud()->Unknown104B0D00()->ready);
+				}
+			}
+		}
+		engine::PauseState::Leave();
+		if (unknown90)
+		{
+			GetFrontEndHud()->Unknown104B1DD0(0xF);
+			unknown90 = false;
+		}
+		engine::Unknown10864330()->Unknown10872920("NONE");
+		engine::YieldFiber();
+		engine::Unknown108644B0(0, 0);
+		engine::Unknown1088A690();
+		if (unknown8F)
+		{
+			Unknown104DEFD0();
+			UnloadFrontEndPackages("FETransient");
+		}
+		else
+		{
+			if (!unknown8D && !unknown8B)
+			{
+				LoadFrontEndPackages("art/hud/fe_ingame.p3d", "FETransient");
+			}
+			if (!unknown8A)
+			{
+				engine::Unknown10864330()->Unknown10872920("IGHUD");
+			}
+		}
+		engine::RemoveRealTimeTask(this);
+		if (!unknown8B && !unknown88 && !unknown8D && !unknown8C)
+		{
+			gSmartHintManager->SendExitPause();
+		}
+		if (unknown8D)
+		{
+			GetPauseMenuState()->Unknown1049C780();
+		}
+		else if (!unknown8B)
+		{
+			engine::Unknown1085FC10(0);
+			if (unknown8C)
+			{
+				GetPauseMenuState()->Unknown1049B580();
+			}
+			else
+			{
+				GetFrontEndHud()->Unknown104B0CF0()->Unknown104AC120();
+				GetPauseMenuState()->Unknown1049C780();
+			}
+		}
+		else
+		{
+			GetPauseMenuState()->Unknown1049B490();
+		}
+		unknown88 = false;
+		unknown89 = false;
+		unknown8B = false;
+		unknown8C = false;
+		unknown8A = false;
+		unknown8D = false;
+	}
+
+	// FUNCTION: ENGINE 0x104E6EC0
+	void GamePauseState::Update(engine::UpdateContext context)
+	{
+		GetSaveManager()->Unknown10486BF0(context.dt, 0);
+		if (unknown81 || unknown80)
+		{
+			switch (unknown7C)
+			{
+			case 0:
+				{
+					int mode = GetFrontEndHud()->Unknown104B0D00()->mode;
+					if (mode == 0 || mode == 1)
+					{
+						if (GetFrontEndHud()->Unknown104B0D00()->ready)
+						{
+							engine::Unknown10864330()->Unknown10872920("NONE");
+							unknown7C = 1;
+						}
+					}
+				}
+				break;
+			case 1:
+				{
+					unsigned int count = unknown84;
+					unknown84 = count + 1;
+					if (count > 2)
+					{
+						unknown7C = 2;
+						unknown84 = 0;
+					}
+				}
+				break;
+			case 2:
+				engine::Unknown1088A690();
+				BeginFrontEndTransientUnload();
+				unknown7C = 3;
+				break;
+			case 3:
+				if (FinishFrontEndTransientUnload())
+				{
+					unknown7C = 4;
+				}
+				break;
+			case 4:
+				StartFrontEndTransientLoad(unknown81 ? "art/hud/fe_pause.p3d" : "art/hud/fe_woi.p3d", "FETransient");
+				unknown7C = 5;
+				break;
+			case 5:
+				if (IsFrontEndTransientLoaded())
+				{
+					unknown7C = 6;
+				}
+				break;
+			case 6:
+				engine::Unknown10864330()->Unknown10872920(unknown81 ? "MAP" : "WEBOFINTRIGUE");
+				if (unknown81)
+				{
+					engine::Unknown1088A9D0(0x10);
+					GetFrontEndHud()->Unknown104B1D80(0xF);
+					unknown90 = true;
+					unknown7C = 7;
+				}
+				else
+				{
+					GetFrontEndHud()->Unknown104B1DD0(0xF);
+					unknown90 = false;
+					unknown7C = 7;
+				}
+				break;
+			case 7:
+				unknown81 = false;
+				unknown80 = false;
+				break;
+			}
+		}
+		if (unknown8D && !unknown8E && !unknown8A && !engine::IsMediaRemoved())
+		{
+			Slot3();
+			unknown8E = 1;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x104E7100
