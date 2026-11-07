@@ -108,6 +108,17 @@ namespace proto
 		return false;
 	}
 
+	// The centre is a Vector4 but the caller's pointer (the vftable takes a Vector) is followed by a fourth float in
+	// the engine too
+	// FUNCTION: ENGINE 0x102CC8D0
+	void BloodSplatter::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = 0.0f;
+		centre[0].y = 0.0f;
+		centre[0].z = 0.0f;
+		centre[1].x = 10000.0f;
+	}
+
 	// FUNCTION: ENGINE 0x102CC290
 	int BloodSplatter::Unknown8()
 	{
@@ -125,3 +136,8 @@ namespace proto
 	{
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102CC320
+// FUNCTION: ENGINE 0x102CC390
+// FUNCTION: ENGINE 0x102CBFF0

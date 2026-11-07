@@ -30,6 +30,13 @@ namespace proto
 		// vftable slot 6 (0x102C4C70)
 		virtual void OnMessage(engine::Message* message);
 
+		// 0x102C4930 / 0x102C49D0: hits of the two sources begin / end (the messages of type 0x1E, ids 0x20 and 0x21); the
+		// object reflects while any hit goes on
+		void OnHitsBegin(engine::Message* message);
+		void OnHitsEnd(engine::Message* message);
+		// 0x102C4B10: attachment messages go on to the object this one is attached to
+		void OnAttachmentMessage(engine::Message* message);
+
 		engine::HandleBase attachedTo;  // +0xC
 		int hitsA;  // +0x10
 		int hitsB;  // +0x14

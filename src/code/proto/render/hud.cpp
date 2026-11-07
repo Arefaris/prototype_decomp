@@ -109,6 +109,17 @@ namespace proto
 		return false;
 	}
 
+	// The centre is a Vector4 but the caller's pointer (the vftable takes a Vector) is followed by a fourth float in
+	// the engine too
+	// FUNCTION: ENGINE 0x102D84F0
+	void HUD::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = 0.0f;
+		centre[0].y = 0.0f;
+		centre[0].z = 0.0f;
+		centre[1].x = 10000.0f;
+	}
+
 	// FUNCTION: ENGINE 0x102D8100
 	int HUD::Unknown8()
 	{
@@ -209,6 +220,17 @@ namespace proto
 		box->min.z = -10000.0f;
 	}
 
+	// The centre is a Vector4 but the caller's pointer (the vftable takes a Vector) is followed by a fourth float in
+	// the engine too
+	// FUNCTION: ENGINE 0x102D8FF0
+	void LaserSight::GetCentre(math::Vector* centre)
+	{
+		centre[0].x = 0.0f;
+		centre[0].y = 0.0f;
+		centre[0].z = 0.0f;
+		centre[1].x = 10000.0f;
+	}
+
 	// FUNCTION: ENGINE 0x102D8790
 	bool LaserSight::FillBatch(void* batch, pure3d::PrimitiveState* state, bool* unknown)
 	{
@@ -216,3 +238,11 @@ namespace proto
 		return false;
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D8110
+// FUNCTION: ENGINE 0x102D8140
+// FUNCTION: ENGINE 0x102D87F0
+// FUNCTION: ENGINE 0x102D8820
+// FUNCTION: ENGINE 0x102D7C40
+// FUNCTION: ENGINE 0x102D8640

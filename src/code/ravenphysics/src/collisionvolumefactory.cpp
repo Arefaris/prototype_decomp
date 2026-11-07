@@ -996,3 +996,6 @@ template class VectorMemberGetSetter<ravenphysics::CollisionOBBFactory>;
 // FUNCTION: ENGINE 0x1067C460
 // FUNCTION: ENGINE 0x1067C610
 // FUNCTION: ENGINE 0x1067C680
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102CA470

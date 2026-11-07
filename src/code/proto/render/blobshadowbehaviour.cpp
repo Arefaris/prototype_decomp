@@ -99,3 +99,7 @@ namespace proto
 // FUNCTION: ENGINE 0x102EE1C0
 // FUNCTION: ENGINE 0x102EE200
 // FUNCTION: ENGINE 0x102EE620
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102CD490
+// FUNCTION: ENGINE 0x102CD4B0

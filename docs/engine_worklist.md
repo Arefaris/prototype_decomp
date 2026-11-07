@@ -7695,3 +7695,27 @@ marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to share
   `Land` and `DumbGoto` updates), the `Request*Condition` family (the per-player request table of the ai system), `HaveTokenCondition` / `TargetIsHumanCondition` / `FloatShotAllowedCondition` (messages with lists or global names),
   the height grid, navmesh and array helpers of the circle unit whose class no unit names, `ResetPhysicVelocitiesAction` (ravenphysics objects), and the actions whose constructors build arrays (`IntersectionCirclePatrol`,
   `LodGotoFixedDestination`, `Message`, `PeriodicMessage`).
+## sn-cz: the range 0x102C0000 - 0x102E0000 (health, grab and render units, second pass)
+- Kept copies: 268 unannotated functions of the range that the units' objects already defined under the mapped names (template instances of the array helpers and reflection, inline members, deleting destructors) got their
+  bare annotations in the trailers of the units found with the objects (`poisonreactionbehaviour.cpp`, `prototypehealthbehaviour.cpp`, `grabbehaviour.cpp`, `grabbablebehaviour.cpp`, `bullettracer.cpp`, `deformshaderbehaviour.cpp`, ...).
+- `proto/render/bullettracer.h/.cpp`: `BulletTracer` (constructor, destructor, `Draw`, the box, centre and batch slots), `BulletTracerState` (both constructors, `Unknown3`, `Unknown6`, `GetDuration`, the box slot) and the setup record
+  `BulletTracerSetup` (0xE4 bytes: the two ribbons, the delay, the object it follows, the muzzle's place in it). `BulletTracerState::Update` is NONMATCHING (47 %: the engine reads the updated position back from the
+  object, ours forwards the stored values); `UpdateMuzzle` (0x102CE990, matrix work) is declared and left to the engine. `DrawLayer` of the engine takes the name as `const char*`: the declaration without body maps to it.
+- `proto/render/hud.cpp`, `bloodsplatter.cpp`: the centre slot of the three primitives (a `Vector` followed by a fourth float, as in the gpu skin) and the destructors of the three states (the 5-byte jumps to the base destructor, told apart by
+  their place in front of the copy constructors).
+- `proto/render/lodrenderbehaviour.h/.cpp`: `LODLevel` is a real class now (constructors, assignment, `Hide`, `Destroy`, `Acquire` / `Release` of the uses as first and last level of the shown range, `ApplyPalette`); the behaviour got
+  `ShowLevels` / `HideLevels` (the behaviour is not read), `AddLevel`, `UpdateFadeIn`, `OnPostedMessage`, `OnActiveChanged`, `ChangeDrawableLevels`, `ApplyPaletteToLevels`, `ApplyAvailablePalette`, `DestroyLevels`, `ResetLevels`,
+  `SetAnimation`, `SetBound`, `ReleaseLevelsForPackage`, `OnAttributeUpdated`. NONMATCHING: `UpdateForced` (50 %, the clamps and the x87 temporaries), `OnSegmentMessage` (92 %, the loop index and its byte offset swap
+  registers) and `OnPlaybackMessage` (31 %). Not done: the destructor (the arrays are `ArrayDynamic` + a word in the engine, not `ArrayDynamicHeap`), `OnMessage`, the streaming load 0x102DBA70, the accessor based reflection, `PickPaletteEntry`.
+- `proto/render/deformshaderbehaviour.h/.cpp`: the behaviour owns a `DeformShaderModifier` at +0xC (members `current`), constructor, destructor, `OnMessage`, `ClearDents`, `GetDrawable` (with `GetHighLODMessage`),
+  `DentBuffer::Clear`; `DentBuffer::operator=` is NONMATCHING (70 %, the middle of the source is formed in another register); `AddCollisionDent` (0x102D44B0, 680 bytes of matrix work) is declared and left to the engine.
+- `proto/behaviours/grabbablebehaviour.h/.cpp`: `GrabbableBehaviour` and `GrabbableStaticBehaviour` have their constructors, destructors, `Slot1` / `Slot8`, the static one's `Slot1` (a jump to the base's) and the unit's own release helper of
+  the transition states (`TransitionStateRef::Release`); `OnMessage`, `Slot9` and the other slots are declared and left to the engine. `engine::animation::AttachableBehaviour` (reflectedclasses2.h) declares its destructor and
+  slots 1, 4, 5 and 6 (mapped in symbols.txt) so that the grab classes' vftables are right.
+- `proto/behaviours/shieldhitreactionbehaviour.cpp`: `OnHitsBegin`, `OnHitsEnd` and `OnMessage` match; `OnAttachmentMessage` (0x102C4B10) is NONMATCHING (53 %: the engine tests the attached object's handle from the table three times).
+  `LODRenderBehaviour::PickPaletteEntry` (0x102D9B50) is NONMATCHING (36 %, the inlined generator's registers).
+- Findings: a loop over an array of drawables that tests `IsValid` before the call and reloads the array base after each call matches with `int count = levels.Size(); for (int i = 0; i < count; i++) levels.begin[i]...`; `x = a; if (x < b) x = b;`
+  clamps are the compare-and-branch forms (`v = dt * k + v;` ... `if (!(target > v)) v = target;`), not `Min` / `Max`; a bool test chain `if (a == 0 && b == 0) ... else if (a == 0 && c)` compiles to the engine's shared tail only as an else-if chain
+  without locals; the hidden return slot is only initialised early when the function builds its result in a named local and assigns it in both branches.
+- Shared header changes: `proto/shaders/shaderpalette.h` (`ShaderPaletteData::Apply`, a declaration), `proto/render/lodrenderbehaviour.h` (see above), `proto/render/deformshaderbehaviour.h` (`GetHighLODMessage`, the member `current`,
+  `DentBuffer::Clear`). symbols.txt: the addresses of the annotated kept copies 0x102CD490 and 0x102D22C0 got their sizes.

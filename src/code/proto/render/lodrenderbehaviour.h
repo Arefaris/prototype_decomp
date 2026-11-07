@@ -6,6 +6,7 @@
 #define PROTO_RENDER_LODRENDERBEHAVIOUR_H
 
 #include "code/container/arraydynamic.h"
+#include "code/core/name.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/async/drawable.h"
@@ -60,15 +61,28 @@ namespace proto
 	// 0x11075120: a multiplier on every level's fade distance (name guess)
 	extern float gLODDistanceScale;
 
-	// One level of the object: the drawable shown for it (8 bytes; the two words after the handle are unknown)
+	// One level of the object: the drawable shown for it (8 bytes). The two counts say how many times the level is used as
+	// the first and as the last one of the range that is shown (the level is on screen while either is not zero)
 	struct LODLevel
 	{
+		// 0x102D9250 (a level of a drawable that is not used yet), 0x102D9980 (a copy), 0x102D9270 (the assignment)
+		explicit LODLevel(engine::render::Drawable newDrawable);
+		LODLevel(const LODLevel& other);
+		LODLevel& operator=(const LODLevel& other);
+		// 0x102D9450: lets the drawable go off the screen and forgets the uses
+		void Hide();
+		// 0x102D92A0: destroys the drawable
+		void Destroy();
+		// 0x102D92D0 / 0x102D93A0: a use as the first and/or as the last level of the range begins / ends; the drawable is
+		// registered with the first use and unregistered with the last one
+		void Acquire(bool asFirst, bool asLast);
+		void Release(bool asFirst, bool asLast);
 		// 0x102D9470: gives the drawable the shader inputs of one entry of the shader palette
 		void ApplyPalette(ShaderPaletteData* data);
 
 		engine::render::Drawable drawable;
-		unsigned short unknown4;
-		unsigned short unknown6;
+		unsigned short firstUses;
+		unsigned short lastUses;
 	};
 
 	// One drawable that is ready to be shown (0x10 bytes: the source the instance is made from, then unknown words)
@@ -83,6 +97,13 @@ namespace proto
 	{
 		int unknown0;
 		pure3d::Pose* pose;
+	};
+
+	// The attribute that names the palette entry the object asks for (its first word is unknown)
+	struct LODIndexSource
+	{
+		int unknown0;
+		int value;
 	};
 
 	struct LODScaleSource
@@ -125,12 +146,37 @@ namespace proto
 		void UpdateForced(float dt);
 		// 0x102DB9F0: makes the level of a ready drawable and adds it to the table
 		void AddLevel(const LODReady* ready);
+		// 0x102D9ED0 / 0x102DA090: the messages of type 8 and 10 are handed to every level's drawable
+		void OnSegmentMessage(engine::Message* message);
+		void OnPlaybackMessage(engine::Message* message);
+		// 0x102DB2E0: an attribute of the object changed (the scale, the index of the palette entry)
+		void OnAttributeUpdated(engine::Message* message);
+		// 0x102D9B50: picks the palette entry from the attribute that asks for one (name guess)
+		void PickPaletteEntry();
+		// 0x102DB450: the drawables are bound or not (bit 0 of the flags)
+		void SetBound(bool bound);
+		// 0x102DB3B0: the drawables of a package go (the package named at +0x88 is not the empty one) or wait for it (bit 3)
+		void ReleaseLevelsForPackage();
+		// 0x102D9AB0: gives every level the shader inputs of one entry of the palette; 0x102D9B10: the entry that was picked
+		void ApplyPaletteToLevels(ShaderPaletteData* data);
+		void ApplyAvailablePalette();
+		// 0x102DA7E0: lets the pose and the drawables of the levels go; 0x102DA850: puts every level off the screen and
+		// forgets the range that is shown
+		void DestroyLevels();
+		void ResetLevels();
+		// 0x102DA910
+		void SetAnimation(pure3d::Animation* newAnimation);
+		// 0x102D9500 / 0x102D9540: the levels from the first to the last begin / stop being used (the behaviour is not read)
+		void ShowLevels(const LODLevel* first, const LODLevel* last);
+		void HideLevels(const LODLevel* first, const LODLevel* last);
 
 		// +0x0C: the source of the pose handed to the drawables
 		LODPoseSource* poseSource;
 		// +0x10: the scale the drawables are given
 		LODScaleSource* scaleSource;
-		unsigned char unknown14[0x1C - 0x14];
+		unsigned char unknown14[4];
+		// +0x18: the attribute of the entry asked for
+		LODIndexSource* paletteIndexSource;
 		// +0x1C / +0x24: the first and the last level shown now (name guess)
 		LODLevel* shownFirst;
 		// +0x20 / +0x28: the ones shown before the level was forced (name guess)
@@ -159,10 +205,12 @@ namespace proto
 		// +0x6C / +0x70: the fade in position and its target (both 1 once it is done)
 		float fadeInPosition;
 		float fadeInTarget;
-		unsigned char unknown74[4];
+		float fadeInScale;
 		// +0x78: a multiplier on this behaviour's fade distance
 		float fadeScale;
-		unsigned char unknown7C[0x90 - 0x7C];
+		unsigned char unknown7C[0x88 - 0x7C];
+		// +0x88: the package the drawables come from (the empty name: none)
+		core::Name<core::CaseSensitiveKey> packageName;
 		// +0x90: the heap of the bone data, +0x94 the data, +0x98 its size (names guessed)
 		int heap;
 		void* boneData;

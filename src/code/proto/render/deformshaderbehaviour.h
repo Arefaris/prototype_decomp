@@ -69,6 +69,11 @@ namespace proto
 		{
 			end = dents;
 		}
+		// 0x102D43E0
+		void Clear()
+		{
+			end = dents;
+		}
 		bool IsEmpty() const
 		{
 			return dents == end;
@@ -112,6 +117,21 @@ namespace proto
 		float bias;
 	};
 
+	// Asks the object for its drawable of the highest level of detail (RTTI proto::GetHighLODMessage; vftable 0x10DEA378,
+	// type 0x3D, id 1; the object is 0x1C bytes)
+	struct GetHighLODMessage : public ProtoRenderMsg
+	{
+	public:
+		GetHighLODMessage() : ProtoRenderMsg(1)
+		{
+		}
+		virtual ~GetHighLODMessage()
+		{
+		}
+
+		engine::render::Drawable drawable;
+	};
+
 	class DeformShaderBehaviour : public engine::Behaviour
 	{
 	public:
@@ -146,22 +166,24 @@ namespace proto
 			unsigned int bias;
 		};
 
+		// 0x102D4880
+		explicit DeformShaderBehaviour(engine::GameObject* newOwner);
 		// The vftable (0x10DEA3CC): slots 2 and 3 are the base's, the last one is the scalar deleting destructor
 		virtual void Slot0();
 		virtual void Slot1();
 		virtual void Update(float dt, unsigned short mask);
-		virtual void OnPostedMessage(engine::Message* message);
 		virtual void OnMessage(engine::Message* message);
 		virtual ~DeformShaderBehaviour();
 
+		// 0x102D44B0: a hit of type 0xB makes a dent
+		void AddCollisionDent(engine::Message* message);
+		// 0x102D42C0: forgets the dents and tells the object the level of detail is not biased
+		void ClearDents();
 		// 0x102D3FA0: the drawable of the object (asks it with a GetHighLODMessage)
 		engine::render::Drawable GetDrawable();
 
-		unsigned char unknownC[4];
-		// +0x10: the dents, advanced by Update
-		DentBuffer dents;
-		// +0x94: the bias handed to the modifier, +0x98 how many dents are live
-		unsigned int bias;
+		// +0xC: the dents, advanced by Update, and the bias handed to the modifier (+0x94); +0x98 is how many dents are live
+		DeformShaderModifier current;
 		int count;
 		// +0x9C: the dents changed and the modifier has to run again
 		bool dirty;

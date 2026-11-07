@@ -22,7 +22,14 @@ namespace proto
 	class GrabbableBehaviour : public engine::animation::AttachableBehaviour
 	{
 	public:
+		// 0x102C5410
 		explicit GrabbableBehaviour(engine::GameObject* newOwner);
+		// 0x102C5480 (the deleting destructor is 0x102C5840)
+		virtual ~GrabbableBehaviour();
+		// vftable slots 1 (0x102C4FB0), 6 (0x102C6390) and 8 (0x102C5070)
+		virtual void Slot1();
+		virtual void OnMessage(engine::Message* message);
+		virtual void Slot8();
 		// 0x102C4F30
 		static content::ClassInfo* GetClassInfo();
 		// 0x102C5700
@@ -40,7 +47,14 @@ namespace proto
 	class GrabbableStaticBehaviour : public GrabbableBehaviour
 	{
 	public:
+		// 0x102C54E0
 		explicit GrabbableStaticBehaviour(engine::GameObject* newOwner);
+		// 0x102C5540 (the deleting destructor is 0x102C59F0)
+		virtual ~GrabbableStaticBehaviour();
+		// vftable slots 1 (0x102C5090: the base's), 6 (0x102C6650) and 9 (0x102C66E0)
+		virtual void Slot1();
+		virtual void OnMessage(engine::Message* message);
+		virtual void Slot9();
 		// 0x102C4F70
 		static content::ClassInfo* GetClassInfo();
 		// 0x102C5BA0

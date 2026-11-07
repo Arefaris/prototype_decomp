@@ -176,7 +176,7 @@ namespace proto
 		// Adds the shader input to the description of the shader
 		virtual void AddShaderInput(pure3d::pddiShaderInputInitData* data) = 0;
 		// Sets the input on a drawable's bindings
-		virtual void AddBinding(engine::render::Drawable* drawable) = 0;
+		virtual void AddBinding(engine::render::Drawable drawable) = 0;
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -189,7 +189,7 @@ namespace proto
 	{
 		virtual ~ShaderInputPatchBool();
 		virtual void AddShaderInput(pure3d::pddiShaderInputInitData* data);
-		virtual void AddBinding(engine::render::Drawable* drawable);
+		virtual void AddBinding(engine::render::Drawable drawable);
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -202,7 +202,7 @@ namespace proto
 	{
 		virtual ~ShaderInputPatchFloat1();
 		virtual void AddShaderInput(pure3d::pddiShaderInputInitData* data);
-		virtual void AddBinding(engine::render::Drawable* drawable);
+		virtual void AddBinding(engine::render::Drawable drawable);
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -224,7 +224,7 @@ namespace proto
 		{
 		}
 		virtual void AddShaderInput(pure3d::pddiShaderInputInitData* data);
-		virtual void AddBinding(engine::render::Drawable* drawable);
+		virtual void AddBinding(engine::render::Drawable drawable);
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
@@ -265,7 +265,7 @@ namespace proto
 		// 0x102E5CB0: adds the shader inputs of the entry's objects to the description (name guess)
 		void FillShaderInputs(pure3d::pddiShaderInputInitData* data);
 		// 0x102E5D30: the same on a drawable's bindings (name guess)
-		void AddBindings(engine::render::Drawable* drawable);
+		void AddBindings(engine::render::Drawable drawable);
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();

@@ -4,6 +4,7 @@
 // palette's data from its entries.
 #include "code/proto/shaders/shaderpalette.h"
 #include "code/proto/shaders/shaderpalettearrays.h"
+#include "code/engine/render/async/drawable.h"
 
 // The engine's copies of every member of the four arrays (explicit instantiations: most of them have no caller)
 template class container::ArrayDynamic<proto::ShaderPaletteEntryTemplate, container::AllocatorNew>;
@@ -285,7 +286,7 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102E5D30
-	void ShaderPaletteData::AddBindings(engine::render::Drawable* drawable)
+	void ShaderPaletteData::AddBindings(engine::render::Drawable drawable)
 	{
 		int colourCount = colours.Size();
 		for (int i = 0; i < colourCount; i++)
