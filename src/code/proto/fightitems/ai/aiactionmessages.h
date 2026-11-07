@@ -225,6 +225,56 @@ namespace proto
 		bool reverse;  // +0xC
 	};
 
+	// RTTI: proto::EngageMessage: the base of the messages about how an object engages its target (message type 0x32)
+	struct EngageMessage : public engine::IntrusiveMessage
+	{
+		explicit EngageMessage(short newId) : engine::IntrusiveMessage(0x32, newId)
+		{
+		}
+		virtual ~EngageMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::GetStrafeRunInfoEngageMessage: the object answers whether it can make a strafe run with the given parameters
+	// (the layout is the engine's constructor's, 0x1020B2E0; the member names are guesses)
+	struct GetStrafeRunInfoEngageMessage : public EngageMessage
+	{
+		GetStrafeRunInfoEngageMessage(float newTimeTolerance, float newDistanceTolerance, int newMinDelta, int newMaxDelta, bool newFarthestPossible)
+			: EngageMessage(0), unknownC(0.0f), unknown10(0.0f), unknown14(0.0f), unknown18(0.0f), unknown1C(0.0f), unknown20(0.0f), unknown24(0.0f), unknown28(0.0f), unknown2C(0.0f),
+			unknown30(0.0f), unknown34(choreo::gMinusOne), unknown38(5), unknown3C(0x28), canStrafeRun(false), unknown44(0.0f), unknown48(0.0f), unknown4C(0.0f),
+			timeTolerance(newTimeTolerance), distanceTolerance(newDistanceTolerance), minDelta(newMinDelta), maxDelta(newMaxDelta), farthestPossible(newFarthestPossible)
+		{
+		}
+		virtual ~GetStrafeRunInfoEngageMessage()
+		{
+		}
+
+		float unknownC;
+		float unknown10;
+		float unknown14;
+		float unknown18;
+		float unknown1C;
+		float unknown20;
+		float unknown24;
+		float unknown28;
+		float unknown2C;
+		float unknown30;
+		float unknown34;
+		int unknown38;
+		int unknown3C;
+		bool canStrafeRun;  // +0x40
+		unsigned char unknown41[0x3];
+		float unknown44;
+		float unknown48;
+		float unknown4C;
+		float timeTolerance;  // +0x50
+		float distanceTolerance;  // +0x54
+		int minDelta;  // +0x58
+		int maxDelta;  // +0x5C
+		bool farthestPossible;  // +0x60
+	};
+
 	// What an object follows (the part the follow target action reads)
 	struct FollowInformation
 	{
