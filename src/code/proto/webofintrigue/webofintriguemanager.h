@@ -23,6 +23,11 @@ namespace proto
 
 		int done;  // +8
 		int total;  // +0xC
+
+		// 0x1055B520 / 0x1055B530 / 0x1055B540 (names guessed)
+		int GetDone();
+		int GetTotal();
+		void IncrementDone();
 	};
 
 	// RTTI: proto::WebOfIntrigueManager
@@ -63,6 +68,12 @@ namespace proto
 		void AddVisible(WOIEpisode* episode);
 		// 0x1055BB70: selects a node
 		void SelectNode(Node* node);
+		// 0x1055B550 / 0x1055B560 / 0x1055B570 / 0x1055B590 / 0x1055B5A0 (names guessed)
+		int GetUnknown420();
+		float GetUnknown454();
+		int IsUnknown458Clear();
+		int GetSelectedIndex();
+		int GetSelectedEpisode();
 		// 0x1055BE90 / 0x1055BEA0 / 0x1055BED0 / 0x1055BEF0 / 0x1055C010
 		void SetUnknown46C();
 		void SetUnknown458(float value, bool force);

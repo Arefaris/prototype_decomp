@@ -1,6 +1,9 @@
 #include "code/proto/webofintrigue/webofintriguemanager.h"
 #include "code/engine/camera/director.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/content/enummetatype.h"
+#include "code/content/arraycmetatype.h"
+#include "code/container/arrayc.h"
 #include "code/proto/scenariomessages.h"
 
 namespace engine
@@ -18,16 +21,33 @@ namespace proto
 	class WebOfIntrigueManager::Node : public content::MetaLoadObject
 	{
 	public:
+		// proto::WebOfIntrigueManager::Node::Type and AmbientType (the reflected enumerations)
+		enum Type
+		{
+			TYPE_AMBIENT,
+			TYPE_CHARACTER,
+			TYPE_MILITARY
+		};
+		enum AmbientType
+		{
+			AMBIENT_HUMAN_MALE,
+			AMBIENT_HUMAN_FEMALE,
+			AMBIENT_COP_MALE
+		};
+
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		int id;  // +8
-		int links[6];  // +0xC
-		int kinds;  // +0x24
+		int links[6];  // +0xC ("strands")
+		Type kinds;  // +0x24 (the reflected "type")
 		int episode;  // +0x28
 		float x;  // +0x2C
 		float y;  // +0x30
 		int unknown34;
 		core::Name<core::CaseSensitiveKey> unknown38;
 		core::Name<core::CaseSensitiveKey> name;  // +0x40
-		int type;  // +0x48
+		AmbientType type;  // +0x48 (the reflected "ambientType")
 		int flags;  // +0x4C
 		float unknown50;
 		float unknown54;
@@ -53,6 +73,9 @@ namespace proto
 		// 0x1055C8F0: the name of the node's gender (names guessed)
 		core::Name<core::CaseSensitiveKey> GetGenderName();
 		// 0x1055C940 / 0x1055C990 / 0x1055C9E0: the flag of the link at a place in the state / of the link to a node
+		// 0x1055B5B0 / 0x1055B5C0: the first flag (the reflected "autoplay")
+		bool GetAutoplay() const;
+		void SetAutoplay(bool on);
 		bool GetLinkFlag(unsigned int place);
 		void SetLinkFlag(unsigned int place, bool on);
 		void MarkLink(int linkID);
@@ -73,6 +96,24 @@ namespace proto
 			return -1;
 		}
 	};
+
+	// FUNCTION: ENGINE 0x1055B5B0
+	bool WebOfIntrigueManager::Node::GetAutoplay() const
+	{
+		return (flags & 1) != 0;
+	}
+
+	// FUNCTION: ENGINE 0x1055B5C0
+	void WebOfIntrigueManager::Node::SetAutoplay(bool on)
+	{
+		int bits = flags;
+		if (on)
+		{
+			flags = bits | 1;
+			return;
+		}
+		flags = bits & 0xfffffffe;
+	}
 
 	// FUNCTION: ENGINE 0x1055B780
 	void WebOfIntrigueManager::Node::SetState(unsigned int state, bool notify)
@@ -203,6 +244,138 @@ namespace proto
 			return (node->flags & 1) != 0;
 		}
 		return false;
+	}
+
+	namespace
+	{
+		const content::EnumValue sNodeTypeValues[] =
+		{
+			{ "Ambient", 0 },
+			{ "Character", 1 },
+			{ "Military", 2 }
+		};
+
+		const content::EnumValue sNodeAmbientTypeValues[] =
+		{
+			{ "human_male", 0 },
+			{ "human_female", 1 },
+			{ "cop_male", 2 }
+		};
+	}
+}
+
+namespace content
+{
+	// FUNCTION: ENGINE 0x1055B6B0
+	template<> void EnumInfo<proto::WebOfIntrigueManager::Node::Type>::Get(const char** name, const EnumValue** values,
+		int* count, const char** code)
+	{
+		*name = "proto::WebOfIntrigueManager::Node::Type";
+		*code = "p";
+		*values = proto::sNodeTypeValues;
+		*count = 3;
+	}
+
+	// FUNCTION: ENGINE 0x1055B6F0
+	template<> void EnumInfo<proto::WebOfIntrigueManager::Node::AmbientType>::Get(const char** name,
+		const EnumValue** values, int* count, const char** code)
+	{
+		*name = "proto::WebOfIntrigueManager::Node::AmbientType";
+		*code = "p";
+		*values = proto::sNodeAmbientTypeValues;
+		*count = 3;
+	}
+}
+
+namespace proto
+{
+#define PROTO_OFFSET(type, member) 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x1055B730
+	content::ClassInfo* WebOfIntrigueManager::Node::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::WebOfIntrigueManager::Node";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x1055FCD0
+	content::MemberList* WebOfIntrigueManager::Node::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<Node, int, 0>("p"), PROTO_OFFSET(Node, id), "id" },
+			{ content::GetArrayCMetaType<Node, container::ArrayC<int, 6> >(6, 4,
+				content::GetMemberPrimitiveMetaType<Node, int, 1>("p"), "p"), PROTO_OFFSET(Node, links), "strands" },
+			{ content::GetEnumMetaType<Type>(), 0x24, "type" },
+			{ content::GetMemberMetaType<Node, bool, 0>(&Node::GetAutoplay, &Node::SetAutoplay, "p"), 0, "autoplay" },
+			{ content::GetMemberPrimitiveMetaType<Node, int, 2>("p"), PROTO_OFFSET(Node, episode), "episodeID" },
+			{ content::GetMemberPrimitiveMetaType<Node, float, 0>("p"), PROTO_OFFSET(Node, x), "feX" },
+			{ content::GetMemberPrimitiveMetaType<Node, float, 1>("p"), PROTO_OFFSET(Node, y), "feY" },
+			{ content::GetEnumMetaType<AmbientType>(), 0x48, "ambientType" },
+			{ content::GetMemberNameMetaType<Node, 0>(true, true, "p"), PROTO_OFFSET(Node, unknown38), "objectName" },
+			{ content::GetMemberNameMetaType<Node, 1>(true, true, "p"), PROTO_OFFSET(Node, name), "objectTemplate" },
+			{ content::GetMemberPrimitiveMetaType<Node, float, 2>("p"), PROTO_OFFSET(Node, unknown50), "reopenTime" },
+			{ content::GetMemberPrimitiveMetaType<Node, float, 3>("p"), PROTO_OFFSET(Node, unknown54), "reactionTime" }
+		};
+		sList.members = sMembers;
+		sList.count = 12;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1055B520
+	int WOIEpisode::GetDone()
+	{
+		return done;
+	}
+
+	// FUNCTION: ENGINE 0x1055B530
+	int WOIEpisode::GetTotal()
+	{
+		return total;
+	}
+
+	// FUNCTION: ENGINE 0x1055B540
+	void WOIEpisode::IncrementDone()
+	{
+		done++;
+	}
+
+	// FUNCTION: ENGINE 0x1055B550
+	int WebOfIntrigueManager::GetUnknown420()
+	{
+		return unknown420;
+	}
+
+	// FUNCTION: ENGINE 0x1055B560
+	float WebOfIntrigueManager::GetUnknown454()
+	{
+		return unknown454;
+	}
+
+	// FUNCTION: ENGINE 0x1055B570
+	int WebOfIntrigueManager::IsUnknown458Clear()
+	{
+		if (unknown458 <= 0.0f)
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1055B590
+	int WebOfIntrigueManager::GetSelectedIndex()
+	{
+		return selectedIndex;
+	}
+
+	// FUNCTION: ENGINE 0x1055B5A0
+	int WebOfIntrigueManager::GetSelectedEpisode()
+	{
+		return selectedEpisode;
 	}
 
 	// FUNCTION: ENGINE 0x1055B9E0
@@ -595,3 +768,23 @@ namespace proto
 		return -1;
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1055C4F0
+// FUNCTION: ENGINE 0x1055C570
+// FUNCTION: ENGINE 0x1055C670
+// FUNCTION: ENGINE 0x1055C6A0
+// FUNCTION: ENGINE 0x1055C6E0
+// FUNCTION: ENGINE 0x1055CD80
+// FUNCTION: ENGINE 0x1055CDC0
+// FUNCTION: ENGINE 0x1055CE00
+// FUNCTION: ENGINE 0x1055CE40
+// FUNCTION: ENGINE 0x1055CE80
+// FUNCTION: ENGINE 0x1055CEC0
+// FUNCTION: ENGINE 0x1055CF00
+// FUNCTION: ENGINE 0x1055CF40
+// FUNCTION: ENGINE 0x1055CF50
+// FUNCTION: ENGINE 0x1055CF70
+// FUNCTION: ENGINE 0x1055CF90
+// FUNCTION: ENGINE 0x1055CFB0
+// FUNCTION: ENGINE 0x1055CFD0
