@@ -3,6 +3,12 @@
 #include "code/proto/fightitems/motion/motioncommon.h"
 #include <math.h>
 
+namespace proto
+{
+	// 0x104E7900 (protoutil.cpp)
+	float InterpolateClamped(float x0, float y0, float x1, float y1, float x);
+}
+
 namespace math
 {
 	// 0x1006FBA0 (another unit): -1, 0 or 1 by the sign of the value (name guess)
@@ -752,6 +758,53 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new JumpFromWaterAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1009E060
+			float JumpFromWaterAction::GetInitialSpeed(float height, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				return height / time * 2.0f;
+			}
+
+			// FUNCTION: ENGINE 0x1009E090
+			float JumpFromWaterAction::GetGravity(float height, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				return height * 2.0f / (time * time);
+			}
+
+			// FUNCTION: ENGINE 0x1009F290
+			float JumpFromWaterAction::GetForwardSpeed(float distance, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				float speed = distance / time;
+				return speed * link.Get()->forwardVelocityScale;
+			}
+
+			// FUNCTION: ENGINE 0x1009F310
+			float JumpFromWaterAction::GetForwardDistance(const math::Vector* from, const math::Vector* to)
+			{
+				float x = to->x - from->x;
+				float z = to->z - from->z;
+				float length = sqrtf(x * x + z * z);
+				float minimum = link.Get()->forwardDistanceMin;
+				float maximum = link.Get()->forwardDistanceMax;
+				float distance = length - minimum >= 0.0f ? length : minimum;
+				if (distance - maximum >= 0.0f)
+				{
+					distance = maximum;
+				}
+				return distance;
 			}
 
 			// FUNCTION: ENGINE 0x1009E890

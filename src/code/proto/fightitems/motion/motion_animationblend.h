@@ -67,6 +67,140 @@ namespace proto
 				bool SetBlendOutTime(float newValue);
 				bool SetTargetingMode(int newValue);
 
+				// The getters the actions use (the engine keeps a copy of each in front of the actions' unit)
+				float GetAngleRate() const
+				{
+					return angleRate;
+				}
+				float GetAngleDefault() const
+				{
+					return angleDefault;
+				}
+				float GetAngleOffset() const
+				{
+					return angleOffset;
+				}
+				float GetAngleOffsetMin() const
+				{
+					return angleOffsetMin;
+				}
+				float GetAngleMin() const
+				{
+					return angleMin;
+				}
+				float GetAngleMax() const
+				{
+					return angleMax;
+				}
+				float GetOffsetInterpolationDist() const
+				{
+					return offsetInterpolationDist;
+				}
+				int GetInterpolationDirection() const
+				{
+					return interpolationDirection;
+				}
+				float GetSpeed() const
+				{
+					return speed;
+				}
+				int GetCyclic() const
+				{
+					return cyclic;
+				}
+				const fight::Name& GetAnimUp() const
+				{
+					return animUp;
+				}
+				float GetAnimUpAngle() const
+				{
+					return animUpAngle;
+				}
+				float GetAnimUpSyncFrame() const
+				{
+					return animUpSyncFrame;
+				}
+				float GetAnimUpStartFrame() const
+				{
+					return animUpStartFrame;
+				}
+				float GetAnimUpEndFrame() const
+				{
+					return animUpEndFrame;
+				}
+				float GetAnimUpSpeed() const
+				{
+					return animUpSpeed;
+				}
+				const fight::Name& GetAnimNeutral() const
+				{
+					return animNeutral;
+				}
+				float GetAnimNeutralAngle() const
+				{
+					return animNeutralAngle;
+				}
+				float GetAnimNeutralSyncFrame() const
+				{
+					return animNeutralSyncFrame;
+				}
+				float GetAnimNeutralStartFrame() const
+				{
+					return animNeutralStartFrame;
+				}
+				float GetAnimNeutralEndFrame() const
+				{
+					return animNeutralEndFrame;
+				}
+				float GetAnimNeutralSpeed() const
+				{
+					return animNeutralSpeed;
+				}
+				const fight::Name& GetAnimDown() const
+				{
+					return animDown;
+				}
+				float GetAnimDownAngle() const
+				{
+					return animDownAngle;
+				}
+				float GetAnimDownSyncFrame() const
+				{
+					return animDownSyncFrame;
+				}
+				float GetAnimDownStartFrame() const
+				{
+					return animDownStartFrame;
+				}
+				float GetAnimDownEndFrame() const
+				{
+					return animDownEndFrame;
+				}
+				float GetAnimDownSpeed() const
+				{
+					return animDownSpeed;
+				}
+				const fight::Name& GetPartition() const
+				{
+					return partition;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
+				int GetTargetingMode() const
+				{
+					return targetingMode;
+				}
+
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();

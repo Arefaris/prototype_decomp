@@ -1005,6 +1005,31 @@ namespace proto
 				return new AutoTargetPositionAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1009ACC0
+			bool AutoTargetPositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				driver = new choreo::RootDriver;
+				fight::Name driverName("autoPosition", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				driver->SetMask(1);
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x10099B80
 			void AutoTargetPositionAction::Slot6()
 			{

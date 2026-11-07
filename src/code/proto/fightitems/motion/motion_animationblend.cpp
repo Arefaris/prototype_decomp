@@ -1901,6 +1901,103 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x10096D70
+			bool AnimationBlendVerticalAimAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::BaseAttribute* attribute = object->FindAttribute(engine::gPuppetAttributeName);
+				if (attribute == 0)
+				{
+					return false;
+				}
+				choreo::Puppet** slot = &((engine::Attribute<choreo::Puppet*>*)attribute)->value;
+				if (slot == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = *slot;
+				if (puppet == 0)
+				{
+					return false;
+				}
+				pure3d::Skeleton* skeleton = puppet->GetSkeleton();
+				unknown34 = arg;
+				SetFlag(0x800 << (arg - 1), true);
+				engine::AssignDriverCopy2(driver, new choreo::AnimationBlendDriver(skeleton));
+				fight::Name driverName("animationBlendVerticalAim", 0);
+				driver->SetName(driverName);
+				((choreo::AnimationBlendDriver*)driver)->mScale = link.Get()->GetSpeed();
+				((choreo::AnimationBlendDriver*)driver)->mLooping = link.Get()->GetCyclic() == 1;
+				((choreo::AnimationBlendDriver*)driver)->mUnknown2D1 = link.Get()->GetCyclic() == 2;
+				const fight::Name& animUp = link.Get()->GetAnimUp();
+				content::LoadInventory* inventory = 0;
+				if (animUp.GetHash() != 0)
+				{
+					((choreo::AnimationBlendDriver*)driver)->SetAnimation(0, engine::FindAnimationByName(&driverName, &animUp, &inventory));
+					((choreo::AnimationBlendDriver*)driver)->SetEntryUnknownC(0, link.Get()->GetAnimUpSyncFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetStartFrame(0, link.Get()->GetAnimUpStartFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetEndFrame(0, link.Get()->GetAnimUpEndFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetRate(0, link.Get()->GetAnimUpSpeed());
+				}
+				const fight::Name& animNeutral = link.Get()->GetAnimNeutral();
+				if (animNeutral.GetHash() != 0)
+				{
+					((choreo::AnimationBlendDriver*)driver)->SetAnimation(1, engine::FindAnimationByName(&driverName, &animNeutral, &inventory));
+					((choreo::AnimationBlendDriver*)driver)->SetEntryUnknownC(1, link.Get()->GetAnimNeutralSyncFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetStartFrame(1, link.Get()->GetAnimNeutralStartFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetEndFrame(1, link.Get()->GetAnimNeutralEndFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetRate(1, link.Get()->GetAnimNeutralSpeed());
+				}
+				const fight::Name& animDown = link.Get()->GetAnimDown();
+				if (animDown.GetHash() != 0)
+				{
+					((choreo::AnimationBlendDriver*)driver)->SetAnimation(2, engine::FindAnimationByName(&driverName, &animDown, &inventory));
+					((choreo::AnimationBlendDriver*)driver)->SetEntryUnknownC(2, link.Get()->GetAnimDownSyncFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetStartFrame(2, link.Get()->GetAnimDownStartFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetEndFrame(2, link.Get()->GetAnimDownEndFrame());
+					((choreo::AnimationBlendDriver*)driver)->SetRate(2, link.Get()->GetAnimDownSpeed());
+				}
+				choreo::AnimationBlendDriver* existing = 0;
+				for (unsigned int index = 0; index < puppet->mDriverCount; ++index)
+				{
+					choreo::Driver* candidate = puppet->GetDriver(index);
+					if (candidate->GetName() == driverName)
+					{
+						existing = choreo::Unknown1094CB00(candidate);
+						if (existing != 0)
+						{
+							float angles[3];
+							angles[0] = link.Get()->GetAnimUpAngle();
+							angles[1] = link.Get()->GetAnimNeutralAngle();
+							angles[2] = link.Get()->GetAnimDownAngle();
+							unknown30 = -3.14159274f;
+							for (unsigned int weightIndex = 0; weightIndex < 3; ++weightIndex)
+							{
+								float weight = existing->GetWeight(weightIndex);
+								unknown30 = (angles[weightIndex] + 3.14159274f) * weight + unknown30;
+								((choreo::AnimationBlendDriver*)driver)->SetWeight(weightIndex, weight);
+							}
+							break;
+						}
+					}
+				}
+				if (existing == 0)
+				{
+					unknown30 = 0.0f;
+				}
+				((choreo::AnimationBlendDriver*)driver)->SetPartitionByName(link.Get()->GetPartition());
+				puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->GetPriority(), 1.0f, link.Get()->GetBlendInTime(), link.Get()->GetBlendOutTime(), choreo::gMinusOne);
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x100975C0
 			AnimationBlendVerticalAimStrafeAction::AnimationBlendVerticalAimStrafeAction(AnimationBlendVerticalAimStrafeTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), driver(0), secondDriver(0), unknown34(0.0f), unknown38(0)
 			{
@@ -2258,3 +2355,32 @@ namespace proto
 // FUNCTION: ENGINE 0x10095020
 // FUNCTION: ENGINE 0x10095030
 // FUNCTION: ENGINE 0x10095040
+
+// Vertical aim track getters the actions use (kept copies):
+// FUNCTION: ENGINE 0x10094920
+// FUNCTION: ENGINE 0x10094930
+// FUNCTION: ENGINE 0x10094940
+// FUNCTION: ENGINE 0x10094950
+// FUNCTION: ENGINE 0x10094960
+// FUNCTION: ENGINE 0x10094970
+// FUNCTION: ENGINE 0x10094980
+// FUNCTION: ENGINE 0x10094990
+// FUNCTION: ENGINE 0x100949A0
+// FUNCTION: ENGINE 0x100949B0
+// FUNCTION: ENGINE 0x100949C0
+// FUNCTION: ENGINE 0x100949D0
+// FUNCTION: ENGINE 0x100949E0
+// FUNCTION: ENGINE 0x100949F0
+// FUNCTION: ENGINE 0x10094A00
+// FUNCTION: ENGINE 0x10094A10
+// FUNCTION: ENGINE 0x10094A20
+// FUNCTION: ENGINE 0x10094A30
+// FUNCTION: ENGINE 0x10094A40
+// FUNCTION: ENGINE 0x10094A50
+// FUNCTION: ENGINE 0x10094A60
+// FUNCTION: ENGINE 0x10094A70
+// FUNCTION: ENGINE 0x10094A80
+// FUNCTION: ENGINE 0x10094A90
+// FUNCTION: ENGINE 0x10095380
+// FUNCTION: ENGINE 0x10095390
+// FUNCTION: ENGINE 0x100953B0

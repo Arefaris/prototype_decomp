@@ -369,6 +369,19 @@ namespace proto
 				// vftable slot 7 (0x1009F8E0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x1009E060: the speed that rises a height in a time (names of the helpers are guesses)
+				float GetInitialSpeed(float height, float time);
+				// 0x1009E090: the gravity that makes a rise of a height take a time
+				float GetGravity(float height, float time);
+				// 0x1009F290: the forward speed for a distance in a flight time
+				float GetForwardSpeed(float distance, float time);
+				// 0x1009F2C0 (left to the engine: it loads the track's four limits before the speed): the turning velocity that goes with a forward speed
+				float GetTurningVelocity(float forwardSpeed);
+				// 0x1009F310: the distance in the xz plane between two points kept between the track's limits
+				float GetForwardDistance(const math::Vector* from, const math::Vector* to);
+				// 0x1009F390 (left to the engine: it keeps the track in another register): the flight time that goes with a forward distance
+				float GetFlightTime(float distance);
+
 				engine::GameObjectHandle target;  // +0x1C
 				core::Link<JumpFromWaterTrack> link;  // +0x20
 				bool unknown2C;  // +0x2C
