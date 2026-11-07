@@ -5286,6 +5286,48 @@ Not done in the range (what blocks each): the replay driver, the network layer a
 and `KnockBehaviour::Update`, the vehicle behaviours (0x1091CD30 - 0x1091E000: the base `VehiclePhysicsBehaviour` and the
 input structs are in the next range).
 
+## 0x10900000 - 0x10920000 (sn-ef): second pass over the puppet, NIS, wheel and tracked-motion units
+- `src/code/engine/animation/behaviours/puppetbehaviour.*` (0x1091B180 - 0x1091C4F0): the constructor, destructor, `Slot1`,
+  `OnActiveChanged`, `OnPostedMessage` (the locomotion and limb queries), `OnMessage` (a switch on the message type with nested
+  switches on the id: the engine's block order is the order of the cases `2, 1, 0x17, 0x11, 0x19, 10`), the puppet makers
+  (`CreatePuppet` / `DestroyPuppet`, which send `RenderEvaluatePoseMessage` (type 7, id 8, rendermessages.h) and read the
+  drawable attribute as a pose), `Suspend` / `Resume` (they take the message and ignore it), `SetDeferredUpdate` with
+  `UpdateTimeScale` (the time scale of a puppet is the owner's `updateTimeScalar`, or 1 without a handle) and the callback's
+  `OnValidationFailed(int, bool, int)` (the callback interface in choreo/puppet.h had the wrong signature; it answers 0 when the
+  flag is set and `suppressErrorOnDisableBatching` is). The puppet is 0x460 bytes (puppet.h got its tail word). `LocomotionState`
+  (the six velocities at +0x28; constructor and reset are in another unit) and the message layouts are in puppetbehaviour.h.
+  Not done: `Update` 0x1091B940 and its validation 0x1091B490 (many asserts), declared and mapped to the engine's.
+  The attribute makers `SetAttributeAndGet<PartLookup*>` 0x1091C2D0 and `<Puppet*>` 0x10074610 are the engine's: the drawable
+  attribute is an `Attribute<pure3d::Pose*>` in the RTTI (its vftable 0x10E80688 is built inline by the maker), which our
+  `Attribute<proto::PartLookup*>` spelling does not give.
+- `src/code/engine/nisplayerbehaviour.*` (0x1091F890 - 0x10920900): `NISParams` (a `GameObjectParams` with the running action at
+  +0x20, released by its destructor 0x108A82A0), `Slot0`, `Slot1`, `Advance` 0x1091F910, `StopEffects` 0x1091FCD0 and `FindTrack`
+  0x1091FE40 (the registry's root branch is read as a member: a call to its accessor gives the wrong register allocation). Not
+  done: `Update`, `OnMessage`, the destructor and the unload helpers (calls into the stream package and the script manager).
+- `wheelcollectiondata.*` / `trackedmotiontoexpressionmap.*`: `ArrayReserveBeginFirst<WheelData>` (the engine's `Reserve` stores
+  the begin pointer first), `ArrayEraseInline<PropertyMappingKeyValuePair>` mode 3 and `CONTENT_ARRAY_HELPER_COUNT_INSERT` for the
+  curve points and the mappings (the engine's helper inserts by count) make `Reserve<WheelData>` 0x10907840, the curve points' `Erase`
+  0x10913070 and the mappings' `Insert` 0x10914200 match. Still different: `Insert` of the curve points 0x109136B0 (the engine keeps
+  the array's count `Insert` out of line), `Reserve<PropertyMapping>` 0x10913D60 and the `JointData` array members (the engine
+  inlines the element copy where ours calls it, or the other way round), `CreateDefaultWheels` 0x10907C40 (four corners copied
+  through register-allocated vector temporaries).
+- Class information of `CharacterSolverBehaviour` 0x10907ED0, `GameObjectTemplateBuilder` 0x1090C110 and `AdvertisementBehaviour`
+  0x10917A30 (charactersolverbehaviour.cpp, gameobjecttemplatebuilder.cpp, advertisementbehaviour.cpp: the classes stay in
+  reflectedclasses.h until their units are done).
+- Kept copies annotated in the units that compile them: the scalar deleting destructors `??_G` of the physics attribute, spawner,
+  wheel, solver property, camera, secondary physics, tracked motion and motion feature classes (their symbols.txt lines were
+  `??_E`; the `??_G` name is the one our objects define), the replay unit's three deleting destructors 0x10900570 / 0x10900590 /
+  0x109005B0, the spline path array's `Begin` / `End` / `PushBack` / destructor and the jaw flap's `RefPtr` members.
+- Not done in the range (what blocks each): the replay driver and the network layer (0x10900260 - 0x10905A00: the bandwidth allocator,
+  `MultiTailQueue` with its two bases `NetMessagePusher` / `NetMessagePuller`, `LoopbackConnection` / `ChannelConnection`; the queue
+  is a ring of 0x1C-byte records, but the `Puller` slots take the secondary base's `this` without thunks), the render events of the
+  occluder unit (0x10904xxx: `LoadInventory::Iterator` kept copies), `CharacterSolverBehaviour` (0x10907E90 - 0x1090C110: physics
+  constraints), `GameObjectTemplateBuilder` (a `MetaObjectTemplate`: `Create` 0x1090C460 and the template slot 0x1090D0B0 use the
+  content writer), `AdvertisementBehaviour` (render events and the mapping element), the vehicle behaviours (the next range's
+  base classes and input structs), `KnockBehaviour::Update` and `FirstPersonControlBehaviour::Update` (physics context lists and
+  the input system), `JawFlapBehaviour::FindJaw` / `Update` (the `RefPtr` comparison helpers 0x1091A1F0 - 0x1091A230 are free
+  functions the template does not have).
+
 ## pure3d 0x10720000 - 0x10740000: vertex offsets, particle task functions, frame controller slots (this branch)
 
 - **VertexOffsetList** (src/vertexoffsetlist.cpp, 0x1073EF40 - 0x1073F880): 0x38 bytes, flags at +8, count +0xC, the
