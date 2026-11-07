@@ -337,6 +337,40 @@ namespace pure3d
 		((Shader*)unknown18)->AddRef();
 	}
 
+	// The writes of the shader constants of the device (names guessed): a float, a pair, a triple, a quad
+	// FUNCTION: ENGINE 0x10716930
+	void SetConstantFloat(const ConstantSlot& slot, float value)
+	{
+		*pddi->GetConstant(slot.index, pddiBaseContext::CONSTANT_FLOAT) = value;
+	}
+
+	// FUNCTION: ENGINE 0x10716960
+	void SetConstantFloat2(const ConstantSlot& slot, const float* value)
+	{
+		float* at = pddi->GetConstant(slot.index, pddiBaseContext::CONSTANT_FLOAT2);
+		at[0] = value[0];
+		at[1] = value[1];
+	}
+
+	// FUNCTION: ENGINE 0x10716990
+	void SetConstantFloat3(const ConstantSlot& slot, const float* value)
+	{
+		float* at = pddi->GetConstant(slot.index, pddiBaseContext::CONSTANT_FLOAT3);
+		at[0] = value[0];
+		at[1] = value[1];
+		at[2] = value[2];
+	}
+
+	// FUNCTION: ENGINE 0x107169C0
+	void SetConstantFloat4(const ConstantSlot& slot, const float* value)
+	{
+		float* at = pddi->GetConstant(slot.index, pddiBaseContext::CONSTANT_FLOAT4);
+		at[0] = value[0];
+		at[1] = value[1];
+		at[2] = value[2];
+		at[3] = value[3];
+	}
+
 	// FUNCTION: ENGINE 0x10716830
 	void ShadowRenderManager::Create(int mode)
 	{

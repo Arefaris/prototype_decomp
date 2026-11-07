@@ -49,6 +49,19 @@ namespace pure3d
 	{
 	}
 
+	// The id the skinning task function is registered under (name guess)
+	// GLOBAL: ENGINE 0x11281808
+	int gSkinTaskId = 0;
+
+	// 0x1071EAF0: the body of the skinning task
+	void SkinTask(void* data, core::AsyncTaskCallback* callback);
+
+	// FUNCTION: ENGINE 0x1071F7D0
+	void Unknown1071F7D0()
+	{
+		core::RegisterAsyncTaskFunction("AsyncSkinning", SkinTask, &gSkinTaskId);
+	}
+
 	// FUNCTION: ENGINE 0x1071EFC0
 	void Skin::Unknown1071EFC0()
 	{
