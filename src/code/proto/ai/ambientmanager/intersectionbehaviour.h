@@ -7,21 +7,13 @@
 #define PROTO_AI_AMBIENTMANAGER_INTERSECTIONBEHAVIOUR_H
 
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/ai/ambientmanager/intersectiondata.h"
 
 namespace proto
 {
-	// One phase of an intersection (RTTI proto::IntersectionData::Phase; 0x14 bytes): the states of the lights
-	// (an array of enumeration values) and how long the phase lasts
-	struct IntersectionPhase
-	{
-		int* statesBegin;
-		int* statesEnd;
-		int* statesCapacity;
-		int unknownC;
-		float duration;  // +0x10
-	};
 
-	struct IntersectionData;
+	struct GetIntersectionStateMessage;
+	struct GetIntersectionBehaviourMessage;
 
 	class IntersectionBehaviour : public engine::Behaviour
 	{
@@ -34,6 +26,15 @@ namespace proto
 		virtual void Update(float dt, unsigned short mask);
 		// vftable slot 6 (0x10430B00): the message type 0x24 answers the current phase and takes a new intersection
 		virtual void OnMessage(engine::Message* message);
+
+		// 0x10430AA0 / 0x104307C0: the answers to the two messages
+		void AnswerState(GetIntersectionStateMessage* message);
+		void AnswerBehaviour(GetIntersectionBehaviourMessage* message);
+		// 0x10430B60: how long the light for a direction stays green from now on (the time is answered in the second
+		// argument, less a margin); false when the light is not green
+		bool GetGreenTimeLeft(int direction, float* time);
+		// 0x10430B40: the state of the light for a direction in the current phase
+		int GetLightState(int direction);
 
 		IntersectionData* data;  // +0xC
 		int phase;  // +0x10

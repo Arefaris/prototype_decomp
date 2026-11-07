@@ -10,6 +10,7 @@
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/gameobjectspawner.h"
+#include "code/proto/ai/ambientmanager/parkedcarcloudmanager.h"
 
 namespace proto
 {
@@ -58,6 +59,14 @@ namespace proto
 		virtual bool Slot7(void* argument);
 		// vftable slot 8 (0x10420DD0)
 		virtual void Slot8(void* argument);
+	};
+
+	// proto::ParkedCarSpawner (RTTI name): makes the parked cars of the cloud of cars around the player; only the class
+	// info is reconstructed (its bases are not)
+	class ParkedCarSpawner : public CloudSpawnerBase
+	{
+	public:
+		static content::ClassInfo* GetClassInfo();
 	};
 
 	class PedestrianSpawner : public AmbientSpawner

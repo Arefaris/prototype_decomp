@@ -62,3 +62,13 @@ namespace content
 	template<> void EnumInfo<proto::AiAlert>::Get(const char** name, const EnumValue** values, int* count,
 		const char** code);
 }
+
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1042E590
+// FUNCTION: ENGINE 0x1042E690
+// FUNCTION: ENGINE 0x1042E6A0
+// FUNCTION: ENGINE 0x1042E800
+// FUNCTION: ENGINE 0x1042E840
+// FUNCTION: ENGINE 0x1042E880
+// FUNCTION: ENGINE 0x1042E8C0

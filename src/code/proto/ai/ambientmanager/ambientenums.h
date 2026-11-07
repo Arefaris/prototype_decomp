@@ -15,15 +15,6 @@ namespace proto
 		AMBIENT_EXCLUDE_TRAFFIC_VEHICLES = 1
 	};
 
-	// RTTI proto::IntersectionData::State: the state of one traffic light
-	enum IntersectionState
-	{
-		INTERSECTION_STATE_NONE = 0,
-		INTERSECTION_STATE_GREEN = 1,
-		INTERSECTION_STATE_YELLOW = 2,
-		INTERSECTION_STATE_RED = 3
-	};
-
 	enum AlertTargetChoice
 	{
 		ALERT_TARGET_CHOICE_CLOSEST = 0,

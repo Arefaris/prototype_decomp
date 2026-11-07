@@ -1,4 +1,7 @@
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/proto/ai/ambientmanager/ambientmanagermessages.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 
 namespace proto
 {
@@ -26,6 +29,65 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1042D480
+	bool AIFlyingPatrolBehaviour::HasArrived()
+	{
+		switch (unknown38)
+		{
+		case 1:
+			return Unknown103B8440(owner);
+		case 2:
+			{
+				HasLODArrivedAIMsg message;
+				owner->SendMessage(&message);
+				return message.arrived;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1042E080
+	void AIFlyingPatrolBehaviour::Update(float dt, unsigned short mask)
+	{
+		if (active)
+		{
+			unknown38 = Unknown103B8DC0(owner);
+			if (unknown14)
+			{
+				UpdateWithGoal(dt);
+			}
+			else
+			{
+				UpdateWithoutGoal(dt);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1042E1F0
+	void AIFlyingPatrolBehaviour::Slot1()
+	{
+		Listen2(4, true);
+		Stop();
+		active = false;
+	}
+
+	// FUNCTION: ENGINE 0x1042E210
+	void AIFlyingPatrolBehaviour::OnActivate(ActivateVehicleMovementBehaviourMessage* message)
+	{
+		if (message->active)
+		{
+			if (!active)
+			{
+				active = true;
+			}
+		}
+		else if (active)
+		{
+			Stop();
+			active = false;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1042D470
 	AIFlyingPatrolBehaviour::~AIFlyingPatrolBehaviour()
 	{
@@ -52,3 +114,12 @@ namespace proto
 		return &sList;
 	}
 }
+
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1042D600
+// FUNCTION: ENGINE 0x1042D610
+// FUNCTION: ENGINE 0x1042D640
+// FUNCTION: ENGINE 0x1042DA30
+// FUNCTION: ENGINE 0x1042DA70
+// FUNCTION: ENGINE 0x1042DAB0
