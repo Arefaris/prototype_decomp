@@ -6353,4 +6353,121 @@ namespace mgraph
 	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetOutletType();
 	// FUNCTION: ENGINE 0x10AF5900
 	template mgraph::NodeTypeBase* mgraph::PinDataType<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPropertyNodeType();
+
+	// The packet folds the values of its channels into one again
+	template<class T> void Packet<T>::Slot0(int count, om::Allocator* allocator)
+	{
+		if (blocks != 0)
+		{
+			value = blocks->data[255];
+			om::ReleaseFrom(allocator, blocks, sizeof(PacketBlock<T>), 4);
+			blocks = 0;
+			unknown4 = count + 1;
+		}
+	}
+	template<class T> T* Packet<T>::GetData()
+	{
+		if (blocks == 0)
+		{
+			return 0;
+		}
+		return blocks->data;
+	}
+	template<class T> const T* Packet<T>::GetData() const
+	{
+		if (blocks == 0)
+		{
+			return 0;
+		}
+		return blocks->data;
+	}
+	template<class T> void Packet<T>::Assign(const Packet& other, int count, om::Allocator* allocator)
+	{
+		if (blocks != 0)
+		{
+			om::ReleaseFrom(allocator, blocks, sizeof(PacketBlock<T>), 4);
+			blocks = 0;
+		}
+		if (other.blocks != 0 && other.blocks->data != 0)
+		{
+			blocks = new (allocator) PacketBlock<T>;
+			for (unsigned int i = 0; i < 256; i++)
+			{
+				GetData()[i] = other.GetData()[i];
+			}
+			unknown4 = count;
+		}
+		else
+		{
+			value = other.value;
+			unknown4 = count;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AE15F0
+	template void mgraph::Packet<mgraph::TriggerData>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE1640
+	template mgraph::TriggerData* mgraph::Packet<mgraph::TriggerData>::GetData();
+	// FUNCTION: ENGINE 0x10AE1650
+	template mgraph::TriggerData const* mgraph::Packet<mgraph::TriggerData>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE1660
+	template void mgraph::Packet<bool>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE16B0
+	template bool* mgraph::Packet<bool>::GetData();
+	// FUNCTION: ENGINE 0x10AE16C0
+	template bool const* mgraph::Packet<bool>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE16D0
+	template void mgraph::Packet<Vector>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE1730
+	template Vector* mgraph::Packet<Vector>::GetData();
+	// FUNCTION: ENGINE 0x10AE1740
+	template Vector const* mgraph::Packet<Vector>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE1770
+	template void* mgraph::InputPin<mgraph::Packet<mgraph::TriggerData>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE1790
+	template void* mgraph::InputPin<mgraph::Packet<Vector>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE1EE0
+	template void* mgraph::InputPin<mgraph::Packet<bool>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE2AE0
+	template void mgraph::Packet<unsigned int>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE4960
+	template void mgraph::Packet<unsigned __int64>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE4B70
+	template void mgraph::Packet<String>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE5200
+	template void mgraph::Packet<Complex>::Slot0(int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE5E60
+	template unsigned __int64* mgraph::Packet<unsigned __int64>::GetData();
+	// FUNCTION: ENGINE 0x10AE5E70
+	template unsigned __int64 const* mgraph::Packet<unsigned __int64>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE5F00
+	template String* mgraph::Packet<String>::GetData();
+	// FUNCTION: ENGINE 0x10AE5F10
+	template String const* mgraph::Packet<String>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE60A0
+	template Complex* mgraph::Packet<Complex>::GetData();
+	// FUNCTION: ENGINE 0x10AE60B0
+	template Complex const* mgraph::Packet<Complex>::GetData() const;
+	// FUNCTION: ENGINE 0x10AE7160
+	template void* mgraph::InputPin<mgraph::Packet<unsigned int>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE7180
+	template void* mgraph::InputPin<mgraph::Packet<unsigned __int64>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE71A0
+	template void* mgraph::InputPin<mgraph::Packet<String>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AE71C0
+	template void* mgraph::InputPin<mgraph::Packet<Complex>>::operator new(size_t);
+	// FUNCTION: ENGINE 0x10AF3010
+	template void mgraph::Packet<mgraph::TriggerData>::Assign(mgraph::Packet<mgraph::TriggerData> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF30D0
+	template void mgraph::Packet<Vector>::Assign(mgraph::Packet<Vector> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF38A0
+	template void mgraph::Packet<bool>::Assign(mgraph::Packet<bool> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF5980
+	template void mgraph::Packet<unsigned int>::Assign(mgraph::Packet<unsigned int> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF6890
+	template void mgraph::Packet<unsigned __int64>::Assign(mgraph::Packet<unsigned __int64> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF6BC0
+	template void mgraph::Packet<String>::Assign(mgraph::Packet<String> const&, int, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AF75D0
+	template void mgraph::Packet<Complex>::Assign(mgraph::Packet<Complex> const&, int, om::Allocator*);
 }

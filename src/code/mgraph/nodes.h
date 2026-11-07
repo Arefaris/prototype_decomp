@@ -6,6 +6,7 @@
 
 #include "code/mgraph/envelope.h"
 #include "code/mgraph/graph.h"
+#include "code/om/allocator.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/delegate.h"
 #include "code/om/dynamicproperty.h"
@@ -59,12 +60,18 @@ namespace mgraph
 			unknown0(0)
 		{
 		}
+		TriggerData& operator=(const TriggerData& other)
+		{
+			unknown0 = other.unknown0;
+			return *this;
+		}
 
 		unsigned char unknown0;
 	};
 
-	// What a pin keeps for one channel (RTTI: mgraph::PinChannelData and mgraph::Packet<T>, 0x10 bytes). Slot 0 of the packets is
-	// not recovered; slot 1 is the destructor. The packet is a handle (a pointer into a table, a count and a pool).
+	// What a pin keeps for one channel (RTTI: mgraph::PinChannelData and mgraph::Packet<T>, 0x10 bytes). Slot 0 of the packets
+	// folds the values of all channels into one again; slot 1 is the destructor. The packet holds its value itself, or a block
+	// of the values of 256 channels.
 	class PinChannelData
 	{
 	public:
@@ -72,37 +79,64 @@ namespace mgraph
 			unknown4(0)
 		{
 		}
-		virtual void Slot0(void* unknown, int unknown2) = 0;
+		virtual void Slot0(int count, om::Allocator* allocator) = 0;
 		virtual ~PinChannelData()
 		{
 		}
 
-		unsigned int unknown4;  // the owner of the channel (set by the input pins)
+		unsigned int unknown4;  // the owner of the channel (set by the input pins), after Slot0 the number of channels
 	};
+
+	// The values of 256 channels, aligned to 128 bytes inside the block (the block is allocated from the pin's allocator)
+	template<class T> struct PacketBlock
+	{
+		PacketBlock()
+		{
+			data = reinterpret_cast<T*>((reinterpret_cast<unsigned int>(this) + 0x80) & 0xFFFFFF80);
+		}
+		static void* operator new(size_t size, om::Allocator* allocator)
+		{
+			return om::AllocateFrom(allocator, AllocationTag(), size, 4);
+		}
+		static void operator delete(void*, om::Allocator*)
+		{
+		}
+		static const char* AllocationTag();
+
+		char storage[256 * sizeof(T) + 0x80];
+		T* data;
+	};
+	template<class T> const char* PacketBlock<T>::AllocationTag()
+	{
+		return "";
+	}
 
 	// The values a pin carries for each channel
 	template<class T> class Packet : public PinChannelData
 	{
 	public:
 		Packet() :
-			unknown8(0),
+			blocks(0),
 			value()
 		{
 		}
 		Packet(const Packet& other) :
-			unknown8(0),
+			blocks(0),
 			value()
 		{
 			Assign(other, 0, 0);
 		}
-		virtual void Slot0(void* unknown, int unknown2);
+		virtual void Slot0(int count, om::Allocator* allocator);
 		virtual ~Packet()
 		{
 		}
-		// 0x10AF5980 (one copy in the engine): gives up what the packet holds and shares what the other holds
-		void Assign(const Packet& other, int unknown, int unknown2);
+		// Gives up what the packet holds and takes over what the other holds
+		void Assign(const Packet& other, int count, om::Allocator* allocator);
+		// The values of the channels (null while the packet holds one value)
+		T* GetData();
+		const T* GetData() const;
 
-		unsigned int unknown8;
+		PacketBlock<T>* blocks;  // 8
 		T value;  // 0xC
 	};
 
