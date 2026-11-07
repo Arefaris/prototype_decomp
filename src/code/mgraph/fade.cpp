@@ -30,6 +30,19 @@ namespace mgraph
 		Release(memory, sizeof(Fade), __alignof(Fade));
 	}
 
+	// FUNCTION: ENGINE 0x10B6F190
+	Fade::Channel::Channel(float newValue) :
+		unknown0(newValue)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B6F920
+	void Fade::SetNumChannels(unsigned int newCount)
+	{
+		channels.Resize(newCount, Channel(time));
+		Node::SetNumChannels(newCount);
+	}
+
 	// FUNCTION: ENGINE 0x10B6F170
 	void Fade::SetTime(float newTime)
 	{
@@ -145,3 +158,10 @@ using namespace mgraph;
 	template void om::MetaMethod1<mgraph::Fade,mgraph::Fade,void,float>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B70500
 	template void mgraph::NodeType<mgraph::Fade>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+	// FUNCTION: ENGINE 0x10B6F370
+	template char const* om::DynamicArray<mgraph::Fade::Channel,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B6F6B0
+	template mgraph::Fade::Channel* om::DynamicArray<mgraph::Fade::Channel,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B6F770
+	template void om::DynamicArray<mgraph::Fade::Channel,unsigned short>::Resize(unsigned short, mgraph::Fade::Channel const&);

@@ -13,6 +13,9 @@ namespace mgraph
 	{
 	public:
 		Smoother(Graph* newGraph, const om::ClassName& newName);
+		virtual ~Smoother();
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void Slot16(EvaluationFrame* frame);
 		static void* operator new(size_t);
 		static void operator delete(void* memory);
 		static const char* AllocationTag();
@@ -23,8 +26,23 @@ namespace mgraph
 		void SetFallRate(float newRate);
 		float GetFallRate() const;
 
-		char unknown50[8];
+		// What the node keeps for each channel (names guessed; 8 bytes)
+		struct Channel
+		{
+			Channel();
+			float unknown0;
+			float unknown4;
+		};
+		om::DynamicArray<Channel, unsigned short> channels;  // 0x50
 	};
 }
+
+namespace om
+{
+	// The loops that fill and copy the elements are the engine's
+	template<> void DynamicArray<mgraph::Smoother::Channel, unsigned short>::FillElements(mgraph::Smoother::Channel* destination, unsigned short count, const mgraph::Smoother::Channel& value);
+	template<> void DynamicArray<mgraph::Smoother::Channel, unsigned short>::CopyElements(mgraph::Smoother::Channel* destination, const mgraph::Smoother::Channel* source, unsigned short count);
+}
+
 
 #endif

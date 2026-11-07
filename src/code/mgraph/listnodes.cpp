@@ -155,6 +155,11 @@ namespace mgraph
 	{
 		return new mgraph::ListCount<mgraph::EnvelopeData>(static_cast<Graph*>(graph), *nodeName);
 	}
+	// FUNCTION: ENGINE 0x10B638C0
+	template<> Node* NodeType<mgraph::ListEntry<mgraph::EnvelopeData> >::CreateNode(void* graph, const ClassName* nodeName)
+	{
+		return new mgraph::ListEntry<mgraph::EnvelopeData>(static_cast<Graph*>(graph), *nodeName);
+	}
 	// FUNCTION: ENGINE 0x10B2ACC0
 	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<bool>::Slot16(mgraph::EvaluationFrame*);
@@ -177,3 +182,7 @@ namespace mgraph
 	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<Complex>::Slot16(mgraph::EvaluationFrame*);
 }
+
+
+	// FUNCTION: ENGINE 0x10B73830
+	template void mgraph::ListEntry<mgraph::EnvelopeData>::operator delete(void*);

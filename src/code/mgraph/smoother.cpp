@@ -23,9 +23,29 @@ namespace mgraph
 		return Allocate(Smoother::AllocationTag(), sizeof(Smoother), __alignof(Smoother));
 	}
 
+	// FUNCTION: ENGINE 0x10B75FD0
 	inline void Smoother::operator delete(void* memory)
 	{
 		Release(memory, sizeof(Smoother), __alignof(Smoother));
+	}
+
+	// FUNCTION: ENGINE 0x10B75A50
+	Smoother::Channel::Channel() :
+		unknown0(0.0f),
+		unknown4(0.0f)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B75FA0
+	Smoother::~Smoother()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B76290
+	void Smoother::SetNumChannels(unsigned int newCount)
+	{
+		channels.Resize(newCount, Channel());
+		Node::SetNumChannels(newCount);
 	}
 
 	// FUNCTION: ENGINE 0x10B76A20
@@ -112,3 +132,16 @@ using namespace mgraph;
 	template void om::MetaMethod1<mgraph::Smoother,mgraph::Smoother,void,float>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B76A50
 	template void mgraph::NodeType<mgraph::Smoother>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+	// FUNCTION: ENGINE 0x10B75B60
+	template void om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::DestroyElements(mgraph::Smoother::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B75BF0
+	template void om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::ReleaseElements(mgraph::Smoother::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B75C40
+	template char const* om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B75D20
+	template om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10B75F80
+	template mgraph::Smoother::Channel* om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B760B0
+	template void om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Resize(unsigned short, mgraph::Smoother::Channel const&);

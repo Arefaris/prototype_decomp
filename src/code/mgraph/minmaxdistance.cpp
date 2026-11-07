@@ -4,6 +4,14 @@
 
 #pragma warning(disable: 4661)
 
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
+
 namespace mgraph
 {
 	using namespace om;
@@ -23,6 +31,21 @@ namespace mgraph
 	inline void MinMaxDistance::operator delete(void* memory)
 	{
 		Release(memory, sizeof(MinMaxDistance), __alignof(MinMaxDistance));
+	}
+
+	// FUNCTION: ENGINE 0x10B73A20
+	MinMaxDistance::Channel::Channel() :
+		unknown0(engine::driving::gOne),
+		unknown4(100.0f),
+		unknown8(0.01f)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B740A0
+	void MinMaxDistance::SetNumChannels(unsigned int newCount)
+	{
+		channels.Resize(newCount, Channel());
+		Node::SetNumChannels(newCount);
 	}
 
 	// FUNCTION: ENGINE 0x10B747D0
@@ -88,3 +111,10 @@ using namespace mgraph;
 	template mgraph::NodeType<mgraph::MinMaxDistance>::~NodeType();
 	// FUNCTION: ENGINE 0x10B74780
 	template void mgraph::NodeType<mgraph::MinMaxDistance>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+	// FUNCTION: ENGINE 0x10B73C20
+	template char const* om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B73D60
+	template mgraph::MinMaxDistance::Channel* om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B73FB0
+	template void om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Resize(unsigned short, mgraph::MinMaxDistance::Channel const&);

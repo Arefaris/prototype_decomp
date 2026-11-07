@@ -11,9 +11,34 @@ namespace mgraph
 
 	class __declspec(align(8)) MinMaxDistance : public Node
 	{
-		MGRAPH_NODE_BODY_OUT(MinMaxDistance, Node, 0x60);
+	public:
+		MinMaxDistance(Graph* newGraph, const om::ClassName& newName);
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void Slot16(EvaluationFrame* frame);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
+
+		// What the node keeps for each channel (names guessed; 12 bytes)
+		struct Channel
+		{
+			Channel();
+			float unknown0;
+			float unknown4;
+			float unknown8;
+		};
+		om::DynamicArray<Channel, unsigned short> channels;  // 0x50
+		char unknown58[8];
 	};
 
 }
+
+namespace om
+{
+	// The loops that fill and copy the elements are the engine's
+	template<> void DynamicArray<mgraph::MinMaxDistance::Channel, unsigned short>::FillElements(mgraph::MinMaxDistance::Channel* destination, unsigned short count, const mgraph::MinMaxDistance::Channel& value);
+	template<> void DynamicArray<mgraph::MinMaxDistance::Channel, unsigned short>::CopyElements(mgraph::MinMaxDistance::Channel* destination, const mgraph::MinMaxDistance::Channel* source, unsigned short count);
+}
+
 
 #endif

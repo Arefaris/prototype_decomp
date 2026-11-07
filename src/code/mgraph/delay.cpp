@@ -20,9 +20,31 @@ namespace mgraph
 		return Allocate(Delay::AllocationTag(), sizeof(Delay), __alignof(Delay));
 	}
 
+	// FUNCTION: ENGINE 0x10B6E720
 	inline void Delay::operator delete(void* memory)
 	{
 		Release(memory, sizeof(Delay), __alignof(Delay));
+	}
+
+	// FUNCTION: ENGINE 0x10B6E390
+	Delay::Channel::Channel() :
+		unknown0(0.0f),
+		unknown4(0.0f),
+		unknown8(0),
+		unknownC(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B6E6F0
+	Delay::~Delay()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B6E8F0
+	void Delay::SetNumChannels(unsigned int newCount)
+	{
+		channels.Resize(newCount, Channel());
+		Node::SetNumChannels(newCount);
 	}
 
 	// FUNCTION: ENGINE 0x10B6F040
@@ -88,3 +110,14 @@ using namespace mgraph;
 	template mgraph::NodeType<mgraph::Delay>::~NodeType();
 	// FUNCTION: ENGINE 0x10B6EFF0
 	template void mgraph::NodeType<mgraph::Delay>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+	// FUNCTION: ENGINE 0x10B6E4B0
+	template void om::DynamicArray<mgraph::Delay::Channel,unsigned short>::DestroyElements(mgraph::Delay::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B6E590
+	template char const* om::DynamicArray<mgraph::Delay::Channel,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10B6E650
+	template om::DynamicArray<mgraph::Delay::Channel,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10B6E680
+	template mgraph::Delay::Channel* om::DynamicArray<mgraph::Delay::Channel,unsigned short>::Allocate(unsigned short);
+	// FUNCTION: ENGINE 0x10B6E7E0
+	template void om::DynamicArray<mgraph::Delay::Channel,unsigned short>::Resize(unsigned short, mgraph::Delay::Channel const&);
