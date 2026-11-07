@@ -5167,8 +5167,8 @@ the neighbours. In address order (the file names are guesses):
 | 0x10584E70 - 0x10586A00 | proto::FREvent / FREventInfo / FREventLocatorDef | frevent.cpp, freventmanager.cpp | partly |
 | 0x10585440 - 0x10593A00 | FREventObjectBase and its locator / object / trigger classes | src/code/proto/freeroamevents/frobjects.cpp | 29 match, 2 nonmatching |
 | 0x10587C80 - 0x1058C1C0 | proto::FREventManager lookups, free roam entry and exit | src/code/proto/freeroamevents/freventmanager.cpp | 8 match, 2 nonmatching |
-| 0x10588000 - 0x1058D100 | Method / Closure instances for the FREventManager natives, registration at 0x1058D180 | not started (template instances) | |
-| 0x10595000 - 0x1059B000 | AchievementsManager, StatsManager (MetaLoadObject managers, array helpers) | not started | |
+| 0x10588000 - 0x1058D100 | Method / Closure instances for the FREventManager natives, registration at 0x1058D180 | src/code/proto/freeroamevents/freventmanagerwrappers.cpp | instances done, registration not |
+| 0x10593940 - 0x1059AAA0 | AchievementsManager, StatsManager (MetaLoadObject managers, array helpers) | src/code/proto/achievementsmanager.cpp, statsmanager.cpp | see the sn-bw section |
 | 0x1059AB30 - 0x1059B930 | proto::SmartHintManager and SmartHintEntry | src/code/proto/smarthint/smarthintmanager.cpp | 23 match, 1 EQUIVALENT |
 | 0x1059E9A0 - 0x1059EF80 | proto::SmartHintSetTimerTrack / Action | src/code/proto/smarthint/smarthintsettimer.cpp | 14 match, 1 EQUIVALENT |
 | 0x1059F010 - 0x105A1xxx | movie::MoviePlayer, BinkData, core::Object helpers (continues past the range) | not started | |
@@ -6974,3 +6974,30 @@ names a unit; the file names are guesses.
   that copy a `Vector2` / `Vector` leave the last coordinate on the x87 stack until after `mov eax, esi`: not reproduced (`BloodSplatterState`, `HUDState`, `LaserSightState`, `BloodSplatter` constructors NONMATCHING).
 - Not done: the update and message functions (Poison `Update` 0x102C14B0 / `OnMessage` 0x102C1800, the grab messages, the HUD update), the drawing of the primitives, the LOD reflection (accessor based members), the fog drawable (0x102D5500),
   the decay render manager and the midground manager, and the message classes of the range (their constructors are inline; no header declares them).
+## proto: the range 0x10580000 - 0x105A0000, second pass (sn-bw): the script method instances, the achievements and statistics managers
+- `proto/freeroamevents/freventmanagerwrappers.cpp`, `proto/achievementsmanagerwrappers.cpp`, `proto/statsmanagerwrappers.cpp`, `proto/smarthint/smarthintmanagerwrappers.cpp`: explicit instances of `MethodN` / `ClosureN` and the
+  `LuaScriptManager::RegisterMethod` forms of the four managers' natives (the signatures are the RTTI names `Method2<class proto::FREventManager,...>` in the order of rtti.tsv; the pointer of a `StatsManager` method is 8 bytes because the
+  class derives from `DBObserver` at +8, so its closures are 0x28 bytes). The instances map by bytes with `mapunit`; the ones that only differ in a vftable are told apart by the relocations. The `Closure1<..., ClosureInPlace>` constructor
+  that every explicit instantiation of `Closure1` also makes has no counterpart in the engine (it is inlined into `RegisterMethod`) and stays unmapped.
+- `proto/achievementsmanager.cpp/.h` (0x10593940 - 0x10595C70): `proto::AchievementsManager` (a `MetaLoadObject`, 0x1C bytes: the achievement array at +8, the pad word of the array at +0x14, the flag of `ach_DisableUpdates` at +0x18),
+  its two element structs `Requisite` (a statistic's name and a goal; negative goals mean "at most") and `Achievement` (name, index, awarded flag, requisites), the reflection, the factory registration, the natives `ach_Reset`, `ach_SetAchievement`,
+  `ach_UpdateAllAchievements`, `ach_DisableUpdates` and the vftable slots (3 registers the natives and numbers the achievements, 4 takes them back). `Achievement::Award` (the profile manager's slot 11 takes the current profile and the id,
+  shared header change: `OLSProfile::Slot11` got its two arguments) is NONMATCHING (the engine keeps the profile manager in ecx for the call).
+- `proto/statsmanager.cpp/.h` (0x10595C70 - 0x1059AAA0): `proto::StatsManager` (`MetaLoadObject` and, at +8, `DBObserver`; the statistics sections at +0xC, the "in gameplay" flag at +0x1C and the "updates disabled" flag at +0x1D),
+  `StatDefinition` (a description and its primitive statistics), `PrimitiveStat` (name, `VisualizationType`, number of entries, description, maximum, the texts of an indexed string statistic) and `StringEntry`; the reflection, the enumeration
+  data (0x110B2BE0 / 0x110B2BF0, non-const in the engine: the registration reads the name through the pointer variable), the `stats_` natives, the accessors of the statistics screens and the time statistics (a 64-bit millisecond count in two database
+  entries). `PrimitiveStat::GetStringValue` is NONMATCHING (the engine lays the clamp of the index out with the first text through a register). The `ArrayDynamicHelper` insertion and removal of the two larger element arrays (0x1059A300,
+  0x1059A980, 0x1059A620) are the engine's.
+- The element arrays: `ElementArrayPad` (proto/arraypad.h) is the word the engine keeps behind an array member of an element struct (it is not copied); the achievement array inserts with the count version of `Insert`, the other helpers use the
+  default element; a `ArrayDynamic` member the unit uses besides its code (`Free`, `Begin`, `End`, `Create`, the count `Insert`) is instantiated explicitly at the end of the unit's source.
+- Findings: `Size() > 0` (not `Size() != 0`) in front of a loop gives the engine's `sar / je` entry test; a nested `if (index < Size) { if (index2 < inner.Size) return ...; }` over the sections' arrays keeps the engine's addressing where
+  a pointer to the inner array does not; a by-value `core::Name(text, 1)` temporary passed straight to the call (not a named local) gives the engine's `eax` hand-over; `SetInt` with a time statistic needs the branches written out
+  (the index `type == 6` as a constant in each branch), and the 64-bit sums are `long long` locals widened where the engine widens them.
+- Small functions added to the existing units: `FREventInfo`'s statistic getters and `CanSelect`, `FREvent::Unknown10587300`, `FREventManager`'s `GetSelectedEvent`, `GetSelectedEventName`, `GetCurrentEventName`, `SetFlag`,
+  `Unknown10587AF0`, `ResetFreeRoamEvents`, `UnlockEventsByKey`, `SetLastEvent`, `DestroyFreeRoamEvents`, the `CollectibleLog` members, the `fre_` natives that answer with the category texts (their arrays live at 0x11274F38 - 0x11274FA0 and are set by the
+  manager's constructor), the Lua value readers (0x10590390 - 0x10590540), `FREventObjectDef::Spawn` (its position and direction are two `math::Vector` members), the constructors of `FREventLocator` and `FREventTriggerBase`
+  (the by-value name of the inlined base constructor sits in the engine's argument slot), and `SmartHintManager`'s log creation and destruction, timer enabling, reset and natives removal.
+- Left alone: the deleting destructors of `FREventLocatorDef`, `FREventObjectDef` and `FREventTriggerDef` (the engine inlines the destructor into them, ours calls it: the vftable slots stay mapped to the engine's), the second copy of the factory
+  registration of each manager (0x10595650, 0x1059A040: nothing calls them), the registration functions of the free roam natives (0x1058D180) and the smart hint natives (0x1059DFB0, their member pointers need the unreconstructed
+  front end classes), the functions with a `core::Name` temporary in the frame (they realign the stack in the engine), the Lua table loaders of the free roam objects (0x10590970 - 0x10593260), the trigger volumes' `Spawn` (0x10593600, 0x10593750) and
+  the unlockables list (0x10581470 - 0x10581540: its members are not recovered).

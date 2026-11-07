@@ -10,6 +10,7 @@
 #include "code/core/name.h"
 #include "code/engine/dbobserver.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/scenariomessage.h"
 #include "code/math/vector.h"
 #include "code/proto/freeroamevents/frobjects.h"
 
@@ -17,6 +18,32 @@ struct lua_State;
 
 namespace proto
 {
+	class SmartHintLog;
+
+	// The scenario message the scripts post for a free roam event (event 0x4F): a number and three names (their
+	// meaning is unknown). Its virtual members are in another unit.
+	struct FreeRoamEventScenarioMessage : public engine::ScenarioMessage
+	{
+		// 0x10585590
+		FreeRoamEventScenarioMessage(int newNumber, const core::Name<core::CaseSensitiveKey>& newFirst,
+			const core::Name<core::CaseSensitiveKey>& newSecond, const core::Name<core::CaseSensitiveKey>& newThird) :
+			engine::ScenarioMessage(0x4f), first((unknown1C = newNumber, newFirst)), second(newSecond), third(newThird)
+		{
+		}
+		virtual ScenarioMessage* Clone(void* memory, int unused);
+		// vftable slot 2 (0x1048D7B0)
+		virtual bool WriteEvent();
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		core::Name<core::CaseSensitiveKey> first;  // +0x20
+		core::Name<core::CaseSensitiveKey> second;  // +0x28
+		core::Name<core::CaseSensitiveKey> third;  // +0x30
+	};
+
+	// 0x10585C10: a number the game database keeps for the event with the name (the index selects the best medal,
+	// the last medal, the experience of the award or the experience earned; name guess)
+	int GetEventStatistic(const char* eventName, int index);
+
 	// The object an event shows the player (a marker, a locator, a trigger volume; frobjects.h)
 	typedef FREventObjectBase FREventObject;
 
@@ -36,10 +63,23 @@ namespace proto
 		void ActivateObject(const char* name, bool active);
 		// 0x105859D0: the object of the event with the name
 		FREventObject* FindObject(const char* name);
+		// 0x105850E0 / 0x10585100 / 0x105851A0: the numbers the game database keeps for the event (how often it was
+		// completed, the medal reached, the experience of the award; name guesses)
+		int GetCompletionCount();
+		int GetAchievement();
+		int GetEPAward();
+		// 0x105862F0: lets the event's state machine know about a message (a number, a name and a flag; name guess)
+		void PostMessage(int number, core::Name<core::CaseSensitiveKey> name, int flag);
 		// 0x10585120: turns the event's stored platinum reward into its award (answers it, 0 when there is none)
 		int UpgradeToPlatinum();
 		// 0x10587300: sets the event's active state (called for every event when the manager switches)
 		void Unknown10587300(bool active);
+		// 0x10587140: takes the event back to its start (name unknown)
+		void Unknown10587140();
+		// 0x105865D0: (name unknown)
+		bool Unknown105865D0(int a);
+		// 0x10586660: whether the event is open for the player (name guess)
+		unsigned char IsAvailable();
 		// 0x105859A0: unlocks the event when the key is the one it waits for
 		bool Unlock(const core::Name<core::CaseSensitiveKey>& key);
 		// 0x105860F0: makes the marker of the event (not reconstructed)
@@ -84,6 +124,8 @@ namespace proto
 		int GetCurrentEPAward();
 		// 0x10586800: the event can be chosen on the selection screen
 		bool CanSelect();
+		// 0x105852E0: whether the category is one with medals (all but the two collectible categories; name guess)
+		int HasMedals();
 		// 0x1058EE50: the name of the event as a key
 		core::Name<core::CaseSensitiveKey> GetNameKey();
 
@@ -123,8 +165,14 @@ namespace proto
 	public:
 		// 0x1058D0D0: notes the collectible with the name
 		void Add(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x105878D0: forgets all of them
+		void Clear();
+		// 0x1058C150: the index of the collectible in the sorted list of known ones, -1 when it is not there
+		int FindIndex(const core::Name<core::CaseSensitiveKey>* name);
 
-		unsigned char unknown0[0x18];
+		int unknown0;
+		SmartHintLog* log;  // +4: the flags of the collectibles that were noted
+		unsigned char unknown8[0x18 - 8];
 	};
 
 	class FREventManager : public engine::DBObserver
@@ -167,11 +215,25 @@ namespace proto
 		int UpgradeMedalsToPlatinum(lua_State* L);
 
 		bool IsFreeRoamActive();
+		// 0x1058F440: lets every event that waits for the key know it arrived, true when one did
+		bool UnlockEventsByKey(core::Name<core::CaseSensitiveKey> key);
+		// 0x1058F650: remembers the event with the name as the last one (or forgets it; name guess)
+		void SetLastEvent(const char* name, bool remember);
 		// 0x1058AE60 / 0x1058AEE0: leaves / enters the free roam mode
 		void LeaveFreeRoam();
 		void EnterFreeRoam();
 		// 0x1058C1C0: the manager's active flag
 		void SetActive(bool active);
+		// 0x10588770: the event the front end selected, else the cached one (name guess)
+		FREvent* GetSelectedEvent();
+		// 0x105884E0: the name of the running event, the empty name without one (name guess)
+		core::Name<core::CaseSensitiveKey> GetCurrentEventName();
+		// 0x1058F610: the name of the selected event, the empty name without one (fre_GetSelectedEventName)
+		core::Name<core::CaseSensitiveKey> GetSelectedEventName();
+		// 0x10587FA0: sets one of the two switches at +0x110
+		void SetFlag(int index, bool value);
+		// 0x10587BB0: empties the logs, calls the script's reset and forgets the received unlock keys
+		void ResetFreeRoamEvents();
 		// The members these call (not reconstructed)
 		void Unknown10587B70();
 		void Unknown10587AF0();
@@ -194,7 +256,8 @@ namespace proto
 		unsigned char unknown6[2];
 		FREvent* events;
 		FREventInfo* infos;
-		unsigned char unknown10[0x18 - 0x10];
+		unsigned char unknown10[4];
+		int unknown14;
 		FREvent* lastEvent;
 		unsigned char unknown1C[0x3c - 0x1c];
 		bool active;
@@ -203,9 +266,11 @@ namespace proto
 		PackageSlotPool slotPool;
 		CollectibleLog hintLog;  // +0xE0
 		CollectibleLog locationLog;  // +0xF8
-		unsigned char unknown110[0x120 - 0x110];
+		bool flags[2];  // +0x110: switches the script sets by index (SetFlag)
+		unsigned char unknown112[0x118 - 0x112];
+		core::Name<core::CaseSensitiveKey> selectedName;  // +0x118: the event the front end selected, if any
 		FREventTimers timers;  // +0x120
-		int unknown160;
+		FREvent* currentEvent;  // +0x160: the event that is running, if any
 	};
 
 	// The manager (0x11274F08)

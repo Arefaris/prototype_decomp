@@ -14,9 +14,20 @@ namespace proto
 	class SmartHintLog
 	{
 	public:
+		// 0x104E07C0 / 0x104E0860: a log of count hints (or timers) kept in the game database entry with the name
+		SmartHintLog(core::Name<core::CaseSensitiveKey> newName, int count);
+		~SmartHintLog();
 		// 0x104DF330 / 0x104DF3E0: marks / unmarks the hint with the index
 		void Set(int index);
 		void Clear(int index);
+		// 0x104DF2F0: whether the hint with the index is marked
+		bool Get(int index);
+		// 0x104DF440: unmarks every hint (name guess)
+		void ClearAll();
+		// 0x104DF380 (name unknown)
+		void Unknown104DF380();
+
+		unsigned char unknown0[0x18];
 	};
 
 	// The hint on screen: what is shown, how far it is and which hint it is
@@ -60,9 +71,24 @@ namespace proto
 		unsigned char unknown4C4[0x52c - 0x4c4];
 	};
 
+	// The hints waiting to be shown (0xD4 bytes at +0x34 of the manager; the members are not recovered)
+	struct SmartHintQueues
+	{
+		// 0x1059C850: empties them (name guess)
+		void Clear();
+
+		unsigned char unknown0[0xd4];
+	};
+
 	class SmartHintManager
 	{
 	public:
+		// 0x1059E820 (not reconstructed)
+		SmartHintManager();
+		// 0x1059ABE0: marks nothing as seen, sets every timer to zero (name guess)
+		void ResetDatabaseEntries();
+		// 0x1059D250: sets the manager to its start state (name guess)
+		void Initialise();
 		// 0x1059AB30
 		void SetEnabledFlag(bool value);
 		// 0x1059AB40 / 0x1059AB50 / 0x1059AB70 / 0x1059AB80 / 0x1059ABA0: the mode word (0 off, 1, 2 and 3 on)
@@ -75,6 +101,14 @@ namespace proto
 		void SetFlags0(bool value);
 		// 0x1059AC60: marks or unmarks a hint in the log
 		void SetHintFlag(int index, bool set);
+		// 0x1059AC50: whether a hint is marked in the log
+		bool GetHintFlag(int index);
+		// 0x1059ACE0: enables or disables a timer
+		void SetTimerEnabled(int index, bool enabled);
+		// 0x1059ABC0: takes the script natives back
+		void UnregisterNatives();
+		// 0x1059B1E0: whether the hint on screen is one the scenario waits for (name unknown)
+		bool Unknown1059B1E0();
 		// 0x1059AC90 / 0x1059ACB0: the timers, kept in the game database
 		float GetTimer(int index);
 		void SetTimer(int index, float value);
@@ -100,6 +134,9 @@ namespace proto
 		void SetActive(bool active);
 		// 0x1059B1A0: hides the hint on screen when it is the one being shown (not reconstructed)
 		void HideShown();
+		// 0x1059B5A0 / 0x1059B6C0: makes the two logs and their game database entries / takes them down (name guess)
+		void CreateLogs();
+		void DestroyLogs();
 		// 0x1059B4D0: puts the state back to the start
 		void ResetState();
 
@@ -110,16 +147,20 @@ namespace proto
 		SmartHintShown shown;  // +8
 		float unknown1C;
 		float unknown20;
-		unsigned char unknown24[4];
+		SmartHintLog* timerLog;  // +0x24: the flags of the enabled timers
 		int mode;  // +0x28
 		bool flag2C;  // +0x2C
 		unsigned char unknown2D[3];
 		int setting;  // +0x30
-		unsigned char unknown34[0xa6bd - 0x34];
+		SmartHintQueues queues;  // +0x34
+		unsigned char unknown108[0xa6bc - 0x108];
+		bool unknownA6BC;
 		SmartHintFlags flags;  // +0xA6BD
 	};
 
 	extern SmartHintManager* gSmartHintManager;
+	// 0x1059E870: makes the manager
+	void CreateSmartHintManager();
 }
 
 #endif

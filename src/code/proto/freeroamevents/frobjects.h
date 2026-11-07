@@ -76,20 +76,15 @@ namespace proto
 		virtual int GetKind();
 
 		ObjectName templateName;  // +0x18
-		float x;  // +0x20
-		float y;  // +0x24
-		float z;  // +0x28
-		float directionX;  // +0x2C
-		float directionY;  // +0x30
-		float directionZ;  // +0x34
+		math::Vector position;  // +0x20
+		math::Vector direction;  // +0x2C
 	};
 
 	// A volume the player can be inside of
 	struct FREventTriggerBase : public FREventObjectBase
 	{
-		FREventTriggerBase(ObjectName newName) : FREventObjectBase(newName)
-		{
-		}
+		// 0x10590860
+		FREventTriggerBase(ObjectName newName);
 		virtual ~FREventTriggerBase()
 		{
 		}

@@ -42,7 +42,7 @@ namespace engine
 		virtual void Slot8() = 0;
 		virtual void Slot9() = 0;
 		virtual void Slot10() = 0;
-		virtual void Slot11() = 0;
+		virtual void Slot11(int profileIndex, int achievementId) = 0;
 		// vftable slot 12 (0x10888F00)
 		virtual bool Slot12();
 		virtual void Slot13() = 0;
