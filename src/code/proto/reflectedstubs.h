@@ -601,46 +601,6 @@ namespace proto
 		unsigned char unknownTail[0x534 - sizeof(proto::MovementBehaviour)];
 	};
 
-	class GrabbableBehaviour : public engine::animation::AttachableBehaviour
-	{
-	public:
-		explicit GrabbableBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x60 - sizeof(engine::animation::AttachableBehaviour)];
-	};
-
-	class GrabbableStaticBehaviour : public proto::GrabbableBehaviour
-	{
-	public:
-		explicit GrabbableStaticBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x80 - sizeof(proto::GrabbableBehaviour)];
-	};
-
-	class GrabBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit GrabBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
-	};
-
-	class GrabAutoSpawnBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit GrabAutoSpawnBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
 	class WeaponBehaviour : public engine::Behaviour
 	{
 	public:
@@ -694,16 +654,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x488 - sizeof(proto::EncounterSpawnerBehaviour)];
-	};
-
-	class ProtoColourVariationBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ProtoColourVariationBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 	class LightDecalBehaviour : public engine::Behaviour
@@ -824,16 +774,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x15C - sizeof(engine::Behaviour)];
-	};
-
-	class ShieldHitReactionBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ShieldHitReactionBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
 	};
 
 	class ShoulderConFixupBehaviour : public engine::Behaviour
@@ -1016,16 +956,6 @@ namespace proto
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
 	};
 
-	class GrabSelectionBehaviour : public proto::GrabBehaviour
-	{
-	public:
-		explicit GrabSelectionBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x60 - sizeof(proto::GrabBehaviour)];
-	};
-
 	class NPCRenderBehaviour : public engine::Behaviour
 	{
 	public:
@@ -1044,16 +974,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xE4 - sizeof(engine::TriggerBehaviour)];
-	};
-
-	class PoisonReactionBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit PoisonReactionBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
 	};
 
 	class FormationBehaviour : public proto::SquadCommanderBehaviour

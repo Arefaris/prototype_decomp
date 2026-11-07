@@ -12,6 +12,26 @@
 
 namespace proto
 {
+	// FUNCTION: ENGINE 0x102D91B0
+	content::ClassInfo* LODRenderData::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "LODRenderData";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102D91F0
+	content::ClassInfo* LODRenderBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "LODRenderBehaviour";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
 	inline float LengthOf(const math::Vector& v)
 	{
 		return sqrtf(v.z * v.z + v.y * v.y + v.x * v.x);

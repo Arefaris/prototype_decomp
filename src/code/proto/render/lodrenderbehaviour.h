@@ -6,6 +6,7 @@
 #define PROTO_RENDER_LODRENDERBEHAVIOUR_H
 
 #include "code/container/arraydynamic.h"
+#include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/math/aabb.h"
@@ -101,9 +102,19 @@ namespace proto
 		math::Vector scale;
 	};
 
+	// One level of detail as the content describes it (RTTI LODRenderData; the members are not recovered)
+	struct LODRenderData
+	{
+		// 0x102D91B0
+		static content::ClassInfo* GetClassInfo();
+	};
+
 	class LODRenderBehaviour : public engine::Behaviour
 	{
 	public:
+		// 0x102D91F0 (reflected as "LODRenderBehaviour")
+		static content::ClassInfo* GetClassInfo();
+
 		// The vftable (0x10DEA9F4): slots 0 and 2 are the base's. The destructor is 0x102DCF80, the vftable holds its
 		// scalar deleting copy 0x102DD0D0.
 		// vftable slot 1: the first update, which picks the shader palette entry and shows the levels

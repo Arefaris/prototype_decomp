@@ -5,6 +5,7 @@
 #ifndef PROTO_RENDER_DEFORMSHADERBEHAVIOUR_H
 #define PROTO_RENDER_DEFORMSHADERBEHAVIOUR_H
 
+#include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/message.h"
 #include "code/engine/render/async/drawable.h"
@@ -114,6 +115,10 @@ namespace proto
 	class DeformShaderBehaviour : public engine::Behaviour
 	{
 	public:
+		// 0x102D3D90 / 0x102D4140: the reflection (no members of its own)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
 		// The modifier the render thread applies (vtable 0x10DEA3C0, 0x8C bytes): the dents at +4, the bias at +0x88
 		class DeformShaderModifier : public engine::render::DrawableModifier
 		{

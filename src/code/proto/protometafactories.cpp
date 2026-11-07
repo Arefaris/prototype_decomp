@@ -2,6 +2,11 @@
 // type, the factory or creator and the registration function of each class, in the order the engine has them
 // (0x10290630 on; no assert path names the unit, the file names are guesses).
 #include "code/content/metafactory.h"
+#include "code/proto/behaviours/grabbablebehaviour.h"
+#include "code/proto/behaviours/grabbehaviour.h"
+#include "code/proto/behaviours/poisonreactionbehaviour.h"
+#include "code/proto/behaviours/shieldhitreactionbehaviour.h"
+#include "code/proto/render/protocolourvariationbehaviour.h"
 #include "code/proto/reflectedstubs.h"
 
 namespace content

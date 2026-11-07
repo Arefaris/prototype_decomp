@@ -39,6 +39,26 @@ namespace proto
 
 namespace proto
 {
+	// FUNCTION: ENGINE 0x102D3D90
+	content::ClassInfo* DeformShaderBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::DeformShaderBehaviour";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102D4140
+	content::MemberList* DeformShaderBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<engine::Behaviour>();
+		static content::BaseClassCasterImpl<engine::Behaviour, DeformShaderBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x102D41C0
 	bool DentBuffer::Push(const Dent& dent)
 	{
