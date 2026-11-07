@@ -137,7 +137,7 @@ namespace engine
 		return "";
 	}
 
-	// The engine's constructor (0x10858230) stores the reference count before it pushes the address of the lock, this one
+	// The engine's constructors (0x10858230, 0x10856620) store the reference count before it pushes the address of the lock, this one
 	// behind it (78.3 %): it is neither annotated nor mapped and only makes the compiler emit the vftable and the
 	// destructors the matching functions below belong to
 	AudioDialogueSubtitleLoader::AudioDialogueSubtitleLoader()
@@ -150,10 +150,22 @@ namespace engine
 		return "";
 	}
 
-	// The loaders as the registry makes them (a helper to keep the constructors and the destructors out of line)
-	content::ObjectLoader2* MakeDialogueLoader(bool subtitles)
+	// FUNCTION: ENGINE 0x10856510
+	// FUNCTION: ENGINE 0x10856650
+	// FUNCTION: ENGINE 0x10855880
+	const char* AudioDialogueSubtitle::AllocationTag()
 	{
-		if (subtitles)
+		return "";
+	}
+
+	// The loaders as the registry makes them (a helper to keep the constructors and the destructors out of line)
+	content::ObjectLoader2* MakeDialogueLoader(int kind)
+	{
+		if (kind == 2)
+		{
+			return (content::ObjectLoader2*)new AudioDialogueSubtitle;
+		}
+		if (kind == 1)
 		{
 			return new AudioDialogueSubtitleLoader;
 		}

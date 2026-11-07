@@ -9,6 +9,7 @@
 #include "code/core/name.h"
 #include "code/om/allocation.h"
 #include "code/om/atgcontent.h"
+#include "code/om/string.h"
 
 namespace engine
 {
@@ -22,6 +23,26 @@ namespace engine
 		// 0x1085B140
 		virtual void Load(void* object, void* name, void* source, void* unknown, void* inventory);
 		OM_ALLOCATION(AudioDialoguePersonalityLoader);
+	};
+
+	// One subtitle line (RTTI: engine::AudioDialogueSubtitle; base content::LoadObject, 0x30 bytes; the members behind the
+	// text are not recovered)
+	class __declspec(align(8)) AudioDialogueSubtitle : public content::LoadObject
+	{
+	public:
+		// 0x10856620; the destructor is 0x10856650, the deleting destructor 0x10856670
+		AudioDialogueSubtitle() :
+			unknown8(0)
+		{
+		}
+		// Slots 3 and 4 (0x10858A20, 0x10858A50; not reconstructed)
+		virtual void Slot3(int unused);
+		virtual bool IsReady();
+		OM_ALLOCATION(AudioDialogueSubtitle);
+
+		int unknown8;  // +8
+		om::String text;  // +0xC
+		unsigned char unknown18[0x18];
 	};
 
 	// A critical section that is made and deleted with the object that holds it (24 bytes; name guessed)
