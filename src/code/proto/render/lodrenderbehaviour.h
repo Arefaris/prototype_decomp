@@ -138,6 +138,9 @@ namespace proto
 		void UpdateForced(float dt);
 		// 0x102DB9F0: makes the level of a ready drawable and adds it to the table
 		void AddLevel(const LODReady* ready);
+		// 0x102D9ED0 / 0x102DA090: the messages of type 8 and 10 are handed to every level's drawable
+		void OnSegmentMessage(engine::Message* message);
+		void OnPlaybackMessage(engine::Message* message);
 		// 0x102D9AB0: gives every level the shader inputs of one entry of the palette; 0x102D9B10: the entry that was picked
 		void ApplyPaletteToLevels(ShaderPaletteData* data);
 		void ApplyAvailablePalette();

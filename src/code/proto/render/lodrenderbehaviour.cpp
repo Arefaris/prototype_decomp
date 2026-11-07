@@ -268,6 +268,168 @@ namespace proto
 		core::RefAssign(animation, newAnimation);
 	}
 
+	// The messages of type 8 (id 0: one segment shown or hidden; 1: a list of them; 2: the parts' flag set; 3: set)
+	struct SegmentVisibleMessage : public engine::Message
+	{
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> segment;  // +0x10
+		bool visible;  // +0x18
+	};
+
+	struct SegmentVisibilitiesMessage : public engine::Message
+	{
+		const engine::DrawableSegmentVisibility* visibilities;  // +0xC
+		unsigned int count;  // +0x10
+	};
+
+	struct PartsFlagMessage : public engine::Message
+	{
+		bool value;  // +0xC
+	};
+
+	// FUNCTION: ENGINE 0x102D9ED0
+	// NONMATCHING: the instructions are the engine's; the engine keeps the loop index in ebp and its byte offset in ebx where ours swaps them (about 92 %)
+#ifdef NONMATCHING
+	void LODRenderBehaviour::OnSegmentMessage(engine::Message* message)
+	{
+		switch ((unsigned short)message->id)
+		{
+		case 0:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						SegmentVisibleMessage* segment = static_cast<SegmentVisibleMessage*>(message);
+						levels.begin[i].drawable.SetSegmentVisible(segment->segment, segment->visible);
+					}
+				}
+			}
+			break;
+		case 1:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						SegmentVisibilitiesMessage* list = static_cast<SegmentVisibilitiesMessage*>(message);
+						levels.begin[i].drawable.SetSegmentVisibilities(list->visibilities, list->count);
+					}
+				}
+			}
+			break;
+		case 2:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.SetPartsUnknown(static_cast<PartsFlagMessage*>(message)->value);
+					}
+				}
+			}
+			break;
+		case 3:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.SetPartsUnknown(true);
+					}
+				}
+			}
+			break;
+		}
+	}
+#endif
+
+	// The playback message of type 10 (id 1)
+	struct PlayMessage : public engine::Message
+	{
+		float start;  // +0xC
+		float end;  // +0x10
+		float speed;  // +0x14
+		pure3d::Animation::CycleMode mode;  // +0x18
+		unsigned int cycles;  // +0x1C
+	};
+
+	// FUNCTION: ENGINE 0x102DA090
+	// NONMATCHING: the cases are the engine's; register choices of the loops and of the playback arguments differ (about 31 %)
+#ifdef NONMATCHING
+	void LODRenderBehaviour::OnPlaybackMessage(engine::Message* message)
+	{
+		switch ((unsigned short)message->id)
+		{
+		case 1:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						PlayMessage* play = static_cast<PlayMessage*>(message);
+						levels.begin[i].drawable.Play(play->start, play->end, play->speed, play->mode, play->cycles);
+					}
+				}
+			}
+			break;
+		case 2:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.ClearFlag10();
+					}
+				}
+			}
+			break;
+		case 3:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.SetFlag10();
+					}
+				}
+			}
+			break;
+		case 7:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.Method106E0490();
+					}
+				}
+			}
+			break;
+		case 8:
+			{
+				int count = levels.Size();
+				for (int i = 0; i < count; i++)
+				{
+					if (levels.begin[i].drawable.IsValid())
+					{
+						levels.begin[i].drawable.Method106E03E0();
+					}
+				}
+			}
+			break;
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x102DB9F0
 	void LODRenderBehaviour::AddLevel(const LODReady* readyItem)
 	{
