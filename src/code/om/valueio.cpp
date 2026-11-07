@@ -52,6 +52,277 @@ namespace om
 		return next != end ? (TextValue*)next : 0;
 	}
 
+	// FUNCTION: ENGINE 0x105B7650
+	void TextNodeTree::RotateLeft(TreeNode* node)
+	{
+		TreeNode* promoted = node->right;
+		node->right = promoted->left;
+		if (promoted->left != &nil)
+		{
+			promoted->left->parent = node;
+		}
+		promoted->parent = node->parent;
+		if (node->parent == &nil)
+		{
+			root = promoted;
+		}
+		else if (node == node->parent->left)
+		{
+			node->parent->left = promoted;
+		}
+		else
+		{
+			node->parent->right = promoted;
+		}
+		promoted->left = node;
+		node->parent = promoted;
+	}
+
+	// FUNCTION: ENGINE 0x105B76A0
+	void TextNodeTree::RotateRight(TreeNode* node)
+	{
+		TreeNode* promoted = node->left;
+		node->left = promoted->right;
+		if (promoted->right != &nil)
+		{
+			promoted->right->parent = node;
+		}
+		promoted->parent = node->parent;
+		if (node->parent == &nil)
+		{
+			root = promoted;
+		}
+		else if (node == node->parent->left)
+		{
+			node->parent->left = promoted;
+		}
+		else
+		{
+			node->parent->right = promoted;
+		}
+		promoted->right = node;
+		node->parent = promoted;
+	}
+
+	// FUNCTION: ENGINE 0x105B7700
+	bool TextNodeTree::IsLeftChild(TreeNode* node)
+	{
+		TreeNode* parent = node->parent;
+		if (parent != 0)
+		{
+			return parent->left == node;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105B7720
+	bool TextNodeTree::IsRightChild(TreeNode* node)
+	{
+		TreeNode* parent = node->parent;
+		if (parent != 0)
+		{
+			return parent->right == node;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105B7740
+	bool TextNodeTree::IsRoot(TreeNode* node)
+	{
+		return node->parent == &nil;
+	}
+
+	// FUNCTION: ENGINE 0x105B7760
+	TreeNode* TextNodeTree::Successor(TreeNode* node)
+	{
+		TreeNode* end = &nil;
+		TreeNode* next = node->right;
+		if (next != end)
+		{
+			while (next->left != end)
+			{
+				next = next->left;
+			}
+		}
+		else
+		{
+			next = node->parent;
+			while (next != end && node == next->right)
+			{
+				node = next;
+				next = next->parent;
+			}
+		}
+		return next;
+	}
+
+	// FUNCTION: ENGINE 0x105B77A0
+	void TextNodeTree::FixAfterErase(TreeNode* node)
+	{
+		while (node != root && node->color == 0)
+		{
+			if (node == node->parent->left)
+			{
+				TreeNode* sibling = node->parent->right;
+				if (sibling->color == 1)
+				{
+					sibling->color = 0;
+					node->parent->color = 1;
+					RotateLeft(node->parent);
+					sibling = node->parent->right;
+				}
+				if (sibling->left->color == 0 && sibling->right->color == 0)
+				{
+					sibling->color = 1;
+					node = node->parent;
+				}
+				else
+				{
+					if (sibling->right->color == 0)
+					{
+						sibling->left->color = 0;
+						sibling->color = 1;
+						RotateRight(sibling);
+						sibling = node->parent->right;
+					}
+					sibling->color = node->parent->color;
+					node->parent->color = 0;
+					sibling->right->color = 0;
+					RotateLeft(node->parent);
+					node = root;
+				}
+			}
+			else
+			{
+				TreeNode* sibling = node->parent->left;
+				if (sibling->color == 1)
+				{
+					sibling->color = 0;
+					node->parent->color = 1;
+					RotateRight(node->parent);
+					sibling = node->parent->left;
+				}
+				if (sibling->right->color == 0 && sibling->left->color == 0)
+				{
+					sibling->color = 1;
+					node = node->parent;
+				}
+				else
+				{
+					if (sibling->left->color == 0)
+					{
+						sibling->right->color = 0;
+						sibling->color = 1;
+						RotateLeft(sibling);
+						sibling = node->parent->left;
+					}
+					sibling->color = node->parent->color;
+					node->parent->color = 0;
+					sibling->left->color = 0;
+					RotateRight(node->parent);
+					node = root;
+				}
+			}
+		}
+		node->color = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B7920
+	void TextNodeTree::Erase(TreeNode* node)
+	{
+		TreeNode* end = &nil;
+		TreeNode* removed;
+		if (node->left == end || node->right == end)
+		{
+			removed = node;
+		}
+		else
+		{
+			removed = Successor(node);
+		}
+		TreeNode* child = removed->left != end ? removed->left : removed->right;
+		child->parent = removed->parent;
+		TreeNode* parent = removed->parent;
+		if (parent == end)
+		{
+			root = child;
+		}
+		else if (removed == parent->left)
+		{
+			parent->left = child;
+		}
+		else
+		{
+			parent->right = child;
+		}
+		int blackRemoved = removed->color == 0;
+		if (removed != node)
+		{
+			removed->parent = node->parent;
+			removed->left = node->left;
+			removed->right = node->right;
+			removed->color = node->color;
+			parent = removed->parent;
+			if (parent != end)
+			{
+				if (parent->left == node)
+				{
+					parent->left = removed;
+				}
+				else
+				{
+					parent->right = removed;
+				}
+			}
+			else
+			{
+				root = removed;
+			}
+			if (removed->left != end)
+			{
+				removed->left->parent = removed;
+			}
+			if (removed->right->parent != end)
+			{
+				removed->right->parent = removed;
+			}
+		}
+		if (blackRemoved)
+		{
+			FixAfterErase(child);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105B7AF0
+	TextValue* TextNodeTree::Previous(TextValue* node) const
+	{
+		TreeNode* end = (TreeNode*)&nil;
+		TreeNode* previous = ((TreeNode*)node)->left;
+		if (previous != end)
+		{
+			while (previous->right != end)
+			{
+				previous = previous->right;
+			}
+		}
+		else
+		{
+			previous = ((TreeNode*)node)->parent;
+			while (previous != end && (TreeNode*)node == previous->left)
+			{
+				node = (TextValue*)previous;
+				previous = previous->parent;
+			}
+		}
+		return previous != end ? (TextValue*)previous : 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B7B40
+	void TextNodeTree::ResetRoot()
+	{
+		root = &nil;
+	}
+
 	// FUNCTION: ENGINE 0x105B78F0
 	TextNodeTree::TextNodeTree()
 	{

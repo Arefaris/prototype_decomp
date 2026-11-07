@@ -36,6 +36,23 @@ namespace om
 		TextValue* Next(TextValue* node) const;
 		// 0x102FB430: the first child that compares equal to the key, null when there is none
 		TextValue* FindFirst(NodeCompare compare, const String* key) const;
+		// 0x105B7AF0: the child before another, null at the start
+		TextValue* Previous(TextValue* node) const;
+		// 0x105B7650 / 0x105B76A0 (names guessed, the tree is the standard red-black tree)
+		void RotateLeft(TreeNode* node);
+		void RotateRight(TreeNode* node);
+		// 0x105B7700 / 0x105B7720 / 0x105B7740: whether a node is the left child, the right child, the root (the first two do not look at the tree)
+		bool IsLeftChild(TreeNode* node);
+		bool IsRightChild(TreeNode* node);
+		bool IsRoot(TreeNode* node);
+		// 0x105B7760: the node after another, the head's own node at the end
+		TreeNode* Successor(TreeNode* node);
+		// 0x105B77A0: restores the colors after a black node was taken out
+		void FixAfterErase(TreeNode* node);
+		// 0x105B7920: takes the node out
+		void Erase(TreeNode* node);
+		// 0x105B7B40
+		void ResetRoot();
 
 		TreeNode* root;
 		TreeNode nil;
