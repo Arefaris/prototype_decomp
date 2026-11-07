@@ -2,6 +2,7 @@
 #include "code/proto/fightitems/motion/motion_supportinglimb.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/physics/supportinglimb.h"
+#include <math.h>
 #include "code/math/worldbounds.h"
 #include "code/engine/physics/supportinglimbmessages.h"
 
@@ -1479,6 +1480,30 @@ namespace proto
 					engine::ReleaseDriverCopy2(&driver);
 				}
 			}
+
+			// FUNCTION: ENGINE 0x1011B200
+			// NONMATCHING: the engine forms the three differences with SSE and stores them in a frame object before the x87 square root, ours keeps them in the x87 registers (best 7 %, shifted)
+#ifdef NONMATCHING
+			bool SupportingLimbTestSurfaceDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				SupportingSurfaceEvent* event = (SupportingSurfaceEvent*)c;
+				if (event == 0 || event->kind != 0x21006)
+				{
+					return false;
+				}
+				engine::GameObjectHandle receiver = event->receiver;
+				engine::GameObject* object = receiver.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector delta(matrix.m[3][0] - event->x, matrix.m[3][1] - event->y, matrix.m[3][2] - event->z);
+				float length = sqrtf(delta.z * delta.z + delta.y * delta.y + delta.x * delta.x);
+				float limit = distance;
+				return fight::CompareFloats(compare, &length, &limit);
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x1011AA60
 			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (40.9 %)
