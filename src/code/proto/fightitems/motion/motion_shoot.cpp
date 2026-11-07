@@ -1868,6 +1868,225 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10110230
+			const fight::Name& ShootCheckAmmoCountCondition::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110240
+			const fight::Name& ShootCheckAmmoCountCondition::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x10110280
+			const fight::Name& ShootCheckCooldownTimeCondition::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110290
+			const fight::Name& ShootCheckCooldownTimeCondition::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x101102C0
+			const fight::Name& ShootCurrentWeaponConfigurationCondition::GetWeaponConfiguration() const
+			{
+				return weaponConfiguration;
+			}
+
+			// FUNCTION: ENGINE 0x101102F0
+			const fight::Name& ShootCheckOverheatingCondition::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110300
+			const fight::Name& ShootCheckOverheatingCondition::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x10110340
+			const fight::Name& ShootSetUserProfileTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110350
+			const fight::Name& ShootSetUserProfileTrack::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x10110360
+			const fight::Name& ShootSetUserProfileTrack::GetProfileName() const
+			{
+				return profileName;
+			}
+
+			// FUNCTION: ENGINE 0x10110380
+			const fight::Name& ShootCalculateHitPositionTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110390
+			const fight::Name& ShootCalculateHitPositionTrack::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x101103A0
+			const fight::Name& ShootCalculateHitPositionTrack::GetShooter() const
+			{
+				return shooter;
+			}
+
+			// FUNCTION: ENGINE 0x101103B0
+			const fight::Name& ShootCalculateHitPositionTrack::GetAmmoProfile() const
+			{
+				return ammoProfile;
+			}
+
+			// FUNCTION: ENGINE 0x101103C0
+			const fight::Name& ShootCalculateHitPositionTrack::GetUserProfile() const
+			{
+				return userProfile;
+			}
+
+			// FUNCTION: ENGINE 0x101103E0
+			const fight::Name& ShootSetAmmoProfileTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x101103F0
+			const fight::Name& ShootSetAmmoProfileTrack::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x10110400
+			const fight::Name& ShootSetAmmoProfileTrack::GetProfileName() const
+			{
+				return profileName;
+			}
+
+			// FUNCTION: ENGINE 0x10110420
+			const fight::Name& ReloadTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110430
+			const fight::Name& ReloadTrack::GetAmmoProfile() const
+			{
+				return ammoProfile;
+			}
+
+			// FUNCTION: ENGINE 0x10110450
+			const fight::Name& ShootTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110460
+			const fight::Name& ShootTrack::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x10110470
+			const fight::Name& ShootTrack::GetShooter() const
+			{
+				return shooter;
+			}
+
+			// FUNCTION: ENGINE 0x10110480
+			const fight::Name& ShootTrack::GetAmmoProfile() const
+			{
+				return ammoProfile;
+			}
+
+			// FUNCTION: ENGINE 0x10110490
+			const fight::Name& ShootTrack::GetUserProfile() const
+			{
+				return userProfile;
+			}
+
+			// FUNCTION: ENGINE 0x101104B0
+			int ShootTrack::GetFixedDirectionSpace() const
+			{
+				return fixedDirectionSpace;
+			}
+
+			// FUNCTION: ENGINE 0x10110550
+			const fight::Name& SetFireRateTimerTrack::GetTimer() const
+			{
+				return timer;
+			}
+
+			// FUNCTION: ENGINE 0x10110580
+			const fight::Name& SetFireRateTimerTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10110590
+			const fight::Name& SetFireRateTimerTrack::GetWeaponEntry() const
+			{
+				return weaponEntry;
+			}
+
+			// FUNCTION: ENGINE 0x101105C0
+			const fight::Name& ShootSelectWeaponConfigurationTrack::GetWeaponConfiguration() const
+			{
+				return weaponConfiguration;
+			}
+
+			// FUNCTION: ENGINE 0x101105D0
+			const fight::Name& ShootTakeAmmoFromParentTrack::GetWeaponGrabSlot() const
+			{
+				return weaponGrabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x101105E0
+			const fight::Name& ShootTakeAmmoFromParentTrack::GetReceiverGrabSlot() const
+			{
+				return receiverGrabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x101105F0
+			const fight::Name& ShootTakeAmmoFromParentTrack::GetReceiverJoint() const
+			{
+				return receiverJoint;
+			}
+
+			// FUNCTION: ENGINE 0x10110640
+			const fight::Name& ShootTakeAmmoFromParentTrack::GetChildJoint() const
+			{
+				return childJoint;
+			}
+
+			// FUNCTION: ENGINE 0x10110690
+			float ShootTakeAmmoFromParentTrack::GetBlendTime() const
+			{
+				return blendTime;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10110E60
 // FUNCTION: ENGINE 0x10110E80
