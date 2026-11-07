@@ -6914,6 +6914,15 @@ wrappers (0x1038C600 - 0x1039F100) and the height map with the helicopter pathfi
   `AddParam`. The Lua loader of the table (0x1038BAD0 with the jump table pieces 0x1038BC67 - 0x1038BE47) is not done.
 - `proto/pathinterface.h/.cpp` (9): `proto::PathInterface` (3 slots) and the wrappers of the flying and hunter pathfinders. `HunterPathfinder::PathWrapper::GetPoint` is NONMATCHING (9 %: the engine keeps the position in SSE registers and mixes
   `fld` / `fstp` with `movss` in its vector copies). The short range wrapper (0x1039F080) has a vftable of its own (slots 0x103A0690 - 0x103A06E0 outside this range) and is left to the engine.
+- `proto/heightmap.h/.cpp` (35): `proto::Heightmap` (a load object: grid size, sizes and margins in cells, lowest point, height range, quantum, bounding box, the 16-bit heights as an `ArrayDynamic<unsigned short>`; the stub is gone from reflectedstubs.h)
+  with ClassInfo, GetMembers, `SetName` (slot 3, empty), the `PrimitiveMetaType<unsigned short>` member type, the full `ArrayDynamic<unsigned short>` helper family (Erase moves the elements like the pointer arrays' loop:
+  `ArrayEraseInline<unsigned short>` is 3 for the whole image) and the `GetClassMetaType<AABB>` copy. `Slot5` (0x10393160, works out the inverse grid size and half the rows) is NONMATCHING (88 %: the engine stores the inverse after
+  reserving the call frame). The constructor (a pool and a lookup table, 0x103954E0) and destructor (0x10395080) are not done.
+- `proto/helipathfindingloader.h/.cpp` (17): `proto::HeliPathfindingLoader` (the grid of the helicopters: its size, 10000 heights as a `container::ArrayC<float, 10000>` and 10000 search nodes of 12 bytes whose parent starts at 0xFFFF)
+  with ClassInfo (the name has no namespace), GetMembers, constructor, the destructor (expanded in the deleting one), `HasData`, `TakeNodeNumber` and the `ArrayCHelper` / `GetArrayCMetaType` instances.
+- `proto/loadobjectcasts.cpp` (20): the `DynamicCaster` filters and the inventory's `Find<T>(const char*)` / `Find<T>(const ObjectName&)` instances of `Heightmap`, `WorldBoundary`, `TargetSelectionWeights`, `TokenWeights`,
+  `HeliPathfindingLoader`, `CharacterBudgetPolicyList` and `MetaObjectTemplate` (the two weight classes are declared in the unit as empty load objects until their units are reconstructed).
+- `proto/aialert.h/.cpp` (1): `EnumInfo<proto::AiAlert>::Get` with the 24 values.
 - Findings: a free `inline` template (`ConstructCopyAt`) is not expanded into callers once it has an explicit specialisation without `inline`; a message ctor can be forced out of line with `#pragma inline_depth(0)` around a function that
   constructs it (the ctor then costs exactly the engine's out-of-line copy and the class keeps its inline constructor for the natives); an `else { item = 0; }` in both branches of a "take the next slot" function gives the engine's block
   order (`AddParam`).

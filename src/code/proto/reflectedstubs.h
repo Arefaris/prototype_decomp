@@ -14,6 +14,8 @@
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/characterbudgetpolicy.h"
+#include "code/proto/heightmap.h"
+#include "code/proto/helipathfindingloader.h"
 
 namespace proto
 {
@@ -97,16 +99,6 @@ namespace proto
 		unsigned char unknownTail[0x38 - sizeof(proto::NPCRender)];
 	};
 
-	class HeliPathfindingLoader : public content::MetaLoadObject
-	{
-	public:
-		HeliPathfindingLoader();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x27114 - sizeof(content::MetaLoadObject)];
-	};
-
 	class HelicopterSolverGenericProperties : public content::MetaLoadObject
 	{
 	public:
@@ -165,16 +157,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
-	};
-
-	class Heightmap : public content::MetaLoadObject
-	{
-	public:
-		Heightmap();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x190 - sizeof(content::MetaLoadObject)];
 	};
 
 	struct DisguiseConfig : public content::MetaLoadObject
