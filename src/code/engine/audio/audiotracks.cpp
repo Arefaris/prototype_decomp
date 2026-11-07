@@ -2,6 +2,7 @@
 // property lists and the property classes their lists instantiate. No assert path names the unit; the file name is a
 // guess. The CreateAction bodies are the audio systems' (not reconstructed).
 #include "code/engine/audio/audiotracks.h"
+#include "code/om/dynamicproperty.h"
 
 namespace fight
 {
@@ -917,6 +918,116 @@ namespace engine
 	// FUNCTION: ENGINE 0x1087C5B0
 	// FUNCTION: ENGINE 0x1087C5D0
 	template class fight::PropertyName<SoundZoneTrack>;
+}
+
+namespace om
+{
+	// The instance of the dynamic property of a bool (the text and binary forms are the engine's: 0x1087B510,
+	// 0x1087B750, 0x1087B7A0)
+	template<> bool DynamicProperty<bool>::ReadText(const TextValue* parent);
+	template<> bool DynamicProperty<bool>::ReadBinary(BinaryStream* stream);
+	template<> bool DynamicProperty<bool>::WriteBinary(BinaryStream* stream);
+
+	// FUNCTION: ENGINE 0x1087AC70
+	// FUNCTION: ENGINE 0x1087AC90
+	// FUNCTION: ENGINE 0x1087ACA0
+	// FUNCTION: ENGINE 0x1087B290
+	// FUNCTION: ENGINE 0x1087B2B0
+	// FUNCTION: ENGINE 0x1087B300
+	// FUNCTION: ENGINE 0x1087B310
+	// FUNCTION: ENGINE 0x1087B320
+	// FUNCTION: ENGINE 0x1087B340
+	// FUNCTION: ENGINE 0x1087B350
+	// FUNCTION: ENGINE 0x1087B360
+	// FUNCTION: ENGINE 0x1087B370
+	// FUNCTION: ENGINE 0x1087B380
+	// FUNCTION: ENGINE 0x1087B390
+	// FUNCTION: ENGINE 0x1087B3B0
+	// FUNCTION: ENGINE 0x1087B3C0
+	// FUNCTION: ENGINE 0x1087B3D0
+	// FUNCTION: ENGINE 0x1087B3F0
+	// FUNCTION: ENGINE 0x1087B410
+	// FUNCTION: ENGINE 0x1087B420
+	// FUNCTION: ENGINE 0x1087B430
+	// FUNCTION: ENGINE 0x1087B440
+	// FUNCTION: ENGINE 0x1087B450
+	// FUNCTION: ENGINE 0x1087B470
+	// FUNCTION: ENGINE 0x1087B480
+	// FUNCTION: ENGINE 0x1087B490
+	// FUNCTION: ENGINE 0x1087B4A0
+	// FUNCTION: ENGINE 0x1087B4B0
+	// FUNCTION: ENGINE 0x1087B4D0
+	// FUNCTION: ENGINE 0x1087B4F0
+	// FUNCTION: ENGINE 0x1087B5E0
+	// FUNCTION: ENGINE 0x1087B810
+	// FUNCTION: ENGINE 0x1087B840
+	// FUNCTION: ENGINE 0x1087B860
+	// FUNCTION: ENGINE 0x1087B880
+	// FUNCTION: ENGINE 0x1087B8A0
+	// FUNCTION: ENGINE 0x1087B8B0
+	// FUNCTION: ENGINE 0x1087B8C0
+	// FUNCTION: ENGINE 0x1087B8E0
+	// FUNCTION: ENGINE 0x1087B910
+	// FUNCTION: ENGINE 0x1087B940
+	// FUNCTION: ENGINE 0x1087B960
+	// FUNCTION: ENGINE 0x1087B980
+	// FUNCTION: ENGINE 0x1087B990
+	// FUNCTION: ENGINE 0x1087B9A0
+	// FUNCTION: ENGINE 0x1087B9C0
+	// FUNCTION: ENGINE 0x1087C2E0
+	// FUNCTION: ENGINE 0x1087C340
+	// FUNCTION: ENGINE 0x1087C350
+	// FUNCTION: ENGINE 0x1087C360
+	// FUNCTION: ENGINE 0x1087C380
+	// FUNCTION: ENGINE 0x1087C3B0
+	// FUNCTION: ENGINE 0x1087C3F0
+	// FUNCTION: ENGINE 0x1087C440
+	// FUNCTION: ENGINE 0x1087C650
+	template char const* DynamicProperty<bool>::AllocationTag();
+	template void* DynamicProperty<bool>::operator new(size_t);
+	template DynamicProperty<bool>::~DynamicProperty();
+	template void DynamicProperty<bool>::SetName(Name<CaseSensitive64BitKey>);
+	template void DynamicProperty<bool>::SetFromPointer2(void const*, unsigned int);
+	template Name<CaseSensitive64BitKey> DynamicProperty<bool>::GetName() const;
+	template void DynamicProperty<bool>::GetValue(void*) const;
+	template void const* DynamicProperty<bool>::GetValuePointer() const;
+	template void* DynamicProperty<bool>::GetValuePointer();
+	template MetaTypeBase* DynamicProperty<bool>::GetMetaType() const;
+	template void DynamicProperty<bool>::operator delete(void*);
+	template CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::~CommandMember0Const();
+	template Owned<Command1<void,bool> >::Owned(Command1<void,bool>*);
+	template Owned<Command1<void,bool> >::~Owned();
+	template Owned<Command0<bool> >::Owned(Command0<bool>*);
+	template Owned<Command0<bool> >::~Owned();
+	template Command0<bool>::Command0();
+	template void DynamicProperty<bool>::Set(bool);
+	template char const* CommandDelegate<bool>::AllocationTag();
+	template char const* CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::AllocationTag();
+	template Command1<void,bool>::Command1();
+	template char const* CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::AllocationTag();
+	template void DynamicProperty<bool>::SetFrom(DynamicPropertyBase*);
+	template void DynamicProperty<bool>::WriteToDelegate(DelegatePropertyBase*);
+	template void DynamicProperty<bool>::ReadFromDelegate(DelegatePropertyBase*);
+	template void DynamicProperty<bool>::SetFromPointer(void const*);
+	template void DynamicProperty<bool>::WriteText(TextValue*);
+	template void* CommandDelegate<bool>::operator new(size_t);
+	template void* CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::operator new(size_t);
+	template CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::CommandMember0Const(DynamicProperty<bool>*, CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::Function);
+	template bool CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::Call();
+	template Command0<bool>::~Command0();
+	template void CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::operator delete(void*);
+	template Command0<bool>* CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::Create(DynamicProperty<bool>*, CommandMember0Const<DynamicProperty<bool>,DynamicProperty<bool>,bool>::Function);
+	template void* CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::operator new(size_t);
+	template CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::CommandMember1(DynamicProperty<bool>*, CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Function);
+	template void CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Call(bool);
+	template void CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::operator delete(void*);
+	template CommandDelegate<bool>::CommandDelegate(Command0<bool>*, Command1<void,bool>*);
+	template bool CommandDelegate<bool>::Get();
+	template void CommandDelegate<bool>::Set(bool);
+	template MetaTypeBase* CommandDelegate<bool>::GetMetaType();
+	template Command1<void,bool>* CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Create(DynamicProperty<bool>*, CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Function);
+	template DelegatePropertyBase* DynamicProperty<bool>::CreateDelegate();
+	template DynamicProperty<bool>::DynamicProperty(const ClassName&, bool);
 }
 
 namespace engine
