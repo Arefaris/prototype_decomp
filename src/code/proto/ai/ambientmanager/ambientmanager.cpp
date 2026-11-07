@@ -1,5 +1,6 @@
 // proto::AmbientManager: see the header. The file name and the names are guesses.
 #include "code/core/heap.h"
+#include "code/engine/frontend/frontend.h"
 #include "code/engine/system/enginememory.h"
 #include "code/math/vector.h"
 #include "code/proto/ai/ambientmanager/ambientmanager.h"
@@ -221,6 +222,29 @@ namespace proto
 	void AmbientManager::SetPercentageLowMorale(float percent)
 	{
 		unknown5FC = percent;
+	}
+
+	// FUNCTION: ENGINE 0x1040A0B0
+	bool AmbientManager::OnCameraSpawnFinished()
+	{
+		if (engine::HasCommandLineOption("DisableAmbientManager"))
+		{
+			return true;
+		}
+		if (!unknown41)
+		{
+			if (unknown55C > 3 || !unknown40)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1040A0F0
+	void AmbientManager::SpawnOnCamera()
+	{
+		unknown55C = 1;
 	}
 
 	// FUNCTION: ENGINE 0x1040A100

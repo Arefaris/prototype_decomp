@@ -218,6 +218,9 @@ namespace proto
 		void SetInMissionBriefing(bool briefing);
 		void SetPercentageLowMorale(float percent);
 		void SetIgnoreDeadSphereLocaters(bool ignore);
+		// amb_OnCameraSpawnFinished (0x1040A0B0) and amb_SpawnOnCamera (0x1040A0F0)
+		bool OnCameraSpawnFinished();
+		void SpawnOnCamera();
 
 		AmbientArray12 unknown0;
 		unsigned char unknownC[4];
