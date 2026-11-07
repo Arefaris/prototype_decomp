@@ -2,6 +2,7 @@
 // drawable instance (controllers, expressions, particle emitters), its parts' world matrices and render bits, and its
 // bounds. Names are guesses unless noted.
 #include "code/core/bitfield.h"
+#include "code/core/refptr.h"
 #include "code/math/aabb.h"
 #include "code/math/matrix.h"
 #include "code/math/mathutils.h"
@@ -17,6 +18,19 @@ template bool core::BitField<unsigned int>::Test(unsigned int bit) const;
 
 // FUNCTION: ENGINE 0x10204C10
 template bool core::BitField<unsigned short>::Test(unsigned short bit) const;
+
+// The reference helpers of the parts' primitive and state (this unit's copies)
+// FUNCTION: ENGINE 0x106DEA60
+template void core::RefAssign<pure3d::Primitive>(pure3d::Primitive*& pointer, pure3d::Primitive* object);
+
+// FUNCTION: ENGINE 0x106DEA90
+template void core::RefAssign<pure3d::PrimitiveState>(pure3d::PrimitiveState*& pointer, pure3d::PrimitiveState* object);
+
+// FUNCTION: ENGINE 0x106DEAC0
+template void core::SafeRelease<pure3d::Primitive>(pure3d::Primitive*& object);
+
+// FUNCTION: ENGINE 0x106DEAE0
+template void core::SafeRelease<pure3d::PrimitiveState>(pure3d::PrimitiveState*& object);
 
 // FUNCTION: ENGINE 0x106DEBE0
 template void core::BitField<unsigned short>::Set(unsigned short bit, bool value);
@@ -93,6 +107,26 @@ namespace pure3d
 		return context->frame;
 	}
 
+	// FUNCTION: ENGINE 0x106DF460
+	void SetFrameOverride(unsigned int frame)
+	{
+		gUseFrameOverride = true;
+		gFrameOverride = frame;
+	}
+
+	// FUNCTION: ENGINE 0x106DF4A0
+	void SetCheckPoseFrame(bool value)
+	{
+		gCheckPoseFrame = value;
+	}
+
+	// FUNCTION: ENGINE 0x106DF4B0
+	PartRef::PartRef(Drawable* newOwner, int newIndex)
+	{
+		owner = newOwner;
+		index = newIndex;
+	}
+
 	// FUNCTION: ENGINE 0x106DF4F0
 	bool Drawable::IsPoseCurrent()
 	{
@@ -105,10 +139,130 @@ namespace pure3d
 		return cyclic;
 	}
 
+	// FUNCTION: ENGINE 0x106DF510
+	void Drawable::MarkPartsDirty()
+	{
+		partsDirty = true;
+	}
+
+	// FUNCTION: ENGINE 0x106DF570
+	void Drawable::MarkFrame()
+	{
+		frameC0 = GetCurrentFrame();
+	}
+
+	// FUNCTION: ENGINE 0x106DF580
+	void Drawable::SetFlag100Bit2(bool value)
+	{
+		flag04 = value;
+	}
+
+	// FUNCTION: ENGINE 0x106DF5E0
+	void Drawable::SetFlag10()
+	{
+		flag10 = true;
+	}
+
+	// FUNCTION: ENGINE 0x106DF5F0
+	void Drawable::ClearFlag10()
+	{
+		flag10 = false;
+	}
+
+	// FUNCTION: ENGINE 0x106DF610
+	Skeleton* Drawable::GetSkeleton()
+	{
+		return skeleton;
+	}
+
 	// FUNCTION: ENGINE 0x106DF620
 	Pose* Drawable::GetPose()
 	{
 		return pose;
+	}
+
+	// FUNCTION: ENGINE 0x106DF600
+	math::Matrix* Drawable::GetTransform()
+	{
+		return &transform;
+	}
+
+	// FUNCTION: ENGINE 0x106DF630
+	FrameController* Drawable::GetUnknown78()
+	{
+		return unknown78;
+	}
+
+	// FUNCTION: ENGINE 0x106DF640
+	VertexOffsetExpressionMixer* Drawable::GetExpressionMixer()
+	{
+		return expressionMixer;
+	}
+
+	// FUNCTION: ENGINE 0x106DF650
+	FrameController* Drawable::GetUnknown7C()
+	{
+		return unknown7C;
+	}
+
+	// FUNCTION: ENGINE 0x106DF660
+	int Drawable::GetUnknownB8()
+	{
+		return unknownB8;
+	}
+
+	// FUNCTION: ENGINE 0x106DF670
+	float Drawable::GetUnknownBC()
+	{
+		return unknownBC;
+	}
+
+	// FUNCTION: ENGINE 0x106DF680
+	void Drawable::SetFlag101Bit1(bool value)
+	{
+		updateWhenVisible = value;
+	}
+
+	// FUNCTION: ENGINE 0x106DF6C0
+	void Drawable::SetFlag100Bit3(bool value)
+	{
+		flag08 = value;
+	}
+
+	// FUNCTION: ENGINE 0x106DF6A0
+	bool Drawable::GetFlag101Bit1()
+	{
+		return updateWhenVisible;
+	}
+
+	// FUNCTION: ENGINE 0x106DF6B0
+	bool Drawable::GetFlag100Bit3()
+	{
+		return flag08;
+	}
+
+	// FUNCTION: ENGINE 0x106DF6F0
+	core::Name<core::CaseSensitiveKey>* Drawable::GetUnknownF8()
+	{
+		return &unknownF8;
+	}
+
+	// FUNCTION: ENGINE 0x106DFDE0
+	void PartRef::SetBinding(PartBinding* binding)
+	{
+		Get()->SetBinding(binding);
+	}
+
+	// FUNCTION: ENGINE 0x106DFE00
+	PartBinding* PartRef::GetBinding() const
+	{
+		return Get()->binding;
+	}
+
+	// FUNCTION: ENGINE 0x106DFF80
+	FrameController* Drawable::GetUnknown80()
+	{
+		return unknown80;
 	}
 
 	// FUNCTION: ENGINE 0x106DFFD0
@@ -351,6 +505,20 @@ namespace pure3d
 			return (PartBindingSource*)primitive->unknown18;
 		}
 		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106DEEC0
+	void DrawablePart::SetPrimitive(Primitive* newPrimitive)
+	{
+		core::RefAssign(primitive, newPrimitive);
+		renderBits.Set(9, true);
+	}
+
+	// FUNCTION: ENGINE 0x106DEEF0
+	void DrawablePart::SetState(PrimitiveState* newState)
+	{
+		core::RefAssign(state, newState);
+		renderBits.Set(9, true);
 	}
 
 	// FUNCTION: ENGINE 0x106DEF20
