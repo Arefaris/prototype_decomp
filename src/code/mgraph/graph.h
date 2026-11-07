@@ -100,6 +100,9 @@ namespace mgraph
 		bool unknown80;
 		NodeLink groupLink;  // 0x84
 	};
+
+	// 0x105B9740: the graph of a name, null when there is none (name guessed)
+	Graph* FindGraph(const om::ClassName* graphName);
 }
 
 #endif
