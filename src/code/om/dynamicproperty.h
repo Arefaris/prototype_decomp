@@ -273,6 +273,13 @@ namespace om
 		{
 			InitializeValue(value);
 		}
+		DynamicProperty(const ClassName& newName, T newValue) :
+			type(FindMetaType(typeid(T))),
+			name(0)
+		{
+			SetName(newName);
+			Set(newValue);
+		}
 		virtual ~DynamicProperty();
 		virtual void SetFrom(DynamicPropertyBase* other);
 		virtual void SetFromPointer(const void* newValue);

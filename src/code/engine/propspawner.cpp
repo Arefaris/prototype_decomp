@@ -278,6 +278,9 @@ template engine::TreeState& container::ArrayDynamic<engine::TreeState, container
 template void container::ArrayDynamic<engine::TreeState, container::AllocatorNew>::Free();
 
 // Kept copies (inline functions and template instances of this unit):
+// FUNCTION: ENGINE 0x108426C0
+// FUNCTION: ENGINE 0x10842D20
+// FUNCTION: ENGINE 0x108420A0
 // FUNCTION: ENGINE 0x10842090
 // FUNCTION: ENGINE 0x10842190
 // FUNCTION: ENGINE 0x108421B0

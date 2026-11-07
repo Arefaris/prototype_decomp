@@ -155,6 +155,7 @@ namespace engine
 	// 0x10864D90 (constructor, kept copy) and 0x10864FA0 (IsDerived): the caster the class meta type of
 	// engine::IPathBehaviour carries for engine::SplineBehaviour. The unit kept them out of line, which is what an
 	// explicit instantiation makes the compiler do.
+	// FUNCTION: ENGINE 0x10864FA0
 	template struct content::BaseClassCasterImpl<IPathBehaviour, SplineBehaviour>;
 
 	// FUNCTION: ENGINE 0x10864DF0
