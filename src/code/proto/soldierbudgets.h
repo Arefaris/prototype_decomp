@@ -4,6 +4,7 @@
 #ifndef PROTO_SOLDIERBUDGETS_H
 #define PROTO_SOLDIERBUDGETS_H
 
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/proto/characterbudget.h"
 #include "code/proto/characterbudgetpolicy.h"
@@ -28,6 +29,22 @@ namespace proto
 		bool SetPolicyByName(engine::GameObjectHandle handle, core::Name<core::CaseSensitiveKey> className);
 		// 0x103867D0: sets the squared despawn distance of the character's policy (false when it has no entry)
 		bool SetDespawnDistanceSquared(engine::GameObjectHandle handle, const float* value);
+		// 0x10387530
+		void ResetUnknown48(engine::GameObjectHandle handle);
+		// 0x10387620: sets the first flag of the entry of an object (false without an entry)
+		bool SetUnknown4(engine::GameObject* object, bool value);
+		// 0x10387760: the object that spawned an object
+		engine::GameObject* GetSpawner(engine::GameObject* object);
+		// 0x10387B40
+		void Sort();
+		// 0x10388D50: takes the entry of a character out of the list
+		CharacterBudgetEntry* RemoveEntry(engine::GameObjectHandle handle);
+		// 0x10388EC0: takes the entries out whose objects are gone and sorts the list
+		void RemoveDeadEntries();
+		// 0x10388F40: sends count of the characters (the last ones in the list) back to their spawners
+		bool ReturnSpawnedObjects(int count);
+		// 0x103892E0: makes room for one more entry (the dead ones go, then count characters when returnSpawns is set)
+		bool MakeRoom(bool returnSpawns);
 		// 0x103866C0: whether the object is in a loaded cell (name guess)
 		bool Unknown103866C0(engine::GameObjectHandle handle) const;
 		// 0x10386810: whether a soldier of a type may still be reserved for the object (name guess)

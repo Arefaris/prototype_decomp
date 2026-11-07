@@ -261,6 +261,18 @@ namespace container
 			Destroy(end);
 			return position;
 		}
+		// Takes the last element over position instead of moving the ones behind it down; answers position, or the new
+		// end when position was the last element
+		T* EraseSwap(T* position)
+		{
+			end--;
+			if (position < end)
+			{
+				*position = *end;
+				return position;
+			}
+			return end;
+		}
 		// Moves [position, end) up by count elements (copy-constructing them backwards)
 		void ShiftUp(T* position, int count)
 		{
