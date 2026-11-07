@@ -552,6 +552,8 @@ namespace engine
 			// 0x10819F60 / 0x10819F40: take a reference to the inventory the manager finds shaders and archetypes in
 			void SetInventory(content::LoadInventory* newInventory);
 			void SetSecondInventory(content::LoadInventory* newInventory);
+			// 0x108193B0: sets the function the manager calls (with an argument) when it is reset
+			void SetResetCallback(void (*callback)(int), int argument);
 			// 0x10819F80: lets go of both inventories
 			void ReleaseInventories();
 			// 0x10819FD0: whether another light fits and the manager makes lights

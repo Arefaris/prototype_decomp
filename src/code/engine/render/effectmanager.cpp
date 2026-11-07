@@ -1283,6 +1283,13 @@ namespace engine
 			return false;
 		}
 
+		// FUNCTION: ENGINE 0x108193B0
+		void EffectManager::SetResetCallback(void (*callback)(int), int argument)
+		{
+			resetCallback = callback;
+			resetCallbackArgument = argument;
+		}
+
 		// FUNCTION: ENGINE 0x10819F60
 		void EffectManager::SetInventory(content::LoadInventory* newInventory)
 		{

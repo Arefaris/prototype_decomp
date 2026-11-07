@@ -4165,6 +4165,26 @@ small container template instances between 0x10819520 and 0x10819FD0 and in 0x10
 allocator members of the manager's record types; the classes are the engine's own and unnamed). `math::Noise::Evaluate`
 is mapped at 0x101043F0 (called through the jump at 0x100037F1); the math worklist reconstructs it.
 
+### Second pass over 0x10800000 - 0x10820000 (sn-dj)
+
+Reconstructed and byte-identical: the five empty reset hooks 0x10811F90 - 0x10811FC0 (`engine::Unknown10811F90` ...),
+and on `render::EffectManager`: `ReleaseDrawable` 0x10819560, `SetResetCallback` 0x108193B0, `SetSecondInventory` /
+`SetInventory` / `ReleaseInventories` 0x10819F40 / 0x10819F60 / 0x10819F80 (the engine's `RefAssign` / `SafeRelease` of
+`content::LoadInventory`, 0x102D2440 / 0x102D2420, are mapped), `CanAddLight` 0x10819FD0, `IsListFull` 0x1081CF90 and
+`IsAttachedRingFull` 0x1081CFE0 (the key is copied into a local before its address goes to the lookup),
+`SetEffectEmitting` 0x1081C410, and the global manager's `CreateEffectManager` 0x1081E520 / `DestroyEffectManager`
+0x1081E570 (the constructor 0x1081DE50 and destructor 0x1081D1E0 stay the engine's, declared and mapped). New
+types: `EffectManagerConfig` (the record the manager is made from; its constructor 0x1081C7B0 sets the heaps 10 / 0x77, the
+limits and room for 16 + 16 + 4 + 4 values), `DrawableRing::Allocate` 0x10819A80 (the `waiting` ring; the identical copy at
+0x10819990 belongs to another ring), `HashTable::Find` 0x1081C4C0.
+Not done: `DrawableRing::At` has an out-of-line copy at 0x10819AE0, but defining it in the .cpp stops the inlining the
+engine's callers have (/Ob1), so it stays inline in the header; the timer table functions (0x1081D030 / D080 / DCF0 /
+E460) read a hash map of names whose class is not recovered; the constructor and destructor of the manager are the inline
+expansion of a dozen container members; the remaining small functions of 0x10819340 - 0x1081B3C0 and 0x1081C440 -
+0x1081D150 are template members of vectors and rings of the manager's record types that no caller names, and the
+`core::Link` constructors, destructors and getters of 0x108058A0 - 0x108060B0 and 0x10808970 - 0x10809640 have no caller
+that tells their types apart (the copy constructor 0x10805B90 is `Link<EffectTrack>`'s).
+
 ## render/async/private/shaderparameter.cpp (0x10826970 - 0x10829D70, partly): the shader parameter calls, events and interpolators
 
 Done: the `SetParameter` / `InterpolateParameter` / `SetParameterEnabled` calls of the game thread, the
