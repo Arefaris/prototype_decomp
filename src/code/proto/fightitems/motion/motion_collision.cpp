@@ -1,5 +1,8 @@
 // Fight items of the motion group: DetectObbCollisionCondition, HitSurfaceCondition (unit 0x10149DC0 - 0x1014A890; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_collision.h"
+#include "code/proto/behaviours/collisionmessages.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include <math.h>
 
 namespace proto
 {
@@ -191,6 +194,202 @@ namespace proto
 
 			// ---- actions begin
 
+			// Two words the unit keeps for the slots that answer a default (file statics of the unit)
+			static int sSlot10Value = -1;  // 0x10FF0EC4
+			static int sSlot11Value;  // 0x112536C0
+
+			// FUNCTION: ENGINE 0x100A5A00
+			CollisionAction::CollisionAction(engine::GameObjectHandle newTarget, fight::Track* listener, fight::Track* newTrack) : fight::Action(0x600), target(newTarget), behaviour(0), unknown28(false), unknown29(false), watch(listener), link(newTrack), unknown80(0), volume(0), jointIndex(0xffff), unknown98(0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A5BA0
+			CollisionAction::~CollisionAction()
+			{
+				delete volume;
+				volume = 0;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B90
+			bool CollisionAction::Slot9()
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A2CC0
+			int CollisionAction::Slot10()
+			{
+				return sSlot10Value;
+			}
+
+			// FUNCTION: ENGINE 0x100A2CD0
+			int CollisionAction::GetCollideWith()
+			{
+				return sSlot11Value;
+			}
+
+			// FUNCTION: ENGINE 0x100A5AD0
+			float CollisionAction::GetArcOffset()
+			{
+				return 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x100A5AE0
+			float CollisionAction::GetArcRange()
+			{
+				return 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x100A5AF0
+			int CollisionAction::Slot14()
+			{
+				return -1;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B00
+			float CollisionAction::Slot15(int unused)
+			{
+				return choreo::gMinusOne;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B10
+			int CollisionAction::GetJointIndex()
+			{
+				return 0xffff;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B20
+			void CollisionAction::GetOffset(math::Vector* offset)
+			{
+				offset->x = 0.0f;
+				offset->y = 0.0f;
+				offset->z = 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B40
+			bool CollisionAction::GetUseMotion()
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B50
+			float CollisionAction::GetRadius()
+			{
+				return 0.0f;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B60
+			float CollisionAction::Slot21()
+			{
+				return choreo::gMinusOne;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B70
+			bool CollisionAction::Slot22()
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A5B80
+			bool CollisionAction::Slot25(engine::GameObject* object)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A2CE0
+			bool CollisionAction::Slot27()
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A2CF0
+			bool CollisionAction::Slot28()
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A2D00
+			bool CollisionAction::Slot29()
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A2D10
+			bool CollisionAction::Slot30(engine::GameObject* object)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A6060
+			// NONMATCHING: the engine keeps the two near flags in dl and cl the other way round and repeats the compare with the wanted flag in each branch of the third surface (64 %)
+#ifdef NONMATCHING
+			bool HitSurfaceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool wanted = hitSurface;
+				GetCachedWallCollisionMessage message;
+				object->SendMessage(&message);
+				if (message.found != wanted)
+				{
+					return false;
+				}
+				if (!wanted)
+				{
+					return true;
+				}
+				float z0 = message.unknown1C * 0.0f;
+				float x0 = message.unknown14 * 0.0f;
+				float up = message.unknown18 + x0 + z0;
+				if (!(up - choreo::gMinusOne >= 0.0f))
+				{
+					up = choreo::gMinusOne;
+				}
+				float upArgument = up;
+				if (upArgument - engine::driving::gOne >= 0.0f)
+				{
+					upArgument = engine::driving::gOne;
+				}
+				float angleUp = (float)acos(upArgument);
+				float down = choreo::gMinusOne * message.unknown18 + x0 + z0;
+				if (!(down - choreo::gMinusOne >= 0.0f))
+				{
+					down = choreo::gMinusOne;
+				}
+				float downArgument = down;
+				if (downArgument - engine::driving::gOne >= 0.0f)
+				{
+					downArgument = engine::driving::gOne;
+				}
+				float angleDown = (float)acos(downArgument);
+				bool nearDown;
+				bool nearUp;
+				nearUp = angleUp < 0.7853982f;
+				nearDown = angleDown < 0.7853982f;
+				switch (surface)
+				{
+				case 0:
+					return nearUp == wanted;
+				case 1:
+					return nearDown == wanted;
+				case 2:
+					{
+						bool onSide = true;
+						if (nearUp || nearDown)
+						{
+							onSide = false;
+						}
+						return onSide == wanted;
+					}
+				default:
+					return false;
+				}
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyBitfieldConstList<DetectObbCollisionCondition>;
 			template class fight::PropertyBool<DetectObbCollisionCondition>;
@@ -264,3 +463,15 @@ namespace proto
 // FUNCTION: ENGINE 0x1014A840
 // FUNCTION: ENGINE 0x100A2E50
 // FUNCTION: ENGINE 0x100A2EB0
+// FUNCTION: ENGINE 0x100A2280
+// FUNCTION: ENGINE 0x100A2360
+// FUNCTION: ENGINE 0x100A2560
+// FUNCTION: ENGINE 0x100A2C90
+// FUNCTION: ENGINE 0x100A2D20
+// FUNCTION: ENGINE 0x100A2D70
+// FUNCTION: ENGINE 0x100A2EC0
+// FUNCTION: ENGINE 0x100A4970
+// FUNCTION: ENGINE 0x100A59D0
+// FUNCTION: ENGINE 0x100A59F0
+// FUNCTION: ENGINE 0x100A5C30
+// FUNCTION: ENGINE 0x100A5F60
