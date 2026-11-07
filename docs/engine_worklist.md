@@ -7730,3 +7730,25 @@ marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to share
 - `engine/fight/playbackset.h`, `playbackbranches.cpp`: `PlaybackSet` and `PlaybackNode` (constructors, properties, slots 10 / 11 / 14, the factories). The destructor of `PlaybackNode` (0x108B1010) stays with the engine: it leaves out the stores of the vftable that ours makes; `PlaybackNode::Slot12` 0x108B0CD0 is not done; `RegisterProperties` of both are NONMATCHING (shrink-wrap).
 - Shared header changes: `inputsystem.h` (the types above), `trackfactory.h` (`PropertyTypePropertyList`'s constructor and type, `PropertyFloat<T>`, `ObjectOf` in three property templates), `monkeycontrollermanager.h`, `defaultcontrollerhandler.cpp` (the view class is gone), `playbackset.h`.
 - Not done and why: `GameDBStorage` (0x108A56C0 - 0x108A5F30: its slots call the profile storage messages and packers of other units), `MessageRouter::InitListeners` (inlined array operations), the stream package states (0x108A6140 - 0x108A6B80: calls into the world stream manager that nothing names), `FMVState` (0x108A0520 - 0x108A0890), the collision enable actions' `FindObject` (0x108ABDE0 / 0x108ABEE0: the engine keeps the loop result in a stack slot), `ShaderAnimationAction`, `HealthAction`, the effect LOD actions, the motion trail (0x108BD650 - 0x108BEFxx) and the online manager (0x108BF430 on). About 780 of the remaining functions are 1 - 20 byte kept copies of container, `om::` and `core::Link` members that no class names.
+
+## compress and pure3d Camera / Pose / Skeleton / Drawable (0x106DBF00 - 0x106E0000)
+
+Sources: `src/code/compress/compress.{h,cpp}` (Stream, Stream::AsyncCallback, ICompressor, Decompressor_Zlib; zlib's own
+functions are library code mapped in symbols.txt), `src/code/pure3d/camera.{h,cpp}`, `anim/src/pose.cpp`,
+`anim/src/skeleton.cpp` and `src/drawable.cpp`. Shared headers touched: `core/asynctask.h` (AsyncTaskJob constructor and
+destructor declared), `pure3d/pose.h` and `posedata.h` (more members), `pure3d/camera.h` (the matrix at +0x90 is a real
+`math::Matrix world`; `Camera::GetPosition()` replaces the `position` member), `pure3d/drawable.h`.
+
+| Address | Function | Status |
+|---|---|---|
+| 0x106DCA40 / 0x106DCC00 | Camera::GetPlane / GetWorldPlane | NONMATCHING: the engine merges the box-volume tails of the bottom / top and left / right planes through other registers (61.9 %); GetWorldPlane keeps this in ecx across the in-unit call (26.3 %) |
+| 0x106DC850 | Camera::CopyFrom | NONMATCHING: the window copy loads the second word before forming the address (68.6 %) |
+| 0x106DD2B0 | Camera::SetAspect | NONMATCHING: the product is spilled to the second argument's slot (97.6 %) |
+| 0x106DD480 | Camera::Camera() | NONMATCHING: the matrix address for the first Identity call is formed after the size stores (85.3 %) |
+| 0x106DD620 | Pose::Pose(Skeleton*, int) | NONMATCHING: the base's vftable and zero stores stay in front of the skeleton store, the arguments are loaded first (77.3 %) |
+| 0x106DDC80 / 0x106DDF20 | Skeleton::FindPartition / Skeleton::Skeleton | NONMATCHING: register allocation (20.1 % / 15.3 %) |
+| 0x106DC1A0 / 0x106DC3F0 / 0x106DC7A0 | Stream::Stream / Decompressor_Zlib::Process / Submit | NONMATCHING: argument loads in other registers (83.3 % / 83.1 %); Process keeps the constant 4 in ebp |
+| 0x106DC680 / 0x106DC700 | Decompressor_Zlib relocation helper and constructor | not done: five single-use register helpers (0x106DC580 - 0x106DC5C0) |
+| 0x106DD6D0 | Pose::FindJoint (symbols.txt still calls it proto::PartLookup::FindPart) | not done: the callers in other units use the stand-in struct |
+| 0x106DF020 / 0x106DF110 / 0x106DF340 | DrawablePart constructor / copy constructor / destructor | not done: the layout between +0x4 and +0x4C is not recovered |
+| 0x106C0000 - 0x106DB000 | ravenphysics collision (clipping, face pairs, GJK) | not done: functions with register conventions and middle-of-function saves, and no class names (no vftables in the range) |
