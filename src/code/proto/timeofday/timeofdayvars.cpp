@@ -1,4 +1,4 @@
-#include "code/proto/timeofday/timeofdayvarchannel.h"
+#include "code/proto/timeofday/timeofdayvars.h"
 #include "code/content/colourmetatype.h"
 #include "code/content/vectormetatype.h"
 #include "code/math/colour128.h"
@@ -153,6 +153,194 @@ namespace proto
 		sInfo.name = "proto::TimeOfDayVarChannel<float>";
 		sInfo.code = "p";
 		return &sInfo;
+	}
+
+
+	// The class infos of the fog values, their keys and channel, and of the objects of the time of day
+	// FUNCTION: ENGINE 0x10521530
+	content::ClassInfo* FogAreaValues::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::FogAreaValues";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10521570
+	content::ClassInfo* TimeOfDayVarChannel<FogAreaValues>::Key::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayVarChannel<proto::FogAreaValues>::Key";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x105215B0
+	content::ClassInfo* TimeOfDayVarChannel<FogAreaValues>::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayVarChannel<proto::FogAreaValues>";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x105215F0
+	content::ClassInfo* TimeOfDayLightInfo::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayLightInfo";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10521630
+	content::ClassInfo* TimeOfDayVariation::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayVariation";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10521670
+	content::ClassInfo* TimeOfDayVarGroup::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayVarGroup";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x105216B0
+	content::ClassInfo* TimeOfDayVars::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::TimeOfDayVars";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10521DA0
+	content::MemberList* TimeOfDayLightInfo::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberNameMetaType<TimeOfDayLightInfo, 0>(true, true, "p"), PROTO_OFFSET(TimeOfDayLightInfo, name), "name" }
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x10523820
+	content::MemberList* FogAreaValues::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberColourMetaType<FogAreaValues, 0>("p"), PROTO_OFFSET(FogAreaValues, darkTint), "darkTint" },
+			{ content::GetMemberColourMetaType<FogAreaValues, 1>("p"), PROTO_OFFSET(FogAreaValues, lightTint), "lightTint" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 0>("p"), PROTO_OFFSET(FogAreaValues, fogTilingX), "fogTiling_x" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 1>("p"), PROTO_OFFSET(FogAreaValues, fogTilingY), "fogTiling_y" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 2>("p"), PROTO_OFFSET(FogAreaValues, speed), "speed" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 3>("p"), PROTO_OFFSET(FogAreaValues, fogFalloff), "fogFalloff" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 4>("p"), PROTO_OFFSET(FogAreaValues, falloffModifier), "falloffModifier" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 5>("p"), PROTO_OFFSET(FogAreaValues, fogVariation), "fogVariation" },
+			{ content::GetMemberPrimitiveMetaType<FogAreaValues, float, 6>("p"), PROTO_OFFSET(FogAreaValues, noiseStrength), "noiseStrength" }
+		};
+		sList.members = sMembers;
+		sList.count = 9;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x105248E0
+	content::MemberList* TimeOfDayVarChannel<FogAreaValues>::Key::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<Key, float, 0>("p"), PROTO_OFFSET(Key, time), "time" },
+			{ content::GetClassMetaType<FogAreaValues>(), PROTO_OFFSET(Key, value), "value" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x105249B0
+	content::MemberList* TimeOfDayVars::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<TimeOfDayVars, float, 0>("p"), PROTO_OFFSET(TimeOfDayVars, dayLength), "dayLength" },
+			{ content::GetMemberPrimitiveMetaType<TimeOfDayVars, float, 1>("p"), PROTO_OFFSET(TimeOfDayVars, dawnTime), "dawnTime" },
+			{ content::GetMemberPrimitiveMetaType<TimeOfDayVars, float, 2>("p"), PROTO_OFFSET(TimeOfDayVars, duskTime), "duskTime" },
+			{ content::GetMemberPrimitiveMetaType<TimeOfDayVars, float, 3>("p"), PROTO_OFFSET(TimeOfDayVars, renderDawnTime), "renderDawnTime" },
+			{ content::GetMemberPrimitiveMetaType<TimeOfDayVars, float, 4>("p"), PROTO_OFFSET(TimeOfDayVars, renderDuskTime), "renderDuskTime" },
+			{ content::GetMemberReferenceMetaType<TimeOfDayVars, pure3d::Texture, 0>("p"), PROTO_OFFSET(TimeOfDayVars, cloudCover), "cloudCover" },
+			{ content::GetArrayDynamicMetaType<TimeOfDayVars, NameArray>(content::GetMemberNameMetaType<TimeOfDayVars, 0>(true, true, "p"), "p"),
+				PROTO_OFFSET(TimeOfDayVars, dayGroups), "dayGroups" },
+			{ content::GetArrayDynamicMetaType<TimeOfDayVars, LightInfoArray>(content::GetClassMetaType<TimeOfDayLightInfo>(), "p"),
+				PROTO_OFFSET(TimeOfDayVars, lights), "lights" }
+		};
+		sList.members = sMembers;
+		sList.count = 8;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x105292C0
+	content::MemberList* TimeOfDayVarChannel<FogAreaValues>::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetArrayDynamicMetaType<TimeOfDayVarChannel<FogAreaValues>, KeyArray>(content::GetClassMetaType<Key>(), "p"),
+				PROTO_OFFSET(TimeOfDayVarChannel<FogAreaValues>, keys), "keys" }
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1052B8B0
+	content::MemberList* TimeOfDayVariation::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberNameMetaType<TimeOfDayVariation, 0>(true, true, "p"), PROTO_OFFSET(TimeOfDayVariation, name), "name" },
+			{ content::GetClassMetaType<GlobalLightingRig>(), PROTO_OFFSET(TimeOfDayVariation, globalLights), "globalLights" },
+			{ content::GetClassMetaType<GlobalFBEffectsRig>(), PROTO_OFFSET(TimeOfDayVariation, globalFBEffects), "globalFBEffects" },
+			{ content::GetClassMetaType<GlobalShaderRig>(), PROTO_OFFSET(TimeOfDayVariation, globalShaderParams), "globalShaderParams" },
+			{ content::GetClassMetaType<FogChannel>(), PROTO_OFFSET(TimeOfDayVariation, globalFogValues), "globalFogValues" }
+		};
+		sList.members = sMembers;
+		sList.count = 5;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1052BFC0
+	content::MemberList* TimeOfDayVarGroup::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberNameMetaType<TimeOfDayVarGroup, 0>(true, true, "p"), PROTO_OFFSET(TimeOfDayVarGroup, name), "name" },
+			{ content::GetArrayDynamicMetaType<TimeOfDayVarGroup, VariationArray>(content::GetClassMetaType<TimeOfDayVariation>(), "pn"),
+				PROTO_OFFSET(TimeOfDayVarGroup, dayVariations), "dayVariations" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
 	}
 
 	template class TimeOfDayVarChannel<float>;
@@ -324,3 +512,24 @@ namespace proto
 // FUNCTION: ENGINE 0x1052D9D0
 // FUNCTION: ENGINE 0x1052DAB0
 // FUNCTION: ENGINE 0x1052DBE0
+// FUNCTION: ENGINE 0x10521AE0
+// FUNCTION: ENGINE 0x10521B20
+// FUNCTION: ENGINE 0x10521B80
+// FUNCTION: ENGINE 0x10521BC0
+// FUNCTION: ENGINE 0x10521C40
+// FUNCTION: ENGINE 0x10521C90
+// FUNCTION: ENGINE 0x10522590
+// FUNCTION: ENGINE 0x105225D0
+// FUNCTION: ENGINE 0x10522610
+// FUNCTION: ENGINE 0x10522650
+// FUNCTION: ENGINE 0x10522690
+// FUNCTION: ENGINE 0x105226D0
+// FUNCTION: ENGINE 0x10522710
+// FUNCTION: ENGINE 0x10522750
+// FUNCTION: ENGINE 0x10522790
+// FUNCTION: ENGINE 0x105227D0
+// FUNCTION: ENGINE 0x10522810
+// FUNCTION: ENGINE 0x10522850
+// FUNCTION: ENGINE 0x10522890
+// FUNCTION: ENGINE 0x1052EA30
+// FUNCTION: ENGINE 0x1052F1D0
