@@ -36,6 +36,11 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/aitreebehaviour.h"
+#include "code/proto/disguiseconfig.h"
+#include "code/proto/behaviours/bloodtoxbehaviour.h"
+#include "code/proto/behaviours/driverbehaviour.h"
+#include "code/proto/behaviours/emotionalstatebehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
@@ -139,16 +144,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(proto::NPCRender)];
-	};
-
-	struct DisguiseConfig : public content::MetaLoadObject
-	{
-	public:
-		DisguiseConfig();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x274 - sizeof(content::MetaLoadObject)];
 	};
 
 	struct BulletTracerProfile : public content::MetaLoadObject
@@ -295,16 +290,6 @@ namespace proto
 		unsigned char unknown0[0x60];
 	};
 
-	class AiTreeBehaviour : public engine::FightTreeBehaviour
-	{
-	public:
-		explicit AiTreeBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
-	};
-
 	class ConsumableBehaviour : public engine::Behaviour
 	{
 	public:
@@ -323,16 +308,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x560 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class EmotionalStateBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit EmotionalStateBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 	class MovementBehaviour : public engine::Behaviour
@@ -655,16 +630,6 @@ namespace proto
 	};
 
 
-	class DriverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DriverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
 	class HydraMovementBehaviour : public proto::MovementBehaviour
 	{
 	public:
@@ -683,16 +648,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(engine::Behaviour)];
-	};
-
-	class BloodtoxBehaviour : public engine::TriggerBehaviour
-	{
-	public:
-		explicit BloodtoxBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xE4 - sizeof(engine::TriggerBehaviour)];
 	};
 
 	class FormationBehaviour : public proto::SquadCommanderBehaviour
