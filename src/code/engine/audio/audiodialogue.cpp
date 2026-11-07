@@ -1,6 +1,7 @@
 // The audio dialogue unit (RTTI: engine::AudioDialoguePersonality, AudioDialogueSubtitle, AudioDialogueSound and their
 // loaders; 0x10855xxx - 0x1085Bxxx): the instance of the dynamic property of a string that the unit's vftables use. No
 // assert path names the unit; the file name is a guess.
+#include "code/om/dynamicarray.h"
 #include "code/om/dynamicproperty.h"
 #include "code/om/string.h"
 
@@ -19,6 +20,9 @@ namespace om
 	// FUNCTION: ENGINE 0x10856260
 	// FUNCTION: ENGINE 0x108562F0
 	// FUNCTION: ENGINE 0x10857900
+	// FUNCTION: ENGINE 0x10857F60
+	// FUNCTION: ENGINE 0x10856220
+	template char const* DynamicArray<unsigned int,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10857970
 	// FUNCTION: ENGINE 0x10857990
 	// FUNCTION: ENGINE 0x108579A0

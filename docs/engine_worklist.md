@@ -7188,3 +7188,38 @@ dialogue resolvers / sound manager (0x1049B130 - 0x104A0000). No assert path nam
 - Not done: the save game manager (its base `engine::GameDataBaseClient` is not recovered, so the 12 `Method` / `Closure` instances of `sgm_*` wait for it), `ScenarioStateMachineBehaviour` (reflection with a fight branch
   reference), `LifetimeManager`, the state machine and spawner messages (deleting destructors only), the dialogue resolvers (`engine::AudioDialogueResolver` and its three tiny virtual slots, `proto::SoundDialogueResolver`),
   `proto::SoundManager`'s script wrappers and the big update functions.
+
+## sn-cf: the range 0x10840000 - 0x10880000 (property instances of the audio units, exports, text bible, storage state)
+The range holds some thirty translation units of the engine (the game object spawner and database, the online services, the
+audio manager / mixer / dialogue / emitters / tracks, the renderer's decals, the cameras, the stream manager, the path
+behaviours, the game object Lua natives, the frontend). Most open functions are accessors and container members of
+classes the units do not name; those stay open.
+- `om::DynamicProperty<bool>` (audiotracks.cpp, 0x1087AC70 - 0x1087C650, 55 functions) and `om::DynamicProperty<om::String>`
+  (new `engine/audio/audiodialogue.cpp`, 0x10856240 - 0x10859E00, 54 functions): the whole instance (property, the two commands,
+  `Owned`, `CommandDelegate`, the member commands with their `operator new` / `delete`, `AllocationTag` of each class, the
+  delegate property) as explicit instantiations of the templates of `om/dynamicproperty.h`. The symbols were bound with a script
+  that compiles the instantiations, matches every open function by bytes with relocations as wildcards, follows the calls and
+  the vftable slots of the object for the rest, and orders equal-byte groups (the destructors, `Owned`, the `CommandMember`
+  constructors and `operator delete`s) by the order the uchar instance has; the shared `AllocationTag` tags and the property's
+  constructor `DynamicProperty(const ClassName&, T)` (new, `dynamicproperty.h`) are part of it.
+- Left to the engine (declared as explicit specializations, mapped to the engine's address): `ReadText` of both instances (95.5 /
+  95.9 %: the engine loads both halves of the name key before the test of the result), `ReadBinary` and `WriteBinary` of the bool
+  property (the engine reads the byte through a temporary behind the call of the stream), `WriteText`, `WriteValueBinary<String>`
+  and `CommandDelegate<String>::Set` of the string property.
+- `engine/enginetasks.cpp`: the exports `EngineKeyboardService`, `EngineMouseService` (the case order of the original puts the
+  mouse move last) and `EngineWindowFocus` (the focus flag 0x111CA914 starts set; `ZoneSet::Unknown108948D0`, `gFocusState`).
+- `engine/frontend/feresourcestreamclient.cpp` (new): the text bible load objects `TextBibleStorage`, `TextBibleHolder`,
+  `TextBibleEntry` and the two casters (`scaleformp3d/resourcedictionary.h` is new: the type only). The constructors of the
+  storage and of the entry are NONMATCHING (90 / 87 %: the engine pushes the size for the allocation behind the store of the
+  reference count).
+- `engine/system/storagemanager.cpp` (new): `StorageManager::StorageGameState` (inline constructor, destructor and the
+  compiler's deleting destructor are the engine's kept copies) and the creation / release of the state.
+- Annotated kept copies that were mapped but not annotated: the casters of `FightTreeBehaviour` (0x10863A80, 0x10863A90) and
+  `SplineBehaviour` (0x10864FA0), `UnpackedInitialState`'s destructor (0x10842D20; with its deleting destructor mapped),
+  `LoadInventory::Find<UnpackedInitialState>` (0x108426C0), `GetClassMetaType<GameObjectSpawner>` (0x108420A0, statics mapped).
+- Shared header changes: `om/dynamicproperty.h` (one constructor added to `DynamicProperty<T>`), `world/zoneset.h` (one method
+  declared). All type descriptors of the new vftables are mapped.
+- Not done (the long tail): the audio mixer / dialogue / emitter / sound classes (their layouts are not recovered), the online
+  services' `OLS` object (members unknown), the game link and stream trigger messages, the decal creators and render task, the
+  big `Update` functions of the dramatic and blend cameras, the container members inside `DBSubject`, `FmvRequest` lists and the
+  path behaviours' arrays (the engine's `ConstructAt` inlining differs).
