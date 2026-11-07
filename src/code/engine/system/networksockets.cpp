@@ -174,6 +174,7 @@ namespace engine
 			// 0x1093F420: links the entries of a block, the last one in front
 			void Fill(SocketEntry* entries, unsigned int count);
 
+			// FUNCTION: ENGINE 0x1093F460
 			// 0x1093F460: puts an entry in front
 			void Push(SocketEntry* entry)
 			{
@@ -208,6 +209,7 @@ namespace engine
 		// 0x111EBB74 (symbols.txt): the name of the window class the layer registers
 		extern const char* gWindowClassName;
 
+		// FUNCTION: ENGINE 0x1093E600
 		// 0x1093E600: the entry of a handle, or null for a handle out of range
 		static SocketEntry* GetEntry(int handle)
 		{
@@ -243,6 +245,7 @@ namespace engine
 			return -128;
 		}
 
+		// FUNCTION: ENGINE 0x1093E6A0
 		// 0x1093E6A0: the layer's error code for the last Winsock error
 		static int LastError()
 		{
@@ -260,6 +263,7 @@ namespace engine
 			unsigned int unknownC;
 		};
 
+		// FUNCTION: ENGINE 0x1093E5D0
 		// 0x1093E5D0: claims an entry (name guess)
 		static SocketEntry* ClaimEntry(SocketEntry* entry)
 		{
@@ -269,6 +273,7 @@ namespace engine
 			return entry;
 		}
 
+		// FUNCTION: ENGINE 0x1093E5E0
 		// 0x1093E5E0: gives an entry back
 		static SocketEntry* ReleaseEntry(SocketEntry* entry)
 		{
@@ -276,12 +281,14 @@ namespace engine
 			return entry;
 		}
 
+		// FUNCTION: ENGINE 0x1093E5F0
 		// 0x1093E5F0: the handle of an entry
 		static int GetHandle(SocketEntry* entry)
 		{
 			return entry - gSockets->entries;
 		}
 
+		// FUNCTION: ENGINE 0x1093E6B0
 		// 0x1093E6B0: the Winsock address family of the layer's (only the Internet family)
 		static int MapFamily(int family, int* mapped)
 		{
@@ -293,6 +300,7 @@ namespace engine
 			return -2;
 		}
 
+		// FUNCTION: ENGINE 0x1093E6D0
 		// 0x1093E6D0: the Winsock socket type (stream and datagram)
 		static int MapType(int type, int* mapped)
 		{
@@ -309,6 +317,7 @@ namespace engine
 			return -2;
 		}
 
+		// FUNCTION: ENGINE 0x1093E6F0
 		// 0x1093E6F0: the Winsock protocol (only the default)
 		static int MapProtocol(int protocol, int* mapped)
 		{
@@ -349,6 +358,7 @@ namespace engine
 			return -2;
 		}
 
+		// FUNCTION: ENGINE 0x1093E790
 		// 0x1093E790: the Winsock flags of the layer's (none are supported)
 		static int MapFlags(int flags, int* mapped)
 		{
@@ -360,6 +370,7 @@ namespace engine
 			return 0;
 		}
 
+		// FUNCTION: ENGINE 0x1093E7B0
 		// 0x1093E7B0: the addresses of a finished lookup into the caller's result (a count, then up to eight addresses)
 		static void CopyLookupResult()
 		{

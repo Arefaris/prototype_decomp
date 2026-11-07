@@ -84,6 +84,21 @@ namespace engine
 	}
 }
 
+namespace content
+{
+	// FUNCTION: ENGINE 0x10929F40
+	template<> void ArrayDynamicHelper<engine::TagBehaviour::TagArray>::Insert(void* array, int index, int unused)
+	{
+		A* a = (A*)array;
+		if (a->Size() >= a->Capacity())
+		{
+			a->Reserve(a->Size() + 1);
+		}
+		engine::TagBehaviour::TagWrapper* position = a->begin + index;
+		a->Insert(position, Default());
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10929710
 // FUNCTION: ENGINE 0x10929740
@@ -115,3 +130,4 @@ namespace engine
 // FUNCTION: ENGINE 0x10929E40
 // FUNCTION: ENGINE 0x10929E70
 // FUNCTION: ENGINE 0x10929FD0
+// FUNCTION: ENGINE 0x10929B00

@@ -7581,3 +7581,21 @@ Second pass over the instances of sn-bd (see there); 254 functions of the range 
   (`DynamicArray<E>` constructors, `ReleaseElements`, `Packet<T>` constructors at 0x10B00530 / 0x10B00560 are second copies of 0x10B33... / 0x10B356F0:
   one name cannot be mapped to two addresses), the 3 - 30 byte kept copies without a class (accessors, `ret` stubs), `OutputPin<P>` constructors,
   `PropertyPropertyDelegate::CreateDelegate`.
+## sn-da: the range 0x10920000 - 0x10940000, second pass (kept copies, reflection of the behaviours)
+111 more functions of the range match (all 100 %, no EQUIVALENT), 1 is NONMATCHING. About 840 are left; most of them are small members of classes no RTTI name, vftable or assert reaches (the packet and input-log structures of
+0x109337A0 - 0x109340DE, the car attribute groups, the sound emitter's tree) or of units whose layouts are not recovered.
+- Kept copies found with the objects (`tools` scripts of the session: every COMDAT our object defines that symbols.txt does not name, compared with the unannotated engine functions of the unit): the messages' constructors and
+  destructors of the ragdoll and character IK actions, `core::Link<Track>::~Link` of 13 action classes (placed by the rule that the engine puts the link's destructor directly in front of the action's destructor),
+  the graph curve members (`GraphKnots` / `GraphCurve`, 0x10934620 - 0x109346D0) and the 13 file-local helpers of the Winsock layer (0x1093E5D0 - 0x1093E7B0, 0x1093F460: `static` functions in the named namespace, mapped by their decorated names).
+  The `Link<T>` constructors (55-byte copies, two series per ragdoll unit) are NOT mapped: their copies are byte-identical for every track and nothing orders them (no caller, no data reference).
+- `engine/audio/audiozonebehaviour.{h,cpp}`: `AudioZoneBehaviour` (21 functions: class info, reflection with the four name members and the OBB volume, both constructors, slots 0 / 1 / 4 / 5 / 6, destructor, casters and the
+  object meta type of `OBBVolume`); the volume is a trigger object whose collision volume's bounds are tested against the listener position (`SoundZoneManager::GetListenerPosition`, 0x10879B20, declared in audiomanager.h).
+  The fifth argument of `SoundZoneManager::AddZone` is the collision volume (pointer); the declaration still says `int`.
+- `engine/ragdolllodbehaviour.{h,cpp}`: `RagdollLODBehaviour` (real class; its constructor is NONMATCHING, 84 %: the engine stores the vftable before the pushes of the first `Listen`) and the reflection of
+  `RagdollBehaviour` (seven members, `content::GetMemberReferenceMetaType<C, T, Id>` is new in loadinventory.h: one instance per member, as the primitive meta types). `secondaryphysicsbehaviour.cpp`,
+  `trackedmotiontoexpressionbehaviour.cpp` and `physicsbehaviour.cpp` hold the reflection that is done (class info, members of the first two); their classes stay in reflectedclasses.h with the named members.
+- `TagBehaviour`: the array helper's `Insert` (0x10929F40) with the shared `Default()` static (0x1131D900 / 0x1131D908) and its kept `Default` copy (0x10929B00).
+- `LocoInputCondition` / `CharacterInputCondition`: the evaluation reads the members through accessors (kept copies 0x1092D720 - 0x1092D7C0); the Evaluate bodies still differ from the engine's in their block layout.
+- Not done (read): `PhysicsBehaviour`'s reflection (getter / setter meta types with function-local statics, the `PhysicsProperties` array helper), `AudioEmitterBehaviour` (its object doubles as the `AudioUpdatable` stand-in of
+  audiomanager.h and uses sound members that are not recovered), `NetSystemLink*`, `ControllerInputLogManager` (the class at 0x109337A0 is not a `ReplayExtra`: its destructor sets the `ControllerInputLogManager` vftables;
+  its second base is a replay listener with the slots 0x10933840 / 0x10933940 / 0x10933880), the large action slots (`PowerRagdollByPuppetAction::Slot5` needs the content inventory's lookup 0x1092EF20 and the helper 0x1092E300 that enables a ragdoll).

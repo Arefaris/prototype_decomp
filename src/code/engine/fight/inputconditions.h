@@ -30,6 +30,32 @@ namespace engine
 		bool SetCompareValue(int value);
 		bool SetValue(float value);
 
+		// The members the evaluation reads through accessors (kept copies 0x1092D720 - 0x1092D770, names guessed)
+		int GetButton() const
+		{
+			return button;
+		}
+		int GetButtonState() const
+		{
+			return buttonState;
+		}
+		int GetCompareTime() const
+		{
+			return compareTime;
+		}
+		float GetTime() const
+		{
+			return time;
+		}
+		int GetCompareValue() const
+		{
+			return compareValue;
+		}
+		float GetValue() const
+		{
+			return value;
+		}
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -67,6 +93,28 @@ namespace engine
 		bool SetTime(float value);
 		bool SetCompareValue(int value);
 		bool SetValue(float value);
+
+		// The members the evaluation reads through accessors (kept copies 0x1092D780 - 0x1092D7C0, names guessed)
+		int GetInputType() const
+		{
+			return inputType;
+		}
+		int GetCompareTime() const
+		{
+			return compareTime;
+		}
+		float GetTime() const
+		{
+			return time;
+		}
+		int GetCompareValue() const
+		{
+			return compareValue;
+		}
+		float GetValue() const
+		{
+			return value;
+		}
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

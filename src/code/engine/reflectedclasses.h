@@ -11,6 +11,9 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
 #include "code/engine/poseanimationbehaviour.h"
+#include "code/engine/ragdolllodbehaviour.h"
+#include "code/engine/secondaryphysicsproperties.h"
+#include "code/engine/trackedmotiontoexpressionmap.h"
 #include "code/engine/tagbehaviour.h"
 #include "code/engine/touchbehaviour.h"
 #include "code/ravenphysics/constraints/sharedproperties.h"
@@ -161,18 +164,17 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknownC[0x88];
-	};
-
-	// RagdollLODBehaviour: constructor 0x10926350, reflection 0x10925090 / 0x109274D0
-	class RagdollLODBehaviour : public engine::Behaviour
-	{
-	public:
-		RagdollLODBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x14];
+		unsigned char unknownC[8];
+		ravenphysics::PhysicsObjectFactory* ragdollFactory;  // +0x14
+		ravenphysics::PhysicsObjectFactory* lowLODRagdollFactory;  // +0x18
+		ravenphysics::PhysicsObjectFactory* ragdoll;  // +0x1C
+		unsigned char unknown20[0x18];
+		ravenphysics::IntersectionPropertiesLoader* intersectionProperties;  // +0x38
+		unsigned char unknown3C[0x40];
+		bool createRagdollPhysicsObject;  // +0x7C
+		bool isKeyframeUpdated;  // +0x7D
+		ravenphysics::MaterialLoader* overrideMaterial;  // +0x80
+		unsigned char unknown84[0x10];
 	};
 
 	// SecondaryPhysicsBehaviour: constructor 0x10929460, reflection 0x10927F60 / 0x10928F80
@@ -183,7 +185,10 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknownC[0x34];
+		unsigned char unknownC[0x28];
+		SecondaryPhysicsProperties* sharedProperties;  // +0x34
+		int unknown38;
+		bool sendPoseSyncMessage;  // +0x3C
 	};
 
 	// TrackedMotionToExpressionBehaviour: constructor 0x1092AF30, reflection 0x1092A440 / 0x1092AA40
@@ -194,7 +199,8 @@ namespace engine
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		unsigned char unknownC[0x30];
+		TrackedMotionToExpressionMap* map;  // +0xC
+		unsigned char unknown10[0x2C];
 	};
 
 }

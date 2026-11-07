@@ -355,6 +355,15 @@ namespace content
 		static ReferenceMetaType sType(&sCaster, code);
 		return &sType;
 	}
+
+	// The same for a class that reflects several references to one type: one instance per member (Id tells them apart; the
+	// reconstruction counts them), so each keeps a caster and a meta type of its own
+	template<class C, class T, int Id> ReferenceMetaType* GetMemberReferenceMetaType(const char* code)
+	{
+		static LoadInventory::DynamicCaster<T> sCaster;
+		static ReferenceMetaType sType(&sCaster, code);
+		return &sType;
+	}
 }
 
 // A reference member of class C reached through a getter and a setter (RTTI: global namespace)
