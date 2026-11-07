@@ -1283,6 +1283,18 @@ namespace engine
 			return false;
 		}
 
+		// The engine's copies of the reference helpers for an inventory that the manager's setters call (0x102D2440 /
+		// 0x102D2420; the copies of other units are other functions); kept out of line like the engine's
+		void AssignInventory(content::LoadInventory*& pointer, content::LoadInventory* inventory)
+		{
+			core::RefAssign(pointer, inventory);
+		}
+
+		void ReleaseInventory(content::LoadInventory*& pointer)
+		{
+			core::SafeRelease(pointer);
+		}
+
 		// FUNCTION: ENGINE 0x108193B0
 		void EffectManager::SetResetCallback(void (*callback)(int), int argument)
 		{
@@ -1293,20 +1305,20 @@ namespace engine
 		// FUNCTION: ENGINE 0x10819F60
 		void EffectManager::SetInventory(content::LoadInventory* newInventory)
 		{
-			core::RefAssign(inventory, newInventory);
+			AssignInventory(inventory, newInventory);
 		}
 
 		// FUNCTION: ENGINE 0x10819F40
 		void EffectManager::SetSecondInventory(content::LoadInventory* newInventory)
 		{
-			core::RefAssign(secondInventory, newInventory);
+			AssignInventory(secondInventory, newInventory);
 		}
 
 		// FUNCTION: ENGINE 0x10819F80
 		void EffectManager::ReleaseInventories()
 		{
-			core::SafeRelease(inventory);
-			core::SafeRelease(secondInventory);
+			ReleaseInventory(inventory);
+			ReleaseInventory(secondInventory);
 		}
 
 		// FUNCTION: ENGINE 0x10819FD0
