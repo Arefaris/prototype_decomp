@@ -33,6 +33,7 @@
 #include "code/proto/behaviours/aimbehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
+#include "code/proto/behaviours/tanksolver.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
@@ -151,16 +152,6 @@ namespace proto
 		unsigned char unknownTail[0x40 - sizeof(content::MetaLoadObject)];
 	};
 
-	class AlignedAxleConstraintProperties : public content::MetaLoadObject
-	{
-	public:
-		AlignedAxleConstraintProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
-	};
-
 	class WorldTriggers : public content::MetaLoadObject
 	{
 	public:
@@ -189,16 +180,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xD8 - sizeof(content::MetaLoadObject)];
-	};
-
-	class TankSolverProperties : public content::MetaLoadObject
-	{
-	public:
-		TankSolverProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20C - sizeof(content::MetaLoadObject)];
 	};
 
 	class VehicleWheelSuspensionProperties : public content::MetaLoadObject
