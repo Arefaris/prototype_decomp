@@ -18,6 +18,8 @@
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
+#include "code/proto/behaviours/squadmemberbehaviour.h"
+#include "code/proto/behaviours/squadblackboardbehaviour.h"
 
 namespace proto
 {
@@ -901,16 +903,6 @@ namespace proto
 		unsigned char unknownTail[0xA0 - sizeof(engine::Behaviour)];
 	};
 
-	class SquadMemberBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit SquadMemberBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x10 - sizeof(engine::Behaviour)];
-	};
-
 	class SquadPerceptionBehaviour : public engine::Behaviour
 	{
 	public:
@@ -919,16 +911,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
-	class SquadBlackboardBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit SquadBlackboardBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x154 - sizeof(engine::Behaviour)];
 	};
 
 	class TankSolverBehaviour : public engine::Behaviour
