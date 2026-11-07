@@ -354,10 +354,10 @@ namespace proto
 			switch ((unsigned short)message->id)
 			{
 			case 0:
-				Save(static_cast<CheckpointMessage*>(message)->stream);
+				Save(static_cast<SerializeCharacterCheckpointMessage*>(message)->stream);
 				break;
 			case 1:
-				Load(static_cast<CheckpointMessage*>(message)->stream);
+				Load(static_cast<UnserializeCharacterCheckpointMessage*>(message)->stream);
 				break;
 			}
 			break;
