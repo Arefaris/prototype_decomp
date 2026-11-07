@@ -3,6 +3,7 @@
 #ifndef PROTO_WEBOFINTRIGUE_WEBOFINTRIGUEMANAGER_H
 #define PROTO_WEBOFINTRIGUE_WEBOFINTRIGUEMANAGER_H
 
+#include "code/math/matrix.h"
 #include "code/content/metatype.h"
 #include "code/engine/dbobserver.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
@@ -18,6 +19,10 @@ namespace proto
 
 		// 0x1055CC40: the node of the web an object is the target of (null when it is none; name guess)
 		Node* FindNode(engine::GameObjectHandle handle);
+		// 0x1055CA30: gives a node the transform of its locator (name guess)
+		void SetNodeTransform(int nodeID, const math::Matrix* transform);
+		// 0x1055CA70: tells the manager that the locator of a node has loaded (name guess)
+		void NodeLocatorLoaded(int nodeID);
 	};
 
 	// An episode of the web (RTTI proto::WOIEpisode; the layout is not recovered)
