@@ -80,6 +80,33 @@ namespace proto
 			HunterPath* path;  // +8
 		};
 	};
+
+	// One point of a hunter's short range path (0x18 bytes): where it is and the direction the path takes there
+	struct HunterShortRangePathPoint
+	{
+		math::Vector position;  // +0
+		math::Vector direction;  // +0xC
+	};
+
+	struct HunterShortRangePath
+	{
+		container::ArrayDynamic<HunterShortRangePathPoint, container::AllocatorNew> points;  // +0
+	};
+
+	class HunterShortRangePathfinder
+	{
+	public:
+		struct PathWrapper : public PathInterface
+		{
+			// Vftable slot 0 (0x103A0690), 1 (0x103A06B0) and 2 (0x103A06E0: whether the directions of the points from
+			// first to second stay within about 26 degrees of each other)
+			virtual int GetPointCount();
+			virtual math::Vector GetPoint(int index);
+			virtual bool Slot2(int first, int second);
+
+			HunterShortRangePath* path;  // +4
+		};
+	};
 }
 
 #endif

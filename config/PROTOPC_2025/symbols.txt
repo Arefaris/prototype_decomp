@@ -102900,3 +102900,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_7GetSlotNameForGrabbedObjectMessage@proto@@6B@ = 0x10DA0B94 ; data size:0x4 | proto::GetSlotNameForGrabbedObjectMessage vftable
 ??_GGetSlotNameForGrabbedObjectMessage@proto@@UAEPAXI@Z = 0x100C5F30 ; function size:0x1F | proto::GetSlotNameForGrabbedObjectMessage::scalar deleting destructor vftable slot 0
 ??_R0?AVGetSlotNameForGrabbedObjectMessage@proto@@@8 = 0x10FF43C4 ; data size:0x8 | proto::GetSlotNameForGrabbedObjectMessage RTTI type descriptor
+?GetPointCount@PathWrapper@HunterShortRangePathfinder@proto@@UAEHXZ = 0x103A0690 ; function size:0x1A | proto::HunterShortRangePathfinder::PathWrapper::GetPointCount vftable slot 0
+?GetPoint@PathWrapper@HunterShortRangePathfinder@proto@@UAE?AVVector@math@@H@Z = 0x103A06B0 ; function size:0x27 | proto::HunterShortRangePathfinder::PathWrapper::GetPoint vftable slot 1
+?Slot2@PathWrapper@HunterShortRangePathfinder@proto@@UAE_NHH@Z = 0x103A06E0 ; function size:0xAE | proto::HunterShortRangePathfinder::PathWrapper::Slot2 vftable slot 2
