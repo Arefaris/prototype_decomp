@@ -53,6 +53,9 @@ namespace om
 		void Erase(TreeNode* node);
 		// 0x105B7B40
 		void ResetRoot();
+		// 0x105B79D0: calls the function with every node in order and the data, stops at the first that answers false
+		typedef bool (*NodeVisitor)(TreeNode* node, void* data);
+		bool VisitAll(NodeVisitor visitor, void* data);
 		// 0x105B7910 (defined in a unit of its own: the engine calls it, it is not expanded)
 		~TextNodeTree();
 

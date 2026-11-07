@@ -7523,3 +7523,27 @@ Units extended in `src/code/proto/fightitems/motion/` (the action half sits betw
 - `mgraph/nodes.h`, `abstraction.cpp`: `Abstraction` (the contained graph at 0x58, the link in the graph's list at 0x50), `LinkedGraph` (one channel, the abstracted name at 0x60) and `EmbeddedGraph`: attach, detach, channel count, enabled channels, channel reset. `Node::Slot12` is `SetChannelEnabled(unsigned int, bool)`.
 - What the pass taught: (1) the engine's inline helpers that turn a link into the object around it (`link ? link - 4 : 0`) compile to the shape `if (x != 0) r = ...; else r = 0; return r;` in a `__forceinline` function; a ternary or an early return lets the optimiser remove the second test. (2) A pair of list pointers passed as `NodeLink**` (`list[0]` head, `list[1]` tail) gives the engine's address arithmetic for a list that sits inside another object (`add eax, 0x3C` before the first compare). (3) The largest part of the range is dead template copies: the same template instance (`ReadText<audio::BufferLocation>`, `MetaClass<T>::Slot5`, ...) exists at several addresses and only one of them can be bound to the source's instance; the rest cannot be reconstructed.
 - Not done: the Direct sound driver (its class is spread over 0x10ABC000 - 0x10AC0F10, the device code and model are 2.5 KB), `Graph` destructor / `Slot3` .. `Slot8` (the XML and binary reading and writing), `Context::SetNodeLevel` (0x10AC46F0) and the evaluation (0x10AC4A40), the node reflection registration functions (shrink-wrap), the pins' base constructors and destructors (`Pin::Pin` at 0x10B6A600 is outside the range), `Abstraction` destructor / `SetInnerGraph` (0x10ACCF00).
+## proto/om: the range 0x105A0000 - 0x105C0000, third pass (sn-dg)
+- Done: the text tree unit (`om/valueio.cpp`, `om/texttree.h`, `om/textscanner.*`): the red-black operations of `TextNodeTree`
+  (rotations, `Successor`, `FixAfterErase`, `Erase`, `Previous`, `Insert`, `VisitAll`), the `TextValue` members (destructor,
+  `SetName`, `SetParent`, `Clone`, `DeleteChildren`), the `TextNode(parent)` constructor, `TextTree` (the document: `Escape` /
+  `Unescape`, `ReadNodes`, `WriteNode`, `Read`, `Write`) and the text scanner (`TextScanner`, a window of 128 characters over
+  a stream, and its word, number, identifier and quoted text readers). `StreamPrintf` and `SkipAndConsume` answer a `char`
+  (the callers convert it with `test al, al; setne`).
+- Also: `ToSnakeCase` (0x105B45D0), `SpaceOutCapitals` now matches (explicit `if (c < 'A' || c > 'Z')` tests), the entity type
+  registry's `InsertEntityTypeByName`, the registry walkers, `ThreadSafeRefCount::AddRef` / `Release`, `MetaTypeBase` (constructor,
+  `GetName`, `FindMetaType`; its vftable and deleting destructor are mapped), three sequencer queue helpers and
+  `Entity::SetName`.
+- Findings: a `goto` into the shared right-hand branch reproduces the engine's insert loop (`TextNodeTree::Insert`); `if (...)
+  return true; return false;` gives the `setbe` / `mov al, 1` forms of the character predicates; `while (node->left != end)
+  node = node->left;` (no cached copy of the pointer) gives the engine's loads; a `ret`-only destructor of a member must live in
+  a unit of its own (`textnodetreedestructor.cpp`) or the compiler drops the call.
+- NONMATCHING: `TextScanner::Fill` (87.8 %), `CharAt` (96.4 %), `StripQuotes` (57.5 %), `ReadUntil` (13.9 %, the engine keeps its
+  flags in the homes of the arguments), `TreeHead::InsertEntityTypeByType` (89.9 %, branch layout), `InsertEntity` (47.7 %),
+  the three registry searches (`FindEntityType`, `FindEntityTypeByName`, `FindEntity`), the lock walkers `GetFirstEntity` /
+  `GetNextEntity` / `FindEntityByName` (the engine reads the lock before it saves esi), `EntityReference::Reset` / `operator=`,
+  `FindEntityTypeByName(String*)`, `MetaTypeBase::~MetaTypeBase` (95.6 %).
+- Not done: the movie player (0x105A0050 - 0x105A2300 needs the classes of 0x1059F...), the audio renderer / mixer / effect classes
+  (0x105BB0A0 - 0x105BD670, 0x105BD8E0 - 0x105BF000: layouts unknown), the file loading of the text tree (0x105B91F0, 0x105B92B0:
+  they call the file system's open slot, unnamed in `om/filesystem.h`), `Context` loaders (0x105A4C10 - 0x105A50E0), the
+  `TrackRegistry` constructor, the hash map instances of the factory maps.

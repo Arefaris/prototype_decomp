@@ -101102,3 +101102,4 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?FindMetaType@TreeHead@om@@QAEPAVMetaTypeBase@2@ABVtype_info@@@Z = 0x105B67A0 ; function size:0xA6 | om::TreeHead::FindMetaType (name guess)
 ??_7MetaTypeBase@om@@6B@ = 0x10E2E484 ; data size:0x1C | const om::MetaTypeBase::`vftable'
 ??_GMetaTypeBase@om@@UAEPAXI@Z = 0x105B72F0 ; function size:0x1E | om::MetaTypeBase::scalar deleting destructor(unsigned int) vftable slot 0
+?VisitAll@TextNodeTree@om@@QAE_NP6A_NPAUTreeNode@2@PAX@Z1@Z = 0x105B79D0 ; function size:0xA8 | om::TextNodeTree::VisitAll (name guess)

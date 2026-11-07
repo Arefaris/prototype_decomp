@@ -293,6 +293,54 @@ namespace om
 		}
 	}
 
+	// FUNCTION: ENGINE 0x105B79D0
+	bool TextNodeTree::VisitAll(NodeVisitor visitor, void* data)
+	{
+		TreeNode* node = root;
+		TreeNode* end = &nil;
+		if (node != end)
+		{
+			while (node->left != end)
+			{
+				node = node->left;
+			}
+			bool visited = visitor(node, data);
+			while (visited)
+			{
+				if (node->right != end)
+				{
+					node = node->right;
+					while (node->left != end)
+					{
+						node = node->left;
+					}
+				}
+				else
+				{
+					if (!IsLeftChild(node))
+					{
+						if (IsRightChild(node))
+						{
+							do
+							{
+								node = node->parent;
+							}
+							while (IsRightChild(node));
+						}
+						if (IsRoot(node))
+						{
+							return true;
+						}
+					}
+					node = node->parent;
+				}
+				visited = visitor(node, data);
+			}
+			return false;
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x105B7AF0
 	TextValue* TextNodeTree::Previous(TextValue* node) const
 	{
