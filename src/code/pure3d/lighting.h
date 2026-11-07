@@ -132,6 +132,21 @@ namespace pure3d
 	// 0x1075C750: out = a | b over the groups whose bit is set in groups (14 groups)
 	void MergeLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
 		unsigned int groups);
+	// The same over the groups for the other operations (names guessed): 0x1075C6D0 out = a & b, 0x1075C7D0
+	// out = ~(a & b), 0x1075C860 out = ~(a | b), 0x1075C8F0 out = a ^ b, 0x1075C970 out = ~a, 0x1075C9F0 sets
+	// every bit of the groups, 0x1075CA60 clears them, 0x1075C640 counts the set bits of the groups
+	void AndLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NandLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void XorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NotLightBits(LightBits* out, const LightBits* a, const LightGroups* layout, unsigned int groups);
+	void SetLightBits(LightBits* out, const LightGroups* layout, unsigned int groups);
+	void ClearLightBits(LightBits* out, const LightGroups* layout, unsigned int groups);
+	int CountLightBits(const LightBits* bits, const LightGroups* layout, unsigned int groups);
 
 	// The lighting inputs of a pass (RTTI name pure3d::LightingInputs; one virtual function)
 	class LightingInputs

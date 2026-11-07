@@ -668,6 +668,190 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x1075C6D0
+	void AndLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = a->words[word] & b->words[word];
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C7D0
+	void NandLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = ~(a->words[word] & b->words[word]);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C860
+	void NorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = ~(a->words[word] | b->words[word]);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C8F0
+	void XorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = a->words[word] ^ b->words[word];
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C970
+	void NotLightBits(LightBits* out, const LightBits* a, const LightGroups* layout, unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = ~a->words[word];
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C9F0
+	void SetLightBits(LightBits* out, const LightGroups* layout, unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = 0xFFFFFFFF;
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075CA60
+	void ClearLightBits(LightBits* out, const LightGroups* layout, unsigned int groups)
+	{
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					out->words[word] = 0;
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C640
+	// NONMATCHING: the engine tests each bit through a byte temporary and spills the bit set and the groups to the stack (register allocation)
+#ifdef NONMATCHING
+	int CountLightBits(const LightBits* bits, const LightGroups* layout, unsigned int groups)
+	{
+		int count = 0;
+		for (unsigned int i = 0; i < 14; i++, groups >>= 1)
+		{
+			if (!groups)
+			{
+				return count;
+			}
+			if (groups & 1)
+			{
+				unsigned int first = layout->first[i] << 5;
+				unsigned int last = ((layout->count[i] << 5) + first - 1) >> 5;
+				for (unsigned int word = first >> 5; word <= last; word++)
+				{
+					for (unsigned int value = bits->words[word]; value != 0; value >>= 1)
+					{
+						unsigned char bit = value & 1;
+						if (bit == 1)
+						{
+							count++;
+						}
+					}
+				}
+			}
+		}
+		return count;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10756220
 	bool Light::HasRegion()
 	{
