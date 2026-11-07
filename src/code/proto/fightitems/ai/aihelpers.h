@@ -37,6 +37,12 @@ namespace proto
 		// 0x103833C0 / 0x10383520: releases a reserved position (name guesses); the flag tells the targets' kind from the others
 		void Unknown103833C0(const math::Vector* position, bool targets);
 		void Unknown10383520(const math::Vector* position);
+		// 0x103827E0: whether the place lies inside one of the blast areas (name guess)
+		bool Unknown103827E0(const math::Vector* place);
+		// 0x103826D0: whether the place lies outside every reserved area (name guess)
+		bool Unknown103826D0(const math::Vector* place);
+		// 0x10382880: whether the place with a radius is free of the volumes of other objects than the given one (name guess)
+		bool Unknown10382880(const math::Vector* place, float radius, engine::GameObjectHandle handle);
 		// 0x10385420: releases the volume the object reserved (name guess)
 		void Unknown10385420(engine::GameObjectHandle handle);
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
@@ -104,6 +110,8 @@ namespace proto
 	// 0x103C0360 / 0x103C02D0: whether the object is a tank / a helicopter (name guesses; each asks the object for its vehicle kind)
 	bool Unknown103C0360(engine::GameObject* object);
 	bool Unknown103C02D0(engine::GameObject* object);
+	// 0x103BB8A0: turns a direction of the object's frame into the world's (name guess)
+	void Unknown103BB8A0(engine::GameObject* object, math::Vector* direction);
 	// 0x103B8DC0: the level of detail state of an object (name guess)
 	int Unknown103B8DC0(engine::GameObject* object);
 	// 0x103B8B80: the handle of the object's target (name guess)

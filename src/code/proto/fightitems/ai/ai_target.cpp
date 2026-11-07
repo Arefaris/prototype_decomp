@@ -988,6 +988,33 @@ namespace proto
 				return Unknown103C02D0(target);
 			}
 
+			// FUNCTION: ENGINE 0x102158F0
+			// NONMATCHING: the engine repeats the comparison with the flag at the end of both the valid and the invalid target path, ours shares one tail, best 90.4 %
+#ifdef NONMATCHING
+			bool TargetingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return isTargeting == false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObjectHandle target = message.target;
+				if (includeAutoTarget)
+				{
+					if (!target.IsValid())
+					{
+						GetAutoTargetMessage autoMessage;
+						object->SendMessage(&autoMessage);
+						target = autoMessage.target;
+					}
+				}
+				engine::GameObject* targetObject = target.Get();
+				return (targetObject != 0) == isTargeting;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x10216190
 			bool TargetAlertSubStateCondition::Evaluate(int a, int b, int c, int d)
 			{

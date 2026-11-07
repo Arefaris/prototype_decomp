@@ -11,6 +11,12 @@ namespace fight
 	class Action;
 }
 
+namespace choreo
+{
+	// 0x10D94FF8
+	extern const float gMinusOne;
+}
+
 namespace engine
 {
 	// 0x11255368: the names of the goto tasks (aifightitemnames.cpp)
@@ -49,6 +55,50 @@ namespace proto
 
 		int unknownC;
 		core::Name<core::CaseSensitiveKey> state;  // +0x10
+	};
+
+	// RTTI: proto::SetVehicleAccelerationsMessage: the vehicle takes a factor for its accelerations (the others stay at minus one)
+	struct SetVehicleAccelerationsMessage : public VehicleMessage
+	{
+		SetVehicleAccelerationsMessage() : VehicleMessage(6), unknownC(choreo::gMinusOne), unknown10(choreo::gMinusOne), factor(choreo::gMinusOne), unknown18(choreo::gMinusOne)
+		{
+		}
+		virtual ~SetVehicleAccelerationsMessage()
+		{
+		}
+
+		float unknownC;
+		float unknown10;
+		float factor;  // +0x14
+		float unknown18;
+	};
+
+	// RTTI: proto::GetIntersectionPropertiesMovementMessage: the object answers the name of its intersection properties
+	struct GetIntersectionPropertiesMovementMessage : public MovementMessage
+	{
+		GetIntersectionPropertiesMovementMessage() : MovementMessage(0x4c), name()
+		{
+		}
+		virtual ~GetIntersectionPropertiesMovementMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> name;  // +0x10
+	};
+
+	// RTTI: proto::SetIntersectionPropertiesMovementMessage: the object takes the intersection properties of that name
+	struct SetIntersectionPropertiesMovementMessage : public MovementMessage
+	{
+		explicit SetIntersectionPropertiesMovementMessage(const core::Name<core::CaseSensitiveKey>& newName) : MovementMessage(0x4b), name(newName)
+		{
+		}
+		virtual ~SetIntersectionPropertiesMovementMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> name;  // +0x10
 	};
 
 	// What an object follows (the part the follow target action reads)
