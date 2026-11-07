@@ -36,6 +36,8 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/driverbehaviour.h"
+#include "code/proto/behaviours/emotionalstatebehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
@@ -425,16 +427,6 @@ namespace proto
 		unsigned char unknownTail[0x560 - sizeof(engine::FightTreeBehaviour)];
 	};
 
-	class EmotionalStateBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit EmotionalStateBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
-	};
-
 	class MovementBehaviour : public engine::Behaviour
 	{
 	public:
@@ -754,16 +746,6 @@ namespace proto
 		unsigned char unknownTail[0x5F4 - sizeof(proto::MovementBehaviour)];
 	};
 
-
-	class DriverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DriverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
 
 	class HydraMovementBehaviour : public proto::MovementBehaviour
 	{
