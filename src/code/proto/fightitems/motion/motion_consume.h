@@ -311,9 +311,9 @@ namespace proto
 				core::Link<ConsumeByParentTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				engine::HandleBase unknown2C;  // +0x2C
-				engine::HandleBase unknown30;  // +0x30
-				float unknown34;  // +0x34
-				bool unknown38;  // +0x38
+				engine::GameObjectHandle consumer;  // +0x30
+				float consumeTime;  // +0x34
+				bool consumed;  // +0x38
 				unsigned char unknown39[0x3];
 			};
 

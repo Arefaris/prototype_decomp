@@ -7,7 +7,9 @@
 #include "code/engine/message.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/core/name.h"
+#include "code/container/string.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
 
 namespace engine
 {
@@ -43,6 +45,55 @@ namespace proto
 		}
 
 		engine::GameObjectHandle object;  // +0xC
+	};
+
+	// The parameters of a button hint (0x78 bytes, no RTTI): the part of an AddButtonHintMessage behind its header
+	struct ButtonHintParams
+	{
+		// 0x100A01E0 (the engine's constructor is out of line)
+		ButtonHintParams(int newButton, int newPressType, const char* newText, const core::Name<core::CaseSensitiveKey>& newScenarioMessage, int newPriority,
+			bool newPersistent, bool new5D, bool new5E, bool new5F, const core::Name<core::CaseSensitiveKey>& new68);
+
+		int button;  // +0x0
+		int unknown4;  // +0x4
+		int pressType;  // +0x8
+		container::StringC<64> text;  // +0xC
+		core::Name<core::CaseSensitiveKey> scenarioMessage;  // +0x50
+		int priority;  // +0x58
+		bool persistent;  // +0x5C
+		bool unknown5D;  // +0x5D
+		bool unknown5E;  // +0x5E
+		bool unknown5F;  // +0x5F
+		bool unknown60;  // +0x60
+		unsigned char unknown61[0x7];
+		core::Name<core::CaseSensitiveKey> unknown68;  // +0x68
+	};
+
+	// RTTI: proto::AddButtonHintMessage: shows a button hint on the object
+	struct AddButtonHintMessage : public ButtonHintMessage
+	{
+		// 0x100A02A0 (out of line in the engine)
+		AddButtonHintMessage(int newButton, int newPressType, const char* newText, const core::Name<core::CaseSensitiveKey>& newScenarioMessage, int newPriority,
+			bool newPersistent, bool new5D, bool new5E, bool new5F, const core::Name<core::CaseSensitiveKey>& new68);
+		virtual ~AddButtonHintMessage()
+		{
+		}
+
+		int unknownC;  // +0xC
+		ButtonHintParams params;  // +0x10
+	};
+
+	// RTTI: proto::RemoveButtonHintMessage: removes the button hint of a scenario message from the object
+	struct RemoveButtonHintMessage : public ButtonHintMessage
+	{
+		// 0x1009FFB0 (out of line in the engine)
+		explicit RemoveButtonHintMessage(const core::Name<core::CaseSensitiveKey>& newScenarioMessage);
+		virtual ~RemoveButtonHintMessage()
+		{
+		}
+
+		int unknownC;  // +0xC
+		core::Name<core::CaseSensitiveKey> scenarioMessage;  // +0x10
 	};
 
 	// RTTI: proto::GrabbableMessage: the base of the messages about grabbable and consumable objects (message type 0x3C)
