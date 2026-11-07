@@ -646,6 +646,52 @@ namespace pure3d
 		range = value < 10000.0f ? value : 10000.0f;
 	}
 
+	// Nine floats from first to dest, the way the engine's copy loop walks them (the end is first + 9)
+	inline void CopyNineFloats(const float* first, float* dest)
+	{
+		for (const float* last = first + 9; first != last; first++, dest++)
+		{
+			*dest = *first;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C500
+	void Light::Unknown1075C500(const float* a, const float* b, const float* c)
+	{
+		float* dest = unknown1A0;
+		for (const float* source = a; source != a + 9; source++, dest++)
+		{
+			*dest = *source;
+		}
+		dest = unknown1C4;
+		for (const float* source = b; source != b + 9; source++, dest++)
+		{
+			*dest = *source;
+		}
+		dest = unknown1E8;
+		for (const float* source = c; source != c + 9; source++, dest++)
+		{
+			*dest = *source;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075C570
+	void Light::Unknown1075C570(float* a, float* b, float* c)
+	{
+		if (a != 0)
+		{
+			CopyNineFloats(unknown1A0, a);
+		}
+		if (b != 0)
+		{
+			CopyNineFloats(unknown1C4, b);
+		}
+		if (c != 0)
+		{
+			CopyNineFloats(unknown1E8, c);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1075C750
 	void MergeLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
 		unsigned int groups)
