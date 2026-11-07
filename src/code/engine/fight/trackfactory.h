@@ -277,7 +277,7 @@ namespace fight
 		// vftable slot 8
 		virtual bool Set(void* object, const Name& value)
 		{
-			return (static_cast<T*>(object)->*m_setter)(value);
+			return (ObjectOf<T>(object)->*m_setter)(value);
 		}
 
 		Setter m_setter;
