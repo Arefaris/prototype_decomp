@@ -82,7 +82,7 @@ namespace proto
 
 				engine::GameObjectHandle target;  // +0x1C
 				core::Link<FootstepDamageTrack> link;  // +0x20
-				unsigned char unknown2C[0x4];
+				float unknown2C;  // +0x2C
 			};
 
 			// ---- actions end

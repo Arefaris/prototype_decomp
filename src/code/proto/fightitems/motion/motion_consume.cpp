@@ -1,5 +1,6 @@
 // Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_consume.h"
+#include "code/proto/fightitems/motion/motionactionmessages.h"
 
 namespace proto
 {
@@ -678,7 +679,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100AC920
-			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown34(0.0f), unknown38(false)
+			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), consumeTime(0.0f), consumed(false)
 			{
 			}
 
@@ -726,6 +727,155 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new ConsumeAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AC870
+			bool ConsumeGrabberAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					engine::Attribute<engine::GameObjectHandle>* attribute = (engine::Attribute<engine::GameObjectHandle>*)object->FindAttribute(engine::gAttachmentState);
+					if (attribute != 0 && &attribute->value != 0)
+					{
+						engine::GameObjectHandle grabber = attribute->value;
+						if (grabber.Get() != 0)
+						{
+							ConsumeObject(target, grabber, link.Get()->stealthy);
+						}
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100AC6B0
+			bool ConsumeMeAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::AttachmentGetAttachmentStateMessage stateMessage;
+					object->PostMessage(&stateMessage);
+					if (stateMessage.parent != 0)
+					{
+						engine::GameObjectHandle parent = *stateMessage.parent;
+						engine::GameObject* parentObject = parent.Get();
+						if (parentObject != 0)
+						{
+							ReleaseGrabbedObjectMessage releaseMessage(target);
+							parentObject->SendMessage(&releaseMessage);
+						}
+						ConsumeObject(parent, target, link.Get()->stealthy);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100AC540
+			bool ConsumeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					core::Name<core::CaseSensitiveKey> slot(link.Get()->grabSlot);
+					GetGrabbedObjectMessage message(&slot);
+					object->SendMessage(&message);
+					ConsumeObject(target, message.grabbed, link.Get()->stealthy);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100ACE20
+			bool ConsumeByParentAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = 0;
+				if (target.Get() != 0)
+				{
+					object = target.Get();
+				}
+				if (object == 0)
+				{
+					return false;
+				}
+				if (!consumer.IsValid())
+				{
+					return false;
+				}
+				if (!consumed)
+				{
+					consumeTime = consumeTime + value;
+					if (link.Get()->transformationConsumeTime <= consumeTime && link.Get()->transformationConsume)
+					{
+						ConsumeObject(consumer, target, link.Get()->stealthy);
+						consumed = true;
+					}
+				}
+				QueryConsumeAnimationFinishedMessage message;
+				object->SendMessage(&message);
+				return !message.finished;
+			}
+
+			// FUNCTION: ENGINE 0x100ACF60
+			void ConsumeByParentAction::Slot6()
+			{
+				ConsumeByParentTrack* track = link.Get();
+				if (track != 0 && target.IsValid())
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						if (consumer.IsValid())
+						{
+							if (!consumed && track->transformationConsume)
+							{
+								QueryConsumeAnimationFinishedMessage message;
+								object->SendMessage(&message);
+								if (message.finished)
+								{
+									ConsumeObject(consumer, target, link.Get()->stealthy);
+								}
+							}
+							GrabbableMessage grabbable(8);
+							object->SendMessage(&grabbable);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100AD140
+			bool ScaleJointForConsumeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				jointIndex = FindDrawablePart(object, &link.Get()->jointToScale);
+				ScaleJointForConsumeMessage message(jointIndex, link.Get()->scaleRate, link.Get()->desiredScale);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100AD240
+			void ScaleJointForConsumeAction::Slot6()
+			{
+				if (link.Get() != 0 && target.IsValid())
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						StopScalingJointForConsumeMessage message(jointIndex);
+						object->SendMessage(&message);
+					}
+				}
 			}
 
 			// ---- actions end
@@ -871,3 +1021,19 @@ namespace proto
 // FUNCTION: ENGINE 0x100AC840
 // FUNCTION: ENGINE 0x100AC9B0
 // FUNCTION: ENGINE 0x100AD110
+// FUNCTION: ENGINE 0x100A2F10
+// FUNCTION: ENGINE 0x100AB020
+// FUNCTION: ENGINE 0x100AB080
+// FUNCTION: ENGINE 0x100AB3C0
+// FUNCTION: ENGINE 0x100AB090
+// FUNCTION: ENGINE 0x100AB0C0
+// FUNCTION: ENGINE 0x100AB150
+// FUNCTION: ENGINE 0x100AB4A0
+// FUNCTION: ENGINE 0x100AB4D0
+// FUNCTION: ENGINE 0x100AB340
+// FUNCTION: ENGINE 0x100AB470
+// FUNCTION: ENGINE 0x100AB1F0
+// FUNCTION: ENGINE 0x100AB200
+// FUNCTION: ENGINE 0x100AB210
+// FUNCTION: ENGINE 0x100AB220
+// FUNCTION: ENGINE 0x100AB230

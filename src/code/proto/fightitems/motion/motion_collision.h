@@ -5,9 +5,15 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/container/arrayfixed.h"
+#include "code/container/arraydynamicnew.h"
+#include "code/engine/fight/effecttrack.h"
+#include "code/ravenphysics/collision/collisionobject.h"
 
 namespace proto
 {
+	class CollisionActionBehaviour;
+
 	namespace fightitems
 	{
 		namespace motion
@@ -82,6 +88,69 @@ namespace proto
 			void RegisterHitSurfaceConditionFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// Whether two handles are the same one: the engine compares the 32 bits at once
+			inline bool SameHandle(const engine::HandleBase& lhs, const engine::HandleBase& rhs)
+			{
+				return *(const unsigned int*)&lhs == *(const unsigned int*)&rhs;
+			}
+
+			// RTTI: proto::fightitems::motion::CollisionAction (31 vftable slots, 0x9C bytes): the base of the actions that watch the collision of a
+			// volume around a joint of the object (grab, hit, detect and hit weapon); the members the tracks supply are read through the slots
+			class CollisionAction : public fight::Action
+			{
+			public:
+				// 0x100A5A00
+				CollisionAction(engine::GameObjectHandle newTarget, fight::Track* listener, fight::Track* newTrack);
+				// 0x100A5BA0
+				virtual ~CollisionAction();
+
+				// vftable slot 5 (0x100A4980)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A3790)
+				virtual void Slot6();
+				// vftable slot 7 (0x100A4BE0)
+				virtual bool Slot7(int arg, float value);
+				// vftable slots 9 - 30 (name guesses where the overrides of the derived actions show what they stand for)
+				virtual bool Slot9();
+				virtual int Slot10();
+				virtual int GetCollideWith();
+				virtual float GetArcOffset();
+				virtual float GetArcRange();
+				virtual int Slot14();
+				virtual float Slot15(int unused);
+				virtual void Slot16(int a, int b);
+				virtual int GetJointIndex();
+				virtual math::Vector* GetOffset(math::Vector* offset);
+				virtual bool GetUseMotion();
+				virtual float GetRadius();
+				virtual float Slot21();
+				virtual bool Slot22();
+				virtual void Slot23();
+				virtual void Slot24(engine::GameObject* object) = 0;
+				virtual bool Slot25(engine::GameObject* object);
+				virtual engine::HandleBase* Slot26(engine::HandleBase* result);
+				virtual bool Slot27();
+				virtual bool Slot28();
+				virtual bool Slot29();
+				virtual bool Slot30(engine::GameObject* object);
+
+				engine::GameObjectHandle target;  // +0x1C
+				engine::GameObjectHandle unknown20;  // +0x20
+				CollisionActionBehaviour* behaviour;  // +0x24
+				bool unknown28;  // +0x28
+				bool unknown29;  // +0x29
+				engine::TrackWatch watch;  // +0x2C
+				container::ArrayDynamicNew<unsigned int> unknown38;  // +0x38
+				unsigned char unknown44[0x4];
+				container::ArrayFixed<engine::GameObjectHandle, 10> hits;  // +0x48
+				core::Link<fight::Track> link;  // +0x74
+				int unknown80;  // +0x80
+				ravenphysics::CollisionVolume* volume;  // +0x84
+				int jointIndex;  // +0x88
+				math::Vector offset;  // +0x8C
+				float unknown98;  // +0x98
+			};
+
 
 			// ---- actions end
 		}

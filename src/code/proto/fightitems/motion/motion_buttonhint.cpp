@@ -1,7 +1,32 @@
 // Fight items of the motion group: ButtonHintShowingCondition, EnableButtonHintsTrack, ButtonHintShowTrack (unit 0x10146A60 - 0x101479B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_buttonhint.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/proto/fightitems/motion/motionactionmessages.h"
 #include <new>
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x100A01E0
+	ButtonHintParams::ButtonHintParams(int newButton, int newPressType, const char* newText, const core::Name<core::CaseSensitiveKey>& newScenarioMessage, int newPriority,
+		bool newPersistent, bool new5D, bool new5E, bool new5F, const core::Name<core::CaseSensitiveKey>& new68)
+		: button(newButton), pressType(newPressType), text(newText), scenarioMessage(newScenarioMessage), priority(newPriority), persistent(newPersistent),
+		unknown5D(new5D), unknown5E(new5E), unknown5F(new5F), unknown60(false), unknown68(new68)
+	{
+		unknown4 = 0x1f;
+	}
+
+	// FUNCTION: ENGINE 0x100A02A0
+	AddButtonHintMessage::AddButtonHintMessage(int newButton, int newPressType, const char* newText, const core::Name<core::CaseSensitiveKey>& newScenarioMessage, int newPriority,
+		bool newPersistent, bool new5D, bool new5E, bool new5F, const core::Name<core::CaseSensitiveKey>& new68)
+		: ButtonHintMessage(0), params(newButton, newPressType, newText, newScenarioMessage, newPriority, newPersistent, new5D, new5E, new5F, new68)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1009FFB0
+	RemoveButtonHintMessage::RemoveButtonHintMessage(const core::Name<core::CaseSensitiveKey>& newScenarioMessage) : ButtonHintMessage(1), scenarioMessage(newScenarioMessage)
+	{
+	}
+}
 
 namespace proto
 {
@@ -318,6 +343,47 @@ namespace proto
 				return new ButtonHintShowAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100A0690
+			bool ButtonHintShowAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				AddButtonHintMessage addMessage(link.Get()->button, link.Get()->pressType, link.Get()->displayMessage, link.Get()->scenarioMessage, link.Get()->priority, link.Get()->persistent, false, false, false, gNoButtonHint);
+				object->SendMessage(&addMessage);
+				EnableButtonHintsMessage enableMessage(true);
+				object->SendMessage(&enableMessage);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100A0790
+			void ButtonHintShowAction::Slot6()
+			{
+				ButtonHintShowTrack* track = link.Get();
+				if (track == 0)
+				{
+					return;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return;
+				}
+				if (track->persistent)
+				{
+					RemoveButtonHintMessage removeMessage(track->scenarioMessage);
+					object->SendMessage(&removeMessage);
+				}
+				EnableButtonHintsMessage enableMessage(false);
+				object->SendMessage(&enableMessage);
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100A03A0
 			bool ButtonHintShowingCondition::Evaluate(int a, int b, int c, int d)
@@ -478,3 +544,11 @@ namespace proto
 // FUNCTION: ENGINE 0x100A0370
 // FUNCTION: ENGINE 0x100A0660
 // FUNCTION: ENGINE 0x100A08C0
+// FUNCTION: ENGINE 0x1009FF00
+// FUNCTION: ENGINE 0x1009FF60
+// FUNCTION: ENGINE 0x1009FF90
+// FUNCTION: ENGINE 0x1009FFF0
+// FUNCTION: ENGINE 0x100A00C0
+// FUNCTION: ENGINE 0x100A0310
+// FUNCTION: ENGINE 0x100A0340
+// FUNCTION: ENGINE 0x1009FF40

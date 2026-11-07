@@ -254,6 +254,12 @@ namespace proto
 			void RegisterConsumeTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// 0x100ABEC0 (another unit's code; name guess): the consume routine every consume action ends in: the consumer, the consumed
+			// object and whether the consume is stealthy
+			// 0x10127B10 (another unit; name guess): the index of the part of an object's drawable that a joint name stands for, or -1
+			int FindDrawablePart(engine::GameObject* object, const core::Name<core::CaseSensitiveKey>* name);
+			void ConsumeObject(engine::GameObjectHandle consumer, engine::GameObjectHandle consumed, bool stealthy);
+
 			// RTTI: proto::fightitems::motion::ConsumeGrabberAction (9 vftable slots, 0x2C bytes)
 			class ConsumeGrabberAction : public fight::Action
 			{
@@ -305,9 +311,9 @@ namespace proto
 				core::Link<ConsumeByParentTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				engine::HandleBase unknown2C;  // +0x2C
-				engine::HandleBase unknown30;  // +0x30
-				float unknown34;  // +0x34
-				bool unknown38;  // +0x38
+				engine::GameObjectHandle consumer;  // +0x30
+				float consumeTime;  // +0x34
+				bool consumed;  // +0x38
 				unsigned char unknown39[0x3];
 			};
 
@@ -327,7 +333,7 @@ namespace proto
 
 				core::Link<ScaleJointForConsumeTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				unsigned char unknown2C[0x4];
+				int jointIndex;  // +0x2C
 			};
 
 			// RTTI: proto::fightitems::motion::ConsumeAction (9 vftable slots, 0x2C bytes)

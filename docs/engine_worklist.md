@@ -6070,6 +6070,37 @@ A unit's action half begins behind the last `CreateAction` of the unit before it
   `CollisionAction` family, the crowd actions (base `CrowdTestBaseAction`), the devastator and edge actions, the faction and class name conditions (attribute system, cached lookups),
   `AnimationChargeAction::Slot5` (asset lookup 0x10126290) and the big update slots (`CollisionHitAction::Slot15` 2045 bytes, `Slot24` 3314, `FlyingAttackAction::Slot5` ...).
 
+## proto/fightitems/motion: second pass over the action half of 0x100A0000 - 0x100C0000 (sn-cn)
+Added to the units of sn-ax (same files, between and behind the existing action code): the consume routine's callers (`ConsumeAction`, `ConsumeMeAction`, `ConsumeGrabberAction` `Slot5`,
+`ConsumeByParentAction` `Slot6` / `Slot7`, `ScaleJointForConsumeAction` `Slot5` / `Slot6`), the button hint show action's `Slot5` / `Slot6` with the out-of-line message constructors
+(`ButtonHintParams` 0x100A01E0, `AddButtonHintMessage` 0x100A02A0, `RemoveButtonHintMessage` 0x1009FFB0), `ClassNameCondition::Evaluate` with the compare helpers in front of it (0x100A1F10 /
+0x100A1F40 / 0x100A1F90 / `fight::CompareNames` 0x100A1FB0, and the three file statics of its cache at 0x112536A8 - 0x112536B4), the collision action family and the crowd actions:
+- `CollisionAction` (`motion_collision.h`, 31 vftable slots, 0x9C bytes; the base of `CollisionGrabAction`, `CollisionHitAction`, `DetectAction` and `HitWeaponAction`): constructor, destructor,
+  `Slot6` (stop), `Slot23` (finds the behaviour) and the 20 constant slots (names from the overrides: slot 11 `GetCollideWith`, 12 `GetArcOffset`, 13 `GetArcRange`, 17 `GetJointIndex`,
+  18 `GetOffset` (returns its argument), 19 `GetUseMotion`, 20 `GetRadius`; the other slots keep `SlotN`); slot 24 is pure (the derived actions remember the object they hit in `hits`, an
+  `ArrayFixed<GameObjectHandle, 10>` at +0x48). `Slot5` / `Slot7` / `Slot16` / `Slot26` are declared and mapped. The two default words of slots 10 and 11 are file statics of the unit
+  (0x10FF0EC4 = -1, 0x112536C0). `HitSurfaceCondition::Evaluate` is NONMATCHING (64 %: the engine keeps the two "near" flags in dl / cl the other way round and repeats the compare in
+  every branch of the third surface); `DetectObbCollisionCondition::Evaluate` is not done (a scratch stack frame).
+- `CollisionGrabAction` (0xAC bytes): constructor, destructor, `CreateAction`, `Slot6`, the track accessor slots, `Slot25` (the `AttemptGrabMessage`), `Slot27`, `Slot29`; `GetOffset` and
+  `Slot24` are NONMATCHING (the engine loads the destination first / reads the end of the hits through the start of the storage). `Slot5` (188), `Slot7` (210) and the grab routine 0x100A7430
+  (1499, builds the grabbed object's attachment) are declared and mapped.
+- `DetectAction` (0xAC bytes, `effect` at +0xA8): constructor, destructor, `CreateAction`, the accessor slots; `GetOffset` / `Slot24` NONMATCHING as above; `Slot7` (it keeps the found
+  handle in the argument slot of `arg`) and the event dispatch 0x100B25C0 are not done.
+- `CrowdTestBaseAction` / `CrowdTestAction` / `LocoCrowdAction` (0x3C / 0x48 / 0x54 bytes): constructors, destructors, `CreateAction`, `CrowdTestBaseAction::Slot5` / `Slot6`,
+  `LocoCrowdAction::Slot6`; the two crowd conditions' `Evaluate` are NONMATCHING (the failure return in front of the body, as in the reaction conditions).
+- `FootstepDamageAction::Slot5`.
+Idioms that decided matches: a vector in a member-initialiser list (`position(0.0f, 0.0f, 0.0f)`) and `math::Vector copy(x, y, z)` followed by the component copy give the engine's grouped SSE
+loads / stores; `engine::GameObject* object = 0; if (target.Get() != 0) object = target.Get(); if (object == 0) return false;` is the engine's double handle test with the failure
+block behind it; a slot that calls the base class's slot calls it by its qualified name (a direct call); the actions call `link.Get()` (the engine keeps `core::Link<T>::Get` copies, one per
+link type, in a run of 3-byte functions in front of each unit: mapped for the charge, consume, button hint, grab and detect units).
+Shared headers: new `motionactionmessages.h` (messages of this pass: `AttachmentGetAttachmentStateMessage`, `ReleaseGrabbedObjectMessage`, `AddButtonHintMessage` (+ `ButtonHintParams`),
+`RemoveButtonHintMessage`, `AttemptGrabMessage`, `GetDamageOriginatorDamageMessage`, `OutOfCombatTimerSetMessage`, the consume messages), `motion_collision.h` gained `CollisionAction` and
+`SameHandle`, `motion_consume.h` the consume routine 0x100ABEC0 and `FindDrawablePart` (0x10127B10), `motion_crowd.h` / `motion_detect.h` / `motion_collisiongrab.h` their action classes.
+`core::LinkList<T>::Remove` of every new link type is mapped to the shared copy 0x10095300.
+Not done in the range: the big update slots (`CollisionHitAction` 0x100A8CC0 / 0x100A96D0, `CollisionAction::Slot7` 2804, `Slot26`, the devastator, edge and death actions whose constructors
+call helpers with register arguments or parameter objects (`DetectedObjectEvent`, `EdgeDetectedParams`, `DevastatorTargetParams`), the faction actions (their messages construct a `Name` through
+an out-of-line wrapper 0x1047BA90), the effect consume / chameleonic skin actions (render modifiers) and about 600 one-line copies of getters of the items' classes that nothing here calls.
+
 ## proto/fightitems/motion: the action half of the units in 0x10100000 - 0x10120000 (sn-ay)
 The range holds the action halves (the `fight::Action` classes, their `CreateAction` and the conditions' `Evaluate`) of the motion units `motion_padrumble` to `motion_targetclass` (29 files, `src/code/proto/fightitems/motion/`); the actions were added at the end of each unit's
 file between the markers `// ---- actions begin` / `// ---- actions end` (generator: local/scratch/sn-ay/gen2.py, which only adds). The shared headers of the other agent (`motionaction.h`, `motionmessages.h`, `motioncommon.h`) were extended with

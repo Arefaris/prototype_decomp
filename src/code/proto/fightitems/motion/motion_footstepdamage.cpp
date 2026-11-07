@@ -182,6 +182,13 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x100BFF00
+			bool FootstepDamageAction::Slot5(int arg, float value)
+			{
+				unknown2C = 0.0f;
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x100BFF10
 			void FootstepDamageAction::Slot6()
 			{

@@ -5,6 +5,8 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
+#include "code/engine/fight/effecttrack.h"
 
 namespace proto
 {
@@ -229,6 +231,70 @@ namespace proto
 			void RegisterCrowdTestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// The reaction event of kind 0x21008 (name guess) the crowd conditions read: the object it concerns, its position and a distance
+			struct CrowdHitEvent : ReactionEvent
+			{
+				unsigned char unknown10[0x8];
+				math::Vector position;  // +0x18
+				float distance;  // +0x24
+			};
+
+			// RTTI: proto::fightitems::motion::CrowdTestBaseAction (9 vftable slots, 0x3C bytes)
+			class CrowdTestBaseAction : public fight::Action
+			{
+			public:
+				// 0x100ADAF0
+				CrowdTestBaseAction(fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100ADB60
+				virtual ~CrowdTestBaseAction();
+
+				// vftable slot 5 (0x100ADD20)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100AD980)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				engine::TrackWatch watch;  // +0x20
+				core::IRefCount* effect;  // +0x2C
+				math::Vector position;  // +0x30
+			};
+
+			// RTTI: proto::fightitems::motion::CrowdTestAction (9 vftable slots, 0x48 bytes)
+			class CrowdTestAction : public CrowdTestBaseAction
+			{
+			public:
+				// 0x100AE890
+				CrowdTestAction(CrowdTestTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100AE5C0
+				virtual ~CrowdTestAction();
+
+				// vftable slot 7 (0x100AE930)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<CrowdTestTrack> link;  // +0x3C
+			};
+
+			// RTTI: proto::fightitems::motion::LocoCrowdAction (9 vftable slots, 0x54 bytes)
+			class LocoCrowdAction : public CrowdTestBaseAction
+			{
+			public:
+				// 0x100AEA40
+				LocoCrowdAction(LocoCrowdTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100AE610
+				virtual ~LocoCrowdAction();
+
+				// vftable slot 5 (0x100AEAE0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100AE650)
+				virtual void Slot6();
+				// vftable slot 7 (0x100AF2E0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<LocoCrowdTrack> link;  // +0x3C
+				choreo::Driver* driver;  // +0x48
+				unsigned char unknown4C[0x8];
+			};
+
 
 			// ---- actions end
 		}

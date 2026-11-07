@@ -5,6 +5,8 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motion_collision.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
 
 namespace proto
 {
@@ -81,6 +83,45 @@ namespace proto
 			void RegisterCollisionGrabTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// The event of kind 0x2100B the grab action's owner can be (name guess): it carries the object that holds what is grabbed at +0x18
+			struct CollisionGrabEvent : ReactionEvent
+			{
+				unsigned char unknown10[0x8];
+				engine::GameObjectHandle grabber;  // +0x18
+			};
+
+			// RTTI: proto::fightitems::motion::CollisionGrabAction (31 vftable slots, 0xAC bytes)
+			class CollisionGrabAction : public CollisionAction
+			{
+			public:
+				// 0x100A7180
+				CollisionGrabAction(fight::Track* listener, CollisionGrabTrack* newTrack, core::IRefCount* owner, engine::GameObjectHandle newTarget);
+				// 0x100A6EE0
+				virtual ~CollisionGrabAction();
+
+				// vftable slot 5 (0x100A7C30)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100A7080)
+				virtual void Slot6();
+				// vftable slot 7 (0x100A7D20)
+				virtual bool Slot7(int arg, float value);
+				virtual int GetCollideWith();
+				virtual float GetArcOffset();
+				virtual float GetArcRange();
+				virtual int Slot14();
+				virtual int GetJointIndex();
+				virtual math::Vector* GetOffset(math::Vector* offset);
+				virtual bool GetUseMotion();
+				virtual float GetRadius();
+				virtual void Slot24(engine::GameObject* object);
+				virtual bool Slot25(engine::GameObject* object);
+				virtual bool Slot27();
+				virtual bool Slot29();
+
+				core::Link<CollisionGrabTrack> link;  // +0x9C
+				engine::GameObjectHandle grabber;  // +0xA8
+			};
+
 
 			// ---- actions end
 		}

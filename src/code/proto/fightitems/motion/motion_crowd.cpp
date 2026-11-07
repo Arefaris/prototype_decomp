@@ -1,5 +1,6 @@
 // Fight items of the motion group: CrowdMinDistanceCondition, CrowdPositionCondition, LocoCrowdTrack, CrowdTestTrack (unit 0x1014F4D0 - 0x10151930; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_crowd.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 
 namespace proto
 {
@@ -706,6 +707,128 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100ADAF0
+			CrowdTestBaseAction::CrowdTestBaseAction(fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), watch(listener), effect(newEffect), position(0.0f, 0.0f, 0.0f)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ADB60
+			CrowdTestBaseAction::~CrowdTestBaseAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AD980
+			void CrowdTestBaseAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100ADD20
+			bool CrowdTestBaseAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix* matrix = object->transform->GetPointer();
+				math::Vector copy(matrix->m[3][0], matrix->m[3][1], matrix->m[3][2]);
+				position.x = copy.x;
+				position.y = copy.y;
+				position.z = copy.z;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100AE890
+			CrowdTestAction::CrowdTestAction(CrowdTestTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : CrowdTestBaseAction(listener, newEffect, newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AE5C0
+			CrowdTestAction::~CrowdTestAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AFB30
+			fight::Action* CrowdTestTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CrowdTestAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100AEA40
+			LocoCrowdAction::LocoCrowdAction(LocoCrowdTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : CrowdTestBaseAction(listener, newEffect, newTarget), link(newTrack), driver(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100AE610
+			LocoCrowdAction::~LocoCrowdAction()
+			{
+				engine::ReleaseDriverCopy3(driver);
+			}
+
+			// FUNCTION: ENGINE 0x100AE650
+			void LocoCrowdAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(target.Get());
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy3(driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100AFB90
+			fight::Action* LocoCrowdTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LocoCrowdAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100ADB90
+			// NONMATCHING: the engine lays the failure return out in front of the body, the block order of the reaction conditions (best 50 %)
+#ifdef NONMATCHING
+			bool CrowdMinDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				const CrowdHitEvent* event = (const CrowdHitEvent*)AsOwner(c);
+				if (event != 0 && event->kind == 0x21008)
+				{
+					float value = event->distance;
+					float wanted = distance;
+					return fight::CompareFloats(compare, &value, &wanted);
+				}
+				else
+				{
+					return false;
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100AE6C0
+			// NONMATCHING: the engine lays the failure return out in front of the body, the block order of the reaction conditions (best 10 %)
+#ifdef NONMATCHING
+			bool CrowdPositionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				const CrowdHitEvent* event = (const CrowdHitEvent*)AsOwner(c);
+				if (event == 0 || event->kind != 0x21008)
+				{
+					return false;
+				}
+				engine::GameObjectHandle receiver = event->receiver;
+				engine::GameObject* object = receiver.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix* matrix = object->transform->GetPointer();
+				math::Vector local(event->position.x - matrix->m[3][0], event->position.y - matrix->m[3][1], event->position.z - matrix->m[3][2]);
+				matrix->RotateInverse(local, local);
+				return fight::CompareVectorMeasure(compare, &local, direction, position);
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<CrowdMinDistanceCondition>;
 			template class fight::PropertyFloatConstRange<CrowdMinDistanceCondition>;
@@ -795,3 +918,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10151880
 // FUNCTION: ENGINE 0x101518B0
 // FUNCTION: ENGINE 0x101518E0
+// FUNCTION: ENGINE 0x100ADBF0
+// FUNCTION: ENGINE 0x100ADC10
+// FUNCTION: ENGINE 0x100ADC40
+// FUNCTION: ENGINE 0x100ADCA0
+// FUNCTION: ENGINE 0x100ADCF0
+// FUNCTION: ENGINE 0x100AE900
+// FUNCTION: ENGINE 0x100AEAB0

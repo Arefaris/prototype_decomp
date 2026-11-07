@@ -1,5 +1,7 @@
 // Fight items of the motion group: DetectedObjectFacingCondition, DetectedObjectAngleCondition, DetectedObjectDistanceCondition, DetectedObjectIsTargetCondition, DetectedObjectConditionGroupCondition, DetectedObjectIsSeenCondition, DetectTrack (unit 0x10154030 - 0x101561B0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_detect.h"
+#include "code/proto/fightitems/motion/motion_consume.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace proto
 {
@@ -614,6 +616,109 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100B2440
+			DetectAction::DetectAction(fight::Track* listener, DetectTrack* newTrack, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : CollisionAction(newTarget, listener, newTrack), link(newTrack), effect(newEffect)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B22E0
+			DetectAction::~DetectAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100B26D0
+			fight::Action* DetectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DetectAction(listener, this, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100B2310
+			bool DetectAction::Slot9()
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100B2340
+			int DetectAction::Slot14()
+			{
+				return -1;
+			}
+
+			// FUNCTION: ENGINE 0x100B2500
+			int DetectAction::GetCollideWith()
+			{
+				return link.Get()->collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100B2510
+			float DetectAction::GetArcOffset()
+			{
+				return link.Get()->arcOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100B2520
+			float DetectAction::GetArcRange()
+			{
+				return link.Get()->arcRange;
+			}
+
+			// FUNCTION: ENGINE 0x100B2530
+			int DetectAction::GetJointIndex()
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return 0xffff;
+				}
+				return FindDrawablePart(object, &link.Get()->joint);
+			}
+
+			// FUNCTION: ENGINE 0x100B2580
+			// NONMATCHING: the engine advances the pointer to the offset after the first load and loads the destination first (78.8 %)
+#ifdef NONMATCHING
+			math::Vector* DetectAction::GetOffset(math::Vector* offset)
+			{
+				offset->x = link.Get()->offset.x;
+				offset->y = link.Get()->offset.y;
+				offset->z = link.Get()->offset.z;
+				return offset;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100B25B0
+			float DetectAction::GetRadius()
+			{
+				return link.Get()->radius;
+			}
+
+			// FUNCTION: ENGINE 0x100B17A0
+			bool DetectAction::Slot22()
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100B2350
+			// NONMATCHING: the engine reads the end of the hits for the search through the start of the storage and keeps the handle in edi (38.5 %)
+#ifdef NONMATCHING
+			void DetectAction::Slot24(engine::GameObject* object)
+			{
+				engine::GameObjectHandle handle = engine::GetHandle(object);
+				if (hits.Size() != 10)
+				{
+					engine::GameObjectHandle* found = hits.Data();
+					while (found != hits.End() && !SameHandle(*found, handle))
+					{
+						++found;
+					}
+					if (found == hits.End())
+					{
+						hits.PushBack(handle);
+					}
+				}
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DetectedObjectFacingCondition>;
 			template class fight::ConditionFactoryTemplate<DetectedObjectFacingCondition>;
@@ -763,3 +868,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10156110
 // FUNCTION: ENGINE 0x10156140
 // FUNCTION: ENGINE 0x10156160
+// FUNCTION: ENGINE 0x100B1820
+// FUNCTION: ENGINE 0x100B1850
+// FUNCTION: ENGINE 0x100B24D0
+// FUNCTION: ENGINE 0x100B17B0

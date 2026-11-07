@@ -669,7 +669,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A13C0
 			bool ChargeAction::Slot5(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -678,20 +678,20 @@ namespace proto
 				{
 					return false;
 				}
-				int type = link.object->GetType();
+				int type = link.Get()->GetType();
 				ChargeGetMessage getMessage(type);
 				object->SendMessage(&getMessage);
 				float first = getMessage.value;
 				float second = (first >= 0.0f) ? first : 0.0f;
 				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
-				if (link.object->GetClearOnBegin())
+				if (link.Get()->GetClearOnBegin())
 				{
 					charge = 0.0f;
 				}
 				ChargeSetMessage setMessage(charge, type);
 				object->SendMessage(&setMessage);
-				float duration = link.object->Slot10();
-				float goal = link.object->GetFinalCharge();
+				float duration = link.Get()->Slot10();
+				float goal = link.Get()->GetFinalCharge();
 				if (duration > 0.0f)
 				{
 					if (goal < engine::driving::gOne)
@@ -707,7 +707,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A1550
 			bool ChargeAction::Slot7(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -720,7 +720,7 @@ namespace proto
 				{
 					return false;
 				}
-				ChargeAddMessage message(unknown2C * value, link.object->GetType());
+				ChargeAddMessage message(unknown2C * value, link.Get()->GetType());
 				object->SendMessage(&message);
 				return true;
 			}
@@ -743,7 +743,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A1C70
 			bool AnimationChargeAction::Slot7(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -752,23 +752,23 @@ namespace proto
 				{
 					return false;
 				}
-				ChargeGetMessage message(link.object->GetType());
+				ChargeGetMessage message(link.Get()->GetType());
 				object->SendMessage(&message);
 				float first = message.value;
 				float second = (first >= 0.0f) ? first : 0.0f;
 				float charge = (0.0f <= second - engine::driving::gOne) ? engine::driving::gOne : second;
-				if (link.object->GetReverse())
+				if (link.Get()->GetReverse())
 				{
 					charge = engine::driving::gOne - charge;
 				}
-				((choreo::AnimationDriver*)driver)->SetUnknownE4((link.object->GetEndFrame() - link.object->GetStartFrame()) * charge + link.object->GetStartFrame());
+				((choreo::AnimationDriver*)driver)->SetUnknownE4((link.Get()->GetEndFrame() - link.Get()->GetStartFrame()) * charge + link.Get()->GetStartFrame());
 				return true;
 			}
 
 			// FUNCTION: ENGINE 0x100A16A0
 			bool ChargeSetAction::Slot5(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -777,9 +777,9 @@ namespace proto
 				{
 					return false;
 				}
-				float charge = link.object->GetCharge();
-				int type = link.object->GetType();
-				float range = link.object->GetRandomRange();
+				float charge = link.Get()->GetCharge();
+				int type = link.Get()->GetType();
+				float range = link.Get()->GetRandomRange();
 				ChargeSetMessage message((fight::GetRandomValue(0) * 2.0f - engine::driving::gOne) * range + charge, type);
 				object->SendMessage(&message);
 				return false;
@@ -788,12 +788,12 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A1810
 			bool ChargeClearAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.Get() != 0)
 				{
 					engine::GameObject* object = target.Get();
 					if (object != 0)
 					{
-						if (link.object->GetClearOnBegin())
+						if (link.Get()->GetClearOnBegin())
 						{
 							ChargeSetMessage message(0.0f, 0);
 							object->SendMessage(&message);
@@ -808,10 +808,10 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A18C0
 			void ChargeClearAction::Slot6()
 			{
-				if (link.object != 0)
+				if (link.Get() != 0)
 				{
 					engine::GameObject* object = target.Get();
-					if (object != 0 && !link.object->GetClearOnBegin())
+					if (object != 0 && !link.Get()->GetClearOnBegin())
 					{
 						ChargeSetMessage message(0.0f, 0);
 						object->SendMessage(&message);
@@ -953,3 +953,7 @@ namespace proto
 // FUNCTION: ENGINE 0x100A1670
 // FUNCTION: ENGINE 0x100A17E0
 // FUNCTION: ENGINE 0x100A19D0
+// FUNCTION: ENGINE 0x100A0C00
+// FUNCTION: ENGINE 0x100A0C10
+// FUNCTION: ENGINE 0x100A0C20
+// FUNCTION: ENGINE 0x100A0C30
