@@ -565,6 +565,7 @@ namespace proto
 		int unknownC;
 		core::Name<core::CaseSensitiveKey> variable;  // +0x10
 		int value;  // +0x18
+		int unknown1C;  // +0x1C (the constructors leave it alone; the message is 0x20 bytes)
 	};
 
 	// RTTI: proto::VariableIntGetMessage: the object answers the value of an integer variable

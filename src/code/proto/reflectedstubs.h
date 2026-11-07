@@ -12,8 +12,20 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
+#include "code/proto/ai/ambientmanager/ambientspawners.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
+<<<<<<< HEAD
 #include "code/proto/webofintrigue/webnodelocator.h"
+=======
+#include "code/proto/ai/ambientmanager/intersectionbehaviour.h"
+#include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
+#include "code/proto/behaviours/randomdeadpedbehaviour.h"
+#include "code/proto/behaviours/alertbehaviour.h"
+#include "code/proto/behaviours/testwalkbehaviour.h"
+#include "code/proto/behaviours/threatbehaviour.h"
+#include "code/proto/behaviours/threatreceiverbehaviour.h"
+#include "code/proto/behaviours/watertowerbehaviour.h"
+>>>>>>> sn-bu
 
 namespace proto
 {
@@ -195,31 +207,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xD8 - sizeof(content::MetaLoadObject)];
-	};
-
-	class AmbientSpawner : public content::MetaLoadObject
-	{
-	public:
-	};
-
-	class VehicleSpawner : public proto::AmbientSpawner
-	{
-	public:
-		VehicleSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(proto::AmbientSpawner)];
-	};
-
-	class PedestrianSpawner : public proto::AmbientSpawner
-	{
-	public:
-		PedestrianSpawner();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(proto::AmbientSpawner)];
 	};
 
 	class TankSolverProperties : public content::MetaLoadObject
@@ -424,7 +411,9 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	
-		unsigned char unknown0[0x18];
+		IntersectionPhase* phasesBegin;  // +0
+		IntersectionPhase* phasesEnd;  // +4
+		unsigned char unknown8[0x18 - 8];
 	};
 
 	struct MissileSpawnDrawSwap
@@ -777,16 +766,6 @@ namespace proto
 		unsigned char unknownTail[0x88 - sizeof(proto::WeaponBehaviour)];
 	};
 
-	class RandomDeadPedBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit RandomDeadPedBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC - sizeof(engine::Behaviour)];
-	};
-
 	class PedBehaviour : public engine::Behaviour
 	{
 	public:
@@ -795,16 +774,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xE4 - sizeof(engine::Behaviour)];
-	};
-
-	class AlertBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AlertBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x38 - sizeof(engine::Behaviour)];
 	};
 
 	class CharacterPedBehaviour : public engine::Behaviour
@@ -937,16 +906,6 @@ namespace proto
 		unsigned char unknownTail[0x100 - sizeof(engine::TriggerBehaviour)];
 	};
 
-	class ThreatReceiverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ThreatReceiverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(engine::Behaviour)];
-	};
-
 	class TransformationBehaviour : public engine::Behaviour
 	{
 	public:
@@ -965,16 +924,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xD0 - sizeof(proto::VehicleBehaviour)];
-	};
-
-	class AIFlyingPatrolBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AIFlyingPatrolBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x40 - sizeof(engine::Behaviour)];
 	};
 
 	class WalkingBehaviour : public proto::MovementBehaviour
@@ -1045,36 +994,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
-	class TestWalkBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit TestWalkBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x3C - sizeof(engine::Behaviour)];
-	};
-
-	class ExpiryTimeBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ExpiryTimeBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(engine::Behaviour)];
-	};
-
-	class ThreatBehaviour : public proto::ExpiryTimeBehaviour
-	{
-	public:
-		explicit ThreatBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x38 - sizeof(proto::ExpiryTimeBehaviour)];
 	};
 
 	class HydraMovementBehaviour : public proto::MovementBehaviour
@@ -1155,16 +1074,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x90 - sizeof(engine::Behaviour)];
-	};
-
-	class WaterTowerBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit WaterTowerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 	class PowerWheelBehaviour : public engine::Behaviour
