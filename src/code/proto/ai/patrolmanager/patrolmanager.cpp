@@ -80,6 +80,37 @@ namespace proto
 		groundHeight = height;
 	}
 
+	// FUNCTION: ENGINE 0x104288F0
+	void PatrolManager::SetWatertowerFactor(float first, float second)
+	{
+		watertowerFactorFirst = first;
+		watertowerFactorSecond = second;
+	}
+
+	// FUNCTION: ENGINE 0x10428920
+	void PatrolManager::SetWatertowerActivateDistance(float distance)
+	{
+		watertowerActivateDistance = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10428940
+	void PatrolManager::SetWatertowerDeactivateDistance(float distance)
+	{
+		watertowerDeactivateDistance = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10428960
+	void PatrolManager::SetWatertowerHatchDelay(float time)
+	{
+		watertowerHatchDelay = time;
+	}
+
+	// FUNCTION: ENGINE 0x10428980
+	void PatrolManager::SetWatertowerNoSpawnTimer(float time)
+	{
+		watertowerNoSpawnTimer = time;
+	}
+
 	// FUNCTION: ENGINE 0x10428B60
 	void PatrolManager::RequestPatrol(int newType)
 	{
@@ -96,8 +127,8 @@ namespace proto
 		unknown1C = 0.0f;
 		patrolCount = maxPatrols;
 		unknown34 = 0.0f;
-		unknown5C8 = 0.0f;
-		unknown5CC = 0.0f;
+		watertowerNoInfectionTimer = 0.0f;
+		watertowerNoSpawnTimer = 0.0f;
 		unknown5D0 = false;
 	}
 
@@ -111,6 +142,12 @@ namespace proto
 	void PatrolManager::AddSpawnDelay(float time)
 	{
 		spawnDelay = time + spawnDelay;
+	}
+
+	// FUNCTION: ENGINE 0x10428C40
+	void PatrolManager::SetWatertowerNoInfectionTimer(float time)
+	{
+		watertowerNoInfectionTimer = time;
 	}
 
 	// FUNCTION: ENGINE 0x10428C60

@@ -46,6 +46,15 @@ namespace proto
 		void SetSpawnDelay(float time);
 		void AddSpawnDelay(float time);
 		void SetDefeatDelay(float time);
+		// 0x104288F0 .. 0x10428980 (ai_wt_SetWatertowerFactor, SetWatertowerActivateDistance,
+		// SetWatertowerDeactivateDistance, SetWatertowerHatchDelay, SetWatertowerNoInfectionTimer,
+		// SetWatertowerNoSpawnTimer): the manager also keeps the tuning values of the water towers
+		void SetWatertowerFactor(float first, float second);
+		void SetWatertowerActivateDistance(float distance);
+		void SetWatertowerDeactivateDistance(float distance);
+		void SetWatertowerHatchDelay(float time);
+		void SetWatertowerNoInfectionTimer(float time);
+		void SetWatertowerNoSpawnTimer(float time);
 
 		bool enabled;  // +0
 		bool requested;  // +1
@@ -74,9 +83,15 @@ namespace proto
 		float maxMiddleHeight;  // +0x68
 		float minTopHeight;  // +0x6C
 		float groundHeight;  // +0x70
-		unsigned char unknown74[0x5C8 - 0x74];
-		float unknown5C8;
-		float unknown5CC;
+		unsigned char unknown74[0x5B0 - 0x74];
+		float watertowerFactorFirst;  // +0x5B0
+		float watertowerFactorSecond;  // +0x5B4
+		unsigned char unknown5B8[4];
+		float watertowerActivateDistance;  // +0x5BC
+		float watertowerDeactivateDistance;  // +0x5C0
+		float watertowerHatchDelay;  // +0x5C4
+		float watertowerNoInfectionTimer;  // +0x5C8
+		float watertowerNoSpawnTimer;  // +0x5CC
 		bool unknown5D0;
 	};
 }
