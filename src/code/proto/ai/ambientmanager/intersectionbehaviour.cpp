@@ -17,9 +17,9 @@ namespace proto
 		timeLeft -= dt;
 		if (timeLeft <= 0.0f)
 		{
-			int count = data->phasesEnd - data->phasesBegin;
+			int count = data->phases.end - data->phases.begin;
 			phase = (phase + 1) % count;
-			timeLeft = data->phasesBegin[phase].duration + timeLeft;
+			timeLeft = data->phases.begin[phase].duration + timeLeft;
 		}
 	}
 }

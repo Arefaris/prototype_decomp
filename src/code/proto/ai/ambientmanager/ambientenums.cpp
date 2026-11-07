@@ -1,4 +1,5 @@
 #include "code/proto/ai/ambientmanager/ambientenums.h"
+#include "code/proto/ai/ambientmanager/intersectiondata.h"
 
 namespace content
 {
@@ -36,7 +37,7 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x10430630
-	template<> void EnumInfo<proto::IntersectionState>::Get(const char** name, const EnumValue** values, int* count,
+	template<> void EnumInfo<proto::IntersectionData::State>::Get(const char** name, const EnumValue** values, int* count,
 		const char** code)
 	{
 		*name = "proto::IntersectionData::State";

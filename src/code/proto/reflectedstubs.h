@@ -19,6 +19,7 @@
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/webofintrigue/webnodelocator.h"
 #include "code/proto/ai/ambientmanager/intersectionbehaviour.h"
+#include "code/proto/ai/ambientmanager/intersectiondata.h"
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
 #include "code/proto/behaviours/randomdeadpedbehaviour.h"
 #include "code/proto/behaviours/alertbehaviour.h"
@@ -363,18 +364,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x60 - sizeof(content::MetaLoadObject)];
-	};
-
-	struct IntersectionData
-	{
-	public:
-		IntersectionData();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		IntersectionPhase* phasesBegin;  // +0
-		IntersectionPhase* phasesEnd;  // +4
-		unsigned char unknown8[0x18 - 8];
 	};
 
 	struct MissileSpawnDrawSwap

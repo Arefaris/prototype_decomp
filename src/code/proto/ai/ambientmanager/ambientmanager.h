@@ -20,6 +20,9 @@ namespace proto
 	// constructor reads is named
 	struct AmbientConfig
 	{
+		// 0x104204A0: the defaults
+		AmbientConfig();
+
 		unsigned int unknown0;
 		unsigned int pedestrianCount;
 		unsigned int unknown8;
@@ -32,23 +35,34 @@ namespace proto
 		unsigned int vehicleBase;
 		unsigned int unknown28;
 		unsigned int unknown2C;
-		unsigned char unknown30[0x44 - 0x30];
+		unsigned int unknown30;
+		unsigned int unknown34;
+		float unknown38;
+		float unknown3C;
+		float unknown40;
 		float unknown44;
-		unsigned char unknown48[0x50 - 0x48];
+		float unknown48;
+		float unknown4C;
 		unsigned int unknown50;
-		unsigned char unknown54[0x5C - 0x54];
+		float unknown54;
+		float unknown58;
 		unsigned int unknown5C;
-		unsigned char unknown60[4];
+		unsigned int unknown60;
 		unsigned int unknown64;
 		unsigned int unknown68;
 		unsigned int unknown6C;
-		unsigned char unknown70[0x84 - 0x70];
+		unsigned int unknown70;
+		unsigned int unknown74;
+		unsigned int unknown78;
+		float unknown7C;
+		unsigned int unknown80;
 		float unknown84;
 		float unknown88;
 		float unknown8C;
 		float unknown90;
 		float unknown94;
-		unsigned char unknown98[0xA0 - 0x98];
+		float unknown98;
+		float unknown9C;
 	};
 
 	// The three pointers of an array that is emptied by one out-of-line function (0x1060E6C0, a copy another unit

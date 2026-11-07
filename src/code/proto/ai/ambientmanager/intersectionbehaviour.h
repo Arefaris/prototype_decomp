@@ -7,21 +7,10 @@
 #define PROTO_AI_AMBIENTMANAGER_INTERSECTIONBEHAVIOUR_H
 
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/ai/ambientmanager/intersectiondata.h"
 
 namespace proto
 {
-	// One phase of an intersection (RTTI proto::IntersectionData::Phase; 0x14 bytes): the states of the lights
-	// (an array of enumeration values) and how long the phase lasts
-	struct IntersectionPhase
-	{
-		int* statesBegin;
-		int* statesEnd;
-		int* statesCapacity;
-		int unknownC;
-		float duration;  // +0x10
-	};
-
-	struct IntersectionData;
 
 	class IntersectionBehaviour : public engine::Behaviour
 	{
