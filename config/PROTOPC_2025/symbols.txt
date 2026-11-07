@@ -98943,3 +98943,4 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??_R0?AVRagdollBehaviour@engine@@@8 = 0x111E9F34 ; data size:0x8 | engine::RagdollBehaviour RTTI type descriptor
 ??_R0?AU?$BaseClassCasterImpl@VBehaviour@engine@@VRagdollBehaviour@2@@content@@@8 = 0x111E9EE0 ; data size:0x8 | content::BaseClassCasterImpl<class engine::Behaviour,class engine::RagdollBehaviour> RTTI type descriptor
 ??_7?$BaseClassCasterImpl@VBehaviour@engine@@VRagdollBehaviour@2@@content@@6B@ = 0x10E88D04 ; data size:0x4 | content::BaseClassCasterImpl<class engine::Behaviour,class engine::RagdollBehaviour> vftable
+?GetListenerPosition@SoundZoneManager@engine@@QAEXPAVVector@math@@@Z = 0x10879B20 ; function size:0x8D | engine::SoundZoneManager::GetListenerPosition (another unit; name guess)
