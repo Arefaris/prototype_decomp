@@ -11,6 +11,30 @@
 #include "code/pure3d/shader.h"
 #include "code/pure3d/shaderconstants.h"
 
+// The members of the name table's map that the unit keeps
+typedef container::Map<unsigned int, const char*, pure3d::ShaderLoader::InputNameAllocator> ShaderInputNameMap;
+
+// FUNCTION: ENGINE 0x10706070
+template int ShaderInputNameMap::CompareKey(const void* key, const container::TreeBase::Node* node);
+
+// FUNCTION: ENGINE 0x107060A0
+template int ShaderInputNameMap::CompareNodes(const container::TreeBase::Node* a, const container::TreeBase::Node* b);
+
+// FUNCTION: ENGINE 0x107060C0
+template bool ShaderInputNameMap::DeleteNode(container::TreeBase::Node* node, void* context);
+
+// FUNCTION: ENGINE 0x107063C0
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Find(const unsigned int& key);
+
+// FUNCTION: ENGINE 0x107063F0
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Find(const unsigned int& key) const;
+
+// FUNCTION: ENGINE 0x10706420
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Insert(const ShaderInputNameMap::Pair& pair);
+
+// FUNCTION: ENGINE 0x10706490
+template void ShaderInputNameMap::Clear();
+
 // This unit's copy of the reference helper for the device's shader
 // FUNCTION: ENGINE 0x10705250
 template void core::SafeRelease<pure3d::dxShader>(pure3d::dxShader*& object);

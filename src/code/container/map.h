@@ -164,6 +164,11 @@ namespace container
 		{
 			return Iterator((MapNode*)TreeBase::Find(CompareKey, &key), this);
 		}
+		// The engine keeps a second copy of the lookup (a lookup in a map that is not changed)
+		Iterator Find(const Key& key) const
+		{
+			return Iterator((MapNode*)TreeBase::Find(CompareKey, &key), (Map*)this);
+		}
 		Iterator Insert(const Pair& pair)
 		{
 			Node* parent = FindParent(CompareKey, &pair.key);
