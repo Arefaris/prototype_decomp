@@ -118,6 +118,32 @@ namespace proto
 		virtual ~CheckpointMessage()
 		{
 		}
+	};
+
+	// RTTI: proto::SerializeCharacterCheckpointMessage: the character writes its state to the checkpoint's stream
+	struct SerializeCharacterCheckpointMessage : public CheckpointMessage
+	{
+		explicit SerializeCharacterCheckpointMessage(CheckpointStream* newStream) : CheckpointMessage(0)
+		{
+			stream = newStream;
+		}
+		virtual ~SerializeCharacterCheckpointMessage()
+		{
+		}
+
+		CheckpointStream* stream;  // +0xC
+	};
+
+	// RTTI: proto::UnserializeCharacterCheckpointMessage: the character reads its state from the checkpoint's stream
+	struct UnserializeCharacterCheckpointMessage : public CheckpointMessage
+	{
+		explicit UnserializeCharacterCheckpointMessage(CheckpointStream* newStream) : CheckpointMessage(1)
+		{
+			stream = newStream;
+		}
+		virtual ~UnserializeCharacterCheckpointMessage()
+		{
+		}
 
 		CheckpointStream* stream;  // +0xC
 	};
