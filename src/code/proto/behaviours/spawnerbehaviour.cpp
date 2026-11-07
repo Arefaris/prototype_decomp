@@ -107,13 +107,20 @@ namespace proto
 	}
 }
 
+template class container::ArrayFixed<proto::SpawnedEntry, 50>;
+template class container::ArrayFixed<proto::WeightedTemplate, 10>;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10559D20
 // FUNCTION: ENGINE 0x10559D50
 // FUNCTION: ENGINE 0x10559D70
 // FUNCTION: ENGINE 0x10559DB0
+// FUNCTION: ENGINE 0x10559DF0
+// FUNCTION: ENGINE 0x10559E10
 // FUNCTION: ENGINE 0x10559E90
 // FUNCTION: ENGINE 0x10559EA0
+// FUNCTION: ENGINE 0x1055A180
+// FUNCTION: ENGINE 0x1055A1D0
 // FUNCTION: ENGINE 0x1055A220
 // FUNCTION: ENGINE 0x1055A260
 // FUNCTION: ENGINE 0x1055A3D0
@@ -121,4 +128,5 @@ namespace proto
 // FUNCTION: ENGINE 0x1055A410
 // FUNCTION: ENGINE 0x1055A830
 // FUNCTION: ENGINE 0x1055A840
+// FUNCTION: ENGINE 0x1055AEC0
 // FUNCTION: ENGINE 0x1055B0E0
