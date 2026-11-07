@@ -216,6 +216,23 @@ namespace proto
 				return new JointAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100DBC40
+			void JointAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<JointTrack>;
 			template class fight::PropertyNameList<JointTrack>;

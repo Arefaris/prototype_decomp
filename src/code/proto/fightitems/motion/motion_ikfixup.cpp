@@ -257,6 +257,36 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x100DAC90
+			void IKSurfaceFixupAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						bool enabled = link.object->enabled;
+						proto::SetIKSurfaceFixupEnabledMessage message(!enabled);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100DAE60
+			void ShoulderConFixupAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						bool enabled = link.object->enabled;
+						proto::SetShoulderConFixupEnabledMessage message(!enabled);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<IKSurfaceFixupTrack>;
 			template class fight::PropertyBool<IKSurfaceFixupTrack>;

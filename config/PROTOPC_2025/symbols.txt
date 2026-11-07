@@ -98870,3 +98870,4 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?Get@?$Link@VHealthSetMultiplierTrack@motion@fightitems@proto@@@core@@QBEPAVHealthSetMultiplierTrack@motion@fightitems@proto@@XZ = 0x100D2AB0 ; function size:0x3 | kept template or inline copy of this unit
 ?Get@?$Link@VTempRegenerationTrack@motion@fightitems@proto@@@core@@QBEPAVTempRegenerationTrack@motion@fightitems@proto@@XZ = 0x100D1260 ; function size:0x3 | kept template or inline copy of this unit
 ??_R0?AUGetAccumDamageDamageMessage@proto@@@8 = 0x10FF54E0 ; data size:0x8 | proto::GetAccumDamageDamageMessage RTTI type descriptor
+?Get@?$Link@VHeliLocoTrack@motion@fightitems@proto@@@core@@QBEPAVHeliLocoTrack@motion@fightitems@proto@@XZ = 0x100D2A20 ; function size:0x3 | kept template or inline copy of this unit
