@@ -57,6 +57,10 @@ namespace container
 		{
 			return Data() == end;
 		}
+		bool IsFull() const
+		{
+			return Size() == N;
+		}
 		int Size() const
 		{
 			return end - Data();

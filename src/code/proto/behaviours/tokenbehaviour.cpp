@@ -401,6 +401,10 @@ namespace proto
 	}
 }
 
+// The arrays of the token holders and of the weights: the engine keeps its out-of-line copies of their members
+template class container::ArrayDynamic<proto::TokenBehaviour::TokenGroup::Holder, container::AllocatorNew>;
+template class container::ArrayDynamic<proto::TokenWeights::Weight, container::AllocatorNew>;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x104038E0
 // FUNCTION: ENGINE 0x10403960
@@ -453,3 +457,24 @@ namespace proto
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10403E40
 // FUNCTION: ENGINE 0x10405270
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10400040
+// FUNCTION: ENGINE 0x10401130
+// FUNCTION: ENGINE 0x10403840
+// FUNCTION: ENGINE 0x10403850
+// FUNCTION: ENGINE 0x10403B30
+// FUNCTION: ENGINE 0x10403E20
+// FUNCTION: ENGINE 0x10403E30
+// FUNCTION: ENGINE 0x10403FB0
+// FUNCTION: ENGINE 0x104044C0
+// FUNCTION: ENGINE 0x10405130
+// FUNCTION: ENGINE 0x104091A0
+// FUNCTION: ENGINE 0x10409360
+// FUNCTION: ENGINE 0x1040ACE0
+// FUNCTION: ENGINE 0x1040AD10
+// FUNCTION: ENGINE 0x1040BDE0
+// FUNCTION: ENGINE 0x10410960
+// FUNCTION: ENGINE 0x10410BA0
+// FUNCTION: ENGINE 0x10415050
+// FUNCTION: ENGINE 0x1041CAD0

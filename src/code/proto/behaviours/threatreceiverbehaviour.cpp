@@ -136,6 +136,10 @@ namespace proto
 	}
 }
 
+// The arrays of the threatened objects and of the threats: the engine keeps its out-of-line copies of their members
+template class container::ArrayFixed<engine::GameObjectHandle, 5>;
+template class container::ArrayFixed<proto::ThreatReceiverBehaviour::ThreatEntry, 4>;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10403040
 // FUNCTION: ENGINE 0x10403050
@@ -154,3 +158,17 @@ namespace proto
 // FUNCTION: ENGINE 0x10403710
 // FUNCTION: ENGINE 0x10403950
 // FUNCTION: ENGINE 0x10403A40
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10403070
+// FUNCTION: ENGINE 0x10403080
+// FUNCTION: ENGINE 0x104030D0
+// FUNCTION: ENGINE 0x104031D0
+// FUNCTION: ENGINE 0x10403210
+// FUNCTION: ENGINE 0x10403230
+// FUNCTION: ENGINE 0x10403940
+// FUNCTION: ENGINE 0x10409330
+// FUNCTION: ENGINE 0x10409940
+// FUNCTION: ENGINE 0x10409A20
+// FUNCTION: ENGINE 0x1040AE30
+// FUNCTION: ENGINE 0x1040BED0
