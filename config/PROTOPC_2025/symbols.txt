@@ -96455,3 +96455,4 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?Unknown10704B70@pure3d@@YAXXZ = 0x10704B70 ; function size:0x626 | pure3d: makes the shader module's first tables (name guess)
 ?Unknown107052A0@pure3d@@YAXXZ = 0x107052A0 ; function size:0xD77 | pure3d: makes the shader module's other tables (name guess)
 ?SkinTask@pure3d@@YAXPAXPAVAsyncTaskCallback@core@@@Z = 0x1071EAF0 ; function size:0x246 | pure3d::SkinTask: the body of the skinning task (name guess)
+?Unknown1073E290@pure3d@@YAXXZ = 0x1073E290 ; function size:0x1 | pure3d: does nothing (name guess)

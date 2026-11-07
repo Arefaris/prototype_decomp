@@ -117,6 +117,11 @@ namespace pure3d
 		Unknown1079C540(context);
 	}
 
+	// FUNCTION: ENGINE 0x1073E290
+	void Unknown1073E290()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1073E2C0
 	void Unknown1073E2C0()
 	{
